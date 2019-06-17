@@ -218,14 +218,17 @@ tree; https://wiki.openssl.org/index.php/Android
 
 If not labelled, probably arbitrary.
 
-"""  # noqa
 
-_ = """
+Problems with Qt configure
+==========================
 
 2019-06-16: extreme difficulty getting Qt to configure for Android with recent
 (v18-20) Android NDKs, which use clang.
 
-Basic version, from https://wiki.qt.io/Android, plus "android-arch" etc.:
+Basic configure command, from https://wiki.qt.io/Android, plus "android-arch"
+etc.:
+
+.. code-block:: bash
 
     export DEVROOT=/home/rudolf/dev/qt_local_build
     export ANDROID_NDK_ROOT=/home/rudolf/dev/android-ndk-r20
@@ -250,85 +253,46 @@ Basic version, from https://wiki.qt.io/Android, plus "android-arch" etc.:
         -opensource -confirm-license \
         -no-warnings-are-errors
 
-From config.log:
+If this doesn't work, there's probably a Qt bug.
 
-    cd /home/rudolf/dev/qt_local_build/qt_android_armv8_64_build/config.tests && /home/rudolf/dev/android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ \
-        -D__ANDROID_API__=23 \
-        -target aarch64-none-linux-android \
-        -gcc-toolchain /home/rudolf/dev/android-ndk-r20/toolchains/aarch64-linux-android-4.9/prebuilt/linux-x86_64 \
-        -fno-limit-debug-info \
-        -DANDROID_HAS_WSTRING \
-        --sysroot=/home/rudolf/dev/android-ndk-r20/sysroot \
-        -isystem /home/rudolf/dev/android-ndk-r20/sysroot/usr/include/aarch64-linux-android \
-        -isystem /home/rudolf/dev/android-ndk-r20/sources/cxx-stl/llvm-libc++/include \
-        -isystem /home/rudolf/dev/android-ndk-r20/sources/android/support/include \
-        -isystem /home/rudolf/dev/android-ndk-r20/sources/cxx-stl/llvm-libc++abi/include \
-        -fstack-protector-strong \
-        -DANDROID \
-        -fuse-ld=gold \
-        -o conftest-out \
-        -v \
-        conftest.cpp
+In working this through, note:
 
-The first missing file is crtbegin_dynamic.o. For 64-bit ARM, two options are
+- To get clang to find object files, use "-B<dir>" or "--prefix <dir>" or
+  "--prefix=<dir>"; see
+  https://clang.llvm.org/docs/ClangCommandLineReference.html.
 
-    android-ndk-r20/platforms/android-23/arch-arm64/usr/lib/crtbegin_dynamic.o
-    android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android/23/crtbegin_dynamic.o
+- When the linker can't find "-lc++", it's looking for "libc++.so".
 
-To find object files, use "-B<dir>" or "--prefix <dir>" or "--prefix=<dir>";
-see https://clang.llvm.org/docs/ClangCommandLineReference.html. OK, that works
-(as below):
-
-    --prefix /home/rudolf/dev/android-ndk-r20/platforms/android-23/arch-arm64/usr/lib/ \
-    
-or
-
-    --prefix /home/rudolf/dev/android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android/23/ \
-
-Next, the linker can't find "-lc++", meaning "libc++.so". That is in:
-
-    android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/lib64/libc++.so  # probably not
-    android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android/23/libc++.so
-    
-To find library files, use "-L<dir>".
-
-    -L/home/rudolf/dev/android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android/23 \
-
-That also works. Next is "-lc++_shared".
-
-    -L/home/rudolf/dev/android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android \
-
-so we end up with:
-
-    cd /home/rudolf/dev/qt_local_build/qt_android_armv8_64_build/config.tests && /home/rudolf/dev/android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ \
-        -D__ANDROID_API__=23 \
-        -target aarch64-none-linux-android \
-        -gcc-toolchain /home/rudolf/dev/android-ndk-r20/toolchains/aarch64-linux-android-4.9/prebuilt/linux-x86_64 \
-        -fno-limit-debug-info \
-        -DANDROID_HAS_WSTRING \
-        --sysroot=/home/rudolf/dev/android-ndk-r20/sysroot \
-        -isystem /home/rudolf/dev/android-ndk-r20/sysroot/usr/include/aarch64-linux-android \
-        -isystem /home/rudolf/dev/android-ndk-r20/sources/cxx-stl/llvm-libc++/include \
-        -isystem /home/rudolf/dev/android-ndk-r20/sources/android/support/include \
-        -isystem /home/rudolf/dev/android-ndk-r20/sources/cxx-stl/llvm-libc++abi/include \
-        -fstack-protector-strong \
-        -DANDROID \
-        -fuse-ld=gold \
-        -o conftest-out \
-        -v \
-        --prefix /home/rudolf/dev/android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android/23 \
-        -L/home/rudolf/dev/android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android/23 \
-        -L/home/rudolf/dev/android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android \
-        conftest.cpp
-
-Bingo. But then not so bingo later on.
+- To find library files, use "-L<dir>".
 
 Looks like this was a Qt problem that they've fixed:
 
     https://github.com/qt/qtbase/commits/5.12/mkspecs/android-clang/qmake.conf
     https://bugreports.qt.io/browse/QTBUG-76293
 
+To update an existing Qt5 git repository, from its root directory:
+
+.. code-block:: bash
+
+    # https://wiki.qt.io/Building_Qt_5_from_Git
+    git pull
+    perl init-repository -f
+    
+To update a specific submodule, e.g. qtbase:
+
+.. code-block:: bash
+
+    cd qtbase
+    git fetch
+    git checkout 067664531853a1e857c777c1cc56fc64b272e021
+    # ... seems to work; that is a specific commit at
+    # https://github.com/qt/qtbase/commit/067664531853a1e857c777c1cc56fc64b272e021#diff-0b4799f074ffd43c60d33464189578b7
+    # that fixes this bug.
+    
+This is currently a manual fix; not yet automated.
+
 """  # noqa
+
 
 import argparse
 import logging
@@ -486,14 +450,18 @@ else:
 DEFAULT_QT_USE_OPENSSL_STATICALLY = True
 QT_XCB_SUPPORT_OK = True  # see 2017-12-01 above, fixed 2017-12-08
 ADD_SO_VERSION_OF_LIBQTFORANDROID = False
-USE_CLANG_NOT_GCC_FOR_ANDROID_ARM = QT_VERSION >= Version("5.12", partial=True)  # new feature 2019-06-15  # noqa
+USE_CLANG_NOT_GCC_FOR_ANDROID_ARM = (
+        QT_VERSION >= Version("5.12", partial=True)  # new feature 2019-06-15
+)
 
 # OpenSSL
 OPENSSL_VERSION = "1.1.1c"  # as of 2019-06-15, previously 1.1.0g
 # ... formerly "1.0.2h", but Windows 64 builds break
 # ... as of 2017-11-21, stable series is 1.1 and LTS series is 1.0.2
-# ... but Qt 5.9.3 doesn't support OpenSSL 1.1.0g; errors relating to "undefined type 'x509_st'"  # noqa
-# ... OpenSSL 1.1 requires Qt 5.10.0 alpha: https://bugreports.qt.io/browse/QTBUG-52905  # noqa
+# ... but Qt 5.9.3 doesn't support OpenSSL 1.1.0g;
+#     errors relating to "undefined type 'x509_st'"
+# ... OpenSSL 1.1 requires Qt 5.10.0 alpha:
+#     https://bugreports.qt.io/browse/QTBUG-52905
 
 OPENSSL_FAILS_OWN_TESTS = True
 # https://bugs.launchpad.net/ubuntu/+source/openssl/+bug/1581084
@@ -1032,12 +1000,19 @@ class Platform(object):
                 # https://stackoverflow.com/questions/1085137/how-do-i-determine-the-target-architecture-of-static-library-a-on-mac-os-x  # noqa
                 # Output looks like [number of spaces not right]:
                 #
+                # Archive : FILENAME        -- this line not always present
                 # Mach header
                 #       magic cputype cpusubtype  caps filetype sizeofcmds flags  # noqa
                 #  0xfeedface     ARM         V7  0x00        6       1564 NOUNDEFS DYLDLINK TWOLEVEL NO_REEXPORTED_DYLIBS  # noqa
                 lines = dumpresult.splitlines()
-                _, cputype, *_ = lines[2].split()
-                arm64tag_present = cputype == "ARM64"
+                for line in lines:
+                    words = line.split()
+                    if words[0] in ["Archive", "Mach", "magic"]:
+                        continue
+                    assert len(words) > 1, "Unknown format of otool output"
+                    cputype = words[1]
+                    arm64tag_present = cputype == "ARM64"
+                    break
             else:
                 # https://lowlevelbits.org/parsing-mach-o-files/
                 # https://en.wikipedia.org/wiki/Executable_and_Linkable_Format
@@ -3142,6 +3117,14 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
             "-android-arch", android_arch_short,
             "-android-toolchain-version", cfg.android_toolchain_version,
             "--disable-rpath",  # 2019-06-16; https://wiki.qt.io/Android
+            # MAY POSSIBLY NEED:
+            # (https://wiki.qt.io/Qt5_platform_configurations,
+            # https://wiki.qt.io/Android)
+            # "-skip", "qttools",
+            # "-skip", "qttranslations",
+            # "-skip", "qtwebkit",
+            # "-skip", "qtwebkit-examples",
+            # we always skip qtserialport (see QT_CONFIG_COMMON_ARGS)
         ]
         if cfg.android_clang_not_gcc:
             qt_config_args += ["-xplatform", "android-clang"]
@@ -3364,7 +3347,8 @@ def fetch_sqlcipher(cfg: Config) -> None:
     # The versions of config.guess and config.sub that come with SQLCipher
     # are taken (I think) from SQLite, and as of 2019-06-15, don't support
     # "aarch64". So let's fetch some proper ones:
-    log.info("Replacing config.guess and config.sub for e.g. aarch64")
+    log.info("Replacing config.guess and config.sub with recent GNU versions, "
+             "to detect newer architectures e.g. aarch64")
     download(CONFIG_GUESS_MASTER,
              join(cfg.sqlcipher_src_gitdir, "config.guess"))
     download(CONFIG_SUB_MASTER,
