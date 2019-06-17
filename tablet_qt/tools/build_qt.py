@@ -34,6 +34,32 @@ the CamCOPS client, including:
     SQLCipher   Encrypted SQLite
     =========== ==========================
 
+
+Status
+======
+
+======================= =========================================== =======================
+Build OS                Target OS                                   Status
+======================= =========================================== =======================
+Linux, x86, 64-bit      Linux, x86, 32-bit                          deferred
+                        Linux, x86, 64-bit                          OK 2019-06-17
+                        Android, x86, 32-bit (for emulator)         deferred
+                        Android, ARM, 32-bit (for Android devices)  OK 2019-06-17
+                        Android, ARM, 64-bit (for Android devices)  OK 2019-06-17
+
+macOS (OS X), x86,      macOS, x86, 64-bit                          OK 2019-06-17
+    64-bit              iOS, x86 (for emulator)                     deferred
+                        iOS, ARM, 32-bit (for iPad etc.)            OK 2019-06-17
+                        iOS, ARM, 64-bit (for iPad etc.)            OK 2019-06-17
+
+Windows, x86, 64-bit    Windows, x86, 32-bit                        OK 2019-06-17
+                        Windows, x86, 64-bit                        OK 2019-06-17
+======================= =========================================== =======================
+
+... reflected in the ``--build_all`` option.
+
+
+
 Why?
 ====
 
@@ -107,28 +133,6 @@ Several compilers are possible, in principle.
 DECISION:
 
 - Use Microsoft Visual Studio and native compilation under Windows.
-
-THEREFORE:
-
-    ======================= ===================================================
-    build OS                target OS
-    ======================= ===================================================
-    Linux, x86, 64-bit      Linux, x86, 32-bit
-                            Linux, x86, 64-bit
-                            Android, x86, 32-bit (for emulator)
-                            Android, ARM, 32-bit (for Android devices)
-                            Android, ARM, 64-bit (for Android devices)
-
-    macOS (OS X), x86,      macOS, x86, 64-bit
-        64-bit              iOS, x86 (for emulator)
-                            iOS, ARM, 32-bit (for iPad etc.)
-                            iOS, ARM, 64-bit (for iPad etc.)
-
-    Windows, x86, 64-bit    Windows, x86, 32-bit
-                            Windows, x86, 64-bit
-    ======================= ===================================================
-
-... reflected in the ``--build_all`` option.
 
 
 Notes
@@ -289,7 +293,7 @@ To update a specific submodule, e.g. qtbase:
     # https://github.com/qt/qtbase/commit/067664531853a1e857c777c1cc56fc64b272e021#diff-0b4799f074ffd43c60d33464189578b7
     # that fixes this bug.
     
-This is currently a manual fix; not yet automated.
+See :func:`patch_qt_for_android_ndk_20`.
 
 """  # noqa
 
@@ -401,6 +405,7 @@ DEFAULT_ANDROID_SDK = join(USER_DIR, "dev", "android-sdk-linux")
 DEFAULT_ANDROID_NDK = join(USER_DIR, "dev", "android-ndk-r20")  # from 2019-06-15, inc. 64-bit ARM  # noqa
 
 ANDROID_NDK_VERSION = 20
+PATCH_QT_FOR_ANDROID_NDK_20 = True  # 2019-06-17; will be unnecessary soon
 
 DEFAULT_ANDROID_NDK_HOST = "linux-x86_64"
 DEFAULT_ANDROID_TOOLCHAIN_VERSION = "4.9"
@@ -1062,7 +1067,7 @@ class Platform(object):
         elif self.cpu == Cpu.ARM_V8_64:
             return "arm64"
         else:
-            raise ValueError(f"apple_cpu_name(): Unknown CPU {self.cpu}")
+            raise ValueError(f"apple_arch_name(): Unknown CPU {self.cpu}")
 
     @property
     def apple_cpu_name_for_triplet(self) -> str:
@@ -1422,21 +1427,23 @@ class Config(object):
 
         if self.build_all:
             if BUILD_PLATFORM.linux:
+                # Linux
+                self.build_linux_x86_64 = True
+                # Android
                 self.build_android_arm_v7_32 = True
                 # rarely used, emulator only # self.build_android_x86_32 = True
                 self.build_android_arm_v8_64 = True
-                self.build_linux_x86_64 = True
             elif BUILD_PLATFORM.macos:
                 # MacOS
-                self.build_ios_arm_v7_32 = True
-                # iOS
                 self.build_macos_x86_64 = True
+                # iOS
+                self.build_ios_arm_v7_32 = True
                 self.build_ios_arm_v8_64 = True
                 # iOS simulators for MacOS
-                if BUILD_PLATFORM.cpu_64bit:
-                    self.build_ios_simulator_x86_64 = True
-                else:
-                    self.build_ios_simulator_x86_32 = True
+                # if BUILD_PLATFORM.cpu_64bit:
+                #     self.build_ios_simulator_x86_64 = True
+                # else:
+                #     self.build_ios_simulator_x86_32 = True
             elif BUILD_PLATFORM.windows:
                 self.build_windows_x86_32 = True
                 self.build_windows_x86_64 = True
@@ -2984,6 +2991,17 @@ def fetch_qt(cfg: Config) -> None:
     if QT_SPECIFIC_VERSION:
         run([GIT, "checkout", QT_SPECIFIC_VERSION])
         run([GIT, "submodule", "update", "--recursive"])
+    if PATCH_QT_FOR_ANDROID_NDK_20:
+        patch_qt_for_android_ndk_20(cfg)
+
+
+def patch_qt_for_android_ndk_20(cfg: Config) -> None:
+    """
+    See notes at top.
+    """
+    chdir(join(cfg.qt_src_gitdir, "qtbase"))
+    run([GIT, "fetch"])
+    run([GIT, "checkout", "067664531853a1e857c777c1cc56fc64b272e021"])
 
 
 def build_qt(cfg: Config, target_platform: Platform) -> str:

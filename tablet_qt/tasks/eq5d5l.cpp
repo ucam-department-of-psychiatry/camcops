@@ -158,6 +158,7 @@ OpenableWidget* Eq5d5l::editor(const bool read_only)
 {
     QVector<QuPagePtr> pages;
     QVector<QuElement*> elements;
+    const QString sname = shortname();
 
     for (auto field : strseq(QPREFIX, FIRST_Q, LAST_Q)) {
         const QString heading = QString("%1_h").arg(field);
@@ -178,7 +179,7 @@ OpenableWidget* Eq5d5l::editor(const bool read_only)
 
         pages.append(QuPagePtr(
             (new QuPage(elements))
-                ->setTitle(shortname())
+                ->setTitle(sname)
                 ->setIndexTitle(xstring(heading))
         ));
 
@@ -186,12 +187,12 @@ OpenableWidget* Eq5d5l::editor(const bool read_only)
     }
     QVector<QuThermometerItem> items;
 
-    QString prefix("eq5d5lslider");
-    QString n, resource;
+    const QString resource_prefix("eq5d5lslider/");
+    QString resource;
 
     items.append(QuThermometerItem(
-        uifunc::resourceFilename("eq5d5lslider/base_sel.png"),
-        uifunc::resourceFilename("eq5d5lslider/base_unsel.png"),
+        uifunc::resourceFilename(resource_prefix + "base_sel.png"),
+        uifunc::resourceFilename(resource_prefix + "base_unsel.png"),
         "0", 0
     ));
 
@@ -199,14 +200,12 @@ OpenableWidget* Eq5d5l::editor(const bool read_only)
     QString itemtext;
     for (int i = 1; i < 100; ++i) {
 
-        n = QString::number(i);
-
         if (i % 5 == 0) {
             // larger ticks with numbers every 5
-            resource = "eq5d5lslider/mid%1.png";
-            itemtext = n;
+            resource = resource_prefix + "mid%1.png";
+            itemtext = QString::number(i);
         } else {
-            resource = "eq5d5lslider/tick%1.png";
+            resource = resource_prefix  + "tick%1.png";
             itemtext = "";
         }
 
