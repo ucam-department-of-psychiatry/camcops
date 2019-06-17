@@ -26,13 +26,13 @@ namespace camcopsversion {  // http://semver.org/
 // ----------------------------------------------------------------------------
 // Increase this when the client is changed:
 
-const Version CAMCOPS_CLIENT_VERSION(2, 3, 3);
+const Version CAMCOPS_CLIENT_VERSION(2, 3, 4);
 const QDate CAMCOPS_CLIENT_CHANGEDATE(2019, 6, 15);
 
 // +++ NOW ALSO UPDATE: +++
 //
 //      documentation/source/changelog.rst
-//      documentation/source/developer/building_client.rst
+//      documentation/source/developer/releasing.rst (Google Play Store versions)
 //      tablet_qt/android/AndroidManifest.xml (version code + version name)
 //      tablet_qt/camcops_windows_innosetup.iss (CamcopsClientVersion)
 
@@ -52,21 +52,3 @@ const QDate CAMCOPS_CLIENT_CHANGEDATE(2019, 6, 15);
 const Version MINIMUM_SERVER_VERSION(2, 2, 0);
 
 }  // namespace camcopsversion
-
-/*
-
-===============================================================================
-OTHER PLACE WHERE CLIENT VERSION NUMBER MUST BE UPDATED
-===============================================================================
-
-- tablet_qt/android/AndroidManifest.xml
-
-===============================================================================
-VERSION HISTORY
-===============================================================================
-
-See documentation/source/changelog.rst
-
-Update that whenever changes are made.
-
-*/

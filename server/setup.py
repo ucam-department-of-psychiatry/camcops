@@ -82,7 +82,7 @@ with open(os.path.join(THIS_DIR, 'README.rst'), encoding='utf-8') as f:
 INSTALL_REQUIRES = [
     'alembic==1.0.7',  # database migrations
     'Babel==2.6.0',  # reads code, generates gettext files; dev only but was already installed  # noqa
-    'cardinal_pythonlib==1.0.54',  # RNC libraries
+    'cardinal_pythonlib==1.0.55',  # RNC libraries
     'celery==4.2.1',  # background tasks
     'colorlog==3.1.4',  # colour in logs
     'CherryPy==18.1.0',  # web server
@@ -329,7 +329,7 @@ setup(
     long_description=LONG_DESCRIPTION,
 
     # The project's main homepage.
-    url='http://www.camcops.org/',
+    url='https://camcops.readthedocs.org/',
 
     # Author details
     author='Rudolf Cardinal',
@@ -338,16 +338,14 @@ setup(
     # Choose your license
     license='GNU General Public License v3 or later (GPLv3+)',
 
-    # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
+    # See https://pypi.org/classifiers/
     classifiers=[
-        # How mature is this project? Common values are
-        #   3 - Alpha
-        #   4 - Beta
-        #   5 - Production/Stable
-        'Development Status :: 3 - Beta',
+        # How mature is this project?
+        'Development Status :: 5 - Production/Stable',
 
         # Indicate who your project is intended for
-        'Intended Audience :: Developers',
+        'Intended Audience :: Healthcare Industry',
+        'Intended Audience :: Science/Research',
 
         # Pick your license as you wish (should match "license" above)
         'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',  # noqa
@@ -358,7 +356,7 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
 
-        'Topic :: Software Development :: Libraries',
+        'Topic :: Scientific/Engineering :: Medical Science Apps.'
     ],
 
     keywords='cardinal',

@@ -17,6 +17,8 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
+.. _Inno Setup: http://www.jrsoftware.org/isinfo.php
+
 
 .. _dev_releasing:
 
@@ -70,8 +72,8 @@ Google Play Store settings
   The Google Developer site will check the version codes.
   Failed uploads can sometimes block that version number.
 
-- You upload a new version with :menuselection:`Release management --> App
-  releases --> Create Release`.
+- **You upload a new version with** :menuselection:`Release management --> App
+  releases --> Manage [production track] --> Create Release`.
 
 - Note also that if you try to install the .apk directly to a device that's
   had an installation from Google Play Store, you'll get the error
@@ -110,10 +112,11 @@ Google Play Store release history
 +---------------+---------------------+---------------------+--------------------+---------+---------+
 | 2.3.1         | 9                   | 2.3.1               | 2019-03-24         | 23      | 26      |
 +---------------+---------------------+---------------------+--------------------+---------+---------+
-| 2.3.2         | 10                  | 2.3.2               | 2019-04-04         | 23      | 26      |
-|               |                     |                     | (pending)          |         |         |
+| 2.3.2         | 10                  | 2.3.2               | 2019-04-05         | 23      | 26      |
 +---------------+---------------------+---------------------+--------------------+---------+---------+
 | 2.3.3         | 11                  | 2.3.3               | 2019-06-15         | 23      | 26      |
++---------------+---------------------+---------------------+--------------------+---------+---------+
+| 2.3.4         | 12                  | 2.3.4               | **IN PROGRESS**    | 23      | 26      |
 |               |                     |                     |                    |         |         |
 +---------------+---------------------+---------------------+--------------------+---------+---------+
 

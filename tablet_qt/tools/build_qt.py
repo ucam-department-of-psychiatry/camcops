@@ -117,17 +117,19 @@ THEREFORE:
                             Linux, x86, 64-bit
                             Android, x86, 32-bit (for emulator)
                             Android, ARM, 32-bit (for Android devices)
+                            Android, ARM, 64-bit (for Android devices)
 
     macOS (OS X), x86,      macOS, x86, 64-bit
         64-bit              iOS, x86 (for emulator)
                             iOS, ARM, 32-bit (for iPad etc.)
                             iOS, ARM, 64-bit (for iPad etc.)
 
-    Windows, x86, 64-bit    Windows, x86, 64-bit
-                            Windows, x86, 32-bit
+    Windows, x86, 64-bit    Windows, x86, 32-bit
+                            Windows, x86, 64-bit
     ======================= ===================================================
 
 ... reflected in the ``--build_all`` option.
+
 
 Notes
 =====
@@ -138,6 +140,194 @@ Notes
 - multi-core builds:
   http://stackoverflow.com/questions/9420825/how-to-compile-on-multiple-cores-using-mingw-inside-qtcreator
 
+
+Standard environment variables
+==============================
+
+.. code-block::none
+
+    ANDROID_API
+    ANDROID_API_VERSION
+    ANDROID_ARCH
+    ANDROID_DEV
+    ANDROID_EABI
+    ANDROID_NDK_HOME [10]
+    ANDROID_NDK_HOST [11]
+    ANDROID_NDK_ROOT [11, possibly 5]
+    ANDROID_SDK_ROOT [5,11]
+    ANDROID_SYSROOT
+    ANDROID_TOOLCHAIN
+    AR [2]: archive-maintaining program, GNU default "ar"
+    ARCH [3]
+    BUILD_TOOLS [9]
+    CC [2]: C compiler, GNU default "cc" (but e.g. clang)
+    CFLAGS [2]: extra flags to give to the C compiler
+    CPP [2]: C preprocessor, GNU default "$(CC) -E"
+    CPPFLAGS [2]: extra flags to give to the C preprocessor
+    CROSS_COMPILE [3]
+    CROSS_SDK [10]
+    CROSS_SYSROOT [3]
+    CROSS_TOP [10]
+    CXX [2]: C++ compiler, GNU default "g++" (but e.g. clang++)
+    CXXFLAGS [2]: extra flags to give to the C++ compiler
+    FIPS_SIG [10]
+    HOME [1]
+    HOSTCC [3]: the host C compiler to use
+    JAVA_HOME [4]
+    LDFLAGS [2]: extra flags for compilers to pass to the linker, "ld"
+    LDLIBS [2]: library flags/names for compilers to pass to the linker
+    MACHINE [10]
+    NDK_SYSROOT
+    PATH [1,6]
+    PLATFORM [9]
+    RANLIB [10]: GNU ranlib program, http://man7.org/linux/man-pages/man1/ranlib.1.html
+    RELEASE [10]
+    SYSROOT [8]
+    SYSTEM [10]
+    WindowsSdkDir [7]
+
+[1] Unix core.
+
+[2] GNU toolchain standards:
+https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
+
+[3] are GNU cross-compilation standards; e.g.
+https://wiki.freebsd.org/ExternalGCC;
+https://buildroot.org/downloads/manual/manual.html
+
+[4] Java standards:
+https://docs.oracle.com/cd/E19182-01/821-0917/inst_jdk_javahome_t/index.html
+
+[5] Android standards:
+https://developer.android.com/studio/command-line/variables
+
+[6] Windows core.
+
+[7] Windows SDK.
+
+[8] GCC special variable; see
+https://gcc.gnu.org/onlinedocs/gcc/Directory-Options.html
+
+[9] MacOS Xcode development environment?
+
+[10] OpenSSL; https://wiki.openssl.org/index.php/Compilation_and_Installation;
+https://www.x.org/wiki/CrossCompilingXorg/; NOTES.ANDROID in the OpenSSL source
+tree; https://wiki.openssl.org/index.php/Android
+
+[11] Qt configure
+
+If not labelled, probably arbitrary.
+
+"""  # noqa
+
+_ = """
+
+2019-06-16: extreme difficulty getting Qt to configure for Android with recent
+(v18-20) Android NDKs, which use clang.
+
+Basic version, from https://wiki.qt.io/Android, plus "android-arch" etc.:
+
+    export DEVROOT=/home/rudolf/dev/qt_local_build
+    export ANDROID_NDK_ROOT=/home/rudolf/dev/android-ndk-r20
+    export ANDROID_SDK_ROOT=/home/rudolf/dev/android-sdk-linux
+    export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+    mkdir $DEVROOT/qt_temp_build
+    cd $DEVROOT/qt_temp_build
+    # $DEVROOT/src/qt5/configure --help | less
+    $DEVROOT/src/qt5/configure \
+        -prefix $DEVROOT/qt_temp_install \
+        -xplatform android-clang \
+        --disable-rpath \
+        -nomake tests -nomake examples \
+        -android-sdk $ANDROID_SDK_ROOT \
+        -android-ndk $ANDROID_NDK_ROOT \
+        -android-ndk-host linux-x86_64 \
+        -android-ndk-platform android-23 \
+        -android-arch arm64-v8a \
+        -android-toolchain-version 4.9 \
+        -skip qttranslations -skip qtserialport \
+        -verbose \
+        -opensource -confirm-license \
+        -no-warnings-are-errors
+
+From config.log:
+
+    cd /home/rudolf/dev/qt_local_build/qt_android_armv8_64_build/config.tests && /home/rudolf/dev/android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ \
+        -D__ANDROID_API__=23 \
+        -target aarch64-none-linux-android \
+        -gcc-toolchain /home/rudolf/dev/android-ndk-r20/toolchains/aarch64-linux-android-4.9/prebuilt/linux-x86_64 \
+        -fno-limit-debug-info \
+        -DANDROID_HAS_WSTRING \
+        --sysroot=/home/rudolf/dev/android-ndk-r20/sysroot \
+        -isystem /home/rudolf/dev/android-ndk-r20/sysroot/usr/include/aarch64-linux-android \
+        -isystem /home/rudolf/dev/android-ndk-r20/sources/cxx-stl/llvm-libc++/include \
+        -isystem /home/rudolf/dev/android-ndk-r20/sources/android/support/include \
+        -isystem /home/rudolf/dev/android-ndk-r20/sources/cxx-stl/llvm-libc++abi/include \
+        -fstack-protector-strong \
+        -DANDROID \
+        -fuse-ld=gold \
+        -o conftest-out \
+        -v \
+        conftest.cpp
+
+The first missing file is crtbegin_dynamic.o. For 64-bit ARM, two options are
+
+    android-ndk-r20/platforms/android-23/arch-arm64/usr/lib/crtbegin_dynamic.o
+    android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android/23/crtbegin_dynamic.o
+
+To find object files, use "-B<dir>" or "--prefix <dir>" or "--prefix=<dir>";
+see https://clang.llvm.org/docs/ClangCommandLineReference.html. OK, that works
+(as below):
+
+    --prefix /home/rudolf/dev/android-ndk-r20/platforms/android-23/arch-arm64/usr/lib/ \
+    
+or
+
+    --prefix /home/rudolf/dev/android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android/23/ \
+
+Next, the linker can't find "-lc++", meaning "libc++.so". That is in:
+
+    android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/lib64/libc++.so  # probably not
+    android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android/23/libc++.so
+    
+To find library files, use "-L<dir>".
+
+    -L/home/rudolf/dev/android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android/23 \
+
+That also works. Next is "-lc++_shared".
+
+    -L/home/rudolf/dev/android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android \
+
+so we end up with:
+
+    cd /home/rudolf/dev/qt_local_build/qt_android_armv8_64_build/config.tests && /home/rudolf/dev/android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ \
+        -D__ANDROID_API__=23 \
+        -target aarch64-none-linux-android \
+        -gcc-toolchain /home/rudolf/dev/android-ndk-r20/toolchains/aarch64-linux-android-4.9/prebuilt/linux-x86_64 \
+        -fno-limit-debug-info \
+        -DANDROID_HAS_WSTRING \
+        --sysroot=/home/rudolf/dev/android-ndk-r20/sysroot \
+        -isystem /home/rudolf/dev/android-ndk-r20/sysroot/usr/include/aarch64-linux-android \
+        -isystem /home/rudolf/dev/android-ndk-r20/sources/cxx-stl/llvm-libc++/include \
+        -isystem /home/rudolf/dev/android-ndk-r20/sources/android/support/include \
+        -isystem /home/rudolf/dev/android-ndk-r20/sources/cxx-stl/llvm-libc++abi/include \
+        -fstack-protector-strong \
+        -DANDROID \
+        -fuse-ld=gold \
+        -o conftest-out \
+        -v \
+        --prefix /home/rudolf/dev/android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android/23 \
+        -L/home/rudolf/dev/android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android/23 \
+        -L/home/rudolf/dev/android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android \
+        conftest.cpp
+
+Bingo. But then not so bingo later on.
+
+Looks like this was a Qt problem that they've fixed:
+
+    https://github.com/qt/qtbase/commits/5.12/mkspecs/android-clang/qmake.conf
+    https://bugreports.qt.io/browse/QTBUG-76293
+
 """  # noqa
 
 import argparse
@@ -147,6 +337,7 @@ import os
 from os import chdir
 from os.path import expanduser, isfile, join, split
 import platform
+import re
 import shutil
 import subprocess
 import sys
@@ -178,9 +369,9 @@ from cardinal_pythonlib.buildfunc import (
 )
 from cardinal_pythonlib.buildfunc import run as run2
 from cardinal_pythonlib.file_io import (
-    add_line_if_absent,
+    # add_line_if_absent,
     # convert_line_endings,
-    replace_in_file,
+    # replace_in_file,
     replace_multiple_in_file,
 )
 from cardinal_pythonlib.fileops import (
@@ -195,9 +386,10 @@ from cardinal_pythonlib.logs import (
     BraceStyleAdapter,
     main_only_quicksetup_rootlogger,
 )
+from cardinal_pythonlib.network import download
 from cardinal_pythonlib.platformfunc import (
     contains_unquoted_ampersand_dangerous_to_windows,
-    require_debian_packages,
+    # require_debian_packages,
     windows_get_environment_from_batch_command,
 )
 from cardinal_pythonlib.tee import tee_log
@@ -214,25 +406,10 @@ if Version(cardinal_pythonlib.version.VERSION) < Version(MINIMUM_CARDINAL_PYTHON
 log = BraceStyleAdapter(logging.getLogger(__name__))
 PYTHON_3_6_OR_HIGHER = sys.version_info >= (3, 6)
 
+
 # =============================================================================
 # Constants
 # =============================================================================
-
-# -----------------------------------------------------------------------------
-# Configure the build process
-# -----------------------------------------------------------------------------
-
-USE_MLPACK = False  # mlpack provides matrix algebra but requires Armadillo/Boost  # noqa
-USE_ARMADILLO = USE_MLPACK  # Armadillo needs cross-compilation but tries to use system LAPACK/BLAS  # noqa
-USE_BOOST = USE_MLPACK
-
-USE_EIGEN = True  # Better matrix system than mlpack in that Eigen is headers-only  # noqa
-
-CAN_CROSS_COMPILE_LINUX_TO_WINDOWS = False  # see above
-USE_CYGWIN = False  # Cygwin compiles to binaries requiring a POSIX layer
-USE_MINGW = False  # MinGW compiles to pure native Windows code and cross-compiles  # noqa
-USE_MXE = False  # A cross-compilation environment
-USE_VS = True  # Microsoft Visual Studio / Visual C++
 
 # -----------------------------------------------------------------------------
 # Internal constants
@@ -243,25 +420,46 @@ HEAD = "HEAD"  # git commit meaning "the most recent"
 
 ENVVAR_QT_BASE = "CAMCOPS_QT_BASE_DIR"
 
+EXIT_SUCCESS = 0
+EXIT_FAILURE = 1
+
+# -----------------------------------------------------------------------------
+# Default directories
+# -----------------------------------------------------------------------------
+
+DEFAULT_ROOT_DIR = join(USER_DIR, "dev", "qt_local_build")
+
+DEFAULT_ANDROID_SDK = join(USER_DIR, "dev", "android-sdk-linux")
+# DEFAULT_ANDROID_NDK = join(USER_DIR, "dev", "android-ndk-r10e")  # trying downgrade, 2018-07-16  # noqa
+# DEFAULT_ANDROID_NDK = join(USER_DIR, "dev", "android-ndk-r11c")  # until 2019-06-15  # noqa
+# DEFAULT_ANDROID_NDK = join(USER_DIR, "dev", "android-ndk-r18b")  # from 2019-06-15, inc. 64-bit ARM  # noqa
+# DEFAULT_ANDROID_NDK = join(USER_DIR, "dev", "android-ndk-r19c")  # from 2019-06-15, inc. 64-bit ARM  # noqa
+DEFAULT_ANDROID_NDK = join(USER_DIR, "dev", "android-ndk-r20")  # from 2019-06-15, inc. 64-bit ARM  # noqa
+
+ANDROID_NDK_VERSION = 20
+
+DEFAULT_ANDROID_NDK_HOST = "linux-x86_64"
+DEFAULT_ANDROID_TOOLCHAIN_VERSION = "4.9"
+
+DEFAULT_JAVA_HOME = "/usr/lib/jvm/java-11-openjdk-amd64"
+
+DEFAULT_QT_SRC_DIRNAME = "qt5"
+
 # -----------------------------------------------------------------------------
 # Downloading and versions
 # -----------------------------------------------------------------------------
 
 # Android
-DEFAULT_ANDROID_API_NUM = 23  # see changelog.rst 2018-07-17
-DEFAULT_ROOT_DIR = join(USER_DIR, "dev", "qt_local_build")
-DEFAULT_ANDROID_SDK = join(USER_DIR, "dev", "android-sdk-linux")
-# DEFAULT_ANDROID_NDK = join(USER_DIR, "dev", "android-ndk-r10e")  # trying downgrade, 2018-07-16  # noqa
-# DEFAULT_ANDROID_NDK = join(USER_DIR, "dev", "android-ndk-r11c")  # until 2019-06-15  # noqa
-DEFAULT_ANDROID_NDK = join(USER_DIR, "dev", "android-ndk-r20")  # from 2019-06-15, inc. 64-bit ARM  # noqa
-DEFAULT_NDK_HOST = "linux-x86_64"
-DEFAULT_TOOLCHAIN_VERSION = "4.9"
+ANDROID_SDK_VERSION = 23  # see changelog.rst 2018-07-17
 
 # Qt
-DEFAULT_QT_SRC_DIRNAME = "qt5"
-DEFAULT_QT_GIT_URL = "git://code.qt.io/qt/qt5.git"
+QT_GIT_URL = "git://code.qt.io/qt/qt5.git"
+QT_GIT_BRANCH = "5.12"
+QT_GIT_COMMIT = HEAD
+# ... or "f1256e1f391fb9b229a246baff17f2562a82df20"
+# QT_SPECIFIC_VERSION = "5.12.4"  # as of 2019-06-16
+QT_SPECIFIC_VERSION = ""
 
-DEFAULT_QT_GIT_BRANCH = "5.12"
 # previously "5.7.0", "5.9", "5.10" [= development branch], "5.10.0", "5.11.1"
 # I think in general one should use x.y.z not x.y versions, because the former
 # are the development chain and the latter get frozen.
@@ -271,13 +469,6 @@ DEFAULT_QT_GIT_BRANCH = "5.12"
 # See: https://bugreports.qt.io/browse/QTBUG-69843
 # As of May 2019: 5.12 is now the long-term support (LTS) release.
 
-QT_VERSION = Version(DEFAULT_QT_GIT_BRANCH)
-
-USING_QT_5_7 = QT_VERSION.major == 5 and QT_VERSION.minor == 7
-USING_QT_5_9 = QT_VERSION.major == 5 and QT_VERSION.minor == 9
-USING_QT_5_10 = QT_VERSION.major == 5 and QT_VERSION.minor == 10
-USING_QT_5_11 = QT_VERSION.major == 5 and QT_VERSION.minor == 11
-USING_QT_5_12 = QT_VERSION.major == 5 and QT_VERSION.minor == 12
 # ... to find out which are available: go into the local git directory and run
 # "git remote show origin"
 # 2017-12-01: 5.10 still too buggy (e.g. at CamcopsApp creation as QApplication
@@ -287,36 +478,37 @@ USING_QT_5_12 = QT_VERSION.major == 5 and QT_VERSION.minor == 12
 # However, OpenSSL 1.1 requires Qt 5.10.0 alpha:
 #   https://bugreports.qt.io/browse/QTBUG-52905
 
-DEFAULT_QT_GIT_COMMIT = HEAD
+if QT_SPECIFIC_VERSION:
+    QT_VERSION = Version(QT_SPECIFIC_VERSION)
+else:
+    QT_VERSION = Version(QT_GIT_BRANCH, partial=True)
+
 DEFAULT_QT_USE_OPENSSL_STATICALLY = True
-FIX_QT_5_7_0_ANDROID_MAKE_INSTALL_BUG = USING_QT_5_7
-FIX_QT_5_9_2_CROSS_COMPILE_TOP_LEVEL_BUILD_BUG = USING_QT_5_9
-FIX_QT_5_9_2_CROSS_COMPILE_EXECVP_MISSING_COMPILER_BUG = USING_QT_5_9
-FIX_QT_5_9_2_W64_HOST_TOOL_WANTS_WINDOWS_H = USING_QT_5_9
-FIX_QT_5_10_0_CONFIGURE_PRINTING_AND_PDF_BUG = USING_QT_5_10
 QT_XCB_SUPPORT_OK = True  # see 2017-12-01 above, fixed 2017-12-08
 ADD_SO_VERSION_OF_LIBQTFORANDROID = False
+USE_CLANG_NOT_GCC_FOR_ANDROID_ARM = QT_VERSION >= Version("5.12", partial=True)  # new feature 2019-06-15  # noqa
 
 # OpenSSL
-DEFAULT_OPENSSL_VERSION = "1.1.0g"
-OPENSSL_AT_LEAST_1_1 = True
+OPENSSL_VERSION = "1.1.1c"  # as of 2019-06-15, previously 1.1.0g
 # ... formerly "1.0.2h", but Windows 64 builds break
 # ... as of 2017-11-21, stable series is 1.1 and LTS series is 1.0.2
 # ... but Qt 5.9.3 doesn't support OpenSSL 1.1.0g; errors relating to "undefined type 'x509_st'"  # noqa
 # ... OpenSSL 1.1 requires Qt 5.10.0 alpha: https://bugreports.qt.io/browse/QTBUG-52905  # noqa
+
 OPENSSL_FAILS_OWN_TESTS = True
 # https://bugs.launchpad.net/ubuntu/+source/openssl/+bug/1581084
-DEFAULT_OPENSSL_SRC_URL = (
-    f"https://www.openssl.org/source/openssl-{DEFAULT_OPENSSL_VERSION}.tar.gz"
+OPENSSL_SRC_URL = (
+    f"https://www.openssl.org/source/openssl-{OPENSSL_VERSION}.tar.gz"
 )
-DEFAULT_OPENSSL_ANDROID_SCRIPT_URL = (
-    "https://wiki.openssl.org/images/7/70/Setenv-android.sh"
-)
+# OPENSSL_ANDROID_SCRIPT_URL = (
+#     "https://wiki.openssl.org/images/7/70/Setenv-android.sh"
+# )
 
 # SQLCipher; https://www.zetetic.net/sqlcipher/open-source/
-DEFAULT_SQLCIPHER_GIT_URL = "https://github.com/sqlcipher/sqlcipher.git"
-# DEFAULT_SQLCIPHER_GIT_COMMIT = HEAD
-DEFAULT_SQLCIPHER_GIT_COMMIT = "c6f709fca81c910ba133aaf6330c28e01ccfe5f8"  # SQLCipher version 3.4.2, 21 Dec 2017  # noqa
+SQLCIPHER_GIT_URL = "https://github.com/sqlcipher/sqlcipher.git"
+# SQLCIPHER_GIT_COMMIT = "c6f709fca81c910ba133aaf6330c28e01ccfe5f8"  # SQLCipher version 3.4.2, 21 Dec 2017  # noqa
+SQLCIPHER_GIT_COMMIT = "750f5e32474ee23a423376203e671cab9841c67a"  # SQLCipher version 4.2.0, 29 May 2019  # noqa
+
 # - Note that there's another URL for the Android binary packages
 # - SQLCipher supports OpenSSL 1.1.0 as of SQLCipher 3.4.1
 # - To find the Git commit identifier (hash) of a cloned repository, use
@@ -324,44 +516,19 @@ DEFAULT_SQLCIPHER_GIT_COMMIT = "c6f709fca81c910ba133aaf6330c28e01ccfe5f8"  # SQL
 #   info).
 # - For SQLCipher, see also https://github.com/sqlcipher/sqlcipher/releases.
 
-# Boost (NO LONGER IN USE)
-DEFAULT_BOOST_VERSION = "1.64.0"
-DEFAULT_BOOST_SRC_URL = (
-    "https://dl.bintray.com/boostorg/"
-    "release/{vdot}/source/boost_{vund}.tar.gz".format(
-        vdot=DEFAULT_BOOST_VERSION,
-        vund=DEFAULT_BOOST_VERSION.replace(".", "_"),
-    )
-    # It looks like there's an extra ":" before the final "boost" in the
-    # list at https://dl.bintray.com/boostorg/release/1.64.0/source/
-    # but the URL only works if you remove it.
-)
-
-# Armadillo (NO LONGER IN USE)
-DEFAULT_ARMA_VERSION = "7.950.0"
-DEFAULT_ARMA_SRC_URL = (
-    f"http://sourceforge.net/projects/arma/files/"
-    f"armadillo-{DEFAULT_ARMA_VERSION}.tar.xz"
-)
-
-# MLPACK; http://mlpack.org/ (NO LONGER IN USE)
-DEFAULT_MLPACK_GIT_URL = "https://github.com/mlpack/mlpack"
-DEFAULT_MLPACK_GIT_COMMIT = HEAD
-
 # Eigen
-DEFAULT_EIGEN_VERSION = "3.3.3"
+EIGEN_VERSION = "3.3.3"
 
 # jom (now comes with Qt Creator; no need to download)
 # DEFAULT_JOM_GIT_URL = "git://code.qt.io/qt-labs/jom.git"
 
-# MXE (NO LONGER IN USE)
-DEFAULT_MXE_GIT_URL = "https://github.com/mxe/mxe.git"
-MXE_HAS_GCC_WITH_I386_BUG = True  # True as of 2017-11-19
-
 # Mac things; https://gist.github.com/armadsen/b30f352a8d6f6c87a146
-DEFAULT_MIN_IOS_VERSION = "7.0"
-DEFAULT_MIN_MACOS_VERSION = "10.10"
-# ... with 10.7, SQLCipher's "configure" fails
+MIN_IOS_VERSION = "7.0"
+MIN_MACOS_VERSION = "10.10"  # ... with 10.7, SQLCipher's "configure" fails
+
+CONFIG_GUESS_MASTER = "https://raw.githubusercontent.com/gcc-mirror/gcc/master/config.guess"  # noqa
+CONFIG_SUB_MASTER = "https://raw.githubusercontent.com/gcc-mirror/gcc/master/config.sub"  # noqa
+
 
 # -----------------------------------------------------------------------------
 # Building Qt
@@ -470,12 +637,14 @@ OPENSSL_COMMON_OPTIONS = [
 # -----------------------------------------------------------------------------
 
 ANT = "ant"  # for Android builds
+AR = "ar"
 BASH = "bash"
 CL = "cl"  # Visual C++ compiler
-CLANG = "clang"  # macOS XCode compiler
+CLANG = "clang"  # macOS XCode compiler; also used under Linux for 64-bit ARM
 CMAKE = "cmake"
 CYGPATH = "cygpath"
 GCC = "gcc"
+GCC_AR = "gcc-ar"
 GIT = "git"
 GOBJDUMP = "gobjdump"  # macOS 32-bit equivalent of readelf, via brew
 JAVAC = "javac"  # for Android builds
@@ -566,15 +735,32 @@ ALL_OSS = [getattr(Os, _) for _ in dir(Os) if not _.startswith("_")]
 class Cpu(object):
     """
     CPU constants.
+
     These strings are cosmetic and should NOT be relied on for passing to
     external tools.
+
+    Intel:
+
+    - 32-bit x86 chips are usually called "x86", "i386", "i686"
+    - 64-bit x86 chips are usually called "x86_64" or "amd64"
+
+    ARM (see https://en.wikipedia.org/wiki/ARM_architecture,
+    https://en.wikipedia.org/wiki/List_of_ARM_microarchitectures,
+    https://gcc.gnu.org/onlinedocs/gcc/ARM-Options.html):
+
+    - ARMv5 is 32-bit; typically called "arm"
+    - ARMv7 is 32-bit, ?typically called "armeabi"
+    - ARMv8 is 64/32-bit, typically called "aarch64" or "arm64"
+
+    "EABI" is "embedded-application binary interface".
+
     """
-    X86_32 = "Intel x86 (32-bit)"  # usually: "x86", "i386"
+    X86_32 = "Intel x86 (32-bit)"
     X86_64 = "Intel x86 (64-bit)"
     AMD_64 = "AMD (64-bit)"
-    ARM_V5_32 = "ARM v5 (32-bit)"  # 32-bit; https://en.wikipedia.org/wiki/ARM_architecture  # noqa
-    ARM_V7_32 = "ARM v7 (32-bit)"  # 32-bit; https://en.wikipedia.org/wiki/ARM_architecture  # noqa
-    ARM_V8_64 = "ARM v8 (64/32-bit)"  # ARMv8*A processors are 64/32-bit; https://en.wikipedia.org/wiki/ARM_architecture  # noqa
+    ARM_V5_32 = "ARM v5 (32-bit)"
+    ARM_V7_32 = "ARM v7 (32-bit)"
+    ARM_V8_64 = "ARM v8 (64/32-bit)"
 
 
 ALL_CPUS = [getattr(Cpu, _) for _ in dir(Cpu) if not _.startswith("_")]
@@ -728,6 +914,14 @@ class Platform(object):
     def cpu_arm_family(self) -> bool:
         return self.cpu in [Cpu.ARM_V5_32, Cpu.ARM_V7_32, Cpu.ARM_V8_64]
 
+    @property
+    def cpu_arm_32bit(self) -> bool:
+        return self.cpu in [Cpu.ARM_V5_32, Cpu.ARM_V7_32]
+
+    @property
+    def cpu_arm_64bit(self) -> bool:
+        return self.cpu in [Cpu.ARM_V8_64]
+
     # -------------------------------------------------------------------------
     # Library (e.g. .so, DLL) verification
     # -------------------------------------------------------------------------
@@ -820,14 +1014,17 @@ class Platform(object):
                 if not self.cpu_64bit and pe32_tag not in dumpresult:
                     raise ValueError(f"File {filename!r} is not a Win32 DLL")
             else:
-                elf_arm_tag = "Tag_ARM_ISA_use: Yes"
-                elfcmd = [READELF, "-A", filename]
+                elfcmd = [READELF, "-h", filename]
                 elfresult = fetch(elfcmd)
-                arm_tag_present = elf_arm_tag in elfresult
-                if self.cpu_arm_family and not arm_tag_present:
-                    raise ValueError(f"File {filename} was not built for ARM")
-                elif not self.cpu_arm_family and arm_tag_present:
-                    raise ValueError(f"File {filename} was built for ARM")
+                arm32_tag_present = bool(re.search(r"Machine:\s+ARM", elfresult))  # noqa
+                arm64_tag_present = bool(re.search(r"Machine:\s+AArch64", elfresult))  # noqa
+                arm_tag_present = arm32_tag_present or arm64_tag_present
+                if self.cpu_arm_32bit and not arm32_tag_present:
+                    raise ValueError(f"File {filename} was not built for 32-bit ARM")  # noqa
+                if self.cpu_arm_64bit and not arm64_tag_present:
+                    raise ValueError(f"File {filename} was not built for 64-bit ARM")  # noqa
+                if (not self.cpu_arm_family) and arm_tag_present:
+                    raise ValueError(f"File {filename} was built for ARM but shouldn't be")  # noqa
         elif BUILD_PLATFORM.macos:
             if BUILD_PLATFORM.cpu_64bit:
                 dumpcmd = [OTOOL, "-hv", "-arch", "all", filename]
@@ -858,6 +1055,107 @@ class Platform(object):
                         "platform {}", BUILD_PLATFORM)
             return
         log.info("Library file is good: {!r}", filename)
+
+    # -------------------------------------------------------------------------
+    # Specific descriptives used by others
+    # -------------------------------------------------------------------------
+
+    @property
+    def apple_cpu_name(self) -> str:
+        """
+        Architecture name to pass to Xcode's clang etc. Don't alter.
+        Architecture conversions:
+        - https://stackoverflow.com/questions/27016612/compiling-external-c-library-for-use-with-ios-project  # noqa
+        Which architectures does Xcode's clang support?
+        - https://stackoverflow.com/questions/15036909/clang-how-to-list-supported-target-architectures  # noqa
+        If in doubt, running "clang -arch SOMETHING" will produce an error
+        if it's unsupported. With clang-703.0.29, "x86_64" and "arm6" are
+        OK.
+
+        iOS device processor compatibility: see
+        https://developer.apple.com/library/content/documentation/DeviceInformation/Reference/iOSDeviceCompatibility/DeviceCompatibilityMatrix/DeviceCompatibilityMatrix.html  # noqa
+        """
+        if self.cpu_x86_64bit_family:
+            return "x86_64"
+        elif self.cpu_x86_32bit_family:
+            return "i386"
+        elif self.cpu == Cpu.ARM_V7_32:
+            return "armv7"
+        elif self.cpu == Cpu.ARM_V8_64:
+            return "arm64"
+        else:
+            raise ValueError(f"apple_cpu_name(): Unknown CPU {self.cpu}")
+
+    @property
+    def linux_windows_cpu_name(self) -> str:
+        """
+        - https://www.gnu.org/software/autoconf/manual/autoconf-2.65/html_node/Specifying-Target-Triplets.html
+        - https://superuser.com/questions/238112/what-is-the-difference-between-i686-and-x86-64
+        """  # noqa
+        if self.cpu_x86_32bit_family:
+            return "i686"  # verified
+        elif self.cpu_x86_64bit_family:
+            return "x86_64"  # verified
+        elif self.cpu == Cpu.ARM_V5_32:
+            return "arm"  # I think
+        elif self.cpu == Cpu.ARM_V7_32:
+            return "armv7a"  # verified
+        elif self.cpu == Cpu.ARM_V8_64:
+            return "aarch64"  # verified
+        else:
+            raise NotImplementedError(
+                f"linux_windows_cpu_name() doesn't know {self.cpu}")
+
+    @property
+    def triplet_cpu(self) -> str:
+        """
+        - https://www.gnu.org/software/autoconf/manual/autoconf-2.65/html_node/Specifying-Target-Triplets.html
+        - https://superuser.com/questions/238112/what-is-the-difference-between-i686-and-x86-64
+        """  # noqa
+        if self.os in [Os.LINUX, Os.ANDROID, Os.WINDOWS]:
+            return self.linux_windows_cpu_name
+        elif self.os in [Os.MACOS, Os.IOS]:
+            return self.apple_cpu_name
+        else:
+            raise NotImplementedError(f"triplet_cpu() doesn't know {self.cpu}")
+
+    @property
+    def triplet_vendor(self) -> str:
+        if self.os in [Os.ANDROID]:
+            return "linux"
+        elif self.os in [Os.LINUX, Os.WINDOWS]:
+            return "unknown"
+        elif self.os in [Os.MACOS, Os.IOS]:
+            return "apple"
+        else:
+            raise NotImplementedError(f"gnu_vendor() doesn't know {self.os}")
+
+    @property
+    def triplet_os(self) -> str:
+        if self.os == Os.ANDROID:
+            return "android"
+        elif self.os in [Os.MACOS, Os.IOS]:
+            # e.g. empirically: "i386-apple-darwin15.6.0"
+            # "uname -m" tells you whether you're 32 or 64 bit
+            # "uname -r" gives you the release
+            # config.sub does not recognize "ios" as an OS, nor "iphoneos"
+            return "darwin"
+        elif self.os in [Os.LINUX]:
+            return "linux"
+        elif self.os in [Os.WINDOWS]:
+            return "windows"
+        else:
+            raise NotImplementedError(f"gnu_os() doesn't know {self.os}")
+
+    @property
+    def target_triplet(self) -> str:
+        """
+        https://www.gnu.org/software/autoconf/manual/autoconf-2.65/html_node/Specifying-Target-Triplets.html
+        """  # noqa
+        cpu = self.triplet_cpu
+        vendor = self.triplet_vendor
+        os_ = self.triplet_os
+        return f"{cpu}-{vendor}-{os_}"
 
     # -------------------------------------------------------------------------
     # Android
@@ -926,107 +1224,80 @@ class Platform(object):
         else:
             raise ValueError("Unknown combination for ios_platform_name")
 
-    @property
-    def ios_arch(self) -> str:
-        """
-        Architecture name to pass to Xcode's clang etc. Don't alter.
-        Architecture conversions:
-        - https://stackoverflow.com/questions/27016612/compiling-external-c-library-for-use-with-ios-project  # noqa
-        Which architectures does Xcode's clang support?
-        - https://stackoverflow.com/questions/15036909/clang-how-to-list-supported-target-architectures  # noqa
-        If in doubt, running "clang -arch SOMETHING" will produce an error
-        if it's unsupported. With clang-703.0.29, "x86_64" and "arm6" are
-        OK.
-
-        iOS device processor compatibility: see
-        https://developer.apple.com/library/content/documentation/DeviceInformation/Reference/iOSDeviceCompatibility/DeviceCompatibilityMatrix/DeviceCompatibilityMatrix.html  # noqa
-        """
-        if self.cpu_x86_64bit_family:
-            return "x86_64"
-        elif self.cpu_x86_32bit_family:
-            return "i386"
-        elif self.cpu == Cpu.ARM_V7_32:
-            return "armv7"
-        elif self.cpu == Cpu.ARM_V8_64:
-            return "arm64"
-        else:
-            raise ValueError("Unknown architecture for iOS")
-
-    # -------------------------------------------------------------------------
-    # Windows
-    # -------------------------------------------------------------------------
-
-    @property
-    def mxe_target(self) -> str:
-        """
-        For cross-compilation Linux -> Windows, using MXE.
-        """
-        assert self.windows, "mxe_target is for cross-compilation to Windows"
-        assert BUILD_PLATFORM.linux, "mxe_target is for cross-compilation from Linux"  # noqa
-        if self.cpu_64bit:
-            return "x86_64-w64-mingw32.static"
-        else:
-            return "i686-w64-mingw32.static"
-
     # -------------------------------------------------------------------------
     # Other cross-compilation details
     # -------------------------------------------------------------------------
+
+    def _get_tool(self, tool: str, fullpath: bool, cfg: "Config") -> str:
+        """
+        Work out the name of an appropriate compilation/linkage/...
+        tool
+        """
+        if not fullpath:
+            return tool
+        prefix = self.cross_compile_prefix(cfg)
+        if self.android:
+            tooldir = cfg.android_toolchain_bin_dir(self)
+            return join(tooldir, prefix + tool)
+        return shutil.which(prefix + tool) or shutil.which(tool)
 
     def gcc(self, fullpath: bool, cfg: "Config") -> str:
         """
         Work out the name of an appropriate gcc compiler.
         """
-        if not fullpath:
-            return GCC
-        if self.android:
-            if self.cpu_x86_32bit_family:
-                return join(cfg.android_toolchain(self),
-                            "i686-linux-android-gcc")
-            elif self.cpu_arm_family:
-                return join(cfg.android_toolchain(self),
-                            "arm-linux-androideabi-gcc")
-            else:
-                raise NotImplementedError("Don't know gcc name")
-        return shutil.which(GCC)
+        return self._get_tool(GCC, fullpath, cfg)
+
+    def clang(self, fullpath: bool, cfg: "Config") -> str:
+        """
+        Work out the name of an appropriate clang compiler.
+        """
+        return self._get_tool(CLANG, fullpath, cfg)
 
     def ar(self, fullpath: bool, cfg: "Config") -> str:
         """
         Work out the name of an appropriate ar assembler.
         """
-        if not fullpath:
-            return "gcc-ar"
-        if self.android:
-            return join(cfg.android_toolchain(self),
-                        "i686-linux-android-gcc-ar")
-        return shutil.which("ar")
+        return (
+            self._get_tool(GCC_AR, fullpath, cfg) or
+            self._get_tool(AR, fullpath, cfg)
+        )
 
-    @property
-    def cross_compile_prefix(self) -> str:
+    def cross_compile_prefix(self, cfg: "Config") -> str:
         """
         Work out the CROSS_COMPILE environment variable/prefix.
 
         See e.g. <ANDROID_NDK_DIR>/toolchains
+
+        Examples:
+
+        .. code-block: none
+
+            android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android23-clang
+                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^
+
+            android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi23-clang
+                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+            android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android23-clang
+                                                                      ^^^^^^^^^^^^^^^^^^^^^
+
+            android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android23-clang
+                                                                      ^^^^^^^^^^^^^^^^^^^^^^^
+
         """
         if BUILD_PLATFORM == self:
             # Compiling for the platform we're running on.
             return ""
-        if BUILD_PLATFORM.unix:
-            if self.android:
-                if self.cpu == Cpu.X86_32:
-                    return "i686-linux-android-"
-                elif self.cpu == Cpu.ARM_V7_32:
-                    return "arm-linux-androideabi-"
-                elif self.cpu == Cpu.ARM_V8_64:
-                    return "aarch64-linux-android-"
-            elif self.windows:
-                # https://superuser.com/questions/238112/what-is-the-difference-between-i686-and-x86-64  # noqa
-                if self.cpu_64bit:
-                    return "x86_64-w64-mingw32.static-"
-                else:
-                    return "i686-w64-mingw32.static-"
-        raise NotImplementedError("Don't know CROSS_COMPILE prefix for " +
-                                  str(self) + " when running on " +
-                                  str(BUILD_PLATFORM))
+        suffix = ""
+        if self.android and cfg.android_clang_not_gcc:
+            if self.cpu == Cpu.ARM_V7_32:
+                suffix += "eabi"
+            suffix += str(cfg.android_sdk_version)
+        return f"{self.target_triplet}{suffix}-"
+
+    # -------------------------------------------------------------------------
+    # Support for make, cmake
+    # -------------------------------------------------------------------------
 
     def make_args(self, cfg: "Config", extra_args: List[str] = None,
                   command: str = "", makefile: str = "",
@@ -1035,7 +1306,7 @@ class Platform(object):
         Generates command arguments for "make" or a platform equivalent.
         """
         extra_args = extra_args or []  # type: List[str]
-        env = env or os.environ
+        env = env if env is not None else os.environ
         if self.windows:
             if which_with_envpath(cfg.jom_executable, env):
                 make = cfg.jom_executable
@@ -1085,52 +1356,13 @@ class Platform(object):
         tool (either build or target).
 
         Within SQLCipher, the program that parses these is config.sub
-        """
-        # See config.guess in SQLCipher source.
-        # (You can run or source it to see its answer.)
-        if self.linux:
-            if self.cpu_x86_64bit_family:
-                return "x86_64-unknown-linux"
-            elif self.cpu_x86_32bit_family:
-                return "i686-unknown-linux"
-        elif self.android:
-            if self.cpu == Cpu.ARM_V7_32:
-                # arm? [1]
-                # arm-linux? [2]
-                return "arm-linux"
-            elif self.cpu_x86_32bit_family:
-                return "i686-unknown-linux"  # ?
-        elif self.macos:
-            # e.g. empirically: "i386-apple-darwin15.6.0"
-            # "uname -m" tells you whether you're 32 or 64 bit
-            # "uname -r" gives you the release
-            if self.cpu_x86_64bit_family:
-                return "x86_64-apple-darwin"
-            elif self.cpu_x86_32bit_family:
-                return "i386-apple-darwin"
-        elif self.windows:
-            if self.cpu_x86_64bit_family:
-                return "x86_64-unknown-windows"  # guess, but it compiles
-            elif self.cpu_x86_32bit_family:
-                return "i686-unknown-windows"  # guess, but it compiles
-        elif self.ios:
-            # config.sub does not recognize "ios" as an OS, nor "iphoneos"
-            if self.cpu == Cpu.ARM_V8_64:
-                return "armv8-apple-darwin"  # guess, but it compiles
-            elif self.cpu == Cpu.ARM_V7_32:
-                return "arm-apple-darwin"  # guess, but it compiles
-            elif self.cpu_x86_32bit_family:  # iOS simulator
-                return "i386-apple-darwin"
-                # guess as per https://jira.appcelerator.org/browse/TIMOB-23652
-            elif self.cpu_x86_64bit_family:  # iOS simulator
-                # return "x86_64-apple-darwin"
-                # ... gives:
-                # "configure: error: cannot run C compiled programs.
-                #  If you meant to cross compile, use `--host'."
-                # ... despite using --host!
-                return "armv8-apple-darwin"  # ??? Compiles, anyway. ***
-        raise NotImplementedError(
-            f"Don't know how to support SQLCipher for {self}")
+        
+        See also
+        https://www.gnu.org/software/autoconf/manual/autoconf-2.65/html_node/Specifying-Target-Triplets.html
+        """  # noqa
+        # See sqlcipher/config.sub, sqlcipher/config.guess
+        # (You can run or source config.guess to see its answer.)
+        return self.target_triplet
 
 
 def get_build_platform() -> Platform:
@@ -1190,10 +1422,6 @@ class Config(object):
                 # rarely used, emulator only # self.build_android_x86_32 = True
                 self.build_android_arm_v8_64 = True
                 self.build_linux_x86_64 = True
-                if CAN_CROSS_COMPILE_LINUX_TO_WINDOWS:
-                    if not MXE_HAS_GCC_WITH_I386_BUG:
-                        self.build_windows_x86_32 = True
-                    self.build_windows_x86_64 = True
             elif BUILD_PLATFORM.macos:
                 # MacOS
                 self.build_ios_arm_v7_32 = True
@@ -1217,6 +1445,7 @@ class Config(object):
         self.verbose = args.verbose  # type: int
         self.src_rootdir = join(self.root_dir, "src")  # type: str
         self.tee_filename = args.tee  # type: str
+        self.inherit_os_env = args.inherit_os_env  # type: bool
 
         # Qt
         # - git repository in src/qt5
@@ -1227,9 +1456,9 @@ class Config(object):
         #   architecture "kit".
         self.qt_build_type = args.qt_build_type  # type: str
         assert self.qt_build_type in QT_POSSIBLE_BUILD_TYPES
-        self.qt_git_url = args.qt_git_url  # type: str
-        self.qt_git_branch = args.qt_git_branch  # type: str
-        self.qt_git_commit = args.qt_git_commit  # type: str
+        self.qt_git_url = QT_GIT_URL  # type: str
+        self.qt_git_branch = QT_GIT_BRANCH  # type: str
+        self.qt_git_commit = QT_GIT_COMMIT  # type: str
         self.qt_openssl_static = args.qt_openssl_static  # type: bool
         self.qt_src_gitdir = join(self.src_rootdir,
                                   args.qt_src_dirname)  # type: str  # noqa
@@ -1237,27 +1466,31 @@ class Config(object):
         # Android SDK/NDK
         # - installed independently by user
         # - used for cross-compilation to Android targets
-        self.android_api_number = args.android_api_number  # type: int
+        self.android_sdk_version = ANDROID_SDK_VERSION
+        self.android_ndk_version = ANDROID_NDK_VERSION
+        self.android_clang_not_gcc = self.android_ndk_version >= 18
         self.android_sdk_root = args.android_sdk_root  # type: str
         self.android_ndk_root = args.android_ndk_root  # type: str
         self.android_ndk_host = args.android_ndk_host  # type: str
         self.android_toolchain_version = args.android_toolchain_version  # type: str  # noqa
-        self.android_api = f"android-{self.android_api_number}"
+        self.android_api = f"android-{self.android_sdk_version}"
         # ... see $ANDROID_SDK_ROOT/platforms/
+        self.android_ndk_platform = self.android_api
+        self.java_home = args.java_home  # type: str
 
         # iOS
         self.ios_sdk = args.ios_sdk  # type: str
-        self.ios_min_version = args.ios_min_version  # type: str
+        self.ios_min_version = MIN_IOS_VERSION  # type: str
 
         # macOS
-        self.macos_min_version = args.macos_min_version  # type: str
+        self.macos_min_version = MIN_MACOS_VERSION  # type: str
 
         # OpenSSL
         # - download tar file to src/openssl
         # - built to multiple directories off root
-        self.openssl_version = args.openssl_version  # type: str
-        self.openssl_src_url = args.openssl_src_url  # type: str
-        self.openssl_android_script_url = args.openssl_android_script_url  # type: str  # noqa
+        self.openssl_version = OPENSSL_VERSION  # type: str
+        self.openssl_src_url = OPENSSL_SRC_URL  # type: str
+        # self.openssl_android_script_url = OPENSSL_ANDROID_SCRIPT_URL  # type: str  # noqa
         # ... derived:
         self.openssl_src_dir = join(self.src_rootdir, "openssl")
         self.openssl_src_filename = f"openssl-{self.openssl_version}.tar.gz"
@@ -1272,81 +1505,26 @@ class Config(object):
         #   and as a bonus the "sqlcipher" executable for the host machine, but
         #   the latter isn't part of CamCOPS's use of SQLCipher (CamCOPS just
         #   uses the amalgamation file, which is platform-independent).
-        self.sqlcipher_git_url = args.sqlcipher_git_url  # type: str
-        self.sqlcipher_git_commit = args.sqlcipher_git_commit  # type: str
+        self.sqlcipher_git_url = SQLCIPHER_GIT_URL  # type: str
+        self.sqlcipher_git_commit = SQLCIPHER_GIT_COMMIT  # type: str
         self.sqlcipher_src_gitdir = join(self.src_rootdir, "sqlcipher")  # type: str  # noqa
 
-        if USE_BOOST:
-            # Boost
-            # - download tar file to src/boost
-            # - unpack to boost/...
-            self.boost_version = args.boost_version  # type: str
-            self.boost_src_url = args.boost_src_url  # type: str
-            # ... derived:
-            boost_version_underscores = self.boost_version.replace(".", "_")
-            self.boost_src_dir = join(self.src_rootdir, "boost")
-            self.boost_src_filename = f"boost_{boost_version_underscores}.tar.xz"  # noqa
-            self.boost_src_fullpath = join(self.boost_src_dir,
-                                           self.boost_src_filename)
-            self.boost_dest_dir = join(self.root_dir, "boost")
-            self.boost_root = join(self.boost_dest_dir,
-                                   "boost_" + boost_version_underscores)
-            self.boost_include_dir = self.boost_root
-            self.boost_library_dir = join(self.boost_root, "libs")
-
-        # Armadillo
-        # - download tar file to src/armadillo
-        # - unpack to armadillo/...
-        # - build -- ABANDONED, lots of dependencies
-        if USE_ARMADILLO:
-            self.arma_version = args.arma_version  # type: str
-            self.arma_src_url = args.arma_src_url  # type: str
-            # ... derived:
-            arma_w_version = f"armadillo-{self.arma_version}"
-            self.arma_src_dir = join(self.src_rootdir, "armadillo")
-            self.arma_src_filename = arma_w_version + ".tar.xz"
-            self.arma_src_fullpath = join(self.arma_src_dir,
-                                          self.arma_src_filename)
-            self.arma_dest_dir = join(self.root_dir, "armadillo")
-            self.arma_working_dir = join(self.arma_dest_dir, arma_w_version)
-            self.arma_include_dir = join(self.arma_working_dir, "include")
-            self.arma_lib = join(self.arma_working_dir, "libarmadillo.so")
-
-        if USE_MLPACK:
-            # MLPACK
-            # - git repository in src/mlpack
-            # - CMake to build BUT needs compilation (+ cross-compilation)
-            self.mlpack_git_url = args.mlpack_git_url  # type: str
-            self.mlpack_git_commit = args.mlpack_git_commit  # type: str
-            self.mlpack_src_gitdir = join(self.src_rootdir, "mlpack")  # type: str  # noqa
-            self.build_mlpack = args.build_mlpack  # type: bool
-
-        if USE_EIGEN:
-            self.eigen_version = args.eigen_version  # type: str
-            self.eigen_src_url = (
-                f"http://bitbucket.org/eigen/eigen/get/{self.eigen_version}.tar.gz"  # noqa
-            )
-            self.eigen_src_dir = join(self.src_rootdir, "eigen")
-            self.eigen_src_fullpath = join(
-                self.eigen_src_dir,
-                f"eigen-{self.eigen_version}.tar.gz")
-            self.eigen_unpacked_dir = join(self.root_dir, "eigen")
+        # Eigen
+        self.eigen_version = EIGEN_VERSION  # type: str
+        self.eigen_src_url = (
+            f"http://bitbucket.org/eigen/eigen/get/{self.eigen_version}.tar.gz"  # noqa
+        )
+        self.eigen_src_dir = join(self.src_rootdir, "eigen")
+        self.eigen_src_fullpath = join(
+            self.eigen_src_dir,
+            f"eigen-{self.eigen_version}.tar.gz")
+        self.eigen_unpacked_dir = join(self.root_dir, "eigen")
 
         # jom: comes with QtCreator
         # self.jom_git_url = args.jom_git_url  # type: str
         # self.jom_src_gitdir = join(self.src_rootdir, "jom")  # type: str
         # self.jom_executable = join(self.jom_src_gitdir, "bin", "jom.exe") # type: str  # noqa
         self.jom_executable = args.jom_executable  # type: str
-
-        # Windows
-        # self.windows_prebuilt_qt_root = args.windows_prebuilt_qt_root  # type: str  # noqa
-        # self.windows_sdk_version = args.windows_sdk_version  # type: str
-
-        if USE_MXE:
-            self.mxe_git_url = args.mxe_git_url  # type: str
-            self.mxe_src_gitdir = join(self.src_rootdir, "mxe")  # type: str
-            self.mxe_usr_dir = join(self.mxe_src_gitdir, "usr")  # type: str
-            self.mxe_bin_dir = join(self.mxe_usr_dir, "bin")  # type: str  # noqa
 
         self._cached_xcode_developer_path = ""
 
@@ -1358,7 +1536,7 @@ class Config(object):
                                      e=",\n".join(elements))
 
     # -------------------------------------------------------------------------
-    # Directories
+    # Directories we'll write to
     # -------------------------------------------------------------------------
 
     def qt_build_dir(self, target_platform: Platform) -> str:
@@ -1419,26 +1597,53 @@ class Config(object):
     # Environment variables
     # -------------------------------------------------------------------------
 
-    def set_compile_env(self,
-                        env: Dict[str, str],
-                        target_platform: Platform,
-                        use_cross_compile_var: bool = True,
-                        building_sqlcipher: bool = False) -> None:
+    def get_starting_env(self) -> Dict[str, str]:
+        """
+        Returns an operating system environment to begin manipulating. This is
+        usually a copy of ``os.environ()`` but could be a heavily cut-down
+        version of that.
+        """
+        plain = not self.inherit_os_env
+        # 1. Beware "plain" under Windows. Some other parent environment
+        # variables needed for Visual C++ compiler, or you get "cannot
+        # create temporary il file" errors. Not sure which, though;
+        # APPDATA, TEMP and TMP are not sufficient.
+        # 2. Beware "plain" under macOS; complains about missing "HOME"
+        # variable.
+        if plain:
+            env = {}  # type: Dict[str, str]
+            keys = ["PATH"]
+            # if BUILD_PLATFORM.windows:
+            #     keys += ["APPDATA", "TEMP", "TMP"]
+            for k in keys:
+                if k in os.environ:
+                    env[k] = os.environ[k]
+            return env
+        else:
+            return os.environ.copy()
+
+    def set_compile_env(
+            self,
+            env: Dict[str, str],
+            target_platform: Platform,
+            use_cross_compile_var: bool = True,
+            building_sqlcipher: bool = False) -> None:
         """
         Adds variables to the environment for compilation or cross-compilation.
         Modifies env.
         """
         if target_platform.android:
-            self._set_android_env(env, target_platform=target_platform,
-                                  use_cross_compile_var=use_cross_compile_var)
+            self._set_android_env(
+                env,
+                target_platform=target_platform,
+                use_cross_compile_var=use_cross_compile_var)
         elif target_platform.ios:
             self._set_ios_env(env, target_platform=target_platform)
         elif target_platform.linux:
             self._set_linux_env(env,
                                 use_cross_compile_var=use_cross_compile_var)
         elif target_platform.windows:
-            self._set_windows_env(env, target_platform=target_platform,
-                                  use_cross_compile_var=use_cross_compile_var)
+            self._set_windows_env(env, target_platform=target_platform)
         elif target_platform.macos:
             self._set_macos_env(env, target_platform=target_platform,
                                 building_sqlcipher=building_sqlcipher)
@@ -1447,26 +1652,56 @@ class Config(object):
                 f"Don't know how to set compilation environment "
                 f"for {target_platform}")
 
+    def sysroot(self, target_platform: Platform, env: Dict[str, str]) -> str:
+        """
+        Gets the sysroot (e.g. where system #include files live) for a specific
+        target platform.
+
+        Under Windows, we look at the environment, which will have been set
+        by VCVARSALL.BAT.
+        """
+        if target_platform.android:
+            return self._android_sysroot(target_platform)
+        elif target_platform.ios:
+            return self._xcode_sdk_path(
+                xcode_platform=target_platform.ios_platform_name,
+                sdk_version=self._get_ios_sdk_version(
+                    target_platform=target_platform))
+        elif target_platform.linux or target_platform.macos:
+            return "/"  # default sysroot
+        elif target_platform.windows:
+            return env["WindowsSdkDir"]
+        raise NotImplementedError(
+            f"Don't know sysroot for target: {target_platform}")
+
+    # -------------------------------------------------------------------------
+    # Linux
+    # -------------------------------------------------------------------------
+
     def _set_linux_env(self,
                        env: Dict[str, str],
                        use_cross_compile_var: bool) -> None:
         """
-        Implementation of set_compile_env() for Linux targets.
+        Implementation of :meth:`set_compile_env` for Linux targets.
         """
         env["AR"] = BUILD_PLATFORM.ar(fullpath=not use_cross_compile_var,
                                       cfg=self)
         env["CC"] = BUILD_PLATFORM.gcc(fullpath=not use_cross_compile_var,
                                        cfg=self)
 
+    # -------------------------------------------------------------------------
+    # Android
+    # -------------------------------------------------------------------------
+
     def _set_android_env(self,
                          env: Dict[str, str],
                          target_platform: Platform,
                          use_cross_compile_var: bool) -> None:
         """
-        Implementation of set_compile_env() for Android targets.
+        Implementation of :meth:`set_compile_env` for Android targets.
         """
-        android_sysroot = self.android_sysroot(target_platform)
-        android_toolchain = self.android_toolchain(target_platform)
+        android_sysroot = self._android_sysroot(target_platform)
+        android_toolchain = self.android_toolchain_bin_dir(target_platform)
 
         env["ANDROID_API"] = self.android_api
         env["ANDROID_API_VERSION"] = self.android_api
@@ -1480,23 +1715,179 @@ class Config(object):
         env["AR"] = target_platform.ar(fullpath=not use_cross_compile_var,
                                        cfg=self)
         env["ARCH"] = target_platform.android_arch_short
-        env["CC"] = self._android_cc(target_platform,
-                                     fullpath=not use_cross_compile_var)
+        env["CC"] = self._android_cc(
+            target_platform,
+            fullpath=self.android_clang_not_gcc or not use_cross_compile_var
+        )
         if use_cross_compile_var:
-            env["CROSS_COMPILE"] = target_platform.cross_compile_prefix
+            env["CROSS_COMPILE"] = target_platform.cross_compile_prefix(self)
             # ... unnecessary as we are specifying AR, CC directly
         env["HOSTCC"] = BUILD_PLATFORM.gcc(fullpath=not use_cross_compile_var,
                                            cfg=self)
-        env["PATH"] = f"{android_toolchain}{os.pathsep}{env['PATH']}"
+        env["JAVA_HOME"] = self.java_home  # added 2019-06-16 for Qt
+        env["PATH"] = os.pathsep.join([
+            android_toolchain,
+            join(self.java_home, "bin"),  # added 2019-06-16 for Qt
+            env['PATH'],
+        ])
         env["SYSROOT"] = android_sysroot
         env["NDK_SYSROOT"] = android_sysroot
+
+    # -------------------------------------------------------------------------
+    # Android
+    # -------------------------------------------------------------------------
+
+    def _android_eabi(self, target_platform: Platform) -> str:
+        """
+        Get the name of the Android Embedded Application Binary Interface
+        for ARM processors, used for the Android SDK.
+
+        ABIs:
+
+        - https://developer.android.com/ndk/guides/abis.html
+
+        ARM supports two ABI types, one of which is the Embedded ABI:
+
+        - http://kanj.githib.io/elfs/book/armMusl/cross-tools/abi.html
+        - https://www.eecs.umich.edu/courses/eeecs373/readings/ARM-AAPCS-EABI-v2.08.pdf
+          = Procedure Call Standard for the ARM Architecture
+        """  # noqa
+        if target_platform.cpu_x86_family:
+            return "{}-{}".format(
+                target_platform.android_arch_short,
+                self.android_toolchain_version)  # e.g. x86-4.9
+            # For toolchain version: ls $ANDROID_NDK_ROOT/toolchains
+            # ... "-android-arch" and "-android-toolchain-version" get
+            # concatenated, I think; for example, this gives the toolchain
+            # "x86_64-4.9"
+        elif target_platform.cpu_arm_family:
+            if self.android_clang_not_gcc:
+                return "llvm"
+            elif target_platform.cpu == Cpu.ARM_V8_64:
+                # e.g. "aarch64-linux-android-4.9"
+                return "aarch-linux-android-{}".format(
+                    target_platform.android_arch_short,
+                    self.android_toolchain_version)
+            else:
+                # but ARM ones look like "arm-linux-androideabi-4.9"
+                return "{}-linux-androideabi-{}".format(
+                    target_platform.android_arch_short,
+                    self.android_toolchain_version)
+        else:
+            raise NotImplementedError("Unknown CPU family for Android")
+
+    def _android_sysroot(self, target_platform: Platform) -> str:
+        """
+        Get the Android sysroot (e.g. where system #include files live) for a
+        specific target platform.
+
+        e.g.
+
+        - android-ndk-r11c/platforms/android-23/arch-x86_64
+
+        - ... and for Qt, same principle for the android-ndk-20 with clang; see
+          qt5/qtbase/mkspecs/common/android*.conf.
+
+        - However, Qt manages by itself and we don't need to tell it the
+          sysroot; what we do here is primarily for OpenSSL etc.
+
+        - android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/sysroot
+          or android-ndk-r20/sysroot -- they are quite similar but there is
+          more in the former.
+        """
+        if self.android_clang_not_gcc:
+            # return join(self.android_ndk_root, "sysroot")
+            return join(self.android_toolchain_root_dir(target_platform),
+                        "sysroot")
+        return join(self.android_ndk_root, "platforms",
+                    self.android_api, target_platform.android_arch_full)
+
+    def android_toolchain_root_dir(self, target_platform: Platform) -> str:
+        """
+        Top directory of the Android toolchain.
+
+        e.g.
+
+        - android-ndk-r11c/toolchains/x86_64-4.9/prebuilt/linux-x86_64
+        - android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/
+        """
+        return join(self.android_ndk_root, "toolchains",
+                    self._android_eabi(target_platform),
+                    "prebuilt", self.android_ndk_host)
+
+    def android_toolchain_bin_dir(self, target_platform: Platform) -> str:
+        """
+        Directory of the Android toolchain ``bin`` directory,
+        where compilers (etc.) are found.
+        """
+        return join(self.android_toolchain_root_dir(target_platform), "bin")
+
+    def _android_cc(self, target_platform: Platform,
+                    fullpath: bool) -> str:
+        """
+        Gets the name of a compiler for Android.
+
+        Remember, Environment variables:
+
+        - CC is the C compiler, e.g. "clang", "gcc"
+        - CXX is the C++ compiler, "clang++", "g++"
+        - CPP, if used, is the C preprocessor
+        """
+        # Don't apply the CROSS_COMPILE prefix; that'll be prefixed
+        # automatically.
+        if self.android_clang_not_gcc:
+            return target_platform.clang(fullpath, cfg=self)
+        else:
+            return (
+                target_platform.gcc(fullpath, cfg=self) + "-" +
+                self.android_toolchain_version
+            )
+
+    # -------------------------------------------------------------------------
+    # Android conversion functions
+    # -------------------------------------------------------------------------
+
+    def convert_android_lib_a_to_so(self, lib_a_fullpath: str,
+                                    target_platform: Platform) -> str:
+        """
+        Converts an Android library from static (.a) to dynamic (.so) format.
+        """
+        # https://stackoverflow.com/questions/3919902/method-of-converting-a-static-library-into-a-dynamically-linked-library  # noqa
+        libprefix = "lib"
+        directory, filename = split(lib_a_fullpath)
+        basename, ext = os.path.splitext(filename)
+        if not basename.startswith(libprefix):
+            raise ValueError("Don't know how to convert library: " +
+                             lib_a_fullpath)
+        libname = basename[len(libprefix):]
+        newlibbasename = libprefix + libname + ".so"
+        newlibfilename = join(directory, newlibbasename)
+        compiler = self._android_cc(target_platform, fullpath=True)
+        run([
+            compiler,
+            "-o", newlibfilename,
+            "-shared",
+            "-Wl,--whole-archive",
+            "-Wl,-soname," + newlibbasename,
+            lib_a_fullpath,
+            "-Wl,--no-whole-archive",
+            # "-L{}".format(directory),
+            # "-l{}".format(libname),
+            f"--sysroot={self._android_sysroot(target_platform)}",
+        ])
+        target_platform.verify_lib(newlibfilename)
+        return newlibfilename
+
+    # -------------------------------------------------------------------------
+    # MacOS, iOS
+    # -------------------------------------------------------------------------
 
     # noinspection PyUnusedLocal
     def _set_macos_env(self, env: Dict[str, str],
                        target_platform: Platform,
                        building_sqlcipher: bool = False) -> None:
         """
-        Implementation of set_compile_env() for macOS targets.
+        Implementation of :meth:`set_compile_env` for macOS targets.
         """
         # https://gist.github.com/armadsen/b30f352a8d6f6c87a146
         require(CLANG)
@@ -1517,7 +1908,7 @@ class Config(object):
     def _set_ios_env(self, env: Dict[str, str],
                      target_platform: Platform) -> None:
         """
-        Implementation of set_compile_env() for iOS targets.
+        Implementation of :meth:`set_compile_env` for iOS targets.
         """
         # https://gist.github.com/foozmeat/5154962
         # https://stackoverflow.com/questions/27016612/compiling-external-c-library-for-use-with-ios-project  # noqa
@@ -1526,7 +1917,7 @@ class Config(object):
         use_gcc = True  # https://gist.github.com/armadsen/b30f352a8d6f6c87a146
 
         xcode_platform = target_platform.ios_platform_name
-        arch = target_platform.ios_arch
+        arch = target_platform.apple_cpu_name
         developer = self._xcode_developer_path
         sdk_version = self._get_ios_sdk_version(target_platform=target_platform)
         sdk_name = self._xcode_sdk_name(xcode_platform=xcode_platform,
@@ -1661,51 +2052,17 @@ class Config(object):
         return self.ios_sdk or self._get_latest_ios_sdk_version(
             target_platform=target_platform)
 
+    # -------------------------------------------------------------------------
+    # Windows
+    # -------------------------------------------------------------------------
+
     def _set_windows_env(self, env: Dict[str, str],
-                         target_platform: Platform,
-                         use_cross_compile_var: bool) -> None:
+                         target_platform: Platform) -> None:
         """
-        Implementation of set_compile_env() for Windows targets.
+        Implementation of :meth:`set_compile_env` for Windows targets.
         """
         if BUILD_PLATFORM.linux:
-            if CAN_CROSS_COMPILE_LINUX_TO_WINDOWS:
-                if not USE_MINGW or not USE_MXE:
-                    raise NotImplementedError(
-                        "Only know how to use MinGW + MXE")
-                crosscomp = target_platform.cross_compile_prefix
-                mxe_target_root = join(self.mxe_usr_dir,
-                                       target_platform.mxe_target)
-                pkgconfig_sysroot = self.mxe_src_gitdir
-
-                env["CC"] = target_platform.gcc(
-                    fullpath=not use_cross_compile_var, cfg=self)
-                if use_cross_compile_var:
-                    env["CROSS_COMPILE"] = crosscomp
-                env["HOSTCC"] = BUILD_PLATFORM.gcc(
-                    fullpath=not use_cross_compile_var, cfg=self)
-                env["PATH"] += os.pathsep + self.mxe_bin_dir
-                # As per MXE:
-                env["PKG_CONFIG"] = f"{crosscomp}pkg-config"
-                env["PKG_CONFIG_DIR"] = ""
-                # ... https://autotools.io/pkgconfig/cross-compiling.html
-                env["PKG_CONFIG_SYSROOT_DIR"] = pkgconfig_sysroot  # proper
-                env["PKG_CONFIG_SYSROOT"] = pkgconfig_sysroot  # occasional mistake  # noqa
-
-                # http://ilgthegeek.old.livius.net/2015/02/05/pkg-config-search-path/  # noqa
-                env["PKG_CONFIG_PATH"] = self.mxe_bin_dir
-                env["PKG_CONFIG_LIBDIR"] = join(mxe_target_root,
-                                                "lib", "pkgconfig")
-
-                # Then to find windows.h:
-                # https://stackoverflow.com/questions/2497344/what-is-the-environment-variable-for-gcc-g-to-look-for-h-files-during-compila  # noqa
-                # env["CPATH"] = join(mxe_target_root, "include")
-                # ... breaks compilation using host g++
-                # ... instead:
-                # env["SYSROOT"] = mxe_target_root
-
-                # Now...
-            else:
-                raise NotImplementedError(CANNOT_CROSS_COMPILE_QT)
+            raise NotImplementedError(CANNOT_CROSS_COMPILE_QT)
 
         elif BUILD_PLATFORM.windows:
             # http://doc.qt.io/qt-5/windows-building.html
@@ -1753,117 +2110,6 @@ class Config(object):
             raise NotImplementedError(
                 f"Don't know how to compile for Windows on build platform "
                 f"{BUILD_PLATFORM}")
-
-    def _android_eabi(self, target_platform: Platform) -> str:
-        """
-        Get the name of the Android Embedded Application Binary Interface
-        for ARM processors, used for the Android SDK.
-        ABIs:
-            - https://developer.android.com/ndk/guides/abis.html
-        ARM supports two ABI types, one of which is the Embedded ABI:
-            - http://kanj.githib.io/elfs/book/armMusl/cross-tools/abi.html
-            - https://www.eecs.umich.edu/courses/eeecs373/readings/ARM-AAPCS-EABI-v2.08.pdf  # noqa
-                = Procedure Call Standard for the ARM Architecture
-        """
-        if target_platform.cpu_x86_family:
-            return "{}-{}".format(
-                target_platform.android_arch_short,
-                self.android_toolchain_version)  # e.g. x86-4.9
-            # For toolchain version: ls $ANDROID_NDK_ROOT/toolchains
-            # ... "-android-arch" and "-android-toolchain-version" get
-            # concatenated, I think; for example, this gives the toolchain
-            # "x86_64-4.9"
-        elif target_platform.cpu_arm_family:
-            # but ARM ones look like "arm-linux-androideabi-4.9"
-            return "{}-linux-androideabi-{}".format(
-                target_platform.android_arch_short,
-                self.android_toolchain_version)
-        else:
-            raise NotImplementedError("Unknown CPU family for Android")
-
-    def android_sysroot(self, target_platform: Platform) -> str:
-        """
-        Get the Android sysroot (e.g. where system #include files live) for a
-        specific target platform.
-        """
-        return join(self.android_ndk_root, "platforms",
-                    self.android_api, target_platform.android_arch_full)
-
-    def android_toolchain(self, target_platform: Platform) -> str:
-        """
-        Directory of the Android toolchain.
-        """
-        return join(self.android_ndk_root, "toolchains",
-                    self._android_eabi(target_platform),
-                    "prebuilt", self.android_ndk_host, "bin")
-
-    def _android_cc(self, target_platform: Platform,
-                    fullpath: bool) -> str:
-        """
-        Gets the name of a compiler for Android.
-        """
-        # Don't apply the CROSS_COMPILE prefix; that'll be prefixed
-        # automatically.
-        return (
-            target_platform.gcc(fullpath, cfg=self) + "-" +
-            self.android_toolchain_version
-        )
-
-    def sysroot(self, target_platform: Platform, env: Dict[str, str]) -> str:
-        """
-        Gets the sysroot (e.g. where system #include files live) for a specific
-        target platform.
-        Under Windows, we look at the environment, which will have been set
-        by VCVARSALL.BAT.
-        """
-        if target_platform.android:
-            return self.android_sysroot(target_platform)
-        elif target_platform.ios:
-            return self._xcode_sdk_path(
-                xcode_platform=target_platform.ios_platform_name,
-                sdk_version=self._get_ios_sdk_version(
-                    target_platform=target_platform))
-        elif target_platform.linux or target_platform.macos:
-            return "/"  # default sysroot
-        elif target_platform.windows:
-            return env["WindowsSdkDir"]
-        raise NotImplementedError(
-            f"Don't know sysroot for target: {target_platform}")
-
-    # -------------------------------------------------------------------------
-    # Conversion functions
-    # -------------------------------------------------------------------------
-
-    def convert_android_lib_a_to_so(self, lib_a_fullpath: str,
-                                    target_platform: Platform) -> str:
-        """
-        Converts an Android library from static (.a) to dynamic (.so) format.
-        """
-        # https://stackoverflow.com/questions/3919902/method-of-converting-a-static-library-into-a-dynamically-linked-library  # noqa
-        libprefix = "lib"
-        directory, filename = split(lib_a_fullpath)
-        basename, ext = os.path.splitext(filename)
-        if not basename.startswith(libprefix):
-            raise ValueError("Don't know how to convert library: " +
-                             lib_a_fullpath)
-        libname = basename[len(libprefix):]
-        newlibbasename = libprefix + libname + ".so"
-        newlibfilename = join(directory, newlibbasename)
-        compiler = self._android_cc(target_platform, fullpath=True)
-        run([
-            compiler,
-            "-o", newlibfilename,
-            "-shared",
-            "-Wl,--whole-archive",
-            "-Wl,-soname," + newlibbasename,
-            lib_a_fullpath,
-            "-Wl,--no-whole-archive",
-            # "-L{}".format(directory),
-            # "-l{}".format(libname),
-            f"--sysroot={self.android_sysroot(target_platform)}",
-        ])
-        target_platform.verify_lib(newlibfilename)
-        return newlibfilename
 
 
 # =============================================================================
@@ -1916,31 +2162,6 @@ def escape_literal_for_shell(x: str) -> str:
     return x
 
 
-def get_starting_env(plain: bool = False) -> Dict[str, str]:
-    """
-    Returns an operating system environment to begin manipulating. This is
-    usually a copy of os.environ() but could be a heavily cut-down version of
-    that.
-    """
-    # 1. Beware "plain" under Windows. Some other parent environment
-    # variables needed for Visual C++ compiler, or you get "cannot
-    # create temporary il file" errors. Not sure which, though;
-    # APPDATA, TEMP and TMP are not sufficient.
-    # 2. Beware "plain" under macOS; complains about missing "HOME"
-    # variable.
-    if plain:
-        env = {}  # type: Dict[str, str]
-        keys = ["PATH"]
-        # if BUILD_PLATFORM.windows:
-        #     keys += ["APPDATA", "TEMP", "TMP"]
-        for k in keys:
-            if k in os.environ:
-                env[k] = os.environ[k]
-        return env
-    else:
-        return os.environ.copy()
-
-
 # =============================================================================
 # Ancillary: convert Windows paths to POSIX, for Cygwin, via cygpath
 # =============================================================================
@@ -1966,8 +2187,9 @@ def windows_to_posix(windows_path: str) -> str:
 UBUNTU_PACKAGE_HELP = """
 Linux (Ubuntu)
 -------------------------------------------------------------------------------
+              
 ar          } Should be pre-installed!
-cmake       }
+cmake       }       ... sudo apt install cmake
 gcc         }
 gobjdump    }
 readelf     }
@@ -2059,7 +2281,7 @@ def require(command: str) -> None:
     if BUILD_PLATFORM.windows:
         helpmsg += WINDOWS_PACKAGE_HELP
     log.critical(missing_msg)
-    log.warning(helpmsg)
+    log.warning("{}", helpmsg)
     raise ValueError(missing_msg)
 
 
@@ -2218,19 +2440,6 @@ def delete_cmake_cache(directory: str) -> None:
     delete_files_within_dir(directory, ["CMakeCache.txt"])
 
 
-# def delete_qmake_cache(directory: str) -> None:
-#     log.info("Deleting qmake cache files within: {!r}", directory)
-#     delete_files_within_dir(directory, [".qmake.cache"])
-#     delete_files_within_dir(directory, [".qmake.stash"])
-#     delete_files_within_dir(directory, [".qmake.super"])
-
-
-# Nope! These are important.
-# def delete_qmake_conf(directory: str) -> None:
-#     log.info("Deleting qmake config files within: {!r}", directory)
-#     delete_files_within_dir(directory, [".qmake.conf"])
-
-
 # =============================================================================
 # Ancillary: information messages
 # =============================================================================
@@ -2254,8 +2463,8 @@ def fetch_openssl(cfg: Config) -> None:
     """
     log.info("Fetching OpenSSL source...")
     download_if_not_exists(cfg.openssl_src_url, cfg.openssl_src_fullpath)
-    download_if_not_exists(cfg.openssl_android_script_url,
-                           cfg.openssl_android_script_fullpath)
+    # download_if_not_exists(cfg.openssl_android_script_url,
+    #                        cfg.openssl_android_script_fullpath)
 
 
 def openssl_target_os_args(target_platform: Platform) -> List[str]:
@@ -2347,34 +2556,87 @@ vxworks-ppc750 vxworks-ppc750-debug vxworks-ppc860 vxworks-ppcgen
 vxworks-simlinux debug debug-erbridge debug-linux-ia32-aes debug-linux-pentium
 debug-linux-ppro debug-test-64-clang
 
+-------------------------------------------------------------------------------
+OpenSSL 1.1.1c targets (reformatted for clarity):
+-------------------------------------------------------------------------------
+
+Usage: Configure [no-<cipher> ...] [enable-<cipher> ...] [-Dxxx] [-lxxx]
+    [-Lxxx] [-fxxx] [-Kxxx] [no-hw-xxx|no-hw] [[no-]threads] [[no-]shared]
+    [[no-]zlib|zlib-dynamic] [no-asm] [no-egd] [sctp] [386] [--prefix=DIR]
+    [--openssldir=OPENSSLDIR] [--with-xxx[=vvv]] [--config=FILE]
+    os/compiler[:flags]
+
+pick os/compiler from:
+BS2000-OSD BSD-generic32 BSD-generic64 BSD-ia64 BSD-sparc64 BSD-sparcv8
+BSD-x86 BSD-x86-elf BSD-x86_64 Cygwin Cygwin-i386 Cygwin-i486 Cygwin-i586
+Cygwin-i686 Cygwin-x86 Cygwin-x86_64 DJGPP MPE/iX-gcc UEFI UWIN
+
+    VC-CE VC-WIN32 VC-WIN32-ARM VC-WIN32-ONECORE VC-WIN64-ARM VC-WIN64A
+    VC-WIN64A-ONECORE VC-WIN64A-masm VC-WIN64I
+
+aix-cc aix-gcc aix64-cc aix64-gcc
+
+    android-arm android-arm64 android-armeabi android-mips android-mips64
+    android-x86 android-x86_64 android64 android64-aarch64 android64-mips64
+    android64-x86_64
+
+bsdi-elf-gcc cc
+
+    darwin-i386-cc darwin-ppc-cc darwin64-ppc-cc darwin64-x86_64-cc
+
+gcc haiku-x86 haiku-x86_64 hpux-ia64-cc hpux-ia64-gcc
+hpux-parisc-cc hpux-parisc-gcc hpux-parisc1_1-cc hpux-parisc1_1-gcc
+hpux64-ia64-cc hpux64-ia64-gcc hpux64-parisc2-cc hpux64-parisc2-gcc hurd-x86
+
+    ios-cross ios-xcrun ios64-cross ios64-xcrun iossimulator-xcrun
+    iphoneos-cross
+
+irix-mips3-cc irix-mips3-gcc irix64-mips4-cc irix64-mips4-gcc
+
+linux-aarch64 linux-alpha-gcc linux-aout linux-arm64ilp32 linux-armv4
+linux-c64xplus linux-elf linux-generic32 linux-generic64 linux-ia64
+linux-mips32 linux-mips64 linux-ppc linux-ppc64 linux-ppc64le linux-sparcv8
+linux-sparcv9 linux-x32 linux-x86 linux-x86-clang linux-x86_64
+linux-x86_64-clang linux32-s390x linux64-mips64 linux64-s390x linux64-sparcv9
+
+mingw mingw64 nextstep
+nextstep3.3 sco5-cc sco5-gcc solaris-sparcv7-cc solaris-sparcv7-gcc
+solaris-sparcv8-cc solaris-sparcv8-gcc solaris-sparcv9-cc solaris-sparcv9-gcc
+solaris-x86-gcc solaris64-sparcv9-cc solaris64-sparcv9-gcc solaris64-x86_64-cc
+solaris64-x86_64-gcc tru64-alpha-cc tru64-alpha-gcc uClinux-dist
+uClinux-dist64 unixware-2.0 unixware-2.1 unixware-7 unixware-7-gcc vms-alpha
+vms-alpha-p32 vms-alpha-p64 vms-ia64 vms-ia64-p32 vms-ia64-p64 vos-gcc
+vxworks-mips vxworks-ppc405 vxworks-ppc60x vxworks-ppc750 vxworks-ppc750-debug
+vxworks-ppc860 vxworks-ppcgen vxworks-simlinux
+
 NOTE: If in doubt, on Unix-ish systems use './config'.
 
     """
 
     # http://doc.qt.io/qt-5/opensslsupport.html
 
+    # Revised 2019-06-16 for OpenSSL 1.1.1c:
     if target_platform.android:
-        if target_platform.cpu == Cpu.ARM_V5_32:
-            return ["android"]  # ... NB "android" means ARMv5
-        elif target_platform.cpu == Cpu.ARM_V7_32:
-            if OPENSSL_AT_LEAST_1_1:
-                return ["android-armeabi"]
-            else:
-                return ["android-armv7"]
-        elif target_platform.cpu == Cpu.ARM_V8_64:
-            # Based on help message from OpenSSL "Configure"
-            # return ["android64-aarch64"]
-            return ["android64"]
-        elif target_platform.cpu_x86_family:
+        if target_platform.cpu_arm_32bit:
+            return ["android-arm"]
+        elif target_platform.cpu_arm_64bit:
+            return ["android-arm64"]
+        elif target_platform.cpu_x86_32bit_family:
             return ["android-x86"]
+        elif target_platform.cpu_x86_64bit_family:
+            return ["android-x86_64"]
         # if we get here: will raise error below
 
     elif target_platform.linux:
-        if target_platform.cpu_x86_64bit_family:
+        if target_platform.cpu_x86_32bit_family:
+            return ["linux-x86"]
+        elif target_platform.cpu_x86_64bit_family:
             return ["linux-x86_64"]
 
     elif target_platform.macos:
-        if target_platform.cpu_x86_64bit_family:
+        if target_platform.cpu_x86_32bit_family:
+            return ["darwin-i386-cc"]
+        elif target_platform.cpu_x86_64bit_family:
             # https://gist.github.com/tmiz/1441111
             return ["darwin64-x86_64-cc"]
 
@@ -2384,10 +2646,10 @@ NOTE: If in doubt, on Unix-ish systems use './config'.
         # https://gist.github.com/armadsen/b30f352a8d6f6c87a146 <<< ESP. THIS
         # If Bitcode is later required, see the other ones above and
         # https://stackoverflow.com/questions/30722606/what-does-enable-bitcode-do-in-xcode-7  # noqa
-        if target_platform.cpu == Cpu.ARM_V7_32:  # iOS on 32-bit devices
-            return ["ios-cross"]  # "iphoneos-cross"
-        elif target_platform.cpu == Cpu.ARM_V8_64:  # iOS on 64-bit devices
-            return ["ios64-cross"]  # "iphoneos-cross"
+        if target_platform.cpu_arm_32bit:  # iOS on 32-bit devices
+            return ["ios-cross"]
+        elif target_platform.cpu_arm_64bit:  # iOS on 64-bit devices
+            return ["ios64-cross"]
         elif target_platform.cpu_x86_64bit_family:  # iOS on 64-bit simulator
             return ["darwin64-x86_64-cc", "no-asm"]  # unsure if "no-asm" required  # noqa
         elif target_platform.cpu_x86_32bit_family:  # iOS on 32-bit simulator
@@ -2395,14 +2657,6 @@ NOTE: If in doubt, on Unix-ish systems use './config'.
 
     elif target_platform.windows:
         if BUILD_PLATFORM.windows:
-            # if USE_CYGWIN:
-            #     target_os = "Cygwin-x86_64"
-            # elif USE_MINGW:
-            #     if target_platform.cpu_64bit:
-            #         target_os = "mingw64"
-            #     else:
-            #         target_os = "mingw"
-
             # http://p-nand-q.com/programming/windows/building_openssl_with_visual_studio_2013.html  # noqa
             if target_platform.cpu_x86_64bit_family:
                 return ["VC-WIN64A", "-FS"]
@@ -2420,13 +2674,6 @@ NOTE: If in doubt, on Unix-ish systems use './config'.
                 #     and "/FS" identically.
             elif target_platform.cpu_x86_32bit_family:
                 return ["VC-WIN32"]
-
-        elif BUILD_PLATFORM.linux:
-            if USE_MINGW:
-                if target_platform.cpu_64bit:
-                    return ["mingw64"]
-                else:
-                    return ["mingw"]
 
     raise NotImplementedError(
         f"Don't known OpenSSL target name for {target_platform}")
@@ -2505,12 +2752,19 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
     # -------------------------------------------------------------------------
     # OpenSSL: Environment 1/2
     # -------------------------------------------------------------------------
-    env = get_starting_env()
+    env = cfg.get_starting_env()
     cfg.set_compile_env(env, target_platform)
-    if OPENSSL_AT_LEAST_1_1:
-        # https://github.com/openssl/openssl/issues/1681
-        # or: "error: invalid 'asm': invalid operand for code 'w'"
-        env["CROSS_SYSROOT"] = cfg.sysroot(target_platform, env)
+    sysroot = cfg.sysroot(target_platform, env)
+
+    # https://github.com/openssl/openssl/issues/1681
+    # or: "error: invalid 'asm': invalid operand for code 'w'"
+    if not target_platform.android:
+        # CROSS_SYSROOT is deprecated for Android in OpenSSL 1.1.1c; see
+        # NOTES.ANDROID.
+        env["CROSS_SYSROOT"] = sysroot
+
+    if target_platform.android:
+        env["ANDROID_NDK_HOME"] = cfg.android_ndk_root
 
     # -------------------------------------------------------------------------
     # OpenSSL: Special mucking around
@@ -2543,11 +2797,12 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
     # For Android, OpenSSL suggest using their Setenv-android.sh script, then
     # running "config".
     # However, it does seem to be screwing up. Let's try Configure instead.
+    # As of OpenSSL 1.1.1c, that's what they advise (see NOTES.ANDROID).
 
     configure_args = openssl_target_os_args(target_platform)
     target_os = configure_args[0]  # may be used below
     configure_args += [
-        "--prefix=" + cfg.sysroot(target_platform, env),
+        "--prefix=" + sysroot,
         # "--cross-compile-prefix={}".format(
         #     target_platform.cross_compile_prefix),
     ] + OPENSSL_COMMON_OPTIONS
@@ -2557,6 +2812,10 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
             "no-engine",  # disable hardware support ("useful on mobile devices")  # noqa
         ]
     # OpenSSL's Configure script applies optimizations by default.
+    if target_platform.android:
+        configure_args += [
+            f"-D__ANDROID_API__={cfg.android_sdk_version}"
+        ]
 
     # -------------------------------------------------------------------------
     # OpenSSL: Environment 2/2
@@ -2575,22 +2834,7 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
     # OpenSSL: Makefile tweaking prior to running Configure
     # -------------------------------------------------------------------------
     # https://wiki.openssl.org/index.php/Android
-    if not OPENSSL_AT_LEAST_1_1:
-        makefile_org = join(workdir, "Makefile.org")
-        replace_in_file(makefile_org,
-                        "install: all install_docs install_sw",
-                        "install: install_docs install_sw")
-
-    # if BUILD_PLATFORM.windows:
-    #     # https://github.com/openssl/openssl/issues/174
-    #     convert_line_endings(join(workdir, "Makefile.org"), to_unix=True)
-    #     # Without this, the Perl "Configure" script goes wrong and fails to
-    #     # remove "md2" whilst copying Makefile.org to Makefile. This results
-    #     # in the error "#error MD2 is disabled".
-    #     # Here, we guarantee the error regardless of the distribution,
-    #     # because we run a textfile replace on Makefile.org, thus ensuring
-    #     # Windows line endings (which are what the Perl script chokes on).
-    #     # So we have to manually convert it back.
+    # ... none at present
 
     with pushd(workdir):
         # ---------------------------------------------------------------------
@@ -2663,53 +2907,35 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
         make_unversioned_libraries = target_platform.android
 
         if make_unversioned_libraries:
-            if OPENSSL_AT_LEAST_1_1:
-                # Work this out from the generated Makefile.
-                # Look for "all" as the main target.
+            # Work this out from the generated Makefile.
+            # Look for "all" as the main target.
 
-                # This doesn't work:
-                # - Try to avoid "--environment-overrides".
-                # - https://github.com/openssl/openssl/issues/3902
-                # extra_args.append("SHLIB_VERSION_NUMBER=")
-                # extra_args.append("SHLIB_EXT=.so")
+            # This doesn't work:
+            # - Try to avoid "--environment-overrides".
+            # - https://github.com/openssl/openssl/issues/3902
+            # extra_args.append("SHLIB_VERSION_NUMBER=")
+            # extra_args.append("SHLIB_EXT=.so")
 
-                # Homebrew version, 2018-07-14, which works:
-                replace_multiple_in_file(makefile, [
-                    ('SHLIBS=libcrypto.so.$(SHLIB_MAJOR).$(SHLIB_MINOR) libssl.so.$(SHLIB_MAJOR).$(SHLIB_MINOR)',  # noqa
-                     'SHLIBS=libcrypto.so libssl.so'),
-                    ('SHLIB_INFO="libcrypto.so.$(SHLIB_MAJOR).$(SHLIB_MINOR);libcrypto.so" "libssl.so.$(SHLIB_MAJOR).$(SHLIB_MINOR);libssl.so"',  # noqa
-                     'SHLIB_INFO="libcrypto.so" "libssl.so"'),
-                    # ... also deals with INSTALL_SHLIBS, INSTALL_SHLIB_INFO
-                    #     which are identical
-                    ('SHLIBNAME_FULL=libcrypto.so.$(SHLIB_MAJOR).$(SHLIB_MINOR)',  # noqa
-                     'SHLIBNAME_FULL=libcrypto.so'),
-                    ('SHLIBNAME_FULL=libssl.so.$(SHLIB_MAJOR).$(SHLIB_MINOR)',
-                     'SHLIBNAME_FULL=libssl.so'),
-                ])
-            else:
-                # This is one way:
-                # env["CALC_VERSIONS"] = "SHLIB_COMPAT=; SHLIB_SOVER="
-
-                # This is another:
-                # Remove version numbers from final library filenames,
-                # AFTER configure has run:
-                # http://doc.qt.io/qt-5/opensslsupport.html
-                replace_multiple_in_file(makefile, [
-                    ('LIBNAME=$$i LIBVERSION=$(SHLIB_MAJOR).$(SHLIB_MINOR)',
-                     'LIBNAME=$$i'),
-                    ('LIBCOMPATVERSIONS=";$(SHLIB_VERSION_HISTORY)"', ''),
-                ])
+            # Homebrew version, 2018-07-14, which works:
+            replace_multiple_in_file(makefile, [
+                ('SHLIBS=libcrypto.so.$(SHLIB_MAJOR).$(SHLIB_MINOR) libssl.so.$(SHLIB_MAJOR).$(SHLIB_MINOR)',  # noqa
+                 'SHLIBS=libcrypto.so libssl.so'),
+                ('SHLIB_INFO="libcrypto.so.$(SHLIB_MAJOR).$(SHLIB_MINOR);libcrypto.so" "libssl.so.$(SHLIB_MAJOR).$(SHLIB_MINOR);libssl.so"',  # noqa
+                 'SHLIB_INFO="libcrypto.so" "libssl.so"'),
+                # ... also deals with INSTALL_SHLIBS, INSTALL_SHLIB_INFO
+                #     which are identical
+                ('SHLIBNAME_FULL=libcrypto.so.$(SHLIB_MAJOR).$(SHLIB_MINOR)',  # noqa
+                 'SHLIBNAME_FULL=libcrypto.so'),
+                ('SHLIBNAME_FULL=libssl.so.$(SHLIB_MAJOR).$(SHLIB_MINOR)',
+                 'SHLIBNAME_FULL=libssl.so'),
+            ])
 
         def runmake(command: str = "") -> None:
             run(cfg.make_args(command=command, env=env,
                               extra_args=extra_args), env)
 
-        if OPENSSL_AT_LEAST_1_1:
-            # See INSTALL, INSTALL.WIN, etc. from the OpenSSL distribution
-            runmake()
-        else:
-            runmake("depend")
-            runmake("build_libs")
+        # See INSTALL, INSTALL.WIN, etc. from the OpenSSL distribution
+        runmake()
 
         # ---------------------------------------------------------------------
         # OpenSSL: Test
@@ -2750,6 +2976,10 @@ def fetch_qt(cfg: Config) -> None:
         return
     chdir(cfg.qt_src_gitdir)
     run([PERL, "init-repository"])
+    # Now, as per https://wiki.qt.io/Android:
+    if QT_SPECIFIC_VERSION:
+        run([GIT, "checkout", QT_SPECIFIC_VERSION])
+        run([GIT, "submodule", "update", "--recursive"])
 
 
 def build_qt(cfg: Config, target_platform: Platform) -> str:
@@ -2794,6 +3024,12 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         # relevant messages are easily lost in the torrent
         require(ANT)
 
+        # clang will have a funny name (with a cross-compile prefix) in this
+        # situation, so checking for "clang" isn't enough. Will Qt get this
+        # right automatically? Yes.
+        # if USE_CLANG_NOT_GCC_FOR_ANDROID_ARM:
+        #     require(CLANG)
+
     opensslrootdir, opensslworkdir = cfg.get_openssl_rootdir_workdir(target_platform)  # noqa
     openssl_include_root = join(opensslworkdir, "include")
     openssl_lib_root = opensslworkdir
@@ -2821,7 +3057,7 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
     # -------------------------------------------------------------------------
     # Qt: Environment
     # -------------------------------------------------------------------------
-    env = get_starting_env()
+    env = cfg.get_starting_env()
     openssl_libs = f"-L{openssl_lib_root} -lssl -lcrypto"
     # See also https://bugreports.qt.io/browse/QTBUG-62016
     env['OPENSSL_LIBS'] = openssl_libs
@@ -2847,14 +3083,22 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         configure_prog_name = "configure.bat"
     else:
         configure_prog_name = "configure"
+    sysroot = cfg.sysroot(target_platform, env)
+    includedirs = [
+        openssl_include_root,  # #include files for OpenSSL
+    ]
+    objdirs = []  # type: List[str]
+    libdirs = [
+        openssl_lib_root,  # libraries for OpenSSL
+    ]
     qt_config_args = [
         join(cfg.qt_src_gitdir, configure_prog_name),
         # General options:
-        "-I", openssl_include_root,  # OpenSSL
-        "-L", openssl_lib_root,  # OpenSSL
-        "-prefix", installdir,
+        "-prefix", installdir,  # where to install Qt
         "-recheck-all",  # don't cache from previous configure runs
         "OPENSSL_LIBS=" + openssl_libs,
+        # "-sysroot": not required; Qt's configure should handle this
+        # "-gcc-sysroot": not required
     ]
     if qt_linkage_static:
         qt_config_args.append("-static")
@@ -2869,7 +3113,13 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
     #
     # no, doesn't work: # qt_config_args += ["-no-feature-printing-and-pdf"]
 
-    android_arch_short = "?"
+    extra_qmake_cxxflags = []  # type: List[str]
+    extra_qmake_lflags = []  # type: List[str]
+    if cfg.verbose >= 2:
+        extra_qmake_cxxflags += ["-v"]  # make clang++ verbose
+        extra_qmake_cxxflags += ["-Xlinker --verbose=2"]  # make linker verbose
+        # extra_qmake_lflags += ["--verbose=2"]  # make ld verbose
+
     if target_platform.android:
         # We use a dynamic build of Qt (bundled into the APK), not a static
         # version; see android_compilation.txt
@@ -2887,11 +3137,22 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         qt_config_args += [
             "-android-sdk", cfg.android_sdk_root,
             "-android-ndk", cfg.android_ndk_root,
+            "-android-ndk-platform", cfg.android_ndk_platform,  # https://wiki.qt.io/Android  # noqa
             "-android-ndk-host", cfg.android_ndk_host,
             "-android-arch", android_arch_short,
             "-android-toolchain-version", cfg.android_toolchain_version,
-            "-xplatform", "android-g++",
+            "--disable-rpath",  # 2019-06-16; https://wiki.qt.io/Android
         ]
+        if cfg.android_clang_not_gcc:
+            qt_config_args += ["-xplatform", "android-clang"]
+            # log.critical(sysroot)
+            # libdir1 = join(sysroot, "usr", "lib", target_platform.target_triplet)  # noqa
+            # libdir2 = join(libdir1, str(cfg.android_sdk_version))
+            # libdirs.extend([libdir1, libdir2])
+            # objdirs.append(libdir2)
+        else:
+            qt_config_args += ["-xplatform", "android-g++"]
+
     elif target_platform.linux:
         if QT_XCB_SUPPORT_OK:
             qt_config_args.append("-qt-xcb")  # use XCB source bundled with Qt
@@ -2899,110 +3160,23 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
             qt_config_args.append("-system-xcb")  # use system XCB libraries
             # http://doc.qt.io/qt-5/linux-requirements.html
         qt_config_args += ["-gstreamer", "1.0"]  # gstreamer version; see troubleshooting below  # noqa
+
     elif target_platform.macos:
-        pass
+        if BUILD_PLATFORM.macos:
+            qt_config_args += []  # not cross-compiling
+        else:
+            raise NotImplementedError(
+                f"Don't know how to compile Qt for MacOS on "
+                f"{target_platform}")
+
     elif target_platform.ios:
         # http://doc.qt.io/qt-5/building-from-source-ios.html
         # "A default build builds both the simulator and device libraries."
-        qt_config_args += [
-            "-xplatform", "macx-ios-clang"
-        ]
+        qt_config_args += ["-xplatform", "macx-ios-clang"]
+
     elif target_platform.windows:
-        if BUILD_PLATFORM.linux:
-            # Compare MXE's mxe/src/qt5.mk (for Qt 5.9.2), with # comments added  # noqa
-            # ... NOT qt.mk, which is for Qt 4.x
-            # See also qt5/qtbase/configure.json; e.g. search for "nomake" to see options  # noqa
-            # https://stackoverflow.com/questions/22540239/what-would-be-a-pratical-example-of-sysroot-and-prefix-options-for-qt  # noqa
-            _ = """
-define $(PKG)_BUILD
-    # ICU is buggy. See #653. TODO: reenable it some time in the future.
-    cd '$(1)' && \
-        OPENSSL_LIBS="`'$(TARGET)-pkg-config' --libs-only-l openssl`" \
-        PSQL_LIBS="-lpq -lsecur32 `'$(TARGET)-pkg-config' --libs-only-l openssl pthreads` -lws2_32" \
-        SYBASE_LIBS="-lsybdb `'$(TARGET)-pkg-config' --libs-only-l gnutls` -liconv -lws2_32" \
-        PKG_CONFIG="${TARGET}-pkg-config" \
-        PKG_CONFIG_SYSROOT_DIR="/" \
-        PKG_CONFIG_LIBDIR="$(PREFIX)/$(TARGET)/lib/pkgconfig" \
-        ./configure \
-            -opensource \                                       # QT_CONFIG_COMMON_ARGS
-            -confirm-license \                                  # QT_CONFIG_COMMON_ARGS
-            -xplatform win32-g++ \                              # had already
-            -device-option CROSS_COMPILE=${TARGET}- \           # had already
-            -device-option PKG_CONFIG='${TARGET}-pkg-config' \  # added
-            -pkg-config \                                       # added
-            -force-pkg-config \                                 # added
-            -no-use-gold-linker \                               # added
-            -release \                                          # see debug_build
-            -static \                                           # see qt_linkage_static
-            -prefix '$(PREFIX)/$(TARGET)/qt5' \
-            -no-icu \                                           # added
-            -opengl desktop \                                   # had already
-            -no-glib \                                          # added
-            -accessibility \                                    # is the default, but added anyway
-            -nomake examples \                                  # QT_CONFIG_COMMON_ARGS
-            -nomake tests \                                     # QT_CONFIG_COMMON_ARGS
-            -plugin-sql-mysql \                                 # disabled in QT_CONFIG_COMMON_ARGS
-            -mysql_config $(PREFIX)/$(TARGET)/bin/mysql_config \# plugin disabled in QT_CONFIG_COMMON_ARGS
-            -plugin-sql-sqlite \
-            -plugin-sql-odbc \                                  # disabled in QT_CONFIG_COMMON_ARGS
-            -plugin-sql-psql \                                  # disabled in QT_CONFIG_COMMON_ARGS
-            -plugin-sql-tds -D Q_USE_SYBASE \                   # disabled in QT_CONFIG_COMMON_ARGS
-            -system-zlib \                                      # Qt version instead
-            -system-libpng \                                    # Qt version instead
-            -system-libjpeg \                                   # Qt version instead
-            -system-sqlite \                                    # Qt version instead
-            -fontconfig \                                       # added
-            -system-freetype \                                  # added
-            -system-harfbuzz \                                  # added
-            -system-pcre \                                      # added
-            -openssl-linked \                                   # see qt_openssl_linkage_static
-            -dbus-linked \                                      # added
-            -no-pch \                                           # added
-            -v \                                                # see cfg.verbose
-            $($(PKG)_CONFIGURE_OPTS)
-            """  # noqa
-
-            # https://stackoverflow.com/questions/10934683/how-do-i-configure-qt-for-cross-compilation-from-linux-to-windows-target  # noqa
-            crosscomp = target_platform.cross_compile_prefix
-            qt_config_args += [
-                "-xplatform", "win32-g++",
-
-                "-device-option", "CROSS_COMPILE=" + crosscomp,
-                # ... the environment CROSS_COMPILE setting isn't enough
-
-                # "-opengl", "dynamic",
-                # ... or get: "fatal error: GLES2/gl2.h: No such file or directory"  # noqa
-                "-opengl", "desktop",
-                # ... or get: "fatal error: EGL/egl.h: No such file or directory"  # noqa
-
-                # These as per MXE:
-                "-device-option", f"PKG_CONFIG={crosscomp}pkg-config",
-                "-pkg-config",
-                "-force-pkg-config",
-                "-no-use-gold-linker",
-                "-no-icu",
-                "-no-glib",
-                "-accessibility",
-                # "-fontconfig",
-                "-qt-freetype",     # was system
-                "-qt-harfbuzz",     # was system
-                "-qt-pcre",         # was system
-                "-no-dbus",         # don't need it
-                "-no-pch",
-
-                "-I", join(cfg.mxe_usr_dir, target_platform.mxe_target, "include")  # noqa
-                # ... Qt translates this to "-isystem" rather than "-i" in the
-                #     eventual call to the compiler
-            ]
-            # winsdk_basedir = "/home/rudolf/tmp/winsdk-10/Include/10.0.14393.0"
-            # for d in ["km", "mmos", "shared", "ucrt", "um", "winrt"]:
-            #     qt_config_args += ["-I", join(winsdk_basedir, d)]
-            # Still not enough! Now needs vcruntime.h, etc...
-            # raise NotImplementedError(CANNOT_CROSS_COMPILE_QT)
-
-        elif BUILD_PLATFORM.windows:
-            qt_config_args += []
-
+        if BUILD_PLATFORM.windows:
+            qt_config_args += []  # not cross-compiling
         else:
             raise NotImplementedError(
                 f"Don't know how to compile Qt for Windows on "
@@ -3011,6 +3185,21 @@ define $(PKG)_BUILD
     else:
         raise NotImplementedError("Don't know how to compile Qt for " +
                                   str(target_platform))
+
+    for objdir in objdirs:
+        extra_qmake_cxxflags.append(f"-B{objdir}")
+
+    if extra_qmake_cxxflags:
+        qt_config_args.append("QMAKE_CXXFLAGS += {}".format(
+            " ".join(extra_qmake_cxxflags)))
+    if extra_qmake_lflags:
+        qt_config_args.append("QMAKE_LFLAGS += {}".format(
+            " ".join(extra_qmake_lflags)))
+
+    for includedir in includedirs:
+        qt_config_args.extend(["-I", includedir])
+    for libdir in libdirs:
+        qt_config_args.extend(["-L", libdir])
 
     qt_config_args.extend(QT_CONFIG_COMMON_ARGS)
 
@@ -3048,66 +3237,8 @@ define $(PKG)_BUILD
     if cfg.verbose >= 2:
         qt_config_args.append("-v")  # more verbose
 
-    # Fix other problems:
-
-    if FIX_QT_5_9_2_CROSS_COMPILE_TOP_LEVEL_BUILD_BUG:
-        # "You cannot configure qt separately within a top-level build."
-        def check_bad_super_cache(bad_super_cache: str) -> None:
-            if os.path.exists(bad_super_cache):
-                fail(
-                    f"You must delete {bad_super_cache!r} first, or Qt's "
-                    f"'configure' will fail with the error 'Project ERROR: "
-                    f"You cannot configure qt separately within a top-level "
-                    f"build.' (from qtbase/mkspecs/features/qt_configure.prf, "
-                    f"when it checks _QMAKE_SUPER_CACHE_)."
-                )
-
-        check_bad_super_cache(os.path.expanduser("~/.qmake.super"))
-        check_bad_super_cache(join(cfg.root_dir, ".qmake.super"))
-
-    if FIX_QT_5_10_0_CONFIGURE_PRINTING_AND_PDF_BUG:
-        # https://bugreports.qt.io/browse/QTBUG-64770
-        replace_in_file(
-            filename=join(cfg.qt_src_gitdir, "qtwebengine", "configure.json"),
-            text_from='"condition": "config.unix && features.printing-and-pdf",',  # noqa
-            text_to='"condition": "config.unix && features.webengine-printing-and-pdf",'  # noqa
-            # missing "webengine-"
-        )
-
-    if target_platform.windows and BUILD_PLATFORM.linux:
-
-        if FIX_QT_5_9_2_CROSS_COMPILE_EXECVP_MISSING_COMPILER_BUG:
-            # "execvp: .obj/release/pcre2_auto_possess.o: Permission denied"
-            # https://bugreports.qt.io/browse/QTBUG-63659
-            # https://bugreports.qt.io/browse/QTBUG-63637
-            win32_qmake_conf = join(cfg.qt_src_gitdir, "qtbase",
-                                    "mkspecs", "win32-g++", "qmake.conf")
-            add_line_if_absent(
-                filename=win32_qmake_conf,
-                line="QMAKE_LINK_OBJECT_MAX = 10"
-            )
-            add_line_if_absent(
-                filename=win32_qmake_conf,
-                line="QMAKE_LINK_OBJECT_SCRIPT = object_script"
-            )
-            # I think this bug also makes it use "g++" rather than
-            # "x86_64-w64-mingw32.static-g++"!
-
-            # Argh; much difficulty; probably this bug:
-            # https://bugreports.qt.io/browse/QTBUG-62434
-            # ... "configure/qmake fails when cross-compiling"
-            # ... loses the CROSS_COMPILE variable
-            # ... so solution: move to "5.10" Qt branch.
-
-        if FIX_QT_5_9_2_W64_HOST_TOOL_WANTS_WINDOWS_H:
-            # https://bugreports.qt.io/browse/QTBUG-38223
-            _ = """
-g++ -c -pipe -O2 -std=c++11 -fno-exceptions -Wall -W -D_REENTRANT -fPIC -DQT_NO_NARROWING_CONVERSIONS_IN_CONNECT -DQT_USE_QSTRINGBUILDER -DQT_NO_EXCEPTIONS -D_LARGEFILE64_SOURCE -D_LARGEFILE_SOURCE -DQT_NO_DEBUG -DQT_BOOTSTRAP_LIB -DQT_VERSION_STR='"5.10.0"' -DQT_VERSION_MAJOR=5 -DQT_VERSION_MINOR=10 -DQT_VERSION_PATCH=0 -DQT_BOOTSTRAPPED -DQT_NO_CAST_TO_ASCII -I/home/rudolf/dev/qt_local_build/src/qt5/qtactiveqt/src/tools/idc -I. -I/home/rudolf/dev/qt_local_build/qt_windows_x86_64_build/qtbase/include -I/home/rudolf/dev/qt_local_build/qt_windows_x86_64_build/qtbase/include/QtCore -I/home/rudolf/dev/qt_local_build/qt_windows_x86_64_build/qtbase/include/QtCore/5.10.0 -I/home/rudolf/dev/qt_local_build/qt_windows_x86_64_build/qtbase/include/QtCore/5.10.0/QtCore -I/home/rudolf/dev/qt_local_build/qt_windows_x86_64_build/qtbase/include/QtXml -I/home/rudolf/dev/qt_local_build/qt_windows_x86_64_build/qtbase/include/QtXml/5.10.0 -I/home/rudolf/dev/qt_local_build/qt_windows_x86_64_build/qtbase/include/QtXml/5.10.0/QtXml -I/home/rudolf/dev/qt_local_build/src/qt5/qtbase/mkspecs/linux-g++ -o .obj/main.o /home/rudolf/dev/qt_local_build/src/qt5/qtactiveqt/src/tools/idc/main.cpp
-In file included from /home/rudolf/dev/qt_local_build/qt_windows_x86_64_build/qtbase/include/QtCore/qt_windows.h:1:0,
-                 from /home/rudolf/dev/qt_local_build/src/qt5/qtactiveqt/src/tools/idc/main.cpp:33:
-/home/rudolf/dev/qt_local_build/qt_windows_x86_64_build/qtbase/include/QtCore/../../../../src/qt5/qtbase/src/corelib/global/qt_windows.h:64:21: fatal error: windows.h: No such file or directory
-"""  # noqa
-            qt_config_args += ["-skip", "qtactiveqt"]
+    # Fix other Qt bugs:
+    # ... cleaned up, none relevant at present
 
     # -------------------------------------------------------------------------
     # Qt: configure
@@ -3116,7 +3247,7 @@ In file included from /home/rudolf/dev/qt_local_build/qt_windows_x86_64_build/qt
         try:
             run(qt_config_args, env)  # The configure step takes a few seconds.
         except subprocess.CalledProcessError:
-            log.critical("""
+            log.warning("""
 ..
 
 ===============================================================================
@@ -3147,7 +3278,7 @@ Troubleshooting Qt 'configure' failures
     you.
 
 """)
-            raise
+            sys.exit(EXIT_FAILURE)
 
     # -------------------------------------------------------------------------
     # Qt: make (can take several hours)
@@ -3159,7 +3290,7 @@ Troubleshooting Qt 'configure' failures
         try:
             run(cfg.make_args(env=env), env)
         except subprocess.CalledProcessError:
-            log.critical("""
+            log.warning("""
 ..
 
 ===============================================================================
@@ -3184,35 +3315,11 @@ A.  Standard header files like os/log.h should live within
       That should install SDKs for iOS 11.4 and macOS 10.13.4.
 
 """)  # noqa
-            _ = """
-Q.  fatal error: uiviewsettingsinterop.h: No such file or directory
-A.  Looks tricky:
-    https://forum.qt.io/topic/76092/unable-to-compile-qt5-8-with-mingw-64-bit-compiler/4
-
-Q.  fatal error: vcruntime.h: No such file or directory
-A.  !!! does MXE build, and if so, can we copy it?
-    !!! https://stackoverflow.com/questions/14170590/building-qt-5-on-linux-for-windows
-            """  # noqa
-            raise
+            sys.exit(EXIT_FAILURE)
 
     # -------------------------------------------------------------------------
     # Qt: make install
     # -------------------------------------------------------------------------
-    if target_platform.android and FIX_QT_5_7_0_ANDROID_MAKE_INSTALL_BUG:
-        # PROBLEM WITH "make install":
-        #       mkdir: cannot create directory ‘/libs’: Permission denied
-        # ... while processing qttools/src/qtplugininfo/Makefile
-        # https://bugreports.qt.io/browse/QTBUG-45095
-        # 1. Attempt to fix as follows:
-        makefile = join(builddir, "qttools", "src", "qtplugininfo", "Makefile")
-        baddir = join("$(INSTALL_ROOT)", "libs", android_arch_short, "")
-        gooddir = join(installdir, "libs", android_arch_short, "")
-        replace_in_file(makefile, " " + baddir, " " + gooddir)
-
-    # 2. Using INSTALL_ROOT: bases the root of a filesystem off installdir
-    # env["INSTALL_ROOT"] = installdir
-    # http://stackoverflow.com/questions/8360609
-
     with pushd(builddir):
         run(cfg.make_args(command="install", env=env), env)
     # ... installs to installdir because of -prefix earlier
@@ -3254,6 +3361,15 @@ def fetch_sqlcipher(cfg: Config) -> None:
     # We must have LF endings, not CR+LF, because we're going to use Unix tools
     # even under Windows.
 
+    # The versions of config.guess and config.sub that come with SQLCipher
+    # are taken (I think) from SQLite, and as of 2019-06-15, don't support
+    # "aarch64". So let's fetch some proper ones:
+    log.info("Replacing config.guess and config.sub for e.g. aarch64")
+    download(CONFIG_GUESS_MASTER,
+             join(cfg.sqlcipher_src_gitdir, "config.guess"))
+    download(CONFIG_SUB_MASTER,
+             join(cfg.sqlcipher_src_gitdir, "config.sub"))
+
 
 def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
     """
@@ -3293,7 +3409,7 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
 
     copy_tree_contents(cfg.sqlcipher_src_gitdir, destdir, destroy=True)
 
-    env = get_starting_env()
+    env = cfg.get_starting_env()
     cfg.set_compile_env(env, target_platform, use_cross_compile_var=False,
                         building_sqlcipher=True)
 
@@ -3318,26 +3434,11 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
             replace_multiple_in_file(
                 filename=makefile,
                 replacements=[
-                    # ("SQLITE3DLL = winsqlite3.dll", "SQLITE3DLL = sqlcipher.dll"),  # noqa
-                    # ("SQLITE3DLL = sqlite3.dll", "SQLITE3DLL = sqlcipher.dll"),  # noqa
-
-                    # ("SQLITE3LIB = winsqlite3.lib", "SQLITE3LIB = sqlite3.lib"),  # noqa
-                    # ("SQLITE3LIB = winsqlite3.lib", "SQLITE3LIB = sqlcipher.lib"),  # noqa
-                    # ("SQLITE3LIB = sqlite3.lib", "SQLITE3LIB = sqlcipher.lib"),  # noqa
-
-                    # ("SQLITE3EXE = winsqlite3shell.exe", "SQLITE3EXE = sqlcipher.exe"),  # noqa
-                    # ("SQLITE3EXE = sqlite3.exe", "SQLITE3EXE = sqlcipher.exe"),  # noqa
-
-                    # ("SQLITE3EXEPDB = \n", "SQLITE3EXEPDB = /pdb:sqlciphersh.pdb\n"),  # noqa
-                    # ("SQLITE3EXEPDB = /pdb:sqlite3sh.pdb", "SQLITE3EXEPDB = /pdb:sqlciphersh.pdb"),  # noqa
-
                     ("TCC = $(TCC) -DSQLITE_TEMP_STORE=1",
                      "TCC = $(TCC) -DSQLITE_TEMP_STORE=2 " + extra_tcc_rcc),
 
                     ("RCC = $(RCC) -DSQLITE_TEMP_STORE=1",
                      "RCC = $(RCC) -DSQLITE_TEMP_STORE=2 " + extra_tcc_rcc),
-
-                    # ("sqlite3.def", "sqlcipher.def"),
                 ]
             )
             if not is_tclsh_windows_compatible():
@@ -3476,163 +3577,9 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
 
 
 # =============================================================================
-# Boost
-# =============================================================================
-
-def fetch_boost(cfg: Config) -> None:
-    """
-    Downloads Boost source code.
-    """
-    log.info("Fetching Boost source...")
-    download_if_not_exists(cfg.boost_src_url, cfg.boost_src_fullpath)
-
-
-def build_boost(cfg: Config) -> None:
-    """
-    Unpacks Boost from source.
-    Try to avoid anything needing compilation; if we can keep this to
-    "headers-only" Boost, it will be cross-platform without further effort.
-    """
-    log.info("Building (unpacking) Boost...")
-    untar_to_directory(cfg.boost_src_fullpath, cfg.boost_dest_dir,
-                       run_func=run, chdir_via_python=True)
-
-
-# =============================================================================
-# Armadillo
-# =============================================================================
-
-def fetch_armadillo(cfg: Config) -> None:
-    """
-    Downloads Armadillo source code.
-    There's also a Git repository at
-        https://github.com/conradsnicta/armadillo-code
-    but the download is the verified static snapshot.
-    """
-    log.info("Fetching Armadillo source...")
-    download_if_not_exists(cfg.arma_src_url, cfg.arma_src_fullpath)
-
-
-def build_armadillo(cfg: Config) -> None:
-    log.info("Building (unpacking) Armadillo...")
-    untar_to_directory(cfg.arma_src_fullpath, cfg.arma_dest_dir,
-                       run_func=run, chdir_via_python=True)
-    # run([CMAKE,
-    #      # "-D", "ARMADILLO_LIBRARY={}".format(cfg.arma_lib),
-    #      "-D", "ARMADILLO_INCLUDE_DIR={}".format(cfg.arma_include_dir),
-    #      cfg.arma_working_dir])
-    # run([MAKE, "-C", cfg.arma_working_dir])
-
-
-# =============================================================================
-# MLPACK
-# =============================================================================
-
-def fetch_mlpack(cfg: Config) -> None:
-    """
-    Downloads MLPACK source code.
-    """
-    log.info("Fetching MLPACK source...")
-    git_clone(prettyname="MLPACK",
-              url=cfg.mlpack_git_url,
-              commit=cfg.mlpack_git_commit,
-              directory=cfg.mlpack_src_gitdir,
-              run_func=run)
-
-
-def build_mlpack(cfg: Config) -> None:
-    """
-    Without building, there is no <mlpack/mlpack_export.hpp>
-
-    We run cmake for MLPACK, telling it where Armadillo lives.
-
-    If you get this:
-        CMake Error at CMake/NewCXX11.cmake:4 (target_compile_features):
-        target_compile_features no known features for CXX compiler
-        "GNU"
-    ... update cmake from 3.5.1
-        https://stackoverflow.com/questions/38027292/configure-a-qt5-5-7-application-for-android-with-cmake
-        https://bugreports.qt.io/browse/QTBUG-54666
-    ... note that CMake 3.7.0 is the first to support Android cross-
-        compilation, too
-    ... e.g. from https://launchpad.net/ubuntu/+source/cmake
-        ... hard to install.
-        ... first >=3.7.0 is Ubuntu zesty
-        ... no backports to xenial
-        ... "pinning"
-        ... or just manually install .deb files:
-
-        sudo dpkg --install \
-            cmake_3.7.2-1_amd64.deb \
-            cmake-data_3.7.2-1_all.deb \
-            libjsoncpp1_1.7.4-3_amd64.deb
-
-        from
-            https://launchpad.net/ubuntu/+source/cmake
-            https://packages.ubuntu.com/zesty/libjsoncpp1
-
-    ... no, still get error; aha:
-        https://github.com/mlpack/mlpack/issues/796
-    ... see CMAKE_CXX_FLAGS below
-        ... no, would need more hacking of the CMakeLists.txt
-    ... aha! Define FORCE_CXX11=1
-
-    """  # noqa
-    log.info("Building MLPACK...")
-    delete_cmake_cache(cfg.mlpack_src_gitdir)
-    cmakelists = join(cfg.mlpack_src_gitdir, "CMakeLists.txt")
-    replacements = [
-        # The supplied version hard-codes the Boost versions (as of 2017-06-06,
-        # to versions 1.49.0 through 1.55.0), asking for 1.49.
-        (
-            '''set(Boost_ADDITIONAL_VERSIONS
-  "1.49.0" "1.50.0" "1.51.0" "1.52.0" "1.53.0" "1.54.0" "1.55.0")''',
-            f'set(Boost_ADDITIONAL_VERSIONS "{cfg.boost_version}")'
-        ),
-        # Note that FindBoost.cmake looks for
-        #       boost_program_options
-        #       boost_unit_test_framework
-        #       boost_serialization
-        # as libraries (and they require Boost compilation)...
-        # ... BECAUSE they are marked as REQUIRED by MLPACK's CMakeLists.txt
-        # We shouldn't need them, so as well as changing the Boost version,
-        # we can remove the requirement:
-        (
-            """find_package(Boost 1.49
-    COMPONENTS
-      program_options
-      unit_test_framework
-      serialization
-    REQUIRED
-)""",
-            f"find_package(Boost {cfg.boost_version})"
-        ),
-    ]
-    replace_multiple_in_file(cmakelists, replacements)
-    log.info("CMake version:")
-    with pushd(cfg.mlpack_src_gitdir):
-        run([CMAKE, "--version"])
-        run([
-            CMAKE,
-            #  "-D", "ARMADILLO_LIBRARY={}".format(cfg.arma_lib),
-            "-D", f"ARMADILLO_INCLUDE_DIR={cfg.arma_include_dir}",
-            "-D", f"BOOST_ROOT={cfg.boost_root}",
-            "-D", f"BOOST_INCLUDEDIR={cfg.boost_include_dir}",
-            "-D", f"BOOST_LIBRARYDIR={cfg.boost_library_dir}",
-            # "-D", "CMAKE_CXX_FLAGS=-I/usr/local/opt/llvm/include -std=c++11",
-            "-D", "FORCE_CXX11=1"
-            # "-D", "Boost_DEBUG=ON",  # tell FindBoost.cmake to be verbose
-            # "-L",  # list variables
-            # "--debug-output",
-            # "--trace-expand",  # very verbose
-            "-Wno-dev",  # turn off some warnings
-            cfg.mlpack_src_gitdir
-        ])
-
-
-# =============================================================================
 # Eigen
 # =============================================================================
+# A better matrix system than mlpack, not least in that Eigen is headers-only
 
 def fetch_eigen(cfg: Config) -> None:
     """
@@ -3656,90 +3603,6 @@ def build_eigen(cfg: Config) -> None:
 
 
 # =============================================================================
-# MXE: cross-compilation environment for Linux hosts
-# =============================================================================
-
-def fetch_mxe(cfg: Config) -> None:
-    """
-    Downloads MXE
-    http://mxe.cc/
-    """
-    log.info("Fetching MXE source...")
-    git_clone(prettyname="MXE",
-              url=cfg.mxe_git_url,
-              directory=cfg.mxe_src_gitdir,
-              run_func=run)
-
-
-def build_mxe(cfg: Config, target_platform: Platform,
-              debug_make: bool = False,
-              build_qt_as_test: bool = False) -> None:
-    """
-    Builds MXE. (This is a prerequisite to using MXE to build something else!)
-    """
-    log.info(f"Building MXE for {target_platform}...")
-    if BUILD_PLATFORM.debian:
-        require_debian_packages(
-            "autoconf automake autopoint bash bison bzip2 flex gettext "
-            "git g++ gperf intltool libffi-dev libgdk-pixbuf2.0-dev "
-            "libtool-bin libltdl-dev libssl-dev libxml-parser-perl make "
-            "openssl p7zip-full patch perl pkg-config python ruby scons "
-            "sed unzip wget xz-utils".split()
-        )
-        if BUILD_PLATFORM.cpu_64bit:
-            require_debian_packages(
-                "g++-multilib libc6-dev-i386".split()
-            )
-    cmdargs = [
-        MAKE,
-        "-j", str(cfg.nparallel),
-    ]
-    if debug_make:
-        cmdargs.append("--debug=b")
-    cmdargs += [
-        "MXE_TARGETS=" + target_platform.mxe_target,
-        # "qt5",
-        # ... we're trying not to NEED that, so if you remove that
-        # command, add in the qt5 dependencies (see qt5.mk in MXE):
-        "gcc", "dbus", "freetds", "jpeg", "libmng", "libpng",
-        "openssl", "postgresql", "sqlite", "tiff", "zlib",
-    ]
-    if build_qt_as_test:
-        cmdargs.append("qt5")  # Qt 5 (all of it)
-    with pushd(cfg.mxe_src_gitdir):
-        try:
-            run(cmdargs)
-        except subprocess.CalledProcessError:
-            log.critical(r"""
-..
-
-===============================================================================
-Troubleshooting MXE 'make' failures
-===============================================================================
-
-Q.  "Missing requirements"
-    OR "recipe for target '.../src/mxe/usr/i686-w64-mingw32.static/installed/
-    fontconfig' failed"
-A.  Debian:
-
-        apt-get install \
-            autoconf automake autopoint bash bison bzip2 flex gettext \
-            git g++ gperf intltool libffi-dev libgdk-pixbuf2.0-dev \
-            libtool-bin libltdl-dev libssl-dev libxml-parser-perl make \
-            openssl p7zip-full patch perl pkg-config python ruby scons \
-            sed unzip wget xz-utils
-
-    Debian 64-bit:
-
-        apt-get install g++-multilib libc6-dev-i386
-
-    See http://mxe.cc/#requirements
-
-""")
-            raise
-
-
-# =============================================================================
 # Master build function
 # =============================================================================
 
@@ -3756,7 +3619,7 @@ def master_builder(args) -> None:
     log.info("Running on {}", BUILD_PLATFORM)
 
     if cfg.show_config_only:
-        sys.exit(0)
+        sys.exit(EXIT_SUCCESS)
 
     # =========================================================================
     # Test the environment passing
@@ -3783,29 +3646,13 @@ def master_builder(args) -> None:
     fetch_qt(cfg)
     fetch_openssl(cfg)
     fetch_sqlcipher(cfg)
-    if USE_BOOST:
-        fetch_boost(cfg)
-    if USE_ARMADILLO:
-        fetch_armadillo(cfg)
-    if USE_MLPACK:
-        fetch_mlpack(cfg)
-    if USE_EIGEN:
-        fetch_eigen(cfg)
-    if USE_MXE and BUILD_PLATFORM.linux:
-        fetch_mxe(cfg)
+    fetch_eigen(cfg)
 
     # =========================================================================
     # Build
     # =========================================================================
 
-    if USE_BOOST:
-        build_boost(cfg)
-    if USE_ARMADILLO:
-        build_armadillo(cfg)
-    if USE_MLPACK:
-        build_mlpack(cfg)
-    if USE_EIGEN:
-        build_eigen(cfg)
+    build_eigen(cfg)
 
     installdirs = []
     done_extra = False
@@ -3813,9 +3660,6 @@ def master_builder(args) -> None:
     # noinspection PyShadowingNames
     def build_for(os: str, cpu: str) -> None:
         target_platform = Platform(os, cpu)
-        if USE_MXE and BUILD_PLATFORM.linux and target_platform.windows:
-            log.info("Building MXE for cross-compilation (Linux -> Windows)")
-            build_mxe(cfg, target_platform)
         log.info(f"Building (1) OpenSSL, (2) SQLite/SQLCipher, (3) Qt "
                  f"for {target_platform}")
         build_openssl(cfg, target_platform)
@@ -3845,18 +3689,8 @@ def master_builder(args) -> None:
         build_for(Os.WINDOWS, Cpu.X86_64)
 
     if cfg.build_windows_x86_32:  # for 32-bit Windows
-        if BUILD_PLATFORM.linux and MXE_HAS_GCC_WITH_I386_BUG:
-            fail("""
-Can't build for Win32. Error will be:
-    internal compiler error: in ix86_compute_frame_layout, at config/i386/i386.c:10145
-
-Compiler bug is:
-    https://sourceforge.net/p/mingw-w64/bugs/544/
-    ... due to: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=71864
-
-... needs MXE to support a more recent version of mingw-w64 and in turn a more
-    recent version of gcc
-""")  # noqa
+        if BUILD_PLATFORM.linux:
+            fail(CANNOT_CROSS_COMPILE_QT)
         build_for(Os.WINDOWS, Cpu.X86_32)
 
     if cfg.build_ios_arm_v7_32:  # for iOS (e.g. iPad) with 32-bit ARM processor  # noqa
@@ -3875,7 +3709,7 @@ Compiler bug is:
 
     if not installdirs and not done_extra:
         log.warning("Nothing more to do. Run with --help argument for help.")
-        sys.exit(1)
+        sys.exit(EXIT_FAILURE)
 
     log.info("""
 ..
@@ -3887,7 +3721,7 @@ Now, to compile CamCOPS using Qt Creator:
 See tablet_qt/notes/QT_PROJECT_SETTINGS.txt
 
     """)
-    sys.exit(0)
+    sys.exit(EXIT_SUCCESS)
 
 
 # =============================================================================
@@ -3930,6 +3764,13 @@ def main() -> None:
     general.add_argument(
         "--verbose", "-v", type=int, default=0, choices=[0, 1, 2],
         help="Verbosity level")
+    general.add_argument(
+        "--inherit_os_env", dest="inherit_os_env", action="store_true",
+        help="Inherit the parent OS environment variables")
+    general.add_argument(
+        "--no_inherit_os_env", dest="inherit_os_env", action="store_false",
+        help="Do not inherit the parent OS environment variables")
+    parser.set_defaults(inherit_os_env=not BUILD_PLATFORM.linux)
 
     # Architectures
     archgroup = parser.add_argument_group(
@@ -4002,15 +3843,6 @@ def main() -> None:
         "--qt_src_dirname", default=DEFAULT_QT_SRC_DIRNAME,
         help="Qt source directory")
     qt.add_argument(
-        "--qt_git_url", default=DEFAULT_QT_GIT_URL,
-        help="Qt Git URL")
-    qt.add_argument(
-        "--qt_git_branch", default=DEFAULT_QT_GIT_BRANCH,
-        help="Qt Git branch")
-    qt.add_argument(
-        "--qt_git_commit", default=DEFAULT_QT_GIT_COMMIT,
-        help="Qt Git commit")
-    qt.add_argument(
         "--qt_openssl_static", dest="qt_openssl_static", action="store_true",
         help="Link OpenSSL statically (ONLY if Qt is statically linked) "
              "[True=static, False=dynamic]")
@@ -4025,20 +3857,21 @@ def main() -> None:
         "Android options (NB you must install the Android SDK and NDK "
         "separately, BEFOREHAND)")
     android.add_argument(
-        "--android_api_number", type=int, default=DEFAULT_ANDROID_API_NUM,
-        help="Android API number")
-    android.add_argument(
         "--android_sdk_root", default=DEFAULT_ANDROID_SDK,
         help="Android SDK root directory")
     android.add_argument(
         "--android_ndk_root", default=DEFAULT_ANDROID_NDK,
         help="Android NDK root directory")
     android.add_argument(
-        "--android_ndk_host", default=DEFAULT_NDK_HOST,
+        "--android_ndk_host", default=DEFAULT_ANDROID_NDK_HOST,
         help="Android NDK host architecture")
     android.add_argument(
-        "--android_toolchain_version", default=DEFAULT_TOOLCHAIN_VERSION,
+        "--android_toolchain_version", default=DEFAULT_ANDROID_TOOLCHAIN_VERSION,  # noqa
         help="Android toolchain version")
+    android.add_argument(
+        "--java_home", default=DEFAULT_JAVA_HOME,
+        help="JAVA_HOME directory"
+    )
 
     # iOS
     ios = parser.add_argument_group("iOS", "iOS options")
@@ -4046,92 +3879,6 @@ def main() -> None:
         "--ios_sdk", default="",
         help="iOS SDK to use (leave blank for system default)"
     )
-    ios.add_argument(
-        "--ios_min_version", default=DEFAULT_MIN_IOS_VERSION,
-        help="Minimum target iOS version"
-    )
-
-    macos = parser.add_argument_group("macOS", "macOS (OS X) options")
-    macos.add_argument(
-        "--macos_min_version", default=DEFAULT_MIN_MACOS_VERSION,
-        help="Minimum target macOS version"
-    )
-
-    # OpenSSL
-    openssl = parser.add_argument_group(
-        "OpenSSL",
-        "OpenSSL options [OpenSSL must be built from source to use it on "
-        "Android; Qt needs OpenSSL somehow; CamCOPS uses OpenSSL]")
-    openssl.add_argument(
-        "--openssl_version", default=DEFAULT_OPENSSL_VERSION,
-        help="OpenSSL version")
-    openssl.add_argument(
-        "--openssl_src_url", default=DEFAULT_OPENSSL_SRC_URL,
-        help="OpenSSL source URL")
-    openssl.add_argument(
-        "--openssl_android_script_url",
-        default=DEFAULT_OPENSSL_ANDROID_SCRIPT_URL,
-        help="OpenSSL Android script source (URL) (not really unused)"
-    )
-
-    # SQLCipher
-    sqlcipher = parser.add_argument_group(
-        "SQLCipher",
-        "SQLCipher options [CamCOPS uses SQLCipher]")
-    sqlcipher.add_argument(
-        "--sqlcipher_git_url", default=DEFAULT_SQLCIPHER_GIT_URL,
-        help="SQLCipher Git URL")
-    sqlcipher.add_argument(
-        "--sqlcipher_git_commit", default=DEFAULT_SQLCIPHER_GIT_COMMIT,
-        help="SQLCipher Git commit")
-
-    # Boost (used by MLPACK)
-    if USE_BOOST:
-        boost = parser.add_argument_group(
-            "Boost",
-            "Boost C++ library options [MLPACK uses Boost]")
-        boost.add_argument(
-            "--boost_version", default=DEFAULT_BOOST_VERSION,
-            help="Armadillo version")
-        boost.add_argument(
-            "--boost_src_url", default=DEFAULT_BOOST_SRC_URL,
-            help="Armadillo source URL")
-
-    # Armadillo (used by MLPACK)
-    if USE_ARMADILLO:
-        armadillo = parser.add_argument_group(
-            "Armadillo",
-            "Armadillo C++ library options [MLPACK uses Armadillo]")
-        armadillo.add_argument(
-            "--arma_version", default=DEFAULT_ARMA_VERSION,
-            help="Armadillo version")
-        armadillo.add_argument(
-            "--arma_src_url", default=DEFAULT_ARMA_SRC_URL,
-            help="Armadillo source URL")
-
-    # MLPACK
-    if USE_MLPACK:
-        mlpack = parser.add_argument_group(
-            "MLPACK",
-            "MLPACK C++ library options [CamCOPS uses MLPACK]")
-        mlpack.add_argument(
-            "--mlpack_git_url", default=DEFAULT_MLPACK_GIT_URL,
-            help="MLPACK Git URL")
-        mlpack.add_argument(
-            "--mlpack_git_commit", default=DEFAULT_MLPACK_GIT_COMMIT,
-            help="MLPACK Git commit")
-        mlpack.add_argument(
-            "--build_mlpack", action="store_true",
-            help="MLPACK: build (in isolation)")
-
-    # Eigen
-    if USE_EIGEN:
-        eigen = parser.add_argument_group(
-            "Eigen",
-            "Eigen C++ template library [CamCOPS uses Eigen]")
-        eigen.add_argument(
-            "--eigen_version", default=DEFAULT_EIGEN_VERSION,
-            help="Eigen version")
 
     # jom
     jom = parser.add_argument_group(
@@ -4141,29 +3888,6 @@ def main() -> None:
     jom.add_argument(
         "--jom_executable", default=r"C:\Qt\Tools\QtCreator\bin\jom.exe",
         help="jom executable (typically installed with QtCreator)"
-    )
-
-    # windows = parser.add_argument_group(
-    #     "Windows",
-    #     "Options for Windows"
-    # )
-    # windows.add_argument(
-    #     "--windows_prebuilt_qt_root", default=r"C:\Qt\5.6",
-    #     help="Root directory of pre-built Qt installation"
-    # )
-    # windows.add_argument(
-    #     "--windows_sdk_version", default="8.1",
-    #     help="Windows SDK version (e.g. '8.1', '10.0.10240.0')"
-    # )
-
-    # MXE
-    mxe = parser.add_argument_group(
-        "MXE",
-        "MXE cross-compilation environment for Linux hosts"
-    )
-    mxe.add_argument(
-        "--mxe_git_url", default=DEFAULT_MXE_GIT_URL,
-        help="MXE Git URL"
     )
 
     args = parser.parse_args()
@@ -4199,4 +3923,4 @@ if __name__ == '__main__':
     except subprocess.CalledProcessError as e:
         log.critical("External process failed:")
         traceback.print_exc()
-        sys.exit(1)
+        sys.exit(EXIT_FAILURE)

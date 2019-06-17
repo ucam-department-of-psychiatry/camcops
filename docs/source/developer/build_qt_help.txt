@@ -1,31 +1,20 @@
 usage: build_qt.py [-h] [--show_config_only] [--root_dir ROOT_DIR]
                    [--nparallel NPARALLEL] [--force] [--tee TEE]
-                   [--verbose {0,1,2}] [--build_all] [--build_android_x86_32]
-                   [--build_android_arm_v7_32] [--build_linux_x86_64]
+                   [--verbose {0,1,2}] [--inherit_os_env]
+                   [--no_inherit_os_env] [--build_all]
+                   [--build_android_x86_32] [--build_android_arm_v7_32]
+                   [--build_android_arm_v8_64] [--build_linux_x86_64]
                    [--build_macos_x86_64] [--build_windows_x86_64]
                    [--build_windows_x86_32] [--build_ios_arm_v7_32]
                    [--build_ios_arm_v8_64] [--build_ios_simulator_x86_32]
                    [--build_ios_simulator_x86_64]
                    [--qt_build_type {debug,release,release_w_symbols}]
-                   [--qt_src_dirname QT_SRC_DIRNAME] [--qt_git_url QT_GIT_URL]
-                   [--qt_git_branch QT_GIT_BRANCH]
-                   [--qt_git_commit QT_GIT_COMMIT] [--qt_openssl_static]
-                   [--qt_openssl_linked]
-                   [--android_api_number ANDROID_API_NUMBER]
-                   [--android_sdk_root ANDROID_SDK_ROOT]
+                   [--qt_src_dirname QT_SRC_DIRNAME] [--qt_openssl_static]
+                   [--qt_openssl_linked] [--android_sdk_root ANDROID_SDK_ROOT]
                    [--android_ndk_root ANDROID_NDK_ROOT]
                    [--android_ndk_host ANDROID_NDK_HOST]
                    [--android_toolchain_version ANDROID_TOOLCHAIN_VERSION]
-                   [--ios_sdk IOS_SDK] [--ios_min_version IOS_MIN_VERSION]
-                   [--macos_min_version MACOS_MIN_VERSION]
-                   [--openssl_version OPENSSL_VERSION]
-                   [--openssl_src_url OPENSSL_SRC_URL]
-                   [--openssl_android_script_url OPENSSL_ANDROID_SCRIPT_URL]
-                   [--sqlcipher_git_url SQLCIPHER_GIT_URL]
-                   [--sqlcipher_git_commit SQLCIPHER_GIT_COMMIT]
-                   [--eigen_version EIGEN_VERSION]
-                   [--jom_executable JOM_EXECUTABLE]
-                   [--mxe_git_url MXE_GIT_URL]
+                   [--ios_sdk IOS_SDK] [--jom_executable JOM_EXECUTABLE]
 
 Build Qt and other libraries for CamCOPS
 
@@ -40,11 +29,15 @@ General:
                         from environment variable CAMCOPS_QT_BASE_DIR if
                         present) (default: /home/rudolf/dev/qt_local_build)
   --nparallel NPARALLEL
-                        Number of parallel processes to run (default: 4)
+                        Number of parallel processes to run (default: 8)
   --force               Force build (default: False)
   --tee TEE             Copy stdout/stderr to this named file (default: None)
   --verbose {0,1,2}, -v {0,1,2}
                         Verbosity level (default: 0)
+  --inherit_os_env      Inherit the parent OS environment variables (default:
+                        False)
+  --no_inherit_os_env   Do not inherit the parent OS environment variables
+                        (default: False)
 
 Architecture:
   Choose architecture for which to build
@@ -56,8 +49,11 @@ Architecture:
                         An architecture target (Android under an Intel x86
                         32-bit emulator) (default: False)
   --build_android_arm_v7_32
-                        An architecture target (Android under a ARM processor
-                        tablet) (default: False)
+                        An architecture target (Android with a 32-bit ARM
+                        processor) (default: False)
+  --build_android_arm_v8_64
+                        An architecture target (Android with a 64-bit ARM
+                        processor) (default: False)
   --build_linux_x86_64  An architecture target (native Linux with a 64-bit
                         Intel/AMD CPU; check with 'lscpu' and 'uname -a'
                         (default: False)
@@ -94,12 +90,6 @@ Qt:
                         release)
   --qt_src_dirname QT_SRC_DIRNAME
                         Qt source directory (default: qt5)
-  --qt_git_url QT_GIT_URL
-                        Qt Git URL (default: git://code.qt.io/qt/qt5.git)
-  --qt_git_branch QT_GIT_BRANCH
-                        Qt Git branch (default: 5.12)
-  --qt_git_commit QT_GIT_COMMIT
-                        Qt Git commit (default: HEAD)
   --qt_openssl_static   Link OpenSSL statically (ONLY if Qt is statically
                         linked) [True=static, False=dynamic] (default: True)
   --qt_openssl_linked   Link OpenSSL dynamically [True=static, False=dynamic]
@@ -109,14 +99,12 @@ Android:
   Android options (NB you must install the Android SDK and NDK separately,
   BEFOREHAND)
 
-  --android_api_number ANDROID_API_NUMBER
-                        Android API number (default: 23)
   --android_sdk_root ANDROID_SDK_ROOT
                         Android SDK root directory (default:
                         /home/rudolf/dev/android-sdk-linux)
   --android_ndk_root ANDROID_NDK_ROOT
                         Android NDK root directory (default:
-                        /home/rudolf/dev/android-ndk-r11c)
+                        /home/rudolf/dev/android-ndk-r20)
   --android_ndk_host ANDROID_NDK_HOST
                         Android NDK host architecture (default: linux-x86_64)
   --android_toolchain_version ANDROID_TOOLCHAIN_VERSION
@@ -127,45 +115,6 @@ iOS:
 
   --ios_sdk IOS_SDK     iOS SDK to use (leave blank for system default)
                         (default: )
-  --ios_min_version IOS_MIN_VERSION
-                        Minimum target iOS version (default: 7.0)
-
-macOS:
-  macOS (OS X) options
-
-  --macos_min_version MACOS_MIN_VERSION
-                        Minimum target macOS version (default: 10.10)
-
-OpenSSL:
-  OpenSSL options [OpenSSL must be built from source to use it on Android;
-  Qt needs OpenSSL somehow; CamCOPS uses OpenSSL]
-
-  --openssl_version OPENSSL_VERSION
-                        OpenSSL version (default: 1.1.0g)
-  --openssl_src_url OPENSSL_SRC_URL
-                        OpenSSL source URL (default:
-                        https://www.openssl.org/source/openssl-1.1.0g.tar.gz)
-  --openssl_android_script_url OPENSSL_ANDROID_SCRIPT_URL
-                        OpenSSL Android script source (URL) (not really
-                        unused) (default:
-                        https://wiki.openssl.org/images/7/70/Setenv-
-                        android.sh)
-
-SQLCipher:
-  SQLCipher options [CamCOPS uses SQLCipher]
-
-  --sqlcipher_git_url SQLCIPHER_GIT_URL
-                        SQLCipher Git URL (default:
-                        https://github.com/sqlcipher/sqlcipher.git)
-  --sqlcipher_git_commit SQLCIPHER_GIT_COMMIT
-                        SQLCipher Git commit (default:
-                        c6f709fca81c910ba133aaf6330c28e01ccfe5f8)
-
-Eigen:
-  Eigen C++ template library [CamCOPS uses Eigen]
-
-  --eigen_version EIGEN_VERSION
-                        Eigen version (default: 3.3.3)
 
 jom:
   'jom' parallel make tool for Windows
@@ -173,9 +122,3 @@ jom:
   --jom_executable JOM_EXECUTABLE
                         jom executable (typically installed with QtCreator)
                         (default: C:\Qt\Tools\QtCreator\bin\jom.exe)
-
-MXE:
-  MXE cross-compilation environment for Linux hosts
-
-  --mxe_git_url MXE_GIT_URL
-                        MXE Git URL (default: https://github.com/mxe/mxe.git)

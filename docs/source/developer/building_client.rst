@@ -123,7 +123,12 @@ Android (with a Linux build host)
     (http://doc.qt.io/qt-5/androidgs.html) but r11c also seems to work fine.
 
   - However, r11c doesn't support 64-bit ARM, which is required in the Google
-    Play Store as of Aug 2019, so we're trying r20.
+    Play Store as of Aug 2019, so we're trying r20. See
+    https://developer.android.com/distribute/best-practices/develop/64-bit.
+    Note also that Qt wants the ``android-clang`` toolchain for Qt 5.12 or
+    later and then supports the latest version (the GCC toolchain "requires
+    Android NDK r10e" [or r11c!]). So from 2019-06-15 we move to r20 with
+    clang, and add support for 64-bit ARM.
 
 
 Windows
@@ -313,6 +318,16 @@ Version constraints for OpenSSL and SQLCipher
 - SQLCipher supports OpenSSL 1.1.0 as of SQLCipher 3.4.1
   (https://discuss.zetetic.net/t/sqlcipher-3-4-1-release/1962).
 
+- The Android NDK has moved from gcc to clang, for all standalone toolchains
+  from r18 (https://developer.android.com/ndk/guides/standalone_toolchain).
+  To compile OpenSSL with clang requires OpenSSL 1.1.1
+  (https://github.com/openssl/openssl/pull/2229;
+  https://github.com/openssl/openssl/blob/master/NOTES.ANDROID).
+  As of 2019-06-15, the current version is OpenSSL 1.1.1c
+  (https://www.openssl.org/). SQLCipher 4 supports OpenSSL 1.1.1
+  (https://www.zetetic.net/blog/2018/11/30/sqlcipher-400-release/).
+  As of 2019-06-15, the current version is SQLCipher 4.2.0.
+
 
 Troubleshooting build_qt
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -473,7 +488,7 @@ Non-default options are marked in bold and/or as "[non-default]".
         * - Additional Qbs Profile Settings
           -
 
-**Custom_Android_ARM**
+**Custom_Android_ARM: DEPRECATED 32-BIT CONFIGURATION FOR GCC**
 
     .. list-table::
         :header-rows: 1
@@ -511,6 +526,87 @@ Non-default options are marked in bold and/or as "[non-default]".
           - [not editable]
         * - Additional Qbs Profile Settings
           -
+
+
+**Custom_Android_ARM32: CURRENT 32-BIT CONFIGURATION FOR CLANG**
+
+    .. list-table::
+        :header-rows: 1
+        :stub-columns: 1
+
+        * - Option
+          - Setting
+        * - Name
+          - **[non-default]** ``Custom_Android_ARM32``
+        * - File system name
+          -
+        * - Device type
+          - **Android Device**
+        * - Device
+          - Run on Android (default for Android)
+        * - Sysroot
+          -
+        * - Compiler: C
+          - <No compiler>
+        * - Compiler: C++
+          - Android GCC (C++, arm-4.9) [#androidgcc]_
+        * - Environment
+          - [not editable: "No changes to apply."]
+        * - Debugger
+          - Android Debugger for Android GCC (C++, arm-4.9) [#androidgcc]_
+        * - Qt version
+          - **THE "ANDROID" ONE FROM QT VERSIONS, ABOVE**
+        * - Qt mkspec
+          -
+        * - CMake Tool
+          - System CMake at ``/usr/bin/cmake``
+        * - CMake Generator
+          - CodeBlocks - Unix Makefiles
+        * - CMake Configuration
+          - [not editable]
+        * - Additional Qbs Profile Settings
+          -
+
+
+**Custom_Android_ARM64: CURRENT 32-BIT CONFIGURATION FOR CLANG**
+
+    .. list-table::
+        :header-rows: 1
+        :stub-columns: 1
+
+        * - Option
+          - Setting
+        * - Name
+          - **[non-default]** ``Custom_Android_ARM64``
+        * - File system name
+          -
+        * - Device type
+          - **Android Device**
+        * - Device
+          - Run on Android (default for Android)
+        * - Sysroot
+          -
+        * - Compiler: C
+          - <No compiler>
+        * - Compiler: C++
+          - Android GCC (C++, arm-4.9) [#androidgcc]_
+        * - Environment
+          - [not editable: "No changes to apply."]
+        * - Debugger
+          - Android Debugger for Android GCC (C++, arm-4.9) [#androidgcc]_
+        * - Qt version
+          - **THE "ANDROID" ONE FROM QT VERSIONS, ABOVE**
+        * - Qt mkspec
+          -
+        * - CMake Tool
+          - System CMake at ``/usr/bin/cmake``
+        * - CMake Generator
+          - CodeBlocks - Unix Makefiles
+        * - CMake Configuration
+          - [not editable]
+        * - Additional Qbs Profile Settings
+          -
+
 
 **Custom_Android_x86** -- NOT FULLY TESTED
 
@@ -888,6 +984,10 @@ The APK filename is fixed at this point
 (https://forum.qt.io/topic/43329/qt-5-3-1-qtcreator-rename-qtapp-debug-apk-to-myapp).
 We can rename the APK if we want, or just upload to Google Play, distribute,
 etc.
+
+Qt will forget your "sign package" choice from time to time; get back to it via
+:menuselection:`Projects --> [Custom Android ARM or whatever you called it] -->
+Build Android APK --> Sign package`.
 
 
 Linux

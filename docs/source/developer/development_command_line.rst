@@ -68,7 +68,7 @@ CamCOPS with little extra work. (Though probably not none.)
 The ``--build_all`` option is generally a good one; this builds for all
 architectures supported on the host you're using.
 
-Here's its help as of 2018-06-09:
+Here's its help as of 2019-06-16:
 
 ..  literalinclude:: build_qt_help.txt
     :language: none
