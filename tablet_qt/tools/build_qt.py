@@ -1005,6 +1005,7 @@ class Platform(object):
                 #       magic cputype cpusubtype  caps filetype sizeofcmds flags  # noqa
                 #  0xfeedface     ARM         V7  0x00        6       1564 NOUNDEFS DYLDLINK TWOLEVEL NO_REEXPORTED_DYLIBS  # noqa
                 lines = dumpresult.splitlines()
+                arm64tag_present = False
                 for line in lines:
                     words = line.split()
                     if words[0] in ["Archive", "Mach", "magic"]:
@@ -1036,20 +1037,22 @@ class Platform(object):
     # -------------------------------------------------------------------------
 
     @property
-    def apple_cpu_name(self) -> str:
+    def apple_arch_name(self) -> str:
         """
         Architecture name to pass to Xcode's clang etc. Don't alter.
         Architecture conversions:
-        - https://stackoverflow.com/questions/27016612/compiling-external-c-library-for-use-with-ios-project  # noqa
+        
+        - https://stackoverflow.com/questions/27016612/compiling-external-c-library-for-use-with-ios-project
+        
         Which architectures does Xcode's clang support?
-        - https://stackoverflow.com/questions/15036909/clang-how-to-list-supported-target-architectures  # noqa
+        - https://stackoverflow.com/questions/15036909/clang-how-to-list-supported-target-architectures
         If in doubt, running "clang -arch SOMETHING" will produce an error
         if it's unsupported. With clang-703.0.29, "x86_64" and "arm6" are
         OK.
 
-        iOS device processor compatibility: see
-        https://developer.apple.com/library/content/documentation/DeviceInformation/Reference/iOSDeviceCompatibility/DeviceCompatibilityMatrix/DeviceCompatibilityMatrix.html  # noqa
-        """
+        - iOS device processor compatibility: see
+          https://developer.apple.com/library/content/documentation/DeviceInformation/Reference/iOSDeviceCompatibility/DeviceCompatibilityMatrix/DeviceCompatibilityMatrix.html
+        """  # noqa
         if self.cpu_x86_64bit_family:
             return "x86_64"
         elif self.cpu_x86_32bit_family:
@@ -1060,6 +1063,32 @@ class Platform(object):
             return "arm64"
         else:
             raise ValueError(f"apple_cpu_name(): Unknown CPU {self.cpu}")
+
+    @property
+    def apple_cpu_name_for_triplet(self) -> str:
+        """
+        CPU name to make a cpu-vendor-os triplet.
+        
+        See :meth:`apple_arch_name`.
+        
+        Note that "arm64" is a valid architecture but fails here (e.g.
+        SQLCipher ``configure``) with ``Invalid configuration
+        'arm64-apple-darwin': machine 'arm64-apple' not recognized". The
+        solution is apparently to use ``arm-apple-darwin`` but pass ``-m64`` to
+        clang, and/or pass ``-arch arm64`` to clang (the latter is more
+        plausible to me); see
+        https://github.com/tpoechtrager/cctools-port/issues/6.
+        """  # noqa
+        if self.cpu_x86_64bit_family:
+            return "x86_64"
+        elif self.cpu_x86_32bit_family:
+            return "i386"
+        elif self.cpu_arm_family:
+            # See above
+            return "arm"
+        else:
+            raise ValueError(f"apple_cpu_name_for_triplet(): "
+                             f"Unknown CPU {self.cpu}")
 
     @property
     def linux_windows_cpu_name(self) -> str:
@@ -1090,7 +1119,7 @@ class Platform(object):
         if self.os in [Os.LINUX, Os.ANDROID, Os.WINDOWS]:
             return self.linux_windows_cpu_name
         elif self.os in [Os.MACOS, Os.IOS]:
-            return self.apple_cpu_name
+            return self.apple_cpu_name_for_triplet
         else:
             raise NotImplementedError(f"triplet_cpu() doesn't know {self.cpu}")
 
@@ -1892,7 +1921,7 @@ class Config(object):
         use_gcc = True  # https://gist.github.com/armadsen/b30f352a8d6f6c87a146
 
         xcode_platform = target_platform.ios_platform_name
-        arch = target_platform.apple_cpu_name
+        arch = target_platform.apple_arch_name
         developer = self._xcode_developer_path
         sdk_version = self._get_ios_sdk_version(target_platform=target_platform)
         sdk_name = self._xcode_sdk_name(xcode_platform=xcode_platform,
@@ -3058,7 +3087,7 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         configure_prog_name = "configure.bat"
     else:
         configure_prog_name = "configure"
-    sysroot = cfg.sysroot(target_platform, env)
+    # sysroot = cfg.sysroot(target_platform, env)
     includedirs = [
         openssl_include_root,  # #include files for OpenSSL
     ]
