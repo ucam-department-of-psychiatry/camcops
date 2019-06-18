@@ -609,26 +609,25 @@ OPENSSL_COMMON_OPTIONS = [
 # External tools
 # -----------------------------------------------------------------------------
 
-ANT = "ant"  # for Android builds
-AR = "ar"
-BASH = "bash"
+ANT = "ant"  # for Android builds; a Java-based make tool
+AR = "ar"  # manipulates archives
+BASH = "bash"  # GNU Bourne-Again SHell
 CL = "cl"  # Visual C++ compiler
 CLANG = "clang"  # macOS XCode compiler; also used under Linux for 64-bit ARM
-CMAKE = "cmake"
-CYGPATH = "cygpath"
-GCC = "gcc"
-GCC_AR = "gcc-ar"
-GIT = "git"
+CMAKE = "cmake"  # CMake
+GCC = "gcc"  # GNU C compiler
+GCC_AR = "gcc-ar"  # wrapper around ar
+GIT = "git"  # Git
 GOBJDUMP = "gobjdump"  # macOS 32-bit equivalent of readelf, via brew
 JAVAC = "javac"  # for Android builds
-LD = "ld"
-MAKE = "make"
+LD = "ld"  # GNU linker
+MAKE = "make"  # GNU make
 MAKEDEPEND = "makedepend"  # used by OpenSSL via "make"
 NASM = "nasm.exe"  # Assembler for Windows (for OpenSSL); http://www.nasm.us/
 NMAKE = "nmake.exe"  # Visual Studio make tool
-OBJDUMP = "objdump"
+OBJDUMP = "objdump"  # GNU; display information from object files
 OTOOL = "otool"  # macOS 64-bit equivalent of gobjdump
-PERL = "perl"
+PERL = "perl"  # Perl
 READELF = "readelf"  # read ELF-format library files
 SED = "sed"  # stream editor
 TAR = "tar"  # manipulate tar files
@@ -2171,24 +2170,6 @@ def escape_literal_for_shell(x: str) -> str:
     x = x.replace(backslash, backslash + backslash)
     x = f'"{x}"'
     return x
-
-
-# =============================================================================
-# Ancillary: convert Windows paths to POSIX, for Cygwin, via cygpath
-# =============================================================================
-
-def windows_to_posix(windows_path: str) -> str:
-    """
-    Converts a Windows path to a POSIX path, via Cygpath.
-
-    (Superseded by ``chdir_via_python`` argument to
-    :func:`cardinal_pythonlib.buildfunc.untar_to_directory`.)
-    """
-    require(CYGPATH)
-    cmdargs = [CYGPATH, "--unix", windows_path]
-    stdout, _ = run2(cmdargs, capture_stdout=True, allow_failure=False)
-    posix_path = stdout.strip()  # remove trailing newline
-    return posix_path
 
 
 # =============================================================================

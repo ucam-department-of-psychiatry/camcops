@@ -57,6 +57,7 @@ server/camcops_server
     alembic/versions/0025_lynall_1_iam_medical.py.rst
     alembic/versions/0026_kirby_mcq.py.rst
     alembic/versions/0027_apeq_cpft_perinatal.py.rst
+    alembic/versions/0028_maas.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst
