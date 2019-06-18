@@ -35,6 +35,64 @@
 const int UNSELECTED = -1;
 
 
+// ============================================================================
+// Functions to increase legibility
+// ============================================================================
+
+inline int multiplyInt(const int& x, const double& factor)
+{
+    return static_cast<int>(
+        static_cast<double>(x) * factor
+    );
+}
+
+
+inline QSize multiplySize(const QSize& size, const double& factor)
+{
+    return QSize(
+        multiplyInt(size.width(), factor),
+        multiplyInt(size.height(), factor)
+    );
+}
+
+
+inline double divide(const int& x, const double& divisor)
+{
+    return static_cast<double>(x) / divisor;
+}
+
+
+inline int divideInt(const int& x, const double& divisor)
+{
+    return static_cast<int>(
+        static_cast<double>(x) / divisor
+    );
+}
+
+
+inline int divideInt(const int& x, const int& divisor)
+{
+    return static_cast<int>(
+        static_cast<double>(x) / static_cast<double>(divisor)
+    );
+}
+
+
+inline int scale(const int& x, const int& y, const int& z)
+{
+    // returns x * y / z, i.e. scales x by the factor y/z
+    return static_cast<int>(
+        static_cast<double>(x) *
+        static_cast<double>(y) /
+        static_cast<double>(z)
+    );
+}
+
+
+// ============================================================================
+// Thermometer
+// ============================================================================
+
 Thermometer::Thermometer(const QVector<QPixmap>& active_images,
                          const QVector<QPixmap>& inactive_images,
                          const QStringList* left_strings,
@@ -104,18 +162,18 @@ Thermometer::Thermometer(const QVector<QPixmap>& active_images,
     // Fetch image heights etc.
     m_image_width = m_active_images.at(0).width();
     m_unscaled_total_size.rheight() = 0;
-    const double total_scale =
+    const int total_scale =
             m_left_string_scale + m_image_scale + m_right_string_scale;
-    m_unscaled_total_size.rwidth() = static_cast<int>(
-            m_image_width * total_scale / static_cast<double>(m_image_scale));
-    m_unscaled_lstring_width = static_cast<int>(
-                static_cast<double>(m_left_string_scale) *
-                static_cast<double>(m_unscaled_total_size.width()) /
-                total_scale);
-    m_unscaled_rstring_width = static_cast<int>(
-                static_cast<double>(m_left_string_scale) *
-                static_cast<double>(m_unscaled_total_size.width()) /
-                total_scale);
+    // Total width is to image width as total_scale is to m_image_scale:
+    m_unscaled_total_size.rwidth() = scale(
+            m_image_width, total_scale, m_image_scale);
+    // Left string width is to left string scale as total width is to total
+    // scale:
+    m_unscaled_lstring_width = scale(
+            m_left_string_scale, m_unscaled_total_size.width(), total_scale);
+    // Similarly on the right:
+    m_unscaled_rstring_width = scale(
+            m_right_string_scale, m_unscaled_total_size.width(), total_scale);
 
     const bool pressed_marker_behind = false;  // colour on top
     for (int i = 0; i < m_n_rows; ++i) {
@@ -152,18 +210,19 @@ Thermometer::Thermometer(const QVector<QPixmap>& active_images,
             uifunc::addPressedBackground(inactive_image, pressed_marker_behind));
     }
     if (m_rescale) {
-        m_target_total_size = QSize(
-            static_cast<int>(m_rescale_factor *
-                             static_cast<double>(m_unscaled_total_size.width())),
-            static_cast<int>(m_rescale_factor *
-                             static_cast<double>(m_unscaled_total_size.height()))
-        );
+        m_target_total_size = multiplySize(m_unscaled_total_size,
+                                           m_rescale_factor);
     } else {
         m_target_total_size = m_unscaled_total_size;
     }
-    m_total_aspect_ratio =
-            static_cast<double>(m_unscaled_total_size.width()) /
-            static_cast<double>(m_unscaled_total_size.height());
+    m_total_aspect_ratio = divide(m_unscaled_total_size.width(),
+                                  m_unscaled_total_size.height());
+#ifdef DEBUG_VERY_VERBOSE
+    qDebug()
+            << "m_unscaled_total_size" << m_unscaled_total_size
+            << ", m_target_total_size" << m_target_total_size
+            << ", m_total_aspect_ratio" << m_total_aspect_ratio;
+#endif
 
     // Set Qt size policy
     setSizePolicy(sizehelpers::maximumMaximumHFWPolicy());
@@ -288,9 +347,7 @@ bool Thermometer::hasHeightForWidth() const
 int Thermometer::heightForWidth(const int width) const
 {
     // We work this based on aspect ratio, which is width/height.
-    const int hfw = static_cast<int>(
-        static_cast<double>(width) / m_total_aspect_ratio
-    );
+    const int hfw = divideInt(width, m_total_aspect_ratio);
 #ifdef DEBUG_PAINTING
     qDebug() << Q_FUNC_INFO << "width" << width << "-> hfw" << hfw;
 #endif
@@ -316,26 +373,22 @@ QSize Thermometer::minimumSizeHint() const
 Thermometer::DisplayInfo Thermometer::getDisplayInfo() const
 {
     DisplayInfo d;
+    // "How big are we being drawn?"
     const QRect cr = contentsRect();
+    // "How does that compare to our notional size?"
     d.scaling = cr.size() != m_unscaled_total_size;
-    d.scale_factor = d.scaling
-            ? (static_cast<double>(cr.width()) /
-               static_cast<double>(m_unscaled_total_size.width()))
+    const double scale_factor = d.scaling
+            ? divide(cr.width(), m_unscaled_total_size.width())
             : 1.0;
+    d.scale_factor = scale_factor;
     d.lstring_width = d.scaling
-            ? static_cast<int>(
-                  static_cast<double>(m_unscaled_lstring_width) *
-                  d.scale_factor)
+            ? multiplyInt(m_unscaled_lstring_width, scale_factor)
             : m_unscaled_lstring_width;
     d.image_width = d.scaling
-            ? static_cast<int>(
-                  static_cast<double>(m_image_width) *
-                  d.scale_factor)
+            ? multiplyInt(m_image_width, scale_factor)
             : m_image_width;
     d.rstring_width = d.scaling
-            ? static_cast<int>(
-                  static_cast<double>(m_unscaled_rstring_width) *
-                  d.scale_factor)
+            ? multiplyInt(m_unscaled_rstring_width, scale_factor)
             : m_unscaled_rstring_width;
 
     // Iterate through rows
@@ -364,9 +417,7 @@ void Thermometer::getRowTopHeight(int row, int& top, int& height) const
     int t = cr.top();
     for (int r = 0; r < m_n_rows; ++r) {
         const int row_height = d.scaling
-                ? static_cast<int>(
-                      static_cast<double>(m_image_heights.at(r)) *
-                      d.scale_factor)
+                ? multiplyInt(m_image_heights.at(r), d.scale_factor)
                 : m_image_heights.at(r);
         if (r == row) {
             // Write back results
@@ -438,9 +489,7 @@ void Thermometer::paintEvent(QPaintEvent* event)
     int top = cr.top();
     for (int row = 0; row < m_n_rows; ++row) {
         const int row_height = d.scaling
-                ? static_cast<int>(
-                      static_cast<double>(m_image_heights.at(row)) *
-                      d.scale_factor)
+                ? multiplyInt(m_image_heights.at(row), d.scale_factor)
                 : m_image_heights.at(row);
         // const int bottom = top + image_height;
         const int vertical_midpoint = top + row_height / 2;

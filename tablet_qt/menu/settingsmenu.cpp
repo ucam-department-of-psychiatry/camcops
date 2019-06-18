@@ -1355,7 +1355,7 @@ void SettingsMenu::viewSystemDbAsSql()
 void SettingsMenu::viewDbAsSql(DatabaseManager& db, const QString& title)
 {
     QString sql;
-    {  // block ensures stream is flushed by the time we read the string
+    { // block ensures stream is flushed by the time we read the string
         SlowGuiGuard guard = m_app.getSlowGuiGuard();
         QTextStream os(&sql);
         dumpsql::dumpDatabase(os, db);
@@ -1381,7 +1381,7 @@ void SettingsMenu::debugDbAsSql(DatabaseManager& db, const QString& prefix)
 {
     { // guard block
         SlowGuiGuard guard = m_app.getSlowGuiGuard(tr("Sending data..."),
-                                                   tr("Please wait"));
+                                                   TextConst::pleaseWait());
         QString sql;
         { // block ensures stream is flushed by the time we read the string
             QTextStream os(&sql);

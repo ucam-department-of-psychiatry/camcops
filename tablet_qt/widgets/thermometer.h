@@ -37,6 +37,9 @@ class Thermometer : public QWidget
     // (It also applies a "being touched" colour.)
     //
     // - Scales up to the maximum size of the images/text.
+    //   ... subject to rescale_factor, which may alter the maximum display
+    //   size compared to the original image/text size.
+    //
     // - Aspect ratio of images is preserved.
     //
     // - No use yet for adding images on the fly.

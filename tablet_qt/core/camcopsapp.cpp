@@ -271,7 +271,7 @@ int CamcopsApp::run()
     // Do the rest of the database configuration, task registration, etc.,
     // with a "please wait" dialog.
     {
-        SlowNonGuiFunctionCaller slow_gui_caller(
+        SlowNonGuiFunctionCaller slow_caller(
             std::bind(&CamcopsApp::backgroundStartup, this),
             m_p_main_window,
             tr("Configuring internal database"),
@@ -451,11 +451,19 @@ void CamcopsApp::announceStartup()
 #endif
 
 #ifdef DISABLE_GCC_DATE_TIME_MACRO_WARNING
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdate-time"
+#endif
+#ifdef DISABLE_CLANG_DATE_TIME_MACRO_WARNING
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdate-time"
 #endif
     qDebug() << "Compiled at" << __DATE__ << __TIME__;
 #ifdef DISABLE_GCC_DATE_TIME_MACRO_WARNING
 #pragma GCC diagnostic pop
+#endif
+#ifdef DISABLE_CLANG_DATE_TIME_MACRO_WARNING
+#pragma clang diagnostic pop
 #endif
 }
 
@@ -601,11 +609,21 @@ bool CamcopsApp::connectDatabaseEncryption(QString& new_user_password,
                 return false;
             }
             qInfo() << "Attempting to decrypt databases...";
-            encryption_happy =
-                    m_sysdb->pragmaKey(user_password) &&
-                    m_datadb->pragmaKey(user_password) &&
-                    m_sysdb->canReadDatabase() &&
-                    m_datadb->canReadDatabase();
+            // Migrate from old versions of SQLCipher if necessary
+            {
+                // Note that special things must be done to pass a reference
+                // via std::bind; see
+                // https://stackoverflow.com/questions/26187192/how-to-bind-function-to-an-object-by-reference.
+                // Options include std::ref() and using pointers instead.
+                SlowNonGuiFunctionCaller slow_caller(
+                    std::bind(&CamcopsApp::workerDecryptDatabases,
+                              this, user_password, std::ref(encryption_happy)),
+                    m_p_main_window,
+                    tr("Decrypting databases..."),
+                    TextConst::pleaseWait()
+                );
+                // ... writes to encryption_happy
+            }
             if (encryption_happy) {
                 qInfo() << "... successfully accessed encrypted databases.";
             } else {
@@ -632,6 +650,17 @@ bool CamcopsApp::connectDatabaseEncryption(QString& new_user_password,
     }
     return false;  // user password not changed
 #endif
+}
+
+
+void CamcopsApp::workerDecryptDatabases(const QString& passphrase,
+                                        bool& success)
+{
+    success = m_sysdb->decrypt(passphrase, true) &&
+            m_datadb->decrypt(passphrase, true) &&
+            m_sysdb->canReadDatabase() &&
+            m_datadb->canReadDatabase();
+    qDebug() << Q_FUNC_INFO << success;
 }
 
 

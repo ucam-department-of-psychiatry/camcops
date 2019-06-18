@@ -78,10 +78,26 @@ def main() -> None:
             "will be used, or the default of {})"
         ).format(SQLCIPHER_ENV_VAR, repr(SQLCIPHER_DEFAULT)))
     parser.add_argument(
+        "--cipher_compatibility", type=int, default=None,
+        help=(
+            "Use compatibility settings for this major version of SQLCipher "
+            "(e.g. 3)"
+        )
+    )
+    parser.add_argument(
+        "--cipher_migrate", action="store_true",
+        help="Migrate the database to the latest version of SQLCipher"
+    )
+    parser.add_argument(
         "--encoding", type=str, default=sys.getdefaultencoding(),
         help="Encoding to use")
     progargs = parser.parse_args()
     # log.debug("Args: " + repr(progargs))
+
+    assert (
+       not (progargs.cipher_migrate and
+            progargs.cipher_compatibility is not None)
+    ), "Can't specify both --cipher_migrate and --cipher_compatibility"
 
     # -------------------------------------------------------------------------
     # SQLCipher executable
@@ -119,22 +135,40 @@ def main() -> None:
     # -------------------------------------------------------------------------
     # Run SQLCipher to do the work
     # -------------------------------------------------------------------------
-    sql = """
--- Note that ".bail" does nothing in interactive mode.
--- Gain access to the encrypted database
-PRAGMA key = {key};
--- Check we can read from old database (or quit without creating new one)
-SELECT COUNT(*) FROM sqlite_master;
-
--- If there was an error, the password was wrong.
--- If no error: access achieved! Try e.g. ".tables" to list tables.
-    """.format(
-        key=string_to_sql_literal(password),
-    )
+    sql_commands = [
+        '-- Note that ".bail" does nothing in interactive mode.',
+        "-- Show SQLCipher executable version",
+        "PRAGMA cipher_version;",
+        "-- Gain access to the encrypted database",
+        "PRAGMA key = {key};".format(key=string_to_sql_literal(password)),
+    ]
+    if progargs.cipher_compatibility is not None:
+        sql_commands += [
+            "-- Set compatibility to a specific version of SQLCipher",
+            "PRAGMA cipher_compatibility = {};".format(
+                progargs.cipher_compatibility),
+        ]
+    if progargs.cipher_migrate:
+        # This command takes several seconds (e.g. 3.4 s) if it has to do work,
+        # but it's fairly quick, e.g. 260 ms, if it doesn't.
+        timestring = "%Y-%m-%d %H:%M:%f"
+        sql_commands += [
+            "-- Migrate from a previous version of SQLCipher",
+            "SELECT strftime('{}', 'now');".format(timestring),
+            "PRAGMA cipher_migrate;",
+            "SELECT strftime('{}', 'now');".format(timestring),
+        ]
+    sql_commands += [
+        "-- Check we can read from old database "
+        "(or quit without creating new one)",
+        "SELECT COUNT(*) FROM sqlite_master;",
+        "-- If there was an error, the password was wrong.",
+        '-- If no error: access achieved! Try e.g. ".tables" to list tables.',
+    ]
     log.info("Calling SQLCipher ({!r})...", sqlcipher)
     child = pexpect.spawn(sqlcipher, [progargs.encrypted])
     log.debug("Spawned")
-    for line in sql.splitlines():
+    for line in sql_commands:
         child.sendline(line)
     child.interact()
     log.debug("Done")

@@ -103,7 +103,8 @@ QPointer<QWidget> QuThermometer::makeWidget(Questionnaire* questionnaire)
         read_only,  // read_only
         m_rescale,  // rescale
         m_rescale_factor,  // rescale_factor
-        DEFAULT_TEXT_GAP_PX  // text_gap_px
+        DEFAULT_TEXT_GAP_PX,  // text_gap_px
+        nullptr  // parent
     );
     connect(m_thermometer.data(), &Thermometer::selectionIndexChanged,
             this, &QuThermometer::thermometerSelectionChanged);

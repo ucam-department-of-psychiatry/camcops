@@ -53,7 +53,8 @@ public:
     QuThermometer(FieldRefPtr fieldref,
                   std::initializer_list<QuThermometerItem> items);
 
-    // Rescale the thermometer?
+    // Rescale the thermometer? (That is, alter its maximum display size?)
+    //
     // - rescale: rescale or not?
     // - rescale_factor: scale factor relative to original images
     // - adjust_for_dpi: additionally adjust for DPI?

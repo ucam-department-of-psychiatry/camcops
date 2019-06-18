@@ -38,26 +38,41 @@ the CamCOPS client, including:
 Status
 ======
 
-======================= =========================================== =======================
-Build OS                Target OS                                   Status
-======================= =========================================== =======================
-Linux, x86, 64-bit      Linux, x86, 32-bit                          deferred
-                        Linux, x86, 64-bit                          OK 2019-06-17
-                        Android, x86, 32-bit (for emulator)         deferred
-                        Android, ARM, 32-bit (for Android devices)  OK 2019-06-17
-                        Android, ARM, 64-bit (for Android devices)  OK 2019-06-17
++---------------------+-----------------------------+-------------------------+
+| Build OS            | Target OS                   | Status                  |
+|                     |                             |                         |
++=====================+=============================+=========================+
+| Linux, x86, 64-bit  | Linux, x86, 32-bit          | deferred                |
++---------------------+-----------------------------+-------------------------+
+|                     | Linux, x86, 64-bit          | OK 2019-06-17           |
++---------------------+-----------------------------+-------------------------+
+|                     | Android, x86, 32-bit        | deferred                |
+|                     | (for emulator)              |                         |
++---------------------+-----------------------------+-------------------------+
+|                     | Android, ARM, 32-bit        | OK 2019-06-17           |
++---------------------+-----------------------------+-------------------------+
+|                     | Android, ARM, 64-bit        | OK 2019-06-17           |
++---------------------+-----------------------------+-------------------------+
+| macOS (OS X), x86,  | macOS, x86, 64-bit          | OK 2019-06-17           |
+| 64-bit              |                             |                         |
++---------------------+-----------------------------+-------------------------+
+|                     | iOS, x86 (for emulator)     | deferred                |
++---------------------+-----------------------------+-------------------------+
+|                     | iOS, ARM, 32-bit            | OK 2019-06-17           |
+|                     | (for iPad etc.)             |                         |
++---------------------+-----------------------------+-------------------------+
+|                     | iOS, ARM, 64-bit            | OK 2019-06-17           |
+|                     | (for iPad etc.)             |                         |
++---------------------+-----------------------------+-------------------------+
+| Windows, x86,       | Windows, x86, 32-bit        | OK 2019-06-17           |
+| 64-bit (*)          |                             |                         |
++---------------------+-----------------------------+-------------------------+
+|                     | Windows, x86, 64-bit        | OK 2019-06-17           |
++=====================+=============================+=========================+
 
-macOS (OS X), x86,      macOS, x86, 64-bit                          OK 2019-06-17
-    64-bit              iOS, x86 (for emulator)                     deferred
-                        iOS, ARM, 32-bit (for iPad etc.)            OK 2019-06-17
-                        iOS, ARM, 64-bit (for iPad etc.)            OK 2019-06-17
+These OS combinations are reflected in the ``--build_all`` option.
 
-Windows, x86, 64-bit    Windows, x86, 32-bit                        OK 2019-06-17
-                        Windows, x86, 64-bit                        OK 2019-06-17
-======================= =========================================== =======================
-
-... reflected in the ``--build_all`` option.
-
+(*) May need ``--nparallel 1`` for the OpenSSL parts of the build.
 
 
 Why?
@@ -179,6 +194,7 @@ Standard environment variables
     HOSTCC [3]: the host C compiler to use
     JAVA_HOME [4]
     LDFLAGS [2]: extra flags for compilers to pass to the linker, "ld"
+    LD_LIBRARY_PATH [1]: path searched for dynamic libraries under Unix
     LDLIBS [2]: library flags/names for compilers to pass to the linker
     MACHINE [10]
     NDK_SYSROOT
@@ -190,7 +206,8 @@ Standard environment variables
     SYSTEM [10]
     WindowsSdkDir [7]
 
-[1] Unix core.
+[1] Unix core. For LD_LIBRARY_PATH, see
+http://tldp.org/HOWTO/Program-Library-HOWTO/shared-libraries.html.
 
 [2] GNU toolchain standards:
 https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
@@ -280,7 +297,7 @@ To update an existing Qt5 git repository, from its root directory:
 
     # https://wiki.qt.io/Building_Qt_5_from_Git
     git pull
-    perl init-repository -f
+    perl init-repository -f  # -f for force
     
 To update a specific submodule, e.g. qtbase:
 
@@ -293,7 +310,55 @@ To update a specific submodule, e.g. qtbase:
     # https://github.com/qt/qtbase/commit/067664531853a1e857c777c1cc56fc64b272e021#diff-0b4799f074ffd43c60d33464189578b7
     # that fixes this bug.
     
-See :func:`patch_qt_for_android_ndk_20`.
+See patch_qt_for_android_ndk_20().
+
+However, this went away with Qt 5.12.4.
+
+
+Problems with 64-bit ARM
+========================
+
+2019-06-18: Qt configure runs OK, but the build process fails with "undefined
+reference" errors to e.g.
+
+.. code-block:: none
+
+    qt_memfill32
+    qt_blend_rgb32_on_rgb32_neon
+    qt_blend_rgb16_on_argb32_neon
+    
+    ... etc. (lots of "_neon") suffixes
+    
+Using
+
+.. code-block:: bash
+
+    find . -iname "*.h" -o -iname "*.cpp" -exec grep qt_blend_rgb16_on_argb32_neon -l {} \;
+
+we find that they are in
+
+.. code-block:: none
+
+    qtbase/src/gui/painting/qdrawhelper.cpp
+    qtbase/src/gui/painting/qdrawhelper_neon.cpp
+
+and the conditional part is ``#ifdef __ARM_NEON__``. Therefore, see
+
+- https://bugreports.qt.io/browse/QTBUG-58180
+- https://bugreports.qt.io/browse/QTBUG-72716 ??
+
+Switched to Qt 5.12.4 (released 2019-06-17!).
+
+
+Current Qt version
+==================
+
+As of 2018-06-18:
+
+- Qt branch "5.12" is version 5.12.4 (released 2019-06-17).
+- The head commit is 452e0d94d40bba15a56293a0a0f7d093dececda9.
+- PATCH_QT_FOR_ANDROID_NDK_20 is no longer necessary.
+
 
 """  # noqa
 
@@ -398,17 +463,7 @@ EXIT_FAILURE = 1
 DEFAULT_ROOT_DIR = join(USER_DIR, "dev", "qt_local_build")
 
 DEFAULT_ANDROID_SDK = join(USER_DIR, "dev", "android-sdk-linux")
-# DEFAULT_ANDROID_NDK = join(USER_DIR, "dev", "android-ndk-r10e")  # trying downgrade, 2018-07-16  # noqa
-# DEFAULT_ANDROID_NDK = join(USER_DIR, "dev", "android-ndk-r11c")  # until 2019-06-15  # noqa
-# DEFAULT_ANDROID_NDK = join(USER_DIR, "dev", "android-ndk-r18b")  # from 2019-06-15, inc. 64-bit ARM  # noqa
-# DEFAULT_ANDROID_NDK = join(USER_DIR, "dev", "android-ndk-r19c")  # from 2019-06-15, inc. 64-bit ARM  # noqa
 DEFAULT_ANDROID_NDK = join(USER_DIR, "dev", "android-ndk-r20")  # from 2019-06-15, inc. 64-bit ARM  # noqa
-
-ANDROID_NDK_VERSION = 20
-PATCH_QT_FOR_ANDROID_NDK_20 = True  # 2019-06-17; will be unnecessary soon
-
-DEFAULT_ANDROID_NDK_HOST = "linux-x86_64"
-DEFAULT_ANDROID_TOOLCHAIN_VERSION = "4.9"
 
 DEFAULT_JAVA_HOME = "/usr/lib/jvm/java-11-openjdk-amd64"
 
@@ -419,33 +474,19 @@ DEFAULT_QT_SRC_DIRNAME = "qt5"
 # -----------------------------------------------------------------------------
 
 # Android
+
 ANDROID_SDK_VERSION = 23  # see changelog.rst 2018-07-17
+ANDROID_NDK_VERSION = 20  # see above
+
+DEFAULT_ANDROID_NDK_HOST = "linux-x86_64"
+DEFAULT_ANDROID_TOOLCHAIN_VERSION = "4.9"
 
 # Qt
+
 QT_GIT_URL = "git://code.qt.io/qt/qt5.git"
-QT_GIT_BRANCH = "5.12"
+QT_GIT_BRANCH = "5.12"  # is 5.12.4 as of 2019-06-18 (released 2019-06-17)
 QT_GIT_COMMIT = HEAD
-# ... or "f1256e1f391fb9b229a246baff17f2562a82df20"
-# QT_SPECIFIC_VERSION = "5.12.4"  # as of 2019-06-16
 QT_SPECIFIC_VERSION = ""
-
-# previously "5.7.0", "5.9", "5.10" [= development branch], "5.10.0", "5.11.1"
-# I think in general one should use x.y.z not x.y versions, because the former
-# are the development chain and the latter get frozen.
-
-# At present we're building against 5.12 (i.e. in the development chain). This
-# includes patches for compatibility with glibc 2.28 (released 2018-08-01).
-# See: https://bugreports.qt.io/browse/QTBUG-69843
-# As of May 2019: 5.12 is now the long-term support (LTS) release.
-
-# ... to find out which are available: go into the local git directory and run
-# "git remote show origin"
-# 2017-12-01: 5.10 still too buggy (e.g. at CamcopsApp creation as QApplication
-#   is initialized, crash in QXcbConnection::internAtom -- even with
-#   ultraminimalist Qt app).
-#   ... https://bugreports.qt.io/browse/QTBUG-64928
-# However, OpenSSL 1.1 requires Qt 5.10.0 alpha:
-#   https://bugreports.qt.io/browse/QTBUG-52905
 
 if QT_SPECIFIC_VERSION:
     QT_VERSION = Version(QT_SPECIFIC_VERSION)
@@ -453,13 +494,16 @@ else:
     QT_VERSION = Version(QT_GIT_BRANCH, partial=True)
 
 DEFAULT_QT_USE_OPENSSL_STATICALLY = True
+
 QT_XCB_SUPPORT_OK = True  # see 2017-12-01 above, fixed 2017-12-08
 ADD_SO_VERSION_OF_LIBQTFORANDROID = False
 USE_CLANG_NOT_GCC_FOR_ANDROID_ARM = (
-        QT_VERSION >= Version("5.12", partial=True)  # new feature 2019-06-15
+    QT_VERSION >= Version("5.12", partial=True)  # new feature 2019-06-15
 )
 
 # OpenSSL
+
+# -- IF YOU CHANGE THIS, UPDATE camcops.pro
 OPENSSL_VERSION = "1.1.1c"  # as of 2019-06-15, previously 1.1.0g
 # ... formerly "1.0.2h", but Windows 64 builds break
 # ... as of 2017-11-21, stable series is 1.1 and LTS series is 1.0.2
@@ -467,7 +511,6 @@ OPENSSL_VERSION = "1.1.1c"  # as of 2019-06-15, previously 1.1.0g
 #     errors relating to "undefined type 'x509_st'"
 # ... OpenSSL 1.1 requires Qt 5.10.0 alpha:
 #     https://bugreports.qt.io/browse/QTBUG-52905
-
 OPENSSL_FAILS_OWN_TESTS = True
 # https://bugs.launchpad.net/ubuntu/+source/openssl/+bug/1581084
 OPENSSL_SRC_URL = (
@@ -478,6 +521,7 @@ OPENSSL_SRC_URL = (
 # )
 
 # SQLCipher; https://www.zetetic.net/sqlcipher/open-source/
+
 SQLCIPHER_GIT_URL = "https://github.com/sqlcipher/sqlcipher.git"
 # SQLCIPHER_GIT_COMMIT = "c6f709fca81c910ba133aaf6330c28e01ccfe5f8"  # SQLCipher version 3.4.2, 21 Dec 2017  # noqa
 SQLCIPHER_GIT_COMMIT = "750f5e32474ee23a423376203e671cab9841c67a"  # SQLCipher version 4.2.0, 29 May 2019  # noqa
@@ -490,14 +534,14 @@ SQLCIPHER_GIT_COMMIT = "750f5e32474ee23a423376203e671cab9841c67a"  # SQLCipher v
 # - For SQLCipher, see also https://github.com/sqlcipher/sqlcipher/releases.
 
 # Eigen
-EIGEN_VERSION = "3.3.3"
 
-# jom (now comes with Qt Creator; no need to download)
-# DEFAULT_JOM_GIT_URL = "git://code.qt.io/qt-labs/jom.git"
+EIGEN_VERSION = "3.3.3"
 
 # Mac things; https://gist.github.com/armadsen/b30f352a8d6f6c87a146
 MIN_IOS_VERSION = "7.0"
 MIN_MACOS_VERSION = "10.10"  # ... with 10.7, SQLCipher's "configure" fails
+
+# GNU tools
 
 CONFIG_GUESS_MASTER = "https://raw.githubusercontent.com/gcc-mirror/gcc/master/config.guess"  # noqa
 CONFIG_SUB_MASTER = "https://raw.githubusercontent.com/gcc-mirror/gcc/master/config.sub"  # noqa
@@ -2972,17 +3016,6 @@ def fetch_qt(cfg: Config) -> None:
     if QT_SPECIFIC_VERSION:
         run([GIT, "checkout", QT_SPECIFIC_VERSION])
         run([GIT, "submodule", "update", "--recursive"])
-    if PATCH_QT_FOR_ANDROID_NDK_20:
-        patch_qt_for_android_ndk_20(cfg)
-
-
-def patch_qt_for_android_ndk_20(cfg: Config) -> None:
-    """
-    See notes at top.
-    """
-    chdir(join(cfg.qt_src_gitdir, "qtbase"))
-    run([GIT, "fetch"])
-    run([GIT, "checkout", "067664531853a1e857c777c1cc56fc64b272e021"])
 
 
 def build_qt(cfg: Config, target_platform: Platform) -> str:

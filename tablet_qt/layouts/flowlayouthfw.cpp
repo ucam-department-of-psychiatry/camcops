@@ -55,6 +55,7 @@
 
 #include "common/preprocessor_aid.h"
 #ifdef QT_WORKAROUND_BUG_68889
+    #pragma GCC diagnostic push
     #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 #endif
 #include <QtWidgets>

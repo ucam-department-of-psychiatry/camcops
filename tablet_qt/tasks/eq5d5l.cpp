@@ -66,7 +66,6 @@ Eq5d5l::Eq5d5l(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     m_in_tickbox_change(false)
 {
     addFields(strseq(QPREFIX, FIRST_Q, LAST_Q), QVariant::Int);
-
     addField(VAS_QUESTION, QVariant::Int);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
@@ -108,8 +107,8 @@ Version Eq5d5l::minimumServerVersion() const
 QStringList Eq5d5l::summary() const
 {
     return QStringList{
-        QString("Health state code: %1").arg(getHealthStateCode()),
-        QString("Visual analogue health: %1").arg(prettyValue(VAS_QUESTION)),
+        tr("Health state code: %1").arg(getHealthStateCode()),
+        tr("Visual analogue health: %1").arg(prettyValue(VAS_QUESTION)),
     };
 }
 
@@ -221,8 +220,8 @@ OpenableWidget* Eq5d5l::editor(const bool read_only)
     }
 
     items.append(QuThermometerItem(
-        uifunc::resourceFilename("eq5d5lslider/top_sel.png"),
-        uifunc::resourceFilename("eq5d5lslider/top_unsel.png"),
+        uifunc::resourceFilename(resource_prefix + "top_sel.png"),
+        uifunc::resourceFilename(resource_prefix + "top_unsel.png"),
         "100", 100
     ));
 
@@ -242,7 +241,7 @@ OpenableWidget* Eq5d5l::editor(const bool read_only)
     instructions.append(QuElementPtr(new QuSpacer));
     instructions.append(QuElementPtr(
         new QuHorizontalContainer{
-            (new QuText("YOUR HEALTH TODAY ="))->setBig(),
+            (new QuText(tr("YOUR HEALTH TODAY =")))->setBig(),
             new QuLineEditInteger(fr_vas, 0, 100)
         }
     ));
@@ -261,7 +260,7 @@ OpenableWidget* Eq5d5l::editor(const bool read_only)
             }
         })->setTitle(shortname())
           ->setIndexTitle(xstring("t2_h"))
-          ->allowScroll(false)
+          ->allowScroll(false)  // for a resizable thermometer
     ));
 
     auto questionnaire = new Questionnaire(m_app, pages);

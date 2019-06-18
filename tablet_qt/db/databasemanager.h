@@ -40,6 +40,7 @@ class QJsonArray;
 // - raw SQL access
 // - query functions
 // - background threading (delayed write) and synchronization
+
 class DatabaseManager
 {
     /*
@@ -61,12 +62,15 @@ class DatabaseManager
     In terms of the thread control mechanism:
 
     There are several ways to operate with QThread:
+
     - QThread (owned by creator thread) running a thread with a worker
       QObject (living in the new, QThread, thread) -- this model has the
       QThread running an event loop, and allows the worker QThread to
       receive signals;
+
     - subclassing QThread and overriding run(), for when you don't care
       about event loops or signals.
+
     The latter is tempting (and it's what we end up doing). However, we do
     have to deal with waiting for both an exit signal (e.g. an atomic bool),
     and database events to arrive. In a run() loop, we don't want to "spin"
@@ -339,8 +343,25 @@ public:
     // password.
     bool canReadDatabase();
 
+    // Performs all steps necessary to read an encrypted database.
+    // - passphrase: the passphrase for "PRAGMA key"
+    // - migrate: if true, run "PRAGMA cipher_migrate"
+    // - compatibility_sqlcipher_major_version: if >0 and migrate is false,
+    //   run PRAGMA cipher_compatibility
+    bool decrypt(const QString& passphrase,
+                 bool migrate = false,
+                 int compatibility_sqlcipher_major_version = -1);
+
     // Executes "PRAGMA key" to access an encrypted database.
     bool pragmaKey(const QString& passphase);
+
+    // Executes "PRAGMA cipher_compatibility" to access an older SQLCipher
+    // database.
+    bool pragmaCipherCompatibility(int sqlcipher_major_version);
+
+    // Executes "PRAGMA cipher_migrate" to migrate from an older SQLCipher
+    // version
+    bool pragmaCipherMigrate();
 
     // Executes "PRAGMA rekey" to change a database's password.
     bool pragmaRekey(const QString& passphase);

@@ -161,8 +161,10 @@ Overview of the Qt translation system
     https://bugreports.qt.io/browse/QTBUG-42736; fixed in Qt 5.12.2.
 
   - To delete obsolete strings, use the ``-no-obsolete`` option; e.g.
-    ``~/dev/qt_local_build/qt_linux_x86_64_install/bin/lupdate -no-obsolete
-    camcops.pro``
+
+    .. code-block:: bash
+
+        ~/dev/qt_local_build/qt_linux_x86_64_install/bin/lupdate -no-obsolete camcops.pro
 
 - The Qt Linguist tool edits ``.ts`` files.
 

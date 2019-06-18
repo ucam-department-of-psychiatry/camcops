@@ -173,6 +173,12 @@ protected:
     bool connectDatabaseEncryption(QString& new_user_password,
                                    bool& user_cancelled_please_quit);
 
+    // Function launched in a worker thread to descrypt databases. (The
+    // decryption process can be slow if the database must be migrated from an
+    // older version of SQLCipher, so we want the GUI thread to show a wait
+    // indicator).
+    void workerDecryptDatabases(const QString& passphrase, bool& success);
+
     // Closes any database encryption, encrypts on-disk databases with a
     // passphrase, then re-opens the databases.
     bool encryptExistingPlaintextDatabases(const QString& passphrase);

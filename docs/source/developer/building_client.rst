@@ -488,7 +488,7 @@ Non-default options are marked in bold and/or as "[non-default]".
         * - Additional Qbs Profile Settings
           -
 
-**Custom_Android_ARM: DEPRECATED 32-BIT CONFIGURATION FOR GCC**
+**OLD_Custom_Android_ARM: DEPRECATED 32-BIT CONFIGURATION FOR GCC**
 
     .. list-table::
         :header-rows: 1
@@ -497,7 +497,7 @@ Non-default options are marked in bold and/or as "[non-default]".
         * - Option
           - Setting
         * - Name
-          - **[non-default]** ``Custom_Android_ARM``
+          - **[non-default]** ``OLD_Custom_Android_ARM``
         * - File system name
           -
         * - Device type
@@ -528,7 +528,7 @@ Non-default options are marked in bold and/or as "[non-default]".
           -
 
 
-**Custom_Android_ARM32: CURRENT 32-BIT CONFIGURATION FOR CLANG**
+**Custom_Android_ARM32: current 32-BIT configuration for clang**
 
     .. list-table::
         :header-rows: 1
@@ -549,11 +549,11 @@ Non-default options are marked in bold and/or as "[non-default]".
         * - Compiler: C
           - <No compiler>
         * - Compiler: C++
-          - Android GCC (C++, arm-4.9) [#androidgcc]_
+          - <No compiler>
         * - Environment
           - [not editable: "No changes to apply."]
         * - Debugger
-          - Android Debugger for Android GCC (C++, arm-4.9) [#androidgcc]_
+          - None
         * - Qt version
           - **THE "ANDROID" ONE FROM QT VERSIONS, ABOVE**
         * - Qt mkspec

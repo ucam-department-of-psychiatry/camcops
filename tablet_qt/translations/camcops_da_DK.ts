@@ -371,137 +371,142 @@
         <translation>Konfiguration af intern database</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="539"/>
+        <location filename="../core/camcopsapp.cpp" line="547"/>
         <source>Enter a new password for the CamCOPS application</source>
         <translation>Indtast en ny adgangskode til CamCOPS-applikationen</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="540"/>
+        <location filename="../core/camcopsapp.cpp" line="548"/>
         <source>Set CamCOPS password</source>
         <translation>Indstil CamCOPS adgangskode</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="541"/>
+        <location filename="../core/camcopsapp.cpp" line="549"/>
         <source>Enter the password to unlock CamCOPS</source>
         <translation>Indtast adgangskoden for at låse CamCOPS op</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="542"/>
+        <location filename="../core/camcopsapp.cpp" line="550"/>
         <source>Enter CamCOPS password</source>
         <translation>Indtast CamCOPS adgangskode</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="550"/>
+        <location filename="../core/camcopsapp.cpp" line="558"/>
         <source>CamCOPS uses a system and a data database; one has a password and one doesn&apos;t (no_password_sys = %1, no_password_data = %2); this is an incongruent state that has probably arisen from user error, and CamCOPS will not continue until this is fixed.</source>
         <translation>CamCOPS bruger et system og en databas. Man har et kodeord, og man gør det ikke (no_password_sys = %1, no_password_data = %2). Dette er en inkongruent tilstand, der sandsynligvis er opstået som følge af brugerfejl, og CamCOPS fortsætter ikke, før dette er løst.</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="558"/>
+        <location filename="../core/camcopsapp.cpp" line="566"/>
         <source>Inconsistent database state</source>
         <translation>Inkonsekvent database tilstand</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="624"/>
+        <location filename="../core/camcopsapp.cpp" line="622"/>
+        <source>Decrypting databases...</source>
+        <translation>Dekryptering af databaser...</translation>
+    </message>
+    <message>
+        <location filename="../core/camcopsapp.cpp" line="642"/>
         <source>Can&apos;t read system database; corrupted? encrypted? (This version of CamCOPS has had its encryption facilities disabled.)</source>
         <translation>Kan ikke læse systemdatabasen; ødelagt? krypteret? (Denne version af CamCOPS har haft sine krypteringsfaciliteter deaktiveret.)</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="629"/>
+        <location filename="../core/camcopsapp.cpp" line="647"/>
         <source>Can&apos;t read data database; corrupted? encrypted? (This version of CamCOPS has had its encryption facilities disabled.)</source>
         <translation>Kan ikke læse databasen; ødelagt? krypteret? (Denne version af CamCOPS har haft sine krypteringsfaciliteter deaktiveret.)</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="1208"/>
+        <location filename="../core/camcopsapp.cpp" line="1237"/>
         <source>Upload?</source>
         <translation>Upload?</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="1209"/>
+        <location filename="../core/camcopsapp.cpp" line="1238"/>
         <source>Task finished. Upload data to server now?</source>
         <translation>Opgave færdig. Upload data til server nu?</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="1211"/>
+        <location filename="../core/camcopsapp.cpp" line="1240"/>
         <source>Yes, upload</source>
         <translation>Ja, upload</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="1213"/>
+        <location filename="../core/camcopsapp.cpp" line="1242"/>
         <source>No, cancel</source>
         <translation>Nej, annuller</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="1378"/>
+        <location filename="../core/camcopsapp.cpp" line="1407"/>
         <source>Enter app password</source>
         <translation>Indtast programadgangskode</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="1379"/>
+        <location filename="../core/camcopsapp.cpp" line="1408"/>
         <source>Unlock</source>
         <translation>Lås</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="1394"/>
+        <location filename="../core/camcopsapp.cpp" line="1423"/>
         <source>Enter privileged-mode password</source>
         <translation>Indtast adgangskode med privilegeret tilstand</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="1395"/>
+        <location filename="../core/camcopsapp.cpp" line="1424"/>
         <source>Set privileged mode</source>
         <translation>Indstil privilegeret tilstand</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="1416"/>
+        <location filename="../core/camcopsapp.cpp" line="1445"/>
         <source>Wrong password</source>
         <translation>Forkert kodeord</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="1424"/>
+        <location filename="../core/camcopsapp.cpp" line="1453"/>
         <source>Change app password</source>
         <translation>Skift programadgangskode</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="1432"/>
+        <location filename="../core/camcopsapp.cpp" line="1461"/>
         <source>Re-encrypting databases...</source>
         <translation>Genkrypterende databaser...</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="1448"/>
+        <location filename="../core/camcopsapp.cpp" line="1477"/>
         <source>Change privileged-mode password</source>
         <translation>Skift adgangskode til privilegeret tilstand</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="1471"/>
+        <location filename="../core/camcopsapp.cpp" line="1500"/>
         <source>Incorrect old password</source>
         <translation>Forkert gammel adgangskode</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="2207"/>
+        <location filename="../core/camcopsapp.cpp" line="2236"/>
         <source>Terms and conditions of use</source>
         <translation>Vilkår og betingelser for brug</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="2211"/>
+        <location filename="../core/camcopsapp.cpp" line="2240"/>
         <source>I AGREE</source>
         <translation>JEG ER ENIG</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="2212"/>
+        <location filename="../core/camcopsapp.cpp" line="2241"/>
         <source>I DO NOT AGREE</source>
         <translation>JEG ER IKKE ENIG</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="2223"/>
+        <location filename="../core/camcopsapp.cpp" line="2252"/>
         <source>OK. Goodbye.</source>
         <translation>Okay. Farvel.</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="2223"/>
+        <location filename="../core/camcopsapp.cpp" line="2252"/>
         <source>You refused the conditions.</source>
         <translation>Du nægtede betingelserne.</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="2238"/>
+        <location filename="../core/camcopsapp.cpp" line="2267"/>
         <source>Copy data to server, or move it to server?
 
 COPY: copies unfinished patients, moves finished patients.
@@ -518,22 +523,22 @@ HOLD PATIENTER OG FLYG: Flytter alle opgaver, holder kun grundlæggende patiento
 Flyt venligst, når det er muligt; dette reducerer mængden af patientidentificerbare oplysninger, der er gemt på denne enhed.</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="2249"/>
+        <location filename="../core/camcopsapp.cpp" line="2278"/>
         <source>Upload to server</source>
         <translation>Upload til server</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="2253"/>
+        <location filename="../core/camcopsapp.cpp" line="2282"/>
         <source>Keep patients and move</source>
         <translation>Hold patienter og flyt data</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="2254"/>
+        <location filename="../core/camcopsapp.cpp" line="2283"/>
         <source>Move</source>
         <translation>Flyt</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.h" line="232"/>
+        <location filename="../core/camcopsapp.h" line="238"/>
         <source>Opening...</source>
         <translation>Åbning...</translation>
     </message>
@@ -2152,14 +2157,29 @@ enig</translation>
 <context>
     <name>Eq5d5l</name>
     <message>
-        <location filename="../tasks/eq5d5l.cpp" line="88"/>
+        <location filename="../tasks/eq5d5l.cpp" line="87"/>
         <source>EuroQol 5-Dimension, 5-Level Health Scale</source>
         <translation>EuroQol 5-dimension, 5-niveau sundhedsskala</translation>
     </message>
     <message>
-        <location filename="../tasks/eq5d5l.cpp" line="94"/>
+        <location filename="../tasks/eq5d5l.cpp" line="93"/>
         <source>Self-rated health scale; 5 questions plus a visual analogue scale.</source>
         <translation>Selvbedømmelses sundhed skala; 5 spørgsmål plus en visuel analog skala.</translation>
+    </message>
+    <message>
+        <location filename="../tasks/eq5d5l.cpp" line="110"/>
+        <source>Health state code: %1</source>
+        <translation>Sundheds-tilstandskode: %1</translation>
+    </message>
+    <message>
+        <location filename="../tasks/eq5d5l.cpp" line="111"/>
+        <source>Visual analogue health: %1</source>
+        <translation>Visuel analog sundhed: %1</translation>
+    </message>
+    <message>
+        <location filename="../tasks/eq5d5l.cpp" line="244"/>
+        <source>YOUR HEALTH TODAY =</source>
+        <translation>DIN SUNDHED FORDAG =</translation>
     </message>
 </context>
 <context>
@@ -5320,11 +5340,6 @@ enig</translation>
         <location filename="../menu/settingsmenu.cpp" line="1383"/>
         <source>Sending data...</source>
         <translation>Afsendelse af data...</translation>
-    </message>
-    <message>
-        <location filename="../menu/settingsmenu.cpp" line="1384"/>
-        <source>Please wait</source>
-        <translation>Vent venligst</translation>
     </message>
     <message>
         <location filename="../menu/settingsmenu.cpp" line="1392"/>

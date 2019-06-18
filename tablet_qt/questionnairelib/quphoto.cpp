@@ -398,7 +398,7 @@ void QuPhoto::rotate(const int angle_degrees_clockwise)
     qDebug() << "QuPhoto: rotating...";
 #endif
     {
-        SlowNonGuiFunctionCaller slow_gui_caller(
+        SlowNonGuiFunctionCaller slow_caller(
                 std::bind(&QuPhoto::rotateWorker, this, angle_degrees_clockwise),
                 m_main_widget,
                 "Rotating...");

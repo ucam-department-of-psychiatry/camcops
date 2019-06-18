@@ -25,6 +25,7 @@
 #include "common/preprocessor_aid.h"
 
 #ifdef GCC_HAS_WARNING_INT_IN_BOOL_CONTEXT
+    #pragma GCC diagnostic push
     #pragma GCC diagnostic ignored "-Wint-in-bool-context"
 #endif
 

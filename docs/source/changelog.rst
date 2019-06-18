@@ -2227,14 +2227,24 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 **Client 2.3.4 (IN PROGRESS):**
 
-- In order to get 64-bit ARM compilation working for Android:
+- The Google Play Store will soon require 64-bit builds. In order to get 64-bit
+  ARM compilation working for Android:
 
   - lots of work to ``build_qt.py``
   - Default Android NDK from r11c to r20, which means moving from gcc to clang
   - OpenSSL from 1.1.0g to 1.1.1c to cope with clang
   - SQLCipher from 3.4.2 to 4.2.0 to cope with OpenSSL 1.1.1
-  - Qt from 5.12.0 (?) to 5.12.4 in the hope it configures itself properly for
-    Android with clang (nope).
+
+    - Note the need for ``PRAGMA cipher_compatibility`` or ``PRAGMA
+      cipher_migrate``; see
+      https://discuss.zetetic.net/t/upgrading-to-sqlcipher-4/3283
+
+    - **Databases from older versions of CamCOPS will be read and migrated
+      automatically, but will then not be openable directly by older versions
+      again.**
+
+  - Qt from 5.12.0 to 5.12.3 plus some Git tweaks to get upstream support for
+    Android NDK r20.
 
 - **IAM:** :ref:`Lynall M-E — 2 — IAM study — life events <lynall_2_iam_life>`
 

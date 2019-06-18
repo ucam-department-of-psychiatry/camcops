@@ -17,8 +17,11 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define USE_MULTITHREADED_DATABASES
+#define USE_MULTITHREADED_DATABASES  // gives much better performance
 #define ONE_SELECT_AT_A_TIME
+    // ... enforces the principle that callers using SELECT should consume
+    // their results before doing another SELECT (so: OK to leave this on).
+
 // #define DEBUG_BACKGROUND_QUERY
 // #define DEBUG_VERBOSE_PROCESS
 // #define DEBUG_VERBOSE_RESULTS
@@ -66,7 +69,7 @@ DatabaseManager::DatabaseManager(const QString& filename,
 {
     // GUI thread
 #ifdef DEBUG_VERBOSE_PROCESS
-    qDebug() << Q_FUNC_INFO;
+    qDebug() << Q_FUNC_INFO << m_connection_name;
 #endif
     openDatabaseOrDie();
 }
@@ -75,7 +78,7 @@ DatabaseManager::DatabaseManager(const QString& filename,
 DatabaseManager::~DatabaseManager()
 {
 #ifdef DEBUG_VERBOSE_PROCESS
-    qDebug() << Q_FUNC_INFO;
+    qDebug() << Q_FUNC_INFO << m_connection_name;
 #endif
     closeDatabase();
 }
@@ -88,7 +91,7 @@ DatabaseManager::~DatabaseManager()
 void DatabaseManager::setVacuumOnClose(const bool vacuum_on_close)
 {
 #ifdef DEBUG_VERBOSE_PROCESS
-    qDebug() << Q_FUNC_INFO;
+    qDebug() << Q_FUNC_INFO << m_connection_name;
 #endif
     m_vacuum_on_close = vacuum_on_close;
 }
@@ -102,7 +105,7 @@ void DatabaseManager::openDatabaseOrDie()
 {
     // GUI thread
 #ifdef DEBUG_VERBOSE_PROCESS
-    qDebug() << Q_FUNC_INFO;
+    qDebug() << Q_FUNC_INFO << m_connection_name;
 #endif
     if (openDatabase()) {
         qInfo() << "Opened database:" << m_filename;
@@ -116,7 +119,7 @@ bool DatabaseManager::openDatabase()
 {
     // GUI thread
 #ifdef DEBUG_VERBOSE_PROCESS
-    qDebug() << Q_FUNC_INFO;
+    qDebug() << Q_FUNC_INFO << m_connection_name;
 #endif
     if (m_threaded) {
         if (!m_thread) {
@@ -126,11 +129,13 @@ bool DatabaseManager::openDatabase()
             m_mutex_requests.lock();
             m_thread->start();  // will call openDatabaseActual()
 #ifdef DEBUG_VERBOSE_PROCESS
-    qDebug() << Q_FUNC_INFO << "... waiting for m_open_db_complete";
+    qDebug() << Q_FUNC_INFO << m_connection_name
+             << "... waiting for m_open_db_complete";
 #endif
             m_open_db_complete.wait(&m_mutex_requests);  // woken by: work()
 #ifdef DEBUG_VERBOSE_PROCESS
-    qDebug() << Q_FUNC_INFO << "... woken by m_open_db_complete";
+    qDebug() << Q_FUNC_INFO << m_connection_name
+             << "... woken by m_open_db_complete";
 #endif
             m_mutex_requests.unlock();
         }
@@ -144,7 +149,7 @@ bool DatabaseManager::openDatabaseActual()
 {
     // GUI OR WORKER THREAD
 #ifdef DEBUG_VERBOSE_PROCESS
-    qDebug() << Q_FUNC_INFO;
+    qDebug() << Q_FUNC_INFO << m_connection_name;
 #endif
     if (m_db.isOpen()) {
         m_opened_database = true;
@@ -170,7 +175,7 @@ void DatabaseManager::closeDatabase()
 {
     // GUI thread
 #ifdef DEBUG_VERBOSE_PROCESS
-    qDebug() << Q_FUNC_INFO;
+    qDebug() << Q_FUNC_INFO << m_connection_name;
 #endif
     if (m_vacuum_on_close) {
         vacuum();
@@ -195,7 +200,7 @@ void DatabaseManager::closeDatabaseActual()
 {
     // GUI OR WORKER THREAD
 #ifdef DEBUG_VERBOSE_PROCESS
-    qDebug() << Q_FUNC_INFO;
+    qDebug() << Q_FUNC_INFO << m_connection_name;
 #endif
     if (m_db.isOpen()) {
         m_db.close();
@@ -220,7 +225,7 @@ void DatabaseManager::execNoAnswer(const SqlArgs& sqlargs,
 {
     // GUI thread
 #ifdef DEBUG_VERBOSE_PROCESS
-    qDebug() << Q_FUNC_INFO;
+    qDebug() << Q_FUNC_INFO << m_connection_name;
 #endif
     if (m_threaded) {
         ThreadedQueryRequest request(sqlargs, QueryResult::FetchMode::NoAnswer,
@@ -240,7 +245,7 @@ QueryResult DatabaseManager::query(const SqlArgs& sqlargs,
 {
     // GUI thread
 #ifdef DEBUG_VERBOSE_PROCESS
-    qDebug() << Q_FUNC_INFO;
+    qDebug() << Q_FUNC_INFO << m_connection_name;
 #endif
     Q_ASSERT(fetch_mode != QueryResult::FetchMode::NoAnswer);
     // ... don't use the query() interface if you want no answer; use execNoAnswer()
@@ -268,7 +273,7 @@ QueryResult DatabaseManager::query(const SqlArgs& sqlargs,
 bool DatabaseManager::exec(const SqlArgs& sqlargs, const bool suppress_errors)
 {
 #ifdef DEBUG_VERBOSE_PROCESS
-    qDebug() << Q_FUNC_INFO;
+    qDebug() << Q_FUNC_INFO << m_connection_name;
 #endif
     const QueryResult result = query(sqlargs, QueryResult::FetchMode::NoFetch,
                                      false, suppress_errors);
@@ -284,7 +289,7 @@ void DatabaseManager::pushRequest(const ThreadedQueryRequest& request)
 {
     // GUI thread
 #ifdef DEBUG_VERBOSE_PROCESS
-    qDebug() << Q_FUNC_INFO
+    qDebug() << Q_FUNC_INFO << m_connection_name
              << "... pushing request:" << request;
 #endif
 
@@ -299,7 +304,7 @@ void DatabaseManager::pushRequest(const ThreadedQueryRequest& request)
 QueryResult DatabaseManager::popResult()
 {
 #ifdef DEBUG_VERBOSE_PROCESS
-    qDebug() << Q_FUNC_INFO;
+    qDebug() << Q_FUNC_INFO << m_connection_name;
 #endif
     m_mutex_results.lock();
     QueryResult result = m_results.front();
@@ -320,24 +325,27 @@ void DatabaseManager::waitForQueriesToComplete()
 {
     // GUI thread
 #ifdef DEBUG_VERBOSE_PROCESS
-    qDebug() << Q_FUNC_INFO;
+    qDebug() << Q_FUNC_INFO << m_connection_name;
 #endif
 
     m_mutex_requests.lock();
     if (!m_requests.isEmpty()) {  // must hold mutex to read this
 #ifdef DEBUG_VERBOSE_PROCESS
-        qDebug() << Q_FUNC_INFO << "... requests exist; waiting for m_queries_are_complete";
+        qDebug() << Q_FUNC_INFO << m_connection_name
+                 << "... requests exist; waiting for m_queries_are_complete";
 #endif
         m_queries_are_complete.wait(&m_mutex_requests);  // woken by: work()
 #ifdef DEBUG_VERBOSE_PROCESS
-        qDebug() << Q_FUNC_INFO << "... woken by m_queries_are_complete";
+        qDebug() << Q_FUNC_INFO << m_connection_name
+                 << "... woken by m_queries_are_complete";
 #endif
         // ... this mutex is UNLOCKED as we go to sleep, and LOCKED
         //     as we wake: http://doc.qt.io/qt-5/qwaitcondition.html#wait
     }
 #ifdef DEBUG_VERBOSE_PROCESS
     else {
-        qDebug() << "... no pending query requests; proceed";
+        qDebug() << m_connection_name
+                 << "... no pending query requests; proceed";
     }
 #endif
     m_mutex_requests.unlock();
@@ -353,7 +361,7 @@ void DatabaseManager::work()
     // Main worker thread function.
     // When we leave this function, the thread will terminate.
 #ifdef DEBUG_VERBOSE_PROCESS
-    qDebug() << Q_FUNC_INFO;
+    qDebug() << Q_FUNC_INFO << m_connection_name;
 #endif
 
     m_opened_database = openDatabaseActual();
@@ -372,7 +380,8 @@ void DatabaseManager::work()
         m_mutex_requests.unlock();
 
 #ifdef DEBUG_VERBOSE_PROCESS
-        qDebug() << Q_FUNC_INFO << "... processing request:" << request;
+        qDebug() << Q_FUNC_INFO << m_connection_name
+                 << "... processing request:" << request;
 #endif
 
         if (request.thread_abort_request_not_query) {
@@ -403,7 +412,7 @@ void DatabaseManager::execute(const ThreadedQueryRequest& request)
 {
     // Worker thread
 #ifdef DEBUG_VERBOSE_PROCESS
-    qDebug() << Q_FUNC_INFO;
+    qDebug() << Q_FUNC_INFO << m_connection_name;
 #endif
 
     // 1. Prepare query
@@ -411,7 +420,8 @@ void DatabaseManager::execute(const ThreadedQueryRequest& request)
 
     // 2. Execute query
 #ifdef DEBUG_BACKGROUND_QUERY
-    qDebug() << "Executing background query:" << request;
+    qDebug() << m_connection_name
+             << "Executing background query:" << request;
 #endif
     const bool success = dbfunc::execQuery(query,
                                            request.sqlargs,
@@ -434,7 +444,7 @@ void DatabaseManager::pushResult(const QueryResult& result)
 {
     // Worker thread
 #ifdef DEBUG_VERBOSE_PROCESS
-    qDebug() << Q_FUNC_INFO;
+    qDebug() << Q_FUNC_INFO << m_connection_name;
 #endif
     m_mutex_results.lock();
 #ifdef ONE_SELECT_AT_A_TIME
@@ -452,7 +462,7 @@ void DatabaseManager::pushResult(const QueryResult& result)
 void DatabaseManager::execNoAnswer(const QString& sql, const ArgList& args)
 {
 #ifdef DEBUG_VERBOSE_PROCESS
-    qDebug() << Q_FUNC_INFO;
+    qDebug() << Q_FUNC_INFO << m_connection_name;
 #endif
     const SqlArgs sqlargs(sql, args);
     execNoAnswer(sqlargs);
@@ -462,7 +472,7 @@ void DatabaseManager::execNoAnswer(const QString& sql, const ArgList& args)
 bool DatabaseManager::exec(const QString& sql, const ArgList& args)
 {
 #ifdef DEBUG_VERBOSE_PROCESS
-    qDebug() << Q_FUNC_INFO;
+    qDebug() << Q_FUNC_INFO << m_connection_name;
 #endif
     const SqlArgs sqlargs(sql, args);
     return exec(sqlargs);
@@ -476,7 +486,7 @@ QueryResult DatabaseManager::query(const QString& sql,
                                    const bool suppress_errors)
 {
 #ifdef DEBUG_VERBOSE_PROCESS
-    qDebug() << Q_FUNC_INFO;
+    qDebug() << Q_FUNC_INFO << m_connection_name;
 #endif
     const SqlArgs sqlargs(sql, args);
     return query(sqlargs, fetch_mode, store_column_names, suppress_errors);
@@ -489,7 +499,7 @@ QueryResult DatabaseManager::query(const QString& sql,
                                    const bool suppress_errors)
 {
 #ifdef DEBUG_VERBOSE_PROCESS
-    qDebug() << Q_FUNC_INFO;
+    qDebug() << Q_FUNC_INFO << m_connection_name;
 #endif
     const SqlArgs sqlargs(sql);
     return query(sqlargs, fetch_mode, store_column_names, suppress_errors);
@@ -503,7 +513,7 @@ QueryResult DatabaseManager::query(const QString& sql,
 QSqlDriver* DatabaseManager::driver() const
 {
 #ifdef DEBUG_VERBOSE_PROCESS
-    qDebug() << Q_FUNC_INFO;
+    qDebug() << Q_FUNC_INFO << m_connection_name;
 #endif
     return m_db.driver();
 }
@@ -769,10 +779,11 @@ void DatabaseManager::renameColumns(
         ++n_changes;
     }
     if (n_changes == 0) {
-        qDebug() << "renameColumns: nothing to do:" << tablename;
+        qDebug() << m_connection_name
+                 << "renameColumns: nothing to do:" << tablename;
         return;
     }
-    qDebug() << Q_FUNC_INFO;
+    qDebug() << Q_FUNC_INFO << m_connection_name;
     qDebug() << "- table:" << tablename;
     qDebug() << "- from_to:" << from_to;
     qDebug() << "- old_fieldnames:" << old_fieldnames;
@@ -836,7 +847,7 @@ void DatabaseManager::changeColumnTypes(
                         dummytable);
     }
     QVector<SqlitePragmaInfoField> infolist = getPragmaInfo(tablename);
-    qDebug() << "changeColumnTypes";
+    qDebug() << m_connection_name << "changeColumnTypes";
     qDebug() << "- pragma info:" << infolist;
     qDebug() << "- changes:" << changes;
     int n_changes = 0;
@@ -967,7 +978,7 @@ void DatabaseManager::createTable(const QString& tablename,
     }
 
 #ifdef DEBUG_VERBOSE_TABLE_CHANGE_PLANS
-    qDebug() << Q_FUNC_INFO
+    qDebug() << Q_FUNC_INFO << m_connection_name
              << "tablename:" << tablename
              << "goodfieldlist:" << goodfieldlist
              << "infolist:" << infolist
@@ -1082,11 +1093,58 @@ bool DatabaseManager::canReadDatabase()
 }
 
 
+bool DatabaseManager::decrypt(const QString &passphrase,
+                              const bool migrate,
+                              const int compatibility_sqlcipher_major_version)
+{
+    bool success = pragmaKey(passphrase);
+    if (migrate) {
+        // You might think that there's no point doing cipher_migrate if we can
+        // read the database, and calls to canReadDatabase() are quick, so we
+        // should check that first. However, this sequence fails:
+        //      SELECT COUNT(*) FROM sqlite_master;  -- OK
+        //      PRAGMA key = 'passphrase';  -- OK
+        //      SELECT COUNT(*) FROM sqlite_master;  -- bad
+        //      PRAGMA cipher_migrate;
+        // whereas this works:
+        //      SELECT COUNT(*) FROM sqlite_master;
+        //      PRAGMA key = 'passphrase';
+        //      PRAGMA cipher_migrate;
+        // So we must proceed to "cipher_migrate" directly.
+        success = success && pragmaCipherMigrate();
+    } else if (compatibility_sqlcipher_major_version > 0) {
+        success = pragmaCipherCompatibility(compatibility_sqlcipher_major_version);
+    }
+    return success;
+}
+
+
 bool DatabaseManager::pragmaKey(const QString& passphase)
 {
     // "PRAGMA key" is specific to SQLCipher
     const QString sql = QString("PRAGMA key=%1")
             .arg(convert::toSqlLiteral(passphase));
+    return exec(sql);
+}
+
+
+bool DatabaseManager::pragmaCipherCompatibility(
+        const int sqlcipher_major_version)
+{
+    // "PRAGMA cipher_compatibility = <level>" is specific to SQLCipher
+    if (sqlcipher_major_version < 1) {
+        return false;
+    }
+    const QString sql = QString("PRAGMA cipher_compatibility = %1")
+            .arg(sqlcipher_major_version);
+    return exec(sql);
+}
+
+
+bool DatabaseManager::pragmaCipherMigrate()
+{
+    // "PRAGMA cipher_migrate" is specific to SQLCipher
+    const QString sql("PRAGMA cipher_migrate");
     return exec(sql);
 }
 

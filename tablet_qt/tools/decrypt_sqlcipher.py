@@ -78,6 +78,13 @@ def main() -> None:
             "will be used, or the default of {})"
         ).format(SQLCIPHER_ENV_VAR, repr(SQLCIPHER_DEFAULT)))
     parser.add_argument(
+        "--cipher_compatibility", type=int, default=None,
+        help=(
+            "Use compatibility settings for this major version of SQLCipher "
+            "(e.g. 3)"
+        )
+    )
+    parser.add_argument(
         "--encoding", type=str, default=sys.getdefaultencoding(),
         help="Encoding to use")
     progargs = parser.parse_args()
@@ -121,29 +128,36 @@ def main() -> None:
     # -------------------------------------------------------------------------
     # Run SQLCipher to do the work
     # -------------------------------------------------------------------------
-    sql = """
--- Exit on any error
-.bail on
-
--- Gain access to the encrypted database
-PRAGMA key = {key};
-
--- Check we can read from old database (or quit without creating new one)
-SELECT COUNT(*) FROM sqlite_master;
-
--- Create new database
-ATTACH DATABASE '{plaintext}' AS plaintext KEY '';
-
--- Move data from one to the other
-SELECT sqlcipher_export('plaintext');
-
--- Done
-DETACH DATABASE plaintext;
-.exit
-    """.format(
-        plaintext=progargs.decrypted,
-        key=string_to_sql_literal(password),
-    )
+    sql_commands = [
+        "-- Exit on any error",
+        ".bail on",
+        "",
+        "-- Gain access to the encrypted database",
+        "PRAGMA key = {key};".format(key=string_to_sql_literal(password)),
+    ]
+    if progargs.cipher_compatibility is not None:
+        sql_commands += [
+            "PRAGMA cipher_compatibility = {};".format(
+                progargs.cipher_compatibility),
+        ]
+    sql_commands += [
+        "",
+        "-- Check we can read from old database "
+        "(or quit without creating new one)",
+        "SELECT COUNT(*) FROM sqlite_master;",
+        "",
+        "-- Create new database",
+        "ATTACH DATABASE '{plaintext}' AS plaintext KEY '';".format(
+            plaintext=progargs.decrypted),
+        "",
+        "-- Move data from one to the other",
+        "SELECT sqlcipher_export('plaintext');",
+        "",
+        "-- Done",
+        "DETACH DATABASE plaintext;",
+        ".exit",
+    ]
+    sql = "\n".join(sql_commands)
     cmdargs = [sqlcipher, progargs.encrypted]
     # log.debug("cmdargs: " + repr(cmdargs))
     # log.debug("stdin: " + sql)

@@ -105,11 +105,15 @@
 
 // ============================================================================
 // DISABLE_GCC_DATE_TIME_MACRO_WARNING
+// DISABLE_CLANG_DATE_TIME_MACRO_WARNING
 // ============================================================================
 // "expansion of date or time macro is not reproducible"
 
 #ifdef COMPILER_IS_GCC  // Running proper GCC
     #define DISABLE_GCC_DATE_TIME_MACRO_WARNING
+#endif
+#ifdef COMPILER_IS_CLANG
+    #define DISABLE_CLANG_DATE_TIME_MACRO_WARNING
 #endif
 
 // ============================================================================
