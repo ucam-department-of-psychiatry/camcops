@@ -31,6 +31,7 @@ C++ code style used
     #pragma once
 
     #define ANY_MASTER_SWITCHES_FOR_FILE
+    #define DEBUG_A_SWITCH_THAT_SHOULD_BE_OFF_FOR_RELEASE_MODE
 
     // In source (.cpp) files:
     #include "myheader.h"
@@ -105,6 +106,7 @@ C++ code style used
 
     };
 
+
     // ============================================================================
     // Big divider
     // ============================================================================
@@ -126,6 +128,7 @@ C++ code style used
             statements;
         };
     }
+
 
     // ----------------------------------------------------------------------------
     // Small divider

@@ -1102,16 +1102,45 @@ bool DatabaseManager::decrypt(const QString &passphrase,
         // You might think that there's no point doing cipher_migrate if we can
         // read the database, and calls to canReadDatabase() are quick, so we
         // should check that first. However, this sequence fails:
-        //      SELECT COUNT(*) FROM sqlite_master;  -- OK
+        //
+        //      SELECT COUNT(*) FROM sqlite_master;  -- OK; "Error: file is not a database"
         //      PRAGMA key = 'passphrase';  -- OK
-        //      SELECT COUNT(*) FROM sqlite_master;  -- bad
-        //      PRAGMA cipher_migrate;
+        //      SELECT COUNT(*) FROM sqlite_master;  -- causes a problem; "Error: file is not a database"
+        //      PRAGMA cipher_migrate;  -- "1"
+        //      .tables  -- "Error: file is not a database"
+        //
         // whereas this works:
+        //
+        //      SELECT COUNT(*) FROM sqlite_master;  -- "Error: file is not a database"
+        //      PRAGMA key = 'passphrase';
+        //      PRAGMA cipher_migrate;  -- "0"
+        //      .tables  -- works fine
+        //
+        // and this also works:
+        //
         //      SELECT COUNT(*) FROM sqlite_master;
         //      PRAGMA key = 'passphrase';
-        //      PRAGMA cipher_migrate;
-        // So we must proceed to "cipher_migrate" directly.
-        success = success && pragmaCipherMigrate();
+        //      SELECT COUNT(*) FROM sqlite_master;  -- causes a problem; "Error: file is not a database"
+        //      PRAGMA key = 'passphrase';  -- resets the problem
+        //      PRAGMA cipher_migrate;  -- "0"
+        //      .tables  -- works fine
+        //
+        // So we must proceed to "PRAGMA cipher_migrate" directly every time,
+        // like this:
+        //
+        //   success = success && pragmaCipherMigrate();
+        //
+        // or re-call "PRAGMA key". Since cipher_migrate takes about 0.25s to
+        // do nothing, which is significant (esp. for two databases), let's do
+        // that:
+
+        if (!canReadDatabase()) {
+            success = success && pragmaKey(passphrase) && pragmaCipherMigrate();
+        }
+
+        // This way is obviously quicker (empirically) once cipher_migrate has
+        // become unnecessary.
+
     } else if (compatibility_sqlcipher_major_version > 0) {
         success = pragmaCipherCompatibility(compatibility_sqlcipher_major_version);
     }

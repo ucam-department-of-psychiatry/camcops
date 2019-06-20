@@ -17,15 +17,17 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-// #define TEST_BASIC_QT_ONLY  // Disables CamCOPS! Just says hello.
-#define FULL_LOG_FORMAT
-#define DISABLE_ANDROID_NATIVE_DIALOGS
-// #define QT_OPENGL_IN_SOFTWARE
+// #define DEBUG_TEST_BASIC_QT_ONLY  // Disables CamCOPS! Just says hello.
+
+#define FULL_LOG_FORMAT  // Include time and thread ID.
+// #define DISABLE_ANDROID_NATIVE_DIALOGS  // For a bug fixed in Qt 5.2.1.
+// #define QT_OPENGL_IN_SOFTWARE  // Unnecessary once proper OpenGL detection added.
 
 #include <QApplication>
 #include <QDebug>
 #include <QPushButton>
 #include <QStyleFactory>
+#include "common/preprocessor_aid.h"
 #include "core/camcopsapp.h"
 #include "crypto/cryptofunc.h"
 
@@ -44,7 +46,7 @@
 #endif
 
 
-#ifdef TEST_BASIC_QT_ONLY
+#ifdef DEBUG_TEST_BASIC_QT_ONLY
 int runMinimalQtApp(int& argc, char* argv[])
 {
     QApplication app(argc, argv);
@@ -55,7 +57,7 @@ int runMinimalQtApp(int& argc, char* argv[])
 #endif
 
 
-int main(int argc, char* argv[])
+VISIBLE_SYMBOL int main(int argc, char* argv[])
 {
     /*
     NOTE: argc must be passed to the QApplication as a REFERENCE to int, or the
@@ -64,7 +66,7 @@ int main(int argc, char* argv[])
     - http://doc.qt.io/qt-5/qapplication.html
     */
 
-#ifdef TEST_BASIC_QT_ONLY
+#ifdef DEBUG_TEST_BASIC_QT_ONLY
     // For when it all breaks!
     return runMinimalQtApp(argc, argv);
 #else

@@ -116,6 +116,7 @@
     #define DISABLE_CLANG_DATE_TIME_MACRO_WARNING
 #endif
 
+
 // ============================================================================
 // QT_WORKAROUND_BUG_68889
 // ============================================================================
@@ -128,4 +129,23 @@
         // See https://bugreports.qt.io/browse/QTBUG-68889
         // Only seems to affect Android builds (Ubuntu, Arch Linux OK).
     #endif
+#endif
+
+
+// ============================================================================
+// VISIBLE_SYMBOL
+// ============================================================================
+// To prevent main() being hidden when "-fvisibility=hidden" is enabled!
+// See camcops.pro, changelog.rst, and:
+// - http://gcc.gnu.org/wiki/Visibility
+// - https://gcc.gnu.org/onlinedocs/gcc-4.7.2/gcc/Function-Attributes.html
+// - https://clang.llvm.org/docs/LTOVisibility.html
+// - https://docs.microsoft.com/en-us/cpp/cpp/dllexport-dllimport?view=vs-2019
+
+#if defined COMPILER_IS_CLANG || defined COMPILER_IS_GCC
+    #define VISIBLE_SYMBOL __attribute__ ((visibility ("default")))
+#elif defined COMPILER_IS_VISUAL_CPP
+    #define VISIBLE_SYMBOL __declspec(dllexport)
+#else
+    #error "Don't know how to enforce symbol visibility for this compiler!"
 #endif

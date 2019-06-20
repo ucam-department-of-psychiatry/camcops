@@ -19,7 +19,7 @@
 
 
 // #define DEBUG_CAMERA
-// #define TEST_QML_ONLY
+// #define DEBUG_TEST_QML_ONLY
 
 #define USE_FILE
 
@@ -33,7 +33,7 @@
 #include <QVBoxLayout>
 #include "lib/uifunc.h"
 
-#ifdef TEST_QML_ONLY
+#ifdef DEBUG_TEST_QML_ONLY
 const QString TEST_ANIMATION_QML("camcops/camera_qml/test_animation.qml");
 #else
 const QString CAMERA_QML("camcops/camera_qml/camera.qml");
@@ -115,7 +115,7 @@ BUT:
     connect(m_qml_view, &QQuickWidget::statusChanged,
             this, &CameraQml::qmlStatusChanged);
     // ... and must set that signal before calling setSource().
-#ifdef TEST_QML_ONLY
+#ifdef DEBUG_TEST_QML_ONLY
     m_qml_view->setSource(uifunc::resourceUrl(TEST_ANIMATION_QML));
     m_qml_view->resize(800, 480);
 #else

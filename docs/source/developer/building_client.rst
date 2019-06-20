@@ -1117,25 +1117,6 @@ Android debugging
 - Better, though, is to launch from Qt Creator, which automatically filters
   (and does so very well).
 
-- "dlsym failed: undefined symbol main"; "Could not find main method";
-  subsequently "SIGSEGV" and "backtrace".
-
-  - ``objdump -t libcamcops.so | grep main`` gave
-
-    .. code-block::
-
-        001d4144 l     F .text	00000178              .hidden main
-
-    whereas in a basic test app, ``objdump -t libbasic_qt_app.so | grep main``
-    gave
-
-    .. code-block::
-
-        00002e70 g     F .text	00000118              main
-
-    So why is main() hidden?
-
-
 
 Troubleshooting qmake/compilation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

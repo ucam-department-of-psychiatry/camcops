@@ -164,6 +164,11 @@ gcc {
     # http://gcc.gnu.org/wiki/Visibility
     QMAKE_CXXFLAGS += -fvisibility=hidden
 }
+# But WARNING: this will also hide main(), which isn't a problem in Linux/
+# Windows executables, but is a major problem for Android, where the Qt Java
+# application wends its way to C++ then calls main() from libcamcops.so. The
+# end result is an instant crash on startup. So main() must be marked for
+# symbol export. [Understood/fixed 2019-06-20.]
 
 # QMAKE_LFLAGS += --verbose  # make the linker verbose
 

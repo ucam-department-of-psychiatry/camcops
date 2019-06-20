@@ -2222,10 +2222,10 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - **New task:** :ref:`Maternal Antenatal Attachment Scale (MAAS) <maas>`.
 
-- **General release.**
+- **General release.** But Android bug; see 2.3.4.
 
 
-**Client 2.3.4 (IN PROGRESS):**
+**Client 2.3.4 (released 2019-06-20)**
 
 - The Google Play Store will soon require 64-bit builds. In order to get 64-bit
   ARM compilation working for Android:
@@ -2245,6 +2245,38 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
   - Qt from 5.12.0 to 5.12.3 plus some Git tweaks to get upstream support for
     Android NDK r20.
+
+- V2.3.3 for Android was crashing on startup. From debugging views, error was
+  "dlsym failed: undefined symbol main"; "Could not find main method";
+  subsequently "SIGSEGV" and "backtrace".
+
+  - ``objdump -t libcamcops.so | grep main`` gave
+
+    .. code-block::
+
+        001d4144 l     F .text	00000178              .hidden main
+
+    whereas in a basic test app, ``objdump -t libbasic_qt_app.so | grep main``
+    gave
+
+    .. code-block::
+
+        00002e70 g     F .text	00000118              main
+
+    Can also use the ``nm`` tool, or ``readelf -a``, which is very clear (and
+    probably others too).
+
+    So why is ``main()`` hidden?
+
+    The problem was ``-fvisibility=hidden`` in ``camcops.pro``; fixed with
+    ``VISIBLE_SYMBOL`` macro in ``preprocessor_aid.h``.
+
+
+**Client 2.3.5 (IN PROGRESS)**
+
+- Target Android API from 26 to 28 as now required by Google.
+
+**IN PROGRESS**
 
 - **IAM:** :ref:`Lynall M-E — 2 — IAM study — life events <lynall_2_iam_life>`
 
