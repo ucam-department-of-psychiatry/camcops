@@ -233,7 +233,7 @@ void ChoosePatientMenu::mergePatients()
     }
 
     // Offer the user a choice of the others
-    qSort(other_patients.begin(), other_patients.end(), PatientSorter());
+    std::sort(other_patients.begin(), other_patients.end(), PatientSorter());
     NameValueOptions options;
     for (const PatientPtr& other : other_patients) {
         options.append(NameValuePair(other->descriptionForMerge(),

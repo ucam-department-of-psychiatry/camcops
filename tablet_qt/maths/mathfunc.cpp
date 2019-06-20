@@ -633,7 +633,7 @@ QString describeAsRanges(QVector<int> numbers,
                          const QString& range_separator)
 {
     // Converts e.g. 1, 2, 3, 5, 6, 7, 10 to "1-3, 5-7, 10"
-    qSort(numbers.begin(), numbers.end());
+    std::sort(numbers.begin(), numbers.end());
     const int n = numbers.size();
     QString result;
     bool in_range = false;

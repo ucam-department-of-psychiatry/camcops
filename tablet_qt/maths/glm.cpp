@@ -192,9 +192,11 @@ void Glm::fit(const MatrixXd& predictors,
             fitIRLSRglmfit();
             break;
 #endif
+#ifdef COMPILER_WANTS_DEFAULT_IN_EXHAUSTIVE_SWITCH
         default:
             addError("Unknown solve method!");
             break;
+#endif
         }
     }
 
@@ -579,7 +581,7 @@ void Glm::fitIRLSSVDNewtonKaneLewis()
 
     // If any weights are zero, set corresponding A row to zero
     for (int i = 0; i < m; ++i) {
-        if (weights(i) == 0) {
+        if (qFuzzyIsNull(weights(i))) {  // "if (weights(i) == 0)..."
             A.row(i).setConstant(0);
         }
     }
@@ -620,8 +622,8 @@ void Glm::fitIRLSSVDNewtonKaneLewis()
         default:
             addError("Unknown rank deficiency method!");
             return;
-        }
 #endif
+        }
     }
 
     ArrayXd t = ArrayXd::Zero(m);  // nobs,1  // NB confusing name choice, cf. R's t() for transpose

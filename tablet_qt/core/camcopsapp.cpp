@@ -1713,7 +1713,7 @@ PatientPtrList CamcopsApp::getAllPatients(const bool sorted)
         patients.append(p);
     }
     if (sorted) {
-        qSort(patients.begin(), patients.end(), PatientSorter());
+        std::sort(patients.begin(), patients.end(), PatientSorter());
     }
     return patients;
 }

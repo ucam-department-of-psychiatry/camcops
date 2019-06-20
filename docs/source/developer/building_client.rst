@@ -484,7 +484,10 @@ Non-default options are marked in bold and/or as "[non-default]".
         * - CMake Generator
           - CodeBlocks - Unix Makefiles
         * - CMake Configuration
-          - [not editable]
+          - ``CMAKE_CXX_COMPILER:STRING=%{Compiler:Executable:Cxx}``
+            ``CMAKE_C_COMPILER:STRING=%{Compiler:Executable:C}``
+            ``CMAKE_PREFIX_PATH:STRING=%{Qt:QT_INSTALL_PREFIX}``
+            ``QT_QMAKE_EXECUTABLE:STRING=%{Qt:qmakeExecutable}``
         * - Additional Qbs Profile Settings
           -
 
@@ -530,6 +533,12 @@ Non-default options are marked in bold and/or as "[non-default]".
 
 **Custom_Android_ARM32: current 32-BIT configuration for clang**
 
+    .. note::
+
+        If you have not set up your Android NDK (see above), the "Qt Versions"
+        tab will report "No compiler can produce code for this Qt version.
+        Please define one or more compilers for: arm-linux-android-elf-32bit".
+
     .. list-table::
         :header-rows: 1
         :stub-columns: 1
@@ -547,13 +556,13 @@ Non-default options are marked in bold and/or as "[non-default]".
         * - Sysroot
           -
         * - Compiler: C
-          - <No compiler>
+          - **Android Clang (C, arm)**
         * - Compiler: C++
-          - <No compiler>
+          - **Android Clang (C++, arm)**
         * - Environment
           - [not editable: "No changes to apply."]
         * - Debugger
-          - None
+          - **Android Debugger for Android Clang (C++, arm)**
         * - Qt version
           - **THE "ANDROID" ONE FROM QT VERSIONS, ABOVE**
         * - Qt mkspec
@@ -563,7 +572,10 @@ Non-default options are marked in bold and/or as "[non-default]".
         * - CMake Generator
           - CodeBlocks - Unix Makefiles
         * - CMake Configuration
-          - [not editable]
+          - ``CMAKE_CXX_COMPILER:STRING=%{Compiler:Executable:Cxx}``
+            ``CMAKE_C_COMPILER:STRING=%{Compiler:Executable:C}``
+            ``CMAKE_PREFIX_PATH:STRING=%{Qt:QT_INSTALL_PREFIX}``
+            ``QT_QMAKE_EXECUTABLE:STRING=%{Qt:qmakeExecutable}``
         * - Additional Qbs Profile Settings
           -
 
@@ -993,8 +1005,13 @@ Build Android APK --> Sign package`.
 Linux
 ~~~~~
 
-Under :menuselection:`Build Settings --> Build Environment``, set e.g.
-``LD_LIBRARY_PATH=/home/rudolf/dev/qt_local_build/openssl_linux_x86_64_build/openssl-1.1.0g/``
+Under :menuselection:`Run Settings --> Run Environment`, set
+``LD_LIBRARY_PATH`` to point to the OpenSSL libraries we've built, e.g.
+``LD_LIBRARY_PATH=/home/rudolf/dev/qt_local_build/openssl_linux_x86_64_build/openssl-1.1.1c/``
+
+You can also set this under :menuselection:`Build Settings --> Build
+Environment`, because the default behaviour is for the run environment to
+inherit the build environment.
 
 
 iOS
@@ -1072,6 +1089,52 @@ Debugging
   your build* directories.
 
 - For debugging, consider install Valgrind_: ``sudo apt install valgrind``
+
+
+Android debugging
+~~~~~~~~~~~~~~~~~
+
+- Android logs
+
+  - The default Android log format from ``adb logcat`` is  explained at
+    https://developer.android.com/studio/debug/am-logcat.html. That format is
+
+    .. code-block:: none
+
+        date time PID-TID/package priority/tag: message
+        e.g.
+        12-10 13:02:50.071 1901-4229/com.google.android.gms V/AuthZen: Handling delegate intent.
+
+        but actually looks like
+
+        06-18 23:47:48.731 28303 28344 E         : dlsym failed: undefined symbol: main
+        06-18 23:47:48.731 28303 28344 E         : Could not find main method
+
+  - So do:
+
+  - Search for "Force finishing activity".
+
+- Better, though, is to launch from Qt Creator, which automatically filters
+  (and does so very well).
+
+- "dlsym failed: undefined symbol main"; "Could not find main method";
+  subsequently "SIGSEGV" and "backtrace".
+
+  - ``objdump -t libcamcops.so | grep main`` gave
+
+    .. code-block::
+
+        001d4144 l     F .text	00000178              .hidden main
+
+    whereas in a basic test app, ``objdump -t libbasic_qt_app.so | grep main``
+    gave
+
+    .. code-block::
+
+        00002e70 g     F .text	00000118              main
+
+    So why is main() hidden?
+
 
 
 Troubleshooting qmake/compilation

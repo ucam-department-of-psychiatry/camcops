@@ -318,8 +318,8 @@ However, this went away with Qt 5.12.4.
 Problems with 64-bit ARM
 ========================
 
-2019-06-18: Qt configure runs OK, but the build process fails with "undefined
-reference" errors to e.g.
+2019-06-18: Qt configure runs OK, but the Qt build process fails with
+"undefined reference" errors to e.g.
 
 .. code-block:: none
 
@@ -349,6 +349,7 @@ and the conditional part is ``#ifdef __ARM_NEON__``. Therefore, see
 
 Switched to Qt 5.12.4 (released 2019-06-17!).
 
+Still not working. Reported as https://bugreports.qt.io/browse/QTBUG-76445.
 
 Current Qt version
 ==================
@@ -359,6 +360,10 @@ As of 2018-06-18:
 - The head commit is 452e0d94d40bba15a56293a0a0f7d093dececda9.
 - PATCH_QT_FOR_ANDROID_NDK_20 is no longer necessary.
 
+Advice:
+
+- Do not proceed ahead of official releases. Sometimes Qt Creator doesn't 
+  recognize the version. It's always tricky to manage.
 
 """  # noqa
 
@@ -3517,6 +3522,14 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
             f"-I{openssl_include_dir}",
             # ... sqlite.c does e.g. "#include <openssl/rand.h>"
         ]
+        if target_platform.android and USE_CLANG_NOT_GCC_FOR_ANDROID_ARM:
+            cflags.append("-fPIC")
+            # Otherwise, when linking CamCOPS, you get "error:
+            # .../sqlcipher_android_armv7/sqlcipher/sqlite3.o: requires
+            # unsupported dynamic reloc R_ARM_REL32; recompile with -fPIC".
+            # For explanation, see
+            # - https://stackoverflow.com/questions/5311515/gcc-fpic-option
+            # The flag applies to clang as well as gcc.
         if target_platform.macos:
             cflags.append(f"-mmacosx-version-min={cfg.macos_min_version}")
         if "CFLAGS" in env:

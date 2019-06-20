@@ -839,7 +839,7 @@ QSize minimumSizeForTitle(const QDialog* dialog,
     }
     const QFont title_font = QApplication::font("QWorkspaceTitleBar");
     const QFontMetrics fm(title_font);
-    const int title_w = fm.width(full_title);  // "_w" means width
+    const int title_w = fm.boundingRect(full_title).width();  // "_w" means width
 
     // dialog->ensurePolished();
     // const QSize frame_size = dialog->frameSize();

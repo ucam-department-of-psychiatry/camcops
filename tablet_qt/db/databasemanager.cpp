@@ -164,8 +164,8 @@ bool DatabaseManager::openDatabaseActual()
         QSqlError error = m_db.lastError();
         m_opening_failure_msg = QString(
             "Connection to database failed. "
-            "Database = %1; error number = %2; error text = %3"
-        ).arg(m_filename, QString::number(error.number()), error.text());
+            "Database = %1; native error code = %2; error text = %3"
+        ).arg(m_filename, error.nativeErrorCode(), error.text());
     }
     return m_opened_database;
 }

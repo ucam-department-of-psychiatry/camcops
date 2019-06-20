@@ -88,7 +88,7 @@ QStringList TaskFactory::tablenames(const TaskClassSortMethod sort_method) const
         pairs.append(StringPair(tablename, use_shortname ? cache.shortname
                                                          : cache.longname));
     }
-    qSort(pairs.begin(), pairs.end(), QPairSecondComparer());
+    std::sort(pairs.begin(), pairs.end(), QPairSecondComparer());
     QStringList sorted_tablenames;
     for (const StringPair& pair : pairs) {
         sorted_tablenames.append(pair.first);
@@ -205,7 +205,7 @@ TaskPtrList TaskFactory::fetchTasks(const QString& tablename, const bool sort) c
 
     if (sort) {
         // qDebug() << "Starting sort...";
-        qSort(tasklist.begin(), tasklist.end(), TaskSorter());
+        std::sort(tasklist.begin(), tasklist.end(), TaskSorter());
         // qDebug() << "... finished sort";
     }
 

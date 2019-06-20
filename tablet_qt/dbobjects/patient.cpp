@@ -942,7 +942,7 @@ void Patient::deleteIdNum(const int which_idnum)
 
 void Patient::sortIdNums()
 {
-    qSort(m_idnums.begin(), m_idnums.end(), PatientIdNumSorter());
+    std::sort(m_idnums.begin(), m_idnums.end(), PatientIdNumSorter());
     if (m_questionnaire) {
         buildPage(m_questionnaire->readOnly());
         updateQuestionnaireIndicators();

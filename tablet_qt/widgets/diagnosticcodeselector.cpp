@@ -352,19 +352,23 @@ void DiagnosticCodeSelector::itemChosen(const QModelIndex& index)
     // number for a given parent.
     // To get a different column, we go via the parent back to the child:
     // http://doc.qt.io/qt-5/qmodelindex.html#details
+    // We used to be able to do parent.child(), but that has been obsoleted
+    // in favour of model.index(row, column, parent), i.e.
+    // QAbstractItemModel::index().
     const QModelIndex parent = index.parent();
     const int row = index.row();
-    const QModelIndex selectable_index = parent.child(
-                row, DiagnosticCode::COLUMN_SELECTABLE);
+    const QAbstractItemModel* model = index.model();
+    const QModelIndex selectable_index = model->index(
+                row, DiagnosticCode::COLUMN_SELECTABLE, parent);
     const bool selectable = selectable_index.data().toBool();
     if (!selectable) {
         // qDebug() << Q_FUNC_INFO << "Unselectable";
         return;
     }
-    const QModelIndex code_index = parent.child(
-                row, DiagnosticCode::COLUMN_CODE);
-    const QModelIndex description_index = parent.child(
-                row, DiagnosticCode::COLUMN_DESCRIPTION);
+    const QModelIndex code_index = model->index(
+                row, DiagnosticCode::COLUMN_CODE, parent);
+    const QModelIndex description_index = model->index(
+                row, DiagnosticCode::COLUMN_DESCRIPTION, parent);
     const QString code = code_index.data().toString();
     const QString description = description_index.data().toString();
 
