@@ -2227,8 +2227,9 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 **Client 2.3.4 (released 2019-06-20)**
 
-- The Google Play Store will soon require 64-bit builds. In order to get 64-bit
-  ARM compilation working for Android:
+- The Google Play Store will soon require 64-bit builds
+  (https://android-developers.googleblog.com/2019/01/get-your-apps-ready-for-64-bit.html).
+  In order to get 64-bit ARM compilation working for Android:
 
   - lots of work to ``build_qt.py``
   - Default Android NDK from r11c to r20, which means moving from gcc to clang
@@ -2245,6 +2246,9 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
   - Qt from 5.12.0 to 5.12.3 plus some Git tweaks to get upstream support for
     Android NDK r20.
+
+  - Qt not compiling; bug raised at
+    https://bugreports.qt.io/browse/QTBUG-76445.
 
 - V2.3.3 for Android was crashing on startup. From debugging views, error was
   "dlsym failed: undefined symbol main"; "Could not find main method";
