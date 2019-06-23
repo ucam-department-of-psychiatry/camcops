@@ -39,6 +39,7 @@
 #include "menu/helpmenu.h"
 #include "menu/patientsummarymenu.h"
 #include "menu/personalitymenu.h"
+#include "menu/physicalillnessmenu.h"
 #include "menu/psychosismenu.h"
 #include "menu/researchmenu.h"
 #include "menu/researchsetsmenu.h"
@@ -84,6 +85,7 @@ void MainMenu::makeItems()
         MAKE_MENU_MENU_ITEM(CatatoniaEpseMenu, m_app),
         MAKE_MENU_MENU_ITEM(PersonalityMenu, m_app),
         MAKE_MENU_MENU_ITEM(ExecutiveMenu, m_app),
+        MAKE_MENU_MENU_ITEM(PhysicalIllnessMenu, m_app),
         MAKE_MENU_MENU_ITEM(ServiceEvaluationMenu, m_app),
         MAKE_MENU_MENU_ITEM(ResearchMenu, m_app),
         MAKE_MENU_MENU_ITEM(AnonymousMenu, m_app),

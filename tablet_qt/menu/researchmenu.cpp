@@ -56,6 +56,11 @@ void ResearchMenu::makeItems()
         MAKE_TASK_MENU_ITEM(Kirby::KIRBY_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(QolBasic::QOLBASIC_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(QolSG::QOLSG_TABLENAME, m_app),
+        // *** Cambridge-Chicago Compulsivity Trait Scale (CHI-T)
+        // *** Short UPPS-P Impulsive Behaviour Scale (SUPPS-P)
+        // *** Snaith-Hamilton Pleasure Scale (SHAPS)
+        // *** Multi-dimensional Fatigue Inventory (MFI-20)
+
         MenuItem(tr("Experimental")).setLabelOnly(),
         MenuItem(
             cardinalexpdetcommon::ExpDetTextConst::soundtestTitle(),

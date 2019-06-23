@@ -100,7 +100,7 @@
 #include "tasks/ifs.h"
 #include "tasks/irac.h"
 
-#include "tasks/khandaker1medicalhistory.h"
+#include "tasks/khandaker1insightmedical.h"
 #include "tasks/kirby.h"
 
 #include "tasks/lynall1iammedical.h"
@@ -239,7 +239,7 @@ void InitTasks(TaskFactory& factory)
     initializeIfs(factory);
     initializeIrac(factory);
 
-    initializeKhandaker1MedicalHistory(factory);
+    initializeKhandaker1InsightMedical(factory);
     initializeKirby(factory);
 
     initializeLynall1IamMedical(factory);

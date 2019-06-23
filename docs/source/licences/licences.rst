@@ -277,6 +277,11 @@ settings.png	                Modified from
 spanner.png	                    |denovo|
 speaker_playing.png	            |denovo|
 speaker.png	                    |denovo|
+stairs.png                      From ``noun_Stairs_5827.svg``, from
+                                https://thenounproject.com/term/stairs/5827/;
+                                "Stairs" by Nathan Driskell from the Noun
+                                Project; CC-BY license
+                                (https://creativecommons.org/licenses/by/3.0/us/legalcode).
 stop.png	                    |denovo|
 thumbs.png                      Modified from
                                 http://www.clker.com/cliparts/F/w/2/b/Q/2/thumbsup.svg

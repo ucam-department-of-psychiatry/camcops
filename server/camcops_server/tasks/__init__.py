@@ -104,8 +104,8 @@ from camcops_server.tasks.iesr import Iesr
 from camcops_server.tasks.ifs import Ifs
 from camcops_server.tasks.irac import Irac
 
-from camcops_server.tasks.khandaker_1_medicalhistory import (
-    Khandaker1MedicalHistory,
+from camcops_server.tasks.khandaker_1_insightmedical import (
+    Khandaker1InsightMedical,
 )
 from camcops_server.tasks.kirby_mcq import Kirby
 

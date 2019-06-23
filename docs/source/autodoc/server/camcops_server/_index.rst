@@ -33,7 +33,7 @@ server/camcops_server
     alembic/versions/0001_start.py.rst
     alembic/versions/0002_cisr_2018_01_29.py.rst
     alembic/versions/0003_cisr_demographics_fields.py.rst
-    alembic/versions/0004_khandaker_1_medicalhistory.py.rst
+    alembic/versions/0004_khandaker_1_insightmedical.py.rst
     alembic/versions/0005_reduced_indexed_varchar_fields_from_255.py.rst
     alembic/versions/0006_core_10.py.rst
     alembic/versions/0007_add_pcl5.py.rst
@@ -203,7 +203,7 @@ server/camcops_server
     extra_strings/icd9cm.xml.rst
     extra_strings/ided3d.xml.rst
     extra_strings/irac.xml.rst
-    extra_strings/khandaker_1_medicalhistory.xml.rst
+    extra_strings/khandaker_1_insightmedical.xml.rst
     extra_strings/kirby_mcq.xml.rst
     extra_strings/lynall_1_iam_medical.xml.rst
     extra_strings/maas.xml.rst
@@ -284,7 +284,7 @@ server/camcops_server
     tasks/iesr.py.rst
     tasks/ifs.py.rst
     tasks/irac.py.rst
-    tasks/khandaker_1_medicalhistory.py.rst
+    tasks/khandaker_1_insightmedical.py.rst
     tasks/kirby_mcq.py.rst
     tasks/lynall_1_iam_medical.py.rst
     tasks/lynall_2_iam_life.py.rst

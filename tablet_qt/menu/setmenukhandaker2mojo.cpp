@@ -17,43 +17,50 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "setmenukhandaker1.h"
+#include "setmenukhandaker2mojo.h"
 #include "common/textconst.h"
 #include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 
-#include "tasks/bdi.h"
 #include "tasks/cisr.h"
-#include "tasks/khandaker1medicalhistory.h"
+#include "tasks/eq5d5l.h"
 
 
-SetMenuKhandaker1::SetMenuKhandaker1(CamcopsApp& app) :
+SetMenuKhandaker2Mojo::SetMenuKhandaker2Mojo(CamcopsApp& app) :
     MenuWindow(app, uifunc::iconFilename(uiconst::ICON_SETS_RESEARCH))
 {
 }
 
 
-QString SetMenuKhandaker1::title() const
+QString SetMenuKhandaker2Mojo::title() const
 {
-    return tr("Khandaker GM — 1 — Insight study");
+    return tr("Khandaker GM — 2 — MOJO study");
 }
 
 
-QString SetMenuKhandaker1::subtitle() const
+QString SetMenuKhandaker2Mojo::subtitle() const
 {
     return tr("Khandaker GM, University of Cambridge, UK — "
-              "Insight immunopsychiatry study");
+              "MOJO immunopsychiatry study");
 }
 
 
-void SetMenuKhandaker1::makeItems()
+void SetMenuKhandaker2Mojo::makeItems()
 {
     m_items = {
         MAKE_CHANGE_PATIENT(m_app),
-        MAKE_TASK_MENU_ITEM(Bdi::BDI_TABLENAME, m_app),
+        // *** MOJO anthropometrics/sociodemographics/medical history
+        // *** Elixhauser Comorbidity Index (ECI)
+        // *** EULAR Sjögren's Syndrome Patient Reported Index (ESSPRI)
+        // *** Ankylosing Spondylitis Disease Activity Score (ASDAS)
+        // *** Snaith-Hamilton Pleasure Scale (SHAPS)
+        // *** Multi-dimensional Fatigue Inventory (MFI-20)
+        // *** McGill Pain Questionnaire Short Form-2 (SF-MPQ2)
+        // *** Disease Activity Score 28 (DAS28)
+        // *** Cambridge-Chicago Compulsivity Trait Scale (CHI-T)
+        // *** Short UPPS-P Impulsive Behaviour Scale (SUPPS-P)
         MAKE_TASK_MENU_ITEM(Cisr::CISR_TABLENAME, m_app),
-        MAKE_TASK_MENU_ITEM(
-            Khandaker1MedicalHistory::KHANDAKER1MEDICALHISTORY_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Eq5d5l::EQ5D5L_TABLENAME, m_app),
     };
 }

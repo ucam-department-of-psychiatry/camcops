@@ -285,10 +285,26 @@ Executive function
 - :ref:`INECO Frontal Screening (IFS) <ifs>`
 
 
+Physical illness measurement
+----------------------------
+
+|physical|
+
+- :ref:`Ankylosing Spondylitis Disease Activity Score (ASDAS) <asdas>`
+
+- :ref:`Disease Activity Score-28 (DAS28) <das28>`
+
+- :ref:`Elixhauser Comorbidity Index (ElixhauserCI) <elixhauserci>`
+
+- :ref:`EULAR Sjögren's Syndrome Patient Reported Index (ESSPRI) <esspri>`
+
+- :ref:`Short-Form McGill Pain Questionnaire 2 (SF-MPQ-2) <sfmpq2>`
+
+
 Service evaluation
 ------------------
 
-|thumbs|
+|service_evaluation|
 
 - :ref:`Assessment Patient Experience Questionnaire for Psychological Therapies
   (APEQPT) <apeqpt>`.
@@ -320,14 +336,22 @@ Research tasks
 
 These are well known or fairly generic:
 
+- :ref:`Cambridge–Chicago Compulsivity Trait Scale (CHI-T) <chit>`
+
 - :ref:`Diagnostic coding, ICD-9-CM codes (compatible with DSM-IV-TR)
   <diagnosis_icd9cm>`
 
 - :ref:`Kirby Monetary Choice Questionnaire <kirby_mcq>`
 
+- :ref:`Multidimensional Fatigue Inventory (MFI-20) <mfi20>`
+
 - :ref:`Quality of Life: time trade-off and rating scale <qol_basic>`
 
 - :ref:`Quality of Life: standard gamble <qol_sg>`
+
+- :ref:`Short UPPS-P Impulsive Behaviour Scale (SUPPS-P) <suppsp>`
+
+- :ref:`Snaith–Hamilton Pleasure Scale (SHAPS) <shaps>`
 
 - :ref:`Three-dimensional intradimensional/extradimensional set-shifting task
   (IDED-3D) <ided3d>`
@@ -369,7 +393,9 @@ as generic tasks listed above, there are some very specific ones, as follows.
   <deakin_1_healthreview>`
 
 - :ref:`Khandaker GM — 1 — Insight study — medical history
-  <khandaker_1_medicalhistory>`
+  <khandaker_1_insightmedical>`
+
+- :ref:`Khandaker GM — 2 — MOJO study <khandaker_2_mojo>`
 
 - :ref:`Lynall M-E — 1 — IAM study — medical history <lynall_1_iam_medical>`
 

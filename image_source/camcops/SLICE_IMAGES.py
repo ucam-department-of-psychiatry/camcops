@@ -834,13 +834,13 @@ def main() -> None:
         none_row,
         row('speaker', 'treeview', 'choose_patient', 'research', 'unlocked', None),  # noqa
         none_row,
-        row('speaker_playing', 'thumbs', 'upload', 'info', 'back', None),
+        row('speaker_playing', 'service_evaluation', 'upload', 'info', 'back', None),
         none_row,
         row(None, 'language', 'settings', None, 'next', None),
         # ... first column: old "reload"
         # ... fourth column: old "info"
         none_row,
-        row('camera', None, 'global', 'patient_summary', 'add', None),
+        row('camera', 'physical', 'global', 'patient_summary', 'add', None),
         none_row,
         row('radio_selected', None, 'cognitive', 'hasChild', 'cancel', None),
         none_row,

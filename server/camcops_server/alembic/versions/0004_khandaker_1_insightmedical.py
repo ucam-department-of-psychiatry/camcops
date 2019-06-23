@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-camcops_server/alembic/versions/0004_khandaker_1_medicalhistory.py
+camcops_server/alembic/versions/0004_khandaker_1_insightmedical.py
 
 ===============================================================================
 
@@ -24,7 +24,7 @@ camcops_server/alembic/versions/0004_khandaker_1_medicalhistory.py
 
 ===============================================================================
 
-khandaker_1_medicalhistory
+khandaker_1_insightmedical
 Revision ID: 0004
 Revises: 0003
 Creation date: 2018-06-23 15:48:01.147404

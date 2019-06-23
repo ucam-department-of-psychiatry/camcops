@@ -30,7 +30,7 @@ Life events questionnaire for the Inflammation in Mind (IAM) study.
 Intellectual property rights
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. todo:: ESTABLISH IP DETAILS (lynall_2)
+.. todo:: ESTABLISH IP DETAILS (lynall_2_iam_life)
 
 
 History
@@ -50,7 +50,7 @@ History
     *Acta Psychiatr Scand.* 82: 77-81.
     https://www.ncbi.nlm.nih.gov/pubmed/2399824
 
-.. todo:: ESTABLISH HISTORY DETAILS (lynall_2)
+.. todo:: ESTABLISH HISTORY DETAILS (lynall_2_iam_life)
 
 
 Source

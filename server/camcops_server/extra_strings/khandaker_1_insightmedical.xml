@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-  <task name="khandaker_1_medicalhistory">
+  <task name="khandaker_1_medicalhistory">  <!-- NB historical name -->
     <!-- Khandaker: Medical history screening for Insight immunopsychiatry study -->
 
     <string name="title">Medical history</string>

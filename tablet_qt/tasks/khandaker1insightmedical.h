@@ -25,14 +25,14 @@ class CamcopsApp;
 class OpenableWidget;
 class TaskFactory;
 
-void initializeKhandaker1MedicalHistory(TaskFactory& factory);
+void initializeKhandaker1InsightMedical(TaskFactory& factory);
 
 
-class Khandaker1MedicalHistory : public Task
+class Khandaker1InsightMedical : public Task
 {
     Q_OBJECT
 public:
-    Khandaker1MedicalHistory(CamcopsApp& app, DatabaseManager& db,
+    Khandaker1InsightMedical(CamcopsApp& app, DatabaseManager& db,
                              int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
@@ -59,5 +59,5 @@ signals:
 public slots:
     void updateMandatory();
 public:
-    static const QString KHANDAKER1MEDICALHISTORY_TABLENAME;
+    static const QString KHANDAKER1INSIGHTMEDICAL_TABLENAME;
 };

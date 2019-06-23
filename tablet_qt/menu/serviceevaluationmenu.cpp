@@ -36,7 +36,7 @@
 
 
 ServiceEvaluationMenu::ServiceEvaluationMenu(CamcopsApp& app) :
-    MenuWindow(app, uifunc::iconFilename(uiconst::ICON_THUMBS))
+    MenuWindow(app, uifunc::iconFilename(uiconst::ICON_SERVICE_EVALUATION))
 {
 }
 

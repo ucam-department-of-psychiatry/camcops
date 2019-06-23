@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="da_DK">
+<TS version="2.1" language="da_DK">
 <context>
     <name>APEQCPFTPerinatal</name>
     <message>
@@ -2775,14 +2775,14 @@ enig</translation>
     </message>
 </context>
 <context>
-    <name>Khandaker1MedicalHistory</name>
+    <name>Khandaker1InsightMedical</name>
     <message>
-        <location filename="../tasks/khandaker1medicalhistory.cpp" line="132"/>
+        <location filename="../tasks/khandaker1insightmedical.cpp" line="132"/>
         <source>Khandaker GM — 1 — Insight — Medical history</source>
         <translation>Khandaker GM — 1 — Indsigt — sygehistorie</translation>
     </message>
     <message>
-        <location filename="../tasks/khandaker1medicalhistory.cpp" line="138"/>
+        <location filename="../tasks/khandaker1insightmedical.cpp" line="138"/>
         <source>Medical history screening for Insight immunopsychiatry study.</source>
         <translation>Medicinsk historie screening for Insight immunopsykiatri undersøgelse.</translation>
     </message>
@@ -2865,22 +2865,22 @@ enig</translation>
 <context>
     <name>MainMenu</name>
     <message>
-        <location filename="../menu/mainmenu.cpp" line="60"/>
+        <location filename="../menu/mainmenu.cpp" line="61"/>
         <source>CamCOPS: Cambridge Cognitive and Psychiatric Assessment Kit</source>
         <translation>CamCOPS: Cambridge Kognitive og Psykiatriske Assessment Kit</translation>
     </message>
     <message>
-        <location filename="../menu/mainmenu.cpp" line="70"/>
+        <location filename="../menu/mainmenu.cpp" line="71"/>
         <source>Upload data to server</source>
         <translation>Upload data til server</translation>
     </message>
     <message>
-        <location filename="../menu/mainmenu.cpp" line="77"/>
+        <location filename="../menu/mainmenu.cpp" line="78"/>
         <source>Tasks by type</source>
         <translation>Opgaver efter type</translation>
     </message>
     <message>
-        <location filename="../menu/mainmenu.cpp" line="91"/>
+        <location filename="../menu/mainmenu.cpp" line="93"/>
         <source>Task collections</source>
         <translation>Opgave samlinger</translation>
     </message>
@@ -4043,6 +4043,14 @@ enig</translation>
     </message>
 </context>
 <context>
+    <name>PhysicalIllnessMenu</name>
+    <message>
+        <location filename="../menu/physicalillnessmenu.cpp" line="35"/>
+        <source>Physical illness measurement</source>
+        <translation>Måling af fysisk sygdom</translation>
+    </message>
+</context>
+<context>
     <name>ProgressNote</name>
     <message>
         <location filename="../tasks/progressnote.cpp" line="64"/>
@@ -4364,7 +4372,7 @@ enig</translation>
         <translation>Velkendt eller generisk</translation>
     </message>
     <message>
-        <location filename="../menu/researchmenu.cpp" line="59"/>
+        <location filename="../menu/researchmenu.cpp" line="62"/>
         <source>Experimental</source>
         <translation>Eksperimentel</translation>
     </message>
@@ -4372,7 +4380,7 @@ enig</translation>
 <context>
     <name>ResearchSetsMenu</name>
     <message>
-        <location filename="../menu/researchsetsmenu.cpp" line="40"/>
+        <location filename="../menu/researchsetsmenu.cpp" line="41"/>
         <source>Sets of tasks collected together for research purposes</source>
         <translation>Sæt af opgaver samlet til forskningsformål</translation>
     </message>
@@ -4587,27 +4595,40 @@ enig</translation>
     </message>
 </context>
 <context>
-    <name>SetMenuKhandaker1</name>
+    <name>SetMenuKhandaker1Insight</name>
     <message>
-        <location filename="../menu/setmenukhandaker1.cpp" line="39"/>
+        <location filename="../menu/setmenukhandaker1insight.cpp" line="39"/>
         <source>Khandaker GM — 1 — Insight study</source>
         <translation>Khandaker GM — 1 — Insight forskningsundersøgelse</translation>
     </message>
     <message>
-        <location filename="../menu/setmenukhandaker1.cpp" line="45"/>
+        <location filename="../menu/setmenukhandaker1insight.cpp" line="45"/>
         <source>Khandaker GM, University of Cambridge, UK — Insight immunopsychiatry study</source>
         <translation>Khandaker GM, University of Cambridge, UK — Insight immunopsykiatri forskningsundersøgelse</translation>
     </message>
 </context>
 <context>
-    <name>SetMenuLynall1</name>
+    <name>SetMenuKhandaker2Mojo</name>
     <message>
-        <location filename="../menu/setmenulynall1.cpp" line="42"/>
+        <location filename="../menu/setmenukhandaker2mojo.cpp" line="38"/>
+        <source>Khandaker GM — 2 — MOJO study</source>
+        <translation>Khandaker GM — 1 — MOJO forskningsundersøgelse</translation>
+    </message>
+    <message>
+        <location filename="../menu/setmenukhandaker2mojo.cpp" line="44"/>
+        <source>Khandaker GM, University of Cambridge, UK — MOJO immunopsychiatry study</source>
+        <translation>Khandaker GM, University of Cambridge, UK — MOJO immunopsykiatri forskningsundersøgelse</translation>
+    </message>
+</context>
+<context>
+    <name>SetMenuLynall1IAM</name>
+    <message>
+        <location filename="../menu/setmenulynall1iam.cpp" line="42"/>
         <source>Lynall M-E — 1 — IAM study</source>
         <translation>Lynall M-E — 1 — IAM forskningsundersøgelse</translation>
     </message>
     <message>
-        <location filename="../menu/setmenulynall1.cpp" line="48"/>
+        <location filename="../menu/setmenulynall1iam.cpp" line="48"/>
         <source>Lynall M-E, University of Cambridge, UK — Inflammation in Mind (IAM) study</source>
         <translation>Lynall M-E, University of Cambridge, UK — Inflammation in Mind (IAM) [betændelse i tankerne] forskningsundersøgelse</translation>
     </message>

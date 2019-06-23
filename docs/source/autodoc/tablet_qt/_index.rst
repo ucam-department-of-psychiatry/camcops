@@ -306,6 +306,8 @@ tablet_qt
     menu/patientsummarymenu.h.rst
     menu/personalitymenu.cpp.rst
     menu/personalitymenu.h.rst
+    menu/physicalillnessmenu.cpp.rst
+    menu/physicalillnessmenu.h.rst
     menu/psychosismenu.cpp.rst
     menu/psychosismenu.h.rst
     menu/researchmenu.cpp.rst
@@ -326,10 +328,12 @@ tablet_qt
     menu/setmenufromlp.h.rst
     menu/setmenufromperinatal.cpp.rst
     menu/setmenufromperinatal.h.rst
-    menu/setmenukhandaker1.cpp.rst
-    menu/setmenukhandaker1.h.rst
-    menu/setmenulynall1.cpp.rst
-    menu/setmenulynall1.h.rst
+    menu/setmenukhandaker1insight.cpp.rst
+    menu/setmenukhandaker1insight.h.rst
+    menu/setmenukhandaker2mojo.cpp.rst
+    menu/setmenukhandaker2mojo.h.rst
+    menu/setmenulynall1iam.cpp.rst
+    menu/setmenulynall1iam.h.rst
     menu/setmenuobrien1.cpp.rst
     menu/setmenuobrien1.h.rst
     menu/settingsmenu.cpp.rst
@@ -678,8 +682,8 @@ tablet_qt
     tasks/ifs.h.rst
     tasks/irac.cpp.rst
     tasks/irac.h.rst
-    tasks/khandaker1medicalhistory.cpp.rst
-    tasks/khandaker1medicalhistory.h.rst
+    tasks/khandaker1insightmedical.cpp.rst
+    tasks/khandaker1insightmedical.h.rst
     tasks/kirby.cpp.rst
     tasks/kirby.h.rst
     tasks/lynall1iammedical.cpp.rst

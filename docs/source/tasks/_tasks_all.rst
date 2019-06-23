@@ -38,6 +38,7 @@ All tasks
     aims.rst
     apeqpt.rst
     apeq_cpft_perinatal.rst
+    asdas.rst
     audit.rst
     badls.rst
     bdi.rst
@@ -54,6 +55,7 @@ All tasks
     cesd.rst
     cgi.rst
     cgisch.rst
+    chit.rst
     cisr.rst
     ciwa.rst
     clinical.rst
@@ -61,13 +63,16 @@ All tasks
     core10.rst
     ctqsf.rst
     dad.rst
+    das28.rst
     dast.rst
     deakin_1_healthreview.rst
     demoquestionnaire.rst
     demqol.rst
     distressthermometer.rst
+    elixhauserci.rst
     epds.rst
     eq5d5l.rst
+    esspri.rst
     factg.rst
     fast.rst
     fft.rst
@@ -86,13 +91,15 @@ All tasks
     iesr.rst
     ifs.rst
     irac.rst
-    khandaker_1_medicalhistory.rst
+    khandaker_1_insightmedical.rst
+    khandaker_2_mojo.rst
     kirby_mcq.rst
     lynall_1_iam_medical.rst
     lynall_2_iam_life.rst
     maas.rst
     mast.rst
     mds_updrs.rst
+    mfi20.rst
     moca.rst
     nart.rst
     npiq.rst
@@ -110,8 +117,11 @@ All tasks
     qol.rst
     rand36.rst
     rss.rst
+    sfmpq2.rst
+    shaps.rst
     slums.rst
     srs.rst
+    suppsp.rst
     wemwbs.rst
     wsas.rst
     ybocs.rst

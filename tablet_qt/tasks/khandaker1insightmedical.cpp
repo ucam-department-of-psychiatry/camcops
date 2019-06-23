@@ -17,7 +17,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "khandaker1medicalhistory.h"
+#include "khandaker1insightmedical.h"
 #include "common/cssconst.h"
 #include "common/textconst.h"
 #include "maths/mathfunc.h"
@@ -74,8 +74,8 @@ const QVector<KQInfo> QUESTIONS{
     KQInfo("infections", "heading_infections"),
 };
 
-const QString Khandaker1MedicalHistory::KHANDAKER1MEDICALHISTORY_TABLENAME(
-        "khandaker_1_medicalhistory");
+const QString Khandaker1InsightMedical::KHANDAKER1INSIGHTMEDICAL_TABLENAME(
+        "khandaker_1_medicalhistory");  // NB historical name
 
 const QString X_TITLE("title");
 const QString X_INSTRUCTION("instruction");
@@ -97,15 +97,15 @@ const int STRETCH_COMMENT = 40;
 const Version KHANDAKER1MEDICALHISTORY_MIN_SERVER_VERSION(2, 2, 3);
 
 
-void initializeKhandaker1MedicalHistory(TaskFactory& factory)
+void initializeKhandaker1InsightMedical(TaskFactory& factory)
 {
-    static TaskRegistrar<Khandaker1MedicalHistory> registered(factory);
+    static TaskRegistrar<Khandaker1InsightMedical> registered(factory);
 }
 
 
-Khandaker1MedicalHistory::Khandaker1MedicalHistory(
+Khandaker1InsightMedical::Khandaker1InsightMedical(
         CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, KHANDAKER1MEDICALHISTORY_TABLENAME, false, false, false)  // ... anon, clin, resp
+    Task(app, db, KHANDAKER1INSIGHTMEDICAL_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     for (const KQInfo& info : QUESTIONS) {
         addField(info.fieldname_yn, QVariant::Bool);
@@ -121,25 +121,25 @@ Khandaker1MedicalHistory::Khandaker1MedicalHistory(
 // Class info
 // ============================================================================
 
-QString Khandaker1MedicalHistory::shortname() const
+QString Khandaker1InsightMedical::shortname() const
 {
-    return "Khandaker_1_MedicalHistory";
+    return "Khandaker_1_InsightMedical";
 }
 
 
-QString Khandaker1MedicalHistory::longname() const
+QString Khandaker1InsightMedical::longname() const
 {
     return tr("Khandaker GM — 1 — Insight — Medical history");
 }
 
 
-QString Khandaker1MedicalHistory::description() const
+QString Khandaker1InsightMedical::description() const
 {
     return tr("Medical history screening for Insight immunopsychiatry study.");
 }
 
 
-Version Khandaker1MedicalHistory::minimumServerVersion() const
+Version Khandaker1InsightMedical::minimumServerVersion() const
 {
     return KHANDAKER1MEDICALHISTORY_MIN_SERVER_VERSION;
 }
@@ -149,7 +149,7 @@ Version Khandaker1MedicalHistory::minimumServerVersion() const
 // Instance info
 // ============================================================================
 
-bool Khandaker1MedicalHistory::isComplete() const
+bool Khandaker1InsightMedical::isComplete() const
 {
     for (const KQInfo& info : QUESTIONS) {
         if (valueIsNull(info.fieldname_yn)) {
@@ -164,13 +164,13 @@ bool Khandaker1MedicalHistory::isComplete() const
 }
 
 
-QStringList Khandaker1MedicalHistory::summary() const
+QStringList Khandaker1InsightMedical::summary() const
 {
     return QStringList{TextConst::noSummarySeeFacsimile()};
 }
 
 
-QStringList Khandaker1MedicalHistory::detail() const
+QStringList Khandaker1InsightMedical::detail() const
 {
     QStringList lines;
     for (const KQInfo& info : QUESTIONS) {
@@ -189,7 +189,7 @@ QStringList Khandaker1MedicalHistory::detail() const
 }
 
 
-OpenableWidget* Khandaker1MedicalHistory::editor(const bool read_only)
+OpenableWidget* Khandaker1InsightMedical::editor(const bool read_only)
 {
     const NameValueOptions yn_options = CommonOptions::yesNoBoolean();
     const Qt::Alignment cell_alignment = Qt::AlignTop;
@@ -246,7 +246,7 @@ OpenableWidget* Khandaker1MedicalHistory::editor(const bool read_only)
 
         FieldRefPtr yn_fieldref = fieldRef(info.fieldname_yn);
         connect(yn_fieldref.data(), &FieldRef::valueChanged,
-                this, &Khandaker1MedicalHistory::updateMandatory);
+                this, &Khandaker1InsightMedical::updateMandatory);
         QuMcq* mcq = new QuMcq(yn_fieldref, yn_options);
         mcq->setAsTextButton(true);
         mcq->setHorizontal(true);
@@ -281,7 +281,7 @@ OpenableWidget* Khandaker1MedicalHistory::editor(const bool read_only)
 // Signal handlers
 // ============================================================================
 
-void Khandaker1MedicalHistory::updateMandatory()
+void Khandaker1InsightMedical::updateMandatory()
 {
     // This could be more efficient with lots of signal handlers, but...
 

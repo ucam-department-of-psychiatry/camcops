@@ -28,9 +28,39 @@ Things to do
 Tasks
 -----
 
-**Priority**
+**Priority: IAM**
 
-- **IN PROGRESS: SEE CHANGELOG**
+- :ref:`Lynall M-E — 2 — IAM study — life events <lynall_2_iam_life>`
+
+  .. todo:: IN PROGRESS +++ a/w permission clarification
+
+- :ref:`Childhood Trauma Questionnaire, Short Form (CTQ-SF) <ctqsf>`
+
+  .. todo:: IN PROGRESS +++ a/w permission clarification
+
+
+**Priority: MOJO**
+
+- :ref:`Khandaker GM — 2 — MOJO study <khandaker_2_mojo>`
+
+- :ref:`Elixhauser Comorbidity Index (ElixhauserCI) <elixhauserci>`
+
+- :ref:`EULAR Sjögren's Syndrome Patient Reported Index (ESSPRI) <esspri>`
+
+- :ref:`Ankylosing Spondylitis Disease Activity Score (ASDAS) <asdas>`
+
+- :ref:`Snaith–Hamilton Pleasure Scale (SHAPS) <shaps>`
+
+- :ref:`Multidimensional Fatigue Inventory (MFI-20) <mfi20>`
+
+- :ref:`Short-Form McGill Pain Questionnaire 2 (SF-MPQ-2) <sfmpq2>`
+
+- :ref:`Disease Activity Score-28 (DAS28) <das28>`
+
+- :ref:`Cambridge–Chicago Compulsivity Trait Scale (CHI-T) <chit>`
+
+- :ref:`Short UPPS-P Impulsive Behaviour Scale (SUPPS-P) <suppsp>`
+
 
 **To be prioritized**
 
@@ -38,10 +68,12 @@ Tasks
 - Continuous performance task, as per RNC's similar previous task (Linda P
   and team). A/w ETB.
 
+
 **Then**
 
 - Lewy body dementia checklist -- need details from JO'B, as per 14 Jan 2018
   meeting.
+
 
 **Not a priority**
 
@@ -52,6 +84,7 @@ Tasks
 - Better SNOMED coding, with text values (for which: framework already in
   place) for clinical clerking tasks. See CRG minutes of 2019-02-26 for a draft
   map.
+
 
 **Consider**
 
@@ -77,8 +110,6 @@ Tasks
 - discarded tasks - revitalize: LUNSERS
 - discarded tasks - revitalize: MADRS
 - discarded tasks - revitalize: SAS
-
-- Kirby delay-discounting task.
 
 
 Client core

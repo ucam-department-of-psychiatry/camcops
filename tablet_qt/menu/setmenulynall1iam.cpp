@@ -17,7 +17,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "setmenulynall1.h"
+#include "setmenulynall1iam.h"
 #include "common/textconst.h"
 #include "common/uiconst.h"
 #include "lib/uifunc.h"
@@ -31,26 +31,26 @@
 #include "tasks/rand36.h"
 
 
-SetMenuLynall1::SetMenuLynall1(CamcopsApp& app) :
+SetMenuLynall1IAM::SetMenuLynall1IAM(CamcopsApp& app) :
     MenuWindow(app, uifunc::iconFilename(uiconst::ICON_SETS_RESEARCH))
 {
 }
 
 
-QString SetMenuLynall1::title() const
+QString SetMenuLynall1IAM::title() const
 {
     return tr("Lynall M-E — 1 — IAM study");
 }
 
 
-QString SetMenuLynall1::subtitle() const
+QString SetMenuLynall1IAM::subtitle() const
 {
     return tr("Lynall M-E, University of Cambridge, UK — "
               "Inflammation in Mind (IAM) study");
 }
 
 
-void SetMenuLynall1::makeItems()
+void SetMenuLynall1IAM::makeItems()
 {
     m_items = {
         MAKE_CHANGE_PATIENT(m_app),

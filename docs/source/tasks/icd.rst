@@ -17,6 +17,7 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
+
 .. _diagnosis_icd9cm:
 
 ICD-9-CM diagnostic coding (compatible with DSM-IV-TR)
@@ -26,6 +27,7 @@ History and guide
 ~~~~~~~~~~~~~~~~~
 
 See http://www.who.int/classifications/icd/en/.
+
 
 Sources for ICD-9-CM
 ~~~~~~~~~~~~~~~~~~~~
@@ -43,6 +45,7 @@ ICD-9-CM (codes covered: 290–319, V71.09):
 - http://www.icd9data.com/2012/Volume1/290-319/290-294/292/default.htm
 
 “CM”: clinical modification.
+
 
 Intellectual property rights for ICD-9-CM
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -62,10 +65,12 @@ ICD-10 diagnostic coding
 
 .. include:: include_requires_institutional_permission.rst
 
+
 History and guide
 ~~~~~~~~~~~~~~~~~
 
 See http://www.who.int/classifications/icd/en/.
+
 
 Sources for ICD-10
 ~~~~~~~~~~~~~~~~~~
@@ -91,6 +96,7 @@ Sources for ICD-10
   - http://www.doh.gov.za/docs/notices/2012/ICD-10_Master_Industry_Table.pdf
 
   - http://www.smhp.nhs.uk/SMHP/LinkClick.aspx?fileticket=Mjwq9Hi6W5U%3D&..
+
 
 Intellectual property rights for ICD-10
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

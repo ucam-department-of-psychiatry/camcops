@@ -606,6 +606,7 @@ SOURCES += \
     menu/mainmenu.cpp \
     menu/patientsummarymenu.cpp \
     menu/personalitymenu.cpp \
+    menu/physicalillnessmenu.cpp \
     menu/psychosismenu.cpp \
     menu/researchmenu.cpp \
     menu/researchsetsmenu.cpp \
@@ -616,7 +617,9 @@ SOURCES += \
     menu/setmenudeakin1.cpp \
     menu/setmenufromlp.cpp \
     menu/setmenufromperinatal.cpp \
-    menu/setmenukhandaker1.cpp \
+    menu/setmenukhandaker1insight.cpp \
+    menu/setmenukhandaker2mojo.cpp \
+    menu/setmenulynall1iam.cpp \
     menu/setmenuobrien1.cpp \
     menu/settingsmenu.cpp \
     menu/singletaskmenu.cpp \
@@ -780,7 +783,7 @@ SOURCES += \
     tasks/iesr.cpp \
     tasks/ifs.cpp \
     tasks/irac.cpp \
-    tasks/khandaker1medicalhistory.cpp \
+    tasks/khandaker1insightmedical.cpp \
     tasks/lynall1iammedical.cpp \
     tasks/lynall2iamlife.cpp \
     tasks/maas.cpp \
@@ -878,7 +881,6 @@ SOURCES += \
     widgets/verticalline.cpp \
     widgets/verticalscrollarea.cpp \
     widgets/verticalscrollareaviewport.cpp \
-    menu/setmenulynall1.cpp \
     tasks/ctqsf.cpp \
     tasks/kirby.cpp \
     common/languages.cpp
@@ -1026,6 +1028,7 @@ HEADERS += \
     menu/mainmenu.h \
     menu/patientsummarymenu.h \
     menu/personalitymenu.h \
+    menu/physicalillnessmenu.h \
     menu/psychosismenu.h \
     menu/researchmenu.h \
     menu/researchsetsmenu.h \
@@ -1036,7 +1039,9 @@ HEADERS += \
     menu/setmenudeakin1.h \
     menu/setmenufromlp.h \
     menu/setmenufromperinatal.h \
-    menu/setmenukhandaker1.h \
+    menu/setmenukhandaker1insight.h \
+    menu/setmenukhandaker2mojo.h \
+    menu/setmenulynall1iam.h \
     menu/setmenuobrien1.h \
     menu/settingsmenu.h \
     menu/singletaskmenu.h \
@@ -1200,7 +1205,7 @@ HEADERS += \
     tasks/iesr.h \
     tasks/ifs.h \
     tasks/irac.h \
-    tasks/khandaker1medicalhistory.h \
+    tasks/khandaker1insightmedical.h \
     tasks/lynall1iammedical.h \
     tasks/lynall2iamlife.h \
     tasks/maas.h \
@@ -1298,7 +1303,6 @@ HEADERS += \
     widgets/verticalline.h \
     widgets/verticalscrollarea.h \
     widgets/verticalscrollareaviewport.h \
-    menu/setmenulynall1.h \
     tasks/ctqsf.h \
     tasks/kirby.h \
     common/languages.h

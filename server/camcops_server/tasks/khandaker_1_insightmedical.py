@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-camcops_server/tasks/khandaker_1_medicalhistory.py
+camcops_server/tasks/khandaker_1_insightmedical.py
 
 ===============================================================================
 
@@ -87,9 +87,9 @@ X_COMMENT_HINT = "comment_hint"
 # Khandaker_1_MedicalHistory
 # =============================================================================
 
-class Khandaker1MedicalHistoryMetaclass(DeclarativeMeta):
+class Khandaker1InsightMedicalMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
-    def __init__(cls: Type['Khandaker1MedicalHistory'],
+    def __init__(cls: Type['Khandaker1InsightMedical'],
                  name: str,
                  bases: Tuple[Type, ...],
                  classdict: Dict[str, Any]) -> None:
@@ -100,13 +100,13 @@ class Khandaker1MedicalHistoryMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class Khandaker1MedicalHistory(TaskHasPatientMixin, Task,
-                               metaclass=Khandaker1MedicalHistoryMetaclass):
+class Khandaker1InsightMedical(TaskHasPatientMixin, Task,
+                               metaclass=Khandaker1InsightMedicalMetaclass):
     """
     Server implementation of the Khandaker_1_MedicalHistory task.
     """
-    __tablename__ = "khandaker_1_medicalhistory"
-    shortname = "Khandaker_1_MedicalHistory"
+    __tablename__ = "khandaker_1_medicalhistory"  # NB historical name
+    shortname = "Khandaker_1_InsightMedical"
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

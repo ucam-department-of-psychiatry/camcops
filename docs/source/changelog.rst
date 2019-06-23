@@ -1169,7 +1169,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 **Client v2.2.3, server v2.2.3, 2018-06-23**
 
-- :ref:`Khandaker/Insight medical history <khandaker_1_medicalhistory>` task.
+- :ref:`Khandaker/Insight medical history <khandaker_1_insightmedical>` task.
 
 - Client requires server v2.2.3. (Was a global requirement; should have been
   task-specific. REVERTED to minimum server version 2.2.0 in client 2.2.6.)
@@ -2252,14 +2252,14 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
   - ``objdump -t libcamcops.so | grep main`` gave
 
-    .. code-block::
+    .. code-block:: none
 
         001d4144 l     F .text	00000178              .hidden main
 
     whereas in a basic test app, ``objdump -t libbasic_qt_app.so | grep main``
     gave
 
-    .. code-block::
+    .. code-block:: none
 
         00002e70 g     F .text	00000118              main
 
@@ -2275,15 +2275,3 @@ Current C++/SQLite client, Python/SQLAlchemy server
 **Client 2.3.5 (IN PROGRESS)**
 
 - Target Android API from 26 to 28 as now required by Google.
-
-**IN PROGRESS**
-
-- **IAM:** :ref:`Lynall M-E — 2 — IAM study — life events <lynall_2_iam_life>`
-
-  .. todo:: IN PROGRESS +++ a/w permission clarification
-
-- **IAM:** New task :ref:`Childhood Trauma Questionnaire, Short Form (CTQ-SF) <ctqsf>`
-
-  .. todo:: IN PROGRESS +++ a/w permission clarification
-
-- **MOJO: line these up too**

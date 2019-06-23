@@ -252,6 +252,11 @@
    :height: 48px
    :width: 48px
 
+.. |physical| image:: ../_app_icons/physical.png
+   :align: middle
+   :height: 48px
+   :width: 48px
+
 .. |privileged| image:: ../_app_icons/privileged.png
    :align: middle
    :height: 24px
@@ -307,6 +312,11 @@
    :height: 24px
    :width: 24px
 
+.. |service_evaluation| image:: ../_app_icons/service_evaluation.png
+   :align: middle
+   :height: 48px
+   :width: 48px
+
 .. |sets_clinical| image:: ../_app_icons/sets_clinical.png
    :align: middle
    :height: 48px
@@ -346,11 +356,6 @@
    :align: middle
    :height: 24px
    :width: 24px
-
-.. |thumbs| image:: ../_app_icons/thumbs.png
-   :align: middle
-   :height: 48px
-   :width: 48px
 
 .. |time_now| image:: ../_app_icons/time_now.png
    :align: middle
