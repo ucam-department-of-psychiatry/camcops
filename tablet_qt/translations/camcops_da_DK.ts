@@ -4372,7 +4372,7 @@ enig</translation>
         <translation>Velkendt eller generisk</translation>
     </message>
     <message>
-        <location filename="../menu/researchmenu.cpp" line="62"/>
+        <location filename="../menu/researchmenu.cpp" line="64"/>
         <source>Experimental</source>
         <translation>Eksperimentel</translation>
     </message>

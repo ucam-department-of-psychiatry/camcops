@@ -2279,3 +2279,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 **Client 2.3.5 (IN PROGRESS)**
 
 - Target Android API from 26 to 28 as now required by Google.
+
+- Bugfix to trackers, which were ignoring zero values; see
+  :meth:`camcops_server.cc_modules.cc_tracker.Tracker.get_single_plot_html`.

@@ -631,7 +631,10 @@ class Tracker(TrackerCtvCommon):
         """
         HTML for a single figure.
         """
-        nonblank_values = list(filter(None, values))
+        nonblank_values = [x for x in values if x is not None]
+        # NB DIFFERENT to list(filter(None, values)), which implements the
+        # test "if x", not "if x is not None" -- thus eliminating zero values!
+        # We don't want that.
         if not nonblank_values:
             return ""
 
