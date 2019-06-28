@@ -44,15 +44,12 @@ Intellectual property rights
 History
 ~~~~~~~
 
-- Seror R, Ravaud P, Mariette X, Bootsma H, Theander E, Hansen A, Ramos-Casals
-  M, Dörner T, Bombardieri S, Hachulla E, Brun JG, Kruize AA, Praprotnik S,
-  Tomsic M, Gottenberg JE, Devauchelle V, Devita S, Vollenweider C, Mandl T,
-  Tzioufas A, Carsons S, Saraux A, Sutcliffe N, Vitali C, Bowman SJ; EULAR
-  Sjögren's Task Force (2011).
-  EULAR Sjögren's Syndrome Patient Reported Index (ESSPRI): development of a
-  consensus patient index for primary Sjögren's syndrome.
-  *Annals of the Rheumatic Diseases* 70: 968-972.
-  https://www.ncbi.nlm.nih.gov/pubmed/21345815
+- Lukas C, Landewé R, Sieper J, Dougados M, Davis J, Braun J, van der Linden S,
+  van der Heijde D (2009).
+  Development of an ASAS-endorsed disease activity score (ASDAS) in patients
+  with ankylosing spondylitis.
+  *Ann Rheum Dis.* 68: 18-24.
+  https://www.ncbi.nlm.nih.gov/pubmed/18625618
 
 
 Source

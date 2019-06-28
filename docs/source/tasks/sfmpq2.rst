@@ -37,7 +37,9 @@ average of items 12, 13, 14, 15.
 Intellectual property rights
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- Copyrighted. **ADD DETAIL.**
+- Copyright Ronald Melzack and IMMPACT -- see Dworkin et al. (2009)m as below.
+  [IMMPACT = Initiative on Methods, Measurement, and Pain Assessment in
+  Clinical Trials.]
 
 - (For Khandaker MOJO study, 2019, fee paid for electronic use.)
 
@@ -48,8 +50,8 @@ History
 - Dworkin RH, Turk DC, Revicki DA, Harding G, Coyne KS, Peirce-Sandner S,
   Bhagwat D, Everton D, Burke LB, Cowan P, Farrar JT, Hertz S, Max MB,
   Rappaport BA, Melzack R (2009).
-  Development and initial validation of an expanded
-  and revised version of the Short-form McGill Pain Questionnaire (SF-MPQ-2).
+  Development and initial validation of an expanded and revised version of the
+  Short-form McGill Pain Questionnaire (SF-MPQ-2).
   *Pain* 144: 35-42.
   https://www.ncbi.nlm.nih.gov/pubmed/19356853
 

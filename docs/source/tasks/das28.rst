@@ -26,13 +26,32 @@ Disease Activity Score-28 (DAS28)
 .. include:: include_under_development.rst
 .. include:: include_data_collection_plus_local_upgrade.rst
 
-Disease activity score for rheumatoid arthritis.
+Disease activity score for rheumatoid arthritis. The 28 refers to the number
+of joints in which disease activity is rated (bilaterally: shoulder, elbow,
+wrist, knee, 5 × MCP, 5 × PIP).
 
-2 joint count lists, 1 visual analogue rating scale (10cm in length), and one
-numerical response.
+For each joint, "swollen?" and "tender?" are asked; there is a visual analogue
+rating scale (100 mm in length) for arthritis activity, plus an inflammatory
+marker. In the original DAS28 (sometimes termed the DAS28-ESR), this was ESR
+(erythrocyte sedimentation rate). An alternative is the CRP (C-reactive
+protein), in the DAS28-CRP.
 
-Score = 0.56 × √(tender joint count) + 0.28 × √(swollen joint count) + 0.36 ×
-ln(CRP + 1) + 0.014 × VAS + 0.96. **GIVE CRP UNITS.**
+- t28 = number of tender joints, range [0, 28].
+
+- sw28 = number of swollen joints, range [0, 28].
+
+- The CRP units are mg/L, constrained to be integer and in the range [0, 300].
+
+- The ESR units are mm/hr, constrained to be integer and in the range [1, 300].
+
+- The VAS units are mm, range [0, 100]. Low is inactive arthritis; high is
+  extremely active arthritis.
+
+DAS28 score = 0.56 × √(t28) + 0.28 × √(sw28) + 0.70 × ln(ESR) + 0.014 × VAS
+
+DAS28-CRP score = 0.56 × √(t28) + 0.28 × √(sw28) + 0.36 × ln(CRP + 1) + 0.014 ×
+VAS + 0.96.
+
 
 
 Intellectual property rights
@@ -46,7 +65,7 @@ Intellectual property rights
 History
 ~~~~~~~
 
-- Prevoo ML1, van 't Hof MA, Kuper HH, van Leeuwen MA, van de Putte LB, van
+- Prevoo ML, van 't Hof MA, Kuper HH, van Leeuwen MA, van de Putte LB, van
   Riel PL (1995).
   Modified disease activity scores that include twenty-eight-joint counts.
   Development and validation in a prospective longitudinal study of patients
@@ -54,8 +73,38 @@ History
   *Arthritis Rheum.* 38: 44-8.
   https://www.ncbi.nlm.nih.gov/pubmed/7818570
 
+  [Original version using ESR.]
+
+- Fransen J,  Welsing PMJ, de Keijzer RMH, van Riel PLCM (2003).
+  Disease activity scores using C-reactive protein: CRP may replace ESR in the
+  assessment of RA disease activity.
+  *Ann Rheum Dis* 62(Suppl. 1): 151.
+
+  [DAS-28-CRP source, according to Hensor et al. 2010 as below.]
+
+- Fleischmann RM, van der Heijde D, Gardiner PV, Szumski A, Marshall L, Bananis
+  E (2017).
+  DAS28-CRP and DAS28-ESR cut-offs for high disease activity in rheumatoid
+  arthritis are not interchangeable.
+  *RMD Open* 3: e000382.
+  https://dx.doi.org/10.1136/rmdopen-2016-000382.
+  https://www.ncbi.nlm.nih.gov/pubmed/28255449.
+
+  [Helpful review comparing DAS28-ESR and DAS28-CRP.]
+
+- Hensor EM, Emery P, Bingham SJ, Conaghan PG; YEAR Consortium (2010).
+  Discrepancies in categorizing rheumatoid arthritis patients by DAS-28(ESR)
+  and DAS-28(CRP): can they be reduced?
+  *Rheumatology (Oxford)* 49: 1521-9.
+  https://dx.doi.org/10.1093/rheumatology/keq117.
+  https://www.ncbi.nlm.nih.gov/pubmed/20435650.
+
+  [Useful history.]
+
 
 Source
 ~~~~~~
 
 - https://eprovide.mapi-trust.org/instruments/disease-activity-score-c-reactive-protein#contact_and_conditions_of_use
+
+- https://www.das28.nl/

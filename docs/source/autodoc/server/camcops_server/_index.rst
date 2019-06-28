@@ -58,6 +58,7 @@ server/camcops_server
     alembic/versions/0026_kirby_mcq.py.rst
     alembic/versions/0027_apeq_cpft_perinatal.py.rst
     alembic/versions/0028_maas.py.rst
+    alembic/versions/0029_elixhauserci.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst
@@ -180,6 +181,7 @@ server/camcops_server
     extra_strings/dast.xml.rst
     extra_strings/demqol.xml.rst
     extra_strings/distressthermometer.xml.rst
+    extra_strings/elixhauserci.xml.rst
     extra_strings/fast.xml.rst
     extra_strings/fft.xml.rst
     extra_strings/frs.xml.rst
@@ -258,6 +260,7 @@ server/camcops_server
     tasks/demqol.py.rst
     tasks/diagnosis.py.rst
     tasks/distressthermometer.py.rst
+    tasks/elixhauserci.py.rst
     tasks/epds.py.rst
     tasks/eq5d5l.py.rst
     tasks/factg.py.rst

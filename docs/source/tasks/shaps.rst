@@ -40,6 +40,8 @@ Intellectual property rights
   research. Reproduction Agree in any book or manual or for commercial purpose
   must be negotiated with the British Journal of Psychiatry."
 
+  -- Snaith et al. (1995), as below.
+
 
 History
 ~~~~~~~
