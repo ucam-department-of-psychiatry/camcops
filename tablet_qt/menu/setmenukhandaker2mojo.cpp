@@ -24,6 +24,7 @@
 #include "menulib/menuitem.h"
 
 #include "tasks/cisr.h"
+#include "tasks/elixhauserci.h"
 #include "tasks/eq5d5l.h"
 
 
@@ -51,7 +52,7 @@ void SetMenuKhandaker2Mojo::makeItems()
     m_items = {
         MAKE_CHANGE_PATIENT(m_app),
         // *** MOJO anthropometrics/sociodemographics/medical history
-        // *** Elixhauser Comorbidity Index (ECI)
+        MAKE_TASK_MENU_ITEM(ElixhauserCI::ELIXHAUSERCI_TABLENAME, m_app),
         // *** EULAR Sjögren's Syndrome Patient Reported Index (ESSPRI)
         // *** Ankylosing Spondylitis Disease Activity Score (ASDAS)
         // *** Snaith-Hamilton Pleasure Scale (SHAPS)

@@ -752,6 +752,7 @@ SOURCES += \
     tasks/diagnosisicd10.cpp \
     tasks/diagnosisicd9cm.cpp \
     tasks/distressthermometer.cpp \
+    tasks/elixhauserci.cpp \
     tasks/epds.cpp \
     tasks/eq5d5l.cpp \
     tasks/factg.cpp \
@@ -1174,6 +1175,7 @@ HEADERS += \
     tasks/diagnosisicd10.h \
     tasks/diagnosisicd9cm.h \
     tasks/distressthermometer.h \
+    tasks/elixhauserci.h \
     tasks/epds.h \
     tasks/eq5d5l.h \
     tasks/factg.h \
