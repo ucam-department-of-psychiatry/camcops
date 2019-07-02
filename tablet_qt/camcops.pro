@@ -735,6 +735,7 @@ SOURCES += \
     tasks/cgi.cpp \
     tasks/cgii.cpp \
     tasks/cgisch.cpp \
+    tasks/chit.cpp \
     tasks/cisr.cpp \
     tasks/ciwa.cpp \
     tasks/contactlog.cpp \
@@ -1158,6 +1159,7 @@ HEADERS += \
     tasks/cgi.h \
     tasks/cgii.h \
     tasks/cgisch.h \
+    tasks/chit.h \
     tasks/cisr.h \
     tasks/ciwa.h \
     tasks/contactlog.h \

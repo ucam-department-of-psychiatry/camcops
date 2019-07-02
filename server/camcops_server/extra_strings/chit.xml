@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="chit">(
+    <!-- Cambridge-Chicago Compulsivity Trait Scale -->
+
+    <string name="title_main">Cambridge-Chicago Compulsivity Trait Scale (CHI-T)</string>
+
+    <string name="q1">(hate unfinished task)</string>
+    <string name="q2">(just right)</string>
+    <string name="q3">(keep doing task)</string>
+    <string name="q4">(get stuck)</string>
+    <string name="q5">(habit)</string>
+    <string name="q6">(addictive)</string>
+    <string name="q7">(stubborn rigid)</string>
+    <string name="q8">(urges)</string>
+    <string name="q9">(rewarding things)</string>
+    <string name="q10">(hard moving)</string>
+    <string name="q11">(higher standards)</string>
+    <string name="q12">(improvement)</string>
+    <string name="q13">(complete)</string>
+    <string name="q14">(avoid situations)</string>
+    <string name="q15">(hobby)</string>
+
+    <string name="a0">Strongly disagree</string>
+    <string name="a1">Disagree</string>
+    <string name="a2">Agree</string>
+    <string name="a3">Strongly agree</string>
+    <string name="q16">(negative effect)</string>
+  </task>
+</resources>
