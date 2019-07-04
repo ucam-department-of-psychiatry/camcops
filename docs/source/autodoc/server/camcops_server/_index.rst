@@ -59,6 +59,7 @@ server/camcops_server
     alembic/versions/0027_apeq_cpft_perinatal.py.rst
     alembic/versions/0028_maas.py.rst
     alembic/versions/0029_elixhauserci.py.rst
+    alembic/versions/0030_chi_t.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst
@@ -170,6 +171,7 @@ server/camcops_server
     extra_strings/cesdr.xml.rst
     extra_strings/cgi.xml.rst
     extra_strings/cgisch.xml.rst
+    extra_strings/chit.xml.rst
     extra_strings/cisr.xml.rst
     extra_strings/ciwa.xml.rst
     extra_strings/contactlog.xml.rst
@@ -246,6 +248,7 @@ server/camcops_server
     tasks/cesdr.py.rst
     tasks/cgi_task.py.rst
     tasks/cgisch.py.rst
+    tasks/chit.py.rst
     tasks/cisr.py.rst
     tasks/ciwa.py.rst
     tasks/contactlog.py.rst
