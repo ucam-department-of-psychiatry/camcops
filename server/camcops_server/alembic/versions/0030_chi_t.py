@@ -30,7 +30,7 @@ chi-t
 
 Revision ID: 0030
 Revises: 0029
-Creation date: 2019-07-01 17:40:35.417390
+Creation date: 2019-07-04 11:55:38.145884
 
 """
 
@@ -125,10 +125,17 @@ def upgrade():
     mysql_engine='InnoDB',
     mysql_row_format='DYNAMIC'
     )
-    # ### end Alembic commands ###
+    with op.batch_alter_table('chit', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_chit__current'), ['_current'], unique=False)
+        batch_op.create_index(batch_op.f('ix_chit__device_id'), ['_device_id'], unique=False)
+        batch_op.create_index(batch_op.f('ix_chit__era'), ['_era'], unique=False)
+        batch_op.create_index(batch_op.f('ix_chit__group_id'), ['_group_id'], unique=False)
+        batch_op.create_index(batch_op.f('ix_chit__pk'), ['_pk'], unique=False)
+        batch_op.create_index(batch_op.f('ix_chit_id'), ['id'], unique=False)
+        batch_op.create_index(batch_op.f('ix_chit_patient_id'), ['patient_id'], unique=False)
+        batch_op.create_index(batch_op.f('ix_chit_when_last_modified'), ['when_last_modified'], unique=False)
 
 
 # noinspection PyPep8,PyTypeChecker
 def downgrade():
     op.drop_table('chit')
-    # ### end Alembic commands ###
