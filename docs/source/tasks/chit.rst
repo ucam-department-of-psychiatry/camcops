@@ -23,7 +23,6 @@
 Cambridge–Chicago Compulsivity Trait Scale (CHI-T)
 --------------------------------------------------
 
-.. include:: include_under_development.rst
 .. include:: include_data_collection_plus_local_upgrade.rst
 
 15-item measure of compulsivity.
