@@ -140,7 +140,7 @@ Kirby KN, Maraković NN (1996).
 Delay-discounting probabilistic rewards: Rates decrease as amounts increase.
 *Psychon. Bull. Rev.* 3: 100-104.
 https://www.ncbi.nlm.nih.gov/pubmed/24214810;
-https://dx.doi.org/10.3758/BF03210748.
+https://doi.org/10.3758/BF03210748.
 
 Kirby KN (2000) Instructions for inferring discount rates from choices between
 immediate and delayed rewards. Unpublished, Williams College.

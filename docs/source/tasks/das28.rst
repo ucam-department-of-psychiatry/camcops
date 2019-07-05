@@ -87,7 +87,7 @@ History
   DAS28-CRP and DAS28-ESR cut-offs for high disease activity in rheumatoid
   arthritis are not interchangeable.
   *RMD Open* 3: e000382.
-  https://dx.doi.org/10.1136/rmdopen-2016-000382.
+  https://doi.org/10.1136/rmdopen-2016-000382.
   https://www.ncbi.nlm.nih.gov/pubmed/28255449.
 
   [Helpful review comparing DAS28-ESR and DAS28-CRP.]
@@ -96,7 +96,7 @@ History
   Discrepancies in categorizing rheumatoid arthritis patients by DAS-28(ESR)
   and DAS-28(CRP): can they be reduced?
   *Rheumatology (Oxford)* 49: 1521-9.
-  https://dx.doi.org/10.1093/rheumatology/keq117.
+  https://doi.org/10.1093/rheumatology/keq117.
   https://www.ncbi.nlm.nih.gov/pubmed/20435650.
 
   [Useful history.]
