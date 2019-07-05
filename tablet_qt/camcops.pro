@@ -819,6 +819,7 @@ SOURCES += \
     tasks/slums.cpp \
     tasks/smast.cpp \
     tasks/srs.cpp \
+    tasks/suppsp.cpp \
     tasks/swemwbs.cpp \
     tasks/wemwbs.cpp \
     tasks/wsas.cpp \
@@ -1243,6 +1244,7 @@ HEADERS += \
     tasks/slums.h \
     tasks/smast.h \
     tasks/srs.h \
+    tasks/suppsp.h \
     tasks/swemwbs.h \
     tasks/wemwbs.h \
     tasks/wsas.h \
