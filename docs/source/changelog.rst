@@ -2282,3 +2282,94 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Bugfix to trackers, which were ignoring zero values; see
   :meth:`camcops_server.cc_modules.cc_tracker.Tracker.get_single_plot_html`.
+
+- Slightly hacky bugfix to ``sizehelpers::labelExtraSizeRequired()``, to
+  mitigate odd bug in which questions in a `QuMcqGrid` were over-word-wrapped.
+  Debugging sequence:
+
+  - commented sizehelpers.h
+  - tried a size policy of expandingFixedHFWPolicy() in mcqfunc::addQuestion()
+    -- no joy, reverted
+  - uncommented "#define OFFER_LAYOUT_DEBUG_BUTTON" in questionnaire.cpp
+  - dump the layout from a PHQ9 (to the debug console)
+  - The first question ("1. Little interest or pleasure in doing things") is:
+
+    .. code-block:: none
+
+        LabelWordWrapWide<0x000056045feb4eb0 'question'>, visible, pos[DOWN] (0, 129), size[DOWN] (407 x 48), hasHeightForWidth()[UP] true, heightForWidth(407[DOWN])[UP] 58, minimumSize (0 x 0), maximumSize (16777215 x 16777215), sizeHint[UP] (407 x 29), minimumSizeHint[UP] (109 x 29), sizePolicy[UP] (Expanding, Fixed) [hasHeightForWidth=true], stylesheet: false, [WARNING: geometry().height() < heightForWidth(geometry().width())] [alignment from layout: AlignLeft | AlignVCenter]
+
+    - ... where "[DOWN]" means "imposed from above, i.e. from the layout" and
+      "[UP]" means "determined by the widget or its contents and told to the
+      layout"
+    - ... so this indicates the widget is saying "I'd like to be 407 x 29"
+      (sizeHint) and "(horizontal expanding) 407 is a reasonable size; you can
+      enlarge or shrink me if you want, but I'd like to be as large as
+      possible; (HFW set) my height depends on my width; (vertical fixed) once
+      my height is set from my width, that is fixed"
+    - ... on a screen in which [via GIMP] the label is 407 x 48 within a cell
+      that should be about 899 x 48
+    - ... so, the widget is not asking for enough horizontal space.
+
+  - This, therefore, points the finger at LabelWordWrapWide::sizeHint().
+  - This is already ensuring the CSS etc. is applied, via ensurePolished().
+    That should deal with CSS-defined margins and the like.
+  - uncomment "#define DEBUG_CALCULATIONS" in labelwordwrapwide.cpp
+  - "1. Little interest or pleasure in doing" = 331 wide; "things" = 56 wide;
+    another space = 9 wide -- that's suggest about 396 for the text. Then there
+    is a left border of 12 pixels (ish) and probably the right one is identical
+    -- so the width should perhaps be about 420, and it's asking for 407.
+  - So where's the deficit? Could either be the margins or the text itself.
+  - LabelWordWrapWide::sizeOfTextWithoutWrap() should provide the text size
+    itself. This may not be spot on; but running a grep on the output gives (in
+    the last version -- font sizes etc. may change as Qt lays stuff out) 397
+    wide. Which sounds OK.
+  - grep "text_size" calcs.txt | grep "1. Little" gives:
+
+    .. code-block:: none
+
+      camcops[18336]: 2019-07-05T23:36:18.533: debug: ../tablet_qt/widgets/labelwordwrapwide.cpp(432): virtual QSize LabelWordWrapWide::sizeHint() const - text_size QSize(397, 19) -> QSize(407, 29) ... text: "1. Little interest or pleasure in doing things"
+
+    so that suggests that 10 width is being added for margins, and that is too
+    small; so the bug looks like it is in
+    LabelWordWrapWide::extraSizeForCssOrLayout(), which, via a similar grep, is
+    returning QSize(10, 10).
+
+  - In turn that suggests the problem is in
+    sizehelpers::labelExtraSizeRequired(), or the cache system.
+  - Disabling "#define LWWW_USE_STYLE_CACHE"... no difference. So probably not
+    the cache system there.
+  - However, LabelWordWrapWide::extraSizeForCssOrLayout() is returning
+    QSize(10, 10), which looks too small.
+  - uncomment "#define DEBUG_WIDGET_MARGINS" in sizehelpers.cpp
+  - looks like the margins are coming from the stylesheet, not the layout:
+
+    .. code-block:: none
+
+        camcops[22749]: 2019-07-06T00:12:30.198: debug: ../tablet_qt/lib/sizehelpers.cpp(217): QSize sizehelpers::widgetExtraSizeForCssOrLayout(const QWidget*, const QStyleOption*, const QSize&, bool, QStyle::ContentsType)widget "LabelWordWrapWide<0x000056458065d9c0 'question'>"; child_size QSize(0, 0); stylesheet_extra_size QSize(10, 10); extra_for_layout_margins QSize(0, 0) => total_extra QSize(10, 10)
+
+    ... which is right because QuMcqGrid::makeWidget() does "grid->setContentsMargins(uiconst::NO_MARGINS);"
+  - So we're looking at
+    https://doc.qt.io/archives/qt-4.8/qstyle.html#sizeFromContents
+  - The actual extra comes from the CSS: "#mcq_grid #question { padding: 5px; }"
+  - As a test, doubling the width in sizehelpers::labelExtraSizeRequired()
+    works. Reverted that.
+  - comment out "#define ADD_EXTRA_FOR_LAYOUT_OR_CSS" in
+    labelwordwrapwide.cpp -- and see comments there; previous problems with
+    QLabel. Nope, didn't help; reverted.
+  - set "show_widget_stylesheets = true" in layoutdumper::DumperConfig header
+    and re-dump -- but the widget doesn't have its own stylesheet (just the
+    global one, via uiconst::CSS_CAMCOPS_QUESTIONNAIRE) so that doesn't help.
+  - The odd thing is that I think the CSS is setting 5px padding, but 10px is
+    coming out.
+  - Check by changing that bit of CSS to 0 -- yes.
+  - So... the calculated extra size reflects the CSS, but the actual painting
+    doesn't! padding 0 -> 0 displayed on left; padding 5px -> 10px displayed on
+    left; padding 10px -> 15px displayed on left; padding 15px -> 20 px
+    displayed on left. So consistently +5. Odd. Similarly larger on the other
+    sides.
+  - Is it because QPushButton has padding: 5px, and
+    sizehelpers::labelExtraSizeRequired() uses QStyle::CT_PushButton? No,
+    setting QPushButton padding to 0 made no difference.
+  - Anyway, back to doubling the width in
+    sizehelpers::labelExtraSizeRequired(). A hack... And reverted other
+    debugging options.
