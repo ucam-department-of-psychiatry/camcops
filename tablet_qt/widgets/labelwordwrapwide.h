@@ -33,12 +33,14 @@ class LabelWordWrapWide : public QLabel
 public:
 
     // Construct with text.
+    // The default size policy is preferredPreferredHFWPolicy().
     explicit LabelWordWrapWide(const QString& text, QWidget* parent = nullptr);
 
     // Default constructor.
     explicit LabelWordWrapWide(QWidget* parent = nullptr);
 
     virtual QSize sizeHint() const override;
+    // Returns the size of non-word-wrapped (unwrapped) text.
     // ... "I would like to be very wide and not very tall."
 
     // - QLabel::heightForWidth() gives a sensible answer; no need to override.

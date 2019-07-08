@@ -56,7 +56,7 @@ History
   Examination of a short English version of the UPPS-P Impulsive Behavior
   Scale.
   *Addict Behav.* 39: 1372-6.
-  https://dx.doi.org/10.1016/j.addbeh.2014.02.013.
+  https://doi.org/10.1016/j.addbeh.2014.02.013.
   https://www.ncbi.nlm.nih.gov/pubmed/24636739
 
 
