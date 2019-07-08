@@ -172,7 +172,7 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
 
 **Server v1.06, 2014-01-16**
 
-- REQUIRES DATABASE CHANGE BEFORE INSTALLATION: 
+- REQUIRES DATABASE CHANGE BEFORE INSTALLATION:
   DROP TABLE _dirty_tables;
 - CPFT_LPS_Referral, CPFT_LPS_Discharge, CPFT_LPS_ResetStartClock tasks.
   IN BETA; MAY CHANGE.
@@ -191,7 +191,7 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
 
 **Server v1.07, 2014-02-14**
 
-- REQUIRES DATABASE CHANGE BEFORE INSTALLATION: 
+- REQUIRES DATABASE CHANGE BEFORE INSTALLATION:
   DROP TABLE _security_webviewer_sessions;
 - CPFT\* tasks remain in beta; data structure may change.
 - QoL\* tasks remain in beta; data structure may change.
@@ -211,7 +211,7 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
 
 **Server v1.08, 2014-07-22**
 
-- REQUIRES COMMAND TO UPGRADE EACH DATABASE: 
+- REQUIRES COMMAND TO UPGRADE EACH DATABASE:
   camcops --maketables /etc/camcops/MYCONFIGNAME.conf
 - Automatic version-based database structure upgrade via the --maketables
   command. (Similarly on the tablet side.)
@@ -1442,7 +1442,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Client returns to maximized mode after returning from fullscreen, if it was
   maximized before.
-  
+
 - Client calls ``ensurePolished()`` for ``sizeHint()`` functions of widgets
   containing text, which should make initial sizing more accurate.
 
@@ -1577,7 +1577,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 **Server v2.2.8 to 2.3.0 (2018-09-14 to 2018-11-26)**
 
-- ``GROUP_NAME_MAX_LEN``, ``DEVICE_NAME_MAX_LEN`` and ``USER_NAME_MAX_LEN`` 
+- ``GROUP_NAME_MAX_LEN``, ``DEVICE_NAME_MAX_LEN`` and ``USER_NAME_MAX_LEN``
   changed from 255 to 191 because MySQL<=5.6 only supports indexing of 191
   characters in ``utf8mb4`` mode on ``InnoDB`` tables;
   see https://dev.mysql.com/doc/refman/5.7/en/charset-unicode-conversion.html
@@ -2373,3 +2373,9 @@ Current C++/SQLite client, Python/SQLAlchemy server
   - Anyway, back to doubling the width in
     sizehelpers::labelExtraSizeRequired(). A hack... And reverted other
     debugging options.
+
+- **New task:** :ref:`Elixhauser Comorbidity Index (ElixhauserCI) <elixhauserci>`.
+  (Database revision 0029.)
+
+- **New task:** :ref:`Cambridge-Chicago Compulsivity Trait Scale (CHI-T) <chit>`.
+  (Database revision 0030.)
