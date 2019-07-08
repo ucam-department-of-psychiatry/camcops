@@ -2379,3 +2379,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - **New task:** :ref:`Cambridge-Chicago Compulsivity Trait Scale (CHI-T) <chit>`.
   (Database revision 0030.)
+
+- **New task:** :ref:`Short UPPS-P Impulsive Behaviour Scale (SUPPS-P) <suppsp>`.
+  (Database revision 0031.)
