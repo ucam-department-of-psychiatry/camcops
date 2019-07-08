@@ -129,6 +129,26 @@ class Suppsp(TaskHasPatientMixin,
                 name="total", coltype=Integer(),
                 value=self.total_score(),
                 comment=f"Total score (/{self.MAX_SCORE})"),
+            SummaryElement(
+                name="negative_urgency", coltype=Integer(),
+                value=self.negative_urgency_score(),
+                comment=f"Negative urgency (/{self.MAX_SUBSCALE})"),
+            SummaryElement(
+                name="lack_of_perseverance", coltype=Integer(),
+                value=self.lack_of_perseverance_score(),
+                comment=f"Lack of perseverance (/{self.MAX_SUBSCALE})"),
+            SummaryElement(
+                name="lack_of_premeditation", coltype=Integer(),
+                value=self.lack_of_premeditation_score(),
+                comment=f"Lack of premeditation (/{self.MAX_SUBSCALE})"),
+            SummaryElement(
+                name="sensation_seeking", coltype=Integer(),
+                value=self.sensation_seeking_score(),
+                comment=f"Sensation seeking (/{self.MAX_SUBSCALE})"),
+            SummaryElement(
+                name="positive_urgency", coltype=Integer(),
+                value=self.positive_urgency_score(),
+                comment=f"Positive urgency (/{self.MAX_SUBSCALE})"),
         ]
 
     def is_complete(self) -> bool:
