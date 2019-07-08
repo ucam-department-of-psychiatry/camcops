@@ -105,6 +105,7 @@ class Suppsp(TaskHasPatientMixin,
 
     N_QUESTIONS = 20
     MAX_SCORE = 4 * N_QUESTIONS
+    MAX_SUBSCALE = 4 * 4
     ALL_QUESTIONS = strseq("q", 1, N_QUESTIONS)
     NEGATIVE_URGENCY_QUESTIONS = Task.fieldnames_from_list(
         "q", {6, 8, 13, 15})
@@ -221,27 +222,44 @@ class Suppsp(TaskHasPatientMixin,
             tr_is_complete=self.get_is_complete_tr(req),
             total_score=tr(
                 req.sstring(SS.TOTAL_SCORE) + " <sup>[1]</sup>",
-                answer(self.total_score()) + f" / {self.MAX_SCORE}"
+                "{} / {}".format(
+                    answer(self.total_score()), self.MAX_SCORE
+                )
             ),
             negative_urgency_score=tr(
-                self.wxstring(req, "negative_urgency"),
-                answer(self.negative_urgency_score()) + " <sup>[2]</sup>"
+                self.wxstring(req, "negative_urgency") + " <sup>[2]</sup>",
+                "{} / {}".format(
+                    answer(self.negative_urgency_score()), self.MAX_SUBSCALE
+                )
             ),
             lack_of_perseverance_score=tr(
-                self.wxstring(req, "lack_of_perseverance"),
-                answer(self.lack_of_perseverance_score()) + " <sup>[3]</sup>"
+                self.wxstring(req, "lack_of_perseverance") + " <sup>[3]</sup>",
+                "{} / {}".format(
+                    answer(self.lack_of_perseverance_score()),
+                    self.MAX_SUBSCALE
+                )
             ),
             lack_of_premeditation_score=tr(
-                self.wxstring(req, "lack_of_premeditation"),
-                answer(self.lack_of_premeditation_score()) + " <sup>[4]</sup>"
+                self.wxstring(req,
+                              "lack_of_premeditation") + " <sup>[4]</sup>",
+                "{} / {}".format(
+                    answer(self.lack_of_premeditation_score()),
+                    self.MAX_SUBSCALE
+                )
             ),
             sensation_seeking_score=tr(
-                self.wxstring(req, "sensation_seeking"),
-                answer(self.sensation_seeking_score()) + " <sup>[5]</sup>"
+                self.wxstring(req, "sensation_seeking") + " <sup>[5]</sup>",
+                "{} / {}".format(
+                    answer(self.sensation_seeking_score()),
+                    self.MAX_SUBSCALE
+                )
             ),
             positive_urgency_score=tr(
-                self.wxstring(req, "positive_urgency"),
-                answer(self.positive_urgency_score()) + " <sup>[6]</sup>"
+                self.wxstring(req, "positive_urgency") + " <sup>[6]</sup>",
+                "{} / {}".format(
+                    answer(self.positive_urgency_score()),
+                    self.MAX_SUBSCALE
+                )
             ),
             rows=rows,
         )
