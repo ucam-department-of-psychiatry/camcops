@@ -23,7 +23,6 @@
 Short UPPS-P Impulsive Behaviour Scale (SUPPS-P)
 ------------------------------------------------
 
-.. include:: include_under_development.rst
 .. include:: include_data_collection_plus_local_upgrade.rst
 
 20 items, rated on a 4 point scale: strongly agree - strongly disagree.
@@ -64,4 +63,3 @@ Source
 ~~~~~~
 
 - http://www.impulsivity.org/measurement/UPPS_P
-
