@@ -30,5 +30,11 @@
     <string name="a1">Agree</string>
     <string name="a2">Disagree</string>
     <string name="a3">Strongly disagree</string>
+
+    <string name="negative_urgency">Negative urgency</string>
+    <string name="lack_of_perserverance">Lack of perserverance</string>
+    <string name="lack_of_premeditation">Lack of premeditation</string>
+    <string name="sensation_seeking">Sensation seeking</string>
+    <string name="positive_urgency">Positive urgency</string>
   </task>
 </resources>

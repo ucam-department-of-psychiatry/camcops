@@ -53,6 +53,11 @@ public:
     // Task-specific calculations
     // ------------------------------------------------------------------------
     int totalScore() const;
+    int negativeUrgency() const;
+    int lackOfPerseverance() const;
+    int lackOfPremeditation() const;
+    int sensationSeeking() const;
+    int positiveUrgency() const;
 public:
     static const QString SUPPSP_TABLENAME;
 protected:

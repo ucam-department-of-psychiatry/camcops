@@ -106,6 +106,16 @@ class Suppsp(TaskHasPatientMixin,
     N_QUESTIONS = 20
     MAX_SCORE = 4 * N_QUESTIONS
     ALL_QUESTIONS = strseq("q", 1, N_QUESTIONS)
+    NEGATIVE_URGENCY_QUESTIONS = Task.fieldnames_from_list(
+        "q", {6, 8, 13, 15})
+    LACK_OF_PERSEVERANCE_QUESTIONS = Task.fieldnames_from_list(
+        "q", {1, 4, 7, 11})
+    LACK_OF_PREMEDITATION_QUESTIONS = Task.fieldnames_from_list(
+        "q", {2, 5, 12, 19})
+    SENSATION_SEEKING_QUESTIONS = Task.fieldnames_from_list(
+        "q", {9, 14, 16, 18})
+    POSITIVE_URGENCY_QUESTIONS = Task.fieldnames_from_list(
+        "q", {3, 10, 17, 20})
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
@@ -129,6 +139,21 @@ class Suppsp(TaskHasPatientMixin,
 
     def total_score(self) -> int:
         return self.sum_fields(self.ALL_QUESTIONS)
+
+    def negative_urgency_score(self) -> int:
+        return self.sum_fields(self.NEGATIVE_URGENCY_QUESTIONS)
+
+    def lack_of_perseverance_score(self) -> int:
+        return self.sum_fields(self.LACK_OF_PERSEVERANCE_QUESTIONS)
+
+    def lack_of_premeditation_score(self) -> int:
+        return self.sum_fields(self.LACK_OF_PREMEDITATION_QUESTIONS)
+
+    def sensation_seeking_score(self) -> int:
+        return self.sum_fields(self.SENSATION_SEEKING_QUESTIONS)
+
+    def positive_urgency_score(self) -> int:
+        return self.sum_fields(self.POSITIVE_URGENCY_QUESTIONS)
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         normal_score_dict = {
@@ -169,6 +194,11 @@ class Suppsp(TaskHasPatientMixin,
                 <table class="{CssClass.SUMMARY}">
                     {tr_is_complete}
                     {total_score}
+                    {negative_urgency_score}
+                    {lack_of_perseverance_score}
+                    {lack_of_premeditation_score}
+                    {sensation_seeking_score}
+                    {positive_urgency_score}
                 </table>
             </div>
             <table class="{CssClass.TASKDETAIL}">
@@ -180,6 +210,11 @@ class Suppsp(TaskHasPatientMixin,
             </table>
             <div class="{CssClass.FOOTNOTES}">
                 [1] Sum for questions 1–20.
+                [2] Sum for questions 6, 8, 13, 15
+                [3] Sum for questions 1, 4, 7, 11
+                [4] Sum for questions 2, 5, 12, 19
+                [5] Sum for questions 9, 14, 16, 18
+                [6] Sum for questions 3, 10, 17, 20
             </div>
         """.format(
             CssClass=CssClass,
@@ -187,6 +222,26 @@ class Suppsp(TaskHasPatientMixin,
             total_score=tr(
                 req.sstring(SS.TOTAL_SCORE) + " <sup>[1]</sup>",
                 answer(self.total_score()) + f" / {self.MAX_SCORE}"
+            ),
+            negative_urgency_score=tr(
+                self.wxstring(req, "negative_urgency"),
+                answer(self.negative_urgency_score()) + " <sup>[2]</sup>"
+            ),
+            lack_of_perseverance_score=tr(
+                self.wxstring(req, "lack_of_perseverance"),
+                answer(self.lack_of_perseverance_score()) + " <sup>[3]</sup>"
+            ),
+            lack_of_premeditation_score=tr(
+                self.wxstring(req, "lack_of_premeditation"),
+                answer(self.lack_of_premeditation_score()) + " <sup>[4]</sup>"
+            ),
+            sensation_seeking_score=tr(
+                self.wxstring(req, "sensation_seeking"),
+                answer(self.sensation_seeking_score()) + " <sup>[5]</sup>"
+            ),
+            positive_urgency_score=tr(
+                self.wxstring(req, "positive_urgency"),
+                answer(self.positive_urgency_score()) + " <sup>[6]</sup>"
             ),
             rows=rows,
         )

@@ -34,14 +34,23 @@
 #include "tasklib/taskfactory.h"
 using mathfunc::anyNull;
 using mathfunc::sumInt;
+using mathfunc::scorePhrase;
 using mathfunc::totalScorePhrase;
 using stringfunc::strnum;
+using stringfunc::strnumlist;
 using stringfunc::strseq;
 
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 20;
 const int MAX_SCORE = 80;
+const int MAX_SUBSCALE = 16;
 const QString QPREFIX("q");
+const QVector<int> NEGATIVE_URGENCY_QUESTIONS{6, 8, 13, 15};
+const QVector<int> LACK_OF_PERSEVERANCE_QUESTIONS{1, 4, 7, 11};
+const QVector<int> LACK_OF_PREMEDITATION_QUESTIONS{2, 5, 12, 19};
+const QVector<int> SENSATION_SEEKING_QUESTIONS{9, 14, 16, 18};
+const QVector<int> POSITIVE_URGENCY_QUESTIONS{3, 10, 17, 20};
+
 
 const QString Suppsp::SUPPSP_TABLENAME("suppsp");
 
@@ -109,9 +118,51 @@ int Suppsp::totalScore() const
 }
 
 
+int Suppsp::negativeUrgency() const
+{
+    return sumInt(values(strnumlist(QPREFIX, NEGATIVE_URGENCY_QUESTIONS)));
+}
+
+
+int Suppsp::lackOfPerseverance() const
+{
+    return sumInt(values(strnumlist(QPREFIX, LACK_OF_PERSEVERANCE_QUESTIONS)));
+}
+
+
+int Suppsp::lackOfPremeditation() const
+{
+    return sumInt(values(strnumlist(QPREFIX, LACK_OF_PREMEDITATION_QUESTIONS)));
+}
+
+
+int Suppsp::sensationSeeking() const
+{
+    return sumInt(values(strnumlist(QPREFIX, SENSATION_SEEKING_QUESTIONS)));
+}
+
+
+int Suppsp::positiveUrgency() const
+{
+    return sumInt(values(strnumlist(QPREFIX, POSITIVE_URGENCY_QUESTIONS)));
+}
+
+
 QStringList Suppsp::summary() const
 {
-    return QStringList{totalScorePhrase(totalScore(), MAX_SCORE)};
+    return QStringList{
+        totalScorePhrase(totalScore(), MAX_SCORE),
+        scorePhrase(xstring("negative_urgency"), negativeUrgency(),
+                    MAX_SUBSCALE),
+        scorePhrase(xstring("lack_of_perserverance"), lackOfPerseverance(),
+                    MAX_SUBSCALE),
+        scorePhrase(xstring("lack_of_premeditation"), lackOfPremeditation(),
+                    MAX_SUBSCALE),
+        scorePhrase(xstring("sensation_seeking"), sensationSeeking(),
+                    MAX_SUBSCALE),
+        scorePhrase(xstring("positive_urgency"), positiveUrgency(),
+                    MAX_SUBSCALE),
+    };
 }
 
 
