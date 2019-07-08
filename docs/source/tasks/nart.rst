@@ -931,7 +931,7 @@ Scoring system [#blair1989]_:
 .. [#blair1989]
     Blair & Spreen (1989). Predicting premorbid IQ: A revision of the national
     adult reading test. The Clinical Neuropsychologist 3: 129–136.
-    http://dx.doi.org/10.1080/13854048908403285.
+    http://doi.org/10.1080/13854048908403285.
 
 .. [#nelson1982]
     Appendix 2 (“Test data”) of Nelson HE (1982), National Adult Reading Test

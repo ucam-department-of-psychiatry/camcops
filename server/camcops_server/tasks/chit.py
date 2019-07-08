@@ -142,9 +142,6 @@ class Chit(TaskHasPatientMixin,
                     {total_score}
                 </table>
             </div>
-            <div class="{CssClass.EXPLANATION}">
-                Ratings are over the last 2 weeks.
-            </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="60%">Question</th>

@@ -35,13 +35,94 @@ namespace sizehelpers {
 // Size policies that take a few statements to create (i.e. that have
 // height-for-width set!).
 // Remember: these take the widget's sizeHint() as the reference.
+
+/*
+
+QSizePolicy: https://doc.qt.io/qt-5/qsizepolicy.html
+
+Fixed = 0
+
+    "Be exactly size X."
+
+Minimum = GrowFlag
+
+    "Be at least X. I don't need more, but you can give me more."
+
+Maximum = ShrinkFlag
+
+    "Be at most X. You can shrink me if you want."
+
+Preferred = GrowFlag | ShrinkFlag
+
+    "I'd like to be X. You can shrink me if you want. You can enlarge me if
+    you want, but I don't need more."
+
+MinimumExpanding = GrowFlag | ExpandFlag
+
+    "Be at least X, but I'd like to be as large as possible."
+
+Expanding = GrowFlag | ShrinkFlag | ExpandFlag
+
+    "X is a reasonable size. You can enlarge or shrink me if you want, but
+    I'd like to be as large as possible."
+
+Ignored = ShrinkFlag | GrowFlag | IgnoreFlag
+
+    "Be as large as possible!"
+
+When the "height-for-width" flag is set, meaning "my height depends on my
+width", these get more complicated -- see below.
+
+The names of all the functions below have the horizontal policy then the
+vertical policy.
+
+*/
+
+
+// "X is a reasonable horizontal size, but expand me far as possible
+// horizontally (and you can shrink me below X if required). Once my vertical
+// height Y has been determined from my actual width, it is fixed."
 QSizePolicy expandingFixedHFWPolicy();
+
+// "X is a reasonable horizontal size, but expand me far as possible
+// horizontally (and you can shrink me below X if required). Once my vertical
+// height Y has been determined from my actual width, it is preferred; you
+// can enlarge me or shrink me vertically if you want, but I don't need more
+// than Y vertically."
 QSizePolicy expandingPreferredHFWPolicy();
+
+// "X is a reasonable horizontal size, but expand me far as possible
+// horizontally (and you can shrink me below X if required). Once my vertical
+// height Y has been determined from my actual width, it is my vertical
+// maximum, though you can shrink me vertically if you want."
 QSizePolicy expandingMaximumHFWPolicy();
+
+// "X is a reasonable horizontal size, but expand me far as possible
+// horizontally (and you can shrink me below X if required). Once my vertical
+// height Y has been determined from my actual width, that is a reasonable
+// size; you can expand or shrink me vertically, but I would like to be as
+// large as possible vertically as well."
 QSizePolicy expandingExpandingHFWPolicy();
+
+// "X is my maximum horizontal size; you can shrink me horizontally if you
+// want. Once my vertical height Y has been determined from my actual width,
+// then it is fixed."
 QSizePolicy maximumFixedHFWPolicy();
+
+// "X is my maximum horizontal size; you can shrink me horizontally if you
+// want. Once my vertical height Y has been determined from my actual width,
+// then it is my vertical maximum; you can shrink me vertically if you want."
 QSizePolicy maximumMaximumHFWPolicy();
+
+// "X is my preferred horizontal size; you can shrink me horizontally if you
+// want, or expand me, but I don't want more. Once my vertical height Y has
+// been determined from my actual width, then it is my preferred height, but
+// you can shrink or expand me vertically if you want (but I don't need more)."
 QSizePolicy preferredPreferredHFWPolicy();
+
+// "X is my preferred horizontal size; you can shrink me horizontally if you
+// want, or expand me, but I don't want more. Once my vertical height Y has
+// been determined from my actual width, then it is fixed."
 QSizePolicy preferredFixedHFWPolicy();
 
 // The ugly stuff you have to do for widgets that own height-for-width

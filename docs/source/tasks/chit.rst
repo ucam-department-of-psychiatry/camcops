@@ -49,7 +49,7 @@ History
   Cambridge-Chicago Compulsivity Trait Scale.
   *CNS Spectrums* 23: 340-346.
   https://www.ncbi.nlm.nih.gov/pubmed/29730994
-  https://dx.doi.org/10.1017/S1092852918000810.
+  https://doi.org/10.1017/S1092852918000810.
 
 
 Source

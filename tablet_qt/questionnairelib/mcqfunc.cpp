@@ -23,6 +23,7 @@
 #include "common/cssconst.h"
 #include "common/uiconst.h"
 #include "db/fieldref.h"
+#include "lib/sizehelpers.h"
 #include "widgets/booleanwidget.h"
 #include "widgets/labelwordwrapwide.h"
 #include "widgets/verticalline.h"

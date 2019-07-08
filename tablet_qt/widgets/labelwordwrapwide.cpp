@@ -147,7 +147,7 @@ int LabelWordWrapWide::heightForWidth(const int width) const
             << " - width " << width << " -> height " << height
             << " (as text_width " << text_width
             << " -> QLabel HFW " << text_height
-            << " plus extra height of " << extra.height();
+            << " plus extra height of " << extra.height() << ")";
 #endif
     return height;
 #else
@@ -425,7 +425,7 @@ QSize LabelWordWrapWide::sizeHint() const
 #ifdef ADD_EXTRA_FOR_LAYOUT_OR_CSS
     QSize size_hint = text_size + extraSizeForCssOrLayout();
 #else
-    QSize& size_hint = text_size;
+    QSize size_hint = text_size;
 #endif
     size_hint = size_hint.expandedTo(minimumSizeHint());
 #ifdef DEBUG_CALCULATIONS

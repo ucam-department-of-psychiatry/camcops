@@ -285,9 +285,21 @@ QSize labelExtraSizeRequired(const QLabel* label,
                              const QStyleOptionFrame* opt,
                              const QSize& child_size)
 {
-    return widgetExtraSizeForCssOrLayout(label, opt, child_size,
-                                         true, QStyle::CT_PushButton);
+    QSize size = widgetExtraSizeForCssOrLayout(label, opt, child_size,
+                                               true, QStyle::CT_PushButton);
     // Is QStyle::CT_PushButton right?
+    // Or QStyle::CT_ItemViewItem?
+
+    // 2019-07-06: problem with a LabelWordWrapWide in in e.g. QuMcqGrid.
+    // This function was returning too little; the result was inappropriate
+    // word wrapping.
+    // Example was a margin (marked as belonging to the QLabel when green
+    // turned on in the CSS) of about 9 (perhaps 10) pixels each side, but
+    // this function was returning QSize(10, 10).
+
+    size.rwidth() *= 2;  // HELPS, BUT NOT ENTIRELY RATIONAL
+
+    return size;
 }
 
 

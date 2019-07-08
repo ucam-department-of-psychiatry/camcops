@@ -30,7 +30,7 @@ History and guide
 - Brockington IF, Oates J, George S, Turner D, Vostanis P, Sullivan M, Loh C,
   Murdoch C (2001). A screening questionnaire for mother–infant bonding
   disorders. Archives of Women’s Mental Health, 3: 133–40.
-  https://dx.doi.org/10.1007/s007370170010
+  https://doi.org/10.1007/s007370170010
 
 - Brockington IF, Fraser C, Wilson D (2006). The Postpartum Bonding
   Questionnaire: a validation. Archives of Women’s Mental Health, 9: 233–42.

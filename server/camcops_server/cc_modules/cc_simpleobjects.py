@@ -207,7 +207,7 @@ class TaskExportOptions(object):
                 database -- that is, a database with patient IDs in every row
                 of every table, suitable for feeding into an anonymisation
                 system like CRATE
-                (https://dx.doi.org/10.1186%2Fs12911-017-0437-1).
+                (https://doi.org/10.1186%2Fs12911-017-0437-1).
 
             include_blobs: include binary large objects (BLOBs) (applies to
                 several export formats)
