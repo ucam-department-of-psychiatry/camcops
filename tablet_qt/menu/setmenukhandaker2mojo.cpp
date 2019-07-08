@@ -23,6 +23,7 @@
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 
+#include "tasks/chit.h"
 #include "tasks/cisr.h"
 #include "tasks/elixhauserci.h"
 #include "tasks/eq5d5l.h"
@@ -59,7 +60,7 @@ void SetMenuKhandaker2Mojo::makeItems()
         // *** Multi-dimensional Fatigue Inventory (MFI-20)
         // *** McGill Pain Questionnaire Short Form-2 (SF-MPQ2)
         // *** Disease Activity Score 28 (DAS28)
-        // *** Cambridge-Chicago Compulsivity Trait Scale (CHI-T)
+        MAKE_TASK_MENU_ITEM(Chit::CHIT_TABLENAME, m_app),
         // *** Short UPPS-P Impulsive Behaviour Scale (SUPPS-P)
         MAKE_TASK_MENU_ITEM(Cisr::CISR_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Eq5d5l::EQ5D5L_TABLENAME, m_app),

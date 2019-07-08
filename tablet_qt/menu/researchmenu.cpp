@@ -26,6 +26,7 @@
 
 #include "tasks/cardinalexpdetthreshold.h"
 #include "tasks/cardinalexpectationdetection.h"
+#include "tasks/chit.h"
 #include "tasks/diagnosisicd9cm.h"
 #include "tasks/ided3d.h"
 #include "tasks/kirby.h"
@@ -51,12 +52,12 @@ void ResearchMenu::makeItems()
     m_items = {
         MAKE_CHANGE_PATIENT(m_app),
         MenuItem(tr("Well known or generic")).setLabelOnly(),
+        MAKE_TASK_MENU_ITEM(Chit::CHIT_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(DiagnosisIcd9CM::DIAGNOSIS_ICD9CM_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(IDED3D::IDED3D_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Kirby::KIRBY_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(QolBasic::QOLBASIC_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(QolSG::QOLSG_TABLENAME, m_app),
-        // *** Cambridge-Chicago Compulsivity Trait Scale (CHI-T)
         // *** Short UPPS-P Impulsive Behaviour Scale (SUPPS-P)
         // *** Snaith-Hamilton Pleasure Scale (SHAPS)
         // *** Multi-dimensional Fatigue Inventory (MFI-20)
