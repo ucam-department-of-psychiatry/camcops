@@ -4,6 +4,6 @@
 - [ ] Generate code documentation
 - [ ] Run self_test on server
 - [ ] Update docs/source/changelog.rst
-- [ ] Rebuild documentation
+- [ ] Test documentation rebuilds without errors
 
 Please [X] all the boxes above that apply
