@@ -104,8 +104,13 @@ class Suppsp(TaskHasPatientMixin,
     shortname = "SUPPS-P"
 
     N_QUESTIONS = 20
-    MAX_SCORE = 4 * N_QUESTIONS
-    MAX_SUBSCALE = 4 * 4
+    MIN_SCORE_PER_Q = 1
+    MAX_SCORE_PER_Q = 4
+    MIN_SCORE = MIN_SCORE_PER_Q * N_QUESTIONS
+    MAX_SCORE = MAX_SCORE_PER_Q * N_QUESTIONS
+    N_Q_PER_SUBSCALE = 4  # always
+    MIN_SUBSCALE = MIN_SCORE_PER_Q * N_Q_PER_SUBSCALE
+    MAX_SUBSCALE = MAX_SCORE_PER_Q * N_Q_PER_SUBSCALE
     ALL_QUESTIONS = strseq("q", 1, N_QUESTIONS)
     NEGATIVE_URGENCY_QUESTIONS = Task.fieldnames_from_list(
         "q", {6, 8, 13, 15})
@@ -124,31 +129,32 @@ class Suppsp(TaskHasPatientMixin,
         return _("Short UPPS-P Impulsive Behaviour Scale")
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
+        subscale_range = f"[{self.MIN_SUBSCALE}–{self.MAX_SUBSCALE}]"
         return self.standard_task_summary_fields() + [
             SummaryElement(
                 name="total", coltype=Integer(),
                 value=self.total_score(),
-                comment=f"Total score (/{self.MAX_SCORE})"),
+                comment=f"Total score [{self.MIN_SCORE}–{self.MAX_SCORE}]"),
             SummaryElement(
                 name="negative_urgency", coltype=Integer(),
                 value=self.negative_urgency_score(),
-                comment=f"Negative urgency (/{self.MAX_SUBSCALE})"),
+                comment=f"Negative urgency {subscale_range}"),
             SummaryElement(
                 name="lack_of_perseverance", coltype=Integer(),
                 value=self.lack_of_perseverance_score(),
-                comment=f"Lack of perseverance (/{self.MAX_SUBSCALE})"),
+                comment=f"Lack of perseverance {subscale_range}"),
             SummaryElement(
                 name="lack_of_premeditation", coltype=Integer(),
                 value=self.lack_of_premeditation_score(),
-                comment=f"Lack of premeditation (/{self.MAX_SUBSCALE})"),
+                comment=f"Lack of premeditation {subscale_range}"),
             SummaryElement(
                 name="sensation_seeking", coltype=Integer(),
                 value=self.sensation_seeking_score(),
-                comment=f"Sensation seeking (/{self.MAX_SUBSCALE})"),
+                comment=f"Sensation seeking {subscale_range}"),
             SummaryElement(
                 name="positive_urgency", coltype=Integer(),
                 value=self.positive_urgency_score(),
-                comment=f"Positive urgency (/{self.MAX_SUBSCALE})"),
+                comment=f"Positive urgency {subscale_range}"),
         ]
 
     def is_complete(self) -> bool:
@@ -184,7 +190,6 @@ class Suppsp(TaskHasPatientMixin,
             3: "3 — " + self.wxstring(req, "a2"),
             4: "4 — " + self.wxstring(req, "a3")
         }
-
         reverse_score_dict = {
             None: None,
             4: "4 — " + self.wxstring(req, "a0"),
@@ -192,8 +197,9 @@ class Suppsp(TaskHasPatientMixin,
             2: "2 — " + self.wxstring(req, "a2"),
             1: "1 — " + self.wxstring(req, "a3")
         }
-
         reverse_q_nums = {3, 6, 8, 9, 10, 13, 14, 15, 16, 17, 18, 20}
+        fullscale_range = f"[{self.MIN_SCORE}–{self.MAX_SCORE}]"
+        subscale_range = f"[{self.MIN_SUBSCALE}–{self.MAX_SUBSCALE}]"
 
         rows = ""
         for q_num in range(1, self.N_QUESTIONS + 1):
@@ -225,61 +231,45 @@ class Suppsp(TaskHasPatientMixin,
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="60%">Question</th>
-                    <th width="40%">Answer</th>
+                    <th width="40%">Score</th>
                 </tr>
                 {rows}
             </table>
             <div class="{CssClass.FOOTNOTES}">
                 [1] Sum for questions 1–20.
-                [2] Sum for questions 6, 8, 13, 15
-                [3] Sum for questions 1, 4, 7, 11
-                [4] Sum for questions 2, 5, 12, 19
-                [5] Sum for questions 9, 14, 16, 18
-                [6] Sum for questions 3, 10, 17, 20
+                [2] Sum for questions 6, 8, 13, 15.
+                [3] Sum for questions 1, 4, 7, 11.
+                [4] Sum for questions 2, 5, 12, 19.
+                [5] Sum for questions 9, 14, 16, 18.
+                [6] Sum for questions 3, 10, 17, 20.
             </div>
         """.format(
             CssClass=CssClass,
             tr_is_complete=self.get_is_complete_tr(req),
             total_score=tr(
                 req.sstring(SS.TOTAL_SCORE) + " <sup>[1]</sup>",
-                "{} / {}".format(
-                    answer(self.total_score()), self.MAX_SCORE
-                )
+                f"{answer(self.total_score())} {fullscale_range}"
             ),
             negative_urgency_score=tr(
                 self.wxstring(req, "negative_urgency") + " <sup>[2]</sup>",
-                "{} / {}".format(
-                    answer(self.negative_urgency_score()), self.MAX_SUBSCALE
-                )
+                f"{answer(self.negative_urgency_score())} {subscale_range}"
             ),
             lack_of_perseverance_score=tr(
                 self.wxstring(req, "lack_of_perseverance") + " <sup>[3]</sup>",
-                "{} / {}".format(
-                    answer(self.lack_of_perseverance_score()),
-                    self.MAX_SUBSCALE
-                )
+                f"{answer(self.lack_of_perseverance_score())} {subscale_range}"
             ),
             lack_of_premeditation_score=tr(
                 self.wxstring(req,
                               "lack_of_premeditation") + " <sup>[4]</sup>",
-                "{} / {}".format(
-                    answer(self.lack_of_premeditation_score()),
-                    self.MAX_SUBSCALE
-                )
+                f"{answer(self.lack_of_premeditation_score())} {subscale_range}"  # noqa
             ),
             sensation_seeking_score=tr(
                 self.wxstring(req, "sensation_seeking") + " <sup>[5]</sup>",
-                "{} / {}".format(
-                    answer(self.sensation_seeking_score()),
-                    self.MAX_SUBSCALE
-                )
+                f"{answer(self.sensation_seeking_score())} {subscale_range}"
             ),
             positive_urgency_score=tr(
                 self.wxstring(req, "positive_urgency") + " <sup>[6]</sup>",
-                "{} / {}".format(
-                    answer(self.positive_urgency_score()),
-                    self.MAX_SUBSCALE
-                )
+                f"{answer(self.positive_urgency_score())} {subscale_range}"
             ),
             rows=rows,
         )

@@ -42,8 +42,13 @@ using stringfunc::strseq;
 
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 20;
-const int MAX_SCORE = 80;
-const int MAX_SUBSCALE = 16;
+const int MIN_SCORE_PER_Q = 1;
+const int MAX_SCORE_PER_Q = 4;
+const int MIN_SCORE = MIN_SCORE_PER_Q * N_QUESTIONS;
+const int MAX_SCORE = MAX_SCORE_PER_Q * N_QUESTIONS;
+const int N_Q_PER_SUBSCALE = 4;  // always
+const int MIN_SUBSCALE = MIN_SCORE_PER_Q * N_Q_PER_SUBSCALE;
+const int MAX_SUBSCALE = MAX_SCORE_PER_Q * N_Q_PER_SUBSCALE;
 const QString QPREFIX("q");
 const QVector<int> NEGATIVE_URGENCY_QUESTIONS{6, 8, 13, 15};
 const QVector<int> LACK_OF_PERSEVERANCE_QUESTIONS{1, 4, 7, 11};
@@ -150,18 +155,27 @@ int Suppsp::positiveUrgency() const
 
 QStringList Suppsp::summary() const
 {
+    auto rangeScore = [](const QString& description, const int score,
+                         const int min, const int max) {
+        return QString("%1: <b>%2</b> [%3–%4].").arg(
+                    description,
+                    QString::number(score),
+                    QString::number(min),
+                    QString::number(max));
+    };
     return QStringList{
-        totalScorePhrase(totalScore(), MAX_SCORE),
-        scorePhrase(xstring("negative_urgency"), negativeUrgency(),
-                    MAX_SUBSCALE),
-        scorePhrase(xstring("lack_of_perserverance"), lackOfPerseverance(),
-                    MAX_SUBSCALE),
-        scorePhrase(xstring("lack_of_premeditation"), lackOfPremeditation(),
-                    MAX_SUBSCALE),
-        scorePhrase(xstring("sensation_seeking"), sensationSeeking(),
-                    MAX_SUBSCALE),
-        scorePhrase(xstring("positive_urgency"), positiveUrgency(),
-                    MAX_SUBSCALE),
+        rangeScore(TextConst::totalScore(), totalScore(),
+                   MIN_SCORE, MAX_SCORE),
+        rangeScore(xstring("negative_urgency"), negativeUrgency(),
+                   MIN_SUBSCALE, MAX_SUBSCALE),
+        rangeScore(xstring("lack_of_perseverance"), lackOfPerseverance(),
+                   MIN_SUBSCALE, MAX_SUBSCALE),
+        rangeScore(xstring("lack_of_premeditation"), lackOfPremeditation(),
+                   MIN_SUBSCALE, MAX_SUBSCALE),
+        rangeScore(xstring("sensation_seeking"), sensationSeeking(),
+                   MIN_SUBSCALE, MAX_SUBSCALE),
+        rangeScore(xstring("positive_urgency"), positiveUrgency(),
+                   MIN_SUBSCALE, MAX_SUBSCALE),
     };
 }
 
