@@ -756,6 +756,7 @@ SOURCES += \
     tasks/elixhauserci.cpp \
     tasks/epds.cpp \
     tasks/eq5d5l.cpp \
+    tasks/esspri.cpp \
     tasks/factg.cpp \
     tasks/fast.cpp \
     tasks/fft.cpp \
@@ -1181,6 +1182,7 @@ HEADERS += \
     tasks/elixhauserci.h \
     tasks/epds.h \
     tasks/eq5d5l.h \
+    tasks/esspri.h \
     tasks/factg.h \
     tasks/fast.h \
     tasks/fft.h \

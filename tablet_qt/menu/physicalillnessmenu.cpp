@@ -23,6 +23,7 @@
 #include "menulib/menuitem.h"
 
 #include "tasks/elixhauserci.h"
+#include "tasks/esspri.h"
 
 
 PhysicalIllnessMenu::PhysicalIllnessMenu(CamcopsApp& app) :
@@ -42,7 +43,7 @@ void PhysicalIllnessMenu::makeItems()
     m_items = {
         MAKE_CHANGE_PATIENT(m_app),
         MAKE_TASK_MENU_ITEM(ElixhauserCI::ELIXHAUSERCI_TABLENAME, m_app),
-        // *** EULAR Sjögren's Syndrome Patient Reported Index (ESSPRI)
+        MAKE_TASK_MENU_ITEM(Esspri::ESSPRI_TABLENAME, m_app),
         // *** Ankylosing Spondylitis Disease Activity Score (ASDAS)
         // *** McGill Pain Questionnaire Short Form-2 (SF-MPQ2)
         // *** Disease Activity Score 28 (DAS28)

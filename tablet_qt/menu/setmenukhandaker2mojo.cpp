@@ -27,6 +27,7 @@
 #include "tasks/cisr.h"
 #include "tasks/elixhauserci.h"
 #include "tasks/eq5d5l.h"
+#include "tasks/esspri.h"
 #include "tasks/suppsp.h"
 
 
@@ -55,7 +56,7 @@ void SetMenuKhandaker2Mojo::makeItems()
         MAKE_CHANGE_PATIENT(m_app),
         // *** MOJO anthropometrics/sociodemographics/medical history
         MAKE_TASK_MENU_ITEM(ElixhauserCI::ELIXHAUSERCI_TABLENAME, m_app),
-        // *** EULAR Sjögren's Syndrome Patient Reported Index (ESSPRI)
+        MAKE_TASK_MENU_ITEM(Esspri::ESSPRI_TABLENAME, m_app),
         // *** Ankylosing Spondylitis Disease Activity Score (ASDAS)
         // *** Snaith-Hamilton Pleasure Scale (SHAPS)
         // *** Multi-dimensional Fatigue Inventory (MFI-20)

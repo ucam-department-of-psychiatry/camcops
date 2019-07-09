@@ -23,8 +23,6 @@
 EULAR Sjögren's Syndrome Patient Reported Index (ESSPRI)
 --------------------------------------------------------
 
-.. include:: include_under_development.rst
-
 Three numerical rating scales each rated 0-10. The overall score is the mean
 score of the three scales.
 
