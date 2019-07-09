@@ -293,7 +293,7 @@ def get_demo_config(extra_strings_dir: str = None,
     Returns a demonstration config file based on the specified parameters.
     """
     extra_strings_dir = extra_strings_dir or DEFAULT_EXTRA_STRINGS_DIR
-    extra_strings_spec = os.path.join(extra_strings_dir, '*')
+    extra_strings_spec = os.path.join(extra_strings_dir, '*.xml')
     lock_dir = lock_dir or LINUX_DEFAULT_LOCK_DIR
     static_dir = static_dir or STATIC_ROOT_DIR
     # ...
@@ -337,7 +337,7 @@ def get_demo_config(extra_strings_dir: str = None,
 
 {ConfigParamSite.SNOMED_TASK_XML_FILENAME} =
 {ConfigParamSite.SNOMED_ICD9_XML_FILENAME} =
-{ConfigParamSite.SNOMED_ICD10_XML_FILENAME} = 
+{ConfigParamSite.SNOMED_ICD10_XML_FILENAME} =
 
 {ConfigParamSite.WKHTMLTOPDF_FILENAME} =
 
@@ -488,7 +488,7 @@ def get_demo_config(extra_strings_dir: str = None,
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Options applicable to database exports
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    
+
 {ConfigParamExportRecipient.DB_URL} = some_sqlalchemy_url
 {ConfigParamExportRecipient.DB_ECHO} = false
 {ConfigParamExportRecipient.DB_INCLUDE_BLOBS} = true
@@ -498,7 +498,7 @@ def get_demo_config(extra_strings_dir: str = None,
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Options applicable to e-mail exports
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    
+
 {ConfigParamExportRecipient.EMAIL_HOST} = mysmtpserver.mydomain
 {ConfigParamExportRecipient.EMAIL_PORT} = 587
 {ConfigParamExportRecipient.EMAIL_USE_TLS} = true
@@ -524,17 +524,17 @@ def get_demo_config(extra_strings_dir: str = None,
 {ConfigParamExportRecipient.EMAIL_BODY} =
     Please find attached a new CamCOPS task for manual filing to the electronic
     patient record of
-    
+
         {{patient}}
-        
+
     Task type: {{tasktype}}
     Created: {{created}}
     CamCOPS server primary key: {{serverpk}}
-    
+
     Yours faithfully,
-    
+
     The CamCOPS computer.
-    
+
 {ConfigParamExportRecipient.EMAIL_KEEP_MESSAGE} = false
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -630,7 +630,7 @@ def get_demo_supervisor_config() -> str:
     #
     # SPECIFIC EXTRA NOTES FOR CAMCOPS:
     #
-    # - The MPLCONFIGDIR environment variable specifies a cache directory for 
+    # - The MPLCONFIGDIR environment variable specifies a cache directory for
     #   matplotlib, which greatly speeds up its subsequent loading.
     # - The typical "web server" user is "www-data" under Ubuntu Linux and
     #   "apache" under CentOS.
