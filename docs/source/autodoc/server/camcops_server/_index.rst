@@ -60,6 +60,7 @@ server/camcops_server
     alembic/versions/0028_maas.py.rst
     alembic/versions/0029_elixhauserci.py.rst
     alembic/versions/0030_chi_t.py.rst
+    alembic/versions/0031_suppsp.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst
@@ -226,6 +227,7 @@ server/camcops_server
     extra_strings/rand36.xml.rst
     extra_strings/slums.xml.rst
     extra_strings/smast.xml.rst
+    extra_strings/suppsp.xml.rst
     extra_strings/wemwbs.xml.rst
     tasks/ace3.py.rst
     tasks/aims.py.rst
@@ -320,6 +322,7 @@ server/camcops_server
     tasks/slums.py.rst
     tasks/smast.py.rst
     tasks/srs.py.rst
+    tasks/suppsp.py.rst
     tasks/wemwbs.py.rst
     tasks/wsas.py.rst
     tasks/ybocs.py.rst

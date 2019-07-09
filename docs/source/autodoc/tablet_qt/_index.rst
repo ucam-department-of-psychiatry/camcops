@@ -755,6 +755,8 @@ tablet_qt
     tasks/smast.h.rst
     tasks/srs.cpp.rst
     tasks/srs.h.rst
+    tasks/suppsp.cpp.rst
+    tasks/suppsp.h.rst
     tasks/swemwbs.cpp.rst
     tasks/swemwbs.h.rst
     tasks/wemwbs.cpp.rst
