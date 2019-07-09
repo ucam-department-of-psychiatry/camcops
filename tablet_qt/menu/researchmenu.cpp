@@ -32,6 +32,7 @@
 #include "tasks/kirby.h"
 #include "tasks/qolbasic.h"
 #include "tasks/qolsg.h"
+#include "tasks/suppsp.h"
 #include "taskxtra/cardinalexpdetcommon.h"
 
 
@@ -58,7 +59,7 @@ void ResearchMenu::makeItems()
         MAKE_TASK_MENU_ITEM(Kirby::KIRBY_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(QolBasic::QOLBASIC_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(QolSG::QOLSG_TABLENAME, m_app),
-        // *** Short UPPS-P Impulsive Behaviour Scale (SUPPS-P)
+        MAKE_TASK_MENU_ITEM(Suppsp::SUPPSP_TABLENAME, m_app),
         // *** Snaith-Hamilton Pleasure Scale (SHAPS)
         // *** Multi-dimensional Fatigue Inventory (MFI-20)
 

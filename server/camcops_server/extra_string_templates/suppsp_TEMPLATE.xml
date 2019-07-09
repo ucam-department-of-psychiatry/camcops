@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="suppsp">(
+    <!-- Short UPPS-P Impulsive Behaviour Scale (SUPPS-P) -->
+
+    <string name="title_main">Short UPPS-P Impulsive Behaviour Scale (SUPPS-P)</string>
+
+    <string name="q1">(see to end)</string>
+    <string name="q2">(careful and purposeful)</string>
+    <string name="q3">(problem situations)</string>
+    <string name="q4">(unfinished bother)</string>
+    <string name="q5">(stop and think)</string>
+    <string name="q6">(do things regret)</string>
+    <string name="q7">(hate to stop)</string>
+    <string name="q8">(can't stop what I'm doing)</string>
+    <string name="q9">(enjoy risks)</string>
+    <string name="q10">(lose control)</string>
+    <string name="q11">(finish)</string>
+    <string name="q12">(rational sensible)</string>
+    <string name="q13">(act without thinking upset)</string>
+    <string name="q14">(new and exciting)</string>
+    <string name="q15">(say things regret)</string>
+    <string name="q16">(airplane)</string>
+    <string name="q17">(others shocked)</string>
+    <string name="q18">(skiing)</string>
+    <string name="q19">(think carefully)</string>
+    <string name="q20">(act without thinking excited)</string>
+
+    <string name="a0">Strongly agree</string>
+    <string name="a1">Agree</string>
+    <string name="a2">Disagree</string>
+    <string name="a3">Strongly disagree</string>
+
+    <string name="negative_urgency">Negative urgency</string>
+    <string name="lack_of_perseverance">Lack of perseverance</string>
+    <string name="lack_of_premeditation">Lack of premeditation</string>
+    <string name="sensation_seeking">Sensation seeking</string>
+    <string name="positive_urgency">Positive urgency</string>
+  </task>
+</resources>

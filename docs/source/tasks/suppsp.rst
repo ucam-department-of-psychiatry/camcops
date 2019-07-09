@@ -23,7 +23,6 @@
 Short UPPS-P Impulsive Behaviour Scale (SUPPS-P)
 ------------------------------------------------
 
-.. include:: include_under_development.rst
 .. include:: include_data_collection_plus_local_upgrade.rst
 
 20 items, rated on a 4 point scale: strongly agree - strongly disagree.
@@ -37,6 +36,26 @@ coded. 2nd order factors are emotion based rash action (negative and positive
 urgency), sensation seeking, and deficits in conscientiousness (perseverence
 and premeditation).
 
+The minimum score on any subscale is 4 and the maximum is 16.
+
+
+Coding
+~~~~~~
+
+- "Standard" items provide statements to endorse of the type "I am not
+  impulsive", and score 1 for strongly agree through to 4 for strongly
+  disagree; higher ratings therefore indicate greater impulsivity.
+
+- "Reversed" items provide statements to endorse of the type "I am impulsive",
+  and are reverse-scored ("strongly disagree" scores 1; "strongly agree" scores
+  4).
+
+- The SUPPS-P uses the term "reverse coded" (e.g.
+  http://www.impulsivity.org/measurement/UPPS-P_short_version.pdf) but also
+  provides a paper grid in which "1" always maps to "agree strongly" (etc.).
+
+- CamCOPS stores the **scores**.
+
 
 Intellectual property rights
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -46,7 +65,6 @@ Intellectual property rights
 - "For questions and guidance for clinical and research use of this instrument
   and its interpretation contact Dr. Lynam and/or Dr. Cyders at..." (see source
   link).
-
 
 
 History
@@ -59,9 +77,14 @@ History
   https://doi.org/10.1016/j.addbeh.2014.02.013.
   https://www.ncbi.nlm.nih.gov/pubmed/24636739
 
+- Lynam DR, Smith GT, Whiteside SP, Cyders MA (2006).
+  The UPPS-P: Assessing five personality pathways to impulsive behavior
+  (Technical Report) West Lafayette: Purdue University.
+  [The UPPS-P, on which the SUPPS-P is based.]
+
 
 Source
 ~~~~~~
 
 - http://www.impulsivity.org/measurement/UPPS_P
-
+- http://www.impulsivity.org/measurement/UPPS-P_short_version.pdf

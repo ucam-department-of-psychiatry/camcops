@@ -27,6 +27,7 @@
 #include "tasks/cisr.h"
 #include "tasks/elixhauserci.h"
 #include "tasks/eq5d5l.h"
+#include "tasks/suppsp.h"
 
 
 SetMenuKhandaker2Mojo::SetMenuKhandaker2Mojo(CamcopsApp& app) :
@@ -61,7 +62,7 @@ void SetMenuKhandaker2Mojo::makeItems()
         // *** McGill Pain Questionnaire Short Form-2 (SF-MPQ2)
         // *** Disease Activity Score 28 (DAS28)
         MAKE_TASK_MENU_ITEM(Chit::CHIT_TABLENAME, m_app),
-        // *** Short UPPS-P Impulsive Behaviour Scale (SUPPS-P)
+        MAKE_TASK_MENU_ITEM(Suppsp::SUPPSP_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Cisr::CISR_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Eq5d5l::EQ5D5L_TABLENAME, m_app),
     };
