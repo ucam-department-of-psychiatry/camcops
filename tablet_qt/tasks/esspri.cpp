@@ -116,7 +116,7 @@ QVariant Esspri::overallScore() const
 QStringList Esspri::summary() const
 {
     return QStringList{
-        scorePhraseVariant(tr("Overall score"), overallScore(), MAX_SCORE),
+        scorePhraseVariant(xstring("overall_score"), overallScore(), MAX_SCORE),
     };
 }
 
