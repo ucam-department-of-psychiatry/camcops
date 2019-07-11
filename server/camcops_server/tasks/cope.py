@@ -276,7 +276,7 @@ class CopeBrief(TaskHasPatientMixin, Task,
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
                     {self.get_is_complete_tr(req)}
-                    {tr_qa("Self-distraction (Q1, Q19)", 
+                    {tr_qa("Self-distraction (Q1, Q19)",
                            self.self_distraction())}
                     {tr_qa("Active coping (Q2, Q7)", self.active_coping())}
                     {tr_qa("Denial (Q3, Q8)", self.denial())}
@@ -288,7 +288,7 @@ class CopeBrief(TaskHasPatientMixin, Task,
                     {tr_qa("Behavioural disengagement (Q6, Q16)",
                            self.behavioural_disengagement())}
                     {tr_qa("Venting (Q9, Q21)", self.venting())}
-                    {tr_qa("Positive reframing (Q12, Q17)", 
+                    {tr_qa("Positive reframing (Q12, Q17)",
                            self.positive_reframing())}
                     {tr_qa("Planning (Q14, Q25)", self.planning())}
                     {tr_qa("Humour (Q18, Q28)", self.humour())}

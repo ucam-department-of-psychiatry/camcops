@@ -452,10 +452,10 @@ class Cape42(TaskHasPatientMixin, Task,
                 </table>
             </div>
             <div class="{CssClass.EXPLANATION}">
-                FREQUENCY: 
-                    1 {self.wxstring(req, "frequency_option1")}, 
-                    2 {self.wxstring(req, "frequency_option2")}, 
-                    3 {self.wxstring(req, "frequency_option3")}, 
+                FREQUENCY:
+                    1 {self.wxstring(req, "frequency_option1")},
+                    2 {self.wxstring(req, "frequency_option2")},
+                    3 {self.wxstring(req, "frequency_option3")},
                     4 {self.wxstring(req, "frequency_option4")}.
                 DISTRESS:
                     1 {self.wxstring(req, "distress_option1")},
@@ -470,8 +470,8 @@ class Cape42(TaskHasPatientMixin, Task,
                     </th>
                     <th width="15%">Frequency
                         ({MIN_SCORE_PER_Q}–{MAX_SCORE_PER_Q})</th>
-                    <th width="15%">Distress 
-                        ({MIN_SCORE_PER_Q}–{MAX_SCORE_PER_Q}) 
+                    <th width="15%">Distress
+                        ({MIN_SCORE_PER_Q}–{MAX_SCORE_PER_Q})
                         <sup>[2]</sup></th>
                 </tr>
                 {q_a}
@@ -482,7 +482,7 @@ class Cape42(TaskHasPatientMixin, Task,
                 [2] Distress coerced to 1 if frequency is 1.
                 [3] Sum score per dimension divided by number of completed
                 items. Shown to {DP} decimal places. Will be in the range
-                {MIN_SCORE_PER_Q}–{MAX_SCORE_PER_Q}, or blank if not 
+                {MIN_SCORE_PER_Q}–{MAX_SCORE_PER_Q}, or blank if not
                 calculable.
             </div>
         """

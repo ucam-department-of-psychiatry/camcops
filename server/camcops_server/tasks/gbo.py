@@ -290,7 +290,7 @@ class Gbogpc(TaskHasPatientMixin, Task):
                 <tr>
                     <th width="30%">Date</th>
                     <td width="70%">{
-        answer(format_datetime(self.date, DateFormat.SHORT_DATE, 
+        answer(format_datetime(self.date, DateFormat.SHORT_DATE,
                                default=None))}</td>
                 </tr>
                 <tr>
@@ -311,7 +311,7 @@ class Gbogpc(TaskHasPatientMixin, Task):
                 </tr>
                 <tr>
                     <th>Whose goal is this?</th>
-                    <td>{answer(agent_description(self.whose_goal, 
+                    <td>{answer(agent_description(self.whose_goal,
                                                   self.whose_goal_other))}</td>
                 </tr>
             </table>

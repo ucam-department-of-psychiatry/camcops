@@ -120,8 +120,8 @@ class Srs(TaskHasPatientMixin, Task):
                 </table>
             </div>
             <div class="{CssClass.EXPLANATION}">
-                Scores represent a selection on a scale from 
-                {self.VAS_MIN_INT} to {self.VAS_MAX_INT} 
+                Scores represent a selection on a scale from
+                {self.VAS_MIN_INT} to {self.VAS_MAX_INT}
                 ({self.VAS_MAX_INT} better). Scores indicate the patient’s
                 feelings about different aspects of the day’s therapy session.
             </div>

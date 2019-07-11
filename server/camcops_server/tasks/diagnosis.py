@@ -39,8 +39,6 @@ from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.sqlalchemy.dump import get_literal_query
 from colander import (
-    Date,
-    Integer,
     Invalid,
     SchemaNode,
     SequenceSchema,

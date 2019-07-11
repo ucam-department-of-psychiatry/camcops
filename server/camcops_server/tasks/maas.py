@@ -235,7 +235,7 @@ class Maas(TaskHasPatientMixin, Task,
             global score is the sum of all questions.
           </div>
           <div class="{CssClass.FOOTNOTES}">
-            Condon, J. (2015). Maternal Antenatal Attachment Scale 
+            Condon, J. (2015). Maternal Antenatal Attachment Scale
             [Measurement instrument]. Retrieved from <a
             href="http://hdl.handle.net/2328/35292">http://hdl.handle.net/2328/35292</a>.
 

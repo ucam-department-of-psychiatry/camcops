@@ -26,21 +26,8 @@ camcops_server/tasks/lynall_2_iam_life.py
 
 """
 
-from typing import Any, Dict, Tuple, Type
 
-import cardinal_pythonlib.rnc_web as ws
-from sqlalchemy.ext.declarative import DeclarativeMeta
-from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import UnicodeText
-
-from camcops_server.cc_modules.cc_constants import CssClass
-from camcops_server.cc_modules.cc_html import (
-    bold,
-    get_yes_no_none,
-    tr_span_col,
-)
 from camcops_server.cc_modules.cc_request import CamcopsRequest
-from camcops_server.cc_modules.cc_sqla_coltypes import BoolColumn
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 
 
@@ -63,7 +50,7 @@ class Lynall2LifeEvents(TaskHasPatientMixin, Task):
         return _("Lynall M-E — 2 — IAM — Life events")
 
     def is_complete(self) -> bool:
-        return False # ***
+        return False  # ***
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        return "" # ***
+        return ""  # ***

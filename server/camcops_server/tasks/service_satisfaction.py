@@ -124,7 +124,7 @@ class AbstractSatisfaction(object):
                     <th width="50%">Question</th>
                     <th width="50%">Answer</th>
                 </tr>
-                {tr_qa(req.wappstring(AS.SATIS_SERVICE_BEING_RATED), 
+                {tr_qa(req.wappstring(AS.SATIS_SERVICE_BEING_RATED),
                        self.service)}
                 {tr_qa(f"{rating_q} {self.service}?", r)}
                 {tr_qa(good_q, self.good)}

@@ -1444,7 +1444,7 @@ class Task(GenericTabletRecordMixin, Base):
             rows += get_cris_dd_rows_from_fieldspecs(taskname, deptable,
                                                      depfieldspecs)
         return rows
-        
+
     '''
 
     # -------------------------------------------------------------------------
@@ -1532,7 +1532,7 @@ class Task(GenericTabletRecordMixin, Base):
             fieldspecs +
             summaries
         )
-        
+
     '''
 
     # -------------------------------------------------------------------------

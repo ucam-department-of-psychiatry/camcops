@@ -237,17 +237,17 @@ class Ybocs(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
                     {self.get_is_complete_tr(req)}
                     <tr>
                         <td>Total score</td>
-                        <td>{answer(self.total_score())} / 
+                        <td>{answer(self.total_score())} /
                             {self.MAX_TOTAL}</td>
                     </td>
                     <tr>
                         <td>Obsession score</td>
-                        <td>{answer(self.obsession_score())} / 
+                        <td>{answer(self.obsession_score())} /
                             {self.MAX_OBS}</td>
                     </td>
                     <tr>
                         <td>Compulsion score</td>
-                        <td>{answer(self.compulsion_score())} / 
+                        <td>{answer(self.compulsion_score())} /
                             {self.MAX_COM}</td>
                     </td>
                 </table>

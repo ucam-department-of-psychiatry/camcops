@@ -563,7 +563,7 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                     <table class="{CssClass.SUMMARY}">
                         <tr>
                             {self.get_is_complete_td_pair(req)}
-                            <td class="{CssClass.FIGURE}" 
+                            <td class="{CssClass.FIGURE}"
                                 rowspan="7">{figurehtml}</td>
                         </tr>
             """ +

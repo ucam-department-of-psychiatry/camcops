@@ -135,8 +135,8 @@ class Ors(TaskHasPatientMixin, Task):
                 </table>
             </div>
             <div class="{CssClass.EXPLANATION}">
-                Scores represent a selection on a scale from 
-                {self.VAS_MIN_INT} to {self.VAS_MAX_INT} 
+                Scores represent a selection on a scale from
+                {self.VAS_MIN_INT} to {self.VAS_MAX_INT}
                 ({self.VAS_MAX_INT} better). Scores reflect the patient’s
                 feelings about the indicated life areas over the past week.
             </div>

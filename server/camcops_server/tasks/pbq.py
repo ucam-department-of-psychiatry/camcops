@@ -191,7 +191,7 @@ class Pbq(TaskHasPatientMixin, Task,
 
     def total_score(self) -> int:
         return self.sum_fields(self.QUESTION_FIELDS)
-    
+
     def factor_1_score(self) -> int:
         return self.sum_fields(self.FACTOR_1_F)
 
@@ -274,23 +274,23 @@ class Pbq(TaskHasPatientMixin, Task,
         h += f"""
             </table>
             <div class="{CssClass.FOOTNOTES}">
-                Factors and cut-off scores are from Brockington et al. (2006, 
+                Factors and cut-off scores are from Brockington et al. (2006,
                 PMID 16673041), as follows.
                 [1] General factor; ≤11 normal, ≥12 high; based on questions
                     {", ".join(str(x) for x in self.FACTOR_1_Q)}.
-                [2] Factor examining severe mother–infant relationship 
-                    disorders; ≤12 normal, ≥13 high (cf. original 2001 study 
+                [2] Factor examining severe mother–infant relationship
+                    disorders; ≤12 normal, ≥13 high (cf. original 2001 study
                     with ≤16 normal, ≥17 high); based on questions
                     {", ".join(str(x) for x in self.FACTOR_2_Q)}.
                 [3] Factor relating to infant-focused anxiety; ≤9 normal, ≥10
-                    high; based on questions 
+                    high; based on questions
                     {", ".join(str(x) for x in self.FACTOR_3_Q)}.
-                [4] Factor relating to thoughts of harm to infant; ≤1 normal, 
-                    ≥2 high (cf. original 2001 study with ≤2 normal, ≥3 high); 
-                    known low sensitivity; based on questions 
+                [4] Factor relating to thoughts of harm to infant; ≤1 normal,
+                    ≥2 high (cf. original 2001 study with ≤2 normal, ≥3 high);
+                    known low sensitivity; based on questions
                     {", ".join(str(x) for x in self.FACTOR_4_Q)}.
             </div>
-        """ 
+        """
         return h
 
     # No SNOMED codes for the PBQ (checked 2019-04-01).
