@@ -30,6 +30,7 @@
 #include "questionnairelib/qugridcell.h"
 #include "questionnairelib/qugridcontainer.h"
 #include "questionnairelib/quslider.h"
+#include "questionnairelib/quspacer.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
 using mathfunc::anyNull;
@@ -138,31 +139,46 @@ OpenableWidget* Esspri::editor(const bool read_only)
 {
     QuPagePtr page((new QuPage{})->setTitle(xstring("title_main")));
 
+    auto slider_grid = new QuGridContainer();
+    slider_grid->setExpandHorizontally(false);
+    slider_grid->setFixedGrid(false);
+
+    page->addElement(slider_grid);
+
+    const int QUESTION_ROW_SPAN = 1;
+    const int QUESTION_COLUMN_SPAN = 3;
+
+    int row = 0;
+
     for (const QString& fieldname : fieldNames()) {
         QuSlider* slider = new QuSlider(fieldRef(fieldname), 0, 10, 1);
         slider->setUseDefaultTickLabels(true);
         slider->setHorizontal(true);
         slider->setBigStep(1);
 
+        bool can_shrink = true;
+        slider->setAbsoluteLengthCm(10, can_shrink);
+
         slider->setTickInterval(1);
         slider->setTickLabelPosition(QSlider::TicksAbove);
 
         slider->setShowValue(false);
-
         slider->setSymmetric(true);
 
-        const int MARGIN_WIDTH = 15;  // each side
-        const int SLIDER_WIDTH = 70;
-        auto slider_grid = new QuGridContainer();
-        slider_grid->setColumnStretch(0, MARGIN_WIDTH);
-        slider_grid->setColumnStretch(1, SLIDER_WIDTH);
-        slider_grid->setColumnStretch(2, MARGIN_WIDTH);
-        slider_grid->addCell(QuGridCell(new QuText(xstring(fieldname + "-min")), 0, 0));
-        slider_grid->addCell(QuGridCell(slider, 0, 1));
-        slider_grid->addCell(QuGridCell(new QuText(xstring(fieldname + "-max")), 0, 2));
+        slider_grid->addCell(QuGridCell(new QuText(xstring(fieldname)), row, 0,
+                                        QUESTION_ROW_SPAN, QUESTION_COLUMN_SPAN));
+        row++;
 
-        page->addElement(new QuText(xstring(fieldname)));
-        page->addElement(slider_grid);
+        slider_grid->addCell(QuGridCell(new QuText(xstring(fieldname + "-min")), row, 0));
+        slider_grid->addCell(QuGridCell(slider, row, 1));
+        slider_grid->addCell(QuGridCell(new QuText(xstring(fieldname + "-max")), row, 2));
+
+        row++;
+
+        slider_grid->addCell(QuGridCell(new QuSpacer(QSize(uiconst::BIGSPACE,
+                                                           uiconst::BIGSPACE)), row, 0));
+
+        row++;
 
     }
 
