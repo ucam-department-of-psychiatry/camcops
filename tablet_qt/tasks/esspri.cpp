@@ -107,7 +107,7 @@ bool Esspri::isComplete() const
 
 QVariant Esspri::overallScore() const
 {
-    bool ignore_null = false;
+    const bool ignore_null = false;
 
     return meanOrNull(values(fieldNames()), ignore_null);
 }
