@@ -61,6 +61,7 @@ server/camcops_server
     alembic/versions/0029_elixhauserci.py.rst
     alembic/versions/0030_chi_t.py.rst
     alembic/versions/0031_suppsp.py.rst
+    alembic/versions/0032_esspri.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst
@@ -139,10 +140,12 @@ server/camcops_server
     discarded_upgrade_code.py.rst
     extra_string_templates/BLANK_TEMPLATE.xml.rst
     extra_string_templates/badls_TEMPLATE.xml.rst
+    extra_string_templates/chit_TEMPLATE.xml.rst
     extra_string_templates/ctqsf_TEMPLATE.xml.rst
     extra_string_templates/dad_TEMPLATE.xml.rst
     extra_string_templates/epds_TEMPLATE.xml.rst
     extra_string_templates/eq5d5l_TEMPLATE.xml.rst
+    extra_string_templates/esspri_TEMPLATE.xml.rst
     extra_string_templates/factg_TEMPLATE.xml.rst
     extra_string_templates/hads_TEMPLATE.xml.rst
     extra_string_templates/iesr_TEMPLATE.xml.rst
@@ -151,6 +154,7 @@ server/camcops_server
     extra_string_templates/ors_TEMPLATE.xml.rst
     extra_string_templates/pdss_TEMPLATE.xml.rst
     extra_string_templates/srs_TEMPLATE.xml.rst
+    extra_string_templates/suppsp_TEMPLATE.xml.rst
     extra_string_templates/wsas_TEMPLATE.xml.rst
     extra_string_templates/ybocs_TEMPLATE.xml.rst
     extra_string_templates/zbi12_TEMPLATE.xml.rst
@@ -172,7 +176,6 @@ server/camcops_server
     extra_strings/cesdr.xml.rst
     extra_strings/cgi.xml.rst
     extra_strings/cgisch.xml.rst
-    extra_strings/chit.xml.rst
     extra_strings/cisr.xml.rst
     extra_strings/ciwa.xml.rst
     extra_strings/contactlog.xml.rst
@@ -227,7 +230,6 @@ server/camcops_server
     extra_strings/rand36.xml.rst
     extra_strings/slums.xml.rst
     extra_strings/smast.xml.rst
-    extra_strings/suppsp.xml.rst
     extra_strings/wemwbs.xml.rst
     tasks/ace3.py.rst
     tasks/aims.py.rst
@@ -268,6 +270,7 @@ server/camcops_server
     tasks/elixhauserci.py.rst
     tasks/epds.py.rst
     tasks/eq5d5l.py.rst
+    tasks/esspri.py.rst
     tasks/factg.py.rst
     tasks/fast.py.rst
     tasks/fft.py.rst
