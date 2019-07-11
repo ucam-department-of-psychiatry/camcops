@@ -37,7 +37,6 @@ using mathfunc::anyNull;
 using mathfunc::meanOrNull;
 using mathfunc::scorePhraseVariant;
 using stringfunc::strnum;
-using stringfunc::strnumlist;
 using stringfunc::strseq;
 
 const int FIRST_Q = 1;
