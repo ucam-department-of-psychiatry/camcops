@@ -38,6 +38,7 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import TaskHasPatientMixin, \
     TaskHasClinicianMixin, Task
+import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy import Integer
 from sqlalchemy.ext.declarative import DeclarativeMeta
@@ -117,6 +118,8 @@ class Esspri(TaskHasPatientMixin,
 
             rows += tr_qa(question_cell, score)
 
+        formatted_score = ws.number_to_dp(self.overall_score(), 3, default="?")
+
         html = """
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
@@ -140,7 +143,8 @@ class Esspri(TaskHasPatientMixin,
             overall_score=tr(
                 self.wxstring(req, "overall_score") + " <sup>[1]</sup>",
                 "{} / {}".format(
-                    answer(self.overall_score()), self.MAX_SCORE
+                    answer(formatted_score),
+                    self.MAX_SCORE
                 )
             ),
             rows=rows,
