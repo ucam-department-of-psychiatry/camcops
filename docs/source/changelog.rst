@@ -2382,3 +2382,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - **New task:** :ref:`Short UPPS-P Impulsive Behaviour Scale (SUPPS-P) <suppsp>`.
   (Database revision 0031.)
+
+- **New task:** :ref:`EULAR Sjögren’s Syndrome Patient Reported Index (ESSPRI) <esspri>`.
+  (Database revision 0032.)
