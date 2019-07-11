@@ -3,19 +3,19 @@
   <task name="esspri">(
     <!-- EULAR Sjögren’s Syndrome Patient Reported Index -->
 
-    <string name="title_main">XXX</string>
+    <string name="title_main">(title)</string>
 
-    <string name="q1">XXX</string>
-    <string name="q2">XXX</string>
-    <string name="q3">XXX</string>
+    <string name="q1">(dryness)</string>
+    <string name="q2">(fatigue)</string>
+    <string name="q3">(pain)</string>
 
-    <string name="q1_min">XXX</string>
-    <string name="q1_max">XXX</string>
-    <string name="q2_min">XXX</string>
-    <string name="q2_max">XXX</string>
-    <string name="q3_min">XXX</string>
-    <string name="q3_max">XXX</string>
+    <string name="q1_min">(min)</string>
+    <string name="q1_max">(max)</string>
+    <string name="q2_min">(min)</string>
+    <string name="q2_max">(max)</string>
+    <string name="q3_min">(min)</string>
+    <string name="q3_max">(max)</string>
 
-    <string name="overall_score">XXX</string>
+    <string name="overall_score">(score)</string>
   </task>
 </resources>
