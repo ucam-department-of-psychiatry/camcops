@@ -169,9 +169,9 @@ OpenableWidget* Esspri::editor(const bool read_only)
                                         QUESTION_ROW_SPAN, QUESTION_COLUMN_SPAN));
         row++;
 
-        slider_grid->addCell(QuGridCell(new QuText(xstring(fieldname + "-min")), row, 0));
+        slider_grid->addCell(QuGridCell(new QuText(xstring(fieldname + "_min")), row, 0));
         slider_grid->addCell(QuGridCell(slider, row, 1));
-        slider_grid->addCell(QuGridCell(new QuText(xstring(fieldname + "-max")), row, 2));
+        slider_grid->addCell(QuGridCell(new QuText(xstring(fieldname + "_max")), row, 2));
 
         row++;
 

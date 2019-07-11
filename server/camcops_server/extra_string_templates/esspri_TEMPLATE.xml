@@ -9,12 +9,12 @@
     <string name="q2">XXX</string>
     <string name="q3">XXX</string>
 
-    <string name="q1-min">XXX</string>
-    <string name="q1-max">XXX</string>
-    <string name="q2-min">XXX</string>
-    <string name="q2-max">XXX</string>
-    <string name="q3-min">XXX</string>
-    <string name="q3-max">XXX</string>
+    <string name="q1_min">XXX</string>
+    <string name="q1_max">XXX</string>
+    <string name="q2_min">XXX</string>
+    <string name="q2_max">XXX</string>
+    <string name="q3_min">XXX</string>
+    <string name="q3_max">XXX</string>
 
     <string name="overall_score">XXX</string>
   </task>
