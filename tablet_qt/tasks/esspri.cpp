@@ -155,7 +155,7 @@ OpenableWidget* Esspri::editor(const bool read_only)
         slider->setHorizontal(true);
         slider->setBigStep(1);
 
-        bool can_shrink = true;
+        const bool can_shrink = true;
         slider->setAbsoluteLengthCm(10, can_shrink);
 
         slider->setTickInterval(1);
