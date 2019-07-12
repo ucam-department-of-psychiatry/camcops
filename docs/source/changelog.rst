@@ -2385,3 +2385,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - **New task:** :ref:`EULAR Sjögren’s Syndrome Patient Reported Index (ESSPRI) <esspri>`.
   (Database revision 0032.)
+
+- **New task:** :ref:`Ankylosing Spondylitis Disease Activity Score (ASDAS) <asdas>`.
+  (Database revision 0033.)
