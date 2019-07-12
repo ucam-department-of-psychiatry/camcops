@@ -105,7 +105,7 @@ class Esspri(TaskHasPatientMixin,
             return False
         return True
 
-    def overall_score(self) -> int:
+    def overall_score(self) -> float:
         return self.mean_fields(self.ALL_QUESTIONS)
 
     def get_task_html(self, req: CamcopsRequest) -> str:
