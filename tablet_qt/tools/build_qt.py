@@ -351,6 +351,13 @@ Switched to Qt 5.12.4 (released 2019-06-17!).
 
 Still not working. Reported as https://bugreports.qt.io/browse/QTBUG-76445.
 
+On 2019-07-10, patch available. From "src/qt5/qtbase" directory, execute:
+
+.. code-block::bash
+
+    git pull "https://codereview.qt-project.org/qt/qtbase" refs/changes/97/267497/4
+
+
 Current Qt version
 ==================
 
@@ -364,6 +371,17 @@ Advice:
 
 - Do not proceed ahead of official releases. Sometimes Qt Creator doesn't 
   recognize the version. It's always tricky to manage.
+
+
+cmake under Ubuntu
+==================
+
+- In 2019, with Ubuntu 18.04, ``cmake`` requires ``libcurl4`` which conflicts
+  with ``libcurl3`` on which many applications depend (e.g. R). See
+  https://bugs.launchpad.net/ubuntu/+source/curl/+bug/1754294;
+  https://askubuntu.com/questions/1029273/curl-is-not-working-on-ubuntu-18-04-lts.
+
+- Not sure what's still using, it, though! Requirement removed...
 
 """  # noqa
 
@@ -380,7 +398,7 @@ import shutil
 import subprocess
 import sys
 import traceback
-from typing import Dict, List, TextIO, Tuple  # "Type" not in Python 3.5.1
+from typing import Dict, List, TextIO, Tuple
 
 try:
     import cardinal_pythonlib
@@ -407,17 +425,12 @@ from cardinal_pythonlib.buildfunc import (
 )
 from cardinal_pythonlib.buildfunc import run as run2
 from cardinal_pythonlib.file_io import (
-    # add_line_if_absent,
-    # convert_line_endings,
-    # replace_in_file,
     replace_multiple_in_file,
 )
 from cardinal_pythonlib.fileops import (
     copy_tree_contents,
-    delete_files_within_dir,
     mkdir_p,
     pushd,
-    # rmtree,
     which_with_envpath,
 )
 from cardinal_pythonlib.logs import (
@@ -427,7 +440,6 @@ from cardinal_pythonlib.logs import (
 from cardinal_pythonlib.network import download
 from cardinal_pythonlib.platformfunc import (
     contains_unquoted_ampersand_dangerous_to_windows,
-    # require_debian_packages,
     windows_get_environment_from_batch_command,
 )
 from cardinal_pythonlib.tee import tee_log
@@ -663,7 +675,7 @@ AR = "ar"  # manipulates archives
 BASH = "bash"  # GNU Bourne-Again SHell
 CL = "cl"  # Visual C++ compiler
 CLANG = "clang"  # macOS XCode compiler; also used under Linux for 64-bit ARM
-CMAKE = "cmake"  # CMake
+# CMAKE = "cmake"  # CMake
 GCC = "gcc"  # GNU C compiler
 GCC_AR = "gcc-ar"  # wrapper around ar
 GIT = "git"  # Git
@@ -2470,18 +2482,6 @@ def is_tclsh_windows_compatible(tclsh: str = TCLSH) -> bool:
 
 
 # =============================================================================
-# Ancillary: other functions to clean up build environments
-# =============================================================================
-
-def delete_cmake_cache(directory: str) -> None:
-    """
-    Removes the CMake cache file from a directory.
-    """
-    log.info("Deleting CMake cache files within: {!r}", directory)
-    delete_files_within_dir(directory, ["CMakeCache.txt"])
-
-
-# =============================================================================
 # Ancillary: information messages
 # =============================================================================
 
@@ -3690,7 +3690,7 @@ def master_builder(args) -> None:
     # =========================================================================
     # Common requirements
     # =========================================================================
-    require(CMAKE)
+    # require(CMAKE)
     require(GIT)
     require(PERL)
     require(TAR)

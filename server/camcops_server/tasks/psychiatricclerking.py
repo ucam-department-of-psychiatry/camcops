@@ -26,7 +26,7 @@ camcops_server/tasks/psychiatricclerking.py
 
 """
 
-from typing import List
+from typing import Dict, List, Optional
 
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.schema import Column
@@ -35,7 +35,11 @@ from sqlalchemy.sql.sqltypes import UnicodeText
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CtvInfo
 from camcops_server.cc_modules.cc_request import CamcopsRequest
-from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
+from camcops_server.cc_modules.cc_snomed import (
+    SnomedConcept,
+    SnomedExpression,
+    SnomedLookup,
+)
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 from camcops_server.cc_modules.cc_task import (
     Task,
@@ -259,5 +263,88 @@ class PsychiatricClerking(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         return html
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
-        codes = [SnomedExpression(req.snomed(SnomedLookup.PSYCHIATRIC_ASSESSMENT_PROCEDURE))]  # noqa
+        refinement = {}  # type: Dict[SnomedConcept, str]
+
+        def add(snomed_lookup: str, contents: Optional[str]) -> None:
+            if not contents:
+                return
+            nonlocal refinement
+            concept = req.snomed(snomed_lookup)
+            refinement[concept] = contents
+
+        # not location
+        # not contact type
+        add(SnomedLookup.PSYCLERK_REASON_FOR_REFERRAL, self.reason_for_contact)
+        add(SnomedLookup.PSYCLERK_PRESENTING_ISSUE, self.presenting_issue)
+        add(SnomedLookup.PSYCLERK_SYSTEMS_REVIEW, self.systems_review)
+        add(SnomedLookup.PSYCLERK_COLLATERAL_HISTORY, self.collateral_history)
+
+        add(SnomedLookup.PSYCLERK_PAST_MEDICAL_SURGICAL_MENTAL_HEALTH_HISTORY,
+            self.diagnoses_medical)
+        add(SnomedLookup.PSYCLERK_PAST_MEDICAL_SURGICAL_MENTAL_HEALTH_HISTORY,
+            self.diagnoses_psychiatric)
+        add(SnomedLookup.PSYCLERK_PROCEDURES, self.operations_procedures)
+        add(SnomedLookup.PSYCLERK_ALLERGIES_ADVERSE_REACTIONS,
+            self.allergies_adverse_reactions)
+        add(SnomedLookup.PSYCLERK_MEDICATIONS_MEDICAL_DEVICES, self.medications)
+        add(SnomedLookup.PSYCLERK_DRUG_SUBSTANCE_USE,
+            self.recreational_drug_use)
+        add(SnomedLookup.PSYCLERK_FAMILY_HISTORY, self.family_history)
+        add(SnomedLookup.PSYCLERK_DEVELOPMENTAL_HISTORY,
+            self.developmental_history)
+        add(SnomedLookup.PSYCLERK_SOCIAL_PERSONAL_HISTORY,
+            self.personal_history)
+        add(SnomedLookup.PSYCLERK_PERSONALITY, self.premorbid_personality)
+        add(SnomedLookup.PSYCLERK_PRISON_RECORD_CRIMINAL_ACTIVITY,
+            self.forensic_history)
+        add(SnomedLookup.PSYCLERK_SOCIAL_HISTORY_BASELINE,
+            self.current_social_situation)
+
+        add(SnomedLookup.PSYCLERK_MSE_APPEARANCE,
+            self.mse_appearance_behaviour)  # duplication
+        add(SnomedLookup.PSYCLERK_MSE_BEHAVIOUR,
+            self.mse_appearance_behaviour)  # duplication
+        add(SnomedLookup.PSYCLERK_MSE_MOOD, self.mse_mood_subjective)  # close
+        add(SnomedLookup.PSYCLERK_MSE_AFFECT, self.mse_mood_objective)
+        # ... Logic here: "objective mood" is certainly affect (emotional
+        # weather). "Subjective mood" is both mood (emotional climate) and
+        # affect. Not perfect, but reasonable.
+        add(SnomedLookup.PSYCLERK_MSE_THOUGHT, self.mse_thought_form)
+        add(SnomedLookup.PSYCLERK_MSE_THOUGHT, self.mse_thought_content)
+        # ... No way of disambiguating the two in SNOMED-CT.
+        add(SnomedLookup.PSYCLERK_MSE_PERCEPTION, self.mse_perception)
+        add(SnomedLookup.PSYCLERK_MSE_COGNITION, self.mse_cognition)
+        add(SnomedLookup.PSYCLERK_MSE_INSIGHT, self.mse_insight)
+
+        add(SnomedLookup.PSYCLERK_PHYSEXAM_GENERAL,
+            self.physical_examination_general)
+        add(SnomedLookup.PSYCLERK_PHYSEXAM_CARDIOVASCULAR,
+            self.physical_examination_cardiovascular)
+        add(SnomedLookup.PSYCLERK_PHYSEXAM_RESPIRATORY,
+            self.physical_examination_respiratory)
+        add(SnomedLookup.PSYCLERK_PHYSEXAM_ABDOMINAL,
+            self.physical_examination_abdominal)
+        add(SnomedLookup.PSYCLERK_PHYSEXAM_NEUROLOGICAL,
+            self.physical_examination_neurological)
+
+        add(SnomedLookup.PSYCLERK_ASSESSMENT_SCALES, self.assessment_scales)
+        add(SnomedLookup.PSYCLERK_INVESTIGATIONS_RESULTS,
+            self.investigations_results)
+
+        add(SnomedLookup.PSYCLERK_SAFETY_ALERTS, self.safety_alerts)
+        add(SnomedLookup.PSYCLERK_RISK_ASSESSMENT, self.risk_assessment)
+        add(SnomedLookup.PSYCLERK_RELEVANT_LEGAL_INFORMATION,
+            self.relevant_legal_information)
+
+        add(SnomedLookup.PSYCLERK_CURRENT_PROBLEMS, self.current_problems)
+        add(SnomedLookup.PSYCLERK_PATIENT_CARER_CONCERNS,
+            self.patient_carer_concerns)
+        add(SnomedLookup.PSYCLERK_CLINICAL_NARRATIVE, self.impression)
+        add(SnomedLookup.PSYCLERK_MANAGEMENT_PLAN, self.management_plan)
+        add(SnomedLookup.PSYCLERK_INFORMATION_GIVEN, self.information_given)
+
+        codes = [SnomedExpression(
+            req.snomed(SnomedLookup.PSYCHIATRIC_ASSESSMENT_PROCEDURE),
+            refinement=refinement or None,
+        )]
         return codes

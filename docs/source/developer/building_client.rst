@@ -417,6 +417,7 @@ Windows, ``qmake.exe``) files within that directory:
     =============================== ===========================================
     Linux, x86 64-bit               ``qt_linux_x86_64_install/bin/qmake``
     Android, ARM 32-bit             ``qt_android_armv7_install/bin/qmake``
+    Android, ARM 64-bit             ``qt_android_armv8_64_install/bin/qmake``
     Android emulator, x86 32-bit    ``qt_android_x86_32_install/bin/qmake``
     Mac OS/X, x86 64-bit            ``qt_osx_x86_64_install/bin/qmake``
     iOS, ARM 32-bit                 ``qt_ios_armv7_install/bin/qmake``
@@ -564,7 +565,7 @@ Non-default options are marked in bold and/or as "[non-default]".
         * - Debugger
           - **Android Debugger for Android Clang (C++, arm)**
         * - Qt version
-          - **THE "ANDROID" ONE FROM QT VERSIONS, ABOVE**
+          - **THE "ANDROID, ARM 32-BIT" ONE FROM QT VERSIONS, ABOVE**
         * - Qt mkspec
           -
         * - CMake Tool
@@ -580,7 +581,7 @@ Non-default options are marked in bold and/or as "[non-default]".
           -
 
 
-**Custom_Android_ARM64: CURRENT 32-BIT CONFIGURATION FOR CLANG**
+**Custom_Android_ARM64**
 
     .. list-table::
         :header-rows: 1
@@ -599,15 +600,15 @@ Non-default options are marked in bold and/or as "[non-default]".
         * - Sysroot
           -
         * - Compiler: C
-          - <No compiler>
+          - **Android Clang (C, aarch64)**
         * - Compiler: C++
-          - Android GCC (C++, arm-4.9) [#androidgcc]_
+          - **Android Clang (C++, aarch64)**
         * - Environment
           - [not editable: "No changes to apply."]
         * - Debugger
-          - Android Debugger for Android GCC (C++, arm-4.9) [#androidgcc]_
+          - **Android Debugger for Android Clang (C++, arm)**
         * - Qt version
-          - **THE "ANDROID" ONE FROM QT VERSIONS, ABOVE**
+          - **THE "ANDROID, ARM 64-BIT" ONE FROM QT VERSIONS, ABOVE**
         * - Qt mkspec
           -
         * - CMake Tool
