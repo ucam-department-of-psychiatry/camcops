@@ -296,7 +296,7 @@ Physical illness measurement
 
 - :ref:`Elixhauser Comorbidity Index (ElixhauserCI) <elixhauserci>`
 
-- :ref:`EULAR Sjögren's Syndrome Patient Reported Index (ESSPRI) <esspri>`
+- :ref:`EULAR Sjögren’s Syndrome Patient Reported Index (ESSPRI) <esspri>`
 
 - :ref:`Short-Form McGill Pain Questionnaire 2 (SF-MPQ-2) <sfmpq2>`
 

@@ -24,6 +24,7 @@ Bristol Activities of Daily Living Scale (BADLS)
 
 .. include:: include_data_collection_plus_local_upgrade.rst
 
+
 History and guide
 ~~~~~~~~~~~~~~~~~
 
@@ -32,10 +33,12 @@ of daily living in dementia: development of the Bristol Activities of Daily
 Living Scale. Age and Ageing 25: 113–120.
 http://www.ncbi.nlm.nih.gov/pubmed/8670538
 
+
 Source
 ~~~~~~
 
 Bucks et al. (1996), as above.
+
 
 Intellectual property rights
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~

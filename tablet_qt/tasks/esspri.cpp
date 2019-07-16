@@ -81,7 +81,8 @@ QString Esspri::longname() const
 
 QString Esspri::description() const
 {
-    return tr("A patient-reported index designed to assess the severity of symptoms in primary Sjögren Syndrome.");
+    return tr("A patient-reported index designed to assess the severity of "
+              "symptoms in primary Sjögren’s syndrome.");
 }
 
 

@@ -46,6 +46,13 @@ Contributors
     :ref:`SRS <srs>`, :ref:`ORS <ors>`, :ref:`APEQPT <apeqpt>`, :ref:`GBO-GReS
     <gbo_gres>`, and :ref:`GBO-GPC <gbo_gpc>` tasks.
 
+- Martin Burchell, 2019-.
+
+  - :ref:`Elixhauser Comorbidity Index (ElixhauserCI) <elixhauserci>`
+  - :ref:`Cambridge-Chicago Compulsivity Trait Scale (CHI-T) <chit>`
+  - :ref:`Short UPPS-P Impulsive Behaviour Scale (SUPPS-P) <suppsp>`
+  - :ref:`EULAR Sjögren’s Syndrome Patient Reported Index (ESSPRI) <esspri>`
+
 
 Original Titanium/Javascript client, Python server with custom MySQL interface (defunct)
 ----------------------------------------------------------------------------------------
