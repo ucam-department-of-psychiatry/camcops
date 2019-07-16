@@ -627,6 +627,8 @@ tablet_qt
     tasks/epds.h.rst
     tasks/eq5d5l.cpp.rst
     tasks/eq5d5l.h.rst
+    tasks/esspri.cpp.rst
+    tasks/esspri.h.rst
     tasks/factg.cpp.rst
     tasks/factg.h.rst
     tasks/fast.cpp.rst

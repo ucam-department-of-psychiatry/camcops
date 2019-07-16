@@ -77,6 +77,7 @@ from camcops_server.tasks.distressthermometer import DistressThermometer
 from camcops_server.tasks.elixhauserci import ElixhauserCI
 from camcops_server.tasks.epds import Epds
 from camcops_server.tasks.eq5d5l import Eq5d5l
+from camcops_server.tasks.esspri import Esspri
 
 from camcops_server.tasks.factg import Factg
 from camcops_server.tasks.fast import Fast

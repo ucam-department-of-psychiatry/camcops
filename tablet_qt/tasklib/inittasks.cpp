@@ -68,6 +68,7 @@
 #include "tasks/elixhauserci.h"
 #include "tasks/epds.h"
 #include "tasks/eq5d5l.h"
+#include "tasks/esspri.h"
 
 #include "tasks/fast.h"
 #include "tasks/factg.h"
@@ -210,6 +211,7 @@ void InitTasks(TaskFactory& factory)
     initializeElixhauserCI(factory);
     initializeEpds(factory);
     initializeEq5d5l(factory);
+    initializeEsspri(factory);
 
     initializeFactg(factory);
     initializeFast(factory);
