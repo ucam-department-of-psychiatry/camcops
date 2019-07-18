@@ -86,7 +86,8 @@ QString Asdas::longname() const
 
 QString Asdas::description() const
 {
-    return tr("An ASAS-endorsed disease activity score (ASDAS) in patients with ankylosing spondylitis.");
+    return tr("An ASAS-endorsed disease activity score (ASDAS) in patients "
+              "with ankylosing spondylitis.");
 }
 
 
