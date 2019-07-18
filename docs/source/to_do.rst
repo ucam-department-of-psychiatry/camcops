@@ -45,8 +45,6 @@ Tasks
 
 - :ref:`Elixhauser Comorbidity Index (ElixhauserCI) <elixhauserci>`
 
-- :ref:`EULAR Sjögren's Syndrome Patient Reported Index (ESSPRI) <esspri>`
-
 - :ref:`Ankylosing Spondylitis Disease Activity Score (ASDAS) <asdas>`
 
 - :ref:`Snaith–Hamilton Pleasure Scale (SHAPS) <shaps>`

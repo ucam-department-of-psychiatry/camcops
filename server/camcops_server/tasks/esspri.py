@@ -40,7 +40,7 @@ from camcops_server.cc_modules.cc_task import TaskHasPatientMixin, \
     TaskHasClinicianMixin, Task
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy import Integer
+from sqlalchemy import Float, Integer
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from typing import List, Type, Tuple, Dict, Any
 
@@ -93,7 +93,7 @@ class Esspri(TaskHasPatientMixin,
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
             SummaryElement(
-                name="overall_score", coltype=Integer(),
+                name="overall_score", coltype=Float(),
                 value=self.overall_score(),
                 comment=f"Overall score (/{self.MAX_SCORE})"),
         ]
@@ -105,7 +105,7 @@ class Esspri(TaskHasPatientMixin,
             return False
         return True
 
-    def overall_score(self) -> int:
+    def overall_score(self) -> float:
         return self.mean_fields(self.ALL_QUESTIONS)
 
     def get_task_html(self, req: CamcopsRequest) -> str:
