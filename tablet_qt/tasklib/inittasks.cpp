@@ -23,6 +23,7 @@
 #include "tasks/aims.h"
 #include "tasks/apeqcpftperinatal.h"
 #include "tasks/apeqpt.h"
+#include "tasks/asdas.h"
 #include "tasks/audit.h"
 #include "tasks/auditc.h"
 
@@ -166,6 +167,7 @@ void InitTasks(TaskFactory& factory)
     initializeAims(factory);
     initializeAPEQCPFTPerinatal(factory);
     initializeApeqpt(factory);
+    initializeAsdas(factory);
     initializeAudit(factory);
     initializeAuditC(factory);
 
