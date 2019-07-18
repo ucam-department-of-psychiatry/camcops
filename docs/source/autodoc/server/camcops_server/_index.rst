@@ -62,6 +62,7 @@ server/camcops_server
     alembic/versions/0030_chi_t.py.rst
     alembic/versions/0031_suppsp.py.rst
     alembic/versions/0032_esspri.py.rst
+    alembic/versions/0033_asdas.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst
@@ -139,6 +140,7 @@ server/camcops_server
     cc_modules/webview.py.rst
     discarded_upgrade_code.py.rst
     extra_string_templates/BLANK_TEMPLATE.xml.rst
+    extra_string_templates/asdas_TEMPLATE.xml.rst
     extra_string_templates/badls_TEMPLATE.xml.rst
     extra_string_templates/chit_TEMPLATE.xml.rst
     extra_string_templates/ctqsf_TEMPLATE.xml.rst
@@ -235,6 +237,7 @@ server/camcops_server
     tasks/aims.py.rst
     tasks/apeq_cpft_perinatal.py.rst
     tasks/apeqpt.py.rst
+    tasks/asdas.py.rst
     tasks/audit.py.rst
     tasks/badls.py.rst
     tasks/bdi.py.rst
