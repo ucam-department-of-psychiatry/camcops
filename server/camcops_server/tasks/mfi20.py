@@ -226,38 +226,41 @@ class Mfi20(TaskHasPatientMixin,
                 {rows}
             </table>
             <div class="{CssClass.FOOTNOTES}">
-                [1] Sum for questions 1–20.
-                [2] Sum for questions 1, 5, 12, 16.
-                [3] Sum for questions 2, 8, 14, 20.
-                [4] Sum for questions 7, 11, 13, 19.
-                [5] Sum for questions 3, 6, 10, 17.
-                [6] Sum for questions 4, 9, 15, 18.
+                [1] Questions 2, 5, 9, 10, 13, 14, 16, 17, 18, 19
+                    reverse-scored when summing<br>
+                [2] Sum for questions 1–20.<br>
+                [3] Sum for questions 1, 5, 12, 16.<br>
+                [4] Sum for questions 2, 8, 14, 20.<br>
+                [5] Sum for questions 7, 11, 13, 19.<br>
+                [6] Sum for questions 3, 6, 10, 17.<br>
+                [7] Sum for questions 4, 9, 15, 18.<br>
             </div>
         """.format(
             CssClass=CssClass,
             tr_is_complete=self.get_is_complete_tr(req),
             total_score=tr(
-                req.sstring(SS.TOTAL_SCORE) + " <sup>[1]</sup>",
+                req.sstring(SS.TOTAL_SCORE) + " <sup>[1][2]</sup>",
                 f"{answer(self.total_score())} {fullscale_range}"
             ),
             general_fatigue_score=tr(
-                self.wxstring(req, "general_fatigue") + " <sup>[2]</sup>",
+                self.wxstring(req, "general_fatigue") + " <sup>[1][3]</sup>",
                 f"{answer(self.general_fatigue_score())} {subscale_range}"
             ),
             physical_fatigue_score=tr(
-                self.wxstring(req, "physical_fatigue") + " <sup>[3]</sup>",
+                self.wxstring(req, "physical_fatigue") + " <sup>[1][4]</sup>",
                 f"{answer(self.physical_fatigue_score())} {subscale_range}"
             ),
             reduced_activity_score=tr(
-                self.wxstring(req, "reduced_activity") + " <sup>[4]</sup>",
+                self.wxstring(req, "reduced_activity") + " <sup>[1][5]</sup>",
                 f"{answer(self.reduced_activity_score())} {subscale_range}"
             ),
             reduced_motivation_score=tr(
-                self.wxstring(req, "reduced_motivation") + " <sup>[5]</sup>",
+                self.wxstring(req,
+                              "reduced_motivation") + " <sup>[1][6]</sup>",
                 f"{answer(self.reduced_motivation_score())} {subscale_range}"
             ),
             mental_fatigue_score=tr(
-                self.wxstring(req, "mental_fatigue") + " <sup>[6]</sup>",
+                self.wxstring(req, "mental_fatigue") + " <sup>[1][7]</sup>",
                 f"{answer(self.mental_fatigue_score())} {subscale_range}"
             ),
             rows=rows,
