@@ -119,6 +119,7 @@ from camcops_server.tasks.lynall_1_iam_medical import Lynall1IamMedicalHistory
 from camcops_server.tasks.maas import Maas
 from camcops_server.tasks.mast import Mast
 from camcops_server.tasks.mds_updrs import MdsUpdrs
+from camcops_server.tasks.mfi20 import Mfi20
 from camcops_server.tasks.moca import Moca
 
 from camcops_server.tasks.nart import Nart
