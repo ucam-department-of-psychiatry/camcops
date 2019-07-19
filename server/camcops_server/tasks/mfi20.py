@@ -37,7 +37,7 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
 
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import TaskHasPatientMixin, \
-    TaskHasClinicianMixin, Task, get_from_dict
+    TaskHasClinicianMixin, Task
 from camcops_server.cc_modules.cc_text import SS
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy import Integer
@@ -92,9 +92,9 @@ class Mfi20Metaclass(DeclarativeMeta):
 
 
 class Mfi20(TaskHasPatientMixin,
-             TaskHasClinicianMixin,
-             Task,
-             metaclass=Mfi20Metaclass):
+            TaskHasClinicianMixin,
+            Task,
+            metaclass=Mfi20Metaclass):
     __tablename__ = "mfi20"
     shortname = "MFI-20"
 
