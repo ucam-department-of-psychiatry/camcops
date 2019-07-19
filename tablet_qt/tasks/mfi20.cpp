@@ -28,6 +28,7 @@
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qumcqgrid.h"
+#include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
 using mathfunc::anyNull;
 using mathfunc::sumInt;
@@ -236,6 +237,7 @@ OpenableWidget* Mfi20::editor(const bool read_only)
     grid->setWidth(question_width, option_widths);
 
     QuPagePtr page((new QuPage{
+                        new QuText(xstring("instructions")),
                         grid
                     })->setTitle(xstring("title_main")));
 
