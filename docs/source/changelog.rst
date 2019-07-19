@@ -2395,3 +2395,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - **New task:** :ref:`Ankylosing Spondylitis Disease Activity Score (ASDAS) <asdas>`.
   (Database revision 0033.)
+
+- **New task:** :ref:`Multidimensional Fatigue Inventory (MFI-20) <mfi20>`.
+  (Database revision 0034.)
