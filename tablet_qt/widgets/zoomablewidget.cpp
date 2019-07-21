@@ -78,18 +78,15 @@ void ZoomableWidget::paintEvent(QPaintEvent* event)
 #endif
     if (qFuzzyCompare(m_scale, 1.0)) {
         // Unscaled
-        m_contents->show();
         QWidget::paintEvent(event);
     } else {
         // Scaled
-        m_contents->show();
         const QPixmap pm = m_contents->grab();
-        m_contents->hide();
         QPainter painter(this);
         painter.scale(m_scale, m_scale);
         painter.drawPixmap(0, 0, pm);
+        event->accept();  // prevent anything else from drawing
     }
-
 }
 
 
@@ -115,12 +112,31 @@ void ZoomableWidget::wheelEvent(QWheelEvent* event)
 }
 
 
-QPoint ZoomableWidget::translatedPoint(const QPoint& p) const
+QPoint ZoomableWidget::translateWorldToContents(
+        const QPoint& p,
+        const bool screenpos_not_localpos) const
 {
     if (qFuzzyCompare(m_scale, 1.0)) {
         return p;
     }
-    // *** implement
+    if (screenpos_not_localpos) {
+        // 0,0 is top left of screen
+        const QPoint widget_origin = contentsRect().topLeft();
+        const QPoint diff = p - widget_origin;
+        const QPoint scaled_diff = diff * m_scale;
+        const QPoint translated = widget_origin + scaled_diff;
+#ifdef DEBUG_PAINTING
+        qDebug() << "Translating screen coords" << p << "to" << translated;
+#endif
+        return translated;
+    } else {
+        // 0,0 is top left of widget
+        const QPoint translated = p * m_scale;
+#ifdef DEBUG_PAINTING
+        qDebug() << "Translating widget coords" << p << "to" << translated;
+#endif
+        return translated;
+    }
 }
 
 

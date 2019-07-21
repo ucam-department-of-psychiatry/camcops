@@ -38,7 +38,8 @@ public:
 protected:
     void paintEvent(QPaintEvent* event);
     void wheelEvent(QWheelEvent* event);
-    QPoint translatedPoint(const QPoint& p) const;
+    QPoint translateWorldToContents(const QPoint& p,
+                                    bool screenpos_not_localpos) const;
 protected:
     QWidget* m_contents;
     qreal m_min_scale;
