@@ -43,6 +43,7 @@
 #include "tasklib/task.h"
 #include "widgets/labelwordwrapwide.h"
 #include "widgets/verticalscrollarea.h"
+#include "widgets/zoomablewidget.h"
 
 
 Questionnaire::Questionnaire(CamcopsApp& app) :
@@ -272,6 +273,7 @@ void Questionnaire::build()
     m_mainlayout->addWidget(m_p_header);
 
     if (page->allowsScroll()) {
+        // Page sits inside a vertically scrolling area.
         // The QScrollArea (a) makes text word wrap, by setting a horizontal
         // size limit (I presume), and (b) deals with the vertical. But it
         // doesn't get the horizontal widths right. So we use a substitute.
@@ -279,7 +281,13 @@ void Questionnaire::build()
         scroll->setObjectName(background_css_name);
         scroll->setWidget(pagewidget);
         m_mainlayout->addWidget(scroll);
+    } else if (page->isZoomable()) {
+        // Page doesn't scroll but if the screen is small, the page contents
+        // is zoomed out (shrunk) so it's all visible.
+        ZoomableWidget* zw = new ZoomableWidget(pagewidget);
+        m_mainlayout->addWidget(zw);
     } else {
+        // Page as plain widget.
         m_mainlayout->addWidget(pagewidget);
     }
     // In case the questionnaire is vertically short:

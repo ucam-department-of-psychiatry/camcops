@@ -36,6 +36,7 @@ QuPage::QuPage(const QVector<QuElementPtr>& elements) :
     m_elements(elements),
     m_skip(false),
     m_allow_scroll(true),
+    m_zoomable(false),
     m_progress_blocked(false)
 {
 }
@@ -139,9 +140,10 @@ void QuPage::clearElements()
 }
 
 
-QuPage* QuPage::allowScroll(const bool allow_scroll)
+QuPage* QuPage::allowScroll(const bool allow_scroll, const bool shrink_to_fit)
 {
     m_allow_scroll = allow_scroll;
+    m_zoomable = shrink_to_fit;
     return this;
 }
 
@@ -149,6 +151,12 @@ QuPage* QuPage::allowScroll(const bool allow_scroll)
 bool QuPage::allowsScroll() const
 {
     return m_allow_scroll;
+}
+
+
+bool QuPage::isZoomable() const
+{
+    return m_zoomable;
 }
 
 

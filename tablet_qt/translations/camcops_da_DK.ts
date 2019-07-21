@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="da_DK">
+<TS version="2.0" language="da_DK">
 <context>
     <name>APEQCPFTPerinatal</name>
     <message>
@@ -851,6 +851,23 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
         <location filename="../tasks/cgisch.cpp" line="74"/>
         <source>Clinician-administered; briefly rates illness severity and degree of change in four domains and overall.</source>
         <translation>Kliniker administreret; kort vurderer sværhedsgrad og grad af forandring i fire domæner og generelt.</translation>
+    </message>
+</context>
+<context>
+    <name>Chit</name>
+    <message>
+        <source>Cambridge-Chicago Compulsivity Trait Scale</source>
+        <translation type="obsolete">Cambridge-Chicago Compulsivity Trait Scale [</translation>
+    </message>
+    <message>
+        <location filename="../tasks/chit.cpp" line="77"/>
+        <source>Cambridge–Chicago Compulsivity Trait Scale</source>
+        <translation>Cambridge–Chicago Compulsivity Trait Scale [Cambridge–Chicago kompulsivitet egenskab skalaen]</translation>
+    </message>
+    <message>
+        <location filename="../tasks/chit.cpp" line="83"/>
+        <source>A scale designed to measure transdiagnostic compulsivity</source>
+        <translation>En skala beregnet til at måle kompulsivitet, transdiagnostisk</translation>
     </message>
 </context>
 <context>
@@ -2142,6 +2159,19 @@ enig</translation>
     </message>
 </context>
 <context>
+    <name>ElixhauserCI</name>
+    <message>
+        <location filename="../tasks/elixhauserci.cpp" line="106"/>
+        <source>Elixhauser Comorbidity Index</source>
+        <translation>Elixhauser Comorbidity Index [Elixhauser comorbiditetsindeks]</translation>
+    </message>
+    <message>
+        <location filename="../tasks/elixhauserci.cpp" line="112"/>
+        <source>31-item clinician-rated comorbidity catalogue.</source>
+        <translation>31-punkts kliniker-bedømt comorbiditet katalog.</translation>
+    </message>
+</context>
+<context>
     <name>Epds</name>
     <message>
         <location filename="../tasks/epds.cpp" line="75"/>
@@ -2180,6 +2210,19 @@ enig</translation>
         <location filename="../tasks/eq5d5l.cpp" line="244"/>
         <source>YOUR HEALTH TODAY =</source>
         <translation>DIN SUNDHED FORDAG =</translation>
+    </message>
+</context>
+<context>
+    <name>Esspri</name>
+    <message>
+        <location filename="../tasks/esspri.cpp" line="78"/>
+        <source>EULAR Sjögren’s Syndrome Patient Reported Index</source>
+        <translation>EULAR Sjögren’s Syndrome Patient Reported Index [EULAR Sjögrens syndrom patient-rapporteret indeks]</translation>
+    </message>
+    <message>
+        <location filename="../tasks/esspri.cpp" line="84"/>
+        <source>A patient-reported index designed to assess the severity of symptoms in primary Sjögren’s syndrome.</source>
+        <translation>Et patientindberettet indeks designet til at vurdere sværhedsgraden af symptomer i primær Sjögrens syndrom.</translation>
     </message>
 </context>
 <context>
@@ -3454,6 +3497,11 @@ enig</translation>
         <translation>Beskrivelser stemmer ikke overens!</translation>
     </message>
     <message>
+        <location filename="../core/networkmanager.cpp" line="2162"/>
+        <source>Please re-fetch server information.</source>
+        <translation>Hent venligst serveroplysninger igen.</translation>
+    </message>
+    <message>
         <location filename="../core/networkmanager.cpp" line="1754"/>
         <source>WARNING: Table &apos;%1&apos; is present on the server but the client requires server version &gt;=%2; the server is version %3; proceeding ONLY BECAUSE THIS TABLE IS EMPTY.</source>
         <translation>ADVARSEL: Tabel &apos;%1&apos; er til stede på serveren, men klienten kræver serverversion &gt;=%2; serveren er version %3; fortsætter KUN, fordi denne tabel er tom.</translation>
@@ -3549,7 +3597,6 @@ enig</translation>
         <translation>Starte &quot;ét trin&quot; upload</translation>
     </message>
     <message>
-        <location filename="../core/networkmanager.cpp" line="2161"/>
         <source>Please re-register with the server.</source>
         <translation>Venligst genregistrer dig hos serveren.</translation>
     </message>
@@ -4045,7 +4092,7 @@ enig</translation>
 <context>
     <name>PhysicalIllnessMenu</name>
     <message>
-        <location filename="../menu/physicalillnessmenu.cpp" line="35"/>
+        <location filename="../menu/physicalillnessmenu.cpp" line="37"/>
         <source>Physical illness measurement</source>
         <translation>Måling af fysisk sygdom</translation>
     </message>
@@ -4362,17 +4409,17 @@ enig</translation>
 <context>
     <name>ResearchMenu</name>
     <message>
-        <location filename="../menu/researchmenu.cpp" line="45"/>
+        <location filename="../menu/researchmenu.cpp" line="47"/>
         <source>Research tasks</source>
         <translation>Forskningsopgaver</translation>
     </message>
     <message>
-        <location filename="../menu/researchmenu.cpp" line="53"/>
+        <location filename="../menu/researchmenu.cpp" line="55"/>
         <source>Well known or generic</source>
         <translation>Velkendt eller generisk</translation>
     </message>
     <message>
-        <location filename="../menu/researchmenu.cpp" line="64"/>
+        <location filename="../menu/researchmenu.cpp" line="66"/>
         <source>Experimental</source>
         <translation>Eksperimentel</translation>
     </message>
@@ -4610,12 +4657,12 @@ enig</translation>
 <context>
     <name>SetMenuKhandaker2Mojo</name>
     <message>
-        <location filename="../menu/setmenukhandaker2mojo.cpp" line="38"/>
+        <location filename="../menu/setmenukhandaker2mojo.cpp" line="42"/>
         <source>Khandaker GM — 2 — MOJO study</source>
         <translation>Khandaker GM — 1 — MOJO forskningsundersøgelse</translation>
     </message>
     <message>
-        <location filename="../menu/setmenukhandaker2mojo.cpp" line="44"/>
+        <location filename="../menu/setmenukhandaker2mojo.cpp" line="48"/>
         <source>Khandaker GM, University of Cambridge, UK — MOJO immunopsychiatry study</source>
         <translation>Khandaker GM, University of Cambridge, UK — MOJO immunopsykiatri forskningsundersøgelse</translation>
     </message>
@@ -5630,6 +5677,19 @@ Anonym</translation>
         <location filename="../tasks/srs.cpp" line="119"/>
         <source>Fixed-length visual analogue scales for providing psychotherapy session feedback.</source>
         <translation>Faste længde visuelle analog skalaer for at give feedback fra psykoterapi session.</translation>
+    </message>
+</context>
+<context>
+    <name>Suppsp</name>
+    <message>
+        <location filename="../tasks/suppsp.cpp" line="90"/>
+        <source>Short UPPS-P Impulsive Behaviour Scale</source>
+        <translation>Short UPPS-P Impulsive Behaviour Scale [Kort UPPS-P impulsiv adfærdskala]</translation>
+    </message>
+    <message>
+        <location filename="../tasks/suppsp.cpp" line="96"/>
+        <source>A short English version of the UPPS-P Impulsive Behaviour Scale</source>
+        <translation>En kort engelsk version af UPPS-P impulsiv adfærd skala</translation>
     </message>
 </context>
 <context>

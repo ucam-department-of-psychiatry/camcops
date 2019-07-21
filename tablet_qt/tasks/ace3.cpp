@@ -662,6 +662,7 @@ OpenableWidget* Ace3::editor(const bool read_only)
         explanation("lang_instruction_identify_concept"),
     })
         ->setTitle(makeTitle(tr("Naming pictures")))
+        ->allowScroll(false, true)  // no scrolling; zoomable
         ->setType(QuPage::PageType::ClinicianWithPatient));
 
     // ------------------------------------------------------------------------
@@ -737,6 +738,7 @@ OpenableWidget* Ace3::editor(const bool read_only)
         }),
     })
         ->setTitle(makeTitle(tr("Dot counting")))
+        ->allowScroll(false, true)  // no scrolling; zoomable
         ->setType(QuPage::PageType::ClinicianWithPatient));
 
     // ------------------------------------------------------------------------
@@ -754,6 +756,7 @@ OpenableWidget* Ace3::editor(const bool read_only)
         }),
     })
         ->setTitle(makeTitle(tr("Noisy letters")))
+        ->allowScroll(false, true)  // no scrolling; zoomable
         ->setType(QuPage::PageType::ClinicianWithPatient));
 
     // ------------------------------------------------------------------------

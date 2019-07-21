@@ -887,7 +887,8 @@ SOURCES += \
     widgets/verticalscrollareaviewport.cpp \
     tasks/ctqsf.cpp \
     tasks/kirby.cpp \
-    common/languages.cpp
+    common/languages.cpp \
+    widgets/zoomablewidget.cpp
 
 HEADERS += \
     common/aliases_camcops.h \
@@ -1313,7 +1314,8 @@ HEADERS += \
     widgets/verticalscrollareaviewport.h \
     tasks/ctqsf.h \
     tasks/kirby.h \
-    common/languages.h
+    common/languages.h \
+    widgets/zoomablewidget.h
 
 # DISTFILES/OTHER_FILES appear in the Qt Creator editing tree. Otherwise,
 # there's not much practical impact:

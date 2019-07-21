@@ -95,7 +95,7 @@ class Chit(TaskHasPatientMixin,
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
         _ = req.gettext
-        return _("Cambridge-Chicago Compulsivity Trait Scale")
+        return _("Cambridge–Chicago Compulsivity Trait Scale")
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [

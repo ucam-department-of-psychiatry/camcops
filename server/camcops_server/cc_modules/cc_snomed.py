@@ -1165,6 +1165,7 @@ class SnomedLookup(object):
 
     # Clinical: progress note
     PROGRESS_NOTE_PROCEDURE = "progress_note_procedure"
+    CLINICAL_NOTE = "clinical_note"
 
     # Clinical: photograph
     PHOTOGRAPH_PROCEDURE = "photograph_procedure"

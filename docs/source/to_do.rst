@@ -43,8 +43,6 @@ Tasks
 
 - :ref:`Khandaker GM — 2 — MOJO study <khandaker_2_mojo>`
 
-- :ref:`Elixhauser Comorbidity Index (ElixhauserCI) <elixhauserci>`
-
 - :ref:`Ankylosing Spondylitis Disease Activity Score (ASDAS) <asdas>`
 
 - :ref:`Snaith–Hamilton Pleasure Scale (SHAPS) <shaps>`
@@ -54,10 +52,6 @@ Tasks
 - :ref:`Short-Form McGill Pain Questionnaire 2 (SF-MPQ-2) <sfmpq2>`
 
 - :ref:`Disease Activity Score-28 (DAS28) <das28>`
-
-- :ref:`Cambridge–Chicago Compulsivity Trait Scale (CHI-T) <chit>`
-
-- :ref:`Short UPPS-P Impulsive Behaviour Scale (SUPPS-P) <suppsp>`
 
 
 **To be prioritized**
@@ -78,10 +72,6 @@ Tasks
 - Cardinal_ExpDet* tasks: generate noise on the fly?
 
 - PDSQ screener (see Clark talk 2018-09-20, MQ Data Science)
-
-- Better SNOMED coding, with text values (for which: framework already in
-  place) for clinical clerking tasks. See CRG minutes of 2019-02-26 for a draft
-  map.
 
 
 **Consider**
@@ -117,6 +107,10 @@ Client core
 
 - Create 64-bit ARM build, then release to Google Play Store (deadline 1 Aug
   2019). Work in progress: ``build_qt.py --build_android_arm_v8_64``.
+
+- **For ACE-III and similar:** when pages don't scroll, offer facility to
+  constrain widgets (+/- expand to max size). Use this for letters, picture
+  naming, etc.
 
 - Have facility to upload and/or automatically feed patient details into the
   server, then have clients restrict to these predefined patients. Since we are

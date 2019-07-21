@@ -2381,6 +2381,13 @@ Current C++/SQLite client, Python/SQLAlchemy server
     sizehelpers::labelExtraSizeRequired(). A hack... And reverted other
     debugging options.
 
+- Client asks for information to be re-fetched (not the client to be
+  re-registered -- which is a privileged operation) when the server information
+  doesn't match stored copies.
+
+- Better SNOMED coding for the clinical tasks :ref:`Progress note
+  <progress_note>` and :ref:`Psychiatric clerking <clerking>`.
+
 - **New task:** :ref:`Elixhauser Comorbidity Index (ElixhauserCI) <elixhauserci>`.
   (Database revision 0029.)
 
