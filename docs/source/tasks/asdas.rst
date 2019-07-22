@@ -23,19 +23,33 @@
 Ankylosing Spondylitis Disease Activity Score (ASDAS)
 -----------------------------------------------------
 
-Four numerical rating scales rated 0-10 and one numerical response.
+.. include:: include_data_collection_plus_local_upgrade.rst
+
+Four numerical rating scales rated 0-10 and a measure of inflammation (either
+C-reactive protein, CRP, or erythrocyte sedimentation rate, ESR).
 
 Each question is weighted:
 
-  ASDAS-CRP
-    0.12 × back pain + 0.06 × duration of morning stiffness + 0.11 × patient global + 0.07 × peripheral pain/swelling + 0.58 × ln(CRP + 1).
+.. code-block:: none
 
-    where CRP is measured in mg/L
+  ASDAS-CRP =
+                0.12 × back pain +
+                0.06 × duration of morning stiffness +
+                0.11 × patient global +
+                0.07 × peripheral pain/swelling +
+                0.58 × ln(CRP + 1)
 
-  ASDAS-ESR
-    0.08 x back pain + 0.07 x duration of morning stiffness + 0.11 x patient global + 0.09 x peripheral pain/swelling + 0.29 x √(ESR)
+    ... where CRP is measured in mg/L
 
-    where ESR is measured in mm/h
+  ASDAS-ESR =
+                0.08 x back pain +
+                0.07 x duration of morning stiffness +
+                0.11 x patient global +
+                0.09 x peripheral pain/swelling +
+                0.29 x √(ESR)
+
+    ... where ESR is measured in mm/h
+
 
 Intellectual property rights
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~

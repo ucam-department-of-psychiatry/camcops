@@ -27,7 +27,9 @@ camcops_server/tasks/asdas.py
 **Ankylosing Spondylitis Disease Activity Score (ASDAS) task.**
 
 """
+
 import math
+from typing import Any, Dict, List, Optional, Type, Tuple
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import add_multiple_columns
@@ -49,7 +51,6 @@ import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy import Column, Float
 from sqlalchemy.ext.declarative import DeclarativeMeta
-from typing import List, Type, Tuple, Dict, Any
 
 
 class AsdasMetaclass(DeclarativeMeta):
@@ -135,7 +136,7 @@ class Asdas(TaskHasPatientMixin,
         crp = getattr(self, self.CRP_FIELD_NAME)
         esr = getattr(self, self.ESR_FIELD_NAME)
 
-        if (crp is None and esr is None):
+        if crp is None and esr is None:
             return False
 
         if not self.field_contents_valid():
@@ -145,8 +146,9 @@ class Asdas(TaskHasPatientMixin,
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
         axis_min = -0.5
-        axis_max = 7
-        axis_ticks = [TrackerAxisTick(n, str(n)) for n in range(0, axis_max+1)]
+        axis_max = 7.5
+        axis_ticks = [TrackerAxisTick(n, str(n))
+                      for n in range(0, int(axis_max) + 1)]
 
         horizontal_lines = [
             self.HIGH_VERY_HIGH_CUTOFF,
@@ -197,28 +199,32 @@ class Asdas(TaskHasPatientMixin,
     def peripheral_pain(self) -> float:
         return getattr(self, "q4")
 
-    def asdas_crp(self) -> float:
+    def asdas_crp(self) -> Optional[float]:
         crp = getattr(self, self.CRP_FIELD_NAME)
 
         if crp is None:
             return None
 
-        return 0.12 * self.back_pain() + \
-            0.06 * self.morning_stiffness() + \
-            0.11 * self.patient_global() + \
-            0.07 * self.peripheral_pain() + \
+        return (
+            0.12 * self.back_pain() +
+            0.06 * self.morning_stiffness() +
+            0.11 * self.patient_global() +
+            0.07 * self.peripheral_pain() +
             0.58 * math.log(crp + 1)
+        )
 
-    def asdas_esr(self) -> float:
+    def asdas_esr(self) -> Optional[float]:
         esr = getattr(self, self.ESR_FIELD_NAME)
         if esr is None:
             return None
 
-        return 0.08 * self.back_pain() + \
-            0.07 * self.morning_stiffness() + \
-            0.11 * self.patient_global() + \
-            0.09 * self.peripheral_pain() + \
+        return (
+            0.08 * self.back_pain() +
+            0.07 * self.morning_stiffness() +
+            0.11 * self.patient_global() +
+            0.09 * self.peripheral_pain() +
             0.29 * math.sqrt(esr)
+        )
 
     def activity_state(self, req: CamcopsRequest, measurement: Any) -> str:
         if measurement is None:
@@ -239,8 +245,12 @@ class Asdas(TaskHasPatientMixin,
         rows = ""
         for q_num in range(1, self.N_QUESTIONS + 1):
             q_field = "q" + str(q_num)
-            question_cell = "{}. {}".format(q_num, self.wxstring(req, q_field))
-
+            qtext = self.wxstring(req, q_field)
+            if q_num <= 4:  # not for ESR, CRP
+                min_text = self.wxstring(req, q_field + "_min")
+                max_text = self.wxstring(req, q_field + "_max")
+                qtext += f" <i>(0 = {min_text}, 10 = {max_text})</i>"
+            question_cell = f"{q_num}. {qtext}"
             score = getattr(self, q_field)
 
             rows += tr_qa(question_cell, score)
@@ -267,19 +277,19 @@ class Asdas(TaskHasPatientMixin,
                 [1] &lt;1.3 Inactive disease,
                     &lt;2.1 Moderate disease activity,
                     2.1-3.5 High disease activity,
-                    &gt;3.5 Very high disease activity<br>
+                    &gt;3.5 Very high disease activity.<br>
                 [2] 0.12 × back pain +
                     0.06 × duration of morning stiffness +
                     0.11 × patient global +
                     0.07 × peripheral pain +
                     0.58 × ln(CRP + 1).
-                    CRP units mg/L<br>
+                    CRP units: mg/L.<br>
                 [3] 0.08 x back pain +
                     0.07 x duration of morning stiffness +
                     0.11 x patient global +
                     0.09 x peripheral pain +
                     0.29 x √(ESR).
-                    ESR units mm/h
+                    ESR units: mm/h.
             </div>
         """.format(
             CssClass=CssClass,

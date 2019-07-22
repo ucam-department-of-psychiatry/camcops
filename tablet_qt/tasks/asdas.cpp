@@ -49,6 +49,7 @@ const int CRP_ESR_DP = 2;
 
 const QString Asdas::ASDAS_TABLENAME("asdas");
 
+
 void initializeAsdas(TaskFactory& factory)
 {
     static TaskRegistrar<Asdas> registered(factory);
@@ -96,6 +97,7 @@ QStringList Asdas::fieldNames() const
     return strseq(QPREFIX, FIRST_Q, N_QUESTIONS);
 }
 
+
 QStringList Asdas::scaleFieldNames() const
 {
     return strseq(QPREFIX, FIRST_Q, N_SCALE_QUESTIONS);
@@ -104,7 +106,6 @@ QStringList Asdas::scaleFieldNames() const
 // ============================================================================
 // Instance info
 // ============================================================================
-
 
 bool Asdas::isComplete() const
 {
@@ -119,10 +120,12 @@ bool Asdas::isComplete() const
     return true;
 }
 
+
 double Asdas::backPain() const
 {
     return value("q1").toDouble();
 }
+
 
 double Asdas::morningStiffness() const
 {
@@ -130,15 +133,18 @@ double Asdas::morningStiffness() const
 
 }
 
+
 double Asdas::patientGlobal() const
 {
     return value("q3").toDouble();
 }
 
+
 double Asdas::peripheralPain() const
 {
     return value("q4").toDouble();
 }
+
 
 QVariant Asdas::asdasCrp() const
 {
@@ -169,6 +175,7 @@ QVariant Asdas::asdasEsr() const
         0.29 * std::sqrt(esr.toDouble());
 }
 
+
 QString Asdas::activityState(QVariant measurement) const
 {
     if (measurement.isNull()) {
@@ -189,6 +196,7 @@ QString Asdas::activityState(QVariant measurement) const
 
     return xstring("high");
 }
+
 
 QStringList Asdas::summary() const
 {
@@ -312,12 +320,14 @@ OpenableWidget* Asdas::editor(const bool read_only)
     return m_questionnaire;
 }
 
+
 void Asdas::crpChanged()
 {
     const bool esrMandatory = value(Q_CRP).isNull();
 
     fieldRef(Q_ESR)->setMandatory(esrMandatory);
 }
+
 
 void Asdas::esrChanged()
 {
