@@ -150,24 +150,24 @@ double Asdas::peripheralPain() const
 
 QVariant Asdas::asdasCrp() const
 {
-    QVariant crp = value(Q_CRP);
+    const QVariant crp = value(Q_CRP);
     if (crp.isNull()) {
         return QVariant();
     }
 
-    double adjustedCrp = std::max(crp.toDouble(), 2.0);
+    const double adjusted_crp = std::max(crp.toDouble(), 2.0);
 
     return 0.12 * backPain() +
         0.06 * morningStiffness() +
         0.11 * patientGlobal() +
         0.07 * peripheralPain() +
-        0.58 * std::log(adjustedCrp + 1);
+        0.58 * std::log(adjusted_crp + 1);
 }
 
 
 QVariant Asdas::asdasEsr() const
 {
-    QVariant esr = value(Q_ESR);
+    const QVariant esr = value(Q_ESR);
     if (esr.isNull()) {
         return QVariant();
     }
