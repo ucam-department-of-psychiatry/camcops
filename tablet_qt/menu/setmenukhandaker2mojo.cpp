@@ -29,6 +29,7 @@
 #include "tasks/elixhauserci.h"
 #include "tasks/eq5d5l.h"
 #include "tasks/esspri.h"
+#include "tasks/mfi20.h"
 #include "tasks/suppsp.h"
 
 
@@ -60,7 +61,7 @@ void SetMenuKhandaker2Mojo::makeItems()
         MAKE_TASK_MENU_ITEM(Esspri::ESSPRI_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Asdas::ASDAS_TABLENAME, m_app),
         // *** Snaith-Hamilton Pleasure Scale (SHAPS)
-        // *** Multi-dimensional Fatigue Inventory (MFI-20)
+        MAKE_TASK_MENU_ITEM(Mfi20::MFI20_TABLENAME, m_app),
         // *** McGill Pain Questionnaire Short Form-2 (SF-MPQ2)
         // *** Disease Activity Score 28 (DAS28)
         MAKE_TASK_MENU_ITEM(Chit::CHIT_TABLENAME, m_app),

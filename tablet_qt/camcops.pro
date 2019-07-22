@@ -794,6 +794,7 @@ SOURCES += \
     tasks/maas.cpp \
     tasks/mast.cpp \
     tasks/mdsupdrs.cpp \
+    tasks/mfi20.cpp \
     tasks/moca.cpp \
     tasks/nart.cpp \
     tasks/npiq.cpp \
@@ -1224,6 +1225,7 @@ HEADERS += \
     tasks/maas.h \
     tasks/mast.h \
     tasks/mdsupdrs.h \
+    tasks/mfi20.h \
     tasks/moca.h \
     tasks/nart.h \
     tasks/npiq.h \

@@ -23,7 +23,6 @@
 Multidimensional Fatigue Inventory (MFI-20)
 -------------------------------------------
 
-.. include:: include_under_development.rst
 .. include:: include_data_collection_plus_local_upgrade.rst
 
 20 questions rated on a 5-point scale ("yes, that is true" to "no, that is not

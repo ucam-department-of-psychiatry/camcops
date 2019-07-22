@@ -113,6 +113,7 @@
 #include "tasks/maas.h"
 #include "tasks/mast.h"
 #include "tasks/mdsupdrs.h"
+#include "tasks/mfi20.h"
 #include "tasks/moca.h"
 
 #include "tasks/nart.h"
@@ -257,6 +258,7 @@ void InitTasks(TaskFactory& factory)
     initializeMaas(factory);
     initializeMast(factory);
     initializeMdsUpdrs(factory);
+    initializeMfi20(factory);
     initializeMoca(factory);
 
     initializeNart(factory);
