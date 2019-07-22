@@ -155,11 +155,13 @@ QVariant Asdas::asdasCrp() const
         return QVariant();
     }
 
+    double adjustedCrp = std::max(crp.toDouble(), 2.0);
+
     return 0.12 * backPain() +
         0.06 * morningStiffness() +
         0.11 * patientGlobal() +
         0.07 * peripheralPain() +
-        0.58 * std::log(crp.toDouble() + 1);
+        0.58 * std::log(adjustedCrp + 1);
 }
 
 
