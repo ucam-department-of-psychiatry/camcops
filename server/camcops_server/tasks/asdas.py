@@ -285,7 +285,7 @@ class Asdas(TaskHasPatientMixin,
                     0.11 × patient global +
                     0.07 × peripheral pain +
                     0.58 × ln(CRP + 1).
-                    CRP units: mg/L. When CRP<2mg/L, use 2mg/L to calculate
+                    CRP units: mg/L. When CRP&lt;2mg/L, use 2mg/L to calculate
                     ASDAS-CRP.<br>
                 [3] 0.08 x back pain +
                     0.07 x duration of morning stiffness +
