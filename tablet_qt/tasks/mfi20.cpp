@@ -83,7 +83,7 @@ Mfi20::Mfi20(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
 
 QString Mfi20::shortname() const
 {
-    return "MFI-30";
+    return "MFI-20";
 }
 
 
