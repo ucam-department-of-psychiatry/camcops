@@ -231,6 +231,7 @@ OpenableWidget* Suppsp::editor(const bool read_only)
     const QVector<int> option_widths = {1, 1, 1, 1};
     grid->setWidth(question_width, option_widths);
 
+    // Repeat options every five lines
     QVector<McqGridSubtitle> subtitles{
         {5, ""},
         {10, ""},
