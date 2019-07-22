@@ -226,13 +226,13 @@ class Mfi20(TaskHasPatientMixin,
             </table>
             <div class="{CssClass.FOOTNOTES}">
                 [1] Questions 2, 5, 9, 10, 13, 14, 16, 17, 18, 19
-                    reverse-scored when summing<br>
-                [2] Sum for questions 1–20.<br>
-                [3] Sum for questions 1, 5, 12, 16.<br>
-                [4] Sum for questions 2, 8, 14, 20.<br>
-                [5] Sum for questions 7, 11, 13, 19.<br>
-                [6] Sum for questions 3, 6, 10, 17.<br>
-                [7] Sum for questions 4, 9, 15, 18.<br>
+                    reverse-scored when summing.
+                [2] Sum for questions 1–20.
+                [3] Sum for questions 1, 5, 12, 16.
+                [4] Sum for questions 2, 8, 14, 20.
+                [5] Sum for questions 7, 11, 13, 19.
+                [6] Sum for questions 3, 6, 10, 17.
+                [7] Sum for questions 4, 9, 15, 18.
             </div>
         """.format(
             CssClass=CssClass,
