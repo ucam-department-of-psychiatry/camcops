@@ -162,8 +162,7 @@ class Mfi20(TaskHasPatientMixin,
             return False
         return True
 
-    # TODO: Move to Task ??
-    def sum_fields(self, fields: List[str]) -> int:
+    def score_fields(self, fields: List[str]) -> int:
         total = 0
         for f in fields:
             value = getattr(self, f)
@@ -176,22 +175,22 @@ class Mfi20(TaskHasPatientMixin,
         return total
 
     def total_score(self) -> int:
-        return self.sum_fields(self.ALL_QUESTIONS)
+        return self.score_fields(self.ALL_QUESTIONS)
 
     def general_fatigue_score(self) -> int:
-        return self.sum_fields(self.GENERAL_FATIGUE_QUESTIONS)
+        return self.score_fields(self.GENERAL_FATIGUE_QUESTIONS)
 
     def physical_fatigue_score(self) -> int:
-        return self.sum_fields(self.PHYSICAL_FATIGUE_QUESTIONS)
+        return self.score_fields(self.PHYSICAL_FATIGUE_QUESTIONS)
 
     def reduced_activity_score(self) -> int:
-        return self.sum_fields(self.REDUCED_ACTIVITY_QUESTIONS)
+        return self.score_fields(self.REDUCED_ACTIVITY_QUESTIONS)
 
     def reduced_motivation_score(self) -> int:
-        return self.sum_fields(self.REDUCED_MOTIVATION_QUESTIONS)
+        return self.score_fields(self.REDUCED_MOTIVATION_QUESTIONS)
 
     def mental_fatigue_score(self) -> int:
-        return self.sum_fields(self.MENTAL_FATIGUE_QUESTIONS)
+        return self.score_fields(self.MENTAL_FATIGUE_QUESTIONS)
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         fullscale_range = f"[{self.MIN_SCORE}–{self.MAX_SCORE}]"
