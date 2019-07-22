@@ -703,6 +703,8 @@ tablet_qt
     tasks/mast.h.rst
     tasks/mdsupdrs.cpp.rst
     tasks/mdsupdrs.h.rst
+    tasks/mfi20.cpp.rst
+    tasks/mfi20.h.rst
     tasks/moca.cpp.rst
     tasks/moca.h.rst
     tasks/nart.cpp.rst

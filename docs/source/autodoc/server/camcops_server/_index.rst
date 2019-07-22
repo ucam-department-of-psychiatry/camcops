@@ -63,6 +63,7 @@ server/camcops_server
     alembic/versions/0031_suppsp.py.rst
     alembic/versions/0032_esspri.py.rst
     alembic/versions/0033_asdas.py.rst
+    alembic/versions/0034_mfi20.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst
@@ -152,6 +153,7 @@ server/camcops_server
     extra_string_templates/hads_TEMPLATE.xml.rst
     extra_string_templates/iesr_TEMPLATE.xml.rst
     extra_string_templates/ifs_TEMPLATE.xml.rst
+    extra_string_templates/mfi20_TEMPLATE.xml.rst
     extra_string_templates/npiq_TEMPLATE.xml.rst
     extra_string_templates/ors_TEMPLATE.xml.rst
     extra_string_templates/pdss_TEMPLATE.xml.rst
@@ -305,6 +307,7 @@ server/camcops_server
     tasks/maas.py.rst
     tasks/mast.py.rst
     tasks/mds_updrs.py.rst
+    tasks/mfi20.py.rst
     tasks/moca.py.rst
     tasks/nart.py.rst
     tasks/npiq.py.rst
