@@ -217,10 +217,10 @@ OpenableWidget* Mfi20::editor(const bool read_only)
 {
     const NameValueOptions agreement_options{
         {xstring("a0"), 1},
-        {"2", 2},
-        {"3", 3},
-        {"4", 4},
-        {xstring("a1"), 5},
+        {xstring("a1"), 2},
+        {xstring("a2"), 3},
+        {xstring("a3"), 4},
+        {xstring("a4"), 5},
     };
 
     QVector<QuestionWithOneField> q_field_pairs;
@@ -235,6 +235,14 @@ OpenableWidget* Mfi20::editor(const bool read_only)
     const int question_width = 4;
     const QVector<int> option_widths = {1, 1, 1, 1, 1};
     grid->setWidth(question_width, option_widths);
+
+    // Repeat options every five lines
+    QVector<McqGridSubtitle> subtitles{
+        {5, ""},
+        {10, ""},
+        {15, ""},
+    };
+    grid->setSubtitles(subtitles);
 
     QuPagePtr page((new QuPage{
                         new QuText(xstring("instructions")),

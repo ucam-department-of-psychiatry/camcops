@@ -28,8 +28,11 @@
     <string name="q19">(thoughts wander)</string>
     <string name="q20">(excellent condition)</string>
 
-    <string name="a0">yes</string>
-    <string name="a1">no</string>
+    <string name="a0">1 (yes)</string>
+    <string name="a1">2</string>
+    <string name="a2">3</string>
+    <string name="a3">4</string>
+    <string name="a4">5 (no)</string>
 
     <string name="general_fatigue">(general fatigue)</string>
     <string name="physical_fatigue">(physical fatigue)</string>
