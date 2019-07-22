@@ -110,7 +110,7 @@ Client core
 
 - **For ACE-III and similar:** when pages don't scroll, offer facility to
   constrain widgets (+/- expand to max size). Use this for letters, picture
-  naming, etc.
+  naming, etc. **In progress.**
 
 - Have facility to upload and/or automatically feed patient details into the
   server, then have clients restrict to these predefined patients. Since we are

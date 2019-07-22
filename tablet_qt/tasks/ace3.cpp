@@ -17,6 +17,8 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+// #define NOSCROLL_IMAGE_PAGES  // Should be defined when tested. ***
+
 #include "ace3.h"
 #include <QDebug>
 #include "common/textconst.h"
@@ -653,7 +655,6 @@ OpenableWidget* Ace3::editor(const bool read_only)
             boolimg(IMAGE_ACCORDION, strnum(FP_LANG_NAME_PICTURE, 12)),
         }),
         // Choosing pictures by concept
-        heading("cat_lang"),
         instruction("lang_q_identify_concept"),
         boolean("lang_concept1", strnum(FP_LANG_IDENTIFY_CONCEPT, 1)),
         boolean("lang_concept2", strnum(FP_LANG_IDENTIFY_CONCEPT, 2)),
@@ -662,7 +663,9 @@ OpenableWidget* Ace3::editor(const bool read_only)
         explanation("lang_instruction_identify_concept"),
     })
         ->setTitle(makeTitle(tr("Naming pictures")))
+#ifdef NOSCROLL_IMAGE_PAGES
         ->allowScroll(false, true)  // no scrolling; zoomable
+#endif
         ->setType(QuPage::PageType::ClinicianWithPatient));
 
     // ------------------------------------------------------------------------
@@ -738,7 +741,9 @@ OpenableWidget* Ace3::editor(const bool read_only)
         }),
     })
         ->setTitle(makeTitle(tr("Dot counting")))
+#ifdef NOSCROLL_IMAGE_PAGES
         ->allowScroll(false, true)  // no scrolling; zoomable
+#endif
         ->setType(QuPage::PageType::ClinicianWithPatient));
 
     // ------------------------------------------------------------------------
@@ -756,7 +761,9 @@ OpenableWidget* Ace3::editor(const bool read_only)
         }),
     })
         ->setTitle(makeTitle(tr("Noisy letters")))
+#ifdef NOSCROLL_IMAGE_PAGES
         ->allowScroll(false, true)  // no scrolling; zoomable
+#endif
         ->setType(QuPage::PageType::ClinicianWithPatient));
 
     // ------------------------------------------------------------------------

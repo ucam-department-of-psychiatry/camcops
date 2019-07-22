@@ -20,6 +20,7 @@
 // #define OFFER_LAYOUT_DEBUG_BUTTON
 // #define DEBUG_PAGE_LAYOUT_ON_OPEN
 // #define DEBUG_REPORT_OPEN_SUBWIDGET
+#define DISABLE_ZOOMABLE_WIDGET
 
 #include "questionnaire.h"
 #include <functional>
@@ -171,12 +172,25 @@ void Questionnaire::build()
     // OVERVIEW OF WIDGET/LAYOUT STRUCTURE:
     //
     // W this = OpenableWidget (inherits from QWidget)
-    //      L m_outer_layout = VBoxLayout
-    //          W m_background_widget = QWidget
-    //              L m_mainlayout = VBoxLayout
-    //                  W m_p_header = QuestionnaireHeader
-    //                  W scroll = VerticalScrollArea
-    //                      W pagewidget = QWidget
+    //   L m_outer_layout = VBoxLayout
+    //     W m_background_widget = QWidget
+    //       L m_mainlayout = VBoxLayout
+    //         W m_p_header = QuestionnaireHeader
+    //
+    // Then, one of the following:
+    //
+    //         W scroll = VerticalScrollArea
+    //           W pagewidget = QWidget
+    //         . stretch
+    //        ---
+    //         W ZoomableWidget
+    //           V ZoomableGraphicsView
+    //           S QGraphicsScene
+    //             P QGraphicsProxyWidget
+    //               W pagewidget
+    //        ---
+    //         W pagewidget
+    //         . stretch
 
     // For dynamic questionnaires:
     if (m_pages.empty()) {
@@ -281,17 +295,21 @@ void Questionnaire::build()
         scroll->setObjectName(background_css_name);
         scroll->setWidget(pagewidget);
         m_mainlayout->addWidget(scroll);
+        // In case the questionnaire is vertically short:
+        m_mainlayout->addStretch();
+#ifndef DISABLE_ZOOMABLE_WIDGET
     } else if (page->isZoomable()) {
         // Page doesn't scroll but if the screen is small, the page contents
         // is zoomed out (shrunk) so it's all visible.
-        ZoomableWidget* zw = new ZoomableWidget(pagewidget);
+        auto zw = new ZoomableWidget(pagewidget);
         m_mainlayout->addWidget(zw);
+#endif
     } else {
         // Page as plain widget.
         m_mainlayout->addWidget(pagewidget);
+        // In case the questionnaire is vertically short:
+        m_mainlayout->addStretch();
     }
-    // In case the questionnaire is vertically short:
-    m_mainlayout->addStretch();
 
     // Background
     m_background_widget = new QWidget();

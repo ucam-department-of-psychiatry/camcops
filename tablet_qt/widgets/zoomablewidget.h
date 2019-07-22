@@ -19,33 +19,56 @@
 
 #pragma once
 
-#if 1
-
-// NOT YET PROPERLY IMPLEMENTED.
-
+#include <QPointer>
 #include <QWidget>
+class QGraphicsScene;
+class SizeWatcher;
+class ZoomableGraphicsView;
+
 
 class ZoomableWidget : public QWidget
 {
+    // Widget that encloses another, and provides a zoomable view onto it.
+    //
+    // (Compare also the OpenableWidget/ScreenLikeGraphicsView combination used
+    // by Task::makeGraphicsWidget for graphics-based tasks -- related, but
+    // different.)
+
     Q_OBJECT
 public:
+
     // Constructor
+    // - A scale of 1.0 means "life-sized".
+    //
+    // - contents: widget to be encapsulated.
+    // - can_scale_smaller_than_viewport: can we shrink the contents smaller
+    //   than the viewport? Using "true" is unusual!
+    // - min_scale: minimum scale permitted (subject to
+    //   can_scale_smaller_than_viewport).
+    // - max_scale: maximum scale permitted.
+    // - scale_step_factor: a single notch of a mouse wheel zooms in/out by
+    //   this factor.
+    // - parent: widget's parent (optional)
     ZoomableWidget(QWidget* contents,
-                   qreal min_scale = 1.0,
+                   bool can_scale_smaller_than_viewport = false,
+                   qreal min_scale = 0.2,
                    qreal max_scale = 5.0,
                    qreal scale_step_factor = 1.1,
                    QWidget* parent = nullptr);
+
 protected:
-    void paintEvent(QPaintEvent* event);
-    void wheelEvent(QWheelEvent* event);
-    QPoint translateWorldToContents(const QPoint& p,
-                                    bool screenpos_not_localpos) const;
+    // Standard overrides
+    virtual QSize sizeHint() const override;
+    virtual QSize minimumSizeHint() const override;
+    virtual bool hasHeightForWidth() const override;
+    virtual int heightForWidth(int width) const override;
+
+protected slots:
+    void widgetSizeChanged(const QSize& size);
+
 protected:
     QWidget* m_contents;
-    qreal m_min_scale;
-    qreal m_max_scale;
-    qreal m_scale_step_factor;
-    qreal m_scale;
+    QPointer<QGraphicsScene> m_scene;
+    QPointer<ZoomableGraphicsView> m_view;
+    QPointer<SizeWatcher> m_size_watcher;
 };
-
-#endif  // whole header file

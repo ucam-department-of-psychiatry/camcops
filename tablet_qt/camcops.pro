@@ -643,6 +643,7 @@ SOURCES += \
     qobjects/nhsnumbervalidator.cpp \
     qobjects/shootabug.cpp \
     qobjects/showwatcher.cpp \
+    qobjects/sizewatcher.cpp \
     qobjects/slownonguifunctioncaller.cpp \
     qobjects/strictdoublevalidator.cpp \
     qobjects/strictint64validator.cpp \
@@ -888,6 +889,7 @@ SOURCES += \
     tasks/ctqsf.cpp \
     tasks/kirby.cpp \
     common/languages.cpp \
+    widgets/zoomablegraphicsview.cpp \
     widgets/zoomablewidget.cpp
 
 HEADERS += \
@@ -1070,6 +1072,7 @@ HEADERS += \
     qobjects/nhsnumbervalidator.h \
     qobjects/shootabug.h \
     qobjects/showwatcher.h \
+    qobjects/sizewatcher.h \
     qobjects/slownonguifunctioncaller.h \
     qobjects/strictdoublevalidator.h \
     qobjects/strictint64validator.h \
@@ -1315,6 +1318,7 @@ HEADERS += \
     tasks/ctqsf.h \
     tasks/kirby.h \
     common/languages.h \
+    widgets/zoomablegraphicsview.h \
     widgets/zoomablewidget.h
 
 # DISTFILES/OTHER_FILES appear in the Qt Creator editing tree. Otherwise,
