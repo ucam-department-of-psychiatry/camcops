@@ -23,6 +23,7 @@
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 
+#include "tasks/asdas.h"
 #include "tasks/chit.h"
 #include "tasks/cisr.h"
 #include "tasks/elixhauserci.h"
@@ -57,7 +58,7 @@ void SetMenuKhandaker2Mojo::makeItems()
         // *** MOJO anthropometrics/sociodemographics/medical history
         MAKE_TASK_MENU_ITEM(ElixhauserCI::ELIXHAUSERCI_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Esspri::ESSPRI_TABLENAME, m_app),
-        // *** Ankylosing Spondylitis Disease Activity Score (ASDAS)
+        MAKE_TASK_MENU_ITEM(Asdas::ASDAS_TABLENAME, m_app),
         // *** Snaith-Hamilton Pleasure Scale (SHAPS)
         // *** Multi-dimensional Fatigue Inventory (MFI-20)
         // *** McGill Pain Questionnaire Short Form-2 (SF-MPQ2)
