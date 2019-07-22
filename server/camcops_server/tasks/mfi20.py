@@ -74,12 +74,11 @@ class Mfi20Metaclass(DeclarativeMeta):
             "thoughts wander",
             "excellent condition",
         ]
+        score_comment = "(1 yes - 5 no)"
 
         for q_index in range(0, cls.N_QUESTIONS):
             q_num = q_index + 1
             q_field = "q{}".format(q_num)
-
-            score_comment = "(1 yes - 5 no)"
 
             setattr(cls, q_field, CamcopsColumn(
                 q_field, Integer,
@@ -220,7 +219,7 @@ class Mfi20(TaskHasPatientMixin,
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="60%">Question</th>
-                    <th width="40%">Score</th>
+                    <th width="40%">Answer <sup>[8]</sup></th>
                 </tr>
                 {rows}
             </table>
@@ -233,6 +232,8 @@ class Mfi20(TaskHasPatientMixin,
                 [5] Sum for questions 7, 11, 13, 19.
                 [6] Sum for questions 3, 6, 10, 17.
                 [7] Sum for questions 4, 9, 15, 18.
+                [8] All questions are rated from “1 – yes, that is true” to
+                    “5 – no, that is not true”.
             </div>
         """.format(
             CssClass=CssClass,
