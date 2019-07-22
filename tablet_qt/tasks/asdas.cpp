@@ -45,6 +45,8 @@ const QString QPREFIX("q");
 const QString Q_CRP("q5");
 const QString Q_ESR("q6");
 
+const double CRP_MAX = 2000;
+const double ESR_MAX = 300;
 const int CRP_ESR_DP = 2;
 
 const QString Asdas::ASDAS_TABLENAME("asdas");
@@ -148,22 +150,24 @@ double Asdas::peripheralPain() const
 
 QVariant Asdas::asdasCrp() const
 {
-    QVariant crp = value(Q_CRP);
+    const QVariant crp = value(Q_CRP);
     if (crp.isNull()) {
         return QVariant();
     }
+
+    const double adjusted_crp = std::max(crp.toDouble(), 2.0);
 
     return 0.12 * backPain() +
         0.06 * morningStiffness() +
         0.11 * patientGlobal() +
         0.07 * peripheralPain() +
-        0.58 * std::log(crp.toDouble() + 1);
+        0.58 * std::log(adjusted_crp + 1);
 }
 
 
 QVariant Asdas::asdasEsr() const
 {
-    QVariant esr = value(Q_ESR);
+    const QVariant esr = value(Q_ESR);
     if (esr.isNull()) {
         return QVariant();
     }
@@ -288,20 +292,16 @@ OpenableWidget* Asdas::editor(const bool read_only)
 
     page->addElement(crp_esr_inst);
 
-    const QString crp_esr_hint(tr("real number, %1 dp").arg(CRP_ESR_DP));
-
     page->addElement(new QuText(xstring(Q_CRP)));
     const auto crp_field = new QuLineEditDouble(
-        fieldRef(Q_CRP), 0, std::numeric_limits<double>::max(), CRP_ESR_DP
+        fieldRef(Q_CRP), 0, CRP_MAX, CRP_ESR_DP
     );
-    crp_field->setHint(crp_esr_hint);
     page->addElement(crp_field);
 
     page->addElement(new QuText(xstring(Q_ESR)));
     const auto esr_field = new QuLineEditDouble(
-        fieldRef(Q_ESR), 0, std::numeric_limits<double>::max(), CRP_ESR_DP
+        fieldRef(Q_ESR), 0, ESR_MAX, CRP_ESR_DP
     );
-    esr_field->setHint(crp_esr_hint);
     page->addElement(esr_field);
 
     connect(fieldRef(Q_CRP).data(), &FieldRef::valueChanged,

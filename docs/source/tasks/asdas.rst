@@ -54,7 +54,9 @@ Each question is weighted:
 Intellectual property rights
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**TO BE ESTABLISHED**
+**TO BE ESTABLISHED.** Original paper (Lukas et al. 2009) is copyright 2009 BMJ
+Publishing Group and European League Against Rheumatism, but status of task
+itself less clear.
 
 
 History
