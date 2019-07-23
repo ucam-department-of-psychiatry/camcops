@@ -58,7 +58,7 @@ accessed 2013-07-31.)
     <string name="attn_subtraction3">Third</string>
     <string name="attn_subtraction4">Fourth</string>
     <string name="attn_subtraction5">Fifth</string>
-    <string name="mem_q_recall_words">Ask: “Which 3 words did I asked you to repeat and remember?”</string>
+    <string name="mem_q_recall_words">Ask: “Which 3 words did I ask you to repeat and remember?”</string>
     <string name="mem_instruction_recall">Do not prompt the participant for the items.</string>
     <string name="mem_word1">lemon</string>
     <string name="mem_word2">key</string>

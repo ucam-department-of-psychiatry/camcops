@@ -17,7 +17,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-// #define NOSCROLL_IMAGE_PAGES  // Should be defined when tested. ***
+#define NOSCROLL_IMAGE_PAGES  // Should be defined. Better UI with it.
 
 #include "ace3.h"
 #include <QDebug>
