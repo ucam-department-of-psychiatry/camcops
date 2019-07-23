@@ -55,6 +55,10 @@ public:
     // Scaling
     // ------------------------------------------------------------------------
 
+    // Zoom to a specific scale factor (1.0 meaning "full size"), >1 meaning
+    // bigger, etc.
+    void rescale(qreal scale);
+
     // Ensure m_scale is sensible, then zoom ourselves accordingly.
     // (APPLIES m_scale to the view.)
     void rescale();
@@ -78,4 +82,6 @@ protected:
     qreal m_previous_scale;
     qreal m_scale;
     qreal m_smallest_fit_scale;
+    bool m_two_finger_zooming;
+    qreal m_two_finger_start_scale;
 };

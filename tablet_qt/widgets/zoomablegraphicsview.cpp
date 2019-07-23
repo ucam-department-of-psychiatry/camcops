@@ -17,7 +17,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define DEBUG_COORDS
+// #define DEBUG_COORDS
 
 #include "zoomablegraphicsview.h"
 #include <QDebug>
@@ -41,7 +41,9 @@ ZoomableGraphicsView::ZoomableGraphicsView(
     m_scale_step_factor(scale_step_factor),
     m_previous_scale(1.0),
     m_scale(1.0),
-    m_smallest_fit_scale(1.0)  // until fitView() is called
+    m_smallest_fit_scale(1.0),  // until fitView() is called
+    m_two_finger_zooming(false),
+    m_two_finger_start_scale(1.0)
 {
     // For touch zoom and touch drag:
     // See https://code.qt.io/cgit/qt/qtbase.git/tree/examples/widgets/touch/pinchzoom/graphicsview.cpp?h=5.13
@@ -90,26 +92,37 @@ void ZoomableGraphicsView::wheelEvent(QWheelEvent* event)
 
 bool ZoomableGraphicsView::viewportEvent(QEvent* event)
 {
-
     // See https://code.qt.io/cgit/qt/qtbase.git/tree/examples/widgets/touch/pinchzoom/graphicsview.cpp?h=5.13
-    switch (event->type()) {
+    // ... but modified.
+    const QEvent::Type type = event->type();
+    switch (type) {
     case QEvent::TouchBegin:
     case QEvent::TouchUpdate:
     case QEvent::TouchEnd:
         {
+#ifdef DEBUG_COORDS
+            qDebug() << Q_FUNC_INFO << type;
+#endif
             QTouchEvent* touch_event = static_cast<QTouchEvent*>(event);
             QList<QTouchEvent::TouchPoint> touch_points = touch_event->touchPoints();
-            if (touch_points.count() == 2) {
-                // determine scale factor
-                const QTouchEvent::TouchPoint& touchpoint0 = touch_points.first();
-                const QTouchEvent::TouchPoint& touchpoint1 = touch_points.last();
-                const qreal current_scale_factor =
-                        QLineF(touchpoint0.pos(), touchpoint1.pos()).length()
-                        / QLineF(touchpoint0.startPos(), touchpoint1.startPos()).length();
-                // NB simplified from the original here; *** TEST TWO-FINGER ZOOM
-                m_scale *= current_scale_factor;
-                rescale();
+            if (type == QEvent::TouchEnd ||  // touch is over
+                    touch_points.count() != 2 ||  // not using 2 fingers
+                    touch_event->touchPointStates() & Qt::TouchPointReleased) {  // a finger has been released
+                m_two_finger_zooming = false;
+                return true;
             }
+            if (!m_two_finger_zooming) {
+                // Just started a two-finger zoom.
+                m_two_finger_zooming = true;
+                m_two_finger_start_scale = m_scale;
+            }
+            // Determine scale factor
+            const QTouchEvent::TouchPoint& p0 = touch_points.first();
+            const QTouchEvent::TouchPoint& p1 = touch_points.last();
+            const qreal current_scale_factor =
+                    QLineF(p0.pos(), p1.pos()).length()
+                    / QLineF(p0.startPos(), p1.startPos()).length();
+            rescale(m_two_finger_start_scale * current_scale_factor);
             return true;
         }
     default:
@@ -155,6 +168,13 @@ void ZoomableGraphicsView::showEvent(QShowEvent* event)
 // ============================================================================
 // Scaling
 // ============================================================================
+
+void ZoomableGraphicsView::rescale(qreal scale)
+{
+    m_scale = scale;
+    rescale();
+}
+
 
 void ZoomableGraphicsView::rescale()
 {

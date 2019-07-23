@@ -34,10 +34,6 @@ See:
 - https://stackoverflow.com/questions/6650219/zooming-function-on-a-qwidget
 - https://stackoverflow.com/questions/26811446/qt-scaling-zooming-contents-of-a-qframe-widgets-etc
 
-TO DO:
-
-- Testing of two-finger zoom, and general behaviour, on a small touchscreen.
-
 NOTES
 
 - I spent a bit of effort trying to read the widget's size, and then use
