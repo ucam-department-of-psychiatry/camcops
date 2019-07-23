@@ -2405,3 +2405,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - **New task:** :ref:`Multidimensional Fatigue Inventory (MFI-20) <mfi20>`.
   (Database revision 0034.)
+
+- **New task:** :ref:`Short-Form McGill Pain Questionnaire (SF-MPQ2) <sfmpq2>`.
+  (Database revision 0035.)
