@@ -51,6 +51,8 @@ class Sfmpq2Metaclass(DeclarativeMeta):
                  bases: Tuple[Type, ...],
                  classdict: Dict[str, Any]) -> None:
 
+        # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5221718/
+        # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3225325/
         comment_strings = [
             "throbbing",
             "shooting",
