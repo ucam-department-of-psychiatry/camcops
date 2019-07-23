@@ -30,6 +30,7 @@
 #include "tasks/eq5d5l.h"
 #include "tasks/esspri.h"
 #include "tasks/mfi20.h"
+#include "tasks/sfmpq2.h"
 #include "tasks/suppsp.h"
 
 
@@ -62,7 +63,8 @@ void SetMenuKhandaker2Mojo::makeItems()
         MAKE_TASK_MENU_ITEM(Asdas::ASDAS_TABLENAME, m_app),
         // *** Snaith-Hamilton Pleasure Scale (SHAPS)
         MAKE_TASK_MENU_ITEM(Mfi20::MFI20_TABLENAME, m_app),
-        // *** McGill Pain Questionnaire Short Form-2 (SF-MPQ2)
+        MAKE_TASK_MENU_ITEM(Sfmpq2::SFMPQ2_TABLENAME, m_app),
+
         // *** Disease Activity Score 28 (DAS28)
         MAKE_TASK_MENU_ITEM(Chit::CHIT_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Suppsp::SUPPSP_TABLENAME, m_app),

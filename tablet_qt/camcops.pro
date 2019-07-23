@@ -820,6 +820,7 @@ SOURCES += \
     tasks/rand36.cpp \
     tasks/referrersatisfactiongen.cpp \
     tasks/referrersatisfactionspec.cpp \
+    tasks/sfmpq2.cpp \
     tasks/slums.cpp \
     tasks/smast.cpp \
     tasks/srs.cpp \
@@ -1251,6 +1252,7 @@ HEADERS += \
     tasks/rand36.h \
     tasks/referrersatisfactiongen.h \
     tasks/referrersatisfactionspec.h \
+    tasks/sfmpq2.h \
     tasks/slums.h \
     tasks/smast.h \
     tasks/srs.h \
