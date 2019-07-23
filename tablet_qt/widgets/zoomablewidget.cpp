@@ -17,7 +17,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define DEBUG_PAINTING
+// #define DEBUG_PAINTING
 
 #include "zoomablewidget.h"
 #include <QDebug>
@@ -34,21 +34,20 @@ See:
 - https://stackoverflow.com/questions/6650219/zooming-function-on-a-qwidget
 - https://stackoverflow.com/questions/26811446/qt-scaling-zooming-contents-of-a-qframe-widgets-etc
 
-NOT YET IMPLEMENTED, OR BUGGY
+TO DO:
 
-- In ZoomableGraphicsView, fitInView() is scaling things a bit too small.
-- Getting the right background colour, and style -- in general, the CSS is
-  not being applied properly.
-- First-time sizing not always right (better on second page paint!).
-  Likely related to current failure to correct for scroll bar size.
-- Testing of two-finger zoom.
+- Testing of two-finger zoom, and general behaviour, on a small touchscreen.
 
-Once fixed, undefine DISABLE_ZOOMABLE_WIDGET in questionnaire.cpp.
+NOTES
 
-SLIGHTLY UNDESIRABLE BUT OK:
+- I spent a bit of effort trying to read the widget's size, and then use
+  m_scene->setSceneRect(size). However, it turns out to be much better not to
+  use that function at all, at which point sceneRect() returns "the current
+  widget size" in a useful way -- for use by e.g.
+  ZoomableGraphicsView::fitView().
 
-- It's a pixel-wise zoom -- better than that (e.g. having text be painted at a
-  different font size) would be a bit optimistic!
+- On shrike, at least, this gives perfect text rendering when zoomed (not
+  a pixelwise zoom).
 
 */
 
@@ -58,37 +57,33 @@ ZoomableWidget::ZoomableWidget(QWidget* contents,
                                const qreal min_scale,
                                const qreal max_scale,
                                const qreal scale_step_factor,
+                               const QSize& minimum_size,
                                QWidget* parent) :
     QWidget(parent),
-    m_contents(contents)
+    m_contents(contents),
+    m_minimum_size(minimum_size)
 {
     Q_ASSERT(m_contents);
 
     // We create a graphics scene containing our target widget.
     contents->ensurePolished();
-    // At this point, contents->contentsRect() is unhelpfully 640x480. So:
-    const QRectF scene_rect(QPointF(0, 0), contents->sizeHint());
-    m_scene = new QGraphicsScene(scene_rect);
+    m_scene = new QGraphicsScene();
     m_scene->addWidget(contents);  // adds it at (0,0); returns QGraphicsProxyWidget*
-    m_size_watcher = new SizeWatcher(contents);
-    connect(m_size_watcher, &SizeWatcher::resized,
-            this, &ZoomableWidget::widgetSizeChanged);
 
     // We create a graphics view to show the scene.
-    // The view is where we implement sooming.
+    // The view is where we implement zooming.
     m_view = new ZoomableGraphicsView(
                 m_scene, can_scale_smaller_than_viewport,
                 min_scale, max_scale, scale_step_factor);
     m_view->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    // *** view->setBackgroundColour(background_colour);
-
-    // Our widget has a layout containing the graphics view.
+    // Our widget (this) has a layout containing the graphics view.
     auto layout = new QVBoxLayout(this);
     layout->addWidget(m_view);
 
+    // We'd like "this" to be as large as possible:
     QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    // sp.setHeightForWidth(contents->hasHeightForWidth());
+    // No: sp.setHeightForWidth(contents->hasHeightForWidth());
 #ifdef DEBUG_PAINTING
     qDebug() << Q_FUNC_INFO << "ZoomableWidget size policy:" << sp;
 #endif
@@ -108,11 +103,11 @@ QSize ZoomableWidget::sizeHint() const
 
 QSize ZoomableWidget::minimumSizeHint() const
 {
-    const QSize size = m_contents->minimumSizeHint();
+    // No: const QSize size = m_contents->minimumSizeHint();
 #ifdef DEBUG_PAINTING
-    qDebug() << Q_FUNC_INFO << size;
+    qDebug() << Q_FUNC_INFO << m_minimum_size;
 #endif
-    return size;
+    return m_minimum_size;
 }
 
 
@@ -133,14 +128,4 @@ int ZoomableWidget::heightForWidth(int width) const
     qDebug() << Q_FUNC_INFO << h;
 #endif
     return h;
-}
-
-
-void ZoomableWidget::widgetSizeChanged(const QSize& size)
-{
-#ifdef DEBUG_PAINTING
-    qDebug() << Q_FUNC_INFO << size;
-#endif
-    const QRectF rect(QPointF(0, 0), size);
-    m_scene->setSceneRect(rect);
 }

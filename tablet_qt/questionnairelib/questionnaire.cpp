@@ -20,7 +20,7 @@
 // #define OFFER_LAYOUT_DEBUG_BUTTON
 // #define DEBUG_PAGE_LAYOUT_ON_OPEN
 // #define DEBUG_REPORT_OPEN_SUBWIDGET
-#define DISABLE_ZOOMABLE_WIDGET
+// #define DISABLE_ZOOMABLE_WIDGET
 
 #include "questionnaire.h"
 #include <functional>
@@ -69,7 +69,7 @@ Questionnaire::Questionnaire(CamcopsApp& app,
 #endif
     m_current_page_index(0)  // starting page
 {
-    setStyleSheet(m_app.getSubstitutedCss(uiconst::CSS_CAMCOPS_QUESTIONNAIRE));
+    setStyleSheet(questionnaireStylesheet());
 
     setLayout(m_outer_layout);
     // You can't reset the outer layout for a widget, I think. You get:
@@ -180,16 +180,16 @@ void Questionnaire::build()
     // Then, one of the following:
     //
     //         W scroll = VerticalScrollArea
-    //           W pagewidget = QWidget
+    //           W pagewidget = BaseWidget (QWidget)
     //         . stretch
     //        ---
-    //         W ZoomableWidget
+    //         W zw = ZoomableWidget
     //           V ZoomableGraphicsView
     //           S QGraphicsScene
     //             P QGraphicsProxyWidget
-    //               W pagewidget
+    //               W pagewidget = BaseWidget (QWidget)
     //        ---
-    //         W pagewidget
+    //         W pagewidget = BaseWidget (QWidget)
     //         . stretch
 
     // For dynamic questionnaires:
@@ -301,6 +301,7 @@ void Questionnaire::build()
     } else if (page->isZoomable()) {
         // Page doesn't scroll but if the screen is small, the page contents
         // is zoomed out (shrunk) so it's all visible.
+        pagewidget->setStyleSheet(questionnaireStylesheet());
         auto zw = new ZoomableWidget(pagewidget);
         m_mainlayout->addWidget(zw);
 #endif
@@ -804,7 +805,6 @@ QuElement* Questionnaire::getFirstElementByTag(
 }
 
 
-
 void Questionnaire::setFinishButtonIcon(const QString& base_filename)
 {
     m_finish_button_icon_base_filename = base_filename;
@@ -817,4 +817,10 @@ void Questionnaire::setFinishButtonIcon(const QString& base_filename)
 void Questionnaire::setFinishButtonIconToTick()
 {
     setFinishButtonIcon(uiconst::CBS_OK);
+}
+
+
+QString Questionnaire::questionnaireStylesheet() const
+{
+    return m_app.getSubstitutedCss(uiconst::CSS_CAMCOPS_QUESTIONNAIRE);
 }

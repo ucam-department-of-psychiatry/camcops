@@ -39,18 +39,22 @@ ZoomableGraphicsView::ZoomableGraphicsView(
     m_min_scale(min_scale),
     m_max_scale(max_scale),
     m_scale_step_factor(scale_step_factor),
+    m_previous_scale(1.0),
     m_scale(1.0),
     m_smallest_fit_scale(1.0)  // until fitView() is called
 {
+    // For touch zoom and touch drag:
     // See https://code.qt.io/cgit/qt/qtbase.git/tree/examples/widgets/touch/pinchzoom/graphicsview.cpp?h=5.13
     viewport()->setAttribute(Qt::WA_AcceptTouchEvents);
     setDragMode(ScrollHandDrag);
 
+    // Scroll bars:
     const Qt::ScrollBarPolicy sbp = Qt::ScrollBarAlwaysOn;
     // const Qt::ScrollBarPolicy sbp = Qt::ScrollBarAsNeeded;  // too tricky; see resizeEvent()
     setHorizontalScrollBarPolicy(sbp);
     setVerticalScrollBarPolicy(sbp);
 
+    // No frame:
     setFrameShape(QFrame::NoFrame);
 
     // Make sure the contents are at the top left of our view, when all of the
@@ -65,7 +69,7 @@ ZoomableGraphicsView::ZoomableGraphicsView(
 
 void ZoomableGraphicsView::wheelEvent(QWheelEvent* event)
 {
-    // https://github.com/glumpy/glumpy/issues/99
+    // See https://github.com/glumpy/glumpy/issues/99
     const int steps = event->angleDelta().y() / 120;
     if (steps == 0) {
         return;  // nothing to do
@@ -86,6 +90,7 @@ void ZoomableGraphicsView::wheelEvent(QWheelEvent* event)
 
 bool ZoomableGraphicsView::viewportEvent(QEvent* event)
 {
+
     // See https://code.qt.io/cgit/qt/qtbase.git/tree/examples/widgets/touch/pinchzoom/graphicsview.cpp?h=5.13
     switch (event->type()) {
     case QEvent::TouchBegin:
@@ -130,6 +135,9 @@ void ZoomableGraphicsView::resizeEvent(QResizeEvent* event)
     */
 
     Q_UNUSED(event);
+#ifdef DEBUG_COORDS
+    qDebug() << Q_FUNC_INFO;
+#endif
     fitView();
 }
 
@@ -137,6 +145,9 @@ void ZoomableGraphicsView::resizeEvent(QResizeEvent* event)
 void ZoomableGraphicsView::showEvent(QShowEvent* event)
 {
     Q_UNUSED(event);
+#ifdef DEBUG_COORDS
+    qDebug() << Q_FUNC_INFO;
+#endif
     fitView();
 }
 
@@ -158,19 +169,44 @@ void ZoomableGraphicsView::rescale()
     qDebug().nospace() << Q_FUNC_INFO << ": sceneRect() " << sceneRect()
                        << ", final m_scale " << m_scale;
 #endif
+    if (qFuzzyCompare(m_scale, m_previous_scale)) {
+#ifdef DEBUG_COORDS
+        qDebug() << Q_FUNC_INFO << "No change to scale; ignoring";
+#endif
+        return;
+    }
     QTransform matrix;  // identity matrix
     matrix.scale(m_scale, m_scale);
     setTransform(matrix);
+    m_previous_scale = m_scale;
     update();
 }
 
 
 void ZoomableGraphicsView::fitView()
 {
+    const QSize viewport_size = viewportContentsSize();
     const QRectF scene_rect = sceneRect();
+    const QSize contents_size = scene_rect.size().toSize();
 #ifdef DEBUG_COORDS
-    qDebug().nospace() << Q_FUNC_INFO << ": sceneRect() " << scene_rect;
+    qDebug().nospace() << Q_FUNC_INFO
+                       << ": viewport_size " << viewport_size
+                       << ", contents_size " << contents_size;
 #endif
+    if (contents_size.height() <= viewport_size.height() &&
+            contents_size.width() <= viewport_size.width()) {
+        // The contents fits within the viewport.
+        // We're not trying to zoom in unless asked to do so.
+        // (Though we may have had to zoom out -- shrink -- for small screens.)
+#ifdef DEBUG_COORDS
+        qDebug() << Q_FUNC_INFO << "Contents fits in viewport; scaling to 1:1";
+#endif
+        m_scale = m_smallest_fit_scale = 1.0;
+        rescale();
+        return;
+    }
+
+    // Otherwise...
     fitInView(scene_rect, Qt::KeepAspectRatio);
     // ... makes sceneRect() fit, and in the process sets the transform
 
@@ -191,21 +227,22 @@ void ZoomableGraphicsView::fitView()
     }
 #endif
     if (horiz_scale > 1.0) {
-        // We're not trying to zoom in unless asked to do so.
-        // (Though we may have had to zoom out -- shrink -- for small screens.)
-#ifdef DEBUG_COORDS
-        qDebug().nospace()
-                << Q_FUNC_INFO
-                << ": Not scaling to " << horiz_scale << "; using 1.0 instead";
-#endif
+        qWarning() << Q_FUNC_INFO << "BUG? horiz_scale > 1.0 despite previous check";
         horiz_scale = 1.0;
         setTransform(QTransform());  // identity matrix
+        // We hope not to get here; that's potentially inefficient
+        // (transforming, then re-transforming).
     }
-    m_scale = horiz_scale;
-    m_smallest_fit_scale = m_scale;
+    m_previous_scale = m_scale = m_smallest_fit_scale = horiz_scale;
 #ifdef DEBUG_COORDS
     qDebug().nospace()
             << Q_FUNC_INFO
              << ": Setting m_scale and m_smallest_fit_scale to " << m_scale;
 #endif
+}
+
+
+QSize ZoomableGraphicsView::viewportContentsSize() const
+{
+    return viewport()->size();
 }
