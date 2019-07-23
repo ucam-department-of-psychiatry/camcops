@@ -51,6 +51,30 @@ class Sfmpq2Metaclass(DeclarativeMeta):
                  bases: Tuple[Type, ...],
                  classdict: Dict[str, Any]) -> None:
 
+        comment_strings = [
+            "throbbing",
+            "shooting",
+            "stabbing",
+            "sharp",
+            "cramping",
+            "gnawing",
+            "hot-burning",
+            "aching",
+            "heavy",
+            "tender",
+            "splitting",
+            "tiring–exhausting",
+            "sickening",
+            "fearful",
+            "punishing–cruel",
+            "electric-shock",
+            "cold-freezing",
+            "piercing",
+            "light touch",
+            "itching",
+            "tingling",
+            "numbness",
+        ]
         score_comment = "(0 none - 10 worst)"
 
         for q_index in range(0, cls.N_QUESTIONS):
@@ -61,7 +85,9 @@ class Sfmpq2Metaclass(DeclarativeMeta):
                 q_field, Integer,
                 permitted_value_checker=ZERO_TO_10_CHECKER,
                 comment="Q{} ({}) {}".format(
-                    q_num, "Pain description {}".format(q_num), score_comment)
+                    q_num,
+                    comment_strings[q_index],
+                    score_comment)
             ))
 
         super().__init__(name, bases, classdict)
