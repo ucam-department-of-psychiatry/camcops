@@ -23,7 +23,6 @@
 Short-Form McGill Pain Questionnaire 2 (SF-MPQ-2)
 -------------------------------------------------
 
-.. include:: include_under_development.rst
 .. include:: include_data_collection_plus_local_upgrade.rst
 
 22 questions. Numerical rating scales, scored 0-10.
@@ -60,4 +59,3 @@ Source
 ~~~~~~
 
 - https://eprovide.mapi-trust.org/instruments/short-form-mcgill-pain-questionnaire#e_version
-
