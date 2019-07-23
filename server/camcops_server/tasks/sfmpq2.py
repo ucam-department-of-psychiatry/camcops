@@ -38,6 +38,7 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import TaskHasPatientMixin, \
     TaskHasClinicianMixin, Task
+import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy import Float, Integer
 from sqlalchemy.ext.declarative import DeclarativeMeta
@@ -103,7 +104,6 @@ class Sfmpq2(TaskHasPatientMixin,
     shortname = "SF-MPQ2"
 
     N_QUESTIONS = 22
-    MIN_SCORE_PER_Q = 0
     MAX_SCORE_PER_Q = 10
     ALL_QUESTIONS = strseq("q", 1, N_QUESTIONS)
 
@@ -122,28 +122,27 @@ class Sfmpq2(TaskHasPatientMixin,
         return _("Multidimensional Fatigue Inventory")
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
-        score_range = f"[{self.MIN_SCORE_PER_Q}–{self.MAX_SCORE_PER_Q}]"
         return self.standard_task_summary_fields() + [
             SummaryElement(
                 name="total", coltype=Float(),
                 value=self.total_pain(),
-                comment=f"Total pain {score_range}"),
+                comment=f"Total pain (/{self.MAX_SCORE_PER_Q})"),
             SummaryElement(
                 name="continuous_pain", coltype=Float(),
                 value=self.continuous_pain(),
-                comment=f"Continuous pain {score_range}"),
+                comment=f"Continuous pain (/{self.MAX_SCORE_PER_Q})"),
             SummaryElement(
                 name="intermittent_pain", coltype=Float(),
                 value=self.intermittent_pain(),
-                comment=f"Intermittent pain {score_range}"),
+                comment=f"Intermittent pain (/{self.MAX_SCORE_PER_Q})"),
             SummaryElement(
                 name="neuropathic_pain", coltype=Float(),
                 value=self.neuropathic_pain(),
-                comment=f"Neuropathic pain {score_range}"),
+                comment=f"Neuropathic pain (/{self.MAX_SCORE_PER_Q})"),
             SummaryElement(
                 name="affective_pain", coltype=Float(),
                 value=self.affective_pain(),
-                comment=f"Affective pain {score_range}"),
+                comment=f"Affective pain (/{self.MAX_SCORE_PER_Q})"),
         ]
 
     def is_complete(self) -> bool:
@@ -168,9 +167,13 @@ class Sfmpq2(TaskHasPatientMixin,
     def affective_pain(self) -> float:
         return self.mean_fields(self.AFFECTIVE_PAIN_QUESTIONS)
 
-    def get_task_html(self, req: CamcopsRequest) -> str:
-        score_range = f"[{self.MIN_SCORE_PER_Q}–{self.MAX_SCORE_PER_Q}]"
+    def format_average(self, value) -> str:
+        return "{} / {}".format(
+            answer(ws.number_to_dp(value, 3, default="?")),
+            self.MAX_SCORE_PER_Q
+        )
 
+    def get_task_html(self, req: CamcopsRequest) -> str:
         rows = ""
         for q_num in range(1, self.N_QUESTIONS + 1):
             q_field = "q" + str(q_num)
@@ -212,23 +215,23 @@ class Sfmpq2(TaskHasPatientMixin,
             tr_is_complete=self.get_is_complete_tr(req),
             total_pain=tr(
                 self.wxstring(req, "total_pain") + " <sup>[1]</sup>",
-                f"{answer(self.total_pain())} {score_range}"
+                self.format_average(self.total_pain())
             ),
             continuous_pain=tr(
                 self.wxstring(req, "continuous_pain") + " <sup>[2]</sup>",
-                f"{answer(self.continuous_pain())} {score_range}"
+                self.format_average(self.continuous_pain())
             ),
             intermittent_pain=tr(
                 self.wxstring(req, "intermittent_pain") + " <sup>[3]</sup>",
-                f"{answer(self.intermittent_pain())} {score_range}"
+                self.format_average(self.intermittent_pain())
             ),
             neuropathic_pain=tr(
                 self.wxstring(req, "neuropathic_pain") + " <sup>[4]</sup>",
-                f"{answer(self.neuropathic_pain())} {score_range}"
+                self.format_average(self.neuropathic_pain())
             ),
             affective_pain=tr(
                 self.wxstring(req, "affective_pain") + " <sup>[5]</sup>",
-                f"{answer(self.affective_pain())} {score_range}"
+                self.format_average(self.affective_pain())
             ),
             rows=rows,
         )
