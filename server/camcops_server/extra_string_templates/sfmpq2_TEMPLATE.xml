@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="sfmpq2">(
+    <!-- Short-Form McGill Pain Questionnaire (SF-MPQ2) -->
+
+    <string name="title_main">(title)</string>
+
+    <string name="instructions">(instructions)</string>
+
+    <string name="q1">(throbbing)</string>
+    <string name="q2">(shooting)</string>
+    <string name="q3">(stabbing)</string>
+    <string name="q4">(sharp)</string>
+    <string name="q5">(cramping)</string>
+    <string name="q6">(gnawing)</string>
+    <string name="q7">(hot-burning)</string>
+    <string name="q8">(aching)</string>
+    <string name="q9">(heavy)</string>
+    <string name="q10">(tender)</string>
+    <string name="q11">(splitting)</string>
+    <string name="q12">(tiring–exhausting)</string>
+    <string name="q13">(sickening)</string>
+    <string name="q14">(fearful)</string>
+    <string name="q15">(punishing–cruel)</string>
+    <string name="q16">(electric-shock)</string>
+    <string name="q17">(cold-freezing)</string>
+    <string name="q18">(piercing)</string>
+    <string name="q19">(light touch)</string>
+    <string name="q20">(itching)</string>
+    <string name="q21">(tingling)</string>
+    <string name="q22">(numbness)</string>
+
+    <string name="a0">0</string>
+    <string name="a1">1</string>
+    <string name="a2">2</string>
+    <string name="a3">3</string>
+    <string name="a4">4</string>
+    <string name="a5">5</string>
+    <string name="a6">6</string>
+    <string name="a7">7</string>
+    <string name="a8">8</string>
+    <string name="a9">9</string>
+    <string name="a10">10</string>
+
+    <string name="total_pain">(total)</string>
+    <string name="continuous_pain">(continuous)</string>
+    <string name="intermittent_pain">(intermittent)</string>
+    <string name="neuropathic_pain">(neuropathic)</string>
+    <string name="affective_pain">(affective)</string>
+  </task>
+</resources>
