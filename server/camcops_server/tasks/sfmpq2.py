@@ -124,7 +124,7 @@ class Sfmpq2(TaskHasPatientMixin,
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
             SummaryElement(
-                name="total", coltype=Float(),
+                name="total_pain", coltype=Float(),
                 value=self.total_pain(),
                 comment=f"Total pain (/{self.MAX_SCORE_PER_Q})"),
             SummaryElement(
