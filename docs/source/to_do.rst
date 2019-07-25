@@ -43,11 +43,7 @@ Tasks
 
 - :ref:`Khandaker GM — 2 — MOJO study <khandaker_2_mojo>`
 
-- :ref:`Ankylosing Spondylitis Disease Activity Score (ASDAS) <asdas>`
-
 - :ref:`Snaith–Hamilton Pleasure Scale (SHAPS) <shaps>`
-
-- :ref:`Multidimensional Fatigue Inventory (MFI-20) <mfi20>`
 
 - :ref:`Short-Form McGill Pain Questionnaire 2 (SF-MPQ-2) <sfmpq2>`
 
@@ -171,16 +167,6 @@ Client core
   5.12.0 beta 1, so may be possible to improve dialogue boxes again on Android
   (but possibly our workaround sorted it; can't remember); check.
 
-**Not worth it**
-
-- Client-side task index, to speed up the client's patient summary view. (This
-  is not a performance problem!)
-
-- Tasks record the language operational on the client at the moment of their
-  creation. (Would need the client to remove this field for older server
-  versions at the moment of upload.) A reason not to: users can switch language
-  mid-way, and we're not going to track all those potential changes.
-
 
 Server
 ------
@@ -277,8 +263,6 @@ Server
   - Best to implement by fixed column names for all ID numbers, e.g.
     ``_patient_idnum1``, ``_patient_idnum17``, etc.? NULL if absent.
 
-- Upgrade Qt to 5.12 LTS.
-
 - FHIR support via ``fhirclient``.
 
   - https://en.wikipedia.org/wiki/Fast_Healthcare_Interoperability_Resources
@@ -312,25 +296,25 @@ classes used for trackers and CTVs, if there is demand.
 
 The merge facility doesn’t yet allow you to say “ID#8 in database A means
 something different to ID#8 in database B; don’t merge that”. Should it?
-(Example: “research ID” that is group-specific, versus “NHS number” that isn’t.)
-More generally: should some ID numbers be visible only to certain groups?
+(Example: “research ID” that is group-specific, versus “NHS number” that
+isn’t.) More generally: should some ID numbers be visible only to certain
+groups?
 
 **Server-side ability to edit existing (finalized) task instances?**
 
-Would be done in a generic way, i.e. offer table with {fieldname, comment, old
-value, new value}; constrain to min/max or permitted values where applicable; at
-first “submit”, show differences and ask for confirmation; audit changes. For
-BLOBs, allow option to upload file (or leave unchanged).
+Would be done in a generic way, i.e. offer table with {fieldname, comment, old value, new value}; constrain to min/max or permitted values where
+applicable; at first “submit”, show differences and ask for confirmation; audit
+changes. For BLOBs, allow option to upload file (or leave unchanged).
 
 **Client-side index of tasks by patient ID, to speed up lookup on the tablet?**
 
-Might be worthwhile on the client side as the number of tasks grows. (The server
-already has indexing by patient ID.)
+Might be worthwhile on the client side as the number of tasks grows. (The server already has indexing by patient ID.)
 
 **MRI triggering on task side**
 
 For example: CamCOPS tasks running on a desktop and communicating via TCP/IP
-with a tool that talks to an MRI scanner for pulse synchronization and response.
+with a tool that talks to an MRI scanner for pulse synchronization and
+response.
 
 **Further internationalization of task strings**
 
@@ -339,6 +323,18 @@ Should we add an extra field for an ISO-639-1 two-letter language code (e.g.
 servers can already distribute whichever language they want, so the feature
 would only be relevant for “simultaneously multilingual” environments. Deferred
 for now.
+
+
+Considered but rejected
+-----------------------
+
+- Client-side task index, to speed up the client's patient summary view. (This
+  is not a performance problem!)
+
+- Tasks record the language operational on the client at the moment of their
+  creation. (Would need the client to remove this field for older server
+  versions at the moment of upload.) A reason not to: users can switch language
+  mid-way, and we're not going to track all those potential changes.
 
 
 Documentation to-do list
