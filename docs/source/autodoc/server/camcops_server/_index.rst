@@ -64,6 +64,7 @@ server/camcops_server
     alembic/versions/0032_esspri.py.rst
     alembic/versions/0033_asdas.py.rst
     alembic/versions/0034_mfi20.py.rst
+    alembic/versions/0035_sfmpq2.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst
@@ -157,6 +158,7 @@ server/camcops_server
     extra_string_templates/npiq_TEMPLATE.xml.rst
     extra_string_templates/ors_TEMPLATE.xml.rst
     extra_string_templates/pdss_TEMPLATE.xml.rst
+    extra_string_templates/sfmpq2_TEMPLATE.xml.rst
     extra_string_templates/srs_TEMPLATE.xml.rst
     extra_string_templates/suppsp_TEMPLATE.xml.rst
     extra_string_templates/wsas_TEMPLATE.xml.rst
@@ -328,6 +330,7 @@ server/camcops_server
     tasks/qolsg.py.rst
     tasks/rand36.py.rst
     tasks/service_satisfaction.py.rst
+    tasks/sfmpq2.py.rst
     tasks/slums.py.rst
     tasks/smast.py.rst
     tasks/srs.py.rst
