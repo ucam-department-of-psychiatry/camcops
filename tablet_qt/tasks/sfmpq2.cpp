@@ -79,7 +79,7 @@ QString Sfmpq2::shortname() const
 
 QString Sfmpq2::longname() const
 {
-    return tr("Short-Form McGill Pain Questionnaire");
+    return tr("Short-Form McGill Pain Questionnaire 2");
 }
 
 

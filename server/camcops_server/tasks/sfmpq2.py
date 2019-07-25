@@ -119,7 +119,7 @@ class Sfmpq2(TaskHasPatientMixin,
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
         _ = req.gettext
-        return _("Multidimensional Fatigue Inventory")
+        return _("Short-Form McGill Pain Questionnaire 2")
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
