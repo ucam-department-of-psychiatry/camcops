@@ -23,7 +23,6 @@
 Disease Activity Score-28 (DAS28)
 ---------------------------------
 
-.. include:: include_under_development.rst
 .. include:: include_data_collection_plus_local_upgrade.rst
 
 Disease activity score for rheumatoid arthritis. The 28 refers to the number
