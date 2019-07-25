@@ -68,6 +68,7 @@ from camcops_server.tasks.cpft_lps import (
 # *** # from camcops_server.tasks.ctqsf import Ctqsf
 
 from camcops_server.tasks.dad import Dad
+from camcops_server.tasks.das28 import Das28
 from camcops_server.tasks.dast import Dast
 from camcops_server.tasks.deakin_1_healthreview import Deakin1HealthReview
 from camcops_server.tasks.demoquestionnaire import DemoQuestionnaire
