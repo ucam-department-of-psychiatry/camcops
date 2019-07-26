@@ -48,10 +48,14 @@ Contributors
 
 - Martin Burchell, 2019-.
 
+  - Better Github framework/workflow.
   - :ref:`Elixhauser Comorbidity Index (ElixhauserCI) <elixhauserci>`
   - :ref:`Cambridge-Chicago Compulsivity Trait Scale (CHI-T) <chit>`
   - :ref:`Short UPPS-P Impulsive Behaviour Scale (SUPPS-P) <suppsp>`
   - :ref:`EULAR Sjögren’s Syndrome Patient Reported Index (ESSPRI) <esspri>`
+  - :ref:`Ankylosing Spondylitis Disease Activity Score (ASDAS) <asdas>`
+  - :ref:`Multidimensional Fatigue Inventory (MFI-20) <mfi20>`
+  - :ref:`Short-Form McGill Pain Questionnaire (SF-MPQ2) <sfmpq2>`
 
 
 Original Titanium/Javascript client, Python server with custom MySQL interface (defunct)
@@ -2405,3 +2409,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - **New task:** :ref:`Multidimensional Fatigue Inventory (MFI-20) <mfi20>`.
   (Database revision 0034.)
+
+- **New task:** :ref:`Short-Form McGill Pain Questionnaire (SF-MPQ2) <sfmpq2>`.
+  (Database revision 0035.)

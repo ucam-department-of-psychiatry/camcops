@@ -379,6 +379,8 @@ tablet_qt
     qobjects/shootabug.h.rst
     qobjects/showwatcher.cpp.rst
     qobjects/showwatcher.h.rst
+    qobjects/sizewatcher.cpp.rst
+    qobjects/sizewatcher.h.rst
     qobjects/slownonguifunctioncaller.cpp.rst
     qobjects/slownonguifunctioncaller.h.rst
     qobjects/strictdoublevalidator.cpp.rst
@@ -755,6 +757,8 @@ tablet_qt
     tasks/referrersatisfactiongen.h.rst
     tasks/referrersatisfactionspec.cpp.rst
     tasks/referrersatisfactionspec.h.rst
+    tasks/sfmpq2.cpp.rst
+    tasks/sfmpq2.h.rst
     tasks/slums.cpp.rst
     tasks/slums.h.rst
     tasks/smast.cpp.rst
@@ -896,4 +900,8 @@ tablet_qt
     widgets/verticalscrollarea.h.rst
     widgets/verticalscrollareaviewport.cpp.rst
     widgets/verticalscrollareaviewport.h.rst
+    widgets/zoomablegraphicsview.cpp.rst
+    widgets/zoomablegraphicsview.h.rst
+    widgets/zoomablewidget.cpp.rst
+    widgets/zoomablewidget.h.rst
     windows/camcops.rc.rst

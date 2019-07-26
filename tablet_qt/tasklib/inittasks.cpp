@@ -145,6 +145,7 @@
 #include "tasks/referrersatisfactiongen.h"
 #include "tasks/referrersatisfactionspec.h"
 
+#include "tasks/sfmpq2.h"
 #include "tasks/slums.h"
 #include "tasks/smast.h"
 #include "tasks/srs.h"
@@ -290,6 +291,7 @@ void InitTasks(TaskFactory& factory)
     initializeReferrerSatisfactionGen(factory);
     initializeReferrerSatisfactionSpec(factory);
 
+    initializeSfmpq2(factory);
     initializeSlums(factory);
     initializeSmast(factory);
     initializeSrs(factory);
