@@ -45,8 +45,6 @@ Tasks
 
 - :ref:`Snaith–Hamilton Pleasure Scale (SHAPS) <shaps>`
 
-- :ref:`Short-Form McGill Pain Questionnaire 2 (SF-MPQ-2) <sfmpq2>`
-
 - :ref:`Disease Activity Score-28 (DAS28) <das28>`
 
 
