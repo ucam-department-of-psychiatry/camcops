@@ -48,6 +48,8 @@ const QVector<int> INTERMITTENT_PAIN_QUESTIONS{2, 3, 4, 11, 16, 18};
 const QVector<int> NEUROPATHIC_PAIN_QUESTIONS{7, 17, 19, 20, 21, 22};
 const QVector<int> AFFECTIVE_PAIN_QUESTIONS{12, 13, 14, 15};
 
+const bool IGNORE_NULL_FOR_MEAN = true;
+
 
 const QString Sfmpq2::SFMPQ2_TABLENAME("sfmpq2");
 
@@ -85,7 +87,8 @@ QString Sfmpq2::longname() const
 
 QString Sfmpq2::description() const
 {
-    return tr("A comprehensive measure of pain symptoms of both neuropathic and non-neuropathic pain conditions.");
+    return tr("22-item self-report measure of pain symptoms of both "
+              "neuropathic and non-neuropathic pain conditions.");
 }
 
 
@@ -94,10 +97,10 @@ QStringList Sfmpq2::fieldNames() const
     return strseq(QPREFIX, FIRST_Q, N_QUESTIONS);
 }
 
+
 // ============================================================================
 // Instance info
 // ============================================================================
-
 
 bool Sfmpq2::isComplete() const
 {
@@ -111,45 +114,35 @@ bool Sfmpq2::isComplete() const
 
 QVariant Sfmpq2::totalPain() const
 {
-    const bool ignore_null = false;
-
-    return meanOrNull(values(fieldNames()), ignore_null);
+    return meanOrNull(values(fieldNames()), IGNORE_NULL_FOR_MEAN);
 }
 
 
 QVariant Sfmpq2::continuousPain() const
 {
-    const bool ignore_null = false;
-
     return meanOrNull(values(strnumlist(QPREFIX, CONTINUOUS_PAIN_QUESTIONS)),
-                      ignore_null);
+                      IGNORE_NULL_FOR_MEAN);
 }
 
 
 QVariant Sfmpq2::intermittentPain() const
 {
-    const bool ignore_null = false;
-
     return meanOrNull(values(strnumlist(QPREFIX, INTERMITTENT_PAIN_QUESTIONS)),
-                      ignore_null);
+                      IGNORE_NULL_FOR_MEAN);
 }
 
 
 QVariant Sfmpq2::neuropathicPain() const
 {
-    const bool ignore_null = false;
-
     return meanOrNull(values(strnumlist(QPREFIX, NEUROPATHIC_PAIN_QUESTIONS)),
-                      ignore_null);
+                      IGNORE_NULL_FOR_MEAN);
 }
 
 
 QVariant Sfmpq2::affectivePain() const
 {
-    const bool ignore_null = false;
-
     return meanOrNull(values(strnumlist(QPREFIX, AFFECTIVE_PAIN_QUESTIONS)),
-                      ignore_null);
+                      IGNORE_NULL_FOR_MEAN);
 }
 
 
@@ -188,7 +181,7 @@ OpenableWidget* Sfmpq2::editor(const bool read_only)
     NameValueOptions intensity_options;
     QVector<int> option_widths;
 
-    for (int i=0; i<=MAX_SCORE_PER_Q; i++) {
+    for (int i = 0; i <= MAX_SCORE_PER_Q; i++) {
         QString xstringname = QString("a%1").arg(i);
         auto option = NameValuePair(xstring(xstringname), i);
         intensity_options.append(option);

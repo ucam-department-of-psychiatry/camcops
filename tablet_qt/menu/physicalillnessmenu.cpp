@@ -25,6 +25,7 @@
 #include "tasks/asdas.h"
 #include "tasks/elixhauserci.h"
 #include "tasks/esspri.h"
+#include "tasks/sfmpq2.h"
 
 
 PhysicalIllnessMenu::PhysicalIllnessMenu(CamcopsApp& app) :
@@ -46,7 +47,7 @@ void PhysicalIllnessMenu::makeItems()
         MAKE_TASK_MENU_ITEM(ElixhauserCI::ELIXHAUSERCI_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Esspri::ESSPRI_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Asdas::ASDAS_TABLENAME, m_app),
-        // *** McGill Pain Questionnaire Short Form-2 (SF-MPQ2)
+        MAKE_TASK_MENU_ITEM(Sfmpq2::SFMPQ2_TABLENAME, m_app),
         // *** Disease Activity Score 28 (DAS28)
     };
 }
