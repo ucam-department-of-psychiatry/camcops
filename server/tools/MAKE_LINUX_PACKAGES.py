@@ -90,6 +90,7 @@ from camcops_server.cc_modules.cc_baseconstants import (
     LINUX_DEFAULT_LOCK_DIR,
     LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR,
 )
+from camcops_server.cc_modules.cc_pythonversion import assert_minimum_python_version  # noqa
 from camcops_server.cc_modules.cc_version_string import (
     CAMCOPS_SERVER_VERSION_STRING,
     CAMCOPS_SERVER_CHANGEDATE,
@@ -101,10 +102,7 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # Python version requirements
 # =============================================================================
 
-if sys.version_info[0] < 3:
-    raise AssertionError("Need Python 3 or higher")
-if sys.version_info[1] < 5:
-    raise AssertionError("Need Python 3.5 or higher")
+assert_minimum_python_version()
 
 
 # =============================================================================

@@ -24,6 +24,8 @@ camcops_server/tasks/lynall_2_iam_life.py
 
 ===============================================================================
 
+**Lynall M-E — 2 — IAM study — life events.**
+
 """
 
 from typing import Any, Dict, Tuple, Type

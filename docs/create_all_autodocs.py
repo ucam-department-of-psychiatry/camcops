@@ -39,8 +39,10 @@ from cardinal_pythonlib.logs import (
 )
 from cardinal_pythonlib.sphinxtools import AutodocIndex, AutodocMethod
 
-if sys.version_info[0] < 3:
-    raise AssertionError("Need Python 3")
+from camcops_server.cc_modules.cc_pythonversion import assert_minimum_python_version  # noqa
+
+assert_minimum_python_version()
+
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
 # Work out directories

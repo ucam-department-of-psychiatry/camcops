@@ -40,7 +40,6 @@ Creation date: 2019-07-15 15:08:49.770711
 
 from alembic import op
 import sqlalchemy as sa
-import cardinal_pythonlib.sqlalchemy.list_types
 import camcops_server.cc_modules.cc_sqla_coltypes
 
 

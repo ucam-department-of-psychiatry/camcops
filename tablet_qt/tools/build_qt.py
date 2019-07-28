@@ -454,8 +454,6 @@ if Version(cardinal_pythonlib.version.VERSION) < Version(MINIMUM_CARDINAL_PYTHON
     raise ImportError(f"Need cardinal_pythonlib >= {MINIMUM_CARDINAL_PYTHONLIB}")  # noqa
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
-PYTHON_3_6_OR_HIGHER = sys.version_info >= (3, 6)
-
 
 # =============================================================================
 # Constants
@@ -2453,20 +2451,15 @@ def is_tclsh_windows_compatible(tclsh: str = TCLSH) -> bool:
     encoding = sys.getdefaultencoding()
     subproc_run_kwargs = {
         'stdout': subprocess.PIPE,
-        'check': True
+        'check': True,
+        'encoding': encoding,
+        'input': tcl_cmd,
     }
     # In Python 3.5, we deal with bytes objects and manually encode/decode.
     # In Python 3.6+, we can specify the encoding and deal with str objects.
-    if PYTHON_3_6_OR_HIGHER:
-        subproc_run_kwargs['encoding'] = encoding
-        subproc_run_kwargs['input'] = tcl_cmd
-    else:
-        subproc_run_kwargs['input'] = tcl_cmd.encode(encoding)
+    # Now we are always using Python 3.6+.
     completed_proc = subprocess.run(cmdargs, **subproc_run_kwargs)
-    if PYTHON_3_6_OR_HIGHER:
-        result = completed_proc.stdout  # type: str
-    else:
-        result = completed_proc.stdout.decode(encoding)  # type: str
+    result = completed_proc.stdout  # type: str
     if result == correct:
         return True
     elif result == incorrect:

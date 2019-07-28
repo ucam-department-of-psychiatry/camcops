@@ -77,6 +77,7 @@ from camcops_server.cc_modules.cc_constants import (
     DEFAULT_FLOWER_ADDRESS,
     DEFAULT_FLOWER_PORT,
 )
+from camcops_server.cc_modules.cc_pythonversion import assert_minimum_python_version  # noqa
 from camcops_server.cc_modules.cc_snomed import send_athena_icd_snomed_to_xml
 from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 
@@ -91,8 +92,7 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # Check Python version (the shebang is not a guarantee)
 # =============================================================================
 
-if sys.version_info < (3, 6):
-    raise AssertionError("Need Python 3.6 or higher; this is " + sys.version)
+assert_minimum_python_version()
 
 # =============================================================================
 # Debugging options
