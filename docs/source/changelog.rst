@@ -2409,5 +2409,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - **New task:** :ref:`Short-Form McGill Pain Questionnaire (SF-MPQ2) <sfmpq2>`.
   (Database revision 0035.)
 
-- **New task:** :ref:`Disease Activity Score-28 (DAS-28) <das28>`.
+- **New task:** :ref:`Disease Activity Score-28 (DAS28) <das28>`.
   (Database revision 0036.)
