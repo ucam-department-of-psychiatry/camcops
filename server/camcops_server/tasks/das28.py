@@ -32,7 +32,14 @@ import math
 from typing import Any, Dict, List, Optional, Type, Tuple
 
 from camcops_server.cc_modules.cc_constants import CssClass
-from camcops_server.cc_modules.cc_html import answer, table_row, th, td, tr
+from camcops_server.cc_modules.cc_html import (
+    answer,
+    table_row,
+    th,
+    td,
+    tr,
+    tr_qa,
+)
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BoolColumn,
@@ -60,7 +67,7 @@ class Das28Metaclass(DeclarativeMeta):
                  name: str,
                  bases: Tuple[Type, ...],
                  classdict: Dict[str, Any]) -> None:
-        for field_name in cls.get_count_field_names():
+        for field_name in cls.get_joint_field_names():
             setattr(cls, field_name,
                     BoolColumn(field_name, comment="0 no, 1 yes"))
 
@@ -106,6 +113,8 @@ class Das28(TaskHasPatientMixin,
     SIDES = ['left', 'right']
     STATES = ['swollen', 'tender']
 
+    OTHER_FIELD_NAMES = ['vas', 'crp', 'esr']
+
     # as recommended by https://rmdopen.bmj.com/content/3/1/e000382
     CRP_REMISSION_LOW_CUTOFF = 2.4
     CRP_LOW_MODERATE_CUTOFF = 2.9
@@ -122,7 +131,7 @@ class Das28(TaskHasPatientMixin,
         return f"{side}_{joint}_{state}"
 
     @classmethod
-    def get_count_field_names(cls) -> List:
+    def get_joint_field_names(cls) -> List:
         field_names = []
 
         for joint in cls.JOINTS:
@@ -134,7 +143,7 @@ class Das28(TaskHasPatientMixin,
 
     @classmethod
     def get_all_field_names(cls) -> List:
-        return cls.get_count_field_names() + ['vas', 'crp', 'esr']
+        return cls.get_joint_field_names() + cls.OTHER_FIELD_NAMES
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
@@ -162,7 +171,7 @@ class Das28(TaskHasPatientMixin,
         ]
 
     def is_complete(self) -> bool:
-        if self.any_fields_none(self.get_count_field_names() + ['vas']):
+        if self.any_fields_none(self.get_joint_field_names() + ['vas']):
             return False
 
         if self.crp is None and self.esr is None:
@@ -253,12 +262,12 @@ class Das28(TaskHasPatientMixin,
 
     def swollen_joint_count(self):
         return self.count_booleans(
-            [n for n in self.get_count_field_names() if n.endswith("swollen")]
+            [n for n in self.get_joint_field_names() if n.endswith("swollen")]
         )
 
     def tender_joint_count(self):
         return self.count_booleans(
-            [n for n in self.get_count_field_names() if n.endswith("tender")]
+            [n for n in self.get_joint_field_names() if n.endswith("tender")]
         )
 
     def das28_crp(self) -> Optional[float]:
@@ -322,10 +331,10 @@ class Das28(TaskHasPatientMixin,
         sides_strings = [self.wxstring(req, s) for s in self.SIDES]
         states_strings = [self.wxstring(req, s) for s in self.STATES]
 
-        rows += table_row([""] + sides_strings,
-                          colspans=[1, 2, 2])
+        joint_rows = table_row([""] + sides_strings,
+                               colspans=[1, 2, 2])
 
-        rows += table_row([""] + states_strings * 2)
+        joint_rows += table_row([""] + states_strings * 2)
 
         for joint in self.JOINTS:
             cells = [th(self.wxstring(req, joint))]
@@ -337,10 +346,13 @@ class Das28(TaskHasPatientMixin,
 
                     cells.append(td(value))
 
-            rows += tr(*cells, literal=True)
+            joint_rows += tr(*cells, literal=True)
 
         das28_crp = ws.number_to_dp(self.das28_crp(), 2, default="?")
         das28_esr = ws.number_to_dp(self.das28_esr(), 2, default="?")
+
+        other_rows = [tr_qa(self.wxstring(req, f), getattr(self, f))
+                      for f in self.OTHER_FIELD_NAMES]
 
         html = """
             <div class="{CssClass.SUMMARY}">
@@ -353,7 +365,10 @@ class Das28(TaskHasPatientMixin,
                 </table>
             </div>
             <table class="{CssClass.TASKDETAIL}">
-                {rows}
+                {joint_rows}
+            </table>
+            <table class="{CssClass.TASKDETAIL}">
+                {other_rows}
             </table>
             <div class="{CssClass.FOOTNOTES}">
             TODO
@@ -383,6 +398,7 @@ class Das28(TaskHasPatientMixin,
                 self.wxstring(req, "tender_count"),
                 self.tender_joint_count()
             ),
-            rows=rows,
+            joint_rows=joint_rows,
+            other_rows=other_rows
         )
         return html
