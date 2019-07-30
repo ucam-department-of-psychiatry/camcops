@@ -201,16 +201,11 @@ class Das28(TaskHasPatientMixin,
             0,
         ]
 
-        label_offset = 0.25
-
         horizontal_labels = [
-            TrackerLabel(self.CRP_MODERATE_HIGH_CUTOFF + label_offset,
-                         self.wxstring(req, "high")),
-            TrackerLabel(self.CRP_LOW_MODERATE_CUTOFF + label_offset,
-                         self.wxstring(req, "moderate")),
-            TrackerLabel(self.CRP_REMISSION_LOW_CUTOFF + label_offset,
-                         self.wxstring(req, "low")),
-            TrackerLabel(label_offset, self.wxstring(req, "remission")),
+            TrackerLabel(6.8, self.wxstring(req, "high")),
+            TrackerLabel(3.75, self.wxstring(req, "moderate")),
+            TrackerLabel(2.65, self.wxstring(req, "low")),
+            TrackerLabel(1.2, self.wxstring(req, "remission")),
         ]
 
         return TrackerInfo(
@@ -237,16 +232,11 @@ class Das28(TaskHasPatientMixin,
             0,
         ]
 
-        label_offset = 0.25
-
         horizontal_labels = [
-            TrackerLabel(self.ESR_MODERATE_HIGH_CUTOFF + label_offset,
-                         self.wxstring(req, "high")),
-            TrackerLabel(self.ESR_LOW_MODERATE_CUTOFF + label_offset,
-                         self.wxstring(req, "moderate")),
-            TrackerLabel(self.ESR_REMISSION_LOW_CUTOFF + label_offset,
-                         self.wxstring(req, "low")),
-            TrackerLabel(label_offset, self.wxstring(req, "remission")),
+            TrackerLabel(7.55, self.wxstring(req, "high")),
+            TrackerLabel(4.15, self.wxstring(req, "moderate")),
+            TrackerLabel(2.9, self.wxstring(req, "low")),
+            TrackerLabel(1.3, self.wxstring(req, "remission")),
         ]
 
         return TrackerInfo(
