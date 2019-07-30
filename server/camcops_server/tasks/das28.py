@@ -225,6 +225,8 @@ class Das28(TaskHasPatientMixin,
         if self.crp is None:
             return None
 
+        # TODO: VAS null
+
         return (
             0.56 * math.sqrt(self.tender_joint_count()) +
             0.28 * math.sqrt(self.swollen_joint_count()) +
@@ -236,6 +238,8 @@ class Das28(TaskHasPatientMixin,
     def das28_esr(self) -> Optional[float]:
         if self.esr is None:
             return None
+
+        # TODO: VAS null
 
         return (
             0.56 * math.sqrt(self.tender_joint_count()) +
@@ -265,6 +269,8 @@ class Das28(TaskHasPatientMixin,
         pass
 
     def get_task_html(self, req: CamcopsRequest) -> str:
+        _ = req.gettext
+
         rows = ""
 
         sides_strings = [self.wxstring(req, s) for s in self.SIDES]
@@ -279,10 +285,13 @@ class Das28(TaskHasPatientMixin,
             cells = [th(self.wxstring(req, joint))]
             for side in self.SIDES:
                 for state in self.STATES:
-                    value = getattr(self, self.field_name(joint, side, state))
+                    value = ""
+                    if getattr(self, self.field_name(side, joint, state)):
+                        value = _("Yes")
+
                     cells.append(td(value))
 
-            rows += tr(cells, literal=True)
+            rows += tr(*cells, literal=True)
 
         das28_crp = ws.number_to_dp(self.das28_crp(), 2, default="?")
         das28_esr = ws.number_to_dp(self.das28_esr(), 2, default="?")
@@ -310,23 +319,23 @@ class Das28(TaskHasPatientMixin,
                 self.wxstring(req, "das28_crp") + " <sup>[1][2]</sup>",
                 "{} ({})".format(
                     answer(das28_crp),
-                    self.activity_state(req, self.das28_crp())
+                    self.activity_state_crp(req, self.das28_crp())
                 )
             ),
             das28_esr=tr(
                 self.wxstring(req, "das28_esr") + " <sup>[1][3]</sup>",
                 "{} ({})".format(
                     answer(das28_esr),
-                    self.activity_state(req, self.das28_esr())
+                    self.activity_state_esr(req, self.das28_esr())
                 )
+            ),
+            swollen_joint_count=tr(
+                self.wxstring(req, "swollen_count"),
+                self.swollen_joint_count()
             ),
             tender_joint_count=tr(
                 self.wxstring(req, "tender_count"),
-                self.tender_joint_coint
-            ),
-            swollen_joint_count=tr(
-                self.wxstring(req, "tender_count"),
-                self.tender_joint_coint
+                self.tender_joint_count()
             ),
             rows=rows,
         )
