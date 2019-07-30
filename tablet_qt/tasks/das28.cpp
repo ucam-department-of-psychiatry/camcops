@@ -423,10 +423,10 @@ QuGridContainer* Das28::getJointGrid()
 
     int row = 0;
 
-    const QStringList foo = {"shoulder", "mcp_1", "pip_1", "knee"};
+    const QStringList first_joints = {"shoulder", "mcp_1", "pip_1", "knee"};
 
     for (const QString& joint : getJointNames()) {
-        if (foo.contains(joint)) {
+        if (first_joints.contains(joint)) {
             if (row != 0) {
                 grid->addCell(QuGridCell(new QuSpacer(QSize(uiconst::BIGSPACE,
                                                             uiconst::BIGSPACE)), row, 0));
