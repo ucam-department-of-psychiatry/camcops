@@ -47,6 +47,8 @@ const int CRP_MAX = 300;
 const int ESR_MIN = 1;
 const int ESR_MAX = 300;
 
+const int CRP_ESR_DP = 2;
+
 const int GRID_ROW_SPAN = 1;
 const int GRID_JOINT_COLUMN_SPAN = 3;
 const int GRID_SIDE_COLUMN_SPAN = 2;
@@ -228,27 +230,52 @@ int Das28::tenderJointCount() const
 }
 
 
-QString Das28::activityState(QVariant measurement) const
+QString Das28::activityStateCrp(QVariant measurement) const
 {
-    // TODO
+    // as recommended by https://rmdopen.bmj.com/content/3/1/e000382
 
     if (measurement.isNull()) {
         return xstring("n_a");
     }
 
-    if (measurement < 1.3) {
-        return xstring("inactive");
+    if (measurement < 2.4) {
+        return xstring("remission");
     }
 
-    if (measurement < 2.1) {
-        return xstring("moderate");
+    if (measurement < 2.9) {
+        return xstring("low");
     }
 
-    if (measurement > 3.5) {
-        return xstring("very_high");
+    if (measurement > 4.6) {
+        return xstring("high");
     }
 
-    return xstring("high");
+    return xstring("moderate");
+}
+
+
+QString Das28::activityStateEsr(QVariant measurement) const
+{
+    // https://onlinelibrary.wiley.com/doi/full/10.1002/acr.21649
+    // (has same cutoffs for CRP)
+
+    if (measurement.isNull()) {
+        return xstring("n_a");
+    }
+
+    if (measurement < 2.6) {
+        return xstring("remission");
+    }
+
+    if (measurement < 3.2) {
+        return xstring("low");
+    }
+
+    if (measurement > 5.1) {
+        return xstring("high");
+    }
+
+    return xstring("moderate");
 }
 
 
@@ -256,17 +283,17 @@ QStringList Das28::summary() const
 {
     using stringfunc::bold;
 
-    const QVariant crp = das28Crp();
-    const QVariant esr = das28Esr();
+    const QVariant das28_crp = das28Crp();
+    const QVariant das28_esr = das28Esr();
 
     return QStringList{
         QString("%1: %2 (%3)").arg(xstring("das28_crp"),
-                                   convert::prettyValue(crp),
-                                   bold(activityState(crp))
+                                   convert::prettyValue(das28_crp, CRP_ESR_DP),
+                                   bold(activityStateCrp(das28_crp))
         ),
         QString("%1: %2 (%3)").arg(xstring("das28_esr"),
-                                   convert::prettyValue(esr),
-                                   bold(activityState(esr))
+                                   convert::prettyValue(das28_esr, CRP_ESR_DP),
+                                   bold(activityStateEsr(das28_esr))
         ),
     };
 }

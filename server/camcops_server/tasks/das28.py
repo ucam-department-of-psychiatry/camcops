@@ -106,9 +106,16 @@ class Das28(TaskHasPatientMixin,
     SIDES = ['left', 'right']
     STATES = ['swollen', 'tender']
 
-    INACTIVE_MODERATE_CUTOFF = 1.3
-    MODERATE_HIGH_CUTOFF = 2.1
-    HIGH_VERY_HIGH_CUTOFF = 3.5
+    # as recommended by https://rmdopen.bmj.com/content/3/1/e000382
+    CRP_REMISSION_LOW_CUTOFF = 2.4
+    CRP_LOW_MODERATE_CUTOFF = 2.9
+    CRP_MODERATE_HIGH_CUTOFF = 4.6
+
+    # https://onlinelibrary.wiley.com/doi/full/10.1002/acr.21649
+    # (has same cutoffs for CRP)
+    ESR_REMISSION_LOW_CUTOFF = 2.6
+    ESR_LOW_MODERATE_CUTOFF = 3.2
+    ESR_MODERATE_HIGH_CUTOFF = 5.1
 
     @classmethod
     def field_name(cls, side, joint, state) -> str:
@@ -249,28 +256,36 @@ class Das28(TaskHasPatientMixin,
         )
 
     def activity_state_crp(self, req: CamcopsRequest, measurement: Any) -> str:
-        # TODO: Fix
         if measurement is None:
             return self.wxstring(req, "n_a")
 
-        if measurement < self.INACTIVE_MODERATE_CUTOFF:
-            return self.wxstring(req, "inactive")
+        if measurement < self.CRP_REMISSION_LOW_CUTOFF:
+            return self.wxstring(req, "remission")
 
-        if measurement < self.MODERATE_HIGH_CUTOFF:
-            return self.wxstring(req, "moderate")
+        if measurement < self.CRP_LOW_MODERATE_CUTOFF:
+            return self.wxstring(req, "low")
 
-        if measurement > self.HIGH_VERY_HIGH_CUTOFF:
-            return self.wxstring(req, "very_high")
+        if measurement > self.CRP_MODERATE_HIGH_CUTOFF:
+            return self.wxstring(req, "high")
 
-        return self.wxstring(req, "high")
+        return self.wxstring(req, "moderate")
 
     def activity_state_esr(self, req: CamcopsRequest, measurement: Any) -> str:
-        # TODO: Implement
-        pass
+        if measurement is None:
+            return self.wxstring(req, "n_a")
+
+        if measurement < self.ESR_REMISSION_LOW_CUTOFF:
+            return self.wxstring(req, "remission")
+
+        if measurement < self.ESR_LOW_MODERATE_CUTOFF:
+            return self.wxstring(req, "low")
+
+        if measurement > self.ESR_MODERATE_HIGH_CUTOFF:
+            return self.wxstring(req, "high")
+
+        return self.wxstring(req, "moderate")
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        rows = ""
-
         sides_strings = [self.wxstring(req, s) for s in self.SIDES]
         states_strings = [self.wxstring(req, s) for s in self.STATES]
 

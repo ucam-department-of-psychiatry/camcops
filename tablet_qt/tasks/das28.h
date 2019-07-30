@@ -74,5 +74,6 @@ private:
     QuGridContainer *getJointGrid();
     void addJointGridHeading(QuGridContainer *grid, int &row);
 
-    QString activityState(QVariant measurement) const;
+    QString activityStateCrp(QVariant measurement) const;
+    QString activityStateEsr(QVariant measurement) const;
 };
