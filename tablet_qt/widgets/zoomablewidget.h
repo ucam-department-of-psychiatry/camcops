@@ -48,12 +48,15 @@ public:
     // - max_scale: maximum scale permitted.
     // - scale_step_factor: a single notch of a mouse wheel zooms in/out by
     //   this factor.
+    // - minimum_size: how small can this widget go? Since it zooms its
+    //   contents, this can be pretty small.
     // - parent: widget's parent (optional)
     ZoomableWidget(QWidget* contents,
                    bool can_scale_smaller_than_viewport = false,
                    qreal min_scale = 0.2,
                    qreal max_scale = 5.0,
                    qreal scale_step_factor = 1.1,
+                   const QSize& minimum_size = QSize(300, 300),
                    QWidget* parent = nullptr);
 
 protected:
@@ -63,12 +66,9 @@ protected:
     virtual bool hasHeightForWidth() const override;
     virtual int heightForWidth(int width) const override;
 
-protected slots:
-    void widgetSizeChanged(const QSize& size);
-
 protected:
-    QWidget* m_contents;
-    QPointer<QGraphicsScene> m_scene;
-    QPointer<ZoomableGraphicsView> m_view;
-    QPointer<SizeWatcher> m_size_watcher;
+    QWidget* m_contents;  // the widget we're displaying
+    QPointer<QGraphicsScene> m_scene;  // a graphics scene containing the contents
+    QPointer<ZoomableGraphicsView> m_view;  // view to display/zoom the scene
+    QSize m_minimum_size;  // how small may we be displayed?
 };

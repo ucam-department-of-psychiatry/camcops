@@ -52,6 +52,7 @@ class Sfmpq2Metaclass(DeclarativeMeta):
                  bases: Tuple[Type, ...],
                  classdict: Dict[str, Any]) -> None:
 
+        # Field descriptions are open access, as per:
         # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5221718/
         # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3225325/
         comment_strings = [
@@ -117,7 +118,7 @@ class Sfmpq2(TaskHasPatientMixin,
         "q", {12, 13, 14, 15})
 
     @staticmethod
-    def longname(req: "CamcopsRequest") -> str:
+    def longname(req: CamcopsRequest) -> str:
         _ = req.gettext
         return _("Short-Form McGill Pain Questionnaire 2")
 

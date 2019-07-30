@@ -17,9 +17,13 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+// #define DEBUG_EVENTS
+
 #include "sizewatcher.h"
+#include <QDebug>
 #include <QEvent>
 #include <QResizeEvent>
+#include <QWidget>
 
 
 SizeWatcher::SizeWatcher(QObject* parent) :
@@ -32,10 +36,16 @@ SizeWatcher::SizeWatcher(QObject* parent) :
 
 bool SizeWatcher::eventFilter(QObject* obj, QEvent* event)
 {
-    Q_UNUSED(obj);
-    if (event->type() == QEvent::Resize) {
+#ifdef DEBUG_EVENTS
+    qDebug() << Q_FUNC_INFO << event;
+#endif
+    const QEvent::Type type = event->type();
+    if (type == QEvent::Resize) {
         auto resize_event = static_cast<QResizeEvent*>(event);
         emit resized(resize_event->size());
+    } else if (type == QEvent::Show) {
+        auto w = dynamic_cast<QWidget*>(obj);
+        emit shown(w ? w->size() : QSize());
     }
     return false;  // continue processing the event
 }

@@ -30,29 +30,20 @@ camcops_server/tasks/elixhauserci.py
 
 from typing import Any, Dict, List, Tuple, Type
 
-from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
-from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
-from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
-from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import get_yes_no_unknown, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import BoolColumn
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import (
-    get_from_dict,
     Task,
     TaskHasClinicianMixin,
     TaskHasPatientMixin,
 )
 from camcops_server.cc_modules.cc_text import SS
-from camcops_server.cc_modules.cc_trackerhelpers import (
-    TrackerInfo,
-    TrackerLabel,
-)
 
 
 # =============================================================================

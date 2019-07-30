@@ -26,6 +26,7 @@ camcops_server/tasks/diagnosis.py
 
 """
 
+from abc import ABC
 import logging
 from typing import Any, Dict, List, Type, TYPE_CHECKING
 
@@ -88,7 +89,7 @@ from camcops_server.cc_modules.cc_snomed import (
     SnomedExpression,
     SnomedFocusConcept,
 )
-from camcops_server.cc_modules.cc_sqlalchemy import Base
+from camcops_server.cc_modules.cc_sqlalchemy import Base, DeclarativeAndABCMeta
 from camcops_server.cc_modules.cc_sqla_coltypes import DiagnosticCodeColType
 
 if TYPE_CHECKING:
@@ -164,7 +165,8 @@ class DiagnosisItemBase(GenericTabletRecordMixin, Base):
         return not bool(self.code)
 
 
-class DiagnosisBase(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
+class DiagnosisBase(TaskHasClinicianMixin, TaskHasPatientMixin, Task, ABC,
+                    metaclass=DeclarativeAndABCMeta):
     __abstract__ = True
 
     # noinspection PyMethodParameters
@@ -177,7 +179,6 @@ class DiagnosisBase(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
 
     items = None  # type: List[DiagnosisItemBase]  # must be overridden by a relationship  # noqa
 
-    MUST_OVERRIDE = "DiagnosisBase: must override fn in derived class"
     hl7_coding_system = "?"
 
     def get_num_items(self) -> int:

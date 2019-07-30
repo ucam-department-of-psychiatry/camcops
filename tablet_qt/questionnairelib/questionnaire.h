@@ -293,6 +293,9 @@ protected:
     // User has clicked "next". If valid, advance to the next page.
     virtual void processNextClicked();
 
+    // The stylesheet we will apply.
+    QString questionnaireStylesheet() const;
+
 protected slots:
 
     // "User has clicked cancel." Check they mean it, etc.

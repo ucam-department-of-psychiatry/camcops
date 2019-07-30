@@ -26,6 +26,7 @@ camcops_server/tasks/pcl.py
 
 """
 
+from abc import ABCMeta, ABC
 from typing import Any, Dict, List, Tuple, Type
 
 from cardinal_pythonlib.stringfunc import strseq
@@ -58,7 +59,7 @@ from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
 # PCL
 # =============================================================================
 
-class PclMetaclass(DeclarativeMeta):
+class PclMetaclass(DeclarativeMeta, ABCMeta):
     """
     There is a multilayer metaclass problem; see hads.py for discussion.
     """
@@ -94,7 +95,7 @@ class PclMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class PclCommon(TaskHasPatientMixin, Task,
+class PclCommon(TaskHasPatientMixin, Task, ABC,
                 metaclass=PclMetaclass):
     __abstract__ = True
     provides_trackers = True

@@ -41,4 +41,7 @@ public:
 signals:
     // "The watched object is being resized."
     void resized(QSize size);
+
+    // "The watched object is being shown (at a certain size)."
+    void shown(QSize size);
 };

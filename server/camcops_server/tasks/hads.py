@@ -26,6 +26,7 @@ camcops_server/tasks/hads.py
 
 """
 
+from abc import ABC, ABCMeta
 import logging
 from typing import Any, Dict, List, Tuple, Type
 
@@ -59,7 +60,7 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # HADS (crippled unless upgraded locally) - base classes
 # =============================================================================
 
-class HadsMetaclass(DeclarativeMeta):
+class HadsMetaclass(DeclarativeMeta, ABCMeta):
     """
     We can't make this metaclass inherit from DeclarativeMeta.
 
@@ -188,6 +189,11 @@ class HadsMetaclass(DeclarativeMeta):
     the metaclass of a derived class must be a (non-strict) subclass of the
     metaclasses of all its bases.")
 
+    UPDATE 2019-07-28:
+
+    - To fix "class must implement all abstract methods" warning from PyCharm,
+      add "ABCMeta" to superclass list of HadsMetaclass.
+
     """
     # noinspection PyInitNewSignature
     def __init__(cls: Type['HadsBase'],
@@ -207,7 +213,7 @@ class HadsMetaclass(DeclarativeMeta):
         super().__init__(name, bases, classdict)
 
 
-class HadsBase(TaskHasPatientMixin, Task,
+class HadsBase(TaskHasPatientMixin, Task, ABC,
                metaclass=HadsMetaclass):
     """
     Server implementation of the HADS task.
