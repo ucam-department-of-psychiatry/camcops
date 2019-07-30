@@ -747,6 +747,7 @@ SOURCES += \
     tasks/cpftlpsreferral.cpp \
     tasks/cpftlpsresetresponseclock.cpp \
     tasks/dad.cpp \
+    tasks/das28.cpp \
     tasks/dast.cpp \
     tasks/deakin1healthreview.cpp \
     tasks/demoquestionnaire.cpp \
@@ -1179,6 +1180,7 @@ HEADERS += \
     tasks/cpftlpsreferral.h \
     tasks/cpftlpsresetresponseclock.h \
     tasks/dad.h \
+    tasks/das28.h \
     tasks/dast.h \
     tasks/deakin1healthreview.h \
     tasks/demoquestionnaire.h \

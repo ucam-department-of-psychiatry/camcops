@@ -26,6 +26,7 @@
 #include "tasks/asdas.h"
 #include "tasks/chit.h"
 #include "tasks/cisr.h"
+#include "tasks/das28.h"
 #include "tasks/elixhauserci.h"
 #include "tasks/eq5d5l.h"
 #include "tasks/esspri.h"
@@ -65,7 +66,7 @@ void SetMenuKhandaker2Mojo::makeItems()
         MAKE_TASK_MENU_ITEM(Mfi20::MFI20_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Sfmpq2::SFMPQ2_TABLENAME, m_app),
 
-        // *** Disease Activity Score 28 (DAS28)
+        MAKE_TASK_MENU_ITEM(Das28::DAS28_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Chit::CHIT_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Suppsp::SUPPSP_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Cisr::CISR_TABLENAME, m_app),
