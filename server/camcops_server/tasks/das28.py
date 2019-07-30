@@ -371,20 +371,38 @@ class Das28(TaskHasPatientMixin,
                 {other_rows}
             </table>
             <div class="{CssClass.FOOTNOTES}">
-            TODO
+                [1] 0.56 × √(tender joint count) +
+                    0.28 × √(swollen joint count) +
+                    0.36 × ln(CRP + 1) +
+                    0.014 x VAS disease activity +
+                    0.96.
+                    CRP 0-300 mg/L. VAS: 0-100mm<br>
+                    &lt;2.4 Remission
+                    &lt;2.9 Low disease activity,
+                    2.9-4.6 Moderate disease activity,
+                    &gt;4.6 High disease activity.<br>
+                [2] 0.56 × √(tender joint count) +
+                    0.28 × √(swollen joint count) +
+                    0.70 × ln(ESR) +
+                    0.014 x VAS disease activity.
+                    ESR 1-300 mm/h. VAS: 0-100mm<br>
+                    &lt;2.6 Remission
+                    &lt;3.2 Low disease activity,
+                    3.2-5.1 Moderate disease activity,
+                    &gt;5.1 High disease activity.<br>
             </div>
         """.format(
             CssClass=CssClass,
             tr_is_complete=self.get_is_complete_tr(req),
             das28_crp=tr(
-                self.wxstring(req, "das28_crp") + " <sup>[1][2]</sup>",
+                self.wxstring(req, "das28_crp") + " <sup>[1]</sup>",
                 "{} ({})".format(
                     answer(das28_crp),
                     self.activity_state_crp(req, self.das28_crp())
                 )
             ),
             das28_esr=tr(
-                self.wxstring(req, "das28_esr") + " <sup>[1][3]</sup>",
+                self.wxstring(req, "das28_esr") + " <sup>[2]</sup>",
                 "{} ({})".format(
                     answer(das28_esr),
                     self.activity_state_esr(req, self.das28_esr())
@@ -392,11 +410,11 @@ class Das28(TaskHasPatientMixin,
             ),
             swollen_joint_count=tr(
                 self.wxstring(req, "swollen_count"),
-                self.swollen_joint_count()
+                answer(self.swollen_joint_count())
             ),
             tender_joint_count=tr(
                 self.wxstring(req, "tender_count"),
-                self.tender_joint_count()
+                answer(self.tender_joint_count())
             ),
             joint_rows=joint_rows,
             other_rows=other_rows
