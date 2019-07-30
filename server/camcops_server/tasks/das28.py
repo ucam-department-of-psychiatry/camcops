@@ -269,8 +269,6 @@ class Das28(TaskHasPatientMixin,
         pass
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        _ = req.gettext
-
         rows = ""
 
         sides_strings = [self.wxstring(req, s) for s in self.SIDES]
@@ -287,7 +285,7 @@ class Das28(TaskHasPatientMixin,
                 for state in self.STATES:
                     value = ""
                     if getattr(self, self.field_name(side, joint, state)):
-                        value = _("Yes")
+                        value = "✓"
 
                     cells.append(td(value))
 

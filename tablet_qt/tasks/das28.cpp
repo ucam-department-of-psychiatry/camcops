@@ -308,7 +308,7 @@ QStringList Das28::detail() const
                 const QVariant cell_value = value(fieldname);
 
                 if (!cell_value.isNull()) {
-                    cell_contents = (cell_value.toBool() ? "x" : "");
+                    cell_contents = (cell_value.toBool() ? "✓" : "");
                 }
                 html.append(cell_contents);
                 html.append("</td>");
