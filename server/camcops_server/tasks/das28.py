@@ -261,10 +261,8 @@ class Das28(TaskHasPatientMixin,
         )
 
     def das28_crp(self) -> Optional[float]:
-        if self.crp is None:
+        if self.crp is None or self.vas is None:
             return None
-
-        # TODO: VAS null
 
         return (
             0.56 * math.sqrt(self.tender_joint_count()) +
@@ -275,10 +273,8 @@ class Das28(TaskHasPatientMixin,
         )
 
     def das28_esr(self) -> Optional[float]:
-        if self.esr is None:
+        if self.esr is None or self.vas is None:
             return None
-
-        # TODO: VAS null
 
         return (
             0.56 * math.sqrt(self.tender_joint_count()) +
