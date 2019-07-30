@@ -174,49 +174,82 @@ class Das28(TaskHasPatientMixin,
         return True
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
-        # TODO: Find out cutoffs for both CRP and ESR versions
+        return [
+            self.get_crp_tracker(req),
+            self.get_esr_tracker(req),
+        ]
 
+    def get_crp_tracker(self, req: CamcopsRequest) -> TrackerInfo:
         axis_min = -0.5
-        axis_max = 7.5
+        axis_max = 9.0
         axis_ticks = [TrackerAxisTick(n, str(n))
                       for n in range(0, int(axis_max) + 1)]
 
         horizontal_lines = [
-            self.HIGH_VERY_HIGH_CUTOFF,
-            self.MODERATE_HIGH_CUTOFF,
-            self.INACTIVE_MODERATE_CUTOFF,
+            self.CRP_MODERATE_HIGH_CUTOFF,
+            self.CRP_LOW_MODERATE_CUTOFF,
+            self.CRP_REMISSION_LOW_CUTOFF,
             0,
         ]
 
+        label_offset = 0.25
+
         horizontal_labels = [
-            TrackerLabel(5.25, self.wxstring(req, "very_high")),
-            TrackerLabel(2.8, self.wxstring(req, "high")),
-            TrackerLabel(1.7, self.wxstring(req, "moderate")),
-            TrackerLabel(0.65, self.wxstring(req, "inactive")),
+            TrackerLabel(self.CRP_MODERATE_HIGH_CUTOFF + label_offset,
+                         self.wxstring(req, "high")),
+            TrackerLabel(self.CRP_LOW_MODERATE_CUTOFF + label_offset,
+                         self.wxstring(req, "moderate")),
+            TrackerLabel(self.CRP_REMISSION_LOW_CUTOFF + label_offset,
+                         self.wxstring(req, "low")),
+            TrackerLabel(label_offset, self.wxstring(req, "remission")),
         ]
 
-        return [
-            TrackerInfo(
-                value=self.das28_crp(),
-                plot_label="DAS28-CRP",
-                axis_label="DAS28-CRP",
-                axis_min=axis_min,
-                axis_max=axis_max,
-                axis_ticks=axis_ticks,
-                horizontal_lines=horizontal_lines,
-                horizontal_labels=horizontal_labels,
-            ),
-            TrackerInfo(
-                value=self.das28_esr(),
-                plot_label="DAS28-ESR",
-                axis_label="DAS28-ESR",
-                axis_min=axis_min,
-                axis_max=axis_max,
-                axis_ticks=axis_ticks,
-                horizontal_lines=horizontal_lines,
-                horizontal_labels=horizontal_labels,
-            ),
+        return TrackerInfo(
+            value=self.das28_crp(),
+            plot_label="DAS28-CRP",
+            axis_label="DAS28-CRP",
+            axis_min=axis_min,
+            axis_max=axis_max,
+            axis_ticks=axis_ticks,
+            horizontal_lines=horizontal_lines,
+            horizontal_labels=horizontal_labels,
+        )
+
+    def get_esr_tracker(self, req: CamcopsRequest) -> TrackerInfo:
+        axis_min = -0.5
+        axis_max = 10.0
+        axis_ticks = [TrackerAxisTick(n, str(n))
+                      for n in range(0, int(axis_max) + 1)]
+
+        horizontal_lines = [
+            self.ESR_MODERATE_HIGH_CUTOFF,
+            self.ESR_LOW_MODERATE_CUTOFF,
+            self.ESR_REMISSION_LOW_CUTOFF,
+            0,
         ]
+
+        label_offset = 0.25
+
+        horizontal_labels = [
+            TrackerLabel(self.ESR_MODERATE_HIGH_CUTOFF + label_offset,
+                         self.wxstring(req, "high")),
+            TrackerLabel(self.ESR_LOW_MODERATE_CUTOFF + label_offset,
+                         self.wxstring(req, "moderate")),
+            TrackerLabel(self.ESR_REMISSION_LOW_CUTOFF + label_offset,
+                         self.wxstring(req, "low")),
+            TrackerLabel(label_offset, self.wxstring(req, "remission")),
+        ]
+
+        return TrackerInfo(
+            value=self.das28_esr(),
+            plot_label="DAS28-ESR",
+            axis_label="DAS28-ESR",
+            axis_min=axis_min,
+            axis_max=axis_max,
+            axis_ticks=axis_ticks,
+            horizontal_lines=horizontal_lines,
+            horizontal_labels=horizontal_labels,
+        )
 
     def swollen_joint_count(self):
         return self.count_booleans(
