@@ -21,6 +21,7 @@
 #include <QPointer>
 #include <QString>
 #include "tasklib/task.h"
+#include "questionnairelib/qugridcontainer.h"
 
 class CamcopsApp;
 class OpenableWidget;
@@ -69,6 +70,9 @@ private:
     QStringList getJointNames() const;
     int swollenJointCount() const;
     int tenderJointCount() const;
+
+    QuGridContainer *getJointGrid();
+    void addJointGridHeading(QuGridContainer *grid, int &row);
 
     QString activityState(QVariant measurement) const;
 };

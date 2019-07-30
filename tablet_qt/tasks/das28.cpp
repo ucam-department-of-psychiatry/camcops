@@ -47,6 +47,11 @@ const int CRP_MAX = 300;
 const int ESR_MIN = 1;
 const int ESR_MAX = 300;
 
+const int GRID_ROW_SPAN = 1;
+const int GRID_JOINT_COLUMN_SPAN = 3;
+const int GRID_SIDE_COLUMN_SPAN = 2;
+const int GRID_STATE_COLUMN_SPAN = 1;
+
 const QString Das28::DAS28_TABLENAME("das28");
 
 
@@ -332,74 +337,7 @@ OpenableWidget* Das28::editor(const bool read_only)
 {
     QuPagePtr page((new QuPage{})->setTitle(xstring("title_main")));
 
-    auto grid = new QuGridContainer();
-    grid->setExpandHorizontally(false);
-    grid->setFixedGrid(false);
-
-    page->addElement(grid);
-
-    const int ROW_SPAN = 1;
-    const int JOINT_COLUMN_SPAN = 3;
-    const int SIDE_COLUMN_SPAN = 2;
-    const int STATE_COLUMN_SPAN = 1;
-
-
-    int row = 0;
-    int column = 0;
-
-    grid->addCell(QuGridCell(new QuText(""), row, column,
-                             ROW_SPAN, JOINT_COLUMN_SPAN));
-    column += JOINT_COLUMN_SPAN;
-
-    const auto left_label = new QuText(xstring("left"));
-    left_label->setBold(true);
-
-    const auto right_label = new QuText(xstring("right"));
-    right_label->setBold(true);
-    grid->addCell(QuGridCell(left_label, row, column,
-                             ROW_SPAN, SIDE_COLUMN_SPAN));
-    column += SIDE_COLUMN_SPAN;
-
-    grid->addCell(QuGridCell(right_label, row, column,
-                             ROW_SPAN, SIDE_COLUMN_SPAN));
-
-    column = 0;
-    row++;
-
-    grid->addCell(QuGridCell(new QuText(""), row, column,
-                             ROW_SPAN, JOINT_COLUMN_SPAN));
-    column += JOINT_COLUMN_SPAN;
-
-    for (int i=0; i<SIDES.length(); i++) {
-        grid->addCell(QuGridCell(new QuText(xstring("swollen")), row, column,
-                                 ROW_SPAN, STATE_COLUMN_SPAN));
-        column += STATE_COLUMN_SPAN;
-        grid->addCell(QuGridCell(new QuText(xstring("tender")), row, column,
-                                 ROW_SPAN, STATE_COLUMN_SPAN));
-        column += STATE_COLUMN_SPAN;
-    }
-
-    row++;
-
-    for (const QString& joint : getJointNames()) {
-        int column = 0;
-
-        grid->addCell(QuGridCell(new QuText(xstring(joint)), row, column,
-                                 ROW_SPAN, JOINT_COLUMN_SPAN));
-        column += JOINT_COLUMN_SPAN;
-
-        for (const QString& side : SIDES) {
-            for (const QString & state : STATES) {
-                const auto fieldname = QString("%1_%2_%3").arg(
-                    side, joint, state);
-                QuBoolean* element = new QuBoolean("", fieldRef(fieldname));
-                grid->addCell(QuGridCell(element, row, column));
-                column++;
-            }
-        }
-
-        row++;
-    }
+    page->addElement(getJointGrid());
 
     page->addElement(new QuText(xstring("vas_instructions")));
 
@@ -452,6 +390,86 @@ OpenableWidget* Das28::editor(const bool read_only)
     return m_questionnaire;
 }
 
+QuGridContainer* Das28::getJointGrid()
+{
+    auto grid = new QuGridContainer();
+    grid->setExpandHorizontally(false);
+    grid->setFixedGrid(false);
+
+    int row = 0;
+
+    const QStringList foo = {"shoulder", "mcp_1", "pip_1", "knee"};
+
+    for (const QString& joint : getJointNames()) {
+        if (foo.contains(joint)) {
+            if (row != 0) {
+                grid->addCell(QuGridCell(new QuSpacer(QSize(uiconst::BIGSPACE,
+                                                            uiconst::BIGSPACE)), row, 0));
+                row++;
+            }
+
+            addJointGridHeading(grid, row);
+        }
+
+        int column = 0;
+
+        grid->addCell(QuGridCell(new QuText(xstring(joint)), row, column,
+                                 GRID_ROW_SPAN, GRID_JOINT_COLUMN_SPAN));
+        column += GRID_JOINT_COLUMN_SPAN;
+
+        for (const QString& side : SIDES) {
+            for (const QString & state : STATES) {
+                const auto fieldname = QString("%1_%2_%3").arg(
+                    side, joint, state);
+                QuBoolean* element = new QuBoolean("", fieldRef(fieldname));
+                grid->addCell(QuGridCell(element, row, column));
+                column++;
+            }
+        }
+
+        row++;
+    }
+
+    return grid;
+}
+
+void Das28::addJointGridHeading(QuGridContainer *grid, int &row)
+{
+    int column = 0;
+
+    grid->addCell(QuGridCell(new QuText(""), row, column,
+                             GRID_ROW_SPAN, GRID_JOINT_COLUMN_SPAN));
+    column += GRID_JOINT_COLUMN_SPAN;
+
+    const auto left_label = new QuText(xstring("left"));
+    left_label->setBold(true);
+
+    const auto right_label = new QuText(xstring("right"));
+    right_label->setBold(true);
+    grid->addCell(QuGridCell(left_label, row, column,
+                             GRID_ROW_SPAN, GRID_SIDE_COLUMN_SPAN));
+    column += GRID_SIDE_COLUMN_SPAN;
+
+    grid->addCell(QuGridCell(right_label, row, column,
+                             GRID_ROW_SPAN, GRID_SIDE_COLUMN_SPAN));
+
+    column = 0;
+    row++;
+
+    grid->addCell(QuGridCell(new QuText(""), row, column,
+                             GRID_ROW_SPAN, GRID_JOINT_COLUMN_SPAN));
+    column += GRID_JOINT_COLUMN_SPAN;
+
+    for (int i=0; i<SIDES.length(); i++) {
+        for (const QString & state: STATES) {
+            grid->addCell(QuGridCell(new QuText(xstring(state)), row, column,
+                                     GRID_ROW_SPAN, GRID_STATE_COLUMN_SPAN));
+            column += GRID_STATE_COLUMN_SPAN;
+        }
+    }
+
+    row++;
+}
 
 void Das28::crpChanged()
 {
