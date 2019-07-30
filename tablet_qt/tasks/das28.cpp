@@ -30,7 +30,7 @@
 #include "questionnairelib/quboolean.h"
 #include "questionnairelib/qugridcell.h"
 #include "questionnairelib/qugridcontainer.h"
-#include "questionnairelib/qulineeditdouble.h"
+#include "questionnairelib/qulineeditinteger.h"
 #include "questionnairelib/quslider.h"
 #include "questionnairelib/quspacer.h"
 #include "questionnairelib/qutext.h"
@@ -42,9 +42,10 @@ using stringfunc::strseq;
 const QStringList SIDES = {"left", "right"};
 const QStringList STATES = {"swollen", "tender"};
 
-const double CRP_MAX = 2000;
-const double ESR_MAX = 300;
-const int CRP_ESR_DP = 2;
+const int CRP_MIN = 0;
+const int CRP_MAX = 300;
+const int ESR_MIN = 1;
+const int ESR_MAX = 300;
 
 const QString Das28::DAS28_TABLENAME("das28");
 
@@ -62,8 +63,8 @@ Das28::Das28(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     addFields(getJointFieldNames(), QVariant::Bool);
 
     addField("vas", QVariant::Int);
-    addField("crp", QVariant::Double);
-    addField("esr", QVariant::Double);
+    addField("crp", QVariant::Int);
+    addField("esr", QVariant::Int);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
@@ -188,8 +189,8 @@ QVariant Das28::das28Crp() const
 
     return 0.56 * std::sqrt(tenderJointCount()) +
         0.28 * std::sqrt(swollenJointCount()) +
-        0.36 * std::log(crp.toDouble() + 1) +
-        0.014 * vas.toDouble() +
+        0.36 * std::log(crp.toInt() + 1) +
+        0.014 * vas.toInt() +
         0.96;
 }
 
@@ -205,8 +206,8 @@ QVariant Das28::das28Esr() const
 
     return 0.56 * std::sqrt(tenderJointCount()) +
         0.28 * std::sqrt(swollenJointCount()) +
-        0.70 * std::log(esr.toDouble()) +
-        0.014 * vas.toDouble();
+        0.70 * std::log(esr.toInt()) +
+        0.014 * vas.toInt();
 }
 
 
@@ -255,11 +256,11 @@ QStringList Das28::summary() const
 
     return QStringList{
         QString("%1: %2 (%3)").arg(xstring("das28_crp"),
-                                   convert::prettyValue(crp, CRP_ESR_DP),
+                                   convert::prettyValue(crp),
                                    bold(activityState(crp))
         ),
         QString("%1: %2 (%3)").arg(xstring("das28_esr"),
-                                   convert::prettyValue(esr, CRP_ESR_DP),
+                                   convert::prettyValue(esr),
                                    bold(activityState(esr))
         ),
     };
@@ -426,15 +427,13 @@ OpenableWidget* Das28::editor(const bool read_only)
     page->addElement(crp_esr_inst);
 
     page->addElement(new QuText(xstring("crp")));
-    const auto crp_field = new QuLineEditDouble(
-        fieldRef("crp"), 0, CRP_MAX, CRP_ESR_DP
-    );
+    const auto crp_field = new QuLineEditInteger(
+        fieldRef("crp"), CRP_MIN, CRP_MAX);
     page->addElement(crp_field);
 
     page->addElement(new QuText(xstring("esr")));
-    const auto esr_field = new QuLineEditDouble(
-        fieldRef("esr"), 0, ESR_MAX, CRP_ESR_DP
-    );
+    const auto esr_field = new QuLineEditInteger(
+        fieldRef("esr"), ESR_MIN, ESR_MAX);
     page->addElement(esr_field);
 
     connect(fieldRef("crp").data(), &FieldRef::valueChanged,
