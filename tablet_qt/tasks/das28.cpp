@@ -24,8 +24,6 @@
 #include "lib/convert.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
-#include "questionnairelib/commonoptions.h"
-#include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/quboolean.h"
 #include "questionnairelib/qugridcell.h"
