@@ -30,7 +30,7 @@ das28
 
 Revision ID: 0036
 Revises: 0035
-Creation date: 2019-07-29 14:22:15.523384
+Creation date: 2019-07-30 12:02:22.231980
 
 """
 
@@ -119,8 +119,8 @@ def upgrade():
     sa.Column('right_knee_swollen', sa.Boolean(), nullable=True, comment='0 no, 1 yes'),
     sa.Column('right_knee_tender', sa.Boolean(), nullable=True, comment='0 no, 1 yes'),
     sa.Column('vas', sa.Integer(), nullable=True, comment='Patient assessment of health (0-100mm)'),
-    sa.Column('crp', sa.Float(), nullable=True, comment='CRP (mg/L)'),
-    sa.Column('esr', sa.Float(), nullable=True, comment='ESR (mm/h)'),
+    sa.Column('crp', sa.Integer(), nullable=True, comment='CRP (0-300 mg/L)'),
+    sa.Column('esr', sa.Integer(), nullable=True, comment='ESR (1-300 mm/h)'),
     sa.Column('patient_id', sa.Integer(), nullable=False, comment='(TASK) Foreign key to patient.id (for this device/era)'),
     sa.Column('clinician_specialty', sa.Text(), nullable=True, comment="(CLINICIAN) Clinician's specialty (e.g. Liaison Psychiatry)"),
     sa.Column('clinician_name', sa.Text(), nullable=True, comment="(CLINICIAN) Clinician's name (e.g. Dr X)"),

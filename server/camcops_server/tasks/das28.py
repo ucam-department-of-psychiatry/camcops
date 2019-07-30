@@ -77,12 +77,12 @@ class Das28Metaclass(DeclarativeMeta):
 
         setattr(
             cls, 'crp',
-            Column('crp', Float, comment="CRP (mg/L)")
+            Column('crp', Integer, comment="CRP (0-300 mg/L)")
         )
 
         setattr(
             cls, 'esr',
-            Column('esr', Float, comment="ESR (mm/h)")
+            Column('esr', Integer, comment="ESR (1-300 mm/h)")
         )
 
         super().__init__(name, bases, classdict)
