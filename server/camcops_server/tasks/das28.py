@@ -351,8 +351,8 @@ class Das28(TaskHasPatientMixin,
         das28_crp = ws.number_to_dp(self.das28_crp(), 2, default="?")
         das28_esr = ws.number_to_dp(self.das28_esr(), 2, default="?")
 
-        other_rows = [tr_qa(self.wxstring(req, f), getattr(self, f))
-                      for f in self.OTHER_FIELD_NAMES]
+        other_rows = "".join([tr_qa(self.wxstring(req, f), getattr(self, f))
+                              for f in self.OTHER_FIELD_NAMES])
 
         html = """
             <div class="{CssClass.SUMMARY}">
