@@ -42,11 +42,16 @@ Contributors
 
 - Joe Kearney, 2018–2019.
 
-  - :ref:`CES-D <cesd>`, :ref:`FACT-G <factg>`, :ref:`EQ-5D-5L <eq5d5l>`,
-    :ref:`SRS <srs>`, :ref:`ORS <ors>`, :ref:`APEQPT <apeqpt>`, :ref:`GBO-GReS
-    <gbo_gres>`, and :ref:`GBO-GPC <gbo_gpc>` tasks.
+  - :ref:`CES-D <cesd>`
+  - :ref:`FACT-G <factg>`
+  - :ref:`EQ-5D-5L <eq5d5l>`
+  - :ref:`SRS <srs>`
+  - :ref:`ORS <ors>`
+  - :ref:`APEQPT <apeqpt>`
+  - :ref:`GBO-GReS <gbo_gres>`
+  - :ref:`GBO-GPC <gbo_gpc>`
 
-- Martin Burchell, 2019-.
+- Martin Burchell, 2019–.
 
   - Better Github framework/workflow.
   - :ref:`Elixhauser Comorbidity Index (ElixhauserCI) <elixhauserci>`
@@ -56,6 +61,7 @@ Contributors
   - :ref:`Ankylosing Spondylitis Disease Activity Score (ASDAS) <asdas>`
   - :ref:`Multidimensional Fatigue Inventory (MFI-20) <mfi20>`
   - :ref:`Short-Form McGill Pain Questionnaire (SF-MPQ2) <sfmpq2>`
+  - :ref:`Disease Activity Score-28 (DAS28) <das28>`
 
 
 Original Titanium/Javascript client, Python server with custom MySQL interface (defunct)
@@ -2391,6 +2397,9 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Better SNOMED coding for the clinical tasks :ref:`Progress note
   <progress_note>` and :ref:`Psychiatric clerking <clerking>`.
+
+- Bugfix: group editing page crashed if no ID numbers defined. Changed in
+  :func:`camcops_server.cc_modules.TokenizedPolicy.set_valid_idnums`.
 
 - **New task:** :ref:`Elixhauser Comorbidity Index (ElixhauserCI) <elixhauserci>`.
   (Database revision 0029.)

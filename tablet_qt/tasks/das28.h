@@ -71,9 +71,9 @@ private:
     int swollenJointCount() const;
     int tenderJointCount() const;
 
-    QuGridContainer *getJointGrid();
-    void addJointGridHeading(QuGridContainer *grid, int &row);
+    QuGridContainer* getJointGrid();
+    void addJointGridHeading(QuGridContainer* grid, int& row);
 
-    QString activityStateCrp(QVariant measurement) const;
-    QString activityStateEsr(QVariant measurement) const;
+    QString activityStateCrp(const QVariant& measurement) const;
+    QString activityStateEsr(const QVariant& measurement) const;
 };

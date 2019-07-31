@@ -414,7 +414,6 @@ class TokenizedPolicy(object):
         Args:
             valid_idnums: list of valid ID number types
         """
-        assert valid_idnums, "Invalid valid_idnums to set_valid_idnums()"
         sorted_idnums = sorted(valid_idnums)
         if sorted_idnums != self.valid_idnums:
             self.valid_idnums = sorted_idnums

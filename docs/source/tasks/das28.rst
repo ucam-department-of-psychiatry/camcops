@@ -56,9 +56,8 @@ VAS + 0.96.
 Intellectual property rights
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**TO BE ESTABLISHED**
-
-- Copyrighted.
+- Copyright © 1995, Prof. dr. Piet L.C.M. van Riel (as per
+  https://eprovide.mapi-trust.org/instruments/disease-activity-score-c-reactive-protein#contact_and_conditions_of_use).
 
 
 History
@@ -107,3 +106,25 @@ Source
 - https://eprovide.mapi-trust.org/instruments/disease-activity-score-c-reactive-protein#contact_and_conditions_of_use
 
 - https://www.das28.nl/
+
+- DAS-ESR cutoffs as per:
+
+  Anderson J, Caplan L, Yazdany J, Robbins ML, Neogi T, Michaud K, Saag KG,
+  O'Dell JR, Kazi S (2012).
+  Rheumatoid arthritis disease activity measures: American College of
+  Rheumatology recommendations for use in clinical practice.
+  *Arthritis Care Res* 64: 640-7.
+  https://www.ncbi.nlm.nih.gov/pubmed/22473918;
+  https://doi.org/10.1002/acr.21649;
+  https://onlinelibrary.wiley.com/doi/full/10.1002/acr.21649.
+
+- DAS-CRP cutoffs as per:
+
+  Fleischmann RM, van der Heijde D, Gardiner PV, Szumski A, Marshall L, Bananis
+  E (2017).
+  DAS28-CRP and DAS28-ESR cut-offs for high disease activity in rheumatoid
+  arthritis are not interchangeable.
+  *RMD Open* 3: e000382.
+  https://www.ncbi.nlm.nih.gov/pubmed/28255449;
+  https://doi.org/10.1136/rmdopen-2016-000382;
+  https://rmdopen.bmj.com/content/3/1/e000382.

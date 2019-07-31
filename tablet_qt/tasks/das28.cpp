@@ -53,6 +53,9 @@ const int GRID_SIDE_COLUMN_SPAN = 2;
 const int GRID_STATE_COLUMN_SPAN = 1;
 
 const QString Das28::DAS28_TABLENAME("das28");
+const QString FN_VAS("vas");
+const QString FN_CRP("crp");
+const QString FN_ESR("esr");
 
 
 void initializeDas28(TaskFactory& factory)
@@ -67,9 +70,9 @@ Das28::Das28(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
 {
     addFields(getJointFieldNames(), QVariant::Bool);
 
-    addField("vas", QVariant::Int);
-    addField("crp", QVariant::Int);
-    addField("esr", QVariant::Int);
+    addField(FN_VAS, QVariant::Int);
+    addField(FN_CRP, QVariant::Int);
+    addField(FN_ESR, QVariant::Int);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
@@ -93,7 +96,8 @@ QString Das28::longname() const
 
 QString Das28::description() const
 {
-    return tr("A measure of disease activity in rheumatoid arthritis");
+    return tr("A measure of disease activity in rheumatoid arthritis "
+              "(joint examination, inflammatory marker, visual analogue scale)");
 }
 
 
@@ -101,9 +105,9 @@ QStringList Das28::getJointFieldNames() const
 {
     QStringList field_names;
 
-    for (const QString& joint: getJointNames()) {
-        for (const QString& side: SIDES) {
-            for (const QString & state: STATES) {
+    for (const QString& joint : getJointNames()) {
+        for (const QString& side : SIDES) {
+            for (const QString& state : STATES) {
                 field_names.append(QString("%1_%2_%3").arg(side, joint, state));
             }
         }
@@ -117,8 +121,8 @@ QStringList Das28::getSwollenFieldNames() const
 {
     QStringList field_names;
 
-    for (const QString& joint: getJointNames()) {
-        for (const QString& side: SIDES) {
+    for (const QString& joint : getJointNames()) {
+        for (const QString& side : SIDES) {
             field_names.append(QString("%1_%2_swollen").arg(side, joint));
         }
     }
@@ -131,8 +135,8 @@ QStringList Das28::getTenderFieldNames() const
 {
     QStringList field_names;
 
-    for (const QString& joint: getJointNames()) {
-        for (const QString& side: SIDES) {
+    for (const QString& joint : getJointNames()) {
+        for (const QString& side : SIDES) {
             field_names.append(QString("%1_%2_tender").arg(side, joint));
         }
     }
@@ -145,11 +149,11 @@ QStringList Das28::getJointNames() const
 {
     auto names = QStringList({"shoulder", "elbow", "wrist"});
 
-    for (int i=1; i<=5; i++) {
+    for (int i = 1; i <= 5; i++) {
         names.append(QString("mcp_%1").arg(i));
     }
 
-    for (int i=1; i<=5; i++) {
+    for (int i = 1; i <= 5; i++) {
         names.append(QString("pip_%1").arg(i));
     }
 
@@ -161,7 +165,7 @@ QStringList Das28::getJointNames() const
 
 QStringList Das28::fieldNames() const
 {
-    return getJointFieldNames() + QStringList({"vas", "crp", "esr"});
+    return getJointFieldNames() + QStringList({FN_VAS, FN_CRP, FN_ESR});
 }
 
 
@@ -171,11 +175,11 @@ QStringList Das28::fieldNames() const
 
 bool Das28::isComplete() const
 {
-    if (anyNull(values(getJointFieldNames() + QStringList("vas")))) {
+    if (anyNull(values(getJointFieldNames() + QStringList(FN_VAS)))) {
         return false;
     }
 
-    if (value("crp").isNull() && value("esr").isNull()) {
+    if (value(FN_CRP).isNull() && value(FN_ESR).isNull()) {
         return false;
     }
 
@@ -185,8 +189,8 @@ bool Das28::isComplete() const
 
 QVariant Das28::das28Crp() const
 {
-    const QVariant crp = value("crp");
-    const QVariant vas = value("vas");
+    const QVariant crp = value(FN_CRP);
+    const QVariant vas = value(FN_VAS);
 
     if (crp.isNull() || vas.isNull()) {
         return QVariant();
@@ -202,8 +206,8 @@ QVariant Das28::das28Crp() const
 
 QVariant Das28::das28Esr() const
 {
-    const QVariant esr = value("esr");
-    const QVariant vas = value("vas");
+    const QVariant esr = value(FN_ESR);
+    const QVariant vas = value(FN_VAS);
 
     if (esr.isNull() || vas.isNull()) {
         return QVariant();
@@ -228,7 +232,7 @@ int Das28::tenderJointCount() const
 }
 
 
-QString Das28::activityStateCrp(QVariant measurement) const
+QString Das28::activityStateCrp(const QVariant& measurement) const
 {
     // as recommended by https://rmdopen.bmj.com/content/3/1/e000382
 
@@ -252,7 +256,7 @@ QString Das28::activityStateCrp(QVariant measurement) const
 }
 
 
-QString Das28::activityStateEsr(QVariant measurement) const
+QString Das28::activityStateEsr(const QVariant& measurement) const
 {
     // https://onlinelibrary.wiley.com/doi/full/10.1002/acr.21649
     // (has same cutoffs for CRP)
@@ -306,10 +310,10 @@ QStringList Das28::detail() const
     html.append("<th></th>");
 
     auto states_html = QString("<tr><th></th>");
-    for (const QString& side: SIDES) {
+    for (const QString& side : SIDES) {
         html.append(QString("<th colspan='2'>%1</th>").arg(xstring(side)));
 
-        for (const QString & state: STATES) {
+        for (const QString& state : STATES) {
             states_html.append(QString("<th style='padding:0 10px;'>%1</th>").arg(xstring(state)));
         }
     }
@@ -318,12 +322,12 @@ QStringList Das28::detail() const
 
     html.append(states_html);
 
-    for (const QString& joint: getJointNames()) {
+    for (const QString& joint : getJointNames()) {
         html.append("<tr>");
         html.append(QString("<th style='text-align:right;'>%1</th>").arg(xstring(joint)));
 
-        for (const QString& side: SIDES) {
-            for (const QString & state: STATES) {
+        for (const QString& side : SIDES) {
+            for (const QString& state : STATES) {
                 const auto fieldname = QString("%1_%2_%3").arg(
                     side, joint, state);
 
@@ -333,7 +337,7 @@ QStringList Das28::detail() const
                 const QVariant cell_value = value(fieldname);
 
                 if (!cell_value.isNull()) {
-                    cell_contents = (cell_value.toBool() ? "✓" : "");
+                    cell_contents = cell_value.toBool() ? "✓" : "×";
                 }
                 html.append(cell_contents);
                 html.append("</td>");
@@ -346,10 +350,9 @@ QStringList Das28::detail() const
 
     lines.append(html);
 
-    lines.append(fieldSummary("vas", xstring("vas"), " "));
-    lines.append(fieldSummary("crp", xstring("crp"), " "));
-    lines.append(fieldSummary("esr", xstring("esr"), " "));
-
+    lines.append(fieldSummary(FN_VAS, xstring("vas"), " "));
+    lines.append(fieldSummary(FN_CRP, xstring("crp"), " "));
+    lines.append(fieldSummary(FN_ESR, xstring("esr"), " "));
 
     lines.append("");
     lines += summary();
@@ -360,13 +363,16 @@ QStringList Das28::detail() const
 
 OpenableWidget* Das28::editor(const bool read_only)
 {
-    QuPagePtr page((new QuPage{})->setTitle(xstring("title_main")));
+    QuPagePtr page((new QuPage())->setTitle(xstring("title_main")));
+
+    page->addElement(new QuText(xstring("observer")));
+    page->addElement(getClinicianQuestionnaireBlockRawPointer());
 
     page->addElement(getJointGrid());
 
     page->addElement(new QuText(xstring("vas_instructions")));
 
-    QuSlider* vas_slider = new QuSlider(fieldRef("vas"), 0, 100, 1);
+    QuSlider* vas_slider = new QuSlider(fieldRef(FN_VAS), 0, 100, 1);
     vas_slider->setHorizontal(true);
     vas_slider->setBigStep(1);
 
@@ -391,29 +397,30 @@ OpenableWidget* Das28::editor(const bool read_only)
 
     page->addElement(new QuText(xstring("crp")));
     const auto crp_field = new QuLineEditInteger(
-        fieldRef("crp"), CRP_MIN, CRP_MAX);
+        fieldRef(FN_CRP), CRP_MIN, CRP_MAX);
     page->addElement(crp_field);
 
     page->addElement(new QuText(xstring("esr")));
     const auto esr_field = new QuLineEditInteger(
-        fieldRef("esr"), ESR_MIN, ESR_MAX);
+        fieldRef(FN_ESR), ESR_MIN, ESR_MAX);
     page->addElement(esr_field);
 
-    connect(fieldRef("crp").data(), &FieldRef::valueChanged,
+    connect(fieldRef(FN_CRP).data(), &FieldRef::valueChanged,
             this, &Das28::crpChanged);
 
-    connect(fieldRef("esr").data(), &FieldRef::valueChanged,
+    connect(fieldRef(FN_ESR).data(), &FieldRef::valueChanged,
             this, &Das28::esrChanged);
 
     crpChanged();
     esrChanged();
 
     m_questionnaire = new Questionnaire(m_app, {page});
-    m_questionnaire->setType(QuPage::PageType::Patient);
+    m_questionnaire->setType(QuPage::PageType::ClinicianWithPatient);
     m_questionnaire->setReadOnly(read_only);
 
     return m_questionnaire;
 }
+
 
 QuGridContainer* Das28::getJointGrid()
 {
@@ -458,7 +465,8 @@ QuGridContainer* Das28::getJointGrid()
     return grid;
 }
 
-void Das28::addJointGridHeading(QuGridContainer *grid, int &row)
+
+void Das28::addJointGridHeading(QuGridContainer* grid, int& row)
 {
     int column = 0;
 
@@ -485,7 +493,7 @@ void Das28::addJointGridHeading(QuGridContainer *grid, int &row)
                              GRID_ROW_SPAN, GRID_JOINT_COLUMN_SPAN));
     column += GRID_JOINT_COLUMN_SPAN;
 
-    for (int i=0; i<SIDES.length(); i++) {
+    for (int i = 0; i < SIDES.length(); i++) {
         for (const QString & state: STATES) {
             grid->addCell(QuGridCell(new QuText(xstring(state)), row, column,
                                      GRID_ROW_SPAN, GRID_STATE_COLUMN_SPAN));
@@ -498,15 +506,15 @@ void Das28::addJointGridHeading(QuGridContainer *grid, int &row)
 
 void Das28::crpChanged()
 {
-    const bool esrMandatory = value("crp").isNull();
+    const bool esr_mandatory = value(FN_CRP).isNull();
 
-    fieldRef("esr")->setMandatory(esrMandatory);
+    fieldRef(FN_ESR)->setMandatory(esr_mandatory);
 }
 
 
 void Das28::esrChanged()
 {
-    const bool crpMandatory = value("esr").isNull();
+    const bool crp_mandatory = value(FN_ESR).isNull();
 
-    fieldRef("crp")->setMandatory(crpMandatory);
+    fieldRef(FN_CRP)->setMandatory(crp_mandatory);
 }

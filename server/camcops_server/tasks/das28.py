@@ -43,13 +43,16 @@ from camcops_server.cc_modules.cc_html import (
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BoolColumn,
+    CamcopsColumn,
     PermittedValueChecker,
-
     SummaryCategoryColType,
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
-from camcops_server.cc_modules.cc_task import TaskHasPatientMixin, \
-    TaskHasClinicianMixin, Task
+from camcops_server.cc_modules.cc_task import (
+    Task,
+    TaskHasPatientMixin,
+    TaskHasClinicianMixin,
+)
 from camcops_server.cc_modules.cc_trackerhelpers import (
     TrackerAxisTick,
     TrackerInfo,
@@ -73,7 +76,7 @@ class Das28Metaclass(DeclarativeMeta):
 
         setattr(
             cls, 'vas',
-            Column(
+            CamcopsColumn(
                 'vas',
                 Integer,
                 comment="Patient assessment of health (0-100mm)",
@@ -174,6 +177,7 @@ class Das28(TaskHasPatientMixin,
         if self.any_fields_none(self.get_joint_field_names() + ['vas']):
             return False
 
+        # noinspection PyUnresolvedReferences
         if self.crp is None and self.esr is None:
             return False
 
@@ -261,9 +265,11 @@ class Das28(TaskHasPatientMixin,
         )
 
     def das28_crp(self) -> Optional[float]:
+        # noinspection PyUnresolvedReferences
         if self.crp is None or self.vas is None:
             return None
 
+        # noinspection PyUnresolvedReferences
         return (
             0.56 * math.sqrt(self.tender_joint_count()) +
             0.28 * math.sqrt(self.swollen_joint_count()) +
@@ -273,9 +279,11 @@ class Das28(TaskHasPatientMixin,
         )
 
     def das28_esr(self) -> Optional[float]:
+        # noinspection PyUnresolvedReferences
         if self.esr is None or self.vas is None:
             return None
 
+        # noinspection PyUnresolvedReferences
         return (
             0.56 * math.sqrt(self.tender_joint_count()) +
             0.28 * math.sqrt(self.swollen_joint_count()) +
@@ -326,16 +334,17 @@ class Das28(TaskHasPatientMixin,
             cells = [th(self.wxstring(req, joint))]
             for side in self.SIDES:
                 for state in self.STATES:
-                    value = ""
-                    if getattr(self, self.field_name(side, joint, state)):
-                        value = "✓"
+                    value = "?"
+                    fval = getattr(self, self.field_name(side, joint, state))
+                    if fval is not None:
+                        value = "✓" if fval else "×"
 
                     cells.append(td(value))
 
             joint_rows += tr(*cells, literal=True)
 
-        das28_crp = ws.number_to_dp(self.das28_crp(), 2, default="?")
-        das28_esr = ws.number_to_dp(self.das28_esr(), 2, default="?")
+        das28_crp = self.das28_crp()
+        das28_esr = self.das28_esr()
 
         other_rows = "".join([tr_qa(self.wxstring(req, f), getattr(self, f))
                               for f in self.OTHER_FIELD_NAMES])
@@ -362,20 +371,22 @@ class Das28(TaskHasPatientMixin,
                     0.36 × ln(CRP + 1) +
                     0.014 x VAS disease activity +
                     0.96.
-                    CRP 0-300 mg/L. VAS: 0-100mm<br>
-                    &lt;2.4 Remission
-                    &lt;2.9 Low disease activity,
-                    2.9-4.6 Moderate disease activity,
-                    &gt;4.6 High disease activity.<br>
+                    CRP 0–300 mg/L. VAS: 0–100mm.<br>
+                    Cutoffs:
+                    &lt;2.4 remission,
+                    &lt;2.9 low disease activity,
+                    2.9–4.6 moderate disease activity,
+                    &gt;4.6 high disease activity.<br>
                 [2] 0.56 × √(tender joint count) +
                     0.28 × √(swollen joint count) +
                     0.70 × ln(ESR) +
                     0.014 x VAS disease activity.
-                    ESR 1-300 mm/h. VAS: 0-100mm<br>
-                    &lt;2.6 Remission
-                    &lt;3.2 Low disease activity,
-                    3.2-5.1 Moderate disease activity,
-                    &gt;5.1 High disease activity.<br>
+                    ESR 1–300 mm/h. VAS: 0–100mm.<br>
+                    Cutoffs:
+                    &lt;2.6 remission,
+                    &lt;3.2 low disease activity,
+                    3.2–5.1 moderate disease activity,
+                    &gt;5.1 high disease activity.<br>
             </div>
         """.format(
             CssClass=CssClass,
@@ -383,15 +394,15 @@ class Das28(TaskHasPatientMixin,
             das28_crp=tr(
                 self.wxstring(req, "das28_crp") + " <sup>[1]</sup>",
                 "{} ({})".format(
-                    answer(das28_crp),
-                    self.activity_state_crp(req, self.das28_crp())
+                    answer(ws.number_to_dp(das28_crp, 2, default="?")),
+                    self.activity_state_crp(req, das28_crp)
                 )
             ),
             das28_esr=tr(
                 self.wxstring(req, "das28_esr") + " <sup>[2]</sup>",
                 "{} ({})".format(
-                    answer(das28_esr),
-                    self.activity_state_esr(req, self.das28_esr())
+                    answer(ws.number_to_dp(das28_esr, 2, default="?")),
+                    self.activity_state_esr(req, das28_esr)
                 )
             ),
             swollen_joint_count=tr(

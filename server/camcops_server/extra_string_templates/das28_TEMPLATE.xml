@@ -5,6 +5,8 @@
 
     <string name="title_main">(title)</string>
 
+    <string name="observer">(observer)</string>
+
     <string name="left">(left)</string>
     <string name="right">(right)</string>
 

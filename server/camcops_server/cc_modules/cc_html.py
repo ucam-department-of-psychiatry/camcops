@@ -46,7 +46,7 @@ if TYPE_CHECKING:
 
 def table_row(columns: List[str],
               classes: List[str] = None,
-              colspans: List[str] = None,
+              colspans: List[Union[str, int]] = None,
               colwidths: List[str] = None,
               default: str = "",
               heading: bool = False) -> str:
