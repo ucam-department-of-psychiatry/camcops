@@ -23,6 +23,7 @@
 #include "menulib/menuitem.h"
 
 #include "tasks/asdas.h"
+#include "tasks/das28.h"
 #include "tasks/elixhauserci.h"
 #include "tasks/esspri.h"
 #include "tasks/sfmpq2.h"
@@ -48,6 +49,6 @@ void PhysicalIllnessMenu::makeItems()
         MAKE_TASK_MENU_ITEM(Esspri::ESSPRI_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Asdas::ASDAS_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Sfmpq2::SFMPQ2_TABLENAME, m_app),
-        // *** Disease Activity Score 28 (DAS28)
+        MAKE_TASK_MENU_ITEM(Das28::DAS28_TABLENAME, m_app),
     };
 }

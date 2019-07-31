@@ -45,8 +45,6 @@ Tasks
 
 - :ref:`Snaith–Hamilton Pleasure Scale (SHAPS) <shaps>`
 
-- :ref:`Disease Activity Score-28 (DAS28) <das28>`
-
 
 **To be prioritized**
 

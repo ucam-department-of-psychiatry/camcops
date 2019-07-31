@@ -57,6 +57,7 @@
 #include "tasks/ctqsf.h"
 
 #include "tasks/dad.h"
+#include "tasks/das28.h"
 #include "tasks/dast.h"
 #include "tasks/deakin1healthreview.h"
 #include "tasks/demoquestionnaire.h"
@@ -203,6 +204,7 @@ void InitTasks(TaskFactory& factory)
     // *** // initializeCtqsf(factory);
 
     initializeDad(factory);
+    initializeDas28(factory);
     initializeDast(factory);
     initializeDeakin1HealthReview(factory);
     initializeDemoQuestionnaire(factory);

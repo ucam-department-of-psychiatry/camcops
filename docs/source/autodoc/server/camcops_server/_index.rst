@@ -65,6 +65,7 @@ server/camcops_server
     alembic/versions/0033_asdas.py.rst
     alembic/versions/0034_mfi20.py.rst
     alembic/versions/0035_sfmpq2.py.rst
+    alembic/versions/0036_das28.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst
@@ -268,6 +269,7 @@ server/camcops_server
     tasks/cpft_lps.py.rst
     tasks/ctqsf.py.rst
     tasks/dad.py.rst
+    tasks/das28.py.rst
     tasks/dast.py.rst
     tasks/deakin_1_healthreview.py.rst
     tasks/demoquestionnaire.py.rst

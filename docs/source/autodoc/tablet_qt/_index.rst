@@ -609,6 +609,8 @@ tablet_qt
     tasks/ctqsf.h.rst
     tasks/dad.cpp.rst
     tasks/dad.h.rst
+    tasks/das28.cpp.rst
+    tasks/das28.h.rst
     tasks/dast.cpp.rst
     tasks/dast.h.rst
     tasks/deakin1healthreview.cpp.rst

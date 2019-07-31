@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="das28">(
+    <!-- Disease Activity Score-28 -->
+
+    <string name="title_main">(title)</string>
+
+    <string name="observer">(observer)</string>
+
+    <string name="left">(left)</string>
+    <string name="right">(right)</string>
+
+    <string name="swollen">(swollen)</string>
+    <string name="tender">(tender)</string>
+
+    <string name="shoulder">(shoulder)</string>
+    <string name="elbow">(elbow)</string>
+    <string name="wrist">(wrist)</string>
+
+    <string name="mcp_1">(mcp 1)</string>
+    <string name="mcp_2">(mcp 2)</string>
+    <string name="mcp_3">(mcp 3)</string>
+    <string name="mcp_4">(mcp 4)</string>
+    <string name="mcp_5">(mcp 5)</string>
+
+    <string name="pip_1">(pip 1)</string>
+    <string name="pip_2">(pip 2)</string>
+    <string name="pip_3">(pip 3)</string>
+    <string name="pip_4">(pip 4)</string>
+    <string name="pip_5">(pip 5)</string>
+
+    <string name="knee">(knee)</string>
+
+    <string name="vas_instructions">(VAS instructions)</string>
+    <string name="vas_min">(min)</string>
+    <string name="vas_max">(max)</string>
+
+    <string name="vas">(vas)</string>
+
+    <string name="crp_esr_instructions">Fill in at least one of the following:</string>
+
+    <string name="crp">CRP</string>
+    <string name="esr">ESR</string>
+
+    <string name="das28_crp">DAS28-CRP</string>
+    <string name="das28_esr">DAS28-ESR</string>
+
+    <string name="swollen_count">(swollen count)</string>
+    <string name="tender_count">(tender count)</string>
+
+    <string name="n_a">N/A</string>
+    <string name="remission">(remission)</string>
+    <string name="low">(low)</string>
+    <string name="moderate">(moderate)</string>
+    <string name="high">(high)</string>
+  </task>
+</resources>
