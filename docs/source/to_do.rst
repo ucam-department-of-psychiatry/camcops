@@ -43,8 +43,6 @@ Tasks
 
 - :ref:`Khandaker GM — 2 — MOJO study <khandaker_2_mojo>`
 
-- :ref:`Snaith–Hamilton Pleasure Scale (SHAPS) <shaps>`
-
 
 **To be prioritized**
 

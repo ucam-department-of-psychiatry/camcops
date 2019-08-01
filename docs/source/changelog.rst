@@ -62,6 +62,7 @@ Contributors
   - :ref:`Multidimensional Fatigue Inventory (MFI-20) <mfi20>`
   - :ref:`Short-Form McGill Pain Questionnaire (SF-MPQ2) <sfmpq2>`
   - :ref:`Disease Activity Score-28 (DAS28) <das28>`
+  - :ref:`Snaith–Hamilton Pleasure Scale (SHAPS) <shaps>`
 
 
 Original Titanium/Javascript client, Python server with custom MySQL interface (defunct)
@@ -2424,3 +2425,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - **New task:** :ref:`Disease Activity Score-28 (DAS28) <das28>`.
   (Database revision 0036.)
+
+- **New task:** :ref:`Snaith–Hamilton Pleasure Scale (SHAPS) <shaps>`.
+  (Database revision 0037.)
