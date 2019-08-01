@@ -152,6 +152,7 @@ from camcops_server.tasks.service_satisfaction import (
     ReferrerSatisfactionSpec,
 )
 from camcops_server.tasks.sfmpq2 import Sfmpq2
+from camcops_server.tasks.shaps import Shaps
 from camcops_server.tasks.slums import Slums
 from camcops_server.tasks.smast import Smast
 from camcops_server.tasks.srs import Srs
