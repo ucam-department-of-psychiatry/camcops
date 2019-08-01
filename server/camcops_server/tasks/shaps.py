@@ -94,6 +94,8 @@ class Shaps(TaskHasPatientMixin,
     AGREE = 2
     STRONGLY_OR_DEFINITELY_AGREE = 3
 
+    REVERSE_QUESTIONS = {2, 4, 5, 7, 9, 12, 14}
+
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
         _ = req.gettext
