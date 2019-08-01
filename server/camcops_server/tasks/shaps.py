@@ -169,7 +169,8 @@ class Shaps(TaskHasPatientMixin,
                 {rows}
             </table>
             <div class="{CssClass.FOOTNOTES}">
-                [1] Mean of three numerical rating scales, each rated 0-10.
+                [1] Score 1 point for either 'disagree' option,
+                    0 points for either 'agree' option.
             </div>
         """.format(
             CssClass=CssClass,
