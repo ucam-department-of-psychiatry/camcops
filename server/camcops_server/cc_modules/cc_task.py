@@ -1408,83 +1408,10 @@ class Task(GenericTabletRecordMixin, Base):
         return tsv_pages
 
     # -------------------------------------------------------------------------
-    # Data structure for CRIS data dictionary
-    # -------------------------------------------------------------------------
-
-    _ = '''
-
-    @classmethod
-    def get_cris_dd_rows(cls, req: "CamcopsRequest") -> List[Dict]:
-        """
-        Returns rows for a CRIS data dictionary
-        (https://doi.org/10.1186/1472-6947-13-71).
-
-        BROKEN?
-
-        .. todo:: fix get_cris_dd_rows
-        """
-        if cls.is_anonymous:
-            return []
-        taskname = cls.shortname
-        tablename = CRIS_TABLENAME_PREFIX + cls.tablename
-        instance = cls()  # blank PK
-        common = instance.get_cris_common_fieldspecs_values()
-        taskfieldspecs = instance.get_cris_fieldspecs_values(req, common)
-        rows = get_cris_dd_rows_from_fieldspecs(taskname, tablename,
-                                                taskfieldspecs)
-        for depclass in cls.dependent_classes:
-            depinstance = depclass(None)  # blank PK
-            deptable = CRIS_TABLENAME_PREFIX + depinstance.tablename
-            depfieldspecs = depinstance.get_cris_fieldspecs_values(req, common)
-            rows += get_cris_dd_rows_from_fieldspecs(taskname, deptable,
-                                                     depfieldspecs)
-        return rows
-        
-    '''
-
-    # -------------------------------------------------------------------------
     # Data export for CRIS and other anonymisation systems
     # -------------------------------------------------------------------------
 
     _ = '''
-
-    @classmethod
-    def make_cris_tables(cls, req: "CamcopsRequest",
-                         db: "DatabaseSupporter") -> None:
-        """
-        Makes database tables for a CRIS anonymisation database.
-
-        BROKEN, AND SUPERSEDED?
-
-        .. todo:: fix/remove make_cris_tables
-        """
-        # DO NOT CONFUSE pls.db and db. HERE WE ONLY USE db.
-        log.info("Generating CRIS staging tables for: {}", cls.shortname)
-        cc_db.set_db_to_utf8(db)
-        task_table = CRIS_TABLENAME_PREFIX + cls.tablename
-        created_tables = []
-        for task in cls.gen_all_current_tasks():
-            common_fsv = task.get_cris_common_fieldspecs_values()
-            task_fsv = task.get_cris_fieldspecs_values(req, common_fsv)
-            cc_db.add_sqltype_to_fieldspeclist_in_place(task_fsv)
-            if task_table not in created_tables:
-                db.drop_table(task_table)
-                db.make_table(task_table, task_fsv, dynamic=True)
-                created_tables.append(task_table)
-            db.insert_record_by_fieldspecs_with_values(task_table, task_fsv)
-            # Same for associated ancillary items
-            for depclass in cls.dependent_classes:
-                items = task.get_ancillary_items(depclass)
-                for it in items:
-                    item_table = CRIS_TABLENAME_PREFIX + it.tablename
-                    item_fsv = it.get_cris_fieldspecs_values(common_fsv)
-                    cc_db.add_sqltype_to_fieldspeclist_in_place(item_fsv)
-                    if item_table not in created_tables:
-                        db.drop_table(item_table)
-                        db.make_table(item_table, item_fsv, dynamic=True)
-                        created_tables.append(item_table)
-                    db.insert_record_by_fieldspecs_with_values(item_table,
-                                                               item_fsv)
 
     def get_cris_common_fieldspecs_values(self) -> "FIELDSPECLIST_TYPE":
         """
@@ -1496,38 +1423,9 @@ class Task(GenericTabletRecordMixin, Base):
         clusterpk_fs = copy.deepcopy(CRIS_CLUSTER_KEY_FIELDSPEC)
         clusterpk_fs["value"] = self._pk
         fieldspecs = [clusterpk_fs]
-        # Store a subset of patient info in all linked records
-        patientfs = copy.deepcopy(Patient.FIELDSPECS)
-        for fs in patientfs:
-            if fs.get("cris_include", False):
-                fs["value"] = getattr(self.patient, fs["name"])
-                fs["name"] = TSV_PATIENT_FIELD_PREFIX + fs["name"]
-                fs["comment"] = CRIS_PATIENT_COMMENT_PREFIX + fs.get("comment",
-                                                                     "")
-                fieldspecs.append(fs)
+        # ...
         return fieldspecs
 
-    def get_cris_fieldspecs_values(
-            self,
-            req: "CamcopsRequest",
-            common_fsv: "FIELDSPECLIST_TYPE") -> "FIELDSPECLIST_TYPE":
-        """
-        Another broken CRIS-related function.
-
-        .. todo:: fix/remove get_cris_fieldspecs_values
-        """
-        fieldspecs = copy.deepcopy(self.get_full_fieldspecs())
-        for fs in fieldspecs:
-            fs["value"] = getattr(self, fs["name"])
-        summaries = self.get_summaries(req)  # summaries include values
-        for fs in summaries:
-            fs["comment"] = CRIS_SUMMARY_COMMENT_PREFIX + fs.get("comment", "")
-        return (
-            common_fsv +
-            fieldspecs +
-            summaries
-        )
-        
     '''
 
     # -------------------------------------------------------------------------

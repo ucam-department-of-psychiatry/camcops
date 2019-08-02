@@ -1279,7 +1279,7 @@ class PermittedValueChecker(object):
         """
         if not self.permitted_values:
             return ""
-        return ",".join(self.permitted_values)
+        return ",".join(str(x) for x in self.permitted_values)
 
 
 # Specific instances, to reduce object duplication and magic numbers:

@@ -64,6 +64,12 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
 # =============================================================================
+# Constants
+# =============================================================================
+
+EXTRA_IDNUM_FIELD_PREFIX = "idnum"
+
+# =============================================================================
 # PatientIdNum class
 # =============================================================================
 # Stores ID numbers for a specific patient
@@ -219,7 +225,7 @@ def extra_id_colname(which_idnum: int) -> str:
         str: ``idnum<which_idnum>``
 
     """
-    return f"idnum{which_idnum}"
+    return f"{EXTRA_IDNUM_FIELD_PREFIX}{which_idnum}"
 
 
 def extra_id_column(req: "CamcopsRequest", which_idnum: int) -> CamcopsColumn:

@@ -34,7 +34,7 @@ from collections import OrderedDict
 import csv
 import sys
 from typing import (
-    Dict, List, Generator, Optional, TextIO, Tuple, TYPE_CHECKING, Union,
+    Dict, List, Generator, TextIO, Tuple, TYPE_CHECKING, Union,
 )
 
 from cardinal_pythonlib.sqlalchemy.orm_inspect import coltype_as_typeengine
@@ -53,10 +53,14 @@ from sqlalchemy.engine.interfaces import Dialect
 from sqlalchemy.orm import Session as SqlASession, sessionmaker
 from sqlalchemy.sql.schema import Column
 
+from camcops_server.cc_modules.cc_constants import TABLET_ID_FIELD
 from camcops_server.cc_modules.cc_db import FN_PK
 from camcops_server.cc_modules.cc_dump import DumpController
 from camcops_server.cc_modules.cc_patient import Patient
-from camcops_server.cc_modules.cc_patientidnum import extra_id_colname
+from camcops_server.cc_modules.cc_patientidnum import (
+    extra_id_colname,
+    EXTRA_IDNUM_FIELD_PREFIX,
+)
 from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
 from camcops_server.cc_modules.cc_sqla_coltypes import CamcopsColumn
 
@@ -113,7 +117,8 @@ def _get_type_size_as_text_from_sqltype(sqltype: str) -> Tuple[str, str]:
     return finaltype, size
 
 
-def _get_cris_dd_row(column: Union[Column, CamcopsColumn] = None,
+def _get_cris_dd_row(column: Union[Column, CamcopsColumn, None],
+                     recipient: "ExportRecipientInfo",
                      dest_dialect: Dialect = None) -> Dict:
     """
     Args:
@@ -173,30 +178,23 @@ def _get_cris_dd_row(column: Union[Column, CamcopsColumn] = None,
 
         # Security status
         system_id = (
-            colname == "id" or
-            colname == "patient_id" or
-            colname == TSV_PATIENT_FIELD_PREFIX + "id" or
-            (colname[:1] == "_" and colname[-3:] == "_pk")
+            colname == TABLET_ID_FIELD or
+            colname.endswith("_id")
         )
-        patientlen = len(TSV_PATIENT_FIELD_PREFIX)
-        patientfield = (colname[:patientlen] == TSV_PATIENT_FIELD_PREFIX)
-        internal_field = (
-            colname[:1] == "_" and not patientfield
-        ) or (
-            patientfield and colname[patientlen:patientlen + 1] == "_"
-        )
-        if system_id or internal_field:
-            security_status = 1  # drop (e.g. for pointless internal keys)
-        elif identifies_patient and (tablename == Patient.__tablename__ and
-                                     colname == Patient.dob.name):
+        patientfield = colname.startswith(EXTRA_IDNUM_FIELD_PREFIX)
+        internal_field = colname.startswith("_")
+        if identifies_patient and (tablename == Patient.__tablename__ and
+                                   colname == Patient.dob.name):
             security_status = 3  # truncate (e.g. DOB, postcode)
-        elif identifies_patient:
+        elif identifies_patient and tablename == Patient.__tablename__:
             security_status = 2  # use to scrub
+        elif system_id or internal_field or identifies_patient:
+            security_status = 1  # drop (e.g. for pointless internal keys)
         else:
             security_status = 4  # bring through
 
         # Front end field type
-        if system_id:
+        if system_id or patientfield:
             feft = 34  # patient ID; other internal keys
         elif is_sqlatype_date(coltype):
             feft = 4  # dates
@@ -259,11 +257,11 @@ def write_cris_data_dictionary(req: "CamcopsRequest",
         recipient: a :class:`camcops_server.cc_modules.cc_exportrecipientinfo.ExportRecipientInfo`
         file: output file
     """  # noqa
-    dummy = _get_cris_dd_row(None)
+    dummy = _get_cris_dd_row(column=None, recipient=recipient)
     wr = csv.DictWriter(file, fieldnames=list(dummy.keys()))
     wr.writeheader()
     for col in _gen_columns_for_anon_staging_db(req, recipient):
-        d = _get_cris_dd_row(col)
+        d = _get_cris_dd_row(column=col, recipient=recipient)
         wr.writerow(d)
 
 
@@ -271,7 +269,7 @@ def write_cris_data_dictionary(req: "CamcopsRequest",
 # CRATE
 # -----------------------------------------------------------------------------
 
-def _get_crate_dd_row(column: Optional[Union[Column, CamcopsColumn]],
+def _get_crate_dd_row(column: Union[Column, CamcopsColumn, None],
                       recipient: "ExportRecipientInfo",
                       dest_dialect: Dialect = None,
                       src_db: str = "camcops",
@@ -347,7 +345,7 @@ def _get_crate_dd_row(column: Optional[Union[Column, CamcopsColumn]],
         src_flags.append("M")
 
     # scrub_src
-    if identifies_patient:
+    if identifies_patient and tablename == Patient.__tablename__:
         scrub_src = "patient"
     elif identifies_respondent:
         scrub_src = "thirdparty"
