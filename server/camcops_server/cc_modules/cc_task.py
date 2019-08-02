@@ -78,16 +78,11 @@ from camcops_server.cc_modules.cc_audit import audit
 from camcops_server.cc_modules.cc_blob import Blob, get_blob_img_html
 from camcops_server.cc_modules.cc_cache import cache_region_static, fkg
 from camcops_server.cc_modules.cc_constants import (
-    # CRIS_CLUSTER_KEY_FIELDSPEC,
-    # CRIS_PATIENT_COMMENT_PREFIX,
-    # CRIS_SUMMARY_COMMENT_PREFIX,
-    # CRIS_TABLENAME_PREFIX,
     CssClass,
     CSS_PAGED_MEDIA,
     DateFormat,
     ERA_NOW,
     INVALID_VALUE,
-    # TSV_PATIENT_FIELD_PREFIX,
 )
 from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
 from camcops_server.cc_modules.cc_filename import get_export_filename

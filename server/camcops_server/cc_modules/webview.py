@@ -1170,6 +1170,7 @@ def serve_tracker_or_ctv(req: "CamcopsRequest",
         req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         as_ctv: CTV, rather than tracker?
     """
+    as_tracker = not as_ctv
     _ = req.gettext
     which_idnum = req.get_int_param(ViewParam.WHICH_IDNUM)
     idnum_value = req.get_int_param(ViewParam.IDNUM_VALUE)
@@ -1188,12 +1189,11 @@ def serve_tracker_or_ctv(req: "CamcopsRequest",
                 tasks, sortmethod=TaskClassSortMethod.SHORTNAME)
         except KeyError:
             raise HTTPBadRequest(_("Invalid tasks specified"))
-        if not all(c.provides_trackers for c in task_classes):
+        if as_tracker and not all(c.provides_trackers for c in task_classes):
             raise HTTPBadRequest(_("Not all tasks specified provide trackers"))
 
     iddefs = [IdNumReference(which_idnum, idnum_value)]
 
-    as_tracker = not as_ctv
     taskfilter = TaskFilter()
     taskfilter.task_types = [tc.__tablename__ for tc in task_classes]  # a bit silly...  # noqa
     taskfilter.idnum_criteria = iddefs
@@ -1419,7 +1419,7 @@ def serve_basic_dump(req: "CamcopsRequest") -> Response:
     """
     # Get view-specific parameters
     sort_by_heading = req.get_bool_param(ViewParam.SORT, False)
-    viewtype = req.get_str_param(ViewParam.VIEWTYPE, ViewArg.TSV_ZIP,
+    viewtype = req.get_str_param(ViewParam.VIEWTYPE, ViewArg.XLSX,
                                  lower=True)
     # Get tasks (and perform checks)
     collection = get_dump_collection(req)
@@ -1444,7 +1444,7 @@ def serve_basic_dump(req: "CamcopsRequest") -> Response:
         )
     else:
         _ = req.gettext
-        permissible = [ViewArg.TSV_ZIP, ViewArg.XLSX]
+        permissible = [ViewArg.TSV_ZIP, ViewArg.XLSX, ViewArg.ODS]
         raise HTTPBadRequest(
             f"{_('Bad output type:')} {viewtype!r} "
             f"({_('permissible:')} {permissible!r})")
@@ -1504,7 +1504,10 @@ def sql_dump(req: "CamcopsRequest") -> Response:
 
     # Return response
     as_sql_not_binary = sqlite_method == ViewArg.SQL
-    export_options = TaskExportOptions(include_blobs=include_blobs)
+    export_options = TaskExportOptions(
+        include_blobs=include_blobs,
+        db_include_summaries=True,
+    )
     return task_collection_to_sqlite_response(
         req=req,
         collection=collection,

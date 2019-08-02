@@ -32,7 +32,7 @@ information.
 """
 
 from collections import OrderedDict
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 from cardinal_pythonlib.reprfunc import auto_repr
 from sqlalchemy.sql.schema import Column
@@ -72,6 +72,10 @@ class SummaryElement(object):
         self.value = value
         self.comment = comment
 
+    @property
+    def decorated_comment(self) -> Optional[str]:
+        return "(SUMMARY) " + self.comment if self.comment else None
+
 
 # =============================================================================
 # ExtraSummaryTable
@@ -93,7 +97,7 @@ class ExtraSummaryTable(object):
         Args:
             tablename: name of the additional summary table
             xmlname: name of the XML tag to encapsulate this information
-            columns: list of column names
+            columns: list of SQLAlchemy columns
             rows: list of rows, where each row is a dictionary mapping
                 column names to values
         """

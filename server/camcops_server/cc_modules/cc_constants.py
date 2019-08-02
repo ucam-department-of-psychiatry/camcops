@@ -147,7 +147,6 @@ POSSIBLE_SEX_VALUES = [SEX_FEMALE, SEX_MALE, SEX_OTHER_UNSPECIFIED]
 # Field names/specifications
 # =============================================================================
 
-# defunct # PKNAME = "_pk"
 TABLET_ID_FIELD = "id"
 MOVE_OFF_TABLET_FIELD = "_move_off_tablet"
 CLIENT_DATE_FIELD = "when_last_modified"
@@ -158,6 +157,7 @@ FP_ID_DESC = "iddesc"
 FP_ID_SHORT_DESC = "idshortdesc"
 
 CRIS_CLUSTER_KEY_FIELDSPEC = dict(
+    # todo: fixme
     name="_task_main_pk", cctype="INT_UNSIGNED",
     comment="(CRIS) Server primary key for task and linked records"
 )

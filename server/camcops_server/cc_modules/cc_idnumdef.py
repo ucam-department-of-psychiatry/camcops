@@ -29,21 +29,25 @@ camcops_server/cc_modules/cc_idnumdef.py
 """
 
 import logging
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, TYPE_CHECKING
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.nhs import is_valid_nhs_number
 from cardinal_pythonlib.reprfunc import simple_repr
 from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Integer, String
+from sqlalchemy.sql.sqltypes import BigInteger, Integer, String
 
 from camcops_server.cc_modules.cc_sqla_coltypes import (
+    CamcopsColumn,
     HL7AssigningAuthorityType,
     HL7IdTypeType,
     IdDescriptorColType,
 )
 from camcops_server.cc_modules.cc_sqlalchemy import Base
+
+if TYPE_CHECKING:
+    from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 

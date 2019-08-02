@@ -29,7 +29,9 @@ camcops_server/cc_modules/cc_patient.py
 """
 
 import logging
-from typing import Generator, List, Optional, Set, Tuple, TYPE_CHECKING, Union
+from typing import (
+    Any, Dict, Generator, List, Optional, Set, Tuple, TYPE_CHECKING, Union,
+)
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.datetimefunc import (
@@ -68,7 +70,10 @@ from camcops_server.cc_modules.cc_simpleobjects import (
     BarePatientInfo,
     HL7PatientIdentifier,
 )
-from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
+from camcops_server.cc_modules.cc_patientidnum import (
+    extra_id_colname,
+    PatientIdNum,
+)
 from camcops_server.cc_modules.cc_report import Report
 from camcops_server.cc_modules.cc_simpleobjects import (
     IdNumReference,
@@ -658,6 +663,19 @@ class Patient(GenericTabletRecordMixin, Base):
         """
         idobj = self.get_idnum_object(which_idnum)
         return idobj.short_description(req) if idobj else None
+
+    def add_extra_idnum_info_to_row(self, row: Dict[str, Any]) -> None:
+        """
+        For the ``DB_PATIENT_ID_PER_ROW`` export option. Adds additional ID
+        number info to a row.
+
+        Args:
+            row: future database row, as a dictionary
+        """
+        for idobj in self.idnums:
+            which_idnum = idobj.which_idnum
+            fieldname = extra_id_colname(which_idnum)
+            row[fieldname] = idobj.idnum_value
 
     def is_preserved(self) -> bool:
         """

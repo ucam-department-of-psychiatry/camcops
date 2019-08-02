@@ -190,7 +190,9 @@ class TaskExportOptions(object):
     representations of tasks.
     """
     def __init__(self,
-                 db_patient_id_in_each_row: bool = False,
+                 db_patient_id_per_row: bool = False,
+                 db_make_all_tables_even_empty: bool = False,
+                 db_include_summaries: bool = False,
                  include_blobs: bool = False,
                  xml_include_ancillary: bool = False,
                  xml_include_calculated: bool = False,
@@ -203,27 +205,41 @@ class TaskExportOptions(object):
                  xml_with_header_comments: bool = False) -> None:
         """
         Args:
-            db_patient_id_in_each_row: generates an anonymisation staging
-                database -- that is, a database with patient IDs in every row
-                of every table, suitable for feeding into an anonymisation
-                system like CRATE
+            db_patient_id_per_row:
+                generates an anonymisation staging database -- that is, a
+                database with patient IDs in every row of every table, suitable
+                for feeding into an anonymisation system like CRATE
                 (https://doi.org/10.1186%2Fs12911-017-0437-1).
+            db_make_all_tables_even_empty:
+                create all tables, even empty ones
 
-            include_blobs: include binary large objects (BLOBs) (applies to
-                several export formats)
+            include_blobs:
+                include binary large objects (BLOBs) (applies to several export
+                formats)
 
-            xml_include_ancillary: include ancillary tables as well as the main?
-            xml_include_calculated: include fields calculated by the task
-            xml_include_comments: include comments in XML?
-            xml_include_patient: include patient details?
-            xml_include_plain_columns: include the base columns
-            xml_include_snomed: include SNOMED-CT codes, if available?
-            xml_skip_fields: fieldnames to skip
-            xml_sort_by_name: sort by field/attribute names?
-            xml_with_header_comments: include header-style comments?
+            xml_include_ancillary:
+                include ancillary tables as well as the main?
+            xml_include_calculated:
+                include fields calculated by the task
+            xml_include_comments:
+                include comments in XML?
+            xml_include_patient:
+                include patient details?
+            xml_include_plain_columns:
+                include the base columns
+            xml_include_snomed:
+                include SNOMED-CT codes, if available?
+            xml_skip_fields:
+                fieldnames to skip
+            xml_sort_by_name:
+                sort by field/attribute names?
+            xml_with_header_comments:
+                include header-style comments?
         """
-        self.db_patient_id_in_each_row = db_patient_id_in_each_row
-        # *** todo: implement db_patient_id_in_each_row
+        self.db_patient_id_in_each_row = db_patient_id_per_row
+        self.db_make_all_tables_even_empty = db_make_all_tables_even_empty
+        self.db_include_summaries = db_include_summaries
+        # todo: implement db_patient_id_in_each_row
 
         self.include_blobs = include_blobs
 

@@ -100,10 +100,6 @@ Client core
 - Create 64-bit ARM build, then release to Google Play Store (deadline 1 Aug
   2019). Work in progress: ``build_qt.py --build_android_arm_v8_64``.
 
-- **For ACE-III and similar:** when pages don't scroll, offer facility to
-  constrain widgets (+/- expand to max size). Use this for letters, picture
-  naming, etc. **In progress.**
-
 - Have facility to upload and/or automatically feed patient details into the
   server, then have clients restrict to these predefined patients. Since we are
   aiming to minimize PID on the client, this could be implemented by having the

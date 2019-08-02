@@ -41,7 +41,7 @@ Thus, always complete and contemporaneous.
 """
 
 import logging
-from typing import TYPE_CHECKING
+from typing import List, TYPE_CHECKING
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.reprfunc import simple_repr
@@ -201,3 +201,61 @@ def fake_tablet_id_for_patientidnum(patient_id: int, which_idnum: int) -> int:
     use in upgrading old databases.
     """
     return patient_id * NUMBER_OF_IDNUMS_DEFUNCT + which_idnum
+
+
+# =============================================================================
+# Additional ID number column info for DB_PATIENT_ID_PER_ROW export option
+# =============================================================================
+
+def extra_id_colname(which_idnum: int) -> str:
+    """
+    The column name used for the extra ID number columns provided by the
+    ``DB_PATIENT_ID_PER_ROW`` export option.
+
+    Args:
+        which_idnum: ID number type
+
+    Returns:
+        str: ``idnum<which_idnum>``
+
+    """
+    return f"idnum{which_idnum}"
+
+
+def extra_id_column(req: "CamcopsRequest", which_idnum: int) -> CamcopsColumn:
+    """
+    The column definition used for the extra ID number columns provided by the
+    ``DB_PATIENT_ID_PER_ROW`` export option.
+
+    Args:
+        req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        which_idnum: ID number type
+
+    Returns:
+        the column definition
+
+    """
+    desc = req.get_id_desc(which_idnum)
+    return CamcopsColumn(
+        extra_id_colname(which_idnum),
+        BigInteger,
+        identifies_patient=True,
+        comment=f"ID number {which_idnum}: {desc}"
+    )
+
+
+def all_extra_id_columns(req: "CamcopsRequest") -> List[CamcopsColumn]:
+    """
+    Returns all column definitions used for the extra ID number columns
+    provided by the ``DB_PATIENT_ID_PER_ROW`` export option.
+
+    Args:
+        req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+
+    Returns:
+        list: the column definitions
+    """
+    return [
+        extra_id_column(req, which_idnum)
+        for which_idnum in req.valid_which_idnums
+    ]

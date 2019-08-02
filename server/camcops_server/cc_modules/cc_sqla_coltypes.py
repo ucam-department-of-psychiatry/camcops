@@ -1273,6 +1273,14 @@ class PermittedValueChecker(object):
     def __repr__(self):
         return auto_repr(self)
 
+    def permitted_values_csv(self) -> str:
+        """
+        Returns a CSV representation of the permitted values.
+        """
+        if not self.permitted_values:
+            return ""
+        return ",".join(self.permitted_values)
+
 
 # Specific instances, to reduce object duplication and magic numbers:
 
@@ -1321,6 +1329,36 @@ class CamcopsColumn(Column):
                  blob_relationship_attr_name: str = "",
                  permitted_value_checker: PermittedValueChecker = None,
                  **kwargs) -> None:
+        """
+
+        Args:
+            *args:
+                Arguments to the :class:`Column` constructor.
+            cris_include:
+                CURRENTLY UNUSED.
+                todo: fix this; CamcopsColumn.__init__
+            exempt_from_anonymisation:
+                If true: though this field might be text, it is guaranteed not
+                to contain identifiers (e.g. it might contain only predefined
+                disease severity descriptions) and does not require
+                anonymisation.
+            identifies_patient:
+                If true: contains a patient identifier (e.g. name).
+            is_blob_id_field:
+                If true: this field contains a reference (client FK) to the
+                BLOB table.
+            blob_relationship_attr_name:
+                For BLOB ID fields: the name of the associated relationship
+                attribute (which, when accessed, yields the BLOB itself) in
+                the owning class/object.
+            permitted_value_checker:
+                If specified, a :class:`PermittedValueChecker` that allows
+                soft constraints to be specified on the field's contents. (That
+                is, no constraints are specified at the database level, but we
+                can moan if incorrect data are present.)
+            **kwargs:
+                Arguments to the :class:`Column` constructor.
+        """
         self.cris_include = cris_include
         self.exempt_from_anonymisation = exempt_from_anonymisation
         self.identifies_patient = identifies_patient
