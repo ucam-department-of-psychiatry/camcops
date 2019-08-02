@@ -94,6 +94,9 @@ class Shaps(TaskHasPatientMixin,
     AGREE = 2
     STRONGLY_OR_DEFINITELY_AGREE = 3
 
+    # Q11 in British Journal of Psychiatry (1995), 167, 99-103
+    # actually has two "Strongly disagree" options. Assuming this
+    # is not intentional!
     REVERSE_QUESTIONS = {2, 4, 5, 7, 9, 12, 14}
 
     @staticmethod
