@@ -24,6 +24,7 @@
 #include "menulib/menuitem.h"
 
 #include "tasks/asdas.h"
+#include "tasks/bmi.h"
 #include "tasks/chit.h"
 #include "tasks/cisr.h"
 #include "tasks/das28.h"
@@ -60,6 +61,7 @@ void SetMenuKhandaker2Mojo::makeItems()
     m_items = {
         MAKE_CHANGE_PATIENT(m_app),
         // *** MOJO anthropometrics/sociodemographics/medical history
+        MAKE_TASK_MENU_ITEM(Bmi::BMI_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(ElixhauserCI::ELIXHAUSERCI_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Esspri::ESSPRI_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Asdas::ASDAS_TABLENAME, m_app),
