@@ -67,6 +67,7 @@ server/camcops_server
     alembic/versions/0035_sfmpq2.py.rst
     alembic/versions/0036_das28.py.rst
     alembic/versions/0037_shaps.py.rst
+    alembic/versions/0038_bmi_waist.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst

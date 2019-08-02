@@ -61,6 +61,7 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 BMI_DP = 2
 KG_DP = 2
 M_DP = 3
+CM_DP = 1
 
 
 class Bmi(TaskHasPatientMixin, Task):
@@ -80,6 +81,11 @@ class Bmi(TaskHasPatientMixin, Task):
         "mass_kg", Float,
         permitted_value_checker=PermittedValueChecker(minimum=0),
         comment="mass (kg)"
+    )
+    waist_cm = CamcopsColumn(
+        "waist_cm", Float,
+        permitted_value_checker=PermittedValueChecker(minimum=0),
+        comment="waist circumference (cm)"
     )
     comment = Column(
         "comment", UnicodeText,
@@ -147,6 +153,11 @@ class Bmi(TaskHasPatientMixin, Task):
                 plot_label="Mass (kg)",
                 axis_label="Mass (kg)"
             ),
+            TrackerInfo(
+                value=self.waist_cm,
+                plot_label="Waist circumference (cm)",
+                axis_label="Waist circumference (cm)"
+            ),
         ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
@@ -158,6 +169,8 @@ class Bmi(TaskHasPatientMixin, Task):
                 f" [{self.category(req)}]."
                 f" Mass: {ws.number_to_dp(self.mass_kg, KG_DP)} kg. "
                 f" Height: {ws.number_to_dp(self.height_m, M_DP)} m."
+                f" Waist circumference:"
+                f" {ws.number_to_dp(self.waist_cm, CM_DP)} cm."
             )
         )]
 
@@ -212,6 +225,8 @@ class Bmi(TaskHasPatientMixin, Task):
             <table class="{CssClass.TASKDETAIL}">
                 {tr_qa("Mass (kg)", ws.number_to_dp(self.mass_kg, KG_DP))}
                 {tr_qa("Height (m)", ws.number_to_dp(self.height_m, M_DP))}
+                {tr_qa("Waist circumference (cm)",
+                       ws.number_to_dp(self.waist_cm, CM_DP))}
                 {tr_qa("Comment", ws.webify(self.comment))}
             </table>
             <div class="{CssClass.FOOTNOTES}">

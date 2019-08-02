@@ -16,10 +16,12 @@
     <string name="obese_1">Obese class I (moderately obese)</string>
     <string name="obese_2">Obese class II (severely obese)</string>
     <string name="obese_3">Obese class III (very severely obese)</string>
-    <string name="title_1">BMI (1/4): Units for height</string>
-    <string name="title_2">BMI (2/4): Height</string>
-    <string name="title_3">BMI (3/4): Units for mass</string>
-    <string name="title_4">BMI (4/4): Mass</string>
+    <string name="title_1">BMI (1/6): Units for height</string>
+    <string name="title_2">BMI (2/6): Height</string>
+    <string name="title_3">BMI (3/6): Units for mass</string>
+    <string name="title_4">BMI (4/6): Mass</string>
+    <string name="title_5">BMI (5/6): Units for waist circumference</string>
+    <string name="title_6">BMI (6/6): Waist circumference</string>
     <string name="metric_height">Metric (m)</string>
     <string name="imperial_height">Imperial (ft, in)</string>
     <string name="m">metres (m)</string>
@@ -31,7 +33,9 @@
     <string name="st">stones (st)</string>
     <string name="lb">pounds (lb)</string>
     <string name="oz">ounces (oz)</string>
+    <string name="metric_waist">Metric (cm)</string>
+    <string name="imperial_waist">Imperial (in)</string>
+    <string name="cm">centimetres (cm)</string>
     <string name="units_both">Show both</string>
-
   </task>
 </resources>
