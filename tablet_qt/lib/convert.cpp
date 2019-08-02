@@ -1074,6 +1074,17 @@ void feetInchesFromMetres(const double metres, int& feet, double& inches)
 }
 
 
+double centimetresFromInches(const double inches)
+{
+    return inches * CM_PER_INCH;
+}
+
+double inchesFromCentimetres(const double centimetres)
+{
+    return centimetres / CM_PER_INCH;
+}
+
+
 double kilogramsFromStonesPoundsOunces(double stones, double pounds,
                                        double ounces)
 {
