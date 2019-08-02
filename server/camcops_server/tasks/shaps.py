@@ -120,6 +120,11 @@ class Shaps(TaskHasPatientMixin,
         return True
 
     def total_score(self) -> int:
+        # Consistent with client implementation
+        # Probably not helpful to record total for incomplete questionnaire
+        if not self.is_complete():
+            return 0
+
         return self.count_where(self.ALL_QUESTIONS,
                                 [self.STRONGLY_DISAGREE, self.DISAGREE])
 
