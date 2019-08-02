@@ -2429,5 +2429,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - **New task:** :ref:`Snaith–Hamilton Pleasure Scale (SHAPS) <shaps>`.
   (Database revision 0037.)
 
-  Add optional waist circumference to :ref:`BMI  <bmi>`.
+- Add optional waist circumference to :ref:`BMI  <bmi>`.
   (Database revision 0038.)
