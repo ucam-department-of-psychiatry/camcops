@@ -112,7 +112,9 @@ INSTALL_REQUIRES = [
     'Pygments==2.3.1',  # Syntax highlighting for introspection/DDL
 
     'PyMySQL==0.7.1',
-    # ... for mysql+pymysql://... BEWARE FURTHER UPGRADES (e.g. to 0.7.11); may break Pendulum handling *** FIX THIS *** # noqa
+    # ... for mysql+pymysql://... BEWARE FURTHER UPGRADES (e.g. to 0.7.11); may
+    # break Pendulum handling
+    # todo: setup.py: fix PyMySQL upgrade problem
 
     'PyPDF2==1.26.0',  # Used by rnc_pdf.py
     'pyramid==1.9.2',  # web framework

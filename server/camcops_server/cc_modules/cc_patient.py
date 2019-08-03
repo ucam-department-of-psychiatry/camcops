@@ -817,7 +817,7 @@ def is_candidate_patient_valid(ptinfo: BarePatientInfo,
         if not group.tokenized_upload_policy().satisfies_id_policy(ptinfo):
             return False, "Fails upload ID policy"
 
-    # *** add checks against prevalidated patients here
+    # todo: add checks against prevalidated patients here
 
     return True, ""
 

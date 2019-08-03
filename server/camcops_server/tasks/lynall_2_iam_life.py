@@ -57,7 +57,7 @@ class Lynall2LifeEvents(TaskHasPatientMixin, Task):
     __tablename__ = "lynall_2_iam_life"
     shortname = "Lynall_2_IAM_Life"
 
-    # *** fields
+    # todo: Lynall2LifeEvents fields
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
@@ -65,7 +65,7 @@ class Lynall2LifeEvents(TaskHasPatientMixin, Task):
         return _("Lynall M-E — 2 — IAM — Life events")
 
     def is_complete(self) -> bool:
-        return False # ***
+        return False # todo: Lynall2LifeEvents
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        return "" # ***
+        return "" # todo: Lynall2LifeEvents
