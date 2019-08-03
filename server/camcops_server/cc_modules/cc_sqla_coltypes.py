@@ -1276,10 +1276,17 @@ class PermittedValueChecker(object):
     def permitted_values_csv(self) -> str:
         """
         Returns a CSV representation of the permitted values.
+
+        Primarily used for CRIS data dictionaries.
         """
-        if not self.permitted_values:
-            return ""
-        return ",".join(str(x) for x in self.permitted_values)
+        if self.permitted_values:
+            return ",".join(str(x) for x in self.permitted_values)
+        # Take a punt that integer minima/maxima mean that only integers are
+        # permitted...
+        if isinstance(self.minimum, int) and isinstance(self.maximum, int):
+            return ",".join(
+                str(x) for x in range(self.minimum, self.maximum + 1))
+        return ""
 
 
 # Specific instances, to reduce object duplication and magic numbers:
@@ -1322,7 +1329,7 @@ class CamcopsColumn(Column):
     """
     def __init__(self,
                  *args,
-                 cris_include: bool = False,
+                 include_in_anon_staging_db: bool = False,
                  exempt_from_anonymisation: bool = False,
                  identifies_patient: bool = False,
                  is_blob_id_field: bool = False,
@@ -1334,9 +1341,9 @@ class CamcopsColumn(Column):
         Args:
             *args:
                 Arguments to the :class:`Column` constructor.
-            cris_include:
-                CURRENTLY UNUSED.
-                todo: fix this; CamcopsColumn.__init__
+            include_in_anon_staging_db:
+                Ensure this is marked for inclusion in data dictionaries for an
+                anonymisation staging database.
             exempt_from_anonymisation:
                 If true: though this field might be text, it is guaranteed not
                 to contain identifiers (e.g. it might contain only predefined
@@ -1359,7 +1366,7 @@ class CamcopsColumn(Column):
             **kwargs:
                 Arguments to the :class:`Column` constructor.
         """
-        self.cris_include = cris_include
+        self.include_in_anon_staging_db = include_in_anon_staging_db
         self.exempt_from_anonymisation = exempt_from_anonymisation
         self.identifies_patient = identifies_patient
         self.is_blob_id_field = is_blob_id_field
@@ -1379,7 +1386,7 @@ class CamcopsColumn(Column):
         See
         https://bitbucket.org/zzzeek/sqlalchemy/issues/2284/please-make-column-easier-to-subclass
         """  # noqa
-        kwargs['cris_include'] = self.cris_include
+        kwargs['include_in_anon_staging_db'] = self.include_in_anon_staging_db
         kwargs['exempt_from_anonymisation'] = self.exempt_from_anonymisation
         kwargs['identifies_patient'] = self.identifies_patient
         kwargs['is_blob_id_field'] = self.is_blob_id_field
@@ -1392,7 +1399,7 @@ class CamcopsColumn(Column):
         def kvp(attrname: str) -> str:
             return f"{attrname}={getattr(self, attrname)!r}"
         elements = [
-            kvp("cris_include"),
+            kvp("include_in_anon_staging_db"),
             kvp("exempt_from_anonymisation"),
             kvp("identifies_patient"),
             kvp("is_blob_id_field"),

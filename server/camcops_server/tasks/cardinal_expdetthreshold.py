@@ -50,7 +50,10 @@ from camcops_server.cc_modules.cc_html import (
     tr_qa,
 )
 from camcops_server.cc_modules.cc_request import CamcopsRequest
-from camcops_server.cc_modules.cc_sqla_coltypes import PendulumDateTimeAsIsoTextColType  # noqa
+from camcops_server.cc_modules.cc_sqla_coltypes import (
+    CamcopsColumn,
+    PendulumDateTimeAsIsoTextColType,
+)
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 from camcops_server.cc_modules.cc_text import SS
@@ -204,12 +207,14 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
         "target_number", Integer,
         comment="Target number (within available targets of that modality)"
     )
-    background_filename = Column(
+    background_filename = CamcopsColumn(
         "background_filename", Text,
+        exempt_from_anonymisation=True,
         comment="Filename of media used for background"
     )
-    target_filename = Column(
+    target_filename = CamcopsColumn(
         "target_filename", Text,
+        exempt_from_anonymisation=True,
         comment="Filename of media used for target"
     )
     visual_target_duration_s = Column(
@@ -244,8 +249,9 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
         "p_catch_trial", Float,
         comment="Probability of catch trial"
     )
-    prompt = Column(
+    prompt = CamcopsColumn(
         "prompt", UnicodeText,
+        exempt_from_anonymisation=True,
         comment="Prompt given to subject"
     )
     iti_s = Column(

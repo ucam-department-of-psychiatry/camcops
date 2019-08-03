@@ -359,9 +359,10 @@ class DumpController(object):
         if self.export_options.db_include_summaries:
             if isinstance(src_obj, GenericTabletRecordMixin):
                 for summary_element in src_obj.get_summaries(self.req):
-                    dst_columns.append(Column(
+                    dst_columns.append(CamcopsColumn(
                         summary_element.name,
                         summary_element.coltype,
+                        exempt_from_anonymisation=True,
                         comment=summary_element.decorated_comment))
         if self.export_options.db_patient_id_in_each_row:
             merits, _ = self._merits_extra_id_num_columns_if_requested(src_obj)

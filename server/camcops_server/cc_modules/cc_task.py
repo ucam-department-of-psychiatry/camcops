@@ -255,8 +255,9 @@ class TaskHasClinicianMixin(object):
     # noinspection PyMethodParameters
     @declared_attr
     def clinician_professional_registration(cls) -> Column:
-        return Column(
+        return CamcopsColumn(
             "clinician_professional_registration", Text,
+            exempt_from_anonymisation=True,
             comment="(CLINICIAN) Clinician's professional registration (e.g. "
                     "GMC# 12345)"
         )
@@ -972,8 +973,9 @@ class Task(GenericTabletRecordMixin, Base):
                    comment="Task's server primary key"),
             Column(SNOMED_COLNAME_WHENCREATED_UTC, DateTime,
                    comment="Task's creation date/time (UTC)"),
-            Column(SNOMED_COLNAME_EXPRESSION, Text,
-                   comment="SNOMED CT expression"),
+            CamcopsColumn(SNOMED_COLNAME_EXPRESSION, Text,
+                          exempt_from_anonymisation=True,
+                          comment="SNOMED CT expression"),
         ]
         rows = []  # type: List[Dict[str, Any]]
         for code in codes:

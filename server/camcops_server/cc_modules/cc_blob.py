@@ -51,6 +51,7 @@ from camcops_server.cc_modules.cc_html import (
 )
 from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
 from camcops_server.cc_modules.cc_sqla_coltypes import (
+    CamcopsColumn,
     MimeTypeColType,
     TableNameColType,
 )
@@ -115,8 +116,9 @@ class Blob(GenericTabletRecordMixin, TaskDescendant, Base):
         nullable=False,
         comment="Field name of the field referring to this BLOB by ID"
     )
-    filename = Column(
+    filename = CamcopsColumn(
         "filename", Text,  # Text is correct; filenames can be long
+        exempt_from_anonymisation=True,
         comment="Filename of the BLOB on the source tablet device (on "
                 "the source device, BLOBs are stored in files, not in "
                 "the database)"

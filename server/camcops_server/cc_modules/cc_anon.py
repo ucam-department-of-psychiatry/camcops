@@ -42,7 +42,7 @@ from cardinal_pythonlib.sqlalchemy.schema import (
     convert_sqla_type_for_dialect,
     does_sqlatype_require_index_len,
     is_sqlatype_date,
-    is_sqlatype_string,
+    is_sqlatype_text_of_length_at_least,
     RE_COLTYPE_WITH_ONE_PARAM,
 )
 from cardinal_pythonlib.sqlalchemy.session import SQLITE_MEMORY_URL
@@ -67,6 +67,12 @@ from camcops_server.cc_modules.cc_sqla_coltypes import CamcopsColumn
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_exportrecipientinfo import ExportRecipientInfo  # noqa
     from camcops_server.cc_modules.cc_request import CamcopsRequest
+
+# =============================================================================
+# Constants
+# =============================================================================
+
+MIN_STRING_LENGTH_TO_CONSIDER_SCRUBBING = 256
 
 
 # =============================================================================
@@ -152,7 +158,8 @@ def _get_cris_dd_row(column: Union[Column, CamcopsColumn, None],
         taskname = tablename
         comment = column.comment
         coltype = coltype_as_typeengine(column.type)
-        is_text = is_sqlatype_string(coltype)
+        is_free_text = is_sqlatype_text_of_length_at_least(
+            coltype, min_length=MIN_STRING_LENGTH_TO_CONSIDER_SCRUBBING)
         exempt_from_anonymisation = False
         identifies_patient = False
 
@@ -162,7 +169,7 @@ def _get_cris_dd_row(column: Union[Column, CamcopsColumn, None],
             if column.permitted_value_checker:
                 valid_values = column.permitted_value_checker.permitted_values_csv()  # noqa
 
-        needs_scrubbing = is_text and not exempt_from_anonymisation
+        needs_scrubbing = is_free_text and not exempt_from_anonymisation
 
         # Tag list - fields anon
         tlfa = "Y" if needs_scrubbing else ""
@@ -182,7 +189,7 @@ def _get_cris_dd_row(column: Union[Column, CamcopsColumn, None],
             colname == TABLET_ID_FIELD or
             colname.endswith("_id")
         )
-        patientfield = colname.startswith(EXTRA_IDNUM_FIELD_PREFIX)
+        patient_idnum_field = colname.startswith(EXTRA_IDNUM_FIELD_PREFIX)
         internal_field = colname.startswith("_")
         if identifies_patient and (tablename == Patient.__tablename__ and
                                    colname == Patient.dob.name):
@@ -195,10 +202,14 @@ def _get_cris_dd_row(column: Union[Column, CamcopsColumn, None],
             security_status = 4  # bring through
 
         # Front end field type
-        if system_id or patientfield:
+        if system_id or patient_idnum_field:
             feft = 34  # patient ID; other internal keys
         elif is_sqlatype_date(coltype):
             feft = 4  # dates
+        elif is_free_text:
+            feft = 3  # giant free text, I think
+        elif valid_values is not None:
+            feft = 2  # picklist
         else:
             feft = 1  # text, numbers
 
@@ -237,6 +248,8 @@ def write_cris_data_dictionary(req: "CamcopsRequest",
                                recipient: "ExportRecipientInfo",
                                file: TextIO = sys.stdout) -> None:
     """
+    Generates a draft CRIS data dictionary.
+
     CRIS is an anonymisation tool. See
 
     - Stewart R, Soremekun M, Perera G, Broadbent M, Callard F, Denis M, Hotopf
@@ -297,6 +310,7 @@ def _get_crate_dd_row(column: Union[Column, CamcopsColumn, None],
     exempt_from_anonymisation = False
     identifies_patient = False
     identifies_respondent = False
+    force_include = False
     if column is None:
         # Dummy row
         colname = None
@@ -311,13 +325,15 @@ def _get_crate_dd_row(column: Union[Column, CamcopsColumn, None],
         tablename = column.table.name
         comment = column.comment
         coltype = coltype_as_typeengine(column.type)
-        is_text = is_sqlatype_string(coltype)
+        is_free_text = is_sqlatype_text_of_length_at_least(
+            coltype, min_length=MIN_STRING_LENGTH_TO_CONSIDER_SCRUBBING)
 
         if isinstance(column, CamcopsColumn):
             exempt_from_anonymisation = column.exempt_from_anonymisation
             identifies_patient = column.identifies_patient
+            force_include = column.include_in_anon_staging_db
 
-        needs_scrubbing = is_text and not exempt_from_anonymisation
+        needs_scrubbing = is_free_text and not exempt_from_anonymisation
         desttype = convert_sqla_type_for_dialect(
             coltype=coltype,
             dialect=dest_dialect,
@@ -357,7 +373,13 @@ def _get_crate_dd_row(column: Union[Column, CamcopsColumn, None],
     scrub_method = None  # default is fine
 
     # Include in output?
-    include = not (identifies_patient or identifies_respondent)
+    include = (
+        force_include or
+        primary_key or
+        primary_pid or
+        master_pid or
+        not (identifies_patient or identifies_respondent)
+    )
 
     # alter_method
     if needs_scrubbing:
@@ -400,6 +422,8 @@ def write_crate_data_dictionary(req: "CamcopsRequest",
                                 recipient: "ExportRecipientInfo",
                                 file: TextIO = sys.stdout) -> None:
     """
+    Generates a draft CRATE data dictionary.
+    
     CRATE is an anonymisation tool. See:
 
     - Cardinal RN (2017).

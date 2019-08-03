@@ -1,8 +1,8 @@
 usage: camcops_server [-h] [--allhelp] [--version] [-v]
-                      {docs,demo_camcops_config,demo_supervisor_config,demo_apache_config,demo_mysql_create_db,demo_mysql_dump_script,upgrade_db,dev_upgrade_db,dev_downgrade_db,show_db_title,merge_db,create_db,ddl,reindex,check_index,make_superuser,reset_password,enable_user,export,show_export_queue,serve_cherrypy,serve_gunicorn,serve_pyramid,convert_athena_icd_snomed_to_xml,launch_workers,launch_scheduler,launch_monitor,show_tests,self_test,dev_cli}
+                      {docs,demo_camcops_config,demo_supervisor_config,demo_apache_config,demo_mysql_create_db,demo_mysql_dump_script,upgrade_db,dev_upgrade_db,dev_downgrade_db,show_db_title,merge_db,create_db,ddl,reindex,check_index,make_superuser,reset_password,enable_user,export,show_export_queue,crate_dd,cris_dd,serve_cherrypy,serve_gunicorn,serve_pyramid,convert_athena_icd_snomed_to_xml,launch_workers,launch_scheduler,launch_monitor,show_tests,self_test,dev_cli}
                       ...
 
-CamCOPS server, created by Rudolf Cardinal; version 2.3.1.
+CamCOPS server, created by Rudolf Cardinal; version 2.3.4.
 Use 'camcops_server <COMMAND> --help' for more detail on each command.
 
 optional arguments:
@@ -14,7 +14,7 @@ optional arguments:
 commands:
   Valid CamCOPS commands are as follows.
 
-  {docs,demo_camcops_config,demo_supervisor_config,demo_apache_config,demo_mysql_create_db,demo_mysql_dump_script,upgrade_db,dev_upgrade_db,dev_downgrade_db,show_db_title,merge_db,create_db,ddl,reindex,check_index,make_superuser,reset_password,enable_user,export,show_export_queue,serve_cherrypy,serve_gunicorn,serve_pyramid,convert_athena_icd_snomed_to_xml,launch_workers,launch_scheduler,launch_monitor,show_tests,self_test,dev_cli}
+  {docs,demo_camcops_config,demo_supervisor_config,demo_apache_config,demo_mysql_create_db,demo_mysql_dump_script,upgrade_db,dev_upgrade_db,dev_downgrade_db,show_db_title,merge_db,create_db,ddl,reindex,check_index,make_superuser,reset_password,enable_user,export,show_export_queue,crate_dd,cris_dd,serve_cherrypy,serve_gunicorn,serve_pyramid,convert_athena_icd_snomed_to_xml,launch_workers,launch_scheduler,launch_monitor,show_tests,self_test,dev_cli}
                         Specify one command.
     docs                Launch the main documentation (CamCOPS manual)
     demo_camcops_config
@@ -46,6 +46,9 @@ commands:
     enable_user         Re-enable a locked user account
     export              Trigger pending exports
     show_export_queue   View outbound export queue (without sending)
+    crate_dd            Make draft data dictionary for CRATE anonymisation
+                        tool
+    cris_dd             Make draft data dictionary for CRIS anonymisation tool
     serve_cherrypy      Start web server via CherryPy
     serve_gunicorn      Start web server via Gunicorn (not available under
                         Windows)
@@ -280,8 +283,8 @@ optional arguments:
   -v, --verbose      Be verbose (default: False)
   --config CONFIG    Configuration file (if not specified, the environment
                      variable CAMCOPS_CONFIG_FILE is checked) (default: None)
-  --dialect DIALECT  SQL dialect (options: postgresql, mysql, oracle,
-                     firebird, sybase, sqlite, mssql) (default: mysql)
+  --dialect DIALECT  SQL dialect (options: postgresql, mysql, oracle, mssql,
+                     firebird, sqlite, sybase) (default: mysql)
 
 ===============================================================================
 Help for command 'reindex'
@@ -408,6 +411,45 @@ optional arguments:
                         (default: False)
   --pretty              Pretty (but slower) formatting for tasks (default:
                         False)
+
+===============================================================================
+Help for command 'crate_dd'
+===============================================================================
+usage: camcops_server crate_dd [-h] [-v] [--config CONFIG] --filename FILENAME
+                               --recipient RECIPIENT
+
+Make draft data dictionary for CRATE anonymisation tool
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --verbose         Be verbose (default: False)
+  --config CONFIG       Configuration file (if not specified, the environment
+                        variable CAMCOPS_CONFIG_FILE is checked) (default:
+                        None)
+  --filename FILENAME   Output filename (data dictionary to write) (default:
+                        None)
+  --recipient RECIPIENT
+                        Export recipient (as named in config file) (default:
+                        None)
+
+===============================================================================
+Help for command 'cris_dd'
+===============================================================================
+usage: camcops_server cris_dd [-h] [-v] [--config CONFIG] --filename FILENAME
+                              --recipient RECIPIENT
+
+Make draft data dictionary for CRIS anonymisation tool
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --verbose         Be verbose (default: False)
+  --config CONFIG       Configuration file (if not specified, the environment
+                        variable CAMCOPS_CONFIG_FILE is checked) (default:
+                        None)
+  --filename FILENAME   Filename of data dictionary to write (default: None)
+  --recipient RECIPIENT
+                        Export recipient (as named in config file) (default:
+                        None)
 
 ===============================================================================
 Help for command 'serve_cherrypy'

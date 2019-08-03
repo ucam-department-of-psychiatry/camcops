@@ -100,8 +100,9 @@ class IDED3DTrial(GenericTabletRecordMixin, TaskDescendant, Base):
         "correct_shape", Integer,
         comment="Shape# of correct stimulus"
     )
-    correct_colour = Column(
+    correct_colour = CamcopsColumn(
         "correct_colour", Text,
+        exempt_from_anonymisation=True,
         comment="HTML colour of correct stimulus"
     )
     correct_number = Column(
@@ -112,8 +113,9 @@ class IDED3DTrial(GenericTabletRecordMixin, TaskDescendant, Base):
         "incorrect_shape", Integer,
         comment="Shape# of incorrect stimulus"
     )
-    incorrect_colour = Column(
+    incorrect_colour = CamcopsColumn(
         "incorrect_colour", Text,
+        exempt_from_anonymisation=True,
         comment="HTML colour of incorrect stimulus"
     )
     incorrect_number = Column(
@@ -223,49 +225,59 @@ class IDED3DStage(GenericTabletRecordMixin, TaskDescendant, Base):
     )
 
     # Config
-    stage_name = Column(
+    stage_name = CamcopsColumn(
         "stage_name", Text,
+        exempt_from_anonymisation=True,
         comment="Name of the stage (e.g. SD, EDr)"
     )
-    relevant_dimension = Column(
+    relevant_dimension = CamcopsColumn(
         "relevant_dimension", Text,
+        exempt_from_anonymisation=True,
         comment="Relevant dimension (e.g. shape, colour, number)"
     )
-    correct_exemplar = Column(
+    correct_exemplar = CamcopsColumn(
         "correct_exemplar", Text,
+        exempt_from_anonymisation=True,
         comment="Correct exemplar (from relevant dimension)"
     )
-    incorrect_exemplar = Column(
+    incorrect_exemplar = CamcopsColumn(
         "incorrect_exemplar", Text,
+        exempt_from_anonymisation=True,
         comment="Incorrect exemplar (from relevant dimension)"
     )
-    correct_stimulus_shapes = Column(
+    correct_stimulus_shapes = CamcopsColumn(
         "correct_stimulus_shapes", Text,
+        exempt_from_anonymisation=True,
         comment="Possible shapes for correct stimulus "
                 "(CSV list of shape numbers)"
     )
-    correct_stimulus_colours = Column(
+    correct_stimulus_colours = CamcopsColumn(
         "correct_stimulus_colours", Text,
+        exempt_from_anonymisation=True,
         comment="Possible colours for correct stimulus "
                 "(CSV list of HTML colours)"
     )
-    correct_stimulus_numbers = Column(
+    correct_stimulus_numbers = CamcopsColumn(
         "correct_stimulus_numbers", Text,
+        exempt_from_anonymisation=True,
         comment="Possible numbers for correct stimulus "
                 "(CSV list of numbers)"
     )
-    incorrect_stimulus_shapes = Column(
+    incorrect_stimulus_shapes = CamcopsColumn(
         "incorrect_stimulus_shapes", Text,
+        exempt_from_anonymisation=True,
         comment="Possible shapes for incorrect stimulus "
                 "(CSV list of shape numbers)"
     )
-    incorrect_stimulus_colours = Column(
+    incorrect_stimulus_colours = CamcopsColumn(
         "incorrect_stimulus_colours", Text,
+        exempt_from_anonymisation=True,
         comment="Possible colours for incorrect stimulus "
                 "(CSV list of HTML colours)"
     )
-    incorrect_stimulus_numbers = Column(
+    incorrect_stimulus_numbers = CamcopsColumn(
         "incorrect_stimulus_numbers", Text,
+        exempt_from_anonymisation=True,
         comment="Possible numbers for incorrect stimulus "
                 "(CSV list of numbers)"
     )
@@ -420,14 +432,16 @@ class IDED3D(TaskHasPatientMixin, Task):
     )
 
     # Intrinsic config
-    shape_definitions_svg = Column(
+    shape_definitions_svg = CamcopsColumn(
         "shape_definitions_svg", Text,
+        exempt_from_anonymisation=True,
         comment="JSON-encoded version of shape definition"
                 " array in SVG format (with arbitrary scale of -60 to"
                 " +60 in both X and Y dimensions)"
     )
-    colour_definitions_rgb = Column(  # v2.0.0
+    colour_definitions_rgb = CamcopsColumn(  # v2.0.0
         "colour_definitions_rgb", Text,
+        exempt_from_anonymisation=True,
         comment="JSON-encoded version of colour RGB definitions"
     )
 

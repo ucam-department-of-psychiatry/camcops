@@ -122,26 +122,26 @@ class Patient(GenericTabletRecordMixin, Base):
     forename = CamcopsColumn(
         "forename", PatientNameColType,
         index=True,
-        identifies_patient=True, cris_include=True,
+        identifies_patient=True, include_in_anon_staging_db=True,
         comment="Forename"
     )
     surname = CamcopsColumn(
         "surname", PatientNameColType,
         index=True,
-        identifies_patient=True, cris_include=True,
+        identifies_patient=True, include_in_anon_staging_db=True,
         comment="Surname"
     )
     dob = CamcopsColumn(
         "dob", sqltypes.Date,  # verified: merge_db handles this correctly
         index=True,
-        identifies_patient=True, cris_include=True,
+        identifies_patient=True, include_in_anon_staging_db=True,
         comment="Date of birth"
         # ... e.g. "2013-02-04"
     )
     sex = CamcopsColumn(
         "sex", SexColType,
         index=True,
-        cris_include=True,
+        include_in_anon_staging_db=True,
         comment="Sex (M, F, X)"
     )
     address = CamcopsColumn(
@@ -149,8 +149,9 @@ class Patient(GenericTabletRecordMixin, Base):
         identifies_patient=True,
         comment="Address"
     )
-    gp = Column(
+    gp = CamcopsColumn(
         "gp", UnicodeText,
+        identifies_patient=True,
         comment="General practitioner (GP)"
     )
     other = CamcopsColumn(

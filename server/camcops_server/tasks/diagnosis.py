@@ -91,7 +91,10 @@ from camcops_server.cc_modules.cc_snomed import (
     SnomedFocusConcept,
 )
 from camcops_server.cc_modules.cc_sqlalchemy import Base, DeclarativeAndABCMeta
-from camcops_server.cc_modules.cc_sqla_coltypes import DiagnosticCodeColType
+from camcops_server.cc_modules.cc_sqla_coltypes import (
+    CamcopsColumn,
+    DiagnosticCodeColType,
+)
 
 if TYPE_CHECKING:
     from sqlalchemy.sql.elements import ColumnElement
@@ -132,8 +135,9 @@ class DiagnosisItemBase(GenericTabletRecordMixin, Base):
     # noinspection PyMethodParameters
     @declared_attr
     def description(cls) -> Column:
-        return Column(
+        return CamcopsColumn(
             "description", UnicodeText,
+            exempt_from_anonymisation=True,
             comment="Description of the diagnostic code"
         )
 
