@@ -186,8 +186,10 @@ class DumpController(object):
         Creates all tables in the destination database, even ones that may
         not be used.
         """
+        log.debug("Creating all destination tables...")
         for table in self.gen_all_dest_tables():
             self._create_dest_table(table)
+        log.debug("... all destination tables created.")
 
     def gen_all_dest_tables(self) -> Generator[Table, None, None]:
         """
@@ -568,7 +570,9 @@ def copy_tasks_and_summaries(tasks: Iterable[Task],
                                 req=req)
 
     # We walk through all the objects.
+    log.debug("Starting to copy tasks...")
     for startobj in tasks:
+        log.debug("Processing task: {!r}", startobj)
         for src_obj in walk_orm_tree(
                 startobj,
                 seen=controller.instances_seen,
@@ -576,3 +580,4 @@ def copy_tasks_and_summaries(tasks: Iterable[Task],
                 skip_all_relationships_for_tablenames=DUMP_SKIP_ALL_RELS_FOR_TABLES,  # noqa
                 skip_all_objects_for_tablenames=DUMP_SKIP_TABLES):
             controller.consider_object(src_obj)
+    log.debug("... finished copying tasks.")

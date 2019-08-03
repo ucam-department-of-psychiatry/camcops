@@ -1127,6 +1127,8 @@ config file. Together, they define a single export recipient.
 How to export
 ~~~~~~~~~~~~~
 
+.. _server_config_param_transmission_method:
+
 TRANSMISSION_METHOD
 ###################
 
@@ -1178,6 +1180,9 @@ One of the following:
 - ``pdf``
 - ``html``
 - ``xml``
+
+Not relevant for database exports (see :ref:`TRANSMISSION_METHOD
+<server_config_param_transmission_method>`).
 
 
 XML_FIELD_COMMENTS
@@ -1361,7 +1366,9 @@ DB_PATIENT_ID_PER_ROW
 Add patient ID numbers to all patient rows? Used, for example, to export a
 database in a more convenient format for subsequent anonymisation.
 
-.. todo:: DB_PATIENT_ID_PER_ROW not currently implemented.
+The columns are named ``idnum1``, ``idnum2``, etc., according to your ID
+number definitions (see :ref:`Patient identification
+<patient_identification>`).
 
 
 Options applicable to e-mail export only

@@ -375,7 +375,7 @@ def export_task(req: "CamcopsRequest",
     # persisted, or someone's managed to get an iffy back-end request in some
     # other way.
     if not recipient.is_task_suitable(task):
-        # Warning will already have been emitted.
+        # Warning will already have been emitted (by is_task_suitable).
         return
 
     cfg = req.config

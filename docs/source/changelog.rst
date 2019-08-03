@@ -2404,6 +2404,9 @@ Current C++/SQLite client, Python/SQLAlchemy server
   zoom widgets. See ``ZoomableWidget``. Used in ACE-III for letters, picture
   naming, etc.
 
+- Server: restore autogeneration of CRIS and CRATE data dictionaries. See
+  ``cc_anon.py`` etc.
+
 - **New task:** :ref:`Elixhauser Comorbidity Index (ElixhauserCI) <elixhauserci>`.
   (Database revision 0029.)
 

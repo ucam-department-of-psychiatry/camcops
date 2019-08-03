@@ -2811,7 +2811,7 @@ class SpreadsheetFormatSelector(SchemaNode, RequestAwareMixin):
     Node to select a way of downloading an SQLite database.
     """
     schema_type = String
-    default = ViewArg.TSV_ZIP
+    default = ViewArg.XLSX
     missing = ViewArg.XLSX
 
     def __init__(self, *args, **kwargs) -> None:

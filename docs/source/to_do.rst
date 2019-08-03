@@ -261,13 +261,11 @@ Server
   - https://www.hl7.org/fhir/overview.html
   - CamCOPS will be a FHIR server, not a client.
 
-- Restore autogeneration of CRIS and CRATE data dictionaries. See
-  ``cc_anon.py`` etc.
-
 - More generic e-mails to administrators, via backend task. (E-mail framework
   now in place.)
 
-- Move research export dumps to backend (via e-mail)?
+- Move research export dumps to backend (via e-mail)? However, note that e-mail
+  brings size limits (sometimes severe, for people with poor e-mail servers).
 
 
 Documentation
@@ -294,27 +292,21 @@ groups?
 
 **Server-side ability to edit existing (finalized) task instances?**
 
-Would be done in a generic way, i.e. offer table with {fieldname, comment, old value, new value}; constrain to min/max or permitted values where
-applicable; at first “submit”, show differences and ask for confirmation; audit
-changes. For BLOBs, allow option to upload file (or leave unchanged).
+Would be done in a generic way, i.e. offer table with {fieldname, comment, old
+value, new value}; constrain to min/max or permitted values where applicable;
+at first “submit”, show differences and ask for confirmation; audit changes.
+For BLOBs, allow option to upload file (or leave unchanged).
 
 **Client-side index of tasks by patient ID, to speed up lookup on the tablet?**
 
-Might be worthwhile on the client side as the number of tasks grows. (The server already has indexing by patient ID.)
+Might be worthwhile on the client side as the number of tasks grows. (The
+server already has indexing by patient ID.)
 
 **MRI triggering on task side**
 
 For example: CamCOPS tasks running on a desktop and communicating via TCP/IP
 with a tool that talks to an MRI scanner for pulse synchronization and
 response.
-
-**Further internationalization of task strings**
-
-Should we add an extra field for an ISO-639-1 two-letter language code (e.g.
-“en” for English) to the extra strings? Not clear this is required; different
-servers can already distribute whichever language they want, so the feature
-would only be relevant for “simultaneously multilingual” environments. Deferred
-for now.
 
 
 Considered but rejected
