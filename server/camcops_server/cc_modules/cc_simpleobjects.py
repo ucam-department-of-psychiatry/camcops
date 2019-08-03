@@ -100,9 +100,11 @@ class HL7PatientIdentifier(object):
     """
     Represents a patient identifier for the HL7 protocol.
     """
-    def __init__(self, id: str, id_type: str,
+    def __init__(self, pid: str, id_type: str,
                  assigning_authority: str) -> None:
-        self.id = id
+        self.pid = pid
+        # ... called "pid" not "id" as type checker sometimes thinks "id" must
+        # be integer, as in Python's id(object).
         self.id_type = id_type
         self.assigning_authority = assigning_authority
 
@@ -239,7 +241,6 @@ class TaskExportOptions(object):
         self.db_patient_id_in_each_row = db_patient_id_per_row
         self.db_make_all_tables_even_empty = db_make_all_tables_even_empty
         self.db_include_summaries = db_include_summaries
-        # todo: implement db_patient_id_in_each_row
 
         self.include_blobs = include_blobs
 

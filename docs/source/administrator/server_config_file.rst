@@ -1358,6 +1358,8 @@ Add summary information (including :ref:`SNOMED CT <snomed>` codes if
 available)?
 
 
+.. _server_config_export_db_patient_id_per_row:
+
 DB_PATIENT_ID_PER_ROW
 #####################
 
@@ -1366,9 +1368,13 @@ DB_PATIENT_ID_PER_ROW
 Add patient ID numbers to all patient rows? Used, for example, to export a
 database in a more convenient format for subsequent anonymisation.
 
-The columns are named ``idnum1``, ``idnum2``, etc., according to your ID
-number definitions (see :ref:`Patient identification
+The extra columns are named ``_patient_idnum1``, ``_patient_idnum2``, etc.,
+according to your ID number definitions (see :ref:`Patient identification
 <patient_identification>`).
+
+Additionally, tables that represent "sub-tables" of tasks (e.g. trials within
+a task, or similar) add the fields ``_task_tablename`` and ``_task_pk`` as
+part of this denormalization-for-convenience.
 
 
 Options applicable to e-mail export only

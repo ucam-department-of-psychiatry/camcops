@@ -1385,6 +1385,7 @@ class CamcopsColumn(Column):
         kwargs['is_blob_id_field'] = self.is_blob_id_field
         kwargs['blob_relationship_attr_name'] = self.blob_relationship_attr_name  # noqa
         kwargs['permitted_value_checker'] = self.permitted_value_checker
+        # noinspection PyTypeChecker
         return self.__class__(*args, **kwargs)
 
     def __repr__(self) -> str:

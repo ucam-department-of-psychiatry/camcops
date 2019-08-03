@@ -117,6 +117,7 @@ def _get_type_size_as_text_from_sqltype(sqltype: str) -> Tuple[str, str]:
     return finaltype, size
 
 
+# noinspection PyUnusedLocal
 def _get_cris_dd_row(column: Union[Column, CamcopsColumn, None],
                      recipient: "ExportRecipientInfo",
                      dest_dialect: Dialect = None) -> Dict:

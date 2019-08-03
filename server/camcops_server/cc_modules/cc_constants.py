@@ -156,11 +156,11 @@ FP_ID_NUM = "idnum"
 FP_ID_DESC = "iddesc"
 FP_ID_SHORT_DESC = "idshortdesc"
 
-CRIS_CLUSTER_KEY_FIELDSPEC = dict(
-    # todo: fixme
-    name="_task_main_pk", cctype="INT_UNSIGNED",
-    comment="(CRIS) Server primary key for task and linked records"
-)
+# Additional fields for some exports:
+EXTRA_IDNUM_FIELD_PREFIX = "_patient_idnum"
+EXTRA_TASK_TABLENAME_FIELD = "_task_tablename"
+EXTRA_TASK_SERVER_PK_FIELD = "_task_pk"
+EXTRA_COMMENT_PREFIX = "(EXTRA) "
 
 
 # =============================================================================

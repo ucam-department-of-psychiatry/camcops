@@ -27,7 +27,7 @@ camcops_server/tasks/cardinal_expdetthreshold.py
 """
 
 import math
-from typing import List, Optional
+from typing import List, Optional, Type
 
 from cardinal_pythonlib.maths_numpy import inv_logistic, logistic
 import cardinal_pythonlib.rnc_web as ws
@@ -43,6 +43,7 @@ from camcops_server.cc_modules.cc_constants import (
 from camcops_server.cc_modules.cc_db import (
     ancillary_relationship,
     GenericTabletRecordMixin,
+    TaskDescendant,
 )
 from camcops_server.cc_modules.cc_html import (
     get_yes_no_none,
@@ -70,7 +71,8 @@ DP = 3
 # CardinalExpDetThreshold
 # =============================================================================
 
-class CardinalExpDetThresholdTrial(GenericTabletRecordMixin, Base):
+class CardinalExpDetThresholdTrial(GenericTabletRecordMixin, TaskDescendant,
+                                   Base):
     __tablename__ = "cardinal_expdetthreshold_trials"
 
     cardinal_expdetthreshold_id = Column(
@@ -171,6 +173,18 @@ class CardinalExpDetThresholdTrial(GenericTabletRecordMixin, Base):
             ws.webify(self.caught_out_reset),
             ws.webify(self.trial_num_in_calculation_sequence)
         )
+
+    # -------------------------------------------------------------------------
+    # TaskDescendant overrides
+    # -------------------------------------------------------------------------
+
+    @classmethod
+    def task_ancestor_class(cls) -> Optional[Type["Task"]]:
+        return CardinalExpDetThreshold
+
+    def task_ancestor(self) -> Optional["CardinalExpDetThreshold"]:
+        return CardinalExpDetThreshold.get_linked(
+            self.cardinal_expdetthreshold_id, self)
 
 
 class CardinalExpDetThreshold(TaskHasPatientMixin, Task):

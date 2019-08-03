@@ -32,14 +32,18 @@ information.
 """
 
 from collections import OrderedDict
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Type, TYPE_CHECKING, Union
 
 from cardinal_pythonlib.reprfunc import auto_repr
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.type_api import TypeEngine
 
+from camcops_server.cc_modules.cc_db import TaskDescendant
 from camcops_server.cc_modules.cc_tsv import TsvPage
 from camcops_server.cc_modules.cc_xml import XmlElement
+
+if TYPE_CHECKING:
+    from camcops_server.cc_modules.cc_task import Task
 
 
 # =============================================================================
@@ -81,7 +85,7 @@ class SummaryElement(object):
 # ExtraSummaryTable
 # =============================================================================
 
-class ExtraSummaryTable(object):
+class ExtraSummaryTable(TaskDescendant):
     """
     Additional summary information returned by a task.
 
@@ -92,7 +96,8 @@ class ExtraSummaryTable(object):
                  tablename: str,
                  xmlname: str,
                  columns: List[Column],
-                 rows: List[Union[Dict[str, Any], OrderedDict]]) -> None:
+                 rows: List[Union[Dict[str, Any], OrderedDict]],
+                 task: "Task") -> None:
         """
         Args:
             tablename: name of the additional summary table
@@ -100,11 +105,13 @@ class ExtraSummaryTable(object):
             columns: list of SQLAlchemy columns
             rows: list of rows, where each row is a dictionary mapping
                 column names to values
+            task: parent task (for cross-referencing in some kinds of export)
         """
         self.tablename = tablename
         self.xmlname = xmlname
         self.columns = columns
         self.rows = rows
+        self.task = task
 
     def get_xml_element(self) -> XmlElement:
         """
@@ -129,3 +136,14 @@ class ExtraSummaryTable(object):
 
     def __repr__(self) -> str:
         return auto_repr(self)
+
+    # -------------------------------------------------------------------------
+    # TaskDescendant overrides
+    # -------------------------------------------------------------------------
+
+    @classmethod
+    def task_ancestor_class(cls) -> Optional[Type["Task"]]:
+        return None
+
+    def task_ancestor(self) -> Optional["Task"]:
+        return self.task

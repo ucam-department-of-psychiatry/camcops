@@ -30,8 +30,8 @@ camcops_server/cc_modules/cc_dump.py
 
 import logging
 from typing import (
-    Any, Dict, Generator, Iterable, List, Optional, Set, Type, TYPE_CHECKING,
-    Union,
+    Any, Dict, Generator, Iterable, List, Optional, Set, Tuple, Type,
+    TYPE_CHECKING, Union,
 )
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
@@ -40,12 +40,16 @@ from cardinal_pythonlib.sqlalchemy.orm_inspect import (
     gen_orm_classes_from_base,
     walk_orm_tree,
 )
+from sqlalchemy.exc import CompileError
 from sqlalchemy.engine.base import Engine
 from sqlalchemy.orm import Session as SqlASession
-from sqlalchemy.sql.schema import Column, ForeignKey, MetaData, Table
+from sqlalchemy.sql.schema import Column, MetaData, Table
 
 from camcops_server.cc_modules.cc_blob import Blob
-from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
+from camcops_server.cc_modules.cc_db import (
+    GenericTabletRecordMixin,
+    TaskDescendant,
+)
 from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_email import Email
 from camcops_server.cc_modules.cc_exportmodels import (
@@ -210,8 +214,6 @@ class DumpController(object):
         Generates all destination tables for an object.
         """
         # Main table
-        # noinspection PyUnresolvedReferences
-        src_table = src_obj.__table__  # type: Table
         yield self.get_dest_table_for_src_object(src_obj)
         # Additional tables
         if isinstance(src_obj, Task):
@@ -247,12 +249,13 @@ class DumpController(object):
             self._add_dump_table_for_src_object(src_obj)
         # If this table is going into the destination, copy the object
         # (and maybe remove columns from it, or add columns to it).
-        if src_tablename in self.dst_tables:
+        if (src_tablename in self.dst_tables and
+                not self._dump_skip_table(src_tablename)):
             self._copy_object_to_dump(src_obj)
 
     @staticmethod
     def _merits_extra_id_num_columns_if_requested(obj: object) \
-            -> Optional[Patient]:
+            -> Tuple[bool, Optional[Patient]]:
         """
         Is the source object one that would support the addition of extra
         ID number information if the export option ``DB_PATIENT_ID_PER_ROW`` is
@@ -262,27 +265,34 @@ class DumpController(object):
             obj: an SQLAlchemy ORM object
 
         Returns:
-            a :class:`camcops_server.cc_modules.cc_patient.Patient``, or
-            ``None`` if the object does not merit this
+            tuple: ``(merits, patient)``, where ``merits`` is a ``bool`` (does
+            it merit this?) and ``patient`` is a relevant
+            :class:`camcops_server.cc_modules.cc_patient.Patient``, if found.
+            It is also guaranteed that if a patient is returned, ``merits`` is
+            ``True`` (but not guaranteed that if ``merits`` is true, that
+            ``patient`` is not ``None``).
 
         """
         if not isinstance(obj, GenericTabletRecordMixin):
             # Must be data that originated from the client.
-            return None
+            return False, None
         if isinstance(obj, PatientIdNum):
             # PatientIdNum already has this info.
-            return None
+            return False, None
         if isinstance(obj, Patient):
-            return obj
+            return True, obj
         if isinstance(obj, Task):
             if obj.is_anonymous:
                 # Anonymous tasks don't.
-                return None
-            return obj.patient
-        # todo: XXX ancillary items, somehow
+                return False, None
+            return True, obj.patient
+        if isinstance(obj, TaskDescendant):
+            merits = obj.task_ancestor_might_have_patient()
+            patient = obj.task_ancestor_patient()
+            return merits, patient
         log.warning(f"_merits_extra_id_num_columns_if_requested: don't know "
                     f"how to handle {obj!r}")
-        return None
+        return False, None
 
     def get_dest_table_for_src_object(self, src_obj: object) -> Table:
         """
@@ -326,7 +336,8 @@ class DumpController(object):
                 )
                 log.warning("NOT WORKING: foreign key commands not being "
                             "emitted")
-                # but http://docs.sqlalchemy.org/en/latest/core/constraints.html  # noqa
+                # but
+                # http://docs.sqlalchemy.org/en/latest/core/constraints.html
                 # works fine under SQLite, even if the other table hasn't been
                 # created yet. Does the table to which the FK refer have to be
                 # in the metadata already?
@@ -336,7 +347,8 @@ class DumpController(object):
             else:
                 # Probably blank already, as the copy() command only copies
                 # non-constraint-bound ForeignKey objects, but to be sure:
-                copied_column.foreign_keys = set()  # type: Set[ForeignKey]
+                copied_column.foreign_keys = set()
+                # ... type is: Set[ForeignKey]
             # if src_column.foreign_keys:
             #     log.debug("Column {}, FKs {!r} -> {!r}", src_column.name,
             #               src_column.foreign_keys,
@@ -352,8 +364,11 @@ class DumpController(object):
                         summary_element.coltype,
                         comment=summary_element.decorated_comment))
         if self.export_options.db_patient_id_in_each_row:
-            if self._merits_extra_id_num_columns_if_requested(src_obj):
+            merits, _ = self._merits_extra_id_num_columns_if_requested(src_obj)
+            if merits:
                 dst_columns.extend(all_extra_id_columns(self.req))
+            if isinstance(src_obj, TaskDescendant):
+                dst_columns += src_obj.extra_task_xref_columns()
 
         dst_table = Table(tablename, self.dst_metadata, *dst_columns)
         # ... that modifies the metadata, so:
@@ -381,6 +396,7 @@ class DumpController(object):
         columns = est.columns.copy()
         if add_extra_id_cols:
             columns.extend(all_extra_id_columns(self.req))
+            columns.extend(est.extra_task_xref_columns())
         table = Table(tablename, self.dst_metadata, *columns)
         # ... that modifies the metadata, so:
         self.dst_tables[tablename] = table
@@ -444,8 +460,8 @@ class DumpController(object):
         adding_extra_ids = False
         patient = None  # type: Optional[Patient]
         if self.export_options.db_patient_id_in_each_row:
-            patient = self._merits_extra_id_num_columns_if_requested(src_obj)
-            adding_extra_ids = bool(patient)
+            adding_extra_ids, patient = \
+                self._merits_extra_id_num_columns_if_requested(src_obj)
 
         # 1. Insert row for this object, potentially adding and removing
         #    columns.
@@ -464,8 +480,15 @@ class DumpController(object):
                 for summary_element in src_obj.get_summaries(self.req):
                     row[summary_element.name] = summary_element.value
             if adding_extra_ids:
-                patient.add_extra_idnum_info_to_row(row)
-        self.dst_session.execute(dst_table.insert(row))
+                if patient:
+                    patient.add_extra_idnum_info_to_row(row)
+                if isinstance(src_obj, TaskDescendant):
+                    src_obj.add_extra_task_xref_info_to_row(row)
+        try:
+            self.dst_session.execute(dst_table.insert(row))
+        except CompileError:
+            log.critical("\ndst_table:\n{}\nrow:\n{}", dst_table, row)
+            raise
 
         # 2. If required, add extra tables/rows that this task wants to
         #    offer (usually tables whose rows don't have a 1:1 correspondence
@@ -477,9 +500,16 @@ class DumpController(object):
                 dst_summary_table = self._get_or_insert_summary_table(
                     est, add_extra_id_cols=adding_extra_ids)
                 for row in est.rows:
-                    if adding_extra_ids:
+                    if patient:
                         patient.add_extra_idnum_info_to_row(row)
-                    self.dst_session.execute(dst_summary_table.insert(row))
+                    if adding_extra_ids:
+                        est.add_extra_task_xref_info_to_row(row)
+                    try:
+                        self.dst_session.execute(dst_summary_table.insert(row))
+                    except CompileError:
+                        log.critical("\ndst_summary_table:\n{}\nrow:\n{}",
+                                     dst_table, row)
+                        raise
 
     def _get_or_insert_summary_table(self, est: "ExtraSummaryTable",
                                      add_extra_id_cols: bool = False) -> Table:

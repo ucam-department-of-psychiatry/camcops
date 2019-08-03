@@ -990,6 +990,7 @@ class Task(GenericTabletRecordMixin, Base):
             xmlname=UNUSED_SNOMED_XML_NAME,  # though actual XML doesn't use this route  # noqa
             columns=columns,
             rows=rows,
+            task=self
         )
 
     # -------------------------------------------------------------------------
@@ -1406,27 +1407,6 @@ class Task(GenericTabletRecordMixin, Base):
             tsv_pages.append(est.get_tsv_page())
         # Done
         return tsv_pages
-
-    # -------------------------------------------------------------------------
-    # Data export for CRIS and other anonymisation systems
-    # -------------------------------------------------------------------------
-
-    _ = '''
-
-    def get_cris_common_fieldspecs_values(self) -> "FIELDSPECLIST_TYPE":
-        """
-        Another broken CRIS-related function.
-
-        .. todo:: fix/remove get_cris_common_fieldspecs_values
-        """
-        # Store the task's PK in its own but all linked records
-        clusterpk_fs = copy.deepcopy(CRIS_CLUSTER_KEY_FIELDSPEC)
-        clusterpk_fs["value"] = self._pk
-        fieldspecs = [clusterpk_fs]
-        # ...
-        return fieldspecs
-
-    '''
 
     # -------------------------------------------------------------------------
     # XML view
@@ -2502,7 +2482,6 @@ class TaskTests(DemoDatabaseTestCase):
             # Views
             for page in t.get_tsv_pages(req):
                 self.assertIsInstance(page.get_tsv(), str)
-            # todo: replace test when anonymous export redone: get_cris_dd_rows
             self.assertIsInstance(t.get_xml(req), str)
             self.assertIsInstance(t.get_html(req), str)
             self.assertIsInstance(t.get_pdf(req), bytes)

@@ -4,8 +4,8 @@
 <div class="clinician">
     <table class="taskdetail">
         <tr>
-            <td width="50%">${_("Clinician’s specialty:")}</td>
-            <td width="50%"><b>${ task.clinician_specialty | h }</b></td>
+            <td style="width:50%">${_("Clinician’s specialty:")}</td>
+            <td style="width:50%"><b>${ task.clinician_specialty | h }</b></td>
         </tr>
         <tr>
             <td>${_("Clinician’s name:")}</td>

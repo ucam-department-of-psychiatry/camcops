@@ -4,8 +4,8 @@
 <div class="clinician">
     <table class="taskdetail">
         <tr>
-            <td width="20%">${_("Clinician’s comments:")}</td>
-            <td width="80%">
+            <td style="width:20%">${_("Clinician’s comments:")}</td>
+            <td style="width:80%">
                 %if comment is None:
                     <i>${_("None")}</i>
                 %else:

@@ -54,17 +54,17 @@
         <div class="header">
             <table class="noborder">
                 <tr class="noborder">
-                    <td class="noborderphoto" width="45%">
+                    <td class="noborderphoto" style="width:45%">
                         <img src="file://${ request.config.camcops_logo_file_absolute }"
                              height="${ va.PDF_LOGO_HEIGHT }"
-                             align="left"
+                             style="float:left"
                              alt="CamCOPS logo" />
                     </td>
-                    <td class="noborderphoto" width="10%"></td>
-                    <td class="noborderphoto" width="45%">
+                    <td class="noborderphoto" style="width:10%"></td>
+                    <td class="noborderphoto" style="width:45%">
                         <img src="file://${ request.config.local_logo_file_absolute }"
                              height="${ va.PDF_LOGO_HEIGHT }"
-                             align="right"
+                             style="float:right"
                              alt="Local institutional logo" />
                     </td>
                 </tr>

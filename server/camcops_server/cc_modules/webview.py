@@ -1468,6 +1468,7 @@ def offer_sql_dump(req: "CamcopsRequest") -> Response:
                 ViewParam.DUMP_METHOD: appstruct.get(ViewParam.DUMP_METHOD),
                 ViewParam.SQLITE_METHOD: appstruct.get(ViewParam.SQLITE_METHOD),  # noqa
                 ViewParam.INCLUDE_BLOBS: appstruct.get(ViewParam.INCLUDE_BLOBS),  # noqa
+                ViewParam.PATIENT_ID_PER_ROW: appstruct.get(ViewParam.PATIENT_ID_PER_ROW),  # noqa
                 ViewParam.GROUP_IDS: manual.get(ViewParam.GROUP_IDS),
                 ViewParam.TASKS: manual.get(ViewParam.TASKS),
             }
@@ -1494,6 +1495,7 @@ def sql_dump(req: "CamcopsRequest") -> Response:
     # Get view-specific parameters
     sqlite_method = req.get_str_param(ViewParam.SQLITE_METHOD)
     include_blobs = req.get_bool_param(ViewParam.INCLUDE_BLOBS, False)
+    patient_id_per_row = req.get_bool_param(ViewParam.PATIENT_ID_PER_ROW, True)
     if sqlite_method not in [ViewArg.SQL, ViewArg.SQLITE]:
         _ = req.gettext
         raise HTTPBadRequest(f"{_('Bad  parameter:')} "
@@ -1507,6 +1509,8 @@ def sql_dump(req: "CamcopsRequest") -> Response:
     export_options = TaskExportOptions(
         include_blobs=include_blobs,
         db_include_summaries=True,
+        db_make_all_tables_even_empty=True,  # debatable, but more consistent!
+        db_patient_id_per_row=patient_id_per_row,
     )
     return task_collection_to_sqlite_response(
         req=req,

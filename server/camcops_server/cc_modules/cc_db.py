@@ -44,7 +44,12 @@ from sqlalchemy.orm import Session as SqlASession
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer
 
-from camcops_server.cc_modules.cc_constants import ERA_NOW
+from camcops_server.cc_modules.cc_constants import (
+    ERA_NOW,
+    EXTRA_COMMENT_PREFIX,
+    EXTRA_TASK_TABLENAME_FIELD,
+    EXTRA_TASK_SERVER_PK_FIELD,
+)
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
     EraColType,
@@ -54,6 +59,7 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     PermittedValueChecker,
     RelationshipInfo,
     SemanticVersionColType,
+    TableNameColType,
 )
 from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
 from camcops_server.cc_modules.cc_tsv import TsvPage
@@ -69,8 +75,10 @@ from camcops_server.cc_modules.cc_xml import (
 
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_blob import Blob
+    from camcops_server.cc_modules.cc_patient import Patient
     from camcops_server.cc_modules.cc_request import CamcopsRequest
     from camcops_server.cc_modules.cc_summaryelement import SummaryElement
+    from camcops_server.cc_modules.cc_task import Task
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -224,7 +232,7 @@ FN_GROUP_ID = "_group_id"
 
 
 # =============================================================================
-# Base classes implementing common fields
+# GenericTabletRecordMixin
 # =============================================================================
 
 # noinspection PyAttributeOutsideInit
@@ -755,7 +763,7 @@ class GenericTabletRecordMixin(object):
         for blob in self.gen_blobs():
             if blob is None:
                 continue
-            for lineage_member in blob.get_lineage():
+            for lineage_member in blob.get_lineage():  # type: "Blob"
                 if lineage_member in seen:
                     continue
                 # noinspection PyTypeChecker
@@ -773,11 +781,39 @@ class GenericTabletRecordMixin(object):
         """
         dbsession = SqlASession.object_session(self)
         cls = self.__class__
-        q = dbsession.query(cls)\
-            .filter(cls.id == self.id)\
-            .filter(cls._device_id == self._device_id)\
+        q = (
+            dbsession.query(cls)
+            .filter(cls.id == self.id)
+            .filter(cls._device_id == self._device_id)
             .filter(cls._era == self._era)
+        )
         return list(q)
+
+    # -------------------------------------------------------------------------
+    # Retrieving a linked record by client ID
+    # -------------------------------------------------------------------------
+
+    @classmethod
+    def get_linked(cls, client_id: Optional[int],
+                   other: "GenericTabletRecordMixin") \
+            -> Optional["GenericTabletRecordMixin"]:
+        """
+        Returns a specific linked record, of the class of ``self``, whose
+        client-side ID is ``client_id``, and which matches ``other`` in terms
+        of device/era.
+        """
+        if client_id is None:
+            return None
+        dbsession = SqlASession.object_session(other)
+        # noinspection PyPep8
+        q = (
+            dbsession.query(cls)
+            .filter(cls.id == client_id)
+            .filter(cls._device_id == other._device_id)
+            .filter(cls._era == other._era)
+            .filter(cls._current == True)
+        )
+        return q.first()
 
     # -------------------------------------------------------------------------
     # History functions for server-side editing
@@ -998,3 +1034,97 @@ def add_multiple_columns(
             setattr(cls, colname, CamcopsColumn(colname, coltype, **colkwargs))
         else:
             setattr(cls, colname, Column(colname, coltype, **colkwargs))
+
+
+# =============================================================================
+# TaskDescendant
+# =============================================================================
+
+class TaskDescendant(object):
+    """
+    Information mixin for sub-tables that can be traced back to a class. Used
+    to denormalize the database for export in some circumstances.
+
+    Not used for the Blob class, which has no reasonable way of tracing itself
+    back to a given task if it is used by a task's ancillary tables rather than
+    a primary task row.
+    """
+
+    @classmethod
+    def task_ancestor_class(cls) -> Optional[Type["Task"]]:
+        """
+        Returns the class of the ancestral task.
+
+        If the descendant can descend from lots of types of task (rare; only
+        applies to :class:`camcops_server.cc_modules.cc_blob.Blob` and
+        :class:`camcops_server.cc_modules.cc_summaryelement.ExtraSummaryTable`),
+        returns ``None``.
+        """  # noqa
+        raise NotImplementedError
+
+    @classmethod
+    def task_ancestor_might_have_patient(cls) -> bool:
+        """
+        Does this object have a single task ancestor, that is not anonymous?
+        """
+        taskcls = cls.task_ancestor_class()
+        if not taskcls:
+            return True  # e.g. Blob, ExtraSummaryTable
+        return not taskcls.is_anonymous
+
+    def task_ancestor_server_pk(self) -> Optional[int]:
+        """
+        Returns the server PK of the ancestral task.
+
+        Note that this is an export-time calculation; the client may update its
+        task rows without updating its descendant rows (so server PKs change
+        whilst client IDs don't).
+        """
+        task = self.task_ancestor()
+        if not task:
+            return None
+        return task.get_pk()
+
+    def task_ancestor(self) -> Optional["Task"]:
+        """
+        Returns the specific ancestor task of this object.
+        """
+        raise NotImplementedError
+
+    def task_ancestor_patient(self) -> Optional["Patient"]:
+        """
+        Returns the associated patient, if there is one.
+        """
+        task = self.task_ancestor()
+        return task.patient if task else None
+
+    @classmethod
+    def extra_task_xref_columns(cls) -> List[Column]:
+        """
+        Returns extra columns used to cross-reference this
+        :class:`TaskDescendant` to its ancestor task, in certain export
+        formats (``DB_PATIENT_ID_PER_ROW``).
+        """
+        return [
+            Column(
+                EXTRA_TASK_TABLENAME_FIELD, TableNameColType,
+                comment=EXTRA_COMMENT_PREFIX + "Table name of ancestor task"
+            ),
+            Column(
+                EXTRA_TASK_SERVER_PK_FIELD, Integer,
+                comment=EXTRA_COMMENT_PREFIX + "Server PK of ancestor task"
+            ),
+        ]
+
+    def add_extra_task_xref_info_to_row(self, row: Dict[str, Any]) -> None:
+        """
+        For the ``DB_PATIENT_ID_PER_ROW`` export option. Adds additional
+        cross-referencing info to a row.
+
+        Args:
+            row: future database row, as a dictionary
+        """
+        ancestor = self.task_ancestor()
+        if ancestor:
+            row[EXTRA_TASK_TABLENAME_FIELD] = ancestor.tablename
+            row[EXTRA_TASK_SERVER_PK_FIELD] = ancestor.get_pk()

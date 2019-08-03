@@ -566,7 +566,7 @@ class Patient(GenericTabletRecordMixin, Base):
         # Put the primary one first:
         patient_id_tuple_list = [
             HL7PatientIdentifier(
-                id=str(self.get_idnum_value(recipient.primary_idnum)),
+                pid=str(self.get_idnum_value(recipient.primary_idnum)),
                 id_type=recipient.get_hl7_id_type(
                     req,
                     recipient.primary_idnum),
@@ -585,7 +585,7 @@ class Patient(GenericTabletRecordMixin, Base):
                 continue
             patient_id_tuple_list.append(
                 HL7PatientIdentifier(
-                    id=str(idnum_value),
+                    pid=str(idnum_value),
                     id_type=recipient.get_hl7_id_type(req, which_idnum),
                     assigning_authority=recipient.get_hl7_id_aa(
                         req, which_idnum)
@@ -737,7 +737,7 @@ class Patient(GenericTabletRecordMixin, Base):
         """
         seen = set()  # type: Set[PatientIdNum]
         for live_pidnum in self.idnums:
-            for lineage_member in live_pidnum.get_lineage():
+            for lineage_member in live_pidnum.get_lineage():  # type: PatientIdNum  # noqa
                 if lineage_member in seen:
                     continue
                 # noinspection PyTypeChecker

@@ -49,7 +49,11 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import BigInteger, Integer
 
-from camcops_server.cc_modules.cc_constants import NUMBER_OF_IDNUMS_DEFUNCT
+from camcops_server.cc_modules.cc_constants import (
+    EXTRA_COMMENT_PREFIX,
+    EXTRA_IDNUM_FIELD_PREFIX,
+    NUMBER_OF_IDNUMS_DEFUNCT,
+)
 from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
 from camcops_server.cc_modules.cc_idnumdef import IdNumDefinition
 from camcops_server.cc_modules.cc_simpleobjects import IdNumReference
@@ -62,12 +66,6 @@ if TYPE_CHECKING:
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
-
-# =============================================================================
-# Constants
-# =============================================================================
-
-EXTRA_IDNUM_FIELD_PREFIX = "idnum"
 
 # =============================================================================
 # PatientIdNum class
@@ -246,7 +244,7 @@ def extra_id_column(req: "CamcopsRequest", which_idnum: int) -> CamcopsColumn:
         extra_id_colname(which_idnum),
         BigInteger,
         identifies_patient=True,
-        comment=f"ID number {which_idnum}: {desc}"
+        comment=EXTRA_COMMENT_PREFIX + f"ID number {which_idnum}: {desc}"
     )
 
 

@@ -26,7 +26,7 @@ camcops_server/tasks/ided3d.py
 
 """
 
-from typing import Any, List
+from typing import Any, List, Optional, Type
 
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.schema import Column
@@ -36,6 +36,7 @@ from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import (
     ancillary_relationship,
     GenericTabletRecordMixin,
+    TaskDescendant,
 )
 from camcops_server.cc_modules.cc_html import (
     answer,
@@ -64,7 +65,7 @@ def a(x: Any) -> str:
 # IDED3D
 # =============================================================================
 
-class IDED3DTrial(GenericTabletRecordMixin, Base):
+class IDED3DTrial(GenericTabletRecordMixin, TaskDescendant, Base):
     __tablename__ = "ided3d_trials"
 
     ided3d_id = Column(
@@ -195,8 +196,19 @@ class IDED3DTrial(GenericTabletRecordMixin, Base):
             a(self.incorrect),
         )
 
+    # -------------------------------------------------------------------------
+    # TaskDescendant overrides
+    # -------------------------------------------------------------------------
 
-class IDED3DStage(GenericTabletRecordMixin, Base):
+    @classmethod
+    def task_ancestor_class(cls) -> Optional[Type["Task"]]:
+        return IDED3D
+
+    def task_ancestor(self) -> Optional["IDED3D"]:
+        return IDED3D.get_linked(self.ided3d_id, self)
+
+
+class IDED3DStage(GenericTabletRecordMixin, TaskDescendant, Base):
     __tablename__ = "ided3d_stages"
 
     ided3d_id = Column(
@@ -331,6 +343,17 @@ class IDED3DStage(GenericTabletRecordMixin, Base):
             a(self.stage_passed),
             a(self.stage_failed),
         )
+
+    # -------------------------------------------------------------------------
+    # TaskDescendant overrides
+    # -------------------------------------------------------------------------
+
+    @classmethod
+    def task_ancestor_class(cls) -> Optional[Type["Task"]]:
+        return IDED3D
+
+    def task_ancestor(self) -> Optional["IDED3D"]:
+        return IDED3D.get_linked(self.ided3d_id, self)
 
 
 class IDED3D(TaskHasPatientMixin, Task):
