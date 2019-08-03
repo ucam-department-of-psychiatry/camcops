@@ -289,6 +289,20 @@ def _cmd_show_export_queue(recipient_names: List[str] = None,
                                pretty=pretty)
 
 
+def _cmd_crate_dd(filename: str, recipient_name: str) -> None:
+    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    core.make_data_dictionary(filename=filename,
+                              recipient_name=recipient_name,
+                              cris=False)
+
+
+def _cmd_cris_dd(filename: str, recipient_name: str) -> None:
+    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    core.make_data_dictionary(filename=filename,
+                              recipient_name=recipient_name,
+                              cris=True)
+
+
 # -----------------------------------------------------------------------------
 # Web server
 # -----------------------------------------------------------------------------
@@ -868,7 +882,7 @@ def camcops_main() -> None:
             '--disable_task_index', action="store_true",
             help="Disable use of the task index (for debugging only)")
 
-    # Send incremental export messages
+    # Export data
     export_parser = add_sub(
         subparsers, "export",
         help="Trigger pending exports")
@@ -880,7 +894,7 @@ def camcops_main() -> None:
             via_index=not args.disable_task_index,
         ))
 
-    # Show incremental export queue
+    # Show export queue
     show_export_queue_parser = add_sub(
         subparsers, "show_export_queue",
         help="View outbound export queue (without sending)")
@@ -895,6 +909,38 @@ def camcops_main() -> None:
             via_index=not args.disable_task_index,
             pretty=args.pretty,
         ))
+
+    # Make CRATE data dictionary
+    crate_dd_parser = add_sub(
+        subparsers, "crate_dd",
+        help="Make draft data dictionary for CRATE anonymisation tool"
+    )
+    crate_dd_parser.add_argument(
+        '--filename', type=str, required=True,
+        help="Output filename (data dictionary to write)")
+    crate_dd_parser.add_argument(
+        '--recipient', type=str, required=True,
+        help="Export recipient (as named in config file)")
+    crate_dd_parser.set_defaults(
+        func=lambda args: _cmd_crate_dd(filename=args.filename,
+                                        recipient_name=args.recipient)
+    )
+
+    # Make CRIS data dictionary
+    cris_dd_parser = add_sub(
+        subparsers, "cris_dd",
+        help="Make draft data dictionary for CRIS anonymisation tool"
+    )
+    cris_dd_parser.add_argument(
+        '--filename', type=str, required=True,
+        help="Filename of data dictionary to write")
+    cris_dd_parser.add_argument(
+        '--recipient', type=str, required=True,
+        help="Export recipient (as named in config file)")
+    cris_dd_parser.set_defaults(
+        func=lambda args: _cmd_cris_dd(filename=args.filename,
+                                       recipient_name=args.recipient)
+    )
 
     # -------------------------------------------------------------------------
     # Web server options

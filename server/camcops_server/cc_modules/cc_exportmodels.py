@@ -115,7 +115,8 @@ UTF8 = "utf8"
 
 def get_collection_for_export(req: "CamcopsRequest",
                               recipient: ExportRecipient,
-                              via_index: bool = True) -> TaskCollection:
+                              via_index: bool = True,
+                              debug: bool = False) -> TaskCollection:
     """
     Returns an appropriate task collection for this export recipient, namely
     those tasks that are desired and (in the case of incremental exports)
@@ -129,6 +130,7 @@ def get_collection_for_export(req: "CamcopsRequest",
         req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         recipient: an :class:`camcops_server.cc_modules.cc_exportrecipient.ExportRecipient`
         via_index: use the task index (faster)?
+        debug: report details?
 
     Returns:
         a :class:`camcops_server.cc_modules.cc_taskcollection.TaskCollection`
@@ -142,9 +144,10 @@ def get_collection_for_export(req: "CamcopsRequest",
         via_index=via_index,
         export_recipient=recipient,
     )
-    # log.critical(
-    #     "get_collection_for_export(): recipient={!r}, collection={!r}",
-    #     recipient, collection)
+    if debug:
+        log.critical(
+            "get_collection_for_export(): recipient={!r}, collection={!r}",
+            recipient, collection)
     return collection
 
 

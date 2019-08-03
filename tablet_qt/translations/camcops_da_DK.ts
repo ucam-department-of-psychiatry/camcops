@@ -869,10 +869,6 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
 <context>
     <name>Chit</name>
     <message>
-        <source>Cambridge-Chicago Compulsivity Trait Scale</source>
-        <translation type="obsolete">Cambridge-Chicago Compulsivity Trait Scale [</translation>
-    </message>
-    <message>
         <location filename="../tasks/chit.cpp" line="77"/>
         <source>Cambridge–Chicago Compulsivity Trait Scale</source>
         <translation>Cambridge–Chicago Compulsivity Trait Scale [Cambridge–Chicago kompulsivitet egenskab skalaen]</translation>
@@ -3634,10 +3630,6 @@ enig</translation>
         <location filename="../core/networkmanager.cpp" line="2130"/>
         <source>Starting one-step upload</source>
         <translation>Starte &quot;ét trin&quot; upload</translation>
-    </message>
-    <message>
-        <source>Please re-register with the server.</source>
-        <translation type="vanished">Venligst genregistrer dig hos serveren.</translation>
     </message>
 </context>
 <context>

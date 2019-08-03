@@ -99,13 +99,21 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task):
 
     referral_date_time = Column("referral_date_time",
                                 PendulumDateTimeAsIsoTextColType)
-    lps_division = Column("lps_division", UnicodeText)
-    referral_priority = Column("referral_priority", UnicodeText)
-    referral_method = Column("referral_method", UnicodeText)
+    lps_division = CamcopsColumn(
+        "lps_division", UnicodeText,
+        exempt_from_anonymisation=True)
+    referral_priority = CamcopsColumn(
+        "referral_priority", UnicodeText,
+        exempt_from_anonymisation=True)
+    referral_method = CamcopsColumn(
+        "referral_method", UnicodeText,
+        exempt_from_anonymisation=True)
     referrer_name = Column("referrer_name", UnicodeText)
     referrer_contact_details = Column("referrer_contact_details", UnicodeText)
     referring_consultant = Column("referring_consultant", UnicodeText)
-    referring_specialty = Column("referring_specialty", UnicodeText)
+    referring_specialty = CamcopsColumn(
+        "referring_specialty", UnicodeText,
+        exempt_from_anonymisation=True)
     referring_specialty_other = Column("referring_specialty_other", UnicodeText)
     patient_location = Column("patient_location", UnicodeText)
     admission_date = Column("admission_date", Date)
@@ -405,7 +413,9 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     shortname = "CPFT_LPS_Discharge"
 
     discharge_date = Column("discharge_date", Date)
-    discharge_reason_code = Column("discharge_reason_code", UnicodeText)
+    discharge_reason_code = CamcopsColumn(
+        "discharge_reason_code", UnicodeText,
+        exempt_from_anonymisation=True)
 
     leaflet_or_discharge_card_given = BoolColumn(
         "leaflet_or_discharge_card_given",
@@ -485,8 +495,9 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
         constraint_name="ck_cpft_lps_discharge_substanceother"
     )
     referral_reason_other = BoolColumn("referral_reason_other")
-    referral_reason_transplant_organ = Column(
-        "referral_reason_transplant_organ", UnicodeText
+    referral_reason_transplant_organ = CamcopsColumn(
+        "referral_reason_transplant_organ", UnicodeText,
+        exempt_from_anonymisation=True
     )
     referral_reason_other_detail = Column(
         "referral_reason_other_detail", UnicodeText
@@ -499,26 +510,30 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     diagnosis_psych_1_icd10code = Column(
         "diagnosis_psych_1_icd10code", DiagnosticCodeColType
     )
-    diagnosis_psych_1_description = Column(
-        "diagnosis_psych_1_description", UnicodeText
+    diagnosis_psych_1_description = CamcopsColumn(
+        "diagnosis_psych_1_description", UnicodeText,
+        exempt_from_anonymisation=True
     )
     diagnosis_psych_2_icd10code = Column(
         "diagnosis_psych_2_icd10code", DiagnosticCodeColType
     )
-    diagnosis_psych_2_description = Column(
-        "diagnosis_psych_2_description", UnicodeText
+    diagnosis_psych_2_description = CamcopsColumn(
+        "diagnosis_psych_2_description", UnicodeText,
+        exempt_from_anonymisation=True
     )
     diagnosis_psych_3_icd10code = Column(
         "diagnosis_psych_3_icd10code", DiagnosticCodeColType
     )
-    diagnosis_psych_3_description = Column(
-        "diagnosis_psych_3_description", UnicodeText
+    diagnosis_psych_3_description = CamcopsColumn(
+        "diagnosis_psych_3_description", UnicodeText,
+        exempt_from_anonymisation=True
     )
     diagnosis_psych_4_icd10code = Column(
         "diagnosis_psych_4_icd10code", DiagnosticCodeColType
     )
-    diagnosis_psych_4_description = Column(
-        "diagnosis_psych_4_description", UnicodeText
+    diagnosis_psych_4_description = CamcopsColumn(
+        "diagnosis_psych_4_description", UnicodeText,
+        exempt_from_anonymisation=True
     )
     diagnosis_medical_1 = Column("diagnosis_medical_1", UnicodeText)
     diagnosis_medical_2 = Column("diagnosis_medical_2", UnicodeText)
@@ -569,7 +584,10 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     management_other = BoolColumn("management_other")
     management_other_detail = Column("management_other_detail", UnicodeText)
 
-    outcome = Column("outcome", UnicodeText)
+    outcome = CamcopsColumn(
+        "outcome", UnicodeText,
+        exempt_from_anonymisation=True
+    )
     outcome_hospital_transfer_detail = Column(
         "outcome_hospital_transfer_detail", UnicodeText
     )

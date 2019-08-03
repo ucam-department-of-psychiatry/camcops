@@ -213,7 +213,7 @@ Deakin1HealthReview::Deakin1HealthReview(
     Task(app, db, DEAKIN1HEALTHREVIEW_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
     addField(ETHNICITY, QVariant::Int);
-    addField(ETHNICITY_TEXT, QVariant::String);
+    addField(ETHNICITY_TEXT, QVariant::String);  // SEEMS TO BE UNUSED!
     addField(ETHNICITY_OTHER_DETAILS, QVariant::String);
 
     addField(HANDEDNESS, QVariant::String);

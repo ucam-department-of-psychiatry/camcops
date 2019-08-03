@@ -67,7 +67,6 @@ Contributors
 Original Titanium/Javascript client, Python server with custom MySQL interface (defunct)
 ----------------------------------------------------------------------------------------
 
-
 .. _changelog_2013:
 
 2013
@@ -2398,8 +2397,15 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Better SNOMED coding for the clinical tasks :ref:`Progress note
   <progress_note>` and :ref:`Psychiatric clerking <clerking>`.
 
-- Bugfix: group editing page crashed if no ID numbers defined. Changed in
-  :func:`camcops_server.cc_modules.TokenizedPolicy.set_valid_idnums`.
+- Bugfix: server group editing page crashed if no ID numbers defined. Changed
+  in :func:`camcops_server.cc_modules.TokenizedPolicy.set_valid_idnums`.
+
+- Client: For ACE-III and similar: when pages don't scroll, offer facility to
+  zoom widgets. See ``ZoomableWidget``. Used in ACE-III for letters, picture
+  naming, etc.
+
+- Server: restore autogeneration of CRIS and CRATE data dictionaries. See
+  ``cc_anon.py`` etc.
 
 - **New task:** :ref:`Elixhauser Comorbidity Index (ElixhauserCI) <elixhauserci>`.
   (Database revision 0029.)

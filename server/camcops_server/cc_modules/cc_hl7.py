@@ -241,10 +241,10 @@ def make_pid_segment(
     # Internal ID
     internal_id_element_list = []
     for i in range(len(patient_id_list)):
-        if not patient_id_list[i].id:
+        if not patient_id_list[i].pid:
             continue
         ptidentifier = patient_id_list[i]
-        pid = ptidentifier.id  # type: str
+        pid = ptidentifier.pid
         check_digit = get_mod11_checkdigit(pid)
         check_digit_scheme = "M11"  # Mod 11 algorithm
         type_id = patient_id_list[i].id_type
@@ -884,8 +884,10 @@ class HL7CoreTests(DemoDatabaseTestCase):
         self.announce("test_hl7core_func")
 
         pitlist = [
-            HL7PatientIdentifier(id="1", id_type="TT", assigning_authority="AA")
+            HL7PatientIdentifier(pid="1", id_type="TT",
+                                 assigning_authority="AA")
         ]
+        # noinspection PyTypeChecker
         dob = Date.today()  # type: Date
         now = Pendulum.now()
         task = self.dbsession.query(Phq9).first()

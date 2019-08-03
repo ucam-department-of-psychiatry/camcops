@@ -2811,7 +2811,7 @@ class SpreadsheetFormatSelector(SchemaNode, RequestAwareMixin):
     Node to select a way of downloading an SQLite database.
     """
     schema_type = String
-    default = ViewArg.TSV_ZIP
+    default = ViewArg.XLSX
     missing = ViewArg.XLSX
 
     def __init__(self, *args, **kwargs) -> None:
@@ -2903,6 +2903,32 @@ class IncludeBlobsNode(SchemaNode, RequestAwareMixin):
             "Include binary large objects (BLOBs)? WARNING: may be large")
 
 
+class PatientIdPerRowNode(SchemaNode, RequestAwareMixin):
+    """
+    Boolean node: should patient ID information, and other cross-referencing
+    denormalized info, be included per row?
+
+    See :ref:`DB_PATIENT_ID_PER_ROW
+    <server_config_export_db_patient_id_per_row>`.
+    """
+    schema_type = Boolean
+    default = True
+    missing = True
+
+    def __init__(self, *args, **kwargs) -> None:
+        self.title = ""  # for type checker
+        self.label = ""  # for type checker
+        super().__init__(*args, **kwargs)
+
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        _ = self.gettext
+        self.title = _("Patient ID per row?")
+        self.label = _(
+            "Include patient ID numbers and task cross-referencing "
+            "(denormalized) information per row?")
+
+
 class OfferDumpManualSchema(Schema, RequestAwareMixin):
     """
     Schema to offer the "manual" settings for a data dump (groups, task types).
@@ -2950,6 +2976,7 @@ class OfferSqlDumpSchema(CSRFSchema):
     dump_method = DumpTypeSelector()  # must match ViewParam.DUMP_METHOD
     sqlite_method = SqliteSelector()  # must match ViewParam.SQLITE_METHOD
     include_blobs = IncludeBlobsNode()  # must match ViewParam.INCLUDE_BLOBS
+    patient_id_per_row = PatientIdPerRowNode()  # must match ViewParam.PATIENT_ID_PER_ROW  # noqa
     manual = OfferDumpManualSchema()  # must match ViewParam.MANUAL
 
 
@@ -3380,7 +3407,7 @@ class EditPatientSchema(CSRFSchema):
         testpatient = Patient()
         for k in EDIT_PATIENT_SIMPLE_PARAMS:
             setattr(testpatient, k, value[k])
-        testpatient.idnums = []  # type: List[PatientIdNum]
+        testpatient.idnums = []
         for idrefdict in value[ViewParam.ID_REFERENCES]:
             pidnum = PatientIdNum()
             pidnum.which_idnum = idrefdict[ViewParam.WHICH_IDNUM]

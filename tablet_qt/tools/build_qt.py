@@ -3750,7 +3750,7 @@ def master_builder(args) -> None:
     if cfg.build_ios_arm_v8_64:  # for iOS (e.g. iPad) with 64-bit ARM processor  # noqa
         build_for(Os.IOS, Cpu.ARM_V8_64)
 
-    # *** build_qt: also build iOS "fat binary" with 32- and 64-bit versions?
+    # todo: build_qt: also build iOS "fat binary" with 32- and 64-bit versions?
 
     if cfg.build_ios_simulator_x86_32:  # 32-bit iOS simulator under Intel macOS  # noqa
         build_for(Os.IOS, Cpu.X86_32)

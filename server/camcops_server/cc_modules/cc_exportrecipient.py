@@ -471,8 +471,7 @@ class ExportRecipient(ExportRecipientInfo, Base):
                 return False
 
         if (not task.is_anonymous and
-                self.primary_idnum is not None and
-                self.require_idnum_mandatory):
+                self.primary_idnum is not None):
             patient = task.patient
             if not patient:
                 _warn("missing patient")
