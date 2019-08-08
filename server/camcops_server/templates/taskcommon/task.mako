@@ -38,6 +38,14 @@ def inherit_file(context):
 <%inherit file="${ inherit_file(context) }"/>
 
 ## ============================================================================
+## Title (overriding base.mako)
+## ============================================================================
+
+<%block name="title">
+    <title>${ task.title_for_html(req, anonymise=anonymise) }</title>
+</%block>
+
+## ============================================================================
 ## For CSS paged media, extra headers
 ## ============================================================================
 

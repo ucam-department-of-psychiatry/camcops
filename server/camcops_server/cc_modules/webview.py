@@ -1058,7 +1058,7 @@ def serve_task(req: "CamcopsRequest") -> Response:
     elif viewtype == ViewArg.PDF:
         return PdfResponse(
             body=task.get_pdf(req, anonymise=anonymise),
-            filename=task.suggested_pdf_filename(req)
+            filename=task.suggested_pdf_filename(req, anonymise=anonymise)
         )
     elif viewtype == ViewArg.PDFHTML:  # debugging option
         return Response(

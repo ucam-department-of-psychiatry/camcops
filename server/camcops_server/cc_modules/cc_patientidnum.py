@@ -122,6 +122,15 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
     def __str__(self) -> str:
         return f"idnum{self.which_idnum}={self.idnum_value}"
 
+    def prettystr(self, req: "CamcopsRequest") -> str:
+        """
+        A prettified version of __str__.
+
+        Args:
+            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        """
+        return f"{self.short_description(req)} {self.idnum_value}"
+
     def __repr__(self) -> str:
         return simple_repr(self, [
             "_pk", "_device_id", "_era",

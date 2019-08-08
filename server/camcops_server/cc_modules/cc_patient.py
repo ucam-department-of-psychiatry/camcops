@@ -301,11 +301,28 @@ class Patient(GenericTabletRecordMixin, Base):
         )
 
     def __str__(self) -> str:
+        """
+        A plain string version, without the need for a request object.
+        """
         return "{sf} ({sex}, {dob}, {ids})".format(
             sf=self.get_surname_forename_upper(),
             sex=self.sex,
             dob=self.get_dob_str(),
             ids=", ".join(str(i) for i in self.get_idnum_objects()),
+        )
+
+    def prettystr(self, req: "CamcopsRequest") -> str:
+        """
+        A prettified string version.
+
+        Args:
+            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        """
+        return "{sf} ({sex}, {dob}, {ids})".format(
+            sf=self.get_surname_forename_upper(),
+            sex=self.sex,
+            dob=self.get_dob_str(),
+            ids=", ".join(i.prettystr(req) for i in self.get_idnum_objects()),
         )
 
     def get_idnum_objects(self) -> List[PatientIdNum]:

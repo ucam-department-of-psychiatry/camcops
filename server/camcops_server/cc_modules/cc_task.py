@@ -1599,6 +1599,30 @@ class Task(GenericTabletRecordMixin, Base):
                            viewtype=ViewArg.HTML),
                       request=req)
 
+    def title_for_html(self, req: "CamcopsRequest",
+                       anonymise: bool = False) -> str:
+        """
+        Returns the plain text used for the HTML ``<title>`` block (by
+        ``task.mako``), and also for the PDF title for PDF exports.
+
+        Should be plain text only.
+
+        Args:
+            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+            anonymise: hide patient identifying details?
+        """
+        if anonymise:
+            patient = "?"
+        elif self.patient:
+            patient = self.patient.prettystr(req)
+        else:
+            _ = req.gettext
+            patient = _("Anonymous")
+        tasktype = self.tablename
+        when = format_datetime(self.get_creation_datetime(),
+                               DateFormat.ISO8601_HUMANIZED_TO_MINUTES, "")
+        return f"CamCOPS: {patient}; {tasktype}; {when}"
+
     # -------------------------------------------------------------------------
     # PDF view
     # -------------------------------------------------------------------------
@@ -1653,23 +1677,33 @@ class Task(GenericTabletRecordMixin, Base):
                            viewtype=ViewArg.PDF),
                       request=req)
 
-    def suggested_pdf_filename(self, req: "CamcopsRequest") -> str:
+    def suggested_pdf_filename(self, req: "CamcopsRequest",
+                               anonymise: bool = False) -> str:
         """
         Suggested filename for the PDF copy (for downloads).
+
+        Args:
+            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+            anonymise: hide patient identifying details?
         """
         cfg = req.config
+        if anonymise:
+            is_anonymous = True
+        else:
+            is_anonymous = self.is_anonymous
+        patient = self.patient
         return get_export_filename(
             req=req,
             patient_spec_if_anonymous=cfg.patient_spec_if_anonymous,
             patient_spec=cfg.patient_spec,
             filename_spec=cfg.task_filename_spec,
             filetype=ViewArg.PDF,
-            is_anonymous=self.is_anonymous,
-            surname=self.patient.get_surname() if self.patient else "",
-            forename=self.patient.get_forename() if self.patient else "",
-            dob=self.patient.get_dob() if self.patient else None,
-            sex=self.patient.get_sex() if self.patient else None,
-            idnum_objects=self.patient.get_idnum_objects() if self.patient else None,  # noqa
+            is_anonymous=is_anonymous,
+            surname=patient.get_surname() if patient else "",
+            forename=patient.get_forename() if patient else "",
+            dob=patient.get_dob() if patient else None,
+            sex=patient.get_sex() if patient else None,
+            idnum_objects=patient.get_idnum_objects() if patient else None,
             creation_datetime=self.get_creation_datetime(),
             basetable=self.tablename,
             serverpk=self._pk

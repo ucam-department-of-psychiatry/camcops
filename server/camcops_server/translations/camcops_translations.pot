@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CamCOPS 2.3.4\n"
 "Report-Msgid-Bugs-To: rudolf@pobox.com\n"
-"POT-Creation-Date: 2019-08-03 22:28+0100\n"
+"POT-Creation-Date: 2019-08-08 11:42+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -715,20 +715,24 @@ msgstr ""
 msgid "Forcibly finalize"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:479
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:497
 msgid "Date of birth:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:482
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:500
 msgid "DOB:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:842
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:860
 msgid "(Server) Patients, distinct by name, sex, DOB, all ID numbers"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_pyramid.py:1182
 msgid "Page $page of $page_count; total $item_count records"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_task.py:1620
+msgid "Anonymous"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_taskreports.py:77
@@ -1145,7 +1149,7 @@ msgstr ""
 msgid "Cardiff Anomalous Perceptions Scale"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cardinal_expdetthreshold.py:289
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cardinal_expdetthreshold.py:295
 msgid "Cardinal RN – Threshold determination for Expectation–Detection task"
 msgstr ""
 
@@ -1205,23 +1209,23 @@ msgstr ""
 msgid "Clinical Outcomes in Routine Evaluation, 10-item measure"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cpft_lps.py:149
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cpft_lps.py:157
 msgid "CPFT LPS – referral"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cpft_lps.py:361
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cpft_lps.py:369
 msgid "CPFT LPS – reset response clock"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cpft_lps.py:581
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cpft_lps.py:599
 msgid "CPFT LPS – discharge"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cpft_lps.py:796
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cpft_lps.py:814
 msgid "CPFT LPS – referred but not yet discharged"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cpft_lps.py:907
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cpft_lps.py:925
 msgid "CPFT LPS – referred but not yet fully assessed or discharged"
 msgstr ""
 
@@ -1241,11 +1245,11 @@ msgstr ""
 msgid "Drug Abuse Screening Test"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/deakin_1_healthreview.py:304
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/deakin_1_healthreview.py:308
 msgid "Deakin JB – 1 – Health Review"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/demoquestionnaire.py:139
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/demoquestionnaire.py:141
 msgid "Demonstration Questionnaire"
 msgstr ""
 
@@ -1257,72 +1261,72 @@ msgstr ""
 msgid "Dementia Quality of Life measure, proxy version"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:296
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:300
 msgid "Diagnostic codes, ICD-10"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:405
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:409
 msgid "Diagnostic codes, ICD-9-CM (DSM-IV-TR)"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:530
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:534
 msgid "Diagnosis – ICD-9-CM (DSM-IV-TR) diagnoses for all patients"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:559
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:563
 msgid "Diagnosis – ICD-10 diagnoses for all patients"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:587
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:591
 msgid "Diagnosis – All diagnoses for all patients"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:629
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:633
 msgid "Diagnostic code"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:630
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:634
 #, python-format
 msgid "Type in a diagnostic code; you may use SQL 'LIKE' syntax for wildcards, i.e. _ for one character and % for zero/one/lots"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:649
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:653
 msgid "Diagnostic codes"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:651
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:655
 msgid "Use % as a wildcard (e.g. F32 matches only F32, but F32% matches F32, F32.1, F32.2...)."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:663
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:667
 msgid "You must specify at least"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:665
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:669
 msgid "You have specified duplicate diagnoses"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:679
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:683
 msgid "Inclusion diagnoses (lifetime)"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:681
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:685
 msgid "Exclusion diagnoses (lifetime)"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:683
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:687
 msgid "Minimum age (years) (optional)"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:685
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:689
 msgid "Maximum age (years) (optional)"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:910
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:914
 msgid "Diagnosis – Find patients by ICD-10 diagnosis ± age"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:955
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:959
 msgid "Diagnosis – Find patients by ICD-9-CM (DSM-IV-TR) diagnosis ± age"
 msgstr ""
 
@@ -1442,7 +1446,7 @@ msgstr ""
 msgid "ICD-10 criteria for specific personality disorders (F60)"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/ided3d.py:465
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/ided3d.py:479
 msgid "Three-dimensional ID/ED task"
 msgstr ""
 
@@ -2310,7 +2314,7 @@ msgid "Edit details for finalized patient"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/patient_edit.mako:8
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:120
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:128
 msgid "Server PK:"
 msgstr ""
 
@@ -2412,7 +2416,7 @@ msgid "User:"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/user_edit_group_membership.mako:10
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:118
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:126
 msgid "Group:"
 msgstr ""
 
@@ -2899,144 +2903,144 @@ msgstr ""
 msgid "Delete special note"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:111
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:119
 msgid "Created on device at:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:112
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:120
 msgid "Last modified at:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:113
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:121
 msgid "Table:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:114
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:122
 msgid "Task PK on client device:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:115
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:123
 msgid "Uploading device ID:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:116
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:124
 msgid "Tablet CamCOPS version at upload:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:117
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:125
 msgid "Uploaded at:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:119
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:127
 msgid "Adding user:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:121
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:129
 msgid "predecessor"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:122
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:130
 msgid "successor"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:123
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:131
 msgid "Current?"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:130
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:138
 msgid "deleted"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:132
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:140
 msgid "modified"
 msgstr ""
 
 #. TRANSLATOR: ... deleted/modified... by <username>... at <time>
 #. TRANSLATOR: ... [forcibly] preserved... by <username>... at <time>
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:135
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:150
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:143
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:158
 msgid "by"
 msgstr ""
 
 #. TRANSLATOR: ... deleted/modified... by <username>... at <time>
 #. TRANSLATOR: ... [forcibly] preserved... by <username>... at <time>
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:137
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:152
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:145
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:160
 msgid "at"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:139
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:147
 msgid "Preserved/erased from tablet?"
 msgstr ""
 
 #. TRANSLATOR: ... [forcibly] preserved... by <username>... at <time>
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:144
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:152
 msgid "forcibly preserved"
 msgstr ""
 
 #. TRANSLATOR: ... [forcibly] preserved... by <username>... at <time>
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:147
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:155
 msgid "preserved"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:157
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:165
 msgid "Patient server PK used:"
 msgstr ""
 
 #. TRANSLATOR: Information received from <url> (server version <version>) at:
 #. <datetime>.
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:160
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:168
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/tracker_ctv.mako:97
 msgid "Information retrieved from"
 msgstr ""
 
 #. TRANSLATOR: Information received from <url> (server version <version>) at:
 #. <datetime>.
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:163
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:171
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/tracker_ctv.mako:98
 msgid "server version"
 msgstr ""
 
 #. TRANSLATOR: Information received from <url> (server version <version>) at:
 #. <datetime>.
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:165
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:173
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/tracker_ctv.mako:99
 msgid "at:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:186
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:194
 msgid "View raw data as XML"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:200
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:208
 msgid "View identifiable version"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:234
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:242
 msgid "Apply special note"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:242
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:250
 msgid "Edit patient details"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:253
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:261
 msgid "Erase task instance"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:272
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:280
 msgid "view previous version"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:284
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:292
 msgid "view next version"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:298
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:306
 msgid "View anonymised PDF"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:306
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:314
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/tracker_ctv.mako:120
 msgid "View PDF for printing/saving"
 msgstr ""
