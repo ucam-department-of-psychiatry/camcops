@@ -134,7 +134,7 @@ Convert with a script like this:
 
 .. code-block:: bash
 
-    #!/bin/bash
+    #!/usr/bin/env bash
 
     ATHENA_ROOT=/some_path/Athena/unzipped
     CAMCOPS_SNOMED_DIR=/some_path/camcops_snomed_ct_codes

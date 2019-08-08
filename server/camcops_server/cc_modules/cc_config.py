@@ -1002,7 +1002,7 @@ def get_demo_mysql_dump_script() -> str:
     """
     Returns a demonstration script to dump all current MySQL databases.
     """
-    return """#!/bin/bash
+    return """#!/usr/bin/env bash
 
 # Minimal simple script to dump all current MySQL databases.
 # This file must be READABLE ONLY BY ROOT (or equivalent, backup)!

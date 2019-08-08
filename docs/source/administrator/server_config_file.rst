@@ -1739,7 +1739,7 @@ Note:
 
   .. code-block:: bash
 
-    #!/bin/bash
+    #!/usr/bin/env bash
     for f in $$@
     do
        echo "CamCOPS has just exported this file: $$f"
