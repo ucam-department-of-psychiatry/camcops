@@ -225,7 +225,7 @@ command
 
 .. code-block:: bash
 
-    camcops demo_supervisor_config > my_demo_camcops_supervisor_config.conf
+    camcops_server demo_supervisor_config > my_demo_camcops_supervisor_config.conf
 
 Here's an example, which you would typically save as
 `/etc/supervisor/conf.d/camcops.conf`:

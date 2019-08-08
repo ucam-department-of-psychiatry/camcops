@@ -1792,5 +1792,5 @@ Here’s a specimen configuration file, generated via the command
 
     camcops_server demo_camcops_config > demo_camcops_config.ini
 
-..  literalinclude:: demo_camcops_config.txt
+..  literalinclude:: demo_camcops_config.ini
     :language: ini

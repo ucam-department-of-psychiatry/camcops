@@ -1,0 +1,29 @@
+usage: create_database_migration.py [-h] [--verbose] message
+
+Create database revision. Note:
+
+- The config used will be that from the environment variable
+  CAMCOPS_CONFIG_FILE (currently '/home/rudolf/Documents/code/camcops/working_l
+  ocal_secret/camcops_py3_test.ini').
+
+- Alembic compares (a) the current state of the DATABASE to (b) the state of
+  the SQLAlchemy metadata (i.e. the CODE). It creates a migration file to
+  change the database to match the code.
+
+- Accordingly, in the rare event of wanting to do a fresh start, you need an
+  *empty* database.
+
+- More commonly, you want a database that is synced to a specific Alembic
+  version (with the correct structure, and the correct version in the
+  alembic_version table). If you have made manual changes, such that the actual
+  database structure doesn't match the structure that Alembic expects based on
+  that version, there's likely to be trouble.
+
+positional arguments:
+  message     Revision message
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --verbose   Be verbose
+
+# Generated at 2019-08-08 20:31:45

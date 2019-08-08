@@ -1,4 +1,5 @@
 usage: decrypt_sqlcipher.py [-h] [--password PASSWORD] [--sqlcipher SQLCIPHER]
+                            [--cipher_compatibility CIPHER_COMPATIBILITY]
                             [--encoding ENCODING]
                             encrypted decrypted
 
@@ -17,4 +18,9 @@ optional arguments:
                         SQLCipher executable file (if blank, environment
                         variable SQLCIPHER will be used, or the default of
                         'sqlcipher') (default: None)
+  --cipher_compatibility CIPHER_COMPATIBILITY
+                        Use compatibility settings for this major version of
+                        SQLCipher (e.g. 3) (default: None)
   --encoding ENCODING   Encoding to use (default: utf-8)
+
+# Generated at 2019-08-08 20:31:45

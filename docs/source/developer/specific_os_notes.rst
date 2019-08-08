@@ -146,7 +146,7 @@ Setting up an iMac for CamCOPS development
 
   - edit ``~/Qt/Qt Creator.app/Contents/Info.plist`` and add a section like:
 
-    .. code-block:: xml
+    .. code-block:: none
 
         <key>LSEnvironment</key
         <dict>

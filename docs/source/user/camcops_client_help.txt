@@ -1,4 +1,4 @@
-Usage: ./camcops [options]
+Usage: /home/rudolf/Documents/code/camcops/build-camcops-Linux_x86_64-Debug/camcops [options]
 
 Options:
   -h, --help           Displays this help.
@@ -12,3 +12,5 @@ Options:
                        "/home/rudolf/.local/share/camcops".
   --print_icd9_codes   Print ICD-9-CM (DSM-IV) codes used by CamCOPS, and quit.
   --print_icd10_codes  Print ICD-10 codes used by CamCOPS, and quit.
+
+# Generated at 2019-08-08 20:31:45

@@ -1,7 +1,7 @@
 
 # =============================================================================
 # Demonstration 'supervisor' (supervisord) config file for CamCOPS.
-# Created by CamCOPS version 2.3.1 at 2019-03-27T11:22:30.962669+00:00.
+# Created by CamCOPS version 2.3.5 at 2019-08-08T20:31:44.699516+01:00.
 # =============================================================================
     # - Supervisor is a system for controlling background processes running on
     #   UNIX-like operating systems. See:
@@ -42,7 +42,7 @@
     #
     # SPECIFIC EXTRA NOTES FOR CAMCOPS:
     #
-    # - The MPLCONFIGDIR environment variable specifies a cache directory for 
+    # - The MPLCONFIGDIR environment variable specifies a cache directory for
     #   matplotlib, which greatly speeds up its subsequent loading.
     # - The typical "web server" user is "www-data" under Ubuntu Linux and
     #   "apache" under CentOS.
@@ -97,3 +97,5 @@ stopwaitsecs = 60
 programs = camcops_server, camcops_workers, camcops_scheduler
 
     
+
+# Generated at 2019-08-08 20:31:44

@@ -2,7 +2,7 @@ usage: camcops_server [-h] [--allhelp] [--version] [-v]
                       {docs,demo_camcops_config,demo_supervisor_config,demo_apache_config,demo_mysql_create_db,demo_mysql_dump_script,upgrade_db,dev_upgrade_db,dev_downgrade_db,show_db_title,merge_db,create_db,ddl,reindex,check_index,make_superuser,reset_password,enable_user,export,show_export_queue,crate_dd,cris_dd,serve_cherrypy,serve_gunicorn,serve_pyramid,convert_athena_icd_snomed_to_xml,launch_workers,launch_scheduler,launch_monitor,show_tests,self_test,dev_cli}
                       ...
 
-CamCOPS server, created by Rudolf Cardinal; version 2.3.4.
+CamCOPS server, created by Rudolf Cardinal; version 2.3.5.
 Use 'camcops_server <COMMAND> --help' for more detail on each command.
 
 optional arguments:
@@ -283,8 +283,8 @@ optional arguments:
   -v, --verbose      Be verbose (default: False)
   --config CONFIG    Configuration file (if not specified, the environment
                      variable CAMCOPS_CONFIG_FILE is checked) (default: None)
-  --dialect DIALECT  SQL dialect (options: postgresql, mysql, oracle, mssql,
-                     firebird, sqlite, sybase) (default: mysql)
+  --dialect DIALECT  SQL dialect (options: mssql, firebird, oracle, mysql,
+                     postgresql, sqlite, sybase) (default: mysql)
 
 ===============================================================================
 Help for command 'reindex'
@@ -604,3 +604,5 @@ optional arguments:
   --config CONFIG  Configuration file (if not specified, the environment
                    variable CAMCOPS_CONFIG_FILE is checked) (default: None)
 
+
+# Generated at 2019-08-08 20:31:42
