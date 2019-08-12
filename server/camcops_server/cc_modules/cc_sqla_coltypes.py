@@ -313,7 +313,7 @@ Max length e.g.
 
     2013-07-24T20:04:07.123456+01:00
     1234567890123456789012345678901234567890
-    
+
 (with punctuation, T, microseconds, colon in timezone).
 """
 
@@ -786,7 +786,7 @@ def unknown_field_to_utcdatetime_sqlserver(
     # https://stackoverflow.com/questions/5487892/sql-server-case-when-or-then-else-end-the-or-is-not-supported  # noqa
     converted = isotzdatetime_to_utcdatetime_sqlserver(element, compiler, **kw)
     result = (
-        f"CASE WHEN LEN({x}) IN " 
+        f"CASE WHEN LEN({x}) IN "
         f"({_SQLSERVER_DATETIME_LEN}, {_SQLSERVER_DATETIME2_LEN}) THEN {x} "
         f"ELSE {converted} "
         f"END"
@@ -1083,7 +1083,7 @@ class SemanticVersionColType(TypeDecorator):
         """
         Process SQL for when we are comparing our column, in the database,
         to something else.
-        
+
         See https://docs.sqlalchemy.org/en/13/core/type_api.html#sqlalchemy.types.TypeEngine.comparator_factory.
 
         .. warning::
@@ -1284,6 +1284,10 @@ ZERO_TO_TWO_CHECKER = PermittedValueChecker(minimum=0, maximum=2)
 ZERO_TO_THREE_CHECKER = PermittedValueChecker(minimum=0, maximum=3)
 ZERO_TO_FOUR_CHECKER = PermittedValueChecker(minimum=0, maximum=4)
 ZERO_TO_FIVE_CHECKER = PermittedValueChecker(minimum=0, maximum=5)
+ZERO_TO_SIX_CHECKER = PermittedValueChecker(minimum=0, maximum=6)
+ZERO_TO_SEVEN_CHECKER = PermittedValueChecker(minimum=0, maximum=7)
+ZERO_TO_EIGHT_CHECKER = PermittedValueChecker(minimum=0, maximum=8)
+ZERO_TO_NINE_CHECKER = PermittedValueChecker(minimum=0, maximum=9)
 ZERO_TO_10_CHECKER = PermittedValueChecker(minimum=0, maximum=10)
 ZERO_TO_100_CHECKER = PermittedValueChecker(minimum=0, maximum=100)
 
