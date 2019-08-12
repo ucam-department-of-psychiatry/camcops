@@ -122,6 +122,9 @@ from camcops_server.tasks.mast import Mast
 from camcops_server.tasks.mds_updrs import MdsUpdrs
 from camcops_server.tasks.mfi20 import Mfi20
 from camcops_server.tasks.moca import Moca
+from camcops_server.tasks.khandaker_2_mojosociodemographics import (
+    Khandaker2MojoSociodemographics
+)
 
 from camcops_server.tasks.nart import Nart
 from camcops_server.tasks.npiq import NpiQ
