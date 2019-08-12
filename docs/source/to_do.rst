@@ -39,11 +39,6 @@ Tasks
   .. todo:: IN PROGRESS +++ a/w permission clarification
 
 
-**Priority: MOJO**
-
-- :ref:`Khandaker GM — 2 — MOJO study <khandaker_2_mojo>`
-
-
 **To be prioritized**
 
 - Test Your Memory (TYM) task (Jerry M. Brown).
