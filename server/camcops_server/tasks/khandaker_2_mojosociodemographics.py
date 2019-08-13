@@ -36,12 +36,11 @@ from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
     MIN_ZERO_CHECKER,
-    PermittedValueChecker,
-    SexColType,
     ZERO_TO_10_CHECKER,
     ZERO_TO_FOUR_CHECKER,
     ZERO_TO_SEVEN_CHECKER,
     ZERO_TO_SIX_CHECKER,
+    ZERO_TO_TWO_CHECKER,
 )
 from camcops_server.cc_modules.cc_task import (
     Task,
@@ -68,10 +67,9 @@ class Khandaker2MojoSociodemographicsMetaclass(DeclarativeMeta):
         setattr(
             cls, "gender",
             CamcopsColumn(
-                "gender", SexColType,
-                permitted_value_checker=PermittedValueChecker(
-                    permitted_values=["M", "F", "X"]),
-                comment="Gender at birth (M, F, X)"
+                "gender", Integer,
+                permitted_value_checker=ZERO_TO_TWO_CHECKER,
+                comment="Gender at birth (0 Male, 1 Female, 2 Other (specify)"
             )
         )
 
