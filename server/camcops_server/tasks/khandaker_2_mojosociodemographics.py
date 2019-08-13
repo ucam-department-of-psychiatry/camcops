@@ -196,6 +196,17 @@ class Khandaker2MojoSociodemographics(
     shortname = "Khandaker_2_MOJOSociodemographics"
     provides_trackers = False
 
+    MANDATORY_FIELDS = {
+        "age",
+        "gender",
+        "ethnicity",
+        "with_whom_live",
+        "relationship_status",
+        "education",
+        "employment",
+        "accommodation",
+    }
+
     OTHER_FIELD_DICT = {
         "gender": "X",
         "ethnicity": 10,
