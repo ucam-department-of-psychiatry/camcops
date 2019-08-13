@@ -56,7 +56,7 @@ public:
     // ------------------------------------------------------------------------
     bool answeredOther(const K2QInfo info) const;
     NameValueOptions getOptions(const K2QInfo info) const;
-
+    QString getOptionName(const K2QInfo info, const int index) const;
     // ------------------------------------------------------------------------
     // Signal handlers
     // ------------------------------------------------------------------------

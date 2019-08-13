@@ -172,9 +172,30 @@ QStringList Khandaker2MojoSociodemographics::summary() const
 QStringList Khandaker2MojoSociodemographics::detail() const
 {
     QStringList lines;
-    // for (const K2QInfo& info : MC_QUESTIONS) {
-        // TODO
-    // }
+
+    lines.append(QString("%1: <b>%2</b>").arg(
+                     xstring("q_age"), valueString("age")));
+
+    for (const K2QInfo& info : MC_QUESTIONS) {
+        const QString question_xml_name = info.getQuestionXmlName();
+        const QString option_xml_name = getOptionName(
+            info, valueInt(info.getFieldname()));
+
+        QString other_value;
+
+        if (answeredOther(info)) {
+            const QString other_field_name = info.getOtherFieldname();
+            other_value = valueString(other_field_name);
+        } else {
+            other_value = "";
+        }
+
+        lines.append(QString("%1: <b>%2 %3</b>").arg(
+                         xstring(question_xml_name),
+                         option_xml_name,
+                         other_value));
+
+    }
 
     return completenessInfo() + lines;
 }
@@ -231,11 +252,16 @@ NameValueOptions Khandaker2MojoSociodemographics::getOptions(const K2QInfo info)
     NameValueOptions options;
 
     for (int i = 0; i <= info.getMaxOption(); i++) {
-        const QString name = xstring(QString("%1_option%2").arg(info.getFieldname()).arg(i));
+        const QString name = getOptionName(info, i);
         options.append(NameValuePair(name, i));
     }
 
     return options;
+}
+
+QString Khandaker2MojoSociodemographics::getOptionName(
+    const K2QInfo info, const int index) const {
+    return xstring(QString("%1_option%2").arg(info.getFieldname()).arg(index));
 }
 
 // ============================================================================
