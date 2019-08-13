@@ -193,7 +193,7 @@ class Khandaker2MojoSociodemographics(
     Server implementation of the Khandaker_2_MOJOSociodemographics task
     """
     __tablename__ = "khandaker_2_mojosociodemographics"
-    shortname = "khandaker_2_MOJOSociodemographics"
+    shortname = "Khandaker_2_MOJOSociodemographics"
     provides_trackers = False
 
     OTHER_FIELD_DICT = {
