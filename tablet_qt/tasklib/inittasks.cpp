@@ -106,6 +106,7 @@
 #include "tasks/irac.h"
 
 #include "tasks/khandaker1insightmedical.h"
+#include "tasks/khandaker2mojosociodemographics.h"
 #include "tasks/kirby.h"
 
 #include "tasks/lynall1iammedical.h"
@@ -254,6 +255,7 @@ void InitTasks(TaskFactory& factory)
     initializeIrac(factory);
 
     initializeKhandaker1InsightMedical(factory);
+    initializeKhandaker2MojoSociodemographics(factory);
     initializeKirby(factory);
 
     initializeLynall1IamMedical(factory);

@@ -790,6 +790,7 @@ SOURCES += \
     tasks/ifs.cpp \
     tasks/irac.cpp \
     tasks/khandaker1insightmedical.cpp \
+    tasks/khandaker2mojosociodemographics.cpp \
     tasks/lynall1iammedical.cpp \
     tasks/lynall2iamlife.cpp \
     tasks/maas.cpp \
@@ -1224,6 +1225,7 @@ HEADERS += \
     tasks/ifs.h \
     tasks/irac.h \
     tasks/khandaker1insightmedical.h \
+    tasks/khandaker2mojosociodemographics.h \
     tasks/lynall1iammedical.h \
     tasks/lynall2iamlife.h \
     tasks/maas.h \
