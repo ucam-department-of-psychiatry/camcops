@@ -28,7 +28,7 @@
     <string name="with_whom_live_option0">Alone</string>
     <string name="with_whom_live_option1">Alone, with children</string>
     <string name="with_whom_live_option2">Partner/Spouse</string>
-    <string name="with_whom_live_option3">Partner/Spouse and children</string>
+    <string name="with_whom_live_option3">Partner / Spouse and children</string>
     <string name="with_whom_live_option4">Parents</string>
     <string name="with_whom_live_option5">Other family</string>
     <string name="with_whom_live_option6">Friends</string>
@@ -43,9 +43,9 @@
 
     <string name="q_education">What was the highest level of education you reached?</string>
     <string name="education_option0">No qualifications</string>
-    <string name="education_option1">GCSE/O levels</string>
+    <string name="education_option1">GCSE / O levels</string>
     <string name="education_option2">A levels</string>
-    <string name="education_option3">Vocational/college (B. Tecs/NVQs etc)</string>
+    <string name="education_option3">Vocational/college (B. Tecs / NVQs etc)</string>
     <string name="education_option4">University / Professional Qualifications</string>
 
     <string name="q_employment">Are you employed?</string>
