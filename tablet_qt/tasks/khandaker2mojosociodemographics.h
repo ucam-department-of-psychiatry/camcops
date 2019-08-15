@@ -52,11 +52,14 @@ public:
     virtual QStringList detail() const override;
     virtual OpenableWidget* editor(bool read_only = false) override;
     // ------------------------------------------------------------------------
-    // Task-specific calculations
+    // Task-specific
     // ------------------------------------------------------------------------
+private:
     bool answeredOther(const K2QInfo info) const;
     NameValueOptions getOptions(const K2QInfo info) const;
     QString getOptionName(const K2QInfo info, const int index) const;
+    QString getAnswerText(const K2QInfo info) const;
+
     // ------------------------------------------------------------------------
     // Signal handlers
     // ------------------------------------------------------------------------

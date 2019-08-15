@@ -20,7 +20,7 @@
 #include "khandaker2mojosociodemographics.h"
 #include "common/cssconst.h"
 #include "common/textconst.h"
-#include "maths/mathfunc.h"
+#include "lib/convert.h"
 #include "lib/uifunc.h"
 #include "lib/version.h"
 #include "questionnairelib/questionnaire.h"
@@ -173,28 +173,12 @@ QStringList Khandaker2MojoSociodemographics::detail() const
 {
     QStringList lines;
 
-    lines.append(QString("%1: <b>%2</b>").arg(
-                     xstring("q_age"), valueString("age")));
+    lines.append(xstring("q_age"));
+    lines.append(QString("<b>%1</b>").arg(prettyValue("age")));
 
     for (const K2QInfo& info : MC_QUESTIONS) {
-        const QString question_xml_name = info.getQuestionXmlName();
-        const QString option_xml_name = getOptionName(
-            info, valueInt(info.getFieldname()));
-
-        QString other_value;
-
-        if (answeredOther(info)) {
-            const QString other_field_name = info.getOtherFieldname();
-            other_value = valueString(other_field_name);
-        } else {
-            other_value = "";
-        }
-
-        lines.append(QString("%1: <b>%2 %3</b>").arg(
-                         xstring(question_xml_name),
-                         option_xml_name,
-                         other_value));
-
+        lines.append(xstring(info.getQuestionXmlName()));
+        lines.append(QString("<b>%1</b>").arg(getAnswerText(info)));
     }
 
     return completenessInfo() + lines;
@@ -248,6 +232,7 @@ bool Khandaker2MojoSociodemographics::answeredOther(const K2QInfo info) const {
     return info.hasOther() && valueInt(info.getFieldname()) == info.getMaxOption();
 }
 
+
 NameValueOptions Khandaker2MojoSociodemographics::getOptions(const K2QInfo info) const {
     NameValueOptions options;
 
@@ -262,6 +247,27 @@ NameValueOptions Khandaker2MojoSociodemographics::getOptions(const K2QInfo info)
 QString Khandaker2MojoSociodemographics::getOptionName(
     const K2QInfo info, const int index) const {
     return xstring(QString("%1_option%2").arg(info.getFieldname()).arg(index));
+}
+
+
+QString Khandaker2MojoSociodemographics::getAnswerText(
+    const K2QInfo info) const {
+    if (valueIsNull(info.getFieldname())) {
+        return convert::NULL_STR;
+    }
+
+    const int answer_value = valueInt(info.getFieldname());
+
+    QString answer_text = getOptionName(info, answer_value);
+
+    if (answeredOther(info)) {
+        answer_text = QString("%1 (%2)").arg(
+            answer_text,
+            prettyValue(info.getOtherFieldname())
+        );
+    }
+
+    return QString("%1 — %2").arg(answer_value).arg(answer_text);
 }
 
 // ============================================================================
