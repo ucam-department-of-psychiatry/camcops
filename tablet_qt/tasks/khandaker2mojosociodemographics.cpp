@@ -37,6 +37,8 @@
 const QString Khandaker2MojoSociodemographics::KHANDAKER2MOJOSOCIODEMOGRAPHICS_TABLENAME(
     "khandaker_2_mojosociodemographics");
 
+const QString Q_XML_PREFIX = "q_";
+
 struct K2QInfo {
     K2QInfo(const QString& stem, const int max_option,
             const bool has_other = false) {
@@ -47,7 +49,7 @@ struct K2QInfo {
         if (has_other) {
             m_other_fieldname = "other_" + stem;
         }
-        m_question_xml_name = "q_" + stem;
+        m_question_xml_name = Q_XML_PREFIX + stem;
         m_max_option = max_option;
     }
 
@@ -79,6 +81,8 @@ private:
     bool m_has_other;
 };
 
+const QString FN_AGE("age");
+
 const QVector<K2QInfo> MC_QUESTIONS{
     K2QInfo("gender", 2, true),
     K2QInfo("ethnicity", 10, true),
@@ -97,10 +101,11 @@ void initializeKhandaker2MojoSociodemographics(TaskFactory& factory)
 
 Khandaker2MojoSociodemographics::Khandaker2MojoSociodemographics(
         CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, KHANDAKER2MOJOSOCIODEMOGRAPHICS_TABLENAME, false, false, false),  // ... anon, clin, resp
+    Task(app, db, KHANDAKER2MOJOSOCIODEMOGRAPHICS_TABLENAME,
+         false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addField("age", QVariant::Int);
+    addField(FN_AGE, QVariant::Int);
 
     for (const K2QInfo& info : MC_QUESTIONS) {
         addField(info.getFieldname(), QVariant::Int);
@@ -145,7 +150,7 @@ QString Khandaker2MojoSociodemographics::description() const
 
 bool Khandaker2MojoSociodemographics::isComplete() const
 {
-    if (valueIsNull("age")) {
+    if (valueIsNull(FN_AGE)) {
         return false;
     }
 
@@ -173,8 +178,8 @@ QStringList Khandaker2MojoSociodemographics::detail() const
 {
     QStringList lines;
 
-    lines.append(xstring("q_age"));
-    lines.append(QString("<b>%1</b>").arg(prettyValue("age")));
+    lines.append(xstring(Q_XML_PREFIX + FN_AGE));
+    lines.append(QString("<b>%1</b>").arg(prettyValue(FN_AGE)));
 
     for (const K2QInfo& info : MC_QUESTIONS) {
         lines.append(xstring(info.getQuestionXmlName()));
@@ -191,8 +196,8 @@ OpenableWidget* Khandaker2MojoSociodemographics::editor(const bool read_only)
     page->setTitle(description());
     page->addElement(new QuHeading(xstring("title")));
 
-    page->addElement(new QuText(xstring("q_age")));
-    page->addElement(new QuLineEditInteger(fieldRef("age"), 0, 150));
+    page->addElement(new QuText(xstring(Q_XML_PREFIX + FN_AGE)));
+    page->addElement(new QuLineEditInteger(fieldRef(FN_AGE), 0, 150));
     page->addElement(new QuSpacer(QSize(uiconst::BIGSPACE, uiconst::BIGSPACE)));
 
     for (const K2QInfo& info : MC_QUESTIONS) {
@@ -212,7 +217,8 @@ OpenableWidget* Khandaker2MojoSociodemographics::editor(const bool read_only)
             page->addElement(text_edit);
         }
 
-        page->addElement(new QuSpacer(QSize(uiconst::BIGSPACE, uiconst::BIGSPACE)));
+        page->addElement(new QuSpacer(QSize(uiconst::BIGSPACE,
+                                            uiconst::BIGSPACE)));
     }
 
     QVector<QuPagePtr> pages{page};
@@ -229,11 +235,15 @@ OpenableWidget* Khandaker2MojoSociodemographics::editor(const bool read_only)
 
 bool Khandaker2MojoSociodemographics::answeredOther(const K2QInfo info) const {
     // For this task, the 'other' option is always the last one
-    return info.hasOther() && valueInt(info.getFieldname()) == info.getMaxOption();
+    const int answer = valueInt(info.getFieldname());
+
+    return info.hasOther() && answer == info.getMaxOption();
 }
 
 
-NameValueOptions Khandaker2MojoSociodemographics::getOptions(const K2QInfo info) const {
+NameValueOptions Khandaker2MojoSociodemographics::getOptions(
+    const K2QInfo info) const {
+
     NameValueOptions options;
 
     for (int i = 0; i <= info.getMaxOption(); i++) {

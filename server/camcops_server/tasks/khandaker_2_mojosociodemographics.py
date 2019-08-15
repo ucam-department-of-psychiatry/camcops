@@ -33,7 +33,7 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
-from camcops_server.cc_modules.cc_html import answer, tr_qa
+from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
@@ -58,35 +58,35 @@ class Khandaker2MojoSociodemographicsMetaclass(DeclarativeMeta):
                  classdict: Dict[str, Any]) -> None:
 
         setattr(
-            cls, "age",
+            cls, cls.FN_AGE,
             CamcopsColumn(
-                "age", Integer,
+                cls.FN_AGE, Integer,
                 permitted_value_checker=MIN_ZERO_CHECKER,
                 comment="Age, closest full year"
             )
         )
 
         setattr(
-            cls, "gender",
+            cls, cls.FN_GENDER,
             CamcopsColumn(
-                "gender", Integer,
+                cls.FN_GENDER, Integer,
                 permitted_value_checker=ZERO_TO_TWO_CHECKER,
                 comment="Gender at birth (0 Male, 1 Female, 2 Other (specify)"
             )
         )
 
         setattr(
-            cls, "other_gender",
+            cls, cls.FN_OTHER_GENDER,
             CamcopsColumn(
-                "other_gender", UnicodeText,
+                cls.FN_OTHER_GENDER, UnicodeText,
                 comment="Other (specify)"
             )
         )
 
         setattr(
-            cls, "ethnicity",
+            cls, cls.FN_ETHNICITY,
             CamcopsColumn(
-                "ethnicity", Integer,
+                cls.FN_ETHNICITY, Integer,
                 permitted_value_checker=ZERO_TO_10_CHECKER,
                 comment=("Ethnicity (0 White, 1 Mixed, 2 Indian, 3 Pakistani, "
                          "4 Bangladeshi, 5 Other Asian, 6 Black Caribbean, "
@@ -96,17 +96,17 @@ class Khandaker2MojoSociodemographicsMetaclass(DeclarativeMeta):
         )
 
         setattr(
-            cls, "other_ethnicity",
+            cls, cls.FN_OTHER_ETHNICITY,
             CamcopsColumn(
-                "other_ethnicity", UnicodeText,
+                cls.FN_OTHER_ETHNICITY, UnicodeText,
                 comment="Other (specify)"
             )
         )
 
         setattr(
-            cls, "with_whom_live",
+            cls, cls.FN_WITH_WHOM_LIVE,
             CamcopsColumn(
-                "with_whom_live", Integer,
+                cls.FN_WITH_WHOM_LIVE, Integer,
                 permitted_value_checker=ZERO_TO_SEVEN_CHECKER,
                 comment=("0 Alone, 1 Alone with children, 2 Partner/Spouse, "
                          "3 Partner/Spouse and children, 4 Parents, "
@@ -115,17 +115,17 @@ class Khandaker2MojoSociodemographicsMetaclass(DeclarativeMeta):
         )
 
         setattr(
-            cls, "other_with_whom_live",
+            cls, cls.FN_OTHER_WITH_WHOM_LIVE,
             CamcopsColumn(
-                "other_with_whom_live", UnicodeText,
+                cls.FN_OTHER_WITH_WHOM_LIVE, UnicodeText,
                 comment="Other (specify)"
             )
         )
 
         setattr(
-            cls, "relationship_status",
+            cls, cls.FN_RELATIONSHIP_STATUS,
             CamcopsColumn(
-                "relationship_status", Integer,
+                cls.FN_RELATIONSHIP_STATUS, Integer,
                 permitted_value_checker=ZERO_TO_FOUR_CHECKER,
                 comment=("0 Single, 1 Married / Civil partnership, "
                          "2 In steady relationship, 3 Divorced / separated, "
@@ -134,9 +134,9 @@ class Khandaker2MojoSociodemographicsMetaclass(DeclarativeMeta):
         )
 
         setattr(
-            cls, "education",
+            cls, cls.FN_EDUCATION,
             CamcopsColumn(
-                "education", Integer,
+                cls.FN_EDUCATION, Integer,
                 permitted_value_checker=ZERO_TO_FOUR_CHECKER,
                 comment=("0 No qualifications, 1 GCSE/O levels, 2 A levels, "
                          "3 Vocational/college (B. Tecs/NVQs etc), "
@@ -145,9 +145,9 @@ class Khandaker2MojoSociodemographicsMetaclass(DeclarativeMeta):
         )
 
         setattr(
-            cls, "employment",
+            cls, cls.FN_EMPLOYMENT,
             CamcopsColumn(
-                "employment", Integer,
+                cls.FN_EMPLOYMENT, Integer,
                 permitted_value_checker=ZERO_TO_SEVEN_CHECKER,
                 comment=("0 No unemployed, 1 No student, 2 Yes full time, "
                          "3 Yes part time, 4 Full time homemaker, "
@@ -157,17 +157,17 @@ class Khandaker2MojoSociodemographicsMetaclass(DeclarativeMeta):
         )
 
         setattr(
-            cls, "other_employment",
+            cls, cls.FN_OTHER_EMPLOYMENT,
             CamcopsColumn(
-                "other_employment", UnicodeText,
+                cls.FN_OTHER_EMPLOYMENT, UnicodeText,
                 comment="Other (specify)"
             )
         )
 
         setattr(
-            cls, "accommodation",
+            cls, cls.FN_ACCOMMODATION,
             CamcopsColumn(
-                "accommodation", Integer,
+                cls.FN_ACCOMMODATION, Integer,
                 permitted_value_checker=ZERO_TO_SIX_CHECKER,
                 comment=("0 Own outright, 1 Own with mortgage, "
                          "2 Rent from local authority etc, "
@@ -178,9 +178,9 @@ class Khandaker2MojoSociodemographicsMetaclass(DeclarativeMeta):
         )
 
         setattr(
-            cls, "other_accommodation",
+            cls, cls.FN_OTHER_ACCOMMODATION,
             CamcopsColumn(
-                "other_accommodation", UnicodeText,
+                cls.FN_OTHER_ACCOMMODATION, UnicodeText,
                 comment="Other (specify)"
             )
         )
@@ -198,23 +198,38 @@ class Khandaker2MojoSociodemographics(
     shortname = "Khandaker_2_MOJOSociodemographics"
     provides_trackers = False
 
-    MANDATORY_FIELDS = [
-        "age",
-        "gender",
-        "ethnicity",
-        "with_whom_live",
-        "relationship_status",
-        "education",
-        "employment",
-        "accommodation",
+    FN_AGE = "age"
+    FN_GENDER = "gender"
+    FN_ETHNICITY = "ethnicity"
+    FN_WITH_WHOM_LIVE = "with_whom_live"
+    FN_RELATIONSHIP_STATUS = "relationship_status"
+    FN_EDUCATION = "education"
+    FN_EMPLOYMENT = "employment"
+    FN_ACCOMMODATION = "accommodation"
+
+    FN_OTHER_GENDER = "other_gender"
+    FN_OTHER_ETHNICITY = "other_ethnicity"
+    FN_OTHER_WITH_WHOM_LIVE = "other_with_whom_live"
+    FN_OTHER_EMPLOYMENT = "other_employment"
+    FN_OTHER_ACCOMMODATION = "other_accommodation"
+
+    MANDATORY_FIELD_NAMES = [
+        FN_AGE,
+        FN_GENDER,
+        FN_ETHNICITY,
+        FN_WITH_WHOM_LIVE,
+        FN_RELATIONSHIP_STATUS,
+        FN_EDUCATION,
+        FN_EMPLOYMENT,
+        FN_ACCOMMODATION,
     ]
 
-    OTHER_FIELD_DICT = {
-        "gender": 2,
-        "ethnicity": 10,
-        "with_whom_live": 7,
-        "employment": 7,
-        "accommodation": 6,
+    OTHER_ANSWER_VALUES = {
+        FN_GENDER: 2,
+        FN_ETHNICITY: 10,
+        FN_WITH_WHOM_LIVE: 7,
+        FN_EMPLOYMENT: 7,
+        FN_ACCOMMODATION: 6,
     }
 
     @staticmethod
@@ -224,13 +239,13 @@ class Khandaker2MojoSociodemographics(
                  "Questionnaire")
 
     def is_complete(self) -> bool:
-        if self.any_fields_none(self.MANDATORY_FIELDS):
+        if self.any_fields_none(self.MANDATORY_FIELD_NAMES):
             return False
 
         if not self.field_contents_valid():
             return False
 
-        for name, other_option in self.OTHER_FIELD_DICT.items():
+        for name, other_option in self.OTHER_ANSWER_VALUES.items():
             if getattr(self, name) == other_option:
                 if getattr(self, f"other_{name}") is None:
                     return False
@@ -240,9 +255,9 @@ class Khandaker2MojoSociodemographics(
     def get_task_html(self, req: CamcopsRequest) -> str:
         rows = ""
 
-        for question in self.MANDATORY_FIELDS:
-            question_text = self.wxstring(req, f"q_{question}")
-            answer_text = self.get_answer_text(req, question)
+        for field_name in self.MANDATORY_FIELD_NAMES:
+            question_text = self.wxstring(req, f"q_{field_name}")
+            answer_text = self.get_answer_text(req, field_name)
 
             rows += tr_qa(question_text, answer_text)
 
@@ -263,27 +278,27 @@ class Khandaker2MojoSociodemographics(
 
         return html
 
-    def get_answer_text(self, req: CamcopsRequest, question: str) -> str:
-        answer_value = getattr(self, question)
+    def get_answer_text(self, req: CamcopsRequest, field_name: str) -> str:
+        answer = getattr(self, field_name)
 
-        if answer_value is None or question == "age":
+        if answer is None or field_name == self.FN_AGE:
             # age is the only one that isn't multi-choice
-            return answer_value
+            return answer
 
-        answer_text = self.wxstring(req, f"{question}_option{answer_value}")
+        answer_text = self.wxstring(req, f"{field_name}_option{answer}")
 
-        if self.answered_other(question):
+        if self.answered_other(field_name):
             answer_text = "{} ({})".format(
                 answer_text,
-                getattr(self, f"other_{question}")
+                getattr(self, f"other_{field_name}")
             )
 
-        return f"{answer_value} — {answer_text}"
+        return f"{answer} — {answer_text}"
 
-    def answered_other(self, question: str):
-        if question not in self.OTHER_FIELD_DICT:
+    def answered_other(self, field_name: str):
+        if field_name not in self.OTHER_ANSWER_VALUES:
             return False
 
-        other_option = self.OTHER_FIELD_DICT[question]
+        other_option = self.OTHER_ANSWER_VALUES[field_name]
 
-        return getattr(self, question) == other_option
+        return getattr(self, field_name) == other_option
