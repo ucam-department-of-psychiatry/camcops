@@ -115,6 +115,9 @@ from camcops_server.tasks.khandaker_1_insightmedical import (
 from camcops_server.tasks.khandaker_2_mojosociodemographics import (
     Khandaker2MojoSociodemographics,
 )
+from camcops_server.tasks.khandaker_2_mojomedical import (
+    Khandaker2MojoMedical,
+)
 from camcops_server.tasks.kirby_mcq import Kirby
 
 from camcops_server.tasks.lynall_1_iam_medical import Lynall1IamMedicalHistory
