@@ -32,6 +32,8 @@ from typing import Any, Dict, Tuple, Type
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
+from camcops_server.cc_modules.cc_constants import CssClass
+from camcops_server.cc_modules.cc_html import answer, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
@@ -196,7 +198,7 @@ class Khandaker2MojoSociodemographics(
     shortname = "Khandaker_2_MOJOSociodemographics"
     provides_trackers = False
 
-    MANDATORY_FIELDS = {
+    MANDATORY_FIELDS = [
         "age",
         "gender",
         "ethnicity",
@@ -205,10 +207,10 @@ class Khandaker2MojoSociodemographics(
         "education",
         "employment",
         "accommodation",
-    }
+    ]
 
     OTHER_FIELD_DICT = {
-        "gender": "X",
+        "gender": 2,
         "ethnicity": 10,
         "with_whom_live": 7,
         "employment": 7,
@@ -236,4 +238,52 @@ class Khandaker2MojoSociodemographics(
         return True
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        return "TODO"
+        rows = ""
+
+        for question in self.MANDATORY_FIELDS:
+            question_text = self.wxstring(req, f"q_{question}")
+            answer_text = self.get_answer_text(req, question)
+
+            rows += tr_qa(question_text, answer_text)
+
+        html = f"""
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {self.get_is_complete_tr(req)}
+                </table>
+            </div>
+            <table class="{CssClass.TASKDETAIL}">
+                <tr>
+                    <th width="60%">Question</th>
+                    <th width="40%">Answer</th>
+                </tr>
+                {rows}
+            </table>
+        """
+
+        return html
+
+    def get_answer_text(self, req: CamcopsRequest, question: str) -> str:
+        answer_value = getattr(self, question)
+
+        if answer_value is None or question == "age":
+            # age is the only one that isn't multi-choice
+            return answer_value
+
+        answer_text = self.wxstring(req, f"{question}_option{answer_value}")
+
+        if self.answered_other(question):
+            answer_text = "{} ({})".format(
+                answer_text,
+                getattr(self, f"other_{question}")
+            )
+
+        return f"{answer_value} — {answer_text}"
+
+    def answered_other(self, question: str):
+        if question not in self.OTHER_FIELD_DICT:
+            return False
+
+        other_option = self.OTHER_FIELD_DICT[question]
+
+        return getattr(self, question) == other_option
