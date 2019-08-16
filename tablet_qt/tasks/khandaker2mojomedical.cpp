@@ -283,7 +283,7 @@ OpenableWidget* Khandaker2MojoMedical::editor(const bool read_only)
         page->addElement(new QuText(xstring(Q_XML_PREFIX + fieldname)));
 
         auto date_time = new QuDateTime(fieldRef(fieldname));
-        date_time->setMode(QuDateTime::DefaultDate);
+        date_time->setOfferNowButton(true);
         page->addElement(date_time);
         page->addElement(new QuSpacer(QSize(uiconst::BIGSPACE,
                                             uiconst::BIGSPACE)));
