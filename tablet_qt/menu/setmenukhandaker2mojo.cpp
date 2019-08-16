@@ -31,6 +31,7 @@
 #include "tasks/elixhauserci.h"
 #include "tasks/eq5d5l.h"
 #include "tasks/esspri.h"
+#include "tasks/khandaker2mojomedical.h"
 #include "tasks/khandaker2mojosociodemographics.h"
 #include "tasks/mfi20.h"
 #include "tasks/sfmpq2.h"
@@ -65,7 +66,9 @@ void SetMenuKhandaker2Mojo::makeItems()
         MAKE_TASK_MENU_ITEM(
             Khandaker2MojoSociodemographics::KHANDAKER2MOJOSOCIODEMOGRAPHICS_TABLENAME,
             m_app),
-        // *** MOJO medical history
+        MAKE_TASK_MENU_ITEM(
+            Khandaker2MojoMedical::KHANDAKER2MOJOMEDICAL_TABLENAME,
+            m_app),
         MAKE_TASK_MENU_ITEM(ElixhauserCI::ELIXHAUSERCI_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Esspri::ESSPRI_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Asdas::ASDAS_TABLENAME, m_app),
