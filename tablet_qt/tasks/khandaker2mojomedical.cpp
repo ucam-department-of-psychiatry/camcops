@@ -43,7 +43,6 @@ const QString Khandaker2MojoMedical::KHANDAKER2MOJOMEDICAL_TABLENAME(
 const QString Q_XML_PREFIX = "q_";
 
 // Section 1: General Information
-const QString FN_PARTICIPANT_NUMBER("participant_number");
 const QString FN_DIAGNOSIS("diagnosis");
 const QString FN_DIAGNOSIS_DATE("diagnosis_date");
 const QString FN_HAS_FIBROMYALGIA("has_fibromyalgia");
@@ -81,7 +80,6 @@ const QString FN_FAMILY_OTHER_MENTAL_ILLNESS("family_other_mental_illness");
 const QString FN_FAMILY_OTHER_MENTAL_ILLNESS_DETAILS("family_other_mental_illness_details");
 
 const QStringList MANDATORY_FIELDNAMES{
-    FN_PARTICIPANT_NUMBER,
     FN_DIAGNOSIS,
     FN_DIAGNOSIS_DATE,
     FN_HAS_FIBROMYALGIA,
@@ -133,7 +131,6 @@ Khandaker2MojoMedical::Khandaker2MojoMedical(
     m_questionnaire(nullptr)
 {
     // Section 1: General Information
-    addField(FN_PARTICIPANT_NUMBER, QVariant::String);
     addField(FN_DIAGNOSIS, QVariant::Int);
     addField(FN_DIAGNOSIS_DATE, QVariant::Date);
     addField(FN_HAS_FIBROMYALGIA, QVariant::Bool);
@@ -315,7 +312,6 @@ OpenableWidget* Khandaker2MojoMedical::editor(const bool read_only)
     page->addElement(new QuHeading(xstring("title")));
     page->addElement(new QuHeading(xstring("general_information_title")));
 
-    textQuestion(FN_PARTICIPANT_NUMBER);
     multiChoiceQuestion(FN_DIAGNOSIS, 3);
     dateQuestion(FN_DIAGNOSIS_DATE);
 

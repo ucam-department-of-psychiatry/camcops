@@ -54,14 +54,6 @@ class Khandaker2MojoMedicalMetaclass(DeclarativeMeta):
                  classdict: Dict[str, Any]) -> None:
 
         setattr(
-            cls, cls.FN_PARTICIPANT_NUMBER,
-            CamcopsColumn(
-                cls.FN_PARTICIPANT_NUMBER, UnicodeText,
-                comment="Participant study number"
-            )
-        )
-
-        setattr(
             cls, cls.FN_DIAGNOSIS,
             CamcopsColumn(
                 cls.FN_DIAGNOSIS, Integer,
@@ -369,7 +361,6 @@ class Khandaker2MojoMedical(
     provides_trackers = False
 
     # Section 1: General Information
-    FN_PARTICIPANT_NUMBER = "participant_number"
     FN_DIAGNOSIS = "diagnosis"
     FN_DIAGNOSIS_DATE = "diagnosis_date"
     FN_HAS_FIBROMYALGIA = "has_fibromyalgia"
@@ -407,7 +398,6 @@ class Khandaker2MojoMedical(
     FN_FAMILY_OTHER_MENTAL_ILLNESS_DETAILS = "family_other_mental_illness_details"  # noqa
 
     MANDATORY_FIELD_NAMES = [
-        FN_PARTICIPANT_NUMBER,
         FN_DIAGNOSIS,
         FN_DIAGNOSIS_DATE,
         FN_HAS_FIBROMYALGIA,

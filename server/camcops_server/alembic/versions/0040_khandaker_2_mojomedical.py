@@ -30,7 +30,7 @@ khandaker_2_mojomedical
 
 Revision ID: 0040
 Revises: 0039
-Creation date: 2019-08-15 17:52:24.176293
+Creation date: 2019-08-16 17:49:35.784820
 
 """
 
@@ -62,7 +62,6 @@ depends_on = None
 def upgrade():
     op.create_table(
         'khandaker_2_mojomedical',
-        sa.Column('participant_number', sa.UnicodeText(), nullable=True, comment='Participant study number'),
         sa.Column('diagnosis', sa.Integer(), nullable=True, comment='Diagnosis (0 Rheumatoid Arthritis, 1 Ankylosing Spondylitis, 2 Sjögren’s Syndrome)'),
         sa.Column('diagnosis_date', sa.Date(), nullable=True, comment="Date of first diagnosis (may be approx from 'duration of illness (years))'"),
         sa.Column('has_fibromyalgia', sa.Boolean(), nullable=True, comment='Do you have a diagnosis of fibromyalgia?'),

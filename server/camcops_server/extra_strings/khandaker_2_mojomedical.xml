@@ -7,7 +7,6 @@
 
     <!-- Section 1: General Information -->
     <string name="general_information_title">Section 1: General Information</string>
-    <string name="q_participant_number">Participant study number:</string>
     <string name="q_diagnosis">Diagnosis:</string>
     <string name="diagnosis_0">Rheumatoid Arthritis</string>
     <string name="diagnosis_1">Ankylosing Spondylitis</string>
