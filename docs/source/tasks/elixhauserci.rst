@@ -52,15 +52,15 @@ History
   http://mchp-appserv.cpe.umanitoba.ca/viewConcept.php?printer=Y&conceptID=1436,
   including:
 
-- Quan H, Sundararajan V, Halfon P, Fong A, Burnand B, Luthi JC, Saunders LD,
-  Beck CA, Feasby TE, Ghali WA (2005).
-  Coding algorithms for defining comorbidities in ICD-9-CM and ICD-10
-  administrative data.
-  *Med Care.* 43: 1130-9.
-  https://www.ncbi.nlm.nih.gov/pubmed/16224307
+  - Quan H, Sundararajan V, Halfon P, Fong A, Burnand B, Luthi JC, Saunders LD,
+    Beck CA, Feasby TE, Ghali WA (2005).
+    Coding algorithms for defining comorbidities in ICD-9-CM and ICD-10
+    administrative data.
+    *Med Care.* 43: 1130-9.
+    https://www.ncbi.nlm.nih.gov/pubmed/16224307
 
-  [This paper extends Elixhauser et al. (1998) to ICD-10 codes, developing an
-  ICD-10 coding algorithm.]
+    [This paper extends Elixhauser et al. (1998) to ICD-10 codes, developing an
+    ICD-10 coding algorithm.]
 
 
 Source

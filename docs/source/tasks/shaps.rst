@@ -37,8 +37,8 @@ Intellectual property rights
 **TO BE ESTABLISHED**
 
 - "This scale may be reproduced under its proper title for personal use and
-  research. Reproduction Agree in any book or manual or for commercial purpose
-  must be negotiated with the British Journal of Psychiatry."
+  research. Reproduction in any book or manual or for commercial purpose must
+  be negotiated with the British Journal of Psychiatry."
 
   -- Snaith et al. (1995), as below.
 
