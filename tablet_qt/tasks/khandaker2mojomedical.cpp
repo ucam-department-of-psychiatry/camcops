@@ -128,7 +128,9 @@ Khandaker2MojoMedical::Khandaker2MojoMedical(
         CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, KHANDAKER2MOJOMEDICAL_TABLENAME,
          false, false, false),  // ... anon, clin, resp
-    m_questionnaire(nullptr)
+    m_questionnaire(nullptr),
+    m_fr_diagnosis_date(nullptr),
+    m_fr_diagnosis_years(nullptr)
 {
     // Section 1: General Information
     addField(FN_DIAGNOSIS, QVariant::Int);
@@ -279,16 +281,6 @@ OpenableWidget* Khandaker2MojoMedical::editor(const bool read_only)
                                             uiconst::BIGSPACE)));
     };
 
-    auto dateQuestion = [this, &page](const QString &fieldname) -> void {
-        page->addElement(new QuText(xstring(Q_XML_PREFIX + fieldname)));
-
-        auto date_time = new QuDateTime(fieldRef(fieldname));
-        date_time->setOfferNowButton(true);
-        page->addElement(date_time);
-        page->addElement(new QuSpacer(QSize(uiconst::BIGSPACE,
-                                            uiconst::BIGSPACE)));
-    };
-
     auto yesNoQuestion = [this, &page](const QString &fieldname) -> void {
         page->addElement(new QuText(xstring(Q_XML_PREFIX + fieldname)));
 
@@ -313,7 +305,28 @@ OpenableWidget* Khandaker2MojoMedical::editor(const bool read_only)
     page->addElement(new QuHeading(xstring("general_information_title")));
 
     multiChoiceQuestion(FN_DIAGNOSIS, 3);
-    dateQuestion(FN_DIAGNOSIS_DATE);
+
+    FieldRef::GetterFunction get_date = std::bind(
+        &Khandaker2MojoMedical::getDiagnosisDate, this);
+    FieldRef::GetterFunction get_years = std::bind(
+        &Khandaker2MojoMedical::getDurationOfIllness, this);
+    FieldRef::SetterFunction set_date = std::bind(
+        &Khandaker2MojoMedical::setDiagnosisDate, this, std::placeholders::_1);
+    FieldRef::SetterFunction set_years = std::bind(
+        &Khandaker2MojoMedical::setDurationOfIllness, this, std::placeholders::_1);
+
+    m_fr_diagnosis_date = FieldRefPtr(new FieldRef(get_date, set_date, false));
+    m_fr_diagnosis_years = FieldRefPtr(new FieldRef(get_years, set_years, false));
+
+    // We don't store duration of illness on the server
+    page->addElement(new QuText(xstring("q_duration_of_illness")));
+    page->addElement(new QuLineEditInteger(m_fr_diagnosis_years, 0, 150));
+    page->addElement(new QuText(xstring(Q_XML_PREFIX + FN_DIAGNOSIS_DATE)));
+    auto date_time = new QuDateTime(m_fr_diagnosis_date);
+    date_time->setOfferNowButton(true);
+    date_time->setMode(QuDateTime::Mode::DefaultDate);
+    page->addElement(date_time);
+    page->addElement(new QuSpacer(QSize(uiconst::BIGSPACE, uiconst::BIGSPACE)));
 
     page->addElement(new QuHeading(xstring("medical_history_title")));
     yesNoQuestion(FN_HAS_FIBROMYALGIA);
@@ -364,11 +377,70 @@ OpenableWidget* Khandaker2MojoMedical::editor(const bool read_only)
     m_questionnaire->setType(QuPage::PageType::Patient);
     m_questionnaire->setReadOnly(read_only);
 
-
-
     updateMandatory();
 
     return m_questionnaire;
+}
+
+QVariant Khandaker2MojoMedical::getDiagnosisDate() const
+{
+    return value(FN_DIAGNOSIS_DATE);
+}
+
+QVariant Khandaker2MojoMedical::getDurationOfIllness() const
+{
+    return m_diagnosis_years;
+}
+
+bool Khandaker2MojoMedical::setDiagnosisDate(const QVariant& value)
+{
+    const bool changed = setValue(FN_DIAGNOSIS_DATE, value);
+    if (changed) {
+        updateDurationOfIllness();
+    }
+
+    return changed;
+
+}
+
+bool Khandaker2MojoMedical::setDurationOfIllness(const QVariant& value)
+{
+    Q_ASSERT(m_fr_diagnosis_years);
+    const bool changed = value != m_diagnosis_years;
+    if (changed) {
+        m_diagnosis_years = value;
+        updateDiagnosisDate();
+    }
+
+    return changed;
+}
+
+
+void Khandaker2MojoMedical::updateDiagnosisDate()
+{
+    Q_ASSERT(m_fr_diagnosis_date);
+    if (m_diagnosis_years.isNull()) {
+        setValue(FN_DIAGNOSIS_DATE, QVariant());
+    } else {
+        const int years = m_diagnosis_years.toInt();
+        setValue(FN_DIAGNOSIS_DATE, QDate::currentDate().addYears(-years));
+    }
+    m_fr_diagnosis_date->emitValueChanged();
+}
+
+
+void Khandaker2MojoMedical::updateDurationOfIllness()
+{
+    Q_ASSERT(m_fr_diagnosis_years);
+    const QVariant diagnosis_date = value(FN_DIAGNOSIS_DATE);
+    if (diagnosis_date.isNull()) {
+        m_diagnosis_years.clear();
+    } else {
+        const int days = diagnosis_date.toDate().daysTo(QDate::currentDate());
+
+        m_diagnosis_years =  (int)floor(0.5 + days / 365.25);
+    }
+    m_fr_diagnosis_years->emitValueChanged();
 }
 
 

@@ -61,8 +61,24 @@ private:
 signals:
 public slots:
     void updateMandatory();
-public:
-    static const QString KHANDAKER2MOJOMEDICAL_TABLENAME;
 private:
     QPointer<Questionnaire> m_questionnaire;
+    // ------------------------------------------------------------------------
+    // Getters/setters
+    // ------------------------------------------------------------------------
+public:
+    QVariant getDurationOfIllness() const;
+    QVariant getDiagnosisDate() const;
+    bool setDiagnosisDate(const QVariant& value);
+    bool setDurationOfIllness(const QVariant& value);
+    void updateDiagnosisDate();
+    void updateDurationOfIllness();
+
+protected:
+    QVariant m_diagnosis_years;
+
+    FieldRefPtr m_fr_diagnosis_date;
+    FieldRefPtr m_fr_diagnosis_years;
+public:
+    static const QString KHANDAKER2MOJOMEDICAL_TABLENAME;
 };
