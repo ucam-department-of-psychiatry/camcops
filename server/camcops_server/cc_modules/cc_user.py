@@ -800,6 +800,27 @@ class User(Base):
         memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
         return [m.group_id for m in memberships if m.groupadmin]
 
+    @property
+    def names_of_groups_user_is_admin_for(self) -> List[str]:
+        """
+        Returns a list of group names for groups that the user is an
+        administrator for.
+        """
+        if self.superuser:
+            return Group.all_group_names(
+                dbsession=SqlASession.object_session(self))
+        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+        return [m.group.name for m in memberships if m.groupadmin]
+
+    @property
+    def names_of_groups_user_is_admin_for_csv(self) -> str:
+        """
+        Returns a list of group names for groups that the user is an
+        administrator for.
+        """
+        names = sorted(self.names_of_groups_user_is_admin_for)
+        return ", ".join(names)
+
     def may_administer_group(self, group_id: int) -> bool:
         """
         May this user administer the group identified by ``group_id``?

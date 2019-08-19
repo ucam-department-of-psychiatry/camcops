@@ -2409,6 +2409,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - HTML and PDF titles for tasks.
 
+- User list shows, for group administrators, which groups they administer.
+
 - **New task:** :ref:`Elixhauser Comorbidity Index (ElixhauserCI) <elixhauserci>`.
   (Database revision 0029.)
 

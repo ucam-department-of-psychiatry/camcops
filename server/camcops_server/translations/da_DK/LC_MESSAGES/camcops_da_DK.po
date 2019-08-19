@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CamCOPS 2.3.3\n"
 "Report-Msgid-Bugs-To: rudolf@pobox.com\n"
-"POT-Creation-Date: 2019-08-08 11:42+0100\n"
-"PO-Revision-Date: 2019-08-08 11:42+0100\n"
+"POT-Creation-Date: 2019-08-19 13:32+0100\n"
+"PO-Revision-Date: 2019-08-19 13:32+0100\n"
 "Last-Translator: \n"
 "Language: da_DK\n"
 "Language-Team: da_DK <LL@li.org>\n"
@@ -948,19 +948,19 @@ msgstr "Ja"
 msgid "consistent (no values)"
 msgstr "konsistent (ingen værdier)"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_user.py:1116
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_user.py:1137
 msgid "Nobody may edit the system user"
 msgstr "Ingen kan redigere systembrugeren"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_user.py:1119
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_user.py:1140
 msgid "You may not edit a superuser"
 msgstr "Du må ikke redigere en superbruger"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_user.py:1121
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_user.py:1142
 msgid "You may not edit a group administrator"
 msgstr "Du må ikke redigere en gruppeadministrator"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_user.py:1124
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_user.py:1145
 msgid "You are not a group administrator for any groups that this user is in"
 msgstr "Du er ikke gruppeadministrator for de grupper, som denne bruger er i"
 
@@ -2468,8 +2468,8 @@ msgid "Superuser."
 msgstr "Superbruger."
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:38
-msgid "Group administrator."
-msgstr "Gruppeadministrator."
+msgid "Group administrator"
+msgstr "Gruppeadministrator"
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:41
 msgid "Locked out;"
