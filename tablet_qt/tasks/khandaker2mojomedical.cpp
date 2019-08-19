@@ -25,11 +25,13 @@
 #include "lib/version.h"
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/questionnaire.h"
+#include "questionnairelib/questionwithonefield.h"
 #include "questionnairelib/qudatetime.h"
 #include "questionnairelib/quheading.h"
 #include "questionnairelib/qulineeditdouble.h"
 #include "questionnairelib/qulineeditinteger.h"
 #include "questionnairelib/qumcq.h"
+#include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/qupage.h"
 #include "questionnairelib/quspacer.h"
 #include "questionnairelib/qutext.h"
@@ -250,6 +252,10 @@ OpenableWidget* Khandaker2MojoMedical::editor(const bool read_only)
 {
     QuPagePtr page(new QuPage);
 
+    auto heading = [this, &page](const QString& xstringname) -> void {
+        page->addElement((new QuText(xstring(xstringname)))->setBold(true));
+    };
+
     auto textQuestion = [this, &page](const QString &fieldname) -> void {
         page->addElement(new QuText(xstring(Q_XML_PREFIX + fieldname)));
         page->addElement(new QuTextEdit(fieldRef(fieldname)));
@@ -300,9 +306,32 @@ OpenableWidget* Khandaker2MojoMedical::editor(const bool read_only)
                                             uiconst::BIGSPACE)));
     };
 
+    auto yesNoGrid = [this, &page](const QStringList fieldnames) -> void {
+        QVector<QuestionWithOneField> field_pairs;
+
+        for (const QString& fieldname : fieldnames) {
+            const QString& description = xstring(Q_XML_PREFIX + fieldname);
+            field_pairs.append(QuestionWithOneField(description,
+                                                    fieldRef(fieldname)));
+        }
+
+        auto grid = new QuMcqGrid(
+            field_pairs, CommonOptions::noYesBoolean()
+        );
+
+        grid->setWidth(8, {1, 1});
+
+        grid->setSubtitles({
+            {5, ""},
+            {10, ""},
+        });
+
+        page->addElement(grid);
+    };
+
     page->setTitle(description());
     page->addElement(new QuHeading(xstring("title")));
-    page->addElement(new QuHeading(xstring("general_information_title")));
+    heading("general_information_title");
 
     multiChoiceQuestion(FN_DIAGNOSIS, 3);
 
@@ -328,7 +357,8 @@ OpenableWidget* Khandaker2MojoMedical::editor(const bool read_only)
     page->addElement(date_time);
     page->addElement(new QuSpacer(QSize(uiconst::BIGSPACE, uiconst::BIGSPACE)));
 
-    page->addElement(new QuHeading(xstring("medical_history_title")));
+    heading("medical_history_title");
+
     yesNoQuestion(FN_HAS_FIBROMYALGIA);
     yesNoQuestion(FN_IS_PREGNANT);
     yesNoQuestion(FN_HAS_INFECTION_PAST_MONTH);
@@ -337,31 +367,42 @@ OpenableWidget* Khandaker2MojoMedical::editor(const bool read_only)
     multiChoiceQuestion(FN_SMOKING_STATUS, 3);
     doubleQuestion(FN_ALCOHOL_UNITS_PER_WEEK);
 
-    page->addElement(new QuHeading(xstring("medical_history_subtitle")));
-    yesNoQuestion(FN_DEPRESSION);
-    yesNoQuestion(FN_BIPOLAR_DISORDER);
-    yesNoQuestion(FN_SCHIZOPHRENIA);
-    yesNoQuestion(FN_AUTISM);
-    yesNoQuestion(FN_PTSD);
-    yesNoQuestion(FN_ANXIETY);
-    yesNoQuestion(FN_PERSONALITY_DISORDER);
-    yesNoQuestion(FN_INTELLECTUAL_DISABILITY);
-    yesNoQuestion(FN_OTHER_MENTAL_ILLNESS);
+    page->addElement(new QuText(xstring("medical_history_subtitle")));
+    yesNoGrid(
+        {
+            FN_DEPRESSION,
+            FN_BIPOLAR_DISORDER,
+            FN_SCHIZOPHRENIA,
+            FN_AUTISM,
+            FN_PTSD,
+            FN_ANXIETY,
+            FN_PERSONALITY_DISORDER,
+            FN_INTELLECTUAL_DISABILITY,
+            FN_OTHER_MENTAL_ILLNESS,
+        }
+    );
+
     textQuestion(FN_OTHER_MENTAL_ILLNESS_DETAILS);
     yesNoQuestion(FN_HOSPITALISED_IN_LAST_YEAR);
     textQuestion(FN_HOSPITALISATION_DETAILS);
 
-    page->addElement(new QuHeading(xstring("family_history_title")));
-    page->addElement(new QuHeading(xstring("family_history_subtitle")));
-    yesNoQuestion(FN_FAMILY_DEPRESSION);
-    yesNoQuestion(FN_FAMILY_BIPOLAR_DISORDER);
-    yesNoQuestion(FN_FAMILY_SCHIZOPHRENIA);
-    yesNoQuestion(FN_FAMILY_AUTISM);
-    yesNoQuestion(FN_FAMILY_PTSD);
-    yesNoQuestion(FN_FAMILY_ANXIETY);
-    yesNoQuestion(FN_FAMILY_PERSONALITY_DISORDER);
-    yesNoQuestion(FN_FAMILY_INTELLECTUAL_DISABILITY);
-    yesNoQuestion(FN_FAMILY_OTHER_MENTAL_ILLNESS);
+    heading("family_history_title");
+
+    page->addElement(new QuText(xstring("family_history_subtitle")));
+    yesNoGrid(
+        {
+            FN_FAMILY_DEPRESSION,
+            FN_FAMILY_BIPOLAR_DISORDER,
+            FN_FAMILY_SCHIZOPHRENIA,
+            FN_FAMILY_AUTISM,
+            FN_FAMILY_PTSD,
+            FN_FAMILY_ANXIETY,
+            FN_FAMILY_PERSONALITY_DISORDER,
+            FN_FAMILY_INTELLECTUAL_DISABILITY,
+            FN_FAMILY_OTHER_MENTAL_ILLNESS,
+        }
+    );
+
     textQuestion(FN_FAMILY_OTHER_MENTAL_ILLNESS_DETAILS);
 
     for (auto fieldname : DETAILS_FIELDS.keys()) {
