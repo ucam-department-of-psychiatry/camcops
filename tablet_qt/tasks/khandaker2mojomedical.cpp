@@ -307,9 +307,14 @@ OpenableWidget* Khandaker2MojoMedical::editor(const bool read_only)
 
     };
 
-    auto doubleQuestion = [this, &page](const QString &fieldname) -> void {
+    auto doubleQuestion = [this, &page](const QString &fieldname,
+                                        const QString &hint) -> void {
         page->addElement(new QuText(xstring(Q_XML_PREFIX + fieldname)));
-        page->addElement(new QuLineEditDouble(fieldRef(fieldname)));
+
+        auto line_edit_double = new QuLineEditDouble(fieldRef(fieldname));
+        line_edit_double->setHint(hint);
+
+        page->addElement(line_edit_double);
         page->addElement(new QuSpacer(QSize(uiconst::BIGSPACE,
                                             uiconst::BIGSPACE)));
     };
@@ -373,7 +378,7 @@ OpenableWidget* Khandaker2MojoMedical::editor(const bool read_only)
     yesNoQuestion(FN_HAD_INFECTION_TWO_MONTHS_PRECEDING);
     yesNoQuestion(FN_HAS_ALCOHOL_SUBSTANCE_DEPENDENCE);
     multiChoiceQuestion(FN_SMOKING_STATUS, 3);
-    doubleQuestion(FN_ALCOHOL_UNITS_PER_WEEK);
+    doubleQuestion(FN_ALCOHOL_UNITS_PER_WEEK, xstring("alcohol_units_hint"));
 
     page->addElement(new QuText(xstring("medical_history_subtitle")));
     yesNoGrid(

@@ -23,6 +23,7 @@
     <string name="smoking_status_1">Ex-smoker</string>
     <string name="smoking_status_2">Current smoker</string>
     <string name="q_alcohol_units_per_week">How much alcohol do you drink per week? (medium glass of wine = 2 units, pint of beer at 4.5% = 2.5 units, 25ml of spirits at 40% = 1 unit)</string>
+    <string name="alcohol_units_hint">Quantity (units) per week</string>
 
     <!-- Section 2: Medical History -->
     <string name="medical_history_title">Section 2: Medical History</string>
