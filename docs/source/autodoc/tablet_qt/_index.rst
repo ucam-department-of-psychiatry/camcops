@@ -762,6 +762,8 @@ tablet_qt
     tasks/referrersatisfactionspec.h.rst
     tasks/sfmpq2.cpp.rst
     tasks/sfmpq2.h.rst
+    tasks/shaps.cpp.rst
+    tasks/shaps.h.rst
     tasks/slums.cpp.rst
     tasks/slums.h.rst
     tasks/smast.cpp.rst

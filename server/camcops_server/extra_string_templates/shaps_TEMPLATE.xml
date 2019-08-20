@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="shaps">
+    <!-- Snaith–Hamilton Pleasure Scale -->
+
+    <string name="title_main">(title)</string>
+
+    <string name="instructions">(instructions)</string>
+
+    <string name="q1">(television)</string>
+    <string name="q2">(family)</string>
+    <string name="q3">(hobbies)</string>
+    <string name="q4">(meal)</string>
+    <string name="q5">(bath)</string>
+    <string name="q6">(flowers)</string>
+    <string name="q7">(smiling)</string>
+    <string name="q8">(smart)</string>
+    <string name="q9">(book)</string>
+    <string name="q10">(tea)</string>
+    <string name="q11">(sunny)</string>
+    <string name="q12">(landscape)</string>
+    <string name="q13">(helping)</string>
+    <string name="q14">(praise)</string>
+
+    <string name="strongly_disagree">Strongly disagree</string>
+    <string name="disagree">Disagree</string>
+    <string name="agree">Agree</string>
+    <string name="strongly_agree">Strongly agree</string>
+    <string name="definitely_agree">Definitely agree</string>
+  </task>
+</resources>

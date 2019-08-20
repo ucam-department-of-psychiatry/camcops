@@ -23,12 +23,12 @@
 Snaith–Hamilton Pleasure Scale (SHAPS)
 --------------------------------------
 
-.. include:: include_under_development.rst
 .. include:: include_data_collection_plus_local_upgrade.rst
 
-A scale to measure hedonic tone. 14 questions rated on a 4-point scale
-(definitely agree - definitely disagree). Scored 1 point for either "disagree"
-rating, 0 for either "agree" rating.
+A scale to measure hedonic tone. 14 questions rated on a 4-item scale
+(definitely agree - strongly disagree or strongly disagree - strongly agree).
+Scored 1 point for either "disagree" rating, 0 for either "agree" rating.
+Note that high scores represent low pleasure.
 
 
 Intellectual property rights
@@ -57,4 +57,3 @@ Source
 ~~~~~~
 
 - https://www.cambridge.org/core/services/aop-cambridge-core/content/view/26DC3D7340E222011A9902EDB65E1E31/S0007125000063868a.pdf/scale_for_the_assessment_of_hedonic_tone_the_snaithhamilton_pleasure_scale.pdf
-

@@ -33,6 +33,7 @@
 #include "tasks/mfi20.h"
 #include "tasks/qolbasic.h"
 #include "tasks/qolsg.h"
+#include "tasks/shaps.h"
 #include "tasks/suppsp.h"
 #include "taskxtra/cardinalexpdetcommon.h"
 
@@ -61,7 +62,7 @@ void ResearchMenu::makeItems()
         MAKE_TASK_MENU_ITEM(QolBasic::QOLBASIC_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(QolSG::QOLSG_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Suppsp::SUPPSP_TABLENAME, m_app),
-        // *** Snaith-Hamilton Pleasure Scale (SHAPS)
+        MAKE_TASK_MENU_ITEM(Shaps::SHAPS_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Mfi20::MFI20_TABLENAME, m_app),
 
 
