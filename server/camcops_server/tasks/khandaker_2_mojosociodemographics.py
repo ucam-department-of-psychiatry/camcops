@@ -288,10 +288,12 @@ class Khandaker2MojoSociodemographics(
         answer_text = self.xstring(req, f"{field_name}_option{answer}")
 
         if self.answered_other(field_name):
-            answer_text = "{} ({})".format(
-                answer_text,
-                getattr(self, f"other_{field_name}")
-            )
+            other_answer = getattr(self, f"other_{field_name}")
+
+            if not other_answer:
+                other_answer = "?"
+
+            answer_text = "{} ({})".format(answer_text, other_answer)
 
         return f"{answer} — {answer_text}"
 
