@@ -257,10 +257,18 @@ OpenableWidget* Khandaker2MojoMedical::editor(const bool read_only)
     };
 
     auto textQuestion = [this, &page](const QString &fieldname) -> void {
-        page->addElement(new QuText(xstring(Q_XML_PREFIX + fieldname)));
-        page->addElement(new QuTextEdit(fieldRef(fieldname)));
-        page->addElement(new QuSpacer(QSize(uiconst::BIGSPACE,
-                                            uiconst::BIGSPACE)));
+        auto text = new QuText(xstring(Q_XML_PREFIX + fieldname));
+        auto text_edit = new QuTextEdit(fieldRef(fieldname));
+        auto spacer = new QuSpacer(QSize(uiconst::BIGSPACE,
+                                         uiconst::BIGSPACE));
+
+        text->addTag(fieldname);
+        text_edit->addTag(fieldname);
+        spacer->addTag(fieldname);
+
+        page->addElement(text);
+        page->addElement(text_edit);
+        page->addElement(spacer);
     };
 
     auto getOptions = [this](const QString &fieldname,

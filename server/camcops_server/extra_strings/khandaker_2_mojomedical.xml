@@ -36,9 +36,9 @@
     <string name="q_personality_disorder">Personality disorder</string>
     <string name="q_intellectual_disability">Intellectual disability</string>
     <string name="q_other_mental_illness">Other</string>
-    <string name="q_other_mental_illness_details">If other, please list here:</string>
-    <string name="q_hospitalised_in_last_year">Have you had a physical or mental Illness requiring hospitalisation in the previous 12 months:</string>
-    <string name="q_hospitalisation_details">If yes, please list here (name of illness, number of hospitilisations and duration):</string>
+    <string name="q_other_mental_illness_details">Please list other conditions here:</string>
+    <string name="q_hospitalised_in_last_year">Have you had a physical or mental illness requiring hospitalisation in the previous 12 months:</string>
+    <string name="q_hospitalisation_details">Please list here (name of illness, number of hospitilisations and duration):</string>
 
     <!-- Section 3: Family history -->
     <string name="family_history_title">Section 3: Family history</string>
@@ -52,6 +52,6 @@
     <string name="q_family_personality_disorder">Personality disorder</string>
     <string name="q_family_intellectual_disability">Intellectual disability</string>
     <string name="q_family_other_mental_illness">Other</string>
-    <string name="q_family_other_mental_illness_details">If other, please list here:</string>
+    <string name="q_family_other_mental_illness_details">Please list other conditions here:</string>
   </task>
 </resources>
