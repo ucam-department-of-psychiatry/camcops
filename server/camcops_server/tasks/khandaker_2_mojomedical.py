@@ -33,7 +33,7 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Date, Float, Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
-from camcops_server.cc_modules.cc_html import tr_qa
+from camcops_server.cc_modules.cc_html import tr_qa, tr_span_col
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BoolColumn,
@@ -69,6 +69,14 @@ class Khandaker2MojoMedicalMetaclass(DeclarativeMeta):
                 cls.FN_DIAGNOSIS_DATE, Date,
                 comment=("Date of first diagnosis (may be approx from "
                          "'duration of illness (years))'")
+            )
+        )
+
+        setattr(
+            cls, cls.FN_DIAGNOSIS_DATE_APPROXIMATE,
+            BoolColumn(
+                cls.FN_DIAGNOSIS_DATE_APPROXIMATE,
+                comment=("True if diagnosis date was derived from duration")
             )
         )
 
@@ -363,6 +371,7 @@ class Khandaker2MojoMedical(
     # Section 1: General Information
     FN_DIAGNOSIS = "diagnosis"
     FN_DIAGNOSIS_DATE = "diagnosis_date"
+    FN_DIAGNOSIS_DATE_APPROXIMATE = "diagnosis_date_approximate"
     FN_HAS_FIBROMYALGIA = "has_fibromyalgia"
     FN_IS_PREGNANT = "is_pregnant"
     FN_HAS_INFECTION_PAST_MONTH = "has_infection_past_month"
@@ -397,7 +406,7 @@ class Khandaker2MojoMedical(
     FN_FAMILY_OTHER_MENTAL_ILLNESS = "family_other_mental_illness"
     FN_FAMILY_OTHER_MENTAL_ILLNESS_DETAILS = "family_other_mental_illness_details"  # noqa
 
-    MANDATORY_FIELD_NAMES = [
+    MANDATORY_FIELD_NAMES_1 = [
         FN_DIAGNOSIS,
         FN_DIAGNOSIS_DATE,
         FN_HAS_FIBROMYALGIA,
@@ -407,7 +416,9 @@ class Khandaker2MojoMedical(
         FN_HAS_ALCOHOL_SUBSTANCE_DEPENDENCE,
         FN_SMOKING_STATUS,
         FN_ALCOHOL_UNITS_PER_WEEK,
+    ]
 
+    MANDATORY_FIELD_NAMES_2 = [
         FN_DEPRESSION,
         FN_BIPOLAR_DISORDER,
         FN_SCHIZOPHRENIA,
@@ -418,7 +429,9 @@ class Khandaker2MojoMedical(
         FN_INTELLECTUAL_DISABILITY,
         FN_OTHER_MENTAL_ILLNESS,
         FN_HOSPITALISED_IN_LAST_YEAR,
+    ]
 
+    MANDATORY_FIELD_NAMES_3 = [
         FN_FAMILY_DEPRESSION,
         FN_FAMILY_BIPOLAR_DISORDER,
         FN_FAMILY_SCHIZOPHRENIA,
@@ -429,6 +442,10 @@ class Khandaker2MojoMedical(
         FN_FAMILY_INTELLECTUAL_DISABILITY,
         FN_FAMILY_OTHER_MENTAL_ILLNESS,
     ]
+
+    MANDATORY_FIELD_NAMES = (MANDATORY_FIELD_NAMES_1 +
+                             MANDATORY_FIELD_NAMES_2 +
+                             MANDATORY_FIELD_NAMES_3)
 
     # If the answer is yes to any of these, we need to have the details
     DETAILS_FIELDS = {
@@ -462,27 +479,23 @@ class Khandaker2MojoMedical(
         return True
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        rows = ""
+        heading_1 = self.xstring(req, "general_information_title")
 
-        for field_name in self.MANDATORY_FIELD_NAMES:
-            question_text = self.wxstring(req, f"q_{field_name}")
-            answer = getattr(self, field_name)
+        rows_1 = ""
+        for field_name in self.MANDATORY_FIELD_NAMES_1:
+            rows_1 += self.get_rows(req, field_name)
 
-            answer_text = answer
+        heading_2 = self.xstring(req, "medical_history_title")
 
-            if answer is not None and (
-                    field_name in self.MULTI_CHOICE_FIELD_NAMES):
-                answer_text = self.wxstring(req, f"{field_name}_{answer}")
+        rows_2 = ""
+        for field_name in self.MANDATORY_FIELD_NAMES_2:
+            rows_2 += self.get_rows(req, field_name)
 
-            rows += tr_qa(question_text, answer_text)
+        heading_3 = self.xstring(req, "family_history_title")
 
-            if answer and field_name in self.DETAILS_FIELDS:
-                details_field_name = self.DETAILS_FIELDS[field_name]
-                details_question_text = self.wxstring(
-                    req, f"q_{details_field_name}")
-                details_answer = getattr(self, details_field_name)
-
-                rows += tr_qa(details_question_text, details_answer)
+        rows_3 = ""
+        for field_name in self.MANDATORY_FIELD_NAMES_3:
+            rows_3 += self.get_rows(req, field_name)
 
         html = f"""
             <div class="{CssClass.SUMMARY}">
@@ -490,13 +503,62 @@ class Khandaker2MojoMedical(
                     {self.get_is_complete_tr(req)}
                 </table>
             </div>
+            <h3>{heading_1}</h3>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th width="60%">Question</th>
                     <th width="40%">Answer</th>
                 </tr>
-                {rows}
+                {rows_1}
+            </table>
+            <h3>{heading_2}</h3>
+            <table class="{CssClass.TASKDETAIL}">
+                <tr>
+                    <th width="60%">Question</th>
+                    <th width="40%">Answer</th>
+                </tr>
+                {rows_2}
+            </table>
+            <h3>{heading_3}</h3>
+            <table class="{CssClass.TASKDETAIL}">
+                <tr>
+                    <th width="60%">Question</th>
+                    <th width="40%">Answer</th>
+                </tr>
+                {rows_3}
             </table>
         """
 
         return html
+
+    def get_rows(self, req: CamcopsRequest, field_name: str) -> str:
+        rows = ""
+
+        question_text = self.xstring(req, f"q_{field_name}")
+        answer = getattr(self, field_name)
+
+        answer_text = answer
+
+        if answer is not None and (
+                field_name in self.MULTI_CHOICE_FIELD_NAMES):
+            answer_text = self.xstring(req, f"{field_name}_{answer}")
+
+        rows += tr_qa(question_text, answer_text)
+
+        if answer and field_name in self.DETAILS_FIELDS:
+            details_field_name = self.DETAILS_FIELDS[field_name]
+            details_question_text = self.xstring(
+                req, f"q_{details_field_name}")
+            details_answer = getattr(self, details_field_name)
+
+            rows += tr_qa(details_question_text, details_answer)
+
+        if field_name == self.FN_DIAGNOSIS_DATE:
+            rows += tr_qa(
+                self.xstring(
+                    req, f"q_{self.FN_DIAGNOSIS_DATE_APPROXIMATE}"
+                ),
+                getattr(self, self.FN_DIAGNOSIS_DATE_APPROXIMATE)
+            )
+
+        return rows

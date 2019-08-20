@@ -256,7 +256,7 @@ class Khandaker2MojoSociodemographics(
         rows = ""
 
         for field_name in self.MANDATORY_FIELD_NAMES:
-            question_text = self.wxstring(req, f"q_{field_name}")
+            question_text = self.xstring(req, f"q_{field_name}")
             answer_text = self.get_answer_text(req, field_name)
 
             rows += tr_qa(question_text, answer_text)
@@ -285,7 +285,7 @@ class Khandaker2MojoSociodemographics(
             # age is the only one that isn't multi-choice
             return answer
 
-        answer_text = self.wxstring(req, f"{field_name}_option{answer}")
+        answer_text = self.xstring(req, f"{field_name}_option{answer}")
 
         if self.answered_other(field_name):
             answer_text = "{} ({})".format(

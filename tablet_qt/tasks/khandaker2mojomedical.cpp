@@ -47,6 +47,7 @@ const QString Q_XML_PREFIX = "q_";
 // Section 1: General Information
 const QString FN_DIAGNOSIS("diagnosis");
 const QString FN_DIAGNOSIS_DATE("diagnosis_date");
+const QString FN_DIAGNOSIS_DATE_APPROXIMATE("diagnosis_date_approximate");
 const QString FN_HAS_FIBROMYALGIA("has_fibromyalgia");
 const QString FN_IS_PREGNANT("is_pregnant");
 const QString FN_HAS_INFECTION_PAST_MONTH("has_infection_past_month");
@@ -137,6 +138,7 @@ Khandaker2MojoMedical::Khandaker2MojoMedical(
     // Section 1: General Information
     addField(FN_DIAGNOSIS, QVariant::Int);
     addField(FN_DIAGNOSIS_DATE, QVariant::Date);
+    addField(FN_DIAGNOSIS_DATE_APPROXIMATE, QVariant::Bool);
     addField(FN_HAS_FIBROMYALGIA, QVariant::Bool);
     addField(FN_IS_PREGNANT, QVariant::Bool);
     addField(FN_HAS_INFECTION_PAST_MONTH, QVariant::Bool);
@@ -361,8 +363,9 @@ OpenableWidget* Khandaker2MojoMedical::editor(const bool read_only)
     m_fr_diagnosis_years = FieldRefPtr(new FieldRef(get_years, set_years, false));
 
     // We don't store duration of illness on the server
-    page->addElement(new QuText(xstring("q_duration_of_illness")));
+    page->addElement(new QuText(xstring("duration_of_illness")));
     page->addElement(new QuLineEditInteger(m_fr_diagnosis_years, 0, 150));
+    page->addElement(new QuText(xstring("or")));
     page->addElement(new QuText(xstring(Q_XML_PREFIX + FN_DIAGNOSIS_DATE)));
     auto date_time = new QuDateTime(m_fr_diagnosis_date);
     date_time->setOfferNowButton(true);
@@ -450,6 +453,7 @@ bool Khandaker2MojoMedical::setDiagnosisDate(const QVariant& value)
 {
     const bool changed = setValue(FN_DIAGNOSIS_DATE, value);
     if (changed) {
+        setValue(FN_DIAGNOSIS_DATE_APPROXIMATE, false);
         updateDurationOfIllness();
     }
 
@@ -463,6 +467,7 @@ bool Khandaker2MojoMedical::setDurationOfIllness(const QVariant& value)
     const bool changed = value != m_diagnosis_years;
     if (changed) {
         m_diagnosis_years = value;
+        setValue(FN_DIAGNOSIS_DATE_APPROXIMATE, true);
         updateDiagnosisDate();
     }
 
