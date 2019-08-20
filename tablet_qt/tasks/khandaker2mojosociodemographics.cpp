@@ -233,7 +233,8 @@ OpenableWidget* Khandaker2MojoSociodemographics::editor(const bool read_only)
 }
 
 
-bool Khandaker2MojoSociodemographics::answeredOther(const K2QInfo info) const {
+bool Khandaker2MojoSociodemographics::answeredOther(const K2QInfo info) const
+{
     // For this task, the 'other' option is always the last one
     const int answer = valueInt(info.getFieldname());
 
@@ -242,8 +243,8 @@ bool Khandaker2MojoSociodemographics::answeredOther(const K2QInfo info) const {
 
 
 NameValueOptions Khandaker2MojoSociodemographics::getOptions(
-    const K2QInfo info) const {
-
+    const K2QInfo info) const
+{
     NameValueOptions options;
 
     for (int i = 0; i <= info.getMaxOption(); i++) {
@@ -255,13 +256,15 @@ NameValueOptions Khandaker2MojoSociodemographics::getOptions(
 }
 
 QString Khandaker2MojoSociodemographics::getOptionName(
-    const K2QInfo info, const int index) const {
+    const K2QInfo info, const int index) const
+{
     return xstring(QString("%1_option%2").arg(info.getFieldname()).arg(index));
 }
 
 
 QString Khandaker2MojoSociodemographics::getAnswerText(
-    const K2QInfo info) const {
+    const K2QInfo info) const
+{
     if (valueIsNull(info.getFieldname())) {
         return convert::NULL_STR;
     }
