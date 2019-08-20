@@ -58,6 +58,10 @@ Intellectual property rights
 Publishing Group and European League Against Rheumatism, but status of task
 itself less clear.
 
+Braun et al. (2014, p. S-100) state "Another major difference between BASDAI
+and ASDAS is that the latter is entirely in the public domain..."; the last
+author (van der Heijde) is also the last author of the original article.
+
 
 History
 ~~~~~~~
@@ -68,6 +72,14 @@ History
   with ankylosing spondylitis.
   *Ann Rheum Dis.* 68: 18-24.
   https://www.ncbi.nlm.nih.gov/pubmed/18625618
+
+For copyright status, see also:
+
+- Braun J, Kiltz U, Baraliakos X, van der Heijde D (2014).
+  Optimisation of rheumatology assessments - the actual situation in axial
+  spondyloarthritis including ankylosing spondylitis.
+  *Clin Exp Rheumatol.* 32(5 Suppl 85): S96-S104.
+  https://www.ncbi.nlm.nih.gov/pubmed/25365096
 
 
 Source
