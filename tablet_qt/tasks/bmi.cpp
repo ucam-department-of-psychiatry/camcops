@@ -107,7 +107,7 @@ QString Bmi::longname() const
 
 QString Bmi::description() const
 {
-    return tr("Mass, height, waist circumference.");
+    return tr("Mass, height, BMI; also waist circumference.");
 }
 
 
@@ -126,7 +126,7 @@ QStringList Bmi::summary() const
 {
     QStringList lines;
 
-    lines.append(QString("%1 kg, %2 m; BMI = %3 kg/m^2; %4")
+    lines.append(QString("%1 kg, %2 m; BMI = %3 kg/m^2; %4.")
                  .arg(prettyValue(FN_MASS_KG),
                       prettyValue(FN_HEIGHT_M),
                       bmiString(),
@@ -134,7 +134,7 @@ QStringList Bmi::summary() const
     );
 
     if (!valueIsNullOrEmpty(FN_WAIST_CM)) {
-        lines.append(QString("%1 %2 cm")
+        lines.append(QString("%1 %2 cm.")
                      .arg(tr("Waist circumference:"),
                           prettyValue(FN_WAIST_CM)));
     }
@@ -246,6 +246,7 @@ OpenableWidget* Bmi::editor(const bool read_only)
         // --------------------------------------------------------------------
         // Waist circumference
         // --------------------------------------------------------------------
+        new QuText(xstring("optional")),
         heading("title_5"),
         choose_units(m_fr_waist_units, options_waist_units),
         heading("title_6"),
