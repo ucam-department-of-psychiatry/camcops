@@ -47,6 +47,8 @@ const int AGREE = 2;
 const int STRONGLY_OR_DEFINITELY_AGREE = 3;
 
 const QVector<QVariant> SCORING_RESPONSES{STRONGLY_DISAGREE, DISAGREE};
+const QVector<int> REVERSE_QUESTIONS{2, 4, 5, 7, 9, 12, 14};
+
 
 const QString Shaps::SHAPS_TABLENAME("shaps");
 
@@ -57,7 +59,7 @@ void initializeShaps(TaskFactory& factory)
 
 
 Shaps::Shaps(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, SHAPS_TABLENAME, false, true, false),  // ... anon, clin, resp
+    Task(app, db, SHAPS_TABLENAME, false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
     addFields(fieldNames(), QVariant::Int);
@@ -110,13 +112,7 @@ bool Shaps::isComplete() const
 
 int Shaps::totalScore() const
 {
-    // countWhere evaluates null as 0
-    if (!isComplete()) {
-        return 0;
-    }
-
-    QVector<QVariant> responses = values(fieldNames());
-
+    const QVector<QVariant> responses = values(fieldNames());
     return countWhere(responses, SCORING_RESPONSES);
 }
 
@@ -159,9 +155,10 @@ QStringList Shaps::detail() const
     for (int q_number = 1; q_number <= N_QUESTIONS; q_number++) {
         const QString fieldname = strnum(QPREFIX, q_number);
         lines.append(
-            QString("%1. %2 - %3").arg(
+            QString("%1. %2 %3 (%4)").arg(
                 QString::number(q_number),
                 xstring(fieldname),
+                getAnswerText(q_number, fieldname),
                 QString::number(scoreResponse(fieldname))
             )
         );
@@ -171,6 +168,29 @@ QStringList Shaps::detail() const
     lines += summary();
 
     return lines;
+}
+
+
+QString Shaps::getAnswerText(int q_number, const QString& fieldname) const
+{
+    const QVariant response = value(fieldname);
+    if (response.isNull()) {
+        return "?";
+    }
+    switch (response.toInt()) {
+    case STRONGLY_DISAGREE:
+        return xstring("strongly_disagree");
+    case DISAGREE:
+        return xstring("disagree");
+    case AGREE:
+        return xstring("agree");
+    case STRONGLY_OR_DEFINITELY_AGREE:
+        return REVERSE_QUESTIONS.contains(q_number)
+                ? xstring("definitely_agree")
+                : xstring("strongly_disagree");
+    default:
+        return "?";
+    }
 }
 
 
@@ -190,8 +210,6 @@ OpenableWidget* Shaps::editor(const bool read_only)
         {xstring("strongly_disagree"), STRONGLY_DISAGREE},
     };
 
-    const QVector<int> reverse_questions{2, 4, 5, 7, 9, 12, 14};
-
     m_questionnaire = new Questionnaire(m_app);
     QuPagePtr page((new QuPage{
         new QuText(xstring("instructions")),
@@ -201,14 +219,14 @@ OpenableWidget* Shaps::editor(const bool read_only)
     m_questionnaire->addPage(page);
 
     for (int q_number = 1; q_number <= N_QUESTIONS; q_number++) {
-        NameValueOptions options = agreement_options;
-
-        if (reverse_questions.contains(q_number)) {
-            options = reverse_agreement_options;
-        }
+        const NameValueOptions options = REVERSE_QUESTIONS.contains(q_number)
+                ? reverse_agreement_options
+                : agreement_options;
 
         const QString fieldname = strnum(QPREFIX, q_number);
-        page->addElement(new QuText(xstring(fieldname)));
+        page->addElement(new QuText(QString("%1. %2").arg(
+                                        QString::number(q_number),
+                                        xstring(fieldname))));
         page->addElement(new QuMcq(fieldRef(fieldname), options));
         page->addElement(new QuSpacer(QSize(uiconst::BIGSPACE, uiconst::BIGSPACE)));
     }

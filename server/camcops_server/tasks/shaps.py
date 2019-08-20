@@ -27,23 +27,24 @@ camcops_server/tasks/shaps.py
 **Snaith–Hamilton Pleasure Scale (SHAPS) task.**
 
 """
+
+from typing import Any, Dict, List, Type, Tuple
+
+from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy import Integer
+from sqlalchemy.ext.declarative import DeclarativeMeta
+
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import tr_qa, tr, answer
 from camcops_server.cc_modules.cc_request import CamcopsRequest
-
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import (
     get_from_dict,
     TaskHasPatientMixin,
-    TaskHasClinicianMixin,
     Task,
 )
 from camcops_server.cc_modules.cc_text import SS
-from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy import Integer
-from sqlalchemy.ext.declarative import DeclarativeMeta
-from typing import List, Type, Tuple, Dict, Any
 
 
 class ShapsMetaclass(DeclarativeMeta):
@@ -79,7 +80,6 @@ class ShapsMetaclass(DeclarativeMeta):
 
 
 class Shaps(TaskHasPatientMixin,
-            TaskHasClinicianMixin,
             Task,
             metaclass=ShapsMetaclass):
     __tablename__ = "shaps"
@@ -121,21 +121,22 @@ class Shaps(TaskHasPatientMixin,
 
     def total_score(self) -> int:
         # Consistent with client implementation
-        # Probably not helpful to record total for incomplete questionnaire
-        if not self.is_complete():
-            return 0
-
         return self.count_where(self.ALL_QUESTIONS,
                                 [self.STRONGLY_DISAGREE, self.DISAGREE])
 
     def get_task_html(self, req: CamcopsRequest) -> str:
+        strongly_disagree = self.wxstring(req, "strongly_disagree")
+        disagree = self.wxstring(req, "disagree")
+        agree = self.wxstring(req, "agree")
+
         # We store the actual answers given but these are scored 1 or 0
         forward_answer_dict = {
             None: None,
-            self.STRONGLY_DISAGREE: "1 — " + self.wxstring(req, "strongly_disagree"),
-            self.DISAGREE: "1 — " + self.wxstring(req, "disagree"),
-            self.AGREE: "0 — " + self.wxstring(req, "agree"),
-            self.STRONGLY_OR_DEFINITELY_AGREE: "0 — " + self.wxstring(req, "strongly_agree")
+            self.STRONGLY_DISAGREE: "1 — " + strongly_disagree,
+            self.DISAGREE: "1 — " + disagree,
+            self.AGREE: "0 — " + agree,
+            self.STRONGLY_OR_DEFINITELY_AGREE: "0 — " + self.wxstring(
+                req, "strongly_agree")
         }
 
         # Subtle difference in wording when options presented in reverse
@@ -143,10 +144,9 @@ class Shaps(TaskHasPatientMixin,
             None: None,
             self.STRONGLY_OR_DEFINITELY_AGREE: "0 — " + self.wxstring(
                 req, "definitely_agree"),
-            self.AGREE: "0 — " + self.wxstring(req, "agree"),
-            self.DISAGREE: "1 — " + self.wxstring(req, "disagree"),
-            self.STRONGLY_DISAGREE: "1 — " + self.wxstring(
-                req, "strongly_disagree")
+            self.AGREE: "0 — " + agree,
+            self.DISAGREE: "1 — " + disagree,
+            self.STRONGLY_DISAGREE: "1 — " + strongly_disagree
         }
 
         rows = ""
@@ -177,8 +177,8 @@ class Shaps(TaskHasPatientMixin,
                 {rows}
             </table>
             <div class="{CssClass.FOOTNOTES}">
-                [1] Score 1 point for either 'disagree' option,
-                    0 points for either 'agree' option.
+                [1] Score 1 point for either ‘disagree’ option,
+                    0 points for either ‘agree’ option.
             </div>
         """.format(
             CssClass=CssClass,

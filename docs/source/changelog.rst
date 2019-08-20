@@ -2402,6 +2402,13 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Bugfix: group editing page crashed if no ID numbers defined. Changed in
   :func:`camcops_server.cc_modules.TokenizedPolicy.set_valid_idnums`.
 
+- Bugfix: client C++ functions ``mathfunc::countWhere()`` and
+  ``mathfunc::countWhereNot()`` now respect NULL values, via
+  ``mathfunc::containsRespectingNull()``. This behaviour now matches
+  :meth:`camcops_server.cc_modules.cc_task.Task.count_where` and
+  :meth:`camcops_server.cc_modules.cc_task.Task.count_wherenot`. Applicable to
+  the :ref:`SHAPS <shaps>` task.
+
 - **New task:** :ref:`Elixhauser Comorbidity Index (ElixhauserCI) <elixhauserci>`.
   (Database revision 0029.)
 
