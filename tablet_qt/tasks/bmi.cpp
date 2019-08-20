@@ -39,12 +39,16 @@ const QString Bmi::BMI_TABLENAME("bmi");
 
 const QString FN_MASS_KG("mass_kg");
 const QString FN_HEIGHT_M("height_m");
+const QString FN_WAIST_CM("waist_cm");
 const QString FN_COMMENT("comment");
 
 const QString TAG_MASS_METRIC("mass_metric");
 const QString TAG_MASS_IMPERIAL("mass_imperial");
 const QString TAG_HEIGHT_METRIC("height_metric");
 const QString TAG_HEIGHT_IMPERIAL("height_imperial");
+const QString TAG_WAIST_METRIC("waist_metric");
+const QString TAG_WAIST_IMPERIAL("waist_imperial");
+
 // const int BMI_DP = 2;
 const int METRIC = 0;
 const int IMPERIAL = 1;
@@ -62,16 +66,23 @@ Bmi::Bmi(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     m_questionnaire(nullptr),
     m_height_units(METRIC),
     m_mass_units(METRIC),
+    m_waist_units(METRIC),
+    m_fr_height_units(nullptr),
     m_fr_height_m(nullptr),
     m_fr_height_ft(nullptr),
     m_fr_height_in(nullptr),
+    m_fr_mass_units(nullptr),
     m_fr_mass_kg(nullptr),
     m_fr_mass_st(nullptr),
     m_fr_mass_lb(nullptr),
-    m_fr_mass_oz(nullptr)
+    m_fr_mass_oz(nullptr),
+    m_fr_waist_units(nullptr),
+    m_fr_waist_cm(nullptr),
+    m_fr_waist_in(nullptr)
 {
     addField(FN_MASS_KG, QVariant::Double);
     addField(FN_HEIGHT_M, QVariant::Double);
+    addField(FN_WAIST_CM, QVariant::Double);
     addField(FN_COMMENT, QVariant::String);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
@@ -96,7 +107,7 @@ QString Bmi::longname() const
 
 QString Bmi::description() const
 {
-    return tr("Mass, height.");
+    return tr("Mass, height, BMI; also waist circumference.");
 }
 
 
@@ -106,25 +117,35 @@ QString Bmi::description() const
 
 bool Bmi::isComplete() const
 {
+    // Waist circumference optional
     return noneNull(values({FN_MASS_KG, FN_HEIGHT_M}));
 }
 
 
 QStringList Bmi::summary() const
 {
-    QString commenttext;
-    if (!valueIsNullOrEmpty(FN_COMMENT)) {
-        commenttext = QString(" (%1 %2)")
-                .arg(tr("Comments:"),
-                     valueString(FN_COMMENT));
+    QStringList lines;
+
+    lines.append(QString("%1 kg, %2 m; BMI = %3 kg/m^2; %4.")
+                 .arg(prettyValue(FN_MASS_KG),
+                      prettyValue(FN_HEIGHT_M),
+                      bmiString(),
+                      category())
+    );
+
+    if (!valueIsNullOrEmpty(FN_WAIST_CM)) {
+        lines.append(QString("%1 %2 cm.")
+                     .arg(tr("Waist circumference:"),
+                          prettyValue(FN_WAIST_CM)));
     }
-    const QString s = QString("%1 kg, %2 m; BMI = %3 kg/m^2; %4%5")
-            .arg(prettyValue(FN_MASS_KG),
-                 prettyValue(FN_HEIGHT_M),
-                 bmiString(),
-                 category(),
-                 commenttext);
-    return QStringList{s};
+
+    if (!valueIsNullOrEmpty(FN_COMMENT)) {
+        lines.append(QString("%1 %2")
+                     .arg(tr("Comments:"),
+                          valueString(FN_COMMENT)));
+    }
+
+    return lines;
 }
 
 
@@ -146,40 +167,13 @@ OpenableWidget* Bmi::editor(const bool read_only)
                 ->setAsTextButton(true);
     };
 
-    // Internal plumbing:
-    // - We want imperial units to update when metric values are changed, and
-    //   vice versa.
-    // - We can't set up an infinite loop, though, e.g.
-    //      metres.valueChanged() -> feet.valueChanged()
-    //      feet.valueChanged() -> metres.valueChanged()
-    // - The other obvious way is to hold onto a member copy of the fieldrefs,
-    //   and manually cause them to emit valueChanged() at approriate times.
-    //
-    // BEWARE the consequences of floating-point error, e.g.
-    // - 7 st 12 lb 0 oz -> 49.8951 kg
-    // - 49.8951 kg -> 7 st 11 lb 0.999779 oz
-    // ... the potential change in OTHER units means that all parts must be
-    // updated, OR, a little more elegantly, internal records of the imperial
-    // units kept.
-
     // Height
     const NameValueOptions options_height_units{
         {xstring("metric_height"), METRIC},
         {xstring("imperial_height"), IMPERIAL},
         {xstring("units_both"), BOTH},
     };
-    FieldRef::GetterFunction get_height_units = std::bind(&Bmi::getHeightUnits, this);
-    FieldRef::GetterFunction get_m = std::bind(&Bmi::getHeightM, this);
-    FieldRef::GetterFunction get_ft = std::bind(&Bmi::getHeightFt, this);
-    FieldRef::GetterFunction get_in = std::bind(&Bmi::getHeightIn, this);
-    FieldRef::SetterFunction set_height_units = std::bind(&Bmi::setHeightUnits, this, std::placeholders::_1);
-    FieldRef::SetterFunction set_m = std::bind(&Bmi::setHeightM, this, std::placeholders::_1);
-    FieldRef::SetterFunction set_ft = std::bind(&Bmi::setHeightFt, this, std::placeholders::_1);
-    FieldRef::SetterFunction set_in = std::bind(&Bmi::setHeightIn, this, std::placeholders::_1);
-    FieldRefPtr fr_height_units(new FieldRef(get_height_units, set_height_units, true));
-    m_fr_height_m = FieldRefPtr(new FieldRef(get_m, set_m, true));
-    m_fr_height_ft = FieldRefPtr(new FieldRef(get_ft, set_ft, true));
-    m_fr_height_in = FieldRefPtr(new FieldRef(get_in, set_in, true));
+    setUpHeightFields();
 
     // Mass
     const NameValueOptions options_mass_units{
@@ -187,21 +181,15 @@ OpenableWidget* Bmi::editor(const bool read_only)
         {xstring("imperial_mass"), IMPERIAL},
         {xstring("units_both"), BOTH},
     };
-    FieldRef::GetterFunction get_mass_units = std::bind(&Bmi::getMassUnits, this);
-    FieldRef::GetterFunction get_kg = std::bind(&Bmi::getMassKg, this);
-    FieldRef::GetterFunction get_st = std::bind(&Bmi::getMassSt, this);
-    FieldRef::GetterFunction get_lb = std::bind(&Bmi::getMassLb, this);
-    FieldRef::GetterFunction get_oz = std::bind(&Bmi::getMassOz, this);
-    FieldRef::SetterFunction set_mass_units = std::bind(&Bmi::setMassUnits, this, std::placeholders::_1);
-    FieldRef::SetterFunction set_kg = std::bind(&Bmi::setMassKg, this, std::placeholders::_1);
-    FieldRef::SetterFunction set_st = std::bind(&Bmi::setMassSt, this, std::placeholders::_1);
-    FieldRef::SetterFunction set_lb = std::bind(&Bmi::setMassLb, this, std::placeholders::_1);
-    FieldRef::SetterFunction set_oz = std::bind(&Bmi::setMassOz, this, std::placeholders::_1);
-    FieldRefPtr fr_mass_units(new FieldRef(get_mass_units, set_mass_units, true));
-    m_fr_mass_kg = FieldRefPtr(new FieldRef(get_kg, set_kg, true));
-    m_fr_mass_st = FieldRefPtr(new FieldRef(get_st, set_st, true));
-    m_fr_mass_lb = FieldRefPtr(new FieldRef(get_lb, set_lb, true));
-    m_fr_mass_oz = FieldRefPtr(new FieldRef(get_oz, set_oz, true));
+    setUpMassFields();
+
+    // Waist circumference
+    const NameValueOptions options_waist_units{
+        {xstring("metric_waist"), METRIC},
+        {xstring("imperial_waist"), IMPERIAL},
+        {xstring("units_both"), BOTH},
+    };
+    setUpWaistFields();
 
     // Comments
     FieldRefPtr fr_comment = fieldRef(FN_COMMENT, false);
@@ -211,7 +199,7 @@ OpenableWidget* Bmi::editor(const bool read_only)
         // Height
         // --------------------------------------------------------------------
         heading("title_1"),
-        choose_units(fr_height_units, options_height_units),
+        choose_units(m_fr_height_units, options_height_units),
         heading("title_2"),
         questionnairefunc::defaultGridRawPointer({
             {
@@ -233,7 +221,7 @@ OpenableWidget* Bmi::editor(const bool read_only)
         // Mass
         // --------------------------------------------------------------------
         heading("title_3"),
-        choose_units(fr_mass_units, options_mass_units),
+        choose_units(m_fr_mass_units, options_mass_units),
         heading("title_4"),
         questionnairefunc::defaultGridRawPointer({
             {
@@ -256,27 +244,114 @@ OpenableWidget* Bmi::editor(const bool read_only)
             },
         }, 1, 1)->addTag(TAG_MASS_IMPERIAL),
         // --------------------------------------------------------------------
+        // Waist circumference
+        // --------------------------------------------------------------------
+        new QuText(xstring("optional")),
+        heading("title_5"),
+        choose_units(m_fr_waist_units, options_waist_units),
+        heading("title_6"),
+        questionnairefunc::defaultGridRawPointer({
+            {
+                xstring("cm"),
+                new QuLineEditDouble(m_fr_waist_cm, 0, 600, 1),
+            },
+        }, 1, 1)->addTag(TAG_WAIST_METRIC),
+        questionnairefunc::defaultGridRawPointer({
+            {
+                xstring("in"),
+                new QuLineEditDouble(m_fr_waist_in, 0, 236, 1),
+            },
+        }, 1, 1)->addTag(TAG_WAIST_IMPERIAL),
+
+        // --------------------------------------------------------------------
         // Comments
         // --------------------------------------------------------------------
         (new QuText(TextConst::comments()))->setBold(true),
         new QuTextEdit(fr_comment),
     })->setTitle(longname()));
 
-    connect(fr_mass_units.data(), &FieldRef::valueChanged,
+    // Internal plumbing:
+    // - We want imperial units to update when metric values are changed, and
+    //   vice versa.
+    // - We can't set up an infinite loop, though, e.g.
+    //      metres.valueChanged() -> feet.valueChanged()
+    //      feet.valueChanged() -> metres.valueChanged()
+    // - The other obvious way is to hold onto a member copy of the fieldrefs,
+    //   and manually cause them to emit valueChanged() at approriate times.
+    //
+    // BEWARE the consequences of floating-point error, e.g.
+    // - 7 st 12 lb 0 oz -> 49.8951 kg
+    // - 49.8951 kg -> 7 st 11 lb 0.999779 oz
+    // ... the potential change in OTHER units means that all parts must be
+    // updated, OR, a little more elegantly, internal records of the imperial
+    // units kept.
+    connect(m_fr_mass_units.data(), &FieldRef::valueChanged,
             this, &Bmi::massUnitsChanged);
-    connect(fr_height_units.data(), &FieldRef::valueChanged,
+    connect(m_fr_height_units.data(), &FieldRef::valueChanged,
             this, &Bmi::heightUnitsChanged);
+    connect(m_fr_waist_units.data(), &FieldRef::valueChanged,
+            this, &Bmi::waistUnitsChanged);
 
     m_questionnaire = new Questionnaire(m_app, {page});
     m_questionnaire->setType(QuPage::PageType::Clinician);
     m_questionnaire->setReadOnly(read_only);
     updateImperialHeight();
     updateImperialMass();
+    updateImperialWaist();
     massUnitsChanged();
     heightUnitsChanged();
+    waistUnitsChanged();
+
     return m_questionnaire;
 }
 
+void Bmi::setUpHeightFields()
+{
+    FieldRef::GetterFunction get_height_units = std::bind(&Bmi::getHeightUnits, this);
+    FieldRef::GetterFunction get_m = std::bind(&Bmi::getHeightM, this);
+    FieldRef::GetterFunction get_ft = std::bind(&Bmi::getHeightFt, this);
+    FieldRef::GetterFunction get_in = std::bind(&Bmi::getHeightIn, this);
+    FieldRef::SetterFunction set_height_units = std::bind(&Bmi::setHeightUnits, this, std::placeholders::_1);
+    FieldRef::SetterFunction set_m = std::bind(&Bmi::setHeightM, this, std::placeholders::_1);
+    FieldRef::SetterFunction set_ft = std::bind(&Bmi::setHeightFt, this, std::placeholders::_1);
+    FieldRef::SetterFunction set_in = std::bind(&Bmi::setHeightIn, this, std::placeholders::_1);
+    m_fr_height_units = FieldRefPtr(new FieldRef(get_height_units, set_height_units, true));
+    m_fr_height_m = FieldRefPtr(new FieldRef(get_m, set_m, true));
+    m_fr_height_ft = FieldRefPtr(new FieldRef(get_ft, set_ft, true));
+    m_fr_height_in = FieldRefPtr(new FieldRef(get_in, set_in, true));
+}
+
+void Bmi::setUpMassFields()
+{
+    FieldRef::GetterFunction get_mass_units = std::bind(&Bmi::getMassUnits, this);
+    FieldRef::GetterFunction get_kg = std::bind(&Bmi::getMassKg, this);
+    FieldRef::GetterFunction get_st = std::bind(&Bmi::getMassSt, this);
+    FieldRef::GetterFunction get_lb = std::bind(&Bmi::getMassLb, this);
+    FieldRef::GetterFunction get_oz = std::bind(&Bmi::getMassOz, this);
+    FieldRef::SetterFunction set_mass_units = std::bind(&Bmi::setMassUnits, this, std::placeholders::_1);
+    FieldRef::SetterFunction set_kg = std::bind(&Bmi::setMassKg, this, std::placeholders::_1);
+    FieldRef::SetterFunction set_st = std::bind(&Bmi::setMassSt, this, std::placeholders::_1);
+    FieldRef::SetterFunction set_lb = std::bind(&Bmi::setMassLb, this, std::placeholders::_1);
+    FieldRef::SetterFunction set_oz = std::bind(&Bmi::setMassOz, this, std::placeholders::_1);
+    m_fr_mass_units = FieldRefPtr(new FieldRef(get_mass_units, set_mass_units, true));
+    m_fr_mass_kg = FieldRefPtr(new FieldRef(get_kg, set_kg, true));
+    m_fr_mass_st = FieldRefPtr(new FieldRef(get_st, set_st, true));
+    m_fr_mass_lb = FieldRefPtr(new FieldRef(get_lb, set_lb, true));
+    m_fr_mass_oz = FieldRefPtr(new FieldRef(get_oz, set_oz, true));
+}
+
+void Bmi::setUpWaistFields()
+{
+    FieldRef::GetterFunction get_waist_units = std::bind(&Bmi::getWaistUnits, this);
+    FieldRef::GetterFunction get_cm = std::bind(&Bmi::getWaistCm, this);
+    FieldRef::GetterFunction get_in = std::bind(&Bmi::getWaistIn, this);
+    FieldRef::SetterFunction set_waist_units = std::bind(&Bmi::setWaistUnits, this, std::placeholders::_1);
+    FieldRef::SetterFunction set_cm = std::bind(&Bmi::setWaistCm, this, std::placeholders::_1);
+    FieldRef::SetterFunction set_in = std::bind(&Bmi::setWaistIn, this, std::placeholders::_1);
+    m_fr_waist_units = FieldRefPtr(new FieldRef(get_waist_units, set_waist_units, false));
+    m_fr_waist_cm = FieldRefPtr(new FieldRef(get_cm, set_cm, false));
+    m_fr_waist_in = FieldRefPtr(new FieldRef(get_in, set_in, false));
+}
 
 // ============================================================================
 // Task-specific calculations
@@ -379,6 +454,23 @@ void Bmi::heightUnitsChanged()
     Q_ASSERT(imperial || metric);
     m_questionnaire->setVisibleByTag(TAG_HEIGHT_IMPERIAL, imperial, false);
     m_questionnaire->setVisibleByTag(TAG_HEIGHT_METRIC, metric, false);
+}
+
+
+void Bmi::waistUnitsChanged()
+{
+    // Update the display to show "waist" units: metric/imperial/both.
+#ifdef DEBUG_DATA_FLOW
+    qDebug() << Q_FUNC_INFO;
+#endif
+    if (!m_questionnaire) {
+        return;
+    }
+    const bool imperial = m_waist_units == IMPERIAL || m_waist_units == BOTH;
+    const bool metric = m_waist_units == METRIC || m_waist_units == BOTH;
+    Q_ASSERT(imperial || metric);
+    m_questionnaire->setVisibleByTag(TAG_WAIST_IMPERIAL, imperial, false);
+    m_questionnaire->setVisibleByTag(TAG_WAIST_METRIC, metric, false);
 }
 
 
@@ -667,4 +759,109 @@ void Bmi::updateImperialMass()
     m_fr_mass_st->emitValueChanged();
     m_fr_mass_lb->emitValueChanged();
     m_fr_mass_oz->emitValueChanged();
+}
+
+
+QVariant Bmi::getWaistUnits() const
+{
+    return m_waist_units;
+}
+
+
+QVariant Bmi::getWaistCm() const
+{
+    return value(FN_WAIST_CM);
+}
+
+
+QVariant Bmi::getWaistIn() const
+{
+    return m_waist_in;
+}
+
+
+bool Bmi::setWaistUnits(const QVariant& value)  // returns: changed?
+{
+#ifdef DEBUG_DATA_FLOW
+    qDebug() << Q_FUNC_INFO << value;
+#endif
+    int waist_units = value.toInt();
+    if (waist_units != METRIC && waist_units != IMPERIAL &&
+            waist_units != BOTH) {
+        waist_units = METRIC;
+    }
+    const bool changed = waist_units != m_waist_units;
+    m_waist_units = waist_units;
+
+    return changed;
+}
+
+
+bool Bmi::setWaistCm(const QVariant& value)
+{
+    // Sets the waist circumference in centimetres, and if it's changed, update
+    // the imperial units.
+#ifdef DEBUG_DATA_FLOW
+    qDebug() << Q_FUNC_INFO << value;
+#endif
+    const bool changed = setValue(FN_WAIST_CM, value);
+    if (changed) {
+        updateImperialWaist();
+    }
+
+    return changed;
+}
+
+
+bool Bmi::setWaistIn(const QVariant& value)
+{
+    // Sets the waist in inches, and if it's changed, update the metric units.
+#ifdef DEBUG_DATA_FLOW
+    qDebug() << Q_FUNC_INFO << value;
+#endif
+    Q_ASSERT(m_fr_waist_cm);
+    const bool changed = value != m_waist_in;
+    if (changed) {
+        m_waist_in = value;
+        updateMetricWaist();
+    }
+
+    return changed;
+}
+
+
+void Bmi::updateMetricWaist()
+{
+    // Called when imperial units have been changed.
+#ifdef DEBUG_DATA_FLOW
+    qDebug() << Q_FUNC_INFO;
+#endif
+    Q_ASSERT(m_fr_waist_cm);
+    if (m_waist_in.isNull()) {
+        setValue(FN_WAIST_CM, QVariant());
+    } else {
+        const double inches = m_waist_in.toDouble();
+        setValue(FN_WAIST_CM, convert::centimetresFromInches(inches));
+    }
+    m_fr_waist_cm->emitValueChanged();
+}
+
+
+void Bmi::updateImperialWaist()
+{
+    // Called when we create the editor, to set imperial units from the
+    // underlying (database) metric units. Also called when metric waist has
+    // been changed. Sets the internal imperial representations.
+#ifdef DEBUG_DATA_FLOW
+    qDebug() << Q_FUNC_INFO;
+#endif
+    Q_ASSERT(m_fr_waist_in);
+    const QVariant waist_cm_var = value(FN_WAIST_CM);
+    if (waist_cm_var.isNull()) {
+        m_waist_in.clear();
+    } else {
+        const double waist_cm = waist_cm_var.toDouble();
+        m_waist_in = convert::inchesFromCentimetres(waist_cm);
+    }
+    m_fr_waist_in->emitValueChanged();
 }

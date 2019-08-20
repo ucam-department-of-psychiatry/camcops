@@ -310,9 +310,11 @@ extern const double POUNDS_PER_KG;
 
 // Distance: imperial to metric
 double metresFromFeetInches(double feet, double inches);
+double centimetresFromInches(double inches);
 
 // Distance: metric to imperial
 void feetInchesFromMetres(double metres, int& feet, double& inches);
+double inchesFromCentimetres(double centimeters);
 
 // Mass: imperial to metric
 double kilogramsFromStonesPoundsOunces(double stones, double pounds,
