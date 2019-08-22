@@ -107,6 +107,7 @@
 
 #include "tasks/khandaker1insightmedical.h"
 #include "tasks/khandaker2mojomedical.h"
+#include "tasks/khandaker2mojomedicationtable.h"
 #include "tasks/khandaker2mojosociodemographics.h"
 #include "tasks/kirby.h"
 
@@ -257,6 +258,7 @@ void InitTasks(TaskFactory& factory)
 
     initializeKhandaker1InsightMedical(factory);
     initializeKhandaker2MojoMedical(factory);
+    initializeKhandaker2MojoMedicationTable(factory);
     initializeKhandaker2MojoSociodemographics(factory);
     initializeKirby(factory);
 
