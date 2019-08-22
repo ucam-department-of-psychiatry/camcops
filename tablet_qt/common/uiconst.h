@@ -78,6 +78,7 @@ extern const QFont::Weight QCALENDARWIDGET_HEADER_FONTWEIGHT;
 extern const QColor QCALENDARWIDGET_TEXT_WEEKDAY;
 extern const QColor QCALENDARWIDGET_TEXT_WEEKEND;
 extern const QDate QCALENDARWIDGET_MIN_DATE;
+extern const QDate QCALENDARWIDGET_MAX_DATE;
 
 extern const QMargins NO_MARGINS;
 

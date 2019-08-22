@@ -63,6 +63,8 @@ public:
     // Offer a "set date/time to null" option? A rare thing to want.
     QuDateTime* setOfferNullButton(bool offer_null_button);
 
+    QuDateTime* setMinimumDate(QDate min_date);
+    QuDateTime* setMaximumDate(QDate max_date);
 protected:
 
     // Sets the widget state from our fieldref.
@@ -101,4 +103,7 @@ protected:
 
     QPointer<QDateTimeEdit> m_editor;  // edit box
     QPointer<QCalendarWidget> m_calendar_widget;  // pop-up calendar widget
+    // Date limits for calendar widget
+    QDate m_minimum_date;
+    QDate m_maximum_date;
 };
