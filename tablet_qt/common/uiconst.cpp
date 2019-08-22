@@ -71,6 +71,7 @@ const QFont::Weight QCALENDARWIDGET_HEADER_FONTWEIGHT = QFont::Bold;
 const QColor QCALENDARWIDGET_TEXT_WEEKDAY(0, 0, 0);  // black
 const QColor QCALENDARWIDGET_TEXT_WEEKEND(255, 0, 0);  // red
 const QDate QCALENDARWIDGET_MIN_DATE(1880, 1, 1);  // no older
+const QDate QCALENDARWIDGET_MAX_DATE = QDate();  // QCalendarWidget default
 
 const QMargins NO_MARGINS(0, 0, 0, 0);
 

@@ -63,7 +63,9 @@ QuDateTime::QuDateTime(FieldRefPtr fieldref) :
     m_offer_now_button(false),
     m_offer_null_button(false),
     m_editor(nullptr),
-    m_calendar_widget(nullptr)
+    m_calendar_widget(nullptr),
+    m_minimum_date(uiconst::QCALENDARWIDGET_MIN_DATE),
+    m_maximum_date(uiconst::QCALENDARWIDGET_MAX_DATE)
 {
     Q_ASSERT(m_fieldref);
     connect(m_fieldref.data(), &FieldRef::valueChanged,
@@ -107,6 +109,20 @@ QuDateTime* QuDateTime::setOfferNullButton(const bool offer_null_button)
 void QuDateTime::setFromField()
 {
     fieldValueChanged(m_fieldref.data(), nullptr);
+}
+
+
+QuDateTime* QuDateTime::setMinimumDate(QDate min_date)
+{
+    m_minimum_date = min_date;
+    return this;
+}
+
+
+QuDateTime* QuDateTime::setMaximumDate(QDate max_date)
+{
+    m_maximum_date = max_date;
+    return this;
 }
 
 
@@ -156,6 +172,13 @@ QPointer<QWidget> QuDateTime::makeWidget(Questionnaire* questionnaire)
     }
 
     m_editor = new QDateTimeEdit();
+
+    if (use_calendar) {
+        // Bug? Needs to be set here rather than on QCalendarWidget
+        // https://bugreports.qt.io/browse/QTBUG-77775
+        m_editor->setMinimumDate(m_minimum_date);
+        m_editor->setMaximumDate(m_maximum_date);
+    }
     m_editor->setDisplayFormat(format);
     m_editor->setInputMethodHints(input_method_hint);
     // ... or, on Android, you get a numbers-only keyboard even with a format
@@ -208,7 +231,6 @@ QPointer<QWidget> QuDateTime::makeWidget(Questionnaire* questionnaire)
 
         m_calendar_widget->setSelectionMode(QCalendarWidget::SingleSelection);
         m_calendar_widget->setNavigationBarVisible(true);
-        m_calendar_widget->setMinimumDate(uiconst::QCALENDARWIDGET_MIN_DATE);
         m_calendar_widget->setFirstDayOfWeek(Qt::Monday);
         m_calendar_widget->setGridVisible(true);
 
