@@ -445,6 +445,13 @@ QDate FieldRef::valueDate() const
 }
 
 
+QTime FieldRef::valueTime() const
+{
+    const QVariant v = value();
+    return v.toTime();
+}
+
+
 QString FieldRef::valueString() const
 {
     const QVariant v = value();

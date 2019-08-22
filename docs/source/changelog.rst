@@ -2448,3 +2448,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Add optional waist circumference to :ref:`BMI  <bmi>`.
   (Database revision 0038.)
+
+  Add ``setMinimiumDate()`` and ``setMaximumDate()`` to ``QuDateTime``.
+  This also fixes the broken default minimum date of 1st January 1880.
