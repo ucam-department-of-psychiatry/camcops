@@ -370,6 +370,7 @@ OpenableWidget* Khandaker2MojoMedical::editor(const bool read_only)
     auto date_time = new QuDateTime(m_fr_diagnosis_date);
     date_time->setOfferNowButton(true);
     date_time->setMode(QuDateTime::Mode::DefaultDate);
+    date_time->setMaximumDate(QDate::currentDate());
     page->addElement(date_time);
     page->addElement(new QuSpacer(QSize(uiconst::BIGSPACE, uiconst::BIGSPACE)));
 
