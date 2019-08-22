@@ -572,7 +572,7 @@ def get_changelog() -> str:
 # -----------------------------------------------------------------------------
 
 def get_preinst() -> str:
-    return """#!/bin/bash
+    return """#!/usr/bin/env bash
 # Exit on any errors? (Lintian strongly advises this.)
 set -e
 
@@ -601,7 +601,7 @@ echo '{PACKAGE}: preinst file finished'
 
 def get_postinst(sdist_basefilename: str) -> str:
     dst_sdist_file = join(DSTBASEDIR, sdist_basefilename)
-    return """#!/bin/bash
+    return """#!/usr/bin/env bash
 # Exit on any errors? (Lintian strongly advises this.)
 set -e
 
@@ -701,7 +701,7 @@ echo '{PACKAGE}: postinst file finished'
 # -----------------------------------------------------------------------------
 
 def get_prerm() -> str:
-    return """#!/bin/bash
+    return """#!/usr/bin/env bash
 set -e
 
 {BASHFUNC}
@@ -735,7 +735,7 @@ echo '{PACKAGE}: prerm file finished'
 # -----------------------------------------------------------------------------
 
 def get_postrm() -> str:
-    return """#!/bin/bash
+    return """#!/usr/bin/env bash
 set -e
 
 {BASHFUNC}
@@ -818,7 +818,7 @@ TEXT FOR SPECIFIC ASSESSMENT SCALES
 # =============================================================================
 
 def get_camcops_server_launcher() -> str:
-    return """#!/bin/bash
+    return """#!/usr/bin/env bash
 # Launch script for CamCOPS command-line tool.
 
 echo 'Launching CamCOPS command-line tool...' >&2
@@ -831,7 +831,7 @@ echo 'Launching CamCOPS command-line tool...' >&2
 
 
 def get_camcops_server_meta_launcher() -> str:
-    return """#!/bin/bash
+    return """#!/usr/bin/env bash
 # Launch script for CamCOPS meta-command tool tool.
 
 echo 'Launching CamCOPS meta-command tool...' >&2

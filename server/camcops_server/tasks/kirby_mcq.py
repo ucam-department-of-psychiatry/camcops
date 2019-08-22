@@ -28,7 +28,7 @@ camcops_server/tasks/kirby.py
 
 import logging
 import math
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Type
 
 import numpy as np
 from numpy.linalg.linalg import LinAlgError
@@ -44,6 +44,7 @@ from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import (
     ancillary_relationship,
     GenericTabletRecordMixin,
+    TaskDescendant,
 )
 from camcops_server.cc_modules.cc_html import (
     answer,
@@ -178,7 +179,7 @@ class KirbyRewardPair(object):
 # KirbyTrial
 # =============================================================================
 
-class KirbyTrial(GenericTabletRecordMixin, Base):
+class KirbyTrial(GenericTabletRecordMixin, TaskDescendant, Base):
     __tablename__ = "kirby_mcq_trials"
 
     kirby_mcq_id = Column(
@@ -234,6 +235,17 @@ class KirbyTrial(GenericTabletRecordMixin, Base):
         Has the subject answered this question?
         """
         return self.chose_ldr is not None
+
+    # -------------------------------------------------------------------------
+    # TaskDescendant overrides
+    # -------------------------------------------------------------------------
+
+    @classmethod
+    def task_ancestor_class(cls) -> Optional[Type["Task"]]:
+        return Kirby
+
+    def task_ancestor(self) -> Optional["Kirby"]:
+        return Kirby.get_linked(self.kirby_mcq_id, self)
 
 
 # =============================================================================
@@ -316,6 +328,7 @@ class Kirby(TaskHasPatientMixin, Task):
                          if v == max_consistency]
 
         # 3. Take the geometric mean of those good k values.
+        # noinspection PyTypeChecker
         subject_k = gmean(good_k_values)  # type: np.float64
 
         return float(subject_k)

@@ -63,8 +63,9 @@ public:
     // Offer a "set date/time to null" option? A rare thing to want.
     QuDateTime* setOfferNullButton(bool offer_null_button);
 
-    QuDateTime* setMinimumDate(QDate min_date);
-    QuDateTime* setMaximumDate(QDate max_date);
+    // Set the minimum/maximum date permitted.
+    QuDateTime* setMinimumDate(const QDate& min_date);
+    QuDateTime* setMaximumDate(const QDate& max_date);
 protected:
 
     // Sets the widget state from our fieldref.
@@ -72,6 +73,12 @@ protected:
 
     virtual FieldRefPtrList fieldrefs() const override;
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
+
+    // Does our variable have a date component?
+    bool hasDateComponent() const;
+
+    // Does our variable have a time component?
+    bool hasTimeComponent() const;
 
 protected slots:
 

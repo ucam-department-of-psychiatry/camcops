@@ -1,5 +1,6 @@
 usage: open_sqlcipher.py [-h] [--password PASSWORD] [--sqlcipher SQLCIPHER]
-                         [--encoding ENCODING]
+                         [--cipher_compatibility CIPHER_COMPATIBILITY]
+                         [--cipher_migrate] [--encoding ENCODING]
                          encrypted
 
 Open an encrypted database at the SQLCipher command line
@@ -16,4 +17,11 @@ optional arguments:
                         SQLCipher executable file (if blank, environment
                         variable SQLCIPHER will be used, or the default of
                         'sqlcipher') (default: None)
+  --cipher_compatibility CIPHER_COMPATIBILITY
+                        Use compatibility settings for this major version of
+                        SQLCipher (e.g. 3) (default: None)
+  --cipher_migrate      Migrate the database to the latest version of
+                        SQLCipher (default: False)
   --encoding ENCODING   Encoding to use (default: utf-8)
+
+# Generated at 2019-08-08 20:31:45

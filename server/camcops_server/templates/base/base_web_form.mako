@@ -15,7 +15,7 @@
 
     <link rel="stylesheet"
           href="${request.static_url('deform:static/css/bootstrap.min.css')}"
-          type="text/css" media="screen" charset="utf-8"/>
+          type="text/css" media="screen"/>
     <link rel="stylesheet"
           href="${request.static_url('deform:static/css/form.css')}"
           type="text/css"/>

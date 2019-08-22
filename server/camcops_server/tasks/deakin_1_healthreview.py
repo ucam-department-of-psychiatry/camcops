@@ -63,10 +63,11 @@ class Deakin1HealthReview(TaskHasPatientMixin, Task):
         permitted_value_checker=PermittedValueChecker(minimum=1, maximum=16),
         comment="Ethnicity code, per GMC Patient Questionnaire (1-16)"
     )
-    ethnicity_text = Column(
+    ethnicity_text = CamcopsColumn(
         "ethnicity_text", UnicodeText,
+        exempt_from_anonymisation=True,
         comment="Ethnicity, description"
-    )
+    )  # Seems to be unused by the client!
     ethnicity_other_details = Column(
         "ethnicity_other_details", UnicodeText,
         comment="Ethnicity, other, details"
@@ -77,7 +78,10 @@ class Deakin1HealthReview(TaskHasPatientMixin, Task):
         permitted_value_checker=PermittedValueChecker(permitted_values=["L", "R"]),  # noqa
         comment="Handedness (L, R)"
     )
-    education = Column("education", Text)
+    education = CamcopsColumn(
+        "education", Text,
+        exempt_from_anonymisation=True
+    )
 
     allergies = BoolColumn("allergies")
     allergy_asthma = BoolColumn("allergy_asthma")
@@ -358,7 +362,7 @@ class Deakin1HealthReview(TaskHasPatientMixin, Task):
                 </tr>
         """ + (
             self.get_twocol_val_row("ethnicity") +
-            self.get_twocol_string_row("ethnicity_text") +
+            # UNUSED BY CLIENT! # self.get_twocol_string_row("ethnicity_text") +  # noqa
             self.get_twocol_string_row("ethnicity_other_details") +
 
             self.get_twocol_string_row("handedness") +

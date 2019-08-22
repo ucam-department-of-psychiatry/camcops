@@ -126,6 +126,7 @@ class MRIProtocol(Protocol):
         self.network = network
         network.scanner = self
 
+    # noinspection PyPep8Naming
     def dataReceived(self, data: bytes) -> None:
         """
         Data received from scanner.
@@ -160,6 +161,7 @@ class ButtonBoxProtocol(Protocol):
         self.network = network
         network.buttonbox = self
 
+    # noinspection PyPep8Naming
     def dataReceived(self, data: bytes) -> None:
         """
         Data received from button box.
@@ -188,9 +190,11 @@ class StubbornlyLineBasedKeyboardProtocol(LineReceiver):
     def __init__(self, network: TabletServerProtocolFactory) -> None:
         self.network = network
 
+    # noinspection PyPep8Naming
     def connectionMade(self) -> None:
         self.setRawMode()
 
+    # noinspection PyPep8Naming
     def rawDataReceived(self, data: bytes) -> None:
         """
         Data received from keyboard.
@@ -201,6 +205,7 @@ class StubbornlyLineBasedKeyboardProtocol(LineReceiver):
         logger.info("Received from keyboard: {}".format(data))
         self.network.from_keyboard(data, now)
 
+    # noinspection PyPep8Naming
     def lineReceived(self, line: bytes) -> None:
         pass
 
@@ -245,6 +250,7 @@ class TabletServerProtocol(LineReceiver):
     # Connection handling
     # -------------------------------------------------------------------------
 
+    # noinspection PyPep8Naming
     def connectionMade(self) -> None:
         """
         Overrides Twisted function.
@@ -255,7 +261,7 @@ class TabletServerProtocol(LineReceiver):
         if hasattr(peer, "host") and hasattr(peer, "port"):
             self.peer = "{h}:{p}".format(h=peer.host, p=peer.port)
 
-    # noinspection PyUnusedLocal
+    # noinspection PyUnusedLocal,PyPep8Naming
     def connectionLost(self, reason: Failure = connectionDone) -> None:
         """
         Overrides Twisted function.
@@ -324,9 +330,11 @@ class TabletServerProtocol(LineReceiver):
     # From tablet
     # -------------------------------------------------------------------------
 
+    # noinspection PyPep8Naming
     def rawDataReceived(self, data: bytes) -> None:
         pass
 
+    # noinspection PyPep8Naming
     def lineReceived(self, data: bytes) -> None:
         """
         Override of Twisted function. Data received from tablet via TCP.

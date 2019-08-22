@@ -41,6 +41,10 @@ As per the Powerpoint source via http://oml.eular.org/ (see below):
 
 Accordingly, implemented as a skeleton task as above.
 
+Possibly more open, however; http://oml.eular.org/faq.cfm notes that "PROs
+which are copyrighted are not presented in full text version" [sic] and the
+ESSPRI is presented in full text (as below).
+
 
 History
 ~~~~~~~
@@ -68,3 +72,4 @@ Source
 
 - http://oml.eular.org/index.cfm
 - http://oml.eular.org/oml_search_results_details.cfm?id=156&action=All%20information
+- http://oml.eular.org/sysModules/obxOML/docs/id_156/ESSPRI-PRO.pptx

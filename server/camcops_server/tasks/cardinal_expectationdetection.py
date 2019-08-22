@@ -27,7 +27,7 @@ camcops_server/tasks/cardinal_expectationdetection.py
 """
 
 import logging
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Type
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from matplotlib.axes import Axes
@@ -43,6 +43,7 @@ from camcops_server.cc_modules.cc_constants import (
 from camcops_server.cc_modules.cc_db import (
     ancillary_relationship,
     GenericTabletRecordMixin,
+    TaskDescendant,
 )
 from camcops_server.cc_modules.cc_html import (
     answer,
@@ -103,7 +104,7 @@ def a(x: Any) -> str:
 # Cardinal_ExpectationDetection
 # =============================================================================
 
-class ExpDetTrial(GenericTabletRecordMixin, Base):
+class ExpDetTrial(GenericTabletRecordMixin, TaskDescendant, Base):
     __tablename__ = "cardinal_expdet_trials"
 
     cardinal_expdet_id = Column(
@@ -321,8 +322,20 @@ class ExpDetTrial(GenericTabletRecordMixin, Base):
             tr_class=CssClass.EXTRADETAIL2
         )
 
+    # -------------------------------------------------------------------------
+    # TaskDescendant overrides
+    # -------------------------------------------------------------------------
 
-class ExpDetTrialGroupSpec(GenericTabletRecordMixin, Base):
+    @classmethod
+    def task_ancestor_class(cls) -> Optional[Type["Task"]]:
+        return CardinalExpectationDetection
+
+    def task_ancestor(self) -> Optional["CardinalExpectationDetection"]:
+        return CardinalExpectationDetection.get_linked(
+            self.cardinal_expdet_id, self)
+
+
+class ExpDetTrialGroupSpec(GenericTabletRecordMixin, TaskDescendant, Base):
     __tablename__ = "cardinal_expdet_trialgroupspec"
 
     cardinal_expdet_id = Column(
@@ -383,6 +396,18 @@ class ExpDetTrialGroupSpec(GenericTabletRecordMixin, Base):
             a(self.n_target),
             a(self.n_no_target),
         )
+
+    # -------------------------------------------------------------------------
+    # TaskDescendant overrides
+    # -------------------------------------------------------------------------
+
+    @classmethod
+    def task_ancestor_class(cls) -> Optional[Type["Task"]]:
+        return CardinalExpectationDetection
+
+    def task_ancestor(self) -> Optional["CardinalExpectationDetection"]:
+        return CardinalExpectationDetection.get_linked(
+            self.cardinal_expdet_id, self)
 
 
 class CardinalExpectationDetection(TaskHasPatientMixin, Task):
@@ -1212,13 +1237,15 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
             tablename="cardinal_expdet_blockprobs",
             xmlname="blockprobs",
             columns=self.get_blockprob_columns(),
-            rows=blockprob_values
+            rows=blockprob_values,
+            task=self
         )
         halfprob_table = ExtraSummaryTable(
             tablename="cardinal_expdet_halfprobs",
             xmlname="halfprobs",
             columns=self.get_halfprob_columns(),
-            rows=halfprob_values
+            rows=halfprob_values,
+            task=self
         )
         return [blockprob_table, halfprob_table]
 

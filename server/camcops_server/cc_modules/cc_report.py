@@ -218,6 +218,7 @@ class Report(object):
         Get all report subclasses, except those not implementing their
         ``report_id`` property. Optionally, sort by their title.
         """
+        # noinspection PyTypeChecker
         classes = all_subclasses(cls)  # type: List[Type["Report"]]
         instantiated_report_classes = []  # type: List[Type["Report"]]
         for reportcls in classes:

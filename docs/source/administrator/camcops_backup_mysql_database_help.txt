@@ -3,13 +3,15 @@ usage: camcops_backup_mysql_database [-h]
                                      [--mysqldump MYSQLDUMP]
                                      [--username USERNAME]
                                      [--password PASSWORD]
-                                     [--with_drop_create_database] [--verbose]
+                                     [--with_drop_create_database]
+                                     [--output_dir OUTPUT_DIR] [--verbose]
                                      databases [databases ...]
 
 Back up a specific MySQL database. The resulting filename has the format
-'<DATABASENAME>_<DATETIME><SUFFIX>.sql', where <DATETIME> is of the format
-'%Y%m%dT%H%M%S' and <SUFFIX> is either blank or '_with_drop_create_database'.
-A typical filename is therefore 'mydb_20190415T205524.sql'.
+'<DATABASENAME>_<DATETIME><SUFFIX>.sql', where <DATETIME> is of the ISO-8601
+format '%Y%m%dT%H%M%S' and <SUFFIX> is either blank or
+'_with_drop_create_database'. A typical filename is therefore
+'mydb_20190415T205524.sql'.
 
 positional arguments:
   databases             Database(s) to back up
@@ -24,8 +26,14 @@ optional arguments:
   --password PASSWORD   MySQL password (AVOID THIS OPTION IF POSSIBLE; VERY
                         INSECURE; VISIBLE TO OTHER PROCESSES; if you don't use
                         it, you'll be prompted for the password) (default:
-                        root)
+                        None)
   --with_drop_create_database
-                        Include DROP DATABASE and CREATE DATABASE commands
+                        Include DROP DATABASE and CREATE DATABASE commands,
+                        and append a suffix to the output filename as above
                         (default: False)
+  --output_dir OUTPUT_DIR
+                        Output directory (if not specified, current directory
+                        will be used) (default: None)
   --verbose             Verbose output (default: False)
+
+# Generated at 2019-08-08 20:31:41

@@ -19,3 +19,5 @@ optional arguments:
                         variable SQLCIPHER will be used, or the default of
                         'sqlcipher') (default: None)
   --encoding ENCODING   Encoding to use (default: utf-8)
+
+# Generated at 2019-08-08 20:31:45

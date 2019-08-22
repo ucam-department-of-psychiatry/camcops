@@ -1081,6 +1081,7 @@ class SnomedLookup(object):
     # Base physical units
     KILOGRAM = "kilogram"
     METRE = "metre"
+    CENTIMETRE = "centimetre"
 
     # Compound physical units
     KG_PER_SQ_M = "kilogram_per_square_metre"
@@ -1139,6 +1140,8 @@ class SnomedLookup(object):
     BMI_PROCEDURE_MEASUREMENT = "bmi_procedure_measurement"
     BODY_HEIGHT_OBSERVABLE = "body_height_observable"
     BODY_WEIGHT_OBSERVABLE = "body_weight_observable"
+    WAIST_CIRCUMFERENCE_PROCEDURE_MEASUREMENT = "waist_circumference_procedure_measurement"  # noqa
+    WAIST_CIRCUMFERENCE_OBSERVABLE = "waist_circumference_observable"
 
     # BPRS, BPRS-E
     BPRS1962_SCALE = "bprs1962_scale"

@@ -14,7 +14,8 @@ usage: build_qt.py [-h] [--show_config_only] [--root_dir ROOT_DIR]
                    [--android_ndk_root ANDROID_NDK_ROOT]
                    [--android_ndk_host ANDROID_NDK_HOST]
                    [--android_toolchain_version ANDROID_TOOLCHAIN_VERSION]
-                   [--ios_sdk IOS_SDK] [--jom_executable JOM_EXECUTABLE]
+                   [--java_home JAVA_HOME] [--ios_sdk IOS_SDK]
+                   [--jom_executable JOM_EXECUTABLE]
 
 Build Qt and other libraries for CamCOPS
 
@@ -109,6 +110,9 @@ Android:
                         Android NDK host architecture (default: linux-x86_64)
   --android_toolchain_version ANDROID_TOOLCHAIN_VERSION
                         Android toolchain version (default: 4.9)
+  --java_home JAVA_HOME
+                        JAVA_HOME directory (default:
+                        /usr/lib/jvm/java-11-openjdk-amd64)
 
 iOS:
   iOS options
@@ -122,3 +126,5 @@ jom:
   --jom_executable JOM_EXECUTABLE
                         jom executable (typically installed with QtCreator)
                         (default: C:\Qt\Tools\QtCreator\bin\jom.exe)
+
+# Generated at 2019-08-08 20:31:44

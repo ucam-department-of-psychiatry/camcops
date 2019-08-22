@@ -92,12 +92,11 @@ INSTALL_REQUIRES = [
     'dogpile.cache==0.6.6',  # web caching
     # TO COME: 'fhirclient==3.2.0',  # For FHIR export
     'flower==0.9.2',  # monitor for Celery
-    'gunicorn==19.8.1',
+    'gunicorn==19.8.1',  # web server (Unix only)
     # Alternative 'internal' web server. Installs fine under Windows, but won't run (ImportError: No module named 'fcntl').  # noqa
     'hl7==0.3.4',  # For HL7 export
     'lockfile==0.12.2',  # File locking for background tasks
-    'matplotlib==3.0.2',
-    # Used for trackers and some tasks. SLOW INSTALLATION.  # noqa
+    'matplotlib==3.0.2',  # Used for trackers and some tasks. SLOW INSTALLATION.  # noqa
 
     # 'mysqlclient==1.3.13;platform_system=="Linux"',  # for mysql+mysqldb://...
     # # ... but adds dependency on C and mysql.h
@@ -112,7 +111,9 @@ INSTALL_REQUIRES = [
     'Pygments==2.3.1',  # Syntax highlighting for introspection/DDL
 
     'PyMySQL==0.7.1',
-    # ... for mysql+pymysql://... BEWARE FURTHER UPGRADES (e.g. to 0.7.11); may break Pendulum handling *** FIX THIS *** # noqa
+    # ... for mysql+pymysql://... BEWARE FURTHER UPGRADES (e.g. to 0.7.11); may
+    # break Pendulum handling
+    # todo: setup.py: fix PyMySQL upgrade problem
 
     'PyPDF2==1.26.0',  # Used by rnc_pdf.py
     'pyramid==1.9.2',  # web framework
@@ -130,7 +131,7 @@ INSTALL_REQUIRES = [
     # https://github.com/jupyter/notebook/issues/4311
 
     'typing==3.6.4',  # part of stdlib in python 3.5, but not 3.4
-    'Wand==0.4.4',
+    'Wand==0.4.4',  # ImageMagick binding
 ]
 
 

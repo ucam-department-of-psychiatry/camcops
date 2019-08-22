@@ -435,7 +435,7 @@ class ExportRecipientInfo(object):
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         r.all_groups = _get_bool(cpr.ALL_GROUPS, False)
         r.group_names = _get_multiline(cpr.GROUPS)
-        r.group_ids = []  # type: List[int]
+        r.group_ids = []
         # ... read later by validate_db_dependent()
         r.tasks = sorted([x.lower() for x in _get_multiline(cpr.TASKS)])
         sd = _get_str(cpr.START_DATETIME_UTC)

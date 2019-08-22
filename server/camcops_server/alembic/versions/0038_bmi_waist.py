@@ -63,6 +63,7 @@ def upgrade():
     with op.batch_alter_table('bmi', schema=None) as batch_op:
         batch_op.add_column(sa.Column('waist_cm', sa.Float(), nullable=True, comment='waist circumference (cm)'))
 
+
 # noinspection PyPep8,PyTypeChecker
 def downgrade():
     with op.batch_alter_table('bmi', schema=None) as batch_op:

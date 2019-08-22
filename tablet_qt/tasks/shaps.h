@@ -60,4 +60,5 @@ protected:
 private:
     int scoreResponse(const QString& fieldname) const;
     QStringList fieldNames() const;
+    QString getAnswerText(int q_number, const QString& fieldname) const;
 };

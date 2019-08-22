@@ -31,7 +31,7 @@ For Debian/Ubuntu:
 
 .. code-block:: bash
 
-    #!/bin/bash
+    #!/usr/bin/env bash
 
     export CAMCOPS_VERSION=2.3.1  # ... choose a version here
     export CAMCOPS_PACKAGE_NAME=camcops-server_${CAMCOPS_VERSION}-1_all.deb
@@ -44,7 +44,7 @@ For CentOS:
 
 .. code-block:: bash
 
-    #!/bin/bash
+    #!/usr/bin/env bash
 
     export CAMCOPS_VERSION=2.3.1  # ... choose a version here
     export CAMCOPS_PACKAGE_NAME=camcops-server_${CAMCOPS_VERSION}-2.noarch.rpm

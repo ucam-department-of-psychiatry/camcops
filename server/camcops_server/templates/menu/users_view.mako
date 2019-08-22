@@ -35,7 +35,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
                     <span class="important">${_("Superuser.")}</span>
                 %endif
                 %if user.is_a_groupadmin:
-                    <span class="important">${_("Group administrator.")}</span>
+                    <span class="important">${_("Group administrator")} (${ user.names_of_groups_user_is_admin_for_csv }).</span>
                 %endif
                 %if user.is_locked_out(request):
                     <span class="warning">${_("Locked out;")} <a href="${ req.route_url(Routes.UNLOCK_USER, _query={ViewParam.USER_ID: user.id}) }">${_("unlock")}</a>.</span>

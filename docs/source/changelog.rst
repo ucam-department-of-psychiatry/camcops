@@ -68,7 +68,6 @@ Contributors
 Original Titanium/Javascript client, Python server with custom MySQL interface (defunct)
 ----------------------------------------------------------------------------------------
 
-
 .. _changelog_2013:
 
 2013
@@ -1486,7 +1485,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - OS information.
 
 
-**Client v2.2.8 to 2.3.0, in progress (from 2018-09-10)**
+**Client v2.2.8 to 2.3.0 (from 2018-09-10)**
 
 - Bugfix to CISR client: page colour was clinician, now patient.
 
@@ -2122,7 +2121,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
   which wasn't converting to UTC properly.
 
 
-**Client and server v2.3.3 (IN PROGRESS)**
+**Client and server v2.3.3**
 
 - Windows service.
 
@@ -2294,7 +2293,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
     ``VISIBLE_SYMBOL`` macro in ``preprocessor_aid.h``.
 
 
-**Client 2.3.5 (IN PROGRESS)**
+**Client and server v2.3.5**
 
 - Target Android API from 26 to 28 as now required by Google.
 
@@ -2399,8 +2398,26 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Better SNOMED coding for the clinical tasks :ref:`Progress note
   <progress_note>` and :ref:`Psychiatric clerking <clerking>`.
 
-- Bugfix: group editing page crashed if no ID numbers defined. Changed in
-  :func:`camcops_server.cc_modules.TokenizedPolicy.set_valid_idnums`.
+- Bugfix: server group editing page crashed if no ID numbers defined. Changed
+  in :func:`camcops_server.cc_modules.TokenizedPolicy.set_valid_idnums`.
+
+- Client: For ACE-III and similar: when pages don't scroll, offer facility to
+  zoom widgets. See ``ZoomableWidget``. Used in ACE-III for letters, picture
+  naming, etc.
+
+- Server: restore autogeneration of CRIS and CRATE data dictionaries. See
+  ``cc_anon.py`` etc.
+
+- HTML and PDF titles for tasks.
+
+- User list shows, for group administrators, which groups they administer.
+
+- Bugfix: client C++ functions ``mathfunc::countWhere()`` and
+  ``mathfunc::countWhereNot()`` now respect NULL values, via
+  ``mathfunc::containsRespectingNull()``. This behaviour now matches
+  :meth:`camcops_server.cc_modules.cc_task.Task.count_where` and
+  :meth:`camcops_server.cc_modules.cc_task.Task.count_wherenot`. Applicable to
+  the :ref:`SHAPS <shaps>` task.
 
 - **New task:** :ref:`Elixhauser Comorbidity Index (ElixhauserCI) <elixhauserci>`.
   (Database revision 0029.)

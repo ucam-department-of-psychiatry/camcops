@@ -115,9 +115,11 @@ class Device(Base):
         """
         if not device_name:
             return None
-        device = dbsession.query(cls)\
-            .filter(cls.name == device_name)\
-            .first()  # type: Optional[Device]
+        device = (
+            dbsession.query(cls)
+            .filter(cls.name == device_name)
+            .first()
+        )  # type: Optional[Device]
         return device
 
     @classmethod
@@ -128,9 +130,11 @@ class Device(Base):
         """
         if device_id is None:
             return None
-        device = dbsession.query(cls)\
-            .filter(cls.id == device_id)\
-            .first()  # type: Optional[Device]
+        device = (
+            dbsession.query(cls)
+            .filter(cls.id == device_id)
+            .first()
+        )  # type: Optional[Device]
         return device
 
     @classmethod

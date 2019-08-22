@@ -169,12 +169,21 @@ bool eqOrNull(const QVariant& x, int test);
 // Is x null or equal to test?
 bool eqOrNull(const QVariant& x, bool test);
 
+// Does the vector v contains the value x?
+// This differs from QVector::contains() in that QVector::contains() uses
+// operator==(), which gives true for e.g. QVariant() == QVariant(0), i.e.
+// it allows null values to compare equal to their non-null "equivalents".
+// This function does not.
+bool containsRespectingNull(const QVector<QVariant>& v, const QVariant& x);
+
 // Return the number of values in test_values that are present in where_values.
+// 2019-08-20: respects the difference between NULL and not-NULL values.
 int countWhere(const QVector<QVariant>& test_values,
                const QVector<QVariant>& where_values);
 
 // Return the number of values in test_values that are not present in
 // where_not_values.
+// 2019-08-20: respects the difference between NULL and not-NULL values.
 int countWhereNot(const QVector<QVariant>& test_values,
                   const QVector<QVariant>& where_not_values);
 

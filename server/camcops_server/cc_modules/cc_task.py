@@ -78,16 +78,11 @@ from camcops_server.cc_modules.cc_audit import audit
 from camcops_server.cc_modules.cc_blob import Blob, get_blob_img_html
 from camcops_server.cc_modules.cc_cache import cache_region_static, fkg
 from camcops_server.cc_modules.cc_constants import (
-    # CRIS_CLUSTER_KEY_FIELDSPEC,
-    # CRIS_PATIENT_COMMENT_PREFIX,
-    # CRIS_SUMMARY_COMMENT_PREFIX,
-    # CRIS_TABLENAME_PREFIX,
     CssClass,
     CSS_PAGED_MEDIA,
     DateFormat,
     ERA_NOW,
     INVALID_VALUE,
-    # TSV_PATIENT_FIELD_PREFIX,
 )
 from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
 from camcops_server.cc_modules.cc_filename import get_export_filename
@@ -260,8 +255,9 @@ class TaskHasClinicianMixin(object):
     # noinspection PyMethodParameters
     @declared_attr
     def clinician_professional_registration(cls) -> Column:
-        return Column(
+        return CamcopsColumn(
             "clinician_professional_registration", Text,
+            exempt_from_anonymisation=True,
             comment="(CLINICIAN) Clinician's professional registration (e.g. "
                     "GMC# 12345)"
         )
@@ -977,8 +973,9 @@ class Task(GenericTabletRecordMixin, Base):
                    comment="Task's server primary key"),
             Column(SNOMED_COLNAME_WHENCREATED_UTC, DateTime,
                    comment="Task's creation date/time (UTC)"),
-            Column(SNOMED_COLNAME_EXPRESSION, Text,
-                   comment="SNOMED CT expression"),
+            CamcopsColumn(SNOMED_COLNAME_EXPRESSION, Text,
+                          exempt_from_anonymisation=True,
+                          comment="SNOMED CT expression"),
         ]
         rows = []  # type: List[Dict[str, Any]]
         for code in codes:
@@ -995,6 +992,7 @@ class Task(GenericTabletRecordMixin, Base):
             xmlname=UNUSED_SNOMED_XML_NAME,  # though actual XML doesn't use this route  # noqa
             columns=columns,
             rows=rows,
+            task=self
         )
 
     # -------------------------------------------------------------------------
@@ -1413,129 +1411,6 @@ class Task(GenericTabletRecordMixin, Base):
         return tsv_pages
 
     # -------------------------------------------------------------------------
-    # Data structure for CRIS data dictionary
-    # -------------------------------------------------------------------------
-
-    _ = '''
-
-    @classmethod
-    def get_cris_dd_rows(cls, req: "CamcopsRequest") -> List[Dict]:
-        """
-        Returns rows for a CRIS data dictionary
-        (https://doi.org/10.1186/1472-6947-13-71).
-
-        BROKEN?
-
-        .. todo:: fix get_cris_dd_rows
-        """
-        if cls.is_anonymous:
-            return []
-        taskname = cls.shortname
-        tablename = CRIS_TABLENAME_PREFIX + cls.tablename
-        instance = cls()  # blank PK
-        common = instance.get_cris_common_fieldspecs_values()
-        taskfieldspecs = instance.get_cris_fieldspecs_values(req, common)
-        rows = get_cris_dd_rows_from_fieldspecs(taskname, tablename,
-                                                taskfieldspecs)
-        for depclass in cls.dependent_classes:
-            depinstance = depclass(None)  # blank PK
-            deptable = CRIS_TABLENAME_PREFIX + depinstance.tablename
-            depfieldspecs = depinstance.get_cris_fieldspecs_values(req, common)
-            rows += get_cris_dd_rows_from_fieldspecs(taskname, deptable,
-                                                     depfieldspecs)
-        return rows
-        
-    '''
-
-    # -------------------------------------------------------------------------
-    # Data export for CRIS and other anonymisation systems
-    # -------------------------------------------------------------------------
-
-    _ = '''
-
-    @classmethod
-    def make_cris_tables(cls, req: "CamcopsRequest",
-                         db: "DatabaseSupporter") -> None:
-        """
-        Makes database tables for a CRIS anonymisation database.
-
-        BROKEN, AND SUPERSEDED?
-
-        .. todo:: fix/remove make_cris_tables
-        """
-        # DO NOT CONFUSE pls.db and db. HERE WE ONLY USE db.
-        log.info("Generating CRIS staging tables for: {}", cls.shortname)
-        cc_db.set_db_to_utf8(db)
-        task_table = CRIS_TABLENAME_PREFIX + cls.tablename
-        created_tables = []
-        for task in cls.gen_all_current_tasks():
-            common_fsv = task.get_cris_common_fieldspecs_values()
-            task_fsv = task.get_cris_fieldspecs_values(req, common_fsv)
-            cc_db.add_sqltype_to_fieldspeclist_in_place(task_fsv)
-            if task_table not in created_tables:
-                db.drop_table(task_table)
-                db.make_table(task_table, task_fsv, dynamic=True)
-                created_tables.append(task_table)
-            db.insert_record_by_fieldspecs_with_values(task_table, task_fsv)
-            # Same for associated ancillary items
-            for depclass in cls.dependent_classes:
-                items = task.get_ancillary_items(depclass)
-                for it in items:
-                    item_table = CRIS_TABLENAME_PREFIX + it.tablename
-                    item_fsv = it.get_cris_fieldspecs_values(common_fsv)
-                    cc_db.add_sqltype_to_fieldspeclist_in_place(item_fsv)
-                    if item_table not in created_tables:
-                        db.drop_table(item_table)
-                        db.make_table(item_table, item_fsv, dynamic=True)
-                        created_tables.append(item_table)
-                    db.insert_record_by_fieldspecs_with_values(item_table,
-                                                               item_fsv)
-
-    def get_cris_common_fieldspecs_values(self) -> "FIELDSPECLIST_TYPE":
-        """
-        Another broken CRIS-related function.
-
-        .. todo:: fix/remove get_cris_common_fieldspecs_values
-        """
-        # Store the task's PK in its own but all linked records
-        clusterpk_fs = copy.deepcopy(CRIS_CLUSTER_KEY_FIELDSPEC)
-        clusterpk_fs["value"] = self._pk
-        fieldspecs = [clusterpk_fs]
-        # Store a subset of patient info in all linked records
-        patientfs = copy.deepcopy(Patient.FIELDSPECS)
-        for fs in patientfs:
-            if fs.get("cris_include", False):
-                fs["value"] = getattr(self.patient, fs["name"])
-                fs["name"] = TSV_PATIENT_FIELD_PREFIX + fs["name"]
-                fs["comment"] = CRIS_PATIENT_COMMENT_PREFIX + fs.get("comment",
-                                                                     "")
-                fieldspecs.append(fs)
-        return fieldspecs
-
-    def get_cris_fieldspecs_values(
-            self,
-            req: "CamcopsRequest",
-            common_fsv: "FIELDSPECLIST_TYPE") -> "FIELDSPECLIST_TYPE":
-        """
-        Another broken CRIS-related function.
-
-        .. todo:: fix/remove get_cris_fieldspecs_values
-        """
-        fieldspecs = copy.deepcopy(self.get_full_fieldspecs())
-        for fs in fieldspecs:
-            fs["value"] = getattr(self, fs["name"])
-        summaries = self.get_summaries(req)  # summaries include values
-        for fs in summaries:
-            fs["comment"] = CRIS_SUMMARY_COMMENT_PREFIX + fs.get("comment", "")
-        return (
-            common_fsv +
-            fieldspecs +
-            summaries
-        )
-        
-    '''
-
-    # -------------------------------------------------------------------------
     # XML view
     # -------------------------------------------------------------------------
 
@@ -1724,6 +1599,30 @@ class Task(GenericTabletRecordMixin, Base):
                            viewtype=ViewArg.HTML),
                       request=req)
 
+    def title_for_html(self, req: "CamcopsRequest",
+                       anonymise: bool = False) -> str:
+        """
+        Returns the plain text used for the HTML ``<title>`` block (by
+        ``task.mako``), and also for the PDF title for PDF exports.
+
+        Should be plain text only.
+
+        Args:
+            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+            anonymise: hide patient identifying details?
+        """
+        if anonymise:
+            patient = "?"
+        elif self.patient:
+            patient = self.patient.prettystr(req)
+        else:
+            _ = req.gettext
+            patient = _("Anonymous")
+        tasktype = self.tablename
+        when = format_datetime(self.get_creation_datetime(),
+                               DateFormat.ISO8601_HUMANIZED_TO_MINUTES, "")
+        return f"CamCOPS: {patient}; {tasktype}; {when}"
+
     # -------------------------------------------------------------------------
     # PDF view
     # -------------------------------------------------------------------------
@@ -1778,23 +1677,33 @@ class Task(GenericTabletRecordMixin, Base):
                            viewtype=ViewArg.PDF),
                       request=req)
 
-    def suggested_pdf_filename(self, req: "CamcopsRequest") -> str:
+    def suggested_pdf_filename(self, req: "CamcopsRequest",
+                               anonymise: bool = False) -> str:
         """
         Suggested filename for the PDF copy (for downloads).
+
+        Args:
+            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+            anonymise: hide patient identifying details?
         """
         cfg = req.config
+        if anonymise:
+            is_anonymous = True
+        else:
+            is_anonymous = self.is_anonymous
+        patient = self.patient
         return get_export_filename(
             req=req,
             patient_spec_if_anonymous=cfg.patient_spec_if_anonymous,
             patient_spec=cfg.patient_spec,
             filename_spec=cfg.task_filename_spec,
             filetype=ViewArg.PDF,
-            is_anonymous=self.is_anonymous,
-            surname=self.patient.get_surname() if self.patient else "",
-            forename=self.patient.get_forename() if self.patient else "",
-            dob=self.patient.get_dob() if self.patient else None,
-            sex=self.patient.get_sex() if self.patient else None,
-            idnum_objects=self.patient.get_idnum_objects() if self.patient else None,  # noqa
+            is_anonymous=is_anonymous,
+            surname=patient.get_surname() if patient else "",
+            forename=patient.get_forename() if patient else "",
+            dob=patient.get_dob() if patient else None,
+            sex=patient.get_sex() if patient else None,
+            idnum_objects=patient.get_idnum_objects() if patient else None,
             creation_datetime=self.get_creation_datetime(),
             basetable=self.tablename,
             serverpk=self._pk
@@ -2609,7 +2518,6 @@ class TaskTests(DemoDatabaseTestCase):
             # Views
             for page in t.get_tsv_pages(req):
                 self.assertIsInstance(page.get_tsv(), str)
-            # todo: replace test when anonymous export redone: get_cris_dd_rows
             self.assertIsInstance(t.get_xml(req), str)
             self.assertIsInstance(t.get_html(req), str)
             self.assertIsInstance(t.get_pdf(req), bytes)
