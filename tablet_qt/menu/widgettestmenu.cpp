@@ -322,6 +322,8 @@ void WidgetTestMenu::makeItems()
                  std::bind(&WidgetTestMenu::testQuCountdown, this)),
         MenuItem("QuDateTime",
                  std::bind(&WidgetTestMenu::testQuDateTime, this)),
+        MenuItem("QuDateTime (limited to 20th century)",
+                 std::bind(&WidgetTestMenu::testQuDateTimeLimited, this)),
         MenuItem("QuDiagnosticCode (NB iffy display if you select one!)",
                  std::bind(&WidgetTestMenu::testQuDiagnosticCode, this)),
         MenuItem("QuHeading (short text)",
@@ -950,6 +952,15 @@ void WidgetTestMenu::testQuCountdown()
 void WidgetTestMenu::testQuDateTime()
 {
     QuDateTime element(m_fieldref_1);
+    testQuestionnaireElement(&element);
+}
+
+
+void WidgetTestMenu::testQuDateTimeLimited()
+{
+    QuDateTime element(m_fieldref_1);
+    element.setMinimumDate(QDate(1900, 1, 1));
+    element.setMaximumDate(QDate(1999, 12, 31));
     testQuestionnaireElement(&element);
 }
 

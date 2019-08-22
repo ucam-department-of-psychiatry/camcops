@@ -212,6 +212,9 @@ public:
     // Returns the underlying data value, as a QDate.
     QDate valueDate() const;
 
+    // Returns the underlying data value, as a QTime.
+    QTime valueTime() const;
+
     // Returns the underlying data value, as a string.
     QString valueString() const;
 
