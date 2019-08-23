@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="khandaker_2_mojomedicationtable">
+    <!-- Khandaker GM — 2 MOJO Study — Medications and Treatment -->
+
+    <string name="title">MOJO Study — Medications and Treatment</string>
+    <string name="instructions">What current medication do you take that has been prescribed by a doctor?</string>
+    <string name="medication_name">Medication name</string>
+    <string name="chemical_name">Chemical name (for study team)</string>
+    <string name="dosage">Dosage</string>
+    <string name="duration">Duration (months)</string>
+    <string name="indication">Indication (what is the medication for?)</string>
+    <string name="response">Response</string>
+    <string name="response_1">Treats all symptoms</string>
+    <string name="response_2">Treats most symptoms</string>
+    <string name="response_3">Treats some symptoms</string>
+    <string name="response_4">Treats no symptoms</string>
+  </task>
+</resources>

@@ -43,6 +43,14 @@ public:
     virtual QString longname() const override;
     virtual QString description() const override;
     // ------------------------------------------------------------------------
+    // Ancillary management
+    // ------------------------------------------------------------------------
+    virtual QStringList ancillaryTables() const override;
+    virtual QString ancillaryTableFKToTaskFieldname() const override;
+    virtual void loadAllAncillary(int pk) override;
+    virtual QVector<DatabaseObjectPtr> getAncillarySpecimens() const override;
+    virtual QVector<DatabaseObjectPtr> getAllAncillary() const override;
+    // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
     virtual bool isComplete() const override;
@@ -54,8 +62,19 @@ public:
     // ------------------------------------------------------------------------
 private:
     QString getOptionName(const QString &fieldname, const int index) const;
+    void addItem();
+    void deleteItem(int index);
+    Khandaker2MojoMedicationItemPtr makeItem() const;
+    void refreshQuestionnaire();
+    void rebuildPage(QuPage* page);
+    void renumberItems();
+    // ------------------------------------------------------------------------
+    // Data
+    // ------------------------------------------------------------------------
+protected:
+    QVector<Khandaker2MojoMedicationItemPtr> m_medication_table;
+    QPointer<Questionnaire> m_questionnaire;
 
-private:
 public:
     static const QString KHANDAKER2MOJOMEDICATIONTABLE_TABLENAME;
 };

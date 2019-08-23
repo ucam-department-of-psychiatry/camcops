@@ -56,6 +56,9 @@ using IdNumDescriptionPtr = QSharedPointer<IdNumDescription>;
 using IdNumDescriptionPtrList = QVector<IdNumDescriptionPtr>;
 using IdNumDescriptionConstPtr = QSharedPointer<const IdNumDescription>;
 
+class Khandaker2MojoMedicationItem;
+using Khandaker2MojoMedicationItemPtr = QSharedPointer<Khandaker2MojoMedicationItem>;
+
 class Patient;
 using PatientPtr = QSharedPointer<Patient>;
 using PatientPtrList = QVector<PatientPtr>;

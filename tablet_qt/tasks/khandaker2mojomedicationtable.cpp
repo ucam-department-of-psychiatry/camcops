@@ -20,100 +20,29 @@
 #include "khandaker2mojomedicationtable.h"
 #include "common/cssconst.h"
 #include "common/textconst.h"
+#include "db/ancillaryfunc.h"
 #include "lib/convert.h"
 #include "lib/uifunc.h"
 #include "lib/version.h"
 #include "questionnairelib/commonoptions.h"
+#include "questionnairelib/qubutton.h"
 #include "questionnairelib/questionnaire.h"
-#include "questionnairelib/questionwithonefield.h"
-#include "questionnairelib/qudatetime.h"
+#include "questionnairelib/qugridcell.h"
+#include "questionnairelib/qugridcontainer.h"
 #include "questionnairelib/quheading.h"
-#include "questionnairelib/qulineeditdouble.h"
 #include "questionnairelib/qulineeditinteger.h"
-#include "questionnairelib/qumcq.h"
-#include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/qupage.h"
-#include "questionnairelib/quspacer.h"
+#include "questionnairelib/qupickerinline.h"
 #include "questionnairelib/qutext.h"
-#include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
-
+#include "taskxtra/khandaker2mojomedicationitem.h"
 
 const QString Khandaker2MojoMedicationTable::KHANDAKER2MOJOMEDICATIONTABLE_TABLENAME(
     "khandaker_2_mojomedicationtable");
 
 const QString Q_XML_PREFIX = "q_";
 
-// Section 1: General Information
-const QString FN_DIAGNOSIS("diagnosis");
-const QString FN_DIAGNOSIS_DATE("diagnosis_date");
-const QString FN_DIAGNOSIS_DATE_APPROXIMATE("diagnosis_date_approximate");
-const QString FN_HAS_FIBROMYALGIA("has_fibromyalgia");
-const QString FN_IS_PREGNANT("is_pregnant");
-const QString FN_HAS_INFECTION_PAST_MONTH("has_infection_past_month");
-const QString FN_HAD_INFECTION_TWO_MONTHS_PRECEDING("had_infection_two_months_preceding");
-const QString FN_HAS_ALCOHOL_SUBSTANCE_DEPENDENCE("has_alcohol_substance_dependence");
-const QString FN_SMOKING_STATUS("smoking_status");
-const QString FN_ALCOHOL_UNITS_PER_WEEK("alcohol_units_per_week");
 
-// Section 2: Medical History
-const QString FN_DEPRESSION("depression");
-const QString FN_BIPOLAR_DISORDER("bipolar_disorder");
-const QString FN_SCHIZOPHRENIA("schizophrenia");
-const QString FN_AUTISM("autism");
-const QString FN_PTSD("ptsd");
-const QString FN_ANXIETY("anxiety");
-const QString FN_PERSONALITY_DISORDER("personality_disorder");
-const QString FN_INTELLECTUAL_DISABILITY("intellectual_disability");
-const QString FN_OTHER_MENTAL_ILLNESS("other_mental_illness");
-const QString FN_OTHER_MENTAL_ILLNESS_DETAILS("other_mental_illness_details");
-const QString FN_HOSPITALISED_IN_LAST_YEAR("hospitalised_in_last_year");
-const QString FN_HOSPITALISATION_DETAILS("hospitalisation_details");
-
-// Section 3: Family history
-const QString FN_FAMILY_DEPRESSION("family_depression");
-const QString FN_FAMILY_BIPOLAR_DISORDER("family_bipolar_disorder");
-const QString FN_FAMILY_SCHIZOPHRENIA("family_schizophrenia");
-const QString FN_FAMILY_AUTISM("family_autism");
-const QString FN_FAMILY_PTSD("family_ptsd");
-const QString FN_FAMILY_ANXIETY("family_anxiety");
-const QString FN_FAMILY_PERSONALITY_DISORDER("family_personality_disorder");
-const QString FN_FAMILY_INTELLECTUAL_DISABILITY("family_intellectual_disability");
-const QString FN_FAMILY_OTHER_MENTAL_ILLNESS("family_other_mental_illness");
-const QString FN_FAMILY_OTHER_MENTAL_ILLNESS_DETAILS("family_other_mental_illness_details");
-
-const QStringList MANDATORY_FIELDNAMES{
-    FN_DIAGNOSIS,
-    FN_DIAGNOSIS_DATE,
-    FN_HAS_FIBROMYALGIA,
-    FN_IS_PREGNANT,
-    FN_HAS_INFECTION_PAST_MONTH,
-    FN_HAD_INFECTION_TWO_MONTHS_PRECEDING,
-    FN_HAS_ALCOHOL_SUBSTANCE_DEPENDENCE,
-    FN_SMOKING_STATUS,
-    FN_ALCOHOL_UNITS_PER_WEEK,
-
-    FN_DEPRESSION,
-    FN_BIPOLAR_DISORDER,
-    FN_SCHIZOPHRENIA,
-    FN_AUTISM,
-    FN_PTSD,
-    FN_ANXIETY,
-    FN_PERSONALITY_DISORDER,
-    FN_INTELLECTUAL_DISABILITY,
-    FN_OTHER_MENTAL_ILLNESS,
-    FN_HOSPITALISED_IN_LAST_YEAR,
-
-    FN_FAMILY_DEPRESSION,
-    FN_FAMILY_BIPOLAR_DISORDER,
-    FN_FAMILY_SCHIZOPHRENIA,
-    FN_FAMILY_AUTISM,
-    FN_FAMILY_PTSD,
-    FN_FAMILY_ANXIETY,
-    FN_FAMILY_PERSONALITY_DISORDER,
-    FN_FAMILY_INTELLECTUAL_DISABILITY,
-    FN_FAMILY_OTHER_MENTAL_ILLNESS,
-};
 
 void initializeKhandaker2MojoMedicationTable(TaskFactory& factory)
 {
@@ -126,11 +55,8 @@ Khandaker2MojoMedicationTable::Khandaker2MojoMedicationTable(
     Task(app, db, KHANDAKER2MOJOMEDICATIONTABLE_TABLENAME,
          false, false, false)  // ... anon, clin, resp
 {
-    // TODO: Add fields
-
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
-
 
 
 // ============================================================================
@@ -156,12 +82,58 @@ QString Khandaker2MojoMedicationTable::description() const
 
 
 // ============================================================================
+// Ancillary management
+// ============================================================================
+QStringList Khandaker2MojoMedicationTable::ancillaryTables() const
+{
+    return QStringList{
+        Khandaker2MojoMedicationItem::KHANDAKER2MOJOMEDICATIONITEM_TABLENAME
+    };
+}
+
+
+QString Khandaker2MojoMedicationTable::ancillaryTableFKToTaskFieldname() const
+{
+    return Khandaker2MojoMedicationItem::FN_FK_NAME;
+}
+
+void Khandaker2MojoMedicationTable::loadAllAncillary(const int pk)
+{
+    const OrderBy order_by{{Khandaker2MojoMedicationItem::FN_SEQNUM, true}};
+    ancillaryfunc::loadAncillary<Khandaker2MojoMedicationItem, Khandaker2MojoMedicationItemPtr>(
+                m_medication_table, m_app, m_db,
+                Khandaker2MojoMedicationItem::FN_FK_NAME, order_by, pk);
+}
+
+
+QVector<DatabaseObjectPtr> Khandaker2MojoMedicationTable::getAncillarySpecimens() const
+{
+    return QVector<DatabaseObjectPtr>{
+        DatabaseObjectPtr(new Khandaker2MojoMedicationItem(m_app, m_db)),
+    };
+}
+
+
+QVector<DatabaseObjectPtr> Khandaker2MojoMedicationTable::getAllAncillary() const
+{
+    QVector<DatabaseObjectPtr> ancillaries;
+    for (const Khandaker2MojoMedicationItemPtr& medication : m_medication_table) {
+        ancillaries.append(medication);
+    }
+    return ancillaries;
+}
+
+
+
+// ============================================================================
 // Instance info
 // ============================================================================
 
 bool Khandaker2MojoMedicationTable::isComplete() const
 {
-    // TODO
+    // Whilst it's almost certain that anyone completing this task would be on
+    // some kind of medication, we have no way of knowing when all medication
+    // has been added to the table
 
     return true;
 }
@@ -185,18 +157,159 @@ QStringList Khandaker2MojoMedicationTable::detail() const
 
 OpenableWidget* Khandaker2MojoMedicationTable::editor(const bool read_only)
 {
-    QuPagePtr page(new QuPage);
+    auto page = (new QuPage())->setTitle(longname());
+    rebuildPage(page);
 
-    // TODO: Widgets
+    m_questionnaire = new Questionnaire(m_app, {QuPagePtr(page)});
+    m_questionnaire->setType(QuPage::PageType::Patient);
+    m_questionnaire->setReadOnly(read_only);
 
-    QVector<QuPagePtr> pages{page};
-
-    auto questionnaire = new Questionnaire(m_app, pages);
-    questionnaire->setType(QuPage::PageType::Patient);
-    questionnaire->setReadOnly(read_only);
-
-    return questionnaire;
+    return m_questionnaire;
 }
+
+
+void Khandaker2MojoMedicationTable::addItem()
+{
+    Khandaker2MojoMedicationItemPtr item = makeItem();
+    item->setSeqnum(m_medication_table.size() + 1);
+    item->save();
+    m_medication_table.append(item);
+    refreshQuestionnaire();
+}
+
+
+Khandaker2MojoMedicationItemPtr Khandaker2MojoMedicationTable::makeItem() const
+{
+    return Khandaker2MojoMedicationItemPtr(
+        new Khandaker2MojoMedicationItem(pkvalueInt(), m_app, m_db)
+    );
+}
+
+
+void Khandaker2MojoMedicationTable::deleteItem(const int index)
+{
+    if (index < 0 || index >= m_medication_table.size()) {
+        return;
+    }
+    Khandaker2MojoMedicationItemPtr item = m_medication_table.at(index);
+    item->deleteFromDatabase();
+    m_medication_table.removeAt(index);
+    renumberItems();
+    refreshQuestionnaire();
+}
+
+
+void Khandaker2MojoMedicationTable::renumberItems()
+{
+    const int n = m_medication_table.size();
+    for (int i = 0; i < n; ++i) {
+        Khandaker2MojoMedicationItemPtr item = m_medication_table.at(i);
+        item->setSeqnum(i + 1);
+        item->save();
+    }
+}
+
+
+void Khandaker2MojoMedicationTable::refreshQuestionnaire()
+{
+    if (!m_questionnaire) {
+        return;
+    }
+    QuPage* page = m_questionnaire->currentPagePtr();
+    rebuildPage(page);
+    m_questionnaire->refreshCurrentPage();
+}
+
+
+void Khandaker2MojoMedicationTable::rebuildPage(QuPage* page)
+{
+    QVector<QuElement*> elements;
+
+    elements.append(new QuText(xstring("instructions")));
+
+    int i = 0;
+
+    auto grid = new QuGridContainer();
+    grid->setFixedGrid(false);
+    grid->setExpandHorizontally(true);
+
+    grid->addCell(QuGridCell(new QuText(xstring("medication_name")), 0, 0));
+    grid->addCell(QuGridCell(new QuText(xstring("chemical_name")), 0, 1));
+    grid->addCell(QuGridCell(new QuText(xstring("dosage")), 0, 2));
+    grid->addCell(QuGridCell(new QuText(xstring("duration")), 0, 3));
+    grid->addCell(QuGridCell(new QuText(xstring("indication")), 0, 4));
+    grid->addCell(QuGridCell(new QuText(xstring("response")), 0, 5));
+
+    for (const Khandaker2MojoMedicationItemPtr& medication : m_medication_table) {
+        auto delete_button = new QuButton(
+            TextConst::delete_(),
+            std::bind(&Khandaker2MojoMedicationTable::deleteItem, this, i)
+        );
+
+        auto medication_name_edit = new QuLineEdit(
+            medication->fieldRef(
+                Khandaker2MojoMedicationItem::FN_MEDICATION_NAME)
+        );
+
+        auto chemical_name_edit = new QuLineEdit(
+            medication->fieldRef(
+                Khandaker2MojoMedicationItem::FN_CHEMICAL_NAME)
+        );
+
+        auto dosage_edit = new QuLineEdit(
+            medication->fieldRef(
+                Khandaker2MojoMedicationItem::FN_DOSAGE)
+        );
+
+        auto duration_edit = new QuLineEditInteger(
+            medication->fieldRef(
+                Khandaker2MojoMedicationItem::FN_DURATION)
+        );
+
+        auto indication_edit = new QuLineEdit(
+            medication->fieldRef(
+                Khandaker2MojoMedicationItem::FN_INDICATION)
+        );
+
+        NameValueOptions response_options;
+
+        for (int i = 1; i <= 4; i++) {
+            const QString name = getOptionName(
+                Khandaker2MojoMedicationItem::FN_RESPONSE, i
+            );
+            response_options.append(NameValuePair(name, i));
+        }
+
+        auto response_picker = new QuPickerInline(
+            medication->fieldRef(
+                Khandaker2MojoMedicationItem::FN_RESPONSE),
+            response_options
+        );
+
+        int row = i + 1;
+
+        grid->addCell(QuGridCell(medication_name_edit, row, 0));
+        grid->addCell(QuGridCell(chemical_name_edit, row, 1));
+        grid->addCell(QuGridCell(dosage_edit, row, 2));
+        grid->addCell(QuGridCell(duration_edit, row, 3));
+        grid->addCell(QuGridCell(indication_edit, row, 4));
+        grid->addCell(QuGridCell(response_picker, row, 5));
+        grid->addCell(QuGridCell(delete_button, row, 6));
+
+        i++;
+    }
+
+    elements.append(grid);
+
+    elements.append(new QuButton(
+        TextConst::add(),
+        std::bind(&Khandaker2MojoMedicationTable::addItem, this)
+    ));
+
+    page->clearElements();
+    page->addElements(elements);
+}
+
 
 QString Khandaker2MojoMedicationTable::getOptionName(
     const QString &fieldname, const int index) const
