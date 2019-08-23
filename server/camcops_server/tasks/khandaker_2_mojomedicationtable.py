@@ -25,13 +25,18 @@ camcops_server/tasks/khandaker_2_mojomedicationtable.py
 ===============================================================================
 
 """
+from typing import Optional, Type
+
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import (
     ancillary_relationship,
     GenericTabletRecordMixin,
     TaskDescendant,
 )
+from camcops_server.cc_modules.cc_html import answer, tr_qa
+from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
@@ -89,6 +94,36 @@ class Khandaker2MojoMedicationItem(GenericTabletRecordMixin, Base,
                  "4 = no symptoms)")
     )
 
+    def get_html_table_row(self, req: "CamcopsRequest") -> str:
+        return f"""
+            <tr>
+                <td>{answer(self.medication_name)}</td>
+                <td>{answer(self.chemical_name)}</td>
+                <td>{answer(self.dosage)}</td>
+                <td>{answer(self.duration)}</td>
+                <td>{answer(self.indication)}</td>
+                <td>{answer(self.get_response_option(req))}</td>
+            </tr>
+        """
+
+    def get_response_option(self, req: "CamcopsRequest") -> str:
+        if self.response is None:
+            return None
+
+        return self.task_ancestor().xstring(req, f"response_{self.response}")
+
+    # -------------------------------------------------------------------------
+    # TaskDescendant overrides
+    # -------------------------------------------------------------------------
+
+    @classmethod
+    def task_ancestor_class(cls) -> Optional[Type["Task"]]:
+        return Khandaker2MojoMedicationTable
+
+    def task_ancestor(self) -> Optional["Khandaker2MojoMedicationTable"]:
+        return Khandaker2MojoMedicationTable.get_linked(
+            self.medicationtable_id, self)
+
 
 class Khandaker2MojoMedicationTable(TaskHasPatientMixin, Task):
     """
@@ -96,7 +131,7 @@ class Khandaker2MojoMedicationTable(TaskHasPatientMixin, Task):
     """
     __tablename__ = "khandaker_2_mojomedicationtable"
     shortname = "Khandaker_2_MOJOMedicationTable"
-    provides_trackers = False  # TODO: Check
+    provides_trackers = False
 
     items = ancillary_relationship(
         parent_class_name="Khandaker2MojoMedicationTable",
@@ -109,3 +144,41 @@ class Khandaker2MojoMedicationTable(TaskHasPatientMixin, Task):
     def longname(req: "CamcopsRequest") -> str:
         _ = req.gettext
         return _("Khandaker GM — 2 MOJO Study — Medications and Treatment")
+
+    def is_complete(self) -> bool:
+        # Whilst it's almost certain that anyone completing this task would be
+        # on some kind of medication, we have no way of knowing when all
+        # medication has been added to the table
+
+        return True
+
+    def get_num_items(self) -> int:
+        return len(self.items)
+
+    def get_task_html(self, req: "CamcopsRequest") -> str:
+        html = f"""
+            <div class="{CssClass.SUMMARY}">
+                <table class="{CssClass.SUMMARY}">
+                    {self.get_is_complete_tr(req)}
+                    {tr_qa("Number of items", self.get_num_items())}
+                </table>
+            </div>
+
+            <table class="{CssClass.TASKDETAIL}">
+                <tr>
+                    <th>{self.xstring(req, "medication_name")}</th>
+                    <th>{self.xstring(req, "chemical_name")}</th>
+                    <th>{self.xstring(req, "dosage")}</th>
+                    <th>{self.xstring(req, "duration")}</th>
+                    <th>{self.xstring(req, "indication")}</th>
+                    <th>{self.xstring(req, "response")}</th>
+                </tr>
+        """
+        for item in self.items:
+            html += item.get_html_table_row(req)
+
+        html += """
+            </table>
+        """
+
+        return html
