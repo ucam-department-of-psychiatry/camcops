@@ -36,7 +36,7 @@ public:
     QString chemicalName() const;
     QString dosage() const;
     int duration() const;
-    int indication() const;
+    QString indication() const;
     int response() const;
 public:
     static const QString KHANDAKER2MOJOMEDICATIONITEM_TABLENAME;

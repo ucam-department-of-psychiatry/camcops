@@ -100,9 +100,9 @@ int Khandaker2MojoMedicationItem::duration() const
     return valueInt(FN_DURATION);
 }
 
-int Khandaker2MojoMedicationItem::indication() const
+QString Khandaker2MojoMedicationItem::indication() const
 {
-    return valueInt(FN_INDICATION);
+    return valueString(FN_INDICATION);
 }
 
 int Khandaker2MojoMedicationItem::response() const
