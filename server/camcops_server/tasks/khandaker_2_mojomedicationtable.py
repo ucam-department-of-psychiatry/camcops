@@ -125,6 +125,77 @@ class Khandaker2MojoMedicationItem(GenericTabletRecordMixin, Base,
             self.medicationtable_id, self)
 
 
+class Khandaker2MojoTherapyItem(GenericTabletRecordMixin, Base,
+                                TaskDescendant):
+    __tablename__ = "khandaker_2_mojotherapy_item"
+
+    medicationtable_id = CamcopsColumn(
+        "medicationtable_id", Integer, nullable=False,
+        comment="FK to medicationtable"
+    )
+
+    seqnum = CamcopsColumn(
+        "seqnum", Integer, nullable=False,
+        comment="Sequence number of this therapy"
+    )
+
+    therapy = CamcopsColumn(
+        "therapy", UnicodeText,
+        comment="Therapy"
+    )
+
+    frequency = CamcopsColumn(
+        "frequency", Integer,
+        comment="Frequency (per week)"
+    )
+
+    duration = CamcopsColumn(
+        "duration", Integer,
+        comment="Duration (months)"
+    )
+
+    indication = CamcopsColumn(
+        "indication", UnicodeText,
+        comment="Indication (what is the medication used for?)"
+    )
+
+    response = CamcopsColumn(
+        "response", Integer,
+        comment=("1 = treats all symptoms, "
+                 "2 = most symptoms, "
+                 "3 = some symptoms, "
+                 "4 = no symptoms)")
+    )
+
+    def get_html_table_row(self, req: "CamcopsRequest") -> str:
+        return f"""
+            <tr>
+                <td>{answer(self.therapy)}</td>
+                <td>{answer(self.frequency)}</td>
+                <td>{answer(self.duration)}</td>
+                <td>{answer(self.indication)}</td>
+                <td>{answer(self.get_response_option(req))}</td>
+            </tr>
+        """
+
+    def get_response_option(self, req: "CamcopsRequest") -> str:
+        if self.response is None:
+            return None
+
+        return self.task_ancestor().xstring(req, f"response_{self.response}")
+
+    # -------------------------------------------------------------------------
+    # TaskDescendant overrides
+    # -------------------------------------------------------------------------
+    @classmethod
+    def task_ancestor_class(cls) -> Optional[Type["Task"]]:
+        return Khandaker2MojoMedicationTable
+
+    def task_ancestor(self) -> Optional["Khandaker2MojoMedicationTable"]:
+        return Khandaker2MojoMedicationTable.get_linked(
+            self.medicationtable_id, self)
+
+
 class Khandaker2MojoMedicationTable(TaskHasPatientMixin, Task):
     """
     Server implementation of the Khandaker_2_MOJOMedicationTable task
@@ -133,9 +204,16 @@ class Khandaker2MojoMedicationTable(TaskHasPatientMixin, Task):
     shortname = "Khandaker_2_MOJOMedicationTable"
     provides_trackers = False
 
-    items = ancillary_relationship(
+    medication_items = ancillary_relationship(
         parent_class_name="Khandaker2MojoMedicationTable",
         ancillary_class_name="Khandaker2MojoMedicationItem",
+        ancillary_fk_to_parent_attr_name="medicationtable_id",
+        ancillary_order_by_attr_name="seqnum"
+    )
+
+    therapy_items = ancillary_relationship(
+        parent_class_name="Khandaker2MojoMedicationTable",
+        ancillary_class_name="Khandaker2MojoTherapyItem",
         ancillary_fk_to_parent_attr_name="medicationtable_id",
         ancillary_order_by_attr_name="seqnum"
     )
@@ -152,15 +230,21 @@ class Khandaker2MojoMedicationTable(TaskHasPatientMixin, Task):
 
         return True
 
-    def get_num_items(self) -> int:
-        return len(self.items)
+    def get_num_medications(self) -> int:
+        return len(self.medication_items)
+
+    def get_num_therapies(self) -> int:
+        return len(self.therapy_items)
 
     def get_task_html(self, req: "CamcopsRequest") -> str:
         html = f"""
             <div class="{CssClass.SUMMARY}">
                 <table class="{CssClass.SUMMARY}">
                     {self.get_is_complete_tr(req)}
-                    {tr_qa("Number of items", self.get_num_items())}
+                    {tr_qa("Number of medications",
+                            self.get_num_medication_items())}
+                    {tr_qa("Number of therapies",
+                            self.get_num_therapy_items())}
                 </table>
             </div>
 
@@ -174,7 +258,22 @@ class Khandaker2MojoMedicationTable(TaskHasPatientMixin, Task):
                     <th>{self.xstring(req, "response")}</th>
                 </tr>
         """
-        for item in self.items:
+        for item in self.medication_items:
+            html += item.get_html_table_row(req)
+
+        html += """
+            </table>
+            <table class="{CssClass.TASKDETAIL}">
+                <tr>
+                    <th>{self.xstring(req, "therapy")}</th>
+                    <th>{self.xstring(req, "frequency")}</th>
+                    <th>{self.xstring(req, "duration")}</th>
+                    <th>{self.xstring(req, "indication")}</th>
+                    <th>{self.xstring(req, "response")}</th>
+                </tr>
+        """
+
+        for item in self.therapy_items:
             html += item.get_html_table_row(req)
 
         html += """
