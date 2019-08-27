@@ -158,6 +158,14 @@ QStringList Khandaker2MojoMedicationTable::detail() const
 OpenableWidget* Khandaker2MojoMedicationTable::editor(const bool read_only)
 {
     auto page = (new QuPage())->setTitle(longname());
+
+    if (m_medication_table.size() == 0) {
+
+        // Display an empty row as an example if there are no rows. The user
+        // can always delete it if they want to leave the table empty
+        addItem();
+    }
+
     rebuildPage(page);
 
     m_questionnaire = new Questionnaire(m_app, {QuPagePtr(page)});
