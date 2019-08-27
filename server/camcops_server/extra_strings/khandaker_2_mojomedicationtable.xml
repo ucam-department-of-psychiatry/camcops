@@ -15,5 +15,32 @@
     <string name="response_2">Treats most symptoms</string>
     <string name="response_3">Treats some symptoms</string>
     <string name="response_4">Treats no symptoms</string>
+    <string name="custom_medication_0">Select a common anti-inflammatory medication</string>
+    <string name="custom_medication_1">Abatacept</string>
+    <string name="custom_medication_2">Adalimumab</string>
+    <string name="custom_medication_3">Alemtuzumab</string>
+    <string name="custom_medication_4">Azathioprine</string>
+    <string name="custom_medication_5">Baricitinib</string>
+    <string name="custom_medication_6">Belimumab</string>
+    <string name="custom_medication_7">Certolizumab Pegol</string>
+    <string name="custom_medication_8">Cyclophosphamide</string>
+    <string name="custom_medication_9">Etanercept</string>
+    <string name="custom_medication_10">Golimumab</string>
+    <string name="custom_medication_11">Hydrocortisone</string>
+    <string name="custom_medication_12">Hydroxychloroquine</string>
+    <string name="custom_medication_13">Infliximab</string>
+    <string name="custom_medication_14">Intravenous immunoglobulin</string>
+    <string name="custom_medication_15">Intravenous methylprednisolone</string>
+    <string name="custom_medication_16">Leflunomide</string>
+    <string name="custom_medication_17">MMF</string>
+    <string name="custom_medication_18">Methotrexate</string>
+    <string name="custom_medication_19">Plasma exchange</string>
+    <string name="custom_medication_20">Prednisolone</string>
+    <string name="custom_medication_21">Rituximab</string>
+    <string name="custom_medication_22">Secukinumab</string>
+    <string name="custom_medication_23">Sulfsalazine</string>
+    <string name="custom_medication_24">Tocilizumab</string>
+    <string name="custom_medication_25">Tofacitinib</string>
+    <string name="add_instructions">Add either a blank row or a row prepopulated with a common anti-inflammatory medication</string>
   </task>
 </resources>

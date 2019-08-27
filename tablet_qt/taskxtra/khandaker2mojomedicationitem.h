@@ -32,6 +32,7 @@ public:
     void setSeqnum(int seqnum);
     int seqnum() const;
     QString medicationName() const;
+    void setChemicalName(const QString chemical_name);
     QString chemicalName() const;
     QString dosage() const;
     int duration() const;

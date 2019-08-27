@@ -25,6 +25,7 @@
 class CamcopsApp;
 class OpenableWidget;
 class Questionnaire;
+class QuPickerPopup;
 class TaskFactory;
 
 void initializeKhandaker2MojoMedicationTable(TaskFactory& factory);
@@ -61,19 +62,34 @@ public:
     // Task-specific
     // ------------------------------------------------------------------------
 private:
+    QuPickerPopup* getMedicationPicker();
+    QString getCustomMedicationName(const int index) const;
     QString getOptionName(const QString &fieldname, const int index) const;
+    QString getOptionName(const QString &fieldname, const int index,
+                          const QString default_str) const;
     void addItem();
     void deleteItem(int index);
     Khandaker2MojoMedicationItemPtr makeItem() const;
     void refreshQuestionnaire();
     void rebuildPage(QuPage* page);
     void renumberItems();
+
+protected:
+    QVariant m_custom_medication;
+    FieldRefPtr m_fr_custom_medication;
+
     // ------------------------------------------------------------------------
     // Data
     // ------------------------------------------------------------------------
 protected:
     QVector<Khandaker2MojoMedicationItemPtr> m_medication_table;
     QPointer<Questionnaire> m_questionnaire;
+    // ------------------------------------------------------------------------
+    // Getters/setters
+    // ------------------------------------------------------------------------
+public:
+    QVariant getCustomMedication() const;
+    bool setCustomMedication(const QVariant& value);
 
 public:
     static const QString KHANDAKER2MOJOMEDICATIONTABLE_TABLENAME;

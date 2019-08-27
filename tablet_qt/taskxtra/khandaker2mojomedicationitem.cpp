@@ -78,6 +78,12 @@ QString Khandaker2MojoMedicationItem::medicationName() const
     return valueString(FN_MEDICATION_NAME);
 }
 
+void Khandaker2MojoMedicationItem::setChemicalName(
+    const QString chemical_name)
+{
+    setValue(FN_CHEMICAL_NAME, chemical_name);
+}
+
 QString Khandaker2MojoMedicationItem::chemicalName() const
 {
     return valueString(FN_CHEMICAL_NAME);

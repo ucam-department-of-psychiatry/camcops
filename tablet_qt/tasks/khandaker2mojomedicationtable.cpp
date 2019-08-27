@@ -21,6 +21,7 @@
 #include "common/cssconst.h"
 #include "common/textconst.h"
 #include "db/ancillaryfunc.h"
+#include "db/fieldref.h"
 #include "lib/convert.h"
 #include "lib/uifunc.h"
 #include "lib/version.h"
@@ -32,7 +33,7 @@
 #include "questionnairelib/quheading.h"
 #include "questionnairelib/qulineeditinteger.h"
 #include "questionnairelib/qupage.h"
-#include "questionnairelib/qupickerinline.h"
+#include "questionnairelib/qupickerpopup.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
 #include "taskxtra/khandaker2mojomedicationitem.h"
@@ -53,7 +54,9 @@ void initializeKhandaker2MojoMedicationTable(TaskFactory& factory)
 Khandaker2MojoMedicationTable::Khandaker2MojoMedicationTable(
         CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, KHANDAKER2MOJOMEDICATIONTABLE_TABLENAME,
-         false, false, false)  // ... anon, clin, resp
+         false, false, false),  // ... anon, clin, resp
+    m_custom_medication(0),
+    m_fr_custom_medication(nullptr)
 {
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
@@ -180,6 +183,14 @@ void Khandaker2MojoMedicationTable::addItem()
 {
     Khandaker2MojoMedicationItemPtr item = makeItem();
     item->setSeqnum(m_medication_table.size() + 1);
+
+    if (!m_custom_medication.isNull() && m_custom_medication != 0) {
+        const QString chemical_name = getCustomMedicationName(
+            m_custom_medication.toInt());
+
+        item->setChemicalName(chemical_name);
+    }
+
     item->save();
     m_medication_table.append(item);
     refreshQuestionnaire();
@@ -288,7 +299,7 @@ void Khandaker2MojoMedicationTable::rebuildPage(QuPage* page)
             response_options.append(NameValuePair(name, i));
         }
 
-        auto response_picker = new QuPickerInline(
+        auto response_picker = new QuPickerPopup(
             medication->fieldRef(
                 Khandaker2MojoMedicationItem::FN_RESPONSE),
             response_options
@@ -309,6 +320,9 @@ void Khandaker2MojoMedicationTable::rebuildPage(QuPage* page)
 
     elements.append(grid);
 
+    elements.append(new QuText(xstring("add_instructions")));
+    elements.append(getMedicationPicker());
+
     elements.append(new QuButton(
         TextConst::add(),
         std::bind(&Khandaker2MojoMedicationTable::addItem, this)
@@ -319,8 +333,73 @@ void Khandaker2MojoMedicationTable::rebuildPage(QuPage* page)
 }
 
 
-QString Khandaker2MojoMedicationTable::getOptionName(
-    const QString &fieldname, const int index) const
+QuPickerPopup* Khandaker2MojoMedicationTable::getMedicationPicker() {
+    NameValueOptions medication_options;
+
+    int i = 0;
+
+    while (true) {
+        const QString name = getCustomMedicationName(i);
+
+        if (name == "__no_more_medications") {
+            break;
+        }
+
+        medication_options.append(NameValuePair(name, i));
+
+        i++;
+    }
+
+    FieldRef::GetterFunction getter = std::bind(
+        &Khandaker2MojoMedicationTable::getCustomMedication, this
+    );
+    FieldRef::SetterFunction setter= std::bind(
+        &Khandaker2MojoMedicationTable::setCustomMedication, this,
+        std::placeholders::_1);
+
+    m_fr_custom_medication = FieldRefPtr(new FieldRef(getter, setter, false));
+    setCustomMedication(0);
+
+    return new QuPickerPopup(
+        m_fr_custom_medication,
+        medication_options
+    );
+}
+
+bool Khandaker2MojoMedicationTable::setCustomMedication(const QVariant& value)
 {
-    return xstring(QString("%1_%2").arg(fieldname).arg(index));
+    const bool changed = value != m_custom_medication;
+
+    if (changed) {
+        m_custom_medication = value;
+    }
+
+    return changed;
+}
+
+QVariant Khandaker2MojoMedicationTable::getCustomMedication() const
+{
+    return m_custom_medication;
+}
+
+
+QString Khandaker2MojoMedicationTable::getCustomMedicationName(
+    const int index) const
+{
+    return getOptionName("custom_medication",
+                         index,
+                         "__no_more_medications");
+}
+
+QString Khandaker2MojoMedicationTable::getOptionName(
+    const QString &prefix, const int index) const
+{
+    return getOptionName(prefix, index, "");
+}
+
+QString Khandaker2MojoMedicationTable::getOptionName(
+    const QString &prefix, const int index, const QString default_str) const
+{
+    return xstring(QString("%1_%2").arg(prefix).arg(index),
+        default_str);
 }
