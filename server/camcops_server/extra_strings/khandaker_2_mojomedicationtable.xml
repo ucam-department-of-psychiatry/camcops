@@ -4,7 +4,7 @@
     <!-- Khandaker GM — 2 MOJO Study — Medications and Treatment -->
 
     <string name="title">MOJO Study — Medications and Treatment</string>
-    <string name="instructions">What current medication do you take that has been prescribed by a doctor?</string>
+    <string name="medication_question">What current medication do you take that has been prescribed by a doctor?</string>
     <string name="medication_name">Medication name</string>
     <string name="chemical_name">Chemical name (for study team)</string>
     <string name="dosage">Dosage</string>
@@ -41,6 +41,10 @@
     <string name="custom_medication_23">Sulfsalazine</string>
     <string name="custom_medication_24">Tocilizumab</string>
     <string name="custom_medication_25">Tofacitinib</string>
-    <string name="add_instructions">Add either a blank row or a row prepopulated with a common anti-inflammatory medication</string>
+
+    <string name="therapy_question">Are you receiving any talking therapies (e.g: cognitive-behavioural therapy)? If so, how frequently, how long have you been receiving it, and are you finding it effective?</string>
+    <string name="therapy">Therapy</string>
+    <string name="frequency">Frequency (per week)</string>
+
   </task>
 </resources>
