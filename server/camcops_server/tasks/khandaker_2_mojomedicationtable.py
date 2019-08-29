@@ -36,7 +36,6 @@ from camcops_server.cc_modules.cc_db import (
     TaskDescendant,
 )
 from camcops_server.cc_modules.cc_html import answer, tr_qa
-from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
@@ -230,10 +229,10 @@ class Khandaker2MojoMedicationTable(TaskHasPatientMixin, Task):
 
         return True
 
-    def get_num_medications(self) -> int:
+    def get_num_medication_items(self) -> int:
         return len(self.medication_items)
 
-    def get_num_therapies(self) -> int:
+    def get_num_therapy_items(self) -> int:
         return len(self.therapy_items)
 
     def get_task_html(self, req: "CamcopsRequest") -> str:
@@ -261,7 +260,7 @@ class Khandaker2MojoMedicationTable(TaskHasPatientMixin, Task):
         for item in self.medication_items:
             html += item.get_html_table_row(req)
 
-        html += """
+        html += f"""
             </table>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
@@ -276,7 +275,7 @@ class Khandaker2MojoMedicationTable(TaskHasPatientMixin, Task):
         for item in self.therapy_items:
             html += item.get_html_table_row(req)
 
-        html += """
+        html += f"""
             </table>
         """
 
