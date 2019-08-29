@@ -160,7 +160,12 @@ bool Khandaker2MojoMedicationTable::isComplete() const
 
 QStringList Khandaker2MojoMedicationTable::summary() const
 {
-    return QStringList{TextConst::noSummarySeeFacsimile()};
+    return QStringList{
+        QString("%1 %2").arg(xstring("number_of_medications")).arg(
+            m_medication_table.size()),
+        QString("%1 %2").arg(xstring("number_of_therapies")).arg(
+                m_therapy_table.size())
+    };
 }
 
 
