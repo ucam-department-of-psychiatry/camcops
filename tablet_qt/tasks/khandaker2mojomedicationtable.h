@@ -25,6 +25,7 @@
 class CamcopsApp;
 class OpenableWidget;
 class Questionnaire;
+class QuGridContainer;
 class QuPickerPopup;
 class TaskFactory;
 
@@ -62,17 +63,27 @@ public:
     // Task-specific
     // ------------------------------------------------------------------------
 private:
+    QuPickerPopup* getResponsePicker(
+        FieldRefPtr fieldref, const QString fieldname);
     QuPickerPopup* getMedicationPicker();
+    bool isCustomMedicationSet() const;
+    QString getCustomMedicationName() const;
     QString getCustomMedicationName(const int index) const;
     QString getOptionName(const QString &fieldname, const int index) const;
     QString getOptionName(const QString &fieldname, const int index,
                           const QString default_str) const;
-    void addItem();
-    void deleteItem(int index);
-    Khandaker2MojoMedicationItemPtr makeItem() const;
+    void addMedicationItem();
+    void addTherapyItem();
+    void deleteMedicationItem(int index);
+    void deleteTherapyItem(int index);
+    QuGridContainer* getMedicationGrid();
+    QuGridContainer* getTherapyGrid();
+    Khandaker2MojoMedicationItemPtr makeMedicationItem() const;
+    Khandaker2MojoTherapyItemPtr makeTherapyItem() const;
     void refreshQuestionnaire();
     void rebuildPage(QuPage* page);
-    void renumberItems();
+    void renumberMedicationItems();
+    void renumberTherapyItems();
 
 protected:
     QVariant m_custom_medication;
@@ -83,6 +94,7 @@ protected:
     // ------------------------------------------------------------------------
 protected:
     QVector<Khandaker2MojoMedicationItemPtr> m_medication_table;
+    QVector<Khandaker2MojoTherapyItemPtr> m_therapy_table;
     QPointer<Questionnaire> m_questionnaire;
     // ------------------------------------------------------------------------
     // Getters/setters
@@ -90,7 +102,6 @@ protected:
 public:
     QVariant getCustomMedication() const;
     bool setCustomMedication(const QVariant& value);
-
 public:
     static const QString KHANDAKER2MOJOMEDICATIONTABLE_TABLENAME;
 };

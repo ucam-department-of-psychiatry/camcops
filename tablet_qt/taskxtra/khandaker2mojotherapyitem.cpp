@@ -42,6 +42,7 @@ Khandaker2MojoTherapyItem::Khandaker2MojoTherapyItem(
     addField(FN_FK_NAME, QVariant::Int);
     addField(FN_SEQNUM, QVariant::Int);
     addField(FN_THERAPY, QVariant::String);
+    addField(FN_FREQUENCY, QVariant::Int);
     addField(FN_DURATION, QVariant::Int);
     addField(FN_INDICATION, QVariant::String);
     addField(FN_RESPONSE, QVariant::Int);

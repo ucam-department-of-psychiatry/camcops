@@ -34,9 +34,11 @@
 #include "questionnairelib/qulineeditinteger.h"
 #include "questionnairelib/qupage.h"
 #include "questionnairelib/qupickerpopup.h"
+#include "questionnairelib/quspacer.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
 #include "taskxtra/khandaker2mojomedicationitem.h"
+#include "taskxtra/khandaker2mojotherapyitem.h"
 
 const QString Khandaker2MojoMedicationTable::KHANDAKER2MOJOMEDICATIONTABLE_TABLENAME(
     "khandaker_2_mojomedicationtable");
@@ -90,22 +92,32 @@ QString Khandaker2MojoMedicationTable::description() const
 QStringList Khandaker2MojoMedicationTable::ancillaryTables() const
 {
     return QStringList{
-        Khandaker2MojoMedicationItem::KHANDAKER2MOJOMEDICATIONITEM_TABLENAME
+        Khandaker2MojoMedicationItem::KHANDAKER2MOJOMEDICATIONITEM_TABLENAME,
+        Khandaker2MojoTherapyItem::KHANDAKER2MOJOTHERAPYITEM_TABLENAME
     };
 }
 
 
 QString Khandaker2MojoMedicationTable::ancillaryTableFKToTaskFieldname() const
 {
+    Q_ASSERT(Khandaker2MojoTherapyItem::FN_FK_NAME == Khandaker2MojoMedicationItem::FN_FK_NAME);
+
     return Khandaker2MojoMedicationItem::FN_FK_NAME;
 }
 
 void Khandaker2MojoMedicationTable::loadAllAncillary(const int pk)
 {
-    const OrderBy order_by{{Khandaker2MojoMedicationItem::FN_SEQNUM, true}};
-    ancillaryfunc::loadAncillary<Khandaker2MojoMedicationItem, Khandaker2MojoMedicationItemPtr>(
+    const OrderBy medication_order_by{{Khandaker2MojoMedicationItem::FN_SEQNUM, true}};
+    ancillaryfunc::loadAncillary<Khandaker2MojoMedicationItem,
+                                 Khandaker2MojoMedicationItemPtr>(
                 m_medication_table, m_app, m_db,
-                Khandaker2MojoMedicationItem::FN_FK_NAME, order_by, pk);
+                Khandaker2MojoMedicationItem::FN_FK_NAME, medication_order_by, pk);
+
+    const OrderBy therapy_order_by{{Khandaker2MojoTherapyItem::FN_SEQNUM, true}};
+    ancillaryfunc::loadAncillary<Khandaker2MojoTherapyItem,
+                                 Khandaker2MojoTherapyItemPtr>(
+                m_therapy_table, m_app, m_db,
+                Khandaker2MojoTherapyItem::FN_FK_NAME, therapy_order_by, pk);
 }
 
 
@@ -113,6 +125,7 @@ QVector<DatabaseObjectPtr> Khandaker2MojoMedicationTable::getAncillarySpecimens(
 {
     return QVector<DatabaseObjectPtr>{
         DatabaseObjectPtr(new Khandaker2MojoMedicationItem(m_app, m_db)),
+        DatabaseObjectPtr(new Khandaker2MojoTherapyItem(m_app, m_db)),
     };
 }
 
@@ -122,6 +135,9 @@ QVector<DatabaseObjectPtr> Khandaker2MojoMedicationTable::getAllAncillary() cons
     QVector<DatabaseObjectPtr> ancillaries;
     for (const Khandaker2MojoMedicationItemPtr& medication : m_medication_table) {
         ancillaries.append(medication);
+    }
+    for (const Khandaker2MojoTherapyItemPtr& therapy : m_therapy_table) {
+        ancillaries.append(therapy);
     }
     return ancillaries;
 }
@@ -162,11 +178,14 @@ OpenableWidget* Khandaker2MojoMedicationTable::editor(const bool read_only)
 {
     auto page = (new QuPage())->setTitle(longname());
 
+    // Display empty rows as examples if there are no rows. The user
+    // can always delete them if they want to leave the tables empty
     if (m_medication_table.size() == 0) {
+        addMedicationItem();
+    }
 
-        // Display an empty row as an example if there are no rows. The user
-        // can always delete it if they want to leave the table empty
-        addItem();
+    if (m_therapy_table.size() == 0) {
+        addTherapyItem();
     }
 
     rebuildPage(page);
@@ -179,25 +198,30 @@ OpenableWidget* Khandaker2MojoMedicationTable::editor(const bool read_only)
 }
 
 
-void Khandaker2MojoMedicationTable::addItem()
+void Khandaker2MojoMedicationTable::addMedicationItem()
 {
-    Khandaker2MojoMedicationItemPtr item = makeItem();
+    Khandaker2MojoMedicationItemPtr item = makeMedicationItem();
     item->setSeqnum(m_medication_table.size() + 1);
 
-    if (!m_custom_medication.isNull() && m_custom_medication != 0) {
-        const QString chemical_name = getCustomMedicationName(
-            m_custom_medication.toInt());
-
-        item->setChemicalName(chemical_name);
-    }
-
+    item->setChemicalName(getCustomMedicationName());
     item->save();
     m_medication_table.append(item);
+
     refreshQuestionnaire();
 }
 
 
-Khandaker2MojoMedicationItemPtr Khandaker2MojoMedicationTable::makeItem() const
+void Khandaker2MojoMedicationTable::addTherapyItem()
+{
+    Khandaker2MojoTherapyItemPtr item = makeTherapyItem();
+    item->setSeqnum(m_therapy_table.size() + 1);
+    item->save();
+    m_therapy_table.append(item);
+    refreshQuestionnaire();
+}
+
+
+Khandaker2MojoMedicationItemPtr Khandaker2MojoMedicationTable::makeMedicationItem() const
 {
     return Khandaker2MojoMedicationItemPtr(
         new Khandaker2MojoMedicationItem(pkvalueInt(), m_app, m_db)
@@ -205,7 +229,15 @@ Khandaker2MojoMedicationItemPtr Khandaker2MojoMedicationTable::makeItem() const
 }
 
 
-void Khandaker2MojoMedicationTable::deleteItem(const int index)
+Khandaker2MojoTherapyItemPtr Khandaker2MojoMedicationTable::makeTherapyItem() const
+{
+    return Khandaker2MojoTherapyItemPtr(
+        new Khandaker2MojoTherapyItem(pkvalueInt(), m_app, m_db)
+    );
+}
+
+
+void Khandaker2MojoMedicationTable::deleteMedicationItem(const int index)
 {
     if (index < 0 || index >= m_medication_table.size()) {
         return;
@@ -213,16 +245,40 @@ void Khandaker2MojoMedicationTable::deleteItem(const int index)
     Khandaker2MojoMedicationItemPtr item = m_medication_table.at(index);
     item->deleteFromDatabase();
     m_medication_table.removeAt(index);
-    renumberItems();
+    renumberMedicationItems();
     refreshQuestionnaire();
 }
 
 
-void Khandaker2MojoMedicationTable::renumberItems()
+void Khandaker2MojoMedicationTable::deleteTherapyItem(const int index)
+{
+    if (index < 0 || index >= m_therapy_table.size()) {
+        return;
+    }
+    Khandaker2MojoTherapyItemPtr item = m_therapy_table.at(index);
+    item->deleteFromDatabase();
+    m_therapy_table.removeAt(index);
+    renumberTherapyItems();
+    refreshQuestionnaire();
+}
+
+
+void Khandaker2MojoMedicationTable::renumberMedicationItems()
 {
     const int n = m_medication_table.size();
     for (int i = 0; i < n; ++i) {
         Khandaker2MojoMedicationItemPtr item = m_medication_table.at(i);
+        item->setSeqnum(i + 1);
+        item->save();
+    }
+}
+
+
+void Khandaker2MojoMedicationTable::renumberTherapyItems()
+{
+    const int n = m_therapy_table.size();
+    for (int i = 0; i < n; ++i) {
+        Khandaker2MojoTherapyItemPtr item = m_therapy_table.at(i);
         item->setSeqnum(i + 1);
         item->save();
     }
@@ -244,10 +300,32 @@ void Khandaker2MojoMedicationTable::rebuildPage(QuPage* page)
 {
     QVector<QuElement*> elements;
 
-    elements.append(new QuText(xstring("instructions")));
+    elements.append((new QuText(xstring("medication_question")))->setBold());
 
-    int i = 0;
+    elements.append(getMedicationGrid());
 
+    elements.append(new QuText(xstring("add_instructions")));
+    elements.append(getMedicationPicker());
+
+    elements.append(new QuButton(
+        TextConst::add(),
+        std::bind(&Khandaker2MojoMedicationTable::addMedicationItem, this)
+    ));
+
+    elements.append(new QuSpacer(QSize(uiconst::BIGSPACE, uiconst::BIGSPACE)));
+    elements.append((new QuText(xstring("therapy_question")))->setBold());
+    elements.append(getTherapyGrid());
+
+    elements.append(new QuButton(
+        TextConst::add(),
+        std::bind(&Khandaker2MojoMedicationTable::addTherapyItem, this)
+    ));
+
+    page->clearElements();
+    page->addElements(elements);
+}
+
+QuGridContainer* Khandaker2MojoMedicationTable::getMedicationGrid() {
     auto grid = new QuGridContainer();
     grid->setFixedGrid(false);
     grid->setExpandHorizontally(true);
@@ -259,10 +337,13 @@ void Khandaker2MojoMedicationTable::rebuildPage(QuPage* page)
     grid->addCell(QuGridCell(new QuText(xstring("indication")), 0, 4));
     grid->addCell(QuGridCell(new QuText(xstring("response")), 0, 5));
 
+    int i = 0;
+
     for (const Khandaker2MojoMedicationItemPtr& medication : m_medication_table) {
         auto delete_button = new QuButton(
             TextConst::delete_(),
-            std::bind(&Khandaker2MojoMedicationTable::deleteItem, this, i)
+            std::bind(&Khandaker2MojoMedicationTable::deleteMedicationItem,
+                      this, i)
         );
 
         auto medication_name_edit = new QuLineEdit(
@@ -290,19 +371,9 @@ void Khandaker2MojoMedicationTable::rebuildPage(QuPage* page)
                 Khandaker2MojoMedicationItem::FN_INDICATION)
         );
 
-        NameValueOptions response_options;
-
-        for (int i = 1; i <= 4; i++) {
-            const QString name = getOptionName(
-                Khandaker2MojoMedicationItem::FN_RESPONSE, i
-            );
-            response_options.append(NameValuePair(name, i));
-        }
-
-        auto response_picker = new QuPickerPopup(
-            medication->fieldRef(
-                Khandaker2MojoMedicationItem::FN_RESPONSE),
-            response_options
+        auto response_picker = getResponsePicker(
+            medication->fieldRef(Khandaker2MojoMedicationItem::FN_RESPONSE),
+            Khandaker2MojoMedicationItem::FN_RESPONSE
         );
 
         int row = i + 1;
@@ -318,18 +389,80 @@ void Khandaker2MojoMedicationTable::rebuildPage(QuPage* page)
         i++;
     }
 
-    elements.append(grid);
+    return grid;
+}
 
-    elements.append(new QuText(xstring("add_instructions")));
-    elements.append(getMedicationPicker());
 
-    elements.append(new QuButton(
-        TextConst::add(),
-        std::bind(&Khandaker2MojoMedicationTable::addItem, this)
-    ));
+QuGridContainer* Khandaker2MojoMedicationTable::getTherapyGrid() {
+    auto grid = new QuGridContainer();
+    grid->setFixedGrid(false);
+    grid->setExpandHorizontally(true);
 
-    page->clearElements();
-    page->addElements(elements);
+    grid->addCell(QuGridCell(new QuText(xstring("therapy")), 0, 0));
+    grid->addCell(QuGridCell(new QuText(xstring("frequency")), 0, 1));
+    grid->addCell(QuGridCell(new QuText(xstring("duration")), 0, 2));
+    grid->addCell(QuGridCell(new QuText(xstring("indication")), 0, 3));
+    grid->addCell(QuGridCell(new QuText(xstring("response")), 0, 4));
+
+    int i = 0;
+
+    for (const Khandaker2MojoTherapyItemPtr& therapy : m_therapy_table) {
+        auto delete_button = new QuButton(
+            TextConst::delete_(),
+            std::bind(&Khandaker2MojoMedicationTable::deleteTherapyItem, this, i)
+        );
+
+        auto therapy_edit = new QuLineEdit(
+            therapy->fieldRef(
+                Khandaker2MojoTherapyItem::FN_THERAPY)
+        );
+
+        auto frequency_edit = new QuLineEditInteger(
+            therapy->fieldRef(
+                Khandaker2MojoTherapyItem::FN_FREQUENCY)
+        );
+
+        auto duration_edit = new QuLineEditInteger(
+            therapy->fieldRef(
+                Khandaker2MojoTherapyItem::FN_DURATION)
+        );
+
+        auto indication_edit = new QuLineEdit(
+            therapy->fieldRef(
+                Khandaker2MojoTherapyItem::FN_INDICATION)
+        );
+
+        auto response_picker = getResponsePicker(
+            therapy->fieldRef(Khandaker2MojoTherapyItem::FN_RESPONSE),
+            Khandaker2MojoTherapyItem::FN_RESPONSE
+        );
+
+        int row = i + 1;
+
+        grid->addCell(QuGridCell(therapy_edit, row, 0));
+        grid->addCell(QuGridCell(frequency_edit, row, 1));
+        grid->addCell(QuGridCell(duration_edit, row, 2));
+        grid->addCell(QuGridCell(indication_edit, row, 3));
+        grid->addCell(QuGridCell(response_picker, row, 4));
+        grid->addCell(QuGridCell(delete_button, row, 5));
+
+        i++;
+    }
+
+    return grid;
+}
+
+
+QuPickerPopup* Khandaker2MojoMedicationTable::getResponsePicker(
+    FieldRefPtr fieldref, const QString fieldname) {
+    NameValueOptions response_options;
+
+    for (int i = 1; i <= 4; i++) {
+        const QString name = getOptionName(fieldname, i);
+        response_options.append(NameValuePair(name, i));
+    }
+
+    return new QuPickerPopup(fieldref, response_options);
 }
 
 
@@ -366,6 +499,7 @@ QuPickerPopup* Khandaker2MojoMedicationTable::getMedicationPicker() {
     );
 }
 
+
 bool Khandaker2MojoMedicationTable::setCustomMedication(const QVariant& value)
 {
     const bool changed = value != m_custom_medication;
@@ -377,9 +511,28 @@ bool Khandaker2MojoMedicationTable::setCustomMedication(const QVariant& value)
     return changed;
 }
 
+
 QVariant Khandaker2MojoMedicationTable::getCustomMedication() const
 {
     return m_custom_medication;
+}
+
+
+QString Khandaker2MojoMedicationTable::getCustomMedicationName() const
+{
+    if (!isCustomMedicationSet()) {
+        return nullptr;
+    }
+
+    return getCustomMedicationName(m_custom_medication.toInt());
+}
+
+
+bool Khandaker2MojoMedicationTable::isCustomMedicationSet() const
+{
+    Q_ASSERT(!m_custom_medication.isNull());
+
+    return m_custom_medication != 0;
 }
 
 
@@ -391,15 +544,16 @@ QString Khandaker2MojoMedicationTable::getCustomMedicationName(
                          "__no_more_medications");
 }
 
+
 QString Khandaker2MojoMedicationTable::getOptionName(
     const QString &prefix, const int index) const
 {
     return getOptionName(prefix, index, "");
 }
 
+
 QString Khandaker2MojoMedicationTable::getOptionName(
     const QString &prefix, const int index, const QString default_str) const
 {
-    return xstring(QString("%1_%2").arg(prefix).arg(index),
-        default_str);
+    return xstring(QString("%1_%2").arg(prefix).arg(index), default_str);
 }
