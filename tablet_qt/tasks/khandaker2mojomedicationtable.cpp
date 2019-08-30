@@ -171,11 +171,106 @@ QStringList Khandaker2MojoMedicationTable::summary() const
 
 QStringList Khandaker2MojoMedicationTable::detail() const
 {
+    return completenessInfo() + medicationDetail() + therapyDetail() + summary();
+}
+
+
+QStringList Khandaker2MojoMedicationTable::medicationDetail() const
+{
+    const QVector<QString> columns{
+        Khandaker2MojoMedicationItem::FN_MEDICATION_NAME,
+        Khandaker2MojoMedicationItem::FN_CHEMICAL_NAME,
+        Khandaker2MojoMedicationItem::FN_DOSAGE,
+        Khandaker2MojoMedicationItem::FN_DURATION,
+        Khandaker2MojoMedicationItem::FN_INDICATION,
+        Khandaker2MojoMedicationItem::FN_RESPONSE,
+    };
+
     QStringList lines;
 
-    // TODO
+    lines.append("<table>");
+    lines.append("<tr>");
 
-    return completenessInfo() + lines;
+    for (const QString column : columns) {
+        lines.append(QString("<th>%1</th>").arg(xstring(column)));
+    }
+
+    lines.append("</tr>");
+
+    for (const Khandaker2MojoMedicationItemPtr& medication : m_medication_table) {
+        lines.append("<tr>");
+
+        for (const QString column : columns) {
+            QString table_cell = "?";
+
+            const QVariant field_value = medication->value(column);
+
+            if (!field_value.isNull()) {
+                table_cell = field_value.toString();
+
+                if (column == Khandaker2MojoMedicationItem::FN_RESPONSE) {
+                    table_cell = getOptionName("response", field_value.toInt());
+                }
+            }
+
+            lines.append(QString("<td>%1</td>").arg(table_cell));
+        }
+
+        lines.append("</tr>");
+    }
+
+    lines.append("</table>");
+
+    return lines;
+}
+
+
+QStringList Khandaker2MojoMedicationTable::therapyDetail() const
+{
+    const QVector<QString> columns{
+        Khandaker2MojoTherapyItem::FN_THERAPY,
+        Khandaker2MojoTherapyItem::FN_FREQUENCY,
+        Khandaker2MojoTherapyItem::FN_DURATION,
+        Khandaker2MojoTherapyItem::FN_INDICATION,
+        Khandaker2MojoTherapyItem::FN_RESPONSE,
+    };
+
+    QStringList lines;
+
+    lines.append("<table>");
+    lines.append("<tr>");
+
+    for (const QString column : columns) {
+        lines.append(QString("<th>%1</th>").arg(xstring(column)));
+    }
+
+    lines.append("</tr>");
+
+    for (const Khandaker2MojoTherapyItemPtr& therapy : m_therapy_table) {
+        lines.append("<tr>");
+
+        for (const QString column : columns) {
+            QString table_cell = "?";
+
+            const QVariant field_value = therapy->value(column);
+
+            if (!field_value.isNull()) {
+                table_cell = field_value.toString();
+
+                if (column == Khandaker2MojoTherapyItem::FN_RESPONSE) {
+                    table_cell = getOptionName("response", field_value.toInt());
+                }
+            }
+
+            lines.append(QString("<td>%1</td>").arg(table_cell));
+        }
+
+        lines.append("</tr>");
+    }
+
+    lines.append("</table>");
+
+    return lines;
 }
 
 

@@ -84,6 +84,8 @@ private:
     void rebuildPage(QuPage* page);
     void renumberMedicationItems();
     void renumberTherapyItems();
+    QStringList medicationDetail() const;
+    QStringList therapyDetail() const;
 
 protected:
     QVariant m_custom_medication;
