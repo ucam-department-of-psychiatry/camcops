@@ -45,5 +45,6 @@ public:
     static const QString FN_DURATION;
     static const QString FN_INDICATION;
     static const QString FN_RESPONSE;
+    static const QVector<QString> TABLE_FIELDNAMES;
 protected:
 };

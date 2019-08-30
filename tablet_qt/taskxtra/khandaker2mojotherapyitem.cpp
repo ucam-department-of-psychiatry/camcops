@@ -29,6 +29,14 @@ const QString Khandaker2MojoTherapyItem::FN_DURATION("duration");
 const QString Khandaker2MojoTherapyItem::FN_INDICATION("indication");
 const QString Khandaker2MojoTherapyItem::FN_RESPONSE("response");
 
+const QVector<QString> Khandaker2MojoTherapyItem::TABLE_FIELDNAMES{
+    Khandaker2MojoTherapyItem::FN_THERAPY,
+    Khandaker2MojoTherapyItem::FN_FREQUENCY,
+    Khandaker2MojoTherapyItem::FN_DURATION,
+    Khandaker2MojoTherapyItem::FN_INDICATION,
+    Khandaker2MojoTherapyItem::FN_RESPONSE,
+};
+
 
 Khandaker2MojoTherapyItem::Khandaker2MojoTherapyItem(
     CamcopsApp& app, DatabaseManager& db, const int load_pk) :

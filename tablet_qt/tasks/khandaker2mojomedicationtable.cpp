@@ -183,20 +183,11 @@ QStringList Khandaker2MojoMedicationTable::medicationDetail() const
         return lines;
     }
 
-    const QVector<QString> columns{
-        Khandaker2MojoMedicationItem::FN_MEDICATION_NAME,
-        Khandaker2MojoMedicationItem::FN_CHEMICAL_NAME,
-        Khandaker2MojoMedicationItem::FN_DOSAGE,
-        Khandaker2MojoMedicationItem::FN_DURATION,
-        Khandaker2MojoMedicationItem::FN_INDICATION,
-        Khandaker2MojoMedicationItem::FN_RESPONSE,
-    };
-
     lines.append("<table>");
     lines.append("<tr>");
 
-    for (const QString column : columns) {
-        lines.append(QString("<th>%1</th>").arg(xstring(column)));
+    for (const QString fieldname : Khandaker2MojoMedicationItem::TABLE_FIELDNAMES) {
+        lines.append(QString("<th>%1</th>").arg(xstring(fieldname)));
     }
 
     lines.append("</tr>");
@@ -204,15 +195,15 @@ QStringList Khandaker2MojoMedicationTable::medicationDetail() const
     for (const Khandaker2MojoMedicationItemPtr& medication : m_medication_table) {
         lines.append("<tr>");
 
-        for (const QString column : columns) {
+        for (const QString fieldname : Khandaker2MojoMedicationItem::TABLE_FIELDNAMES) {
             QString table_cell = "?";
 
-            const QVariant field_value = medication->value(column);
+            const QVariant field_value = medication->value(fieldname);
 
             if (!field_value.isNull()) {
                 table_cell = field_value.toString();
 
-                if (column == Khandaker2MojoMedicationItem::FN_RESPONSE) {
+                if (fieldname == Khandaker2MojoMedicationItem::FN_RESPONSE) {
                     table_cell = getOptionName("response", field_value.toInt());
                 }
             }
@@ -237,19 +228,11 @@ QStringList Khandaker2MojoMedicationTable::therapyDetail() const
         return lines;
     }
 
-    const QVector<QString> columns{
-        Khandaker2MojoTherapyItem::FN_THERAPY,
-        Khandaker2MojoTherapyItem::FN_FREQUENCY,
-        Khandaker2MojoTherapyItem::FN_DURATION,
-        Khandaker2MojoTherapyItem::FN_INDICATION,
-        Khandaker2MojoTherapyItem::FN_RESPONSE,
-    };
-
     lines.append("<table>");
     lines.append("<tr>");
 
-    for (const QString column : columns) {
-        lines.append(QString("<th>%1</th>").arg(xstring(column)));
+    for (const QString fieldname : Khandaker2MojoTherapyItem::TABLE_FIELDNAMES) {
+        lines.append(QString("<th>%1</th>").arg(xstring(fieldname)));
     }
 
     lines.append("</tr>");
@@ -257,15 +240,15 @@ QStringList Khandaker2MojoMedicationTable::therapyDetail() const
     for (const Khandaker2MojoTherapyItemPtr& therapy : m_therapy_table) {
         lines.append("<tr>");
 
-        for (const QString column : columns) {
+        for (const QString fieldname : Khandaker2MojoTherapyItem::TABLE_FIELDNAMES) {
             QString table_cell = "?";
 
-            const QVariant field_value = therapy->value(column);
+            const QVariant field_value = therapy->value(fieldname);
 
             if (!field_value.isNull()) {
                 table_cell = field_value.toString();
 
-                if (column == Khandaker2MojoTherapyItem::FN_RESPONSE) {
+                if (fieldname == Khandaker2MojoTherapyItem::FN_RESPONSE) {
                     table_cell = getOptionName("response", field_value.toInt());
                 }
             }
