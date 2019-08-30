@@ -30,7 +30,7 @@ khandaker_2_mojomedicationtable
 
 Revision ID: 0041
 Revises: 0040
-Creation date: 2019-08-27 17:27:40.753592
+Creation date: 2019-08-30 16:43:45.370923
 
 """
 
@@ -68,6 +68,7 @@ def upgrade():
         sa.Column('medication_name', sa.UnicodeText(), nullable=True, comment='Medication name'),
         sa.Column('chemical_name', sa.UnicodeText(), nullable=True, comment='Chemical name for study team'),
         sa.Column('dosage', sa.UnicodeText(), nullable=True, comment='Dosage'),
+        sa.Column('frequency', sa.UnicodeText(), nullable=True, comment='Frequency'),
         sa.Column('duration', sa.Integer(), nullable=True, comment='Duration (months)'),
         sa.Column('indication', sa.UnicodeText(), nullable=True, comment='Indication (what is the medication used for?)'),
         sa.Column('response', sa.Integer(), nullable=True, comment='1 = treats all symptoms, 2 = most symptoms, 3 = some symptoms, 4 = no symptoms)'),
@@ -173,7 +174,7 @@ def upgrade():
         sa.Column('medicationtable_id', sa.Integer(), nullable=False, comment='FK to medicationtable'),
         sa.Column('seqnum', sa.Integer(), nullable=False, comment='Sequence number of this therapy'),
         sa.Column('therapy', sa.UnicodeText(), nullable=True, comment='Therapy'),
-        sa.Column('frequency', sa.Integer(), nullable=True, comment='Frequency (per week)'),
+        sa.Column('frequency_per_week', sa.Integer(), nullable=True, comment='Frequency (per week)'),
         sa.Column('duration', sa.Integer(), nullable=True, comment='Duration (months)'),
         sa.Column('indication', sa.UnicodeText(), nullable=True, comment='Indication (what is the medication used for?)'),
         sa.Column('response', sa.Integer(), nullable=True, comment='1 = treats all symptoms, 2 = most symptoms, 3 = some symptoms, 4 = no symptoms)'),

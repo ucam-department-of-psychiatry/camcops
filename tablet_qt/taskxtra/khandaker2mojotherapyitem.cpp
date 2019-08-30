@@ -24,14 +24,14 @@ const QString Khandaker2MojoTherapyItem::KHANDAKER2MOJOTHERAPYITEM_TABLENAME("kh
 const QString Khandaker2MojoTherapyItem::FN_FK_NAME("medicationtable_id");
 const QString Khandaker2MojoTherapyItem::FN_SEQNUM("seqnum");
 const QString Khandaker2MojoTherapyItem::FN_THERAPY("therapy");
-const QString Khandaker2MojoTherapyItem::FN_FREQUENCY("frequency");
+const QString Khandaker2MojoTherapyItem::FN_FREQUENCY_PER_WEEK("frequency_per_week");
 const QString Khandaker2MojoTherapyItem::FN_DURATION("duration");
 const QString Khandaker2MojoTherapyItem::FN_INDICATION("indication");
 const QString Khandaker2MojoTherapyItem::FN_RESPONSE("response");
 
 const QStringList Khandaker2MojoTherapyItem::TABLE_FIELDNAMES{
     Khandaker2MojoTherapyItem::FN_THERAPY,
-    Khandaker2MojoTherapyItem::FN_FREQUENCY,
+    Khandaker2MojoTherapyItem::FN_FREQUENCY_PER_WEEK,
     Khandaker2MojoTherapyItem::FN_DURATION,
     Khandaker2MojoTherapyItem::FN_INDICATION,
     Khandaker2MojoTherapyItem::FN_RESPONSE,
@@ -50,7 +50,7 @@ Khandaker2MojoTherapyItem::Khandaker2MojoTherapyItem(
     addField(FN_FK_NAME, QVariant::Int);
     addField(FN_SEQNUM, QVariant::Int);
     addField(FN_THERAPY, QVariant::String);
-    addField(FN_FREQUENCY, QVariant::Int);
+    addField(FN_FREQUENCY_PER_WEEK, QVariant::Int);
     addField(FN_DURATION, QVariant::Int);
     addField(FN_INDICATION, QVariant::String);
     addField(FN_RESPONSE, QVariant::Int);
@@ -84,9 +84,9 @@ QString Khandaker2MojoTherapyItem::therapy() const
     return valueString(FN_THERAPY);
 }
 
-int Khandaker2MojoTherapyItem::frequency() const
+int Khandaker2MojoTherapyItem::frequencyPerWeek() const
 {
-    return valueInt(FN_FREQUENCY);
+    return valueInt(FN_FREQUENCY_PER_WEEK);
 
 }
 

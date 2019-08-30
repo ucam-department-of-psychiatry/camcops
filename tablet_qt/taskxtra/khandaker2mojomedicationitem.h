@@ -35,6 +35,7 @@ public:
     void setChemicalName(const QString chemical_name);
     QString chemicalName() const;
     QString dosage() const;
+    QString frequency() const;
     int duration() const;
     QString indication() const;
     int response() const;
@@ -47,6 +48,7 @@ public:
     static const QString FN_MEDICATION_NAME;
     static const QString FN_CHEMICAL_NAME;
     static const QString FN_DOSAGE;
+    static const QString FN_FREQUENCY;
     static const QString FN_DURATION;
     static const QString FN_INDICATION;
     static const QString FN_RESPONSE;

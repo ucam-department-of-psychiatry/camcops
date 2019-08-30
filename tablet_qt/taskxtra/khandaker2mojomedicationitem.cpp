@@ -26,6 +26,7 @@ const QString Khandaker2MojoMedicationItem::FN_SEQNUM("seqnum");
 const QString Khandaker2MojoMedicationItem::FN_MEDICATION_NAME("medication_name");
 const QString Khandaker2MojoMedicationItem::FN_CHEMICAL_NAME("chemical_name");
 const QString Khandaker2MojoMedicationItem::FN_DOSAGE("dosage");
+const QString Khandaker2MojoMedicationItem::FN_FREQUENCY("frequency");
 const QString Khandaker2MojoMedicationItem::FN_DURATION("duration");
 const QString Khandaker2MojoMedicationItem::FN_INDICATION("indication");
 const QString Khandaker2MojoMedicationItem::FN_RESPONSE("response");
@@ -34,6 +35,7 @@ const QStringList Khandaker2MojoMedicationItem::TABLE_FIELDNAMES{
     Khandaker2MojoMedicationItem::FN_MEDICATION_NAME,
     Khandaker2MojoMedicationItem::FN_CHEMICAL_NAME,
     Khandaker2MojoMedicationItem::FN_DOSAGE,
+    Khandaker2MojoMedicationItem::FN_FREQUENCY,
     Khandaker2MojoMedicationItem::FN_DURATION,
     Khandaker2MojoMedicationItem::FN_INDICATION,
     Khandaker2MojoMedicationItem::FN_RESPONSE,
@@ -53,6 +55,7 @@ Khandaker2MojoMedicationItem::Khandaker2MojoMedicationItem(
     addField(FN_MEDICATION_NAME, QVariant::String);
     addField(FN_CHEMICAL_NAME, QVariant::String);
     addField(FN_DOSAGE, QVariant::String);
+    addField(FN_FREQUENCY, QVariant::String);
     addField(FN_DURATION, QVariant::Int);
     addField(FN_INDICATION, QVariant::String);
     addField(FN_RESPONSE, QVariant::Int);
@@ -100,6 +103,12 @@ QString Khandaker2MojoMedicationItem::chemicalName() const
 QString Khandaker2MojoMedicationItem::dosage() const
 {
     return valueString(FN_DOSAGE);
+
+}
+
+QString Khandaker2MojoMedicationItem::frequency() const
+{
+    return valueString(FN_FREQUENCY);
 
 }
 

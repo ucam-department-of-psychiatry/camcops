@@ -8,6 +8,7 @@
     <string name="medication_name">Medication name</string>
     <string name="chemical_name">Chemical name (for study team)</string>
     <string name="dosage">Dosage</string>
+    <string name="frequency">Frequency</string>
     <string name="duration">Duration (months)</string>
     <string name="indication">Indication (what is the medication for?)</string>
     <string name="response">Response</string>
@@ -44,7 +45,7 @@
     <string name="add_instructions">Add either a blank row or a row prepopulated with a common anti-inflammatory medication</string>
     <string name="therapy_question">Are you receiving any talking therapies (e.g: cognitive-behavioural therapy)? If so, how frequently, how long have you been receiving it, and are you finding it effective?</string>
     <string name="therapy">Therapy</string>
-    <string name="frequency">Frequency (per week)</string>
+    <string name="frequency_per_week">Frequency (per week)</string>
     <string name="number_of_medications">Medications:</string>
     <string name="number_of_therapies">Therapies:</string>
   </task>

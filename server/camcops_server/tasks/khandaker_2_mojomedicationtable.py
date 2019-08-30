@@ -104,6 +104,11 @@ class Khandaker2MojoMedicationItem(Khandaker2MojoTableItem, Base):
         comment="Dosage"
     )
 
+    frequency = CamcopsColumn(
+        "frequency", UnicodeText,
+        comment="Frequency"
+    )
+
     duration = CamcopsColumn(
         "duration", Integer,
         comment="Duration (months)"
@@ -128,6 +133,7 @@ class Khandaker2MojoMedicationItem(Khandaker2MojoTableItem, Base):
             "medication_name",
             "chemical_name",
             "dosage",
+            "frequency",
             "duration",
             "indication",
             "response",
@@ -139,6 +145,7 @@ class Khandaker2MojoMedicationItem(Khandaker2MojoTableItem, Base):
                 <td>{answer(self.medication_name)}</td>
                 <td>{answer(self.chemical_name)}</td>
                 <td>{answer(self.dosage)}</td>
+                <td>{answer(self.frequency)}</td>
                 <td>{answer(self.duration)}</td>
                 <td>{answer(self.indication)}</td>
                 <td>{answer(self.get_response_option(req))}</td>
@@ -164,8 +171,8 @@ class Khandaker2MojoTherapyItem(Khandaker2MojoTableItem, Base):
         comment="Therapy"
     )
 
-    frequency = CamcopsColumn(
-        "frequency", Integer,
+    frequency_per_week = CamcopsColumn(
+        "frequency_per_week", Integer,
         comment="Frequency (per week)"
     )
 
@@ -191,7 +198,7 @@ class Khandaker2MojoTherapyItem(Khandaker2MojoTableItem, Base):
     def mandatory_fields(self) -> List[str]:
         return [
             "therapy",
-            "frequency",
+            "frequency_per_week",
             "duration",
             "indication",
             "response",
@@ -201,7 +208,7 @@ class Khandaker2MojoTherapyItem(Khandaker2MojoTableItem, Base):
         return f"""
             <tr>
                 <td>{answer(self.therapy)}</td>
-                <td>{answer(self.frequency)}</td>
+                <td>{answer(self.frequency_per_week)}</td>
                 <td>{answer(self.duration)}</td>
                 <td>{answer(self.indication)}</td>
                 <td>{answer(self.get_response_option(req))}</td>
@@ -273,6 +280,7 @@ class Khandaker2MojoMedicationTable(TaskHasPatientMixin, Task):
                     <th>{self.xstring(req, "medication_name")}</th>
                     <th>{self.xstring(req, "chemical_name")}</th>
                     <th>{self.xstring(req, "dosage")}</th>
+                    <th>{self.xstring(req, "frequency")}</th>
                     <th>{self.xstring(req, "duration")}</th>
                     <th>{self.xstring(req, "indication")}</th>
                     <th>{self.xstring(req, "response")}</th>
@@ -286,7 +294,7 @@ class Khandaker2MojoMedicationTable(TaskHasPatientMixin, Task):
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th>{self.xstring(req, "therapy")}</th>
-                    <th>{self.xstring(req, "frequency")}</th>
+                    <th>{self.xstring(req, "frequency_per_week")}</th>
                     <th>{self.xstring(req, "duration")}</th>
                     <th>{self.xstring(req, "indication")}</th>
                     <th>{self.xstring(req, "response")}</th>
