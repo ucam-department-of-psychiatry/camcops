@@ -23,9 +23,7 @@
 Khandaker GM — 2 — MOJO study
 -----------------------------
 
-.. include:: include_under_development.rst
-
-Anthropometrics, sociodemographics, and medical history questionnaire for MOJO
+Sociodemographics, and medical history questionnaire for MOJO
 study.
 
 
