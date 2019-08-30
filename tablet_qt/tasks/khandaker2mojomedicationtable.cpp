@@ -177,6 +177,12 @@ QStringList Khandaker2MojoMedicationTable::detail() const
 
 QStringList Khandaker2MojoMedicationTable::medicationDetail() const
 {
+    QStringList lines;
+
+    if (m_medication_table.size() == 0) {
+        return lines;
+    }
+
     const QVector<QString> columns{
         Khandaker2MojoMedicationItem::FN_MEDICATION_NAME,
         Khandaker2MojoMedicationItem::FN_CHEMICAL_NAME,
@@ -185,8 +191,6 @@ QStringList Khandaker2MojoMedicationTable::medicationDetail() const
         Khandaker2MojoMedicationItem::FN_INDICATION,
         Khandaker2MojoMedicationItem::FN_RESPONSE,
     };
-
-    QStringList lines;
 
     lines.append("<table>");
     lines.append("<tr>");
@@ -227,6 +231,12 @@ QStringList Khandaker2MojoMedicationTable::medicationDetail() const
 
 QStringList Khandaker2MojoMedicationTable::therapyDetail() const
 {
+    QStringList lines;
+
+    if (m_therapy_table.size() == 0) {
+        return lines;
+    }
+
     const QVector<QString> columns{
         Khandaker2MojoTherapyItem::FN_THERAPY,
         Khandaker2MojoTherapyItem::FN_FREQUENCY,
@@ -234,8 +244,6 @@ QStringList Khandaker2MojoMedicationTable::therapyDetail() const
         Khandaker2MojoTherapyItem::FN_INDICATION,
         Khandaker2MojoTherapyItem::FN_RESPONSE,
     };
-
-    QStringList lines;
 
     lines.append("<table>");
     lines.append("<tr>");
