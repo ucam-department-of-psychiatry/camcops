@@ -25,7 +25,7 @@ camcops_server/tasks/khandaker_2_mojomedicationtable.py
 ===============================================================================
 
 """
-from typing import Optional, Type
+from typing import List, Optional, Type
 
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
@@ -46,8 +46,37 @@ from camcops_server.cc_modules.cc_task import (
 )
 
 
-class Khandaker2MojoMedicationItem(GenericTabletRecordMixin, Base,
-                                   TaskDescendant):
+class Khandaker2MojoTableItem(GenericTabletRecordMixin, TaskDescendant):
+    def any_fields_none(self) -> bool:
+        for f in self.mandatory_fields():
+            if getattr(self, f) is None:
+                return True
+        return False
+
+    @classmethod
+    def mandatory_fields(self) -> List[str]:
+        raise NotImplementedError
+
+    def get_response_option(self, req: "CamcopsRequest") -> str:
+        if self.response is None:
+            return None
+
+        return self.task_ancestor().xstring(req, f"response_{self.response}")
+
+    # -------------------------------------------------------------------------
+    # TaskDescendant overrides
+    # -------------------------------------------------------------------------
+
+    @classmethod
+    def task_ancestor_class(cls) -> Optional[Type["Task"]]:
+        return Khandaker2MojoMedicationTable
+
+    def task_ancestor(self) -> Optional["Khandaker2MojoMedicationTable"]:
+        return Khandaker2MojoMedicationTable.get_linked(
+            self.medicationtable_id, self)
+
+
+class Khandaker2MojoMedicationItem(Khandaker2MojoTableItem, Base):
     __tablename__ = "khandaker_2_mojomedication_item"
 
     medicationtable_id = CamcopsColumn(
@@ -93,6 +122,17 @@ class Khandaker2MojoMedicationItem(GenericTabletRecordMixin, Base,
                  "4 = no symptoms)")
     )
 
+    @classmethod
+    def mandatory_fields(self) -> List[str]:
+        return [
+            "medication_name",
+            "chemical_name",
+            "dosage",
+            "duration",
+            "indication",
+            "response",
+        ]
+
     def get_html_table_row(self, req: "CamcopsRequest") -> str:
         return f"""
             <tr>
@@ -105,27 +145,8 @@ class Khandaker2MojoMedicationItem(GenericTabletRecordMixin, Base,
             </tr>
         """
 
-    def get_response_option(self, req: "CamcopsRequest") -> str:
-        if self.response is None:
-            return None
 
-        return self.task_ancestor().xstring(req, f"response_{self.response}")
-
-    # -------------------------------------------------------------------------
-    # TaskDescendant overrides
-    # -------------------------------------------------------------------------
-
-    @classmethod
-    def task_ancestor_class(cls) -> Optional[Type["Task"]]:
-        return Khandaker2MojoMedicationTable
-
-    def task_ancestor(self) -> Optional["Khandaker2MojoMedicationTable"]:
-        return Khandaker2MojoMedicationTable.get_linked(
-            self.medicationtable_id, self)
-
-
-class Khandaker2MojoTherapyItem(GenericTabletRecordMixin, Base,
-                                TaskDescendant):
+class Khandaker2MojoTherapyItem(Khandaker2MojoTableItem, Base):
     __tablename__ = "khandaker_2_mojotherapy_item"
 
     medicationtable_id = CamcopsColumn(
@@ -166,6 +187,16 @@ class Khandaker2MojoTherapyItem(GenericTabletRecordMixin, Base,
                  "4 = no symptoms)")
     )
 
+    @classmethod
+    def mandatory_fields(self) -> List[str]:
+        return [
+            "therapy",
+            "frequency",
+            "duration",
+            "indication",
+            "response",
+        ]
+
     def get_html_table_row(self, req: "CamcopsRequest") -> str:
         return f"""
             <tr>
@@ -176,23 +207,6 @@ class Khandaker2MojoTherapyItem(GenericTabletRecordMixin, Base,
                 <td>{answer(self.get_response_option(req))}</td>
             </tr>
         """
-
-    def get_response_option(self, req: "CamcopsRequest") -> str:
-        if self.response is None:
-            return None
-
-        return self.task_ancestor().xstring(req, f"response_{self.response}")
-
-    # -------------------------------------------------------------------------
-    # TaskDescendant overrides
-    # -------------------------------------------------------------------------
-    @classmethod
-    def task_ancestor_class(cls) -> Optional[Type["Task"]]:
-        return Khandaker2MojoMedicationTable
-
-    def task_ancestor(self) -> Optional["Khandaker2MojoMedicationTable"]:
-        return Khandaker2MojoMedicationTable.get_linked(
-            self.medicationtable_id, self)
 
 
 class Khandaker2MojoMedicationTable(TaskHasPatientMixin, Task):
@@ -226,6 +240,13 @@ class Khandaker2MojoMedicationTable(TaskHasPatientMixin, Task):
         # Whilst it's almost certain that anyone completing this task would be
         # on some kind of medication, we have no way of knowing when all
         # medication has been added to the table
+        for item in self.medication_items:
+            if item.any_fields_none():
+                return False
+
+        for item in self.therapy_items:
+            if item.any_fields_none():
+                return False
 
         return True
 
