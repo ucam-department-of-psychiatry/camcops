@@ -183,7 +183,7 @@ QStringList Khandaker2MojoMedicationTable::summary() const
 
 QStringList Khandaker2MojoMedicationTable::detail() const
 {
-    return completenessInfo() + medicationDetail() + therapyDetail() + summary();
+    return completenessInfo() + medicationDetail() + therapyDetail() + QStringList("") + summary();
 }
 
 
@@ -195,17 +195,19 @@ QStringList Khandaker2MojoMedicationTable::medicationDetail() const
         return lines;
     }
 
-    lines.append("<table>");
-    lines.append("<tr>");
+    QString html;
+
+    html.append("<table>");
+    html.append("<tr>");
 
     for (const QString fieldname : Khandaker2MojoMedicationItem::TABLE_FIELDNAMES) {
-        lines.append(QString("<th>%1</th>").arg(xstring(fieldname)));
+        html.append(QString("<th>%1</th>").arg(xstring(fieldname)));
     }
 
-    lines.append("</tr>");
+    html.append("</tr>");
 
     for (const Khandaker2MojoMedicationItemPtr& medication : m_medication_table) {
-        lines.append("<tr>");
+        html.append("<tr>");
 
         for (const QString fieldname : Khandaker2MojoMedicationItem::TABLE_FIELDNAMES) {
             QString table_cell = "?";
@@ -220,13 +222,15 @@ QStringList Khandaker2MojoMedicationTable::medicationDetail() const
                 }
             }
 
-            lines.append(QString("<td>%1</td>").arg(table_cell));
+            html.append(QString("<td>%1</td>").arg(table_cell));
         }
 
-        lines.append("</tr>");
+        html.append("</tr>");
     }
 
-    lines.append("</table>");
+    html.append("</table>");
+
+    lines.append(html);
 
     return lines;
 }
@@ -240,17 +244,19 @@ QStringList Khandaker2MojoMedicationTable::therapyDetail() const
         return lines;
     }
 
-    lines.append("<table>");
-    lines.append("<tr>");
+    QString html;
+
+    html.append("<table>");
+    html.append("<tr>");
 
     for (const QString fieldname : Khandaker2MojoTherapyItem::TABLE_FIELDNAMES) {
-        lines.append(QString("<th>%1</th>").arg(xstring(fieldname)));
+        html.append(QString("<th>%1</th>").arg(xstring(fieldname)));
     }
 
-    lines.append("</tr>");
+    html.append("</tr>");
 
     for (const Khandaker2MojoTherapyItemPtr& therapy : m_therapy_table) {
-        lines.append("<tr>");
+        html.append("<tr>");
 
         for (const QString fieldname : Khandaker2MojoTherapyItem::TABLE_FIELDNAMES) {
             QString table_cell = "?";
@@ -265,13 +271,15 @@ QStringList Khandaker2MojoMedicationTable::therapyDetail() const
                 }
             }
 
-            lines.append(QString("<td>%1</td>").arg(table_cell));
+            html.append(QString("<td>%1</td>").arg(table_cell));
         }
 
-        lines.append("</tr>");
+        html.append("</tr>");
     }
 
-    lines.append("</table>");
+    html.append("</table>");
+
+    lines.append(html);
 
     return lines;
 }
