@@ -494,7 +494,8 @@ QuGridContainer* Khandaker2MojoMedicationTable::getMedicationGrid() {
 
         auto duration_edit = new QuLineEditInteger(
             medication->fieldRef(
-                Khandaker2MojoMedicationItem::FN_DURATION)
+                Khandaker2MojoMedicationItem::FN_DURATION),
+            0, 1800
         );
 
         auto indication_edit = new QuLineEdit(
@@ -550,12 +551,14 @@ QuGridContainer* Khandaker2MojoMedicationTable::getTherapyGrid() {
 
         auto frequency_edit = new QuLineEditInteger(
             therapy->fieldRef(
-                Khandaker2MojoTherapyItem::FN_FREQUENCY)
+                Khandaker2MojoTherapyItem::FN_FREQUENCY),
+            0, 100
         );
 
         auto duration_edit = new QuLineEditInteger(
             therapy->fieldRef(
-                Khandaker2MojoTherapyItem::FN_DURATION)
+                Khandaker2MojoTherapyItem::FN_DURATION),
+            0, 1800
         );
 
         auto indication_edit = new QuLineEdit(
