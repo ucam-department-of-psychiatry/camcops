@@ -410,8 +410,6 @@ void Khandaker2MojoMedicationTable::rebuildPage(QuPage* page)
 
     elements.append((new QuText(xstring("medication_question")))->setBold());
 
-    elements.append(getMedicationGrid());
-
     elements.append(new QuText(xstring("add_instructions")));
     elements.append(getMedicationPicker());
 
@@ -420,14 +418,16 @@ void Khandaker2MojoMedicationTable::rebuildPage(QuPage* page)
         std::bind(&Khandaker2MojoMedicationTable::addMedicationItem, this)
     ));
 
+    elements.append(getMedicationGrid());
+
     elements.append(new QuSpacer(QSize(uiconst::BIGSPACE, uiconst::BIGSPACE)));
     elements.append((new QuText(xstring("therapy_question")))->setBold());
-    elements.append(getTherapyGrid());
-
     elements.append(new QuButton(
         TextConst::add(),
         std::bind(&Khandaker2MojoMedicationTable::addTherapyItem, this)
     ));
+
+    elements.append(getTherapyGrid());
 
     page->clearElements();
     page->addElements(elements);
