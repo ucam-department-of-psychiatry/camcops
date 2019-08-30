@@ -29,7 +29,7 @@ const QString Khandaker2MojoTherapyItem::FN_DURATION("duration");
 const QString Khandaker2MojoTherapyItem::FN_INDICATION("indication");
 const QString Khandaker2MojoTherapyItem::FN_RESPONSE("response");
 
-const QVector<QString> Khandaker2MojoTherapyItem::TABLE_FIELDNAMES{
+const QStringList Khandaker2MojoTherapyItem::TABLE_FIELDNAMES{
     Khandaker2MojoTherapyItem::FN_THERAPY,
     Khandaker2MojoTherapyItem::FN_FREQUENCY,
     Khandaker2MojoTherapyItem::FN_DURATION,
@@ -103,4 +103,9 @@ QString Khandaker2MojoTherapyItem::indication() const
 int Khandaker2MojoTherapyItem::response() const
 {
     return valueInt(FN_RESPONSE);
+}
+
+bool Khandaker2MojoTherapyItem::isComplete() const
+{
+    return noValuesNull(TABLE_FIELDNAMES);
 }

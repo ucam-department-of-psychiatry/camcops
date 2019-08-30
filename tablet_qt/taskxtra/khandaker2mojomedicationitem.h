@@ -38,6 +38,7 @@ public:
     int duration() const;
     QString indication() const;
     int response() const;
+    bool isComplete() const;
 public:
     static const QString KHANDAKER2MOJOMEDICATIONITEM_TABLENAME;
     static const QString FN_FK_NAME;
@@ -48,6 +49,6 @@ public:
     static const QString FN_DURATION;
     static const QString FN_INDICATION;
     static const QString FN_RESPONSE;
-    static const QVector<QString> TABLE_FIELDNAMES;
+    static const QStringList TABLE_FIELDNAMES;
 protected:
 };

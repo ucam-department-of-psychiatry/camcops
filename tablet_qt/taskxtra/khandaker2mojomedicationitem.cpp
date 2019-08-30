@@ -30,7 +30,7 @@ const QString Khandaker2MojoMedicationItem::FN_DURATION("duration");
 const QString Khandaker2MojoMedicationItem::FN_INDICATION("indication");
 const QString Khandaker2MojoMedicationItem::FN_RESPONSE("response");
 
-const QVector<QString> Khandaker2MojoMedicationItem::TABLE_FIELDNAMES{
+const QStringList Khandaker2MojoMedicationItem::TABLE_FIELDNAMES{
     Khandaker2MojoMedicationItem::FN_MEDICATION_NAME,
     Khandaker2MojoMedicationItem::FN_CHEMICAL_NAME,
     Khandaker2MojoMedicationItem::FN_DOSAGE,
@@ -116,4 +116,9 @@ QString Khandaker2MojoMedicationItem::indication() const
 int Khandaker2MojoMedicationItem::response() const
 {
     return valueInt(FN_RESPONSE);
+}
+
+bool Khandaker2MojoMedicationItem::isComplete() const
+{
+    return noValuesNull(TABLE_FIELDNAMES);
 }

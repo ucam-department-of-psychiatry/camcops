@@ -154,6 +154,18 @@ bool Khandaker2MojoMedicationTable::isComplete() const
     // some kind of medication, we have no way of knowing when all medication
     // has been added to the table
 
+    for (const Khandaker2MojoMedicationItemPtr& medication : m_medication_table) {
+        if (!medication->isComplete()) {
+            return false;
+        }
+    }
+
+    for (const Khandaker2MojoTherapyItemPtr& therapy : m_therapy_table) {
+        if (!therapy->isComplete()) {
+            return false;
+        }
+    }
+
     return true;
 }
 
