@@ -39,6 +39,7 @@ public:
     QString indication() const;
     int response() const;
     bool isComplete() const;
+    bool isEmpty() const;
 public:
     static const QString KHANDAKER2MOJOMEDICATIONITEM_TABLENAME;
     static const QString FN_FK_NAME;

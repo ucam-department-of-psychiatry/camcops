@@ -109,3 +109,14 @@ bool Khandaker2MojoTherapyItem::isComplete() const
 {
     return noValuesNull(TABLE_FIELDNAMES);
 }
+
+bool Khandaker2MojoTherapyItem::isEmpty() const
+{
+    for (const QString& fieldname : TABLE_FIELDNAMES) {
+        if (!valueIsNullOrEmpty(fieldname)) {
+            return false;
+        }
+    }
+
+    return true;
+}

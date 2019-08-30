@@ -303,10 +303,22 @@ OpenableWidget* Khandaker2MojoMedicationTable::editor(const bool read_only)
 
 void Khandaker2MojoMedicationTable::addMedicationItem()
 {
+    const QString chemical_name = getCustomMedicationName();
+
+    if (chemical_name == nullptr) {
+        for (const Khandaker2MojoMedicationItemPtr& medication : m_medication_table) {
+            if (medication->isEmpty()) {
+                uifunc::alert(tr("A row is blank; won’t add another"));
+
+                return;
+            }
+        }
+    }
+
     Khandaker2MojoMedicationItemPtr item = makeMedicationItem();
     item->setSeqnum(m_medication_table.size() + 1);
 
-    item->setChemicalName(getCustomMedicationName());
+    item->setChemicalName(chemical_name);
     item->save();
     m_medication_table.append(item);
 
@@ -316,6 +328,14 @@ void Khandaker2MojoMedicationTable::addMedicationItem()
 
 void Khandaker2MojoMedicationTable::addTherapyItem()
 {
+    for (const Khandaker2MojoTherapyItemPtr& therapy : m_therapy_table) {
+        if (therapy->isEmpty()) {
+            uifunc::alert(tr("A row is blank; won’t add another"));
+
+            return;
+        }
+    }
+
     Khandaker2MojoTherapyItemPtr item = makeTherapyItem();
     item->setSeqnum(m_therapy_table.size() + 1);
     item->save();
