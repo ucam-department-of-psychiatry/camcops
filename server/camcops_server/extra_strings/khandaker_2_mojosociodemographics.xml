@@ -4,7 +4,6 @@
     <!-- Khandaker GM — 2 MOJO Study — Sociodemographics Questionnaire -->
 
     <string name="title">MOJO Study — Sociodemographics Questionnaire</string>
-    <string name="q_age">What is your age (closest full year)?</string>
 
     <string name="q_gender">Gender at birth</string>
     <string name="gender_option0">Male</string>

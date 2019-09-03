@@ -40,7 +40,6 @@ Creation date: 2019-08-12 17:23:42.336508
 
 from alembic import op
 import sqlalchemy as sa
-import cardinal_pythonlib.sqlalchemy.list_types
 import camcops_server.cc_modules.cc_sqla_coltypes
 
 
@@ -62,7 +61,6 @@ depends_on = None
 def upgrade():
     op.create_table(
         'khandaker_2_mojosociodemographics',
-        sa.Column('age', sa.Integer(), nullable=True, comment='Age, closest full year'),
         sa.Column('gender', sa.Integer(), nullable=True, comment='Gender at birth (0 Male, 1 Female, 2 Other (specify)'),
         sa.Column('other_gender', sa.UnicodeText(), nullable=True, comment='Other (specify)'),
         sa.Column('ethnicity', sa.Integer(), nullable=True, comment='Ethnicity (0 White, 1 Mixed, 2 Indian, 3 Pakistani, 4 Bangladeshi, 5 Other Asian, 6 Black Caribbean, 7 Black African, 8 Black Other, 9 Chinese, 10 Other (specify)'),

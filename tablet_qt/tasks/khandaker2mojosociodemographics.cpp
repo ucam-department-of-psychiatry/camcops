@@ -81,8 +81,6 @@ private:
     bool m_has_other;
 };
 
-const QString FN_AGE("age");
-
 const QVector<K2QInfo> MC_QUESTIONS{
     K2QInfo("gender", 2, true),
     K2QInfo("ethnicity", 10, true),
@@ -105,8 +103,6 @@ Khandaker2MojoSociodemographics::Khandaker2MojoSociodemographics(
          false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addField(FN_AGE, QVariant::Int);
-
     for (const K2QInfo& info : MC_QUESTIONS) {
         addField(info.getFieldname(), QVariant::Int);
 
@@ -150,10 +146,6 @@ QString Khandaker2MojoSociodemographics::description() const
 
 bool Khandaker2MojoSociodemographics::isComplete() const
 {
-    if (valueIsNull(FN_AGE)) {
-        return false;
-    }
-
     for (const K2QInfo& info : MC_QUESTIONS) {
         if (valueIsNull(info.getFieldname())) {
             return false;
@@ -178,9 +170,6 @@ QStringList Khandaker2MojoSociodemographics::detail() const
 {
     QStringList lines;
 
-    lines.append(xstring(Q_XML_PREFIX + FN_AGE));
-    lines.append(QString("<b>%1</b>").arg(prettyValue(FN_AGE)));
-
     for (const K2QInfo& info : MC_QUESTIONS) {
         lines.append(xstring(info.getQuestionXmlName()));
         lines.append(QString("<b>%1</b>").arg(getAnswerText(info)));
@@ -195,10 +184,6 @@ OpenableWidget* Khandaker2MojoSociodemographics::editor(const bool read_only)
     QuPagePtr page(new QuPage);
     page->setTitle(description());
     page->addElement(new QuHeading(xstring("title")));
-
-    page->addElement(new QuText(xstring(Q_XML_PREFIX + FN_AGE)));
-    page->addElement(new QuLineEditInteger(fieldRef(FN_AGE), 0, 150));
-    page->addElement(new QuSpacer(QSize(uiconst::BIGSPACE, uiconst::BIGSPACE)));
 
     for (const K2QInfo& info : MC_QUESTIONS) {
         page->addElement(new QuText(xstring(info.getQuestionXmlName())));

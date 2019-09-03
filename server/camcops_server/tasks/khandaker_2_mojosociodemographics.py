@@ -58,15 +58,6 @@ class Khandaker2MojoSociodemographicsMetaclass(DeclarativeMeta):
                  classdict: Dict[str, Any]) -> None:
 
         setattr(
-            cls, cls.FN_AGE,
-            CamcopsColumn(
-                cls.FN_AGE, Integer,
-                permitted_value_checker=MIN_ZERO_CHECKER,
-                comment="Age, closest full year"
-            )
-        )
-
-        setattr(
             cls, cls.FN_GENDER,
             CamcopsColumn(
                 cls.FN_GENDER, Integer,
@@ -198,7 +189,6 @@ class Khandaker2MojoSociodemographics(
     shortname = "Khandaker_2_MOJOSociodemographics"
     provides_trackers = False
 
-    FN_AGE = "age"
     FN_GENDER = "gender"
     FN_ETHNICITY = "ethnicity"
     FN_WITH_WHOM_LIVE = "with_whom_live"
@@ -214,7 +204,6 @@ class Khandaker2MojoSociodemographics(
     FN_OTHER_ACCOMMODATION = "other_accommodation"
 
     MANDATORY_FIELD_NAMES = [
-        FN_AGE,
         FN_GENDER,
         FN_ETHNICITY,
         FN_WITH_WHOM_LIVE,
@@ -281,8 +270,7 @@ class Khandaker2MojoSociodemographics(
     def get_answer_text(self, req: CamcopsRequest, field_name: str) -> str:
         answer = getattr(self, field_name)
 
-        if answer is None or field_name == self.FN_AGE:
-            # age is the only one that isn't multi-choice
+        if answer is None:
             return answer
 
         answer_text = self.xstring(req, f"{field_name}_option{answer}")
