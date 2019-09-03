@@ -286,6 +286,8 @@ MAKO_LOOKUP = TemplateLookup(
 
     module_directory=DEBUGGING_MAKO_DIR if DEBUG_TEMPLATE_SOURCE else None,
 
+    strict_undefined=True,  # raise error immediately upon typos!
+
     # -------------------------------------------------------------------------
     # TEMPLATE CACHING
     # -------------------------------------------------------------------------

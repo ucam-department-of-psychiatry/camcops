@@ -2451,3 +2451,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
   Add ``setMinimiumDate()`` and ``setMaximumDate()`` to ``QuDateTime``.
   This also fixes the broken default minimum date of 1st January 1880.
+
+- Set ``strict_undefined=True`` for Mako template lookups, so they crash
+  immediately on typos.
