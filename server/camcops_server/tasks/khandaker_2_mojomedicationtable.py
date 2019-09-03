@@ -171,9 +171,9 @@ class Khandaker2MojoTherapyItem(Khandaker2MojoTableItem, Base):
         comment="Therapy"
     )
 
-    frequency_per_week = CamcopsColumn(
-        "frequency_per_week", Integer,
-        comment="Frequency (per week)"
+    frequency = CamcopsColumn(
+        "frequency", UnicodeText,
+        comment="Frequency"
     )
 
     duration = CamcopsColumn(
@@ -198,7 +198,7 @@ class Khandaker2MojoTherapyItem(Khandaker2MojoTableItem, Base):
     def mandatory_fields(self) -> List[str]:
         return [
             "therapy",
-            "frequency_per_week",
+            "frequency",
             "duration",
             "indication",
             "response",
@@ -208,7 +208,7 @@ class Khandaker2MojoTherapyItem(Khandaker2MojoTableItem, Base):
         return f"""
             <tr>
                 <td>{answer(self.therapy)}</td>
-                <td>{answer(self.frequency_per_week)}</td>
+                <td>{answer(self.frequency)}</td>
                 <td>{answer(self.duration)}</td>
                 <td>{answer(self.indication)}</td>
                 <td>{answer(self.get_response_option(req))}</td>
@@ -294,7 +294,7 @@ class Khandaker2MojoMedicationTable(TaskHasPatientMixin, Task):
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th>{self.xstring(req, "therapy")}</th>
-                    <th>{self.xstring(req, "frequency_per_week")}</th>
+                    <th>{self.xstring(req, "frequency")}</th>
                     <th>{self.xstring(req, "duration")}</th>
                     <th>{self.xstring(req, "indication")}</th>
                     <th>{self.xstring(req, "response")}</th>

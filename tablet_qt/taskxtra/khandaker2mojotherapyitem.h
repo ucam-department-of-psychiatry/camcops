@@ -32,7 +32,7 @@ public:
     void setSeqnum(int seqnum);
     int seqnum() const;
     QString therapy() const;
-    int frequencyPerWeek() const;
+    QString frequency() const;
     int duration() const;
     QString indication() const;
     int response() const;
@@ -43,7 +43,7 @@ public:
     static const QString FN_FK_NAME;
     static const QString FN_SEQNUM;
     static const QString FN_THERAPY;
-    static const QString FN_FREQUENCY_PER_WEEK;
+    static const QString FN_FREQUENCY;
     static const QString FN_DURATION;
     static const QString FN_INDICATION;
     static const QString FN_RESPONSE;

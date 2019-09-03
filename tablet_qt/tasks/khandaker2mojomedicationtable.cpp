@@ -538,7 +538,7 @@ QuGridContainer* Khandaker2MojoMedicationTable::getTherapyGrid() {
     grid->setExpandHorizontally(true);
 
     grid->addCell(QuGridCell(new QuText(xstring("therapy")), 0, 0));
-    grid->addCell(QuGridCell(new QuText(xstring("frequency_per_week")), 0, 1));
+    grid->addCell(QuGridCell(new QuText(xstring("frequency")), 0, 1));
     grid->addCell(QuGridCell(new QuText(xstring("duration")), 0, 2));
     grid->addCell(QuGridCell(new QuText(xstring("indication")), 0, 3));
     grid->addCell(QuGridCell(new QuText(xstring("response")), 0, 4));
@@ -556,10 +556,9 @@ QuGridContainer* Khandaker2MojoMedicationTable::getTherapyGrid() {
                 Khandaker2MojoTherapyItem::FN_THERAPY)
         );
 
-        auto frequency_per_week_edit = new QuLineEditInteger(
+        auto frequency_edit = new QuLineEdit(
             therapy->fieldRef(
-                Khandaker2MojoTherapyItem::FN_FREQUENCY_PER_WEEK),
-            0, 100
+                Khandaker2MojoTherapyItem::FN_FREQUENCY)
         );
 
         auto duration_edit = new QuLineEditInteger(
@@ -581,7 +580,7 @@ QuGridContainer* Khandaker2MojoMedicationTable::getTherapyGrid() {
         int row = i + 1;
 
         grid->addCell(QuGridCell(therapy_edit, row, 0));
-        grid->addCell(QuGridCell(frequency_per_week_edit, row, 1));
+        grid->addCell(QuGridCell(frequency_edit, row, 1));
         grid->addCell(QuGridCell(duration_edit, row, 2));
         grid->addCell(QuGridCell(indication_edit, row, 3));
         grid->addCell(QuGridCell(response_picker, row, 4));
