@@ -45,6 +45,7 @@
     <string name="add_instructions">Add either a blank row or a row prepopulated with a common anti-inflammatory medication</string>
     <string name="therapy_question">Are you receiving any talking therapies (e.g: cognitive-behavioural therapy)? If so, how frequently, how long have you been receiving it, and are you finding it effective?</string>
     <string name="therapy">Therapy</string>
+    <string name="therapy_frequency_hint">e.g. 1 session per week</string>
     <string name="number_of_medications">Medications:</string>
     <string name="number_of_therapies">Therapies:</string>
   </task>

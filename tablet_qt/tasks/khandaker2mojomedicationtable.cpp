@@ -556,10 +556,10 @@ QuGridContainer* Khandaker2MojoMedicationTable::getTherapyGrid() {
                 Khandaker2MojoTherapyItem::FN_THERAPY)
         );
 
-        auto frequency_edit = new QuLineEdit(
+        auto frequency_edit = (new QuLineEdit(
             therapy->fieldRef(
                 Khandaker2MojoTherapyItem::FN_FREQUENCY)
-        );
+        ))->setHint(xstring("therapy_frequency_hint"));
 
         auto duration_edit = new QuLineEditInteger(
             therapy->fieldRef(
