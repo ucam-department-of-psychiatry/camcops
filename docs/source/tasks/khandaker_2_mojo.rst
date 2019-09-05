@@ -25,6 +25,10 @@ Khandaker GM — 2 — MOJO study
 
 Sociodemographics and medical history questionnaire for MOJO study.
 
+**DISCLAIMER**: These questionnaires have been designed for use with a specific
+study and with specific patient groups, so use outside of this study should be
+carefully considered.
+
 
 Intellectual property rights
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -35,9 +39,6 @@ Intellectual property rights
 - License: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA
   4.0); https://creativecommons.org/licenses/by-sa/4.0/
 
-- **DISCLAIMER**: These questionnaires have been designed for use with a specific
-  study and with specific patient groups, so use outside of this study should be
-  carefully considered.
 
 Source
 ~~~~~~
