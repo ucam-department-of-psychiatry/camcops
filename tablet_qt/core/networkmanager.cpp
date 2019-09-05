@@ -1846,7 +1846,7 @@ bool NetworkManager::isServerVersionOK() const
         statusMessage(tr("Server version (%1) doesn't match stored version (%2).")
                       .arg(server_version.toString(),
                            stored_server_version.toString()) +
-                      txtPleaseReregister());
+                      txtPleaseRefetchServerInfo());
         return false;
     }
     statusMessage(tr("... OK"));
@@ -1865,13 +1865,13 @@ bool NetworkManager::arePoliciesOK() const
     if (local_upload != server_upload) {
         statusMessage(tr("Local upload policy [%1] doesn't match server's [%2].")
                       .arg(local_upload, server_upload) +
-                      txtPleaseReregister());
+                      txtPleaseRefetchServerInfo());
         ok = false;
     }
     if (local_finalize != server_finalize) {
         statusMessage(tr("Local finalize policy [%1] doesn't match server's [%2].")
                       .arg(local_finalize, server_finalize) +
-                      txtPleaseReregister());
+                      txtPleaseRefetchServerInfo());
         ok = false;
     }
     if (ok) {
@@ -1925,9 +1925,9 @@ bool NetworkManager::areDescriptionsOK() const
         statusMessage(tr("... OK"));
     } else if (!idnums_all_on_server) {
         statusMessage(tr("Some ID numbers defined on the tablet are absent on "
-                         "the server!") + txtPleaseReregister());
+                         "the server!") + txtPleaseRefetchServerInfo());
     } else if (!descriptions_match) {
-        statusMessage(tr("Descriptions do not match!") + txtPleaseReregister());
+        statusMessage(tr("Descriptions do not match!") + txtPleaseRefetchServerInfo());
     } else if (extra_idnums) {
         statusMessage(tr(
                 "ID numbers %1 are used on the tablet but not defined "
@@ -2156,7 +2156,8 @@ QString NetworkManager::getPkInfoAsJson()
 // Translatable text
 // ============================================================================
 
-QString NetworkManager::txtPleaseReregister()
+QString NetworkManager::txtPleaseRefetchServerInfo()
 {
-    return " " + tr("Please re-register with the server.");
+    // return " " + tr("Please re-register with the server.");
+    return " " + tr("Please re-fetch server information.");
 }

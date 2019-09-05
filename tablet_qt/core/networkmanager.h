@@ -278,7 +278,7 @@ signals:
     // Translatable text
     // ------------------------------------------------------------------------
 protected:
-    static QString txtPleaseReregister();
+    static QString txtPleaseRefetchServerInfo();
 
     // ------------------------------------------------------------------------
     // Data

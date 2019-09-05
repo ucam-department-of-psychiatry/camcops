@@ -20,10 +20,10 @@
 
 .. _esspri:
 
-EULAR Sjögren's Syndrome Patient Reported Index (ESSPRI)
+EULAR Sjögren’s Syndrome Patient Reported Index (ESSPRI)
 --------------------------------------------------------
 
-.. include:: include_under_development.rst
+.. include:: include_data_collection_plus_local_upgrade.rst
 
 Three numerical rating scales each rated 0-10. The overall score is the mean
 score of the three scales.
@@ -34,7 +34,16 @@ EULAR is the European League Against Rheumatism: https://www.eular.org/.
 Intellectual property rights
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**TO BE ESTABLISHED**
+As per the Powerpoint source via http://oml.eular.org/ (see below):
+
+    Copyright © 2015 by BMJ Publishing Group Ltd and European League Against
+    Rheumatism.
+
+Accordingly, implemented as a skeleton task as above.
+
+Possibly more open, however; http://oml.eular.org/faq.cfm notes that "PROs
+which are copyrighted are not presented in full text version" [sic] and the
+ESSPRI is presented in full text (as below).
 
 
 History
@@ -50,9 +59,17 @@ History
   *Annals of the Rheumatic Diseases* 70: 968-972.
   https://www.ncbi.nlm.nih.gov/pubmed/21345815
 
+- Seror R, et al. (2015).
+  Validation of EULAR primary Sjögren's syndrome disease activity (ESSDAI) and
+  patient indexes (ESSPRI).
+  *Ann Rheum Dis.* 74(5): 859-866.
+  https://doi.org/10.1136/annrheumdis-2013-204615
+  https://www.ncbi.nlm.nih.gov/pubmed/24442883
+
 
 Source
 ~~~~~~
 
 - http://oml.eular.org/index.cfm
 - http://oml.eular.org/oml_search_results_details.cfm?id=156&action=All%20information
+- http://oml.eular.org/sysModules/obxOML/docs/id_156/ESSPRI-PRO.pptx

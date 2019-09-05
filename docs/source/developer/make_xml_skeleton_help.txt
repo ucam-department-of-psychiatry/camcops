@@ -1,0 +1,12 @@
+usage: Create an XML string file skeleton, with placeholder text, from a real but secret string file. Writes to stdout.
+       [-h] [--replacement REPLACEMENT] filename
+
+positional arguments:
+  filename              Input filename
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --replacement REPLACEMENT
+                        Replace string contents with this (default: XXX)
+
+# Generated at 2019-08-08 20:31:45

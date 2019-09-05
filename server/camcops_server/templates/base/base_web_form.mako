@@ -1,4 +1,31 @@
-## base_web_form.mako
+## -*- coding: utf-8 -*-
+<%doc>
+
+camcops_server/templates/base/base_web_form.mako
+
+===============================================================================
+
+    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+
+    This file is part of CamCOPS.
+
+    CamCOPS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    CamCOPS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+
+===============================================================================
+
+</%doc>
+
 ## <%page args="head_form_html: str"/>
 <%inherit file="base_web.mako"/>
 
@@ -15,7 +42,7 @@
 
     <link rel="stylesheet"
           href="${request.static_url('deform:static/css/bootstrap.min.css')}"
-          type="text/css" media="screen" charset="utf-8"/>
+          type="text/css" media="screen"/>
     <link rel="stylesheet"
           href="${request.static_url('deform:static/css/form.css')}"
           type="text/css"/>

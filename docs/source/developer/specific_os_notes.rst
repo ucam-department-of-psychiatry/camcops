@@ -129,7 +129,7 @@ Setting up an iMac for CamCOPS development
 
   .. code-block:: bash
 
-    #!/bin/bash
+    #!/usr/bin/env bash
     # ~/ACTIVATE_CAMCOPS_VENV.sh
 
     export CAMCOPS_SOURCE_DIR=~/camcops
@@ -146,7 +146,7 @@ Setting up an iMac for CamCOPS development
 
   - edit ``~/Qt/Qt Creator.app/Contents/Info.plist`` and add a section like:
 
-    .. code-block:: xml
+    .. code-block:: none
 
         <key>LSEnvironment</key
         <dict>

@@ -29,7 +29,9 @@ camcops_server/cc_modules/cc_patient.py
 """
 
 import logging
-from typing import Generator, List, Optional, Set, Tuple, TYPE_CHECKING, Union
+from typing import (
+    Any, Dict, Generator, List, Optional, Set, Tuple, TYPE_CHECKING, Union,
+)
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.datetimefunc import (
@@ -68,7 +70,10 @@ from camcops_server.cc_modules.cc_simpleobjects import (
     BarePatientInfo,
     HL7PatientIdentifier,
 )
-from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
+from camcops_server.cc_modules.cc_patientidnum import (
+    extra_id_colname,
+    PatientIdNum,
+)
 from camcops_server.cc_modules.cc_report import Report
 from camcops_server.cc_modules.cc_simpleobjects import (
     IdNumReference,
@@ -117,26 +122,26 @@ class Patient(GenericTabletRecordMixin, Base):
     forename = CamcopsColumn(
         "forename", PatientNameColType,
         index=True,
-        identifies_patient=True, cris_include=True,
+        identifies_patient=True, include_in_anon_staging_db=True,
         comment="Forename"
     )
     surname = CamcopsColumn(
         "surname", PatientNameColType,
         index=True,
-        identifies_patient=True, cris_include=True,
+        identifies_patient=True, include_in_anon_staging_db=True,
         comment="Surname"
     )
     dob = CamcopsColumn(
         "dob", sqltypes.Date,  # verified: merge_db handles this correctly
         index=True,
-        identifies_patient=True, cris_include=True,
+        identifies_patient=True, include_in_anon_staging_db=True,
         comment="Date of birth"
         # ... e.g. "2013-02-04"
     )
     sex = CamcopsColumn(
         "sex", SexColType,
         index=True,
-        cris_include=True,
+        include_in_anon_staging_db=True,
         comment="Sex (M, F, X)"
     )
     address = CamcopsColumn(
@@ -144,8 +149,9 @@ class Patient(GenericTabletRecordMixin, Base):
         identifies_patient=True,
         comment="Address"
     )
-    gp = Column(
+    gp = CamcopsColumn(
         "gp", UnicodeText,
+        identifies_patient=True,
         comment="General practitioner (GP)"
     )
     other = CamcopsColumn(
@@ -295,11 +301,28 @@ class Patient(GenericTabletRecordMixin, Base):
         )
 
     def __str__(self) -> str:
+        """
+        A plain string version, without the need for a request object.
+        """
         return "{sf} ({sex}, {dob}, {ids})".format(
             sf=self.get_surname_forename_upper(),
             sex=self.sex,
             dob=self.get_dob_str(),
             ids=", ".join(str(i) for i in self.get_idnum_objects()),
+        )
+
+    def prettystr(self, req: "CamcopsRequest") -> str:
+        """
+        A prettified string version.
+
+        Args:
+            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        """
+        return "{sf} ({sex}, {dob}, {ids})".format(
+            sf=self.get_surname_forename_upper(),
+            sex=self.sex,
+            dob=self.get_dob_str(),
+            ids=", ".join(i.prettystr(req) for i in self.get_idnum_objects()),
         )
 
     def get_idnum_objects(self) -> List[PatientIdNum]:
@@ -561,7 +584,7 @@ class Patient(GenericTabletRecordMixin, Base):
         # Put the primary one first:
         patient_id_tuple_list = [
             HL7PatientIdentifier(
-                id=str(self.get_idnum_value(recipient.primary_idnum)),
+                pid=str(self.get_idnum_value(recipient.primary_idnum)),
                 id_type=recipient.get_hl7_id_type(
                     req,
                     recipient.primary_idnum),
@@ -580,7 +603,7 @@ class Patient(GenericTabletRecordMixin, Base):
                 continue
             patient_id_tuple_list.append(
                 HL7PatientIdentifier(
-                    id=str(idnum_value),
+                    pid=str(idnum_value),
                     id_type=recipient.get_hl7_id_type(req, which_idnum),
                     assigning_authority=recipient.get_hl7_id_aa(
                         req, which_idnum)
@@ -659,6 +682,19 @@ class Patient(GenericTabletRecordMixin, Base):
         idobj = self.get_idnum_object(which_idnum)
         return idobj.short_description(req) if idobj else None
 
+    def add_extra_idnum_info_to_row(self, row: Dict[str, Any]) -> None:
+        """
+        For the ``DB_PATIENT_ID_PER_ROW`` export option. Adds additional ID
+        number info to a row.
+
+        Args:
+            row: future database row, as a dictionary
+        """
+        for idobj in self.idnums:
+            which_idnum = idobj.which_idnum
+            fieldname = extra_id_colname(which_idnum)
+            row[fieldname] = idobj.idnum_value
+
     def is_preserved(self) -> bool:
         """
         Is the patient record preserved and erased from the tablet?
@@ -719,7 +755,7 @@ class Patient(GenericTabletRecordMixin, Base):
         """
         seen = set()  # type: Set[PatientIdNum]
         for live_pidnum in self.idnums:
-            for lineage_member in live_pidnum.get_lineage():
+            for lineage_member in live_pidnum.get_lineage():  # type: PatientIdNum  # noqa
                 if lineage_member in seen:
                     continue
                 # noinspection PyTypeChecker
@@ -799,7 +835,7 @@ def is_candidate_patient_valid(ptinfo: BarePatientInfo,
         if not group.tokenized_upload_policy().satisfies_id_policy(ptinfo):
             return False, "Fails upload ID policy"
 
-    # *** add checks against prevalidated patients here
+    # todo: add checks against prevalidated patients here
 
     return True, ""
 

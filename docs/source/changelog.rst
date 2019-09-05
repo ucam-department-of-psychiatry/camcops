@@ -42,14 +42,31 @@ Contributors
 
 - Joe Kearney, 2018–2019.
 
-  - :ref:`CES-D <cesd>`, :ref:`FACT-G <factg>`, :ref:`EQ-5D-5L <eq5d5l>`,
-    :ref:`SRS <srs>`, :ref:`ORS <ors>`, :ref:`APEQPT <apeqpt>`, :ref:`GBO-GReS
-    <gbo_gres>`, and :ref:`GBO-GPC <gbo_gpc>` tasks.
+  - :ref:`CES-D <cesd>`
+  - :ref:`FACT-G <factg>`
+  - :ref:`EQ-5D-5L <eq5d5l>`
+  - :ref:`SRS <srs>`
+  - :ref:`ORS <ors>`
+  - :ref:`APEQPT <apeqpt>`
+  - :ref:`GBO-GReS <gbo_gres>`
+  - :ref:`GBO-GPC <gbo_gpc>`
+
+- Martin Burchell, 2019–.
+
+  - Better Github framework/workflow.
+  - :ref:`Elixhauser Comorbidity Index (ElixhauserCI) <elixhauserci>`
+  - :ref:`Cambridge-Chicago Compulsivity Trait Scale (CHI-T) <chit>`
+  - :ref:`Short UPPS-P Impulsive Behaviour Scale (SUPPS-P) <suppsp>`
+  - :ref:`EULAR Sjögren’s Syndrome Patient Reported Index (ESSPRI) <esspri>`
+  - :ref:`Ankylosing Spondylitis Disease Activity Score (ASDAS) <asdas>`
+  - :ref:`Multidimensional Fatigue Inventory (MFI-20) <mfi20>`
+  - :ref:`Short-Form McGill Pain Questionnaire (SF-MPQ2) <sfmpq2>`
+  - :ref:`Disease Activity Score-28 (DAS28) <das28>`
+  - :ref:`Snaith–Hamilton Pleasure Scale (SHAPS) <shaps>`
 
 
 Original Titanium/Javascript client, Python server with custom MySQL interface (defunct)
 ----------------------------------------------------------------------------------------
-
 
 .. _changelog_2013:
 
@@ -1468,7 +1485,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - OS information.
 
 
-**Client v2.2.8 to 2.3.0, in progress (from 2018-09-10)**
+**Client v2.2.8 to 2.3.0 (from 2018-09-10)**
 
 - Bugfix to CISR client: page colour was clinician, now patient.
 
@@ -2104,7 +2121,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
   which wasn't converting to UTC properly.
 
 
-**Client and server v2.3.3 (IN PROGRESS)**
+**Client and server v2.3.3**
 
 - Windows service.
 
@@ -2276,7 +2293,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
     ``VISIBLE_SYMBOL`` macro in ``preprocessor_aid.h``.
 
 
-**Client 2.3.5 (IN PROGRESS)**
+**Client and server v2.3.5**
 
 - Target Android API from 26 to 28 as now required by Google.
 
@@ -2374,6 +2391,34 @@ Current C++/SQLite client, Python/SQLAlchemy server
     sizehelpers::labelExtraSizeRequired(). A hack... And reverted other
     debugging options.
 
+- Client asks for information to be re-fetched (not the client to be
+  re-registered -- which is a privileged operation) when the server information
+  doesn't match stored copies.
+
+- Better SNOMED coding for the clinical tasks :ref:`Progress note
+  <progress_note>` and :ref:`Psychiatric clerking <clerking>`.
+
+- Bugfix: server group editing page crashed if no ID numbers defined. Changed
+  in :func:`camcops_server.cc_modules.TokenizedPolicy.set_valid_idnums`.
+
+- Client: For ACE-III and similar: when pages don't scroll, offer facility to
+  zoom widgets. See ``ZoomableWidget``. Used in ACE-III for letters, picture
+  naming, etc.
+
+- Server: restore autogeneration of CRIS and CRATE data dictionaries. See
+  ``cc_anon.py`` etc.
+
+- HTML and PDF titles for tasks.
+
+- User list shows, for group administrators, which groups they administer.
+
+- Bugfix: client C++ functions ``mathfunc::countWhere()`` and
+  ``mathfunc::countWhereNot()`` now respect NULL values, via
+  ``mathfunc::containsRespectingNull()``. This behaviour now matches
+  :meth:`camcops_server.cc_modules.cc_task.Task.count_where` and
+  :meth:`camcops_server.cc_modules.cc_task.Task.count_wherenot`. Applicable to
+  the :ref:`SHAPS <shaps>` task.
+
 - **New task:** :ref:`Elixhauser Comorbidity Index (ElixhauserCI) <elixhauserci>`.
   (Database revision 0029.)
 
@@ -2382,3 +2427,30 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - **New task:** :ref:`Short UPPS-P Impulsive Behaviour Scale (SUPPS-P) <suppsp>`.
   (Database revision 0031.)
+
+- **New task:** :ref:`EULAR Sjögren’s Syndrome Patient Reported Index (ESSPRI) <esspri>`.
+  (Database revision 0032.)
+
+- **New task:** :ref:`Ankylosing Spondylitis Disease Activity Score (ASDAS) <asdas>`.
+  (Database revision 0033.)
+
+- **New task:** :ref:`Multidimensional Fatigue Inventory (MFI-20) <mfi20>`.
+  (Database revision 0034.)
+
+- **New task:** :ref:`Short-Form McGill Pain Questionnaire (SF-MPQ2) <sfmpq2>`.
+  (Database revision 0035.)
+
+- **New task:** :ref:`Disease Activity Score-28 (DAS28) <das28>`.
+  (Database revision 0036.)
+
+- **New task:** :ref:`Snaith–Hamilton Pleasure Scale (SHAPS) <shaps>`.
+  (Database revision 0037.)
+
+- Add optional waist circumference to :ref:`BMI  <bmi>`.
+  (Database revision 0038.)
+
+  Add ``setMinimiumDate()`` and ``setMaximumDate()`` to ``QuDateTime``.
+  This also fixes the broken default minimum date of 1st January 1880.
+
+- Set ``strict_undefined=True`` for Mako template lookups, so they crash
+  immediately on typos.

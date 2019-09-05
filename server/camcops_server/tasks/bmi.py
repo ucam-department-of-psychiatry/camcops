@@ -61,6 +61,7 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 BMI_DP = 2
 KG_DP = 2
 M_DP = 3
+CM_DP = 1
 
 
 class Bmi(TaskHasPatientMixin, Task):
@@ -80,6 +81,11 @@ class Bmi(TaskHasPatientMixin, Task):
         "mass_kg", Float,
         permitted_value_checker=PermittedValueChecker(minimum=0),
         comment="mass (kg)"
+    )
+    waist_cm = CamcopsColumn(
+        "waist_cm", Float,
+        permitted_value_checker=PermittedValueChecker(minimum=0),
+        comment="waist circumference (cm)"
     )
     comment = Column(
         "comment", UnicodeText,
@@ -147,6 +153,11 @@ class Bmi(TaskHasPatientMixin, Task):
                 plot_label="Mass (kg)",
                 axis_label="Mass (kg)"
             ),
+            TrackerInfo(
+                value=self.waist_cm,
+                plot_label="Waist circumference (cm)",
+                axis_label="Waist circumference (cm)"
+            ),
         ]
 
     def get_clinical_text(self, req: CamcopsRequest) -> List[CtvInfo]:
@@ -158,6 +169,8 @@ class Bmi(TaskHasPatientMixin, Task):
                 f" [{self.category(req)}]."
                 f" Mass: {ws.number_to_dp(self.mass_kg, KG_DP)} kg. "
                 f" Height: {ws.number_to_dp(self.height_m, M_DP)} m."
+                f" Waist circumference:"
+                f" {ws.number_to_dp(self.waist_cm, CM_DP)} cm."
             )
         )]
 
@@ -212,6 +225,8 @@ class Bmi(TaskHasPatientMixin, Task):
             <table class="{CssClass.TASKDETAIL}">
                 {tr_qa("Mass (kg)", ws.number_to_dp(self.mass_kg, KG_DP))}
                 {tr_qa("Height (m)", ws.number_to_dp(self.height_m, M_DP))}
+                {tr_qa("Waist circumference (cm)",
+                       ws.number_to_dp(self.waist_cm, CM_DP))}
                 {tr_qa("Comment", ws.webify(self.comment))}
             </table>
             <div class="{CssClass.FOOTNOTES}">
@@ -295,31 +310,42 @@ class Bmi(TaskHasPatientMixin, Task):
         """
 
     def get_snomed_codes(self, req: CamcopsRequest) -> List[SnomedExpression]:
-        procedure = req.snomed(SnomedLookup.BMI_PROCEDURE_MEASUREMENT)
+        expressions = []  # type: List[SnomedExpression]
+        procedure_bmi = req.snomed(SnomedLookup.BMI_PROCEDURE_MEASUREMENT)
+        unit = req.snomed(SnomedLookup.UNIT_OF_MEASURE)
         if self.is_complete():
-            unit = req.snomed(SnomedLookup.UNIT_OF_MEASURE)
             kg = req.snomed(SnomedLookup.KILOGRAM)
             m = req.snomed(SnomedLookup.METRE)
             kg_per_sq_m = req.snomed(SnomedLookup.KG_PER_SQ_M)
             qty_bmi = req.snomed(SnomedLookup.BMI_OBSERVABLE)
             qty_height = req.snomed(SnomedLookup.BODY_HEIGHT_OBSERVABLE)
             qty_weight = req.snomed(SnomedLookup.BODY_WEIGHT_OBSERVABLE)
-            return [SnomedExpression(
-                procedure,
-                [
-                    SnomedAttributeGroup({
-                        qty_bmi: self.bmi(),
-                        unit: kg_per_sq_m,
-                    }),
-                    SnomedAttributeGroup({
-                        qty_weight: self.mass_kg,
-                        unit: kg,
-                    }),
-                    SnomedAttributeGroup({
-                        qty_height: self.height_m,
-                        unit: m,
-                    }),
-                ]
-            )]
+            expressions.append(SnomedExpression(procedure_bmi, [
+                SnomedAttributeGroup({
+                    qty_bmi: self.bmi(),
+                    unit: kg_per_sq_m,
+                }),
+                SnomedAttributeGroup({
+                    qty_weight: self.mass_kg,
+                    unit: kg,
+                }),
+                SnomedAttributeGroup({
+                    qty_height: self.height_m,
+                    unit: m,
+                }),
+            ]))
         else:
-            return [SnomedExpression(procedure)]
+            expressions.append(SnomedExpression(procedure_bmi))
+        if self.waist_cm is not None:
+            procedure_waist = req.snomed(
+                SnomedLookup.WAIST_CIRCUMFERENCE_PROCEDURE_MEASUREMENT)
+            cm = req.snomed(SnomedLookup.CENTIMETRE)
+            qty_waist_circum = req.snomed(
+                SnomedLookup.WAIST_CIRCUMFERENCE_OBSERVABLE)
+            expressions.append(SnomedExpression(procedure_waist, [
+                SnomedAttributeGroup({
+                    qty_waist_circum: self.waist_cm,
+                    unit: cm,
+                }),
+            ]))
+        return expressions

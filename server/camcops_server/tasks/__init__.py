@@ -30,6 +30,7 @@ from camcops_server.tasks.ace3 import Ace3
 from camcops_server.tasks.aims import Aims
 from camcops_server.tasks.apeq_cpft_perinatal import APEQCPFTPerinatal
 from camcops_server.tasks.apeqpt import Apeqpt
+from camcops_server.tasks.asdas import Asdas
 from camcops_server.tasks.audit import Audit, AuditC
 
 from camcops_server.tasks.badls import Badls
@@ -64,9 +65,10 @@ from camcops_server.tasks.cpft_lps import (
     CPFTLPSResetResponseClock,
     CPFTLPSDischarge,
 )
-# *** # from camcops_server.tasks.ctqsf import Ctqsf
+# todo: # from camcops_server.tasks.ctqsf import Ctqsf
 
 from camcops_server.tasks.dad import Dad
+from camcops_server.tasks.das28 import Das28
 from camcops_server.tasks.dast import Dast
 from camcops_server.tasks.deakin_1_healthreview import Deakin1HealthReview
 from camcops_server.tasks.demoquestionnaire import DemoQuestionnaire
@@ -77,6 +79,7 @@ from camcops_server.tasks.distressthermometer import DistressThermometer
 from camcops_server.tasks.elixhauserci import ElixhauserCI
 from camcops_server.tasks.epds import Epds
 from camcops_server.tasks.eq5d5l import Eq5d5l
+from camcops_server.tasks.esspri import Esspri
 
 from camcops_server.tasks.factg import Factg
 from camcops_server.tasks.fast import Fast
@@ -112,11 +115,12 @@ from camcops_server.tasks.khandaker_1_insightmedical import (
 from camcops_server.tasks.kirby_mcq import Kirby
 
 from camcops_server.tasks.lynall_1_iam_medical import Lynall1IamMedicalHistory
-# *** # from camcops_server.tasks.lynall_2_iam_life import Lynall2LifeEvents
+# todo: # from camcops_server.tasks.lynall_2_iam_life import Lynall2LifeEvents
 
 from camcops_server.tasks.maas import Maas
 from camcops_server.tasks.mast import Mast
 from camcops_server.tasks.mds_updrs import MdsUpdrs
+from camcops_server.tasks.mfi20 import Mfi20
 from camcops_server.tasks.moca import Moca
 
 from camcops_server.tasks.nart import Nart
@@ -147,6 +151,8 @@ from camcops_server.tasks.service_satisfaction import (
     ReferrerSatisfactionGen,
     ReferrerSatisfactionSpec,
 )
+from camcops_server.tasks.sfmpq2 import Sfmpq2
+from camcops_server.tasks.shaps import Shaps
 from camcops_server.tasks.slums import Slums
 from camcops_server.tasks.smast import Smast
 from camcops_server.tasks.srs import Srs

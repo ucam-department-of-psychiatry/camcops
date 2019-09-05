@@ -30,6 +30,7 @@ tablet_qt
     :maxdepth: 1
 
     android/AndroidManifest.xml.rst
+    android/res/values/libs.xml.rst
     camcops.pro.rst
     camcops_windows_innosetup.iss.rst
     common/aliases_camcops.h.rst
@@ -379,6 +380,8 @@ tablet_qt
     qobjects/shootabug.h.rst
     qobjects/showwatcher.cpp.rst
     qobjects/showwatcher.h.rst
+    qobjects/sizewatcher.cpp.rst
+    qobjects/sizewatcher.h.rst
     qobjects/slownonguifunctioncaller.cpp.rst
     qobjects/slownonguifunctioncaller.h.rst
     qobjects/strictdoublevalidator.cpp.rst
@@ -545,6 +548,8 @@ tablet_qt
     tasks/apeqcpftperinatal.h.rst
     tasks/apeqpt.cpp.rst
     tasks/apeqpt.h.rst
+    tasks/asdas.cpp.rst
+    tasks/asdas.h.rst
     tasks/audit.cpp.rst
     tasks/audit.h.rst
     tasks/auditc.cpp.rst
@@ -605,6 +610,8 @@ tablet_qt
     tasks/ctqsf.h.rst
     tasks/dad.cpp.rst
     tasks/dad.h.rst
+    tasks/das28.cpp.rst
+    tasks/das28.h.rst
     tasks/dast.cpp.rst
     tasks/dast.h.rst
     tasks/deakin1healthreview.cpp.rst
@@ -627,6 +634,8 @@ tablet_qt
     tasks/epds.h.rst
     tasks/eq5d5l.cpp.rst
     tasks/eq5d5l.h.rst
+    tasks/esspri.cpp.rst
+    tasks/esspri.h.rst
     tasks/factg.cpp.rst
     tasks/factg.h.rst
     tasks/fast.cpp.rst
@@ -699,6 +708,8 @@ tablet_qt
     tasks/mast.h.rst
     tasks/mdsupdrs.cpp.rst
     tasks/mdsupdrs.h.rst
+    tasks/mfi20.cpp.rst
+    tasks/mfi20.h.rst
     tasks/moca.cpp.rst
     tasks/moca.h.rst
     tasks/nart.cpp.rst
@@ -749,6 +760,10 @@ tablet_qt
     tasks/referrersatisfactiongen.h.rst
     tasks/referrersatisfactionspec.cpp.rst
     tasks/referrersatisfactionspec.h.rst
+    tasks/sfmpq2.cpp.rst
+    tasks/sfmpq2.h.rst
+    tasks/shaps.cpp.rst
+    tasks/shaps.h.rst
     tasks/slums.cpp.rst
     tasks/slums.h.rst
     tasks/smast.cpp.rst
@@ -890,4 +905,8 @@ tablet_qt
     widgets/verticalscrollarea.h.rst
     widgets/verticalscrollareaviewport.cpp.rst
     widgets/verticalscrollareaviewport.h.rst
+    widgets/zoomablegraphicsview.cpp.rst
+    widgets/zoomablegraphicsview.h.rst
+    widgets/zoomablewidget.cpp.rst
+    widgets/zoomablewidget.h.rst
     windows/camcops.rc.rst

@@ -207,6 +207,7 @@ class ViewParam(object):
     COMPLETE_ONLY = "complete_only"
     PAGE = "page"
     PASSWORD = "password"
+    PATIENT_ID_PER_ROW = "patient_id_per_row"
     RECIPIENT_NAME = "recipient_name"
     REDIRECT_URL = "redirect_url"
     REPORT_ID = "report_id"
@@ -284,6 +285,8 @@ MAKO_LOOKUP = TemplateLookup(
     output_encoding="utf-8",
 
     module_directory=DEBUGGING_MAKO_DIR if DEBUG_TEMPLATE_SOURCE else None,
+
+    strict_undefined=True,  # raise error immediately upon typos!
 
     # -------------------------------------------------------------------------
     # TEMPLATE CACHING

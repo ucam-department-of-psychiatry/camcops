@@ -41,7 +41,7 @@ Thus, always complete and contemporaneous.
 """
 
 import logging
-from typing import TYPE_CHECKING
+from typing import List, TYPE_CHECKING
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.reprfunc import simple_repr
@@ -49,7 +49,11 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import BigInteger, Integer
 
-from camcops_server.cc_modules.cc_constants import NUMBER_OF_IDNUMS_DEFUNCT
+from camcops_server.cc_modules.cc_constants import (
+    EXTRA_COMMENT_PREFIX,
+    EXTRA_IDNUM_FIELD_PREFIX,
+    NUMBER_OF_IDNUMS_DEFUNCT,
+)
 from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
 from camcops_server.cc_modules.cc_idnumdef import IdNumDefinition
 from camcops_server.cc_modules.cc_simpleobjects import IdNumReference
@@ -117,6 +121,15 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
 
     def __str__(self) -> str:
         return f"idnum{self.which_idnum}={self.idnum_value}"
+
+    def prettystr(self, req: "CamcopsRequest") -> str:
+        """
+        A prettified version of __str__.
+
+        Args:
+            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        """
+        return f"{self.short_description(req)} {self.idnum_value}"
 
     def __repr__(self) -> str:
         return simple_repr(self, [
@@ -201,3 +214,61 @@ def fake_tablet_id_for_patientidnum(patient_id: int, which_idnum: int) -> int:
     use in upgrading old databases.
     """
     return patient_id * NUMBER_OF_IDNUMS_DEFUNCT + which_idnum
+
+
+# =============================================================================
+# Additional ID number column info for DB_PATIENT_ID_PER_ROW export option
+# =============================================================================
+
+def extra_id_colname(which_idnum: int) -> str:
+    """
+    The column name used for the extra ID number columns provided by the
+    ``DB_PATIENT_ID_PER_ROW`` export option.
+
+    Args:
+        which_idnum: ID number type
+
+    Returns:
+        str: ``idnum<which_idnum>``
+
+    """
+    return f"{EXTRA_IDNUM_FIELD_PREFIX}{which_idnum}"
+
+
+def extra_id_column(req: "CamcopsRequest", which_idnum: int) -> CamcopsColumn:
+    """
+    The column definition used for the extra ID number columns provided by the
+    ``DB_PATIENT_ID_PER_ROW`` export option.
+
+    Args:
+        req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        which_idnum: ID number type
+
+    Returns:
+        the column definition
+
+    """
+    desc = req.get_id_desc(which_idnum)
+    return CamcopsColumn(
+        extra_id_colname(which_idnum),
+        BigInteger,
+        identifies_patient=True,
+        comment=EXTRA_COMMENT_PREFIX + f"ID number {which_idnum}: {desc}"
+    )
+
+
+def all_extra_id_columns(req: "CamcopsRequest") -> List[CamcopsColumn]:
+    """
+    Returns all column definitions used for the extra ID number columns
+    provided by the ``DB_PATIENT_ID_PER_ROW`` export option.
+
+    Args:
+        req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+
+    Returns:
+        list: the column definitions
+    """
+    return [
+        extra_id_column(req, which_idnum)
+        for which_idnum in req.valid_which_idnums
+    ]

@@ -43,18 +43,21 @@ DEST_DIRS = [
     # WEBSITE_DOCS_DIR,
 ]
 
-# Remove anything old
-shutil.rmtree(BUILD_HTML_DIR, ignore_errors=True)
-for destdir in DEST_DIRS:
-    print("Deleting directory {!r}".format(destdir))
-    shutil.rmtree(destdir, ignore_errors=True)
+if __name__ == "__main__":
+    # Remove anything old
+    shutil.rmtree(BUILD_HTML_DIR, ignore_errors=True)
+    for destdir in DEST_DIRS:
+        print("Deleting directory {!r}".format(destdir))
+        shutil.rmtree(destdir, ignore_errors=True)
 
-# Build docs
-print("Making HTML version of documentation")
-os.chdir(THIS_DIR)
-subprocess.call(["make", "html"])
+    # Build docs
+    print("Making HTML version of documentation")
+    os.chdir(THIS_DIR)
+    subprocess.call(["make", "html"])
+    subprocess.call(["python", os.path.join(THIS_DIR,
+                                            "recreate_inclusion_files.py")])
 
-# Copy
-for destdir in DEST_DIRS:
-    print("Copying {!r} -> {!r}".format(BUILD_HTML_DIR, destdir))
-    shutil.copytree(BUILD_HTML_DIR, destdir)
+    # Copy
+    for destdir in DEST_DIRS:
+        print("Copying {!r} -> {!r}".format(BUILD_HTML_DIR, destdir))
+        shutil.copytree(BUILD_HTML_DIR, destdir)

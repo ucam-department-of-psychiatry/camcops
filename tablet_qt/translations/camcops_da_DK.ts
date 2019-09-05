@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="da_DK">
+<TS version="2.0" language="da_DK">
 <context>
     <name>APEQCPFTPerinatal</name>
     <message>
@@ -17,142 +17,142 @@
 <context>
     <name>Ace3</name>
     <message>
-        <location filename="../tasks/ace3.cpp" line="228"/>
+        <location filename="../tasks/ace3.cpp" line="230"/>
         <source>Addenbrooke’s Cognitive Examination, revision 3</source>
         <translation>Addenbrooke’s Cognitive Examination [Addenbrooke&apos;s kognitive undersøgelse], revision 3</translation>
     </message>
     <message>
-        <location filename="../tasks/ace3.cpp" line="234"/>
+        <location filename="../tasks/ace3.cpp" line="236"/>
         <source>100-point clinician-administered assessment of attention/orientation, memory, fluency, language, and visuospatial domains.</source>
         <translation>100-point klinisk administreret vurdering af opmærksomhed / orientering, hukommelse, flydende, sprog og visuospatiale domæner.</translation>
     </message>
     <message>
-        <location filename="../tasks/ace3.cpp" line="361"/>
+        <location filename="../tasks/ace3.cpp" line="363"/>
         <source>Preamble</source>
         <translation>Præambel</translation>
     </message>
     <message>
-        <location filename="../tasks/ace3.cpp" line="464"/>
+        <location filename="../tasks/ace3.cpp" line="466"/>
         <source>Attention</source>
         <translation>Opmærksomhed</translation>
     </message>
     <message>
-        <location filename="../tasks/ace3.cpp" line="510"/>
+        <location filename="../tasks/ace3.cpp" line="512"/>
         <source>Fluency</source>
         <translation>Udtryksevne</translation>
     </message>
     <message>
-        <location filename="../tasks/ace3.cpp" line="573"/>
+        <location filename="../tasks/ace3.cpp" line="575"/>
         <source>Address learning; famous people</source>
         <translation>Adresseindlæring: berømte mennesker</translation>
     </message>
     <message>
-        <location filename="../tasks/ace3.cpp" line="588"/>
+        <location filename="../tasks/ace3.cpp" line="590"/>
         <source>Other commands not shown; subject failed practice trial</source>
         <translation>Emne mislykket praksis prøve. Andre kommandoer vises ikke.</translation>
     </message>
     <message>
-        <location filename="../tasks/ace3.cpp" line="595"/>
+        <location filename="../tasks/ace3.cpp" line="597"/>
         <source>Commands; writing sentences</source>
         <translation>Kommandoer; skrive sætninger</translation>
     </message>
     <message>
-        <location filename="../tasks/ace3.cpp" line="630"/>
+        <location filename="../tasks/ace3.cpp" line="632"/>
         <source>Repetition</source>
         <translation>Gentagelse</translation>
     </message>
     <message>
-        <location filename="../tasks/ace3.cpp" line="664"/>
+        <location filename="../tasks/ace3.cpp" line="665"/>
         <source>Naming pictures</source>
         <translation>Navngivning af billeder</translation>
     </message>
     <message>
-        <location filename="../tasks/ace3.cpp" line="681"/>
+        <location filename="../tasks/ace3.cpp" line="685"/>
         <source>Reading irregular words</source>
         <translation>Læsning af uregelmæssige ord</translation>
     </message>
     <message>
-        <location filename="../tasks/ace3.cpp" line="694"/>
+        <location filename="../tasks/ace3.cpp" line="698"/>
         <source>Infinity</source>
         <translation>Uendeligt symbol</translation>
     </message>
     <message>
-        <location filename="../tasks/ace3.cpp" line="708"/>
+        <location filename="../tasks/ace3.cpp" line="712"/>
         <source>Cube</source>
         <translation>Cube</translation>
     </message>
     <message>
-        <location filename="../tasks/ace3.cpp" line="722"/>
+        <location filename="../tasks/ace3.cpp" line="726"/>
         <source>Clock</source>
         <translation>Ur</translation>
     </message>
     <message>
-        <location filename="../tasks/ace3.cpp" line="739"/>
+        <location filename="../tasks/ace3.cpp" line="743"/>
         <source>Dot counting</source>
         <translation>Tælle prikker</translation>
     </message>
     <message>
-        <location filename="../tasks/ace3.cpp" line="756"/>
+        <location filename="../tasks/ace3.cpp" line="763"/>
         <source>Noisy letters</source>
         <translation>Uklare bogstaver i alfabetet</translation>
     </message>
     <message>
-        <location filename="../tasks/ace3.cpp" line="764"/>
+        <location filename="../tasks/ace3.cpp" line="774"/>
         <source>Please make sure the subject can’t see the screen before you proceed. (Memory prompts coming up.)</source>
         <translation>Sørg for, at motivet ikke kan se skærmen, før du fortsætter. (Hukommelsesopkald kommer op.)</translation>
     </message>
     <message>
-        <location filename="../tasks/ace3.cpp" line="767"/>
+        <location filename="../tasks/ace3.cpp" line="777"/>
         <source>[reminder to clinician]</source>
         <translation>[påmindelse til kliniker]</translation>
     </message>
     <message>
-        <location filename="../tasks/ace3.cpp" line="791"/>
+        <location filename="../tasks/ace3.cpp" line="801"/>
         <source>Free recall</source>
         <translation>Uopfordret tilbagekaldelse</translation>
     </message>
     <message>
-        <location filename="../tasks/ace3.cpp" line="842"/>
+        <location filename="../tasks/ace3.cpp" line="852"/>
         <source>Name:</source>
         <translation>Navn:</translation>
     </message>
     <message>
-        <location filename="../tasks/ace3.cpp" line="846"/>
+        <location filename="../tasks/ace3.cpp" line="856"/>
         <source>Number:</source>
         <translation>Nummer:</translation>
     </message>
     <message>
-        <location filename="../tasks/ace3.cpp" line="850"/>
+        <location filename="../tasks/ace3.cpp" line="860"/>
         <source>Street:</source>
         <translation>Gade:</translation>
     </message>
     <message>
-        <location filename="../tasks/ace3.cpp" line="854"/>
+        <location filename="../tasks/ace3.cpp" line="864"/>
         <source>Town:</source>
         <translation>By:</translation>
     </message>
     <message>
-        <location filename="../tasks/ace3.cpp" line="858"/>
+        <location filename="../tasks/ace3.cpp" line="868"/>
         <source>County:</source>
         <translation>Amt:</translation>
     </message>
     <message>
-        <location filename="../tasks/ace3.cpp" line="864"/>
+        <location filename="../tasks/ace3.cpp" line="874"/>
         <source>Cued recall</source>
         <translation>Forespurgt tilbagekaldelse</translation>
     </message>
     <message>
-        <location filename="../tasks/ace3.cpp" line="877"/>
+        <location filename="../tasks/ace3.cpp" line="887"/>
         <source>Comments</source>
         <translation>Kommentarer</translation>
     </message>
     <message>
-        <location filename="../tasks/ace3.cpp" line="890"/>
+        <location filename="../tasks/ace3.cpp" line="900"/>
         <source>Photo 1</source>
         <translation>Foto 1</translation>
     </message>
     <message>
-        <location filename="../tasks/ace3.cpp" line="903"/>
+        <location filename="../tasks/ace3.cpp" line="913"/>
         <source>Photo 2</source>
         <translation>Foto 2</translation>
     </message>
@@ -216,6 +216,19 @@
     </message>
 </context>
 <context>
+    <name>Asdas</name>
+    <message>
+        <location filename="../tasks/asdas.cpp" line="86"/>
+        <source>Ankylosing Spondylitis Disease Activity Score</source>
+        <translation>Ankylosing Spondylitis Disease Activity Score [ankyloserende spondylitis sygdom aktivitet score]</translation>
+    </message>
+    <message>
+        <location filename="../tasks/asdas.cpp" line="92"/>
+        <source>An ASAS-endorsed disease activity score (ASDAS) in patients with ankylosing spondylitis.</source>
+        <translation>En ASAS-godkendt sygdomsaktivitetsscore (ASDAS) hos patienter med ankyloserende spondylitis.</translation>
+    </message>
+</context>
+<context>
     <name>Audit</name>
     <message>
         <location filename="../tasks/audit.cpp" line="74"/>
@@ -270,17 +283,26 @@
 <context>
     <name>Bmi</name>
     <message>
-        <location filename="../tasks/bmi.cpp" line="93"/>
+        <location filename="../tasks/bmi.cpp" line="104"/>
         <source>Body mass index</source>
         <translation>Kropsmasseindeks</translation>
     </message>
     <message>
-        <location filename="../tasks/bmi.cpp" line="99"/>
+        <location filename="../tasks/bmi.cpp" line="110"/>
+        <source>Mass, height, BMI; also waist circumference.</source>
+        <translation>Masse, højde, BMI; også taljeomkrets.</translation>
+    </message>
+    <message>
+        <location filename="../tasks/bmi.cpp" line="138"/>
+        <source>Waist circumference:</source>
+        <translation>Taljemål:</translation>
+    </message>
+    <message>
         <source>Mass, height.</source>
         <translation>Masse, højde.</translation>
     </message>
     <message>
-        <location filename="../tasks/bmi.cpp" line="118"/>
+        <location filename="../tasks/bmi.cpp" line="144"/>
         <source>Comments:</source>
         <translation>Kommentarer:</translation>
     </message>
@@ -854,6 +876,19 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
     </message>
 </context>
 <context>
+    <name>Chit</name>
+    <message>
+        <location filename="../tasks/chit.cpp" line="77"/>
+        <source>Cambridge–Chicago Compulsivity Trait Scale</source>
+        <translation>Cambridge–Chicago Compulsivity Trait Scale [Cambridge–Chicago kompulsivitet egenskab skalaen]</translation>
+    </message>
+    <message>
+        <location filename="../tasks/chit.cpp" line="83"/>
+        <source>A scale designed to measure transdiagnostic compulsivity</source>
+        <translation>En skala beregnet til at måle kompulsivitet, transdiagnostisk</translation>
+    </message>
+</context>
+<context>
     <name>ChoosePatientMenu</name>
     <message>
         <location filename="../menu/choosepatientmenu.cpp" line="60"/>
@@ -1140,6 +1175,19 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
         <location filename="../tasks/dad.cpp" line="154"/>
         <source>40-item clinician-administered, carer-rated scale.</source>
         <translation>40-punkts skala, administreret af en kliniker, vurderet af en plejeperson.</translation>
+    </message>
+</context>
+<context>
+    <name>Das28</name>
+    <message>
+        <location filename="../tasks/das28.cpp" line="93"/>
+        <source>Disease Activity Score-28</source>
+        <translation>Disease Activity Score-28 [sygdomsaktivitetsscore-28]</translation>
+    </message>
+    <message>
+        <location filename="../tasks/das28.cpp" line="99"/>
+        <source>A measure of disease activity in rheumatoid arthritis (joint examination, inflammatory marker, visual analogue scale)</source>
+        <translation>Et mål for sygdomsaktivitet ved reumatoid arthritis (fællesundersøgelse, inflammatorisk markør, visuel analog skala)</translation>
     </message>
 </context>
 <context>
@@ -1835,212 +1883,212 @@ enig</translation>
         <translation>Dato:</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="920"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="921"/>
         <source>Date (custom format):</source>
         <translation>Dato (brugerdefineret format):</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="924"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="926"/>
         <source>Time:</source>
         <translation>Tid:</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="927"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="931"/>
         <source>Time (custom format):</source>
         <translation>Tid (brugerdefineret format):</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="931"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="936"/>
         <source>Integer spinbox (range 5–10):</source>
         <translation>Heltal spinfeltet (område 9-10):</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="933"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="938"/>
         <source>Double spinbox (range 7.1–7.9):</source>
         <translation>Reelt tal spinfeltet (område 9-10):</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="935"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="940"/>
         <source>Text editor (plain text):</source>
         <translation>Tekstredigerer (almindelig tekst):</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="937"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="942"/>
         <source>Text editor (clone of previous):</source>
         <translation>Tekstredigerer (klon af tidligere):</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="939"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="944"/>
         <source>Text editor (rich text):</source>
         <translation>Teksteditor (rig tekst):</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="941"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="946"/>
         <source>This one has a hint (placeholder text)</source>
         <translation>Denne har et tip (pladsholdertekst)</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="942"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="947"/>
         <source>Line editor (plain):</source>
         <translation>Tekstlinjeditor (almindelig):</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="944"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="949"/>
         <source>hint: plain text</source>
         <translation>antydning: almindelig tekst</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="945"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="950"/>
         <source>Line editor (integer, range 13–19):</source>
         <translation>Tekstlinjeditor (heltal, rækkevidde 13-19):</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="947"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="952"/>
         <source>Line editor (double, range -0.05 to -0.09, 2dp):</source>
         <translation>Tekstlinjeditor (reelt tal, rækkevidde -0.05 to -0.09, 2dp):</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="949"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="954"/>
         <source>Variables in a grid:</source>
         <translation>Variabler i et gitterlayout:</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="951"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="956"/>
         <source>label 1 (text)</source>
         <translation>etiket 1 (tekst)</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="952"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="957"/>
         <source>label 2 (int 13-19)</source>
         <translation>etiket 2 (heltal 13-19)</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="953"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="958"/>
         <source>label 3</source>
         <translation>etiket 3</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="954"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="959"/>
         <source>label 4</source>
         <translation>etiket 4</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="955"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="960"/>
         <source>label 5 (multiline text)</source>
         <translation>etiket 5 (tekst med flere linjer)</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="958"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="963"/>
         <source>Editable variable including dates/times</source>
         <translation>Redigerbar variabel inklusive datoer/tider</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="978"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="983"/>
         <source>Diagnostic code, ICD-10:</source>
         <translation>Diagnostisk kode, ICD-10:</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="982"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="987"/>
         <source>Diagnostic code, clone of the preceding:</source>
         <translation>Diagnostisk kode, klon af det foregående:</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="986"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="991"/>
         <source>Diagnostic code, ICD-9-CM:</source>
         <translation>Diagnostisk kode, ICD-9-CM:</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="990"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="995"/>
         <source>Diagnostic codes</source>
         <translation>Diagnostiske koder</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="997"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="1002"/>
         <source>Page style: ClinicianWithPatient</source>
         <translation>Sidestil: kliniker med patient</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="998"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="1003"/>
         <source>WATCH OUT: scrolling enabled for this page; may conflict with canvas; see next page too</source>
         <translation>PAS PÅ: Rulning aktiveret til denne side; kan være i konflikt med lærred; se også næste side</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="1000"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="1005"/>
         <source>Canvas, blank start:</source>
         <translation>Lærred, blank start:</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="1002"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="1007"/>
         <source>Canvas, using files:</source>
         <translation>Lærred ved hjælp af filer:</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="1006"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="1011"/>
         <source>Canvas, clone of the first one:</source>
         <translation>Lærred, klon af den første:</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="1009"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="1014"/>
         <source>Canvas (allowing scrolling)</source>
         <translation>Lærred (gør det muligt at rulle)</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="1013"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="1018"/>
         <source>As before, but with scrolling disabled:</source>
         <translation>Som før, men med scrolling deaktiveret:</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="1018"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="1023"/>
         <source>Canvas (disabling scrolling)</source>
         <translation>Lærred (deaktiveret rulning)</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="1029"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="1034"/>
         <source>Say hello</source>
         <translation>Sig hej</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="1032"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="1037"/>
         <source>Say hello [disabled]</source>
         <translation>Sig hej [deaktiveret]</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="1036"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="1041"/>
         <source>Button with args (&apos;foo&apos;)</source>
         <translation>Knap med funktionsargumenter (&apos;foo&apos;)</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="1039"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="1044"/>
         <source>Button with args (&apos;bar&apos;)</source>
         <translation>Knap med funktionsargumenter (&apos;bar&apos;)</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="1044"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="1049"/>
         <source>Buttons</source>
         <translation>Knapper</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="1052"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="1057"/>
         <source>Photo:</source>
         <translation>Foto:</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="1054"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="1059"/>
         <source>Photo</source>
         <translation>Foto</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="1062"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="1067"/>
         <source>Reasonably long title with several words</source>
         <translation>Rimelig lang titel med flere ord</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="1092"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="1097"/>
         <source>Hello!</source>
         <translation>Hej!</translation>
     </message>
     <message>
-        <location filename="../tasks/demoquestionnaire.cpp" line="1098"/>
+        <location filename="../tasks/demoquestionnaire.cpp" line="1103"/>
         <source>Function argument was: </source>
         <translation>Funktionsargument var:</translation>
     </message>
@@ -2142,6 +2190,19 @@ enig</translation>
     </message>
 </context>
 <context>
+    <name>ElixhauserCI</name>
+    <message>
+        <location filename="../tasks/elixhauserci.cpp" line="106"/>
+        <source>Elixhauser Comorbidity Index</source>
+        <translation>Elixhauser Comorbidity Index [Elixhauser comorbiditetsindeks]</translation>
+    </message>
+    <message>
+        <location filename="../tasks/elixhauserci.cpp" line="112"/>
+        <source>31-item clinician-rated comorbidity catalogue.</source>
+        <translation>31-punkts kliniker-bedømt comorbiditet katalog.</translation>
+    </message>
+</context>
+<context>
     <name>Epds</name>
     <message>
         <location filename="../tasks/epds.cpp" line="75"/>
@@ -2180,6 +2241,19 @@ enig</translation>
         <location filename="../tasks/eq5d5l.cpp" line="244"/>
         <source>YOUR HEALTH TODAY =</source>
         <translation>DIN SUNDHED FORDAG =</translation>
+    </message>
+</context>
+<context>
+    <name>Esspri</name>
+    <message>
+        <location filename="../tasks/esspri.cpp" line="78"/>
+        <source>EULAR Sjögren’s Syndrome Patient Reported Index</source>
+        <translation>EULAR Sjögren’s Syndrome Patient Reported Index [EULAR Sjögrens syndrom patient-rapporteret indeks]</translation>
+    </message>
+    <message>
+        <location filename="../tasks/esspri.cpp" line="84"/>
+        <source>A patient-reported index designed to assess the severity of symptoms in primary Sjögren’s syndrome.</source>
+        <translation>Et patientindberettet indeks designet til at vurdere sværhedsgraden af symptomer i primær Sjögrens syndrom.</translation>
     </message>
 </context>
 <context>
@@ -3077,6 +3151,19 @@ enig</translation>
     </message>
 </context>
 <context>
+    <name>Mfi20</name>
+    <message>
+        <location filename="../tasks/mfi20.cpp" line="92"/>
+        <source>Multidimensional Fatigue Inventory</source>
+        <translation>Multidimensional Fatigue Inventory [multidimensionel træthedsinventar]</translation>
+    </message>
+    <message>
+        <location filename="../tasks/mfi20.cpp" line="98"/>
+        <source>A 20-item self-report instrument designed to measure fatigue.</source>
+        <translation>Et instrument til selvrapportering på 20 punkter designet til at måle træthed.</translation>
+    </message>
+</context>
+<context>
     <name>Moca</name>
     <message>
         <location filename="../tasks/moca.cpp" line="114"/>
@@ -3454,6 +3541,11 @@ enig</translation>
         <translation>Beskrivelser stemmer ikke overens!</translation>
     </message>
     <message>
+        <location filename="../core/networkmanager.cpp" line="2162"/>
+        <source>Please re-fetch server information.</source>
+        <translation>Hent venligst serveroplysninger igen.</translation>
+    </message>
+    <message>
         <location filename="../core/networkmanager.cpp" line="1754"/>
         <source>WARNING: Table &apos;%1&apos; is present on the server but the client requires server version &gt;=%2; the server is version %3; proceeding ONLY BECAUSE THIS TABLE IS EMPTY.</source>
         <translation>ADVARSEL: Tabel &apos;%1&apos; er til stede på serveren, men klienten kræver serverversion &gt;=%2; serveren er version %3; fortsætter KUN, fordi denne tabel er tom.</translation>
@@ -3547,11 +3639,6 @@ enig</translation>
         <location filename="../core/networkmanager.cpp" line="2130"/>
         <source>Starting one-step upload</source>
         <translation>Starte &quot;ét trin&quot; upload</translation>
-    </message>
-    <message>
-        <location filename="../core/networkmanager.cpp" line="2161"/>
-        <source>Please re-register with the server.</source>
-        <translation>Venligst genregistrer dig hos serveren.</translation>
     </message>
 </context>
 <context>
@@ -4045,7 +4132,7 @@ enig</translation>
 <context>
     <name>PhysicalIllnessMenu</name>
     <message>
-        <location filename="../menu/physicalillnessmenu.cpp" line="35"/>
+        <location filename="../menu/physicalillnessmenu.cpp" line="40"/>
         <source>Physical illness measurement</source>
         <translation>Måling af fysisk sygdom</translation>
     </message>
@@ -4141,12 +4228,12 @@ enig</translation>
         <translation>Kunne ikke oprette mappe: </translation>
     </message>
     <message>
-        <location filename="../maths/mathfunc.cpp" line="762"/>
+        <location filename="../maths/mathfunc.cpp" line="777"/>
         <source>true</source>
         <translation>sand</translation>
     </message>
     <message>
-        <location filename="../maths/mathfunc.cpp" line="762"/>
+        <location filename="../maths/mathfunc.cpp" line="777"/>
         <source>WRONG</source>
         <translation>FORKERT</translation>
     </message>
@@ -4242,7 +4329,7 @@ enig</translation>
 <context>
     <name>QuPage</name>
     <message>
-        <location filename="../questionnairelib/qupage.cpp" line="311"/>
+        <location filename="../questionnairelib/qupage.cpp" line="319"/>
         <source>Invalid information</source>
         <translation>Ugyldig information</translation>
     </message>
@@ -4295,27 +4382,27 @@ enig</translation>
 <context>
     <name>Questionnaire</name>
     <message>
-        <location filename="../questionnairelib/questionnaire.cpp" line="431"/>
+        <location filename="../questionnairelib/questionnaire.cpp" line="458"/>
         <source>Abort</source>
         <translation>Afbryde</translation>
     </message>
     <message>
-        <location filename="../questionnairelib/questionnaire.cpp" line="432"/>
+        <location filename="../questionnairelib/questionnaire.cpp" line="459"/>
         <source>Abort this questionnaire?</source>
         <translation>Afbryd dette spørgeskema?</translation>
     </message>
     <message>
-        <location filename="../questionnairelib/questionnaire.cpp" line="433"/>
+        <location filename="../questionnairelib/questionnaire.cpp" line="460"/>
         <source>Yes, abort</source>
         <translation>Ja, afbryd</translation>
     </message>
     <message>
-        <location filename="../questionnairelib/questionnaire.cpp" line="435"/>
+        <location filename="../questionnairelib/questionnaire.cpp" line="462"/>
         <source>No, go back</source>
         <translation>Nej, gå tilbage</translation>
     </message>
     <message>
-        <location filename="../questionnairelib/questionnaire.cpp" line="490"/>
+        <location filename="../questionnairelib/questionnaire.cpp" line="517"/>
         <source>Choose page</source>
         <translation>Vælg side</translation>
     </message>
@@ -4362,17 +4449,17 @@ enig</translation>
 <context>
     <name>ResearchMenu</name>
     <message>
-        <location filename="../menu/researchmenu.cpp" line="45"/>
+        <location filename="../menu/researchmenu.cpp" line="49"/>
         <source>Research tasks</source>
         <translation>Forskningsopgaver</translation>
     </message>
     <message>
-        <location filename="../menu/researchmenu.cpp" line="53"/>
+        <location filename="../menu/researchmenu.cpp" line="57"/>
         <source>Well known or generic</source>
         <translation>Velkendt eller generisk</translation>
     </message>
     <message>
-        <location filename="../menu/researchmenu.cpp" line="64"/>
+        <location filename="../menu/researchmenu.cpp" line="69"/>
         <source>Experimental</source>
         <translation>Eksperimentel</translation>
     </message>
@@ -4610,12 +4697,12 @@ enig</translation>
 <context>
     <name>SetMenuKhandaker2Mojo</name>
     <message>
-        <location filename="../menu/setmenukhandaker2mojo.cpp" line="38"/>
+        <location filename="../menu/setmenukhandaker2mojo.cpp" line="48"/>
         <source>Khandaker GM — 2 — MOJO study</source>
         <translation>Khandaker GM — 1 — MOJO forskningsundersøgelse</translation>
     </message>
     <message>
-        <location filename="../menu/setmenukhandaker2mojo.cpp" line="44"/>
+        <location filename="../menu/setmenukhandaker2mojo.cpp" line="54"/>
         <source>Khandaker GM, University of Cambridge, UK — MOJO immunopsychiatry study</source>
         <translation>Khandaker GM, University of Cambridge, UK — MOJO immunopsykiatri forskningsundersøgelse</translation>
     </message>
@@ -5430,6 +5517,32 @@ enig</translation>
     </message>
 </context>
 <context>
+    <name>Sfmpq2</name>
+    <message>
+        <location filename="../tasks/sfmpq2.cpp" line="84"/>
+        <source>Short-Form McGill Pain Questionnaire 2</source>
+        <translation>Short-Form McGill Pain Questionnaire 2 [kortformet McGill smerte spørgeskema 2]</translation>
+    </message>
+    <message>
+        <location filename="../tasks/sfmpq2.cpp" line="90"/>
+        <source>22-item self-report measure of pain symptoms of both neuropathic and non-neuropathic pain conditions.</source>
+        <translation>22-punkts selvrapport måling af smerte symptomer på både neuropatiske og ikke-neuropatiske smerte tilstande.</translation>
+    </message>
+</context>
+<context>
+    <name>Shaps</name>
+    <message>
+        <location filename="../tasks/shaps.cpp" line="83"/>
+        <source>Snaith–Hamilton Pleasure Scale</source>
+        <translation>Snaith–Hamilton Pleasure Scale [Snaith–Hamilton fornøjelseskala]</translation>
+    </message>
+    <message>
+        <location filename="../tasks/shaps.cpp" line="89"/>
+        <source>A scale to measure hedonic tone.</source>
+        <translation>En skala til måling af hedonisk tone.</translation>
+    </message>
+</context>
+<context>
     <name>SingleTaskMenu</name>
     <message>
         <location filename="../menu/singletaskmenu.cpp" line="90"/>
@@ -5630,6 +5743,19 @@ Anonym</translation>
         <location filename="../tasks/srs.cpp" line="119"/>
         <source>Fixed-length visual analogue scales for providing psychotherapy session feedback.</source>
         <translation>Faste længde visuelle analog skalaer for at give feedback fra psykoterapi session.</translation>
+    </message>
+</context>
+<context>
+    <name>Suppsp</name>
+    <message>
+        <location filename="../tasks/suppsp.cpp" line="90"/>
+        <source>Short UPPS-P Impulsive Behaviour Scale</source>
+        <translation>Short UPPS-P Impulsive Behaviour Scale [Kort UPPS-P impulsiv adfærdskala]</translation>
+    </message>
+    <message>
+        <location filename="../tasks/suppsp.cpp" line="96"/>
+        <source>A short English version of the UPPS-P Impulsive Behaviour Scale</source>
+        <translation>En kort engelsk version af UPPS-P impulsiv adfærd skala</translation>
     </message>
 </context>
 <context>

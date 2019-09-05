@@ -643,6 +643,7 @@ SOURCES += \
     qobjects/nhsnumbervalidator.cpp \
     qobjects/shootabug.cpp \
     qobjects/showwatcher.cpp \
+    qobjects/sizewatcher.cpp \
     qobjects/slownonguifunctioncaller.cpp \
     qobjects/strictdoublevalidator.cpp \
     qobjects/strictint64validator.cpp \
@@ -716,6 +717,7 @@ SOURCES += \
     tasks/aims.cpp \
     tasks/apeqcpftperinatal.cpp \
     tasks/apeqpt.cpp \
+    tasks/asdas.cpp \
     tasks/audit.cpp \
     tasks/auditc.cpp \
     tasks/badls.cpp \
@@ -745,6 +747,7 @@ SOURCES += \
     tasks/cpftlpsreferral.cpp \
     tasks/cpftlpsresetresponseclock.cpp \
     tasks/dad.cpp \
+    tasks/das28.cpp \
     tasks/dast.cpp \
     tasks/deakin1healthreview.cpp \
     tasks/demoquestionnaire.cpp \
@@ -756,6 +759,7 @@ SOURCES += \
     tasks/elixhauserci.cpp \
     tasks/epds.cpp \
     tasks/eq5d5l.cpp \
+    tasks/esspri.cpp \
     tasks/factg.cpp \
     tasks/fast.cpp \
     tasks/fft.cpp \
@@ -791,6 +795,7 @@ SOURCES += \
     tasks/maas.cpp \
     tasks/mast.cpp \
     tasks/mdsupdrs.cpp \
+    tasks/mfi20.cpp \
     tasks/moca.cpp \
     tasks/nart.cpp \
     tasks/npiq.cpp \
@@ -816,6 +821,8 @@ SOURCES += \
     tasks/rand36.cpp \
     tasks/referrersatisfactiongen.cpp \
     tasks/referrersatisfactionspec.cpp \
+    tasks/sfmpq2.cpp \
+    tasks/shaps.cpp \
     tasks/slums.cpp \
     tasks/smast.cpp \
     tasks/srs.cpp \
@@ -886,7 +893,9 @@ SOURCES += \
     widgets/verticalscrollareaviewport.cpp \
     tasks/ctqsf.cpp \
     tasks/kirby.cpp \
-    common/languages.cpp
+    common/languages.cpp \
+    widgets/zoomablegraphicsview.cpp \
+    widgets/zoomablewidget.cpp
 
 HEADERS += \
     common/aliases_camcops.h \
@@ -1068,6 +1077,7 @@ HEADERS += \
     qobjects/nhsnumbervalidator.h \
     qobjects/shootabug.h \
     qobjects/showwatcher.h \
+    qobjects/sizewatcher.h \
     qobjects/slownonguifunctioncaller.h \
     qobjects/strictdoublevalidator.h \
     qobjects/strictint64validator.h \
@@ -1141,6 +1151,7 @@ HEADERS += \
     tasks/aims.h \
     tasks/apeqcpftperinatal.h \
     tasks/apeqpt.h \
+    tasks/asdas.h \
     tasks/audit.h \
     tasks/auditc.h \
     tasks/badls.h \
@@ -1170,6 +1181,7 @@ HEADERS += \
     tasks/cpftlpsreferral.h \
     tasks/cpftlpsresetresponseclock.h \
     tasks/dad.h \
+    tasks/das28.h \
     tasks/dast.h \
     tasks/deakin1healthreview.h \
     tasks/demoquestionnaire.h \
@@ -1181,6 +1193,7 @@ HEADERS += \
     tasks/elixhauserci.h \
     tasks/epds.h \
     tasks/eq5d5l.h \
+    tasks/esspri.h \
     tasks/factg.h \
     tasks/fast.h \
     tasks/fft.h \
@@ -1216,6 +1229,7 @@ HEADERS += \
     tasks/maas.h \
     tasks/mast.h \
     tasks/mdsupdrs.h \
+    tasks/mfi20.h \
     tasks/moca.h \
     tasks/nart.h \
     tasks/npiq.h \
@@ -1241,6 +1255,8 @@ HEADERS += \
     tasks/rand36.h \
     tasks/referrersatisfactiongen.h \
     tasks/referrersatisfactionspec.h \
+    tasks/sfmpq2.h \
+    tasks/shaps.h \
     tasks/slums.h \
     tasks/smast.h \
     tasks/srs.h \
@@ -1311,7 +1327,9 @@ HEADERS += \
     widgets/verticalscrollareaviewport.h \
     tasks/ctqsf.h \
     tasks/kirby.h \
-    common/languages.h
+    common/languages.h \
+    widgets/zoomablegraphicsview.h \
+    widgets/zoomablewidget.h
 
 # DISTFILES/OTHER_FILES appear in the Qt Creator editing tree. Otherwise,
 # there's not much practical impact:

@@ -63,7 +63,9 @@ QuDateTime::QuDateTime(FieldRefPtr fieldref) :
     m_offer_now_button(false),
     m_offer_null_button(false),
     m_editor(nullptr),
-    m_calendar_widget(nullptr)
+    m_calendar_widget(nullptr),
+    m_minimum_date(uiconst::QCALENDARWIDGET_MIN_DATE),
+    m_maximum_date(uiconst::QCALENDARWIDGET_MAX_DATE)
 {
     Q_ASSERT(m_fieldref);
     connect(m_fieldref.data(), &FieldRef::valueChanged,
@@ -107,6 +109,20 @@ QuDateTime* QuDateTime::setOfferNullButton(const bool offer_null_button)
 void QuDateTime::setFromField()
 {
     fieldValueChanged(m_fieldref.data(), nullptr);
+}
+
+
+QuDateTime* QuDateTime::setMinimumDate(const QDate& min_date)
+{
+    m_minimum_date = min_date;
+    return this;
+}
+
+
+QuDateTime* QuDateTime::setMaximumDate(const QDate& max_date)
+{
+    m_maximum_date = max_date;
+    return this;
 }
 
 
@@ -156,6 +172,13 @@ QPointer<QWidget> QuDateTime::makeWidget(Questionnaire* questionnaire)
     }
 
     m_editor = new QDateTimeEdit();
+
+    if (use_calendar) {
+        // Bug? Needs to be set here rather than on QCalendarWidget
+        // https://bugreports.qt.io/browse/QTBUG-77775
+        m_editor->setMinimumDate(m_minimum_date);
+        m_editor->setMaximumDate(m_maximum_date);
+    }
     m_editor->setDisplayFormat(format);
     m_editor->setInputMethodHints(input_method_hint);
     // ... or, on Android, you get a numbers-only keyboard even with a format
@@ -166,7 +189,9 @@ QPointer<QWidget> QuDateTime::makeWidget(Questionnaire* questionnaire)
     //   punctuation, for ":"; see qqnxabstractvirtualkeyboard.cpp
 
     m_editor->setCalendarPopup(use_calendar);
-    // ... need to call setCalendarPopup(true) BEFORE setCalendarWidget; QTBUG-12300
+    // ... need to call setCalendarPopup(true) BEFORE setCalendarWidget(); see
+    // - https://bugreports.qt.io/browse/QTBUG-12300
+    // - https://doc.qt.io/qt-5/qdatetimeedit.html#setCalendarWidget
 
     /*
     TO THINK ABOUT: QuDateTime time picker
@@ -208,7 +233,6 @@ QPointer<QWidget> QuDateTime::makeWidget(Questionnaire* questionnaire)
 
         m_calendar_widget->setSelectionMode(QCalendarWidget::SingleSelection);
         m_calendar_widget->setNavigationBarVisible(true);
-        m_calendar_widget->setMinimumDate(uiconst::QCALENDARWIDGET_MIN_DATE);
         m_calendar_widget->setFirstDayOfWeek(Qt::Monday);
         m_calendar_widget->setGridVisible(true);
 
@@ -398,6 +422,34 @@ void QuDateTime::setToNull()
 }
 
 
+bool QuDateTime::hasDateComponent() const
+{
+    switch (m_mode) {
+    case DefaultDateTime:
+    case CustomDateTime:
+    case DefaultDate:
+    case CustomDate:
+        return true;
+    default:
+        return false;
+    }
+}
+
+
+bool QuDateTime::hasTimeComponent() const
+{
+    switch (m_mode) {
+    case DefaultDateTime:
+    case CustomDateTime:
+    case DefaultTime:
+    case CustomTime:
+        return true;
+    default:
+        return false;
+    }
+}
+
+
 void QuDateTime::fieldValueChanged(const FieldRef* fieldref,
                                    const QObject* originator)
 {
@@ -407,15 +459,26 @@ void QuDateTime::fieldValueChanged(const FieldRef* fieldref,
     // Missing?
     uifunc::setPropertyMissing(m_editor, fieldref->missingInput());
     if (originator != this) {
-        // Value
-        QDateTime display_value = fieldref->valueDateTime();
-        if (!display_value.isValid()) {
-            display_value = PSEUDONULL_DATETIME;
-            // because QDateTimeEdit::setDateTime() will ignore invalid values
+        if (hasDateComponent()) {
+            QDateTime display_value = fieldref->valueDateTime();
+            if (!display_value.isValid()) {
+                display_value = PSEUDONULL_DATETIME;
+                // because QDateTimeEdit::setDateTime() will ignore invalid values
+            }
+            const QSignalBlocker blocker(m_editor);
+            m_editor->setDateTime(display_value);
+        } else {
+            // We can't use fieldref->valueDateTime(); that returns an invalid
+            // QDateTime. (Bugfix 2019-08-22.)
+            QTime display_value = fieldref->valueTime();
+            if (!display_value.isValid()) {
+                display_value = PSEUDONULL_TIME;
+                // because QDateTimeEdit::setTime() will ignore invalid values
+            }
+            const QSignalBlocker blocker(m_editor);
+            m_editor->setTime(display_value);
         }
-        const QSignalBlocker blocker(m_editor);
-        m_editor->setDateTime(display_value);
-        // NULL will be shown as the pseudonull value.
-        // The yellow marker will disappear when that value is edited.
     }
+    // NULL will be shown as the pseudonull value.
+    // The yellow marker will disappear when that value is edited.
 }

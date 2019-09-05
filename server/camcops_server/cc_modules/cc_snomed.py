@@ -1081,6 +1081,7 @@ class SnomedLookup(object):
     # Base physical units
     KILOGRAM = "kilogram"
     METRE = "metre"
+    CENTIMETRE = "centimetre"
 
     # Compound physical units
     KG_PER_SQ_M = "kilogram_per_square_metre"
@@ -1139,6 +1140,8 @@ class SnomedLookup(object):
     BMI_PROCEDURE_MEASUREMENT = "bmi_procedure_measurement"
     BODY_HEIGHT_OBSERVABLE = "body_height_observable"
     BODY_WEIGHT_OBSERVABLE = "body_weight_observable"
+    WAIST_CIRCUMFERENCE_PROCEDURE_MEASUREMENT = "waist_circumference_procedure_measurement"  # noqa
+    WAIST_CIRCUMFERENCE_OBSERVABLE = "waist_circumference_observable"
 
     # BPRS, BPRS-E
     BPRS1962_SCALE = "bprs1962_scale"
@@ -1165,6 +1168,7 @@ class SnomedLookup(object):
 
     # Clinical: progress note
     PROGRESS_NOTE_PROCEDURE = "progress_note_procedure"
+    CLINICAL_NOTE = "clinical_note"
 
     # Clinical: photograph
     PHOTOGRAPH_PROCEDURE = "photograph_procedure"
@@ -1172,7 +1176,52 @@ class SnomedLookup(object):
 
     # Clinical: psychiatric clerking
     PSYCHIATRIC_ASSESSMENT_PROCEDURE = "psychiatric_assessment_procedure"
-    # Not sure we can code other things more accurately!
+
+    PSYCLERK_REASON_FOR_REFERRAL = "psyclerk_reason_for_referral"
+    PSYCLERK_PRESENTING_ISSUE = "psyclerk_presenting_issue"
+    PSYCLERK_SYSTEMS_REVIEW = "psyclerk_systems_review"
+    PSYCLERK_COLLATERAL_HISTORY = "psyclerk_collateral_history"
+
+    PSYCLERK_PAST_MEDICAL_SURGICAL_MENTAL_HEALTH_HISTORY = "psyclerk_past_medical_surgical_mental_health_history"  # noqa
+    PSYCLERK_PROCEDURES = "psyclerk_procedures"
+    PSYCLERK_ALLERGIES_ADVERSE_REACTIONS = "psyclerk_allergies_adverse_reactions"  # noqa
+    PSYCLERK_MEDICATIONS_MEDICAL_DEVICES = "psyclerk_medications_medical_devices"  # noqa
+    PSYCLERK_DRUG_SUBSTANCE_USE = "psyclerk_drug_substance_use"
+    PSYCLERK_FAMILY_HISTORY = "psyclerk_family_history"
+    PSYCLERK_DEVELOPMENTAL_HISTORY = "psyclerk_developmental_history"
+    PSYCLERK_SOCIAL_PERSONAL_HISTORY = "psyclerk_social_personal_history"
+    PSYCLERK_PERSONALITY = "psyclerk_personality"
+    PSYCLERK_PRISON_RECORD_CRIMINAL_ACTIVITY = "psyclerk_prison_record_criminal_activity"  # noqa
+    PSYCLERK_SOCIAL_HISTORY_BASELINE = "psyclerk_social_history_baseline"
+
+    PSYCLERK_MSE_APPEARANCE = "psyclerk_mse_appearance"
+    PSYCLERK_MSE_BEHAVIOUR = "psyclerk_mse_behaviour"
+    PSYCLERK_MSE_SPEECH = "psyclerk_mse_speech"
+    PSYCLERK_MSE_MOOD = "psyclerk_mse_mood"
+    PSYCLERK_MSE_AFFECT = "psyclerk_mse_affect"
+    PSYCLERK_MSE_THOUGHT = "psyclerk_mse_thought"
+    PSYCLERK_MSE_PERCEPTION = "psyclerk_mse_perception"
+    PSYCLERK_MSE_COGNITION = "psyclerk_mse_cognition"
+    PSYCLERK_MSE_INSIGHT = "psyclerk_mse_insight"
+
+    PSYCLERK_PHYSEXAM_GENERAL = "psyclerk_physexam_general"
+    PSYCLERK_PHYSEXAM_CARDIOVASCULAR = "psyclerk_physexam_cardiovascular"
+    PSYCLERK_PHYSEXAM_RESPIRATORY = "psyclerk_physexam_respiratory"
+    PSYCLERK_PHYSEXAM_ABDOMINAL = "psyclerk_physexam_abdominal"
+    PSYCLERK_PHYSEXAM_NEUROLOGICAL = "psyclerk_physexam_neurological"
+
+    PSYCLERK_ASSESSMENT_SCALES = "psyclerk_assessment_scales"
+    PSYCLERK_INVESTIGATIONS_RESULTS = "psyclerk_investigations_results"
+
+    PSYCLERK_SAFETY_ALERTS = "psyclerk_safety_alerts"
+    PSYCLERK_RISK_ASSESSMENT = "psyclerk_risk_assessment"
+    PSYCLERK_RELEVANT_LEGAL_INFORMATION = "psyclerk_relevant_legal_information"
+
+    PSYCLERK_CURRENT_PROBLEMS = "psyclerk_current_problems"
+    PSYCLERK_PATIENT_CARER_CONCERNS = "psyclerk_patient_carer_concerns"
+    PSYCLERK_CLINICAL_NARRATIVE = "psyclerk_clinical_narrative"
+    PSYCLERK_MANAGEMENT_PLAN = "psyclerk_management_plan"
+    PSYCLERK_INFORMATION_GIVEN = "psyclerk_information_given"
 
     # CPFT/CUH LPS: none
     # COPE: none

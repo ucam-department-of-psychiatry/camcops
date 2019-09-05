@@ -74,7 +74,7 @@ QString Chit::shortname() const
 
 QString Chit::longname() const
 {
-    return tr("Cambridge-Chicago Compulsivity Trait Scale");
+    return tr("Cambridge–Chicago Compulsivity Trait Scale");
 }
 
 

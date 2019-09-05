@@ -105,7 +105,9 @@ public:
 
     // Allow this page to scroll vertically? Default is true, but you may
     // want to disable this e.g. for canvas pages.
-    QuPage* allowScroll(bool allow_scroll);
+    // - If allow_scroll is false, zoomable comes into play.
+    //   See isZoomable().
+    QuPage* allowScroll(bool allow_scroll, bool zoomable = false);
 
     // Return all elements belonging to this page that possess the specified
     // tag.
@@ -131,6 +133,11 @@ public:
 
     // Does the page allow vertical scrolling?
     bool allowsScroll() const;
+
+    // If allowsScroll() is false...
+    // If the screen is small, would the page like its contents zoomed out
+    // (shrunk) so that the whole page is visible?
+    bool isZoomable() const;
 
     // Should we prevent the user seeing controls for navigating away from this
     // page?
@@ -188,6 +195,7 @@ protected:
     QVector<QuElementPtr> m_elements;  // page's elements
     bool m_skip;  // skip this page?
     bool m_allow_scroll;  // allow vertical scroll?
+    bool m_zoomable;  // if !m_allow_scroll, shrink/zoom contents to fit visible area?
     bool m_progress_blocked;  // is the page blocking progress?
     QVector<PageValidatorFunction> m_validators;  // functions to validate via
 };

@@ -53,6 +53,7 @@ A few random notes:
 
 """
 
+from abc import ABCMeta
 from io import StringIO
 import logging
 
@@ -64,7 +65,7 @@ from pendulum import DateTime as Pendulum
 
 from sqlalchemy.engine import create_engine
 from sqlalchemy.engine.base import Engine
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
 from sqlalchemy.sql.schema import MetaData
 
 from camcops_server.cc_modules.cc_cache import cache_region_static, fkg
@@ -212,6 +213,13 @@ Base.__table_args__ = {
 
 # MySQL things we don't care about too much:
 # - innodb_file_per_table: desirable, but up to the user.
+
+
+class DeclarativeAndABCMeta(DeclarativeMeta, ABCMeta):
+    """
+    Metaclass for classes that want to inherit from Base and also ABC:
+    """
+    pass
 
 
 # =============================================================================

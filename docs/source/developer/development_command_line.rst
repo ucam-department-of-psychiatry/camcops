@@ -68,7 +68,7 @@ CamCOPS with little extra work. (Though probably not none.)
 The ``--build_all`` option is generally a good one; this builds for all
 architectures supported on the host you're using.
 
-Here's its help as of 2019-06-16:
+Here's its help:
 
 ..  literalinclude:: build_qt_help.txt
     :language: none
@@ -87,7 +87,7 @@ decrypt_sqlcipher.py
 This tool requires an installed copy of SQLCipher_. It creates a decrypted
 SQLite_ database from an encrypted SQLCipher_ database, given the password.
 
-Here's its help as of 2018-06-09:
+Here's its help:
 
 ..  literalinclude:: decrypt_sqlcipher_help.txt
     :language: none
@@ -99,7 +99,7 @@ encrypt_sqlcipher.py
 This tool requires an installed copy of SQLCipher_. It creates an encrypted
 SQLCipher_ database from a plain SQLite_ database.
 
-Here's its help as of 2019-06-13:
+Here's its help:
 
 ..  literalinclude:: encrypt_sqlcipher_help.txt
     :language: none
@@ -112,7 +112,7 @@ This tool requires an installed copy of SQLCipher_. It opens an encrypted
 SQLCipher_ database via the SQLite_ command line tool, given the password.
 You can use this to view/edit CamCOPS databases.
 
-Here's its help as of 2019-06-13:
+Here's its help:
 
 ..  literalinclude:: open_sqlcipher_help.txt
     :language: none
@@ -132,7 +132,10 @@ create_database_migration.py
 ----------------------------
 
 Creates a new database migration for the server, in
-``server/camcops_server/alembic/versions/``.
+``server/camcops_server/alembic/versions/``. Here's its help:
+
+.. literalinclude:: create_database_migration_help.txt
+    :language: none
 
 
 make_xml_skeleton.py
@@ -143,4 +146,7 @@ particular site) and makes a generic "skeleton" XML file -- the same but with
 strings replaced by placeholder text -- so that others can see the structure
 required if they too have the permissions to create the full file.
 
-Writes to stdout (so redirect it to save to a file).
+Writes to stdout (so redirect it to save to a file). Here's its help:
+
+.. literalinclude:: make_xml_skeleton_help.txt
+    :language: none

@@ -27,7 +27,7 @@ camcops_server/tasks/cardinal_expdetthreshold.py
 """
 
 import math
-from typing import List, Optional
+from typing import List, Optional, Type
 
 from cardinal_pythonlib.maths_numpy import inv_logistic, logistic
 import cardinal_pythonlib.rnc_web as ws
@@ -43,13 +43,17 @@ from camcops_server.cc_modules.cc_constants import (
 from camcops_server.cc_modules.cc_db import (
     ancillary_relationship,
     GenericTabletRecordMixin,
+    TaskDescendant,
 )
 from camcops_server.cc_modules.cc_html import (
     get_yes_no_none,
     tr_qa,
 )
 from camcops_server.cc_modules.cc_request import CamcopsRequest
-from camcops_server.cc_modules.cc_sqla_coltypes import PendulumDateTimeAsIsoTextColType  # noqa
+from camcops_server.cc_modules.cc_sqla_coltypes import (
+    CamcopsColumn,
+    PendulumDateTimeAsIsoTextColType,
+)
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 from camcops_server.cc_modules.cc_text import SS
@@ -70,7 +74,8 @@ DP = 3
 # CardinalExpDetThreshold
 # =============================================================================
 
-class CardinalExpDetThresholdTrial(GenericTabletRecordMixin, Base):
+class CardinalExpDetThresholdTrial(GenericTabletRecordMixin, TaskDescendant,
+                                   Base):
     __tablename__ = "cardinal_expdetthreshold_trials"
 
     cardinal_expdetthreshold_id = Column(
@@ -172,6 +177,18 @@ class CardinalExpDetThresholdTrial(GenericTabletRecordMixin, Base):
             ws.webify(self.trial_num_in_calculation_sequence)
         )
 
+    # -------------------------------------------------------------------------
+    # TaskDescendant overrides
+    # -------------------------------------------------------------------------
+
+    @classmethod
+    def task_ancestor_class(cls) -> Optional[Type["Task"]]:
+        return CardinalExpDetThreshold
+
+    def task_ancestor(self) -> Optional["CardinalExpDetThreshold"]:
+        return CardinalExpDetThreshold.get_linked(
+            self.cardinal_expdetthreshold_id, self)
+
 
 class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
     """
@@ -190,12 +207,14 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
         "target_number", Integer,
         comment="Target number (within available targets of that modality)"
     )
-    background_filename = Column(
+    background_filename = CamcopsColumn(
         "background_filename", Text,
+        exempt_from_anonymisation=True,
         comment="Filename of media used for background"
     )
-    target_filename = Column(
+    target_filename = CamcopsColumn(
         "target_filename", Text,
+        exempt_from_anonymisation=True,
         comment="Filename of media used for target"
     )
     visual_target_duration_s = Column(
@@ -230,8 +249,9 @@ class CardinalExpDetThreshold(TaskHasPatientMixin, Task):
         "p_catch_trial", Float,
         comment="Probability of catch trial"
     )
-    prompt = Column(
+    prompt = CamcopsColumn(
         "prompt", UnicodeText,
+        exempt_from_anonymisation=True,
         comment="Prompt given to subject"
     )
     iti_s = Column(

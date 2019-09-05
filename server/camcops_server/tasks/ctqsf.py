@@ -24,6 +24,8 @@ camcops_server/tasks/ctqsf.py
 
 ===============================================================================
 
+**Childhood Trauma Questionnaire, Short Form (CTQ-SF).**
+
 """
 
 from typing import Dict, List, Optional
@@ -66,7 +68,7 @@ class Ctqsf(TaskHasPatientMixin, Task):
     shortname = "CTQ-SF"
     provides_trackers = False
 
-    # *** fields
+    # todo: Ctqsf fields
 
     N_QUESTIONS = 28
     QUESTION_FIELDNAMES = strseq("q", 1, N_QUESTIONS)
@@ -85,6 +87,6 @@ class Ctqsf(TaskHasPatientMixin, Task):
         return self.all_fields_not_none(self.QUESTION_FIELDNAMES)
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        return "" # *** IMPLEMENT
+        return "" # todo: IMPLEMENT Ctqsf
 
     # No SNOMED code for the CTQ.

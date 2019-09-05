@@ -26,8 +26,9 @@ camcops_server/tasks/diagnosis.py
 
 """
 
+from abc import ABC
 import logging
-from typing import Any, Dict, List, Type, TYPE_CHECKING
+from typing import Any, Dict, List, Optional, Type, TYPE_CHECKING
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.colander_utils import (
@@ -60,6 +61,7 @@ from camcops_server.cc_modules.cc_ctvinfo import CtvInfo
 from camcops_server.cc_modules.cc_db import (
     ancillary_relationship,
     GenericTabletRecordMixin,
+    TaskDescendant,
 )
 from camcops_server.cc_modules.cc_forms import (
     LinkingIdNumSelector,
@@ -86,8 +88,11 @@ from camcops_server.cc_modules.cc_snomed import (
     SnomedExpression,
     SnomedFocusConcept,
 )
-from camcops_server.cc_modules.cc_sqlalchemy import Base
-from camcops_server.cc_modules.cc_sqla_coltypes import DiagnosticCodeColType
+from camcops_server.cc_modules.cc_sqlalchemy import Base, DeclarativeAndABCMeta
+from camcops_server.cc_modules.cc_sqla_coltypes import (
+    CamcopsColumn,
+    DiagnosticCodeColType,
+)
 
 if TYPE_CHECKING:
     from sqlalchemy.sql.elements import ColumnElement
@@ -128,8 +133,9 @@ class DiagnosisItemBase(GenericTabletRecordMixin, Base):
     # noinspection PyMethodParameters
     @declared_attr
     def description(cls) -> Column:
-        return Column(
+        return CamcopsColumn(
             "description", UnicodeText,
+            exempt_from_anonymisation=True,
             comment="Description of the diagnostic code"
         )
 
@@ -162,7 +168,8 @@ class DiagnosisItemBase(GenericTabletRecordMixin, Base):
         return not bool(self.code)
 
 
-class DiagnosisBase(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
+class DiagnosisBase(TaskHasClinicianMixin, TaskHasPatientMixin, Task, ABC,
+                    metaclass=DeclarativeAndABCMeta):
     __abstract__ = True
 
     # noinspection PyMethodParameters
@@ -175,7 +182,6 @@ class DiagnosisBase(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
 
     items = None  # type: List[DiagnosisItemBase]  # must be overridden by a relationship  # noqa
 
-    MUST_OVERRIDE = "DiagnosisBase: must override fn in derived class"
     hl7_coding_system = "?"
 
     def get_num_items(self) -> int:
@@ -247,7 +253,7 @@ class DiagnosisBase(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
 # DiagnosisIcd10
 # =============================================================================
 
-class DiagnosisIcd10Item(DiagnosisItemBase):
+class DiagnosisIcd10Item(DiagnosisItemBase, TaskDescendant):
     __tablename__ = "diagnosis_icd10_item"
 
     diagnosis_icd10_id = Column(
@@ -255,6 +261,17 @@ class DiagnosisIcd10Item(DiagnosisItemBase):
         nullable=False,
         comment=FK_COMMENT,
     )
+
+    # -------------------------------------------------------------------------
+    # TaskDescendant overrides
+    # -------------------------------------------------------------------------
+
+    @classmethod
+    def task_ancestor_class(cls) -> Optional[Type["Task"]]:
+        return DiagnosisIcd10
+
+    def task_ancestor(self) -> Optional["DiagnosisIcd10"]:
+        return DiagnosisIcd10.get_linked(self.diagnosis_icd10_id, self)
 
 
 class DiagnosisIcd10(DiagnosisBase):
@@ -345,7 +362,7 @@ class DiagnosisIcd10(DiagnosisBase):
 # DiagnosisIcd9CM
 # =============================================================================
 
-class DiagnosisIcd9CMItem(DiagnosisItemBase):
+class DiagnosisIcd9CMItem(DiagnosisItemBase, TaskDescendant):
     __tablename__ = "diagnosis_icd9cm_item"
 
     diagnosis_icd9cm_id = Column(
@@ -353,6 +370,17 @@ class DiagnosisIcd9CMItem(DiagnosisItemBase):
         nullable=False,
         comment=FK_COMMENT,
     )
+
+    # -------------------------------------------------------------------------
+    # TaskDescendant overrides
+    # -------------------------------------------------------------------------
+
+    @classmethod
+    def task_ancestor_class(cls) -> Optional[Type["Task"]]:
+        return DiagnosisIcd9CM
+
+    def task_ancestor(self) -> Optional["DiagnosisIcd9CM"]:
+        return DiagnosisIcd9CM.get_linked(self.diagnosis_icd9cm_id, self)
 
 
 class DiagnosisIcd9CM(DiagnosisBase):

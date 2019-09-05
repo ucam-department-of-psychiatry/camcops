@@ -75,6 +75,10 @@ from cardinal_pythonlib.wsgi.reverse_proxied_mw import (
 # noinspection PyUnresolvedReferences
 import camcops_server.cc_modules.cc_all_models  # import side effects (ensure all models registered)  # noqa
 
+from camcops_server.cc_modules.cc_anon import (
+    write_crate_data_dictionary,
+    write_cris_data_dictionary,
+)  # nopep8
 from camcops_server.cc_modules.cc_baseconstants import ENVVAR_CONFIG_FILE  # nopep8
 # noinspection PyUnresolvedReferences
 import camcops_server.cc_modules.client_api  # import side effects (register unit test)  # nopep8
@@ -130,6 +134,7 @@ log.info("Using {} tasks", len(Task.all_subclasses_by_tablename()))
 
 if TYPE_CHECKING:
     from pyramid.router import Router  # nopep8
+    from camcops_server.cc_modules.cc_exportrecipientinfo import ExportRecipientInfo  # nopep8
 
 # =============================================================================
 # Other constants
@@ -531,16 +536,84 @@ def get_new_password_from_cli(username: str) -> str:
 
 
 # =============================================================================
-# Command-line functions
+# Export command-line functions
 # =============================================================================
 
-def print_database_title() -> None:
+def cmd_show_export_queue(recipient_names: List[str] = None,
+                          all_recipients: bool = False,
+                          via_index: bool = True,
+                          pretty: bool = False) -> None:
     """
-    Prints the database title (for the current config) to stdout.
+    Shows tasks that would be exported.
+
+    Args:
+        recipient_names: list of export recipient names (as per the config
+            file)
+        all_recipients: use all recipients?
+        via_index: use the task index (faster)?
+        pretty: use ``str(task)`` not ``repr(task)`` (prettier, slower because
+            it has to query the patient)
     """
     with command_line_request_context() as req:
-        print(req.database_title)
+        print_export_queue(req,
+                           recipient_names=recipient_names,
+                           all_recipients=all_recipients,
+                           via_index=via_index,
+                           pretty=pretty)
 
+
+def cmd_export(recipient_names: List[str] = None,
+               all_recipients: bool = False,
+               via_index: bool = True) -> None:
+    """
+    Send all outbound incremental export messages (e.g. HL7).
+
+    Args:
+        recipient_names: list of export recipient names (as per the config
+            file)
+        all_recipients: use all recipients?
+        via_index: use the task index (faster)?
+    """
+    with command_line_request_context() as req:
+        export(req,
+               recipient_names=recipient_names,
+               all_recipients=all_recipients,
+               via_index=via_index)
+
+
+def make_data_dictionary(filename: str, recipient_name: str,
+                         cris: bool = False) -> None:
+    """
+    Writes a data dictionary for the CRATE anonymisation tool.
+    See :func:`camcops_server.cc_export.write_crate_data_dictionary`.
+
+    Args:
+        filename: destination filename
+        recipient_name: export recipient name
+        cris: make DD for CRIS, not CRATE
+    """
+    target = "CRIS" if cris else "CRATE"
+    with command_line_request_context() as req:
+        recipients = req.get_export_recipients(
+            recipient_names=[recipient_name],
+            save=False,
+            database_versions=False
+        )
+        recipient = recipients[0]  # type: ExportRecipientInfo
+        log.info(f"Generating {target} data dictionary for export recipient "
+                 f"{recipient_name!r}; writing to {filename!r}")
+        with open(filename, "wt") as file:
+            if cris:
+                write_cris_data_dictionary(req=req, file=file,
+                                           recipient=recipient)
+            else:
+                write_crate_data_dictionary(req=req, file=file,
+                                            recipient=recipient)
+
+
+# =============================================================================
+# User management command-line functions
+# =============================================================================
 
 def make_superuser(username: str = None) -> bool:
     """
@@ -610,46 +683,16 @@ def enable_user_cli(username: str = None) -> bool:
         return True
 
 
-def cmd_show_export_queue(recipient_names: List[str] = None,
-                          all_recipients: bool = False,
-                          via_index: bool = True,
-                          pretty: bool = False) -> None:
-    """
-    Shows tasks that would be exported.
+# =============================================================================
+# Other command-line functions
+# =============================================================================
 
-    Args:
-        recipient_names: list of export recipient names (as per the config
-            file)
-        all_recipients: use all recipients?
-        via_index: use the task index (faster)?
-        pretty: use ``str(task)`` not ``repr(task)`` (prettier, slower because
-            it has to query the patient)
+def print_database_title() -> None:
+    """
+    Prints the database title (for the current config) to stdout.
     """
     with command_line_request_context() as req:
-        print_export_queue(req,
-                           recipient_names=recipient_names,
-                           all_recipients=all_recipients,
-                           via_index=via_index,
-                           pretty=pretty)
-
-
-def cmd_export(recipient_names: List[str] = None,
-               all_recipients: bool = False,
-               via_index: bool = True) -> None:
-    """
-    Send all outbound incremental export messages (e.g. HL7).
-
-    Args:
-        recipient_names: list of export recipient names (as per the config
-            file)
-        all_recipients: use all recipients?
-        via_index: use the task index (faster)?
-    """
-    with command_line_request_context() as req:
-        export(req,
-               recipient_names=recipient_names,
-               all_recipients=all_recipients,
-               via_index=via_index)
+        print(req.database_title)
 
 
 def reindex(cfg: CamcopsConfig) -> None:

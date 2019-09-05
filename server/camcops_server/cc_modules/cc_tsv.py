@@ -285,7 +285,7 @@ class TsvCollection(object):
         Returns the TSV collection as an XLSX (Excel) file.
         """
         wb = XLWorkbook()
-        wb.remove_sheet(wb.active)  # remove the autocreated blank sheet
+        wb.remove(wb.active)  # remove the autocreated blank sheet
         for page in self.pages:
             ws = wb.create_sheet(title=page.name)
             page.write_to_xlsx_worksheet(ws)

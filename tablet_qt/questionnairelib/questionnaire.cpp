@@ -20,6 +20,7 @@
 // #define OFFER_LAYOUT_DEBUG_BUTTON
 // #define DEBUG_PAGE_LAYOUT_ON_OPEN
 // #define DEBUG_REPORT_OPEN_SUBWIDGET
+// #define DISABLE_ZOOMABLE_WIDGET
 
 #include "questionnaire.h"
 #include <functional>
@@ -43,6 +44,7 @@
 #include "tasklib/task.h"
 #include "widgets/labelwordwrapwide.h"
 #include "widgets/verticalscrollarea.h"
+#include "widgets/zoomablewidget.h"
 
 
 Questionnaire::Questionnaire(CamcopsApp& app) :
@@ -67,7 +69,7 @@ Questionnaire::Questionnaire(CamcopsApp& app,
 #endif
     m_current_page_index(0)  // starting page
 {
-    setStyleSheet(m_app.getSubstitutedCss(uiconst::CSS_CAMCOPS_QUESTIONNAIRE));
+    setStyleSheet(questionnaireStylesheet());
 
     setLayout(m_outer_layout);
     // You can't reset the outer layout for a widget, I think. You get:
@@ -170,12 +172,25 @@ void Questionnaire::build()
     // OVERVIEW OF WIDGET/LAYOUT STRUCTURE:
     //
     // W this = OpenableWidget (inherits from QWidget)
-    //      L m_outer_layout = VBoxLayout
-    //          W m_background_widget = QWidget
-    //              L m_mainlayout = VBoxLayout
-    //                  W m_p_header = QuestionnaireHeader
-    //                  W scroll = VerticalScrollArea
-    //                      W pagewidget = QWidget
+    //   L m_outer_layout = VBoxLayout
+    //     W m_background_widget = QWidget
+    //       L m_mainlayout = VBoxLayout
+    //         W m_p_header = QuestionnaireHeader
+    //
+    // Then, one of the following:
+    //
+    //         W scroll = VerticalScrollArea
+    //           W pagewidget = BaseWidget (QWidget)
+    //         . stretch
+    //        ---
+    //         W zw = ZoomableWidget
+    //           V ZoomableGraphicsView
+    //           S QGraphicsScene
+    //             P QGraphicsProxyWidget
+    //               W pagewidget = BaseWidget (QWidget)
+    //        ---
+    //         W pagewidget = BaseWidget (QWidget)
+    //         . stretch
 
     // For dynamic questionnaires:
     if (m_pages.empty()) {
@@ -272,6 +287,7 @@ void Questionnaire::build()
     m_mainlayout->addWidget(m_p_header);
 
     if (page->allowsScroll()) {
+        // Page sits inside a vertically scrolling area.
         // The QScrollArea (a) makes text word wrap, by setting a horizontal
         // size limit (I presume), and (b) deals with the vertical. But it
         // doesn't get the horizontal widths right. So we use a substitute.
@@ -279,11 +295,22 @@ void Questionnaire::build()
         scroll->setObjectName(background_css_name);
         scroll->setWidget(pagewidget);
         m_mainlayout->addWidget(scroll);
+        // In case the questionnaire is vertically short:
+        m_mainlayout->addStretch();
+#ifndef DISABLE_ZOOMABLE_WIDGET
+    } else if (page->isZoomable()) {
+        // Page doesn't scroll but if the screen is small, the page contents
+        // is zoomed out (shrunk) so it's all visible.
+        pagewidget->setStyleSheet(questionnaireStylesheet());
+        auto zw = new ZoomableWidget(pagewidget);
+        m_mainlayout->addWidget(zw);
+#endif
     } else {
+        // Page as plain widget.
         m_mainlayout->addWidget(pagewidget);
+        // In case the questionnaire is vertically short:
+        m_mainlayout->addStretch();
     }
-    // In case the questionnaire is vertically short:
-    m_mainlayout->addStretch();
 
     // Background
     m_background_widget = new QWidget();
@@ -778,7 +805,6 @@ QuElement* Questionnaire::getFirstElementByTag(
 }
 
 
-
 void Questionnaire::setFinishButtonIcon(const QString& base_filename)
 {
     m_finish_button_icon_base_filename = base_filename;
@@ -791,4 +817,10 @@ void Questionnaire::setFinishButtonIcon(const QString& base_filename)
 void Questionnaire::setFinishButtonIconToTick()
 {
     setFinishButtonIcon(uiconst::CBS_OK);
+}
+
+
+QString Questionnaire::questionnaireStylesheet() const
+{
+    return m_app.getSubstitutedCss(uiconst::CSS_CAMCOPS_QUESTIONNAIRE);
 }

@@ -916,18 +916,23 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
                              ->setCustomFormat("yyyy MM dd HH:mm:ss:zzz"),
         new QuHeading(tr("Date:")),
         (new QuDateTime(fieldRef("date_only")))
-                             ->setMode(QuDateTime::DefaultDate),
+                             ->setMode(QuDateTime::DefaultDate)
+                             ->setOfferNowButton(true),
         new QuHeading(tr("Date (custom format):")),
         (new QuDateTime(fieldRef("date_only")))
                              ->setMode(QuDateTime::CustomDate)
-                             ->setCustomFormat("yyyy MM dd"),
+                             ->setCustomFormat("yyyy MM dd")
+                             ->setOfferNowButton(true),
         new QuHeading(tr("Time:")),
         (new QuDateTime(fieldRef("time_only")))
-                             ->setMode(QuDateTime::DefaultTime),
+                             ->setMode(QuDateTime::DefaultTime)
+                             ->setOfferNowButton(true)
+                             ->setOfferNullButton(true),
         new QuHeading(tr("Time (custom format):")),
         (new QuDateTime(fieldRef("time_only")))
                              ->setMode(QuDateTime::CustomTime)
-                             ->setCustomFormat("HH:mm:ss"),
+                             ->setCustomFormat("HH:mm:ss")
+                             ->setOfferNowButton(true),
         new QuHeading(tr("Integer spinbox (range 5–10):")),
         new QuSpinBoxInteger(fieldRef("spinbox_int"), 5, 10),
         new QuHeading(tr("Double spinbox (range 7.1–7.9):")),

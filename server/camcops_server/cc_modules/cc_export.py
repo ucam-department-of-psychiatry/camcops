@@ -303,7 +303,9 @@ def export_whole_database(req: "CamcopsRequest",
             task_generator = gen_tasks_having_exportedtasks(collection)
             export_options = TaskExportOptions(
                 include_blobs=recipient.db_include_blobs,
-                # *** todo: other options, specifically DB_PATIENT_ID_PER_ROW
+                db_patient_id_per_row=recipient.db_patient_id_per_row,
+                db_make_all_tables_even_empty=True,
+                db_include_summaries=recipient.db_add_summaries,
             )
             copy_tasks_and_summaries(
                 tasks=task_generator,
@@ -373,7 +375,7 @@ def export_task(req: "CamcopsRequest",
     # persisted, or someone's managed to get an iffy back-end request in some
     # other way.
     if not recipient.is_task_suitable(task):
-        # Warning will already have been emitted.
+        # Warning will already have been emitted (by is_task_suitable).
         return
 
     cfg = req.config

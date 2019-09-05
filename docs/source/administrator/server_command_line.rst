@@ -33,7 +33,7 @@ camcops_server
 --------------
 
 The ``camcops_server`` command is the main interface to the CamCOPS server.
-Options as of 2019-03-19 (output from ``camcops_server --allhelp``):
+Options (output from ``camcops_server --allhelp``):
 
 ..  literalinclude:: camcops_server_allhelp.txt
     :language: none
@@ -49,7 +49,7 @@ CamCOPS configuration files/databases. It’s less useful than it was, because
 the dominant mode of “one database per research group” has been replaced by the
 concept of “a single database with group-level security”.
 
-Options as of 2018-11-09:
+Options:
 
 ..  literalinclude:: camcops_server_meta_help.txt
     :language: none
@@ -64,7 +64,7 @@ This simple tool uses MySQL to dump a MySQL database to a .SQL file (from which
 you can restore it), and names the file according to the name of the database
 plus a timestamp.
 
-Options as of 2017-10-23:
+Options:
 
 ..  literalinclude:: camcops_backup_mysql_database_help.txt
     :language: none

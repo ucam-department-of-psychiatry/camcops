@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="asdas">(
+    <!-- Ankylosing Spondylitis Disease Activity Score -->
+
+    <string name="title_main">(title)</string>
+
+    <string name="q1">(back pain)</string>
+    <string name="q2">(stiffness)</string>
+    <string name="q3">(patient global)</string>
+    <string name="q4">(peripheral)</string>
+    <string name="q5">(CRP)</string>
+    <string name="q6">(ESR)</string>
+
+    <string name="q1_min">(min)</string>
+    <string name="q1_max">(max)</string>
+    <string name="q2_min">(min)</string>
+    <string name="q2_max">(max)</string>
+    <string name="q3_min">(min)</string>
+    <string name="q3_max">(max)</string>
+    <string name="q4_min">(min)</string>
+    <string name="q4_max">(max)</string>
+
+    <string name="crp_esr_instructions">Fill in at least one of the following:</string>
+    <string name="asdas_crp">ASDAS-CRP</string>
+    <string name="asdas_esr">ASDAS-ESR</string>
+
+    <string name="n_a">(n/a)</string>
+    <string name="inactive">(inactive)</string>
+    <string name="moderate">(moderate)</string>
+    <string name="high">(high)</string>
+    <string name="very_high">(very high)</string>
+  </task>
+</resources>

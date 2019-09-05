@@ -24,11 +24,16 @@ Body mass index (BMI)
 
 .. include:: include_from_lp_specific.rst
 
+
 Details
 ~~~~~~~
 
 Body mass index, or the Quetelet index: see
 https://en.wikipedia.org/wiki/Body_mass_index.
+
+Waist circumference: see
+https://apps.who.int/iris/handle/10665/44583.
+
 
 Intellectual property rights
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~

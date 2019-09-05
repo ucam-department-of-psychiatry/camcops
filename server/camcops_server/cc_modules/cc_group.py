@@ -192,6 +192,14 @@ class Group(Base):
         return [g.id for g in query]
 
     @classmethod
+    def all_group_names(cls, dbsession: SqlASession) -> List[str]:
+        """
+        Returns all group names.
+        """
+        query = dbsession.query(cls).order_by(cls.id)
+        return [g.name for g in query]
+
+    @classmethod
     def group_exists(cls, dbsession: SqlASession, group_id: int) -> bool:
         """
         Does a particular group (specified by its integer ID) exist?

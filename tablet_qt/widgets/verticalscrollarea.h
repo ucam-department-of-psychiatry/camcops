@@ -31,6 +31,8 @@ class VerticalScrollArea : public QScrollArea
 {
     // Contains objects in a vertical scroll area.
     //
+    // - Swipe gestures and the mouse wheel both scroll.
+    //
     // - Inheritance: QScrollArea : QAbstractScrollArea : QFrame : QWidget
     //
     // - Note that it *contains* a QWidget, named 'qt_scrollarea_viewport',

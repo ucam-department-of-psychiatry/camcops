@@ -23,22 +23,44 @@
 Ankylosing Spondylitis Disease Activity Score (ASDAS)
 -----------------------------------------------------
 
-.. include:: include_under_development.rst
+.. include:: include_data_collection_plus_local_upgrade.rst
 
-Four numerical rating scales rated 0-10 and one numerical response.
+Four numerical rating scales rated 0-10 and a measure of inflammation (either
+C-reactive protein, CRP, or erythrocyte sedimentation rate, ESR).
 
-Each question is weighted: 0.12 × back pain + 0.06 × duration of morning
-stiffness + 0.11 × patient global + 0.07 × peripheral pain/swelling + 0.58 ×
-ln(CRP + 1).
+Each question is weighted:
 
-**GIVE CRP UNITS.**
-**IMPLEMENT ESR VERSION TOO.**
+.. code-block:: none
+
+  ASDAS-CRP =
+                0.12 × back pain +
+                0.06 × duration of morning stiffness +
+                0.11 × patient global +
+                0.07 × peripheral pain/swelling +
+                0.58 × ln(CRP + 1)
+
+    ... where CRP is measured in mg/L
+
+  ASDAS-ESR =
+                0.08 x back pain +
+                0.07 x duration of morning stiffness +
+                0.11 x patient global +
+                0.09 x peripheral pain/swelling +
+                0.29 x √(ESR)
+
+    ... where ESR is measured in mm/h
 
 
 Intellectual property rights
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**TO BE ESTABLISHED**
+**TO BE ESTABLISHED.** Original paper (Lukas et al. 2009) is copyright 2009 BMJ
+Publishing Group and European League Against Rheumatism, but status of task
+itself less clear.
+
+Braun et al. (2014, p. S-100) state "Another major difference between BASDAI
+and ASDAS is that the latter is entirely in the public domain..."; the last
+author (van der Heijde) is also the last author of the original article.
 
 
 History
@@ -50,6 +72,14 @@ History
   with ankylosing spondylitis.
   *Ann Rheum Dis.* 68: 18-24.
   https://www.ncbi.nlm.nih.gov/pubmed/18625618
+
+For copyright status, see also:
+
+- Braun J, Kiltz U, Baraliakos X, van der Heijde D (2014).
+  Optimisation of rheumatology assessments - the actual situation in axial
+  spondyloarthritis including ankylosing spondylitis.
+  *Clin Exp Rheumatol.* 32(5 Suppl 85): S96-S104.
+  https://www.ncbi.nlm.nih.gov/pubmed/25365096
 
 
 Source

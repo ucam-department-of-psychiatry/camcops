@@ -26,10 +26,8 @@ camcops_server/tasks/photo.py
 
 """
 
-# import logging
-from typing import List, Optional
+from typing import List, Optional, Type
 
-# from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
@@ -44,6 +42,7 @@ from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_db import (
     ancillary_relationship,
     GenericTabletRecordMixin,
+    TaskDescendant,
 )
 from camcops_server.cc_modules.cc_html import answer, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
@@ -55,8 +54,6 @@ from camcops_server.cc_modules.cc_task import (
     TaskHasClinicianMixin,
     TaskHasPatientMixin,
 )
-
-# log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
 # =============================================================================
@@ -135,7 +132,7 @@ class Photo(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
 # PhotoSequence
 # =============================================================================
 
-class PhotoSequenceSinglePhoto(GenericTabletRecordMixin, Base):
+class PhotoSequenceSinglePhoto(GenericTabletRecordMixin, TaskDescendant, Base):
     __tablename__ = "photosequence_photos"
 
     photosequence_id = Column(
@@ -180,6 +177,17 @@ class PhotoSequenceSinglePhoto(GenericTabletRecordMixin, Base):
             photo=get_blob_img_html(self.photo)
         )
 
+    # -------------------------------------------------------------------------
+    # TaskDescendant overrides
+    # -------------------------------------------------------------------------
+
+    @classmethod
+    def task_ancestor_class(cls) -> Optional[Type["Task"]]:
+        return PhotoSequence
+
+    def task_ancestor(self) -> Optional["PhotoSequence"]:
+        return PhotoSequence.get_linked(self.photosequence_id, self)
+
 
 class PhotoSequence(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     """
@@ -212,7 +220,7 @@ class PhotoSequence(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         return infolist
 
     def get_num_photos(self) -> int:
-        return len(self.photos) > 0
+        return len(self.photos)
 
     def is_complete(self) -> bool:
         # If you're wondering why this is being called unexpectedly: it may be

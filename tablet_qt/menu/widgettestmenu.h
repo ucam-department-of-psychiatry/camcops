@@ -106,6 +106,7 @@ protected:
     void testQuCanvas();
     void testQuCountdown();
     void testQuDateTime();
+    void testQuDateTimeLimited();
     void testQuDiagnosticCode();
     void testQuHeading(bool long_text);
     void testQuHorizontalLine();

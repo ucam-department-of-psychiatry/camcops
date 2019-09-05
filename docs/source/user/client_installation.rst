@@ -146,7 +146,7 @@ In operating systems that allow you to launch applications with options (e.g.
 Windows, Linux), there are some additional advanced options offered, as
 follows.
 
-Options as of 2019-03-25:
+Options:
 
 ..  literalinclude:: camcops_client_help.txt
     :language: none

@@ -1273,6 +1273,21 @@ class PermittedValueChecker(object):
     def __repr__(self):
         return auto_repr(self)
 
+    def permitted_values_csv(self) -> str:
+        """
+        Returns a CSV representation of the permitted values.
+
+        Primarily used for CRIS data dictionaries.
+        """
+        if self.permitted_values:
+            return ",".join(str(x) for x in self.permitted_values)
+        # Take a punt that integer minima/maxima mean that only integers are
+        # permitted...
+        if isinstance(self.minimum, int) and isinstance(self.maximum, int):
+            return ",".join(
+                str(x) for x in range(self.minimum, self.maximum + 1))
+        return ""
+
 
 # Specific instances, to reduce object duplication and magic numbers:
 
@@ -1314,14 +1329,44 @@ class CamcopsColumn(Column):
     """
     def __init__(self,
                  *args,
-                 cris_include: bool = False,
+                 include_in_anon_staging_db: bool = False,
                  exempt_from_anonymisation: bool = False,
                  identifies_patient: bool = False,
                  is_blob_id_field: bool = False,
                  blob_relationship_attr_name: str = "",
                  permitted_value_checker: PermittedValueChecker = None,
                  **kwargs) -> None:
-        self.cris_include = cris_include
+        """
+
+        Args:
+            *args:
+                Arguments to the :class:`Column` constructor.
+            include_in_anon_staging_db:
+                Ensure this is marked for inclusion in data dictionaries for an
+                anonymisation staging database.
+            exempt_from_anonymisation:
+                If true: though this field might be text, it is guaranteed not
+                to contain identifiers (e.g. it might contain only predefined
+                disease severity descriptions) and does not require
+                anonymisation.
+            identifies_patient:
+                If true: contains a patient identifier (e.g. name).
+            is_blob_id_field:
+                If true: this field contains a reference (client FK) to the
+                BLOB table.
+            blob_relationship_attr_name:
+                For BLOB ID fields: the name of the associated relationship
+                attribute (which, when accessed, yields the BLOB itself) in
+                the owning class/object.
+            permitted_value_checker:
+                If specified, a :class:`PermittedValueChecker` that allows
+                soft constraints to be specified on the field's contents. (That
+                is, no constraints are specified at the database level, but we
+                can moan if incorrect data are present.)
+            **kwargs:
+                Arguments to the :class:`Column` constructor.
+        """
+        self.include_in_anon_staging_db = include_in_anon_staging_db
         self.exempt_from_anonymisation = exempt_from_anonymisation
         self.identifies_patient = identifies_patient
         self.is_blob_id_field = is_blob_id_field
@@ -1341,19 +1386,20 @@ class CamcopsColumn(Column):
         See
         https://bitbucket.org/zzzeek/sqlalchemy/issues/2284/please-make-column-easier-to-subclass
         """  # noqa
-        kwargs['cris_include'] = self.cris_include
+        kwargs['include_in_anon_staging_db'] = self.include_in_anon_staging_db
         kwargs['exempt_from_anonymisation'] = self.exempt_from_anonymisation
         kwargs['identifies_patient'] = self.identifies_patient
         kwargs['is_blob_id_field'] = self.is_blob_id_field
         kwargs['blob_relationship_attr_name'] = self.blob_relationship_attr_name  # noqa
         kwargs['permitted_value_checker'] = self.permitted_value_checker
+        # noinspection PyTypeChecker
         return self.__class__(*args, **kwargs)
 
     def __repr__(self) -> str:
         def kvp(attrname: str) -> str:
             return f"{attrname}={getattr(self, attrname)!r}"
         elements = [
-            kvp("cris_include"),
+            kvp("include_in_anon_staging_db"),
             kvp("exempt_from_anonymisation"),
             kvp("identifies_patient"),
             kvp("is_blob_id_field"),

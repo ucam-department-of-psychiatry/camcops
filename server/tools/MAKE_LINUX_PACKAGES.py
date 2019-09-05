@@ -90,6 +90,7 @@ from camcops_server.cc_modules.cc_baseconstants import (
     LINUX_DEFAULT_LOCK_DIR,
     LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR,
 )
+from camcops_server.cc_modules.cc_pythonversion import assert_minimum_python_version  # noqa
 from camcops_server.cc_modules.cc_version_string import (
     CAMCOPS_SERVER_VERSION_STRING,
     CAMCOPS_SERVER_CHANGEDATE,
@@ -101,10 +102,7 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # Python version requirements
 # =============================================================================
 
-if sys.version_info[0] < 3:
-    raise AssertionError("Need Python 3 or higher")
-if sys.version_info[1] < 5:
-    raise AssertionError("Need Python 3.5 or higher")
+assert_minimum_python_version()
 
 
 # =============================================================================
@@ -574,7 +572,7 @@ def get_changelog() -> str:
 # -----------------------------------------------------------------------------
 
 def get_preinst() -> str:
-    return """#!/bin/bash
+    return """#!/usr/bin/env bash
 # Exit on any errors? (Lintian strongly advises this.)
 set -e
 
@@ -603,7 +601,7 @@ echo '{PACKAGE}: preinst file finished'
 
 def get_postinst(sdist_basefilename: str) -> str:
     dst_sdist_file = join(DSTBASEDIR, sdist_basefilename)
-    return """#!/bin/bash
+    return """#!/usr/bin/env bash
 # Exit on any errors? (Lintian strongly advises this.)
 set -e
 
@@ -703,7 +701,7 @@ echo '{PACKAGE}: postinst file finished'
 # -----------------------------------------------------------------------------
 
 def get_prerm() -> str:
-    return """#!/bin/bash
+    return """#!/usr/bin/env bash
 set -e
 
 {BASHFUNC}
@@ -737,7 +735,7 @@ echo '{PACKAGE}: prerm file finished'
 # -----------------------------------------------------------------------------
 
 def get_postrm() -> str:
-    return """#!/bin/bash
+    return """#!/usr/bin/env bash
 set -e
 
 {BASHFUNC}
@@ -820,7 +818,7 @@ TEXT FOR SPECIFIC ASSESSMENT SCALES
 # =============================================================================
 
 def get_camcops_server_launcher() -> str:
-    return """#!/bin/bash
+    return """#!/usr/bin/env bash
 # Launch script for CamCOPS command-line tool.
 
 echo 'Launching CamCOPS command-line tool...' >&2
@@ -833,7 +831,7 @@ echo 'Launching CamCOPS command-line tool...' >&2
 
 
 def get_camcops_server_meta_launcher() -> str:
-    return """#!/bin/bash
+    return """#!/usr/bin/env bash
 # Launch script for CamCOPS meta-command tool tool.
 
 echo 'Launching CamCOPS meta-command tool...' >&2

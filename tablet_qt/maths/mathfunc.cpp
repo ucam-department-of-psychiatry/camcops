@@ -458,6 +458,21 @@ bool eqOrNull(const QVariant& x, const bool test)
 }
 
 
+bool containsRespectingNull(const QVector<QVariant>& v, const QVariant& x)
+{
+    for (const QVariant& t : v) {
+        if (t.isNull() != x.isNull()) {
+            // this test is NOT performed by QVector::contains()
+            continue;  // different
+        }
+        if (t == x) {
+            // this test is performed by QVector::contains()
+            return true;  // same
+        }
+    }
+    return false;  // none the same
+}
+
 
 int countWhere(const QVector<QVariant>& test_values,
                const QVector<QVariant>& where_values)
@@ -466,7 +481,7 @@ int countWhere(const QVector<QVariant>& test_values,
     const int length = test_values.length();
     for (int i = 0; i < length; ++i) {
         const QVariant& v = test_values.at(i);
-        if (where_values.contains(v)) {
+        if (containsRespectingNull(where_values, v)) {
             n += 1;
         }
     }
@@ -481,7 +496,7 @@ int countWhereNot(const QVector<QVariant>& test_values,
     const int length = test_values.length();
     for (int i = 0; i < length; ++i) {
         const QVariant& v = test_values.at(i);
-        if (!where_not_values.contains(v)) {
+        if (!containsRespectingNull(where_not_values, v)) {
             n += 1;
         }
     }

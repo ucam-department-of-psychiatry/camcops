@@ -1002,7 +1002,7 @@ def get_demo_mysql_dump_script() -> str:
     """
     Returns a demonstration script to dump all current MySQL databases.
     """
-    return """#!/bin/bash
+    return """#!/usr/bin/env bash
 
 # Minimal simple script to dump all current MySQL databases.
 # This file must be READABLE ONLY BY ROOT (or equivalent, backup)!
@@ -1226,7 +1226,7 @@ class CamcopsConfig(object):
         self.db_echo = _get_bool(s, cs.DB_ECHO, False)
         self.client_api_loglevel = get_config_parameter_loglevel(parser, s, cs.CLIENT_API_LOGLEVEL, logging.INFO)  # noqa
         logging.getLogger("camcops_server.cc_modules.client_api").setLevel(self.client_api_loglevel)  # noqa
-        # ... MUTABLE GLOBAL STATE (if relatively unimportant); *** fix
+        # ... MUTABLE GLOBAL STATE (if relatively unimportant); todo: fix
 
         self.disable_password_autocomplete = _get_bool(s, cs.DISABLE_PASSWORD_AUTOCOMPLETE, True)  # noqa
 
@@ -1260,7 +1260,7 @@ class CamcopsConfig(object):
 
         self.webview_loglevel = get_config_parameter_loglevel(parser, s, cs.WEBVIEW_LOGLEVEL, logging.INFO)  # noqa
         logging.getLogger().setLevel(self.webview_loglevel)  # root logger
-        # ... MUTABLE GLOBAL STATE (if relatively unimportant) *** fix
+        # ... MUTABLE GLOBAL STATE (if relatively unimportant); todo: fix
         self.wkhtmltopdf_filename = _get_str(s, cs.WKHTMLTOPDF_FILENAME)
 
         # More validity checks for the main section:
@@ -1688,26 +1688,3 @@ def get_default_config_from_os_env() -> CamcopsConfig:
         return CamcopsConfig(config_filename="", config_text=get_demo_config())
     else:
         return get_config(get_config_filename_from_os_env())
-
-
-# =============================================================================
-# NOTES
-# =============================================================================
-
-TO_BE_IMPLEMENTED_AS_COMMAND_LINE_SWITCH = """
-
-# -----------------------------------------------------------------------------
-# Export to a staging database for CRIS, CRATE, or similar anonymisation
-# software (anonymisation staging database; ANONSTAG)
-# -----------------------------------------------------------------------------
-
-{cp.ANONSTAG_DB_URL} = {anonstag_db_url}
-{cp.EXPORT_CRIS_DATA_DICTIONARY_TSV_FILE} = /tmp/camcops_cris_dd_draft.tsv
-
-*** Note that we must check that the anonymisation staging database doesn't
-    have the same URL as the main one (or "isn't the same one" in a more
-    robust fashion)! Because this is so critical, probably best to:
-    - require a completely different database name
-    - ensure no table names overlap (e.g. add a prefix)
-
-"""

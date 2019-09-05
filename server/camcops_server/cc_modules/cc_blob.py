@@ -29,7 +29,7 @@ camcops_server/cc_modules/cc_blob.py
 """
 
 import logging
-from typing import Optional, TYPE_CHECKING
+from typing import Optional, Type, TYPE_CHECKING
 
 from cardinal_pythonlib.httpconst import MimeType
 from cardinal_pythonlib.logs import BraceStyleAdapter
@@ -41,13 +41,17 @@ from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, Text
 import wand.image
 
-from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
+from camcops_server.cc_modules.cc_db import (
+    GenericTabletRecordMixin,
+    TaskDescendant,
+)
 from camcops_server.cc_modules.cc_html import (
     get_data_url,
     get_embedded_img_tag,
 )
 from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
 from camcops_server.cc_modules.cc_sqla_coltypes import (
+    CamcopsColumn,
     MimeTypeColType,
     TableNameColType,
 )
@@ -64,6 +68,7 @@ from camcops_server.cc_modules.cc_xml import (
 
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_request import CamcopsRequest
+    from camcops_server.cc_modules.cc_task import Task
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -82,7 +87,7 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # Blob class
 # =============================================================================
 
-class Blob(GenericTabletRecordMixin, Base):
+class Blob(GenericTabletRecordMixin, TaskDescendant, Base):
     """
     Class representing a binary large object (BLOB).
 
@@ -111,8 +116,9 @@ class Blob(GenericTabletRecordMixin, Base):
         nullable=False,
         comment="Field name of the field referring to this BLOB by ID"
     )
-    filename = Column(
+    filename = CamcopsColumn(
         "filename", Text,  # Text is correct; filenames can be long
+        exempt_from_anonymisation=True,
         comment="Filename of the BLOB on the source tablet device (on "
                 "the source device, BLOBs are stored in files, not in "
                 "the database)"
@@ -140,12 +146,15 @@ class Blob(GenericTabletRecordMixin, Base):
         """
         Returns the current Blob object, or None.
         """
-        blob = dbsession.query(cls)\
-            .filter(cls.id == clientpk)\
-            .filter(cls._device_id == device_id)\
-            .filter(cls._era == era)\
-            .filter(cls._current == True)\
-            .first()  # type: Optional[Blob]  # noqa
+        # noinspection PyPep8
+        blob = (
+            dbsession.query(cls)
+            .filter(cls.id == clientpk)
+            .filter(cls._device_id == device_id)
+            .filter(cls._era == era)
+            .filter(cls._current == True)
+            .first()
+        )  # type: Optional[Blob]
         return blob
 
     @classmethod
@@ -163,13 +172,15 @@ class Blob(GenericTabletRecordMixin, Base):
 
         Use particularly to look up BLOBs matching old task records.
         """
-        blob = dbsession.query(cls)\
-            .filter(cls.id == clientpk)\
-            .filter(cls._device_id == device_id)\
-            .filter(cls._era == era)\
-            .filter(cls._when_added_batch_utc <= referrer_added_utc)\
-            .filter(cls._when_removed_batch_utc == referrer_removed_utc)\
-            .first()  # type: Optional[Blob]
+        blob = (
+            dbsession.query(cls)
+            .filter(cls.id == clientpk)
+            .filter(cls._device_id == device_id)
+            .filter(cls._era == era)
+            .filter(cls._when_added_batch_utc <= referrer_added_utc)
+            .filter(cls._when_removed_batch_utc == referrer_removed_utc)
+            .first()
+        )  # type: Optional[Blob]
         # Note, for referrer_removed_utc: if this is None, then the comparison
         # "field == None" is made; otherwise "field == value".
         # Since SQLAlchemy translates "== None" to "IS NULL", we're OK.
@@ -231,6 +242,23 @@ class Blob(GenericTabletRecordMixin, Base):
         if not self.theblob:
             return ""
         return get_data_url(self.mimetype or MimeType.PNG, self.theblob)
+
+    # -------------------------------------------------------------------------
+    # TaskDescendant overrides
+    # -------------------------------------------------------------------------
+
+    @classmethod
+    def task_ancestor_class(cls) -> Optional[Type["Task"]]:
+        return None
+
+    def task_ancestor(self) -> Optional["Task"]:
+        from camcops_server.cc_modules.cc_task import tablename_to_task_class_dict  # noqa  # delayed import
+        d = tablename_to_task_class_dict()
+        try:
+            cls = d[self.tablename]  # may raise KeyError
+            return cls.get_linked(self.tablepk, self)
+        except KeyError:
+            return None
 
 
 # =============================================================================

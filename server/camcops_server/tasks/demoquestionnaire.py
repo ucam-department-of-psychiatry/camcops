@@ -102,14 +102,16 @@ class DemoQuestionnaire(Task,
     date_time = Column("date_time", PendulumDateTimeAsIsoTextColType)
     thermometer = Column("thermometer", Integer)
     diagnosticcode_code = Column("diagnosticcode_code", DiagnosticCodeColType)
-    diagnosticcode_description = Column(
-        "diagnosticcode_description", UnicodeText
+    diagnosticcode_description = CamcopsColumn(
+        "diagnosticcode_description", UnicodeText,
+        exempt_from_anonymisation=True
     )
     diagnosticcode2_code = Column(
         "diagnosticcode2_code", DiagnosticCodeColType
     )  # v2
-    diagnosticcode2_description = Column(
-        "diagnosticcode2_description", UnicodeText
+    diagnosticcode2_description = CamcopsColumn(
+        "diagnosticcode2_description", UnicodeText,
+        exempt_from_anonymisation=True
     )  # v2
     photo_blobid = CamcopsColumn(
         "photo_blobid", Integer,

@@ -23,6 +23,7 @@
 #include "tasks/aims.h"
 #include "tasks/apeqcpftperinatal.h"
 #include "tasks/apeqpt.h"
+#include "tasks/asdas.h"
 #include "tasks/audit.h"
 #include "tasks/auditc.h"
 
@@ -56,6 +57,7 @@
 #include "tasks/ctqsf.h"
 
 #include "tasks/dad.h"
+#include "tasks/das28.h"
 #include "tasks/dast.h"
 #include "tasks/deakin1healthreview.h"
 #include "tasks/demoquestionnaire.h"
@@ -68,6 +70,7 @@
 #include "tasks/elixhauserci.h"
 #include "tasks/epds.h"
 #include "tasks/eq5d5l.h"
+#include "tasks/esspri.h"
 
 #include "tasks/fast.h"
 #include "tasks/factg.h"
@@ -111,6 +114,7 @@
 #include "tasks/maas.h"
 #include "tasks/mast.h"
 #include "tasks/mdsupdrs.h"
+#include "tasks/mfi20.h"
 #include "tasks/moca.h"
 
 #include "tasks/nart.h"
@@ -142,6 +146,8 @@
 #include "tasks/referrersatisfactiongen.h"
 #include "tasks/referrersatisfactionspec.h"
 
+#include "tasks/sfmpq2.h"
+#include "tasks/shaps.h"
 #include "tasks/slums.h"
 #include "tasks/smast.h"
 #include "tasks/srs.h"
@@ -165,6 +171,7 @@ void InitTasks(TaskFactory& factory)
     initializeAims(factory);
     initializeAPEQCPFTPerinatal(factory);
     initializeApeqpt(factory);
+    initializeAsdas(factory);
     initializeAudit(factory);
     initializeAuditC(factory);
 
@@ -198,6 +205,7 @@ void InitTasks(TaskFactory& factory)
     // *** // initializeCtqsf(factory);
 
     initializeDad(factory);
+    initializeDas28(factory);
     initializeDast(factory);
     initializeDeakin1HealthReview(factory);
     initializeDemoQuestionnaire(factory);
@@ -210,6 +218,7 @@ void InitTasks(TaskFactory& factory)
     initializeElixhauserCI(factory);
     initializeEpds(factory);
     initializeEq5d5l(factory);
+    initializeEsspri(factory);
 
     initializeFactg(factory);
     initializeFast(factory);
@@ -253,6 +262,7 @@ void InitTasks(TaskFactory& factory)
     initializeMaas(factory);
     initializeMast(factory);
     initializeMdsUpdrs(factory);
+    initializeMfi20(factory);
     initializeMoca(factory);
 
     initializeNart(factory);
@@ -284,6 +294,8 @@ void InitTasks(TaskFactory& factory)
     initializeReferrerSatisfactionGen(factory);
     initializeReferrerSatisfactionSpec(factory);
 
+    initializeSfmpq2(factory);
+    initializeShaps(factory);
     initializeSlums(factory);
     initializeSmast(factory);
     initializeSrs(factory);

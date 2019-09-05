@@ -23,10 +23,17 @@
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 
+#include "tasks/asdas.h"
+#include "tasks/bmi.h"
 #include "tasks/chit.h"
 #include "tasks/cisr.h"
+#include "tasks/das28.h"
 #include "tasks/elixhauserci.h"
 #include "tasks/eq5d5l.h"
+#include "tasks/esspri.h"
+#include "tasks/mfi20.h"
+#include "tasks/sfmpq2.h"
+#include "tasks/shaps.h"
 #include "tasks/suppsp.h"
 
 
@@ -54,13 +61,14 @@ void SetMenuKhandaker2Mojo::makeItems()
     m_items = {
         MAKE_CHANGE_PATIENT(m_app),
         // *** MOJO anthropometrics/sociodemographics/medical history
+        MAKE_TASK_MENU_ITEM(Bmi::BMI_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(ElixhauserCI::ELIXHAUSERCI_TABLENAME, m_app),
-        // *** EULAR Sjögren's Syndrome Patient Reported Index (ESSPRI)
-        // *** Ankylosing Spondylitis Disease Activity Score (ASDAS)
-        // *** Snaith-Hamilton Pleasure Scale (SHAPS)
-        // *** Multi-dimensional Fatigue Inventory (MFI-20)
-        // *** McGill Pain Questionnaire Short Form-2 (SF-MPQ2)
-        // *** Disease Activity Score 28 (DAS28)
+        MAKE_TASK_MENU_ITEM(Esspri::ESSPRI_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Asdas::ASDAS_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Shaps::SHAPS_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Mfi20::MFI20_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Sfmpq2::SFMPQ2_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Das28::DAS28_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Chit::CHIT_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Suppsp::SUPPSP_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Cisr::CISR_TABLENAME, m_app),

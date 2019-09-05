@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="esspri">(
+    <!-- EULAR Sjögren’s Syndrome Patient Reported Index -->
+
+    <string name="title_main">(title)</string>
+
+    <string name="q1">(dryness)</string>
+    <string name="q2">(fatigue)</string>
+    <string name="q3">(pain)</string>
+
+    <string name="q1_min">(min)</string>
+    <string name="q1_max">(max)</string>
+    <string name="q2_min">(min)</string>
+    <string name="q2_max">(max)</string>
+    <string name="q3_min">(min)</string>
+    <string name="q3_max">(max)</string>
+
+    <string name="overall_score">(score)</string>
+  </task>
+</resources>
