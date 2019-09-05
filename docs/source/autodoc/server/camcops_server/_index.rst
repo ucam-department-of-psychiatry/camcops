@@ -68,6 +68,9 @@ server/camcops_server
     alembic/versions/0036_das28.py.rst
     alembic/versions/0037_shaps.py.rst
     alembic/versions/0038_bmi_waist.py.rst
+    alembic/versions/0039_khandaker_2_mojosociodemographics.py.rst
+    alembic/versions/0040_khandaker_2_mojomedical.py.rst
+    alembic/versions/0041_khandaker_2_mojomedicationtable.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst
@@ -224,6 +227,9 @@ server/camcops_server
     extra_strings/ided3d.xml.rst
     extra_strings/irac.xml.rst
     extra_strings/khandaker_1_insightmedical.xml.rst
+    extra_strings/khandaker_2_mojomedical.xml.rst
+    extra_strings/khandaker_2_mojomedicationtable.xml.rst
+    extra_strings/khandaker_2_mojosociodemographics.xml.rst
     extra_strings/kirby_mcq.xml.rst
     extra_strings/lynall_1_iam_medical.xml.rst
     extra_strings/maas.xml.rst
@@ -310,6 +316,9 @@ server/camcops_server
     tasks/ifs.py.rst
     tasks/irac.py.rst
     tasks/khandaker_1_insightmedical.py.rst
+    tasks/khandaker_2_mojomedical.py.rst
+    tasks/khandaker_2_mojomedicationtable.py.rst
+    tasks/khandaker_2_mojosociodemographics.py.rst
     tasks/kirby_mcq.py.rst
     tasks/lynall_1_iam_medical.py.rst
     tasks/lynall_2_iam_life.py.rst

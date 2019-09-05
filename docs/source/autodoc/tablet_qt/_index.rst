@@ -30,7 +30,6 @@ tablet_qt
     :maxdepth: 1
 
     android/AndroidManifest.xml.rst
-    android/res/values/libs.xml.rst
     camcops.pro.rst
     camcops_windows_innosetup.iss.rst
     common/aliases_camcops.h.rst
@@ -696,6 +695,12 @@ tablet_qt
     tasks/irac.h.rst
     tasks/khandaker1insightmedical.cpp.rst
     tasks/khandaker1insightmedical.h.rst
+    tasks/khandaker2mojomedical.cpp.rst
+    tasks/khandaker2mojomedical.h.rst
+    tasks/khandaker2mojomedicationtable.cpp.rst
+    tasks/khandaker2mojomedicationtable.h.rst
+    tasks/khandaker2mojosociodemographics.cpp.rst
+    tasks/khandaker2mojosociodemographics.h.rst
     tasks/kirby.cpp.rst
     tasks/kirby.h.rst
     tasks/lynall1iammedical.cpp.rst
@@ -810,6 +815,10 @@ tablet_qt
     taskxtra/ided3dstage.h.rst
     taskxtra/ided3dtrial.cpp.rst
     taskxtra/ided3dtrial.h.rst
+    taskxtra/khandaker2mojomedicationitem.cpp.rst
+    taskxtra/khandaker2mojomedicationitem.h.rst
+    taskxtra/khandaker2mojotherapyitem.cpp.rst
+    taskxtra/khandaker2mojotherapyitem.h.rst
     taskxtra/kirbyrewardpair.cpp.rst
     taskxtra/kirbyrewardpair.h.rst
     taskxtra/kirbytrial.cpp.rst
