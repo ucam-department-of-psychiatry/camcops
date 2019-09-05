@@ -62,7 +62,7 @@ class Khandaker2MojoSociodemographicsMetaclass(DeclarativeMeta):
             CamcopsColumn(
                 cls.FN_GENDER, Integer,
                 permitted_value_checker=ZERO_TO_TWO_CHECKER,
-                comment="Gender at birth (0 Male, 1 Female, 2 Other (specify)"
+                comment="Gender at birth (0 Male, 1 Female, 2 Other (specify))"
             )
         )
 
@@ -82,7 +82,7 @@ class Khandaker2MojoSociodemographicsMetaclass(DeclarativeMeta):
                 comment=("Ethnicity (0 White, 1 Mixed, 2 Indian, 3 Pakistani, "
                          "4 Bangladeshi, 5 Other Asian, 6 Black Caribbean, "
                          "7 Black African, 8 Black Other, 9 Chinese, "
-                         "10 Other (specify)")
+                         "10 Other (specify))")
             )
         )
 

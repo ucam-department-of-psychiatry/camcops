@@ -61,9 +61,9 @@ depends_on = None
 def upgrade():
     op.create_table(
         'khandaker_2_mojosociodemographics',
-        sa.Column('gender', sa.Integer(), nullable=True, comment='Gender at birth (0 Male, 1 Female, 2 Other (specify)'),
+        sa.Column('gender', sa.Integer(), nullable=True, comment='Gender at birth (0 Male, 1 Female, 2 Other (specify))'),
         sa.Column('other_gender', sa.UnicodeText(), nullable=True, comment='Other (specify)'),
-        sa.Column('ethnicity', sa.Integer(), nullable=True, comment='Ethnicity (0 White, 1 Mixed, 2 Indian, 3 Pakistani, 4 Bangladeshi, 5 Other Asian, 6 Black Caribbean, 7 Black African, 8 Black Other, 9 Chinese, 10 Other (specify)'),
+        sa.Column('ethnicity', sa.Integer(), nullable=True, comment='Ethnicity (0 White, 1 Mixed, 2 Indian, 3 Pakistani, 4 Bangladeshi, 5 Other Asian, 6 Black Caribbean, 7 Black African, 8 Black Other, 9 Chinese, 10 Other (specify))'),
         sa.Column('other_ethnicity', sa.UnicodeText(), nullable=True, comment='Other (specify)'),
         sa.Column('with_whom_live', sa.Integer(), nullable=True, comment='0 Alone, 1 Alone with children, 2 Partner/Spouse, 3 Partner/Spouse and children, 4 Parents, 5 Other family, 6 Friends, 7 Other (specify)'),
         sa.Column('other_with_whom_live', sa.UnicodeText(), nullable=True, comment='Other (specify)'),
