@@ -27,9 +27,12 @@ camcops_server/templates/base/base_pdf.mako
 </%doc>
 
 <%inherit file="base.mako"/>
+<%namespace file="def_css_constants.mako" import="_get_css_varargs"/>
 
 <%!
-    from camcops_server.cc_modules.cc_constants import PDF_ENGINE
+# import logging
+from camcops_server.cc_modules.cc_constants import PDF_ENGINE
+# log = logging.getLogger(__name__)
 %>
 
 ## For CSS paged media:
@@ -48,6 +51,11 @@ camcops_server/templates/base/base_pdf.mako
 </%block>
 
 <%block name="logo">
+
+    <%
+    va = _get_css_varargs("pdf_portrait")
+    # ... exact parameter doesn't matter; we only want PDF_LOGO_HEIGHT.
+    %>
 
     %if PDF_ENGINE in ["pdfkit", "weasyprint"]:
         ## weasyprint: div with floating img does not work properly

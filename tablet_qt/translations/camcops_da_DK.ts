@@ -2864,6 +2864,16 @@ enig</translation>
 <context>
     <name>Kirby</name>
     <message>
+        <location filename="../tasks/kirby.cpp" line="125"/>
+        <source>Kirby et al. 1999 Monetary Choice Questionnaire</source>
+        <translation>Kirby et al. 1999 Monetary Choice Questionnaire [spørgeskema til monetært valg]</translation>
+    </message>
+    <message>
+        <location filename="../tasks/kirby.cpp" line="131"/>
+        <source>Series of hypothetical choices to measure delay discounting.</source>
+        <translation>Serie af hypotetiske valg til måling af forsinkontering.</translation>
+    </message>
+    <message>
         <location filename="../tasks/kirby.cpp" line="209"/>
         <source>&lt;i&gt;k&lt;/i&gt; (days&lt;sup&gt;–1&lt;/sup&gt;, Kirby 2000 method): &lt;b&gt;%1&lt;/b&gt; (decay to half value at &lt;b&gt;%2&lt;/b&gt; days).</source>
         <translation>&lt;i&gt;k&lt;/i&gt; (dage&lt;sup&gt;–1&lt;/sup&gt;, Kirby 2000 metode): &lt;b&gt;%1&lt;/b&gt; (henfald til halv værdi på &lt;b&gt;%2&lt;/b&gt; dage).</translation>
