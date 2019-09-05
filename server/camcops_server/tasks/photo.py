@@ -220,7 +220,7 @@ class PhotoSequence(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
         return infolist
 
     def get_num_photos(self) -> int:
-        return len(self.photos) > 0
+        return len(self.photos)
 
     def is_complete(self) -> bool:
         # If you're wondering why this is being called unexpectedly: it may be

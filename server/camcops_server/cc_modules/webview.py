@@ -612,7 +612,7 @@ def account_locked(req: "CamcopsRequest", locked_until: Pendulum) -> Response:
     """
     _ = req.gettext
     return render_to_response(
-        "accounted_locked.mako",
+        "account_locked.mako",
         dict(
             locked_until=format_datetime(locked_until,
                                          DateFormat.LONG_DATETIME_WITH_DAY,

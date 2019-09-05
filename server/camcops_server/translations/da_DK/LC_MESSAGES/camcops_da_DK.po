@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CamCOPS 2.3.3\n"
 "Report-Msgid-Bugs-To: rudolf@pobox.com\n"
-"POT-Creation-Date: 2019-08-19 13:32+0100\n"
-"PO-Revision-Date: 2019-08-19 13:32+0100\n"
+"POT-Creation-Date: 2019-09-03 21:12+0100\n"
+"PO-Revision-Date: 2019-09-03 21:11+0100\n"
 "Last-Translator: \n"
 "Language: da_DK\n"
 "Language-Team: da_DK <LL@li.org>\n"
@@ -728,7 +728,7 @@ msgstr "Født:"
 msgid "(Server) Patients, distinct by name, sex, DOB, all ID numbers"
 msgstr "(Server) Patienter, særskilt efter navn, køn, DOB, alle ID-numre"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_pyramid.py:1182
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_pyramid.py:1184
 msgid "Page $page of $page_count; total $item_count records"
 msgstr "Side $page af $page_count; samlede $item_count poster"
 
@@ -1148,7 +1148,7 @@ msgstr "Bristol Activities of Daily Living Scale [Bristol aktiviteter med daglig
 msgid "Beck Depression Inventory (data collection only)"
 msgstr "Beck Depression Inventory [Beck depression inventar] [dataindsamling kun]"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/bmi.py:92
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/bmi.py:98
 msgid "Body mass index"
 msgstr "Kropsmasseindeks"
 
@@ -1633,6 +1633,10 @@ msgstr "Referrer Satisfaction Scale [referrer tilfredshed skala], patientspecifi
 msgid "Short-Form McGill Pain Questionnaire 2"
 msgstr "Short-Form McGill Pain Questionnaire 2 [kortformet McGill smerte spørgeskema 2]"
 
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/shaps.py:105
+msgid "Snaith–Hamilton Pleasure Scale"
+msgstr "Snaith–Hamilton Pleasure Scale [Snaith–Hamilton fornøjelseskala]"
+
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/slums.py:236
 msgid "St Louis University Mental Status"
 msgstr "St Louis University Mental Status [St Louis universitet mental status]"
@@ -1777,20 +1781,20 @@ msgstr "Vælg forskellige indstillinger"
 msgid "Bad request!"
 msgstr "Dårlig anmodning!"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/change_other_password.mako:6
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/change_other_password.mako:33
 msgid "Change password for user:"
 msgstr "Skift adgangskode for bruger:"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/change_other_password.mako:15
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/change_own_password.mako:17
-msgid "Minimum password length is ${min_pw_length} characters."
-msgstr "Minimum længden på adgangskoden er ${min_pw_length} tegn."
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/change_other_password.mako:42
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/change_own_password.mako:44
+msgid "Minimum password length is {} characters."
+msgstr "Minimum længden af adgangskoden er {} tegn."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/change_own_password.mako:8
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/change_own_password.mako:35
 msgid "Your password has expired and must be changed."
 msgstr "Din adgangskode er udløbet og skal ændres."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/change_own_password.mako:12
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/change_own_password.mako:39
 msgid "Change your password"
 msgstr "Ændre din adgangskode"
 

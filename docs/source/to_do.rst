@@ -156,6 +156,76 @@ Client core
 Server
 ------
 
+- **Re possibility of duplication ?due to network dropout:**
+
+  - **Facility to delete individual tasks from the server**, via
+    a safety check form and then
+    :meth:`camcops_server.cc_modules.cc_task.Task.delete_entirely`.
+
+  .. code-block:: none
+
+    There is not a specific "delete task" function that's accessible to users.
+    Duplicates sounded concerning but we can think this through. On the client:
+
+        everything begins with NetworkManager::upload() and chugs through a
+        series of steps via ::uploadNext() (e.g. checking the server knows
+        about our device)
+
+        If we're using one-step upload, then we end up at
+        NetworkManager::uploadOneStep(), followed by NextUploadStage::Finished
+        (which wipes local data) -- so if the upload succeeds, data is wiped,
+        and if it doesn't, it's not. It is probably possible that if the server
+        accepts the upload data (writing it to its database) but then the
+        connection is dropped before the server can say "OK, received", that
+        the client will not delete the data, leading to duplication. I presume
+        that is what's happened. (Definitely better than the other option of
+        deleting from the client without confirmation, though!)
+
+        In a multi-step upload, there is a multi-stage conversation which ends
+        up with the client say "OK, commit my changes", via ::endUpload(), and
+        the server saying "OK". I imagine that a connection failure during that
+        last phase might lead to the server saving/committing but the "done"
+        message not getting back to the client. This is probably less likely
+        than with the one-step upload, because it's a very brief process.
+
+    What sort of failure messages were you seeing? Was it all explicable by
+    dodgy wi-fi?
+
+    If this looks the likely cause -- we should implement a privileged
+    operation (with deliberately difficult validation steps as for some of the
+    other unsafe operations) to call Task.delete_entirely(), which does the
+    business. (At present that is only called when an entire patient is
+    deleted.) I think that will be OK because I think there is very little
+    chance of any "partial" uploads; the system should prevent those
+    effectively.
+
+    I think that sounds safer than any of the alternatives.
+
+    Likewise, if this is the probable root cause, perhaps we should add a
+    warning (+/- change the default upload method) to say that "if you have a
+    dodgy network connection, the chance of duplicates is probably lower with
+    the multi-step upload".
+
+
+**Reports for perinatal**
+
+- APEQ_CPFT_Perinatal reports:
+
+  - summary of question and %people responding each possibility
+  - plus "summary of comments"
+
+- POEM: as per APEQ_CPFT_Perinatal
+
+- Core-10 report:
+
+  For those with >=2 scores, "start" mean and "finish" mean, where "start" is
+  the first and "finish" is the latest.
+
+- MAAS: as per Core-10, but also for subscales
+
+- PBQ: as per Core-10, but also for subscales
+
+
 **Priority**
 
 - (SERVER + CLIENT) Concept of “tasks that need doing” in the context of a
