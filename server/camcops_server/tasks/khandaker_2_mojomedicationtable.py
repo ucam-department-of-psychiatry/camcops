@@ -176,9 +176,14 @@ class Khandaker2MojoTherapyItem(Khandaker2MojoTableItem, Base):
         comment="Frequency"
     )
 
-    duration = CamcopsColumn(
-        "duration", Integer,
-        comment="Duration (months)"
+    sessions_completed = CamcopsColumn(
+        "sessions_completed", Integer,
+        comment="Sessions completed"
+    )
+
+    sessions_planned = CamcopsColumn(
+        "sessions_planned", Integer,
+        comment="Sessions planned"
     )
 
     indication = CamcopsColumn(
@@ -199,7 +204,8 @@ class Khandaker2MojoTherapyItem(Khandaker2MojoTableItem, Base):
         return [
             "therapy",
             "frequency",
-            "duration",
+            "sessions_completed",
+            "sessions_planned",
             "indication",
             "response",
         ]
@@ -209,7 +215,8 @@ class Khandaker2MojoTherapyItem(Khandaker2MojoTableItem, Base):
             <tr>
                 <td>{answer(self.therapy)}</td>
                 <td>{answer(self.frequency)}</td>
-                <td>{answer(self.duration)}</td>
+                <td>{answer(self.sessions_completed)}</td>
+                <td>{answer(self.sessions_planned)}</td>
                 <td>{answer(self.indication)}</td>
                 <td>{answer(self.get_response_option(req))}</td>
             </tr>
@@ -295,7 +302,8 @@ class Khandaker2MojoMedicationTable(TaskHasPatientMixin, Task):
                 <tr>
                     <th>{self.xstring(req, "therapy")}</th>
                     <th>{self.xstring(req, "frequency")}</th>
-                    <th>{self.xstring(req, "duration")}</th>
+                    <th>{self.xstring(req, "sessions_completed")}</th>
+                    <th>{self.xstring(req, "sessions_planned")}</th>
                     <th>{self.xstring(req, "indication")}</th>
                     <th>{self.xstring(req, "response")}</th>
                 </tr>

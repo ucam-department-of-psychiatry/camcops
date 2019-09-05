@@ -25,14 +25,16 @@ const QString Khandaker2MojoTherapyItem::FN_FK_NAME("medicationtable_id");
 const QString Khandaker2MojoTherapyItem::FN_SEQNUM("seqnum");
 const QString Khandaker2MojoTherapyItem::FN_THERAPY("therapy");
 const QString Khandaker2MojoTherapyItem::FN_FREQUENCY("frequency");
-const QString Khandaker2MojoTherapyItem::FN_DURATION("duration");
+const QString Khandaker2MojoTherapyItem::FN_SESSIONS_COMPLETED("sessions_completed");
+const QString Khandaker2MojoTherapyItem::FN_SESSIONS_PLANNED("sessions_planned");
 const QString Khandaker2MojoTherapyItem::FN_INDICATION("indication");
 const QString Khandaker2MojoTherapyItem::FN_RESPONSE("response");
 
 const QStringList Khandaker2MojoTherapyItem::TABLE_FIELDNAMES{
     Khandaker2MojoTherapyItem::FN_THERAPY,
     Khandaker2MojoTherapyItem::FN_FREQUENCY,
-    Khandaker2MojoTherapyItem::FN_DURATION,
+    Khandaker2MojoTherapyItem::FN_SESSIONS_COMPLETED,
+    Khandaker2MojoTherapyItem::FN_SESSIONS_PLANNED,
     Khandaker2MojoTherapyItem::FN_INDICATION,
     Khandaker2MojoTherapyItem::FN_RESPONSE,
 };
@@ -51,7 +53,8 @@ Khandaker2MojoTherapyItem::Khandaker2MojoTherapyItem(
     addField(FN_SEQNUM, QVariant::Int);
     addField(FN_THERAPY, QVariant::String);
     addField(FN_FREQUENCY, QVariant::String);
-    addField(FN_DURATION, QVariant::Int);
+    addField(FN_SESSIONS_COMPLETED, QVariant::Int);
+    addField(FN_SESSIONS_PLANNED, QVariant::Int);
     addField(FN_INDICATION, QVariant::String);
     addField(FN_RESPONSE, QVariant::Int);
 
@@ -90,9 +93,14 @@ QString Khandaker2MojoTherapyItem::frequency() const
 
 }
 
-int Khandaker2MojoTherapyItem::duration() const
+int Khandaker2MojoTherapyItem::sessionsCompleted() const
 {
-    return valueInt(FN_DURATION);
+    return valueInt(FN_SESSIONS_COMPLETED);
+}
+
+int Khandaker2MojoTherapyItem::sessionsPlanned() const
+{
+    return valueInt(FN_SESSIONS_PLANNED);
 }
 
 QString Khandaker2MojoTherapyItem::indication() const

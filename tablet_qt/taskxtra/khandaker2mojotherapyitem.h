@@ -33,7 +33,8 @@ public:
     int seqnum() const;
     QString therapy() const;
     QString frequency() const;
-    int duration() const;
+    int sessionsCompleted() const;
+    int sessionsPlanned() const;
     QString indication() const;
     int response() const;
     bool isComplete() const;
@@ -44,7 +45,8 @@ public:
     static const QString FN_SEQNUM;
     static const QString FN_THERAPY;
     static const QString FN_FREQUENCY;
-    static const QString FN_DURATION;
+    static const QString FN_SESSIONS_COMPLETED;
+    static const QString FN_SESSIONS_PLANNED;
     static const QString FN_INDICATION;
     static const QString FN_RESPONSE;
     static const QStringList TABLE_FIELDNAMES;

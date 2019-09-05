@@ -504,10 +504,10 @@ QuGridContainer* Khandaker2MojoMedicationTable::getMedicationGrid() {
             0, 1800
         );
 
-        auto indication_edit = new QuLineEdit(
+        auto indication_edit = (new QuLineEdit(
             medication->fieldRef(
                 Khandaker2MojoMedicationItem::FN_INDICATION)
-        );
+        ))->setHint(xstring("medication_indication_hint"));
 
         auto response_picker = getResponsePicker(
             medication->fieldRef(Khandaker2MojoMedicationItem::FN_RESPONSE),
@@ -539,9 +539,10 @@ QuGridContainer* Khandaker2MojoMedicationTable::getTherapyGrid() {
 
     grid->addCell(QuGridCell(new QuText(xstring("therapy")), 0, 0));
     grid->addCell(QuGridCell(new QuText(xstring("frequency")), 0, 1));
-    grid->addCell(QuGridCell(new QuText(xstring("duration")), 0, 2));
-    grid->addCell(QuGridCell(new QuText(xstring("indication")), 0, 3));
-    grid->addCell(QuGridCell(new QuText(xstring("response")), 0, 4));
+    grid->addCell(QuGridCell(new QuText(xstring("sessions_completed")), 0, 2));
+    grid->addCell(QuGridCell(new QuText(xstring("sessions_planned")), 0, 3));
+    grid->addCell(QuGridCell(new QuText(xstring("indication")), 0, 4));
+    grid->addCell(QuGridCell(new QuText(xstring("response")), 0, 5));
 
     int i = 0;
 
@@ -561,16 +562,22 @@ QuGridContainer* Khandaker2MojoMedicationTable::getTherapyGrid() {
                 Khandaker2MojoTherapyItem::FN_FREQUENCY)
         ))->setHint(xstring("therapy_frequency_hint"));
 
-        auto duration_edit = new QuLineEditInteger(
+        auto sessions_completed_edit = new QuLineEditInteger(
             therapy->fieldRef(
-                Khandaker2MojoTherapyItem::FN_DURATION),
-            0, 1800
+                Khandaker2MojoTherapyItem::FN_SESSIONS_COMPLETED),
+            0, 500
         );
 
-        auto indication_edit = new QuLineEdit(
+        auto sessions_planned_edit = new QuLineEditInteger(
+            therapy->fieldRef(
+                Khandaker2MojoTherapyItem::FN_SESSIONS_PLANNED),
+            0, 500
+        );
+
+        auto indication_edit = (new QuLineEdit(
             therapy->fieldRef(
                 Khandaker2MojoTherapyItem::FN_INDICATION)
-        );
+        ))->setHint(xstring("therapy_indication_hint"));
 
         auto response_picker = getResponsePicker(
             therapy->fieldRef(Khandaker2MojoTherapyItem::FN_RESPONSE),
@@ -581,10 +588,11 @@ QuGridContainer* Khandaker2MojoMedicationTable::getTherapyGrid() {
 
         grid->addCell(QuGridCell(therapy_edit, row, 0));
         grid->addCell(QuGridCell(frequency_edit, row, 1));
-        grid->addCell(QuGridCell(duration_edit, row, 2));
-        grid->addCell(QuGridCell(indication_edit, row, 3));
-        grid->addCell(QuGridCell(response_picker, row, 4));
-        grid->addCell(QuGridCell(delete_button, row, 5));
+        grid->addCell(QuGridCell(sessions_completed_edit, row, 2));
+        grid->addCell(QuGridCell(sessions_planned_edit, row, 3));
+        grid->addCell(QuGridCell(indication_edit, row, 4));
+        grid->addCell(QuGridCell(response_picker, row, 5));
+        grid->addCell(QuGridCell(delete_button, row, 6));
 
         i++;
     }

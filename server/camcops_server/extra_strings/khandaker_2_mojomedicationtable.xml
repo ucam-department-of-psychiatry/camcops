@@ -10,7 +10,8 @@
     <string name="dosage">Dosage</string>
     <string name="frequency">Frequency</string>
     <string name="duration">Duration (months)</string>
-    <string name="indication">Indication (what is the medication for?)</string>
+    <string name="indication">Indication</string>
+    <string name="medication_indication_hint">What is the medication for?</string>
     <string name="response">Response</string>
     <string name="response_1">Treats all symptoms</string>
     <string name="response_2">Treats most symptoms</string>
@@ -46,6 +47,9 @@
     <string name="therapy_question">Are you receiving any talking therapies (e.g: cognitive-behavioural therapy)? If so, how frequently, how long have you been receiving it, and are you finding it effective?</string>
     <string name="therapy">Therapy</string>
     <string name="therapy_frequency_hint">e.g. 1 session per week</string>
+    <string name="therapy_indication_hint">What is the therapy for?</string>
+    <string name="sessions_completed">Sessions completed</string>
+    <string name="sessions_planned">Sessions planned</string>
     <string name="number_of_medications">Medications:</string>
     <string name="number_of_therapies">Therapies:</string>
   </task>
