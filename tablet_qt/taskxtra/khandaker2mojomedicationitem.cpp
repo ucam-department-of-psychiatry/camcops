@@ -78,53 +78,10 @@ void Khandaker2MojoMedicationItem::setSeqnum(const int seqnum)
 }
 
 
-int Khandaker2MojoMedicationItem::seqnum() const
-{
-    return valueInt(FN_SEQNUM);
-}
-
-
-QString Khandaker2MojoMedicationItem::medicationName() const
-{
-    return valueString(FN_MEDICATION_NAME);
-}
-
 void Khandaker2MojoMedicationItem::setChemicalName(
     const QString chemical_name)
 {
     setValue(FN_CHEMICAL_NAME, chemical_name);
-}
-
-QString Khandaker2MojoMedicationItem::chemicalName() const
-{
-    return valueString(FN_CHEMICAL_NAME);
-}
-
-QString Khandaker2MojoMedicationItem::dosage() const
-{
-    return valueString(FN_DOSAGE);
-
-}
-
-QString Khandaker2MojoMedicationItem::frequency() const
-{
-    return valueString(FN_FREQUENCY);
-
-}
-
-int Khandaker2MojoMedicationItem::duration() const
-{
-    return valueInt(FN_DURATION);
-}
-
-QString Khandaker2MojoMedicationItem::indication() const
-{
-    return valueString(FN_INDICATION);
-}
-
-int Khandaker2MojoMedicationItem::response() const
-{
-    return valueInt(FN_RESPONSE);
 }
 
 bool Khandaker2MojoMedicationItem::isComplete() const

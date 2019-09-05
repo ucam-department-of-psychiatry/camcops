@@ -76,47 +76,11 @@ void Khandaker2MojoTherapyItem::setSeqnum(const int seqnum)
 }
 
 
-int Khandaker2MojoTherapyItem::seqnum() const
-{
-    return valueInt(FN_SEQNUM);
-}
-
-
-QString Khandaker2MojoTherapyItem::therapy() const
-{
-    return valueString(FN_THERAPY);
-}
-
-QString Khandaker2MojoTherapyItem::frequency() const
-{
-    return valueString(FN_FREQUENCY);
-
-}
-
-int Khandaker2MojoTherapyItem::sessionsCompleted() const
-{
-    return valueInt(FN_SESSIONS_COMPLETED);
-}
-
-int Khandaker2MojoTherapyItem::sessionsPlanned() const
-{
-    return valueInt(FN_SESSIONS_PLANNED);
-}
-
-QString Khandaker2MojoTherapyItem::indication() const
-{
-    return valueString(FN_INDICATION);
-}
-
-int Khandaker2MojoTherapyItem::response() const
-{
-    return valueInt(FN_RESPONSE);
-}
-
 bool Khandaker2MojoTherapyItem::isComplete() const
 {
     return noValuesNull(TABLE_FIELDNAMES);
 }
+
 
 bool Khandaker2MojoTherapyItem::isEmpty() const
 {

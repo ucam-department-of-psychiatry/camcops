@@ -30,15 +30,7 @@ public:
                        int load_pk = dbconst::NONEXISTENT_PK);
     Khandaker2MojoMedicationItem(int owner_fk, CamcopsApp& app, DatabaseManager& db);
     void setSeqnum(int seqnum);
-    int seqnum() const;
-    QString medicationName() const;
     void setChemicalName(const QString chemical_name);
-    QString chemicalName() const;
-    QString dosage() const;
-    QString frequency() const;
-    int duration() const;
-    QString indication() const;
-    int response() const;
     bool isComplete() const;
     bool isEmpty() const;
 public:

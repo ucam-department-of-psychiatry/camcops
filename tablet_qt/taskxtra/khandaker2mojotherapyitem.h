@@ -30,13 +30,6 @@ public:
                               int load_pk = dbconst::NONEXISTENT_PK);
     Khandaker2MojoTherapyItem(int owner_fk, CamcopsApp& app, DatabaseManager& db);
     void setSeqnum(int seqnum);
-    int seqnum() const;
-    QString therapy() const;
-    QString frequency() const;
-    int sessionsCompleted() const;
-    int sessionsPlanned() const;
-    QString indication() const;
-    int response() const;
     bool isComplete() const;
     bool isEmpty() const;
 public:
