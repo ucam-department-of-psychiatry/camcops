@@ -2449,8 +2449,11 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Add optional waist circumference to :ref:`BMI  <bmi>`.
   (Database revision 0038.)
 
-  Add ``setMinimiumDate()`` and ``setMaximumDate()`` to ``QuDateTime``.
+- Add ``setMinimiumDate()`` and ``setMaximumDate()`` to ``QuDateTime``.
   This also fixes the broken default minimum date of 1st January 1880.
 
 - Set ``strict_undefined=True`` for Mako template lookups, so they crash
   immediately on typos.
+
+- **New task:** :ref:`Khandaker GM — 2 — MOJO study <khandaker_2_mojo>`.
+  (Database revisions 0039-0041.)
