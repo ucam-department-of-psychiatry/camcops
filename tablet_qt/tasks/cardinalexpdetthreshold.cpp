@@ -32,6 +32,7 @@
 #include "lib/convert.h"
 #include "lib/soundfunc.h"
 #include "lib/timerfunc.h"
+#include "lib/uifunc.h"
 #include "maths/ccrandom.h"
 #include "maths/mathfunc.h"
 #include "questionnairelib/questionnaire.h"
@@ -787,6 +788,9 @@ void CardinalExpDetThreshold::startTask()
     // Set up players and timers
     soundfunc::makeMediaPlayer(m_player_background);
     soundfunc::makeMediaPlayer(m_player_target);
+    if (!m_player_background || !m_player_target) {
+        return;
+    }
     connect(m_player_background.data(), &QMediaPlayer::mediaStatusChanged,
             this, &CardinalExpDetThreshold::mediaStatusChangedBackground);
     timerfunc::makeSingleShotTimer(m_timer);

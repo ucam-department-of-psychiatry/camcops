@@ -1001,6 +1001,9 @@ void IDED3D::startTask()
     // Prep the sounds
     soundfunc::makeMediaPlayer(m_player_correct);
     soundfunc::makeMediaPlayer(m_player_incorrect);
+    if (!m_player_correct || !m_player_incorrect) {
+        return;
+    }
     // ... for rationale, see QuAudioPlayer::makeWidget()
     m_player_correct->setMedia(uifunc::resourceUrl(SOUND_FILE_CORRECT));
     m_player_incorrect->setMedia(uifunc::resourceUrl(SOUND_FILE_INCORRECT));
