@@ -51,6 +51,25 @@ Tasks
         family1 = family1.lower()
     AttributeError: 'dict' object has no attribute 'lower'
 
+  or
+
+  .. code-block:: none
+
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.6/site-packages/matplotlib/backends/backend_svg.py", line 1180, in get_text_width_height_descent
+        return self._text2path.get_text_width_height_descent(s, prop, ismath)
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.6/site-packages/matplotlib/textpath.py", line 89, in get_text_width_height_descent
+        font = self._get_font(prop)
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.6/site-packages/matplotlib/textpath.py", line 38, in _get_font
+        fname = font_manager.findfont(prop)
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.6/site-packages/matplotlib/font_manager.py", line 1238, in findfont
+        rc_params)
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.6/site-packages/matplotlib/font_manager.py", line 1270, in _findfont_cached
+        + self.score_size(prop.get_size(), font.size))
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.6/site-packages/matplotlib/font_manager.py", line 1076, in score_family
+        family1 = family1.lower()
+    AttributeError: 'dict' object has no attribute 'lower'
+
+
   Is also not specific to SVG, as it still happens (and the ACE-III is still
   OK) when setting ``USE_SVG_IN_HTML = False``.
 
