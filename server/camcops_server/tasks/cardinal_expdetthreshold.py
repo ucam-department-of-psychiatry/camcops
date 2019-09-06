@@ -27,6 +27,7 @@ camcops_server/tasks/cardinal_expdetthreshold.py
 """
 
 import math
+import logging
 from typing import List, Optional, Type
 
 from cardinal_pythonlib.maths_numpy import inv_logistic, logistic
@@ -57,6 +58,8 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 from camcops_server.cc_modules.cc_text import SS
+
+log = logging.getLogger(__name__)
 
 
 LOWER_MARKER = 0.25
