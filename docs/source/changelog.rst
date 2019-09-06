@@ -2454,3 +2454,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Set ``strict_undefined=True`` for Mako template lookups, so they crash
   immediately on typos.
+
+- ``matplotlib==3.1.1`` (from 3.0.2) to see if this fixed regression in
+  saving SVG figures from ``cardinal_expdetthreshold.py`` and
+  ``cardinal_expectationdetection.py``. No.
