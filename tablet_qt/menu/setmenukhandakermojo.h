@@ -21,11 +21,11 @@
 #include "menulib/menuwindow.h"
 
 
-class SetMenuCpftPsychooncology1 : public MenuWindow
+class SetMenuKhandakerMojo : public MenuWindow
 {
     Q_OBJECT
 public:
-    SetMenuCpftPsychooncology1(CamcopsApp& app);
+    SetMenuKhandakerMojo(CamcopsApp& app);
     virtual QString title() const override;
     virtual QString subtitle() const override;
 protected:

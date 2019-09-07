@@ -17,7 +17,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "setmenuobrien1.h"
+#include "setmenuobrien.h"
 #include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
@@ -38,26 +38,26 @@
 #include "tasks/zbi12.h"
 
 
-SetMenuOBrien1::SetMenuOBrien1(CamcopsApp& app) :
+SetMenuOBrien::SetMenuOBrien(CamcopsApp& app) :
     MenuWindow(app, uifunc::iconFilename(uiconst::ICON_SETS_RESEARCH))
 {
 }
 
 
-QString SetMenuOBrien1::title() const
+QString SetMenuOBrien::title() const
 {
-    return "O’Brien JT — 1";
+    return "O’Brien JT — dementia clinic";
 }
 
 
-QString SetMenuOBrien1::subtitle() const
+QString SetMenuOBrien::subtitle() const
 {
     return tr("O’Brien JT, University of Cambridge, UK — "
               "dementia research clinic");
 }
 
 
-void SetMenuOBrien1::makeItems()
+void SetMenuOBrien::makeItems()
 {
     m_items = {
         MAKE_CHANGE_PATIENT(m_app),

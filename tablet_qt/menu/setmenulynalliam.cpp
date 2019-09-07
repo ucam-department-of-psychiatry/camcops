@@ -17,43 +17,48 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "setmenukhandaker1insight.h"
+#include "setmenulynalliam.h"
 #include "common/textconst.h"
 #include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 
-#include "tasks/bdi.h"
+#include "tasks/audit.h"
 #include "tasks/cisr.h"
-#include "tasks/khandaker1insightmedical.h"
+#include "tasks/ctqsf.h"
+#include "tasks/lynall1iammedical.h"
+#include "tasks/lynall2iamlife.h"
+#include "tasks/rand36.h"
 
 
-SetMenuKhandaker1Insight::SetMenuKhandaker1Insight(CamcopsApp& app) :
+SetMenuLynallIAM::SetMenuLynallIAM(CamcopsApp& app) :
     MenuWindow(app, uifunc::iconFilename(uiconst::ICON_SETS_RESEARCH))
 {
 }
 
 
-QString SetMenuKhandaker1Insight::title() const
+QString SetMenuLynallIAM::title() const
 {
-    return tr("Khandaker GM — 1 — Insight study");
+    return tr("Lynall M-E — IAM study");
 }
 
 
-QString SetMenuKhandaker1Insight::subtitle() const
+QString SetMenuLynallIAM::subtitle() const
 {
-    return tr("Khandaker GM, University of Cambridge, UK — "
-              "Insight immunopsychiatry study");
+    return tr("Lynall M-E, University of Cambridge, UK — "
+              "Inflammation in Mind (IAM) study");
 }
 
 
-void SetMenuKhandaker1Insight::makeItems()
+void SetMenuLynallIAM::makeItems()
 {
     m_items = {
         MAKE_CHANGE_PATIENT(m_app),
-        MAKE_TASK_MENU_ITEM(Bdi::BDI_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Audit::AUDIT_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Cisr::CISR_TABLENAME, m_app),
-        MAKE_TASK_MENU_ITEM(
-            Khandaker1InsightMedical::KHANDAKER1INSIGHTMEDICAL_TABLENAME, m_app),
+        // *** // MAKE_TASK_MENU_ITEM(Ctqsf::CTQSF_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Lynall1IamMedical::LYNALL_1_IAM_MEDICAL_TABLENAME, m_app),
+        // *** // MAKE_TASK_MENU_ITEM(Lynall2IamLife::LYNALL_2_IAM_LIFE_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Rand36::RAND36_TABLENAME, m_app),
     };
 }

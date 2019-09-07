@@ -21,11 +21,11 @@
 #include "menulib/menuwindow.h"
 
 
-class SetMenuCpftAffective1 : public MenuWindow
+class SetMenuLynallIAM : public MenuWindow
 {
     Q_OBJECT
 public:
-    SetMenuCpftAffective1(CamcopsApp& app);
+    SetMenuLynallIAM(CamcopsApp& app);
     virtual QString title() const override;
     virtual QString subtitle() const override;
 protected:

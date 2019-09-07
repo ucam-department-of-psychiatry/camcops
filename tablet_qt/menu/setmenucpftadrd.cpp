@@ -17,7 +17,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "setmenucpftaffective1.h"
+#include "setmenucpftadrd.h"
 #include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
@@ -35,26 +35,26 @@
 #include "tasks/ybocssc.h"
 
 
-SetMenuCpftAffective1::SetMenuCpftAffective1(CamcopsApp& app) :
+SetMenuCpftADRD::SetMenuCpftADRD(CamcopsApp& app) :
     MenuWindow(app, uifunc::iconFilename(uiconst::ICON_SETS_CLINICAL))
 {
 }
 
 
-QString SetMenuCpftAffective1::title() const
+QString SetMenuCpftADRD::title() const
 {
     return tr("CPFT Affective Disorders Research Database");
 }
 
 
-QString SetMenuCpftAffective1::subtitle() const
+QString SetMenuCpftADRD::subtitle() const
 {
     return tr("Cambridgeshire and Peterborough NHS Foundation Trust, UK — "
               "affective disorders");
 }
 
 
-void SetMenuCpftAffective1::makeItems()
+void SetMenuCpftADRD::makeItems()
 {
     m_items = {
         MAKE_CHANGE_PATIENT(m_app),

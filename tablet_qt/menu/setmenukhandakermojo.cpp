@@ -17,7 +17,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "setmenukhandaker2mojo.h"
+#include "setmenukhandakermojo.h"
 #include "common/textconst.h"
 #include "common/uiconst.h"
 #include "lib/uifunc.h"
@@ -40,26 +40,26 @@
 #include "tasks/suppsp.h"
 
 
-SetMenuKhandaker2Mojo::SetMenuKhandaker2Mojo(CamcopsApp& app) :
+SetMenuKhandakerMojo::SetMenuKhandakerMojo(CamcopsApp& app) :
     MenuWindow(app, uifunc::iconFilename(uiconst::ICON_SETS_RESEARCH))
 {
 }
 
 
-QString SetMenuKhandaker2Mojo::title() const
+QString SetMenuKhandakerMojo::title() const
 {
-    return tr("Khandaker GM — 2 — MOJO study");
+    return tr("Khandaker GM — MOJO study");
 }
 
 
-QString SetMenuKhandaker2Mojo::subtitle() const
+QString SetMenuKhandakerMojo::subtitle() const
 {
     return tr("Khandaker GM, University of Cambridge, UK — "
               "MOJO immunopsychiatry study");
 }
 
 
-void SetMenuKhandaker2Mojo::makeItems()
+void SetMenuKhandakerMojo::makeItems()
 {
     m_items = {
         MAKE_CHANGE_PATIENT(m_app),

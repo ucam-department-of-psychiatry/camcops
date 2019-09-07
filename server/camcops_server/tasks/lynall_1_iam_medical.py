@@ -53,7 +53,7 @@ from camcops_server.cc_modules.cc_text import SS
 
 class Lynall1IamMedicalHistory(TaskHasPatientMixin, Task):
     """
-    Server implementation of the Lynall_1_MedicalHistory task.
+    Server implementation of the Lynall1IamMedicalHistory task.
     """
     __tablename__ = "lynall_1_iam_medical"
     shortname = "Lynall_1_IAM_Medical"

@@ -17,7 +17,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "setmenudeakin1.h"
+#include "setmenudeakin.h"
 #include "common/textconst.h"
 #include "common/uiconst.h"
 #include "dialogs/soundtestdialog.h"
@@ -40,26 +40,26 @@
 #include "taskxtra/cardinalexpdetcommon.h"
 
 
-SetMenuDeakin1::SetMenuDeakin1(CamcopsApp& app) :
+SetMenuDeakin::SetMenuDeakin(CamcopsApp& app) :
     MenuWindow(app, uifunc::iconFilename(uiconst::ICON_SETS_RESEARCH))
 {
 }
 
 
-QString SetMenuDeakin1::title() const
+QString SetMenuDeakin::title() const
 {
-    return "Deakin JB — 1";
+    return "Deakin JB — antibody-mediated psychosis";
 }
 
 
-QString SetMenuDeakin1::subtitle() const
+QString SetMenuDeakin::subtitle() const
 {
     return tr("Deakin JB, University of Cambridge, UK — "
-              "antibody-mediated psychosis");
+              "antibody-mediated psychosis study");
 }
 
 
-void SetMenuDeakin1::makeItems()
+void SetMenuDeakin::makeItems()
 {
     m_items = {
         MAKE_CHANGE_PATIENT(m_app),
@@ -73,7 +73,7 @@ void SetMenuDeakin1::makeItems()
         MAKE_TASK_MENU_ITEM(Deakin1HealthReview::DEAKIN1HEALTHREVIEW_TABLENAME, m_app),
         MenuItem(
             cardinalexpdetcommon::ExpDetTextConst::soundtestTitle(),
-            std::bind(&SetMenuDeakin1::soundTestCardinalExpDet, this),
+            std::bind(&SetMenuDeakin::soundTestCardinalExpDet, this),
             "",
             cardinalexpdetcommon::ExpDetTextConst::soundtestSubtitle()
         ),
@@ -86,7 +86,7 @@ void SetMenuDeakin1::makeItems()
 }
 
 
-void SetMenuDeakin1::soundTestCardinalExpDet()
+void SetMenuDeakin::soundTestCardinalExpDet()
 {
     SoundTestDialog dlg(cardinalexpdetcommon::urlFromStem(
                             cardinalexpdetcommon::AUDITORY_BACKGROUND),

@@ -21,11 +21,11 @@
 #include "menulib/menuwindow.h"
 
 
-class SetMenuKhandaker2Mojo : public MenuWindow
+class SetMenuCpftADRD : public MenuWindow
 {
     Q_OBJECT
 public:
-    SetMenuKhandaker2Mojo(CamcopsApp& app);
+    SetMenuCpftADRD(CamcopsApp& app);
     virtual QString title() const override;
     virtual QString subtitle() const override;
 protected:

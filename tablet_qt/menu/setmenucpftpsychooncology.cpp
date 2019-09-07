@@ -17,7 +17,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "setmenucpftpsychooncology1.h"
+#include "setmenucpftpsychooncology.h"
 #include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
@@ -35,26 +35,26 @@
 #include "tasks/wsas.h"
 
 
-SetMenuCpftPsychooncology1::SetMenuCpftPsychooncology1(CamcopsApp& app) :
+SetMenuCpftPsychooncology::SetMenuCpftPsychooncology(CamcopsApp& app) :
     MenuWindow(app, uifunc::iconFilename(uiconst::ICON_SETS_CLINICAL))
 {
 }
 
 
-QString SetMenuCpftPsychooncology1::title() const
+QString SetMenuCpftPsychooncology::title() const
 {
     return tr("CPFT Psycho-oncology Service");
 }
 
 
-QString SetMenuCpftPsychooncology1::subtitle() const
+QString SetMenuCpftPsychooncology::subtitle() const
 {
     return tr("Cambridgeshire and Peterborough NHS Foundation Trust, UK — "
               "psycho-oncology service");
 }
 
 
-void SetMenuCpftPsychooncology1::makeItems()
+void SetMenuCpftPsychooncology::makeItems()
 {
     // See e-mail from Ruaidhri McCormack to Rudolf Cardinal, 2018-07-12.
     m_items = {

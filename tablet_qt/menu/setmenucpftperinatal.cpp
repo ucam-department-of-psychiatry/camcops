@@ -17,7 +17,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "setmenucpftperinatal1.h"
+#include "setmenucpftperinatal.h"
 #include "common/uiconst.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
@@ -39,26 +39,26 @@
 #include "tasks/srs.h"
 
 
-SetMenuCpftPerinatal1::SetMenuCpftPerinatal1(CamcopsApp& app) :
+SetMenuCpftPerinatal::SetMenuCpftPerinatal(CamcopsApp& app) :
     MenuWindow(app, uifunc::iconFilename(uiconst::ICON_SETS_CLINICAL))
 {
 }
 
 
-QString SetMenuCpftPerinatal1::title() const
+QString SetMenuCpftPerinatal::title() const
 {
     return tr("CPFT Perinatal Service");
 }
 
 
-QString SetMenuCpftPerinatal1::subtitle() const
+QString SetMenuCpftPerinatal::subtitle() const
 {
     return tr("Cambridgeshire and Peterborough NHS Foundation Trust, UK — "
               "perinatal psychiatry service");
 }
 
 
-void SetMenuCpftPerinatal1::makeItems()
+void SetMenuCpftPerinatal::makeItems()
 {
     m_items = {
         MAKE_CHANGE_PATIENT(m_app),

@@ -611,16 +611,16 @@ SOURCES += \
     menu/researchmenu.cpp \
     menu/researchsetsmenu.cpp \
     menu/serviceevaluationmenu.cpp \
-    menu/setmenucpftaffective1.cpp \
-    menu/setmenucpftperinatal1.cpp \
-    menu/setmenucpftpsychooncology1.cpp \
-    menu/setmenudeakin1.cpp \
+    menu/setmenucpftadrd.cpp \
+    menu/setmenucpftperinatal.cpp \
+    menu/setmenucpftpsychooncology.cpp \
+    menu/setmenudeakin.cpp \
     menu/setmenufromlp.cpp \
     menu/setmenufromperinatal.cpp \
-    menu/setmenukhandaker1insight.cpp \
-    menu/setmenukhandaker2mojo.cpp \
-    menu/setmenulynall1iam.cpp \
-    menu/setmenuobrien1.cpp \
+    menu/setmenukhandakerinsight.cpp \
+    menu/setmenukhandakermojo.cpp \
+    menu/setmenulynalliam.cpp \
+    menu/setmenuobrien.cpp \
     menu/settingsmenu.cpp \
     menu/singletaskmenu.cpp \
     menu/testmenu.cpp \
@@ -1050,16 +1050,16 @@ HEADERS += \
     menu/researchmenu.h \
     menu/researchsetsmenu.h \
     menu/serviceevaluationmenu.h \
-    menu/setmenucpftaffective1.h \
-    menu/setmenucpftperinatal1.h \
-    menu/setmenucpftpsychooncology1.h \
-    menu/setmenudeakin1.h \
+    menu/setmenucpftadrd.h \
+    menu/setmenucpftperinatal.h \
+    menu/setmenucpftpsychooncology.h \
+    menu/setmenudeakin.h \
     menu/setmenufromlp.h \
     menu/setmenufromperinatal.h \
-    menu/setmenukhandaker1insight.h \
-    menu/setmenukhandaker2mojo.h \
-    menu/setmenulynall1iam.h \
-    menu/setmenuobrien1.h \
+    menu/setmenukhandakerinsight.h \
+    menu/setmenukhandakermojo.h \
+    menu/setmenulynalliam.h \
+    menu/setmenuobrien.h \
     menu/settingsmenu.h \
     menu/singletaskmenu.h \
     menu/testmenu.h \

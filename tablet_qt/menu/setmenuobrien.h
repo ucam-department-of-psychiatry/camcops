@@ -21,14 +21,13 @@
 #include "menulib/menuwindow.h"
 
 
-class SetMenuDeakin1 : public MenuWindow
+class SetMenuOBrien : public MenuWindow
 {
     Q_OBJECT
 public:
-    SetMenuDeakin1(CamcopsApp& app);
+    SetMenuOBrien(CamcopsApp& app);
     virtual QString title() const override;
     virtual QString subtitle() const override;
 protected:
     virtual void makeItems() override;
-    void soundTestCardinalExpDet();
 };

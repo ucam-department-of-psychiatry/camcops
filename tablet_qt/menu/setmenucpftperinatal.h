@@ -21,11 +21,11 @@
 #include "menulib/menuwindow.h"
 
 
-class SetMenuOBrien1 : public MenuWindow
+class SetMenuCpftPerinatal : public MenuWindow
 {
     Q_OBJECT
 public:
-    SetMenuOBrien1(CamcopsApp& app);
+    SetMenuCpftPerinatal(CamcopsApp& app);
     virtual QString title() const override;
     virtual QString subtitle() const override;
 protected:
