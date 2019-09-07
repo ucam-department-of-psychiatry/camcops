@@ -76,13 +76,13 @@ QString KhandakerMojoMedicationTherapy::shortname() const
 
 QString KhandakerMojoMedicationTherapy::longname() const
 {
-    return tr("Khandaker GM — MOJO Study — Medications and therapies");
+    return tr("Khandaker GM — MOJO — Medications and therapies");
 }
 
 
 QString KhandakerMojoMedicationTherapy::description() const
 {
-    return tr("Record of medications and talking therapies for MOJO Study.");
+    return tr("Record of medications and talking therapies for MOJO study.");
 }
 
 

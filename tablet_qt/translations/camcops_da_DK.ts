@@ -298,10 +298,6 @@
         <translation>Taljemål:</translation>
     </message>
     <message>
-        <source>Mass, height.</source>
-        <translation>Masse, højde.</translation>
-    </message>
-    <message>
         <location filename="../tasks/bmi.cpp" line="144"/>
         <source>Comments:</source>
         <translation>Kommentarer:</translation>
@@ -1204,14 +1200,14 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
     </message>
 </context>
 <context>
-    <name>Deakin1HealthReview</name>
+    <name>DeakinS1HealthReview</name>
     <message>
-        <location filename="../tasks/deakin1healthreview.cpp" line="343"/>
-        <source>Deakin JB — 1 — Health review</source>
-        <translation>Deakin JB — 1 — sundhedsanmeldelse</translation>
+        <location filename="../tasks/deakins1healthreview.cpp" line="344"/>
+        <source>Deakin JB — Antibody-mediated psychosis study — health review</source>
+        <translation>Deakin JB — Antistofmedieret psykosestudie — Sundhedsanmeldelse</translation>
     </message>
     <message>
-        <location filename="../tasks/deakin1healthreview.cpp" line="349"/>
+        <location filename="../tasks/deakins1healthreview.cpp" line="350"/>
         <source>Health review for antibody-mediated psychosis study.</source>
         <translation>Sundhedsanmeldelse for antistofmedieret psykosestudie.</translation>
     </message>
@@ -2849,16 +2845,61 @@ enig</translation>
     </message>
 </context>
 <context>
-    <name>Khandaker1InsightMedical</name>
+    <name>KhandakerInsightMedical</name>
     <message>
-        <location filename="../tasks/khandaker1insightmedical.cpp" line="132"/>
-        <source>Khandaker GM — 1 — Insight — Medical history</source>
-        <translation>Khandaker GM — 1 — Indsigt — sygehistorie</translation>
+        <location filename="../tasks/khandakerinsightmedical.cpp" line="134"/>
+        <source>Khandaker GM — Insight — Medical history</source>
+        <translation>Khandaker GM — Insight — Medicinsk historie</translation>
     </message>
     <message>
-        <location filename="../tasks/khandaker1insightmedical.cpp" line="138"/>
+        <location filename="../tasks/khandakerinsightmedical.cpp" line="140"/>
         <source>Medical history screening for Insight immunopsychiatry study.</source>
         <translation>Medicinsk historie screening for Insight immunopsykiatri undersøgelse.</translation>
+    </message>
+</context>
+<context>
+    <name>KhandakerMojoMedical</name>
+    <message>
+        <location filename="../tasks/khandakermojomedical.cpp" line="193"/>
+        <source>Khandaker GM — MOJO — Medical questionnaire</source>
+        <translation>Khandaker GM — MOJO — Medicinsk spørgeskema</translation>
+    </message>
+    <message>
+        <location filename="../tasks/khandakermojomedical.cpp" line="199"/>
+        <source>Medical questionnaire for MOJO study.</source>
+        <translation>Medicinsk spørgeskema til MOJO-undersøgelse.</translation>
+    </message>
+</context>
+<context>
+    <name>KhandakerMojoMedicationTherapy</name>
+    <message>
+        <location filename="../tasks/khandakermojomedicationtherapy.cpp" line="79"/>
+        <source>Khandaker GM — MOJO — Medications and therapies</source>
+        <translation>Khandaker GM — MOJO — Medicin og terapier</translation>
+    </message>
+    <message>
+        <location filename="../tasks/khandakermojomedicationtherapy.cpp" line="85"/>
+        <source>Record of medications and talking therapies for MOJO study.</source>
+        <translation>Registrering af medicin og taleterapier til MOJO-undersøgelse.</translation>
+    </message>
+    <message>
+        <location filename="../tasks/khandakermojomedicationtherapy.cpp" line="320"/>
+        <location filename="../tasks/khandakermojomedicationtherapy.cpp" line="342"/>
+        <source>A row is blank; won’t add another</source>
+        <translation>En række er tom; tilføjer ikke en anden</translation>
+    </message>
+</context>
+<context>
+    <name>KhandakerMojoSociodemographics</name>
+    <message>
+        <location filename="../tasks/khandakermojosociodemographics.cpp" line="118"/>
+        <source>Khandaker GM — MOJO — Sociodemographics</source>
+        <translation>Khandaker GM — MOJO — Sociodemografi</translation>
+    </message>
+    <message>
+        <location filename="../tasks/khandakermojosociodemographics.cpp" line="124"/>
+        <source>Sociodemographics questionnaire for MOJO study.</source>
+        <translation>Sociodemografisk spørgeskema til MOJO-undersøgelse.</translation>
     </message>
 </context>
 <context>
@@ -2898,29 +2939,29 @@ enig</translation>
     </message>
 </context>
 <context>
-    <name>Lynall1IamMedical</name>
+    <name>LynallIamLife</name>
     <message>
-        <location filename="../tasks/lynall1iammedical.cpp" line="182"/>
-        <source>Lynall M-E — 1 — IAM — Medical history</source>
-        <translation>Lynall M-E — 1 — IAM — sygehistorie</translation>
+        <location filename="../tasks/lynalliamlife.cpp" line="59"/>
+        <source>Lynall M-E — IAM — Life events</source>
+        <translation>Lynall M-E — IAM — Livsbegivenheds</translation>
     </message>
     <message>
-        <location filename="../tasks/lynall1iammedical.cpp" line="188"/>
-        <source>Medical history details for IAM immunopsychiatry study.</source>
-        <translation>Medicinsk historie detaljer for IAM immunopsykiatri undersøgelse.</translation>
+        <location filename="../tasks/lynalliamlife.cpp" line="65"/>
+        <source>Life events questionnaire for IAM immunopsychiatry study.</source>
+        <translation>Livsbegivenheds spørgeskema for IAM immunopsykiatri undersøgelse.</translation>
     </message>
 </context>
 <context>
-    <name>Lynall2IamLife</name>
+    <name>LynallIamMedical</name>
     <message>
-        <location filename="../tasks/lynall2iamlife.cpp" line="59"/>
-        <source>Lynall M-E — 2 — IAM — Life events</source>
-        <translation>Lynall M-E — 2 — IAM — Livsbegivenheder</translation>
+        <location filename="../tasks/lynalliammedical.cpp" line="182"/>
+        <source>Lynall M-E — IAM — Medical history</source>
+        <translation>Lynall M-E — IAM — Medicinsk historie</translation>
     </message>
     <message>
-        <location filename="../tasks/lynall2iamlife.cpp" line="65"/>
-        <source>Life events questionnaire for IAM immunopsychiatry study.</source>
-        <translation>Livsbegivenheds spørgeskema for IAM immunopsykiatri undersøgelse.</translation>
+        <location filename="../tasks/lynalliammedical.cpp" line="188"/>
+        <source>Medical history details for IAM immunopsychiatry study.</source>
+        <translation>Medicinsk historie detaljer for IAM immunopsykiatri undersøgelse.</translation>
     </message>
 </context>
 <context>
@@ -4549,80 +4590,80 @@ enig</translation>
     </message>
 </context>
 <context>
-    <name>SetMenuCpftAffective1</name>
+    <name>SetMenuCpftADRD</name>
     <message>
-        <location filename="../menu/setmenucpftaffective1.cpp" line="46"/>
+        <location filename="../menu/setmenucpftadrd.cpp" line="46"/>
         <source>CPFT Affective Disorders Research Database</source>
         <translation>CPFT Affective Disorders Research Database [affektive sygdomsforskningsdatabase]</translation>
     </message>
     <message>
-        <location filename="../menu/setmenucpftaffective1.cpp" line="52"/>
+        <location filename="../menu/setmenucpftadrd.cpp" line="52"/>
         <source>Cambridgeshire and Peterborough NHS Foundation Trust, UK — affective disorders</source>
         <translation>Cambridgeshire and Peterborough NHS Foundation Trust, UK — affektive lidelser</translation>
     </message>
 </context>
 <context>
-    <name>SetMenuCpftPerinatal1</name>
+    <name>SetMenuCpftPerinatal</name>
     <message>
-        <location filename="../menu/setmenucpftperinatal1.cpp" line="50"/>
+        <location filename="../menu/setmenucpftperinatal.cpp" line="50"/>
         <source>CPFT Perinatal Service</source>
         <translation>CPFT Perinatal Service [perinatal mental sundhedstjeneste]</translation>
     </message>
     <message>
-        <location filename="../menu/setmenucpftperinatal1.cpp" line="56"/>
+        <location filename="../menu/setmenucpftperinatal.cpp" line="56"/>
         <source>Cambridgeshire and Peterborough NHS Foundation Trust, UK — perinatal psychiatry service</source>
         <translation>Cambridgeshire and Peterborough NHS Foundation Trust, UK — perinatal mental sundhedstjeneste</translation>
     </message>
     <message>
-        <location filename="../menu/setmenucpftperinatal1.cpp" line="65"/>
+        <location filename="../menu/setmenucpftperinatal.cpp" line="65"/>
         <source>Assessment/choice</source>
         <translation>Evaluering/valg</translation>
     </message>
     <message>
-        <location filename="../menu/setmenucpftperinatal1.cpp" line="68"/>
+        <location filename="../menu/setmenucpftperinatal.cpp" line="68"/>
         <source>Generic measures</source>
         <translation>Generiske foranstaltninger</translation>
     </message>
     <message>
-        <location filename="../menu/setmenucpftperinatal1.cpp" line="71"/>
+        <location filename="../menu/setmenucpftperinatal.cpp" line="71"/>
         <source>Mother–infant measures</source>
         <translation>Moder–spædbarnsforanstaltninger</translation>
     </message>
     <message>
-        <location filename="../menu/setmenucpftperinatal1.cpp" line="74"/>
+        <location filename="../menu/setmenucpftperinatal.cpp" line="74"/>
         <source>Specific conditions</source>
         <translation>Specifikke betingelser</translation>
     </message>
     <message>
-        <location filename="../menu/setmenucpftperinatal1.cpp" line="78"/>
+        <location filename="../menu/setmenucpftperinatal.cpp" line="78"/>
         <source>Treatment/care</source>
         <translation>Behandling/pleje</translation>
     </message>
     <message>
-        <location filename="../menu/setmenucpftperinatal1.cpp" line="84"/>
+        <location filename="../menu/setmenucpftperinatal.cpp" line="84"/>
         <source>End of treatment/care</source>
         <translation>Afslutning af behandling/pleje</translation>
     </message>
 </context>
 <context>
-    <name>SetMenuCpftPsychooncology1</name>
+    <name>SetMenuCpftPsychooncology</name>
     <message>
-        <location filename="../menu/setmenucpftpsychooncology1.cpp" line="46"/>
+        <location filename="../menu/setmenucpftpsychooncology.cpp" line="46"/>
         <source>CPFT Psycho-oncology Service</source>
         <translation>CPFT Psycho-oncology Service [psykiatri i onkologi service]</translation>
     </message>
     <message>
-        <location filename="../menu/setmenucpftpsychooncology1.cpp" line="52"/>
+        <location filename="../menu/setmenucpftpsychooncology.cpp" line="52"/>
         <source>Cambridgeshire and Peterborough NHS Foundation Trust, UK — psycho-oncology service</source>
         <translation>Cambridgeshire and Peterborough NHS Foundation Trust, UK — psykiatri i onkologi service</translation>
     </message>
 </context>
 <context>
-    <name>SetMenuDeakin1</name>
+    <name>SetMenuDeakin</name>
     <message>
-        <location filename="../menu/setmenudeakin1.cpp" line="57"/>
-        <source>Deakin JB, University of Cambridge, UK — antibody-mediated psychosis</source>
-        <translation>Deakin JB, University of Cambridge, UK — antistof-medieret psykose</translation>
+        <location filename="../menu/setmenudeakin.cpp" line="57"/>
+        <source>Deakin JB, University of Cambridge, UK — antibody-mediated psychosis study</source>
+        <translation>Deakin JB, University of Cambridge, UK — antistof-medieret psykosestudie</translation>
     </message>
 </context>
 <context>
@@ -4682,48 +4723,48 @@ enig</translation>
     </message>
 </context>
 <context>
-    <name>SetMenuKhandaker1Insight</name>
+    <name>SetMenuKhandakerInsight</name>
     <message>
-        <location filename="../menu/setmenukhandaker1insight.cpp" line="39"/>
-        <source>Khandaker GM — 1 — Insight study</source>
-        <translation>Khandaker GM — 1 — Insight forskningsundersøgelse</translation>
+        <location filename="../menu/setmenukhandakerinsight.cpp" line="39"/>
+        <source>Khandaker GM — Insight study</source>
+        <translation>Khandaker GM — Insight forskningsundersøgelse</translation>
     </message>
     <message>
-        <location filename="../menu/setmenukhandaker1insight.cpp" line="45"/>
+        <location filename="../menu/setmenukhandakerinsight.cpp" line="45"/>
         <source>Khandaker GM, University of Cambridge, UK — Insight immunopsychiatry study</source>
         <translation>Khandaker GM, University of Cambridge, UK — Insight immunopsykiatri forskningsundersøgelse</translation>
     </message>
 </context>
 <context>
-    <name>SetMenuKhandaker2Mojo</name>
+    <name>SetMenuKhandakerMojo</name>
     <message>
-        <location filename="../menu/setmenukhandaker2mojo.cpp" line="48"/>
-        <source>Khandaker GM — 2 — MOJO study</source>
-        <translation>Khandaker GM — 1 — MOJO forskningsundersøgelse</translation>
+        <location filename="../menu/setmenukhandakermojo.cpp" line="51"/>
+        <source>Khandaker GM — MOJO study</source>
+        <translation>Khandaker GM — MOJO forskningsundersøgelse</translation>
     </message>
     <message>
-        <location filename="../menu/setmenukhandaker2mojo.cpp" line="54"/>
+        <location filename="../menu/setmenukhandakermojo.cpp" line="57"/>
         <source>Khandaker GM, University of Cambridge, UK — MOJO immunopsychiatry study</source>
         <translation>Khandaker GM, University of Cambridge, UK — MOJO immunopsykiatri forskningsundersøgelse</translation>
     </message>
 </context>
 <context>
-    <name>SetMenuLynall1IAM</name>
+    <name>SetMenuLynallIAM</name>
     <message>
-        <location filename="../menu/setmenulynall1iam.cpp" line="42"/>
-        <source>Lynall M-E — 1 — IAM study</source>
-        <translation>Lynall M-E — 1 — IAM forskningsundersøgelse</translation>
+        <location filename="../menu/setmenulynalliam.cpp" line="42"/>
+        <source>Lynall M-E — IAM study</source>
+        <translation>Lynall M-E — IAM forskningsundersøgelse</translation>
     </message>
     <message>
-        <location filename="../menu/setmenulynall1iam.cpp" line="48"/>
+        <location filename="../menu/setmenulynalliam.cpp" line="48"/>
         <source>Lynall M-E, University of Cambridge, UK — Inflammation in Mind (IAM) study</source>
         <translation>Lynall M-E, University of Cambridge, UK — Inflammation in Mind (IAM) [betændelse i tankerne] forskningsundersøgelse</translation>
     </message>
 </context>
 <context>
-    <name>SetMenuOBrien1</name>
+    <name>SetMenuOBrien</name>
     <message>
-        <location filename="../menu/setmenuobrien1.cpp" line="55"/>
+        <location filename="../menu/setmenuobrien.cpp" line="55"/>
         <source>O’Brien JT, University of Cambridge, UK — dementia research clinic</source>
         <translation>O’Brien JT, University of Cambridge, UK — demensforskningsklinik</translation>
     </message>
