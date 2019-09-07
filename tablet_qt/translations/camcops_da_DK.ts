@@ -639,112 +639,112 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
 <context>
     <name>CardinalExpDetThreshold</name>
     <message>
-        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="190"/>
+        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="191"/>
         <source>Cardinal RN — ExpDet-Threshold task</source>
         <translation>Cardinal RN — ExpDet-tærskelværdi opgave</translation>
     </message>
     <message>
-        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="196"/>
+        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="197"/>
         <source>Rapid assessment of auditory/visual thresholds (for expectation–detection task).</source>
         <translation>Hurtig vurdering af auditive / visuelle tærskler (til forventningsopdagelsesopgave).</translation>
     </message>
     <message>
-        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="297"/>
+        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="298"/>
         <source>Configure ExpDetThreshold task</source>
         <translation>Konfigurer ExpDet-tærskelværdi opgave</translation>
     </message>
     <message>
-        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="328"/>
+        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="329"/>
         <source>Set your device’s brightness and volume BEFORE running this task, and DO NOT ALTER THEM in between runs or before completing the main Expectation–Detection task. Also, try to keep the lighting and background noise constant throughout.</source>
         <translation>Indstil enhedens lysstyrke og lydstyrke FØR du kører denne opgave, og IKKE ALTER DEM mellem kørsler eller inden du gennemfører hovedforventningsdetekteringsopgaven. Prøv også at holde belysningen og baggrundsstøj konstant hele vejen igennem.</translation>
     </message>
     <message>
-        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="334"/>
+        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="335"/>
         <source>Before you run the Expectation–Detection task for a given subject, please run this task FOUR times to determine the subject’s threshold for each of two auditory stimuli (tone, voice) and each of two auditory stimuli (circle, word).</source>
         <translation>Før du kører forventningsopdagelsesopgaven for et givet emne, skal du køre denne opgave FIRE gange for at bestemme emnets tærskel for hver af de to auditive stimuli (tone, stemme) og hver af to auditive stimuli (cirkel, ord).</translation>
     </message>
     <message>
-        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="340"/>
+        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="341"/>
         <source>Then, make a note of the 75% (“x75”) threshold intensities for each stimulus, and start the Expectation–Detection task (which only needs to be run once). It will ask you for these four intensities.</source>
         <translation>Dernæst noter tærskelintensiteterne for 75% (&quot;x75&quot;) for hver stimulus, og start Opgavelsesdetekteringsopgaven (som kun skal køres én gang). Det vil bede dig om disse fire intensiteter.</translation>
     </message>
     <message>
-        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="312"/>
+        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="313"/>
         <source>WARNING: cannot proceed: must satisfy min start intensity &lt;= max start intensity</source>
         <translation>ADVARSEL: Kan ikke fortsætte: skal opfylde minimumstartintensitet &lt;= maksimal startintensitet</translation>
     </message>
     <message>
-        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="346"/>
+        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="347"/>
         <source>Choose a modality:</source>
         <translation>Vælg en modalitet:</translation>
     </message>
     <message>
-        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="351"/>
+        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="352"/>
         <source>Choose a target stimulus:</source>
         <translation>Vælg en målstimulering:</translation>
     </message>
     <message>
-        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="360"/>
+        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="361"/>
         <source>Intensities and probabilities are in the range 0–1.</source>
         <translation>Intensiteter og sandsynligheder ligger i området 0–1.</translation>
     </message>
     <message>
-        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="364"/>
+        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="365"/>
         <source>Background intensity (usually 1.0)</source>
         <translation>Baggrundsintensitet (normalt 1,0)</translation>
     </message>
     <message>
-        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="366"/>
+        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="367"/>
         <source>Minimum starting intensity (e.g. 0.9)</source>
         <translation>Minimum startintensitet (fx 0,9)</translation>
     </message>
     <message>
-        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="368"/>
+        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="369"/>
         <source>Maximum starting intensity (e.g. 1.0)</source>
         <translation>Maksimal startintensitet (fx 1,0)</translation>
     </message>
     <message>
-        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="370"/>
+        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="371"/>
         <source>Initial, large, intensity step (e.g. 0.1)</source>
         <translation>Indledende stort intensitetstrin (fx 0,1)</translation>
     </message>
     <message>
-        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="372"/>
+        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="373"/>
         <source>Main, small, intensity step (e.g. 0.01)</source>
         <translation>Hoved, lille intensitetstrin (f.eks. 0,01)</translation>
     </message>
     <message>
-        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="374"/>
+        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="375"/>
         <source>Number of trials in the main test sequence (e.g. 14)</source>
         <translation>Antal forsøg i hovedtestsekvensen (fx 14)</translation>
     </message>
     <message>
-        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="376"/>
+        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="377"/>
         <source>Probability of a catch trial (e.g. 0.2)</source>
         <translation>Sandsynligheden for et trickforsøg (fx 0,2)</translation>
     </message>
     <message>
-        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="378"/>
+        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="379"/>
         <source>Intertrial interval (s) (e.g. 0.2)</source>
         <translation>Tid mellem forsøg (s) (fx 0,2)</translation>
     </message>
     <message>
-        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="757"/>
+        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="758"/>
         <source>Did you see a</source>
         <translation>Så du en</translation>
     </message>
     <message>
-        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="758"/>
+        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="759"/>
         <source>Did you hear a</source>
         <translation>Har du hørt en</translation>
     </message>
     <message>
-        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="1001"/>
+        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="1005"/>
         <source>Auditory</source>
         <translation>Auditiv</translation>
     </message>
     <message>
-        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="1007"/>
+        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="1011"/>
         <source>Visual</source>
         <translation>Visuel</translation>
     </message>
@@ -2905,6 +2905,16 @@ enig</translation>
 <context>
     <name>Kirby</name>
     <message>
+        <location filename="../tasks/kirby.cpp" line="125"/>
+        <source>Kirby et al. 1999 Monetary Choice Questionnaire</source>
+        <translation>Kirby et al. 1999 Monetary Choice Questionnaire [spørgeskema til monetært valg]</translation>
+    </message>
+    <message>
+        <location filename="../tasks/kirby.cpp" line="131"/>
+        <source>Series of hypothetical choices to measure delay discounting.</source>
+        <translation>Serie af hypotetiske valg til måling af forsinkontering.</translation>
+    </message>
+    <message>
         <location filename="../tasks/kirby.cpp" line="209"/>
         <source>&lt;i&gt;k&lt;/i&gt; (days&lt;sup&gt;–1&lt;/sup&gt;, Kirby 2000 method): &lt;b&gt;%1&lt;/b&gt; (decay to half value at &lt;b&gt;%2&lt;/b&gt; days).</source>
         <translation>&lt;i&gt;k&lt;/i&gt; (dage&lt;sup&gt;–1&lt;/sup&gt;, Kirby 2000 metode): &lt;b&gt;%1&lt;/b&gt; (henfald til halv værdi på &lt;b&gt;%2&lt;/b&gt; dage).</translation>
@@ -4323,12 +4333,12 @@ enig</translation>
         <translation>Nulstil</translation>
     </message>
     <message>
-        <location filename="../questionnairelib/qucountdown.cpp" line="178"/>
+        <location filename="../questionnairelib/qucountdown.cpp" line="180"/>
         <source>FINISHED</source>
         <translation>FÆRDIG</translation>
     </message>
     <message>
-        <location filename="../questionnairelib/qucountdown.cpp" line="182"/>
+        <location filename="../questionnairelib/qucountdown.cpp" line="184"/>
         <source> (not running)</source>
         <translation>(ikke kører)</translation>
     </message>
@@ -5768,7 +5778,7 @@ Anonym</translation>
 <context>
     <name>SoundTestDialog</name>
     <message>
-        <location filename="../dialogs/soundtestdialog.cpp" line="27"/>
+        <location filename="../dialogs/soundtestdialog.cpp" line="28"/>
         <source>Sound test</source>
         <translation>Lydtest</translation>
     </message>
@@ -6019,102 +6029,102 @@ Anonym</translation>
         <translation>Test logistisk regression, og den underliggende generaliserede lineære model (GLM)</translation>
     </message>
     <message>
-        <location filename="../menu/testmenu.cpp" line="234"/>
+        <location filename="../menu/testmenu.cpp" line="237"/>
         <source>Test HTTPS</source>
         <translation>Test HTTPS</translation>
     </message>
     <message>
-        <location filename="../menu/testmenu.cpp" line="243"/>
+        <location filename="../menu/testmenu.cpp" line="246"/>
         <source>Test HTTP</source>
         <translation>Test HTTP</translation>
     </message>
     <message>
-        <location filename="../menu/testmenu.cpp" line="287"/>
+        <location filename="../menu/testmenu.cpp" line="290"/>
         <source>Done; see USB debugging output</source>
         <translation>Færdig; se USB debugging tekst</translation>
     </message>
     <message>
-        <location filename="../menu/testmenu.cpp" line="289"/>
+        <location filename="../menu/testmenu.cpp" line="292"/>
         <source>Done; see console</source>
         <translation>Færdig; se konsol</translation>
     </message>
     <message>
-        <location filename="../menu/testmenu.cpp" line="301"/>
+        <location filename="../menu/testmenu.cpp" line="304"/>
         <source>Testing progress (but not doing anything; safe to abort)...</source>
         <translation>Test fremskridt (men ikke gør noget, sikkert at afbryde)...</translation>
     </message>
     <message>
-        <location filename="../menu/testmenu.cpp" line="302"/>
+        <location filename="../menu/testmenu.cpp" line="305"/>
         <source>Abort test</source>
         <translation>Afbryd test</translation>
     </message>
     <message>
-        <location filename="../menu/testmenu.cpp" line="303"/>
+        <location filename="../menu/testmenu.cpp" line="306"/>
         <source>Progress dialog</source>
         <translation>Fremskridt dialog</translation>
     </message>
     <message>
-        <location filename="../menu/testmenu.cpp" line="326"/>
+        <location filename="../menu/testmenu.cpp" line="329"/>
         <source>Running uninterruptible expensive function in worker thread (for %1 ms)</source>
         <translation>Kører uafbrudt dyre funktion i arbejdstråd (for %1 ms)</translation>
     </message>
     <message>
-        <location filename="../menu/testmenu.cpp" line="343"/>
+        <location filename="../menu/testmenu.cpp" line="346"/>
         <source>ScrollMessageBox, with some lengthy text</source>
         <translation>ScrollMessageBox, med lidt lang tekst</translation>
     </message>
     <message>
-        <location filename="../menu/testmenu.cpp" line="346"/>
+        <location filename="../menu/testmenu.cpp" line="349"/>
         <source>One (Yes)</source>
         <translation>En (Ja)</translation>
     </message>
     <message>
-        <location filename="../menu/testmenu.cpp" line="348"/>
+        <location filename="../menu/testmenu.cpp" line="351"/>
         <source>Two (No)</source>
         <translation>To (Nej)</translation>
     </message>
     <message>
-        <location filename="../menu/testmenu.cpp" line="350"/>
+        <location filename="../menu/testmenu.cpp" line="353"/>
         <source>Three (Reject)</source>
         <translation>Tre (Afvis)</translation>
     </message>
     <message>
-        <location filename="../menu/testmenu.cpp" line="373"/>
+        <location filename="../menu/testmenu.cpp" line="376"/>
         <source>bytes</source>
         <translation>bytes</translation>
     </message>
     <message>
-        <location filename="../menu/testmenu.cpp" line="388"/>
+        <location filename="../menu/testmenu.cpp" line="391"/>
         <source>Size formatting</source>
         <translation>Størrelsesformatering</translation>
     </message>
     <message>
-        <location filename="../menu/testmenu.cpp" line="395"/>
+        <location filename="../menu/testmenu.cpp" line="398"/>
         <source>Conversion test: OK</source>
         <translation>Konverteringstest: OK</translation>
     </message>
     <message>
-        <location filename="../menu/testmenu.cpp" line="403"/>
+        <location filename="../menu/testmenu.cpp" line="406"/>
         <source>Eigen functions successfully tested</source>
         <translation>Funktioner af Eigen med succes testet</translation>
     </message>
     <message>
-        <location filename="../menu/testmenu.cpp" line="413"/>
+        <location filename="../menu/testmenu.cpp" line="416"/>
         <source>Random-number functions (and supporting floating-point-delta functions): OK</source>
         <translation>Tilfældige talfunktioner (og understøtter real tal funktioner): OK</translation>
     </message>
     <message>
-        <location filename="../menu/testmenu.cpp" line="424"/>
+        <location filename="../menu/testmenu.cpp" line="427"/>
         <source>Miscellaneous maths functions</source>
         <translation>Diverse matematiske funktioner</translation>
     </message>
     <message>
-        <location filename="../menu/testmenu.cpp" line="667"/>
+        <location filename="../menu/testmenu.cpp" line="670"/>
         <source>Test logistic regression</source>
         <translation>Test logistisk regression</translation>
     </message>
     <message>
-        <location filename="../menu/testmenu.cpp" line="674"/>
+        <location filename="../menu/testmenu.cpp" line="677"/>
         <source>Hello, world!</source>
         <translation>Hej, verden!</translation>
     </message>
@@ -6574,26 +6584,31 @@ Anonym</translation>
     </message>
     <message>
         <location filename="../common/textconst.cpp" line="172"/>
+        <source>Unable to create media player!</source>
+        <translation>Kan ikke oprette medieafspiller!</translation>
+    </message>
+    <message>
+        <location filename="../common/textconst.cpp" line="173"/>
         <source>Unknown</source>
         <translation>Ukendt</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="174"/>
+        <location filename="../common/textconst.cpp" line="175"/>
         <source>Very severe</source>
         <translation>Meget alvorlig</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="176"/>
+        <location filename="../common/textconst.cpp" line="177"/>
         <source>Wrong</source>
         <translation>Forkert</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="178"/>
+        <location filename="../common/textconst.cpp" line="179"/>
         <source>Yes</source>
         <translation>Ja</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="186"/>
+        <location filename="../common/textconst.cpp" line="187"/>
         <source>1. By using the Cambridge Cognitive and Psychiatric Assessment Kit application or web interface (“CamCOPS”), you are agreeing in full to these Terms and Conditions of Use. If you do not agree to these terms, do not use the software.
 
 2. Content that is original to CamCOPS is licensed as follows.

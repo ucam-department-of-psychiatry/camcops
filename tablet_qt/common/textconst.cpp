@@ -169,6 +169,7 @@ QString TextConst::txtAnd() { return tr("and"); }
 QString TextConst::txtTrue() { return tr("True"); }
 QString TextConst::txtFalse() { return tr("False"); }
 
+QString TextConst::unableToCreateMediaPlayer() { return tr("Unable to create media player!"); }
 QString TextConst::unknown() { return tr("Unknown"); }
 
 QString TextConst::verySevere() { return tr("Very severe"); }

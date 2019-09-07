@@ -122,13 +122,13 @@ QString Kirby::shortname() const
 
 QString Kirby::longname() const
 {
-    return "Kirby et al. 1999 Monetary Choice Questionnaire";
+    return tr("Kirby et al. 1999 Monetary Choice Questionnaire");
 }
 
 
 QString Kirby::description() const
 {
-    return "Series of hypothetical choices to measure delay discounting.";
+    return tr("Series of hypothetical choices to measure delay discounting.");
 }
 
 

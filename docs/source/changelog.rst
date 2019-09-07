@@ -2470,3 +2470,78 @@ Current C++/SQLite client, Python/SQLAlchemy server
   - Board format remains, overall: PI, study name, task name.
   - Historical table names not changed.
   - Future table names: try to avoid numbers.
+
+- Regression: crash in creating SVG figures from
+  ``cardinal_expdetthreshold.py`` and ``cardinal_expectationdetection.py``.
+  Details in comments here. Likely due to a matplotlib change.
+
+..  Not helped by matplotlib upgrade from 3.0.2 to 3.1.1. However, no problem
+    with ``ace3.py``, which also uses ``fontdict``.
+    .
+    The error was:
+    .
+    .. code-block:: none
+    .
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.6/site-packages/matplotlib/offsetbox.py", line 808, in get_extent
+        "lp", self._text._fontproperties, ismath=False)
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.6/site-packages/matplotlib/backends/backend_agg.py", line 210, in get_text_width_height_descent
+        font = self._get_agg_font(prop)
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.6/site-packages/matplotlib/backends/backend_agg.py", line 245, in _get_agg_font
+        fname = findfont(prop)
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.6/site-packages/matplotlib/font_manager.py", line 1238, in findfont
+        rc_params)
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.6/site-packages/matplotlib/font_manager.py", line 1270, in _findfont_cached
+        + self.score_size(prop.get_size(), font.size))
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.6/site-packages/matplotlib/font_manager.py", line 1076, in score_family
+        family1 = family1.lower()
+    AttributeError: 'dict' object has no attribute 'lower'
+    .
+    or
+    .
+    .. code-block:: none
+    .
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.6/site-packages/matplotlib/backends/backend_svg.py", line 1180, in get_text_width_height_descent
+        return self._text2path.get_text_width_height_descent(s, prop, ismath)
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.6/site-packages/matplotlib/textpath.py", line 89, in get_text_width_height_descent
+        font = self._get_font(prop)
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.6/site-packages/matplotlib/textpath.py", line 38, in _get_font
+        fname = font_manager.findfont(prop)
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.6/site-packages/matplotlib/font_manager.py", line 1238, in findfont
+        rc_params)
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.6/site-packages/matplotlib/font_manager.py", line 1270, in _findfont_cached
+        + self.score_size(prop.get_size(), font.size))
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.6/site-packages/matplotlib/font_manager.py", line 1076, in score_family
+        family1 = family1.lower()
+    AttributeError: 'dict' object has no attribute 'lower'
+    .
+    .
+    Is also not specific to SVG, as it still happens (and the ACE-III is still
+    OK) when setting ``USE_SVG_IN_HTML = False``.
+    .
+    Not affecting self-testing (which probably skips those figures for a blank
+    task).
+    .
+    In :class:`camcops_server.tasks.CardinalExpDetThreshold`, the problem was
+    from a call to :meth:`matplotlib.axes.Axes.legend` with argument
+    ``prop=req.fontprops``. The documentation at
+    https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.axes.Axes.legend.html
+    suggests that a dictionary is OK.
+    .
+    Looks like that ends up at :meth:`matplotlib.legend.Legend.__init__`.
+    .
+    Aha. Bug found. In
+    :meth:`camcops_server.cc_modules.cc_request.CamcopsRequest.fontprops`, this:
+    .
+    .. code-block:: python
+    .
+        return FontProperties(self.fontdict)
+    .
+    should have been this:
+    .
+    .. code-block:: python
+    .
+        return FontProperties(**self.fontdict)
+    .
+    The odd thing is that the change was between 2017-09-10 and 2017-09-11 and
+    it was certainly working after that, so perhaps ``matplotlib`` used to
+    accept a dictionary or **kwargs and no longer does.

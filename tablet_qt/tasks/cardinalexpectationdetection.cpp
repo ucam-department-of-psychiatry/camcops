@@ -756,21 +756,15 @@ void CardinalExpectationDetection::startTask()
 
     editStarted();  // will have been stopped by the end of the questionnaire?
 
-    // Double-check we have a PK before we create stages/trials
-    save();
-
-    // Make everything
-    makeRatingButtonsAndPoints();
-    doCounterbalancing();
-    reportCounterbalancing();
-    makeTrialGroupSpecs();
-    createTrials();
-
     // Set up players and timers
     soundfunc::makeMediaPlayer(m_player_cue);
     soundfunc::makeMediaPlayer(m_player_background);
     soundfunc::makeMediaPlayer(m_player_target_0);
     soundfunc::makeMediaPlayer(m_player_target_1);
+    if (!m_player_cue || !m_player_background ||
+            !m_player_target_0 || !m_player_target_1) {
+        return;
+    }
     connect(m_player_background.data(), &QMediaPlayer::mediaStatusChanged,
             this, &CardinalExpectationDetection::mediaStatusChangedBackground);
 
@@ -789,6 +783,16 @@ void CardinalExpectationDetection::startTask()
     m_player_background->setMedia(getAuditoryBackgroundUrl());
     m_player_target_0->setMedia(getAuditoryTargetUrl(0));
     m_player_target_1->setMedia(getAuditoryTargetUrl(1));
+
+    // Double-check we have a PK before we create stages/trials
+    save();
+
+    // Make everything
+    makeRatingButtonsAndPoints();
+    doCounterbalancing();
+    reportCounterbalancing();
+    makeTrialGroupSpecs();
+    createTrials();
 
     // Start
     ButtonAndProxy start = makeTextButton(

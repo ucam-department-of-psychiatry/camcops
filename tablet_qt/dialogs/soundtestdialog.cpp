@@ -20,6 +20,7 @@
 #include "soundtestdialog.h"
 #include "dialogs/logbox.h"
 #include "lib/soundfunc.h"
+#include "lib/uifunc.h"
 
 
 SoundTestDialog::SoundTestDialog(const QUrl& url, const int volume_percent,
@@ -27,6 +28,9 @@ SoundTestDialog::SoundTestDialog(const QUrl& url, const int volume_percent,
     LogBox(parent, tr("Sound test"))
 {
     soundfunc::makeMediaPlayer(m_player);
+    if (!m_player) {
+        return;
+    }
     connect(m_player.data(), &QMediaPlayer::mediaStatusChanged,
             this, &SoundTestDialog::mediaStatusChanged);
     // http://doc.qt.io/qt-5/qsharedpointer.html

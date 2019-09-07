@@ -96,7 +96,7 @@ INSTALL_REQUIRES = [
     # Alternative 'internal' web server. Installs fine under Windows, but won't run (ImportError: No module named 'fcntl').  # noqa
     'hl7==0.3.4',  # For HL7 export
     'lockfile==0.12.2',  # File locking for background tasks
-    'matplotlib==3.0.2',  # Used for trackers and some tasks. SLOW INSTALLATION.  # noqa
+    'matplotlib==3.1.1',  # Used for trackers and some tasks. SLOW INSTALLATION.  # noqa
 
     # 'mysqlclient==1.3.13;platform_system=="Linux"',  # for mysql+mysqldb://...
     # # ... but adds dependency on C and mysql.h
