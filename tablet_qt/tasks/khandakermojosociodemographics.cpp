@@ -173,7 +173,8 @@ OpenableWidget* KhandakerMojoSociodemographics::editor(const bool read_only)
     page->addElement(new QuHeading(xstring("title")));
 
     for (const KQInfo& info : MC_QUESTIONS) {
-        page->addElement(new QuText(xstring(info.getQuestionXmlName())));
+        page->addElement(
+            (new QuText(xstring(info.getQuestionXmlName())))->setBold());
 
         FieldRefPtr fieldref = fieldRef(info.getFieldname());
         connect(fieldref.data(), &FieldRef::valueChanged,

@@ -279,7 +279,7 @@ class KhandakerMojoSociodemographics(
             if not other_answer:
                 other_answer = "?"
 
-            answer_text = "{} ({})".format(answer_text, other_answer)
+            answer_text = f"{answer_text} — {other_answer}"
 
         return f"{answer} — {answer_text}"
 

@@ -26,8 +26,8 @@
     <string name="q_with_whom_live">With whom do you live?</string>
     <string name="with_whom_live_option0">Alone</string>
     <string name="with_whom_live_option1">Alone, with children</string>
-    <string name="with_whom_live_option2">Partner / Spouse</string>
-    <string name="with_whom_live_option3">Partner / Spouse and children</string>
+    <string name="with_whom_live_option2">Partner/spouse</string>
+    <string name="with_whom_live_option3">Partner/spouse and children</string>
     <string name="with_whom_live_option4">Parents</string>
     <string name="with_whom_live_option5">Other family</string>
     <string name="with_whom_live_option6">Friends</string>
@@ -35,17 +35,17 @@
 
     <string name="q_relationship_status">What is your relationship status?</string>
     <string name="relationship_status_option0">Single</string>
-    <string name="relationship_status_option1">Married / Civil partnership</string>
+    <string name="relationship_status_option1">Married / civil partnership</string>
     <string name="relationship_status_option2">In steady relationship</string>
     <string name="relationship_status_option3">Divorced / separated</string>
     <string name="relationship_status_option4">Widowed</string>
 
     <string name="q_education">What was the highest level of education you reached?</string>
     <string name="education_option0">No qualifications</string>
-    <string name="education_option1">GCSE / O levels</string>
-    <string name="education_option2">A levels</string>
-    <string name="education_option3">Vocational/college (B. Tecs / NVQs etc)</string>
-    <string name="education_option4">University / Professional Qualifications</string>
+    <string name="education_option1">GCSE / O-Levels</string>
+    <string name="education_option2">A-Levels</string>
+    <string name="education_option3">Vocational/college (BTECs/NVQs etc)</string>
+    <string name="education_option4">University / professional qualifications</string>
 
     <string name="q_employment">Are you employed?</string>
     <string name="employment_option0">No, unemployed</string>
