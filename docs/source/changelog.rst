@@ -2455,6 +2455,11 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Set ``strict_undefined=True`` for Mako template lookups, so they crash
   immediately on typos.
 
+  - ... nope; reverted. Tricky to get e.g. ``not_found.mako`` to inherit
+    ``generic_failure.mako`` and override ``msg`` and ``extra_html`` without
+    having unknown variables being handled (as undefined) rather than raising
+    an error.
+
 - **New tasks:** :ref:`Khandaker GM — MOJO study <khandaker_mojo>`.
   (Database revisions 0039-0041.)
 

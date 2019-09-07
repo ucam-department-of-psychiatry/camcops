@@ -294,6 +294,10 @@ Server
 
 **Not a priority**
 
+- Consider: see ``DEBUG_TEMPLATE_SOURCE`` -- would it improve performance to
+  have a Mako template cache directory always set, via the config file? (There
+  is still memory caching at present.)
+
 - Fix Alembic migration autogeneration -- too much non-change junk.
 
 - Tracker improvements.
