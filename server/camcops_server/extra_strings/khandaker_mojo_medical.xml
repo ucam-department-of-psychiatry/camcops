@@ -8,17 +8,17 @@
     <!-- Section 1: General Information -->
     <string name="general_information_title">Section 1: General Information</string>
     <string name="q_diagnosis">Diagnosis:</string>
-    <string name="diagnosis_0">Rheumatoid Arthritis</string>
-    <string name="diagnosis_1">Ankylosing Spondylitis</string>
-    <string name="diagnosis_2">Sjögren’s Syndrome</string>
+    <string name="diagnosis_0">Rheumatoid arthritis</string>
+    <string name="diagnosis_1">Ankylosing spondylitis</string>
+    <string name="diagnosis_2">Sjögren’s syndrome</string>
     <string name="duration_of_illness">Duration of illness (years):</string>
     <string name="or"><b>or</b></string>
     <string name="q_diagnosis_date">Date of first diagnosis:</string>
     <string name="q_diagnosis_date_approximate">Diagnosis date is approximate</string>
     <string name="q_has_fibromyalgia">Do you have a diagnosis of fibromyalgia?</string>
     <string name="q_is_pregnant">Are you, or is there any possibility that you might be pregnant?</string>
-    <string name="q_has_infection_past_month">Do you currently have an infection, or had treatment for an infection (e.g antibiotics) in the past <b>month</b>?</string>
-    <string name="q_had_infection_two_months_preceding">Have you had an infection, or had treatment for an infection (e.g antibiotics) in the <b>2 months preceding last month</b>?</string>
+    <string name="q_has_infection_past_month">Do you currently have an infection, or had treatment for an infection (e.g. antibiotics) in the past <b>month</b>?</string>
+    <string name="q_had_infection_two_months_preceding">Have you had an infection, or had treatment for an infection (e.g. antibiotics) in the <b>2 months preceding last month</b>?</string>
     <string name="q_has_alcohol_substance_dependence">Do you have a current diagnosis of alcohol or substance dependence?</string>
     <string name="q_smoking_status">What is your smoking status?</string>
     <string name="smoking_status_0">Never smoked</string>
@@ -40,8 +40,8 @@
     <string name="q_intellectual_disability">Intellectual disability</string>
     <string name="q_other_mental_illness">Other</string>
     <string name="q_other_mental_illness_details">Please list other conditions here:</string>
-    <string name="q_hospitalised_in_last_year">Have you had a physical or mental illness requiring hospitalisation in the previous 12 months:</string>
-    <string name="q_hospitalisation_details">Please list here (name of illness, number of hospitilisations and duration):</string>
+    <string name="q_hospitalised_in_last_year">Have you had a physical or mental illness requiring hospitalisation in the previous 12 months?</string>
+    <string name="q_hospitalisation_details">Please list here (name of illness, number of hospitalisations and duration):</string>
 
     <!-- Section 3: Family history -->
     <string name="family_history_title">Section 3: Family history</string>

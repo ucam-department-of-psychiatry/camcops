@@ -115,6 +115,7 @@ const QStringList MANDATORY_FIELDNAMES{
     FN_FAMILY_OTHER_MENTAL_ILLNESS,
 };
 
+// Maps "Other Y/N?" fields to "Other: please give details" fields
 const QMap<QString, QString> DETAILS_FIELDS{
     {FN_OTHER_MENTAL_ILLNESS, FN_OTHER_MENTAL_ILLNESS_DETAILS},
     {FN_HOSPITALISED_IN_LAST_YEAR, FN_HOSPITALISATION_DETAILS},
@@ -519,9 +520,12 @@ void KhandakerMojoMedical::updateMandatory()
     // This could be more efficient with lots of signal handlers, but...
 
     for (const auto& fieldname : DETAILS_FIELDS.keys()) {
+        /*
+        // Removed this, thus only showing details when "other Y" chosen
         if (valueIsNull(fieldname)) {
             continue;
         }
+        */
 
         const bool mandatory = valueBool(fieldname);
         const QString details_fieldname = DETAILS_FIELDS.value(fieldname);

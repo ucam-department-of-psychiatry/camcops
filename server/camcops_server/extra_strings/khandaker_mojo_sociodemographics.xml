@@ -44,7 +44,7 @@
     <string name="education_option0">No qualifications</string>
     <string name="education_option1">GCSE / O-Levels</string>
     <string name="education_option2">A-Levels</string>
-    <string name="education_option3">Vocational/college (BTECs/NVQs etc)</string>
+    <string name="education_option3">Vocational/college (BTECs/NVQs etc.)</string>
     <string name="education_option4">University / professional qualifications</string>
 
     <string name="q_employment">Are you employed?</string>
