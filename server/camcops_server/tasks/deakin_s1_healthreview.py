@@ -305,7 +305,7 @@ class DeakinS1HealthReview(TaskHasPatientMixin, Task):
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
         _ = req.gettext
-        return _("Deakin JB — Antibody-mediated psychosis study — health review")
+        return _("Deakin JB — Antibody-mediated psychosis study — health review")  # noqa
 
     def is_complete(self) -> bool:
         return (
