@@ -59,7 +59,7 @@
 #include "tasks/dad.h"
 #include "tasks/das28.h"
 #include "tasks/dast.h"
-#include "tasks/deakin1healthreview.h"
+#include "tasks/deakins1healthreview.h"
 #include "tasks/demoquestionnaire.h"
 #include "tasks/demqol.h"
 #include "tasks/demqolproxy.h"
@@ -105,14 +105,14 @@
 #include "tasks/ifs.h"
 #include "tasks/irac.h"
 
-#include "tasks/khandaker1insightmedical.h"
-#include "tasks/khandaker2mojomedical.h"
-#include "tasks/khandaker2mojomedicationtable.h"
-#include "tasks/khandaker2mojosociodemographics.h"
+#include "tasks/khandakerinsightmedical.h"
+#include "tasks/khandakermojomedical.h"
+#include "tasks/khandakermojomedicationtherapy.h"
+#include "tasks/khandakermojosociodemographics.h"
 #include "tasks/kirby.h"
 
-#include "tasks/lynall1iammedical.h"
-#include "tasks/lynall2iamlife.h"
+#include "tasks/lynalliammedical.h"
+#include "tasks/lynalliamlife.h"
 
 #include "tasks/maas.h"
 #include "tasks/mast.h"
@@ -210,7 +210,7 @@ void InitTasks(TaskFactory& factory)
     initializeDad(factory);
     initializeDas28(factory);
     initializeDast(factory);
-    initializeDeakin1HealthReview(factory);
+    initializeDeakinS1HealthReview(factory);
     initializeDemoQuestionnaire(factory);
     initializeDemqol(factory);
     initializeDemqolProxy(factory);
@@ -256,13 +256,13 @@ void InitTasks(TaskFactory& factory)
     initializeIfs(factory);
     initializeIrac(factory);
 
-    initializeKhandaker1InsightMedical(factory);
-    initializeKhandaker2MojoMedical(factory);
-    initializeKhandaker2MojoMedicationTable(factory);
-    initializeKhandaker2MojoSociodemographics(factory);
+    initializeKhandakerInsightMedical(factory);
+    initializeKhandakerMojoMedical(factory);
+    initializeKhandakerMojoMedicationTherapy(factory);
+    initializeKhandakerMojoSociodemographics(factory);
     initializeKirby(factory);
 
-    initializeLynall1IamMedical(factory);
+    initializeLynallIamMedical(factory);
     // *** // initializeLynall2IamLife(factory);
 
     initializeMaas(factory);

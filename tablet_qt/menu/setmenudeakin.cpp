@@ -32,7 +32,7 @@
 #include "tasks/cardinalexpectationdetection.h"
 #include "tasks/cecaq3.h"
 #include "tasks/cgisch.h"
-#include "tasks/deakin1healthreview.h"
+#include "tasks/deakins1healthreview.h"
 #include "tasks/diagnosisicd9cm.h"
 #include "tasks/gaf.h"
 #include "tasks/nart.h"
@@ -70,7 +70,7 @@ void SetMenuDeakin::makeItems()
         MAKE_TASK_MENU_ITEM(CecaQ3::CECAQ3_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(CgiSch::CGISCH_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(DiagnosisIcd9CM::DIAGNOSIS_ICD9CM_TABLENAME, m_app),
-        MAKE_TASK_MENU_ITEM(Deakin1HealthReview::DEAKIN1HEALTHREVIEW_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(DeakinS1HealthReview::DEAKIN_S1_HEALTHREVIEW_TABLENAME, m_app),
         MenuItem(
             cardinalexpdetcommon::ExpDetTextConst::soundtestTitle(),
             std::bind(&SetMenuDeakin::soundTestCardinalExpDet, this),

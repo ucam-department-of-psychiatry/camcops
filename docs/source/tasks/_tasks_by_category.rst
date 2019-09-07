@@ -389,17 +389,26 @@ Set menus for research
 Individual research projects may have specific menus of tasks created. As well
 as generic tasks listed above, there are some very specific ones, as follows.
 
-- :ref:`Deakin JB — 1 — Antibody-mediated psychosis study — health review
-  <deakin_1_healthreview>`
+- :ref:`Deakin JB — Antibody-mediated psychosis study — health review
+  <deakin_s1_healthreview>`
 
-- :ref:`Khandaker GM — 1 — Insight study — medical history
-  <khandaker_1_insightmedical>`
+- :ref:`Khandaker GM — Insight study — medical history
+  <khandaker_insight_medical>`
 
-- :ref:`Khandaker GM — 2 — MOJO study <khandaker_2_mojo>`
+- :ref:`Khandaker GM — MOJO — Sociodemographics
+  <khandaker_mojo_sociodemographics>`
 
-- :ref:`Lynall M-E — 1 — IAM study — medical history <lynall_1_iam_medical>`
+- :ref:"Khandaker GM — MOJO — Medical questionnaire <khandaker_mojo_medical>`
+See :ref:`MOJO <khandaker_mojo>` below.
 
-- :ref:`Lynall M-E — 2 — IAM study — life events <lynall_2_iam_life>`
+- :ref:`Khandaker GM — MOJO — Medications and therapies`
+  <khandaker_mojo_medicationtherapy>
+
+- :ref:`Khandaker GM — MOJO study <khandaker_2_mojo>`
+
+- :ref:`Lynall M-E — IAM study — medical history <lynall_iam_medical>`
+
+- :ref:`Lynall M-E — IAM study — life events <lynall_iam_life>`
 
 
 Set menus for clinical purposes

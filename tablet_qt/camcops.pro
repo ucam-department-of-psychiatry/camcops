@@ -749,7 +749,7 @@ SOURCES += \
     tasks/dad.cpp \
     tasks/das28.cpp \
     tasks/dast.cpp \
-    tasks/deakin1healthreview.cpp \
+    tasks/deakins1healthreview.cpp \
     tasks/demoquestionnaire.cpp \
     tasks/demqol.cpp \
     tasks/demqolproxy.cpp \
@@ -789,12 +789,12 @@ SOURCES += \
     tasks/iesr.cpp \
     tasks/ifs.cpp \
     tasks/irac.cpp \
-    tasks/khandaker1insightmedical.cpp \
-    tasks/khandaker2mojomedical.cpp \
-    tasks/khandaker2mojomedicationtable.cpp \
-    tasks/khandaker2mojosociodemographics.cpp \
-    tasks/lynall1iammedical.cpp \
-    tasks/lynall2iamlife.cpp \
+    tasks/khandakerinsightmedical.cpp \
+    tasks/khandakermojomedical.cpp \
+    tasks/khandakermojomedicationtherapy.cpp \
+    tasks/khandakermojosociodemographics.cpp \
+    tasks/lynalliamlife.cpp \
+    tasks/lynalliammedical.cpp \
     tasks/maas.cpp \
     tasks/mast.cpp \
     tasks/mdsupdrs.cpp \
@@ -849,8 +849,8 @@ SOURCES += \
     taskxtra/ided3dexemplars.cpp \
     taskxtra/ided3dstage.cpp \
     taskxtra/ided3dtrial.cpp \
-    taskxtra/khandaker2mojomedicationitem.cpp \
-    taskxtra/khandaker2mojotherapyitem.cpp \
+    taskxtra/khandakermojomedicationitem.cpp \
+    taskxtra/khandakermojotherapyitem.cpp \
     taskxtra/kirbyrewardpair.cpp \
     taskxtra/kirbytrial.cpp \
     taskxtra/pclcommon.cpp \
@@ -1188,7 +1188,7 @@ HEADERS += \
     tasks/dad.h \
     tasks/das28.h \
     tasks/dast.h \
-    tasks/deakin1healthreview.h \
+    tasks/deakins1healthreview.h \
     tasks/demoquestionnaire.h \
     tasks/demqol.h \
     tasks/demqolproxy.h \
@@ -1228,12 +1228,12 @@ HEADERS += \
     tasks/iesr.h \
     tasks/ifs.h \
     tasks/irac.h \
-    tasks/khandaker1insightmedical.h \
-    tasks/khandaker2mojomedical.h \
-    tasks/khandaker2mojomedicationtable.h \
-    tasks/khandaker2mojosociodemographics.h \
-    tasks/lynall1iammedical.h \
-    tasks/lynall2iamlife.h \
+    tasks/khandakerinsightmedical.h \
+    tasks/khandakermojomedical.h \
+    tasks/khandakermojomedicationtherapy.h \
+    tasks/khandakermojosociodemographics.h \
+    tasks/lynalliamlife.h \
+    tasks/lynalliammedical.h \
     tasks/maas.h \
     tasks/mast.h \
     tasks/mdsupdrs.h \
@@ -1288,8 +1288,8 @@ HEADERS += \
     taskxtra/ided3dexemplars.h \
     taskxtra/ided3dstage.h \
     taskxtra/ided3dtrial.h \
-    taskxtra/khandaker2mojomedicationitem.h \
-    taskxtra/khandaker2mojotherapyitem.h \
+    taskxtra/khandakermojomedicationitem.h \
+    taskxtra/khandakermojotherapyitem.h \
     taskxtra/kirbyrewardpair.h \
     taskxtra/kirbytrial.h \
     taskxtra/pclcommon.h \

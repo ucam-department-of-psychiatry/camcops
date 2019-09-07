@@ -65,7 +65,7 @@ All tasks
     dad.rst
     das28.rst
     dast.rst
-    deakin_1_healthreview.rst
+    deakin_s1_healthreview.rst
     demoquestionnaire.rst
     demqol.rst
     distressthermometer.rst
@@ -91,11 +91,11 @@ All tasks
     iesr.rst
     ifs.rst
     irac.rst
-    khandaker_1_insightmedical.rst
-    khandaker_2_mojo.rst
+    khandaker_insight_medical.rst
+    khandaker_mojo.rst
     kirby_mcq.rst
-    lynall_1_iam_medical.rst
-    lynall_2_iam_life.rst
+    lynall_iam_medical.rst
+    lynall_iam_life.rst
     maas.rst
     mast.rst
     mds_updrs.rst

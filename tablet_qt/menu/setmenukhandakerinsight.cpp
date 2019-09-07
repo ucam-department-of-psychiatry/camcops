@@ -25,7 +25,7 @@
 
 #include "tasks/bdi.h"
 #include "tasks/cisr.h"
-#include "tasks/khandaker1insightmedical.h"
+#include "tasks/khandakerinsightmedical.h"
 
 
 SetMenuKhandakerInsight::SetMenuKhandakerInsight(CamcopsApp& app) :
@@ -54,6 +54,6 @@ void SetMenuKhandakerInsight::makeItems()
         MAKE_TASK_MENU_ITEM(Bdi::BDI_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Cisr::CISR_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(
-            Khandaker1InsightMedical::KHANDAKER1INSIGHTMEDICAL_TABLENAME, m_app),
+            KhandakerInsightMedical::KHANDAKERINSIGHTMEDICAL_TABLENAME, m_app),
     };
 }

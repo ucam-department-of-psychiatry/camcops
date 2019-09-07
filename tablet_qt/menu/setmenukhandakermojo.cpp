@@ -31,9 +31,9 @@
 #include "tasks/elixhauserci.h"
 #include "tasks/eq5d5l.h"
 #include "tasks/esspri.h"
-#include "tasks/khandaker2mojomedical.h"
-#include "tasks/khandaker2mojomedicationtable.h"
-#include "tasks/khandaker2mojosociodemographics.h"
+#include "tasks/khandakermojomedical.h"
+#include "tasks/khandakermojomedicationtherapy.h"
+#include "tasks/khandakermojosociodemographics.h"
 #include "tasks/mfi20.h"
 #include "tasks/sfmpq2.h"
 #include "tasks/shaps.h"
@@ -65,13 +65,13 @@ void SetMenuKhandakerMojo::makeItems()
         MAKE_CHANGE_PATIENT(m_app),
         MAKE_TASK_MENU_ITEM(Bmi::BMI_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(
-            Khandaker2MojoSociodemographics::KHANDAKER2MOJOSOCIODEMOGRAPHICS_TABLENAME,
+            KhandakerMojoSociodemographics::KHANDAKER2MOJOSOCIODEMOGRAPHICS_TABLENAME,
             m_app),
         MAKE_TASK_MENU_ITEM(
-            Khandaker2MojoMedical::KHANDAKER2MOJOMEDICAL_TABLENAME,
+            KhandakerMojoMedical::KHANDAKERMOJOMEDICAL_TABLENAME,
             m_app),
         MAKE_TASK_MENU_ITEM(
-            Khandaker2MojoMedicationTable::KHANDAKER2MOJOMEDICATIONTABLE_TABLENAME,
+            KhandakerMojoMedicationTherapy::KHANDAKERMOJOMEDICATIONTHERAPY_TABLENAME,
             m_app),
         MAKE_TASK_MENU_ITEM(ElixhauserCI::ELIXHAUSERCI_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Esspri::ESSPRI_TABLENAME, m_app),

@@ -70,7 +70,7 @@ from camcops_server.tasks.cpft_lps import (
 from camcops_server.tasks.dad import Dad
 from camcops_server.tasks.das28 import Das28
 from camcops_server.tasks.dast import Dast
-from camcops_server.tasks.deakin_1_healthreview import Deakin1HealthReview
+from camcops_server.tasks.deakin_s1_healthreview import DeakinS1HealthReview
 from camcops_server.tasks.demoquestionnaire import DemoQuestionnaire
 from camcops_server.tasks.demqol import Demqol
 from camcops_server.tasks.diagnosis import DiagnosisIcd9CM, DiagnosisIcd10
@@ -116,7 +116,7 @@ from camcops_server.tasks.khandaker_2_mojosociodemographics import (
     Khandaker2MojoSociodemographics,
 )
 from camcops_server.tasks.khandaker_2_mojomedical import (
-    Khandaker2MojoMedical,
+    KhandakerMojoMedical,
 )
 from camcops_server.tasks.khandaker_2_mojomedicationtable import (
      Khandaker2MojoMedicationTable,

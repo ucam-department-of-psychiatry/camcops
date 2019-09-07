@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="khandaker_mojo_medical">
+    <!-- Khandaker GM — 2 MOJO Study — Medical Questionnaire -->
+
+    <string name="title">MOJO Study — Medical Questionnaire</string>
+
+    <!-- Section 1: General Information -->
+    <string name="general_information_title">Section 1: General Information</string>
+    <string name="q_diagnosis">Diagnosis:</string>
+    <string name="diagnosis_0">Rheumatoid Arthritis</string>
+    <string name="diagnosis_1">Ankylosing Spondylitis</string>
+    <string name="diagnosis_2">Sjögren’s Syndrome</string>
+    <string name="duration_of_illness">Duration of illness (years):</string>
+    <string name="or"><b>or</b></string>
+    <string name="q_diagnosis_date">Date of first diagnosis:</string>
+    <string name="q_diagnosis_date_approximate">Diagnosis date is approximate</string>
+    <string name="q_has_fibromyalgia">Do you have a diagnosis of fibromyalgia?</string>
+    <string name="q_is_pregnant">Are you, or is there any possibility that you might be pregnant?</string>
+    <string name="q_has_infection_past_month">Do you currently have an infection, or had treatment for an infection (e.g antibiotics) in the past <b>month</b>?</string>
+    <string name="q_had_infection_two_months_preceding">Have you had an infection, or had treatment for an infection (e.g antibiotics) in the <b>2 months preceding last month</b>?</string>
+    <string name="q_has_alcohol_substance_dependence">Do you have a current diagnosis of alcohol or substance dependence?</string>
+    <string name="q_smoking_status">What is your smoking status?</string>
+    <string name="smoking_status_0">Never smoked</string>
+    <string name="smoking_status_1">Ex-smoker</string>
+    <string name="smoking_status_2">Current smoker</string>
+    <string name="q_alcohol_units_per_week">How much alcohol do you drink per week? (medium glass of wine = 2 units, pint of beer at 4.5% = 2.5 units, 25ml of spirits at 40% = 1 unit)</string>
+    <string name="alcohol_units_hint">Quantity (units) per week</string>
+
+    <!-- Section 2: Medical History -->
+    <string name="medical_history_title">Section 2: Medical History</string>
+    <string name="medical_history_subtitle">Have you had any of the following conditions diagnosed by a doctor?</string>
+    <string name="q_depression">Depression</string>
+    <string name="q_bipolar_disorder">Bipolar disorder</string>
+    <string name="q_schizophrenia">Schizophrenia</string>
+    <string name="q_autism">Autism or Asperger’s syndrome</string>
+    <string name="q_ptsd">Post-traumatic stress disorder</string>
+    <string name="q_anxiety">Anxiety disorder (generalised anxiety disorder, social anxiety disorder)</string>
+    <string name="q_personality_disorder">Personality disorder</string>
+    <string name="q_intellectual_disability">Intellectual disability</string>
+    <string name="q_other_mental_illness">Other</string>
+    <string name="q_other_mental_illness_details">Please list other conditions here:</string>
+    <string name="q_hospitalised_in_last_year">Have you had a physical or mental illness requiring hospitalisation in the previous 12 months:</string>
+    <string name="q_hospitalisation_details">Please list here (name of illness, number of hospitilisations and duration):</string>
+
+    <!-- Section 3: Family history -->
+    <string name="family_history_title">Section 3: Family history</string>
+    <string name="family_history_subtitle">Has anyone in your immediate family (parents, siblings or children) had any of the following conditions diagnosed by a doctor?:</string>
+    <string name="q_family_depression">Depression</string>
+    <string name="q_family_bipolar_disorder">Bipolar disorder</string>
+    <string name="q_family_schizophrenia">Schizophrenia</string>
+    <string name="q_family_autism">Autism or Asperger’s syndrome</string>
+    <string name="q_family_ptsd">Post-traumatic stress disorder</string>
+    <string name="q_family_anxiety">Anxiety disorder (generalised anxiety disorder, social anxiety disorder)</string>
+    <string name="q_family_personality_disorder">Personality disorder</string>
+    <string name="q_family_intellectual_disability">Intellectual disability</string>
+    <string name="q_family_other_mental_illness">Other</string>
+    <string name="q_family_other_mental_illness_details">Please list other conditions here:</string>
+  </task>
+</resources>

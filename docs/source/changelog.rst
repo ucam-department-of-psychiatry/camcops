@@ -2229,8 +2229,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - ``make_xml_skeleton.py`` development tool
 
-- **New task:** :ref:`Lynall M-E — 1 — IAM study — medical history
-  <lynall_1_iam_medical>`
+- **New task:** :ref:`Lynall M-E — IAM study — medical history
+  <lynall_iam_medical>`
 
 - **New task:** :ref:`Kirby Monetary Choice Questionnaire (MCQ) <kirby_mcq>`
 
@@ -2457,3 +2457,16 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - **New task:** :ref:`Khandaker GM — 2 — MOJO study <khandaker_2_mojo>`.
   (Database revisions 0039-0041.)
+
+- More consistent numbering/naming convention for custom tasks:
+
+  - Numbering may be used in code (filenames, class names), if desired, which
+    helps the programmer (it groups lots of files relating to the same task
+    together quickly when searching).
+  - Numbering not used in menus or task names, because it's slightly confusing
+    for the user (are we numbering tasks overall? Studies? Tasks within
+    studies?).
+  - Unnamed studies may be named "S1", "S2", ...
+  - Board format remains, overall: PI, study name, task name.
+  - Historical table names not changed.
+  - Future table names: try to avoid numbers.

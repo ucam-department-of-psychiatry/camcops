@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="lynall_iam_medical">
+    <!-- Lynall: Medical history screening for Inflammation In Mind (IAM) immunopsychiatry study -->
+
+    <string name="q1_title">Q1: age at onset</string>
+    <string name="q1_question">What age were you when you first got symptoms from your inflammatory disease (e.g. lupus, vasculitis or Behçet’s syndrome)?</string>
+
+    <string name="q2_title">Q2: brain symptoms</string>
+    <string name="q2_question">If you have ever had significant problems with fatigue, mood, anxiety, concentration, or thinking, when did these problems first start?</string>
+    <string name="q2_option1">Not applicable as I have never noticed psychological symptoms</string>
+    <string name="q2_option2">Before my physical health symptoms started</string>
+    <string name="q2_option3">At the same time as my physical health symptoms started, but before my diagnosis</string>
+    <string name="q2_option4">Around the time of my diagnosis</string>
+    <string name="q2_option5">Weeks or months after my diagnosis</string>
+    <string name="q2_option6">Years after my diagnosis</string>
+
+    <string name="q3_title">Q3: worst symptom</string>
+    <string name="q3_question">Considering your experience over the last month, which of the following is your worst symptom, that is, the one which affects you the most day-to-day?</string>
+    <string name="q3_option1">Fatigue</string>
+    <string name="q3_option2">Low mood</string>
+    <string name="q3_option3">Feeling irritable</string>
+    <string name="q3_option4">Feeling anxious</string>
+    <string name="q3_option5">Brain fog / feeling confused</string>
+    <string name="q3_option6">Pain</string>
+    <string name="q3_option7">Bowel symptoms</string>
+    <string name="q3_option8">Mobility problem e.g. difficulty walking</string>
+    <string name="q3_option9">Skin changes e.g. rashes or ulcers</string>
+    <string name="q3_option10">Other problem not listed above</string>
+    <string name="q3_option11">I have not had symptoms in the past month</string>  <!-- RNC modification -->
+
+    <string name="q4_title">Q4: timing</string>
+    <string name="q4a_question">Which of the following do you notice most about the timing of your disease flares and symptoms. In this question, ‘brain symptoms’ means fatigue, altered mood, anxiety, brain fog or poor concentration.</string>
+    <string name="q4a_option1">I generally notice my brain symptoms starting or worsening BEFORE my physical symptoms start or worsen</string>
+    <string name="q4a_option2">I generally notice my brain symptoms starting or worsening AFTER my physical symptoms start or worsen</string>
+    <string name="q4a_option3">I generally notice my brain symptoms starting or worsening AT THE SAME TIME AS my physical symptoms start or worsen (that is, within 1 day of each other)</string>
+    <string name="q4a_option4">There doesn’t seem to be any relationship between my physical symptoms and brain symptoms</string>
+    <string name="q4a_option5">None of the above</string>
+    <string name="q4b_question">How soon before (days)?</string>
+    <string name="q4c_question">How soon after (days)?</string>
+
+    <string name="q5_title">Q5: antibiotics</string>
+    <string name="q5_question">Have you had to take medication to treat an infection (e.g. antibiotics) in the last 3 months?</string>
+
+    <string name="q6_title">Q6: inpatient</string>
+    <string name="q6a_question">Have you been an inpatient in any general hospital in the last year?</string>
+    <string name="q6b_question">For roughly how many weeks have you been a hospital inpatient in the last year?</string>
+
+    <string name="q7_title">Q7: variability</string>
+    <string name="q7a_question">Have you had symptoms (either physical or psychological) in the last 2 years?</string>  <!-- RNC modification -->
+    <string name="q7a_option1">Yes</string>
+    <string name="q7a_option0">No, I have felt well for the last 2 years</string>
+    <string name="q7b_question">Taking your experience over the last two years, how variable are your symptoms?</string>
+    <string name="q7b_anchor_10">My symptoms are there all the time</string>
+    <string name="q7b_anchor_1">My symptoms come and go – sometimes they are very bad but sometimes I am fine and have no symptoms.</string>
+
+    <string name="q8_title">Q8: smoking</string>
+    <string name="q8_question">Do you currently smoke cigarettes?</string>
+    <string name="q8_option2">Yes, every day</string>
+    <string name="q8_option1">Yes, but not every day</string>
+    <string name="q8_option0">No</string>
+
+    <string name="q9_title">Q9: pregnancy</string>
+    <string name="q9_question">Are you currently pregnant, as far as you know?</string>
+    <string name="q9_option1">Yes</string>
+    <string name="q9_option0">No or not applicable</string>
+
+    <string name="q10_title">Q10: treatments</string>
+    <string name="q10_stem">What treatments have you found to be most effective (including both current and past treatments):</string>
+    <string name="q10a_question">For your physical symptoms?</string>
+    <string name="q10b_question">For your brain symptoms (fatigue, altered mood, anxiety, brain fog or poor concentration)?</string>
+
+    <string name="q11_title">Q11: psychiatric history</string>
+    <string name="q11_question">Please tick, for each disorder, if you have ever had any of these conditions diagnosed by a doctor. You can tick more than one.</string>
+
+    <string name="depression">Depression (not bipolar disorder)</string>
+    <string name="bipolar">Bipolar disorder</string>
+    <string name="schizophrenia">Schizophrenia</string>
+    <string name="autistic_spectrum">Autism / Asperger’s Syndrome</string>
+    <string name="ptsd">Post-traumatic stress disorder</string>
+    <string name="other_anxiety">Other anxiety disorder e.g. social anxiety disorder, generalized anxiety disorder</string>
+    <string name="personality_disorder">Personality disorder</string>
+    <string name="other_psych">Other psychiatric disorder not listed</string>
+
+    <string name="q12_title">Q12: family history</string>
+    <string name="q12_question">Please tick, for each disorder, if anyone in your immediate biological family (parents, siblings or children) has ever had any of these conditions diagnosed by a doctor. You can tick more than one.</string>
+    <!-- ... then options as for Q11 -->
+
+    <string name="q13_title">Q13: Behçet’s</string>
+    <string name="q13a_question">Do you have Behçet’s syndrome (Behçet’s disease)?</string>
+    <string name="q13b_question">Have you ever had oral ulcers?</string>
+    <string name="q13c_question">At what age did you first have an oral ulcer, as far as you know?</string>
+    <string name="q13d_question">Do you have visible scarring from oral ulcers?</string>
+    <string name="q13e_question">Have you ever had genital ulcers?</string>
+    <string name="q13f_question">At what age did you first have a genital ulcer, as far as you know?</string>
+    <string name="q13g_question">Do you have visible scarring from genital ulcers?</string>
+
+  </task>
+</resources>
