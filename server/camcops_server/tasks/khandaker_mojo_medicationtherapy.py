@@ -25,7 +25,7 @@ camcops_server/tasks/khandaker_mojo_medicationtherapy.py
 ===============================================================================
 
 """
-from typing import List, Optional, Type
+from typing import List, Optional, Type, TYPE_CHECKING
 
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
@@ -45,6 +45,9 @@ from camcops_server.cc_modules.cc_task import (
     TaskHasPatientMixin,
 )
 
+if TYPE_CHECKING:
+    from camcops_server.cc_modules.cc_request import CamcopsRequest
+
 
 class KhandakerMojoTableItem(GenericTabletRecordMixin, TaskDescendant):
     def any_fields_none(self) -> bool:
@@ -54,14 +57,16 @@ class KhandakerMojoTableItem(GenericTabletRecordMixin, TaskDescendant):
         return False
 
     @classmethod
-    def mandatory_fields(self) -> List[str]:
+    def mandatory_fields(cls) -> List[str]:
         raise NotImplementedError
 
-    def get_response_option(self, req: "CamcopsRequest") -> str:
-        if self.response is None:
+    def get_response_option(self, req: "CamcopsRequest") -> Optional[str]:
+        # Reads "self.response" from derived class.
+        # noinspection PyUnresolvedReferences
+        response = self.response  # type: Optional[int]
+        if response is None:
             return None
-
-        return self.task_ancestor().xstring(req, f"response_{self.response}")
+        return self.task_ancestor().xstring(req, f"response_{response}")
 
     # -------------------------------------------------------------------------
     # TaskDescendant overrides
@@ -72,6 +77,8 @@ class KhandakerMojoTableItem(GenericTabletRecordMixin, TaskDescendant):
         return KhandakerMojoMedicationTherapy
 
     def task_ancestor(self) -> Optional["KhandakerMojoMedicationTherapy"]:
+        # Reads "self.medicationtable_id" from derived class.
+        # noinspection PyUnresolvedReferences
         return KhandakerMojoMedicationTherapy.get_linked(
             self.medicationtable_id, self)
 
@@ -128,7 +135,7 @@ class KhandakerMojoMedicationItem(KhandakerMojoTableItem, Base):
     )
 
     @classmethod
-    def mandatory_fields(self) -> List[str]:
+    def mandatory_fields(cls) -> List[str]:
         return [
             "medication_name",
             "chemical_name",
@@ -200,7 +207,7 @@ class KhandakerMojoTherapyItem(KhandakerMojoTableItem, Base):
     )
 
     @classmethod
-    def mandatory_fields(self) -> List[str]:
+    def mandatory_fields(cls) -> List[str]:
         return [
             "therapy",
             "frequency",
@@ -236,14 +243,14 @@ class KhandakerMojoMedicationTherapy(TaskHasPatientMixin, Task):
         ancillary_class_name="KhandakerMojoMedicationItem",
         ancillary_fk_to_parent_attr_name="medicationtable_id",
         ancillary_order_by_attr_name="seqnum"
-    )
+    )  # type: List[KhandakerMojoMedicationItem]
 
     therapy_items = ancillary_relationship(
         parent_class_name="KhandakerMojoMedicationTherapy",
         ancillary_class_name="KhandakerMojoTherapyItem",
         ancillary_fk_to_parent_attr_name="medicationtable_id",
         ancillary_order_by_attr_name="seqnum"
-    )
+    )  # type: List[KhandakerMojoTherapyItem]
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:

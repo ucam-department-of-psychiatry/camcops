@@ -33,7 +33,7 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Date, Float, Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
-from camcops_server.cc_modules.cc_html import tr_qa, tr_span_col
+from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BoolColumn,
@@ -76,7 +76,7 @@ class KhandakerMojoMedicalMetaclass(DeclarativeMeta):
             cls, cls.FN_DIAGNOSIS_DATE_APPROXIMATE,
             BoolColumn(
                 cls.FN_DIAGNOSIS_DATE_APPROXIMATE,
-                comment=("True if diagnosis date was derived from duration")
+                comment="True if diagnosis date was derived from duration"
             )
         )
 

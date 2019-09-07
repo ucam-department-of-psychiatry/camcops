@@ -26,8 +26,7 @@ camcops_server/tasks/khandaker_mojo_sociodemographics.py
 
 """
 
-from typing import Any, Dict, Tuple, Type
-
+from typing import Any, Dict, Optional, Tuple, Type
 
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
@@ -37,7 +36,6 @@ from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
-    MIN_ZERO_CHECKER,
     ZERO_TO_10_CHECKER,
     ZERO_TO_FOUR_CHECKER,
     ZERO_TO_SEVEN_CHECKER,
@@ -266,7 +264,8 @@ class KhandakerMojoSociodemographics(
 
         return html
 
-    def get_answer_text(self, req: CamcopsRequest, field_name: str) -> str:
+    def get_answer_text(self, req: CamcopsRequest,
+                        field_name: str) -> Optional[str]:
         answer = getattr(self, field_name)
 
         if answer is None:
