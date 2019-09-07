@@ -30,18 +30,13 @@ Tasks
 
 **Priority: IAM**
 
-- :ref:`Lynall M-E — 2 — IAM study — life events <lynall_2_iam_life>`
+- :ref:`Lynall M-E — IAM study — life events <lynall_iam_life>`
 
   .. todo:: IN PROGRESS +++ a/w permission clarification
 
 - :ref:`Childhood Trauma Questionnaire, Short Form (CTQ-SF) <ctqsf>`
 
   .. todo:: IN PROGRESS +++ a/w permission clarification
-
-
-**Priority: MOJO**
-
-- :ref:`Khandaker GM — 2 — MOJO study <khandaker_2_mojo>`
 
 
 **To be prioritized**

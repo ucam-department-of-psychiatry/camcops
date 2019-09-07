@@ -1186,7 +1186,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 **Client v2.2.3, server v2.2.3, 2018-06-23**
 
-- :ref:`Khandaker/Insight medical history <khandaker_1_insightmedical>` task.
+- :ref:`Khandaker/Insight medical history <khandaker_insight_medical>` task.
 
 - Client requires server v2.2.3. (Was a global requirement; should have been
   task-specific. REVERTED to minimum server version 2.2.0 in client 2.2.6.)
@@ -2229,8 +2229,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - ``make_xml_skeleton.py`` development tool
 
-- **New task:** :ref:`Lynall M-E — 1 — IAM study — medical history
-  <lynall_1_iam_medical>`
+- **New task:** :ref:`Lynall M-E — IAM study — medical history
+  <lynall_iam_medical>`
 
 - **New task:** :ref:`Kirby Monetary Choice Questionnaire (MCQ) <kirby_mcq>`
 
@@ -2449,11 +2449,27 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Add optional waist circumference to :ref:`BMI  <bmi>`.
   (Database revision 0038.)
 
-  Add ``setMinimiumDate()`` and ``setMaximumDate()`` to ``QuDateTime``.
+- Add ``setMinimiumDate()`` and ``setMaximumDate()`` to ``QuDateTime``.
   This also fixes the broken default minimum date of 1st January 1880.
 
 - Set ``strict_undefined=True`` for Mako template lookups, so they crash
   immediately on typos.
+
+- **New tasks:** :ref:`Khandaker GM — MOJO study <khandaker_mojo>`.
+  (Database revisions 0039-0041.)
+
+- More consistent numbering/naming convention for custom tasks:
+
+  - Numbering may be used in code (filenames, class names), if desired, which
+    helps the programmer (it groups lots of files relating to the same task
+    together quickly when searching).
+  - Numbering not used in menus or task names, because it's slightly confusing
+    for the user (are we numbering tasks overall? Studies? Tasks within
+    studies?).
+  - Unnamed studies may be named "S1", "S2", ...
+  - Board format remains, overall: PI, study name, task name.
+  - Historical table names not changed.
+  - Future table names: try to avoid numbers.
 
 - Regression: crash in creating SVG figures from
   ``cardinal_expdetthreshold.py`` and ``cardinal_expectationdetection.py``.
@@ -2529,4 +2545,3 @@ Current C++/SQLite client, Python/SQLAlchemy server
     The odd thing is that the change was between 2017-09-10 and 2017-09-11 and
     it was certainly working after that, so perhaps ``matplotlib`` used to
     accept a dictionary or **kwargs and no longer does.
-

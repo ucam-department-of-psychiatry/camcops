@@ -22,12 +22,12 @@
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 
-#include "menu/setmenucpftaffective1.h"
-#include "menu/setmenucpftperinatal1.h"
-#include "menu/setmenucpftpsychooncology1.h"
+#include "menu/setmenucpftadrd.h"
+#include "menu/setmenucpftperinatal.h"
+#include "menu/setmenucpftpsychooncology.h"
 #include "menu/setmenufromlp.h"
 #include "menu/setmenufromperinatal.h"
-#include "menu/setmenuobrien1.h"
+#include "menu/setmenuobrien.h"
 
 
 ClinicalSetsMenu::ClinicalSetsMenu(CamcopsApp& app) :
@@ -47,11 +47,11 @@ void ClinicalSetsMenu::makeItems()
 {
     m_items = {
         MAKE_CHANGE_PATIENT(m_app),
-        MAKE_MENU_MENU_ITEM(SetMenuCpftAffective1, m_app),
-        MAKE_MENU_MENU_ITEM(SetMenuCpftPerinatal1, m_app),
-        MAKE_MENU_MENU_ITEM(SetMenuCpftPsychooncology1, m_app),
+        MAKE_MENU_MENU_ITEM(SetMenuCpftADRD, m_app),
+        MAKE_MENU_MENU_ITEM(SetMenuCpftPerinatal, m_app),
+        MAKE_MENU_MENU_ITEM(SetMenuCpftPsychooncology, m_app),
         MAKE_MENU_MENU_ITEM(SetMenuFromLp, m_app),
         MAKE_MENU_MENU_ITEM(SetMenuFromPerinatal, m_app),
-        MAKE_MENU_MENU_ITEM(SetMenuOBrien1, m_app),
+        MAKE_MENU_MENU_ITEM(SetMenuOBrien, m_app),
     };
 }

@@ -33,7 +33,7 @@ server/camcops_server
     alembic/versions/0001_start.py.rst
     alembic/versions/0002_cisr_2018_01_29.py.rst
     alembic/versions/0003_cisr_demographics_fields.py.rst
-    alembic/versions/0004_khandaker_1_insightmedical.py.rst
+    alembic/versions/0004_khandaker_insight_medical.py.rst
     alembic/versions/0005_reduced_indexed_varchar_fields_from_255.py.rst
     alembic/versions/0006_core_10.py.rst
     alembic/versions/0007_add_pcl5.py.rst
@@ -54,7 +54,7 @@ server/camcops_server
     alembic/versions/0022_index_exported_tasks_start_at.py.rst
     alembic/versions/0023_comments.py.rst
     alembic/versions/0024_user_language.py.rst
-    alembic/versions/0025_lynall_1_iam_medical.py.rst
+    alembic/versions/0025_lynall_iam_medical.py.rst
     alembic/versions/0026_kirby_mcq.py.rst
     alembic/versions/0027_apeq_cpft_perinatal.py.rst
     alembic/versions/0028_maas.py.rst
@@ -68,6 +68,9 @@ server/camcops_server
     alembic/versions/0036_das28.py.rst
     alembic/versions/0037_shaps.py.rst
     alembic/versions/0038_bmi_waist.py.rst
+    alembic/versions/0039_khandaker_mojo_sociodemographics.py.rst
+    alembic/versions/0040_khandaker_mojo_medical.py.rst
+    alembic/versions/0041_khandaker_mojo_medicationtherapy.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst
@@ -223,9 +226,12 @@ server/camcops_server
     extra_strings/icd9cm.xml.rst
     extra_strings/ided3d.xml.rst
     extra_strings/irac.xml.rst
-    extra_strings/khandaker_1_insightmedical.xml.rst
+    extra_strings/khandaker_insight_medical.xml.rst
+    extra_strings/khandaker_mojo_medical.xml.rst
+    extra_strings/khandaker_mojo_medicationtherapy.xml.rst
+    extra_strings/khandaker_mojo_sociodemographics.xml.rst
     extra_strings/kirby_mcq.xml.rst
-    extra_strings/lynall_1_iam_medical.xml.rst
+    extra_strings/lynall_iam_medical.xml.rst
     extra_strings/maas.xml.rst
     extra_strings/mast.xml.rst
     extra_strings/moca.xml.rst
@@ -276,7 +282,7 @@ server/camcops_server
     tasks/dad.py.rst
     tasks/das28.py.rst
     tasks/dast.py.rst
-    tasks/deakin_1_healthreview.py.rst
+    tasks/deakin_s1_healthreview.py.rst
     tasks/demoquestionnaire.py.rst
     tasks/demqol.py.rst
     tasks/diagnosis.py.rst
@@ -309,10 +315,13 @@ server/camcops_server
     tasks/iesr.py.rst
     tasks/ifs.py.rst
     tasks/irac.py.rst
-    tasks/khandaker_1_insightmedical.py.rst
+    tasks/khandaker_insight_medical.py.rst
+    tasks/khandaker_mojo_medical.py.rst
+    tasks/khandaker_mojo_medicationtherapy.py.rst
+    tasks/khandaker_mojo_sociodemographics.py.rst
     tasks/kirby_mcq.py.rst
-    tasks/lynall_1_iam_medical.py.rst
-    tasks/lynall_2_iam_life.py.rst
+    tasks/lynall_iam_life.py.rst
+    tasks/lynall_iam_medical.py.rst
     tasks/maas.py.rst
     tasks/mast.py.rst
     tasks/mds_updrs.py.rst

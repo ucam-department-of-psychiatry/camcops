@@ -22,12 +22,12 @@
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 
-#include "menu/setmenucpftaffective1.h"
-#include "menu/setmenudeakin1.h"
-#include "menu/setmenukhandaker1insight.h"
-#include "menu/setmenukhandaker2mojo.h"
-#include "menu/setmenulynall1iam.h"
-#include "menu/setmenuobrien1.h"
+#include "menu/setmenucpftadrd.h"
+#include "menu/setmenudeakin.h"
+#include "menu/setmenukhandakerinsight.h"
+#include "menu/setmenukhandakermojo.h"
+#include "menu/setmenulynalliam.h"
+#include "menu/setmenuobrien.h"
 
 
 ResearchSetsMenu::ResearchSetsMenu(CamcopsApp& app) :
@@ -46,11 +46,11 @@ void ResearchSetsMenu::makeItems()
 {
     m_items = {
         MAKE_CHANGE_PATIENT(m_app),
-        MAKE_MENU_MENU_ITEM(SetMenuCpftAffective1, m_app),
-        MAKE_MENU_MENU_ITEM(SetMenuDeakin1, m_app),
-        MAKE_MENU_MENU_ITEM(SetMenuKhandaker1Insight, m_app),
-        MAKE_MENU_MENU_ITEM(SetMenuKhandaker2Mojo, m_app),
-        MAKE_MENU_MENU_ITEM(SetMenuLynall1IAM, m_app),
-        MAKE_MENU_MENU_ITEM(SetMenuOBrien1, m_app),
+        MAKE_MENU_MENU_ITEM(SetMenuCpftADRD, m_app),
+        MAKE_MENU_MENU_ITEM(SetMenuDeakin, m_app),
+        MAKE_MENU_MENU_ITEM(SetMenuKhandakerInsight, m_app),
+        MAKE_MENU_MENU_ITEM(SetMenuKhandakerMojo, m_app),
+        MAKE_MENU_MENU_ITEM(SetMenuLynallIAM, m_app),
+        MAKE_MENU_MENU_ITEM(SetMenuOBrien, m_app),
     };
 }
