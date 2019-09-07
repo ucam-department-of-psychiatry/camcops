@@ -27,7 +27,7 @@ camcops_server/tasks/khandaker_mojo_medicationtherapy.py
 """
 from typing import List, Optional, Type, TYPE_CHECKING
 
-from sqlalchemy.sql.sqltypes import Integer, UnicodeText
+from sqlalchemy.sql.sqltypes import Float, Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import (
@@ -90,42 +90,34 @@ class KhandakerMojoMedicationItem(KhandakerMojoTableItem, Base):
         "medicationtable_id", Integer, nullable=False,
         comment="FK to medicationtable"
     )
-
     seqnum = CamcopsColumn(
         "seqnum", Integer, nullable=False,
         comment="Sequence number of this medication"
     )
-
     medication_name = CamcopsColumn(
         "medication_name", UnicodeText,
         comment="Medication name"
     )
-
     chemical_name = CamcopsColumn(
         "chemical_name", UnicodeText,
         comment="Chemical name for study team"
     )
-
-    dosage = CamcopsColumn(
-        "dosage", UnicodeText,
-        comment="Dosage"
+    dose = CamcopsColumn(
+        "dose", UnicodeText,
+        comment="Dose"
     )
-
     frequency = CamcopsColumn(
         "frequency", UnicodeText,
         comment="Frequency"
     )
-
-    duration = CamcopsColumn(
-        "duration", Integer,
+    duration_months = CamcopsColumn(
+        "duration_months", Float,
         comment="Duration (months)"
     )
-
     indication = CamcopsColumn(
         "indication", UnicodeText,
         comment="Indication (what is the medication used for?)"
     )
-
     response = CamcopsColumn(
         "response", Integer,
         comment=("1 = treats all symptoms, "
@@ -139,9 +131,9 @@ class KhandakerMojoMedicationItem(KhandakerMojoTableItem, Base):
         return [
             "medication_name",
             "chemical_name",
-            "dosage",
+            "dose",
             "frequency",
-            "duration",
+            "duration_months",
             "indication",
             "response",
         ]
@@ -151,9 +143,9 @@ class KhandakerMojoMedicationItem(KhandakerMojoTableItem, Base):
             <tr>
                 <td>{answer(self.medication_name)}</td>
                 <td>{answer(self.chemical_name)}</td>
-                <td>{answer(self.dosage)}</td>
+                <td>{answer(self.dose)}</td>
                 <td>{answer(self.frequency)}</td>
-                <td>{answer(self.duration)}</td>
+                <td>{answer(self.duration_months)}</td>
                 <td>{answer(self.indication)}</td>
                 <td>{answer(self.get_response_option(req))}</td>
             </tr>
@@ -167,37 +159,30 @@ class KhandakerMojoTherapyItem(KhandakerMojoTableItem, Base):
         "medicationtable_id", Integer, nullable=False,
         comment="FK to medicationtable"
     )
-
     seqnum = CamcopsColumn(
         "seqnum", Integer, nullable=False,
         comment="Sequence number of this therapy"
     )
-
     therapy = CamcopsColumn(
         "therapy", UnicodeText,
         comment="Therapy"
     )
-
     frequency = CamcopsColumn(
         "frequency", UnicodeText,
         comment="Frequency"
     )
-
     sessions_completed = CamcopsColumn(
         "sessions_completed", Integer,
         comment="Sessions completed"
     )
-
     sessions_planned = CamcopsColumn(
         "sessions_planned", Integer,
         comment="Sessions planned"
     )
-
     indication = CamcopsColumn(
         "indication", UnicodeText,
         comment="Indication (what is the medication used for?)"
     )
-
     response = CamcopsColumn(
         "response", Integer,
         comment=("1 = treats all symptoms, "
@@ -288,14 +273,13 @@ class KhandakerMojoMedicationTherapy(TaskHasPatientMixin, Task):
                             self.get_num_therapy_items())}
                 </table>
             </div>
-
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
                     <th>{self.xstring(req, "medication_name")}</th>
                     <th>{self.xstring(req, "chemical_name")}</th>
-                    <th>{self.xstring(req, "dosage")}</th>
+                    <th>{self.xstring(req, "dose")}</th>
                     <th>{self.xstring(req, "frequency")}</th>
-                    <th>{self.xstring(req, "duration")}</th>
+                    <th>{self.xstring(req, "duration_months")}</th>
                     <th>{self.xstring(req, "indication")}</th>
                     <th>{self.xstring(req, "response")}</th>
                 </tr>

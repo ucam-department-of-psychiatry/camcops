@@ -39,9 +39,9 @@ public:
     static const QString FN_SEQNUM;
     static const QString FN_MEDICATION_NAME;
     static const QString FN_CHEMICAL_NAME;
-    static const QString FN_DOSAGE;
+    static const QString FN_DOSE;
     static const QString FN_FREQUENCY;
-    static const QString FN_DURATION;
+    static const QString FN_DURATION_MONTHS;
     static const QString FN_INDICATION;
     static const QString FN_RESPONSE;
     static const QStringList TABLE_FIELDNAMES;

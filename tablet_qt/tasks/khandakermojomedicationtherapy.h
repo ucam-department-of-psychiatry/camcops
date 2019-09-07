@@ -95,8 +95,8 @@ protected:
     // Data
     // ------------------------------------------------------------------------
 protected:
-    QVector<KhandakerMojoMedicationItemPtr> m_medication_table;
-    QVector<KhandakerMojoTherapyItemPtr> m_therapy_table;
+    QVector<KhandakerMojoMedicationItemPtr> m_medications;
+    QVector<KhandakerMojoTherapyItemPtr> m_therapies;
     QPointer<Questionnaire> m_questionnaire;
     // ------------------------------------------------------------------------
     // Getters/setters

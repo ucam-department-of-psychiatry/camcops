@@ -25,18 +25,18 @@ const QString KhandakerMojoMedicationItem::FN_FK_NAME("medicationtable_id");
 const QString KhandakerMojoMedicationItem::FN_SEQNUM("seqnum");
 const QString KhandakerMojoMedicationItem::FN_MEDICATION_NAME("medication_name");
 const QString KhandakerMojoMedicationItem::FN_CHEMICAL_NAME("chemical_name");
-const QString KhandakerMojoMedicationItem::FN_DOSAGE("dosage");
+const QString KhandakerMojoMedicationItem::FN_DOSE("dose");
 const QString KhandakerMojoMedicationItem::FN_FREQUENCY("frequency");
-const QString KhandakerMojoMedicationItem::FN_DURATION("duration");
+const QString KhandakerMojoMedicationItem::FN_DURATION_MONTHS("duration_months");
 const QString KhandakerMojoMedicationItem::FN_INDICATION("indication");
 const QString KhandakerMojoMedicationItem::FN_RESPONSE("response");
 
 const QStringList KhandakerMojoMedicationItem::TABLE_FIELDNAMES{
     KhandakerMojoMedicationItem::FN_MEDICATION_NAME,
     KhandakerMojoMedicationItem::FN_CHEMICAL_NAME,
-    KhandakerMojoMedicationItem::FN_DOSAGE,
+    KhandakerMojoMedicationItem::FN_DOSE,
     KhandakerMojoMedicationItem::FN_FREQUENCY,
-    KhandakerMojoMedicationItem::FN_DURATION,
+    KhandakerMojoMedicationItem::FN_DURATION_MONTHS,
     KhandakerMojoMedicationItem::FN_INDICATION,
     KhandakerMojoMedicationItem::FN_RESPONSE,
  };
@@ -54,9 +54,9 @@ KhandakerMojoMedicationItem::KhandakerMojoMedicationItem(
     addField(FN_SEQNUM, QVariant::Int);
     addField(FN_MEDICATION_NAME, QVariant::String);
     addField(FN_CHEMICAL_NAME, QVariant::String);
-    addField(FN_DOSAGE, QVariant::String);
+    addField(FN_DOSE, QVariant::String);
     addField(FN_FREQUENCY, QVariant::String);
-    addField(FN_DURATION, QVariant::Int);
+    addField(FN_DURATION_MONTHS, QVariant::Double);
     addField(FN_INDICATION, QVariant::String);
     addField(FN_RESPONSE, QVariant::Int);
 
@@ -84,10 +84,12 @@ void KhandakerMojoMedicationItem::setChemicalName(
     setValue(FN_CHEMICAL_NAME, chemical_name);
 }
 
+
 bool KhandakerMojoMedicationItem::isComplete() const
 {
     return noValuesNull(TABLE_FIELDNAMES);
 }
+
 
 bool KhandakerMojoMedicationItem::isEmpty() const
 {

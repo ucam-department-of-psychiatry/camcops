@@ -52,7 +52,6 @@ class KhandakerMojoMedicalMetaclass(DeclarativeMeta):
                  name: str,
                  bases: Tuple[Type, ...],
                  classdict: Dict[str, Any]) -> None:
-
         setattr(
             cls, cls.FN_DIAGNOSIS,
             CamcopsColumn(
@@ -62,7 +61,6 @@ class KhandakerMojoMedicalMetaclass(DeclarativeMeta):
                          "1 Ankylosing Spondylitis, 2 Sjögren’s Syndrome)")
             )
         )
-
         setattr(
             cls, cls.FN_DIAGNOSIS_DATE,
             CamcopsColumn(
@@ -71,7 +69,6 @@ class KhandakerMojoMedicalMetaclass(DeclarativeMeta):
                          "'duration of illness (years))'")
             )
         )
-
         setattr(
             cls, cls.FN_DIAGNOSIS_DATE_APPROXIMATE,
             BoolColumn(
@@ -79,7 +76,6 @@ class KhandakerMojoMedicalMetaclass(DeclarativeMeta):
                 comment="True if diagnosis date was derived from duration"
             )
         )
-
         setattr(
             cls, cls.FN_HAS_FIBROMYALGIA,
             BoolColumn(
@@ -87,7 +83,6 @@ class KhandakerMojoMedicalMetaclass(DeclarativeMeta):
                 comment="Do you have a diagnosis of fibromyalgia?"
             )
         )
-
         setattr(
             cls, cls.FN_IS_PREGNANT,
             BoolColumn(
@@ -96,7 +91,6 @@ class KhandakerMojoMedicalMetaclass(DeclarativeMeta):
                          "be pregnant?")
             )
         )
-
         setattr(
             cls, cls.FN_HAS_INFECTION_PAST_MONTH,
             BoolColumn(
@@ -106,7 +100,6 @@ class KhandakerMojoMedicalMetaclass(DeclarativeMeta):
                          "in the past month?")
             )
         )
-
         setattr(
             cls, cls.FN_HAD_INFECTION_TWO_MONTHS_PRECEDING,
             BoolColumn(
@@ -117,7 +110,6 @@ class KhandakerMojoMedicalMetaclass(DeclarativeMeta):
                 constraint_name="ck_kh2mm_had_infection"
             )
         )
-
         setattr(
             cls, cls.FN_HAS_ALCOHOL_SUBSTANCE_DEPENDENCE,
             BoolColumn(
@@ -127,7 +119,6 @@ class KhandakerMojoMedicalMetaclass(DeclarativeMeta):
                 constraint_name="ck_kh2mm_has_alcohol"
             )
         )
-
         setattr(
             cls, cls.FN_SMOKING_STATUS,
             CamcopsColumn(
@@ -137,7 +128,6 @@ class KhandakerMojoMedicalMetaclass(DeclarativeMeta):
                          "1 Ex-smoker, 2 Current smoker)")
             )
         )
-
         setattr(
             cls, cls.FN_ALCOHOL_UNITS_PER_WEEK,
             CamcopsColumn(
@@ -147,7 +137,6 @@ class KhandakerMojoMedicalMetaclass(DeclarativeMeta):
                          "2.5 units, 25ml of spirits at 40% = 1 unit)")
             )
         )
-
         setattr(
             cls, cls.FN_DEPRESSION,
             BoolColumn(
@@ -156,7 +145,6 @@ class KhandakerMojoMedicalMetaclass(DeclarativeMeta):
                          "diagnosed by a doctor?")
             )
         )
-
         setattr(
             cls, cls.FN_BIPOLAR_DISORDER,
             BoolColumn(
@@ -165,7 +153,6 @@ class KhandakerMojoMedicalMetaclass(DeclarativeMeta):
                          "diagnosed by a doctor?")
             )
         )
-
         setattr(
             cls, cls.FN_SCHIZOPHRENIA,
             BoolColumn(
@@ -174,7 +161,6 @@ class KhandakerMojoMedicalMetaclass(DeclarativeMeta):
                          "diagnosed by a doctor?")
             )
         )
-
         setattr(
             cls, cls.FN_AUTISM,
             BoolColumn(
@@ -183,7 +169,6 @@ class KhandakerMojoMedicalMetaclass(DeclarativeMeta):
                          "diagnosed by a doctor?")
             )
         )
-
         setattr(
             cls, cls.FN_PTSD,
             BoolColumn(
@@ -192,7 +177,6 @@ class KhandakerMojoMedicalMetaclass(DeclarativeMeta):
                          "diagnosed by a doctor?")
             )
         )
-
         setattr(
             cls, cls.FN_ANXIETY,
             BoolColumn(
@@ -201,7 +185,6 @@ class KhandakerMojoMedicalMetaclass(DeclarativeMeta):
                          "diagnosed by a doctor?")
             )
         )
-
         setattr(
             cls, cls.FN_PERSONALITY_DISORDER,
             BoolColumn(
@@ -210,7 +193,6 @@ class KhandakerMojoMedicalMetaclass(DeclarativeMeta):
                          "diagnosed by a doctor?")
             )
         )
-
         setattr(
             cls, cls.FN_INTELLECTUAL_DISABILITY,
             BoolColumn(
@@ -219,7 +201,6 @@ class KhandakerMojoMedicalMetaclass(DeclarativeMeta):
                          "diagnosed by a doctor?")
             )
         )
-
         setattr(
             cls, cls.FN_OTHER_MENTAL_ILLNESS,
             BoolColumn(
@@ -228,7 +209,6 @@ class KhandakerMojoMedicalMetaclass(DeclarativeMeta):
                          "diagnosed by a doctor?")
             )
         )
-
         setattr(
             cls, cls.FN_OTHER_MENTAL_ILLNESS_DETAILS,
             CamcopsColumn(
@@ -236,7 +216,6 @@ class KhandakerMojoMedicalMetaclass(DeclarativeMeta):
                 comment="If other, please list here"
             )
         )
-
         setattr(
             cls, cls.FN_HOSPITALISED_IN_LAST_YEAR,
             BoolColumn(
@@ -246,7 +225,6 @@ class KhandakerMojoMedicalMetaclass(DeclarativeMeta):
                          "months?")
             )
         )
-
         setattr(
             cls, cls.FN_HOSPITALISATION_DETAILS,
             CamcopsColumn(
@@ -255,7 +233,6 @@ class KhandakerMojoMedicalMetaclass(DeclarativeMeta):
                          "of hospitilisations and duration):")
             )
         )
-
         setattr(
             cls, cls.FN_FAMILY_DEPRESSION,
             BoolColumn(
@@ -265,7 +242,6 @@ class KhandakerMojoMedicalMetaclass(DeclarativeMeta):
                          "following conditions diagnosed by a doctor?")
             )
         )
-
         setattr(
             cls, cls.FN_FAMILY_BIPOLAR_DISORDER,
             BoolColumn(
@@ -275,7 +251,6 @@ class KhandakerMojoMedicalMetaclass(DeclarativeMeta):
                          "following conditions diagnosed by a doctor?")
             )
         )
-
         setattr(
             cls, cls.FN_FAMILY_SCHIZOPHRENIA,
             BoolColumn(
@@ -285,7 +260,6 @@ class KhandakerMojoMedicalMetaclass(DeclarativeMeta):
                          "following conditions diagnosed by a doctor?")
             )
         )
-
         setattr(
             cls, cls.FN_FAMILY_AUTISM,
             BoolColumn(
@@ -295,7 +269,6 @@ class KhandakerMojoMedicalMetaclass(DeclarativeMeta):
                          "following conditions diagnosed by a doctor?")
             )
         )
-
         setattr(
             cls, cls.FN_FAMILY_PTSD,
             BoolColumn(
@@ -305,7 +278,6 @@ class KhandakerMojoMedicalMetaclass(DeclarativeMeta):
                          "following conditions diagnosed by a doctor?")
             )
         )
-
         setattr(
             cls, cls.FN_FAMILY_ANXIETY,
             BoolColumn(
@@ -315,7 +287,6 @@ class KhandakerMojoMedicalMetaclass(DeclarativeMeta):
                          "following conditions diagnosed by a doctor?")
             )
         )
-
         setattr(
             cls, cls.FN_FAMILY_PERSONALITY_DISORDER,
             BoolColumn(
@@ -325,7 +296,6 @@ class KhandakerMojoMedicalMetaclass(DeclarativeMeta):
                          "following conditions diagnosed by a doctor?")
             )
         )
-
         setattr(
             cls, cls.FN_FAMILY_INTELLECTUAL_DISABILITY,
             BoolColumn(
@@ -336,7 +306,6 @@ class KhandakerMojoMedicalMetaclass(DeclarativeMeta):
                 constraint_name="ck_kh2mm_fam_int_dis"
             )
         )
-
         setattr(
             cls, cls.FN_FAMILY_OTHER_MENTAL_ILLNESS,
             BoolColumn(
@@ -346,7 +315,6 @@ class KhandakerMojoMedicalMetaclass(DeclarativeMeta):
                          "following conditions diagnosed by a doctor?")
             )
         )
-
         setattr(
             cls, cls.FN_FAMILY_OTHER_MENTAL_ILLNESS_DETAILS,
             CamcopsColumn(

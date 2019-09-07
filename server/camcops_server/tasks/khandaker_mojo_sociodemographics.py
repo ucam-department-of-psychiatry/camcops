@@ -54,7 +54,6 @@ class KhandakerMojoSociodemographicsMetaclass(DeclarativeMeta):
                  name: str,
                  bases: Tuple[Type, ...],
                  classdict: Dict[str, Any]) -> None:
-
         setattr(
             cls, cls.FN_GENDER,
             CamcopsColumn(
@@ -63,7 +62,6 @@ class KhandakerMojoSociodemographicsMetaclass(DeclarativeMeta):
                 comment="Gender at birth (0 Male, 1 Female, 2 Other (specify))"
             )
         )
-
         setattr(
             cls, cls.FN_OTHER_GENDER,
             CamcopsColumn(
@@ -71,7 +69,6 @@ class KhandakerMojoSociodemographicsMetaclass(DeclarativeMeta):
                 comment="Other (specify)"
             )
         )
-
         setattr(
             cls, cls.FN_ETHNICITY,
             CamcopsColumn(
@@ -83,7 +80,6 @@ class KhandakerMojoSociodemographicsMetaclass(DeclarativeMeta):
                          "10 Other (specify))")
             )
         )
-
         setattr(
             cls, cls.FN_OTHER_ETHNICITY,
             CamcopsColumn(
@@ -91,7 +87,6 @@ class KhandakerMojoSociodemographicsMetaclass(DeclarativeMeta):
                 comment="Other (specify)"
             )
         )
-
         setattr(
             cls, cls.FN_WITH_WHOM_LIVE,
             CamcopsColumn(
@@ -102,7 +97,6 @@ class KhandakerMojoSociodemographicsMetaclass(DeclarativeMeta):
                          "5 Other family, 6 Friends, 7 Other (specify)")
             )
         )
-
         setattr(
             cls, cls.FN_OTHER_WITH_WHOM_LIVE,
             CamcopsColumn(
@@ -110,7 +104,6 @@ class KhandakerMojoSociodemographicsMetaclass(DeclarativeMeta):
                 comment="Other (specify)"
             )
         )
-
         setattr(
             cls, cls.FN_RELATIONSHIP_STATUS,
             CamcopsColumn(
@@ -121,7 +114,6 @@ class KhandakerMojoSociodemographicsMetaclass(DeclarativeMeta):
                          "4 Widowed")
             )
         )
-
         setattr(
             cls, cls.FN_EDUCATION,
             CamcopsColumn(
@@ -132,7 +124,6 @@ class KhandakerMojoSociodemographicsMetaclass(DeclarativeMeta):
                          "4 University / Professional Qualifications")
             )
         )
-
         setattr(
             cls, cls.FN_EMPLOYMENT,
             CamcopsColumn(
@@ -144,7 +135,6 @@ class KhandakerMojoSociodemographicsMetaclass(DeclarativeMeta):
                          "7 Other (specify)")
             )
         )
-
         setattr(
             cls, cls.FN_OTHER_EMPLOYMENT,
             CamcopsColumn(
@@ -152,7 +142,6 @@ class KhandakerMojoSociodemographicsMetaclass(DeclarativeMeta):
                 comment="Other (specify)"
             )
         )
-
         setattr(
             cls, cls.FN_ACCOMMODATION,
             CamcopsColumn(
@@ -165,7 +154,6 @@ class KhandakerMojoSociodemographicsMetaclass(DeclarativeMeta):
                          "5 Live rent free, 6 Other (specify)")
             )
         )
-
         setattr(
             cls, cls.FN_OTHER_ACCOMMODATION,
             CamcopsColumn(
