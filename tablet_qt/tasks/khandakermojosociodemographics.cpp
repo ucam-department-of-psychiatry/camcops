@@ -39,57 +39,44 @@ const QString KhandakerMojoSociodemographics::KHANDAKER2MOJOSOCIODEMOGRAPHICS_TA
 
 const QString Q_XML_PREFIX = "q_";
 
-struct K2QInfo {
-    K2QInfo(const QString& stem, const int max_option,
-            const bool has_other = false) {
-        m_fieldname = stem;
-
-        m_has_other = has_other;
-
+struct KhandakerMojoSocQInfo {
+    KhandakerMojoSocQInfo(const QString& stem, const int max_option,
+           const bool has_other = false) :
+        m_fieldname(stem),
+        m_max_option(max_option),
+        m_has_other(has_other)
+    {
         if (has_other) {
             m_other_fieldname = "other_" + stem;
         }
         m_question_xml_name = Q_XML_PREFIX + stem;
-        m_max_option = max_option;
     }
 
-    bool hasOther() const {
-        return m_has_other;
-    }
-
-    QString getFieldname() const {
-        return m_fieldname;
-    }
-
-    QString getOtherFieldname() const {
-        return m_other_fieldname;
-    }
-
-    QString getQuestionXmlName() const {
-        return m_question_xml_name;
-    }
-
-    int getMaxOption() const {
-        return m_max_option;
-    }
+    bool hasOther() const { return m_has_other; }
+    QString getFieldname() const { return m_fieldname; }
+    QString getOtherFieldname() const { return m_other_fieldname; }
+    QString getQuestionXmlName() const { return m_question_xml_name; }
+    int getMaxOption() const { return m_max_option; }
 
 private:
     QString m_fieldname;
-    QString m_other_fieldname = QString();
+    QString m_other_fieldname;
     QString m_question_xml_name;
     int m_max_option;
     bool m_has_other;
 };
+using KQInfo = KhandakerMojoSocQInfo;
 
-const QVector<K2QInfo> MC_QUESTIONS{
-    K2QInfo("gender", 2, true),
-    K2QInfo("ethnicity", 10, true),
-    K2QInfo("with_whom_live", 7, true),
-    K2QInfo("relationship_status", 4),
-    K2QInfo("education", 4),
-    K2QInfo("employment", 7, true),
-    K2QInfo("accommodation", 6, true),
+const QVector<KQInfo> MC_QUESTIONS{
+    KQInfo("gender", 2, true),
+    KQInfo("ethnicity", 10, true),
+    KQInfo("with_whom_live", 7, true),
+    KQInfo("relationship_status", 4),
+    KQInfo("education", 4),
+    KQInfo("employment", 7, true),
+    KQInfo("accommodation", 6, true),
 };
+
 
 void initializeKhandakerMojoSociodemographics(TaskFactory& factory)
 {
@@ -103,7 +90,7 @@ KhandakerMojoSociodemographics::KhandakerMojoSociodemographics(
          false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    for (const K2QInfo& info : MC_QUESTIONS) {
+    for (const auto& info : MC_QUESTIONS) {
         addField(info.getFieldname(), QVariant::Int);
 
         if (info.hasOther()) {
@@ -146,7 +133,7 @@ QString KhandakerMojoSociodemographics::description() const
 
 bool KhandakerMojoSociodemographics::isComplete() const
 {
-    for (const K2QInfo& info : MC_QUESTIONS) {
+    for (const auto& info : MC_QUESTIONS) {
         if (valueIsNull(info.getFieldname())) {
             return false;
         }
@@ -170,7 +157,7 @@ QStringList KhandakerMojoSociodemographics::detail() const
 {
     QStringList lines;
 
-    for (const K2QInfo& info : MC_QUESTIONS) {
+    for (const auto& info : MC_QUESTIONS) {
         lines.append(xstring(info.getQuestionXmlName()));
         lines.append(QString("<b>%1</b>").arg(getAnswerText(info)));
     }
@@ -185,7 +172,7 @@ OpenableWidget* KhandakerMojoSociodemographics::editor(const bool read_only)
     page->setTitle(description());
     page->addElement(new QuHeading(xstring("title")));
 
-    for (const K2QInfo& info : MC_QUESTIONS) {
+    for (const KQInfo& info : MC_QUESTIONS) {
         page->addElement(new QuText(xstring(info.getQuestionXmlName())));
 
         FieldRefPtr fieldref = fieldRef(info.getFieldname());
@@ -218,7 +205,8 @@ OpenableWidget* KhandakerMojoSociodemographics::editor(const bool read_only)
 }
 
 
-bool KhandakerMojoSociodemographics::answeredOther(const K2QInfo info) const
+bool KhandakerMojoSociodemographics::answeredOther(
+        const KhandakerMojoSocQInfo& info) const
 {
     // For this task, the 'other' option is always the last one
     const int answer = valueInt(info.getFieldname());
@@ -228,7 +216,7 @@ bool KhandakerMojoSociodemographics::answeredOther(const K2QInfo info) const
 
 
 NameValueOptions KhandakerMojoSociodemographics::getOptions(
-    const K2QInfo info) const
+    const KhandakerMojoSocQInfo& info) const
 {
     NameValueOptions options;
 
@@ -241,14 +229,14 @@ NameValueOptions KhandakerMojoSociodemographics::getOptions(
 }
 
 QString KhandakerMojoSociodemographics::getOptionName(
-    const K2QInfo info, const int index) const
+    const KhandakerMojoSocQInfo& info, const int index) const
 {
     return xstring(QString("%1_option%2").arg(info.getFieldname()).arg(index));
 }
 
 
 QString KhandakerMojoSociodemographics::getAnswerText(
-    const K2QInfo info) const
+    const KhandakerMojoSocQInfo& info) const
 {
     if (valueIsNull(info.getFieldname())) {
         return convert::NULL_STR;
@@ -276,7 +264,7 @@ void KhandakerMojoSociodemographics::updateMandatory()
 {
     // This could be more efficient with lots of signal handlers, but...
 
-    for (const K2QInfo& info : MC_QUESTIONS) {
+    for (const auto& info : MC_QUESTIONS) {
         if (info.hasOther()) {
             const bool mandatory = answeredOther(info);
             fieldRef(info.getOtherFieldname())->setMandatory(mandatory);

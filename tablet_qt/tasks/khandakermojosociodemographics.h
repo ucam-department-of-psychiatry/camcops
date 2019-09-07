@@ -30,7 +30,7 @@ class TaskFactory;
 void initializeKhandakerMojoSociodemographics(TaskFactory& factory);
 
 
-struct K2QInfo;
+struct KhandakerMojoSocQInfo;
 
 class KhandakerMojoSociodemographics : public Task
 {
@@ -55,10 +55,11 @@ public:
     // Task-specific
     // ------------------------------------------------------------------------
 private:
-    bool answeredOther(const K2QInfo info) const;
-    NameValueOptions getOptions(const K2QInfo info) const;
-    QString getOptionName(const K2QInfo info, const int index) const;
-    QString getAnswerText(const K2QInfo info) const;
+    bool answeredOther(const KhandakerMojoSocQInfo& info) const;
+    NameValueOptions getOptions(const KhandakerMojoSocQInfo& info) const;
+    QString getOptionName(const KhandakerMojoSocQInfo& info,
+                          const int index) const;
+    QString getAnswerText(const KhandakerMojoSocQInfo& info) const;
 
     // ------------------------------------------------------------------------
     // Signal handlers

@@ -110,13 +110,13 @@ void KhandakerMojoMedicationTherapy::loadAllAncillary(const int pk)
 {
     const OrderBy medication_order_by{{KhandakerMojoMedicationItem::FN_SEQNUM, true}};
     ancillaryfunc::loadAncillary<KhandakerMojoMedicationItem,
-                                 Khandaker2MojoMedicationItemPtr>(
+                                 KhandakerMojoMedicationItemPtr>(
                 m_medication_table, m_app, m_db,
                 KhandakerMojoMedicationItem::FN_FK_NAME, medication_order_by, pk);
 
     const OrderBy therapy_order_by{{KhandakerMojoTherapyItem::FN_SEQNUM, true}};
     ancillaryfunc::loadAncillary<KhandakerMojoTherapyItem,
-                                 Khandaker2MojoTherapyItemPtr>(
+                                 KhandakerMojoTherapyItemPtr>(
                 m_therapy_table, m_app, m_db,
                 KhandakerMojoTherapyItem::FN_FK_NAME, therapy_order_by, pk);
 }
@@ -134,10 +134,10 @@ QVector<DatabaseObjectPtr> KhandakerMojoMedicationTherapy::getAncillarySpecimens
 QVector<DatabaseObjectPtr> KhandakerMojoMedicationTherapy::getAllAncillary() const
 {
     QVector<DatabaseObjectPtr> ancillaries;
-    for (const Khandaker2MojoMedicationItemPtr& medication : m_medication_table) {
+    for (const KhandakerMojoMedicationItemPtr& medication : m_medication_table) {
         ancillaries.append(medication);
     }
-    for (const Khandaker2MojoTherapyItemPtr& therapy : m_therapy_table) {
+    for (const KhandakerMojoTherapyItemPtr& therapy : m_therapy_table) {
         ancillaries.append(therapy);
     }
     return ancillaries;
@@ -155,13 +155,13 @@ bool KhandakerMojoMedicationTherapy::isComplete() const
     // some kind of medication, we have no way of knowing when all medication
     // has been added to the table
 
-    for (const Khandaker2MojoMedicationItemPtr& medication : m_medication_table) {
+    for (const KhandakerMojoMedicationItemPtr& medication : m_medication_table) {
         if (!medication->isComplete()) {
             return false;
         }
     }
 
-    for (const Khandaker2MojoTherapyItemPtr& therapy : m_therapy_table) {
+    for (const KhandakerMojoTherapyItemPtr& therapy : m_therapy_table) {
         if (!therapy->isComplete()) {
             return false;
         }
@@ -201,16 +201,16 @@ QStringList KhandakerMojoMedicationTherapy::medicationDetail() const
     html.append("<table>");
     html.append("<tr>");
 
-    for (const QString fieldname : KhandakerMojoMedicationItem::TABLE_FIELDNAMES) {
+    for (const QString& fieldname : KhandakerMojoMedicationItem::TABLE_FIELDNAMES) {
         html.append(QString("<th>%1</th>").arg(xstring(fieldname)));
     }
 
     html.append("</tr>");
 
-    for (const Khandaker2MojoMedicationItemPtr& medication : m_medication_table) {
+    for (const KhandakerMojoMedicationItemPtr& medication : m_medication_table) {
         html.append("<tr>");
 
-        for (const QString fieldname : KhandakerMojoMedicationItem::TABLE_FIELDNAMES) {
+        for (const QString& fieldname : KhandakerMojoMedicationItem::TABLE_FIELDNAMES) {
             QString table_cell = "?";
 
             const QVariant field_value = medication->value(fieldname);
@@ -250,16 +250,16 @@ QStringList KhandakerMojoMedicationTherapy::therapyDetail() const
     html.append("<table>");
     html.append("<tr>");
 
-    for (const QString fieldname : KhandakerMojoTherapyItem::TABLE_FIELDNAMES) {
+    for (const QString& fieldname : KhandakerMojoTherapyItem::TABLE_FIELDNAMES) {
         html.append(QString("<th>%1</th>").arg(xstring(fieldname)));
     }
 
     html.append("</tr>");
 
-    for (const Khandaker2MojoTherapyItemPtr& therapy : m_therapy_table) {
+    for (const KhandakerMojoTherapyItemPtr& therapy : m_therapy_table) {
         html.append("<tr>");
 
-        for (const QString fieldname : KhandakerMojoTherapyItem::TABLE_FIELDNAMES) {
+        for (const QString& fieldname : KhandakerMojoTherapyItem::TABLE_FIELDNAMES) {
             QString table_cell = "?";
 
             const QVariant field_value = therapy->value(fieldname);
@@ -315,7 +315,7 @@ void KhandakerMojoMedicationTherapy::addMedicationItem()
     const QString chemical_name = getCustomMedicationName();
 
     if (chemical_name == nullptr) {
-        for (const Khandaker2MojoMedicationItemPtr& medication : m_medication_table) {
+        for (const KhandakerMojoMedicationItemPtr& medication : m_medication_table) {
             if (medication->isEmpty()) {
                 uifunc::alert(tr("A row is blank; won’t add another"));
 
@@ -324,7 +324,7 @@ void KhandakerMojoMedicationTherapy::addMedicationItem()
         }
     }
 
-    Khandaker2MojoMedicationItemPtr item = makeMedicationItem();
+    KhandakerMojoMedicationItemPtr item = makeMedicationItem();
     item->setSeqnum(m_medication_table.size() + 1);
 
     item->setChemicalName(chemical_name);
@@ -337,7 +337,7 @@ void KhandakerMojoMedicationTherapy::addMedicationItem()
 
 void KhandakerMojoMedicationTherapy::addTherapyItem()
 {
-    for (const Khandaker2MojoTherapyItemPtr& therapy : m_therapy_table) {
+    for (const KhandakerMojoTherapyItemPtr& therapy : m_therapy_table) {
         if (therapy->isEmpty()) {
             uifunc::alert(tr("A row is blank; won’t add another"));
 
@@ -345,7 +345,7 @@ void KhandakerMojoMedicationTherapy::addTherapyItem()
         }
     }
 
-    Khandaker2MojoTherapyItemPtr item = makeTherapyItem();
+    KhandakerMojoTherapyItemPtr item = makeTherapyItem();
     item->setSeqnum(m_therapy_table.size() + 1);
     item->save();
     m_therapy_table.append(item);
@@ -353,17 +353,17 @@ void KhandakerMojoMedicationTherapy::addTherapyItem()
 }
 
 
-Khandaker2MojoMedicationItemPtr KhandakerMojoMedicationTherapy::makeMedicationItem() const
+KhandakerMojoMedicationItemPtr KhandakerMojoMedicationTherapy::makeMedicationItem() const
 {
-    return Khandaker2MojoMedicationItemPtr(
+    return KhandakerMojoMedicationItemPtr(
         new KhandakerMojoMedicationItem(pkvalueInt(), m_app, m_db)
     );
 }
 
 
-Khandaker2MojoTherapyItemPtr KhandakerMojoMedicationTherapy::makeTherapyItem() const
+KhandakerMojoTherapyItemPtr KhandakerMojoMedicationTherapy::makeTherapyItem() const
 {
-    return Khandaker2MojoTherapyItemPtr(
+    return KhandakerMojoTherapyItemPtr(
         new KhandakerMojoTherapyItem(pkvalueInt(), m_app, m_db)
     );
 }
@@ -374,7 +374,7 @@ void KhandakerMojoMedicationTherapy::deleteMedicationItem(const int index)
     if (index < 0 || index >= m_medication_table.size()) {
         return;
     }
-    Khandaker2MojoMedicationItemPtr item = m_medication_table.at(index);
+    KhandakerMojoMedicationItemPtr item = m_medication_table.at(index);
     item->deleteFromDatabase();
     m_medication_table.removeAt(index);
     renumberMedicationItems();
@@ -387,7 +387,7 @@ void KhandakerMojoMedicationTherapy::deleteTherapyItem(const int index)
     if (index < 0 || index >= m_therapy_table.size()) {
         return;
     }
-    Khandaker2MojoTherapyItemPtr item = m_therapy_table.at(index);
+    KhandakerMojoTherapyItemPtr item = m_therapy_table.at(index);
     item->deleteFromDatabase();
     m_therapy_table.removeAt(index);
     renumberTherapyItems();
@@ -399,7 +399,7 @@ void KhandakerMojoMedicationTherapy::renumberMedicationItems()
 {
     const int n = m_medication_table.size();
     for (int i = 0; i < n; ++i) {
-        Khandaker2MojoMedicationItemPtr item = m_medication_table.at(i);
+        KhandakerMojoMedicationItemPtr item = m_medication_table.at(i);
         item->setSeqnum(i + 1);
         item->save();
     }
@@ -410,7 +410,7 @@ void KhandakerMojoMedicationTherapy::renumberTherapyItems()
 {
     const int n = m_therapy_table.size();
     for (int i = 0; i < n; ++i) {
-        Khandaker2MojoTherapyItemPtr item = m_therapy_table.at(i);
+        KhandakerMojoTherapyItemPtr item = m_therapy_table.at(i);
         item->setSeqnum(i + 1);
         item->save();
     }
@@ -472,7 +472,7 @@ QuGridContainer* KhandakerMojoMedicationTherapy::getMedicationGrid() {
 
     int i = 0;
 
-    for (const Khandaker2MojoMedicationItemPtr& medication : m_medication_table) {
+    for (const KhandakerMojoMedicationItemPtr& medication : m_medication_table) {
         auto delete_button = new QuButton(
             TextConst::delete_(),
             std::bind(&KhandakerMojoMedicationTherapy::deleteMedicationItem,
@@ -547,7 +547,7 @@ QuGridContainer* KhandakerMojoMedicationTherapy::getTherapyGrid() {
 
     int i = 0;
 
-    for (const Khandaker2MojoTherapyItemPtr& therapy : m_therapy_table) {
+    for (const KhandakerMojoTherapyItemPtr& therapy : m_therapy_table) {
         auto delete_button = new QuButton(
             TextConst::delete_(),
             std::bind(&KhandakerMojoMedicationTherapy::deleteTherapyItem, this, i)

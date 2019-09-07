@@ -399,12 +399,9 @@ as generic tasks listed above, there are some very specific ones, as follows.
   <khandaker_mojo_sociodemographics>`
 
 - :ref:"Khandaker GM — MOJO — Medical questionnaire <khandaker_mojo_medical>`
-See :ref:`MOJO <khandaker_mojo>` below.
 
-- :ref:`Khandaker GM — MOJO — Medications and therapies`
-  <khandaker_mojo_medicationtherapy>
-
-- :ref:`Khandaker GM — MOJO study <khandaker_2_mojo>`
+- :ref:`Khandaker GM — MOJO — Medications and therapies
+  <khandaker_mojo_medicationtherapy>`
 
 - :ref:`Lynall M-E — IAM study — medical history <lynall_iam_medical>`
 

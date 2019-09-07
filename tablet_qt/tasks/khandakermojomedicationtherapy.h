@@ -78,8 +78,8 @@ private:
     void deleteTherapyItem(int index);
     QuGridContainer* getMedicationGrid();
     QuGridContainer* getTherapyGrid();
-    Khandaker2MojoMedicationItemPtr makeMedicationItem() const;
-    Khandaker2MojoTherapyItemPtr makeTherapyItem() const;
+    KhandakerMojoMedicationItemPtr makeMedicationItem() const;
+    KhandakerMojoTherapyItemPtr makeTherapyItem() const;
     void refreshQuestionnaire();
     void rebuildPage(QuPage* page);
     void renumberMedicationItems();
@@ -95,8 +95,8 @@ protected:
     // Data
     // ------------------------------------------------------------------------
 protected:
-    QVector<Khandaker2MojoMedicationItemPtr> m_medication_table;
-    QVector<Khandaker2MojoTherapyItemPtr> m_therapy_table;
+    QVector<KhandakerMojoMedicationItemPtr> m_medication_table;
+    QVector<KhandakerMojoTherapyItemPtr> m_therapy_table;
     QPointer<Questionnaire> m_questionnaire;
     // ------------------------------------------------------------------------
     // Getters/setters

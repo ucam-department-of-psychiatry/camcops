@@ -30,6 +30,7 @@ tablet_qt
     :maxdepth: 1
 
     android/AndroidManifest.xml.rst
+    android/res/values/libs.xml.rst
     camcops.pro.rst
     camcops_windows_innosetup.iss.rst
     common/aliases_camcops.h.rst
@@ -315,26 +316,26 @@ tablet_qt
     menu/researchsetsmenu.h.rst
     menu/serviceevaluationmenu.cpp.rst
     menu/serviceevaluationmenu.h.rst
-    menu/setmenucpftaffective1.cpp.rst
-    menu/setmenucpftaffective1.h.rst
-    menu/setmenucpftperinatal1.cpp.rst
-    menu/setmenucpftperinatal1.h.rst
-    menu/setmenucpftpsychooncology1.cpp.rst
-    menu/setmenucpftpsychooncology1.h.rst
-    menu/setmenudeakin1.cpp.rst
-    menu/setmenudeakin1.h.rst
+    menu/setmenucpftadrd.cpp.rst
+    menu/setmenucpftadrd.h.rst
+    menu/setmenucpftperinatal.cpp.rst
+    menu/setmenucpftperinatal.h.rst
+    menu/setmenucpftpsychooncology.cpp.rst
+    menu/setmenucpftpsychooncology.h.rst
+    menu/setmenudeakin.cpp.rst
+    menu/setmenudeakin.h.rst
     menu/setmenufromlp.cpp.rst
     menu/setmenufromlp.h.rst
     menu/setmenufromperinatal.cpp.rst
     menu/setmenufromperinatal.h.rst
-    menu/setmenukhandaker1insight.cpp.rst
-    menu/setmenukhandaker1insight.h.rst
-    menu/setmenukhandaker2mojo.cpp.rst
-    menu/setmenukhandaker2mojo.h.rst
-    menu/setmenulynall1iam.cpp.rst
-    menu/setmenulynall1iam.h.rst
-    menu/setmenuobrien1.cpp.rst
-    menu/setmenuobrien1.h.rst
+    menu/setmenukhandakerinsight.cpp.rst
+    menu/setmenukhandakerinsight.h.rst
+    menu/setmenukhandakermojo.cpp.rst
+    menu/setmenukhandakermojo.h.rst
+    menu/setmenulynalliam.cpp.rst
+    menu/setmenulynalliam.h.rst
+    menu/setmenuobrien.cpp.rst
+    menu/setmenuobrien.h.rst
     menu/settingsmenu.cpp.rst
     menu/settingsmenu.h.rst
     menu/singletaskmenu.cpp.rst
@@ -613,8 +614,8 @@ tablet_qt
     tasks/das28.h.rst
     tasks/dast.cpp.rst
     tasks/dast.h.rst
-    tasks/deakin1healthreview.cpp.rst
-    tasks/deakin1healthreview.h.rst
+    tasks/deakins1healthreview.cpp.rst
+    tasks/deakins1healthreview.h.rst
     tasks/demoquestionnaire.cpp.rst
     tasks/demoquestionnaire.h.rst
     tasks/demqol.cpp.rst
@@ -693,20 +694,20 @@ tablet_qt
     tasks/ifs.h.rst
     tasks/irac.cpp.rst
     tasks/irac.h.rst
-    tasks/khandaker1insightmedical.cpp.rst
-    tasks/khandaker1insightmedical.h.rst
-    tasks/khandaker2mojomedical.cpp.rst
-    tasks/khandaker2mojomedical.h.rst
-    tasks/khandaker2mojomedicationtable.cpp.rst
-    tasks/khandaker2mojomedicationtable.h.rst
-    tasks/khandaker2mojosociodemographics.cpp.rst
-    tasks/khandaker2mojosociodemographics.h.rst
+    tasks/khandakerinsightmedical.cpp.rst
+    tasks/khandakerinsightmedical.h.rst
+    tasks/khandakermojomedical.cpp.rst
+    tasks/khandakermojomedical.h.rst
+    tasks/khandakermojomedicationtherapy.cpp.rst
+    tasks/khandakermojomedicationtherapy.h.rst
+    tasks/khandakermojosociodemographics.cpp.rst
+    tasks/khandakermojosociodemographics.h.rst
     tasks/kirby.cpp.rst
     tasks/kirby.h.rst
-    tasks/lynall1iammedical.cpp.rst
-    tasks/lynall1iammedical.h.rst
-    tasks/lynall2iamlife.cpp.rst
-    tasks/lynall2iamlife.h.rst
+    tasks/lynalliamlife.cpp.rst
+    tasks/lynalliamlife.h.rst
+    tasks/lynalliammedical.cpp.rst
+    tasks/lynalliammedical.h.rst
     tasks/maas.cpp.rst
     tasks/maas.h.rst
     tasks/mast.cpp.rst
@@ -815,10 +816,10 @@ tablet_qt
     taskxtra/ided3dstage.h.rst
     taskxtra/ided3dtrial.cpp.rst
     taskxtra/ided3dtrial.h.rst
-    taskxtra/khandaker2mojomedicationitem.cpp.rst
-    taskxtra/khandaker2mojomedicationitem.h.rst
-    taskxtra/khandaker2mojotherapyitem.cpp.rst
-    taskxtra/khandaker2mojotherapyitem.h.rst
+    taskxtra/khandakermojomedicationitem.cpp.rst
+    taskxtra/khandakermojomedicationitem.h.rst
+    taskxtra/khandakermojotherapyitem.cpp.rst
+    taskxtra/khandakermojotherapyitem.h.rst
     taskxtra/kirbyrewardpair.cpp.rst
     taskxtra/kirbyrewardpair.h.rst
     taskxtra/kirbytrial.cpp.rst

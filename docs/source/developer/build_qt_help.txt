@@ -28,8 +28,7 @@ General:
   --show_config_only    Show config, then quit (default: False)
   --root_dir ROOT_DIR   Root directory for source and builds (default taken
                         from environment variable CAMCOPS_QT_BASE_DIR if
-                        present) (default:
-                        /home/martin/workspace/qt_local_build)
+                        present) (default: /home/rudolf/dev/qt_local_build)
   --nparallel NPARALLEL
                         Number of parallel processes to run (default: 8)
   --force               Force build (default: False)
@@ -103,10 +102,10 @@ Android:
 
   --android_sdk_root ANDROID_SDK_ROOT
                         Android SDK root directory (default:
-                        /home/martin/dev/android-sdk-linux)
+                        /home/rudolf/dev/android-sdk-linux)
   --android_ndk_root ANDROID_NDK_ROOT
                         Android NDK root directory (default:
-                        /home/martin/dev/android-ndk-r20)
+                        /home/rudolf/dev/android-ndk-r20)
   --android_ndk_host ANDROID_NDK_HOST
                         Android NDK host architecture (default: linux-x86_64)
   --android_toolchain_version ANDROID_TOOLCHAIN_VERSION
@@ -128,4 +127,4 @@ jom:
                         jom executable (typically installed with QtCreator)
                         (default: C:\Qt\Tools\QtCreator\bin\jom.exe)
 
-# Generated at 2019-09-05 11:15:20
+# Generated at 2019-09-07 16:17:52

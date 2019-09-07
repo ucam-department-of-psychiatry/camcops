@@ -109,22 +109,22 @@ from camcops_server.tasks.iesr import Iesr
 from camcops_server.tasks.ifs import Ifs
 from camcops_server.tasks.irac import Irac
 
-from camcops_server.tasks.khandaker_1_insightmedical import (
-    Khandaker1InsightMedical,
+from camcops_server.tasks.khandaker_insight_medical import (
+    KhandakerInsightMedical,
 )
-from camcops_server.tasks.khandaker_2_mojosociodemographics import (
-    Khandaker2MojoSociodemographics,
-)
-from camcops_server.tasks.khandaker_2_mojomedical import (
+from camcops_server.tasks.khandaker_mojo_medical import (
     KhandakerMojoMedical,
 )
-from camcops_server.tasks.khandaker_2_mojomedicationtable import (
-     Khandaker2MojoMedicationTable,
+from camcops_server.tasks.khandaker_mojo_medicationtherapy import (
+     KhandakerMojoMedicationTherapy,
 )
 from camcops_server.tasks.kirby_mcq import Kirby
+from camcops_server.tasks.khandaker_mojo_sociodemographics import (
+    KhandakerMojoSociodemographics,
+)
 
-from camcops_server.tasks.lynall_1_iam_medical import Lynall1IamMedicalHistory
-# todo: # from camcops_server.tasks.lynall_2_iam_life import Lynall2LifeEvents
+from camcops_server.tasks.lynall_iam_medical import LynallIamMedicalHistory
+# todo: # from camcops_server.tasks.lynall_iam_life import LynallLifeEvents
 
 from camcops_server.tasks.maas import Maas
 from camcops_server.tasks.mast import Mast

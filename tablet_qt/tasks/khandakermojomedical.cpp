@@ -206,16 +206,16 @@ QString KhandakerMojoMedical::description() const
 
 bool KhandakerMojoMedical::isComplete() const
 {
-    for (const QString fieldname: MANDATORY_FIELDNAMES) {
+    for (const QString& fieldname: MANDATORY_FIELDNAMES) {
         if (valueIsNull(fieldname)) {
             return false;
         }
 
         if (DETAILS_FIELDS.contains(fieldname)) {
             if (valueBool(fieldname) &&
-                valueIsNullOrEmpty(DETAILS_FIELDS.value(fieldname))) {
+                    valueIsNullOrEmpty(DETAILS_FIELDS.value(fieldname))) {
                 return false;
-                }
+            }
         }
     }
 
@@ -233,7 +233,7 @@ QStringList KhandakerMojoMedical::detail() const
 {
     QStringList lines;
 
-    for (const QString fieldname : MANDATORY_FIELDNAMES) {
+    for (const QString& fieldname : MANDATORY_FIELDNAMES) {
         lines.append(xstring(Q_XML_PREFIX + fieldname));
         lines.append(QString("<b>%1</b>").arg(prettyValue(fieldname)));
 
@@ -325,7 +325,7 @@ OpenableWidget* KhandakerMojoMedical::editor(const bool read_only)
         QVector<QuestionWithOneField> field_pairs;
 
         for (const QString& fieldname : fieldnames) {
-            const QString& description = xstring(Q_XML_PREFIX + fieldname);
+            const QString description = xstring(Q_XML_PREFIX + fieldname);
             field_pairs.append(QuestionWithOneField(description,
                                                     fieldRef(fieldname)));
         }
@@ -496,9 +496,8 @@ void KhandakerMojoMedical::updateDurationOfIllness()
     if (diagnosis_date.isNull()) {
         m_diagnosis_years.clear();
     } else {
-        const int days = diagnosis_date.toDate().daysTo(QDate::currentDate());
-
-        m_diagnosis_years =  (int)floor(0.5 + days / 365.25);
+        const double days = diagnosis_date.toDate().daysTo(QDate::currentDate());
+        m_diagnosis_years = static_cast<int>(floor(0.5 + days / 365.25));
     }
     m_fr_diagnosis_years->emitValueChanged();
 }
@@ -519,7 +518,7 @@ void KhandakerMojoMedical::updateMandatory()
 {
     // This could be more efficient with lots of signal handlers, but...
 
-    for (auto fieldname : DETAILS_FIELDS.keys()) {
+    for (const auto& fieldname : DETAILS_FIELDS.keys()) {
         if (valueIsNull(fieldname)) {
             continue;
         }

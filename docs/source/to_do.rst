@@ -30,7 +30,7 @@ Tasks
 
 **Priority: IAM**
 
-- :ref:`Lynall M-E — 2 — IAM study — life events <lynall_2_iam_life>`
+- :ref:`Lynall M-E — IAM study — life events <lynall_iam_life>`
 
   .. todo:: IN PROGRESS +++ a/w permission clarification
 

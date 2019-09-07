@@ -35,8 +35,9 @@
 #include "questionnairelib/qutextedit.h"
 #include "tasklib/taskfactory.h"
 
-struct KQInfo {
-    KQInfo(const QString& stem, const QString& heading_xml = "") {
+struct KhandakerInsightQInfo {
+    KhandakerInsightQInfo(const QString& stem,
+                          const QString& heading_xml = "") {
         // Fieldnames:
         fieldname_yn = stem + "_yn";
         fieldname_comment = stem + "_comment";
@@ -53,6 +54,7 @@ struct KQInfo {
     QString question_xmlstr;
     QString heading_xmlstr;
 };
+using KQInfo = KhandakerInsightQInfo;
 
 const QVector<KQInfo> QUESTIONS{
     KQInfo("cancer", "heading_cancer"),
@@ -107,7 +109,7 @@ KhandakerInsightMedical::KhandakerInsightMedical(
         CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, KHANDAKERINSIGHTMEDICAL_TABLENAME, false, false, false)  // ... anon, clin, resp
 {
-    for (const KQInfo& info : QUESTIONS) {
+    for (const KhandakerInsightQInfo& info : QUESTIONS) {
         addField(info.fieldname_yn, QVariant::Bool);
         addField(info.fieldname_comment, QVariant::String);
     }
@@ -151,7 +153,7 @@ Version KhandakerInsightMedical::minimumServerVersion() const
 
 bool KhandakerInsightMedical::isComplete() const
 {
-    for (const KQInfo& info : QUESTIONS) {
+    for (const KhandakerInsightQInfo& info : QUESTIONS) {
         if (valueIsNull(info.fieldname_yn)) {
             return false;
         }
@@ -173,7 +175,7 @@ QStringList KhandakerInsightMedical::summary() const
 QStringList KhandakerInsightMedical::detail() const
 {
     QStringList lines;
-    for (const KQInfo& info : QUESTIONS) {
+    for (const KhandakerInsightQInfo& info : QUESTIONS) {
         QString comment = "";
         if (!valueIsNullOrEmpty(info.fieldname_comment) ||
                 valueBool(info.fieldname_yn)) {
@@ -222,7 +224,7 @@ OpenableWidget* KhandakerInsightMedical::editor(const bool read_only)
     ++row;
 
     // Questions and subheadings
-    for (const KQInfo& info : QUESTIONS) {
+    for (const KhandakerInsightQInfo& info : QUESTIONS) {
         if (info.hasHeading()) {
             QuBackground* subhead_bg = new QuBackground(cssconst::OPTION_BACKGROUND);
             QuGridCell subhead_bg_cell(subhead_bg, row, COLUMN_Q, 1, NCOL);
@@ -285,7 +287,7 @@ void KhandakerInsightMedical::updateMandatory()
 {
     // This could be more efficient with lots of signal handlers, but...
 
-    for (const KQInfo& info : QUESTIONS) {
+    for (const KhandakerInsightQInfo& info : QUESTIONS) {
         const bool y = valueBool(info.fieldname_yn);
         fieldRef(info.fieldname_comment)->setMandatory(y);
     }

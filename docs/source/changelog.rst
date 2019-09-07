@@ -1186,7 +1186,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 **Client v2.2.3, server v2.2.3, 2018-06-23**
 
-- :ref:`Khandaker/Insight medical history <khandaker_1_insightmedical>` task.
+- :ref:`Khandaker/Insight medical history <khandaker_insight_medical>` task.
 
 - Client requires server v2.2.3. (Was a global requirement; should have been
   task-specific. REVERTED to minimum server version 2.2.0 in client 2.2.6.)
@@ -2455,7 +2455,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Set ``strict_undefined=True`` for Mako template lookups, so they crash
   immediately on typos.
 
-- **New task:** :ref:`Khandaker GM — 2 — MOJO study <khandaker_2_mojo>`.
+- **New tasks:** :ref:`Khandaker GM — MOJO study <khandaker_mojo>`.
   (Database revisions 0039-0041.)
 
 - More consistent numbering/naming convention for custom tasks:
