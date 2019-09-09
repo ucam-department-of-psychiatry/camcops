@@ -46,7 +46,7 @@ from typing import List
 
 EXIT_FAILURE = 1
 
-PRECOMMIT_DIR = os.path.realpath(os.path.dirname(__file__))
+PRECOMMIT_DIR = os.path.realpath(__file__)
 PROJECT_ROOT = os.path.join(PRECOMMIT_DIR, '..')
 PYTHON_SOURCE_DIR = os.path.join(PROJECT_ROOT,
                                  'server', 'camcops_server')
