@@ -39,8 +39,10 @@ stash your changes before commiting.
 
 import logging
 import os
-from subprocess import run
+from subprocess import CalledProcessError, run
 import sys
+from typing import List
+
 
 EXIT_FAILURE = 1
 
@@ -56,20 +58,21 @@ class PreCommitException(Exception):
     pass
 
 
+def run_with_check(args: List[str]):
+    run(args, check=True)
+
+
 def check_python_style() -> None:
-    retval = run([
+    run_with_check([
         'pylava',
         '-o', CONFIG_FILE,
         PYTHON_SOURCE_DIR,
     ])
 
-    if retval != 0:
-        raise PreCommitException("Failed python style checks")
-
 
 def check_imports_sorted() -> None:
     # https://github.com/timothycrosley/isort
-    retval = run([
+    run_with_check([
         'isort',
         '-c',  # Check only, do not make changes
         '-rc',  # Recursive
@@ -77,9 +80,6 @@ def check_imports_sorted() -> None:
         '-sp', CONFIG_FILE,
         PYTHON_SOURCE_DIR
     ])
-
-    if retval != 0:
-        raise PreCommitException("Imports incorrectly sorted")
 
 
 # https://stackoverflow.com/questions/1871549/determine-if-python-is-running-inside-virtualenv
@@ -96,9 +96,9 @@ def main() -> None:
         sys.exit(EXIT_FAILURE)
 
     try:
-        check_python_style()
+        # check_python_style()
         check_imports_sorted()
-    except PreCommitException as e:
+    except CalledProcessError as e:
         log.error(str(e))
         log.error("Pre-commit hook failed. Check errors above")
         sys.exit(EXIT_FAILURE)
