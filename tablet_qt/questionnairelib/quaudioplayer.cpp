@@ -23,6 +23,7 @@
 #include <QUrl>
 #include <QHBoxLayout>
 #include <QWidget>
+#include "common/textconst.h"
 #include "common/uiconst.h"
 #include "lib/soundfunc.h"
 #include "lib/uifunc.h"
@@ -106,10 +107,12 @@ QPointer<QWidget> QuAudioPlayer::makeWidget(Questionnaire* questionnaire)
     layout->addStretch();
 
     soundfunc::makeMediaPlayer(m_player);
-    m_player->setMedia(QUrl(m_url));
-    m_player->setVolume(m_volume);
-    connect(m_player.data(), &QMediaPlayer::mediaStatusChanged,
-            this, &QuAudioPlayer::mediaStatusChanged);
+    if (m_player) {
+        m_player->setMedia(QUrl(m_url));
+        m_player->setVolume(m_volume);
+        connect(m_player.data(), &QMediaPlayer::mediaStatusChanged,
+                this, &QuAudioPlayer::mediaStatusChanged);
+    }
 
     return widget;
 }

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="khandaker_mojo_medicationtherapy">
+    <!-- Khandaker GM — MOJO Study — Medications and therapies -->
+
+    <string name="title">MOJO Study — Medications and Treatment</string>
+    <string name="medication_question">What current medication do you take that has been prescribed by a doctor?</string>
+    <string name="medication_name">Medication name</string>
+    <string name="chemical_name">Chemical name (if known)</string>
+    <string name="dose">Dose</string>
+    <string name="frequency">Frequency</string>
+    <string name="duration_months">Duration (months)</string>
+    <string name="indication">Indication</string>
+    <string name="medication_frequency_hint">e.g. twice a day, daily, weekly</string>
+    <string name="medication_indication_hint">What is the medication for?</string>
+    <string name="response">Response</string>
+    <string name="response_1">Treats all symptoms</string>
+    <string name="response_2">Treats most symptoms</string>
+    <string name="response_3">Treats some symptoms</string>
+    <string name="response_4">Treats no symptoms</string>
+    <string name="custom_medication_0">Select a common anti-inflammatory medication</string>
+    <string name="custom_medication_1">abatacept</string>
+    <string name="custom_medication_2">adalimumab</string>
+    <string name="custom_medication_3">alemtuzumab</string>
+    <string name="custom_medication_4">azathioprine</string>
+    <string name="custom_medication_5">baricitinib</string>
+    <string name="custom_medication_6">belimumab</string>
+    <string name="custom_medication_7">certolizumab pegol</string>
+    <string name="custom_medication_8">cyclophosphamide</string>
+    <string name="custom_medication_9">etanercept</string>
+    <string name="custom_medication_10">golimumab</string>
+    <string name="custom_medication_11">hydrocortisone</string>
+    <string name="custom_medication_12">hydroxychloroquine</string>
+    <string name="custom_medication_13">infliximab</string>
+    <string name="custom_medication_14">intravenous immunoglobulin</string>
+    <string name="custom_medication_15">intravenous methylprednisolone</string>
+    <string name="custom_medication_16">leflunomide</string>
+    <string name="custom_medication_17">MMF (mycophenolate mofetil)</string>
+    <string name="custom_medication_18">methotrexate</string>
+    <string name="custom_medication_19">plasma exchange</string>
+    <string name="custom_medication_20">prednisolone</string>
+    <string name="custom_medication_21">rituximab</string>
+    <string name="custom_medication_22">secukinumab</string>
+    <string name="custom_medication_23">sulfasalazine</string>
+    <string name="custom_medication_24">tocilizumab</string>
+    <string name="custom_medication_25">tofacitinib</string>
+    <string name="add_instructions">Add either a blank row or one with a common anti-inflammatory medication. Then edit the row to give details.</string>
+    <string name="therapy_question">Are you receiving any talking therapies (e.g: cognitive–behavioural therapy)? If so, how frequently, how long have you been receiving it, and are you finding it effective?</string>
+    <string name="therapy">Therapy</string>
+    <string name="therapy_frequency_hint">e.g. 1 session per week</string>
+    <string name="therapy_indication_hint">What is the therapy for?</string>
+    <string name="sessions_completed">Sessions completed</string>
+    <string name="sessions_planned">Sessions planned</string>
+    <string name="number_of_medications">Medications:</string>
+    <string name="number_of_therapies">Therapies:</string>
+  </task>
+</resources>

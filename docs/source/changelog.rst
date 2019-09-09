@@ -1186,7 +1186,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 **Client v2.2.3, server v2.2.3, 2018-06-23**
 
-- :ref:`Khandaker/Insight medical history <khandaker_1_insightmedical>` task.
+- :ref:`Khandaker/Insight medical history <khandaker_insight_medical>` task.
 
 - Client requires server v2.2.3. (Was a global requirement; should have been
   task-specific. REVERTED to minimum server version 2.2.0 in client 2.2.6.)
@@ -2229,8 +2229,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - ``make_xml_skeleton.py`` development tool
 
-- **New task:** :ref:`Lynall M-E — 1 — IAM study — medical history
-  <lynall_1_iam_medical>`
+- **New task:** :ref:`Lynall M-E — IAM study — medical history
+  <lynall_iam_medical>`
 
 - **New task:** :ref:`Kirby Monetary Choice Questionnaire (MCQ) <kirby_mcq>`
 
@@ -2449,8 +2449,99 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Add optional waist circumference to :ref:`BMI  <bmi>`.
   (Database revision 0038.)
 
-  Add ``setMinimiumDate()`` and ``setMaximumDate()`` to ``QuDateTime``.
+- Add ``setMinimiumDate()`` and ``setMaximumDate()`` to ``QuDateTime``.
   This also fixes the broken default minimum date of 1st January 1880.
 
 - Set ``strict_undefined=True`` for Mako template lookups, so they crash
   immediately on typos.
+
+- **New tasks:** :ref:`Khandaker GM — MOJO study <khandaker_mojo>`.
+  (Database revisions 0039-0041.)
+
+- More consistent numbering/naming convention for custom tasks:
+
+  - Numbering may be used in code (filenames, class names), if desired, which
+    helps the programmer (it groups lots of files relating to the same task
+    together quickly when searching).
+  - Numbering not used in menus or task names, because it's slightly confusing
+    for the user (are we numbering tasks overall? Studies? Tasks within
+    studies?).
+  - Unnamed studies may be named "S1", "S2", ...
+  - Board format remains, overall: PI, study name, task name.
+  - Historical table names not changed.
+  - Future table names: try to avoid numbers.
+
+- Regression: crash in creating SVG figures from
+  ``cardinal_expdetthreshold.py`` and ``cardinal_expectationdetection.py``.
+  Details in comments here. Likely due to a matplotlib change.
+
+..  Not helped by matplotlib upgrade from 3.0.2 to 3.1.1. However, no problem
+    with ``ace3.py``, which also uses ``fontdict``.
+    .
+    The error was:
+    .
+    .. code-block:: none
+    .
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.6/site-packages/matplotlib/offsetbox.py", line 808, in get_extent
+        "lp", self._text._fontproperties, ismath=False)
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.6/site-packages/matplotlib/backends/backend_agg.py", line 210, in get_text_width_height_descent
+        font = self._get_agg_font(prop)
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.6/site-packages/matplotlib/backends/backend_agg.py", line 245, in _get_agg_font
+        fname = findfont(prop)
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.6/site-packages/matplotlib/font_manager.py", line 1238, in findfont
+        rc_params)
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.6/site-packages/matplotlib/font_manager.py", line 1270, in _findfont_cached
+        + self.score_size(prop.get_size(), font.size))
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.6/site-packages/matplotlib/font_manager.py", line 1076, in score_family
+        family1 = family1.lower()
+    AttributeError: 'dict' object has no attribute 'lower'
+    .
+    or
+    .
+    .. code-block:: none
+    .
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.6/site-packages/matplotlib/backends/backend_svg.py", line 1180, in get_text_width_height_descent
+        return self._text2path.get_text_width_height_descent(s, prop, ismath)
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.6/site-packages/matplotlib/textpath.py", line 89, in get_text_width_height_descent
+        font = self._get_font(prop)
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.6/site-packages/matplotlib/textpath.py", line 38, in _get_font
+        fname = font_manager.findfont(prop)
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.6/site-packages/matplotlib/font_manager.py", line 1238, in findfont
+        rc_params)
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.6/site-packages/matplotlib/font_manager.py", line 1270, in _findfont_cached
+        + self.score_size(prop.get_size(), font.size))
+      File "/home/rudolf/dev/venvs/camcops/lib/python3.6/site-packages/matplotlib/font_manager.py", line 1076, in score_family
+        family1 = family1.lower()
+    AttributeError: 'dict' object has no attribute 'lower'
+    .
+    .
+    Is also not specific to SVG, as it still happens (and the ACE-III is still
+    OK) when setting ``USE_SVG_IN_HTML = False``.
+    .
+    Not affecting self-testing (which probably skips those figures for a blank
+    task).
+    .
+    In :class:`camcops_server.tasks.CardinalExpDetThreshold`, the problem was
+    from a call to :meth:`matplotlib.axes.Axes.legend` with argument
+    ``prop=req.fontprops``. The documentation at
+    https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.axes.Axes.legend.html
+    suggests that a dictionary is OK.
+    .
+    Looks like that ends up at :meth:`matplotlib.legend.Legend.__init__`.
+    .
+    Aha. Bug found. In
+    :meth:`camcops_server.cc_modules.cc_request.CamcopsRequest.fontprops`, this:
+    .
+    .. code-block:: python
+    .
+        return FontProperties(self.fontdict)
+    .
+    should have been this:
+    .
+    .. code-block:: python
+    .
+        return FontProperties(**self.fontdict)
+    .
+    The odd thing is that the change was between 2017-09-10 and 2017-09-11 and
+    it was certainly working after that, so perhaps ``matplotlib`` used to
+    accept a dictionary or **kwargs and no longer does.

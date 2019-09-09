@@ -173,6 +173,7 @@ public:
     static QString txtFalse();  // "false" is a C++ keyword
     static QString txtTrue();  // "true" is a C++ keyword
 
+    static QString unableToCreateMediaPlayer();
     static QString unknown();
     
     static QString verySevere();

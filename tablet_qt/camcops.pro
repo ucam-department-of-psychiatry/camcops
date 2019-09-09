@@ -611,16 +611,16 @@ SOURCES += \
     menu/researchmenu.cpp \
     menu/researchsetsmenu.cpp \
     menu/serviceevaluationmenu.cpp \
-    menu/setmenucpftaffective1.cpp \
-    menu/setmenucpftperinatal1.cpp \
-    menu/setmenucpftpsychooncology1.cpp \
-    menu/setmenudeakin1.cpp \
+    menu/setmenucpftadrd.cpp \
+    menu/setmenucpftperinatal.cpp \
+    menu/setmenucpftpsychooncology.cpp \
+    menu/setmenudeakin.cpp \
     menu/setmenufromlp.cpp \
     menu/setmenufromperinatal.cpp \
-    menu/setmenukhandaker1insight.cpp \
-    menu/setmenukhandaker2mojo.cpp \
-    menu/setmenulynall1iam.cpp \
-    menu/setmenuobrien1.cpp \
+    menu/setmenukhandakerinsight.cpp \
+    menu/setmenukhandakermojo.cpp \
+    menu/setmenulynalliam.cpp \
+    menu/setmenuobrien.cpp \
     menu/settingsmenu.cpp \
     menu/singletaskmenu.cpp \
     menu/testmenu.cpp \
@@ -749,7 +749,7 @@ SOURCES += \
     tasks/dad.cpp \
     tasks/das28.cpp \
     tasks/dast.cpp \
-    tasks/deakin1healthreview.cpp \
+    tasks/deakins1healthreview.cpp \
     tasks/demoquestionnaire.cpp \
     tasks/demqol.cpp \
     tasks/demqolproxy.cpp \
@@ -789,9 +789,12 @@ SOURCES += \
     tasks/iesr.cpp \
     tasks/ifs.cpp \
     tasks/irac.cpp \
-    tasks/khandaker1insightmedical.cpp \
-    tasks/lynall1iammedical.cpp \
-    tasks/lynall2iamlife.cpp \
+    tasks/khandakerinsightmedical.cpp \
+    tasks/khandakermojomedical.cpp \
+    tasks/khandakermojomedicationtherapy.cpp \
+    tasks/khandakermojosociodemographics.cpp \
+    tasks/lynalliamlife.cpp \
+    tasks/lynalliammedical.cpp \
     tasks/maas.cpp \
     tasks/mast.cpp \
     tasks/mdsupdrs.cpp \
@@ -846,6 +849,8 @@ SOURCES += \
     taskxtra/ided3dexemplars.cpp \
     taskxtra/ided3dstage.cpp \
     taskxtra/ided3dtrial.cpp \
+    taskxtra/khandakermojomedicationitem.cpp \
+    taskxtra/khandakermojotherapyitem.cpp \
     taskxtra/kirbyrewardpair.cpp \
     taskxtra/kirbytrial.cpp \
     taskxtra/pclcommon.cpp \
@@ -1045,16 +1050,16 @@ HEADERS += \
     menu/researchmenu.h \
     menu/researchsetsmenu.h \
     menu/serviceevaluationmenu.h \
-    menu/setmenucpftaffective1.h \
-    menu/setmenucpftperinatal1.h \
-    menu/setmenucpftpsychooncology1.h \
-    menu/setmenudeakin1.h \
+    menu/setmenucpftadrd.h \
+    menu/setmenucpftperinatal.h \
+    menu/setmenucpftpsychooncology.h \
+    menu/setmenudeakin.h \
     menu/setmenufromlp.h \
     menu/setmenufromperinatal.h \
-    menu/setmenukhandaker1insight.h \
-    menu/setmenukhandaker2mojo.h \
-    menu/setmenulynall1iam.h \
-    menu/setmenuobrien1.h \
+    menu/setmenukhandakerinsight.h \
+    menu/setmenukhandakermojo.h \
+    menu/setmenulynalliam.h \
+    menu/setmenuobrien.h \
     menu/settingsmenu.h \
     menu/singletaskmenu.h \
     menu/testmenu.h \
@@ -1183,7 +1188,7 @@ HEADERS += \
     tasks/dad.h \
     tasks/das28.h \
     tasks/dast.h \
-    tasks/deakin1healthreview.h \
+    tasks/deakins1healthreview.h \
     tasks/demoquestionnaire.h \
     tasks/demqol.h \
     tasks/demqolproxy.h \
@@ -1223,9 +1228,12 @@ HEADERS += \
     tasks/iesr.h \
     tasks/ifs.h \
     tasks/irac.h \
-    tasks/khandaker1insightmedical.h \
-    tasks/lynall1iammedical.h \
-    tasks/lynall2iamlife.h \
+    tasks/khandakerinsightmedical.h \
+    tasks/khandakermojomedical.h \
+    tasks/khandakermojomedicationtherapy.h \
+    tasks/khandakermojosociodemographics.h \
+    tasks/lynalliamlife.h \
+    tasks/lynalliammedical.h \
     tasks/maas.h \
     tasks/mast.h \
     tasks/mdsupdrs.h \
@@ -1280,6 +1288,8 @@ HEADERS += \
     taskxtra/ided3dexemplars.h \
     taskxtra/ided3dstage.h \
     taskxtra/ided3dtrial.h \
+    taskxtra/khandakermojomedicationitem.h \
+    taskxtra/khandakermojotherapyitem.h \
     taskxtra/kirbyrewardpair.h \
     taskxtra/kirbytrial.h \
     taskxtra/pclcommon.h \

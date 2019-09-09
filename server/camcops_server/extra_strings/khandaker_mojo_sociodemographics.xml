@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="khandaker_mojo_sociodemographics">
+    <!-- Khandaker GM — MOJO Study — Sociodemographics Questionnaire -->
+
+    <string name="title">MOJO Study — Sociodemographics Questionnaire</string>
+
+    <string name="q_gender">Gender at birth</string>
+    <string name="gender_option0">Male</string>
+    <string name="gender_option1">Female</string>
+    <string name="gender_option2">Other (specify)</string>
+
+    <string name="q_ethnicity">From the list below, how would you describe your ethnicity?</string>
+    <string name="ethnicity_option0">White</string>
+    <string name="ethnicity_option1">Mixed</string>
+    <string name="ethnicity_option2">Indian</string>
+    <string name="ethnicity_option3">Pakistani</string>
+    <string name="ethnicity_option4">Bangladeshi</string>
+    <string name="ethnicity_option5">Other Asian</string>
+    <string name="ethnicity_option6">Black Caribbean</string>
+    <string name="ethnicity_option7">Black African</string>
+    <string name="ethnicity_option8">Black Other</string>
+    <string name="ethnicity_option9">Chinese</string>
+    <string name="ethnicity_option10">Other (specify)</string>
+
+    <string name="q_with_whom_live">With whom do you live?</string>
+    <string name="with_whom_live_option0">Alone</string>
+    <string name="with_whom_live_option1">Alone, with children</string>
+    <string name="with_whom_live_option2">Partner/spouse</string>
+    <string name="with_whom_live_option3">Partner/spouse and children</string>
+    <string name="with_whom_live_option4">Parents</string>
+    <string name="with_whom_live_option5">Other family</string>
+    <string name="with_whom_live_option6">Friends</string>
+    <string name="with_whom_live_option7">Other (specify)</string>
+
+    <string name="q_relationship_status">What is your relationship status?</string>
+    <string name="relationship_status_option0">Single</string>
+    <string name="relationship_status_option1">Married / civil partnership</string>
+    <string name="relationship_status_option2">In steady relationship</string>
+    <string name="relationship_status_option3">Divorced / separated</string>
+    <string name="relationship_status_option4">Widowed</string>
+
+    <string name="q_education">What was the highest level of education you reached?</string>
+    <string name="education_option0">No qualifications</string>
+    <string name="education_option1">GCSE / O-Levels</string>
+    <string name="education_option2">A-Levels</string>
+    <string name="education_option3">Vocational/college (BTECs/NVQs etc.)</string>
+    <string name="education_option4">University / professional qualifications</string>
+
+    <string name="q_employment">Are you employed?</string>
+    <string name="employment_option0">No, unemployed</string>
+    <string name="employment_option1">No, student</string>
+    <string name="employment_option2">Yes, full time</string>
+    <string name="employment_option3">Yes, part time</string>
+    <string name="employment_option4">Full time homemaker</string>
+    <string name="employment_option5">Self employed</string>
+    <string name="employment_option6">Not working for medical reasons</string>
+    <string name="employment_option7">Other (specify)</string>
+
+    <string name="q_accommodation">Accommodation type</string>
+    <string name="accommodation_option0">Own outright</string>
+    <string name="accommodation_option1">Own with mortgage</string>
+    <string name="accommodation_option2">Rent from local authority, council or housing association</string>
+    <string name="accommodation_option3">Rent from landlord (private)</string>
+    <string name="accommodation_option4">Shared ownership (part rent, part mortgage)</string>
+    <string name="accommodation_option5">Live rent free</string>
+    <string name="accommodation_option6">Other (specify)</string>
+  </task>
+</resources>

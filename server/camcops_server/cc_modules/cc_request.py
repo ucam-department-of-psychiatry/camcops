@@ -1081,7 +1081,7 @@ class CamcopsRequest(Request):
         Return a :class:`matplotlib.font_manager.FontProperties` object for
         use with Matplotlib plotting.
         """
-        return FontProperties(self.fontdict)
+        return FontProperties(**self.fontdict)
 
     def set_figure_font_sizes(self,
                               ax: "Axes",  # "SubplotBase",

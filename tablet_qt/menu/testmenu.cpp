@@ -215,6 +215,9 @@ void TestMenu::testDebugConsole()
 void TestMenu::testSound()
 {
     soundfunc::makeMediaPlayer(m_player);
+    if (!m_player) {
+        return;
+    }
     const QUrl url(uiconst::DEMO_SOUND_URL_1);
     qDebug() << "Trying to play:" << url;
     m_player->setMedia(url);

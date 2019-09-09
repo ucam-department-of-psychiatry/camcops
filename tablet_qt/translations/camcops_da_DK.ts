@@ -298,10 +298,6 @@
         <translation>Taljemål:</translation>
     </message>
     <message>
-        <source>Mass, height.</source>
-        <translation>Masse, højde.</translation>
-    </message>
-    <message>
         <location filename="../tasks/bmi.cpp" line="144"/>
         <source>Comments:</source>
         <translation>Kommentarer:</translation>
@@ -643,112 +639,112 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
 <context>
     <name>CardinalExpDetThreshold</name>
     <message>
-        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="190"/>
+        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="191"/>
         <source>Cardinal RN — ExpDet-Threshold task</source>
         <translation>Cardinal RN — ExpDet-tærskelværdi opgave</translation>
     </message>
     <message>
-        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="196"/>
+        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="197"/>
         <source>Rapid assessment of auditory/visual thresholds (for expectation–detection task).</source>
         <translation>Hurtig vurdering af auditive / visuelle tærskler (til forventningsopdagelsesopgave).</translation>
     </message>
     <message>
-        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="297"/>
+        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="298"/>
         <source>Configure ExpDetThreshold task</source>
         <translation>Konfigurer ExpDet-tærskelværdi opgave</translation>
     </message>
     <message>
-        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="328"/>
+        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="329"/>
         <source>Set your device’s brightness and volume BEFORE running this task, and DO NOT ALTER THEM in between runs or before completing the main Expectation–Detection task. Also, try to keep the lighting and background noise constant throughout.</source>
         <translation>Indstil enhedens lysstyrke og lydstyrke FØR du kører denne opgave, og IKKE ALTER DEM mellem kørsler eller inden du gennemfører hovedforventningsdetekteringsopgaven. Prøv også at holde belysningen og baggrundsstøj konstant hele vejen igennem.</translation>
     </message>
     <message>
-        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="334"/>
+        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="335"/>
         <source>Before you run the Expectation–Detection task for a given subject, please run this task FOUR times to determine the subject’s threshold for each of two auditory stimuli (tone, voice) and each of two auditory stimuli (circle, word).</source>
         <translation>Før du kører forventningsopdagelsesopgaven for et givet emne, skal du køre denne opgave FIRE gange for at bestemme emnets tærskel for hver af de to auditive stimuli (tone, stemme) og hver af to auditive stimuli (cirkel, ord).</translation>
     </message>
     <message>
-        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="340"/>
+        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="341"/>
         <source>Then, make a note of the 75% (“x75”) threshold intensities for each stimulus, and start the Expectation–Detection task (which only needs to be run once). It will ask you for these four intensities.</source>
         <translation>Dernæst noter tærskelintensiteterne for 75% (&quot;x75&quot;) for hver stimulus, og start Opgavelsesdetekteringsopgaven (som kun skal køres én gang). Det vil bede dig om disse fire intensiteter.</translation>
     </message>
     <message>
-        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="312"/>
+        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="313"/>
         <source>WARNING: cannot proceed: must satisfy min start intensity &lt;= max start intensity</source>
         <translation>ADVARSEL: Kan ikke fortsætte: skal opfylde minimumstartintensitet &lt;= maksimal startintensitet</translation>
     </message>
     <message>
-        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="346"/>
+        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="347"/>
         <source>Choose a modality:</source>
         <translation>Vælg en modalitet:</translation>
     </message>
     <message>
-        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="351"/>
+        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="352"/>
         <source>Choose a target stimulus:</source>
         <translation>Vælg en målstimulering:</translation>
     </message>
     <message>
-        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="360"/>
+        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="361"/>
         <source>Intensities and probabilities are in the range 0–1.</source>
         <translation>Intensiteter og sandsynligheder ligger i området 0–1.</translation>
     </message>
     <message>
-        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="364"/>
+        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="365"/>
         <source>Background intensity (usually 1.0)</source>
         <translation>Baggrundsintensitet (normalt 1,0)</translation>
     </message>
     <message>
-        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="366"/>
+        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="367"/>
         <source>Minimum starting intensity (e.g. 0.9)</source>
         <translation>Minimum startintensitet (fx 0,9)</translation>
     </message>
     <message>
-        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="368"/>
+        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="369"/>
         <source>Maximum starting intensity (e.g. 1.0)</source>
         <translation>Maksimal startintensitet (fx 1,0)</translation>
     </message>
     <message>
-        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="370"/>
+        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="371"/>
         <source>Initial, large, intensity step (e.g. 0.1)</source>
         <translation>Indledende stort intensitetstrin (fx 0,1)</translation>
     </message>
     <message>
-        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="372"/>
+        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="373"/>
         <source>Main, small, intensity step (e.g. 0.01)</source>
         <translation>Hoved, lille intensitetstrin (f.eks. 0,01)</translation>
     </message>
     <message>
-        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="374"/>
+        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="375"/>
         <source>Number of trials in the main test sequence (e.g. 14)</source>
         <translation>Antal forsøg i hovedtestsekvensen (fx 14)</translation>
     </message>
     <message>
-        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="376"/>
+        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="377"/>
         <source>Probability of a catch trial (e.g. 0.2)</source>
         <translation>Sandsynligheden for et trickforsøg (fx 0,2)</translation>
     </message>
     <message>
-        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="378"/>
+        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="379"/>
         <source>Intertrial interval (s) (e.g. 0.2)</source>
         <translation>Tid mellem forsøg (s) (fx 0,2)</translation>
     </message>
     <message>
-        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="757"/>
+        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="758"/>
         <source>Did you see a</source>
         <translation>Så du en</translation>
     </message>
     <message>
-        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="758"/>
+        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="759"/>
         <source>Did you hear a</source>
         <translation>Har du hørt en</translation>
     </message>
     <message>
-        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="1001"/>
+        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="1005"/>
         <source>Auditory</source>
         <translation>Auditiv</translation>
     </message>
     <message>
-        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="1007"/>
+        <location filename="../tasks/cardinalexpdetthreshold.cpp" line="1011"/>
         <source>Visual</source>
         <translation>Visuel</translation>
     </message>
@@ -1204,14 +1200,14 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
     </message>
 </context>
 <context>
-    <name>Deakin1HealthReview</name>
+    <name>DeakinS1HealthReview</name>
     <message>
-        <location filename="../tasks/deakin1healthreview.cpp" line="343"/>
-        <source>Deakin JB — 1 — Health review</source>
-        <translation>Deakin JB — 1 — sundhedsanmeldelse</translation>
+        <location filename="../tasks/deakins1healthreview.cpp" line="344"/>
+        <source>Deakin JB — Antibody-mediated psychosis study — health review</source>
+        <translation>Deakin JB — Antistofmedieret psykosestudie — Sundhedsanmeldelse</translation>
     </message>
     <message>
-        <location filename="../tasks/deakin1healthreview.cpp" line="349"/>
+        <location filename="../tasks/deakins1healthreview.cpp" line="350"/>
         <source>Health review for antibody-mediated psychosis study.</source>
         <translation>Sundhedsanmeldelse for antistofmedieret psykosestudie.</translation>
     </message>
@@ -2849,20 +2845,75 @@ enig</translation>
     </message>
 </context>
 <context>
-    <name>Khandaker1InsightMedical</name>
+    <name>KhandakerInsightMedical</name>
     <message>
-        <location filename="../tasks/khandaker1insightmedical.cpp" line="132"/>
-        <source>Khandaker GM — 1 — Insight — Medical history</source>
-        <translation>Khandaker GM — 1 — Indsigt — sygehistorie</translation>
+        <location filename="../tasks/khandakerinsightmedical.cpp" line="134"/>
+        <source>Khandaker GM — Insight — Medical history</source>
+        <translation>Khandaker GM — Insight — Medicinsk historie</translation>
     </message>
     <message>
-        <location filename="../tasks/khandaker1insightmedical.cpp" line="138"/>
+        <location filename="../tasks/khandakerinsightmedical.cpp" line="140"/>
         <source>Medical history screening for Insight immunopsychiatry study.</source>
         <translation>Medicinsk historie screening for Insight immunopsykiatri undersøgelse.</translation>
     </message>
 </context>
 <context>
+    <name>KhandakerMojoMedical</name>
+    <message>
+        <location filename="../tasks/khandakermojomedical.cpp" line="193"/>
+        <source>Khandaker GM — MOJO — Medical questionnaire</source>
+        <translation>Khandaker GM — MOJO — Medicinsk spørgeskema</translation>
+    </message>
+    <message>
+        <location filename="../tasks/khandakermojomedical.cpp" line="199"/>
+        <source>Medical questionnaire for MOJO study.</source>
+        <translation>Medicinsk spørgeskema til MOJO-undersøgelse.</translation>
+    </message>
+</context>
+<context>
+    <name>KhandakerMojoMedicationTherapy</name>
+    <message>
+        <location filename="../tasks/khandakermojomedicationtherapy.cpp" line="79"/>
+        <source>Khandaker GM — MOJO — Medications and therapies</source>
+        <translation>Khandaker GM — MOJO — Medicin og terapier</translation>
+    </message>
+    <message>
+        <location filename="../tasks/khandakermojomedicationtherapy.cpp" line="85"/>
+        <source>Record of medications and talking therapies for MOJO study.</source>
+        <translation>Registrering af medicin og taleterapier til MOJO-undersøgelse.</translation>
+    </message>
+    <message>
+        <location filename="../tasks/khandakermojomedicationtherapy.cpp" line="320"/>
+        <location filename="../tasks/khandakermojomedicationtherapy.cpp" line="342"/>
+        <source>A row is blank; won’t add another</source>
+        <translation>En række er tom; tilføjer ikke en anden</translation>
+    </message>
+</context>
+<context>
+    <name>KhandakerMojoSociodemographics</name>
+    <message>
+        <location filename="../tasks/khandakermojosociodemographics.cpp" line="118"/>
+        <source>Khandaker GM — MOJO — Sociodemographics</source>
+        <translation>Khandaker GM — MOJO — Sociodemografi</translation>
+    </message>
+    <message>
+        <location filename="../tasks/khandakermojosociodemographics.cpp" line="124"/>
+        <source>Sociodemographics questionnaire for MOJO study.</source>
+        <translation>Sociodemografisk spørgeskema til MOJO-undersøgelse.</translation>
+    </message>
+</context>
+<context>
     <name>Kirby</name>
+    <message>
+        <location filename="../tasks/kirby.cpp" line="125"/>
+        <source>Kirby et al. 1999 Monetary Choice Questionnaire</source>
+        <translation>Kirby et al. 1999 Monetary Choice Questionnaire [spørgeskema til monetært valg]</translation>
+    </message>
+    <message>
+        <location filename="../tasks/kirby.cpp" line="131"/>
+        <source>Series of hypothetical choices to measure delay discounting.</source>
+        <translation>Serie af hypotetiske valg til måling af forsinkontering.</translation>
+    </message>
     <message>
         <location filename="../tasks/kirby.cpp" line="209"/>
         <source>&lt;i&gt;k&lt;/i&gt; (days&lt;sup&gt;–1&lt;/sup&gt;, Kirby 2000 method): &lt;b&gt;%1&lt;/b&gt; (decay to half value at &lt;b&gt;%2&lt;/b&gt; days).</source>
@@ -2898,29 +2949,29 @@ enig</translation>
     </message>
 </context>
 <context>
-    <name>Lynall1IamMedical</name>
+    <name>LynallIamLife</name>
     <message>
-        <location filename="../tasks/lynall1iammedical.cpp" line="182"/>
-        <source>Lynall M-E — 1 — IAM — Medical history</source>
-        <translation>Lynall M-E — 1 — IAM — sygehistorie</translation>
+        <location filename="../tasks/lynalliamlife.cpp" line="59"/>
+        <source>Lynall M-E — IAM — Life events</source>
+        <translation>Lynall M-E — IAM — Livsbegivenheds</translation>
     </message>
     <message>
-        <location filename="../tasks/lynall1iammedical.cpp" line="188"/>
-        <source>Medical history details for IAM immunopsychiatry study.</source>
-        <translation>Medicinsk historie detaljer for IAM immunopsykiatri undersøgelse.</translation>
+        <location filename="../tasks/lynalliamlife.cpp" line="65"/>
+        <source>Life events questionnaire for IAM immunopsychiatry study.</source>
+        <translation>Livsbegivenheds spørgeskema for IAM immunopsykiatri undersøgelse.</translation>
     </message>
 </context>
 <context>
-    <name>Lynall2IamLife</name>
+    <name>LynallIamMedical</name>
     <message>
-        <location filename="../tasks/lynall2iamlife.cpp" line="59"/>
-        <source>Lynall M-E — 2 — IAM — Life events</source>
-        <translation>Lynall M-E — 2 — IAM — Livsbegivenheder</translation>
+        <location filename="../tasks/lynalliammedical.cpp" line="182"/>
+        <source>Lynall M-E — IAM — Medical history</source>
+        <translation>Lynall M-E — IAM — Medicinsk historie</translation>
     </message>
     <message>
-        <location filename="../tasks/lynall2iamlife.cpp" line="65"/>
-        <source>Life events questionnaire for IAM immunopsychiatry study.</source>
-        <translation>Livsbegivenheds spørgeskema for IAM immunopsykiatri undersøgelse.</translation>
+        <location filename="../tasks/lynalliammedical.cpp" line="188"/>
+        <source>Medical history details for IAM immunopsychiatry study.</source>
+        <translation>Medicinsk historie detaljer for IAM immunopsykiatri undersøgelse.</translation>
     </message>
 </context>
 <context>
@@ -4282,12 +4333,12 @@ enig</translation>
         <translation>Nulstil</translation>
     </message>
     <message>
-        <location filename="../questionnairelib/qucountdown.cpp" line="178"/>
+        <location filename="../questionnairelib/qucountdown.cpp" line="180"/>
         <source>FINISHED</source>
         <translation>FÆRDIG</translation>
     </message>
     <message>
-        <location filename="../questionnairelib/qucountdown.cpp" line="182"/>
+        <location filename="../questionnairelib/qucountdown.cpp" line="184"/>
         <source> (not running)</source>
         <translation>(ikke kører)</translation>
     </message>
@@ -4549,80 +4600,80 @@ enig</translation>
     </message>
 </context>
 <context>
-    <name>SetMenuCpftAffective1</name>
+    <name>SetMenuCpftADRD</name>
     <message>
-        <location filename="../menu/setmenucpftaffective1.cpp" line="46"/>
+        <location filename="../menu/setmenucpftadrd.cpp" line="46"/>
         <source>CPFT Affective Disorders Research Database</source>
         <translation>CPFT Affective Disorders Research Database [affektive sygdomsforskningsdatabase]</translation>
     </message>
     <message>
-        <location filename="../menu/setmenucpftaffective1.cpp" line="52"/>
+        <location filename="../menu/setmenucpftadrd.cpp" line="52"/>
         <source>Cambridgeshire and Peterborough NHS Foundation Trust, UK — affective disorders</source>
         <translation>Cambridgeshire and Peterborough NHS Foundation Trust, UK — affektive lidelser</translation>
     </message>
 </context>
 <context>
-    <name>SetMenuCpftPerinatal1</name>
+    <name>SetMenuCpftPerinatal</name>
     <message>
-        <location filename="../menu/setmenucpftperinatal1.cpp" line="50"/>
+        <location filename="../menu/setmenucpftperinatal.cpp" line="50"/>
         <source>CPFT Perinatal Service</source>
         <translation>CPFT Perinatal Service [perinatal mental sundhedstjeneste]</translation>
     </message>
     <message>
-        <location filename="../menu/setmenucpftperinatal1.cpp" line="56"/>
+        <location filename="../menu/setmenucpftperinatal.cpp" line="56"/>
         <source>Cambridgeshire and Peterborough NHS Foundation Trust, UK — perinatal psychiatry service</source>
         <translation>Cambridgeshire and Peterborough NHS Foundation Trust, UK — perinatal mental sundhedstjeneste</translation>
     </message>
     <message>
-        <location filename="../menu/setmenucpftperinatal1.cpp" line="65"/>
+        <location filename="../menu/setmenucpftperinatal.cpp" line="65"/>
         <source>Assessment/choice</source>
         <translation>Evaluering/valg</translation>
     </message>
     <message>
-        <location filename="../menu/setmenucpftperinatal1.cpp" line="68"/>
+        <location filename="../menu/setmenucpftperinatal.cpp" line="68"/>
         <source>Generic measures</source>
         <translation>Generiske foranstaltninger</translation>
     </message>
     <message>
-        <location filename="../menu/setmenucpftperinatal1.cpp" line="71"/>
+        <location filename="../menu/setmenucpftperinatal.cpp" line="71"/>
         <source>Mother–infant measures</source>
         <translation>Moder–spædbarnsforanstaltninger</translation>
     </message>
     <message>
-        <location filename="../menu/setmenucpftperinatal1.cpp" line="74"/>
+        <location filename="../menu/setmenucpftperinatal.cpp" line="74"/>
         <source>Specific conditions</source>
         <translation>Specifikke betingelser</translation>
     </message>
     <message>
-        <location filename="../menu/setmenucpftperinatal1.cpp" line="78"/>
+        <location filename="../menu/setmenucpftperinatal.cpp" line="78"/>
         <source>Treatment/care</source>
         <translation>Behandling/pleje</translation>
     </message>
     <message>
-        <location filename="../menu/setmenucpftperinatal1.cpp" line="84"/>
+        <location filename="../menu/setmenucpftperinatal.cpp" line="84"/>
         <source>End of treatment/care</source>
         <translation>Afslutning af behandling/pleje</translation>
     </message>
 </context>
 <context>
-    <name>SetMenuCpftPsychooncology1</name>
+    <name>SetMenuCpftPsychooncology</name>
     <message>
-        <location filename="../menu/setmenucpftpsychooncology1.cpp" line="46"/>
+        <location filename="../menu/setmenucpftpsychooncology.cpp" line="46"/>
         <source>CPFT Psycho-oncology Service</source>
         <translation>CPFT Psycho-oncology Service [psykiatri i onkologi service]</translation>
     </message>
     <message>
-        <location filename="../menu/setmenucpftpsychooncology1.cpp" line="52"/>
+        <location filename="../menu/setmenucpftpsychooncology.cpp" line="52"/>
         <source>Cambridgeshire and Peterborough NHS Foundation Trust, UK — psycho-oncology service</source>
         <translation>Cambridgeshire and Peterborough NHS Foundation Trust, UK — psykiatri i onkologi service</translation>
     </message>
 </context>
 <context>
-    <name>SetMenuDeakin1</name>
+    <name>SetMenuDeakin</name>
     <message>
-        <location filename="../menu/setmenudeakin1.cpp" line="57"/>
-        <source>Deakin JB, University of Cambridge, UK — antibody-mediated psychosis</source>
-        <translation>Deakin JB, University of Cambridge, UK — antistof-medieret psykose</translation>
+        <location filename="../menu/setmenudeakin.cpp" line="57"/>
+        <source>Deakin JB, University of Cambridge, UK — antibody-mediated psychosis study</source>
+        <translation>Deakin JB, University of Cambridge, UK — antistof-medieret psykosestudie</translation>
     </message>
 </context>
 <context>
@@ -4682,48 +4733,48 @@ enig</translation>
     </message>
 </context>
 <context>
-    <name>SetMenuKhandaker1Insight</name>
+    <name>SetMenuKhandakerInsight</name>
     <message>
-        <location filename="../menu/setmenukhandaker1insight.cpp" line="39"/>
-        <source>Khandaker GM — 1 — Insight study</source>
-        <translation>Khandaker GM — 1 — Insight forskningsundersøgelse</translation>
+        <location filename="../menu/setmenukhandakerinsight.cpp" line="39"/>
+        <source>Khandaker GM — Insight study</source>
+        <translation>Khandaker GM — Insight forskningsundersøgelse</translation>
     </message>
     <message>
-        <location filename="../menu/setmenukhandaker1insight.cpp" line="45"/>
+        <location filename="../menu/setmenukhandakerinsight.cpp" line="45"/>
         <source>Khandaker GM, University of Cambridge, UK — Insight immunopsychiatry study</source>
         <translation>Khandaker GM, University of Cambridge, UK — Insight immunopsykiatri forskningsundersøgelse</translation>
     </message>
 </context>
 <context>
-    <name>SetMenuKhandaker2Mojo</name>
+    <name>SetMenuKhandakerMojo</name>
     <message>
-        <location filename="../menu/setmenukhandaker2mojo.cpp" line="48"/>
-        <source>Khandaker GM — 2 — MOJO study</source>
-        <translation>Khandaker GM — 1 — MOJO forskningsundersøgelse</translation>
+        <location filename="../menu/setmenukhandakermojo.cpp" line="51"/>
+        <source>Khandaker GM — MOJO study</source>
+        <translation>Khandaker GM — MOJO forskningsundersøgelse</translation>
     </message>
     <message>
-        <location filename="../menu/setmenukhandaker2mojo.cpp" line="54"/>
+        <location filename="../menu/setmenukhandakermojo.cpp" line="57"/>
         <source>Khandaker GM, University of Cambridge, UK — MOJO immunopsychiatry study</source>
         <translation>Khandaker GM, University of Cambridge, UK — MOJO immunopsykiatri forskningsundersøgelse</translation>
     </message>
 </context>
 <context>
-    <name>SetMenuLynall1IAM</name>
+    <name>SetMenuLynallIAM</name>
     <message>
-        <location filename="../menu/setmenulynall1iam.cpp" line="42"/>
-        <source>Lynall M-E — 1 — IAM study</source>
-        <translation>Lynall M-E — 1 — IAM forskningsundersøgelse</translation>
+        <location filename="../menu/setmenulynalliam.cpp" line="42"/>
+        <source>Lynall M-E — IAM study</source>
+        <translation>Lynall M-E — IAM forskningsundersøgelse</translation>
     </message>
     <message>
-        <location filename="../menu/setmenulynall1iam.cpp" line="48"/>
+        <location filename="../menu/setmenulynalliam.cpp" line="48"/>
         <source>Lynall M-E, University of Cambridge, UK — Inflammation in Mind (IAM) study</source>
         <translation>Lynall M-E, University of Cambridge, UK — Inflammation in Mind (IAM) [betændelse i tankerne] forskningsundersøgelse</translation>
     </message>
 </context>
 <context>
-    <name>SetMenuOBrien1</name>
+    <name>SetMenuOBrien</name>
     <message>
-        <location filename="../menu/setmenuobrien1.cpp" line="55"/>
+        <location filename="../menu/setmenuobrien.cpp" line="55"/>
         <source>O’Brien JT, University of Cambridge, UK — dementia research clinic</source>
         <translation>O’Brien JT, University of Cambridge, UK — demensforskningsklinik</translation>
     </message>
@@ -5727,7 +5778,7 @@ Anonym</translation>
 <context>
     <name>SoundTestDialog</name>
     <message>
-        <location filename="../dialogs/soundtestdialog.cpp" line="27"/>
+        <location filename="../dialogs/soundtestdialog.cpp" line="28"/>
         <source>Sound test</source>
         <translation>Lydtest</translation>
     </message>
@@ -5978,102 +6029,102 @@ Anonym</translation>
         <translation>Test logistisk regression, og den underliggende generaliserede lineære model (GLM)</translation>
     </message>
     <message>
-        <location filename="../menu/testmenu.cpp" line="234"/>
+        <location filename="../menu/testmenu.cpp" line="237"/>
         <source>Test HTTPS</source>
         <translation>Test HTTPS</translation>
     </message>
     <message>
-        <location filename="../menu/testmenu.cpp" line="243"/>
+        <location filename="../menu/testmenu.cpp" line="246"/>
         <source>Test HTTP</source>
         <translation>Test HTTP</translation>
     </message>
     <message>
-        <location filename="../menu/testmenu.cpp" line="287"/>
+        <location filename="../menu/testmenu.cpp" line="290"/>
         <source>Done; see USB debugging output</source>
         <translation>Færdig; se USB debugging tekst</translation>
     </message>
     <message>
-        <location filename="../menu/testmenu.cpp" line="289"/>
+        <location filename="../menu/testmenu.cpp" line="292"/>
         <source>Done; see console</source>
         <translation>Færdig; se konsol</translation>
     </message>
     <message>
-        <location filename="../menu/testmenu.cpp" line="301"/>
+        <location filename="../menu/testmenu.cpp" line="304"/>
         <source>Testing progress (but not doing anything; safe to abort)...</source>
         <translation>Test fremskridt (men ikke gør noget, sikkert at afbryde)...</translation>
     </message>
     <message>
-        <location filename="../menu/testmenu.cpp" line="302"/>
+        <location filename="../menu/testmenu.cpp" line="305"/>
         <source>Abort test</source>
         <translation>Afbryd test</translation>
     </message>
     <message>
-        <location filename="../menu/testmenu.cpp" line="303"/>
+        <location filename="../menu/testmenu.cpp" line="306"/>
         <source>Progress dialog</source>
         <translation>Fremskridt dialog</translation>
     </message>
     <message>
-        <location filename="../menu/testmenu.cpp" line="326"/>
+        <location filename="../menu/testmenu.cpp" line="329"/>
         <source>Running uninterruptible expensive function in worker thread (for %1 ms)</source>
         <translation>Kører uafbrudt dyre funktion i arbejdstråd (for %1 ms)</translation>
     </message>
     <message>
-        <location filename="../menu/testmenu.cpp" line="343"/>
+        <location filename="../menu/testmenu.cpp" line="346"/>
         <source>ScrollMessageBox, with some lengthy text</source>
         <translation>ScrollMessageBox, med lidt lang tekst</translation>
     </message>
     <message>
-        <location filename="../menu/testmenu.cpp" line="346"/>
+        <location filename="../menu/testmenu.cpp" line="349"/>
         <source>One (Yes)</source>
         <translation>En (Ja)</translation>
     </message>
     <message>
-        <location filename="../menu/testmenu.cpp" line="348"/>
+        <location filename="../menu/testmenu.cpp" line="351"/>
         <source>Two (No)</source>
         <translation>To (Nej)</translation>
     </message>
     <message>
-        <location filename="../menu/testmenu.cpp" line="350"/>
+        <location filename="../menu/testmenu.cpp" line="353"/>
         <source>Three (Reject)</source>
         <translation>Tre (Afvis)</translation>
     </message>
     <message>
-        <location filename="../menu/testmenu.cpp" line="373"/>
+        <location filename="../menu/testmenu.cpp" line="376"/>
         <source>bytes</source>
         <translation>bytes</translation>
     </message>
     <message>
-        <location filename="../menu/testmenu.cpp" line="388"/>
+        <location filename="../menu/testmenu.cpp" line="391"/>
         <source>Size formatting</source>
         <translation>Størrelsesformatering</translation>
     </message>
     <message>
-        <location filename="../menu/testmenu.cpp" line="395"/>
+        <location filename="../menu/testmenu.cpp" line="398"/>
         <source>Conversion test: OK</source>
         <translation>Konverteringstest: OK</translation>
     </message>
     <message>
-        <location filename="../menu/testmenu.cpp" line="403"/>
+        <location filename="../menu/testmenu.cpp" line="406"/>
         <source>Eigen functions successfully tested</source>
         <translation>Funktioner af Eigen med succes testet</translation>
     </message>
     <message>
-        <location filename="../menu/testmenu.cpp" line="413"/>
+        <location filename="../menu/testmenu.cpp" line="416"/>
         <source>Random-number functions (and supporting floating-point-delta functions): OK</source>
         <translation>Tilfældige talfunktioner (og understøtter real tal funktioner): OK</translation>
     </message>
     <message>
-        <location filename="../menu/testmenu.cpp" line="424"/>
+        <location filename="../menu/testmenu.cpp" line="427"/>
         <source>Miscellaneous maths functions</source>
         <translation>Diverse matematiske funktioner</translation>
     </message>
     <message>
-        <location filename="../menu/testmenu.cpp" line="667"/>
+        <location filename="../menu/testmenu.cpp" line="670"/>
         <source>Test logistic regression</source>
         <translation>Test logistisk regression</translation>
     </message>
     <message>
-        <location filename="../menu/testmenu.cpp" line="674"/>
+        <location filename="../menu/testmenu.cpp" line="677"/>
         <source>Hello, world!</source>
         <translation>Hej, verden!</translation>
     </message>
@@ -6533,26 +6584,31 @@ Anonym</translation>
     </message>
     <message>
         <location filename="../common/textconst.cpp" line="172"/>
+        <source>Unable to create media player!</source>
+        <translation>Kan ikke oprette medieafspiller!</translation>
+    </message>
+    <message>
+        <location filename="../common/textconst.cpp" line="173"/>
         <source>Unknown</source>
         <translation>Ukendt</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="174"/>
+        <location filename="../common/textconst.cpp" line="175"/>
         <source>Very severe</source>
         <translation>Meget alvorlig</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="176"/>
+        <location filename="../common/textconst.cpp" line="177"/>
         <source>Wrong</source>
         <translation>Forkert</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="178"/>
+        <location filename="../common/textconst.cpp" line="179"/>
         <source>Yes</source>
         <translation>Ja</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="186"/>
+        <location filename="../common/textconst.cpp" line="187"/>
         <source>1. By using the Cambridge Cognitive and Psychiatric Assessment Kit application or web interface (“CamCOPS”), you are agreeing in full to these Terms and Conditions of Use. If you do not agree to these terms, do not use the software.
 
 2. Content that is original to CamCOPS is licensed as follows.
