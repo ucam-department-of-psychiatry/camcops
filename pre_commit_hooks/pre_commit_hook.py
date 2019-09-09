@@ -96,6 +96,7 @@ def main() -> None:
         sys.exit(EXIT_FAILURE)
 
     try:
+        # a comment
         # check_python_style()
         check_imports_sorted()
     except CalledProcessError as e:
