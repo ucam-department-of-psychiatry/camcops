@@ -177,7 +177,7 @@ class FetchThread(Thread):
                 log.debug("Thread finishing with results")
             else:
                 log.debug("Thread finishing without results")
-        except:
+        except Exception:
             self.error = True
             log.error("Thread error")
         dbsession.close()

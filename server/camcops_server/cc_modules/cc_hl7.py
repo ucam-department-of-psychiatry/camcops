@@ -612,7 +612,7 @@ def make_dg1_segment(set_id: int,
     try:
         int(set_id)
         set_id = str(set_id)
-    except:
+    except Exception:
         raise AssertionError("make_dg1_segment: set_id invalid")
     diagnosis_coding_method = ""
     diagnosis_code = hl7.Field(COMPONENT_SEPARATOR, [
@@ -643,7 +643,7 @@ def make_dg1_segment(set_id: int,
             str(int(clinician_id_number))
             if clinician_id_number is not None else ""
         )
-    except:
+    except Exception:
         raise AssertionError("make_dg1_segment: diagnosing_clinician_id_number"
                              " invalid")
     if clinician_id_number:

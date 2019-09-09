@@ -498,7 +498,7 @@ class CamcopsMakoLookupTemplateRenderer(MakoLookupTemplateRenderer):
             if DEBUG_TEMPLATE_PARAMETERS:
                 log.debug("final dict to template: {}", pprint.pformat(system))
             result = template.render_unicode(**system)
-        except:
+        except Exception:
             try:
                 exc_info = sys.exc_info()
                 errtext = text_error_template().render(error=exc_info[1],
