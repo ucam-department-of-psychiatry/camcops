@@ -46,7 +46,8 @@ from typing import List
 
 EXIT_FAILURE = 1
 
-PROJECT_ROOT = os.path.join(os.path.dirname(__file__), '..')
+PRECOMMIT_DIR = os.path.realpath(os.path.dirname(__file__))
+PROJECT_ROOT = os.path.join(PRECOMMIT_DIR, '..')
 PYTHON_SOURCE_DIR = os.path.join(PROJECT_ROOT,
                                  'server', 'camcops_server')
 CONFIG_FILE = os.path.join(PROJECT_ROOT, 'setup.cfg')
@@ -96,8 +97,7 @@ def main() -> None:
         sys.exit(EXIT_FAILURE)
 
     try:
-        # a comment
-        # check_python_style()
+        check_python_style()
         check_imports_sorted()
     except CalledProcessError as e:
         log.error(str(e))
