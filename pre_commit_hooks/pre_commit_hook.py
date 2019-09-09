@@ -26,7 +26,8 @@ pre_commit_hooks/pre_commit_hook.py
 
 pre-commit hook script that runs lint & sort
 
-Usage: ln -s pre_commit_hooks.py/pre_commit_hook.py .git/hooks/pre-commit
+Usage: cd .git/hooks/pre-commit;
+       ln -s ../../pre_commit_hooks/pre_commit_hook.py
 
 Linting and sorting ensures we don't get cosmetic commits later
 that break git blame history for no reason.
