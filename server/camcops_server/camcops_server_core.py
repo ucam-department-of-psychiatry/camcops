@@ -73,7 +73,7 @@ from cardinal_pythonlib.wsgi.reverse_proxied_mw import (  # noqa: E402
 
 # Import this one early:
 # noinspection PyUnresolvedReferences
-import camcops_server.cc_modules.cc_all_models  # import side effects (ensure all models registered)  # noqa E402,E501
+import camcops_server.cc_modules.cc_all_models  # import side effects (ensure all models registered)  # noqa: E402,E501
 
 from camcops_server.cc_modules.cc_anon import (  # noqa: E402
     write_crate_data_dictionary,
@@ -109,7 +109,7 @@ from camcops_server.cc_modules.cc_request import (  # noqa: E402
     pyramid_configurator_context,
 )
 from camcops_server.cc_modules.cc_string import all_extra_strings_as_dicts  # noqa: E402,E501
-from camcops_server.cc_modules.cc_task import Task  # noqa E402
+from camcops_server.cc_modules.cc_task import Task  # noqa: E402
 from camcops_server.cc_modules.cc_taskindex import (  # noqa: E402
     check_indexes,
     reindex_everything,
@@ -145,7 +145,7 @@ WINDOWS = platform.system() == "Windows"
 # We want to be able to run Celery from our virtual environment, but just
 # running the venv Python (as opposed to using "activate") doesn't set the path
 # correctly. So as per
-# https://stackoverflow.com/questions/22003769/get-virtualenvs-bin-folder-path-from-script  # noqa E501
+# https://stackoverflow.com/questions/22003769/get-virtualenvs-bin-folder-path-from-script  # noqa: E501
 _CELERY_NAME = "celery.exe" if WINDOWS else "celery"
 CELERY = os.path.join(os.path.dirname(sys.executable), _CELERY_NAME)
 

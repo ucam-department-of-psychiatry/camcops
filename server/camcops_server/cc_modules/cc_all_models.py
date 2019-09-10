@@ -112,7 +112,7 @@ from camcops_server.tasks import *  # see tasks/__init__.py  # noqa: F401,F403
 # =============================================================================
 
 # noinspection PyUnresolvedReferences
-from camcops_server.cc_modules.cc_taskreports import TaskCountReport  # noqa F401
+from camcops_server.cc_modules.cc_taskreports import TaskCountReport  # noqa: E501,F401
 
 # =============================================================================
 # Logging
