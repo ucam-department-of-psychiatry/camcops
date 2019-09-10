@@ -47,10 +47,10 @@ from typing import List
 EXIT_FAILURE = 1
 
 PRECOMMIT_DIR = os.path.dirname(os.path.realpath(__file__))
-PROJECT_ROOT = os.path.join(PRECOMMIT_DIR, '..')
+PROJECT_ROOT = os.path.join(PRECOMMIT_DIR, "..")
 PYTHON_SOURCE_DIR = os.path.join(PROJECT_ROOT,
-                                 'server', 'camcops_server')
-CONFIG_FILE = os.path.join(PROJECT_ROOT, 'setup.cfg')
+                                 "server", "camcops_server")
+CONFIG_FILE = os.path.join(PROJECT_ROOT, "setup.cfg")
 
 log = logging.getLogger(__name__)
 
@@ -65,8 +65,8 @@ def run_with_check(args: List[str]):
 
 def check_python_style() -> None:
     run_with_check([
-        'pylava',
-        '-o', CONFIG_FILE,
+        "flake8",
+        f"--config={CONFIG_FILE}",
         PYTHON_SOURCE_DIR,
     ])
 
@@ -74,11 +74,11 @@ def check_python_style() -> None:
 def check_imports_sorted() -> None:
     # https://github.com/timothycrosley/isort
     run_with_check([
-        'isort',
-        '-c',  # Check only, do not make changes
-        '-rc',  # Recursive
-        '--diff',  # Show diffs
-        '-sp', CONFIG_FILE,
+        "isort",
+        "-c",  # Check only, do not make changes
+        "-rc",  # Recursive
+        "--diff",  # Show diffs
+        "-sp", CONFIG_FILE,
         PYTHON_SOURCE_DIR
     ])
 
@@ -86,8 +86,8 @@ def check_imports_sorted() -> None:
 # https://stackoverflow.com/questions/1871549/determine-if-python-is-running-inside-virtualenv
 def in_virtualenv():
     return (
-        hasattr(sys, 'real_prefix') or
-        (hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix)
+        hasattr(sys, "real_prefix") or
+        (hasattr(sys, "base_prefix") and sys.base_prefix != sys.prefix)
     )
 
 
@@ -105,5 +105,5 @@ def main() -> None:
         sys.exit(EXIT_FAILURE)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
