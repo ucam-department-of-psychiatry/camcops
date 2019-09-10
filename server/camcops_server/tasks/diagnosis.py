@@ -180,7 +180,7 @@ class DiagnosisBase(TaskHasClinicianMixin, TaskHasPatientMixin, Task, ABC,
             comment="Date that diagnoses relate to"
         )
 
-    items = None  # type: List[DiagnosisItemBase]  # must be overridden by a relationship  # noqa
+    items = None  # type: List[DiagnosisItemBase]  # must be overridden by a relationship  # noqa: E501
 
     hl7_coding_system = "?"
 
@@ -290,7 +290,7 @@ class DiagnosisIcd10(DiagnosisBase):
     shortname = "Diagnosis_ICD10"
     dependent_classes = [DiagnosisIcd10Item]
     hl7_coding_system = "I10"
-    # Page A-129 of https://www.hl7.org/special/committees/vocab/V26_Appendix_A.pdf  # noqa
+    # Page A-129 of https://www.hl7.org/special/committees/vocab/V26_Appendix_A.pdf  # noqa: E501
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
@@ -399,7 +399,7 @@ class DiagnosisIcd9CM(DiagnosisBase):
     shortname = "Diagnosis_ICD9CM"
     dependent_classes = [DiagnosisIcd9CMItem]
     hl7_coding_system = "I9CM"
-    # Page A-129 of https://www.hl7.org/special/committees/vocab/V26_Appendix_A.pdf  # noqa
+    # Page A-129 of https://www.hl7.org/special/committees/vocab/V26_Appendix_A.pdf  # noqa: E501
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
@@ -480,7 +480,7 @@ def get_diagnosis_report_query(req: CamcopsRequest,
             # OUTER JOIN):
             aliased_table.c._current == True,
             aliased_table.c.which_idnum == n,
-        ))  # nopep8
+        ))  # noqa: E712
     select_fields += [
         diagnosis_class.when_created.label("when_created"),
         literal(system).label("system"),
@@ -492,7 +492,7 @@ def get_diagnosis_report_query(req: CamcopsRequest,
         Patient._current == True,
         diagnosis_class._current == True,
         item_class._current == True,
-    ]  # nopep8
+    ]  # noqa: E712
     if not req.user.superuser:
         # Restrict to accessible groups
         group_ids = req.user.ids_of_groups_user_may_report_on
@@ -669,8 +669,8 @@ class DiagnosesSequence(SequenceSchema, RequestAwareMixin):
 
 class DiagnosisFinderReportSchema(ReportParamSchema):
     which_idnum = LinkingIdNumSelector()  # must match ViewParam.WHICH_IDNUM
-    diagnoses_inclusion = DiagnosesSequence(minimum_number=1)  # must match ViewParam.DIAGNOSES_INCLUSION  # noqa
-    diagnoses_exclusion = DiagnosesSequence()  # must match ViewParam.DIAGNOSES_EXCLUSION  # noqa
+    diagnoses_inclusion = DiagnosesSequence(minimum_number=1)  # must match ViewParam.DIAGNOSES_INCLUSION  # noqa: E501
+    diagnoses_exclusion = DiagnosesSequence()  # must match ViewParam.DIAGNOSES_EXCLUSION  # noqa: E501
     age_minimum = OptionalIntNode()  # must match ViewParam.AGE_MINIMUM
     age_maximum = OptionalIntNode()  # must match ViewParam.AGE_MAXIMUM
 
@@ -725,7 +725,7 @@ def get_diagnosis_inc_exc_report_query(req: CamcopsRequest,
             diagnosis_class.patient_id == Patient.id,
             diagnosis_class._device_id == Patient._device_id,
             diagnosis_class._era == Patient._era,
-            diagnosis_class._current == True,
+            diagnosis_class._current == True,  # noqa: E712
         ))
         .join(item_class.__table__, and_(
             getattr(item_class, item_fk_fieldname) == diagnosis_class.id,
@@ -741,10 +741,10 @@ def get_diagnosis_inc_exc_report_query(req: CamcopsRequest,
             PatientIdNum.which_idnum == which_idnum,
             PatientIdNum.idnum_value.isnot(None),  # NOT NULL
         ))
-    )  # nopep8
+    )
     wheres = [
-        Patient._current == True,
-    ]  # nopep8
+        Patient._current == True,  # noqa: E712
+    ]
     if not req.user.superuser:
         # Restrict to accessible groups
         group_ids = req.user.ids_of_groups_user_may_report_on
@@ -798,22 +798,22 @@ def get_diagnosis_inc_exc_report_query(req: CamcopsRequest,
         edx_joined = (
             edx_items
             .join(edx_sets, and_(
-                getattr(edx_items.c, item_fk_fieldname) == edx_sets.c.id,  # noqa
+                getattr(edx_items.c, item_fk_fieldname) == edx_sets.c.id,
                 edx_items.c._device_id == edx_sets.c._device_id,
                 edx_items.c._era == edx_sets.c._era,
-                edx_items.c._current == True,
+                edx_items.c._current == True,  # noqa: E712
             ))
             .join(edx_patient, and_(
                 edx_sets.c.patient_id == edx_patient.c.id,
                 edx_sets.c._device_id == edx_patient.c._device_id,
                 edx_sets.c._era == edx_patient.c._era,
-                edx_sets.c._current == True,
+                edx_sets.c._current == True,  # noqa: E712
             ))
             .join(edx_idnum, and_(
                 edx_idnum.c.patient_id == edx_patient.c.id,
                 edx_idnum.c._device_id == edx_patient.c._device_id,
                 edx_idnum.c._era == edx_patient.c._era,
-                edx_idnum.c._current == True,
+                edx_idnum.c._current == True,  # noqa: E712
                 edx_idnum.c.which_idnum == which_idnum,
             ))
         )
@@ -821,10 +821,10 @@ def get_diagnosis_inc_exc_report_query(req: CamcopsRequest,
         for edx in exclusion_dx:
             exclusion_criteria.append(edx_items.c.code.like(edx))
         edx_wheres = [
-            edx_items.c._current == True,
+            edx_items.c._current == True,  # noqa: E712
             edx_idnum.c.idnum_value == PatientIdNum.idnum_value,
             or_(*exclusion_criteria)
-        ]  # nopep8
+        ]
         # Note the join above between the main and the EXISTS clauses.
         # We don't use an alias for the main copy of the PatientIdNum table,
         # and we do for the EXISTS version. This is fine; e.g.

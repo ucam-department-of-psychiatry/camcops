@@ -59,8 +59,8 @@ from camcops_server.cc_modules.cc_pyramid import (
 from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 
 if TYPE_CHECKING:
-    from camcops_server.cc_modules.cc_request import CamcopsRequest
-    from camcops_server.cc_modules.cc_forms import (
+    from camcops_server.cc_modules.cc_request import CamcopsRequest  # noqa: E501,F401
+    from camcops_server.cc_modules.cc_forms import (  # noqa: F401
         ReportParamForm,
         ReportParamSchema,
     )
@@ -364,7 +364,7 @@ class ReportTests(DemoDatabaseTestCase):
         req = self.req
         for cls in get_all_report_classes(req):
             log.info("Testing report: {}", cls)
-            from camcops_server.cc_modules.cc_forms import ReportParamSchema
+            from camcops_server.cc_modules.cc_forms import ReportParamSchema  # noqa
             report = cls()
 
             self.assertIsInstance(report.report_id, str)

@@ -252,9 +252,9 @@ class PatientIdNumIndexEntry(Base):
                             )
                         )
                     )
-                    .where(idnumcols._current == True)  # nopep8
+                    .where(idnumcols._current == True)  # noqa: E712
                     .where(idnumcols.idnum_value.isnot(None))
-                    .where(patientcols._current == True)  # nopep8
+                    .where(patientcols._current == True)  # noqa: E712
                 )
             )
         )
@@ -293,11 +293,11 @@ class PatientIdNumIndexEntry(Base):
                 )
             ).where(and_(
                 PatientIdNum._pk == PatientIdNumIndexEntry.idnum_pk,
-                PatientIdNum._current == True,  # nopep8
+                PatientIdNum._current == True,  # noqa: E712
                 PatientIdNum.which_idnum == PatientIdNumIndexEntry.which_idnum,
                 PatientIdNum.idnum_value == PatientIdNumIndexEntry.idnum_value,
                 Patient._pk == PatientIdNumIndexEntry.patient_pk,
-                Patient._current == True,  # nopep8
+                Patient._current == True,  # noqa: E712
             ))
         )
         for index in q_idx_without_original:
@@ -717,7 +717,7 @@ class TaskIndexEntry(Base):
         # noinspection PyPep8,PyUnresolvedReferences,PyProtectedMember
         q = (
             session.query(taskclass)
-            .filter(taskclass._current == True)
+            .filter(taskclass._current == True)  # noqa: E712
             .order_by(isotzdatetime_to_utcdatetime(taskclass.when_created))
         )
         for task in q:
@@ -854,7 +854,7 @@ class TaskIndexEntry(Base):
                     .select_from(taskclass.__table__)
                     .where(and_(
                         TaskIndexEntry.task_pk == taskclass._pk,
-                        taskclass._current == True,  # nopep8
+                        taskclass._current == True,  # noqa: E712
                     ))
             )
             # No check for a valid patient at this time.
@@ -870,7 +870,7 @@ class TaskIndexEntry(Base):
             log.debug("Checking {}", tasktablename)
             # noinspection PyUnresolvedReferences,PyProtectedMember
             q_original_with_idx = session.query(taskclass).filter(
-                taskclass._current == True,  # nopep8
+                taskclass._current == True,  # noqa: E712
                 ~exists().select_from(
                     TaskIndexEntry.__table__
                 ).where(and_(
@@ -916,7 +916,7 @@ def update_indexes_and_push_exports(req: "CamcopsRequest",
                                     tablechanges: UploadTableChanges) -> None:
     """
     Update server indexes, if required.
-    
+
     Also triggers background jobs to export "new arrivals", if required.
 
     Args:

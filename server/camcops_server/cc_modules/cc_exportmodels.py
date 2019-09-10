@@ -121,7 +121,7 @@ def get_collection_for_export(req: "CamcopsRequest",
     Returns an appropriate task collection for this export recipient, namely
     those tasks that are desired and (in the case of incremental exports)
     haven't already been sent.
-    
+
     "Not already sent" means "not already sent to an export recipient with
     the same name (even if other aspects of the export recipient have
     changed)".
@@ -176,7 +176,7 @@ def gen_tasks_having_exportedtasks(collection: TaskCollection) \
         -> Generator["Task", None, None]:
     """
     Generates tasks from a collection, creating export logs as we go.
-    
+
     Used for database exports.
 
     Args:
@@ -465,8 +465,8 @@ class ExportedTask(Base):
             .filter(ExportRecipient.recipient_name == recipient_name)
             .filter(cls.basetable == basetable)
             .filter(cls.task_server_pk == task_pk)
-            .filter(cls.success == True)  # nopep8
-            .filter(cls.cancelled == False)  # nopep8
+            .filter(cls.success == True)  # noqa: E712
+            .filter(cls.cancelled == False)  # noqa: E712
             .exists()
         )
         return bool_from_exists_clause(dbsession, exists_q)
@@ -692,7 +692,7 @@ class ExportedTaskHL7Message(Base):
           - http://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml?search=hl7
           - Essentially just a TCP socket with a minimal wrapper:
             http://stackoverflow.com/questions/11126918
-            
+
         - http://python-hl7.readthedocs.org/en/latest/api.html; however,
           we've modified that
         """  # noqa
@@ -748,7 +748,7 @@ class ExportedTaskHL7Message(Base):
         (No HL7 PING method yet. Proposal is
         http://hl7tsc.org/wiki/index.php?title=FTSD-ConCalls-20081028
         So use TCP/IP ping.)
-        
+
         Args:
             recipient: an :class:`camcops_server.cc_modules.cc_exportrecipient.ExportRecipient`
 

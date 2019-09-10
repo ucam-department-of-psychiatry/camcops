@@ -50,11 +50,11 @@ from camcops_server.cc_modules.cc_sqlalchemy import Base, log_all_ddl
 # http://codeoptimism.com/blog/pycharm-suppress-inspections-list/
 
 # noinspection PyUnresolvedReferences
-from camcops_server.cc_modules.cc_blob import Blob
+from camcops_server.cc_modules.cc_blob import Blob  # noqa: F401
 # noinspection PyUnresolvedReferences
-from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
+from camcops_server.cc_modules.cc_patientidnum import PatientIdNum  # noqa: F401
 # noinspection PyUnresolvedReferences
-from camcops_server.cc_modules.cc_patient import Patient
+from camcops_server.cc_modules.cc_patient import Patient  # noqa: F401
 
 # =============================================================================
 # Other non-task model imports
@@ -105,14 +105,14 @@ from camcops_server.cc_modules.cc_user import (
 # We need something equivalent to "from tasks.phq9 import Phq9".
 
 # noinspection PyUnresolvedReferences
-from camcops_server.tasks import *  # see tasks/__init__.py
+from camcops_server.tasks import *  # see tasks/__init__.py  # noqa: F401,F403
 
 # =============================================================================
 # Other report imports
 # =============================================================================
 
 # noinspection PyUnresolvedReferences
-from camcops_server.cc_modules.cc_taskreports import TaskCountReport
+from camcops_server.cc_modules.cc_taskreports import TaskCountReport  # noqa F401
 
 # =============================================================================
 # Logging

@@ -1019,7 +1019,7 @@ class CamcopsRequest(Request):
         """
         fig = Figure(**kwargs)
         # noinspection PyUnusedLocal
-        canvas = FigureCanvas(fig)
+        canvas = FigureCanvas(fig)  # noqa: F841
         # The canvas will be now available as fig.canvas, since
         # FigureCanvasBase.__init__ calls fig.set_canvas(self); similarly, the
         # figure is available from the canvas as canvas.figure

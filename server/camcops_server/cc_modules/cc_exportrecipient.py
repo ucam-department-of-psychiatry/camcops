@@ -80,7 +80,7 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 class ExportRecipient(ExportRecipientInfo, Base):
     """
     SQLAlchemy ORM class representing an export recipient.
-    
+
     This has a close relationship with
     :class:`camcops_server.cc_modules.cc_exportrecipientinfo.ExportRecipientInfo`
     (q.v.).
@@ -503,7 +503,7 @@ class ExportRecipient(ExportRecipientInfo, Base):
         # noinspection PyPep8
         q = dbsession.query(cls).filter(
             cls.recipient_name == recipient.recipient_name,
-            cls.current == True)  # nopep8
+            cls.current == True)  # noqa: E712
         results = q.all()
         if len(results) > 1:
             raise ValueError(

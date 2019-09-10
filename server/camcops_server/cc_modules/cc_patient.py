@@ -272,7 +272,7 @@ class Patient(GenericTabletRecordMixin, Base):
         if group_id is not None:
             q = q.filter(Patient._group_id == group_id)
         if current_only:
-            q = q.filter(cls._current == True)  # nopep8
+            q = q.filter(cls._current == True)  # noqa: E712
         patients = q.all()  # type: List[Patient]
         return patients
 
@@ -803,11 +803,11 @@ def is_candidate_patient_valid(ptinfo: BarePatientInfo,
                                finalizing: bool) -> Tuple[bool, str]:
     """
     Is the specified patient acceptable to upload into this group?
-    
+
     Checks:
-    
+
     - group upload or finalize policy
-    
+
     .. todo:: is_candidate_patient_valid: check against predefined patients, if
        the group wants
 
@@ -875,7 +875,7 @@ class DistinctPatientReport(Report):
         ]
         # noinspection PyUnresolvedReferences
         select_from = Patient.__table__
-        wheres = [Patient._current == True]  # type: List[ClauseElement]  # nopep8
+        wheres = [Patient._current == True]  # type: List[ClauseElement] # noqa: E501,E712
         if not req.user.superuser:
             # Restrict to accessible groups
             group_ids = req.user.ids_of_groups_user_may_report_on
@@ -893,7 +893,7 @@ class DistinctPatientReport(Report):
                 # Note: the following are part of the JOIN, not the WHERE:
                 # (or failure to match a row will wipe out the Patient from the
                 # OUTER JOIN):
-                aliased_table.c._current == True,
+                aliased_table.c._current == True,  # noqa: E712
                 aliased_table.c.which_idnum == n,
             ))  # nopep8
         order_by = [

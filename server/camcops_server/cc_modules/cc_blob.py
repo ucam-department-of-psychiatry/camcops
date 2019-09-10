@@ -67,8 +67,8 @@ from camcops_server.cc_modules.cc_xml import (
 )
 
 if TYPE_CHECKING:
-    from camcops_server.cc_modules.cc_request import CamcopsRequest
-    from camcops_server.cc_modules.cc_task import Task
+    from camcops_server.cc_modules.cc_request import CamcopsRequest  # noqa: E501,F401
+    from camcops_server.cc_modules.cc_task import Task  # noqa: F401
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -152,7 +152,7 @@ class Blob(GenericTabletRecordMixin, TaskDescendant, Base):
             .filter(cls.id == clientpk)
             .filter(cls._device_id == device_id)
             .filter(cls._era == era)
-            .filter(cls._current == True)
+            .filter(cls._current == True)  # noqa: E712
             .first()
         )  # type: Optional[Blob]
         return blob

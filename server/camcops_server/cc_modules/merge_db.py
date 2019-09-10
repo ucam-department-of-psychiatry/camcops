@@ -723,10 +723,10 @@ def translate_fn(trcon: TranslationContext) -> None:
             select([text('*')])
             .select_from(table(trcon.tablename))
             .where(column(Patient.id.name) == old_patient.id)
-            .where(column(Patient._current.name) == True)
+            .where(column(Patient._current.name) == True)  # noqa: E712
             .where(column(Patient._device_id.name) == old_patient._device_id)
             .where(column(Patient._era.name) == old_patient._era)
-        )  # nopep8
+        )
         rows = trcon.src_session.execute(src_pt_query)  # type: ResultProxy
         list_of_dicts = [dict(row.items()) for row in rows]
         assert len(list_of_dicts) == 1, (

@@ -138,7 +138,7 @@ class TaskCountReport(Report):
                         func.count().label("num_tasks_added"),
                     ])
                     .select_from(cls.__table__)
-                    .where(cls._current == True)  # nopep8
+                    .where(cls._current == True)  # noqa: E712
                     .group_by("year", "month")
                 )
                 if not superuser:
@@ -232,7 +232,7 @@ class TaskCountByUserReport(Report):
                     ])
                     .select_from(cls.__table__)
                     .select_from(User.__table__)
-                    .where(and_(cls._current == True,  # nopep8
+                    .where(and_(cls._current == True,  # noqa: E712
                                 cls._adding_user_id == User.id))
                     .group_by("year", "month", "adding_user_name")
                 )

@@ -74,11 +74,11 @@ from camcops_server.cc_modules.cc_xml import (
 )
 
 if TYPE_CHECKING:
-    from camcops_server.cc_modules.cc_blob import Blob
-    from camcops_server.cc_modules.cc_patient import Patient
-    from camcops_server.cc_modules.cc_request import CamcopsRequest
-    from camcops_server.cc_modules.cc_summaryelement import SummaryElement
-    from camcops_server.cc_modules.cc_task import Task
+    from camcops_server.cc_modules.cc_blob import Blob  # noqa: F401
+    from camcops_server.cc_modules.cc_patient import Patient  # noqa: F401
+    from camcops_server.cc_modules.cc_request import CamcopsRequest  # noqa: E501,F401
+    from camcops_server.cc_modules.cc_summaryelement import SummaryElement  # noqa: E501,F401
+    from camcops_server.cc_modules.cc_task import Task  # noqa: F401
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -811,7 +811,7 @@ class GenericTabletRecordMixin(object):
             .filter(cls.id == client_id)
             .filter(cls._device_id == other._device_id)
             .filter(cls._era == other._era)
-            .filter(cls._current == True)
+            .filter(cls._current == True)  # noqa: E712
         )
         return q.first()
 

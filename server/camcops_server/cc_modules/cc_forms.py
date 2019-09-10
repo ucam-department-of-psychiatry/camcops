@@ -766,7 +766,7 @@ class MultiTaskSelector(SchemaNode, RequestAwareMixin):
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         _ = self.gettext
-        request = self.request
+        request = self.request  # noqa: F841
         self.title = _("Task type(s)")
         self.description = (
             _("If none are selected, all task types will be offered.") +
@@ -1569,7 +1569,7 @@ class LanguageSelector(SchemaNode, RequestAwareMixin):
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         _ = self.gettext
         self.title = _("Group")
-        request = self.request
+        request = self.request  # noqa: F841
         self.title = _("Language")
 
 

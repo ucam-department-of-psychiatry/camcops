@@ -452,7 +452,7 @@ class TaskCollection(object):
         # noinspection PyProtectedMember
         if self._current_only:
             # noinspection PyProtectedMember
-            q = q.filter(task_class._current == True)  # nopep8
+            q = q.filter(task_class._current == True)  # noqa: E712
 
         # Restrict to what is PERMITTED
         q = task_query_restricted_to_permitted_users(
@@ -607,8 +607,8 @@ class TaskCollection(object):
                     ExportRecipient.recipient_name == r.recipient_name,
                     ExportedTask.basetable == cls.__tablename__,
                     ExportedTask.task_server_pk == cls._pk,
-                    ExportedTask.success == True,  # nopep8
-                    ExportedTask.cancelled == False,  # nopep8
+                    ExportedTask.success == True,  # noqa: E712
+                    ExportedTask.cancelled == False,  # noqa: E712
                 )
             )
         )
@@ -831,7 +831,7 @@ class TaskCollection(object):
 
         if tf.skip_anonymous_tasks():
             # noinspection PyPep8
-            q = q.filter(TaskIndexEntry.patient_pk != None)
+            q = q.filter(TaskIndexEntry.patient_pk != None)  # noqa: E711
 
         if not tf.offers_all_non_anonymous_task_types():
             permitted_task_tablenames = [
@@ -854,7 +854,7 @@ class TaskCollection(object):
                 # reasonably restrict to one or a small number of
                 # patients. Restrict to anonymous tasks.
                 # noinspection PyPep8
-                q = q.filter(TaskIndexEntry.patient_pk == None)
+                q = q.filter(TaskIndexEntry.patient_pk == None)  # noqa: E711
             else:
                 # May see patient data from some, but not all, groups.
                 # This is a little more complex than the equivalent in
@@ -863,7 +863,7 @@ class TaskCollection(object):
                 liberal_group_ids = user.group_ids_that_nonsuperuser_may_see_when_unfiltered()  # noqa
                 # noinspection PyPep8
                 liberal_or_anon_criteria = [
-                    TaskIndexEntry.patient_pk == None  # anonymous OK
+                    TaskIndexEntry.patient_pk == None  # anonymous OK  # noqa: E501,E711
                 ]  # type: List[ClauseElement]
                 for gid in liberal_group_ids:
                     liberal_or_anon_criteria.append(
@@ -907,7 +907,7 @@ class TaskCollection(object):
         # But is_complete can be filtered now and in SQL:
         if tf.complete_only:
             # noinspection PyPep8
-            q = q.filter(TaskIndexEntry.task_is_complete == True)
+            q = q.filter(TaskIndexEntry.task_is_complete == True)  # noqa: E712
 
         # When we use indexes, we embed the global sort criteria in the query.
         if self._sort_method_global == TaskSortMethod.CREATION_DATE_ASC:
@@ -965,8 +965,8 @@ class TaskCollection(object):
                     # ... don't use ".tablename" as a property doesn't play
                     # nicely with SQLAlchemy here
                     ExportedTask.task_server_pk == TaskIndexEntry.task_pk,
-                    ExportedTask.success == True,  # nopep8
-                    ExportedTask.cancelled == False,  # nopep8
+                    ExportedTask.success == True,  # noqa: E712
+                    ExportedTask.cancelled == False,  # noqa: E712
                 )
             )
         )

@@ -160,9 +160,9 @@ from camcops_server.cc_modules.cc_sqlalchemy import (
 from camcops_server.cc_modules.cc_version import make_version
 
 if TYPE_CHECKING:
-    from sqlalchemy.sql.elements import ClauseElement
-    from sqlalchemy.sql.compiler import SQLCompiler
-    from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
+    from sqlalchemy.sql.elements import ClauseElement  # noqa: F401
+    from sqlalchemy.sql.compiler import SQLCompiler  # noqa: F401
+    from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin  # noqa: E501,F401
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 

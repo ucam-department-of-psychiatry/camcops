@@ -66,10 +66,10 @@ from camcops_server.cc_modules.cc_xml import (
 import matplotlib.dates  # delayed until after the cc_plot import
 
 if TYPE_CHECKING:
-    from camcops_server.cc_modules.cc_patient import Patient
-    from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
-    from camcops_server.cc_modules.cc_request import CamcopsRequest
-    from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
+    from camcops_server.cc_modules.cc_patient import Patient  # noqa: F401
+    from camcops_server.cc_modules.cc_patientidnum import PatientIdNum  # noqa: E501,F401
+    from camcops_server.cc_modules.cc_request import CamcopsRequest  # noqa: E501,F401
+    from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo  # noqa: E501,F401
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
