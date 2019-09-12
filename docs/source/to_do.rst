@@ -32,7 +32,7 @@ Tasks
 
 - :ref:`Lynall M-E — IAM study — life events <lynall_iam_life>`
 
-  .. todo:: IN PROGRESS +++ a/w permission clarification
+  .. todo:: IN PROGRESS +++ permissions clarified -- can proceed
 
 - :ref:`Childhood Trauma Questionnaire, Short Form (CTQ-SF) <ctqsf>`
 

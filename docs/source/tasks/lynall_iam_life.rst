@@ -22,6 +22,8 @@
 Lynall M-E — IAM study — life events
 ------------------------------------
 
+.. include:: include_data_collection_plus_local_upgrade.rst
+
 .. include:: include_under_development.rst
 
 Life events questionnaire for the Inflammation in Mind (IAM) study.
@@ -30,7 +32,30 @@ Life events questionnaire for the Inflammation in Mind (IAM) study.
 Intellectual property rights
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. todo:: ESTABLISH IP DETAILS (lynall_iam_life)
+- Based on the List of Threatening Experiences (LTE) and modified from this.
+
+  The LTE is owned and copyrighted jointly by Prof. Terry (Traolach) Brugha and
+  the Medical Research Council (MRC).
+
+    "I have no objection to you using the LTE in your research non
+    commercially. There is no need to ask the MRC for this permission.
+
+    In principle I favour the non commercial use of the LTE by other
+    researchers and only ask that they cite it in any dissemination."
+
+    [Commercial use may require a contract with the MRC, setup of which the MRC
+    have subcontracted to an agency.]
+
+  -- Personal communication, Prof. Terry (Traolach) Brugha (University of
+  Leicester) to Mary-Ellen Lynall, 2019-09-12.
+
+  Accordingly,
+
+  - noncommercial restriction applied in CamCOPS;
+
+  - skeleton task plus local upgrade for now.
+
+- Modifications by Mary-Ellen Lynall, University of Cambridge, 2019.
 
 
 History
@@ -49,8 +74,6 @@ History
     brief life events questionnaire.
     *Acta Psychiatr Scand.* 82: 77-81.
     https://www.ncbi.nlm.nih.gov/pubmed/2399824
-
-.. todo:: ESTABLISH HISTORY DETAILS (lynall_2_iam_life)
 
 
 Source
