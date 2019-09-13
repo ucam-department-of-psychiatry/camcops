@@ -738,9 +738,9 @@ Non-default options are marked in bold and/or as "[non-default]".
         * - Qt mkspec
           -
         * - CMake Tool
-          -
-        * - CMake Generator
           - **System CMake at** ``C:\Program Files (x86)\CMake\bin\cmake.exe``
+        * - CMake Generator
+          -
         * - CMake Configuration
           - ``CMAKE_CXX_COMPILER:STRING=%{Compiler:Executable:Cxx}``
             ``CMAKE_C_COMPILER:STRING=%{Compiler:Executable:C}``
