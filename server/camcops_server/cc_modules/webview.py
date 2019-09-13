@@ -390,7 +390,10 @@ def not_found(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     "Page not found" view.
     """
-    return {}
+    return {
+        "msg": "",
+        "extra_html": "",
+    }
 
 
 # noinspection PyUnusedLocal
@@ -413,7 +416,10 @@ def bad_request(req: "CamcopsRequest") -> Dict[str, Any]:
 
     ... so always raise it.
     """
-    return {}
+    return {
+        "msg": "",
+        "extra_html": "",
+    }
 
 
 # =============================================================================
@@ -616,7 +622,9 @@ def account_locked(req: "CamcopsRequest", locked_until: Pendulum) -> Response:
         dict(
             locked_until=format_datetime(locked_until,
                                          DateFormat.LONG_DATETIME_WITH_DAY,
-                                         _("(never)"))
+                                         _("(never)")),
+            msg="",
+            extra_html="",
         ),
         request=req
     )
