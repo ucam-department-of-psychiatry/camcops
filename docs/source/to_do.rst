@@ -32,7 +32,7 @@ Tasks
 
 - :ref:`Childhood Trauma Questionnaire, Short Form (CTQ-SF) <ctqsf>`
 
-  .. todo:: IN PROGRESS +++ a/w permission clarification
+  .. todo:: IN PROGRESS +++ a/w funding before proceeding
 
 
 **To be prioritized**

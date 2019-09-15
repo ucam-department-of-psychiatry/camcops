@@ -53,8 +53,8 @@ from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
 N_QUESTIONS = 14
 
 SPECIAL_SEVERITY_QUESTIONS = [14]
-SPECIAL_FREQUENCY_QUESTIONS = [1, 2, 3, 9]
-FREQUENCY_AS_PERCENT_QUESTIONS = [1, 2, 9]
+SPECIAL_FREQUENCY_QUESTIONS = [1, 2, 3, 8]
+FREQUENCY_AS_PERCENT_QUESTIONS = [1, 2, 8]
 
 QPREFIX = "q"
 QSUFFIX_MAIN = "_main"
@@ -91,8 +91,8 @@ class LynallIamLifeEventsMetaclass(DeclarativeMeta):
             "marital separation or broke off relationship",  # 5
             "ended long-lasting friendship with close friend/relative",
             "problems with close friend/neighbour/relative",
-            "sacked/made redundant",
-            "unsuccessful job-seeking for >1 month",
+            "unsuccessful job-seeking for >1 month",  # 8
+            "sacked/made redundant",  # 9
             "major financial crisis",  # 10
             "problem with police involving court appearance",
             "something valued lost/stolen",

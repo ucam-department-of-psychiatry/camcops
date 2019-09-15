@@ -38,8 +38,8 @@ const QString LynallIamLife::LYNALL_IAM_LIFE_TABLENAME("lynall_iam_life");
 
 const int N_QUESTIONS = 14;
 const QVector<int> SPECIAL_SEVERITY_QUESTIONS{14};
-const QVector<int> SPECIAL_FREQUENCY_QUESTIONS{1, 2, 3, 9};
-const QVector<int> FREQUENCY_AS_PERCENT_QUESTIONS{1, 2, 9};
+const QVector<int> SPECIAL_FREQUENCY_QUESTIONS{1, 2, 3, 8};
+const QVector<int> FREQUENCY_AS_PERCENT_QUESTIONS{1, 2, 8};
 
 const QString QPREFIX("q");
 const QString QSUFFIX_MAIN("_main");

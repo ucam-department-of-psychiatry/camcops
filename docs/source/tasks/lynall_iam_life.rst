@@ -118,11 +118,15 @@ Source
   6: Broke off a steady relationship                [incorporated into 5]
   --                                                6: ended long-lasting friendship with close friend/relative
   7: Problems with close friend/neighbour/relative  [7: same]
-  8: Unemployment or unsuccessful job-seeking 1mo+  9: unsuccessful job-seeking 1mo+
-  9: Sacked                                         [8: same: sacked/made redundant]
+  8: Unemployment or unsuccessful job-seeking 1mo+  8: unsuccessful job-seeking 1mo+
+  9: Sacked                                         [9: same: sacked/made redundant]
   10: Financial crisis                              [10: same]
   11: Police with court appearance                  [11: same]
   12: Something lost/stolen                         [12: same]
   --                                                13: Self/partner gave birth
   --                                                14: Other
   ================================================= =============================================================
+
+  *Note: in the draft IAM/Life (prior to 2019-09-15), 8 was "sacked" and 9 was
+  "unsuccessful job-seeking"; transposed on 2019-09-15 for better consistency
+  with original LTE-Q.*
