@@ -168,8 +168,27 @@ class LynallIamLifeEvents(TaskHasPatientMixin, Task,
         return True
 
     def n_endorsed(self) -> int:
+        """
+        The number of main items endorsed.
+        """
         fieldnames = [qfieldname_main(q) for q in range(1, N_QUESTIONS + 1)]
         return self.count_booleans(fieldnames)
+
+    def severity_score(self) -> int:
+        """
+        The sum of severity scores.
+
+        These are intrinsically coded 1 = not too bad, 2 = moderately bad, 3 =
+        very bad. In addition, we score 0 for "not experienced".
+        """
+        total = 0
+        for q in range(1, N_QUESTIONS + 1):
+            v_main = getattr(self, qfieldname_main(q))
+            if v_main:  # if endorsed
+                v_severity = getattr(self, qfieldname_severity(q))
+                if v_severity is not None:
+                    total += v_severity
+        return total
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         options_severity = {
@@ -217,9 +236,13 @@ class LynallIamLifeEvents(TaskHasPatientMixin, Task,
                 <table class="{CssClass.SUMMARY}">
                     {self.get_is_complete_tr(req)}
                     <tr>
-                        <td>Number of categories endorsed 
-                            (out of {N_QUESTIONS})</td>
-                        <td>{answer(self.n_endorsed())}</td>
+                        <td>Number of categories endorsed</td>
+                        <td>{answer(self.n_endorsed())} / {N_QUESTIONS}</td>
+                    </tr>
+                    <tr>
+                        <td>Severity score <sup>[c]</sup></td>
+                        <td>{answer(self.severity_score())} / 
+                            {N_QUESTIONS * 3}</td>
                     </tr>
                 </table>
             </div>
@@ -235,5 +258,8 @@ class LynallIamLifeEvents(TaskHasPatientMixin, Task,
             <div class="{CssClass.FOOTNOTES}">
                 [a] Percentage of life, since age 18, spent experiencing this.
                 [b] Number of times this has happened, since age 18.
+                [c] The severity score is the sum of “severity” ratings
+                    (0 = not experienced, 1 = not too bad, 1 = moderately bad,
+                    3 = very bad).                     
             </div>
         """

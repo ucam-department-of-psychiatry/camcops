@@ -57,6 +57,8 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
+    int nCategoriesEndorsed() const;
+    int severityScore() const;
 protected:
     QString qfieldnameMain(int qnum) const;
     QString qfieldnameSeverity(int qnum) const;

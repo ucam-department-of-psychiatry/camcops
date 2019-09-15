@@ -114,7 +114,7 @@ MenuItem::MenuItem(const ChoosePatientMenuItem& choose_patient,
 {
     // We do some more of the work for the client, since "choose patient"
     // appears on lots of menus.
-    Q_UNUSED(choose_patient);  // it's just a marker object
+    Q_UNUSED(choose_patient)  // it's just a marker object
     // You can't call another constructor directly, so...
 
     setDefaults();

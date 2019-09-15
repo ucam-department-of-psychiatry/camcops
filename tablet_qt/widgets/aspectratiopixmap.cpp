@@ -126,7 +126,7 @@ void AspectRatioPixmap::mousePressEvent(QMouseEvent* event)
 #ifdef DEBUG_CLICK_TIMING
     qDebug() << Q_FUNC_INFO;
 #endif
-    Q_UNUSED(event);
+    Q_UNUSED(event)
     emit clicked();
 }
 
@@ -144,7 +144,7 @@ void AspectRatioPixmap::clear()
 
 void AspectRatioPixmap::paintEvent(QPaintEvent* event)
 {
-    Q_UNUSED(event);
+    Q_UNUSED(event)
 
     QPainter painter(this);
     const QRect cr = contentsRect();

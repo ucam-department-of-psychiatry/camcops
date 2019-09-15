@@ -563,8 +563,8 @@ bool FieldRef::setRawImage(const QByteArray& data,
                            const QString& mimetype,
                            const QObject* originator)
 {
-    Q_UNUSED(extension_without_dot);
-    Q_UNUSED(mimetype);
+    Q_UNUSED(extension_without_dot)
+    Q_UNUSED(mimetype)
     return setValue(data, originator);
 }
 

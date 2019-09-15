@@ -21,6 +21,7 @@
 #include "common/textconst.h"
 #include "lib/stringfunc.h"
 #include "lib/version.h"
+#include "maths/mathfunc.h"
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/namevalueoptions.h"
 #include "questionnairelib/questionnaire.h"
@@ -30,6 +31,8 @@
 #include "questionnairelib/quspacer.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
+using mathfunc::countTrue;
+using mathfunc::scorePhrase;
 using stringfunc::strnum;
 using stringfunc::strseq;
 
@@ -100,30 +103,6 @@ Version LynallIamLife::minimumServerVersion() const
 // Instance info
 // ============================================================================
 
-QString LynallIamLife::qfieldnameMain(const int qnum) const
-{
-    return strnum(QPREFIX, qnum, QSUFFIX_MAIN);
-}
-
-
-QString LynallIamLife::qfieldnameSeverity(const int qnum) const
-{
-    return strnum(QPREFIX, qnum, QSUFFIX_SEVERITY);
-}
-
-
-QString LynallIamLife::qfieldnameFrequency(const int qnum) const
-{
-    return strnum(QPREFIX, qnum, QSUFFIX_FREQUENCY);
-}
-
-
-QString LynallIamLife::tagExtras(const int qnum) const
-{
-    return strnum(TAG_PREFIX, qnum);
-}
-
-
 bool LynallIamLife::isComplete() const
 {
     for (int q = 1; q <= N_QUESTIONS; ++q) {
@@ -145,13 +124,25 @@ bool LynallIamLife::isComplete() const
 
 QStringList LynallIamLife::summary() const
 {
-    return QStringList{textconst.noSummarySeeFacsimile()};
+    return QStringList{
+        scorePhrase(
+            tr("Number of categories endorsed"),
+            nCategoriesEndorsed(),
+            N_QUESTIONS
+        ),
+    };
 }
 
 
 QStringList LynallIamLife::detail() const
 {
-    return QStringList{textconst.noDetailSeeFacsimile()};
+    return summary() + QStringList{
+        scorePhrase(
+            tr("Severity score"),
+            severityScore(),
+            N_QUESTIONS * 3
+        ),
+    };
 }
 
 
@@ -239,6 +230,54 @@ OpenableWidget* LynallIamLife::editor(const bool read_only)
 
     return m_questionnaire;
 }
+
+
+// ============================================================================
+// Task-specific calculations
+// ============================================================================
+
+int LynallIamLife::nCategoriesEndorsed() const
+{
+    return countTrue(values(strseq(QPREFIX, 1, N_QUESTIONS, QSUFFIX_MAIN)));
+}
+
+
+int LynallIamLife::severityScore() const
+{
+    int total = 0;
+    for (int q = 1; q <= N_QUESTIONS; ++q) {
+        const QVariant value_main = value(qfieldnameMain(q));
+        if (value_main.toBool()) {
+            total += valueInt(qfieldnameSeverity(q));
+        }
+    }
+    return total;
+}
+
+
+QString LynallIamLife::qfieldnameMain(const int qnum) const
+{
+    return strnum(QPREFIX, qnum, QSUFFIX_MAIN);
+}
+
+
+QString LynallIamLife::qfieldnameSeverity(const int qnum) const
+{
+    return strnum(QPREFIX, qnum, QSUFFIX_SEVERITY);
+}
+
+
+QString LynallIamLife::qfieldnameFrequency(const int qnum) const
+{
+    return strnum(QPREFIX, qnum, QSUFFIX_FREQUENCY);
+}
+
+
+QString LynallIamLife::tagExtras(const int qnum) const
+{
+    return strnum(TAG_PREFIX, qnum);
+}
+
 
 
 // ============================================================================

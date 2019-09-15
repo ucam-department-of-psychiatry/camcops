@@ -181,10 +181,10 @@ bool SQLCipherDriver::open(const QString& db, const QString& user,
                            const QString& password, const QString &host,
                            const int port, const QString& conn_opts)
 {
-    Q_UNUSED(user);
-    Q_UNUSED(password);
-    Q_UNUSED(host);
-    Q_UNUSED(port);
+    Q_UNUSED(user)
+    Q_UNUSED(password)
+    Q_UNUSED(host)
+    Q_UNUSED(port)
 
     if (isOpen()) {
         close();
@@ -402,6 +402,6 @@ QVariant SQLCipherDriver::handle() const
 QString SQLCipherDriver::escapeIdentifier(const QString& identifier,
                                           const IdentifierType type) const
 {
-    Q_UNUSED(type);
+    Q_UNUSED(type)
     return _q_escapeIdentifier(identifier);
 }

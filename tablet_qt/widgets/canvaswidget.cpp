@@ -215,14 +215,14 @@ void CanvasWidget::resizeEvent(QResizeEvent* event)
             << "; contents rect " << contentsRect()
             << "; m_image_to_display_ratio " << m_image_to_display_ratio;
 #else
-    Q_UNUSED(event);
+    Q_UNUSED(event)
 #endif
 }
 
 
 void CanvasWidget::paintEvent(QPaintEvent* event)
 {
-    Q_UNUSED(event);
+    Q_UNUSED(event)
     // If you derive from a QWidget, you can't find out how big the stylesheet
     // borders are, so you can't help overwriting them. So, derive from a
     // QFrame, and draw inside its contentsRect().

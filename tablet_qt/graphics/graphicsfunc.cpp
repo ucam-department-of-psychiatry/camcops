@@ -232,11 +232,11 @@ QString svgFromPathContents(const QString& path_contents,
                             const QString& element_id)
 {
 #ifdef DEBUG_SVG
-    Q_UNUSED(path_contents);
-    Q_UNUSED(stroke);
-    Q_UNUSED(stroke_width);
-    Q_UNUSED(fill);
-    Q_UNUSED(element_id);
+    Q_UNUSED(path_contents)
+    Q_UNUSED(stroke)
+    Q_UNUSED(stroke_width)
+    Q_UNUSED(fill)
+    Q_UNUSED(element_id)
     return TEST_SVG;
 #else
     return svg({

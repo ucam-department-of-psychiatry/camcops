@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-  <task name="chit">(
+  <task name="chit">
     <!-- Cambridge-Chicago Compulsivity Trait Scale -->
 
     <string name="title_main">Cambridge-Chicago Compulsivity Trait Scale (CHI-T)</string>

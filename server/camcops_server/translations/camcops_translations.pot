@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: CamCOPS 2.3.5\n"
+"Project-Id-Version: CamCOPS 2.3.6\n"
 "Report-Msgid-Bugs-To: rudolf@pobox.com\n"
-"POT-Creation-Date: 2019-09-07 16:47+0100\n"
+"POT-Creation-Date: 2019-09-15 19:50+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1149,7 +1149,7 @@ msgstr ""
 msgid "Cardiff Anomalous Perceptions Scale"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cardinal_expdetthreshold.py:295
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cardinal_expdetthreshold.py:298
 msgid "Cardinal RN – Threshold determination for Expectation–Detection task"
 msgstr ""
 
@@ -1466,15 +1466,15 @@ msgstr ""
 msgid "Khandaker GM — Insight — Medical history"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/khandaker_mojo_medical.py:465
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/khandaker_mojo_medical.py:433
 msgid "Khandaker GM — MOJO — Medical questionnaire"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/khandaker_mojo_medicationtherapy.py:258
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/khandaker_mojo_medicationtherapy.py:243
 msgid "Khandaker GM — MOJO — Medications and therapies"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/khandaker_mojo_sociodemographics.py:225
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/khandaker_mojo_sociodemographics.py:213
 msgid "Khandaker GM — MOJO — Sociodemographics"
 msgstr ""
 
@@ -1494,8 +1494,8 @@ msgstr ""
 msgid "Kirby et al. 1999 Monetary Choice Questionnaire"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/lynall_iam_life.py:65
-msgid "Lynall M-E — 2 — IAM — Life events"
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/lynall_iam_life.py:156
+msgid "Lynall M-E — IAM — Life events"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/lynall_iam_medical.py:258
@@ -1666,12 +1666,12 @@ msgstr ""
 msgid "Zarit Burden Interview-12"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/base/base_pdf.mako:45
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/base/base_pdf.mako:48
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/base/wkhtmltopdf_footer.mako:73
 msgid "Page"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/base/base_pdf.mako:45
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/base/base_pdf.mako:48
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/base/wkhtmltopdf_footer.mako:73
 msgid "of"
 msgstr ""

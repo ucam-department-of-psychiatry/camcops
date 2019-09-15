@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-  <task name="mfi20">(
+  <task name="mfi20">
     <!-- Multidimensional Fatigue Inventory (MFI-20) -->
 
     <string name="title_main">(title)</string>

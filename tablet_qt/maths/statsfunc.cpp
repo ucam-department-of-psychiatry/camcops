@@ -81,7 +81,7 @@ double one(const double x)
     // Derivative of the identity function:
     //      y = x
     //      y' = 1
-    Q_UNUSED(x);
+    Q_UNUSED(x)
     return 1.0;
 }
 
@@ -218,8 +218,8 @@ double gaussianAIC(const ArrayXd& y,
                    const double dev)
 {
     // R: gaussian()$aic
-    Q_UNUSED(n);
-    Q_UNUSED(mu);
+    Q_UNUSED(n)
+    Q_UNUSED(mu)
     const Index nobs = y.size();
     return nobs * (std::log(dev / nobs * 2 * PI) + 1) + 2 - wt.log().sum();
 }
@@ -279,7 +279,7 @@ double binomialAIC(const ArrayXd& y,
 
 bool alwaysTrue(const ArrayXd& x)
 {
-    Q_UNUSED(x);
+    Q_UNUSED(x)
     return true;
 }
 
@@ -313,9 +313,9 @@ bool binomialInitialize(QStringList& errors,
 {
     // returns: OK?
     // R: binomial()$initialize
-    Q_UNUSED(family);
-    Q_UNUSED(start);
-    Q_UNUSED(etastart);
+    Q_UNUSED(family)
+    Q_UNUSED(start)
+    Q_UNUSED(etastart)
 
     const Index ncol_y = y.cols();
     const Index nobs = y.size();
@@ -369,12 +369,12 @@ bool gaussianInitialize(QStringList& errors,
     // returns: OK?
     // R: gaussian()$initialize
 
-    Q_UNUSED(errors);
-    Q_UNUSED(family);
-    Q_UNUSED(m);
-    Q_UNUSED(weights);
-    Q_UNUSED(start);
-    Q_UNUSED(etastart);
+    Q_UNUSED(errors)
+    Q_UNUSED(family)
+    Q_UNUSED(m)
+    Q_UNUSED(weights)
+    Q_UNUSED(start)
+    Q_UNUSED(etastart)
 
     // NOT IMPLEMENTED: some other options for inverse/log links; q.v.
 

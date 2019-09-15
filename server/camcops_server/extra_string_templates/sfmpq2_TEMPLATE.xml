@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-  <task name="sfmpq2">(
+  <task name="sfmpq2">
     <!-- Short-Form McGill Pain Questionnaire 2 (SF-MPQ2) -->
 
     <string name="title_main">(title)</string>

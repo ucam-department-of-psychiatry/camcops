@@ -286,7 +286,7 @@ void CameraQCamera::setPreviewResolution(const QSize& resolution)
 
 void CameraQCamera::setMainResolution(const QSize& resolution)
 {
-    Q_UNUSED(resolution); // NOT IMPLEMENTED - see CameraQml
+    Q_UNUSED(resolution)  // NOT IMPLEMENTED - see CameraQml
 }
 
 
@@ -586,7 +586,7 @@ void CameraQCamera::readyForCapture(const bool ready)
 void CameraQCamera::imageSaved(const int id, const QString& filename)
 {
     // Image has arrived via a disk file.
-    Q_UNUSED(id);
+    Q_UNUSED(id)
     qDebug() << "Camera image has arrived via temporary file" << filename;
 #ifdef CAMERA_LOAD_FROM_DISK_PROMPTLY
     m_most_recent_image.load(filename);
@@ -616,7 +616,7 @@ void CameraQCamera::imageAvailable(const int id, const QVideoFrame& buffer)
     // http://stackoverflow.com/questions/27297657/how-to-qvideoframe-to-qimage
     // http://stackoverflow.com/questions/27829830/convert-qvideoframe-to-qimage
 
-    Q_UNUSED(id);
+    Q_UNUSED(id)
     qInfo() << "Camera::imageAvailable: fetching image from buffer...";
     m_most_recent_image = imagefunc::imageFromVideoFrame(buffer);
     qInfo() << "Camera::imageAvailable: ... fetched.";

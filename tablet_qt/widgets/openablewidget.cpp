@@ -42,7 +42,7 @@ OpenableWidget::OpenableWidget(QWidget* parent) :
 {
 #ifdef DEBUG_OPENABLE_WIDGET_LAYOUT
     auto showwatcher = new ShowWatcher(this, true);
-    Q_UNUSED(showwatcher);
+    Q_UNUSED(showwatcher)
 #endif
 }
 
