@@ -28,13 +28,6 @@ playing/test_webview.py
 
 """
 
-# Author: Rudolf Cardinal (rudolf@pobox.com)
-# Created: 2012
-# Employer: University of Cambridge
-# Funding: Wellcome Trust
-# Copyright (C) 2012-2013
-# Licence: http://creativecommons.org/licenses/by/3.0/
-
 import camcopswebview  # module that does the real work
 
 # =============================================================================

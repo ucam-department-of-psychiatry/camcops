@@ -29,7 +29,7 @@ Medical history form for Insight study.
 Intellectual property rights
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- Copyright © 2018 Golam M. Khandaker, University of Cambridge.
+- Copyright © 2018 Golam M. Khandaker.
 
 - License: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA
   4.0); https://creativecommons.org/licenses/by-sa/4.0/
@@ -38,4 +38,5 @@ Intellectual property rights
 Source
 ~~~~~~
 
-- Golam Khandaker, personal communication to Rudolf Cardinal (e.g. 2018-06-27).
+- Golam Khandaker (University of Cambridge), personal communication to Rudolf
+  Cardinal (e.g. 2018-06-27).

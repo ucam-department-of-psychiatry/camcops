@@ -28,7 +28,7 @@ Medical history questionnaire for the Inflammation in Mind (IAM) study.
 Intellectual property rights
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- Copyright © 2018 Mary-Ellen Lynall, University of Cambridge.
+- Copyright © 2018 Mary-Ellen Lynall.
 
 - License: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA
   4.0): https://creativecommons.org/licenses/by-sa/4.0/
@@ -37,5 +37,5 @@ Intellectual property rights
 Source
 ~~~~~~
 
-- Mary-Ellen Lynall, personal communication to Rudolf Cardinal (e.g.
-  2019-04-30).
+- Mary-Ellen Lynall (University of Cambridge), personal communication to Rudolf
+  Cardinal (e.g. 2019-04-30).

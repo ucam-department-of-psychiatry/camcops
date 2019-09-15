@@ -92,7 +92,7 @@ QString LynallIamLife::description() const
 
 Version LynallIamLife::minimumServerVersion() const
 {
-    return Version(2, 3, 5);
+    return Version(2, 3, 6);
 }
 
 

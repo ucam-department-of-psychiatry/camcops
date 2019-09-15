@@ -2550,3 +2550,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
     The odd thing is that the change was between 2017-09-10 and 2017-09-11 and
     it was certainly working after that, so perhaps ``matplotlib`` used to
     accept a dictionary or **kwargs and no longer does.
+
+**Client and server v2.3.6**
+
+- **New task:** :ref:`Lynall M-E — IAM study — life events <lynall_iam_life>`.
