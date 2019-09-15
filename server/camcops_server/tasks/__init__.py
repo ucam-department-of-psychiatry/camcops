@@ -124,7 +124,7 @@ from camcops_server.tasks.khandaker_mojo_sociodemographics import (
 )
 
 from camcops_server.tasks.lynall_iam_medical import LynallIamMedicalHistory
-# todo: # from camcops_server.tasks.lynall_iam_life import LynallLifeEvents
+from camcops_server.tasks.lynall_iam_life import LynallIamLifeEvents
 
 from camcops_server.tasks.maas import Maas
 from camcops_server.tasks.mast import Mast
