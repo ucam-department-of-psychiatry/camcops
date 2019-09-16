@@ -182,7 +182,7 @@ class SecurityAccountLockout(Base):
         now = req.now_utc
         lock_until = now + datetime.timedelta(minutes=lockout_minutes)
         # noinspection PyArgumentList
-        lock = cls(username=username, lock_until=lock_until)
+        lock = cls(username=username, locked_until=lock_until)
         dbsession.add(lock)
         audit(req,
               f"Account {username} locked out for {lockout_minutes} minutes")

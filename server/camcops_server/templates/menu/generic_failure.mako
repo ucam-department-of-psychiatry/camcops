@@ -44,9 +44,11 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 
 ${next.body()}
 
+%if request.exception:
 <div class="error">
     ${ request.exception.message | h }
 </div>
+%endif
 
 <div class="error">
     %if request.user_id is None:
