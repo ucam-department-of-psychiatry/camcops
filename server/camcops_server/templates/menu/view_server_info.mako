@@ -66,11 +66,14 @@ camcops_server/templates/menu/view_server_info.mako
 </p>
 
 <h2>${_("Extra string families present")}</h2>
-<pre>
-    %for sf in string_families:
-${ sf | h }
-    %endfor
-</pre>
+%for sf in string_families:
+    ${ sf | h }
+    %if sf in restricted_tasks:
+        <b>— restricted to groups: ${ ", ".join(restricted_tasks[sf]) | h }</b>
+    %endif
+    <br>
+
+%endfor
 
 <h2>${_("All known tasks")}</h2>
 <p>${_("Format is: long name (short name; base table name).")}</p>

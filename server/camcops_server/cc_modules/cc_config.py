@@ -146,6 +146,7 @@ from camcops_server.cc_modules.cc_exception import raise_runtime_error
 from camcops_server.cc_modules.cc_filename import (
     PatientSpecElementForFilename,
 )
+from camcops_server.cc_modules.cc_group import is_group_name_valid
 from camcops_server.cc_modules.cc_language import (
     DEFAULT_LOCALE,
     POSSIBLE_LOCALES,
@@ -226,6 +227,7 @@ class ConfigParamSite(object):
     PASSWORD_CHANGE_FREQUENCY_DAYS = "PASSWORD_CHANGE_FREQUENCY_DAYS"
     PATIENT_SPEC = "PATIENT_SPEC"
     PATIENT_SPEC_IF_ANONYMOUS = "PATIENT_SPEC_IF_ANONYMOUS"
+    RESTRICTED_TASKS = "RESTRICTED_TASKS"
     SESSION_COOKIE_SECRET = "SESSION_COOKIE_SECRET"
     SESSION_TIMEOUT_MINUTES = "SESSION_TIMEOUT_MINUTES"
     SNOMED_TASK_XML_FILENAME = "SNOMED_TASK_XML_FILENAME"
@@ -333,6 +335,7 @@ def get_demo_config(extra_strings_dir: str = None,
 {ConfigParamSite.CAMCOPS_LOGO_FILE_ABSOLUTE} = {static_dir}/logo_camcops.png
 
 {ConfigParamSite.EXTRA_STRING_FILES} = {extra_strings_spec}
+{ConfigParamSite.RESTRICTED_TASKS} =
 {ConfigParamSite.LANGUAGE} = {DEFAULT_LOCALE}
 
 {ConfigParamSite.SNOMED_TASK_XML_FILENAME} =
@@ -1216,19 +1219,24 @@ class CamcopsConfig(object):
         s = CONFIG_FILE_SITE_SECTION
         cs = ConfigParamSite
 
-        self.allow_insecure_cookies = _get_bool(s, cs.ALLOW_INSECURE_COOKIES, False)  # noqa
+        self.allow_insecure_cookies = _get_bool(
+            s, cs.ALLOW_INSECURE_COOKIES, False)
 
-        self.camcops_logo_file_absolute = _get_str(s, cs.CAMCOPS_LOGO_FILE_ABSOLUTE, DEFAULT_CAMCOPS_LOGO_FILE)  # noqa
+        self.camcops_logo_file_absolute = _get_str(
+            s, cs.CAMCOPS_LOGO_FILE_ABSOLUTE, DEFAULT_CAMCOPS_LOGO_FILE)
         self.ctv_filename_spec = _get_str(s, cs.CTV_FILENAME_SPEC)
 
         self.db_url = parser.get(s, cs.DB_URL)
         # ... no default: will fail if not provided
         self.db_echo = _get_bool(s, cs.DB_ECHO, False)
-        self.client_api_loglevel = get_config_parameter_loglevel(parser, s, cs.CLIENT_API_LOGLEVEL, logging.INFO)  # noqa
-        logging.getLogger("camcops_server.cc_modules.client_api").setLevel(self.client_api_loglevel)  # noqa
+        self.client_api_loglevel = get_config_parameter_loglevel(
+            parser, s, cs.CLIENT_API_LOGLEVEL, logging.INFO)
+        logging.getLogger("camcops_server.cc_modules.client_api")\
+            .setLevel(self.client_api_loglevel)
         # ... MUTABLE GLOBAL STATE (if relatively unimportant); todo: fix
 
-        self.disable_password_autocomplete = _get_bool(s, cs.DISABLE_PASSWORD_AUTOCOMPLETE, True)  # noqa
+        self.disable_password_autocomplete = _get_bool(
+            s, cs.DISABLE_PASSWORD_AUTOCOMPLETE, True)
 
         self.extra_string_files = _get_multiline(s, cs.EXTRA_STRING_FILES)
 
@@ -1237,28 +1245,68 @@ class CamcopsConfig(object):
             log.warning(f"Invalid language {self.language!r}, "
                         f"switching to {DEFAULT_LOCALE!r}")
             self.language = DEFAULT_LOCALE
-        self.local_institution_url = _get_str(s, cs.LOCAL_INSTITUTION_URL, DEFAULT_LOCAL_INSTITUTION_URL)  # noqa
-        self.local_logo_file_absolute = _get_str(s, cs.LOCAL_LOGO_FILE_ABSOLUTE, DEFAULT_LOCAL_LOGO_FILE)  # noqa
-        self.lockout_threshold = _get_int(s, cs.LOCKOUT_THRESHOLD, DEFAULT_LOCKOUT_THRESHOLD)  # noqa
-        self.lockout_duration_increment_minutes = _get_int(s, cs.LOCKOUT_DURATION_INCREMENT_MINUTES, DEFAULT_LOCKOUT_DURATION_INCREMENT_MINUTES)  # noqa
+        self.local_institution_url = _get_str(
+            s, cs.LOCAL_INSTITUTION_URL, DEFAULT_LOCAL_INSTITUTION_URL)
+        self.local_logo_file_absolute = _get_str(
+            s, cs.LOCAL_LOGO_FILE_ABSOLUTE, DEFAULT_LOCAL_LOGO_FILE)
+        self.lockout_threshold = _get_int(
+            s, cs.LOCKOUT_THRESHOLD, DEFAULT_LOCKOUT_THRESHOLD)
+        self.lockout_duration_increment_minutes = _get_int(
+            s, cs.LOCKOUT_DURATION_INCREMENT_MINUTES,
+            DEFAULT_LOCKOUT_DURATION_INCREMENT_MINUTES)
 
-        self.password_change_frequency_days = _get_int(s, cs.PASSWORD_CHANGE_FREQUENCY_DAYS, DEFAULT_PASSWORD_CHANGE_FREQUENCY_DAYS)  # noqa
-        self.patient_spec_if_anonymous = _get_str(s, cs.PATIENT_SPEC_IF_ANONYMOUS, DEFAULT_PATIENT_SPEC_IF_ANONYMOUS)  # noqa
+        self.password_change_frequency_days = _get_int(
+            s, cs.PASSWORD_CHANGE_FREQUENCY_DAYS,
+            DEFAULT_PASSWORD_CHANGE_FREQUENCY_DAYS)
+        self.patient_spec_if_anonymous = _get_str(
+            s, cs.PATIENT_SPEC_IF_ANONYMOUS, DEFAULT_PATIENT_SPEC_IF_ANONYMOUS)
         self.patient_spec = _get_str(s, cs.PATIENT_SPEC)
         # currently not configurable, but easy to add in the future:
         self.plot_fontsize = DEFAULT_PLOT_FONTSIZE
 
-        self.session_timeout_minutes = _get_int(s, cs.SESSION_TIMEOUT_MINUTES, DEFAULT_TIMEOUT_MINUTES)  # noqa
+        self.restricted_tasks = {}  # type: Dict[str, List[str]]
+        # ... maps XML task names to lists of authorized group names
+        restricted_tasks = _get_multiline(s, cs.RESTRICTED_TASKS)
+        for rt_line in restricted_tasks:
+            rt_line = rt_line.split("#")[0].strip()
+            # ... everything before a '#'
+            if not rt_line:  # comment line
+                continue
+            try:
+                xml_taskname, groupnames = rt_line.split(":")
+            except ValueError:
+                raise ValueError(
+                    f"Restricted tasks line not in the format "
+                    f"'xml_taskname: groupname1, groupname2, ...'. Line was:\n"
+                    f"{rt_line!r}"
+                )
+            xml_taskname = xml_taskname.strip()
+            if xml_taskname in self.restricted_tasks:
+                raise ValueError(f"Duplicate restricted task specification "
+                                 f"for {xml_taskname!r}")
+            groupnames = [x.strip() for x in groupnames.split(",")]
+            for gn in groupnames:
+                if not is_group_name_valid(gn):
+                    raise ValueError(f"Invalid group name: {gn!r}")
+            self.restricted_tasks[xml_taskname] = groupnames
+
+        self.session_timeout_minutes = _get_int(
+            s, cs.SESSION_TIMEOUT_MINUTES, DEFAULT_TIMEOUT_MINUTES)
         self.session_cookie_secret = _get_str(s, cs.SESSION_COOKIE_SECRET)
-        self.session_timeout = datetime.timedelta(minutes=self.session_timeout_minutes)  # noqa
-        self.snomed_task_xml_filename = _get_str(s, cs.SNOMED_TASK_XML_FILENAME)  # noqa
-        self.snomed_icd9_xml_filename = _get_str(s, cs.SNOMED_ICD9_XML_FILENAME)  # noqa
-        self.snomed_icd10_xml_filename = _get_str(s, cs.SNOMED_ICD10_XML_FILENAME)  # noqa
+        self.session_timeout = datetime.timedelta(
+            minutes=self.session_timeout_minutes)
+        self.snomed_task_xml_filename = _get_str(
+            s, cs.SNOMED_TASK_XML_FILENAME)
+        self.snomed_icd9_xml_filename = _get_str(
+            s, cs.SNOMED_ICD9_XML_FILENAME)
+        self.snomed_icd10_xml_filename = _get_str(
+            s, cs.SNOMED_ICD10_XML_FILENAME)
 
         self.task_filename_spec = _get_str(s, cs.TASK_FILENAME_SPEC)
         self.tracker_filename_spec = _get_str(s, cs.TRACKER_FILENAME_SPEC)
 
-        self.webview_loglevel = get_config_parameter_loglevel(parser, s, cs.WEBVIEW_LOGLEVEL, logging.INFO)  # noqa
+        self.webview_loglevel = get_config_parameter_loglevel(
+            parser, s, cs.WEBVIEW_LOGLEVEL, logging.INFO)
         logging.getLogger().setLevel(self.webview_loglevel)  # root logger
         # ... MUTABLE GLOBAL STATE (if relatively unimportant); todo: fix
         self.wkhtmltopdf_filename = _get_str(s, cs.WKHTMLTOPDF_FILENAME)
@@ -1288,32 +1336,43 @@ class CamcopsConfig(object):
         cw = ConfigParamServer
 
         self.cherrypy_log_screen = _get_bool(ws, cw.CHERRYPY_LOG_SCREEN, True)
-        self.cherrypy_root_path = _get_str(ws, cw.CHERRYPY_ROOT_PATH, URL_PATH_ROOT)  # noqa
-        self.cherrypy_server_name = _get_str(ws, cw.CHERRYPY_SERVER_NAME, DEFAULT_CHERRYPY_SERVER_NAME)  # noqa
-        self.cherrypy_threads_max = _get_int(ws, cw.CHERRYPY_THREADS_MAX, DEFAULT_MAX_THREADS)  # noqa
-        self.cherrypy_threads_start = _get_int(ws, cw.CHERRYPY_THREADS_START, DEFAULT_START_THREADS)  # noqa
+        self.cherrypy_root_path = _get_str(
+            ws, cw.CHERRYPY_ROOT_PATH, URL_PATH_ROOT)
+        self.cherrypy_server_name = _get_str(
+            ws, cw.CHERRYPY_SERVER_NAME, DEFAULT_CHERRYPY_SERVER_NAME)
+        self.cherrypy_threads_max = _get_int(
+            ws, cw.CHERRYPY_THREADS_MAX, DEFAULT_MAX_THREADS)
+        self.cherrypy_threads_start = _get_int(
+            ws, cw.CHERRYPY_THREADS_START, DEFAULT_START_THREADS)
         self.debug_reverse_proxy = _get_bool(ws, cw.DEBUG_REVERSE_PROXY, False)
-        self.debug_show_gunicorn_options = _get_bool(ws, cw.DEBUG_SHOW_GUNICORN_OPTIONS, False)  # noqa
+        self.debug_show_gunicorn_options = _get_bool(
+            ws, cw.DEBUG_SHOW_GUNICORN_OPTIONS, False)
         self.debug_toolbar = _get_bool(ws, cw.DEBUG_TOOLBAR, False)
-        self.gunicorn_debug_reload = _get_bool(ws, cw.GUNICORN_DEBUG_RELOAD, False)  # noqa
-        self.gunicorn_num_workers = _get_int(ws, cw.GUNICORN_NUM_WORKERS, 2 * multiprocessing.cpu_count())  # noqa
-        self.gunicorn_timeout_s = _get_int(ws, cw.GUNICORN_TIMEOUT_S, DEFAULT_GUNICORN_TIMEOUT_S)  # noqa
+        self.gunicorn_debug_reload = _get_bool(
+            ws, cw.GUNICORN_DEBUG_RELOAD, False)
+        self.gunicorn_num_workers = _get_int(
+            ws, cw.GUNICORN_NUM_WORKERS, 2 * multiprocessing.cpu_count())
+        self.gunicorn_timeout_s = _get_int(
+            ws, cw.GUNICORN_TIMEOUT_S, DEFAULT_GUNICORN_TIMEOUT_S)
         self.host = _get_str(ws, cw.HOST, DEFAULT_HOST)
         self.port = _get_int(ws, cw.PORT, DEFAULT_PORT)
         self.proxy_http_host = _get_str(ws, cw.PROXY_HTTP_HOST)
         self.proxy_remote_addr = _get_str(ws, cw.PROXY_REMOTE_ADDR)
-        self.proxy_rewrite_path_info = _get_bool(ws, cw.PROXY_REWRITE_PATH_INFO, False)  # noqa
+        self.proxy_rewrite_path_info = _get_bool(
+            ws, cw.PROXY_REWRITE_PATH_INFO, False)
         self.proxy_script_name = _get_str(ws, cw.PROXY_SCRIPT_NAME)
         self.proxy_server_name = _get_str(ws, cw.PROXY_SERVER_NAME)
         self.proxy_server_port = _get_optional_int(ws, cw.PROXY_SERVER_PORT)
         self.proxy_url_scheme = _get_str(ws, cw.PROXY_URL_SCHEME)
-        self.show_request_immediately = _get_bool(ws, cw.SHOW_REQUEST_IMMEDIATELY, False)  # noqa
+        self.show_request_immediately = _get_bool(
+            ws, cw.SHOW_REQUEST_IMMEDIATELY, False)
         self.show_requests = _get_bool(ws, cw.SHOW_REQUESTS, False)
         self.show_response = _get_bool(ws, cw.SHOW_RESPONSE, False)
         self.show_timing = _get_bool(ws, cw.SHOW_TIMING, False)
         self.ssl_certificate = _get_str(ws, cw.SSL_CERTIFICATE)
         self.ssl_private_key = _get_str(ws, cw.SSL_PRIVATE_KEY)
-        self.trusted_proxy_headers = _get_multiline(ws, cw.TRUSTED_PROXY_HEADERS)  # noqa
+        self.trusted_proxy_headers = _get_multiline(
+            ws, cw.TRUSTED_PROXY_HEADERS)
         self.unix_domain_socket = _get_str(ws, cw.UNIX_DOMAIN_SOCKET)
 
         for tph in self.trusted_proxy_headers:
@@ -1332,12 +1391,16 @@ class CamcopsConfig(object):
         es = CONFIG_FILE_EXPORT_SECTION
         ce = ConfigParamExportGeneral
 
-        self.celery_beat_extra_args = _get_multiline(es, ce.CELERY_BEAT_EXTRA_ARGS)  # noqa
-        self.celery_beat_schedule_database = _get_str(es, ce.CELERY_BEAT_SCHEDULE_DATABASE)  # noqa
+        self.celery_beat_extra_args = _get_multiline(
+            es, ce.CELERY_BEAT_EXTRA_ARGS)
+        self.celery_beat_schedule_database = _get_str(
+            es, ce.CELERY_BEAT_SCHEDULE_DATABASE)
         if not self.celery_beat_schedule_database:
             raise_missing(es, ce.CELERY_BEAT_SCHEDULE_DATABASE)
-        self.celery_broker_url = _get_str(es, ce.CELERY_BROKER_URL, DEFAULT_CELERY_BROKER_URL)  # noqa
-        self.celery_worker_extra_args = _get_multiline(es, ce.CELERY_WORKER_EXTRA_ARGS)  # noqa
+        self.celery_broker_url = _get_str(
+            es, ce.CELERY_BROKER_URL, DEFAULT_CELERY_BROKER_URL)
+        self.celery_worker_extra_args = _get_multiline(
+            es, ce.CELERY_WORKER_EXTRA_ARGS)
 
         self.export_lockdir = _get_str(es, ce.EXPORT_LOCKDIR)
         if not self.export_lockdir:
@@ -1361,12 +1424,14 @@ class CamcopsConfig(object):
         self._export_recipients = []  # type: List[ExportRecipientInfo]
         self._read_export_recipients(parser)
 
-        self.schedule_timezone = _get_str(es, ce.SCHEDULE_TIMEZONE, DEFAULT_TIMEZONE)  # noqa
+        self.schedule_timezone = _get_str(
+            es, ce.SCHEDULE_TIMEZONE, DEFAULT_TIMEZONE)
 
         self.crontab_entries = []  # type: List[CrontabEntry]
         crontab_lines = _get_multiline(es, ce.SCHEDULE)
         for crontab_line in crontab_lines:
-            crontab_line = crontab_line.split("#")[0].strip()  # everything before a '#'  # noqa
+            crontab_line = crontab_line.split("#")[0].strip()
+            # ... everything before a '#'
             if not crontab_line:  # comment line
                 continue
             crontab_entry = CrontabEntry(line=crontab_line)

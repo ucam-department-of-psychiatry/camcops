@@ -105,7 +105,7 @@ Check the following:
 - The Gunicorn timeout. Try 300 (seconds) rather than 30.
 
   - For modern CamCOPS servers, change the :ref:`GUNICORN_TIMEOUT_S
-    <server_config_param_gunicorn_timeout_s>` setting in the config file.
+    <GUNICORN_TIMEOUT_S>` setting in the config file.
 
   - In old CamCOPS servers, this was the ``--timeout`` parameter on the command
     line; see ``camcops_server serve_gunicorn --help``.

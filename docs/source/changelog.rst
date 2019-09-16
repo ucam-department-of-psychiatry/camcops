@@ -2191,7 +2191,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
     ``mysqlclient==1.3.13``, mis-handles Pendulum objects.
   - See also:
 
-    - :ref:`DB_URL <serverconfig_db_url>`.
+    - :ref:`DB_URL <DB_URL>`.
     - https://crateanon.readthedocs.io/en/latest/installation/database_drivers.html
 
   - Fixes:
@@ -2553,3 +2553,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Group name character restrictions with validation; see
   :func:`camcops_server.cc_modules.cc_group.is_group_name_valid`.
+
+- **Restricting task strings to groups:** see :ref:`RESTRICTED_TASKS
+  <RESTRICTED_TASKS>`.
+

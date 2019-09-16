@@ -33,8 +33,8 @@ from contextlib import contextmanager
 import datetime
 import gettext
 import logging
-from typing import (Any, Dict, Generator, List, Optional, Tuple, TYPE_CHECKING,
-                    Union)
+from typing import (Any, Dict, Generator, List, Optional, Set,
+                    Tuple, TYPE_CHECKING, Union)
 import urllib.parse
 
 from cardinal_pythonlib.datetimefunc import (
@@ -860,10 +860,29 @@ class CamcopsRequest(Request):
         """
         Returns all extra strings, as a list of ``task, name, language, value``
         tuples.
+
+        2019-09-16: these are filtered according to the :ref:`RESTRICTED_TASKS
+        <RESTRICTED_TASKS>` option.
         """
+        restricted_tasks = self.config.restricted_tasks
+        user_group_names = None  # type: Optional[Set[str]]
+
+        def task_permitted(task_xml_name: str) -> bool:
+            nonlocal user_group_names
+            if task_xml_name not in restricted_tasks:
+                return True
+            if user_group_names is None:
+                user_group_names = set(self.user.group_names)
+            permitted_group_names = set(restricted_tasks[task_xml_name])
+            return bool(permitted_group_names.intersection(user_group_names))
+
         allstrings = self._all_extra_strings
         rows = []
         for task, taskstrings in allstrings.items():
+            if not task_permitted(task):
+                log.debug(f"Skipping extra string download for task {task}: "
+                          f"not permitted for user {self.user.username}")
+                continue
             for name, langversions in taskstrings.items():
                 for language, value in langversions.items():
                     rows.append((task, name, language, value))

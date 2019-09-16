@@ -225,9 +225,6 @@ Server
 
 - PBQ: as per Core-10, but also for subscales
 
-**Restricting tasks to group**
-
-
 
 **Priority**
 

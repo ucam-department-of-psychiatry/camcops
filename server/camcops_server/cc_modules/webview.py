@@ -1964,6 +1964,7 @@ def view_server_info(req: "CamcopsRequest") -> Dict[str, Any]:
         all_task_classes=Task.all_subclasses_by_longname(req),
         recent_activity=recent_activity,
         session_timeout_minutes=req.config.session_timeout_minutes,
+        restricted_tasks=req.config.restricted_tasks,
     )
 
 

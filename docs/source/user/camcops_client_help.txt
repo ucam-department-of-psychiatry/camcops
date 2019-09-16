@@ -1,4 +1,4 @@
-Usage: /home/martin/workspace/camcops/build-camcops-Linux_x86_64-Debug/camcops [options]
+Usage: /home/rudolf/Documents/code/camcops/build-camcops-Linux_x86_64-Debug/camcops [options]
 
 Options:
   -h, --help           Displays this help.
@@ -9,8 +9,8 @@ Options:
                        (1) this argument, (2) the CAMCOPS_DATABASE_DIRECTORY
                        environment variable, and (3) the default, on this
                        particular system, of
-                       "/home/martin/.local/share/camcops".
+                       "/home/rudolf/.local/share/camcops".
   --print_icd9_codes   Print ICD-9-CM (DSM-IV) codes used by CamCOPS, and quit.
   --print_icd10_codes  Print ICD-10 codes used by CamCOPS, and quit.
 
-# Generated at 2019-09-05 11:15:20
+# Generated at 2019-09-16 12:17:06

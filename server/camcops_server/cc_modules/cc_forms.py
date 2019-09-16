@@ -2923,8 +2923,7 @@ class PatientIdPerRowNode(SchemaNode, RequestAwareMixin):
     Boolean node: should patient ID information, and other cross-referencing
     denormalized info, be included per row?
 
-    See :ref:`DB_PATIENT_ID_PER_ROW
-    <server_config_export_db_patient_id_per_row>`.
+    See :ref:`DB_PATIENT_ID_PER_ROW <DB_PATIENT_ID_PER_ROW>`.
     """
     schema_type = Boolean
     default = True

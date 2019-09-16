@@ -709,6 +709,14 @@ class User(Base):
         """
         return sorted(list(g.id for g in self.groups))
 
+    @property
+    def group_names(self) -> List[str]:
+        """
+        Returns a list of group names for all the groups that the user is a
+        member of.
+        """
+        return sorted(list(g.name for g in self.groups))
+
     def set_group_ids(self, group_ids: List[int]) -> None:
         """
         Set the user's groups to the groups whose integer IDs are in the

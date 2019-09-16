@@ -33,8 +33,8 @@ String locations in CamCOPS
 - Task-specific XML files.
 
   These are loaded by the server (see :ref:`EXTRA_STRING_FILES
-  <serverconfig_extra_string_files>`) and downloaded by the client. They
-  contain string versions in different languages.
+  <EXTRA_STRING_FILES>`) and downloaded by the client. They contain string
+  versions in different languages.
 
   Client calls look like ``xstring("stringname")``, or ``xstring(STRINGNAME)``.
 
