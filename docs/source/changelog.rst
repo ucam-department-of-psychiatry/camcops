@@ -2550,3 +2550,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
     The odd thing is that the change was between 2017-09-10 and 2017-09-11 and
     it was certainly working after that, so perhaps ``matplotlib`` used to
     accept a dictionary or **kwargs and no longer does.
+
+- Group name character restrictions with validation; see
+  :func:`camcops_server.cc_modules.cc_group.is_group_name_valid`.
