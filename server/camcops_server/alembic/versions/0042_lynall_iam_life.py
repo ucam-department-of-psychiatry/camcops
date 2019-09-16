@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-camcops_server/alembic/versions/0042.py
+camcops_server/alembic/versions/0042_lynall_iam_life.py
 
 ===============================================================================
 
