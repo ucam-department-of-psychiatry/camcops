@@ -638,6 +638,6 @@ QVariant Icd10SpecPD::getHasPDYesNoUnknown() const
 
 bool Icd10SpecPD::ignoreValue(const QVariant& value) const
 {
-    Q_UNUSED(value);
+    Q_UNUSED(value)
     return false;  // changed?
 }

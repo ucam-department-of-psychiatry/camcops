@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-  <task name="asdas">(
+  <task name="asdas">
     <!-- Ankylosing Spondylitis Disease Activity Score -->
 
     <string name="title_main">(title)</string>

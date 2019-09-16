@@ -423,7 +423,7 @@ void AdjustablePie::paintEvent(QPaintEvent* event)
 {
     // We use virtual coordinates with the pie centred at (0,0).
     // Then we translate to the actual centre (by adding centre).
-    Q_UNUSED(event);
+    Q_UNUSED(event)
     QPainter p(this);
     p.setRenderHint(QPainter::Antialiasing);
     const QRect cr = contentsRect();
@@ -683,7 +683,7 @@ void AdjustablePie::mouseMoveEvent(QMouseEvent* event)
 
 void AdjustablePie::mouseReleaseEvent(QMouseEvent* event)
 {
-    Q_UNUSED(event);
+    Q_UNUSED(event)
     if (m_user_dragging_cursor) {
         m_user_dragging_cursor = false;
 #ifdef DEBUG_EVENTS

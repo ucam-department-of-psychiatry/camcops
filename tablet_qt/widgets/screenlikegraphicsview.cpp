@@ -63,7 +63,7 @@ void ScreenLikeGraphicsView::resizeEvent(QResizeEvent* event)
     and verticalScrollBarPolicy()).
     */
 
-    Q_UNUSED(event);
+    Q_UNUSED(event)
     fitView();
 }
 
@@ -71,7 +71,7 @@ void ScreenLikeGraphicsView::resizeEvent(QResizeEvent* event)
 void ScreenLikeGraphicsView::showEvent(QShowEvent* event)
 {
     // http://stackoverflow.com/questions/17028680/qt5-c-qgraphicsview-images-dont-fit-view-frame
-    Q_UNUSED(event);
+    Q_UNUSED(event)
     fitView();
 }
 

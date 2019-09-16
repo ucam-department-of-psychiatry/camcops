@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="lynall_iam_life">
+    <!--
+        Lynall M-E — IAM study — life events
+        Based on Brugha's List of Threatening Experiences (LTE)
+
+        For each question, there is a Y/N step.
+        For any question with a "yes" answer, there is a severity question,
+        and for all except the last, a frequency question.
+    -->
+
+    <string name="title">XXX</string>
+
+    <string name="q1_main">XXX</string>
+    <string name="q1_frequency">XXX</string>
+        <!-- options 0%, 20%, 40%, 60%, 80%, 100% -->
+
+    <string name="q2_main">XXX</string>
+    <string name="q2_frequency">XXX</string>
+        <!-- options 0%, 20%, 40%, 60%, 80%, 100% -->
+
+    <string name="q3_main">XXX</string>
+    <string name="q3_frequency">XXX</string>
+
+    <string name="q4_main">XXX</string>
+
+    <string name="q5_main">XXX</string>
+
+    <string name="q6_main">XXX</string>
+
+    <string name="q7_main">XXX</string>
+
+    <string name="q8_main">XXX</string>
+    <string name="q8_frequency">XXX</string>
+        <!-- options 0%, 20%, 40%, 60%, 80%, 100% -->
+
+    <string name="q9_main">XXX</string>
+
+    <string name="q10_main">XXX</string>
+
+    <string name="q11_main">XXX</string>
+
+    <string name="q12_main">XXX</string>
+
+    <string name="q13_main">XXX</string>
+
+    <string name="q14_main">XXX</string>
+    <string name="q14_severity">XXX</string>
+
+    <string name="severity_a1">XXX</string>
+    <string name="severity_a2">XXX</string>
+    <string name="severity_a3">XXX</string>
+
+    <string name="q_generic_severity">XXX</string>
+    <string name="q_generic_frequency">XXX</string>
+
+  </task>
+</resources>

@@ -66,9 +66,14 @@
     Colour names:
 
         https://www.w3.org/TR/SVG/types.html#ColorKeywords
+        https://convertingcolors.com/
+
+    UK and US spellings are supported; see qtbase/src/gui/painting/qcolor.cpp.
+    Prefer colour names to numbers, and UK to US names.
 
     Test colours at:
 
+        https://www.w3schools.com/colors/colors_picker.asp
         http://jscolor.com/
 
 */
@@ -83,10 +88,10 @@ QWidget {
         Don't set these on QWidget -- they mess up e.g. QCalendarWidget,
         spinbox arrows, and all sorts of stuff like that.
 
-    color: black;
-    border: 0;
-    margin: 0;
-    padding: 0;
+        color: black;
+        border: 0;
+        margin: 0;
+        padding: 0;
     */
     font-size: %1pt;
 }
@@ -122,8 +127,13 @@ QLabel {
 /* =========================================================================
    Things that look or behave like buttons
    =========================================================================
-   - Note that ClickableLabel inherits from QPushButton
-   - Note that if you set ClickableLabel and *then* QPushButton CSS, then
+   - Actual QPushButton: e.g. countdown buttons
+   - Others, e.g. QuButton, use ClickableLabelWordWrapWide, with a "button"
+     ID, i.e. ClickableLabelWordWrapWide#button.
+   - Note that ClickableLabelNoWrap and ClickableLabelWordWrapWide inherit
+     from QPushButton.
+   - Note that ClickableLabelWordWrapWide *contains* a LabelWordWrapWide.
+   - Note that if you set ClickableLabel* and *then* QPushButton CSS, then
      the latter overrides the former (even though you would think child classes
      are more specific than parent classes). As per
      http://doc.qt.io/qt-5/stylesheet-syntax.html
@@ -138,27 +148,17 @@ BooleanWidget ClickableLabelWordWrapWide,
 NvpChoiceDialog ClickableLabelWordWrapWide,
 PagePickerDialog ClickableLabelWordWrapWide {
     font-weight: bold;
-    background-color: lightgray;
+    background-color: lightgrey;
     border-style: solid;
     border-width: 2px;
     border-radius: 10px;
-    border-color: darkgray;
+    border-color: darkgrey;
     padding: 5px;
 }
 
 LabelWordWrapWide#diagnostic_code {
     /* Text displayed as part of the diagnostic code */
     color: blue;
-}
-
-ClickableLabel,
-ClickableLabelWordWrapWide {
-    font-weight: normal;
-    background-color: transparent;
-    border: 1px black;
-    border-radius: 0;
-    padding: 0;
-    margin: 0;
 }
 
 QPushButton:pressed,
@@ -180,23 +180,55 @@ QPushButton {
     color: black;
 }
 QPushButton:disabled {
-    color: lightgray;
-    background-color: gray;
+    /* NB is NOT the colour of disabled MCQ text (etc.) */
+    color: rgb(64, 64, 64);  /* grey */
+    background-color: silver;
 }
 
-ClickableLabelWordWrapWide:disabled { /* e.g. MCQ facsimiles */
-    background-color: transparent;
-}
 ClickableLabelWordWrapWide#button:disabled,
 ClickableLabelWordWrapWide#diagnostic_code:disabled {
     /* Override QPushButton:disabled */
-    background-color: darkgray;
+    color: rgb(64, 64, 64);  /* grey */
+    background-color: silver;
 }
 
 
 /* Slightly different styling for QuPickerPopup */
 ClickableLabelWordWrapWide#picker_popup {
     color: blue;
+}
+
+/* =========================================================================
+   Things that look or behave like text.
+   =========================================================================
+   Note that these must come AFTER the "button-like" attributes of
+   ClickableLabelWordWrapWide, otherwise text-like stuff gets the background
+   colours.
+*/
+
+ClickableLabelNoWrap,
+ClickableLabelWordWrapWide {
+    color: black;
+    font-weight: normal;
+    background-color: transparent;
+    border: 1px black;
+    border-radius: 0;
+    padding: 0;
+    margin: 0;
+}
+ClickableLabelWordWrapWide:disabled {  /* e.g. MCQ facsimiles */
+    background-color: transparent;
+}
+
+LabelWordWrapWide {
+    color: black;
+    background-color: transparent;
+}
+LabelWordWrapWide:disabled {
+    /* Includes disabled things containing this, which is quite a lot;
+       e.g. QuButton, QuMCQ. */
+    color: gray;
+    background-color: transparent;
 }
 
 /* =========================================================================
@@ -264,8 +296,7 @@ QLineEdit,
 QPlainTextEdit,
 QSpinBox,
 QTextEdit {
-    /* https://www.w3schools.com/colors/colors_picker.asp */
-    /* background-color: lightgray; */  /* not the same as e.g. MCQ grid headings */
+    color: black;
     background-color: rgb(210, 240, 170);  /* greenish */
 }
 
@@ -278,6 +309,18 @@ QPlainTextEdit:focus,
 QSpinBox:focus,
 QTextEdit:focus {
     background-color: rgb(255, 215, 128);  /* light orange */
+}
+
+GrowingPlainTextEdit:disabled,
+GrowingTextEdit:disabled,
+QDateTimeEdit:disabled,
+QDoubleSpinBox:disabled,
+QLineEdit:disabled,
+QPlainTextEdit:disabled,
+QSpinBox:disabled,
+QTextEdit:disabled {
+    color: black;  /* black */
+    background-color: gainsboro;  /* a light grey */
 }
 
 /* =========================================================================
@@ -303,7 +346,7 @@ QTextEdit:focus {
 
 QuestionnaireHeader QLabel {
     font-size: %4pt;
-    color: darkgrey;
+    color: grey;
 }
 #header_horizontal_line {
     background-color: black;
@@ -360,11 +403,11 @@ BooleanWidget ClickableLabelWordWrapWide[readonly="false"]:pressed {
 }
 
 #quheading {
-    background-color: rgb(135, 206, 250);
+    background-color: lightskyblue;
 }
 
 #mcq_instruction {
-    color: darkgray;
+    color: grey;
     font-weight: bold;
 }
 
@@ -419,7 +462,7 @@ QSlider:vertical {
 
 QSlider::groove {
     border: 2px solid black;
-    background: lightgray;
+    background: lightgrey;
 }
 QSlider::groove:horizontal {
     height: %6px;
@@ -451,14 +494,6 @@ QSlider::add-page:vertical {  /* Below the centre */
 QSlider::sub-page:vertical {  /* Above the centre */
     /* border-color: black black red black; */
     border-color: black;
-}
-QSlider::sub-page:horizontal:disabled,
-QSlider::add-page:vertical:disabled {
-    border-color: #999;
-}
-QSlider::add-page:horizontal:disabled,
-QSlider::add-page:vertical:disabled {
-    border-color: #999;
 }
 QSlider::sub-page:horizontal,
 QSlider::add-page:vertical {
@@ -492,7 +527,7 @@ QSlider::handle:vertical:hover {
     background: rgba(50, 50, 255, 150);
 }
 QSlider::handle:disabled {
-    background: #eee;
+    background: rgba(200, 200, 200, 150);
     border-color: #aaa;
 }
 
@@ -504,17 +539,17 @@ QLabel#slider {
 
 CanvasWidget {
     /* in practice: is overridden in code */
-    border: 2px solid gray;
+    border: 2px solid grey;
 }
 
 /* QuPhoto */
 AspectRatioPixmap {
-    background-color: lightgray;
+    background-color: lightgrey;
 }
 
 /* Background colours */
 #option_background {
-    background-color: lightgray;
+    background-color: lightgrey;
 }
 #stripe_background_even {
     background-color: rgba(200, 200, 255, 50);
@@ -540,12 +575,12 @@ AspectRatioPixmap {
     padding: 5px;
 }
 #mcq_grid #vline {
-    background-color: darkgray;
+    background-color: darkgrey;
 }
 
 /* QuMCQGridDouble */
 #mcq_grid_double #option_background {
-    background-color: lightgray;
+    background-color: lightgrey;
 }
 #mcq_grid_double #stripe_background_even {
     background-color: rgba(200, 200, 255, 50);
@@ -573,12 +608,12 @@ AspectRatioPixmap {
     padding: 5px;
 }
 #mcq_grid_double #vline {
-    background-color: darkgray;
+    background-color: darkgrey;
 }
 
 /* QuMCQGridSingleBoolean */
 #mcq_grid_single_boolean #option_background {
-    background-color: lightgray;
+    background-color: lightgrey;
 }
 #mcq_grid_single_boolean #stripe_background_even {
     background-color: rgba(200, 200, 255, 50);

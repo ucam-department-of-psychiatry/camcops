@@ -35,7 +35,7 @@ CameraFrameGrabber::CameraFrameGrabber(QObject* parent) :
 QList<QVideoFrame::PixelFormat> CameraFrameGrabber::supportedPixelFormats(
         const QAbstractVideoBuffer::HandleType handle_type) const
 {
-    Q_UNUSED(handle_type);
+    Q_UNUSED(handle_type)
     return QList<QVideoFrame::PixelFormat>()
         << QVideoFrame::Format_ARGB32
         << QVideoFrame::Format_ARGB32_Premultiplied

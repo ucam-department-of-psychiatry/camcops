@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-  <task name="suppsp">(
+  <task name="suppsp">
     <!-- Short UPPS-P Impulsive Behaviour Scale (SUPPS-P) -->
 
     <string name="title_main">Short UPPS-P Impulsive Behaviour Scale (SUPPS-P)</string>

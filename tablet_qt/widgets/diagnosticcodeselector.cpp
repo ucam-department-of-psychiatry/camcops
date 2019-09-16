@@ -328,7 +328,7 @@ DiagnosticCodeSelector::DiagnosticCodeSelector(
 void DiagnosticCodeSelector::selectionChanged(const QItemSelection& selected,
                                               const QItemSelection& deselected)
 {
-    Q_UNUSED(deselected);
+    Q_UNUSED(deselected)
 #ifdef RESPOND_VIA_ITEM_SELECTION
     QModelIndexList indexes = selected.indexes();
     if (indexes.isEmpty()) {
@@ -337,7 +337,7 @@ void DiagnosticCodeSelector::selectionChanged(const QItemSelection& selected,
     QModelIndex index = indexes.at(0);
     itemChosen(index);
 #else
-    Q_UNUSED(selected);
+    Q_UNUSED(selected)
 #endif
 }
 
@@ -381,7 +381,7 @@ void DiagnosticCodeSelector::proxySelectionChanged(
         const QItemSelection& proxy_selected,
         const QItemSelection& proxy_deselected)
 {
-    Q_UNUSED(proxy_deselected);
+    Q_UNUSED(proxy_deselected)
     QModelIndexList proxy_indexes = proxy_selected.indexes();
     if (proxy_indexes.isEmpty()) {
         return;

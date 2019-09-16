@@ -82,7 +82,7 @@ void SvgWidgetClickable::setTransparentForMouseEvents(const bool transparent)
 
 void SvgWidgetClickable::mousePressEvent(QMouseEvent* event)
 {
-    Q_UNUSED(event);
+    Q_UNUSED(event)
     m_pressed = true;
     m_pressing_inside = true;
     emit pressed();

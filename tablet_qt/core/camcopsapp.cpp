@@ -262,7 +262,7 @@ int CamcopsApp::run()
         setHashedPassword(varconst::USER_PASSWORD_HASH, new_user_password);
     }
 #else
-    Q_UNUSED(changed_user_password);
+    Q_UNUSED(changed_user_password)
 #endif
 
     // Set the stylesheet.

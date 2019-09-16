@@ -804,7 +804,7 @@ void BoxLayoutHfw::setGeometry(const QRect& initial_rect)
         return;
     }
     ReentryDepthGuard guard(m_reentry_depth);
-    Q_UNUSED(guard);
+    Q_UNUSED(guard)
 
     // ------------------------------------------------------------------------
     // Initialize

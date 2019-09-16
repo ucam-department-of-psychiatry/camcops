@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-  <task name="das28">(
+  <task name="das28">
     <!-- Disease Activity Score-28 -->
 
     <string name="title_main">(title)</string>

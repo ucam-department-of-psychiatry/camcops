@@ -33,7 +33,7 @@ ShowWatcher::ShowWatcher(QObject* parent, const bool debug_layout) :
 
 bool ShowWatcher::eventFilter(QObject* obj, QEvent* event)
 {
-    Q_UNUSED(obj);
+    Q_UNUSED(obj)
     if (event->type() == QEvent::Show) {
         emit showing();
         if (m_debug_layout) {

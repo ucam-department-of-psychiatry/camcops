@@ -406,8 +406,8 @@ void Patient::updateQuestionnaireIndicators(const FieldRef* fieldref,
                                             const QObject* originator)
 {
     // qDebug() << Q_FUNC_INFO;
-    Q_UNUSED(fieldref);
-    Q_UNUSED(originator);
+    Q_UNUSED(fieldref)
+    Q_UNUSED(originator)
     if (!m_questionnaire) {
         return;
     }

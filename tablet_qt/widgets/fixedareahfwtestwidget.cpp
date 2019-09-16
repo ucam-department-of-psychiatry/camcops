@@ -68,7 +68,7 @@ int FixedAreaHfwTestWidget::heightForWidth(const int width) const
 
 void FixedAreaHfwTestWidget::paintEvent(QPaintEvent* event)
 {
-    Q_UNUSED(event);
+    Q_UNUSED(event)
 
     const QSize s = size();
     QRectF rect(QPoint(0, 0), s);

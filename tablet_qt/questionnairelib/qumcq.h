@@ -42,7 +42,7 @@ public:
     QuMcq* setRandomize(bool randomize);
 
     // Show the instruction "Pick one:"?
-    QuMcq* setShowInstruction(bool show_instruction);
+    QuMcq* setShowInstruction(bool show_instruction = true);
 
     // Layout as horizontal:
     //
@@ -54,7 +54,7 @@ public:
     //      ( ) Option 2
     //      ( ) Option 3
     //
-    QuMcq* setHorizontal(bool horizontal);
+    QuMcq* setHorizontal(bool horizontal = true);
 
     // Show as text buttons:
     //
@@ -75,10 +75,10 @@ public:
     //      +----------+ +----------+ +----------+
     //
     // ... rather than radio buttons (as above)?
-    QuMcq* setAsTextButton(bool as_text_button);
+    QuMcq* setAsTextButton(bool as_text_button = true);
 
     // Make text bold?
-    QuMcq* setBold(bool bold);
+    QuMcq* setBold(bool bold = true);
 
 protected:
     // Set widget state from field data.

@@ -776,10 +776,12 @@ def get_copyright() -> str:
     return """{PACKAGE}
 
 CAMCOPS
+
 ===============================================================================
+
     Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
-    Department of Psychiatry, University of Cambridge.
-    Funded by the Wellcome Trust.
+
+    This file is part of CamCOPS.
 
     CamCOPS is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -793,6 +795,7 @@ CAMCOPS
 
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+
 ===============================================================================
 
     On Debian systems, see /usr/share/common-licenses/GPL-3

@@ -442,7 +442,7 @@ OpenableWidget* SettingsMenu::configureServer(CamcopsApp& app)
 bool SettingsMenu::validateServerSettings(QStringList& errors,
                                           const QuPage* page)
 {
-    Q_UNUSED(page);
+    Q_UNUSED(page)
     // Note that we are using cached server variables.
     const QString hostname = m_app.getCachedVar(varconst::SERVER_ADDRESS).toString();
     if (hostname.contains("/")) {

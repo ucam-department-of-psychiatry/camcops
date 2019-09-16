@@ -2551,9 +2551,12 @@ Current C++/SQLite client, Python/SQLAlchemy server
     it was certainly working after that, so perhaps ``matplotlib`` used to
     accept a dictionary or **kwargs and no longer does.
 
+**Client and server v2.3.6**
+
 - Group name character restrictions with validation; see
   :func:`camcops_server.cc_modules.cc_group.is_group_name_valid`.
 
 - **Restricting task strings to groups:** see :ref:`RESTRICTED_TASKS
   <RESTRICTED_TASKS>`.
 
+- **New task:** :ref:`Lynall M-E — IAM study — life events <lynall_iam_life>`.

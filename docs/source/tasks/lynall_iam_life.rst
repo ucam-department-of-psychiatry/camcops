@@ -24,9 +24,10 @@ Lynall M-E — IAM study — life events
 
 .. include:: include_data_collection_plus_local_upgrade.rst
 
-.. include:: include_under_development.rst
-
 Life events questionnaire for the Inflammation in Mind (IAM) study.
+
+A bespoke scale that is a version of the Brugha life events questionnaire,
+modified to include cumulative adult as well as recent stress.
 
 
 Intellectual property rights
@@ -56,6 +57,9 @@ Intellectual property rights
   - skeleton task plus local upgrade for now.
 
 - Modifications by Mary-Ellen Lynall, University of Cambridge, 2019.
+  Any new material: copyright © 2019 Mary-Ellen Lynall. License: Creative
+  Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0):
+  https://creativecommons.org/licenses/by-sa/4.0/
 
 
 History
@@ -75,9 +79,54 @@ History
     *Acta Psychiatr Scand.* 82: 77-81.
     https://www.ncbi.nlm.nih.gov/pubmed/2399824
 
+    Defines the LTE-Q, the questionnaire version of the life events instrument,
+    consisting (as before) of 12 categories of common life events that are
+    highly likely to be threatening. No definitive scoring system is described.
+
+- See also:
+
+  - Rosmalen JGM, Bos EH, de Jonge P (2012).
+    Validation of the Long-Term Difficulties Inventory (LDI) and the List of
+    Threatening Experiences (LTE) as measures of stress in epidemiological
+    population-based cohort studies.
+    Psychological Medicine 42: 2599–2608.
+    https://www.ncbi.nlm.nih.gov/pubmed/22490940
+
+    Uses a scoring system of "the total number of items endorsed" (out of 12).
+
 
 Source
 ~~~~~~
 
 - Mary-Ellen Lynall, personal communication to Rudolf Cardinal (e.g.
   2019-04-30).
+
+- The IAM/Life Events version asks occurrence within the last 6 months; then
+  about severity of index event and frequency (since age 18) for each category
+  of event endorsed.
+
+- The differences in categories from the LTE are:
+
+  ================================================= =============================================================
+  LTE-Q category                                    IAM/Life Events category
+  ================================================= =============================================================
+  1: Illness/injury/assault (self)                  [1: same]
+  2: Illness/injury/assault (relative)              [2: same]
+  3: Parent/child/spouse died                       [3: same except includes siblings]
+  4: Close family friend/other relative died        [4: same, given 3]
+  5: Marital separation                             5: marital separation or broke off relationship
+  6: Broke off a steady relationship                [incorporated into 5]
+  --                                                6: ended long-lasting friendship with close friend/relative
+  7: Problems with close friend/neighbour/relative  [7: same]
+  8: Unemployment or unsuccessful job-seeking 1mo+  8: unsuccessful job-seeking 1mo+
+  9: Sacked                                         [9: same: sacked/made redundant]
+  10: Financial crisis                              [10: same]
+  11: Police with court appearance                  [11: same]
+  12: Something lost/stolen                         [12: same]
+  --                                                13: Self/partner gave birth
+  --                                                14: Other
+  ================================================= =============================================================
+
+  *Note: in the draft IAM/Life (prior to 2019-09-15), 8 was "sacked" and 9 was
+  "unsuccessful job-seeking"; transposed on 2019-09-15 for better consistency
+  with original LTE-Q.*

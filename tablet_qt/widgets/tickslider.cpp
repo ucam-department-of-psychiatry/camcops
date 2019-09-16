@@ -294,7 +294,7 @@ void TickSlider::paintEvent(QPaintEvent* ev)
     // Coordinate systems: see http://doc.qt.io/qt-5.7/coordsys.html
     // ... positive is right and DOWN.
 
-    Q_UNUSED(ev);
+    Q_UNUSED(ev)
 
     // Draw the slider first...
     // ... will happen spontaneously.
@@ -796,14 +796,14 @@ void TickSlider::repositionSlider()
 
 void TickSlider::moveEvent(QMoveEvent* event)
 {
-    Q_UNUSED(event);
+    Q_UNUSED(event)
     repositionSlider();
 }
 
 
 void TickSlider::resizeEvent(QResizeEvent* event)
 {
-    Q_UNUSED(event);
+    Q_UNUSED(event)
     repositionSlider();
 }
 

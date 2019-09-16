@@ -71,6 +71,7 @@ server/camcops_server
     alembic/versions/0039_khandaker_mojo_sociodemographics.py.rst
     alembic/versions/0040_khandaker_mojo_medical.py.rst
     alembic/versions/0041_khandaker_mojo_medicationtherapy.py.rst
+    alembic/versions/0042_lynall_iam_life.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst
@@ -162,6 +163,7 @@ server/camcops_server
     extra_string_templates/hads_TEMPLATE.xml.rst
     extra_string_templates/iesr_TEMPLATE.xml.rst
     extra_string_templates/ifs_TEMPLATE.xml.rst
+    extra_string_templates/lynall_iam_life_TEMPLATE.xml.rst
     extra_string_templates/mfi20_TEMPLATE.xml.rst
     extra_string_templates/npiq_TEMPLATE.xml.rst
     extra_string_templates/ors_TEMPLATE.xml.rst

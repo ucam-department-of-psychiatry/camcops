@@ -404,7 +404,7 @@ bool VerticalScrollArea::eventFilter(QObject* o, QEvent* e)
             return false;
         }
         ReentryDepthGuard guard(m_reentry_depth);
-        Q_UNUSED(guard);
+        Q_UNUSED(guard)
 
         const bool parent_result = QScrollArea::eventFilter(o, e);  // will call d->updateScrollBars();
         resetSizeLimits();
@@ -694,7 +694,7 @@ void VerticalScrollArea::resetSizeLimits()
         return;
     }
     ReentryDepthGuard guard(m_reentry_depth);
-    Q_UNUSED(guard);
+    Q_UNUSED(guard)
 
     // We're not doing horizontal scrolling, so we must be at least as wide
     // as our widget's minimum:
@@ -772,7 +772,7 @@ bool VerticalScrollArea::gestureEvent(QGestureEvent* event)
         swipeTriggered(static_cast<QSwipeGesture*>(swipe));
     }
 #else
-    Q_UNUSED(event);
+    Q_UNUSED(event)
 #endif
     return true;
 }
@@ -794,6 +794,6 @@ void VerticalScrollArea::swipeTriggered(QSwipeGesture* gesture)
         }
     }
 #else
-    Q_UNUSED(gesture);
+    Q_UNUSED(gesture)
 #endif
 }

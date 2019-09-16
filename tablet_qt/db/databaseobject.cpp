@@ -1021,7 +1021,7 @@ void DatabaseObject::loadAllAncillary()
 
 void DatabaseObject::loadAllAncillary(const int pk)
 {
-    Q_UNUSED(pk);
+    Q_UNUSED(pk)
 }
 
 
@@ -1105,7 +1105,7 @@ bool DatabaseObject::saveInsert(const bool read_pk_from_database)
     // ------------------------------------------------------------------------
     // ALLOW_SAVE_INSERT_BACKGROUND is not defined
     // ------------------------------------------------------------------------
-    Q_UNUSED(read_pk_from_database);
+    Q_UNUSED(read_pk_from_database)
     QueryResult result = m_db.query(sql, args,
                                     QueryResult::FetchMode::NoFetch);
     if (!result.succeeded()) {

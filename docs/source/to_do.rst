@@ -30,13 +30,9 @@ Tasks
 
 **Priority: IAM**
 
-- :ref:`Lynall M-E — IAM study — life events <lynall_iam_life>`
-
-  .. todo:: IN PROGRESS +++ permissions clarified -- can proceed
-
 - :ref:`Childhood Trauma Questionnaire, Short Form (CTQ-SF) <ctqsf>`
 
-  .. todo:: IN PROGRESS +++ a/w permission clarification
+  .. todo:: IN PROGRESS +++ a/w funding before proceeding
 
 
 **To be prioritized**

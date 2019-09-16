@@ -147,7 +147,7 @@ void ZoomableGraphicsView::resizeEvent(QResizeEvent* event)
     and verticalScrollBarPolicy()).
     */
 
-    Q_UNUSED(event);
+    Q_UNUSED(event)
 #ifdef DEBUG_COORDS
     qDebug() << Q_FUNC_INFO;
 #endif
@@ -157,7 +157,7 @@ void ZoomableGraphicsView::resizeEvent(QResizeEvent* event)
 
 void ZoomableGraphicsView::showEvent(QShowEvent* event)
 {
-    Q_UNUSED(event);
+    Q_UNUSED(event)
 #ifdef DEBUG_COORDS
     qDebug() << Q_FUNC_INFO;
 #endif

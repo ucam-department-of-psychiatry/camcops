@@ -29,7 +29,14 @@ Health review form, plus other tasks indexed elsewhere.
 Intellectual property rights
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- Copyright © 2013 Julia B. Deakin, University of Cambridge
+- Copyright © 2013 Julia B. Deakin.
 
 - License: Creative Commons Attribution 3.0 Unported (CC BY 3.0);
   http://creativecommons.org/licenses/by/3.0/
+
+
+Source
+~~~~~~
+
+- Personal communication, Julia Deakin (University of Cambridge) to Rudolf
+  Cardinal, 2013.

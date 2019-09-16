@@ -29,7 +29,6 @@ Childhood Trauma Questionnaire, Short Form (CTQ-SF)
 28-item self-report scale relating to childhood adverse experiences including
 abuse.
 
-.. todo:: bare skeleton or upgradable?
 .. todo:: Exact text check.
 .. todo:: Standardized encoding?
 .. todo:: Scoring system?
@@ -45,6 +44,9 @@ Intellectual property rights
 
 - Sold by Pearson:
   https://www.pearsonclinical.co.uk/Psychology/ChildMentalHealth/ChildTrauma/ChildhoodTraumaQuestionnaire(CTQ)/ChildhoodTraumaQuestionnaire(CTQ).aspx
+
+- Permissible to reproduce electronically on a single-study basis for a fee
+  (Faye Henchy, Pearson Clinical Assessment, to Mary-Ellen Lynall, 2019-09-13.)
 
 
 Sources and notes

@@ -27,7 +27,6 @@
 class DiagnosticCodeSet;
 class DiagnosisSortFilterModel;
 class FlatProxyModel;
-class LabelWordWrapWide;
 
 class QAbstractButton;
 class QItemSelection;

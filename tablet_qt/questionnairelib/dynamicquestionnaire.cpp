@@ -98,14 +98,14 @@ bool DynamicQuestionnaire::morePagesToGo() const
 
 void DynamicQuestionnaire::addPage(const QuPagePtr& page)
 {
-    Q_UNUSED(page);
+    Q_UNUSED(page)
     uifunc::stopApp("Don't call addPage() on a DynamicQuestionnaire!");
 }
 
 
 void DynamicQuestionnaire::deletePage(const int index)
 {
-    Q_UNUSED(index);
+    Q_UNUSED(index)
     uifunc::stopApp("Don't call deletePage() on a DynamicQuestionnaire!");
 }
 

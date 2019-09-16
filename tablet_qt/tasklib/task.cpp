@@ -394,8 +394,8 @@ int Task::countForPatient(const int patient_id) const
 void Task::upgradeDatabase(const Version& old_version,
                            const Version& new_version)
 {
-    Q_UNUSED(old_version);
-    Q_UNUSED(new_version);
+    Q_UNUSED(old_version)
+    Q_UNUSED(new_version)
 }
 
 // ============================================================================
@@ -459,7 +459,7 @@ QStringList Task::detail() const
 
 OpenableWidget* Task::editor(const bool read_only)
 {
-    Q_UNUSED(read_only);
+    Q_UNUSED(read_only)
     qWarning() << "Base class Task::edit called - not a good thing!";
     return nullptr;
 }
