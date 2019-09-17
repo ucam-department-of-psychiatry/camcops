@@ -182,13 +182,15 @@ VALID_RECIPIENT_NAME_REGEX = r"^[\w_-]+$"
 # Windows paths: irrelevant, as Windows doesn't run supervisord
 DEFAULT_LINUX_CAMCOPS_CONFIG = "/etc/camcops/camcops.conf"
 DEFAULT_LINUX_CAMCOPS_BASE_DIR = "/usr/share/camcops"
-DEFAULT_LINUX_CAMCOPS_VENV_DIR = DEFAULT_LINUX_CAMCOPS_BASE_DIR + "/venv"
-DEFAULT_LINUX_CAMCOPS_VENV_BIN_DIR = DEFAULT_LINUX_CAMCOPS_VENV_DIR + "bin"
-DEFAULT_LINUX_CAMCOPS_EXECUTABLE = DEFAULT_LINUX_CAMCOPS_VENV_BIN_DIR + "/camcops_server"  # noqa
-DEFAULT_LINUX_CAMCOPS_STATIC_DIR = (
-    DEFAULT_LINUX_CAMCOPS_VENV_DIR +
-    "/lib/python3.6/site-packages/camcops_server/static"
-)
+DEFAULT_LINUX_CAMCOPS_VENV_DIR = os.path.join(
+    DEFAULT_LINUX_CAMCOPS_BASE_DIR, "venv")
+DEFAULT_LINUX_CAMCOPS_VENV_BIN_DIR = os.path.join(
+    DEFAULT_LINUX_CAMCOPS_VENV_DIR, "bin")
+DEFAULT_LINUX_CAMCOPS_EXECUTABLE = os.path.join(
+    DEFAULT_LINUX_CAMCOPS_VENV_BIN_DIR, "camcops_server")
+DEFAULT_LINUX_CAMCOPS_STATIC_DIR = os.path.join(
+    DEFAULT_LINUX_CAMCOPS_VENV_DIR,
+    "lib", "python3.6", "site-packages", "camcops_server", "static")
 DEFAULT_LINUX_LOGDIR = "/var/log/supervisor"
 DEFAULT_LINUX_USER = "www-data"
 
