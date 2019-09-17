@@ -1,7 +1,7 @@
 
 # =============================================================================
 # Demonstration 'supervisor' (supervisord) config file for CamCOPS.
-# Created by CamCOPS version 2.3.5 at 2019-09-16T12:17:04.192568+01:00.
+# Created by CamCOPS version 2.3.6 at 2019-09-17T22:53:12.145482+01:00.
 # =============================================================================
     # - Supervisor is a system for controlling background processes running on
     #   UNIX-like operating systems. See:
@@ -49,7 +49,7 @@
 
 [program:camcops_server]
 
-command = /usr/share/camcops/venvbin/camcops_server serve_gunicorn
+command = /usr/share/camcops/venv/bin/camcops_server serve_gunicorn
     --config /etc/camcops/camcops.conf
 
 directory = /usr/share/camcops
@@ -64,7 +64,7 @@ stopwaitsecs = 60
 
 [program:camcops_workers]
 
-command = /usr/share/camcops/venvbin/camcops_server launch_workers
+command = /usr/share/camcops/venv/bin/camcops_server launch_workers
     --config /etc/camcops/camcops.conf
 
 directory = /usr/share/camcops
@@ -79,7 +79,7 @@ stopwaitsecs = 60
 
 [program:camcops_scheduler]
 
-command = /usr/share/camcops/venvbin/camcops_server launch_scheduler
+command = /usr/share/camcops/venv/bin/camcops_server launch_scheduler
     --config /etc/camcops/camcops.conf
 
 directory = /usr/share/camcops
@@ -98,4 +98,4 @@ programs = camcops_server, camcops_workers, camcops_scheduler
 
     
 
-# Generated at 2019-09-16 12:17:04
+# Generated at 2019-09-17 22:53:12
