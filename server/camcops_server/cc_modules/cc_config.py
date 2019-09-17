@@ -582,7 +582,7 @@ def get_demo_config(extra_strings_dir: str = None,
 # Demo configuration files, other than the CamCOPS config file itself
 # =============================================================================
 
-DEFAULT_SOCKET_FILENAME = "/tmp/.camcops.sock"
+DEFAULT_SOCKET_FILENAME = "/run/camcops/camcops.socket"
 
 
 def get_demo_supervisor_config() -> str:
@@ -754,7 +754,7 @@ def get_demo_apache_config(
         # ---------------------------------------------------------------------
         # ... either via an internal TCP/IP port (e.g. 1024 or higher, and NOT
         #     accessible to users);
-        # ... or, better, via a Unix socket, e.g. /tmp/.camcops.sock
+        # ... or, better, via a Unix socket, e.g. {specimen_socket_file}
         #
         # NOTES
         # - When you ProxyPass {urlbase}, you should browse to

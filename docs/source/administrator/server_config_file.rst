@@ -578,7 +578,7 @@ Options for the "[server]" section
 Common web server options
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-CamCOPS incorporates a Python web server. You can choose which one to lanuch:
+CamCOPS incorporates a Python web server. You can choose which one to launch:
 
 - CherryPy_: a "proper" one; multithreaded; works on Windows and Linux.
 - Gunicorn_: a "proper" one; multiprocess; Linux/UNIX only.
@@ -631,7 +631,9 @@ Filename of a UNIX domain socket (UDS) to listen on (rather than using TCP/IP).
 UDS is typically faster than TCP. If specified, this overrides the TCP options,
 HOST_ and PORT_.
 
-For example, ``/tmp/.camcops.sock``.
+For example, ``/run/camcops/camcops.socket`` (as per the :ref:`Filesystem
+Hierarchy Standard
+<https://refspecs.linuxfoundation.org/FHS_3.0/fhs/ch05s13.html>`.
 
 (Not applicable to the Pyramid test web server; CherryPy/Gunicorn only.)
 
