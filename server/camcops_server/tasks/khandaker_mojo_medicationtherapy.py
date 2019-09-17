@@ -49,7 +49,7 @@ if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 
-class KhandakerMojoTableItem(GenericTabletRecordMixin, Base):
+class KhandakerMojoTableItem(GenericTabletRecordMixin, TaskDescendant, Base):
     __abstract__ = True
 
     def any_fields_none(self) -> bool:
@@ -85,7 +85,7 @@ class KhandakerMojoTableItem(GenericTabletRecordMixin, Base):
             self.medicationtable_id, self)
 
 
-class KhandakerMojoMedicationItem(KhandakerMojoTableItem, TaskDescendant):
+class KhandakerMojoMedicationItem(KhandakerMojoTableItem):
     __tablename__ = "khandaker_mojo_medication_item"
 
     medicationtable_id = CamcopsColumn(
@@ -154,7 +154,7 @@ class KhandakerMojoMedicationItem(KhandakerMojoTableItem, TaskDescendant):
         """
 
 
-class KhandakerMojoTherapyItem(KhandakerMojoTableItem, TaskDescendant):
+class KhandakerMojoTherapyItem(KhandakerMojoTableItem):
     __tablename__ = "khandaker_mojo_therapy_item"
 
     medicationtable_id = CamcopsColumn(
