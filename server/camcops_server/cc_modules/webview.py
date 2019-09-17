@@ -2896,7 +2896,8 @@ def add_special_note(req: "CamcopsRequest") -> Dict[str, Any]:
         rendered_form = form.render(appstruct)
     return dict(task=task,
                 form=rendered_form,
-                head_form_html=get_head_form_html(req, [form]))
+                head_form_html=get_head_form_html(req, [form]),
+                viewtype=ViewArg.HTML)
 
 
 @view_config(route_name=Routes.DELETE_SPECIAL_NOTE,
@@ -3005,7 +3006,8 @@ def erase_task(req: "CamcopsRequest") -> Response:
         dict(
             task=task,
             form=rendered_form,
-            head_form_html=get_head_form_html(req, [form])
+            head_form_html=get_head_form_html(req, [form]),
+            viewtype=ViewArg.HTML
         ),
         request=req
     )
