@@ -807,7 +807,7 @@ def launch_celery_flower(address: str = DEFAULT_FLOWER_ADDRESS,
 
 def self_test(show_only: bool = False, test_class: str = None) -> None:
     """
-    Run unit tests that are in the class(es) that match test_class.
+    Run unit tests that are in the class(es) whose names contain test_class.
     If test_class is None, run all the tests.
 
     Args:
