@@ -128,6 +128,7 @@ from camcops_server.cc_modules.celery import (
     CELERY_APP_NAME,
     CELERY_SOFT_TIME_LIMIT_SEC,
 )  # nopep8
+from camcops_server.cc_modules.webview import WebviewTests  # noqa
 
 log.info("Imports complete")
 log.info("Using {} tasks", len(Task.all_subclasses_by_tablename()))
@@ -736,11 +737,11 @@ def check_index(cfg: CamcopsConfig, show_all_bad: bool = False) -> bool:
 def launch_celery_workers(verbose: bool = False) -> None:
     """
     Launch Celery workers.
-    
+
     See also advice in
-    
+
     - https://medium.com/@taylorhughes/three-quick-tips-from-two-years-with-celery-c05ff9d7f9eb
-    
+
     - Re ``-Ofair``:
       http://docs.celeryproject.org/en/latest/userguide/optimizing.html
 
