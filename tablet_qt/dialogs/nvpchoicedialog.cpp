@@ -17,6 +17,9 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+// #define DEBUG_PRESS_A_TO_ADJUST_SIZE
+// #define DEBUG_PRESS_D_TO_DUMP_LAYOUT
+
 #include "nvpchoicedialog.h"
 #include <functional>
 #include <QDialogButtonBox>
@@ -31,6 +34,14 @@
 #include "widgets/clickablelabelwordwrapwide.h"
 #include "widgets/verticalscrollarea.h"
 
+#if defined DEBUG_PRESS_A_TO_ADJUST_SIZE || defined DEBUG_PRESS_D_TO_DUMP_LAYOUT
+    #include "qobjects/keypresswatcher.h"
+#endif
+#ifdef DEBUG_PRESS_D_TO_DUMP_LAYOUT
+    #include "lib/layoutdumper.h"
+    const layoutdumper::DumperConfig dumper_config;
+#endif
+
 
 NvpChoiceDialog::NvpChoiceDialog(QWidget* parent,
                                  const NameValueOptions& options,
@@ -39,7 +50,8 @@ NvpChoiceDialog::NvpChoiceDialog(QWidget* parent,
     m_options(options),
     m_title(title),
     m_show_existing_choice(false),
-    m_p_new_value(nullptr)
+    m_p_new_value(nullptr),
+    m_resized_to_contents(false)
 {
 }
 
@@ -62,6 +74,9 @@ int NvpChoiceDialog::choose(QVariant* new_value)
     m_p_new_value = new_value;
     setWindowTitle(m_title);
     const QVariant old_value = *m_p_new_value;
+
+    m_resized_to_contents = false;
+    // setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     auto contentwidget = new QWidget();  // doesn't need to be BaseWidget; contains scroll area
     auto contentlayout = new VBoxLayout();
@@ -102,6 +117,25 @@ int NvpChoiceDialog::choose(QVariant* new_value)
             this, &NvpChoiceDialog::reject);
     mainlayout->addWidget(standard_buttons);
 
+#if defined DEBUG_PRESS_A_TO_ADJUST_SIZE || defined DEBUG_PRESS_D_TO_DUMP_LAYOUT
+    auto keywatcher = new KeyPressWatcher(this);
+#endif
+#ifdef DEBUG_PRESS_A_TO_ADJUST_SIZE
+    keywatcher->addKeyEvent(
+        Qt::Key_A,
+        std::bind(&QWidget::adjustSize, this));
+#endif
+#ifdef DEBUG_PRESS_D_TO_DUMP_LAYOUT
+    // keywatcher becomes child of this,
+    // and layoutdumper is a namespace, so:
+    // Safe object lifespan signal: can use std::bind
+    keywatcher->addKeyEvent(
+        Qt::Key_D,
+        std::bind(&layoutdumper::dumpWidgetHierarchy, this, dumper_config));
+#endif
+
+    // no help: // adjustSize();
+
     return exec();
 }
 
@@ -120,8 +154,24 @@ bool NvpChoiceDialog::event(QEvent* e)
 {
     const bool result = QDialog::event(e);
     const QEvent::Type type = e->type();
-    if (type == QEvent::Type::Show) {
-        adjustSize();
+    // Manual adjustment works perfectly.
+    // Show event not enough.
+    // Calling adjustSize() twice made it jump between monitors, not resize.
+    // Adding these didn't help:
+    //      ShowParent
+    //      Polish
+    //      PolishRequest
+    // However, doing it *once* following WindowActivate does help.
+    // (Most useful thing here was to show all events!)
+
+    // qDebug() << type;
+
+    if (type == QEvent::Type::WindowActivate) {
+        // qDebug() << Q_FUNC_INFO << "Calling adjustSize()";
+        if (!m_resized_to_contents) {  // do this once only:
+            adjustSize();
+            m_resized_to_contents = true;
+        }
     }
     return result;
 }
