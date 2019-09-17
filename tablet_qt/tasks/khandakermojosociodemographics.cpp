@@ -181,6 +181,8 @@ OpenableWidget* KhandakerMojoSociodemographics::editor(const bool read_only)
                 this, &KhandakerMojoSociodemographics::updateMandatory);
 
         QuMcq* mcq = new QuMcq(fieldref, getOptions(info));
+        mcq->setHorizontal(true);
+        mcq->setAsTextButton(true);
         page->addElement(mcq);
 
         if (info.hasOther()) {

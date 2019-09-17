@@ -126,6 +126,7 @@ import logging
 import os
 # from pprint import pformat
 from typing import Any, Dict, List, Tuple, Type, TYPE_CHECKING
+import unittest
 
 from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.deform_utils import get_head_form_html
@@ -282,6 +283,7 @@ from camcops_server.cc_modules.cc_taskfilter import (
 from camcops_server.cc_modules.cc_taskindex import update_indexes_and_push_exports  # noqa
 from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_tracker import ClinicalTextView, Tracker
+from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 from camcops_server.cc_modules.cc_user import (
     SecurityAccountLockout,
     SecurityLoginFailure,
@@ -3445,3 +3447,32 @@ def static_bugfix_deform_missing_glyphs(req: "CamcopsRequest") -> Response:
     Hack for a missing-file bug in ``deform==2.0.4``.
     """
     return FileResponse(DEFORM_MISSING_GLYPH, request=req)
+
+
+# =============================================================================
+# Unit testing
+# =============================================================================
+
+class WebviewTests(DemoDatabaseTestCase):
+    """
+    Unit tests.
+    """
+    def test_any_records_use_group_true(self):
+        # All tasks created in DemoDatabaseTestCase will be in this group
+        self.announce("test_any_records_use_group_true")
+        self.assertTrue(any_records_use_group(self.req, self.group))
+
+    def test_any_records_use_group_false(self):
+        """
+        If this fails with:
+        sqlalchemy.exc.InvalidRequestError: SQL expression, column, or mapped
+        entity expected - got <name of task base class>
+        then the base class probably needs to be declared __abstract__. See
+        DiagnosisItemBase as an example.
+        """
+        self.announce("test_any_records_use_group_false")
+        group = Group()
+        self.dbsession.add(self.group)
+        self.dbsession.flush()
+
+        self.assertFalse(any_records_use_group(self.req, group))
