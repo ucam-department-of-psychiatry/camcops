@@ -406,9 +406,9 @@ def _launch_celery_flower(address: str = DEFAULT_FLOWER_ADDRESS,
 # Testing and development
 # -----------------------------------------------------------------------------
 
-def _self_test(show_only: bool = False) -> None:
+def _self_test(show_only: bool = False, test_class: str = None) -> None:
     import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
-    core.self_test(show_only=show_only)
+    core.self_test(show_only=show_only, test_class=test_class)
 
 
 def _dev_cli() -> None:
@@ -1054,7 +1054,12 @@ def camcops_main() -> None:
     selftest_parser = add_sub(
         subparsers, "self_test", config_mandatory=None,
         help="Test internal code")
-    selftest_parser.set_defaults(func=lambda args: _self_test())
+    selftest_parser.add_argument(
+        "--test_class", type=str, default=None,
+        help="Specific test class to run"
+    )
+    selftest_parser.set_defaults(func=lambda args: _self_test(
+        test_class=args.test_class))
 
     # Launch a Python command line
     dev_cli_parser = add_sub(
