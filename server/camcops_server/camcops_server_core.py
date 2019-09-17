@@ -114,6 +114,7 @@ from camcops_server.cc_modules.cc_taskindex import (
     check_indexes,
     reindex_everything,
 )  # nopep8
+from camcops_server.cc_modules.cc_tracker import TrackerCtvTests
 from camcops_server.cc_modules.cc_unittest import (
     DemoDatabaseTestCase,
     DemoRequestTestCase,
