@@ -1056,7 +1056,7 @@ def camcops_main() -> None:
         help="Test internal code")
     selftest_parser.add_argument(
         "--test_class", type=str, default=None,
-        help="Specific test class to run"
+        help="Run only the test classes whose names contain this string"
     )
     selftest_parser.set_defaults(func=lambda args: _self_test(
         test_class=args.test_class))
