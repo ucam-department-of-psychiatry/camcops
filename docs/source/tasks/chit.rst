@@ -36,9 +36,9 @@ stronger agreement.
 Intellectual property rights
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**TO BE ESTABLISHED**
+- Copyright (C) 2017 Samuel R. Chamberlain, Jon E. Grant.
 
-- Copyrighted.
+- Licensing: apply to authors for permission.
 
 
 History
