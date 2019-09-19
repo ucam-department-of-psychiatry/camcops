@@ -185,8 +185,6 @@ def _downgrade_database_to_revision(
         revision=revision,
         show_sql_only=show_sql_only,
         confirm_downgrade_db=confirm_downgrade_db)
-    if not show_sql_only:
-        log.warning("You should run the 'reindex' command.")
 
 
 def _create_database_from_scratch(cfg: "CamcopsConfig") -> None:

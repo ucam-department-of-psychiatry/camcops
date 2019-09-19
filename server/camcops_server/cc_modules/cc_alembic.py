@@ -60,6 +60,8 @@ if TYPE_CHECKING:
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
+REINDEX_WARNING_MESSAGE = "You should run the 'reindex' command."
+
 
 def import_all_models():
     """
@@ -100,6 +102,8 @@ def upgrade_database_to_revision(revision: str,
                      as_sql=show_sql_only)
     # ... will get its config information from the OS environment; see
     # run_alembic() in alembic/env.py
+    if not show_sql_only:
+        log.warning(REINDEX_WARNING_MESSAGE)
 
 
 def downgrade_database_to_revision(revision: str,
@@ -128,6 +132,8 @@ def downgrade_database_to_revision(revision: str,
                        as_sql=show_sql_only)
     # ... will get its config information from the OS environment; see
     # run_alembic() in alembic/env.py
+    if not show_sql_only:
+        log.warning(REINDEX_WARNING_MESSAGE)
 
 
 @preserve_cwd
