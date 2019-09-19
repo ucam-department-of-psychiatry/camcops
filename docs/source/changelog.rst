@@ -2560,3 +2560,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
   <RESTRICTED_TASKS>`.
 
 - **New task:** :ref:`Lynall M-E — IAM study — life events <lynall_iam_life>`.
+
+- Group administrators can now erase tasks entirely from the database
+  :ref:`Erase task instance entirely <erase_task_entirely>`
