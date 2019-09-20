@@ -61,7 +61,6 @@ int PagePickerDialog::choose(int* new_page_number)
     m_new_page_number = new_page_number;
     setWindowTitle(m_title);
     setMinimumSize(uifunc::minimumSizeForTitle(this));
-    // setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     auto contentwidget = new QWidget();  // doesn't need to be BaseWidget; contains scroll area
     auto contentlayout = new VBoxLayout();

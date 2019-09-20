@@ -76,7 +76,6 @@ int NvpChoiceDialog::choose(QVariant* new_value)
     const QVariant old_value = *m_p_new_value;
 
     m_resized_to_contents = false;
-    // setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     auto contentwidget = new QWidget();  // doesn't need to be BaseWidget; contains scroll area
     auto contentlayout = new VBoxLayout();
