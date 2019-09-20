@@ -17,8 +17,11 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+// #define DEBUG_PRESS_A_TO_ADJUST_SIZE
+// #define DEBUG_PRESS_D_TO_DUMP_LAYOUT
+
 #include "pagepickerdialog.h"
-#include <functional>
+#include <functional>  // for std::bind
 #include <QDialogButtonBox>
 #include <QEvent>
 #include <QVBoxLayout>
@@ -29,6 +32,14 @@
 #include "widgets/imagebutton.h"
 #include "widgets/verticalscrollarea.h"
 
+#if defined DEBUG_PRESS_A_TO_ADJUST_SIZE || defined DEBUG_PRESS_D_TO_DUMP_LAYOUT
+    #include "qobjects/keypresswatcher.h"
+#endif
+#ifdef DEBUG_PRESS_D_TO_DUMP_LAYOUT
+    #include "lib/layoutdumper.h"
+    const layoutdumper::DumperConfig dumper_config;
+#endif
+
 
 PagePickerDialog::PagePickerDialog(QWidget* parent,
                                    const PagePickerItemList& pages,
@@ -36,7 +47,8 @@ PagePickerDialog::PagePickerDialog(QWidget* parent,
     QDialog(parent),
     m_pages(pages),
     m_title(title),
-    m_new_page_number(nullptr)
+    m_new_page_number(nullptr),
+    m_resized_to_contents(false)
 {
 }
 
@@ -88,6 +100,24 @@ int PagePickerDialog::choose(int* new_page_number)
             this, &PagePickerDialog::reject);
     mainlayout->addWidget(standard_buttons);
 
+#if defined DEBUG_PRESS_A_TO_ADJUST_SIZE || defined DEBUG_PRESS_D_TO_DUMP_LAYOUT
+    auto keywatcher = new KeyPressWatcher(this);
+#endif
+#ifdef DEBUG_PRESS_A_TO_ADJUST_SIZE
+    keywatcher->addKeyEvent(
+        Qt::Key_A,
+        std::bind(&QWidget::adjustSize, this));
+#endif
+#ifdef DEBUG_PRESS_D_TO_DUMP_LAYOUT
+    // keywatcher becomes child of this,
+    // and layoutdumper is a namespace, so:
+    // Safe object lifespan signal: can use std::bind
+    keywatcher->addKeyEvent(
+        Qt::Key_D,
+        std::bind(&layoutdumper::dumpWidgetHierarchy, this, dumper_config));
+#endif
+
+    m_resized_to_contents = false;
     return exec();
 }
 
@@ -113,10 +143,15 @@ void PagePickerDialog::itemClicked(const int item_index)
 
 bool PagePickerDialog::event(QEvent* e)
 {
+    // See NvpChoiceDialog::event().
+
     const bool result = QDialog::event(e);
     const QEvent::Type type = e->type();
-    if (type == QEvent::Type::Show) {
-        adjustSize();
+    if (type == QEvent::Type::WindowActivate) {
+        if (!m_resized_to_contents) {  // do this once only:
+            adjustSize();
+            m_resized_to_contents = true;
+        }
     }
     return result;
 }

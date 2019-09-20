@@ -25,6 +25,7 @@
 #include "lib/uifunc.h"
 #include "questionnairelib/namevalueoptions.h"
 
+class QShowEvent;
 class QVariant;
 
 
@@ -62,4 +63,5 @@ protected:
     QString m_icon_filename;
     QSize m_icon_size;
     QVariant* m_p_new_value;
+    bool m_resized_to_contents;
 };
