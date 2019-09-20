@@ -50,4 +50,5 @@ protected:
     PagePickerItemList m_pages;
     QString m_title;
     int* m_new_page_number;
+    bool m_resized_to_contents;
 };

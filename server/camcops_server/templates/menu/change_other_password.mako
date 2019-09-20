@@ -32,10 +32,6 @@ camcops_server/templates/menu/change_other_password.mako
 
 <h1>${_("Change password for user:")} ${username}</h1>
 
-%if extra_msg:
-    <div class="warning">${extra_msg}</div>
-%endif
-
 ${form}
 
 <div>
