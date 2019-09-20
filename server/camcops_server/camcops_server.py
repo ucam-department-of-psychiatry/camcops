@@ -68,8 +68,6 @@ from camcops_server.cc_modules.cc_config import (
     get_default_config_from_os_env,
     get_demo_apache_config,
     get_demo_config,
-    get_demo_mysql_create_db,
-    get_demo_mysql_dump_script,
     get_demo_supervisor_config,
 )
 from camcops_server.cc_modules.cc_constants import (
@@ -134,20 +132,6 @@ def print_demo_apache_config() -> None:
     to stdout.
     """
     print(get_demo_apache_config())
-
-
-def print_demo_mysql_create_db() -> None:
-    """
-    Prints a demonstration MySQL database creation script to stdout.
-    """
-    print(get_demo_mysql_create_db())
-
-
-def print_demo_mysql_dump_script() -> None:
-    """
-    Prints a demonstration MySQL database dump script to stdout.
-    """
-    print(get_demo_mysql_dump_script())
 
 
 # =============================================================================
@@ -601,20 +585,6 @@ def camcops_main() -> None:
         help="Print a demo Apache config file section for CamCOPS")
     demoapacheconf_parser.set_defaults(
         func=lambda args: print_demo_apache_config())
-
-    # Print demo MySQL database creation commands
-    demo_mysql_create_db_parser = add_sub(
-        subparsers, "demo_mysql_create_db", config_mandatory=None,
-        help="Print demo instructions to create a MySQL database for CamCOPS")
-    demo_mysql_create_db_parser.set_defaults(
-        func=lambda args: print_demo_mysql_create_db())
-
-    # Print demo Bash MySQL dump script
-    demo_mysql_dump_script_parser = add_sub(
-        subparsers, "demo_mysql_dump_script", config_mandatory=None,
-        help="Print demo instructions to dump all current MySQL databases")
-    demo_mysql_dump_script_parser.set_defaults(
-        func=lambda args: print_demo_mysql_dump_script())
 
     # -------------------------------------------------------------------------
     # Database commands

@@ -1,5 +1,5 @@
 usage: camcops_server [-h] [--allhelp] [--version] [-v]
-                      {docs,demo_camcops_config,demo_supervisor_config,demo_apache_config,demo_mysql_create_db,demo_mysql_dump_script,upgrade_db,dev_upgrade_db,dev_downgrade_db,show_db_title,merge_db,create_db,ddl,reindex,check_index,make_superuser,reset_password,enable_user,export,show_export_queue,crate_dd,cris_dd,serve_cherrypy,serve_gunicorn,serve_pyramid,convert_athena_icd_snomed_to_xml,launch_workers,launch_scheduler,launch_monitor,show_tests,self_test,dev_cli}
+                      {docs,demo_camcops_config,demo_supervisor_config,demo_apache_config,upgrade_db,dev_upgrade_db,dev_downgrade_db,show_db_title,merge_db,create_db,ddl,reindex,check_index,make_superuser,reset_password,enable_user,export,show_export_queue,crate_dd,cris_dd,serve_cherrypy,serve_gunicorn,serve_pyramid,convert_athena_icd_snomed_to_xml,launch_workers,launch_scheduler,launch_monitor,show_tests,self_test,dev_cli}
                       ...
 
 CamCOPS server, created by Rudolf Cardinal; version 2.3.6.
@@ -14,7 +14,7 @@ optional arguments:
 commands:
   Valid CamCOPS commands are as follows.
 
-  {docs,demo_camcops_config,demo_supervisor_config,demo_apache_config,demo_mysql_create_db,demo_mysql_dump_script,upgrade_db,dev_upgrade_db,dev_downgrade_db,show_db_title,merge_db,create_db,ddl,reindex,check_index,make_superuser,reset_password,enable_user,export,show_export_queue,crate_dd,cris_dd,serve_cherrypy,serve_gunicorn,serve_pyramid,convert_athena_icd_snomed_to_xml,launch_workers,launch_scheduler,launch_monitor,show_tests,self_test,dev_cli}
+  {docs,demo_camcops_config,demo_supervisor_config,demo_apache_config,upgrade_db,dev_upgrade_db,dev_downgrade_db,show_db_title,merge_db,create_db,ddl,reindex,check_index,make_superuser,reset_password,enable_user,export,show_export_queue,crate_dd,cris_dd,serve_cherrypy,serve_gunicorn,serve_pyramid,convert_athena_icd_snomed_to_xml,launch_workers,launch_scheduler,launch_monitor,show_tests,self_test,dev_cli}
                         Specify one command.
     docs                Launch the main documentation (CamCOPS manual)
     demo_camcops_config
@@ -22,12 +22,6 @@ commands:
     demo_supervisor_config
                         Print a demo 'supervisor' config file for CamCOPS
     demo_apache_config  Print a demo Apache config file section for CamCOPS
-    demo_mysql_create_db
-                        Print demo instructions to create a MySQL database for
-                        CamCOPS
-    demo_mysql_dump_script
-                        Print demo instructions to dump all current MySQL
-                        databases
     upgrade_db          Upgrade database to most recent version (via Alembic)
     dev_upgrade_db      (DEVELOPER OPTION ONLY.) Upgrade a database to a
                         specific revision.
@@ -107,28 +101,6 @@ Help for command 'demo_apache_config'
 usage: camcops_server demo_apache_config [-h] [-v]
 
 Print a demo Apache config file section for CamCOPS
-
-optional arguments:
-  -h, --help     show this help message and exit
-  -v, --verbose  Be verbose (default: False)
-
-===============================================================================
-Help for command 'demo_mysql_create_db'
-===============================================================================
-usage: camcops_server demo_mysql_create_db [-h] [-v]
-
-Print demo instructions to create a MySQL database for CamCOPS
-
-optional arguments:
-  -h, --help     show this help message and exit
-  -v, --verbose  Be verbose (default: False)
-
-===============================================================================
-Help for command 'demo_mysql_dump_script'
-===============================================================================
-usage: camcops_server demo_mysql_dump_script [-h] [-v]
-
-Print demo instructions to dump all current MySQL databases
 
 optional arguments:
   -h, --help     show this help message and exit
@@ -283,8 +255,8 @@ optional arguments:
   -v, --verbose      Be verbose (default: False)
   --config CONFIG    Configuration file (if not specified, the environment
                      variable CAMCOPS_CONFIG_FILE is checked) (default: None)
-  --dialect DIALECT  SQL dialect (options: firebird, mysql, postgresql,
-                     oracle, mssql, sqlite, sybase) (default: mysql)
+  --dialect DIALECT  SQL dialect (options: oracle, mssql, sqlite, firebird,
+                     sybase, mysql, postgresql) (default: mysql)
 
 ===============================================================================
 Help for command 'reindex'
@@ -608,4 +580,4 @@ optional arguments:
                    variable CAMCOPS_CONFIG_FILE is checked) (default: None)
 
 
-# Generated at 2019-09-17 22:53:09
+# Generated at 2019-09-20 11:43:36

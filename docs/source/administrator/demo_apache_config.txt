@@ -1,6 +1,6 @@
 
     # Demonstration Apache config file section for CamCOPS.
-    # Created by CamCOPS version 2.3.1 at 2019-03-27T11:22:23.215789+00:00.
+    # Created by CamCOPS version 2.3.6 at 2019-09-20T11:43:42.725236+01:00.
     #
     # Under Ubuntu, the Apache config will be somewhere in /etc/apache2/
     # Under CentOS, the Apache config will be somewhere in /etc/httpd/
@@ -25,7 +25,7 @@
         # b) provide permission
         # c) disable ProxyPass for static files
 
-        # Change this: aim the alias at your own institutional logo.
+        # CHANGE THIS: aim the alias at your own institutional logo.
 
     Alias /camcops/static/logo_local.png /usr/share/camcops/venv/lib/python3.6/site-packages/camcops_server/static/logo_local.png
 
@@ -38,7 +38,7 @@
     <Directory /usr/share/camcops/venv/lib/python3.6/site-packages/camcops_server/static>
         Require all granted
 
-        # ... for old Apache version (e.g. 2.2), use instead:
+        # ... for old Apache versions (e.g. 2.2), use instead:
         # Order allow,deny
         # Allow from all
     </Directory>
@@ -52,51 +52,74 @@
         # ---------------------------------------------------------------------
         # ... either via an internal TCP/IP port (e.g. 1024 or higher, and NOT
         #     accessible to users);
-        # ... or, better, via a Unix socket, e.g. /tmp/.camcops.sock
+        # ... or, better, via a Unix socket, e.g. /run/camcops/camcops.socket
         #
         # NOTES
+        #
         # - When you ProxyPass /camcops, you should browse to
+        #
         #       https://YOURSITE/camcops
+        #
         #   and point your tablet devices to
+        #
         #       https://YOURSITE/camcops/database
+        #
         # - Don't specify trailing slashes for the ProxyPass and
         #   ProxyPassReverse directives.
         #   If you do, http://host/camcops will fail though
         #              http://host/camcops/ will succeed.
+        #
+        #   - An alternative fix is to enable mod_rewrite (e.g. sudo a2enmod
+        #     rewrite), then add these commands:
+        #
+        #       RewriteEngine on
+        #       RewriteRule ^/camcops$ camcops/ [L,R=301]
+        #
+        #     which will redirect requests without the trailing slash to a
+        #     version with the trailing slash.
+        #
         # - Ensure that you put the CORRECT PROTOCOL (http, https) in the rules
         #   below.
+        #
         # - For ProxyPass options, see https://httpd.apache.org/docs/2.2/mod/mod_proxy.html#proxypass
+        #
         #   ... including "retry=0" to stop Apache disabling the connection for
-        #       a while on failure.
-        # - Using a socket
-        #   - this requires Apache 2.4.9, and passes after the '|' character a
-        #     URL that determines the Host: value of the request; see
-        #     https://httpd.apache.org/docs/trunk/mod/mod_proxy.html#proxypass
+        #   while on failure.
+        #
         # - CamCOPS MUST BE TOLD about its location and protocol, because that
         #   information is critical for synthesizing URLs, but is stripped out
         #   by the reverse proxy system. There are two ways:
+        #
         #   (i)  specifying headers or WSGI environment variables, such as
         #        the HTTP(S) headers X-Forwarded-Proto and X-Script-Name below
         #        (and telling CamCOPS to trust them via its
         #        TRUSTED_PROXY_HEADERS setting);
+        #
         #   (ii) specifying other options to "camcops_server", including
         #        PROXY_SCRIPT_NAME, PROXY_URL_SCHEME; see the help for the
         #        CamCOPS config.
         #
         # So:
         #
-        # ~~~~~~~~~~~~~~~~~
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # (a) Reverse proxy
-        # ~~~~~~~~~~~~~~~~~
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         #
+        # #####################################################################
         # PORT METHOD
+        # #####################################################################
         # Note the use of "http" (reflecting the backend), not https (like the
         # front end).
 
-    ProxyPass /camcops/ http://127.0.0.1:8000 retry=0
-    ProxyPassReverse /camcops/ http://127.0.0.1:8000 retry=0
+    # ProxyPass /camcops http://127.0.0.1:8000 retry=0
+    # ProxyPassReverse /camcops http://127.0.0.1:8000 retry=0
 
+        # #####################################################################
         # UNIX SOCKET METHOD (Apache 2.4.9 and higher)
+        # #####################################################################
+        # This requires Apache 2.4.9, and passes after the '|' character a URL
+        # that determines the Host: value of the request; see
+        # ://httpd.apache.org/docs/trunk/mod/mod_proxy.html#proxypass
         #
         # The general syntax is:
         #
@@ -118,12 +141,6 @@
         #
         #   "AH00526: Syntax error on line 56 of /etc/apache2/sites-enabled/SOMETHING:
         #    ProxyPass URL must be absolute!"
-        #
-        # On Ubuntu, if your Apache is too old, you could use
-        #
-        #   sudo add-apt-repository ppa:ondrej/apache2
-        #
-        # ... details at https://launchpad.net/~ondrej/+archive/ubuntu/apache2
         #
         # If you get this error:
         #
@@ -158,12 +175,12 @@
         #
         # - https://emptyhammock.com/projects/info/pyweb/webconfig.html
 
-    # ProxyPass /camcops/ unix:/tmp/.camcops.sock|http://dummy1 retry=0
-    # ProxyPassReverse /camcops/ unix:/tmp/.camcops.sock|http://dummy1 retry=0
+    ProxyPass /camcops unix:/run/camcops/camcops.socket|http://dummy1 retry=0
+    ProxyPassReverse /camcops unix:/run/camcops/camcops.socket|http://dummy1 retry=0
 
-        # ~~~~~~~~~~~~~~~~~~~~~~~~~
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # (b) Allow proxy over SSL.
-        # ~~~~~~~~~~~~~~~~~~~~~~~~~
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Without this, you will get errors like:
         #   ... SSL Proxy requested for wombat:443 but not enabled [Hint: SSLProxyEngine]
         #   ... failed to enable ssl support for 0.0.0.0:0 (httpd-UDS)
@@ -172,9 +189,9 @@
 
     <Location /camcops>
 
-            # ~~~~~~~~~~~~~~~~
+            # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             # (c) Allow access
-            # ~~~~~~~~~~~~~~~~
+            # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
         Require all granted
 
@@ -182,10 +199,10 @@
         # Order allow,deny
         # Allow from all
 
-            # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             # (d) Tell the proxied application that we are using HTTPS, and
             #     where the application is installed
-            # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             #     ... https://stackoverflow.com/questions/16042647
             #
             # EITHER enable mod_headers (e.g. "sudo a2enmod headers") and set:
@@ -212,7 +229,7 @@
     </Location>
 
         # ---------------------------------------------------------------------
-        # 3. For additional instances
+        # 3. For additional CamCOPS instances
         # ---------------------------------------------------------------------
         # (a) duplicate section 1 above, editing the base URL and CamCOPS
         #     connection (socket/port);
@@ -222,7 +239,6 @@
         #
         # HOWEVER, consider adding more CamCOPS groups, rather than creating
         # additional instances; the former are *much* easier to administer!
-
 
     #==========================================================================
     # SSL security (for HTTPS)
@@ -265,3 +281,5 @@
 </VirtualHost>
 
     
+
+# Generated at 2019-09-20 11:43:42

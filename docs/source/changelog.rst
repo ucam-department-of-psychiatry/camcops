@@ -2560,3 +2560,9 @@ Current C++/SQLite client, Python/SQLAlchemy server
   <RESTRICTED_TASKS>`.
 
 - **New task:** :ref:`Lynall M-E — IAM study — life events <lynall_iam_life>`.
+
+- Removed now-pointless command ``camcops_server demo_mysql_dump_script`` (out
+  of scope and ``camcops_backup_mysql_database`` is better).
+
+- Removed now-pointless command ``camcops_server demo_mysql_create_db`` (it's
+  in the help at :ref:`Create a database <create_database>`).

@@ -93,6 +93,8 @@ def main():
             join(ADMIN_DIR, "demo_camcops_config.ini"))
     run_cmd(["camcops_server", "demo_supervisor_config"],
             join(ADMIN_DIR, "demo_supervisor_config.txt"))
+    run_cmd(["camcops_server", "demo_apache_config"],
+            join(ADMIN_DIR, "demo_apache_config.txt"))
     # developer
     run_cmd(["python", join(TABLET_TOOLS_DIR, "build_qt.py"), "--help"],
             join(DEV_DIR, "build_qt_help.txt"))
