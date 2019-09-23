@@ -158,11 +158,16 @@ def print_demo_mysql_dump_script() -> None:
 # Database
 # -----------------------------------------------------------------------------
 
-def _upgrade_database_to_head(show_sql_only: bool) -> None:
+def _upgrade_database_to_head(show_sql_only: bool,
+                              reindex: bool = False) -> None:
     # noinspection PyUnresolvedReferences
-    import camcops_server.camcops_server_core  # delayed import; import side effects  # noqa
+    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
     from camcops_server.cc_modules.cc_alembic import upgrade_database_to_head  # delayed import  # noqa
     upgrade_database_to_head(show_sql_only=show_sql_only)
+
+    if reindex and not show_sql_only:
+        cfg = get_default_config_from_os_env()
+        core.reindex(cfg)
 
 
 def _upgrade_database_to_revision(revision: str,
@@ -626,9 +631,14 @@ def camcops_main() -> None:
         "--show_sql_only", action="store_true",
         help="Show SQL only (to stdout); don't execute it"
     )
+    upgradedb_parser.add_argument(
+        "--no_reindex", action="store_true",
+        help="Don't recreate the task index"
+    )
     upgradedb_parser.set_defaults(
         func=lambda args: _upgrade_database_to_head(
-            show_sql_only=args.show_sql_only
+            show_sql_only=args.show_sql_only,
+            reindex=not args.no_reindex
         )
     )
 
