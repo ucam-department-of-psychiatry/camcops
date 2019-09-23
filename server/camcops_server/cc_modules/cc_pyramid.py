@@ -683,7 +683,8 @@ class Routes(object):
     EDIT_SERVER_SETTINGS = "edit_server_settings"
     EDIT_USER = "edit_user"
     EDIT_USER_GROUP_MEMBERSHIP = "edit_user_group_membership"
-    ERASE_TASK = "erase_task"
+    ERASE_TASK_LEAVING_PLACEHOLDER = "erase_task_leaving_placeholder"
+    ERASE_TASK_ENTIRELY = "erase_task_entirely"
     FORCIBLY_FINALIZE = "forcibly_finalize"
     HOME = "home"
     LOGIN = "login"
@@ -798,7 +799,8 @@ class RouteCollection(object):
     EDIT_SERVER_SETTINGS = RoutePath(Routes.EDIT_SERVER_SETTINGS)
     EDIT_USER = RoutePath(Routes.EDIT_USER)
     EDIT_USER_GROUP_MEMBERSHIP = RoutePath(Routes.EDIT_USER_GROUP_MEMBERSHIP)
-    ERASE_TASK = RoutePath(Routes.ERASE_TASK)
+    ERASE_TASK_LEAVING_PLACEHOLDER = RoutePath(Routes.ERASE_TASK_LEAVING_PLACEHOLDER)  # noqa
+    ERASE_TASK_ENTIRELY = RoutePath(Routes.ERASE_TASK_ENTIRELY)
     FORCIBLY_FINALIZE = RoutePath(Routes.FORCIBLY_FINALIZE)
     HOME = RoutePath(Routes.HOME, MASTER_ROUTE_WEBVIEW)  # mounted at "/"
     LOGIN = RoutePath(Routes.LOGIN)

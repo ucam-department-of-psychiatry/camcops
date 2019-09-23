@@ -2566,3 +2566,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Removed now-pointless command ``camcops_server demo_mysql_create_db`` (it's
   in the help at :ref:`Create a database <create_database>`).
+
+- Group administrators can now erase tasks entirely from the database
+  :ref:`Erase task instance entirely <erase_task_entirely>`
