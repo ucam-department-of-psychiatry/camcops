@@ -193,19 +193,14 @@ class PatientIdNumIndexEntry(Base):
         session.add(index)
 
     @classmethod
-    def unindex_idnum(cls, patient: Patient,
-                      which_idnum: int, idnum_value: int,
-                      session: SqlASession) -> None:
+    def unindex_patient(cls, patient: Patient,
+                        session: SqlASession) -> None:
         """
         Removes an ID number index from the database.
 
         Args:
             patient:
                 :class:`camcops_server.cc_modules.cc_patient.Patient`
-            which_idnum:
-                ID number index
-            idnum_value:
-                ID number value
             session:
                 an SQLAlchemy Session
         """
@@ -215,8 +210,6 @@ class PatientIdNumIndexEntry(Base):
         session.execute(
             idxtable.delete()
             .where(idxcols.patient_pk == patient._pk)
-            .where(idxcols.which_idnum == which_idnum)
-            .where(idxcols.idnum_value == idnum_value)
         )
 
     # -------------------------------------------------------------------------

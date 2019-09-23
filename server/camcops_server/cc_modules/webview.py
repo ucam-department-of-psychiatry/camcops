@@ -3187,9 +3187,7 @@ def delete_patient(req: "CamcopsRequest") -> Response:
                 task.delete_entirely(req)
             # Then patients:
             for p in patient_lineage_instances:
-                PatientIdNumIndexEntry.unindex_idnum(
-                    p, which_idnum, idnum_value, req.dbsession
-                )
+                PatientIdNumIndexEntry.unindex_patient(p, req.dbsession)
                 p.delete_with_dependants(req)
             msg = (
                 f"{_('Patient and associated tasks DELETED from group')} "
