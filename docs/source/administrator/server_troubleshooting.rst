@@ -17,6 +17,9 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
+.. _RewriteRule: https://httpd.apache.org/docs/current/mod/mod_rewrite.html#rewriterule
+
+
 Troubleshooting server problems
 ===============================
 
@@ -56,6 +59,89 @@ Successful method:
 
 Web server errors from Apache
 -----------------------------
+
+Apache itself is working, but not talking to CamCOPS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Suppose:
+
+- your Apache server is running and meant to be serving the site's root page;
+- CamCOPS is meant to be accessible at ``http://mysite/camcops``.
+
+We'll use ``curl`` rather than ``wget`` for testing, since ``curl`` can talk to
+UNIX domain sockets. Check the following:
+
+- Watch your Apache access and error logs (e.g. with ``tail -f
+  /var/log/apache2/access.log`` and ``tail -f /var/log/apache2/error.log``).
+
+- Check you can fetch the web server's root page from Apache:
+
+  .. code-block:: bash
+
+    curl --verbose https://mysite/
+
+  You should see your site's root page HTML. If not, the problem is with the
+  Apache configuration itself.
+
+- As root, check you can talk directly to CamCOPS.
+
+  If you are using a UNIX domain socket, e.g. ``/run/camcops/camcops.socket``:
+
+  .. code-block:: bash
+
+    # Must use http://, not https:// (Apache, not CamCOPS, handles the SSL)
+    sudo curl --verbose --unix-socket /run/camcops/camcops.socket http://mysite/camcops
+
+  If you are using TCP/IP via a local port:
+
+  .. code-block:: bash
+
+    # Must use http://, not https:// (Apache, not CamCOPS, handles the SSL)
+    sudo curl --verbose http://mysite:MY_INTERNAL_PORT/
+
+  You should see HTML from CamCOPS. If not, the problem is with the CamCOPS
+  configuration (supervisor config file, CamCOPS config file, permissions,
+  etc.).
+
+- Ask Apache for CamCOPS:
+
+  .. code-block:: bash
+
+    curl --verbose https://mysite/camcops
+
+  If you get an Apache HTTP 404 "Not Found" error, then...
+
+  - Check static images are being served -- you should have configured these
+    to be served by Apache itself.
+
+    .. code-block:: bash
+
+      curl --verbose https://mysite/camcops/static/logo_local.png
+
+    If that doesn't work, your Apache config or permissions are wrong.
+
+  - Check that you haven't put a trailing slash at the end of your
+    ``ProxyPass*`` commands, e.g. using ``/camcops/`` when you meant
+    ``/camcops``. If that is the problem, then you will find:
+
+    .. code-block:: bash
+
+        curl --verbose https://mysite/camcops  # fails
+        curl --verbose https://mysite/camcops/  # works
+
+    An alternative solution in this case is to ensure you have run ``sudo
+    a2enmod rewrite`` to enable ``mod_rewrite`` and add this to your Apache
+    config:
+
+    .. code-block:: apacheconf
+
+        RewriteEngine on
+        RewriteRule ^/camcops$ camcops/ [L,R=301]
+
+    For details, see RewriteRule_, but in brief, the flag "L" says that this is
+    the last rewrite required, and "R=301" means "redirect with HTTP 301 Moved
+    Permanently".
+
 
 Web server returns "permission denied"-type messages; Apache error log is full of file permission errors
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

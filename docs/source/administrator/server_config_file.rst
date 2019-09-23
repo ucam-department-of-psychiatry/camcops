@@ -631,9 +631,8 @@ Filename of a UNIX domain socket (UDS) to listen on (rather than using TCP/IP).
 UDS is typically faster than TCP. If specified, this overrides the TCP options,
 HOST_ and PORT_.
 
-For example, ``/run/camcops/camcops.socket`` (as per the :ref:`Filesystem
-Hierarchy Standard
-<https://refspecs.linuxfoundation.org/FHS_3.0/fhs/ch05s13.html>`.
+For example, ``/run/camcops/camcops.socket`` (as per the `Filesystem Hierarchy
+Standard <https://refspecs.linuxfoundation.org/FHS_3.0/fhs/ch05s13.html>`_.
 
 (Not applicable to the Pyramid test web server; CherryPy/Gunicorn only.)
 

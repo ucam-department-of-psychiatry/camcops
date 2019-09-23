@@ -693,12 +693,13 @@ programs = camcops_server, camcops_workers, camcops_scheduler
 
 
 def get_demo_apache_config(
-        urlbase: str = "/camcops",
+        rootpath: str = "camcops",  # no slash
         specimen_internal_port: int = DEFAULT_PORT,
         specimen_socket_file: str = DEFAULT_SOCKET_FILENAME) -> str:
     """
     Returns a demo Apache HTTPD config file section applicable to CamCOPS.
     """
+    urlbase = "/" + rootpath
     return f"""
     # Demonstration Apache config file section for CamCOPS.
     # Created by CamCOPS version {CAMCOPS_SERVER_VERSION_STRING} at {str(
@@ -727,7 +728,7 @@ def get_demo_apache_config(
         # b) provide permission
         # c) disable ProxyPass for static files
 
-        # Change this: aim the alias at your own institutional logo.
+        # CHANGE THIS: aim the alias at your own institutional logo.
 
     Alias {urlbase}/static/logo_local.png {DEFAULT_LINUX_CAMCOPS_STATIC_DIR}/logo_local.png
 
@@ -740,7 +741,7 @@ def get_demo_apache_config(
     <Directory {DEFAULT_LINUX_CAMCOPS_STATIC_DIR}>
         Require all granted
 
-        # ... for old Apache version (e.g. 2.2), use instead:
+        # ... for old Apache versions (e.g. 2.2), use instead:
         # Order allow,deny
         # Allow from all
     </Directory>
@@ -757,48 +758,71 @@ def get_demo_apache_config(
         # ... or, better, via a Unix socket, e.g. {specimen_socket_file}
         #
         # NOTES
+        #
         # - When you ProxyPass {urlbase}, you should browse to
+        #
         #       https://YOURSITE{urlbase}
+        #
         #   and point your tablet devices to
+        #
         #       https://YOURSITE{urlbase}{MASTER_ROUTE_CLIENT_API}
+        #
         # - Don't specify trailing slashes for the ProxyPass and
         #   ProxyPassReverse directives.
         #   If you do, http://host/camcops will fail though
         #              http://host/camcops/ will succeed.
+        #
+        #   - An alternative fix is to enable mod_rewrite (e.g. sudo a2enmod
+        #     rewrite), then add these commands:
+        #
+        #       RewriteEngine on
+        #       RewriteRule ^/{rootpath}$ {rootpath}/ [L,R=301]
+        #
+        #     which will redirect requests without the trailing slash to a
+        #     version with the trailing slash.
+        #
         # - Ensure that you put the CORRECT PROTOCOL (http, https) in the rules
         #   below.
+        #
         # - For ProxyPass options, see https://httpd.apache.org/docs/2.2/mod/mod_proxy.html#proxypass
+        #
         #   ... including "retry=0" to stop Apache disabling the connection for
-        #       a while on failure.
-        # - Using a socket
-        #   - this requires Apache 2.4.9, and passes after the '|' character a
-        #     URL that determines the Host: value of the request; see
-        #     https://httpd.apache.org/docs/trunk/mod/mod_proxy.html#proxypass
+        #   while on failure.
+        #
         # - CamCOPS MUST BE TOLD about its location and protocol, because that
         #   information is critical for synthesizing URLs, but is stripped out
         #   by the reverse proxy system. There are two ways:
+        #
         #   (i)  specifying headers or WSGI environment variables, such as
         #        the HTTP(S) headers X-Forwarded-Proto and X-Script-Name below
         #        (and telling CamCOPS to trust them via its
         #        TRUSTED_PROXY_HEADERS setting);
+        #
         #   (ii) specifying other options to "camcops_server", including
         #        PROXY_SCRIPT_NAME, PROXY_URL_SCHEME; see the help for the
         #        CamCOPS config.
         #
         # So:
         #
-        # ~~~~~~~~~~~~~~~~~
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # (a) Reverse proxy
-        # ~~~~~~~~~~~~~~~~~
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         #
+        # #####################################################################
         # PORT METHOD
+        # #####################################################################
         # Note the use of "http" (reflecting the backend), not https (like the
         # front end).
 
-    ProxyPass {urlbase}/ http://127.0.0.1:{specimen_internal_port} retry=0
-    ProxyPassReverse {urlbase}/ http://127.0.0.1:{specimen_internal_port} retry=0
+    # ProxyPass {urlbase} http://127.0.0.1:{specimen_internal_port} retry=0
+    # ProxyPassReverse {urlbase} http://127.0.0.1:{specimen_internal_port} retry=0
 
+        # #####################################################################
         # UNIX SOCKET METHOD (Apache 2.4.9 and higher)
+        # #####################################################################
+        # This requires Apache 2.4.9, and passes after the '|' character a URL
+        # that determines the Host: value of the request; see
+        # ://httpd.apache.org/docs/trunk/mod/mod_proxy.html#proxypass
         #
         # The general syntax is:
         #
@@ -820,12 +844,6 @@ def get_demo_apache_config(
         #
         #   "AH00526: Syntax error on line 56 of /etc/apache2/sites-enabled/SOMETHING:
         #    ProxyPass URL must be absolute!"
-        #
-        # On Ubuntu, if your Apache is too old, you could use
-        #
-        #   sudo add-apt-repository ppa:ondrej/apache2
-        #
-        # ... details at https://launchpad.net/~ondrej/+archive/ubuntu/apache2
         #
         # If you get this error:
         #
@@ -860,12 +878,12 @@ def get_demo_apache_config(
         #
         # - https://emptyhammock.com/projects/info/pyweb/webconfig.html
 
-    # ProxyPass /camcops/ unix:{specimen_socket_file}|http://dummy1 retry=0
-    # ProxyPassReverse /camcops/ unix:{specimen_socket_file}|http://dummy1 retry=0
+    ProxyPass {urlbase} unix:{specimen_socket_file}|http://dummy1 retry=0
+    ProxyPassReverse {urlbase} unix:{specimen_socket_file}|http://dummy1 retry=0
 
-        # ~~~~~~~~~~~~~~~~~~~~~~~~~
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # (b) Allow proxy over SSL.
-        # ~~~~~~~~~~~~~~~~~~~~~~~~~
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Without this, you will get errors like:
         #   ... SSL Proxy requested for wombat:443 but not enabled [Hint: SSLProxyEngine]
         #   ... failed to enable ssl support for 0.0.0.0:0 (httpd-UDS)
@@ -874,9 +892,9 @@ def get_demo_apache_config(
 
     <Location /camcops>
 
-            # ~~~~~~~~~~~~~~~~
+            # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             # (c) Allow access
-            # ~~~~~~~~~~~~~~~~
+            # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
         Require all granted
 
@@ -884,10 +902,10 @@ def get_demo_apache_config(
         # Order allow,deny
         # Allow from all
 
-            # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             # (d) Tell the proxied application that we are using HTTPS, and
             #     where the application is installed
-            # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             #     ... https://stackoverflow.com/questions/16042647
             #
             # EITHER enable mod_headers (e.g. "sudo a2enmod headers") and set:
@@ -914,7 +932,7 @@ def get_demo_apache_config(
     </Location>
 
         # ---------------------------------------------------------------------
-        # 3. For additional instances
+        # 3. For additional CamCOPS instances
         # ---------------------------------------------------------------------
         # (a) duplicate section 1 above, editing the base URL and CamCOPS
         #     connection (socket/port);
@@ -924,7 +942,6 @@ def get_demo_apache_config(
         #
         # HOWEVER, consider adding more CamCOPS groups, rather than creating
         # additional instances; the former are *much* easier to administer!
-
 
     #==========================================================================
     # SSL security (for HTTPS)
@@ -965,78 +982,6 @@ def get_demo_apache_config(
         # cat TERENASSLCA.crt UTNAddTrustServer_CA.crt AddTrustExternalCARoot.crt > univcam.ca-bundle
 
 </VirtualHost>
-
-    """  # noqa
-
-
-def get_demo_mysql_create_db() -> str:
-    """
-    Returns a demonstration MySQL script to create a CamCOPS database.
-    (The database structure is then provided by the CamCOPS ``upgrade_db``
-    command.)
-    """
-    return f"""
-# First, from the Linux command line, log in to MySQL as root:
-
-mysql --host=127.0.0.1 --port=3306 --user=root --password
-# ... or the usual short form: mysql -u root -p
-
-# Create the database:
-
-CREATE DATABASE {DEFAULT_DB_NAME};
-
-# Ideally, create another user that only has access to the CamCOPS database.
-# You should do this, so that you don’t use the root account unnecessarily.
-
-GRANT ALL PRIVILEGES ON {DEFAULT_DB_NAME}.* TO '{DEFAULT_DB_USER}'@'localhost' IDENTIFIED BY '{DEFAULT_DB_PASSWORD}';
-
-# For future use: if you plan to explore your database directly for analysis,
-# you may want to create a read-only user. Though it may not be ideal (check:
-# are you happy the user can see the audit trail?), you can create a user with
-# read-only access to the entire database like this:
-
-GRANT SELECT {DEFAULT_DB_NAME}.* TO '{DEFAULT_DB_READONLY_USER}'@'localhost' IDENTIFIED BY '{DEFAULT_DB_READONLY_PASSWORD}';
-
-# All done. Quit MySQL:
-
-exit
-    """  # noqa
-
-
-def get_demo_mysql_dump_script() -> str:
-    """
-    Returns a demonstration script to dump all current MySQL databases.
-    """
-    return """#!/usr/bin/env bash
-
-# Minimal simple script to dump all current MySQL databases.
-# This file must be READABLE ONLY BY ROOT (or equivalent, backup)!
-# The password is in cleartext.
-# Once you have copied this file and edited it, perform:
-#     sudo chown root:root <filename>
-#     sudo chmod 700 <filename>
-# Then you can add it to your /etc/crontab for regular execution.
-
-BACKUPDIR='/var/backups/mysql'
-BACKUPFILE='all_my_mysql_databases.sql'
-USERNAME='root'  # MySQL username
-PASSWORD='PPPPPP_REPLACE_ME'  # MySQL password
-
-# Make directory unless it exists already:
-
-mkdir -p $BACKUPDIR
-
-# Dump the database:
-
-mysqldump -u $USERNAME -p$PASSWORD --all-databases --force > $BACKUPDIR/$BACKUPFILE
-
-# Make sure the backups (which may contain sensitive information) are only
-# readable by the 'backup' user group:
-
-cd $BACKUPDIR
-chown -R backup:backup *
-chmod -R o-rwx *
-chmod -R ug+rw *
 
     """  # noqa
 

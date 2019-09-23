@@ -722,7 +722,6 @@ def change_own_password(req: "CamcopsRequest") -> Response:
     assert user is not None
     expired = user.must_change_password
     form = ChangeOwnPasswordForm(request=req, must_differ=True)
-    extra_msg = ""
     if FormAction.SUBMIT in req.POST:
         try:
             controls = list(req.POST.items())
@@ -743,7 +742,6 @@ def change_own_password(req: "CamcopsRequest") -> Response:
         "change_own_password.mako",
         dict(form=rendered_form,
              expired=expired,
-             extra_msg=extra_msg,
              min_pw_length=MINIMUM_PASSWORD_LENGTH,
              head_form_html=get_head_form_html(req, [form])),
         request=req)
