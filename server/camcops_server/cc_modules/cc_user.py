@@ -991,7 +991,7 @@ class User(Base):
 
     def authorized_to_erase_tasks(self, group_id: int) -> bool:
         """
-        Is this user authorized to add erase tasks for the group identified
+        Is this user authorized to erase tasks for the group identified
         by ``group_id``?
         """
         if self.superuser:
