@@ -196,7 +196,7 @@ class PatientIdNumIndexEntry(Base):
     def unindex_patient(cls, patient: Patient,
                         session: SqlASession) -> None:
         """
-        Removes an ID number index from the database.
+        Removes all ID number indexes from the database for a patient.
 
         Args:
             patient:
