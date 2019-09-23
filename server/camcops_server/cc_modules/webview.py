@@ -126,7 +126,7 @@ import logging
 import os
 # from pprint import pformat
 from typing import Any, Dict, List, Tuple, Type, TYPE_CHECKING
-import unittest
+# import unittest
 
 from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.deform_utils import get_head_form_html
@@ -3005,6 +3005,7 @@ class EraseTaskBaseView(object):
         return self.render_to_response(task, rendered_form)
 
     def render_to_response(self, task: Task, rendered_form: str) -> Response:
+        # noinspection PyUnresolvedReferences
         return render_to_response(
             self.template_name,
             dict(
@@ -3045,7 +3046,7 @@ class EraseTaskBaseView(object):
         )
 
 
-class EraseTaskView(EraseTaskBaseView):
+class EraseTaskLeavingPlaceholderView(EraseTaskBaseView):
     template_name = "task_erase.mako"
 
     def get_and_validate_task(self) -> Task:
@@ -3075,15 +3076,15 @@ class EraseTaskEntirelyView(EraseTaskBaseView):
         task.delete_entirely(self.request)
 
 
-@view_config(route_name=Routes.ERASE_TASK,
+@view_config(route_name=Routes.ERASE_TASK_LEAVING_PLACEHOLDER,
              permission=Permission.GROUPADMIN)
-def erase_task(req: "CamcopsRequest") -> Response:
+def erase_task_leaving_placeholder(req: "CamcopsRequest") -> Response:
     """
     View to wipe all data from a task (after confirmation).
 
     Leaves the task record as a placeholder.
     """
-    return EraseTaskView(req).dispatch()
+    return EraseTaskLeavingPlaceholderView(req).dispatch()
 
 
 @view_config(route_name=Routes.ERASE_TASK_ENTIRELY,

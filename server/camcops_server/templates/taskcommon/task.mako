@@ -282,7 +282,7 @@ ${ task.get_task_html(req) }
                 %if task._era != ERA_NOW:
                     %if not task.is_erased():
                         <p><a href="${ req.route_url(
-                                    Routes.ERASE_TASK,
+                                    Routes.ERASE_TASK_LEAVING_PLACEHOLDER,
                                     _query={
                                         ViewParam.TABLE_NAME: task.tablename,
                                         ViewParam.SERVER_PK: task._pk,
