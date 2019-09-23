@@ -281,6 +281,7 @@ from camcops_server.cc_modules.cc_taskfilter import (
     TaskClassSortMethod,
 )
 from camcops_server.cc_modules.cc_taskindex import (
+    PatientIdNumIndexEntry,
     TaskIndexEntry,
     update_indexes_and_push_exports
 )
@@ -3182,9 +3183,11 @@ def delete_patient(req: "CamcopsRequest") -> Response:
             # Delete patient and associated tasks
             # -----------------------------------------------------------------
             for task in tasks:
+                TaskIndexEntry.unindex_task(task, req.dbsession)
                 task.delete_entirely(req)
             # Then patients:
             for p in patient_lineage_instances:
+                PatientIdNumIndexEntry.unindex_patient(p, req.dbsession)
                 p.delete_with_dependants(req)
             msg = (
                 f"{_('Patient and associated tasks DELETED from group')} "
