@@ -192,6 +192,33 @@ class PatientIdNumIndexEntry(Base):
         index = cls.make_from_idnum(idnum)
         session.add(index)
 
+    @classmethod
+    def unindex_idnum(cls, patient: Patient,
+                      which_idnum: int, idnum_value: int,
+                      session: SqlASession) -> None:
+        """
+        Removes an ID number index from the database.
+
+        Args:
+            patient:
+                :class:`camcops_server.cc_modules.cc_patient.Patient`
+            which_idnum:
+                ID number index
+            idnum_value:
+                ID number value
+            session:
+                an SQLAlchemy Session
+        """
+
+        idxtable = cls.__table__  # type: Table
+        idxcols = idxtable.columns
+        session.execute(
+            idxtable.delete()
+            .where(idxcols.patient_pk == patient._pk)
+            .where(idxcols.which_idnum == which_idnum)
+            .where(idxcols.idnum_value == idnum_value)
+        )
+
     # -------------------------------------------------------------------------
     # Regenerate index
     # -------------------------------------------------------------------------
@@ -681,6 +708,27 @@ class TaskIndexEntry(Base):
                                    indexed_at_utc=indexed_at_utc)
         session.add(index)
 
+    @classmethod
+    def unindex_task(cls, task: Task, session: SqlASession) -> None:
+        """
+        Removes a task index from the database.
+
+        Args:
+            task:
+                a :class:`camcops_server.cc_modules.cc_task.Task`
+            session:
+                an SQLAlchemy Session
+        """
+
+        idxtable = cls.__table__  # type: Table
+        idxcols = idxtable.columns
+        tasktablename = task.__class__.tablename
+        session.execute(
+            idxtable.delete()
+            .where(idxcols.task_table_name == tasktablename)
+            .where(idxcols.task_pk == task._pk)
+        )
+
     # -------------------------------------------------------------------------
     # Regenerate index
     # -------------------------------------------------------------------------
@@ -916,7 +964,7 @@ def update_indexes_and_push_exports(req: "CamcopsRequest",
                                     tablechanges: UploadTableChanges) -> None:
     """
     Update server indexes, if required.
-    
+
     Also triggers background jobs to export "new arrivals", if required.
 
     Args:

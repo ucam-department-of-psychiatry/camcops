@@ -280,7 +280,11 @@ from camcops_server.cc_modules.cc_taskfilter import (
     task_classes_from_table_names,
     TaskClassSortMethod,
 )
-from camcops_server.cc_modules.cc_taskindex import update_indexes_and_push_exports  # noqa
+from camcops_server.cc_modules.cc_taskindex import (
+    PatientIdNumIndexEntry,
+    TaskIndexEntry,
+    update_indexes_and_push_exports
+)
 from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_tracker import ClinicalTextView, Tracker
 from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
@@ -3099,9 +3103,13 @@ def delete_patient(req: "CamcopsRequest") -> Response:
             # Delete patient and associated tasks
             # -----------------------------------------------------------------
             for task in tasks:
+                TaskIndexEntry.unindex_task(task, req.dbsession)
                 task.delete_entirely(req)
             # Then patients:
             for p in patient_lineage_instances:
+                PatientIdNumIndexEntry.unindex_idnum(
+                    p, which_idnum, idnum_value, req.dbsession
+                )
                 p.delete_with_dependants(req)
             msg = (
                 f"{_('Patient and associated tasks DELETED from group')} "
