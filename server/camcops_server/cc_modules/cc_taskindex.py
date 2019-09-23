@@ -681,6 +681,27 @@ class TaskIndexEntry(Base):
                                    indexed_at_utc=indexed_at_utc)
         session.add(index)
 
+    @classmethod
+    def unindex_task(cls, task: Task, session: SqlASession) -> None:
+        """
+        Removes a task index from the database.
+
+        Args:
+            task:
+                a :class:`camcops_server.cc_modules.cc_task.Task`
+            session:
+                an SQLAlchemy Session
+        """
+
+        idxtable = cls.__table__  # type: Table
+        idxcols = idxtable.columns
+        tasktablename = task.__class__.tablename
+        session.execute(
+            idxtable.delete()
+            .where(idxcols.task_table_name == tasktablename)
+            .where(idxcols.task_pk == task._pk)
+        )
+
     # -------------------------------------------------------------------------
     # Regenerate index
     # -------------------------------------------------------------------------
@@ -916,7 +937,7 @@ def update_indexes_and_push_exports(req: "CamcopsRequest",
                                     tablechanges: UploadTableChanges) -> None:
     """
     Update server indexes, if required.
-    
+
     Also triggers background jobs to export "new arrivals", if required.
 
     Args:

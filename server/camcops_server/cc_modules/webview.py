@@ -280,7 +280,10 @@ from camcops_server.cc_modules.cc_taskfilter import (
     task_classes_from_table_names,
     TaskClassSortMethod,
 )
-from camcops_server.cc_modules.cc_taskindex import update_indexes_and_push_exports  # noqa
+from camcops_server.cc_modules.cc_taskindex import (
+    TaskIndexEntry,
+    update_indexes_and_push_exports
+)
 from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_tracker import ClinicalTextView, Tracker
 from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
@@ -3068,6 +3071,7 @@ class EraseTaskEntirelyView(EraseTaskBaseView):
     template_name = "task_erase_entirely.mako"
 
     def erase_task(self, task: Task) -> None:
+        TaskIndexEntry.unindex_task(task, self.request.dbsession)
         task.delete_entirely(self.request)
 
 
