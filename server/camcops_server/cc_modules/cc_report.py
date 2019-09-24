@@ -280,7 +280,7 @@ class Report(object):
             plain_report = self.get_rows_colnames(req)
             if plain_report is None:
                 raise NotImplementedError(
-                    "Report did not implement either of get_select_statement()"
+                    "Report did not implement either of get_query()"
                     " or get_rows_colnames()")
             column_names = plain_report.column_names
             rows = plain_report.rows
