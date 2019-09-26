@@ -41,6 +41,7 @@ from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_report import Report
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_task import Task
+from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 
 
 # =============================================================================
@@ -163,8 +164,8 @@ class APEQCPFTPerinatalReport(Report):
     Provides a summary of each question, x% of people said each response etc.
     Then a summary of the comments.
     """
-    def __init__(self):
-        super().__init__()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
         self.task = APEQCPFTPerinatal()
 
@@ -298,6 +299,9 @@ class APEQCPFTPerinatalReport(Report):
         rows = []
 
         for column_name, question in column_dict.items():
+            """
+            SELECT COUNT(col) FROM apeq_cpft_perinatal WHERE col IS NOT NULL
+            """
             total_query = (
                 select([func.count(column_name)])
                 .select_from(self.task.__table__)
@@ -306,10 +310,15 @@ class APEQCPFTPerinatalReport(Report):
 
             row = [question] + [0] * num_answers
 
+            """
+            SELECT col, ((100 * COUNT(col)) / total_query)
+            FROM apeq_cpft_perinatal WHERE col is not NULL
+            GROUP BY col
+            """
             query = (
                 select([
                     column(column_name),
-                    100*(func.count(column_name)/total_query)
+                    ((100*func.count(column_name))/total_query)
                 ])
                 .select_from(self.task.__table__)
                 .where(column(column_name).isnot(None))
@@ -322,3 +331,149 @@ class APEQCPFTPerinatalReport(Report):
             rows.append(row)
 
         return rows
+
+
+# =============================================================================
+# Unit tests
+# =============================================================================
+class APEQCPFTPerinatalReportTests(DemoDatabaseTestCase):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.id_sequence = self.get_id()
+
+    def get_id(self):
+        i = 1
+
+        while True:
+            yield i
+            i += 1
+
+    def create_tasks(self):
+        """
+        20 tasks
+        Should give us:
+            q1: 0 - 50%,
+                1 - 25%
+                2 - 25%
+            q2: 1 - 100%
+            q3: 0 - 5%
+                1 - 20%
+                2 - 75%
+            q4: 0 - 10%
+                1 - 40%
+                2 - 50%
+            q5: 0 - 15%
+                1 - 55%
+                2 - 30%
+            q6: 1 - 50%
+                2 - 50%
+            ff: 0 - 25%
+                1 - 10%
+                2 - 15%
+                3 - 10%
+                4 - 5%
+                5 - 35%
+
+                          q1 q2 q3 q4 q5 q6 ff"""
+        self._create_task(0, 1, 0, 0, 2, 2, 5, ff_why="ff_5_1")
+        self._create_task(0, 1, 1, 0, 2, 2, 5, ff_why="ff_5_2",
+                          comments="comments_2")
+        self._create_task(0, 1, 1, 1, 2, 2, 5)
+        self._create_task(0, 1, 1, 1, 2, 2, 5)
+        self._create_task(0, 1, 1, 1, 2, 2, 5, comments="comments_5")
+
+        self._create_task(0, 1, 2, 1, 2, 2, 5)
+        self._create_task(0, 1, 2, 1, 1, 2, 5)
+        self._create_task(0, 1, 2, 1, 1, 2, 4, ff_why="ff_4_1")
+        self._create_task(0, 1, 2, 1, 1, 2, 3)
+        self._create_task(0, 1, 2, 1, 1, 1, 3, ff_why="ff_3_1")
+
+        self._create_task(1, 1, 2, 2, 1, 1, 2, ff_why="ff_2_1")
+        self._create_task(1, 1, 2, 2, 1, 1, 2)
+        self._create_task(1, 1, 2, 2, 1, 1, 2, ff_why="ff_2_2")
+        self._create_task(1, 1, 2, 2, 1, 1, 1, ff_why="ff_1_1")
+        self._create_task(1, 1, 2, 2, 1, 1, 1, ff_why="ff_1_2")
+
+        self._create_task(2, 1, 2, 2, 1, 1, 0)
+        self._create_task(2, 1, 2, 2, 1, 1, 0)
+        self._create_task(2, 1, 2, 2, 0, None, 0)
+        self._create_task(2, 1, 2, 2, 0, None, 0)
+        self._create_task(2, 1, 2, 2, 0, 1, 0, comments="comments_20")
+
+        self.dbsession.commit()
+
+    def _create_task(
+        self, q1: int, q2: int, q3: int, q4: int, q5: int, q6: int,
+        ff_rating: int, ff_why: str=None, comments: str=None
+    ):
+        task = APEQCPFTPerinatal()
+        self.apply_standard_task_fields(task)
+        task.id = next(self.id_sequence)
+        task.q1 = q1
+        task.q2 = q2
+        task.q3 = q3
+        task.q4 = q4
+        task.q5 = q5
+        task.q6 = q6
+        task.ff_rating = ff_rating
+        task.ff_why = ff_why
+        task.comments = comments
+
+        self.dbsession.add(task)
+
+    def test_main_rows_contain_percentages(self):
+        report = APEQCPFTPerinatalReport()
+
+        expected_q1 = [50, 25, 25]
+        expected_q2 = [0, 100, 0]
+        expected_q3 = [5, 20, 75]
+        expected_q4 = [10, 40, 50]
+        expected_q5 = [15, 55, 30]
+        expected_q6 = [0, 50, 50]
+
+        main_rows = report._get_main_rows(self.req)
+
+        self.assertEqual(main_rows[0][1:], expected_q1)
+        self.assertEqual(main_rows[1][1:], expected_q2)
+        self.assertEqual(main_rows[2][1:], expected_q3)
+        self.assertEqual(main_rows[3][1:], expected_q4)
+        self.assertEqual(main_rows[4][1:], expected_q5)
+        self.assertEqual(main_rows[5][1:], expected_q6)
+
+    def test_ff_rows_contain_percentages(self):
+        report = APEQCPFTPerinatalReport()
+
+        expected_ff = [25, 10, 15, 10, 5, 35]
+
+        ff_rows = report._get_ff_rows(self.req)
+
+        self.assertEqual(ff_rows[0][1:], expected_ff)
+
+    def test_ff_why_rows_contain_reasons(self):
+        report = APEQCPFTPerinatalReport()
+
+        expected_reasons = [
+            ["Extremely unlikely", "ff_1_1"],
+            ["Extremely unlikely", "ff_1_2"],
+            ["Unlikely", "ff_2_1"],
+            ["Unlikely", "ff_2_2"],
+            ["Neither likely nor unlikely", "ff_3_1"],
+            ["Likely", "ff_4_1"],
+            ["Extremely likely", "ff_5_1"],
+            ["Extremely likely", "ff_5_2"],
+        ]
+
+        ff_why_rows = report._get_ff_why_rows(self.req)
+
+        self.assertEqual(ff_why_rows, expected_reasons)
+
+    def test_comments(self):
+        report = APEQCPFTPerinatalReport()
+
+        expected_comments = [
+            ("comments_2",), ("comments_5",), ("comments_20",)
+        ]
+
+        comments = report._get_comments(self.req)
+
+        self.assertEqual(comments, expected_comments)
