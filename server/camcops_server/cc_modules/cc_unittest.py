@@ -123,15 +123,10 @@ class DemoDatabaseTestCase(DemoRequestTestCase):
             convert_datetime_to_utc,
             format_datetime,
         )
-        from camcops_server.cc_modules.cc_blob import Blob
         from camcops_server.cc_modules.cc_constants import DateFormat
         from camcops_server.cc_modules.cc_device import Device
         from camcops_server.cc_modules.cc_group import Group
-        from camcops_server.cc_modules.cc_patient import Patient
-        from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
-        from camcops_server.cc_modules.cc_task import Task
         from camcops_server.cc_modules.cc_user import User
-        from camcops_server.tasks.photo import Photo
 
         Base.metadata.create_all(self.engine)
 
@@ -141,18 +136,18 @@ class DemoDatabaseTestCase(DemoRequestTestCase):
 
         # Set up groups, users, etc.
         # ... ID number definitions
-        iddef1 = IdNumDefinition(which_idnum=1,
-                                 description="NHS number",
-                                 short_description="NHS#",
-                                 hl7_assigning_authority="NHS",
-                                 hl7_id_type="NHSN")
-        self.dbsession.add(iddef1)
-        iddef2 = IdNumDefinition(which_idnum=2,
-                                 description="RiO number",
-                                 short_description="RiO",
-                                 hl7_assigning_authority="CPFT",
-                                 hl7_id_type="CPFT_RiO")
-        self.dbsession.add(iddef2)
+        self.nhs_iddef = IdNumDefinition(which_idnum=1,
+                                         description="NHS number",
+                                         short_description="NHS#",
+                                         hl7_assigning_authority="NHS",
+                                         hl7_id_type="NHSN")
+        self.dbsession.add(self.nhs_iddef)
+        self.rio_iddef = IdNumDefinition(which_idnum=2,
+                                         description="RiO number",
+                                         short_description="RiO",
+                                         hl7_assigning_authority="CPFT",
+                                         hl7_id_type="CPFT_RiO")
+        self.dbsession.add(self.rio_iddef)
         # ... group
         self.group = Group()
         self.group.name = "testgroup"
@@ -180,52 +175,72 @@ class DemoDatabaseTestCase(DemoRequestTestCase):
 
         self.dbsession.flush()  # sets PK fields
 
+        self.create_tasks()
+
+    def create_patient_with_two_idnums(self):
+        from camcops_server.cc_modules.cc_patient import Patient
+        from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
         # Populate database with two of everything
-        p1 = Patient()
-        p1.id = 1
-        self._apply_standard_db_fields(p1)
-        p1.forename = "Forename1"
-        p1.surname = "Surname1"
-        p1.dob = pendulum.parse("1950-01-01")
-        self.dbsession.add(p1)
-        p1_idnum1 = PatientIdNum()
-        p1_idnum1.id = 1
-        self._apply_standard_db_fields(p1_idnum1)
-        p1_idnum1.patient_id = p1.id
-        p1_idnum1.which_idnum = iddef1.which_idnum
-        p1_idnum1.idnum_value = 333
-        self.dbsession.add(p1_idnum1)
-        p1_idnum2 = PatientIdNum()
-        p1_idnum2.id = 2
-        self._apply_standard_db_fields(p1_idnum2)
-        p1_idnum2.patient_id = p1.id
-        p1_idnum2.which_idnum = iddef2.which_idnum
-        p1_idnum2.idnum_value = 444
-        self.dbsession.add(p1_idnum2)
+        patient = Patient()
+        patient.id = 1
+        self._apply_standard_db_fields(patient)
+        patient.forename = "Forename1"
+        patient.surname = "Surname1"
+        patient.dob = pendulum.parse("1950-01-01")
+        self.dbsession.add(patient)
+        patient_idnum1 = PatientIdNum()
+        patient_idnum1.id = 1
+        self._apply_standard_db_fields(patient_idnum1)
+        patient_idnum1.patient_id = patient.id
+        patient_idnum1.which_idnum = self.nhs_iddef.which_idnum
+        patient_idnum1.idnum_value = 333
+        self.dbsession.add(patient_idnum1)
+        patient_idnum2 = PatientIdNum()
+        patient_idnum2.id = 2
+        self._apply_standard_db_fields(patient_idnum2)
+        patient_idnum2.patient_id = patient.id
+        patient_idnum2.which_idnum = self.rio_iddef.which_idnum
+        patient_idnum2.idnum_value = 444
+        self.dbsession.add(patient_idnum2)
+        self.dbsession.commit()
 
-        p2 = Patient()
-        p2.id = 2
-        self._apply_standard_db_fields(p2)
-        p2.forename = "Forename2"
-        p2.surname = "Surname2"
-        p2.dob = pendulum.parse("1975-12-12")
-        self.dbsession.add(p2)
-        p2_idnum1 = PatientIdNum()
-        p2_idnum1.id = 3
-        self._apply_standard_db_fields(p2_idnum1)
-        p2_idnum1.patient_id = p2.id
-        p2_idnum1.which_idnum = iddef1.which_idnum
-        p2_idnum1.idnum_value = 555
-        self.dbsession.add(p2_idnum1)
+        return patient
 
-        self.dbsession.flush()
+    def create_patient_with_one_idnum(self):
+        from camcops_server.cc_modules.cc_patient import Patient
+        from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
+        patient = Patient()
+        patient.id = 2
+        self._apply_standard_db_fields(patient)
+        patient.forename = "Forename2"
+        patient.surname = "Surname2"
+        patient.dob = pendulum.parse("1975-12-12")
+        self.dbsession.add(patient)
+        patient_idnum1 = PatientIdNum()
+        patient_idnum1.id = 3
+        self._apply_standard_db_fields(patient_idnum1)
+        patient_idnum1.patient_id = patient.id
+        patient_idnum1.which_idnum = self.nhs_iddef.which_idnum
+        patient_idnum1.idnum_value = 555
+        self.dbsession.add(patient_idnum1)
+        self.dbsession.commit()
+
+        return patient
+
+    def create_tasks(self):
+        from camcops_server.cc_modules.cc_blob import Blob
+        from camcops_server.tasks.photo import Photo
+        from camcops_server.cc_modules.cc_task import Task
+
+        patient_with_two_idnums = self.create_patient_with_two_idnums()
+        patient_with_one_idnum = self.create_patient_with_one_idnum()
 
         for cls in Task.all_subclasses_by_tablename():
             t1 = cls()
             t1.id = 1
-            self._apply_standard_task_fields(t1)
+            self.apply_standard_task_fields(t1)
             if t1.has_patient:
-                t1.patient_id = p1.id
+                t1.patient_id = patient_with_two_idnums.id
 
             if isinstance(t1, Photo):
                 b = Blob()
@@ -246,14 +261,14 @@ class DemoDatabaseTestCase(DemoRequestTestCase):
 
             t2 = cls()
             t2.id = 2
-            self._apply_standard_task_fields(t2)
+            self.apply_standard_task_fields(t2)
             if t2.has_patient:
-                t2.patient_id = p2.id
+                t2.patient_id = patient_with_one_idnum.id
             self.dbsession.add(t2)
 
         self.dbsession.commit()
 
-    def _apply_standard_task_fields(self, task: "Task") -> None:
+    def apply_standard_task_fields(self, task: "Task") -> None:
         """
         Writes some default values to an SQLAlchemy ORM object representing
         a task.
