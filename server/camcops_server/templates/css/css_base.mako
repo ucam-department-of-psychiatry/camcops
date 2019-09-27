@@ -143,6 +143,19 @@ tr, th, td {
     line-height: ${va.TABLELINEHEIGHT};
 }
 
+blockquote > p {
+    background: #eee;
+    padding: 15px;
+}
+
+blockquote > p::before {
+    content: '\201C';
+}
+
+blockquote > p::after {
+    content: '\201D';
+}
+
 /* Specific classes */
 
 .badidpolicy_mild {
@@ -481,7 +494,7 @@ table.clinician, table.extradetail, table.general,
         font-size: ${va.SMALLFONTSIZE};
         line-height: ${va.SMALLLINEHEIGHT};
     }
-    
+
     /* PDF paging via CSS Paged Media */
     @page {
         size: A4 ${va.ORIENTATION};

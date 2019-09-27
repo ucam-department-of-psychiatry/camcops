@@ -289,7 +289,12 @@ class APEQCPFTPerinatalReport(Report):
             )
         )
 
-        return req.dbsession.execute(query).fetchall()
+        comments = []
+
+        for result in req.dbsession.execute(query).fetchall():
+            comments.append(result[0])
+
+        return comments
 
     def _get_response_percentages(self,
                                   req: "CamcopsRequest",
@@ -471,7 +476,7 @@ class APEQCPFTPerinatalReportTests(DemoDatabaseTestCase):
         report = APEQCPFTPerinatalReport()
 
         expected_comments = [
-            ("comments_2",), ("comments_5",), ("comments_20",)
+            "comments_2", "comments_5", "comments_20",
         ]
 
         comments = report._get_comments(self.req)

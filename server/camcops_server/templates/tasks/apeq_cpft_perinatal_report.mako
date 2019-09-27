@@ -49,9 +49,12 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewParam
 
 <%include file="table.mako" args="column_headings=[], rows=ff_why_rows"/>
 
-<h2>${_("Summary of comments")}</h2>
-<%include file="table.mako" args="column_headings=[], rows=comments"/>
-
+<h2>${_("Comments")}</h2>
+%for comment in comments:
+   <blockquote>
+       <p>${comment | h}</p>
+   </blockquote>
+%endfor
 <div>
     <a href="${ request.route_url(Routes.OFFER_REPORT, _query={ViewParam.REPORT_ID: report_id}) }">${_("Re-configure report")}</a>
 </div>
