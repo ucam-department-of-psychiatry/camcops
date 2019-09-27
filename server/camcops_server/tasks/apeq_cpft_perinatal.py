@@ -146,6 +146,14 @@ class APEQCPFTPerinatal(Task):
             </table>
         """
 
+    def get_main_options(self, req: "CamcopsRequest") -> List[str]:
+        options = []
+
+        for n in range(0, 2 + 1):
+            options.append(self.wxstring(req, f"main_a{n}"))
+
+        return options
+
     def get_ff_options(self, req: "CamcopsRequest") -> List[str]:
         options = []
 
@@ -200,10 +208,8 @@ class APEQCPFTPerinatalReport(Report):
 
     def _get_main_column_headings(self, req: "CamcopsRequest") -> List[str]:
         _ = req.gettext
-        names = [_("Question"), _("Total responses")]
-
-        for n in range(0, 2 + 1):
-            names.append(self.task.wxstring(req, f"main_a{n}"))
+        names = [_("Question"),
+                 _("Total responses")] + self.task.get_main_options(req)
 
         return names
 
