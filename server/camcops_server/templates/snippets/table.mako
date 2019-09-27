@@ -25,8 +25,12 @@ camcops_server/templates/snippets/table.mako
 ===============================================================================
 
 </%doc>
-<%page args="column_headings, rows"/>
-<table>
+<%page args="column_headings, rows, table_class=None"/>
+<table
+%if table_class:
+class="${table_class}"
+%endif
+>
     <tr>
         %for c in column_headings:
             <th>${c | h}</th>
@@ -34,8 +38,8 @@ camcops_server/templates/snippets/table.mako
     </tr>
     %for row in rows:
         <tr>
-            %for val in row:
-                <td>
+            %for (col_index,val) in enumerate(row):
+                <td class="table-cell col-${col_index}">
                     ${val | h}
                 </td>
             %endfor

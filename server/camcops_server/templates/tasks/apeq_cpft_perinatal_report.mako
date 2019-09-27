@@ -31,7 +31,19 @@ camcops_server/templates/tasks/apeq_cpft_perinatal_report.mako
 ${parent.css()}
 
 h2, h3 {
-    margin-top:20px;
+    margin-top: 20px;
+}
+
+.table-cell {
+    text-align: right;
+}
+
+.table-cell.col-0 {
+    text-align: initial;
+}
+
+.ff-why-table > tbody > tr > .col-1 {
+    text-align: initial;
 }
 </%block>
 
@@ -54,7 +66,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewParam
 
 <h3>${_("Reasons given for the above responses")}</h3>
 
-<%include file="table.mako" args="column_headings=[], rows=ff_why_rows"/>
+<%include file="table.mako" args="column_headings=[], rows=ff_why_rows, table_class='ff-why-table'"/>
 
 <h2>${_("Comments")}</h2>
 %for comment in comments:

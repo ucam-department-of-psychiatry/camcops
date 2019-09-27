@@ -313,7 +313,7 @@ class APEQCPFTPerinatalReport(Report):
                 .where(column(column_name).isnot(None))
             )
 
-            row = [question] + [0] * num_answers
+            row = [question] + [""] * num_answers
 
             """
             SELECT col, ((100 * COUNT(col)) / total_query)
@@ -331,7 +331,7 @@ class APEQCPFTPerinatalReport(Report):
             )
 
             for result in req.dbsession.execute(query):
-                row[result[0]+1] = result[1]
+                row[result[0]+1] = "{0:.1f}%".format(result[1])
 
             rows.append(row)
 
@@ -429,12 +429,12 @@ class APEQCPFTPerinatalReportTests(DemoDatabaseTestCase):
     def test_main_rows_contain_percentages(self):
         report = APEQCPFTPerinatalReport()
 
-        expected_q1 = [50, 25, 25]
-        expected_q2 = [0, 100, 0]
-        expected_q3 = [5, 20, 75]
-        expected_q4 = [10, 40, 50]
-        expected_q5 = [15, 55, 30]
-        expected_q6 = [0, 50, 50]
+        expected_q1 = ["50.0%", "25.0%", "25.0%"]
+        expected_q2 = ["", "100.0%", ""]
+        expected_q3 = ["5.0%", "20.0%", "75.0%"]
+        expected_q4 = ["10.0%", "40.0%", "50.0%"]
+        expected_q5 = ["15.0%", "55.0%", "30.0%"]
+        expected_q6 = ["", "50.0%", "50.0%"]
 
         main_rows = report._get_main_rows(self.req)
 
@@ -448,7 +448,8 @@ class APEQCPFTPerinatalReportTests(DemoDatabaseTestCase):
     def test_ff_rows_contain_percentages(self):
         report = APEQCPFTPerinatalReport()
 
-        expected_ff = [25, 10, 15, 10, 5, 35]
+        expected_ff = ["25.0%", "10.0%", "15.0%",
+                       "10.0%", "5.0%", "35.0%"]
 
         ff_rows = report._get_ff_rows(self.req)
 
