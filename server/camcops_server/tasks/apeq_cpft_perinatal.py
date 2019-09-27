@@ -200,7 +200,7 @@ class APEQCPFTPerinatalReport(Report):
 
     def _get_main_column_headings(self, req: "CamcopsRequest") -> List[str]:
         _ = req.gettext
-        names = [_("Question")]
+        names = [_("Question"), _("Total responses")]
 
         for n in range(0, 2 + 1):
             names.append(self.task.wxstring(req, f"main_a{n}"))
@@ -228,7 +228,8 @@ class APEQCPFTPerinatalReport(Report):
 
     def _get_ff_column_headings(self, req: "CamcopsRequest") -> List[str]:
         _ = req.gettext
-        return [_("Question")] + self.task.get_ff_options(req)
+        return [_("Question"),
+                _("Total responses")] + self.task.get_ff_options(req)
 
     def _get_ff_rows(self, req: "CamcopsRequest") -> List[str]:
         """
@@ -313,17 +314,19 @@ class APEQCPFTPerinatalReport(Report):
                 .where(column(column_name).isnot(None))
             )
 
-            row = [question] + [""] * num_answers
+            total_responses = req.dbsession.execute(total_query).fetchone()[0]
+
+            row = [question] + [total_responses] + [""] * num_answers
 
             """
-            SELECT col, ((100 * COUNT(col)) / total_query)
+            SELECT total_responses,col, ((100 * COUNT(col)) / total_responses)
             FROM apeq_cpft_perinatal WHERE col is not NULL
             GROUP BY col
             """
             query = (
                 select([
                     column(column_name),
-                    ((100*func.count(column_name))/total_query)
+                    ((100*func.count(column_name))/total_responses)
                 ])
                 .select_from(self.task.__table__)
                 .where(column(column_name).isnot(None))
@@ -331,7 +334,7 @@ class APEQCPFTPerinatalReport(Report):
             )
 
             for result in req.dbsession.execute(query):
-                row[result[0]+1] = "{0:.1f}%".format(result[1])
+                row[result[0]+2] = "{0:.1f}%".format(result[1])
 
             rows.append(row)
 
@@ -429,12 +432,12 @@ class APEQCPFTPerinatalReportTests(DemoDatabaseTestCase):
     def test_main_rows_contain_percentages(self):
         report = APEQCPFTPerinatalReport()
 
-        expected_q1 = ["50.0%", "25.0%", "25.0%"]
-        expected_q2 = ["", "100.0%", ""]
-        expected_q3 = ["5.0%", "20.0%", "75.0%"]
-        expected_q4 = ["10.0%", "40.0%", "50.0%"]
-        expected_q5 = ["15.0%", "55.0%", "30.0%"]
-        expected_q6 = ["", "50.0%", "50.0%"]
+        expected_q1 = [20, "50.0%", "25.0%", "25.0%"]
+        expected_q2 = [20, "", "100.0%", ""]
+        expected_q3 = [20, "5.0%", "20.0%", "75.0%"]
+        expected_q4 = [20, "10.0%", "40.0%", "50.0%"]
+        expected_q5 = [20, "15.0%", "55.0%", "30.0%"]
+        expected_q6 = [18, "", "50.0%", "50.0%"]
 
         main_rows = report._get_main_rows(self.req)
 
@@ -448,7 +451,7 @@ class APEQCPFTPerinatalReportTests(DemoDatabaseTestCase):
     def test_ff_rows_contain_percentages(self):
         report = APEQCPFTPerinatalReport()
 
-        expected_ff = ["25.0%", "10.0%", "15.0%",
+        expected_ff = [20, "25.0%", "10.0%", "15.0%",
                        "10.0%", "5.0%", "35.0%"]
 
         ff_rows = report._get_ff_rows(self.req)
