@@ -27,6 +27,13 @@ camcops_server/templates/tasks/apeq_cpft_perinatal_report.mako
 </%doc>
 
 <%inherit file="base_web.mako"/>
+<%block name="css">
+${parent.css()}
+
+h2, h3 {
+    margin-top:20px;
+}
+</%block>
 
 <%!
 from camcops_server.cc_modules.cc_pyramid import Routes, ViewParam
@@ -41,7 +48,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewParam
 
 <%include file="table.mako" args="column_headings=main_column_headings, rows=main_rows"/>
 
-<h2>${_("Friends/family questions")}</h2>
+<h2>${_("Friends / family questions")}</h2>
 
 <%include file="table.mako" args="column_headings=ff_column_headings, rows=ff_rows"/>
 
