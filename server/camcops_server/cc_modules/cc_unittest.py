@@ -47,6 +47,7 @@ from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
+    from camcops_server.cc_modules.cc_patient import Patient
     from camcops_server.cc_modules.cc_task import Task
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
@@ -177,7 +178,7 @@ class DemoDatabaseTestCase(DemoRequestTestCase):
 
         self.create_tasks()
 
-    def create_patient_with_two_idnums(self):
+    def create_patient_with_two_idnums(self) -> "Patient":
         from camcops_server.cc_modules.cc_patient import Patient
         from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
         # Populate database with two of everything
@@ -206,7 +207,7 @@ class DemoDatabaseTestCase(DemoRequestTestCase):
 
         return patient
 
-    def create_patient_with_one_idnum(self):
+    def create_patient_with_one_idnum(self) -> "Patient":
         from camcops_server.cc_modules.cc_patient import Patient
         from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
         patient = Patient()
@@ -227,7 +228,7 @@ class DemoDatabaseTestCase(DemoRequestTestCase):
 
         return patient
 
-    def create_tasks(self):
+    def create_tasks(self) -> None:
         from camcops_server.cc_modules.cc_blob import Blob
         from camcops_server.tasks.photo import Photo
         from camcops_server.cc_modules.cc_task import Task

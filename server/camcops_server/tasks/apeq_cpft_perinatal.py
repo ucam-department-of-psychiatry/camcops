@@ -26,7 +26,7 @@ camcops_server/tasks/apeq_cpft_perinatal.py
 
 """
 
-from typing import Dict, List, Optional
+from typing import Dict, Generator, List, Optional
 
 from cardinal_pythonlib.classes import classproperty
 
@@ -177,6 +177,7 @@ class APEQCPFTPerinatalReport(Report):
 
         self.task = APEQCPFTPerinatal()
 
+    # noinspection PyMethodParameters
     @classproperty
     def report_id(cls) -> str:
         return "apeq_cpft_perinatal"
@@ -186,6 +187,7 @@ class APEQCPFTPerinatalReport(Report):
         _ = req.gettext
         return _("APEQ CPFT Perinatal — Question summaries")
 
+    # noinspection PyMethodParameters
     @classproperty
     def superuser_only(cls) -> bool:
         return False
@@ -213,7 +215,7 @@ class APEQCPFTPerinatalReport(Report):
 
         return names
 
-    def _get_main_rows(self, req: "CamcopsRequest") -> List[str]:
+    def _get_main_rows(self, req: "CamcopsRequest") -> List[List[str]]:
         """
         Percentage of people who answered x for each question
         """
@@ -237,7 +239,7 @@ class APEQCPFTPerinatalReport(Report):
         return [_("Question"),
                 _("Total responses")] + self.task.get_ff_options(req)
 
-    def _get_ff_rows(self, req: "CamcopsRequest") -> List[str]:
+    def _get_ff_rows(self, req: "CamcopsRequest") -> List[List[str]]:
         """
         Percentage of people who answered x for the friends/family question
         """
@@ -252,13 +254,14 @@ class APEQCPFTPerinatalReport(Report):
             num_answers=6
         )
 
-    def _get_ff_why_rows(self, req: "CamcopsRequest") -> List[str]:
+    def _get_ff_why_rows(self, req: "CamcopsRequest") -> List[List[str]]:
         """
         Reasons for giving a particular answer to the friends/family question
         """
 
         options = self.task.get_ff_options(req)
 
+        # noinspection PyUnresolvedReferences
         query = (
             select([
                 column("ff_rating"),
@@ -286,6 +289,7 @@ class APEQCPFTPerinatalReport(Report):
         A list of all the additional comments
         """
 
+        # noinspection PyUnresolvedReferences
         query = (
             select([
                 column("comments"),
@@ -306,14 +310,14 @@ class APEQCPFTPerinatalReport(Report):
     def _get_response_percentages(self,
                                   req: "CamcopsRequest",
                                   column_dict: Dict[str, str],
-                                  num_answers: int) -> List[str]:
-
+                                  num_answers: int) -> List[List[str]]:
         rows = []
 
         for column_name, question in column_dict.items():
             """
             SELECT COUNT(col) FROM apeq_cpft_perinatal WHERE col IS NOT NULL
             """
+            # noinspection PyUnresolvedReferences
             total_query = (
                 select([func.count(column_name)])
                 .select_from(self.task.__table__)
@@ -329,10 +333,11 @@ class APEQCPFTPerinatalReport(Report):
             FROM apeq_cpft_perinatal WHERE col is not NULL
             GROUP BY col
             """
+            # noinspection PyUnresolvedReferences
             query = (
                 select([
                     column(column_name),
-                    ((100*func.count(column_name))/total_responses)
+                    ((100 * func.count(column_name))/total_responses)
                 ])
                 .select_from(self.task.__table__)
                 .where(column(column_name).isnot(None))
@@ -340,7 +345,7 @@ class APEQCPFTPerinatalReport(Report):
             )
 
             for result in req.dbsession.execute(query):
-                row[result[0]+2] = "{0:.1f}%".format(result[1])
+                row[result[0] + 2] = "{0:.1f}%".format(result[1])
 
             rows.append(row)
 
@@ -350,12 +355,14 @@ class APEQCPFTPerinatalReport(Report):
 # =============================================================================
 # Unit tests
 # =============================================================================
+
 class APEQCPFTPerinatalReportTests(DemoDatabaseTestCase):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.id_sequence = self.get_id()
 
-    def get_id(self):
+    @staticmethod
+    def get_id() -> Generator[int, None, None]:
         i = 1
 
         while True:
@@ -388,7 +395,8 @@ class APEQCPFTPerinatalReportTests(DemoDatabaseTestCase):
                 4 - 5%
                 5 - 35%
 
-                          q1 q2 q3 q4 q5 q6 ff"""
+                          q1 q2 q3 q4 q5 q6 ff
+        """
         self._create_task(0, 1, 0, 0, 2, 2, 5, ff_why="ff_5_1")
         self._create_task(0, 1, 1, 0, 2, 2, 5, ff_why="ff_5_2",
                           comments="comments_2")
@@ -416,10 +424,15 @@ class APEQCPFTPerinatalReportTests(DemoDatabaseTestCase):
 
         self.dbsession.commit()
 
-    def _create_task(
-        self, q1: int, q2: int, q3: int, q4: int, q5: int, q6: int,
-        ff_rating: int, ff_why: str=None, comments: str=None
-    ):
+    def _create_task(self,
+                     q1: Optional[int],
+                     q2: Optional[int],
+                     q3: Optional[int],
+                     q4: Optional[int],
+                     q5: Optional[int],
+                     q6: Optional[int],
+                     ff_rating: int,
+                     ff_why: str = None, comments: str = None) -> None:
         task = APEQCPFTPerinatal()
         self.apply_standard_task_fields(task)
         task.id = next(self.id_sequence)
@@ -435,7 +448,7 @@ class APEQCPFTPerinatalReportTests(DemoDatabaseTestCase):
 
         self.dbsession.add(task)
 
-    def test_main_rows_contain_percentages(self):
+    def test_main_rows_contain_percentages(self) -> None:
         report = APEQCPFTPerinatalReport()
 
         expected_q1 = [20, "50.0%", "25.0%", "25.0%"]
@@ -454,7 +467,7 @@ class APEQCPFTPerinatalReportTests(DemoDatabaseTestCase):
         self.assertEqual(main_rows[4][1:], expected_q5)
         self.assertEqual(main_rows[5][1:], expected_q6)
 
-    def test_ff_rows_contain_percentages(self):
+    def test_ff_rows_contain_percentages(self) -> None:
         report = APEQCPFTPerinatalReport()
 
         expected_ff = [20, "25.0%", "10.0%", "15.0%",
@@ -464,7 +477,7 @@ class APEQCPFTPerinatalReportTests(DemoDatabaseTestCase):
 
         self.assertEqual(ff_rows[0][1:], expected_ff)
 
-    def test_ff_why_rows_contain_reasons(self):
+    def test_ff_why_rows_contain_reasons(self) -> None:
         report = APEQCPFTPerinatalReport()
 
         expected_reasons = [
@@ -482,7 +495,7 @@ class APEQCPFTPerinatalReportTests(DemoDatabaseTestCase):
 
         self.assertEqual(ff_why_rows, expected_reasons)
 
-    def test_comments(self):
+    def test_comments(self) -> None:
         report = APEQCPFTPerinatalReport()
 
         expected_comments = [

@@ -82,7 +82,7 @@ div {
     padding: ${va.NORMALPAD};
 }
 em {
-    color: rgb(0, 0, 255);
+    color: rgb(0, 0, 255);  /* blue */
     font-style: normal;
 }
 h1 {
@@ -144,25 +144,25 @@ tr, th, td {
 }
 
 blockquote > p {
-    background: #eee;
+    background: #eee;  /* light grey */
     padding: 15px;
 }
 
 blockquote > p::before {
-    content: '\201C';
+    content: '\201C';  /* left double quote */
 }
 
 blockquote > p::after {
-    content: '\201D';
+    content: '\201D';  /* right double quote */
 }
 
 /* Specific classes */
 
 .badidpolicy_mild {
-    background-color: rgb(255, 255, 153);  /* pale yellow */
+    background-color: rgb(255, 255, 153);  /* canary */
 }
 .badidpolicy_severe {
-    background-color: rgb(255, 255, 0);  /* bright yellow */
+    background-color: rgb(255, 255, 0);  /* yellow */
 }
 .invalid_id_number_foreground {
     color: rgb(128, 0, 128);  /* purple */
