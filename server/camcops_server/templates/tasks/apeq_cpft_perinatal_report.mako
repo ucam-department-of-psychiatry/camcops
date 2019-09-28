@@ -1,7 +1,7 @@
 ## -*- coding: utf-8 -*-
 <%doc>
 
-camcops_server/templates/menu/report.mako
+camcops_server/templates/tasks/apeq_cpft_perinatal_report.mako
 
 ===============================================================================
 
@@ -26,27 +26,54 @@ camcops_server/templates/menu/report.mako
 
 </%doc>
 
-## <%page args="title: str, column_names: List[str], page: CamcopsPage"/>
 <%inherit file="base_web.mako"/>
+<%block name="css">
+${parent.css()}
+
+h2, h3 {
+    margin-top: 20px;
+}
+
+.table-cell {
+    text-align: right;
+}
+
+.table-cell.col-0 {
+    text-align: initial;
+}
+
+.ff-why-table > tbody > tr > .col-1 {
+    text-align: initial;
+}
+</%block>
 
 <%!
-from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
+from camcops_server.cc_modules.cc_pyramid import Routes, ViewParam
 %>
+
 
 <%include file="db_user_info.mako"/>
 
 <h1>${ title | h }</h1>
 
-<%block name="additional_report_above_results"></%block>
+<h2>${_("Main questions")}</h2>
 
-<div>${page.pager()}</div>
+<%include file="table.mako" args="column_headings=main_column_headings, rows=main_rows"/>
 
-<%include file="table.mako" args="column_headings=column_names, rows=page"/>
+<h2>${_("Friends / family questions")}</h2>
 
-<div>${page.pager()}</div>
+<%include file="table.mako" args="column_headings=ff_column_headings, rows=ff_rows"/>
 
-<%block name="additional_report_below_results"></%block>
+<h3>${_("Reasons given for the above responses")}</h3>
 
+<%include file="table.mako" args="column_headings=[], rows=ff_why_rows, table_class='ff-why-table'"/>
+
+<h2>${_("Comments")}</h2>
+%for comment in comments:
+   <blockquote>
+       <p>${comment | h}</p>
+   </blockquote>
+%endfor
 <div>
     <a href="${ request.route_url(Routes.OFFER_REPORT, _query={ViewParam.REPORT_ID: report_id}) }">${_("Re-configure report")}</a>
 </div>
@@ -54,5 +81,3 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
     <a href="${request.route_url(Routes.REPORTS_MENU)}">${_("Return to reports menu")}</a>
 </div>
 <%include file="to_main_menu.mako"/>
-
-<%block name="additional_report_below_menu"></%block>

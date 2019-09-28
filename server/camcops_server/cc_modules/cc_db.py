@@ -1022,7 +1022,7 @@ def add_multiple_columns(
     for n in range(start, end + 1):
         nstr = str(n)
         i = n - start
-        colname = prefix + nstr
+        colname = prefix + nstr + suffix
         if comment_fmt:
             s = ""
             if 0 <= i < len(comment_strings):

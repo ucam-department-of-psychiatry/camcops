@@ -1,7 +1,7 @@
 ## -*- coding: utf-8 -*-
 <%doc>
 
-camcops_server/templates/menu/report.mako
+camcops_server/templates/snippets/table.mako
 
 ===============================================================================
 
@@ -25,34 +25,24 @@ camcops_server/templates/menu/report.mako
 ===============================================================================
 
 </%doc>
-
-## <%page args="title: str, column_names: List[str], page: CamcopsPage"/>
-<%inherit file="base_web.mako"/>
-
-<%!
-from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
-%>
-
-<%include file="db_user_info.mako"/>
-
-<h1>${ title | h }</h1>
-
-<%block name="additional_report_above_results"></%block>
-
-<div>${page.pager()}</div>
-
-<%include file="table.mako" args="column_headings=column_names, rows=page"/>
-
-<div>${page.pager()}</div>
-
-<%block name="additional_report_below_results"></%block>
-
-<div>
-    <a href="${ request.route_url(Routes.OFFER_REPORT, _query={ViewParam.REPORT_ID: report_id}) }">${_("Re-configure report")}</a>
-</div>
-<div>
-    <a href="${request.route_url(Routes.REPORTS_MENU)}">${_("Return to reports menu")}</a>
-</div>
-<%include file="to_main_menu.mako"/>
-
-<%block name="additional_report_below_menu"></%block>
+<%page args="column_headings, rows, table_class=None"/>
+<table
+%if table_class:
+class="${table_class}"
+%endif
+>
+    <tr>
+        %for c in column_headings:
+            <th>${c | h}</th>
+        %endfor
+    </tr>
+    %for row in rows:
+        <tr>
+            %for (col_index,val) in enumerate(row):
+                <td class="table-cell col-${col_index}">
+                    ${val | h}
+                </td>
+            %endfor
+        </tr>
+    %endfor
+</table>

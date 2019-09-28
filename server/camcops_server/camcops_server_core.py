@@ -114,7 +114,8 @@ from camcops_server.cc_modules.cc_taskindex import (
     check_indexes,
     reindex_everything,
 )  # nopep8
-from camcops_server.cc_modules.cc_tracker import TrackerCtvTests  # noqa
+# noinspection PyUnresolvedReferences
+from camcops_server.cc_modules.cc_tracker import TrackerCtvTests  # import side effects (register unit test)  # nopep8
 from camcops_server.cc_modules.cc_unittest import (
     DemoDatabaseTestCase,
     DemoRequestTestCase,
@@ -129,7 +130,8 @@ from camcops_server.cc_modules.celery import (
     CELERY_APP_NAME,
     CELERY_SOFT_TIME_LIMIT_SEC,
 )  # nopep8
-from camcops_server.cc_modules.webview import WebviewTests  # noqa
+# noinspection PyUnresolvedReferences
+from camcops_server.cc_modules.webview import WebviewTests  # import side effects (register unit test)  # nopep8
 
 log.info("Imports complete")
 log.info("Using {} tasks", len(Task.all_subclasses_by_tablename()))

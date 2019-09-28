@@ -713,6 +713,7 @@ class TaskIndexEntry(Base):
                 an SQLAlchemy Session
         """
 
+        # noinspection PyUnresolvedReferences
         idxtable = cls.__table__  # type: Table
         idxcols = idxtable.columns
         tasktablename = task.__class__.tablename

@@ -26,15 +26,22 @@ camcops_server/tasks/apeq_cpft_perinatal.py
 
 """
 
-from typing import Dict, List, Optional
+from typing import Dict, Generator, List, Optional
 
+from cardinal_pythonlib.classes import classproperty
+
+from pyramid.renderers import render_to_response
+from pyramid.response import Response
+from sqlalchemy.sql.expression import and_, column, func, select
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import tr_qa
+from camcops_server.cc_modules.cc_report import Report
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_task import Task
+from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 
 
 # =============================================================================
@@ -138,3 +145,363 @@ class APEQCPFTPerinatal(Task):
                        self.comments or "")}
             </table>
         """
+
+    def get_main_options(self, req: "CamcopsRequest") -> List[str]:
+        options = []
+
+        for n in range(0, 2 + 1):
+            options.append(self.wxstring(req, f"main_a{n}"))
+
+        return options
+
+    def get_ff_options(self, req: "CamcopsRequest") -> List[str]:
+        options = []
+
+        for n in range(0, 5 + 1):
+            options.append(self.wxstring(req, f"ff_a{n}"))
+
+        return options
+
+
+# =============================================================================
+# Reports
+# =============================================================================
+
+class APEQCPFTPerinatalReport(Report):
+    """
+    Provides a summary of each question, x% of people said each response etc.
+    Then a summary of the comments.
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.task = APEQCPFTPerinatal()
+
+    # noinspection PyMethodParameters
+    @classproperty
+    def report_id(cls) -> str:
+        return "apeq_cpft_perinatal"
+
+    @classmethod
+    def title(cls, req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("APEQ CPFT Perinatal — Question summaries")
+
+    # noinspection PyMethodParameters
+    @classproperty
+    def superuser_only(cls) -> bool:
+        return False
+
+    def get_response(self, req: "CamcopsRequest") -> Response:
+        return render_to_response(
+            "apeq_cpft_perinatal_report.mako",
+            dict(
+                title=self.title(req),
+                report_id=self.report_id,
+                main_column_headings=self._get_main_column_headings(req),
+                main_rows=self._get_main_rows(req),
+                ff_column_headings=self._get_ff_column_headings(req),
+                ff_rows=self._get_ff_rows(req),
+                ff_why_rows=self._get_ff_why_rows(req),
+                comments=self._get_comments(req)
+            ),
+            request=req
+        )
+
+    def _get_main_column_headings(self, req: "CamcopsRequest") -> List[str]:
+        _ = req.gettext
+        names = [_("Question"),
+                 _("Total responses")] + self.task.get_main_options(req)
+
+        return names
+
+    def _get_main_rows(self, req: "CamcopsRequest") -> List[List[str]]:
+        """
+        Percentage of people who answered x for each question
+        """
+        column_dict = {}
+
+        qnums = range(self.task.FIRST_MAIN_Q, self.task.LAST_MAIN_Q + 1)
+
+        for qnum in qnums:
+            column_name = f"{self.task.FN_QPREFIX}{qnum}"
+
+            column_dict[column_name] = self.task.wxstring(req, column_name)
+
+        return self._get_response_percentages(
+            req,
+            column_dict=column_dict,
+            num_answers=3
+        )
+
+    def _get_ff_column_headings(self, req: "CamcopsRequest") -> List[str]:
+        _ = req.gettext
+        return [_("Question"),
+                _("Total responses")] + self.task.get_ff_options(req)
+
+    def _get_ff_rows(self, req: "CamcopsRequest") -> List[List[str]]:
+        """
+        Percentage of people who answered x for the friends/family question
+        """
+        return self._get_response_percentages(
+            req,
+            column_dict={
+                "ff_rating": self.task.wxstring(
+                    req,
+                    f"{self.task.FN_QPREFIX}_ff_rating"
+                )
+            },
+            num_answers=6
+        )
+
+    def _get_ff_why_rows(self, req: "CamcopsRequest") -> List[List[str]]:
+        """
+        Reasons for giving a particular answer to the friends/family question
+        """
+
+        options = self.task.get_ff_options(req)
+
+        # noinspection PyUnresolvedReferences
+        query = (
+            select([
+                column("ff_rating"),
+                column("ff_why")
+            ])
+            .select_from(self.task.__table__)
+            .where(
+                and_(
+                    column("ff_rating").isnot(None),
+                    column("ff_why").isnot(None)
+                )
+            )
+            .order_by("ff_why")
+        )
+
+        rows = []
+
+        for result in req.dbsession.execute(query).fetchall():
+            rows.append([options[result[0]], result[1]])
+
+        return rows
+
+    def _get_comments(self, req: "CamcopsRequest") -> List[str]:
+        """
+        A list of all the additional comments
+        """
+
+        # noinspection PyUnresolvedReferences
+        query = (
+            select([
+                column("comments"),
+            ])
+            .select_from(self.task.__table__)
+            .where(
+                column("comments").isnot(None)
+            )
+        )
+
+        comments = []
+
+        for result in req.dbsession.execute(query).fetchall():
+            comments.append(result[0])
+
+        return comments
+
+    def _get_response_percentages(self,
+                                  req: "CamcopsRequest",
+                                  column_dict: Dict[str, str],
+                                  num_answers: int) -> List[List[str]]:
+        rows = []
+
+        for column_name, question in column_dict.items():
+            """
+            SELECT COUNT(col) FROM apeq_cpft_perinatal WHERE col IS NOT NULL
+            """
+            # noinspection PyUnresolvedReferences
+            total_query = (
+                select([func.count(column_name)])
+                .select_from(self.task.__table__)
+                .where(column(column_name).isnot(None))
+            )
+
+            total_responses = req.dbsession.execute(total_query).fetchone()[0]
+
+            row = [question] + [total_responses] + [""] * num_answers
+
+            """
+            SELECT total_responses,col, ((100 * COUNT(col)) / total_responses)
+            FROM apeq_cpft_perinatal WHERE col is not NULL
+            GROUP BY col
+            """
+            # noinspection PyUnresolvedReferences
+            query = (
+                select([
+                    column(column_name),
+                    ((100 * func.count(column_name))/total_responses)
+                ])
+                .select_from(self.task.__table__)
+                .where(column(column_name).isnot(None))
+                .group_by(column_name)
+            )
+
+            for result in req.dbsession.execute(query):
+                row[result[0] + 2] = "{0:.1f}%".format(result[1])
+
+            rows.append(row)
+
+        return rows
+
+
+# =============================================================================
+# Unit tests
+# =============================================================================
+
+class APEQCPFTPerinatalReportTests(DemoDatabaseTestCase):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.id_sequence = self.get_id()
+
+    @staticmethod
+    def get_id() -> Generator[int, None, None]:
+        i = 1
+
+        while True:
+            yield i
+            i += 1
+
+    def create_tasks(self):
+        """
+        20 tasks
+        Should give us:
+            q1: 0 - 50%,
+                1 - 25%
+                2 - 25%
+            q2: 1 - 100%
+            q3: 0 - 5%
+                1 - 20%
+                2 - 75%
+            q4: 0 - 10%
+                1 - 40%
+                2 - 50%
+            q5: 0 - 15%
+                1 - 55%
+                2 - 30%
+            q6: 1 - 50%
+                2 - 50%
+            ff: 0 - 25%
+                1 - 10%
+                2 - 15%
+                3 - 10%
+                4 - 5%
+                5 - 35%
+
+                          q1 q2 q3 q4 q5 q6 ff
+        """
+        self._create_task(0, 1, 0, 0, 2, 2, 5, ff_why="ff_5_1")
+        self._create_task(0, 1, 1, 0, 2, 2, 5, ff_why="ff_5_2",
+                          comments="comments_2")
+        self._create_task(0, 1, 1, 1, 2, 2, 5)
+        self._create_task(0, 1, 1, 1, 2, 2, 5)
+        self._create_task(0, 1, 1, 1, 2, 2, 5, comments="comments_5")
+
+        self._create_task(0, 1, 2, 1, 2, 2, 5)
+        self._create_task(0, 1, 2, 1, 1, 2, 5)
+        self._create_task(0, 1, 2, 1, 1, 2, 4, ff_why="ff_4_1")
+        self._create_task(0, 1, 2, 1, 1, 2, 3)
+        self._create_task(0, 1, 2, 1, 1, 1, 3, ff_why="ff_3_1")
+
+        self._create_task(1, 1, 2, 2, 1, 1, 2, ff_why="ff_2_1")
+        self._create_task(1, 1, 2, 2, 1, 1, 2)
+        self._create_task(1, 1, 2, 2, 1, 1, 2, ff_why="ff_2_2")
+        self._create_task(1, 1, 2, 2, 1, 1, 1, ff_why="ff_1_1")
+        self._create_task(1, 1, 2, 2, 1, 1, 1, ff_why="ff_1_2")
+
+        self._create_task(2, 1, 2, 2, 1, 1, 0)
+        self._create_task(2, 1, 2, 2, 1, 1, 0)
+        self._create_task(2, 1, 2, 2, 0, None, 0)
+        self._create_task(2, 1, 2, 2, 0, None, 0)
+        self._create_task(2, 1, 2, 2, 0, 1, 0, comments="comments_20")
+
+        self.dbsession.commit()
+
+    def _create_task(self,
+                     q1: Optional[int],
+                     q2: Optional[int],
+                     q3: Optional[int],
+                     q4: Optional[int],
+                     q5: Optional[int],
+                     q6: Optional[int],
+                     ff_rating: int,
+                     ff_why: str = None, comments: str = None) -> None:
+        task = APEQCPFTPerinatal()
+        self.apply_standard_task_fields(task)
+        task.id = next(self.id_sequence)
+        task.q1 = q1
+        task.q2 = q2
+        task.q3 = q3
+        task.q4 = q4
+        task.q5 = q5
+        task.q6 = q6
+        task.ff_rating = ff_rating
+        task.ff_why = ff_why
+        task.comments = comments
+
+        self.dbsession.add(task)
+
+    def test_main_rows_contain_percentages(self) -> None:
+        report = APEQCPFTPerinatalReport()
+
+        expected_q1 = [20, "50.0%", "25.0%", "25.0%"]
+        expected_q2 = [20, "", "100.0%", ""]
+        expected_q3 = [20, "5.0%", "20.0%", "75.0%"]
+        expected_q4 = [20, "10.0%", "40.0%", "50.0%"]
+        expected_q5 = [20, "15.0%", "55.0%", "30.0%"]
+        expected_q6 = [18, "", "50.0%", "50.0%"]
+
+        main_rows = report._get_main_rows(self.req)
+
+        self.assertEqual(main_rows[0][1:], expected_q1)
+        self.assertEqual(main_rows[1][1:], expected_q2)
+        self.assertEqual(main_rows[2][1:], expected_q3)
+        self.assertEqual(main_rows[3][1:], expected_q4)
+        self.assertEqual(main_rows[4][1:], expected_q5)
+        self.assertEqual(main_rows[5][1:], expected_q6)
+
+    def test_ff_rows_contain_percentages(self) -> None:
+        report = APEQCPFTPerinatalReport()
+
+        expected_ff = [20, "25.0%", "10.0%", "15.0%",
+                       "10.0%", "5.0%", "35.0%"]
+
+        ff_rows = report._get_ff_rows(self.req)
+
+        self.assertEqual(ff_rows[0][1:], expected_ff)
+
+    def test_ff_why_rows_contain_reasons(self) -> None:
+        report = APEQCPFTPerinatalReport()
+
+        expected_reasons = [
+            ["Extremely unlikely", "ff_1_1"],
+            ["Extremely unlikely", "ff_1_2"],
+            ["Unlikely", "ff_2_1"],
+            ["Unlikely", "ff_2_2"],
+            ["Neither likely nor unlikely", "ff_3_1"],
+            ["Likely", "ff_4_1"],
+            ["Extremely likely", "ff_5_1"],
+            ["Extremely likely", "ff_5_2"],
+        ]
+
+        ff_why_rows = report._get_ff_why_rows(self.req)
+
+        self.assertEqual(ff_why_rows, expected_reasons)
+
+    def test_comments(self) -> None:
+        report = APEQCPFTPerinatalReport()
+
+        expected_comments = [
+            "comments_2", "comments_5", "comments_20",
+        ]
+
+        comments = report._get_comments(self.req)
+
+        self.assertEqual(comments, expected_comments)
