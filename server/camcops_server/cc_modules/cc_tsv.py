@@ -34,6 +34,7 @@ import csv
 import io
 import logging
 from typing import Any, Dict, Iterable, List, Optional, Union
+from unittest import TestCase
 import zipfile
 
 from cardinal_pythonlib.excel import (
@@ -285,7 +286,11 @@ class TsvCollection(object):
         Returns the TSV collection as an XLSX (Excel) file.
         """
         wb = XLWorkbook()
-        wb.remove(wb.active)  # remove the autocreated blank sheet
+
+        # we may have zero pages if there were no rows
+        if len(self.pages) > 0:
+            wb.remove(wb.active)  # remove the autocreated blank sheet
+
         for page in self.pages:
             ws = wb.create_sheet(title=page.name)
             page.write_to_xlsx_worksheet(ws)
@@ -303,3 +308,18 @@ class TsvCollection(object):
                     page.write_to_ods_worksheet(sheet)
             contents = memfile.getvalue()
         return contents
+
+
+class TsvCollectionTests(TestCase):
+    def test_xlsx_created_from_zero_rows(self) -> None:
+        page = TsvPage(name="test", rows=[])
+        coll = TsvCollection()
+        coll.add_page(page)
+
+        output = coll.as_xlsx()
+
+        # https://en.wikipedia.org/wiki/List_of_file_signatures
+        self.assertEqual(output[0], 0x50)
+        self.assertEqual(output[1], 0x4B)
+        self.assertEqual(output[2], 0x03)
+        self.assertEqual(output[3], 0x04)
