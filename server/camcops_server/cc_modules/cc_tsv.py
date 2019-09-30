@@ -43,6 +43,7 @@ from cardinal_pythonlib.excel import (
 )
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from odswriter import ODSWriter, Sheet as ODSSheet
+from openpyxl import load_workbook
 from openpyxl.workbook.workbook import Workbook as XLWorkbook
 from openpyxl.worksheet.worksheet import Worksheet as XLWorksheet
 # from pyexcel_ods3 import save_data  # poor; use odswriter
@@ -292,9 +293,18 @@ class TsvCollection(object):
             wb.remove(wb.active)  # remove the autocreated blank sheet
 
         for page in self.pages:
-            ws = wb.create_sheet(title=page.name)
+            ws = wb.create_sheet(title=self.get_sheet_title(page))
             page.write_to_xlsx_worksheet(ws)
+
         return excel_to_bytes(wb)
+
+    def get_sheet_title(self, page: TsvPage) -> str:
+        title = page.name
+
+        if len(title) > 31:
+            title = f"{title[:28]}..."
+
+        return title
 
     def as_ods(self) -> bytes:
         """
@@ -323,3 +333,23 @@ class TsvCollectionTests(TestCase):
         self.assertEqual(output[1], 0x4B)
         self.assertEqual(output[2], 0x03)
         self.assertEqual(output[3], 0x04)
+
+    def test_page_names_over_31_chars_truncated(self):
+        page1 = TsvPage(name="abcdefghijklmnopqrstuvwxyz78901",
+                        rows=[{"test data 1": "row 1"}])
+        page2 = TsvPage(name="abcdefghijklmnopqrstuvwxyz789012345",
+                        rows=[{"test data 2": "row 1"}])
+        coll = TsvCollection()
+
+        coll.add_pages([page1, page2])
+
+        data = coll.as_xlsx()
+        buffer = io.BytesIO(data)
+        wb = load_workbook(buffer)
+        self.assertEqual(
+            wb.get_sheet_names(),
+            [
+                "abcdefghijklmnopqrstuvwxyz78901",
+                "abcdefghijklmnopqrstuvwxyz78...",
+            ]
+        )
