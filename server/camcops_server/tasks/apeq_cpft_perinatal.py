@@ -26,18 +26,31 @@ camcops_server/tasks/apeq_cpft_perinatal.py
 
 """
 
-from typing import Dict, Generator, List, Optional
+from typing import Dict, Generator, List, Optional, Type
 
 from cardinal_pythonlib.classes import classproperty
+from cardinal_pythonlib.datetimefunc import format_datetime
 
+import pendulum
 from pyramid.renderers import render_to_response
 from pyramid.response import Response
 from sqlalchemy.sql.expression import and_, column, func, select
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
-from camcops_server.cc_modules.cc_constants import CssClass
+from camcops_server.cc_modules.cc_constants import (
+    CssClass,
+    DateFormat,
+)
+from camcops_server.cc_modules.cc_forms import (
+    EndPendulumSelector,
+    ReportParamSchema,
+    StartPendulumSelector,
+)
 from camcops_server.cc_modules.cc_html import tr_qa
+from camcops_server.cc_modules.cc_pyramid import (
+    ViewParam,
+)
 from camcops_server.cc_modules.cc_report import Report
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_task import Task
@@ -168,6 +181,11 @@ class APEQCPFTPerinatal(Task):
 # Reports
 # =============================================================================
 
+class APEQCPFTPerinatalReportSchema(ReportParamSchema):
+    start_datetime = StartPendulumSelector()
+    end_datetime = EndPendulumSelector()
+
+
 class APEQCPFTPerinatalReport(Report):
     """
     Provides a summary of each question, x% of people said each response etc.
@@ -177,6 +195,10 @@ class APEQCPFTPerinatalReport(Report):
         super().__init__(*args, **kwargs)
 
         self.task = APEQCPFTPerinatal()
+
+        # Really only needed for tests
+        self.start_datetime = None
+        self.end_datetime = None
 
     # noinspection PyMethodParameters
     @classproperty
@@ -192,6 +214,29 @@ class APEQCPFTPerinatalReport(Report):
     @classproperty
     def superuser_only(cls) -> bool:
         return False
+
+    @staticmethod
+    def get_paramform_schema_class() -> Type[ReportParamSchema]:
+        return APEQCPFTPerinatalReportSchema
+
+    @classmethod
+    def get_specific_http_query_keys(cls) -> List[str]:
+        return [
+            ViewParam.START_DATETIME,
+            ViewParam.END_DATETIME,
+        ]
+
+    def get_response(self, req: "CamcopsRequest") -> Response:
+        self.start_datetime = format_datetime(
+            req.get_datetime_param(ViewParam.START_DATETIME),
+            DateFormat.ERA
+        )
+        self.end_datetime = format_datetime(
+            req.get_datetime_param(ViewParam.END_DATETIME),
+            DateFormat.ERA
+        )
+
+        return super().get_response(req)
 
     def render_html(self, req: "CamcopsRequest") -> Response:
         cell_format = "{0:.1f}%"
@@ -351,11 +396,25 @@ class APEQCPFTPerinatalReport(Report):
             """
             SELECT COUNT(col) FROM apeq_cpft_perinatal WHERE col IS NOT NULL
             """
+            wheres = [
+                column(column_name).isnot(None)
+            ]
+
+            if self.start_datetime is not None:
+                wheres.append(
+                    column("when_created") >= self.start_datetime
+                )
+
+            if self.end_datetime is not None:
+                wheres.append(
+                    column("when_created") < self.end_datetime
+                )
+
             # noinspection PyUnresolvedReferences
             total_query = (
                 select([func.count(column_name)])
                 .select_from(self.task.__table__)
-                .where(column(column_name).isnot(None))
+                .where(and_(*wheres))
             )
 
             total_responses = req.dbsession.execute(total_query).fetchone()[0]
@@ -374,7 +433,7 @@ class APEQCPFTPerinatalReport(Report):
                     ((100 * func.count(column_name))/total_responses)
                 ])
                 .select_from(self.task.__table__)
-                .where(column(column_name).isnot(None))
+                .where(and_(*wheres))
                 .group_by(column_name)
             )
 
@@ -390,7 +449,7 @@ class APEQCPFTPerinatalReport(Report):
 # Unit tests
 # =============================================================================
 
-class APEQCPFTPerinatalReportTests(DemoDatabaseTestCase):
+class APEQCPFTPerinatalReportTestCase(DemoDatabaseTestCase):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.id_sequence = self.get_id()
@@ -403,7 +462,38 @@ class APEQCPFTPerinatalReportTests(DemoDatabaseTestCase):
             yield i
             i += 1
 
-    def create_tasks(self):
+    def create_task(self,
+                    q1: Optional[int],
+                    q2: Optional[int],
+                    q3: Optional[int],
+                    q4: Optional[int],
+                    q5: Optional[int],
+                    q6: Optional[int],
+                    ff_rating: int,
+                    ff_why: str = None,
+                    comments: str = None,
+                    era: str = None) -> None:
+        task = APEQCPFTPerinatal()
+        self.apply_standard_task_fields(task)
+        task.id = next(self.id_sequence)
+        task.q1 = q1
+        task.q2 = q2
+        task.q3 = q3
+        task.q4 = q4
+        task.q5 = q5
+        task.q6 = q6
+        task.ff_rating = ff_rating
+        task.ff_why = ff_why
+        task.comments = comments
+
+        if era is not None:
+            self.when_created = pendulum.parse(era)
+
+        self.dbsession.add(task)
+
+
+class APEQCPFTPerinatalReportTests(APEQCPFTPerinatalReportTestCase):
+    def create_tasks(self) -> None:
         """
         20 tasks
         Should give us:
@@ -429,58 +519,34 @@ class APEQCPFTPerinatalReportTests(DemoDatabaseTestCase):
                 4 - 5%
                 5 - 35%
 
-                          q1 q2 q3 q4 q5 q6 ff
+                         q1 q2 q3 q4 q5 q6 ff
         """
-        self._create_task(0, 1, 0, 0, 2, 2, 5, ff_why="ff_5_1")
-        self._create_task(0, 1, 1, 0, 2, 2, 5, ff_why="ff_5_2",
-                          comments="comments_2")
-        self._create_task(0, 1, 1, 1, 2, 2, 5)
-        self._create_task(0, 1, 1, 1, 2, 2, 5)
-        self._create_task(0, 1, 1, 1, 2, 2, 5, comments="comments_5")
+        self.create_task(0, 1, 0, 0, 2, 2, 5, ff_why="ff_5_1")
+        self.create_task(0, 1, 1, 0, 2, 2, 5, ff_why="ff_5_2",
+                         comments="comments_2")
+        self.create_task(0, 1, 1, 1, 2, 2, 5)
+        self.create_task(0, 1, 1, 1, 2, 2, 5)
+        self.create_task(0, 1, 1, 1, 2, 2, 5, comments="comments_5")
 
-        self._create_task(0, 1, 2, 1, 2, 2, 5)
-        self._create_task(0, 1, 2, 1, 1, 2, 5)
-        self._create_task(0, 1, 2, 1, 1, 2, 4, ff_why="ff_4_1")
-        self._create_task(0, 1, 2, 1, 1, 2, 3)
-        self._create_task(0, 1, 2, 1, 1, 1, 3, ff_why="ff_3_1")
+        self.create_task(0, 1, 2, 1, 2, 2, 5)
+        self.create_task(0, 1, 2, 1, 1, 2, 5)
+        self.create_task(0, 1, 2, 1, 1, 2, 4, ff_why="ff_4_1")
+        self.create_task(0, 1, 2, 1, 1, 2, 3)
+        self.create_task(0, 1, 2, 1, 1, 1, 3, ff_why="ff_3_1")
 
-        self._create_task(1, 1, 2, 2, 1, 1, 2, ff_why="ff_2_1")
-        self._create_task(1, 1, 2, 2, 1, 1, 2)
-        self._create_task(1, 1, 2, 2, 1, 1, 2, ff_why="ff_2_2")
-        self._create_task(1, 1, 2, 2, 1, 1, 1, ff_why="ff_1_1")
-        self._create_task(1, 1, 2, 2, 1, 1, 1, ff_why="ff_1_2")
+        self.create_task(1, 1, 2, 2, 1, 1, 2, ff_why="ff_2_1")
+        self.create_task(1, 1, 2, 2, 1, 1, 2)
+        self.create_task(1, 1, 2, 2, 1, 1, 2, ff_why="ff_2_2")
+        self.create_task(1, 1, 2, 2, 1, 1, 1, ff_why="ff_1_1")
+        self.create_task(1, 1, 2, 2, 1, 1, 1, ff_why="ff_1_2")
 
-        self._create_task(2, 1, 2, 2, 1, 1, 0)
-        self._create_task(2, 1, 2, 2, 1, 1, 0)
-        self._create_task(2, 1, 2, 2, 0, None, 0)
-        self._create_task(2, 1, 2, 2, 0, None, 0)
-        self._create_task(2, 1, 2, 2, 0, 1, 0, comments="comments_20")
+        self.create_task(2, 1, 2, 2, 1, 1, 0)
+        self.create_task(2, 1, 2, 2, 1, 1, 0)
+        self.create_task(2, 1, 2, 2, 0, None, 0)
+        self.create_task(2, 1, 2, 2, 0, None, 0)
+        self.create_task(2, 1, 2, 2, 0, 1, 0, comments="comments_20")
 
         self.dbsession.commit()
-
-    def _create_task(self,
-                     q1: Optional[int],
-                     q2: Optional[int],
-                     q3: Optional[int],
-                     q4: Optional[int],
-                     q5: Optional[int],
-                     q6: Optional[int],
-                     ff_rating: int,
-                     ff_why: str = None, comments: str = None) -> None:
-        task = APEQCPFTPerinatal()
-        self.apply_standard_task_fields(task)
-        task.id = next(self.id_sequence)
-        task.q1 = q1
-        task.q2 = q2
-        task.q3 = q3
-        task.q4 = q4
-        task.q5 = q5
-        task.q6 = q6
-        task.ff_rating = ff_rating
-        task.ff_why = ff_why
-        task.comments = comments
-
-        self.dbsession.add(task)
 
     def test_main_rows_contain_percentages(self) -> None:
         report = APEQCPFTPerinatalReport()
@@ -558,3 +624,34 @@ class APEQCPFTPerinatalReportTests(DemoDatabaseTestCase):
         comments = report._get_comments(self.req)
 
         self.assertEqual(comments, expected_comments)
+
+
+class APEQCPFTPerinatalReportDateRangeTests(APEQCPFTPerinatalReportTestCase):
+    def create_tasks(self) -> None:
+        self.create_task(1, 0, 0, 0, 0, 0, 0,
+                         ff_why="ff why 1", era="2018-10-01T00:00+0000")
+        self.create_task(0, 0, 0, 0, 0, 0, 0,
+                         ff_why="ff why 2", era="2018-10-02T00:00+0000")
+        self.create_task(0, 0, 0, 0, 0, 0, 0,
+                         ff_why="ff why 3", era="2018-10-03T00:00+0000")
+        self.create_task(0, 0, 0, 0, 0, 0, 0,
+                         ff_why="ff why 4", era="2018-10-04T00:00+0000")
+        self.create_task(1, 0, 0, 0, 0, 0, 0,
+                         ff_why="ff why 5", era="2018-10-05T00:00+0000")
+        self.dbsession.commit()
+
+    def test_main_rows_filtered_by_date(self) -> None:
+        report = APEQCPFTPerinatalReport()
+
+        report.start_datetime = "2019-10-02T00:00:00.000000+00:00"
+        report.end_datetime = "2019-10-05T00:00:00.000000+00:00"
+
+        rows = report._get_main_rows(self.req, cell_format="{0:.1f}%")
+
+        # There should be three tasks included in the calculation.
+        self.assertEqual(rows[0][1], "3")
+
+        # For question 1 all of them answered 0 so we would expect
+        # 100%. If the results aren't being filtered we will get
+        # 60%
+        self.assertEqual(rows[0][2], "100.0%")
