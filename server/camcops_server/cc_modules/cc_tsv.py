@@ -33,6 +33,7 @@ from collections import OrderedDict
 import csv
 import io
 import logging
+import re
 from typing import Any, Dict, Iterable, List, Optional, Union
 from unittest import TestCase
 import zipfile
@@ -299,7 +300,8 @@ class TsvCollection(object):
         return excel_to_bytes(wb)
 
     def get_sheet_title(self, page: TsvPage) -> str:
-        title = page.name
+        # See openpyxl/workbook/child.py
+        title = re.sub(r'[\\*?:/\[\]]', "_", page.name)
 
         if len(title) > 31:
             title = f"{title[:28]}..."
@@ -357,7 +359,7 @@ class TsvCollectionTests(TestCase):
             ]
         )
 
-    def test_page_name_exactly_31_chars_not_truncated(self) -> None:
+    def test_xlsx_page_name_exactly_31_chars_not_truncated(self) -> None:
         page = TsvPage(name="abcdefghijklmnopqrstuvwxyz78901",
                        rows=[{"test data 1": "row 1"}])
         coll = TsvCollection()
@@ -367,7 +369,7 @@ class TsvCollectionTests(TestCase):
             "abcdefghijklmnopqrstuvwxyz78901"
         )
 
-    def test_page_name_over_31_chars_truncated(self) -> None:
+    def test_xlsx_page_name_over_31_chars_truncated(self) -> None:
         page = TsvPage(name="abcdefghijklmnopqrstuvwxyz78901234",
                        rows=[{"test data 1": "row 1"}])
         coll = TsvCollection()
@@ -375,4 +377,14 @@ class TsvCollectionTests(TestCase):
         self.assertEqual(
             coll.get_sheet_title(page),
             "abcdefghijklmnopqrstuvwxyz78..."
+        )
+
+    def test_xlsx_invalid_chars_in_page_name_replaced(self) -> None:
+        page = TsvPage(name="[a]b\\c:d/e*f?g",
+                       rows=[{"test data 1": "row 1"}])
+        coll = TsvCollection()
+
+        self.assertEqual(
+            coll.get_sheet_title(page),
+            "_a_b_c_d_e_f_g"
         )
