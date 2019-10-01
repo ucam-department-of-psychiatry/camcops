@@ -322,6 +322,10 @@ class TsvCollection(object):
         return contents
 
 
+# =============================================================================
+# Unit tests
+# =============================================================================
+
 class TsvCollectionTests(TestCase):
     def test_xlsx_created_from_zero_rows(self) -> None:
         page = TsvPage(name="test", rows=[])
