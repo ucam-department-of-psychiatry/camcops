@@ -294,9 +294,9 @@ class Report(object):
                                           DEFAULT_ROWS_PER_PAGE)
         page_num = req.get_int_param(ViewParam.PAGE, 1)
 
-        column_names, rows = self._get_column_names_and_rows(req)
+        plain_report = self._get_plain_report(req)
 
-        page = CamcopsPage(collection=rows,
+        page = CamcopsPage(collection=plain_report.rows,
                            page=page_num,
                            items_per_page=rows_per_page,
                            url_maker=PageUrl(req),
@@ -304,7 +304,7 @@ class Report(object):
 
         return self.render_single_page_html(
             req=req,
-            column_names=column_names,
+            column_names=plain_report.column_names,
             page=page
         )
 
@@ -338,11 +338,11 @@ class Report(object):
         return tsvcoll
 
     def get_tsv_pages(self, req: "CamcopsRequest") -> List[TsvPage]:
-        column_names, rows = self._get_column_names_and_rows(req)
+        plain_report = self._get_plain_report(req)
 
         page = self.get_tsv_page(name=self.title(req),
-                                 column_names=column_names,
-                                 rows=rows)
+                                 column_names=plain_report.column_names,
+                                 rows=plain_report.rows)
         return [page]
 
     def get_tsv_page(self, name: str,
@@ -353,7 +353,7 @@ class Report(object):
 
         return page
 
-    def get_filename(self, req: "CamcopsRequest", viewtype: str):
+    def get_filename(self, req: "CamcopsRequest", viewtype: str) -> str:
         extension_dict = {
             ViewArg.ODS: 'ods',
             ViewArg.TSV: 'tsv',
@@ -392,22 +392,23 @@ class Report(object):
             request=req
         )
 
-    def _get_column_names_and_rows(self, req: "CamcopsRequest"):
+    def _get_plain_report(self, req: "CamcopsRequest") -> PlainReportType:
         statement = self.get_query(req)
         if statement is not None:
             rp = req.dbsession.execute(statement)  # type: ResultProxy
             column_names = rp.keys()
             rows = rp.fetchall()
+
+            plain_report = PlainReportType(rows=rows,
+                                           column_names=column_names)
         else:
             plain_report = self.get_rows_colnames(req)
             if plain_report is None:
                 raise NotImplementedError(
                     "Report did not implement either of get_query()"
                     " or get_rows_colnames()")
-            column_names = plain_report.column_names
-            rows = plain_report.rows
 
-        return column_names, rows
+        return plain_report
 
 
 # =============================================================================
