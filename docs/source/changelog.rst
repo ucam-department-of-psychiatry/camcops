@@ -2569,3 +2569,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Group administrators can now erase tasks entirely from the database
   :ref:`Erase task instance entirely <erase_task_entirely>`
+
+- Excel XLSX and OpenOffice/LibreOffice ODS formats supported for report download.
