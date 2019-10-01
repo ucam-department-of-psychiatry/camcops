@@ -228,6 +228,9 @@ class Report(object):
         classes = all_subclasses(cls)  # type: List[Type["Report"]]
         instantiated_report_classes = []  # type: List[Type["Report"]]
         for reportcls in classes:
+            if reportcls.__name__ == 'TestReport':
+                continue
+
             try:
                 _ = reportcls.report_id
                 instantiated_report_classes.append(reportcls)
