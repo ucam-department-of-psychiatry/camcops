@@ -334,14 +334,16 @@ class TsvCollectionTests(TestCase):
         self.assertEqual(output[2], 0x03)
         self.assertEqual(output[3], 0x04)
 
-    def test_page_names_over_31_chars_truncated(self):
-        page1 = TsvPage(name="abcdefghijklmnopqrstuvwxyz78901",
+    def test_xlsx_worksheet_names_are_page_names(self) -> None:
+        page1 = TsvPage(name="name 1",
                         rows=[{"test data 1": "row 1"}])
-        page2 = TsvPage(name="abcdefghijklmnopqrstuvwxyz789012345",
+        page2 = TsvPage(name="name 2",
                         rows=[{"test data 2": "row 1"}])
+        page3 = TsvPage(name="name 3",
+                        rows=[{"test data 3": "row 1"}])
         coll = TsvCollection()
 
-        coll.add_pages([page1, page2])
+        coll.add_pages([page1, page2, page3])
 
         data = coll.as_xlsx()
         buffer = io.BytesIO(data)
@@ -349,7 +351,28 @@ class TsvCollectionTests(TestCase):
         self.assertEqual(
             wb.get_sheet_names(),
             [
-                "abcdefghijklmnopqrstuvwxyz78901",
-                "abcdefghijklmnopqrstuvwxyz78...",
+                "name 1",
+                "name 2",
+                "name 3",
             ]
+        )
+
+    def test_page_name_exactly_31_chars_not_truncated(self) -> None:
+        page = TsvPage(name="abcdefghijklmnopqrstuvwxyz78901",
+                       rows=[{"test data 1": "row 1"}])
+        coll = TsvCollection()
+
+        self.assertEqual(
+            coll.get_sheet_title(page),
+            "abcdefghijklmnopqrstuvwxyz78901"
+        )
+
+    def test_page_name_over_31_chars_truncated(self) -> None:
+        page = TsvPage(name="abcdefghijklmnopqrstuvwxyz78901234",
+                       rows=[{"test data 1": "row 1"}])
+        coll = TsvCollection()
+
+        self.assertEqual(
+            coll.get_sheet_title(page),
+            "abcdefghijklmnopqrstuvwxyz78..."
         )
