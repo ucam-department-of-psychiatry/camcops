@@ -193,7 +193,7 @@ class APEQCPFTPerinatalReport(Report):
     def superuser_only(cls) -> bool:
         return False
 
-    def render_all_html(self, req: "CamcopsRequest") -> Response:
+    def render_html(self, req: "CamcopsRequest") -> Response:
         cell_format = "{0:.1f}%"
 
         return render_to_response(

@@ -273,7 +273,7 @@ class Report(object):
         # request)
         # Serve the result
         if viewtype == ViewArg.HTML:
-            return self.render_all_html(req=req)
+            return self.render_html(req=req)
 
         if viewtype == ViewArg.ODS:
             return self.render_ods(req=req)
@@ -286,7 +286,7 @@ class Report(object):
 
         raise HTTPBadRequest("Bad viewtype")
 
-    def render_all_html(self, req: "CamcopsRequest"):
+    def render_html(self, req: "CamcopsRequest"):
         rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
                                           DEFAULT_ROWS_PER_PAGE)
         page_num = req.get_int_param(ViewParam.PAGE, 1)
@@ -299,9 +299,11 @@ class Report(object):
                            url_maker=PageUrl(req),
                            request=req)
 
-        return self.render_html(req=req,
-                                column_names=column_names,
-                                page=page)
+        return self.render_single_page_html(
+            req=req,
+            column_names=column_names,
+            page=page
+        )
 
     def render_tsv(self, req: "CamcopsRequest") -> TsvResponse:
         filename = self.get_filename(req, ViewArg.TSV)
@@ -369,10 +371,10 @@ class Report(object):
             extension
         )
 
-    def render_html(self,
-                    req: "CamcopsRequest",
-                    column_names: List[str],
-                    page: CamcopsPage) -> Response:
+    def render_single_page_html(self,
+                                req: "CamcopsRequest",
+                                column_names: List[str],
+                                page: CamcopsPage) -> Response:
         """
         Converts a paginated report into an HTML response.
 
