@@ -203,10 +203,6 @@ class APEQCPFTPerinatalReport(Report):
 
         self.task = APEQCPFTPerinatal()
 
-        # Really only needed for tests
-        self.start_datetime = None
-        self.end_datetime = None
-
     # noinspection PyMethodParameters
     @classproperty
     def report_id(cls) -> str:
@@ -473,6 +469,15 @@ class APEQCPFTPerinatalReportTestCase(DemoDatabaseTestCase):
         super().__init__(*args, **kwargs)
         self.id_sequence = self.get_id()
 
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.report = APEQCPFTPerinatalReport()
+
+        # Really only needed for tests
+        self.report.start_datetime = None
+        self.report.end_datetime = None
+
     @staticmethod
     def get_id() -> Generator[int, None, None]:
         i = 1
@@ -568,8 +573,6 @@ class APEQCPFTPerinatalReportTests(APEQCPFTPerinatalReportTestCase):
         self.dbsession.commit()
 
     def test_main_rows_contain_percentages(self) -> None:
-        report = APEQCPFTPerinatalReport()
-
         expected_q1 = [20, "50", "25", "25"]
         expected_q2 = [20, "", "100", ""]
         expected_q3 = [20, "5", "20", "75"]
@@ -577,7 +580,7 @@ class APEQCPFTPerinatalReportTests(APEQCPFTPerinatalReportTestCase):
         expected_q5 = [20, "15", "55", "30"]
         expected_q6 = [18, "", "50", "50"]
 
-        main_rows = report._get_main_rows(self.req)
+        main_rows = self.report._get_main_rows(self.req)
 
         self.assertEqual(main_rows[0][1:], expected_q1)
         self.assertEqual(main_rows[1][1:], expected_q2)
@@ -587,37 +590,31 @@ class APEQCPFTPerinatalReportTests(APEQCPFTPerinatalReportTestCase):
         self.assertEqual(main_rows[5][1:], expected_q6)
 
     def test_main_rows_formatted(self) -> None:
-        report = APEQCPFTPerinatalReport()
-
         expected_q1 = [20, "50.0%", "25.0%", "25.0%"]
 
-        main_rows = report._get_main_rows(self.req, cell_format="{0:.1f}%")
+        main_rows = self.report._get_main_rows(
+            self.req, cell_format="{0:.1f}%"
+        )
 
         self.assertEqual(main_rows[0][1:], expected_q1)
 
     def test_ff_rows_contain_percentages(self) -> None:
-        report = APEQCPFTPerinatalReport()
-
         expected_ff = [20, "25", "10", "15",
                        "10", "5", "35"]
 
-        ff_rows = report._get_ff_rows(self.req)
+        ff_rows = self.report._get_ff_rows(self.req)
 
         self.assertEqual(ff_rows[0][1:], expected_ff)
 
     def test_ff_rows_formatted(self) -> None:
-        report = APEQCPFTPerinatalReport()
-
         expected_ff = [20, "25.0%", "10.0%", "15.0%",
                        "10.0%", "5.0%", "35.0%"]
 
-        ff_rows = report._get_ff_rows(self.req, cell_format="{0:.1f}%")
+        ff_rows = self.report._get_ff_rows(self.req, cell_format="{0:.1f}%")
 
         self.assertEqual(ff_rows[0][1:], expected_ff)
 
     def test_ff_why_rows_contain_reasons(self) -> None:
-        report = APEQCPFTPerinatalReport()
-
         expected_reasons = [
             ["Extremely unlikely", "ff_1_1"],
             ["Extremely unlikely", "ff_1_2"],
@@ -629,18 +626,16 @@ class APEQCPFTPerinatalReportTests(APEQCPFTPerinatalReportTestCase):
             ["Extremely likely", "ff_5_2"],
         ]
 
-        ff_why_rows = report._get_ff_why_rows(self.req)
+        ff_why_rows = self.report._get_ff_why_rows(self.req)
 
         self.assertEqual(ff_why_rows, expected_reasons)
 
     def test_comments(self) -> None:
-        report = APEQCPFTPerinatalReport()
-
         expected_comments = [
             "comments_2", "comments_5", "comments_20",
         ]
 
-        comments = report._get_comments(self.req)
+        comments = self.report._get_comments(self.req)
 
         self.assertEqual(comments, expected_comments)
 
@@ -670,59 +665,51 @@ class APEQCPFTPerinatalReportDateRangeTests(APEQCPFTPerinatalReportTestCase):
         self.dbsession.commit()
 
     def test_main_rows_filtered_by_date(self) -> None:
-        report = APEQCPFTPerinatalReport()
+        self.report.start_datetime = "2018-10-02T00:00:00.000000+00:00"
+        self.report.end_datetime = "2018-10-05T00:00:00.000000+00:00"
 
-        report.start_datetime = "2018-10-02T00:00:00.000000+00:00"
-        report.end_datetime = "2018-10-05T00:00:00.000000+00:00"
-
-        rows = report._get_main_rows(self.req, cell_format="{0:.1f}%")
+        rows = self.report._get_main_rows(self.req, cell_format="{0:.1f}%")
         q1_row = rows[0]
 
         # There should be three tasks included in the calculation.
-        self.assertEqual(q1_row[report.COL_TOTAL], 3)
+        self.assertEqual(q1_row[self.report.COL_TOTAL], 3)
 
         # For question 1 all of them answered 0 so we would expect
         # 100%. If the results aren't being filtered we will get
         # 60%
-        self.assertEqual(q1_row[report.COL_RESPONSE_START + 0], "100.0%")
+        self.assertEqual(q1_row[self.report.COL_RESPONSE_START + 0], "100.0%")
 
     def test_ff_rows_filtered_by_date(self) -> None:
-        report = APEQCPFTPerinatalReport()
+        self.report.start_datetime = "2018-10-02T00:00:00.000000+00:00"
+        self.report.end_datetime = "2018-10-05T00:00:00.000000+00:00"
 
-        report.start_datetime = "2018-10-02T00:00:00.000000+00:00"
-        report.end_datetime = "2018-10-05T00:00:00.000000+00:00"
-
-        rows = report._get_ff_rows(self.req, cell_format="{0:.1f}%")
+        rows = self.report._get_ff_rows(self.req, cell_format="{0:.1f}%")
         ff_row = rows[0]
 
         # There should be three tasks included in the calculation.
-        self.assertEqual(ff_row[report.COL_TOTAL], 3)
+        self.assertEqual(ff_row[self.report.COL_TOTAL], 3)
 
         # For the ff question all of them answered 2 so we would expect
         # 100%. If the results aren't being filtered we will get
         # 60%
-        self.assertEqual(ff_row[report.COL_RESPONSE_START + 2], "100.0%")
+        self.assertEqual(ff_row[self.report.COL_RESPONSE_START + 2], "100.0%")
 
     def test_ff_why_row_filtered_by_date(self) -> None:
-        report = APEQCPFTPerinatalReport()
+        self.report.start_datetime = "2018-10-02T00:00:00.000000+00:00"
+        self.report.end_datetime = "2018-10-05T00:00:00.000000+00:00"
 
-        report.start_datetime = "2018-10-02T00:00:00.000000+00:00"
-        report.end_datetime = "2018-10-05T00:00:00.000000+00:00"
-
-        rows = report._get_ff_why_rows(self.req)
+        rows = self.report._get_ff_why_rows(self.req)
         self.assertEqual(len(rows), 3)
 
-        self.assertEqual(rows[0][report.COL_FF_WHY], "ff why 2")
-        self.assertEqual(rows[1][report.COL_FF_WHY], "ff why 3")
-        self.assertEqual(rows[2][report.COL_FF_WHY], "ff why 4")
+        self.assertEqual(rows[0][self.report.COL_FF_WHY], "ff why 2")
+        self.assertEqual(rows[1][self.report.COL_FF_WHY], "ff why 3")
+        self.assertEqual(rows[2][self.report.COL_FF_WHY], "ff why 4")
 
     def test_comments_filtered_by_date(self) -> None:
-        report = APEQCPFTPerinatalReport()
+        self.report.start_datetime = "2018-10-02T00:00:00.000000+00:00"
+        self.report.end_datetime = "2018-10-05T00:00:00.000000+00:00"
 
-        report.start_datetime = "2018-10-02T00:00:00.000000+00:00"
-        report.end_datetime = "2018-10-05T00:00:00.000000+00:00"
-
-        rows = report._get_comments(self.req)
+        rows = self.report._get_comments(self.req)
         self.assertEqual(len(rows), 3)
 
         self.assertEqual(rows[0], "comments 2")
