@@ -26,7 +26,7 @@ camcops_server/tasks/apeq_cpft_perinatal.py
 
 """
 
-from typing import Dict, Generator, List, Optional, Type
+from typing import Dict, Generator, List, Optional, Type, TYPE_CHECKING
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.datetimefunc import format_datetime
@@ -34,6 +34,7 @@ from cardinal_pythonlib.datetimefunc import format_datetime
 import pendulum
 from pyramid.renderers import render_to_response
 from pyramid.response import Response
+from sqlalchemy.sql.elements import ColumnElement
 from sqlalchemy.sql.expression import and_, column, func, select
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
@@ -195,6 +196,8 @@ class APEQCPFTPerinatalReport(Report):
     COL_TOTAL = 1
     COL_RESPONSE_START = 2
 
+    COL_FF_WHY = 1
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -343,6 +346,13 @@ class APEQCPFTPerinatalReport(Report):
 
         options = self.task.get_ff_options(req)
 
+        wheres = [
+            column("ff_rating").isnot(None),
+            column("ff_why").isnot(None)
+        ]
+
+        self._add_start_end_datetime_filters(wheres)
+
         # noinspection PyUnresolvedReferences
         query = (
             select([
@@ -350,12 +360,7 @@ class APEQCPFTPerinatalReport(Report):
                 column("ff_why")
             ])
             .select_from(self.task.__table__)
-            .where(
-                and_(
-                    column("ff_rating").isnot(None),
-                    column("ff_why").isnot(None)
-                )
-            )
+            .where(and_(*wheres))
             .order_by("ff_why")
         )
 
@@ -404,15 +409,7 @@ class APEQCPFTPerinatalReport(Report):
                 column(column_name).isnot(None)
             ]
 
-            if self.start_datetime is not None:
-                wheres.append(
-                    column("when_created") >= self.start_datetime
-                )
-
-            if self.end_datetime is not None:
-                wheres.append(
-                    column("when_created") < self.end_datetime
-                )
+            self._add_start_end_datetime_filters(wheres)
 
             # noinspection PyUnresolvedReferences
             total_query = (
@@ -448,6 +445,17 @@ class APEQCPFTPerinatalReport(Report):
             rows.append(row)
 
         return rows
+
+    def _add_start_end_datetime_filters(self, wheres: List[ColumnElement]):
+        if self.start_datetime is not None:
+            wheres.append(
+                column("when_created") >= self.start_datetime
+            )
+
+        if self.end_datetime is not None:
+            wheres.append(
+                column("when_created") < self.end_datetime
+            )
 
 
 # =============================================================================
@@ -683,3 +691,16 @@ class APEQCPFTPerinatalReportDateRangeTests(APEQCPFTPerinatalReportTestCase):
         # 100%. If the results aren't being filtered we will get
         # 60%
         self.assertEqual(ff_row[report.COL_RESPONSE_START + 2], "100.0%")
+
+    def test_ff_why_row_filtered_by_date(self) -> None:
+        report = APEQCPFTPerinatalReport()
+
+        report.start_datetime = "2018-10-02T00:00:00.000000+00:00"
+        report.end_datetime = "2018-10-05T00:00:00.000000+00:00"
+
+        rows = report._get_ff_why_rows(self.req)
+        self.assertEqual(len(rows), 3)
+
+        self.assertEqual(rows[0][report.COL_FF_WHY], "ff why 2")
+        self.assertEqual(rows[1][report.COL_FF_WHY], "ff why 3")
+        self.assertEqual(rows[2][report.COL_FF_WHY], "ff why 4")
