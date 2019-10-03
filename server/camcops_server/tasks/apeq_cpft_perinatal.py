@@ -487,7 +487,7 @@ class APEQCPFTPerinatalReportTestCase(DemoDatabaseTestCase):
         task.comments = comments
 
         if era is not None:
-            self.when_created = pendulum.parse(era)
+            task.when_created = pendulum.parse(era)
 
         self.dbsession.add(task)
 
@@ -629,27 +629,32 @@ class APEQCPFTPerinatalReportTests(APEQCPFTPerinatalReportTestCase):
 class APEQCPFTPerinatalReportDateRangeTests(APEQCPFTPerinatalReportTestCase):
     def create_tasks(self) -> None:
         self.create_task(1, 0, 0, 0, 0, 0, 0,
-                         ff_why="ff why 1", era="2018-10-01T00:00+0000")
+                         ff_why="ff why 1",
+                         era="2018-10-01T00:00:00.000000+00:00")
         self.create_task(0, 0, 0, 0, 0, 0, 0,
-                         ff_why="ff why 2", era="2018-10-02T00:00+0000")
+                         ff_why="ff why 2",
+                         era="2018-10-02T00:00:00.000000+00:00")
         self.create_task(0, 0, 0, 0, 0, 0, 0,
-                         ff_why="ff why 3", era="2018-10-03T00:00+0000")
+                         ff_why="ff why 3",
+                         era="2018-10-03T00:00:00.000000+00:00")
         self.create_task(0, 0, 0, 0, 0, 0, 0,
-                         ff_why="ff why 4", era="2018-10-04T00:00+0000")
+                         ff_why="ff why 4",
+                         era="2018-10-04T00:00:00.000000+00:00")
         self.create_task(1, 0, 0, 0, 0, 0, 0,
-                         ff_why="ff why 5", era="2018-10-05T00:00+0000")
+                         ff_why="ff why 5",
+                         era="2018-10-05T00:00:00.000000+00:00")
         self.dbsession.commit()
 
     def test_main_rows_filtered_by_date(self) -> None:
         report = APEQCPFTPerinatalReport()
 
-        report.start_datetime = "2019-10-02T00:00:00.000000+00:00"
-        report.end_datetime = "2019-10-05T00:00:00.000000+00:00"
+        report.start_datetime = "2018-10-02T00:00:00.000000+00:00"
+        report.end_datetime = "2018-10-05T00:00:00.000000+00:00"
 
         rows = report._get_main_rows(self.req, cell_format="{0:.1f}%")
 
         # There should be three tasks included in the calculation.
-        self.assertEqual(rows[0][1], "3")
+        self.assertEqual(rows[0][1], 3)
 
         # For question 1 all of them answered 0 so we would expect
         # 100%. If the results aren't being filtered we will get
