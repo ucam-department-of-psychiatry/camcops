@@ -376,15 +376,19 @@ class APEQCPFTPerinatalReport(Report):
         A list of all the additional comments
         """
 
+        wheres = [
+            column("comments").isnot(None)
+        ]
+
+        self._add_start_end_datetime_filters(wheres)
+
         # noinspection PyUnresolvedReferences
         query = (
             select([
                 column("comments"),
             ])
             .select_from(self.task.__table__)
-            .where(
-                column("comments").isnot(None)
-            )
+            .where(and_(*wheres))
         )
 
         comments = []
@@ -643,18 +647,23 @@ class APEQCPFTPerinatalReportDateRangeTests(APEQCPFTPerinatalReportTestCase):
     def create_tasks(self) -> None:
         self.create_task(1, 0, 0, 0, 0, 0, 0,
                          ff_why="ff why 1",
+                         comments="comments 1",
                          era="2018-10-01T00:00:00.000000+00:00")
         self.create_task(0, 0, 0, 0, 0, 0, 2,
                          ff_why="ff why 2",
+                         comments="comments 2",
                          era="2018-10-02T00:00:00.000000+00:00")
         self.create_task(0, 0, 0, 0, 0, 0, 2,
                          ff_why="ff why 3",
+                         comments="comments 3",
                          era="2018-10-03T00:00:00.000000+00:00")
         self.create_task(0, 0, 0, 0, 0, 0, 2,
                          ff_why="ff why 4",
+                         comments="comments 4",
                          era="2018-10-04T00:00:00.000000+00:00")
         self.create_task(1, 0, 0, 0, 0, 0, 0,
                          ff_why="ff why 5",
+                         comments="comments 5",
                          era="2018-10-05T00:00:00.000000+00:00")
         self.dbsession.commit()
 
@@ -704,3 +713,16 @@ class APEQCPFTPerinatalReportDateRangeTests(APEQCPFTPerinatalReportTestCase):
         self.assertEqual(rows[0][report.COL_FF_WHY], "ff why 2")
         self.assertEqual(rows[1][report.COL_FF_WHY], "ff why 3")
         self.assertEqual(rows[2][report.COL_FF_WHY], "ff why 4")
+
+    def test_comments_filtered_by_date(self) -> None:
+        report = APEQCPFTPerinatalReport()
+
+        report.start_datetime = "2018-10-02T00:00:00.000000+00:00"
+        report.end_datetime = "2018-10-05T00:00:00.000000+00:00"
+
+        rows = report._get_comments(self.req)
+        self.assertEqual(len(rows), 3)
+
+        self.assertEqual(rows[0], "comments 2")
+        self.assertEqual(rows[1], "comments 3")
+        self.assertEqual(rows[2], "comments 4")
