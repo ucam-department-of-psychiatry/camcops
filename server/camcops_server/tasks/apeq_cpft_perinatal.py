@@ -253,6 +253,8 @@ class APEQCPFTPerinatalReport(Report):
             dict(
                 title=self.title(req),
                 report_id=self.report_id,
+                start_datetime=self.start_datetime,
+                end_datetime=self.end_datetime,
                 main_column_headings=self._get_main_column_headings(req),
                 main_rows=self._get_main_rows(req, cell_format=cell_format),
                 ff_column_headings=self._get_ff_column_headings(req),
