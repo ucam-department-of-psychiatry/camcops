@@ -191,6 +191,10 @@ class APEQCPFTPerinatalReport(Report):
     Provides a summary of each question, x% of people said each response etc.
     Then a summary of the comments.
     """
+    COL_Q = 0
+    COL_TOTAL = 1
+    COL_RESPONSE_START = 2
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -438,7 +442,8 @@ class APEQCPFTPerinatalReport(Report):
             )
 
             for result in req.dbsession.execute(query):
-                row[result[0] + 2] = cell_format.format(result[1])
+                row[result[0] + self.COL_RESPONSE_START] = cell_format.format(
+                    result[1])
 
             rows.append(row)
 
@@ -631,13 +636,13 @@ class APEQCPFTPerinatalReportDateRangeTests(APEQCPFTPerinatalReportTestCase):
         self.create_task(1, 0, 0, 0, 0, 0, 0,
                          ff_why="ff why 1",
                          era="2018-10-01T00:00:00.000000+00:00")
-        self.create_task(0, 0, 0, 0, 0, 0, 0,
+        self.create_task(0, 0, 0, 0, 0, 0, 2,
                          ff_why="ff why 2",
                          era="2018-10-02T00:00:00.000000+00:00")
-        self.create_task(0, 0, 0, 0, 0, 0, 0,
+        self.create_task(0, 0, 0, 0, 0, 0, 2,
                          ff_why="ff why 3",
                          era="2018-10-03T00:00:00.000000+00:00")
-        self.create_task(0, 0, 0, 0, 0, 0, 0,
+        self.create_task(0, 0, 0, 0, 0, 0, 2,
                          ff_why="ff why 4",
                          era="2018-10-04T00:00:00.000000+00:00")
         self.create_task(1, 0, 0, 0, 0, 0, 0,
@@ -652,11 +657,29 @@ class APEQCPFTPerinatalReportDateRangeTests(APEQCPFTPerinatalReportTestCase):
         report.end_datetime = "2018-10-05T00:00:00.000000+00:00"
 
         rows = report._get_main_rows(self.req, cell_format="{0:.1f}%")
+        q1_row = rows[0]
 
         # There should be three tasks included in the calculation.
-        self.assertEqual(rows[0][1], 3)
+        self.assertEqual(q1_row[report.COL_TOTAL], 3)
 
         # For question 1 all of them answered 0 so we would expect
         # 100%. If the results aren't being filtered we will get
         # 60%
-        self.assertEqual(rows[0][2], "100.0%")
+        self.assertEqual(q1_row[report.COL_RESPONSE_START + 0], "100.0%")
+
+    def test_ff_rows_filtered_by_date(self) -> None:
+        report = APEQCPFTPerinatalReport()
+
+        report.start_datetime = "2018-10-02T00:00:00.000000+00:00"
+        report.end_datetime = "2018-10-05T00:00:00.000000+00:00"
+
+        rows = report._get_ff_rows(self.req, cell_format="{0:.1f}%")
+        ff_row = rows[0]
+
+        # There should be three tasks included in the calculation.
+        self.assertEqual(ff_row[report.COL_TOTAL], 3)
+
+        # For the ff question all of them answered 2 so we would expect
+        # 100%. If the results aren't being filtered we will get
+        # 60%
+        self.assertEqual(ff_row[report.COL_RESPONSE_START + 2], "100.0%")
