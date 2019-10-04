@@ -2569,3 +2569,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Group administrators can now erase tasks entirely from the database
   :ref:`Erase task instance entirely <erase_task_entirely>`
+
+- Fixed missing and incorrect options for question 2 of
+  :ref:`Maternal Antenatal Attachment Scale (MAAS) <maas>`.
