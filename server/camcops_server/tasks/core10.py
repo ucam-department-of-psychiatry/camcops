@@ -26,16 +26,21 @@ camcops_server/tasks/core10.py
 
 """
 
-from typing import Dict, List, Optional
+from typing import Dict, Generator, List, Optional
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.stringfunc import strseq
+import pendulum
 from semantic_version import Version
+from sqlalchemy.sql.expression import func, select, and_
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CtvInfo, CTV_INCOMPLETE
 from camcops_server.cc_modules.cc_html import answer, tr, tr_qa
+from camcops_server.cc_modules.cc_patient import Patient
+from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
+from camcops_server.cc_modules.cc_report import PlainReportType, Report
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
@@ -52,7 +57,9 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
     TrackerAxisTick,
     TrackerInfo,
 )
-
+from camcops_server.cc_modules.cc_unittest import (
+    DemoDatabaseTestCase,
+)
 
 # =============================================================================
 # CORE-10
@@ -258,3 +265,274 @@ class Core10(TaskHasPatientMixin, Task):
                 }
             ))
         return codes
+
+
+class Core10Report(Report):
+    """
+    An average score of the people seen at the start of treatment
+    an average final measure and an average progress score.
+    """
+    @classproperty
+    def report_id(cls) -> str:
+        return "core10"
+
+    @classmethod
+    def title(cls, req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("CORE-10 — Average scores")
+
+    @classproperty
+    def superuser_only(cls) -> bool:
+        return False
+
+    def get_rows_colnames(self,
+                          req: "CamcopsRequest") -> Optional[PlainReportType]:
+        """
+        First record for each patient:
+        SELECT DISTINCT(patient_id),MIN(when_created) AS when_created
+        FROM core10 GROUP BY patient_id
+        """
+
+        _ = req.gettext
+
+        first_record_query = (
+            select([Core10.patient_id,
+                    func.min(Core10.when_created).label("when_created")])
+            .select_from(Core10.__table__).distinct(Core10.patient_id)
+            .group_by(Core10.patient_id)
+        )
+
+        first_records = first_record_query.alias("first_records")
+
+        """
+        Latest record for each patient:
+        SELECT DISTINCT(patient_id),MIN(when_created) AS when_created
+        FROM core10 GROUP BY patient_id
+        """
+
+        latest_record_query = (
+            select([Core10.patient_id,
+                    func.max(Core10.when_created).label("when_created")])
+            .select_from(Core10.__table__).distinct(Core10.patient_id)
+            .group_by(Core10.patient_id)
+        )
+
+        latest_records = latest_record_query.alias("latest_records")
+
+        """
+        Average first score:
+        SELECT AVG(q1+q2+q3+q4+q5+q6+q7+q8+q9+q10) AS average_score
+        FROM (first_record_query) AS first_records
+        INNER JOIN core10 ON core10.patient_id = first_records.patient_id
+        AND core10.when_created = first_records.when_created;
+        """
+
+        total_score_expr = sum([getattr(Core10, f)
+                                for f in Core10.QUESTION_FIELDNAMES])
+
+        average_first_score_query = (
+            select([func.avg(total_score_expr)])
+            .select_from(
+                first_records
+                .join(
+                    Core10.__table__, and_(
+                        Core10.patient_id == first_records.c.patient_id,
+                        Core10.when_created == first_records.c.when_created
+                    )
+                )
+            )
+        )
+
+        """
+        Average latest score:
+        SELECT AVG(q1+q2+q3+q4+q5+q6+q7+q8+q9+q10) AS average_score
+        FROM (latest_record_query) AS latest_records
+        INNER JOIN core10 ON core10.patient_id = latest_records.patient_id
+        AND core10.when_created = latest_records.when_created;
+        """
+        average_latest_score_query = (
+            select([func.avg(total_score_expr)])
+            .select_from(
+                latest_records
+                .join(
+                    Core10.__table__, and_(
+                        Core10.patient_id == latest_records.c.patient_id,
+                        Core10.when_created == latest_records.c.when_created
+                    )
+                )
+            )
+        )
+
+        results = req.dbsession.execute(average_first_score_query)
+        average_first_score = next(results)[0]
+
+        results = req.dbsession.execute(average_latest_score_query)
+        average_latest_score = next(results)[0]
+
+        if average_first_score is not None and average_latest_score is not None:
+            # Lower number is better
+            average_progress = average_first_score - average_latest_score
+        else:
+            average_progress = _("Unable to calculate")
+
+        if average_first_score is None:
+            average_first_score = _("No data")
+
+        if average_latest_score is None:
+            average_latest_score = _("No data")
+
+        report = PlainReportType(
+            column_names=[_("Average first score"),
+                          _("Average latest score"),
+                          _("Average progress")],
+            rows=[
+                [
+                    average_first_score,
+                    average_latest_score,
+                    average_progress
+                ],
+            ]
+        )
+
+        return report
+
+
+class Core10ReportTestCase(DemoDatabaseTestCase):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.patient_id_sequence = self.get_patient_id()
+        self.task_id_sequence = self.get_task_id()
+        self.patient_idnum_id_sequence = self.get_patient_idnum_id()
+
+    def setUp(self) -> None:
+        self.report = Core10Report()
+
+        super().setUp()
+
+    @staticmethod
+    def get_patient_id() -> Generator[int, None, None]:
+        i = 1
+
+        while True:
+            yield i
+            i += 1
+
+    @staticmethod
+    def get_task_id() -> Generator[int, None, None]:
+        i = 1
+
+        while True:
+            yield i
+            i += 1
+
+    @staticmethod
+    def get_patient_idnum_id() -> Generator[int, None, None]:
+        i = 1
+
+        while True:
+            yield i
+            i += 1
+
+    def create_task(self, patient: Patient,
+                    q1: int=0, q2: int=0, q3: int=0, q4: int=0,
+                    q5: int=0, q6: int=0, q7: int=0, q8: int=0,
+                    q9: int=0, q10: int=0, era: str=None) -> None:
+        task = Core10()
+        self.apply_standard_task_fields(task)
+        task.id = next(self.task_id_sequence)
+
+        task.patient_id = patient.id
+
+        task.q1 = q1
+        task.q2 = q2
+        task.q3 = q3
+        task.q4 = q4
+        task.q5 = q5
+        task.q6 = q6
+        task.q7 = q7
+        task.q8 = q8
+        task.q9 = q9
+        task.q10 = q10
+
+        if era is not None:
+            task.when_created = pendulum.parse(era)
+
+        self.dbsession.add(task)
+
+    def create_patient(self) -> Patient:
+        patient = Patient()
+        patient.id = next(self.patient_id_sequence)
+        self._apply_standard_db_fields(patient)
+
+        patient.forename = f"Forename {patient.id}"
+        patient.surname = f"Surname {patient.id}"
+        patient.dob = pendulum.parse("1950-01-01")
+        self.dbsession.add(patient)
+
+        self.create_patient_idnum(patient)
+
+        self.dbsession.commit()
+
+        return patient
+
+    def create_patient_idnum(self, patient) -> PatientIdNum:
+        patient_idnum = PatientIdNum()
+        patient_idnum.id = next(self.patient_idnum_id_sequence)
+        self._apply_standard_db_fields(patient_idnum)
+        patient_idnum.patient_id = patient.id
+        patient_idnum.which_idnum = self.nhs_iddef.which_idnum
+        patient_idnum.idnum_value = 333
+        self.dbsession.add(patient_idnum)
+
+        return patient_idnum
+
+
+class Core10ReportTests(Core10ReportTestCase):
+    def create_tasks(self):
+        self.patient_1 = self.create_patient()
+        self.patient_2 = self.create_patient()
+        self.patient_3 = self.create_patient()
+
+        # Initial average score = (8 + 6 + 4) / 3 = 6
+        # Latest average score = (2 + 3 + 4) / 3 = 3
+
+        self.create_task(patient=self.patient_1, q1=4, q2=4,
+                         era="2018-06-01")  # Score 8
+        self.create_task(patient=self.patient_1, q7=1, q8=1,
+                         era="2018-10-04")  # Score 2
+
+        self.create_task(patient=self.patient_2, q3=3, q4=3,
+                         era="2018-05-02")  # Score 6
+        self.create_task(patient=self.patient_2, q3=2, q4=1,
+                         era="2018-10-03")  # Score 3
+
+        self.create_task(patient=self.patient_3, q5=2, q6=2,
+                         era="2018-01-10")  # Score 4
+        self.create_task(patient=self.patient_3, q9=1, q10=3,
+                         era="2018-10-01")  # Score 4
+        self.dbsession.commit()
+
+    def test_row_has_averages(self) -> None:
+        plain_report = self.report.get_rows_colnames(self.req)
+
+        expected_rows = [
+            [
+                6,  # Initial average
+                3,  # Latest average
+                3,  # Average progress
+            ]
+        ]
+
+        self.assertEqual(plain_report.rows, expected_rows)
+
+
+class Core10EmptyReportTests(Core10ReportTestCase):
+    def create_tasks(self):
+        pass
+
+    # TODO test no data
+    def test_no_rows_when_no_data(self) -> None:
+        plain_report = self.report.get_rows_colnames(self.req)
+
+        self.assertEquals(plain_report.rows,
+                          [["No data", "No data", "Unable to calculate"]])
