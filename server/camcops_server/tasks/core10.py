@@ -304,6 +304,9 @@ class Core10Report(Report):
 
         first_records = first_record_query.alias("first_records")
 
+        results = req.dbsession.execute(first_record_query)
+        total_first_records = len(results.fetchall())
+
         """
         Latest record for each patient:
         SELECT DISTINCT(patient_id),MIN(when_created) AS when_created
@@ -316,6 +319,9 @@ class Core10Report(Report):
             .select_from(Core10.__table__).distinct(Core10.patient_id)
             .group_by(Core10.patient_id)
         )
+
+        results = req.dbsession.execute(latest_record_query)
+        total_latest_records = len(results.fetchall())
 
         latest_records = latest_record_query.alias("latest_records")
 
@@ -382,12 +388,18 @@ class Core10Report(Report):
             average_latest_score = _("No data")
 
         report = PlainReportType(
-            column_names=[_("Average first score"),
-                          _("Average latest score"),
-                          _("Average progress")],
+            column_names=[
+                _("Total first records"),
+                _("Average first score"),
+                _("Total latest records"),
+                _("Average latest score"),
+                _("Average progress"),
+            ],
             rows=[
                 [
+                    total_first_records,
                     average_first_score,
+                    total_latest_records,
                     average_latest_score,
                     average_progress
                 ],
@@ -512,12 +524,14 @@ class Core10ReportTests(Core10ReportTestCase):
                          era="2018-10-01")  # Score 4
         self.dbsession.commit()
 
-    def test_row_has_averages(self) -> None:
+    def test_row_has_totals_and_averages(self) -> None:
         plain_report = self.report.get_rows_colnames(self.req)
 
         expected_rows = [
             [
+                3,  # Initial total
                 6,  # Initial average
+                3,  # Latest total
                 3,  # Latest average
                 3,  # Average progress
             ]
@@ -535,4 +549,4 @@ class Core10EmptyReportTests(Core10ReportTestCase):
         plain_report = self.report.get_rows_colnames(self.req)
 
         self.assertEquals(plain_report.rows,
-                          [["No data", "No data", "Unable to calculate"]])
+                          [[0, "No data", 0, "No data", "Unable to calculate"]])
