@@ -32,7 +32,6 @@ from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.stringfunc import strseq
 import pendulum
 from semantic_version import Version
-from sqlalchemy.sql.expression import func, select, and_
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
@@ -40,7 +39,9 @@ from camcops_server.cc_modules.cc_ctvinfo import CtvInfo, CTV_INCOMPLETE
 from camcops_server.cc_modules.cc_html import answer, tr, tr_qa
 from camcops_server.cc_modules.cc_patient import Patient
 from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
-from camcops_server.cc_modules.cc_report import PlainReportType, Report
+from camcops_server.cc_modules.cc_report import (
+    AverageScoreReport,
+)
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
@@ -60,6 +61,7 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 from camcops_server.cc_modules.cc_unittest import (
     DemoDatabaseTestCase,
 )
+
 
 # =============================================================================
 # CORE-10
@@ -267,7 +269,7 @@ class Core10(TaskHasPatientMixin, Task):
         return codes
 
 
-class Core10Report(Report):
+class Core10Report(AverageScoreReport):
     """
     An average score of the people seen at the start of treatment
     an average final measure and an average progress score.
@@ -280,133 +282,6 @@ class Core10Report(Report):
     def title(cls, req: "CamcopsRequest") -> str:
         _ = req.gettext
         return _("CORE-10 — Average scores")
-
-    @classproperty
-    def superuser_only(cls) -> bool:
-        return False
-
-    def get_rows_colnames(self,
-                          req: "CamcopsRequest") -> Optional[PlainReportType]:
-        """
-        First record for each patient:
-        SELECT DISTINCT(patient_id),MIN(when_created) AS when_created
-        FROM core10 GROUP BY patient_id
-        """
-
-        _ = req.gettext
-
-        first_record_query = (
-            select([Core10.patient_id,
-                    func.min(Core10.when_created).label("when_created")])
-            .select_from(Core10.__table__).distinct(Core10.patient_id)
-            .group_by(Core10.patient_id)
-        )
-
-        first_records = first_record_query.alias("first_records")
-
-        results = req.dbsession.execute(first_record_query)
-        total_first_records = len(results.fetchall())
-
-        """
-        Latest record for each patient:
-        SELECT DISTINCT(patient_id),MIN(when_created) AS when_created
-        FROM core10 GROUP BY patient_id
-        """
-
-        latest_record_query = (
-            select([Core10.patient_id,
-                    func.max(Core10.when_created).label("when_created")])
-            .select_from(Core10.__table__).distinct(Core10.patient_id)
-            .group_by(Core10.patient_id)
-        )
-
-        results = req.dbsession.execute(latest_record_query)
-        total_latest_records = len(results.fetchall())
-
-        latest_records = latest_record_query.alias("latest_records")
-
-        """
-        Average first score:
-        SELECT AVG(q1+q2+q3+q4+q5+q6+q7+q8+q9+q10) AS average_score
-        FROM (first_record_query) AS first_records
-        INNER JOIN core10 ON core10.patient_id = first_records.patient_id
-        AND core10.when_created = first_records.when_created;
-        """
-
-        total_score_expr = sum([getattr(Core10, f)
-                                for f in Core10.QUESTION_FIELDNAMES])
-
-        average_first_score_query = (
-            select([func.avg(total_score_expr)])
-            .select_from(
-                first_records
-                .join(
-                    Core10.__table__, and_(
-                        Core10.patient_id == first_records.c.patient_id,
-                        Core10.when_created == first_records.c.when_created
-                    )
-                )
-            )
-        )
-
-        """
-        Average latest score:
-        SELECT AVG(q1+q2+q3+q4+q5+q6+q7+q8+q9+q10) AS average_score
-        FROM (latest_record_query) AS latest_records
-        INNER JOIN core10 ON core10.patient_id = latest_records.patient_id
-        AND core10.when_created = latest_records.when_created;
-        """
-        average_latest_score_query = (
-            select([func.avg(total_score_expr)])
-            .select_from(
-                latest_records
-                .join(
-                    Core10.__table__, and_(
-                        Core10.patient_id == latest_records.c.patient_id,
-                        Core10.when_created == latest_records.c.when_created
-                    )
-                )
-            )
-        )
-
-        results = req.dbsession.execute(average_first_score_query)
-        average_first_score = next(results)[0]
-
-        results = req.dbsession.execute(average_latest_score_query)
-        average_latest_score = next(results)[0]
-
-        if average_first_score is not None and average_latest_score is not None:
-            # Lower number is better
-            average_progress = average_first_score - average_latest_score
-        else:
-            average_progress = _("Unable to calculate")
-
-        if average_first_score is None:
-            average_first_score = _("No data")
-
-        if average_latest_score is None:
-            average_latest_score = _("No data")
-
-        report = PlainReportType(
-            column_names=[
-                _("Total first records"),
-                _("Average first score"),
-                _("Total latest records"),
-                _("Average latest score"),
-                _("Average progress"),
-            ],
-            rows=[
-                [
-                    total_first_records,
-                    average_first_score,
-                    total_latest_records,
-                    average_latest_score,
-                    average_progress
-                ],
-            ]
-        )
-
-        return report
 
 
 class Core10ReportTestCase(DemoDatabaseTestCase):

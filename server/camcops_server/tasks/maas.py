@@ -28,6 +28,7 @@ camcops_server/tasks/maas.py
 
 from typing import Any, Dict, List, Optional, Tuple, Type
 
+from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
@@ -35,6 +36,7 @@ from sqlalchemy.sql.sqltypes import Integer
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import tr_qa
+from camcops_server.cc_modules.cc_report import AverageScoreReport
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
@@ -235,7 +237,7 @@ class Maas(TaskHasPatientMixin, Task,
             global score is the sum of all questions.
           </div>
           <div class="{CssClass.FOOTNOTES}">
-            Condon, J. (2015). Maternal Antenatal Attachment Scale 
+            Condon, J. (2015). Maternal Antenatal Attachment Scale
             [Measurement instrument]. Retrieved from <a
             href="http://hdl.handle.net/2328/35292">http://hdl.handle.net/2328/35292</a>.
 
@@ -247,3 +249,14 @@ class Maas(TaskHasPatientMixin, Task,
             any medium, provided the original work is properly cited.
           </div>
         """
+
+
+class MaasReport(AverageScoreReport):
+    @classproperty
+    def report_id(cls) -> str:
+        return "MAAS"
+
+    @classmethod
+    def title(cls, req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("MAAS — Average scores")

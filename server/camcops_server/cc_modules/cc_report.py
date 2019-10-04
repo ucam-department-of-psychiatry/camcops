@@ -42,6 +42,7 @@ from pyramid.renderers import render_to_response
 from pyramid.response import Response
 from sqlalchemy.engine.result import ResultProxy
 from sqlalchemy.orm.query import Query
+from sqlalchemy.sql.expression import func, select, and_
 from sqlalchemy.sql.selectable import SelectBase
 
 # import as LITTLE AS POSSIBLE; this is used by lots of modules
@@ -323,6 +324,144 @@ class Report(object):
                  report_id=self.report_id),
             request=req
         )
+
+
+class AverageScoreReport(Report):
+    """
+    Used by MAAS, CORE-10 and PBQ to report average scores and progress
+    """
+    @classproperty
+    def superuser_only(cls) -> bool:
+        return False
+
+    @classproperty
+    def task_class(cls) -> Task:
+        raise NotImplementedError(
+            "Report did not implement task_class"
+        )
+
+    def get_rows_colnames(self,
+                          req: "CamcopsRequest") -> Optional[PlainReportType]:
+        """
+        First record for each patient:
+        SELECT DISTINCT(patient_id),MIN(when_created) AS when_created
+        FROM core10 GROUP BY patient_id
+        """
+
+        _ = req.gettext
+
+        first_record_query = (
+            select([self.task_class.patient_id,
+                    func.min(self.task_class.when_created).label("when_created")])
+            .select_from(self.task_class.__table__).distinct(self.task_class.patient_id)
+            .group_by(self.task_class.patient_id)
+        )
+
+        first_records = first_record_query.alias("first_records")
+
+        results = req.dbsession.execute(first_record_query)
+        total_first_records = len(results.fetchall())
+
+        """
+        Latest record for each patient:
+        SELECT DISTINCT(patient_id),MIN(when_created) AS when_created
+        FROM core10 GROUP BY patient_id
+        """
+
+        latest_record_query = (
+            select([self.task_class.patient_id,
+                    func.max(self.task_class.when_created).label("when_created")])
+            .select_from(self.task_class.__table__).distinct(self.task_class.patient_id)
+            .group_by(self.task_class.patient_id)
+        )
+
+        results = req.dbsession.execute(latest_record_query)
+        total_latest_records = len(results.fetchall())
+
+        latest_records = latest_record_query.alias("latest_records")
+
+        """
+        Average first score:
+        SELECT AVG(q1+q2+q3+q4+q5+q6+q7+q8+q9+q10) AS average_score
+        FROM (first_record_query) AS first_records
+        INNER JOIN core10 ON core10.patient_id = first_records.patient_id
+        AND core10.when_created = first_records.when_created;
+        """
+
+        total_score_expr = sum([getattr(self.task_class, f)
+                                for f in self.task_class.QUESTION_FIELDNAMES])
+
+        average_first_score_query = (
+            select([func.avg(total_score_expr)])
+            .select_from(
+                first_records
+                .join(
+                    self.task_class.__table__, and_(
+                        self.task_class.patient_id == first_records.c.patient_id,
+                        self.task_class.when_created == first_records.c.when_created
+                    )
+                )
+            )
+        )
+
+        """
+        Average latest score:
+        SELECT AVG(q1+q2+q3+q4+q5+q6+q7+q8+q9+q10) AS average_score
+        FROM (latest_record_query) AS latest_records
+        INNER JOIN core10 ON core10.patient_id = latest_records.patient_id
+        AND core10.when_created = latest_records.when_created;
+        """
+        average_latest_score_query = (
+            select([func.avg(total_score_expr)])
+            .select_from(
+                latest_records
+                .join(
+                    self.task_class.__table__, and_(
+                        self.task_class.patient_id == latest_records.c.patient_id,
+                        self.task_class.when_created == latest_records.c.when_created
+                    )
+                )
+            )
+        )
+
+        results = req.dbsession.execute(average_first_score_query)
+        average_first_score = next(results)[0]
+
+        results = req.dbsession.execute(average_latest_score_query)
+        average_latest_score = next(results)[0]
+
+        if average_first_score is not None and average_latest_score is not None:
+            # Lower number is better
+            average_progress = average_first_score - average_latest_score
+        else:
+            average_progress = _("Unable to calculate")
+
+        if average_first_score is None:
+            average_first_score = _("No data")
+
+        if average_latest_score is None:
+            average_latest_score = _("No data")
+
+        report = PlainReportType(
+            column_names=[
+                _("Total first records"),
+                _("Average first score"),
+                _("Total latest records"),
+                _("Average latest score"),
+                _("Average progress"),
+            ],
+            rows=[
+                [
+                    total_first_records,
+                    average_first_score,
+                    total_latest_records,
+                    average_latest_score,
+                    average_progress
+                ],
+            ]
+        )
+
+        return report
 
 
 # =============================================================================
