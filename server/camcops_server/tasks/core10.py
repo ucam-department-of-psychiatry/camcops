@@ -26,7 +26,7 @@ camcops_server/tasks/core10.py
 
 """
 
-from typing import Dict, Generator, List, Optional
+from typing import Dict, List, Optional
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.stringfunc import strseq
@@ -38,9 +38,9 @@ from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CtvInfo, CTV_INCOMPLETE
 from camcops_server.cc_modules.cc_html import answer, tr, tr_qa
 from camcops_server.cc_modules.cc_patient import Patient
-from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
 from camcops_server.cc_modules.cc_report import (
     AverageScoreReport,
+    AverageScoreReportTestCase,
 )
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
@@ -57,9 +57,6 @@ from camcops_server.cc_modules.cc_task import (
 from camcops_server.cc_modules.cc_trackerhelpers import (
     TrackerAxisTick,
     TrackerInfo,
-)
-from camcops_server.cc_modules.cc_unittest import (
-    DemoDatabaseTestCase,
 )
 
 
@@ -283,42 +280,22 @@ class Core10Report(AverageScoreReport):
         _ = req.gettext
         return _("CORE-10 — Average scores")
 
+    @classproperty
+    def task_class(cls) -> Task:
+        return Core10
 
-class Core10ReportTestCase(DemoDatabaseTestCase):
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-        self.patient_id_sequence = self.get_patient_id()
-        self.task_id_sequence = self.get_task_id()
-        self.patient_idnum_id_sequence = self.get_patient_idnum_id()
+    @classproperty
+    def total_score_fieldnames(cls) -> List[str]:
+        return Core10.QUESTION_FIELDNAMES
 
-    def setUp(self) -> None:
-        self.report = Core10Report()
+    @classproperty
+    def higher_score_is_better(cls) -> bool:
+        return False
 
-        super().setUp()
 
-    @staticmethod
-    def get_patient_id() -> Generator[int, None, None]:
-        i = 1
-
-        while True:
-            yield i
-            i += 1
-
-    @staticmethod
-    def get_task_id() -> Generator[int, None, None]:
-        i = 1
-
-        while True:
-            yield i
-            i += 1
-
-    @staticmethod
-    def get_patient_idnum_id() -> Generator[int, None, None]:
-        i = 1
-
-        while True:
-            yield i
-            i += 1
+class Core10ReportTestCase(AverageScoreReportTestCase):
+    def create_report(self) -> Core10Report:
+        return Core10Report()
 
     def create_task(self, patient: Patient,
                     q1: int=0, q2: int=0, q3: int=0, q4: int=0,
@@ -345,33 +322,6 @@ class Core10ReportTestCase(DemoDatabaseTestCase):
             task.when_created = pendulum.parse(era)
 
         self.dbsession.add(task)
-
-    def create_patient(self) -> Patient:
-        patient = Patient()
-        patient.id = next(self.patient_id_sequence)
-        self._apply_standard_db_fields(patient)
-
-        patient.forename = f"Forename {patient.id}"
-        patient.surname = f"Surname {patient.id}"
-        patient.dob = pendulum.parse("1950-01-01")
-        self.dbsession.add(patient)
-
-        self.create_patient_idnum(patient)
-
-        self.dbsession.commit()
-
-        return patient
-
-    def create_patient_idnum(self, patient) -> PatientIdNum:
-        patient_idnum = PatientIdNum()
-        patient_idnum.id = next(self.patient_idnum_id_sequence)
-        self._apply_standard_db_fields(patient_idnum)
-        patient_idnum.patient_id = patient.id
-        patient_idnum.which_idnum = self.nhs_iddef.which_idnum
-        patient_idnum.idnum_value = 333
-        self.dbsession.add(patient_idnum)
-
-        return patient_idnum
 
 
 class Core10ReportTests(Core10ReportTestCase):
@@ -416,12 +366,14 @@ class Core10ReportTests(Core10ReportTestCase):
 
 
 class Core10EmptyReportTests(Core10ReportTestCase):
-    def create_tasks(self):
-        pass
-
-    # TODO test no data
     def test_no_rows_when_no_data(self) -> None:
-        plain_report = self.report.get_rows_colnames(self.req)
+        plain_report = self.report.get_rows_colnames(req=self.req)
 
-        self.assertEquals(plain_report.rows,
-                          [[0, "No data", 0, "No data", "Unable to calculate"]])
+        self.assertEquals(
+            plain_report.rows,
+            [
+                [
+                    0, "No data", 0, "No data", "Unable to calculate",
+                ]
+            ]
+        )

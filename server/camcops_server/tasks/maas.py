@@ -30,13 +30,18 @@ from typing import Any, Dict, List, Optional, Tuple, Type
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.stringfunc import strseq
+import pendulum
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import tr_qa
-from camcops_server.cc_modules.cc_report import AverageScoreReport
+from camcops_server.cc_modules.cc_patient import Patient
+from camcops_server.cc_modules.cc_report import (
+    AverageScoreReport,
+    AverageScoreReportTestCase,
+)
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
@@ -260,3 +265,50 @@ class MaasReport(AverageScoreReport):
     def title(cls, req: "CamcopsRequest") -> str:
         _ = req.gettext
         return _("MAAS — Average scores")
+
+    @classproperty
+    def task_class(cls) -> Task:
+        return Maas
+
+    @classproperty
+    def total_score_fieldnames(cls) -> List[str]:
+        return Maas.TASK_FIELDS
+
+
+class MaasReportTests(AverageScoreReportTestCase):
+    PROGRESS_COL = 4
+
+    def create_report(self):
+        return MaasReport()
+
+    def create_tasks(self):
+        self.patient_1 = self.create_patient()
+
+        self.create_task(patient=self.patient_1, q1=2, q2=2,
+                         era="2019-03-01")  # total 17 + 2 + 2
+        self.create_task(patient=self.patient_1, q1=5, q2=5,
+                         era="2019-06-01")  # total 17 + 5 + 5
+        self.dbsession.commit()
+
+    def create_task(self, patient: Patient, era: str=None, **kwargs):
+        task = Maas()
+        self.apply_standard_task_fields(task)
+        task.id = next(self.task_id_sequence)
+
+        task.patient_id = patient.id
+        for fieldname in MaasReport.total_score_fieldnames:
+            value = kwargs.get(fieldname, 1)
+            setattr(task, fieldname, value)
+
+        if era is not None:
+            task.when_created = pendulum.parse(era)
+
+        self.dbsession.add(task)
+
+    def test_average_progress_is_positive(self):
+        plain_report = self.report.get_rows_colnames(self.req)
+
+        expected_progress = 27 - 21
+        actual_progress = plain_report.rows[0][self.PROGRESS_COL]
+
+        self.assertEqual(actual_progress, expected_progress)
