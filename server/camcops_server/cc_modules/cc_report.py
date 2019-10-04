@@ -349,20 +349,22 @@ class AverageScoreReport(Report):
         )
 
     @classproperty
-    def total_score_fieldnames(cls) -> List[str]:
+    def score_fieldnames(cls) -> List[str]:
         raise NotImplementedError(
-            "Report did not implement total_score_fieldnames"
+            "Report did not implement score_fieldnames"
         )
 
     def get_rows_colnames(self,
                           req: "CamcopsRequest") -> Optional[PlainReportType]:
+        row = []
+
+        _ = req.gettext
+
         """
         First record for each patient (e.g. for CORE-10):
         SELECT DISTINCT(patient_id),MIN(when_created) AS when_created
         FROM core10 GROUP BY patient_id
         """
-
-        _ = req.gettext
 
         first_record_query = (
             select([self.task_class.patient_id,
@@ -380,7 +382,7 @@ class AverageScoreReport(Report):
 
         """
         Latest record for each patient (e.g. for CORE-10):
-        SELECT DISTINCT(patient_id),MIN(when_created) AS when_created
+        SELECT DISTINCT(patient_id),MAX(when_created) AS when_created
         FROM core10 GROUP BY patient_id
         """
 
@@ -398,89 +400,92 @@ class AverageScoreReport(Report):
 
         latest_records = latest_record_query.alias("latest_records")
 
-        """
-        Average first score (e.g. for CORE-10):
-        SELECT AVG(q1+q2+q3+q4+q5+q6+q7+q8+q9+q10) AS average_score
-        FROM (first_record_query) AS first_records
-        INNER JOIN core10 ON core10.patient_id = first_records.patient_id
-        AND core10.when_created = first_records.when_created;
-        """
+        column_names = [
+            _("Total first records"),
+            _("Total latest records"),
+        ]
 
-        total_score_expr = sum([getattr(self.task_class, f)
-                                for f in self.total_score_fieldnames])
+        row = [total_first_records, total_latest_records]
 
-        average_first_score_query = (
-            select([func.avg(total_score_expr)])
-            .select_from(
-                first_records
-                .join(
-                    self.task_class.__table__,
-                    and_(
-                        self.task_class.patient_id == first_records.c.patient_id,  # noqa
-                        self.task_class.when_created == first_records.c.when_created  # noqa
+        for score_name, fieldnames in self.score_fieldnames.items():
+            """
+            Average first score (e.g. for CORE-10):
+            SELECT AVG(q1+q2+q3+q4+q5+q6+q7+q8+q9+q10) AS average_score
+            FROM (first_record_query) AS first_records
+            INNER JOIN core10 ON core10.patient_id = first_records.patient_id
+            AND core10.when_created = first_records.when_created;
+            """
+
+            total_score_expr = sum([getattr(self.task_class, f)
+                                    for f in fieldnames])
+
+            average_first_score_query = (
+                select([func.avg(total_score_expr)])
+                .select_from(
+                    first_records
+                    .join(
+                        self.task_class.__table__,
+                        and_(
+                            self.task_class.patient_id == first_records.c.patient_id,  # noqa
+                            self.task_class.when_created == first_records.c.when_created  # noqa
+                        )
                     )
                 )
             )
-        )
 
-        """
-        Average latest score (e.g. for CORE-10):
-        SELECT AVG(q1+q2+q3+q4+q5+q6+q7+q8+q9+q10) AS average_score
-        FROM (latest_record_query) AS latest_records
-        INNER JOIN core10 ON core10.patient_id = latest_records.patient_id
-        AND core10.when_created = latest_records.when_created;
-        """
-        average_latest_score_query = (
-            select([func.avg(total_score_expr)])
-            .select_from(
-                latest_records
-                .join(
-                    self.task_class.__table__, and_(
-                        self.task_class.patient_id == latest_records.c.patient_id,  # noqa
-                        self.task_class.when_created == latest_records.c.when_created  # noqa
+            """
+            Average latest score (e.g. for CORE-10):
+            SELECT AVG(q1+q2+q3+q4+q5+q6+q7+q8+q9+q10) AS average_score
+            FROM (latest_record_query) AS latest_records
+            INNER JOIN core10 ON core10.patient_id = latest_records.patient_id
+            AND core10.when_created = latest_records.when_created;
+            """
+            average_latest_score_query = (
+                select([func.avg(total_score_expr)])
+                .select_from(
+                    latest_records
+                    .join(
+                        self.task_class.__table__, and_(
+                            self.task_class.patient_id == latest_records.c.patient_id,  # noqa
+                            self.task_class.when_created == latest_records.c.when_created  # noqa
+                        )
                     )
                 )
             )
-        )
 
-        results = req.dbsession.execute(average_first_score_query)
-        average_first_score = next(results)[0]
+            results = req.dbsession.execute(average_first_score_query)
+            average_first_score = next(results)[0]
 
-        results = req.dbsession.execute(average_latest_score_query)
-        average_latest_score = next(results)[0]
+            results = req.dbsession.execute(average_latest_score_query)
+            average_latest_score = next(results)[0]
 
-        if average_first_score is not None and (
-                average_latest_score is not None
-        ):
-            average_progress = self.calculate_progress(
-                average_first_score, average_latest_score
-            )
-        else:
-            average_progress = _("Unable to calculate")
+            if average_first_score is not None and (
+                    average_latest_score is not None
+            ):
+                average_progress = self.calculate_progress(
+                    average_first_score, average_latest_score
+                )
+            else:
+                average_progress = _("Unable to calculate")
 
-        if average_first_score is None:
-            average_first_score = _("No data")
+            if average_first_score is None:
+                average_first_score = _("No data")
 
-        if average_latest_score is None:
-            average_latest_score = _("No data")
+            if average_latest_score is None:
+                average_latest_score = _("No data")
+
+            column_names += [
+                "{}: {}".format(score_name, _("Average first")),
+                "{}: {}".format(score_name, _("Average latest")),
+                "{}: {}".format(score_name, _("Average progress")),
+            ]
+
+            row += [average_first_score, average_latest_score,
+                    average_progress]
 
         report = PlainReportType(
-            column_names=[
-                _("Total first records"),
-                _("Average first score"),
-                _("Total latest records"),
-                _("Average latest score"),
-                _("Average progress"),
-            ],
-            rows=[
-                [
-                    total_first_records,
-                    average_first_score,
-                    total_latest_records,
-                    average_latest_score,
-                    average_progress
-                ],
-            ]
+            column_names=column_names,
+            rows=[row]
         )
 
         return report
