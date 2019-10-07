@@ -335,6 +335,8 @@ class AverageScoreReport(Report):
     """
     Used by MAAS, CORE-10 and PBQ to report average scores and progress
     """
+    template_name = "average_score_report.mako"
+
     @classproperty
     def superuser_only(cls) -> bool:
         return False

@@ -1,7 +1,7 @@
 ## -*- coding: utf-8 -*-
 <%doc>
 
-camcops_server/templates/menu/report.mako
+camcops_server/templates/tasks/average_score_report.mako
 
 ===============================================================================
 
@@ -26,39 +26,11 @@ camcops_server/templates/menu/report.mako
 
 </%doc>
 
-## <%page args="title: str, column_names: List[str], page: CamcopsPage"/>
-<%inherit file="base_web.mako"/>
-
-<%!
-from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
-%>
-
-<%include file="db_user_info.mako"/>
-
-<h1>${ title | h }</h1>
-
-<%block name="additional_report_above_results"></%block>
+<%inherit file="report.mako"/>
 
 <%block name="pager_above_results">
-<div>${page.pager()}</div>
 </%block>
 
-<%block name="table">
-<%include file="table.mako" args="column_headings=column_names, rows=page"/>
-</%block>
 
 <%block name="pager_below_results">
-<div>${page.pager()}</div>
 </%block>
-
-<%block name="additional_report_below_results"></%block>
-
-<div>
-    <a href="${ request.route_url(Routes.OFFER_REPORT, _query={ViewParam.REPORT_ID: report_id}) }">${_("Re-configure report")}</a>
-</div>
-<div>
-    <a href="${request.route_url(Routes.REPORTS_MENU)}">${_("Return to reports menu")}</a>
-</div>
-<%include file="to_main_menu.mako"/>
-
-<%block name="additional_report_below_menu"></%block>
