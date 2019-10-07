@@ -36,7 +36,10 @@ from sqlalchemy.sql.sqltypes import Integer
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_html import answer, tr
-from camcops_server.cc_modules.cc_report import AverageScoreReport
+from camcops_server.cc_modules.cc_report import (
+    AverageScoreReport,
+    ScoreDetails,
+)
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
@@ -312,9 +315,41 @@ class PBQReport(AverageScoreReport):
     def task_class(cls) -> Task:
         return Pbq
 
-    @classproperty
-    def total_score_fieldnames(cls) -> List[str]:
-        return Pbq.QUESTION_FIELDS
+    @classmethod
+    def scores(cls, req: "CamcopsRequest") -> List[ScoreDetails]:
+        _ = req.gettext
+        return [
+            ScoreDetails(
+                name=_("Total score"),
+                fieldnames=Pbq.QUESTION_FIELDS,
+                min=0,
+                max=Pbq.MAX_TOTAL
+            ),
+            ScoreDetails(
+                name=_("Factor 1 score"),
+                fieldnames=Pbq.FACTOR_1_F,
+                min=0,
+                max=Pbq.FACTOR_1_MAX
+            ),
+            ScoreDetails(
+                name=_("Factor 2 score"),
+                fieldnames=Pbq.FACTOR_2_F,
+                min=0,
+                max=Pbq.FACTOR_2_MAX
+            ),
+            ScoreDetails(
+                name=_("Factor 3 score"),
+                fieldnames=Pbq.FACTOR_3_F,
+                min=0,
+                max=Pbq.FACTOR_3_MAX
+            ),
+            ScoreDetails(
+                name=_("Factor 4 score"),
+                fieldnames=Pbq.FACTOR_4_F,
+                min=0,
+                max=Pbq.FACTOR_4_MAX
+            ),
+        ]
 
     @classproperty
     def higher_score_is_better(cls) -> bool:

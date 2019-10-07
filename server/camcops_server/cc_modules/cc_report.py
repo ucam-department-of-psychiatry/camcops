@@ -331,6 +331,15 @@ class Report(object):
         )
 
 
+class ScoreDetails(object):
+    def __init__(self, name: str, fieldnames: List[str],
+                 min: int, max: int) -> None:
+        self.name = name
+        self.fieldnames = fieldnames
+        self.min = min
+        self.max = max
+
+
 class AverageScoreReport(Report):
     """
     Used by MAAS, CORE-10 and PBQ to report average scores and progress
@@ -351,10 +360,10 @@ class AverageScoreReport(Report):
             "Report did not implement task_class"
         )
 
-    @classproperty
-    def score_fieldnames(cls) -> List[str]:
+    @classmethod
+    def scores(cls, req: "CamcopsRequest") -> List[ScoreDetails]:
         raise NotImplementedError(
-            "Report did not implement score_fieldnames"
+            "Report did not implement 'scores'"
         )
 
     def get_rows_colnames(self,
@@ -410,7 +419,7 @@ class AverageScoreReport(Report):
 
         row = [total_first_records, total_latest_records]
 
-        for score_name, fieldnames in self.score_fieldnames.items():
+        for score in self.scores(req):
             """
             Average first score (e.g. for CORE-10):
             SELECT AVG(q1+q2+q3+q4+q5+q6+q7+q8+q9+q10) AS average_score
@@ -420,7 +429,7 @@ class AverageScoreReport(Report):
             """
 
             total_score_expr = sum([getattr(self.task_class, f)
-                                    for f in fieldnames])
+                                    for f in score.fieldnames])
 
             average_first_score_query = (
                 select([func.avg(total_score_expr)])
@@ -478,9 +487,11 @@ class AverageScoreReport(Report):
                 average_latest_score = _("No data")
 
             column_names += [
-                "{}: {}".format(score_name, _("Average first")),
-                "{}: {}".format(score_name, _("Average latest")),
-                "{}: {}".format(score_name, _("Average progress")),
+                "{} ({}-{}): {}".format(score.name,
+                                        score.min, score.max, _("First")),
+                "{} ({}-{}): {}".format(score.name,
+                                        score.min, score.max, _("Latest")),
+                "{}: {}".format(score.name, _("Progress")),
             ]
 
             row += [average_first_score, average_latest_score,

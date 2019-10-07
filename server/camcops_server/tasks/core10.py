@@ -41,6 +41,7 @@ from camcops_server.cc_modules.cc_patient import Patient
 from camcops_server.cc_modules.cc_report import (
     AverageScoreReport,
     AverageScoreReportTestCase,
+    ScoreDetails,
 )
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
@@ -284,9 +285,17 @@ class Core10Report(AverageScoreReport):
     def task_class(cls) -> Task:
         return Core10
 
-    @classproperty
-    def total_score_fieldnames(cls) -> List[str]:
-        return Core10.QUESTION_FIELDNAMES
+    @classmethod
+    def scores(cls, req: "CamcopsRequest") -> List[ScoreDetails]:
+        _ = req.gettext
+        return [
+            ScoreDetails(
+                name=_("CORE-10 clinical score"),
+                fieldnames=Core10.QUESTION_FIELDNAMES,
+                min=0,
+                max=Core10.MAX_SCORE
+            )
+        ]
 
     @classproperty
     def higher_score_is_better(cls) -> bool:
