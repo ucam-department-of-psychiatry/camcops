@@ -364,8 +364,8 @@ class Core10ReportTests(Core10ReportTestCase):
         expected_rows = [
             [
                 3,  # Initial total
-                6,  # Initial average
                 3,  # Latest total
+                6,  # Initial average
                 3,  # Latest average
                 3,  # Average progress
             ]
@@ -382,7 +382,7 @@ class Core10EmptyReportTests(Core10ReportTestCase):
             plain_report.rows,
             [
                 [
-                    0, "No data", 0, "No data", "Unable to calculate",
+                    0, 0, "No data", "No data", "Unable to calculate",
                 ]
             ]
         )
