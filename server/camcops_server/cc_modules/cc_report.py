@@ -104,10 +104,11 @@ class Report(object):
     See the explanations of each.
     """
 
+    template_name = "report.mako"
+
     # -------------------------------------------------------------------------
     # Attributes that must be provided
     # -------------------------------------------------------------------------
-
     # noinspection PyMethodParameters
     @classproperty
     def report_id(cls) -> str:
@@ -321,7 +322,7 @@ class Report(object):
         If you wish, you can override this for more report customization.
         """
         return render_to_response(
-            "report.mako",
+            self.template_name,
             dict(title=self.title(req),
                  page=page,
                  column_names=column_names,
