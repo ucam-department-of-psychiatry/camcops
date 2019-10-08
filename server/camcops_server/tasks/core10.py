@@ -388,48 +388,6 @@ class Core10EmptyReportTests(Core10ReportTestCase):
         )
 
 
-class Core10DuplicateEntryTests(Core10ReportTestCase):
-    def create_tasks(self):
-        self.patient_1 = self.create_patient()
-        self.patient_2 = self.create_patient()
-        self.patient_3 = self.create_patient()
-
-        # Initial average score = (8 + 6 + 4) / 3 = 6
-        # Latest average score = (2 + 3 + 4) / 3 = 3
-        self.create_task(patient=self.patient_1, q1=4, q2=4,
-                         era="2018-06-01")  # Score 8
-        self.create_task(patient=self.patient_1, q1=4, q2=4,
-                         era="2018-06-01")  # Score 8
-        self.create_task(patient=self.patient_1, q7=1, q8=1,
-                         era="2018-10-04")  # Score 2
-
-        self.create_task(patient=self.patient_2, q3=3, q4=3,
-                         era="2018-05-02")  # Score 6
-        self.create_task(patient=self.patient_2, q3=2, q4=1,
-                         era="2018-10-03")  # Score 3
-
-        self.create_task(patient=self.patient_3, q5=2, q6=2,
-                         era="2018-01-10")  # Score 4
-        self.create_task(patient=self.patient_3, q9=1, q10=3,
-                         era="2018-10-01")  # Score 4
-        self.dbsession.commit()
-
-    def test_record_with_matching_timestamp_ignored(self) -> None:
-        plain_report = self.report.get_rows_colnames(self.req)
-
-        expected_rows = [
-            [
-                3,  # Initial total
-                3,  # Latest total
-                6,  # Initial average
-                3,  # Latest average
-                3,  # Average progress
-            ]
-        ]
-
-        self.assertEqual(plain_report.rows, expected_rows)
-
-
 class Core10DoubleCountingTests(Core10ReportTestCase):
     def create_tasks(self):
         self.patient_1 = self.create_patient()
@@ -460,8 +418,8 @@ class Core10DoubleCountingTests(Core10ReportTestCase):
                 3,  # Initial total
                 2,  # Latest total
                 6,  # Initial average
-                2,  # Latest average
-                4,  # Average progress
+                3,  # Latest average
+                3,  # Average progress
             ]
         ]
 

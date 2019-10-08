@@ -352,6 +352,10 @@ class AverageScoreReport(Report):
 
     @classproperty
     def higher_score_is_better(cls) -> bool:
+        """
+        Progress is always expressed positively
+        so should we do score1 - score2 or vice versa?
+        """
         return True
 
     @classproperty
@@ -373,44 +377,43 @@ class AverageScoreReport(Report):
         _ = req.gettext
 
         """
-        First record for each patient (e.g. for CORE-10):
-        SELECT DISTINCT(patient_id),MIN(when_created) AS when_created
+        First and latest record for each patient (e.g. for CORE-10):
+        SELECT patient_id,
+        MIN(when_created) AS min_when_created,
+        MAX(when_created) AS max_when_created
         FROM core10 GROUP BY patient_id
         """
 
-        first_record_query = (
+        first_latest_record_query = (
             select([self.task_class.patient_id,
                     func.min(self.task_class.when_created)
-                    .label("when_created")])
+                    .label("min_when_created"),
+                    func.max(self.task_class.when_created)
+                    .label("max_when_created")])
             .select_from(self.task_class.__table__)
-            .distinct(self.task_class.patient_id)
             .group_by(self.task_class.patient_id)
         )
 
-        first_records = first_record_query.alias("first_records")
+        first_latest_records = first_latest_record_query.alias(
+            "first_latest_records"
+        )
 
-        results = req.dbsession.execute(first_record_query)
+        results = req.dbsession.execute(first_latest_record_query)
         total_first_records = len(results.fetchall())
 
-        """
-        Latest record for each patient (e.g. for CORE-10):
-        SELECT DISTINCT(patient_id),MAX(when_created) AS when_created
-        FROM core10 GROUP BY patient_id
-        """
-
         latest_record_query = (
-            select([self.task_class.patient_id,
-                    func.max(self.task_class.when_created)
-                    .label("when_created")])
-            .select_from(self.task_class.__table__)
-            .distinct(self.task_class.patient_id)
-            .group_by(self.task_class.patient_id)
+            select([first_latest_records.c.patient_id,
+                    first_latest_records.c.max_when_created])
+            .select_from(first_latest_records)
+            .where(first_latest_records.c.min_when_created != first_latest_records.c.max_when_created)
+        )
+
+        latest_records = latest_record_query.alias(
+            "latest_records"
         )
 
         results = req.dbsession.execute(latest_record_query)
         total_latest_records = len(results.fetchall())
-
-        latest_records = latest_record_query.alias("latest_records")
 
         column_names = [
             _("Total first records"),
@@ -425,7 +428,7 @@ class AverageScoreReport(Report):
             SELECT AVG(q1+q2+q3+q4+q5+q6+q7+q8+q9+q10) AS average_score
             FROM (first_record_query) AS first_records
             INNER JOIN core10 ON core10.patient_id = first_records.patient_id
-            AND core10.when_created = first_records.when_created;
+            AND core10.when_created = first_records.min_when_created;
             """
 
             total_score_expr = sum([getattr(self.task_class, f)
@@ -434,12 +437,12 @@ class AverageScoreReport(Report):
             average_first_score_query = (
                 select([func.avg(total_score_expr)])
                 .select_from(
-                    first_records
+                    first_latest_records
                     .join(
                         self.task_class.__table__,
                         and_(
-                            self.task_class.patient_id == first_records.c.patient_id,  # noqa
-                            self.task_class.when_created == first_records.c.when_created  # noqa
+                            self.task_class.patient_id == first_latest_records.c.patient_id,  # noqa
+                            self.task_class.when_created == first_latest_records.c.min_when_created  # noqa
                         )
                     )
                 )
@@ -450,7 +453,7 @@ class AverageScoreReport(Report):
             SELECT AVG(q1+q2+q3+q4+q5+q6+q7+q8+q9+q10) AS average_score
             FROM (latest_record_query) AS latest_records
             INNER JOIN core10 ON core10.patient_id = latest_records.patient_id
-            AND core10.when_created = latest_records.when_created;
+            AND core10.when_created = latest_records.max_when_created;
             """
             average_latest_score_query = (
                 select([func.avg(total_score_expr)])
@@ -459,7 +462,7 @@ class AverageScoreReport(Report):
                     .join(
                         self.task_class.__table__, and_(
                             self.task_class.patient_id == latest_records.c.patient_id,  # noqa
-                            self.task_class.when_created == latest_records.c.when_created  # noqa
+                            self.task_class.when_created == latest_records.c.max_when_created  # noqa
                         )
                     )
                 )
