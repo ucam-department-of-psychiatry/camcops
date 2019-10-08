@@ -2571,3 +2571,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
   :ref:`Erase task instance entirely <erase_task_entirely>`
 
 - Excel XLSX and OpenOffice/LibreOffice ODS formats supported for report download.
+
+- Fixed missing and incorrect options for question 2 of
+  :ref:`Maternal Antenatal Attachment Scale (MAAS) <maas>`.
