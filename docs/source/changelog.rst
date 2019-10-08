@@ -2569,3 +2569,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Group administrators can now erase tasks entirely from the database
   :ref:`Erase task instance entirely <erase_task_entirely>`
+
+- Split out Athena OHDSI and SNOMED core code to
+  ``cardinal_pythonlib``, now ``cardinal_pythonlib==1.0.70``.
