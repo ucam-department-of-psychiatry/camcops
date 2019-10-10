@@ -8,7 +8,12 @@ build-*/
 # Temporary
 *~
 *.tmp
+
+# ignore core dump file
 core
+
+# but not core directory
+!core/
 
 # PyCharm
 .idea/*
@@ -20,4 +25,3 @@ __pycache__/
 distributables/
 server/camcops_server.egg-info
 working/*
-
