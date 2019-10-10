@@ -8,6 +8,7 @@ build-*/
 # Temporary
 *~
 *.tmp
+*.profile
 core
 
 # PyCharm
@@ -20,4 +21,3 @@ __pycache__/
 distributables/
 server/camcops_server.egg-info
 working/*
-
