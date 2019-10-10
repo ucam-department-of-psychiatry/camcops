@@ -285,11 +285,10 @@ class TsvCollection(object):
         """
         Returns the TSV collection as an XLSX (Excel) file.
         """
-        wb = XLWorkbook()
 
-        # we may have zero pages if there were no rows
-        if len(self.pages) > 0:
-            wb.remove(wb.active)  # remove the autocreated blank sheet
+        # Marginal performance gain with write_only. Does not automatically
+        # add a blank sheet
+        wb = XLWorkbook(write_only=True)
 
         for page in self.pages:
             ws = wb.create_sheet(title=page.name)
