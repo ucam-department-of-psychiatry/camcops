@@ -206,6 +206,7 @@ class TaskHasPatientMixin(object):
             ),
             uselist=False,
             viewonly=True,
+            lazy="joined"
             # EMPIRICALLY: SLOWER OVERALL WITH THIS # lazy="joined"
         )
         # NOTE: this retrieves the most recent (i.e. the current) information
@@ -1394,8 +1395,10 @@ class Task(GenericTabletRecordMixin, Base):
         Returns information used for the basic research dump in TSV format.
         """
         # 1. Our core fields, plus summary information
+
         main_page = self._get_core_tsv_page(req)
         # 2. Patient details.
+
         if self.patient:
             main_page.add_or_set_columns_from_page(
                 self.patient.get_tsv_page(req))
