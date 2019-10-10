@@ -60,7 +60,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewParam
 
 <%include file="table.mako" args="column_headings=main_column_headings, rows=main_rows"/>
 
-<h2>${_("Friends / family questions")}</h2>
+<h2>${_("Friends and family question")}</h2>
 
 <%include file="table.mako" args="column_headings=ff_column_headings, rows=ff_rows"/>
 

@@ -192,6 +192,26 @@ class PatientIdNumIndexEntry(Base):
         index = cls.make_from_idnum(idnum)
         session.add(index)
 
+    @classmethod
+    def unindex_patient(cls, patient: Patient,
+                        session: SqlASession) -> None:
+        """
+        Removes all ID number indexes from the database for a patient.
+
+        Args:
+            patient:
+                :class:`camcops_server.cc_modules.cc_patient.Patient`
+            session:
+                an SQLAlchemy Session
+        """
+
+        idxtable = cls.__table__  # type: Table
+        idxcols = idxtable.columns
+        session.execute(
+            idxtable.delete()
+            .where(idxcols.patient_pk == patient._pk)
+        )
+
     # -------------------------------------------------------------------------
     # Regenerate index
     # -------------------------------------------------------------------------

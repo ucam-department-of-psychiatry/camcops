@@ -2572,3 +2572,9 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Split out Athena OHDSI and SNOMED core code to
   ``cardinal_pythonlib``, now ``cardinal_pythonlib==1.0.70``.
+
+- Excel XLSX and OpenOffice/LibreOffice ODS formats supported for report
+  download.
+
+- Fixed missing and incorrect options for question 2 of
+  :ref:`Maternal Antenatal Attachment Scale (MAAS) <maas>`.
