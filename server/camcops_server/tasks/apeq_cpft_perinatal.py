@@ -26,7 +26,7 @@ camcops_server/tasks/apeq_cpft_perinatal.py
 
 """
 
-from typing import Dict, Generator, List, Optional, Type
+from typing import Dict, Generator, List, Optional, Tuple, Type
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.datetimefunc import format_datetime
@@ -256,7 +256,7 @@ class APEQCPFTPerinatalReport(Report):
                 ff_column_headings=self._get_ff_column_headings(req),
                 ff_rows=self._get_ff_rows(req, cell_format=cell_format),
                 ff_why_rows=self._get_ff_why_rows(req),
-                comments=self._get_comments(req)
+                comment_rows=self._get_comment_rows(req)
             ),
             request=req
         )
@@ -282,7 +282,7 @@ class APEQCPFTPerinatalReport(Report):
         comments_page = self.get_tsv_page(
             name=_("Comments"),
             column_names=[_("Comment")],
-            rows=[self._get_comments(req)]
+            rows=self._get_comment_rows(req)
         )
 
         return [main_page, ff_page, ff_why_page, comments_page]
@@ -369,7 +369,7 @@ class APEQCPFTPerinatalReport(Report):
 
         return rows
 
-    def _get_comments(self, req: "CamcopsRequest") -> List[str]:
+    def _get_comment_rows(self, req: "CamcopsRequest") -> List[Tuple[str]]:
         """
         A list of all the additional comments
         """
@@ -389,12 +389,12 @@ class APEQCPFTPerinatalReport(Report):
             .where(and_(*wheres))
         )
 
-        comments = []
+        comment_rows = []
 
         for result in req.dbsession.execute(query).fetchall():
-            comments.append(result[0])
+            comment_rows.append(result)
 
-        return comments
+        return comment_rows
 
     def _get_response_percentages(self,
                                   req: "CamcopsRequest",
@@ -632,10 +632,10 @@ class APEQCPFTPerinatalReportTests(APEQCPFTPerinatalReportTestCase):
 
     def test_comments(self) -> None:
         expected_comments = [
-            "comments_2", "comments_5", "comments_20",
+            ("comments_2",), ("comments_5",), ("comments_20",),
         ]
 
-        comments = self.report._get_comments(self.req)
+        comments = self.report._get_comment_rows(self.req)
 
         self.assertEqual(comments, expected_comments)
 
@@ -709,9 +709,9 @@ class APEQCPFTPerinatalReportDateRangeTests(APEQCPFTPerinatalReportTestCase):
         self.report.start_datetime = "2018-10-02T00:00:00.000000+00:00"
         self.report.end_datetime = "2018-10-05T00:00:00.000000+00:00"
 
-        rows = self.report._get_comments(self.req)
+        rows = self.report._get_comment_rows(self.req)
         self.assertEqual(len(rows), 3)
 
-        self.assertEqual(rows[0], "comments 2")
-        self.assertEqual(rows[1], "comments 3")
-        self.assertEqual(rows[2], "comments 4")
+        self.assertEqual(rows[0], ("comments 2",))
+        self.assertEqual(rows[1], ("comments 3",))
+        self.assertEqual(rows[2], ("comments 4",))

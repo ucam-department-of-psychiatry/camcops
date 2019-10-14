@@ -214,6 +214,25 @@ Check the following:
     ``ps aux | grep camcops``)?
 
 
+Data download fails; Apache reports proxy error
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For example:
+
+.. code-block:: none
+
+    Proxy Error
+
+    The proxy server received an invalid response from an upstream server.
+    The proxy server could not handle the request GET /camcops/basic_dump.
+
+    Reason: Error reading from remote server
+
+This is probably Apache saying "CamCOPS was too slow to respond, so I timed
+out". Consider adding e.g. ``timeout=300`` to the ``ProxyPass`` command in
+the Apache config. The timeout value is in seconds. See e.g.
+https://httpd.apache.org/docs/2.4/mod/mod_proxy.html#proxypass.
+
 
 Other Apache errors
 ~~~~~~~~~~~~~~~~~~~
