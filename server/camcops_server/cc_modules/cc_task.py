@@ -206,8 +206,14 @@ class TaskHasPatientMixin(object):
             ),
             uselist=False,
             viewonly=True,
-            lazy="joined"
-            # EMPIRICALLY: SLOWER OVERALL WITH THIS # lazy="joined"
+            # Profiling results 2019-10-14 exporting 4185 phq9 records with
+            # unique patients to xlsx
+            # lazy="select"  : 59.7s
+            # lazy="joined"  : 44.3s
+            # lazy="subquery": 36.9s
+            # lazy="selectin": 35.3s
+            # See also idnums relationship on Patient class (cc_patient.py)
+            lazy="selectin"
         )
         # NOTE: this retrieves the most recent (i.e. the current) information
         # on that patient. Consequently, task version history doesn't show the

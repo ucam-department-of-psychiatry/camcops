@@ -174,7 +174,14 @@ class Patient(GenericTabletRecordMixin, Base):
         ),
         uselist=True,
         viewonly=True,
-        # Not profiled - any benefit unclear # lazy="joined"
+        # Profiling results 2019-10-14 exporting 4185 phq9 records with
+        # unique patients to xlsx (task-patient relationship "selectin")
+        # lazy="select"  : 35.3s
+        # lazy="joined"  : 27.3s
+        # lazy="subquery": 15.2s (31.0s when task-patient also subquery)
+        # lazy="selectin": 26.4s
+        # See also patient relationship on Task class (cc_task.py)
+        lazy="subquery"
     )  # type: List[PatientIdNum]
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -803,11 +810,11 @@ def is_candidate_patient_valid(ptinfo: BarePatientInfo,
                                finalizing: bool) -> Tuple[bool, str]:
     """
     Is the specified patient acceptable to upload into this group?
-    
+
     Checks:
-    
+
     - group upload or finalize policy
-    
+
     .. todo:: is_candidate_patient_valid: check against predefined patients, if
        the group wants
 
