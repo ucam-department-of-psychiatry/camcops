@@ -26,7 +26,7 @@ camcops_server/tasks/perinatalpoem.py
 
 """
 
-from typing import Dict, List, Tuple, Type
+from typing import Dict, Generator, List, Optional, Tuple, Type
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.datetimefunc import format_datetime
@@ -62,6 +62,7 @@ from camcops_server.cc_modules.cc_task import (
 )
 from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_tsv import TsvPage
+from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 
 
 # =============================================================================
@@ -826,3 +827,97 @@ class PerinatalPoemReport(Report):
             wheres.append(
                 column("when_created") < self.end_datetime
             )
+
+
+# =============================================================================
+# Unit tests
+# =============================================================================
+
+class PerinatalPoemReportTests(DemoDatabaseTestCase):
+    """
+    Most of the base class tested in APEQCPFT Perinatal so just some basic
+    sanity checking here
+    """
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.id_sequence = self.get_id()
+
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.report = PerinatalPoemReport()
+
+        # Really only needed for tests
+        self.report.start_datetime = None
+        self.report.end_datetime = None
+
+    @staticmethod
+    def get_id() -> Generator[int, None, None]:
+        i = 1
+
+        while True:
+            yield i
+            i += 1
+
+    def create_tasks(self):
+        self._create_task(general_comments="comment 1")
+        self._create_task(general_comments="comment 2")
+        self._create_task(general_comments="comment 3")
+
+        self.dbsession.commit()
+
+    def _create_task(self, **kwargs) -> None:
+        task = PerinatalPoem()
+        self.apply_standard_task_fields(task)
+        task.id = next(self.id_sequence)
+
+        for name, value in kwargs.items():
+            setattr(task, name, value)
+
+        self.dbsession.add(task)
+
+    def test_qa_rows_counts(self) -> None:
+        rows = self.report._get_qa_rows(self.req)
+
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(len(rows[0]), 4)
+
+    def test_qb_rows_counts(self) -> None:
+        rows = self.report._get_qb_rows(self.req)
+
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(len(rows[0]), 4)
+
+    def test_q1_rows_counts(self) -> None:
+        rows = self.report._get_q1_rows(self.req)
+
+        self.assertEqual(len(rows), 2)
+        self.assertEqual(len(rows[0]), 7)
+
+    def test_q2_rows_counts(self) -> None:
+        rows = self.report._get_q2_rows(self.req)
+
+        self.assertEqual(len(rows), 12)
+        self.assertEqual(len(rows[0]), 6)
+
+    def test_q3_rows_counts(self) -> None:
+        rows = self.report._get_q3_rows(self.req)
+
+        self.assertEqual(len(rows), 6)
+        self.assertEqual(len(rows[0]), 6)
+
+    def test_participation_rows_counts(self) -> None:
+        rows = self.report._get_fp_rows(self.req)
+
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(len(rows[0]), 4)
+
+    def test_comments(self) -> None:
+        expected_comments = [
+            ("comment 1",), ("comment 2",), ("comment 3",),
+        ]
+
+        comments = self.report._get_comment_rows(self.req)
+
+        self.assertEqual(comments, expected_comments)
