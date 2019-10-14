@@ -26,7 +26,7 @@ camcops_server/tasks/apeq_cpft_perinatal.py
 
 """
 
-from typing import Dict, Generator, List, Optional
+from typing import Dict, Generator, List, Optional, Tuple
 
 from cardinal_pythonlib.classes import classproperty
 
@@ -206,7 +206,7 @@ class APEQCPFTPerinatalReport(Report):
                 ff_column_headings=self._get_ff_column_headings(req),
                 ff_rows=self._get_ff_rows(req, cell_format=cell_format),
                 ff_why_rows=self._get_ff_why_rows(req),
-                comments=self._get_comments(req)
+                comment_rows=self._get_comment_rows(req)
             ),
             request=req
         )
@@ -232,7 +232,7 @@ class APEQCPFTPerinatalReport(Report):
         comments_page = self.get_tsv_page(
             name=_("Comments"),
             column_names=[_("Comment")],
-            rows=[self._get_comments(req)]
+            rows=self._get_comment_rows(req)
         )
 
         return [main_page, ff_page, ff_why_page, comments_page]
@@ -317,7 +317,7 @@ class APEQCPFTPerinatalReport(Report):
 
         return rows
 
-    def _get_comments(self, req: "CamcopsRequest") -> List[str]:
+    def _get_comment_rows(self, req: "CamcopsRequest") -> List[Tuple[str]]:
         """
         A list of all the additional comments
         """
@@ -333,12 +333,12 @@ class APEQCPFTPerinatalReport(Report):
             )
         )
 
-        comments = []
+        comment_rows = []
 
         for result in req.dbsession.execute(query).fetchall():
-            comments.append(result[0])
+            comment_rows.append(result)
 
-        return comments
+        return comment_rows
 
     def _get_response_percentages(self,
                                   req: "CamcopsRequest",
@@ -552,9 +552,9 @@ class APEQCPFTPerinatalReportTests(DemoDatabaseTestCase):
         report = APEQCPFTPerinatalReport()
 
         expected_comments = [
-            "comments_2", "comments_5", "comments_20",
+            ("comments_2",), ("comments_5",), ("comments_20",),
         ]
 
-        comments = report._get_comments(self.req)
+        comments = report._get_comment_rows(self.req)
 
         self.assertEqual(comments, expected_comments)
