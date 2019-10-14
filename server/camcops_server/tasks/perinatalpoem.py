@@ -539,7 +539,7 @@ class PerinatalPoemReport(Report):
                 participation_q=self.task.xstring(req, "participation_q"),
                 fp_column_headings=self._get_fp_column_headings(req),
                 fp_rows=self._get_fp_rows(req),
-                comments=self._get_comments(req)
+                comment_rows=self._get_comment_rows(req)
             ),
             request=req
         )
@@ -695,7 +695,7 @@ class PerinatalPoemReport(Report):
             cell_format=cell_format
         )
 
-    def _get_comments(self, req: "CamcopsRequest") -> List[str]:
+    def _get_comment_rows(self, req: "CamcopsRequest") -> List[str]:
         """
         A list of all the additional comments
         """
@@ -711,16 +711,16 @@ class PerinatalPoemReport(Report):
             select([
                 column("general_comments"),
             ])
-            .select_from(PerinatalPoem.__table__)
+            .select_from(self.task.__table__)
             .where(and_(*wheres))
         )
 
-        comments = []
+        comment_rows = []
 
         for result in req.dbsession.execute(query).fetchall():
-            comments.append(result[0])
+            comment_rows.append([result[0]])
 
-        return comments
+        return comment_rows
 
     def _get_response_percentages(self,
                                   req: "CamcopsRequest",
