@@ -26,10 +26,11 @@ camcops_server/tasks/perinatalpoem.py
 
 """
 
-from typing import Dict, Generator, List, Optional, Tuple, Type
+from typing import Dict, Generator, List, Tuple, Type
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.datetimefunc import format_datetime
+import pendulum
 from pyramid.renderers import render_to_response
 from pyramid.response import Response
 from sqlalchemy.sql.elements import ColumnElement
@@ -833,12 +834,7 @@ class PerinatalPoemReport(Report):
 # Unit tests
 # =============================================================================
 
-class PerinatalPoemReportTests(DemoDatabaseTestCase):
-    """
-    Most of the base class tested in APEQCPFT Perinatal so just some basic
-    sanity checking here
-    """
-
+class PerinatalPoemReportTestCase(DemoDatabaseTestCase):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.id_sequence = self.get_id()
@@ -860,22 +856,33 @@ class PerinatalPoemReportTests(DemoDatabaseTestCase):
             yield i
             i += 1
 
-    def create_tasks(self):
-        self._create_task(general_comments="comment 1")
-        self._create_task(general_comments="comment 2")
-        self._create_task(general_comments="comment 3")
-
-        self.dbsession.commit()
-
-    def _create_task(self, **kwargs) -> None:
+    def create_task(self, **kwargs) -> None:
         task = PerinatalPoem()
         self.apply_standard_task_fields(task)
         task.id = next(self.id_sequence)
+
+        era = kwargs.pop('era', None)
+        if era is not None:
+            task.when_created = pendulum.parse(era)
 
         for name, value in kwargs.items():
             setattr(task, name, value)
 
         self.dbsession.add(task)
+
+
+class PerinatalPoemReportTests(PerinatalPoemReportTestCase):
+    """
+    Most of the base class tested in APEQCPFT Perinatal so just some basic
+    sanity checking here
+    """
+
+    def create_tasks(self):
+        self.create_task(general_comments="comment 1")
+        self.create_task(general_comments="comment 2")
+        self.create_task(general_comments="comment 3")
+
+        self.dbsession.commit()
 
     def test_qa_rows_counts(self) -> None:
         rows = self.report._get_qa_rows(self.req)
@@ -921,3 +928,29 @@ class PerinatalPoemReportTests(DemoDatabaseTestCase):
         comments = self.report._get_comment_rows(self.req)
 
         self.assertEqual(comments, expected_comments)
+
+
+class PerinatalPoemReportDateRangeTests(PerinatalPoemReportTestCase):
+    def create_tasks(self) -> None:
+        self.create_task(general_comments="comments 1",
+                         era="2018-10-01T00:00:00.000000+00:00")
+        self.create_task(general_comments="comments 2",
+                         era="2018-10-02T00:00:00.000000+00:00")
+        self.create_task(general_comments="comments 3",
+                         era="2018-10-03T00:00:00.000000+00:00")
+        self.create_task(general_comments="comments 4",
+                         era="2018-10-04T00:00:00.000000+00:00")
+        self.create_task(general_comments="comments 5",
+                         era="2018-10-05T00:00:00.000000+00:00")
+        self.dbsession.commit()
+
+    def test_comments_filtered_by_date(self) -> None:
+        self.report.start_datetime = "2018-10-02T00:00:00.000000+00:00"
+        self.report.end_datetime = "2018-10-05T00:00:00.000000+00:00"
+
+        rows = self.report._get_comment_rows(self.req)
+        self.assertEqual(len(rows), 3)
+
+        self.assertEqual(rows[0], ("comments 2",))
+        self.assertEqual(rows[1], ("comments 3",))
+        self.assertEqual(rows[2], ("comments 4",))
