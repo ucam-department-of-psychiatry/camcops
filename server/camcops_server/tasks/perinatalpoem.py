@@ -26,7 +26,7 @@ camcops_server/tasks/perinatalpoem.py
 
 """
 
-from typing import Dict, List, Type
+from typing import Dict, List, Tuple, Type
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.datetimefunc import format_datetime
@@ -737,7 +737,7 @@ class PerinatalPoemReport(Report):
             cell_format=cell_format
         )
 
-    def _get_comment_rows(self, req: "CamcopsRequest") -> List[str]:
+    def _get_comment_rows(self, req: "CamcopsRequest") -> List[Tuple[str]]:
         """
         A list of all the additional comments
         """
@@ -760,7 +760,7 @@ class PerinatalPoemReport(Report):
         comment_rows = []
 
         for result in req.dbsession.execute(query).fetchall():
-            comment_rows.append([result[0]])
+            comment_rows.append(result)
 
         return comment_rows
 
