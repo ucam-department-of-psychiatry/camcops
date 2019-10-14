@@ -547,8 +547,50 @@ class PerinatalPoemReport(Report):
     def get_tsv_pages(self, req: "CamcopsRequest") -> List[TsvPage]:
         _ = req.gettext
 
-        # TODO
-        return []
+        qa_page = self.get_tsv_page(
+            name=self.task.xstring(req, "qa_q"),
+            column_names=self._get_qa_column_headings(req),
+            rows=self._get_qa_rows(req)
+        )
+
+        qb_page = self.get_tsv_page(
+            name=self.task.xstring(req, "qb_q"),
+            column_names=self._get_qb_column_headings(req),
+            rows=self._get_qb_rows(req)
+        )
+
+        q1_page = self.get_tsv_page(
+            name=self.task.xstring(req, "q1_stem"),
+            column_names=self._get_q1_column_headings(req),
+            rows=self._get_q1_rows(req)
+        )
+
+        q2_page = self.get_tsv_page(
+            name=self.task.xstring(req, "q2_stem"),
+            column_names=self._get_q2_column_headings(req),
+            rows=self._get_q2_rows(req)
+        )
+
+        q3_page = self.get_tsv_page(
+            name=self.task.xstring(req, "q3_stem"),
+            column_names=self._get_q3_column_headings(req),
+            rows=self._get_q3_rows(req)
+        )
+
+        participation_page = self.get_tsv_page(
+            name=self.task.xstring(req, "participation_q"),
+            column_names=self._get_fp_column_headings(req),
+            rows=self._get_fp_rows(req)
+        )
+
+        comments_page = self.get_tsv_page(
+            name=_("Comments"),
+            column_names=[_("Comment")],
+            rows=self._get_comment_rows(req)
+        )
+
+        return [qa_page, qb_page, q1_page, q2_page, q3_page,
+                participation_page, comments_page]
 
     def _get_qa_column_headings(self, req: "CamcopsRequest") -> List[str]:
         _ = req.gettext
