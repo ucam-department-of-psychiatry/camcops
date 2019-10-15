@@ -65,29 +65,12 @@ ${_("Created")} <b>&lt; ${ end_datetime }</b>.
 %endif
 </p>
 
-<h2>${ qa_q }</h2>
+%for table in tables:
+<h2>${ table.heading }</h2>
 
-<%include file="table.mako" args="column_headings=qa_column_headings, rows=qa_rows"/>
+<%include file="table.mako" args="column_headings=table.column_headings, rows=table.rows, escape_cells=False"/>
 
-<h2>${ qb_q }</h2>
-
-<%include file="table.mako" args="column_headings=qb_column_headings, rows=qb_rows"/>
-
-<h2>${ q1_stem }</h2>
-
-<%include file="table.mako" args="column_headings=q1_column_headings, rows=q1_rows"/>
-
-<h2>${ q2_stem }</h2>
-
-<%include file="table.mako" args="column_headings=q2_column_headings, rows=q2_rows, escape_cells=False"/>
-
-<h2>${ q3_stem }</h2>
-
-<%include file="table.mako" args="column_headings=q3_column_headings, rows=q3_rows, escape_cells=False"/>
-
-<h2>${ participation_q }</h2>
-
-<%include file="table.mako" args="column_headings=fp_column_headings, rows=fp_rows, escape_cells=False"/>
+%endfor
 
 <h2>${_("Comments")}</h2>
 %for comment_row in comment_rows:

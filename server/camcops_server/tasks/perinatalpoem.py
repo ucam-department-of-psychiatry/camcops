@@ -26,6 +26,7 @@ camcops_server/tasks/perinatalpoem.py
 
 """
 
+import re
 from typing import Dict, Generator, List, Tuple, Type
 
 from cardinal_pythonlib.classes import classproperty
@@ -448,12 +449,42 @@ class PerinatalPoem(Task):
 # Reports
 # =============================================================================
 
+
+class PerinatalPoemReportTableConfig(object):
+    def __init__(self,
+                 heading: str,
+                 column_headings: List[str],
+                 fieldnames: List[str],
+                 min_answer: int=0,
+                 xstring_format: str="{}_q") -> None:
+        self.heading = heading
+        self.column_headings = column_headings
+        self.fieldnames = fieldnames
+        self.min_answer = min_answer
+        self.xstring_format = xstring_format
+
+
+class PerinatalPoemReportTable(object):
+    def __init__(self, req: "CamcopsRequest",
+                 heading: str,
+                 column_headings: List[str],
+                 rows: List[List[str]]) -> None:
+        _ = req.gettext
+        self.heading = heading
+
+        common_headings = [_("Question"), _("Total responses")]
+        self.column_headings = common_headings + column_headings
+        self.rows = rows
+
+
 class PerinatalPoemReport(DateTimeFilteredReportMixin, Report,
                           PercentageSummaryReportMixin):
     """
     Provides a summary of each question, x% of people said each response etc.
     Then a summary of the comments.
     """
+    HTML_TAG_RE = re.compile(r'<[^>]+>')
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -479,8 +510,6 @@ class PerinatalPoemReport(DateTimeFilteredReportMixin, Report,
         return False
 
     def render_html(self, req: "CamcopsRequest") -> Response:
-        cell_format = "{0:.1f}%"
-
         return render_to_response(
             "perinatal_poem_report.mako",
             dict(
@@ -488,24 +517,7 @@ class PerinatalPoemReport(DateTimeFilteredReportMixin, Report,
                 report_id=self.report_id,
                 start_datetime=self.start_datetime,
                 end_datetime=self.end_datetime,
-                qa_q=self.task.xstring(req, "qa_q"),
-                qa_column_headings=self._get_qa_column_headings(req),
-                qa_rows=self._get_qa_rows(req, cell_format=cell_format),
-                qb_q=self.task.xstring(req, "qb_q"),
-                qb_column_headings=self._get_qb_column_headings(req),
-                qb_rows=self._get_qb_rows(req, cell_format=cell_format),
-                q1_stem=self.task.xstring(req, "q1_stem"),
-                q1_column_headings=self._get_q1_column_headings(req),
-                q1_rows=self._get_q1_rows(req, cell_format=cell_format),
-                q2_stem=self.task.xstring(req, "q2_stem"),
-                q2_column_headings=self._get_q2_column_headings(req),
-                q2_rows=self._get_q2_rows(req, cell_format=cell_format),
-                q3_stem=self.task.xstring(req, "q3_stem"),
-                q3_column_headings=self._get_q3_column_headings(req),
-                q3_rows=self._get_q3_rows(req, cell_format=cell_format),
-                participation_q=self.task.xstring(req, "participation_q"),
-                fp_column_headings=self._get_fp_column_headings(req),
-                fp_rows=self._get_fp_rows(req),
+                tables=self._get_html_tables(req),
                 comment_rows=self._get_comment_rows(req)
             ),
             request=req
@@ -514,201 +526,140 @@ class PerinatalPoemReport(DateTimeFilteredReportMixin, Report,
     def get_tsv_pages(self, req: "CamcopsRequest") -> List[TsvPage]:
         _ = req.gettext
 
-        qa_page = self.get_tsv_page(
-            name=self.task.xstring(req, "qa_q"),
-            column_names=self._get_qa_column_headings(req),
-            rows=self._get_qa_rows(req)
+        pages = []
+
+        for table in self._get_tsv_tables(req):
+            pages.append(
+                self.get_tsv_page(
+                    name=table.heading,
+                    column_names=table.column_headings,
+                    rows=table.rows
+                )
+            )
+
+        pages.append(
+            self.get_tsv_page(
+                name=_("Comments"),
+                column_names=[_("Comment")],
+                rows=self._get_comment_rows(req)
+            )
         )
 
-        qb_page = self.get_tsv_page(
-            name=self.task.xstring(req, "qb_q"),
-            column_names=self._get_qb_column_headings(req),
-            rows=self._get_qb_rows(req)
-        )
+        return pages
 
-        q1_page = self.get_tsv_page(
-            name=self.task.xstring(req, "q1_stem"),
-            column_names=self._get_q1_column_headings(req),
-            rows=self._get_q1_rows(req)
-        )
+    def _get_html_tables(
+            self, req: "CamcopsRequest") -> List["PerinatalPoemReportTable"]:
 
-        q2_page = self.get_tsv_page(
-            name=self.task.xstring(req, "q2_stem"),
-            column_names=self._get_q2_column_headings(req),
-            rows=self._get_q2_rows(req)
-        )
+        return [
+            self._get_html_table(req, config)
+            for config in self._get_table_configs(req)
+        ]
 
-        q3_page = self.get_tsv_page(
-            name=self.task.xstring(req, "q3_stem"),
-            column_names=self._get_q3_column_headings(req),
-            rows=self._get_q3_rows(req)
-        )
+    def _get_tsv_tables(
+            self, req: "CamcopsRequest") -> List["PerinatalPoemReportTable"]:
 
-        participation_page = self.get_tsv_page(
-            name=self.task.xstring(req, "participation_q"),
-            column_names=self._get_fp_column_headings(req),
-            rows=self._get_fp_rows(req)
-        )
+        return [
+            self._get_tsv_table(req, config)
+            for config in self._get_table_configs(req)
+        ]
 
-        comments_page = self.get_tsv_page(
-            name=_("Comments"),
-            column_names=[_("Comment")],
-            rows=self._get_comment_rows(req)
-        )
+    def _get_table_configs(
+            self,
+            req: "CamcopsRequest") -> List["PerinatalPoemReportConfig"]:
+        return [
+            PerinatalPoemReportTableConfig(
+                heading=self.task.xstring(req, "qa_q"),
+                column_headings=self.task.get_qa_options(req),
+                fieldnames=["qa"],
+                min_answer=1
+            ),
+            PerinatalPoemReportTableConfig(
+                heading=self.task.xstring(req, "qb_q"),
+                column_headings=self.task.get_qb_options(req),
+                fieldnames=["qb"],
+                min_answer=1
+            ),
+            PerinatalPoemReportTableConfig(
+                heading=self.task.xstring(req, "q1_stem"),
+                column_headings=self.task.get_q1_options(req),
+                fieldnames=PerinatalPoem.Q1_FIELDS,
+                min_answer=1
+            ),
+            PerinatalPoemReportTableConfig(
+                heading=self.task.xstring(req, "q2_stem"),
+                column_headings=self.task.get_agree_options(req),
+                fieldnames=PerinatalPoem.Q2_FIELDS,
+                min_answer=1
+            ),
+            PerinatalPoemReportTableConfig(
+                heading=self.task.xstring(req, "q3_stem"),
+                column_headings=self.task.get_agree_options(req),
+                fieldnames=PerinatalPoem.Q3_FIELDS,
+                min_answer=1
+            ),
+            PerinatalPoemReportTableConfig(
+                heading=self.task.xstring(req, "participation_q"),
+                column_headings=self.task.get_yn_options(req),
+                fieldnames=["future_participation"],
+                xstring_format="participation_q"
+            ),
+        ]
 
-        return [qa_page, qb_page, q1_page, q2_page, q3_page,
-                participation_page, comments_page]
-
-    def _get_qa_column_headings(self, req: "CamcopsRequest") -> List[str]:
-        _ = req.gettext
-        names = [_("Question"),
-                 _("Total responses")] + self.task.get_qa_options(req)
-
-        return names
-
-    def _get_qa_rows(self, req: "CamcopsRequest",
-                     cell_format: str="{}") -> List[List[str]]:
-        """
-        Percentage of people who answered x for each question
-        """
-        column_dict = {
-            "qa": self.task.xstring(req, f"qa_q")
-        }
-
-        return self.get_percentage_summaries(
-            req,
-            column_dict=column_dict,
-            num_answers=2,
-            cell_format=cell_format,
-            min_answer=1
-        )
-
-    def _get_qb_column_headings(self, req: "CamcopsRequest") -> List[str]:
-        _ = req.gettext
-        names = [_("Question"),
-                 _("Total responses")] + self.task.get_qb_options(req)
-
-        return names
-
-    def _get_qb_rows(self, req: "CamcopsRequest",
-                     cell_format: str="{}") -> List[List[str]]:
-        """
-        Percentage of people who answered x for each question
-        """
-        column_dict = {
-            "qb": self.task.xstring(req, f"qb_q")
-        }
-
-        return self.get_percentage_summaries(
-            req,
-            column_dict=column_dict,
-            num_answers=2,
-            cell_format=cell_format,
-            min_answer=1
-        )
-
-    def _get_q1_column_headings(self, req: "CamcopsRequest") -> List[str]:
-        _ = req.gettext
-        names = [_("Question"),
-                 _("Total responses")] + self.task.get_q1_options(req)
-
-        return names
-
-    def _get_q1_rows(self, req: "CamcopsRequest",
-                     cell_format: str="{}") -> List[List[str]]:
-        """
-        Percentage of people who answered x for each question
-        """
+    def _get_html_table(
+            self, req: "CamcopsRequest",
+            config: PerinatalPoemReportTableConfig
+    ) -> PerinatalPoemReportTable:
         column_dict = {}
 
-        for fieldname in PerinatalPoem.Q1_FIELDS:
+        for fieldname in config.fieldnames:
             column_dict[fieldname] = self.task.xstring(
-                req, f"{fieldname}_q")
+                req, config.xstring_format.format(fieldname)
+            )
 
-        return self.get_percentage_summaries(
+        rows = self.get_percentage_summaries(
             req,
             column_dict=column_dict,
-            num_answers=5,
-            cell_format=cell_format,
-            min_answer=1
+            num_answers=len(config.column_headings),
+            cell_format="{0:.1f}%",
+            min_answer=config.min_answer
         )
 
-    def _get_q2_column_headings(self, req: "CamcopsRequest") -> List[str]:
-        _ = req.gettext
-        names = [_("Question"),
-                 _("Total responses")] + self.task.get_agree_options(req)
+        return PerinatalPoemReportTable(
+            req,
+            heading=config.heading,
+            column_headings=config.column_headings,
+            rows=rows
+        )
 
-        return names
-
-    def _get_q2_rows(self, req: "CamcopsRequest",
-                     cell_format: str="{}") -> List[List[str]]:
-        """
-        Percentage of people who answered x for each question
-        """
+    def _get_tsv_table(
+            self, req: "CamcopsRequest",
+            config: PerinatalPoemReportTableConfig
+    ) -> PerinatalPoemReportTable:
         column_dict = {}
 
-        for fieldname in PerinatalPoem.Q2_FIELDS:
-            column_dict[fieldname] = self.task.xstring(
-                req, f"{fieldname}_q")
+        for fieldname in config.fieldnames:
+            column_dict[fieldname] = self._strip_tags(
+                self.task.xstring(
+                    req, config.xstring_format.format(fieldname)
+                )
+            )
 
-        return self.get_percentage_summaries(
+        rows = self.get_percentage_summaries(
             req,
             column_dict=column_dict,
-            num_answers=4,
-            cell_format=cell_format,
-            min_answer=1
+            num_answers=len(config.column_headings),
+            min_answer=config.min_answer
         )
 
-    def _get_q3_column_headings(self, req: "CamcopsRequest") -> List[str]:
-        _ = req.gettext
-        names = [_("Question"),
-                 _("Total responses")] + self.task.get_agree_options(req)
-
-        return names
-
-    def _get_q3_rows(self, req: "CamcopsRequest",
-                     cell_format: str="{}") -> List[List[str]]:
-        """
-        Percentage of people who answered x for each question
-        """
-        column_dict = {}
-
-        for fieldname in PerinatalPoem.Q3_FIELDS:
-            column_dict[fieldname] = self.task.xstring(
-                req, f"{fieldname}_q")
-
-        return self.get_percentage_summaries(
+        return PerinatalPoemReportTable(
             req,
-            column_dict=column_dict,
-            num_answers=4,
-            cell_format=cell_format,
-            min_answer=1
+            heading=config.heading,
+            column_headings=config.column_headings,
+            rows=rows
         )
 
-    def _get_fp_column_headings(self, req: "CamcopsRequest") -> List[str]:
-        _ = req.gettext
-        names = [_("Question"),
-                 _("Total responses")] + self.task.get_yn_options(req)
-
-        return names
-
-    def _get_fp_rows(self, req: "CamcopsRequest",
-                     cell_format: str="{}") -> List[List[str]]:
-        """
-        Percentage of people who answered x for each question
-        """
-        column_dict = {
-            "future_participation": self.task.xstring(
-                req, "participation_q")
-        }
-
-        return self.get_percentage_summaries(
-            req,
-            column_dict=column_dict,
-            num_answers=2,
-            cell_format=cell_format,
-            min_answer=1
-        )
+    def _strip_tags(self, text: str) -> str:
+        return self.HTML_TAG_RE.sub('', text)
 
     def _get_comment_rows(self, req: "CamcopsRequest") -> List[Tuple[str]]:
         """
