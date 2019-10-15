@@ -29,30 +29,22 @@ camcops_server/tasks/apeq_cpft_perinatal.py
 from typing import Dict, Generator, List, Optional, Tuple, Type
 
 from cardinal_pythonlib.classes import classproperty
-from cardinal_pythonlib.datetimefunc import format_datetime
 
 import pendulum
 from pyramid.renderers import render_to_response
 from pyramid.response import Response
-from sqlalchemy.sql.elements import ColumnElement
-from sqlalchemy.sql.expression import and_, column, func, select
+from sqlalchemy.sql.expression import and_, column, select
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
-from camcops_server.cc_modules.cc_constants import (
-    CssClass,
-    DateFormat,
-)
-from camcops_server.cc_modules.cc_forms import (
-    EndPendulumSelector,
-    ReportParamSchema,
-    StartPendulumSelector,
-)
+from camcops_server.cc_modules.cc_constants import CssClass
+
 from camcops_server.cc_modules.cc_html import tr_qa
-from camcops_server.cc_modules.cc_pyramid import (
-    ViewParam,
+from camcops_server.cc_modules.cc_report import (
+    DateTimeFilteredReportMixin,
+    PercentageSummaryReportMixin,
+    Report,
 )
-from camcops_server.cc_modules.cc_report import Report
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_task import Task
 from camcops_server.cc_modules.cc_tsv import TsvPage
@@ -182,26 +174,20 @@ class APEQCPFTPerinatal(Task):
 # Reports
 # =============================================================================
 
-class APEQCPFTPerinatalReportSchema(ReportParamSchema):
-    start_datetime = StartPendulumSelector()
-    end_datetime = EndPendulumSelector()
-
-
-class APEQCPFTPerinatalReport(Report):
+class APEQCPFTPerinatalReport(DateTimeFilteredReportMixin, Report,
+                              PercentageSummaryReportMixin):
     """
     Provides a summary of each question, x% of people said each response etc.
     Then a summary of the comments.
     """
-    COL_Q = 0
-    COL_TOTAL = 1
-    COL_RESPONSE_START = 2
-
-    COL_FF_WHY = 1
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.task = APEQCPFTPerinatal()
+
+    @classproperty
+    def task_class(self) -> "Task":
+        return APEQCPFTPerinatal
 
     # noinspection PyMethodParameters
     @classproperty
@@ -217,29 +203,6 @@ class APEQCPFTPerinatalReport(Report):
     @classproperty
     def superuser_only(cls) -> bool:
         return False
-
-    @staticmethod
-    def get_paramform_schema_class() -> Type[ReportParamSchema]:
-        return APEQCPFTPerinatalReportSchema
-
-    @classmethod
-    def get_specific_http_query_keys(cls) -> List[str]:
-        return [
-            ViewParam.START_DATETIME,
-            ViewParam.END_DATETIME,
-        ]
-
-    def get_response(self, req: "CamcopsRequest") -> Response:
-        self.start_datetime = format_datetime(
-            req.get_datetime_param(ViewParam.START_DATETIME),
-            DateFormat.ERA
-        )
-        self.end_datetime = format_datetime(
-            req.get_datetime_param(ViewParam.END_DATETIME),
-            DateFormat.ERA
-        )
-
-        return super().get_response(req)
 
     def render_html(self, req: "CamcopsRequest") -> Response:
         cell_format = "{0:.1f}%"
@@ -308,7 +271,7 @@ class APEQCPFTPerinatalReport(Report):
 
             column_dict[column_name] = self.task.wxstring(req, column_name)
 
-        return self._get_response_percentages(
+        return self.get_percentage_summaries(
             req,
             column_dict=column_dict,
             num_answers=3,
@@ -325,7 +288,7 @@ class APEQCPFTPerinatalReport(Report):
         """
         Percentage of people who answered x for the friends/family question
         """
-        return self._get_response_percentages(
+        return self.get_percentage_summaries(
             req,
             column_dict={
                 "ff_rating": self.task.wxstring(
@@ -349,7 +312,7 @@ class APEQCPFTPerinatalReport(Report):
             column("ff_why").isnot(None)
         ]
 
-        self._add_start_end_datetime_filters(wheres)
+        self.add_report_filters(wheres)
 
         # noinspection PyUnresolvedReferences
         query = (
@@ -378,7 +341,7 @@ class APEQCPFTPerinatalReport(Report):
             column("comments").isnot(None)
         ]
 
-        self._add_start_end_datetime_filters(wheres)
+        self.add_report_filters(wheres)
 
         # noinspection PyUnresolvedReferences
         query = (
@@ -396,75 +359,18 @@ class APEQCPFTPerinatalReport(Report):
 
         return comment_rows
 
-    def _get_response_percentages(self,
-                                  req: "CamcopsRequest",
-                                  column_dict: Dict[str, str],
-                                  num_answers: int,
-                                  cell_format: str="{}") -> List[List[str]]:
-        rows = []
-
-        for column_name, question in column_dict.items():
-            """
-            SELECT COUNT(col) FROM apeq_cpft_perinatal WHERE col IS NOT NULL
-            """
-            wheres = [
-                column(column_name).isnot(None)
-            ]
-
-            self._add_start_end_datetime_filters(wheres)
-
-            # noinspection PyUnresolvedReferences
-            total_query = (
-                select([func.count(column_name)])
-                .select_from(self.task.__table__)
-                .where(and_(*wheres))
-            )
-
-            total_responses = req.dbsession.execute(total_query).fetchone()[0]
-
-            row = [question] + [total_responses] + [""] * num_answers
-
-            """
-            SELECT total_responses,col, ((100 * COUNT(col)) / total_responses)
-            FROM apeq_cpft_perinatal WHERE col is not NULL
-            GROUP BY col
-            """
-            # noinspection PyUnresolvedReferences
-            query = (
-                select([
-                    column(column_name),
-                    ((100 * func.count(column_name))/total_responses)
-                ])
-                .select_from(self.task.__table__)
-                .where(and_(*wheres))
-                .group_by(column_name)
-            )
-
-            for result in req.dbsession.execute(query):
-                row[result[0] + self.COL_RESPONSE_START] = cell_format.format(
-                    result[1])
-
-            rows.append(row)
-
-        return rows
-
-    def _add_start_end_datetime_filters(self, wheres: List[ColumnElement]):
-        if self.start_datetime is not None:
-            wheres.append(
-                column("when_created") >= self.start_datetime
-            )
-
-        if self.end_datetime is not None:
-            wheres.append(
-                column("when_created") < self.end_datetime
-            )
-
 
 # =============================================================================
 # Unit tests
 # =============================================================================
 
 class APEQCPFTPerinatalReportTestCase(DemoDatabaseTestCase):
+    COL_Q = 0
+    COL_TOTAL = 1
+    COL_RESPONSE_START = 2
+
+    COL_FF_WHY = 1
+
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.id_sequence = self.get_id()
@@ -672,12 +578,12 @@ class APEQCPFTPerinatalReportDateRangeTests(APEQCPFTPerinatalReportTestCase):
         q1_row = rows[0]
 
         # There should be three tasks included in the calculation.
-        self.assertEqual(q1_row[self.report.COL_TOTAL], 3)
+        self.assertEqual(q1_row[self.COL_TOTAL], 3)
 
         # For question 1 all of them answered 0 so we would expect
         # 100%. If the results aren't being filtered we will get
         # 60%
-        self.assertEqual(q1_row[self.report.COL_RESPONSE_START + 0], "100.0%")
+        self.assertEqual(q1_row[self.COL_RESPONSE_START + 0], "100.0%")
 
     def test_ff_rows_filtered_by_date(self) -> None:
         self.report.start_datetime = "2018-10-02T00:00:00.000000+00:00"
@@ -687,12 +593,12 @@ class APEQCPFTPerinatalReportDateRangeTests(APEQCPFTPerinatalReportTestCase):
         ff_row = rows[0]
 
         # There should be three tasks included in the calculation.
-        self.assertEqual(ff_row[self.report.COL_TOTAL], 3)
+        self.assertEqual(ff_row[self.COL_TOTAL], 3)
 
         # For the ff question all of them answered 2 so we would expect
         # 100%. If the results aren't being filtered we will get
         # 60%
-        self.assertEqual(ff_row[self.report.COL_RESPONSE_START + 2], "100.0%")
+        self.assertEqual(ff_row[self.COL_RESPONSE_START + 2], "100.0%")
 
     def test_ff_why_row_filtered_by_date(self) -> None:
         self.report.start_datetime = "2018-10-02T00:00:00.000000+00:00"
@@ -701,9 +607,9 @@ class APEQCPFTPerinatalReportDateRangeTests(APEQCPFTPerinatalReportTestCase):
         rows = self.report._get_ff_why_rows(self.req)
         self.assertEqual(len(rows), 3)
 
-        self.assertEqual(rows[0][self.report.COL_FF_WHY], "ff why 2")
-        self.assertEqual(rows[1][self.report.COL_FF_WHY], "ff why 3")
-        self.assertEqual(rows[2][self.report.COL_FF_WHY], "ff why 4")
+        self.assertEqual(rows[0][self.COL_FF_WHY], "ff why 2")
+        self.assertEqual(rows[1][self.COL_FF_WHY], "ff why 3")
+        self.assertEqual(rows[2][self.COL_FF_WHY], "ff why 4")
 
     def test_comments_filtered_by_date(self) -> None:
         self.report.start_datetime = "2018-10-02T00:00:00.000000+00:00"

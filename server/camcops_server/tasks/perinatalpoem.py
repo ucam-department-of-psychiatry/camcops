@@ -29,33 +29,25 @@ camcops_server/tasks/perinatalpoem.py
 from typing import Dict, Generator, List, Tuple, Type
 
 from cardinal_pythonlib.classes import classproperty
-from cardinal_pythonlib.datetimefunc import format_datetime
 import pendulum
 from pyramid.renderers import render_to_response
 from pyramid.response import Response
-from sqlalchemy.sql.elements import ColumnElement
-from sqlalchemy.sql.expression import and_, column, func, select
+from sqlalchemy.sql.expression import and_, column, select
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
-from camcops_server.cc_modules.cc_constants import (
-    CssClass,
-    DateFormat,
-)
-from camcops_server.cc_modules.cc_forms import (
-    EndPendulumSelector,
-    ReportParamSchema,
-    StartPendulumSelector,
-)
+from camcops_server.cc_modules.cc_constants import CssClass
+
 from camcops_server.cc_modules.cc_html import (
     get_yes_no_none,
     subheading_spanning_two_columns,
     tr_qa,
 )
-from camcops_server.cc_modules.cc_pyramid import (
-    ViewParam,
+from camcops_server.cc_modules.cc_report import (
+    DateTimeFilteredReportMixin,
+    PercentageSummaryReportMixin,
+    Report,
 )
-from camcops_server.cc_modules.cc_report import Report
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_task import (
     get_from_dict,
@@ -456,24 +448,20 @@ class PerinatalPoem(Task):
 # Reports
 # =============================================================================
 
-class PerinatalPoemReportSchema(ReportParamSchema):
-    start_datetime = StartPendulumSelector()
-    end_datetime = EndPendulumSelector()
-
-
-class PerinatalPoemReport(Report):
+class PerinatalPoemReport(DateTimeFilteredReportMixin, Report,
+                          PercentageSummaryReportMixin):
     """
     Provides a summary of each question, x% of people said each response etc.
     Then a summary of the comments.
     """
-    COL_Q = 0
-    COL_TOTAL = 1
-    COL_RESPONSE_OFFSET = 1
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.task = PerinatalPoem()
+
+    @classproperty
+    def task_class(self) -> "Task":
+        return PerinatalPoem
 
     # noinspection PyMethodParameters
     @classproperty
@@ -489,29 +477,6 @@ class PerinatalPoemReport(Report):
     @classproperty
     def superuser_only(cls) -> bool:
         return False
-
-    @staticmethod
-    def get_paramform_schema_class() -> Type[ReportParamSchema]:
-        return PerinatalPoemReportSchema
-
-    @classmethod
-    def get_specific_http_query_keys(cls) -> List[str]:
-        return [
-            ViewParam.START_DATETIME,
-            ViewParam.END_DATETIME,
-        ]
-
-    def get_response(self, req: "CamcopsRequest") -> Response:
-        self.start_datetime = format_datetime(
-            req.get_datetime_param(ViewParam.START_DATETIME),
-            DateFormat.ERA
-        )
-        self.end_datetime = format_datetime(
-            req.get_datetime_param(ViewParam.END_DATETIME),
-            DateFormat.ERA
-        )
-
-        return super().get_response(req)
 
     def render_html(self, req: "CamcopsRequest") -> Response:
         cell_format = "{0:.1f}%"
@@ -610,11 +575,12 @@ class PerinatalPoemReport(Report):
             "qa": self.task.xstring(req, f"qa_q")
         }
 
-        return self._get_response_percentages(
+        return self.get_percentage_summaries(
             req,
             column_dict=column_dict,
             num_answers=2,
-            cell_format=cell_format
+            cell_format=cell_format,
+            min_answer=1
         )
 
     def _get_qb_column_headings(self, req: "CamcopsRequest") -> List[str]:
@@ -633,11 +599,12 @@ class PerinatalPoemReport(Report):
             "qb": self.task.xstring(req, f"qb_q")
         }
 
-        return self._get_response_percentages(
+        return self.get_percentage_summaries(
             req,
             column_dict=column_dict,
             num_answers=2,
-            cell_format=cell_format
+            cell_format=cell_format,
+            min_answer=1
         )
 
     def _get_q1_column_headings(self, req: "CamcopsRequest") -> List[str]:
@@ -658,11 +625,12 @@ class PerinatalPoemReport(Report):
             column_dict[fieldname] = self.task.xstring(
                 req, f"{fieldname}_q")
 
-        return self._get_response_percentages(
+        return self.get_percentage_summaries(
             req,
             column_dict=column_dict,
             num_answers=5,
-            cell_format=cell_format
+            cell_format=cell_format,
+            min_answer=1
         )
 
     def _get_q2_column_headings(self, req: "CamcopsRequest") -> List[str]:
@@ -683,11 +651,12 @@ class PerinatalPoemReport(Report):
             column_dict[fieldname] = self.task.xstring(
                 req, f"{fieldname}_q")
 
-        return self._get_response_percentages(
+        return self.get_percentage_summaries(
             req,
             column_dict=column_dict,
             num_answers=4,
-            cell_format=cell_format
+            cell_format=cell_format,
+            min_answer=1
         )
 
     def _get_q3_column_headings(self, req: "CamcopsRequest") -> List[str]:
@@ -708,11 +677,12 @@ class PerinatalPoemReport(Report):
             column_dict[fieldname] = self.task.xstring(
                 req, f"{fieldname}_q")
 
-        return self._get_response_percentages(
+        return self.get_percentage_summaries(
             req,
             column_dict=column_dict,
             num_answers=4,
-            cell_format=cell_format
+            cell_format=cell_format,
+            min_answer=1
         )
 
     def _get_fp_column_headings(self, req: "CamcopsRequest") -> List[str]:
@@ -732,11 +702,12 @@ class PerinatalPoemReport(Report):
                 req, "participation_q")
         }
 
-        return self._get_response_percentages(
+        return self.get_percentage_summaries(
             req,
             column_dict=column_dict,
             num_answers=2,
-            cell_format=cell_format
+            cell_format=cell_format,
+            min_answer=1
         )
 
     def _get_comment_rows(self, req: "CamcopsRequest") -> List[Tuple[str]]:
@@ -748,7 +719,7 @@ class PerinatalPoemReport(Report):
             column("general_comments").isnot(None)
         ]
 
-        self._add_start_end_datetime_filters(wheres)
+        self.add_report_filters(wheres)
 
         # noinspection PyUnresolvedReferences
         query = (
@@ -765,69 +736,6 @@ class PerinatalPoemReport(Report):
             comment_rows.append(result)
 
         return comment_rows
-
-    def _get_response_percentages(self,
-                                  req: "CamcopsRequest",
-                                  column_dict: Dict[str, str],
-                                  num_answers: int,
-                                  cell_format: str="{}") -> List[List[str]]:
-        rows = []
-
-        for column_name, question in column_dict.items():
-            """
-            SELECT COUNT(col) FROM perinatal_poem WHERE col IS NOT NULL
-            """
-            wheres = [
-                column(column_name).isnot(None)
-            ]
-
-            self._add_start_end_datetime_filters(wheres)
-
-            # noinspection PyUnresolvedReferences
-            total_query = (
-                select([func.count(column_name)])
-                .select_from(PerinatalPoem.__table__)
-                .where(and_(*wheres))
-            )
-
-            total_responses = req.dbsession.execute(total_query).fetchone()[0]
-
-            row = [question] + [total_responses] + [""] * num_answers
-
-            """
-            SELECT total_responses,col, ((100 * COUNT(col)) / total_responses)
-            FROM perinatal_poem WHERE col is not NULL
-            GROUP BY col
-            """
-            # noinspection PyUnresolvedReferences
-            query = (
-                select([
-                    column(column_name),
-                    ((100 * func.count(column_name))/total_responses)
-                ])
-                .select_from(PerinatalPoem.__table__)
-                .where(and_(*wheres))
-                .group_by(column_name)
-            )
-
-            for result in req.dbsession.execute(query):
-                row[result[0] + self.COL_RESPONSE_OFFSET] = cell_format.format(
-                    result[1])
-
-            rows.append(row)
-
-        return rows
-
-    def _add_start_end_datetime_filters(self, wheres: List[ColumnElement]):
-        if self.start_datetime is not None:
-            wheres.append(
-                column("when_created") >= self.start_datetime
-            )
-
-        if self.end_datetime is not None:
-            wheres.append(
-                column("when_created") < self.end_datetime
-            )
 
 
 # =============================================================================

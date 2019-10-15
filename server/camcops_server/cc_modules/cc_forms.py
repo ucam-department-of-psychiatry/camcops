@@ -2331,6 +2331,11 @@ class ReportParamSchema(CSRFSchema):
     # Specific forms may inherit from this.
 
 
+class DateTimeFilteredReportParamSchema(ReportParamSchema):
+    start_datetime = StartPendulumSelector()
+    end_datetime = EndPendulumSelector()
+
+
 class ReportParamForm(SimpleSubmitForm):
     """
     Form to view a specific report. Often derived from, to configure the report
