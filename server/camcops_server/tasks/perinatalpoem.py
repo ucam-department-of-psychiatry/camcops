@@ -744,37 +744,49 @@ class PerinatalPoemReportTests(PerinatalPoemReportTestCase):
         self.dbsession.commit()
 
     def test_qa_rows_counts(self) -> None:
-        rows = self.report._get_qa_rows(self.req)
+        tables = self.report._get_html_tables(self.req)
+
+        rows = tables[0].rows
 
         self.assertEqual(len(rows), 1)
         self.assertEqual(len(rows[0]), 4)
 
     def test_qb_rows_counts(self) -> None:
-        rows = self.report._get_qb_rows(self.req)
+        tables = self.report._get_html_tables(self.req)
+
+        rows = tables[1].rows
 
         self.assertEqual(len(rows), 1)
         self.assertEqual(len(rows[0]), 4)
 
     def test_q1_rows_counts(self) -> None:
-        rows = self.report._get_q1_rows(self.req)
+        tables = self.report._get_html_tables(self.req)
+
+        rows = tables[2].rows
 
         self.assertEqual(len(rows), 2)
         self.assertEqual(len(rows[0]), 7)
 
     def test_q2_rows_counts(self) -> None:
-        rows = self.report._get_q2_rows(self.req)
+        tables = self.report._get_html_tables(self.req)
+
+        rows = tables[3].rows
 
         self.assertEqual(len(rows), 12)
         self.assertEqual(len(rows[0]), 6)
 
     def test_q3_rows_counts(self) -> None:
-        rows = self.report._get_q3_rows(self.req)
+        tables = self.report._get_html_tables(self.req)
+
+        rows = tables[4].rows
 
         self.assertEqual(len(rows), 6)
         self.assertEqual(len(rows[0]), 6)
 
     def test_participation_rows_counts(self) -> None:
-        rows = self.report._get_fp_rows(self.req)
+        tables = self.report._get_html_tables(self.req)
+
+        rows = tables[5].rows
 
         self.assertEqual(len(rows), 1)
         self.assertEqual(len(rows[0]), 4)
