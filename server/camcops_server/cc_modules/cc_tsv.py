@@ -316,7 +316,10 @@ class TsvCollection(object):
         with io.BytesIO() as memfile:
             with ODSWriter(memfile) as odsfile:
                 for page in self.pages:
-                    sheet = odsfile.new_sheet(name=page.name)
+                    # It looks like LibreOffice can't cope with certain
+                    # characters like '?' so for simplicity let's apply the
+                    # same restrictions as xlsx
+                    sheet = odsfile.new_sheet(name=self.get_sheet_title(page))
                     page.write_to_ods_worksheet(sheet)
             contents = memfile.getvalue()
         return contents
@@ -392,3 +395,19 @@ class TsvCollectionTests(TestCase):
             coll.get_sheet_title(page),
             "_a_b_c_d_e_f_g"
         )
+
+    def test_ods_page_name_sanitised(self) -> None:
+        import xml.dom.minidom
+        page = TsvPage(name="What perinatal service have you accessed?",
+                       rows=[{"test data 1": "row 1"}])
+        coll = TsvCollection()
+        coll.add_pages([page])
+
+        data = coll.as_ods()
+
+        zf = zipfile.ZipFile(io.BytesIO(data), "r")
+        content = zf.read('content.xml')
+        doc = xml.dom.minidom.parseString(content)
+        sheets = doc.getElementsByTagName('table:table')
+        self.assertEqual(sheets[0].getAttribute("table:name"),
+                         "What perinatal service have ...")
