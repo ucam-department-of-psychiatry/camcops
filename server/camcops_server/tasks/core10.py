@@ -374,7 +374,7 @@ class Core10ReportTests(Core10ReportTestCase):
         self.assertEqual(plain_report.rows, expected_rows)
 
 
-class Core10EmptyReportTests(Core10ReportTestCase):
+class Core10ReportEmptyTests(Core10ReportTestCase):
     def test_no_rows_when_no_data(self) -> None:
         plain_report = self.report.get_rows_colnames(req=self.req)
 
@@ -388,7 +388,7 @@ class Core10EmptyReportTests(Core10ReportTestCase):
         )
 
 
-class Core10DoubleCountingTests(Core10ReportTestCase):
+class Core10ReportDoubleCountingTests(Core10ReportTestCase):
     def create_tasks(self):
         self.patient_1 = self.create_patient()
         self.patient_2 = self.create_patient()
@@ -420,6 +420,56 @@ class Core10DoubleCountingTests(Core10ReportTestCase):
                 6,  # Initial average
                 3,  # Latest average
                 3,  # Average progress
+            ]
+        ]
+
+        self.assertEqual(plain_report.rows, expected_rows)
+
+
+class Core10ReportDateRangeTests(Core10ReportTestCase):
+    def create_tasks(self) -> None:
+        self.patient_1 = self.create_patient()
+        self.patient_2 = self.create_patient()
+        self.patient_3 = self.create_patient()
+
+        # 2018-06 average score = (8 + 6 + 4) / 3 = 6
+        # 2018-08 average score = (4 + 4 + 4) / 3 = 4
+        # 2018-10 average score = (2 + 3 + 4) / 3 = 3
+
+        self.create_task(patient=self.patient_1, q1=4, q2=4,
+                         era="2018-06-01")  # Score 8
+        self.create_task(patient=self.patient_1, q7=3, q8=1,
+                         era="2018-08-01")  # Score 4
+        self.create_task(patient=self.patient_1, q7=1, q8=1,
+                         era="2018-10-01")  # Score 2
+
+        self.create_task(patient=self.patient_2, q3=3, q4=3,
+                         era="2018-06-01")  # Score 6
+        self.create_task(patient=self.patient_2, q3=2, q4=2,
+                         era="2018-08-01")  # Score 4
+        self.create_task(patient=self.patient_2, q3=1, q4=2,
+                         era="2018-10-01")  # Score 3
+
+        self.create_task(patient=self.patient_3, q5=2, q6=2,
+                         era="2018-06-01")  # Score 4
+        self.create_task(patient=self.patient_3, q9=1, q10=3,
+                         era="2018-08-01")  # Score 4
+        self.create_task(patient=self.patient_3, q9=1, q10=3,
+                         era="2018-10-01")  # Score 4
+        self.dbsession.commit()
+
+    def test_report_filtered_by_date_range(self):
+        self.report.start_datetime = "2018-06-01T00:00:00.000000+00:00"
+        self.report.end_datetime = "2018-09-01T00:00:00.000000+00:00"
+        plain_report = self.report.get_rows_colnames(self.req)
+
+        expected_rows = [
+            [
+                3,  # Initial total
+                3,  # Latest total
+                6,  # Initial average
+                4,  # Latest average
+                2,  # Average progress
             ]
         ]
 

@@ -540,7 +540,7 @@ class ScoreDetails(object):
         self.max = max
 
 
-class AverageScoreReport(Report):
+class AverageScoreReport(DateTimeFilteredReportMixin, Report):
     """
     Used by MAAS, CORE-10 and PBQ to report average scores and progress
     """
@@ -584,6 +584,9 @@ class AverageScoreReport(Report):
         FROM core10 GROUP BY patient_id
         """
 
+        wheres = []
+        self.add_report_filters(wheres)
+
         first_latest_record_query = (
             select([self.task_class.patient_id,
                     func.min(self.task_class.when_created)
@@ -591,6 +594,7 @@ class AverageScoreReport(Report):
                     func.max(self.task_class.when_created)
                     .label("max_when_created")])
             .select_from(self.task_class.__table__)
+            .where(and_(*wheres))
             .group_by(self.task_class.patient_id)
         )
 
