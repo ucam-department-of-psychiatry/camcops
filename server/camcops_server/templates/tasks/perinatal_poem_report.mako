@@ -65,17 +65,12 @@ ${_("Created")} <b>&lt; ${ end_datetime }</b>.
 %endif
 </p>
 
-<h2>${_("Main questions")}</h2>
+%for table in tables:
+<h2>${ table.heading }</h2>
 
-<%include file="table.mako" args="column_headings=main_column_headings, rows=main_rows"/>
+<%include file="table.mako" args="column_headings=table.column_headings, rows=table.rows, escape_cells=False"/>
 
-<h2>${_("Friends and family question")}</h2>
-
-<%include file="table.mako" args="column_headings=ff_column_headings, rows=ff_rows"/>
-
-<h3>${_("Reasons given for the above responses")}</h3>
-
-<%include file="table.mako" args="column_headings=[], rows=ff_why_rows, table_class='ff-why-table'"/>
+%endfor
 
 <h2>${_("Comments")}</h2>
 %for comment_row in comment_rows:

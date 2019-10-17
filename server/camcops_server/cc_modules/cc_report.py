@@ -35,7 +35,9 @@ from typing import (Any, Dict, Generator, List, Optional, Sequence, Type,
 from cardinal_pythonlib.classes import all_subclasses, classproperty
 from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.logs import BraceStyleAdapter
-from cardinal_pythonlib.pyramid.responses import TsvResponse
+from cardinal_pythonlib.pyramid.responses import (
+    OdsResponse, TsvResponse, XlsxResponse,
+)
 from deform.form import Form
 import pendulum
 from pyramid.httpexceptions import HTTPBadRequest
@@ -43,11 +45,15 @@ from pyramid.renderers import render_to_response
 from pyramid.response import Response
 from sqlalchemy.engine.result import ResultProxy
 from sqlalchemy.orm.query import Query
+<<<<<<< HEAD
 from sqlalchemy.sql.expression import func, select, and_
+=======
+from sqlalchemy.sql.elements import ColumnElement
+from sqlalchemy.sql.expression import and_, column, func, select
+>>>>>>> poem-report
 from sqlalchemy.sql.selectable import SelectBase
 
 # import as LITTLE AS POSSIBLE; this is used by lots of modules
-from camcops_server.cc_modules.cc_convert import tsv_from_query
 from camcops_server.cc_modules.cc_constants import (
     DateFormat,
     DEFAULT_ROWS_PER_PAGE,
@@ -58,16 +64,23 @@ from camcops_server.cc_modules.cc_pyramid import (
     ViewArg,
     ViewParam,
 )
-from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
+from camcops_server.cc_modules.cc_tsv import TsvCollection, TsvPage
+from camcops_server.cc_modules.cc_unittest import (
+    DemoDatabaseTestCase,
+    DemoRequestTestCase,
+)
 
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_forms import (
         ReportParamForm,
         ReportParamSchema,
     )
+<<<<<<< HEAD
     from camcops_server.cc_modules.cc_patient import Patient
     from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
     from camcops_server.cc_modules.cc_request import CamcopsRequest
+=======
+>>>>>>> poem-report
     from camcops_server.cc_modules.cc_task import Task
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
@@ -214,6 +227,13 @@ class Report(object):
         """
         return {}
 
+    def add_report_filters(self, wheres: List[ColumnElement]) -> None:
+        """
+        Override this to provide global filters to queries used to create
+        reports. Used by :class:`DateTimeFilteredReportMixin`.
+        """
+
+
     # -------------------------------------------------------------------------
     # Common functionality: classmethods
     # -------------------------------------------------------------------------
@@ -228,6 +248,9 @@ class Report(object):
         classes = all_subclasses(cls)  # type: List[Type["Report"]]
         instantiated_report_classes = []  # type: List[Type["Report"]]
         for reportcls in classes:
+            if reportcls.__name__ == 'TestReport':
+                continue
+
             try:
                 _ = reportcls.report_id
                 instantiated_report_classes.append(reportcls)
@@ -247,9 +270,6 @@ class Report(object):
         """
         # Check the basic parameters
         report_id = req.get_str_param(ViewParam.REPORT_ID)
-        rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
-                                          DEFAULT_ROWS_PER_PAGE)
-        page_num = req.get_int_param(ViewParam.PAGE, 1)
 
         if report_id != self.report_id:
             raise HTTPBadRequest("Error - request directed to wrong report!")
@@ -272,50 +292,112 @@ class Report(object):
 
         viewtype = req.get_str_param(ViewParam.VIEWTYPE, ViewArg.HTML,
                                      lower=True)
-        if viewtype not in [ViewArg.HTML, ViewArg.TSV]:
-            raise HTTPBadRequest("Bad viewtype")
-
         # Run the report (which may take additional parameters from the
         # request)
-        statement = self.get_query(req)
-        if statement is not None:
-            rp = req.dbsession.execute(statement)  # type: ResultProxy
-            column_names = rp.keys()
-            rows = rp.fetchall()
-        else:
-            plain_report = self.get_rows_colnames(req)
-            if plain_report is None:
-                raise NotImplementedError(
-                    "Report did not implement either of get_query()"
-                    " or get_rows_colnames()")
-            column_names = plain_report.column_names
-            rows = plain_report.rows
-
         # Serve the result
         if viewtype == ViewArg.HTML:
-            page = CamcopsPage(collection=rows,
-                               page=page_num,
-                               items_per_page=rows_per_page,
-                               url_maker=PageUrl(req),
-                               request=req)
-            return self.render_html(req=req,
-                                    column_names=column_names,
-                                    page=page)
-        else:  # TSV
-            filename = (
-                "CamCOPS_" +
-                self.report_id +
-                "_" +
-                format_datetime(req.now, DateFormat.FILENAME) +
-                ".tsv"
-            )
-            content = tsv_from_query(rows, column_names)
-            return TsvResponse(body=content, filename=filename)
+            return self.render_html(req=req)
 
-    def render_html(self,
-                    req: "CamcopsRequest",
-                    column_names: List[str],
-                    page: CamcopsPage) -> Response:
+        if viewtype == ViewArg.ODS:
+            return self.render_ods(req=req)
+
+        if viewtype == ViewArg.TSV:
+            return self.render_tsv(req=req)
+
+        if viewtype == ViewArg.XLSX:
+            return self.render_xlsx(req=req)
+
+        raise HTTPBadRequest("Bad viewtype")
+
+    def render_html(self, req: "CamcopsRequest"):
+        rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
+                                          DEFAULT_ROWS_PER_PAGE)
+        page_num = req.get_int_param(ViewParam.PAGE, 1)
+
+        plain_report = self._get_plain_report(req)
+
+        page = CamcopsPage(collection=plain_report.rows,
+                           page=page_num,
+                           items_per_page=rows_per_page,
+                           url_maker=PageUrl(req),
+                           request=req)
+
+        return self.render_single_page_html(
+            req=req,
+            column_names=plain_report.column_names,
+            page=page
+        )
+
+    def render_tsv(self, req: "CamcopsRequest") -> TsvResponse:
+        filename = self.get_filename(req, ViewArg.TSV)
+
+        # By default there is only one page. If there are more,
+        # we only output the first
+        page = self.get_tsv_pages(req)[0]
+
+        return TsvResponse(body=page.get_tsv(), filename=filename)
+
+    def render_xlsx(self, req: "CamcopsRequest") -> XlsxResponse:
+        filename = self.get_filename(req, ViewArg.XLSX)
+        tsvcoll = self.get_tsv_collection(req)
+        content = tsvcoll.as_xlsx()
+
+        return XlsxResponse(body=content, filename=filename)
+
+    def render_ods(self, req: "CamcopsRequest") -> OdsResponse:
+        filename = self.get_filename(req, ViewArg.ODS)
+        tsvcoll = self.get_tsv_collection(req)
+        content = tsvcoll.as_ods()
+
+        return OdsResponse(body=content, filename=filename)
+
+    def get_tsv_collection(self, req: "CamcopsRequest") -> TsvCollection:
+        tsvcoll = TsvCollection()
+        tsvcoll.add_pages(self.get_tsv_pages(req))
+
+        return tsvcoll
+
+    def get_tsv_pages(self, req: "CamcopsRequest") -> List[TsvPage]:
+        plain_report = self._get_plain_report(req)
+
+        page = self.get_tsv_page(name=self.title(req),
+                                 column_names=plain_report.column_names,
+                                 rows=plain_report.rows)
+        return [page]
+
+    def get_tsv_page(self, name: str,
+                     column_names: List[str],
+                     rows: List[List[str]]) -> TsvPage:
+        keyed_rows = [dict(zip(column_names, r)) for r in rows]
+        page = TsvPage(name=name, rows=keyed_rows)
+
+        return page
+
+    def get_filename(self, req: "CamcopsRequest", viewtype: str) -> str:
+        extension_dict = {
+            ViewArg.ODS: 'ods',
+            ViewArg.TSV: 'tsv',
+            ViewArg.XLSX: 'xlsx',
+        }
+
+        if viewtype not in extension_dict:
+            raise HTTPBadRequest("Unsupported viewtype")
+
+        extension = extension_dict.get(viewtype)
+
+        return (
+            "CamCOPS_" +
+            self.report_id +
+            "_" +
+            format_datetime(req.now, DateFormat.FILENAME) +
+            "." +
+            extension
+        )
+
+    def render_single_page_html(self,
+                                req: "CamcopsRequest",
+                                column_names: List[str],
+                                page: CamcopsPage) -> Response:
         """
         Converts a paginated report into an HTML response.
 
@@ -329,6 +411,131 @@ class Report(object):
                  report_id=self.report_id),
             request=req
         )
+
+    def _get_plain_report(self, req: "CamcopsRequest") -> PlainReportType:
+        statement = self.get_query(req)
+        if statement is not None:
+            rp = req.dbsession.execute(statement)  # type: ResultProxy
+            column_names = rp.keys()
+            rows = rp.fetchall()
+
+            plain_report = PlainReportType(rows=rows,
+                                           column_names=column_names)
+        else:
+            plain_report = self.get_rows_colnames(req)
+            if plain_report is None:
+                raise NotImplementedError(
+                    "Report did not implement either of get_query()"
+                    " or get_rows_colnames()")
+
+        return plain_report
+
+
+class PercentageSummaryReportMixin(object):
+    @classproperty
+    def task_class(self) -> "Task":
+        raise NotImplementedError("implement in subclass")
+
+    def get_percentage_summaries(self,
+                                 req: "CamcopsRequest",
+                                 column_dict: Dict[str, str],
+                                 num_answers: int,
+                                 cell_format: str="{}",
+                                 min_answer: int=0) -> List[List[str]]:
+        """
+        Provides a summary of each question, x% of people said each response.
+        """
+        rows = []
+
+        for column_name, question in column_dict.items():
+            """
+            e.g. SELECT COUNT(col) FROM perinatal_poem WHERE col IS NOT NULL
+            """
+            wheres = [
+                column(column_name).isnot(None)
+            ]
+
+            self.add_report_filters(wheres)
+
+            # noinspection PyUnresolvedReferences
+            total_query = (
+                select([func.count(column_name)])
+                .select_from(self.task_class.__table__)
+                .where(and_(*wheres))
+            )
+
+            total_responses = req.dbsession.execute(total_query).fetchone()[0]
+
+            row = [question] + [total_responses] + [""] * num_answers
+
+            """
+            e.g.
+            SELECT total_responses,col, ((100 * COUNT(col)) / total_responses)
+            FROM perinatal_poem WHERE col is not NULL
+            GROUP BY col
+            """
+            # noinspection PyUnresolvedReferences
+            query = (
+                select([
+                    column(column_name),
+                    ((100 * func.count(column_name))/total_responses)
+                ])
+                .select_from(self.task_class.__table__)
+                .where(and_(*wheres))
+                .group_by(column_name)
+            )
+
+            # row output is:
+            #      0              1               2              3
+            # +----------+-----------------+--------------+--------------+----
+            # | question | total responses | % 1st answer | % 2nd answer | ...
+            # +----------+-----------------+--------------+--------------+----
+            for result in req.dbsession.execute(query):
+                col = 2 + (result[0] - min_answer)
+                row[col] = cell_format.format(result[1])
+
+            rows.append(row)
+
+        return rows
+
+
+class DateTimeFilteredReportMixin(object):
+    @staticmethod
+    def get_paramform_schema_class() -> Type["ReportParamSchema"]:
+        from camcops_server.cc_modules.cc_forms import DateTimeFilteredReportParamSchema  # delayed import  # noqa
+        return DateTimeFilteredReportParamSchema
+
+    @classmethod
+    def get_specific_http_query_keys(cls) -> List[str]:
+        return super().get_specific_http_query_keys() + [
+            ViewParam.START_DATETIME,
+            ViewParam.END_DATETIME,
+        ]
+
+    def get_response(self, req: "CamcopsRequest") -> Response:
+        self.start_datetime = format_datetime(
+            req.get_datetime_param(ViewParam.START_DATETIME),
+            DateFormat.ERA
+        )
+        self.end_datetime = format_datetime(
+            req.get_datetime_param(ViewParam.END_DATETIME),
+            DateFormat.ERA
+        )
+
+        return super().get_response(req)
+
+    def add_report_filters(self, wheres: List[ColumnElement]) -> None:
+        super().add_report_filters(wheres)
+
+        if self.start_datetime is not None:
+            wheres.append(
+                column("when_created") >= self.start_datetime
+            )
+
+        if self.end_datetime is not None:
+            wheres.append(
+                column("when_created") < self.end_datetime
+            )
 
 
 class ScoreDetails(object):
@@ -548,7 +755,7 @@ def get_report_instance(report_id: str) -> Optional[Report]:
 # Unit testing
 # =============================================================================
 
-class ReportTests(DemoDatabaseTestCase):
+class AllReportTests(DemoDatabaseTestCase):
     """
     Unit tests.
     """
@@ -677,3 +884,83 @@ class AverageScoreReportTestCase(DemoDatabaseTestCase):
         self.dbsession.add(patient_idnum)
 
         return patient_idnum
+
+
+class TestReport(Report):
+    @classproperty
+    def report_id(cls) -> str:
+        return "test_report"
+
+    @classmethod
+    def title(cls, req: "CamcopsRequest") -> str:
+        return "Test report"
+
+    def get_rows_colnames(self, req: "CamcopsRequest") -> Optional[
+            PlainReportType]:
+        rows = [
+            ["one", "two", "three"],
+            ["eleven", "twelve", "thirteen"],
+            ["twenty-one", "twenty-two", "twenty-three"],
+        ]
+
+        column_names = ["column 1", "column 2", "column 3"]
+
+        return PlainReportType(rows=rows, column_names=column_names)
+
+
+class ReportSpreadsheetTests(DemoRequestTestCase):
+    def test_render_xlsx(self) -> None:
+        report = TestReport()
+
+        response = report.render_xlsx(self.req)
+        self.assertIsInstance(response, XlsxResponse)
+
+        self.assertIn(
+            "filename=CamCOPS_test_report",
+            response.content_disposition
+        )
+
+        self.assertIn(
+            ".xlsx", response.content_disposition
+        )
+
+    def test_render_ods(self) -> None:
+        report = TestReport()
+
+        response = report.render_ods(self.req)
+        self.assertIsInstance(response, OdsResponse)
+
+        self.assertIn(
+            "filename=CamCOPS_test_report",
+            response.content_disposition
+        )
+
+        self.assertIn(
+            ".ods", response.content_disposition
+        )
+
+    def test_render_tsv(self) -> None:
+        report = TestReport()
+
+        response = report.render_tsv(self.req)
+        self.assertIsInstance(response, TsvResponse)
+
+        self.assertIn(
+            "filename=CamCOPS_test_report",
+            response.content_disposition
+        )
+
+        self.assertIn(
+            ".tsv", response.content_disposition
+        )
+
+        import csv
+        import io
+        reader = csv.reader(io.StringIO(response.body.decode()),
+                            dialect="excel-tab")
+
+        headings = next(reader)
+        row_1 = next(reader)
+
+        self.assertEqual(headings, ["column 1", "column 2", "column 3"])
+        self.assertEqual(row_1, ["one", "two", "three"])

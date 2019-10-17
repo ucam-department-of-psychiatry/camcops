@@ -786,8 +786,10 @@ def get_demo_apache_config(
         #
         # - For ProxyPass options, see https://httpd.apache.org/docs/2.2/mod/mod_proxy.html#proxypass
         #
-        #   ... including "retry=0" to stop Apache disabling the connection for
-        #   while on failure.
+        #   - Include "retry=0" to stop Apache disabling the connection for
+        #     while on failure.
+        #   - Consider adding a "timeout=<seconds>" option if the back-end is
+        #     slow and causing timeouts.
         #
         # - CamCOPS MUST BE TOLD about its location and protocol, because that
         #   information is critical for synthesizing URLs, but is stripped out
@@ -814,8 +816,8 @@ def get_demo_apache_config(
         # Note the use of "http" (reflecting the backend), not https (like the
         # front end).
 
-    # ProxyPass {urlbase} http://127.0.0.1:{specimen_internal_port} retry=0
-    # ProxyPassReverse {urlbase} http://127.0.0.1:{specimen_internal_port} retry=0
+    # ProxyPass {urlbase} http://127.0.0.1:{specimen_internal_port} retry=0 timeout=300
+    # ProxyPassReverse {urlbase} http://127.0.0.1:{specimen_internal_port}
 
         # #####################################################################
         # UNIX SOCKET METHOD (Apache 2.4.9 and higher)
@@ -878,8 +880,8 @@ def get_demo_apache_config(
         #
         # - https://emptyhammock.com/projects/info/pyweb/webconfig.html
 
-    ProxyPass {urlbase} unix:{specimen_socket_file}|http://dummy1 retry=0
-    ProxyPassReverse {urlbase} unix:{specimen_socket_file}|http://dummy1 retry=0
+    ProxyPass {urlbase} unix:{specimen_socket_file}|http://dummy1 retry=0 timeout=300
+    ProxyPassReverse {urlbase} unix:{specimen_socket_file}|http://dummy1
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # (b) Allow proxy over SSL.
