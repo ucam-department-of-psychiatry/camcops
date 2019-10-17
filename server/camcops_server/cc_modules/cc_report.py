@@ -45,12 +45,8 @@ from pyramid.renderers import render_to_response
 from pyramid.response import Response
 from sqlalchemy.engine.result import ResultProxy
 from sqlalchemy.orm.query import Query
-<<<<<<< HEAD
-from sqlalchemy.sql.expression import func, select, and_
-=======
 from sqlalchemy.sql.elements import ColumnElement
 from sqlalchemy.sql.expression import and_, column, func, select
->>>>>>> poem-report
 from sqlalchemy.sql.selectable import SelectBase
 
 # import as LITTLE AS POSSIBLE; this is used by lots of modules
@@ -75,12 +71,9 @@ if TYPE_CHECKING:
         ReportParamForm,
         ReportParamSchema,
     )
-<<<<<<< HEAD
     from camcops_server.cc_modules.cc_patient import Patient
     from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
     from camcops_server.cc_modules.cc_request import CamcopsRequest
-=======
->>>>>>> poem-report
     from camcops_server.cc_modules.cc_task import Task
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
