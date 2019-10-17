@@ -302,7 +302,11 @@ class TsvCollection(object):
 
     def get_sheet_title(self, page: TsvPage) -> str:
         # See openpyxl/workbook/child.py
-        title = re.sub(r'[\\*?:/\[\]]', "_", page.name)
+
+        # Excel prohibits \,*,?,:,/,[,]
+        # LibreOffice also prohibits ' as first or last character but let's
+        # just replace that globally
+        title = re.sub(r"[\\*?:/\[\]']", "_", page.name)
 
         if len(title) > 31:
             title = f"{title[:28]}..."
@@ -426,13 +430,13 @@ class TsvCollectionTests(TestCase):
         )
 
     def test_xlsx_invalid_chars_in_page_name_replaced(self) -> None:
-        page = TsvPage(name="[a]b\\c:d/e*f?g",
+        page = TsvPage(name="[a]b\\c:d/e*f?g'h",
                        rows=[{"test data 1": "row 1"}])
         coll = TsvCollection()
 
         self.assertEqual(
             coll.get_sheet_title(page),
-            "_a_b_c_d_e_f_g"
+            "_a_b_c_d_e_f_g_h"
         )
 
     def test_ods_page_name_sanitised(self) -> None:
