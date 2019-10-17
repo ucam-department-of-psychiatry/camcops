@@ -293,8 +293,9 @@ class TsvCollection(object):
         if len(self.pages) > 0:
             wb.remove(wb.active)  # remove the autocreated blank sheet
 
-        for page in self.pages:
-            ws = wb.create_sheet(title=self.get_sheet_title(page))
+        valid_name_dict = self.get_pages_with_valid_sheet_names()
+        for page, title in valid_name_dict.items():
+            ws = wb.create_sheet(title=title)
             page.write_to_xlsx_worksheet(ws)
 
         return excel_to_bytes(wb)
@@ -315,14 +316,52 @@ class TsvCollection(object):
         """
         with io.BytesIO() as memfile:
             with ODSWriter(memfile) as odsfile:
-                for page in self.pages:
-                    # It looks like LibreOffice can't cope with certain
-                    # characters like '?' so for simplicity let's apply the
-                    # same restrictions as xlsx
-                    sheet = odsfile.new_sheet(name=self.get_sheet_title(page))
+                valid_name_dict = self.get_pages_with_valid_sheet_names()
+                for page, title in valid_name_dict.items():
+                    sheet = odsfile.new_sheet(name=title)
                     page.write_to_ods_worksheet(sheet)
             contents = memfile.getvalue()
         return contents
+
+    def get_pages_with_valid_sheet_names(self) -> Dict[TsvPage, str]:
+        name_dict = {}
+
+        for page in self.pages:
+            name_dict[page] = self.get_sheet_title(page)
+
+        self.make_sheet_names_unique(name_dict)
+
+        return name_dict
+
+    def make_sheet_names_unique(self, name_dict):
+        # See also avoid_duplicate_name in openpxl/workbook/child.py
+        # We keep the 31 character restriction
+
+        unique_names = []
+
+        for page, name in name_dict.items():
+            attempt = 0
+
+            while name.lower() in unique_names:
+                attempt += 1
+
+                if attempt > 1000:
+                    # algorithm failure, better to let Excel deal with the
+                    # consequences than get stuck in a loop
+                    log.debug(
+                        f"Failed to generate a unique sheet name from {name}"
+                    )
+                    break
+
+                match = re.search(r'\d+$', name)
+                count = 0
+                if match is not None:
+                    count = int(match.group())
+
+                new_suffix = str(count + 1)
+                name = name[:-len(new_suffix)] + new_suffix
+            name_dict[page] = name
+            unique_names.append(name.lower())
 
 
 # =============================================================================
@@ -411,3 +450,22 @@ class TsvCollectionTests(TestCase):
         sheets = doc.getElementsByTagName('table:table')
         self.assertEqual(sheets[0].getAttribute("table:name"),
                          "What perinatal service have ...")
+
+    def test_worksheet_names_are_not_duplicated(self) -> None:
+        page1 = TsvPage(name="abcdefghijklmnopqrstuvwxyz78901234",
+                        rows=[{"test data 1": "row 1"}])
+        page2 = TsvPage(name="ABCDEFGHIJKLMNOPQRSTUVWXYZ789012345",
+                        rows=[{"test data 2": "row 1"}])
+        page3 = TsvPage(name="abcdefghijklmnopqrstuvwxyz7890123456",
+                        rows=[{"test data 3": "row 1"}])
+        coll = TsvCollection()
+
+        coll.add_pages([page1, page2, page3])
+
+        valid_sheet_names = coll.get_pages_with_valid_sheet_names()
+
+        names = [v for k, v in valid_sheet_names.items()]
+
+        self.assertIn("abcdefghijklmnopqrstuvwxyz78...", names)
+        self.assertIn("ABCDEFGHIJKLMNOPQRSTUVWXYZ78..1", names)
+        self.assertIn("abcdefghijklmnopqrstuvwxyz78..2", names)
