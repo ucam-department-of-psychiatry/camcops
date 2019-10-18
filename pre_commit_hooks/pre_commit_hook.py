@@ -71,18 +71,6 @@ def check_python_style() -> None:
     ])
 
 
-def check_imports_sorted() -> None:
-    # https://github.com/timothycrosley/isort
-    run_with_check([
-        "isort",
-        "-c",  # Check only, do not make changes
-        "-rc",  # Recursive
-        "--diff",  # Show diffs
-        "-sp", CONFIG_FILE,
-        PYTHON_SOURCE_DIR
-    ])
-
-
 # https://stackoverflow.com/questions/1871549/determine-if-python-is-running-inside-virtualenv
 def in_virtualenv():
     return (
@@ -98,7 +86,6 @@ def main() -> None:
 
     try:
         check_python_style()
-        check_imports_sorted()
     except CalledProcessError as e:
         log.error(str(e))
         log.error("Pre-commit hook failed. Check errors above")
