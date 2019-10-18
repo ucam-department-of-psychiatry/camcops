@@ -295,7 +295,7 @@ class APEQCPFTPerinatalReport(Report):
         return names
 
     def _get_main_rows(self, req: "CamcopsRequest",
-                       cell_format: str="{}") -> List[List[str]]:
+                       cell_format: str = "{}") -> List[List[str]]:
         """
         Percentage of people who answered x for each question
         """
@@ -321,7 +321,7 @@ class APEQCPFTPerinatalReport(Report):
                 _("Total responses")] + self.task.get_ff_options(req)
 
     def _get_ff_rows(self, req: "CamcopsRequest",
-                     cell_format: str="{}") -> List[List[str]]:
+                     cell_format: str = "{}") -> List[List[str]]:
         """
         Percentage of people who answered x for the friends/family question
         """
@@ -400,7 +400,7 @@ class APEQCPFTPerinatalReport(Report):
                                   req: "CamcopsRequest",
                                   column_dict: Dict[str, str],
                                   num_answers: int,
-                                  cell_format: str="{}") -> List[List[str]]:
+                                  cell_format: str = "{}") -> List[List[str]]:
         rows = []
 
         for column_name, question in column_dict.items():
