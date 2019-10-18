@@ -40,18 +40,18 @@ Some tests:
     from camcops_server.tasks.phq9 import Phq9
     main_only_quicksetup_rootlogger(level=logging.DEBUG)
     req = get_command_line_request()
-    
+
     # ---------------------------------------------------------------------
     # Read the XML, etc.
     # ---------------------------------------------------------------------
-    
+
     print(VALID_SNOMED_LOOKUPS)
     concepts = get_all_snomed_concepts(req.config.snomed_xml_filename)
-    
+
     # ---------------------------------------------------------------------
     # Test a task, and loading SNOMED data from XML via the CamCOPS config
     # ---------------------------------------------------------------------
-    
+
     phq9 = Phq9()
     print("\n".join(str(x) for x in phq9.get_snomed_codes(req)))
     phq9.q1 = 2
@@ -81,12 +81,12 @@ Other testing:
 .. code-block:: python
 
     from camcops_server.cc_modules.cc_snomed import *
-    
+
     athena_concepts = get_athena_concepts(config.athena_concept_tsv_filename)
     relationships = get_athena_concept_relationships(config.athena_concept_relationship_tsv_filename)
     rel_ids = set(r.relationship_id for r in relationships)
     icd9, icd10 = get_icd9cm_icd10_snomed_concepts(config.athena_concept_tsv_filename, config.athena_concept_relationship_tsv_filename)
-    
+
     ac = get_athena_concepts(config.athena_concept_tsv_filename, vocabulary_ids=[AthenaVocabularyId.SNOMED], concept_codes=["4303690"])
 
 """  # noqa
@@ -107,7 +107,7 @@ from cardinal_pythonlib.athena_ohdsi import (
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.reprfunc import simple_repr
 # noinspection PyUnresolvedReferences
-from cardinal_pythonlib.snomed import (
+from cardinal_pythonlib.snomed import (  # noqa: F401
     SnomedAttribute,
     SnomedAttributeGroup,
     SnomedAttributeSet,
@@ -629,23 +629,23 @@ class SnomedLookup(object):
     within CamCOPS, we use string constants represented in this class. If the
     local institution is allowed (e.g. in the UK, as below), then it can
     install additional data.
-    
+
     - UK license:
       https://isd.digital.nhs.uk/trud3/user/guest/group/0/pack/26/subpack/101/licences
-    
+
     - To find codes: https://termbrowser.nhs.uk/
-    
+
     Abbreviations:
-    
+
     - "Finding" is not abbreviated
     - "Obs" or "observable" is short for "observable entity"
     - "Procedure" is not abbreviated
     - "Scale" is short for "assessment scale"
     - "Situation" is not abbreviated
-    
+
     Variable names are designed for clear code. Value strings are designed for
     clear XML that matches SNOMED-CT, in the format TASK_CONCEPTTYPE_NAME.
-    
+
     """  # noqa
     # https://snomedbrowser.com/Codes/Details/XXX  # noqa
 

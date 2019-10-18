@@ -67,14 +67,13 @@ from camcops_server.cc_modules.cc_unittest import (
 )
 
 if TYPE_CHECKING:
-    from camcops_server.cc_modules.cc_request import CamcopsRequest  # noqa: E501,F401
     from camcops_server.cc_modules.cc_forms import (  # noqa: F401
         ReportParamForm,
         ReportParamSchema,
     )
     from camcops_server.cc_modules.cc_patient import Patient
     from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
-    from camcops_server.cc_modules.cc_request import CamcopsRequest
+    from camcops_server.cc_modules.cc_request import CamcopsRequest  # noqa: E501,F401
     from camcops_server.cc_modules.cc_task import Task
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
@@ -226,7 +225,6 @@ class Report(object):
         Override this to provide global filters to queries used to create
         reports. Used by :class:`DateTimeFilteredReportMixin`.
         """
-
 
     # -------------------------------------------------------------------------
     # Common functionality: classmethods
@@ -434,8 +432,8 @@ class PercentageSummaryReportMixin(object):
                                  req: "CamcopsRequest",
                                  column_dict: Dict[str, str],
                                  num_answers: int,
-                                 cell_format: str="{}",
-                                 min_answer: int=0) -> List[List[str]]:
+                                 cell_format: str = "{}",
+                                 min_answer: int = 0) -> List[List[str]]:
         """
         Provides a summary of each question, x% of people said each response.
         """
