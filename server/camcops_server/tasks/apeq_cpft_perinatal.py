@@ -26,7 +26,7 @@ camcops_server/tasks/apeq_cpft_perinatal.py
 
 """
 
-from typing import Dict, Generator, List, Optional, Tuple, Type
+from typing import Dict, Generator, List, Optional, Tuple
 
 from cardinal_pythonlib.classes import classproperty
 
@@ -258,7 +258,7 @@ class APEQCPFTPerinatalReport(DateTimeFilteredReportMixin, Report,
         return names
 
     def _get_main_rows(self, req: "CamcopsRequest",
-                       cell_format: str="{}") -> List[List[str]]:
+                       cell_format: str = "{}") -> List[List[str]]:
         """
         Percentage of people who answered x for each question
         """
@@ -284,7 +284,7 @@ class APEQCPFTPerinatalReport(DateTimeFilteredReportMixin, Report,
                 _("Total responses")] + self.task.get_ff_options(req)
 
     def _get_ff_rows(self, req: "CamcopsRequest",
-                     cell_format: str="{}") -> List[List[str]]:
+                     cell_format: str = "{}") -> List[List[str]]:
         """
         Percentage of people who answered x for the friends/family question
         """
