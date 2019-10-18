@@ -263,7 +263,7 @@ void InitTasks(TaskFactory& factory)
     initializeKirby(factory);
 
     initializeLynallIamMedical(factory);
-    // *** // initializeLynall2IamLife(factory);
+    initializeLynallIamLife(factory);
 
     initializeMaas(factory);
     initializeMast(factory);

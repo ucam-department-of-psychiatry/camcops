@@ -114,7 +114,9 @@ from camcops_server.cc_modules.cc_taskindex import (  # noqa: E402
     check_indexes,
     reindex_everything,
 )
-from camcops_server.cc_modules.cc_unittest import (  # noqa: E402
+# noinspection PyUnresolvedReferences
+from camcops_server.cc_modules.cc_tracker import TrackerCtvTests  # import side effects (register unit test)  # nopep8
+from camcops_server.cc_modules.cc_unittest import (
     DemoDatabaseTestCase,
     DemoRequestTestCase,
     ExtendedTestCase,
@@ -128,6 +130,8 @@ from camcops_server.cc_modules.celery import (  # noqa: E402
     CELERY_APP_NAME,
     CELERY_SOFT_TIME_LIMIT_SEC,
 )
+# noinspection PyUnresolvedReferences
+from camcops_server.cc_modules.webview import WebviewTests  # import side effects (register unit test)  # noqa
 
 log.info("Imports complete")
 log.info("Using {} tasks", len(Task.all_subclasses_by_tablename()))
@@ -805,9 +809,15 @@ def launch_celery_flower(address: str = DEFAULT_FLOWER_ADDRESS,
 # Test rig
 # =============================================================================
 
-def self_test(show_only: bool = False) -> None:
+def self_test(show_only: bool = False, test_class: str = None) -> None:
     """
-    Run all unit tests.
+    Run unit tests that are in the class(es) whose names contain test_class.
+    If test_class is None, run all the tests.
+
+    Args:
+        show_only: If True, just display the names of test classes, don't run
+        them.
+        test_class: Test class(es) to run.
     """
 
     with tempfile.TemporaryDirectory() as tmpdirname:
@@ -865,9 +875,10 @@ def self_test(show_only: bool = False) -> None:
             if not cls.__module__.startswith("camcops_server"):
                 # don't, for example, run cardinal_pythonlib self-tests
                 continue
-            log.info("Discovered test: {}", cls)
-            # noinspection PyUnresolvedReferences
-            suite.addTest(unittest.makeSuite(cls))
+            if test_class is None or test_class in cls.__name__:
+                log.info("Discovered test: {}", cls)
+                # noinspection PyUnresolvedReferences
+                suite.addTest(unittest.makeSuite(cls))
         if show_only:
             return
         runner = unittest.TextTestRunner()

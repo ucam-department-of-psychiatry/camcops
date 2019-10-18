@@ -68,8 +68,6 @@ from camcops_server.cc_modules.cc_config import (
     get_default_config_from_os_env,
     get_demo_apache_config,
     get_demo_config,
-    get_demo_mysql_create_db,
-    get_demo_mysql_dump_script,
     get_demo_supervisor_config,
 )
 from camcops_server.cc_modules.cc_constants import (
@@ -136,20 +134,6 @@ def print_demo_apache_config() -> None:
     print(get_demo_apache_config())
 
 
-def print_demo_mysql_create_db() -> None:
-    """
-    Prints a demonstration MySQL database creation script to stdout.
-    """
-    print(get_demo_mysql_create_db())
-
-
-def print_demo_mysql_dump_script() -> None:
-    """
-    Prints a demonstration MySQL database dump script to stdout.
-    """
-    print(get_demo_mysql_dump_script())
-
-
 # =============================================================================
 # Stub command-line functions requiring more substantial imports
 # =============================================================================
@@ -158,11 +142,16 @@ def print_demo_mysql_dump_script() -> None:
 # Database
 # -----------------------------------------------------------------------------
 
-def _upgrade_database_to_head(show_sql_only: bool) -> None:
+def _upgrade_database_to_head(show_sql_only: bool,
+                              reindex: bool = False) -> None:
     # noinspection PyUnresolvedReferences
-    import camcops_server.camcops_server_core  # delayed import; import side effects  # noqa
+    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
     from camcops_server.cc_modules.cc_alembic import upgrade_database_to_head  # delayed import  # noqa
     upgrade_database_to_head(show_sql_only=show_sql_only)
+
+    if reindex and not show_sql_only:
+        cfg = get_default_config_from_os_env()
+        core.reindex(cfg)
 
 
 def _upgrade_database_to_revision(revision: str,
@@ -185,8 +174,6 @@ def _downgrade_database_to_revision(
         revision=revision,
         show_sql_only=show_sql_only,
         confirm_downgrade_db=confirm_downgrade_db)
-    if not show_sql_only:
-        log.warning("You should run the 'reindex' command.")
 
 
 def _create_database_from_scratch(cfg: "CamcopsConfig") -> None:
@@ -406,9 +393,9 @@ def _launch_celery_flower(address: str = DEFAULT_FLOWER_ADDRESS,
 # Testing and development
 # -----------------------------------------------------------------------------
 
-def _self_test(show_only: bool = False) -> None:
+def _self_test(show_only: bool = False, test_class: str = None) -> None:
     import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
-    core.self_test(show_only=show_only)
+    core.self_test(show_only=show_only, test_class=test_class)
 
 
 def _dev_cli() -> None:
@@ -602,20 +589,6 @@ def camcops_main() -> None:
     demoapacheconf_parser.set_defaults(
         func=lambda args: print_demo_apache_config())
 
-    # Print demo MySQL database creation commands
-    demo_mysql_create_db_parser = add_sub(
-        subparsers, "demo_mysql_create_db", config_mandatory=None,
-        help="Print demo instructions to create a MySQL database for CamCOPS")
-    demo_mysql_create_db_parser.set_defaults(
-        func=lambda args: print_demo_mysql_create_db())
-
-    # Print demo Bash MySQL dump script
-    demo_mysql_dump_script_parser = add_sub(
-        subparsers, "demo_mysql_dump_script", config_mandatory=None,
-        help="Print demo instructions to dump all current MySQL databases")
-    demo_mysql_dump_script_parser.set_defaults(
-        func=lambda args: print_demo_mysql_dump_script())
-
     # -------------------------------------------------------------------------
     # Database commands
     # -------------------------------------------------------------------------
@@ -628,9 +601,14 @@ def camcops_main() -> None:
         "--show_sql_only", action="store_true",
         help="Show SQL only (to stdout); don't execute it"
     )
+    upgradedb_parser.add_argument(
+        "--no_reindex", action="store_true",
+        help="Don't recreate the task index"
+    )
     upgradedb_parser.set_defaults(
         func=lambda args: _upgrade_database_to_head(
-            show_sql_only=args.show_sql_only
+            show_sql_only=args.show_sql_only,
+            reindex=not args.no_reindex
         )
     )
 
@@ -1054,7 +1032,12 @@ def camcops_main() -> None:
     selftest_parser = add_sub(
         subparsers, "self_test", config_mandatory=None,
         help="Test internal code")
-    selftest_parser.set_defaults(func=lambda args: _self_test())
+    selftest_parser.add_argument(
+        "--test_class", type=str, default=None,
+        help="Run only the test classes whose names contain this string"
+    )
+    selftest_parser.set_defaults(func=lambda args: _self_test(
+        test_class=args.test_class))
 
     # Launch a Python command line
     dev_cli_parser = add_sub(

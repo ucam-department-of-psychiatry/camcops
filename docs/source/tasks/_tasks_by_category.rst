@@ -398,7 +398,7 @@ as generic tasks listed above, there are some very specific ones, as follows.
 - :ref:`Khandaker GM — MOJO — Sociodemographics
   <khandaker_mojo_sociodemographics>`
 
-- :ref:"Khandaker GM — MOJO — Medical questionnaire <khandaker_mojo_medical>`
+- :ref:`Khandaker GM — MOJO — Medical questionnaire <khandaker_mojo_medical>`
 
 - :ref:`Khandaker GM — MOJO — Medications and therapies
   <khandaker_mojo_medicationtherapy>`

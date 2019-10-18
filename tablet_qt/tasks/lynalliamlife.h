@@ -17,14 +17,14 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#if 0
-
 #pragma once
+#include <QPointer>
 #include <QString>
 #include "tasklib/task.h"
 
 class CamcopsApp;
 class OpenableWidget;
+class Questionnaire;
 class TaskFactory;
 
 void initializeLynallIamLife(TaskFactory& factory);
@@ -42,6 +42,10 @@ public:
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
+    virtual TaskImplementationType implementationType() const override {
+        return TaskImplementationType::UpgradableSkeleton;
+    }
+    virtual bool prohibitsCommercial() const override { return true; }
     virtual Version minimumServerVersion() const override;
     // ------------------------------------------------------------------------
     // Instance overrides
@@ -53,14 +57,24 @@ public:
     // ------------------------------------------------------------------------
     // Task-specific calculations
     // ------------------------------------------------------------------------
+    int nCategoriesEndorsed() const;
+    int severityScore() const;
+protected:
+    QString qfieldnameMain(int qnum) const;
+    QString qfieldnameSeverity(int qnum) const;
+    QString qfieldnameFrequency(int qnum) const;
+    QString tagExtras(int qnum) const;
     // ------------------------------------------------------------------------
     // Signal handlers
     // ------------------------------------------------------------------------
 signals:
 public slots:
     void updateMandatory();
+    // ------------------------------------------------------------------------
+    // Data
+    // ------------------------------------------------------------------------
+protected:
+    QPointer<Questionnaire> m_questionnaire;
 public:
     static const QString LYNALL_IAM_LIFE_TABLENAME;
 };
-
-#endif

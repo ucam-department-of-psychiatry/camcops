@@ -37,13 +37,17 @@ The Android app is at
 
 - https://play.google.com/store/apps/details?id=org.camcops.camcops
 
-Other client downloads, and server distributions, are at
+Client downloads, and server distributions, are at
 
-- https://egret.psychol.cam.ac.uk/camcops/download/
+- https://github.com/RudolfCardinal/camcops/releases
 
 The source code is at
 
 - https://github.com/RudolfCardinal/CamCOPS
+
+**Old** client downloads, and server distributions, are at
+
+- https://egret.psychol.cam.ac.uk/camcops/download/ -- DEFUNCT.
 
 
 Windows client notes

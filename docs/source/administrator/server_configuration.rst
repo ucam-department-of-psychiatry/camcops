@@ -19,9 +19,13 @@
 
 .. _Apache: http://httpd.apache.org/
 .. _CherryPy: https://cherrypy.org/
+.. _Debian policy: https://www.debian.org/doc/debian-policy/ch-opersys.html#file-system-hierarchy
+.. _Filesystem Hierarchy Standard: https://refspecs.linuxfoundation.org/FHS_3.0/fhs/index.html
 .. _Gunicorn: http://gunicorn.org/
 .. _HTTPS: http://en.wikipedia.org/wiki/HTTP_Secure
+.. _Lintian: https://lintian.debian.org/
 .. _Linux: http://en.wikipedia.org/wiki/Linux
+.. _Matplotlib: https://matplotlib.org/
 .. _MySQL: http://www.mysql.com/
 .. _Pyramid: https://trypyramid.com/
 .. _Python: https://www.python.org/
@@ -115,6 +119,104 @@ There are two web servers in this diagram.
     not a good choice for deployment.
 
 
+Plan where to put files
+-----------------------
+
+Under Linux, we follow the `Filesystem Hierarchy Standard`_.
+
+..  list-table::
+    :header-rows: 1
+
+    * - Directory
+      - FHS purpose
+      - CamCOPS use
+      - Typical filename
+      - UNIX permissions
+
+    * - ``/etc``
+      - Host-specific system configuration
+      - CamCOPS config file
+      - ``/etc/camcops/camcops_mysite.conf``
+      - Web server user only
+
+    * - ``/run``
+      - Run-time variable data, e.g. PID files, Unix domain sockets.
+      - Unix domain socket when using Gunicorn.
+      - ``/run/camcops/camcops.socket``
+      - Web server user only
+
+    * - ``/srv``
+      - Data for services provided by this system.
+      - Images, extra strings, SNOMED data...
+      - ``/srv/camcops/images/...``; ``/srv/camcops/extra_strings/...``;
+        ``/srv/camcops/snomed/...``
+      - Web server user only (or more liberal if you wish)
+
+    * - ``/var/cache``
+      - Application cache data
+      - Matplotlib_ cache
+      - ``/var/cache/camcops/matplotlib/``
+      - Web server user only
+
+    * - ``/var/lock``
+      - Lock files
+      - ?No longer in use?
+      -
+      - Web server user only
+
+    * - ``/var/log``
+      - Log files
+      - Log files, via Supervisor_.
+      - ``/var/log/supervisor/camcops_*.log``
+      - Root only
+
+.. todo:: check /var/lock -- no longer in use?
+
+For information, these directories are used (or not used, but worthy of
+comment!) by CamCOPS during installation:
+
+..  list-table::
+    :header-rows: 1
+
+    * - Directory
+      - FHS purpose
+      - CamCOPS use
+      - Typical filename
+      - UNIX permissions
+
+    * - ``/usr/bin``
+      - "Most user commands."
+      - CamCOPS launch commands
+      - ``/usr/bin/camcops_server``; ``/usr/bin/camcops_server_meta``
+      - Public read, root write.
+
+    * - ``/usr/share``
+      - Architecture-independent data.
+      - CamCOPS itself. This includes Python ``*.pyc`` files, pre-compiled
+        at installation time.
+      - ``/usr/share/camcops/*``
+      - Public read, root write.
+
+    * - ``/usr/local``
+      - "For use by the system administrator when installing software locally."
+      - **Not used.** ``/usr/local/bin`` and ``/usr/local/share`` would be an
+        alternative to ``/usr/share``, etc. [#swlocation]_.
+      -
+      - Public read, root write.
+
+    * - ``/opt``
+      - Add-on application software packages.
+      - **Not used.** This would be another alternative to ``/usr/share``
+        [#swlocation]_.
+      -
+      - Public read, root write.
+
+... plus other Linux/UNIX standards (e.g. the location of ``man`` pages).
+
+The location of web server configuration files, databases, backups, and so on
+is up to you and your system; see :ref:`Linux flavours <linux_flavours>`.
+
+
 Configure your firewall
 -----------------------
 
@@ -135,7 +237,6 @@ Ensure your firewall is configured properly:
 
 
 .. _create_database:
-
 
 Create a database
 -----------------
@@ -358,17 +459,8 @@ Configure backups
 -----------------
 
 Your backup strategy is up to you. However, one option is to use a script to
-dump all MySQL databases. A sample script is produced by the command
-
-.. code-block:: bash
-
-    camcops demo_mysql_dump_script
-
-but even better is this tool:
-
-.. code-block:: bash
-
-    camcops_backup_mysql_database
+dump all MySQL databases. A tool, :ref:`camcops_backup_mysql_database
+<camcops_backup_mysql_database>`, is provided to help you:
 
 If you use this strategy, you will need to save this script and edit the copy.
 Be sure your copy of the script is readable only by root and the backup user,
@@ -486,3 +578,19 @@ left if they look funny. See picture below.
 .. [#selinux]
     See http://wiki.apache.org/httpd/13PermissionDenied and
     https://access.redhat.com/site/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Managing_Confined_Services/chap-Managing_Confined_Services-The_Apache_HTTP_Server.html
+
+.. [#swlocation]
+    The exact intended location of third-party software under Ubuntu is a bit
+    debated. See e.g.
+
+    - https://www.linuxjournal.com/magazine/pointcounterpoint-opt-vs-usrlocal
+    - https://askubuntu.com/questions/722968/why-should-i-move-everything-into-opt/722972
+      -- "Second, /opt is used for third-party software, which in the context
+      of Ubuntu, means precompiled software that is not distributed via Debian
+      packages."
+    - https://unix.stackexchange.com/questions/11544/what-is-the-difference-between-opt-and-usr-local
+      -- including "The basic difference is that /usr/local is for software not
+      managed by the system packager, but still following the standard unix
+      deployment rules."
+    - CamCOPS is managed by the system package manager and follows e.g. `Debian
+      policy`_, checked by Lintian_.

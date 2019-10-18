@@ -691,7 +691,7 @@ QWidgetItem* qtlayouthelpers::createWidgetItem(const QLayout* layout,
                                                QWidget* widget,
                                                const bool use_hfw_capable_item)
 {
-    Q_UNUSED(layout);  // RNC
+    Q_UNUSED(layout)  // RNC
     /*  // RNC: removed
     if (widgetItemFactoryMethod)
         if (QWidgetItem* wi = (*widgetItemFactoryMethod)(layout, widget))
@@ -711,7 +711,7 @@ QSpacerItem* qtlayouthelpers::createSpacerItem(
         const QSizePolicy::Policy h_policy,
         const QSizePolicy::Policy v_policy)
 {
-    Q_UNUSED(layout);  // RNC
+    Q_UNUSED(layout)  // RNC
     /*  // RNC: removed
     if (spacerItemFactoryMethod)
         if (QSpacerItem* si = (*spacerItemFactoryMethod)(layout, w, h, hPolicy, vPolicy))

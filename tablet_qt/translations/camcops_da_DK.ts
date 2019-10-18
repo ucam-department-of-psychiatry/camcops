@@ -2860,12 +2860,12 @@ enig</translation>
 <context>
     <name>KhandakerMojoMedical</name>
     <message>
-        <location filename="../tasks/khandakermojomedical.cpp" line="193"/>
+        <location filename="../tasks/khandakermojomedical.cpp" line="194"/>
         <source>Khandaker GM — MOJO — Medical questionnaire</source>
         <translation>Khandaker GM — MOJO — Medicinsk spørgeskema</translation>
     </message>
     <message>
-        <location filename="../tasks/khandakermojomedical.cpp" line="199"/>
+        <location filename="../tasks/khandakermojomedical.cpp" line="200"/>
         <source>Medical questionnaire for MOJO study.</source>
         <translation>Medicinsk spørgeskema til MOJO-undersøgelse.</translation>
     </message>
@@ -2873,18 +2873,18 @@ enig</translation>
 <context>
     <name>KhandakerMojoMedicationTherapy</name>
     <message>
-        <location filename="../tasks/khandakermojomedicationtherapy.cpp" line="79"/>
+        <location filename="../tasks/khandakermojomedicationtherapy.cpp" line="80"/>
         <source>Khandaker GM — MOJO — Medications and therapies</source>
         <translation>Khandaker GM — MOJO — Medicin og terapier</translation>
     </message>
     <message>
-        <location filename="../tasks/khandakermojomedicationtherapy.cpp" line="85"/>
+        <location filename="../tasks/khandakermojomedicationtherapy.cpp" line="86"/>
         <source>Record of medications and talking therapies for MOJO study.</source>
         <translation>Registrering af medicin og taleterapier til MOJO-undersøgelse.</translation>
     </message>
     <message>
-        <location filename="../tasks/khandakermojomedicationtherapy.cpp" line="320"/>
-        <location filename="../tasks/khandakermojomedicationtherapy.cpp" line="342"/>
+        <location filename="../tasks/khandakermojomedicationtherapy.cpp" line="322"/>
+        <location filename="../tasks/khandakermojomedicationtherapy.cpp" line="344"/>
         <source>A row is blank; won’t add another</source>
         <translation>En række er tom; tilføjer ikke en anden</translation>
     </message>
@@ -2951,14 +2951,24 @@ enig</translation>
 <context>
     <name>LynallIamLife</name>
     <message>
-        <location filename="../tasks/lynalliamlife.cpp" line="59"/>
+        <location filename="../tasks/lynalliamlife.cpp" line="85"/>
         <source>Lynall M-E — IAM — Life events</source>
         <translation>Lynall M-E — IAM — Livsbegivenheds</translation>
     </message>
     <message>
-        <location filename="../tasks/lynalliamlife.cpp" line="65"/>
-        <source>Life events questionnaire for IAM immunopsychiatry study.</source>
-        <translation>Livsbegivenheds spørgeskema for IAM immunopsykiatri undersøgelse.</translation>
+        <location filename="../tasks/lynalliamlife.cpp" line="91"/>
+        <source>Life events questionnaire for IAM immunopsychiatry study, based on the List of Threatening Experiences (LTE).</source>
+        <translation>Spørgeskema til livshændelser til IAM-immunpsykiatriundersøgelse, der er baseret på Listen over Truende Oplevelser (LTE).</translation>
+    </message>
+    <message>
+        <location filename="../tasks/lynalliamlife.cpp" line="129"/>
+        <source>Number of categories endorsed</source>
+        <translation>Antal godkendte kategorier</translation>
+    </message>
+    <message>
+        <location filename="../tasks/lynalliamlife.cpp" line="141"/>
+        <source>Severity score</source>
+        <translation>Alvorlighed score</translation>
     </message>
 </context>
 <context>

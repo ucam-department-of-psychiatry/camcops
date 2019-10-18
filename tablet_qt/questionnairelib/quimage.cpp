@@ -78,7 +78,7 @@ QuImage* QuImage::setAllowShrink(const bool allow_shrink)
 
 QPointer<QWidget> QuImage::makeWidget(Questionnaire* questionnaire)
 {
-    Q_UNUSED(questionnaire);
+    Q_UNUSED(questionnaire)
     const QPixmap image = getScaledImage();
     m_label = new AspectRatioPixmap();
     if (!m_allow_shrink) {

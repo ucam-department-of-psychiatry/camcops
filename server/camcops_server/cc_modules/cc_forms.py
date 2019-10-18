@@ -174,7 +174,7 @@ from camcops_server.cc_modules.cc_constants import (
     SEX_MALE,
     USER_NAME_FOR_SYSTEM,
 )
-from camcops_server.cc_modules.cc_group import Group
+from camcops_server.cc_modules.cc_group import Group, is_group_name_valid
 from camcops_server.cc_modules.cc_idnumdef import (
     IdNumDefinition,
     ID_NUM_VALIDATION_METHOD_CHOICES,
@@ -2664,15 +2664,30 @@ class PolicyNode(MandatoryStringNode, RequestAwareMixin):
             )
 
 
+class GroupNameNode(MandatoryStringNode, RequestAwareMixin):
+    """
+    Node to capture a CamCOPS group name, and check it's valid as a string.
+    """
+    def validator(self, node: SchemaNode, value: Any) -> None:
+        _ = self.gettext
+        if not isinstance(value, str):
+            # unlikely!
+            raise Invalid(node, _("Not a string"))
+        request = self.bindings[Binding.REQUEST]  # type: CamcopsRequest
+        _ = request.gettext
+        if not is_group_name_valid(value):
+            errstr = _(
+                "Invalid group name (must be between 1 and {} characters and "
+                "contain only alphanumeric, hyphen, or underscore characters).")  # noqa
+            raise Invalid(node, errstr.format(GROUP_NAME_MAX_LEN))
+
+
 class EditGroupSchema(CSRFSchema):
     """
     Schema to edit a group.
     """
     group_id = HiddenIntegerNode()  # must match ViewParam.GROUP_ID
-    name = SchemaNode(  # must match ViewParam.NAME
-        String(),
-        validator=Length(1, GROUP_NAME_MAX_LEN),
-    )
+    name = GroupNameNode()  # must match ViewParam.NAME
     description = MandatoryStringNode(  # must match ViewParam.DESCRIPTION
         validator=Length(1, GROUP_DESCRIPTION_MAX_LEN),
     )
@@ -2908,8 +2923,7 @@ class PatientIdPerRowNode(SchemaNode, RequestAwareMixin):
     Boolean node: should patient ID information, and other cross-referencing
     denormalized info, be included per row?
 
-    See :ref:`DB_PATIENT_ID_PER_ROW
-    <server_config_export_db_patient_id_per_row>`.
+    See :ref:`DB_PATIENT_ID_PER_ROW <DB_PATIENT_ID_PER_ROW>`.
     """
     schema_type = Boolean
     default = True

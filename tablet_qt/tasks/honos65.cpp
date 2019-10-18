@@ -238,7 +238,7 @@ void Honos65::updateMandatory(const FieldRef* fieldref,
     //
     // Works fine now, but still looks a bit odd to the user - un#defined.
 
-    Q_UNUSED(fieldref);
+    Q_UNUSED(fieldref)
     if (originator == this) {
         return;  // or we will have an infinite loop crash
     }

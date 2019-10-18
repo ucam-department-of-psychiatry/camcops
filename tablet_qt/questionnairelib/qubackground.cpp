@@ -29,7 +29,7 @@ QuBackground::QuBackground(const QString& css_name) :
 
 QPointer<QWidget> QuBackground::makeWidget(Questionnaire* questionnaire)
 {
-    Q_UNUSED(questionnaire);
+    Q_UNUSED(questionnaire)
     QPointer<QWidget> bg(new QWidget());
     bg->setObjectName(m_css_name);
     return bg;

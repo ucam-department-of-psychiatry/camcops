@@ -107,7 +107,7 @@ QModelIndex FlatProxyModel::index(const int proxy_row, const int proxy_column,
 
 QModelIndex FlatProxyModel::parent(const QModelIndex& proxy_child) const
 {
-    Q_UNUSED(proxy_child);
+    Q_UNUSED(proxy_child)
     return {};
 }
 

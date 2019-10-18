@@ -118,7 +118,7 @@ Google Play Store release history
 +---------------+---------------------+---------------------+--------------------+---------+---------+
 | 2.3.4         | 12                  | 2.3.4               | 2019-06-21         | 23      | 26      |
 +---------------+---------------------+---------------------+--------------------+---------+---------+
-| 2.3.5         | 13                  | 2.3.5               | IN PROGRESS        | 23      | 28      |
+| 2.3.6         | 13                  | 2.3.6               | IN PROGRESS        | 23      | 28      |
 |               |                     |                     |                    |         |         |
 +---------------+---------------------+---------------------+--------------------+---------+---------+
 
@@ -137,7 +137,8 @@ The client will be packaged automatically by the
     manually if need be. Check from the development root directory with
     ``dir camcops.exe /s``.
 
-Upload to https://egret.psychol.cam.ac.uk/camcops/download/windows_client/.
+Upload to https://github.com/RudolfCardinal/camcops/releases with a tag named
+``v<VERSION_NUMBER>``.
 
 
 Server
@@ -145,8 +146,9 @@ Server
 
 - Create the Debian (``.deb``) and CentOS (``.rpm``) editions using the
   ``server/tools/MAKE_LINUX_PACKAGES.py`` script. Binaries will end up in
-  ``server/packagebuild/``. Upload them to
-  https://egret.psychol.cam.ac.uk/camcops/download/linux_server/.
+  ``server/packagebuild/``. Upload to
+  https://github.com/RudolfCardinal/camcops/releases with a tag named
+  ``v<VERSION_NUMBER>``.
 
 - The step above will also create a Python distibution in ``server/dist/``.
   (If you want to run that step by itself, use

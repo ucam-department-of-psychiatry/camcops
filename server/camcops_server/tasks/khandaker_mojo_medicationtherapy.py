@@ -25,6 +25,8 @@ camcops_server/tasks/khandaker_mojo_medicationtherapy.py
 ===============================================================================
 
 """
+
+
 from typing import List, Optional, Type, TYPE_CHECKING
 
 from sqlalchemy.sql.sqltypes import Float, Integer, UnicodeText
@@ -49,7 +51,9 @@ if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 
-class KhandakerMojoTableItem(GenericTabletRecordMixin, TaskDescendant):
+class KhandakerMojoTableItem(GenericTabletRecordMixin, TaskDescendant, Base):
+    __abstract__ = True
+
     def any_fields_none(self) -> bool:
         for f in self.mandatory_fields():
             if getattr(self, f) is None:
@@ -83,7 +87,7 @@ class KhandakerMojoTableItem(GenericTabletRecordMixin, TaskDescendant):
             self.medicationtable_id, self)
 
 
-class KhandakerMojoMedicationItem(KhandakerMojoTableItem, Base):
+class KhandakerMojoMedicationItem(KhandakerMojoTableItem):
     __tablename__ = "khandaker_mojo_medication_item"
 
     medicationtable_id = CamcopsColumn(
@@ -152,7 +156,7 @@ class KhandakerMojoMedicationItem(KhandakerMojoTableItem, Base):
         """
 
 
-class KhandakerMojoTherapyItem(KhandakerMojoTableItem, Base):
+class KhandakerMojoTherapyItem(KhandakerMojoTableItem):
     __tablename__ = "khandaker_mojo_therapy_item"
 
     medicationtable_id = CamcopsColumn(

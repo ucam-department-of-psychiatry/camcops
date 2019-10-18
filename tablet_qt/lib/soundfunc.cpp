@@ -35,12 +35,14 @@ void makeMediaPlayer(QSharedPointer<QMediaPlayer>& player)
     // qDebug() << "Default QMediaPlayer() flags: " << static_cast<int>(QMediaPlayer::Flags());
     // default "flags" argument to QMediaPlayer() is 0, i.e. no flags set.
 
+    qDebug() << "About to call QMediaPlayer()...";
     player = QSharedPointer<QMediaPlayer>(new QMediaPlayer(),
                                           &QObject::deleteLater);
     // http://doc.qt.io/qt-5/qsharedpointer.html
     // Failing to use deleteLater() can cause crashes, as there may be
     // outstanding events relating to this object.
     // ... but it's not enough; see finishMediaPlayer().
+    qDebug() << "... QMediaPlayer() has returned.";
 
     /*
 

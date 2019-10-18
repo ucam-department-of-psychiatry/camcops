@@ -172,7 +172,7 @@ void ImageButton::setImageSize(const QSize &size, const bool scale)
 
 void ImageButton::paintEvent(QPaintEvent* e)
 {
-    Q_UNUSED(e);
+    Q_UNUSED(e)
     QPainter p(this);
     QPixmap& pm = isDown() ? m_pressed_pixmap : m_normal_pixmap;
     p.drawPixmap(0, 0, pm);

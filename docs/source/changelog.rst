@@ -2191,7 +2191,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
     ``mysqlclient==1.3.13``, mis-handles Pendulum objects.
   - See also:
 
-    - :ref:`DB_URL <serverconfig_db_url>`.
+    - :ref:`DB_URL <DB_URL>`.
     - https://crateanon.readthedocs.io/en/latest/installation/database_drivers.html
 
   - Fixes:
@@ -2455,6 +2455,11 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Set ``strict_undefined=True`` for Mako template lookups, so they crash
   immediately on typos.
 
+  - ... nope; reverted. Tricky to get e.g. ``not_found.mako`` to inherit
+    ``generic_failure.mako`` and override ``msg`` and ``extra_html`` without
+    having unknown variables being handled (as undefined) rather than raising
+    an error.
+
 - **New tasks:** :ref:`Khandaker GM — MOJO study <khandaker_mojo>`.
   (Database revisions 0039-0041.)
 
@@ -2545,3 +2550,25 @@ Current C++/SQLite client, Python/SQLAlchemy server
     The odd thing is that the change was between 2017-09-10 and 2017-09-11 and
     it was certainly working after that, so perhaps ``matplotlib`` used to
     accept a dictionary or **kwargs and no longer does.
+
+**Client and server v2.3.6**
+
+- Group name character restrictions with validation; see
+  :func:`camcops_server.cc_modules.cc_group.is_group_name_valid`.
+
+- **Restricting task strings to groups:** see :ref:`RESTRICTED_TASKS
+  <RESTRICTED_TASKS>`.
+
+- **New task:** :ref:`Lynall M-E — IAM study — life events <lynall_iam_life>`.
+
+- Removed now-pointless command ``camcops_server demo_mysql_dump_script`` (out
+  of scope and ``camcops_backup_mysql_database`` is better).
+
+- Removed now-pointless command ``camcops_server demo_mysql_create_db`` (it's
+  in the help at :ref:`Create a database <create_database>`).
+
+- Group administrators can now erase tasks entirely from the database
+  :ref:`Erase task instance entirely <erase_task_entirely>`
+
+- Fixed missing and incorrect options for question 2 of
+  :ref:`Maternal Antenatal Attachment Scale (MAAS) <maas>`.

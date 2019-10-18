@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-  <task name="esspri">(
+  <task name="esspri">
     <!-- EULAR Sjögren’s Syndrome Patient Reported Index -->
 
     <string name="title_main">(title)</string>

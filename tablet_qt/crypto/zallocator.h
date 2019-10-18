@@ -20,6 +20,7 @@
 #pragma once
 #include <limits>  // for std::numeric_limits
 #include <new>  // for std::bad_alloc
+#include <QtGlobal>  // for Q_UNUSED
 
 // Currently unused.
 
@@ -39,7 +40,7 @@ public:
     const_pointer address (const_reference v) const {return &v;}
 
     pointer allocate (size_type n, const void* hint = nullptr) {
-        Q_UNUSED(hint);
+        Q_UNUSED(hint)
         if (n > std::numeric_limits<size_type>::max() / sizeof(T))
             throw std::bad_alloc();
         return static_cast<pointer> (::operator new (n * sizeof (value_type)));

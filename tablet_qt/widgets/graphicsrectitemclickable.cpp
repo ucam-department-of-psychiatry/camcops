@@ -77,7 +77,7 @@ void GraphicsRectItemClickable::setClickedAppearance(const QPen& pen,
 
 void GraphicsRectItemClickable::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {
-    Q_UNUSED(event);
+    Q_UNUSED(event)
     m_pressed = true;
     m_pressing_inside = true;
     emit pressed();

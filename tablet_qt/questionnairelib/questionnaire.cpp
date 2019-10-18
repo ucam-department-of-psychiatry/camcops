@@ -271,7 +271,7 @@ void Questionnaire::build()
     QWidget* pagewidget = page->widget(this);  // adds the content
 #ifdef DEBUG_PAGE_LAYOUT_ON_OPEN
     auto showwatcher = new ShowWatcher(pagewidget, true);
-    Q_UNUSED(showwatcher);
+    Q_UNUSED(showwatcher)
 #endif
     connect(page, &QuPage::elementValueChanged,
             this, &Questionnaire::resetButtons,

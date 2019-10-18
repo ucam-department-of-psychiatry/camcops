@@ -119,7 +119,7 @@ void debugWidget(QWidget* widget,
             vboxlayout->addWidget(widget, 0, align);
         }
         auto showwatcher = new ShowWatcher(&dlg, true);
-        Q_UNUSED(showwatcher);
+        Q_UNUSED(showwatcher)
         auto keywatcher = new KeyPressWatcher(&dlg);
         // keywatcher becomes child of dlg,
         // and LayoutDumper is a namespace, so:

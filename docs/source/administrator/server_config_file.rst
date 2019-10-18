@@ -29,8 +29,7 @@
 
 .. |use_trusted_headers| replace::
 
-    It is generally easiest to leave this blank and set
-    :ref:`TRUSTED_PROXY_HEADERS <serverconfig_wsgi_trusted_proxy_headers>`
+    It is generally easiest to leave this blank and set TRUSTED_PROXY_HEADERS_
     instead.
 
 
@@ -118,7 +117,7 @@ Options for the "[site]" section
 Database connection
 ~~~~~~~~~~~~~~~~~~~
 
-.. _serverconfig_db_url:
+.. _DB_URL:
 
 DB_URL
 ######
@@ -236,7 +235,7 @@ As for ``LOCAL_LOGO_FILE_ABSOLUTE``, but for the CamCOPS logo. It's fine not to
 specify this; a default will be used.
 
 
-.. _serverconfig_extra_string_files:
+.. _EXTRA_STRING_FILES:
 
 EXTRA_STRING_FILES
 ##################
@@ -247,6 +246,41 @@ A multiline list of filenames (with absolute paths), read by the server, and
 used as EXTRA STRING FILES. Should **as a minimum** point to the string file
 ``camcops.xml``. May use "glob" pattern-matching (see
 https://docs.python.org/3.5/library/glob.html).
+
+
+.. _RESTRICTED_TASKS:
+
+RESTRICTED_TASKS
+################
+
+*Multiline string.*
+
+This option allows you to have restricted task content on your server, and to
+permit tasks only to specific groups (typically, the ones that have paid for a
+licence).
+
+We don't want to do anything to inhibit the uploading of data. Therefore, this
+option restricts the provision, by the server to the clients, of task strings
+for restricted tasks (i.e. a client cannot download strings from a restricted
+task unless they are a member of an authorized group).
+
+Each line is in the format:
+
+.. code-block:: none
+
+    <xml_task_name>: <groupname>, <groupname>, ...
+
+That is, an XML task name is mapped to a comma-separated list of group names.
+These groups are the AUTHORIZED groups; any group that does not appear is not
+authorized. (If a blank list is specified, no groups are authorized! That would
+be a bit odd; why not just remove it from EXTRA_STRING_FILES_?)
+
+If a task's name is not in this list, the task is not restricted.
+
+The XML task name is usually, but not always, the same as the task's table
+name. See C++ tasks that implement ``xstringTaskname()``, or equivalently
+Python tasks that implement ``extrastring_taskname``, for examples that deviate
+from this general rule.
 
 
 LANGUAGE
@@ -383,7 +417,7 @@ Suggested filenames for saving PDFs from the web view
 Try these with Chrome, Firefox. Internet Explorer may be less obliging.
 
 
-.. _serverconfig_server_patient_spec_if_anonymous:
+.. _PATIENT_SPEC_IF_ANONYMOUS:
 
 PATIENT_SPEC_IF_ANONYMOUS
 #########################
@@ -391,10 +425,10 @@ PATIENT_SPEC_IF_ANONYMOUS
 *String.*
 
 For anonymous tasks, this fixed string is used as the patient descriptor (see
-also ``PATIENT_SPEC`` below). Typically "anonymous".
+also PATIENT_SPEC_ below). Typically "anonymous".
 
 
-.. _serverconfig_server_patient_spec:
+.. _PATIENT_SPEC:
 
 PATIENT_SPEC
 ############
@@ -431,7 +465,7 @@ below). Possible substitutions:
 +-------------------+---------------------------------------------------------+
 
 
-.. _serverconfig_server_task_filename_spec:
+.. _TASK_FILENAME_SPEC:
 
 TASK_FILENAME_SPEC
 ##################
@@ -469,7 +503,7 @@ Possible substitutions:
 |               | a blank string                                              |
 +---------------+-------------------------------------------------------------+
 
-... plus all those substitutions applicable to ``PATIENT_SPEC``.
+... plus all those substitutions applicable to PATIENT_SPEC_.
 
 After these substitutions have been made, the entire filename is then processed
 to ensure that only characters generally acceptable to filenames are used (see
@@ -491,7 +525,7 @@ TRACKER_FILENAME_SPEC
 
 *String.*
 
-Filename specification used for tracker downloads; see ``TASK_FILENAME_SPEC``.
+Filename specification used for tracker downloads; see TASK_FILENAME_SPEC_.
 
 
 CTV_FILENAME_SPEC
@@ -500,7 +534,7 @@ CTV_FILENAME_SPEC
 *String.*
 
 Filename specification used for clinical text view downloads; see
-``TASK_FILENAME_SPEC``.
+TASK_FILENAME_SPEC_.
 
 
 Debugging options
@@ -544,7 +578,7 @@ Options for the "[server]" section
 Common web server options
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-CamCOPS incorporates a Python web server. You can choose which one to lanuch:
+CamCOPS incorporates a Python web server. You can choose which one to launch:
 
 - CherryPy_: a "proper" one; multithreaded; works on Windows and Linux.
 - Gunicorn_: a "proper" one; multiprocess; Linux/UNIX only.
@@ -556,12 +590,14 @@ You may also want to configure a CamCOPS server behind a "front-end" web server
 such as Apache_. Further options to help with this are described below.
 
 
+.. _HOST:
+
 HOST
 ####
 
 *String.* Default: ``127.0.0.1``.
 
-TCP/IP hostname to listen on. (See also ``UNIX_DOMAIN_SOCKET``.)
+TCP/IP hostname to listen on. (See also UNIX_DOMAIN_SOCKET_.)
 
 Note some variations. For example, if your machine has an IP (v4) address of
 ``192.168.1.1``, then under Linux you will find the following:
@@ -574,13 +610,17 @@ Note some variations. For example, if your machine has an IP (v4) address of
   address, typically ``127.0.0.1``.
 
 
+.. _PORT:
+
 PORT
 ####
 
 *Integer.* Default: 8000.
 
-TCP_ port number to listen on. (See also ``UNIX_DOMAIN_SOCKET``.)
+TCP_ port number to listen on. (See also UNIX_DOMAIN_SOCKET_.)
 
+
+.. _UNIX_DOMAIN_SOCKET:
 
 UNIX_DOMAIN_SOCKET
 ##################
@@ -589,9 +629,10 @@ UNIX_DOMAIN_SOCKET
 
 Filename of a UNIX domain socket (UDS) to listen on (rather than using TCP/IP).
 UDS is typically faster than TCP. If specified, this overrides the TCP options,
-``HOST`` and ``PORT``.
+HOST_ and PORT_.
 
-For example, ``/tmp/.camcops.sock``.
+For example, ``/run/camcops/camcops.socket`` (as per the `Filesystem Hierarchy
+Standard <https://refspecs.linuxfoundation.org/FHS_3.0/fhs/ch05s13.html>`_.
 
 (Not applicable to the Pyramid test web server; CherryPy/Gunicorn only.)
 
@@ -608,8 +649,10 @@ SSL certificate file for HTTPS_ (e.g.
 
 If you host CamCOPS behind Apache, it's likely that you'll want Apache to
 handle HTTPS and CamCOPS to operate unencrypted behind a reverse proxy, in
-which case don't set this or ``SSL_PRIVATE_KEY``.
+which case don't set this or SSL_PRIVATE_KEY_.
 
+
+.. _SSL_PRIVATE_KEY:
 
 SSL_PRIVATE_KEY
 ###############
@@ -664,6 +707,8 @@ systems; it carries security risks.** It will not operate via Gunicorn_, which
 has an incompatible process model.
 
 
+.. _SHOW_REQUESTS:
+
 SHOW_REQUESTS
 #############
 
@@ -677,7 +722,7 @@ SHOW_REQUEST_IMMEDIATELY
 
 *Boolean.* Default: false.
 
-[Only applicable if ``SHOW_REQUESTS`` is true.]
+[Only applicable if SHOW_REQUESTS_ is true.]
 
 Show the request immediately, so it's written to the log before the WSGI app
 does its processing, and is guaranteed to be visible even if the WSGI app
@@ -692,7 +737,7 @@ SHOW_RESPONSE
 
 *Boolean.* Default: false.
 
-[Only applicable if ``SHOW_REQUESTS`` is true.]
+[Only applicable if SHOW_REQUESTS_ is true.]
 
 Write the HTTP response code to the server's log?
 
@@ -702,7 +747,7 @@ SHOW_TIMING
 
 *Boolean.* Default: false.
 
-[Only applicable if ``SHOW_REQUESTS`` is true.]
+[Only applicable if SHOW_REQUESTS_ is true.]
 
 Write the time taken by the CamCOPS WSGI app to the server's log?
 
@@ -742,6 +787,8 @@ Appropriate for some front-end web browsers with limited reverse proxying
 support (but do not use for Apache with ``ProxyPass``, because that rewrites
 incoming URLs properly).
 
+
+.. _PROXY_SCRIPT_NAME:
 
 PROXY_SCRIPT_NAME
 #################
@@ -806,7 +853,7 @@ in use).
 |use_trusted_headers|
 
 
-.. _serverconfig_wsgi_trusted_proxy_headers:
+.. _TRUSTED_PROXY_HEADERS:
 
 TRUSTED_PROXY_HEADERS
 #####################
@@ -892,7 +939,7 @@ Root path to serve CRATE at, WITHIN this CherryPy web server instance.
 There is unlikely to be a reason to use something other than ``/``; do not
 confuse this with the mount point within a wider, e.g. Apache, configuration,
 which is set instead by the WSGI variable ``SCRIPT_NAME``; see the
-``TRUSTED_PROXY_HEADERS`` and ``PROXY_SCRIPT_NAME`` options.
+TRUSTED_PROXY_HEADERS_ and PROXY_SCRIPT_NAME_ options.
 
 
 Gunicorn options
@@ -917,7 +964,7 @@ GUNICORN_DEBUG_RELOAD
 Debugging option: reload Gunicorn upon code change?
 
 
-.. _server_config_param_gunicorn_timeout_s:
+.. _GUNICORN_TIMEOUT_S:
 
 GUNICORN_TIMEOUT_S
 ##################
@@ -1063,10 +1110,12 @@ SCHEDULE_TIMEZONE
 
 *String.* Default: ``UTC``.
 
-Timezone used by Celery for the *crontab(5)*-style ``SCHEDULE`` (see below), as
+Timezone used by Celery for the *crontab(5)*-style SCHEDULE_ (see below), as
 per
 http://docs.celeryproject.org/en/latest/userguide/periodic-tasks.html#time-zones.
 
+
+.. _SCHEDULE:
 
 SCHEDULE
 ########
@@ -1127,7 +1176,7 @@ config file. Together, they define a single export recipient.
 How to export
 ~~~~~~~~~~~~~
 
-.. _server_config_param_transmission_method:
+.. _TRANSMISSION_METHOD:
 
 TRANSMISSION_METHOD
 ###################
@@ -1181,8 +1230,7 @@ One of the following:
 - ``html``
 - ``xml``
 
-Not relevant for database exports (see :ref:`TRANSMISSION_METHOD
-<server_config_param_transmission_method>`).
+Not relevant for database exports (see TRANSMISSION_METHOD_).
 
 
 XML_FIELD_COMMENTS
@@ -1198,13 +1246,18 @@ space but they provide more information for human readers.
 What to export
 ~~~~~~~~~~~~~~
 
+.. _ALL_GROUPS:
+
 ALL_GROUPS
 ##########
 
 *Boolean.* Default: false.
 
-Export from all groups? If not, ``GROUPS`` will come into play (see below).
+Export from all groups? If not, :ref:`GROUPS <export_GROUPS>` will come into
+play (see below).
 
+
+.. _export_GROUPS:
 
 GROUPS
 ######
@@ -1213,7 +1266,7 @@ GROUPS
 
 Names of CamCOPS group(s) to export from.
 
-Only applicable if ``ALL_GROUPS`` is false.
+Only applicable if ALL_GROUPS_ is false.
 
 
 TASKS
@@ -1256,6 +1309,8 @@ However, if you want a non-UTC timezone, specify the date/time in `ISO 8601`_
 format and it will be autoconverted to UTC.
 
 
+.. _FINALIZED_ONLY:
+
 FINALIZED_ONLY
 ##############
 
@@ -1268,10 +1323,12 @@ modified later).
 
 .. warning::
 
-    It is unusual, and very likely undesirable, to set ``FINALIZED_ONLY`` to
+    It is unusual, and very likely undesirable, to set FINALIZED_ONLY_ to
     False. You may end up exporting multiple copies of tasks, all slightly
     different, if the user makes edits before finalizing.
 
+
+.. _INCLUDE_ANONYMOUS:
 
 INCLUDE_ANONYMOUS
 #################
@@ -1284,8 +1341,10 @@ Include anonymous tasks?
   heavily tied to identification.
 
 - Note also that this setting operates independently of the
-  ``REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY`` setting.
+  REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY_ setting.
 
+
+.. _PRIMARY_IDNUM:
 
 PRIMARY_IDNUM
 #############
@@ -1298,9 +1357,11 @@ If specified, only tasks with this ID number present will be exported.
 - Must be specified for HL7 messages.
 - May be blank for file and e-mail transmission.
 - For (e.g.) file/e-mail transmission, this does not control the behaviour of
-  anonymous tasks, which are instead controlled by ``INCLUDE_ANONYMOUS`` (see
+  anonymous tasks, which are instead controlled by INCLUDE_ANONYMOUS_ (see
   below).
 
+
+.. _REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY:
 
 REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY
 #########################################
@@ -1308,13 +1369,13 @@ REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY
 *Boolean.*
 
 Defines behaviour relating to the primary ID number. Applies only if
-``PRIMARY_IDNUM`` is set.
+PRIMARY_IDNUM_ is set.
 
-- If true, no message sending will be attempted unless the ``PRIMARY_IDNUM`` is
-  a mandatory part of the finalizing policy (and if ``FINALIZED_ONLY`` is
+- If true, no message sending will be attempted unless the PRIMARY_IDNUM_ is
+  a mandatory part of the finalizing policy (and if FINALIZED_ONLY_ is
   false, also of the upload policy).
 - If false, messages will be sent, but ONLY FROM TASKS FOR WHICH THE
-  ``PRIMARY_IDNUM`` IS PRESENT; others will be ignored.
+  PRIMARY_IDNUM_ IS PRESENT; others will be ignored.
 - If you export from multiple groups simultaneously, setting this to true means
   that the primary ID number must be present (as above) for *all* groups.
 
@@ -1358,7 +1419,7 @@ Add summary information (including :ref:`SNOMED CT <snomed>` codes if
 available)?
 
 
-.. _server_config_export_db_patient_id_per_row:
+.. _DB_PATIENT_ID_PER_ROW:
 
 DB_PATIENT_ID_PER_ROW
 #####################
@@ -1380,7 +1441,7 @@ part of this denormalization-for-convenience.
 Options applicable to e-mail export only
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Attachment filenames are based on ``FILE_FILENAME_SPEC``, but only the basename
+Attachment filenames are based on FILE_FILENAME_SPEC_, but only the basename
 of the path is used.
 
 
@@ -1482,11 +1543,12 @@ EMAIL_PATIENT_SPEC_IF_ANONYMOUS
 *String.*
 
 For anonymous tasks, this string is used as the patient descriptor (see
-``EMAIL_SUBJECT_PATIENT_SPEC``, ``EMAIL_SUBJECT_SPEC`` below). Typically "anonymous".
+EMAIL_PATIENT_SPEC_, EMAIL_SUBJECT_ below). Typically "anonymous".
 
-(Thus: as for the main :ref:`PATIENT_SPEC_IF_ANONYMOUS
-<serverconfig_server_patient_spec_if_anonymous>` option.)
+(Thus: as for the main PATIENT_SPEC_IF_ANONYMOUS_ option.)
 
+
+.. _EMAIL_PATIENT_SPEC:
 
 EMAIL_PATIENT_SPEC
 ##################
@@ -1494,19 +1556,19 @@ EMAIL_PATIENT_SPEC
 *String.*
 
 String, into which substitutions will be made, that defines the ``patient``
-element available for substitution into the ``EMAIL_SUBJECT_SPEC`` (see below).
+element available for substitution into the EMAIL_SUBJECT_ (see below).
 
-Options are as for the main :ref:`PATIENT_SPEC
-<serverconfig_server_patient_spec>` option.
+Options are as for the main PATIENT_SPEC_ option.
 
+
+.. _EMAIL_SUBJECT:
 
 EMAIL_SUBJECT
 #############
 
 *String.*
 
-Possible substitutions are as for the main :ref:`TASK_FILENAME_SPEC
-<serverconfig_server_task_filename_spec>` option.
+Possible substitutions are as for the main TASK_FILENAME_SPEC_ option.
 
 
 EMAIL_BODY_IS_HTML
@@ -1523,10 +1585,7 @@ EMAIL_BODY
 *Multiline string.*
 
 E-mail body contents. Possible substitutions are as for the main
-:ref:`TASK_FILENAME_SPEC <serverconfig_server_task_filename_spec>` option.
-
-Possible substitutions are as for the main :ref:`TASK_FILENAME_SPEC
-<serverconfig_server_task_filename_spec>` option.
+TASK_FILENAME_SPEC_ option.
 
 
 EMAIL_KEEP_MESSAGE
@@ -1541,6 +1600,8 @@ consumes lots of database space! Use only for debugging.
 Options applicable to HL7 only
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+.. _HL7_HOST:
+
 HL7_HOST
 ########
 
@@ -1548,6 +1609,8 @@ HL7_HOST
 
 HL7 hostname or IP address.
 
+
+.. _HL7_PORT:
 
 HL7_PORT
 ########
@@ -1593,13 +1656,15 @@ Keep a copy of the reply (e.g. acknowledgement) message received from the
 server. **WARNING:** may consume significant space.
 
 
+.. _HL7_DEBUG_DIVERT_TO_FILE:
+
 HL7_DEBUG_DIVERT_TO_FILE
 ########################
 
 *Boolean.* Default: false.
 
-Override ``HL7_HOST``/``HL7_PORT`` options and send HL7 messages to a
-(single) file instead?
+Override HL7_HOST_/HL7_PORT_ options and send HL7 messages to a (single) file
+instead?
 
 This is a **debugging option,** allowing you to redirect HL7 messages to a file
 and inspect them. If chosen, the following options are used:
@@ -1620,17 +1685,19 @@ HL7_DEBUG_TREAT_DIVERTED_AS_SENT
 
 *Boolean.* Default: false.
 
-Any messages that are diverted to a file (using ``DIVERT_TO_FILE``) are treated
-as having been sent (thus allowing the file to mimic an HL7-receiving server
-that's accepting messages happily). If set to false, a diversion will allow you
-to preview messages for debugging purposes without "swallowing" them. BEWARE,
-though: if you have an automatically scheduled job (for example, to send
-messages every minute) and you divert with this flag set to false, you will end
-up with a great many message attempts!
+Any messages that are diverted to a file (using HL7_DEBUG_DIVERT_TO_FILE_) are
+treated as having been sent (thus allowing the file to mimic an HL7-receiving
+server that's accepting messages happily). If set to false, a diversion will
+allow you to preview messages for debugging purposes without "swallowing" them.
+BEWARE, though: if you have an automatically scheduled job (for example, to
+send messages every minute) and you divert with this flag set to false, you
+will end up with a great many message attempts!
 
 
 Options applicable to file transfers and attachments
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. _FILE_PATIENT_SPEC_IF_ANONYMOUS:
 
 FILE_PATIENT_SPEC_IF_ANONYMOUS
 ##############################
@@ -1638,11 +1705,12 @@ FILE_PATIENT_SPEC_IF_ANONYMOUS
 *String.*
 
 For anonymous tasks, this string is used as the patient descriptor (see
-``PATIENT_SPEC``, ``FILENAME_SPEC`` below). Typically "anonymous".
+FILE_PATIENT_SPEC_, FILE_FILENAME_SPEC_ below). Typically "anonymous".
 
-(Thus: as for the main :ref:`PATIENT_SPEC_IF_ANONYMOUS
-<serverconfig_server_patient_spec_if_anonymous>` option.)
+(Thus: as for the main PATIENT_SPEC_IF_ANONYMOUS_ option.)
 
+
+.. _FILE_PATIENT_SPEC:
 
 FILE_PATIENT_SPEC
 #################
@@ -1650,11 +1718,12 @@ FILE_PATIENT_SPEC
 *String.*
 
 String, into which substitutions will be made, that defines the ``patient``
-element available for substitution into the ``FILENAME_SPEC`` (see below).
+element available for substitution into the FILE_FILENAME_SPEC_ (see below).
 
-Options are as for the main :ref:`PATIENT_SPEC
-<serverconfig_server_patient_spec>` option.
+Options are as for the main PATIENT_SPEC_ option.
 
+
+.. _FILE_FILENAME_SPEC:
 
 FILE_FILENAME_SPEC
 ##################
@@ -1662,11 +1731,10 @@ FILE_FILENAME_SPEC
 *String.*
 
 String into which substitutions will be made to determine the filename to be
-used for each file. (Patient details are determined by ``FILE_PATIENT_SPEC``
-and ``FILE_PATIENT_SPEC_IF_ANONYMOUS``.)
+used for each file. (Patient details are determined by FILE_PATIENT_SPEC_
+and FILE_PATIENT_SPEC_IF_ANONYMOUS_.)
 
-Possible substitutions are as for the main :ref:`TASK_FILENAME_SPEC
-<serverconfig_server_task_filename_spec>` option.
+Possible substitutions are as for the main TASK_FILENAME_SPEC_ option.
 
 
 FILE_MAKE_DIRECTORY
@@ -1690,6 +1758,8 @@ try ensuring that both the ``tasktype`` and ``serverpk`` attributes are used in
 the filename.)
 
 
+.. _FILE_EXPORT_RIO_METADATA:
+
 FILE_EXPORT_RIO_METADATA
 ########################
 
@@ -1704,8 +1774,8 @@ Details of this file format are in ``cc_task.py`` and
 The metadata filename is that of its associated file, but with the extension
 replaced by ``.metadata`` (e.g. ``X.pdf`` is accompanied by ``X.metadata``).
 
-If ``RIO_METADATA`` is true, the following options also apply: ``RIO_IDNUM``,
-``RIO_UPLOADING_USER``, ``RIO_DOCUMENT_TYPE``.
+If FILE_EXPORT_RIO_METADATA_ is true, the following options also apply:
+RIO_IDNUM_, RIO_UPLOADING_USER_, RIO_DOCUMENT_TYPE_.
 
 
 FILE_SCRIPT_AFTER_EXPORT
@@ -1755,26 +1825,32 @@ Note:
 Extra options for RiO metadata for file-based export
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+.. _RIO_IDNUM:
+
 RIO_IDNUM
 #########
 
-*Integer.* Applicable if ``RIO_METADATA`` is true.
+*Integer.* Applicable if FILE_EXPORT_RIO_METADATA_ is true.
 
 Which of the ID numbers (as above) is the RiO ID?
 
 
+.. _RIO_UPLOADING_USER:
+
 RIO_UPLOADING_USER
 ##################
 
-*String.* Applicable if ``RIO_METADATA`` is true.
+*String.* Applicable if FILE_EXPORT_RIO_METADATA_ is true.
 
 RiO username for the uploading user (maximum of 10 characters).
 
 
+.. _RIO_DOCUMENT_TYPE:
+
 RIO_DOCUMENT_TYPE
 #################
 
-*String.* Applicable if ``RIO_METADATA`` is true.
+*String.* Applicable if FILE_EXPORT_RIO_METADATA_ is true.
 
 Document type as defined in the receiving RiO system. This is a code that maps
 to a human-readable document type; for example, the code "APT" might map to

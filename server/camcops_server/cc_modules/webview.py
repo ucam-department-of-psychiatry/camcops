@@ -126,6 +126,7 @@ import logging
 import os
 # from pprint import pformat
 from typing import Any, Dict, List, Tuple, Type, TYPE_CHECKING
+# import unittest
 
 from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.deform_utils import get_head_form_html
@@ -279,9 +280,14 @@ from camcops_server.cc_modules.cc_taskfilter import (
     task_classes_from_table_names,
     TaskClassSortMethod,
 )
-from camcops_server.cc_modules.cc_taskindex import update_indexes_and_push_exports  # noqa
+from camcops_server.cc_modules.cc_taskindex import (
+    PatientIdNumIndexEntry,
+    TaskIndexEntry,
+    update_indexes_and_push_exports
+)
 from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_tracker import ClinicalTextView, Tracker
+from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 from camcops_server.cc_modules.cc_user import (
     SecurityAccountLockout,
     SecurityLoginFailure,
@@ -390,7 +396,10 @@ def not_found(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     "Page not found" view.
     """
-    return {}
+    return {
+        "msg": "",
+        "extra_html": "",
+    }
 
 
 # noinspection PyUnusedLocal
@@ -413,7 +422,10 @@ def bad_request(req: "CamcopsRequest") -> Dict[str, Any]:
 
     ... so always raise it.
     """
-    return {}
+    return {
+        "msg": "",
+        "extra_html": "",
+    }
 
 
 # =============================================================================
@@ -616,7 +628,9 @@ def account_locked(req: "CamcopsRequest", locked_until: Pendulum) -> Response:
         dict(
             locked_until=format_datetime(locked_until,
                                          DateFormat.LONG_DATETIME_WITH_DAY,
-                                         _("(never)"))
+                                         _("(never)")),
+            msg="",
+            extra_html="",
         ),
         request=req
     )
@@ -712,7 +726,6 @@ def change_own_password(req: "CamcopsRequest") -> Response:
     assert user is not None
     expired = user.must_change_password
     form = ChangeOwnPasswordForm(request=req, must_differ=True)
-    extra_msg = ""
     if FormAction.SUBMIT in req.POST:
         try:
             controls = list(req.POST.items())
@@ -733,7 +746,6 @@ def change_own_password(req: "CamcopsRequest") -> Response:
         "change_own_password.mako",
         dict(form=rendered_form,
              expired=expired,
-             extra_msg=extra_msg,
              min_pw_length=MINIMUM_PASSWORD_LENGTH,
              head_form_html=get_head_form_html(req, [form])),
         request=req)
@@ -1964,6 +1976,7 @@ def view_server_info(req: "CamcopsRequest") -> Dict[str, Any]:
         all_task_classes=Task.all_subclasses_by_longname(req),
         recent_activity=recent_activity,
         session_timeout_minutes=req.config.session_timeout_minutes,
+        restricted_tasks=req.config.restricted_tasks,
     )
 
 
@@ -2887,7 +2900,8 @@ def add_special_note(req: "CamcopsRequest") -> Dict[str, Any]:
         rendered_form = form.render(appstruct)
     return dict(task=task,
                 form=rendered_form,
-                head_form_html=get_head_form_html(req, [form]))
+                head_form_html=get_head_form_html(req, [form]),
+                viewtype=ViewArg.HTML)
 
 
 @view_config(route_name=Routes.DELETE_SPECIAL_NOTE,
@@ -2933,80 +2947,161 @@ def delete_special_note(req: "CamcopsRequest") -> Dict[str, Any]:
                 head_form_html=get_head_form_html(req, [form]))
 
 
-@view_config(route_name=Routes.ERASE_TASK,
+class EraseTaskBaseView(object):
+    def __init__(self, request: "CamcopsRequest"):
+        self.request = request
+        self.table_name = request.get_str_param(ViewParam.TABLE_NAME)
+        self.server_pk = request.get_int_param(ViewParam.SERVER_PK, None)
+        self.form = EraseTaskForm(request=request)
+
+        if not hasattr(self, "template_name"):
+            raise NotImplementedError(
+                f"{self.__class__.__name__} must defined template_name"
+            )
+
+    def dispatch(self) -> Response:
+        if FormAction.CANCEL in self.request.POST:
+            return HTTPFound(self.get_task_url())
+
+        task = self.get_and_validate_task()
+        self.check_user_is_authorized(task)
+
+        if FormAction.DELETE in self.request.POST:
+            return self.handle_delete(task)
+
+        return self.display_form(task)
+
+    def handle_delete(self, task: Task) -> Response:
+        try:
+            controls = list(self.request.POST.items())
+            self.form.validate(controls)
+            self.erase_task(task)
+            return simple_success(
+                self.request,
+                self.get_success_message(),
+                self.get_success_extra_html()
+            )
+        except ValidationFailure as e:
+            return self.render_to_response(task, e.render())
+
+    def erase_task(self, task: Task):
+        raise NotImplementedError
+
+    def get_success_message(self) -> str:
+        _ = self.request.gettext
+        msg_erased = _("Task erased:")
+
+        return f'{msg_erased} ({self.table_name}, server PK {self.server_pk}).'
+
+    def get_success_extra_html(self) -> str:
+        return ""
+
+    def display_form(self, task) -> Response:
+        appstruct = {
+            ViewParam.TABLE_NAME: self.table_name,
+            ViewParam.SERVER_PK: self.server_pk,
+        }
+        rendered_form = self.form.render(appstruct)
+
+        return self.render_to_response(task, rendered_form)
+
+    def render_to_response(self, task: Task, rendered_form: str) -> Response:
+        # noinspection PyUnresolvedReferences
+        return render_to_response(
+            self.template_name,
+            dict(
+                task=task,
+                form=rendered_form,
+                head_form_html=get_head_form_html(self.request, [self.form]),
+                viewtype=ViewArg.HTML
+            ),
+            request=self.request
+        )
+
+    def get_and_validate_task(self) -> Task:
+        task = task_factory(self.request, self.table_name, self.server_pk)
+        _ = self.request.gettext
+        if task is None:
+            raise HTTPBadRequest(
+                f"{_('No such task:')} {self.table_name}, PK={self.server_pk}")
+        if task.is_live_on_tablet():
+            raise HTTPBadRequest(errormsg_task_live(self.request))
+
+        return task
+
+    def check_user_is_authorized(self, task: Task) -> None:
+        # noinspection PyProtectedMember
+        if not self.request.user.authorized_to_erase_tasks(task._group_id):
+            _ = self.request.gettext
+            raise HTTPBadRequest(
+                _("Not authorized to erase tasks for this task's group"))
+
+    def get_task_url(self) -> str:
+        return self.request.route_url(
+            Routes.TASK,
+            _query={
+                ViewParam.TABLE_NAME: self.table_name,
+                ViewParam.SERVER_PK: self.server_pk,
+                ViewParam.VIEWTYPE: ViewArg.HTML,
+            }
+        )
+
+
+class EraseTaskLeavingPlaceholderView(EraseTaskBaseView):
+    template_name = "task_erase.mako"
+
+    def get_and_validate_task(self) -> Task:
+        task = super().get_and_validate_task()
+        if task.is_erased():
+            _ = self.request.gettext
+            raise HTTPBadRequest(_("Task already erased"))
+
+        return task
+
+    def erase_task(self, task: Task) -> None:
+        task.manually_erase(self.request)
+
+    def get_success_extra_html(self) -> str:
+        url_back = self.get_task_url()
+        _ = self.request.gettext
+        msg_view_amended = _("View amended task")
+
+        return f'<a href="{url_back}">{msg_view_amended}</a>.'
+
+
+class EraseTaskEntirelyView(EraseTaskBaseView):
+    template_name = "task_erase_entirely.mako"
+
+    def erase_task(self, task: Task) -> None:
+        TaskIndexEntry.unindex_task(task, self.request.dbsession)
+        task.delete_entirely(self.request)
+
+
+@view_config(route_name=Routes.ERASE_TASK_LEAVING_PLACEHOLDER,
              permission=Permission.GROUPADMIN)
-def erase_task(req: "CamcopsRequest") -> Response:
+def erase_task_leaving_placeholder(req: "CamcopsRequest") -> Response:
     """
     View to wipe all data from a task (after confirmation).
 
     Leaves the task record as a placeholder.
     """
-    table_name = req.get_str_param(ViewParam.TABLE_NAME)
-    server_pk = req.get_int_param(ViewParam.SERVER_PK, None)
-    url_back = req.route_url(
-        Routes.TASK,
-        _query={
-            ViewParam.TABLE_NAME: table_name,
-            ViewParam.SERVER_PK: server_pk,
-            ViewParam.VIEWTYPE: ViewArg.HTML,
-        }
-    )
-    if FormAction.CANCEL in req.POST:
-        return HTTPFound(url_back)
-    task = task_factory(req, table_name, server_pk)
-    _ = req.gettext
-    if task is None:
-        raise HTTPBadRequest(
-            f"{_('No such task:')} {table_name}, PK={server_pk}")
-    if task.is_erased():
-        raise HTTPBadRequest(_("Task already erased"))
-    if task.is_live_on_tablet():
-        raise HTTPBadRequest(errormsg_task_live(req))
-    user = req.user
-    # noinspection PyProtectedMember
-    if not user.authorized_to_erase_tasks(task._group_id):
-        raise HTTPBadRequest(
-            _("Not authorized to erase tasks for this task's group"))
-    form = EraseTaskForm(request=req)
-    if FormAction.DELETE in req.POST:
-        try:
-            controls = list(req.POST.items())
-            form.validate(controls)
-            # -----------------------------------------------------------------
-            # Erase task
-            # -----------------------------------------------------------------
-            task.manually_erase(req)
-            msg_erased = _("Task erased:")
-            msg_view_amended = _("View amended task")
-            return simple_success(
-                req,
-                f'{msg_erased} ({table_name}, server PK {server_pk}).',
-                f'<a href="{url_back}">{msg_view_amended}</a>.'
-            )
-        except ValidationFailure as e:
-            rendered_form = e.render()
-    else:
-        appstruct = {
-            ViewParam.TABLE_NAME: table_name,
-            ViewParam.SERVER_PK: server_pk,
-        }
-        rendered_form = form.render(appstruct)
-    return render_to_response(
-        "task_erase.mako",
-        dict(
-            task=task,
-            form=rendered_form,
-            head_form_html=get_head_form_html(req, [form])
-        ),
-        request=req
-    )
+    return EraseTaskLeavingPlaceholderView(req).dispatch()
+
+
+@view_config(route_name=Routes.ERASE_TASK_ENTIRELY,
+             permission=Permission.GROUPADMIN)
+def erase_task_entirely(req: "CamcopsRequest") -> Response:
+    """
+    View to erase a task from the database entirely (after confirmation).
+    """
+    return EraseTaskEntirelyView(req).dispatch()
 
 
 @view_config(route_name=Routes.DELETE_PATIENT,
              permission=Permission.GROUPADMIN)
 def delete_patient(req: "CamcopsRequest") -> Response:
     """
-    View to cdelete ompletely all data from a patient (after confirmation),
+    View to delete completely all data for a patient (after confirmation),
     within a specific group.
     """
     if FormAction.CANCEL in req.POST:
@@ -3088,9 +3183,11 @@ def delete_patient(req: "CamcopsRequest") -> Response:
             # Delete patient and associated tasks
             # -----------------------------------------------------------------
             for task in tasks:
+                TaskIndexEntry.unindex_task(task, req.dbsession)
                 task.delete_entirely(req)
             # Then patients:
             for p in patient_lineage_instances:
+                PatientIdNumIndexEntry.unindex_patient(p, req.dbsession)
                 p.delete_with_dependants(req)
             msg = (
                 f"{_('Patient and associated tasks DELETED from group')} "
@@ -3436,3 +3533,32 @@ def static_bugfix_deform_missing_glyphs(req: "CamcopsRequest") -> Response:
     Hack for a missing-file bug in ``deform==2.0.4``.
     """
     return FileResponse(DEFORM_MISSING_GLYPH, request=req)
+
+
+# =============================================================================
+# Unit testing
+# =============================================================================
+
+class WebviewTests(DemoDatabaseTestCase):
+    """
+    Unit tests.
+    """
+    def test_any_records_use_group_true(self):
+        # All tasks created in DemoDatabaseTestCase will be in this group
+        self.announce("test_any_records_use_group_true")
+        self.assertTrue(any_records_use_group(self.req, self.group))
+
+    def test_any_records_use_group_false(self):
+        """
+        If this fails with:
+        sqlalchemy.exc.InvalidRequestError: SQL expression, column, or mapped
+        entity expected - got <name of task base class>
+        then the base class probably needs to be declared __abstract__. See
+        DiagnosisItemBase as an example.
+        """
+        self.announce("test_any_records_use_group_false")
+        group = Group()
+        self.dbsession.add(self.group)
+        self.dbsession.flush()
+
+        self.assertFalse(any_records_use_group(self.req, group))

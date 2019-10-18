@@ -30,7 +30,7 @@ QuHorizontalLine::QuHorizontalLine()
 
 QPointer<QWidget> QuHorizontalLine::makeWidget(Questionnaire* questionnaire)
 {
-    Q_UNUSED(questionnaire);
+    Q_UNUSED(questionnaire)
     auto horizline = new HorizontalLine(uiconst::QUESTIONNAIRE_HLINE_WIDTH);
     horizline->setObjectName(cssconst::QUESTIONNAIRE_HORIZONTAL_LINE);
     return QPointer<QWidget>(horizline);

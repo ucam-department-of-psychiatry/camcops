@@ -41,27 +41,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 
 <div>${page.pager()}</div>
 
-<table>
-    <tr>
-        %for c in column_names:
-            <th>${c | h}</th>
-        %endfor
-    </tr>
-    %for row in page:
-        <tr>
-            %for val in row:
-                <td>
-                    %if val is None:
-                        <!-- NULL -->
-                        ## <i>NULL</i>
-                    %else:
-                        ${val | h}
-                    %endif
-                </td>
-            %endfor
-        </tr>
-    %endfor
-</table>
+<%include file="table.mako" args="column_headings=column_names, rows=page"/>
 
 <div>${page.pager()}</div>
 

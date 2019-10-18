@@ -971,7 +971,8 @@ def add_multiple_columns(
         comment_strings: List[str] = None,
         minimum: Union[int, float] = None,
         maximum: Union[int, float] = None,
-        pv: List[Any] = None) -> None:
+        pv: List[Any] = None,
+        suffix: str = "") -> None:
     """
     Add a sequence of SQLAlchemy columns to a class.
 
@@ -982,8 +983,10 @@ def add_multiple_columns(
         cls:
             class to which to add columns
         prefix:
-            Fieldname will be ``prefix + str(n)``, where ``n`` is defined as
-            below.
+            Fieldname will be ``prefix + str(n) + suffix``, where ``n`` is
+            defined as below.
+        suffix:
+            Optional. See ``prefix``.
         start:
             Start of range.
         end:
@@ -1019,7 +1022,7 @@ def add_multiple_columns(
     for n in range(start, end + 1):
         nstr = str(n)
         i = n - start
-        colname = prefix + nstr
+        colname = prefix + nstr + suffix
         if comment_fmt:
             s = ""
             if 0 <= i < len(comment_strings):

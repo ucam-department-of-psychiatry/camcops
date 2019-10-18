@@ -58,8 +58,10 @@ alongside it on the same client device (e.g. if someone has misspelled a name).
 The option is only available for finalized tasks.
 
 
-Erase task instance
-~~~~~~~~~~~~~~~~~~~
+.. _erase_task_leaving_placeholder:
+
+Erase task instance, leaving placeholder
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This deletes the task’s data (leaving the empty task structure as a
 placeholder). Predecessor/successor versions are also erased. Other tasks for
@@ -72,6 +74,17 @@ first.
 
 When might one want to erase a task? See :ref:`Delete patient entirely
 <delete_patient>`.
+
+.. _erase_task_entirely:
+
+Erase task instance entirely
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This is similar to :ref:`Erase task instance, leaving placeholder <erase_task_leaving_placeholder>`
+but the task is deleted entirely from the database, with no placeholder.
+
+This would typically be used in the event of a technical problem
+(e.g. to remove duplicates following a network failure during upload).
 
 
 Group administrator options

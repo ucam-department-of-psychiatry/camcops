@@ -278,14 +278,22 @@ ${ task.get_task_html(req) }
                 %endif
             %endif
             %if req.user.authorized_to_erase_tasks(task._group_id):
-                %if not task.is_erased() and task._era != ERA_NOW:
-                    ## Note: prohibit manual erasure for non-finalized tasks.
+                ## Note: prohibit manual erasure for non-finalized tasks.
+                %if task._era != ERA_NOW:
+                    %if not task.is_erased():
+                        <p><a href="${ req.route_url(
+                                    Routes.ERASE_TASK_LEAVING_PLACEHOLDER,
+                                    _query={
+                                        ViewParam.TABLE_NAME: task.tablename,
+                                        ViewParam.SERVER_PK: task._pk,
+                                    }) }">${_("Erase task instance, leaving placeholder")}</a></p>
+                    %endif
                     <p><a href="${ req.route_url(
-                                Routes.ERASE_TASK,
+                                Routes.ERASE_TASK_ENTIRELY,
                                 _query={
                                     ViewParam.TABLE_NAME: task.tablename,
                                     ViewParam.SERVER_PK: task._pk,
-                                }) }">${_("Erase task instance")}</a></p>
+                                }) }">${_("Erase task entirely")}</a></p>
                 %endif
             %endif
         </div>

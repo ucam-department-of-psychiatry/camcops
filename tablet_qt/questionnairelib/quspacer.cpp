@@ -38,6 +38,6 @@ QuSpacer::QuSpacer(const QSize& size) :
 
 QPointer<QWidget> QuSpacer::makeWidget(Questionnaire* questionnaire)
 {
-    Q_UNUSED(questionnaire);
+    Q_UNUSED(questionnaire)
     return QPointer<QWidget>(new Spacer(m_size));
 }

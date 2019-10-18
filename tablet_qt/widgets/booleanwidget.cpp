@@ -312,7 +312,7 @@ void BooleanWidget::setText(const QString& text)
 
 void BooleanWidget::paintEvent(QPaintEvent* e)
 {
-    Q_UNUSED(e);
+    Q_UNUSED(e)
     /*
     // To draw child widgets explicitly, use render (since paintEvent is
     // protected).

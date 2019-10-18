@@ -30,13 +30,9 @@ Tasks
 
 **Priority: IAM**
 
-- :ref:`Lynall M-E — IAM study — life events <lynall_iam_life>`
-
-  .. todo:: IN PROGRESS +++ a/w permission clarification
-
 - :ref:`Childhood Trauma Questionnaire, Short Form (CTQ-SF) <ctqsf>`
 
-  .. todo:: IN PROGRESS +++ a/w permission clarification
+  .. todo:: IN PROGRESS +++ a/w funding before proceeding
 
 
 **To be prioritized**
@@ -293,6 +289,10 @@ Server
   and PyInstaller + Inno Setup (or just Inno Setup) for Windows?
 
 **Not a priority**
+
+- Consider: see ``DEBUG_TEMPLATE_SOURCE`` -- would it improve performance to
+  have a Mako template cache directory always set, via the config file? (There
+  is still memory caching at present.)
 
 - Fix Alembic migration autogeneration -- too much non-change junk.
 

@@ -886,7 +886,7 @@ class DiagnosisFinderReportBase(Report):
 
         return render_to_response(
             "diagnosis_finder_report.mako",
-            dict(title=self.title,
+            dict(title=self.title(req),
                  page=page,
                  column_names=column_names,
                  report_id=self.report_id,

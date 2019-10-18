@@ -38,11 +38,10 @@ Creation date: 2018-11-10 22:54:18.529528
 # Imports
 # =============================================================================
 
-from alembic import context, op
+from alembic import op
 import sqlalchemy as sa
 from camcops_server.cc_modules.cc_config import get_default_config_from_os_env
 import camcops_server.cc_modules.cc_sqla_coltypes
-from camcops_server.cc_modules.cc_taskindex import reindex_everything
 
 
 # =============================================================================
@@ -113,13 +112,6 @@ def upgrade():
         batch_op.create_index(batch_op.f('ix__task_index_when_created_utc'), ['when_created_utc'], unique=False)
 
     # ### end Alembic commands ###
-
-    if not context.is_offline_mode():
-        # Offline mode means "print SQL only". So we only execute the following
-        # in online ("talk to the database") mode:
-        cfg = get_default_config_from_os_env()
-        with cfg.get_dbsession_context() as dbsession:
-            reindex_everything(dbsession, skip_tasks_with_missing_tables=True)
 
 
 # noinspection PyPep8,PyTypeChecker

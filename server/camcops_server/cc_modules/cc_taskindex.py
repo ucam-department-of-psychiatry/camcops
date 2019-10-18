@@ -192,6 +192,26 @@ class PatientIdNumIndexEntry(Base):
         index = cls.make_from_idnum(idnum)
         session.add(index)
 
+    @classmethod
+    def unindex_patient(cls, patient: Patient,
+                        session: SqlASession) -> None:
+        """
+        Removes all ID number indexes from the database for a patient.
+
+        Args:
+            patient:
+                :class:`camcops_server.cc_modules.cc_patient.Patient`
+            session:
+                an SQLAlchemy Session
+        """
+
+        idxtable = cls.__table__  # type: Table
+        idxcols = idxtable.columns
+        session.execute(
+            idxtable.delete()
+            .where(idxcols.patient_pk == patient._pk)
+        )
+
     # -------------------------------------------------------------------------
     # Regenerate index
     # -------------------------------------------------------------------------
@@ -680,6 +700,28 @@ class TaskIndexEntry(Base):
         index = cls.make_from_task(task,
                                    indexed_at_utc=indexed_at_utc)
         session.add(index)
+
+    @classmethod
+    def unindex_task(cls, task: Task, session: SqlASession) -> None:
+        """
+        Removes a task index from the database.
+
+        Args:
+            task:
+                a :class:`camcops_server.cc_modules.cc_task.Task`
+            session:
+                an SQLAlchemy Session
+        """
+
+        # noinspection PyUnresolvedReferences
+        idxtable = cls.__table__  # type: Table
+        idxcols = idxtable.columns
+        tasktablename = task.__class__.tablename
+        session.execute(
+            idxtable.delete()
+            .where(idxcols.task_table_name == tasktablename)
+            .where(idxcols.task_pk == task._pk)
+        )
 
     # -------------------------------------------------------------------------
     # Regenerate index

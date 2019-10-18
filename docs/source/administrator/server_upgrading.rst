@@ -35,7 +35,7 @@ For Debian/Ubuntu:
 
     export CAMCOPS_VERSION=2.3.1  # ... choose a version here
     export CAMCOPS_PACKAGE_NAME=camcops-server_${CAMCOPS_VERSION}-1_all.deb
-    wget https://egret.psychol.cam.ac.uk/camcops/download/linux_server/${CAMCOPS_PACKAGE_NAME}  # download
+    wget https://github.com/RudolfCardinal/camcops/releases/v${CAMCOPS_VERSION}/${CAMCOPS_PACKAGE_NAME}  # download
 
     sudo apt-get --yes remove camcops-server
     sudo gdebi --non-interactive ${CAMCOPS_PACKAGE_NAME}
@@ -48,7 +48,7 @@ For CentOS:
 
     export CAMCOPS_VERSION=2.3.1  # ... choose a version here
     export CAMCOPS_PACKAGE_NAME=camcops-server_${CAMCOPS_VERSION}-2.noarch.rpm
-    wget https://egret.psychol.cam.ac.uk/camcops/download/linux_server/${CAMCOPS_PACKAGE_NAME}  # download
+    wget https://github.com/RudolfCardinal/camcops/releases/v${CAMCOPS_VERSION}/${CAMCOPS_PACKAGE_NAME}  # download
 
     sudo yum --assumeyes remove camcops-server  # remove old version
     sudo yum --assumeyes --verbose --rpmverbosity=DEBUG install ${CAMCOPS_PACKAGE_NAME}  # install new version

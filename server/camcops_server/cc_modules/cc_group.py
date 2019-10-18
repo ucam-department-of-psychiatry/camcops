@@ -29,6 +29,7 @@ camcops_server/cc_modules/cc_group.py
 """
 
 import logging
+import re
 from typing import List, Optional, Set
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
@@ -42,8 +43,9 @@ from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_policy import TokenizedPolicy
 from camcops_server.cc_modules.cc_sqla_coltypes import (
-    GroupNameColType,
+    GROUP_NAME_MAX_LEN,
     GroupDescriptionColType,
+    GroupNameColType,
     IdPolicyColType,
 )
 from camcops_server.cc_modules.cc_sqlalchemy import Base
@@ -66,6 +68,34 @@ group_group_table = Table(
     Column("can_see_group_id", Integer, ForeignKey("_security_groups.id"),
            primary_key=True)
 )
+
+
+# =============================================================================
+# Group names
+# =============================================================================
+
+# Nice and simple:
+VALID_GROUP_NAME_REGEX = re.compile(r"^[A-Za-z0-9_-]+$")
+
+
+def is_group_name_valid(name: str) -> bool:
+    """
+    Is the string a valid group name?
+
+    Group descriptions can be anything, but group names shouldn't have odd
+    characters in -- this greatly facilitates config file handling etc. (for
+    example: no spaces, no commas).
+
+    Args:
+        name: the candidate name
+
+    Returns:
+        bool: is it OK?
+    """
+    return bool(
+        1 <= len(name) <= GROUP_NAME_MAX_LEN and
+        VALID_GROUP_NAME_REGEX.match(name)
+    )
 
 
 # =============================================================================

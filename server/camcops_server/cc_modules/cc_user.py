@@ -182,7 +182,7 @@ class SecurityAccountLockout(Base):
         now = req.now_utc
         lock_until = now + datetime.timedelta(minutes=lockout_minutes)
         # noinspection PyArgumentList
-        lock = cls(username=username, lock_until=lock_until)
+        lock = cls(username=username, locked_until=lock_until)
         dbsession.add(lock)
         audit(req,
               f"Account {username} locked out for {lockout_minutes} minutes")
@@ -709,6 +709,14 @@ class User(Base):
         """
         return sorted(list(g.id for g in self.groups))
 
+    @property
+    def group_names(self) -> List[str]:
+        """
+        Returns a list of group names for all the groups that the user is a
+        member of.
+        """
+        return sorted(list(g.name for g in self.groups))
+
     def set_group_ids(self, group_ids: List[int]) -> None:
         """
         Set the user's groups to the groups whose integer IDs are in the
@@ -983,7 +991,7 @@ class User(Base):
 
     def authorized_to_erase_tasks(self, group_id: int) -> bool:
         """
-        Is this user authorized to add erase tasks for the group identified
+        Is this user authorized to erase tasks for the group identified
         by ``group_id``?
         """
         if self.superuser:
