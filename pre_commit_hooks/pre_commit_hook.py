@@ -39,7 +39,7 @@ stash your changes before commiting.
 
 import logging
 import os
-from subprocess import CalledProcessError, run
+from subprocess import CalledProcessError, PIPE, run
 import sys
 from typing import List
 
@@ -79,9 +79,21 @@ def in_virtualenv():
     )
 
 
+def get_flake8_version() -> List[int]:
+    command = ["flake8", "--version"]
+    output = run(command, stdout=PIPE).stdout.decode('utf-8').split()[0]
+    flake8_version = [int(n) for n in output.split('.')]
+
+    return flake8_version
+
+
 def main() -> None:
     if not in_virtualenv():
         log.error("pre_commit_hook.py must be run inside virtualenv")
+        sys.exit(EXIT_FAILURE)
+
+    if get_flake8_version() < [3, 7, 8]:
+        log.error("flake8 version must be 3.7.8 or higher for type hint support")
         sys.exit(EXIT_FAILURE)
 
     try:
