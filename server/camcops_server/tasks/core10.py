@@ -307,9 +307,9 @@ class Core10ReportTestCase(AverageScoreReportTestCase):
         return Core10Report()
 
     def create_task(self, patient: Patient,
-                    q1: int=0, q2: int=0, q3: int=0, q4: int=0,
-                    q5: int=0, q6: int=0, q7: int=0, q8: int=0,
-                    q9: int=0, q10: int=0, era: str=None) -> None:
+                    q1: int = 0, q2: int = 0, q3: int = 0, q4: int = 0,
+                    q5: int = 0, q6: int = 0, q7: int = 0, q8: int = 0,
+                    q9: int = 0, q10: int = 0, era: str = None) -> None:
         task = Core10()
         self.apply_standard_task_fields(task)
         task.id = next(self.task_id_sequence)

@@ -322,7 +322,7 @@ class MaasReportTests(AverageScoreReportTestCase):
                          era="2019-06-01")  # total 17 + 5 + 5
         self.dbsession.commit()
 
-    def create_task(self, patient: Patient, era: str=None, **kwargs):
+    def create_task(self, patient: Patient, era: str = None, **kwargs):
         task = Maas()
         self.apply_standard_task_fields(task)
         task.id = next(self.task_id_sequence)

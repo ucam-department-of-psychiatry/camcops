@@ -226,7 +226,6 @@ class Report(object):
         reports. Used by :class:`DateTimeFilteredReportMixin`.
         """
 
-
     # -------------------------------------------------------------------------
     # Common functionality: classmethods
     # -------------------------------------------------------------------------
@@ -433,8 +432,8 @@ class PercentageSummaryReportMixin(object):
                                  req: "CamcopsRequest",
                                  column_dict: Dict[str, str],
                                  num_answers: int,
-                                 cell_format: str="{}",
-                                 min_answer: int=0) -> List[List[str]]:
+                                 cell_format: str = "{}",
+                                 min_answer: int = 0) -> List[List[str]]:
         """
         Provides a summary of each question, x% of people said each response.
         """
@@ -609,7 +608,7 @@ class AverageScoreReport(DateTimeFilteredReportMixin, Report):
             select([first_latest_records.c.patient_id,
                     first_latest_records.c.max_when_created])
             .select_from(first_latest_records)
-            .where(first_latest_records.c.min_when_created != first_latest_records.c.max_when_created)
+            .where(first_latest_records.c.min_when_created != first_latest_records.c.max_when_created)  # noqa: E501
         )
 
         latest_records = latest_record_query.alias(
