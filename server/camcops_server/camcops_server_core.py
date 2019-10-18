@@ -115,8 +115,8 @@ from camcops_server.cc_modules.cc_taskindex import (  # noqa: E402
     reindex_everything,
 )
 # noinspection PyUnresolvedReferences
-from camcops_server.cc_modules.cc_tracker import TrackerCtvTests  # import side effects (register unit test)  # nopep8
-from camcops_server.cc_modules.cc_unittest import (
+from camcops_server.cc_modules.cc_tracker import TrackerCtvTests  # import side effects (register unit test)  # noqa: E402,F401,E501
+from camcops_server.cc_modules.cc_unittest import (  # noqa: E402
     DemoDatabaseTestCase,
     DemoRequestTestCase,
     ExtendedTestCase,
