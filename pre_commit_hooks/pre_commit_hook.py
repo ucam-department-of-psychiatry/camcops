@@ -24,13 +24,10 @@ pre_commit_hooks/pre_commit_hook.py
 
 ===============================================================================
 
-pre-commit hook script that runs lint & sort
+pre-commit hook script that runs flake8
 
 Usage: cd .git/hooks/pre-commit;
        ln -s ../../pre_commit_hooks/pre_commit_hook.py
-
-Linting and sorting ensures we don't get cosmetic commits later
-that break git blame history for no reason.
 
 To avoid unexpected side effects, this script won't stash changes.
 So if you have non-commited changes that break this you'll need to
