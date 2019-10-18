@@ -30,12 +30,19 @@ from typing import Dict, List, Optional
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.stringfunc import strseq
+import pendulum
 from semantic_version import Version
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CtvInfo, CTV_INCOMPLETE
 from camcops_server.cc_modules.cc_html import answer, tr, tr_qa
+from camcops_server.cc_modules.cc_patient import Patient
+from camcops_server.cc_modules.cc_report import (
+    AverageScoreReport,
+    AverageScoreReportTestCase,
+    ScoreDetails,
+)
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
@@ -258,3 +265,212 @@ class Core10(TaskHasPatientMixin, Task):
                 }
             ))
         return codes
+
+
+class Core10Report(AverageScoreReport):
+    """
+    An average score of the people seen at the start of treatment
+    an average final measure and an average progress score.
+    """
+    @classproperty
+    def report_id(cls) -> str:
+        return "core10"
+
+    @classmethod
+    def title(cls, req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("CORE-10 — Average scores")
+
+    @classproperty
+    def task_class(cls) -> Task:
+        return Core10
+
+    @classmethod
+    def scores(cls, req: "CamcopsRequest") -> List[ScoreDetails]:
+        _ = req.gettext
+        return [
+            ScoreDetails(
+                name=_("CORE-10 clinical score"),
+                fieldnames=Core10.QUESTION_FIELDNAMES,
+                min=0,
+                max=Core10.MAX_SCORE
+            )
+        ]
+
+    @classproperty
+    def higher_score_is_better(cls) -> bool:
+        return False
+
+
+class Core10ReportTestCase(AverageScoreReportTestCase):
+    def create_report(self) -> Core10Report:
+        return Core10Report()
+
+    def create_task(self, patient: Patient,
+                    q1: int=0, q2: int=0, q3: int=0, q4: int=0,
+                    q5: int=0, q6: int=0, q7: int=0, q8: int=0,
+                    q9: int=0, q10: int=0, era: str=None) -> None:
+        task = Core10()
+        self.apply_standard_task_fields(task)
+        task.id = next(self.task_id_sequence)
+
+        task.patient_id = patient.id
+
+        task.q1 = q1
+        task.q2 = q2
+        task.q3 = q3
+        task.q4 = q4
+        task.q5 = q5
+        task.q6 = q6
+        task.q7 = q7
+        task.q8 = q8
+        task.q9 = q9
+        task.q10 = q10
+
+        if era is not None:
+            task.when_created = pendulum.parse(era)
+
+        self.dbsession.add(task)
+
+
+class Core10ReportTests(Core10ReportTestCase):
+    def create_tasks(self):
+        self.patient_1 = self.create_patient()
+        self.patient_2 = self.create_patient()
+        self.patient_3 = self.create_patient()
+
+        # Initial average score = (8 + 6 + 4) / 3 = 6
+        # Latest average score = (2 + 3 + 4) / 3 = 3
+
+        self.create_task(patient=self.patient_1, q1=4, q2=4,
+                         era="2018-06-01")  # Score 8
+        self.create_task(patient=self.patient_1, q7=1, q8=1,
+                         era="2018-10-04")  # Score 2
+
+        self.create_task(patient=self.patient_2, q3=3, q4=3,
+                         era="2018-05-02")  # Score 6
+        self.create_task(patient=self.patient_2, q3=2, q4=1,
+                         era="2018-10-03")  # Score 3
+
+        self.create_task(patient=self.patient_3, q5=2, q6=2,
+                         era="2018-01-10")  # Score 4
+        self.create_task(patient=self.patient_3, q9=1, q10=3,
+                         era="2018-10-01")  # Score 4
+        self.dbsession.commit()
+
+    def test_row_has_totals_and_averages(self) -> None:
+        plain_report = self.report.get_rows_colnames(self.req)
+
+        expected_rows = [
+            [
+                3,  # Initial total
+                3,  # Latest total
+                6,  # Initial average
+                3,  # Latest average
+                3,  # Average progress
+            ]
+        ]
+
+        self.assertEqual(plain_report.rows, expected_rows)
+
+
+class Core10ReportEmptyTests(Core10ReportTestCase):
+    def test_no_rows_when_no_data(self) -> None:
+        plain_report = self.report.get_rows_colnames(req=self.req)
+
+        self.assertEquals(
+            plain_report.rows,
+            [
+                [
+                    0, 0, "No data", "No data", "Unable to calculate",
+                ]
+            ]
+        )
+
+
+class Core10ReportDoubleCountingTests(Core10ReportTestCase):
+    def create_tasks(self):
+        self.patient_1 = self.create_patient()
+        self.patient_2 = self.create_patient()
+        self.patient_3 = self.create_patient()
+
+        # Initial average score = (8 + 6 + 4) / 3 = 6
+        # Latest average score = (3 + 3) / 3 = 2
+        self.create_task(patient=self.patient_1, q1=4, q2=4,
+                         era="2018-06-01")  # Score 8
+
+        self.create_task(patient=self.patient_2, q3=3, q4=3,
+                         era="2018-05-02")  # Score 6
+        self.create_task(patient=self.patient_2, q3=2, q4=1,
+                         era="2018-10-03")  # Score 3
+
+        self.create_task(patient=self.patient_3, q5=2, q6=2,
+                         era="2018-01-10")  # Score 4
+        self.create_task(patient=self.patient_3, q9=1, q10=2,
+                         era="2018-10-01")  # Score 3
+        self.dbsession.commit()
+
+    def test_record_does_not_appear_in_first_and_latest(self) -> None:
+        plain_report = self.report.get_rows_colnames(self.req)
+
+        expected_rows = [
+            [
+                3,  # Initial total
+                2,  # Latest total
+                6,  # Initial average
+                3,  # Latest average
+                3,  # Average progress
+            ]
+        ]
+
+        self.assertEqual(plain_report.rows, expected_rows)
+
+
+class Core10ReportDateRangeTests(Core10ReportTestCase):
+    def create_tasks(self) -> None:
+        self.patient_1 = self.create_patient()
+        self.patient_2 = self.create_patient()
+        self.patient_3 = self.create_patient()
+
+        # 2018-06 average score = (8 + 6 + 4) / 3 = 6
+        # 2018-08 average score = (4 + 4 + 4) / 3 = 4
+        # 2018-10 average score = (2 + 3 + 4) / 3 = 3
+
+        self.create_task(patient=self.patient_1, q1=4, q2=4,
+                         era="2018-06-01")  # Score 8
+        self.create_task(patient=self.patient_1, q7=3, q8=1,
+                         era="2018-08-01")  # Score 4
+        self.create_task(patient=self.patient_1, q7=1, q8=1,
+                         era="2018-10-01")  # Score 2
+
+        self.create_task(patient=self.patient_2, q3=3, q4=3,
+                         era="2018-06-01")  # Score 6
+        self.create_task(patient=self.patient_2, q3=2, q4=2,
+                         era="2018-08-01")  # Score 4
+        self.create_task(patient=self.patient_2, q3=1, q4=2,
+                         era="2018-10-01")  # Score 3
+
+        self.create_task(patient=self.patient_3, q5=2, q6=2,
+                         era="2018-06-01")  # Score 4
+        self.create_task(patient=self.patient_3, q9=1, q10=3,
+                         era="2018-08-01")  # Score 4
+        self.create_task(patient=self.patient_3, q9=1, q10=3,
+                         era="2018-10-01")  # Score 4
+        self.dbsession.commit()
+
+    def test_report_filtered_by_date_range(self):
+        self.report.start_datetime = "2018-06-01T00:00:00.000000+00:00"
+        self.report.end_datetime = "2018-09-01T00:00:00.000000+00:00"
+        plain_report = self.report.get_rows_colnames(self.req)
+
+        expected_rows = [
+            [
+                3,  # Initial total
+                3,  # Latest total
+                6,  # Initial average
+                4,  # Latest average
+                2,  # Average progress
+            ]
+        ]
+
+        self.assertEqual(plain_report.rows, expected_rows)

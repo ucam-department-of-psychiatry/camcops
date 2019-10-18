@@ -25,7 +25,7 @@ camcops_server/templates/snippets/table.mako
 ===============================================================================
 
 </%doc>
-<%page args="column_headings, rows, table_class=None"/>
+<%page args="column_headings, rows, table_class=None, escape_cells=True"/>
 <table
 %if table_class:
 class="${table_class}"
@@ -40,7 +40,11 @@ class="${table_class}"
         <tr>
             %for (col_index,val) in enumerate(row):
                 <td class="table-cell col-${col_index}">
+                    %if escape_cells:
                     ${val | h}
+                    %else:
+                    ${val}
+                    %endif
                 </td>
             %endfor
         </tr>

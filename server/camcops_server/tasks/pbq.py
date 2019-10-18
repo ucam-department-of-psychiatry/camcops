@@ -28,6 +28,7 @@ camcops_server/tasks/pbq.py
 
 from typing import Any, Dict, List, Tuple, Type
 
+from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.stringfunc import strnumlist, strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
@@ -35,6 +36,10 @@ from sqlalchemy.sql.sqltypes import Integer
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_html import answer, tr
+from camcops_server.cc_modules.cc_report import (
+    AverageScoreReport,
+    ScoreDetails,
+)
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
@@ -294,3 +299,58 @@ class Pbq(TaskHasPatientMixin, Task,
         return h
 
     # No SNOMED codes for the PBQ (checked 2019-04-01).
+
+
+class PBQReport(AverageScoreReport):
+    @classproperty
+    def report_id(cls) -> str:
+        return "PBQ"
+
+    @classmethod
+    def title(cls, req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("PBQ — Average scores")
+
+    @classproperty
+    def task_class(cls) -> Task:
+        return Pbq
+
+    @classmethod
+    def scores(cls, req: "CamcopsRequest") -> List[ScoreDetails]:
+        _ = req.gettext
+        return [
+            ScoreDetails(
+                name=_("Total score"),
+                fieldnames=Pbq.QUESTION_FIELDS,
+                min=0,
+                max=Pbq.MAX_TOTAL
+            ),
+            ScoreDetails(
+                name=_("Factor 1 score"),
+                fieldnames=Pbq.FACTOR_1_F,
+                min=0,
+                max=Pbq.FACTOR_1_MAX
+            ),
+            ScoreDetails(
+                name=_("Factor 2 score"),
+                fieldnames=Pbq.FACTOR_2_F,
+                min=0,
+                max=Pbq.FACTOR_2_MAX
+            ),
+            ScoreDetails(
+                name=_("Factor 3 score"),
+                fieldnames=Pbq.FACTOR_3_F,
+                min=0,
+                max=Pbq.FACTOR_3_MAX
+            ),
+            ScoreDetails(
+                name=_("Factor 4 score"),
+                fieldnames=Pbq.FACTOR_4_F,
+                min=0,
+                max=Pbq.FACTOR_4_MAX
+            ),
+        ]
+
+    @classproperty
+    def higher_score_is_better(cls) -> bool:
+        return False

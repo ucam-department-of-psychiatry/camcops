@@ -96,7 +96,7 @@ Internally,
 
 - Download detailed structured information in spreadsheet or database format.
 
-- View reports, including patient-finding queries.
+- View and download reports, including patient-finding queries.
 
 - A description of the database structure is built into the database itself
   (visible via XML or SQL comments).

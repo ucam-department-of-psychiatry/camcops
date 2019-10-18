@@ -33,7 +33,9 @@ from collections import OrderedDict
 import csv
 import io
 import logging
+import re
 from typing import Any, Dict, Iterable, List, Optional, Union
+from unittest import TestCase
 import zipfile
 
 from cardinal_pythonlib.excel import (
@@ -42,6 +44,7 @@ from cardinal_pythonlib.excel import (
 )
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from odswriter import ODSWriter, Sheet as ODSSheet
+from openpyxl import load_workbook
 from openpyxl.workbook.workbook import Workbook as XLWorkbook
 from openpyxl.worksheet.worksheet import Worksheet as XLWorksheet
 # from pyexcel_ods3 import save_data  # poor; use odswriter
@@ -285,11 +288,30 @@ class TsvCollection(object):
         Returns the TSV collection as an XLSX (Excel) file.
         """
         wb = XLWorkbook()
-        wb.remove(wb.active)  # remove the autocreated blank sheet
-        for page in self.pages:
-            ws = wb.create_sheet(title=page.name)
+
+        # we may have zero pages if there were no rows
+        if len(self.pages) > 0:
+            wb.remove(wb.active)  # remove the autocreated blank sheet
+
+        valid_name_dict = self.get_pages_with_valid_sheet_names()
+        for page, title in valid_name_dict.items():
+            ws = wb.create_sheet(title=title)
             page.write_to_xlsx_worksheet(ws)
+
         return excel_to_bytes(wb)
+
+    def get_sheet_title(self, page: TsvPage) -> str:
+        # See openpyxl/workbook/child.py
+
+        # Excel prohibits \,*,?,:,/,[,]
+        # LibreOffice also prohibits ' as first or last character but let's
+        # just replace that globally
+        title = re.sub(r"[\\*?:/\[\]']", "_", page.name)
+
+        if len(title) > 31:
+            title = f"{title[:28]}..."
+
+        return title
 
     def as_ods(self) -> bytes:
         """
@@ -298,8 +320,156 @@ class TsvCollection(object):
         """
         with io.BytesIO() as memfile:
             with ODSWriter(memfile) as odsfile:
-                for page in self.pages:
-                    sheet = odsfile.new_sheet(name=page.name)
+                valid_name_dict = self.get_pages_with_valid_sheet_names()
+                for page, title in valid_name_dict.items():
+                    sheet = odsfile.new_sheet(name=title)
                     page.write_to_ods_worksheet(sheet)
             contents = memfile.getvalue()
         return contents
+
+    def get_pages_with_valid_sheet_names(self) -> Dict[TsvPage, str]:
+        name_dict = {}
+
+        for page in self.pages:
+            name_dict[page] = self.get_sheet_title(page)
+
+        self.make_sheet_names_unique(name_dict)
+
+        return name_dict
+
+    def make_sheet_names_unique(self, name_dict):
+        # See also avoid_duplicate_name in openpxl/workbook/child.py
+        # We keep the 31 character restriction
+
+        unique_names = []
+
+        for page, name in name_dict.items():
+            attempt = 0
+
+            while name.lower() in unique_names:
+                attempt += 1
+
+                if attempt > 1000:
+                    # algorithm failure, better to let Excel deal with the
+                    # consequences than get stuck in a loop
+                    log.debug(
+                        f"Failed to generate a unique sheet name from {name}"
+                    )
+                    break
+
+                match = re.search(r'\d+$', name)
+                count = 0
+                if match is not None:
+                    count = int(match.group())
+
+                new_suffix = str(count + 1)
+                name = name[:-len(new_suffix)] + new_suffix
+            name_dict[page] = name
+            unique_names.append(name.lower())
+
+
+# =============================================================================
+# Unit tests
+# =============================================================================
+
+class TsvCollectionTests(TestCase):
+    def test_xlsx_created_from_zero_rows(self) -> None:
+        page = TsvPage(name="test", rows=[])
+        coll = TsvCollection()
+        coll.add_page(page)
+
+        output = coll.as_xlsx()
+
+        # https://en.wikipedia.org/wiki/List_of_file_signatures
+        self.assertEqual(output[0], 0x50)
+        self.assertEqual(output[1], 0x4B)
+        self.assertEqual(output[2], 0x03)
+        self.assertEqual(output[3], 0x04)
+
+    def test_xlsx_worksheet_names_are_page_names(self) -> None:
+        page1 = TsvPage(name="name 1",
+                        rows=[{"test data 1": "row 1"}])
+        page2 = TsvPage(name="name 2",
+                        rows=[{"test data 2": "row 1"}])
+        page3 = TsvPage(name="name 3",
+                        rows=[{"test data 3": "row 1"}])
+        coll = TsvCollection()
+
+        coll.add_pages([page1, page2, page3])
+
+        data = coll.as_xlsx()
+        buffer = io.BytesIO(data)
+        wb = load_workbook(buffer)
+        self.assertEqual(
+            wb.get_sheet_names(),
+            [
+                "name 1",
+                "name 2",
+                "name 3",
+            ]
+        )
+
+    def test_xlsx_page_name_exactly_31_chars_not_truncated(self) -> None:
+        page = TsvPage(name="abcdefghijklmnopqrstuvwxyz78901",
+                       rows=[{"test data 1": "row 1"}])
+        coll = TsvCollection()
+
+        self.assertEqual(
+            coll.get_sheet_title(page),
+            "abcdefghijklmnopqrstuvwxyz78901"
+        )
+
+    def test_xlsx_page_name_over_31_chars_truncated(self) -> None:
+        page = TsvPage(name="abcdefghijklmnopqrstuvwxyz78901234",
+                       rows=[{"test data 1": "row 1"}])
+        coll = TsvCollection()
+
+        self.assertEqual(
+            coll.get_sheet_title(page),
+            "abcdefghijklmnopqrstuvwxyz78..."
+        )
+
+    def test_xlsx_invalid_chars_in_page_name_replaced(self) -> None:
+        page = TsvPage(name="[a]b\\c:d/e*f?g'h",
+                       rows=[{"test data 1": "row 1"}])
+        coll = TsvCollection()
+
+        self.assertEqual(
+            coll.get_sheet_title(page),
+            "_a_b_c_d_e_f_g_h"
+        )
+
+    def test_ods_page_name_sanitised(self) -> None:
+        import xml.dom.minidom
+        page = TsvPage(name="What perinatal service have you accessed?",
+                       rows=[{"test data 1": "row 1"}])
+        coll = TsvCollection()
+        coll.add_pages([page])
+
+        data = coll.as_ods()
+
+        zf = zipfile.ZipFile(io.BytesIO(data), "r")
+        content = zf.read('content.xml')
+        doc = xml.dom.minidom.parseString(content)
+        sheets = doc.getElementsByTagName('table:table')
+        self.assertEqual(sheets[0].getAttribute("table:name"),
+                         "What perinatal service have ...")
+
+    def test_worksheet_names_are_not_duplicated(self) -> None:
+        page1 = TsvPage(name="abcdefghijklmnopqrstuvwxyz78901234",
+                        rows=[{"test data 1": "row 1"}])
+        page2 = TsvPage(name="ABCDEFGHIJKLMNOPQRSTUVWXYZ789012345",
+                        rows=[{"test data 2": "row 1"}])
+        page3 = TsvPage(name="abcdefghijklmnopqrstuvwxyz7890123456",
+                        rows=[{"test data 3": "row 1"}])
+        coll = TsvCollection()
+
+        coll.add_pages([page1, page2, page3])
+
+        valid_sheet_names = coll.get_pages_with_valid_sheet_names()
+
+        names = [v for k, v in valid_sheet_names.items()]
+
+        self.assertIn("abcdefghijklmnopqrstuvwxyz78...", names)
+        self.assertIn("ABCDEFGHIJKLMNOPQRSTUVWXYZ78..1", names)
+        self.assertIn("abcdefghijklmnopqrstuvwxyz78..2", names)

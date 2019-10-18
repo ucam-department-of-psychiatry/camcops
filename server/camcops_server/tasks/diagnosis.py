@@ -871,10 +871,10 @@ class DiagnosisFinderReportBase(Report):
             ViewParam.AGE_MAXIMUM
         ]
 
-    def render_html(self,
-                    req: "CamcopsRequest",
-                    column_names: List[str],
-                    page: CamcopsPage) -> Response:
+    def render_single_page_html(self,
+                                req: "CamcopsRequest",
+                                column_names: List[str],
+                                page: CamcopsPage) -> Response:
         which_idnum = req.get_int_param(ViewParam.WHICH_IDNUM)
         inclusion_dx = req.get_str_list_param(ViewParam.DIAGNOSES_INCLUSION)
         exclusion_dx = req.get_str_list_param(ViewParam.DIAGNOSES_EXCLUSION)

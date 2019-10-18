@@ -905,7 +905,7 @@ class PendulumDateTimeAsIsoTextColType(TypeDecorator):
             try:
                 processed_other = convert_datetime_to_utc(
                     coerce_to_pendulum(other))
-            except (AttributeError, ParserError, ValueError):
+            except (AttributeError, ParserError, TypeError, ValueError):
                 # OK. At this point, "other" could be a plain DATETIME field,
                 # or a PendulumDateTimeAsIsoTextColType field (or potentially
                 # something else that we don't really care about). If it's a

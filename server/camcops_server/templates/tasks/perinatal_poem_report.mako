@@ -1,7 +1,7 @@
 ## -*- coding: utf-8 -*-
 <%doc>
 
-camcops_server/templates/menu/report.mako
+camcops_server/templates/tasks/apeq_cpft_perinatal_report.mako
 
 ===============================================================================
 
@@ -26,33 +26,58 @@ camcops_server/templates/menu/report.mako
 
 </%doc>
 
-## <%page args="title: str, column_names: List[str], page: CamcopsPage"/>
 <%inherit file="base_web.mako"/>
+<%block name="css">
+${parent.css()}
+
+h2, h3 {
+    margin-top: 20px;
+}
+
+.table-cell {
+    text-align: right;
+}
+
+.table-cell.col-0 {
+    text-align: initial;
+}
+
+.ff-why-table > tbody > tr > .col-1 {
+    text-align: initial;
+}
+</%block>
 
 <%!
-from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
+from camcops_server.cc_modules.cc_pyramid import Routes, ViewParam
 %>
+
 
 <%include file="db_user_info.mako"/>
 
 <h1>${ title | h }</h1>
 
-<%block name="additional_report_above_results"></%block>
+<p>
+%if start_datetime:
+${_("Created")} <b>&ge; ${ start_datetime }</b>.
+%endif
+%if end_datetime:
+${_("Created")} <b>&lt; ${ end_datetime }</b>.
+%endif
+</p>
 
-<%block name="pager_above_results">
-<div>${page.pager()}</div>
-</%block>
+%for table in tables:
+<h2>${ table.heading }</h2>
 
-<%block name="table">
-<%include file="table.mako" args="column_headings=column_names, rows=page"/>
-</%block>
+<%include file="table.mako" args="column_headings=table.column_headings, rows=table.rows, escape_cells=False"/>
 
-<%block name="pager_below_results">
-<div>${page.pager()}</div>
-</%block>
+%endfor
 
-<%block name="additional_report_below_results"></%block>
-
+<h2>${_("Comments")}</h2>
+%for comment_row in comment_rows:
+   <blockquote>
+       <p>${comment_row[0] | h}</p>
+   </blockquote>
+%endfor
 <div>
     <a href="${ request.route_url(Routes.OFFER_REPORT, _query={ViewParam.REPORT_ID: report_id}) }">${_("Re-configure report")}</a>
 </div>
@@ -60,5 +85,3 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
     <a href="${request.route_url(Routes.REPORTS_MENU)}">${_("Return to reports menu")}</a>
 </div>
 <%include file="to_main_menu.mako"/>
-
-<%block name="additional_report_below_menu"></%block>
