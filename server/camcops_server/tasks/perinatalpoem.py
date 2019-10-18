@@ -27,7 +27,7 @@ camcops_server/tasks/perinatalpoem.py
 """
 
 import re
-from typing import Dict, Generator, List, Tuple, Type
+from typing import Dict, Generator, List, Tuple
 
 from cardinal_pythonlib.classes import classproperty
 import pendulum
@@ -455,8 +455,8 @@ class PerinatalPoemReportTableConfig(object):
                  heading: str,
                  column_headings: List[str],
                  fieldnames: List[str],
-                 min_answer: int=0,
-                 xstring_format: str="{}_q") -> None:
+                 min_answer: int = 0,
+                 xstring_format: str = "{}_q") -> None:
         self.heading = heading
         self.column_headings = column_headings
         self.fieldnames = fieldnames
