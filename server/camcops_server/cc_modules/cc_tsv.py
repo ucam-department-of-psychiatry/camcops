@@ -358,7 +358,8 @@ class TsvCollection(object):
 
         return name_dict
 
-    def make_sheet_names_unique(self, name_dict):
+    @staticmethod
+    def make_sheet_names_unique(name_dict: Dict[TsvPage, str]) -> None:
         # See also avoid_duplicate_name in openpxl/workbook/child.py
         # We keep the 31 character restriction
 

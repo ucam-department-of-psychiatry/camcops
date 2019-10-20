@@ -73,9 +73,9 @@ ${_("Created")} <b>&lt; ${ end_datetime }</b>.
 %endfor
 
 <h2>${_("Comments")}</h2>
-%for comment_row in comment_rows:
+%for comment in comments:
    <blockquote>
-       <p>${comment_row[0] | h}</p>
+       <p>${comment | h}</p>
    </blockquote>
 %endfor
 <div>

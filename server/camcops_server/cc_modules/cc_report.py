@@ -421,8 +421,11 @@ class Report(object):
 
 
 class PercentageSummaryReportMixin(object):
+    """
+    Mixin to be used with :class:`Report`.
+    """
     @classproperty
-    def task_class(self) -> "Task":
+    def task_class(self) -> Type["Task"]:
         raise NotImplementedError("implement in subclass")
 
     def get_percentage_summaries(self,
@@ -444,6 +447,7 @@ class PercentageSummaryReportMixin(object):
                 column(column_name).isnot(None)
             ]
 
+            # noinspection PyUnresolvedReferences
             self.add_report_filters(wheres)
 
             # noinspection PyUnresolvedReferences
@@ -489,6 +493,11 @@ class PercentageSummaryReportMixin(object):
 
 
 class DateTimeFilteredReportMixin(object):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.start_datetime = None  # type: Optional[str]
+        self.end_datetime = None  # type: Optional[str]
+
     @staticmethod
     def get_paramform_schema_class() -> Type["ReportParamSchema"]:
         from camcops_server.cc_modules.cc_forms import DateTimeFilteredReportParamSchema  # delayed import  # noqa
@@ -496,6 +505,7 @@ class DateTimeFilteredReportMixin(object):
 
     @classmethod
     def get_specific_http_query_keys(cls) -> List[str]:
+        # noinspection PyUnresolvedReferences
         return super().get_specific_http_query_keys() + [
             ViewParam.START_DATETIME,
             ViewParam.END_DATETIME,
@@ -511,9 +521,11 @@ class DateTimeFilteredReportMixin(object):
             DateFormat.ERA
         )
 
+        # noinspection PyUnresolvedReferences
         return super().get_response(req)
 
     def add_report_filters(self, wheres: List[ColumnElement]) -> None:
+        # noinspection PyUnresolvedReferences
         super().add_report_filters(wheres)
 
         if self.start_datetime is not None:

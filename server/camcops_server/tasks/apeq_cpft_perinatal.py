@@ -38,9 +38,10 @@ from sqlalchemy.sql.expression import and_, column, select
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
-from camcops_server.cc_modules.cc_constants import CssClass
-
+from camcops_server.cc_modules.cc_constants import CssClass, DateFormat
+from camcops_server.cc_modules.cc_forms import ReportParamSchema
 from camcops_server.cc_modules.cc_html import tr_qa
+from camcops_server.cc_modules.cc_pyramid import ViewParam
 from camcops_server.cc_modules.cc_report import (
     DateTimeFilteredReportMixin,
     PercentageSummaryReportMixin,
@@ -189,13 +190,10 @@ class APEQCPFTPerinatalReport(DateTimeFilteredReportMixin, Report,
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
         self.task = APEQCPFTPerinatal()
-        self.start_datetime = None  # type: Optional[str]
-        self.end_datetime = None  # type: Optional[str]
 
     @classproperty
-    def task_class(self) -> "Task":
+    def task_class(self) -> Type["Task"]:
         return APEQCPFTPerinatal
 
     # noinspection PyMethodParameters
@@ -212,10 +210,6 @@ class APEQCPFTPerinatalReport(DateTimeFilteredReportMixin, Report,
     @classproperty
     def superuser_only(cls) -> bool:
         return False
-
-    @staticmethod
-    def get_paramform_schema_class() -> Type[ReportParamSchema]:
-        return APEQCPFTPerinatalReportSchema
 
     @classmethod
     def get_specific_http_query_keys(cls) -> List[str]:
