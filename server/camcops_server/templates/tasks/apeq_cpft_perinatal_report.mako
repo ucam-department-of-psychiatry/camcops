@@ -56,6 +56,15 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewParam
 
 <h1>${ title | h }</h1>
 
+<p>
+%if start_datetime:
+${_("Created")} <b>&ge; ${ start_datetime }</b>.
+%endif
+%if end_datetime:
+${_("Created")} <b>&lt; ${ end_datetime }</b>.
+%endif
+</p>
+
 <h2>${_("Main questions")}</h2>
 
 <%include file="table.mako" args="column_headings=main_column_headings, rows=main_rows"/>
@@ -69,9 +78,9 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewParam
 <%include file="table.mako" args="column_headings=[], rows=ff_why_rows, table_class='ff-why-table'"/>
 
 <h2>${_("Comments")}</h2>
-%for comment_row in comment_rows:
+%for comment in comments:
    <blockquote>
-       <p>${comment_row[0] | h}</p>
+       <p>${comment | h}</p>
    </blockquote>
 %endfor
 <div>
