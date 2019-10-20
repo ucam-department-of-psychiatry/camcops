@@ -423,7 +423,7 @@ class TsvCollectionTests(TestCase):
         buffer = io.BytesIO(data)
         wb = load_workbook(buffer)
         self.assertEqual(
-            wb.get_sheet_names(),
+            wb.sheetnames,
             [
                 "name 1",
                 "name 2",
