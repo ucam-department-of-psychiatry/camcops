@@ -2307,13 +2307,19 @@ class ReportOutputTypeSelector(SchemaNode, RequestAwareMixin):
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         _ = self.gettext
         self.title = _("View as")
-        choices = (
-            (ViewArg.HTML, _("HTML")),
-            (ViewArg.TSV, _("TSV (tab-separated values)"))
-        )
+        choices = self.get_choices()
         values, pv = get_values_and_permissible(choices)
         self.widget = RadioChoiceWidget(values=choices)
         self.validator = OneOf(pv)
+
+    def get_choices(self) -> Tuple[Tuple[str, str]]:
+        _ = self.gettext
+        return (
+            (ViewArg.HTML, _("HTML")),
+            (ViewArg.ODS, _("OpenOffice spreadsheet (ODS) file")),
+            (ViewArg.TSV, _("TSV (tab-separated values)")),
+            (ViewArg.XLSX, _("XLSX (Microsoft Excel) file"))
+        )
 
 
 class ReportParamSchema(CSRFSchema):

@@ -26,7 +26,7 @@ camcops_server/tasks/apeq_cpft_perinatal.py
 
 """
 
-from typing import Dict, Generator, List, Optional
+from typing import Dict, Generator, List, Optional, Tuple
 
 from cardinal_pythonlib.classes import classproperty
 
@@ -41,6 +41,7 @@ from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_report import Report
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_task import Task
+from camcops_server.cc_modules.cc_tsv import TsvPage
 from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 
 
@@ -192,21 +193,49 @@ class APEQCPFTPerinatalReport(Report):
     def superuser_only(cls) -> bool:
         return False
 
-    def get_response(self, req: "CamcopsRequest") -> Response:
+    def render_html(self, req: "CamcopsRequest") -> Response:
+        cell_format = "{0:.1f}%"
+
         return render_to_response(
             "apeq_cpft_perinatal_report.mako",
             dict(
                 title=self.title(req),
                 report_id=self.report_id,
                 main_column_headings=self._get_main_column_headings(req),
-                main_rows=self._get_main_rows(req),
+                main_rows=self._get_main_rows(req, cell_format=cell_format),
                 ff_column_headings=self._get_ff_column_headings(req),
-                ff_rows=self._get_ff_rows(req),
+                ff_rows=self._get_ff_rows(req, cell_format=cell_format),
                 ff_why_rows=self._get_ff_why_rows(req),
-                comments=self._get_comments(req)
+                comment_rows=self._get_comment_rows(req)
             ),
             request=req
         )
+
+    def get_tsv_pages(self, req: "CamcopsRequest") -> List[TsvPage]:
+        _ = req.gettext
+
+        main_page = self.get_tsv_page(
+            name=_("Main questions"),
+            column_names=self._get_main_column_headings(req),
+            rows=self._get_main_rows(req)
+        )
+        ff_page = self.get_tsv_page(
+            name=_("Friends and family question"),
+            column_names=self._get_ff_column_headings(req),
+            rows=self._get_ff_rows(req)
+        )
+        ff_why_page = self.get_tsv_page(
+            name=_("Reasons given for the above responses"),
+            column_names=[_("Response"), _("Reason")],
+            rows=self._get_ff_why_rows(req)
+        )
+        comments_page = self.get_tsv_page(
+            name=_("Comments"),
+            column_names=[_("Comment")],
+            rows=self._get_comment_rows(req)
+        )
+
+        return [main_page, ff_page, ff_why_page, comments_page]
 
     def _get_main_column_headings(self, req: "CamcopsRequest") -> List[str]:
         _ = req.gettext
@@ -215,7 +244,8 @@ class APEQCPFTPerinatalReport(Report):
 
         return names
 
-    def _get_main_rows(self, req: "CamcopsRequest") -> List[List[str]]:
+    def _get_main_rows(self, req: "CamcopsRequest",
+                       cell_format: str = "{}") -> List[List[str]]:
         """
         Percentage of people who answered x for each question
         """
@@ -231,7 +261,8 @@ class APEQCPFTPerinatalReport(Report):
         return self._get_response_percentages(
             req,
             column_dict=column_dict,
-            num_answers=3
+            num_answers=3,
+            cell_format=cell_format
         )
 
     def _get_ff_column_headings(self, req: "CamcopsRequest") -> List[str]:
@@ -239,7 +270,8 @@ class APEQCPFTPerinatalReport(Report):
         return [_("Question"),
                 _("Total responses")] + self.task.get_ff_options(req)
 
-    def _get_ff_rows(self, req: "CamcopsRequest") -> List[List[str]]:
+    def _get_ff_rows(self, req: "CamcopsRequest",
+                     cell_format: str = "{}") -> List[List[str]]:
         """
         Percentage of people who answered x for the friends/family question
         """
@@ -251,7 +283,8 @@ class APEQCPFTPerinatalReport(Report):
                     f"{self.task.FN_QPREFIX}_ff_rating"
                 )
             },
-            num_answers=6
+            num_answers=6,
+            cell_format=cell_format
         )
 
     def _get_ff_why_rows(self, req: "CamcopsRequest") -> List[List[str]]:
@@ -284,7 +317,7 @@ class APEQCPFTPerinatalReport(Report):
 
         return rows
 
-    def _get_comments(self, req: "CamcopsRequest") -> List[str]:
+    def _get_comment_rows(self, req: "CamcopsRequest") -> List[Tuple[str]]:
         """
         A list of all the additional comments
         """
@@ -300,17 +333,18 @@ class APEQCPFTPerinatalReport(Report):
             )
         )
 
-        comments = []
+        comment_rows = []
 
         for result in req.dbsession.execute(query).fetchall():
-            comments.append(result[0])
+            comment_rows.append(result)
 
-        return comments
+        return comment_rows
 
     def _get_response_percentages(self,
                                   req: "CamcopsRequest",
                                   column_dict: Dict[str, str],
-                                  num_answers: int) -> List[List[str]]:
+                                  num_answers: int,
+                                  cell_format: str = "{}") -> List[List[str]]:
         rows = []
 
         for column_name, question in column_dict.items():
@@ -345,7 +379,7 @@ class APEQCPFTPerinatalReport(Report):
             )
 
             for result in req.dbsession.execute(query):
-                row[result[0] + 2] = "{0:.1f}%".format(result[1])
+                row[result[0] + 2] = cell_format.format(result[1])
 
             rows.append(row)
 
@@ -451,12 +485,12 @@ class APEQCPFTPerinatalReportTests(DemoDatabaseTestCase):
     def test_main_rows_contain_percentages(self) -> None:
         report = APEQCPFTPerinatalReport()
 
-        expected_q1 = [20, "50.0%", "25.0%", "25.0%"]
-        expected_q2 = [20, "", "100.0%", ""]
-        expected_q3 = [20, "5.0%", "20.0%", "75.0%"]
-        expected_q4 = [20, "10.0%", "40.0%", "50.0%"]
-        expected_q5 = [20, "15.0%", "55.0%", "30.0%"]
-        expected_q6 = [18, "", "50.0%", "50.0%"]
+        expected_q1 = [20, "50", "25", "25"]
+        expected_q2 = [20, "", "100", ""]
+        expected_q3 = [20, "5", "20", "75"]
+        expected_q4 = [20, "10", "40", "50"]
+        expected_q5 = [20, "15", "55", "30"]
+        expected_q6 = [18, "", "50", "50"]
 
         main_rows = report._get_main_rows(self.req)
 
@@ -467,13 +501,32 @@ class APEQCPFTPerinatalReportTests(DemoDatabaseTestCase):
         self.assertEqual(main_rows[4][1:], expected_q5)
         self.assertEqual(main_rows[5][1:], expected_q6)
 
+    def test_main_rows_formatted(self) -> None:
+        report = APEQCPFTPerinatalReport()
+
+        expected_q1 = [20, "50.0%", "25.0%", "25.0%"]
+
+        main_rows = report._get_main_rows(self.req, cell_format="{0:.1f}%")
+
+        self.assertEqual(main_rows[0][1:], expected_q1)
+
     def test_ff_rows_contain_percentages(self) -> None:
+        report = APEQCPFTPerinatalReport()
+
+        expected_ff = [20, "25", "10", "15",
+                       "10", "5", "35"]
+
+        ff_rows = report._get_ff_rows(self.req)
+
+        self.assertEqual(ff_rows[0][1:], expected_ff)
+
+    def test_ff_rows_formatted(self) -> None:
         report = APEQCPFTPerinatalReport()
 
         expected_ff = [20, "25.0%", "10.0%", "15.0%",
                        "10.0%", "5.0%", "35.0%"]
 
-        ff_rows = report._get_ff_rows(self.req)
+        ff_rows = report._get_ff_rows(self.req, cell_format="{0:.1f}%")
 
         self.assertEqual(ff_rows[0][1:], expected_ff)
 
@@ -499,9 +552,9 @@ class APEQCPFTPerinatalReportTests(DemoDatabaseTestCase):
         report = APEQCPFTPerinatalReport()
 
         expected_comments = [
-            "comments_2", "comments_5", "comments_20",
+            ("comments_2",), ("comments_5",), ("comments_20",),
         ]
 
-        comments = report._get_comments(self.req)
+        comments = report._get_comment_rows(self.req)
 
         self.assertEqual(comments, expected_comments)

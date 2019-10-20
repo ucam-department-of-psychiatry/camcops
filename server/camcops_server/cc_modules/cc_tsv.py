@@ -33,7 +33,9 @@ from collections import OrderedDict
 import csv
 import io
 import logging
+import re
 from typing import Any, Dict, Iterable, List, Optional, Union
+from unittest import TestCase
 import zipfile
 
 from cardinal_pythonlib.excel import (
@@ -42,6 +44,7 @@ from cardinal_pythonlib.excel import (
 )
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from odswriter import ODSWriter, Sheet as ODSSheet
+from openpyxl import load_workbook
 from openpyxl.workbook.workbook import Workbook as XLWorkbook
 from openpyxl.worksheet.worksheet import Worksheet as XLWorksheet
 # from pyexcel_ods3 import save_data  # poor; use odswriter
@@ -150,16 +153,38 @@ class TsvPage(object):
         self.headings.sort()
 
     def get_tsv(self, dialect: str = "excel-tab") -> str:
-        """
+        r"""
         Returns the entire page (sheet) as TSV: one header row and then
         lots of data rows.
 
         For the dialect, see
         https://docs.python.org/3/library/csv.html#csv.excel_tab.
 
-        See also test code in docstring for
-        :func:`camcops_server.cc_modules.cc_convert.tsv_from_query`.
-        """
+        For CSV files, see RGC 4180: https://tools.ietf.org/html/rfc4180.
+
+        For TSV files, see
+        https://www.iana.org/assignments/media-types/text/tab-separated-values.
+
+        Test code:
+
+        .. code-block:: python
+
+            import io
+            import csv
+            from typing import List
+
+            def test(row: List[str], dialect: str = "excel-tab") -> str:
+                f = io.StringIO()
+                writer = csv.writer(f, dialect=dialect)
+                writer.writerow(row)
+                return f.getvalue()
+
+            test(["hello", "world"])
+            test(["hello\ttab", "world"])  # actual tab within double quotes
+            test(["hello\nnewline", "world"])  # actual newline within double quotes
+            test(['hello"doublequote', "world"])  # doubled double quote within double quotes
+
+        """  # noqa
         f = io.StringIO()
         writer = csv.writer(f, dialect=dialect)
         writer.writerow(self.headings)
@@ -285,11 +310,26 @@ class TsvCollection(object):
         Returns the TSV collection as an XLSX (Excel) file.
         """
         wb = XLWorkbook()
-        wb.remove(wb.active)  # remove the autocreated blank sheet
+
+        # we may have zero pages if there were no rows
+        if len(self.pages) > 0:
+            wb.remove(wb.active)  # remove the autocreated blank sheet
+
         for page in self.pages:
-            ws = wb.create_sheet(title=page.name)
+            ws = wb.create_sheet(title=self.get_sheet_title(page))
             page.write_to_xlsx_worksheet(ws)
+
         return excel_to_bytes(wb)
+
+    @staticmethod
+    def get_sheet_title(page: TsvPage) -> str:
+        # See openpyxl/workbook/child.py
+        title = re.sub(r'[\\*?:/\[\]]', "_", page.name)
+
+        if len(title) > 31:
+            title = f"{title[:28]}..."
+
+        return title
 
     def as_ods(self) -> bytes:
         """
@@ -303,3 +343,75 @@ class TsvCollection(object):
                     page.write_to_ods_worksheet(sheet)
             contents = memfile.getvalue()
         return contents
+
+
+# =============================================================================
+# Unit tests
+# =============================================================================
+
+class TsvCollectionTests(TestCase):
+    def test_xlsx_created_from_zero_rows(self) -> None:
+        page = TsvPage(name="test", rows=[])
+        coll = TsvCollection()
+        coll.add_page(page)
+
+        output = coll.as_xlsx()
+
+        # https://en.wikipedia.org/wiki/List_of_file_signatures
+        self.assertEqual(output[0], 0x50)
+        self.assertEqual(output[1], 0x4B)
+        self.assertEqual(output[2], 0x03)
+        self.assertEqual(output[3], 0x04)
+
+    def test_xlsx_worksheet_names_are_page_names(self) -> None:
+        page1 = TsvPage(name="name 1",
+                        rows=[{"test data 1": "row 1"}])
+        page2 = TsvPage(name="name 2",
+                        rows=[{"test data 2": "row 1"}])
+        page3 = TsvPage(name="name 3",
+                        rows=[{"test data 3": "row 1"}])
+        coll = TsvCollection()
+
+        coll.add_pages([page1, page2, page3])
+
+        data = coll.as_xlsx()
+        buffer = io.BytesIO(data)
+        wb = load_workbook(buffer)
+        self.assertEqual(
+            wb.get_sheet_names(),
+            [
+                "name 1",
+                "name 2",
+                "name 3",
+            ]
+        )
+
+    def test_xlsx_page_name_exactly_31_chars_not_truncated(self) -> None:
+        page = TsvPage(name="abcdefghijklmnopqrstuvwxyz78901",
+                       rows=[{"test data 1": "row 1"}])
+        coll = TsvCollection()
+
+        self.assertEqual(
+            coll.get_sheet_title(page),
+            "abcdefghijklmnopqrstuvwxyz78901"
+        )
+
+    def test_xlsx_page_name_over_31_chars_truncated(self) -> None:
+        page = TsvPage(name="abcdefghijklmnopqrstuvwxyz78901234",
+                       rows=[{"test data 1": "row 1"}])
+        coll = TsvCollection()
+
+        self.assertEqual(
+            coll.get_sheet_title(page),
+            "abcdefghijklmnopqrstuvwxyz78..."
+        )
+
+    def test_xlsx_invalid_chars_in_page_name_replaced(self) -> None:
+        page = TsvPage(name="[a]b\\c:d/e*f?g",
+                       rows=[{"test data 1": "row 1"}])
+        coll = TsvCollection()
+
+        self.assertEqual(
+            coll.get_sheet_title(page),
+            "_a_b_c_d_e_f_g"
+        )
