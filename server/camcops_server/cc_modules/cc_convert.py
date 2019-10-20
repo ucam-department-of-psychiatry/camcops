@@ -28,11 +28,9 @@ camcops_server/cc_modules/cc_convert.py
 
 """
 
-import csv
-import io
 import logging
 import re
-from typing import Any, Iterable, List
+from typing import Any, List
 
 from cardinal_pythonlib.convert import (
     base64_64format_decode,
@@ -169,51 +167,6 @@ def decode_values(valuelist: str) -> List[Any]:
     v = [decode_single_value(v) for v in gen_items_from_sql_csv(valuelist)]
     # log.debug("decode_values: values={}", v)
     return v
-
-
-# =============================================================================
-# Conversion to TSV
-# =============================================================================
-
-def tsv_from_query(rows: Iterable[Iterable[Any]],
-                   descriptions: Iterable[str],
-                   dialect: str = "excel-tab") -> str:
-    r"""
-    Converts rows from an SQL query result to TSV format.
-
-    For the dialect, see
-    https://docs.python.org/3/library/csv.html#csv.excel_tab.
-
-    For CSV files, see RGC 4180: https://tools.ietf.org/html/rfc4180.
-
-    For TSV files, see
-    https://www.iana.org/assignments/media-types/text/tab-separated-values.
-
-    Test code:
-
-    .. code-block:: python
-
-        import io
-        import csv
-        from typing import List
-        
-        def test(row: List[str], dialect: str = "excel-tab") -> str:
-            f = io.StringIO()
-            writer = csv.writer(f, dialect=dialect)
-            writer.writerow(row)
-            return f.getvalue()
-        
-        test(["hello", "world"])
-        test(["hello\ttab", "world"])  # actual tab within double quotes
-        test(["hello\nnewline", "world"])  # actual newline within double quotes
-        test(['hello"doublequote', "world"])  # doubled double quote within double quotes
-
-    """  # noqa
-    f = io.StringIO()
-    writer = csv.writer(f, dialect=dialect)
-    writer.writerow(descriptions)
-    writer.writerows(rows)
-    return f.getvalue()
 
 
 # =============================================================================

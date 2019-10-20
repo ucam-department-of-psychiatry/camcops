@@ -8,10 +8,10 @@ build-*/
 # Temporary
 *~
 *.tmp
+*.profile
 
 # ignore core dump file
 core
-
 # but not core directory
 !core/
 

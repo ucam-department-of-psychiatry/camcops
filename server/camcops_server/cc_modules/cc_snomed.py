@@ -29,29 +29,7 @@ camcops_server/cc_modules/cc_snomed.py
 Note that the licensing arrangements for SNOMED-CT mean that the actual codes
 must be separate (and not part of the CamCOPS code). See the documentation.
 
-A full SNOMED CT download is about 1.1 Gb; see
-https://digital.nhs.uk/services/terminology-and-classifications/snomed-ct.
-Within a file such as ``uk_sct2cl_26.0.2_20181107000001.zip``, relevant files
-include:
-
-.. code-block:: none
-
-    # Files with "Amoxicillin" in include two snapshots and two full files:
-    
-    SnomedCT_UKClinicalRF2_PRODUCTION_20181031T000001Z/Full/Terminology/sct2_Description_Full-en-GB_GB1000000_20181031.txt
-    # ... 234,755 lines
-    
-    SnomedCT_InternationalRF2_PRODUCTION_20180731T120000Z/Full/Terminology/sct2_Description_Full-en_INT_20180731.txt
-    # ... 2,513,953 lines; this is the main file.
-
-Note grammar:
-
-- http://snomed.org/scg
-- https://confluence.ihtsdotools.org/display/DOCSCG
-- https://confluence.ihtsdotools.org/download/attachments/33494865/SnomedCtExpo_Expressions_20161028_s2_20161101.pdf  # noqa
-- https://confluence.ihtsdotools.org/display/SLPG/SNOMED+CT+Expression+Constraint+Language
-
-Test basic expressions:
+Some tests:
 
 .. code-block:: python
 
@@ -62,51 +40,6 @@ Test basic expressions:
     from camcops_server.tasks.phq9 import Phq9
     main_only_quicksetup_rootlogger(level=logging.DEBUG)
     req = get_command_line_request()
-    
-    # ---------------------------------------------------------------------
-    # From the SNOMED-CT examples (http://snomed.org/scg), with some values
-    # fixed from the term browser:
-    # ---------------------------------------------------------------------
-    
-    diabetes = SnomedConcept(73211009, "Diabetes mellitus (disorder)")
-    diabetes_expr = SnomedExpression(diabetes)
-    print(diabetes_expr.longform)
-    print(diabetes_expr.shortform)
-    
-    pain = SnomedConcept(22253000, "Pain (finding)")
-    finding_site = SnomedConcept(36369800, "Finding site")
-    foot = SnomedConcept(56459004, "Foot")
-    
-    pain_in_foot = SnomedExpression(pain, {finding_site: foot})
-    print(pain_in_foot.longform)
-    print(pain_in_foot.shortform)
-    
-    amoxicillin_medicine = SnomedConcept(27658006, "Product containing amoxicillin (medicinal product)")
-    amoxicillin_substance = SnomedConcept(372687004, "Amoxicillin (substance)")
-    has_dose_form = SnomedConcept(411116001, "Has manufactured dose form (attribute)")
-    capsule = SnomedConcept(385049006, "Capsule (basic dose form)")
-    has_active_ingredient = SnomedConcept(127489000, "Has active ingredient (attribute)")
-    has_basis_of_strength_substance = SnomedConcept(732943007, "Has basis of strength substance (attribute)")
-    mass = SnomedConcept(118538004, "Mass, a measure of quantity of matter (property) (qualifier value)")
-    unit_of_measure = SnomedConcept(767524001, "Unit of measure (qualifier value)")
-    milligrams = SnomedConcept(258684004, "milligram (qualifier value)")
-    
-    amoxicillin_500mg_capsule = SnomedExpression(
-        amoxicillin_medicine, [
-            SnomedAttributeSet({has_dose_form: capsule}),
-            SnomedAttributeGroup({
-                has_active_ingredient: amoxicillin_substance,
-                has_basis_of_strength_substance: SnomedExpression(
-                    amoxicillin_substance, {
-                        mass: 500,
-                        unit_of_measure: milligrams,
-                    }
-                ),
-            }),
-        ]
-    )
-    print(amoxicillin_500mg_capsule.longform)
-    print(amoxicillin_500mg_capsule.shortform)
     
     # ---------------------------------------------------------------------
     # Read the XML, etc.
@@ -147,26 +80,43 @@ Other testing:
 
 .. code-block:: python
 
-from camcops_server.cc_modules.cc_snomed import *
-
-athena_concepts = get_athena_concepts(config.athena_concept_tsv_filename)
-relationships = get_athena_concept_relationships(config.athena_concept_relationship_tsv_filename)
-rel_ids = set(r.relationship_id for r in relationships)
-icd9, icd10 = get_icd9cm_icd10_snomed_concepts(config.athena_concept_tsv_filename, config.athena_concept_relationship_tsv_filename)
-
-ac = get_athena_concepts(config.athena_concept_tsv_filename, vocabulary_ids=[AthenaVocabularyId.SNOMED], concept_codes=["4303690"])
+    from camcops_server.cc_modules.cc_snomed import *
+    
+    athena_concepts = get_athena_concepts(config.athena_concept_tsv_filename)
+    relationships = get_athena_concept_relationships(config.athena_concept_relationship_tsv_filename)
+    rel_ids = set(r.relationship_id for r in relationships)
+    icd9, icd10 = get_icd9cm_icd10_snomed_concepts(config.athena_concept_tsv_filename, config.athena_concept_relationship_tsv_filename)
+    
+    ac = get_athena_concepts(config.athena_concept_tsv_filename, vocabulary_ids=[AthenaVocabularyId.SNOMED], concept_codes=["4303690"])
 
 """  # noqa
 
 from collections import OrderedDict
 import csv
 import logging
-from typing import (Collection, Dict, Iterable, List, Optional, Set, Tuple,
-                    Union)
+from typing import Dict, List, Optional, Set, Tuple, Union
 import xml.etree.cElementTree as ElementTree
 
+from cardinal_pythonlib.athena_ohdsi import (
+    AthenaConceptRow,
+    AthenaRelationshipId,
+    AthenaVocabularyId,
+    get_athena_concept_relationships,
+    get_athena_concepts,
+)
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.reprfunc import simple_repr
+# noinspection PyUnresolvedReferences
+from cardinal_pythonlib.snomed import (
+    SnomedAttribute,
+    SnomedAttributeGroup,
+    SnomedAttributeSet,
+    SnomedConcept as SnomedConceptCardinalPythonlib,
+    SnomedExpression,
+    SnomedFocusConcept,
+    SnomedRefinement,
+    SnomedValue,
+)
 
 from camcops_server.cc_modules.cc_cache import cache_region_static, fkg
 from camcops_server.cc_modules.cc_xml import XmlDataTypes, XmlElement
@@ -181,27 +131,6 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # -----------------------------------------------------------------------------
 # Internal
 # -----------------------------------------------------------------------------
-
-BACKSLASH = "\\"
-COLON = ":"
-COMMA = ","
-EQUALS = "="
-HASH = "#"
-LBRACE = "{"
-LBRACKET = "("
-PIPE = "|"
-PLUS = "+"
-QM = '"'  # double quotation mark
-RBRACE = "}"
-RBRACKET = ")"
-TAB = "\t"
-NEWLINE = "\n"
-
-ID_MIN_DIGITS = 6
-ID_MAX_DIGITS = 18
-
-VALUE_TYPE = Union["SnomedConcept", "SnomedExpression", int, float, str]
-DICT_ATTR_TYPE = Dict["SnomedConcept", VALUE_TYPE]
 
 SNOMED_XML_NAME = "snomed_ct_expression"
 
@@ -567,95 +496,22 @@ X84.93 X84.94 X84.98 X84.99 Z00.4 Z03.2 Z71.1
 
 
 # =============================================================================
-# Quoting strings
+# The SnomedConcept class, amended
 # =============================================================================
 
-def double_quoted(s: str) -> str:
-    """
-    Returns a representation of the string argument with double quotes and
-    escaped characters.
-
-    Args:
-        s: the argument
-
-    See:
-
-    - http://code.activestate.com/lists/python-list/272714/ -- does not work
-      as null values get escaped in different ways in modern Python, and in a
-      slightly unpredictable way
-    - https://mail.python.org/pipermail/python-list/2003-April/236940.html --
-      won't deal with repr() using triple-quotes
-    - https://stackoverflow.com/questions/1675181/get-str-repr-with-double-quotes-python
-      -- probably the right general approach
-
-    Test code:
-
-    .. code-block:: python
-
-        from camcops_server.cc_modules.cc_snomed import double_quoted
-        
-        def test(s):
-            print(f"double_quoted({s!r}) -> {double_quoted(s)}")
-        
-        
-        test("ab'cd")
-        test("ab'c\"d")
-        test('ab"cd')
-
-    """  # noqa
-    # For efficiency, we use a list:
-    # https://stackoverflow.com/questions/3055477/how-slow-is-pythons-string-concatenation-vs-str-join  # noqa
-    # https://waymoot.org/home/python_string/
-    dquote = '"'
-    ret = [dquote]  # type: List[str]
-    for c in s:
-        # "Named" characters
-        if c == NEWLINE:
-            ret.append(r"\n")
-        elif c == TAB:
-            ret.append(r"\t")
-        elif c == QM:
-            ret.append(r'\"')
-        elif c == BACKSLASH:
-            ret.append(r"\\")
-        elif ord(c) < 32:
-            ret.append(fr"\x{ord(c):02X}")
-        else:
-            ret.append(c)
-    ret.append(dquote)
-    return "".join(ret)
-
-
-# =============================================================================
-# SNOMED-CT concepts
-# =============================================================================
-
-class SnomedBase(object):
-    """
-    Common functions for SNOMED-CT classes
-    """
-    def as_string(self, longform: bool = True) -> str:
+class SnomedConcept(SnomedConceptCardinalPythonlib):
+    @classmethod
+    def create(cls,
+               concept: SnomedConceptCardinalPythonlib) -> "SnomedConcept":
         """
-        Returns the string form.
+        Creates a CamCOPS-friendly
+        :class:`camcops_server.cc_modules.cc_snomed.SnomedConcept` from a
+        :class:`cardinal_pythonlib.snomed.SnomedConcept`.
 
-        Args:
-            longform: print SNOMED-CT concepts in long form?
+        The result has extra methods.
         """
-        raise NotImplementedError("implement in subclass")
-
-    @property
-    def shortform(self) -> str:
-        """
-        Returns the short form, without terms.
-        """
-        return self.as_string(False)
-
-    @property
-    def longform(self) -> str:
-        return self.as_string(True)
-
-    def __str__(self) -> str:
-        return self.as_string(True)
+        return SnomedConcept(identifier=concept.identifier,
+                             term=concept.term)
 
     def xml_element(self, longform: bool = True) -> XmlElement:
         """
@@ -670,280 +526,6 @@ class SnomedBase(object):
             value=self.as_string(longform),
             datatype=XmlDataTypes.STRING
         )
-
-
-class SnomedConcept(SnomedBase):
-    """
-    Represents a SNOMED concept with its description (associated term).
-    """
-    def __init__(self, identifier: int, term: str) -> None:
-        """
-        Args:
-            identifier: SNOMED-CT identifier (code)
-            term: associated term (description)
-        """
-        assert isinstance(identifier, int), (
-            f"SNOMED-CT concept identifier is not an integer: {identifier!r}"
-        )
-        ndigits = len(str(identifier))
-        assert ID_MIN_DIGITS <= ndigits <= ID_MAX_DIGITS, (
-            f"SNOMED-CT concept identifier has wrong number of digits: "
-            f"{identifier!r}"
-        )
-        assert PIPE not in term, (
-            f"SNOMED-CT term has invalid pipe character: {term!r}"
-        )
-        self.identifier = identifier
-        self.term = term
-
-    def __repr__(self) -> str:
-        return simple_repr(self, ["identifier", "term"])
-
-    def as_string(self, longform: bool = True) -> str:
-        # Docstring in base class.
-        if longform:
-            return f"{self.identifier} {PIPE}{self.term}{PIPE}"
-        else:
-            return str(self.identifier)
-
-    def concept_reference(self, longform: bool = True) -> str:
-        """
-        Returns one of the string representations.
-
-        Args:
-            longform: in long form, with the description (associated term)?
-        """
-        return self.as_string(longform)
-
-
-# =============================================================================
-# SNOMED-CT expressions
-# =============================================================================
-
-class SnomedValue(SnomedBase):
-    """
-    Represents a value: either a concrete value (e.g. int, float, str), or a
-    SNOMED-CT concept/expression.
-
-    Implements the grammar elements: attributeValue, expressionValue,
-    stringValue, numericValue, integerValue, decimalValue.
-    """
-    def __init__(self, value: VALUE_TYPE) -> None:
-        """
-        Args:
-            value: the value
-        """
-        assert isinstance(value, (SnomedConcept, SnomedExpression,
-                                  int, float, str)), (
-            f"Invalid value type to SnomedValue: {value!r}"
-        )
-        self.value = value
-
-    def as_string(self, longform: bool = True) -> str:
-        # Docstring in base class
-        x = self.value
-        if isinstance(x, SnomedConcept):
-            return x.concept_reference(longform)
-        elif isinstance(x, SnomedExpression):
-            # As per p16 of formal reference cited above.
-            return f"{LBRACKET} {x.as_string(longform)} {RBRACKET}"
-        elif isinstance(x, (int, float)):
-            return HASH + str(x)
-        elif isinstance(x, str):
-            # On the basis that SNOMED's "QM" (quote mark) is 0x22, the double
-            # quote:
-            return double_quoted(x)
-        else:
-            raise ValueError("Bad input value type")
-
-    def __repr__(self) -> str:
-        return simple_repr(self, ["value"])
-
-
-class SnomedFocusConcept(SnomedBase):
-    """
-    Represents a SNOMED-CT focus concept, which is one or more concepts.
-    """
-    def __init__(self,
-                 concept: Union[SnomedConcept, Iterable[SnomedConcept]]) \
-            -> None:
-        """
-        Args:
-            concept: the core concept(s); a :class:`SnomedCode` or an
-                iterable of them
-        """
-        if isinstance(concept, SnomedConcept):
-            self.concepts = [concept]
-        else:
-            self.concepts = list(concept)
-        assert all(isinstance(x, SnomedConcept) for x in self.concepts)
-
-    def as_string(self, longform: bool = True) -> str:
-        # Docstring in base class.
-        sep = " " + PLUS + " "
-        return sep.join(c.concept_reference(longform) for c in self.concepts)
-
-    def __repr__(self) -> str:
-        return simple_repr(self, ["concepts"])
-
-
-class SnomedAttribute(SnomedBase):
-    """
-    Represents a SNOMED-CT attribute, being a name/value pair.
-    """
-    def __init__(self, name: SnomedConcept, value: VALUE_TYPE) -> None:
-        """
-        Args:
-            name: a :class:`SnomedConcept` (attribute name)
-            value: an attribute value (:class:`SnomedConcept`, number, or
-                string)
-        """
-        assert isinstance(name, SnomedConcept)
-        if not isinstance(value, SnomedValue):
-            value = SnomedValue(value)
-        self.name = name
-        self.value = value
-
-    def as_string(self, longform: bool = True) -> str:
-        # Docstring in base class.
-        return (
-            f"{self.name.concept_reference(longform)} {EQUALS} "
-            f"{self.value.as_string(longform)}"
-        )
-
-    def __repr__(self) -> str:
-        return simple_repr(self, ["name", "value"])
-
-
-class SnomedAttributeSet(SnomedBase):
-    """
-    Represents an attribute set.
-    """
-    def __init__(self, attributes: Union[DICT_ATTR_TYPE,
-                                         Iterable[SnomedAttribute]]) -> None:
-        """
-        Args:
-            attributes: the attributes
-        """
-        if isinstance(attributes, dict):
-            self.attributes = [SnomedAttribute(k, v)
-                               for k, v in attributes.items()]
-        else:
-            self.attributes = list(attributes)
-        assert all(isinstance(x, SnomedAttribute) for x in self.attributes)
-
-    def as_string(self, longform: bool = True) -> str:
-        # Docstring in base class.
-        attrsep = COMMA + " "
-        return attrsep.join(attr.as_string(longform)
-                            for attr in self.attributes)
-
-    def __repr__(self) -> str:
-        return simple_repr(self, ["attributes"])
-
-
-class SnomedAttributeGroup(SnomedBase):
-    """
-    Represents a collected group of attribute/value pairs.
-    """
-    def __init__(self, attribute_set: Union[DICT_ATTR_TYPE,
-                                            SnomedAttributeSet]) -> None:
-        """
-        Args:
-            attribute_set: a :class:`SnomedAttributeSet` to group
-        """
-        if isinstance(attribute_set, dict):
-            attribute_set = SnomedAttributeSet(attribute_set)
-        assert isinstance(attribute_set, SnomedAttributeSet)
-        self.attribute_set = attribute_set
-
-    def as_string(self, longform: bool = True) -> str:
-        # Docstring in base class.
-        return f"{LBRACE} {self.attribute_set.as_string(longform)} {RBRACE}"
-
-    def __repr__(self) -> str:
-        return simple_repr(self, ["attribute_set"])
-
-
-class SnomedRefinement(SnomedBase):
-    """
-    Implements a SNOMED-CT "refinement", which is an attribute set +/- some
-    attribute groups.
-    """
-    def __init__(self,
-                 refinements: Union[DICT_ATTR_TYPE,
-                                    Iterable[Union[SnomedAttributeSet,
-                                                   SnomedAttributeGroup]]]) \
-            -> None:
-        """
-        Args:
-            refinements: iterable of :class:`SnomedAttributeSet` (but only
-                zero or one) and :class:`SnomedAttributeGroup` objects
-        """
-        if isinstance(refinements, dict):
-            refinements = [SnomedAttributeSet(refinements)]
-        self.attrsets = []  # type: List[SnomedBase]
-        self.attrgroups = []  # type: List[SnomedBase]
-        for r in refinements:
-            if isinstance(r, SnomedAttributeSet):
-                if self.attrsets:
-                    raise ValueError("Only one SnomedAttributeSet allowed "
-                                     "to SnomedRefinement")
-                self.attrsets.append(r)
-            elif isinstance(r, SnomedAttributeGroup):
-                self.attrgroups.append(r)
-            else:
-                raise ValueError(f"Unknown object to SnomedRefinement: {r!r}")
-
-    def as_string(self, longform: bool = True) -> str:
-        # Docstring in base class.
-        # Ungrouped before grouped; see 6.5 in "SNOMED CT Compositional Grammar
-        # v2.3.1"
-        sep = COMMA + " "
-        return sep.join(x.as_string(longform)
-                        for x in self.attrsets + self.attrgroups)
-
-    def __repr__(self) -> str:
-        return simple_repr(self, ["attrsets", "attrgroups"])
-
-
-class SnomedExpression(SnomedBase):
-    """
-    An expression containing several SNOMED-CT codes in relationships.
-    """
-    def __init__(self,
-                 focus_concept: Union[SnomedConcept, SnomedFocusConcept],
-                 refinement: Union[SnomedRefinement,
-                                   DICT_ATTR_TYPE,
-                                   List[Union[SnomedAttributeSet,
-                                              SnomedAttributeGroup]]] = None) \
-            -> None:
-        """
-        Args:
-            focus_concept: the core concept(s); a :class:`SnomedFocusConcept`
-            refinement: optional additional information; a
-                :class:`SnomedRefinement` or a dictionary or list that can be
-                converted to one
-        """
-        if isinstance(focus_concept, SnomedConcept):
-            focus_concept = SnomedFocusConcept(focus_concept)
-        assert isinstance(focus_concept, SnomedFocusConcept)
-        if isinstance(refinement, (dict, list)):
-            refinement = SnomedRefinement(refinement)
-        if refinement is not None:
-            assert isinstance(refinement, SnomedRefinement)
-        self.focus_concept = focus_concept
-        self.refinement = refinement
-
-    def as_string(self, longform: bool = True) -> str:
-        # Docstring in base class.
-        s = self.focus_concept.as_string(longform)
-        if self.refinement:
-            s += " " + COLON + " " + self.refinement.as_string(longform)
-        return s
-
-    def __repr__(self) -> str:
-        return simple_repr(self, ["focus_concept", "refinement"])
 
 
 # =============================================================================
@@ -1786,324 +1368,6 @@ def get_all_icd10_snomed_concepts_from_umls(
 # =============================================================================
 
 # -----------------------------------------------------------------------------
-# Constants
-# -----------------------------------------------------------------------------
-
-class AthenaVocabularyId(object):
-    """
-    Constant-holding class for Athena vocabulary IDs that we care about.
-    """
-    SNOMED = "SNOMED"
-    ICD10CM = "ICD10CM"
-    ICD9CM = "ICD9CM"
-
-
-class AthenaRelationshipId(object):
-    """
-    Constant-holding class for Athena relationship IDs that we care about.
-    """
-    IS_A = "Is a"  # "is a child of"
-    MAPS_TO = "Maps to"  # converting between vocabularies
-    MAPPED_FROM = "Mapped from"  # converting between vocabularies
-    SUBSUMES = "Subsumes"  # "is a parent of"
-
-
-# -----------------------------------------------------------------------------
-# TSV row info classes
-# -----------------------------------------------------------------------------
-
-class AthenaConceptRow(object):
-    """
-    Simple information-holding class for ``CONCEPT.csv`` file from
-    http://athena.ohdsi.org/ vocabulary download.
-    """
-    HEADER = [
-        "concept_id", "concept_name", "domain_id", "vocabulary_id",
-        "concept_class_id", "standard_concept", "concept_code",
-        "valid_start_date", "valid_end_date", "invalid_reason"
-    ]
-
-    def __init__(self,
-                 concept_id: str,
-                 concept_name: str,
-                 domain_id: str,
-                 vocabulary_id: str,
-                 concept_class_id: str,
-                 standard_concept: str,
-                 concept_code: str,
-                 valid_start_date: str,
-                 valid_end_date: str,
-                 invalid_reason: str) -> None:
-        """
-        Argument order is important.
-
-        Args:
-            concept_id: Athena concept ID
-            concept_name: Concept name in the originating system
-            domain_id: e.g. "Observation", "Condition"
-            vocabulary_id: e.g. "SNOMED", "ICD10CM"
-            concept_class_id: e.g. "Substance", "3-char nonbill code"
-            standard_concept: ?; e.g. "S"
-            concept_code: concept code in the vocabulary (e.g. SNOMED-CT
-                concept code like "3578611000001105" if vocabulary_id is
-                "SNOMED"; ICD-10 code like "F32.2" if vocabulary_is is
-                "ICD10CM"; etc.)
-            valid_start_date: date in YYYYMMDD format
-            valid_end_date: date in YYYYMMDD format
-            invalid_reason: ? (but one can guess)
-        """
-        self.concept_id = int(concept_id)
-        self.concept_name = concept_name
-        self.domain_id = domain_id
-        self.vocabulary_id = vocabulary_id
-        self.concept_class_id = concept_class_id
-        self.standard_concept = standard_concept
-        self.concept_code = concept_code
-        self.valid_start_date = valid_start_date
-        self.valid_end_date = valid_end_date
-        self.invalid_reason = invalid_reason
-        # self.sort_context_concept_to_match = None
-
-    def __repr__(self) -> str:
-        return simple_repr(self, self.HEADER)
-
-    def __str__(self) -> str:
-        return (
-            f"Vocabulary {self.vocabulary_id}, concept {self.concept_code} "
-            f"({self.concept_name}) -> Athena concept {self.concept_id}"
-        )
-
-    # I looked at sorting them to find the best. Not wise; would need human
-    # review. Just use all valid codes.
-
-    _ = '''
-
-    def set_sort_context_concept_to_match(self,
-                                          concept: "AthenaConceptRow") -> None:
-        self.sort_context_concept_to_match = concept
-
-    def __lt__(self, other: "AthenaConceptRow") -> bool:
-        """
-        Compares using "less than" being equivalent to "preferable to".
-
-        So, returns True if "self" is better than other, and False if "self" is
-        worse than other; that is, all tests look like "return self is better
-        than other".
-
-        BINNED. We will use human judgement.
-        """
-        invalid_s = bool(self.invalid_reason)
-        invalid_o = bool(other.invalid_reason)
-        if invalid_s != invalid_o:
-            # better not to have an "invalid" reason;
-            # empty strings are "less than" full ones
-            return invalid_s < invalid_o
-        if self.valid_end_date != other.valid_end_date:
-            # better to have a later end date
-            return self.valid_end_date > other.valid_end_date
-        if self.valid_start_date != other.valid_start_date:
-            # better to have an earlier start date
-            return self.valid_start_date < other.valid_end_date
-        if self.sort_context_concept_to_match:
-            # Which is closer to our target context?
-            c = self.sort_context_concept_to_match
-            sp = self.match_tuple(c)
-            op = other.match_tuple(c)
-            log.info(
-                "Tie-breaking to match {c}: {s} ({sp} points) vs "
-                "{o} ({op} points)",
-                s=self, sp=sp, o=other, op=op, c=c
-            )
-            # More matching points is better
-            return self.match_tuple(c) > other.match_tuple(c)
-        log.warning("Tie-breaking {} and {} by ID", self, other)
-        # Arbitrarily, better to have an earlier (lower) concept ID.
-        return self.concept_id < other.concept_id
-
-    def match_tuple(self, target: "AthenaConceptRow") -> Tuple[float, float]:
-        """
-        Returns a score reflecting our similarity to the target.
-
-        See
-
-        - https://stackoverflow.com/questions/8897593/similarity-between-two-text-documents
-        - https://stackoverflow.com/questions/2380394/simple-implementation-of-n-gram-tf-idf-and-cosine-similarity-in-python
-        - https://spacy.io/usage/vectors-similarity -- data not included
-        - https://radimrehurek.com/gensim/index.html
-        - https://radimrehurek.com/gensim/tut3.html
-        - https://scikit-learn.org/stable/
-        - http://www.nltk.org/
-
-        BINNED. We will use human judgement.
-        """  # noqa
-        self_words = set(x.lower() for x in self.concept_name.split())
-        other_words = set(x.lower() for x in target.concept_name.split())
-        # More matching words better
-        n_matching_words = len(self_words & other_words)
-        # More words better (often more specific)
-        n_words = len(self_words)
-        return float(n_matching_words), float(n_words)
-
-    '''
-
-    def snomed_concept(self) -> SnomedConcept:
-        """
-        Assuming this Athena concept reflects a SnomedConcept, returns it.
-
-        (Asserts if it isn't.)
-        """
-        assert self.vocabulary_id == AthenaVocabularyId.SNOMED
-        return SnomedConcept(int(self.concept_code), self.concept_name)
-
-
-class AthenaConceptRelationshipRow(object):
-    """
-    Simple information-holding class for ``CONCEPT_RELATIONSHIP.csv`` file from
-    http://athena.ohdsi.org/ vocabulary download.
-    """
-    HEADER = [
-        "concept_id_1", "concept_id_2", "relationship_id",
-        "valid_start_date", "valid_end_date", "invalid_reason",
-    ]
-
-    def __init__(self,
-                 concept_id_1: str,
-                 concept_id_2: str,
-                 relationship_id: str,
-                 valid_start_date: str,
-                 valid_end_date: str,
-                 invalid_reason: str) -> None:
-        """
-        Argument order is important.
-
-        Args:
-            concept_id_1: Athena concept ID #1
-            concept_id_2: Athena concept ID #2
-            relationship_id: e.g. "Is a", "Has legal category"
-            valid_start_date: date in YYYYMMDD format
-            valid_end_date: date in YYYYMMDD format
-            invalid_reason: ? (but one can guess)
-        """
-        self.concept_id_1 = int(concept_id_1)
-        self.concept_id_2 = int(concept_id_2)
-        self.relationship_id = relationship_id
-        self.valid_start_date = valid_start_date
-        self.valid_end_date = valid_end_date
-        self.invalid_reason = invalid_reason
-
-    def __repr__(self) -> str:
-        return simple_repr(self, self.HEADER)
-
-    def __str__(self) -> str:
-        return (
-            f"Athena concept relationship {self.concept_id_1} "
-            f"{self.relationship_id!r} {self.concept_id_2}"
-        )
-
-
-# -----------------------------------------------------------------------------
-# Fetch data from TSV files
-# -----------------------------------------------------------------------------
-
-def get_athena_concepts(
-        tsv_filename: str,
-        vocabulary_ids: Collection[str] = None,
-        concept_codes: Collection[str] = None,
-        concept_ids: Collection[int] = None) -> List[AthenaConceptRow]:
-    """
-    From the Athena ``CONCEPT.csv`` tab-separated value file, return a list
-    of concepts matching the restriction criteria.
-
-    Args:
-        tsv_filename: filename
-        vocabulary_ids: permissible ``vocabulary_id`` values, or None or an
-            empty list for all
-        concept_codes: permissible ``concept_code`` values, or None or an
-            empty list for all
-        concept_ids: permissible ``concept_id`` values, or None or an
-            empty list for all
-
-    Returns:
-        list: of :class:`AthenaConceptRow` objects
-
-    """
-    log.info("Loading Athena concepts from file: {}", tsv_filename)
-    concepts = []  # type: List[AthenaConceptRow]
-    n_rows_read = 0
-    with open(tsv_filename, 'r') as tsvin:
-        reader = csv.reader(tsvin, delimiter="\t")
-        header = next(reader, None)
-        if header != AthenaConceptRow.HEADER:
-            raise ValueError(
-                f"Athena concept file has unexpected header: {header!r}; "
-                f"expected {AthenaConceptRow.HEADER!r}")
-        for row in reader:
-            n_rows_read += 1
-            concept = AthenaConceptRow(*row)
-            if vocabulary_ids and concept.vocabulary_id not in vocabulary_ids:
-                continue
-            if concept_codes and concept.concept_code not in concept_codes:
-                continue
-            if concept_ids and concept.concept_id not in concept_ids:
-                continue
-            # log.debug("{}", concept)
-            concepts.append(concept)
-    log.debug("Retrieved {} concepts from {} rows", len(concepts), n_rows_read)
-    return concepts
-
-
-def get_athena_concept_relationships(
-        tsv_filename: str,
-        concept_id_1_values: Collection[int] = None,
-        concept_id_2_values: Collection[int] = None,
-        relationship_id_values: Collection[str] = None) \
-        -> List[AthenaConceptRelationshipRow]:
-    """
-    From the Athena ``CONCEPT_RELATIONSHIP.csv`` tab-separated value file,
-    return a list of relationships matching the restriction criteria.
-
-    Args:
-        tsv_filename: filename
-        concept_id_1_values: permissible ``concept_id_1`` values, or None or an
-            empty list for all
-        concept_id_2_values: permissible ``concept_id_2`` values, or None or an
-            empty list for all
-        relationship_id_values: permissible ``relationship_id`` values, or None
-            or an empty list for all
-
-    Returns:
-        list: of :class:`AthenaConceptRelationshipRow` objects
-
-    """
-    log.info("Loading Athena concept relationships from file: {}",
-             tsv_filename)
-    relationships = []  # type: List[AthenaConceptRelationshipRow]
-    n_rows_read = 0
-    with open(tsv_filename, 'r') as tsvin:
-        reader = csv.reader(tsvin, delimiter="\t")
-        header = next(reader, None)
-        if header != AthenaConceptRelationshipRow.HEADER:
-            raise ValueError(
-                f"Athena concept relationship file has unexpected header: "
-                f"{header!r}; expected "
-                f"{AthenaConceptRelationshipRow.HEADER!r}")
-        for row in reader:
-            n_rows_read += 1
-            rel = AthenaConceptRelationshipRow(*row)
-            if relationship_id_values and rel.relationship_id not in relationship_id_values:  # noqa
-                continue
-            if concept_id_1_values and rel.concept_id_1 not in concept_id_1_values:  # noqa
-                continue
-            if concept_id_2_values and rel.concept_id_2 not in concept_id_2_values:  # noqa
-                continue
-            # log.debug("{}", rel)
-            relationships.append(rel)
-    log.debug("Retrieved {} relationships from {} rows",
-              len(relationships), n_rows_read)
-    return relationships
-
-
-# -----------------------------------------------------------------------------
 # Fetch ICD-9-CM and ICD-10 codes (shared for fewer passes through the files)
 # -----------------------------------------------------------------------------
 
@@ -2167,7 +1431,10 @@ def get_icd9cm_icd10_snomed_concepts_from_athena(
                 # log.debug("Processing snomed = {}", snomed)
                 possible_snomed.append(snomed)
         if possible_snomed:
-            sclist = [s.snomed_concept() for s in possible_snomed]
+            sclist = [
+                SnomedConcept.create(s.snomed_concept())
+                for s in possible_snomed
+            ]
             sclist.sort(key=lambda sc: sc.identifier)
             log.debug("Mapping {} -> {}", icd, sclist)
             target[icd_code] = sclist
