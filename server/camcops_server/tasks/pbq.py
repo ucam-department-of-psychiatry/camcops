@@ -302,6 +302,7 @@ class Pbq(TaskHasPatientMixin, Task,
 
 
 class PBQReport(AverageScoreReport):
+    # noinspection PyMethodParameters
     @classproperty
     def report_id(cls) -> str:
         return "PBQ"
@@ -311,8 +312,9 @@ class PBQReport(AverageScoreReport):
         _ = req.gettext
         return _("PBQ — Average scores")
 
+    # noinspection PyMethodParameters
     @classproperty
-    def task_class(cls) -> Task:
+    def task_class(cls) -> Type[Task]:
         return Pbq
 
     @classmethod
@@ -322,35 +324,36 @@ class PBQReport(AverageScoreReport):
             ScoreDetails(
                 name=_("Total score"),
                 fieldnames=Pbq.QUESTION_FIELDS,
-                min=0,
-                max=Pbq.MAX_TOTAL
+                minimum=0,
+                maximum=Pbq.MAX_TOTAL
             ),
             ScoreDetails(
                 name=_("Factor 1 score"),
                 fieldnames=Pbq.FACTOR_1_F,
-                min=0,
-                max=Pbq.FACTOR_1_MAX
+                minimum=0,
+                maximum=Pbq.FACTOR_1_MAX
             ),
             ScoreDetails(
                 name=_("Factor 2 score"),
                 fieldnames=Pbq.FACTOR_2_F,
-                min=0,
-                max=Pbq.FACTOR_2_MAX
+                minimum=0,
+                maximum=Pbq.FACTOR_2_MAX
             ),
             ScoreDetails(
                 name=_("Factor 3 score"),
                 fieldnames=Pbq.FACTOR_3_F,
-                min=0,
-                max=Pbq.FACTOR_3_MAX
+                minimum=0,
+                maximum=Pbq.FACTOR_3_MAX
             ),
             ScoreDetails(
                 name=_("Factor 4 score"),
                 fieldnames=Pbq.FACTOR_4_F,
-                min=0,
-                max=Pbq.FACTOR_4_MAX
+                minimum=0,
+                maximum=Pbq.FACTOR_4_MAX
             ),
         ]
 
+    # noinspection PyMethodParameters
     @classproperty
     def higher_score_is_better(cls) -> bool:
         return False

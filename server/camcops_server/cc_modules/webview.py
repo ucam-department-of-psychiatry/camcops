@@ -2956,7 +2956,7 @@ class EraseTaskBaseView(object):
 
         if not hasattr(self, "template_name"):
             raise NotImplementedError(
-                f"{self.__class__.__name__} must defined template_name"
+                f"{self.__class__.__name__} must define template_name"
             )
 
     def dispatch(self) -> Response:

@@ -29,6 +29,7 @@ camcops_server/cc_modules/cc_report.py
 """
 
 import logging
+from abc import ABC
 from typing import (Any, Dict, Generator, List, Optional, Sequence, Type,
                     TYPE_CHECKING, Union)
 
@@ -532,37 +533,41 @@ class DateTimeFilteredReportMixin(object):
 
 class ScoreDetails(object):
     def __init__(self, name: str, fieldnames: List[str],
-                 min: int, max: int) -> None:
+                 minimum: int, maximum: int) -> None:
         self.name = name
         self.fieldnames = fieldnames
-        self.min = min
-        self.max = max
+        self.minimum = minimum
+        self.maximum = maximum
 
 
-class AverageScoreReport(DateTimeFilteredReportMixin, Report):
+class AverageScoreReport(DateTimeFilteredReportMixin, Report, ABC):
     """
     Used by MAAS, CORE-10 and PBQ to report average scores and progress
     """
     template_name = "average_score_report.mako"
 
+    # noinspection PyMethodParameters
     @classproperty
     def superuser_only(cls) -> bool:
         return False
 
+    # noinspection PyMethodParameters
     @classproperty
     def higher_score_is_better(cls) -> bool:
         """
         Progress is always expressed positively
-        so should we do score1 - score2 or vice versa?
+        so should we do ``score1 - score2`` or vice versa?
         """
         return True
 
+    # noinspection PyMethodParameters
     @classproperty
-    def task_class(cls) -> "Task":
+    def task_class(cls) -> Type["Task"]:
         raise NotImplementedError(
             "Report did not implement task_class"
         )
 
+    # noinspection PyMethodParameters
     @classmethod
     def scores(cls, req: "CamcopsRequest") -> List[ScoreDetails]:
         raise NotImplementedError(
@@ -571,12 +576,11 @@ class AverageScoreReport(DateTimeFilteredReportMixin, Report):
 
     def get_rows_colnames(self,
                           req: "CamcopsRequest") -> Optional[PlainReportType]:
-        row = []
-
         _ = req.gettext
 
         """
         First and latest record for each patient (e.g. for CORE-10):
+
         SELECT patient_id,
         MIN(when_created) AS min_when_created,
         MAX(when_created) AS max_when_created
@@ -628,6 +632,7 @@ class AverageScoreReport(DateTimeFilteredReportMixin, Report):
         for score in self.scores(req):
             """
             Average first score (e.g. for CORE-10):
+
             SELECT AVG(q1+q2+q3+q4+q5+q6+q7+q8+q9+q10) AS average_score
             FROM (first_record_query) AS first_records
             INNER JOIN core10 ON core10.patient_id = first_records.patient_id
@@ -653,6 +658,7 @@ class AverageScoreReport(DateTimeFilteredReportMixin, Report):
 
             """
             Average latest score (e.g. for CORE-10):
+
             SELECT AVG(q1+q2+q3+q4+q5+q6+q7+q8+q9+q10) AS average_score
             FROM (latest_record_query) AS latest_records
             INNER JOIN core10 ON core10.patient_id = latest_records.patient_id
@@ -677,9 +683,8 @@ class AverageScoreReport(DateTimeFilteredReportMixin, Report):
             results = req.dbsession.execute(average_latest_score_query)
             average_latest_score = next(results)[0]
 
-            if average_first_score is not None and (
-                    average_latest_score is not None
-            ):
+            if (average_first_score is not None and
+                    average_latest_score is not None):
                 average_progress = self.calculate_progress(
                     average_first_score, average_latest_score
                 )
@@ -693,11 +698,9 @@ class AverageScoreReport(DateTimeFilteredReportMixin, Report):
                 average_latest_score = _("No data")
 
             column_names += [
-                "{} ({}-{}): {}".format(score.name,
-                                        score.min, score.max, _("First")),
-                "{} ({}-{}): {}".format(score.name,
-                                        score.min, score.max, _("Latest")),
-                "{}: {}".format(score.name, _("Progress")),
+                f"{score.name} ({score.minimum}–{score.maximum}): {_('First')}",  # noqa
+                f"{score.name} ({score.minimum}–{score.maximum}): {_('Latest')}",  # noqa
+                f"{score.name}: {_('Progress')}",
             ]
 
             row += [average_first_score, average_latest_score,
@@ -883,6 +886,7 @@ class AverageScoreReportTestCase(DemoDatabaseTestCase):
 
 
 class TestReport(Report):
+    # noinspection PyMethodParameters
     @classproperty
     def report_id(cls) -> str:
         return "test_report"

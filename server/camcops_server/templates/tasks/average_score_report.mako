@@ -28,9 +28,15 @@ camcops_server/templates/tasks/average_score_report.mako
 
 <%inherit file="report.mako"/>
 
-<%block name="pager_above_results">
+<%block name="additional_report_above_results">
+    <div>
+        If date filters are applied, only tasks within the date range are
+        considered.
+    </div>
 </%block>
 
+<%block name="pager_above_results">
+</%block>
 
 <%block name="pager_below_results">
 </%block>

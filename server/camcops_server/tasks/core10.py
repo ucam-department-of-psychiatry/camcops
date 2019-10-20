@@ -26,7 +26,7 @@ camcops_server/tasks/core10.py
 
 """
 
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Type
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.stringfunc import strseq
@@ -272,6 +272,7 @@ class Core10Report(AverageScoreReport):
     An average score of the people seen at the start of treatment
     an average final measure and an average progress score.
     """
+    # noinspection PyMethodParameters
     @classproperty
     def report_id(cls) -> str:
         return "core10"
@@ -281,8 +282,9 @@ class Core10Report(AverageScoreReport):
         _ = req.gettext
         return _("CORE-10 — Average scores")
 
+    # noinspection PyMethodParameters
     @classproperty
-    def task_class(cls) -> Task:
+    def task_class(cls) -> Type[Task]:
         return Core10
 
     @classmethod
@@ -292,11 +294,12 @@ class Core10Report(AverageScoreReport):
             ScoreDetails(
                 name=_("CORE-10 clinical score"),
                 fieldnames=Core10.QUESTION_FIELDNAMES,
-                min=0,
-                max=Core10.MAX_SCORE
+                minimum=0,
+                maximum=Core10.MAX_SCORE
             )
         ]
 
+    # noinspection PyMethodParameters
     @classproperty
     def higher_score_is_better(cls) -> bool:
         return False

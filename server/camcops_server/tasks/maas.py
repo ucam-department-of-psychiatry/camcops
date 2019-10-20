@@ -268,6 +268,7 @@ class Maas(TaskHasPatientMixin, Task,
 
 
 class MaasReport(AverageScoreReport):
+    # noinspection PyMethodParameters
     @classproperty
     def report_id(cls) -> str:
         return "MAAS"
@@ -277,8 +278,9 @@ class MaasReport(AverageScoreReport):
         _ = req.gettext
         return _("MAAS — Average scores")
 
+    # noinspection PyMethodParameters
     @classproperty
-    def task_class(cls) -> Task:
+    def task_class(cls) -> Type[Task]:
         return Maas
 
     @classmethod
@@ -288,23 +290,22 @@ class MaasReport(AverageScoreReport):
             ScoreDetails(
                 name=_("Global attachment score"),
                 fieldnames=Maas.TASK_FIELDS,
-                min=Maas.MIN_GLOBAL,
-                max=Maas.MAX_GLOBAL
+                minimum=Maas.MIN_GLOBAL,
+                maximum=Maas.MAX_GLOBAL
             ),
             ScoreDetails(
                 name=_("Quality of attachment score"),
                 fieldnames=Maas.QUALITY_OF_ATTACHMENT_FIELDS,
-                min=Maas.MIN_QUALITY,
-                max=Maas.MAX_QUALITY
+                minimum=Maas.MIN_QUALITY,
+                maximum=Maas.MAX_QUALITY
             ),
             ScoreDetails(
                 name=_("Time spent in attachment mode"),
                 fieldnames=Maas.TIME_IN_ATTACHMENT_FIELDS,
-                min=Maas.MIN_TIME,
-                max=Maas.MAX_TIME
+                minimum=Maas.MIN_TIME,
+                maximum=Maas.MAX_TIME
             )
         ]
-        return Maas.TASK_FIELDS
 
 
 class MaasReportTests(AverageScoreReportTestCase):
