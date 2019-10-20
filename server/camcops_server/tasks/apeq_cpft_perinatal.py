@@ -29,7 +29,6 @@ camcops_server/tasks/apeq_cpft_perinatal.py
 from typing import Dict, Generator, List, Optional, Tuple, Type
 
 from cardinal_pythonlib.classes import classproperty
-from cardinal_pythonlib.datetimefunc import format_datetime
 
 import pendulum
 from pyramid.renderers import render_to_response
@@ -38,8 +37,7 @@ from sqlalchemy.sql.expression import and_, column, select
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
-from camcops_server.cc_modules.cc_constants import CssClass, DateFormat
-from camcops_server.cc_modules.cc_forms import ReportParamSchema
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_pyramid import ViewParam
 from camcops_server.cc_modules.cc_report import (
