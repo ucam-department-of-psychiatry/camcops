@@ -629,7 +629,7 @@ class AverageScoreReport(DateTimeFilteredReportMixin, Report, ABC):
         """
 
         wheres = []
-        self.add_report_filters(wheres)
+        self.add_task_report_filters(wheres)
 
         first_latest_record_query = (
             select([self.task_class.patient_id,
