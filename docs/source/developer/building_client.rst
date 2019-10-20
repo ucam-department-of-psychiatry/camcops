@@ -954,14 +954,10 @@ for):
         * - Version name
           - [string]
         * - Minimum required SDK
-          - API 16: Android 4.1, 4.1.1 [default]
+          - API 23 (Android 6) (see :ref:`changelog 2018 <changelog_2018>`)
         * - Target SDK
-          - **WAS:** API 23: Android 6.0 [default].
-            **AS OF 2018-06-25:** API 26: Android 8.0 [Google Play Store
-            requires this soon].
-            **DOWNGRADED AGAIN 2018-07-16: OpenSSL problems.** Probably because
-            you have to rebuild OpenSSL for Android (see
-            ``DEFAULT_ANDROID_API_NUM`` in :ref:`build_qt`).
+          - API 28 (Android 9) = minimum required by Google Play Store as of
+            2019-11-01.
         * - Application name
           - CamCOPS
         * - Activity name

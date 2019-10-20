@@ -47,7 +47,6 @@ from sqlalchemy.orm.query import Query
 from sqlalchemy.sql.selectable import SelectBase
 
 # import as LITTLE AS POSSIBLE; this is used by lots of modules
-from camcops_server.cc_modules.cc_convert import tsv_from_query
 from camcops_server.cc_modules.cc_constants import (
     DateFormat,
     DEFAULT_ROWS_PER_PAGE,
@@ -345,9 +344,10 @@ class Report(object):
                                  rows=plain_report.rows)
         return [page]
 
-    def get_tsv_page(self, name: str,
-                     column_names: List[str],
-                     rows: List[List[str]]) -> TsvPage:
+    @staticmethod
+    def get_tsv_page(name: str,
+                     column_names: Sequence[str],
+                     rows: Sequence[Sequence[str]]) -> TsvPage:
         keyed_rows = [dict(zip(column_names, r)) for r in rows]
         page = TsvPage(name=name, rows=keyed_rows)
 
@@ -376,7 +376,7 @@ class Report(object):
 
     def render_single_page_html(self,
                                 req: "CamcopsRequest",
-                                column_names: List[str],
+                                column_names: Sequence[str],
                                 page: CamcopsPage) -> Response:
         """
         Converts a paginated report into an HTML response.
@@ -499,6 +499,7 @@ class AllReportTests(DemoDatabaseTestCase):
 
 
 class TestReport(Report):
+    # noinspection PyMethodParameters
     @classproperty
     def report_id(cls) -> str:
         return "test_report"

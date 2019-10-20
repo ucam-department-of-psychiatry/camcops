@@ -224,6 +224,8 @@ Server
 
 **Priority**
 
+- Data dump via e-mail/download options, to offload work to back-end.
+
 - (SERVER + CLIENT) Concept of “tasks that need doing” in the context of a
   research study.
 
