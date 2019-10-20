@@ -190,7 +190,7 @@ class APEQCPFTPerinatalReport(DateTimeFilteredReportMixin, Report,
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.task = APEQCPFTPerinatal()
+        self.task = APEQCPFTPerinatal()  # dummy task, never written to DB
 
     @classproperty
     def task_class(self) -> Type["Task"]:
@@ -326,7 +326,7 @@ class APEQCPFTPerinatalReport(DateTimeFilteredReportMixin, Report,
             column("ff_why").isnot(None)
         ]
 
-        self.add_report_filters(wheres)
+        self.add_task_report_filters(wheres)
 
         # noinspection PyUnresolvedReferences
         query = (
@@ -355,7 +355,7 @@ class APEQCPFTPerinatalReport(DateTimeFilteredReportMixin, Report,
             column("comments").isnot(None)
         ]
 
-        self.add_report_filters(wheres)
+        self.add_task_report_filters(wheres)
 
         # noinspection PyUnresolvedReferences
         query = (

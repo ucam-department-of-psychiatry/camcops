@@ -53,6 +53,7 @@ from camcops_server.cc_modules.cc_constants import (
     DateFormat,
     DEFAULT_ROWS_PER_PAGE,
 )
+from camcops_server.cc_modules.cc_db import FN_CURRENT, TFN_WHEN_CREATED
 from camcops_server.cc_modules.cc_pyramid import (
     CamcopsPage,
     PageUrl,
@@ -216,11 +217,28 @@ class Report(object):
         """
         return {}
 
-    def add_report_filters(self, wheres: List[ColumnElement]) -> None:
+    @staticmethod
+    def add_task_report_filters(wheres: List[ColumnElement]) -> None:
         """
-        Override this to provide global filters to queries used to create
-        reports. Used by :class:`DateTimeFilteredReportMixin`.
+        Override this (or provide additional filters and call this) to provide
+        global filters to queries used to create reports.
+
+        Used by :class:`DateTimeFilteredReportMixin`, etc.
+
+        The presumption is that the thing being filtered is an instance of
+        :class:`camcops_server.cc_modules.cc_task.Task`.
+
+        Args:
+            wheres:
+                list of SQL ``WHERE`` conditions, each represented as an
+                SQLAlchemy :class:`ColumnElement`. This list is modifed in
+                place. The caller will need to apply the final list to the
+                query.
         """
+        # noinspection PyPep8
+        wheres.append(
+            column(FN_CURRENT) == True
+        )
 
     # -------------------------------------------------------------------------
     # Common functionality: classmethods
@@ -448,7 +466,7 @@ class PercentageSummaryReportMixin(object):
             ]
 
             # noinspection PyUnresolvedReferences
-            self.add_report_filters(wheres)
+            self.add_task_report_filters(wheres)
 
             # noinspection PyUnresolvedReferences
             total_query = (
@@ -524,18 +542,28 @@ class DateTimeFilteredReportMixin(object):
         # noinspection PyUnresolvedReferences
         return super().get_response(req)
 
-    def add_report_filters(self, wheres: List[ColumnElement]) -> None:
+    def add_task_report_filters(self, wheres: List[ColumnElement]) -> None:
+        """
+        See :meth:`Report.add_task_report_filters`.
+
+        Args:
+            wheres:
+                list of SQL ``WHERE`` conditions, each represented as an
+                SQLAlchemy :class:`ColumnElement`. This list is modifed in
+                place. The caller will need to apply the final list to the
+                query.
+        """
         # noinspection PyUnresolvedReferences
-        super().add_report_filters(wheres)
+        super().add_task_report_filters(wheres)
 
         if self.start_datetime is not None:
             wheres.append(
-                column("when_created") >= self.start_datetime
+                column(TFN_WHEN_CREATED) >= self.start_datetime
             )
 
         if self.end_datetime is not None:
             wheres.append(
-                column("when_created") < self.end_datetime
+                column(TFN_WHEN_CREATED) < self.end_datetime
             )
 
 

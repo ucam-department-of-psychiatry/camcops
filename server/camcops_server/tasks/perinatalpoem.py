@@ -487,8 +487,7 @@ class PerinatalPoemReport(DateTimeFilteredReportMixin, Report,
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        self.task = PerinatalPoem()
+        self.task = PerinatalPoem()  # dummy task, never written to DB
 
     @classproperty
     def task_class(self) -> Type["Task"]:
@@ -670,7 +669,7 @@ class PerinatalPoemReport(DateTimeFilteredReportMixin, Report,
             column("general_comments").isnot(None)
         ]
 
-        self.add_report_filters(wheres)
+        self.add_task_report_filters(wheres)
 
         # noinspection PyUnresolvedReferences
         query = (
