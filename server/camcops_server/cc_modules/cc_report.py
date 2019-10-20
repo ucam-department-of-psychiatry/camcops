@@ -44,6 +44,8 @@ from pyramid.renderers import render_to_response
 from pyramid.response import Response
 from sqlalchemy.engine.result import ResultProxy
 from sqlalchemy.orm.query import Query
+from sqlalchemy.sql.elements import ColumnElement
+from sqlalchemy.sql.expression import and_, column, func, select
 from sqlalchemy.sql.selectable import SelectBase
 
 # import as LITTLE AS POSSIBLE; this is used by lots of modules
@@ -51,6 +53,7 @@ from camcops_server.cc_modules.cc_constants import (
     DateFormat,
     DEFAULT_ROWS_PER_PAGE,
 )
+from camcops_server.cc_modules.cc_db import FN_CURRENT, TFN_WHEN_CREATED
 from camcops_server.cc_modules.cc_pyramid import (
     CamcopsPage,
     PageUrl,
@@ -69,6 +72,7 @@ if TYPE_CHECKING:
         ReportParamForm,
         ReportParamSchema,
     )
+    from camcops_server.cc_modules.cc_task import Task
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -212,6 +216,29 @@ class Report(object):
         ``appstruct`` for unit tests. The default is an empty dictionary.
         """
         return {}
+
+    @staticmethod
+    def add_task_report_filters(wheres: List[ColumnElement]) -> None:
+        """
+        Override this (or provide additional filters and call this) to provide
+        global filters to queries used to create reports.
+
+        Used by :class:`DateTimeFilteredReportMixin`, etc.
+
+        The presumption is that the thing being filtered is an instance of
+        :class:`camcops_server.cc_modules.cc_task.Task`.
+
+        Args:
+            wheres:
+                list of SQL ``WHERE`` conditions, each represented as an
+                SQLAlchemy :class:`ColumnElement`. This list is modifed in
+                place. The caller will need to apply the final list to the
+                query.
+        """
+        # noinspection PyPep8
+        wheres.append(
+            column(FN_CURRENT) == True
+        )
 
     # -------------------------------------------------------------------------
     # Common functionality: classmethods
@@ -409,6 +436,135 @@ class Report(object):
                     " or get_rows_colnames()")
 
         return plain_report
+
+
+class PercentageSummaryReportMixin(object):
+    """
+    Mixin to be used with :class:`Report`.
+    """
+    @classproperty
+    def task_class(self) -> Type["Task"]:
+        raise NotImplementedError("implement in subclass")
+
+    def get_percentage_summaries(self,
+                                 req: "CamcopsRequest",
+                                 column_dict: Dict[str, str],
+                                 num_answers: int,
+                                 cell_format: str = "{}",
+                                 min_answer: int = 0) -> List[List[str]]:
+        """
+        Provides a summary of each question, x% of people said each response.
+        """
+        rows = []
+
+        for column_name, question in column_dict.items():
+            """
+            e.g. SELECT COUNT(col) FROM perinatal_poem WHERE col IS NOT NULL
+            """
+            wheres = [
+                column(column_name).isnot(None)
+            ]
+
+            # noinspection PyUnresolvedReferences
+            self.add_task_report_filters(wheres)
+
+            # noinspection PyUnresolvedReferences
+            total_query = (
+                select([func.count(column_name)])
+                .select_from(self.task_class.__table__)
+                .where(and_(*wheres))
+            )
+
+            total_responses = req.dbsession.execute(total_query).fetchone()[0]
+
+            row = [question] + [total_responses] + [""] * num_answers
+
+            """
+            e.g.
+            SELECT total_responses,col, ((100 * COUNT(col)) / total_responses)
+            FROM perinatal_poem WHERE col is not NULL
+            GROUP BY col
+            """
+            # noinspection PyUnresolvedReferences
+            query = (
+                select([
+                    column(column_name),
+                    ((100 * func.count(column_name))/total_responses)
+                ])
+                .select_from(self.task_class.__table__)
+                .where(and_(*wheres))
+                .group_by(column_name)
+            )
+
+            # row output is:
+            #      0              1               2              3
+            # +----------+-----------------+--------------+--------------+----
+            # | question | total responses | % 1st answer | % 2nd answer | ...
+            # +----------+-----------------+--------------+--------------+----
+            for result in req.dbsession.execute(query):
+                col = 2 + (result[0] - min_answer)
+                row[col] = cell_format.format(result[1])
+
+            rows.append(row)
+
+        return rows
+
+
+class DateTimeFilteredReportMixin(object):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.start_datetime = None  # type: Optional[str]
+        self.end_datetime = None  # type: Optional[str]
+
+    @staticmethod
+    def get_paramform_schema_class() -> Type["ReportParamSchema"]:
+        from camcops_server.cc_modules.cc_forms import DateTimeFilteredReportParamSchema  # delayed import  # noqa
+        return DateTimeFilteredReportParamSchema
+
+    @classmethod
+    def get_specific_http_query_keys(cls) -> List[str]:
+        # noinspection PyUnresolvedReferences
+        return super().get_specific_http_query_keys() + [
+            ViewParam.START_DATETIME,
+            ViewParam.END_DATETIME,
+        ]
+
+    def get_response(self, req: "CamcopsRequest") -> Response:
+        self.start_datetime = format_datetime(
+            req.get_datetime_param(ViewParam.START_DATETIME),
+            DateFormat.ERA
+        )
+        self.end_datetime = format_datetime(
+            req.get_datetime_param(ViewParam.END_DATETIME),
+            DateFormat.ERA
+        )
+
+        # noinspection PyUnresolvedReferences
+        return super().get_response(req)
+
+    def add_task_report_filters(self, wheres: List[ColumnElement]) -> None:
+        """
+        See :meth:`Report.add_task_report_filters`.
+
+        Args:
+            wheres:
+                list of SQL ``WHERE`` conditions, each represented as an
+                SQLAlchemy :class:`ColumnElement`. This list is modifed in
+                place. The caller will need to apply the final list to the
+                query.
+        """
+        # noinspection PyUnresolvedReferences
+        super().add_task_report_filters(wheres)
+
+        if self.start_datetime is not None:
+            wheres.append(
+                column(TFN_WHEN_CREATED) >= self.start_datetime
+            )
+
+        if self.end_datetime is not None:
+            wheres.append(
+                column(TFN_WHEN_CREATED) < self.end_datetime
+            )
 
 
 # =============================================================================

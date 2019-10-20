@@ -2314,6 +2314,7 @@ class ReportOutputTypeSelector(SchemaNode, RequestAwareMixin):
 
     def get_choices(self) -> Tuple[Tuple[str, str]]:
         _ = self.gettext
+        # noinspection PyTypeChecker
         return (
             (ViewArg.HTML, _("HTML")),
             (ViewArg.ODS, _("OpenOffice spreadsheet (ODS) file")),
@@ -2329,6 +2330,11 @@ class ReportParamSchema(CSRFSchema):
     viewtype = ReportOutputTypeSelector()  # must match ViewParam.VIEWTYPE
     report_id = HiddenStringNode()  # must match ViewParam.REPORT_ID
     # Specific forms may inherit from this.
+
+
+class DateTimeFilteredReportParamSchema(ReportParamSchema):
+    start_datetime = StartPendulumSelector()
+    end_datetime = EndPendulumSelector()
 
 
 class ReportParamForm(SimpleSubmitForm):

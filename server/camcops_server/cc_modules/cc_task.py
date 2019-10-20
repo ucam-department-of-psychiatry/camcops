@@ -84,7 +84,14 @@ from camcops_server.cc_modules.cc_constants import (
     ERA_NOW,
     INVALID_VALUE,
 )
-from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
+from camcops_server.cc_modules.cc_db import (
+    GenericTabletRecordMixin,
+    TFN_EDITING_TIME_S,
+    TFN_FIRSTEXIT_IS_ABORT,
+    TFN_FIRSTEXIT_IS_FINISH,
+    TFN_WHEN_CREATED,
+    TFN_WHEN_FIRSTEXIT,
+)
 from camcops_server.cc_modules.cc_filename import get_export_filename
 from camcops_server.cc_modules.cc_hl7 import make_obr_segment, make_obx_segment
 from camcops_server.cc_modules.cc_html import (
@@ -409,7 +416,7 @@ class Task(GenericTabletRecordMixin, Base):
         Column representing the task's creation time.
         """
         return Column(
-            "when_created", PendulumDateTimeAsIsoTextColType,
+            TFN_WHEN_CREATED, PendulumDateTimeAsIsoTextColType,
             nullable=False,
             comment="(TASK) Date/time this task instance was created (ISO 8601)"
         )
@@ -422,7 +429,7 @@ class Task(GenericTabletRecordMixin, Base):
         (i.e. first "finish" or first "abort").
         """
         return Column(
-            "when_firstexit", PendulumDateTimeAsIsoTextColType,
+            TFN_WHEN_FIRSTEXIT, PendulumDateTimeAsIsoTextColType,
             comment="(TASK) Date/time of the first exit from this task "
                     "(ISO 8601)"
         )
@@ -434,7 +441,7 @@ class Task(GenericTabletRecordMixin, Base):
         Was the first exit from the task's editor a successful "finish"?
         """
         return Column(
-            "firstexit_is_finish", Boolean,
+            TFN_FIRSTEXIT_IS_FINISH, Boolean,
             comment="(TASK) Was the first exit from the task because it was "
                     "finished (1)?"
         )
@@ -446,7 +453,7 @@ class Task(GenericTabletRecordMixin, Base):
         Was the first exit from the task's editor an "abort"?
         """
         return Column(
-            "firstexit_is_abort", Boolean,
+            TFN_FIRSTEXIT_IS_ABORT, Boolean,
             comment="(TASK) Was the first exit from this task because it was "
                     "aborted (1)?"
         )
@@ -459,7 +466,7 @@ class Task(GenericTabletRecordMixin, Base):
         (Calculated by the CamCOPS client.)
         """
         return Column(
-            "editing_time_s", Float,
+            TFN_EDITING_TIME_S, Float,
             comment="(TASK) Time spent editing (s)"
         )
 

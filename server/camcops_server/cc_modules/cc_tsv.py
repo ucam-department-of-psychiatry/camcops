@@ -313,8 +313,9 @@ class TsvCollection(object):
         # add a blank sheet
         wb = XLWorkbook(write_only=True)
 
-        for page in self.pages:
-            ws = wb.create_sheet(title=self.get_sheet_title(page))
+        valid_name_dict = self.get_pages_with_valid_sheet_names()
+        for page, title in valid_name_dict.items():
+            ws = wb.create_sheet(title=title)
             page.write_to_xlsx_worksheet(ws)
 
         return excel_to_bytes(wb)
@@ -322,7 +323,11 @@ class TsvCollection(object):
     @staticmethod
     def get_sheet_title(page: TsvPage) -> str:
         # See openpyxl/workbook/child.py
-        title = re.sub(r'[\\*?:/\[\]]', "_", page.name)
+
+        # Excel prohibits \,*,?,:,/,[,]
+        # LibreOffice also prohibits ' as first or last character but let's
+        # just replace that globally
+        title = re.sub(r"[\\*?:/\[\]']", "_", page.name)
 
         if len(title) > 31:
             title = f"{title[:28]}..."
@@ -336,11 +341,53 @@ class TsvCollection(object):
         """
         with io.BytesIO() as memfile:
             with ODSWriter(memfile) as odsfile:
-                for page in self.pages:
-                    sheet = odsfile.new_sheet(name=page.name)
+                valid_name_dict = self.get_pages_with_valid_sheet_names()
+                for page, title in valid_name_dict.items():
+                    sheet = odsfile.new_sheet(name=title)
                     page.write_to_ods_worksheet(sheet)
             contents = memfile.getvalue()
         return contents
+
+    def get_pages_with_valid_sheet_names(self) -> Dict[TsvPage, str]:
+        name_dict = {}
+
+        for page in self.pages:
+            name_dict[page] = self.get_sheet_title(page)
+
+        self.make_sheet_names_unique(name_dict)
+
+        return name_dict
+
+    @staticmethod
+    def make_sheet_names_unique(name_dict: Dict[TsvPage, str]) -> None:
+        # See also avoid_duplicate_name in openpxl/workbook/child.py
+        # We keep the 31 character restriction
+
+        unique_names = []
+
+        for page, name in name_dict.items():
+            attempt = 0
+
+            while name.lower() in unique_names:
+                attempt += 1
+
+                if attempt > 1000:
+                    # algorithm failure, better to let Excel deal with the
+                    # consequences than get stuck in a loop
+                    log.debug(
+                        f"Failed to generate a unique sheet name from {name}"
+                    )
+                    break
+
+                match = re.search(r'\d+$', name)
+                count = 0
+                if match is not None:
+                    count = int(match.group())
+
+                new_suffix = str(count + 1)
+                name = name[:-len(new_suffix)] + new_suffix
+            name_dict[page] = name
+            unique_names.append(name.lower())
 
 
 # =============================================================================
@@ -376,7 +423,7 @@ class TsvCollectionTests(TestCase):
         buffer = io.BytesIO(data)
         wb = load_workbook(buffer)
         self.assertEqual(
-            wb.get_sheet_names(),
+            wb.sheetnames,
             [
                 "name 1",
                 "name 2",
@@ -405,12 +452,46 @@ class TsvCollectionTests(TestCase):
         )
 
     def test_xlsx_invalid_chars_in_page_name_replaced(self) -> None:
-        page = TsvPage(name="[a]b\\c:d/e*f?g",
+        page = TsvPage(name="[a]b\\c:d/e*f?g'h",
                        rows=[{"test data 1": "row 1"}])
         coll = TsvCollection()
 
         self.assertEqual(
             coll.get_sheet_title(page),
-            "_a_b_c_d_e_f_g"
+            "_a_b_c_d_e_f_g_h"
         )
 
+    def test_ods_page_name_sanitised(self) -> None:
+        import xml.dom.minidom
+        page = TsvPage(name="What perinatal service have you accessed?",
+                       rows=[{"test data 1": "row 1"}])
+        coll = TsvCollection()
+        coll.add_pages([page])
+
+        data = coll.as_ods()
+
+        zf = zipfile.ZipFile(io.BytesIO(data), "r")
+        content = zf.read('content.xml')
+        doc = xml.dom.minidom.parseString(content)
+        sheets = doc.getElementsByTagName('table:table')
+        self.assertEqual(sheets[0].getAttribute("table:name"),
+                         "What perinatal service have ...")
+
+    def test_worksheet_names_are_not_duplicated(self) -> None:
+        page1 = TsvPage(name="abcdefghijklmnopqrstuvwxyz78901234",
+                        rows=[{"test data 1": "row 1"}])
+        page2 = TsvPage(name="ABCDEFGHIJKLMNOPQRSTUVWXYZ789012345",
+                        rows=[{"test data 2": "row 1"}])
+        page3 = TsvPage(name="abcdefghijklmnopqrstuvwxyz7890123456",
+                        rows=[{"test data 3": "row 1"}])
+        coll = TsvCollection()
+
+        coll.add_pages([page1, page2, page3])
+
+        valid_sheet_names = coll.get_pages_with_valid_sheet_names()
+
+        names = [v for k, v in valid_sheet_names.items()]
+
+        self.assertIn("abcdefghijklmnopqrstuvwxyz78...", names)
+        self.assertIn("ABCDEFGHIJKLMNOPQRSTUVWXYZ78..1", names)
+        self.assertIn("abcdefghijklmnopqrstuvwxyz78..2", names)

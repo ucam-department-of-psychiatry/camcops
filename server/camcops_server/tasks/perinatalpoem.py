@@ -26,16 +26,28 @@ camcops_server/tasks/perinatalpoem.py
 
 """
 
-from typing import Dict, List
+import re
+from typing import Dict, Generator, List, Tuple, Type
 
+from cardinal_pythonlib.classes import classproperty
+import pendulum
+from pyramid.renderers import render_to_response
+from pyramid.response import Response
+from sqlalchemy.sql.expression import and_, column, select
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
+
 from camcops_server.cc_modules.cc_html import (
     get_yes_no_none,
     subheading_spanning_two_columns,
     tr_qa,
+)
+from camcops_server.cc_modules.cc_report import (
+    DateTimeFilteredReportMixin,
+    PercentageSummaryReportMixin,
+    Report,
 )
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_task import (
@@ -43,6 +55,8 @@ from camcops_server.cc_modules.cc_task import (
     Task,
 )
 from camcops_server.cc_modules.cc_text import SS
+from camcops_server.cc_modules.cc_tsv import TsvPage
+from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 
 
 # =============================================================================
@@ -314,6 +328,38 @@ class PerinatalPoem(Task):
             return False
         return True
 
+    def get_qa_options(self, req: CamcopsRequest) -> List[str]:
+        options = [self.wxstring(req, f"qa_a{o}") for o in range(
+            self.VAL_QA_PATIENT,
+            self.VAL_QA_PARTNER_OTHER + 1)]
+
+        return options
+
+    def get_qb_options(self, req: CamcopsRequest) -> List[str]:
+        options = [self.wxstring(req, f"qb_a{o}") for o in range(
+            self.VAL_QB_INPATIENT,
+            self.VAL_QB_COMMUNITY + 1)]
+
+        return options
+
+    def get_q1_options(self, req: CamcopsRequest) -> List[str]:
+        options = [self.wxstring(req, f"q1_a{o}") for o in range(
+            self.VAL_Q1_VERY_WELL,
+            self.VAL_Q1_EXTREMELY_UNWELL + 1)]
+
+        return options
+
+    def get_agree_options(self, req: CamcopsRequest) -> List[str]:
+        options = [self.wxstring(req, f"agreement_a{o}") for o in range(
+            self.VAL_STRONGLY_AGREE,
+            self.VAL_STRONGLY_DISAGREE + 1)]
+
+        return options
+
+    @staticmethod
+    def get_yn_options(req: CamcopsRequest) -> List[str]:
+        return [req.sstring(SS.NO), req.sstring(SS.YES)]
+
     def get_task_html(self, req: CamcopsRequest) -> str:
         def loadvalues(_dict: Dict[int, str], _first: int, _last: int,
                        _xstringprefix: str) -> None:
@@ -398,3 +444,387 @@ class PerinatalPoem(Task):
         """
 
     # No SNOMED codes for Perinatal-POEM.
+
+
+# =============================================================================
+# Reports
+# =============================================================================
+
+class PerinatalPoemReportTableConfig(object):
+    def __init__(self,
+                 heading: str,
+                 column_headings: List[str],
+                 fieldnames: List[str],
+                 min_answer: int = 0,
+                 xstring_format: str = "{}_q") -> None:
+        self.heading = heading
+        self.column_headings = column_headings
+        self.fieldnames = fieldnames
+        self.min_answer = min_answer
+        self.xstring_format = xstring_format
+
+
+class PerinatalPoemReportTable(object):
+    def __init__(self, req: "CamcopsRequest",
+                 heading: str,
+                 column_headings: List[str],
+                 rows: List[List[str]]) -> None:
+        _ = req.gettext
+        self.heading = heading
+
+        common_headings = [_("Question"), _("Total responses")]
+        self.column_headings = common_headings + column_headings
+        self.rows = rows
+
+
+class PerinatalPoemReport(DateTimeFilteredReportMixin, Report,
+                          PercentageSummaryReportMixin):
+    """
+    Provides a summary of each question, x% of people said each response etc.
+    Then a summary of the comments.
+    """
+    HTML_TAG_RE = re.compile(r'<[^>]+>')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.task = PerinatalPoem()  # dummy task, never written to DB
+
+    @classproperty
+    def task_class(self) -> Type["Task"]:
+        return PerinatalPoem
+
+    # noinspection PyMethodParameters
+    @classproperty
+    def report_id(cls) -> str:
+        return "perinatal_poem"
+
+    @classmethod
+    def title(cls, req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("Perinatal-POEM — Question summaries")
+
+    # noinspection PyMethodParameters
+    @classproperty
+    def superuser_only(cls) -> bool:
+        return False
+
+    def render_html(self, req: "CamcopsRequest") -> Response:
+        return render_to_response(
+            "perinatal_poem_report.mako",
+            dict(
+                title=self.title(req),
+                report_id=self.report_id,
+                start_datetime=self.start_datetime,
+                end_datetime=self.end_datetime,
+                tables=self._get_html_tables(req),
+                comments=self._get_comments(req)
+            ),
+            request=req
+        )
+
+    def get_tsv_pages(self, req: "CamcopsRequest") -> List[TsvPage]:
+        _ = req.gettext
+
+        pages = []
+
+        for table in self._get_tsv_tables(req):
+            pages.append(
+                self.get_tsv_page(
+                    name=table.heading,
+                    column_names=table.column_headings,
+                    rows=table.rows
+                )
+            )
+
+        pages.append(
+            self.get_tsv_page(
+                name=_("Comments"),
+                column_names=[_("Comment")],
+                rows=self._get_comment_rows(req)
+            )
+        )
+
+        return pages
+
+    def _get_html_tables(
+            self, req: "CamcopsRequest") -> List["PerinatalPoemReportTable"]:
+
+        return [
+            self._get_html_table(req, config)
+            for config in self._get_table_configs(req)
+        ]
+
+    def _get_tsv_tables(
+            self, req: "CamcopsRequest") -> List["PerinatalPoemReportTable"]:
+
+        return [
+            self._get_tsv_table(req, config)
+            for config in self._get_table_configs(req)
+        ]
+
+    def _get_table_configs(
+            self,
+            req: "CamcopsRequest") -> List["PerinatalPoemReportTableConfig"]:
+        return [
+            PerinatalPoemReportTableConfig(
+                heading=self.task.xstring(req, "qa_q"),
+                column_headings=self.task.get_qa_options(req),
+                fieldnames=["qa"],
+                min_answer=1
+            ),
+            PerinatalPoemReportTableConfig(
+                heading=self.task.xstring(req, "qb_q"),
+                column_headings=self.task.get_qb_options(req),
+                fieldnames=["qb"],
+                min_answer=1
+            ),
+            PerinatalPoemReportTableConfig(
+                heading=self.task.xstring(req, "q1_stem"),
+                column_headings=self.task.get_q1_options(req),
+                fieldnames=PerinatalPoem.Q1_FIELDS,
+                min_answer=1
+            ),
+            PerinatalPoemReportTableConfig(
+                heading=self.task.xstring(req, "q2_stem"),
+                column_headings=self.task.get_agree_options(req),
+                fieldnames=PerinatalPoem.Q2_FIELDS,
+                min_answer=1
+            ),
+            PerinatalPoemReportTableConfig(
+                heading=self.task.xstring(req, "q3_stem"),
+                column_headings=self.task.get_agree_options(req),
+                fieldnames=PerinatalPoem.Q3_FIELDS,
+                min_answer=1
+            ),
+            PerinatalPoemReportTableConfig(
+                heading=self.task.xstring(req, "participation_q"),
+                column_headings=self.task.get_yn_options(req),
+                fieldnames=["future_participation"],
+                xstring_format="participation_q"
+            ),
+        ]
+
+    def _get_html_table(
+            self, req: "CamcopsRequest",
+            config: PerinatalPoemReportTableConfig
+    ) -> PerinatalPoemReportTable:
+        column_dict = {}
+
+        for fieldname in config.fieldnames:
+            column_dict[fieldname] = self.task.xstring(
+                req, config.xstring_format.format(fieldname)
+            )
+
+        rows = self.get_percentage_summaries(
+            req,
+            column_dict=column_dict,
+            num_answers=len(config.column_headings),
+            cell_format="{0:.1f}%",
+            min_answer=config.min_answer
+        )
+
+        return PerinatalPoemReportTable(
+            req,
+            heading=config.heading,
+            column_headings=config.column_headings,
+            rows=rows
+        )
+
+    def _get_tsv_table(
+            self, req: "CamcopsRequest",
+            config: PerinatalPoemReportTableConfig
+    ) -> PerinatalPoemReportTable:
+        column_dict = {}
+
+        for fieldname in config.fieldnames:
+            column_dict[fieldname] = self._strip_tags(
+                self.task.xstring(
+                    req, config.xstring_format.format(fieldname)
+                )
+            )
+
+        rows = self.get_percentage_summaries(
+            req,
+            column_dict=column_dict,
+            num_answers=len(config.column_headings),
+            min_answer=config.min_answer
+        )
+
+        return PerinatalPoemReportTable(
+            req,
+            heading=config.heading,
+            column_headings=config.column_headings,
+            rows=rows
+        )
+
+    def _strip_tags(self, text: str) -> str:
+        return self.HTML_TAG_RE.sub('', text)
+
+    def _get_comment_rows(self, req: "CamcopsRequest") -> List[Tuple[str]]:
+        """
+        A list of all the additional comments
+        """
+
+        wheres = [
+            column("general_comments").isnot(None)
+        ]
+
+        self.add_task_report_filters(wheres)
+
+        # noinspection PyUnresolvedReferences
+        query = (
+            select([
+                column("general_comments"),
+            ])
+            .select_from(self.task.__table__)
+            .where(and_(*wheres))
+        )
+
+        comment_rows = []
+
+        for result in req.dbsession.execute(query).fetchall():
+            comment_rows.append(result)
+
+        return comment_rows
+
+    def _get_comments(self, req: "CamcopsRequest") -> List[str]:
+        """
+        A list of all the additional comments.
+        """
+        return [x[0] for x in self._get_comment_rows(req)]
+
+
+# =============================================================================
+# Unit tests
+# =============================================================================
+
+class PerinatalPoemReportTestCase(DemoDatabaseTestCase):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.id_sequence = self.get_id()
+
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.report = PerinatalPoemReport()
+
+        # Really only needed for tests
+        self.report.start_datetime = None
+        self.report.end_datetime = None
+
+    @staticmethod
+    def get_id() -> Generator[int, None, None]:
+        i = 1
+
+        while True:
+            yield i
+            i += 1
+
+    def create_task(self, **kwargs) -> None:
+        task = PerinatalPoem()
+        self.apply_standard_task_fields(task)
+        task.id = next(self.id_sequence)
+
+        era = kwargs.pop('era', None)
+        if era is not None:
+            task.when_created = pendulum.parse(era)
+
+        for name, value in kwargs.items():
+            setattr(task, name, value)
+
+        self.dbsession.add(task)
+
+
+class PerinatalPoemReportTests(PerinatalPoemReportTestCase):
+    """
+    Most of the base class tested in APEQCPFT Perinatal so just some basic
+    sanity checking here
+    """
+
+    def create_tasks(self):
+        self.create_task(general_comments="comment 1")
+        self.create_task(general_comments="comment 2")
+        self.create_task(general_comments="comment 3")
+
+        self.dbsession.commit()
+
+    def test_qa_rows_counts(self) -> None:
+        tables = self.report._get_html_tables(self.req)
+
+        rows = tables[0].rows
+
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(len(rows[0]), 4)
+
+    def test_qb_rows_counts(self) -> None:
+        tables = self.report._get_html_tables(self.req)
+
+        rows = tables[1].rows
+
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(len(rows[0]), 4)
+
+    def test_q1_rows_counts(self) -> None:
+        tables = self.report._get_html_tables(self.req)
+
+        rows = tables[2].rows
+
+        self.assertEqual(len(rows), 2)
+        self.assertEqual(len(rows[0]), 7)
+
+    def test_q2_rows_counts(self) -> None:
+        tables = self.report._get_html_tables(self.req)
+
+        rows = tables[3].rows
+
+        self.assertEqual(len(rows), 12)
+        self.assertEqual(len(rows[0]), 6)
+
+    def test_q3_rows_counts(self) -> None:
+        tables = self.report._get_html_tables(self.req)
+
+        rows = tables[4].rows
+
+        self.assertEqual(len(rows), 6)
+        self.assertEqual(len(rows[0]), 6)
+
+    def test_participation_rows_counts(self) -> None:
+        tables = self.report._get_html_tables(self.req)
+
+        rows = tables[5].rows
+
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(len(rows[0]), 4)
+
+    def test_comments(self) -> None:
+        expected_comments = [
+            "comment 1", "comment 2", "comment 3",
+        ]
+        comments = self.report._get_comments(self.req)
+        self.assertEqual(comments, expected_comments)
+
+
+class PerinatalPoemReportDateRangeTests(PerinatalPoemReportTestCase):
+    def create_tasks(self) -> None:
+        self.create_task(general_comments="comments 1",
+                         era="2018-10-01T00:00:00.000000+00:00")
+        self.create_task(general_comments="comments 2",
+                         era="2018-10-02T00:00:00.000000+00:00")
+        self.create_task(general_comments="comments 3",
+                         era="2018-10-03T00:00:00.000000+00:00")
+        self.create_task(general_comments="comments 4",
+                         era="2018-10-04T00:00:00.000000+00:00")
+        self.create_task(general_comments="comments 5",
+                         era="2018-10-05T00:00:00.000000+00:00")
+        self.dbsession.commit()
+
+    def test_comments_filtered_by_date(self) -> None:
+        self.report.start_datetime = "2018-10-02T00:00:00.000000+00:00"
+        self.report.end_datetime = "2018-10-05T00:00:00.000000+00:00"
+
+        comments = self.report._get_comments(self.req)
+        self.assertEqual(len(comments), 3)
+
+        self.assertEqual(comments[0], "comments 2")
+        self.assertEqual(comments[1], "comments 3")
+        self.assertEqual(comments[2], "comments 4")
