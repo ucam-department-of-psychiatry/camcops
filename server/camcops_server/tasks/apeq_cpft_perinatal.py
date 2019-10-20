@@ -218,18 +218,6 @@ class APEQCPFTPerinatalReport(DateTimeFilteredReportMixin, Report,
             ViewParam.END_DATETIME,
         ]
 
-    def get_response(self, req: "CamcopsRequest") -> Response:
-        self.start_datetime = format_datetime(
-            req.get_datetime_param(ViewParam.START_DATETIME),
-            DateFormat.ERA
-        )
-        self.end_datetime = format_datetime(
-            req.get_datetime_param(ViewParam.END_DATETIME),
-            DateFormat.ERA
-        )
-
-        return super().get_response(req)
-
     def render_html(self, req: "CamcopsRequest") -> Response:
         cell_format = "{0:.1f}%"
 
