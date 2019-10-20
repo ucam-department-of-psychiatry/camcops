@@ -92,4 +92,4 @@ doi:10.1186/1477-7525-7-15, http://www.hqlo.com/content/7/1/15.
 Short Warwick–Edinburgh Mental Well-Being Scale (SWEMWBS)
 ---------------------------------------------------------
 
-See the `WEMWBS <wemwbs>`.
+See the :ref:`WEMWBS <wemwbs>`.

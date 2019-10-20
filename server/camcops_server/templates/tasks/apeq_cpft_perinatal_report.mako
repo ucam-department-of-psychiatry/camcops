@@ -78,9 +78,9 @@ ${_("Created")} <b>&lt; ${ end_datetime }</b>.
 <%include file="table.mako" args="column_headings=[], rows=ff_why_rows, table_class='ff-why-table'"/>
 
 <h2>${_("Comments")}</h2>
-%for comment_row in comment_rows:
+%for comment in comments:
    <blockquote>
-       <p>${comment_row[0] | h}</p>
+       <p>${comment | h}</p>
    </blockquote>
 %endfor
 <div>

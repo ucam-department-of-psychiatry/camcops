@@ -153,16 +153,38 @@ class TsvPage(object):
         self.headings.sort()
 
     def get_tsv(self, dialect: str = "excel-tab") -> str:
-        """
+        r"""
         Returns the entire page (sheet) as TSV: one header row and then
         lots of data rows.
 
         For the dialect, see
         https://docs.python.org/3/library/csv.html#csv.excel_tab.
 
-        See also test code in docstring for
-        :func:`camcops_server.cc_modules.cc_convert.tsv_from_query`.
-        """
+        For CSV files, see RGC 4180: https://tools.ietf.org/html/rfc4180.
+
+        For TSV files, see
+        https://www.iana.org/assignments/media-types/text/tab-separated-values.
+
+        Test code:
+
+        .. code-block:: python
+
+            import io
+            import csv
+            from typing import List
+
+            def test(row: List[str], dialect: str = "excel-tab") -> str:
+                f = io.StringIO()
+                writer = csv.writer(f, dialect=dialect)
+                writer.writerow(row)
+                return f.getvalue()
+
+            test(["hello", "world"])
+            test(["hello\ttab", "world"])  # actual tab within double quotes
+            test(["hello\nnewline", "world"])  # actual newline within double quotes
+            test(['hello"doublequote', "world"])  # doubled double quote within double quotes
+
+        """  # noqa
         f = io.StringIO()
         writer = csv.writer(f, dialect=dialect)
         writer.writerow(self.headings)
@@ -287,11 +309,9 @@ class TsvCollection(object):
         """
         Returns the TSV collection as an XLSX (Excel) file.
         """
-        wb = XLWorkbook()
-
-        # we may have zero pages if there were no rows
-        if len(self.pages) > 0:
-            wb.remove(wb.active)  # remove the autocreated blank sheet
+        # Marginal performance gain with write_only. Does not automatically
+        # add a blank sheet
+        wb = XLWorkbook(write_only=True)
 
         valid_name_dict = self.get_pages_with_valid_sheet_names()
         for page, title in valid_name_dict.items():
@@ -300,7 +320,8 @@ class TsvCollection(object):
 
         return excel_to_bytes(wb)
 
-    def get_sheet_title(self, page: TsvPage) -> str:
+    @staticmethod
+    def get_sheet_title(page: TsvPage) -> str:
         # See openpyxl/workbook/child.py
 
         # Excel prohibits \,*,?,:,/,[,]

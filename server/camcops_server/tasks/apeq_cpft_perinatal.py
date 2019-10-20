@@ -29,6 +29,7 @@ camcops_server/tasks/apeq_cpft_perinatal.py
 from typing import Dict, Generator, List, Optional, Tuple, Type
 
 from cardinal_pythonlib.classes import classproperty
+from cardinal_pythonlib.datetimefunc import format_datetime
 
 import pendulum
 from pyramid.renderers import render_to_response
@@ -180,10 +181,18 @@ class APEQCPFTPerinatalReport(DateTimeFilteredReportMixin, Report,
     Provides a summary of each question, x% of people said each response etc.
     Then a summary of the comments.
     """
+    COL_Q = 0
+    COL_TOTAL = 1
+    COL_RESPONSE_START = 2
+
+    COL_FF_WHY = 1
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.task = APEQCPFTPerinatal()
+        self.start_datetime = None  # type: Optional[str]
+        self.end_datetime = None  # type: Optional[str]
 
     @classproperty
     def task_class(self) -> "Task":
@@ -204,6 +213,29 @@ class APEQCPFTPerinatalReport(DateTimeFilteredReportMixin, Report,
     def superuser_only(cls) -> bool:
         return False
 
+    @staticmethod
+    def get_paramform_schema_class() -> Type[ReportParamSchema]:
+        return APEQCPFTPerinatalReportSchema
+
+    @classmethod
+    def get_specific_http_query_keys(cls) -> List[str]:
+        return [
+            ViewParam.START_DATETIME,
+            ViewParam.END_DATETIME,
+        ]
+
+    def get_response(self, req: "CamcopsRequest") -> Response:
+        self.start_datetime = format_datetime(
+            req.get_datetime_param(ViewParam.START_DATETIME),
+            DateFormat.ERA
+        )
+        self.end_datetime = format_datetime(
+            req.get_datetime_param(ViewParam.END_DATETIME),
+            DateFormat.ERA
+        )
+
+        return super().get_response(req)
+
     def render_html(self, req: "CamcopsRequest") -> Response:
         cell_format = "{0:.1f}%"
 
@@ -219,7 +251,7 @@ class APEQCPFTPerinatalReport(DateTimeFilteredReportMixin, Report,
                 ff_column_headings=self._get_ff_column_headings(req),
                 ff_rows=self._get_ff_rows(req, cell_format=cell_format),
                 ff_why_rows=self._get_ff_why_rows(req),
-                comment_rows=self._get_comment_rows(req)
+                comments=self._get_comments(req)
             ),
             request=req
         )
@@ -258,7 +290,7 @@ class APEQCPFTPerinatalReport(DateTimeFilteredReportMixin, Report,
         return names
 
     def _get_main_rows(self, req: "CamcopsRequest",
-                       cell_format: str="{}") -> List[List[str]]:
+                       cell_format: str = "{}") -> List[List[str]]:
         """
         Percentage of people who answered x for each question
         """
@@ -284,7 +316,7 @@ class APEQCPFTPerinatalReport(DateTimeFilteredReportMixin, Report,
                 _("Total responses")] + self.task.get_ff_options(req)
 
     def _get_ff_rows(self, req: "CamcopsRequest",
-                     cell_format: str="{}") -> List[List[str]]:
+                     cell_format: str = "{}") -> List[List[str]]:
         """
         Percentage of people who answered x for the friends/family question
         """
@@ -334,7 +366,7 @@ class APEQCPFTPerinatalReport(DateTimeFilteredReportMixin, Report,
 
     def _get_comment_rows(self, req: "CamcopsRequest") -> List[Tuple[str]]:
         """
-        A list of all the additional comments
+        A list of all the additional comments, as rows.
         """
 
         wheres = [
@@ -358,6 +390,12 @@ class APEQCPFTPerinatalReport(DateTimeFilteredReportMixin, Report,
             comment_rows.append(result)
 
         return comment_rows
+
+    def _get_comments(self, req: "CamcopsRequest") -> List[str]:
+        """
+        A list of all the additional comments.
+        """
+        return [x[0] for x in self._get_comment_rows(req)]
 
 
 # =============================================================================
@@ -538,11 +576,9 @@ class APEQCPFTPerinatalReportTests(APEQCPFTPerinatalReportTestCase):
 
     def test_comments(self) -> None:
         expected_comments = [
-            ("comments_2",), ("comments_5",), ("comments_20",),
+            "comments_2", "comments_5", "comments_20",
         ]
-
-        comments = self.report._get_comment_rows(self.req)
-
+        comments = self.report._get_comments(self.req)
         self.assertEqual(comments, expected_comments)
 
 
@@ -615,9 +651,9 @@ class APEQCPFTPerinatalReportDateRangeTests(APEQCPFTPerinatalReportTestCase):
         self.report.start_datetime = "2018-10-02T00:00:00.000000+00:00"
         self.report.end_datetime = "2018-10-05T00:00:00.000000+00:00"
 
-        rows = self.report._get_comment_rows(self.req)
-        self.assertEqual(len(rows), 3)
+        comments = self.report._get_comments(self.req)
+        self.assertEqual(len(comments), 3)
 
-        self.assertEqual(rows[0], ("comments 2",))
-        self.assertEqual(rows[1], ("comments 3",))
-        self.assertEqual(rows[2], ("comments 4",))
+        self.assertEqual(comments[0], "comments 2")
+        self.assertEqual(comments[1], "comments 3")
+        self.assertEqual(comments[2], "comments 4")

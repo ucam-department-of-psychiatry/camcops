@@ -206,7 +206,14 @@ class TaskHasPatientMixin(object):
             ),
             uselist=False,
             viewonly=True,
-            # EMPIRICALLY: SLOWER OVERALL WITH THIS # lazy="joined"
+            # Profiling results 2019-10-14 exporting 4185 phq9 records with
+            # unique patients to xlsx
+            # lazy="select"  : 59.7s
+            # lazy="joined"  : 44.3s
+            # lazy="subquery": 36.9s
+            # lazy="selectin": 35.3s
+            # See also idnums relationship on Patient class (cc_patient.py)
+            lazy="selectin"
         )
         # NOTE: this retrieves the most recent (i.e. the current) information
         # on that patient. Consequently, task version history doesn't show the
@@ -1394,8 +1401,10 @@ class Task(GenericTabletRecordMixin, Base):
         Returns information used for the basic research dump in TSV format.
         """
         # 1. Our core fields, plus summary information
+
         main_page = self._get_core_tsv_page(req)
         # 2. Patient details.
+
         if self.patient:
             main_page.add_or_set_columns_from_page(
                 self.patient.get_tsv_page(req))
