@@ -55,6 +55,7 @@ from camcops_server.cc_modules.cc_constants import (
     DateFormat,
     DEFAULT_ROWS_PER_PAGE,
 )
+from camcops_server.cc_modules.cc_db import FN_CURRENT, TFN_WHEN_CREATED
 from camcops_server.cc_modules.cc_pyramid import (
     CamcopsPage,
     PageUrl,
@@ -221,11 +222,28 @@ class Report(object):
         """
         return {}
 
-    def add_report_filters(self, wheres: List[ColumnElement]) -> None:
+    @staticmethod
+    def add_task_report_filters(wheres: List[ColumnElement]) -> None:
         """
-        Override this to provide global filters to queries used to create
-        reports. Used by :class:`DateTimeFilteredReportMixin`.
+        Override this (or provide additional filters and call this) to provide
+        global filters to queries used to create reports.
+
+        Used by :class:`DateTimeFilteredReportMixin`, etc.
+
+        The presumption is that the thing being filtered is an instance of
+        :class:`camcops_server.cc_modules.cc_task.Task`.
+
+        Args:
+            wheres:
+                list of SQL ``WHERE`` conditions, each represented as an
+                SQLAlchemy :class:`ColumnElement`. This list is modifed in
+                place. The caller will need to apply the final list to the
+                query.
         """
+        # noinspection PyPep8
+        wheres.append(
+            column(FN_CURRENT) == True
+        )
 
     # -------------------------------------------------------------------------
     # Common functionality: classmethods
@@ -358,9 +376,10 @@ class Report(object):
                                  rows=plain_report.rows)
         return [page]
 
-    def get_tsv_page(self, name: str,
-                     column_names: List[str],
-                     rows: List[List[str]]) -> TsvPage:
+    @staticmethod
+    def get_tsv_page(name: str,
+                     column_names: Sequence[str],
+                     rows: Sequence[Sequence[str]]) -> TsvPage:
         keyed_rows = [dict(zip(column_names, r)) for r in rows]
         page = TsvPage(name=name, rows=keyed_rows)
 
@@ -389,7 +408,7 @@ class Report(object):
 
     def render_single_page_html(self,
                                 req: "CamcopsRequest",
-                                column_names: List[str],
+                                column_names: Sequence[str],
                                 page: CamcopsPage) -> Response:
         """
         Converts a paginated report into an HTML response.
@@ -425,8 +444,11 @@ class Report(object):
 
 
 class PercentageSummaryReportMixin(object):
+    """
+    Mixin to be used with :class:`Report`.
+    """
     @classproperty
-    def task_class(self) -> "Task":
+    def task_class(self) -> Type["Task"]:
         raise NotImplementedError("implement in subclass")
 
     def get_percentage_summaries(self,
@@ -448,7 +470,8 @@ class PercentageSummaryReportMixin(object):
                 column(column_name).isnot(None)
             ]
 
-            self.add_report_filters(wheres)
+            # noinspection PyUnresolvedReferences
+            self.add_task_report_filters(wheres)
 
             # noinspection PyUnresolvedReferences
             total_query = (
@@ -493,6 +516,11 @@ class PercentageSummaryReportMixin(object):
 
 
 class DateTimeFilteredReportMixin(object):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.start_datetime = None  # type: Optional[str]
+        self.end_datetime = None  # type: Optional[str]
+
     @staticmethod
     def get_paramform_schema_class() -> Type["ReportParamSchema"]:
         from camcops_server.cc_modules.cc_forms import DateTimeFilteredReportParamSchema  # delayed import  # noqa
@@ -500,6 +528,7 @@ class DateTimeFilteredReportMixin(object):
 
     @classmethod
     def get_specific_http_query_keys(cls) -> List[str]:
+        # noinspection PyUnresolvedReferences
         return super().get_specific_http_query_keys() + [
             ViewParam.START_DATETIME,
             ViewParam.END_DATETIME,
@@ -515,19 +544,31 @@ class DateTimeFilteredReportMixin(object):
             DateFormat.ERA
         )
 
+        # noinspection PyUnresolvedReferences
         return super().get_response(req)
 
-    def add_report_filters(self, wheres: List[ColumnElement]) -> None:
-        super().add_report_filters(wheres)
+    def add_task_report_filters(self, wheres: List[ColumnElement]) -> None:
+        """
+        See :meth:`Report.add_task_report_filters`.
+
+        Args:
+            wheres:
+                list of SQL ``WHERE`` conditions, each represented as an
+                SQLAlchemy :class:`ColumnElement`. This list is modifed in
+                place. The caller will need to apply the final list to the
+                query.
+        """
+        # noinspection PyUnresolvedReferences
+        super().add_task_report_filters(wheres)
 
         if self.start_datetime is not None:
             wheres.append(
-                column("when_created") >= self.start_datetime
+                column(TFN_WHEN_CREATED) >= self.start_datetime
             )
 
         if self.end_datetime is not None:
             wheres.append(
-                column("when_created") < self.end_datetime
+                column(TFN_WHEN_CREATED) < self.end_datetime
             )
 
 

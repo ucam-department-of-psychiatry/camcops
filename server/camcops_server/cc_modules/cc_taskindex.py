@@ -205,8 +205,10 @@ class PatientIdNumIndexEntry(Base):
                 an SQLAlchemy Session
         """
 
+        # noinspection PyUnresolvedReferences
         idxtable = cls.__table__  # type: Table
         idxcols = idxtable.columns
+        # noinspection PyProtectedMember
         session.execute(
             idxtable.delete()
             .where(idxcols.patient_pk == patient._pk)
@@ -717,6 +719,7 @@ class TaskIndexEntry(Base):
         idxtable = cls.__table__  # type: Table
         idxcols = idxtable.columns
         tasktablename = task.__class__.tablename
+        # noinspection PyProtectedMember
         session.execute(
             idxtable.delete()
             .where(idxcols.task_table_name == tasktablename)

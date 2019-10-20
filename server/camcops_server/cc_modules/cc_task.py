@@ -84,7 +84,14 @@ from camcops_server.cc_modules.cc_constants import (
     ERA_NOW,
     INVALID_VALUE,
 )
-from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
+from camcops_server.cc_modules.cc_db import (
+    GenericTabletRecordMixin,
+    TFN_EDITING_TIME_S,
+    TFN_FIRSTEXIT_IS_ABORT,
+    TFN_FIRSTEXIT_IS_FINISH,
+    TFN_WHEN_CREATED,
+    TFN_WHEN_FIRSTEXIT,
+)
 from camcops_server.cc_modules.cc_filename import get_export_filename
 from camcops_server.cc_modules.cc_hl7 import make_obr_segment, make_obx_segment
 from camcops_server.cc_modules.cc_html import (
@@ -206,7 +213,14 @@ class TaskHasPatientMixin(object):
             ),
             uselist=False,
             viewonly=True,
-            # EMPIRICALLY: SLOWER OVERALL WITH THIS # lazy="joined"
+            # Profiling results 2019-10-14 exporting 4185 phq9 records with
+            # unique patients to xlsx
+            # lazy="select"  : 59.7s
+            # lazy="joined"  : 44.3s
+            # lazy="subquery": 36.9s
+            # lazy="selectin": 35.3s
+            # See also idnums relationship on Patient class (cc_patient.py)
+            lazy="selectin"
         )
         # NOTE: this retrieves the most recent (i.e. the current) information
         # on that patient. Consequently, task version history doesn't show the
@@ -402,7 +416,7 @@ class Task(GenericTabletRecordMixin, Base):
         Column representing the task's creation time.
         """
         return Column(
-            "when_created", PendulumDateTimeAsIsoTextColType,
+            TFN_WHEN_CREATED, PendulumDateTimeAsIsoTextColType,
             nullable=False,
             comment="(TASK) Date/time this task instance was created (ISO 8601)"
         )
@@ -415,7 +429,7 @@ class Task(GenericTabletRecordMixin, Base):
         (i.e. first "finish" or first "abort").
         """
         return Column(
-            "when_firstexit", PendulumDateTimeAsIsoTextColType,
+            TFN_WHEN_FIRSTEXIT, PendulumDateTimeAsIsoTextColType,
             comment="(TASK) Date/time of the first exit from this task "
                     "(ISO 8601)"
         )
@@ -427,7 +441,7 @@ class Task(GenericTabletRecordMixin, Base):
         Was the first exit from the task's editor a successful "finish"?
         """
         return Column(
-            "firstexit_is_finish", Boolean,
+            TFN_FIRSTEXIT_IS_FINISH, Boolean,
             comment="(TASK) Was the first exit from the task because it was "
                     "finished (1)?"
         )
@@ -439,7 +453,7 @@ class Task(GenericTabletRecordMixin, Base):
         Was the first exit from the task's editor an "abort"?
         """
         return Column(
-            "firstexit_is_abort", Boolean,
+            TFN_FIRSTEXIT_IS_ABORT, Boolean,
             comment="(TASK) Was the first exit from this task because it was "
                     "aborted (1)?"
         )
@@ -452,7 +466,7 @@ class Task(GenericTabletRecordMixin, Base):
         (Calculated by the CamCOPS client.)
         """
         return Column(
-            "editing_time_s", Float,
+            TFN_EDITING_TIME_S, Float,
             comment="(TASK) Time spent editing (s)"
         )
 
@@ -1394,8 +1408,10 @@ class Task(GenericTabletRecordMixin, Base):
         Returns information used for the basic research dump in TSV format.
         """
         # 1. Our core fields, plus summary information
+
         main_page = self._get_core_tsv_page(req)
         # 2. Patient details.
+
         if self.patient:
             main_page.add_or_set_columns_from_page(
                 self.patient.get_tsv_page(req))

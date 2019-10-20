@@ -112,7 +112,7 @@ from cardinal_pythonlib.snomed import (
     SnomedAttributeGroup,
     SnomedAttributeSet,
     SnomedConcept as SnomedConceptCardinalPythonlib,
-    SnomedExpression,
+    SnomedExpression as SnomedExpressionCardinalPythonlib,
     SnomedFocusConcept,
     SnomedRefinement,
     SnomedValue,
@@ -501,8 +501,8 @@ X84.93 X84.94 X84.98 X84.99 Z00.4 Z03.2 Z71.1
 
 class SnomedConcept(SnomedConceptCardinalPythonlib):
     @classmethod
-    def create(cls,
-               concept: SnomedConceptCardinalPythonlib) -> "SnomedConcept":
+    def create(cls, concept: SnomedConceptCardinalPythonlib) \
+            -> "SnomedConcept":
         """
         Creates a CamCOPS-friendly
         :class:`camcops_server.cc_modules.cc_snomed.SnomedConcept` from a
@@ -520,6 +520,26 @@ class SnomedConcept(SnomedConceptCardinalPythonlib):
 
         Args:
             longform: print SNOMED-CT concepts in long form?
+        """
+        return XmlElement(
+            name=SNOMED_XML_NAME,
+            value=self.as_string(longform),
+            datatype=XmlDataTypes.STRING
+        )
+
+
+# =============================================================================
+# The SnomedExpression class, amended
+# =============================================================================
+
+class SnomedExpression(SnomedExpressionCardinalPythonlib):
+    def xml_element(self, longform: bool = True) -> XmlElement:
+        """
+        Returns a :class:`camcops_server.cc_modules.cc_xml.XmlElement` for this
+        SNOMED-CT object.
+
+        Args:
+            longform: print SNOMED-CT expressions in long form?
         """
         return XmlElement(
             name=SNOMED_XML_NAME,

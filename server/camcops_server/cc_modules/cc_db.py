@@ -230,6 +230,13 @@ FN_ADDITION_PENDING = "_addition_pending"
 FN_REMOVAL_PENDING = "_removal_pending"
 FN_GROUP_ID = "_group_id"
 
+# Common fieldnames used by all tasks. Do not change.
+TFN_WHEN_CREATED = "when_created"
+TFN_WHEN_FIRSTEXIT = "when_firstexit"
+TFN_FIRSTEXIT_IS_FINISH = "firstexit_is_finish"
+TFN_FIRSTEXIT_IS_ABORT = "firstexit_is_abort"
+TFN_EDITING_TIME_S = "editing_time_s"
+
 
 # =============================================================================
 # GenericTabletRecordMixin

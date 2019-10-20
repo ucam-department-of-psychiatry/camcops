@@ -356,7 +356,8 @@ class PerinatalPoem(Task):
 
         return options
 
-    def get_yn_options(self, req: CamcopsRequest) -> List[str]:
+    @staticmethod
+    def get_yn_options(req: CamcopsRequest) -> List[str]:
         return [req.sstring(SS.NO), req.sstring(SS.YES)]
 
     def get_task_html(self, req: CamcopsRequest) -> str:
@@ -449,14 +450,13 @@ class PerinatalPoem(Task):
 # Reports
 # =============================================================================
 
-
 class PerinatalPoemReportTableConfig(object):
     def __init__(self,
                  heading: str,
                  column_headings: List[str],
                  fieldnames: List[str],
-                 min_answer: int=0,
-                 xstring_format: str="{}_q") -> None:
+                 min_answer: int = 0,
+                 xstring_format: str = "{}_q") -> None:
         self.heading = heading
         self.column_headings = column_headings
         self.fieldnames = fieldnames
@@ -487,11 +487,10 @@ class PerinatalPoemReport(DateTimeFilteredReportMixin, Report,
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        self.task = PerinatalPoem()
+        self.task = PerinatalPoem()  # dummy task, never written to DB
 
     @classproperty
-    def task_class(self) -> "Task":
+    def task_class(self) -> Type["Task"]:
         return PerinatalPoem
 
     # noinspection PyMethodParameters
@@ -518,7 +517,7 @@ class PerinatalPoemReport(DateTimeFilteredReportMixin, Report,
                 start_datetime=self.start_datetime,
                 end_datetime=self.end_datetime,
                 tables=self._get_html_tables(req),
-                comment_rows=self._get_comment_rows(req)
+                comments=self._get_comments(req)
             ),
             request=req
         )
@@ -565,7 +564,7 @@ class PerinatalPoemReport(DateTimeFilteredReportMixin, Report,
 
     def _get_table_configs(
             self,
-            req: "CamcopsRequest") -> List["PerinatalPoemReportConfig"]:
+            req: "CamcopsRequest") -> List["PerinatalPoemReportTableConfig"]:
         return [
             PerinatalPoemReportTableConfig(
                 heading=self.task.xstring(req, "qa_q"),
@@ -670,7 +669,7 @@ class PerinatalPoemReport(DateTimeFilteredReportMixin, Report,
             column("general_comments").isnot(None)
         ]
 
-        self.add_report_filters(wheres)
+        self.add_task_report_filters(wheres)
 
         # noinspection PyUnresolvedReferences
         query = (
@@ -687,6 +686,12 @@ class PerinatalPoemReport(DateTimeFilteredReportMixin, Report,
             comment_rows.append(result)
 
         return comment_rows
+
+    def _get_comments(self, req: "CamcopsRequest") -> List[str]:
+        """
+        A list of all the additional comments.
+        """
+        return [x[0] for x in self._get_comment_rows(req)]
 
 
 # =============================================================================
@@ -793,11 +798,9 @@ class PerinatalPoemReportTests(PerinatalPoemReportTestCase):
 
     def test_comments(self) -> None:
         expected_comments = [
-            ("comment 1",), ("comment 2",), ("comment 3",),
+            "comment 1", "comment 2", "comment 3",
         ]
-
-        comments = self.report._get_comment_rows(self.req)
-
+        comments = self.report._get_comments(self.req)
         self.assertEqual(comments, expected_comments)
 
 
@@ -819,9 +822,9 @@ class PerinatalPoemReportDateRangeTests(PerinatalPoemReportTestCase):
         self.report.start_datetime = "2018-10-02T00:00:00.000000+00:00"
         self.report.end_datetime = "2018-10-05T00:00:00.000000+00:00"
 
-        rows = self.report._get_comment_rows(self.req)
-        self.assertEqual(len(rows), 3)
+        comments = self.report._get_comments(self.req)
+        self.assertEqual(len(comments), 3)
 
-        self.assertEqual(rows[0], ("comments 2",))
-        self.assertEqual(rows[1], ("comments 3",))
-        self.assertEqual(rows[2], ("comments 4",))
+        self.assertEqual(comments[0], "comments 2")
+        self.assertEqual(comments[1], "comments 3")
+        self.assertEqual(comments[2], "comments 4")
