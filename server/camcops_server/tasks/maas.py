@@ -28,13 +28,21 @@ camcops_server/tasks/maas.py
 
 from typing import Any, Dict, List, Optional, Tuple, Type
 
-from cardinal_pythonlib.stringfunc import strseq
+from cardinal_pythonlib.classes import classproperty
+from cardinal_pythonlib.stringfunc import strnumlist, strseq
+import pendulum
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import tr_qa
+from camcops_server.cc_modules.cc_patient import Patient
+from camcops_server.cc_modules.cc_report import (
+    AverageScoreReport,
+    AverageScoreReportTestCase,
+    ScoreDetails,
+)
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import Task, TaskHasPatientMixin
@@ -130,6 +138,8 @@ class Maas(TaskHasPatientMixin, Task,
     N_QUESTIONS = 19
     MIN_SCORE_PER_Q = 1
     MAX_SCORE_PER_Q = 5
+    MIN_GLOBAL = N_QUESTIONS * MIN_SCORE_PER_Q
+    MAX_GLOBAL = N_QUESTIONS * MAX_SCORE_PER_Q
 
     TASK_FIELDS = strseq(FN_QPREFIX, 1, N_QUESTIONS)
 
@@ -138,9 +148,19 @@ class Maas(TaskHasPatientMixin, Task,
 
     # Questions that contribute to the "quality of attachment" score:
     QUALITY_OF_ATTACHMENT_Q = [3, 6, 9, 10, 11, 12, 13, 15, 16, 19]
+    QUALITY_OF_ATTACHMENT_FIELDS = strnumlist(FN_QPREFIX,
+                                              QUALITY_OF_ATTACHMENT_Q)
+    N_QUALITY = len(QUALITY_OF_ATTACHMENT_Q)
+    MIN_QUALITY = N_QUALITY * MIN_SCORE_PER_Q
+    MAX_QUALITY = N_QUALITY * MAX_SCORE_PER_Q
 
     # Questions that contribute to the "time spent in attachment mode" score:
     TIME_IN_ATTACHMENT_MODE_Q = [1, 2, 4, 5, 8, 14, 17, 18]
+    TIME_IN_ATTACHMENT_FIELDS = strnumlist(FN_QPREFIX,
+                                           TIME_IN_ATTACHMENT_MODE_Q)
+    N_TIME = len(TIME_IN_ATTACHMENT_MODE_Q)
+    MIN_TIME = N_TIME * MIN_SCORE_PER_Q
+    MAX_TIME = N_TIME * MAX_SCORE_PER_Q
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
@@ -161,29 +181,27 @@ class Maas(TaskHasPatientMixin, Task,
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         scorer = self.get_score()
-        n_quality = len(self.QUALITY_OF_ATTACHMENT_Q)
-        n_time = len(self.TIME_IN_ATTACHMENT_MODE_Q)
         return self.standard_task_summary_fields() + [
             SummaryElement(
                 name="quality_of_attachment_score", coltype=Integer(),
                 value=scorer.quality_score,
                 comment=f"Quality of attachment score (for complete tasks, "
                         f"range "
-                        f"{n_quality * self.MIN_SCORE_PER_Q}-"
-                        f"{n_quality * self.MAX_SCORE_PER_Q})"),
+                        f"{self.MIN_QUALITY}-"
+                        f"{self.MAX_QUALITY})"),
             SummaryElement(
                 name="quality_of_attachment_score", coltype=Integer(),
                 value=scorer.time_score,
                 comment=f"Time spent in attachment mode (or intensity of "
                         f"preoccupation) score (for complete tasks, range "
-                        f"{n_time * self.MIN_SCORE_PER_Q}-"
-                        f"{n_time * self.MAX_SCORE_PER_Q})"),
+                        f"{self.MIN_TIME}-"
+                        f"{self.MAX_TIME})"),
             SummaryElement(
                 name="quality_of_attachment_score", coltype=Integer(),
                 value=scorer.global_score,
                 comment=f"Global attachment score (for complete tasks, range "
-                        f"{self.N_QUESTIONS * self.MIN_SCORE_PER_Q}-"
-                        f"{self.N_QUESTIONS * self.MAX_SCORE_PER_Q})"),
+                        f"{self.MIN_GLOBAL}-"
+                        f"{self.MAX_GLOBAL})"),
         ]
 
     def get_task_html(self, req: CamcopsRequest) -> str:
@@ -235,7 +253,7 @@ class Maas(TaskHasPatientMixin, Task,
             global score is the sum of all questions.
           </div>
           <div class="{CssClass.FOOTNOTES}">
-            Condon, J. (2015). Maternal Antenatal Attachment Scale 
+            Condon, J. (2015). Maternal Antenatal Attachment Scale
             [Measurement instrument]. Retrieved from <a
             href="http://hdl.handle.net/2328/35292">http://hdl.handle.net/2328/35292</a>.
 
@@ -247,3 +265,83 @@ class Maas(TaskHasPatientMixin, Task,
             any medium, provided the original work is properly cited.
           </div>
         """
+
+
+class MaasReport(AverageScoreReport):
+    # noinspection PyMethodParameters
+    @classproperty
+    def report_id(cls) -> str:
+        return "MAAS"
+
+    @classmethod
+    def title(cls, req: "CamcopsRequest") -> str:
+        _ = req.gettext
+        return _("MAAS — Average scores")
+
+    # noinspection PyMethodParameters
+    @classproperty
+    def task_class(cls) -> Type[Task]:
+        return Maas
+
+    @classmethod
+    def scores(cls, req: "CamcopsRequest") -> List[ScoreDetails]:
+        _ = req.gettext
+        return [
+            ScoreDetails(
+                name=_("Global attachment score"),
+                fieldnames=Maas.TASK_FIELDS,
+                minimum=Maas.MIN_GLOBAL,
+                maximum=Maas.MAX_GLOBAL
+            ),
+            ScoreDetails(
+                name=_("Quality of attachment score"),
+                fieldnames=Maas.QUALITY_OF_ATTACHMENT_FIELDS,
+                minimum=Maas.MIN_QUALITY,
+                maximum=Maas.MAX_QUALITY
+            ),
+            ScoreDetails(
+                name=_("Time spent in attachment mode"),
+                fieldnames=Maas.TIME_IN_ATTACHMENT_FIELDS,
+                minimum=Maas.MIN_TIME,
+                maximum=Maas.MAX_TIME
+            )
+        ]
+
+
+class MaasReportTests(AverageScoreReportTestCase):
+    PROGRESS_COL = 4
+
+    def create_report(self):
+        return MaasReport()
+
+    def create_tasks(self):
+        self.patient_1 = self.create_patient()
+
+        self.create_task(patient=self.patient_1, q1=2, q2=2,
+                         era="2019-03-01")  # total 17 + 2 + 2
+        self.create_task(patient=self.patient_1, q1=5, q2=5,
+                         era="2019-06-01")  # total 17 + 5 + 5
+        self.dbsession.commit()
+
+    def create_task(self, patient: Patient, era: str = None, **kwargs):
+        task = Maas()
+        self.apply_standard_task_fields(task)
+        task.id = next(self.task_id_sequence)
+
+        task.patient_id = patient.id
+        for fieldname in Maas.TASK_FIELDS:
+            value = kwargs.get(fieldname, 1)
+            setattr(task, fieldname, value)
+
+        if era is not None:
+            task.when_created = pendulum.parse(era)
+
+        self.dbsession.add(task)
+
+    def test_average_progress_is_positive(self):
+        plain_report = self.report.get_rows_colnames(self.req)
+
+        expected_progress = 27 - 21
+        actual_progress = plain_report.rows[0][self.PROGRESS_COL]
+
+        self.assertEqual(actual_progress, expected_progress)

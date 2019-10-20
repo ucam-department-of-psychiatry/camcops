@@ -29,8 +29,9 @@ camcops_server/cc_modules/cc_report.py
 """
 
 import logging
-from typing import (Any, Dict, List, Optional, Sequence, Type, TYPE_CHECKING,
-                    Union)
+from abc import ABC
+from typing import (Any, Dict, Generator, List, Optional, Sequence, Type,
+                    TYPE_CHECKING, Union)
 
 from cardinal_pythonlib.classes import all_subclasses, classproperty
 from cardinal_pythonlib.datetimefunc import format_datetime
@@ -39,6 +40,7 @@ from cardinal_pythonlib.pyramid.responses import (
     OdsResponse, TsvResponse, XlsxResponse,
 )
 from deform.form import Form
+import pendulum
 from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.renderers import render_to_response
 from pyramid.response import Response
@@ -67,11 +69,13 @@ from camcops_server.cc_modules.cc_unittest import (
 )
 
 if TYPE_CHECKING:
-    from camcops_server.cc_modules.cc_request import CamcopsRequest
     from camcops_server.cc_modules.cc_forms import (
         ReportParamForm,
         ReportParamSchema,
     )
+    from camcops_server.cc_modules.cc_patient import Patient
+    from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
+    from camcops_server.cc_modules.cc_request import CamcopsRequest
     from camcops_server.cc_modules.cc_task import Task
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
@@ -108,10 +112,11 @@ class Report(object):
     See the explanations of each.
     """
 
+    template_name = "report.mako"
+
     # -------------------------------------------------------------------------
     # Attributes that must be provided
     # -------------------------------------------------------------------------
-
     # noinspection PyMethodParameters
     @classproperty
     def report_id(cls) -> str:
@@ -411,7 +416,7 @@ class Report(object):
         If you wish, you can override this for more report customization.
         """
         return render_to_response(
-            "report.mako",
+            self.template_name,
             dict(title=self.title(req),
                  page=page,
                  column_names=column_names,
@@ -567,6 +572,199 @@ class DateTimeFilteredReportMixin(object):
             )
 
 
+class ScoreDetails(object):
+    def __init__(self, name: str, fieldnames: List[str],
+                 minimum: int, maximum: int) -> None:
+        self.name = name
+        self.fieldnames = fieldnames
+        self.minimum = minimum
+        self.maximum = maximum
+
+
+class AverageScoreReport(DateTimeFilteredReportMixin, Report, ABC):
+    """
+    Used by MAAS, CORE-10 and PBQ to report average scores and progress
+    """
+    template_name = "average_score_report.mako"
+
+    # noinspection PyMethodParameters
+    @classproperty
+    def superuser_only(cls) -> bool:
+        return False
+
+    # noinspection PyMethodParameters
+    @classproperty
+    def higher_score_is_better(cls) -> bool:
+        """
+        Progress is always expressed positively
+        so should we do ``score1 - score2`` or vice versa?
+        """
+        return True
+
+    # noinspection PyMethodParameters
+    @classproperty
+    def task_class(cls) -> Type["Task"]:
+        raise NotImplementedError(
+            "Report did not implement task_class"
+        )
+
+    # noinspection PyMethodParameters
+    @classmethod
+    def scores(cls, req: "CamcopsRequest") -> List[ScoreDetails]:
+        raise NotImplementedError(
+            "Report did not implement 'scores'"
+        )
+
+    def get_rows_colnames(self,
+                          req: "CamcopsRequest") -> Optional[PlainReportType]:
+        _ = req.gettext
+
+        """
+        First and latest record for each patient (e.g. for CORE-10):
+
+        SELECT patient_id,
+        MIN(when_created) AS min_when_created,
+        MAX(when_created) AS max_when_created
+        FROM core10 GROUP BY patient_id
+        """
+
+        wheres = []
+        self.add_report_filters(wheres)
+
+        first_latest_record_query = (
+            select([self.task_class.patient_id,
+                    func.min(self.task_class.when_created)
+                    .label("min_when_created"),
+                    func.max(self.task_class.when_created)
+                    .label("max_when_created")])
+            .select_from(self.task_class.__table__)
+            .where(and_(*wheres))
+            .group_by(self.task_class.patient_id)
+        )
+
+        first_latest_records = first_latest_record_query.alias(
+            "first_latest_records"
+        )
+
+        results = req.dbsession.execute(first_latest_record_query)
+        total_first_records = len(results.fetchall())
+
+        latest_record_query = (
+            select([first_latest_records.c.patient_id,
+                    first_latest_records.c.max_when_created])
+            .select_from(first_latest_records)
+            .where(first_latest_records.c.min_when_created != first_latest_records.c.max_when_created)  # noqa: E501
+        )
+
+        latest_records = latest_record_query.alias(
+            "latest_records"
+        )
+
+        results = req.dbsession.execute(latest_record_query)
+        total_latest_records = len(results.fetchall())
+
+        column_names = [
+            _("Total first records"),
+            _("Total latest records"),
+        ]
+
+        row = [total_first_records, total_latest_records]
+
+        for score in self.scores(req):
+            """
+            Average first score (e.g. for CORE-10):
+
+            SELECT AVG(q1+q2+q3+q4+q5+q6+q7+q8+q9+q10) AS average_score
+            FROM (first_record_query) AS first_records
+            INNER JOIN core10 ON core10.patient_id = first_records.patient_id
+            AND core10.when_created = first_records.min_when_created;
+            """
+
+            total_score_expr = sum([getattr(self.task_class, f)
+                                    for f in score.fieldnames])
+
+            average_first_score_query = (
+                select([func.avg(total_score_expr)])
+                .select_from(
+                    first_latest_records
+                    .join(
+                        self.task_class.__table__,
+                        and_(
+                            self.task_class.patient_id == first_latest_records.c.patient_id,  # noqa
+                            self.task_class.when_created == first_latest_records.c.min_when_created  # noqa
+                        )
+                    )
+                )
+            )
+
+            """
+            Average latest score (e.g. for CORE-10):
+
+            SELECT AVG(q1+q2+q3+q4+q5+q6+q7+q8+q9+q10) AS average_score
+            FROM (latest_record_query) AS latest_records
+            INNER JOIN core10 ON core10.patient_id = latest_records.patient_id
+            AND core10.when_created = latest_records.max_when_created;
+            """
+            average_latest_score_query = (
+                select([func.avg(total_score_expr)])
+                .select_from(
+                    latest_records
+                    .join(
+                        self.task_class.__table__, and_(
+                            self.task_class.patient_id == latest_records.c.patient_id,  # noqa
+                            self.task_class.when_created == latest_records.c.max_when_created  # noqa
+                        )
+                    )
+                )
+            )
+
+            results = req.dbsession.execute(average_first_score_query)
+            average_first_score = next(results)[0]
+
+            results = req.dbsession.execute(average_latest_score_query)
+            average_latest_score = next(results)[0]
+
+            if (average_first_score is not None and
+                    average_latest_score is not None):
+                average_progress = self.calculate_progress(
+                    average_first_score, average_latest_score
+                )
+            else:
+                average_progress = _("Unable to calculate")
+
+            if average_first_score is None:
+                average_first_score = _("No data")
+
+            if average_latest_score is None:
+                average_latest_score = _("No data")
+
+            column_names += [
+                f"{score.name} ({score.minimum}–{score.maximum}): {_('First')}",  # noqa
+                f"{score.name} ({score.minimum}–{score.maximum}): {_('Latest')}",  # noqa
+                f"{score.name}: {_('Progress')}",
+            ]
+
+            row += [average_first_score, average_latest_score,
+                    average_progress]
+
+        report = PlainReportType(
+            column_names=column_names,
+            rows=[row]
+        )
+
+        return report
+
+    def calculate_progress(self,
+                           first_score: float,
+                           latest_score: float) -> float:
+        progress = latest_score - first_score
+
+        if not self.higher_score_is_better:
+            return -1 * progress
+
+        return progress
+
+
 # =============================================================================
 # Report framework
 # =============================================================================
@@ -652,6 +850,80 @@ class AllReportTests(DemoDatabaseTestCase):
                 self.assertIsInstance(report.get_response(req), Response)
             except HTTPBadRequest:
                 pass
+
+
+class AverageScoreReportTestCase(DemoDatabaseTestCase):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.patient_id_sequence = self.get_patient_id()
+        self.task_id_sequence = self.get_task_id()
+        self.patient_idnum_id_sequence = self.get_patient_idnum_id()
+
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.report = self.create_report()
+
+    def create_tasks(self):
+        pass
+
+    def create_report(self) -> Report:
+        raise NotImplementedError(
+            "Report TestCase needs to implement create_report"
+        )
+
+    @staticmethod
+    def get_patient_id() -> Generator[int, None, None]:
+        i = 1
+
+        while True:
+            yield i
+            i += 1
+
+    @staticmethod
+    def get_task_id() -> Generator[int, None, None]:
+        i = 1
+
+        while True:
+            yield i
+            i += 1
+
+    @staticmethod
+    def get_patient_idnum_id() -> Generator[int, None, None]:
+        i = 1
+
+        while True:
+            yield i
+            i += 1
+
+    def create_patient(self) -> "Patient":
+        from camcops_server.cc_modules.cc_patient import Patient
+        patient = Patient()
+        patient.id = next(self.patient_id_sequence)
+        self._apply_standard_db_fields(patient)
+
+        patient.forename = f"Forename {patient.id}"
+        patient.surname = f"Surname {patient.id}"
+        patient.dob = pendulum.parse("1950-01-01")
+        self.dbsession.add(patient)
+
+        self.create_patient_idnum(patient)
+
+        self.dbsession.commit()
+
+        return patient
+
+    def create_patient_idnum(self, patient) -> "PatientIdNum":
+        from camcops_server.cc_modules.cc_patient import PatientIdNum
+        patient_idnum = PatientIdNum()
+        patient_idnum.id = next(self.patient_idnum_id_sequence)
+        self._apply_standard_db_fields(patient_idnum)
+        patient_idnum.patient_id = patient.id
+        patient_idnum.which_idnum = self.nhs_iddef.which_idnum
+        patient_idnum.idnum_value = 333
+        self.dbsession.add(patient_idnum)
+
+        return patient_idnum
 
 
 class TestReport(Report):
