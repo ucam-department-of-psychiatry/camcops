@@ -167,6 +167,11 @@ def ensure_database_is_ok() -> None:
     config.assert_database_ok()
 
 
+def ensure_lock_dir_exists() -> None:
+    config = get_default_config_from_os_env()
+    os.makedirs(config.export_lockdir, exist_ok=True)
+
+
 def join_url_fragments(*fragments: str) -> str:
     """
     Combines fragments to make a URL.
@@ -303,6 +308,7 @@ def ensure_ok_for_webserver() -> None:
     Prerequisites for firing up the web server.
     """
     ensure_database_is_ok()
+    ensure_lock_dir_exists()
     precache()
 
 
@@ -777,6 +783,7 @@ def launch_celery_beat(verbose: bool = False) -> None:
     (This can be combined with ``celery worker``, but that's not recommended;
     http://docs.celeryproject.org/en/latest/userguide/periodic-tasks.html#starting-the-scheduler).
     """  # noqa
+    ensure_lock_dir_exists()
     config = get_default_config_from_os_env()
     cmdargs = [
         CELERY, "beat",
