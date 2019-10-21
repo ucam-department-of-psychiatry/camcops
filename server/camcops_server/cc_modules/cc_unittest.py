@@ -196,6 +196,7 @@ class DemoRequestTestCase(ExtendedTestCase):
         columns = ",".join(column_names) if column_names else "*"
         sql = f"SELECT {columns} FROM {tablename}"
         cursor.execute(sql)
+        # noinspection PyTypeChecker
         fieldnames = get_fieldnames_from_cursor(cursor)
         results = ",".join(fieldnames) + "\n" + "\n".join(
             ",".join(str(value) for value in row)
