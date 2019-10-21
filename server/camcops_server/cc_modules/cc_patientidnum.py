@@ -119,6 +119,10 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
         viewonly=True,
     )
 
+    # -------------------------------------------------------------------------
+    # String representations
+    # -------------------------------------------------------------------------
+
     def __str__(self) -> str:
         return f"idnum{self.which_idnum}={self.idnum_value}"
 
@@ -137,14 +141,24 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
             "id", "patient_id", "which_idnum", "idnum_value"
         ])
 
-    def get_idnum_reference(self) -> IdNumReference:
+    # -------------------------------------------------------------------------
+    # Equality
+    # -------------------------------------------------------------------------
+
+    def __eq__(self, other: "PatientIdNum") -> bool:
         """
-        Returns an
-        :class:`camcops_server.cc_modules.cc_simpleobjects.IdNumReference`
-        object summarizing this ID number.
+        Do ``self`` and ``other`` represent the same ID number?
         """
-        return IdNumReference(which_idnum=self.which_idnum,
-                              idnum_value=self.idnum_value)
+        return (
+            self.which_idnum == other.which_idnum and
+            self.idnum_value == other.idnum_value and
+            self.which_idnum is not None and
+            self.idnum_value is not None
+        )
+
+    # -------------------------------------------------------------------------
+    # Validity
+    # -------------------------------------------------------------------------
 
     def is_superficially_valid(self) -> bool:
         """
@@ -167,6 +181,10 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
             return "ID number fails basic checks"
         return req.why_idnum_invalid(self.which_idnum, self.idnum_value)
 
+    # -------------------------------------------------------------------------
+    # ID type description
+    # -------------------------------------------------------------------------
+
     def description(self, req: "CamcopsRequest") -> str:
         """
         Returns the full description for this ID number.
@@ -181,6 +199,19 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
         which_idnum = self.which_idnum  # type: int
         return req.get_id_shortdesc(which_idnum, default="?")
 
+    # -------------------------------------------------------------------------
+    # Other representations
+    # -------------------------------------------------------------------------
+
+    def get_idnum_reference(self) -> IdNumReference:
+        """
+        Returns an
+        :class:`camcops_server.cc_modules.cc_simpleobjects.IdNumReference`
+        object summarizing this ID number.
+        """
+        return IdNumReference(which_idnum=self.which_idnum,
+                              idnum_value=self.idnum_value)
+
     def get_filename_component(self, req: "CamcopsRequest") -> str:
         """
         Returns a string including the short description of the ID number, and
@@ -190,11 +221,19 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
             return ""
         return f"{self.short_description(req)}-{self.idnum_value}"
 
+    # -------------------------------------------------------------------------
+    # Set value
+    # -------------------------------------------------------------------------
+
     def set_idnum(self, idnum_value: int) -> None:
         """
         Sets the ID number value.
         """
         self.idnum_value = idnum_value
+
+    # -------------------------------------------------------------------------
+    # Patient
+    # -------------------------------------------------------------------------
 
     def get_patient_server_pk(self) -> int:
         patient = self.patient  # type: Patient

@@ -26,17 +26,28 @@ camcops_server/templates/tasks/average_score_report.mako
 
 </%doc>
 
+## <%page args="title: str, report_id: str, mainpage: TsvPage, datepage: TsvPage"/>
+
 <%inherit file="report.mako"/>
 
-<%block name="additional_report_above_results">
+<%!
+from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
+%>
+
+<%block name="results">
+
+    <div>
+        Only complete tasks are considered. If date filters are applied, only
+        tasks within the date range are considered.
+    </div>
+
+    <%include file="table.mako" args="column_headings=mainpage.headings, rows=mainpage.plainrows"/>
+
     <div>
         If date filters are applied, only tasks within the date range are
         considered.
     </div>
-</%block>
 
-<%block name="pager_above_results">
-</%block>
+    <%include file="table.mako" args="column_headings=datepage.headings, rows=datepage.plainrows"/>
 
-<%block name="pager_below_results">
 </%block>

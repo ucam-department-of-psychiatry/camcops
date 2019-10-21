@@ -149,7 +149,6 @@ Thoughts as of 2018-12-22.
 
 """  # noqa
 
-import io
 import logging
 import os
 import sqlite3
@@ -181,6 +180,7 @@ from camcops_server.cc_modules.cc_exportmodels import (
     get_collection_for_export,
 )
 from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
+from camcops_server.cc_modules.cc_sqlalchemy import sql_from_sqlite_database
 from camcops_server.cc_modules.cc_task import Task
 from camcops_server.cc_modules.cc_tsv import TsvCollection
 from camcops_server.cc_modules.celery import export_task_backend
@@ -572,14 +572,9 @@ def task_collection_to_sqlite_response(req: "CamcopsRequest",
 
         if as_sql_not_binary:
             # SQL text
-            con = sqlite3.connect(db_filename)
-            with io.StringIO() as f:
-                # noinspection PyTypeChecker
-                for line in con.iterdump():
-                    f.write(line + "\n")
-                con.close()
-                f.flush()
-                sql_text = f.getvalue()
+            connection = sqlite3.connect(db_filename)  # type: sqlite3.Connection  # noqa
+            sql_text = sql_from_sqlite_database(connection)
+            connection.close()
             return TextAttachmentResponse(body=sql_text,
                                           filename=suggested_filename)
         else:

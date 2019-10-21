@@ -217,7 +217,9 @@ class Patient(GenericTabletRecordMixin, Base):
     #
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+    # -------------------------------------------------------------------------
     # Relationships
+    # -------------------------------------------------------------------------
 
     # noinspection PyMethodParameters
     @declared_attr
@@ -245,6 +247,10 @@ class Patient(GenericTabletRecordMixin, Base):
             order_by="SpecialNote.note_at",
             viewonly=True,  # for now!
         )
+
+    # -------------------------------------------------------------------------
+    # Patient-fetching classmethods
+    # -------------------------------------------------------------------------
 
     @classmethod
     def get_patients_by_idnum(cls,
@@ -307,6 +313,10 @@ class Patient(GenericTabletRecordMixin, Base):
             .first()
         )
 
+    # -------------------------------------------------------------------------
+    # String representations
+    # -------------------------------------------------------------------------
+
     def __str__(self) -> str:
         """
         A plain string version, without the need for a request object.
@@ -331,6 +341,69 @@ class Patient(GenericTabletRecordMixin, Base):
             dob=self.get_dob_str(),
             ids=", ".join(i.prettystr(req) for i in self.get_idnum_objects()),
         )
+
+    # -------------------------------------------------------------------------
+    # Equality
+    # -------------------------------------------------------------------------
+
+    def __eq__(self, other: "Patient") -> bool:
+        """
+        Is this patient the same as another?
+
+        .. code-block:: python
+
+            from camcops_server.cc_modules.cc_patient import Patient
+            p1 = Patient(id=1, _device_id=1, _era="NOW")
+            print(p1 == p1)  # True
+            p2 = Patient(id=1, _device_id=1, _era="NOW")
+            print(p1 == p2)  # True
+            p3 = Patient(id=1, _device_id=2, _era="NOW")
+            print(p1 == p3)  # False
+
+            s = set([p1, p2, p3])  # contains two patients
+
+        IMPERFECT in that it doesn't use intermediate patients to link
+        identity (e.g. P1 has RiO#=3, P2 has RiO#=3, NHS#=5, P3 has NHS#=5;
+        they are all the same by inference but P1 and P3 will not compare
+        equal).
+
+        """
+        # Same object?
+        # log.warning("self={}, other={}", self, other)
+        if self is other:
+            # log.warning("... same object; equal")
+            return True
+        # Same device/era/patient ID (client PK)? Test int before str for speed
+        if (self.id == other.id and
+                self._device_id == other._device_id and
+                self._era == other._era and
+                self.id is not None and
+                self._device_id is not None and
+                self._era is not None):
+            # log.warning("... same device/era/id; equal")
+            return True
+        # Shared ID number?
+        for sid in self.idnums:
+            if sid in other.idnums:
+                # log.warning("... share idnum {}; equal", sid)
+                return True
+        # Otherwise...
+        # log.warning("... unequal")
+        return False
+
+    def __hash__(self) -> int:
+        """
+        To put objects into a set, they must be hashable.
+        See https://docs.python.org/3/glossary.html#term-hashable.
+        If two objects are equal (via :func:`__eq__`) they must provide the
+        same hash value (but two objects with the same hash are not necessarily
+        equal).
+        """
+        return 0  # all objects have the same hash; "use __eq__() instead"
+
+    # -------------------------------------------------------------------------
+    # ID numbers
+    # -------------------------------------------------------------------------
 
     def get_idnum_objects(self) -> List[PatientIdNum]:
         """
@@ -360,84 +433,86 @@ class Patient(GenericTabletRecordMixin, Base):
         idnums = self.idnums  # type: List[PatientIdNum]
         return [x.idnum_value for x in idnums if x.is_superficially_valid()]
 
-    def get_xml_root(self, req: "CamcopsRequest",
-                     options: TaskExportOptions = None) -> XmlElement:
+    def get_idnum_object(self, which_idnum: int) -> Optional[PatientIdNum]:
         """
-        Get root of XML tree, as an
-        :class:`camcops_server.cc_modules.cc_xml.XmlElement`.
+        Gets the PatientIdNum object for a specified which_idnum, or None.
+        """
+        idnums = self.idnums  # type: List[PatientIdNum]
+        for x in idnums:
+            if x.which_idnum == which_idnum:
+                return x
+        return None
+
+    def has_idnum_type(self, which_idnum: int) -> bool:
+        """
+        Does the patient have an ID number of the specified type?
+        """
+        return self.get_idnum_object(which_idnum) is not None
+
+    def get_idnum_value(self, which_idnum: int) -> Optional[int]:
+        """
+        Get value of a specific ID number, if present.
+        """
+        idobj = self.get_idnum_object(which_idnum)
+        return idobj.idnum_value if idobj else None
+
+    def set_idnum_value(self, req: "CamcopsRequest",
+                        which_idnum: int, idnum_value: int) -> None:
+        """
+        Sets an ID number value.
+        """
+        dbsession = req.dbsession
+        ccsession = req.camcops_session
+        idnums = self.idnums  # type: List[PatientIdNum]
+        for idobj in idnums:
+            if idobj.which_idnum == which_idnum:
+                idobj.idnum_value = idnum_value
+                return
+        # Otherwise, make a new one:
+        newid = PatientIdNum()
+        newid.patient_id = self.id
+        newid._device_id = self._device_id
+        newid._era = self._era
+        newid._current = True
+        newid._when_added_exact = req.now_era_format
+        newid._when_added_batch_utc = req.now_utc
+        newid._adding_user_id = ccsession.user_id
+        newid._camcops_version = CAMCOPS_SERVER_VERSION_STRING
+        dbsession.add(newid)
+        self.idnums.append(newid)
+
+    def get_iddesc(self, req: "CamcopsRequest",
+                   which_idnum: int) -> Optional[str]:
+        """
+        Get value of a specific ID description, if present.
+        """
+        idobj = self.get_idnum_object(which_idnum)
+        return idobj.description(req) if idobj else None
+
+    def get_idshortdesc(self, req: "CamcopsRequest",
+                        which_idnum: int) -> Optional[str]:
+        """
+        Get value of a specific ID short description, if present.
+        """
+        idobj = self.get_idnum_object(which_idnum)
+        return idobj.short_description(req) if idobj else None
+
+    def add_extra_idnum_info_to_row(self, row: Dict[str, Any]) -> None:
+        """
+        For the ``DB_PATIENT_ID_PER_ROW`` export option. Adds additional ID
+        number info to a row.
 
         Args:
-            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-            options: a :class:`camcops_server.cc_modules.cc_simpleobjects.TaskExportOptions`
-        """  # noqa
-        # No point in skipping old ID columns (1-8) now; they're gone.
-        branches = self._get_xml_branches(req, options=options)
-        # Now add new-style IDs:
-        pidnum_branches = []  # type: List[XmlElement]
-        pidnum_options = TaskExportOptions(xml_include_plain_columns=True,
-                                           xml_with_header_comments=False)
-        for pidnum in self.idnums:  # type: PatientIdNum
-            pidnum_branches.append(pidnum._get_xml_root(
-                req, options=pidnum_options))
-        branches.append(XmlElement(
-            name="idnums",
-            value=pidnum_branches
-        ))
-        # Special notes
-        branches.append(XML_COMMENT_SPECIAL_NOTES)
-        special_notes = self.special_notes  # type: List[SpecialNote]
-        for sn in special_notes:
-            branches.append(sn.get_xml_root())
-        return XmlElement(name=self.__tablename__, value=branches)
+            row: future database row, as a dictionary
+        """
+        for idobj in self.idnums:
+            which_idnum = idobj.which_idnum
+            fieldname = extra_id_colname(which_idnum)
+            row[fieldname] = idobj.idnum_value
 
-    def get_tsv_page(self, req: "CamcopsRequest") -> TsvPage:
-        """
-        Get a :class:`camcops_server.cc_modules.cc_tsv.TsvPage` for the
-        patient.
-        """
-        # 1. Our core fields.
-        page = self._get_core_tsv_page(
-            req, heading_prefix=TSV_PATIENT_FIELD_PREFIX)
-        # 2. ID number details
-        #    We can't just iterate through the ID numbers; we have to iterate
-        #    through all possible ID numbers.
-        for iddef in req.idnum_definitions:
-            n = iddef.which_idnum
-            nstr = str(n)
-            shortdesc = iddef.short_description
-            longdesc = iddef.description
-            idnum_value = next(
-                (idnum.idnum_value for idnum in self.idnums
-                 if idnum.which_idnum == n and idnum.is_superficially_valid()),
-                None)
-            page.add_or_set_value(
-                heading=TSV_PATIENT_FIELD_PREFIX + FP_ID_NUM + nstr,
-                value=idnum_value)
-            page.add_or_set_value(
-                heading=TSV_PATIENT_FIELD_PREFIX + FP_ID_DESC + nstr,
-                value=longdesc)
-            page.add_or_set_value(
-                heading=(TSV_PATIENT_FIELD_PREFIX + FP_ID_SHORT_DESC +
-                         nstr),
-                value=shortdesc)
-        return page
-
-    def get_bare_ptinfo(self) -> BarePatientInfo:
-        """
-        Get basic identifying information, as a
-        :class:`camcops_server.cc_modules.cc_simpleobjects.BarePatientInfo`
-        object.
-        """
-        return BarePatientInfo(
-            forename=self.forename,
-            surname=self.surname,
-            sex=self.sex,
-            dob=self.dob,
-            address=self.address,
-            gp=self.gp,
-            other=self.other,
-            idnum_definitions=self.get_idnum_references()
-        )
+    # -------------------------------------------------------------------------
+    # Group
+    # -------------------------------------------------------------------------
 
     @property
     def group(self) -> Optional["Group"]:
@@ -446,6 +521,10 @@ class Patient(GenericTabletRecordMixin, Base):
         this patient's record belongs.
         """
         return self._group
+
+    # -------------------------------------------------------------------------
+    # Policies
+    # -------------------------------------------------------------------------
 
     def satisfies_upload_id_policy(self) -> bool:
         """
@@ -470,6 +549,10 @@ class Patient(GenericTabletRecordMixin, Base):
         Does the patient satisfy a particular ID policy?
         """
         return policy.satisfies_id_policy(self.get_bare_ptinfo())
+
+    # -------------------------------------------------------------------------
+    # Name, DOB/age, sex, address, etc.
+    # -------------------------------------------------------------------------
 
     def get_surname(self) -> str:
         """
@@ -573,6 +656,89 @@ class Patient(GenericTabletRecordMixin, Base):
         address = self.address  # type: Optional[str]
         return address or ""
 
+    # -------------------------------------------------------------------------
+    # Other representations
+    # -------------------------------------------------------------------------
+
+    def get_xml_root(self, req: "CamcopsRequest",
+                     options: TaskExportOptions = None) -> XmlElement:
+        """
+        Get root of XML tree, as an
+        :class:`camcops_server.cc_modules.cc_xml.XmlElement`.
+
+        Args:
+            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+            options: a :class:`camcops_server.cc_modules.cc_simpleobjects.TaskExportOptions`
+        """  # noqa
+        # No point in skipping old ID columns (1-8) now; they're gone.
+        branches = self._get_xml_branches(req, options=options)
+        # Now add new-style IDs:
+        pidnum_branches = []  # type: List[XmlElement]
+        pidnum_options = TaskExportOptions(xml_include_plain_columns=True,
+                                           xml_with_header_comments=False)
+        for pidnum in self.idnums:  # type: PatientIdNum
+            pidnum_branches.append(pidnum._get_xml_root(
+                req, options=pidnum_options))
+        branches.append(XmlElement(
+            name="idnums",
+            value=pidnum_branches
+        ))
+        # Special notes
+        branches.append(XML_COMMENT_SPECIAL_NOTES)
+        special_notes = self.special_notes  # type: List[SpecialNote]
+        for sn in special_notes:
+            branches.append(sn.get_xml_root())
+        return XmlElement(name=self.__tablename__, value=branches)
+
+    def get_tsv_page(self, req: "CamcopsRequest") -> TsvPage:
+        """
+        Get a :class:`camcops_server.cc_modules.cc_tsv.TsvPage` for the
+        patient.
+        """
+        # 1. Our core fields.
+        page = self._get_core_tsv_page(
+            req, heading_prefix=TSV_PATIENT_FIELD_PREFIX)
+        # 2. ID number details
+        #    We can't just iterate through the ID numbers; we have to iterate
+        #    through all possible ID numbers.
+        for iddef in req.idnum_definitions:
+            n = iddef.which_idnum
+            nstr = str(n)
+            shortdesc = iddef.short_description
+            longdesc = iddef.description
+            idnum_value = next(
+                (idnum.idnum_value for idnum in self.idnums
+                 if idnum.which_idnum == n and idnum.is_superficially_valid()),
+                None)
+            page.add_or_set_value(
+                heading=TSV_PATIENT_FIELD_PREFIX + FP_ID_NUM + nstr,
+                value=idnum_value)
+            page.add_or_set_value(
+                heading=TSV_PATIENT_FIELD_PREFIX + FP_ID_DESC + nstr,
+                value=longdesc)
+            page.add_or_set_value(
+                heading=(TSV_PATIENT_FIELD_PREFIX + FP_ID_SHORT_DESC +
+                         nstr),
+                value=shortdesc)
+        return page
+
+    def get_bare_ptinfo(self) -> BarePatientInfo:
+        """
+        Get basic identifying information, as a
+        :class:`camcops_server.cc_modules.cc_simpleobjects.BarePatientInfo`
+        object.
+        """
+        return BarePatientInfo(
+            forename=self.forename,
+            surname=self.surname,
+            sex=self.sex,
+            dob=self.dob,
+            address=self.address,
+            gp=self.gp,
+            other=self.other,
+            idnum_definitions=self.get_idnum_references()
+        )
+
     def get_hl7_pid_segment(self,
                             req: "CamcopsRequest",
                             recipient: "ExportRecipient") -> hl7.Segment:
@@ -625,82 +791,9 @@ class Patient(GenericTabletRecordMixin, Base):
             patient_id_list=patient_id_tuple_list,
         )
 
-    def get_idnum_object(self, which_idnum: int) -> Optional[PatientIdNum]:
-        """
-        Gets the PatientIdNum object for a specified which_idnum, or None.
-        """
-        idnums = self.idnums  # type: List[PatientIdNum]
-        for x in idnums:
-            if x.which_idnum == which_idnum:
-                return x
-        return None
-
-    def has_idnum_type(self, which_idnum: int) -> bool:
-        """
-        Does the patient have an ID number of the specified type?
-        """
-        return self.get_idnum_object(which_idnum) is not None
-
-    def get_idnum_value(self, which_idnum: int) -> Optional[int]:
-        """
-        Get value of a specific ID number, if present.
-        """
-        idobj = self.get_idnum_object(which_idnum)
-        return idobj.idnum_value if idobj else None
-
-    def set_idnum_value(self, req: "CamcopsRequest",
-                        which_idnum: int, idnum_value: int) -> None:
-        """
-        Sets an ID number value.
-        """
-        dbsession = req.dbsession
-        ccsession = req.camcops_session
-        idnums = self.idnums  # type: List[PatientIdNum]
-        for idobj in idnums:
-            if idobj.which_idnum == which_idnum:
-                idobj.idnum_value = idnum_value
-                return
-        # Otherwise, make a new one:
-        newid = PatientIdNum()
-        newid.patient_id = self.id
-        newid._device_id = self._device_id
-        newid._era = self._era
-        newid._current = True
-        newid._when_added_exact = req.now_era_format
-        newid._when_added_batch_utc = req.now_utc
-        newid._adding_user_id = ccsession.user_id
-        newid._camcops_version = CAMCOPS_SERVER_VERSION_STRING
-        dbsession.add(newid)
-        self.idnums.append(newid)
-
-    def get_iddesc(self, req: "CamcopsRequest",
-                   which_idnum: int) -> Optional[str]:
-        """
-        Get value of a specific ID description, if present.
-        """
-        idobj = self.get_idnum_object(which_idnum)
-        return idobj.description(req) if idobj else None
-
-    def get_idshortdesc(self, req: "CamcopsRequest",
-                        which_idnum: int) -> Optional[str]:
-        """
-        Get value of a specific ID short description, if present.
-        """
-        idobj = self.get_idnum_object(which_idnum)
-        return idobj.short_description(req) if idobj else None
-
-    def add_extra_idnum_info_to_row(self, row: Dict[str, Any]) -> None:
-        """
-        For the ``DB_PATIENT_ID_PER_ROW`` export option. Adds additional ID
-        number info to a row.
-
-        Args:
-            row: future database row, as a dictionary
-        """
-        for idobj in self.idnums:
-            which_idnum = idobj.which_idnum
-            fieldname = extra_id_colname(which_idnum)
-            row[fieldname] = idobj.idnum_value
+    # -------------------------------------------------------------------------
+    # Database status
+    # -------------------------------------------------------------------------
 
     def is_preserved(self) -> bool:
         """

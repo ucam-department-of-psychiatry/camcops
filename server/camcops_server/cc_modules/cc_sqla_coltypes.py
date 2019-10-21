@@ -546,7 +546,7 @@ def isotzdatetime_to_utcdatetime_mysql(
         f"CONVERT_TZ({the_date_time}, {old_timezone}, {_UTC_TZ_LITERAL})"
     )
 
-    # log.debug(result_utc)
+    # log.warning(result_utc)
     return result_utc
 
 
@@ -557,26 +557,50 @@ def isotzdatetime_to_utcdatetime_sqlite(
         compiler: "SQLCompiler", **kw) -> str:
     """
     Implementation of :class:`isotzdatetime_to_utcdatetime` for SQLite.
-    """
+
+    - https://sqlite.org/lang_corefunc.html#substr
+    - https://sqlite.org/lang_datefunc.html
+    - http://www.sqlite.org/lang_expr.html
+
+    Get an SQL expression for the timezone adjustment in hours.
+    Note that if a time is 12:00+01:00, that means e.g. midday BST, which
+    is 11:00+00:00 or 11:00 UTC. So you SUBTRACT the displayed timezone from
+    the time, which I've always thought is a bit odd.
+
+    Ha! Was busy implementing this, but SQLite is magic; if there's a
+    timezone at the end, ``STRFTIME()`` will convert it to UTC automatically!
+    Moreover, the format is the OUTPUT format that a Python datetime will
+    recognize, so no 'T'.
+
+    The output format is like this: ``2018-06-01 00:00:00.000``. Note that
+    SQLite provides millisecond precision only (in general and via the ``%f``
+    argument to ``STRFTIME``).
+
+    See also SQLAlchemy's DATETIME support for SQLite:
+
+    - https://docs.sqlalchemy.org/en/13/dialects/sqlite.html?highlight=sqlite#sqlalchemy.dialects.sqlite.DATETIME
+
+    ... but that doesn't support timezones, so that doesn't help us.
+
+    One further problem -- see
+    :class:`camcops_server.tasks.core10.Core10ReportDateRangeTests` -- is that
+    comparisons are done by SQLite as text, so e.g.
+
+    .. code-block:: sql
+
+        SELECT '2018-06-01 00:00:00.000' >= '2018-06-01 00:00:00.000000';  -- 0, false
+        SELECT '2018-06-01 00:00:00.000' >= '2018-06-01 00:00:00.000';  -- 1, true
+
+    and therefore we need to ensure either that the SQLite side gets translated
+    to 6dp, or the bind param gets translated to 3dp. I don't think we can
+    always have control over the bind parameter. So we append '000' to the
+    SQLite side.
+
+    """  # noqa
     x = fetch_processed_single_clause(element, compiler)
-
-    # https://sqlite.org/lang_corefunc.html#substr
-    # https://sqlite.org/lang_datefunc.html
-    # http://www.sqlite.org/lang_expr.html
-    #
-    # Get an SQL expression for the timezone adjustment in hours.
-    # Note that if a time is 12:00+01:00, that means e.g. midday BST, which
-    # is 11:00+00:00 or 11:00 UTC. So you SUBTRACT the displayed timezone from
-    # the time, which I've always thought is a bit odd.
-    #
-    # Ha! Was busy implementing this, but SQLite is magic; if there's a
-    # timezone at the end, STRFTIME() will convert it to UTC automatically!
-    # Moreover, the format is the OUTPUT format that a Python datetime will
-    # recognize, so no 'T'.
     fmt = compiler.process(text(_SQLITE_DATETIME_FMT_FOR_PYTHON))
-    result = f"STRFTIME({fmt}, {x})"
-
-    # log.debug(result)
+    result = f"(STRFTIME({fmt}, {x}) || '000')"
+    # log.warning(result)
     return result
 
 
@@ -696,7 +720,7 @@ def isotzdatetime_to_utcdatetime_sqlserver(
     )
     result_utc = f"CAST({date_time_offset_with_utc_tz} AS DATETIME2)"
 
-    # log.debug(result_utc)
+    # log.warning(result_utc)
     return result_utc
 
 
@@ -744,7 +768,7 @@ def unknown_field_to_utcdatetime_mysql(
     x = fetch_processed_single_clause(element, compiler)
     converted = isotzdatetime_to_utcdatetime_mysql(element, compiler, **kw)
     result = f"IF(LENGTH({x}) = {_MYSQL_DATETIME_LEN}, {x}, {converted})"
-    # log.debug(result)
+    # log.warning(result)
     return result
 
 
@@ -759,7 +783,7 @@ def unknown_field_to_utcdatetime_sqlite(
     x = fetch_processed_single_clause(element, compiler)
     fmt = compiler.process(text(_SQLITE_DATETIME_FMT_FOR_PYTHON))
     result = f"STRFTIME({fmt}, {x})"
-    # log.debug(result)
+    # log.warning(result)
     return result
 
 
@@ -791,7 +815,7 @@ def unknown_field_to_utcdatetime_sqlserver(
         f"ELSE {converted} "
         f"END"
     )
-    # log.debug(result)
+    # log.warning(result)
     return result
 
 
@@ -850,7 +874,7 @@ class PendulumDateTimeAsIsoTextColType(TypeDecorator):
         """
         retval = self.pendulum_to_isostring(value)
         if DEBUG_DATETIME_AS_ISO_TEXT:
-            log.debug(
+            log.warning(
                 "{}.process_bind_param("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
                 self._coltype_name, self, value, dialect, retval)
@@ -863,7 +887,7 @@ class PendulumDateTimeAsIsoTextColType(TypeDecorator):
         """
         retval = self.pendulum_to_isostring(value)
         if DEBUG_DATETIME_AS_ISO_TEXT:
-            log.debug(
+            log.warning(
                 "{}.process_literal_param("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
                 self._coltype_name, self, value, dialect, retval)
@@ -876,7 +900,7 @@ class PendulumDateTimeAsIsoTextColType(TypeDecorator):
         """
         retval = self.isostring_to_pendulum(value)
         if DEBUG_DATETIME_AS_ISO_TEXT:
-            log.debug(
+            log.warning(
                 "{}.process_result_value("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
                 self._coltype_name, self, value, dialect, retval)
@@ -896,6 +920,9 @@ class PendulumDateTimeAsIsoTextColType(TypeDecorator):
             isotzdatetime_to_utcdatetime
 
         ... which we then specialize for specific dialects.
+
+        This function itself does not appear to be able to access any
+        information about the dialect.
         """
 
         def operate(self, op, *other, **kwargs):
@@ -905,6 +932,13 @@ class PendulumDateTimeAsIsoTextColType(TypeDecorator):
             try:
                 processed_other = convert_datetime_to_utc(
                     coerce_to_pendulum(other))
+                # - If you try to call a dialect-specialized FunctionElement,
+                #   it processes the clause to "?" (meaning "attach bind
+                #   parameter here"); it's not the value itself.
+                # - For our SQLite "milliseconds only" comparator problem (see
+                #   above), we can't do very much here without knowing the
+                #   dialect. So we make the SQLite side look like it has
+                #   microseconds by appending "000"...
             except (AttributeError, ParserError, TypeError, ValueError):
                 # OK. At this point, "other" could be a plain DATETIME field,
                 # or a PendulumDateTimeAsIsoTextColType field (or potentially
@@ -912,9 +946,10 @@ class PendulumDateTimeAsIsoTextColType(TypeDecorator):
                 # DATETIME, then we assume it is already in UTC.
                 processed_other = unknown_field_to_utcdatetime(other)
             if DEBUG_DATETIME_AS_ISO_TEXT:
-                log.debug("operate(self={!r}, op={!r}, other={!r})",
-                          self, op, other)
-                log.debug("self.expr = {!r}", self.expr)
+                log.warning("operate(self={!r}, op={!r}, other={!r})",
+                            self, op, other)
+                log.warning("self.expr = {!r}", self.expr)
+                log.warning("processed_other = {!r}", processed_other)
                 # traceback.print_stack()
             return op(isotzdatetime_to_utcdatetime(self.expr),
                       processed_other)
@@ -976,7 +1011,7 @@ class PendulumDurationAsIsoTextColType(TypeDecorator):
         """
         retval = self.pendulum_duration_to_isostring(value)
         if DEBUG_DURATION_AS_ISO_TEXT:
-            log.debug(
+            log.warning(
                 "{}.process_bind_param("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
                 self._coltype_name, self, value, dialect, retval)
@@ -989,7 +1024,7 @@ class PendulumDurationAsIsoTextColType(TypeDecorator):
         """
         retval = self.pendulum_duration_to_isostring(value)
         if DEBUG_DURATION_AS_ISO_TEXT:
-            log.debug(
+            log.warning(
                 "{}.process_literal_param("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
                 self._coltype_name, self, value, dialect, retval)
@@ -1002,7 +1037,7 @@ class PendulumDurationAsIsoTextColType(TypeDecorator):
         """
         retval = self.isostring_to_pendulum_duration(value)
         if DEBUG_DURATION_AS_ISO_TEXT:
-            log.debug(
+            log.warning(
                 "{}.process_result_value("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
                 self._coltype_name, self, value, dialect, retval)
@@ -1039,7 +1074,7 @@ class SemanticVersionColType(TypeDecorator):
         """
         retval = str(value) if value is not None else None
         if DEBUG_SEMANTIC_VERSION:
-            log.debug(
+            log.warning(
                 "{}.process_bind_param("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
                 self._coltype_name, self, value, dialect, retval)
@@ -1052,7 +1087,7 @@ class SemanticVersionColType(TypeDecorator):
         """
         retval = str(value) if value is not None else None
         if DEBUG_SEMANTIC_VERSION:
-            log.debug(
+            log.warning(
                 "{}.process_literal_param("
                 "self={!r}, value={!r}, dialect={!r}) -> !r",
                 self._coltype_name, self, value, dialect, retval)
@@ -1071,7 +1106,7 @@ class SemanticVersionColType(TypeDecorator):
             # ordered Version out:
             retval = make_version(value)
         if DEBUG_SEMANTIC_VERSION:
-            log.debug(
+            log.warning(
                 "{}.process_result_value("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
                 self._coltype_name, self, value, dialect, retval)
@@ -1175,7 +1210,7 @@ class IdNumReferenceListColType(TypeDecorator):
         """
         retval = self._idnumdef_list_to_dbstr(value)
         if DEBUG_IDNUMDEF_LIST:
-            log.debug(
+            log.warning(
                 "{}.process_bind_param("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
                 self._coltype_name, self, value, dialect, retval)
@@ -1188,7 +1223,7 @@ class IdNumReferenceListColType(TypeDecorator):
         """
         retval = self._idnumdef_list_to_dbstr(value)
         if DEBUG_IDNUMDEF_LIST:
-            log.debug(
+            log.warning(
                 "{}.process_literal_param("
                 "self={!r}, value={!r}, dialect={!r}) -> !r",
                 self._coltype_name, self, value, dialect, retval)
@@ -1201,7 +1236,7 @@ class IdNumReferenceListColType(TypeDecorator):
         """
         retval = self._dbstr_to_idnumdef_list(value)
         if DEBUG_IDNUMDEF_LIST:
-            log.debug(
+            log.warning(
                 "{}.process_result_value("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
                 self._coltype_name, self, value, dialect, retval)

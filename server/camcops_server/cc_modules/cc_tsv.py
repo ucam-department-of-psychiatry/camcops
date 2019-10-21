@@ -152,6 +152,18 @@ class TsvPage(object):
         """
         self.headings.sort()
 
+    @property
+    def plainrows(self) -> List[List[Any]]:
+        """
+        Returns a list of rows, where each row is a list of values.
+
+        Compare :attr:`rows`, which is a list of dictionaries.
+        """
+        plainrows = []
+        for row in self.rows:
+            plainrows.append([row.get(h) for h in self.headings])
+        return plainrows
+
     def get_tsv(self, dialect: str = "excel-tab") -> str:
         r"""
         Returns the entire page (sheet) as TSV: one header row and then
