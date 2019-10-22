@@ -116,34 +116,42 @@ QString Task::implementationTypeDescription() const
 #endif
         return TextConst::fullTask();
     case TaskImplementationType::UpgradableSkeleton:
-        return TextConst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_TITLE_SUFFIX;
+        return TextConst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_SYMBOL;
     case TaskImplementationType::Skeleton:
-        return TextConst::DATA_COLLECTION_ONLY_TITLE_SUFFIX;
+        return TextConst::DATA_COLLECTION_ONLY_SYMBOL;
     }
 }
 
 
 QString Task::menuTitleSuffix() const
 {
-    QString suffix;
+    QStringList suffixes;
+    if (hasClinician()) {
+        suffixes += TextConst::HAS_CLINICIAN_SYMBOL;
+    }
+    if (hasRespondent()) {
+        suffixes += TextConst::HAS_RESPONDENT_SYMBOL;
+    }
     switch (implementationType()) {
     case TaskImplementationType::Full:
         break;
     case TaskImplementationType::UpgradableSkeleton:
-        suffix += TextConst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_TITLE_SUFFIX;
+        suffixes += TextConst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_SYMBOL;
         break;
     case TaskImplementationType::Skeleton:
-        suffix += TextConst::DATA_COLLECTION_ONLY_TITLE_SUFFIX;
+        suffixes += TextConst::DATA_COLLECTION_ONLY_SYMBOL;
         break;
     }
     if (isExperimental()) {
-        suffix += TextConst::EXPERIMENTAL_TITLE_SUFFIX;
+        suffixes += TextConst::EXPERIMENTAL_SYMBOL;
     }
     if (isDefunct()) {
-        suffix += TextConst::DEFUNCT_TITLE_SUFFIX;
+        suffixes += TextConst::DEFUNCT_SYMBOL;
     }
-    return suffix;
+    return suffixes.isEmpty() ? ""
+                              : QString(" <i>[%1]</i>").arg(suffixes.join(""));
 }
+
 
 QString Task::menutitle() const
 {
@@ -153,24 +161,54 @@ QString Task::menutitle() const
 
 QString Task::menuSubtitleSuffix() const
 {
-    QString suffix;
+    auto makeSuffix = [](const QString& title,
+                         const QString& subtitle) -> QString {
+        return QString("%1: %2").arg(title, subtitle);
+    };
+
+    QStringList suffixes;
+    if (hasClinician()) {
+        suffixes += makeSuffix(
+            TextConst::HAS_CLINICIAN_SYMBOL,
+            TextConst::hasClinicianSubtitleSuffix()
+        );
+    }
+    if (hasRespondent()) {
+        suffixes += makeSuffix(
+            TextConst::HAS_RESPONDENT_SYMBOL,
+            TextConst::hasRespondentSubtitleSuffix()
+        );
+    }
     switch (implementationType()) {
     case TaskImplementationType::Full:
         break;
     case TaskImplementationType::UpgradableSkeleton:
-        suffix += TextConst::dataCollectionOnlyUnlessUpgradedSubtitleSuffix();
+        suffixes += makeSuffix(
+            TextConst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_SYMBOL,
+            TextConst::dataCollectionOnlyUnlessUpgradedSubtitleSuffix()
+        );
         break;
     case TaskImplementationType::Skeleton:
-        suffix += TextConst::dataCollectionOnlySubtitleSuffix();
+        suffixes += makeSuffix(
+            TextConst::DATA_COLLECTION_ONLY_SYMBOL,
+            TextConst::dataCollectionOnlySubtitleSuffix()
+        );
         break;
     }
     if (isExperimental()) {
-        suffix += TextConst::experimentalSubtitleSuffix();
+        suffixes += makeSuffix(
+            TextConst::EXPERIMENTAL_SYMBOL,
+            TextConst::experimentalSubtitleSuffix()
+        );
     }
     if (isDefunct()) {
-        suffix += TextConst::defunctSubtitleSuffix();
+        suffixes += makeSuffix(
+            TextConst::DEFUNCT_SYMBOL,
+            TextConst::defunctSubtitleSuffix()
+        );
     }
-    return suffix;
+    return suffixes.isEmpty() ? ""
+                              : QString(" <i>[%1]</i>").arg(suffixes.join(" "));
 }
 
 

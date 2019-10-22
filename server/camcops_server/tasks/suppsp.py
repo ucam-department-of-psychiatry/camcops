@@ -27,6 +27,7 @@ camcops_server/tasks/suppsp.py
 **Short UPPS-P Impulsive Behaviour Scale (SUPPS-P) task.**
 
 """
+
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import tr_qa, tr, answer
 from camcops_server.cc_modules.cc_request import CamcopsRequest
@@ -36,8 +37,11 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
 )
 
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
-from camcops_server.cc_modules.cc_task import TaskHasPatientMixin, \
-    TaskHasClinicianMixin, Task, get_from_dict
+from camcops_server.cc_modules.cc_task import (
+    TaskHasPatientMixin,
+    Task,
+    get_from_dict,
+)
 from camcops_server.cc_modules.cc_text import SS
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy import Integer
@@ -97,7 +101,6 @@ class SuppspMetaclass(DeclarativeMeta):
 
 
 class Suppsp(TaskHasPatientMixin,
-             TaskHasClinicianMixin,
              Task,
              metaclass=SuppspMetaclass):
     __tablename__ = "suppsp"

@@ -59,7 +59,7 @@ void initializeAsdas(TaskFactory& factory)
 
 
 Asdas::Asdas(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, ASDAS_TABLENAME, false, true, false),  // ... anon, clin, resp
+    Task(app, db, ASDAS_TABLENAME, false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_SCALE_QUESTIONS), QVariant::Int);

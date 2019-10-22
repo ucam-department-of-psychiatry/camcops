@@ -39,8 +39,7 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     SummaryCategoryColType,
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
-from camcops_server.cc_modules.cc_task import TaskHasPatientMixin, \
-    TaskHasClinicianMixin, Task
+from camcops_server.cc_modules.cc_task import TaskHasPatientMixin, Task
 from camcops_server.cc_modules.cc_trackerhelpers import (
     TrackerAxisTick,
     TrackerInfo,
@@ -86,7 +85,6 @@ class AsdasMetaclass(DeclarativeMeta):
 
 
 class Asdas(TaskHasPatientMixin,
-            TaskHasClinicianMixin,
             Task,
             metaclass=AsdasMetaclass):
     __tablename__ = "asdas"
