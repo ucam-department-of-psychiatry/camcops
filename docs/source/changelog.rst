@@ -2591,3 +2591,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
   - :ref:`Multidimensional Fatigue Inventory (MFI-20) <mfi20>`
   - :ref:`Short-Form McGill Pain Questionnaire (SF-MPQ2) <sfmpq2>`
   - :ref:`Short UPPS-P Impulsive Behaviour Scale (SUPPS-P) <suppsp>`
+
+- Diagnosis in summary for :ref:`Khandaker GM — MOJO — Medical questionnaire
+  <khandaker_mojo_medical>`.
