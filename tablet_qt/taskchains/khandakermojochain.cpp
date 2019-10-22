@@ -18,17 +18,25 @@
 */
 
 #include "khandakermojochain.h"
-#include "tasks/khandakermojomedical.h"
+#include "tasks/chit.h"
+#include "tasks/eq5d5l.h"
 #include "tasks/khandakermojomedicationtherapy.h"
 #include "tasks/khandakermojosociodemographics.h"
+#include "tasks/mfi20.h"
+#include "tasks/shaps.h"
+#include "tasks/suppsp.h"
 
 
 KhandakerMojoChain::KhandakerMojoChain(CamcopsApp& app) :
     TaskChain(app, {
         KhandakerMojoSociodemographics::KHANDAKER2MOJOSOCIODEMOGRAPHICS_TABLENAME,
-        KhandakerMojoMedical::KHANDAKERMOJOMEDICAL_TABLENAME,
         KhandakerMojoMedicationTherapy::KHANDAKERMOJOMEDICATIONTHERAPY_TABLENAME,
-        // *** Actual sequence to be confirmed.
+        Eq5d5l::EQ5D5L_TABLENAME,
+        Shaps::SHAPS_TABLENAME,
+        Mfi20::MFI20_TABLENAME,
+        Chit::CHIT_TABLENAME,
+        Suppsp::SUPPSP_TABLENAME,
+        // Sequence as per Joel Parkinson to Rudolf Cardinal, 2019-10-22.
     }, TaskChain::CreationMethod::OnDemandOrAbort)
 {
 }
