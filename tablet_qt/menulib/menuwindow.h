@@ -92,6 +92,14 @@ public:
     // Catch generic events
     virtual bool event(QEvent* e) override;
 
+    // Complain that the task isn't offering an editor, so can't be
+    // viewed or edited.
+    static void complainTaskNotOfferingEditor();
+
+    // Connect Questionnaire::editStarted  -> Task::editStarted
+    //     and Questionnaire::editFinished -> Task::editFinished
+    static void connectQuestionnaireToTask(OpenableWidget* widget, Task* task);
+
 protected:
     // Ensures items are recreated in full
     void rebuild(bool rebuild_header = true);
@@ -170,14 +178,6 @@ protected:
 
     // Toggle the finish flag of the currently selected task/patient.
     void toggleFinishFlag();
-
-    // Connect Questionnaire::editStarted  -> Task::editStarted
-    //     and Questionnaire::editFinished -> Task::editFinished
-    void connectQuestionnaireToTask(OpenableWidget* widget, Task* task);
-
-    // Complain that the task isn't offering an editor, so can't be
-    // viewed or edited.
-    void complainTaskNotOfferingEditor();
 
 protected:
     CamcopsApp& m_app;

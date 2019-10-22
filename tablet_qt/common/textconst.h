@@ -165,6 +165,8 @@ public:
     static QString service();
     static QString severe();
     static QString sex();
+    static QString startChainQuestion();
+    static QString startChainTitle();
     static QString soundTestFor();
     
     static QString thankYou();

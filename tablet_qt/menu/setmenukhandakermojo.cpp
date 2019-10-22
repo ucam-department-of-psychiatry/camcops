@@ -21,6 +21,7 @@
 #include "common/textconst.h"
 #include "common/uiconst.h"
 #include "lib/uifunc.h"
+#include "menu/patientsummarymenu.h"
 #include "menulib/menuitem.h"
 
 #include "taskchains/khandakermojochain.h"
@@ -64,6 +65,9 @@ void SetMenuKhandakerMojo::makeItems()
 {
     m_items = {
         MAKE_CHANGE_PATIENT(m_app),
+        // Probably helpful to have a direct link to the patient summary:
+        MAKE_MENU_MENU_ITEM(PatientSummaryMenu, m_app),
+
         MenuItem(tr("Screening phase")).setLabelOnly(),
         MAKE_TASK_MENU_ITEM(
             KhandakerMojoMedical::KHANDAKERMOJOMEDICAL_TABLENAME,
@@ -83,11 +87,9 @@ void SetMenuKhandakerMojo::makeItems()
         MAKE_TASK_MENU_ITEM(Mfi20::MFI20_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Chit::CHIT_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Suppsp::SUPPSP_TABLENAME, m_app),
-
-        // TO BE CONFIRMED: ***
         MAKE_TASK_MENU_ITEM(Sfmpq2::SFMPQ2_TABLENAME, m_app),
 
-        MenuItem(tr("Subject-rated scales (all subjects)")).setLabelOnly(),
+        MenuItem(tr("Subject-rated scales (condition-specific)")).setLabelOnly(),
         MAKE_TASK_MENU_ITEM(Asdas::ASDAS_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Esspri::ESSPRI_TABLENAME, m_app),
 

@@ -235,7 +235,7 @@ void MenuWindow::makeLayout()
         // Signals
         connect(m_search_box.data(), &QLineEdit::textChanged,
                 this, &MenuWindow::searchTextChanged);
-    };
+    }
 
     // ------------------------------------------------------------------------
     // List

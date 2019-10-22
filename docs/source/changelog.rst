@@ -2594,3 +2594,4 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Diagnosis in summary for :ref:`Khandaker GM — MOJO — Medical questionnaire
   <khandaker_mojo_medical>`.
+

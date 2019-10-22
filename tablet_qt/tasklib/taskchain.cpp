@@ -17,8 +17,13 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <QDebug>
 #include "taskchain.h"
 #include "core/camcopsapp.h"
+#include "lib/stringfunc.h"
+#include "lib/uifunc.h"
+#include "menulib/menuwindow.h"
+#include "questionnairelib/questionnaire.h"
 #include "tasklib/taskfactory.h"
 
 
@@ -31,7 +36,8 @@ TaskChain::TaskChain(CamcopsApp& app,
     m_task_tablenames(task_tablenames),
     m_creation_method(creation_method),
     m_title(title),
-    m_subtitle(subtitle)
+    m_subtitle(subtitle),
+    m_current_task_index(-1)
 {
 }
 
@@ -70,16 +76,159 @@ int TaskChain::nTasks() const
 }
 
 
+bool TaskChain::needsPatient() const
+{
+    TaskFactory* factory = m_app.taskFactory();
+    for (const auto& tablename : m_task_tablenames) {
+        TaskPtr specimen = factory->create(tablename);
+        if (!specimen->isAnonymous()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+bool TaskChain::permissible(QStringList& failure_reasons) const
+{
+    QString why_not_permissible;
+    bool permissible = true;
+    TaskFactory* factory = m_app.taskFactory();
+    for (const auto& tablename : m_task_tablenames) {
+        TaskPtr specimen = factory->create(tablename);
+        if (!specimen->isTaskPermissible(why_not_permissible)) {
+            const QString reason = QString("%1: %2")
+                    .arg(specimen->shortname(),
+                         stringfunc::bold(why_not_permissible));
+            failure_reasons.append(reason);
+            permissible = false;
+        }
+    }
+    return permissible;
+}
+
+
 TaskChain::CreationMethod TaskChain::creationMethod() const
 {
     return m_creation_method;
 }
 
 
-TaskPtr TaskChain::makeTask(int index) const
+void TaskChain::ensureTaskCreated(const int index)
+{
+    if (index < 0 || index >= nTasks()) {
+        return;
+    }
+
+    // Create the task
+    TaskPtr task = m_app.taskFactory()->create(m_task_tablenames[index]);
+    m_tasks[index] = task;
+
+    // Set up the task
+    // Compare SingleTaskMenu::addTask()
+    const int patient_id = m_app.selectedPatientId();
+    task->setupForEditingAndSave(patient_id);
+
+    qDebug().nospace()
+            << "Task chain created task " << index + 1
+            << ": " << task->shortname();
+}
+
+
+void TaskChain::ensureAllTasksCreated()
+{
+    for (int i = 0; i < nTasks(); ++i) {
+        ensureTaskCreated(i);
+    }
+}
+
+
+TaskPtr TaskChain::getTask(const int index)
 {
     if (index < 0 || index >= nTasks()) {
         return nullptr;
     }
-    return m_app.taskFactory()->create(m_task_tablenames[index]);
+    ensureTaskCreated(index);
+    return m_tasks[index];
+}
+
+
+void TaskChain::start()
+{
+    // Pre-flight checks
+    // Compare SingleTaskMenu::addTask()
+    if (needsPatient() && !m_app.isPatientSelected()) {
+        uifunc::alert(tr("No patient selected"));
+        return;
+    }
+    QStringList failure_reasons;
+    if (!permissible(failure_reasons)) {
+        uifunc::alert(QString("%1<br><br>%2").arg(
+                          tr("Task(s) not permissible:"),
+                          failure_reasons.join("<br>")));
+        return;
+    }
+
+    // Go
+    m_current_task_index = -1;
+    m_tasks.clear();
+    if (m_creation_method == CreationMethod::AtStart) {
+        ensureAllTasksCreated();
+    }
+    startNextTask();
+}
+
+
+void TaskChain::startNextTask()
+{
+    // Move to next task
+    ++m_current_task_index;
+    // All done?
+    if (m_current_task_index >= nTasks()) {
+        onAllTasksFinished();
+        return;
+    }
+    // Launch a task
+    TaskPtr task = getTask(m_current_task_index);
+    OpenableWidget* widget = task->editor(false);
+    if (!widget) {
+        MenuWindow::complainTaskNotOfferingEditor();
+        return;
+    }
+    Task* ptask = task.data();
+    auto questionnaire = dynamic_cast<Questionnaire*>(widget);
+    if (questionnaire) {
+        questionnaire->setWithinChain(true);
+    }
+    MenuWindow::connectQuestionnaireToTask(widget, ptask);  // in case it's a questionnaire
+    QObject::connect(ptask, &Task::editingFinished,
+                     this, &TaskChain::onTaskFinished);
+    QObject::connect(ptask, &Task::editingAborted,
+                     this, &TaskChain::onTaskAborted);
+    qDebug().nospace()
+            << "Task chain launching task " << m_current_task_index + 1
+            << ": " << ptask->shortname();
+    m_app.openSubWindow(widget, task, true);
+}
+
+
+void TaskChain::onAllTasksFinished()
+{
+    // Nothing needs doing.
+}
+
+
+void TaskChain::onTaskAborted()
+{
+    qDebug() << "Task chain: task was aborted";
+    if (m_creation_method == CreationMethod::OnDemandOrAbort) {
+        ensureAllTasksCreated();
+    }
+}
+
+
+void TaskChain::onTaskFinished()
+{
+    qDebug() << "Task chain: task has finished successfully";
+    startNextTask();
 }

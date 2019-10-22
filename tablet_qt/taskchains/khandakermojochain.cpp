@@ -23,6 +23,7 @@
 #include "tasks/khandakermojomedicationtherapy.h"
 #include "tasks/khandakermojosociodemographics.h"
 #include "tasks/mfi20.h"
+#include "tasks/sfmpq2.h"
 #include "tasks/shaps.h"
 #include "tasks/suppsp.h"
 
@@ -36,7 +37,8 @@ KhandakerMojoChain::KhandakerMojoChain(CamcopsApp& app) :
         Mfi20::MFI20_TABLENAME,
         Chit::CHIT_TABLENAME,
         Suppsp::SUPPSP_TABLENAME,
+        Sfmpq2::SFMPQ2_TABLENAME,
         // Sequence as per Joel Parkinson to Rudolf Cardinal, 2019-10-22.
-    }, TaskChain::CreationMethod::OnDemandOrAbort)
+    })
 {
 }

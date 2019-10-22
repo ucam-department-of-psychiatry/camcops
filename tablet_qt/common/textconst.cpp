@@ -32,17 +32,17 @@ QString TextConst::back() { return tr("Back"); }
 
 QString TextConst::cancel() { return tr("Cancel"); }
 QString TextConst::category() { return tr("Category"); }
-QString TextConst::clinician() { return tr("Clinician"); }
-QString TextConst::clinicianAndRespondentDetails() { return tr("Clinician’s and respondent’s details"); }
-QString TextConst::clinicianComments() { return tr("Clinician’s comments"); }
-QString TextConst::clinicianContactDetails() { return tr("Clinician’s contact details"); }
-QString TextConst::clinicianDetails() { return tr("Clinician’s details"); }
-QString TextConst::clinicianName() { return tr("Clinician’s name"); }
-QString TextConst::clinicianPost() { return tr("Clinician’s post"); }
-QString TextConst::clinicianProfessionalRegistration() { return tr("Clinician’s professional registration"); }
-QString TextConst::clinicianService() { return tr("Clinician’s service"); }
-QString TextConst::clinicianSpecialty() { return tr("Clinician’s specialty"); }
-QString TextConst::cliniciansComments() { return tr("Clinician’s comments"); }
+QString TextConst::clinician() { return tr("Clinician/researcher"); }
+QString TextConst::clinicianAndRespondentDetails() { return tr("Clinician/researcher’s and respondent’s details"); }
+QString TextConst::clinicianComments() { return tr("Clinician/researcher’s comments"); }
+QString TextConst::clinicianContactDetails() { return tr("Clinician/researcher’s contact details"); }
+QString TextConst::clinicianDetails() { return tr("Clinician/researcher’s details"); }
+QString TextConst::clinicianName() { return tr("Clinician/researcher’s name"); }
+QString TextConst::clinicianPost() { return tr("Clinician/researcher’s post"); }
+QString TextConst::clinicianProfessionalRegistration() { return tr("Clinician/researcher’s professional registration"); }
+QString TextConst::clinicianService() { return tr("Clinician/researcher’s service"); }
+QString TextConst::clinicianSpecialty() { return tr("Clinician/researcher’s specialty"); }
+QString TextConst::cliniciansComments() { return tr("Clinician/researcher’s comments"); }
 QString TextConst::comment() { return tr("Comment"); }
 QString TextConst::comments() { return tr("Comments"); }
 QString TextConst::copy() { return tr("Copy"); }
@@ -167,6 +167,8 @@ QString TextConst::seeFacsimileForMoreDetail() { return tr("See facsimile for mo
 QString TextConst::service() { return tr("Service"); }
 QString TextConst::severe() { return tr("Severe"); }
 QString TextConst::sex() { return tr("Sex"); }
+QString TextConst::startChainQuestion() { return tr("Start new task chain?"); }
+QString TextConst::startChainTitle() { return tr("Start task chain"); }
 QString TextConst::soundTestFor() { return tr("Sound test for"); }
 
 QString TextConst::thankYou() { return tr("Thank you!"); }

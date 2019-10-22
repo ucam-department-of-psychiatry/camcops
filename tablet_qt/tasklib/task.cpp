@@ -622,6 +622,17 @@ QStringList Task::respondentDetails() const
 // Editing
 // ============================================================================
 
+void Task::setupForEditingAndSave(const int patient_id)
+{
+    if (!isAnonymous()) {
+        setPatient(patient_id);
+    }
+    setDefaultClinicianVariablesAtFirstUse();
+    setDefaultsAtFirstUse();
+    save();
+}
+
+
 double Task::editingTimeSeconds() const
 {
     return valueDouble(EDITING_TIME_S_FIELDNAME);
@@ -665,8 +676,8 @@ OpenableWidget* Task::makeGraphicsWidgetForImmediateEditing(
     OpenableWidget* widget = makeGraphicsWidget(scene, background_colour,
                                                 fullscreen, esc_can_abort);
     connect(widget, &OpenableWidget::aborting,
-            this, &Task::editFinishedAbort);
-    editStarted();
+            this, &Task::onEditFinishedAbort);
+    onEditStarted();
     return widget;
 }
 
@@ -808,14 +819,14 @@ NameValueOptions Task::makeOptionsFromXstrings(const QString& xstring_prefix,
 }
 
 
-void Task::editStarted()
+void Task::onEditStarted()
 {
     m_editing = true;
     m_editing_started = datetime::now();
 }
 
 
-void Task::editFinished(const bool aborted)
+void Task::onEditFinished(const bool aborted)
 {
     if (!m_editing) {
         qDebug() << Q_FUNC_INFO << "wasn't editing";
@@ -836,18 +847,23 @@ void Task::editFinished(const bool aborted)
         setValue(FIRSTEXIT_IS_FINISH_FIELDNAME, !aborted);
     }
     save();
+    if (aborted) {
+        emit editingAborted();
+    } else {
+        emit editingFinished();
+    }
 }
 
 
-void Task::editFinishedProperly()
+void Task::onEditFinishedProperly()
 {
-    editFinished(false);
+    onEditFinished(false);
 }
 
 
-void Task::editFinishedAbort()
+void Task::onEditFinishedAbort()
 {
-    editFinished(true);
+    onEditFinished(true);
 }
 
 

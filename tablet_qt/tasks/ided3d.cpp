@@ -990,7 +990,7 @@ void IDED3D::startTask()
     setValue(FN_SHAPE_DEFINITIONS_SVG, IDED3DExemplars::allShapesAsJson());
     // Similarly for colours
     setValue(FN_COLOUR_DEFINITIONS_RGB, IDED3DExemplars::allColoursAsJson());
-    editStarted();  // will have been stopped by the end of the questionnaire?
+    onEditStarted();  // will have been stopped by the end of the questionnaire?
 
     // Double-check we have a PK before we create stages/trials
     save();
@@ -1201,7 +1201,7 @@ void IDED3D::abort()
 #endif
     setValue(FN_ABORTED, true);
     Q_ASSERT(m_widget);
-    editFinishedAbort();
+    onEditFinishedAbort();
     emit m_widget->finished();
 }
 
@@ -1213,6 +1213,6 @@ void IDED3D::finish()
 #endif
     setValue(FN_FINISHED, true);
     Q_ASSERT(m_widget);
-    editFinishedProperly();
+    onEditFinishedProperly();
     emit m_widget->finished();
 }

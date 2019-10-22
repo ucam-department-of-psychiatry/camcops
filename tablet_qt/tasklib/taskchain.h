@@ -19,16 +19,16 @@
 
 #pragma once
 
-#include <QCoreApplication>  // for Q_DECLARE_TR_FUNCTIONS
+#include <QObject>
 #include <QStringList>
 #include "common/aliases_camcops.h"
 
 class CamcopsApp;
 
 
-class TaskChain
+class TaskChain : public QObject
 {
-    Q_DECLARE_TR_FUNCTIONS(TaskChain)
+    Q_OBJECT
 
     // ------------------------------------------------------------------------
     // Enums
@@ -50,7 +50,7 @@ public:
     // Create the chain definition
     TaskChain(CamcopsApp& app,
               const QStringList& task_tablenames,
-              CreationMethod creation_method = CreationMethod::OnDemandOrAbort,
+              CreationMethod creation_method = CreationMethod::OnDemand,
               const QString& title = "",
               const QString& subtitle = "");
 
@@ -64,11 +64,40 @@ public:
     // Number of tasks in the chain
     int nTasks() const;
 
+    // Does this chain contain at least one non-anonymous task?
+    bool needsPatient() const;
+
+    // Is the chain permissible?
+    bool permissible(QStringList& failure_reasons) const;
+
     // How tasks should be created
     CreationMethod creationMethod() const;
 
+    // Start a chain and manage it
+    void start();
+
+protected:
     // Create a specific task
-    TaskPtr makeTask(int index) const;
+    void ensureTaskCreated(int index);
+
+    // Create all tasks not yet created
+    void ensureAllTasksCreated();
+
+    // Fetch a pointer to a specific task.
+    TaskPtr getTask(int index);
+
+    // Start the next task in the sequence
+    void startNextTask();
+
+    // Not sure this is necessary.
+    void onAllTasksFinished();
+
+protected slots:
+    // A task has been aborted.
+    void onTaskAborted();
+
+    // A task has finished.
+    void onTaskFinished();
 
 protected:
     CamcopsApp& m_app;  // our app
@@ -76,4 +105,6 @@ protected:
     CreationMethod m_creation_method;  // when to create each task
     QString m_title;  // non-default title
     QString m_subtitle;  // non-default subtitle
+    int m_current_task_index;
+    QMap<int, TaskPtr> m_tasks;
 };

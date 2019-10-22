@@ -538,6 +538,15 @@ void MenuItem::act(CamcopsApp& app) const
         // Handled via verb buttons instead.
         return;
     }
+    if (m_p_taskchain) {
+        if (!uifunc::confirm(TextConst::startChainQuestion(),
+                             TextConst::startChainTitle(),
+                             TextConst::yes(), TextConst::no())) {
+            return;
+        }
+        m_p_taskchain->start();
+        return;
+    }
     if (!m_implemented) {
         uifunc::alert(tr("Not implemented yet!"));
         return;
