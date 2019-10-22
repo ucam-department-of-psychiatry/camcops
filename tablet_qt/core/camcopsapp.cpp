@@ -1261,6 +1261,8 @@ void CamcopsApp::closeSubWindow()
 #endif
         emit selectedPatientDetailsChanged(m_patient.data());
     }
+
+    emit subWindowFinishedClosing();
 }
 
 

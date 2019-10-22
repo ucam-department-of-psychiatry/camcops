@@ -99,6 +99,10 @@ protected slots:
     // A task has finished.
     void onTaskFinished();
 
+    // The task has asked the app to close its window and the app has done
+    // the necessary.
+    void onAppSubWindowClosed();
+
 protected:
     CamcopsApp& m_app;  // our app
     QStringList m_task_tablenames;  // tasks that are part of the chain
@@ -107,4 +111,5 @@ protected:
     QString m_subtitle;  // non-default subtitle
     int m_current_task_index;
     QMap<int, TaskPtr> m_tasks;
+    bool m_proceed_when_app_has_closed_last_task;
 };

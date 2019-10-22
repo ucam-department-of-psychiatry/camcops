@@ -176,10 +176,11 @@ OpenableWidget* Eq5d5l::editor(const bool read_only)
             new QuMcq(fieldRef(field), options)
         });
 
+        const QString xheading = xstring(heading);
         pages.append(QuPagePtr(
             (new QuPage(elements))
-                ->setTitle(sname)
-                ->setIndexTitle(xstring(heading))
+                ->setTitle(QString("%1: %2").arg(sname, xheading))
+                ->setIndexTitle(xheading)
         ));
 
         elements.clear();
@@ -250,6 +251,7 @@ OpenableWidget* Eq5d5l::editor(const bool read_only)
     // ... will be owned by the grid when inserted;
     therm->setRescale(true, 0.4, true);
 
+    const QString xtherm = xstring("t2_h");
     pages.append(QuPagePtr(
         (new QuPage{
             new QuGridContainer{
@@ -258,8 +260,8 @@ OpenableWidget* Eq5d5l::editor(const bool read_only)
                     0, 0, 1, 1, Qt::AlignLeft | Qt::AlignTop),
                 QuGridCell(therm, 0, 1, 1, 1, Qt::AlignHCenter | Qt::AlignTop)
             }
-        })->setTitle(shortname())
-          ->setIndexTitle(xstring("t2_h"))
+        })->setTitle(QString("%1: %2").arg(sname, xtherm))
+          ->setIndexTitle(xtherm)
           ->allowScroll(false)  // for a resizable thermometer
     ));
 

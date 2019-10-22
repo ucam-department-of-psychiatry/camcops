@@ -39,6 +39,8 @@ TaskChain::TaskChain(CamcopsApp& app,
     m_subtitle(subtitle),
     m_current_task_index(-1)
 {
+    QObject::connect(&m_app, &CamcopsApp::subWindowFinishedClosing,
+                     this, &TaskChain::onAppSubWindowClosed);
 }
 
 
@@ -188,7 +190,8 @@ void TaskChain::startNextTask()
         onAllTasksFinished();
         return;
     }
-    // Launch a task
+
+    // Create and configure the task
     TaskPtr task = getTask(m_current_task_index);
     OpenableWidget* widget = task->editor(false);
     if (!widget) {
@@ -208,6 +211,9 @@ void TaskChain::startNextTask()
     qDebug().nospace()
             << "Task chain launching task " << m_current_task_index + 1
             << ": " << ptask->shortname();
+
+    // Launch the task
+    m_proceed_when_app_has_closed_last_task = false;
     m_app.openSubWindow(widget, task, true);
 }
 
@@ -229,6 +235,17 @@ void TaskChain::onTaskAborted()
 
 void TaskChain::onTaskFinished()
 {
-    qDebug() << "Task chain: task has finished successfully";
-    startNextTask();
+    qDebug() << "Task chain: task has finished successfully; waiting for app to close window";
+    // Do not call startNextTask() yet.
+    // The task's finishing signals will call the app's closeSubWindow(),
+    // and we need that to finish first.
+    m_proceed_when_app_has_closed_last_task = true;
+}
+
+
+void TaskChain::onAppSubWindowClosed()
+{
+    if (m_proceed_when_app_has_closed_last_task) {
+        startNextTask();
+    }
 }
