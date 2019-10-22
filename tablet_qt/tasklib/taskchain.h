@@ -38,8 +38,33 @@ public:
     // How should we upload?
     enum class CreationMethod {
         OnDemand,
+        // ... Create tasks when they are first edited.
+        //
+        // - Editing times will be correct.
+        // - If a chain is aborted early, there will be no incomplete instances
+        //   of tasks that weren't started.
+        //
+        //   - Good because: easy to see what's left to finish.
+        //   - Bad because: can give lots of incomplete tasks.
+
         AtStart,
+        // ... Create all tasks when the chain starts.
+        //
+        // - Editing times will be wrong for all except the first task.
+        // - If a chain is aborted early, there will be incomplete instances
+        //   of tasks that weren't started.
+        // - Probably a poor choice.
+
         OnDemandOrAbort
+        // ... Create all tasks when they are first edited, but if the chain
+        // is aborted, create all tasks not yet created.
+        //
+        // - Editing times will be correct.
+        // - If a chain is aborted early, there will be incomplete instances
+        //   of tasks that weren't started.
+        //
+        //   - Good because: no superfluous incomplete tasks.
+        //   - Bad because: harder to see what's left to finish.
     };
 
     // ------------------------------------------------------------------------
@@ -50,7 +75,7 @@ public:
     // Create the chain definition
     TaskChain(CamcopsApp& app,
               const QStringList& task_tablenames,
-              CreationMethod creation_method = CreationMethod::AtStart,
+              CreationMethod creation_method = CreationMethod::OnDemand,
               const QString& title = "",
               const QString& subtitle = "");
 
