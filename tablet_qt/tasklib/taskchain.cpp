@@ -121,6 +121,10 @@ void TaskChain::ensureTaskCreated(const int index)
     if (index < 0 || index >= nTasks()) {
         return;
     }
+    if (m_tasks.contains(index)) {
+        // Already created
+        return;
+    }
 
     // Create the task
     TaskPtr task = m_app.taskFactory()->create(m_task_tablenames[index]);

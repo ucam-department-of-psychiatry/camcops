@@ -63,6 +63,7 @@ public:
     // Task-specific
     // ------------------------------------------------------------------------
 private:
+    virtual void setDefaultsAtFirstUse() override;
     QuPickerPopup* getResponsePicker(
         FieldRefPtr fieldref, const QString fieldname);
     QuPickerPopup* getMedicationPicker();

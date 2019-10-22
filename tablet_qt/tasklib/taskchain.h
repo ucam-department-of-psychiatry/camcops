@@ -50,7 +50,7 @@ public:
     // Create the chain definition
     TaskChain(CamcopsApp& app,
               const QStringList& task_tablenames,
-              CreationMethod creation_method = CreationMethod::OnDemand,
+              CreationMethod creation_method = CreationMethod::AtStart,
               const QString& title = "",
               const QString& subtitle = "");
 

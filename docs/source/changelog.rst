@@ -2592,6 +2592,10 @@ Current C++/SQLite client, Python/SQLAlchemy server
   - :ref:`Short-Form McGill Pain Questionnaire (SF-MPQ2) <sfmpq2>`
   - :ref:`Short UPPS-P Impulsive Behaviour Scale (SUPPS-P) <suppsp>`
 
+  Note that this would **break** uploads from client v2.3.5 to server v2.3.6+,
+  but all of these tasks entered with the MOJO study and none were in live use
+  beforehand.
+
 - Diagnosis in summary for :ref:`Khandaker GM — MOJO — Medical questionnaire
   <khandaker_mojo_medical>`.
 
