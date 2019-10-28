@@ -142,14 +142,14 @@ from camcops_server.cc_modules.cc_xml import (
 )
 
 if TYPE_CHECKING:
-    from camcops_server.cc_modules.cc_ctvinfo import CtvInfo
-    from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
-    from camcops_server.cc_modules.cc_patient import Patient
-    from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
-    from camcops_server.cc_modules.cc_request import CamcopsRequest
-    from camcops_server.cc_modules.cc_snomed import SnomedExpression
-    from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
-    from camcops_server.cc_modules.cc_tsv import TsvPage
+    from camcops_server.cc_modules.cc_ctvinfo import CtvInfo  # noqa: F401
+    from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient  # noqa: E501,F401
+    from camcops_server.cc_modules.cc_patient import Patient  # noqa: F401
+    from camcops_server.cc_modules.cc_patientidnum import PatientIdNum  # noqa: E501,F401
+    from camcops_server.cc_modules.cc_request import CamcopsRequest  # noqa: E501,F401
+    from camcops_server.cc_modules.cc_snomed import SnomedExpression  # noqa: E501,F401
+    from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo  # noqa: E501,F401
+    from camcops_server.cc_modules.cc_tsv import TsvPage  # noqa: F401
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -2413,14 +2413,14 @@ class TaskTests(DemoDatabaseTestCase):
         from datetime import date
         import hl7
         from sqlalchemy.sql.schema import Column
-        from camcops_server.cc_modules.cc_ctvinfo import CtvInfo
-        from camcops_server.cc_modules.cc_patient import Patient
+        from camcops_server.cc_modules.cc_ctvinfo import CtvInfo  # noqa: F811
+        from camcops_server.cc_modules.cc_patient import Patient  # noqa: F811
         from camcops_server.cc_modules.cc_simpleobjects import IdNumReference
-        from camcops_server.cc_modules.cc_snomed import SnomedExpression
+        from camcops_server.cc_modules.cc_snomed import SnomedExpression  # noqa: E501,F811
         from camcops_server.cc_modules.cc_string import APPSTRING_TASKNAME
         from camcops_server.cc_modules.cc_summaryelement import SummaryElement
-        from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo
-        from camcops_server.cc_modules.cc_tsv import TsvPage
+        from camcops_server.cc_modules.cc_trackerhelpers import TrackerInfo  # noqa: E501,F811
+        from camcops_server.cc_modules.cc_tsv import TsvPage  # noqa: F811
         from camcops_server.cc_modules.cc_xml import XmlElement
 
         subclasses = Task.all_subclasses_by_tablename()

@@ -957,9 +957,9 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
                           if x.n_target == n_target_lowprob]
         html = f"""
             <div><i>
-                High probability groups (cues): 
+                High probability groups (cues):
                 {", ".join([str(x) for x in groups_highprob])}.\n
-                Low probability groups (cues): 
+                Low probability groups (cues):
                 {", ".join([str(x) for x in groups_lowprob])}.\n
             </i></div>
             <table class="{CssClass.EXTRADETAIL}">
@@ -1013,7 +1013,7 @@ class CardinalExpectationDetection(TaskHasPatientMixin, Task):
             <div><i>
                 High probability groups (cues):
                 {", ".join([str(x) for x in groups_highprob])}.\n
-                Low probability groups (cues): 
+                Low probability groups (cues):
                 {", ".join([str(x) for x in groups_lowprob])}.\n
             </i></div>
             <table class="{CssClass.EXTRADETAIL}">

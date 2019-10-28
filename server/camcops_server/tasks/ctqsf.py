@@ -28,31 +28,14 @@ camcops_server/tasks/ctqsf.py
 
 """
 
-from typing import Dict, List, Optional
-
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.stringfunc import strseq
 from semantic_version import Version
-from sqlalchemy.sql.sqltypes import Integer
 
-from camcops_server.cc_modules.cc_constants import CssClass
-from camcops_server.cc_modules.cc_ctvinfo import CtvInfo, CTV_INCOMPLETE
-from camcops_server.cc_modules.cc_html import answer, tr, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
-from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
-from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
-    ZERO_TO_FOUR_CHECKER,
-)
-from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import (
-    get_from_dict,
     Task,
     TaskHasPatientMixin,
-)
-from camcops_server.cc_modules.cc_trackerhelpers import (
-    TrackerAxisTick,
-    TrackerInfo,
 )
 
 
@@ -87,6 +70,6 @@ class Ctqsf(TaskHasPatientMixin, Task):
         return self.all_fields_not_none(self.QUESTION_FIELDNAMES)
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        return "" # todo: IMPLEMENT Ctqsf
+        return ""  # todo: IMPLEMENT Ctqsf
 
     # No SNOMED code for the CTQ.

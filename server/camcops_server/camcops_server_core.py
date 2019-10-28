@@ -48,97 +48,97 @@ log.info("Imports starting")
 
 # Main imports
 
-import os  # nopep8
-import platform  # nopep8
-import subprocess  # nopep8
-import sys  # nopep8
-import tempfile  # nopep8
-from typing import Any, Dict, List, Optional, TYPE_CHECKING  # nopep8
-import unittest  # nopep8
+import os  # noqa: E402
+import platform  # noqa: E402
+import subprocess  # noqa: E402
+import sys  # noqa: E402
+import tempfile  # noqa: E402
+from typing import Any, Dict, List, Optional, TYPE_CHECKING  # noqa: E402
+import unittest  # noqa: E402
 
-import cherrypy  # nopep8
+import cherrypy  # noqa: E402
 try:
     from gunicorn.app.base import BaseApplication
 except ImportError:
-    BaseApplication = None  # e.g. on Windows: "ImportError: no module named 'fcntl'".  # noqa
-from wsgiref.simple_server import make_server  # nopep8
+    BaseApplication = None  # e.g. on Windows: "ImportError: no module named 'fcntl'".  # noqa: E501
+from wsgiref.simple_server import make_server  # noqa: E402
 
-from cardinal_pythonlib.classes import gen_all_subclasses  # nopep8
-from cardinal_pythonlib.ui import ask_user, ask_user_password  # nopep8
-from cardinal_pythonlib.wsgi.request_logging_mw import RequestLoggingMiddleware  # nopep8
-from cardinal_pythonlib.wsgi.reverse_proxied_mw import (
+from cardinal_pythonlib.classes import gen_all_subclasses  # noqa: E402
+from cardinal_pythonlib.ui import ask_user, ask_user_password  # noqa: E402
+from cardinal_pythonlib.wsgi.request_logging_mw import RequestLoggingMiddleware  # noqa: E402,E501
+from cardinal_pythonlib.wsgi.reverse_proxied_mw import (  # noqa: E402
     ReverseProxiedConfig,
     ReverseProxiedMiddleware,
-)  # nopep8
+)
 
 # Import this one early:
 # noinspection PyUnresolvedReferences
-import camcops_server.cc_modules.cc_all_models  # import side effects (ensure all models registered)  # noqa
+import camcops_server.cc_modules.cc_all_models  # import side effects (ensure all models registered)  # noqa: E402,E501
 
-from camcops_server.cc_modules.cc_anon import (
+from camcops_server.cc_modules.cc_anon import (  # noqa: E402
     write_crate_data_dictionary,
     write_cris_data_dictionary,
-)  # nopep8
-from camcops_server.cc_modules.cc_baseconstants import ENVVAR_CONFIG_FILE  # nopep8
+)
+from camcops_server.cc_modules.cc_baseconstants import ENVVAR_CONFIG_FILE  # noqa: E402,E501
 # noinspection PyUnresolvedReferences
-import camcops_server.cc_modules.client_api  # import side effects (register unit test)  # nopep8
-from camcops_server.cc_modules.cc_config import (
+import camcops_server.cc_modules.client_api  # import side effects (register unit test)  # noqa: E402,E501,F401
+from camcops_server.cc_modules.cc_config import (  # noqa: E402
     CamcopsConfig,
     get_config_filename_from_os_env,
-    get_default_config_from_os_env,  # nopep8
+    get_default_config_from_os_env,
     get_demo_config,
 )
-from camcops_server.cc_modules.cc_constants import (
+from camcops_server.cc_modules.cc_constants import (  # noqa: E402
     DEFAULT_FLOWER_ADDRESS,
     DEFAULT_FLOWER_PORT,
     DEFAULT_HOST,
     DEFAULT_PORT,
     MINIMUM_PASSWORD_LENGTH,
     USER_NAME_FOR_SYSTEM,
-)  # nopep8
-from camcops_server.cc_modules.cc_exception import raise_runtime_error  # nopep8
-from camcops_server.cc_modules.cc_export import (
+)
+from camcops_server.cc_modules.cc_exception import raise_runtime_error  # noqa: E402,E501
+from camcops_server.cc_modules.cc_export import (  # noqa: E402
     print_export_queue,
     export,
-)  # nopep8
-from camcops_server.cc_modules.cc_pyramid import RouteCollection  # nopep8
-from camcops_server.cc_modules.cc_request import (
+)
+from camcops_server.cc_modules.cc_pyramid import RouteCollection  # noqa: E402
+from camcops_server.cc_modules.cc_request import (  # noqa: E402
     CamcopsRequest,
     command_line_request_context,
     get_command_line_request,
     pyramid_configurator_context,
-)  # nopep8
-from camcops_server.cc_modules.cc_string import all_extra_strings_as_dicts  # nopep8
-from camcops_server.cc_modules.cc_task import Task  # nopep8
-from camcops_server.cc_modules.cc_taskindex import (
+)
+from camcops_server.cc_modules.cc_string import all_extra_strings_as_dicts  # noqa: E402,E501
+from camcops_server.cc_modules.cc_task import Task  # noqa: E402
+from camcops_server.cc_modules.cc_taskindex import (  # noqa: E402
     check_indexes,
     reindex_everything,
-)  # nopep8
+)
 # noinspection PyUnresolvedReferences
-from camcops_server.cc_modules.cc_tracker import TrackerCtvTests  # import side effects (register unit test)  # nopep8
-from camcops_server.cc_modules.cc_unittest import (
+from camcops_server.cc_modules.cc_tracker import TrackerCtvTests  # import side effects (register unit test)  # noqa: E402,F401,E501
+from camcops_server.cc_modules.cc_unittest import (  # noqa: E402
     DemoDatabaseTestCase,
     DemoRequestTestCase,
     ExtendedTestCase,
-)  # nopep8
-from camcops_server.cc_modules.cc_user import (
+)
+from camcops_server.cc_modules.cc_user import (  # noqa: E402
     SecurityLoginFailure,
     set_password_directly,
     User,
-)  # nopep8
-from camcops_server.cc_modules.celery import (
+)
+from camcops_server.cc_modules.celery import (  # noqa: E402
     CELERY_APP_NAME,
     CELERY_SOFT_TIME_LIMIT_SEC,
-)  # nopep8
+)
 # noinspection PyUnresolvedReferences
-from camcops_server.cc_modules.webview import WebviewTests  # import side effects (register unit test)  # nopep8
+from camcops_server.cc_modules.webview import WebviewTests  # import side effects (register unit test)  # noqa
 
 log.info("Imports complete")
 log.info("Using {} tasks", len(Task.all_subclasses_by_tablename()))
 
 if TYPE_CHECKING:
-    from pyramid.router import Router  # nopep8
-    from camcops_server.cc_modules.cc_exportrecipientinfo import ExportRecipientInfo  # nopep8
+    from pyramid.router import Router  # noqa: F401
+    from camcops_server.cc_modules.cc_exportrecipientinfo import ExportRecipientInfo  # noqa: E501,F401
 
 # =============================================================================
 # Other constants
@@ -149,7 +149,7 @@ WINDOWS = platform.system() == "Windows"
 # We want to be able to run Celery from our virtual environment, but just
 # running the venv Python (as opposed to using "activate") doesn't set the path
 # correctly. So as per
-# https://stackoverflow.com/questions/22003769/get-virtualenvs-bin-folder-path-from-script  # noqa
+# https://stackoverflow.com/questions/22003769/get-virtualenvs-bin-folder-path-from-script  # noqa: E501
 _CELERY_NAME = "celery.exe" if WINDOWS else "celery"
 CELERY = os.path.join(os.path.dirname(sys.executable), _CELERY_NAME)
 
@@ -416,7 +416,7 @@ def serve_gunicorn(application: "Router",
 
     - The Pyramid debug toolbar detects a multiprocessing web server and says
       "shan't, because I use global state".
-    """  # noqa
+    """  # noqa: E501
     if BaseApplication is None:
         raise_runtime_error("Gunicorn does not run under Windows. "
                             "(It relies on the UNIX fork() facility.)")
@@ -754,7 +754,7 @@ def launch_celery_workers(verbose: bool = False) -> None:
     - Re ``-Ofair``:
       http://docs.celeryproject.org/en/latest/userguide/optimizing.html
 
-    """  # noqa
+    """  # noqa: E501
     config = get_default_config_from_os_env()
     cmdargs = [
         CELERY, "worker",
@@ -782,7 +782,7 @@ def launch_celery_beat(verbose: bool = False) -> None:
 
     (This can be combined with ``celery worker``, but that's not recommended;
     http://docs.celeryproject.org/en/latest/userguide/periodic-tasks.html#starting-the-scheduler).
-    """  # noqa
+    """  # noqa: E501
     ensure_lock_dir_exists()
     config = get_default_config_from_os_env()
     cmdargs = [
@@ -898,11 +898,11 @@ def dev_cli() -> None:
     """
     config = get_default_config_from_os_env()
     # noinspection PyUnusedLocal
-    engine = config.get_sqla_engine()
+    engine = config.get_sqla_engine()  # noqa: F841
     # noinspection PyUnusedLocal
     req = get_command_line_request()
     # noinspection PyUnusedLocal
-    dbsession = req.dbsession
+    dbsession = req.dbsession  # noqa: F841
     log.error("""Entering developer command-line.
     - Config is available in 'config'.
     - Database engine is available in 'engine'.

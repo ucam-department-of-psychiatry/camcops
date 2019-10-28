@@ -43,8 +43,8 @@ from pendulum import Date, DateTime as Pendulum
 from camcops_server.cc_modules.cc_constants import DateFormat
 
 if TYPE_CHECKING:
-    from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
-    from camcops_server.cc_modules.cc_request import CamcopsRequest
+    from camcops_server.cc_modules.cc_patientidnum import PatientIdNum  # noqa: E501,F401
+    from camcops_server.cc_modules.cc_request import CamcopsRequest  # noqa: E501,F401
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -113,7 +113,7 @@ def patient_spec_for_filename_is_valid(patient_spec: str,
         # Legal substitutions only?
         patient_spec.format(**testdict)
         return True
-    except:  # duff patient_spec; details unimportant
+    except Exception:  # duff patient_spec; details unimportant
         return False
 
 
@@ -150,7 +150,7 @@ def filename_spec_is_valid(filename_spec: str,
         # Legal substitutions only?
         filename_spec.format(**testdict)
         return True
-    except:  # duff filename_spec; details unimportant
+    except Exception:  # duff filename_spec; details unimportant
         return False
 
 

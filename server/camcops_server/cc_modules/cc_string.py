@@ -307,7 +307,7 @@ def all_extra_strings_as_dicts(
 
     The second seems a bit clearer (fewer levels). Let's do that. It also makes
     all existing XML files automatically compatible (with minor code
-    adaptations). If the ``locale`` parameter is missing, strings go into a 
+    adaptations). If the ``locale`` parameter is missing, strings go into a
     "no-locale" state and serve as the default.
     """
 

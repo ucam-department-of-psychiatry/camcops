@@ -151,12 +151,12 @@ class Epds(TaskHasPatientMixin, Task, metaclass=EpdsMetaclass):
                         <td><b>{score}</b> / {self.MAX_TOTAL}</td>
                     </tr>
                     <tr>
-                        <td>{self.wxstring(req, "above_cutoff_1")} 
+                        <td>{self.wxstring(req, "above_cutoff_1")}
                             <sup>[1]</sup></td>
                         <td><b>{get_yes_no(req, above_cutoff_1)}</b></td>
                     </tr>
                     <tr>
-                        <td>{self.wxstring(req, "above_cutoff_2")} 
+                        <td>{self.wxstring(req, "above_cutoff_2")}
                             <sup>[2]</sup></td>
                         <td><b>{get_yes_no(req, above_cutoff_2)}</b></td>
                     </tr>

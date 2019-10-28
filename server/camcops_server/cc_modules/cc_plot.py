@@ -115,7 +115,7 @@ else:
 log.debug("Importing matplotlib (can be slow) (MPLCONFIGDIR={})...",
           _mpl_config_dir)
 # noinspection PyUnresolvedReferences
-import matplotlib  # nopep8
+import matplotlib  # noqa: F401
 
 # 6. Restore $HOME
 if _old_home is not None:

@@ -69,14 +69,14 @@ from camcops_server.cc_modules.cc_unittest import (
 )
 
 if TYPE_CHECKING:
-    from camcops_server.cc_modules.cc_forms import (
+    from camcops_server.cc_modules.cc_forms import (  # noqa: F401
         ReportParamForm,
         ReportParamSchema,
     )
     from camcops_server.cc_modules.cc_patient import Patient
     from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
-    from camcops_server.cc_modules.cc_request import CamcopsRequest
-    from camcops_server.cc_modules.cc_task import Task
+    from camcops_server.cc_modules.cc_request import CamcopsRequest  # noqa: E501,F401
+    from camcops_server.cc_modules.cc_task import Task  # noqa: F401
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -249,7 +249,7 @@ class Report(object):
         """
         # noinspection PyPep8
         wheres.append(
-            column(FN_CURRENT) == True
+            column(FN_CURRENT) == True  # noqa: E712
         )
 
     # -------------------------------------------------------------------------
@@ -697,7 +697,6 @@ class AverageScoreReport(DateTimeFilteredReportMixin, Report, ABC):
           or a shared ID number, etc.) -- simplicity via Patient.__eq__.
         - Facilities "is task complete?" checks, and use of Python
           calculations.
-
         """
         _ = req.gettext
         from camcops_server.cc_modules.cc_taskcollection import (
@@ -846,7 +845,7 @@ class AllReportTests(DemoDatabaseTestCase):
         req = self.req
         for cls in get_all_report_classes(req):
             log.info("Testing report: {}", cls)
-            from camcops_server.cc_modules.cc_forms import ReportParamSchema
+            from camcops_server.cc_modules.cc_forms import ReportParamSchema  # noqa
             report = cls()
 
             self.assertIsInstance(report.report_id, str)

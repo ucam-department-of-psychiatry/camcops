@@ -47,8 +47,8 @@ from camcops_server.cc_modules.cc_simpleobjects import XmlSimpleValue
 from camcops_server.cc_modules.cc_sqla_coltypes import gen_camcops_blob_columns
 
 if TYPE_CHECKING:
-    from camcops_server.cc_modules.cc_request import CamcopsRequest
-    from camcops_server.cc_modules.cc_summaryelement import SummaryElement
+    from camcops_server.cc_modules.cc_request import CamcopsRequest  # noqa: E501,F401
+    from camcops_server.cc_modules.cc_summaryelement import SummaryElement  # noqa: E501,F401
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -363,9 +363,9 @@ def get_xml_tree(element: Union[XmlElement, XmlSimpleValue,
 
     - http://blog.galasoft.ch/posts/2010/02/quick-tip-commenting-out-properties-in-xaml/
     - http://stackoverflow.com/questions/2073140/
-    
+
     Regarding newlines:
-    
+
     - We do nothing special, i.e. newlines are provided in raw format.
     - However, some browsers may fail to display them correctly (i.e. they look
       like they're missing) -- e.g. Firefox, Chrome -- see

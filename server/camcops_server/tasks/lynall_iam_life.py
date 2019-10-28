@@ -241,7 +241,7 @@ class LynallIamLifeEvents(TaskHasPatientMixin, Task,
                     </tr>
                     <tr>
                         <td>Severity score <sup>[c]</sup></td>
-                        <td>{answer(self.severity_score())} / 
+                        <td>{answer(self.severity_score())} /
                             {N_QUESTIONS * 3}</td>
                     </tr>
                 </table>
@@ -260,6 +260,6 @@ class LynallIamLifeEvents(TaskHasPatientMixin, Task,
                 [b] Number of times this has happened, since age 18.
                 [c] The severity score is the sum of “severity” ratings
                     (0 = not experienced, 1 = not too bad, 1 = moderately bad,
-                    3 = very bad).                     
+                    3 = very bad).
             </div>
         """

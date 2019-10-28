@@ -846,18 +846,18 @@ class LPSReportReferredNotDischarged(Report):
             CPFTLPSReferral.patient_location,
         ]
         select_from = p1.join(CPFTLPSReferral.__table__, and_(
-            p1.c._current == True,
+            p1.c._current == True,  # noqa: E712
             CPFTLPSReferral.patient_id == p1.c.id,
             CPFTLPSReferral._device_id == p1.c._device_id,
             CPFTLPSReferral._era == p1.c._era,
             CPFTLPSReferral._current == True,
-        ))  # nopep8
+        ))
         select_from = select_from.join(i1, and_(
             i1.c.patient_id == p1.c.id,
             i1.c._device_id == p1.c._device_id,
             i1.c._era == p1.c._era,
-            i1.c._current == True,
-        ))  # nopep8
+            i1.c._current == True,  # noqa: E712
+        ))
         wheres = [
             i1.c.which_idnum == which_idnum,
         ]
@@ -872,7 +872,7 @@ class LPSReportReferredNotDischarged(Report):
             select(['*'])
             .select_from(
                 p2.join(CPFTLPSDischarge.__table__, and_(
-                    p2.c._current == True,
+                    p2.c._current == True,  # noqa: E712
                     CPFTLPSDischarge.patient_id == p2.c.id,
                     CPFTLPSDischarge._device_id == p2.c._device_id,
                     CPFTLPSDischarge._era == p2.c._era,
@@ -960,17 +960,17 @@ class LPSReportReferredNotClerkedOrDischarged(Report):
         ]
         # noinspection PyUnresolvedReferences
         select_from = p1.join(CPFTLPSReferral.__table__, and_(
-            p1.c._current == True,
+            p1.c._current == True,  # noqa: E712
             CPFTLPSReferral.patient_id == p1.c.id,
             CPFTLPSReferral._device_id == p1.c._device_id,
             CPFTLPSReferral._era == p1.c._era,
             CPFTLPSReferral._current == True,
-        ))  # nopep8
+        ))
         select_from = select_from.join(i1, and_(
             i1.c.patient_id == p1.c.id,
             i1.c._device_id == p1.c._device_id,
             i1.c._era == p1.c._era,
-            i1.c._current == True,
+            i1.c._current == True,  # noqa: E712
         ))  # nopep8
         wheres = [
             i1.c.which_idnum == which_idnum,
@@ -989,7 +989,7 @@ class LPSReportReferredNotClerkedOrDischarged(Report):
             select(['*'])
             .select_from(
                 p2.join(CPFTLPSDischarge.__table__, and_(
-                    p2.c._current == True,
+                    p2.c._current == True,  # noqa: E712
                     CPFTLPSDischarge.patient_id == p2.c.id,
                     CPFTLPSDischarge._device_id == p2.c._device_id,
                     CPFTLPSDischarge._era == p2.c._era,
@@ -1026,7 +1026,7 @@ class LPSReportReferredNotClerkedOrDischarged(Report):
             select(['*'])
             .select_from(
                 p3.join(PsychiatricClerking.__table__, and_(
-                    p3.c._current == True,
+                    p3.c._current == True,  # noqa: E712
                     PsychiatricClerking.patient_id == p3.c.id,
                     PsychiatricClerking._device_id == p3.c._device_id,
                     PsychiatricClerking._era == p3.c._era,

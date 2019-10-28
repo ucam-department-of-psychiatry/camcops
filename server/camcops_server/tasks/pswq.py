@@ -156,9 +156,9 @@ class Pswq(TaskHasPatientMixin, Task,
                 </table>
             </div>
             <div class="{CssClass.EXPLANATION}">
-                Anchor points are 1 = {self.wxstring(req, "anchor1")}, 
+                Anchor points are 1 = {self.wxstring(req, "anchor1")},
                 5 = {self.wxstring(req, "anchor5")}.
-                Questions {", ".join(str(x) for x in self.REVERSE_SCORE)} 
+                Questions {", ".join(str(x) for x in self.REVERSE_SCORE)}
                 are reverse-scored.
             </div>
             <table class="{CssClass.TASKDETAIL}">

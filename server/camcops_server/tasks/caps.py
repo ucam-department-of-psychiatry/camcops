@@ -252,7 +252,7 @@ class Caps(TaskHasPatientMixin, Task,
                     {self.wxstring(req, "intrusiveness_option1")},
                     {self.wxstring(req, "intrusiveness_option5")}.
                 FREQUENCY
-                    {self.wxstring(req, "frequency_option1")}, 
+                    {self.wxstring(req, "frequency_option1")},
                     {self.wxstring(req, "frequency_option5")}.
             </div>
             <table class="{CssClass.TASKDETAIL}">

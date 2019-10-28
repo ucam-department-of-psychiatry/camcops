@@ -310,7 +310,7 @@ if DEBUG_REDIRECT:
     log.warning("Debugging options enabled!")
 
 if DEBUG_REDIRECT:
-    HTTPFound = HTTPFoundDebugVersion
+    HTTPFound = HTTPFoundDebugVersion  # noqa: F811
 
 
 # =============================================================================

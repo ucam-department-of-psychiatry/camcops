@@ -228,7 +228,7 @@ class Demqol(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                 <table class="{CssClass.SUMMARY}">
                     {self.get_is_complete_tr(req)}
                     <tr>
-                        <td>Total score ({self.MIN_SCORE}–{self.MAX_SCORE}), 
+                        <td>Total score ({self.MIN_SCORE}–{self.MAX_SCORE}),
                             higher better</td>
                         <td>{answer(ws.number_to_dp(total, DP))}</td>
                     </tr>
@@ -405,7 +405,7 @@ class DemqolProxy(TaskHasPatientMixin, TaskHasRespondentMixin,
                 <table class="{CssClass.SUMMARY}">
                     {self.get_is_complete_tr(req)}
                     <tr>
-                        <td>Total score ({self.MIN_SCORE}–{self.MAX_SCORE}), 
+                        <td>Total score ({self.MIN_SCORE}–{self.MAX_SCORE}),
                             higher better</td>
                         <td>{answer(ws.number_to_dp(total, DP))}</td>
                     </tr>
