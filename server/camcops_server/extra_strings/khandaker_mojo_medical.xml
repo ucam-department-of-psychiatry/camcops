@@ -56,5 +56,15 @@
     <string name="q_family_intellectual_disability">Intellectual disability</string>
     <string name="q_family_other_mental_illness">Other</string>
     <string name="q_family_other_mental_illness_details">Please list other conditions here:</string>
+
+
+    <!-- Summary -->
+    <string name="answered_yes_to">Answered <b>Yes</b> to:</string>
+    <string name="q_has_fibromyalgia_s">Fibromyalgia</string>
+    <string name="q_is_pregnant_s">Pregnant</string>
+    <string name="q_has_infection_past_month_s">Infection in past month</string>
+    <string name="q_had_infection_two_months_preceding_s">Infection 2 months preceding last</string>
+    <string name="q_has_alcohol_substance_dependence_s">Alcohol or substance dependence</string>
+
   </task>
 </resources>
