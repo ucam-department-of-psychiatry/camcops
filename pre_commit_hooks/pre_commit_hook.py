@@ -30,8 +30,8 @@ Usage: cd .git/hooks/pre-commit;
        ln -s ../../pre_commit_hooks/pre_commit_hook.py
 
 To avoid unexpected side effects, this script won't stash changes.
-So if you have non-commited changes that break this you'll need to
-stash your changes before commiting.
+So if you have non-committed changes that break this you'll need to
+stash your changes before committing.
 """
 
 import logging
