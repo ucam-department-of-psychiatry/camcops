@@ -800,7 +800,7 @@ class AverageScoreReport(DateTimeFilteredReportMixin, Report, ABC):
             rows=[row]
         )
         datepage = self.get_tsv_page(
-            name=_("Date_filters"),
+            name=_("Date filters"),
             column_names=[_("Start date"), _("End date")],
             rows=[[str(self.start_datetime), str(self.end_datetime)]]
         )

@@ -109,10 +109,6 @@ Client core
     (Could have an ID policy for the known information too...)
   - Should "known" patients be across groups, or per-group?
 
-- Consider a “chain of tasks” concept again (see e.g. ResearchMenu.js;
-  MenuTableRow.js; QuestionnaireHeader.js...)... or is that pointless relative
-  to a “set of tasks” concept?
-
 - Test task upload (and date filtering) under Windows/SQL Server.
 
 **Medium priority**

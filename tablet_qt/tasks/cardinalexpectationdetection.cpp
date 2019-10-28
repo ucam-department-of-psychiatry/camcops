@@ -754,7 +754,7 @@ void CardinalExpectationDetection::startTask()
 #endif
     m_widget->setWidgetAsOnlyContents(m_graphics_widget, 0, false, false);
 
-    editStarted();  // will have been stopped by the end of the questionnaire?
+    onEditStarted();  // will have been stopped by the end of the questionnaire?
 
     // Set up players and timers
     soundfunc::makeMediaPlayer(m_player_cue);
@@ -1061,7 +1061,7 @@ void CardinalExpectationDetection::abort()
 #endif
     setValue(FN_ABORTED, true);
     Q_ASSERT(m_widget);
-    editFinishedAbort();
+    onEditFinishedAbort();
     emit m_widget->finished();
 }
 
@@ -1073,6 +1073,6 @@ void CardinalExpectationDetection::finish()
 #endif
     setValue(FN_FINISHED, true);
     Q_ASSERT(m_widget);
-    editFinishedProperly();
+    onEditFinishedProperly();
     emit m_widget->finished();
 }

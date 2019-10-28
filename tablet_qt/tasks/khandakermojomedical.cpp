@@ -122,6 +122,10 @@ const QMap<QString, QString> DETAILS_FIELDS{
     {FN_FAMILY_OTHER_MENTAL_ILLNESS, FN_FAMILY_OTHER_MENTAL_ILLNESS_DETAILS},
 };
 
+const int N_POSSIBLE_DIAGNOSES = 3;
+const int N_SMOKING_STATUS_VALUES = 3;
+
+
 void initializeKhandakerMojoMedical(TaskFactory& factory)
 {
     static TaskRegistrar<KhandakerMojoMedical> registered(factory);
@@ -226,7 +230,17 @@ bool KhandakerMojoMedical::isComplete() const
 
 QStringList KhandakerMojoMedical::summary() const
 {
-    return QStringList{TextConst::noSummarySeeFacsimile()};
+    return QStringList{QString("%1 <b>%2</b>").arg(
+                    xstring("q_diagnosis"),
+                    getDiagnosis())};
+}
+
+
+QString KhandakerMojoMedical::getDiagnosis() const
+{
+    const NameValueOptions options = getOptions(FN_DIAGNOSIS, N_POSSIBLE_DIAGNOSES);
+    const QVariant diagnosis = value(FN_DIAGNOSIS);
+    return options.nameFromValue(diagnosis, "?");
 }
 
 
@@ -274,19 +288,7 @@ OpenableWidget* KhandakerMojoMedical::editor(const bool read_only)
         page->addElement(spacer);
     };
 
-    auto getOptions = [this](const QString &fieldname,
-                             int num_options) -> NameValueOptions {
-        NameValueOptions options;
-
-        for (int i = 0; i < num_options; i++) {
-            const QString name = getOptionName(fieldname, i);
-            options.append(NameValuePair(name, i));
-        }
-
-        return options;
-    };
-
-    auto multiChoiceQuestion = [this, &page, getOptions](const QString &fieldname,
+    auto multiChoiceQuestion = [this, &page](const QString &fieldname,
                                              int num_options) -> void {
         page->addElement(new QuText(xstring(Q_XML_PREFIX + fieldname)));
 
@@ -349,7 +351,7 @@ OpenableWidget* KhandakerMojoMedical::editor(const bool read_only)
     page->addElement(new QuHeading(xstring("title")));
     heading("general_information_title");
 
-    multiChoiceQuestion(FN_DIAGNOSIS, 3);
+    multiChoiceQuestion(FN_DIAGNOSIS, N_POSSIBLE_DIAGNOSES);
 
     FieldRef::GetterFunction get_date = std::bind(
         &KhandakerMojoMedical::getDiagnosisDate, this);
@@ -382,7 +384,7 @@ OpenableWidget* KhandakerMojoMedical::editor(const bool read_only)
     yesNoQuestion(FN_HAS_INFECTION_PAST_MONTH);
     yesNoQuestion(FN_HAD_INFECTION_TWO_MONTHS_PRECEDING);
     yesNoQuestion(FN_HAS_ALCOHOL_SUBSTANCE_DEPENDENCE);
-    multiChoiceQuestion(FN_SMOKING_STATUS, 3);
+    multiChoiceQuestion(FN_SMOKING_STATUS, N_SMOKING_STATUS_VALUES);
     doubleQuestion(FN_ALCOHOL_UNITS_PER_WEEK, xstring("alcohol_units_hint"));
 
     page->addElement(new QuText(xstring("medical_history_subtitle")));
@@ -504,10 +506,21 @@ void KhandakerMojoMedical::updateDurationOfIllness()
 }
 
 
-QString KhandakerMojoMedical::getOptionName(
-    const QString &fieldname, const int index) const
+QString KhandakerMojoMedical::getOptionName(const QString &fieldname,
+                                            const int index) const
 {
     return xstring(QString("%1_%2").arg(fieldname).arg(index));
+}
+
+
+NameValueOptions KhandakerMojoMedical::getOptions(const QString &fieldname,
+                                                  const int num_options) const {
+    NameValueOptions options;
+    for (int i = 0; i < num_options; i++) {
+        const QString name = getOptionName(fieldname, i);
+        options.append(NameValuePair(name, i));
+    }
+    return options;
 }
 
 

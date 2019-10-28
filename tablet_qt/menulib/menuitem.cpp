@@ -40,6 +40,7 @@
 #include "menu/singletaskmenu.h"
 #include "menulib/htmlinfowindow.h"
 #include "menulib/menuwindow.h"
+#include "tasklib/taskchain.h"
 #include "tasklib/taskfactory.h"
 #include "widgets/basewidget.h"
 #include "widgets/labelwordwrapwide.h"
@@ -147,6 +148,16 @@ MenuItem::MenuItem(const TaskMenuItem& taskmenuitem, CamcopsApp& app)
 }
 
 
+MenuItem::MenuItem(const TaskChainMenuItem& chain)
+{
+    setDefaults();
+    m_p_taskchain = chain.chain;
+    m_title = m_p_taskchain->title();
+    m_subtitle = m_p_taskchain->subtitle();
+    m_icon = uifunc::iconFilename(uiconst::ICON_CHAIN);
+}
+
+
 MenuItem::MenuItem(const QString& title, const HtmlMenuItem& htmlmenuitem,
                    const QString& icon, const QString& subtitle) :
     m_title(title)
@@ -214,6 +225,7 @@ void MenuItem::setDefaults()
     m_p_menuproxy.clear();
     m_task_tablename = "";
     m_p_task.clear();
+    m_p_taskchain.clear();
     m_p_patient.clear();
 }
 
@@ -524,6 +536,15 @@ void MenuItem::act(CamcopsApp& app) const
     }
     if (m_p_task) {
         // Handled via verb buttons instead.
+        return;
+    }
+    if (m_p_taskchain) {
+        if (!uifunc::confirm(TextConst::startChainQuestion(),
+                             TextConst::startChainTitle(),
+                             TextConst::yes(), TextConst::no())) {
+            return;
+        }
+        m_p_taskchain->start();
         return;
     }
     if (!m_implemented) {

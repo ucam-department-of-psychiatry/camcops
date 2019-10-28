@@ -116,34 +116,42 @@ QString Task::implementationTypeDescription() const
 #endif
         return TextConst::fullTask();
     case TaskImplementationType::UpgradableSkeleton:
-        return TextConst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_TITLE_SUFFIX;
+        return TextConst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_SYMBOL;
     case TaskImplementationType::Skeleton:
-        return TextConst::DATA_COLLECTION_ONLY_TITLE_SUFFIX;
+        return TextConst::DATA_COLLECTION_ONLY_SYMBOL;
     }
 }
 
 
 QString Task::menuTitleSuffix() const
 {
-    QString suffix;
+    QStringList suffixes;
+    if (hasClinician()) {
+        suffixes += TextConst::HAS_CLINICIAN_SYMBOL;
+    }
+    if (hasRespondent()) {
+        suffixes += TextConst::HAS_RESPONDENT_SYMBOL;
+    }
     switch (implementationType()) {
     case TaskImplementationType::Full:
         break;
     case TaskImplementationType::UpgradableSkeleton:
-        suffix += TextConst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_TITLE_SUFFIX;
+        suffixes += TextConst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_SYMBOL;
         break;
     case TaskImplementationType::Skeleton:
-        suffix += TextConst::DATA_COLLECTION_ONLY_TITLE_SUFFIX;
+        suffixes += TextConst::DATA_COLLECTION_ONLY_SYMBOL;
         break;
     }
     if (isExperimental()) {
-        suffix += TextConst::EXPERIMENTAL_TITLE_SUFFIX;
+        suffixes += TextConst::EXPERIMENTAL_SYMBOL;
     }
     if (isDefunct()) {
-        suffix += TextConst::DEFUNCT_TITLE_SUFFIX;
+        suffixes += TextConst::DEFUNCT_SYMBOL;
     }
-    return suffix;
+    return suffixes.isEmpty() ? ""
+                              : QString(" <i>[%1]</i>").arg(suffixes.join(""));
 }
+
 
 QString Task::menutitle() const
 {
@@ -153,24 +161,54 @@ QString Task::menutitle() const
 
 QString Task::menuSubtitleSuffix() const
 {
-    QString suffix;
+    auto makeSuffix = [](const QString& title,
+                         const QString& subtitle) -> QString {
+        return QString("%1: %2").arg(title, subtitle);
+    };
+
+    QStringList suffixes;
+    if (hasClinician()) {
+        suffixes += makeSuffix(
+            TextConst::HAS_CLINICIAN_SYMBOL,
+            TextConst::hasClinicianSubtitleSuffix()
+        );
+    }
+    if (hasRespondent()) {
+        suffixes += makeSuffix(
+            TextConst::HAS_RESPONDENT_SYMBOL,
+            TextConst::hasRespondentSubtitleSuffix()
+        );
+    }
     switch (implementationType()) {
     case TaskImplementationType::Full:
         break;
     case TaskImplementationType::UpgradableSkeleton:
-        suffix += TextConst::dataCollectionOnlyUnlessUpgradedSubtitleSuffix();
+        suffixes += makeSuffix(
+            TextConst::DATA_COLLECTION_ONLY_UNLESS_UPGRADED_SYMBOL,
+            TextConst::dataCollectionOnlyUnlessUpgradedSubtitleSuffix()
+        );
         break;
     case TaskImplementationType::Skeleton:
-        suffix += TextConst::dataCollectionOnlySubtitleSuffix();
+        suffixes += makeSuffix(
+            TextConst::DATA_COLLECTION_ONLY_SYMBOL,
+            TextConst::dataCollectionOnlySubtitleSuffix()
+        );
         break;
     }
     if (isExperimental()) {
-        suffix += TextConst::experimentalSubtitleSuffix();
+        suffixes += makeSuffix(
+            TextConst::EXPERIMENTAL_SYMBOL,
+            TextConst::experimentalSubtitleSuffix()
+        );
     }
     if (isDefunct()) {
-        suffix += TextConst::defunctSubtitleSuffix();
+        suffixes += makeSuffix(
+            TextConst::DEFUNCT_SYMBOL,
+            TextConst::defunctSubtitleSuffix()
+        );
     }
-    return suffix;
+    return suffixes.isEmpty() ? ""
+                              : QString(" <i>[%1]</i>").arg(suffixes.join(" "));
 }
 
 
@@ -584,6 +622,17 @@ QStringList Task::respondentDetails() const
 // Editing
 // ============================================================================
 
+void Task::setupForEditingAndSave(const int patient_id)
+{
+    if (!isAnonymous()) {
+        setPatient(patient_id);
+    }
+    setDefaultClinicianVariablesAtFirstUse();
+    setDefaultsAtFirstUse();
+    save();
+}
+
+
 double Task::editingTimeSeconds() const
 {
     return valueDouble(EDITING_TIME_S_FIELDNAME);
@@ -627,8 +676,8 @@ OpenableWidget* Task::makeGraphicsWidgetForImmediateEditing(
     OpenableWidget* widget = makeGraphicsWidget(scene, background_colour,
                                                 fullscreen, esc_can_abort);
     connect(widget, &OpenableWidget::aborting,
-            this, &Task::editFinishedAbort);
-    editStarted();
+            this, &Task::onEditFinishedAbort);
+    onEditStarted();
     return widget;
 }
 
@@ -770,14 +819,14 @@ NameValueOptions Task::makeOptionsFromXstrings(const QString& xstring_prefix,
 }
 
 
-void Task::editStarted()
+void Task::onEditStarted()
 {
     m_editing = true;
     m_editing_started = datetime::now();
 }
 
 
-void Task::editFinished(const bool aborted)
+void Task::onEditFinished(const bool aborted)
 {
     if (!m_editing) {
         qDebug() << Q_FUNC_INFO << "wasn't editing";
@@ -798,18 +847,23 @@ void Task::editFinished(const bool aborted)
         setValue(FIRSTEXIT_IS_FINISH_FIELDNAME, !aborted);
     }
     save();
+    if (aborted) {
+        emit editingAborted();
+    } else {
+        emit editingFinished();
+    }
 }
 
 
-void Task::editFinishedProperly()
+void Task::onEditFinishedProperly()
 {
-    editFinished(false);
+    onEditFinished(false);
 }
 
 
-void Task::editFinishedAbort()
+void Task::onEditFinishedAbort()
 {
-    editFinished(true);
+    onEditFinished(true);
 }
 
 

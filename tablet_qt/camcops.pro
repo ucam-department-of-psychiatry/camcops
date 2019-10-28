@@ -633,6 +633,7 @@ SOURCES += \
     menulib/menuitem.cpp \
     menulib/menuproxy.cpp \
     menulib/menuwindow.cpp \
+    menulib/taskchainmenuitem.cpp \
     menulib/taskmenuitem.cpp \
     menulib/urlmenuitem.cpp \
     qobjects/cameraframegrabber.cpp \
@@ -707,8 +708,10 @@ SOURCES += \
     questionnairelib/quthermometer.cpp \
     questionnairelib/quthermometeritem.cpp \
     questionnairelib/quverticalcontainer.cpp \
+    taskchains/khandakermojochain.cpp \
     tasklib/inittasks.cpp \
     tasklib/task.cpp \
+    tasklib/taskchain.cpp \
     tasklib/taskfactory.cpp \
     tasklib/taskproxy.cpp \
     tasklib/taskregistrar.cpp \
@@ -1072,6 +1075,7 @@ HEADERS += \
     menulib/menuitem.h \
     menulib/menuproxy.h \
     menulib/menuwindow.h \
+    menulib/taskchainmenuitem.h \
     menulib/taskmenuitem.h \
     menulib/urlmenuitem.h \
     qobjects/cameraframegrabber.h \
@@ -1146,8 +1150,10 @@ HEADERS += \
     questionnairelib/quthermometer.h \
     questionnairelib/quthermometeritem.h \
     questionnairelib/quverticalcontainer.h \
+    taskchains/khandakermojochain.h \
     tasklib/inittasks.h \
     tasklib/task.h \
+    tasklib/taskchain.h \
     tasklib/taskfactory.h \
     tasklib/taskproxy.h \
     tasklib/taskregistrar.h \

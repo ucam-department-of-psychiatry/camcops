@@ -243,6 +243,9 @@ signals:
     // Signals that a task has been altered.
     void taskAlterationFinished(TaskPtr task);
 
+    // "closeSubWindow() has finished."
+    void subWindowFinishedClosing();
+
 public slots:
     // "Close the topmost sub-window."
     void closeSubWindow();

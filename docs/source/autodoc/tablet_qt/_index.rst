@@ -360,6 +360,8 @@ tablet_qt
     menulib/menuproxy.h.rst
     menulib/menuwindow.cpp.rst
     menulib/menuwindow.h.rst
+    menulib/taskchainmenuitem.cpp.rst
+    menulib/taskchainmenuitem.h.rst
     menulib/taskmenuitem.cpp.rst
     menulib/taskmenuitem.h.rst
     menulib/urlmenuitem.cpp.rst
@@ -528,10 +530,14 @@ tablet_qt
     resources/camcops/stylesheets/main.css.rst
     resources/camcops/stylesheets/menu.css.rst
     resources/camcops/stylesheets/questionnaire.css.rst
+    taskchains/khandakermojochain.cpp.rst
+    taskchains/khandakermojochain.h.rst
     tasklib/inittasks.cpp.rst
     tasklib/inittasks.h.rst
     tasklib/task.cpp.rst
     tasklib/task.h.rst
+    tasklib/taskchain.cpp.rst
+    tasklib/taskchain.h.rst
     tasklib/taskfactory.cpp.rst
     tasklib/taskfactory.h.rst
     tasklib/taskproxy.cpp.rst

@@ -224,7 +224,7 @@ OpenableWidget* Shaps::editor(const bool read_only)
                 : agreement_options;
 
         const QString fieldname = strnum(QPREFIX, q_number);
-        page->addElement(new QuText(QString("%1. %2").arg(
+        page->addElement(new QuText(QString("<b>%1. %2</b>").arg(
                                         QString::number(q_number),
                                         xstring(fieldname))));
         page->addElement(new QuMcq(fieldRef(fieldname), options));

@@ -288,12 +288,13 @@ QStringList KhandakerMojoMedicationTherapy::therapyDetail() const
 }
 
 
-OpenableWidget* KhandakerMojoMedicationTherapy::editor(const bool read_only)
+void KhandakerMojoMedicationTherapy::setDefaultsAtFirstUse()
 {
-    auto page = (new QuPage())->setTitle(longname());
-
     // Display empty rows as examples if there are no rows. The user
     // can always delete them if they want to leave the tables empty
+
+    save();  // so our own PK is set, as an FK for child rows.
+
     if (m_medications.size() == 0) {
         addMedicationItem();
     }
@@ -301,6 +302,15 @@ OpenableWidget* KhandakerMojoMedicationTherapy::editor(const bool read_only)
     if (m_therapies.size() == 0) {
         addTherapyItem();
     }
+}
+
+
+OpenableWidget* KhandakerMojoMedicationTherapy::editor(const bool read_only)
+{
+    auto page = (new QuPage())->setTitle(longname());
+
+    // Don't add the specimen blank rows here -- otherwise they get added
+    // when *re*-editing.
 
     rebuildPage(page);
 
@@ -459,7 +469,9 @@ void KhandakerMojoMedicationTherapy::rebuildPage(QuPage* page)
     page->addElements(elements);
 }
 
-QuGridContainer* KhandakerMojoMedicationTherapy::getMedicationGrid() {
+
+QuGridContainer* KhandakerMojoMedicationTherapy::getMedicationGrid()
+{
     auto grid = new QuGridContainer();
     grid->setFixedGrid(false);
     grid->setExpandHorizontally(true);
@@ -528,7 +540,8 @@ QuGridContainer* KhandakerMojoMedicationTherapy::getMedicationGrid() {
 }
 
 
-QuGridContainer* KhandakerMojoMedicationTherapy::getTherapyGrid() {
+QuGridContainer* KhandakerMojoMedicationTherapy::getTherapyGrid()
+{
     auto grid = new QuGridContainer();
     grid->setFixedGrid(false);
     grid->setExpandHorizontally(true);
@@ -592,7 +605,8 @@ QuGridContainer* KhandakerMojoMedicationTherapy::getTherapyGrid() {
 
 
 QuPickerPopup* KhandakerMojoMedicationTherapy::getResponsePicker(
-    FieldRefPtr fieldref, const QString fieldname) {
+    FieldRefPtr fieldref, const QString fieldname)
+{
     NameValueOptions response_options;
 
     for (int i = 1; i <= 4; i++) {
@@ -604,7 +618,8 @@ QuPickerPopup* KhandakerMojoMedicationTherapy::getResponsePicker(
 }
 
 
-QuPickerPopup* KhandakerMojoMedicationTherapy::getMedicationPicker() {
+QuPickerPopup* KhandakerMojoMedicationTherapy::getMedicationPicker()
+{
     NameValueOptions medication_options;
 
     int i = 0;

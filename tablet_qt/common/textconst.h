@@ -83,19 +83,24 @@ public:
     static QString correct();
     
     static QString dataCollectionOnlyAnnouncement();
-    static QString DATA_COLLECTION_ONLY_TITLE_SUFFIX;
+    static QString DATA_COLLECTION_ONLY_SYMBOL;
     static QString dataCollectionOnlySubtitleSuffix();
-    static QString DATA_COLLECTION_ONLY_UNLESS_UPGRADED_TITLE_SUFFIX;
+    static QString DATA_COLLECTION_ONLY_UNLESS_UPGRADED_SYMBOL;
     static QString dataCollectionOnlyUnlessUpgradedSubtitleSuffix();
     static QString defaultHintText();
-    static QString DEFUNCT_TITLE_SUFFIX;
+    static QString DEFUNCT_SYMBOL;
     static QString defunctSubtitleSuffix();
     static QString delete_();  // "delete" is a C++ keyword; "DELETE" also breaks Visual C++
     static QString description();
     static QString diagnosis();
     
-    static QString EXPERIMENTAL_TITLE_SUFFIX;
+    static QString EXPERIMENTAL_SYMBOL;
     static QString experimentalSubtitleSuffix();
+
+    static QString HAS_CLINICIAN_SYMBOL;
+    static QString hasClinicianSubtitleSuffix();
+    static QString HAS_RESPONDENT_SYMBOL;
+    static QString hasRespondentSubtitleSuffix();
     
     static QString finished();
     static QString fullTask();
@@ -160,6 +165,8 @@ public:
     static QString service();
     static QString severe();
     static QString sex();
+    static QString startChainQuestion();
+    static QString startChainTitle();
     static QString soundTestFor();
     
     static QString thankYou();

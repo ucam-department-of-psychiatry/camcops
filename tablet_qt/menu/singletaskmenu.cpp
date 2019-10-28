@@ -140,20 +140,19 @@ void SingleTaskMenu::addTask()
 
     // Reasons we may say no
     if (!task->isTaskPermissible(why_not_permissible)) {
-        QString reason = QString("%1<br><br>%2: %3")
+        const QString reason = QString("%1<br><br>%2: %3")
                 .arg(tr("You cannot add this task with your current settings."),
                      tr("Current reason"),
                      stringfunc::bold(why_not_permissible));
         uifunc::alert(reason, tr("Not permitted to add task"));
         return;
     }
+    const int patient_id = m_app.selectedPatientId();
     if (!task->isAnonymous()) {
-        int patient_id = m_app.selectedPatientId();
         if (patient_id == dbconst::NONEXISTENT_PK) {
             qCritical() << Q_FUNC_INFO << "- no patient selected";
             return;
         }
-        task->setPatient(m_app.selectedPatientId());
     }
 
     // Reasons the user may want to pause
@@ -174,9 +173,7 @@ void SingleTaskMenu::addTask()
     }
 
     // OK; off we go!
-    task->setDefaultClinicianVariablesAtFirstUse();
-    task->setDefaultsAtFirstUse();
-    task->save();
+    task->setupForEditingAndSave(patient_id);
     editTaskConfirmed(task);
 }
 

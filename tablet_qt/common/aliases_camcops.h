@@ -93,6 +93,9 @@ using TaskPtr = QSharedPointer<Task>;
 using TaskWeakPtr = QWeakPointer<Task>;
 using TaskPtrList = QVector<TaskPtr>;
 
+class TaskChain;
+using TaskChainPtr = QSharedPointer<TaskChain>;
+
 class TaskFactory;
 using TaskFactoryPtr = QSharedPointer<TaskFactory>;
 

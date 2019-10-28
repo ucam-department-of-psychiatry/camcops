@@ -60,7 +60,7 @@ void initializeSfmpq2(TaskFactory& factory)
 
 
 Sfmpq2::Sfmpq2(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
-    Task(app, db, SFMPQ2_TABLENAME, false, true, false),  // ... anon, clin, resp
+    Task(app, db, SFMPQ2_TABLENAME, false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);

@@ -27,6 +27,7 @@ camcops_server/tasks/esspri.py
 **EULAR Sjögren’s Syndrome Patient Reported Index (ESSPRI) task.**
 
 """
+
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import tr_qa, tr, answer
 from camcops_server.cc_modules.cc_request import CamcopsRequest
@@ -36,8 +37,7 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
 )
 
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
-from camcops_server.cc_modules.cc_task import TaskHasPatientMixin, \
-    TaskHasClinicianMixin, Task
+from camcops_server.cc_modules.cc_task import TaskHasPatientMixin, Task
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy import Float, Integer
@@ -75,7 +75,6 @@ class EsspriMetaclass(DeclarativeMeta):
 
 
 class Esspri(TaskHasPatientMixin,
-             TaskHasClinicianMixin,
              Task,
              metaclass=EsspriMetaclass):
     __tablename__ = "esspri"
