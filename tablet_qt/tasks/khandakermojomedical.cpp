@@ -43,6 +43,7 @@ const QString KhandakerMojoMedical::KHANDAKERMOJOMEDICAL_TABLENAME(
     "khandaker_mojo_medical");
 
 const QString Q_XML_PREFIX = "q_";
+const QString Q_SUMMARY_XML_SUFFIX = "_s";
 
 // Section 1: General Information
 const QString FN_DIAGNOSIS("diagnosis");
@@ -113,6 +114,14 @@ const QStringList MANDATORY_FIELDNAMES{
     FN_FAMILY_PERSONALITY_DISORDER,
     FN_FAMILY_INTELLECTUAL_DISABILITY,
     FN_FAMILY_OTHER_MENTAL_ILLNESS,
+};
+
+const QStringList SUMMARY_FIELDNAMES{
+    FN_HAS_FIBROMYALGIA,
+    FN_IS_PREGNANT,
+    FN_HAS_INFECTION_PAST_MONTH,
+    FN_HAD_INFECTION_TWO_MONTHS_PRECEDING,
+    FN_HAS_ALCOHOL_SUBSTANCE_DEPENDENCE,
 };
 
 // Maps "Other Y/N?" fields to "Other: please give details" fields
@@ -230,9 +239,27 @@ bool KhandakerMojoMedical::isComplete() const
 
 QStringList KhandakerMojoMedical::summary() const
 {
-    return QStringList{QString("%1 <b>%2</b>").arg(
-                    xstring("q_diagnosis"),
-                    getDiagnosis())};
+    QStringList lines;
+    QStringList medical_history;
+
+    const QString fmt = QString("%1 <b>%2</b>");
+
+    for (const QString& fieldname : SUMMARY_FIELDNAMES) {
+        if (valueBool(fieldname)) {
+            medical_history.append(
+                xstring(Q_XML_PREFIX + fieldname + Q_SUMMARY_XML_SUFFIX)
+            );
+        }
+    }
+
+    if (medical_history.size() > 0) {
+        lines.append(fmt.arg(xstring("answered_yes_to"),
+                             medical_history.join(", ")));
+    }
+
+    lines.append(fmt.arg(xstring("q_diagnosis"), getDiagnosis()));
+
+    return lines;
 }
 
 
