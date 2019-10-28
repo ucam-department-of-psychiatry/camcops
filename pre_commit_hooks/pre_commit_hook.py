@@ -26,8 +26,12 @@ pre_commit_hooks/pre_commit_hook.py
 
 pre-commit hook script that runs flake8
 
-Usage: cd .git/hooks/pre-commit;
-       ln -s ../../pre_commit_hooks/pre_commit_hook.py
+Usage:
+
+.. code-block:: bash
+
+    cd .git/hooks
+    ln -s ../../pre_commit_hooks/pre_commit_hook.py pre-commit
 
 To avoid unexpected side effects, this script won't stash changes.
 So if you have non-committed changes that break this you'll need to
@@ -40,6 +44,8 @@ from subprocess import CalledProcessError, PIPE, run
 import sys
 from typing import List
 
+from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
+
 
 EXIT_FAILURE = 1
 
@@ -47,7 +53,7 @@ PRECOMMIT_DIR = os.path.dirname(os.path.realpath(__file__))
 PROJECT_ROOT = os.path.join(PRECOMMIT_DIR, "..")
 PYTHON_SOURCE_DIR = os.path.join(PROJECT_ROOT,
                                  "server", "camcops_server")
-CONFIG_FILE = os.path.join(PROJECT_ROOT, "setup.cfg")
+CONFIG_FILE = os.path.abspath(os.path.join(PROJECT_ROOT, "setup.cfg"))
 
 log = logging.getLogger(__name__)
 
@@ -56,7 +62,7 @@ class PreCommitException(Exception):
     pass
 
 
-def run_with_check(args: List[str]):
+def run_with_check(args: List[str]) -> None:
     run(args, check=True)
 
 
@@ -69,7 +75,7 @@ def check_python_style() -> None:
 
 
 # https://stackoverflow.com/questions/1871549/determine-if-python-is-running-inside-virtualenv
-def in_virtualenv():
+def in_virtualenv() -> bool:
     return (
         hasattr(sys, "real_prefix") or
         (hasattr(sys, "base_prefix") and sys.base_prefix != sys.prefix)
@@ -89,12 +95,19 @@ def main() -> None:
         log.error("pre_commit_hook.py must be run inside virtualenv")
         sys.exit(EXIT_FAILURE)
 
+    log.info(f"Using config file {CONFIG_FILE}")
+    if not os.path.isfile(CONFIG_FILE):
+        log.error(f"Cannot find config file {CONFIG_FILE}; aborting")
+
     if get_flake8_version() < [3, 7, 8]:
-        log.error("flake8 version must be 3.7.8 or higher for type hint support")
+        log.error("flake8 version must be 3.7.8 or higher for type hint support")  # noqa
         sys.exit(EXIT_FAILURE)
+
+    log.info("Checking Python style...")
 
     try:
         check_python_style()
+        log.info("... very stylish.")
     except CalledProcessError as e:
         log.error(str(e))
         log.error("Pre-commit hook failed. Check errors above")
@@ -102,4 +115,5 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    main_only_quicksetup_rootlogger()
     main()
