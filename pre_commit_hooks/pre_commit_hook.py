@@ -115,6 +115,7 @@ def main() -> None:
     log.info(f"Using config file {CONFIG_FILE}")
     if not os.path.isfile(CONFIG_FILE):
         log.error(f"Cannot find config file {CONFIG_FILE}; aborting")
+        sys.exit(EXIT_FAILURE)
 
     if get_flake8_version() < [3, 7, 8]:
         log.error("flake8 version must be 3.7.8 or higher for type hint support")  # noqa
