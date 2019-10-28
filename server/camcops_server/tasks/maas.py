@@ -179,6 +179,18 @@ class Maas(TaskHasPatientMixin, Task,
             scorer.add_question(q, getattr(self, self.FN_QPREFIX + str(q)))
         return scorer
 
+    def get_quality_score(self) -> int:
+        scorer = self.get_score()
+        return scorer.quality_score
+
+    def get_time_score(self) -> int:
+        scorer = self.get_score()
+        return scorer.time_score
+
+    def get_global_score(self) -> int:
+        scorer = self.get_score()
+        return scorer.global_score
+
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         scorer = self.get_score()
         return self.standard_task_summary_fields() + [
@@ -190,14 +202,14 @@ class Maas(TaskHasPatientMixin, Task,
                         f"{self.MIN_QUALITY}-"
                         f"{self.MAX_QUALITY})"),
             SummaryElement(
-                name="quality_of_attachment_score", coltype=Integer(),
+                name="time_in_attachment_mode_score", coltype=Integer(),
                 value=scorer.time_score,
                 comment=f"Time spent in attachment mode (or intensity of "
                         f"preoccupation) score (for complete tasks, range "
                         f"{self.MIN_TIME}-"
                         f"{self.MAX_TIME})"),
             SummaryElement(
-                name="quality_of_attachment_score", coltype=Integer(),
+                name="global_attachment_score", coltype=Integer(),
                 value=scorer.global_score,
                 comment=f"Global attachment score (for complete tasks, range "
                         f"{self.MIN_GLOBAL}-"
@@ -268,6 +280,7 @@ class Maas(TaskHasPatientMixin, Task,
 
 
 class MaasReport(AverageScoreReport):
+    # noinspection PyMethodParameters
     @classproperty
     def report_id(cls) -> str:
         return "MAAS"
@@ -277,43 +290,46 @@ class MaasReport(AverageScoreReport):
         _ = req.gettext
         return _("MAAS — Average scores")
 
+    # noinspection PyMethodParameters
     @classproperty
-    def task_class(cls) -> Task:
+    def task_class(cls) -> Type[Task]:
         return Maas
 
     @classmethod
-    def scores(cls, req: "CamcopsRequest") -> List[ScoreDetails]:
+    def scoretypes(cls, req: "CamcopsRequest") -> List[ScoreDetails]:
         _ = req.gettext
         return [
             ScoreDetails(
                 name=_("Global attachment score"),
-                fieldnames=Maas.TASK_FIELDS,
-                min=Maas.MIN_GLOBAL,
-                max=Maas.MAX_GLOBAL
+                scorefunc=Maas.get_global_score,
+                minimum=Maas.MIN_GLOBAL,
+                maximum=Maas.MAX_GLOBAL,
+                higher_score_is_better=True
             ),
             ScoreDetails(
                 name=_("Quality of attachment score"),
-                fieldnames=Maas.QUALITY_OF_ATTACHMENT_FIELDS,
-                min=Maas.MIN_QUALITY,
-                max=Maas.MAX_QUALITY
+                scorefunc=Maas.get_quality_score,
+                minimum=Maas.MIN_QUALITY,
+                maximum=Maas.MAX_QUALITY,
+                higher_score_is_better=True
             ),
             ScoreDetails(
                 name=_("Time spent in attachment mode"),
-                fieldnames=Maas.TIME_IN_ATTACHMENT_FIELDS,
-                min=Maas.MIN_TIME,
-                max=Maas.MAX_TIME
+                scorefunc=Maas.get_time_score,
+                minimum=Maas.MIN_TIME,
+                maximum=Maas.MAX_TIME,
+                higher_score_is_better=True
             )
         ]
-        return Maas.TASK_FIELDS
 
 
 class MaasReportTests(AverageScoreReportTestCase):
     PROGRESS_COL = 4
 
-    def create_report(self):
-        return MaasReport()
+    def create_report(self) -> MaasReport:
+        return MaasReport(via_index=False)
 
-    def create_tasks(self):
+    def create_tasks(self) -> None:
         self.patient_1 = self.create_patient()
 
         self.create_task(patient=self.patient_1, q1=2, q2=2,
@@ -322,7 +338,7 @@ class MaasReportTests(AverageScoreReportTestCase):
                          era="2019-06-01")  # total 17 + 5 + 5
         self.dbsession.commit()
 
-    def create_task(self, patient: Patient, era: str = None, **kwargs):
+    def create_task(self, patient: Patient, era: str = None, **kwargs) -> None:
         task = Maas()
         self.apply_standard_task_fields(task)
         task.id = next(self.task_id_sequence)
@@ -337,10 +353,10 @@ class MaasReportTests(AverageScoreReportTestCase):
 
         self.dbsession.add(task)
 
-    def test_average_progress_is_positive(self):
-        plain_report = self.report.get_rows_colnames(self.req)
+    def test_average_progress_is_positive(self) -> None:
+        tsv_pages = self.report.get_tsv_pages(req=self.req)
 
         expected_progress = 27 - 21
-        actual_progress = plain_report.rows[0][self.PROGRESS_COL]
+        actual_progress = tsv_pages[0].plainrows[0][self.PROGRESS_COL]
 
         self.assertEqual(actual_progress, expected_progress)

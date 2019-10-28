@@ -2860,12 +2860,12 @@ enig</translation>
 <context>
     <name>KhandakerMojoMedical</name>
     <message>
-        <location filename="../tasks/khandakermojomedical.cpp" line="194"/>
+        <location filename="../tasks/khandakermojomedical.cpp" line="198"/>
         <source>Khandaker GM — MOJO — Medical questionnaire</source>
         <translation>Khandaker GM — MOJO — Medicinsk spørgeskema</translation>
     </message>
     <message>
-        <location filename="../tasks/khandakermojomedical.cpp" line="200"/>
+        <location filename="../tasks/khandakermojomedical.cpp" line="204"/>
         <source>Medical questionnaire for MOJO study.</source>
         <translation>Medicinsk spørgeskema til MOJO-undersøgelse.</translation>
     </message>
@@ -3102,27 +3102,27 @@ enig</translation>
 <context>
     <name>MenuItem</name>
     <message>
-        <location filename="../menulib/menuitem.cpp" line="138"/>
+        <location filename="../menulib/menuitem.cpp" line="139"/>
         <source>UNKNOWN TASK</source>
         <translation>UKENDT OPGAVE</translation>
     </message>
     <message>
-        <location filename="../menulib/menuitem.cpp" line="315"/>
+        <location filename="../menulib/menuitem.cpp" line="327"/>
         <source>&lt;Anonymous task&gt;</source>
         <translation>&lt;Anonym opgave&gt;</translation>
     </message>
     <message>
-        <location filename="../menulib/menuitem.cpp" line="530"/>
+        <location filename="../menulib/menuitem.cpp" line="551"/>
         <source>Not implemented yet!</source>
         <translation>Ikke implementeret endnu!</translation>
     </message>
     <message>
-        <location filename="../menulib/menuitem.cpp" line="534"/>
+        <location filename="../menulib/menuitem.cpp" line="555"/>
         <source>Not supported on this platform!</source>
         <translation>Ikke understøttet på denne platform!</translation>
     </message>
     <message>
-        <location filename="../menulib/menuitem.cpp" line="538"/>
+        <location filename="../menulib/menuitem.cpp" line="559"/>
         <source>You must set Privileged Mode first</source>
         <translation>Du skal først indtaste en Privilegeret Tilstand</translation>
     </message>
@@ -3744,12 +3744,12 @@ enig</translation>
 <context>
     <name>PagePickerDialog</name>
     <message>
-        <location filename="../dialogs/pagepickerdialog.cpp" line="103"/>
+        <location filename="../dialogs/pagepickerdialog.cpp" line="133"/>
         <source>You can’t select this page yet because preceding pages (marked with a warning symbol) are incomplete.</source>
         <translation>Du kan ikke vælge denne side endnu, fordi de foregående sider (markeret med et advarselssymbol) er ufuldstændige.</translation>
     </message>
     <message>
-        <location filename="../dialogs/pagepickerdialog.cpp" line="105"/>
+        <location filename="../dialogs/pagepickerdialog.cpp" line="135"/>
         <source>Complete preceding pages first.</source>
         <translation>Udfyld først de foregående sider.</translation>
     </message>
@@ -4758,14 +4758,39 @@ enig</translation>
 <context>
     <name>SetMenuKhandakerMojo</name>
     <message>
-        <location filename="../menu/setmenukhandakermojo.cpp" line="51"/>
+        <location filename="../menu/setmenukhandakermojo.cpp" line="53"/>
         <source>Khandaker GM — MOJO study</source>
         <translation>Khandaker GM — MOJO forskningsundersøgelse</translation>
     </message>
     <message>
-        <location filename="../menu/setmenukhandakermojo.cpp" line="57"/>
+        <location filename="../menu/setmenukhandakermojo.cpp" line="59"/>
         <source>Khandaker GM, University of Cambridge, UK — MOJO immunopsychiatry study</source>
         <translation>Khandaker GM, University of Cambridge, UK — MOJO immunopsykiatri forskningsundersøgelse</translation>
+    </message>
+    <message>
+        <location filename="../menu/setmenukhandakermojo.cpp" line="71"/>
+        <source>Screening phase</source>
+        <translation>Screeningsfase</translation>
+    </message>
+    <message>
+        <location filename="../menu/setmenukhandakermojo.cpp" line="76"/>
+        <source>Subject-rated scales (all subjects)</source>
+        <translation>Emne-vurderet skalaer (alle fag)</translation>
+    </message>
+    <message>
+        <location filename="../menu/setmenukhandakermojo.cpp" line="92"/>
+        <source>Subject-rated scales (condition-specific)</source>
+        <translation>Emne-vurderet skalaer (sygdomsspecifik)</translation>
+    </message>
+    <message>
+        <location filename="../menu/setmenukhandakermojo.cpp" line="97"/>
+        <source>Primary outcome measure (subject-rated)</source>
+        <translation>Primært resultatmål (emne-bedømt)</translation>
+    </message>
+    <message>
+        <location filename="../menu/setmenukhandakermojo.cpp" line="100"/>
+        <source>Clinician-/researcher-administered scales</source>
+        <translation>Kliniker/forsker administrerede skalaer</translation>
     </message>
 </context>
 <context>
@@ -5181,12 +5206,10 @@ enig</translation>
         <translation>Tilbud om at uploade hver gang en opgave er redigeret?</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="574"/>
         <source>Default clinician’s details (to save you typing)</source>
         <translation>Standard klinikerens detaljer (for at gemme dig at skrive)</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="577"/>
         <source>Default clinician’s specialty</source>
         <translation>Standard klinikerens specialitet</translation>
     </message>
@@ -5196,7 +5219,6 @@ enig</translation>
         <translation>f.eks. “Forbindelsespsykiatri”</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="581"/>
         <source>Default clinician’s name</source>
         <translation>Standard klinikerens navn</translation>
     </message>
@@ -5206,7 +5228,6 @@ enig</translation>
         <translation>f.eks. “Dr Viktor Jensen”</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="585"/>
         <source>Default clinician’s professional registration</source>
         <translation>Standard klinikerens faglige registrering</translation>
     </message>
@@ -5216,7 +5237,6 @@ enig</translation>
         <translation>e.g. “STPS# 12345”</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="589"/>
         <source>Default clinician’s post</source>
         <translation>Standard klinikerens arbejde</translation>
     </message>
@@ -5226,7 +5246,6 @@ enig</translation>
         <translation>f.eks. “Konsulent psykiater”</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="593"/>
         <source>Default clinician’s service</source>
         <translation>Standard klinikerens service</translation>
     </message>
@@ -5236,9 +5255,43 @@ enig</translation>
         <translation>f.eks. “Forbindelsespsykiatri Service”</translation>
     </message>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="597"/>
         <source>Default clinician’s contact details</source>
         <translation>Standard klinikerens kontaktoplysninger</translation>
+    </message>
+    <message>
+        <location filename="../menu/settingsmenu.cpp" line="574"/>
+        <source>Default clinician/researcher’s details (to save you typing)</source>
+        <translation>Standard kliniker/forsker detaljer (for at spare dig for at skrive)</translation>
+    </message>
+    <message>
+        <location filename="../menu/settingsmenu.cpp" line="577"/>
+        <source>Default clinician/researcher’s specialty</source>
+        <translation>Standard kliniker/forskers specialitet</translation>
+    </message>
+    <message>
+        <location filename="../menu/settingsmenu.cpp" line="581"/>
+        <source>Default clinician/researcher’s name</source>
+        <translation>Standard kliniker/forsker navn</translation>
+    </message>
+    <message>
+        <location filename="../menu/settingsmenu.cpp" line="585"/>
+        <source>Default clinician/researcher’s professional registration</source>
+        <translation>Standard kliniker/forskeres professionelle registrering</translation>
+    </message>
+    <message>
+        <location filename="../menu/settingsmenu.cpp" line="589"/>
+        <source>Default clinician/researcher’s post</source>
+        <translation>Standard kliniker/forsker embede</translation>
+    </message>
+    <message>
+        <location filename="../menu/settingsmenu.cpp" line="593"/>
+        <source>Default clinician/researcher’s service</source>
+        <translation>Standard kliniker/forskers service</translation>
+    </message>
+    <message>
+        <location filename="../menu/settingsmenu.cpp" line="597"/>
+        <source>Default clinician/researcher’s contact details</source>
+        <translation>Standard kliniker/forskers kontaktoplysninger</translation>
     </message>
     <message>
         <location filename="../menu/settingsmenu.cpp" line="598"/>
@@ -5617,7 +5670,7 @@ enig</translation>
     </message>
     <message>
         <location filename="../menu/singletaskmenu.cpp" line="104"/>
-        <location filename="../menu/singletaskmenu.cpp" line="223"/>
+        <location filename="../menu/singletaskmenu.cpp" line="220"/>
         <source>Task status</source>
         <translation>Opgavestatus</translation>
     </message>
@@ -5642,119 +5695,119 @@ enig</translation>
         <translation>Ikke tilladt at tilføje opgave</translation>
     </message>
     <message>
-        <location filename="../menu/singletaskmenu.cpp" line="163"/>
+        <location filename="../menu/singletaskmenu.cpp" line="162"/>
         <source>Really create?</source>
         <translation>Opret virkelig?</translation>
     </message>
     <message>
-        <location filename="../menu/singletaskmenu.cpp" line="164"/>
+        <location filename="../menu/singletaskmenu.cpp" line="163"/>
         <source>This task is not currently uploadable.</source>
         <translation>Denne opgave kan ikke uploades.</translation>
     </message>
     <message>
-        <location filename="../menu/singletaskmenu.cpp" line="165"/>
+        <location filename="../menu/singletaskmenu.cpp" line="164"/>
         <source>Create anyway?</source>
         <translation>Opret alligevel?</translation>
     </message>
     <message>
-        <location filename="../menu/singletaskmenu.cpp" line="167"/>
+        <location filename="../menu/singletaskmenu.cpp" line="166"/>
         <source>Yes, create</source>
         <translation>Ja, opret</translation>
     </message>
     <message>
-        <location filename="../menu/singletaskmenu.cpp" line="169"/>
+        <location filename="../menu/singletaskmenu.cpp" line="168"/>
         <source>No, cancel</source>
         <translation>Nej, annuller</translation>
     </message>
     <message>
-        <location filename="../menu/singletaskmenu.cpp" line="202"/>
+        <location filename="../menu/singletaskmenu.cpp" line="199"/>
         <source>Long name</source>
         <translation>Lang navn</translation>
     </message>
     <message>
-        <location filename="../menu/singletaskmenu.cpp" line="203"/>
+        <location filename="../menu/singletaskmenu.cpp" line="200"/>
         <source>Short name</source>
         <translation>Kort navn</translation>
     </message>
     <message>
-        <location filename="../menu/singletaskmenu.cpp" line="204"/>
+        <location filename="../menu/singletaskmenu.cpp" line="201"/>
         <source>Main database table name</source>
         <translation>Hoveddatabasenavn</translation>
     </message>
     <message>
-        <location filename="../menu/singletaskmenu.cpp" line="205"/>
+        <location filename="../menu/singletaskmenu.cpp" line="202"/>
         <source>Implementation type</source>
         <translation>Implementeringstype</translation>
     </message>
     <message>
-        <location filename="../menu/singletaskmenu.cpp" line="206"/>
+        <location filename="../menu/singletaskmenu.cpp" line="203"/>
         <source>Anonymous</source>
         <translation>
 9/5000
 Anonym</translation>
     </message>
     <message>
-        <location filename="../menu/singletaskmenu.cpp" line="207"/>
+        <location filename="../menu/singletaskmenu.cpp" line="204"/>
         <source>Has a clinician</source>
         <translation>Har en kliniker</translation>
     </message>
     <message>
-        <location filename="../menu/singletaskmenu.cpp" line="208"/>
+        <location filename="../menu/singletaskmenu.cpp" line="205"/>
         <source>Has a respondent</source>
         <translation>Har en respondent</translation>
     </message>
     <message>
-        <location filename="../menu/singletaskmenu.cpp" line="209"/>
+        <location filename="../menu/singletaskmenu.cpp" line="206"/>
         <source>Prohibits clinical use</source>
         <translation>Forbyder klinisk brug</translation>
     </message>
     <message>
-        <location filename="../menu/singletaskmenu.cpp" line="210"/>
+        <location filename="../menu/singletaskmenu.cpp" line="207"/>
         <source>Prohibits commercial use</source>
         <translation>Forbyder kommerciel brug</translation>
     </message>
     <message>
-        <location filename="../menu/singletaskmenu.cpp" line="211"/>
+        <location filename="../menu/singletaskmenu.cpp" line="208"/>
         <source>Prohibits educational use</source>
         <translation>Forbyder pædagogisk brug</translation>
     </message>
     <message>
-        <location filename="../menu/singletaskmenu.cpp" line="212"/>
+        <location filename="../menu/singletaskmenu.cpp" line="209"/>
         <source>Prohibits research use</source>
         <translation>Forbyder forskningsbrug</translation>
     </message>
     <message>
-        <location filename="../menu/singletaskmenu.cpp" line="213"/>
+        <location filename="../menu/singletaskmenu.cpp" line="210"/>
         <source>Permissible (creatable) with current settings</source>
         <translation>Tilladelig (kreativ) med aktuelle indstillinger</translation>
     </message>
     <message>
-        <location filename="../menu/singletaskmenu.cpp" line="215"/>
+        <location filename="../menu/singletaskmenu.cpp" line="212"/>
         <source>If not, why not permissible</source>
         <translation>Hvis ikke, hvorfor ikke tilladt</translation>
     </message>
     <message>
-        <location filename="../menu/singletaskmenu.cpp" line="216"/>
+        <location filename="../menu/singletaskmenu.cpp" line="213"/>
         <source>Uploadable to current server</source>
         <translation>Uploades til den aktuelle server</translation>
     </message>
     <message>
-        <location filename="../menu/singletaskmenu.cpp" line="218"/>
+        <location filename="../menu/singletaskmenu.cpp" line="215"/>
         <source>If not, why not uploadable</source>
         <translation>Hvis ikke, hvorfor ikke uploades</translation>
     </message>
     <message>
-        <location filename="../menu/singletaskmenu.cpp" line="219"/>
+        <location filename="../menu/singletaskmenu.cpp" line="216"/>
         <source>Fully functional</source>
         <translation>Fuldt funktionsdygtig</translation>
     </message>
     <message>
-        <location filename="../menu/singletaskmenu.cpp" line="220"/>
+        <location filename="../menu/singletaskmenu.cpp" line="217"/>
         <source>Extra strings present from server</source>
         <translation>Ekstra strings til stede fra serveren</translation>
     </message>
     <message>
-        <location filename="../menu/singletaskmenu.cpp" line="222"/>
+        <location filename="../menu/singletaskmenu.cpp" line="219"/>
         <source>Editable once created</source>
         <translation>Redigerbar, når den er oprettet</translation>
     </message>
@@ -5835,75 +5888,93 @@ Anonym</translation>
 <context>
     <name>Task</name>
     <message>
-        <location filename="../tasklib/task.cpp" line="218"/>
+        <location filename="../tasklib/task.cpp" line="256"/>
         <source>MISSING PATIENT</source>
         <translation>MISSENDE PATIENT</translation>
     </message>
     <message>
-        <location filename="../tasklib/task.cpp" line="255"/>
+        <location filename="../tasklib/task.cpp" line="293"/>
         <source> You have said you ARE using this software in that context (see Settings). To use this task, you must seek permission from the copyright holder (see Task Information).</source>
         <translation>Du har sagt, at du bruger denne software i den sammenhæng (se Indstillinger). For at bruge denne opgave skal du søge tilladelse fra indehaveren af ophavsretten (se Opgaveoplysninger).</translation>
     </message>
     <message>
-        <location filename="../tasklib/task.cpp" line="259"/>
+        <location filename="../tasklib/task.cpp" line="297"/>
         <source> You have NOT SAID whether you are using this software in that context (see Settings).</source>
         <translation>Du har ikke sagt om du bruger denne software i den sammenhæng (se Indstillinger).</translation>
     </message>
     <message>
-        <location filename="../tasklib/task.cpp" line="262"/>
+        <location filename="../tasklib/task.cpp" line="300"/>
         <source>Task permissible</source>
         <translation>Opgave er tilladt</translation>
     </message>
     <message>
-        <location filename="../tasklib/task.cpp" line="266"/>
+        <location filename="../tasklib/task.cpp" line="304"/>
         <source>Task not allowed for commercial use (see Task Information).</source>
         <translation>Opgave ikke tilladt til kommerciel brug (se Opgaveoplysninger).</translation>
     </message>
     <message>
-        <location filename="../tasklib/task.cpp" line="273"/>
-        <location filename="../tasklib/task.cpp" line="287"/>
+        <location filename="../tasklib/task.cpp" line="311"/>
+        <location filename="../tasklib/task.cpp" line="325"/>
         <source>Task not allowed for research use (see Task Information).</source>
         <translation>Opgave ikke tilladt til forskningsbrug (se Opgaveoplysninger).</translation>
     </message>
     <message>
-        <location filename="../tasklib/task.cpp" line="280"/>
+        <location filename="../tasklib/task.cpp" line="318"/>
         <source>Task not allowed for educational use (see Task Information).</source>
         <translation>Opgave ikke tilladt til uddannelsesmæssig brug (se Opgaveoplysninger).</translation>
     </message>
     <message>
-        <location filename="../tasklib/task.cpp" line="324"/>
+        <location filename="../tasklib/task.cpp" line="362"/>
         <source>Task uploadable</source>
         <translation>Opgave kan uploades</translation>
     </message>
     <message>
-        <location filename="../tasklib/task.cpp" line="327"/>
+        <location filename="../tasklib/task.cpp" line="365"/>
         <source>Table &apos;%1&apos; absent on server.</source>
         <translation>Tabel &apos;%1&apos; er fraværende på serveren.</translation>
     </message>
     <message>
-        <location filename="../tasklib/task.cpp" line="330"/>
+        <location filename="../tasklib/task.cpp" line="368"/>
         <source>Server requires client version &gt;=%1 for table &apos;%2&apos;, but we are only client version %3.</source>
         <translation>Server kræver klientversion &gt;=%1 for tabel &apos;%2&apos;, men vi er kun klientversion %3.</translation>
     </message>
     <message>
-        <location filename="../tasklib/task.cpp" line="337"/>
+        <location filename="../tasklib/task.cpp" line="375"/>
         <source>This client requires server version &gt;=%1, but the server is only version %2.</source>
         <translation>Denne klient kræver serverversion &gt;=%1, men serveren er kun version %2.</translation>
     </message>
     <message>
-        <location filename="../tasklib/task.cpp" line="343"/>
+        <location filename="../tasklib/task.cpp" line="381"/>
         <source>This client requires server version &gt;=%1 for table &apos;%2&apos;, but the server is only version %3.</source>
         <translation>Denne klient kræver serverversion &gt;= %1 for tabel &apos;%2&apos;, men serveren er kun version %3.</translation>
     </message>
     <message>
-        <location filename="../tasklib/task.cpp" line="447"/>
+        <location filename="../tasklib/task.cpp" line="485"/>
         <source>MISSING SUMMARY</source>
         <translation>MISSENDE SAMMENFATNING</translation>
     </message>
     <message>
-        <location filename="../tasklib/task.cpp" line="892"/>
+        <location filename="../tasklib/task.cpp" line="946"/>
         <source>&lt;b&gt;(INCOMPLETE)&lt;/b&gt;</source>
         <translation>&lt;b&gt;(UFULDSTÆNDIG)&lt;/b&gt;</translation>
+    </message>
+</context>
+<context>
+    <name>TaskChain</name>
+    <message>
+        <location filename="../tasklib/taskchain.cpp" line="47"/>
+        <source>Task chain</source>
+        <translation>Opgavekæde</translation>
+    </message>
+    <message>
+        <location filename="../tasklib/taskchain.cpp" line="161"/>
+        <source>No patient selected</source>
+        <translation>Ingen patient valgt</translation>
+    </message>
+    <message>
+        <location filename="../tasklib/taskchain.cpp" line="167"/>
+        <source>Task(s) not permissible:</source>
+        <translation>Opgave(er) ikke tilladt:</translation>
     </message>
 </context>
 <context>
@@ -6172,53 +6243,42 @@ Anonym</translation>
         <translation>Kategori</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="35"/>
         <source>Clinician</source>
         <translation>Kliniker</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="36"/>
         <source>Clinician’s and respondent’s details</source>
         <translation>Klinikers og respondentens detaljer</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="37"/>
-        <location filename="../common/textconst.cpp" line="45"/>
         <source>Clinician’s comments</source>
         <translation>Klinikernes kommentarer</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="38"/>
         <source>Clinician’s contact details</source>
         <translation>Klinikerens kontaktoplysninger</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="39"/>
         <source>Clinician’s details</source>
         <translation>Klinikerens detaljer</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="40"/>
         <source>Clinician’s name</source>
         <translation>Klinikerens navn</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="41"/>
         <source>Clinician’s post</source>
         <translation>Klinikernes stilling</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="42"/>
         <source>Clinician’s professional registration</source>
         <translation>Klinikerens faglige registrering</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="43"/>
         <source>Clinician’s service</source>
         <translation>Klinikers service</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="44"/>
         <source>Clinician’s specialty</source>
         <translation>Klinikers speciale</translation>
     </message>
@@ -6248,24 +6308,9 @@ Anonym</translation>
         <translation>Reproduktion af denne opgave/skala er ikke tilladt. Dette er kun et dataindsamlingsværktøj; brug det kun i forbindelse med en licenseret kopi af den oprindelige opgave.</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="61"/>
-        <source>[¶ Data collection tool ONLY.]</source>
-        <translation>[¶ KUN dataindsamlingsværktøj.]</translation>
-    </message>
-    <message>
-        <location filename="../common/textconst.cpp" line="66"/>
-        <source>[¶+ Data collection tool ONLY unless host institution adds scale text.]</source>
-        <translation>[¶+ Dataindsamlingsværktøj KUN, medmindre værtsinstitution tilføjer skaletekst.]</translation>
-    </message>
-    <message>
         <location filename="../common/textconst.cpp" line="69"/>
         <source>type text here</source>
         <translation>skriv tekst her</translation>
-    </message>
-    <message>
-        <location filename="../common/textconst.cpp" line="73"/>
-        <source>[† Defunct.]</source>
-        <translation>[† Hedengangne.]</translation>
     </message>
     <message>
         <location filename="../common/textconst.cpp" line="75"/>
@@ -6283,9 +6328,75 @@ Anonym</translation>
         <translation>Diagnose</translation>
     </message>
     <message>
+        <location filename="../common/textconst.cpp" line="61"/>
+        <source>Data collection tool only.</source>
+        <translation>Kun dataindsamlingsværktøj.</translation>
+    </message>
+    <message>
+        <location filename="../common/textconst.cpp" line="35"/>
+        <source>Clinician/researcher</source>
+        <translation>Kliniker/forsker</translation>
+    </message>
+    <message>
+        <location filename="../common/textconst.cpp" line="36"/>
+        <source>Clinician/researcher’s and respondent’s details</source>
+        <translation>Kliniker/forsker og respondents detaljer</translation>
+    </message>
+    <message>
+        <location filename="../common/textconst.cpp" line="37"/>
+        <location filename="../common/textconst.cpp" line="45"/>
+        <source>Clinician/researcher’s comments</source>
+        <translation>Kliniker/forskers kommentarer</translation>
+    </message>
+    <message>
+        <location filename="../common/textconst.cpp" line="38"/>
+        <source>Clinician/researcher’s contact details</source>
+        <translation>Kliniker/forskers kontaktoplysninger</translation>
+    </message>
+    <message>
+        <location filename="../common/textconst.cpp" line="39"/>
+        <source>Clinician/researcher’s details</source>
+        <translation>Klinikeren/forskerens detaljer</translation>
+    </message>
+    <message>
+        <location filename="../common/textconst.cpp" line="40"/>
+        <source>Clinician/researcher’s name</source>
+        <translation>Kliniker/forsker navn</translation>
+    </message>
+    <message>
+        <location filename="../common/textconst.cpp" line="41"/>
+        <source>Clinician/researcher’s post</source>
+        <translation>Kliniker/forsker embede</translation>
+    </message>
+    <message>
+        <location filename="../common/textconst.cpp" line="42"/>
+        <source>Clinician/researcher’s professional registration</source>
+        <translation>Kliniker/forskeres professionelle registrering</translation>
+    </message>
+    <message>
+        <location filename="../common/textconst.cpp" line="43"/>
+        <source>Clinician/researcher’s service</source>
+        <translation>Kliniker/forskers service</translation>
+    </message>
+    <message>
+        <location filename="../common/textconst.cpp" line="44"/>
+        <source>Clinician/researcher’s specialty</source>
+        <translation>Kliniker/forskers specialitet</translation>
+    </message>
+    <message>
+        <location filename="../common/textconst.cpp" line="66"/>
+        <source>Data collection tool only unless host institution adds scale text.</source>
+        <translation>Værktøj til indsamling af data, medmindre værtsinstitutionen tilføjer skalatekst.</translation>
+    </message>
+    <message>
+        <location filename="../common/textconst.cpp" line="73"/>
+        <source>Defunct.</source>
+        <translation>Hedengangne.</translation>
+    </message>
+    <message>
         <location filename="../common/textconst.cpp" line="82"/>
-        <source>[~ Experimental.]</source>
-        <translation>[~ Eksperimentel.]</translation>
+        <source>Experimental.</source>
+        <translation>Eksperimentel.</translation>
     </message>
     <message>
         <location filename="../common/textconst.cpp" line="85"/>
@@ -6313,312 +6424,332 @@ Anonym</translation>
         <translation>Fuld opgave uden indholdsbegrænsning</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="97"/>
+        <location filename="../common/textconst.cpp" line="98"/>
+        <source>Involves assessment by clinician/researcher.</source>
+        <translation>Indbefatter vurdering af kliniker/forsker.</translation>
+    </message>
+    <message>
+        <location filename="../common/textconst.cpp" line="102"/>
+        <source>Collects information from respondent other than the subject.</source>
+        <translation>Indsamler oplysninger fra anden respondent end emnet.</translation>
+    </message>
+    <message>
+        <location filename="../common/textconst.cpp" line="106"/>
         <source>World Health Organization International Classification of Diseases, 10th edition.</source>
         <translation>Verdenssundhedsorganisationens Internationale Klassificering af Sygdomme (ICD), 10. udgave.</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="100"/>
+        <location filename="../common/textconst.cpp" line="109"/>
         <source>ID number type</source>
         <translation>ID nummer type</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="101"/>
+        <location filename="../common/textconst.cpp" line="110"/>
         <source>In addition</source>
         <translation>Desuden</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="102"/>
+        <location filename="../common/textconst.cpp" line="111"/>
         <source>Incorrect</source>
         <translation>Ukorrekt</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="104"/>
+        <location filename="../common/textconst.cpp" line="113"/>
         <source>Location</source>
         <translation>Beliggenhed</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="106"/>
+        <location filename="../common/textconst.cpp" line="115"/>
         <source>Meets criteria</source>
         <translation>Opfylder kriterier</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="107"/>
+        <location filename="../common/textconst.cpp" line="116"/>
         <source>Mild</source>
         <translation>Mild</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="108"/>
+        <location filename="../common/textconst.cpp" line="117"/>
         <source>Mild to moderate</source>
         <translation>Mild til moderat</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="109"/>
+        <location filename="../common/textconst.cpp" line="118"/>
         <source>Moderately severe</source>
         <translation>Moderat alvorlig</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="110"/>
+        <location filename="../common/textconst.cpp" line="119"/>
         <source>Moderate to severe</source>
         <translation>Moderat til svær</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="111"/>
+        <location filename="../common/textconst.cpp" line="120"/>
         <source>Moderate</source>
         <translation>Moderat</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="112"/>
+        <location filename="../common/textconst.cpp" line="121"/>
         <source>Move down</source>
         <translation>Flyt ned</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="113"/>
+        <location filename="../common/textconst.cpp" line="122"/>
         <source>Move up</source>
         <translation>Flyt op</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="115"/>
+        <location filename="../common/textconst.cpp" line="124"/>
         <source>N/A</source>
         <translation>I/A</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="116"/>
+        <location filename="../common/textconst.cpp" line="125"/>
         <source>None</source>
         <translation>Ingen</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="117"/>
+        <location filename="../common/textconst.cpp" line="126"/>
         <source>No</source>
         <translation>Nej</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="118"/>
+        <location filename="../common/textconst.cpp" line="127"/>
         <source>No detail available; see the facsimile instead</source>
         <translation>Ingen detaljer til rådighed se faksimile i stedet</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="119"/>
+        <location filename="../common/textconst.cpp" line="128"/>
         <source>No summary available; see the facsimile instead</source>
         <translation>Ingen oversigt tilgængelig se faxsimile i stedet</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="120"/>
+        <location filename="../common/textconst.cpp" line="129"/>
         <source>Normal</source>
         <translation>Normal</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="121"/>
+        <location filename="../common/textconst.cpp" line="130"/>
         <source>Not applicable</source>
         <translation>Ikke anvendelig</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="122"/>
+        <location filename="../common/textconst.cpp" line="131"/>
         <source>Not recalled</source>
         <translation>Ikke tilbagekaldt</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="123"/>
+        <location filename="../common/textconst.cpp" line="132"/>
         <source>&lt;not specified&gt;</source>
         <translation>&lt;ikke specificeret&gt;</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="124"/>
+        <location filename="../common/textconst.cpp" line="133"/>
         <source>Note</source>
         <translation>Note</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="126"/>
+        <location filename="../common/textconst.cpp" line="135"/>
         <source>of</source>
         <translation>af</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="127"/>
+        <location filename="../common/textconst.cpp" line="136"/>
         <source>Off</source>
         <translation>Slukket</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="128"/>
+        <location filename="../common/textconst.cpp" line="137"/>
         <source>OK</source>
         <translation>Okay</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="129"/>
+        <location filename="../common/textconst.cpp" line="138"/>
         <source>On</source>
         <translation>Tændt </translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="131"/>
+        <location filename="../common/textconst.cpp" line="140"/>
         <source>page</source>
         <translation>side</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="132"/>
+        <location filename="../common/textconst.cpp" line="141"/>
         <source>Part</source>
         <translation>Del</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="133"/>
+        <location filename="../common/textconst.cpp" line="142"/>
         <source>Patient</source>
         <translation>Patient</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="134"/>
+        <location filename="../common/textconst.cpp" line="143"/>
         <source>Please wait...</source>
         <translation>Vent venligst...</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="137"/>
+        <location filename="../common/textconst.cpp" line="146"/>
         <source>Press the NEXT button (the green right-facing arrow at the TOP RIGHT of the screen) to continue.</source>
         <translation>Tryk på knappen &quot;Næste&quot; (den grønne højre pil pil øverst til højre på skærmen) for at fortsætte.</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="143"/>
+        <location filename="../common/textconst.cpp" line="152"/>
         <source>Question</source>
         <translation>Spørgsmål</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="145"/>
+        <location filename="../common/textconst.cpp" line="154"/>
         <source>Rating</source>
         <translation>Bedømmelse</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="146"/>
+        <location filename="../common/textconst.cpp" line="155"/>
         <source>Really abort?</source>
         <translation>Virkelig afbryde?</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="147"/>
+        <location filename="../common/textconst.cpp" line="156"/>
         <source>Recalled</source>
         <translation>Tilbagekaldt </translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="148"/>
+        <location filename="../common/textconst.cpp" line="157"/>
         <source>Respondent’s details</source>
         <translation>Respondentens detaljer</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="149"/>
+        <location filename="../common/textconst.cpp" line="158"/>
         <source>Your name</source>
         <translation>Dit navn</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="150"/>
+        <location filename="../common/textconst.cpp" line="159"/>
         <source>Respondent’s name</source>
         <translation>Respondent’s name</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="151"/>
+        <location filename="../common/textconst.cpp" line="160"/>
         <source>Your relationship to the patient</source>
         <translation>Dit forhold til patienten</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="152"/>
+        <location filename="../common/textconst.cpp" line="161"/>
         <source>Respondent’s relationship to patient</source>
         <translation>Respondentens forhold til patienten</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="154"/>
+        <location filename="../common/textconst.cpp" line="163"/>
         <source>Saving, please wait...</source>
         <translation>Gem, vent venligst...</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="155"/>
+        <location filename="../common/textconst.cpp" line="164"/>
         <source>Score</source>
         <translation>Score</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="156"/>
+        <location filename="../common/textconst.cpp" line="165"/>
         <source>See facsimile.</source>
         <translation>Se faksimile.</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="157"/>
+        <location filename="../common/textconst.cpp" line="166"/>
         <source>See facsimile for more detail.</source>
         <translation>Se faksimile for flere detaljer.</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="158"/>
+        <location filename="../common/textconst.cpp" line="167"/>
         <source>Service</source>
         <translation>Service</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="159"/>
+        <location filename="../common/textconst.cpp" line="168"/>
         <source>Severe</source>
         <translation>Alvorlig</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="160"/>
+        <location filename="../common/textconst.cpp" line="169"/>
         <source>Sex</source>
         <translation>Køn</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="161"/>
+        <location filename="../common/textconst.cpp" line="170"/>
+        <source>Start new task chain?</source>
+        <translation>Start en ny opgavekæde?</translation>
+    </message>
+    <message>
+        <location filename="../common/textconst.cpp" line="171"/>
+        <source>Start task chain</source>
+        <translation>Start opgavekæden</translation>
+    </message>
+    <message>
+        <location filename="../common/textconst.cpp" line="172"/>
         <source>Sound test for</source>
         <translation>Lydtest for</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="163"/>
+        <location filename="../common/textconst.cpp" line="174"/>
         <source>Thank you!</source>
         <translation>Tak skal du have!</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="164"/>
+        <location filename="../common/textconst.cpp" line="175"/>
         <source>Thank you! Please touch here to exit.</source>
         <translation>Tak skal du have! Venligst tryk her for at afslutte.</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="165"/>
+        <location filename="../common/textconst.cpp" line="176"/>
         <source>Total score</source>
         <translation>Samlet score</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="166"/>
+        <location filename="../common/textconst.cpp" line="177"/>
         <source>When you’re ready, touch here to start.</source>
         <translation>Når du er klar, tryk her for at starte.</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="168"/>
+        <location filename="../common/textconst.cpp" line="179"/>
         <source>and</source>
         <translation>og</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="169"/>
+        <location filename="../common/textconst.cpp" line="180"/>
         <source>True</source>
         <translation>Sandt</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="170"/>
+        <location filename="../common/textconst.cpp" line="181"/>
         <source>False</source>
         <translation>Falsk</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="172"/>
+        <location filename="../common/textconst.cpp" line="183"/>
         <source>Unable to create media player!</source>
         <translation>Kan ikke oprette medieafspiller!</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="173"/>
+        <location filename="../common/textconst.cpp" line="184"/>
         <source>Unknown</source>
         <translation>Ukendt</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="175"/>
+        <location filename="../common/textconst.cpp" line="186"/>
         <source>Very severe</source>
         <translation>Meget alvorlig</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="177"/>
+        <location filename="../common/textconst.cpp" line="188"/>
         <source>Wrong</source>
         <translation>Forkert</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="179"/>
+        <location filename="../common/textconst.cpp" line="190"/>
         <source>Yes</source>
         <translation>Ja</translation>
     </message>
     <message>
-        <location filename="../common/textconst.cpp" line="187"/>
+        <location filename="../common/textconst.cpp" line="198"/>
         <source>1. By using the Cambridge Cognitive and Psychiatric Assessment Kit application or web interface (“CamCOPS”), you are agreeing in full to these Terms and Conditions of Use. If you do not agree to these terms, do not use the software.
 
 2. Content that is original to CamCOPS is licensed as follows.

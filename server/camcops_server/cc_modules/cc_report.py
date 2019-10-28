@@ -29,8 +29,9 @@ camcops_server/cc_modules/cc_report.py
 """
 
 import logging
-from typing import (Any, Dict, Generator, List, Optional, Sequence, Type,
-                    TYPE_CHECKING, Union)
+from abc import ABC
+from typing import (Any, Callable, Dict, Generator, List, Optional, Sequence,
+                    Type, TYPE_CHECKING, Union)
 
 from cardinal_pythonlib.classes import all_subclasses, classproperty
 from cardinal_pythonlib.datetimefunc import format_datetime
@@ -54,6 +55,7 @@ from camcops_server.cc_modules.cc_constants import (
     DateFormat,
     DEFAULT_ROWS_PER_PAGE,
 )
+from camcops_server.cc_modules.cc_db import FN_CURRENT, TFN_WHEN_CREATED
 from camcops_server.cc_modules.cc_pyramid import (
     CamcopsPage,
     PageUrl,
@@ -74,7 +76,7 @@ if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_patient import Patient
     from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
     from camcops_server.cc_modules.cc_request import CamcopsRequest  # noqa: E501,F401
-    from camcops_server.cc_modules.cc_task import Task
+    from camcops_server.cc_modules.cc_task import Task  # noqa: F401
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -103,9 +105,13 @@ class Report(object):
 
     If you are writing a report, you must override these attributes:
 
-    - ``report_id``
-    - ``report_title``
-    - ``get_query`` OR ``get_rows_colnames``
+    - :meth:`report_id`
+    - :meth:`report_title`
+    - One combination of:
+
+      - (simplest) :meth:`get_query` OR :meth:`get_rows_colnames`
+      - (for multi-page results) :meth:`render_html` and :meth:`get_tsv_pages`
+      - (manual control) all ``render_*`` functions
 
     See the explanations of each.
     """
@@ -220,11 +226,31 @@ class Report(object):
         """
         return {}
 
-    def add_report_filters(self, wheres: List[ColumnElement]) -> None:
+    @staticmethod
+    def add_task_report_filters(wheres: List[ColumnElement]) -> None:
         """
-        Override this to provide global filters to queries used to create
-        reports. Used by :class:`DateTimeFilteredReportMixin`.
+        Adds any restrictions required to a list of SQLAlchemy Core ``WHERE``
+        clauses.
+
+        Override this (or provide additional filters and call this) to provide
+        global filters to queries used to create reports.
+
+        Used by :class:`DateTimeFilteredReportMixin`, etc.
+
+        The presumption is that the thing being filtered is an instance of
+        :class:`camcops_server.cc_modules.cc_task.Task`.
+
+        Args:
+            wheres:
+                list of SQL ``WHERE`` conditions, each represented as an
+                SQLAlchemy :class:`ColumnElement`. This list is modifed in
+                place. The caller will need to apply the final list to the
+                query.
         """
+        # noinspection PyPep8
+        wheres.append(
+            column(FN_CURRENT) == True  # noqa: E712
+        )
 
     # -------------------------------------------------------------------------
     # Common functionality: classmethods
@@ -301,7 +327,7 @@ class Report(object):
 
         raise HTTPBadRequest("Bad viewtype")
 
-    def render_html(self, req: "CamcopsRequest"):
+    def render_html(self, req: "CamcopsRequest") -> Response:
         rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
                                           DEFAULT_ROWS_PER_PAGE)
         page_num = req.get_int_param(ViewParam.PAGE, 1)
@@ -357,9 +383,10 @@ class Report(object):
                                  rows=plain_report.rows)
         return [page]
 
-    def get_tsv_page(self, name: str,
-                     column_names: List[str],
-                     rows: List[List[str]]) -> TsvPage:
+    @staticmethod
+    def get_tsv_page(name: str,
+                     column_names: Sequence[str],
+                     rows: Sequence[Sequence[Any]]) -> TsvPage:
         keyed_rows = [dict(zip(column_names, r)) for r in rows]
         page = TsvPage(name=name, rows=keyed_rows)
 
@@ -388,7 +415,7 @@ class Report(object):
 
     def render_single_page_html(self,
                                 req: "CamcopsRequest",
-                                column_names: List[str],
+                                column_names: Sequence[str],
                                 page: CamcopsPage) -> Response:
         """
         Converts a paginated report into an HTML response.
@@ -405,6 +432,11 @@ class Report(object):
         )
 
     def _get_plain_report(self, req: "CamcopsRequest") -> PlainReportType:
+        """
+        Uses :meth:`get_query`, or if absent, :meth:`get_rows_colnames`, to
+        fetch data. Returns a "single-page" type report, in the form of a
+        :class:`PlainReportType`.
+        """
         statement = self.get_query(req)
         if statement is not None:
             rp = req.dbsession.execute(statement)  # type: ResultProxy
@@ -424,8 +456,11 @@ class Report(object):
 
 
 class PercentageSummaryReportMixin(object):
+    """
+    Mixin to be used with :class:`Report`.
+    """
     @classproperty
-    def task_class(self) -> "Task":
+    def task_class(self) -> Type["Task"]:
         raise NotImplementedError("implement in subclass")
 
     def get_percentage_summaries(self,
@@ -447,7 +482,8 @@ class PercentageSummaryReportMixin(object):
                 column(column_name).isnot(None)
             ]
 
-            self.add_report_filters(wheres)
+            # noinspection PyUnresolvedReferences
+            self.add_task_report_filters(wheres)
 
             # noinspection PyUnresolvedReferences
             total_query = (
@@ -492,6 +528,11 @@ class PercentageSummaryReportMixin(object):
 
 
 class DateTimeFilteredReportMixin(object):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.start_datetime = None  # type: Optional[str]
+        self.end_datetime = None  # type: Optional[str]
+
     @staticmethod
     def get_paramform_schema_class() -> Type["ReportParamSchema"]:
         from camcops_server.cc_modules.cc_forms import DateTimeFilteredReportParamSchema  # delayed import  # noqa
@@ -499,6 +540,7 @@ class DateTimeFilteredReportMixin(object):
 
     @classmethod
     def get_specific_http_query_keys(cls) -> List[str]:
+        # noinspection PyUnresolvedReferences
         return super().get_specific_http_query_keys() + [
             ViewParam.START_DATETIME,
             ViewParam.END_DATETIME,
@@ -514,211 +556,254 @@ class DateTimeFilteredReportMixin(object):
             DateFormat.ERA
         )
 
+        # noinspection PyUnresolvedReferences
         return super().get_response(req)
 
-    def add_report_filters(self, wheres: List[ColumnElement]) -> None:
-        super().add_report_filters(wheres)
+    def add_task_report_filters(self, wheres: List[ColumnElement]) -> None:
+        """
+        Adds any restrictions required to a list of SQLAlchemy Core ``WHERE``
+        clauses.
+
+        See :meth:`Report.add_task_report_filters`.
+
+        Args:
+            wheres:
+                list of SQL ``WHERE`` conditions, each represented as an
+                SQLAlchemy :class:`ColumnElement`. This list is modifed in
+                place. The caller will need to apply the final list to the
+                query.
+        """
+        # noinspection PyUnresolvedReferences
+        super().add_task_report_filters(wheres)
 
         if self.start_datetime is not None:
             wheres.append(
-                column("when_created") >= self.start_datetime
+                column(TFN_WHEN_CREATED) >= self.start_datetime
             )
 
         if self.end_datetime is not None:
             wheres.append(
-                column("when_created") < self.end_datetime
+                column(TFN_WHEN_CREATED) < self.end_datetime
             )
 
 
 class ScoreDetails(object):
-    def __init__(self, name: str, fieldnames: List[str],
-                 min: int, max: int) -> None:
+    """
+    Represents a type of score whose progress we want to track over time.
+    """
+    def __init__(self,
+                 name: str,
+                 scorefunc: Callable[["Task"], Union[None, int, float]],
+                 minimum: int,
+                 maximum: int,
+                 higher_score_is_better: bool = False) -> None:
+        """
+        Args:
+            name:
+                human-friendly name of this score
+            scorefunc:
+                function that can be called with a task instance as its
+                sole parameter and which will return a numerical score (or
+                ``None``)
+            minimum:
+                minimum possible value of this score (for display purposes)
+            maximum:
+                maximum possible value of this score (for display purposes)
+            higher_score_is_better:
+                is a higher score a better thing?
+        """
         self.name = name
-        self.fieldnames = fieldnames
-        self.min = min
-        self.max = max
+        self.scorefunc = scorefunc
+        self.minimum = minimum
+        self.maximum = maximum
+        self.higher_score_is_better = higher_score_is_better
+
+    def calculate_improvement(self,
+                              first_score: float,
+                              latest_score: float) -> float:
+        """
+        Improvement is positive.
+
+        So if higher scores are better, returns ``latest - first``; otherwise
+        returns ``first - latest``.
+        """
+        if self.higher_score_is_better:
+            return latest_score - first_score
+        else:
+            return first_score - latest_score
 
 
-class AverageScoreReport(DateTimeFilteredReportMixin, Report):
+class AverageScoreReport(DateTimeFilteredReportMixin, Report, ABC):
     """
     Used by MAAS, CORE-10 and PBQ to report average scores and progress
     """
     template_name = "average_score_report.mako"
 
+    def __init__(self, *args, via_index: bool = True, **kwargs) -> None:
+        """
+        Args:
+            via_index:
+                set this to ``False`` for unit test when you don't want to
+                have to build a dummy task index.
+        """
+        super().__init__(*args, **kwargs)
+        self.via_index = via_index
+
+    # noinspection PyMethodParameters
     @classproperty
     def superuser_only(cls) -> bool:
         return False
 
+    # noinspection PyMethodParameters
     @classproperty
-    def higher_score_is_better(cls) -> bool:
-        """
-        Progress is always expressed positively
-        so should we do score1 - score2 or vice versa?
-        """
-        return True
-
-    @classproperty
-    def task_class(cls) -> "Task":
+    def task_class(cls) -> Type["Task"]:
         raise NotImplementedError(
             "Report did not implement task_class"
         )
 
+    # noinspection PyMethodParameters
     @classmethod
-    def scores(cls, req: "CamcopsRequest") -> List[ScoreDetails]:
+    def scoretypes(cls, req: "CamcopsRequest") -> List[ScoreDetails]:
         raise NotImplementedError(
-            "Report did not implement 'scores'"
+            "Report did not implement 'scoretypes'"
         )
 
-    def get_rows_colnames(self,
-                          req: "CamcopsRequest") -> Optional[PlainReportType]:
-        row = []
+    @staticmethod
+    def no_data_value() -> Any:
+        """
+        The value used for a "no data" cell.
 
+        The only reason this is accessible outside this class is for unit
+        testing.
+        """
+        return ""
+
+    def render_html(self, req: "CamcopsRequest") -> Response:
+        tsv_pages = self.get_tsv_pages(req)
+        return render_to_response(
+            self.template_name,
+            dict(title=self.title(req),
+                 mainpage=tsv_pages[0],
+                 datepage=tsv_pages[1],
+                 report_id=self.report_id),
+            request=req
+        )
+
+    def get_tsv_pages(self, req: "CamcopsRequest") -> List[TsvPage]:
+        """
+        We use an SQLAlchemy ORM, rather than Core, method. Why?
+
+        - "Patient equality" is complex (e.g. same patient_id on same device,
+          or a shared ID number, etc.) -- simplicity via Patient.__eq__.
+        - Facilities "is task complete?" checks, and use of Python
+          calculations.
+        """
         _ = req.gettext
+        from camcops_server.cc_modules.cc_taskcollection import (
+            TaskCollection,
+            task_when_created_sorter,
+        )  # delayed import
+        from camcops_server.cc_modules.cc_taskfilter import TaskFilter  # delayed import  # noqa
 
-        """
-        First and latest record for each patient (e.g. for CORE-10):
-        SELECT patient_id,
-        MIN(when_created) AS min_when_created,
-        MAX(when_created) AS max_when_created
-        FROM core10 GROUP BY patient_id
-        """
+        # Which tasks?
+        taskfilter = TaskFilter()
+        taskfilter.task_types = [self.task_class.__tablename__]
+        taskfilter.start_datetime = self.start_datetime
+        taskfilter.end_datetime = self.end_datetime
+        taskfilter.complete_only = True
 
-        wheres = []
-        self.add_report_filters(wheres)
-
-        first_latest_record_query = (
-            select([self.task_class.patient_id,
-                    func.min(self.task_class.when_created)
-                    .label("min_when_created"),
-                    func.max(self.task_class.when_created)
-                    .label("max_when_created")])
-            .select_from(self.task_class.__table__)
-            .where(and_(*wheres))
-            .group_by(self.task_class.patient_id)
+        # Get tasks
+        collection = TaskCollection(
+            req=req,
+            taskfilter=taskfilter,
+            current_only=True,
+            via_index=self.via_index,
         )
+        all_tasks = collection.all_tasks
 
-        first_latest_records = first_latest_record_query.alias(
-            "first_latest_records"
-        )
+        # Get all distinct patients
+        patients = set(t.patient for t in all_tasks)
+        # log.critical("all_tasks: {}", all_tasks)
+        # log.critical("patients: {}", [str(p) for p in patients])
 
-        results = req.dbsession.execute(first_latest_record_query)
-        total_first_records = len(results.fetchall())
+        scoretypes = self.scoretypes(req)
+        n_scoretypes = len(scoretypes)
 
-        latest_record_query = (
-            select([first_latest_records.c.patient_id,
-                    first_latest_records.c.max_when_created])
-            .select_from(first_latest_records)
-            .where(first_latest_records.c.min_when_created != first_latest_records.c.max_when_created)  # noqa E501
-        )
-
-        latest_records = latest_record_query.alias(
-            "latest_records"
-        )
-
-        results = req.dbsession.execute(latest_record_query)
-        total_latest_records = len(results.fetchall())
-
-        column_names = [
-            _("Total first records"),
-            _("Total latest records"),
-        ]
-
-        row = [total_first_records, total_latest_records]
-
-        for score in self.scores(req):
-            """
-            Average first score (e.g. for CORE-10):
-            SELECT AVG(q1+q2+q3+q4+q5+q6+q7+q8+q9+q10) AS average_score
-            FROM (first_record_query) AS first_records
-            INNER JOIN core10 ON core10.patient_id = first_records.patient_id
-            AND core10.when_created = first_records.min_when_created;
-            """
-
-            total_score_expr = sum([getattr(self.task_class, f)
-                                    for f in score.fieldnames])
-
-            average_first_score_query = (
-                select([func.avg(total_score_expr)])
-                .select_from(
-                    first_latest_records
-                    .join(
-                        self.task_class.__table__,
-                        and_(
-                            self.task_class.patient_id == first_latest_records.c.patient_id,  # noqa
-                            self.task_class.when_created == first_latest_records.c.min_when_created  # noqa
-                        )
-                    )
-                )
-            )
-
-            """
-            Average latest score (e.g. for CORE-10):
-            SELECT AVG(q1+q2+q3+q4+q5+q6+q7+q8+q9+q10) AS average_score
-            FROM (latest_record_query) AS latest_records
-            INNER JOIN core10 ON core10.patient_id = latest_records.patient_id
-            AND core10.when_created = latest_records.max_when_created;
-            """
-            average_latest_score_query = (
-                select([func.avg(total_score_expr)])
-                .select_from(
-                    latest_records
-                    .join(
-                        self.task_class.__table__, and_(
-                            self.task_class.patient_id == latest_records.c.patient_id,  # noqa
-                            self.task_class.when_created == latest_records.c.max_when_created  # noqa
-                        )
-                    )
-                )
-            )
-
-            results = req.dbsession.execute(average_first_score_query)
-            average_first_score = next(results)[0]
-
-            results = req.dbsession.execute(average_latest_score_query)
-            average_latest_score = next(results)[0]
-
-            if average_first_score is not None and (
-                    average_latest_score is not None
-            ):
-                average_progress = self.calculate_progress(
-                    average_first_score, average_latest_score
-                )
+        # Sum first/last/progress scores by patient
+        sum_first_by_score = [0] * n_scoretypes
+        sum_last_by_score = [0] * n_scoretypes
+        sum_improvement_by_score = [0] * n_scoretypes
+        n_first = 0
+        n_last = 0  # also n_progress
+        for patient in patients:
+            # Find tasks for this patient
+            patient_tasks = [t for t in all_tasks if t.patient == patient]
+            assert patient_tasks, f"No tasks for patient {patient}"
+            # log.critical("For patient {}, tasks: {}", patient, patient_tasks)
+            # Find first and last task (last may be absent)
+            patient_tasks.sort(key=task_when_created_sorter)
+            first = patient_tasks[0]
+            n_first += 1
+            if len(patient_tasks) > 1:
+                last = patient_tasks[-1]
+                n_last += 1
             else:
-                average_progress = _("Unable to calculate")
+                last = None
 
-            if average_first_score is None:
-                average_first_score = _("No data")
+            # Obtain first/last scores and progress
+            for scoreidx, scoretype in enumerate(scoretypes):
+                firstscore = scoretype.scorefunc(first)
+                # Scores should not be None, because all tasks are complete.
+                sum_first_by_score[scoreidx] += firstscore
+                if last:
+                    lastscore = scoretype.scorefunc(last)
+                    sum_last_by_score[scoreidx] += lastscore
+                    improvement = scoretype.calculate_improvement(
+                        firstscore, lastscore)
+                    sum_improvement_by_score[scoreidx] += improvement
 
-            if average_latest_score is None:
-                average_latest_score = _("No data")
+        # Format output
+        column_names = [
+            _("Number of initial records"),
+            _("Number of latest subsequent records"),
+        ]
+        row = [n_first, n_last]
+        no_data = self.no_data_value()
+        for scoreidx, scoretype in enumerate(scoretypes):
+            # Calculations
+            if n_first == 0:
+                avg_first = no_data
+            else:
+                avg_first = sum_first_by_score[scoreidx] / n_first
+            if n_last == 0:
+                avg_last = no_data
+                avg_improvement = no_data
+            else:
+                avg_last = sum_last_by_score[scoreidx] / n_last
+                avg_improvement = sum_improvement_by_score[scoreidx] / n_last
 
+            # Columns and row data
             column_names += [
-                "{} ({}-{}): {}".format(score.name,
-                                        score.min, score.max, _("First")),
-                "{} ({}-{}): {}".format(score.name,
-                                        score.min, score.max, _("Latest")),
-                "{}: {}".format(score.name, _("Progress")),
+                f"{scoretype.name} ({scoretype.minimum}–{scoretype.maximum}): "
+                f"{_('First')}",
+                f"{scoretype.name} ({scoretype.minimum}–{scoretype.maximum}): "
+                f"{_('Latest')}",
+                f"{scoretype.name}: {_('Improvement')}",
             ]
+            row += [avg_first, avg_last, avg_improvement]
 
-            row += [average_first_score, average_latest_score,
-                    average_progress]
-
-        report = PlainReportType(
+        # Create and return report
+        mainpage = self.get_tsv_page(
+            name=self.title(req),
             column_names=column_names,
             rows=[row]
         )
-
-        return report
-
-    def calculate_progress(self,
-                           first_score: float,
-                           latest_score: float) -> float:
-        progress = latest_score - first_score
-
-        if not self.higher_score_is_better:
-            return -1 * progress
-
-        return progress
+        datepage = self.get_tsv_page(
+            name=_("Date filters"),
+            column_names=[_("Start date"), _("End date")],
+            rows=[[str(self.start_datetime), str(self.end_datetime)]]
+        )
+        return [mainpage, datepage]
 
 
 # =============================================================================
@@ -823,7 +908,7 @@ class AverageScoreReportTestCase(DemoDatabaseTestCase):
     def create_tasks(self):
         pass
 
-    def create_report(self) -> Report:
+    def create_report(self) -> AverageScoreReport:
         raise NotImplementedError(
             "Report TestCase needs to implement create_report"
         )
@@ -852,7 +937,7 @@ class AverageScoreReportTestCase(DemoDatabaseTestCase):
             yield i
             i += 1
 
-    def create_patient(self) -> "Patient":
+    def create_patient(self, idnum_value: int = 333) -> "Patient":
         from camcops_server.cc_modules.cc_patient import Patient
         patient = Patient()
         patient.id = next(self.patient_id_sequence)
@@ -863,26 +948,28 @@ class AverageScoreReportTestCase(DemoDatabaseTestCase):
         patient.dob = pendulum.parse("1950-01-01")
         self.dbsession.add(patient)
 
-        self.create_patient_idnum(patient)
+        self.create_patient_idnum(patient, idnum_value)
 
         self.dbsession.commit()
 
         return patient
 
-    def create_patient_idnum(self, patient) -> "PatientIdNum":
+    def create_patient_idnum(self, patient,
+                             idnum_value: int = 333) -> "PatientIdNum":
         from camcops_server.cc_modules.cc_patient import PatientIdNum
         patient_idnum = PatientIdNum()
         patient_idnum.id = next(self.patient_idnum_id_sequence)
         self._apply_standard_db_fields(patient_idnum)
         patient_idnum.patient_id = patient.id
         patient_idnum.which_idnum = self.nhs_iddef.which_idnum
-        patient_idnum.idnum_value = 333
+        patient_idnum.idnum_value = idnum_value
         self.dbsession.add(patient_idnum)
 
         return patient_idnum
 
 
 class TestReport(Report):
+    # noinspection PyMethodParameters
     @classproperty
     def report_id(cls) -> str:
         return "test_report"

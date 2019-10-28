@@ -120,6 +120,7 @@ class TaskCountReport(Report):
                 # noinspection PyProtectedMember
                 query = query.where(TaskIndexEntry.group_id.in_(group_ids))
             rows, colnames = get_rows_fieldnames_from_query(dbsession, query)
+            # noinspection PyTypeChecker
             final_rows = rows
         else:
             classes = Task.all_subclasses_by_tablename()
@@ -212,6 +213,7 @@ class TaskCountByUserReport(Report):
                 # noinspection PyProtectedMember
                 query = query.where(TaskIndexEntry.group_id.in_(group_ids))
             rows, colnames = get_rows_fieldnames_from_query(dbsession, query)
+            # noinspection PyTypeChecker
             final_rows = rows
         else:
             classes = Task.all_subclasses_by_tablename()

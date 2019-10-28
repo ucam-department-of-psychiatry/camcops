@@ -88,7 +88,7 @@ DEBUG_TEMPLATE_PARAMETERS = False
 DEBUG_TEMPLATE_SOURCE = False
 # ... writes the templates in their compiled-to-Python version to a debugging
 #     directory (see below), which is very informative.
-DEBUGGING_MAKO_DIR = os.path.expanduser("~/tmp/mako_template_source")
+DEBUGGING_MAKO_DIR = os.path.expanduser("~/tmp/camcops_mako_template_source")
 
 if any([DEBUG_ADD_ROUTES,
         DEBUG_EFFECTIVE_PRINCIPALS,
@@ -286,7 +286,12 @@ MAKO_LOOKUP = TemplateLookup(
 
     module_directory=DEBUGGING_MAKO_DIR if DEBUG_TEMPLATE_SOURCE else None,
 
-    strict_undefined=True,  # raise error immediately upon typos  # noqa
+    # strict_undefined=True,  # raise error immediately upon typos
+    # ... tradeoff; there are good and bad things about this!
+    # One bad thing about strict_undefined=True is that a child (inheriting)
+    # template must supply all variables used by its parent (inherited)
+    # template, EVEN IF it replaces entirely the <%block> of the parent that
+    # uses those variables.
 
     # -------------------------------------------------------------------------
     # TEMPLATE CACHING

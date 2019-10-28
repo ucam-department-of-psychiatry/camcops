@@ -26,7 +26,8 @@ camcops_server/templates/tasks/apeq_cpft_perinatal_report.mako
 
 </%doc>
 
-<%inherit file="base_web.mako"/>
+<%inherit file="report.mako"/>
+
 <%block name="css">
 ${parent.css()}
 
@@ -47,46 +48,34 @@ h2, h3 {
 }
 </%block>
 
-<%!
-from camcops_server.cc_modules.cc_pyramid import Routes, ViewParam
-%>
+<%block name="results">
 
+    <p>
+        %if start_datetime:
+            ${_("Created")} <b>&ge; ${ start_datetime }</b>.
+        %endif
+        %if end_datetime:
+            ${_("Created")} <b>&lt; ${ end_datetime }</b>.
+        %endif
+    </p>
 
-<%include file="db_user_info.mako"/>
+    <h2>${_("Main questions")}</h2>
 
-<h1>${ title | h }</h1>
+    <%include file="table.mako" args="column_headings=main_column_headings, rows=main_rows"/>
 
-<p>
-%if start_datetime:
-${_("Created")} <b>&ge; ${ start_datetime }</b>.
-%endif
-%if end_datetime:
-${_("Created")} <b>&lt; ${ end_datetime }</b>.
-%endif
-</p>
+    <h2>${_("Friends and family question")}</h2>
 
-<h2>${_("Main questions")}</h2>
+    <%include file="table.mako" args="column_headings=ff_column_headings, rows=ff_rows"/>
 
-<%include file="table.mako" args="column_headings=main_column_headings, rows=main_rows"/>
+    <h3>${_("Reasons given for the above responses")}</h3>
 
-<h2>${_("Friends and family question")}</h2>
+    <%include file="table.mako" args="column_headings=[], rows=ff_why_rows, table_class='ff-why-table'"/>
 
-<%include file="table.mako" args="column_headings=ff_column_headings, rows=ff_rows"/>
+    <h2>${_("Comments")}</h2>
+    %for comment in comments:
+       <blockquote>
+           <p>${comment | h}</p>
+       </blockquote>
+    %endfor
 
-<h3>${_("Reasons given for the above responses")}</h3>
-
-<%include file="table.mako" args="column_headings=[], rows=ff_why_rows, table_class='ff-why-table'"/>
-
-<h2>${_("Comments")}</h2>
-%for comment_row in comment_rows:
-   <blockquote>
-       <p>${comment_row[0] | h}</p>
-   </blockquote>
-%endfor
-<div>
-    <a href="${ request.route_url(Routes.OFFER_REPORT, _query={ViewParam.REPORT_ID: report_id}) }">${_("Re-configure report")}</a>
-</div>
-<div>
-    <a href="${request.route_url(Routes.REPORTS_MENU)}">${_("Return to reports menu")}</a>
-</div>
-<%include file="to_main_menu.mako"/>
+</%block>

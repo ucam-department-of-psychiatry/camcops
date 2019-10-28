@@ -640,6 +640,6 @@ void QolSG::recordChoice()
 void QolSG::finished()
 {
     Q_ASSERT(m_widget);
-    editFinishedProperly();
+    onEditFinishedProperly();
     emit m_widget->finished();
 }

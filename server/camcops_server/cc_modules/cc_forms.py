@@ -2314,6 +2314,7 @@ class ReportOutputTypeSelector(SchemaNode, RequestAwareMixin):
 
     def get_choices(self) -> Tuple[Tuple[str, str]]:
         _ = self.gettext
+        # noinspection PyTypeChecker
         return (
             (ViewArg.HTML, _("HTML")),
             (ViewArg.ODS, _("OpenOffice spreadsheet (ODS) file")),

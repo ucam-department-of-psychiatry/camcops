@@ -571,30 +571,30 @@ OpenableWidget* SettingsMenu::configureUser(CamcopsApp& app)
     FieldRefPtr upload_after_edit_fr = app.storedVarFieldRef(varconst::OFFER_UPLOAD_AFTER_EDIT);
     const QString upload_after_edit_t = tr("Offer to upload every time a task is edited?");
 
-    const QString label_clinician = tr("Default clinician’s details (to save you typing)");
+    const QString label_clinician = tr("Default clinician/researcher’s details (to save you typing)");
     FieldRefPtr clin_specialty_fr = app.storedVarFieldRef(
                 varconst::DEFAULT_CLINICIAN_SPECIALTY, false);
-    const QString clin_specialty_t = tr("Default clinician’s specialty");
+    const QString clin_specialty_t = tr("Default clinician/researcher’s specialty");
     const QString clin_specialty_h = tr("e.g. “Liaison Psychiatry”");
     FieldRefPtr clin_name_fr = app.storedVarFieldRef(
                 varconst::DEFAULT_CLINICIAN_NAME, false);
-    const QString clin_name_t = tr("Default clinician’s name");
+    const QString clin_name_t = tr("Default clinician/researcher’s name");
     const QString clin_name_h = tr("e.g. “Dr Bob Smith”");
     FieldRefPtr clin_profreg_fr = app.storedVarFieldRef(
                 varconst::DEFAULT_CLINICIAN_PROFESSIONAL_REGISTRATION, false);
-    const QString clin_profreg_t = tr("Default clinician’s professional registration");
+    const QString clin_profreg_t = tr("Default clinician/researcher’s professional registration");
     const QString clin_profreg_h = tr("e.g. “GMC# 12345”");
     FieldRefPtr clin_post_fr = app.storedVarFieldRef(
                 varconst::DEFAULT_CLINICIAN_POST, false);
-    const QString clin_post_t = tr("Default clinician’s post");
+    const QString clin_post_t = tr("Default clinician/researcher’s post");
     const QString clin_post_h = tr("e.g. “Specialist registrar”");
     FieldRefPtr clin_service_fr = app.storedVarFieldRef(
                 varconst::DEFAULT_CLINICIAN_SERVICE, false);
-    const QString clin_service_t = tr("Default clinician’s service");
+    const QString clin_service_t = tr("Default clinician/researcher’s service");
     const QString clin_service_h = tr("e.g. “Liaison Psychiatry Service”");
     FieldRefPtr clin_contact_fr = app.storedVarFieldRef(
                 varconst::DEFAULT_CLINICIAN_CONTACT_DETAILS, false);
-    const QString clin_contact_t = tr("Default clinician’s contact details");
+    const QString clin_contact_t = tr("Default clinician/researcher’s contact details");
     const QString clin_contact_h = tr("e.g. “x2167”");
 
     auto g = new QuGridContainer();

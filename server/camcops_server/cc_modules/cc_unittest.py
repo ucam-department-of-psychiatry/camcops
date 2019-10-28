@@ -30,9 +30,13 @@ camcops_server/cc_modules/cc_unittest.py
 
 import base64
 import logging
+import os
+import sqlite3
+import tempfile
+from typing import List, Type, TYPE_CHECKING
 import unittest
-from typing import Type, TYPE_CHECKING
 
+from cardinal_pythonlib.dbfunc import get_fieldnames_from_cursor
 from cardinal_pythonlib.httpconst import MimeType
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import pendulum
@@ -41,7 +45,9 @@ from sqlalchemy.orm import Session as SqlASession
 from camcops_server.cc_modules.cc_idnumdef import IdNumDefinition
 from camcops_server.cc_modules.cc_sqlalchemy import (
     Base,
-    make_debug_sqlite_engine,
+    make_file_sqlite_engine,
+    make_memory_sqlite_engine,
+    sql_from_sqlite_database,
 )
 from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 
@@ -100,6 +106,31 @@ class DemoRequestTestCase(ExtendedTestCase):
     Test case that creates a demo Pyramid request that refers to a bare
     in-memory SQLite database.
     """
+    def __init__(self,
+                 *args,
+                 echo: bool = False,
+                 database_on_disk: bool = True,
+                 **kwargs) -> None:
+        """
+        Args:
+            echo:
+                Turn on SQL echo?
+            database_on_disk:
+                Use on-disk (rather than in-memory) SQLite database?
+                Allows dumping of contents.
+        """
+        super().__init__(*args, **kwargs)
+        self.echo = echo
+        self.database_on_disk = database_on_disk
+        if database_on_disk:
+            self.tmpdir_obj = tempfile.TemporaryDirectory()
+            tmpdir = self.tmpdir_obj.name
+            self.db_filename = os.path.join(tmpdir, "camcops_self_test.sqlite")
+            log.warning("Using temporary directory: {}", tmpdir)
+            log.warning("Using temporary database: {}", self.db_filename)
+        else:
+            self.db_filename = None
+
     def setUp(self) -> None:
         self.announce("setUp")
         from sqlalchemy.orm.session import sessionmaker
@@ -107,11 +138,72 @@ class DemoRequestTestCase(ExtendedTestCase):
         from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient  # noqa
 
         # Create SQLite in-memory database
-        self.engine = make_debug_sqlite_engine(echo=False)
+        if self.database_on_disk:
+            self.engine = make_file_sqlite_engine(self.db_filename,
+                                                  echo=self.echo)
+        else:
+            self.engine = make_memory_sqlite_engine(echo=self.echo)
         self.dbsession = sessionmaker()(bind=self.engine)  # type: SqlASession
 
         self.req = get_unittest_request(self.dbsession)
         self.recipdef = ExportRecipient()
+
+    def tearDown(self) -> None:
+        self.engine.dispose()
+        if self.database_on_disk:
+            self.tmpdir_obj.cleanup()
+
+    def set_echo(self, echo: bool) -> None:
+        """
+        Changes the database echo status.
+        """
+        self.engine.echo = echo
+
+    def dump_database(self, loglevel: int = logging.INFO) -> None:
+        """
+        Writes the test in-memory SQLite database to the logging stream.
+
+        Args:
+            loglevel: log level to use
+        """
+        if not self.database_on_disk:
+            log.warning("Cannot dump database (use database_on_disk for that)")
+            return
+        log.warning("Dumping database; please wait...")
+        connection = sqlite3.connect(self.db_filename)
+        sql_text = sql_from_sqlite_database(connection)
+        connection.close()
+        log.log(loglevel, "SQLite database:\n{}", sql_text)
+
+    def dump_table(self,
+                   tablename: str,
+                   column_names: List[str] = None,
+                   loglevel: int = logging.INFO) -> None:
+        """
+        Writes one table of the in-memory SQLite database to the logging
+        stream.
+
+        Args:
+            tablename: table to dump
+            column_names: column names to dump, or ``None`` for all
+            loglevel: log level to use
+        """
+        if not self.database_on_disk:
+            log.warning("Cannot dump database (use database_on_disk for that)")
+            return
+        connection = sqlite3.connect(self.db_filename)
+        cursor = connection.cursor()
+        columns = ",".join(column_names) if column_names else "*"
+        sql = f"SELECT {columns} FROM {tablename}"
+        cursor.execute(sql)
+        # noinspection PyTypeChecker
+        fieldnames = get_fieldnames_from_cursor(cursor)
+        results = ",".join(fieldnames) + "\n" + "\n".join(
+            ",".join(str(value) for value in row)
+            for row in cursor.fetchall()
+        )
+        connection.close()
+        log.log(loglevel, "Contents of table {}:\n{}", tablename, results)
 
 
 class DemoDatabaseTestCase(DemoRequestTestCase):
@@ -129,7 +221,9 @@ class DemoDatabaseTestCase(DemoRequestTestCase):
         from camcops_server.cc_modules.cc_group import Group
         from camcops_server.cc_modules.cc_user import User
 
+        log.warning("Creating database structure...")
         Base.metadata.create_all(self.engine)
+        log.warning("... database structure created.")
 
         self.era_time = pendulum.parse("2010-07-07T13:40+0100")
         self.era_time_utc = convert_datetime_to_utc(self.era_time)

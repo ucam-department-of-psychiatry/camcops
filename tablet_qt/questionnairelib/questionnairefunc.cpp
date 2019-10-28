@@ -130,9 +130,9 @@ void connectQuestionnaireToTask(Questionnaire* questionnaire, Task* task)
         return;
     }
     QObject::connect(questionnaire, &Questionnaire::editStarted,
-                     task, &Task::editStarted);
+                     task, &Task::onEditStarted);
     QObject::connect(questionnaire, &Questionnaire::editFinished,
-                     task, &Task::editFinished);
+                     task, &Task::onEditFinished);
 }
 
 

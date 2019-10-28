@@ -56,11 +56,15 @@ A few random notes:
 from abc import ABCMeta
 from io import StringIO
 import logging
+import sqlite3
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.sqlalchemy.dialect import SqlaDialectName
 from cardinal_pythonlib.sqlalchemy.dump import dump_ddl
-from cardinal_pythonlib.sqlalchemy.session import SQLITE_MEMORY_URL
+from cardinal_pythonlib.sqlalchemy.session import (
+    make_sqlite_url,
+    SQLITE_MEMORY_URL,
+)
 from pendulum import DateTime as Pendulum
 
 from sqlalchemy.engine import create_engine
@@ -226,19 +230,37 @@ class DeclarativeAndABCMeta(DeclarativeMeta, ABCMeta):
 # Convenience functions
 # =============================================================================
 
-def make_memory_sqlite_engine() -> Engine:
+def make_memory_sqlite_engine(echo: bool = False) -> Engine:
     """
     Create an SQLAlchemy :class:`Engine` for an in-memory SQLite database.
     """
-    return create_engine(SQLITE_MEMORY_URL)
-
-
-def make_debug_sqlite_engine(echo: bool = True) -> Engine:
-    """
-    Create an SQLAlchemy :class:`Engine` for an in-memory SQLite database,
-    optionally switching on the SQL echo feature for logging.
-    """
     return create_engine(SQLITE_MEMORY_URL, echo=echo)
+
+
+def make_file_sqlite_engine(filename: str, echo: bool = False) -> Engine:
+    """
+    Create an SQLAlchemy :class:`Engine` for an on-disk SQLite database.
+    """
+    return create_engine(make_sqlite_url(filename), echo=echo)
+
+
+def sql_from_sqlite_database(connection: sqlite3.Connection) -> str:
+    """
+    Returns SQL to describe an SQLite database.
+
+    Args:
+        connection: connection to SQLite database via ``sqlite3`` module
+
+    Returns:
+        the SQL
+
+    """
+    with StringIO() as f:
+        # noinspection PyTypeChecker
+        for line in connection.iterdump():
+            f.write(line + "\n")
+        f.flush()
+        return f.getvalue()
 
 
 @cache_region_static.cache_on_arguments(function_key_generator=fkg)

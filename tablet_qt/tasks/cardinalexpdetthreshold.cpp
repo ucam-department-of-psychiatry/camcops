@@ -752,7 +752,7 @@ void CardinalExpDetThreshold::startTask()
     qDebug() << Q_FUNC_INFO;
 #endif
     m_widget->setWidgetAsOnlyContents(m_graphics_widget, 0, false, false);
-    editStarted();  // will have been stopped by the end of the questionnaire?
+    onEditStarted();  // will have been stopped by the end of the questionnaire?
 
     // Finalize the parameters
     const QString TX_DETECTION_Q_VISUAL(tr("Did you see a"));
@@ -979,7 +979,7 @@ void CardinalExpDetThreshold::abort()
     savingWait();
     setValue(FN_FINISHED, false);
     Q_ASSERT(m_widget);
-    editFinishedAbort();  // will save
+    onEditFinishedAbort();  // will save
     emit m_widget->finished();
 }
 
@@ -991,7 +991,7 @@ void CardinalExpDetThreshold::finish()
 #endif
     setValue(FN_FINISHED, true);
     Q_ASSERT(m_widget);
-    editFinishedProperly();  // will save
+    onEditFinishedProperly();  // will save
     emit m_widget->finished();
 }
 

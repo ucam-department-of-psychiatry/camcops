@@ -21,8 +21,10 @@
 #include "common/textconst.h"
 #include "common/uiconst.h"
 #include "lib/uifunc.h"
+#include "menu/patientsummarymenu.h"
 #include "menulib/menuitem.h"
 
+#include "taskchains/khandakermojochain.h"
 #include "tasks/asdas.h"
 #include "tasks/bmi.h"
 #include "tasks/chit.h"
@@ -63,26 +65,41 @@ void SetMenuKhandakerMojo::makeItems()
 {
     m_items = {
         MAKE_CHANGE_PATIENT(m_app),
-        MAKE_TASK_MENU_ITEM(Bmi::BMI_TABLENAME, m_app),
+        // Probably helpful to have a direct link to the patient summary:
+        MAKE_MENU_MENU_ITEM(PatientSummaryMenu, m_app),
+
+        MenuItem(tr("Screening phase")).setLabelOnly(),
+        MAKE_TASK_MENU_ITEM(
+            KhandakerMojoMedical::KHANDAKERMOJOMEDICAL_TABLENAME,
+            m_app),
+
+        MenuItem(tr("Subject-rated scales (all subjects)")).setLabelOnly(),
+        MAKE_TASK_CHAIN_MENU_ITEM(new KhandakerMojoChain(m_app)),
+        // These in the sequence of the chain:
         MAKE_TASK_MENU_ITEM(
             KhandakerMojoSociodemographics::KHANDAKER2MOJOSOCIODEMOGRAPHICS_TABLENAME,
             m_app),
         MAKE_TASK_MENU_ITEM(
-            KhandakerMojoMedical::KHANDAKERMOJOMEDICAL_TABLENAME,
-            m_app),
-        MAKE_TASK_MENU_ITEM(
             KhandakerMojoMedicationTherapy::KHANDAKERMOJOMEDICATIONTHERAPY_TABLENAME,
             m_app),
-        MAKE_TASK_MENU_ITEM(ElixhauserCI::ELIXHAUSERCI_TABLENAME, m_app),
-        MAKE_TASK_MENU_ITEM(Esspri::ESSPRI_TABLENAME, m_app),
-        MAKE_TASK_MENU_ITEM(Asdas::ASDAS_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Eq5d5l::EQ5D5L_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Shaps::SHAPS_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Mfi20::MFI20_TABLENAME, m_app),
-        MAKE_TASK_MENU_ITEM(Sfmpq2::SFMPQ2_TABLENAME, m_app),
-        MAKE_TASK_MENU_ITEM(Das28::DAS28_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Chit::CHIT_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Suppsp::SUPPSP_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Sfmpq2::SFMPQ2_TABLENAME, m_app),
+
+        MenuItem(tr("Subject-rated scales (condition-specific)")).setLabelOnly(),
+        MAKE_TASK_MENU_ITEM(Asdas::ASDAS_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Esspri::ESSPRI_TABLENAME, m_app),
+
+        // This isn't in the chain:
+        MenuItem(tr("Primary outcome measure (subject-rated)")).setLabelOnly(),
         MAKE_TASK_MENU_ITEM(Cisr::CISR_TABLENAME, m_app),
-        MAKE_TASK_MENU_ITEM(Eq5d5l::EQ5D5L_TABLENAME, m_app),
+
+        MenuItem(tr("Clinician-/researcher-administered scales")).setLabelOnly(),
+        MAKE_TASK_MENU_ITEM(Bmi::BMI_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(ElixhauserCI::ELIXHAUSERCI_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Das28::DAS28_TABLENAME, m_app),
     };
 }

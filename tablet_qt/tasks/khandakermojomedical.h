@@ -53,7 +53,10 @@ public:
     // Task-specific
     // ------------------------------------------------------------------------
 private:
+    QString getDiagnosis() const;
     QString getOptionName(const QString &fieldname, const int index) const;
+    NameValueOptions getOptions(const QString &fieldname,
+                                int num_options) const;
 
     // ------------------------------------------------------------------------
     // Signal handlers

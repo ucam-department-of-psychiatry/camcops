@@ -302,6 +302,7 @@ class Pbq(TaskHasPatientMixin, Task,
 
 
 class PBQReport(AverageScoreReport):
+    # noinspection PyMethodParameters
     @classproperty
     def report_id(cls) -> str:
         return "PBQ"
@@ -311,46 +312,48 @@ class PBQReport(AverageScoreReport):
         _ = req.gettext
         return _("PBQ — Average scores")
 
+    # noinspection PyMethodParameters
     @classproperty
-    def task_class(cls) -> Task:
+    def task_class(cls) -> Type[Task]:
         return Pbq
 
     @classmethod
-    def scores(cls, req: "CamcopsRequest") -> List[ScoreDetails]:
+    def scoretypes(cls, req: "CamcopsRequest") -> List[ScoreDetails]:
         _ = req.gettext
         return [
             ScoreDetails(
                 name=_("Total score"),
-                fieldnames=Pbq.QUESTION_FIELDS,
-                min=0,
-                max=Pbq.MAX_TOTAL
+                scorefunc=Pbq.total_score,
+                minimum=0,
+                maximum=Pbq.MAX_TOTAL,
+                higher_score_is_better=False
             ),
             ScoreDetails(
                 name=_("Factor 1 score"),
-                fieldnames=Pbq.FACTOR_1_F,
-                min=0,
-                max=Pbq.FACTOR_1_MAX
+                scorefunc=Pbq.factor_1_score,
+                minimum=0,
+                maximum=Pbq.FACTOR_1_MAX,
+                higher_score_is_better=False
             ),
             ScoreDetails(
                 name=_("Factor 2 score"),
-                fieldnames=Pbq.FACTOR_2_F,
-                min=0,
-                max=Pbq.FACTOR_2_MAX
+                scorefunc=Pbq.factor_2_score,
+                minimum=0,
+                maximum=Pbq.FACTOR_2_MAX,
+                higher_score_is_better=False
             ),
             ScoreDetails(
                 name=_("Factor 3 score"),
-                fieldnames=Pbq.FACTOR_3_F,
-                min=0,
-                max=Pbq.FACTOR_3_MAX
+                scorefunc=Pbq.factor_3_score,
+                minimum=0,
+                maximum=Pbq.FACTOR_3_MAX,
+                higher_score_is_better=False
             ),
             ScoreDetails(
                 name=_("Factor 4 score"),
-                fieldnames=Pbq.FACTOR_4_F,
-                min=0,
-                max=Pbq.FACTOR_4_MAX
+                scorefunc=Pbq.factor_4_score,
+                minimum=0,
+                maximum=Pbq.FACTOR_4_MAX,
+                higher_score_is_better=False
             ),
         ]
-
-    @classproperty
-    def higher_score_is_better(cls) -> bool:
-        return False

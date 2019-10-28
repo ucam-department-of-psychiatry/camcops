@@ -26,7 +26,7 @@ camcops_server/templates/menu/report.mako
 
 </%doc>
 
-## <%page args="title: str, column_names: List[str], page: CamcopsPage"/>
+## <%page args="title: str, report_id: str, column_names: List[str], page: CamcopsPage"/>
 <%inherit file="base_web.mako"/>
 
 <%!
@@ -37,21 +37,25 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 
 <h1>${ title | h }</h1>
 
-<%block name="additional_report_above_results"></%block>
+<%block name="results">
 
-<%block name="pager_above_results">
-<div>${page.pager()}</div>
+    <%block name="additional_report_above_results"></%block>
+
+    <%block name="pager_above_results">
+        <div>${page.pager()}</div>
+    </%block>
+
+    <%block name="table">
+        <%include file="table.mako" args="column_headings=column_names, rows=page"/>
+    </%block>
+
+    <%block name="pager_below_results">
+        <div>${page.pager()}</div>
+    </%block>
+
+    <%block name="additional_report_below_results"></%block>
+
 </%block>
-
-<%block name="table">
-<%include file="table.mako" args="column_headings=column_names, rows=page"/>
-</%block>
-
-<%block name="pager_below_results">
-<div>${page.pager()}</div>
-</%block>
-
-<%block name="additional_report_below_results"></%block>
 
 <div>
     <a href="${ request.route_url(Routes.OFFER_REPORT, _query={ViewParam.REPORT_ID: report_id}) }">${_("Re-configure report")}</a>

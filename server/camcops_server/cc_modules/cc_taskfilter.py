@@ -28,9 +28,10 @@ camcops_server/cc_modules/cc_taskfilter.py
 
 """
 
+import datetime
 from enum import Enum
 import logging
-from typing import List, Optional, Type, TYPE_CHECKING
+from typing import List, Optional, Type, TYPE_CHECKING, Union
 
 from cardinal_pythonlib.datetimefunc import convert_datetime_to_utc
 from cardinal_pythonlib.logs import BraceStyleAdapter
@@ -210,7 +211,7 @@ class TaskFilter(Base):
     dob = Column(
         "dob", Date,
         comment="Task filter: DOB"
-    )
+    )  # type: Optional[datetime.date]
     sex = Column(
         "sex", SexColType,
         comment="Task filter: sex"
@@ -236,11 +237,11 @@ class TaskFilter(Base):
     start_datetime = Column(
         "start_datetime_iso8601", PendulumDateTimeAsIsoTextColType,
         comment="Task filter: start date/time (UTC as ISO8601)"
-    )
+    )  # type: Union[None, Pendulum, datetime.datetime]
     end_datetime = Column(
         "end_datetime_iso8601", PendulumDateTimeAsIsoTextColType,
         comment="Task filter: end date/time (UTC as ISO8601)"
-    )
+    )  # type: Union[None, Pendulum, datetime.datetime]
     # Implemented on the Python side for indexed lookup:
     text_contents = Column(
         "text_contents", StringListType,
@@ -449,18 +450,18 @@ class TaskFilter(Base):
 
         self.surname = None
         self.forename = None
-        self.dob = None
+        self.dob = None  # type: Optional[datetime.date]
         self.sex = None
         self.idnum_criteria = []  # type: List[IdNumReference]
 
         self.device_ids = []  # type: List[int]
         self.adding_user_ids = []  # type: List[int]
         self.group_ids = []  # type: List[int]
-        self.start_datetime = None
-        self.end_datetime = None
+        self.start_datetime = None  # type: Union[None, Pendulum, datetime.datetime]  # noqa
+        self.end_datetime = None  # type: Union[None, Pendulum, datetime.datetime]  # noqa
         self.text_contents = []  # type: List[str]
 
-        self.complete_only = None
+        self.complete_only = None  # type: Optional[bool]
 
     def dates_inconsistent(self) -> bool:
         """

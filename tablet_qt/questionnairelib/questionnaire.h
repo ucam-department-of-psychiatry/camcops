@@ -100,8 +100,8 @@ public:
     // button ?
     void setJumpAllowed(bool jump_allowed = true);
 
-    // CURRENTLY UNUSED; for future "chain multiple questionnaires together"
-    // function (e.g. do one task, then do another). Currently, this only
+    // For "chain multiple questionnaires together" function via TaskChain
+    // (i.e. do one task, then do another). Currently, this only
     // affects the "end" button's appearance (fast forward versus stop).
     void setWithinChain(bool within_chain = true);
 

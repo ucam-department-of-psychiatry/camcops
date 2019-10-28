@@ -35,8 +35,9 @@ extern const QString PATIENT_FK_FIELDNAME;
 class Task : public DatabaseObject
 {
     Q_OBJECT
-    friend class SingleTaskMenu;  // so it can call setPatient
-    friend class Patient;  // so it can call setPatient
+    friend class SingleTaskMenu;  // so it can call setupForEditingAndSave()
+    friend class Patient;  // so it can call moveToPatient()
+    friend class TaskChain;  // so it can call setupForEditingAndSave()
 
 public:
     enum class TaskImplementationType {
@@ -300,6 +301,13 @@ public:
     // How long has the user spent editing this task?
     double editingTimeSeconds() const;
 
+protected:
+
+    // Set up all defaults (including setting the patient ID, for non-anonymous
+    // tasks) and save to database. Use when you've created a task and want
+    // to edit it.
+    void setupForEditingAndSave(const int patient_id = dbconst::NONEXISTENT_PK);
+
     // Set the clinician fields to the app's default clinician information.
     // Called when the task is first created from the menus.
     // Only relevant for tasks with a clinician.
@@ -308,8 +316,6 @@ public:
     // Override if you need to do additional configuration for a new task.
     // Called when the task is first created from the menus.
     virtual void setDefaultsAtFirstUse() {}
-
-protected:
 
     // Helper function for graphical/animated tasks to create their editor.
     // Makes an OpenableWidget containing a ScreenLikeGraphicsView to display
@@ -323,7 +329,7 @@ protected:
 
     // Helper function for graphical/animated tasks to create their editor.
     // Calls makeGraphicsWidget() [q.v.], then hooks the widget's abort signal
-    // to Task::editFinishedAbort(), and starts the editing clock.
+    // to Task::onEditFinishedAbort(), and starts the editing clock.
     OpenableWidget* makeGraphicsWidgetForImmediateEditing(
             QGraphicsScene* scene, const QColor& background_colour,
             bool fullscreen = true, bool esc_can_abort = true);
@@ -370,20 +376,27 @@ protected:
 
 public slots:
     // "The user has started to edit this task."
-    void editStarted();
+    void onEditStarted();
 
     // "The user has finished editing this task, successfully or not."
     // Updates the "time spent editing" clock and may set the "first exit was
     // finish/abort" flags.
-    void editFinished(bool aborted = false);
+    void onEditFinished(bool aborted = false);
 
     // "The user has finished editing this task, successfully."
     // Calls editFinished(false).
-    void editFinishedProperly();
+    void onEditFinishedProperly();
 
     // "The user has finished editing this task, unsuccessfully."
     // Calls editFinished(true).
-    void editFinishedAbort();
+    void onEditFinishedAbort();
+
+signals:
+    // Task has been aborted (and all its internal cleanup is done).
+    void editingAborted();
+
+    // Task has finished cleanly (and all its internal cleanup is done).
+    void editingFinished();
 
     // ------------------------------------------------------------------------
     // Patient functions (for non-anonymous tasks)

@@ -27,6 +27,7 @@
 #include "menulib/choosepatientmenuitem.h"  // many menus will want this
 #include "menulib/menuproxy.h"
 #include "menulib/htmlmenuitem.h"  // many menus will want this
+#include "menulib/taskchainmenuitem.h"
 #include "menulib/taskmenuitem.h"  // many menus will want this
 #include "menulib/urlmenuitem.h"
 
@@ -58,6 +59,7 @@ public:
     MenuItem(MenuProxyPtr p_menuproxy, CamcopsApp& app);
     MenuItem(const ChoosePatientMenuItem& choose_patient, CamcopsApp& app);
     MenuItem(const TaskMenuItem& taskmenuitem, CamcopsApp& app);
+    MenuItem(const TaskChainMenuItem& chain);
     MenuItem(const QString& title, const HtmlMenuItem& htmlmenuitem,
              const QString& icon = "", const QString& subtitle = "");
     MenuItem(const QString& title, const UrlMenuItem& urlmenuitem,
@@ -135,6 +137,7 @@ protected:
     MenuProxyPtr m_p_menuproxy;
     QString m_task_tablename;
     TaskPtr m_p_task;
+    TaskChainPtr m_p_taskchain;
     PatientPtr m_p_patient;
     HtmlMenuItem m_html_item;
     UrlMenuItem m_url_item;
@@ -156,6 +159,8 @@ public:
     MenuItem(MenuProxyPtr(new MenuProxy<MenuClass>), app)
 #define MAKE_TASK_MENU_ITEM(tablename, app) \
     MenuItem(TaskMenuItem(tablename), app)
+#define MAKE_TASK_CHAIN_MENU_ITEM(chainptr) \
+    MenuItem(TaskChainMenuItem(TaskChainPtr(chainptr)))
 #define MAKE_CHANGE_PATIENT(app) \
     MenuItem(ChoosePatientMenuItem(), app).setNotIfLocked()
 

@@ -26,7 +26,8 @@ camcops_server/tasks/core10.py
 
 """
 
-from typing import Dict, List, Optional
+import logging
+from typing import Dict, List, Optional, Type
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.stringfunc import strseq
@@ -59,6 +60,8 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
     TrackerAxisTick,
     TrackerInfo,
 )
+
+log = logging.getLogger(__name__)
 
 
 # =============================================================================
@@ -272,6 +275,7 @@ class Core10Report(AverageScoreReport):
     An average score of the people seen at the start of treatment
     an average final measure and an average progress score.
     """
+    # noinspection PyMethodParameters
     @classproperty
     def report_id(cls) -> str:
         return "core10"
@@ -281,30 +285,28 @@ class Core10Report(AverageScoreReport):
         _ = req.gettext
         return _("CORE-10 — Average scores")
 
+    # noinspection PyMethodParameters
     @classproperty
-    def task_class(cls) -> Task:
+    def task_class(cls) -> Type[Task]:
         return Core10
 
     @classmethod
-    def scores(cls, req: "CamcopsRequest") -> List[ScoreDetails]:
+    def scoretypes(cls, req: "CamcopsRequest") -> List[ScoreDetails]:
         _ = req.gettext
         return [
             ScoreDetails(
                 name=_("CORE-10 clinical score"),
-                fieldnames=Core10.QUESTION_FIELDNAMES,
-                min=0,
-                max=Core10.MAX_SCORE
+                scorefunc=Core10.clinical_score,
+                minimum=0,
+                maximum=Core10.MAX_SCORE,
+                higher_score_is_better=False
             )
         ]
-
-    @classproperty
-    def higher_score_is_better(cls) -> bool:
-        return False
 
 
 class Core10ReportTestCase(AverageScoreReportTestCase):
     def create_report(self) -> Core10Report:
-        return Core10Report()
+        return Core10Report(via_index=False)
 
     def create_task(self, patient: Patient,
                     q1: int = 0, q2: int = 0, q3: int = 0, q4: int = 0,
@@ -329,15 +331,16 @@ class Core10ReportTestCase(AverageScoreReportTestCase):
 
         if era is not None:
             task.when_created = pendulum.parse(era)
+            # log.info(f"Creating task, when_created = {task.when_created}")
 
         self.dbsession.add(task)
 
 
 class Core10ReportTests(Core10ReportTestCase):
-    def create_tasks(self):
-        self.patient_1 = self.create_patient()
-        self.patient_2 = self.create_patient()
-        self.patient_3 = self.create_patient()
+    def create_tasks(self) -> None:
+        self.patient_1 = self.create_patient(idnum_value=333)
+        self.patient_2 = self.create_patient(idnum_value=444)
+        self.patient_3 = self.create_patient(idnum_value=555)
 
         # Initial average score = (8 + 6 + 4) / 3 = 6
         # Latest average score = (2 + 3 + 4) / 3 = 3
@@ -359,43 +362,42 @@ class Core10ReportTests(Core10ReportTestCase):
         self.dbsession.commit()
 
     def test_row_has_totals_and_averages(self) -> None:
-        plain_report = self.report.get_rows_colnames(self.req)
-
+        tsv_pages = self.report.get_tsv_pages(req=self.req)
+        # log.info(f"\n{tsv_pages[0]}")
+        # log.info(f"\n{tsv_pages[1]}")
         expected_rows = [
             [
-                3,  # Initial total
-                3,  # Latest total
-                6,  # Initial average
-                3,  # Latest average
-                3,  # Average progress
+                3,  # n initial
+                3,  # n latest
+                6.0,  # Initial average
+                3.0,  # Latest average
+                3.0,  # Average progress
             ]
         ]
-
-        self.assertEqual(plain_report.rows, expected_rows)
+        self.assertEqual(tsv_pages[0].plainrows, expected_rows)
 
 
 class Core10ReportEmptyTests(Core10ReportTestCase):
     def test_no_rows_when_no_data(self) -> None:
-        plain_report = self.report.get_rows_colnames(req=self.req)
-
-        self.assertEquals(
-            plain_report.rows,
+        tsv_pages = self.report.get_tsv_pages(req=self.req)
+        no_data = self.report.no_data_value()
+        expected_rows = [
             [
-                [
-                    0, 0, "No data", "No data", "Unable to calculate",
-                ]
+                0, 0, no_data, no_data, no_data,
             ]
-        )
+        ]
+        self.assertEqual(tsv_pages[0].plainrows, expected_rows)
 
 
 class Core10ReportDoubleCountingTests(Core10ReportTestCase):
-    def create_tasks(self):
-        self.patient_1 = self.create_patient()
-        self.patient_2 = self.create_patient()
-        self.patient_3 = self.create_patient()
+    def create_tasks(self) -> None:
+        self.patient_1 = self.create_patient(idnum_value=333)
+        self.patient_2 = self.create_patient(idnum_value=444)
+        self.patient_3 = self.create_patient(idnum_value=555)
 
         # Initial average score = (8 + 6 + 4) / 3 = 6
-        # Latest average score = (3 + 3) / 3 = 2
+        # Latest average score  = (    3 + 3) / 2 = 3
+        # Progress avg score    = (    3 + 1) / 2 = 2  ... NOT 3.
         self.create_task(patient=self.patient_1, q1=4, q2=4,
                          era="2018-06-01")  # Score 8
 
@@ -411,26 +413,74 @@ class Core10ReportDoubleCountingTests(Core10ReportTestCase):
         self.dbsession.commit()
 
     def test_record_does_not_appear_in_first_and_latest(self) -> None:
-        plain_report = self.report.get_rows_colnames(self.req)
-
+        tsv_pages = self.report.get_tsv_pages(req=self.req)
         expected_rows = [
             [
-                3,  # Initial total
-                2,  # Latest total
-                6,  # Initial average
-                3,  # Latest average
-                3,  # Average progress
+                3,  # n initial
+                2,  # n latest
+                6.0,  # Initial average
+                3.0,  # Latest average
+                2.0,  # Average progress
             ]
         ]
-
-        self.assertEqual(plain_report.rows, expected_rows)
+        self.assertEqual(tsv_pages[0].plainrows, expected_rows)
 
 
 class Core10ReportDateRangeTests(Core10ReportTestCase):
+    """
+    Test code:
+
+    .. code-block:: sql
+
+        -- 2019-10-21
+        -- For SQLite:
+
+        CREATE TABLE core10
+            (_pk INT, patient_id INT, when_created DATETIME, _current INT);
+
+        .schema core10
+
+        INSERT INTO core10
+            (_pk,patient_id,when_created,_current)
+        VALUES
+            (1,1,'2018-06-01T00:00:00.000000+00:00',1),
+            (2,1,'2018-08-01T00:00:00.000000+00:00',1),
+            (3,1,'2018-10-01T00:00:00.000000+00:00',1),
+            (4,2,'2018-06-01T00:00:00.000000+00:00',1),
+            (5,2,'2018-08-01T00:00:00.000000+00:00',1),
+            (6,2,'2018-10-01T00:00:00.000000+00:00',1),
+            (7,3,'2018-06-01T00:00:00.000000+00:00',1),
+            (8,3,'2018-08-01T00:00:00.000000+00:00',1),
+            (9,3,'2018-10-01T00:00:00.000000+00:00',1);
+
+        SELECT * from core10;
+
+        SELECT STRFTIME('%Y-%m-%d %H:%M:%f', core10.when_created) from core10;
+        -- ... gives e.g.
+        -- 2018-06-01 00:00:00.000
+
+        SELECT *
+            FROM core10
+            WHERE core10._current = 1 
+            AND STRFTIME('%Y-%m-%d %H:%M:%f', core10.when_created) >= '2018-06-01 00:00:00.000000' 
+            AND STRFTIME('%Y-%m-%d %H:%M:%f', core10.when_created) < '2018-09-01 00:00:00.000000';
+
+        -- That fails. Either our date/time comparison code is wrong for SQLite, or
+        -- we are inserting text in the wrong format.
+        -- Ah. It's the number of decimal places:
+
+        SELECT '2018-06-01 00:00:00.000' >= '2018-06-01 00:00:00.000000';  -- 0, false
+        SELECT '2018-06-01 00:00:00.000' >= '2018-06-01 00:00:00.000';  -- 1, true
+
+    See
+    :func:`camcops_server.cc_modules.cc_sqla_coltypes.isotzdatetime_to_utcdatetime_sqlite`.
+
+    """  # noqa
+
     def create_tasks(self) -> None:
-        self.patient_1 = self.create_patient()
-        self.patient_2 = self.create_patient()
-        self.patient_3 = self.create_patient()
+        self.patient_1 = self.create_patient(idnum_value=333)
+        self.patient_2 = self.create_patient(idnum_value=444)
+        self.patient_3 = self.create_patient(idnum_value=555)
 
         # 2018-06 average score = (8 + 6 + 4) / 3 = 6
         # 2018-08 average score = (4 + 4 + 4) / 3 = 4
@@ -458,19 +508,26 @@ class Core10ReportDateRangeTests(Core10ReportTestCase):
                          era="2018-10-01")  # Score 4
         self.dbsession.commit()
 
-    def test_report_filtered_by_date_range(self):
-        self.report.start_datetime = "2018-06-01T00:00:00.000000+00:00"
-        self.report.end_datetime = "2018-09-01T00:00:00.000000+00:00"
-        plain_report = self.report.get_rows_colnames(self.req)
+        # self.dump_database()
+        self.dump_table(Core10.__tablename__, [
+            "_pk", "patient_id", "when_created", "_current",
+        ])
 
+    def test_report_filtered_by_date_range(self) -> None:
+        # self.report.start_datetime = pendulum.parse("2018-05-01T00:00:00.000000+00:00")  # noqa
+        self.report.start_datetime = pendulum.parse("2018-06-01T00:00:00.000000+00:00")  # noqa
+        self.report.end_datetime = pendulum.parse("2018-09-01T00:00:00.000000+00:00")  # noqa
+
+        self.set_echo(True)
+        tsv_pages = self.report.get_tsv_pages(req=self.req)
+        self.set_echo(False)
         expected_rows = [
             [
-                3,  # Initial total
-                3,  # Latest total
-                6,  # Initial average
-                4,  # Latest average
-                2,  # Average progress
+                3,  # n initial
+                3,  # n latest
+                6.0,  # Initial average
+                4.0,  # Latest average
+                2.0,  # Average progress
             ]
         ]
-
-        self.assertEqual(plain_report.rows, expected_rows)
+        self.assertEqual(tsv_pages[0].plainrows, expected_rows)
