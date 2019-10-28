@@ -33,9 +33,26 @@ Usage:
     cd .git/hooks
     ln -s ../../pre_commit_hooks/pre_commit_hook.py pre-commit
 
+This will run the ``pre_commit_hook.py`` script on each git commit (use ``git
+commit -n`` to skip checks).
+
 To avoid unexpected side effects, this script won't stash changes.
 So if you have non-committed changes that break this you'll need to
 stash your changes before committing.
+
+Currently this will check errors (pyflakes) and code style (pycodestyle). It
+would also be useful to add import sorting (isort) and type checking (mypy).
+
+The script must run in your CamCOPS virtualenv. The ``setup.py`` includes the
+necessary version of ``flake8``.
+
+There is a bit of a delay when running the script. If it gets too slow we can
+move these checks to a CI server on GitHub. We should probably do this as well
+anyway.
+
+This should not produce conflicting results to the Pycharm linter (it is OK if
+PyCharm finds more problems).
+
 """
 
 import logging
