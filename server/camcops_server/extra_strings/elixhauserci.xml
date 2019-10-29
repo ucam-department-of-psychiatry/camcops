@@ -3,44 +3,46 @@
   <task name="elixhauserci">
 
     <string name="instruction">Please indicate which comorbidities the patient has:</string>
-      
+
     <string name="congestive_heart_failure">Congestive heart failure</string>
     <string name="cardiac_arrhythmias">Cardiac arrhythmias</string>
     <string name="valvular_disease">Valvular disease</string>
     <string name="pulmonary_circulation_disorders">Pulmonary circulation disorders</string>
     <string name="peripheral_vascular_disorders">Peripheral vascular disorder</string>
-    
+
     <string name="hypertension_uncomplicated">Hypertension, uncomplicated</string>
     <string name="hypertension_complicated">Hypertension, complicated</string>
     <string name="paralysis">Paralysis</string>
     <string name="other_neurological_disorders">Other neurological disorders</string>
     <string name="chronic_pulmonary_disease">Chronic pulmonary disease</string>
-    
+
     <string name="diabetes_uncomplicated">Diabetes, uncomplicated</string>
     <string name="diabetes_complicated">Diabetes, complicated</string>
     <string name="hypothyroidism">Hypothyroidism</string>
     <string name="renal_failure">Renal failure</string>
     <string name="liver_disease">Liver disease</string>
-    
+
     <string name="peptic_ulcer_disease_exc_bleeding">Peptic ulcer disease, excluding bleeding</string>
     <string name="aids_hiv">AIDS/HIV</string>
     <string name="lymphoma">Lymphoma</string>
     <string name="metastatic_cancer">Metastatic cancer</string>
     <string name="solid_tumor_without_metastasis">Solid tumor without metastasis</string>
-    
+
     <string name="rheumatoid_arthritis_collagen_vascular_diseases">Rheumatoid arthritis/collagen vascular diseases</string>
     <string name="coagulopathy">Coagulopathy</string>
     <string name="obesity">Obesity</string>
     <string name="weight_loss">Weight loss</string>
     <string name="fluid_electrolyte_disorders">Fluid and electrolyte disorders</string>
-    
+
     <string name="blood_loss_anemia">Blood loss anemia</string>
     <string name="deficiency_anemia">Deficiency anemia</string>
     <string name="alcohol_abuse">Alchohol abuse</string>
     <string name="drug_abuse">Drug abuse</string>
     <string name="psychoses">Psychoses</string>
-    
+
     <string name="depression">Depression</string>
+
+    <string name="mark_all_absent">Mark all as absent</string>
 
   </task>
 </resources>

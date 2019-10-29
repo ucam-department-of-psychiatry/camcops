@@ -19,11 +19,14 @@
 
 #include "elixhauserci.h"
 #include "common/textconst.h"
+#include "common/uiconst.h"
 #include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
+#include "questionnairelib/qubutton.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/quboolean.h"
+#include "questionnairelib/quspacer.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
 using mathfunc::sumInt;
@@ -71,7 +74,6 @@ const QStringList FIELDNAMES{
     "depression",
 };
 const int MAX_SCORE = FIELDNAMES.length();
-
 
 void initializeElixhauserCI(TaskFactory& factory)
 {
@@ -152,12 +154,22 @@ OpenableWidget* ElixhauserCI::editor(const bool read_only)
     QuPagePtr mainpage(new QuPage());
     mainpage->setTitle(title + " " + textconst.page() + " 2");
     mainpage->addElement(new QuText(xstring("instruction")));
+    auto all_absent_button = new QuButton(
+        xstring("mark_all_absent"),
+        std::bind(&ElixhauserCI::markAllAbsent, this)
+    );
+    mainpage->addElement(all_absent_button);
+    mainpage->addElement(
+        new QuSpacer(QSize(uiconst::BIGSPACE, uiconst::BIGSPACE))
+    );
+
+    m_fieldrefs.clear();
 
     for (const QString& fieldname : FIELDNAMES) {
         const QString& description = xstring(fieldname);
         FieldRefPtr field = fieldRef(fieldname);
         QuBoolean* element = new QuBoolean(description, field);
-        element->setAllowUnset();
+        m_fieldrefs.append(field);
         element->setAsTextButton();
         mainpage->addElement(element);
     }
@@ -169,6 +181,12 @@ OpenableWidget* ElixhauserCI::editor(const bool read_only)
     return m_questionnaire;
 }
 
+void ElixhauserCI::markAllAbsent()
+{
+    for (const FieldRefPtr& field : m_fieldrefs) {
+        field->setValue(false);  // Will trigger valueChanged
+    }
+}
 
 // ============================================================================
 // Task-specific calculations
