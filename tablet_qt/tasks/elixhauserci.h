@@ -59,5 +59,5 @@ protected:
     QPointer<Questionnaire> m_questionnaire;
 private:
     FieldRefPtrList m_fieldrefs;
-    void markAllAbsent();
+    void markAllUnmarkedAbsent();
 };

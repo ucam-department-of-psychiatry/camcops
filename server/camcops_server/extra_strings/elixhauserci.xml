@@ -42,7 +42,7 @@
 
     <string name="depression">Depression</string>
 
-    <string name="mark_all_absent">Mark all as absent</string>
+    <string name="mark_all_unmarked_absent">Mark all unmarked fields as absent</string>
 
   </task>
 </resources>

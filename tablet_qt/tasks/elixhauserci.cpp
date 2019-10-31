@@ -155,8 +155,8 @@ OpenableWidget* ElixhauserCI::editor(const bool read_only)
     mainpage->setTitle(title + " " + textconst.page() + " 2");
     mainpage->addElement(new QuText(xstring("instruction")));
     auto all_absent_button = new QuButton(
-        xstring("mark_all_absent"),
-        std::bind(&ElixhauserCI::markAllAbsent, this)
+        xstring("mark_all_unmarked_absent"),
+        std::bind(&ElixhauserCI::markAllUnmarkedAbsent, this)
     );
     mainpage->addElement(all_absent_button);
     mainpage->addElement(
@@ -181,10 +181,12 @@ OpenableWidget* ElixhauserCI::editor(const bool read_only)
     return m_questionnaire;
 }
 
-void ElixhauserCI::markAllAbsent()
+void ElixhauserCI::markAllUnmarkedAbsent()
 {
     for (const FieldRefPtr& field : m_fieldrefs) {
-        field->setValue(false);  // Will trigger valueChanged
+        if (field->value().isNull()) {
+            field->setValue(false);
+        }
     }
 }
 
