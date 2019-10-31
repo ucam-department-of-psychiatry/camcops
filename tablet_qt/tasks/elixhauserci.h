@@ -57,4 +57,7 @@ public:
     static const QString ELIXHAUSERCI_TABLENAME;
 protected:
     QPointer<Questionnaire> m_questionnaire;
+private:
+    FieldRefPtrList m_fieldrefs;
+    void markAllUnmarkedAbsent();
 };
