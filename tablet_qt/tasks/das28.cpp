@@ -26,6 +26,7 @@
 #include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/quboolean.h"
+#include "questionnairelib/qubutton.h"
 #include "questionnairelib/qugridcell.h"
 #include "questionnairelib/qugridcontainer.h"
 #include "questionnairelib/qulineeditinteger.h"
@@ -368,6 +369,14 @@ OpenableWidget* Das28::editor(const bool read_only)
     page->addElement(new QuText(xstring("observer")));
     page->addElement(getClinicianQuestionnaireBlockRawPointer());
 
+    auto all_ok_button = new QuButton(
+        xstring("mark_all_unmarked_ok"),
+        std::bind(&Das28::markAllUnmarkedJointsOk, this)
+    );
+    page->addElement(all_ok_button);
+    page->addElement(
+        new QuSpacer(QSize(uiconst::BIGSPACE, uiconst::BIGSPACE))
+    );
     page->addElement(getJointGrid());
 
     page->addElement(new QuText(xstring("vas_instructions")));
@@ -421,6 +430,15 @@ OpenableWidget* Das28::editor(const bool read_only)
     return m_questionnaire;
 }
 
+void Das28::markAllUnmarkedJointsOk()
+{
+    for (const FieldRefPtr& field : m_joint_fieldrefs) {
+        if (field->value().isNull()) {
+            field->setValue(false);
+        }
+    }
+}
+
 
 QuGridContainer* Das28::getJointGrid()
 {
@@ -431,6 +449,8 @@ QuGridContainer* Das28::getJointGrid()
     int row = 0;
 
     const QStringList first_joints = {"shoulder", "mcp_1", "pip_1", "knee"};
+
+    m_joint_fieldrefs.clear();
 
     for (const QString& joint : getJointNames()) {
         if (first_joints.contains(joint)) {
@@ -453,7 +473,10 @@ QuGridContainer* Das28::getJointGrid()
             for (const QString & state : STATES) {
                 const auto fieldname = QString("%1_%2_%3").arg(
                     side, joint, state);
-                QuBoolean* element = new QuBoolean("", fieldRef(fieldname));
+                FieldRefPtr field = fieldRef(fieldname);
+                QuBoolean* element = new QuBoolean("", field);
+                m_joint_fieldrefs.append(field);
+
                 grid->addCell(QuGridCell(element, row, column));
                 column++;
             }

@@ -53,5 +53,7 @@
     <string name="low">(low)</string>
     <string name="moderate">(moderate)</string>
     <string name="high">(high)</string>
+
+    <string name="mark_all_unmarked_ok">Mark all unmarked joints as OK</string>
   </task>
 </resources>
