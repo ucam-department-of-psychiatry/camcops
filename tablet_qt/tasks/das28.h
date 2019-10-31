@@ -80,5 +80,5 @@ private:
     QString activityStateCrp(const QVariant& measurement) const;
     QString activityStateEsr(const QVariant& measurement) const;
     FieldRefPtrList m_joint_fieldrefs;
-    void markAllJointsOk();
+    void markAllUnmarkedJointsOk();
 };

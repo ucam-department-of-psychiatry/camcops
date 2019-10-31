@@ -370,8 +370,8 @@ OpenableWidget* Das28::editor(const bool read_only)
     page->addElement(getClinicianQuestionnaireBlockRawPointer());
 
     auto all_ok_button = new QuButton(
-        xstring("mark_all_ok"),
-        std::bind(&Das28::markAllJointsOk, this)
+        xstring("mark_all_unmarked_ok"),
+        std::bind(&Das28::markAllUnmarkedJointsOk, this)
     );
     page->addElement(all_ok_button);
     page->addElement(
@@ -430,10 +430,12 @@ OpenableWidget* Das28::editor(const bool read_only)
     return m_questionnaire;
 }
 
-void Das28::markAllJointsOk()
+void Das28::markAllUnmarkedJointsOk()
 {
     for (const FieldRefPtr& field : m_joint_fieldrefs) {
-        field->setValue(false);  // Will trigger valueChanged
+        if (field->value().isNull()) {
+            field->setValue(false);
+        }
     }
 }
 
