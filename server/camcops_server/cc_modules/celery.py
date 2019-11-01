@@ -64,7 +64,7 @@ If using a separate ``celery_tasks.py`` file:
 - Import this only after celery.py, or the decorators will fail.
 
 - If you see this error from ``camcops_server launch_workers`` when using a
-  separate ``celery_tasks.py`` file: 
+  separate ``celery_tasks.py`` file:
 
   .. code-block:: none
 
@@ -89,7 +89,7 @@ If using a separate ``celery_tasks.py`` file:
   tasks; (2) note that everything here is absent; (3) insert a "crash" line at
   the top of this file and re-run; (4) note what's importing this file too
   early.
-  
+
 General advice:
 
 - https://medium.com/@taylorhughes/three-quick-tips-from-two-years-with-celery-c05ff9d7f9eb
@@ -98,7 +98,7 @@ Task decorator options:
 
 - http://docs.celeryproject.org/en/latest/reference/celery.app.task.html
 - ``bind``: makes the first argument a ``self`` parameter to manipulate the
-  task itself; 
+  task itself;
   http://docs.celeryproject.org/en/latest/userguide/tasks.html#example
 - ``acks_late`` (for the decorator) or ``task_acks_late``: see
 
@@ -120,6 +120,7 @@ import camcops_server.cc_modules.cc_all_models  # import side effects (ensure al
 
 if TYPE_CHECKING:
     from celery.app.task import Task as CeleryTask
+    from camcops_server.cc_modules.cc_taskcollection import TaskCollection
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -335,3 +336,14 @@ def export_to_recipient_backend(self: "CeleryTask",
                    schedule_via_backend=True)
     except Exception as exc:
         self.retry(countdown=backoff(self.request.retries), exc=exc)
+
+
+@celery_app.task(bind=True,
+                 ignore_result=True,
+                 max_retries=MAX_RETRIES,
+                 soft_time_limit=CELERY_SOFT_TIME_LIMIT_SEC)
+def email_basic_xlsx_dump(email: str,
+                          viewtype: str,
+                          collection: "TaskCollection",
+                          sort_by_heading: bool) -> None:
+    pass

@@ -293,6 +293,11 @@ from camcops_server.cc_modules.cc_user import (
     SecurityLoginFailure,
     User,
 )
+from camcops_server.cc_modules.celery import (
+    email_basic_tsv_zip_dump,
+    email_basic_xlsx_dump,
+    email_basic_ods_dump,
+)
 from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 
 if TYPE_CHECKING:
@@ -1370,6 +1375,7 @@ def offer_basic_dump(req: "CamcopsRequest") -> Response:
                 ViewParam.GROUP_IDS: manual.get(ViewParam.GROUP_IDS),
                 ViewParam.TASKS: manual.get(ViewParam.TASKS),
                 ViewParam.VIEWTYPE: appstruct.get(ViewParam.VIEWTYPE),
+                ViewParam.SEND_BY_EMAIL: appstruct.get(ViewParam.SEND_BY_EMAIL),
             }
             # We could return a response, or redirect via GET.
             # The request is not sensitive, so let's redirect.
@@ -1433,33 +1439,64 @@ def serve_basic_dump(req: "CamcopsRequest") -> Response:
     sort_by_heading = req.get_bool_param(ViewParam.SORT, False)
     viewtype = req.get_str_param(ViewParam.VIEWTYPE, ViewArg.XLSX,
                                  lower=True)
+    send_by_email = req.get_bool_param(ViewParam.SEND_BY_EMAIL, False)
     # Get tasks (and perform checks)
     collection = get_dump_collection(req)
-    # Return response
-    if viewtype == ViewArg.TSV_ZIP:
-        return task_collection_to_tsv_zip_response(
-            req=req,
-            collection=collection,
-            sort_by_heading=sort_by_heading,
-        )
-    elif viewtype == ViewArg.XLSX:
-        return task_collection_to_xlsx_response(
-            req=req,
-            collection=collection,
-            sort_by_heading=sort_by_heading,
-        )
-    elif viewtype == ViewArg.ODS:
-        return task_collection_to_ods_response(
-            req=req,
-            collection=collection,
-            sort_by_heading=sort_by_heading,
-        )
-    else:
+
+    if send_by_email:
+        # TODO: Check email address
+        return schedule_dump_by_email(req=req,
+                                      viewtype=viewtype,
+                                      collection=collection,
+                                      sort_by_heading=sort_by_heading)
+
+    # TODO: Better than this
+    format_functions = {
+        ViewArg.TSV_ZIP: task_collection_to_tsv_zip_response,
+        ViewArg.XLSX: task_collection_to_xlsx_response,
+        ViewArg.ODS: task_collection_to_ods_response,
+    }
+
+    if viewtype not in format_functions:
+        permissible = format_functions.keys()
         _ = req.gettext
-        permissible = [ViewArg.TSV_ZIP, ViewArg.XLSX, ViewArg.ODS]
         raise HTTPBadRequest(
             f"{_('Bad output type:')} {viewtype!r} "
             f"({_('permissible:')} {permissible!r})")
+
+    return format_functions[viewtype](
+        req=req,
+        collection=collection,
+        sort_by_heading=sort_by_heading
+    )
+
+
+def schedule_dump_by_email(req: "CamcopsRequest",
+                           viewtype: str,
+                           collection: TaskCollection,
+                           sort_by_heading: bool) -> Response:
+
+    format_functions = {
+        ViewArg.TSV_ZIP: email_basic_tsv_zip_dump,
+        ViewArg.XLSX: email_basic_xlsx_dump,
+        ViewArg.ODS: email_basic_ods_dump,
+    }
+
+    if viewtype not in format_functions:
+        permissible = format_functions.keys()
+        _ = req.gettext
+        raise HTTPBadRequest(
+            f"{_('Bad output type:')} {viewtype!r} "
+            f"({_('permissible:')} {permissible!r})")
+
+    format_functions[viewtype].delay(
+        req.user.email,
+        viewtype,
+        collection,
+        sort_by_heading)
+
+    # TODO: Better than this
+    return Response("Email scheduled")
 
 
 @view_config(route_name=Routes.OFFER_SQL_DUMP)
@@ -1524,6 +1561,7 @@ def sql_dump(req: "CamcopsRequest") -> Response:
         db_make_all_tables_even_empty=True,  # debatable, but more consistent!
         db_patient_id_per_row=patient_id_per_row,
     )
+
     return task_collection_to_sqlite_response(
         req=req,
         collection=collection,

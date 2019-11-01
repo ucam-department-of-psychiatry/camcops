@@ -213,6 +213,7 @@ class ViewParam(object):
     REPORT_ID = "report_id"
     REMOTE_IP_ADDR = "remote_ip_addr"
     ROWS_PER_PAGE = "rows_per_page"
+    SEND_BY_EMAIL = "send_by_email"
     SERVER_PK = "server_pk"
     SEX = "sex"
     SHORT_DESCRIPTION = "short_description"

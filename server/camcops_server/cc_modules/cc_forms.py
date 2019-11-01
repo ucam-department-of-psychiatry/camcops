@@ -2861,6 +2861,26 @@ class SpreadsheetFormatSelector(SchemaNode, RequestAwareMixin):
         self.validator = OneOf(pv)
 
 
+class SendByEmailNode(SchemaNode, RequestAwareMixin):
+    """
+    Boolean node: Send dump by email?
+    """
+    schema_type = Boolean
+    default = False
+    missing = False
+
+    def __init__(self, *args, **kwargs) -> None:
+        self.title = ""  # for type checker
+        self.label = ""  # for type checker
+        super().__init__(*args, **kwargs)
+
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        _ = self.gettext
+        self.title = _("Delivery")
+        self.label = _("Send dump by email?")
+
+
 class SqliteSelector(SchemaNode, RequestAwareMixin):
     """
     Node to select a way of downloading an SQLite database.
@@ -2982,6 +3002,7 @@ class OfferBasicDumpSchema(CSRFSchema):
     sort = SortTsvByHeadingsNode()  # must match ViewParam.SORT
     manual = OfferDumpManualSchema()  # must match ViewParam.MANUAL
     viewtype = SpreadsheetFormatSelector()  # must match ViewParams.VIEWTYPE  # noqa
+    send_by_email = SendByEmailNode()  # must match ViewParam.SEND_BY_EMAIL
 
 
 class OfferBasicDumpForm(SimpleSubmitForm):
