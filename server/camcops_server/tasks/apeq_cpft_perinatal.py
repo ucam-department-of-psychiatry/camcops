@@ -443,8 +443,11 @@ class APEQCPFTPerinatalReportTestCase(DemoDatabaseTestCase):
 class APEQCPFTPerinatalReportTests(APEQCPFTPerinatalReportTestCase):
     def create_tasks(self) -> None:
         """
-        20 tasks
+        Creates 20 tasks.
         Should give us:
+
+        .. code-block:: none
+
             q1: 0 - 50%,
                 1 - 25%
                 2 - 25%
@@ -467,8 +470,8 @@ class APEQCPFTPerinatalReportTests(APEQCPFTPerinatalReportTestCase):
                 4 - 5%
                 5 - 35%
 
-                         q1 q2 q3 q4 q5 q6 ff
         """
+        #                q1 q2 q3 q4 q5 q6 ff
         self.create_task(0, 1, 0, 0, 2, 2, 5, ff_why="ff_5_1")
         self.create_task(0, 1, 1, 0, 2, 2, 5, ff_why="ff_5_2",
                          comments="comments_2")
