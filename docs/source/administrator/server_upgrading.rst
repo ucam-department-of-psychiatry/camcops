@@ -27,9 +27,9 @@ server database(s).
 Upgrade the CamCOPS software
 ----------------------------
 
-For Debian/Ubuntu or CentOS:
+For Linux, this script will automate much of the work:
 
-.. literalinclude::
+.. literalinclude:: upgrade_camcops_server.sh
     :language: bash
 
 
