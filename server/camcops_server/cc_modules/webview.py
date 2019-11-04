@@ -1491,7 +1491,6 @@ def schedule_dump_by_email(req: "CamcopsRequest",
 
     format_functions[viewtype].delay(
         req.user.email,
-        viewtype,
         collection,
         sort_by_heading)
 

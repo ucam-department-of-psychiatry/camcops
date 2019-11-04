@@ -110,10 +110,12 @@ Task decorator options:
 """  # noqa
 
 import logging
-from typing import Any, Dict, TYPE_CHECKING
+from typing import Any, Dict, Tuple, TYPE_CHECKING
 
+from cardinal_pythonlib.json.serialize import json_encode, json_decode
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from celery import Celery, current_task
+from kombu.serialization import register
 
 # noinspection PyUnresolvedReferences
 import camcops_server.cc_modules.cc_all_models  # import side effects (ensure all models registered)  # noqa
@@ -142,6 +144,14 @@ CELERY_SOFT_TIME_LIMIT_SEC = 300
 # =============================================================================
 # Configuration
 # =============================================================================
+
+register('myjson', json_encode, json_decode,
+         content_type='application/x-myjson',
+         content_encoding='utf-8')
+CELERY_ACCEPT_CONTENT = ['myjson']
+CELERY_TASK_SERIALIZER = 'myjson'
+CELERY_RESULT_SERIALIZER = 'myjson'
+
 
 def get_celery_settings_dict() -> Dict[str, Any]:
     """
@@ -342,8 +352,84 @@ def export_to_recipient_backend(self: "CeleryTask",
                  ignore_result=True,
                  max_retries=MAX_RETRIES,
                  soft_time_limit=CELERY_SOFT_TIME_LIMIT_SEC)
-def email_basic_xlsx_dump(email: str,
-                          viewtype: str,
+def email_basic_xlsx_dump(self: "CeleryTask",
+                          to_email: str,
                           collection: "TaskCollection",
                           sort_by_heading: bool) -> None:
-    pass
+    from camcops_server.cc_modules.cc_export import task_collection_to_xlsx  # noqa
+    from camcops_server.cc_modules.cc_request import command_line_request_context  # delayed import  # noqa
+
+    # TODO not root request or we'll get everything
+    with command_line_request_context() as req:
+        attachment = task_collection_to_xlsx(req, collection, sort_by_heading)
+
+    email_basic_dump(to_email, attachment)
+
+
+@celery_app.task(bind=True,
+                 ignore_result=True,
+                 max_retries=MAX_RETRIES,
+                 soft_time_limit=CELERY_SOFT_TIME_LIMIT_SEC)
+def email_basic_tsv_zip_dump(self: "CeleryTask",
+                             to_email: str,
+                             collection: "TaskCollection",
+                             sort_by_heading: bool) -> None:
+    from camcops_server.cc_modules.cc_export import task_collection_to_tsv_zip  # noqa
+    from camcops_server.cc_modules.cc_request import command_line_request_context  # delayed import  # noqa
+
+    # TODO not root request or we'll get everything
+    with command_line_request_context() as req:
+        attachment = task_collection_to_tsv_zip(req, collection,
+                                                sort_by_heading)
+
+    email_basic_dump(to_email, attachment)
+
+
+@celery_app.task(bind=True,
+                 ignore_result=True,
+                 max_retries=MAX_RETRIES,
+                 soft_time_limit=CELERY_SOFT_TIME_LIMIT_SEC)
+def email_basic_ods_dump(self: "CeleryTask",
+                         to_email: str,
+                         collection: "TaskCollection",
+                         sort_by_heading: bool) -> None:
+    from camcops_server.cc_modules.cc_export import task_collection_to_ods  # noqa
+    from camcops_server.cc_modules.cc_request import command_line_request_context  # delayed import  # noqa
+
+    # TODO not root request or we'll get everything
+    with command_line_request_context() as req:
+        attachment = task_collection_to_ods(req, collection,
+                                            sort_by_heading)
+
+    email_basic_dump(to_email, attachment)
+
+
+def email_basic_dump(to_email: str,
+                     attachment: Tuple[str, bytes]) -> None:
+    from camcops_server.cc_modules.cc_config import get_default_config_from_os_env  # delayed import  # noqa
+    from camcops_server.cc_modules.cc_email import Email
+    from cardinal_pythonlib.email.sendmail import CONTENT_TYPE_TEXT
+    config = get_default_config_from_os_env()
+    email = Email(
+        # date: automatic
+        to=to_email,
+        subject=_("CamCOPS basic research dump"),
+        body=_("The research dump you requested is attached"),
+        content_type=(
+            CONTENT_TYPE_TEXT
+        ),
+        charset="utf8",
+        attachments_binary=[attachment],
+    )
+    email.send(
+        host=config.email_host,
+        username=config.email_host_username,
+        password=config.email_host_password,
+        port=config.email_port,
+        use_tls=config.email_use_tls,
+    )
+
+    if not email.sent:
+        log.info(r"Basic research dump emailed to {to_email}")
+    else:
+        log.error(r"Failed to email basic research dump to {to_email}")

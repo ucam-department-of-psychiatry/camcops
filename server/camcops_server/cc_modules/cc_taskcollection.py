@@ -36,6 +36,10 @@ from threading import Thread
 from typing import (Dict, Generator, List, Optional, Tuple, Type,
                     TYPE_CHECKING, Union)
 
+from cardinal_pythonlib.json.serialize import (
+    METHOD_STRIP_UNDERSCORE,
+    register_for_json,
+)
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.reprfunc import auto_repr, auto_str
 from cardinal_pythonlib.sort import MINTYPE_SINGLETON, MinType
@@ -187,6 +191,7 @@ class FetchThread(Thread):
 # Make a set of tasks, deferring work until things are needed
 # =============================================================================
 
+@register_for_json(method=METHOD_STRIP_UNDERSCORE)
 class TaskCollection(object):
     """
     Represent a potential or instantiated call to fetch tasks from the
