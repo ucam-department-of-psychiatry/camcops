@@ -396,6 +396,7 @@ setup(
             'camcops_server_meta=camcops_server.camcops_server_meta:meta_main',
             'camcops_backup_mysql_database=cardinal_pythonlib.tools.backup_mysql_database:main',  # noqa
             'camcops_windows_service=camcops_server.camcops_windows_service:main',  # noqa
+            'camcops_print_latest_github_version=camcops_server.tools.print_latest_github_version:main',  # noqa
         ],
     },
 )
