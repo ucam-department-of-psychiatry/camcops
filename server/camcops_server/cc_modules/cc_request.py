@@ -45,6 +45,7 @@ from cardinal_pythonlib.datetimefunc import (
     pendulum_to_utc_datetime_without_tz,
 )
 # from cardinal_pythonlib.debugging import get_caller_stack_info
+from cardinal_pythonlib.json.serialize import register_class_for_json
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.plot import (
     png_img_html_from_pyplot_figure,
@@ -1951,3 +1952,37 @@ def get_unittest_request(dbsession: SqlASession,
     req._debugging_user = user
 
     return req
+
+
+def get_foo_request(*args, **kwargs) -> CamcopsRequest:
+    if not hasattr(get_foo_request, "req"):
+        with pyramid_configurator_context(debug_toolbar=False) as pyr_config:
+            user_id = kwargs.pop("user_id", None)
+
+            kwargs['environ'] = {}
+            req = CamcopsRequest(*args, **kwargs)
+            req.registry = pyr_config.registry
+            pyr_config.begin(request=req)
+
+            if 'user_id' is not None:
+                req._debugging_user = User.get_user_by_id(
+                    req.dbsession, user_id)
+
+            get_foo_request.req = req
+
+    return get_foo_request.req
+
+
+def encode_camcops_request(req: CamcopsRequest) -> Dict:
+    return {'user_id': req.user.id}
+
+
+def decode_camcops_request(d: Dict, cls: CamcopsRequest) -> CamcopsRequest:
+    return get_foo_request(user_id=d['user_id'])
+
+
+register_class_for_json(
+    cls=CamcopsRequest,
+    obj_to_dict_fn=encode_camcops_request,
+    dict_to_obj_fn=decode_camcops_request
+)

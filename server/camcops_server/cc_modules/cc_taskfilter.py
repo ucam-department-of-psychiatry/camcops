@@ -31,9 +31,10 @@ camcops_server/cc_modules/cc_taskfilter.py
 import datetime
 from enum import Enum
 import logging
-from typing import List, Optional, Type, TYPE_CHECKING, Union
+from typing import Dict, List, Optional, Type, TYPE_CHECKING, Union
 
 from cardinal_pythonlib.datetimefunc import convert_datetime_to_utc
+from cardinal_pythonlib.json.serialize import register_class_for_json
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.reprfunc import auto_repr
 from cardinal_pythonlib.sqlalchemy.list_types import (
@@ -556,3 +557,25 @@ class TaskFilter(Base):
         if not self.end_datetime:
             return None
         return convert_datetime_to_utc(self.end_datetime)
+
+
+def encode_task_filter(filter: TaskFilter) -> Dict:
+    return {
+        "task_types": filter.task_types,
+        "group_ids": filter.group_ids,
+    }
+
+
+def decode_task_filter(d: Dict, cls: TaskFilter):
+    filter = TaskFilter()
+    filter.task_types = d["task_types"]
+    filter.group_ids = d["group_ids"]
+
+    return filter
+
+
+register_class_for_json(
+    cls=TaskFilter,
+    obj_to_dict_fn=encode_task_filter,
+    dict_to_obj_fn=decode_task_filter
+)

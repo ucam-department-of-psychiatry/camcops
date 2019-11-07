@@ -638,13 +638,11 @@ def task_collection_to_tsv_zip_response(
         a :class:`pyramid.response.Response` object
 
     """  # noqa
-    tsvcoll, audit_descriptions = get_tsv_collection_from_task_collection(
-        req, collection, sort_by_heading)
-    audit(req, f"Basic dump: {'; '.join(audit_descriptions)}")
-    body = tsvcoll.as_zip()
-    filename = (
-        f"CamCOPS_dump_{format_datetime(req.now, DateFormat.FILENAME)}.zip"
+
+    filename, body = task_collection_to_tsv_zip(
+        req, collection, sort_by_heading
     )
+
     return ZipResponse(body=body, filename=filename)
 
 

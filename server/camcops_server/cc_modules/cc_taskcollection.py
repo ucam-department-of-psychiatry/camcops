@@ -37,12 +37,13 @@ from typing import (Dict, Generator, List, Optional, Tuple, Type,
                     TYPE_CHECKING, Union)
 
 from cardinal_pythonlib.json.serialize import (
-    METHOD_STRIP_UNDERSCORE,
-    register_for_json,
+    register_class_for_json,
+    register_enum_for_json,
 )
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.reprfunc import auto_repr, auto_str
 from cardinal_pythonlib.sort import MINTYPE_SINGLETON, MinType
+from kombu.serialization import dumps, loads
 from pendulum import DateTime as Pendulum
 from sqlalchemy.orm import Query
 from sqlalchemy.orm.session import Session as SqlASession
@@ -62,6 +63,7 @@ from camcops_server.cc_modules.cc_taskfactory import (
 )
 from camcops_server.cc_modules.cc_taskfilter import TaskFilter
 from camcops_server.cc_modules.cc_taskindex import TaskIndexEntry
+from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 
 if TYPE_CHECKING:
     from sqlalchemy.sql.elements import ClauseElement, ColumnElement
@@ -97,6 +99,7 @@ def task_when_created_sorter(task: Task) \
     return MINTYPE_SINGLETON if created is None else (created, uploaded)
 
 
+@register_enum_for_json
 class TaskSortMethod(Enum):
     """
     Enum representing ways to sort tasks.
@@ -191,7 +194,6 @@ class FetchThread(Thread):
 # Make a set of tasks, deferring work until things are needed
 # =============================================================================
 
-@register_for_json(method=METHOD_STRIP_UNDERSCORE)
 class TaskCollection(object):
     """
     Represent a potential or instantiated call to fetch tasks from the
@@ -976,3 +978,73 @@ class TaskCollection(object):
             )
         )
         return q
+
+
+def encode_task_collection(coll: TaskCollection) -> Dict:
+    return {
+        "taskfilter": dumps(coll._filter, serializer="json"),
+        "req": dumps(coll._req, serializer="json"),
+        "as_dump": coll._as_dump,
+        "sort_method_by_class": dumps(coll._sort_method_by_class,
+                                      serializer="json"),
+    }
+
+
+def decode_task_collection(d: Dict, cls: TaskCollection) -> TaskCollection:
+    kwargs = {
+        "req": loads(*reorder_args(*d["req"])),
+        "taskfilter": loads(*reorder_args(*d["taskfilter"])),
+        "as_dump": d["as_dump"],
+        "sort_method_by_class": loads(*reorder_args(*d["sort_method_by_class"])),
+    }
+
+    return TaskCollection(**kwargs)
+
+
+def reorder_args(content_type, content_encoding, data):
+    return [data, content_type, content_encoding]
+
+
+register_class_for_json(
+    cls=TaskCollection,
+    obj_to_dict_fn=encode_task_collection,
+    dict_to_obj_fn=decode_task_collection
+)
+
+
+# =============================================================================
+# Unit tests
+# =============================================================================
+
+class TaskCollectionTests(DemoDatabaseTestCase):
+    def create_tasks(self) -> None:
+        return
+
+    def test_it_can_be_serialized(self) -> None:
+        from camcops_server.cc_modules.cc_request import get_foo_request
+        from camcops_server.cc_modules.cc_user import User
+
+        filter = TaskFilter()
+        filter.task_types = ['task1', 'task2', 'task3']
+        filter.group_ids = [1, 2, 3]
+
+        user = User.get_system_user(self.req.dbsession)
+
+        req = get_foo_request(user_id=user.id)
+
+        coll = TaskCollection(
+            req,
+            taskfilter=filter,
+            as_dump=True,
+            sort_method_by_class=TaskSortMethod.CREATION_DATE_ASC
+        )
+        content_type, encoding, data = dumps(coll, serializer="json")
+        new_coll = loads(data, content_type, encoding)
+
+        self.assertEqual(new_coll._as_dump, True)
+        self.assertEqual(new_coll._sort_method_by_class,
+                         TaskSortMethod.CREATION_DATE_ASC)
+        self.assertEqual(new_coll._filter.task_types,
+                         ['task1', 'task2', 'task3'])
+        self.assertEqual(new_coll._filter.group_ids,
+                         [1, 2, 3])

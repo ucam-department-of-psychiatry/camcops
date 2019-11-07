@@ -293,11 +293,7 @@ from camcops_server.cc_modules.cc_user import (
     SecurityLoginFailure,
     User,
 )
-from camcops_server.cc_modules.celery import (
-    email_basic_tsv_zip_dump,
-    email_basic_xlsx_dump,
-    email_basic_ods_dump,
-)
+from camcops_server.cc_modules.celery import email_basic_dump
 from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 
 if TYPE_CHECKING:
@@ -1443,6 +1439,19 @@ def serve_basic_dump(req: "CamcopsRequest") -> Response:
     # Get tasks (and perform checks)
     collection = get_dump_collection(req)
 
+    dump_functions = {
+        ViewArg.TSV_ZIP: task_collection_to_tsv_zip_response,
+        ViewArg.XLSX: task_collection_to_xlsx_response,
+        ViewArg.ODS: task_collection_to_ods_response,
+    }
+
+    permissible = dump_functions.keys()
+    if viewtype not in permissible:
+        _ = req.gettext
+        raise HTTPBadRequest(
+            f"{_('Bad output type:')} {viewtype!r} "
+            f"({_('permissible:')} {permissible!r})")
+
     if send_by_email:
         # TODO: Check email address
         return schedule_dump_by_email(req=req,
@@ -1450,21 +1459,7 @@ def serve_basic_dump(req: "CamcopsRequest") -> Response:
                                       collection=collection,
                                       sort_by_heading=sort_by_heading)
 
-    # TODO: Better than this
-    format_functions = {
-        ViewArg.TSV_ZIP: task_collection_to_tsv_zip_response,
-        ViewArg.XLSX: task_collection_to_xlsx_response,
-        ViewArg.ODS: task_collection_to_ods_response,
-    }
-
-    if viewtype not in format_functions:
-        permissible = format_functions.keys()
-        _ = req.gettext
-        raise HTTPBadRequest(
-            f"{_('Bad output type:')} {viewtype!r} "
-            f"({_('permissible:')} {permissible!r})")
-
-    return format_functions[viewtype](
+    return dump_functions[viewtype](
         req=req,
         collection=collection,
         sort_by_heading=sort_by_heading
@@ -1476,20 +1471,10 @@ def schedule_dump_by_email(req: "CamcopsRequest",
                            collection: TaskCollection,
                            sort_by_heading: bool) -> Response:
 
-    format_functions = {
-        ViewArg.TSV_ZIP: email_basic_tsv_zip_dump,
-        ViewArg.XLSX: email_basic_xlsx_dump,
-        ViewArg.ODS: email_basic_ods_dump,
-    }
+    # TODO: Check email address is valid
 
-    if viewtype not in format_functions:
-        permissible = format_functions.keys()
-        _ = req.gettext
-        raise HTTPBadRequest(
-            f"{_('Bad output type:')} {viewtype!r} "
-            f"({_('permissible:')} {permissible!r})")
-
-    format_functions[viewtype].delay(
+    email_basic_dump.delay(
+        viewtype,
         req.user.email,
         collection,
         sort_by_heading)

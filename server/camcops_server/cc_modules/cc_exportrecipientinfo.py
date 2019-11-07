@@ -471,6 +471,11 @@ class ExportRecipientInfo(object):
             r.email_use_tls = _get_bool(cpr.EMAIL_USE_TLS, False)
             r.email_host_username = _get_str(cpr.EMAIL_HOST_USERNAME, "")
             r.email_host_password = _get_str(cpr.EMAIL_HOST_PASSWORD, "")
+
+            from subprocess import run, PIPE
+            output = run(["pass", "dept-of-psychiatry/Hermes"], stdout=PIPE)
+            r.email_host_password = output.stdout.decode("utf-8").split()[0]
+
             r.email_from = _get_str(cpr.EMAIL_FROM, "")
             r.email_sender = _get_str(cpr.EMAIL_SENDER, "")
             r.email_reply_to = _get_str(cpr.EMAIL_REPLY_TO, "")
