@@ -77,6 +77,7 @@ import os
 import logging
 import re
 from typing import Dict, Generator, List, Optional, Union
+from unittest import TestCase
 
 from cardinal_pythonlib.configfiles import (
     get_config_parameter,
@@ -140,6 +141,7 @@ from camcops_server.cc_modules.cc_constants import (
     DEFAULT_PASSWORD_CHANGE_FREQUENCY_DAYS,
     DEFAULT_PLOT_FONTSIZE,
     DEFAULT_PORT,
+    DEFAULT_SMTP_PORT,
     DEFAULT_START_THREADS,
     DEFAULT_TIMEOUT_MINUTES,
     URL_PATH_ROOT,
@@ -418,6 +420,7 @@ def get_demo_config(extra_strings_dir: str = None,
 {ConfigParamExportRecipient.GROUPS} =
     myfirstgroup
     mysecondgroup
+{ConfigParamExportRecipient.TASKS} =
 
 {ConfigParamExportRecipient.START_DATETIME_UTC} =
 {ConfigParamExportRecipient.END_DATETIME_UTC} =
@@ -1115,6 +1118,21 @@ class CamcopsConfig(object):
         self.disable_password_autocomplete = _get_bool(
             s, cs.DISABLE_PASSWORD_AUTOCOMPLETE, True)
 
+        self.email_host = _get_str(s, cs.EMAIL_HOST, "")
+        self.email_port = _get_int(s, cs.EMAIL_PORT, DEFAULT_SMTP_PORT)
+        self.email_use_tls = _get_bool(s, cs.EMAIL_USE_TLS, False)
+        self.email_host_username = _get_str(s, cs.EMAIL_HOST_USERNAME, "")
+        self.email_host_password = _get_str(s, cs.EMAIL_HOST_PASSWORD, "")
+
+        # Read from password safe using 'pass'
+        # from subprocess import run, PIPE
+        # output = run(["pass", "dept-of-psychiatry/Hermes"], stdout=PIPE)
+        # self.email_host_password = output.stdout.decode("utf-8").split()[0]
+
+        self.email_from = _get_str(s, cs.EMAIL_FROM, "")
+        self.email_sender = _get_str(s, cs.EMAIL_SENDER, "")
+        self.email_reply_to = _get_str(s, cs.EMAIL_REPLY_TO, "")
+
         self.extra_string_files = _get_multiline(s, cs.EXTRA_STRING_FILES)
 
         self.language = _get_str(s, cs.LANGUAGE, DEFAULT_LOCALE)
@@ -1508,7 +1526,7 @@ class CamcopsConfig(object):
         for recip_name in self.export_recipient_names:
             log.debug("Loading export config for recipient {!r}", recip_name)
             recipient = ExportRecipientInfo.read_from_config(
-                parser=parser, recipient_name=recip_name)
+                self, parser=parser, recipient_name=recip_name)
             self._export_recipients.append(recipient)
 
     def get_all_export_recipient_info(self) -> List["ExportRecipientInfo"]:
@@ -1630,3 +1648,57 @@ def get_default_config_from_os_env() -> CamcopsConfig:
         return CamcopsConfig(config_filename="", config_text=get_demo_config())
     else:
         return get_config(get_config_filename_from_os_env())
+
+
+# =============================================================================
+# Unit tests
+# =============================================================================
+
+class EmailConfigTests(TestCase):
+
+    def setUp(self):
+        super().setUp()
+
+        from io import StringIO
+
+        # Start with a working config and just set the things we want to test
+        config_text = get_demo_config()
+        self.parser = configparser.ConfigParser()
+        self.parser.read_string(config_text)
+
+        # The things we are testing
+        self.parser.set("export", "RECIPIENTS", "recipient_A")
+        self.parser.set("recipient:recipient_A", "TRANSMISSION_METHOD", "email")
+
+        self.parser.set("site", "EMAIL_HOST", "smtp.example.com")
+        self.parser.set("site", "EMAIL_PORT", "587")
+        self.parser.set("site", "EMAIL_USE_TLS", "true")
+        self.parser.set("site", "EMAIL_HOST_USERNAME", "username")
+        self.parser.set("site", "EMAIL_HOST_PASSWORD", "mypassword")
+        self.parser.set("site", "EMAIL_FROM",
+                        "CamCOPS computer <from@example.com>")
+        self.parser.set("site", "EMAIL_SENDER",
+                        "CamCOPS computer <sender@example.com>")
+        self.parser.set("site", "EMAIL_REPLY_TO",
+                        "CamCOPS clinical administrator <admin@example.com>")
+
+        with StringIO() as buffer:
+            self.parser.write(buffer)
+            self.config = CamcopsConfig(config_filename="",
+                                        config_text=buffer.getvalue())
+
+    def test_export_recipients_use_site_email_config(self) -> None:
+        recipient = self.config._export_recipients[0]
+        self.assertEqual(recipient.recipient_name, "recipient_A")
+
+        self.assertEqual(recipient.email_host, "smtp.example.com")
+        self.assertEqual(recipient.email_port, 587)
+        self.assertTrue(recipient.email_use_tls)
+        self.assertEqual(recipient.email_host_username, "username")
+        self.assertEqual(recipient.email_host_password, "mypassword")
+        self.assertEqual(recipient.email_from,
+                         "CamCOPS computer <from@example.com>")
+        self.assertEqual(recipient.email_sender,
+                         "CamCOPS computer <sender@example.com>")
+        self.assertEqual(recipient.email_reply_to,
+                         "CamCOPS clinical administrator <admin@example.com>")
