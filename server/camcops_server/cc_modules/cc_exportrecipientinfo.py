@@ -540,6 +540,7 @@ class ExportRecipientInfo(object):
             raise _Missing(self.recipient_name, paramname)
 
         cpr = ConfigParamExportRecipient
+        cps = ConfigParamSite
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Export type
@@ -589,12 +590,12 @@ class ExportRecipientInfo(object):
             if not self.email_host:
                 # You can't send an e-mail without knowing which server to send
                 # it to.
-                fail_missing(cpr.EMAIL_HOST)
+                fail_missing(cps.EMAIL_HOST)
             # Username is *not* required by all servers!
             if not self.email_from:
                 # From is mandatory in all e-mails.
                 # (Sender and Reply-To are optional.)
-                fail_missing(cpr.EMAIL_FROM)
+                fail_missing(cps.EMAIL_FROM)
             if COMMA in self.email_from:
                 # RFC 5322 permits multiple addresses in From, but Python
                 # sendmail doesn't.
