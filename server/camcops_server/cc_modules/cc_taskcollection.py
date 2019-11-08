@@ -995,7 +995,8 @@ def decode_task_collection(d: Dict, cls: TaskCollection) -> TaskCollection:
         "req": loads(*reorder_args(*d["req"])),
         "taskfilter": loads(*reorder_args(*d["taskfilter"])),
         "as_dump": d["as_dump"],
-        "sort_method_by_class": loads(*reorder_args(*d["sort_method_by_class"])),
+        "sort_method_by_class": loads(
+            *reorder_args(*d["sort_method_by_class"])),
     }
 
     return TaskCollection(**kwargs)
@@ -1021,7 +1022,7 @@ class TaskCollectionTests(DemoDatabaseTestCase):
         return
 
     def test_it_can_be_serialized(self) -> None:
-        from camcops_server.cc_modules.cc_request import get_foo_request
+        from camcops_server.cc_modules.cc_request import get_single_user_request
         from camcops_server.cc_modules.cc_user import User
 
         filter = TaskFilter()
@@ -1030,7 +1031,7 @@ class TaskCollectionTests(DemoDatabaseTestCase):
 
         user = User.get_system_user(self.req.dbsession)
 
-        req = get_foo_request(user_id=user.id)
+        req = get_single_user_request(user_id=user.id)
 
         coll = TaskCollection(
             req,

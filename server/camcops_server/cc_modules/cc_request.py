@@ -1954,8 +1954,8 @@ def get_unittest_request(dbsession: SqlASession,
     return req
 
 
-def get_foo_request(*args, **kwargs) -> CamcopsRequest:
-    if not hasattr(get_foo_request, "req"):
+def get_single_user_request(*args, **kwargs) -> CamcopsRequest:
+    if not hasattr(get_single_user_request, "req"):
         with pyramid_configurator_context(debug_toolbar=False) as pyr_config:
             user_id = kwargs.pop("user_id", None)
 
@@ -1964,13 +1964,13 @@ def get_foo_request(*args, **kwargs) -> CamcopsRequest:
             req.registry = pyr_config.registry
             pyr_config.begin(request=req)
 
-            if 'user_id' is not None:
+            if user_id is not None:
                 req._debugging_user = User.get_user_by_id(
                     req.dbsession, user_id)
 
-            get_foo_request.req = req
+            get_single_user_request.req = req
 
-    return get_foo_request.req
+    return get_single_user_request.req
 
 
 def encode_camcops_request(req: CamcopsRequest) -> Dict:
@@ -1978,7 +1978,7 @@ def encode_camcops_request(req: CamcopsRequest) -> Dict:
 
 
 def decode_camcops_request(d: Dict, cls: CamcopsRequest) -> CamcopsRequest:
-    return get_foo_request(user_id=d['user_id'])
+    return get_single_user_request(user_id=d['user_id'])
 
 
 register_class_for_json(

@@ -122,6 +122,7 @@ import camcops_server.cc_modules.cc_all_models  # import side effects (ensure al
 
 if TYPE_CHECKING:
     from celery.app.task import Task as CeleryTask
+    from camcops_server.cc_modules.cc_request import CamcopsRequest
     from camcops_server.cc_modules.cc_taskcollection import TaskCollection
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
@@ -360,9 +361,9 @@ def email_basic_dump(self: "CeleryTask",
         task_collection_to_xlsx,
     )
     from camcops_server.cc_modules.cc_pyramid import ViewArg
-    from camcops_server.cc_modules.cc_request import get_foo_request  # delayed import  # noqa
+    from camcops_server.cc_modules.cc_request import get_single_user_request
 
-    req = get_foo_request()
+    req = get_single_user_request()
 
     format_functions = {
         ViewArg.TSV_ZIP: task_collection_to_tsv_zip,
@@ -377,12 +378,13 @@ def email_basic_dump(self: "CeleryTask",
 
 def send_email_with_attachment(req: "CamcopsRequest", to_email: str,
                                attachment: Tuple[str, bytes]) -> None:
-    from camcops_server.cc_modules.cc_config import get_default_config_from_os_env  # delayed import  # noqa
+    from camcops_server.cc_modules.cc_config import get_default_config_from_os_env  # noqa
     from camcops_server.cc_modules.cc_email import Email
     from cardinal_pythonlib.email.sendmail import CONTENT_TYPE_TEXT
 
     _ = req.gettext
-    config = get_default_config_from_os_env()
+    # TODO:
+    # config = get_default_config_from_os_env()
 
     recipients = req.get_export_recipients(all_recipients=True)
 
