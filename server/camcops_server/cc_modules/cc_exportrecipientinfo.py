@@ -37,6 +37,7 @@ import configparser
 import datetime
 import logging
 from typing import List, Optional, TYPE_CHECKING
+from unittest import TestCase
 
 from cardinal_pythonlib.configfiles import (
     get_config_parameter,
@@ -55,6 +56,11 @@ from camcops_server.cc_modules.cc_filename import (
     FileType,
     get_export_filename,
     patient_spec_for_filename_is_valid,
+)
+from camcops_server.cc_modules.cc_constants import (
+    CONFIG_FILE_EXPORT_SECTION,
+    ConfigParamExportGeneral,
+    ConfigParamExportRecipient,
 )
 
 if TYPE_CHECKING:
@@ -93,70 +99,6 @@ ALL_TRANSMISSION_METHODS = [
 ]  # ... the values of all the relevant attributes
 
 ALL_TASK_FORMATS = [FileType.HTML, FileType.PDF, FileType.XML]
-
-
-class ConfigParamExportRecipient(object):
-    """
-    Possible configuration file parameters that relate to "export recipient"
-    definitions.
-    """
-    ALL_GROUPS = "ALL_GROUPS"
-    DB_ADD_SUMMARIES = "DB_ADD_SUMMARIES"
-    DB_ECHO = "DB_ECHO"
-    DB_INCLUDE_BLOBS = "DB_INCLUDE_BLOBS"
-    DB_PATIENT_ID_PER_ROW = "DB_PATIENT_ID_PER_ROW"
-    DB_URL = "DB_URL"
-    EMAIL_BCC = "EMAIL_BCC"
-    EMAIL_BODY = "EMAIL_BODY"
-    EMAIL_BODY_IS_HTML = "EMAIL_BODY_IS_HTML"
-    EMAIL_CC = "EMAIL_CC"
-    EMAIL_FROM = "EMAIL_FROM"
-    EMAIL_HOST = "EMAIL_HOST"
-    EMAIL_HOST_PASSWORD = "EMAIL_HOST_PASSWORD"
-    EMAIL_HOST_USERNAME = "EMAIL_HOST_USERNAME"
-    EMAIL_KEEP_MESSAGE = "EMAIL_KEEP_MESSAGE"
-    EMAIL_PORT = "EMAIL_PORT"
-    EMAIL_RECIPIENTS = "EMAIL_RECIPIENTS"
-    EMAIL_REPLY_TO = "EMAIL_REPLY_TO"
-    EMAIL_SENDER = "EMAIL_SENDER"
-    EMAIL_PATIENT_SPEC = "EMAIL_PATIENT_SPEC"
-    EMAIL_PATIENT_SPEC_IF_ANONYMOUS = "EMAIL_PATIENT_SPEC_IF_ANONYMOUS"
-    EMAIL_SUBJECT = "EMAIL_SUBJECT"
-    EMAIL_TIMEOUT = "EMAIL_TIMEOUT"
-    EMAIL_TO = "EMAIL_TO"
-    EMAIL_USE_TLS = "EMAIL_USE_TLS"
-    END_DATETIME_UTC = "END_DATETIME_UTC"
-    FILE_EXPORT_RIO_METADATA = "FILE_EXPORT_RIO_METADATA"
-    FILE_FILENAME_SPEC = "FILE_FILENAME_SPEC"
-    FILE_MAKE_DIRECTORY = "FILE_MAKE_DIRECTORY"
-    FILE_OVERWRITE_FILES = "FILE_OVERWRITE_FILES"
-    FILE_PATIENT_SPEC = "FILE_PATIENT_SPEC"
-    FILE_PATIENT_SPEC_IF_ANONYMOUS = "FILE_PATIENT_SPEC_IF_ANONYMOUS"
-    FILE_SCRIPT_AFTER_EXPORT = "FILE_SCRIPT_AFTER_EXPORT"
-    FINALIZED_ONLY = "FINALIZED_ONLY"
-    GROUPS = "GROUPS"
-    HL7_DEBUG_DIVERT_TO_FILE = "HL7_DEBUG_DIVERT_TO_FILE"
-    HL7_DEBUG_TREAT_DIVERTED_AS_SENT = "HL7_DEBUG_TREAT_DIVERTED_AS_SENT"
-    HL7_HOST = "HL7_HOST"
-    HL7_KEEP_MESSAGE = "HL7_KEEP_MESSAGE"
-    HL7_KEEP_REPLY = "HL7_KEEP_REPLY"
-    HL7_NETWORK_TIMEOUT_MS = "HL7_NETWORK_TIMEOUT_MS"
-    HL7_PING_FIRST = "HL7_PING_FIRST"
-    HL7_PORT = "HL7_PORT"
-    IDNUM_AA_PREFIX = "IDNUM_AA_"  # unusual; prefix not parameter
-    IDNUM_TYPE_PREFIX = "IDNUM_TYPE_"  # unusual; prefix not parameter
-    INCLUDE_ANONYMOUS = "INCLUDE_ANONYMOUS"
-    PRIMARY_IDNUM = "PRIMARY_IDNUM"
-    PUSH = "PUSH"
-    REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY = "REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY"  # noqa
-    RIO_DOCUMENT_TYPE = "RIO_DOCUMENT_TYPE"
-    RIO_IDNUM = "RIO_IDNUM"
-    RIO_UPLOADING_USER = "RIO_UPLOADING_USER"
-    START_DATETIME_UTC = "START_DATETIME_UTC"
-    TASK_FORMAT = "TASK_FORMAT"
-    TASKS = "TASKS"
-    TRANSMISSION_METHOD = "TRANSMISSION_METHOD"
-    XML_FIELD_COMMENTS = "XML_FIELD_COMMENTS"
 
 
 class InvalidExportRecipient(ValueError):
@@ -389,6 +331,7 @@ class ExportRecipientInfo(object):
         log.debug("Loading export config for recipient {!r}", recipient_name)
 
         section = CONFIG_RECIPIENT_PREFIX + recipient_name
+        cpg = ConfigParamExportGeneral
         cpr = ConfigParamExportRecipient
         r = cls()
 
@@ -407,6 +350,20 @@ class ExportRecipientInfo(object):
         def _get_multiline(paramname: str) -> List[str]:
             return get_config_parameter_multiline(
                 parser, section, paramname, [])
+
+        def _get_export_str(paramname: str,
+                            default: str = None) -> Optional[str]:
+            return get_config_parameter(
+                parser, CONFIG_FILE_EXPORT_SECTION, paramname, str, default)
+
+        def _get_export_bool(paramname: str, default: bool) -> bool:
+            return get_config_parameter_boolean(
+                parser, CONFIG_FILE_EXPORT_SECTION, paramname, default)
+
+        def _get_export_int(paramname: str,
+                            default: int = None) -> Optional[int]:
+            return get_config_parameter(
+                parser, CONFIG_FILE_EXPORT_SECTION, paramname, int, default)
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Identity
@@ -466,19 +423,21 @@ class ExportRecipientInfo(object):
             return ", ".join(x for x in _get_multiline(paramname))
 
         if r.transmission_method == ExportTransmissionMethod.EMAIL:
-            r.email_host = _get_str(cpr.EMAIL_HOST)
-            r.email_port = _get_int(cpr.EMAIL_PORT, DEFAULT_SMTP_PORT)
-            r.email_use_tls = _get_bool(cpr.EMAIL_USE_TLS, False)
-            r.email_host_username = _get_str(cpr.EMAIL_HOST_USERNAME, "")
-            r.email_host_password = _get_str(cpr.EMAIL_HOST_PASSWORD, "")
+            r.email_host = _get_export_str(cpg.EMAIL_HOST)
+            r.email_port = _get_export_int(cpg.EMAIL_PORT, DEFAULT_SMTP_PORT)
+            r.email_use_tls = _get_export_bool(cpg.EMAIL_USE_TLS, False)
+            r.email_host_username = _get_export_str(cpg.EMAIL_HOST_USERNAME, "")
+            r.email_host_password = _get_export_str(cpg.EMAIL_HOST_PASSWORD, "")
 
-            from subprocess import run, PIPE
-            output = run(["pass", "dept-of-psychiatry/Hermes"], stdout=PIPE)
-            r.email_host_password = output.stdout.decode("utf-8").split()[0]
+            # Read from password safe using 'pass'
+            # from subprocess import run, PIPE
+            # output = run(["pass", "dept-of-psychiatry/Hermes"], stdout=PIPE)
+            # r.email_host_password = output.stdout.decode("utf-8").split()[0]
 
-            r.email_from = _get_str(cpr.EMAIL_FROM, "")
-            r.email_sender = _get_str(cpr.EMAIL_SENDER, "")
-            r.email_reply_to = _get_str(cpr.EMAIL_REPLY_TO, "")
+            r.email_from = _get_export_str(cpg.EMAIL_FROM, "")
+            r.email_sender = _get_export_str(cpg.EMAIL_SENDER, "")
+            r.email_reply_to = _get_export_str(cpg.EMAIL_REPLY_TO, "")
+
             r.email_to = _make_email_csv_list(cpr.EMAIL_TO)
             r.email_cc = _make_email_csv_list(cpr.EMAIL_CC)
             r.email_bcc = _make_email_csv_list(cpr.EMAIL_BCC)
@@ -968,3 +927,99 @@ class ExportRecipientInfo(object):
             spec=self.email_body,
             treat_as_filename=False,
         )
+
+
+# =============================================================================
+# Unit tests
+# =============================================================================
+
+class ExportRecipientInfoTests(TestCase):
+
+    def setUp(self):
+        super().setUp()
+
+        config_text = """
+[export]
+EMAIL_HOST = smtp.example.com
+EMAIL_PORT = 587
+EMAIL_USE_TLS = true
+EMAIL_HOST_USERNAME = username
+EMAIL_HOST_PASSWORD = mypassword
+EMAIL_FROM = CamCOPS computer <from@example.com>
+EMAIL_SENDER = CamCOPS computer <sender@example.com>
+EMAIL_REPLY_TO = CamCOPS clinical administrator <admin@example.com>
+
+[recipient:test_group]
+ALL_GROUPS = true
+TRANSMISSION_METHOD = email
+EMAIL_TO =
+    user1@example.com
+    user2@example.com
+EMAIL_CC =
+    user3@example.com
+    user4@example.com
+EMAIL_BCC =
+    user5@example.com
+    user6@example.com
+EMAIL_PATIENT_SPEC_IF_ANONYMOUS = anonymous
+EMAIL_PATIENT_SPEC = {surname}, {forename}, {allidnums}
+EMAIL_SUBJECT = CamCOPS task
+EMAIL_BODY_IS_HTML = true
+EMAIL_BODY = Please find attached a new CamCOPS task
+EMAIL_KEEP_MESSAGE = true
+FILE_PATIENT_SPEC = {surname}_{forename}_{idshortdesc1}{idnum1}
+FILE_FILENAME_SPEC = cc_{patient}_{created}_{tasktype}-{serverpk}.{filetype}
+
+# Silence warnings
+PUSH = false
+TASK_FORMAT = pdf
+XML_FIELD_COMMENTS = true
+GROUPS =
+TASKS =
+START_DATETIME_UTC =
+END_DATETIME_UTC =
+FINALIZED_ONLY = true
+INCLUDE_ANONYMOUS = false
+PRIMARY_IDNUM = 1
+REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY = false
+FILE_PATIENT_SPEC_IF_ANONYMOUS = anonymous
+        """
+        self.parser = configparser.ConfigParser()
+        self.parser.read_string(config_text)
+
+    def test_export_recipients_use_email_config_params(self) -> None:
+        info = ExportRecipientInfo()
+
+        recipient = info.read_from_config(self.parser, "test_group")
+        self.assertEqual(recipient.recipient_name, "test_group")
+
+        # Export parameters
+        self.assertEqual(recipient.email_host, "smtp.example.com")
+        self.assertEqual(recipient.email_port, 587)
+        self.assertTrue(recipient.email_use_tls)
+        self.assertEqual(recipient.email_host_username, "username")
+        self.assertEqual(recipient.email_host_password, "mypassword")
+        self.assertEqual(recipient.email_from,
+                         "CamCOPS computer <from@example.com>")
+        self.assertEqual(recipient.email_sender,
+                         "CamCOPS computer <sender@example.com>")
+        self.assertEqual(recipient.email_reply_to,
+                         "CamCOPS clinical administrator <admin@example.com>")
+
+        # Per-recipient parameters
+        self.assertEqual(recipient.email_to,
+                         "user1@example.com, user2@example.com")
+        self.assertEqual(recipient.email_cc,
+                         "user3@example.com, user4@example.com")
+        self.assertEqual(recipient.email_bcc,
+                         "user5@example.com, user6@example.com")
+        self.assertEqual(recipient.email_patient_spec_if_anonymous,
+                         "anonymous")
+        self.assertEqual(recipient.email_patient_spec,
+                         "{surname}, {forename}, {allidnums}")
+        self.assertEqual(recipient.email_subject,
+                         "CamCOPS task")
+        self.assertTrue(recipient.email_body_as_html)
+        self.assertEqual(recipient.email_body,
+                         "Please find attached a new CamCOPS task")
+        self.assertTrue(recipient.email_keep_message)

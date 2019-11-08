@@ -121,6 +121,10 @@ from camcops_server.cc_modules.cc_baseconstants import (
 )
 from camcops_server.cc_modules.cc_cache import cache_region_static, fkg
 from camcops_server.cc_modules.cc_constants import (
+    CONFIG_FILE_EXPORT_SECTION,
+    CONFIG_FILE_SERVER_SECTION,
+    CONFIG_FILE_SITE_SECTION,
+    ConfigParamExportGeneral,
     ConfigParamExportRecipient,
     DEFAULT_CAMCOPS_LOGO_FILE,
     DEFAULT_CHERRYPY_SERVER_NAME,
@@ -169,10 +173,6 @@ pre_disable_sqlalchemy_extra_echo_log()
 # =============================================================================
 # Constants
 # =============================================================================
-
-CONFIG_FILE_SITE_SECTION = "site"
-CONFIG_FILE_SERVER_SECTION = "server"
-CONFIG_FILE_EXPORT_SECTION = "export"
 
 VALID_RECIPIENT_NAME_REGEX = r"^[\w_-]+$"
 # ... because we'll use them for filenames, amongst other things
@@ -273,20 +273,6 @@ class ConfigParamServer(object):
     SSL_PRIVATE_KEY = "SSL_PRIVATE_KEY"
     TRUSTED_PROXY_HEADERS = "TRUSTED_PROXY_HEADERS"
     UNIX_DOMAIN_SOCKET = "UNIX_DOMAIN_SOCKET"
-
-
-class ConfigParamExportGeneral(object):
-    """
-    Parameters allowed in the ``[export]`` section of the CamCOPS config file.
-    """
-    CELERY_BEAT_EXTRA_ARGS = "CELERY_BEAT_EXTRA_ARGS"
-    CELERY_BEAT_SCHEDULE_DATABASE = "CELERY_BEAT_SCHEDULE_DATABASE"
-    CELERY_BROKER_URL = "CELERY_BROKER_URL"
-    CELERY_WORKER_EXTRA_ARGS = "CELERY_WORKER_EXTRA_ARGS"
-    EXPORT_LOCKDIR = "EXPORT_LOCKDIR"
-    RECIPIENTS = "RECIPIENTS"
-    SCHEDULE = "SCHEDULE"
-    SCHEDULE_TIMEZONE = "SCHEDULE_TIMEZONE"
 
 
 def get_demo_config(extra_strings_dir: str = None,
@@ -449,6 +435,16 @@ def get_demo_config(extra_strings_dir: str = None,
 {ConfigParamExportGeneral.CELERY_WORKER_EXTRA_ARGS} =
 {ConfigParamExportGeneral.EXPORT_LOCKDIR} = {lock_dir}
 
+{ConfigParamExportGeneral.EMAIL_HOST} = mysmtpserver.mydomain
+{ConfigParamExportGeneral.EMAIL_PORT} = 587
+{ConfigParamExportGeneral.EMAIL_USE_TLS} = true
+{ConfigParamExportGeneral.EMAIL_HOST_USERNAME} = myusername
+{ConfigParamExportGeneral.EMAIL_HOST_PASSWORD} = mypassword
+{ConfigParamExportGeneral.EMAIL_FROM} = CamCOPS computer <noreply@myinstitution.mydomain>
+{ConfigParamExportGeneral.EMAIL_SENDER} =
+{ConfigParamExportGeneral.EMAIL_REPLY_TO} = CamCOPS clinical administrator <admin@myinstitution.mydomain>
+
+
 {ConfigParamExportGeneral.RECIPIENTS} =
 
 {ConfigParamExportGeneral.SCHEDULE_TIMEZONE} = {DEFAULT_TIMEZONE}
@@ -504,14 +500,6 @@ def get_demo_config(extra_strings_dir: str = None,
     # Options applicable to e-mail exports
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-{ConfigParamExportRecipient.EMAIL_HOST} = mysmtpserver.mydomain
-{ConfigParamExportRecipient.EMAIL_PORT} = 587
-{ConfigParamExportRecipient.EMAIL_USE_TLS} = true
-{ConfigParamExportRecipient.EMAIL_HOST_USERNAME} = myusername
-{ConfigParamExportRecipient.EMAIL_HOST_PASSWORD} = mypassword
-{ConfigParamExportRecipient.EMAIL_FROM} = CamCOPS computer <noreply@myinstitution.mydomain>
-{ConfigParamExportRecipient.EMAIL_SENDER} =
-{ConfigParamExportRecipient.EMAIL_REPLY_TO} = CamCOPS clinical administrator <admin@myinstitution.mydomain>
 {ConfigParamExportRecipient.EMAIL_TO} =
     Perinatal Psychiatry Admin <perinatal@myinstitution.mydomain>
 
