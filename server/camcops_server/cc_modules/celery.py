@@ -352,7 +352,6 @@ def export_to_recipient_backend(self: "CeleryTask",
                  soft_time_limit=CELERY_SOFT_TIME_LIMIT_SEC)
 def email_basic_dump(self: "CeleryTask",
                      viewtype: str,
-                     to_email: str,
                      collection: "TaskCollection",
                      sort_by_heading: bool) -> None:
     from camcops_server.cc_modules.cc_export import (
@@ -373,46 +372,44 @@ def email_basic_dump(self: "CeleryTask",
 
     attachment = format_functions[viewtype](req, collection, sort_by_heading)
 
-    send_email_with_attachment(req, to_email, attachment)
+    send_email_with_attachment(req, attachment)
 
 
-def send_email_with_attachment(req: "CamcopsRequest", to_email: str,
+def send_email_with_attachment(req: "CamcopsRequest",
                                attachment: Tuple[str, bytes]) -> None:
     from camcops_server.cc_modules.cc_config import get_default_config_from_os_env  # noqa
     from camcops_server.cc_modules.cc_email import Email
     from cardinal_pythonlib.email.sendmail import CONTENT_TYPE_TEXT
 
     _ = req.gettext
-    # TODO:
-    # config = get_default_config_from_os_env()
+    config = get_default_config_from_os_env()
 
-    recipients = req.get_export_recipients(all_recipients=True)
+    email_to = req.user.email
 
-    for recipient in recipients:
-        email = Email(
-            # date: automatic
-            from_addr=recipient.email_from,
-            to=recipient.email_to,
-            subject=_("CamCOPS basic research dump"),
-            body=_("The research dump you requested is attached"),
-            content_type=(
-                CONTENT_TYPE_TEXT
-            ),
-            charset="utf8",
-            attachments_binary=[attachment],
+    email = Email(
+        # date: automatic
+        from_addr=config.email_from,
+        to=email_to,
+        subject=_("CamCOPS basic research dump"),
+        body=_("The research dump you requested is attached"),
+        content_type=(
+            CONTENT_TYPE_TEXT
+        ),
+        charset="utf8",
+        attachments_binary=[attachment],
+    )
+
+    email.send(
+        host=config.email_host,
+        username=config.email_host_username,
+        password=config.email_host_password,
+        port=config.email_port,
+        use_tls=config.email_use_tls,
+    )
+
+    if email.sent:
+        log.info(f"Basic research dump emailed to {email_to}")
+    else:
+        log.error(
+            f"Failed to email basic research dump to {email_to}"
         )
-
-        email.send(
-            host=recipient.email_host,
-            username=recipient.email_host_username,
-            password=recipient.email_host_password,
-            port=recipient.email_port,
-            use_tls=recipient.email_use_tls,
-        )
-
-        if email.sent:
-            log.info(f"Basic research dump emailed to {recipient.email_to}")
-        else:
-            log.error(
-                f"Failed to email basic research dump to {recipient.email_to}"
-            )

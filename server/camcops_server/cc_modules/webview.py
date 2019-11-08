@@ -1470,12 +1470,8 @@ def schedule_dump_by_email(req: "CamcopsRequest",
                            viewtype: str,
                            collection: TaskCollection,
                            sort_by_heading: bool) -> Response:
-
-    # TODO: Check email address is valid
-
     email_basic_dump.delay(
         viewtype,
-        req.user.email,
         collection,
         sort_by_heading)
 
