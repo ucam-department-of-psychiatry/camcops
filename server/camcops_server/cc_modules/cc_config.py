@@ -126,6 +126,8 @@ from camcops_server.cc_modules.cc_constants import (
     CONFIG_FILE_SITE_SECTION,
     ConfigParamExportGeneral,
     ConfigParamExportRecipient,
+    ConfigParamServer,
+    ConfigParamSite,
     DEFAULT_CAMCOPS_LOGO_FILE,
     DEFAULT_CHERRYPY_SERVER_NAME,
     DEFAULT_GUNICORN_TIMEOUT_S,
@@ -209,72 +211,6 @@ DEFAULT_TIMEZONE = "UTC"
 DUMMY_INSTITUTION_URL = 'http://www.mydomain/'
 
 
-class ConfigParamSite(object):
-    """
-    Parameters allowed in the main section of the CamCOPS config file.
-    """
-    ALLOW_INSECURE_COOKIES = "ALLOW_INSECURE_COOKIES"
-    CAMCOPS_LOGO_FILE_ABSOLUTE = "CAMCOPS_LOGO_FILE_ABSOLUTE"
-    CLIENT_API_LOGLEVEL = "CLIENT_API_LOGLEVEL"
-    CTV_FILENAME_SPEC = "CTV_FILENAME_SPEC"
-    DB_URL = "DB_URL"
-    DB_ECHO = "DB_ECHO"
-    DISABLE_PASSWORD_AUTOCOMPLETE = "DISABLE_PASSWORD_AUTOCOMPLETE"
-    EXTRA_STRING_FILES = "EXTRA_STRING_FILES"
-    LANGUAGE = "LANGUAGE"
-    LOCAL_INSTITUTION_URL = "LOCAL_INSTITUTION_URL"
-    LOCAL_LOGO_FILE_ABSOLUTE = "LOCAL_LOGO_FILE_ABSOLUTE"
-    LOCKOUT_DURATION_INCREMENT_MINUTES = "LOCKOUT_DURATION_INCREMENT_MINUTES"
-    LOCKOUT_THRESHOLD = "LOCKOUT_THRESHOLD"
-    PASSWORD_CHANGE_FREQUENCY_DAYS = "PASSWORD_CHANGE_FREQUENCY_DAYS"
-    PATIENT_SPEC = "PATIENT_SPEC"
-    PATIENT_SPEC_IF_ANONYMOUS = "PATIENT_SPEC_IF_ANONYMOUS"
-    RESTRICTED_TASKS = "RESTRICTED_TASKS"
-    SESSION_COOKIE_SECRET = "SESSION_COOKIE_SECRET"
-    SESSION_TIMEOUT_MINUTES = "SESSION_TIMEOUT_MINUTES"
-    SNOMED_TASK_XML_FILENAME = "SNOMED_TASK_XML_FILENAME"
-    SNOMED_ICD9_XML_FILENAME = "SNOMED_ICD9_XML_FILENAME"
-    SNOMED_ICD10_XML_FILENAME = "SNOMED_ICD10_XML_FILENAME"
-    TASK_FILENAME_SPEC = "TASK_FILENAME_SPEC"
-    TRACKER_FILENAME_SPEC = "TRACKER_FILENAME_SPEC"
-    WEBVIEW_LOGLEVEL = "WEBVIEW_LOGLEVEL"
-    WKHTMLTOPDF_FILENAME = "WKHTMLTOPDF_FILENAME"
-
-
-class ConfigParamServer(object):
-    """
-    Parameters allowed in the web server section of the CamCOPS config file.
-    """
-    CHERRYPY_LOG_SCREEN = "CHERRYPY_LOG_SCREEN"
-    CHERRYPY_ROOT_PATH = "CHERRYPY_ROOT_PATH"
-    CHERRYPY_SERVER_NAME = "CHERRYPY_SERVER_NAME"
-    CHERRYPY_THREADS_MAX = "CHERRYPY_THREADS_MAX"
-    CHERRYPY_THREADS_START = "CHERRYPY_THREADS_START"
-    DEBUG_REVERSE_PROXY = "DEBUG_REVERSE_PROXY"
-    DEBUG_SHOW_GUNICORN_OPTIONS = "DEBUG_SHOW_GUNICORN_OPTIONS"
-    DEBUG_TOOLBAR = "DEBUG_TOOLBAR"
-    GUNICORN_DEBUG_RELOAD = "GUNICORN_DEBUG_RELOAD"
-    GUNICORN_NUM_WORKERS = "GUNICORN_NUM_WORKERS"
-    GUNICORN_TIMEOUT_S = "GUNICORN_TIMEOUT_S"
-    HOST = "HOST"
-    PORT = "PORT"
-    PROXY_HTTP_HOST = "PROXY_HTTP_HOST"
-    PROXY_REMOTE_ADDR = "PROXY_REMOTE_ADDR"
-    PROXY_REWRITE_PATH_INFO = "PROXY_REWRITE_PATH_INFO"
-    PROXY_SCRIPT_NAME = "PROXY_SCRIPT_NAME"
-    PROXY_SERVER_NAME = "PROXY_SERVER_NAME"
-    PROXY_SERVER_PORT = "PROXY_SERVER_PORT"
-    PROXY_URL_SCHEME = "PROXY_URL_SCHEME"
-    SHOW_REQUEST_IMMEDIATELY = "SHOW_REQUEST_IMMEDIATELY"
-    SHOW_REQUESTS = "SHOW_REQUESTS"
-    SHOW_RESPONSE = "SHOW_RESPONSE"
-    SHOW_TIMING = "SHOW_TIMING"
-    SSL_CERTIFICATE = "SSL_CERTIFICATE"
-    SSL_PRIVATE_KEY = "SSL_PRIVATE_KEY"
-    TRUSTED_PROXY_HEADERS = "TRUSTED_PROXY_HEADERS"
-    UNIX_DOMAIN_SOCKET = "UNIX_DOMAIN_SOCKET"
-
-
 def get_demo_config(extra_strings_dir: str = None,
                     lock_dir: str = None,
                     static_dir: str = None,
@@ -353,6 +289,20 @@ def get_demo_config(extra_strings_dir: str = None,
 {ConfigParamSite.TASK_FILENAME_SPEC} = CamCOPS_{{patient}}_{{created}}_{{tasktype}}-{{serverpk}}.{{filetype}}
 {ConfigParamSite.TRACKER_FILENAME_SPEC} = CamCOPS_{{patient}}_{{now}}_tracker.{{filetype}}
 {ConfigParamSite.CTV_FILENAME_SPEC} = CamCOPS_{{patient}}_{{now}}_clinicaltextview.{{filetype}}
+
+# -----------------------------------------------------------------------------
+# Email options
+# -----------------------------------------------------------------------------
+
+{ConfigParamSite.EMAIL_HOST} = mysmtpserver.mydomain
+{ConfigParamSite.EMAIL_PORT} = 587
+{ConfigParamSite.EMAIL_USE_TLS} = true
+{ConfigParamSite.EMAIL_HOST_USERNAME} = myusername
+{ConfigParamSite.EMAIL_HOST_PASSWORD} = mypassword
+{ConfigParamSite.EMAIL_FROM} = CamCOPS computer <noreply@myinstitution.mydomain>
+{ConfigParamSite.EMAIL_SENDER} =
+{ConfigParamSite.EMAIL_REPLY_TO} = CamCOPS clinical administrator <admin@myinstitution.mydomain>
+
 
 # -----------------------------------------------------------------------------
 # Debugging options
@@ -434,16 +384,6 @@ def get_demo_config(extra_strings_dir: str = None,
 {ConfigParamExportGeneral.CELERY_BROKER_URL} = amqp://
 {ConfigParamExportGeneral.CELERY_WORKER_EXTRA_ARGS} =
 {ConfigParamExportGeneral.EXPORT_LOCKDIR} = {lock_dir}
-
-{ConfigParamExportGeneral.EMAIL_HOST} = mysmtpserver.mydomain
-{ConfigParamExportGeneral.EMAIL_PORT} = 587
-{ConfigParamExportGeneral.EMAIL_USE_TLS} = true
-{ConfigParamExportGeneral.EMAIL_HOST_USERNAME} = myusername
-{ConfigParamExportGeneral.EMAIL_HOST_PASSWORD} = mypassword
-{ConfigParamExportGeneral.EMAIL_FROM} = CamCOPS computer <noreply@myinstitution.mydomain>
-{ConfigParamExportGeneral.EMAIL_SENDER} =
-{ConfigParamExportGeneral.EMAIL_REPLY_TO} = CamCOPS clinical administrator <admin@myinstitution.mydomain>
-
 
 {ConfigParamExportGeneral.RECIPIENTS} =
 

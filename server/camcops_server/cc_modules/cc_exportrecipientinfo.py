@@ -58,9 +58,9 @@ from camcops_server.cc_modules.cc_filename import (
     patient_spec_for_filename_is_valid,
 )
 from camcops_server.cc_modules.cc_constants import (
-    CONFIG_FILE_EXPORT_SECTION,
-    ConfigParamExportGeneral,
+    CONFIG_FILE_SITE_SECTION,
     ConfigParamExportRecipient,
+    ConfigParamSite,
 )
 
 if TYPE_CHECKING:
@@ -331,7 +331,7 @@ class ExportRecipientInfo(object):
         log.debug("Loading export config for recipient {!r}", recipient_name)
 
         section = CONFIG_RECIPIENT_PREFIX + recipient_name
-        cpg = ConfigParamExportGeneral
+        cps = ConfigParamSite
         cpr = ConfigParamExportRecipient
         r = cls()
 
@@ -351,19 +351,19 @@ class ExportRecipientInfo(object):
             return get_config_parameter_multiline(
                 parser, section, paramname, [])
 
-        def _get_export_str(paramname: str,
-                            default: str = None) -> Optional[str]:
+        def _get_site_str(paramname: str,
+                          default: str = None) -> Optional[str]:
             return get_config_parameter(
-                parser, CONFIG_FILE_EXPORT_SECTION, paramname, str, default)
+                parser, CONFIG_FILE_SITE_SECTION, paramname, str, default)
 
-        def _get_export_bool(paramname: str, default: bool) -> bool:
+        def _get_site_bool(paramname: str, default: bool) -> bool:
             return get_config_parameter_boolean(
-                parser, CONFIG_FILE_EXPORT_SECTION, paramname, default)
+                parser, CONFIG_FILE_SITE_SECTION, paramname, default)
 
-        def _get_export_int(paramname: str,
-                            default: int = None) -> Optional[int]:
+        def _get_site_int(paramname: str,
+                          default: int = None) -> Optional[int]:
             return get_config_parameter(
-                parser, CONFIG_FILE_EXPORT_SECTION, paramname, int, default)
+                parser, CONFIG_FILE_SITE_SECTION, paramname, int, default)
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Identity
@@ -423,20 +423,20 @@ class ExportRecipientInfo(object):
             return ", ".join(x for x in _get_multiline(paramname))
 
         if r.transmission_method == ExportTransmissionMethod.EMAIL:
-            r.email_host = _get_export_str(cpg.EMAIL_HOST)
-            r.email_port = _get_export_int(cpg.EMAIL_PORT, DEFAULT_SMTP_PORT)
-            r.email_use_tls = _get_export_bool(cpg.EMAIL_USE_TLS, False)
-            r.email_host_username = _get_export_str(cpg.EMAIL_HOST_USERNAME, "")
-            r.email_host_password = _get_export_str(cpg.EMAIL_HOST_PASSWORD, "")
+            r.email_host = _get_site_str(cps.EMAIL_HOST)
+            r.email_port = _get_site_int(cps.EMAIL_PORT, DEFAULT_SMTP_PORT)
+            r.email_use_tls = _get_site_bool(cps.EMAIL_USE_TLS, False)
+            r.email_host_username = _get_site_str(cps.EMAIL_HOST_USERNAME, "")
+            r.email_host_password = _get_site_str(cps.EMAIL_HOST_PASSWORD, "")
 
             # Read from password safe using 'pass'
             # from subprocess import run, PIPE
             # output = run(["pass", "dept-of-psychiatry/Hermes"], stdout=PIPE)
             # r.email_host_password = output.stdout.decode("utf-8").split()[0]
 
-            r.email_from = _get_export_str(cpg.EMAIL_FROM, "")
-            r.email_sender = _get_export_str(cpg.EMAIL_SENDER, "")
-            r.email_reply_to = _get_export_str(cpg.EMAIL_REPLY_TO, "")
+            r.email_from = _get_site_str(cps.EMAIL_FROM, "")
+            r.email_sender = _get_site_str(cps.EMAIL_SENDER, "")
+            r.email_reply_to = _get_site_str(cps.EMAIL_REPLY_TO, "")
 
             r.email_to = _make_email_csv_list(cpr.EMAIL_TO)
             r.email_cc = _make_email_csv_list(cpr.EMAIL_CC)
@@ -939,7 +939,7 @@ class ExportRecipientInfoTests(TestCase):
         super().setUp()
 
         config_text = """
-[export]
+[site]
 EMAIL_HOST = smtp.example.com
 EMAIL_PORT = 587
 EMAIL_USE_TLS = true
