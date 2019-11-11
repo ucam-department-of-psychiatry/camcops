@@ -593,17 +593,17 @@ def task_collection_to_sqlite_response(req: "CamcopsRequest",
 
 
 class BasicTaskCollectionExporter:
-    """
-    Args:
-        req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-        collection: a :class:`camcops_server.cc_modules.cc_taskcollection.TaskCollection`
-        sort_by_heading: sort columns within each page by heading name?
-
-    """  # noqa
     def __init__(self,
                  req: "CamcopsRequest",
                  collection: "TaskCollection",
                  sort_by_heading: bool):
+        """
+        Args:
+            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+            collection: a :class:`camcops_server.cc_modules.cc_taskcollection.TaskCollection`
+            sort_by_heading: sort columns within each page by heading name?
+
+        """  # noqa
         self.req = req
         self.collection = collection
         self.sort_by_heading = sort_by_heading
@@ -623,9 +623,6 @@ class BasicTaskCollectionExporter:
             self.collection,
             self.sort_by_heading
         )
-
-        # TODO: Better than this
-        return Response("Email scheduled")
 
     def send_by_email(self):
         filename, body = self.to_file()

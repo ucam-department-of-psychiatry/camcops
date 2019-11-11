@@ -1459,7 +1459,12 @@ def serve_basic_dump(req: "CamcopsRequest") -> Response:
 
     if send_by_email:
         # TODO: Check email address
-        return exporter.schedule_email()
+        exporter.schedule_email()
+        return render_to_response(
+            "email_scheduled.mako",
+            dict(),
+            request=req
+        )
 
     return exporter.download_now()
 
