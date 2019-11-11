@@ -2600,3 +2600,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
   <khandaker_mojo_medical>`.
 
 - References to "clinician" replaced by "clinician/researcher".
+
+**Client and server v2.3.7**
+
+- Option to send basic research data dump by email
