@@ -156,6 +156,7 @@ import tempfile
 from typing import List, Generator, Tuple, Type, TYPE_CHECKING
 
 from cardinal_pythonlib.datetimefunc import format_datetime
+from cardinal_pythonlib.email.sendmail import CONTENT_TYPE_TEXT
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.pyramid.responses import (
     OdsResponse,
@@ -171,19 +172,25 @@ from sqlalchemy.engine import create_engine
 from sqlalchemy.orm import Session as SqlASession, sessionmaker
 
 from camcops_server.cc_modules.cc_audit import audit
+from camcops_server.cc_modules.cc_config import get_default_config_from_os_env  # noqa
 from camcops_server.cc_modules.cc_constants import DateFormat
 from camcops_server.cc_modules.cc_dump import copy_tasks_and_summaries
+from camcops_server.cc_modules.cc_email import Email
 from camcops_server.cc_modules.cc_exportmodels import (
     ExportedTask,
     ExportRecipient,
     gen_tasks_having_exportedtasks,
     get_collection_for_export,
 )
+from camcops_server.cc_modules.cc_pyramid import ViewArg
 from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
 from camcops_server.cc_modules.cc_sqlalchemy import sql_from_sqlite_database
 from camcops_server.cc_modules.cc_task import Task
 from camcops_server.cc_modules.cc_tsv import TsvCollection
-from camcops_server.cc_modules.celery import export_task_backend
+from camcops_server.cc_modules.celery import (
+    email_basic_dump,
+    export_task_backend,
+)
 
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_request import CamcopsRequest
@@ -585,186 +592,165 @@ def task_collection_to_sqlite_response(req: "CamcopsRequest",
                                         filename=suggested_filename)
 
 
-def get_tsv_collection_from_task_collection(
-        req: "CamcopsRequest",
-        collection: "TaskCollection",
-        sort_by_heading: bool) -> Tuple[TsvCollection, List[str]]:
+class BasicTaskCollectionExporter:
     """
-    Converts a collection of tasks to a collection of spreadsheet-style data.
-
     Args:
         req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         collection: a :class:`camcops_server.cc_modules.cc_taskcollection.TaskCollection`
         sort_by_heading: sort columns within each page by heading name?
 
-    Returns:
-        tuple: ``tsv_collection, audit_descriptions`` where ``tsv_collection``
-        is a :class:`camcops_server.cc_modules.cc_tsv.TsvCollection` object and
-        ``audit_descriptions`` is a list of strings describing the data being
-        fetched.
-
     """  # noqa
-    audit_descriptions = []  # type: List[str]
-    # Task may return >1 file for TSV output (e.g. for subtables).
-    tsvcoll = TsvCollection()
-    # Iterate through tasks, creating the TSV collection
-    for cls in collection.task_classes():
-        for task in gen_audited_tasks_for_task_class(collection, cls,
-                                                     audit_descriptions):
-            tsv_pages = task.get_tsv_pages(req)
-            tsvcoll.add_pages(tsv_pages)
+    def __init__(self,
+                 req: "CamcopsRequest",
+                 collection: "TaskCollection",
+                 sort_by_heading: bool):
+        self.req = req
+        self.collection = collection
+        self.sort_by_heading = sort_by_heading
 
-    tsvcoll.sort_pages()
-    if sort_by_heading:
-        tsvcoll.sort_headings_within_all_pages()
+    @property
+    def viewtype(self):
+        raise NotImplementedError("Exporter needs to implement 'viewtype'")
 
-    return tsvcoll, audit_descriptions
+    def download_now(self):
+        filename, body = self.to_file()
 
+        return self.get_response(body=body, filename=filename)
 
-def task_collection_to_tsv_zip_response(
-        req: "CamcopsRequest",
-        collection: "TaskCollection",
-        sort_by_heading: bool) -> Response:
-    """
-    Converts a set of tasks to a TSV (tab-separated value) response, as a set
-    of TSV files (one per table) in a ZIP file.
+    def schedule_email(self):
+        email_basic_dump.delay(
+            self.viewtype,
+            self.collection,
+            self.sort_by_heading
+        )
 
-    Args:
-        req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-        collection: a :class:`camcops_server.cc_modules.cc_taskcollection.TaskCollection`
-        sort_by_heading: sort columns within each page by heading name?
+        # TODO: Better than this
+        return Response("Email scheduled")
 
-    Returns:
-        a :class:`pyramid.response.Response` object
+    def send_by_email(self):
+        filename, body = self.to_file()
 
-    """  # noqa
+        _ = self.req.gettext
+        config = get_default_config_from_os_env()
 
-    filename, body = task_collection_to_tsv_zip(
-        req, collection, sort_by_heading
-    )
+        email_to = self.req.user.email
 
-    return ZipResponse(body=body, filename=filename)
+        email = Email(
+            # date: automatic
+            from_addr=config.email_from,
+            to=email_to,
+            subject=_("CamCOPS basic research dump"),
+            body=_("The research dump you requested is attached"),
+            content_type=(
+                CONTENT_TYPE_TEXT
+            ),
+            charset="utf8",
+            attachments_binary=[(filename, body)],
+        )
 
+        email.send(
+            host=config.email_host,
+            username=config.email_host_username,
+            password=config.email_host_password,
+            port=config.email_port,
+            use_tls=config.email_use_tls,
+        )
 
-def task_collection_to_tsv_zip(
-        req: "CamcopsRequest",
-        collection: "TaskCollection",
-        sort_by_heading: bool) -> Response:
-    """
-    Converts a set of tasks to a TSV (tab-separated value) response, as a set
-    of TSV files (one per table) in a ZIP file.
+        if email.sent:
+            log.info(f"Basic research dump emailed to {email_to}")
+        else:
+            log.error(
+                f"Failed to email basic research dump to {email_to}"
+            )
 
-    Args:
-        req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-        collection: a :class:`camcops_server.cc_modules.cc_taskcollection.TaskCollection`
-        sort_by_heading: sort columns within each page by heading name?
+    def get_response(self):
+        raise NotImplementedError("Exporter needs to implement 'get_response'")
 
-    Returns:
-        a Tuple containing the filename and binary data
+    def to_file(self):
+        tsvcoll, audit_descriptions = self.get_tsv_collection()
 
-    """  # noqa
-    tsvcoll, audit_descriptions = get_tsv_collection_from_task_collection(
-        req, collection, sort_by_heading)
-    audit(req, f"Basic dump: {'; '.join(audit_descriptions)}")
-    body = tsvcoll.as_zip()
-    filename = (
-        f"CamCOPS_dump_{format_datetime(req.now, DateFormat.FILENAME)}.zip"
-    )
-    return (filename, body)
+        audit(self.req, f"Basic dump: {'; '.join(audit_descriptions)}")
+        body = self.get_file_body(tsvcoll)
+        timestamp = format_datetime(self.req.now, DateFormat.FILENAME)
+        filename = (
+            f"CamCOPS_dump_{timestamp}.{self.file_extension}"
+        )
+        return (filename, body)
 
+    def get_file_body(self, tsvcoll: TsvCollection):
+        raise NotImplementedError("Exporter needs to implement 'get_file_body'")
 
-def task_collection_to_xlsx_response(
-        req: "CamcopsRequest",
-        collection: "TaskCollection",
-        sort_by_heading: bool) -> Response:
-    """
-    Converts a set of tasks to an Excel XLSX file.
+    @property
+    def file_extension(self):
+        raise NotImplementedError("Exporter needs to implement 'file_extension'")
 
-    Args:
-        req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-        collection: a :class:`camcops_server.cc_modules.cc_taskcollection.TaskCollection`
-        sort_by_heading: sort columns within each page by heading name?
+    def get_tsv_collection(self) -> Tuple[TsvCollection, List[str]]:
+        """
+        Converts the collection of tasks to a collection of spreadsheet-style
+        data.
 
-    Returns:
-        a :class:`pyramid.response.Response` object
+        Returns:
+            tuple: ``tsv_collection, audit_descriptions`` where ``tsv_collection``
+            is a :class:`camcops_server.cc_modules.cc_tsv.TsvCollection` object and
+            ``audit_descriptions`` is a list of strings describing the data being
+            fetched.
 
-    """  # noqa
+        """  # noqa
+        audit_descriptions = []  # type: List[str]
+        # Task may return >1 file for TSV output (e.g. for subtables).
+        tsvcoll = TsvCollection()
+        # Iterate through tasks, creating the TSV collection
+        for cls in self.collection.task_classes():
+            for task in gen_audited_tasks_for_task_class(self.collection, cls,
+                                                         audit_descriptions):
+                tsv_pages = task.get_tsv_pages(self.req)
+                tsvcoll.add_pages(tsv_pages)
 
-    filename, body = task_collection_to_xlsx(req, collection, sort_by_heading)
+        tsvcoll.sort_pages()
+        if self.sort_by_heading:
+            tsvcoll.sort_headings_within_all_pages()
 
-    return XlsxResponse(body=body, filename=filename)
-
-
-def task_collection_to_xlsx(
-        req: "CamcopsRequest",
-        collection: "TaskCollection",
-        sort_by_heading: bool) -> Tuple[bytes, str]:
-    """
-    Converts a set of tasks to an Excel XLSX file.
-
-    Args:
-        req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-        collection: a :class:`camcops_server.cc_modules.cc_taskcollection.TaskCollection`
-        sort_by_heading: sort columns within each page by heading name?
-
-    Returns:
-        a Tuple containing the filename and binary data
-
-    """  # noqa
-    tsvcoll, audit_descriptions = get_tsv_collection_from_task_collection(
-        req, collection, sort_by_heading)
-    audit(req, f"Basic dump: {'; '.join(audit_descriptions)}")
-    body = tsvcoll.as_xlsx()
-    filename = (
-        f"CamCOPS_dump_{format_datetime(req.now, DateFormat.FILENAME)}.xlsx"
-    )
-
-    return (filename, body)
+        return tsvcoll, audit_descriptions
 
 
-def task_collection_to_ods_response(
-        req: "CamcopsRequest",
-        collection: "TaskCollection",
-        sort_by_heading: bool) -> Response:
+class BasicOdsExporter(BasicTaskCollectionExporter):
     """
     Converts a set of tasks to an OpenOffice ODS file.
-
-    Args:
-        req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-        collection: a :class:`camcops_server.cc_modules.cc_taskcollection.TaskCollection`
-        sort_by_heading: sort columns within each page by heading name?
-
-    Returns:
-        a :class:`pyramid.response.Response` object
-
-    """  # noqa
-
-    filename, body = task_collection_to_ods(req, collection, sort_by_heading)
-
-    return OdsResponse(body=body, filename=filename)
-
-
-def task_collection_to_ods(
-        req: "CamcopsRequest",
-        collection: "TaskCollection",
-        sort_by_heading: bool) -> Response:
     """
-    Converts a set of tasks to an OpenOffice ODS file.
+    file_extension = "ods"
+    viewtype = ViewArg.ODS
 
-    Args:
-        req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-        collection: a :class:`camcops_server.cc_modules.cc_taskcollection.TaskCollection`
-        sort_by_heading: sort columns within each page by heading name?
+    def get_file_body(self, tsvcoll: TsvCollection):
+        return tsvcoll.as_ods()
 
-    Returns:
-        a Tuple containing the filename and binary data
+    def get_response(self, body: bytes, filename: str) -> Response:
+        return OdsResponse(body=body, filename=filename)
 
-    """  # noqa
-    tsvcoll, audit_descriptions = get_tsv_collection_from_task_collection(
-        req, collection, sort_by_heading)
-    audit(req, f"Basic dump: {'; '.join(audit_descriptions)}")
-    body = tsvcoll.as_ods()
-    filename = (
-        f"CamCOPS_dump_{format_datetime(req.now, DateFormat.FILENAME)}.ods"
-    )
-    return (filename, body)
+
+class BasicTsvZipExporter(BasicTaskCollectionExporter):
+    """
+    Converts a set of tasks to a set of TSV (tab-separated value) file, (one
+    per table) in a ZIP file.
+    """
+    file_extension = "zip"
+    viewtype = ViewArg.TSV_ZIP
+
+    def get_file_body(self, tsvcoll: TsvCollection):
+        return tsvcoll.as_zip()
+
+    def get_response(self, body: bytes, filename: str) -> Response:
+        return ZipResponse(body=body, filename=filename)
+
+
+class BasicXlsxExporter(BasicTaskCollectionExporter):
+    """
+    Converts a set of tasks to an Excel XLSX file.
+    """
+    file_extension = "xlsx"
+    viewtype = ViewArg.XLSX
+
+    def get_file_body(self, tsvcoll: TsvCollection):
+        return tsvcoll.as_xlsx()
+
+    def get_response(self, body: bytes, filename: str) -> Response:
+        return XlsxResponse(body=body, filename=filename)

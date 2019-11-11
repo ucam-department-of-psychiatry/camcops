@@ -190,10 +190,10 @@ from camcops_server.cc_modules.cc_db import (
 from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_email import Email
 from camcops_server.cc_modules.cc_export import (
-    task_collection_to_ods_response,
+    BasicOdsExporter,
+    BasicTsvZipExporter,
+    BasicXlsxExporter,
     task_collection_to_sqlite_response,
-    task_collection_to_tsv_zip_response,
-    task_collection_to_xlsx_response,
 )
 from camcops_server.cc_modules.cc_exportmodels import (
     ExportedTask,
@@ -293,7 +293,6 @@ from camcops_server.cc_modules.cc_user import (
     SecurityLoginFailure,
     User,
 )
-from camcops_server.cc_modules.celery import email_basic_dump
 from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 
 if TYPE_CHECKING:
@@ -1439,44 +1438,30 @@ def serve_basic_dump(req: "CamcopsRequest") -> Response:
     # Get tasks (and perform checks)
     collection = get_dump_collection(req)
 
-    dump_functions = {
-        ViewArg.TSV_ZIP: task_collection_to_tsv_zip_response,
-        ViewArg.XLSX: task_collection_to_xlsx_response,
-        ViewArg.ODS: task_collection_to_ods_response,
+    exporter_classes = {
+        ViewArg.TSV_ZIP: BasicTsvZipExporter,
+        ViewArg.XLSX: BasicXlsxExporter,
+        ViewArg.ODS: BasicOdsExporter,
     }
 
-    permissible = dump_functions.keys()
+    permissible = exporter_classes.keys()
     if viewtype not in permissible:
         _ = req.gettext
         raise HTTPBadRequest(
             f"{_('Bad output type:')} {viewtype!r} "
             f"({_('permissible:')} {permissible!r})")
 
-    if send_by_email:
-        # TODO: Check email address
-        return schedule_dump_by_email(req=req,
-                                      viewtype=viewtype,
-                                      collection=collection,
-                                      sort_by_heading=sort_by_heading)
-
-    return dump_functions[viewtype](
+    exporter = exporter_classes[viewtype](
         req=req,
         collection=collection,
         sort_by_heading=sort_by_heading
     )
 
+    if send_by_email:
+        # TODO: Check email address
+        return exporter.schedule_email()
 
-def schedule_dump_by_email(req: "CamcopsRequest",
-                           viewtype: str,
-                           collection: TaskCollection,
-                           sort_by_heading: bool) -> Response:
-    email_basic_dump.delay(
-        viewtype,
-        collection,
-        sort_by_heading)
-
-    # TODO: Better than this
-    return Response("Email scheduled")
+    return exporter.download_now()
 
 
 @view_config(route_name=Routes.OFFER_SQL_DUMP)

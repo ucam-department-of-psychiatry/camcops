@@ -355,61 +355,25 @@ def email_basic_dump(self: "CeleryTask",
                      collection: "TaskCollection",
                      sort_by_heading: bool) -> None:
     from camcops_server.cc_modules.cc_export import (
-        task_collection_to_ods,
-        task_collection_to_tsv_zip,
-        task_collection_to_xlsx,
+        BasicOdsExporter,
+        BasicTsvZipExporter,
+        BasicXlsxExporter,
     )
     from camcops_server.cc_modules.cc_pyramid import ViewArg
     from camcops_server.cc_modules.cc_request import get_single_user_request
 
     req = get_single_user_request()
 
-    format_functions = {
-        ViewArg.TSV_ZIP: task_collection_to_tsv_zip,
-        ViewArg.XLSX: task_collection_to_xlsx,
-        ViewArg.ODS: task_collection_to_ods,
+    exporter_classes = {
+        ViewArg.TSV_ZIP: BasicTsvZipExporter,
+        ViewArg.XLSX: BasicXlsxExporter,
+        ViewArg.ODS: BasicOdsExporter,
     }
 
-    attachment = format_functions[viewtype](req, collection, sort_by_heading)
-
-    send_email_with_attachment(req, attachment)
-
-
-def send_email_with_attachment(req: "CamcopsRequest",
-                               attachment: Tuple[str, bytes]) -> None:
-    from camcops_server.cc_modules.cc_config import get_default_config_from_os_env  # noqa
-    from camcops_server.cc_modules.cc_email import Email
-    from cardinal_pythonlib.email.sendmail import CONTENT_TYPE_TEXT
-
-    _ = req.gettext
-    config = get_default_config_from_os_env()
-
-    email_to = req.user.email
-
-    email = Email(
-        # date: automatic
-        from_addr=config.email_from,
-        to=email_to,
-        subject=_("CamCOPS basic research dump"),
-        body=_("The research dump you requested is attached"),
-        content_type=(
-            CONTENT_TYPE_TEXT
-        ),
-        charset="utf8",
-        attachments_binary=[attachment],
+    exporter = exporter_classes[viewtype](
+        req=req,
+        collection=collection,
+        sort_by_heading=sort_by_heading
     )
 
-    email.send(
-        host=config.email_host,
-        username=config.email_host_username,
-        password=config.email_host_password,
-        port=config.email_port,
-        use_tls=config.email_use_tls,
-    )
-
-    if email.sent:
-        log.info(f"Basic research dump emailed to {email_to}")
-    else:
-        log.error(
-            f"Failed to email basic research dump to {email_to}"
-        )
+    exporter.send_by_email()
