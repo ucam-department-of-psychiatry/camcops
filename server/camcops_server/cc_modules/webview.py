@@ -1530,7 +1530,6 @@ def sql_dump(req: "CamcopsRequest") -> Response:
         db_make_all_tables_even_empty=True,  # debatable, but more consistent!
         db_patient_id_per_row=patient_id_per_row,
     )
-
     return task_collection_to_sqlite_response(
         req=req,
         collection=collection,

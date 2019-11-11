@@ -1661,7 +1661,6 @@ class EmailConfigTests(TestCase):
         self.parser = configparser.ConfigParser()
         self.parser.read_string(config_text)
 
-        # The things we are testing
         self.parser.set("export", "RECIPIENTS", "recipient_A")
         self.parser.set("recipient:recipient_A", "TRANSMISSION_METHOD", "email")
 

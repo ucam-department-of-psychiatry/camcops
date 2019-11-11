@@ -609,22 +609,32 @@ class BasicTaskCollectionExporter:
         self.sort_by_heading = sort_by_heading
 
     @property
-    def viewtype(self):
+    def viewtype(self) -> str:
         raise NotImplementedError("Exporter needs to implement 'viewtype'")
 
-    def download_now(self):
+    def download_now(self) -> Response:
+        """
+        Download the data dump in the selected format
+        """
         filename, body = self.to_file()
 
         return self.get_response(body=body, filename=filename)
 
-    def schedule_email(self):
+    def schedule_email(self) -> None:
+        """
+        Schedule the export asynchronously and email the logged in user
+        when done
+        """
         email_basic_dump.delay(
             self.viewtype,
             self.collection,
             self.sort_by_heading
         )
 
-    def send_by_email(self):
+    def send_by_email(self) -> None:
+        """
+        Send the data dump by email to the logged in user
+        """
         filename, body = self.to_file()
 
         _ = self.req.gettext
@@ -660,10 +670,10 @@ class BasicTaskCollectionExporter:
                 f"Failed to email basic research dump to {email_to}"
             )
 
-    def get_response(self):
+    def get_response(self) -> Response:
         raise NotImplementedError("Exporter needs to implement 'get_response'")
 
-    def to_file(self):
+    def to_file(self) -> Tuple[str, bytes]:
         tsvcoll, audit_descriptions = self.get_tsv_collection()
 
         audit(self.req, f"Basic dump: {'; '.join(audit_descriptions)}")
@@ -674,11 +684,11 @@ class BasicTaskCollectionExporter:
         )
         return (filename, body)
 
-    def get_file_body(self, tsvcoll: TsvCollection):
+    def get_file_body(self, tsvcoll: TsvCollection) -> bytes:
         raise NotImplementedError("Exporter needs to implement 'get_file_body'")
 
     @property
-    def file_extension(self):
+    def file_extension(self) -> str:
         raise NotImplementedError(
             "Exporter needs to implement 'file_extension'"
         )
@@ -719,7 +729,7 @@ class BasicOdsExporter(BasicTaskCollectionExporter):
     file_extension = "ods"
     viewtype = ViewArg.ODS
 
-    def get_file_body(self, tsvcoll: TsvCollection):
+    def get_file_body(self, tsvcoll: TsvCollection) -> bytes:
         return tsvcoll.as_ods()
 
     def get_response(self, body: bytes, filename: str) -> Response:
@@ -734,7 +744,7 @@ class BasicTsvZipExporter(BasicTaskCollectionExporter):
     file_extension = "zip"
     viewtype = ViewArg.TSV_ZIP
 
-    def get_file_body(self, tsvcoll: TsvCollection):
+    def get_file_body(self, tsvcoll: TsvCollection) -> bytes:
         return tsvcoll.as_zip()
 
     def get_response(self, body: bytes, filename: str) -> Response:
@@ -748,7 +758,7 @@ class BasicXlsxExporter(BasicTaskCollectionExporter):
     file_extension = "xlsx"
     viewtype = ViewArg.XLSX
 
-    def get_file_body(self, tsvcoll: TsvCollection):
+    def get_file_body(self, tsvcoll: TsvCollection) -> bytes:
         return tsvcoll.as_xlsx()
 
     def get_response(self, body: bytes, filename: str) -> Response:
