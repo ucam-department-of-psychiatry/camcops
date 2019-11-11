@@ -1124,11 +1124,6 @@ class CamcopsConfig(object):
         self.email_host_username = _get_str(s, cs.EMAIL_HOST_USERNAME, "")
         self.email_host_password = _get_str(s, cs.EMAIL_HOST_PASSWORD, "")
 
-        # Read from password safe using 'pass'
-        # from subprocess import run, PIPE
-        # output = run(["pass", "dept-of-psychiatry/Hermes"], stdout=PIPE)
-        # self.email_host_password = output.stdout.decode("utf-8").split()[0]
-
         self.email_from = _get_str(s, cs.EMAIL_FROM, "")
         self.email_sender = _get_str(s, cs.EMAIL_SENDER, "")
         self.email_reply_to = _get_str(s, cs.EMAIL_REPLY_TO, "")
