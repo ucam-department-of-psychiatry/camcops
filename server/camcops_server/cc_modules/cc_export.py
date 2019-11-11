@@ -682,7 +682,9 @@ class BasicTaskCollectionExporter:
 
     @property
     def file_extension(self):
-        raise NotImplementedError("Exporter needs to implement 'file_extension'")
+        raise NotImplementedError(
+            "Exporter needs to implement 'file_extension'"
+        )
 
     def get_tsv_collection(self) -> Tuple[TsvCollection, List[str]]:
         """

@@ -110,7 +110,7 @@ Task decorator options:
 """  # noqa
 
 import logging
-from typing import Any, Dict, Tuple, TYPE_CHECKING
+from typing import Any, Dict, TYPE_CHECKING
 
 from cardinal_pythonlib.json.serialize import json_encode, json_decode
 from cardinal_pythonlib.logs import BraceStyleAdapter
@@ -122,7 +122,6 @@ import camcops_server.cc_modules.cc_all_models  # import side effects (ensure al
 
 if TYPE_CHECKING:
     from celery.app.task import Task as CeleryTask
-    from camcops_server.cc_modules.cc_request import CamcopsRequest
     from camcops_server.cc_modules.cc_taskcollection import TaskCollection
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
