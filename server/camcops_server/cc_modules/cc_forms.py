@@ -2880,6 +2880,15 @@ class SendByEmailNode(SchemaNode, RequestAwareMixin):
         self.title = _("Delivery")
         self.label = _("Send dump by email?")
 
+    def validator(self, node: SchemaNode, value: Any) -> None:
+        request = self.bindings[Binding.REQUEST]  # type: CamcopsRequest
+
+        if value is True:
+            if not request.user.email:
+                _ = request.gettext
+                raise Invalid(self,
+                              _("Your user does not have an email address"))
+
 
 class SqliteSelector(SchemaNode, RequestAwareMixin):
     """
