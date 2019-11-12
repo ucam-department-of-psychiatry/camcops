@@ -2293,7 +2293,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
     ``VISIBLE_SYMBOL`` macro in ``preprocessor_aid.h``.
 
 
-**Client and server v2.3.5**
+**Client and server v2.3.5, released 16 Sep 2019**
 
 - Target Android API from 26 to 28 as now required by Google.
 
@@ -2551,7 +2551,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
     it was certainly working after that, so perhaps ``matplotlib`` used to
     accept a dictionary or **kwargs and no longer does.
 
-**Client and server v2.3.6**
+**Client and server v2.3.6, released 31 Oct 2019**
 
 - Group name character restrictions with validation; see
   :func:`camcops_server.cc_modules.cc_group.is_group_name_valid`.
@@ -2600,3 +2600,9 @@ Current C++/SQLite client, Python/SQLAlchemy server
   <khandaker_mojo_medical>`.
 
 - References to "clinician" replaced by "clinician/researcher".
+
+
+**Client and server v2.3.7, IN PROGRESS**
+
+- ``pyexcel-ods3`` and ``pyexcel-xlsx`` for spreadsheet export; faster and much
+  smaller for ODS files. See ``cc_tsv.py``.

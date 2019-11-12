@@ -97,14 +97,14 @@ INSTALL_REQUIRES = [
     # Alternative 'internal' web server. Installs fine under Windows, but won't run (ImportError: No module named 'fcntl').  # noqa
     'hl7==0.3.4',  # For HL7 export
     'lockfile==0.12.2',  # File locking for background tasks
-    'lxml==4.4.1',  # Will speed up openpyxl export
+    'lxml==4.4.1',  # Will speed up openpyxl export [NO LONGER CRITICAL]
     'matplotlib==3.1.1',  # Used for trackers and some tasks. SLOW INSTALLATION.  # noqa
 
     # 'mysqlclient==1.3.13;platform_system=="Linux"',  # for mysql+mysqldb://...
     # # ... but adds dependency on C and mysql.h
 
     'numpy==1.14.5',  # Used by some tasks. SLOW INSTALLATION.
-    'odswriter==0.4.0',  # Write OpenOffice ODS files
+    # 'odswriter==0.4.0',  # Write OpenOffice ODS files [REPLACED BY pyexcel-ods3]  # noqa
     'paginate==0.5.6',  # pagination for web server
     'pendulum==2.0.4',  # better than Arrow
     'pexpect==4.6.0',  # for open_sqlcipher.py
@@ -117,6 +117,8 @@ INSTALL_REQUIRES = [
     # break Pendulum handling
     # todo: setup.py: fix PyMySQL upgrade problem
 
+    'pyexcel-ods3==0.5.3',  # ODS spreadsheet export
+    'pyexcel-xlsx==0.5.7',  # XLSX spreadsheet export
     'PyPDF2==1.26.0',  # Used by rnc_pdf.py
     'pyramid==1.9.2',  # web framework
     'pyramid_debugtoolbar==4.4',  # debugging for Pyramid
