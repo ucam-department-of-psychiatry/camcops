@@ -61,10 +61,10 @@ require careful multi-instance locking), but to have a "sent" log. That way:
 
   - https://pypi.python.org/pypi/lockfile
   - http://pythonhosted.org/lockfile/ (which also works on Windows)
-  
+
   - On UNIX, ``lockfile`` uses ``LinkLockFile``:
     https://github.com/smontanaro/pylockfile/blob/master/lockfile/linklockfile.py
-  
+
 *MESSAGE QUEUE AND BACKEND*
 
 Thoughts as of 2018-12-22.
@@ -74,20 +74,20 @@ Thoughts as of 2018-12-22.
 
 - The "default" is Celery_, with ``celery beat`` for scheduling, via an
   AMQP_ broker like RabbitMQ_.
-  
+
   - Downside: no longer supported under Windows as of Celery 4.
-  
+
     - There are immediate bugs when running the demo code with Celery 4.2.1,
       fixed by setting the environment variable ``set
       FORKED_BY_MULTIPROCESSING=1`` before running the worker; see
       https://github.com/celery/celery/issues/4178 and
       https://github.com/celery/celery/pull/4078.
-  
+
   - Downside: backend is complex; e.g. Erlang dependency of RabbitMQ.
-  
+
   - Celery also supports Redis_, but Redis_ doesn't support Windows directly
     (except the Windows Subsystem for Linux in Windows 10+).
-  
+
 - Another possibility is Dramatiq_ with APScheduler_.
 
   - Of note, APScheduler_ can use an SQLAlchemy database table as its job
@@ -114,7 +114,7 @@ Thoughts as of 2018-12-22.
 
 - OK; so speed is not critical but we want message reliability, for it to work
   under Windows, and decent Python bindings with job scheduling.
-  
+
   - OUT: Redis (not Windows easily), ZeroMQ (fast but not by default reliable),
     ActiveMQ (few Python frameworks?).
   - REMAINING for message handling: RabbitMQ.
@@ -131,7 +131,7 @@ Thoughts as of 2018-12-22.
   - https://blog.jooq.org/2014/09/26/using-your-rdbms-for-messaging-is-totally-ok/
   - https://stackoverflow.com/questions/13005410/why-do-we-need-message-brokers-like-rabbitmq-over-a-database-like-postgresql
   - https://www.quora.com/What-is-the-best-practice-using-db-tables-or-message-queues-for-moderation-of-content-approved-by-humans
-  
+
 - Let's take a step back and summarize the problem.
 
   - Many web threads may upload tasks. This should trigger a prompt export for
@@ -280,9 +280,9 @@ def export_whole_database(req: "CamcopsRequest",
                           via_index: bool = True) -> None:
     """
     Exports to a database.
-    
+
     Holds a recipient-specific file lock in the process.
-    
+
     Args:
         req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         recipient: an :class:`camcops_server.cc_modules.cc_exportmodels.ExportRecipient`
@@ -326,7 +326,7 @@ def export_tasks_individually(req: "CamcopsRequest",
                               schedule_via_backend: bool = False) -> None:
     """
     Exports all necessary tasks for a recipient.
-    
+
     Args:
         req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         recipient: an :class:`camcops_server.cc_modules.cc_exportmodels.ExportRecipient`
@@ -364,11 +364,11 @@ def export_task(req: "CamcopsRequest",
                 task: Task) -> None:
     """
     Exports a single task, checking that it remains valid to do so.
-    
+
     Args:
         req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         recipient: an :class:`camcops_server.cc_modules.cc_exportmodels.ExportRecipient`
-        task: a :class:`camcops_server.cc_modules.cc_task.Task` 
+        task: a :class:`camcops_server.cc_modules.cc_task.Task`
     """  # noqa
 
     # Double-check it's OK! Just in case, for example, an old backend task has
@@ -475,7 +475,7 @@ def task_collection_to_sqlite_response(req: "CamcopsRequest",
         req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         collection: a :class:`camcops_server.cc_modules.cc_taskcollection.TaskCollection`
         export_options: a :class:`TaskExportOptions` object
-        as_sql_not_binary: provide SQL text, rather than SQLite binary? 
+        as_sql_not_binary: provide SQL text, rather than SQLite binary?
 
     Returns:
         a :class:`pyramid.response.Response` object
@@ -595,7 +595,7 @@ def get_tsv_collection_from_task_collection(
     Args:
         req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         collection: a :class:`camcops_server.cc_modules.cc_taskcollection.TaskCollection`
-        sort_by_heading: sort columns within each page by heading name? 
+        sort_by_heading: sort columns within each page by heading name?
 
     Returns:
         tuple: ``tsv_collection, audit_descriptions`` where ``tsv_collection``
@@ -628,11 +628,11 @@ def task_collection_to_tsv_zip_response(
     """
     Converts a set of tasks to a TSV (tab-separated value) response, as a set
     of TSV files (one per table) in a ZIP file.
-    
+
     Args:
         req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         collection: a :class:`camcops_server.cc_modules.cc_taskcollection.TaskCollection`
-        sort_by_heading: sort columns within each page by heading name? 
+        sort_by_heading: sort columns within each page by heading name?
 
     Returns:
         a :class:`pyramid.response.Response` object
@@ -658,7 +658,7 @@ def task_collection_to_xlsx_response(
     Args:
         req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         collection: a :class:`camcops_server.cc_modules.cc_taskcollection.TaskCollection`
-        sort_by_heading: sort columns within each page by heading name? 
+        sort_by_heading: sort columns within each page by heading name?
 
     Returns:
         a :class:`pyramid.response.Response` object
@@ -684,7 +684,7 @@ def task_collection_to_ods_response(
     Args:
         req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         collection: a :class:`camcops_server.cc_modules.cc_taskcollection.TaskCollection`
-        sort_by_heading: sort columns within each page by heading name? 
+        sort_by_heading: sort columns within each page by heading name?
 
     Returns:
         a :class:`pyramid.response.Response` object

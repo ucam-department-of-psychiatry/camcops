@@ -338,3 +338,16 @@ class Phq9(TaskHasPatientMixin, Task,
             codes.append(SnomedExpression(scale, {score: self.total_score()}))
             codes.append(SnomedExpression(procedure_result))
         return codes
+
+    def get_redcap_fields(self, req: CamcopsRequest) -> Dict:
+        prefix = "phq_9"
+
+        record = {}
+
+        for i in range(1, self.N_MAIN_QUESTIONS + 1):
+            record[f"{prefix}_{i}"] = getattr(self, "q{i}")
+
+        record["{prefix}_how_difficult"] = self.q10
+        record["{prefix}_total_score"] = self.total_score
+
+        return record

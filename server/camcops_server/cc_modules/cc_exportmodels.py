@@ -83,6 +83,7 @@ from camcops_server.cc_modules.cc_hl7 import (
     msg_is_successful_ack,
     SEGMENT_SEPARATOR,
 )
+from camcops_server.cc_modules.cc_redcap import RedcapExporter
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     LongText,
     TableNameColType,
@@ -392,6 +393,14 @@ class ExportedTask(Base):
                 ehl7.export_task(req)
             else:
                 self.abort("Task not valid for HL7 export")
+
+        elif transmission_method == ExportTransmissionMethod.REDCAP:
+            eredcap = ExportedTaskRedcap(self)
+            if eredcap.valid():
+                dbsession.add(eredcap)
+                eredcap.export_task(req)
+            else:
+                self.abort("Task not valid for REDCap export")
 
         else:
             raise AssertionError("Bug: bad transmission_method")
@@ -1094,3 +1103,62 @@ class ExportedTaskEmail(Base):
             exported_task.succeed()
         else:
             exported_task.abort("Failed to send e-mail")
+
+
+class ExportedTaskRedcap(Base):
+    """
+    Represents an individual REDCap export.
+    """
+    __tablename__ = "_exported_task_redcap"
+
+    id = Column(
+        "id", BigInteger, primary_key=True, autoincrement=True,
+        comment="Arbitrary primary key"
+    )
+    exported_task_id = Column(
+        "exported_task_id", BigInteger, ForeignKey(ExportedTask.id),
+        nullable=False,
+        comment="FK to {}.{}".format(ExportedTask.__tablename__,
+                                     ExportedTask.id.name)
+    )
+
+    exported_task = relationship(ExportedTask)
+
+    redcap_record_id = Column(
+        "redcap_record_id", BigInteger,
+        comment="REDCap record ID"
+    )
+
+    def __init__(self, exported_task: ExportedTask = None) -> None:
+        """
+        Args:
+            exported_task: :class:`ExportedTask` object
+        """
+        self.exported_task = exported_task
+
+    def valid(self) -> bool:
+        """
+        Checks for internal validity; returns a bool.
+        """
+        exported_task = self.exported_task
+        task = exported_task.task
+        recipient = exported_task.recipient
+        return self.task_acceptable(recipient, task)
+
+    @staticmethod
+    def task_acceptable(recipient: ExportRecipient,
+                        task: "Task") -> bool:
+        return hasattr(task, "get_redcap_fields")
+
+    def export_task(self, req: "CamcopsRequest") -> None:
+        exported_task = self.exported_task
+        recipient = exported_task.recipient
+
+        exporter = RedcapExporter(
+            req,
+            recipient.redcap_api_url,
+            recipient.redcap_api_key
+        )
+        exporter.export_task(exported_task)
+
+        exported_task.succeed()

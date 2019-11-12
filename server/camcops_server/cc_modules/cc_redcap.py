@@ -153,3 +153,46 @@ camcops_server/cc_modules/cc_redcap.py
     new task to it.
 
 """
+
+import redcap
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
+    from camcops_server.cc_modules.cc_exportmodels import ExportedTask
+    from camcops_server.cc_modules.cc_request import CamcopsRequest
+
+
+class RedcapExporter(object):
+    def __init__(self,
+                 req: "CamcopsRequest",
+                 api_url: str,
+                 api_key: str) -> None:
+        self.req = req
+        self.project = redcap.project.Project(api_url, api_key)
+
+    def export_task(self, exported_task: "ExportedTask") -> None:
+        task = exported_task.task
+
+        # TODO: Get any associated REDCap record ID?
+
+        data = [
+            {
+                'record_id': 1,  # We have to put something in here
+            }
+        ]
+
+        data.update(task.get_redcap_fields(self.req))
+
+        import_kwargs = {
+            'return_content': 'auto_ids',
+            'force_auto_number': True,
+        }
+
+        # TODO: Catch RedcapError
+        # Returns redcap_id, 1
+        ids = self.project.import_records(data, **import_kwargs)[0]
+
+        exported_task.redcap_record_id = ids.split(',')[0]
+
+        # TODO: Return some sort of meaningful status

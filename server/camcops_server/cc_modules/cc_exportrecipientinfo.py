@@ -50,6 +50,7 @@ from cardinal_pythonlib.datetimefunc import (
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.reprfunc import simple_repr
 
+from camcops_server.cc_modules.cc_constants import ConfigParamExportRecipient
 from camcops_server.cc_modules.cc_filename import (
     filename_spec_is_valid,
     FileType,
@@ -83,8 +84,9 @@ class ExportTransmissionMethod(object):
     """
     DATABASE = "database"
     EMAIL = "email"
-    HL7 = "hl7"
     FILE = "file"
+    HL7 = "hl7"
+    REDCAP = "redcap"
 
 
 ALL_TRANSMISSION_METHODS = [
@@ -93,70 +95,6 @@ ALL_TRANSMISSION_METHODS = [
 ]  # ... the values of all the relevant attributes
 
 ALL_TASK_FORMATS = [FileType.HTML, FileType.PDF, FileType.XML]
-
-
-class ConfigParamExportRecipient(object):
-    """
-    Possible configuration file parameters that relate to "export recipient"
-    definitions.
-    """
-    ALL_GROUPS = "ALL_GROUPS"
-    DB_ADD_SUMMARIES = "DB_ADD_SUMMARIES"
-    DB_ECHO = "DB_ECHO"
-    DB_INCLUDE_BLOBS = "DB_INCLUDE_BLOBS"
-    DB_PATIENT_ID_PER_ROW = "DB_PATIENT_ID_PER_ROW"
-    DB_URL = "DB_URL"
-    EMAIL_BCC = "EMAIL_BCC"
-    EMAIL_BODY = "EMAIL_BODY"
-    EMAIL_BODY_IS_HTML = "EMAIL_BODY_IS_HTML"
-    EMAIL_CC = "EMAIL_CC"
-    EMAIL_FROM = "EMAIL_FROM"
-    EMAIL_HOST = "EMAIL_HOST"
-    EMAIL_HOST_PASSWORD = "EMAIL_HOST_PASSWORD"
-    EMAIL_HOST_USERNAME = "EMAIL_HOST_USERNAME"
-    EMAIL_KEEP_MESSAGE = "EMAIL_KEEP_MESSAGE"
-    EMAIL_PORT = "EMAIL_PORT"
-    EMAIL_RECIPIENTS = "EMAIL_RECIPIENTS"
-    EMAIL_REPLY_TO = "EMAIL_REPLY_TO"
-    EMAIL_SENDER = "EMAIL_SENDER"
-    EMAIL_PATIENT_SPEC = "EMAIL_PATIENT_SPEC"
-    EMAIL_PATIENT_SPEC_IF_ANONYMOUS = "EMAIL_PATIENT_SPEC_IF_ANONYMOUS"
-    EMAIL_SUBJECT = "EMAIL_SUBJECT"
-    EMAIL_TIMEOUT = "EMAIL_TIMEOUT"
-    EMAIL_TO = "EMAIL_TO"
-    EMAIL_USE_TLS = "EMAIL_USE_TLS"
-    END_DATETIME_UTC = "END_DATETIME_UTC"
-    FILE_EXPORT_RIO_METADATA = "FILE_EXPORT_RIO_METADATA"
-    FILE_FILENAME_SPEC = "FILE_FILENAME_SPEC"
-    FILE_MAKE_DIRECTORY = "FILE_MAKE_DIRECTORY"
-    FILE_OVERWRITE_FILES = "FILE_OVERWRITE_FILES"
-    FILE_PATIENT_SPEC = "FILE_PATIENT_SPEC"
-    FILE_PATIENT_SPEC_IF_ANONYMOUS = "FILE_PATIENT_SPEC_IF_ANONYMOUS"
-    FILE_SCRIPT_AFTER_EXPORT = "FILE_SCRIPT_AFTER_EXPORT"
-    FINALIZED_ONLY = "FINALIZED_ONLY"
-    GROUPS = "GROUPS"
-    HL7_DEBUG_DIVERT_TO_FILE = "HL7_DEBUG_DIVERT_TO_FILE"
-    HL7_DEBUG_TREAT_DIVERTED_AS_SENT = "HL7_DEBUG_TREAT_DIVERTED_AS_SENT"
-    HL7_HOST = "HL7_HOST"
-    HL7_KEEP_MESSAGE = "HL7_KEEP_MESSAGE"
-    HL7_KEEP_REPLY = "HL7_KEEP_REPLY"
-    HL7_NETWORK_TIMEOUT_MS = "HL7_NETWORK_TIMEOUT_MS"
-    HL7_PING_FIRST = "HL7_PING_FIRST"
-    HL7_PORT = "HL7_PORT"
-    IDNUM_AA_PREFIX = "IDNUM_AA_"  # unusual; prefix not parameter
-    IDNUM_TYPE_PREFIX = "IDNUM_TYPE_"  # unusual; prefix not parameter
-    INCLUDE_ANONYMOUS = "INCLUDE_ANONYMOUS"
-    PRIMARY_IDNUM = "PRIMARY_IDNUM"
-    PUSH = "PUSH"
-    REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY = "REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY"  # noqa
-    RIO_DOCUMENT_TYPE = "RIO_DOCUMENT_TYPE"
-    RIO_IDNUM = "RIO_IDNUM"
-    RIO_UPLOADING_USER = "RIO_UPLOADING_USER"
-    START_DATETIME_UTC = "START_DATETIME_UTC"
-    TASK_FORMAT = "TASK_FORMAT"
-    TASKS = "TASKS"
-    TRANSMISSION_METHOD = "TRANSMISSION_METHOD"
-    XML_FIELD_COMMENTS = "XML_FIELD_COMMENTS"
 
 
 class InvalidExportRecipient(ValueError):
@@ -281,6 +219,10 @@ class ExportRecipientInfo(object):
         self.rio_idnum = None  # type: Optional[int]
         self.rio_uploading_user = ""
         self.rio_document_type = ""
+
+        # REDCap
+        self.redcap_api_key = ""
+        self.redcap_api_url = ""
 
         # Copy from other?
         if other is not None:
@@ -518,6 +460,10 @@ class ExportRecipientInfo(object):
             r.rio_idnum = _get_int(cpr.RIO_IDNUM)
             r.rio_uploading_user = _get_str(cpr.RIO_UPLOADING_USER)
             r.rio_document_type = _get_str(cpr.RIO_DOCUMENT_TYPE)
+
+        if r.transmission_method == ExportTransmissionMethod.REDCAP:
+            r.redcap_api_url = _get_str(cpr.REDCAP_API_URL)
+            r.redcap_api_key = _get_str(cpr.REDCAP_API_KEY)
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Validate the basics and return

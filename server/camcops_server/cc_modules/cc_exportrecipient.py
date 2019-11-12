@@ -98,6 +98,8 @@ class ExportRecipient(ExportRecipientInfo, Base):
     ]
     NEEDS_RECOPYING_EACH_TIME_FROM_CONFIG_ATTRNAMES = [
         "email_host_password",
+        "redcap_api_key",
+        "redcap_api_url",
     ]
 
     # -------------------------------------------------------------------------
@@ -360,6 +362,10 @@ class ExportRecipient(ExportRecipientInfo, Base):
         comment="(FILE / RiO) RiO metadata: document type for RiO"
     )
 
+    # -------------------------------------------------------------------------
+    # REDCap export
+    # -------------------------------------------------------------------------
+
     def __init__(self, *args, **kwargs) -> None:
         """
         Creates a blank :class:`ExportRecipient` object.
@@ -385,6 +391,8 @@ class ExportRecipient(ExportRecipientInfo, Base):
         # Python only:
         self.group_names = []  # type: List[str]
         self.email_host_password = ""
+        self.redcap_api_key = ""
+        self.redcap_api_url = ""
 
     def get_attrnames(self) -> List[str]:
         """

@@ -110,7 +110,7 @@ INSTALL_REQUIRES = [
     'pexpect==4.6.0',  # for open_sqlcipher.py
     'pdfkit==0.6.1',  # wkhtmltopdf interface, for PDF generation from HTML
     'py-bcrypt==0.4',  # Used by rnc_crypto; for bcrypt; now works under Windows too  # noqa
-    'PyCap==1.0.2',  # REDCap integration. Pip freeze reports as version 0.0.0?
+    # REDCap integration. Pip freeze reports as version 0.0.0?
     'Pygments==2.3.1',  # Syntax highlighting for introspection/DDL
 
     'PyMySQL==0.7.1',
@@ -136,6 +136,9 @@ INSTALL_REQUIRES = [
     'Wand==0.4.4',  # ImageMagick binding
 ]
 
+DEPENDENCY_LINKS = [
+    'git+git://github.com/martinburchell/PyCap.git@f44c9b62a4f62675aa609c06608663f37e12097e#egg=PyCap',  # noqa
+]
 
 # =============================================================================
 # Helper functions
@@ -389,7 +392,7 @@ setup(
     include_package_data=True,  # use MANIFEST.in during install?
 
     install_requires=INSTALL_REQUIRES,
-
+    dependency_links=DEPENDENCY_LINKS,
     entry_points={
         'console_scripts': [
             # Format is 'script=module:function".
