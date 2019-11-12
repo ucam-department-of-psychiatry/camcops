@@ -110,6 +110,7 @@ INSTALL_REQUIRES = [
     'pexpect==4.6.0',  # for open_sqlcipher.py
     'pdfkit==0.6.1',  # wkhtmltopdf interface, for PDF generation from HTML
     'py-bcrypt==0.4',  # Used by rnc_crypto; for bcrypt; now works under Windows too  # noqa
+    'PyCap==1.0.2',  # REDCap integration. Pip freeze reports as version 0.0.0?
     'Pygments==2.3.1',  # Syntax highlighting for introspection/DDL
 
     'PyMySQL==0.7.1',
