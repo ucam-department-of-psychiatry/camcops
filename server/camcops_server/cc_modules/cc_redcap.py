@@ -175,13 +175,12 @@ class RedcapExporter(object):
 
         # TODO: Get any associated REDCap record ID?
 
-        data = [
-            {
-                'record_id': 1,  # We have to put something in here
-            }
-        ]
+        record = {
+            'record_id': 1,  # We have to put something in here
+        }
+        record.update(task.get_redcap_fields(self.req))
 
-        data.update(task.get_redcap_fields(self.req))
+        data = [record]
 
         import_kwargs = {
             'return_content': 'auto_ids',

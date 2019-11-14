@@ -340,14 +340,16 @@ class Phq9(TaskHasPatientMixin, Task,
         return codes
 
     def get_redcap_fields(self, req: CamcopsRequest) -> Dict:
-        prefix = "phq_9"
+        prefix = "phq9"
 
-        record = {}
+        record = {
+            "redcap_repeat_instrument": "patient_health_questionnaire_9",
+        }
 
         for i in range(1, self.N_MAIN_QUESTIONS + 1):
-            record[f"{prefix}_{i}"] = getattr(self, "q{i}")
+            record[f"{prefix}_{i}"] = getattr(self, f"q{i}")
 
-        record["{prefix}_how_difficult"] = self.q10
-        record["{prefix}_total_score"] = self.total_score
+        record[f"{prefix}_how_difficult"] = self.q10
+        record[f"{prefix}_total_score"] = self.total_score()
 
         return record
