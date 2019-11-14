@@ -176,6 +176,13 @@ def _downgrade_database_to_revision(
         confirm_downgrade_db=confirm_downgrade_db)
 
 
+def _add_dummy_data(cfg: "CamcopsConfig",
+                    confirm_add_dummy_data: bool = False) -> None:
+    from camcops_server.cc_modules.cc_dummy_database import add_dummy_data  # delayed import; import side effects  # noqa
+    add_dummy_data(cfg, confirm_add_dummy_data=confirm_add_dummy_data)
+    _reindex(cfg)
+
+
 def _create_database_from_scratch(cfg: "CamcopsConfig") -> None:
     # noinspection PyUnresolvedReferences
     import camcops_server.camcops_server_core  # delayed import; import side effects  # noqa
@@ -655,6 +662,24 @@ def camcops_main() -> None:
             revision=args.destination_db_revision,
             show_sql_only=args.show_sql_only,
             confirm_downgrade_db=args.confirm_downgrade_db,
+        )
+    )
+
+    # Developer: create dummy database
+    dummy_database_parser = add_sub(
+        subparsers, "dev_add_dummy_data", config_mandatory=True,
+        help="(DEVELOPER OPTION ONLY.) Populates the database with "
+        "a set of dummy patients and tasks for testing."
+    )
+
+    dummy_database_parser.add_argument(
+        '--confirm_add_dummy_data', action="store_true",
+        help="Must specify this too, as a safety measure")
+
+    dummy_database_parser.set_defaults(
+        func=lambda args: _add_dummy_data(
+            cfg=get_default_config_from_os_env(),
+            confirm_add_dummy_data=args.confirm_add_dummy_data,
         )
     )
 
