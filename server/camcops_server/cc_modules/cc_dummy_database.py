@@ -41,6 +41,7 @@ import pendulum
 from sqlalchemy.orm.session import sessionmaker
 from sqlalchemy.sql.expression import func
 from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import DateFormat
 from camcops_server.cc_modules.cc_device import Device
@@ -89,7 +90,7 @@ class DummyDataFactory(object):
         self.user = User.get_system_user(self.dbsession)
         self.user.upload_group_id = self.group.id
 
-        self.era_time = pendulum.parse("2010-07-07T13:40+0100")
+        self.era_time = pendulum.now()
         self.era_time_utc = convert_datetime_to_utc(self.era_time)
         self.era = format_datetime(self.era_time, DateFormat.ISO8601)
         self.server_device = Device.get_server_device(self.dbsession)
@@ -101,7 +102,7 @@ class DummyDataFactory(object):
 
         next_id = self.next_id(Patient.id)
         random.seed(next_id)
-        for patient_id in range(next_id, next_id + 100):
+        for patient_id in range(next_id, next_id + 5):
             self.add_patient(patient_id)
             self.add_tasks(patient_id)
 
@@ -142,8 +143,57 @@ class DummyDataFactory(object):
             if task.has_patient:
                 task.patient_id = patient_id
 
+            self.fill_in_task_fields(task)
+
             self.dbsession.add(task)
             self.dbsession.commit()
+
+    def fill_in_task_fields(self, task: "Task"):
+        for column in task.__table__.columns:
+            if not self.column_is_q_field(column):
+                continue
+
+            if isinstance(column.type, Integer):
+                self.set_integer_field(task, column)
+
+    def set_integer_field(self, task: "Task", column: Column):
+        setattr(task, column.name, self.get_valid_integer_for_field(column))
+
+    def get_valid_integer_for_field(self, column: Column):
+        min_value = 0
+        max_value = 1000000
+
+        value_checker = getattr(column, "permitted_value_checker", None)
+
+        if value_checker is not None:
+            if value_checker.permitted_values is not None:
+                return random.choice(value_checker.permitted_values)
+
+            if value_checker.minimum is not None:
+                min_value = value_checker.minimum
+
+            if value_checker.maximum is not None:
+                max_value = value_checker.maximum
+
+        return random.randint(min_value, max_value)
+
+    def column_is_q_field(self, column: Column):
+        if column.name.startswith("_"):
+            return False
+
+        if column.name in [
+            'editing_time_s',
+            'firstexit_is_abort',
+            'firstexit_is_finish',
+            'id',
+            'patient_id',
+            'when_created',
+            'when_firstexit',
+            'when_last_modified',
+        ]:
+            return False
+
+        return True
 
     def next_id(self, column: Column):
         max_id = self.dbsession.query(func.max(column)).scalar()
