@@ -158,7 +158,6 @@ import redcap
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
     from camcops_server.cc_modules.cc_exportmodels import ExportedTask
     from camcops_server.cc_modules.cc_request import CamcopsRequest
 
