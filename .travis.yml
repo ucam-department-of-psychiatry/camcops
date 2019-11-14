@@ -1,0 +1,11 @@
+language: python
+python:
+    - "3.6"
+
+before_install:
+    cd server
+
+install:
+    pip install -e .
+    pip install safety
+    safety check
