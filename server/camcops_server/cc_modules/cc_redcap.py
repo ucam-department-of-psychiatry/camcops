@@ -176,7 +176,7 @@ class RedcapExporter(object):
         # TODO: Get any associated REDCap record ID?
 
         record = {
-            'record_id': 1,  # We have to put something in here
+            'record_id': 1,  # ignored but we have to put something in here
         }
         record.update(task.get_redcap_fields(self.req))
 
