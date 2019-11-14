@@ -1055,6 +1055,8 @@ command used by ``camcops_server launch_workers``, after ``celery worker --app
 camcops_server --loglevel <LOGLEVEL>``.
 
 
+.. _EXPORT_LOCKDIR:
+
 EXPORT_LOCKDIR
 ##############
 
@@ -1071,6 +1073,10 @@ CamCOPS must have permissions to create files in this directory.
 Under Linux, the CamCOPS installation script will create a lock directory for
 you. The demonstration config file will show you where this is likely to be on
 your system.
+
+When the server starts, it will attempt to create this directory if it doesn't
+already exist (helpful if e.g. the directory is within a temporary directory
+such as ``/var/lock`` under Linux that is deleted on reboot).
 
 
 List of export recipients

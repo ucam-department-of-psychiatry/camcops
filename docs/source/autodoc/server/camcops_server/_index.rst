@@ -370,3 +370,4 @@ server/camcops_server
     tasks_discarded/lunsers.py.rst
     tasks_discarded/madrs.py.rst
     tasks_discarded/sas.py.rst
+    tools/print_latest_github_version.py.rst

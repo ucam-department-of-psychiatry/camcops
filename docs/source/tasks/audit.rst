@@ -28,6 +28,7 @@ Alcohol Use Disorders Identification Test (AUDIT)
 
 (The AUDIT-C is part of FROM-LP.)
 
+
 History and guide
 ~~~~~~~~~~~~~~~~~
 
@@ -56,10 +57,12 @@ AUDIT-C:
 
 - http://www.integration.samhsa.gov/images/res/tool_auditc.pdf
 
+
 Sources
 ~~~~~~~
 
 - http://whqlibdoc.who.int/hq/2001/who_msd_msb_01.6a.pdf
+
 
 Intellectual property rights
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -75,6 +78,7 @@ conjunction with commercial purposes.”
 “AUDIT-C is available for use in the public domain”;
 http://www.integration.samhsa.gov/images/res/tool_auditc.pdf, accessed
 2015-06-04.
+
 
 .. _audit_c:
 

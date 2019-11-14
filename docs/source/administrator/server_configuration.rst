@@ -159,9 +159,12 @@ Under Linux, we follow the `Filesystem Hierarchy Standard`_.
       - Web server user only
 
     * - ``/var/lock``
-      - Lock files
-      - ?No longer in use?
-      -
+      - Lock files, e.g. for export
+      - Note: ``/var/lock`` may be autodeleted on reboot; Linux distributions
+        may link this to ``/run/lock`` and mount this in a temporary filesystem
+        (``tmpfs``). CamCOPS will recreate directories used for lock files; see
+        :ref:`EXPORT_LOCKDIR <EXPORT_LOCKDIR>`.
+      - ``/var/lock/camcops/``
       - Web server user only
 
     * - ``/var/log``
@@ -169,8 +172,6 @@ Under Linux, we follow the `Filesystem Hierarchy Standard`_.
       - Log files, via Supervisor_.
       - ``/var/log/supervisor/camcops_*.log``
       - Root only
-
-.. todo:: check /var/lock -- no longer in use?
 
 For information, these directories are used (or not used, but worthy of
 comment!) by CamCOPS during installation:
