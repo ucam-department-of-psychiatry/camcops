@@ -33,8 +33,10 @@ from collections import OrderedDict
 import csv
 import io
 import logging
+import os
+import random
 import re
-from typing import Any, Dict, Iterable, List, Optional, Union
+from typing import Any, BinaryIO, Dict, Iterable, List, Optional, Union
 from unittest import TestCase
 import zipfile
 
@@ -43,11 +45,25 @@ from cardinal_pythonlib.excel import (
     excel_to_bytes,
 )
 from cardinal_pythonlib.logs import BraceStyleAdapter
-from odswriter import ODSWriter, Sheet as ODSSheet
-from openpyxl import load_workbook
-from openpyxl.workbook.workbook import Workbook as XLWorkbook
-from openpyxl.worksheet.worksheet import Worksheet as XLWorksheet
-# from pyexcel_ods3 import save_data  # poor; use odswriter
+
+ODS_VIA_PYEXCEL = True  # significantly faster
+XLSX_VIA_PYEXCEL = True
+
+if ODS_VIA_PYEXCEL:
+    import pyexcel_ods3  # e.g. pip install pyexcel-ods3==0.5.3
+    ODSWriter = ODSSheet = None
+else:
+    from odswriter import ODSWriter, Sheet as ODSSheet
+    pyexcel_ods3 = None
+
+if XLSX_VIA_PYEXCEL:
+    import pyexcel_xlsx  # e.g. pip install pyexcel-xlsx==0.5.7
+    openpyxl = XLWorkbook = XLWorksheet = None
+else:
+    import openpyxl
+    from openpyxl.workbook.workbook import Workbook as XLWorkbook
+    from openpyxl.worksheet.worksheet import Worksheet as XLWorksheet
+    pyexcel_xlsx = None
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -204,18 +220,18 @@ class TsvPage(object):
             writer.writerow([row.get(h) for h in self.headings])
         return f.getvalue()
 
-    def write_to_xlsx_worksheet(self, ws: XLWorksheet) -> None:
+    def write_to_openpyxl_xlsx_worksheet(self, ws: "XLWorksheet") -> None:
         """
-        Writes data from this page to an existing XLSX worksheet.
+        Writes data from this page to an existing ``openpyxl`` XLSX worksheet.
         """
         ws.append(self.headings)
         for row in self.rows:
             ws.append([convert_for_openpyxl(row.get(h))
                        for h in self.headings])
 
-    def write_to_ods_worksheet(self, ws: ODSSheet) -> None:
+    def write_to_odswriter_ods_worksheet(self, ws: "ODSSheet") -> None:
         """
-        Writes data from this page to an existing ODS sheet.
+        Writes data from this page to an existing ``odswriter`` ODS sheet.
         """
         ws.writerow(self.headings)
         for row in self.rows:
@@ -298,6 +314,27 @@ class TsvCollection(object):
         assert page is not None, f"No such page with name {page_name}"
         return page.get_tsv()
 
+    def write_zip(self, file: Union[str, BinaryIO],
+                  encoding: str = "utf-8") -> None:
+        """
+        Writes data to a file, as a ZIP file of TSV files.
+
+        Args:
+            file: filename or file-like object
+            encoding: encoding to use when writing the TSV files
+        """
+        if isinstance(file, str):  # it's a filename
+            with open(file, "wb") as binaryfile:
+                return self.write_zip(binaryfile, encoding)  # recurse once
+        with zipfile.ZipFile(file, "w") as z:
+            # Write to ZIP.
+            # If there are no valid task instances, there'll be no TSV;
+            # that's OK.
+            for filename_stem in self.get_page_names():
+                tsv_filename = filename_stem + ".tsv"
+                tsv_contents = self.get_tsv_file(page_name=filename_stem)
+                z.writestr(tsv_filename, tsv_contents.encode(encoding))
+
     def as_zip(self, encoding: str = "utf-8") -> bytes:
         """
         Returns the TSV collection as a ZIP file containing TSV files.
@@ -306,39 +343,58 @@ class TsvCollection(object):
             encoding: encoding to use when writing the TSV files
         """
         with io.BytesIO() as memfile:
-            with zipfile.ZipFile(memfile, "w") as z:
-                # Write to ZIP.
-                # If there are no valid task instances, there'll be no TSV;
-                # that's OK.
-                for filename_stem in self.get_page_names():
-                    tsv_filename = filename_stem + ".tsv"
-                    tsv_contents = self.get_tsv_file(page_name=filename_stem)
-                    z.writestr(tsv_filename, tsv_contents.encode(encoding))
+            self.write_zip(memfile, encoding)
             zip_contents = memfile.getvalue()
         return zip_contents
+
+    def write_xlsx(self, file: Union[str, BinaryIO]) -> None:
+        """
+        Write the contents in XLSX (Excel) format to a file.
+
+        Args:
+            file: filename or file-like object
+        """
+        if XLSX_VIA_PYEXCEL:  # use pyexcel_xlsx
+            data = self._get_pyexcel_data()
+            pyexcel_xlsx.save_data(file, data)
+        else:  # use openpyxl
+            if isinstance(file, str):  # it's a filename
+                with open(file, "wb") as binaryfile:
+                    return self.write_xlsx(binaryfile)  # recurse once
+            file.write(self.as_xlsx())
 
     def as_xlsx(self) -> bytes:
         """
         Returns the TSV collection as an XLSX (Excel) file.
         """
-        # Marginal performance gain with write_only. Does not automatically
-        # add a blank sheet
-        wb = XLWorkbook(write_only=True)
+        if XLSX_VIA_PYEXCEL:  # use pyexcel_xlsx
+            with io.BytesIO() as memfile:
+                self.write_xlsx(memfile)
+                contents = memfile.getvalue()
+            return contents
+        else:  # use openpyxl
+            # Marginal performance gain with write_only. Does not automatically
+            # add a blank sheet
+            wb = XLWorkbook(write_only=True)
 
-        valid_name_dict = self.get_pages_with_valid_sheet_names()
-        for page, title in valid_name_dict.items():
-            ws = wb.create_sheet(title=title)
-            page.write_to_xlsx_worksheet(ws)
+            valid_name_dict = self.get_pages_with_valid_sheet_names()
+            for page, title in valid_name_dict.items():
+                ws = wb.create_sheet(title=title)
+                page.write_to_openpyxl_xlsx_worksheet(ws)
 
-        return excel_to_bytes(wb)
+            return excel_to_bytes(wb)
 
     @staticmethod
     def get_sheet_title(page: TsvPage) -> str:
-        # See openpyxl/workbook/child.py
+        r"""
+        Returns a worksheet name for a :class:`TsvPage`.
 
-        # Excel prohibits \,*,?,:,/,[,]
-        # LibreOffice also prohibits ' as first or last character but let's
-        # just replace that globally
+        See ``openpyxl/workbook/child.py``.
+
+        - Excel prohibits ``\``, ``*``, ``?``, ``:``, ``/``, ``[``, ``]``
+        - LibreOffice also prohibits ``'`` as first or last character but let's
+          just replace that globally.
+        """
         title = re.sub(r"[\\*?:/\[\]']", "_", page.name)
 
         if len(title) > 31:
@@ -346,22 +402,53 @@ class TsvCollection(object):
 
         return title
 
+    def _get_pyexcel_data(self) -> Dict[str, List[List[Any]]]:
+        """
+        Returns data in the format expected by ``pyexcel``, which is an ordered
+        dictionary mapping sheet names to a list of rows, where each row is a
+        list of cell values.
+        """
+        data = OrderedDict()
+        for page in self.pages:
+            data[self.get_sheet_title(page)] = page.plainrows
+        return data
+
+    def write_ods(self, file: Union[str, BinaryIO]) -> None:
+        """
+        Writes an ODS (OpenOffice spreadsheet document) to a file.
+
+        Args:
+            file: filename or file-like object
+        """
+        if ODS_VIA_PYEXCEL:  # use pyexcel_ods3
+            data = self._get_pyexcel_data()
+            pyexcel_ods3.save_data(file, data)
+        else:  # use odswriter
+            if isinstance(file, str):  # it's a filename
+                with open(file, "wb") as binaryfile:
+                    return self.write_ods(binaryfile)  # recurse once
+            with ODSWriter(file) as odsfile:
+                valid_name_dict = self.get_pages_with_valid_sheet_names()
+                for page, title in valid_name_dict.items():
+                    sheet = odsfile.new_sheet(name=title)
+                    page.write_to_odswriter_ods_worksheet(sheet)
+
     def as_ods(self) -> bytes:
         """
         Returns the TSV collection as an ODS (OpenOffice spreadsheet document)
         file.
         """
         with io.BytesIO() as memfile:
-            with ODSWriter(memfile) as odsfile:
-                valid_name_dict = self.get_pages_with_valid_sheet_names()
-                for page, title in valid_name_dict.items():
-                    sheet = odsfile.new_sheet(name=title)
-                    page.write_to_ods_worksheet(sheet)
+            self.write_ods(memfile)
             contents = memfile.getvalue()
         return contents
 
     def get_pages_with_valid_sheet_names(self) -> Dict[TsvPage, str]:
-        name_dict = {}
+        """
+        Returns an ordered mapping from :class:`TsvPage` objects to their
+        sheet names.
+        """
+        name_dict = OrderedDict()
 
         for page in self.pages:
             name_dict[page] = self.get_sheet_title(page)
@@ -372,10 +459,15 @@ class TsvCollection(object):
 
     @staticmethod
     def make_sheet_names_unique(name_dict: Dict[TsvPage, str]) -> None:
-        # See also avoid_duplicate_name in openpxl/workbook/child.py
-        # We keep the 31 character restriction
+        """
+        Modifies (in place) a mapping from :class:`TsvPage` to worksheet names,
+        such that all page names are unique.
 
-        unique_names = []
+        - See also :func:`avoid_duplicate_name` in
+          ``openpxl/workbook/child.py``
+        - We keep the 31 character restriction
+        """
+        unique_names = []  # type: List[str]
 
         for page, name in name_dict.items():
             attempt = 0
@@ -433,7 +525,7 @@ class TsvCollectionTests(TestCase):
 
         data = coll.as_xlsx()
         buffer = io.BytesIO(data)
-        wb = load_workbook(buffer)
+        wb = openpyxl.load_workbook(buffer)
         self.assertEqual(
             wb.sheetnames,
             [
@@ -507,3 +599,72 @@ class TsvCollectionTests(TestCase):
         self.assertIn("abcdefghijklmnopqrstuvwxyz78...", names)
         self.assertIn("ABCDEFGHIJKLMNOPQRSTUVWXYZ78..1", names)
         self.assertIn("abcdefghijklmnopqrstuvwxyz78..2", names)
+
+
+def _make_benchmarking_collection(nsheets: int = 100,
+                                  nrows: int = 200,
+                                  ncols: int = 30,
+                                  mindata: int = 0,
+                                  maxdata: int = 1000000) -> TsvCollection:
+    log.info(f"Creating TsvCollection with nsheets={nsheets}, nrows={nrows}, "
+             f"ncols={ncols}...")
+    coll = TsvCollection()
+    for sheetnum in range(1, nsheets + 1):
+        rows = [
+            {
+                f"c{colnum}": str(random.randint(mindata, maxdata))
+                for colnum in range(1, ncols + 1)
+            } for _ in range(1, nrows + 1)
+        ]
+        page = TsvPage(name=f"sheet{sheetnum}", rows=rows)
+        coll.add_page(page)
+    log.info("... done.")
+    return coll
+
+
+def file_size(filename: str) -> int:
+    """
+    Returns a file's size in bytes.
+    """
+    return os.stat(filename).st_size
+
+
+def benchmark_save(xlsx_filename: str = "test.xlsx",
+                   ods_filename: str = "test.ods",
+                   tsv_zip_filename: str = "test.zip") -> None:
+    """
+    Use with:
+
+    .. code-block:: python
+
+        from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
+        from camcops_server.cc_modules.cc_tsv import benchmark_save
+        main_only_quicksetup_rootlogger()
+        benchmark_save()
+
+    Args:
+        xlsx_filename: XLSX file to create
+        ods_filename: ODS file to create
+        tsv_zip_filename: TSV ZIP file to create
+
+    Problem in Nov 2019 is that ODS is extremely slow. Rough timings:
+
+    - TSV ZIP: about 4.1 Mb, about 0.2 s. Good.
+    - XLSX (via openpyxl): about 4.6 Mb, 16 seconds.
+    - XLSX (via pyexcel_xlsx): about 4.6 Mb, 16 seconds.
+    - ODS (via odswriter): about 53 Mb, 56 seconds.
+    - ODS (via pyexcel_ods3): about 2.8 Mb, 29 seconds.
+    """
+    coll = _make_benchmarking_collection()
+
+    log.info("Writing TSV ZIP...")
+    coll.write_zip(tsv_zip_filename)
+    log.info(f"... done. File size {file_size(tsv_zip_filename)}")
+
+    log.info("Writing XLSX...")
+    coll.write_xlsx(xlsx_filename)
+    log.info(f"... done. File size {file_size(xlsx_filename)}")
+
+    log.info("Writing ODS...")
+    coll.write_ods(ods_filename)
+    log.info(f"... done. File size {file_size(ods_filename)}")
