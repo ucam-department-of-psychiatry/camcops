@@ -12,5 +12,5 @@ install:
 script:
     - pip check
     - safety check
-    - flake8 --config=../setup.cfg
+    - flake8 --config=../setup.cfg camcops_server
     - camcops_server self_test
