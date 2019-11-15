@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CamCOPS 2.3.3\n"
 "Report-Msgid-Bugs-To: rudolf@pobox.com\n"
-"POT-Creation-Date: 2019-11-15 21:33+0000\n"
-"PO-Revision-Date: 2019-11-15 21:33+0000\n"
+"POT-Creation-Date: 2019-11-15 21:45+0000\n"
+"PO-Revision-Date: 2019-11-15 21:45+0000\n"
 "Last-Translator: \n"
 "Language: da_DK\n"
 "Language-Team: da_DK <LL@li.org>\n"
@@ -64,7 +64,7 @@ msgstr "Indtast venligst følgende: "
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:343
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:651
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3331
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3337
 msgid "Add"
 msgstr "Tilføj"
 
@@ -86,9 +86,9 @@ msgid "Cancel"
 msgstr "Annuller"
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:696
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3303
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3351
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3420
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3309
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3357
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3426
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:48
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:59
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:54
@@ -366,7 +366,7 @@ msgid "Forename"
 msgstr "Fornavn"
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2043
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3455
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3461
 msgid "Date of birth"
 msgstr "Fødselsdato"
 
@@ -594,152 +594,156 @@ msgstr "Regnearksformat"
 msgid "ZIP file of tab-separated value (TSV) files"
 msgstr "ZIP-fil med tabulatorseparerede værdier (TSV)-filer"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2880
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2881
 msgid "Delivery"
 msgstr "Levering"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2881
-msgid "Send dump by email?"
-msgstr "Vil du sende data dump via e-mail?"
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2883
+msgid "Download now"
+msgstr "Hent nu"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2891
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2884
+msgid "E-mail me"
+msgstr "E-mail mig"
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2897
 msgid "Your user does not have an email address"
 msgstr "Din bruger har ikke en e-mailadresse"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2911
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2917
 msgid "Database download method"
 msgstr "Metode til hentning af database"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2914
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2920
 msgid "Binary SQLite database"
 msgstr "Binær SQLite-database"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2915
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2921
 msgid "SQL text to create SQLite database"
 msgstr "SQL-tekst til oprettelse af SQLite-database"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2938
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2944
 msgid "Sort columns?"
 msgstr "Sortere kolonner?"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2939
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2945
 msgid "Sort by heading (column) names within spreadsheets?"
 msgstr "Sortere efter overskrift (kolonne) navne i regneark?"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2958
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2964
 msgid "Include BLOBs?"
 msgstr "Medtag BLOBs?"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2959
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2965
 msgid "Include binary large objects (BLOBs)? WARNING: may be large"
 msgstr "Skal binære store objekter medtages (BLOBs)? Advarsel: kan være stor"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2982
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2988
 msgid "Patient ID per row?"
 msgstr "Patient-ID pr. række?"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2983
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2989
 msgid "Include patient ID numbers and task cross-referencing (denormalized) information per row?"
 msgstr "Medtag patient-ID-numre og kryds referering af opgave (denormaliseret) pr. række?"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3004
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3010
 msgid "Manual settings"
 msgstr "Manuelle indstillinger"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3025
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3047
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3031
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3053
 msgid "Dump"
 msgstr "Dump"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3068
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3074
 msgid "Database friendly title"
 msgstr "Databasens fulde titel"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3098
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3104
 msgid "Full description (e.g. “NHS number”)"
 msgstr "Fuld beskrivelse (f. eks. “NHS-nummer”)"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3116
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3122
 msgid "Short description (e.g. “NHS#”)"
 msgstr "Kort beskrivelse (f. eks. “NHS #”)"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3117
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3123
 msgid "Try to keep it very short!"
 msgstr "Prøv at holde det meget kort!"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3135
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3141
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:44
 msgid "Validation method"
 msgstr "Valideringsmetode"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3136
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3142
 msgid "Built-in CamCOPS ID number validation method"
 msgstr "Indbygget CamCOPS ID-nummer valideringsmetode"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3153
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3159
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:46
 msgid "HL7 Assigning Authority"
 msgstr "HL7 Myndighed, der tildeler"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3154
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3160
 msgid "For HL7 messaging: HL7 Assigning Authority for ID number (unique name of the system/organization/agency/department that creates the data)."
 msgstr "For HL7-meddelelser: HL7 tildeling af autoritet for ID-nummer (entydigt navn på det system/den organisation/det agentur/den afdeling, der opretter dataene)."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3175
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3181
 msgid "HL7 Identifier Type"
 msgstr "HL7-id-type"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3176
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3182
 msgid "For HL7 messaging: HL7 Identifier Type code: ‘a code corresponding to the type of identifier. In some cases, this code may be used as a qualifier to the “Assigning Authority” component.’"
 msgstr "For HL7 Messaging: HL7 Identifier type kode: ‘en kode, der svarer til typen af identifikator. I nogle tilfælde kan denne kode bruges som kvalifikatoren til komponenten “tildeling af autoritet”.’"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3205
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3266
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3211
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3272
 msgid "Description is used by another ID number!"
 msgstr "Beskrivelse bruges af et andet ID-nummer!"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3214
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3275
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3220
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3281
 msgid "Short description is used by another ID number!"
 msgstr "Kort beskrivelse bruges af et andet ID-nummer!"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3242
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3248
 msgid "Which ID number?"
 msgstr "Hvilket ID-nummer?"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3258
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3264
 msgid "ID# clashes with another ID number!"
 msgstr "ID# sammenstød med et andet ID-nummer!"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3376
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3382
 msgid "Erase"
 msgstr "Slet"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3398
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3404
 msgid "Show tasks that will be deleted"
 msgstr "Vis opgaver, der vil blive slettet"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3457
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3463
 msgid "GP"
 msgstr "Læge"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3478
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3484
 msgid "Patient would not meet 'finalize' ID policy for group:"
 msgstr "Patient ville ikke opfylde 'færdig' ID politik for gruppe:"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3480
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3486
 msgid "That policy is:"
 msgstr "Denne politik er:"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3493
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3499
 msgid "Submit"
 msgstr "Indsend"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3512
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3518
 msgid "View affected tasks"
 msgstr "Få vist påvirkede opgaver"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3532
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3538
 msgid "Forcibly finalize"
 msgstr "Afslut med magt"
 
@@ -755,7 +759,7 @@ msgstr "Født:"
 msgid "(Server) Patients, distinct by name, sex, DOB, all ID numbers"
 msgstr "(Server) Patienter, særskilt efter navn, køn, DOB, alle ID-numre"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_pyramid.py:1192
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_pyramid.py:1194
 msgid "Page $page of $page_count; total $item_count records"
 msgstr "Side $page af $page_count; samlede $item_count poster"
 
@@ -1051,115 +1055,115 @@ msgstr "Der er angivet ugyldige opgaver"
 msgid "Not all tasks specified provide trackers"
 msgstr "Ikke alle angivne opgaver giver trackere"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1970
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1971
 msgid "Last 1 minute"
 msgstr "Sidste 1 minut"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1972
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1973
 msgid "Last 5 minutes"
 msgstr "Sidste 5 minutter"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1974
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1975
 msgid "Last 10 minutes"
 msgstr "Sidste 10 minutter"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1976
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1977
 msgid "Last 1 hour"
 msgstr "Sidste 1 time"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2088
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2089
 msgid "You may not administer this group"
 msgstr "Du må ikke administrere denne gruppe"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2156
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2157
 msgid "Can't rename user"
 msgstr "Kan ikke omdøbe brugeren"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2157
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2158
 msgid "that conflicts with an existing user with ID"
 msgstr "der er i konflikt med en eksisterende bruger med ID"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2410
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2411
 msgid "Can't delete your own user!"
 msgstr "Kan ikke slette din egen bruger!"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2412
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2413
 msgid "Unable to delete user: user still has webviewer login and/or tablet upload permission"
 msgstr "Kan ikke slette bruger: brugeren har stadig webviewer login og/eller tablet upload tilladelse"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2415
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2416
 msgid "Unable to delete user: they are a superuser and you are not"
 msgstr "Kan ikke slette bruger: de er en superbruger, og du er ikke"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2420
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2421
 msgid "Unable to delete user: user belongs to groups that you do not administer"
 msgstr "Brugeren kan ikke slettes: brugeren tilhører grupper, som du ikke administrerer"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2424
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2425
 msgid "Unable to delete user; records (or audit trails) refer to that user. Disable login and upload permissions instead."
 msgstr "Brugeren kan ikke slettes. poster (eller revisionsspor) refererer til den pågældende bruger. Deaktiver login og upload tilladelser i stedet."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2627
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2628
 msgid "Unable to delete group; there are users who are members!"
 msgstr "Gruppen kan ikke slettes; der er brugere, der er medlemmer!"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2630
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2631
 msgid "Unable to delete group; records refer to it."
 msgstr "Gruppen kan ikke slettes; optegnelser refererer til det."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2832
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2833
 msgid "Unable to delete ID definition; records refer to it."
 msgstr "ID-definitionen kunne ikke slettes; optegnelser refererer til det."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2887
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2888
 msgid "Not authorized to add special notes for this task's group"
 msgstr "Der er ikke tilladelse til at tilføje særlige notater for denne opgaves gruppe"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2933
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2934
 msgid "Not authorized to delete this special note"
 msgstr "Ikke autoriseret til at slette denne særlige note"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2998
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2999
 msgid "Task erased:"
 msgstr "Opgave slettet:"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3043
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3044
 msgid "Not authorized to erase tasks for this task's group"
 msgstr "Ikke autoriseret til at slette opgaver for denne opgaves gruppe"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3063
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3064
 msgid "Task already erased"
 msgstr "Opgaven er allerede slettet"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3073
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3074
 msgid "View amended task"
 msgstr "Vis ændret opgave"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3138
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3139
 msgid "You're not an admin for this group"
 msgstr "Du er ikke administrator for denne gruppe"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3235
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3236
 msgid "No such patient"
 msgstr "Ingen sådan patient"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3237
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3238
 msgid "Bad patient: not in a group"
 msgstr "Dårlig patient: ikke i en gruppe"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3239
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3240
 msgid "Not authorized to edit this patient"
 msgstr "Ikke autoriseret til at redigere denne patient"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3242
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3243
 msgid "Patient is not editable (likely: not finalized, so a copy is still on a client device)"
 msgstr "Patienten kan ikke redigeres (sandsynligvis: ikke færdiggjort, så en kopi er stadig på en klientenhed)"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3354
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3355
 msgid "Patient details edited. Changes:"
 msgstr "Patient oplysninger redigeret. Ændringer:"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3470
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3471
 msgid "Some records for this device are in groups for which you are not an administrator"
 msgstr "Nogle poster for denne enhed findes i grupper, som du ikke er administrator for"
 

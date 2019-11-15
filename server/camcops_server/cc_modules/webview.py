@@ -1370,7 +1370,7 @@ def offer_basic_dump(req: "CamcopsRequest") -> Response:
                 ViewParam.GROUP_IDS: manual.get(ViewParam.GROUP_IDS),
                 ViewParam.TASKS: manual.get(ViewParam.TASKS),
                 ViewParam.VIEWTYPE: appstruct.get(ViewParam.VIEWTYPE),
-                ViewParam.SEND_BY_EMAIL: appstruct.get(ViewParam.SEND_BY_EMAIL),
+                ViewParam.DELIVERY_MODE: appstruct.get(ViewParam.DELIVERY_MODE),
             }
             # We could return a response, or redirect via GET.
             # The request is not sensitive, so let's redirect.
@@ -1434,7 +1434,8 @@ def serve_basic_dump(req: "CamcopsRequest") -> Response:
     sort_by_heading = req.get_bool_param(ViewParam.SORT, False)
     viewtype = req.get_str_param(ViewParam.VIEWTYPE, ViewArg.XLSX,
                                  lower=True)
-    send_by_email = req.get_bool_param(ViewParam.SEND_BY_EMAIL, False)
+    delivery_mode = req.get_str_param(ViewParam.DELIVERY_MODE,
+                                      ViewArg.DOWNLOAD_NOW, lower=True)
     # Get tasks (and perform checks)
     collection = get_dump_collection(req)
 
@@ -1457,15 +1458,15 @@ def serve_basic_dump(req: "CamcopsRequest") -> Response:
         sort_by_heading=sort_by_heading
     )
 
-    if send_by_email:
+    if delivery_mode == ViewArg.EMAIL:
         exporter.schedule_email()
         return render_to_response(
             "email_scheduled.mako",
             dict(),
             request=req
         )
-
-    return exporter.download_now()
+    else:
+        return exporter.download_now()
 
 
 @view_config(route_name=Routes.OFFER_SQL_DUMP)

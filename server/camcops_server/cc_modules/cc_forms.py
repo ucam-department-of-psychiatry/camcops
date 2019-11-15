@@ -2861,30 +2861,36 @@ class SpreadsheetFormatSelector(SchemaNode, RequestAwareMixin):
         self.validator = OneOf(pv)
 
 
-class SendByEmailNode(SchemaNode, RequestAwareMixin):
+class DeliveryModeNode(SchemaNode, RequestAwareMixin):
     """
-    Boolean node: Send dump by email?
+    Mode of delivery of data downloads.
     """
-    schema_type = Boolean
-    default = False
-    missing = False
+    schema_type = String
+    default = ViewArg.DOWNLOAD_NOW
+    missing = ViewArg.DOWNLOAD_NOW
 
     def __init__(self, *args, **kwargs) -> None:
         self.title = ""  # for type checker
-        self.label = ""  # for type checker
+        self.widget = None  # type: Optional[Widget]
+        self.validator = None  # type: Optional[ValidatorType]
         super().__init__(*args, **kwargs)
 
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         _ = self.gettext
         self.title = _("Delivery")
-        self.label = _("Send dump by email?")
+        choices = (
+            (ViewArg.DOWNLOAD_NOW, _("Download now")),
+            (ViewArg.EMAIL, _("E-mail me")),
+        )
+        values, pv = get_values_and_permissible(choices)
+        self.widget = RadioChoiceWidget(values=values)
+        self.validator = OneOf(pv)
 
     # noinspection PyUnusedLocal
     def validator(self, node: SchemaNode, value: Any) -> None:
         request = self.bindings[Binding.REQUEST]  # type: CamcopsRequest
-
-        if value is True:
+        if value == ViewArg.EMAIL:
             if not request.user.email:
                 _ = request.gettext
                 raise Invalid(self,
@@ -3012,7 +3018,7 @@ class OfferBasicDumpSchema(CSRFSchema):
     sort = SortTsvByHeadingsNode()  # must match ViewParam.SORT
     manual = OfferDumpManualSchema()  # must match ViewParam.MANUAL
     viewtype = SpreadsheetFormatSelector()  # must match ViewParams.VIEWTYPE  # noqa
-    send_by_email = SendByEmailNode()  # must match ViewParam.SEND_BY_EMAIL
+    delivery_mode = DeliveryModeNode()  # must match ViewParam.DELIVERY_MODE
 
 
 class OfferBasicDumpForm(SimpleSubmitForm):
