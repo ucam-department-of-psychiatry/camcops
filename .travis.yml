@@ -4,15 +4,22 @@ python:
     - "3.6"
 
 before_install:
-    - sudo apt-get -y install wkhtmltopdf
+    # Install wkhtmltopdf on headless ubuntu 18 vps
+    # https://gist.github.com/lobermann/ca0e7bb2558b3b08923c6ae2c37a26ce
+    - wget https://downloads.wkhtmltopdf.org/0.12/0.12.5/wkhtmltox_0.12.5-1.bionic_amd64.deb
+    - sudo apt-get -y install fontconfig libxrender1 xfonts-75dpi xfonts-base
+    - sudo dpkg -i wkhtmltox_0.12.5-1.bionic_amd64.deb
     - cd server
 
 install:
     - pip install -e .
+    # For checking vulnerabilities
     - pip install safety
 
 script:
     - pip check
+    # Check packages for vulnerabilities
     - safety check
+    # Check python for style and errors
     - flake8 --config=../setup.cfg camcops_server
     - camcops_server self_test
