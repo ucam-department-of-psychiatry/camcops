@@ -305,7 +305,6 @@ def get_demo_config(extra_strings_dir: str = None,
 {ConfigParamSite.EMAIL_SENDER} =
 {ConfigParamSite.EMAIL_REPLY_TO} = CamCOPS clinical administrator <admin@myinstitution.mydomain>
 
-
 # -----------------------------------------------------------------------------
 # Debugging options
 # -----------------------------------------------------------------------------

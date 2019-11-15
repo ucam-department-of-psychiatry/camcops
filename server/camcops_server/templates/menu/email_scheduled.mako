@@ -28,6 +28,6 @@ camcops_server/templates/menu/email_scheduled.mako
 
 <%inherit file="base_web.mako"/>
 
-<div>${_("An email with this data dump will be sent to you shortly. Please check your inbox in a few minutes")}.</div>
+<div>${_("An e-mail with this data dump will be sent to you shortly. Please check your inbox in a few minutes.")}.</div>
 
 <%include file="to_main_menu.mako"/>

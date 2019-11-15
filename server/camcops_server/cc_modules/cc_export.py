@@ -649,7 +649,7 @@ class BasicTaskCollectionExporter:
             from_addr=config.email_from,
             to=email_to,
             subject=_("CamCOPS basic research dump"),
-            body=_("The research dump you requested is attached"),
+            body=_("The research dump you requested is attached."),
             content_type=(
                 CONTENT_TYPE_TEXT
             ),

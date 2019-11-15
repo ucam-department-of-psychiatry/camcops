@@ -111,6 +111,8 @@ Config file sections
   name of that recipient.
 
 
+.. _config_site:
+
 Options for the "[site]" section
 --------------------------------
 
@@ -535,6 +537,80 @@ CTV_FILENAME_SPEC
 
 Filename specification used for clinical text view downloads; see
 TASK_FILENAME_SPEC_.
+
+
+Email options
+~~~~~~~~~~~~~
+
+These options control the sending of e-mails by the CamCOPS server.
+
+
+EMAIL_HOST
+##########
+
+*String.*
+
+Hostname of e-mail (SMTP) server.
+
+
+EMAIL_PORT
+##########
+
+*Integer.* Default: 25.
+
+Port number of e-mail (SMTP) server. The default is 25, but consider something
+more secure (see below).
+
+
+EMAIL_USE_TLS
+#############
+
+*Boolean.* Default: false.
+
+Use a TLS (secure) connection to talk to the SMTP server? The default is false,
+but you should strongly consider using it!
+
+This is used for explicit TLS connections, usually on port 587 (in which the
+connection is opened and then a ``STARTTLS`` command is issued).
+
+
+EMAIL_HOST_USERNAME
+###################
+
+*String.*
+
+Username on e-mail server. (Surprisingly, some e-mail servers allow this to
+be blank. Be wary of them!)
+
+
+EMAIL_HOST_PASSWORD
+###################
+
+*String.*
+
+Password on e-mail server. (Not stored in database.)
+
+
+EMAIL_FROM
+##########
+
+*String.*
+
+"From:" address used in e-mails. See `RFC 5322`_. Only one is permitted here.
+
+
+EMAIL_SENDER
+############
+
+"Sender:" address used in e-mails. See `RFC 5322`_. Only one is permitted.
+
+
+EMAIL_REPLY_TO
+##############
+
+*String.*
+
+"Reply-To:" address used in e-mails. See `RFC 5322`_.
 
 
 Debugging options
@@ -1450,74 +1526,7 @@ Options applicable to e-mail export only
 Attachment filenames are based on FILE_FILENAME_SPEC_, but only the basename
 of the path is used.
 
-
-EMAIL_HOST
-##########
-
-*String.*
-
-Hostname of e-mail (SMTP) server.
-
-
-EMAIL_PORT
-##########
-
-*Integer.* Default: 25.
-
-Port number of e-mail (SMTP) server. The default is 25, but consider something
-more secure (see below).
-
-
-EMAIL_USE_TLS
-#############
-
-*Boolean.* Default: false.
-
-Use a TLS (secure) connection to talk to the SMTP server? The default is false,
-but you should strongly consider using it!
-
-This is used for explicit TLS connections, usually on port 587 (in which the
-connection is opened and then a ``STARTTLS`` command is issued).
-
-
-EMAIL_HOST_USERNAME
-###################
-
-*String.*
-
-Username on e-mail server. (Surprisingly, some e-mail servers allow this to
-be blank. Be wary of them!)
-
-
-EMAIL_HOST_PASSWORD
-###################
-
-*String.*
-
-Password on e-mail server. (Not stored in database.)
-
-
-EMAIL_FROM
-##########
-
-*String.*
-
-"From:" address used in e-mails. See `RFC 5322`_. Only one is permitted here.
-
-
-EMAIL_SENDER
-############
-
-"Sender:" address used in e-mails. See `RFC 5322`_. Only one is permitted.
-
-
-EMAIL_REPLY_TO
-##############
-
-*String.*
-
-"Reply-To:" address used in e-mails. See `RFC 5322`_.
-
+General e-mail sending options are in the :ref:`[site] <config_site>` section.
 
 EMAIL_TO
 ########
