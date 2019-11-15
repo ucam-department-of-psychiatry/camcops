@@ -103,7 +103,7 @@ INSTALL_REQUIRES = [
     # 'mysqlclient==1.3.13;platform_system=="Linux"',  # for mysql+mysqldb://...
     # # ... but adds dependency on C and mysql.h
 
-    'numpy==1.16',  # Used by some tasks. SLOW INSTALLATION.
+    'numpy==1.17.4',  # Used by some tasks. SLOW INSTALLATION.
     # 'odswriter==0.4.0',  # Write OpenOffice ODS files [REPLACED BY pyexcel-ods3]  # noqa
     'paginate==0.5.6',  # pagination for web server
     'pendulum==2.0.4',  # better than Arrow
