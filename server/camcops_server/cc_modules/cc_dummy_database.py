@@ -73,6 +73,12 @@ def add_dummy_data(cfg: "CamcopsConfig",
 
 
 class DummyDataFactory(object):
+    FIRST_PATIENT_ID = 10001
+    NUM_PATIENTS = 5
+
+    DEFAULT_MIN_INTEGER = 0
+    DEFAULT_MAX_INTEGER = 1000000
+
     def __init__(self, cfg: "CamcopsConfig"):
         engine = cfg.get_sqla_engine()
         self.dbsession = sessionmaker()(bind=engine)  # type: SqlASession
@@ -106,9 +112,9 @@ class DummyDataFactory(object):
             self.dbsession.commit()
         except IntegrityError:
             self.dbsession.rollback()
-        next_id = self.next_id(Patient.id)
-        random.seed(next_id)
-        for patient_id in range(next_id, next_id + 5):
+
+        for patient_id in range(self.FIRST_PATIENT_ID,
+                                self.FIRST_PATIENT_ID + self.NUM_PATIENTS):
             self.add_patient(patient_id)
             self.add_tasks(patient_id)
 
@@ -125,7 +131,10 @@ class DummyDataFactory(object):
         self.dbsession.add(patient)
 
         self.add_patient_idnum(patient_id)
-        self.dbsession.commit()
+        try:
+            self.dbsession.commit()
+        except IntegrityError:
+            self.dbsession.rollback()
 
         return patient
 
@@ -166,8 +175,8 @@ class DummyDataFactory(object):
         setattr(task, column.name, self.get_valid_integer_for_field(column))
 
     def get_valid_integer_for_field(self, column: Column):
-        min_value = 0
-        max_value = 1000000
+        min_value = self.DEFAULT_MIN_INTEGER
+        max_value = self.DEFAULT_MAX_INTEGER
 
         value_checker = getattr(column, "permitted_value_checker", None)
 
