@@ -525,9 +525,14 @@ class TsvCollectionTests(TestCase):
 
         data = coll.as_xlsx()
         buffer = io.BytesIO(data)
-        wb = openpyxl.load_workbook(buffer)
+        if XLSX_VIA_PYEXCEL:
+            wb = pyexcel_xlsx.get_data(buffer)
+            sheetnames = list(wb.keys())
+        else:
+            wb = openpyxl.load_workbook(buffer)
+            sheetnames = wb.sheetnames
         self.assertEqual(
-            wb.sheetnames,
+            sheetnames,
             [
                 "name 1",
                 "name 2",
