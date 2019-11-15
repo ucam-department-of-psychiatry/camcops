@@ -980,6 +980,7 @@ class TaskCollection(object):
         return q
 
 
+# noinspection PyProtectedMember
 def encode_task_collection(coll: TaskCollection) -> Dict:
     return {
         "taskfilter": dumps(coll._filter, serializer="json"),
@@ -990,7 +991,8 @@ def encode_task_collection(coll: TaskCollection) -> Dict:
     }
 
 
-def decode_task_collection(d: Dict, cls: TaskCollection) -> TaskCollection:
+# noinspection PyUnusedLocal
+def decode_task_collection(d: Dict, cls: Type) -> TaskCollection:
     kwargs = {
         "req": loads(*reorder_args(*d["req"])),
         "taskfilter": loads(*reorder_args(*d["taskfilter"])),
@@ -1002,16 +1004,13 @@ def decode_task_collection(d: Dict, cls: TaskCollection) -> TaskCollection:
     return TaskCollection(**kwargs)
 
 
-def reorder_args(
-        content_type: str,
-        content_encoding: str,
-        data: str
-) -> List[str]:
+def reorder_args(content_type: str,
+                 content_encoding: str,
+                 data: str) -> List[str]:
     """
     kombu SerializerRegistry.dumps returns data as last element in tuple but
     for SerializeRegistry.loads it's the first argument
     """
-
     return [data, content_type, content_encoding]
 
 
@@ -1034,9 +1033,9 @@ class TaskCollectionTests(DemoDatabaseTestCase):
         from camcops_server.cc_modules.cc_request import get_single_user_request
         from camcops_server.cc_modules.cc_user import User
 
-        filter = TaskFilter()
-        filter.task_types = ['task1', 'task2', 'task3']
-        filter.group_ids = [1, 2, 3]
+        taskfilter = TaskFilter()
+        taskfilter.task_types = ['task1', 'task2', 'task3']
+        taskfilter.group_ids = [1, 2, 3]
 
         user = User.get_system_user(self.req.dbsession)
 
@@ -1044,7 +1043,7 @@ class TaskCollectionTests(DemoDatabaseTestCase):
 
         coll = TaskCollection(
             req,
-            taskfilter=filter,
+            taskfilter=taskfilter,
             as_dump=True,
             sort_method_by_class=TaskSortMethod.CREATION_DATE_ASC
         )

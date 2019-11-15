@@ -599,10 +599,12 @@ class BasicTaskCollectionExporter:
                  sort_by_heading: bool):
         """
         Args:
-            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-            collection: a :class:`camcops_server.cc_modules.cc_taskcollection.TaskCollection`
-            sort_by_heading: sort columns within each page by heading name?
-
+            req:
+                a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+            collection:
+                a :class:`camcops_server.cc_modules.cc_taskcollection.TaskCollection`
+            sort_by_heading: 
+                sort columns within each page by heading name?
         """  # noqa
         self.req = req
         self.collection = collection
@@ -670,7 +672,7 @@ class BasicTaskCollectionExporter:
                 f"Failed to email basic research dump to {email_to}"
             )
 
-    def get_response(self) -> Response:
+    def get_response(self, body: bytes, filename: str) -> Response:
         raise NotImplementedError("Exporter needs to implement 'get_response'")
 
     def to_file(self) -> Tuple[str, bytes]:
@@ -682,7 +684,7 @@ class BasicTaskCollectionExporter:
         filename = (
             f"CamCOPS_dump_{timestamp}.{self.file_extension}"
         )
-        return (filename, body)
+        return filename, body
 
     def get_file_body(self, tsvcoll: TsvCollection) -> bytes:
         raise NotImplementedError("Exporter needs to implement 'get_file_body'")

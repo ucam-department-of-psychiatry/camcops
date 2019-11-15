@@ -34,7 +34,7 @@ import datetime
 import gettext
 import logging
 from typing import (Any, Dict, Generator, List, Optional, Set,
-                    Tuple, TYPE_CHECKING, Union)
+                    Tuple, Type, TYPE_CHECKING, Union)
 import urllib.parse
 
 from cardinal_pythonlib.datetimefunc import (
@@ -1977,7 +1977,8 @@ def encode_camcops_request(req: CamcopsRequest) -> Dict:
     return {'user_id': req.user.id}
 
 
-def decode_camcops_request(d: Dict, cls: CamcopsRequest) -> CamcopsRequest:
+# noinspection PyUnusedLocal
+def decode_camcops_request(d: Dict, cls: Type) -> CamcopsRequest:
     return get_single_user_request(user_id=d['user_id'])
 
 

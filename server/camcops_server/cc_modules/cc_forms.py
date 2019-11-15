@@ -2880,6 +2880,7 @@ class SendByEmailNode(SchemaNode, RequestAwareMixin):
         self.title = _("Delivery")
         self.label = _("Send dump by email?")
 
+    # noinspection PyUnusedLocal
     def validator(self, node: SchemaNode, value: Any) -> None:
         request = self.bindings[Binding.REQUEST]  # type: CamcopsRequest
 

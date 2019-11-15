@@ -559,19 +559,20 @@ class TaskFilter(Base):
         return convert_datetime_to_utc(self.end_datetime)
 
 
-def encode_task_filter(filter: TaskFilter) -> Dict:
+def encode_task_filter(taskfilter: TaskFilter) -> Dict:
     return {
-        "task_types": filter.task_types,
-        "group_ids": filter.group_ids,
+        "task_types": taskfilter.task_types,
+        "group_ids": taskfilter.group_ids,
     }
 
 
-def decode_task_filter(d: Dict, cls: TaskFilter):
-    filter = TaskFilter()
-    filter.task_types = d["task_types"]
-    filter.group_ids = d["group_ids"]
+# noinspection PyUnusedLocal
+def decode_task_filter(d: Dict, cls: Type) -> TaskFilter:
+    taskfilter = TaskFilter()
+    taskfilter.task_types = d["task_types"]
+    taskfilter.group_ids = d["group_ids"]
 
-    return filter
+    return taskfilter
 
 
 register_class_for_json(

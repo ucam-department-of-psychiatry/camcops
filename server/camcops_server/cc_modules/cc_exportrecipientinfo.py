@@ -321,6 +321,7 @@ class ExportRecipientInfo(object):
         Reads from the config file and writes this instance's attributes.
 
         Args:
+            cfg: a :class:`camcops_server.cc_modules.cc_config.CamcopsConfig`
             parser: configparser INI file object
             recipient_name: name of recipient and of INI file section
 
@@ -357,10 +358,12 @@ class ExportRecipientInfo(object):
             return get_config_parameter(
                 parser, CONFIG_FILE_SITE_SECTION, paramname, str, default)
 
+        # noinspection PyUnusedLocal
         def _get_site_bool(paramname: str, default: bool) -> bool:
             return get_config_parameter_boolean(
                 parser, CONFIG_FILE_SITE_SECTION, paramname, default)
 
+        # noinspection PyUnusedLocal
         def _get_site_int(paramname: str,
                           default: int = None) -> Optional[int]:
             return get_config_parameter(

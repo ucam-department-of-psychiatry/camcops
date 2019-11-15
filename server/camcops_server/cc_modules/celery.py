@@ -353,6 +353,21 @@ def email_basic_dump(self: "CeleryTask",
                      viewtype: str,
                      collection: "TaskCollection",
                      sort_by_heading: bool) -> None:
+    """
+
+    Args:
+        self:
+            the Celery task, :class:`celery.app.task.Task`
+        viewtype:
+            string value and member of
+            :class:`camcops_server.cc_modules.cc_pyramid.ViewArg` defining the
+            export type (e.g. XLSX, TSV ZIP).
+        collection:
+            a
+            :class:`camcops_server.cc_modules.cc_taskcollection.TaskCollection`
+        sort_by_heading:
+            sort columns within each page by heading name?
+    """
     from camcops_server.cc_modules.cc_export import (
         BasicOdsExporter,
         BasicTsvZipExporter,
@@ -361,18 +376,22 @@ def email_basic_dump(self: "CeleryTask",
     from camcops_server.cc_modules.cc_pyramid import ViewArg
     from camcops_server.cc_modules.cc_request import get_single_user_request
 
-    req = get_single_user_request()
+    try:
+        req = get_single_user_request()
 
-    exporter_classes = {
-        ViewArg.TSV_ZIP: BasicTsvZipExporter,
-        ViewArg.XLSX: BasicXlsxExporter,
-        ViewArg.ODS: BasicOdsExporter,
-    }
+        exporter_classes = {
+            ViewArg.TSV_ZIP: BasicTsvZipExporter,
+            ViewArg.XLSX: BasicXlsxExporter,
+            ViewArg.ODS: BasicOdsExporter,
+        }
 
-    exporter = exporter_classes[viewtype](
-        req=req,
-        collection=collection,
-        sort_by_heading=sort_by_heading
-    )
+        exporter = exporter_classes[viewtype](
+            req=req,
+            collection=collection,
+            sort_by_heading=sort_by_heading
+        )
 
-    exporter.send_by_email()
+        exporter.send_by_email()
+
+    except Exception as exc:
+        self.retry(countdown=backoff(self.request.retries), exc=exc)
