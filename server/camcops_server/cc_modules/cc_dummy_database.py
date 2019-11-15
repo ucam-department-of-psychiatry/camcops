@@ -42,7 +42,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.session import sessionmaker
 from sqlalchemy.sql.expression import func
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Integer
+from sqlalchemy.sql.sqltypes import Float, Integer
 
 from camcops_server.cc_modules.cc_constants import DateFormat
 from camcops_server.cc_modules.cc_device import Device
@@ -76,8 +76,11 @@ class DummyDataFactory(object):
     FIRST_PATIENT_ID = 10001
     NUM_PATIENTS = 5
 
+    DEFAULT_MIN_FLOAT = 0
+    DEFAULT_MAX_FLOAT = 1000
+
     DEFAULT_MIN_INTEGER = 0
-    DEFAULT_MAX_INTEGER = 1000000
+    DEFAULT_MAX_INTEGER = 1000
 
     def __init__(self, cfg: "CamcopsConfig"):
         engine = cfg.get_sqla_engine()
@@ -170,9 +173,16 @@ class DummyDataFactory(object):
 
             if isinstance(column.type, Integer):
                 self.set_integer_field(task, column)
+                continue
+
+            if isinstance(column.type, Float):
+                self.set_float_field(task, column)
 
     def set_integer_field(self, task: "Task", column: Column):
         setattr(task, column.name, self.get_valid_integer_for_field(column))
+
+    def set_float_field(self, task: "Task", column: Column):
+        setattr(task, column.name, self.get_valid_float_for_field(column))
 
     def get_valid_integer_for_field(self, column: Column):
         min_value = self.DEFAULT_MIN_INTEGER
@@ -191,6 +201,24 @@ class DummyDataFactory(object):
                 max_value = value_checker.maximum
 
         return random.randint(min_value, max_value)
+
+    def get_valid_float_for_field(self, column: Column):
+        min_value = self.DEFAULT_MIN_FLOAT
+        max_value = self.DEFAULT_MAX_FLOAT
+
+        value_checker = getattr(column, "permitted_value_checker", None)
+
+        if value_checker is not None:
+            if value_checker.permitted_values is not None:
+                return random.choice(value_checker.permitted_values)
+
+            if value_checker.minimum is not None:
+                min_value = value_checker.minimum
+
+            if value_checker.maximum is not None:
+                max_value = value_checker.maximum
+
+        return random.uniform(min_value, max_value)
 
     def column_is_q_field(self, column: Column):
         if column.name.startswith("_"):

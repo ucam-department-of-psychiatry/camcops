@@ -26,13 +26,14 @@ camcops_server/tasks/bmi.py
 
 """
 
-from typing import List, Optional
+from typing import Dict, List, Optional
 
+from cardinal_pythonlib.datetimefunc import format_datetime
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Float, UnicodeText
 
-from camcops_server.cc_modules.cc_constants import CssClass
+from camcops_server.cc_modules.cc_constants import CssClass, DateFormat
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
@@ -349,3 +350,23 @@ class Bmi(TaskHasPatientMixin, Task):
                 }),
             ]))
         return expressions
+
+    def get_redcap_fields(self, req: CamcopsRequest) -> Dict:
+        prefix = "pa"
+
+        instrument_name = self.redcap_instrument_name()
+
+        record = {
+            f"{prefix}_height": format(self.height_m, ".1f"),
+            f"{prefix}_weight": format(self.mass_kg, ".1f"),
+            f"{instrument_name}_date": format_datetime(
+                self.when_created,
+                DateFormat.ISO8601_DATE_ONLY
+            ),
+        }
+
+        return record
+
+    @staticmethod
+    def redcap_instrument_name() -> str:
+        return "bmi"
