@@ -8,4 +8,8 @@ before_install:
 install:
     - pip install -e .
     - pip install safety
+
+script:
     - safety check
+    - flake8 --config=camcops_server/setup.cfg
+    - camcops_server self_test
