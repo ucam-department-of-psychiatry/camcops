@@ -163,6 +163,10 @@ if TYPE_CHECKING:
 
 
 class RedcapExporter(object):
+    INCOMPLETE = 0
+    UNVERIFIED = 1
+    COMPLETE = 2
+
     def __init__(self,
                  req: "CamcopsRequest",
                  api_url: str,
@@ -175,22 +179,31 @@ class RedcapExporter(object):
 
         # TODO: Get any associated REDCap record ID?
 
+        instrument_name = task.redcap_instrument_name()
+
+        complete_status = self.INCOMPLETE
+
+        if task.is_complete():
+            complete_status = self.COMPLETE
+
         record = {
-            'record_id': 1,  # ignored but we have to put something in here
+            "redcap_repeat_instrument": instrument_name,
+            "record_id": 1,  # ignored but we have to put something in here
+            f"{instrument_name}_complete": complete_status,
         }
         record.update(task.get_redcap_fields(self.req))
 
         data = [record]
 
         import_kwargs = {
-            'return_content': 'auto_ids',
-            'force_auto_number': True,
+            "return_content": "auto_ids",
+            "force_auto_number": True,
         }
 
         # TODO: Catch RedcapError
         # Returns redcap_id, 1
         ids = self.project.import_records(data, **import_kwargs)[0]
 
-        exported_task.redcap_record_id = ids.split(',')[0]
+        exported_task.redcap_record_id = ids.split(",")[0]
 
         # TODO: Return some sort of meaningful status

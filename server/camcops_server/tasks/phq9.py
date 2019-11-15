@@ -346,8 +346,6 @@ class Phq9(TaskHasPatientMixin, Task,
         prefix = "phq9"
 
         record = {
-            "redcap_repeat_instrument": "patient_health_questionnaire_9",
-
             # REDCap has 1-4 scale
             f"{prefix}_how_difficult": self.q10 + 1,
             f"{prefix}_total_score": self.total_score(),
@@ -363,3 +361,7 @@ class Phq9(TaskHasPatientMixin, Task,
             record[f"{prefix}_{i}"] = getattr(self, f"q{i}")
 
         return record
+
+    @staticmethod
+    def redcap_instrument_name() -> str:
+        return "patient_health_questionnaire_9"
