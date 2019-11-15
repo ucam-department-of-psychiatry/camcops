@@ -889,7 +889,8 @@ def self_test(show_only: bool = False, test_class: str = None) -> None:
         if show_only:
             return
         runner = unittest.TextTestRunner()
-        runner.run(suite)
+        result = runner.run(suite)
+        return result.wasSuccessful()
 
 
 def dev_cli() -> None:
