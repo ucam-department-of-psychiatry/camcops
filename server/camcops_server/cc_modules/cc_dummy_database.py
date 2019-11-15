@@ -38,6 +38,7 @@ from cardinal_pythonlib.datetimefunc import (
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.nhs import generate_random_nhs_number
 import pendulum
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.session import sessionmaker
 from sqlalchemy.sql.expression import func
 from sqlalchemy.sql.schema import Column
@@ -85,7 +86,7 @@ class DummyDataFactory(object):
         self.group.upload_policy = "sex AND anyidnum"
         self.group.finalize_policy = "sex AND idnum1"
         self.dbsession.add(self.group)
-        self.dbsession.flush()  # sets PK fields
+        self.dbsession.commit()  # sets PK fields
 
         self.user = User.get_system_user(self.dbsession)
         self.user.upload_group_id = self.group.id
@@ -94,12 +95,17 @@ class DummyDataFactory(object):
         self.era_time_utc = convert_datetime_to_utc(self.era_time)
         self.era = format_datetime(self.era_time, DateFormat.ISO8601)
         self.server_device = Device.get_server_device(self.dbsession)
-        self.nhs_iddef = IdNumDefinition(description="NHS number",
+
+        self.nhs_iddef = IdNumDefinition(which_idnum="1001",
+                                         description="NHS number (TEST)",
                                          short_description="NHS#",
                                          hl7_assigning_authority="NHS",
                                          hl7_id_type="NHSN")
         self.dbsession.add(self.nhs_iddef)
-
+        try:
+            self.dbsession.commit()
+        except IntegrityError:
+            self.dbsession.rollback()
         next_id = self.next_id(Patient.id)
         random.seed(next_id)
         for patient_id in range(next_id, next_id + 5):
