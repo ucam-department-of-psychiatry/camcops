@@ -65,6 +65,7 @@ from wsgiref.simple_server import make_server  # noqa: E402
 
 from cardinal_pythonlib.classes import gen_all_subclasses  # noqa: E402
 from cardinal_pythonlib.fileops import mkdir_p  # noqa: E402
+from cardinal_pythonlib.process import nice_call  # noqa: E402
 from cardinal_pythonlib.ui import ask_user, ask_user_password  # noqa: E402
 from cardinal_pythonlib.wsgi.request_logging_mw import RequestLoggingMiddleware  # noqa: E402,E501
 from cardinal_pythonlib.wsgi.reverse_proxied_mw import (  # noqa: E402
@@ -744,7 +745,8 @@ def check_index(cfg: CamcopsConfig, show_all_bad: bool = False) -> bool:
 # Celery
 # =============================================================================
 
-def launch_celery_workers(verbose: bool = False) -> None:
+def launch_celery_workers(verbose: bool = False,
+                          cleanup_timeout_s: float = 10.0) -> None:
     """
     Launch Celery workers.
 
@@ -760,7 +762,7 @@ def launch_celery_workers(verbose: bool = False) -> None:
     cmdargs = [
         CELERY, "worker",
         "--app", CELERY_APP_NAME,
-        "-Ofair",
+        "-O", "fair",  # optimization
         "--soft-time-limit", str(CELERY_SOFT_TIME_LIMIT_SEC),
         "--loglevel", "DEBUG" if verbose else "INFO",
     ]
@@ -774,7 +776,8 @@ def launch_celery_workers(verbose: bool = False) -> None:
         ])
     cmdargs += config.celery_worker_extra_args
     log.info("Launching: {!r}", cmdargs)
-    subprocess.call(cmdargs)
+    # subprocess.call(cmdargs)
+    nice_call(cmdargs, cleanup_timeout=cleanup_timeout_s)
 
 
 def launch_celery_beat(verbose: bool = False) -> None:

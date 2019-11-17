@@ -103,3 +103,10 @@ DOCUMENTATION_URL = "https://camcops.readthedocs.io/"
 
 # Is this program running on readthedocs.org?
 ON_READTHEDOCS = os.environ.get('READTHEDOCS') == 'True'
+
+# =============================================================================
+# Exit codes
+# =============================================================================
+
+EXIT_SUCCESS = 0
+EXIT_FAILURE = 1

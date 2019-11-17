@@ -33,10 +33,12 @@ from argparse import (
     ArgumentDefaultsHelpFormatter,
     RawDescriptionHelpFormatter,
 )
+import linecache
 import logging
 import os
 import pprint
 import sys
+import tracemalloc
 from typing import Dict, List, Optional, Type, TYPE_CHECKING
 
 from cardinal_pythonlib.argparse_func import (
@@ -61,6 +63,8 @@ from cardinal_pythonlib.wsgi.reverse_proxied_mw import ReverseProxiedConfig
 
 from camcops_server.cc_modules.cc_baseconstants import (
     ENVVAR_CONFIG_FILE,
+    EXIT_SUCCESS,
+    EXIT_FAILURE,
     DOCUMENTATION_URL,
 )
 from camcops_server.cc_modules.cc_config import (
@@ -98,6 +102,12 @@ assert_minimum_python_version()
 
 DEBUG_LOG_CONFIG = False
 DEBUG_RUN_WITH_PDB = False
+DEBUG_MEMORY_ALLOCATION = False
+
+if any([DEBUG_LOG_CONFIG,
+        DEBUG_RUN_WITH_PDB,
+        DEBUG_MEMORY_ALLOCATION]):
+    log.warning("Debugging options enabled!")
 
 
 # =============================================================================
@@ -510,7 +520,7 @@ def add_req_named(sp: ArgumentParser, switch: str, help: str,
     reqgroup.add_argument(switch, **kwargs)
 
 
-def camcops_main() -> None:
+def camcops_main() -> int:
     """
     Primary command-line entry point. Parse command-line arguments and act.
 
@@ -1085,14 +1095,12 @@ def camcops_main() -> None:
 
     # Say hello
     log.info(
-        """
+        f"""
 # =============================================================================
-# CamCOPS server version {version}
-# Created by Rudolf Cardinal. See {url}
+# CamCOPS server version {CAMCOPS_SERVER_VERSION}
+# Created by Rudolf Cardinal. See {CAMCOPS_URL}
 # =============================================================================
-""",
-        version=CAMCOPS_SERVER_VERSION,
-        url=CAMCOPS_URL,
+"""
     )
     log.debug(
         """
@@ -1107,8 +1115,6 @@ def camcops_main() -> None:
         thisprog=__file__,
         progargs=pprint.pformat(vars(progargs)),
     )
-    if DEBUG_LOG_CONFIG or DEBUG_RUN_WITH_PDB:
-        log.warning("Debugging options enabled!")
     if DEBUG_LOG_CONFIG:
         print_report_on_all_logs()
 
@@ -1125,23 +1131,64 @@ def camcops_main() -> None:
         raise NotImplementedError("Command-line function not implemented!")
     success = progargs.func(progargs)  # type: Optional[bool]
     if success is None or success is True:
-        sys.exit(0)
+        return EXIT_SUCCESS
     else:
-        sys.exit(1)
+        return EXIT_FAILURE
 
 
 # =============================================================================
 # Command-line entry point
 # =============================================================================
 
-def main():
+def display_top(snapshot: tracemalloc.Snapshot,
+                key_type: str = 'lineno', limit: int = 10,
+                short_filename: bool = False) -> None:
+    # Modified from https://docs.python.org/3/library/tracemalloc.html
+    print("Calculating memory allocation...")
+    snapshot = snapshot.filter_traces((
+        tracemalloc.Filter(False, "<frozen importlib._bootstrap>"),
+        tracemalloc.Filter(False, "<frozen importlib._bootstrap_external>"),
+        tracemalloc.Filter(False, "<unknown>"),
+    ))
+    top_stats = snapshot.statistics(key_type)
+
+    print(f"Top {limit} lines")
+    for index, stat in enumerate(top_stats[:limit], 1):
+        frame = stat.traceback[0]
+        if short_filename:
+            # replace "/path/to/module/file.py" with "module/file.py"
+            filename = os.sep.join(frame.filename.split(os.sep)[-2:])
+        else:
+            filename = frame.filename
+        print(f"#{index}: {filename}:{frame.lineno}: "
+              f"{stat.size / 1024:.1f} KiB")
+        line = linecache.getline(frame.filename, frame.lineno).strip()
+        if line:
+            print(f'    {line}')
+
+    other = top_stats[limit:]
+    if other:
+        size = sum(stat.size for stat in other)
+        print(f"{len(other)} other: {size / 1024:.1f} KiB")
+    total = sum(stat.size for stat in top_stats)
+    print(f"Total allocated size: {total / 1024:.1f} KiB")
+
+
+def main() -> None:
     """
     Command-line entry point. Calls :func:`camcops_main`.
     """
+    if DEBUG_MEMORY_ALLOCATION:
+        tracemalloc.start()
     if DEBUG_RUN_WITH_PDB:
-        pdb_run(camcops_main)
+        retval = pdb_run(camcops_main)
     else:
-        camcops_main()
+        retval = camcops_main()
+    if DEBUG_MEMORY_ALLOCATION:
+        # https://docs.python.org/3/library/tracemalloc.html
+        snapshot = tracemalloc.take_snapshot()
+        display_top(snapshot, key_type="lineno", limit=20)
+    sys.exit(retval)
 
 
 if __name__ == '__main__':

@@ -63,6 +63,8 @@ Contributors
   - :ref:`Short-Form McGill Pain Questionnaire (SF-MPQ2) <sfmpq2>`
   - :ref:`Disease Activity Score-28 (DAS28) <das28>`
   - :ref:`Snaith–Hamilton Pleasure Scale (SHAPS) <shaps>`
+  - CPFT Perinatal, MOJO.
+  - Back-end data processing and e-mail framework.
 
 
 Original Titanium/Javascript client, Python server with custom MySQL interface (defunct)
@@ -2606,4 +2608,58 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - ``pyexcel-ods3`` and ``pyexcel-xlsx`` for spreadsheet export; faster and much
   smaller for ODS files. See ``cc_tsv.py``.
 
-- Option to send basic research data dump by email
+- Option to send research data dumps by e-mail.
+
+- Option to queue data dumps for download.
+
+- New ``camcops_server purge_jobs`` command.
+
+- Memory problems were in part due to Celery leaving lots of workers active.
+
+  - Useful tools: ``htop``, ``pgrep``, ``pkill``.
+  - ``htop`` shows that Celery worker processes (like ``.../celery worker --app
+    camcops_server...`` are at first children of a master ``.../celery worker``
+    processes, which is the child of ``camcops_server launch_workers``.
+    However, after killing the top-level process (e.g. with Ctrl-C), the
+    top-level process and the "owner" Celery worker die, leaving the workers
+    themselves as children of ``/lib/systemd/systemd --user``. If every
+    start-and-kill leaves 8 orphan workers, you can run out of memory quite
+    quickly. Use e.g. ``pkill -f camcops_server`` to wipe them all out.
+  - This may have explained some MySQL locking problems too.
+  - Celery from 4.2.1 to 4.3.0 as this has "bug fixes mainly for Celery Beat,
+    Canvas, a number of critical fixes for hanging workers and fixes for
+    several severe memory leaks"
+    (https://docs.celeryproject.org/en/latest/whatsnew-4.3.html).
+    Didn't fix this problem, though.
+  - Remember the signals (see ``kill -L``), which include:
+
+    ============== ======== ================= ========= =======================
+    Signal         Signal#  ``kill`` example  Shortcut  Meaning
+    ============== ======== ================= ========= =======================
+    SIGINT         2        ``kill -2``       Ctrl-C    Interrupt; weakest
+    SIGTERM, TERM  15       ``kill``                    Terminate; medium
+    SIGKILL        9        ``kill -9``                 Hard kill; never fails
+    ============== ======== ================= ========= =======================
+
+    See e.g.
+    https://unix.stackexchange.com/questions/251195/difference-between-less-violent-kill-signal-hup-1-int-2-and-term-15.
+
+  - Celery expects TERM;
+    https://docs.celeryproject.org/en/latest/userguide/workers.html#stopping-the-worker.
+
+  - And calling ``kill <celery_worker_master_pid>`` works; it prints
+    ``worker: Warm shutdown (MainProcess)`` and everything exits nicely.
+
+  - The same happens with ``kill -SIGINT``.
+
+  - The problem is probably that Python's :func:`subprocess.call` sends
+    SIGKILL to its child when the Python program is interrupted by SIGINT.
+    See:
+
+    - https://bugs.python.org/issue25942.
+    - https://github.com/python/cpython/pull/4283
+
+  - We are using Python 3.6; changes afoot for 3.7?
+
+- ``cardinal_pythonlib==1.0.80`` for memory efficiency, then for the
+  :func:`nice_call` function that sorts this out a bit.
