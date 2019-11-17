@@ -250,6 +250,7 @@ class ViewArg(object):
     choices (inside an HTTP POST request) as values from this class.
     """
     # Delivery methods
+    DOWNLOAD = "download"
     EMAIL = "email"
     IMMEDIATELY = "immediately"
 
@@ -690,6 +691,7 @@ class Routes(object):
     DELETE_SPECIAL_NOTE = "delete_special_note"
     DELETE_USER = "delete_user"
     DEVELOPER = "developer"
+    DOWNLOAD_AREA = "downloads"
     EDIT_GROUP = "edit_group"
     EDIT_ID_DEFINITION = "edit_id_definition"
     EDIT_PATIENT = "edit_patient"
@@ -806,6 +808,7 @@ class RouteCollection(object):
     DELETE_SPECIAL_NOTE = RoutePath(Routes.DELETE_SPECIAL_NOTE)
     DELETE_USER = RoutePath(Routes.DELETE_USER)
     DEVELOPER = RoutePath(Routes.DEVELOPER)
+    DOWNLOAD_AREA = RoutePath(Routes.DOWNLOAD_AREA)
     EDIT_GROUP = RoutePath(Routes.EDIT_GROUP)
     EDIT_ID_DEFINITION = RoutePath(Routes.EDIT_ID_DEFINITION)
     EDIT_PATIENT = RoutePath(Routes.EDIT_PATIENT)

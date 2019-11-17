@@ -2880,8 +2880,9 @@ class DeliveryModeNode(SchemaNode, RequestAwareMixin):
         _ = self.gettext
         self.title = _("Delivery")
         choices = (
-            (ViewArg.IMMEDIATELY, _("Immediate download")),
+            (ViewArg.IMMEDIATELY, _("Serve immediately")),
             (ViewArg.EMAIL, _("E-mail me")),
+            (ViewArg.DOWNLOAD, _("Create a file for me to download")),
         )
         values, pv = get_values_and_permissible(choices)
         self.widget = RadioChoiceWidget(values=values)
@@ -2890,11 +2891,18 @@ class DeliveryModeNode(SchemaNode, RequestAwareMixin):
     # noinspection PyUnusedLocal
     def validator(self, node: SchemaNode, value: Any) -> None:
         request = self.bindings[Binding.REQUEST]  # type: CamcopsRequest
-        if value == ViewArg.EMAIL:
+        _ = request.gettext
+        if value == ViewArg.IMMEDIATELY:
+            if not request.config.permit_immediate_downloads:
+                raise Invalid(self, _("Disabled by the system administrator"))
+        elif value == ViewArg.EMAIL:
             if not request.user.email:
-                _ = request.gettext
-                raise Invalid(self,
-                              _("Your user does not have an email address"))
+                raise Invalid(
+                    self, _("Your user does not have an email address"))
+        elif value == ViewArg.DOWNLOAD:
+            if not request.user_download_dir():
+                raise Invalid(
+                    self, _("User downloads not configured by administrator"))
 
 
 class SqliteSelector(SchemaNode, RequestAwareMixin):

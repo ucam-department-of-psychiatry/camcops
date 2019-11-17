@@ -480,6 +480,7 @@ class DownloadOptions(object):
     Represents options for the process of the user downloading tasks.
     """
     DELIVERY_MODES = [
+        ViewArg.DOWNLOAD,
         ViewArg.EMAIL,
         ViewArg.IMMEDIATELY,
     ]
@@ -574,7 +575,14 @@ class TaskCollectionExporter(object):
                 dict(),
                 request=req
             )
-        else:
+        elif self.options.delivery_mode == ViewArg.DOWNLOAD:
+            self.schedule_download()
+            return render_to_response(
+                "download_scheduled.mako",
+                dict(),
+                request=req
+            )
+        else:  # ViewArg.IMMEDIATELY
             return self.download_now()
 
     def download_now(self) -> Response:

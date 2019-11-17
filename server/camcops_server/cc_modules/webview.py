@@ -1520,6 +1520,16 @@ def sql_dump(req: "CamcopsRequest") -> Response:
     return exporter.immediate_response(req)
 
 
+# noinspection PyUnusedLocal
+@view_config(route_name=Routes.DOWNLOAD_AREA,
+             renderer="download_area.mako")
+def download_area(req: "CamcopsRequest") -> Dict[str, Any]:
+    """
+    Shows the user download area.
+    """
+    return {}
+
+
 # =============================================================================
 # View DDL (table definitions)
 # =============================================================================

@@ -569,15 +569,14 @@ class TsvCollectionTests(TestCase):
 
         data = coll.as_xlsx()
         buffer = io.BytesIO(data)
-        wb = openpyxl.load_workbook(buffer)
-        self.assertEqual(
-            wb.sheetnames,
-            [
-                "name 1",
-                "name 2",
-                "name 3",
-            ]
-        )
+        expected_sheetnames = ["name 1", "name 2", "name 3"]
+        if openpyxl:
+            wb = openpyxl.load_workbook(buffer)  # type: XLWorkbook
+            self.assertEqual(wb.sheetnames, expected_sheetnames)
+        else:
+            wb = pyexcel_xlsx.get_data(buffer)  # type: Dict[str, Any]
+            sheetnames = list(wb.keys())
+            self.assertEqual(sheetnames, expected_sheetnames)
 
     def test_xlsx_page_name_exactly_31_chars_not_truncated(self) -> None:
         page = TsvPage(name="abcdefghijklmnopqrstuvwxyz78901",

@@ -281,6 +281,17 @@ def backoff(attempts: int) -> int:
 
 
 # =============================================================================
+# Controlling tasks
+# =============================================================================
+
+def purge_jobs() -> None:
+    """
+    Purge all jobs from the Celery queue.
+    """
+    celery_app.control.purge()
+
+
+# =============================================================================
 # Note re request creation and context manager
 # =============================================================================
 # NOTE:
@@ -385,6 +396,7 @@ def email_basic_dump(self: "CeleryTask",
                      collection: "TaskCollection",
                      options: "DownloadOptions") -> None:
     """
+    Send a research dump to the user via e-mail.
 
     Args:
         self:
@@ -402,6 +414,7 @@ def email_basic_dump(self: "CeleryTask",
     try:
         # Create request for a specific user, so the auditing is correct.
         with command_line_request_context(user_id=options.user_id) as req:
+            collection.set_request(req)
             exporter = make_exporter(
                 req=req,
                 collection=collection,

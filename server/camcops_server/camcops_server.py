@@ -390,8 +390,13 @@ def _launch_celery_flower(address: str = DEFAULT_FLOWER_ADDRESS,
 
 
 def _housekeeping() -> None:
-    from camcops_server.cc_modules.celery import housekeeping
+    from camcops_server.cc_modules.celery import housekeeping  # delayed import
     housekeeping()
+
+
+def _purge_jobs() -> None:
+    from camcops_server.cc_modules.celery import purge_jobs  # delayed import
+    purge_jobs()
 
 
 # -----------------------------------------------------------------------------
@@ -1029,6 +1034,13 @@ def camcops_main() -> None:
         help="Run housekeeping tasks (remove stale sessions, etc.)"
     )
     housekeeping_parser.set_defaults(func=lambda args: _housekeeping())
+
+    # Purge Celery tasks
+    purge_jobs_parser = add_sub(
+        subparsers, "purge_jobs",
+        help="Purge any outstanding background (back-end, worker) jobs"
+    )
+    purge_jobs_parser.set_defaults(func=lambda args: _purge_jobs())
 
     # -------------------------------------------------------------------------
     # Test options
