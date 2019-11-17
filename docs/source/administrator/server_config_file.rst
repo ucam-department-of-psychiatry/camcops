@@ -556,19 +556,19 @@ Hostname of e-mail (SMTP) server.
 EMAIL_PORT
 ##########
 
-*Integer.* Default: 25.
+*Integer.* Default: 587.
 
-Port number of e-mail (SMTP) server. The default is 25, but consider something
-more secure (see below).
+Port number of e-mail (SMTP) server. The standard SMTP port is 25, but 587 is
+the default for using TLS, which is more secure (see below).
 
 
 EMAIL_USE_TLS
 #############
 
-*Boolean.* Default: false.
+*Boolean.* Default: true.
 
-Use a TLS (secure) connection to talk to the SMTP server? The default is false,
-but you should strongly consider using it!
+Use a TLS (secure) connection to talk to the SMTP server? The default is true;
+turn this off for an insecure connection.
 
 This is used for explicit TLS connections, usually on port 587 (in which the
 connection is opened and then a ``STARTTLS`` command is issued).
@@ -611,6 +611,52 @@ EMAIL_REPLY_TO
 *String.*
 
 "Reply-To:" address used in e-mails. See `RFC 5322`_.
+
+
+User download options
+~~~~~~~~~~~~~~~~~~~~~
+
+PERMIT_IMMEDIATE_DOWNLOADS
+##########################
+
+*Boolean.* Default: false.
+
+Should the system allow users to use the front end web service to create and
+download files? This might be convenient, but the disadvantage is that
+
+
+.. _USER_DOWNLOAD_DIR:
+
+USER_DOWNLOAD_DIR
+#################
+
+*String.* Default: ``""``.
+
+Root directory for storing temporary user downloads (when the user asks for
+files to be created for later download). Within this, a directory will be
+created for every user as required (whose name is the user's ID number).
+
+If this is not set, queued downloads are not offered.
+
+
+USER_DOWNLOAD_FILE_LIFETIME_MIN
+###############################
+
+*Integer.* Default: 60.
+
+When users create files on the server for later download, how long should these
+files "live" before being deleted?
+
+
+USER_DOWNLOAD_MAX_SPACE_MB
+##########################
+
+*Integer.* Default: 100.
+
+Maximum amount of space that each user is permitted to use for short-term
+download storage on the server.
+
+If this is zero, queued downloads are not offered.
 
 
 Debugging options

@@ -33,6 +33,7 @@ from contextlib import contextmanager
 import datetime
 import gettext
 import logging
+import os
 from typing import (Any, Dict, Generator, List, Optional, Set,
                     Tuple, TYPE_CHECKING, Union)
 import urllib.parse
@@ -45,6 +46,7 @@ from cardinal_pythonlib.datetimefunc import (
     pendulum_to_utc_datetime_without_tz,
 )
 # from cardinal_pythonlib.debugging import get_caller_stack_info
+from cardinal_pythonlib.fileops import mkdir_p
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.plot import (
     png_img_html_from_pyplot_figure,
@@ -1549,6 +1551,28 @@ class CamcopsRequest(Request):
                 basetable=basetable,
                 task_pk=task_pk
             )
+
+    # -------------------------------------------------------------------------
+    # User downloads
+    # -------------------------------------------------------------------------
+
+    def user_download_dir(self) -> str:
+        """
+        The directory in which this user's downloads should be/are stored, or a
+        blank string if user downloads are not available. Also ensures it
+        exists.
+        """
+        if self.config.user_download_max_space_mb <= 0:
+            return ""
+        basedir = self.config.user_download_dir
+        if not basedir:
+            return ""
+        user_id = self.user_id
+        if user_id is None:
+            return ""
+        userdir = os.path.join(basedir, str(user_id))
+        mkdir_p(userdir)
+        return userdir
 
 
 # noinspection PyUnusedLocal
