@@ -8,5 +8,3 @@ optional arguments:
   -h, --help            show this help message and exit
   --replacement REPLACEMENT
                         Replace string contents with this (default: XXX)
-
-# Generated at 2019-09-20 11:43:44

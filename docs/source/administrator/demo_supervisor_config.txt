@@ -1,7 +1,7 @@
 
 # =============================================================================
 # Demonstration 'supervisor' (supervisord) config file for CamCOPS.
-# Created by CamCOPS version 2.3.6 at 2019-09-20T11:43:40.961862+01:00.
+# Created by CamCOPS version 2.3.7 at 2019-11-17T01:03:00.450947+00:00.
 # =============================================================================
     # - Supervisor is a system for controlling background processes running on
     #   UNIX-like operating systems. See:
@@ -97,5 +97,3 @@ stopwaitsecs = 60
 programs = camcops_server, camcops_workers, camcops_scheduler
 
     
-
-# Generated at 2019-09-20 11:43:41
