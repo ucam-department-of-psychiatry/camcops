@@ -940,11 +940,11 @@ class CrontabEntry(object):
     """
     def __init__(self,
                  line: str = None,
-                 minute: Union[str, int, List[int]] = None,
-                 hour: Union[str, int, List[int]] = None,
-                 day_of_week: Union[str, int, List[int]] = None,
-                 day_of_month: Union[str, int, List[int]] = None,
-                 month_of_year: Union[str, int, List[int]] = None,
+                 minute: Union[str, int, List[int]] = "*",
+                 hour: Union[str, int, List[int]] = "*",
+                 day_of_week: Union[str, int, List[int]] = "*",
+                 day_of_month: Union[str, int, List[int]] = "*",
+                 month_of_year: Union[str, int, List[int]] = "*",
                  content: str = None) -> None:
         """
         Args:
@@ -962,11 +962,16 @@ class CrontabEntry(object):
                 crontab "month_of_year" entry
             content:
                 crontab "thing to run" entry
+
+        If ``line`` is specified, it is used. Otherwise, the components are
+        used; the default for each of them is ``"*"``, meaning "all". Thus, for
+        example, you can specify ``minute="*/5"`` and that is sufficient to
+        mean "every 5 minutes".
         """
         has_line = line is not None
         has_components = bool(minute and hour and day_of_week and
                               day_of_month and month_of_year and content)
-        assert has_line != has_components, (
+        assert has_line or has_components, (
             "Specify either a crontab line or all the time components"
         )
         if has_line:

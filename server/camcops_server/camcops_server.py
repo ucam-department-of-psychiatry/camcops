@@ -389,6 +389,11 @@ def _launch_celery_flower(address: str = DEFAULT_FLOWER_ADDRESS,
                               port=port)
 
 
+def _housekeeping() -> None:
+    from camcops_server.cc_modules.celery import housekeeping
+    housekeeping()
+
+
 # -----------------------------------------------------------------------------
 # Testing and development
 # -----------------------------------------------------------------------------
@@ -1017,6 +1022,13 @@ def camcops_main() -> None:
         address=args.address,
         port=args.port,
     ))
+
+    # Housekeeping task
+    housekeeping_parser = add_sub(
+        subparsers, "housekeeping",
+        help="Run housekeeping tasks (remove stale sessions, etc.)"
+    )
+    housekeeping_parser.set_defaults(func=lambda args: _housekeeping())
 
     # -------------------------------------------------------------------------
     # Test options

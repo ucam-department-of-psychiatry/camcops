@@ -157,11 +157,20 @@ def get_celery_settings_dict() -> Dict[str, Any]:
     thus is called when needed (rather than immediately).
     """  # noqa
     log.debug("Configuring Celery")
-    from camcops_server.cc_modules.cc_config import get_default_config_from_os_env  # delayed import  # noqa
+    from camcops_server.cc_modules.cc_config import (
+        CrontabEntry,
+        get_default_config_from_os_env,
+    )  # delayed import
     config = get_default_config_from_os_env()
 
+    # -------------------------------------------------------------------------
     # Schedule
+    # -------------------------------------------------------------------------
     schedule = {}  # type: Dict[str, Any]
+
+    # -------------------------------------------------------------------------
+    # User-defined schedule entries
+    # -------------------------------------------------------------------------
     for crontab_entry in config.crontab_entries:
         recipient_name = crontab_entry.content
         schedule_name = f"export_to_{recipient_name}"
@@ -173,7 +182,18 @@ def get_celery_settings_dict() -> Dict[str, Any]:
             "args": (recipient_name, ),
         }
 
+    # -------------------------------------------------------------------------
+    # Housekeeping once per minute
+    # -------------------------------------------------------------------------
+    housekeeping_crontab = CrontabEntry(minute="*", content="dummy")
+    schedule["housekeeping"] = {
+        "task": CELERY_TASK_MODULE_NAME + ".housekeeping",
+        "schedule": housekeeping_crontab.get_celery_schedule(),
+    }
+
+    # -------------------------------------------------------------------------
     # Final Celery settings
+    # -------------------------------------------------------------------------
     return {
         "beat_schedule": schedule,
         "broker_url": config.celery_broker_url,
@@ -258,6 +278,17 @@ def backoff(attempts: int) -> int:
 
     """
     return 2 ** attempts
+
+
+# =============================================================================
+# Note re request creation and context manager
+# =============================================================================
+# NOTE:
+# - You MUST use some sort of context manager to handle requests here, because
+#   the normal Pyramid router [which ordinarily called the "finished" callbacks
+#   via request._process_finished_callbacks()] will not be plumbed in.
+# - For debugging, use the MySQL command
+#       SELECT * FROM information_schema.innodb_locks;
 
 
 # =============================================================================
@@ -365,18 +396,50 @@ def email_basic_dump(self: "CeleryTask",
             :class:`camcops_server.cc_modules.cc_export.DownloadOptions`
             governing the download
     """
-    from camcops_server.cc_modules.cc_export import make_exporter
-    from camcops_server.cc_modules.cc_request import get_single_user_request
+    from camcops_server.cc_modules.cc_export import make_exporter  # delayed import  # noqa
+    from camcops_server.cc_modules.cc_request import command_line_request_context  # delayed import  # noqa
 
     try:
-        req = get_single_user_request(user_id=options.user_id)
-        # ... create request for a specific user, so the auditing is correct
-        exporter = make_exporter(
-            req=req,
-            collection=collection,
-            options=options
-        )
-        exporter.send_by_email()
+        # Create request for a specific user, so the auditing is correct.
+        with command_line_request_context(user_id=options.user_id) as req:
+            exporter = make_exporter(
+                req=req,
+                collection=collection,
+                options=options
+            )
+            exporter.send_by_email()
 
     except Exception as exc:
         self.retry(countdown=backoff(self.request.retries), exc=exc)
+
+
+@celery_app.task(bind=False,
+                 ignore_result=True,
+                 soft_time_limit=CELERY_SOFT_TIME_LIMIT_SEC)
+def housekeeping() -> None:
+    """
+    Function that is run regularly to do cleanup tasks.
+
+    (Remember that the ``bind`` parameter to ``@celery_app.task()`` means that
+    the first argument to the function, typically called ``self``, is the
+    Celery task. We don't need it here. See
+    http://docs.celeryproject.org/en/latest/userguide/tasks.html#bound-tasks.)
+    """
+    from camcops_server.cc_modules.cc_request import command_line_request_context  # delayed import  # noqa
+    from camcops_server.cc_modules.cc_session import CamcopsSession  # delayed import  # noqa
+    from camcops_server.cc_modules.cc_user import (
+        SecurityAccountLockout,
+        SecurityLoginFailure,
+    )  # delayed import
+
+    log.debug("Housekeeping!")
+    with command_line_request_context() as req:
+        # ---------------------------------------------------------------------
+        # Housekeeping tasks
+        # ---------------------------------------------------------------------
+        # We had a problem with MySQL locking here (two locks open for what
+        # appeared to be a single delete, followed by a lock timeout). Seems to
+        # be working now.
+        CamcopsSession.delete_old_sessions(req)
+        SecurityAccountLockout.delete_old_account_lockouts(req)
+        SecurityLoginFailure.clear_dummy_login_failures_if_necessary(req)

@@ -546,7 +546,7 @@ def login_view(req: "CamcopsRequest") -> Response:
             redirect_url = appstruct.get(ViewParam.REDIRECT_URL)
             # 1. If we don't have a username, let's stop quickly.
             if not username:
-                ccsession.logout(req)
+                ccsession.logout()
                 return login_failed(req)
             # 2. Is the user locked?
             locked_out_until = SecurityAccountLockout.user_locked_out_until(
@@ -571,7 +571,7 @@ def login_view(req: "CamcopsRequest") -> Response:
                 # ... may lock the account
                 # Now, call audit() before session.logout(), as the latter
                 # will wipe the session IP address:
-                ccsession.logout(req)
+                ccsession.logout()
                 return login_failed(req)
 
             # OK, logged in.
@@ -641,7 +641,7 @@ def logout(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     audit(req, "Logout")
     ccsession = req.camcops_session
-    ccsession.logout(req)
+    ccsession.logout()
     return dict()
 
 

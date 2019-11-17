@@ -34,7 +34,7 @@ import datetime
 import gettext
 import logging
 from typing import (Any, Dict, Generator, List, Optional, Set,
-                    Tuple, Type, TYPE_CHECKING, Union)
+                    Tuple, TYPE_CHECKING, Union)
 import urllib.parse
 
 from cardinal_pythonlib.datetimefunc import (
@@ -45,7 +45,6 @@ from cardinal_pythonlib.datetimefunc import (
     pendulum_to_utc_datetime_without_tz,
 )
 # from cardinal_pythonlib.debugging import get_caller_stack_info
-from cardinal_pythonlib.json.serialize import register_class_for_json
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.plot import (
     png_img_html_from_pyplot_figure,
@@ -362,7 +361,7 @@ class CamcopsRequest(Request):
         self.add_finished_callback(end_sqlalchemy_session)
 
         if DEBUG_DBSESSION_MANAGEMENT:
-            log.debug(
+            log.warning(
                 "Returning SQLAlchemy session as CamcopsRequest.dbsession")
 
         return _dbsession
@@ -387,12 +386,12 @@ class CamcopsRequest(Request):
             session.rollback()
         else:
             if DEBUG_DBSESSION_MANAGEMENT:
-                log.debug("Committing to database")
+                log.warning("Committing to database")
             session.commit()
             if self._pending_export_push_requests:
                 self._process_pending_export_push_requests()
         if DEBUG_DBSESSION_MANAGEMENT:
-            log.debug("Closing SQLAlchemy session")
+            log.warning("Closing SQLAlchemy session")
         session.close()
 
     def get_bare_dbsession(self) -> SqlASession:
@@ -405,7 +404,7 @@ class CamcopsRequest(Request):
             log.debug("Request is using debugging SQLAlchemy session")
             return self._debugging_db_session
         if DEBUG_DBSESSION_MANAGEMENT:
-            log.debug("Making SQLAlchemy session")
+            log.warning("Making SQLAlchemy session")
         engine = self.engine
         maker = sessionmaker(bind=engine)
         session = maker()  # type: SqlASession
@@ -1898,14 +1897,16 @@ def get_core_debugging_request() -> CamcopsDummyRequest:
         return req
 
 
-def get_command_line_request() -> CamcopsRequest:
+def get_command_line_request(user_id: int = None) -> CamcopsRequest:
     """
     Creates a dummy CamcopsRequest for use on the command line.
+    By default, it does so for the system user. Optionally, you can specify a
+    user by their ID number.
 
     - Presupposes that ``os.environ[ENVVAR_CONFIG_FILE]`` has been set, as it
       is in :func:`camcops_server.camcops.main`.
     """
-    log.debug("Creating command-line pseudo-request")
+    log.debug(f"Creating command-line pseudo-request (user_id={user_id})")
     req = get_core_debugging_request()
 
     # If we proceed with an out-of-date database, we will have problems, and
@@ -1913,13 +1914,18 @@ def get_command_line_request() -> CamcopsRequest:
     req.config.assert_database_ok()
 
     # Ensure we have a user
-    req._debugging_user = User.get_system_user(req.dbsession)
+    if user_id is None:
+        req._debugging_user = User.get_system_user(req.dbsession)
+    else:
+        req._debugging_user = User.get_user_by_id(
+            req.dbsession, user_id)
 
     return req
 
 
 @contextmanager
-def command_line_request_context() -> Generator[CamcopsRequest, None, None]:
+def command_line_request_context(user_id: int = None) \
+        -> Generator[CamcopsRequest, None, None]:
     """
     Request objects are ubiquitous, and allow code to refer to the HTTP
     request, config, HTTP session, database session, and so on. Here we make
@@ -1927,7 +1933,7 @@ def command_line_request_context() -> Generator[CamcopsRequest, None, None]:
     as a context manager that will COMMIT the database afterwards (because the
     normal method, via the Pyramid router, is unavailable).
     """
-    req = get_command_line_request()
+    req = get_command_line_request(user_id=user_id)
     yield req
     # noinspection PyProtectedMember
     req._finish_dbsession()
@@ -1952,45 +1958,3 @@ def get_unittest_request(dbsession: SqlASession,
     req._debugging_user = user
 
     return req
-
-
-def get_single_user_request(*args, **kwargs) -> CamcopsRequest:
-    """
-    Creates a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`.
-
-    Optional keyword arguments:
-
-    - ``user_id``: specific user ID to use
-    """
-    if not hasattr(get_single_user_request, "req"):
-        with pyramid_configurator_context(debug_toolbar=False) as pyr_config:
-            user_id = kwargs.pop("user_id", None)
-
-            kwargs['environ'] = {}
-            req = CamcopsRequest(*args, **kwargs)
-            req.registry = pyr_config.registry
-            pyr_config.begin(request=req)
-
-            if user_id is not None:
-                req._debugging_user = User.get_user_by_id(
-                    req.dbsession, user_id)
-
-            get_single_user_request.req = req
-
-    return get_single_user_request.req
-
-
-def encode_camcops_request(req: CamcopsRequest) -> Dict:
-    return {'user_id': req.user.id}
-
-
-# noinspection PyUnusedLocal
-def decode_camcops_request(d: Dict, cls: Type) -> CamcopsRequest:
-    return get_single_user_request(user_id=d['user_id'])
-
-
-register_class_for_json(
-    cls=CamcopsRequest,
-    obj_to_dict_fn=encode_camcops_request,
-    dict_to_obj_fn=decode_camcops_request
-)
