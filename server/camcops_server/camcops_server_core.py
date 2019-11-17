@@ -105,7 +105,6 @@ from camcops_server.cc_modules.cc_pyramid import RouteCollection  # noqa: E402
 from camcops_server.cc_modules.cc_request import (  # noqa: E402
     CamcopsRequest,
     command_line_request_context,
-    get_command_line_request,
     pyramid_configurator_context,
 )
 from camcops_server.cc_modules.cc_string import all_extra_strings_as_dicts  # noqa: E402,E501
@@ -899,15 +898,14 @@ def dev_cli() -> None:
     config = get_default_config_from_os_env()
     # noinspection PyUnusedLocal
     engine = config.get_sqla_engine()  # noqa: F841
-    # noinspection PyUnusedLocal
-    req = get_command_line_request()
-    # noinspection PyUnusedLocal
-    dbsession = req.dbsession  # noqa: F841
-    log.error("""Entering developer command-line.
+    with command_line_request_context() as req:
+        # noinspection PyUnusedLocal
+        dbsession = req.dbsession  # noqa: F841
+        log.error("""Entering developer command-line.
     - Config is available in 'config'.
     - Database engine is available in 'engine'.
     - Dummy request is available in 'req'.
     - Database session is available in 'dbsession'.
-    """)
-    import pdb
-    pdb.set_trace()
+        """)
+        import pdb
+        pdb.set_trace()

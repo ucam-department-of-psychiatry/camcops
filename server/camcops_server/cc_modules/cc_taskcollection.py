@@ -1030,30 +1030,26 @@ class TaskCollectionTests(DemoDatabaseTestCase):
         return
 
     def test_it_can_be_serialized(self) -> None:
-        from camcops_server.cc_modules.cc_request import get_single_user_request
-        from camcops_server.cc_modules.cc_user import User
+        from camcops_server.cc_modules.cc_request import command_line_request_context  # delayed import  # noqa
 
         taskfilter = TaskFilter()
         taskfilter.task_types = ['task1', 'task2', 'task3']
         taskfilter.group_ids = [1, 2, 3]
 
-        user = User.get_system_user(self.req.dbsession)
+        with command_line_request_context() as req:
+            coll = TaskCollection(
+                req,
+                taskfilter=taskfilter,
+                as_dump=True,
+                sort_method_by_class=TaskSortMethod.CREATION_DATE_ASC
+            )
+            content_type, encoding, data = dumps(coll, serializer="json")
+            new_coll = loads(data, content_type, encoding)
 
-        req = get_single_user_request(user_id=user.id)
-
-        coll = TaskCollection(
-            req,
-            taskfilter=taskfilter,
-            as_dump=True,
-            sort_method_by_class=TaskSortMethod.CREATION_DATE_ASC
-        )
-        content_type, encoding, data = dumps(coll, serializer="json")
-        new_coll = loads(data, content_type, encoding)
-
-        self.assertEqual(new_coll._as_dump, True)
-        self.assertEqual(new_coll._sort_method_by_class,
-                         TaskSortMethod.CREATION_DATE_ASC)
-        self.assertEqual(new_coll._filter.task_types,
-                         ['task1', 'task2', 'task3'])
-        self.assertEqual(new_coll._filter.group_ids,
-                         [1, 2, 3])
+            self.assertEqual(new_coll._as_dump, True)
+            self.assertEqual(new_coll._sort_method_by_class,
+                             TaskSortMethod.CREATION_DATE_ASC)
+            self.assertEqual(new_coll._filter.task_types,
+                             ['task1', 'task2', 'task3'])
+            self.assertEqual(new_coll._filter.group_ids,
+                             [1, 2, 3])

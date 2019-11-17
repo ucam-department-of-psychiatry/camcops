@@ -1905,6 +1905,10 @@ def get_command_line_request(user_id: int = None) -> CamcopsRequest:
 
     - Presupposes that ``os.environ[ENVVAR_CONFIG_FILE]`` has been set, as it
       is in :func:`camcops_server.camcops.main`.
+
+    **WARNING:** this does not provide a COMMIT/ROLLBACK context. If you use
+    this directly, you must manage that yourself. Consider using
+    :func:`command_line_request_context` instead.
     """
     log.debug(f"Creating command-line pseudo-request (user_id={user_id})")
     req = get_core_debugging_request()
