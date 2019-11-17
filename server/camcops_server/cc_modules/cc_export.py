@@ -153,10 +153,12 @@ import logging
 import os
 import sqlite3
 import tempfile
-from typing import List, Generator, Tuple, Type, TYPE_CHECKING
+from typing import Dict, List, Generator, Tuple, Type, TYPE_CHECKING, Union
 
+from cardinal_pythonlib.classes import gen_all_subclasses
 from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.email.sendmail import CONTENT_TYPE_TEXT
+from cardinal_pythonlib.json.serialize import register_for_json
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.pyramid.responses import (
     OdsResponse,
@@ -167,6 +169,8 @@ from cardinal_pythonlib.pyramid.responses import (
 )
 from cardinal_pythonlib.sqlalchemy.session import get_safe_url_from_engine
 import lockfile
+from pyramid.httpexceptions import HTTPBadRequest
+from pyramid.renderers import render_to_response
 from pyramid.response import Response
 from sqlalchemy.engine import create_engine
 from sqlalchemy.orm import Session as SqlASession, sessionmaker
@@ -470,168 +474,122 @@ def gen_audited_tasks_by_task_class(
 # Convert task collections to different export formats for user download
 # =============================================================================
 
-def task_collection_to_sqlite_response(req: "CamcopsRequest",
-                                       collection: "TaskCollection",
-                                       export_options: TaskExportOptions,
-                                       as_sql_not_binary: bool) -> Response:
+@register_for_json
+class DownloadOptions(object):
     """
-    Converts a set of tasks to an SQLite export, either as binary or the SQL
-    text to regenerate it.
+    Represents options for the process of the user downloading tasks.
+    """
+    DELIVERY_MODES = [
+        ViewArg.EMAIL,
+        ViewArg.IMMEDIATELY,
+    ]
 
-    Args:
-        req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-        collection: a :class:`camcops_server.cc_modules.cc_taskcollection.TaskCollection`
-        export_options: a :class:`TaskExportOptions` object
-        as_sql_not_binary: provide SQL text, rather than SQLite binary?
-
-    Returns:
-        a :class:`pyramid.response.Response` object
-
-    """  # noqa
-
-    # -------------------------------------------------------------------------
-    # Create memory file, dumper, and engine
-    # -------------------------------------------------------------------------
-
-    # This approach failed:
-    #
-    #   memfile = io.StringIO()
-    #
-    #   def dump(querysql, *multiparams, **params):
-    #       compsql = querysql.compile(dialect=engine.dialect)
-    #       memfile.write("{};\n".format(compsql))
-    #
-    #   engine = create_engine('{dialect}://'.format(dialect=dialect_name),
-    #                          strategy='mock', executor=dump)
-    #   dst_session = sessionmaker(bind=engine)()  # type: SqlASession
-    #
-    # ... you get the error
-    #   AttributeError: 'MockConnection' object has no attribute 'begin'
-    # ... which is fair enough.
-    #
-    # Next best thing: SQLite database.
-    # Two ways to deal with it:
-    # (a) duplicate our C++ dump code (which itself duplicate the SQLite
-    #     command-line executable's dump facility), then create the database,
-    #     dump it to a string, serve the string; or
-    # (b) offer the binary SQLite file.
-    # Or... (c) both.
-    # Aha! pymysqlite.iterdump does this for us.
-    #
-    # If we create an in-memory database using create_engine('sqlite://'),
-    # can we get the binary contents out? Don't think so.
-    #
-    # So we should first create a temporary on-disk file, then use that.
-
-    # -------------------------------------------------------------------------
-    # Make temporary file (one whose filename we can know).
-    # We use tempfile.mkstemp() for security, or NamedTemporaryFile,
-    # which is a bit easier. However, you can't necessarily open the file
-    # again under all OSs, so that's no good. The final option is
-    # TemporaryDirectory, which is secure and convenient.
-    #
-    # https://docs.python.org/3/library/tempfile.html
-    # https://security.openstack.org/guidelines/dg_using-temporary-files-securely.html  # noqa
-    # https://stackoverflow.com/questions/3924117/how-to-use-tempfile-namedtemporaryfile-in-python  # noqa
-    # -------------------------------------------------------------------------
-    db_basename = "temp.sqlite3"
-    with tempfile.TemporaryDirectory() as tmpdirname:
-        db_filename = os.path.join(tmpdirname, db_basename)
-        # ---------------------------------------------------------------------
-        # Make SQLAlchemy session
-        # ---------------------------------------------------------------------
-        url = "sqlite:///" + db_filename
-        engine = create_engine(url, echo=False)
-        dst_session = sessionmaker(bind=engine)()  # type: SqlASession
-        # ---------------------------------------------------------------------
-        # Iterate through tasks, creating tables as we need them.
-        # ---------------------------------------------------------------------
-        audit_descriptions = []  # type: List[str]
-        task_generator = gen_audited_tasks_by_task_class(collection,
-                                                         audit_descriptions)
-        # ---------------------------------------------------------------------
-        # Next bit very tricky. We're trying to achieve several things:
-        # - a copy of part of the database structure
-        # - a copy of part of the data, with relationships intact
-        # - nothing sensitive (e.g. full User records) going through
-        # - adding new columns for Task objects offering summary values
-        # - Must treat tasks all together, because otherwise we will insert
-        #   duplicate dependency objects like Group objects.
-        # ---------------------------------------------------------------------
-        copy_tasks_and_summaries(tasks=task_generator,
-                                 dst_engine=engine,
-                                 dst_session=dst_session,
-                                 export_options=export_options,
-                                 req=req)
-        dst_session.commit()
-        # ---------------------------------------------------------------------
-        # Audit
-        # ---------------------------------------------------------------------
-        audit(req, f"SQL dump: {'; '.join(audit_descriptions)}")
-        # ---------------------------------------------------------------------
-        # Fetch file contents, either as binary, or as SQL
-        # ---------------------------------------------------------------------
-        filename_stem = (
-            f"CamCOPS_dump_{format_datetime(req.now, DateFormat.FILENAME)}"
-        )
-        suggested_filename = filename_stem + (
-            ".sql" if as_sql_not_binary else ".sqlite3")
-
-        if as_sql_not_binary:
-            # SQL text
-            connection = sqlite3.connect(db_filename)  # type: sqlite3.Connection  # noqa
-            sql_text = sql_from_sqlite_database(connection)
-            connection.close()
-            return TextAttachmentResponse(body=sql_text,
-                                          filename=suggested_filename)
-        else:
-            # SQLite binary
-            with open(db_filename, 'rb') as f:
-                binary_contents = f.read()
-            return SqliteBinaryResponse(body=binary_contents,
-                                        filename=suggested_filename)
+    def __init__(self,
+                 user_id: int,
+                 viewtype: str,
+                 delivery_mode: str,
+                 spreadsheet_sort_by_heading: bool = False,
+                 db_include_blobs: bool = False,
+                 db_patient_id_per_row: bool = False) -> None:
+        """
+        Args:
+            user_id:
+                ID of the user creating the request (may be needed to pass to
+                the back-end)
+            viewtype:
+                file format for receiving data (e.g. XLSX, SQLite)
+            delivery_mode:
+                method of delivery (e.g. immediate, e-mail)
+            spreadsheet_sort_by_heading:
+                (For spreadsheets.)
+                Sort columns within each page by heading name?
+            db_include_blobs:
+                (For database downloads.)
+                Include BLOBs?
+            db_patient_id_per_row:
+                (For database downloads.)
+                Denormalize by include the patient ID in all rows of
+                patient-related tables?
+        """
+        assert delivery_mode in self.DELIVERY_MODES
+        self.user_id = user_id
+        self.viewtype = viewtype
+        self.delivery_mode = delivery_mode
+        self.spreadsheet_sort_by_heading = spreadsheet_sort_by_heading
+        self.db_include_blobs = db_include_blobs
+        self.db_patient_id_per_row = db_patient_id_per_row
 
 
-class BasicTaskCollectionExporter:
+class TaskCollectionExporter(object):
+    """
+    Class to provide tasks for user download.
+    """
+
     def __init__(self,
                  req: "CamcopsRequest",
                  collection: "TaskCollection",
-                 sort_by_heading: bool):
+                 options: DownloadOptions):
         """
         Args:
             req:
                 a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
             collection:
                 a :class:`camcops_server.cc_modules.cc_taskcollection.TaskCollection`
-            sort_by_heading: 
-                sort columns within each page by heading name?
+            options: 
+                :class:`DownloadOptions` governing the download
         """  # noqa
         self.req = req
         self.collection = collection
-        self.sort_by_heading = sort_by_heading
+        self.options = options
 
     @property
     def viewtype(self) -> str:
         raise NotImplementedError("Exporter needs to implement 'viewtype'")
+
+    @property
+    def file_extension(self) -> str:
+        raise NotImplementedError(
+            "Exporter needs to implement 'file_extension'"
+        )
+
+    def get_filename(self) -> str:
+        """
+        Returns the filename for the download.
+        """
+        timestamp = format_datetime(self.req.now, DateFormat.FILENAME)
+        return f"CamCOPS_dump_{timestamp}.{self.file_extension}"
+
+    def immediate_response(self, req: "CamcopsRequest") -> Response:
+        """
+        Returns either a :class:`Response` with the data, or a
+        :class:`Response` saying how the user will obtain their data later.
+
+        Args:
+            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        """
+        if self.options.delivery_mode == ViewArg.EMAIL:
+            self.schedule_email()
+            return render_to_response(
+                "email_scheduled.mako",
+                dict(),
+                request=req
+            )
+        else:
+            return self.download_now()
 
     def download_now(self) -> Response:
         """
         Download the data dump in the selected format
         """
         filename, body = self.to_file()
-
-        return self.get_response(body=body, filename=filename)
+        return self.get_data_response(body=body, filename=filename)
 
     def schedule_email(self) -> None:
         """
         Schedule the export asynchronously and email the logged in user
         when done
         """
-        email_basic_dump.delay(
-            self.viewtype,
-            self.collection,
-            self.sort_by_heading
-        )
+        email_basic_dump.delay(self.collection, self.options)
 
     def send_by_email(self) -> None:
         """
@@ -648,8 +606,8 @@ class BasicTaskCollectionExporter:
             # date: automatic
             from_addr=config.email_from,
             to=email_to,
-            subject=_("CamCOPS basic research dump"),
-            body=_("The research dump you requested is attached."),
+            subject=_("CamCOPS research data dump"),
+            body=_("The research data dump you requested is attached."),
             content_type=(
                 CONTENT_TYPE_TEXT
             ),
@@ -666,46 +624,34 @@ class BasicTaskCollectionExporter:
         )
 
         if email.sent:
-            log.info(f"Basic research dump emailed to {email_to}")
+            log.info(f"Research dump emailed to {email_to}")
         else:
             log.error(
-                f"Failed to email basic research dump to {email_to}"
+                f"Failed to email research dump to {email_to}"
             )
 
-    def get_response(self, body: bytes, filename: str) -> Response:
+    def get_data_response(self, body: bytes, filename: str) -> Response:
         raise NotImplementedError("Exporter needs to implement 'get_response'")
 
     def to_file(self) -> Tuple[str, bytes]:
-        tsvcoll, audit_descriptions = self.get_tsv_collection()
+        """
+        Returns the tuple ``filename, file_contents``.
+        """
+        return self.get_filename(), self.get_file_body()
 
-        audit(self.req, f"Basic dump: {'; '.join(audit_descriptions)}")
-        body = self.get_file_body(tsvcoll)
-        timestamp = format_datetime(self.req.now, DateFormat.FILENAME)
-        filename = (
-            f"CamCOPS_dump_{timestamp}.{self.file_extension}"
-        )
-        return filename, body
-
-    def get_file_body(self, tsvcoll: TsvCollection) -> bytes:
+    def get_file_body(self) -> bytes:
+        """
+        Returns binary data to be stored as a file.
+        """
         raise NotImplementedError("Exporter needs to implement 'get_file_body'")
 
-    @property
-    def file_extension(self) -> str:
-        raise NotImplementedError(
-            "Exporter needs to implement 'file_extension'"
-        )
-
-    def get_tsv_collection(self) -> Tuple[TsvCollection, List[str]]:
+    def get_tsv_collection(self) -> TsvCollection:
         """
         Converts the collection of tasks to a collection of spreadsheet-style
-        data.
+        data. Also audits the request as a basic data dump.
 
         Returns:
-            tuple: ``tsv_collection, audit_descriptions`` where ``tsv_collection``
-            is a :class:`camcops_server.cc_modules.cc_tsv.TsvCollection` object and
-            ``audit_descriptions`` is a list of strings describing the data being
-            fetched.
-
+            a :class:`camcops_server.cc_modules.cc_tsv.TsvCollection` object
         """  # noqa
         audit_descriptions = []  # type: List[str]
         # Task may return >1 file for TSV output (e.g. for subtables).
@@ -718,27 +664,29 @@ class BasicTaskCollectionExporter:
                 tsvcoll.add_pages(tsv_pages)
 
         tsvcoll.sort_pages()
-        if self.sort_by_heading:
+        if self.options.spreadsheet_sort_by_heading:
             tsvcoll.sort_headings_within_all_pages()
 
-        return tsvcoll, audit_descriptions
+        audit(self.req, f"Basic dump: {'; '.join(audit_descriptions)}")
+
+        return tsvcoll
 
 
-class BasicOdsExporter(BasicTaskCollectionExporter):
+class OdsExporter(TaskCollectionExporter):
     """
     Converts a set of tasks to an OpenOffice ODS file.
     """
     file_extension = "ods"
     viewtype = ViewArg.ODS
 
-    def get_file_body(self, tsvcoll: TsvCollection) -> bytes:
-        return tsvcoll.as_ods()
+    def get_file_body(self) -> bytes:
+        return self.get_tsv_collection().as_ods()
 
-    def get_response(self, body: bytes, filename: str) -> Response:
+    def get_data_response(self, body: bytes, filename: str) -> Response:
         return OdsResponse(body=body, filename=filename)
 
 
-class BasicTsvZipExporter(BasicTaskCollectionExporter):
+class TsvZipExporter(TaskCollectionExporter):
     """
     Converts a set of tasks to a set of TSV (tab-separated value) file, (one
     per table) in a ZIP file.
@@ -746,22 +694,231 @@ class BasicTsvZipExporter(BasicTaskCollectionExporter):
     file_extension = "zip"
     viewtype = ViewArg.TSV_ZIP
 
-    def get_file_body(self, tsvcoll: TsvCollection) -> bytes:
-        return tsvcoll.as_zip()
+    def get_file_body(self) -> bytes:
+        return self.get_tsv_collection().as_zip()
 
-    def get_response(self, body: bytes, filename: str) -> Response:
+    def get_data_response(self, body: bytes, filename: str) -> Response:
         return ZipResponse(body=body, filename=filename)
 
 
-class BasicXlsxExporter(BasicTaskCollectionExporter):
+class XlsxExporter(TaskCollectionExporter):
     """
     Converts a set of tasks to an Excel XLSX file.
     """
     file_extension = "xlsx"
     viewtype = ViewArg.XLSX
 
-    def get_file_body(self, tsvcoll: TsvCollection) -> bytes:
-        return tsvcoll.as_xlsx()
+    def get_file_body(self) -> bytes:
+        return self.get_tsv_collection().as_xlsx()
 
-    def get_response(self, body: bytes, filename: str) -> Response:
+    def get_data_response(self, body: bytes, filename: str) -> Response:
         return XlsxResponse(body=body, filename=filename)
+
+
+class SqliteExporter(TaskCollectionExporter):
+    """
+    Converts a set of tasks to an SQLite binary file.
+    """
+    file_extension = "sqlite"
+    viewtype = ViewArg.SQLITE
+
+    def get_export_options(self) -> TaskExportOptions:
+        return TaskExportOptions(
+            include_blobs=self.options.db_include_blobs,
+            db_include_summaries=True,
+            db_make_all_tables_even_empty=True,  # debatable, but more consistent!  # noqa
+            db_patient_id_per_row=self.options.db_patient_id_per_row,
+        )
+
+    def get_sqlite_data(self, as_text: bool) -> Union[bytes, str]:
+        """
+        Returns data as a binary SQLite database, or SQL text to create it.
+
+        Args:
+            as_text: textual SQL, rather than binary SQLite?
+
+        Returns:
+            ``bytes`` or ``str``, according to ``as_text``
+        """
+        # ---------------------------------------------------------------------
+        # Create memory file, dumper, and engine
+        # ---------------------------------------------------------------------
+
+        # This approach failed:
+        #
+        #   memfile = io.StringIO()
+        #
+        #   def dump(querysql, *multiparams, **params):
+        #       compsql = querysql.compile(dialect=engine.dialect)
+        #       memfile.write("{};\n".format(compsql))
+        #
+        #   engine = create_engine('{dialect}://'.format(dialect=dialect_name),
+        #                          strategy='mock', executor=dump)
+        #   dst_session = sessionmaker(bind=engine)()  # type: SqlASession
+        #
+        # ... you get the error
+        #   AttributeError: 'MockConnection' object has no attribute 'begin'
+        # ... which is fair enough.
+        #
+        # Next best thing: SQLite database.
+        # Two ways to deal with it:
+        # (a) duplicate our C++ dump code (which itself duplicate the SQLite
+        #     command-line executable's dump facility), then create the
+        #     database, dump it to a string, serve the string; or
+        # (b) offer the binary SQLite file.
+        # Or... (c) both.
+        # Aha! pymysqlite.iterdump does this for us.
+        #
+        # If we create an in-memory database using create_engine('sqlite://'),
+        # can we get the binary contents out? Don't think so.
+        #
+        # So we should first create a temporary on-disk file, then use that.
+
+        # ---------------------------------------------------------------------
+        # Make temporary file (one whose filename we can know).
+        # ---------------------------------------------------------------------
+        # We use tempfile.mkstemp() for security, or NamedTemporaryFile,
+        # which is a bit easier. However, you can't necessarily open the file
+        # again under all OSs, so that's no good. The final option is
+        # TemporaryDirectory, which is secure and convenient.
+        #
+        # https://docs.python.org/3/library/tempfile.html
+        # https://security.openstack.org/guidelines/dg_using-temporary-files-securely.html  # noqa
+        # https://stackoverflow.com/questions/3924117/how-to-use-tempfile-namedtemporaryfile-in-python  # noqa
+        db_basename = "temp.sqlite3"
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            db_filename = os.path.join(tmpdirname, db_basename)
+            # ---------------------------------------------------------------------
+            # Make SQLAlchemy session
+            # ---------------------------------------------------------------------
+            url = "sqlite:///" + db_filename
+            engine = create_engine(url, echo=False)
+            dst_session = sessionmaker(bind=engine)()  # type: SqlASession
+            # ---------------------------------------------------------------------
+            # Iterate through tasks, creating tables as we need them.
+            # ---------------------------------------------------------------------
+            audit_descriptions = []  # type: List[str]
+            task_generator = gen_audited_tasks_by_task_class(self.collection,
+                                                             audit_descriptions)
+            # ---------------------------------------------------------------------
+            # Next bit very tricky. We're trying to achieve several things:
+            # - a copy of part of the database structure
+            # - a copy of part of the data, with relationships intact
+            # - nothing sensitive (e.g. full User records) going through
+            # - adding new columns for Task objects offering summary values
+            # - Must treat tasks all together, because otherwise we will insert
+            #   duplicate dependency objects like Group objects.
+            # ---------------------------------------------------------------------
+            copy_tasks_and_summaries(tasks=task_generator,
+                                     dst_engine=engine,
+                                     dst_session=dst_session,
+                                     export_options=self.get_export_options(),
+                                     req=self.req)
+            dst_session.commit()
+            # ---------------------------------------------------------------------
+            # Audit
+            # ---------------------------------------------------------------------
+            audit(self.req, f"SQL dump: {'; '.join(audit_descriptions)}")
+            # ---------------------------------------------------------------------
+            # Fetch file contents, either as binary, or as SQL
+            # ---------------------------------------------------------------------
+            if as_text:
+                # SQL text
+                connection = sqlite3.connect(db_filename)  # type: sqlite3.Connection  # noqa
+                sql_text = sql_from_sqlite_database(connection)
+                connection.close()
+                return sql_text
+            else:
+                # SQLite binary
+                with open(db_filename, 'rb') as f:
+                    binary_contents = f.read()
+                return binary_contents
+
+    def get_file_body(self) -> bytes:
+        return self.get_sqlite_data(as_text=False)
+
+    def get_data_response(self, body: bytes, filename: str) -> Response:
+        return SqliteBinaryResponse(body=body, filename=filename)
+
+
+class SqlExporter(SqliteExporter):
+    """
+    Converts a set of tasks to the textual SQL needed to create an SQLite file.
+    """
+    file_extension = "sql"
+    viewtype = ViewArg.SQL
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.encoding = "utf-8"
+
+    def get_file_body(self) -> bytes:
+        return self.get_sql().encode(self.encoding)
+
+    def get_sql(self) -> str:
+        """
+        Returns SQL text representing the SQLite database.
+        """
+        return self.get_sqlite_data(as_text=True)
+
+    def download_now(self) -> Response:
+        """
+        Download the data dump in the selected format
+        """
+        filename = self.get_filename()
+        sql_text = self.get_sql()
+        return TextAttachmentResponse(body=sql_text, filename=filename)
+
+    def get_data_response(self, body: str, filename: str) -> Response:
+        """
+        Unused.
+        """
+        pass
+
+
+# Create mapping from "viewtype" to class.
+# noinspection PyTypeChecker
+DOWNLOADER_CLASSES = {}  # type: Dict[str, Type[TaskCollectionExporter]]
+for _cls in gen_all_subclasses(TaskCollectionExporter):  # type: Type[TaskCollectionExporter]  # noqa
+    # noinspection PyTypeChecker
+    DOWNLOADER_CLASSES[_cls.viewtype] = _cls
+
+
+def make_exporter(req: "CamcopsRequest",
+                  collection: "TaskCollection",
+                  options: DownloadOptions) -> TaskCollectionExporter:
+    """
+
+    Args:
+        req:
+            a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        collection:
+            a
+            :class:`camcops_server.cc_modules.cc_taskcollection.TaskCollection`
+        options:
+            :class:`camcops_server.cc_modules.cc_export.DownloadOptions`
+            governing the download
+
+    Returns:
+        a :class:`BasicTaskCollectionExporter`
+
+    Raises:
+        :exc:`HTTPBadRequest` if the arguments are bad
+    """
+    _ = req.gettext
+    if options.delivery_mode not in DownloadOptions.DELIVERY_MODES:
+        raise HTTPBadRequest(
+            f"{_('Bad delivery mode:')} {options.delivery_mode!r} "
+            f"({_('permissible:')} "
+            f"{DownloadOptions.DELIVERY_MODES!r})")
+    try:
+        downloader_class = DOWNLOADER_CLASSES[options.viewtype]
+    except KeyError:
+        raise HTTPBadRequest(
+            f"{_('Bad output type:')} {options.viewtype!r} "
+            f"({_('permissible:')} {DOWNLOADER_CLASSES.keys()!r})")
+    return downloader_class(
+        req=req,
+        collection=collection,
+        options=options
+    )

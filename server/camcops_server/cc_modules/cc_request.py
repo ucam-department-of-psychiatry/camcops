@@ -1955,6 +1955,13 @@ def get_unittest_request(dbsession: SqlASession,
 
 
 def get_single_user_request(*args, **kwargs) -> CamcopsRequest:
+    """
+    Creates a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`.
+
+    Optional keyword arguments:
+
+    - ``user_id``: specific user ID to use
+    """
     if not hasattr(get_single_user_request, "req"):
         with pyramid_configurator_context(debug_toolbar=False) as pyr_config:
             user_id = kwargs.pop("user_id", None)

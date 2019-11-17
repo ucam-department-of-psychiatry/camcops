@@ -249,21 +249,26 @@ class ViewArg(object):
     :class:`camcops_server.cc_modules.cc_forms.DumpTypeSelector` represents its
     choices (inside an HTTP POST request) as values from this class.
     """
-    DOWNLOAD_NOW = "download_now"
+    # Delivery methods
     EMAIL = "email"
-    EVERYTHING = "everything"
+    IMMEDIATELY = "immediately"
+
+    # Output types
     HTML = "html"
     ODS = "ods"
     PDF = "pdf"
-    PDFHTML = "pdfhtml"
-    SPECIFIC_TASKS_GROUPS = "specific_tasks_groups"
+    PDFHTML = "pdfhtml"  # the HTML to create a PDF
     SQL = "sql"
     SQLITE = "sqlite"
     TSV = "tsv"
     TSV_ZIP = "tsv_zip"
-    USE_SESSION_FILTER = "use_session_filter"
     XLSX = "xlsx"
     XML = "xml"
+
+    # What to download
+    EVERYTHING = "everything"
+    SPECIFIC_TASKS_GROUPS = "specific_tasks_groups"
+    USE_SESSION_FILTER = "use_session_filter"
 
 
 # =============================================================================

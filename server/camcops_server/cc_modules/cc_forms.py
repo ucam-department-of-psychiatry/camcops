@@ -2866,8 +2866,8 @@ class DeliveryModeNode(SchemaNode, RequestAwareMixin):
     Mode of delivery of data downloads.
     """
     schema_type = String
-    default = ViewArg.DOWNLOAD_NOW
-    missing = ViewArg.DOWNLOAD_NOW
+    default = ViewArg.EMAIL
+    missing = ViewArg.EMAIL
 
     def __init__(self, *args, **kwargs) -> None:
         self.title = ""  # for type checker
@@ -2880,7 +2880,7 @@ class DeliveryModeNode(SchemaNode, RequestAwareMixin):
         _ = self.gettext
         self.title = _("Delivery")
         choices = (
-            (ViewArg.DOWNLOAD_NOW, _("Download now")),
+            (ViewArg.IMMEDIATELY, _("Immediate download")),
             (ViewArg.EMAIL, _("E-mail me")),
         )
         values, pv = get_values_and_permissible(choices)
@@ -3041,6 +3041,7 @@ class OfferSqlDumpSchema(CSRFSchema):
     include_blobs = IncludeBlobsNode()  # must match ViewParam.INCLUDE_BLOBS
     patient_id_per_row = PatientIdPerRowNode()  # must match ViewParam.PATIENT_ID_PER_ROW  # noqa
     manual = OfferDumpManualSchema()  # must match ViewParam.MANUAL
+    delivery_mode = DeliveryModeNode()  # must match ViewParam.DELIVERY_MODE
 
 
 class OfferSqlDumpForm(SimpleSubmitForm):

@@ -122,6 +122,7 @@ import camcops_server.cc_modules.cc_all_models  # import side effects (ensure al
 
 if TYPE_CHECKING:
     from celery.app.task import Task as CeleryTask
+    from camcops_server.cc_modules.cc_export import DownloadOptions
     from camcops_server.cc_modules.cc_taskcollection import TaskCollection
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
@@ -350,47 +351,31 @@ def export_to_recipient_backend(self: "CeleryTask",
                  max_retries=MAX_RETRIES,
                  soft_time_limit=CELERY_SOFT_TIME_LIMIT_SEC)
 def email_basic_dump(self: "CeleryTask",
-                     viewtype: str,
                      collection: "TaskCollection",
-                     sort_by_heading: bool) -> None:
+                     options: "DownloadOptions") -> None:
     """
 
     Args:
         self:
             the Celery task, :class:`celery.app.task.Task`
-        viewtype:
-            string value and member of
-            :class:`camcops_server.cc_modules.cc_pyramid.ViewArg` defining the
-            export type (e.g. XLSX, TSV ZIP).
         collection:
             a
             :class:`camcops_server.cc_modules.cc_taskcollection.TaskCollection`
-        sort_by_heading:
-            sort columns within each page by heading name?
+        options:
+            :class:`camcops_server.cc_modules.cc_export.DownloadOptions`
+            governing the download
     """
-    from camcops_server.cc_modules.cc_export import (
-        BasicOdsExporter,
-        BasicTsvZipExporter,
-        BasicXlsxExporter,
-    )
-    from camcops_server.cc_modules.cc_pyramid import ViewArg
+    from camcops_server.cc_modules.cc_export import make_exporter
     from camcops_server.cc_modules.cc_request import get_single_user_request
 
     try:
-        req = get_single_user_request()
-
-        exporter_classes = {
-            ViewArg.TSV_ZIP: BasicTsvZipExporter,
-            ViewArg.XLSX: BasicXlsxExporter,
-            ViewArg.ODS: BasicOdsExporter,
-        }
-
-        exporter = exporter_classes[viewtype](
+        req = get_single_user_request(user_id=options.user_id)
+        # ... create request for a specific user, so the auditing is correct
+        exporter = make_exporter(
             req=req,
             collection=collection,
-            sort_by_heading=sort_by_heading
+            options=options
         )
-
         exporter.send_by_email()
 
     except Exception as exc:

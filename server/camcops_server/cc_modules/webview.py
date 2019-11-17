@@ -190,10 +190,8 @@ from camcops_server.cc_modules.cc_db import (
 from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_email import Email
 from camcops_server.cc_modules.cc_export import (
-    BasicOdsExporter,
-    BasicTsvZipExporter,
-    BasicXlsxExporter,
-    task_collection_to_sqlite_response,
+    DownloadOptions,
+    make_exporter,
 )
 from camcops_server.cc_modules.cc_exportmodels import (
     ExportedTask,
@@ -1435,38 +1433,23 @@ def serve_basic_dump(req: "CamcopsRequest") -> Response:
     viewtype = req.get_str_param(ViewParam.VIEWTYPE, ViewArg.XLSX,
                                  lower=True)
     delivery_mode = req.get_str_param(ViewParam.DELIVERY_MODE,
-                                      ViewArg.DOWNLOAD_NOW, lower=True)
+                                      ViewArg.EMAIL, lower=True)
+
     # Get tasks (and perform checks)
     collection = get_dump_collection(req)
-
-    exporter_classes = {
-        ViewArg.TSV_ZIP: BasicTsvZipExporter,
-        ViewArg.XLSX: BasicXlsxExporter,
-        ViewArg.ODS: BasicOdsExporter,
-    }
-
-    permissible = exporter_classes.keys()
-    if viewtype not in permissible:
-        _ = req.gettext
-        raise HTTPBadRequest(
-            f"{_('Bad output type:')} {viewtype!r} "
-            f"({_('permissible:')} {permissible!r})")
-
-    exporter = exporter_classes[viewtype](
+    # Create object that knows how to export
+    exporter = make_exporter(
         req=req,
         collection=collection,
-        sort_by_heading=sort_by_heading
-    )
-
-    if delivery_mode == ViewArg.EMAIL:
-        exporter.schedule_email()
-        return render_to_response(
-            "email_scheduled.mako",
-            dict(),
-            request=req
+        options=DownloadOptions(
+            user_id=req.user_id,
+            viewtype=viewtype,
+            delivery_mode=delivery_mode,
+            spreadsheet_sort_by_heading=sort_by_heading
         )
-    else:
-        return exporter.download_now()
+    )  # may raise
+    # Export, or schedule an email/download
+    return exporter.immediate_response(req)
 
 
 @view_config(route_name=Routes.OFFER_SQL_DUMP)
@@ -1490,6 +1473,7 @@ def offer_sql_dump(req: "CamcopsRequest") -> Response:
                 ViewParam.PATIENT_ID_PER_ROW: appstruct.get(ViewParam.PATIENT_ID_PER_ROW),  # noqa
                 ViewParam.GROUP_IDS: manual.get(ViewParam.GROUP_IDS),
                 ViewParam.TASKS: manual.get(ViewParam.TASKS),
+                ViewParam.DELIVERY_MODE: appstruct.get(ViewParam.DELIVERY_MODE),
             }
             # We could return a response, or redirect via GET.
             # The request is not sensitive, so let's redirect.
@@ -1515,28 +1499,25 @@ def sql_dump(req: "CamcopsRequest") -> Response:
     sqlite_method = req.get_str_param(ViewParam.SQLITE_METHOD)
     include_blobs = req.get_bool_param(ViewParam.INCLUDE_BLOBS, False)
     patient_id_per_row = req.get_bool_param(ViewParam.PATIENT_ID_PER_ROW, True)
-    if sqlite_method not in [ViewArg.SQL, ViewArg.SQLITE]:
-        _ = req.gettext
-        raise HTTPBadRequest(f"{_('Bad  parameter:')} "
-                             f"{ViewParam.SQLITE_METHOD}={sqlite_method!r}")
+    delivery_mode = req.get_str_param(ViewParam.DELIVERY_MODE,
+                                      ViewArg.EMAIL, lower=True)
 
     # Get tasks (and perform checks)
     collection = get_dump_collection(req)
-
-    # Return response
-    as_sql_not_binary = sqlite_method == ViewArg.SQL
-    export_options = TaskExportOptions(
-        include_blobs=include_blobs,
-        db_include_summaries=True,
-        db_make_all_tables_even_empty=True,  # debatable, but more consistent!
-        db_patient_id_per_row=patient_id_per_row,
-    )
-    return task_collection_to_sqlite_response(
+    # Create object that knows how to export
+    exporter = make_exporter(
         req=req,
         collection=collection,
-        export_options=export_options,
-        as_sql_not_binary=as_sql_not_binary,
-    )
+        options=DownloadOptions(
+            user_id=req.user_id,
+            viewtype=sqlite_method,
+            delivery_mode=delivery_mode,
+            db_include_blobs=include_blobs,
+            db_patient_id_per_row=patient_id_per_row,
+        )
+    )  # may raise
+    # Export, or schedule an email/download
+    return exporter.immediate_response(req)
 
 
 # =============================================================================

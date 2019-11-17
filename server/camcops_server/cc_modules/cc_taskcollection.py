@@ -1008,8 +1008,8 @@ def reorder_args(content_type: str,
                  content_encoding: str,
                  data: str) -> List[str]:
     """
-    kombu SerializerRegistry.dumps returns data as last element in tuple but
-    for SerializeRegistry.loads it's the first argument
+    kombu :func:`SerializerRegistry.dumps` returns data as last element in
+    tuple but for :func:`SerializeRegistry.loads` it's the first argument
     """
     return [data, content_type, content_encoding]
 
