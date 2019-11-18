@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: CamCOPS 2.3.6\n"
+"Project-Id-Version: CamCOPS 2.3.7\n"
 "Report-Msgid-Bugs-To: rudolf@pobox.com\n"
-"POT-Creation-Date: 2019-10-22 11:21+0100\n"
+"POT-Creation-Date: 2019-11-17 15:04+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,6 +19,14 @@ msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_device.py:206
 msgid "(Server) Devices registered with the server"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:610
+msgid "CamCOPS research data dump"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:611
+msgid "The research data dump you requested is attached."
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:262
@@ -55,7 +63,7 @@ msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:343
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:651
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3300
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3346
 msgid "Add"
 msgstr ""
 
@@ -77,9 +85,9 @@ msgid "Cancel"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:696
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3272
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3320
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3389
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3318
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3366
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3435
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:48
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:59
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:54
@@ -357,7 +365,7 @@ msgid "Forename"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2043
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3424
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3470
 msgid "Date of birth"
 msgstr ""
 
@@ -586,139 +594,167 @@ msgid "ZIP file of tab-separated value (TSV) files"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2881
-msgid "Database download method"
+msgid "Delivery"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2883
+msgid "Serve immediately"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2884
-msgid "Binary SQLite database"
+msgid "E-mail me"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2885
-msgid "SQL text to create SQLite database"
+msgid "Create a file for me to download"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2908
-msgid "Sort columns?"
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2897
+msgid "Disabled by the system administrator"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2909
-msgid "Sort by heading (column) names within spreadsheets?"
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2901
+msgid "Your user does not have an email address"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2905
+msgid "User downloads not configured by administrator"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2925
+msgid "Database download method"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2928
-msgid "Include BLOBs?"
+msgid "Binary SQLite database"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2929
-msgid "Include binary large objects (BLOBs)? WARNING: may be large"
+msgid "SQL text to create SQLite database"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2952
-msgid "Patient ID per row?"
+msgid "Sort columns?"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2953
+msgid "Sort by heading (column) names within spreadsheets?"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2972
+msgid "Include BLOBs?"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2973
+msgid "Include binary large objects (BLOBs)? WARNING: may be large"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2996
+msgid "Patient ID per row?"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2997
 msgid "Include patient ID numbers and task cross-referencing (denormalized) information per row?"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2974
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3018
 msgid "Manual settings"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2994
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3016
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3039
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3062
 msgid "Dump"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3037
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3083
 msgid "Database friendly title"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3067
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3113
 msgid "Full description (e.g. “NHS number”)"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3085
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3131
 msgid "Short description (e.g. “NHS#”)"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3086
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3132
 msgid "Try to keep it very short!"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3104
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3150
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:44
 msgid "Validation method"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3105
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3151
 msgid "Built-in CamCOPS ID number validation method"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3122
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3168
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:46
 msgid "HL7 Assigning Authority"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3123
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3169
 msgid "For HL7 messaging: HL7 Assigning Authority for ID number (unique name of the system/organization/agency/department that creates the data)."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3144
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3190
 msgid "HL7 Identifier Type"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3145
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3191
 msgid "For HL7 messaging: HL7 Identifier Type code: ‘a code corresponding to the type of identifier. In some cases, this code may be used as a qualifier to the “Assigning Authority” component.’"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3174
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3235
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3220
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3281
 msgid "Description is used by another ID number!"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3183
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3244
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3229
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3290
 msgid "Short description is used by another ID number!"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3211
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3257
 msgid "Which ID number?"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3227
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3273
 msgid "ID# clashes with another ID number!"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3345
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3391
 msgid "Erase"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3367
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3413
 msgid "Show tasks that will be deleted"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3426
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3472
 msgid "GP"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3447
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3493
 msgid "Patient would not meet 'finalize' ID policy for group:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3449
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3495
 msgid "That policy is:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3462
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3508
 msgid "Submit"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3481
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3527
 msgid "View affected tasks"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3501
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3547
 msgid "Forcibly finalize"
 msgstr ""
 
@@ -734,27 +770,27 @@ msgstr ""
 msgid "(Server) Patients, distinct by name, sex, DOB, all ID numbers"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_pyramid.py:1191
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_pyramid.py:1200
 msgid "Page $page of $page_count; total $item_count records"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:768
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:767
 msgid "Number of initial records"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:769
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:768
 msgid "Number of latest subsequent records"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:803
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:802
 msgid "Date filters"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:804
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:803
 msgid "Start date"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:804
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_report.py:803
 msgid "End date"
 msgstr ""
 
@@ -972,151 +1008,151 @@ msgstr ""
 msgid "You are not a group administrator for any groups that this user is in"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:322
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:320
 msgid "User not authorized to dump data (for any group)."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:327
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:325
 msgid "User not authorized to run reports (for any group)."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:332
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:330
 msgid "Task is live on tablet; finalize (or force-finalize) first."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:443
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:441
 msgid "Hello! This is a public CamCOPS test page."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:454
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:452
 msgid "Private test page."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:488
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:486
 msgid "Deliberately crashed. Should not affect other processes."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:631
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:629
 msgid "(never)"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1203
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1201
 msgid "Invalid tasks specified"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1205
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1203
 msgid "Not all tasks specified provide trackers"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1964
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1952
 msgid "Last 1 minute"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1966
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1954
 msgid "Last 5 minutes"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1968
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1956
 msgid "Last 10 minutes"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1970
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1958
 msgid "Last 1 hour"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2082
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2070
 msgid "You may not administer this group"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2150
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2138
 msgid "Can't rename user"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2151
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2139
 msgid "that conflicts with an existing user with ID"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2404
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2392
 msgid "Can't delete your own user!"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2406
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2394
 msgid "Unable to delete user: user still has webviewer login and/or tablet upload permission"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2409
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2397
 msgid "Unable to delete user: they are a superuser and you are not"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2414
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2402
 msgid "Unable to delete user: user belongs to groups that you do not administer"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2418
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2406
 msgid "Unable to delete user; records (or audit trails) refer to that user. Disable login and upload permissions instead."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2621
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2609
 msgid "Unable to delete group; there are users who are members!"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2624
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2612
 msgid "Unable to delete group; records refer to it."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2826
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2814
 msgid "Unable to delete ID definition; records refer to it."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2881
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2869
 msgid "Not authorized to add special notes for this task's group"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2927
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2915
 msgid "Not authorized to delete this special note"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2992
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2980
 msgid "Task erased:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3037
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3025
 msgid "Not authorized to erase tasks for this task's group"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3057
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3045
 msgid "Task already erased"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3067
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3055
 msgid "View amended task"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3132
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3120
 msgid "You're not an admin for this group"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3229
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3217
 msgid "No such patient"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3231
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3219
 msgid "Bad patient: not in a group"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3233
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3221
 msgid "Not authorized to edit this patient"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3236
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3224
 msgid "Patient is not editable (likely: not finalized, so a copy is still on a client device)"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3348
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3336
 msgid "Patient details edited. Changes:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3464
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3452
 msgid "Some records for this device are in groups for which you are not an administrator"
 msgstr ""
 
@@ -1313,7 +1349,7 @@ msgstr ""
 msgid "CPFT LPS – referred but not yet fully assessed or discharged"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/ctqsf.py:79
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/ctqsf.py:62
 msgid "Childhood Trauma Questionnaire, Short Form"
 msgstr ""
 
@@ -1345,72 +1381,72 @@ msgstr ""
 msgid "Dementia Quality of Life measure, proxy version"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:300
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:298
 msgid "Diagnostic codes, ICD-10"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:409
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:407
 msgid "Diagnostic codes, ICD-9-CM (DSM-IV-TR)"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:534
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:532
 msgid "Diagnosis – ICD-9-CM (DSM-IV-TR) diagnoses for all patients"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:563
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:561
 msgid "Diagnosis – ICD-10 diagnoses for all patients"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:591
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:589
 msgid "Diagnosis – All diagnoses for all patients"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:633
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:631
 msgid "Diagnostic code"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:634
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:632
 #, python-format
 msgid "Type in a diagnostic code; you may use SQL 'LIKE' syntax for wildcards, i.e. _ for one character and % for zero/one/lots"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:653
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:651
 msgid "Diagnostic codes"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:655
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:653
 msgid "Use % as a wildcard (e.g. F32 matches only F32, but F32% matches F32, F32.1, F32.2...)."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:667
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:665
 msgid "You must specify at least"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:669
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:667
 msgid "You have specified duplicate diagnoses"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:683
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:681
 msgid "Inclusion diagnoses (lifetime)"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:685
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:683
 msgid "Exclusion diagnoses (lifetime)"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:687
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:685
 msgid "Minimum age (years) (optional)"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:689
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:687
 msgid "Maximum age (years) (optional)"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:914
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:912
 msgid "Diagnosis – Find patients by ICD-10 diagnosis ± age"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:959
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:957
 msgid "Diagnosis – Find patients by ICD-9-CM (DSM-IV-TR) diagnosis ± age"
 msgstr ""
 
@@ -2043,6 +2079,10 @@ msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_sql_offer.mako:63
 msgid "Choose SQL dump parameters"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/email_scheduled.mako:31
+msgid "An e-mail with this data dump will be sent to you shortly. Please check your inbox in a few minutes."
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/export_recipient.mako:38

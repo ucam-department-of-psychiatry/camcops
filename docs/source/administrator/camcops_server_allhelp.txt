@@ -1,8 +1,8 @@
 usage: camcops_server [-h] [--allhelp] [--version] [-v]
-                      {docs,demo_camcops_config,demo_supervisor_config,demo_apache_config,upgrade_db,dev_upgrade_db,dev_downgrade_db,show_db_title,merge_db,create_db,ddl,reindex,check_index,make_superuser,reset_password,enable_user,export,show_export_queue,crate_dd,cris_dd,serve_cherrypy,serve_gunicorn,serve_pyramid,convert_athena_icd_snomed_to_xml,launch_workers,launch_scheduler,launch_monitor,show_tests,self_test,dev_cli}
+                      {docs,demo_camcops_config,demo_supervisor_config,demo_apache_config,upgrade_db,dev_upgrade_db,dev_downgrade_db,show_db_title,merge_db,create_db,ddl,reindex,check_index,make_superuser,reset_password,enable_user,export,show_export_queue,crate_dd,cris_dd,serve_cherrypy,serve_gunicorn,serve_pyramid,convert_athena_icd_snomed_to_xml,launch_workers,launch_scheduler,launch_monitor,housekeeping,purge_jobs,show_tests,self_test,dev_cli}
                       ...
 
-CamCOPS server, created by Rudolf Cardinal; version 2.3.6.
+CamCOPS server, created by Rudolf Cardinal; version 2.3.7.
 Use 'camcops_server <COMMAND> --help' for more detail on each command.
 
 optional arguments:
@@ -14,7 +14,7 @@ optional arguments:
 commands:
   Valid CamCOPS commands are as follows.
 
-  {docs,demo_camcops_config,demo_supervisor_config,demo_apache_config,upgrade_db,dev_upgrade_db,dev_downgrade_db,show_db_title,merge_db,create_db,ddl,reindex,check_index,make_superuser,reset_password,enable_user,export,show_export_queue,crate_dd,cris_dd,serve_cherrypy,serve_gunicorn,serve_pyramid,convert_athena_icd_snomed_to_xml,launch_workers,launch_scheduler,launch_monitor,show_tests,self_test,dev_cli}
+  {docs,demo_camcops_config,demo_supervisor_config,demo_apache_config,upgrade_db,dev_upgrade_db,dev_downgrade_db,show_db_title,merge_db,create_db,ddl,reindex,check_index,make_superuser,reset_password,enable_user,export,show_export_queue,crate_dd,cris_dd,serve_cherrypy,serve_gunicorn,serve_pyramid,convert_athena_icd_snomed_to_xml,launch_workers,launch_scheduler,launch_monitor,housekeeping,purge_jobs,show_tests,self_test,dev_cli}
                         Specify one command.
     docs                Launch the main documentation (CamCOPS manual)
     demo_camcops_config
@@ -56,6 +56,9 @@ commands:
     launch_scheduler    Launch Celery Beat scheduler, to schedule background
                         jobs
     launch_monitor      Launch Celery Flower monitor, to monitor background
+                        jobs
+    housekeeping        Run housekeeping tasks (remove stale sessions, etc.)
+    purge_jobs          Purge any outstanding background (back-end, worker)
                         jobs
     show_tests          Show available self-tests
     self_test           Test internal code
@@ -110,6 +113,7 @@ optional arguments:
 Help for command 'upgrade_db'
 ===============================================================================
 usage: camcops_server upgrade_db [-h] [-v] --config CONFIG [--show_sql_only]
+                                 [--no_reindex]
 
 Upgrade database to most recent version (via Alembic)
 
@@ -118,6 +122,7 @@ optional arguments:
   -v, --verbose    Be verbose (default: False)
   --show_sql_only  Show SQL only (to stdout); don't execute it (default:
                    False)
+  --no_reindex     Don't recreate the task index (default: False)
 
 required named arguments:
   --config CONFIG  Configuration file (default: None)
@@ -255,8 +260,8 @@ optional arguments:
   -v, --verbose      Be verbose (default: False)
   --config CONFIG    Configuration file (if not specified, the environment
                      variable CAMCOPS_CONFIG_FILE is checked) (default: None)
-  --dialect DIALECT  SQL dialect (options: oracle, mssql, sqlite, firebird,
-                     sybase, mysql, postgresql) (default: mysql)
+  --dialect DIALECT  SQL dialect (options: oracle, postgresql, sqlite, mssql,
+                     mysql, sybase, firebird) (default: mysql)
 
 ===============================================================================
 Help for command 'reindex'
@@ -542,6 +547,32 @@ optional arguments:
   --port PORT        Port to use for Flower (default: 5555)
 
 ===============================================================================
+Help for command 'housekeeping'
+===============================================================================
+usage: camcops_server housekeeping [-h] [-v] [--config CONFIG]
+
+Run housekeeping tasks (remove stale sessions, etc.)
+
+optional arguments:
+  -h, --help       show this help message and exit
+  -v, --verbose    Be verbose (default: False)
+  --config CONFIG  Configuration file (if not specified, the environment
+                   variable CAMCOPS_CONFIG_FILE is checked) (default: None)
+
+===============================================================================
+Help for command 'purge_jobs'
+===============================================================================
+usage: camcops_server purge_jobs [-h] [-v] [--config CONFIG]
+
+Purge any outstanding background (back-end, worker) jobs
+
+optional arguments:
+  -h, --help       show this help message and exit
+  -v, --verbose    Be verbose (default: False)
+  --config CONFIG  Configuration file (if not specified, the environment
+                   variable CAMCOPS_CONFIG_FILE is checked) (default: None)
+
+===============================================================================
 Help for command 'show_tests'
 ===============================================================================
 usage: camcops_server show_tests [-h] [-v]
@@ -579,5 +610,3 @@ optional arguments:
   --config CONFIG  Configuration file (if not specified, the environment
                    variable CAMCOPS_CONFIG_FILE is checked) (default: None)
 
-
-# Generated at 2019-09-20 11:43:36

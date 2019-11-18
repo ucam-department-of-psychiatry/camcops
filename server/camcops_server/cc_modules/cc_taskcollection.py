@@ -36,17 +36,20 @@ from threading import Thread
 from typing import (Dict, Generator, List, Optional, Tuple, Type,
                     TYPE_CHECKING, Union)
 
+from cardinal_pythonlib.json.serialize import (
+    register_class_for_json,
+    register_enum_for_json,
+)
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.reprfunc import auto_repr, auto_str
 from cardinal_pythonlib.sort import MINTYPE_SINGLETON, MinType
+from kombu.serialization import dumps, loads
 from pendulum import DateTime as Pendulum
 from sqlalchemy.orm import Query
 from sqlalchemy.orm.session import Session as SqlASession
 from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.expression import and_, exists, or_
 
-# noinspection PyUnresolvedReferences
-import camcops_server.cc_modules.cc_all_models  # import side effects (ensure all models registered)  # noqa
 from camcops_server.cc_modules.cc_constants import ERA_NOW
 from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
 from camcops_server.cc_modules.cc_task import (
@@ -58,6 +61,7 @@ from camcops_server.cc_modules.cc_taskfactory import (
 )
 from camcops_server.cc_modules.cc_taskfilter import TaskFilter
 from camcops_server.cc_modules.cc_taskindex import TaskIndexEntry
+from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 
 if TYPE_CHECKING:
     from sqlalchemy.sql.elements import ClauseElement, ColumnElement
@@ -93,6 +97,7 @@ def task_when_created_sorter(task: Task) \
     return MINTYPE_SINGLETON if created is None else (created, uploaded)
 
 
+@register_enum_for_json
 class TaskSortMethod(Enum):
     """
     Enum representing ways to sort tasks.
@@ -196,7 +201,7 @@ class TaskCollection(object):
     by task class (e.g. trackers).
     """
     def __init__(self,
-                 req: "CamcopsRequest",
+                 req: Optional["CamcopsRequest"],
                  taskfilter: TaskFilter = None,
                  as_dump: bool = False,
                  sort_method_by_class: TaskSortMethod = TaskSortMethod.NONE,
@@ -209,7 +214,9 @@ class TaskCollection(object):
         Args:
             req:
                 the
-                :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+                :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`.
+                ``None`` should only be used as a parameter when serializing
+                a :class:`TaskCollection` to the back-end.
             taskfilter:
                 a :class:`camcops_server.cc_modules.cc_taskfilter.TaskFilter`
                 object that contains any restrictions we may want to apply.
@@ -272,6 +279,26 @@ class TaskCollection(object):
     # =========================================================================
     # Interface to read
     # =========================================================================
+
+    @property
+    def req(self) -> "CamcopsRequest":
+        """
+        Returns the associated request, or raises :exc:`AssertionError` if it's
+        not been set.
+        """
+        assert self._req is not None, (
+            "Must initialize with a request or call set_request() first"
+        )
+        return self._req
+
+    def set_request(self, req: "CamcopsRequest") -> None:
+        """
+        Sets the request object manually. Used by Celery back-end tasks.
+
+        Args:
+            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        """
+        self._req = req
 
     def task_classes(self) -> List[Type[Task]]:
         """
@@ -370,7 +397,7 @@ class TaskCollection(object):
         """
         Returns the request's database session.
         """
-        return self._req.dbsession
+        return self.req.dbsession
 
     # =========================================================================
     # Internals: fetching Task objects
@@ -389,7 +416,7 @@ class TaskCollection(object):
             # Deprecated parallel fetch
             threads = []  # type: List[FetchThread]
             for task_class in self._filter.task_classes:
-                thread = FetchThread(self._req, task_class, self)
+                thread = FetchThread(self.req, task_class, self)
                 thread.start()
                 threads.append(thread)
             for thread in threads:
@@ -436,7 +463,7 @@ class TaskCollection(object):
 
         Returns ``None`` if no tasks would match our criteria.
         """
-        dbsession = self._req.dbsession
+        dbsession = self.req.dbsession
         return self._make_query(dbsession, task_class)
 
     def _make_query(self, dbsession: SqlASession,
@@ -456,7 +483,7 @@ class TaskCollection(object):
 
         # Restrict to what is PERMITTED
         q = task_query_restricted_to_permitted_users(
-            self._req, q, task_class, as_dump=self._as_dump)
+            self.req, q, task_class, as_dump=self._as_dump)
 
         # Restrict to what is DESIRED
         if q:
@@ -486,7 +513,7 @@ class TaskCollection(object):
 
         """
         tf = self._filter  # task filter
-        user = self._req.user
+        user = self.req.user
 
         if tf.group_ids:
             permitted_group_ids = tf.group_ids.copy()
@@ -737,7 +764,7 @@ class TaskCollection(object):
         assert self._all_indexes is not None
 
         d = tablename_to_task_class_dict()
-        dbsession = self._req.dbsession
+        dbsession = self.req.dbsession
         self._all_tasks = []  # type: List[Task]
 
         # Fetch indexes
@@ -781,7 +808,7 @@ class TaskCollection(object):
 
         Returns ``None`` if no tasks would match our criteria.
         """
-        dbsession = self._req.dbsession
+        dbsession = self.req.dbsession
         q = dbsession.query(TaskIndexEntry)
 
         # Restrict to what the web front end will supply
@@ -790,7 +817,7 @@ class TaskCollection(object):
         # Restrict to what is PERMITTED
         if not self.export_recipient:
             q = task_query_restricted_to_permitted_users(
-                self._req, q, TaskIndexEntry, as_dump=self._as_dump)
+                self.req, q, TaskIndexEntry, as_dump=self._as_dump)
 
         # Restrict to what is DESIRED
         if q:
@@ -817,7 +844,7 @@ class TaskCollection(object):
 
         """
         tf = self._filter  # task filter
-        user = self._req.user
+        user = self.req.user
 
         if tf.group_ids:
             permitted_group_ids = tf.group_ids.copy()
@@ -971,3 +998,84 @@ class TaskCollection(object):
             )
         )
         return q
+
+
+# noinspection PyProtectedMember
+def encode_task_collection(coll: TaskCollection) -> Dict:
+    """
+    Serializes a :class:`TaskCollection`.
+
+    The request is not serialized and must be rebuilt in another way; see e.g.
+    :func:`camcops_server.cc_modules.celery.email_basic_dump`.
+    """
+    return {
+        "taskfilter": dumps(coll._filter, serializer="json"),
+        "as_dump": coll._as_dump,
+        "sort_method_by_class": dumps(coll._sort_method_by_class,
+                                      serializer="json"),
+    }
+
+
+# noinspection PyUnusedLocal
+def decode_task_collection(d: Dict, cls: Type) -> TaskCollection:
+    """
+    Creates a :class:`TaskCollection` from a serialized version.
+
+    The request is not serialized and must be rebuilt in another way; see e.g.
+    :func:`camcops_server.cc_modules.celery.email_basic_dump`.
+    """
+    kwargs = {
+        "taskfilter": loads(*reorder_args(*d["taskfilter"])),
+        "as_dump": d["as_dump"],
+        "sort_method_by_class": loads(
+            *reorder_args(*d["sort_method_by_class"])),
+    }
+    return TaskCollection(req=None, **kwargs)
+
+
+def reorder_args(content_type: str,
+                 content_encoding: str,
+                 data: str) -> List[str]:
+    """
+    kombu :func:`SerializerRegistry.dumps` returns data as last element in
+    tuple but for :func:`SerializeRegistry.loads` it's the first argument
+    """
+    return [data, content_type, content_encoding]
+
+
+register_class_for_json(
+    cls=TaskCollection,
+    obj_to_dict_fn=encode_task_collection,
+    dict_to_obj_fn=decode_task_collection
+)
+
+
+# =============================================================================
+# Unit tests
+# =============================================================================
+
+class TaskCollectionTests(DemoDatabaseTestCase):
+    def create_tasks(self) -> None:
+        return
+
+    def test_it_can_be_serialized(self) -> None:
+        taskfilter = TaskFilter()
+        taskfilter.task_types = ['task1', 'task2', 'task3']
+        taskfilter.group_ids = [1, 2, 3]
+
+        coll = TaskCollection(
+            self.req,
+            taskfilter=taskfilter,
+            as_dump=True,
+            sort_method_by_class=TaskSortMethod.CREATION_DATE_ASC
+        )
+        content_type, encoding, data = dumps(coll, serializer="json")
+        new_coll = loads(data, content_type, encoding)
+
+        self.assertEqual(new_coll._as_dump, True)
+        self.assertEqual(new_coll._sort_method_by_class,
+                         TaskSortMethod.CREATION_DATE_ASC)
+        self.assertEqual(new_coll._filter.task_types,
+                         ['task1', 'task2', 'task3'])
+        self.assertEqual(new_coll._filter.group_ids,
+                         [1, 2, 3])

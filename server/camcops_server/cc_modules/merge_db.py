@@ -1048,7 +1048,7 @@ def merge_camcops_db(src: str,
             skip audit log table
 
     """
-    req = get_command_line_request()
+    req = get_command_line_request()  # requires manual COMMIT; see below
     src_engine = create_engine(src, echo=echo, pool_pre_ping=True)
     log.info("SOURCE: " + get_safe_url_from_engine(src_engine))
     log.info("DESTINATION: " + get_safe_url_from_engine(req.engine))

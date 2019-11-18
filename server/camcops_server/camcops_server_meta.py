@@ -101,7 +101,6 @@ def meta_main() -> None:
             if args.dummyrun:
                 continue
             camcops_main()  # using the new sys.argv
-            # subprocess.check_call(cmdargs)
     if not did_something:
         log.info("Nothing to do; no files found")
 

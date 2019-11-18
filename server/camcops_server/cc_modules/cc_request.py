@@ -33,6 +33,7 @@ from contextlib import contextmanager
 import datetime
 import gettext
 import logging
+import os
 from typing import (Any, Dict, Generator, List, Optional, Set,
                     Tuple, TYPE_CHECKING, Union)
 import urllib.parse
@@ -45,6 +46,7 @@ from cardinal_pythonlib.datetimefunc import (
     pendulum_to_utc_datetime_without_tz,
 )
 # from cardinal_pythonlib.debugging import get_caller_stack_info
+from cardinal_pythonlib.fileops import get_directory_contents_size, mkdir_p
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.plot import (
     png_img_html_from_pyplot_figure,
@@ -56,7 +58,7 @@ import lockfile
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib.font_manager import FontProperties
-from pendulum import Date, DateTime as Pendulum
+from pendulum import Date, DateTime as Pendulum, Duration
 from pendulum.parsing.exceptions import ParserError
 from pyramid.config import Configurator
 from pyramid.decorator import reify
@@ -361,7 +363,7 @@ class CamcopsRequest(Request):
         self.add_finished_callback(end_sqlalchemy_session)
 
         if DEBUG_DBSESSION_MANAGEMENT:
-            log.debug(
+            log.warning(
                 "Returning SQLAlchemy session as CamcopsRequest.dbsession")
 
         return _dbsession
@@ -386,12 +388,12 @@ class CamcopsRequest(Request):
             session.rollback()
         else:
             if DEBUG_DBSESSION_MANAGEMENT:
-                log.debug("Committing to database")
+                log.warning("Committing to database")
             session.commit()
             if self._pending_export_push_requests:
                 self._process_pending_export_push_requests()
         if DEBUG_DBSESSION_MANAGEMENT:
-            log.debug("Closing SQLAlchemy session")
+            log.warning("Closing SQLAlchemy session")
         session.close()
 
     def get_bare_dbsession(self) -> SqlASession:
@@ -404,7 +406,7 @@ class CamcopsRequest(Request):
             log.debug("Request is using debugging SQLAlchemy session")
             return self._debugging_db_session
         if DEBUG_DBSESSION_MANAGEMENT:
-            log.debug("Making SQLAlchemy session")
+            log.warning("Making SQLAlchemy session")
         engine = self.engine
         maker = sessionmaker(bind=engine)
         session = maker()  # type: SqlASession
@@ -1550,6 +1552,65 @@ class CamcopsRequest(Request):
                 task_pk=task_pk
             )
 
+    # -------------------------------------------------------------------------
+    # User downloads
+    # -------------------------------------------------------------------------
+
+    @property
+    def user_download_dir(self) -> str:
+        """
+        The directory in which this user's downloads should be/are stored, or a
+        blank string if user downloads are not available. Also ensures it
+        exists.
+        """
+        if self.config.user_download_max_space_mb <= 0:
+            return ""
+        basedir = self.config.user_download_dir
+        if not basedir:
+            return ""
+        user_id = self.user_id
+        if user_id is None:
+            return ""
+        userdir = os.path.join(basedir, str(user_id))
+        mkdir_p(userdir)
+        return userdir
+
+    @property
+    def user_download_bytes_permitted(self) -> int:
+        """
+        Amount of space the user is permitted.
+        """
+        if not self.user_download_dir:
+            return 0
+        return self.config.user_download_max_space_mb * 1024 * 1024
+
+    @reify
+    def user_download_bytes_used(self) -> int:
+        """
+        Returns the disk space used by this user.
+        """
+        download_dir = self.user_download_dir
+        if not download_dir:
+            return 0
+        return get_directory_contents_size(download_dir)
+
+    @property
+    def user_download_bytes_available(self) -> int:
+        """
+        Returns the available space for this user in their download area.
+        """
+        permitted = self.user_download_bytes_permitted
+        used = self.user_download_bytes_used
+        available = permitted - used
+        return available
+
+    @property
+    def user_download_lifetime_duration(self) -> Duration:
+        """
+        Returns the lifetime of user download objects.
+        """
+        return Duration(minutes=self.config.user_download_file_lifetime_min)
+
 
 # noinspection PyUnusedLocal
 def complete_request_add_cookies(req: CamcopsRequest,
@@ -1897,14 +1958,20 @@ def get_core_debugging_request() -> CamcopsDummyRequest:
         return req
 
 
-def get_command_line_request() -> CamcopsRequest:
+def get_command_line_request(user_id: int = None) -> CamcopsRequest:
     """
     Creates a dummy CamcopsRequest for use on the command line.
+    By default, it does so for the system user. Optionally, you can specify a
+    user by their ID number.
 
     - Presupposes that ``os.environ[ENVVAR_CONFIG_FILE]`` has been set, as it
       is in :func:`camcops_server.camcops.main`.
+
+    **WARNING:** this does not provide a COMMIT/ROLLBACK context. If you use
+    this directly, you must manage that yourself. Consider using
+    :func:`command_line_request_context` instead.
     """
-    log.debug("Creating command-line pseudo-request")
+    log.debug(f"Creating command-line pseudo-request (user_id={user_id})")
     req = get_core_debugging_request()
 
     # If we proceed with an out-of-date database, we will have problems, and
@@ -1912,13 +1979,18 @@ def get_command_line_request() -> CamcopsRequest:
     req.config.assert_database_ok()
 
     # Ensure we have a user
-    req._debugging_user = User.get_system_user(req.dbsession)
+    if user_id is None:
+        req._debugging_user = User.get_system_user(req.dbsession)
+    else:
+        req._debugging_user = User.get_user_by_id(
+            req.dbsession, user_id)
 
     return req
 
 
 @contextmanager
-def command_line_request_context() -> Generator[CamcopsRequest, None, None]:
+def command_line_request_context(user_id: int = None) \
+        -> Generator[CamcopsRequest, None, None]:
     """
     Request objects are ubiquitous, and allow code to refer to the HTTP
     request, config, HTTP session, database session, and so on. Here we make
@@ -1926,7 +1998,7 @@ def command_line_request_context() -> Generator[CamcopsRequest, None, None]:
     as a context manager that will COMMIT the database afterwards (because the
     normal method, via the Pyramid router, is unavailable).
     """
-    req = get_command_line_request()
+    req = get_command_line_request(user_id=user_id)
     yield req
     # noinspection PyProtectedMember
     req._finish_dbsession()

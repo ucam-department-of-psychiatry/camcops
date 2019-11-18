@@ -2861,6 +2861,50 @@ class SpreadsheetFormatSelector(SchemaNode, RequestAwareMixin):
         self.validator = OneOf(pv)
 
 
+class DeliveryModeNode(SchemaNode, RequestAwareMixin):
+    """
+    Mode of delivery of data downloads.
+    """
+    schema_type = String
+    default = ViewArg.EMAIL
+    missing = ViewArg.EMAIL
+
+    def __init__(self, *args, **kwargs) -> None:
+        self.title = ""  # for type checker
+        self.widget = None  # type: Optional[Widget]
+        super().__init__(*args, **kwargs)
+
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        _ = self.gettext
+        self.title = _("Delivery")
+        choices = (
+            (ViewArg.IMMEDIATELY, _("Serve immediately")),
+            (ViewArg.EMAIL, _("E-mail me")),
+            (ViewArg.DOWNLOAD, _("Create a file for me to download")),
+        )
+        values, pv = get_values_and_permissible(choices)
+        self.widget = RadioChoiceWidget(values=values)
+
+    # noinspection PyUnusedLocal
+    def validator(self, node: SchemaNode, value: Any) -> None:
+        request = self.bindings[Binding.REQUEST]  # type: CamcopsRequest
+        _ = request.gettext
+        if value == ViewArg.IMMEDIATELY:
+            if not request.config.permit_immediate_downloads:
+                raise Invalid(self, _("Disabled by the system administrator"))
+        elif value == ViewArg.EMAIL:
+            if not request.user.email:
+                raise Invalid(
+                    self, _("Your user does not have an email address"))
+        elif value == ViewArg.DOWNLOAD:
+            if not request.user_download_dir:
+                raise Invalid(
+                    self, _("User downloads not configured by administrator"))
+        else:
+            raise Invalid(self, _("Bad value"))
+
+
 class SqliteSelector(SchemaNode, RequestAwareMixin):
     """
     Node to select a way of downloading an SQLite database.
@@ -2982,6 +3026,7 @@ class OfferBasicDumpSchema(CSRFSchema):
     sort = SortTsvByHeadingsNode()  # must match ViewParam.SORT
     manual = OfferDumpManualSchema()  # must match ViewParam.MANUAL
     viewtype = SpreadsheetFormatSelector()  # must match ViewParams.VIEWTYPE  # noqa
+    delivery_mode = DeliveryModeNode()  # must match ViewParam.DELIVERY_MODE
 
 
 class OfferBasicDumpForm(SimpleSubmitForm):
@@ -3004,6 +3049,7 @@ class OfferSqlDumpSchema(CSRFSchema):
     include_blobs = IncludeBlobsNode()  # must match ViewParam.INCLUDE_BLOBS
     patient_id_per_row = PatientIdPerRowNode()  # must match ViewParam.PATIENT_ID_PER_ROW  # noqa
     manual = OfferDumpManualSchema()  # must match ViewParam.MANUAL
+    delivery_mode = DeliveryModeNode()  # must match ViewParam.DELIVERY_MODE
 
 
 class OfferSqlDumpForm(SimpleSubmitForm):

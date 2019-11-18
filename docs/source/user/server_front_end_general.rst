@@ -219,6 +219,10 @@ The download formats include:
   least human-friendly format, but is good for automatically importing into
   statistics packages.
 
+You can also choose to have the dump emailed to you, providing your user
+is set up with a valid email address. This is useful for large exports that may
+be time consuming.
+
 
 Dump table data as SQL
 ~~~~~~~~~~~~~~~~~~~~~~

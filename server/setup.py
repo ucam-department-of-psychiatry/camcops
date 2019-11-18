@@ -82,7 +82,8 @@ with open(os.path.join(THIS_DIR, 'README.rst'), encoding='utf-8') as f:
 INSTALL_REQUIRES = [
     'alembic==1.0.7',  # database migrations
     'Babel==2.6.0',  # reads code, generates gettext files; dev only but was already installed  # noqa
-    'celery==4.2.1',  # background tasks
+    'cardinal_pythonlib==1.0.81',  # RNC libraries
+    'celery==4.3.0',  # background tasks
     'colorlog==3.1.4',  # colour in logs
     'CherryPy==18.1.0',  # web server
     'deform==2.0.5',  # web forms
