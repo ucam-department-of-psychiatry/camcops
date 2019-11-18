@@ -110,6 +110,7 @@ Task decorator options:
 """  # noqa
 
 import logging
+import os
 from typing import Any, Dict, TYPE_CHECKING
 
 from cardinal_pythonlib.json.serialize import json_encode, json_decode
@@ -123,6 +124,7 @@ import camcops_server.cc_modules.cc_all_models  # import side effects (ensure al
 if TYPE_CHECKING:
     from celery.app.task import Task as CeleryTask
     from camcops_server.cc_modules.cc_export import DownloadOptions
+    from camcops_server.cc_modules.cc_request import CamcopsRequest
     from camcops_server.cc_modules.cc_taskcollection import TaskCollection
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
@@ -303,7 +305,7 @@ def purge_jobs() -> None:
 
 
 # =============================================================================
-# Real tasks
+# Export tasks
 # =============================================================================
 
 @celery_app.task(bind=True,
@@ -420,7 +422,7 @@ def email_basic_dump(self: "CeleryTask",
                 collection=collection,
                 options=options
             )
-            exporter.send_by_email(req)
+            exporter.send_by_email()
 
     except Exception as exc:
         self.retry(countdown=backoff(self.request.retries), exc=exc)
@@ -465,6 +467,30 @@ def create_user_download(self: "CeleryTask",
         self.retry(countdown=backoff(self.request.retries), exc=exc)
 
 
+# =============================================================================
+# Housekeeping
+# =============================================================================
+
+def delete_old_user_downloads(req: "CamcopsRequest") -> None:
+    """
+    Deletes user download files that are past their expiry time.
+
+    Args:
+        req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+    """
+    from camcops_server.cc_modules.cc_export import UserDownloadFile  # delayed import  # noqa
+
+    now = req.now
+    lifetime = req.user_download_lifetime_duration
+    oldest_allowed = now - lifetime
+    log.critical(f"Deleting files older than {oldest_allowed}")
+    for root, dirs, files in os.walk(req.config.user_download_dir):
+        for f in files:
+            udf = UserDownloadFile(filename=f, directory=root)
+            if udf.older_than(oldest_allowed):
+                udf.delete()
+
+
 @celery_app.task(bind=False,
                  ignore_result=True,
                  soft_time_limit=CELERY_SOFT_TIME_LIMIT_SEC)
@@ -495,3 +521,4 @@ def housekeeping() -> None:
         CamcopsSession.delete_old_sessions(req)
         SecurityAccountLockout.delete_old_account_lockouts(req)
         SecurityLoginFailure.clear_dummy_login_failures_if_necessary(req)
+        delete_old_user_downloads(req)

@@ -43,7 +43,7 @@ camcops_server/templates/menu/download_area.mako
     </tr>
     %for f in files:
         <tr>
-            <td>${f.filename}</td>
+            <td><a href="${f.download_url(req)}">${f.filename}</a></td>
             <td>${f.size_str}</td>
             <td>${f.when_last_modified_str}</td>
             <td>${f.time_left_str}</td>

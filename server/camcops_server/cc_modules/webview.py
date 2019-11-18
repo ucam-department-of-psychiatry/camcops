@@ -1561,7 +1561,7 @@ def download_file(req: "CamcopsRequest") -> Response:
     udf = UserDownloadFile(directory=req.user_download_dir,
                            filename=filename)
     if not udf.exists:
-        raise HTTPBadRequest(f'_("No such file:") {filename}')
+        raise HTTPBadRequest(f'{_("No such file:")} {filename}')
     try:
         return BinaryResponse(
             body=udf.contents,
@@ -1570,7 +1570,7 @@ def download_file(req: "CamcopsRequest") -> Response:
             as_inline=False
         )
     except OSError:
-        raise HTTPBadRequest(f'_("Error reading file:") {filename}')
+        raise HTTPBadRequest(f'{_("Error reading file:")} {filename}')
 
 
 @view_config(route_name=Routes.DELETE_FILE)
@@ -1587,7 +1587,7 @@ def delete_file(req: "CamcopsRequest") -> Response:
     udf = UserDownloadFile(directory=req.user_download_dir,
                            filename=filename)
     if not udf.exists:
-        raise HTTPBadRequest(f'_("No such file:") {filename}')
+        raise HTTPBadRequest(f'{_("No such file:")} {filename}')
     udf.delete()
     return HTTPFound(req.route_url(Routes.DOWNLOAD_AREA))  # redirect
 

@@ -1139,6 +1139,15 @@ class UserDownloadFile(object):
             return ""
         return t.in_words()  # Duration and Period do nice formatting
 
+    def older_than(self, when: Pendulum) -> bool:
+        """
+        Was the file created before the specified time?
+        """
+        m = self.when_last_modified
+        if not m:
+            return False
+        return m < when
+
     # -------------------------------------------------------------------------
     # Deletion
     # -------------------------------------------------------------------------
@@ -1162,6 +1171,7 @@ class UserDownloadFile(object):
         """
         try:
             os.remove(self.fullpath)
+            log.info(f"Deleted file: {self.fullpath}")
         except OSError:
             pass
 

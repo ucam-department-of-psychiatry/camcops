@@ -58,7 +58,7 @@ import lockfile
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib.font_manager import FontProperties
-from pendulum import Date, DateTime as Pendulum
+from pendulum import Date, DateTime as Pendulum, Duration
 from pendulum.parsing.exceptions import ParserError
 from pyramid.config import Configurator
 from pyramid.decorator import reify
@@ -1603,6 +1603,13 @@ class CamcopsRequest(Request):
         used = self.user_download_bytes_used
         available = permitted - used
         return available
+
+    @property
+    def user_download_lifetime_duration(self) -> Duration:
+        """
+        Returns the lifetime of user download objects.
+        """
+        return Duration(minutes=self.config.user_download_file_lifetime_min)
 
 
 # noinspection PyUnusedLocal
