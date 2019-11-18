@@ -44,7 +44,7 @@ camcops_server/templates/base/base.mako
                     document.documentElement.className = "svg";
                 }
             </script>
-            <style type="text/css">
+            <style>
                 <%block name="css"></%block>
             </style>
             <%block name="extra_head_end"></%block>

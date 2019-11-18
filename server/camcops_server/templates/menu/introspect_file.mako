@@ -29,7 +29,7 @@ camcops_server/templates/menu/introspect_file.mako
 <%inherit file="base_web.mako"/>
 
 <%block name="extra_head_end">
-    <style type="text/css">
+    <style>
         ${css}
     </style>
 </%block>

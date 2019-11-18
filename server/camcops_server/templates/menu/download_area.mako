@@ -30,6 +30,14 @@ camcops_server/templates/menu/download_area.mako
 
 <%include file="db_user_info.mako"/>
 
+<style>
+/* Make Deform form (which we will put in a table) look more sensible */
+.deform-form-fieldset, .form-group, .deform-form-buttons {
+    padding: 0;
+    border: none;
+}
+</style>
+
 <h2>${_("Download area")}</h2>
 
 <table>
@@ -39,16 +47,14 @@ camcops_server/templates/menu/download_area.mako
         <th>${_("Created")}</th>
         <th>${_("Time left")}</th>
         <th>${_("Delete")}</th>
-        <th>${_("Download")}</th>
     </tr>
     %for f in files:
         <tr>
-            <td><a href="${f.download_url(req)}">${f.filename}</a></td>
+            <td><a href="${f.download_url}">${f.filename}</a></td>
             <td>${f.size_str}</td>
             <td>${f.when_last_modified_str}</td>
             <td>${f.time_left_str}</td>
-            <td><a href="${f.delete_url(req)}">${_("Delete")}</a></td>
-            <td><a href="${f.download_url(req)}">${_("Download")}</a></td>
+            <td>${f.delete_form}</td>
         </tr>
     %endfor
 </table>
