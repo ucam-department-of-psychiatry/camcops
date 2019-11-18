@@ -53,15 +53,6 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # Ancillary functions for export filenames
 # =============================================================================
 
-class FileType(object):
-    """
-    Used to represent output formats and their file extensions.
-    """
-    HTML = "html"
-    PDF = "pdf"
-    XML = "xml"
-
-
 class PatientSpecElementForFilename(object):
     """
     Parts of the patient information that can be used to autogenerate

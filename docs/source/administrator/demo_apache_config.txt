@@ -1,6 +1,6 @@
 
     # Demonstration Apache config file section for CamCOPS.
-    # Created by CamCOPS version 2.3.6 at 2019-09-20T11:43:42.725236+01:00.
+    # Created by CamCOPS version 2.3.7 at 2019-11-17T16:59:54.095009+00:00.
     #
     # Under Ubuntu, the Apache config will be somewhere in /etc/apache2/
     # Under CentOS, the Apache config will be somewhere in /etc/httpd/
@@ -83,8 +83,10 @@
         #
         # - For ProxyPass options, see https://httpd.apache.org/docs/2.2/mod/mod_proxy.html#proxypass
         #
-        #   ... including "retry=0" to stop Apache disabling the connection for
-        #   while on failure.
+        #   - Include "retry=0" to stop Apache disabling the connection for
+        #     while on failure.
+        #   - Consider adding a "timeout=<seconds>" option if the back-end is
+        #     slow and causing timeouts.
         #
         # - CamCOPS MUST BE TOLD about its location and protocol, because that
         #   information is critical for synthesizing URLs, but is stripped out
@@ -111,8 +113,8 @@
         # Note the use of "http" (reflecting the backend), not https (like the
         # front end).
 
-    # ProxyPass /camcops http://127.0.0.1:8000 retry=0
-    # ProxyPassReverse /camcops http://127.0.0.1:8000 retry=0
+    # ProxyPass /camcops http://127.0.0.1:8000 retry=0 timeout=300
+    # ProxyPassReverse /camcops http://127.0.0.1:8000
 
         # #####################################################################
         # UNIX SOCKET METHOD (Apache 2.4.9 and higher)
@@ -175,8 +177,8 @@
         #
         # - https://emptyhammock.com/projects/info/pyweb/webconfig.html
 
-    ProxyPass /camcops unix:/run/camcops/camcops.socket|http://dummy1 retry=0
-    ProxyPassReverse /camcops unix:/run/camcops/camcops.socket|http://dummy1 retry=0
+    ProxyPass /camcops unix:/run/camcops/camcops.socket|http://dummy1 retry=0 timeout=300
+    ProxyPassReverse /camcops unix:/run/camcops/camcops.socket|http://dummy1
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # (b) Allow proxy over SSL.
@@ -281,5 +283,3 @@
 </VirtualHost>
 
     
-
-# Generated at 2019-09-20 11:43:42

@@ -112,7 +112,7 @@ def main() -> None:
         log.error("pre_commit_hook.py must be run inside virtualenv")
         sys.exit(EXIT_FAILURE)
 
-    log.info(f"Using config file {CONFIG_FILE}")
+    log.info(f"Using flake8 config file {CONFIG_FILE}")
     if not os.path.isfile(CONFIG_FILE):
         log.error(f"Cannot find config file {CONFIG_FILE}; aborting")
         sys.exit(EXIT_FAILURE)

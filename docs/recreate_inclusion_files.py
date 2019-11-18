@@ -59,16 +59,23 @@ SERVER_TOOLS_DIR = join(SERVER_ROOT_DIR, "tools")
 
 def run_cmd(cmdargs: List[str],
             output_filename: str,
-            timestamp: bool = True,
+            timestamp: bool = False,
             comment_prefix: str = "# ",
             encoding: str = sys.getdefaultencoding()) -> None:
     """
     Args:
-        cmdargs: command to run
-        output_filename: file to write command's output to
-        timestamp: add timestamp?
-        comment_prefix: comment prefix for this type of output file
-        encoding: encoding to use
+        cmdargs:
+            Command to run
+        output_filename:
+            File to write command's output to
+        timestamp:
+            Add timestamp? Perhaps helpful, but means that all files will
+            appear to change whenever this script is run, because their
+            timestamp will change.
+        comment_prefix:
+            Comment prefix for this type of output file
+        encoding:
+            Encoding to use
     """
     log.info(f"Running: {cmdargs}")
     output = subprocess.check_output(cmdargs).decode(encoding)

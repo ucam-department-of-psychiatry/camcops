@@ -55,8 +55,6 @@ from camcops_server.cc_modules.cc_sqlalchemy import Base
 from camcops_server.cc_modules.cc_taskfilter import TaskFilter
 from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 from camcops_server.cc_modules.cc_user import (
-    SecurityAccountLockout,
-    SecurityLoginFailure,
     User,
 )
 
@@ -235,7 +233,7 @@ class CamcopsSession(Base):
             # the wrong user. This is unlikely to happen!
             # Wipe the old one:
             req = ts.req
-            session.logout(req)
+            session.logout()
             # Create a fresh session.
             session = cls.get_session(req=req, session_id_str=None,
                                       session_token=None)
@@ -326,7 +324,7 @@ class CamcopsSession(Base):
         oldest_last_activity_allowed = \
             cls.get_oldest_last_activity_allowed(req)
         dbsession = req.dbsession
-        log.info("Deleting expired sessions")
+        log.debug("Deleting expired sessions")
         dbsession.query(cls)\
             .filter(cls.last_activity_utc < oldest_last_activity_allowed)\
             .delete(synchronize_session=False)
@@ -366,22 +364,12 @@ class CamcopsSession(Base):
             return self.user.username
         return None
 
-    def logout(self, req: "CamcopsRequest") -> None:
+    def logout(self) -> None:
         """
-        Log out, wiping session details. Also, perform periodic
-        maintenance for the server, as this is a good time.
+        Log out, wiping session details.
         """
-        # First, the logout process.
         self.user_id = None
         self.token = ''  # so there's no way this token can be re-used
-
-        # Secondly, some other things unrelated to logging out. Users will not
-        # always log out manually. But sometimes they will. So we may as well
-        # do some slow non-critical things:
-        self.delete_old_sessions(req)
-        SecurityAccountLockout.delete_old_account_lockouts(req)
-        SecurityLoginFailure.clear_dummy_login_failures_if_necessary(req)
-        # send_analytics_if_necessary(req)
 
     def login(self, user: User) -> None:
         """
@@ -439,7 +427,7 @@ class SessionTests(DemoDatabaseTestCase):
 
         self.assertIsInstance(s.last_activity_utc_iso, str)
         self.assertIsInstanceOrNone(s.username, str)
-        s.logout(req)
+        s.logout()
         s.login(u)
         self.assertIsInstance(s.get_task_filter(), TaskFilter)
 

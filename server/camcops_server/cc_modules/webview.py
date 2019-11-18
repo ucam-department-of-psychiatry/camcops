@@ -130,8 +130,10 @@ from typing import Any, Dict, List, Tuple, Type, TYPE_CHECKING
 
 from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.deform_utils import get_head_form_html
+from cardinal_pythonlib.httpconst import MimeType
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.pyramid.responses import (
+    BinaryResponse,
     PdfResponse,
     XmlResponse,
 )
@@ -139,6 +141,7 @@ from cardinal_pythonlib.sqlalchemy.dialect import (
     get_dialect_name,
     SqlaDialectName,
 )
+from cardinal_pythonlib.sizeformatter import bytes2human
 from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_orm_classes_from_base
 from cardinal_pythonlib.sqlalchemy.orm_query import CountStarSpecializedQuery
 from cardinal_pythonlib.sqlalchemy.session import get_engine_from_session
@@ -190,10 +193,9 @@ from camcops_server.cc_modules.cc_db import (
 from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_email import Email
 from camcops_server.cc_modules.cc_export import (
-    task_collection_to_ods_response,
-    task_collection_to_sqlite_response,
-    task_collection_to_tsv_zip_response,
-    task_collection_to_xlsx_response,
+    DownloadOptions,
+    make_exporter,
+    UserDownloadFile,
 )
 from camcops_server.cc_modules.cc_exportmodels import (
     ExportedTask,
@@ -548,7 +550,7 @@ def login_view(req: "CamcopsRequest") -> Response:
             redirect_url = appstruct.get(ViewParam.REDIRECT_URL)
             # 1. If we don't have a username, let's stop quickly.
             if not username:
-                ccsession.logout(req)
+                ccsession.logout()
                 return login_failed(req)
             # 2. Is the user locked?
             locked_out_until = SecurityAccountLockout.user_locked_out_until(
@@ -573,7 +575,7 @@ def login_view(req: "CamcopsRequest") -> Response:
                 # ... may lock the account
                 # Now, call audit() before session.logout(), as the latter
                 # will wipe the session IP address:
-                ccsession.logout(req)
+                ccsession.logout()
                 return login_failed(req)
 
             # OK, logged in.
@@ -643,7 +645,7 @@ def logout(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     audit(req, "Logout")
     ccsession = req.camcops_session
-    ccsession.logout(req)
+    ccsession.logout()
     return dict()
 
 
@@ -1370,6 +1372,7 @@ def offer_basic_dump(req: "CamcopsRequest") -> Response:
                 ViewParam.GROUP_IDS: manual.get(ViewParam.GROUP_IDS),
                 ViewParam.TASKS: manual.get(ViewParam.TASKS),
                 ViewParam.VIEWTYPE: appstruct.get(ViewParam.VIEWTYPE),
+                ViewParam.DELIVERY_MODE: appstruct.get(ViewParam.DELIVERY_MODE),
             }
             # We could return a response, or redirect via GET.
             # The request is not sensitive, so let's redirect.
@@ -1433,33 +1436,24 @@ def serve_basic_dump(req: "CamcopsRequest") -> Response:
     sort_by_heading = req.get_bool_param(ViewParam.SORT, False)
     viewtype = req.get_str_param(ViewParam.VIEWTYPE, ViewArg.XLSX,
                                  lower=True)
+    delivery_mode = req.get_str_param(ViewParam.DELIVERY_MODE,
+                                      ViewArg.EMAIL, lower=True)
+
     # Get tasks (and perform checks)
     collection = get_dump_collection(req)
-    # Return response
-    if viewtype == ViewArg.TSV_ZIP:
-        return task_collection_to_tsv_zip_response(
-            req=req,
-            collection=collection,
-            sort_by_heading=sort_by_heading,
+    # Create object that knows how to export
+    exporter = make_exporter(
+        req=req,
+        collection=collection,
+        options=DownloadOptions(
+            user_id=req.user_id,
+            viewtype=viewtype,
+            delivery_mode=delivery_mode,
+            spreadsheet_sort_by_heading=sort_by_heading
         )
-    elif viewtype == ViewArg.XLSX:
-        return task_collection_to_xlsx_response(
-            req=req,
-            collection=collection,
-            sort_by_heading=sort_by_heading,
-        )
-    elif viewtype == ViewArg.ODS:
-        return task_collection_to_ods_response(
-            req=req,
-            collection=collection,
-            sort_by_heading=sort_by_heading,
-        )
-    else:
-        _ = req.gettext
-        permissible = [ViewArg.TSV_ZIP, ViewArg.XLSX, ViewArg.ODS]
-        raise HTTPBadRequest(
-            f"{_('Bad output type:')} {viewtype!r} "
-            f"({_('permissible:')} {permissible!r})")
+    )  # may raise
+    # Export, or schedule an email/download
+    return exporter.immediate_response(req)
 
 
 @view_config(route_name=Routes.OFFER_SQL_DUMP)
@@ -1483,6 +1477,7 @@ def offer_sql_dump(req: "CamcopsRequest") -> Response:
                 ViewParam.PATIENT_ID_PER_ROW: appstruct.get(ViewParam.PATIENT_ID_PER_ROW),  # noqa
                 ViewParam.GROUP_IDS: manual.get(ViewParam.GROUP_IDS),
                 ViewParam.TASKS: manual.get(ViewParam.TASKS),
+                ViewParam.DELIVERY_MODE: appstruct.get(ViewParam.DELIVERY_MODE),
             }
             # We could return a response, or redirect via GET.
             # The request is not sensitive, so let's redirect.
@@ -1508,28 +1503,93 @@ def sql_dump(req: "CamcopsRequest") -> Response:
     sqlite_method = req.get_str_param(ViewParam.SQLITE_METHOD)
     include_blobs = req.get_bool_param(ViewParam.INCLUDE_BLOBS, False)
     patient_id_per_row = req.get_bool_param(ViewParam.PATIENT_ID_PER_ROW, True)
-    if sqlite_method not in [ViewArg.SQL, ViewArg.SQLITE]:
-        _ = req.gettext
-        raise HTTPBadRequest(f"{_('Bad  parameter:')} "
-                             f"{ViewParam.SQLITE_METHOD}={sqlite_method!r}")
+    delivery_mode = req.get_str_param(ViewParam.DELIVERY_MODE,
+                                      ViewArg.EMAIL, lower=True)
 
     # Get tasks (and perform checks)
     collection = get_dump_collection(req)
-
-    # Return response
-    as_sql_not_binary = sqlite_method == ViewArg.SQL
-    export_options = TaskExportOptions(
-        include_blobs=include_blobs,
-        db_include_summaries=True,
-        db_make_all_tables_even_empty=True,  # debatable, but more consistent!
-        db_patient_id_per_row=patient_id_per_row,
-    )
-    return task_collection_to_sqlite_response(
+    # Create object that knows how to export
+    exporter = make_exporter(
         req=req,
         collection=collection,
-        export_options=export_options,
-        as_sql_not_binary=as_sql_not_binary,
+        options=DownloadOptions(
+            user_id=req.user_id,
+            viewtype=sqlite_method,
+            delivery_mode=delivery_mode,
+            db_include_blobs=include_blobs,
+            db_patient_id_per_row=patient_id_per_row,
+        )
+    )  # may raise
+    # Export, or schedule an email/download
+    return exporter.immediate_response(req)
+
+
+# noinspection PyUnusedLocal
+@view_config(route_name=Routes.DOWNLOAD_AREA,
+             renderer="download_area.mako")
+def download_area(req: "CamcopsRequest") -> Dict[str, Any]:
+    """
+    Shows the user download area.
+    """
+    userdir = req.user_download_dir
+    if userdir:
+        files = UserDownloadFile.from_directory_scan(
+            directory=userdir,
+            permitted_lifespan_min=req.config.user_download_file_lifetime_min)
+    else:
+        files = []  # type: List[UserDownloadFile]
+    return dict(
+        files=files,
+        available=bytes2human(req.user_download_bytes_available),
+        permitted=bytes2human(req.user_download_bytes_permitted),
+        used=bytes2human(req.user_download_bytes_used),
+        lifetime_min=req.config.user_download_file_lifetime_min,
     )
+
+
+@view_config(route_name=Routes.DOWNLOAD_FILE)
+def download_file(req: "CamcopsRequest") -> Response:
+    """
+    Downloads a file.
+    """
+    _ = req.gettext
+    filename = req.get_str_param(ViewParam.FILENAME, "")
+    # Security comes here: we do NOT permit any path information in the
+    # filename. It MUST be relative to and within the user download directory.
+    # We cannot trust the input.
+    filename = os.path.basename(filename)
+    udf = UserDownloadFile(directory=req.user_download_dir,
+                           filename=filename)
+    if not udf.exists:
+        raise HTTPBadRequest(f'{_("No such file:")} {filename}')
+    try:
+        return BinaryResponse(
+            body=udf.contents,
+            filename=udf.filename,
+            content_type=MimeType.BINARY,
+            as_inline=False
+        )
+    except OSError:
+        raise HTTPBadRequest(f'{_("Error reading file:")} {filename}')
+
+
+@view_config(route_name=Routes.DELETE_FILE)
+def delete_file(req: "CamcopsRequest") -> Response:
+    """
+    Deletes a file.
+    """
+    _ = req.gettext
+    filename = req.get_str_param(ViewParam.FILENAME, "")
+    # Security comes here: we do NOT permit any path information in the
+    # filename. It MUST be relative to and within the user download directory.
+    # We cannot trust the input.
+    filename = os.path.basename(filename)
+    udf = UserDownloadFile(directory=req.user_download_dir,
+                           filename=filename)
+    if not udf.exists:
+        raise HTTPBadRequest(f'{_("No such file:")} {filename}')
+    udf.delete()
+    return HTTPFound(req.route_url(Routes.DOWNLOAD_AREA))  # redirect
 
 
 # =============================================================================
