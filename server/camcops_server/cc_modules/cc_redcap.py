@@ -156,6 +156,9 @@ camcops_server/cc_modules/cc_redcap.py
 
 import redcap
 from typing import TYPE_CHECKING
+from unittest import mock
+
+from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_exportmodels import ExportedTask
@@ -207,3 +210,16 @@ class RedcapExporter(object):
         exported_task.redcap_record_id = ids.split(",")[0]
 
         # TODO: Return some sort of meaningful status
+
+
+class TestRedcapExporter(RedcapExporter):
+    def __init__(self,
+                 req: "CamcopsRequest") -> None:
+        self.req = req
+        self.project = mock.Mock()
+        self.project.import_records = mock.Mock(return_value=["1,1"])
+
+
+class RedcapExportTestCase(DemoDatabaseTestCase):
+    def create_tasks(self) -> None:
+        self.patient = self.create_patient_with_one_idnum()

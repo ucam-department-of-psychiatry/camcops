@@ -26,7 +26,7 @@ camcops_server/tasks/phq9.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any, Dict, Generator, List, Tuple, Type
 
 from cardinal_pythonlib.datetimefunc import (
     format_datetime,
@@ -39,6 +39,10 @@ from camcops_server.cc_modules.cc_constants import CssClass, DateFormat
 from camcops_server.cc_modules.cc_ctvinfo import CtvInfo, CTV_INCOMPLETE
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import answer, get_yes_no, tr, tr_qa
+from camcops_server.cc_modules.cc_redcap import (
+    RedcapExportTestCase,
+    TestRedcapExporter,
+)
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
@@ -365,3 +369,74 @@ class Phq9(TaskHasPatientMixin, Task,
     @staticmethod
     def redcap_instrument_name() -> str:
         return "patient_health_questionnaire_9"
+
+
+class Phq9RedcapExportTests(RedcapExportTestCase):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.id_sequence = self.get_id()
+
+    @staticmethod
+    def get_id() -> Generator[int, None, None]:
+        i = 1
+
+        while True:
+            yield i
+            i += 1
+
+    def create_tasks(self) -> None:
+        super().create_tasks()
+
+        self.task = Phq9()
+        self.apply_standard_task_fields(self.task)
+        self.task.id = next(self.id_sequence)
+        self.task.q1 = 0
+        self.task.q2 = 1
+        self.task.q3 = 2
+        self.task.q4 = 3
+        self.task.q5 = 0
+        self.task.q6 = 1
+        self.task.q7 = 2
+        self.task.q8 = 3
+        self.task.q9 = 0
+        self.task.q10 = 3
+        self.task.patient_id = self.patient.id
+        self.dbsession.add(self.task)
+        self.dbsession.commit()
+
+    def test_phq9_export(self) -> None:
+        from camcops_server.cc_modules.cc_exportmodels import ExportedTask
+
+        exported_task = ExportedTask(task=self.task)
+
+        exporter = TestRedcapExporter(self.req)
+        exporter.export_task(exported_task)
+
+        args, kwargs = exporter.project.import_records.call_args
+
+        rows = args[0]
+        record = rows[0]
+
+        self.assertEquals(record["redcap_repeat_instrument"],
+                          "patient_health_questionnaire_9")
+        self.assertEquals(record["record_id"], 1)
+        self.assertEquals(record["patient_health_questionnaire_9_complete"],
+                          exporter.COMPLETE)
+        self.assertEquals(record["phq9_how_difficult"], 4)
+        self.assertEquals(record["phq9_total_score"], 12)
+        self.assertEquals(record["phq9_first_name"], "Forename2")
+        self.assertEquals(record["phq9_last_name"], "Surname2")
+        self.assertEquals(record["phq9_date_enrolled"], "2010-07-07")
+
+        self.assertEquals(record["phq9_1"], 0)
+        self.assertEquals(record["phq9_2"], 1)
+        self.assertEquals(record["phq9_3"], 2)
+        self.assertEquals(record["phq9_4"], 3)
+        self.assertEquals(record["phq9_5"], 0)
+        self.assertEquals(record["phq9_6"], 1)
+        self.assertEquals(record["phq9_7"], 2)
+        self.assertEquals(record["phq9_8"], 3)
+        self.assertEquals(record["phq9_9"], 0)
+
+        self.assertEquals(kwargs["return_content"], "auto_ids")
+        self.assertTrue(kwargs["force_auto_number"])
