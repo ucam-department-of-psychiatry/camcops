@@ -420,9 +420,9 @@ def _purge_jobs() -> None:
 # Testing and development
 # -----------------------------------------------------------------------------
 
-def _self_test(show_only: bool = False, test_class: str = None) -> None:
+def _self_test(show_only: bool = False, test_class: str = None) -> bool:
     import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
-    core.self_test(show_only=show_only, test_class=test_class)
+    return core.self_test(show_only=show_only, test_class=test_class)
 
 
 def _dev_cli() -> None:

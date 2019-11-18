@@ -82,7 +82,6 @@ with open(os.path.join(THIS_DIR, 'README.rst'), encoding='utf-8') as f:
 INSTALL_REQUIRES = [
     'alembic==1.0.7',  # database migrations
     'Babel==2.6.0',  # reads code, generates gettext files; dev only but was already installed  # noqa
-    'cardinal_pythonlib==1.0.81',  # RNC libraries
     'celery==4.3.0',  # background tasks
     'colorlog==3.1.4',  # colour in logs
     'CherryPy==18.1.0',  # web server
@@ -103,7 +102,7 @@ INSTALL_REQUIRES = [
     # 'mysqlclient==1.3.13;platform_system=="Linux"',  # for mysql+mysqldb://...
     # # ... but adds dependency on C and mysql.h
 
-    'numpy==1.14.5',  # Used by some tasks. SLOW INSTALLATION.
+    'numpy==1.17.4',  # Used by some tasks. SLOW INSTALLATION.
     # 'odswriter==0.4.0',  # Write OpenOffice ODS files [REPLACED BY pyexcel-ods3]  # noqa
     'paginate==0.5.6',  # pagination for web server
     'pendulum==2.0.4',  # better than Arrow
@@ -136,6 +135,9 @@ INSTALL_REQUIRES = [
     # https://github.com/jupyter/notebook/issues/4311
 
     'Wand==0.4.4',  # ImageMagick binding
+
+    # Moved to end to fix openpyxl mismatch
+    'cardinal_pythonlib==1.0.81',  # RNC libraries
 ]
 
 DEPENDENCY_LINKS = [
