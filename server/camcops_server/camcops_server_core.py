@@ -50,7 +50,6 @@ log.info("Imports starting")
 
 import os  # noqa: E402
 import platform  # noqa: E402
-import subprocess  # noqa: E402
 import sys  # noqa: E402
 import tempfile  # noqa: E402
 from typing import Any, Dict, List, Optional, TYPE_CHECKING  # noqa: E402
@@ -64,6 +63,8 @@ except ImportError:
 from wsgiref.simple_server import make_server  # noqa: E402
 
 from cardinal_pythonlib.classes import gen_all_subclasses  # noqa: E402
+from cardinal_pythonlib.fileops import mkdir_p  # noqa: E402
+from cardinal_pythonlib.process import nice_call  # noqa: E402
 from cardinal_pythonlib.ui import ask_user, ask_user_password  # noqa: E402
 from cardinal_pythonlib.wsgi.request_logging_mw import RequestLoggingMiddleware  # noqa: E402,E501
 from cardinal_pythonlib.wsgi.reverse_proxied_mw import (  # noqa: E402
@@ -89,10 +90,9 @@ from camcops_server.cc_modules.cc_config import (  # noqa: E402
     get_demo_config,
 )
 from camcops_server.cc_modules.cc_constants import (  # noqa: E402
+    ConfigDefaults,
     DEFAULT_FLOWER_ADDRESS,
     DEFAULT_FLOWER_PORT,
-    DEFAULT_HOST,
-    DEFAULT_PORT,
     MINIMUM_PASSWORD_LENGTH,
     USER_NAME_FOR_SYSTEM,
 )
@@ -105,7 +105,6 @@ from camcops_server.cc_modules.cc_pyramid import RouteCollection  # noqa: E402
 from camcops_server.cc_modules.cc_request import (  # noqa: E402
     CamcopsRequest,
     command_line_request_context,
-    get_command_line_request,
     pyramid_configurator_context,
 )
 from camcops_server.cc_modules.cc_string import all_extra_strings_as_dicts  # noqa: E402,E501
@@ -153,6 +152,8 @@ WINDOWS = platform.system() == "Windows"
 _CELERY_NAME = "celery.exe" if WINDOWS else "celery"
 CELERY = os.path.join(os.path.dirname(sys.executable), _CELERY_NAME)
 
+DEFAULT_CLEANUP_TIMEOUT_S = 10.0
+
 
 # =============================================================================
 # Helper functions for web server launcher
@@ -167,9 +168,11 @@ def ensure_database_is_ok() -> None:
     config.assert_database_ok()
 
 
-def ensure_lock_dir_exists() -> None:
+def ensure_directories_exist() -> None:
     config = get_default_config_from_os_env()
-    os.makedirs(config.export_lockdir, exist_ok=True)
+    mkdir_p(config.export_lockdir)
+    if config.user_download_dir:
+        mkdir_p(config.user_download_dir)
 
 
 def join_url_fragments(*fragments: str) -> str:
@@ -308,13 +311,13 @@ def ensure_ok_for_webserver() -> None:
     Prerequisites for firing up the web server.
     """
     ensure_database_is_ok()
-    ensure_lock_dir_exists()
+    ensure_directories_exist()
     precache()
 
 
 def test_serve_pyramid(application: "Router",
-                       host: str = DEFAULT_HOST,
-                       port: int = DEFAULT_PORT) -> None:
+                       host: str = ConfigDefaults.HOST,
+                       port: int = ConfigDefaults.PORT) -> None:
     """
     Launches an extremely simple Pyramid web server (via
     ``wsgiref.make_server``).
@@ -743,7 +746,9 @@ def check_index(cfg: CamcopsConfig, show_all_bad: bool = False) -> bool:
 # Celery
 # =============================================================================
 
-def launch_celery_workers(verbose: bool = False) -> None:
+def launch_celery_workers(
+        verbose: bool = False,
+        cleanup_timeout_s: float = DEFAULT_CLEANUP_TIMEOUT_S) -> None:
     """
     Launch Celery workers.
 
@@ -759,7 +764,7 @@ def launch_celery_workers(verbose: bool = False) -> None:
     cmdargs = [
         CELERY, "worker",
         "--app", CELERY_APP_NAME,
-        "-Ofair",
+        "-O", "fair",  # optimization
         "--soft-time-limit", str(CELERY_SOFT_TIME_LIMIT_SEC),
         "--loglevel", "DEBUG" if verbose else "INFO",
     ]
@@ -773,17 +778,19 @@ def launch_celery_workers(verbose: bool = False) -> None:
         ])
     cmdargs += config.celery_worker_extra_args
     log.info("Launching: {!r}", cmdargs)
-    subprocess.call(cmdargs)
+    nice_call(cmdargs, cleanup_timeout=cleanup_timeout_s)
 
 
-def launch_celery_beat(verbose: bool = False) -> None:
+def launch_celery_beat(
+        verbose: bool = False,
+        cleanup_timeout_s: float = DEFAULT_CLEANUP_TIMEOUT_S) -> None:
     """
     Launch the Celery Beat scheduler.
 
     (This can be combined with ``celery worker``, but that's not recommended;
     http://docs.celeryproject.org/en/latest/userguide/periodic-tasks.html#starting-the-scheduler).
     """  # noqa: E501
-    ensure_lock_dir_exists()
+    ensure_directories_exist()
     config = get_default_config_from_os_env()
     cmdargs = [
         CELERY, "beat",
@@ -794,11 +801,13 @@ def launch_celery_beat(verbose: bool = False) -> None:
     ]
     cmdargs += config.celery_beat_extra_args
     log.info("Launching: {!r}", cmdargs)
-    subprocess.call(cmdargs)
+    nice_call(cmdargs, cleanup_timeout=cleanup_timeout_s)
 
 
-def launch_celery_flower(address: str = DEFAULT_FLOWER_ADDRESS,
-                         port: int = DEFAULT_FLOWER_PORT) -> None:
+def launch_celery_flower(
+        address: str = DEFAULT_FLOWER_ADDRESS,
+        port: int = DEFAULT_FLOWER_PORT,
+        cleanup_timeout_s: float = DEFAULT_CLEANUP_TIMEOUT_S) -> None:
     """
     Launch the Celery Flower monitor.
     """
@@ -809,7 +818,7 @@ def launch_celery_flower(address: str = DEFAULT_FLOWER_ADDRESS,
         f"--port {port}",
     ]
     log.info("Launching: {!r}", cmdargs)
-    subprocess.call(cmdargs)
+    nice_call(cmdargs, cleanup_timeout=cleanup_timeout_s)
 
 
 # =============================================================================
@@ -899,15 +908,14 @@ def dev_cli() -> None:
     config = get_default_config_from_os_env()
     # noinspection PyUnusedLocal
     engine = config.get_sqla_engine()  # noqa: F841
-    # noinspection PyUnusedLocal
-    req = get_command_line_request()
-    # noinspection PyUnusedLocal
-    dbsession = req.dbsession  # noqa: F841
-    log.error("""Entering developer command-line.
+    with command_line_request_context() as req:
+        # noinspection PyUnusedLocal
+        dbsession = req.dbsession  # noqa: F841
+        log.error("""Entering developer command-line.
     - Config is available in 'config'.
     - Database engine is available in 'engine'.
     - Dummy request is available in 'req'.
     - Database session is available in 'dbsession'.
-    """)
-    import pdb
-    pdb.set_trace()
+        """)
+        import pdb
+        pdb.set_trace()

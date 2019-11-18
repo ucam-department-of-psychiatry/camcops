@@ -111,6 +111,8 @@ Config file sections
   name of that recipient.
 
 
+.. _config_site:
+
 Options for the "[site]" section
 --------------------------------
 
@@ -535,6 +537,126 @@ CTV_FILENAME_SPEC
 
 Filename specification used for clinical text view downloads; see
 TASK_FILENAME_SPEC_.
+
+
+Email options
+~~~~~~~~~~~~~
+
+These options control the sending of e-mails by the CamCOPS server.
+
+
+EMAIL_HOST
+##########
+
+*String.*
+
+Hostname of e-mail (SMTP) server.
+
+
+EMAIL_PORT
+##########
+
+*Integer.* Default: 587.
+
+Port number of e-mail (SMTP) server. The standard SMTP port is 25, but 587 is
+the default for using TLS, which is more secure (see below).
+
+
+EMAIL_USE_TLS
+#############
+
+*Boolean.* Default: true.
+
+Use a TLS (secure) connection to talk to the SMTP server? The default is true;
+turn this off for an insecure connection.
+
+This is used for explicit TLS connections, usually on port 587 (in which the
+connection is opened and then a ``STARTTLS`` command is issued).
+
+
+EMAIL_HOST_USERNAME
+###################
+
+*String.*
+
+Username on e-mail server. (Surprisingly, some e-mail servers allow this to
+be blank. Be wary of them!)
+
+
+EMAIL_HOST_PASSWORD
+###################
+
+*String.*
+
+Password on e-mail server. (Not stored in database.)
+
+
+EMAIL_FROM
+##########
+
+*String.*
+
+"From:" address used in e-mails. See `RFC 5322`_. Only one is permitted here.
+
+
+EMAIL_SENDER
+############
+
+"Sender:" address used in e-mails. See `RFC 5322`_. Only one is permitted.
+
+
+EMAIL_REPLY_TO
+##############
+
+*String.*
+
+"Reply-To:" address used in e-mails. See `RFC 5322`_.
+
+
+User download options
+~~~~~~~~~~~~~~~~~~~~~
+
+PERMIT_IMMEDIATE_DOWNLOADS
+##########################
+
+*Boolean.* Default: false.
+
+Should the system allow users to use the front end web service to create and
+download files? This might be convenient, but the disadvantage is that
+
+
+.. _USER_DOWNLOAD_DIR:
+
+USER_DOWNLOAD_DIR
+#################
+
+*String.* Default: ``""``.
+
+Root directory for storing temporary user downloads (when the user asks for
+files to be created for later download). Within this, a directory will be
+created for every user as required (whose name is the user's ID number).
+
+If this is not set, queued downloads are not offered.
+
+
+USER_DOWNLOAD_FILE_LIFETIME_MIN
+###############################
+
+*Integer.* Default: 60.
+
+When users create files on the server for later download, how long should these
+files "live" before being deleted?
+
+
+USER_DOWNLOAD_MAX_SPACE_MB
+##########################
+
+*Integer.* Default: 100.
+
+Maximum amount of space that each user is permitted to use for short-term
+download storage on the server.
+
+If this is zero, queued downloads are not offered.
 
 
 Debugging options
@@ -1450,74 +1572,7 @@ Options applicable to e-mail export only
 Attachment filenames are based on FILE_FILENAME_SPEC_, but only the basename
 of the path is used.
 
-
-EMAIL_HOST
-##########
-
-*String.*
-
-Hostname of e-mail (SMTP) server.
-
-
-EMAIL_PORT
-##########
-
-*Integer.* Default: 25.
-
-Port number of e-mail (SMTP) server. The default is 25, but consider something
-more secure (see below).
-
-
-EMAIL_USE_TLS
-#############
-
-*Boolean.* Default: false.
-
-Use a TLS (secure) connection to talk to the SMTP server? The default is false,
-but you should strongly consider using it!
-
-This is used for explicit TLS connections, usually on port 587 (in which the
-connection is opened and then a ``STARTTLS`` command is issued).
-
-
-EMAIL_HOST_USERNAME
-###################
-
-*String.*
-
-Username on e-mail server. (Surprisingly, some e-mail servers allow this to
-be blank. Be wary of them!)
-
-
-EMAIL_HOST_PASSWORD
-###################
-
-*String.*
-
-Password on e-mail server. (Not stored in database.)
-
-
-EMAIL_FROM
-##########
-
-*String.*
-
-"From:" address used in e-mails. See `RFC 5322`_. Only one is permitted here.
-
-
-EMAIL_SENDER
-############
-
-"Sender:" address used in e-mails. See `RFC 5322`_. Only one is permitted.
-
-
-EMAIL_REPLY_TO
-##############
-
-*String.*
-
-"Reply-To:" address used in e-mails. See `RFC 5322`_.
-
+General e-mail sending options are in the :ref:`[site] <config_site>` section.
 
 EMAIL_TO
 ########

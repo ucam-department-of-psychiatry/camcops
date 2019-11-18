@@ -63,6 +63,8 @@ Contributors
   - :ref:`Short-Form McGill Pain Questionnaire (SF-MPQ2) <sfmpq2>`
   - :ref:`Disease Activity Score-28 (DAS28) <das28>`
   - :ref:`Snaith–Hamilton Pleasure Scale (SHAPS) <shaps>`
+  - CPFT Perinatal, MOJO.
+  - Back-end data processing and e-mail framework.
 
 
 Original Titanium/Javascript client, Python server with custom MySQL interface (defunct)
@@ -2567,8 +2569,61 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Removed now-pointless command ``camcops_server demo_mysql_create_db`` (it's
   in the help at :ref:`Create a database <create_database>`).
 
-- Group administrators can now erase tasks entirely from the database
-  :ref:`Erase task instance entirely <erase_task_entirely>`
+- Group administrators can now **erase tasks entirely** from the database
+  :ref:`Erase task instance entirely <erase_task_entirely>`. This was to cope
+  with the fact that a dodgy network leads to a tradeoff between data loss and
+  data duplication and CamCOPS tries very hard not to lose data. Notes are in
+  the source for this file.
+
+.. Notes:
+  - Re possibility of duplication ?due to network dropout:
+..
+    - Facility to delete individual tasks from the server, via a safety check
+      form and then
+      :meth:`camcops_server.cc_modules.cc_task.Task.delete_entirely`.
+..
+    - There was not a specific "delete task" function that's accessible to
+      users. Duplicates sounded concerning but we can think this through. On
+      the client:
+..
+      - everything begins with NetworkManager::upload() and chugs through a
+        series of steps via ::uploadNext() (e.g. checking the server knows
+        about our device)
+..
+      - If we're using one-step upload, then we end up at
+        NetworkManager::uploadOneStep(), followed by NextUploadStage::Finished
+        (which wipes local data) -- so if the upload succeeds, data is wiped,
+        and if it doesn't, it's not. It is probably possible that if the server
+        accepts the upload data (writing it to its database) but then the
+        connection is dropped before the server can say "OK, received", that
+        the client will not delete the data, leading to duplication. I presume
+        that is what's happened. (Definitely better than the other option of
+        deleting from the client without confirmation, though!)
+..
+      - In a multi-step upload, there is a multi-stage conversation which ends
+        up with the client say "OK, commit my changes", via ::endUpload(), and
+        the server saying "OK". I imagine that a connection failure during that
+        last phase might lead to the server saving/committing but the "done"
+        message not getting back to the client. This is probably less likely
+        than with the one-step upload, because it's a very brief process.
+..
+    What sort of failure messages were you seeing? Was it all explicable by
+    dodgy wi-fi?
+..
+    If this looks the likely cause -- we should implement a privileged
+    operation (with deliberately difficult validation steps as for some of the
+    other unsafe operations) to call Task.delete_entirely(), which does the
+    business. (At present that is only called when an entire patient is
+    deleted.) I think that will be OK because I think there is very little
+    chance of any "partial" uploads; the system should prevent those
+    effectively.
+..
+    I think that sounds safer than any of the alternatives.
+..
+    Likewise, if this is the probable root cause, perhaps we should add a
+    warning (+/- change the default upload method) to say that "if you have a
+    dodgy network connection, the chance of duplicates is probably lower with
+    the multi-step upload".
 
 - Split out Athena OHDSI and SNOMED core code to
   ``cardinal_pythonlib``, now ``cardinal_pythonlib==1.0.70``.
@@ -2579,7 +2634,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Fixed missing and incorrect options for question 2 of
   :ref:`Maternal Antenatal Attachment Scale (MAAS) <maas>`.
 
-- Task chains. Example in MOJO study menu.
+- **Task chains.** Example in MOJO study menu.
 
 - Improved task title/subtitle labelling.
 
@@ -2601,8 +2656,80 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - References to "clinician" replaced by "clinician/researcher".
 
+- Reports for CPFT Perinatal service.
+
+  - APEQ_CPFT_Perinatal reports:
+
+    - summary of question and %people responding each possibility
+    - plus "summary of comments"
+
+  - POEM: as per APEQ_CPFT_Perinatal
+
+  - Core-10 report:
+
+    For those with >=2 scores, "start" mean and "finish" mean, where "start" is
+    the first and "finish" is the latest.
+
+  - MAAS: as per Core-10, but also for subscales
+
+  - PBQ: as per Core-10, but also for subscales
 
 **Client and server v2.3.7, IN PROGRESS**
 
 - ``pyexcel-ods3`` and ``pyexcel-xlsx`` for spreadsheet export; faster and much
   smaller for ODS files. See ``cc_tsv.py``.
+
+- Option to send research data dumps by e-mail, to offload work to the
+  back-end. Similarly, option to queue data dumps for download.
+
+- New ``camcops_server purge_jobs`` command.
+
+- Memory problems were in part due to Celery leaving lots of workers active.
+
+  - Useful tools: ``htop``, ``pgrep``, ``pkill``.
+  - ``htop`` shows that Celery worker processes (like ``.../celery worker --app
+    camcops_server...`` are at first children of a master ``.../celery worker``
+    processes, which is the child of ``camcops_server launch_workers``.
+    However, after killing the top-level process (e.g. with Ctrl-C), the
+    top-level process and the "owner" Celery worker die, leaving the workers
+    themselves as children of ``/lib/systemd/systemd --user``. If every
+    start-and-kill leaves 8 orphan workers, you can run out of memory quite
+    quickly. Use e.g. ``pkill -f camcops_server`` to wipe them all out.
+  - This may have explained some MySQL locking problems too.
+  - Celery from 4.2.1 to 4.3.0 as this has "bug fixes mainly for Celery Beat,
+    Canvas, a number of critical fixes for hanging workers and fixes for
+    several severe memory leaks"
+    (https://docs.celeryproject.org/en/latest/whatsnew-4.3.html).
+    Didn't fix this problem, though.
+  - Remember the signals (see ``kill -L``), which include:
+
+    ============== ======== ================= ========= =======================
+    Signal         Signal#  ``kill`` example  Shortcut  Meaning
+    ============== ======== ================= ========= =======================
+    SIGINT         2        ``kill -2``       Ctrl-C    Interrupt; weakest
+    SIGTERM, TERM  15       ``kill``                    Terminate; medium
+    SIGKILL        9        ``kill -9``                 Hard kill; never fails
+    ============== ======== ================= ========= =======================
+
+    See e.g.
+    https://unix.stackexchange.com/questions/251195/difference-between-less-violent-kill-signal-hup-1-int-2-and-term-15.
+
+  - Celery expects TERM;
+    https://docs.celeryproject.org/en/latest/userguide/workers.html#stopping-the-worker.
+
+  - And calling ``kill <celery_worker_master_pid>`` works; it prints
+    ``worker: Warm shutdown (MainProcess)`` and everything exits nicely.
+
+  - The same happens with ``kill -SIGINT``.
+
+  - The problem is probably that Python's :func:`subprocess.call` sends
+    SIGKILL to its child when the Python program is interrupted by SIGINT.
+    See:
+
+    - https://bugs.python.org/issue25942.
+    - https://github.com/python/cpython/pull/4283
+
+  - We are using Python 3.6; changes afoot for 3.7?
+
+- ``cardinal_pythonlib==1.0.81`` for memory efficiency, then for the
+  :func:`nice_call` function that sorts this out a bit, etc.

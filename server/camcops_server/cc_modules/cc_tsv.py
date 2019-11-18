@@ -31,20 +31,24 @@ exports.**
 
 from collections import OrderedDict
 import csv
+import datetime
 import io
 import logging
 import os
 import random
 import re
-from typing import Any, BinaryIO, Dict, Iterable, List, Optional, Union
+from typing import (Any, BinaryIO, Callable, Dict, Iterable, List, Optional,
+                    Union)
 from unittest import TestCase
 import zipfile
 
-from cardinal_pythonlib.excel import (
-    convert_for_openpyxl,
-    excel_to_bytes,
-)
+from cardinal_pythonlib.excel import convert_for_openpyxl
 from cardinal_pythonlib.logs import BraceStyleAdapter
+from numpy import float64
+from pendulum.datetime import DateTime
+from semantic_version import Version
+
+from camcops_server.cc_modules.cc_constants import DateFormat
 
 ODS_VIA_PYEXCEL = True  # significantly faster
 XLSX_VIA_PYEXCEL = True
@@ -66,6 +70,39 @@ else:
     pyexcel_xlsx = None
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
+
+
+# =============================================================================
+# Helper function (may move to cardinal_pythonlib at some point
+# =============================================================================
+
+def convert_for_pyexcel_ods3(x: Any) -> Any:
+    """
+    Converts known "unusual" data types to formats suitable for
+    ``pyexcel-ods3``. Specifically, handles:
+
+    - :class:`pendulum.datetime.DateTime`
+    - :class:`datetime.datetime`
+    - :class:`semantic_version.Version`
+    - ``None``
+    - :class:`numpy.float64`
+
+    Args:
+        x: a data value
+
+    Returns:
+        the same thing, or a more suitable value!
+    """
+    if isinstance(x, (DateTime, datetime.datetime)):
+        return x.strftime(DateFormat.ISO8601)
+    elif x is None:
+        return ""
+    elif isinstance(x, Version):
+        return str(x)
+    elif isinstance(x, float64):
+        return float(x)
+    else:
+        return x
 
 
 # =============================================================================
@@ -172,13 +209,27 @@ class TsvPage(object):
     def plainrows(self) -> List[List[Any]]:
         """
         Returns a list of rows, where each row is a list of values.
+        Does not include a "header" row.
 
         Compare :attr:`rows`, which is a list of dictionaries.
         """
-        plainrows = []
+        rows = []
         for row in self.rows:
-            plainrows.append([row.get(h) for h in self.headings])
-        return plainrows
+            rows.append([row.get(h) for h in self.headings])
+        return rows
+
+    def spreadsheetrows(self, converter: Callable[[Any], Any]) \
+            -> List[List[Any]]:
+        """
+        Like :meth:`plainrows`, but (a) ensures every cell is converted to a
+        value that can be sent to a spreadsheet converted (e.g. ODS, XLSX), and
+        (b) includes a header row.
+        """
+        rows = [self.headings.copy()]
+        for row in self.rows:
+            rows.append([converter(row.get(h))
+                         for h in self.headings])
+        return rows
 
     def get_tsv(self, dialect: str = "excel-tab") -> str:
         r"""
@@ -355,34 +406,26 @@ class TsvCollection(object):
             file: filename or file-like object
         """
         if XLSX_VIA_PYEXCEL:  # use pyexcel_xlsx
-            data = self._get_pyexcel_data()
+            data = self._get_pyexcel_data(convert_for_openpyxl)
             pyexcel_xlsx.save_data(file, data)
         else:  # use openpyxl
-            if isinstance(file, str):  # it's a filename
-                with open(file, "wb") as binaryfile:
-                    return self.write_xlsx(binaryfile)  # recurse once
-            file.write(self.as_xlsx())
+            # Marginal performance gain with write_only. Does not automatically
+            # add a blank sheet
+            wb = XLWorkbook(write_only=True)
+            valid_name_dict = self.get_pages_with_valid_sheet_names()
+            for page, title in valid_name_dict.items():
+                ws = wb.create_sheet(title=title)
+                page.write_to_openpyxl_xlsx_worksheet(ws)
+            wb.save(file)
 
     def as_xlsx(self) -> bytes:
         """
         Returns the TSV collection as an XLSX (Excel) file.
         """
-        if XLSX_VIA_PYEXCEL:  # use pyexcel_xlsx
-            with io.BytesIO() as memfile:
-                self.write_xlsx(memfile)
-                contents = memfile.getvalue()
-            return contents
-        else:  # use openpyxl
-            # Marginal performance gain with write_only. Does not automatically
-            # add a blank sheet
-            wb = XLWorkbook(write_only=True)
-
-            valid_name_dict = self.get_pages_with_valid_sheet_names()
-            for page, title in valid_name_dict.items():
-                ws = wb.create_sheet(title=title)
-                page.write_to_openpyxl_xlsx_worksheet(ws)
-
-            return excel_to_bytes(wb)
+        with io.BytesIO() as memfile:
+            self.write_xlsx(memfile)
+            contents = memfile.getvalue()
+        return contents
 
     @staticmethod
     def get_sheet_title(page: TsvPage) -> str:
@@ -402,7 +445,8 @@ class TsvCollection(object):
 
         return title
 
-    def _get_pyexcel_data(self) -> Dict[str, List[List[Any]]]:
+    def _get_pyexcel_data(self, converter: Callable[[Any], Any]) \
+            -> Dict[str, List[List[Any]]]:
         """
         Returns data in the format expected by ``pyexcel``, which is an ordered
         dictionary mapping sheet names to a list of rows, where each row is a
@@ -410,7 +454,7 @@ class TsvCollection(object):
         """
         data = OrderedDict()
         for page in self.pages:
-            data[self.get_sheet_title(page)] = page.plainrows
+            data[self.get_sheet_title(page)] = page.spreadsheetrows(converter)
         return data
 
     def write_ods(self, file: Union[str, BinaryIO]) -> None:
@@ -421,7 +465,7 @@ class TsvCollection(object):
             file: filename or file-like object
         """
         if ODS_VIA_PYEXCEL:  # use pyexcel_ods3
-            data = self._get_pyexcel_data()
+            data = self._get_pyexcel_data(convert_for_pyexcel_ods3)
             pyexcel_ods3.save_data(file, data)
         else:  # use odswriter
             if isinstance(file, str):  # it's a filename
@@ -525,15 +569,14 @@ class TsvCollectionTests(TestCase):
 
         data = coll.as_xlsx()
         buffer = io.BytesIO(data)
-        wb = openpyxl.load_workbook(buffer)
-        self.assertEqual(
-            wb.sheetnames,
-            [
-                "name 1",
-                "name 2",
-                "name 3",
-            ]
-        )
+        expected_sheetnames = ["name 1", "name 2", "name 3"]
+        if openpyxl:
+            wb = openpyxl.load_workbook(buffer)  # type: XLWorkbook
+            self.assertEqual(wb.sheetnames, expected_sheetnames)
+        else:
+            wb = pyexcel_xlsx.get_data(buffer)  # type: Dict[str, Any]
+            sheetnames = list(wb.keys())
+            self.assertEqual(sheetnames, expected_sheetnames)
 
     def test_xlsx_page_name_exactly_31_chars_not_truncated(self) -> None:
         page = TsvPage(name="abcdefghijklmnopqrstuvwxyz78901",

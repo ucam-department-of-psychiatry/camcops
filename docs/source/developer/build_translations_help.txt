@@ -32,5 +32,3 @@ positional arguments:
 optional arguments:
   -h, --help  show this help message and exit
   --verbose   Be verbose (default: False)
-
-# Generated at 2019-09-20 11:43:43

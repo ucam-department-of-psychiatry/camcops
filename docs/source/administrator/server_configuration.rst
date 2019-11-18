@@ -173,6 +173,13 @@ Under Linux, we follow the `Filesystem Hierarchy Standard`_.
       - ``/var/log/supervisor/camcops_*.log``
       - Root only
 
+    * - ``/var/tmp``
+      - Temporary files preserved between system reboots
+      - Temporary user download files, as per :ref:`USER_DOWNLOAD_DIR
+        <USER_DOWNLOAD_DIR>`.
+      - ``/var/tmp/camcops/<user_id>/<filename>``
+      - Web server user only
+
 For information, these directories are used (or not used, but worthy of
 comment!) by CamCOPS during installation:
 

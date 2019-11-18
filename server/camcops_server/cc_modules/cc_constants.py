@@ -30,9 +30,13 @@ camcops_server/cc_modules/cc_constants.py
 
 # Helpful UTF-8 characters: ‘’ “” – — × • ≤ ≥ ≠ ± →
 
+import logging
+import multiprocessing
 import os
 
 from camcops_server.cc_modules.cc_baseconstants import STATIC_ROOT_DIR
+from camcops_server.cc_modules.cc_language import DEFAULT_LOCALE
+
 
 # =============================================================================
 # Number of ID numbers. Don't alter this lightly; influences database fields.
@@ -42,44 +46,27 @@ NUMBER_OF_IDNUMS_DEFUNCT = 8  # DEFUNCT BUT DO NOT REMOVE OR ALTER. EIGHT.
 # ... In older versions: determined number of ID number fields.
 # (Now this is arbitrary.) Still used to support old clients.
 
+
 # =============================================================================
-# Configuration
+# File types
 # =============================================================================
 
-DEFAULT_DB_PORT = 3306
-DEFAULT_DB_SERVER = "localhost"
-DEFAULT_LOCAL_INSTITUTION_URL = "http://www.camcops.org/"
-DEFAULT_LOCKOUT_DURATION_INCREMENT_MINUTES = 10
-DEFAULT_LOCKOUT_THRESHOLD = 10
-DEFAULT_PASSWORD_CHANGE_FREQUENCY_DAYS = 0  # zero for never
+class FileType(object):
+    """
+    Used to represent output formats and their file extensions.
+    """
+    HTML = "html"
+    PDF = "pdf"
+    XML = "xml"
 
-DEFAULT_TIMEOUT_MINUTES = 30
-DEFAULT_PLOT_FONTSIZE = 8
-
-MINIMUM_PASSWORD_LENGTH = 8
 
 # =============================================================================
 # Launching
 # =============================================================================
 
-DEFAULT_CHERRYPY_SERVER_NAME = "localhost"
 DEFAULT_FLOWER_ADDRESS = "127.0.0.1"
 DEFAULT_FLOWER_PORT = 5555  # http://docs.celeryproject.org/en/latest/userguide/monitoring.html  # noqa
-DEFAULT_GUNICORN_TIMEOUT_S = 30
-DEFAULT_HOST = "127.0.0.1"
-DEFAULT_START_THREADS = 10
-DEFAULT_MAX_THREADS = 100
-# ... beware the default MySQL connection limit of 151;
-#     https://dev.mysql.com/doc/refman/5.7/en/too-many-connections.html
-DEFAULT_PORT = 8000
-URL_PATH_ROOT = '/'
 
-# =============================================================================
-# More filenames
-# =============================================================================
-
-DEFAULT_CAMCOPS_LOGO_FILE = os.path.join(STATIC_ROOT_DIR, "logo_camcops.png")
-DEFAULT_LOCAL_LOGO_FILE = os.path.join(STATIC_ROOT_DIR, "logo_local.png")
 
 # =============================================================================
 # Webview constants
@@ -112,8 +99,9 @@ class DateFormat(object):
     HOURS_MINUTES = "%H:%M"
     ISO8601 = "%Y-%m-%dT%H:%M:%S%z"  # e.g. 2013-07-24T20:04:07+0100
     ISO8601_HUMANIZED_TO_MINUTES = "%Y-%m-%d %H:%M"  # e.g. 2013-07-24 20:04
+    ISO8601_HUMANIZED_TO_SECONDS = "%Y-%m-%d %H:%M:%S"  # e.g. 2013-07-24 20:04:23  # noqa
     ISO8601_DATE_ONLY = "%Y-%m-%d"  # e.g. 2013-07-24
-    FILENAME = "%Y-%m-%dT%H%M"  # e.g. 20130724T2004
+    FILENAME = "%Y-%m-%dT%H%M%S"  # e.g. 2013-07-24T200459
     FILENAME_DATE_ONLY = "%Y-%m-%d"  # e.g. 20130724
     HL7_DATETIME = "%Y%m%d%H%M%S%z"  # e.g. 20130724200407+0100
     HL7_DATE = "%Y%m%d"  # e.g. 20130724
@@ -323,6 +311,105 @@ QUESTION = "Question"
 # Config constants
 # =============================================================================
 
+CONFIG_FILE_SITE_SECTION = "site"
+CONFIG_FILE_SERVER_SECTION = "server"
+CONFIG_FILE_EXPORT_SECTION = "export"
+
+
+class ConfigParamSite(object):
+    """
+    Parameters allowed in the main ``[site]`` section of the CamCOPS config
+    file.
+    """
+    ALLOW_INSECURE_COOKIES = "ALLOW_INSECURE_COOKIES"
+    CAMCOPS_LOGO_FILE_ABSOLUTE = "CAMCOPS_LOGO_FILE_ABSOLUTE"
+    CLIENT_API_LOGLEVEL = "CLIENT_API_LOGLEVEL"
+    CTV_FILENAME_SPEC = "CTV_FILENAME_SPEC"
+    DB_URL = "DB_URL"
+    DB_ECHO = "DB_ECHO"
+    DISABLE_PASSWORD_AUTOCOMPLETE = "DISABLE_PASSWORD_AUTOCOMPLETE"
+    EMAIL_FROM = "EMAIL_FROM"
+    EMAIL_HOST = "EMAIL_HOST"
+    EMAIL_HOST_PASSWORD = "EMAIL_HOST_PASSWORD"
+    EMAIL_HOST_USERNAME = "EMAIL_HOST_USERNAME"
+    EMAIL_PORT = "EMAIL_PORT"
+    EMAIL_REPLY_TO = "EMAIL_REPLY_TO"
+    EMAIL_SENDER = "EMAIL_SENDER"
+    EMAIL_USE_TLS = "EMAIL_USE_TLS"
+    EXTRA_STRING_FILES = "EXTRA_STRING_FILES"
+    LANGUAGE = "LANGUAGE"
+    LOCAL_INSTITUTION_URL = "LOCAL_INSTITUTION_URL"
+    LOCAL_LOGO_FILE_ABSOLUTE = "LOCAL_LOGO_FILE_ABSOLUTE"
+    LOCKOUT_DURATION_INCREMENT_MINUTES = "LOCKOUT_DURATION_INCREMENT_MINUTES"
+    LOCKOUT_THRESHOLD = "LOCKOUT_THRESHOLD"
+    PASSWORD_CHANGE_FREQUENCY_DAYS = "PASSWORD_CHANGE_FREQUENCY_DAYS"
+    PATIENT_SPEC = "PATIENT_SPEC"
+    PATIENT_SPEC_IF_ANONYMOUS = "PATIENT_SPEC_IF_ANONYMOUS"
+    PERMIT_IMMEDIATE_DOWNLOADS = "PERMIT_IMMEDIATE_DOWNLOADS"
+    RESTRICTED_TASKS = "RESTRICTED_TASKS"
+    SESSION_COOKIE_SECRET = "SESSION_COOKIE_SECRET"
+    SESSION_TIMEOUT_MINUTES = "SESSION_TIMEOUT_MINUTES"
+    SNOMED_TASK_XML_FILENAME = "SNOMED_TASK_XML_FILENAME"
+    SNOMED_ICD9_XML_FILENAME = "SNOMED_ICD9_XML_FILENAME"
+    SNOMED_ICD10_XML_FILENAME = "SNOMED_ICD10_XML_FILENAME"
+    TASK_FILENAME_SPEC = "TASK_FILENAME_SPEC"
+    TRACKER_FILENAME_SPEC = "TRACKER_FILENAME_SPEC"
+    USER_DOWNLOAD_DIR = "USER_DOWNLOAD_DIR"
+    USER_DOWNLOAD_FILE_LIFETIME_MIN = "USER_DOWNLOAD_FILE_LIFETIME_MIN"
+    USER_DOWNLOAD_MAX_SPACE_MB = "USER_DOWNLOAD_MAX_SPACE_MB"
+    WEBVIEW_LOGLEVEL = "WEBVIEW_LOGLEVEL"
+    WKHTMLTOPDF_FILENAME = "WKHTMLTOPDF_FILENAME"
+
+
+class ConfigParamServer(object):
+    """
+    Parameters allowed in the web server (``[server]``) section of the CamCOPS
+    config file.
+    """
+    CHERRYPY_LOG_SCREEN = "CHERRYPY_LOG_SCREEN"
+    CHERRYPY_ROOT_PATH = "CHERRYPY_ROOT_PATH"
+    CHERRYPY_SERVER_NAME = "CHERRYPY_SERVER_NAME"
+    CHERRYPY_THREADS_MAX = "CHERRYPY_THREADS_MAX"
+    CHERRYPY_THREADS_START = "CHERRYPY_THREADS_START"
+    DEBUG_REVERSE_PROXY = "DEBUG_REVERSE_PROXY"
+    DEBUG_SHOW_GUNICORN_OPTIONS = "DEBUG_SHOW_GUNICORN_OPTIONS"
+    DEBUG_TOOLBAR = "DEBUG_TOOLBAR"
+    GUNICORN_DEBUG_RELOAD = "GUNICORN_DEBUG_RELOAD"
+    GUNICORN_NUM_WORKERS = "GUNICORN_NUM_WORKERS"
+    GUNICORN_TIMEOUT_S = "GUNICORN_TIMEOUT_S"
+    HOST = "HOST"
+    PORT = "PORT"
+    PROXY_HTTP_HOST = "PROXY_HTTP_HOST"
+    PROXY_REMOTE_ADDR = "PROXY_REMOTE_ADDR"
+    PROXY_REWRITE_PATH_INFO = "PROXY_REWRITE_PATH_INFO"
+    PROXY_SCRIPT_NAME = "PROXY_SCRIPT_NAME"
+    PROXY_SERVER_NAME = "PROXY_SERVER_NAME"
+    PROXY_SERVER_PORT = "PROXY_SERVER_PORT"
+    PROXY_URL_SCHEME = "PROXY_URL_SCHEME"
+    SHOW_REQUEST_IMMEDIATELY = "SHOW_REQUEST_IMMEDIATELY"
+    SHOW_REQUESTS = "SHOW_REQUESTS"
+    SHOW_RESPONSE = "SHOW_RESPONSE"
+    SHOW_TIMING = "SHOW_TIMING"
+    SSL_CERTIFICATE = "SSL_CERTIFICATE"
+    SSL_PRIVATE_KEY = "SSL_PRIVATE_KEY"
+    TRUSTED_PROXY_HEADERS = "TRUSTED_PROXY_HEADERS"
+    UNIX_DOMAIN_SOCKET = "UNIX_DOMAIN_SOCKET"
+
+
+class ConfigParamExportGeneral(object):
+    """
+    Parameters allowed in the ``[export]`` section of the CamCOPS config file.
+    """
+    CELERY_BEAT_EXTRA_ARGS = "CELERY_BEAT_EXTRA_ARGS"
+    CELERY_BEAT_SCHEDULE_DATABASE = "CELERY_BEAT_SCHEDULE_DATABASE"
+    CELERY_BROKER_URL = "CELERY_BROKER_URL"
+    CELERY_WORKER_EXTRA_ARGS = "CELERY_WORKER_EXTRA_ARGS"
+    EXPORT_LOCKDIR = "EXPORT_LOCKDIR"
+    RECIPIENTS = "RECIPIENTS"
+    SCHEDULE = "SCHEDULE"
+    SCHEDULE_TIMEZONE = "SCHEDULE_TIMEZONE"
+
+
 class ConfigParamExportRecipient(object):
     """
     Possible configuration file parameters that relate to "export recipient"
@@ -338,21 +425,13 @@ class ConfigParamExportRecipient(object):
     EMAIL_BODY = "EMAIL_BODY"
     EMAIL_BODY_IS_HTML = "EMAIL_BODY_IS_HTML"
     EMAIL_CC = "EMAIL_CC"
-    EMAIL_FROM = "EMAIL_FROM"
-    EMAIL_HOST = "EMAIL_HOST"
-    EMAIL_HOST_PASSWORD = "EMAIL_HOST_PASSWORD"
-    EMAIL_HOST_USERNAME = "EMAIL_HOST_USERNAME"
     EMAIL_KEEP_MESSAGE = "EMAIL_KEEP_MESSAGE"
-    EMAIL_PORT = "EMAIL_PORT"
     EMAIL_RECIPIENTS = "EMAIL_RECIPIENTS"
-    EMAIL_REPLY_TO = "EMAIL_REPLY_TO"
-    EMAIL_SENDER = "EMAIL_SENDER"
     EMAIL_PATIENT_SPEC = "EMAIL_PATIENT_SPEC"
     EMAIL_PATIENT_SPEC_IF_ANONYMOUS = "EMAIL_PATIENT_SPEC_IF_ANONYMOUS"
     EMAIL_SUBJECT = "EMAIL_SUBJECT"
     EMAIL_TIMEOUT = "EMAIL_TIMEOUT"
     EMAIL_TO = "EMAIL_TO"
-    EMAIL_USE_TLS = "EMAIL_USE_TLS"
     END_DATETIME_UTC = "END_DATETIME_UTC"
     FILE_EXPORT_RIO_METADATA = "FILE_EXPORT_RIO_METADATA"
     FILE_FILENAME_SPEC = "FILE_FILENAME_SPEC"
@@ -385,5 +464,105 @@ class ConfigParamExportRecipient(object):
     START_DATETIME_UTC = "START_DATETIME_UTC"
     TASKS = "TASKS"
     TASK_FORMAT = "TASK_FORMAT"
+    TASKS = "TASKS"
     TRANSMISSION_METHOD = "TRANSMISSION_METHOD"
     XML_FIELD_COMMENTS = "XML_FIELD_COMMENTS"
+
+
+# =============================================================================
+# Configuration defaults
+# =============================================================================
+
+SMTP_PORT = 25
+SMTP_TLS_PORT = 587
+DEFAULT_HL7_MLLP_PORT = 2575
+
+
+class ConfigDefaults(object):
+    """
+    Contains default values for the config.
+
+    - Re ``CHERRYPY_THREADS_MAX``: beware the default MySQL connection limit of
+      151; https://dev.mysql.com/doc/refman/5.7/en/too-many-connections.html
+    """
+    # [site] section
+    ALLOW_INSECURE_COOKIES = False
+    CAMCOPS_LOGO_FILE_ABSOLUTE = os.path.join(STATIC_ROOT_DIR,
+                                              "logo_camcops.png")
+    CLIENT_API_LOGLEVEL = logging.INFO
+    CLIENT_API_LOGLEVEL_TEXTFORMAT = "info"  # should match CLIENT_API_LOGLEVEL
+    DB_ECHO = False
+    DB_PORT = 3306
+    DB_SERVER = "localhost"
+    DISABLE_PASSWORD_AUTOCOMPLETE = True
+    EMAIL_PORT = SMTP_TLS_PORT  # or SMTP_PORT
+    EMAIL_USE_TLS = True
+    LANGUAGE = DEFAULT_LOCALE
+    LOCAL_INSTITUTION_URL = "http://www.camcops.org/"
+    LOCAL_LOGO_FILE_ABSOLUTE = os.path.join(STATIC_ROOT_DIR, "logo_local.png")
+    LOCKOUT_DURATION_INCREMENT_MINUTES = 10
+    LOCKOUT_THRESHOLD = 10
+    PASSWORD_CHANGE_FREQUENCY_DAYS = 0  # zero for never
+    PATIENT_SPEC_IF_ANONYMOUS = "anonymous"
+    PERMIT_IMMEDIATE_DOWNLOADS = False
+    SESSION_TIMEOUT_MINUTES = 30
+    USER_DOWNLOAD_FILE_LIFETIME_MIN = 60
+    USER_DOWNLOAD_MAX_SPACE_MB = 100
+    WEBVIEW_LOGLEVEL = logging.INFO
+    WEBVIEW_LOGLEVEL_TEXTFORMAT = "info"  # should match WEBVIEW_LOGLEVEL
+
+    # Not yet user-configurable
+    PLOT_FONTSIZE = 8
+
+    # [server] section
+    CHERRYPY_LOG_SCREEN = True
+    CHERRYPY_ROOT_PATH = "/"
+    CHERRYPY_SERVER_NAME = "localhost"
+    CHERRYPY_THREADS_MAX = 100
+    CHERRYPY_THREADS_START = 10
+    DEBUG_REVERSE_PROXY = False
+    DEBUG_SHOW_GUNICORN_OPTIONS = False
+    DEBUG_TOOLBAR = False
+    GUNICORN_DEBUG_RELOAD = False
+    GUNICORN_NUM_WORKERS = 2 * multiprocessing.cpu_count()
+    GUNICORN_TIMEOUT_S = 30
+    HOST = "127.0.0.1"
+    PORT = 8000
+    PROXY_REWRITE_PATH_INFO = False
+    SHOW_REQUEST_IMMEDIATELY = False
+    SHOW_REQUESTS = False
+    SHOW_RESPONSE = False
+    SHOW_TIMING = False
+
+    # Export section
+    CELERY_BROKER_URL = "amqp://"
+    SCHEDULE_TIMEZONE = "UTC"
+
+    # Individual export recipients
+    # DB_ECHO: as above
+    ALL_GROUPS = False
+    DB_ADD_SUMMARIES = True
+    DB_INCLUDE_BLOBS = True
+    DB_PATIENT_ID_PER_ROW = False
+    EMAIL_BODY_IS_HTML = False
+    EMAIL_KEEP_MESSAGE = False
+    FILE_EXPORT_RIO_METADATA = False
+    FILE_MAKE_DIRECTORY = False
+    FILE_OVERWRITE_FILES = False
+    FILE_PATIENT_SPEC_IF_ANONYMOUS = "anonymous"
+    FINALIZED_ONLY = True
+    HL7_DEBUG_DIVERT_TO_FILE = False
+    HL7_DEBUG_TREAT_DIVERTED_AS_SENT = False
+    HL7_KEEP_MESSAGE = False
+    HL7_KEEP_REPLY = False
+    HL7_NETWORK_TIMEOUT_MS = 10000
+    HL7_PING_FIRST = True
+    HL7_PORT = DEFAULT_HL7_MLLP_PORT
+    INCLUDE_ANONYMOUS = False
+    PUSH = False
+    REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY = True
+    TASK_FORMAT = FileType.PDF
+    XML_FIELD_COMMENTS = True
+
+
+MINIMUM_PASSWORD_LENGTH = 8

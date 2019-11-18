@@ -80,8 +80,9 @@ When might one want to erase a task? See :ref:`Delete patient entirely
 Erase task instance entirely
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This is similar to :ref:`Erase task instance, leaving placeholder <erase_task_leaving_placeholder>`
-but the task is deleted entirely from the database, with no placeholder.
+This is similar to :ref:`Erase task instance, leaving placeholder
+<erase_task_leaving_placeholder>` but the task is deleted entirely from the
+database, with no placeholder.
 
 This would typically be used in the event of a technical problem
 (e.g. to remove duplicates following a network failure during upload).

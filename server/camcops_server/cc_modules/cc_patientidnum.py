@@ -41,7 +41,7 @@ Thus, always complete and contemporaneous.
 """
 
 import logging
-from typing import List, TYPE_CHECKING
+from typing import List, Tuple, TYPE_CHECKING
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.reprfunc import simple_repr
@@ -145,15 +145,42 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
     # Equality
     # -------------------------------------------------------------------------
 
+    def __members(self) -> Tuple:
+        """
+        For :meth:`__hash__` and :meth:`__eq__`, as per
+        https://stackoverflow.com/questions/45164691/recommended-way-to-implement-eq-and-hash
+        """  # noqa
+        return self.which_idnum, self.idnum_value
+
+    def __hash__(self) -> int:
+        """
+        Must be compatible with __eq__.
+        
+        See also 
+        https://stackoverflow.com/questions/45164691/recommended-way-to-implement-eq-and-hash
+        """  # noqa
+        return hash(self.__members())
+
     def __eq__(self, other: "PatientIdNum") -> bool:
         """
         Do ``self`` and ``other`` represent the same ID number?
+
+        Equivalent to:
+
+        .. code-block:: python
+
+            return (
+                self.which_idnum == other.which_idnum and
+                self.idnum_value == other.idnum_value and
+                self.which_idnum is not None and
+                self.idnum_value is not None
+            )
         """
+        sm = self.__members()
         return (
-            self.which_idnum == other.which_idnum and
-            self.idnum_value == other.idnum_value and
-            self.which_idnum is not None and
-            self.idnum_value is not None
+            type(self) is type(other) and
+            (None not in sm) and
+            sm == other.__members()
         )
 
     # -------------------------------------------------------------------------

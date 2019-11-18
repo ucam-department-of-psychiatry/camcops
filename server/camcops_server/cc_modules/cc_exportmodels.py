@@ -65,17 +65,19 @@ from sqlalchemy.sql.sqltypes import (
     UnicodeText,
 )
 
+from camcops_server.cc_modules.cc_constants import (
+    ConfigParamExportRecipient,
+    FileType,
+)
 from camcops_server.cc_modules.cc_email import Email
 from camcops_server.cc_modules.cc_exportrecipient import (
     ExportRecipient,
 )
 from camcops_server.cc_modules.cc_exportrecipientinfo import (
-    ConfigParamExportRecipient,
     ExportTransmissionMethod,
 )
 from camcops_server.cc_modules.cc_filename import (
     change_filename_ext,
-    FileType,
 )
 from camcops_server.cc_modules.cc_hl7 import (
     make_msh_segment,

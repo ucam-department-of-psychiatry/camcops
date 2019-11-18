@@ -72,11 +72,11 @@ import collections
 import configparser
 import contextlib
 import datetime
-import multiprocessing
 import os
 import logging
 import re
 from typing import Dict, Generator, List, Optional, Union
+from unittest import TestCase
 
 from cardinal_pythonlib.configfiles import (
     get_config_parameter,
@@ -116,30 +116,22 @@ from camcops_server.cc_modules.cc_baseconstants import (
     ENVVAR_CONFIG_FILE,
     LINUX_DEFAULT_LOCK_DIR,
     LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR,
+    LINUX_DEFAULT_USER_DOWNLOAD_DIR,
     ON_READTHEDOCS,
     STATIC_ROOT_DIR,
 )
 from camcops_server.cc_modules.cc_cache import cache_region_static, fkg
 from camcops_server.cc_modules.cc_constants import (
+    CONFIG_FILE_EXPORT_SECTION,
+    CONFIG_FILE_SERVER_SECTION,
+    CONFIG_FILE_SITE_SECTION,
+    ConfigDefaults,
+    ConfigParamExportGeneral,
     ConfigParamExportRecipient,
-    DEFAULT_CAMCOPS_LOGO_FILE,
-    DEFAULT_CHERRYPY_SERVER_NAME,
-    DEFAULT_GUNICORN_TIMEOUT_S,
-    DEFAULT_HOST,
-    DEFAULT_LOCAL_INSTITUTION_URL,
-    DEFAULT_LOCAL_LOGO_FILE,
-    DEFAULT_LOCKOUT_DURATION_INCREMENT_MINUTES,
-    DEFAULT_LOCKOUT_THRESHOLD,
-    DEFAULT_MAX_THREADS,
-    DEFAULT_PASSWORD_CHANGE_FREQUENCY_DAYS,
-    DEFAULT_PLOT_FONTSIZE,
-    DEFAULT_PORT,
-    DEFAULT_START_THREADS,
-    DEFAULT_TIMEOUT_MINUTES,
-    URL_PATH_ROOT,
+    ConfigParamServer,
+    ConfigParamSite,
 )
 from camcops_server.cc_modules.cc_exportrecipientinfo import (
-    DEFAULT_PATIENT_SPEC_IF_ANONYMOUS,
     ExportRecipientInfo,
 )
 from camcops_server.cc_modules.cc_exception import raise_runtime_error
@@ -147,10 +139,7 @@ from camcops_server.cc_modules.cc_filename import (
     PatientSpecElementForFilename,
 )
 from camcops_server.cc_modules.cc_group import is_group_name_valid
-from camcops_server.cc_modules.cc_language import (
-    DEFAULT_LOCALE,
-    POSSIBLE_LOCALES,
-)
+from camcops_server.cc_modules.cc_language import POSSIBLE_LOCALES
 from camcops_server.cc_modules.cc_pyramid import MASTER_ROUTE_CLIENT_API
 from camcops_server.cc_modules.cc_snomed import (
     get_all_task_snomed_concepts,
@@ -170,10 +159,6 @@ pre_disable_sqlalchemy_extra_echo_log()
 # Constants
 # =============================================================================
 
-CONFIG_FILE_SITE_SECTION = "site"
-CONFIG_FILE_SERVER_SECTION = "server"
-CONFIG_FILE_EXPORT_SECTION = "export"
-
 VALID_RECIPIENT_NAME_REGEX = r"^[\w_-]+$"
 # ... because we'll use them for filenames, amongst other things
 # https://stackoverflow.com/questions/10944438/
@@ -192,107 +177,27 @@ DEFAULT_LINUX_CAMCOPS_STATIC_DIR = os.path.join(
     DEFAULT_LINUX_CAMCOPS_VENV_DIR,
     "lib", "python3.6", "site-packages", "camcops_server", "static")
 DEFAULT_LINUX_LOGDIR = "/var/log/supervisor"
-DEFAULT_LINUX_USER = "www-data"
+DEFAULT_LINUX_USER = "www-data"  # Ubuntu default
 
 
 # =============================================================================
 # Demo config
 # =============================================================================
 
-DEFAULT_CELERY_BROKER_URL = "amqp://"
+# Cosmetic demonstration constants:
 DEFAULT_DB_NAME = 'camcops'
 DEFAULT_DB_USER = 'YYY_USERNAME_REPLACE_ME'
 DEFAULT_DB_PASSWORD = 'ZZZ_PASSWORD_REPLACE_ME'
 DEFAULT_DB_READONLY_USER = 'QQQ_USERNAME_REPLACE_ME'
 DEFAULT_DB_READONLY_PASSWORD = 'PPP_PASSWORD_REPLACE_ME'
-DEFAULT_TIMEZONE = "UTC"
 DUMMY_INSTITUTION_URL = 'http://www.mydomain/'
-
-
-class ConfigParamSite(object):
-    """
-    Parameters allowed in the main section of the CamCOPS config file.
-    """
-    ALLOW_INSECURE_COOKIES = "ALLOW_INSECURE_COOKIES"
-    CAMCOPS_LOGO_FILE_ABSOLUTE = "CAMCOPS_LOGO_FILE_ABSOLUTE"
-    CLIENT_API_LOGLEVEL = "CLIENT_API_LOGLEVEL"
-    CTV_FILENAME_SPEC = "CTV_FILENAME_SPEC"
-    DB_URL = "DB_URL"
-    DB_ECHO = "DB_ECHO"
-    DISABLE_PASSWORD_AUTOCOMPLETE = "DISABLE_PASSWORD_AUTOCOMPLETE"
-    EXTRA_STRING_FILES = "EXTRA_STRING_FILES"
-    LANGUAGE = "LANGUAGE"
-    LOCAL_INSTITUTION_URL = "LOCAL_INSTITUTION_URL"
-    LOCAL_LOGO_FILE_ABSOLUTE = "LOCAL_LOGO_FILE_ABSOLUTE"
-    LOCKOUT_DURATION_INCREMENT_MINUTES = "LOCKOUT_DURATION_INCREMENT_MINUTES"
-    LOCKOUT_THRESHOLD = "LOCKOUT_THRESHOLD"
-    PASSWORD_CHANGE_FREQUENCY_DAYS = "PASSWORD_CHANGE_FREQUENCY_DAYS"
-    PATIENT_SPEC = "PATIENT_SPEC"
-    PATIENT_SPEC_IF_ANONYMOUS = "PATIENT_SPEC_IF_ANONYMOUS"
-    RESTRICTED_TASKS = "RESTRICTED_TASKS"
-    SESSION_COOKIE_SECRET = "SESSION_COOKIE_SECRET"
-    SESSION_TIMEOUT_MINUTES = "SESSION_TIMEOUT_MINUTES"
-    SNOMED_TASK_XML_FILENAME = "SNOMED_TASK_XML_FILENAME"
-    SNOMED_ICD9_XML_FILENAME = "SNOMED_ICD9_XML_FILENAME"
-    SNOMED_ICD10_XML_FILENAME = "SNOMED_ICD10_XML_FILENAME"
-    TASK_FILENAME_SPEC = "TASK_FILENAME_SPEC"
-    TRACKER_FILENAME_SPEC = "TRACKER_FILENAME_SPEC"
-    WEBVIEW_LOGLEVEL = "WEBVIEW_LOGLEVEL"
-    WKHTMLTOPDF_FILENAME = "WKHTMLTOPDF_FILENAME"
-
-
-class ConfigParamServer(object):
-    """
-    Parameters allowed in the web server section of the CamCOPS config file.
-    """
-    CHERRYPY_LOG_SCREEN = "CHERRYPY_LOG_SCREEN"
-    CHERRYPY_ROOT_PATH = "CHERRYPY_ROOT_PATH"
-    CHERRYPY_SERVER_NAME = "CHERRYPY_SERVER_NAME"
-    CHERRYPY_THREADS_MAX = "CHERRYPY_THREADS_MAX"
-    CHERRYPY_THREADS_START = "CHERRYPY_THREADS_START"
-    DEBUG_REVERSE_PROXY = "DEBUG_REVERSE_PROXY"
-    DEBUG_SHOW_GUNICORN_OPTIONS = "DEBUG_SHOW_GUNICORN_OPTIONS"
-    DEBUG_TOOLBAR = "DEBUG_TOOLBAR"
-    GUNICORN_DEBUG_RELOAD = "GUNICORN_DEBUG_RELOAD"
-    GUNICORN_NUM_WORKERS = "GUNICORN_NUM_WORKERS"
-    GUNICORN_TIMEOUT_S = "GUNICORN_TIMEOUT_S"
-    HOST = "HOST"
-    PORT = "PORT"
-    PROXY_HTTP_HOST = "PROXY_HTTP_HOST"
-    PROXY_REMOTE_ADDR = "PROXY_REMOTE_ADDR"
-    PROXY_REWRITE_PATH_INFO = "PROXY_REWRITE_PATH_INFO"
-    PROXY_SCRIPT_NAME = "PROXY_SCRIPT_NAME"
-    PROXY_SERVER_NAME = "PROXY_SERVER_NAME"
-    PROXY_SERVER_PORT = "PROXY_SERVER_PORT"
-    PROXY_URL_SCHEME = "PROXY_URL_SCHEME"
-    SHOW_REQUEST_IMMEDIATELY = "SHOW_REQUEST_IMMEDIATELY"
-    SHOW_REQUESTS = "SHOW_REQUESTS"
-    SHOW_RESPONSE = "SHOW_RESPONSE"
-    SHOW_TIMING = "SHOW_TIMING"
-    SSL_CERTIFICATE = "SSL_CERTIFICATE"
-    SSL_PRIVATE_KEY = "SSL_PRIVATE_KEY"
-    TRUSTED_PROXY_HEADERS = "TRUSTED_PROXY_HEADERS"
-    UNIX_DOMAIN_SOCKET = "UNIX_DOMAIN_SOCKET"
-
-
-class ConfigParamExportGeneral(object):
-    """
-    Parameters allowed in the ``[export]`` section of the CamCOPS config file.
-    """
-    CELERY_BEAT_EXTRA_ARGS = "CELERY_BEAT_EXTRA_ARGS"
-    CELERY_BEAT_SCHEDULE_DATABASE = "CELERY_BEAT_SCHEDULE_DATABASE"
-    CELERY_BROKER_URL = "CELERY_BROKER_URL"
-    CELERY_WORKER_EXTRA_ARGS = "CELERY_WORKER_EXTRA_ARGS"
-    EXPORT_LOCKDIR = "EXPORT_LOCKDIR"
-    RECIPIENTS = "RECIPIENTS"
-    SCHEDULE = "SCHEDULE"
-    SCHEDULE_TIMEZONE = "SCHEDULE_TIMEZONE"
 
 
 def get_demo_config(extra_strings_dir: str = None,
                     lock_dir: str = None,
                     static_dir: str = None,
-                    db_url: str = None) -> str:
+                    db_url: str = None,
+                    user_download_dir: str = None) -> str:
     """
     Returns a demonstration config file based on the specified parameters.
     """
@@ -300,6 +205,7 @@ def get_demo_config(extra_strings_dir: str = None,
     extra_strings_spec = os.path.join(extra_strings_dir, '*.xml')
     lock_dir = lock_dir or LINUX_DEFAULT_LOCK_DIR
     static_dir = static_dir or STATIC_ROOT_DIR
+    user_download_dir = user_download_dir or LINUX_DEFAULT_USER_DOWNLOAD_DIR
     # ...
     # http://www.debian.org/doc/debian-policy/ch-opersys.html#s-writing-init
     # https://people.canonical.com/~cjwatson/ubuntu-policy/policy.html/ch-opersys.html  # noqa
@@ -309,6 +215,7 @@ def get_demo_config(extra_strings_dir: str = None,
         db_url = make_mysql_url(username=DEFAULT_DB_USER,
                                 password=DEFAULT_DB_PASSWORD,
                                 dbname=DEFAULT_DB_NAME)
+    cd = ConfigDefaults
     return f"""
 # Demonstration CamCOPS server configuration file.
 # Created by CamCOPS server version {CAMCOPS_SERVER_VERSION_STRING} at {str(
@@ -326,7 +233,7 @@ def get_demo_config(extra_strings_dir: str = None,
 # -----------------------------------------------------------------------------
 
 {ConfigParamSite.DB_URL} = {db_url}
-{ConfigParamSite.DB_ECHO} = false
+{ConfigParamSite.DB_ECHO} = {cd.DB_ECHO}
 
 # -----------------------------------------------------------------------------
 # URLs and paths
@@ -338,7 +245,7 @@ def get_demo_config(extra_strings_dir: str = None,
 
 {ConfigParamSite.EXTRA_STRING_FILES} = {extra_strings_spec}
 {ConfigParamSite.RESTRICTED_TASKS} =
-{ConfigParamSite.LANGUAGE} = {DEFAULT_LOCALE}
+{ConfigParamSite.LANGUAGE} = {cd.LANGUAGE}
 
 {ConfigParamSite.SNOMED_TASK_XML_FILENAME} =
 {ConfigParamSite.SNOMED_ICD9_XML_FILENAME} =
@@ -351,17 +258,17 @@ def get_demo_config(extra_strings_dir: str = None,
 # -----------------------------------------------------------------------------
 
 {ConfigParamSite.SESSION_COOKIE_SECRET} = camcops_autogenerated_secret_{session_cookie_secret}
-{ConfigParamSite.SESSION_TIMEOUT_MINUTES} = 30
-{ConfigParamSite.PASSWORD_CHANGE_FREQUENCY_DAYS} = 0
-{ConfigParamSite.LOCKOUT_THRESHOLD} = 10
-{ConfigParamSite.LOCKOUT_DURATION_INCREMENT_MINUTES} = 10
-{ConfigParamSite.DISABLE_PASSWORD_AUTOCOMPLETE} = true
+{ConfigParamSite.SESSION_TIMEOUT_MINUTES} = {cd.SESSION_TIMEOUT_MINUTES}
+{ConfigParamSite.PASSWORD_CHANGE_FREQUENCY_DAYS} = {cd.PASSWORD_CHANGE_FREQUENCY_DAYS}
+{ConfigParamSite.LOCKOUT_THRESHOLD} = {cd.LOCKOUT_THRESHOLD}
+{ConfigParamSite.LOCKOUT_DURATION_INCREMENT_MINUTES} = {cd.LOCKOUT_DURATION_INCREMENT_MINUTES}
+{ConfigParamSite.DISABLE_PASSWORD_AUTOCOMPLETE} = {cd.DISABLE_PASSWORD_AUTOCOMPLETE}
 
 # -----------------------------------------------------------------------------
 # Suggested filenames for saving PDFs from the web view
 # -----------------------------------------------------------------------------
 
-{ConfigParamSite.PATIENT_SPEC_IF_ANONYMOUS} = anonymous
+{ConfigParamSite.PATIENT_SPEC_IF_ANONYMOUS} = {cd.PATIENT_SPEC_IF_ANONYMOUS}
 {ConfigParamSite.PATIENT_SPEC} = {{{PatientSpecElementForFilename.SURNAME}}}_{{{PatientSpecElementForFilename.FORENAME}}}_{{{PatientSpecElementForFilename.ALLIDNUMS}}}
 
 {ConfigParamSite.TASK_FILENAME_SPEC} = CamCOPS_{{patient}}_{{created}}_{{tasktype}}-{{serverpk}}.{{filetype}}
@@ -369,12 +276,34 @@ def get_demo_config(extra_strings_dir: str = None,
 {ConfigParamSite.CTV_FILENAME_SPEC} = CamCOPS_{{patient}}_{{now}}_clinicaltextview.{{filetype}}
 
 # -----------------------------------------------------------------------------
+# E-mail options
+# -----------------------------------------------------------------------------
+
+{ConfigParamSite.EMAIL_HOST} = mysmtpserver.mydomain
+{ConfigParamSite.EMAIL_PORT} = {cd.EMAIL_PORT}
+{ConfigParamSite.EMAIL_USE_TLS} = {cd.EMAIL_USE_TLS}
+{ConfigParamSite.EMAIL_HOST_USERNAME} = myusername
+{ConfigParamSite.EMAIL_HOST_PASSWORD} = mypassword
+{ConfigParamSite.EMAIL_FROM} = CamCOPS computer <noreply@myinstitution.mydomain>
+{ConfigParamSite.EMAIL_SENDER} =
+{ConfigParamSite.EMAIL_REPLY_TO} = CamCOPS clinical administrator <admin@myinstitution.mydomain>
+
+# -----------------------------------------------------------------------------
+# User download options
+# -----------------------------------------------------------------------------
+
+{ConfigParamSite.PERMIT_IMMEDIATE_DOWNLOADS} = {cd.PERMIT_IMMEDIATE_DOWNLOADS}
+{ConfigParamSite.USER_DOWNLOAD_DIR} = {user_download_dir}
+{ConfigParamSite.USER_DOWNLOAD_FILE_LIFETIME_MIN} = {cd.USER_DOWNLOAD_FILE_LIFETIME_MIN}
+{ConfigParamSite.USER_DOWNLOAD_MAX_SPACE_MB} = {cd.USER_DOWNLOAD_MAX_SPACE_MB}
+
+# -----------------------------------------------------------------------------
 # Debugging options
 # -----------------------------------------------------------------------------
 
-{ConfigParamSite.WEBVIEW_LOGLEVEL} = info
-{ConfigParamSite.CLIENT_API_LOGLEVEL} = info
-{ConfigParamSite.ALLOW_INSECURE_COOKIES} = false
+{ConfigParamSite.WEBVIEW_LOGLEVEL} = {cd.WEBVIEW_LOGLEVEL_TEXTFORMAT}
+{ConfigParamSite.CLIENT_API_LOGLEVEL} = {cd.CLIENT_API_LOGLEVEL_TEXTFORMAT}
+{ConfigParamSite.ALLOW_INSECURE_COOKIES} = {cd.ALLOW_INSECURE_COOKIES}
 
 
 # =============================================================================
@@ -387,8 +316,8 @@ def get_demo_config(extra_strings_dir: str = None,
 # Common web server options
 # -----------------------------------------------------------------------------
 
-{ConfigParamServer.HOST} = {DEFAULT_HOST}
-{ConfigParamServer.PORT} = {DEFAULT_PORT}
+{ConfigParamServer.HOST} = {cd.HOST}
+{ConfigParamServer.PORT} = {cd.PORT}
 {ConfigParamServer.UNIX_DOMAIN_SOCKET} =
 {ConfigParamServer.SSL_CERTIFICATE} =
 {ConfigParamServer.SSL_PRIVATE_KEY} =
@@ -397,15 +326,15 @@ def get_demo_config(extra_strings_dir: str = None,
 # WSGI options
 # -----------------------------------------------------------------------------
 
-{ConfigParamServer.DEBUG_REVERSE_PROXY} = false
-{ConfigParamServer.DEBUG_TOOLBAR} = false
-{ConfigParamServer.SHOW_REQUESTS} = false
-{ConfigParamServer.SHOW_REQUEST_IMMEDIATELY} = false
-{ConfigParamServer.SHOW_RESPONSE} = false
-{ConfigParamServer.SHOW_TIMING} = false
+{ConfigParamServer.DEBUG_REVERSE_PROXY} = {cd.DEBUG_REVERSE_PROXY}
+{ConfigParamServer.DEBUG_TOOLBAR} = {cd.DEBUG_TOOLBAR}
+{ConfigParamServer.SHOW_REQUESTS} = {cd.SHOW_REQUESTS}
+{ConfigParamServer.SHOW_REQUEST_IMMEDIATELY} = {cd.SHOW_REQUEST_IMMEDIATELY}
+{ConfigParamServer.SHOW_RESPONSE} = {cd.SHOW_RESPONSE}
+{ConfigParamServer.SHOW_TIMING} = {cd.SHOW_TIMING}
 {ConfigParamServer.PROXY_HTTP_HOST} =
 {ConfigParamServer.PROXY_REMOTE_ADDR} =
-{ConfigParamServer.PROXY_REWRITE_PATH_INFO} = false
+{ConfigParamServer.PROXY_REWRITE_PATH_INFO} = {cd.PROXY_REWRITE_PATH_INFO}
 {ConfigParamServer.PROXY_SCRIPT_NAME} =
 {ConfigParamServer.PROXY_SERVER_NAME} =
 {ConfigParamServer.PROXY_SERVER_PORT} =
@@ -422,20 +351,20 @@ def get_demo_config(extra_strings_dir: str = None,
 # CherryPy options
 # -----------------------------------------------------------------------------
 
-{ConfigParamServer.CHERRYPY_SERVER_NAME} = {DEFAULT_CHERRYPY_SERVER_NAME}
-{ConfigParamServer.CHERRYPY_THREADS_START} = {DEFAULT_START_THREADS}
-{ConfigParamServer.CHERRYPY_THREADS_MAX} = {DEFAULT_MAX_THREADS}
-{ConfigParamServer.CHERRYPY_LOG_SCREEN} = true
-{ConfigParamServer.CHERRYPY_ROOT_PATH} = {URL_PATH_ROOT}
+{ConfigParamServer.CHERRYPY_SERVER_NAME} = {cd.CHERRYPY_SERVER_NAME}
+{ConfigParamServer.CHERRYPY_THREADS_START} = {cd.CHERRYPY_THREADS_START}
+{ConfigParamServer.CHERRYPY_THREADS_MAX} = {cd.CHERRYPY_THREADS_MAX}
+{ConfigParamServer.CHERRYPY_LOG_SCREEN} = {cd.CHERRYPY_LOG_SCREEN}
+{ConfigParamServer.CHERRYPY_ROOT_PATH} = {cd.CHERRYPY_ROOT_PATH}
 
 # -----------------------------------------------------------------------------
 # Gunicorn options
 # -----------------------------------------------------------------------------
 
-{ConfigParamServer.GUNICORN_NUM_WORKERS} = {2 * multiprocessing.cpu_count()}
-{ConfigParamServer.GUNICORN_DEBUG_RELOAD} = False
-{ConfigParamServer.GUNICORN_TIMEOUT_S} = {DEFAULT_GUNICORN_TIMEOUT_S}
-{ConfigParamServer.DEBUG_SHOW_GUNICORN_OPTIONS} = False
+{ConfigParamServer.GUNICORN_NUM_WORKERS} = {cd.GUNICORN_NUM_WORKERS}
+{ConfigParamServer.GUNICORN_DEBUG_RELOAD} = {cd.GUNICORN_DEBUG_RELOAD}
+{ConfigParamServer.GUNICORN_TIMEOUT_S} = {cd.GUNICORN_TIMEOUT_S}
+{ConfigParamServer.DEBUG_SHOW_GUNICORN_OPTIONS} = {cd.DEBUG_SHOW_GUNICORN_OPTIONS}
 
 # =============================================================================
 # Export options
@@ -445,13 +374,13 @@ def get_demo_config(extra_strings_dir: str = None,
 
 {ConfigParamExportGeneral.CELERY_BEAT_EXTRA_ARGS} =
 {ConfigParamExportGeneral.CELERY_BEAT_SCHEDULE_DATABASE} = {lock_dir}/camcops_celerybeat_schedule
-{ConfigParamExportGeneral.CELERY_BROKER_URL} = amqp://
+{ConfigParamExportGeneral.CELERY_BROKER_URL} = {cd.CELERY_BROKER_URL}
 {ConfigParamExportGeneral.CELERY_WORKER_EXTRA_ARGS} =
 {ConfigParamExportGeneral.EXPORT_LOCKDIR} = {lock_dir}
 
 {ConfigParamExportGeneral.RECIPIENTS} =
 
-{ConfigParamExportGeneral.SCHEDULE_TIMEZONE} = {DEFAULT_TIMEZONE}
+{ConfigParamExportGeneral.SCHEDULE_TIMEZONE} = {cd.SCHEDULE_TIMEZONE}
 {ConfigParamExportGeneral.SCHEDULE} =
 
 # =============================================================================
@@ -472,7 +401,7 @@ def get_demo_config(extra_strings_dir: str = None,
 {ConfigParamExportRecipient.TRANSMISSION_METHOD} = hl7
 {ConfigParamExportRecipient.PUSH} = true
 {ConfigParamExportRecipient.TASK_FORMAT} = pdf
-{ConfigParamExportRecipient.XML_FIELD_COMMENTS} = true
+{ConfigParamExportRecipient.XML_FIELD_COMMENTS} = {cd.XML_FIELD_COMMENTS}
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # What to export
@@ -482,36 +411,29 @@ def get_demo_config(extra_strings_dir: str = None,
 {ConfigParamExportRecipient.GROUPS} =
     myfirstgroup
     mysecondgroup
+{ConfigParamExportRecipient.TASKS} =
 
 {ConfigParamExportRecipient.START_DATETIME_UTC} =
 {ConfigParamExportRecipient.END_DATETIME_UTC} =
-{ConfigParamExportRecipient.FINALIZED_ONLY} = true
-{ConfigParamExportRecipient.INCLUDE_ANONYMOUS} = true
+{ConfigParamExportRecipient.FINALIZED_ONLY} = {cd.FINALIZED_ONLY}
+{ConfigParamExportRecipient.INCLUDE_ANONYMOUS} = {cd.INCLUDE_ANONYMOUS}
 {ConfigParamExportRecipient.PRIMARY_IDNUM} = 1
-{ConfigParamExportRecipient.REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY} = true
+{ConfigParamExportRecipient.REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY} = {cd.REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY}
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Options applicable to database exports
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 {ConfigParamExportRecipient.DB_URL} = some_sqlalchemy_url
-{ConfigParamExportRecipient.DB_ECHO} = false
-{ConfigParamExportRecipient.DB_INCLUDE_BLOBS} = true
-{ConfigParamExportRecipient.DB_ADD_SUMMARIES} = true
-{ConfigParamExportRecipient.DB_PATIENT_ID_PER_ROW} = false
+{ConfigParamExportRecipient.DB_ECHO} = {cd.DB_ECHO}
+{ConfigParamExportRecipient.DB_INCLUDE_BLOBS} = {cd.DB_INCLUDE_BLOBS}
+{ConfigParamExportRecipient.DB_ADD_SUMMARIES} = {cd.DB_ADD_SUMMARIES}
+{ConfigParamExportRecipient.DB_PATIENT_ID_PER_ROW} = {cd.DB_PATIENT_ID_PER_ROW}
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Options applicable to e-mail exports
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-{ConfigParamExportRecipient.EMAIL_HOST} = mysmtpserver.mydomain
-{ConfigParamExportRecipient.EMAIL_PORT} = 587
-{ConfigParamExportRecipient.EMAIL_USE_TLS} = true
-{ConfigParamExportRecipient.EMAIL_HOST_USERNAME} = myusername
-{ConfigParamExportRecipient.EMAIL_HOST_PASSWORD} = mypassword
-{ConfigParamExportRecipient.EMAIL_FROM} = CamCOPS computer <noreply@myinstitution.mydomain>
-{ConfigParamExportRecipient.EMAIL_SENDER} =
-{ConfigParamExportRecipient.EMAIL_REPLY_TO} = CamCOPS clinical administrator <admin@myinstitution.mydomain>
 {ConfigParamExportRecipient.EMAIL_TO} =
     Perinatal Psychiatry Admin <perinatal@myinstitution.mydomain>
 
@@ -540,31 +462,31 @@ def get_demo_config(extra_strings_dir: str = None,
 
     The CamCOPS computer.
 
-{ConfigParamExportRecipient.EMAIL_KEEP_MESSAGE} = false
+{ConfigParamExportRecipient.EMAIL_KEEP_MESSAGE} = {cd.HL7_KEEP_MESSAGE}
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Options applicable to HL7
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 {ConfigParamExportRecipient.HL7_HOST} = myhl7server.mydomain
-{ConfigParamExportRecipient.HL7_PORT} = 2575
-{ConfigParamExportRecipient.HL7_PING_FIRST} = true
-{ConfigParamExportRecipient.HL7_NETWORK_TIMEOUT_MS} = 10000
-{ConfigParamExportRecipient.HL7_KEEP_MESSAGE} = false
-{ConfigParamExportRecipient.HL7_KEEP_REPLY} = false
-{ConfigParamExportRecipient.HL7_DEBUG_DIVERT_TO_FILE} =
-{ConfigParamExportRecipient.HL7_DEBUG_TREAT_DIVERTED_AS_SENT} = false
+{ConfigParamExportRecipient.HL7_PORT} = {cd.HL7_PORT}
+{ConfigParamExportRecipient.HL7_PING_FIRST} = {cd.HL7_PING_FIRST}
+{ConfigParamExportRecipient.HL7_NETWORK_TIMEOUT_MS} = {cd.HL7_NETWORK_TIMEOUT_MS}
+{ConfigParamExportRecipient.HL7_KEEP_MESSAGE} = {cd.HL7_KEEP_MESSAGE}
+{ConfigParamExportRecipient.HL7_KEEP_REPLY} = {cd.HL7_KEEP_REPLY}
+{ConfigParamExportRecipient.HL7_DEBUG_DIVERT_TO_FILE} = {cd.HL7_DEBUG_DIVERT_TO_FILE}
+{ConfigParamExportRecipient.HL7_DEBUG_TREAT_DIVERTED_AS_SENT} = {cd.HL7_DEBUG_TREAT_DIVERTED_AS_SENT}
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Options applicable to file transfers/attachments
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 {ConfigParamExportRecipient.FILE_PATIENT_SPEC} = {{surname}}_{{forename}}_{{idshortdesc1}}{{idnum1}}
-{ConfigParamExportRecipient.FILE_PATIENT_SPEC_IF_ANONYMOUS} = anonymous
+{ConfigParamExportRecipient.FILE_PATIENT_SPEC_IF_ANONYMOUS} = {cd.FILE_PATIENT_SPEC_IF_ANONYMOUS}
 {ConfigParamExportRecipient.FILE_FILENAME_SPEC} = /my_nfs_mount/mypath/CamCOPS_{{patient}}_{{created}}_{{tasktype}}-{{serverpk}}.{{filetype}}
-{ConfigParamExportRecipient.FILE_MAKE_DIRECTORY} = true
-{ConfigParamExportRecipient.FILE_OVERWRITE_FILES} = false
-{ConfigParamExportRecipient.FILE_EXPORT_RIO_METADATA} = false
+{ConfigParamExportRecipient.FILE_MAKE_DIRECTORY} = {cd.FILE_MAKE_DIRECTORY}
+{ConfigParamExportRecipient.FILE_OVERWRITE_FILES} = {cd.FILE_OVERWRITE_FILES}
+{ConfigParamExportRecipient.FILE_EXPORT_RIO_METADATA} = {cd.FILE_EXPORT_RIO_METADATA}
 {ConfigParamExportRecipient.FILE_SCRIPT_AFTER_EXPORT} =
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -590,6 +512,11 @@ def get_demo_supervisor_config() -> str:
     Returns a demonstration ``supervisord`` config file based on the
     specified parameters.
     """
+    redirect_stderr = "true"
+    autostart = "true"
+    autorestart = "true"
+    startsecs = "30"
+    stopwaitsecs = "60"
     return f"""
 # =============================================================================
 # Demonstration 'supervisor' (supervisord) config file for CamCOPS.
@@ -649,11 +576,11 @@ directory = {DEFAULT_LINUX_CAMCOPS_BASE_DIR}
 environment = MPLCONFIGDIR="{LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR}"
 user = {DEFAULT_LINUX_USER}
 stdout_logfile = {DEFAULT_LINUX_LOGDIR}/camcops_server.log
-redirect_stderr = true
-autostart = true
-autorestart = true
-startsecs = 30
-stopwaitsecs = 60
+redirect_stderr = {redirect_stderr}
+autostart = {autostart}
+autorestart = {autorestart}
+startsecs = {startsecs}
+stopwaitsecs = {stopwaitsecs}
 
 [program:camcops_workers]
 
@@ -664,11 +591,11 @@ directory = {DEFAULT_LINUX_CAMCOPS_BASE_DIR}
 environment = MPLCONFIGDIR="{LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR}"
 user = {DEFAULT_LINUX_USER}
 stdout_logfile = {DEFAULT_LINUX_LOGDIR}/camcops_workers.log
-redirect_stderr = true
-autostart = true
-autorestart = true
-startsecs = 30
-stopwaitsecs = 60
+redirect_stderr = {redirect_stderr}
+autostart = {autostart}
+autorestart = {autorestart}
+startsecs = {startsecs}
+stopwaitsecs = {stopwaitsecs}
 
 [program:camcops_scheduler]
 
@@ -679,11 +606,11 @@ directory = {DEFAULT_LINUX_CAMCOPS_BASE_DIR}
 environment = MPLCONFIGDIR="{LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR}"
 user = {DEFAULT_LINUX_USER}
 stdout_logfile = {DEFAULT_LINUX_LOGDIR}/camcops_scheduler.log
-redirect_stderr = true
-autostart = true
-autorestart = true
-startsecs = 30
-stopwaitsecs = 60
+redirect_stderr = {redirect_stderr}
+autostart = {autostart}
+autorestart = {autorestart}
+startsecs = {startsecs}
+stopwaitsecs = {stopwaitsecs}
 
 [group:camcops]
 
@@ -694,7 +621,7 @@ programs = camcops_server, camcops_workers, camcops_scheduler
 
 def get_demo_apache_config(
         rootpath: str = "camcops",  # no slash
-        specimen_internal_port: int = DEFAULT_PORT,
+        specimen_internal_port: int = ConfigDefaults.PORT,
         specimen_socket_file: str = DEFAULT_SOCKET_FILENAME) -> str:
     """
     Returns a demo Apache HTTPD config file section applicable to CamCOPS.
@@ -1010,11 +937,11 @@ class CrontabEntry(object):
     """
     def __init__(self,
                  line: str = None,
-                 minute: Union[str, int, List[int]] = None,
-                 hour: Union[str, int, List[int]] = None,
-                 day_of_week: Union[str, int, List[int]] = None,
-                 day_of_month: Union[str, int, List[int]] = None,
-                 month_of_year: Union[str, int, List[int]] = None,
+                 minute: Union[str, int, List[int]] = "*",
+                 hour: Union[str, int, List[int]] = "*",
+                 day_of_week: Union[str, int, List[int]] = "*",
+                 day_of_month: Union[str, int, List[int]] = "*",
+                 month_of_year: Union[str, int, List[int]] = "*",
                  content: str = None) -> None:
         """
         Args:
@@ -1032,11 +959,16 @@ class CrontabEntry(object):
                 crontab "month_of_year" entry
             content:
                 crontab "thing to run" entry
+
+        If ``line`` is specified, it is used. Otherwise, the components are
+        used; the default for each of them is ``"*"``, meaning "all". Thus, for
+        example, you can specify ``minute="*/5"`` and that is sufficient to
+        mean "every 5 minutes".
         """
         has_line = line is not None
         has_components = bool(minute and hour and day_of_week and
                               day_of_month and month_of_year and content)
-        assert has_line != has_components, (
+        assert has_line or has_components, (
             "Specify either a crontab line or all the time components"
         )
         if has_line:
@@ -1167,51 +1099,66 @@ class CamcopsConfig(object):
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         s = CONFIG_FILE_SITE_SECTION
         cs = ConfigParamSite
+        cd = ConfigDefaults
 
         self.allow_insecure_cookies = _get_bool(
-            s, cs.ALLOW_INSECURE_COOKIES, False)
+            s, cs.ALLOW_INSECURE_COOKIES, cd.ALLOW_INSECURE_COOKIES)
 
         self.camcops_logo_file_absolute = _get_str(
-            s, cs.CAMCOPS_LOGO_FILE_ABSOLUTE, DEFAULT_CAMCOPS_LOGO_FILE)
+            s, cs.CAMCOPS_LOGO_FILE_ABSOLUTE, cd.CAMCOPS_LOGO_FILE_ABSOLUTE)
         self.ctv_filename_spec = _get_str(s, cs.CTV_FILENAME_SPEC)
 
         self.db_url = parser.get(s, cs.DB_URL)
         # ... no default: will fail if not provided
-        self.db_echo = _get_bool(s, cs.DB_ECHO, False)
+        self.db_echo = _get_bool(s, cs.DB_ECHO, cd.DB_ECHO)
         self.client_api_loglevel = get_config_parameter_loglevel(
-            parser, s, cs.CLIENT_API_LOGLEVEL, logging.INFO)
+            parser, s, cs.CLIENT_API_LOGLEVEL, cd.CLIENT_API_LOGLEVEL)
         logging.getLogger("camcops_server.cc_modules.client_api")\
             .setLevel(self.client_api_loglevel)
         # ... MUTABLE GLOBAL STATE (if relatively unimportant); todo: fix
 
         self.disable_password_autocomplete = _get_bool(
-            s, cs.DISABLE_PASSWORD_AUTOCOMPLETE, True)
+            s, cs.DISABLE_PASSWORD_AUTOCOMPLETE,
+            cd.DISABLE_PASSWORD_AUTOCOMPLETE)
+
+        self.email_host = _get_str(s, cs.EMAIL_HOST, "")
+        self.email_port = _get_int(s, cs.EMAIL_PORT, cd.EMAIL_PORT)
+        self.email_use_tls = _get_bool(s, cs.EMAIL_USE_TLS, cd.EMAIL_USE_TLS)
+        self.email_host_username = _get_str(s, cs.EMAIL_HOST_USERNAME, "")
+        self.email_host_password = _get_str(s, cs.EMAIL_HOST_PASSWORD, "")
+
+        self.email_from = _get_str(s, cs.EMAIL_FROM, "")
+        self.email_sender = _get_str(s, cs.EMAIL_SENDER, "")
+        self.email_reply_to = _get_str(s, cs.EMAIL_REPLY_TO, "")
 
         self.extra_string_files = _get_multiline(s, cs.EXTRA_STRING_FILES)
 
-        self.language = _get_str(s, cs.LANGUAGE, DEFAULT_LOCALE)
+        self.language = _get_str(s, cs.LANGUAGE, cd.LANGUAGE)
         if self.language not in POSSIBLE_LOCALES:
             log.warning(f"Invalid language {self.language!r}, "
-                        f"switching to {DEFAULT_LOCALE!r}")
-            self.language = DEFAULT_LOCALE
+                        f"switching to {cd.LANGUAGE!r}")
+            self.language = cd.LANGUAGE
         self.local_institution_url = _get_str(
-            s, cs.LOCAL_INSTITUTION_URL, DEFAULT_LOCAL_INSTITUTION_URL)
+            s, cs.LOCAL_INSTITUTION_URL, cd.LOCAL_INSTITUTION_URL)
         self.local_logo_file_absolute = _get_str(
-            s, cs.LOCAL_LOGO_FILE_ABSOLUTE, DEFAULT_LOCAL_LOGO_FILE)
+            s, cs.LOCAL_LOGO_FILE_ABSOLUTE, cd.LOCAL_LOGO_FILE_ABSOLUTE)
         self.lockout_threshold = _get_int(
-            s, cs.LOCKOUT_THRESHOLD, DEFAULT_LOCKOUT_THRESHOLD)
+            s, cs.LOCKOUT_THRESHOLD, cd.LOCKOUT_THRESHOLD)
         self.lockout_duration_increment_minutes = _get_int(
             s, cs.LOCKOUT_DURATION_INCREMENT_MINUTES,
-            DEFAULT_LOCKOUT_DURATION_INCREMENT_MINUTES)
+            cd.LOCKOUT_DURATION_INCREMENT_MINUTES)
 
         self.password_change_frequency_days = _get_int(
             s, cs.PASSWORD_CHANGE_FREQUENCY_DAYS,
-            DEFAULT_PASSWORD_CHANGE_FREQUENCY_DAYS)
+            cd.PASSWORD_CHANGE_FREQUENCY_DAYS)
         self.patient_spec_if_anonymous = _get_str(
-            s, cs.PATIENT_SPEC_IF_ANONYMOUS, DEFAULT_PATIENT_SPEC_IF_ANONYMOUS)
+            s, cs.PATIENT_SPEC_IF_ANONYMOUS, cd.PATIENT_SPEC_IF_ANONYMOUS)
         self.patient_spec = _get_str(s, cs.PATIENT_SPEC)
+        self.permit_immediate_downloads = _get_bool(
+            s, cs.PERMIT_IMMEDIATE_DOWNLOADS,
+            cd.PERMIT_IMMEDIATE_DOWNLOADS)
         # currently not configurable, but easy to add in the future:
-        self.plot_fontsize = DEFAULT_PLOT_FONTSIZE
+        self.plot_fontsize = cd.PLOT_FONTSIZE
 
         self.restricted_tasks = {}  # type: Dict[str, List[str]]
         # ... maps XML task names to lists of authorized group names
@@ -1240,7 +1187,7 @@ class CamcopsConfig(object):
             self.restricted_tasks[xml_taskname] = groupnames
 
         self.session_timeout_minutes = _get_int(
-            s, cs.SESSION_TIMEOUT_MINUTES, DEFAULT_TIMEOUT_MINUTES)
+            s, cs.SESSION_TIMEOUT_MINUTES, cd.SESSION_TIMEOUT_MINUTES)
         self.session_cookie_secret = _get_str(s, cs.SESSION_COOKIE_SECRET)
         self.session_timeout = datetime.timedelta(
             minutes=self.session_timeout_minutes)
@@ -1254,8 +1201,16 @@ class CamcopsConfig(object):
         self.task_filename_spec = _get_str(s, cs.TASK_FILENAME_SPEC)
         self.tracker_filename_spec = _get_str(s, cs.TRACKER_FILENAME_SPEC)
 
+        self.user_download_dir = _get_str(s, cs.USER_DOWNLOAD_DIR, "")
+        self.user_download_file_lifetime_min = _get_int(
+            s, cs.USER_DOWNLOAD_FILE_LIFETIME_MIN,
+            cd.USER_DOWNLOAD_FILE_LIFETIME_MIN)
+        self.user_download_max_space_mb = _get_int(
+            s, cs.USER_DOWNLOAD_MAX_SPACE_MB,
+            cd.USER_DOWNLOAD_MAX_SPACE_MB)
+
         self.webview_loglevel = get_config_parameter_loglevel(
-            parser, s, cs.WEBVIEW_LOGLEVEL, logging.INFO)
+            parser, s, cs.WEBVIEW_LOGLEVEL, cd.WEBVIEW_LOGLEVEL)
         logging.getLogger().setLevel(self.webview_loglevel)  # root logger
         # ... MUTABLE GLOBAL STATE (if relatively unimportant); todo: fix
         self.wkhtmltopdf_filename = _get_str(s, cs.WKHTMLTOPDF_FILENAME)
@@ -1284,40 +1239,42 @@ class CamcopsConfig(object):
         ws = CONFIG_FILE_SERVER_SECTION
         cw = ConfigParamServer
 
-        self.cherrypy_log_screen = _get_bool(ws, cw.CHERRYPY_LOG_SCREEN, True)
+        self.cherrypy_log_screen = _get_bool(ws, cw.CHERRYPY_LOG_SCREEN,
+                                             cd.CHERRYPY_LOG_SCREEN)
         self.cherrypy_root_path = _get_str(
-            ws, cw.CHERRYPY_ROOT_PATH, URL_PATH_ROOT)
+            ws, cw.CHERRYPY_ROOT_PATH, cd.CHERRYPY_ROOT_PATH)
         self.cherrypy_server_name = _get_str(
-            ws, cw.CHERRYPY_SERVER_NAME, DEFAULT_CHERRYPY_SERVER_NAME)
+            ws, cw.CHERRYPY_SERVER_NAME, cd.CHERRYPY_SERVER_NAME)
         self.cherrypy_threads_max = _get_int(
-            ws, cw.CHERRYPY_THREADS_MAX, DEFAULT_MAX_THREADS)
+            ws, cw.CHERRYPY_THREADS_MAX, cd.CHERRYPY_THREADS_MAX)
         self.cherrypy_threads_start = _get_int(
-            ws, cw.CHERRYPY_THREADS_START, DEFAULT_START_THREADS)
-        self.debug_reverse_proxy = _get_bool(ws, cw.DEBUG_REVERSE_PROXY, False)
+            ws, cw.CHERRYPY_THREADS_START, cd.CHERRYPY_THREADS_START)
+        self.debug_reverse_proxy = _get_bool(ws, cw.DEBUG_REVERSE_PROXY,
+                                             cd.DEBUG_REVERSE_PROXY)
         self.debug_show_gunicorn_options = _get_bool(
-            ws, cw.DEBUG_SHOW_GUNICORN_OPTIONS, False)
-        self.debug_toolbar = _get_bool(ws, cw.DEBUG_TOOLBAR, False)
+            ws, cw.DEBUG_SHOW_GUNICORN_OPTIONS, cd.DEBUG_SHOW_GUNICORN_OPTIONS)
+        self.debug_toolbar = _get_bool(ws, cw.DEBUG_TOOLBAR, cd.DEBUG_TOOLBAR)
         self.gunicorn_debug_reload = _get_bool(
-            ws, cw.GUNICORN_DEBUG_RELOAD, False)
+            ws, cw.GUNICORN_DEBUG_RELOAD, cd.GUNICORN_DEBUG_RELOAD)
         self.gunicorn_num_workers = _get_int(
-            ws, cw.GUNICORN_NUM_WORKERS, 2 * multiprocessing.cpu_count())
+            ws, cw.GUNICORN_NUM_WORKERS, cd.GUNICORN_NUM_WORKERS)
         self.gunicorn_timeout_s = _get_int(
-            ws, cw.GUNICORN_TIMEOUT_S, DEFAULT_GUNICORN_TIMEOUT_S)
-        self.host = _get_str(ws, cw.HOST, DEFAULT_HOST)
-        self.port = _get_int(ws, cw.PORT, DEFAULT_PORT)
+            ws, cw.GUNICORN_TIMEOUT_S, cd.GUNICORN_TIMEOUT_S)
+        self.host = _get_str(ws, cw.HOST, cd.HOST)
+        self.port = _get_int(ws, cw.PORT, cd.PORT)
         self.proxy_http_host = _get_str(ws, cw.PROXY_HTTP_HOST)
         self.proxy_remote_addr = _get_str(ws, cw.PROXY_REMOTE_ADDR)
         self.proxy_rewrite_path_info = _get_bool(
-            ws, cw.PROXY_REWRITE_PATH_INFO, False)
+            ws, cw.PROXY_REWRITE_PATH_INFO, cd.PROXY_REWRITE_PATH_INFO)
         self.proxy_script_name = _get_str(ws, cw.PROXY_SCRIPT_NAME)
         self.proxy_server_name = _get_str(ws, cw.PROXY_SERVER_NAME)
         self.proxy_server_port = _get_optional_int(ws, cw.PROXY_SERVER_PORT)
         self.proxy_url_scheme = _get_str(ws, cw.PROXY_URL_SCHEME)
         self.show_request_immediately = _get_bool(
-            ws, cw.SHOW_REQUEST_IMMEDIATELY, False)
-        self.show_requests = _get_bool(ws, cw.SHOW_REQUESTS, False)
-        self.show_response = _get_bool(ws, cw.SHOW_RESPONSE, False)
-        self.show_timing = _get_bool(ws, cw.SHOW_TIMING, False)
+            ws, cw.SHOW_REQUEST_IMMEDIATELY, cd.SHOW_REQUEST_IMMEDIATELY)
+        self.show_requests = _get_bool(ws, cw.SHOW_REQUESTS, cd.SHOW_REQUESTS)
+        self.show_response = _get_bool(ws, cw.SHOW_RESPONSE, cd.SHOW_RESPONSE)
+        self.show_timing = _get_bool(ws, cw.SHOW_TIMING, cd.SHOW_TIMING)
         self.ssl_certificate = _get_str(ws, cw.SSL_CERTIFICATE)
         self.ssl_private_key = _get_str(ws, cw.SSL_PRIVATE_KEY)
         self.trusted_proxy_headers = _get_multiline(
@@ -1347,7 +1304,7 @@ class CamcopsConfig(object):
         if not self.celery_beat_schedule_database:
             raise_missing(es, ce.CELERY_BEAT_SCHEDULE_DATABASE)
         self.celery_broker_url = _get_str(
-            es, ce.CELERY_BROKER_URL, DEFAULT_CELERY_BROKER_URL)
+            es, ce.CELERY_BROKER_URL, cd.CELERY_BROKER_URL)
         self.celery_worker_extra_args = _get_multiline(
             es, ce.CELERY_WORKER_EXTRA_ARGS)
 
@@ -1374,7 +1331,7 @@ class CamcopsConfig(object):
         self._read_export_recipients(parser)
 
         self.schedule_timezone = _get_str(
-            es, ce.SCHEDULE_TIMEZONE, DEFAULT_TIMEZONE)
+            es, ce.SCHEDULE_TIMEZONE, cd.SCHEDULE_TIMEZONE)
 
         self.crontab_entries = []  # type: List[CrontabEntry]
         crontab_lines = _get_multiline(es, ce.SCHEDULE)
@@ -1580,7 +1537,7 @@ class CamcopsConfig(object):
         for recip_name in self.export_recipient_names:
             log.debug("Loading export config for recipient {!r}", recip_name)
             recipient = ExportRecipientInfo.read_from_config(
-                parser=parser, recipient_name=recip_name)
+                self, parser=parser, recipient_name=recip_name)
             self._export_recipients.append(recipient)
 
     def get_all_export_recipient_info(self) -> List["ExportRecipientInfo"]:
@@ -1702,3 +1659,56 @@ def get_default_config_from_os_env() -> CamcopsConfig:
         return CamcopsConfig(config_filename="", config_text=get_demo_config())
     else:
         return get_config(get_config_filename_from_os_env())
+
+
+# =============================================================================
+# Unit tests
+# =============================================================================
+
+class EmailConfigTests(TestCase):
+
+    def setUp(self):
+        super().setUp()
+
+        from io import StringIO
+
+        # Start with a working config and just set the things we want to test
+        config_text = get_demo_config()
+        self.parser = configparser.ConfigParser()
+        self.parser.read_string(config_text)
+
+        self.parser.set("export", "RECIPIENTS", "recipient_A")
+        self.parser.set("recipient:recipient_A", "TRANSMISSION_METHOD", "email")
+
+        self.parser.set("site", "EMAIL_HOST", "smtp.example.com")
+        self.parser.set("site", "EMAIL_PORT", "587")
+        self.parser.set("site", "EMAIL_USE_TLS", "true")
+        self.parser.set("site", "EMAIL_HOST_USERNAME", "username")
+        self.parser.set("site", "EMAIL_HOST_PASSWORD", "mypassword")
+        self.parser.set("site", "EMAIL_FROM",
+                        "CamCOPS computer <from@example.com>")
+        self.parser.set("site", "EMAIL_SENDER",
+                        "CamCOPS computer <sender@example.com>")
+        self.parser.set("site", "EMAIL_REPLY_TO",
+                        "CamCOPS clinical administrator <admin@example.com>")
+
+        with StringIO() as buffer:
+            self.parser.write(buffer)
+            self.config = CamcopsConfig(config_filename="",
+                                        config_text=buffer.getvalue())
+
+    def test_export_recipients_use_site_email_config(self) -> None:
+        recipient = self.config._export_recipients[0]
+        self.assertEqual(recipient.recipient_name, "recipient_A")
+
+        self.assertEqual(recipient.email_host, "smtp.example.com")
+        self.assertEqual(recipient.email_port, 587)
+        self.assertTrue(recipient.email_use_tls)
+        self.assertEqual(recipient.email_host_username, "username")
+        self.assertEqual(recipient.email_host_password, "mypassword")
+        self.assertEqual(recipient.email_from,
+                         "CamCOPS computer <from@example.com>")
+        self.assertEqual(recipient.email_sender,
+                         "CamCOPS computer <sender@example.com>")
+        self.assertEqual(recipient.email_reply_to,
+                         "CamCOPS clinical administrator <admin@example.com>")

@@ -211,6 +211,8 @@ You can choose to dump everything that you have permission for, or restrict to
 the criteria you’ve set in your current session filter, or specify tasks and/or
 groups manually.
 
+**Formats**
+
 The download formats include:
 
 - OpenOffice/LibreOffice spreadsheet (ODS) format;
@@ -218,10 +220,37 @@ The download formats include:
 - A ZIP file containing multiple TSV files, one per worksheet. This is the
   least human-friendly format, but is good for automatically importing into
   statistics packages.
+- SQLite or SQL formats (see below).
+
+**Delivery method**
+
+- Serve immediately.
+
+  Depending on your administrator's preference, you may be permitted to
+  download data with a single click. ("Immediate" downloads tie up part of the
+  "front end" web server for a while as it builds the data file, which may be
+  large, so it's often preferable to permit just e-mail and queued download
+  options, as below.)
+
+- E-mail.
+
+  You can also choose to have the dump emailed to you, providing your user is
+  set up with a valid email address. This is useful for large exports that may
+  be time consuming.
+
+- Queued download.
+
+  You can ask the server to build a file for you. It will e-mail you when it's
+  ready (assuming your e-mail address is configured) and you can then collect
+  it from the :ref:`Download area <download_area>`.
+
+  Your administrator will set a time limit and a capacity limit for your
+  download area. Files that get too old will be deleted, and you will not be
+  allowed to create files that would exceed your capacity limit.
 
 
-Dump table data as SQL
-~~~~~~~~~~~~~~~~~~~~~~
+Advanced research dump (SQL or database)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This more sophisticated research dump generates a fully structured SQLite binary
 database of the data you select (or, if you prefer, the SQL text to create it).
@@ -239,6 +268,8 @@ for individual questions, but not the total (which is calculated dynamically).
 When you download the data, the total (amongst other things) is calculated and
 added to the data that you download (within the SQLite table or CSV file).
 
+The delivery methods are as before.
+
 
 Inspect table definitions
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -248,6 +279,15 @@ database, as data definition language (DDL), meaning the subset of SQL used to
 create tables. In SQL dialects that support it (e.g. MySQL), the DDL contains
 comments for every field, usually in considerable detail, so viewing the DDL
 this is a good way of understanding how CamCOPS tasks store their data.
+
+
+.. _download_area:
+
+Download area
+~~~~~~~~~~~~~
+
+This is where you can pick up data files that you have queued for downloading
+(see above).
 
 
 Reports

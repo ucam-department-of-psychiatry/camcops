@@ -50,15 +50,21 @@ from cardinal_pythonlib.datetimefunc import (
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.reprfunc import simple_repr
 
-from camcops_server.cc_modules.cc_constants import ConfigParamExportRecipient
+from camcops_server.cc_modules.cc_constants import (
+    CONFIG_FILE_SITE_SECTION,
+    ConfigDefaults,
+    ConfigParamExportRecipient,
+    ConfigParamSite,
+    FileType,
+)
 from camcops_server.cc_modules.cc_filename import (
     filename_spec_is_valid,
-    FileType,
     get_export_filename,
     patient_spec_for_filename_is_valid,
 )
 
 if TYPE_CHECKING:
+    from camcops_server.cc_modules.cc_config import CamcopsConfig
     from camcops_server.cc_modules.cc_request import CamcopsRequest
     from camcops_server.cc_modules.cc_task import Task
 
@@ -70,10 +76,6 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # =============================================================================
 
 COMMA = ","
-DEFAULT_HL7_MLLP_PORT = 2575
-DEFAULT_HL7_TIMEOUT_MS = 10000
-DEFAULT_PATIENT_SPEC_IF_ANONYMOUS = "anonymous"
-DEFAULT_SMTP_PORT = 25
 CONFIG_RECIPIENT_PREFIX = "recipient:"
 RIO_MAX_USER_LEN = 10
 
@@ -143,41 +145,43 @@ class ExportRecipientInfo(object):
         """
         Initializes, optionally copying attributes from ``other``.
         """
+        cd = ConfigDefaults
+
         self.recipient_name = ""
 
         # How to export
 
         self.transmission_method = ExportTransmissionMethod.EMAIL
-        self.push = False
-        self.task_format = FileType.XML
-        self.xml_field_comments = False
+        self.push = cd.PUSH
+        self.task_format = cd.TASK_FORMAT
+        self.xml_field_comments = cd.XML_FIELD_COMMENTS
 
         # What to export
 
-        self.all_groups = False
+        self.all_groups = cd.ALL_GROUPS
         self.group_names = []  # type: List[str]  # not in database; see group_ids  # noqa
         self.group_ids = []  # type: List[int]
         self.tasks = []  # type: List[str]
         self.start_datetime_utc = None  # type: Optional[datetime.datetime]
         self.end_datetime_utc = None  # type: Optional[datetime.datetime]
-        self.finalized_only = True
-        self.include_anonymous = False
+        self.finalized_only = cd.FINALIZED_ONLY
+        self.include_anonymous = cd.INCLUDE_ANONYMOUS
         self.primary_idnum = None  # type: Optional[int]
-        self.require_idnum_mandatory = True
+        self.require_idnum_mandatory = cd.REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY  # noqa
 
         # Database
 
         self.db_url = ""
-        self.db_echo = False
-        self.db_include_blobs = False
-        self.db_add_summaries = True
-        self.db_patient_id_per_row = True
+        self.db_echo = cd.DB_ECHO
+        self.db_include_blobs = cd.DB_INCLUDE_BLOBS
+        self.db_add_summaries = cd.DB_ADD_SUMMARIES
+        self.db_patient_id_per_row = cd.DB_PATIENT_ID_PER_ROW
 
         # Email
 
         self.email_host = ""
-        self.email_port = DEFAULT_SMTP_PORT
-        self.email_use_tls = False
+        self.email_port = cd.EMAIL_PORT
+        self.email_use_tls = cd.EMAIL_USE_TLS
         self.email_host_username = ""
         self.email_host_password = ""  # not in database for security
         self.email_from = ""
@@ -187,31 +191,31 @@ class ExportRecipientInfo(object):
         self.email_cc = ""  # CSV list
         self.email_bcc = ""  # CSV list
         self.email_patient_spec = ""
-        self.email_patient_spec_if_anonymous = DEFAULT_PATIENT_SPEC_IF_ANONYMOUS  # noqa
+        self.email_patient_spec_if_anonymous = cd.PATIENT_SPEC_IF_ANONYMOUS
         self.email_subject = ""
-        self.email_body_as_html = False
+        self.email_body_as_html = cd.EMAIL_BODY_IS_HTML
         self.email_body = ""
-        self.email_keep_message = False
+        self.email_keep_message = cd.EMAIL_KEEP_MESSAGE
 
         # HL7
 
         self.hl7_host = ""
-        self.hl7_port = DEFAULT_HL7_MLLP_PORT
-        self.hl7_ping_first = False
-        self.hl7_network_timeout_ms = DEFAULT_HL7_TIMEOUT_MS
-        self.hl7_keep_message = False
-        self.hl7_keep_reply = False
-        self.hl7_debug_divert_to_file = False
-        self.hl7_debug_treat_diverted_as_sent = False
+        self.hl7_port = cd.HL7_PORT
+        self.hl7_ping_first = cd.HL7_PING_FIRST
+        self.hl7_network_timeout_ms = cd.HL7_NETWORK_TIMEOUT_MS
+        self.hl7_keep_message = cd.HL7_KEEP_MESSAGE
+        self.hl7_keep_reply = cd.HL7_KEEP_REPLY
+        self.hl7_debug_divert_to_file = cd.HL7_DEBUG_DIVERT_TO_FILE
+        self.hl7_debug_treat_diverted_as_sent = cd.HL7_DEBUG_TREAT_DIVERTED_AS_SENT  # noqa
 
         # File
 
         self.file_patient_spec = ""
-        self.file_patient_spec_if_anonymous = DEFAULT_PATIENT_SPEC_IF_ANONYMOUS
+        self.file_patient_spec_if_anonymous = cd.PATIENT_SPEC_IF_ANONYMOUS
         self.file_filename_spec = ""
-        self.file_make_directory = True
-        self.file_overwrite_files = False
-        self.file_export_rio_metadata = False
+        self.file_make_directory = cd.FILE_MAKE_DIRECTORY
+        self.file_overwrite_files = cd.FILE_OVERWRITE_FILES
+        self.file_export_rio_metadata = cd.FILE_EXPORT_RIO_METADATA
         self.file_script_after_export = ""
 
         # File/RiO
@@ -314,12 +318,14 @@ class ExportRecipientInfo(object):
 
     @classmethod
     def read_from_config(cls,
+                         cfg: "CamcopsConfig",
                          parser: configparser.ConfigParser,
                          recipient_name: str) -> "ExportRecipientInfo":
         """
         Reads from the config file and writes this instance's attributes.
 
         Args:
+            cfg: a :class:`camcops_server.cc_modules.cc_config.CamcopsConfig`
             parser: configparser INI file object
             recipient_name: name of recipient and of INI file section
 
@@ -331,7 +337,9 @@ class ExportRecipientInfo(object):
         log.debug("Loading export config for recipient {!r}", recipient_name)
 
         section = CONFIG_RECIPIENT_PREFIX + recipient_name
+        cps = ConfigParamSite
         cpr = ConfigParamExportRecipient
+        cd = ConfigDefaults
         r = cls()
 
         def _get_str(paramname: str, default: str = None) -> Optional[str]:
@@ -349,6 +357,22 @@ class ExportRecipientInfo(object):
         def _get_multiline(paramname: str) -> List[str]:
             return get_config_parameter_multiline(
                 parser, section, paramname, [])
+
+        def _get_site_str(paramname: str,
+                          default: str = None) -> Optional[str]:
+            return get_config_parameter(
+                parser, CONFIG_FILE_SITE_SECTION, paramname, str, default)
+
+        # noinspection PyUnusedLocal
+        def _get_site_bool(paramname: str, default: bool) -> bool:
+            return get_config_parameter_boolean(
+                parser, CONFIG_FILE_SITE_SECTION, paramname, default)
+
+        # noinspection PyUnusedLocal
+        def _get_site_int(paramname: str,
+                          default: int = None) -> Optional[int]:
+            return get_config_parameter(
+                parser, CONFIG_FILE_SITE_SECTION, paramname, int, default)
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Identity
@@ -368,14 +392,15 @@ class ExportRecipientInfo(object):
                 f"{ConfigParamExportRecipient.TRANSMISSION_METHOD}: "
                 f"{r.transmission_method}"
             )
-        r.push = _get_bool(cpr.PUSH, False)
-        r.task_format = _get_str(cpr.TASK_FORMAT, FileType.PDF)
-        r.xml_field_comments = _get_bool(cpr.XML_FIELD_COMMENTS, True)
+        r.push = _get_bool(cpr.PUSH, cd.PUSH)
+        r.task_format = _get_str(cpr.TASK_FORMAT, cd.TASK_FORMAT)
+        r.xml_field_comments = _get_bool(cpr.XML_FIELD_COMMENTS,
+                                         cd.XML_FIELD_COMMENTS)
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # What to export
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        r.all_groups = _get_bool(cpr.ALL_GROUPS, False)
+        r.all_groups = _get_bool(cpr.ALL_GROUPS, cd.ALL_GROUPS)
         r.group_names = _get_multiline(cpr.GROUPS)
         r.group_ids = []
         # ... read later by validate_db_dependent()
@@ -386,20 +411,26 @@ class ExportRecipientInfo(object):
         ed = _get_str(cpr.END_DATETIME_UTC)
         r.end_datetime_utc = pendulum_to_utc_datetime_without_tz(
             coerce_to_pendulum(ed, assume_local=False)) if ed else None
-        r.finalized_only = _get_bool(cpr.FINALIZED_ONLY, True)
-        r.include_anonymous = _get_bool(cpr.INCLUDE_ANONYMOUS, False)
+        r.finalized_only = _get_bool(cpr.FINALIZED_ONLY, cd.FINALIZED_ONLY)
+        r.include_anonymous = _get_bool(cpr.INCLUDE_ANONYMOUS,
+                                        cd.INCLUDE_ANONYMOUS)
         r.primary_idnum = _get_int(cpr.PRIMARY_IDNUM)
-        r.require_idnum_mandatory = _get_bool(cpr.REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY, True)  # noqa
+        r.require_idnum_mandatory = _get_bool(
+            cpr.REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY,
+            cd.REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY)
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Database
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if r.transmission_method == ExportTransmissionMethod.DATABASE:
             r.db_url = _get_str(cpr.DB_URL)
-            r.db_echo = _get_bool(cpr.DB_ECHO, False)
-            r.db_include_blobs = _get_bool(cpr.DB_INCLUDE_BLOBS, True)
-            r.db_add_summaries = _get_bool(cpr.DB_ADD_SUMMARIES, True)
-            r.db_patient_id_per_row = _get_bool(cpr.DB_PATIENT_ID_PER_ROW, False)  # noqa
+            r.db_echo = _get_bool(cpr.DB_ECHO, cd.DB_ECHO)
+            r.db_include_blobs = _get_bool(cpr.DB_INCLUDE_BLOBS,
+                                           cd.DB_INCLUDE_BLOBS)
+            r.db_add_summaries = _get_bool(cpr.DB_ADD_SUMMARIES,
+                                           cd.DB_ADD_SUMMARIES)
+            r.db_patient_id_per_row = _get_bool(cpr.DB_PATIENT_ID_PER_ROW,
+                                                cd.DB_PATIENT_ID_PER_ROW)
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Email
@@ -408,51 +439,71 @@ class ExportRecipientInfo(object):
             return ", ".join(x for x in _get_multiline(paramname))
 
         if r.transmission_method == ExportTransmissionMethod.EMAIL:
-            r.email_host = _get_str(cpr.EMAIL_HOST)
-            r.email_port = _get_int(cpr.EMAIL_PORT, DEFAULT_SMTP_PORT)
-            r.email_use_tls = _get_bool(cpr.EMAIL_USE_TLS, False)
-            r.email_host_username = _get_str(cpr.EMAIL_HOST_USERNAME, "")
-            r.email_host_password = _get_str(cpr.EMAIL_HOST_PASSWORD, "")
-            r.email_from = _get_str(cpr.EMAIL_FROM, "")
-            r.email_sender = _get_str(cpr.EMAIL_SENDER, "")
-            r.email_reply_to = _get_str(cpr.EMAIL_REPLY_TO, "")
+            r.email_host = cfg.email_host
+            r.email_port = cfg.email_port
+            r.email_use_tls = cfg.email_use_tls
+            r.email_host_username = cfg.email_host_username
+            r.email_host_password = cfg.email_host_password
+
+            # Read from password safe using 'pass'
+            # from subprocess import run, PIPE
+            # output = run(["pass", "dept-of-psychiatry/Hermes"], stdout=PIPE)
+            # r.email_host_password = output.stdout.decode("utf-8").split()[0]
+
+            r.email_from = _get_site_str(cps.EMAIL_FROM, "")
+            r.email_sender = _get_site_str(cps.EMAIL_SENDER, "")
+            r.email_reply_to = _get_site_str(cps.EMAIL_REPLY_TO, "")
+
             r.email_to = _make_email_csv_list(cpr.EMAIL_TO)
             r.email_cc = _make_email_csv_list(cpr.EMAIL_CC)
             r.email_bcc = _make_email_csv_list(cpr.EMAIL_BCC)
             r.email_patient_spec_if_anonymous = _get_str(cpr.EMAIL_PATIENT_SPEC_IF_ANONYMOUS, "")  # noqa
             r.email_patient_spec = _get_str(cpr.EMAIL_PATIENT_SPEC, "")
             r.email_subject = _get_str(cpr.EMAIL_SUBJECT, "")
-            r.email_body_as_html = _get_bool(cpr.EMAIL_BODY_IS_HTML, False)
+            r.email_body_as_html = _get_bool(cpr.EMAIL_BODY_IS_HTML,
+                                             cd.EMAIL_BODY_IS_HTML)
             r.email_body = _get_str(cpr.EMAIL_BODY, "")
-            r.email_keep_message = _get_bool(cpr.EMAIL_KEEP_MESSAGE, False)
+            r.email_keep_message = _get_bool(cpr.EMAIL_KEEP_MESSAGE,
+                                             cd.EMAIL_KEEP_MESSAGE)
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # HL7
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if r.transmission_method == ExportTransmissionMethod.HL7:
             r.hl7_host = _get_str(cpr.HL7_HOST)
-            r.hl7_port = _get_int(cpr.HL7_PORT, DEFAULT_HL7_MLLP_PORT)
-            r.hl7_ping_first = _get_bool(cpr.HL7_PING_FIRST, True)
-            r.hl7_network_timeout_ms = _get_int(cpr.HL7_NETWORK_TIMEOUT_MS, DEFAULT_HL7_TIMEOUT_MS)  # noqa
-            r.hl7_keep_message = _get_bool(cpr.HL7_KEEP_MESSAGE, False)
-            r.hl7_keep_reply = _get_bool(cpr.HL7_KEEP_REPLY, False)
-            r.hl7_debug_divert_to_file = _get_bool(cpr.HL7_DEBUG_DIVERT_TO_FILE, False)  # noqa
-            r.hl7_debug_treat_diverted_as_sent = _get_bool(cpr.HL7_DEBUG_TREAT_DIVERTED_AS_SENT, False)  # noqa
+            r.hl7_port = _get_int(cpr.HL7_PORT, cd.HL7_PORT)
+            r.hl7_ping_first = _get_bool(cpr.HL7_PING_FIRST,
+                                         cd.HL7_PING_FIRST)
+            r.hl7_network_timeout_ms = _get_int(cpr.HL7_NETWORK_TIMEOUT_MS,
+                                                cd.HL7_NETWORK_TIMEOUT_MS)
+            r.hl7_keep_message = _get_bool(cpr.HL7_KEEP_MESSAGE,
+                                           cd.HL7_KEEP_MESSAGE)
+            r.hl7_keep_reply = _get_bool(cpr.HL7_KEEP_REPLY, cd.HL7_KEEP_REPLY)
+            r.hl7_debug_divert_to_file = _get_bool(
+                cpr.HL7_DEBUG_DIVERT_TO_FILE, cd.HL7_DEBUG_DIVERT_TO_FILE)
+            r.hl7_debug_treat_diverted_as_sent = _get_bool(
+                cpr.HL7_DEBUG_TREAT_DIVERTED_AS_SENT,
+                cd.HL7_DEBUG_TREAT_DIVERTED_AS_SENT)
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # File
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if r._need_file_name():
             r.file_patient_spec = _get_str(cpr.FILE_PATIENT_SPEC)
-            r.file_patient_spec_if_anonymous = _get_str(cpr.FILE_PATIENT_SPEC_IF_ANONYMOUS, "anonymous")  # noqa
+            r.file_patient_spec_if_anonymous = _get_str(
+                cpr.FILE_PATIENT_SPEC_IF_ANONYMOUS,
+                cd.FILE_PATIENT_SPEC_IF_ANONYMOUS)
             r.file_filename_spec = _get_str(cpr.FILE_FILENAME_SPEC)
 
         if r._need_file_disk_options():
-            r.file_make_directory = _get_bool(cpr.FILE_MAKE_DIRECTORY, False)
-            r.file_overwrite_files = _get_bool(cpr.FILE_OVERWRITE_FILES, False)
+            r.file_make_directory = _get_bool(cpr.FILE_MAKE_DIRECTORY,
+                                              cd.FILE_MAKE_DIRECTORY)
+            r.file_overwrite_files = _get_bool(cpr.FILE_OVERWRITE_FILES,
+                                               cd.FILE_OVERWRITE_FILES)
 
         if r.transmission_method == ExportTransmissionMethod.FILE:
-            r.file_export_rio_metadata = _get_bool(cpr.FILE_EXPORT_RIO_METADATA, False)  # noqa
+            r.file_export_rio_metadata = _get_bool(
+                cpr.FILE_EXPORT_RIO_METADATA, cd.FILE_EXPORT_RIO_METADATA)
             r.file_script_after_export = _get_str(cpr.FILE_SCRIPT_AFTER_EXPORT)
 
         if r._need_rio_metadata_options():
@@ -521,6 +572,7 @@ class ExportRecipientInfo(object):
             raise _Missing(self.recipient_name, paramname)
 
         cpr = ConfigParamExportRecipient
+        cps = ConfigParamSite
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Export type
@@ -570,12 +622,12 @@ class ExportRecipientInfo(object):
             if not self.email_host:
                 # You can't send an e-mail without knowing which server to send
                 # it to.
-                fail_missing(cpr.EMAIL_HOST)
+                fail_missing(cps.EMAIL_HOST)
             # Username is *not* required by all servers!
             if not self.email_from:
                 # From is mandatory in all e-mails.
                 # (Sender and Reply-To are optional.)
-                fail_missing(cpr.EMAIL_FROM)
+                fail_missing(cps.EMAIL_FROM)
             if COMMA in self.email_from:
                 # RFC 5322 permits multiple addresses in From, but Python
                 # sendmail doesn't.

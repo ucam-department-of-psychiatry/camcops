@@ -35,5 +35,3 @@ optional arguments:
                         Output directory (if not specified, current directory
                         will be used) (default: None)
   --verbose             Verbose output (default: False)
-
-# Generated at 2019-09-20 11:43:34
