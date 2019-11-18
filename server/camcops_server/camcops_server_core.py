@@ -825,7 +825,7 @@ def launch_celery_flower(
 # Test rig
 # =============================================================================
 
-def self_test(show_only: bool = False, test_class: str = None) -> None:
+def self_test(show_only: bool = False, test_class: str = None) -> bool:
     """
     Run unit tests that are in the class(es) whose names contain test_class.
     If test_class is None, run all the tests.
@@ -834,7 +834,13 @@ def self_test(show_only: bool = False, test_class: str = None) -> None:
         show_only: If True, just display the names of test classes, don't run
         them.
         test_class: Test class(es) to run.
+
+    Returns:
+        When running tests, returns True if test run was successful, otherwise
+        False.
+        When displaying the names of test classes returns True always.
     """
+    ok = True
 
     with tempfile.TemporaryDirectory() as tmpdirname:
         tmpconfigfilename = os.path.join(tmpdirname, "dummy_config.conf")
@@ -895,10 +901,13 @@ def self_test(show_only: bool = False, test_class: str = None) -> None:
                 log.info("Discovered test: {}", cls)
                 # noinspection PyUnresolvedReferences
                 suite.addTest(unittest.makeSuite(cls))
-        if show_only:
-            return
-        runner = unittest.TextTestRunner()
-        runner.run(suite)
+        if not show_only:
+            runner = unittest.TextTestRunner()
+            result = runner.run(suite)
+
+            ok = result.wasSuccessful()
+
+    return ok
 
 
 def dev_cli() -> None:
