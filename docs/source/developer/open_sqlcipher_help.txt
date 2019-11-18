@@ -23,5 +23,3 @@ optional arguments:
   --cipher_migrate      Migrate the database to the latest version of
                         SQLCipher (default: False)
   --encoding ENCODING   Encoding to use (default: utf-8)
-
-# Generated at 2019-09-20 11:43:44

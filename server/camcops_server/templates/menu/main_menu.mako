@@ -55,6 +55,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
         <li><a href="${request.route_url(Routes.OFFER_BASIC_DUMP)}">${_("Basic research dump (fields and summaries)")}</a></li>
         <li><a href="${request.route_url(Routes.OFFER_SQL_DUMP)}">${_("Advanced research dump (SQL or database)")}</a></li>
         <li><a href="${request.route_url(Routes.VIEW_DDL)}">${_("Inspect table definitions")}</a>
+        <li><a href="${request.route_url(Routes.DOWNLOAD_AREA)}">${_("Download area")}</a>
     </ul>
 %endif
 

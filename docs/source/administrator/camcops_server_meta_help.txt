@@ -21,5 +21,3 @@ optional arguments:
                         ents/code/camcops/server/camcops_server.py)
   -d, --dummyrun        Dummy run (show filenames only)
   -v, --verbose         Verbose
-
-# Generated at 2019-09-20 11:43:37

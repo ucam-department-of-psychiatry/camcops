@@ -71,8 +71,7 @@ from cardinal_pythonlib.logs import BraceStyleAdapter
 import hl7
 from pendulum import Date, DateTime as Pendulum
 
-from camcops_server.cc_modules.cc_constants import DateFormat
-from camcops_server.cc_modules.cc_filename import FileType
+from camcops_server.cc_modules.cc_constants import DateFormat, FileType
 from camcops_server.cc_modules.cc_simpleobjects import HL7PatientIdentifier
 from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 

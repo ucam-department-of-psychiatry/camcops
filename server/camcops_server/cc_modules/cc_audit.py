@@ -129,10 +129,8 @@ def audit(req: "CamcopsRequest",
     dbsession = req.dbsession
     if not remote_addr:
         remote_addr = req.remote_addr if req else None
-    if not user_id:
-        ccsession = req.camcops_session
-        if ccsession.user_id is not None:
-            user_id = ccsession.user_id
+    if user_id is None:
+        user_id = req.user_id
     if from_console:
         source = "console"
     elif from_dbclient:
