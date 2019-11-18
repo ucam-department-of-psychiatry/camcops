@@ -30,7 +30,8 @@ camcops_server/cc_modules/cc_text.py
 
 from enum import auto, Enum, unique
 from typing import TYPE_CHECKING
-import unittest
+
+from camcops_server.cc_modules.cc_unittest import DemoRequestTestCase
 
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_request import CamcopsRequest
@@ -286,16 +287,13 @@ def server_string(req: "CamcopsRequest", w: SS) -> str:
     raise ValueError("Bad value passed to server_string")
 
 
-class TextUnitTest(unittest.TestCase):
+class TextUnitTest(DemoRequestTestCase):
     """
     Unit tests.
     """
-    @staticmethod
-    def test_server_string() -> None:
-        from camcops_server.cc_modules.cc_request import get_core_debugging_request  # noqa
-        req = get_core_debugging_request()
+    def test_server_string(self) -> None:
         for k in SS.__dict__.keys():
             if k.startswith("_"):
                 continue
             w = SS[k]
-            assert isinstance(server_string(req, w), str)
+            assert isinstance(server_string(self.req, w), str)
