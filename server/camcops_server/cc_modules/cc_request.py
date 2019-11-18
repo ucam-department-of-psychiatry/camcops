@@ -46,7 +46,7 @@ from cardinal_pythonlib.datetimefunc import (
     pendulum_to_utc_datetime_without_tz,
 )
 # from cardinal_pythonlib.debugging import get_caller_stack_info
-from cardinal_pythonlib.fileops import mkdir_p
+from cardinal_pythonlib.fileops import get_directory_contents_size, mkdir_p
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.plot import (
     png_img_html_from_pyplot_figure,
@@ -1556,6 +1556,7 @@ class CamcopsRequest(Request):
     # User downloads
     # -------------------------------------------------------------------------
 
+    @property
     def user_download_dir(self) -> str:
         """
         The directory in which this user's downloads should be/are stored, or a
@@ -1573,6 +1574,35 @@ class CamcopsRequest(Request):
         userdir = os.path.join(basedir, str(user_id))
         mkdir_p(userdir)
         return userdir
+
+    @property
+    def user_download_bytes_permitted(self) -> int:
+        """
+        Amount of space the user is permitted.
+        """
+        if not self.user_download_dir:
+            return 0
+        return self.config.user_download_max_space_mb * 1024 * 1024
+
+    @reify
+    def user_download_bytes_used(self) -> int:
+        """
+        Returns the disk space used by this user.
+        """
+        download_dir = self.user_download_dir
+        if not download_dir:
+            return 0
+        return get_directory_contents_size(download_dir)
+
+    @property
+    def user_download_bytes_available(self) -> int:
+        """
+        Returns the available space for this user in their download area.
+        """
+        permitted = self.user_download_bytes_permitted
+        used = self.user_download_bytes_used
+        available = permitted - used
+        return available
 
 
 # noinspection PyUnusedLocal

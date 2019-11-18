@@ -153,11 +153,18 @@ import logging
 import os
 import sqlite3
 import tempfile
-from typing import Dict, List, Generator, Tuple, Type, TYPE_CHECKING, Union
+from typing import (Dict, List, Generator, Optional,
+                    Tuple, Type, TYPE_CHECKING, Union)
 
 from cardinal_pythonlib.classes import gen_all_subclasses
-from cardinal_pythonlib.datetimefunc import format_datetime
+from cardinal_pythonlib.datetimefunc import (
+    format_datetime,
+    get_now_localtz_pendulum,
+    get_tz_local,
+    get_tz_utc,
+)
 from cardinal_pythonlib.email.sendmail import CONTENT_TYPE_TEXT
+from cardinal_pythonlib.fileops import relative_filename_within_dir
 from cardinal_pythonlib.json.serialize import register_for_json
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.pyramid.responses import (
@@ -167,8 +174,10 @@ from cardinal_pythonlib.pyramid.responses import (
     XlsxResponse,
     ZipResponse,
 )
+from cardinal_pythonlib.sizeformatter import bytes2human
 from cardinal_pythonlib.sqlalchemy.session import get_safe_url_from_engine
 import lockfile
+from pendulum import DateTime as Pendulum, Duration, Period
 from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.renderers import render_to_response
 from pyramid.response import Response
@@ -176,7 +185,6 @@ from sqlalchemy.engine import create_engine
 from sqlalchemy.orm import Session as SqlASession, sessionmaker
 
 from camcops_server.cc_modules.cc_audit import audit
-from camcops_server.cc_modules.cc_config import get_default_config_from_os_env  # noqa
 from camcops_server.cc_modules.cc_constants import DateFormat
 from camcops_server.cc_modules.cc_dump import copy_tasks_and_summaries
 from camcops_server.cc_modules.cc_email import Email
@@ -186,12 +194,13 @@ from camcops_server.cc_modules.cc_exportmodels import (
     gen_tasks_having_exportedtasks,
     get_collection_for_export,
 )
-from camcops_server.cc_modules.cc_pyramid import ViewArg
+from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
 from camcops_server.cc_modules.cc_sqlalchemy import sql_from_sqlite_database
 from camcops_server.cc_modules.cc_task import Task
 from camcops_server.cc_modules.cc_tsv import TsvCollection
 from camcops_server.cc_modules.celery import (
+    create_user_download,
     email_basic_dump,
     export_task_backend,
 )
@@ -204,7 +213,7 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
 # =============================================================================
-# Main functions
+# Export tasks from the back end
 # =============================================================================
 
 def print_export_queue(req: "CamcopsRequest",
@@ -594,35 +603,30 @@ class TaskCollectionExporter(object):
 
     def schedule_email(self) -> None:
         """
-        Schedule the export asynchronously and email the logged in user
+        Schedule the export asynchronously and e-mail the logged in user
         when done
         """
         email_basic_dump.delay(self.collection, self.options)
 
     def send_by_email(self) -> None:
         """
-        Send the data dump by email to the logged in user
+        Send the data dump by e-mail to the logged in user
         """
-        filename, body = self.to_file()
-
         _ = self.req.gettext
-        config = get_default_config_from_os_env()
+        config = self.req.config
 
+        filename, body = self.to_file()
         email_to = self.req.user.email
-
         email = Email(
             # date: automatic
             from_addr=config.email_from,
             to=email_to,
             subject=_("CamCOPS research data dump"),
             body=_("The research data dump you requested is attached."),
-            content_type=(
-                CONTENT_TYPE_TEXT
-            ),
+            content_type=CONTENT_TYPE_TEXT,
             charset="utf8",
             attachments_binary=[(filename, body)],
         )
-
         email.send(
             host=config.email_host,
             username=config.email_host_username,
@@ -636,6 +640,72 @@ class TaskCollectionExporter(object):
         else:
             log.error(
                 f"Failed to email research dump to {email_to}"
+            )
+
+    def schedule_download(self) -> None:
+        """
+        Schedule a background export to a file that the user can download
+        later.
+        """
+        create_user_download.delay(self.collection, self.options)
+
+    def create_user_download_and_email(self) -> None:
+        """
+        Creates a user download, and e-mails the user to let them know.
+        """
+        _ = self.req.gettext
+        config = self.req.config
+
+        download_dir = self.req.user_download_dir
+        space = self.req.user_download_bytes_available
+        filename, contents = self.to_file()
+        size = len(contents)
+
+        if size > space:
+            # Not enough space
+            total_permitted = self.req.user_download_bytes_permitted
+            msg = _(
+                "You do not have enough space to create this download. "
+                "You are allowed %s bytes and you are have %s bytes free. "
+                "This download would need %s bytes."
+            ) % (total_permitted, space, size)
+        else:
+            # Create file
+            fullpath = os.path.join(download_dir, filename)
+            try:
+                with open(fullpath, "wb") as f:
+                    f.write(contents)
+                # Success
+                log.info(f"Created user download: {fullpath}")
+                msg = _(
+                    "The research data dump you requested is ready to be "
+                    "downloaded. You will find it in your download area. "
+                    "It is called %s"
+                ) % filename
+            except Exception as e:
+                # Some other error
+                msg = _(
+                    "Failed to create file %s. Error was: %s"
+                ) % (filename, e)
+
+        # E-mail the user, if they have an e-mail address
+        email_to = self.req.user.email
+        if email_to:
+            email = Email(
+                # date: automatic
+                from_addr=config.email_from,
+                to=email_to,
+                subject=_("CamCOPS research data dump"),
+                body=msg,
+                content_type=CONTENT_TYPE_TEXT,
+                charset="utf8",
+            )
+            email.send(
+                host=config.email_host,
+                username=config.email_host_username,
+                password=config.email_host_password,
+                port=config.email_port,
+                use_tls=config.email_use_tls,
             )
 
     def get_data_response(self, body: bytes, filename: str) -> Response:
@@ -930,3 +1000,227 @@ def make_exporter(req: "CamcopsRequest",
         collection=collection,
         options=options
     )
+
+
+# =============================================================================
+# Represent files for users to download
+# =============================================================================
+
+class UserDownloadFile(object):
+    """
+    Represents a file that has been generated for the user to download.
+
+    Test code:
+
+    .. code-block:: python
+
+        from camcops_server.cc_modules.cc_export import UserDownloadFile
+        x = UserDownloadFile("/etc/hosts")
+
+        print(x.when_last_modified)  # should match output of: ls -l /etc/hosts
+
+        many = UserDownloadFile.from_directory_scan("/etc")
+
+    """
+    def __init__(self, filename: str, directory: str = "",
+                 permitted_lifespan_min: float = 0) -> None:
+        """
+        Args:
+            filename: filename relative to ``directory``
+            directory: directory
+
+        Notes:
+
+        - The Unix ``ls`` command shows timestamps in the current timezone.
+          Try ``TZ=utc ls -l <filename>`` or ``TZ="America/New_York" ls -l
+          <filename>`` to see this.
+        - The underlying timestamp is the time (in seconds) since the Unix
+          "epoch", which is 00:00:00 UTC on 1 Jan 1970
+          (https://en.wikipedia.org/wiki/Unix_time).
+        """
+        self.filename = filename
+        self.directory = directory
+        self.permitted_lifespan_min = permitted_lifespan_min
+
+        self.basename = os.path.basename(filename)
+        _, self.extension = os.path.splitext(filename)
+        if directory:
+            self.fullpath = os.path.join(directory, filename)
+        else:
+            self.fullpath = filename
+        try:
+            self.statinfo = os.stat(self.fullpath)
+            self.exists = True
+        except FileNotFoundError:
+            self.statinfo = None  # type: Optional[os.stat_result]
+            self.exists = False
+
+    # -------------------------------------------------------------------------
+    # Size
+    # -------------------------------------------------------------------------
+
+    @property
+    def size(self) -> Optional[int]:
+        """
+        Size of the file, in bytes. Returns ``None`` if the file does not
+        exist.
+        """
+        return self.statinfo.st_size if self.exists else None
+
+    @property
+    def size_str(self) -> str:
+        """
+        Returns a pretty-format string describing the file's size.
+        """
+        size_bytes = self.size
+        if size_bytes is None:
+            return ""
+        return bytes2human(size_bytes)
+
+    # -------------------------------------------------------------------------
+    # Timing
+    # -------------------------------------------------------------------------
+
+    @property
+    def when_last_modified(self) -> Optional[Pendulum]:
+        """
+        Returns the file's modification time, or ``None`` if it doesn't exist.
+        
+        (Creation time is harder! See
+        https://stackoverflow.com/questions/237079/how-to-get-file-creation-modification-date-times-in-python.)
+        """  # noqa
+        if not self.exists:
+            return None
+        # noinspection PyTypeChecker
+        creation = Pendulum.fromtimestamp(self.statinfo.st_mtime,
+                                          tz=get_tz_utc())  # type: Pendulum
+        # ... gives the correct time in the UTC timezone
+        # ... note that utcfromtimestamp() gives a time without a timezone,
+        #     which is unhelpful!
+        # We would like this to display in the current timezone:
+        return creation.in_timezone(get_tz_local())
+
+    @property
+    def when_last_modified_str(self) -> str:
+        """
+        Returns a formatted string with the file's modification time.
+        """
+        w = self.when_last_modified
+        if not w:
+            return ""
+        return format_datetime(w, DateFormat.ISO8601_HUMANIZED_TO_SECONDS)
+
+    @property
+    def time_left(self) -> Optional[Duration]:
+        """
+        Returns the amount of time that this file has left to live before
+        the server will delete it. Returns ``None`` if the file does not exist.
+        """
+        if not self.exists:
+            return None
+        now = get_now_localtz_pendulum()
+        death = (
+            self.when_last_modified +
+            Duration(minutes=self.permitted_lifespan_min)
+        )
+        remaining = death - now  # type: Period
+        # Note that Period is a subclass of Duration, but its __str__()
+        # method is different. Duration maps __str__() to in_words(), but
+        # Period maps __str__() to __repr__().
+        return remaining
+
+    @property
+    def time_left_str(self) -> str:
+        """
+        A string version of :meth:`time_left`.
+        """
+        t = self.time_left
+        if not t:
+            return ""
+        return t.in_words()  # Duration and Period do nice formatting
+
+    # -------------------------------------------------------------------------
+    # Deletion
+    # -------------------------------------------------------------------------
+
+    def delete_url(self, req: "CamcopsRequest") -> str:
+        """
+        Returns a URL to delete this file.
+
+        Args:
+            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        """
+        querydict = {
+            ViewParam.FILENAME: self.filename
+        }
+        return req.route_url(Routes.DELETE_FILE, _query=querydict)
+
+    def delete(self) -> None:
+        """
+        Deletes the file. Does not raise an exception if the file does not
+        exist.
+        """
+        try:
+            os.remove(self.fullpath)
+        except OSError:
+            pass
+
+    # -------------------------------------------------------------------------
+    # Downloading
+    # -------------------------------------------------------------------------
+
+    def download_url(self, req: "CamcopsRequest") -> str:
+        """
+        Returns a URL to download this file.
+
+        Args:
+            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        """
+        querydict = {
+            ViewParam.FILENAME: self.filename
+        }
+        return req.route_url(Routes.DOWNLOAD_FILE, _query=querydict)
+
+    @property
+    def contents(self) -> Optional[bytes]:
+        """
+        The file contents. May raise :exc:`OSError` if the read fails.
+        """
+        if not self.exists:
+            return None
+        with open(self.fullpath, "rb") as f:
+            return f.read()
+
+    # -------------------------------------------------------------------------
+    # Bulk creation
+    # -------------------------------------------------------------------------
+
+    @classmethod
+    def from_directory_scan(
+            cls, directory: str,
+            permitted_lifespan_min: float = 0) -> List["UserDownloadFile"]:
+        """
+        Scans the directory and returns a list of :class:`UserDownloadFile`
+        objects, one for each file in the directory.
+
+        For each object, ``directory`` is the root directory (our parameter
+        here), and ``filename`` is the filename RELATIVE to that.
+
+        Args:
+            directory: directory to scan
+            permitted_lifespan_min: lifespan for each file
+        """
+        results = []  # type: List[UserDownloadFile]
+        # Imagine directory == "/etc":
+        for root, dirs, files in os.walk(directory):
+            # ... then root might at times be "/etc/apache2"
+            for f in files:
+                fullpath = os.path.join(root, f)
+                relative_filename = relative_filename_within_dir(
+                    fullpath, directory)
+                results.append(UserDownloadFile(
+                    filename=relative_filename,
+                    directory=directory,
+                    permitted_lifespan_min=permitted_lifespan_min
+                ))
+        return results

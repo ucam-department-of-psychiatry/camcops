@@ -420,7 +420,46 @@ def email_basic_dump(self: "CeleryTask",
                 collection=collection,
                 options=options
             )
-            exporter.send_by_email()
+            exporter.send_by_email(req)
+
+    except Exception as exc:
+        self.retry(countdown=backoff(self.request.retries), exc=exc)
+
+
+@celery_app.task(bind=True,
+                 ignore_result=True,
+                 max_retries=MAX_RETRIES,
+                 soft_time_limit=CELERY_SOFT_TIME_LIMIT_SEC)
+def create_user_download(self: "CeleryTask",
+                         collection: "TaskCollection",
+                         options: "DownloadOptions") -> None:
+    """
+    Create a research dump file for the user to download later.
+    Let them know by e-mail.
+
+    Args:
+        self:
+            the Celery task, :class:`celery.app.task.Task`
+        collection:
+            a
+            :class:`camcops_server.cc_modules.cc_taskcollection.TaskCollection`
+        options:
+            :class:`camcops_server.cc_modules.cc_export.DownloadOptions`
+            governing the download
+    """
+    from camcops_server.cc_modules.cc_export import make_exporter  # delayed import  # noqa
+    from camcops_server.cc_modules.cc_request import command_line_request_context  # delayed import  # noqa
+
+    try:
+        # Create request for a specific user, so the auditing is correct.
+        with command_line_request_context(user_id=options.user_id) as req:
+            collection.set_request(req)
+            exporter = make_exporter(
+                req=req,
+                collection=collection,
+                options=options
+            )
+            exporter.create_user_download_and_email()
 
     except Exception as exc:
         self.retry(countdown=backoff(self.request.retries), exc=exc)

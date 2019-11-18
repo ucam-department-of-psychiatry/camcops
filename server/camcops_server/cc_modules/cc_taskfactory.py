@@ -35,8 +35,6 @@ from cardinal_pythonlib.logs import BraceStyleAdapter
 import pyramid.httpexceptions as exc
 from sqlalchemy.orm import Query, Session as SqlASession
 
-# noinspection PyUnresolvedReferences
-import camcops_server.cc_modules.cc_all_models  # import side effects (ensure all models registered)  # noqa
 from camcops_server.cc_modules.cc_task import (
     tablename_to_task_class_dict,
     Task,

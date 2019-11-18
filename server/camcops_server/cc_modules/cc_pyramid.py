@@ -685,13 +685,15 @@ class Routes(object):
     CLIENT_API = "client_api"
     CRASH = "crash"
     CTV = "ctv"
+    DELETE_FILE = "delete_file"
     DELETE_GROUP = "delete_group"
     DELETE_ID_DEFINITION = "delete_id_definition"
     DELETE_PATIENT = "delete_patient"
     DELETE_SPECIAL_NOTE = "delete_special_note"
     DELETE_USER = "delete_user"
     DEVELOPER = "developer"
-    DOWNLOAD_AREA = "downloads"
+    DOWNLOAD_AREA = "download_area"
+    DOWNLOAD_FILE = "download_file"
     EDIT_GROUP = "edit_group"
     EDIT_ID_DEFINITION = "edit_id_definition"
     EDIT_PATIENT = "edit_patient"
@@ -802,6 +804,7 @@ class RouteCollection(object):
     CLIENT_API = RoutePath(Routes.CLIENT_API, MASTER_ROUTE_CLIENT_API)
     CRASH = RoutePath(Routes.CRASH)
     CTV = RoutePath(Routes.CTV)
+    DELETE_FILE = RoutePath(Routes.DELETE_FILE)
     DELETE_GROUP = RoutePath(Routes.DELETE_GROUP)
     DELETE_ID_DEFINITION = RoutePath(Routes.DELETE_ID_DEFINITION)
     DELETE_PATIENT = RoutePath(Routes.DELETE_PATIENT)
@@ -809,6 +812,7 @@ class RouteCollection(object):
     DELETE_USER = RoutePath(Routes.DELETE_USER)
     DEVELOPER = RoutePath(Routes.DEVELOPER)
     DOWNLOAD_AREA = RoutePath(Routes.DOWNLOAD_AREA)
+    DOWNLOAD_FILE = RoutePath(Routes.DOWNLOAD_FILE)
     EDIT_GROUP = RoutePath(Routes.EDIT_GROUP)
     EDIT_ID_DEFINITION = RoutePath(Routes.EDIT_ID_DEFINITION)
     EDIT_PATIENT = RoutePath(Routes.EDIT_PATIENT)

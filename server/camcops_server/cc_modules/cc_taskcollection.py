@@ -50,8 +50,6 @@ from sqlalchemy.orm.session import Session as SqlASession
 from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.expression import and_, exists, or_
 
-# noinspection PyUnresolvedReferences
-import camcops_server.cc_modules.cc_all_models  # import side effects (ensure all models registered)  # noqa
 from camcops_server.cc_modules.cc_constants import ERA_NOW
 from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
 from camcops_server.cc_modules.cc_task import (

@@ -99,8 +99,9 @@ class DateFormat(object):
     HOURS_MINUTES = "%H:%M"
     ISO8601 = "%Y-%m-%dT%H:%M:%S%z"  # e.g. 2013-07-24T20:04:07+0100
     ISO8601_HUMANIZED_TO_MINUTES = "%Y-%m-%d %H:%M"  # e.g. 2013-07-24 20:04
+    ISO8601_HUMANIZED_TO_SECONDS = "%Y-%m-%d %H:%M:%S"  # e.g. 2013-07-24 20:04:23  # noqa
     ISO8601_DATE_ONLY = "%Y-%m-%d"  # e.g. 2013-07-24
-    FILENAME = "%Y-%m-%dT%H%M"  # e.g. 20130724T2004
+    FILENAME = "%Y-%m-%dT%H%M%S"  # e.g. 2013-07-24T200459
     FILENAME_DATE_ONLY = "%Y-%m-%d"  # e.g. 20130724
     HL7_DATETIME = "%Y%m%d%H%M%S%z"  # e.g. 20130724200407+0100
     HL7_DATE = "%Y%m%d"  # e.g. 20130724

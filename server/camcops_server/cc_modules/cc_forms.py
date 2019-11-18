@@ -2872,7 +2872,6 @@ class DeliveryModeNode(SchemaNode, RequestAwareMixin):
     def __init__(self, *args, **kwargs) -> None:
         self.title = ""  # for type checker
         self.widget = None  # type: Optional[Widget]
-        self.validator = None  # type: Optional[ValidatorType]
         super().__init__(*args, **kwargs)
 
     # noinspection PyUnusedLocal
@@ -2886,7 +2885,6 @@ class DeliveryModeNode(SchemaNode, RequestAwareMixin):
         )
         values, pv = get_values_and_permissible(choices)
         self.widget = RadioChoiceWidget(values=values)
-        self.validator = OneOf(pv)
 
     # noinspection PyUnusedLocal
     def validator(self, node: SchemaNode, value: Any) -> None:
@@ -2900,9 +2898,11 @@ class DeliveryModeNode(SchemaNode, RequestAwareMixin):
                 raise Invalid(
                     self, _("Your user does not have an email address"))
         elif value == ViewArg.DOWNLOAD:
-            if not request.user_download_dir():
+            if not request.user_download_dir:
                 raise Invalid(
                     self, _("User downloads not configured by administrator"))
+        else:
+            raise Invalid(self, _("Bad value"))
 
 
 class SqliteSelector(SchemaNode, RequestAwareMixin):

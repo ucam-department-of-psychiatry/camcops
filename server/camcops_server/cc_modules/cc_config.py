@@ -276,7 +276,7 @@ def get_demo_config(extra_strings_dir: str = None,
 {ConfigParamSite.CTV_FILENAME_SPEC} = CamCOPS_{{patient}}_{{now}}_clinicaltextview.{{filetype}}
 
 # -----------------------------------------------------------------------------
-# Email options
+# E-mail options
 # -----------------------------------------------------------------------------
 
 {ConfigParamSite.EMAIL_HOST} = mysmtpserver.mydomain

@@ -130,8 +130,10 @@ from typing import Any, Dict, List, Tuple, Type, TYPE_CHECKING
 
 from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.deform_utils import get_head_form_html
+from cardinal_pythonlib.httpconst import MimeType
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.pyramid.responses import (
+    BinaryResponse,
     PdfResponse,
     XmlResponse,
 )
@@ -139,6 +141,7 @@ from cardinal_pythonlib.sqlalchemy.dialect import (
     get_dialect_name,
     SqlaDialectName,
 )
+from cardinal_pythonlib.sizeformatter import bytes2human
 from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_orm_classes_from_base
 from cardinal_pythonlib.sqlalchemy.orm_query import CountStarSpecializedQuery
 from cardinal_pythonlib.sqlalchemy.session import get_engine_from_session
@@ -192,6 +195,7 @@ from camcops_server.cc_modules.cc_email import Email
 from camcops_server.cc_modules.cc_export import (
     DownloadOptions,
     make_exporter,
+    UserDownloadFile,
 )
 from camcops_server.cc_modules.cc_exportmodels import (
     ExportedTask,
@@ -1527,7 +1531,65 @@ def download_area(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     Shows the user download area.
     """
-    return {}
+    userdir = req.user_download_dir
+    if userdir:
+        files = UserDownloadFile.from_directory_scan(
+            directory=userdir,
+            permitted_lifespan_min=req.config.user_download_file_lifetime_min)
+    else:
+        files = []  # type: List[UserDownloadFile]
+    return dict(
+        files=files,
+        available=bytes2human(req.user_download_bytes_available),
+        permitted=bytes2human(req.user_download_bytes_permitted),
+        used=bytes2human(req.user_download_bytes_used),
+        lifetime_min=req.config.user_download_file_lifetime_min,
+    )
+
+
+@view_config(route_name=Routes.DOWNLOAD_FILE)
+def download_file(req: "CamcopsRequest") -> Response:
+    """
+    Downloads a file.
+    """
+    _ = req.gettext
+    filename = req.get_str_param(ViewParam.FILENAME, "")
+    # Security comes here: we do NOT permit any path information in the
+    # filename. It MUST be relative to and within the user download directory.
+    # We cannot trust the input.
+    filename = os.path.basename(filename)
+    udf = UserDownloadFile(directory=req.user_download_dir,
+                           filename=filename)
+    if not udf.exists:
+        raise HTTPBadRequest(f'_("No such file:") {filename}')
+    try:
+        return BinaryResponse(
+            body=udf.contents,
+            filename=udf.filename,
+            content_type=MimeType.BINARY,
+            as_inline=False
+        )
+    except OSError:
+        raise HTTPBadRequest(f'_("Error reading file:") {filename}')
+
+
+@view_config(route_name=Routes.DELETE_FILE)
+def delete_file(req: "CamcopsRequest") -> Response:
+    """
+    Deletes a file.
+    """
+    _ = req.gettext
+    filename = req.get_str_param(ViewParam.FILENAME, "")
+    # Security comes here: we do NOT permit any path information in the
+    # filename. It MUST be relative to and within the user download directory.
+    # We cannot trust the input.
+    filename = os.path.basename(filename)
+    udf = UserDownloadFile(directory=req.user_download_dir,
+                           filename=filename)
+    if not udf.exists:
+        raise HTTPBadRequest(f'_("No such file:") {filename}')
+    udf.delete()
+    return HTTPFound(req.route_url(Routes.DOWNLOAD_AREA))  # redirect
 
 
 # =============================================================================

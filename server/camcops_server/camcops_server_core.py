@@ -50,7 +50,6 @@ log.info("Imports starting")
 
 import os  # noqa: E402
 import platform  # noqa: E402
-import subprocess  # noqa: E402
 import sys  # noqa: E402
 import tempfile  # noqa: E402
 from typing import Any, Dict, List, Optional, TYPE_CHECKING  # noqa: E402
@@ -152,6 +151,8 @@ WINDOWS = platform.system() == "Windows"
 # https://stackoverflow.com/questions/22003769/get-virtualenvs-bin-folder-path-from-script  # noqa: E501
 _CELERY_NAME = "celery.exe" if WINDOWS else "celery"
 CELERY = os.path.join(os.path.dirname(sys.executable), _CELERY_NAME)
+
+DEFAULT_CLEANUP_TIMEOUT_S = 10.0
 
 
 # =============================================================================
@@ -745,8 +746,9 @@ def check_index(cfg: CamcopsConfig, show_all_bad: bool = False) -> bool:
 # Celery
 # =============================================================================
 
-def launch_celery_workers(verbose: bool = False,
-                          cleanup_timeout_s: float = 10.0) -> None:
+def launch_celery_workers(
+        verbose: bool = False,
+        cleanup_timeout_s: float = DEFAULT_CLEANUP_TIMEOUT_S) -> None:
     """
     Launch Celery workers.
 
@@ -776,11 +778,12 @@ def launch_celery_workers(verbose: bool = False,
         ])
     cmdargs += config.celery_worker_extra_args
     log.info("Launching: {!r}", cmdargs)
-    # subprocess.call(cmdargs)
     nice_call(cmdargs, cleanup_timeout=cleanup_timeout_s)
 
 
-def launch_celery_beat(verbose: bool = False) -> None:
+def launch_celery_beat(
+        verbose: bool = False,
+        cleanup_timeout_s: float = DEFAULT_CLEANUP_TIMEOUT_S) -> None:
     """
     Launch the Celery Beat scheduler.
 
@@ -798,11 +801,13 @@ def launch_celery_beat(verbose: bool = False) -> None:
     ]
     cmdargs += config.celery_beat_extra_args
     log.info("Launching: {!r}", cmdargs)
-    subprocess.call(cmdargs)
+    nice_call(cmdargs, cleanup_timeout=cleanup_timeout_s)
 
 
-def launch_celery_flower(address: str = DEFAULT_FLOWER_ADDRESS,
-                         port: int = DEFAULT_FLOWER_PORT) -> None:
+def launch_celery_flower(
+        address: str = DEFAULT_FLOWER_ADDRESS,
+        port: int = DEFAULT_FLOWER_PORT,
+        cleanup_timeout_s: float = DEFAULT_CLEANUP_TIMEOUT_S) -> None:
     """
     Launch the Celery Flower monitor.
     """
@@ -813,7 +818,7 @@ def launch_celery_flower(address: str = DEFAULT_FLOWER_ADDRESS,
         f"--port {port}",
     ]
     log.info("Launching: {!r}", cmdargs)
-    subprocess.call(cmdargs)
+    nice_call(cmdargs, cleanup_timeout=cleanup_timeout_s)
 
 
 # =============================================================================

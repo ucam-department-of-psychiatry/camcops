@@ -32,7 +32,7 @@ camcops_server/templates/menu/download_scheduled.mako
 from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 %>
 
-<div>${_("A file with your data will be built. If your e-mail address is configured, CamCOPS will e-mail you when it is ready.")}</div>
+<div>${_("A file containing your data will be built. If your e-mail address is configured, CamCOPS will e-mail you when it is ready.")}</div>
 
 <div>
     <a href="${request.route_url(Routes.DOWNLOAD_AREA)}">${_("Download area")}</a>
