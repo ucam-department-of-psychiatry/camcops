@@ -1,0 +1,7 @@
+/* camcops_server/templates/css/style_deform_inside_tables.css */
+
+/* Make Deform form (which we will put in a table) look more sensible */
+.deform-form-fieldset, .form-group, .deform-form-buttons {
+    padding: 0;
+    border: none;
+}

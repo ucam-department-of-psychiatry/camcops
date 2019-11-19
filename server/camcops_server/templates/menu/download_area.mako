@@ -31,11 +31,7 @@ camcops_server/templates/menu/download_area.mako
 <%include file="db_user_info.mako"/>
 
 <style>
-/* Make Deform form (which we will put in a table) look more sensible */
-.deform-form-fieldset, .form-group, .deform-form-buttons {
-    padding: 0;
-    border: none;
-}
+    <%include file="style_deform_inside_tables.css"/>
 </style>
 
 <h2>${_("Download area")}</h2>
