@@ -26,7 +26,7 @@ camcops_server/tasks/bmi.py
 
 """
 
-from typing import Dict, List, Optional
+from typing import Dict, Generator, List, Optional
 
 from cardinal_pythonlib.datetimefunc import format_datetime
 import cardinal_pythonlib.rnc_web as ws
@@ -36,6 +36,10 @@ from sqlalchemy.sql.sqltypes import Float, UnicodeText
 from camcops_server.cc_modules.cc_constants import CssClass, DateFormat
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_html import tr_qa
+from camcops_server.cc_modules.cc_redcap import (
+    RedcapExportTestCase,
+    TestRedcapExporter,
+)
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import (
     SnomedAttributeGroup,
@@ -370,3 +374,53 @@ class Bmi(TaskHasPatientMixin, Task):
     @staticmethod
     def redcap_instrument_name() -> str:
         return "bmi"
+
+
+class BmiRedcapExportTests(RedcapExportTestCase):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.id_sequence = self.get_id()
+
+    @staticmethod
+    def get_id() -> Generator[int, None, None]:
+        i = 1
+
+        while True:
+            yield i
+            i += 1
+
+    def create_tasks(self) -> None:
+        super().create_tasks()
+
+        self.task = Bmi()
+        self.apply_standard_task_fields(self.task)
+        self.task.id = next(self.id_sequence)
+        self.task.height_m = 1.83
+        self.task.mass_kg = 67.57
+        self.task.patient_id = self.patient.id
+        self.dbsession.add(self.task)
+        self.dbsession.commit()
+
+    def test_phq9_export(self) -> None:
+        from camcops_server.cc_modules.cc_exportmodels import ExportedTask
+
+        exported_task = ExportedTask(task=self.task)
+
+        exporter = TestRedcapExporter(self.req)
+        exporter.export_task(exported_task)
+
+        args, kwargs = exporter.project.import_records.call_args
+
+        rows = args[0]
+        record = rows[0]
+
+        self.assertEquals(record["redcap_repeat_instrument"], "bmi")
+        self.assertEquals(record["record_id"], 1)
+        self.assertEquals(record["bmi_complete"], exporter.COMPLETE)
+        self.assertEquals(record["bmi_date"], "2010-07-07")
+
+        self.assertEquals(record["pa_height"], "1.8")
+        self.assertEquals(record["pa_weight"], "67.6")
+
+        self.assertEquals(kwargs["return_content"], "auto_ids")
+        self.assertTrue(kwargs["force_auto_number"])
