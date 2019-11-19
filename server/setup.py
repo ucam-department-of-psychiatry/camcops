@@ -110,6 +110,7 @@ INSTALL_REQUIRES = [
     'pdfkit==0.6.1',  # wkhtmltopdf interface, for PDF generation from HTML
     'py-bcrypt==0.4',  # Used by rnc_crypto; for bcrypt; now works under Windows too  # noqa
     # REDCap integration. Pip freeze reports as version 0.0.0?
+    'pycap @ git+https://github.com/martinburchell/pycap@3e30c63ac5d4be2648ebfe0b091a7cd2676e564c#egg=pycap-1.0.2.1',
     'Pygments==2.3.1',  # Syntax highlighting for introspection/DDL
 
     'PyMySQL==0.7.1',
@@ -140,9 +141,6 @@ INSTALL_REQUIRES = [
     'cardinal_pythonlib==1.0.81',  # RNC libraries
 ]
 
-DEPENDENCY_LINKS = [
-    'git+git://github.com/martinburchell/PyCap.git@f44c9b62a4f62675aa609c06608663f37e12097e#egg=PyCap',  # noqa
-]
 
 # =============================================================================
 # Helper functions
@@ -396,7 +394,6 @@ setup(
     include_package_data=True,  # use MANIFEST.in during install?
 
     install_requires=INSTALL_REQUIRES,
-    dependency_links=DEPENDENCY_LINKS,
     entry_points={
         'console_scripts': [
             # Format is 'script=module:function".
