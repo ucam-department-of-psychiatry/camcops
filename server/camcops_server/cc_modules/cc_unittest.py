@@ -29,6 +29,8 @@ camcops_server/cc_modules/cc_unittest.py
 """
 
 import base64
+import configparser
+from io import StringIO
 import logging
 import os
 import sqlite3
@@ -122,8 +124,8 @@ class DemoRequestTestCase(ExtendedTestCase):
         super().__init__(*args, **kwargs)
         self.echo = echo
         self.database_on_disk = database_on_disk
+        self.tmpdir_obj = tempfile.TemporaryDirectory()
         if database_on_disk:
-            self.tmpdir_obj = tempfile.TemporaryDirectory()
             tmpdir = self.tmpdir_obj.name
             self.db_filename = os.path.join(tmpdir, "camcops_self_test.sqlite")
             log.warning("Using temporary directory: {}", tmpdir)
@@ -133,6 +135,7 @@ class DemoRequestTestCase(ExtendedTestCase):
 
     def setUp(self) -> None:
         self.announce("setUp")
+        self.create_config_file()
         from sqlalchemy.orm.session import sessionmaker
         from camcops_server.cc_modules.cc_request import get_unittest_request
         from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient  # noqa
@@ -150,8 +153,35 @@ class DemoRequestTestCase(ExtendedTestCase):
 
     def tearDown(self) -> None:
         self.engine.dispose()
-        if self.database_on_disk:
-            self.tmpdir_obj.cleanup()
+        self.tmpdir_obj.cleanup()
+
+    def create_config_file(self) -> None:
+        from camcops_server.cc_modules.cc_baseconstants import ENVVAR_CONFIG_FILE  # noqa: E402,E501
+
+        tmpconfigfilename = os.path.join(self.tmpdir_obj.name,
+                                         "dummy_config.conf")
+        with open(tmpconfigfilename, "w") as file:
+            file.write(self.get_config_text())
+
+        os.environ[ENVVAR_CONFIG_FILE] = tmpconfigfilename
+
+    def get_config_text(self) -> None:
+        from camcops_server.cc_modules.cc_config import get_demo_config
+        config_text = get_demo_config()
+        parser = configparser.ConfigParser()
+        parser.read_string(config_text)
+
+        self.override_config_settings(parser)
+
+        with StringIO() as buffer:
+            parser.write(buffer)
+            config_text = buffer.getvalue()
+
+        return config_text
+
+    def override_config_settings(self,
+                                 parser: configparser.ConfigParser) -> None:
+        pass
 
     def set_echo(self, echo: bool) -> None:
         """
