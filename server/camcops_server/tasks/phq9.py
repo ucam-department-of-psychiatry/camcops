@@ -372,6 +372,25 @@ class Phq9(TaskHasPatientMixin, Task,
 
 
 class Phq9RedcapExportTests(RedcapExportTestCase):
+    fieldmap_filename = "phq9.csv"
+    fieldmap_rows = [
+        ["phq9_how_difficult", "task.q10 + 1"],
+        ["phq9_total_score", "task.total_score()"],
+        ["phq9_first_name", "task.patient.forename"],
+        ["phq9_last_name", "task.patient.surname"],
+        ["phq9_date_enrolled",
+         "format_datetime(task.when_created,DateFormat.ISO8601_DATE_ONLY)"],  # noqa: E501
+        ["phq9_1", "task.q1"],
+        ["phq9_2", "task.q2"],
+        ["phq9_3", "task.q3"],
+        ["phq9_4", "task.q4"],
+        ["phq9_5", "task.q5"],
+        ["phq9_6", "task.q6"],
+        ["phq9_7", "task.q7"],
+        ["phq9_8", "task.q8"],
+        ["phq9_9", "task.q9"],
+    ]
+
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.id_sequence = self.get_id()
@@ -404,7 +423,7 @@ class Phq9RedcapExportTests(RedcapExportTestCase):
         self.dbsession.add(self.task)
         self.dbsession.commit()
 
-    def test_phq9_export(self) -> None:
+    def test_record_exported(self) -> None:
         from camcops_server.cc_modules.cc_exportmodels import ExportedTask
 
         exported_task = ExportedTask(task=self.task)

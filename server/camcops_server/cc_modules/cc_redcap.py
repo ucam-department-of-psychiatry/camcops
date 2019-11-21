@@ -154,15 +154,23 @@ camcops_server/cc_modules/cc_redcap.py
 
 """
 
-import redcap
-from typing import TYPE_CHECKING
+import csv
+import os
+from typing import Dict, List, TYPE_CHECKING
 from unittest import mock
 
+from asteval import Interpreter, make_symbol_table
+from cardinal_pythonlib.datetimefunc import format_datetime
+import redcap
+
+from camcops_server.cc_modules.cc_constants import DateFormat
 from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 
 if TYPE_CHECKING:
+    from configparser import ConfigParser
     from camcops_server.cc_modules.cc_exportmodels import ExportedTask
     from camcops_server.cc_modules.cc_request import CamcopsRequest
+    from camcops_server.cc_modules.cc_task import Task
 
 
 class RedcapExporter(object):
@@ -194,7 +202,24 @@ class RedcapExporter(object):
             "record_id": 1,  # ignored but we have to put something in here
             f"{instrument_name}_complete": complete_status,
         }
-        record.update(task.get_redcap_fields(self.req))
+
+        field_map = self.get_task_field_map(task)
+
+        # TODO: Some safety checks here:
+        #
+        # Check redcap_field is in the data dictionary...
+        #
+        symbol_table = make_symbol_table(
+            task=task,
+            format_datetime=format_datetime,
+            DateFormat=DateFormat,
+        )
+        interpreter = Interpreter(symtable=symbol_table)
+
+        for redcap_field, formula in field_map.items():
+            # TODO: show_errors=False and check errors after execution
+            v = interpreter(f"{formula}")
+            record[redcap_field] = v
 
         data = [record]
 
@@ -211,6 +236,22 @@ class RedcapExporter(object):
 
         # TODO: Return some sort of meaningful status
 
+    def get_task_field_map(self, task: "Task") -> Dict:
+        # TODO: Optimise this
+
+        # redcap field, formula
+        field_map = {}
+
+        filename = os.path.join(self.req.config.redcap_fieldmaps,
+                                f"{task.tablename}.csv")
+
+        with open(filename) as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                field_map[row['redcap_field_name']] = row['formula']
+
+        return field_map
+
 
 class TestRedcapExporter(RedcapExporter):
     def __init__(self,
@@ -221,5 +262,32 @@ class TestRedcapExporter(RedcapExporter):
 
 
 class RedcapExportTestCase(DemoDatabaseTestCase):
+    def override_config_settings(self, parser: "ConfigParser"):
+        parser.set("site", "REDCAP_FIELDMAPS", self.tmpdir_obj.name)
+
     def create_tasks(self) -> None:
         self.patient = self.create_patient_with_one_idnum()
+
+    def setUp(self) -> None:
+        fieldmap = os.path.join(self.tmpdir_obj.name,
+                                self.fieldmap_filename)
+
+        with open(fieldmap, "w") as csvfile:
+            writer = csv.writer(csvfile)
+
+            rows = [
+                ["redcap_field_name", "formula"],
+            ] + self.fieldmap_rows
+
+            for row in rows:
+                writer.writerow(row)
+
+        super().setUp()
+
+    @property
+    def fieldmap_filename(self) -> str:
+        raise NotImplementedError("You must define fieldmap_filename property")
+
+    @property
+    def fieldmap_rows(self) -> List[List[str]]:
+        raise NotImplementedError("You must define fieldmap_rows property")

@@ -81,6 +81,7 @@ with open(os.path.join(THIS_DIR, 'README.rst'), encoding='utf-8') as f:
 # Package dependencies
 INSTALL_REQUIRES = [
     'alembic==1.0.7',  # database migrations
+    'asteval==0.9.17',  # safe-ish alternative to eval
     'Babel==2.6.0',  # reads code, generates gettext files; dev only but was already installed  # noqa
     'celery==4.3.0',  # background tasks
     'colorlog==3.1.4',  # colour in logs

@@ -377,6 +377,14 @@ class Bmi(TaskHasPatientMixin, Task):
 
 
 class BmiRedcapExportTests(RedcapExportTestCase):
+    fieldmap_filename = "bmi.csv"
+    fieldmap_rows = [
+        ["pa_height", "format(task.height_m, '.1f')"],
+        ["pa_weight", "format(task.mass_kg, '.1f')"],
+        ["bmi_date",
+         "format_datetime(task.when_created,DateFormat.ISO8601_DATE_ONLY)"],  # noqa: E501
+    ]
+
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.id_sequence = self.get_id()
@@ -401,7 +409,7 @@ class BmiRedcapExportTests(RedcapExportTestCase):
         self.dbsession.add(self.task)
         self.dbsession.commit()
 
-    def test_phq9_export(self) -> None:
+    def test_record_exported(self) -> None:
         from camcops_server.cc_modules.cc_exportmodels import ExportedTask
 
         exported_task = ExportedTask(task=self.task)
