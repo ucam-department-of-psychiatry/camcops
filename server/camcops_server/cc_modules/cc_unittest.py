@@ -181,7 +181,13 @@ class DemoRequestTestCase(ExtendedTestCase):
 
     def override_config_settings(self,
                                  parser: configparser.ConfigParser) -> None:
-        pass
+        """
+        Allows an individual test to override config settings
+        called from setUp()
+
+        Example:
+            parser.set("site", "MY_CONFIG_SETTING", "my value")
+        """
 
     def set_echo(self, echo: bool) -> None:
         """
