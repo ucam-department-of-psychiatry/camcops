@@ -28,14 +28,11 @@ camcops_server/tasks/phq9.py
 
 from typing import Any, Dict, Generator, List, Tuple, Type
 
-from cardinal_pythonlib.datetimefunc import (
-    format_datetime,
-)
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Boolean, Integer
 
-from camcops_server.cc_modules.cc_constants import CssClass, DateFormat
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CtvInfo, CTV_INCOMPLETE
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import answer, get_yes_no, tr, tr_qa
@@ -346,34 +343,11 @@ class Phq9(TaskHasPatientMixin, Task,
             codes.append(SnomedExpression(procedure_result))
         return codes
 
-    def get_redcap_fields(self, req: CamcopsRequest) -> Dict:
-        prefix = "phq9"
-
-        record = {
-            # REDCap has 1-4 scale
-            f"{prefix}_how_difficult": self.q10 + 1,
-            f"{prefix}_total_score": self.total_score(),
-            f"{prefix}_first_name": self.patient.forename,
-            f"{prefix}_last_name": self.patient.surname,
-            f"{prefix}_date_enrolled": format_datetime(
-                self.when_created,
-                DateFormat.ISO8601_DATE_ONLY
-            )
-        }
-
-        for i in range(1, self.N_MAIN_QUESTIONS + 1):
-            record[f"{prefix}_{i}"] = getattr(self, f"q{i}")
-
-        return record
-
-    @staticmethod
-    def redcap_instrument_name() -> str:
-        return "patient_health_questionnaire_9"
-
 
 class Phq9RedcapExportTests(RedcapExportTestCase):
     fieldmap_filename = "phq9.csv"
     fieldmap_rows = [
+        ["redcap_repeat_instrument", "patient_health_questionnaire_9"],
         ["phq9_how_difficult", "task.q10 + 1"],
         ["phq9_total_score", "task.total_score()"],
         ["phq9_first_name", "task.patient.forename"],
@@ -438,7 +412,7 @@ class Phq9RedcapExportTests(RedcapExportTestCase):
 
         self.assertEquals(record["redcap_repeat_instrument"],
                           "patient_health_questionnaire_9")
-        self.assertEquals(record["record_id"], 1)
+        self.assertEquals(record["record_id"], 0)
         self.assertEquals(record["patient_health_questionnaire_9_complete"],
                           exporter.COMPLETE)
         self.assertEquals(record["phq9_how_difficult"], 4)
@@ -459,3 +433,5 @@ class Phq9RedcapExportTests(RedcapExportTestCase):
 
         self.assertEquals(kwargs["return_content"], "auto_ids")
         self.assertTrue(kwargs["force_auto_number"])
+
+        assert exported_task.redcap_record_id

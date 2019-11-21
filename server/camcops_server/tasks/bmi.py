@@ -26,14 +26,13 @@ camcops_server/tasks/bmi.py
 
 """
 
-from typing import Dict, Generator, List, Optional
+from typing import Generator, List, Optional
 
-from cardinal_pythonlib.datetimefunc import format_datetime
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Float, UnicodeText
 
-from camcops_server.cc_modules.cc_constants import CssClass, DateFormat
+from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_redcap import (
@@ -355,26 +354,6 @@ class Bmi(TaskHasPatientMixin, Task):
             ]))
         return expressions
 
-    def get_redcap_fields(self, req: CamcopsRequest) -> Dict:
-        prefix = "pa"
-
-        instrument_name = self.redcap_instrument_name()
-
-        record = {
-            f"{prefix}_height": format(self.height_m, ".1f"),
-            f"{prefix}_weight": format(self.mass_kg, ".1f"),
-            f"{instrument_name}_date": format_datetime(
-                self.when_created,
-                DateFormat.ISO8601_DATE_ONLY
-            ),
-        }
-
-        return record
-
-    @staticmethod
-    def redcap_instrument_name() -> str:
-        return "bmi"
-
 
 class BmiRedcapExportTests(RedcapExportTestCase):
     fieldmap_filename = "bmi.csv"
@@ -383,6 +362,7 @@ class BmiRedcapExportTests(RedcapExportTestCase):
         ["pa_weight", "format(task.mass_kg, '.1f')"],
         ["bmi_date",
          "format_datetime(task.when_created,DateFormat.ISO8601_DATE_ONLY)"],  # noqa: E501
+        ["redcap_repeat_instrument", "bmi"],
     ]
 
     def __init__(self, *args, **kwargs) -> None:
@@ -423,7 +403,7 @@ class BmiRedcapExportTests(RedcapExportTestCase):
         record = rows[0]
 
         self.assertEquals(record["redcap_repeat_instrument"], "bmi")
-        self.assertEquals(record["record_id"], 1)
+        self.assertEquals(record["record_id"], 0)
         self.assertEquals(record["bmi_complete"], exporter.COMPLETE)
         self.assertEquals(record["bmi_date"], "2010-07-07")
 

@@ -190,7 +190,10 @@ class RedcapExporter(object):
 
         # TODO: Get any associated REDCap record ID?
 
-        instrument_name = task.redcap_instrument_name()
+        fieldmap = self.get_task_fieldmap(task)
+
+        # TODO: Check missing
+        instrument_name = fieldmap.pop("redcap_repeat_instrument")
 
         complete_status = self.INCOMPLETE
 
@@ -199,11 +202,9 @@ class RedcapExporter(object):
 
         record = {
             "redcap_repeat_instrument": instrument_name,
-            "record_id": 1,  # ignored but we have to put something in here
+            "record_id": 0,  # ignored but we have to put something in here
             f"{instrument_name}_complete": complete_status,
         }
-
-        field_map = self.get_task_field_map(task)
 
         # TODO: Some safety checks here:
         #
@@ -216,7 +217,7 @@ class RedcapExporter(object):
         )
         interpreter = Interpreter(symtable=symbol_table)
 
-        for redcap_field, formula in field_map.items():
+        for redcap_field, formula in fieldmap.items():
             # TODO: show_errors=False and check errors after execution
             v = interpreter(f"{formula}")
             record[redcap_field] = v
@@ -236,12 +237,13 @@ class RedcapExporter(object):
 
         # TODO: Return some sort of meaningful status
 
-    def get_task_field_map(self, task: "Task") -> Dict:
+    def get_task_fieldmap(self, task: "Task") -> Dict:
         # TODO: Optimise this
 
         # redcap field, formula
         field_map = {}
 
+        # TODO: Check redcap_fieldmaps not None
         filename = os.path.join(self.req.config.redcap_fieldmaps,
                                 f"{task.tablename}.csv")
 
