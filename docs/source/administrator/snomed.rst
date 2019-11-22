@@ -45,7 +45,7 @@ It is the standard computerized vocabulary for the UK NHS_.
 
 CamCOPS supports SNOMED CT coding for:
 
-- its tasks (where those tasks are supported by SNOMED)
+- its tasks (where those tasks are supported by SNOMED CT)
 
 - ICD-9-CM codes [recorded by the :ref:`Diagnostic coding (ICD-9-CM)
   <diagnosis_icd9cm>` task]
@@ -86,8 +86,8 @@ license terms and obtain the SNOMED CT identifiers separately. CamCOPS does not
 contain SNOMED CT identifiers (it uses arbitrary strings to reference them).
 
 
-Adding SNOMED CT support for CamCOPS
-------------------------------------
+Adding SNOMED CT support to CamCOPS
+-----------------------------------
 
 If you are permitted (see "Licensing" above), find a SNOMED CT REST API server
 (e.g. from your national provider) and ask it for relevant SNOMED CT

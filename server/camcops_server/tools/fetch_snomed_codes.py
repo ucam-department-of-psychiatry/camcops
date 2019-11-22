@@ -24,6 +24,9 @@ camcops_server/tools/fetch_snomed_codes.py
 
 ===============================================================================
 
+Assists a user who has the necessary permission to look up SNOMED CT
+identifiers from a SNOMED server (e.g. of their national provider).
+
 References:
 
 - http://ihtsdo.github.io/sct-snapshot-rest-api/api.html
@@ -88,8 +91,8 @@ Are you sure? You take all legal responsibility for the consequences.
 """
 ANSWER_2 = "sure"
 
-XML_HEADER = """
-<?xml version="1.0" encoding="UTF-8"?>
+# NB no newline allowed at start
+XML_HEADER = """<?xml version="1.0" encoding="UTF-8"?>
 <snomed_concepts>
 
     <!--
@@ -728,7 +731,7 @@ def get_xml(camcops_name: str, concept: SnomedConcept) -> str:
         f'<lookup name="{camcops_name}">'
         f'<concept>'
         f'<id>{concept.identifier}</id>'
-        f'<term>{concept.longform}</term>'
+        f'<term>{concept.term}</term>'
         f'</concept>'
         f'</lookup>'
     )
@@ -743,7 +746,7 @@ def fetch_camcops_snomed_codes(api: SnomedApiInfo,
     Args:
         api: a :class:`SnomedApiInfo`.
         filename: name of XML file to write
-        continue_on_error: carry on through failed lookups
+        continue_on_error: carry on through failed lookups?
     """
     possible_types = [getattr(SemanticTypes, x)
                       for x in dir(SemanticTypes) if not x.startswith("_")]
