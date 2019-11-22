@@ -378,6 +378,8 @@ class Phq9RedcapExportTests(RedcapExportTestCase):
             i += 1
 
     def create_tasks(self) -> None:
+        patient = self.create_patient_with_one_idnum()
+
         super().create_tasks()
 
         self.task = Phq9()
@@ -393,7 +395,7 @@ class Phq9RedcapExportTests(RedcapExportTestCase):
         self.task.q8 = 3
         self.task.q9 = 0
         self.task.q10 = 3
-        self.task.patient_id = self.patient.id
+        self.task.patient_id = patient.id
         self.dbsession.add(self.task)
         self.dbsession.commit()
 
@@ -403,7 +405,9 @@ class Phq9RedcapExportTests(RedcapExportTestCase):
         exported_task = ExportedTask(task=self.task)
 
         exporter = TestRedcapExporter(self.req)
+        exporter.project.import_records.return_value = ["123,0"]
         exporter.export_task(exported_task)
+        self.assertEquals(exported_task.redcap_record_id, 123)
 
         args, kwargs = exporter.project.import_records.call_args
 

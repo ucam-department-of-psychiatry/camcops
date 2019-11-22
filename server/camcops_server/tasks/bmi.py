@@ -36,6 +36,7 @@ from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_redcap import (
+    RedcapExportException,
     RedcapExportTestCase,
     TestRedcapExporter,
 )
@@ -355,16 +356,7 @@ class Bmi(TaskHasPatientMixin, Task):
         return expressions
 
 
-class BmiRedcapExportTests(RedcapExportTestCase):
-    fieldmap_filename = "bmi.csv"
-    fieldmap_rows = [
-        ["pa_height", "format(task.height_m, '.1f')"],
-        ["pa_weight", "format(task.mass_kg, '.1f')"],
-        ["bmi_date",
-         "format_datetime(task.when_created,DateFormat.ISO8601_DATE_ONLY)"],  # noqa: E501
-        ["redcap_repeat_instrument", "bmi"],
-    ]
-
+class BmiRedcapExportTestCase(RedcapExportTestCase):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.id_sequence = self.get_id()
@@ -377,15 +369,27 @@ class BmiRedcapExportTests(RedcapExportTestCase):
             yield i
             i += 1
 
-    def create_tasks(self) -> None:
-        super().create_tasks()
 
+class BmiValidRedcapExportTestCase(BmiRedcapExportTestCase):
+    fieldmap_filename = "bmi.csv"
+    fieldmap_rows = [
+        ["pa_height", "format(task.height_m, '.1f')"],
+        ["pa_weight", "format(task.mass_kg, '.1f')"],
+        ["bmi_date",
+         "format_datetime(task.when_created,DateFormat.ISO8601_DATE_ONLY)"],  # noqa: E501
+        ["redcap_repeat_instrument", "bmi"],
+    ]
+
+
+class BmiRedcapExportTests(BmiValidRedcapExportTestCase):
+    def create_tasks(self) -> None:
+        patient = self.create_patient_with_one_idnum()
         self.task = Bmi()
         self.apply_standard_task_fields(self.task)
         self.task.id = next(self.id_sequence)
         self.task.height_m = 1.83
         self.task.mass_kg = 67.57
-        self.task.patient_id = self.patient.id
+        self.task.patient_id = patient.id
         self.dbsession.add(self.task)
         self.dbsession.commit()
 
@@ -395,7 +399,9 @@ class BmiRedcapExportTests(RedcapExportTestCase):
         exported_task = ExportedTask(task=self.task)
 
         exporter = TestRedcapExporter(self.req)
+        exporter.project.import_records.return_value = ["123,0"]
         exporter.export_task(exported_task)
+        self.assertEquals(exported_task.redcap_record_id, 123)
 
         args, kwargs = exporter.project.import_records.call_args
 
@@ -412,3 +418,29 @@ class BmiRedcapExportTests(RedcapExportTestCase):
 
         self.assertEquals(kwargs["return_content"], "auto_ids")
         self.assertTrue(kwargs["force_auto_number"])
+
+
+class BmiRedcapMissingCsvTests(BmiRedcapExportTestCase):
+    def create_tasks(self) -> None:
+        patient = self.create_patient_with_one_idnum()
+        self.task = Bmi()
+        self.apply_standard_task_fields(self.task)
+        self.task.id = next(self.id_sequence)
+        self.task.patient_id = patient.id
+        self.dbsession.add(self.task)
+
+    def test_fails_when_csv_missing(self) -> None:
+        from camcops_server.cc_modules.cc_exportmodels import ExportedTask
+
+        exported_task = ExportedTask(task=self.task)
+
+        exporter = TestRedcapExporter(self.req)
+        exporter.project.import_records.return_value = ["123,0"]
+
+        with self.assertRaises(RedcapExportException) as cm:
+            exporter.export_task(exported_task)
+
+        message = str(cm.exception)
+
+        self.assertIn("Unable to open fieldmap file", message)
+        self.assertIn("bmi.csv", message)

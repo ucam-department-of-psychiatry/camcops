@@ -85,7 +85,11 @@ from camcops_server.cc_modules.cc_hl7 import (
     msg_is_successful_ack,
     SEGMENT_SEPARATOR,
 )
-from camcops_server.cc_modules.cc_redcap import RedcapExporter
+from camcops_server.cc_modules.cc_redcap import (
+    RedcapExportException,
+    RedcapExporter,
+)
+
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     LongText,
     TableNameColType,
@@ -398,12 +402,8 @@ class ExportedTask(Base):
 
         elif transmission_method == ExportTransmissionMethod.REDCAP:
             eredcap = ExportedTaskRedcap(self)
-            if eredcap.valid():
-                dbsession.add(eredcap)
-                eredcap.export_task(req)
-            else:
-                self.abort("Task not valid for REDCap export")
-
+            dbsession.add(eredcap)
+            eredcap.export_task(req)
         else:
             raise AssertionError("Bug: bad transmission_method")
 
@@ -1138,20 +1138,6 @@ class ExportedTaskRedcap(Base):
         """
         self.exported_task = exported_task
 
-    def valid(self) -> bool:
-        """
-        Checks for internal validity; returns a bool.
-        """
-        exported_task = self.exported_task
-        task = exported_task.task
-        recipient = exported_task.recipient
-        return self.task_acceptable(recipient, task)
-
-    @staticmethod
-    def task_acceptable(recipient: ExportRecipient,
-                        task: "Task") -> bool:
-        return hasattr(task, "get_redcap_fields")
-
     def export_task(self, req: "CamcopsRequest") -> None:
         exported_task = self.exported_task
         recipient = exported_task.recipient
@@ -1161,6 +1147,9 @@ class ExportedTaskRedcap(Base):
             recipient.redcap_api_url,
             recipient.redcap_api_key
         )
-        exporter.export_task(exported_task)
 
-        exported_task.succeed()
+        try:
+            exporter.export_task(exported_task)
+            exported_task.succeed()
+        except RedcapExportException as e:
+            exported_task.abort(str(e))

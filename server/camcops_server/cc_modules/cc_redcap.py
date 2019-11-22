@@ -173,6 +173,10 @@ if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_task import Task
 
 
+class RedcapExportException(Exception):
+    pass
+
+
 class RedcapExporter(object):
     INCOMPLETE = 0
     UNVERIFIED = 1
@@ -233,7 +237,7 @@ class RedcapExporter(object):
         # Returns redcap_id, 1
         ids = self.project.import_records(data, **import_kwargs)[0]
 
-        exported_task.redcap_record_id = ids.split(",")[0]
+        exported_task.redcap_record_id = int(ids.split(",")[0])
 
         # TODO: Return some sort of meaningful status
 
@@ -241,18 +245,29 @@ class RedcapExporter(object):
         # TODO: Optimise this
 
         # redcap field, formula
-        field_map = {}
+        fieldmap = {}
+
+        fieldmap_dir = self.req.config.redcap_fieldmaps
+        if fieldmap_dir is None:
+            raise RedcapExportException(
+                "REDCAP_FIELDMAPS is not set in the config file"
+            )
 
         # TODO: Check redcap_fieldmaps not None
-        filename = os.path.join(self.req.config.redcap_fieldmaps,
+        filename = os.path.join(fieldmap_dir,
                                 f"{task.tablename}.csv")
 
-        with open(filename) as csvfile:
-            reader = csv.DictReader(csvfile)
-            for row in reader:
-                field_map[row['redcap_field_name']] = row['formula']
+        try:
+            with open(filename) as csvfile:
+                reader = csv.DictReader(csvfile)
+                for row in reader:
+                    fieldmap[row['redcap_field_name']] = row['formula']
+        except FileNotFoundError:
+            raise RedcapExportException(
+                f"Unable to open fieldmap file '{filename}'"
+            )
 
-        return field_map
+        return fieldmap
 
 
 class TestRedcapExporter(RedcapExporter):
@@ -260,17 +275,22 @@ class TestRedcapExporter(RedcapExporter):
                  req: "CamcopsRequest") -> None:
         self.req = req
         self.project = mock.Mock()
-        self.project.import_records = mock.Mock(return_value=["1,1"])
+        self.project.import_records = mock.Mock()
 
 
 class RedcapExportTestCase(DemoDatabaseTestCase):
+    fieldmap_filename = None
+
     def override_config_settings(self, parser: "ConfigParser"):
         parser.set("site", "REDCAP_FIELDMAPS", self.tmpdir_obj.name)
 
-    def create_tasks(self) -> None:
-        self.patient = self.create_patient_with_one_idnum()
-
     def setUp(self) -> None:
+        if self.fieldmap_filename is not None:
+            self.write_fieldmap()
+
+        super().setUp()
+
+    def write_fieldmap(self) -> None:
         fieldmap = os.path.join(self.tmpdir_obj.name,
                                 self.fieldmap_filename)
 
@@ -283,12 +303,6 @@ class RedcapExportTestCase(DemoDatabaseTestCase):
 
             for row in rows:
                 writer.writerow(row)
-
-        super().setUp()
-
-    @property
-    def fieldmap_filename(self) -> str:
-        raise NotImplementedError("You must define fieldmap_filename property")
 
     @property
     def fieldmap_rows(self) -> List[List[str]]:
