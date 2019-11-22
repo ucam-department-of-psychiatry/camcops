@@ -383,7 +383,7 @@ class BmiValidRedcapExportTestCase(BmiRedcapExportTestCase):
 
 class BmiRedcapExportTests(BmiValidRedcapExportTestCase):
     def create_tasks(self) -> None:
-        patient = self.create_patient_with_one_idnum()
+        patient = self.create_patient_with_idnum_1001()
         self.task = Bmi()
         self.apply_standard_task_fields(self.task)
         self.task.id = next(self.id_sequence)
@@ -394,14 +394,19 @@ class BmiRedcapExportTests(BmiValidRedcapExportTestCase):
         self.dbsession.commit()
 
     def test_record_exported(self) -> None:
-        from camcops_server.cc_modules.cc_exportmodels import ExportedTask
+        from camcops_server.cc_modules.cc_exportmodels import (
+            ExportedTask,
+            ExportedTaskRedcap
+        )
 
-        exported_task = ExportedTask(task=self.task)
+        exported_task = ExportedTask(task=self.task, recipient=self.recipient)
+        exported_task_redcap = ExportedTaskRedcap(exported_task)
 
         exporter = TestRedcapExporter(self.req)
         exporter.project.import_records.return_value = ["123,0"]
-        exporter.export_task(exported_task)
-        self.assertEquals(exported_task.redcap_record_id, 123)
+        exporter.export_task(exported_task_redcap)
+        self.assertEquals(exported_task_redcap.redcap_record.redcap_record_id,
+                          123)
 
         args, kwargs = exporter.project.import_records.call_args
 
@@ -422,7 +427,7 @@ class BmiRedcapExportTests(BmiValidRedcapExportTestCase):
 
 class BmiRedcapMissingCsvTests(BmiRedcapExportTestCase):
     def create_tasks(self) -> None:
-        patient = self.create_patient_with_one_idnum()
+        patient = self.create_patient_with_idnum_1001()
         self.task = Bmi()
         self.apply_standard_task_fields(self.task)
         self.task.id = next(self.id_sequence)
@@ -430,17 +435,68 @@ class BmiRedcapMissingCsvTests(BmiRedcapExportTestCase):
         self.dbsession.add(self.task)
 
     def test_fails_when_csv_missing(self) -> None:
-        from camcops_server.cc_modules.cc_exportmodels import ExportedTask
-
+        from camcops_server.cc_modules.cc_exportmodels import (
+            ExportedTask,
+            ExportedTaskRedcap,
+        )
         exported_task = ExportedTask(task=self.task)
+        exported_task_redcap = ExportedTaskRedcap(exported_task)
 
         exporter = TestRedcapExporter(self.req)
         exporter.project.import_records.return_value = ["123,0"]
 
         with self.assertRaises(RedcapExportException) as cm:
-            exporter.export_task(exported_task)
+            exporter.export_task(exported_task_redcap)
 
         message = str(cm.exception)
 
         self.assertIn("Unable to open fieldmap file", message)
         self.assertIn("bmi.csv", message)
+
+
+class BmiRedcapUpdateTests(BmiValidRedcapExportTestCase):
+    def create_tasks(self) -> None:
+        patient = self.create_patient_with_idnum_1001()
+        self.task1 = Bmi()
+        self.apply_standard_task_fields(self.task1)
+        self.task1.id = next(self.id_sequence)
+        self.task1.height_m = 1.83
+        self.task1.mass_kg = 67.57
+        self.task1.patient_id = patient.id
+        self.dbsession.add(self.task1)
+
+        self.task2 = Bmi()
+        self.apply_standard_task_fields(self.task2)
+        self.task2.id = next(self.id_sequence)
+        self.task2.height_m = 1.83
+        self.task2.mass_kg = 68.5
+        self.task2.patient_id = patient.id
+        self.dbsession.add(self.task2)
+        self.dbsession.commit()
+
+    def test_existing_record_id_used_for_update(self) -> None:
+        from camcops_server.cc_modules.cc_exportmodels import (
+            ExportedTask,
+            ExportedTaskRedcap,
+        )
+
+        exporter = TestRedcapExporter(self.req)
+
+        exported_task1 = ExportedTask(task=self.task1, recipient=self.recipient)
+        exported_task_redcap1 = ExportedTaskRedcap(exported_task1)
+
+        exporter.project.import_records.return_value = ["123,0"]
+        exporter.export_task(exported_task_redcap1)
+        self.assertEquals(exported_task_redcap1.redcap_record.redcap_record_id,
+                          123)
+
+        exported_task2 = ExportedTask(task=self.task2, recipient=self.recipient)
+        exported_task_redcap2 = ExportedTaskRedcap(exported_task2)
+
+        exporter.export_task(exported_task_redcap2)
+        args, kwargs = exporter.project.import_records.call_args
+
+        rows = args[0]
+        record = rows[0]
+
+        self.assertEquals(record["record_id"], 123)

@@ -88,8 +88,8 @@ from camcops_server.cc_modules.cc_hl7 import (
 from camcops_server.cc_modules.cc_redcap import (
     RedcapExportException,
     RedcapExporter,
+    RedcapRecord,
 )
-
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     LongText,
     TableNameColType,
@@ -1127,9 +1127,12 @@ class ExportedTaskRedcap(Base):
     exported_task = relationship(ExportedTask)
 
     redcap_record_id = Column(
-        "redcap_record_id", BigInteger,
-        comment="REDCap record ID"
+        "redcap_record_id", BigInteger, ForeignKey(RedcapRecord.id),
+        comment="FK to {}.{}".format(RedcapRecord.__tablename__,
+                                     RedcapRecord.id.name)
     )
+
+    redcap_record = relationship(RedcapRecord)
 
     def __init__(self, exported_task: ExportedTask = None) -> None:
         """
@@ -1149,7 +1152,7 @@ class ExportedTaskRedcap(Base):
         )
 
         try:
-            exporter.export_task(exported_task)
+            exporter.export_task(self)
             exported_task.succeed()
         except RedcapExportException as e:
             exported_task.abort(str(e))

@@ -30,7 +30,7 @@ redcap
 
 Revision ID: 0044
 Revises: 0043
-Creation date: 2019-11-12 17:14:54.466431
+Creation date: 2019-11-22 17:59:21.810857
 
 """
 
@@ -61,18 +61,31 @@ depends_on = None
 # noinspection PyPep8,PyTypeChecker
 def upgrade():
     op.create_table(
+        '_redcap_record',
+        sa.Column('id', sa.BigInteger(), autoincrement=True, nullable=False, comment='Arbitrary primary key'),
+        sa.Column('redcap_record_id', sa.BigInteger(), nullable=True, comment='REDCap record ID'),
+        sa.Column('which_idnum', sa.Integer(), nullable=False, comment="Which of the server's ID numbers is this?"),
+        sa.Column('idnum_value', sa.BigInteger(), nullable=True, comment='The value of the ID number'),
+        sa.ForeignKeyConstraint(['which_idnum'], ['_idnum_definitions.which_idnum'], name=op.f('fk__redcap_record_which_idnum')),
+        sa.PrimaryKeyConstraint('id', name=op.f('pk__redcap_record')),
+        mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
+        mysql_engine='InnoDB',
+        mysql_row_format='DYNAMIC'
+    )
+
+    op.create_table(
         '_exported_task_redcap',
         sa.Column('id', sa.BigInteger(), autoincrement=True, nullable=False, comment='Arbitrary primary key'),
         sa.Column('exported_task_id', sa.BigInteger(), nullable=False, comment='FK to _exported_tasks.id'),
-        sa.Column('redcap_record_id', sa.BigInteger(), nullable=True, comment='REDCap record ID'),
+        sa.Column('redcap_record_id', sa.BigInteger(), nullable=True, comment='FK to _redcap_record.id'),
         sa.ForeignKeyConstraint(['exported_task_id'], ['_exported_tasks.id'], name=op.f('fk__exported_task_redcap_exported_task_id')),
+        sa.ForeignKeyConstraint(['redcap_record_id'], ['_redcap_record.id'], name=op.f('fk__exported_task_redcap_redcap_record_id')),
         sa.PrimaryKeyConstraint('id', name=op.f('pk__exported_task_redcap')),
         mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
         mysql_engine='InnoDB',
         mysql_row_format='DYNAMIC'
     )
 
-
-# noinspection PyPep8,PyTypeChecker
 def downgrade():
     op.drop_table('_exported_task_redcap')
+    op.drop_table('_redcap_record')

@@ -161,16 +161,54 @@ from unittest import mock
 
 from asteval import Interpreter, make_symbol_table
 from cardinal_pythonlib.datetimefunc import format_datetime
+import pendulum
 import redcap
+from sqlalchemy.sql.schema import Column, ForeignKey
+from sqlalchemy.sql.sqltypes import BigInteger, Integer
 
 from camcops_server.cc_modules.cc_constants import DateFormat
+from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
+from camcops_server.cc_modules.cc_exportrecipientinfo import ExportRecipientInfo
+from camcops_server.cc_modules.cc_idnumdef import IdNumDefinition
+from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
+from camcops_server.cc_modules.cc_sqla_coltypes import CamcopsColumn
+from camcops_server.cc_modules.cc_sqlalchemy import Base
 from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 
 if TYPE_CHECKING:
     from configparser import ConfigParser
-    from camcops_server.cc_modules.cc_exportmodels import ExportedTask
+    from camcops_server.cc_modules.cc_exportmodels import ExportedTaskRedcap
     from camcops_server.cc_modules.cc_request import CamcopsRequest
     from camcops_server.cc_modules.cc_task import Task
+
+
+class RedcapRecord(Base):
+    """
+    Maps REDCap records to patients
+    """
+    __tablename__ = "_redcap_record"
+
+    id = Column(
+        "id", BigInteger, primary_key=True, autoincrement=True,
+        comment="Arbitrary primary key"
+    )
+
+    redcap_record_id = Column(
+        "redcap_record_id", BigInteger,
+        comment="REDCap record ID"
+    )
+
+    which_idnum = Column(
+        "which_idnum", Integer, ForeignKey(IdNumDefinition.which_idnum),
+        nullable=False,
+        comment="Which of the server's ID numbers is this?"
+    )
+
+    idnum_value = CamcopsColumn(
+        "idnum_value", BigInteger,
+        identifies_patient=True,
+        comment="The value of the ID number"
+    )
 
 
 class RedcapExportException(Exception):
@@ -189,31 +227,26 @@ class RedcapExporter(object):
         self.req = req
         self.project = redcap.project.Project(api_url, api_key)
 
-    def export_task(self, exported_task: "ExportedTask") -> None:
-        task = exported_task.task
+    def export_task(self, exported_task_redcap: "ExportedTaskRedcap") -> None:
+        import ipdb
+        ipdb.set_trace()
 
-        # TODO: Get any associated REDCap record ID?
+        exported_task = exported_task_redcap.exported_task
+        task = exported_task.task
 
         fieldmap = self.get_task_fieldmap(task)
 
         # TODO: Check missing
         instrument_name = fieldmap.pop("redcap_repeat_instrument")
+        which_idnum = exported_task.recipient.primary_idnum
+        idnum_object = task.patient.get_idnum_object(which_idnum)
+        redcap_record = self._get_existing_record(idnum_object)
 
         complete_status = self.INCOMPLETE
 
         if task.is_complete():
             complete_status = self.COMPLETE
 
-        record = {
-            "redcap_repeat_instrument": instrument_name,
-            "record_id": 0,  # ignored but we have to put something in here
-            f"{instrument_name}_complete": complete_status,
-        }
-
-        # TODO: Some safety checks here:
-        #
-        # Check redcap_field is in the data dictionary...
-        #
         symbol_table = make_symbol_table(
             task=task,
             format_datetime=format_datetime,
@@ -221,25 +254,76 @@ class RedcapExporter(object):
         )
         interpreter = Interpreter(symtable=symbol_table)
 
+        record = {
+            "redcap_repeat_instrument": instrument_name,
+            f"{instrument_name}_complete": complete_status,
+
+        }
+
+        # TODO: Some safety checks here:
+        #
+        # Check redcap_field is in the data dictionary...
+        #
         for redcap_field, formula in fieldmap.items():
             # TODO: show_errors=False and check errors after execution
             v = interpreter(f"{formula}")
             record[redcap_field] = v
 
-        data = [record]
+        if redcap_record is None:
+            return self._import_record(exported_task_redcap, record,
+                                       idnum_object)
 
-        import_kwargs = {
-            "return_content": "auto_ids",
-            "force_auto_number": True,
-        }
+        return self._update_record(exported_task_redcap, record, redcap_record)
+
+    def _import_record(self,
+                       exported_task_redcap: "ExportedTaskRedcap",
+                       record: Dict,
+                       idnum_object: "PatientIdNum") -> None:
+        # redcap_record_id will be ignored if force_auto_number is True
+        # but has to be present
+        record["record_id"] = 0
 
         # TODO: Catch RedcapError
-        # Returns redcap_id, 1
-        ids = self.project.import_records(data, **import_kwargs)[0]
+        # Returns [redcap record id, 0]
+        id_pair_list = self.project.import_records(
+            [record],
+            return_content="auto_ids", force_auto_number=True,
+        )
 
-        exported_task.redcap_record_id = int(ids.split(",")[0])
+        id_pair = id_pair_list[0]
+
+        redcap_record_id = int(id_pair.split(",")[0])
+        redcap_record = RedcapRecord(
+            redcap_record_id=redcap_record_id,
+            which_idnum=idnum_object.which_idnum,
+            idnum_value=idnum_object.idnum_value
+        )
+        self.req.dbsession.add(redcap_record)
+
+        exported_task_redcap.redcap_record = redcap_record
 
         # TODO: Return some sort of meaningful status
+
+    def _update_record(self,
+                       exported_task_redcap: "ExportedTaskRedcap",
+                       record: Dict,
+                       redcap_record: "RedcapRecord") -> None:
+        record["record_id"] = redcap_record.redcap_record_id
+
+        # TODO: Catch RedcapError
+        # Returns {'count': 1}
+        self.project.import_records([record])
+
+        exported_task_redcap.redcap_record = redcap_record
+
+        # TODO: Return some sort of meaningful status
+
+    def _get_existing_record(self, idnum_object: PatientIdNum) -> int:
+        return (
+            self.req.dbsession.query(RedcapRecord)
+            .filter(RedcapRecord.which_idnum == idnum_object.which_idnum)
+            .filter(RedcapRecord.idnum_value == idnum_object.idnum_value)
+        ).first()
 
     def get_task_fieldmap(self, task: "Task") -> Dict:
         # TODO: Optimise this
@@ -288,6 +372,11 @@ class RedcapExportTestCase(DemoDatabaseTestCase):
         if self.fieldmap_filename is not None:
             self.write_fieldmap()
 
+        recipientinfo = ExportRecipientInfo()
+
+        self.recipient = ExportRecipient(recipientinfo)
+        self.recipient.primary_idnum = 1001
+
         super().setUp()
 
     def write_fieldmap(self) -> None:
@@ -307,3 +396,24 @@ class RedcapExportTestCase(DemoDatabaseTestCase):
     @property
     def fieldmap_rows(self) -> List[List[str]]:
         raise NotImplementedError("You must define fieldmap_rows property")
+
+    def create_patient_with_idnum_1001(self) -> None:
+        from camcops_server.cc_modules.cc_patient import Patient
+        from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
+        patient = Patient()
+        patient.id = 2
+        self._apply_standard_db_fields(patient)
+        patient.forename = "Forename2"
+        patient.surname = "Surname2"
+        patient.dob = pendulum.parse("1975-12-12")
+        self.dbsession.add(patient)
+        patient_idnum1 = PatientIdNum()
+        patient_idnum1.id = 3
+        self._apply_standard_db_fields(patient_idnum1)
+        patient_idnum1.patient_id = patient.id
+        patient_idnum1.which_idnum = 1001
+        patient_idnum1.idnum_value = 555
+        self.dbsession.add(patient_idnum1)
+        self.dbsession.commit()
+
+        return patient

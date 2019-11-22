@@ -378,10 +378,7 @@ class Phq9RedcapExportTests(RedcapExportTestCase):
             i += 1
 
     def create_tasks(self) -> None:
-        patient = self.create_patient_with_one_idnum()
-
-        super().create_tasks()
-
+        patient = self.create_patient_with_idnum_1001()
         self.task = Phq9()
         self.apply_standard_task_fields(self.task)
         self.task.id = next(self.id_sequence)
@@ -400,14 +397,19 @@ class Phq9RedcapExportTests(RedcapExportTestCase):
         self.dbsession.commit()
 
     def test_record_exported(self) -> None:
-        from camcops_server.cc_modules.cc_exportmodels import ExportedTask
+        from camcops_server.cc_modules.cc_exportmodels import (
+            ExportedTask,
+            ExportedTaskRedcap,
+        )
 
-        exported_task = ExportedTask(task=self.task)
+        exported_task = ExportedTask(task=self.task, recipient=self.recipient)
+        exported_task_redcap = ExportedTaskRedcap(exported_task)
 
         exporter = TestRedcapExporter(self.req)
         exporter.project.import_records.return_value = ["123,0"]
-        exporter.export_task(exported_task)
-        self.assertEquals(exported_task.redcap_record_id, 123)
+        exporter.export_task(exported_task_redcap)
+        self.assertEquals(exported_task_redcap.redcap_record.redcap_record_id,
+                          123)
 
         args, kwargs = exporter.project.import_records.call_args
 
@@ -437,5 +439,3 @@ class Phq9RedcapExportTests(RedcapExportTestCase):
 
         self.assertEquals(kwargs["return_content"], "auto_ids")
         self.assertTrue(kwargs["force_auto_number"])
-
-        assert exported_task.redcap_record_id

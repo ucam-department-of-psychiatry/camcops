@@ -119,6 +119,7 @@ class DummyDataFactory(object):
         for patient_id in range(self.FIRST_PATIENT_ID,
                                 self.FIRST_PATIENT_ID + self.NUM_PATIENTS):
             self.add_patient(patient_id)
+            log.info(f"Adding tasks for patient {patient_id}")
             self.add_tasks(patient_id)
 
     def add_patient(self, patient_id: int) -> Patient:
@@ -134,10 +135,7 @@ class DummyDataFactory(object):
         self.dbsession.add(patient)
 
         self.add_patient_idnum(patient_id)
-        try:
-            self.dbsession.commit()
-        except IntegrityError:
-            self.dbsession.rollback()
+        self.dbsession.commit()
 
         return patient
 
