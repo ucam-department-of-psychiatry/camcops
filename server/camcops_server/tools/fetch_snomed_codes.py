@@ -697,6 +697,14 @@ def test_api(api: SnomedApiInfo,
 # =============================================================================
 
 def disclaim(question: str, required_answer: str) -> None:
+    """
+    Requires the user to agree to a statement. If they don't, the program
+    exits.
+
+    Args:
+        question: question to be printed
+        required_answer: answer that is required
+    """
     print(question)
     answer = input(f"-- Enter {required_answer!r} to continue: ")
     if answer != required_answer:
@@ -752,14 +760,14 @@ def fetch_camcops_snomed_codes(api: SnomedApiInfo,
             assert stype in possible_types, f"Bad type: {stype}"
             try:
                 concept = api.get_concept_by_term(sname, stype, suffix=suffix)
+                xml = get_xml(camcops_name, concept)
+                print(f"    {xml}", file=f)
+                seen.add(camcops_name)
             except ConceptNotFound:
                 if continue_on_error:
                     log.error(f"Could not find: {sname!r}, {stype!r}")
                 else:
                     raise
-            xml = get_xml(camcops_name, concept)
-            print(f"    {xml}", file=f)
-            seen.add(camcops_name)
         print(XML_FOOTER, file=f)
     missing = set(possible_names) - seen
     if missing:
