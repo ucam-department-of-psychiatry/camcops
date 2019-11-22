@@ -136,7 +136,7 @@ INSTALL_REQUIRES = [
     'Wand==0.4.4',  # ImageMagick binding
 
     # Moved to end to fix openpyxl mismatch
-    'cardinal_pythonlib==1.0.81',  # RNC libraries
+    'cardinal_pythonlib==1.0.82',  # RNC libraries
 ]
 
 
@@ -401,6 +401,7 @@ setup(
             'camcops_backup_mysql_database=cardinal_pythonlib.tools.backup_mysql_database:main',  # noqa
             'camcops_windows_service=camcops_server.camcops_windows_service:main',  # noqa
             'camcops_print_latest_github_version=camcops_server.tools.print_latest_github_version:main',  # noqa
+            'camcops_fetch_snomed_codes=camcops_server.tools.fetch_snomed_codes:main',  # noqa
         ],
     },
 )

@@ -125,6 +125,30 @@ See:
     :language: none
 
 
+.. _licence_snomed:
+
+SNOMED CT
+---------
+
+CamCOPS does not include SNOMED CT codes, but supports them if a local
+administrator is permitted to install them and does so. See :ref:`SNOMED CT
+<snomed>`.
+
+The licensing terms are reproduced here for convenience, but the original
+should be checked in all situations:
+
+..  literalinclude:: licence_snomed_ct.txt
+    :language: none
+
+Note that SNOMED International define a SNOMED CT identifier as:
+
+    "A unique integer identifier applied to each SNOMED CT component (Concept,
+    Description, or Relationship)."
+
+    (https://confluence.ihtsdotools.org/display/DOCGLOSS/SNOMED+CT+Identifier,
+    accessed 2019-11-21.)
+
+
 Sounds
 ------
 

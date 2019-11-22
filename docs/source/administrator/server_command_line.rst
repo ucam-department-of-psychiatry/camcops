@@ -55,6 +55,22 @@ Options:
     :language: none
 
 
+.. _camcops_fetch_snomed_codes:
+
+camcops_fetch_snomed_codes
+--------------------------
+
+Subject to you having the necessary permissions, and access to a SNOMED CT REST
+API server, this tool will help you find SNOMED CT codes relevant to CamCOPS.
+See :ref:`SNOMED CT coding <snomed>` and :ref:`SNOMED CT licensing
+<licence_snomed>`.
+
+Options:
+
+..  literalinclude:: camcops_fetch_snomed_codes_help.txt
+    :language: none
+
+
 .. _camcops_backup_mysql_database:
 
 camcops_backup_mysql_database
