@@ -155,12 +155,14 @@ camcops_server/cc_modules/cc_redcap.py
 """
 
 import csv
+import logging
 import os
 from typing import Dict, List, TYPE_CHECKING
 from unittest import mock
 
 from asteval import Interpreter, make_symbol_table
 from cardinal_pythonlib.datetimefunc import format_datetime
+from cardinal_pythonlib.logs import BraceStyleAdapter
 import pendulum
 import redcap
 from sqlalchemy.sql.schema import Column, ForeignKey
@@ -180,6 +182,9 @@ if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_exportmodels import ExportedTaskRedcap
     from camcops_server.cc_modules.cc_request import CamcopsRequest
     from camcops_server.cc_modules.cc_task import Task
+
+
+log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
 class RedcapRecord(Base):
@@ -293,6 +298,7 @@ class RedcapExporter(object):
         id_pair = id_pair_list[0]
 
         redcap_record_id = int(id_pair.split(",")[0])
+        log.info(f"Created new REDCap record {redcap_record_id}")
         redcap_record = RedcapRecord(
             redcap_record_id=redcap_record_id,
             which_idnum=idnum_object.which_idnum,
@@ -313,6 +319,7 @@ class RedcapExporter(object):
         # TODO: Catch RedcapError
         # Returns {'count': 1}
         self.project.import_records([record])
+        log.info(f"Updated REDCap record {redcap_record.redcap_record_id}")
 
         exported_task_redcap.redcap_record = redcap_record
 
