@@ -236,10 +236,17 @@ class RedcapExporter(object):
         exported_task = exported_task_redcap.exported_task
         task = exported_task.task
 
-        fieldmap = self.get_task_fieldmap(task)
+        fieldmap_filename = self.get_task_fieldmap_filename(task)
+        fieldmap = self.get_task_fieldmap(fieldmap_filename)
 
         # TODO: Check missing
-        instrument_name = fieldmap.pop("redcap_repeat_instrument")
+        instrument_name = fieldmap.pop("redcap_repeat_instrument", None)
+
+        if instrument_name is None:
+            raise RedcapExportException(
+                f"'redcap_repeat_instrument' is missing from {fieldmap_filename}"
+            )
+
         which_idnum = exported_task.recipient.primary_idnum
         idnum_object = task.patient.get_idnum_object(which_idnum)
         redcap_record = self._get_existing_record(idnum_object)
@@ -330,21 +337,11 @@ class RedcapExporter(object):
             .filter(RedcapRecord.idnum_value == idnum_object.idnum_value)
         ).first()
 
-    def get_task_fieldmap(self, task: "Task") -> Dict:
+    def get_task_fieldmap(self, filename: str) -> Dict:
         # TODO: Optimise this
 
         # redcap field, formula
         fieldmap = {}
-
-        fieldmap_dir = self.req.config.redcap_fieldmaps
-        if fieldmap_dir is None:
-            raise RedcapExportException(
-                "REDCAP_FIELDMAPS is not set in the config file"
-            )
-
-        # TODO: Check redcap_fieldmaps not None
-        filename = os.path.join(fieldmap_dir,
-                                f"{task.tablename}.csv")
 
         try:
             with open(filename) as csvfile:
@@ -357,6 +354,19 @@ class RedcapExporter(object):
             )
 
         return fieldmap
+
+    def get_task_fieldmap_filename(self, task: "Task") -> str:
+        fieldmap_dir = self.req.config.redcap_fieldmaps
+        if fieldmap_dir is None:
+            raise RedcapExportException(
+                "REDCAP_FIELDMAPS is not set in the config file"
+            )
+
+        # TODO: Check redcap_fieldmaps not None
+        filename = os.path.join(fieldmap_dir,
+                                f"{task.tablename}.csv")
+
+        return filename
 
 
 class TestRedcapExporter(RedcapExporter):

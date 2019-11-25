@@ -426,6 +426,7 @@ class BmiRedcapExportTests(BmiValidRedcapExportTestCase):
 
 
 class BmiRedcapMissingCsvTests(BmiRedcapExportTestCase):
+
     def create_tasks(self) -> None:
         patient = self.create_patient_with_idnum_1001()
         self.task = Bmi()
@@ -500,3 +501,33 @@ class BmiRedcapUpdateTests(BmiValidRedcapExportTestCase):
         record = rows[0]
 
         self.assertEquals(record["record_id"], 123)
+
+
+class BmiRedcapMissingInstrumentTests(BmiRedcapExportTestCase):
+    fieldmap_filename = "bmi.csv"
+    fieldmap_rows = []
+
+    def create_tasks(self) -> None:
+        patient = self.create_patient_with_idnum_1001()
+        self.task = Bmi()
+        self.apply_standard_task_fields(self.task)
+        self.task.id = next(self.id_sequence)
+        self.task.patient_id = patient.id
+        self.dbsession.add(self.task)
+
+    def test_raises_when_instrument_missing(self):
+        from camcops_server.cc_modules.cc_exportmodels import (
+            ExportedTask,
+            ExportedTaskRedcap,
+        )
+        exporter = TestRedcapExporter(self.req)
+
+        exported_task = ExportedTask(task=self.task)
+        exported_task_redcap = ExportedTaskRedcap(exported_task)
+
+        with self.assertRaises(RedcapExportException) as cm:
+            exporter.export_task(exported_task_redcap)
+
+        message = str(cm.exception)
+        self.assertIn("'redcap_repeat_instrument' is missing from", message)
+        self.assertIn("bmi.csv", message)
