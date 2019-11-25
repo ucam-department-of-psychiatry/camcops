@@ -379,7 +379,11 @@ class RedcapExporter(object):
                 "REDCAP_FIELDMAPS is not set in the config file"
             )
 
-        # TODO: Check redcap_fieldmaps not None
+        if fieldmap_dir == "":
+            raise RedcapExportException(
+                "REDCAP_FIELDMAPS is empty in the config file"
+            )
+
         filename = os.path.join(fieldmap_dir,
                                 f"{task.tablename}.csv")
 
@@ -451,7 +455,7 @@ class RedcapExportTestCase(DemoDatabaseTestCase):
         return patient
 
 
-class RedcapExportInvalidFieldmapTests(TestCase):
+class RedcapExportErrorTests(TestCase):
     def test_raises_when_fieldmap_has_unknown_symbols(self):
         exporter = TestRedcapExporter(None)
         exporter.fieldmap_filename = "bmi.csv"
@@ -468,3 +472,15 @@ class RedcapExportInvalidFieldmapTests(TestCase):
         self.assertIn("Error in formula 'sys.platform':", message)
         self.assertIn("bmi.csv", message)
         self.assertIn("'sys' is not defined", message)
+
+    def test_raises_when_fieldmap_missing_from_config(self):
+        config = mock.Mock(redcap_fieldmaps="")
+        request = mock.Mock(config=config)
+        task = mock.Mock()
+
+        exporter = TestRedcapExporter(request)
+        with self.assertRaises(RedcapExportException) as cm:
+            exporter.get_task_fieldmap_filename(task)
+
+        message = str(cm.exception)
+        self.assertIn("REDCAP_FIELDMAPS is empty in the config file", message)
