@@ -233,9 +233,6 @@ class RedcapExporter(object):
         self.project = redcap.project.Project(api_url, api_key)
 
     def export_task(self, exported_task_redcap: "ExportedTaskRedcap") -> None:
-        import ipdb
-        ipdb.set_trace()
-
         exported_task = exported_task_redcap.exported_task
         task = exported_task.task
 
