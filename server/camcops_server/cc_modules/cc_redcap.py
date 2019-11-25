@@ -239,12 +239,12 @@ class RedcapExporter(object):
         fieldmap_filename = self.get_task_fieldmap_filename(task)
         fieldmap = self.get_task_fieldmap(fieldmap_filename)
 
-        # TODO: Check missing
         instrument_name = fieldmap.pop("redcap_repeat_instrument", None)
 
         if instrument_name is None:
             raise RedcapExportException(
-                f"'redcap_repeat_instrument' is missing from {fieldmap_filename}"
+                (f"'redcap_repeat_instrument' is missing from "
+                 f"{fieldmap_filename}")
             )
 
         which_idnum = exported_task.recipient.primary_idnum
@@ -256,18 +256,29 @@ class RedcapExporter(object):
         if task.is_complete():
             complete_status = self.COMPLETE
 
-        symbol_table = make_symbol_table(
-            task=task,
-            format_datetime=format_datetime,
-            DateFormat=DateFormat,
-        )
-        interpreter = Interpreter(symtable=symbol_table)
-
         record = {
             "redcap_repeat_instrument": instrument_name,
             f"{instrument_name}_complete": complete_status,
 
         }
+
+        self.add_task_fields_to_record(record, task, fieldmap)
+
+        if redcap_record is None:
+            return self._import_record(exported_task_redcap, record,
+                                       idnum_object)
+
+        return self._update_record(exported_task_redcap, record, redcap_record)
+
+    def add_task_fields_to_record(self, record: Dict,
+                                  task: "Task", fieldmap: Dict) -> None:
+        extra_symbols = self.get_extra_symbols()
+
+        symbol_table = make_symbol_table(
+            task=task,
+            **extra_symbols
+        )
+        interpreter = Interpreter(symtable=symbol_table)
 
         # TODO: Some safety checks here:
         #
@@ -278,11 +289,11 @@ class RedcapExporter(object):
             v = interpreter(f"{formula}")
             record[redcap_field] = v
 
-        if redcap_record is None:
-            return self._import_record(exported_task_redcap, record,
-                                       idnum_object)
-
-        return self._update_record(exported_task_redcap, record, redcap_record)
+    def get_extra_symbols(self):
+        return dict(
+            format_datetime=format_datetime,
+            DateFormat=DateFormat,
+        )
 
     def _import_record(self,
                        exported_task_redcap: "ExportedTaskRedcap",
