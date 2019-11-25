@@ -302,6 +302,7 @@ class RedcapExporter(object):
             idnum_value=idnum_object.idnum_value
         )
         self.req.dbsession.add(redcap_record)
+        self.req.dbsession.commit()
 
         exported_task_redcap.redcap_record = redcap_record
 
