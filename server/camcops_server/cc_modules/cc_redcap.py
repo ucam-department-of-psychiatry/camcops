@@ -158,7 +158,7 @@ import csv
 import logging
 import os
 from typing import Dict, List, TYPE_CHECKING
-from unittest import mock
+from unittest import mock, TestCase
 
 from asteval import Interpreter, make_symbol_table
 from cardinal_pythonlib.datetimefunc import format_datetime
@@ -236,15 +236,15 @@ class RedcapExporter(object):
         exported_task = exported_task_redcap.exported_task
         task = exported_task.task
 
-        fieldmap_filename = self.get_task_fieldmap_filename(task)
-        fieldmap = self.get_task_fieldmap(fieldmap_filename)
+        self.fieldmap_filename = self.get_task_fieldmap_filename(task)
+        fieldmap = self.get_task_fieldmap(self.fieldmap_filename)
 
         instrument_name = fieldmap.pop("redcap_repeat_instrument", None)
 
         if instrument_name is None:
             raise RedcapExportException(
                 (f"'redcap_repeat_instrument' is missing from "
-                 f"{fieldmap_filename}")
+                 f"{self.fieldmap_filename}")
             )
 
         which_idnum = exported_task.recipient.primary_idnum
@@ -259,7 +259,6 @@ class RedcapExporter(object):
         record = {
             "redcap_repeat_instrument": instrument_name,
             f"{instrument_name}_complete": complete_status,
-
         }
 
         self.add_task_fields_to_record(record, task, fieldmap)
@@ -285,8 +284,15 @@ class RedcapExporter(object):
         # Check redcap_field is in the data dictionary...
         #
         for redcap_field, formula in fieldmap.items():
-            # TODO: show_errors=False and check errors after execution
-            v = interpreter(f"{formula}")
+            v = interpreter(f"{formula}", show_errors=True)
+            if interpreter.error:
+                message = "\n".join([e.msg for e in interpreter.error])
+                raise RedcapExportException(
+                    (
+                        f"Fieldmap '{self.fieldmap_filename}':\n"
+                        f"Error in formula '{formula}': {message}"
+                    )
+                )
             record[redcap_field] = v
 
     def get_extra_symbols(self):
@@ -443,3 +449,22 @@ class RedcapExportTestCase(DemoDatabaseTestCase):
         self.dbsession.commit()
 
         return patient
+
+
+class RedcapExportInvalidFieldmapTests(TestCase):
+    def test_raises_when_fieldmap_has_unknown_symbols(self):
+        exporter = TestRedcapExporter(None)
+        exporter.fieldmap_filename = "bmi.csv"
+
+        task = mock.Mock(tablename="bmi")
+        fieldmap = {"pa_height": "sys.platform"}
+
+        record = {}
+
+        with self.assertRaises(RedcapExportException) as cm:
+            exporter.add_task_fields_to_record(record, task, fieldmap)
+
+        message = str(cm.exception)
+        self.assertIn("Error in formula 'sys.platform':", message)
+        self.assertIn("bmi.csv", message)
+        self.assertIn("'sys' is not defined", message)

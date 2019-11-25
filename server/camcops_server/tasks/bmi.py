@@ -27,6 +27,7 @@ camcops_server/tasks/bmi.py
 """
 
 from typing import Generator, List, Optional
+from unittest import mock
 
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.schema import Column
@@ -508,12 +509,7 @@ class BmiRedcapMissingInstrumentTests(BmiRedcapExportTestCase):
     fieldmap_rows = []
 
     def create_tasks(self) -> None:
-        patient = self.create_patient_with_idnum_1001()
-        self.task = Bmi()
-        self.apply_standard_task_fields(self.task)
-        self.task.id = next(self.id_sequence)
-        self.task.patient_id = patient.id
-        self.dbsession.add(self.task)
+        pass
 
     def test_raises_when_instrument_missing(self):
         from camcops_server.cc_modules.cc_exportmodels import (
@@ -522,7 +518,9 @@ class BmiRedcapMissingInstrumentTests(BmiRedcapExportTestCase):
         )
         exporter = TestRedcapExporter(self.req)
 
-        exported_task = ExportedTask(task=self.task)
+        task = mock.Mock(tablename='bmi')
+
+        exported_task = ExportedTask(task=task)
         exported_task_redcap = ExportedTaskRedcap(exported_task)
 
         with self.assertRaises(RedcapExportException) as cm:
