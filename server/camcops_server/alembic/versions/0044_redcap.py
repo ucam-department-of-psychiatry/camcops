@@ -30,7 +30,7 @@ redcap
 
 Revision ID: 0044
 Revises: 0043
-Creation date: 2019-11-22 17:59:21.810857
+Creation date: 2019-11-25 15:06:43.988209
 
 """
 
@@ -62,8 +62,8 @@ depends_on = None
 def upgrade():
     op.create_table(
         '_redcap_record',
-        sa.Column('id', sa.BigInteger(), autoincrement=True, nullable=False, comment='Arbitrary primary key'),
-        sa.Column('redcap_record_id', sa.BigInteger(), nullable=True, comment='REDCap record ID'),
+        sa.Column('id', sa.Integer(), autoincrement=True, nullable=False, comment='Arbitrary primary key'),
+        sa.Column('redcap_record_id', sa.Integer(), nullable=True, comment='REDCap record ID'),
         sa.Column('which_idnum', sa.Integer(), nullable=False, comment="Which of the server's ID numbers is this?"),
         sa.Column('idnum_value', sa.BigInteger(), nullable=True, comment='The value of the ID number'),
         sa.ForeignKeyConstraint(['which_idnum'], ['_idnum_definitions.which_idnum'], name=op.f('fk__redcap_record_which_idnum')),
@@ -75,9 +75,9 @@ def upgrade():
 
     op.create_table(
         '_exported_task_redcap',
-        sa.Column('id', sa.BigInteger(), autoincrement=True, nullable=False, comment='Arbitrary primary key'),
+        sa.Column('id', sa.Integer(), autoincrement=True, nullable=False, comment='Arbitrary primary key'),
         sa.Column('exported_task_id', sa.BigInteger(), nullable=False, comment='FK to _exported_tasks.id'),
-        sa.Column('redcap_record_id', sa.BigInteger(), nullable=True, comment='FK to _redcap_record.id'),
+        sa.Column('redcap_record_id', sa.Integer(), nullable=True, comment='FK to _redcap_record.id'),
         sa.ForeignKeyConstraint(['exported_task_id'], ['_exported_tasks.id'], name=op.f('fk__exported_task_redcap_exported_task_id')),
         sa.ForeignKeyConstraint(['redcap_record_id'], ['_redcap_record.id'], name=op.f('fk__exported_task_redcap_redcap_record_id')),
         sa.PrimaryKeyConstraint('id', name=op.f('pk__exported_task_redcap')),

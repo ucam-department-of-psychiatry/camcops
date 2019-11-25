@@ -194,12 +194,12 @@ class RedcapRecord(Base):
     __tablename__ = "_redcap_record"
 
     id = Column(
-        "id", BigInteger, primary_key=True, autoincrement=True,
+        "id", Integer, primary_key=True, autoincrement=True,
         comment="Arbitrary primary key"
     )
 
     redcap_record_id = Column(
-        "redcap_record_id", BigInteger,
+        "redcap_record_id", Integer,
         comment="REDCap record ID"
     )
 

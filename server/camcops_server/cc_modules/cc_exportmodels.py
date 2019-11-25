@@ -1114,7 +1114,7 @@ class ExportedTaskRedcap(Base):
     __tablename__ = "_exported_task_redcap"
 
     id = Column(
-        "id", BigInteger, primary_key=True, autoincrement=True,
+        "id", Integer, primary_key=True, autoincrement=True,
         comment="Arbitrary primary key"
     )
     exported_task_id = Column(
@@ -1127,7 +1127,7 @@ class ExportedTaskRedcap(Base):
     exported_task = relationship(ExportedTask)
 
     redcap_record_id = Column(
-        "redcap_record_id", BigInteger, ForeignKey(RedcapRecord.id),
+        "redcap_record_id", Integer, ForeignKey(RedcapRecord.id),
         comment="FK to {}.{}".format(RedcapRecord.__tablename__,
                                      RedcapRecord.id.name)
     )
