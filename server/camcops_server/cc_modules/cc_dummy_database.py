@@ -147,7 +147,11 @@ class DummyDataFactory(object):
         self.apply_standard_db_fields(patient_idnum)
         patient_idnum.patient_id = patient_id
         patient_idnum.which_idnum = self.nhs_iddef.which_idnum
+
+        # Always create the same NHS number for each patient
+        random.seed(patient_id)
         patient_idnum.idnum_value = generate_random_nhs_number()
+        random.seed()
 
         self.dbsession.add(patient_idnum)
 
