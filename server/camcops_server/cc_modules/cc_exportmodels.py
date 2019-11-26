@@ -1145,13 +1145,13 @@ class ExportedTaskRedcap(Base):
         exported_task = self.exported_task
         recipient = exported_task.recipient
 
-        exporter = RedcapExporter(
-            req,
-            recipient.redcap_api_url,
-            recipient.redcap_api_key
-        )
-
         try:
+            exporter = RedcapExporter(
+                req,
+                recipient.redcap_api_url,
+                recipient.redcap_api_key
+            )
+
             exporter.export_task(self)
             exported_task.succeed()
         except RedcapExportException as e:

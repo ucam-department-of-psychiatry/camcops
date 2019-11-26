@@ -231,8 +231,10 @@ class RedcapExporter(object):
                  api_key: str) -> None:
         self.req = req
 
-        # TODO: Catch RedcapError (eg invalid API Key)
-        self.project = redcap.project.Project(api_url, api_key)
+        try:
+            self.project = redcap.project.Project(api_url, api_key)
+        except redcap.RedcapError as e:
+            raise RedcapExportException(str(e))
 
     def export_task(self, exported_task_redcap: "ExportedTaskRedcap") -> None:
         exported_task = exported_task_redcap.exported_task
@@ -311,7 +313,6 @@ class RedcapExporter(object):
         # but has to be present
         record["record_id"] = 0
 
-        # TODO: Catch RedcapError
         # Returns [redcap record id, 0]
         try:
             id_pair_list = self.project.import_records(
@@ -531,3 +532,18 @@ class RedcapExportErrorTests(TestCase):
         message = str(cm.exception)
 
         self.assertIn("Something went wrong", message)
+
+    def test_raises_when_error_from_redcap_on_init(self):
+        with mock.patch("redcap.project.Project.__init__") as mock_init:
+            mock_init.side_effect = redcap.RedcapError(
+                "Something went wrong"
+            )
+
+            with self.assertRaises(RedcapExportException) as cm:
+                req = mock.Mock()
+                api_url = api_key = ""
+                RedcapExporter(req, api_url, api_key)
+
+            message = str(cm.exception)
+
+            self.assertIn("Something went wrong", message)
