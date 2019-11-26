@@ -345,7 +345,11 @@ class RedcapExporter(object):
 
         # TODO: Catch RedcapError
         # Returns {'count': 1}
-        self.project.import_records([record])
+        try:
+            self.project.import_records([record])
+        except redcap.RedcapError as e:
+            raise RedcapExportException(str(e))
+
         log.info(f"Updated REDCap record {redcap_record.redcap_record_id}")
 
         exported_task_redcap.redcap_record = redcap_record
@@ -505,6 +509,25 @@ class RedcapExportErrorTests(TestCase):
             exporter._import_record(exported_task_redcap,
                                     record,
                                     idnum_object)
+        message = str(cm.exception)
+
+        self.assertIn("Something went wrong", message)
+
+    def test_raises_when_error_from_redcap_on_update(self):
+        req = mock.Mock()
+        exporter = TestRedcapExporter(req)
+        exporter.project.import_records.side_effect = redcap.RedcapError(
+            "Something went wrong"
+        )
+
+        exported_task_redcap = mock.Mock()
+        record = {}
+        redcap_record = mock.Mock()
+
+        with self.assertRaises(RedcapExportException) as cm:
+            exporter._update_record(exported_task_redcap,
+                                    record,
+                                    redcap_record)
         message = str(cm.exception)
 
         self.assertIn("Something went wrong", message)
