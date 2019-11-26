@@ -39,6 +39,7 @@ from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_redcap import (
     RedcapExportException,
     RedcapExportTestCase,
+    RedcapRecord,
     TestRedcapExporter,
 )
 from camcops_server.cc_modules.cc_request import CamcopsRequest
@@ -424,6 +425,45 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
 
         self.assertEquals(kwargs["return_content"], "auto_ids")
         self.assertTrue(kwargs["force_auto_number"])
+
+    def test_matching_redcap_id_from_other_recipient_ignored(self) -> None:
+        from camcops_server.cc_modules.cc_exportmodels import (
+            ExportedTask,
+            ExportedTaskRedcap
+        )
+        from camcops_server.cc_modules.cc_exportrecipient import (
+            ExportRecipient
+        )
+        from camcops_server.cc_modules.cc_exportrecipientinfo import (
+            ExportRecipientInfo
+        )
+
+        other_recipientinfo = ExportRecipientInfo()
+        other_recipient = ExportRecipient(other_recipientinfo)
+        other_recipient.primary_idnum = self.recipient.primary_idnum
+        # auto increment doesn't work for BigInteger with SQLite
+        other_recipient.id = 2
+
+        self.dbsession.add(other_recipient)
+        self.dbsession.commit()
+
+        # Create an existing record for the same patient but for a different
+        # REDCap instance (different export recipient)
+        redcap_record = RedcapRecord(redcap_record_id=123, which_idnum=1001,
+                                     idnum_value=555, recipient=other_recipient)
+        self.dbsession.add(redcap_record)
+        self.dbsession.commit()
+
+        exported_task = ExportedTask(task=self.task, recipient=self.recipient)
+        exported_task_redcap = ExportedTaskRedcap(exported_task)
+
+        exporter = TestRedcapExporter(self.req)
+        exporter.project.import_records.return_value = ["456,0"]
+        exporter.export_task(exported_task_redcap)
+
+        # Would be 123 if the existing record was not ignored
+        self.assertEquals(exported_task_redcap.redcap_record.redcap_record_id,
+                          456)
 
 
 class BmiRedcapMissingCsvTests(BmiRedcapExportTestCase):

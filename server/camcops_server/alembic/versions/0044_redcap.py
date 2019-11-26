@@ -30,7 +30,7 @@ redcap
 
 Revision ID: 0044
 Revises: 0043
-Creation date: 2019-11-25 15:06:43.988209
+Creation date: 2019-11-26 14:52:08.437862
 
 """
 
@@ -66,6 +66,8 @@ def upgrade():
         sa.Column('redcap_record_id', sa.Integer(), nullable=True, comment='REDCap record ID'),
         sa.Column('which_idnum', sa.Integer(), nullable=False, comment="Which of the server's ID numbers is this?"),
         sa.Column('idnum_value', sa.BigInteger(), nullable=True, comment='The value of the ID number'),
+        sa.Column('recipient_id', sa.BigInteger(), nullable=False, comment='FK to _export_recipients.id'),
+        sa.ForeignKeyConstraint(['recipient_id'], ['_export_recipients.id'], name=op.f('fk__redcap_record_recipient_id')),
         sa.ForeignKeyConstraint(['which_idnum'], ['_idnum_definitions.which_idnum'], name=op.f('fk__redcap_record_which_idnum')),
         sa.PrimaryKeyConstraint('id', name=op.f('pk__redcap_record')),
         mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
@@ -85,6 +87,7 @@ def upgrade():
         mysql_engine='InnoDB',
         mysql_row_format='DYNAMIC'
     )
+
 
 def downgrade():
     op.drop_table('_exported_task_redcap')

@@ -165,6 +165,7 @@ from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import pendulum
 import redcap
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import BigInteger, Integer
 
@@ -215,6 +216,14 @@ class RedcapRecord(Base):
         comment="The value of the ID number"
     )
 
+    recipient_id = Column(
+        "recipient_id", BigInteger, ForeignKey(ExportRecipient.id),
+        nullable=False,
+        comment="FK to {}.{}".format(ExportRecipient.__tablename__,
+                                     ExportRecipient.id.name)
+    )
+    recipient = relationship(ExportRecipient)
+
 
 class RedcapExportException(Exception):
     pass
@@ -253,7 +262,8 @@ class RedcapExporter(object):
 
         which_idnum = exported_task.recipient.primary_idnum
         idnum_object = task.patient.get_idnum_object(which_idnum)
-        redcap_record = self._get_existing_record(idnum_object)
+        redcap_record = self._get_existing_record(idnum_object,
+                                                  exported_task.recipient)
 
         complete_status = self.INCOMPLETE
 
@@ -269,7 +279,7 @@ class RedcapExporter(object):
 
         if redcap_record is None:
             return self._import_record(exported_task_redcap, record,
-                                       idnum_object)
+                                       idnum_object, exported_task.recipient)
 
         return self._update_record(exported_task_redcap, record, redcap_record)
 
@@ -304,7 +314,8 @@ class RedcapExporter(object):
     def _import_record(self,
                        exported_task_redcap: "ExportedTaskRedcap",
                        record: Dict,
-                       idnum_object: "PatientIdNum") -> None:
+                       idnum_object: "PatientIdNum",
+                       recipient: "ExportRecipient") -> None:
         # redcap_record_id will be ignored if force_auto_number is True
         # but has to be present
         record["record_id"] = 0
@@ -325,7 +336,8 @@ class RedcapExporter(object):
         redcap_record = RedcapRecord(
             redcap_record_id=redcap_record_id,
             which_idnum=idnum_object.which_idnum,
-            idnum_value=idnum_object.idnum_value
+            idnum_value=idnum_object.idnum_value,
+            recipient=recipient
         )
         self.req.dbsession.add(redcap_record)
         self.req.dbsession.commit()
@@ -348,11 +360,13 @@ class RedcapExporter(object):
 
         exported_task_redcap.redcap_record = redcap_record
 
-    def _get_existing_record(self, idnum_object: PatientIdNum) -> int:
+    def _get_existing_record(self, idnum_object: PatientIdNum,
+                             recipient: "ExportRecipient") -> int:
         return (
             self.req.dbsession.query(RedcapRecord)
             .filter(RedcapRecord.which_idnum == idnum_object.which_idnum)
             .filter(RedcapRecord.idnum_value == idnum_object.idnum_value)
+            .filter(RedcapRecord.recipient == recipient)
         ).first()
 
     def get_task_fieldmap(self, filename: str) -> Dict:
@@ -411,6 +425,9 @@ class RedcapExportTestCase(DemoDatabaseTestCase):
 
         self.recipient = ExportRecipient(recipientinfo)
         self.recipient.primary_idnum = 1001
+
+        # auto increment doesn't work for BigInteger with SQLite
+        self.recipient.id = 1
 
         super().setUp()
 
@@ -494,11 +511,13 @@ class RedcapExportErrorTests(TestCase):
         exported_task_redcap = mock.Mock()
         record = {}
         idnum_object = mock.Mock()
+        recipient = mock.Mock()
 
         with self.assertRaises(RedcapExportException) as cm:
             exporter._import_record(exported_task_redcap,
                                     record,
-                                    idnum_object)
+                                    idnum_object,
+                                    recipient)
         message = str(cm.exception)
 
         self.assertIn("Something went wrong", message)
