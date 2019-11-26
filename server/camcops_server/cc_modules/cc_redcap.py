@@ -283,10 +283,6 @@ class RedcapExporter(object):
         )
         interpreter = Interpreter(symtable=symbol_table)
 
-        # TODO: Some safety checks here:
-        #
-        # Check redcap_field is in the data dictionary...
-        #
         for redcap_field, formula in fieldmap.items():
             v = interpreter(f"{formula}", show_errors=True)
             if interpreter.error:
@@ -336,15 +332,12 @@ class RedcapExporter(object):
 
         exported_task_redcap.redcap_record = redcap_record
 
-        # TODO: Return some sort of meaningful status
-
     def _update_record(self,
                        exported_task_redcap: "ExportedTaskRedcap",
                        record: Dict,
                        redcap_record: "RedcapRecord") -> None:
         record["record_id"] = redcap_record.redcap_record_id
 
-        # TODO: Catch RedcapError
         # Returns {'count': 1}
         try:
             self.project.import_records([record])
@@ -355,8 +348,6 @@ class RedcapExporter(object):
 
         exported_task_redcap.redcap_record = redcap_record
 
-        # TODO: Return some sort of meaningful status
-
     def _get_existing_record(self, idnum_object: PatientIdNum) -> int:
         return (
             self.req.dbsession.query(RedcapRecord)
@@ -365,8 +356,6 @@ class RedcapExporter(object):
         ).first()
 
     def get_task_fieldmap(self, filename: str) -> Dict:
-        # TODO: Optimise this
-
         # redcap field, formula
         fieldmap = {}
 
