@@ -230,6 +230,8 @@ class RedcapExporter(object):
                  api_url: str,
                  api_key: str) -> None:
         self.req = req
+
+        # TODO: Catch RedcapError (eg invalid API Key)
         self.project = redcap.project.Project(api_url, api_key)
 
     def export_task(self, exported_task_redcap: "ExportedTaskRedcap") -> None:
@@ -311,10 +313,13 @@ class RedcapExporter(object):
 
         # TODO: Catch RedcapError
         # Returns [redcap record id, 0]
-        id_pair_list = self.project.import_records(
-            [record],
-            return_content="auto_ids", force_auto_number=True,
-        )
+        try:
+            id_pair_list = self.project.import_records(
+                [record],
+                return_content="auto_ids", force_auto_number=True,
+            )
+        except redcap.RedcapError as e:
+            raise RedcapExportException(str(e))
 
         id_pair = id_pair_list[0]
 

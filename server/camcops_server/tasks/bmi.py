@@ -26,6 +26,7 @@ camcops_server/tasks/bmi.py
 
 """
 
+from redcap import RedcapError
 from typing import Generator, List, Optional
 from unittest import mock
 
@@ -371,7 +372,7 @@ class BmiRedcapExportTestCase(RedcapExportTestCase):
             i += 1
 
 
-class BmiValidRedcapExportTestCase(BmiRedcapExportTestCase):
+class BmiRedcapValidFieldmapTestCase(BmiRedcapExportTestCase):
     fieldmap_filename = "bmi.csv"
     fieldmap_rows = [
         ["pa_height", "format(task.height_m, '.1f')"],
@@ -382,7 +383,7 @@ class BmiValidRedcapExportTestCase(BmiRedcapExportTestCase):
     ]
 
 
-class BmiRedcapExportTests(BmiValidRedcapExportTestCase):
+class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
     def create_tasks(self) -> None:
         patient = self.create_patient_with_idnum_1001()
         self.task = Bmi()
@@ -425,9 +426,29 @@ class BmiRedcapExportTests(BmiValidRedcapExportTestCase):
         self.assertEquals(kwargs["return_content"], "auto_ids")
         self.assertTrue(kwargs["force_auto_number"])
 
+    def test_raises_when_error_from_redcap(self):
+        from camcops_server.cc_modules.cc_exportmodels import (
+            ExportedTask,
+            ExportedTaskRedcap,
+        )
+
+        exported_task = ExportedTask(task=self.task, recipient=self.recipient)
+        exported_task_redcap = ExportedTaskRedcap(exported_task)
+
+        exporter = TestRedcapExporter(self.req)
+        exporter.project.import_records.side_effect = RedcapError(
+            "Something went wrong"
+        )
+
+        with self.assertRaises(RedcapExportException) as cm:
+            exporter.export_task(exported_task_redcap)
+
+        message = str(cm.exception)
+
+        self.assertIn("Something went wrong", message)
+
 
 class BmiRedcapMissingCsvTests(BmiRedcapExportTestCase):
-
     def create_tasks(self) -> None:
         patient = self.create_patient_with_idnum_1001()
         self.task = Bmi()
@@ -456,7 +477,7 @@ class BmiRedcapMissingCsvTests(BmiRedcapExportTestCase):
         self.assertIn("bmi.csv", message)
 
 
-class BmiRedcapUpdateTests(BmiValidRedcapExportTestCase):
+class BmiRedcapUpdateTests(BmiRedcapValidFieldmapTestCase):
     def create_tasks(self) -> None:
         patient = self.create_patient_with_idnum_1001()
         self.task1 = Bmi()
