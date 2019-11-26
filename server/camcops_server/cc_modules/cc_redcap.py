@@ -489,3 +489,22 @@ class RedcapExportErrorTests(TestCase):
 
         message = str(cm.exception)
         self.assertIn("REDCAP_FIELDMAPS is empty in the config file", message)
+
+    def test_raises_when_error_from_redcap_on_import(self):
+        req = mock.Mock()
+        exporter = TestRedcapExporter(req)
+        exporter.project.import_records.side_effect = redcap.RedcapError(
+            "Something went wrong"
+        )
+
+        exported_task_redcap = mock.Mock()
+        record = {}
+        idnum_object = mock.Mock()
+
+        with self.assertRaises(RedcapExportException) as cm:
+            exporter._import_record(exported_task_redcap,
+                                    record,
+                                    idnum_object)
+        message = str(cm.exception)
+
+        self.assertIn("Something went wrong", message)

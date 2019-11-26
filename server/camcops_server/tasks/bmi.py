@@ -26,7 +26,6 @@ camcops_server/tasks/bmi.py
 
 """
 
-from redcap import RedcapError
 from typing import Generator, List, Optional
 from unittest import mock
 
@@ -425,27 +424,6 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
 
         self.assertEquals(kwargs["return_content"], "auto_ids")
         self.assertTrue(kwargs["force_auto_number"])
-
-    def test_raises_when_error_from_redcap(self):
-        from camcops_server.cc_modules.cc_exportmodels import (
-            ExportedTask,
-            ExportedTaskRedcap,
-        )
-
-        exported_task = ExportedTask(task=self.task, recipient=self.recipient)
-        exported_task_redcap = ExportedTaskRedcap(exported_task)
-
-        exporter = TestRedcapExporter(self.req)
-        exporter.project.import_records.side_effect = RedcapError(
-            "Something went wrong"
-        )
-
-        with self.assertRaises(RedcapExportException) as cm:
-            exporter.export_task(exported_task_redcap)
-
-        message = str(cm.exception)
-
-        self.assertIn("Something went wrong", message)
 
 
 class BmiRedcapMissingCsvTests(BmiRedcapExportTestCase):
