@@ -363,7 +363,7 @@ class RedcapExporter(object):
             with open(filename) as csvfile:
                 reader = csv.DictReader(csvfile)
                 for row in reader:
-                    fieldmap[row['redcap_field_name']] = row['formula']
+                    fieldmap[row['redcap_fieldname']] = row['formula']
         except FileNotFoundError:
             raise RedcapExportException(
                 f"Unable to open fieldmap file '{filename}'"
@@ -422,7 +422,7 @@ class RedcapExportTestCase(DemoDatabaseTestCase):
             writer = csv.writer(csvfile)
 
             rows = [
-                ["redcap_field_name", "formula"],
+                ["redcap_fieldname", "formula"],
             ] + self.fieldmap_rows
 
             for row in rows:
