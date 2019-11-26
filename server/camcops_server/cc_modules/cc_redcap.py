@@ -154,11 +154,11 @@ camcops_server/cc_modules/cc_redcap.py
 
 """
 
-import csv
 import logging
 import os
 from typing import Dict, List, TYPE_CHECKING
 from unittest import mock, TestCase
+import xml.etree.cElementTree as ET
 
 from asteval import Interpreter, make_symbol_table
 from cardinal_pythonlib.datetimefunc import format_datetime
@@ -229,6 +229,37 @@ class RedcapExportException(Exception):
     pass
 
 
+class RedcapFieldmap(object):
+    def __init__(self, *args, **kwargs):
+        self.fieldmap = {}
+        self.file_fieldmap = {}
+        self.instrument_name = ""
+
+    def init_from_file(self, filename: str):
+        parser = ET.XMLParser(encoding="UTF-8")
+        try:
+            tree = ET.parse(filename, parser=parser)
+        except FileNotFoundError:
+            raise RedcapExportException(
+                f"Unable to open fieldmap file '{filename}'"
+            )
+
+        root = tree.getroot()
+        instrument = root.find("instrument")
+        if instrument is None:
+            raise RedcapExportException(
+                (f"'instrument' is missing from "
+                 f"{self.fieldmap_filename}")
+            )
+
+        self.instrument_name = instrument.get("name")
+
+        fields = instrument.find("fields")
+
+        for field in fields:
+            self.fieldmap[field.get("name")] = field.get("formula")
+
+
 class RedcapExporter(object):
     INCOMPLETE = 0
     UNVERIFIED = 1
@@ -250,9 +281,9 @@ class RedcapExporter(object):
         task = exported_task.task
 
         self.fieldmap_filename = self.get_task_fieldmap_filename(task)
-        fieldmap = self.get_task_fieldmap(self.fieldmap_filename)
+        self.fieldmap = self.get_task_fieldmap(self.fieldmap_filename)
 
-        instrument_name = fieldmap.pop("redcap_repeat_instrument", None)
+        instrument_name = self.fieldmap.instrument_name
 
         if instrument_name is None:
             raise RedcapExportException(
@@ -275,7 +306,7 @@ class RedcapExporter(object):
             f"{instrument_name}_complete": complete_status,
         }
 
-        self.add_task_fields_to_record(record, task, fieldmap)
+        self.add_task_fields_to_record(record, task)
 
         if redcap_record is None:
             return self._import_record(exported_task_redcap, record,
@@ -283,8 +314,7 @@ class RedcapExporter(object):
 
         return self._update_record(exported_task_redcap, record, redcap_record)
 
-    def add_task_fields_to_record(self, record: Dict,
-                                  task: "Task", fieldmap: Dict) -> None:
+    def add_task_fields_to_record(self, record: Dict, task: "Task") -> None:
         extra_symbols = self.get_extra_symbols()
 
         symbol_table = make_symbol_table(
@@ -293,7 +323,7 @@ class RedcapExporter(object):
         )
         interpreter = Interpreter(symtable=symbol_table)
 
-        for redcap_field, formula in fieldmap.items():
+        for redcap_field, formula in self.fieldmap.fieldmap.items():
             v = interpreter(f"{formula}", show_errors=True)
             if interpreter.error:
                 message = "\n".join([e.msg for e in interpreter.error])
@@ -371,18 +401,8 @@ class RedcapExporter(object):
         ).first()
 
     def get_task_fieldmap(self, filename: str) -> Dict:
-        # redcap field, formula
-        fieldmap = {}
-
-        try:
-            with open(filename) as csvfile:
-                reader = csv.DictReader(csvfile)
-                for row in reader:
-                    fieldmap[row['redcap_fieldname']] = row['formula']
-        except FileNotFoundError:
-            raise RedcapExportException(
-                f"Unable to open fieldmap file '{filename}'"
-            )
+        fieldmap = RedcapFieldmap()
+        fieldmap.init_from_file(filename)
 
         return fieldmap
 
@@ -399,7 +419,7 @@ class RedcapExporter(object):
             )
 
         filename = os.path.join(fieldmap_dir,
-                                f"{task.tablename}.csv")
+                                f"{task.tablename}.xml")
 
         return filename
 
@@ -436,15 +456,8 @@ class RedcapExportTestCase(DemoDatabaseTestCase):
         fieldmap = os.path.join(self.tmpdir_obj.name,
                                 self.fieldmap_filename)
 
-        with open(fieldmap, "w") as csvfile:
-            writer = csv.writer(csvfile)
-
-            rows = [
-                ["redcap_fieldname", "formula"],
-            ] + self.fieldmap_rows
-
-            for row in rows:
-                writer.writerow(row)
+        with open(fieldmap, "w") as f:
+            f.write(self.fieldmap_xml)
 
     @property
     def fieldmap_rows(self) -> List[List[str]]:
@@ -475,7 +488,7 @@ class RedcapExportTestCase(DemoDatabaseTestCase):
 class RedcapExportErrorTests(TestCase):
     def test_raises_when_fieldmap_has_unknown_symbols(self):
         exporter = TestRedcapExporter(None)
-        exporter.fieldmap_filename = "bmi.csv"
+        exporter.fieldmap_filename = "bmi.xml"
 
         task = mock.Mock(tablename="bmi")
         fieldmap = {"pa_height": "sys.platform"}
@@ -487,7 +500,7 @@ class RedcapExportErrorTests(TestCase):
 
         message = str(cm.exception)
         self.assertIn("Error in formula 'sys.platform':", message)
-        self.assertIn("bmi.csv", message)
+        self.assertIn("bmi.xml", message)
         self.assertIn("'sys' is not defined", message)
 
     def test_raises_when_fieldmap_missing_from_config(self):

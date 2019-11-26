@@ -374,13 +374,16 @@ class BmiRedcapExportTestCase(RedcapExportTestCase):
 
 class BmiRedcapValidFieldmapTestCase(BmiRedcapExportTestCase):
     fieldmap_filename = "bmi.csv"
-    fieldmap_rows = [
-        ["pa_height", "format(task.height_m, '.1f')"],
-        ["pa_weight", "format(task.mass_kg, '.1f')"],
-        ["bmi_date",
-         "format_datetime(task.when_created,DateFormat.ISO8601_DATE_ONLY)"],  # noqa: E501
-        ["redcap_repeat_instrument", "bmi"],
-    ]
+    fieldmap_xml = """
+<?xml version="1.0" encoding="UTF-8"?>
+<instrument name="bmi">
+  <fields>
+    <field name="pa_height" formula="format(task.height_m, '.1f')" />
+    <field name="pa_weight" formula="format(task.mass_kg, '.1f')" />
+    <field name="bmi_date" formula="format_datetime(task.when_created, DateFormat.ISO8601_DATE_ONLY)" />
+  </fields>
+</instrument>
+    """  # noqa: E501
 
 
 class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
@@ -544,8 +547,8 @@ class BmiRedcapUpdateTests(BmiRedcapValidFieldmapTestCase):
 
 
 class BmiRedcapMissingInstrumentTests(BmiRedcapExportTestCase):
-    fieldmap_filename = "bmi.csv"
-    fieldmap_rows = []
+    fieldmap_filename = "bmi.xml"
+    fieldmap_xml = ""
 
     def create_tasks(self) -> None:
         pass
@@ -567,4 +570,4 @@ class BmiRedcapMissingInstrumentTests(BmiRedcapExportTestCase):
 
         message = str(cm.exception)
         self.assertIn("'redcap_repeat_instrument' is missing from", message)
-        self.assertIn("bmi.csv", message)
+        self.assertIn("bmi.xml", message)
