@@ -309,6 +309,7 @@ class RedcapExporter(object):
         return dict(
             format_datetime=format_datetime,
             DateFormat=DateFormat,
+            request=self.req
         )
 
     def _import_record(self,
