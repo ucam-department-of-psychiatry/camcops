@@ -440,6 +440,7 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
         )
 
         other_recipientinfo = ExportRecipientInfo()
+        other_recipientinfo.recipient_name = "test2"
         other_recipient = ExportRecipient(other_recipientinfo)
         other_recipient.primary_idnum = self.recipient.primary_idnum
         # auto increment doesn't work for BigInteger with SQLite
@@ -450,8 +451,10 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
 
         # Create an existing record for the same patient but for a different
         # REDCap instance (different export recipient)
-        redcap_record = RedcapRecord(redcap_record_id=123, which_idnum=1001,
-                                     idnum_value=555, recipient=other_recipient)
+        redcap_record = RedcapRecord(
+            redcap_record_id=123, which_idnum=1001,
+            idnum_value=555,
+            recipient_name=other_recipient.recipient_name)
         self.dbsession.add(redcap_record)
         self.dbsession.commit()
 

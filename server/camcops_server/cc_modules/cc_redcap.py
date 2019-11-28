@@ -166,8 +166,10 @@ from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import pendulum
 import redcap
-from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import Column, ForeignKey
+from camcops_server.cc_modules.cc_sqla_coltypes import (
+    ExportRecipientNameColType,
+)
 from sqlalchemy.sql.sqltypes import BigInteger, Integer
 
 from camcops_server.cc_modules.cc_constants import DateFormat
@@ -217,13 +219,10 @@ class RedcapRecord(Base):
         comment="The value of the ID number"
     )
 
-    recipient_id = Column(
-        "recipient_id", BigInteger, ForeignKey(ExportRecipient.id),
-        nullable=False,
-        comment="FK to {}.{}".format(ExportRecipient.__tablename__,
-                                     ExportRecipient.id.name)
+    recipient_name = Column(
+        "recipient_name", ExportRecipientNameColType, nullable=False,
+        comment="Name of export recipient"
     )
-    recipient = relationship(ExportRecipient)
 
     next_instance_id = Column(
         "next_instance_id", Integer,
@@ -376,7 +375,7 @@ class RedcapExporter(object):
             redcap_record_id=redcap_record_id,
             which_idnum=idnum_object.which_idnum,
             idnum_value=idnum_object.idnum_value,
-            recipient=recipient,
+            recipient_name=recipient.recipient_name,
             next_instance_id=2
         )
         self.req.dbsession.add(redcap_record)
@@ -413,7 +412,7 @@ class RedcapExporter(object):
             self.req.dbsession.query(RedcapRecord)
             .filter(RedcapRecord.which_idnum == idnum_object.which_idnum)
             .filter(RedcapRecord.idnum_value == idnum_object.idnum_value)
-            .filter(RedcapRecord.recipient == recipient)
+            .filter(RedcapRecord.recipient_name == recipient.recipient_name)
         ).first()
 
     def get_task_fieldmap(self, filename: str) -> Dict:
@@ -465,6 +464,7 @@ class RedcapExportTestCase(DemoDatabaseTestCase):
 
         # auto increment doesn't work for BigInteger with SQLite
         self.recipient.id = 1
+        self.recipient.recipient_name = "test"
 
         super().setUp()
 

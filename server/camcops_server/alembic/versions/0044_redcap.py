@@ -30,7 +30,7 @@ redcap
 
 Revision ID: 0044
 Revises: 0043
-Creation date: 2019-11-28 14:35:51.278344
+Creation date: 2019-11-28 15:33:13.125592
 
 """
 
@@ -66,9 +66,8 @@ def upgrade():
         sa.Column('redcap_record_id', sa.Integer(), nullable=True, comment='REDCap record ID'),
         sa.Column('which_idnum', sa.Integer(), nullable=False, comment="Which of the server's ID numbers is this?"),
         sa.Column('idnum_value', sa.BigInteger(), nullable=True, comment='The value of the ID number'),
-        sa.Column('recipient_id', sa.BigInteger(), nullable=False, comment='FK to _export_recipients.id'),
-        sa.Column('next_instance_id', sa.Integer(), nullable=True, comment='The instance ID for the next export to this record'),
-        sa.ForeignKeyConstraint(['recipient_id'], ['_export_recipients.id'], name=op.f('fk__redcap_record_recipient_id')),
+        sa.Column('recipient_name', sa.String(length=191), nullable=False, comment='Name of export recipient'),
+        sa.Column('next_instance_id', sa.Integer(), nullable=True, comment='The instance ID for the next repeating records'),
         sa.ForeignKeyConstraint(['which_idnum'], ['_idnum_definitions.which_idnum'], name=op.f('fk__redcap_record_which_idnum')),
         sa.PrimaryKeyConstraint('id', name=op.f('pk__redcap_record')),
         mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
@@ -83,7 +82,7 @@ def upgrade():
         sa.Column('redcap_record_id', sa.Integer(), nullable=True, comment='FK to _redcap_record.id'),
         sa.ForeignKeyConstraint(['exported_task_id'], ['_exported_tasks.id'], name=op.f('fk__exported_task_redcap_exported_task_id')),
         sa.ForeignKeyConstraint(['redcap_record_id'], ['_redcap_record.id'], name=op.f('fk__exported_task_redcap_redcap_record_id')),
-        sa.PrimaryKeyConstraint('id', name=op.f('pk__exported_task_redcap')),
+    sa.PrimaryKeyConstraint('id', name=op.f('pk__exported_task_redcap')),
         mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
         mysql_engine='InnoDB',
         mysql_row_format='DYNAMIC'
