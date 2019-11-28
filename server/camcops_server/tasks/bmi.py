@@ -27,7 +27,6 @@ camcops_server/tasks/bmi.py
 """
 
 from typing import Generator, List, Optional
-from unittest import mock
 
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.schema import Column
@@ -37,7 +36,6 @@ from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_redcap import (
-    RedcapExportException,
     RedcapExportTestCase,
     RedcapRecord,
     TestRedcapExporter,
@@ -373,9 +371,8 @@ class BmiRedcapExportTestCase(RedcapExportTestCase):
 
 
 class BmiRedcapValidFieldmapTestCase(BmiRedcapExportTestCase):
-    fieldmap_filename = "bmi.csv"
-    fieldmap_xml = """
-<?xml version="1.0" encoding="UTF-8"?>
+    fieldmap_filename = "bmi.xml"
+    fieldmap_xml = """<?xml version="1.0" encoding="UTF-8"?>
 <instrument name="bmi">
   <fields>
     <field name="pa_height" formula="format(task.height_m, '.1f')" />
@@ -469,35 +466,6 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
                           456)
 
 
-class BmiRedcapMissingCsvTests(BmiRedcapExportTestCase):
-    def create_tasks(self) -> None:
-        patient = self.create_patient_with_idnum_1001()
-        self.task = Bmi()
-        self.apply_standard_task_fields(self.task)
-        self.task.id = next(self.id_sequence)
-        self.task.patient_id = patient.id
-        self.dbsession.add(self.task)
-
-    def test_fails_when_csv_missing(self) -> None:
-        from camcops_server.cc_modules.cc_exportmodels import (
-            ExportedTask,
-            ExportedTaskRedcap,
-        )
-        exported_task = ExportedTask(task=self.task)
-        exported_task_redcap = ExportedTaskRedcap(exported_task)
-
-        exporter = TestRedcapExporter(self.req)
-        exporter.project.import_records.return_value = ["123,0"]
-
-        with self.assertRaises(RedcapExportException) as cm:
-            exporter.export_task(exported_task_redcap)
-
-        message = str(cm.exception)
-
-        self.assertIn("Unable to open fieldmap file", message)
-        self.assertIn("bmi.csv", message)
-
-
 class BmiRedcapUpdateTests(BmiRedcapValidFieldmapTestCase):
     def create_tasks(self) -> None:
         patient = self.create_patient_with_idnum_1001()
@@ -544,30 +512,3 @@ class BmiRedcapUpdateTests(BmiRedcapValidFieldmapTestCase):
         record = rows[0]
 
         self.assertEquals(record["record_id"], 123)
-
-
-class BmiRedcapMissingInstrumentTests(BmiRedcapExportTestCase):
-    fieldmap_filename = "bmi.xml"
-    fieldmap_xml = ""
-
-    def create_tasks(self) -> None:
-        pass
-
-    def test_raises_when_instrument_missing(self):
-        from camcops_server.cc_modules.cc_exportmodels import (
-            ExportedTask,
-            ExportedTaskRedcap,
-        )
-        exporter = TestRedcapExporter(self.req)
-
-        task = mock.Mock(tablename='bmi')
-
-        exported_task = ExportedTask(task=task)
-        exported_task_redcap = ExportedTaskRedcap(exported_task)
-
-        with self.assertRaises(RedcapExportException) as cm:
-            exporter.export_task(exported_task_redcap)
-
-        message = str(cm.exception)
-        self.assertIn("'redcap_repeat_instrument' is missing from", message)
-        self.assertIn("bmi.xml", message)

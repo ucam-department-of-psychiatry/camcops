@@ -345,25 +345,27 @@ class Phq9(TaskHasPatientMixin, Task,
 
 
 class Phq9RedcapExportTests(RedcapExportTestCase):
-    fieldmap_filename = "phq9.csv"
-    fieldmap_rows = [
-        ["redcap_repeat_instrument", "patient_health_questionnaire_9"],
-        ["phq9_how_difficult", "task.q10 + 1"],
-        ["phq9_total_score", "task.total_score()"],
-        ["phq9_first_name", "task.patient.forename"],
-        ["phq9_last_name", "task.patient.surname"],
-        ["phq9_date_enrolled",
-         "format_datetime(task.when_created,DateFormat.ISO8601_DATE_ONLY)"],  # noqa: E501
-        ["phq9_1", "task.q1"],
-        ["phq9_2", "task.q2"],
-        ["phq9_3", "task.q3"],
-        ["phq9_4", "task.q4"],
-        ["phq9_5", "task.q5"],
-        ["phq9_6", "task.q6"],
-        ["phq9_7", "task.q7"],
-        ["phq9_8", "task.q8"],
-        ["phq9_9", "task.q9"],
-    ]
+    fieldmap_filename = "phq9.xml"
+    fieldmap_xml = """<?xml version="1.0" encoding="UTF-8"?>
+<instrument name="patient_health_questionnaire_9">
+  <fields>
+        <field name="phq9_how_difficult" formula="task.q10 + 1" />
+        <field name="phq9_total_score" formula="task.total_score()" />
+        <field name="phq9_first_name" formula="task.patient.forename" />
+        <field name="phq9_last_name" formula="task.patient.surname" />
+        <field name="phq9_date_enrolled" formula="format_datetime(task.when_created,DateFormat.ISO8601_DATE_ONLY)" />
+        <field name="phq9_1" formula="task.q1" />
+        <field name="phq9_2" formula="task.q2" />
+        <field name="phq9_3" formula="task.q3" />
+        <field name="phq9_4" formula="task.q4" />
+        <field name="phq9_5" formula="task.q5" />
+        <field name="phq9_6" formula="task.q6" />
+        <field name="phq9_7" formula="task.q7" />
+        <field name="phq9_8" formula="task.q8" />
+        <field name="phq9_9" formula="task.q9" />
+  </fields>
+</instrument>
+"""  # noqa: E501
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)

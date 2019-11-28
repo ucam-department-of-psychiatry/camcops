@@ -156,6 +156,7 @@ camcops_server/cc_modules/cc_redcap.py
 
 import logging
 import os
+import tempfile
 from typing import Dict, List, TYPE_CHECKING
 from unittest import mock, TestCase
 import xml.etree.cElementTree as ET
@@ -243,18 +244,21 @@ class RedcapFieldmap(object):
             raise RedcapExportException(
                 f"Unable to open fieldmap file '{filename}'"
             )
-
-        root = tree.getroot()
-        instrument = root.find("instrument")
-        if instrument is None:
+        except ET.ParseError:
             raise RedcapExportException(
-                (f"'instrument' is missing from "
-                 f"{self.fieldmap_filename}")
+                f"'instrument' is missing from {filename}"
             )
 
-        self.instrument_name = instrument.get("name")
+        root = tree.getroot()
+        if root.tag != "instrument":
+            raise RedcapExportException(
+                (f"Expected the root tag to be 'instrument' instead of "
+                 f"'{root.tag}' in {filename}")
+            )
 
-        fields = instrument.find("fields")
+        self.instrument_name = root.get("name")
+
+        fields = root.find("fields")
 
         for field in fields:
             self.fieldmap[field.get("name")] = field.get("formula")
@@ -281,15 +285,9 @@ class RedcapExporter(object):
         task = exported_task.task
 
         self.fieldmap_filename = self.get_task_fieldmap_filename(task)
-        self.fieldmap = self.get_task_fieldmap(self.fieldmap_filename)
 
-        instrument_name = self.fieldmap.instrument_name
-
-        if instrument_name is None:
-            raise RedcapExportException(
-                (f"'redcap_repeat_instrument' is missing from "
-                 f"{self.fieldmap_filename}")
-            )
+        fieldmap = self.get_task_fieldmap(self.fieldmap_filename)
+        instrument_name = fieldmap.instrument_name
 
         which_idnum = exported_task.recipient.primary_idnum
         idnum_object = task.patient.get_idnum_object(which_idnum)
@@ -306,7 +304,7 @@ class RedcapExporter(object):
             f"{instrument_name}_complete": complete_status,
         }
 
-        self.add_task_fields_to_record(record, task)
+        self.add_task_fields_to_record(record, task, fieldmap)
 
         if redcap_record is None:
             return self._import_record(exported_task_redcap, record,
@@ -314,7 +312,8 @@ class RedcapExporter(object):
 
         return self._update_record(exported_task_redcap, record, redcap_record)
 
-    def add_task_fields_to_record(self, record: Dict, task: "Task") -> None:
+    def add_task_fields_to_record(self, record: Dict, task: "Task",
+                                  fieldmap: RedcapFieldmap) -> None:
         extra_symbols = self.get_extra_symbols()
 
         symbol_table = make_symbol_table(
@@ -323,7 +322,7 @@ class RedcapExporter(object):
         )
         interpreter = Interpreter(symtable=symbol_table)
 
-        for redcap_field, formula in self.fieldmap.fieldmap.items():
+        for redcap_field, formula in fieldmap.fieldmap.items():
             v = interpreter(f"{formula}", show_errors=True)
             if interpreter.error:
                 message = "\n".join([e.msg for e in interpreter.error])
@@ -491,7 +490,8 @@ class RedcapExportErrorTests(TestCase):
         exporter.fieldmap_filename = "bmi.xml"
 
         task = mock.Mock(tablename="bmi")
-        fieldmap = {"pa_height": "sys.platform"}
+        fieldmap = RedcapFieldmap()
+        fieldmap.fieldmap = {"pa_height": "sys.platform"}
 
         record = {}
 
@@ -569,3 +569,49 @@ class RedcapExportErrorTests(TestCase):
             message = str(cm.exception)
 
             self.assertIn("Something went wrong", message)
+
+
+class RedcapFieldmapTests(TestCase):
+    def test_raises_when_xml_file_missing(self) -> None:
+        fieldmap = RedcapFieldmap()
+        with self.assertRaises(RedcapExportException) as cm:
+            fieldmap.init_from_file("/does/not/exist/bmi.xml")
+
+        message = str(cm.exception)
+
+        self.assertIn("Unable to open fieldmap file", message)
+        self.assertIn("bmi.xml", message)
+
+    def test_raises_when_instrument_missing(self):
+        with tempfile.NamedTemporaryFile(
+                mode="w", suffix="xml") as fieldmap_file:
+            fieldmap_file.write("""<?xml version="1.0" encoding="UTF-8"?>
+<someothertag></someothertag>
+""")
+            fieldmap_file.flush()
+
+            fieldmap = RedcapFieldmap()
+
+            with self.assertRaises(RedcapExportException) as cm:
+                fieldmap.init_from_file(fieldmap_file.name)
+
+        message = str(cm.exception)
+        self.assertIn(("Expected the root tag to be 'instrument' instead of "
+                       "'someothertag'"), message)
+        self.assertIn(fieldmap_file.name, message)
+
+    def test_raises_when_root_tag_missing(self):
+        with tempfile.NamedTemporaryFile(
+                mode="w", suffix="xml") as fieldmap_file:
+            fieldmap_file.write("""<?xml version="1.0" encoding="UTF-8"?>
+""")
+            fieldmap_file.flush()
+
+            fieldmap = RedcapFieldmap()
+
+            with self.assertRaises(RedcapExportException) as cm:
+                fieldmap.init_from_file(fieldmap_file.name)
+
+        message = str(cm.exception)
+        self.assertIn("'instrument' is missing from", message)
+        self.assertIn(fieldmap_file.name, message)
