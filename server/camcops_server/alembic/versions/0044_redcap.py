@@ -30,7 +30,7 @@ redcap
 
 Revision ID: 0044
 Revises: 0043
-Creation date: 2019-11-26 14:52:08.437862
+Creation date: 2019-11-28 14:35:51.278344
 
 """
 
@@ -67,6 +67,7 @@ def upgrade():
         sa.Column('which_idnum', sa.Integer(), nullable=False, comment="Which of the server's ID numbers is this?"),
         sa.Column('idnum_value', sa.BigInteger(), nullable=True, comment='The value of the ID number'),
         sa.Column('recipient_id', sa.BigInteger(), nullable=False, comment='FK to _export_recipients.id'),
+        sa.Column('next_instance_id', sa.Integer(), nullable=True, comment='The instance ID for the next export to this record'),
         sa.ForeignKeyConstraint(['recipient_id'], ['_export_recipients.id'], name=op.f('fk__redcap_record_recipient_id')),
         sa.ForeignKeyConstraint(['which_idnum'], ['_idnum_definitions.which_idnum'], name=op.f('fk__redcap_record_which_idnum')),
         sa.PrimaryKeyConstraint('id', name=op.f('pk__redcap_record')),

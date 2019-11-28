@@ -416,6 +416,7 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
         record = rows[0]
 
         self.assertEquals(record["redcap_repeat_instrument"], "bmi")
+        self.assertEquals(record["redcap_repeat_instance"], 1)
         self.assertEquals(record["record_id"], 0)
         self.assertEquals(record["bmi_complete"], exporter.COMPLETE)
         self.assertEquals(record["bmi_date"], "2010-07-07")
@@ -464,6 +465,8 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
         # Would be 123 if the existing record was not ignored
         self.assertEquals(exported_task_redcap.redcap_record.redcap_record_id,
                           456)
+        self.assertEquals(exported_task_redcap.redcap_record.next_instance_id,
+                          2)
 
 
 class BmiRedcapUpdateTests(BmiRedcapValidFieldmapTestCase):
@@ -512,3 +515,7 @@ class BmiRedcapUpdateTests(BmiRedcapValidFieldmapTestCase):
         record = rows[0]
 
         self.assertEquals(record["record_id"], 123)
+        self.assertEquals(record["redcap_repeat_instance"], 2)
+
+        self.assertEquals(exported_task_redcap2.redcap_record.next_instance_id,
+                          3)

@@ -225,6 +225,11 @@ class RedcapRecord(Base):
     )
     recipient = relationship(ExportRecipient)
 
+    next_instance_id = Column(
+        "next_instance_id", Integer,
+        comment="The instance ID for the next repeating records"
+    )
+
 
 class RedcapExportException(Exception):
     pass
@@ -350,6 +355,10 @@ class RedcapExporter(object):
         # but has to be present
         record["record_id"] = 0
 
+        # REDCap won't create instance IDs automatically so we have to
+        # assume no one else is writing to this record
+        record["redcap_repeat_instance"] = 1
+
         # Returns [redcap record id, 0]
         try:
             id_pair_list = self.project.import_records(
@@ -367,7 +376,8 @@ class RedcapExporter(object):
             redcap_record_id=redcap_record_id,
             which_idnum=idnum_object.which_idnum,
             idnum_value=idnum_object.idnum_value,
-            recipient=recipient
+            recipient=recipient,
+            next_instance_id=2
         )
         self.req.dbsession.add(redcap_record)
         self.req.dbsession.commit()
@@ -379,6 +389,9 @@ class RedcapExporter(object):
                        record: Dict,
                        redcap_record: "RedcapRecord") -> None:
         record["record_id"] = redcap_record.redcap_record_id
+        # REDCap won't create instance IDs automatically so we have to
+        # assume no one else is writing to this record
+        record["redcap_repeat_instance"] = redcap_record.next_instance_id
 
         # Returns {'count': 1}
         try:
@@ -387,6 +400,10 @@ class RedcapExporter(object):
             raise RedcapExportException(str(e))
 
         log.info(f"Updated REDCap record {redcap_record.redcap_record_id}")
+
+        redcap_record.next_instance_id = redcap_record.next_instance_id + 1
+        self.req.dbsession.add(redcap_record)
+        self.req.dbsession.commit()
 
         exported_task_redcap.redcap_record = redcap_record
 
