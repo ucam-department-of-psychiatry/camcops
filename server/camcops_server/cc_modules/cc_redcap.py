@@ -157,7 +157,7 @@ camcops_server/cc_modules/cc_redcap.py
 import logging
 import os
 import tempfile
-from typing import Dict, List, TYPE_CHECKING
+from typing import Any, Dict, List, Tuple, TYPE_CHECKING
 from unittest import mock, TestCase
 import xml.etree.cElementTree as ET
 
@@ -176,7 +176,6 @@ from camcops_server.cc_modules.cc_constants import DateFormat
 from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
 from camcops_server.cc_modules.cc_exportrecipientinfo import ExportRecipientInfo
 from camcops_server.cc_modules.cc_idnumdef import IdNumDefinition
-from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
 from camcops_server.cc_modules.cc_sqla_coltypes import CamcopsColumn
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
@@ -267,54 +266,117 @@ class RedcapFieldmap(object):
         for field in fields:
             self.fieldmap[field.get("name")] = field.get("formula")
 
+        files = root.find("files") or []
+        for file_field in files:
+            self.file_fieldmap[file_field.get("name")] = file_field.get(
+                "formula")
+
 
 class RedcapExporter(object):
+    def export_task(self,
+                    req: "CamcopsRequest",
+                    exported_task_redcap: "ExportedTaskRedcap") -> None:
+        redcap_record, created = self._get_or_create_redcap_record(
+            req, exported_task_redcap
+        )
+
+        if created:
+            thing = RedcapImportyThing(req, exported_task_redcap, redcap_record)
+        else:
+            thing = RedcapUpdateyThing(req, exported_task_redcap, redcap_record)
+
+        return thing.do_the_thing()
+
+    def _get_or_create_redcap_record(
+            self,
+            req: "CamcopsRequest",
+            exported_task_redcap: "ExportedTaskRedcap"
+    ) -> Tuple[RedcapRecord, bool]:
+        created = False
+
+        exported_task = exported_task_redcap.exported_task
+
+        which_idnum = exported_task.recipient.primary_idnum
+        task = exported_task.task
+        idnum_object = task.patient.get_idnum_object(which_idnum)
+        recipient = exported_task.recipient
+
+        record = (
+            req.dbsession.query(RedcapRecord)
+            .filter(RedcapRecord.which_idnum == idnum_object.which_idnum)
+            .filter(RedcapRecord.idnum_value == idnum_object.idnum_value)
+            .filter(RedcapRecord.recipient_name == recipient.recipient_name)
+        ).first()
+
+        if record is None:
+            record = RedcapRecord(
+                redcap_record_id=0,
+                which_idnum=idnum_object.which_idnum,
+                idnum_value=idnum_object.idnum_value,
+                recipient_name=recipient.recipient_name,
+                next_instance_id=2
+            )
+
+            created = True
+
+        return record, created
+
+
+# TODO: Better name
+class RedcapThing(object):
     INCOMPLETE = 0
     UNVERIFIED = 1
     COMPLETE = 2
 
     def __init__(self,
                  req: "CamcopsRequest",
-                 api_url: str,
-                 api_key: str) -> None:
+                 exported_task_redcap: "ExportedTaskRedcap",
+                 redcap_record: RedcapRecord) -> None:
         self.req = req
+        self.task = exported_task_redcap.exported_task.task
+        self.redcap_record = redcap_record
+
+        exported_task = self.exported_task
+        recipient = exported_task.recipient
 
         try:
-            self.project = redcap.project.Project(api_url, api_key)
+            self.project = redcap.project.Project(
+                recipient.redcap_api_url, recipient.redcap_api_key
+            )
         except redcap.RedcapError as e:
             raise RedcapExportException(str(e))
 
-    def export_task(self, exported_task_redcap: "ExportedTaskRedcap") -> None:
-        exported_task = exported_task_redcap.exported_task
-        task = exported_task.task
+    def do_the_thing(self):
+        complete_status = self.INCOMPLETE
 
-        self.fieldmap_filename = self.get_task_fieldmap_filename(task)
+        if self.task.is_complete():
+            complete_status = self.COMPLETE
+        self.fieldmap_filename = self.get_task_fieldmap_filename(self.task)
 
         fieldmap = self.get_task_fieldmap(self.fieldmap_filename)
         instrument_name = fieldmap.instrument_name
 
-        which_idnum = exported_task.recipient.primary_idnum
-        idnum_object = task.patient.get_idnum_object(which_idnum)
-        redcap_record = self._get_existing_record(idnum_object,
-                                                  exported_task.recipient)
-
-        complete_status = self.INCOMPLETE
-
-        if task.is_complete():
-            complete_status = self.COMPLETE
-
         record = {
+            "record_id": self.redcap_record.redcap_record_id,
             "redcap_repeat_instrument": instrument_name,
+            # REDCap won't create instance IDs automatically so we have to
+            # assume no one else is writing to this record
+            "redcap_repeat_instance": self.redcap_record.next_instance_id,
             f"{instrument_name}_complete": complete_status,
         }
 
-        self.add_task_fields_to_record(record, task, fieldmap)
+        self.add_task_fields_to_record(record, self.task, fieldmap)
 
-        if redcap_record is None:
-            return self._import_record(exported_task_redcap, record,
-                                       idnum_object, exported_task.recipient)
+        try:
+            response = self.project.import_records(
+                [record],
+                return_content=self.return_content,
+                force_auto_number=self.force_auto_number
+            )
+        except redcap.RedcapError as e:
+            raise RedcapExportException(str(e))
 
-        return self._update_record(exported_task_redcap, record, redcap_record)
+        self.save_redcap_record(response)
 
     def add_task_fields_to_record(self, record: Dict, task: "Task",
                                   fieldmap: RedcapFieldmap) -> None:
@@ -345,75 +407,13 @@ class RedcapExporter(object):
             request=self.req
         )
 
-    def _import_record(self,
-                       exported_task_redcap: "ExportedTaskRedcap",
-                       record: Dict,
-                       idnum_object: "PatientIdNum",
-                       recipient: "ExportRecipient") -> None:
-        # redcap_record_id will be ignored if force_auto_number is True
-        # but has to be present
-        record["record_id"] = 0
-
-        # REDCap won't create instance IDs automatically so we have to
-        # assume no one else is writing to this record
-        record["redcap_repeat_instance"] = 1
-
-        # Returns [redcap record id, 0]
-        try:
-            id_pair_list = self.project.import_records(
-                [record],
-                return_content="auto_ids", force_auto_number=True,
-            )
-        except redcap.RedcapError as e:
-            raise RedcapExportException(str(e))
-
-        id_pair = id_pair_list[0]
-
-        redcap_record_id = int(id_pair.split(",")[0])
-        log.info(f"Created new REDCap record {redcap_record_id}")
-        redcap_record = RedcapRecord(
-            redcap_record_id=redcap_record_id,
-            which_idnum=idnum_object.which_idnum,
-            idnum_value=idnum_object.idnum_value,
-            recipient_name=recipient.recipient_name,
-            next_instance_id=2
-        )
-        self.req.dbsession.add(redcap_record)
+    def save_redcap_record(self, response: Any):
+        next_instance_id = self.redcap_record.next_instance_id + 1
+        self.redcap_record.next_instance_id = next_instance_id
+        self.req.dbsession.add(self.redcap_record)
         self.req.dbsession.commit()
 
-        exported_task_redcap.redcap_record = redcap_record
-
-    def _update_record(self,
-                       exported_task_redcap: "ExportedTaskRedcap",
-                       record: Dict,
-                       redcap_record: "RedcapRecord") -> None:
-        record["record_id"] = redcap_record.redcap_record_id
-        # REDCap won't create instance IDs automatically so we have to
-        # assume no one else is writing to this record
-        record["redcap_repeat_instance"] = redcap_record.next_instance_id
-
-        # Returns {'count': 1}
-        try:
-            self.project.import_records([record])
-        except redcap.RedcapError as e:
-            raise RedcapExportException(str(e))
-
-        log.info(f"Updated REDCap record {redcap_record.redcap_record_id}")
-
-        redcap_record.next_instance_id = redcap_record.next_instance_id + 1
-        self.req.dbsession.add(redcap_record)
-        self.req.dbsession.commit()
-
-        exported_task_redcap.redcap_record = redcap_record
-
-    def _get_existing_record(self, idnum_object: PatientIdNum,
-                             recipient: "ExportRecipient") -> int:
-        return (
-            self.req.dbsession.query(RedcapRecord)
-            .filter(RedcapRecord.which_idnum == idnum_object.which_idnum)
-            .filter(RedcapRecord.idnum_value == idnum_object.idnum_value)
-            .filter(RedcapRecord.recipient_name == recipient.recipient_name)
-        ).first()
+        self.exported_task_redcap.redcap_record = self.redcap_record
 
     def get_task_fieldmap(self, filename: str) -> Dict:
         fieldmap = RedcapFieldmap()
@@ -439,12 +439,41 @@ class RedcapExporter(object):
         return filename
 
 
-class TestRedcapExporter(RedcapExporter):
+# TODO: Better name
+class RedcapImportyThing(RedcapThing):
+    force_auto_number = True
+    # Returns [redcap record id, 0]
+    return_content = "auto_ids"
+
+    def save_redcap_record(self, response: List[str]):
+        id_pair = response[0]
+
+        redcap_record_id = int(id_pair.split(",")[0])
+        log.info(f"Created new REDCap record {redcap_record_id}")
+
+        self.redcap_record.redcap_record_id = redcap_record_id
+
+        super().save_redcap_record(response)
+
+
+# TODO: Better name
+class RedcapUpdateyThing(RedcapThing):
+    force_auto_number = False
+    # Returns {'count': 1}
+    return_content = "count"
+
+    def save_redcap_record(self, response: Any):
+        log.info(f"Updated REDCap record {self.redcap_record.redcap_record_id}")
+        super().save_redcap_record(response)
+
+
+class TestRedcapExporter(RedcapImportyThing):
     def __init__(self,
                  req: "CamcopsRequest") -> None:
         self.req = req
         self.project = mock.Mock()
         self.project.import_records = mock.Mock()
+        self.project.import_file = mock.Mock()
 
 
 class RedcapExportTestCase(DemoDatabaseTestCase):
@@ -539,35 +568,11 @@ class RedcapExportErrorTests(TestCase):
             "Something went wrong"
         )
 
-        exported_task_redcap = mock.Mock()
-        record = {}
-        idnum_object = mock.Mock()
-        recipient = mock.Mock()
+        exporter.task = mock.Mock()
+        exporter.task.is_complete = mock.Mock(return_value=True)
 
         with self.assertRaises(RedcapExportException) as cm:
-            exporter._import_record(exported_task_redcap,
-                                    record,
-                                    idnum_object,
-                                    recipient)
-        message = str(cm.exception)
-
-        self.assertIn("Something went wrong", message)
-
-    def test_raises_when_error_from_redcap_on_update(self):
-        req = mock.Mock()
-        exporter = TestRedcapExporter(req)
-        exporter.project.import_records.side_effect = redcap.RedcapError(
-            "Something went wrong"
-        )
-
-        exported_task_redcap = mock.Mock()
-        record = {}
-        redcap_record = mock.Mock()
-
-        with self.assertRaises(RedcapExportException) as cm:
-            exporter._update_record(exported_task_redcap,
-                                    record,
-                                    redcap_record)
+            exporter.do_the_thing()
         message = str(cm.exception)
 
         self.assertIn("Something went wrong", message)

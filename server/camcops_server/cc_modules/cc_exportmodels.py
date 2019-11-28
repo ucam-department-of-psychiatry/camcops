@@ -1143,16 +1143,10 @@ class ExportedTaskRedcap(Base):
 
     def export_task(self, req: "CamcopsRequest") -> None:
         exported_task = self.exported_task
-        recipient = exported_task.recipient
+        exporter = RedcapExporter()
 
         try:
-            exporter = RedcapExporter(
-                req,
-                recipient.redcap_api_url,
-                recipient.redcap_api_key
-            )
-
-            exporter.export_task(self)
+            exporter.export_task(req, self)
             exported_task.succeed()
         except RedcapExportException as e:
             exported_task.abort(str(e))
