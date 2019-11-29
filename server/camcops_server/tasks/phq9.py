@@ -27,6 +27,7 @@ camcops_server/tasks/phq9.py
 """
 
 from typing import Any, Dict, Generator, List, Tuple, Type
+from unittest import mock
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
@@ -38,7 +39,8 @@ from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import answer, get_yes_no, tr, tr_qa
 from camcops_server.cc_modules.cc_redcap import (
     RedcapExportTestCase,
-    TestRedcapExporter,
+    RedcapExporter,
+    RedcapRecordStatus,
 )
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
@@ -407,13 +409,15 @@ class Phq9RedcapExportTests(RedcapExportTestCase):
         exported_task = ExportedTask(task=self.task, recipient=self.recipient)
         exported_task_redcap = ExportedTaskRedcap(exported_task)
 
-        exporter = TestRedcapExporter(self.req)
-        exporter.project.import_records.return_value = ["123,0"]
-        exporter.export_task(exported_task_redcap)
+        exporter = RedcapExporter()
+        mock_project = mock.Mock()
+        mock_project.import_records = mock.Mock(return_value=["123,0"])
+        exporter.get_project = mock.Mock(return_value=mock_project)
+        exporter.export_task(self.req, exported_task_redcap)
         self.assertEquals(exported_task_redcap.redcap_record.redcap_record_id,
                           123)
 
-        args, kwargs = exporter.project.import_records.call_args
+        args, kwargs = mock_project.import_records.call_args
 
         rows = args[0]
         record = rows[0]
@@ -422,7 +426,7 @@ class Phq9RedcapExportTests(RedcapExportTestCase):
                           "patient_health_questionnaire_9")
         self.assertEquals(record["record_id"], 0)
         self.assertEquals(record["patient_health_questionnaire_9_complete"],
-                          exporter.COMPLETE)
+                          RedcapRecordStatus.COMPLETE)
         self.assertEquals(record["phq9_how_difficult"], 4)
         self.assertEquals(record["phq9_total_score"], 12)
         self.assertEquals(record["phq9_first_name"], "Forename2")

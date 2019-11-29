@@ -154,6 +154,8 @@ camcops_server/cc_modules/cc_redcap.py
 
 """
 
+from enum import Enum
+import io
 import logging
 import os
 import tempfile
@@ -280,12 +282,27 @@ class RedcapExporter(object):
             req, exported_task_redcap
         )
 
-        if created:
-            thing = RedcapImportyThing(req, exported_task_redcap, redcap_record)
-        else:
-            thing = RedcapUpdateyThing(req, exported_task_redcap, redcap_record)
+        self.recipient = exported_task_redcap.exported_task.recipient
+
+        project = self.get_project()
+
+        thing_class = RedcapImportyThing
+        if not created:
+            thing_class = RedcapUpdateyThing
+
+        thing = thing_class(req, exported_task_redcap, project, redcap_record)
 
         return thing.do_the_thing()
+
+    def get_project(self, recipient: ExportRecipient):
+        try:
+            project = redcap.project.Project(
+                recipient.redcap_api_url, recipient.redcap_api_key
+            )
+        except redcap.RedcapError as e:
+            raise RedcapExportException(str(e))
+
+        return project
 
     def _get_or_create_redcap_record(
             self,
@@ -314,7 +331,7 @@ class RedcapExporter(object):
                 which_idnum=idnum_object.which_idnum,
                 idnum_value=idnum_object.idnum_value,
                 recipient_name=recipient.recipient_name,
-                next_instance_id=2
+                next_instance_id=1
             )
 
             created = True
@@ -322,35 +339,34 @@ class RedcapExporter(object):
         return record, created
 
 
-# TODO: Better name
-class RedcapThing(object):
+class RedcapRecordStatus(Enum):
     INCOMPLETE = 0
     UNVERIFIED = 1
     COMPLETE = 2
 
+
+# TODO: Better name
+class RedcapThing(object):
+
     def __init__(self,
                  req: "CamcopsRequest",
                  exported_task_redcap: "ExportedTaskRedcap",
+                 project: "redcap.project.Project",
                  redcap_record: RedcapRecord) -> None:
         self.req = req
-        self.task = exported_task_redcap.exported_task.task
+        self.exported_task_redcap = exported_task_redcap
+        self.project = project
         self.redcap_record = redcap_record
 
-        exported_task = self.exported_task
-        recipient = exported_task.recipient
+        exported_task = exported_task_redcap.exported_task
+        self.task = exported_task.task
 
-        try:
-            self.project = redcap.project.Project(
-                recipient.redcap_api_url, recipient.redcap_api_key
-            )
-        except redcap.RedcapError as e:
-            raise RedcapExportException(str(e))
-
+    # TODO: Better name
     def do_the_thing(self):
-        complete_status = self.INCOMPLETE
+        complete_status = RedcapRecordStatus.INCOMPLETE
 
         if self.task.is_complete():
-            complete_status = self.COMPLETE
+            complete_status = RedcapRecordStatus.COMPLETE
         self.fieldmap_filename = self.get_task_fieldmap_filename(self.task)
 
         fieldmap = self.get_task_fieldmap(self.fieldmap_filename)
@@ -365,8 +381,21 @@ class RedcapThing(object):
             f"{instrument_name}_complete": complete_status,
         }
 
-        self.add_task_fields_to_record(record, self.task, fieldmap)
+        self.add_task_fields_to_dict(record, self.task, fieldmap.fieldmap)
 
+        response = self.import_into_redcap(record)
+
+        file_dict = {}
+        self.add_task_fields_to_dict(file_dict, self.task,
+                                     fieldmap.file_fieldmap)
+
+        self.save_redcap_record(response)
+
+        # redcap_record_id will have been updated on save for new record
+        self.import_files_into_redcap(self.redcap_record.redcap_record_id,
+                                      file_dict)
+
+    def import_into_redcap(self, record: Dict) -> Any:
         try:
             response = self.project.import_records(
                 [record],
@@ -376,10 +405,19 @@ class RedcapThing(object):
         except redcap.RedcapError as e:
             raise RedcapExportException(str(e))
 
-        self.save_redcap_record(response)
+        return response
 
-    def add_task_fields_to_record(self, record: Dict, task: "Task",
-                                  fieldmap: RedcapFieldmap) -> None:
+    def import_files_into_redcap(self, record_id: int, file_dict: Dict):
+        for fieldname, value in file_dict.items():
+            with io.BytesIO(value) as file_obj:
+                filename = f"{self.task.tablename}_{record_id}_{fieldname}"
+                response = self.project.import_file(
+                    record_id, fieldname, filename, file_obj)
+
+        return response
+
+    def add_task_fields_to_dict(self, dict: Dict, task: "Task",
+                                fieldmap: Dict) -> None:
         extra_symbols = self.get_extra_symbols()
 
         symbol_table = make_symbol_table(
@@ -388,7 +426,7 @@ class RedcapThing(object):
         )
         interpreter = Interpreter(symtable=symbol_table)
 
-        for redcap_field, formula in fieldmap.fieldmap.items():
+        for redcap_field, formula in fieldmap.items():
             v = interpreter(f"{formula}", show_errors=True)
             if interpreter.error:
                 message = "\n".join([e.msg for e in interpreter.error])
@@ -398,7 +436,7 @@ class RedcapThing(object):
                         f"Error in formula '{formula}': {message}"
                     )
                 )
-            record[redcap_field] = v
+            dict[redcap_field] = v
 
     def get_extra_symbols(self):
         return dict(
@@ -442,7 +480,7 @@ class RedcapThing(object):
 # TODO: Better name
 class RedcapImportyThing(RedcapThing):
     force_auto_number = True
-    # Returns [redcap record id, 0]
+    # Returns ["redcap record id, 0"]
     return_content = "auto_ids"
 
     def save_redcap_record(self, response: List[str]):
@@ -467,13 +505,27 @@ class RedcapUpdateyThing(RedcapThing):
         super().save_redcap_record(response)
 
 
-class TestRedcapExporter(RedcapImportyThing):
-    def __init__(self,
-                 req: "CamcopsRequest") -> None:
-        self.req = req
-        self.project = mock.Mock()
-        self.project.import_records = mock.Mock()
-        self.project.import_file = mock.Mock()
+class MockProject(mock.Mock):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+        self.import_records = mock.Mock()
+        self.import_file = mock.Mock()
+
+
+class MockRedcapExporter(RedcapExporter):
+    def __init__(self) -> None:
+        mock_project = MockProject()
+        self.get_project = mock.Mock(return_value=mock_project)
+
+        config = mock.Mock()
+        self.req = mock.Mock(config=config)
+
+
+class MockRedcapImportyThing(RedcapImportyThing):
+    def __init__(self) -> None:
+        self.req = mock.Mock()
+        self.project = MockProject()
 
 
 class RedcapExportTestCase(DemoDatabaseTestCase):
@@ -532,17 +584,16 @@ class RedcapExportTestCase(DemoDatabaseTestCase):
 
 class RedcapExportErrorTests(TestCase):
     def test_raises_when_fieldmap_has_unknown_symbols(self):
-        exporter = TestRedcapExporter(None)
+        exporter = MockRedcapImportyThing()
         exporter.fieldmap_filename = "bmi.xml"
 
         task = mock.Mock(tablename="bmi")
-        fieldmap = RedcapFieldmap()
-        fieldmap.fieldmap = {"pa_height": "sys.platform"}
+        fieldmap = {"pa_height": "sys.platform"}
 
-        record = {}
+        dict = {}
 
         with self.assertRaises(RedcapExportException) as cm:
-            exporter.add_task_fields_to_record(record, task, fieldmap)
+            exporter.add_task_fields_to_dict(dict, task, fieldmap)
 
         message = str(cm.exception)
         self.assertIn("Error in formula 'sys.platform':", message)
@@ -550,11 +601,10 @@ class RedcapExportErrorTests(TestCase):
         self.assertIn("'sys' is not defined", message)
 
     def test_raises_when_fieldmap_missing_from_config(self):
-        config = mock.Mock(redcap_fieldmaps="")
-        request = mock.Mock(config=config)
-        task = mock.Mock()
 
-        exporter = TestRedcapExporter(request)
+        exporter = MockRedcapImportyThing()
+        exporter.req.config.redcap_fieldmaps = ""
+        task = mock.Mock()
         with self.assertRaises(RedcapExportException) as cm:
             exporter.get_task_fieldmap_filename(task)
 
@@ -562,17 +612,14 @@ class RedcapExportErrorTests(TestCase):
         self.assertIn("REDCAP_FIELDMAPS is empty in the config file", message)
 
     def test_raises_when_error_from_redcap_on_import(self):
-        req = mock.Mock()
-        exporter = TestRedcapExporter(req)
+        exporter = MockRedcapImportyThing()
         exporter.project.import_records.side_effect = redcap.RedcapError(
             "Something went wrong"
         )
 
-        exporter.task = mock.Mock()
-        exporter.task.is_complete = mock.Mock(return_value=True)
-
         with self.assertRaises(RedcapExportException) as cm:
-            exporter.do_the_thing()
+            record = {}
+            exporter.import_into_redcap(record)
         message = str(cm.exception)
 
         self.assertIn("Something went wrong", message)
@@ -584,9 +631,9 @@ class RedcapExportErrorTests(TestCase):
             )
 
             with self.assertRaises(RedcapExportException) as cm:
-                req = mock.Mock()
-                api_url = api_key = ""
-                RedcapExporter(req, api_url, api_key)
+                exporter = RedcapExporter()
+                recipient = mock.Mock()
+                exporter.get_project(recipient)
 
             message = str(cm.exception)
 

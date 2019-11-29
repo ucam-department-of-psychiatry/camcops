@@ -36,9 +36,10 @@ from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_redcap import (
+    MockRedcapExporter,
     RedcapExportTestCase,
     RedcapRecord,
-    TestRedcapExporter,
+    RedcapRecordStatus,
 )
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import (
@@ -404,13 +405,14 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
         exported_task = ExportedTask(task=self.task, recipient=self.recipient)
         exported_task_redcap = ExportedTaskRedcap(exported_task)
 
-        exporter = TestRedcapExporter(self.req)
-        exporter.project.import_records.return_value = ["123,0"]
-        exporter.export_task(exported_task_redcap)
+        exporter = MockRedcapExporter()
+        project = exporter.get_project()
+        project.import_records.return_value = ["123,0"]
+        exporter.export_task(self.req, exported_task_redcap)
         self.assertEquals(exported_task_redcap.redcap_record.redcap_record_id,
                           123)
 
-        args, kwargs = exporter.project.import_records.call_args
+        args, kwargs = project.import_records.call_args
 
         rows = args[0]
         record = rows[0]
@@ -418,7 +420,7 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
         self.assertEquals(record["redcap_repeat_instrument"], "bmi")
         self.assertEquals(record["redcap_repeat_instance"], 1)
         self.assertEquals(record["record_id"], 0)
-        self.assertEquals(record["bmi_complete"], exporter.COMPLETE)
+        self.assertEquals(record["bmi_complete"], RedcapRecordStatus.COMPLETE)
         self.assertEquals(record["bmi_date"], "2010-07-07")
 
         self.assertEquals(record["pa_height"], "1.8")
@@ -461,9 +463,10 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
         exported_task = ExportedTask(task=self.task, recipient=self.recipient)
         exported_task_redcap = ExportedTaskRedcap(exported_task)
 
-        exporter = TestRedcapExporter(self.req)
-        exporter.project.import_records.return_value = ["456,0"]
-        exporter.export_task(exported_task_redcap)
+        exporter = MockRedcapExporter()
+        project = exporter.get_project()
+        project.import_records.return_value = ["456,0"]
+        exporter.export_task(self.req, exported_task_redcap)
 
         # Would be 123 if the existing record was not ignored
         self.assertEquals(exported_task_redcap.redcap_record.redcap_record_id,
@@ -498,21 +501,21 @@ class BmiRedcapUpdateTests(BmiRedcapValidFieldmapTestCase):
             ExportedTaskRedcap,
         )
 
-        exporter = TestRedcapExporter(self.req)
+        exporter = MockRedcapExporter()
+        project = exporter.get_project()
+        project.import_records.return_value = ["123,0"]
 
         exported_task1 = ExportedTask(task=self.task1, recipient=self.recipient)
         exported_task_redcap1 = ExportedTaskRedcap(exported_task1)
-
-        exporter.project.import_records.return_value = ["123,0"]
-        exporter.export_task(exported_task_redcap1)
+        exporter.export_task(self.req, exported_task_redcap1)
         self.assertEquals(exported_task_redcap1.redcap_record.redcap_record_id,
                           123)
 
         exported_task2 = ExportedTask(task=self.task2, recipient=self.recipient)
         exported_task_redcap2 = ExportedTaskRedcap(exported_task2)
 
-        exporter.export_task(exported_task_redcap2)
-        args, kwargs = exporter.project.import_records.call_args
+        exporter.export_task(self.req, exported_task_redcap2)
+        args, kwargs = project.import_records.call_args
 
         rows = args[0]
         record = rows[0]

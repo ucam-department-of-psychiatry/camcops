@@ -39,8 +39,8 @@ from camcops_server.cc_modules.cc_db import (
 )
 from camcops_server.cc_modules.cc_html import answer, tr_qa
 from camcops_server.cc_modules.cc_redcap import (
+    MockRedcapExporter,
     RedcapExportTestCase,
-    TestRedcapExporter,
 )
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 from camcops_server.cc_modules.cc_sqla_coltypes import (
@@ -360,19 +360,29 @@ class MedicationTherapyExportTests(RedcapExportTestCase):
         exported_task = ExportedTask(task=self.task, recipient=self.recipient)
         exported_task_redcap = ExportedTaskRedcap(exported_task)
 
-        exporter = TestRedcapExporter(self.req)
-        exporter.project.import_records.return_value = ["123,0"]
-        exporter.export_task(exported_task_redcap)
+        exporter = MockRedcapExporter()
+        project = exporter.get_project()
+        project.import_records.return_value = ["123,0"]
+
+        # with mock.patch('__main__.open', mock.mock_open()) as m:
+        exporter.export_task(self.req, exported_task_redcap)
         self.assertEquals(exported_task_redcap.redcap_record.redcap_record_id,
                           123)
 
-        args, kwargs = exporter.project.import_file.call_args
+        args, kwargs = project.import_file.call_args
 
-        rows = args[0]
-        record = rows[0]
+        record_id = args[0]
+        fieldname = args[1]
+        filename = args[2]
 
-        self.assertEquals(record["record"], 123)
-        self.assertEquals(record["field"], "medication_items")
-        self.assertEquals(record["repeat_instance"], 1)
-        file_bytes = record["file"]
-        self.assertEquals(str(file_bytes[:5]), "%PDF-")
+        self.assertEquals(record_id, 123)
+        self.assertEquals(fieldname, "medication_items")
+        self.assertEquals(
+            filename,
+            "khandaker_mojo_medicationtherapy_123_medication_items"
+        )
+
+        self.assertEquals(kwargs["repeat_instance"], 1)
+        # I can't do this because file_obj is closed
+        # file_obj = args[3]
+        # self.assertEquals(str(file_obj.read(5)), "%PDF-")
