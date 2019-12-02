@@ -36,7 +36,7 @@ from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_redcap import (
-    MockRedcapExporter,
+    MockRedcapTaskExporter,
     RedcapExportTestCase,
     RedcapRecord,
     RedcapRecordStatus,
@@ -405,7 +405,7 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
         exported_task = ExportedTask(task=self.task, recipient=self.recipient)
         exported_task_redcap = ExportedTaskRedcap(exported_task)
 
-        exporter = MockRedcapExporter()
+        exporter = MockRedcapTaskExporter()
         project = exporter.get_project()
         project.import_records.return_value = ["123,0"]
         exporter.export_task(self.req, exported_task_redcap)
@@ -464,7 +464,7 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
         exported_task = ExportedTask(task=self.task, recipient=self.recipient)
         exported_task_redcap = ExportedTaskRedcap(exported_task)
 
-        exporter = MockRedcapExporter()
+        exporter = MockRedcapTaskExporter()
         project = exporter.get_project()
         project.import_records.return_value = ["456,0"]
         exporter.export_task(self.req, exported_task_redcap)
@@ -502,7 +502,7 @@ class BmiRedcapUpdateTests(BmiRedcapValidFieldmapTestCase):
             ExportedTaskRedcap,
         )
 
-        exporter = MockRedcapExporter()
+        exporter = MockRedcapTaskExporter()
         project = exporter.get_project()
         project.import_records.return_value = ["123,0"]
 

@@ -39,7 +39,7 @@ from camcops_server.cc_modules.cc_db import (
 )
 from camcops_server.cc_modules.cc_html import answer, tr_qa
 from camcops_server.cc_modules.cc_redcap import (
-    MockRedcapExporter,
+    MockRedcapTaskExporter,
     RedcapExportTestCase,
 )
 from camcops_server.cc_modules.cc_sqlalchemy import Base
@@ -360,7 +360,7 @@ class MedicationTherapyExportTests(RedcapExportTestCase):
         exported_task = ExportedTask(task=self.task, recipient=self.recipient)
         exported_task_redcap = ExportedTaskRedcap(exported_task)
 
-        exporter = MockRedcapExporter()
+        exporter = MockRedcapTaskExporter()
         project = exporter.get_project()
         project.import_records.return_value = ["123,0"]
 

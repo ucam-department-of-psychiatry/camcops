@@ -27,7 +27,6 @@ camcops_server/tasks/phq9.py
 """
 
 from typing import Any, Dict, Generator, List, Tuple, Type
-from unittest import mock
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
@@ -38,8 +37,8 @@ from camcops_server.cc_modules.cc_ctvinfo import CtvInfo, CTV_INCOMPLETE
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import answer, get_yes_no, tr, tr_qa
 from camcops_server.cc_modules.cc_redcap import (
+    MockRedcapTaskExporter,
     RedcapExportTestCase,
-    RedcapExporter,
     RedcapRecordStatus,
 )
 from camcops_server.cc_modules.cc_request import CamcopsRequest
@@ -409,15 +408,14 @@ class Phq9RedcapExportTests(RedcapExportTestCase):
         exported_task = ExportedTask(task=self.task, recipient=self.recipient)
         exported_task_redcap = ExportedTaskRedcap(exported_task)
 
-        exporter = RedcapExporter()
-        mock_project = mock.Mock()
-        mock_project.import_records = mock.Mock(return_value=["123,0"])
-        exporter.get_project = mock.Mock(return_value=mock_project)
+        exporter = MockRedcapTaskExporter()
+        project = exporter.get_project()
+        project.import_records.return_value = ["123,0"]
         exporter.export_task(self.req, exported_task_redcap)
         self.assertEquals(exported_task_redcap.redcap_record.redcap_record_id,
                           123)
 
-        args, kwargs = mock_project.import_records.call_args
+        args, kwargs = project.import_records.call_args
 
         rows = args[0]
         record = rows[0]

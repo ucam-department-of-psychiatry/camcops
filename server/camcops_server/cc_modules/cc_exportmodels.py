@@ -87,7 +87,7 @@ from camcops_server.cc_modules.cc_hl7 import (
 )
 from camcops_server.cc_modules.cc_redcap import (
     RedcapExportException,
-    RedcapExporter,
+    RedcapTaskExporter,
     RedcapRecord,
 )
 from camcops_server.cc_modules.cc_sqla_coltypes import (
@@ -1143,7 +1143,7 @@ class ExportedTaskRedcap(Base):
 
     def export_task(self, req: "CamcopsRequest") -> None:
         exported_task = self.exported_task
-        exporter = RedcapExporter()
+        exporter = RedcapTaskExporter()
 
         try:
             exporter.export_task(req, self)
