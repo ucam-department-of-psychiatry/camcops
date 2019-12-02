@@ -426,7 +426,7 @@ class Phq9RedcapExportTests(RedcapExportTestCase):
                           "patient_health_questionnaire_9")
         self.assertEquals(record["record_id"], 0)
         self.assertEquals(record["patient_health_questionnaire_9_complete"],
-                          RedcapRecordStatus.COMPLETE)
+                          RedcapRecordStatus.COMPLETE.value)
         self.assertEquals(record["phq9_how_difficult"], 4)
         self.assertEquals(record["phq9_total_score"], 12)
         self.assertEquals(record["phq9_first_name"], "Forename2")

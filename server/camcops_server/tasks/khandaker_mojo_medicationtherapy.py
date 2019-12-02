@@ -325,7 +325,7 @@ class MedicationTherapyExportTests(RedcapExportTestCase):
   <fields>
   </fields>
   <files>
-    <field name="medication_items" formula="task.get_pdf(request)" />
+    <field name="medtbl_medication_items" formula="task.get_pdf(request)" />
   </files>
 </instrument>
 """
@@ -364,7 +364,14 @@ class MedicationTherapyExportTests(RedcapExportTestCase):
         project = exporter.get_project()
         project.import_records.return_value = ["123,0"]
 
-        # with mock.patch('__main__.open', mock.mock_open()) as m:
+        # We can't just look at the call_args here because the file will already
+        # have been closed by then
+        def read_pdf_bytes(*args, **kwargs):
+            file_obj = args[3]
+            read_pdf_bytes.pdf_header = file_obj.read(5)
+
+        project.import_file.side_effect = read_pdf_bytes
+
         exporter.export_task(self.req, exported_task_redcap)
         self.assertEquals(exported_task_redcap.redcap_record.redcap_record_id,
                           123)
@@ -376,13 +383,11 @@ class MedicationTherapyExportTests(RedcapExportTestCase):
         filename = args[2]
 
         self.assertEquals(record_id, 123)
-        self.assertEquals(fieldname, "medication_items")
+        self.assertEquals(fieldname, "medtbl_medication_items")
         self.assertEquals(
             filename,
-            "khandaker_mojo_medicationtherapy_123_medication_items"
+            "khandaker_mojo_medicationtherapy_123_medtbl_medication_items"
         )
 
         self.assertEquals(kwargs["repeat_instance"], 1)
-        # I can't do this because file_obj is closed
-        # file_obj = args[3]
-        # self.assertEquals(str(file_obj.read(5)), "%PDF-")
+        self.assertEquals(read_pdf_bytes.pdf_header, b"%PDF-")

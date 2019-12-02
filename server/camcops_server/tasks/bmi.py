@@ -420,7 +420,8 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
         self.assertEquals(record["redcap_repeat_instrument"], "bmi")
         self.assertEquals(record["redcap_repeat_instance"], 1)
         self.assertEquals(record["record_id"], 0)
-        self.assertEquals(record["bmi_complete"], RedcapRecordStatus.COMPLETE)
+        self.assertEquals(record["bmi_complete"],
+                          RedcapRecordStatus.COMPLETE.value)
         self.assertEquals(record["bmi_date"], "2010-07-07")
 
         self.assertEquals(record["pa_height"], "1.8")
