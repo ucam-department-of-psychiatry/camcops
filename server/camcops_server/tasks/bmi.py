@@ -26,7 +26,7 @@ camcops_server/tasks/bmi.py
 
 """
 
-from typing import Generator, List, Optional
+from typing import List, Optional
 
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.schema import Column
@@ -35,12 +35,6 @@ from sqlalchemy.sql.sqltypes import Float, UnicodeText
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
 from camcops_server.cc_modules.cc_html import tr_qa
-from camcops_server.cc_modules.cc_redcap import (
-    MockRedcapTaskExporter,
-    RedcapExportTestCase,
-    RedcapRecord,
-    RedcapRecordStatus,
-)
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import (
     SnomedAttributeGroup,
@@ -354,175 +348,5 @@ class Bmi(TaskHasPatientMixin, Task):
                     unit: cm,
                 }),
             ]))
+
         return expressions
-
-
-class BmiRedcapExportTestCase(RedcapExportTestCase):
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-        self.id_sequence = self.get_id()
-
-    @staticmethod
-    def get_id() -> Generator[int, None, None]:
-        i = 1
-
-        while True:
-            yield i
-            i += 1
-
-
-class BmiRedcapValidFieldmapTestCase(BmiRedcapExportTestCase):
-    fieldmap_filename = "bmi.xml"
-    fieldmap_xml = """<?xml version="1.0" encoding="UTF-8"?>
-<instrument name="bmi">
-  <fields>
-    <field name="pa_height" formula="format(task.height_m, '.1f')" />
-    <field name="pa_weight" formula="format(task.mass_kg, '.1f')" />
-    <field name="bmi_date" formula="format_datetime(task.when_created, DateFormat.ISO8601_DATE_ONLY)" />
-  </fields>
-</instrument>
-    """  # noqa: E501
-
-
-class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
-    def create_tasks(self) -> None:
-        patient = self.create_patient_with_idnum_1001()
-        self.task = Bmi()
-        self.apply_standard_task_fields(self.task)
-        self.task.id = next(self.id_sequence)
-        self.task.height_m = 1.83
-        self.task.mass_kg = 67.57
-        self.task.patient_id = patient.id
-        self.dbsession.add(self.task)
-        self.dbsession.commit()
-
-    def test_record_exported(self) -> None:
-        from camcops_server.cc_modules.cc_exportmodels import (
-            ExportedTask,
-            ExportedTaskRedcap
-        )
-
-        exported_task = ExportedTask(task=self.task, recipient=self.recipient)
-        exported_task_redcap = ExportedTaskRedcap(exported_task)
-
-        exporter = MockRedcapTaskExporter()
-        project = exporter.get_project()
-        project.import_records.return_value = ["123,0"]
-        exporter.export_task(self.req, exported_task_redcap)
-        self.assertEquals(exported_task_redcap.redcap_record.redcap_record_id,
-                          123)
-
-        args, kwargs = project.import_records.call_args
-
-        rows = args[0]
-        record = rows[0]
-
-        self.assertEquals(record["redcap_repeat_instrument"], "bmi")
-        self.assertEquals(record["redcap_repeat_instance"], 1)
-        self.assertEquals(record["record_id"], 0)
-        self.assertEquals(record["bmi_complete"],
-                          RedcapRecordStatus.COMPLETE.value)
-        self.assertEquals(record["bmi_date"], "2010-07-07")
-
-        self.assertEquals(record["pa_height"], "1.8")
-        self.assertEquals(record["pa_weight"], "67.6")
-
-        self.assertEquals(kwargs["return_content"], "auto_ids")
-        self.assertTrue(kwargs["force_auto_number"])
-
-    def test_matching_redcap_id_from_other_recipient_ignored(self) -> None:
-        from camcops_server.cc_modules.cc_exportmodels import (
-            ExportedTask,
-            ExportedTaskRedcap
-        )
-        from camcops_server.cc_modules.cc_exportrecipient import (
-            ExportRecipient
-        )
-        from camcops_server.cc_modules.cc_exportrecipientinfo import (
-            ExportRecipientInfo
-        )
-
-        other_recipientinfo = ExportRecipientInfo()
-        other_recipientinfo.recipient_name = "test2"
-        other_recipient = ExportRecipient(other_recipientinfo)
-        other_recipient.primary_idnum = self.recipient.primary_idnum
-        # auto increment doesn't work for BigInteger with SQLite
-        other_recipient.id = 2
-
-        self.dbsession.add(other_recipient)
-        self.dbsession.commit()
-
-        # Create an existing record for the same patient but for a different
-        # REDCap instance (different export recipient)
-        redcap_record = RedcapRecord(
-            redcap_record_id=123, which_idnum=1001,
-            idnum_value=555,
-            recipient_name=other_recipient.recipient_name)
-        self.dbsession.add(redcap_record)
-        self.dbsession.commit()
-
-        exported_task = ExportedTask(task=self.task, recipient=self.recipient)
-        exported_task_redcap = ExportedTaskRedcap(exported_task)
-
-        exporter = MockRedcapTaskExporter()
-        project = exporter.get_project()
-        project.import_records.return_value = ["456,0"]
-        exporter.export_task(self.req, exported_task_redcap)
-
-        # Would be 123 if the existing record was not ignored
-        self.assertEquals(exported_task_redcap.redcap_record.redcap_record_id,
-                          456)
-        self.assertEquals(exported_task_redcap.redcap_record.next_instance_id,
-                          2)
-
-
-class BmiRedcapUpdateTests(BmiRedcapValidFieldmapTestCase):
-    def create_tasks(self) -> None:
-        patient = self.create_patient_with_idnum_1001()
-        self.task1 = Bmi()
-        self.apply_standard_task_fields(self.task1)
-        self.task1.id = next(self.id_sequence)
-        self.task1.height_m = 1.83
-        self.task1.mass_kg = 67.57
-        self.task1.patient_id = patient.id
-        self.dbsession.add(self.task1)
-
-        self.task2 = Bmi()
-        self.apply_standard_task_fields(self.task2)
-        self.task2.id = next(self.id_sequence)
-        self.task2.height_m = 1.83
-        self.task2.mass_kg = 68.5
-        self.task2.patient_id = patient.id
-        self.dbsession.add(self.task2)
-        self.dbsession.commit()
-
-    def test_existing_record_id_used_for_update(self) -> None:
-        from camcops_server.cc_modules.cc_exportmodels import (
-            ExportedTask,
-            ExportedTaskRedcap,
-        )
-
-        exporter = MockRedcapTaskExporter()
-        project = exporter.get_project()
-        project.import_records.return_value = ["123,0"]
-
-        exported_task1 = ExportedTask(task=self.task1, recipient=self.recipient)
-        exported_task_redcap1 = ExportedTaskRedcap(exported_task1)
-        exporter.export_task(self.req, exported_task_redcap1)
-        self.assertEquals(exported_task_redcap1.redcap_record.redcap_record_id,
-                          123)
-
-        exported_task2 = ExportedTask(task=self.task2, recipient=self.recipient)
-        exported_task_redcap2 = ExportedTaskRedcap(exported_task2)
-
-        exporter.export_task(self.req, exported_task_redcap2)
-        args, kwargs = project.import_records.call_args
-
-        rows = args[0]
-        record = rows[0]
-
-        self.assertEquals(record["record_id"], 123)
-        self.assertEquals(record["redcap_repeat_instance"], 2)
-
-        self.assertEquals(exported_task_redcap2.redcap_record.next_instance_id,
-                          3)

@@ -26,7 +26,7 @@ camcops_server/tasks/phq9.py
 
 """
 
-from typing import Any, Dict, Generator, List, Tuple, Type
+from typing import Any, Dict, List, Tuple, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
@@ -36,11 +36,6 @@ from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CtvInfo, CTV_INCOMPLETE
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import answer, get_yes_no, tr, tr_qa
-from camcops_server.cc_modules.cc_redcap import (
-    MockRedcapTaskExporter,
-    RedcapExportTestCase,
-    RedcapRecordStatus,
-)
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 from camcops_server.cc_modules.cc_sqla_coltypes import (
@@ -343,103 +338,3 @@ class Phq9(TaskHasPatientMixin, Task,
             codes.append(SnomedExpression(scale, {score: self.total_score()}))
             codes.append(SnomedExpression(procedure_result))
         return codes
-
-
-class Phq9RedcapExportTests(RedcapExportTestCase):
-    fieldmap_filename = "phq9.xml"
-    fieldmap_xml = """<?xml version="1.0" encoding="UTF-8"?>
-<instrument name="patient_health_questionnaire_9">
-  <fields>
-        <field name="phq9_how_difficult" formula="task.q10 + 1" />
-        <field name="phq9_total_score" formula="task.total_score()" />
-        <field name="phq9_first_name" formula="task.patient.forename" />
-        <field name="phq9_last_name" formula="task.patient.surname" />
-        <field name="phq9_date_enrolled" formula="format_datetime(task.when_created,DateFormat.ISO8601_DATE_ONLY)" />
-        <field name="phq9_1" formula="task.q1" />
-        <field name="phq9_2" formula="task.q2" />
-        <field name="phq9_3" formula="task.q3" />
-        <field name="phq9_4" formula="task.q4" />
-        <field name="phq9_5" formula="task.q5" />
-        <field name="phq9_6" formula="task.q6" />
-        <field name="phq9_7" formula="task.q7" />
-        <field name="phq9_8" formula="task.q8" />
-        <field name="phq9_9" formula="task.q9" />
-  </fields>
-</instrument>
-"""  # noqa: E501
-
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-        self.id_sequence = self.get_id()
-
-    @staticmethod
-    def get_id() -> Generator[int, None, None]:
-        i = 1
-
-        while True:
-            yield i
-            i += 1
-
-    def create_tasks(self) -> None:
-        patient = self.create_patient_with_idnum_1001()
-        self.task = Phq9()
-        self.apply_standard_task_fields(self.task)
-        self.task.id = next(self.id_sequence)
-        self.task.q1 = 0
-        self.task.q2 = 1
-        self.task.q3 = 2
-        self.task.q4 = 3
-        self.task.q5 = 0
-        self.task.q6 = 1
-        self.task.q7 = 2
-        self.task.q8 = 3
-        self.task.q9 = 0
-        self.task.q10 = 3
-        self.task.patient_id = patient.id
-        self.dbsession.add(self.task)
-        self.dbsession.commit()
-
-    def test_record_exported(self) -> None:
-        from camcops_server.cc_modules.cc_exportmodels import (
-            ExportedTask,
-            ExportedTaskRedcap,
-        )
-
-        exported_task = ExportedTask(task=self.task, recipient=self.recipient)
-        exported_task_redcap = ExportedTaskRedcap(exported_task)
-
-        exporter = MockRedcapTaskExporter()
-        project = exporter.get_project()
-        project.import_records.return_value = ["123,0"]
-        exporter.export_task(self.req, exported_task_redcap)
-        self.assertEquals(exported_task_redcap.redcap_record.redcap_record_id,
-                          123)
-
-        args, kwargs = project.import_records.call_args
-
-        rows = args[0]
-        record = rows[0]
-
-        self.assertEquals(record["redcap_repeat_instrument"],
-                          "patient_health_questionnaire_9")
-        self.assertEquals(record["record_id"], 0)
-        self.assertEquals(record["patient_health_questionnaire_9_complete"],
-                          RedcapRecordStatus.COMPLETE.value)
-        self.assertEquals(record["phq9_how_difficult"], 4)
-        self.assertEquals(record["phq9_total_score"], 12)
-        self.assertEquals(record["phq9_first_name"], "Forename2")
-        self.assertEquals(record["phq9_last_name"], "Surname2")
-        self.assertEquals(record["phq9_date_enrolled"], "2010-07-07")
-
-        self.assertEquals(record["phq9_1"], 0)
-        self.assertEquals(record["phq9_2"], 1)
-        self.assertEquals(record["phq9_3"], 2)
-        self.assertEquals(record["phq9_4"], 3)
-        self.assertEquals(record["phq9_5"], 0)
-        self.assertEquals(record["phq9_6"], 1)
-        self.assertEquals(record["phq9_7"], 2)
-        self.assertEquals(record["phq9_8"], 3)
-        self.assertEquals(record["phq9_9"], 0)
-
-        self.assertEquals(kwargs["return_content"], "auto_ids")
-        self.assertTrue(kwargs["force_auto_number"])

@@ -27,7 +27,7 @@ camcops_server/tasks/khandaker_mojo_medicationtherapy.py
 """
 
 
-from typing import Generator, List, Optional, Type, TYPE_CHECKING
+from typing import List, Optional, Type, TYPE_CHECKING
 
 from sqlalchemy.sql.sqltypes import Float, Integer, UnicodeText
 
@@ -38,10 +38,6 @@ from camcops_server.cc_modules.cc_db import (
     TaskDescendant,
 )
 from camcops_server.cc_modules.cc_html import answer, tr_qa
-from camcops_server.cc_modules.cc_redcap import (
-    MockRedcapTaskExporter,
-    RedcapExportTestCase,
-)
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
@@ -316,78 +312,3 @@ class KhandakerMojoMedicationTherapy(TaskHasPatientMixin, Task):
         """
 
         return html
-
-
-class MedicationTherapyExportTests(RedcapExportTestCase):
-    fieldmap_filename = "khandaker_mojo_medicationtherapy.xml"
-    fieldmap_xml = """<?xml version="1.0" encoding="UTF-8"?>
-<instrument name="medication_table">
-  <fields>
-  </fields>
-  <files>
-    <field name="medtbl_medication_items" formula="task.get_pdf(request)" />
-  </files>
-</instrument>
-"""
-
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-        self.id_sequence = self.get_id()
-
-    @staticmethod
-    def get_id() -> Generator[int, None, None]:
-        i = 1
-
-        while True:
-            yield i
-            i += 1
-
-    def create_tasks(self) -> None:
-        patient = self.create_patient_with_idnum_1001()
-        self.task = KhandakerMojoMedicationTherapy()
-        self.apply_standard_task_fields(self.task)
-        self.task.id = next(self.id_sequence)
-        self.task.patient_id = patient.id
-        self.dbsession.add(self.task)
-        self.dbsession.commit()
-
-    def test_record_exported(self) -> None:
-        from camcops_server.cc_modules.cc_exportmodels import (
-            ExportedTask,
-            ExportedTaskRedcap
-        )
-
-        exported_task = ExportedTask(task=self.task, recipient=self.recipient)
-        exported_task_redcap = ExportedTaskRedcap(exported_task)
-
-        exporter = MockRedcapTaskExporter()
-        project = exporter.get_project()
-        project.import_records.return_value = ["123,0"]
-
-        # We can't just look at the call_args here because the file will already
-        # have been closed by then
-        def read_pdf_bytes(*args, **kwargs):
-            file_obj = args[3]
-            read_pdf_bytes.pdf_header = file_obj.read(5)
-
-        project.import_file.side_effect = read_pdf_bytes
-
-        exporter.export_task(self.req, exported_task_redcap)
-        self.assertEquals(exported_task_redcap.redcap_record.redcap_record_id,
-                          123)
-
-        args, kwargs = project.import_file.call_args
-
-        record_id = args[0]
-        fieldname = args[1]
-        filename = args[2]
-
-        self.assertEquals(record_id, 123)
-        self.assertEquals(fieldname, "medtbl_medication_items")
-        self.assertEquals(
-            filename,
-            "khandaker_mojo_medicationtherapy_123_medtbl_medication_items"
-        )
-
-        self.assertEquals(kwargs["repeat_instance"], 1)
-        self.assertEquals(read_pdf_bytes.pdf_header, b"%PDF-")

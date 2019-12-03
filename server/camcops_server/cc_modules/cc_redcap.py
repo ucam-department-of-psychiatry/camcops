@@ -159,7 +159,7 @@ import io
 import logging
 import os
 import tempfile
-from typing import Any, Dict, List, Tuple, TYPE_CHECKING
+from typing import Any, Dict, Generator, List, Tuple, TYPE_CHECKING
 from unittest import mock, TestCase
 import xml.etree.cElementTree as ET
 
@@ -541,6 +541,10 @@ class RedcapUpdatedRecordUploader(RedcapUploader):
         log.info(f"Updated REDCap record {redcap_record_id}")
 
 
+# =============================================================================
+# Unit testing
+# =============================================================================
+
 class MockProject(mock.Mock):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -563,60 +567,6 @@ class MockRedcapNewRecordUploader(RedcapNewRecordUploader):
         self.req = mock.Mock()
         self.project = MockProject()
         self.task = mock.Mock(tablename="mock_task")
-
-
-class RedcapExportTestCase(DemoDatabaseTestCase):
-    fieldmap_filename = None
-
-    def override_config_settings(self, parser: "ConfigParser"):
-        parser.set("site", "REDCAP_FIELDMAPS", self.tmpdir_obj.name)
-
-    def setUp(self) -> None:
-        if self.fieldmap_filename is not None:
-            self.write_fieldmap()
-
-        recipientinfo = ExportRecipientInfo()
-
-        self.recipient = ExportRecipient(recipientinfo)
-        self.recipient.primary_idnum = 1001
-
-        # auto increment doesn't work for BigInteger with SQLite
-        self.recipient.id = 1
-        self.recipient.recipient_name = "test"
-
-        super().setUp()
-
-    def write_fieldmap(self) -> None:
-        fieldmap = os.path.join(self.tmpdir_obj.name,
-                                self.fieldmap_filename)
-
-        with open(fieldmap, "w") as f:
-            f.write(self.fieldmap_xml)
-
-    @property
-    def fieldmap_rows(self) -> List[List[str]]:
-        raise NotImplementedError("You must define fieldmap_rows property")
-
-    def create_patient_with_idnum_1001(self) -> None:
-        from camcops_server.cc_modules.cc_patient import Patient
-        from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
-        patient = Patient()
-        patient.id = 2
-        self._apply_standard_db_fields(patient)
-        patient.forename = "Forename2"
-        patient.surname = "Surname2"
-        patient.dob = pendulum.parse("1975-12-12")
-        self.dbsession.add(patient)
-        patient_idnum1 = PatientIdNum()
-        patient_idnum1.id = 3
-        self._apply_standard_db_fields(patient_idnum1)
-        patient_idnum1.patient_id = patient.id
-        patient_idnum1.which_idnum = 1001
-        patient_idnum1.idnum_value = 555
-        self.dbsession.add(patient_idnum1)
-        self.dbsession.commit()
-
-        return patient
 
 
 class RedcapExportErrorTests(TestCase):
@@ -755,3 +705,428 @@ class RedcapFieldmapTests(TestCase):
         message = str(cm.exception)
         self.assertIn("'instrument' is missing from", message)
         self.assertIn(fieldmap_file.name, message)
+
+
+# =============================================================================
+# Integration testing
+# =============================================================================
+
+class RedcapExportTestCase(DemoDatabaseTestCase):
+    fieldmap_filename = None
+
+    def override_config_settings(self, parser: "ConfigParser"):
+        parser.set("site", "REDCAP_FIELDMAPS", self.tmpdir_obj.name)
+
+    def setUp(self) -> None:
+        if self.fieldmap_filename is not None:
+            self.write_fieldmap()
+
+        recipientinfo = ExportRecipientInfo()
+
+        self.recipient = ExportRecipient(recipientinfo)
+        self.recipient.primary_idnum = 1001
+
+        # auto increment doesn't work for BigInteger with SQLite
+        self.recipient.id = 1
+        self.recipient.recipient_name = "test"
+
+        super().setUp()
+
+    def write_fieldmap(self) -> None:
+        fieldmap = os.path.join(self.tmpdir_obj.name,
+                                self.fieldmap_filename)
+
+        with open(fieldmap, "w") as f:
+            f.write(self.fieldmap_xml)
+
+    @property
+    def fieldmap_rows(self) -> List[List[str]]:
+        raise NotImplementedError("You must define fieldmap_rows property")
+
+    def create_patient_with_idnum_1001(self) -> None:
+        from camcops_server.cc_modules.cc_patient import Patient
+        from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
+        patient = Patient()
+        patient.id = 2
+        self._apply_standard_db_fields(patient)
+        patient.forename = "Forename2"
+        patient.surname = "Surname2"
+        patient.dob = pendulum.parse("1975-12-12")
+        self.dbsession.add(patient)
+        patient_idnum1 = PatientIdNum()
+        patient_idnum1.id = 3
+        self._apply_standard_db_fields(patient_idnum1)
+        patient_idnum1.patient_id = patient.id
+        patient_idnum1.which_idnum = 1001
+        patient_idnum1.idnum_value = 555
+        self.dbsession.add(patient_idnum1)
+        self.dbsession.commit()
+
+        return patient
+
+
+class BmiRedcapExportTestCase(RedcapExportTestCase):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.id_sequence = self.get_id()
+
+    @staticmethod
+    def get_id() -> Generator[int, None, None]:
+        i = 1
+
+        while True:
+            yield i
+            i += 1
+
+
+class BmiRedcapValidFieldmapTestCase(BmiRedcapExportTestCase):
+    fieldmap_filename = "bmi.xml"
+    fieldmap_xml = """<?xml version="1.0" encoding="UTF-8"?>
+<instrument name="bmi">
+  <fields>
+    <field name="pa_height" formula="format(task.height_m, '.1f')" />
+    <field name="pa_weight" formula="format(task.mass_kg, '.1f')" />
+    <field name="bmi_date" formula="format_datetime(task.when_created, DateFormat.ISO8601_DATE_ONLY)" />
+  </fields>
+</instrument>
+    """  # noqa: E501
+
+
+class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
+    """
+    These are more of a test of the fieldmap code than anything
+    related to the BMI task
+    """
+
+    def create_tasks(self) -> None:
+        from camcops_server.tasks.bmi import Bmi
+
+        patient = self.create_patient_with_idnum_1001()
+        self.task = Bmi()
+        self.apply_standard_task_fields(self.task)
+        self.task.id = next(self.id_sequence)
+        self.task.height_m = 1.83
+        self.task.mass_kg = 67.57
+        self.task.patient_id = patient.id
+        self.dbsession.add(self.task)
+        self.dbsession.commit()
+
+    def test_record_exported(self) -> None:
+        from camcops_server.cc_modules.cc_exportmodels import (
+            ExportedTask,
+            ExportedTaskRedcap
+        )
+
+        exported_task = ExportedTask(task=self.task, recipient=self.recipient)
+        exported_task_redcap = ExportedTaskRedcap(exported_task)
+
+        exporter = MockRedcapTaskExporter()
+        project = exporter.get_project()
+        project.import_records.return_value = ["123,0"]
+        exporter.export_task(self.req, exported_task_redcap)
+        self.assertEquals(exported_task_redcap.redcap_record.redcap_record_id,
+                          123)
+
+        args, kwargs = project.import_records.call_args
+
+        rows = args[0]
+        record = rows[0]
+
+        self.assertEquals(record["redcap_repeat_instrument"], "bmi")
+        self.assertEquals(record["redcap_repeat_instance"], 1)
+        self.assertEquals(record["record_id"], 0)
+        self.assertEquals(record["bmi_complete"],
+                          RedcapRecordStatus.COMPLETE.value)
+        self.assertEquals(record["bmi_date"], "2010-07-07")
+
+        self.assertEquals(record["pa_height"], "1.8")
+        self.assertEquals(record["pa_weight"], "67.6")
+
+        self.assertEquals(kwargs["return_content"], "auto_ids")
+        self.assertTrue(kwargs["force_auto_number"])
+
+    def test_matching_redcap_id_from_other_recipient_ignored(self) -> None:
+        from camcops_server.cc_modules.cc_exportmodels import (
+            ExportedTask,
+            ExportedTaskRedcap
+        )
+        from camcops_server.cc_modules.cc_exportrecipient import (
+            ExportRecipient
+        )
+        from camcops_server.cc_modules.cc_exportrecipientinfo import (
+            ExportRecipientInfo
+        )
+
+        other_recipientinfo = ExportRecipientInfo()
+        other_recipientinfo.recipient_name = "test2"
+        other_recipient = ExportRecipient(other_recipientinfo)
+        other_recipient.primary_idnum = self.recipient.primary_idnum
+        # auto increment doesn't work for BigInteger with SQLite
+        other_recipient.id = 2
+
+        self.dbsession.add(other_recipient)
+        self.dbsession.commit()
+
+        # Create an existing record for the same patient but for a different
+        # REDCap instance (different export recipient)
+        redcap_record = RedcapRecord(
+            redcap_record_id=123, which_idnum=1001,
+            idnum_value=555,
+            recipient_name=other_recipient.recipient_name)
+        self.dbsession.add(redcap_record)
+        self.dbsession.commit()
+
+        exported_task = ExportedTask(task=self.task, recipient=self.recipient)
+        exported_task_redcap = ExportedTaskRedcap(exported_task)
+
+        exporter = MockRedcapTaskExporter()
+        project = exporter.get_project()
+        project.import_records.return_value = ["456,0"]
+        exporter.export_task(self.req, exported_task_redcap)
+
+        # Would be 123 if the existing record was not ignored
+        self.assertEquals(exported_task_redcap.redcap_record.redcap_record_id,
+                          456)
+        self.assertEquals(exported_task_redcap.redcap_record.next_instance_id,
+                          2)
+
+
+class BmiRedcapUpdateTests(BmiRedcapValidFieldmapTestCase):
+    def create_tasks(self) -> None:
+        from camcops_server.tasks.bmi import Bmi
+        patient = self.create_patient_with_idnum_1001()
+        self.task1 = Bmi()
+        self.apply_standard_task_fields(self.task1)
+        self.task1.id = next(self.id_sequence)
+        self.task1.height_m = 1.83
+        self.task1.mass_kg = 67.57
+        self.task1.patient_id = patient.id
+        self.dbsession.add(self.task1)
+
+        self.task2 = Bmi()
+        self.apply_standard_task_fields(self.task2)
+        self.task2.id = next(self.id_sequence)
+        self.task2.height_m = 1.83
+        self.task2.mass_kg = 68.5
+        self.task2.patient_id = patient.id
+        self.dbsession.add(self.task2)
+        self.dbsession.commit()
+
+    def test_existing_record_id_used_for_update(self) -> None:
+        from camcops_server.cc_modules.cc_exportmodels import (
+            ExportedTask,
+            ExportedTaskRedcap,
+        )
+
+        exporter = MockRedcapTaskExporter()
+        project = exporter.get_project()
+        project.import_records.return_value = ["123,0"]
+
+        exported_task1 = ExportedTask(task=self.task1, recipient=self.recipient)
+        exported_task_redcap1 = ExportedTaskRedcap(exported_task1)
+        exporter.export_task(self.req, exported_task_redcap1)
+        self.assertEquals(exported_task_redcap1.redcap_record.redcap_record_id,
+                          123)
+
+        exported_task2 = ExportedTask(task=self.task2, recipient=self.recipient)
+        exported_task_redcap2 = ExportedTaskRedcap(exported_task2)
+
+        exporter.export_task(self.req, exported_task_redcap2)
+        args, kwargs = project.import_records.call_args
+
+        rows = args[0]
+        record = rows[0]
+
+        self.assertEquals(record["record_id"], 123)
+        self.assertEquals(record["redcap_repeat_instance"], 2)
+
+        self.assertEquals(exported_task_redcap2.redcap_record.next_instance_id,
+                          3)
+
+
+class Phq9RedcapExportTests(RedcapExportTestCase):
+    """
+    These are more of a test of the fieldmap code than anything
+    related to the PHQ9 task
+    """
+    fieldmap_filename = "phq9.xml"
+    fieldmap_xml = """<?xml version="1.0" encoding="UTF-8"?>
+<instrument name="patient_health_questionnaire_9">
+  <fields>
+        <field name="phq9_how_difficult" formula="task.q10 + 1" />
+        <field name="phq9_total_score" formula="task.total_score()" />
+        <field name="phq9_first_name" formula="task.patient.forename" />
+        <field name="phq9_last_name" formula="task.patient.surname" />
+        <field name="phq9_date_enrolled" formula="format_datetime(task.when_created,DateFormat.ISO8601_DATE_ONLY)" />
+        <field name="phq9_1" formula="task.q1" />
+        <field name="phq9_2" formula="task.q2" />
+        <field name="phq9_3" formula="task.q3" />
+        <field name="phq9_4" formula="task.q4" />
+        <field name="phq9_5" formula="task.q5" />
+        <field name="phq9_6" formula="task.q6" />
+        <field name="phq9_7" formula="task.q7" />
+        <field name="phq9_8" formula="task.q8" />
+        <field name="phq9_9" formula="task.q9" />
+  </fields>
+</instrument>
+"""  # noqa: E501
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.id_sequence = self.get_id()
+
+    @staticmethod
+    def get_id() -> Generator[int, None, None]:
+        i = 1
+
+        while True:
+            yield i
+            i += 1
+
+    def create_tasks(self) -> None:
+        from camcops_server.tasks.phq9 import Phq9
+        patient = self.create_patient_with_idnum_1001()
+        self.task = Phq9()
+        self.apply_standard_task_fields(self.task)
+        self.task.id = next(self.id_sequence)
+        self.task.q1 = 0
+        self.task.q2 = 1
+        self.task.q3 = 2
+        self.task.q4 = 3
+        self.task.q5 = 0
+        self.task.q6 = 1
+        self.task.q7 = 2
+        self.task.q8 = 3
+        self.task.q9 = 0
+        self.task.q10 = 3
+        self.task.patient_id = patient.id
+        self.dbsession.add(self.task)
+        self.dbsession.commit()
+
+    def test_record_exported(self) -> None:
+        from camcops_server.cc_modules.cc_exportmodels import (
+            ExportedTask,
+            ExportedTaskRedcap,
+        )
+
+        exported_task = ExportedTask(task=self.task, recipient=self.recipient)
+        exported_task_redcap = ExportedTaskRedcap(exported_task)
+
+        exporter = MockRedcapTaskExporter()
+        project = exporter.get_project()
+        project.import_records.return_value = ["123,0"]
+        exporter.export_task(self.req, exported_task_redcap)
+        self.assertEquals(exported_task_redcap.redcap_record.redcap_record_id,
+                          123)
+
+        args, kwargs = project.import_records.call_args
+
+        rows = args[0]
+        record = rows[0]
+
+        self.assertEquals(record["redcap_repeat_instrument"],
+                          "patient_health_questionnaire_9")
+        self.assertEquals(record["record_id"], 0)
+        self.assertEquals(record["patient_health_questionnaire_9_complete"],
+                          RedcapRecordStatus.COMPLETE.value)
+        self.assertEquals(record["phq9_how_difficult"], 4)
+        self.assertEquals(record["phq9_total_score"], 12)
+        self.assertEquals(record["phq9_first_name"], "Forename2")
+        self.assertEquals(record["phq9_last_name"], "Surname2")
+        self.assertEquals(record["phq9_date_enrolled"], "2010-07-07")
+
+        self.assertEquals(record["phq9_1"], 0)
+        self.assertEquals(record["phq9_2"], 1)
+        self.assertEquals(record["phq9_3"], 2)
+        self.assertEquals(record["phq9_4"], 3)
+        self.assertEquals(record["phq9_5"], 0)
+        self.assertEquals(record["phq9_6"], 1)
+        self.assertEquals(record["phq9_7"], 2)
+        self.assertEquals(record["phq9_8"], 3)
+        self.assertEquals(record["phq9_9"], 0)
+
+        self.assertEquals(kwargs["return_content"], "auto_ids")
+        self.assertTrue(kwargs["force_auto_number"])
+
+
+class MedicationTherapyRedcapExportTests(RedcapExportTestCase):
+    """
+    These are more of a test of the file upload code than anything
+    related to the KhandakerMojoMedicationTherapy task
+    """
+    fieldmap_filename = "khandaker_mojo_medicationtherapy.xml"
+    fieldmap_xml = """<?xml version="1.0" encoding="UTF-8"?>
+<instrument name="medication_table">
+  <fields>
+  </fields>
+  <files>
+    <field name="medtbl_medication_items" formula="task.get_pdf(request)" />
+  </files>
+</instrument>
+"""
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.id_sequence = self.get_id()
+
+    @staticmethod
+    def get_id() -> Generator[int, None, None]:
+        i = 1
+
+        while True:
+            yield i
+            i += 1
+
+    def create_tasks(self) -> None:
+        from camcops_server.tasks.khandaker_mojo_medicationtherapy import (
+            KhandakerMojoMedicationTherapy,
+        )
+
+        patient = self.create_patient_with_idnum_1001()
+        self.task = KhandakerMojoMedicationTherapy()
+        self.apply_standard_task_fields(self.task)
+        self.task.id = next(self.id_sequence)
+        self.task.patient_id = patient.id
+        self.dbsession.add(self.task)
+        self.dbsession.commit()
+
+    def test_record_exported(self) -> None:
+        from camcops_server.cc_modules.cc_exportmodels import (
+            ExportedTask,
+            ExportedTaskRedcap
+        )
+
+        exported_task = ExportedTask(task=self.task, recipient=self.recipient)
+        exported_task_redcap = ExportedTaskRedcap(exported_task)
+
+        exporter = MockRedcapTaskExporter()
+        project = exporter.get_project()
+        project.import_records.return_value = ["123,0"]
+
+        # We can't just look at the call_args here because the file will already
+        # have been closed by then
+        def read_pdf_bytes(*args, **kwargs):
+            file_obj = args[3]
+            read_pdf_bytes.pdf_header = file_obj.read(5)
+
+        project.import_file.side_effect = read_pdf_bytes
+
+        exporter.export_task(self.req, exported_task_redcap)
+        self.assertEquals(exported_task_redcap.redcap_record.redcap_record_id,
+                          123)
+
+        args, kwargs = project.import_file.call_args
+
+        record_id = args[0]
+        fieldname = args[1]
+        filename = args[2]
+
+        self.assertEquals(record_id, 123)
+        self.assertEquals(fieldname, "medtbl_medication_items")
+        self.assertEquals(
+            filename,
+            "khandaker_mojo_medicationtherapy_123_medtbl_medication_items"
+        )
+
+        self.assertEquals(kwargs["repeat_instance"], 1)
+        self.assertEquals(read_pdf_bytes.pdf_header, b"%PDF-")
