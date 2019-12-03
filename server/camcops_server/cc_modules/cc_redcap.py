@@ -250,9 +250,10 @@ class RedcapNextInstance(Base):
         comment="Table name of the task's base table"
     )
 
-    redcap_record_id = Column(
-        "redcap_record_id", Integer,
-        comment="ID of the record on REDCap"
+    redcap_record_pk = Column(
+        "redcap_record_pk", Integer, ForeignKey(RedcapRecord.id),
+        nullable=False,
+        comment="Primary key of associated RedcapRecord"
     )
 
     next_instance_id = Column(
@@ -344,7 +345,7 @@ class RedcapTaskExporter(object):
         )
 
         self._save_redcap_record(req, redcap_record, new_redcap_record_id)
-        self._save_next_instance(req, next_instance, new_redcap_record_id)
+        self._save_next_instance(req, next_instance, redcap_record)
 
         exported_task_redcap.redcap_record = redcap_record
 
@@ -401,13 +402,13 @@ class RedcapTaskExporter(object):
         next_instance = (
             req.dbsession.query(RedcapNextInstance)
             .filter(RedcapNextInstance.task_table_name == task.tablename)
-            .filter(RedcapNextInstance.redcap_record_id == redcap_record.redcap_record_id)  # noqa: E501
+            .filter(RedcapNextInstance.redcap_record_pk == redcap_record.id)
         ).first()
 
         if next_instance is None:
             next_instance = RedcapNextInstance(
                 task_table_name=task.tablename,
-                redcap_record_id=redcap_record.redcap_record_id,
+                redcap_record_pk=redcap_record.id,
                 next_instance_id=1
             )
 
@@ -426,9 +427,9 @@ class RedcapTaskExporter(object):
     def _save_next_instance(self,
                             req: "CamcopsRequest",
                             next_instance: RedcapNextInstance,
-                            redcap_record_id: int) -> None:
+                            redcap_record: RedcapRecord) -> None:
         next_instance.next_instance_id = next_instance.next_instance_id + 1
-        next_instance.redcap_record_id = redcap_record_id
+        next_instance.redcap_record_pk = redcap_record.id
 
         req.dbsession.add(next_instance)
         req.dbsession.commit()
@@ -790,7 +791,7 @@ class RedcapExportTestCase(DemoDatabaseTestCase):
         next_instance = (
             self.req.dbsession.query(RedcapNextInstance)
             .filter(RedcapNextInstance.task_table_name == task.tablename)
-            .filter(RedcapNextInstance.redcap_record_id == redcap_record.redcap_record_id)  # noqa: E501
+            .filter(RedcapNextInstance.redcap_record_pk == redcap_record.id)
         ).first()
 
         self.assertIsNotNone(next_instance)

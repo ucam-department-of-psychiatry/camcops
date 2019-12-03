@@ -30,7 +30,7 @@ redcap
 
 Revision ID: 0044
 Revises: 0043
-Creation date: 2019-12-03 15:43:28.226372
+Creation date: 2019-12-03 17:25:20.137230
 
 """
 
@@ -61,18 +61,6 @@ depends_on = None
 # noinspection PyPep8,PyTypeChecker
 def upgrade():
     op.create_table(
-        '_redcap_next_instance',
-        sa.Column('id', sa.Integer(), autoincrement=True, nullable=False, comment='Arbitrary primary key'),
-        sa.Column('task_table_name', sa.String(length=128), nullable=True, comment="Table name of the task's base table"),
-        sa.Column('redcap_record_id', sa.Integer(), nullable=True, comment='ID of the record on REDCap'),
-        sa.Column('next_instance_id', sa.Integer(), nullable=True, comment='The instance ID for the next repeating records'),
-        sa.PrimaryKeyConstraint('id', name=op.f('pk__redcap_next_instance')),
-        mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
-        mysql_engine='InnoDB',
-        mysql_row_format='DYNAMIC'
-    )
-
-    op.create_table(
         '_redcap_record',
         sa.Column('id', sa.Integer(), autoincrement=True, nullable=False, comment='Arbitrary primary key'),
         sa.Column('redcap_record_id', sa.Integer(), nullable=True, comment='ID of the record on REDCap'),
@@ -99,8 +87,25 @@ def upgrade():
         mysql_row_format='DYNAMIC'
     )
 
+    op.create_table(
+        '_redcap_next_instance',
+        sa.Column('id', sa.Integer(), autoincrement=True, nullable=False, comment='Arbitrary primary key'),
+        sa.Column('task_table_name', sa.String(length=128), nullable=True, comment="Table name of the task's base table"),
+        sa.Column('redcap_record_pk', sa.Integer(), nullable=False, comment='Primary key of associated RedcapRecord'),
+        sa.Column('next_instance_id', sa.Integer(), nullable=True, comment='The instance ID for the next repeating records'),
+        sa.ForeignKeyConstraint(['redcap_record_pk'], ['_redcap_record.id'], name=op.f('fk__redcap_next_instance_redcap_record_pk')),
+        sa.PrimaryKeyConstraint('id', name=op.f('pk__redcap_next_instance')),
+        mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
+        mysql_engine='InnoDB',
+        mysql_row_format='DYNAMIC'
+    )
 
+    with op.batch_alter_table('_redcap_next_instance', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix__redcap_next_instance_task_table_name'), ['task_table_name'], unique=False)
+
+
+# noinspection PyPep8,PyTypeChecker
 def downgrade():
+    op.drop_table('_redcap_next_instance')
     op.drop_table('_exported_task_redcap')
     op.drop_table('_redcap_record')
-    op.drop_table('_redcap_next_instance')
