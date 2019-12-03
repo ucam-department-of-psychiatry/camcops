@@ -171,6 +171,7 @@ import redcap
 from sqlalchemy.sql.schema import Column, ForeignKey
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     ExportRecipientNameColType,
+    TableNameColType,
 )
 from sqlalchemy.sql.sqltypes import BigInteger, Integer
 
@@ -205,7 +206,7 @@ class RedcapRecord(Base):
 
     redcap_record_id = Column(
         "redcap_record_id", Integer,
-        comment="REDCap record ID"
+        comment="ID of the record on REDCap"
     )
 
     which_idnum = Column(
@@ -223,6 +224,34 @@ class RedcapRecord(Base):
     recipient_name = Column(
         "recipient_name", ExportRecipientNameColType, nullable=False,
         comment="Name of export recipient"
+    )
+
+
+class RedcapNextInstance(Base):
+    """
+    For each task/instrument in a REDCap record, holds the instance
+    ID to be used for the next upload.
+
+    Unfortunately REDCap won't create these automatically
+    https://community.projectredcap.org/questions/74561/unexpected-behaviour-with-import-records-repeat-in.html
+
+    """  # noqa
+    __tablename__ = "_redcap_next_instance"
+
+    id = Column(
+        "id", Integer, primary_key=True, autoincrement=True,
+        comment="Arbitrary primary key"
+    )
+
+    task_table_name = Column(
+        "task_table_name", TableNameColType,
+        index=True,
+        comment="Table name of the task's base table"
+    )
+
+    redcap_record_id = Column(
+        "redcap_record_id", Integer,
+        comment="ID of the record on REDCap"
     )
 
     next_instance_id = Column(
@@ -304,12 +333,17 @@ class RedcapTaskExporter(object):
         task = exported_task.task
         uploader = uploader_class(req, project)
 
+        next_instance, _ = self._get_or_create_next_instance(
+            req, task, redcap_record
+        )
+
         new_redcap_record_id = uploader.upload(
             task, redcap_record.redcap_record_id,
-            redcap_record.next_instance_id
+            next_instance.next_instance_id
         )
 
         self._save_redcap_record(req, redcap_record, new_redcap_record_id)
+        self._save_next_instance(req, next_instance, new_redcap_record_id)
 
         exported_task_redcap.redcap_record = redcap_record
 
@@ -349,22 +383,53 @@ class RedcapTaskExporter(object):
                 redcap_record_id=0,
                 which_idnum=idnum_object.which_idnum,
                 idnum_value=idnum_object.idnum_value,
-                recipient_name=recipient.recipient_name,
-                next_instance_id=1
+                recipient_name=recipient.recipient_name
             )
 
             created = True
 
         return record, created
 
+    def _get_or_create_next_instance(
+            self,
+            req: "CamcopsRequest",
+            task: "Task",
+            redcap_record: RedcapRecord) -> Tuple[RedcapNextInstance, bool]:
+        created = False
+
+        next_instance = (
+            req.dbsession.query(RedcapNextInstance)
+            .filter(RedcapNextInstance.task_table_name == task.tablename)
+            .filter(RedcapNextInstance.redcap_record_id == redcap_record.redcap_record_id)  # noqa: E501
+        ).first()
+
+        if next_instance is None:
+            next_instance = RedcapNextInstance(
+                task_table_name=task.tablename,
+                redcap_record_id=redcap_record.redcap_record_id,
+                next_instance_id=1
+            )
+
+            created = True
+
+        return next_instance, created
+
     def _save_redcap_record(self,
                             req: "CamcopsRequest",
                             redcap_record: RedcapRecord,
                             redcap_record_id: int) -> None:
         redcap_record.redcap_record_id = redcap_record_id
-        next_instance_id = redcap_record.next_instance_id + 1
-        redcap_record.next_instance_id = next_instance_id
         req.dbsession.add(redcap_record)
+        req.dbsession.commit()
+
+    def _save_next_instance(self,
+                            req: "CamcopsRequest",
+                            next_instance: RedcapNextInstance,
+                            redcap_record_id: int) -> None:
+        next_instance.next_instance_id = next_instance.next_instance_id + 1
+        next_instance.redcap_record_id = redcap_record_id
+
+        req.dbsession.add(next_instance)
         req.dbsession.commit()
 
 
@@ -712,14 +777,30 @@ class RedcapFieldmapTests(TestCase):
 # =============================================================================
 
 class RedcapExportTestCase(DemoDatabaseTestCase):
-    fieldmap_filename = None
+    fieldmaps = {}
+
+    def get_next_instance(
+            self,
+            exported_task_redcap: "ExportedTaskRedcap") -> RedcapNextInstance:
+
+        task = exported_task_redcap.exported_task.task
+        redcap_record = exported_task_redcap.redcap_record
+
+        next_instance = (
+            self.req.dbsession.query(RedcapNextInstance)
+            .filter(RedcapNextInstance.task_table_name == task.tablename)
+            .filter(RedcapNextInstance.redcap_record_id == redcap_record.redcap_record_id)  # noqa: E501
+        ).first()
+
+        self.assertIsNotNone(next_instance)
+
+        return next_instance
 
     def override_config_settings(self, parser: "ConfigParser"):
         parser.set("site", "REDCAP_FIELDMAPS", self.tmpdir_obj.name)
 
     def setUp(self) -> None:
-        if self.fieldmap_filename is not None:
-            self.write_fieldmap()
+        self.write_fieldmaps()
 
         recipientinfo = ExportRecipientInfo()
 
@@ -732,16 +813,13 @@ class RedcapExportTestCase(DemoDatabaseTestCase):
 
         super().setUp()
 
-    def write_fieldmap(self) -> None:
-        fieldmap = os.path.join(self.tmpdir_obj.name,
-                                self.fieldmap_filename)
+    def write_fieldmaps(self) -> None:
+        for filename, xml in self.fieldmaps.items():
+            fieldmap = os.path.join(self.tmpdir_obj.name,
+                                    filename)
 
-        with open(fieldmap, "w") as f:
-            f.write(self.fieldmap_xml)
-
-    @property
-    def fieldmap_rows(self) -> List[List[str]]:
-        raise NotImplementedError("You must define fieldmap_rows property")
+            with open(fieldmap, "w") as f:
+                f.write(xml)
 
     def create_patient_with_idnum_1001(self) -> None:
         from camcops_server.cc_modules.cc_patient import Patient
@@ -780,16 +858,14 @@ class BmiRedcapExportTestCase(RedcapExportTestCase):
 
 
 class BmiRedcapValidFieldmapTestCase(BmiRedcapExportTestCase):
-    fieldmap_filename = "bmi.xml"
-    fieldmap_xml = """<?xml version="1.0" encoding="UTF-8"?>
+    fieldmaps = {"bmi.xml": """<?xml version="1.0" encoding="UTF-8"?>
 <instrument name="bmi">
   <fields>
     <field name="pa_height" formula="format(task.height_m, '.1f')" />
     <field name="pa_weight" formula="format(task.mass_kg, '.1f')" />
     <field name="bmi_date" formula="format_datetime(task.when_created, DateFormat.ISO8601_DATE_ONLY)" />
   </fields>
-</instrument>
-    """  # noqa: E501
+</instrument>"""}  # noqa: E501
 
 
 class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
@@ -887,8 +963,9 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
         # Would be 123 if the existing record was not ignored
         self.assertEquals(exported_task_redcap.redcap_record.redcap_record_id,
                           456)
-        self.assertEquals(exported_task_redcap.redcap_record.next_instance_id,
-                          2)
+
+        next_instance = self.get_next_instance(exported_task_redcap)
+        self.assertEquals(next_instance.next_instance_id, 2)
 
 
 class BmiRedcapUpdateTests(BmiRedcapValidFieldmapTestCase):
@@ -940,8 +1017,9 @@ class BmiRedcapUpdateTests(BmiRedcapValidFieldmapTestCase):
         self.assertEquals(record["record_id"], 123)
         self.assertEquals(record["redcap_repeat_instance"], 2)
 
-        self.assertEquals(exported_task_redcap2.redcap_record.next_instance_id,
-                          3)
+        next_instance = self.get_next_instance(exported_task_redcap2)
+
+        self.assertEquals(next_instance.next_instance_id, 3)
 
 
 class Phq9RedcapExportTests(RedcapExportTestCase):
@@ -949,8 +1027,7 @@ class Phq9RedcapExportTests(RedcapExportTestCase):
     These are more of a test of the fieldmap code than anything
     related to the PHQ9 task
     """
-    fieldmap_filename = "phq9.xml"
-    fieldmap_xml = """<?xml version="1.0" encoding="UTF-8"?>
+    fieldmaps = {"phq9.xml": """<?xml version="1.0" encoding="UTF-8"?>
 <instrument name="patient_health_questionnaire_9">
   <fields>
         <field name="phq9_how_difficult" formula="task.q10 + 1" />
@@ -968,8 +1045,7 @@ class Phq9RedcapExportTests(RedcapExportTestCase):
         <field name="phq9_8" formula="task.q8" />
         <field name="phq9_9" formula="task.q9" />
   </fields>
-</instrument>
-"""  # noqa: E501
+</instrument>"""}  # noqa: E501
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -1054,16 +1130,15 @@ class MedicationTherapyRedcapExportTests(RedcapExportTestCase):
     These are more of a test of the file upload code than anything
     related to the KhandakerMojoMedicationTherapy task
     """
-    fieldmap_filename = "khandaker_mojo_medicationtherapy.xml"
-    fieldmap_xml = """<?xml version="1.0" encoding="UTF-8"?>
+    fieldmaps = {
+        "khandaker_mojo_medicationtherapy.xml": """<?xml version="1.0" encoding="UTF-8"?>
 <instrument name="medication_table">
   <fields>
   </fields>
   <files>
     <field name="medtbl_medication_items" formula="task.get_pdf(request)" />
   </files>
-</instrument>
-"""
+</instrument>"""}  # noqa: E501
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -1130,3 +1205,94 @@ class MedicationTherapyRedcapExportTests(RedcapExportTestCase):
 
         self.assertEquals(kwargs["repeat_instance"], 1)
         self.assertEquals(read_pdf_bytes.pdf_header, b"%PDF-")
+
+
+class MultipleTaskRedcapExportTests(RedcapExportTestCase):
+    fieldmaps = {
+"bmi.xml": """<?xml version="1.0" encoding="UTF-8"?>
+<instrument name="bmi">
+  <fields>
+    <field name="pa_height" formula="format(task.height_m, '.1f')" />
+    <field name="pa_weight" formula="format(task.mass_kg, '.1f')" />
+    <field name="bmi_date" formula="format_datetime(task.when_created, DateFormat.ISO8601_DATE_ONLY)" />
+  </fields>
+</instrument>""",  # noqa: E501
+"khandaker_mojo_medicationtherapy.xml": """<?xml version="1.0" encoding="UTF-8"?>
+<instrument name="medication_table">
+  <fields>
+  </fields>
+  <files>
+    <field name="medtbl_medication_items" formula="task.get_pdf(request)" />
+  </files>
+</instrument>"""}
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.id_sequence = self.get_id()
+
+    @staticmethod
+    def get_id() -> Generator[int, None, None]:
+        i = 1
+
+        while True:
+            yield i
+            i += 1
+
+    def create_tasks(self) -> None:
+        from camcops_server.tasks.khandaker_mojo_medicationtherapy import (
+            KhandakerMojoMedicationTherapy,
+        )
+
+        patient = self.create_patient_with_idnum_1001()
+        self.task1 = KhandakerMojoMedicationTherapy()
+        self.apply_standard_task_fields(self.task1)
+        self.task1.id = next(self.id_sequence)
+        self.task1.patient_id = patient.id
+        self.dbsession.add(self.task1)
+        self.dbsession.commit()
+
+        from camcops_server.tasks.bmi import Bmi
+        self.task2 = Bmi()
+        self.apply_standard_task_fields(self.task2)
+        self.task2.id = next(self.id_sequence)
+        self.task2.height_m = 1.83
+        self.task2.mass_kg = 67.57
+        self.task2.patient_id = patient.id
+        self.dbsession.add(self.task2)
+        self.dbsession.commit()
+
+    def test_instance_ids_on_different_tasks_in_same_record(self) -> None:
+        from camcops_server.cc_modules.cc_exportmodels import (
+            ExportedTask,
+            ExportedTaskRedcap,
+        )
+        exporter = MockRedcapTaskExporter()
+        project = exporter.get_project()
+        project.import_records.return_value = ["123,0"]
+
+        exported_task1 = ExportedTask(task=self.task1, recipient=self.recipient)
+        exported_task_redcap1 = ExportedTaskRedcap(exported_task1)
+        exporter.export_task(self.req, exported_task_redcap1)
+        self.assertEquals(exported_task_redcap1.redcap_record.redcap_record_id,
+                          123)
+        args, kwargs = project.import_file.call_args
+
+        self.assertEquals(kwargs["repeat_instance"], 1)
+
+        next_instance = self.get_next_instance(exported_task_redcap1)
+
+        self.assertEquals(next_instance.next_instance_id, 2)
+
+        exported_task2 = ExportedTask(task=self.task2, recipient=self.recipient)
+        exported_task_redcap2 = ExportedTaskRedcap(exported_task2)
+
+        exporter.export_task(self.req, exported_task_redcap2)
+        args, kwargs = project.import_records.call_args
+
+        rows = args[0]
+        record = rows[0]
+
+        self.assertEquals(record["redcap_repeat_instance"], 1)
+        next_instance = self.get_next_instance(exported_task_redcap2)
+
+        self.assertEquals(next_instance.next_instance_id, 2)
