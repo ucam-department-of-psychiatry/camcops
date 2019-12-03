@@ -32,11 +32,12 @@ camcops_server/cc_modules/cc_redcap.py
 
 - The API documentation seems not to be provided there, but is available from
   your local REDCap server. Pick a project. Choose "API" from the left-hand
-  menu.
+  menu. Follow the "REDCap API documentation" link.
 
 - In Python, we have PyCap (https://pycap.readthedocs.io/ or
   https://github.com/redcap-tools/PyCap). See also
-  http://redcap-tools.github.io/projects/.
+  http://redcap-tools.github.io/projects/. This is no longer being actively
+  developed.
 
 - There are also Python examples in the "API Examples" section of the API
   documentation. See, for example, ``import_records.py``.
