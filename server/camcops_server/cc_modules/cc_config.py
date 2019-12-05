@@ -247,7 +247,7 @@ def get_demo_config(extra_strings_dir: str = None,
 {ConfigParamSite.RESTRICTED_TASKS} =
 {ConfigParamSite.LANGUAGE} = {cd.LANGUAGE}
 
-{ConfigParamSite.REDCAP_FIELDMAPS} =
+{ConfigParamSite.REDCAP_FIELDMAP_FILENAME} =
 
 {ConfigParamSite.SNOMED_TASK_XML_FILENAME} =
 {ConfigParamSite.SNOMED_ICD9_XML_FILENAME} =
@@ -1194,8 +1194,8 @@ class CamcopsConfig(object):
         self.session_timeout = datetime.timedelta(
             minutes=self.session_timeout_minutes)
 
-        self.redcap_fieldmaps = _get_str(
-            s, cs.REDCAP_FIELDMAPS)
+        self.redcap_fieldmap_filename = _get_str(
+            s, cs.REDCAP_FIELDMAP_FILENAME)
         self.snomed_task_xml_filename = _get_str(
             s, cs.SNOMED_TASK_XML_FILENAME)
         self.snomed_icd9_xml_filename = _get_str(

@@ -274,9 +274,9 @@ class RedcapFieldmap(object):
     """
 
     def __init__(self, *args, **kwargs):
-        self.fieldmap = {}
-        self.file_fieldmap = {}
-        self.instrument_name = ""
+        self.fields = {}
+        self.files = {}
+        self.instruments = {}
 
     def init_from_file(self, filename: str):
         parser = ET.XMLParser(encoding="UTF-8")
@@ -292,23 +292,41 @@ class RedcapFieldmap(object):
             )
 
         root = tree.getroot()
-        if root.tag != "instrument":
+        if root.tag != "fieldmap":
             raise RedcapExportException(
-                (f"Expected the root tag to be 'instrument' instead of "
+                (f"Expected the root tag to be 'fieldmap' instead of "
                  f"'{root.tag}' in {filename}")
             )
 
-        self.instrument_name = root.get("name")
+        try:
+            instrument_elements = root.find("instruments")
+        except ET.ParseError:
+            raise RedcapExportException(
+                f"No 'instruments' tag in {filename}"
+            )
 
-        fields = root.find("fields")
+        for instrument_element in instrument_elements:
+            task = instrument_element.get("task")
+            # TODO: name empty
+            instrument_name = instrument_element.get("name")
+            self.fields[task] = {}
+            self.files[task] = {}
+            self.instruments[task] = instrument_name
 
-        for field in fields:
-            self.fieldmap[field.get("name")] = field.get("formula")
+            # TODO: task empty
+            field_elements = instrument_element.find("fields") or []
 
-        files = root.find("files") or []
-        for file_field in files:
-            self.file_fieldmap[file_field.get("name")] = file_field.get(
-                "formula")
+            for field_element in field_elements:
+                name = field_element.get("name")
+                formula = field_element.get("formula")
+
+                self.fields[task][name] = formula
+
+            file_elements = instrument_element.find("files") or []
+            for file_element in file_elements:
+                name = file_element.get("name")
+                formula = file_element.get("formula")
+                self.files[task][name] = formula
 
 
 class RedcapTaskExporter(object):
@@ -464,8 +482,8 @@ class RedcapUploader(object):
 
         if task.is_complete():
             complete_status = RedcapRecordStatus.COMPLETE
-        fieldmap = self.get_task_fieldmap(task)
-        instrument_name = fieldmap.instrument_name
+        fieldmap = self.get_fieldmap()
+        instrument_name = fieldmap.instruments[task.tablename]
 
         repeat_instance = next_instance_id
 
@@ -479,14 +497,14 @@ class RedcapUploader(object):
             f"{instrument_name}_complete": complete_status.value,
         }
 
-        self.transform_fields(record, task, fieldmap.fieldmap)
+        self.transform_fields(record, task, fieldmap.fields[task.tablename])
 
         response = self.upload_record(record)
         new_redcap_record_id = self.get_new_redcap_record_id(redcap_record_id,
                                                              response)
 
         file_dict = {}
-        self.transform_fields(file_dict, task, fieldmap.file_fieldmap)
+        self.transform_fields(file_dict, task, fieldmap.files[task.tablename])
 
         self.upload_files(task,
                           new_redcap_record_id,
@@ -541,8 +559,10 @@ class RedcapUploader(object):
                 message = "\n".join([e.msg for e in interpreter.error])
                 raise RedcapExportException(
                     (
-                        f"Fieldmap '{self.get_task_fieldmap_filename(task)}':\n"
-                        f"Error in formula '{formula}': {message}"
+                        f"Fieldmap: '{self.get_fieldmap_filename()}'\n"
+                        f"Error in formula '{formula}': {message}\n"
+                        f"Task: '{task.tablename}'\n"
+                        f"REDCap field: '{redcap_field}'\n"
                     )
                 )
             field_dict[redcap_field] = v
@@ -554,26 +574,23 @@ class RedcapUploader(object):
             request=self.req
         )
 
-    def get_task_fieldmap(self, task: "Task") -> Dict:
+    def get_fieldmap(self) -> Dict:
         fieldmap = RedcapFieldmap()
-        fieldmap.init_from_file(self.get_task_fieldmap_filename(task))
+        fieldmap.init_from_file(self.get_fieldmap_filename())
 
         return fieldmap
 
-    def get_task_fieldmap_filename(self, task: "Task") -> str:
-        fieldmap_dir = self.req.config.redcap_fieldmaps
-        if fieldmap_dir is None:
+    def get_fieldmap_filename(self) -> str:
+        filename = self.req.config.redcap_fieldmap_filename
+        if filename is None:
             raise RedcapExportException(
-                "REDCAP_FIELDMAPS is not set in the config file"
+                "REDCAP_FIELDMAP_FILENAME is not set in the config file"
             )
 
-        if fieldmap_dir == "":
+        if filename == "":
             raise RedcapExportException(
-                "REDCAP_FIELDMAPS is empty in the config file"
+                "REDCAP_FIELDMAP_FILENAME is empty in the config file"
             )
-
-        filename = os.path.join(fieldmap_dir,
-                                f"{task.tablename}.xml")
 
         return filename
 
@@ -639,7 +656,7 @@ class MockRedcapNewRecordUploader(RedcapNewRecordUploader):
 class RedcapExportErrorTests(TestCase):
     def test_raises_when_fieldmap_has_unknown_symbols(self) -> None:
         exporter = MockRedcapNewRecordUploader()
-        exporter.req.config.redcap_fieldmaps = "/some/path/fieldmaps"
+        exporter.req.config.redcap_fieldmap_filename = "/some/path/fieldmap.xml"
 
         task = mock.Mock(tablename="bmi")
         fieldmap = {"pa_height": "sys.platform"}
@@ -650,20 +667,22 @@ class RedcapExportErrorTests(TestCase):
             exporter.transform_fields(field_dict, task, fieldmap)
 
         message = str(cm.exception)
+        self.assertIn("Fieldmap: '/some/path/fieldmap.xml'", message)
         self.assertIn("Error in formula 'sys.platform':", message)
-        self.assertIn("bmi.xml", message)
+        self.assertIn("Task: 'bmi'", message)
+        self.assertIn("REDCap field: 'pa_height'", message)
         self.assertIn("'sys' is not defined", message)
 
     def test_raises_when_fieldmap_missing_from_config(self) -> None:
 
         exporter = MockRedcapNewRecordUploader()
-        exporter.req.config.redcap_fieldmaps = ""
-        task = mock.Mock()
+        exporter.req.config.redcap_fieldmap_filename = ""
         with self.assertRaises(RedcapExportException) as cm:
-            exporter.get_task_fieldmap_filename(task)
+            exporter.get_fieldmap_filename()
 
         message = str(cm.exception)
-        self.assertIn("REDCAP_FIELDMAPS is empty in the config file", message)
+        self.assertIn("REDCAP_FIELDMAP_FILENAME is empty in the config file",
+                      message)
 
     def test_raises_when_error_from_redcap_on_import(self) -> None:
         exporter = MockRedcapNewRecordUploader()
@@ -739,7 +758,7 @@ class RedcapFieldmapTests(TestCase):
         self.assertIn("Unable to open fieldmap file", message)
         self.assertIn("bmi.xml", message)
 
-    def test_raises_when_instrument_missing(self):
+    def test_raises_when_fieldmap_missing(self):
         with tempfile.NamedTemporaryFile(
                 mode="w", suffix="xml") as fieldmap_file:
             fieldmap_file.write("""<?xml version="1.0" encoding="UTF-8"?>
@@ -753,7 +772,7 @@ class RedcapFieldmapTests(TestCase):
                 fieldmap.init_from_file(fieldmap_file.name)
 
         message = str(cm.exception)
-        self.assertIn(("Expected the root tag to be 'instrument' instead of "
+        self.assertIn(("Expected the root tag to be 'fieldmap' instead of "
                        "'someothertag'"), message)
         self.assertIn(fieldmap_file.name, message)
 
@@ -779,7 +798,7 @@ class RedcapFieldmapTests(TestCase):
 # =============================================================================
 
 class RedcapExportTestCase(DemoDatabaseTestCase):
-    fieldmaps = {}
+    fieldmap = ""
 
     def get_next_instance(
             self,
@@ -799,9 +818,11 @@ class RedcapExportTestCase(DemoDatabaseTestCase):
         return next_instance
 
     def override_config_settings(self, parser: "ConfigParser"):
-        parser.set("site", "REDCAP_FIELDMAPS", self.tmpdir_obj.name)
+        parser.set("site", "REDCAP_FIELDMAP_FILENAME", self.fieldmap_filename)
 
     def setUp(self) -> None:
+        self.fieldmap_filename = os.path.join(
+            self.tmpdir_obj.name, "redcap_fieldmap.xml")
         self.write_fieldmaps()
 
         recipientinfo = ExportRecipientInfo()
@@ -816,12 +837,8 @@ class RedcapExportTestCase(DemoDatabaseTestCase):
         super().setUp()
 
     def write_fieldmaps(self) -> None:
-        for filename, xml in self.fieldmaps.items():
-            fieldmap = os.path.join(self.tmpdir_obj.name,
-                                    filename)
-
-            with open(fieldmap, "w") as f:
-                f.write(xml)
+        with open(self.fieldmap_filename, "w") as f:
+            f.write(self.fieldmap)
 
     def create_patient_with_idnum_1001(self) -> None:
         from camcops_server.cc_modules.cc_patient import Patient
@@ -860,14 +877,18 @@ class BmiRedcapExportTestCase(RedcapExportTestCase):
 
 
 class BmiRedcapValidFieldmapTestCase(BmiRedcapExportTestCase):
-    fieldmaps = {"bmi.xml": """<?xml version="1.0" encoding="UTF-8"?>
-<instrument name="bmi">
-  <fields>
-    <field name="pa_height" formula="format(task.height_m, '.1f')" />
-    <field name="pa_weight" formula="format(task.mass_kg, '.1f')" />
-    <field name="bmi_date" formula="format_datetime(task.when_created, DateFormat.ISO8601_DATE_ONLY)" />
-  </fields>
-</instrument>"""}  # noqa: E501
+    fieldmap = """<?xml version="1.0" encoding="UTF-8"?>
+<fieldmap>
+  <instruments>
+    <instrument task="bmi" name="bmi">
+      <fields>
+        <field name="pa_height" formula="format(task.height_m, '.1f')" />
+        <field name="pa_weight" formula="format(task.mass_kg, '.1f')" />
+        <field name="bmi_date" formula="format_datetime(task.when_created, DateFormat.ISO8601_DATE_ONLY)" />
+        </fields>
+    </instrument>
+  </instruments>
+</fieldmap>"""  # noqa: E501
 
 
 class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
@@ -1029,9 +1050,11 @@ class Phq9RedcapExportTests(RedcapExportTestCase):
     These are more of a test of the fieldmap code than anything
     related to the PHQ9 task
     """
-    fieldmaps = {"phq9.xml": """<?xml version="1.0" encoding="UTF-8"?>
-<instrument name="patient_health_questionnaire_9">
-  <fields>
+    fieldmap = """<?xml version="1.0" encoding="UTF-8"?>
+<fieldmap>
+  <instruments>
+    <instrument task="phq9" name="patient_health_questionnaire_9">
+      <fields>
         <field name="phq9_how_difficult" formula="task.q10 + 1" />
         <field name="phq9_total_score" formula="task.total_score()" />
         <field name="phq9_first_name" formula="task.patient.forename" />
@@ -1046,8 +1069,10 @@ class Phq9RedcapExportTests(RedcapExportTestCase):
         <field name="phq9_7" formula="task.q7" />
         <field name="phq9_8" formula="task.q8" />
         <field name="phq9_9" formula="task.q9" />
-  </fields>
-</instrument>"""}  # noqa: E501
+      </fields>
+    </instrument>
+  </instruments>
+</fieldmap>"""  # noqa: E501
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -1132,15 +1157,16 @@ class MedicationTherapyRedcapExportTests(RedcapExportTestCase):
     These are more of a test of the file upload code than anything
     related to the KhandakerMojoMedicationTherapy task
     """
-    fieldmaps = {
-        "khandaker_mojo_medicationtherapy.xml": """<?xml version="1.0" encoding="UTF-8"?>
-<instrument name="medication_table">
-  <fields>
-  </fields>
-  <files>
-    <field name="medtbl_medication_items" formula="task.get_pdf(request)" />
-  </files>
-</instrument>"""}  # noqa: E501
+    fieldmap = """<?xml version="1.0" encoding="UTF-8"?>
+<fieldmap>
+  <instruments>
+    <instrument task="khandaker_mojo_medicationtherapy" name="medication_table">
+      <files>
+        <field name="medtbl_medication_items" formula="task.get_pdf(request)" />
+      </files>
+    </instrument>
+  </instruments>
+</fieldmap>"""  # noqa: E501
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -1210,23 +1236,24 @@ class MedicationTherapyRedcapExportTests(RedcapExportTestCase):
 
 
 class MultipleTaskRedcapExportTests(RedcapExportTestCase):
-    fieldmaps = {
-"bmi.xml": """<?xml version="1.0" encoding="UTF-8"?>
-<instrument name="bmi">
-  <fields>
-    <field name="pa_height" formula="format(task.height_m, '.1f')" />
-    <field name="pa_weight" formula="format(task.mass_kg, '.1f')" />
-    <field name="bmi_date" formula="format_datetime(task.when_created, DateFormat.ISO8601_DATE_ONLY)" />
-  </fields>
-</instrument>""",  # noqa: E501
-"khandaker_mojo_medicationtherapy.xml": """<?xml version="1.0" encoding="UTF-8"?>
-<instrument name="medication_table">
-  <fields>
-  </fields>
-  <files>
-    <field name="medtbl_medication_items" formula="task.get_pdf(request)" />
-  </files>
-</instrument>"""}
+    fieldmap = """<?xml version="1.0" encoding="UTF-8"?>
+<fieldmap>
+  <instruments>
+    <instrument task="bmi" name="bmi">
+      <fields>
+        <field name="pa_height" formula="format(task.height_m, '.1f')" />
+        <field name="pa_weight" formula="format(task.mass_kg, '.1f')" />
+        <field name="bmi_date" formula="format_datetime(task.when_created, DateFormat.ISO8601_DATE_ONLY)" />
+      </fields>
+    </instrument>
+    <instrument task="khandaker_mojo_medicationtherapy" name="medication_table">
+      <files>
+        <field name="medtbl_medication_items" formula="task.get_pdf(request)" />
+      </files>
+    </instrument>
+  </instruments>
+</fieldmap>
+"""  # noqa: E501
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
