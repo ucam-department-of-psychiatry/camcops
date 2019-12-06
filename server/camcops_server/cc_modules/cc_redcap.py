@@ -160,28 +160,20 @@ import io
 import logging
 import os
 import tempfile
-from typing import Any, Dict, Generator, List, Tuple, TYPE_CHECKING
+from typing import Any, Dict, Generator, List, TYPE_CHECKING, Union
 from unittest import mock, TestCase
 import xml.etree.cElementTree as ET
 
 from asteval import Interpreter, make_symbol_table
 from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.logs import BraceStyleAdapter
+from pandas import DataFrame
 import pendulum
 import redcap
-from sqlalchemy.sql.schema import Column, ForeignKey
-from camcops_server.cc_modules.cc_sqla_coltypes import (
-    ExportRecipientNameColType,
-    TableNameColType,
-)
-from sqlalchemy.sql.sqltypes import BigInteger, Integer
 
 from camcops_server.cc_modules.cc_constants import DateFormat
 from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
 from camcops_server.cc_modules.cc_exportrecipientinfo import ExportRecipientInfo
-from camcops_server.cc_modules.cc_idnumdef import IdNumDefinition
-from camcops_server.cc_modules.cc_sqla_coltypes import CamcopsColumn
-from camcops_server.cc_modules.cc_sqlalchemy import Base
 from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 
 if TYPE_CHECKING:
@@ -190,76 +182,7 @@ if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_request import CamcopsRequest
     from camcops_server.cc_modules.cc_task import Task
 
-
 log = BraceStyleAdapter(logging.getLogger(__name__))
-
-
-class RedcapRecord(Base):
-    """
-    Maps REDCap records to patients
-    """
-    __tablename__ = "_redcap_record"
-
-    id = Column(
-        "id", Integer, primary_key=True, autoincrement=True,
-        comment="Arbitrary primary key"
-    )
-
-    redcap_record_id = Column(
-        "redcap_record_id", Integer,
-        comment="ID of the record on REDCap"
-    )
-
-    which_idnum = Column(
-        "which_idnum", Integer, ForeignKey(IdNumDefinition.which_idnum),
-        nullable=False,
-        comment="Which of the server's ID numbers is this?"
-    )
-
-    idnum_value = CamcopsColumn(
-        "idnum_value", BigInteger,
-        identifies_patient=True,
-        comment="The value of the ID number"
-    )
-
-    recipient_name = Column(
-        "recipient_name", ExportRecipientNameColType, nullable=False,
-        comment="Name of export recipient"
-    )
-
-
-class RedcapNextInstance(Base):
-    """
-    For each task/instrument in a REDCap record, holds the instance
-    ID to be used for the next upload.
-
-    Unfortunately REDCap won't create these automatically
-    https://community.projectredcap.org/questions/74561/unexpected-behaviour-with-import-records-repeat-in.html
-
-    """  # noqa
-    __tablename__ = "_redcap_next_instance"
-
-    id = Column(
-        "id", Integer, primary_key=True, autoincrement=True,
-        comment="Arbitrary primary key"
-    )
-
-    task_table_name = Column(
-        "task_table_name", TableNameColType,
-        index=True,
-        comment="Table name of the task's base table"
-    )
-
-    redcap_record_pk = Column(
-        "redcap_record_pk", Integer, ForeignKey(RedcapRecord.id),
-        nullable=False,
-        comment="Primary key of associated RedcapRecord"
-    )
-
-    next_instance_id = Column(
-        "next_instance_id", Integer,
-        comment="The instance ID for the next repeating records"
-    )
 
 
 class RedcapExportException(Exception):
@@ -273,12 +196,12 @@ class RedcapFieldmap(object):
     the REDCap record.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, filename: str):
+        self.filename = filename
         self.fields = {}
         self.files = {}
         self.instruments = {}
 
-    def init_from_file(self, filename: str):
         parser = ET.XMLParser(encoding="UTF-8")
         try:
             tree = ET.parse(filename, parser=parser)
@@ -297,6 +220,11 @@ class RedcapFieldmap(object):
                 (f"Expected the root tag to be 'fieldmap' instead of "
                  f"'{root.tag}' in {filename}")
             )
+
+        # TODO: Missing identifier and missing attributes
+        identifier_element = root.find("identifier")
+
+        self.identifier = identifier_element.attrib
 
         try:
             instrument_elements = root.find("instruments")
@@ -328,44 +256,107 @@ class RedcapFieldmap(object):
                 formula = file_element.get("formula")
                 self.files[task][name] = formula
 
+    def instrument_names(self) -> List:
+        return list(self.instruments.values())
+
 
 class RedcapTaskExporter(object):
     """
-    Main entry point for task export to REDCap. Keeps a record of what
-    has been exported already and initiates upload, determining whether a
-    record should be created or updated
+    Main entry point for task export to REDCap. Works out which record needs
+    updating or creating. Creates the fieldmap and initiates upload.
     """
     def export_task(self,
                     req: "CamcopsRequest",
                     exported_task_redcap: "ExportedTaskRedcap") -> None:
-        redcap_record, created = self._get_or_create_redcap_record(
-            req, exported_task_redcap
-        )
         exported_task = exported_task_redcap.exported_task
         recipient = exported_task.recipient
+        task = exported_task.task
+        which_idnum = recipient.primary_idnum
+        idnum_object = task.patient.get_idnum_object(which_idnum)
 
         project = self.get_project(recipient)
+        fieldmap = self.get_fieldmap(req)
+
+        existing_records = self._get_existing_records(fieldmap)
+        record_id = self._get_existing_record_id(existing_records,
+                                                 fieldmap,
+                                                 idnum_object.idnum_value)
+
+        instrument_name = fieldmap.instruments[task.tablename]
+        next_instance_id = self._get_next_instance_id(existing_records,
+                                                      instrument_name,
+                                                      record_id)
 
         uploader_class = RedcapNewRecordUploader
-        if not created:
+        if record_id != 0:
             uploader_class = RedcapUpdatedRecordUploader
 
-        task = exported_task.task
         uploader = uploader_class(req, project)
 
-        next_instance, _ = self._get_or_create_next_instance(
-            req, task, redcap_record
-        )
+        new_record_id = uploader.upload(task, record_id, next_instance_id,
+                                        fieldmap)
 
-        new_redcap_record_id = uploader.upload(
-            task, redcap_record.redcap_record_id,
-            next_instance.next_instance_id
-        )
+        exported_task_redcap.redcap_record_id = new_record_id
 
-        self._save_redcap_record(req, redcap_record, new_redcap_record_id)
-        self._save_next_instance(req, next_instance, redcap_record)
+    def _get_existing_records(self,
+                              fieldmap: "RedcapFieldmap") -> "DataFrame":
+        # Arguments to pandas read_csv()
+        df_kwargs = {"index_col": None}  # don't index by record_id
 
-        exported_task_redcap.redcap_record = redcap_record
+        project = self.get_project()
+        forms = (fieldmap.instrument_names() +
+                 [fieldmap.identifier['instrument']])
+
+        return project.export_records(format='df', forms=forms,
+                                      df_kwargs=df_kwargs)
+
+    def _get_existing_record_id(self,
+                                records: "DataFrame",
+                                fieldmap,
+                                idnum_value) -> Union[int, None]:
+        # TODO: Handle missing 'redcap_field' column
+        has_identifier = records[
+            fieldmap.identifier['redcap_field']
+        ] == idnum_value
+
+        if len(records[has_identifier]) == 0:
+            return 0
+
+        return records[has_identifier].iat[0, 0]
+
+    def _get_next_instance_id(self,
+                              records: "DataFrame",
+                              instrument: str,
+                              record_id: int) -> int:
+        if record_id == 0:
+            # no existing records so it's 1
+            return 1
+
+        max_values = records[
+            (records["redcap_repeat_instrument"] == instrument) &
+            (records["record_id"] == record_id)
+        ].max()
+
+        return max_values['redcap_repeat_instance'] + 1
+
+    def get_fieldmap(self, req: "CamcopsRequest") -> RedcapFieldmap:
+        fieldmap = RedcapFieldmap(self.get_fieldmap_filename(req))
+
+        return fieldmap
+
+    def get_fieldmap_filename(self, req: "CamcopsRequest") -> str:
+        filename = req.config.redcap_fieldmap_filename
+        if filename is None:
+            raise RedcapExportException(
+                "REDCAP_FIELDMAP_FILENAME is not set in the config file"
+            )
+
+        if filename == "":
+            raise RedcapExportException(
+                "REDCAP_FIELDMAP_FILENAME is empty in the config file"
+            )
+
+        return filename
 
     def get_project(self, recipient: ExportRecipient):
         try:
@@ -376,81 +367,6 @@ class RedcapTaskExporter(object):
             raise RedcapExportException(str(e))
 
         return project
-
-    def _get_or_create_redcap_record(
-            self,
-            req: "CamcopsRequest",
-            exported_task_redcap: "ExportedTaskRedcap"
-    ) -> Tuple[RedcapRecord, bool]:
-        created = False
-
-        exported_task = exported_task_redcap.exported_task
-
-        which_idnum = exported_task.recipient.primary_idnum
-        task = exported_task.task
-        idnum_object = task.patient.get_idnum_object(which_idnum)
-        recipient = exported_task.recipient
-
-        record = (
-            req.dbsession.query(RedcapRecord)
-            .filter(RedcapRecord.which_idnum == idnum_object.which_idnum)
-            .filter(RedcapRecord.idnum_value == idnum_object.idnum_value)
-            .filter(RedcapRecord.recipient_name == recipient.recipient_name)
-        ).first()
-
-        if record is None:
-            record = RedcapRecord(
-                redcap_record_id=0,
-                which_idnum=idnum_object.which_idnum,
-                idnum_value=idnum_object.idnum_value,
-                recipient_name=recipient.recipient_name
-            )
-
-            created = True
-
-        return record, created
-
-    def _get_or_create_next_instance(
-            self,
-            req: "CamcopsRequest",
-            task: "Task",
-            redcap_record: RedcapRecord) -> Tuple[RedcapNextInstance, bool]:
-        created = False
-
-        next_instance = (
-            req.dbsession.query(RedcapNextInstance)
-            .filter(RedcapNextInstance.task_table_name == task.tablename)
-            .filter(RedcapNextInstance.redcap_record_pk == redcap_record.id)
-        ).first()
-
-        if next_instance is None:
-            next_instance = RedcapNextInstance(
-                task_table_name=task.tablename,
-                redcap_record_pk=redcap_record.id,
-                next_instance_id=1
-            )
-
-            created = True
-
-        return next_instance, created
-
-    def _save_redcap_record(self,
-                            req: "CamcopsRequest",
-                            redcap_record: RedcapRecord,
-                            redcap_record_id: int) -> None:
-        redcap_record.redcap_record_id = redcap_record_id
-        req.dbsession.add(redcap_record)
-        req.dbsession.commit()
-
-    def _save_next_instance(self,
-                            req: "CamcopsRequest",
-                            next_instance: RedcapNextInstance,
-                            redcap_record: RedcapRecord) -> None:
-        next_instance.next_instance_id = next_instance.next_instance_id + 1
-        next_instance.redcap_record_pk = redcap_record.id
-
-        req.dbsession.add(next_instance)
-        req.dbsession.commit()
 
 
 class RedcapRecordStatus(Enum):
@@ -465,10 +381,9 @@ class RedcapRecordStatus(Enum):
 class RedcapUploader(object):
     """
     Uploads records and files into REDCap, transforming the fields via the
-    fieldmap XML file.
+    fieldmap.
 
-    Knows nothing about RedcapRecord, ExportedTaskRedcap, ExportedTask
-    ExportRecipient
+    Knows nothing about ExportedTaskRedcap, ExportedTask, ExportRecipient
     """
     def __init__(self,
                  req: "CamcopsRequest",
@@ -476,19 +391,18 @@ class RedcapUploader(object):
         self.req = req
         self.project = project
 
-    def upload(self, task: "Task", redcap_record_id: int,
-               next_instance_id: int):
+    def upload(self, task: "Task", record_id: int,
+               next_instance_id: int, fieldmap: RedcapFieldmap) -> int:
         complete_status = RedcapRecordStatus.INCOMPLETE
 
         if task.is_complete():
             complete_status = RedcapRecordStatus.COMPLETE
-        fieldmap = self.get_fieldmap()
         instrument_name = fieldmap.instruments[task.tablename]
 
         repeat_instance = next_instance_id
 
         record = {
-            "record_id": redcap_record_id,
+            "record_id": record_id,
             "redcap_repeat_instrument": instrument_name,
             # https://community.projectredcap.org/questions/74561/unexpected-behaviour-with-import-records-repeat-in.html  # noqa
             # REDCap won't create instance IDs automatically so we have to
@@ -500,20 +414,19 @@ class RedcapUploader(object):
         self.transform_fields(record, task, fieldmap.fields[task.tablename])
 
         response = self.upload_record(record)
-        new_redcap_record_id = self.get_new_redcap_record_id(redcap_record_id,
-                                                             response)
+        new_record_id = self.get_new_record_id(record_id, response)
 
         file_dict = {}
         self.transform_fields(file_dict, task, fieldmap.files[task.tablename])
 
         self.upload_files(task,
-                          new_redcap_record_id,
+                          new_record_id,
                           repeat_instance,
                           file_dict)
 
-        self.log_success(new_redcap_record_id)
+        self.log_success(new_record_id)
 
-        return new_redcap_record_id
+        return new_record_id
 
     def upload_record(self, record: Dict) -> Any:
         try:
@@ -544,7 +457,7 @@ class RedcapUploader(object):
                     raise RedcapExportException(str(e))
 
     def transform_fields(self, field_dict: Dict, task: "Task",
-                         fieldmap: Dict) -> None:
+                         formula_dict: Dict) -> None:
         extra_symbols = self.get_extra_symbols()
 
         symbol_table = make_symbol_table(
@@ -553,13 +466,13 @@ class RedcapUploader(object):
         )
         interpreter = Interpreter(symtable=symbol_table)
 
-        for redcap_field, formula in fieldmap.items():
+        for redcap_field, formula in formula_dict.items():
             v = interpreter(f"{formula}", show_errors=True)
             if interpreter.error:
                 message = "\n".join([e.msg for e in interpreter.error])
                 raise RedcapExportException(
                     (
-                        f"Fieldmap: '{self.get_fieldmap_filename()}'\n"
+                        f"Fieldmap:\n"
                         f"Error in formula '{formula}': {message}\n"
                         f"Task: '{task.tablename}'\n"
                         f"REDCap field: '{redcap_field}'\n"
@@ -574,42 +487,21 @@ class RedcapUploader(object):
             request=self.req
         )
 
-    def get_fieldmap(self) -> Dict:
-        fieldmap = RedcapFieldmap()
-        fieldmap.init_from_file(self.get_fieldmap_filename())
-
-        return fieldmap
-
-    def get_fieldmap_filename(self) -> str:
-        filename = self.req.config.redcap_fieldmap_filename
-        if filename is None:
-            raise RedcapExportException(
-                "REDCAP_FIELDMAP_FILENAME is not set in the config file"
-            )
-
-        if filename == "":
-            raise RedcapExportException(
-                "REDCAP_FIELDMAP_FILENAME is empty in the config file"
-            )
-
-        return filename
-
 
 class RedcapNewRecordUploader(RedcapUploader):
     force_auto_number = True
     # import_records returns ["<redcap record id>, 0"]
     return_content = "auto_ids"
 
-    def get_new_redcap_record_id(self, redcap_record_id: int,
-                                 response: List[str]):
+    def get_new_record_id(self, record_id: int, response: List[str]):
         id_pair = response[0]
 
-        redcap_record_id = int(id_pair.split(",")[0])
+        record_id = int(id_pair.split(",")[0])
 
-        return redcap_record_id
+        return record_id
 
-    def log_success(self, redcap_record_id: int):
-        log.info(f"Created new REDCap record {redcap_record_id}")
+    def log_success(self, record_id: int):
+        log.info(f"Created new REDCap record {record_id}")
 
 
 class RedcapUpdatedRecordUploader(RedcapUploader):
@@ -617,12 +509,11 @@ class RedcapUpdatedRecordUploader(RedcapUploader):
     # import_records returns {'count': 1}
     return_content = "count"
 
-    def get_new_redcap_record_id(self, old_redcap_record_id: int,
-                                 response: Any):
-        return old_redcap_record_id
+    def get_new_record_id(self, old_record_id: int, response: Any):
+        return old_record_id
 
-    def log_success(self, redcap_record_id: int):
-        log.info(f"Updated REDCap record {redcap_record_id}")
+    def log_success(self, record_id: int):
+        log.info(f"Updated REDCap record {record_id}")
 
 
 # =============================================================================
@@ -633,6 +524,7 @@ class MockProject(mock.Mock):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
+        self.export_records = mock.Mock()
         self.import_records = mock.Mock()
         self.import_file = mock.Mock()
 
@@ -656,7 +548,6 @@ class MockRedcapNewRecordUploader(RedcapNewRecordUploader):
 class RedcapExportErrorTests(TestCase):
     def test_raises_when_fieldmap_has_unknown_symbols(self) -> None:
         exporter = MockRedcapNewRecordUploader()
-        exporter.req.config.redcap_fieldmap_filename = "/some/path/fieldmap.xml"
 
         task = mock.Mock(tablename="bmi")
         fieldmap = {"pa_height": "sys.platform"}
@@ -667,21 +558,35 @@ class RedcapExportErrorTests(TestCase):
             exporter.transform_fields(field_dict, task, fieldmap)
 
         message = str(cm.exception)
-        self.assertIn("Fieldmap: '/some/path/fieldmap.xml'", message)
         self.assertIn("Error in formula 'sys.platform':", message)
         self.assertIn("Task: 'bmi'", message)
         self.assertIn("REDCap field: 'pa_height'", message)
         self.assertIn("'sys' is not defined", message)
 
-    def test_raises_when_fieldmap_missing_from_config(self) -> None:
+    def test_raises_when_fieldmap_empty_in_config(self) -> None:
 
-        exporter = MockRedcapNewRecordUploader()
-        exporter.req.config.redcap_fieldmap_filename = ""
+        exporter = MockRedcapTaskExporter()
+
+        mock_config = mock.Mock(redcap_fieldmap_filename="")
+        req = mock.Mock(config=mock_config)
         with self.assertRaises(RedcapExportException) as cm:
-            exporter.get_fieldmap_filename()
+            exporter.get_fieldmap_filename(req)
 
         message = str(cm.exception)
         self.assertIn("REDCAP_FIELDMAP_FILENAME is empty in the config file",
+                      message)
+
+    def test_raises_when_fieldmap_not_set_in_config(self) -> None:
+
+        exporter = MockRedcapTaskExporter()
+
+        mock_config = mock.Mock(redcap_fieldmap_filename=None)
+        req = mock.Mock(config=mock_config)
+        with self.assertRaises(RedcapExportException) as cm:
+            exporter.get_fieldmap_filename(req)
+
+        message = str(cm.exception)
+        self.assertIn("REDCAP_FIELDMAP_FILENAME is not set in the config file",
                       message)
 
     def test_raises_when_error_from_redcap_on_import(self) -> None:
@@ -800,23 +705,6 @@ class RedcapFieldmapTests(TestCase):
 class RedcapExportTestCase(DemoDatabaseTestCase):
     fieldmap = ""
 
-    def get_next_instance(
-            self,
-            exported_task_redcap: "ExportedTaskRedcap") -> RedcapNextInstance:
-
-        task = exported_task_redcap.exported_task.task
-        redcap_record = exported_task_redcap.redcap_record
-
-        next_instance = (
-            self.req.dbsession.query(RedcapNextInstance)
-            .filter(RedcapNextInstance.task_table_name == task.tablename)
-            .filter(RedcapNextInstance.redcap_record_pk == redcap_record.id)
-        ).first()
-
-        self.assertIsNotNone(next_instance)
-
-        return next_instance
-
     def override_config_settings(self, parser: "ConfigParser"):
         parser.set("site", "REDCAP_FIELDMAP_FILENAME", self.fieldmap_filename)
 
@@ -879,6 +767,7 @@ class BmiRedcapExportTestCase(RedcapExportTestCase):
 class BmiRedcapValidFieldmapTestCase(BmiRedcapExportTestCase):
     fieldmap = """<?xml version="1.0" encoding="UTF-8"?>
 <fieldmap>
+  <identifier instrument="patient_record" redcap_field="patient_id" />
   <instruments>
     <instrument task="bmi" name="bmi">
       <fields>
@@ -921,10 +810,11 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
 
         exporter = MockRedcapTaskExporter()
         project = exporter.get_project()
+        project.export_records.return_value = DataFrame({'patient_id': []})
         project.import_records.return_value = ["123,0"]
+
         exporter.export_task(self.req, exported_task_redcap)
-        self.assertEquals(exported_task_redcap.redcap_record.redcap_record_id,
-                          123)
+        self.assertEquals(exported_task_redcap.redcap_record_id, 123)
 
         args, kwargs = project.import_records.call_args
 
@@ -943,52 +833,6 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
 
         self.assertEquals(kwargs["return_content"], "auto_ids")
         self.assertTrue(kwargs["force_auto_number"])
-
-    def test_matching_redcap_id_from_other_recipient_ignored(self) -> None:
-        from camcops_server.cc_modules.cc_exportmodels import (
-            ExportedTask,
-            ExportedTaskRedcap
-        )
-        from camcops_server.cc_modules.cc_exportrecipient import (
-            ExportRecipient
-        )
-        from camcops_server.cc_modules.cc_exportrecipientinfo import (
-            ExportRecipientInfo
-        )
-
-        other_recipientinfo = ExportRecipientInfo()
-        other_recipientinfo.recipient_name = "test2"
-        other_recipient = ExportRecipient(other_recipientinfo)
-        other_recipient.primary_idnum = self.recipient.primary_idnum
-        # auto increment doesn't work for BigInteger with SQLite
-        other_recipient.id = 2
-
-        self.dbsession.add(other_recipient)
-        self.dbsession.commit()
-
-        # Create an existing record for the same patient but for a different
-        # REDCap instance (different export recipient)
-        redcap_record = RedcapRecord(
-            redcap_record_id=123, which_idnum=1001,
-            idnum_value=555,
-            recipient_name=other_recipient.recipient_name)
-        self.dbsession.add(redcap_record)
-        self.dbsession.commit()
-
-        exported_task = ExportedTask(task=self.task, recipient=self.recipient)
-        exported_task_redcap = ExportedTaskRedcap(exported_task)
-
-        exporter = MockRedcapTaskExporter()
-        project = exporter.get_project()
-        project.import_records.return_value = ["456,0"]
-        exporter.export_task(self.req, exported_task_redcap)
-
-        # Would be 123 if the existing record was not ignored
-        self.assertEquals(exported_task_redcap.redcap_record.redcap_record_id,
-                          456)
-
-        next_instance = self.get_next_instance(exported_task_redcap)
-        self.assertEquals(next_instance.next_instance_id, 2)
 
 
 class BmiRedcapUpdateTests(BmiRedcapValidFieldmapTestCase):
@@ -1020,14 +864,20 @@ class BmiRedcapUpdateTests(BmiRedcapValidFieldmapTestCase):
 
         exporter = MockRedcapTaskExporter()
         project = exporter.get_project()
+        project.export_records.return_value = DataFrame({"patient_id": []})
         project.import_records.return_value = ["123,0"]
 
         exported_task1 = ExportedTask(task=self.task1, recipient=self.recipient)
         exported_task_redcap1 = ExportedTaskRedcap(exported_task1)
         exporter.export_task(self.req, exported_task_redcap1)
-        self.assertEquals(exported_task_redcap1.redcap_record.redcap_record_id,
-                          123)
+        self.assertEquals(exported_task_redcap1.redcap_record_id, 123)
 
+        project.export_records.return_value = DataFrame({
+            "record_id": [123],
+            "patient_id": [555],
+            "redcap_repeat_instrument": ["bmi"],
+            "redcap_repeat_instance": [1],
+        })
         exported_task2 = ExportedTask(task=self.task2, recipient=self.recipient)
         exported_task_redcap2 = ExportedTaskRedcap(exported_task2)
 
@@ -1040,10 +890,6 @@ class BmiRedcapUpdateTests(BmiRedcapValidFieldmapTestCase):
         self.assertEquals(record["record_id"], 123)
         self.assertEquals(record["redcap_repeat_instance"], 2)
 
-        next_instance = self.get_next_instance(exported_task_redcap2)
-
-        self.assertEquals(next_instance.next_instance_id, 3)
-
 
 class Phq9RedcapExportTests(RedcapExportTestCase):
     """
@@ -1052,6 +898,7 @@ class Phq9RedcapExportTests(RedcapExportTestCase):
     """
     fieldmap = """<?xml version="1.0" encoding="UTF-8"?>
 <fieldmap>
+  <identifier instrument="patient_record" redcap_field="patient_id" />
   <instruments>
     <instrument task="phq9" name="patient_health_questionnaire_9">
       <fields>
@@ -1117,10 +964,10 @@ class Phq9RedcapExportTests(RedcapExportTestCase):
 
         exporter = MockRedcapTaskExporter()
         project = exporter.get_project()
+        project.export_records.return_value = DataFrame({"patient_id": []})
         project.import_records.return_value = ["123,0"]
         exporter.export_task(self.req, exported_task_redcap)
-        self.assertEquals(exported_task_redcap.redcap_record.redcap_record_id,
-                          123)
+        self.assertEquals(exported_task_redcap.redcap_record_id, 123)
 
         args, kwargs = project.import_records.call_args
 
@@ -1159,6 +1006,7 @@ class MedicationTherapyRedcapExportTests(RedcapExportTestCase):
     """
     fieldmap = """<?xml version="1.0" encoding="UTF-8"?>
 <fieldmap>
+  <identifier instrument="patient_record" redcap_field="patient_id" />
   <instruments>
     <instrument task="khandaker_mojo_medicationtherapy" name="medication_table">
       <files>
@@ -1204,6 +1052,7 @@ class MedicationTherapyRedcapExportTests(RedcapExportTestCase):
 
         exporter = MockRedcapTaskExporter()
         project = exporter.get_project()
+        project.export_records.return_value = DataFrame({"patient_id": []})
         project.import_records.return_value = ["123,0"]
 
         # We can't just look at the call_args here because the file will already
@@ -1215,8 +1064,7 @@ class MedicationTherapyRedcapExportTests(RedcapExportTestCase):
         project.import_file.side_effect = read_pdf_bytes
 
         exporter.export_task(self.req, exported_task_redcap)
-        self.assertEquals(exported_task_redcap.redcap_record.redcap_record_id,
-                          123)
+        self.assertEquals(exported_task_redcap.redcap_record_id, 123)
 
         args, kwargs = project.import_file.call_args
 
@@ -1238,6 +1086,7 @@ class MedicationTherapyRedcapExportTests(RedcapExportTestCase):
 class MultipleTaskRedcapExportTests(RedcapExportTestCase):
     fieldmap = """<?xml version="1.0" encoding="UTF-8"?>
 <fieldmap>
+  <identifier instrument="patient_record" redcap_field="patient_id" />
   <instruments>
     <instrument task="bmi" name="bmi">
       <fields>
@@ -1297,20 +1146,16 @@ class MultipleTaskRedcapExportTests(RedcapExportTestCase):
         )
         exporter = MockRedcapTaskExporter()
         project = exporter.get_project()
+        project.export_records.return_value = DataFrame({"patient_id": []})
         project.import_records.return_value = ["123,0"]
 
         exported_task1 = ExportedTask(task=self.task1, recipient=self.recipient)
         exported_task_redcap1 = ExportedTaskRedcap(exported_task1)
         exporter.export_task(self.req, exported_task_redcap1)
-        self.assertEquals(exported_task_redcap1.redcap_record.redcap_record_id,
-                          123)
+        self.assertEquals(exported_task_redcap1.redcap_record_id, 123)
         args, kwargs = project.import_file.call_args
 
         self.assertEquals(kwargs["repeat_instance"], 1)
-
-        next_instance = self.get_next_instance(exported_task_redcap1)
-
-        self.assertEquals(next_instance.next_instance_id, 2)
 
         exported_task2 = ExportedTask(task=self.task2, recipient=self.recipient)
         exported_task_redcap2 = ExportedTaskRedcap(exported_task2)
@@ -1322,6 +1167,3 @@ class MultipleTaskRedcapExportTests(RedcapExportTestCase):
         record = rows[0]
 
         self.assertEquals(record["redcap_repeat_instance"], 1)
-        next_instance = self.get_next_instance(exported_task_redcap2)
-
-        self.assertEquals(next_instance.next_instance_id, 2)

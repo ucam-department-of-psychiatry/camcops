@@ -88,7 +88,6 @@ from camcops_server.cc_modules.cc_hl7 import (
 from camcops_server.cc_modules.cc_redcap import (
     RedcapExportException,
     RedcapTaskExporter,
-    RedcapRecord,
 )
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     LongText,
@@ -1127,12 +1126,10 @@ class ExportedTaskRedcap(Base):
     exported_task = relationship(ExportedTask)
 
     redcap_record_id = Column(
-        "redcap_record_id", Integer, ForeignKey(RedcapRecord.id),
-        comment="FK to {}.{}".format(RedcapRecord.__tablename__,
-                                     RedcapRecord.id.name)
+        "redcap_record_id", UnicodeText,
+        comment=("ID of the (patient) record on the REDCap instance where "
+                 "this task has been exported")
     )
-
-    redcap_record = relationship(RedcapRecord)
 
     def __init__(self, exported_task: ExportedTask = None) -> None:
         """
