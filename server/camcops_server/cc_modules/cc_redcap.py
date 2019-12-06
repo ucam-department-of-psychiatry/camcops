@@ -654,9 +654,8 @@ class RedcapExportErrorTests(TestCase):
 
 class RedcapFieldmapTests(TestCase):
     def test_raises_when_xml_file_missing(self) -> None:
-        fieldmap = RedcapFieldmap()
         with self.assertRaises(RedcapExportException) as cm:
-            fieldmap.init_from_file("/does/not/exist/bmi.xml")
+            RedcapFieldmap("/does/not/exist/bmi.xml")
 
         message = str(cm.exception)
 
@@ -671,10 +670,8 @@ class RedcapFieldmapTests(TestCase):
 """)
             fieldmap_file.flush()
 
-            fieldmap = RedcapFieldmap()
-
             with self.assertRaises(RedcapExportException) as cm:
-                fieldmap.init_from_file(fieldmap_file.name)
+                RedcapFieldmap(fieldmap_file.name)
 
         message = str(cm.exception)
         self.assertIn(("Expected the root tag to be 'fieldmap' instead of "
@@ -688,10 +685,8 @@ class RedcapFieldmapTests(TestCase):
 """)
             fieldmap_file.flush()
 
-            fieldmap = RedcapFieldmap()
-
             with self.assertRaises(RedcapExportException) as cm:
-                fieldmap.init_from_file(fieldmap_file.name)
+                RedcapFieldmap(fieldmap_file.name)
 
         message = str(cm.exception)
         self.assertIn("'instrument' is missing from", message)
