@@ -825,7 +825,9 @@ def launch_celery_flower(
 # Test rig
 # =============================================================================
 
-def self_test(show_only: bool = False, test_class: str = None) -> bool:
+def self_test(show_only: bool = False,
+              test_class: str = None,
+              failfast: bool = False) -> bool:
     """
     Run unit tests that are in the class(es) whose names contain test_class.
     If test_class is None, run all the tests.
@@ -902,7 +904,7 @@ def self_test(show_only: bool = False, test_class: str = None) -> bool:
                 # noinspection PyUnresolvedReferences
                 suite.addTest(unittest.makeSuite(cls))
         if not show_only:
-            runner = unittest.TextTestRunner()
+            runner = unittest.TextTestRunner(failfast=failfast)
             result = runner.run(suite)
 
             ok = result.wasSuccessful()
