@@ -158,6 +158,10 @@ class DemoRequestTestCase(ExtendedTestCase):
     def create_config_file(self) -> None:
         from camcops_server.cc_modules.cc_baseconstants import ENVVAR_CONFIG_FILE  # noqa: E402,E501
 
+        # We're going to be using a test (SQLite) database, but we want to
+        # be very sure that nothing writes to a real database! Also, we will
+        # want to read from this dummy config at some point.
+
         tmpconfigfilename = os.path.join(self.tmpdir_obj.name,
                                          "dummy_config.conf")
         with open(tmpconfigfilename, "w") as file:

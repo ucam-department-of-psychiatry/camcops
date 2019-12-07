@@ -822,15 +822,20 @@ def launch_celery_flower(
 # Test rig
 # =============================================================================
 
-def self_test(show_only: bool = False, test_class: str = None) -> bool:
+def self_test(show_only: bool = False,
+              test_class: str = None,
+              failfast: bool = False) -> bool:
     """
     Run unit tests that are in the class(es) whose names contain test_class.
     If test_class is None, run all the tests.
 
     Args:
-        show_only: If True, just display the names of test classes, don't run
-        them.
-        test_class: Test class(es) to run.
+        show_only:
+            If True, just display the names of test classes, don't run them.
+        test_class:
+            Test class(es) to run.
+        failfast:
+            Stop on first error?
 
     Returns:
         When running tests, returns True if test run was successful, otherwise
@@ -838,10 +843,6 @@ def self_test(show_only: bool = False, test_class: str = None) -> bool:
         When displaying the names of test classes returns True always.
     """
     ok = True
-
-    # ... we're going to be using a test (SQLite) database, but we want to
-    # be very sure that nothing writes to a real database! Also, we will
-    # want to read from this dummy config at some point.
 
     # If you use this:
     #       loader = TestLoader()
@@ -892,7 +893,7 @@ def self_test(show_only: bool = False, test_class: str = None) -> bool:
             # noinspection PyUnresolvedReferences
             suite.addTest(unittest.makeSuite(cls))
     if not show_only:
-        runner = unittest.TextTestRunner()
+        runner = unittest.TextTestRunner(failfast=failfast)
         result = runner.run(suite)
 
         ok = result.wasSuccessful()
