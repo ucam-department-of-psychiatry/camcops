@@ -165,7 +165,7 @@ class DemoRequestTestCase(ExtendedTestCase):
 
         os.environ[ENVVAR_CONFIG_FILE] = tmpconfigfilename
 
-    def get_config_text(self) -> None:
+    def get_config_text(self) -> str:
         from camcops_server.cc_modules.cc_config import get_demo_config
         config_text = get_demo_config()
         parser = configparser.ConfigParser()
@@ -183,9 +183,12 @@ class DemoRequestTestCase(ExtendedTestCase):
                                  parser: configparser.ConfigParser) -> None:
         """
         Allows an individual test to override config settings
-        called from setUp()
+        called from :meth:`setUp`.
 
-        Example:
+        Example of code that could be used here:
+
+        .. code-block:: python
+
             parser.set("site", "MY_CONFIG_SETTING", "my value")
         """
 
