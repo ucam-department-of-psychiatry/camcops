@@ -89,6 +89,53 @@ Other testing:
 
     ac = get_athena_concepts(config.athena_concept_tsv_filename, vocabulary_ids=[AthenaVocabularyId.SNOMED], concept_codes=["4303690"])
 
+Regarding temporal coding:
+
+- SNOMED CT has some concepts relating to time (e.g. "time aspect", "single
+  point in time", "date of birth", "date of event", "time (property)", "time
+  (attribute)"). HOWEVER, note that SNOMED-CT isn't intended for recording
+  event dates:
+
+  - https://confluence.ihtsdotools.org/display/DOCRSG/3.5.+Safely+representing+the+context+of+recorded+codes
+
+    "Contextual information that is not represented by SNOMED CT
+
+    Clinical statements that contain SNOMED CT Concept representations will
+    be associated with some information which is not intended to be
+    represented using SNOMED CT:
+
+    - Dates, times of an activity of recording and activity;
+    - Quantitative information including ranges and durations;
+    - Identifiers or names of authors, providers of information or other
+      parties involved in a recorded activity.
+    - SNOMED CT is not intended to represent this information. Appropriate
+      constructs in a standardized or proprietary record architecture
+      should be used to relate this information to SNOMED CT encoded
+      clinical statements."
+
+  - https://confluence.ihtsdotools.org/display/DOCRSG/3.4.+Record+architectures%2C+structures+and+semantics
+
+    "Using SNOMED CT in standard architectures
+
+    ...
+
+    Each health record component has the potential to include:
+
+    - Dates and times of actual and planned events.
+    - Associations with people, organizations, devices and other entities
+      that participate or are used in relations to a recorded event or
+      plan.
+    - Codes or other representations that name or provide the semantic
+      information container, link, or statement:
+      
+      - SNOMED CT fulfills this role in a structured health record.
+
+    - Additional data including text, numeric values, images and other
+      digital data."
+
+- That explains why the grammar has no explanation of how to represent
+  dates/times, perhaps!
+
 """  # noqa
 
 from collections import OrderedDict
@@ -777,6 +824,9 @@ class SnomedLookup(object):
     PHOTOGRAPH_PHYSICAL_OBJECT = "photograph_physical_object"
 
     # Clinical: psychiatric clerking
+    # ... "location": not obvious
+    # ... "contact type" is an AoMRC heading, but I'm not sure the observable
+    #     entity of "Initial contact type" is right.
     PSYCHIATRIC_ASSESSMENT_PROCEDURE = "psychiatric_assessment_procedure"
 
     PSYCLERK_REASON_FOR_REFERRAL = "psyclerk_reason_for_referral"

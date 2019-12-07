@@ -158,6 +158,10 @@ class DemoRequestTestCase(ExtendedTestCase):
     def create_config_file(self) -> None:
         from camcops_server.cc_modules.cc_baseconstants import ENVVAR_CONFIG_FILE  # noqa: E402,E501
 
+        # We're going to be using a test (SQLite) database, but we want to
+        # be very sure that nothing writes to a real database! Also, we will
+        # want to read from this dummy config at some point.
+
         tmpconfigfilename = os.path.join(self.tmpdir_obj.name,
                                          "dummy_config.conf")
         with open(tmpconfigfilename, "w") as file:
@@ -165,7 +169,7 @@ class DemoRequestTestCase(ExtendedTestCase):
 
         os.environ[ENVVAR_CONFIG_FILE] = tmpconfigfilename
 
-    def get_config_text(self) -> None:
+    def get_config_text(self) -> str:
         from camcops_server.cc_modules.cc_config import get_demo_config
         config_text = get_demo_config()
         parser = configparser.ConfigParser()
@@ -183,9 +187,12 @@ class DemoRequestTestCase(ExtendedTestCase):
                                  parser: configparser.ConfigParser) -> None:
         """
         Allows an individual test to override config settings
-        called from setUp()
+        called from :meth:`setUp`.
 
-        Example:
+        Example of code that could be used here:
+
+        .. code-block:: python
+
             parser.set("site", "MY_CONFIG_SETTING", "my value")
         """
 

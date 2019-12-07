@@ -47,7 +47,7 @@ Quick tutorial on Pyramid views:
         def myroute_default(req: Request) -> Response:
             pass
 
-        @view_config(route_name="myroute", method="POST")
+        @view_config(route_name="myroute", request_method="POST")
         def myroute_post(req: Request) -> Response:
             pass
 
@@ -243,6 +243,7 @@ from camcops_server.cc_modules.cc_forms import (
     SetUserUploadGroupForm,
     EditTaskFilterForm,
     TasksPerPageForm,
+    UserDownloadDeleteForm,
     ViewDdlForm,
 )
 from camcops_server.cc_modules.cc_group import Group
@@ -1535,7 +1536,8 @@ def download_area(req: "CamcopsRequest") -> Dict[str, Any]:
     if userdir:
         files = UserDownloadFile.from_directory_scan(
             directory=userdir,
-            permitted_lifespan_min=req.config.user_download_file_lifetime_min)
+            permitted_lifespan_min=req.config.user_download_file_lifetime_min,
+            req=req)
     else:
         files = []  # type: List[UserDownloadFile]
     return dict(
@@ -1573,13 +1575,15 @@ def download_file(req: "CamcopsRequest") -> Response:
         raise HTTPBadRequest(f'{_("Error reading file:")} {filename}')
 
 
-@view_config(route_name=Routes.DELETE_FILE)
+@view_config(route_name=Routes.DELETE_FILE, request_method="POST")
 def delete_file(req: "CamcopsRequest") -> Response:
     """
     Deletes a file.
     """
-    _ = req.gettext
-    filename = req.get_str_param(ViewParam.FILENAME, "")
+    form = UserDownloadDeleteForm(request=req)
+    controls = list(req.POST.items())
+    appstruct = form.validate(controls)  # CSRF; may raise ValidationError
+    filename = appstruct.get(ViewParam.FILENAME, "")
     # Security comes here: we do NOT permit any path information in the
     # filename. It MUST be relative to and within the user download directory.
     # We cannot trust the input.
@@ -1587,6 +1591,7 @@ def delete_file(req: "CamcopsRequest") -> Response:
     udf = UserDownloadFile(directory=req.user_download_dir,
                            filename=filename)
     if not udf.exists:
+        _ = req.gettext
         raise HTTPBadRequest(f'{_("No such file:")} {filename}')
     udf.delete()
     return HTTPFound(req.route_url(Routes.DOWNLOAD_AREA))  # redirect

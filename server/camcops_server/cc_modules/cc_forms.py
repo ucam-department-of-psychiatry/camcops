@@ -3549,6 +3549,28 @@ class ForciblyFinalizeConfirmForm(DangerousForm):
 
 
 # =============================================================================
+# User downloads
+# =============================================================================
+
+class UserDownloadDeleteSchema(CSRFSchema):
+    """
+    Schema to capture details of a file to be deleted.
+    """
+    filename = HiddenStringNode()  # name must match ViewParam.FILENAME
+
+
+class UserDownloadDeleteForm(SimpleSubmitForm):
+    """
+    Form that provides a single button to delete a user download.
+    """
+    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+        _ = request.gettext
+        super().__init__(schema_class=UserDownloadDeleteSchema,
+                         submit_title=_("Delete"),
+                         request=request, **kwargs)
+
+
+# =============================================================================
 # Unit tests
 # =============================================================================
 

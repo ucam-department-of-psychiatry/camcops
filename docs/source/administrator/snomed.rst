@@ -45,7 +45,7 @@ It is the standard computerized vocabulary for the UK NHS_.
 
 CamCOPS supports SNOMED CT coding for:
 
-- its tasks (where those tasks are supported by SNOMED)
+- its tasks (where those tasks are supported by SNOMED CT)
 
 - ICD-9-CM codes [recorded by the :ref:`Diagnostic coding (ICD-9-CM)
   <diagnosis_icd9cm>` task]
@@ -74,23 +74,27 @@ output like this:
 Licensing
 ---------
 
-SNOMED CT is owned by the IHTSDO_ but is free to use within the UK; see
-https://digital.nhs.uk/services/terminology-and-classifications/snomed-ct.
+SNOMED CT is owned by the IHTSDO_ but is free to use within the UK, subject to
+registration; see
+https://digital.nhs.uk/services/terminology-and-classifications/snomed-ct. The
+licensing agreement from https://termbrowser.nhs.uk/ is reproduced :ref:`here
+<licence_snomed>` but the original should always be checked. It may not be free
+elsewhere.
 
-It is not permitted to distribute it generally; users must accept the license
-terms and obtain the SNOMED CT codes/descriptions separately. CamCOPS does not
-contain any (it uses arbitrary strings to reference them).
+It is not permitted to distribute SNOMED CT generally; users must accept the
+license terms and obtain the SNOMED CT identifiers separately. CamCOPS does not
+contain SNOMED CT identifiers (it uses arbitrary strings to reference them).
 
 
-Adding SNOMED CT support for CamCOPS
-------------------------------------
+Adding SNOMED CT support to CamCOPS
+-----------------------------------
 
-If you are permitted, agree to the license terms and download
-``camcops_tasks_snomed.xml``.
+If you are permitted (see "Licensing" above), find a SNOMED CT REST API server
+(e.g. from your national provider) and ask it for relevant SNOMED CT
+identifiers using the :ref:`camcops_fetch_snomed_codes
+<camcops_fetch_snomed_codes>` tool, creating ``camcops_tasks_snomed.xml``.
 
-.. todo:: describe how to get ``camcops_tasks_snomed.xml``
-
-It can now be plugged into the following parameter of the :ref:`server
+This file can then be plugged into the following parameter of the :ref:`server
 configuration file <server_config_file>`:
 
 .. code-block:: ini

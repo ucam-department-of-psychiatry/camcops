@@ -194,6 +194,7 @@ from camcops_server.cc_modules.cc_exportmodels import (
     gen_tasks_having_exportedtasks,
     get_collection_for_export,
 )
+from camcops_server.cc_modules.cc_forms import UserDownloadDeleteForm
 from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
 from camcops_server.cc_modules.cc_sqlalchemy import sql_from_sqlite_database
@@ -1030,11 +1031,13 @@ class UserDownloadFile(object):
 
     """
     def __init__(self, filename: str, directory: str = "",
-                 permitted_lifespan_min: float = 0) -> None:
+                 permitted_lifespan_min: float = 0,
+                 req: "CamcopsRequest" = None) -> None:
         """
         Args:
             filename: filename relative to ``directory``
             directory: directory
+            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
 
         Notes:
 
@@ -1048,6 +1051,7 @@ class UserDownloadFile(object):
         self.filename = filename
         self.directory = directory
         self.permitted_lifespan_min = permitted_lifespan_min
+        self.req = req
 
         self.basename = os.path.basename(filename)
         _, self.extension = os.path.splitext(filename)
@@ -1158,17 +1162,21 @@ class UserDownloadFile(object):
     # Deletion
     # -------------------------------------------------------------------------
 
-    def delete_url(self, req: "CamcopsRequest") -> str:
+    @property
+    def delete_form(self) -> str:
         """
-        Returns a URL to delete this file.
-
-        Args:
-            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        Returns HTML for a form to delete this file.
         """
-        querydict = {
-            ViewParam.FILENAME: self.filename
-        }
-        return req.route_url(Routes.DELETE_FILE, _query=querydict)
+        if not self.req:
+            return ""
+        dest_url = self.req.route_url(Routes.DELETE_FILE)
+        form = UserDownloadDeleteForm(
+            request=self.req,
+            action=dest_url
+        )
+        appstruct = {ViewParam.FILENAME: self.filename}
+        rendered_form = form.render(appstruct)
+        return rendered_form
 
     def delete(self) -> None:
         """
@@ -1185,17 +1193,17 @@ class UserDownloadFile(object):
     # Downloading
     # -------------------------------------------------------------------------
 
-    def download_url(self, req: "CamcopsRequest") -> str:
+    @property
+    def download_url(self) -> str:
         """
         Returns a URL to download this file.
-
-        Args:
-            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         """
+        if not self.req:
+            return ""
         querydict = {
             ViewParam.FILENAME: self.filename
         }
-        return req.route_url(Routes.DOWNLOAD_FILE, _query=querydict)
+        return self.req.route_url(Routes.DOWNLOAD_FILE, _query=querydict)
 
     @property
     def contents(self) -> Optional[bytes]:
@@ -1214,7 +1222,8 @@ class UserDownloadFile(object):
     @classmethod
     def from_directory_scan(
             cls, directory: str,
-            permitted_lifespan_min: float = 0) -> List["UserDownloadFile"]:
+            permitted_lifespan_min: float = 0,
+            req: "CamcopsRequest" = None) -> List["UserDownloadFile"]:
         """
         Scans the directory and returns a list of :class:`UserDownloadFile`
         objects, one for each file in the directory.
@@ -1225,6 +1234,7 @@ class UserDownloadFile(object):
         Args:
             directory: directory to scan
             permitted_lifespan_min: lifespan for each file
+            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         """
         results = []  # type: List[UserDownloadFile]
         # Imagine directory == "/etc":
@@ -1237,6 +1247,7 @@ class UserDownloadFile(object):
                 results.append(UserDownloadFile(
                     filename=relative_filename,
                     directory=directory,
-                    permitted_lifespan_min=permitted_lifespan_min
+                    permitted_lifespan_min=permitted_lifespan_min,
+                    req=req
                 ))
         return results

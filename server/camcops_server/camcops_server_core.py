@@ -830,9 +830,12 @@ def self_test(show_only: bool = False,
     If test_class is None, run all the tests.
 
     Args:
-        show_only: If True, just display the names of test classes, don't run
-        them.
-        test_class: Test class(es) to run.
+        show_only:
+            If True, just display the names of test classes, don't run them.
+        test_class:
+            Test class(es) to run.
+        failfast:
+            Stop on first error?
 
     Returns:
         When running tests, returns True if test run was successful, otherwise
@@ -840,10 +843,6 @@ def self_test(show_only: bool = False,
         When displaying the names of test classes returns True always.
     """
     ok = True
-
-    # ... we're going to be using a test (SQLite) database, but we want to
-    # be very sure that nothing writes to a real database! Also, we will
-    # want to read from this dummy config at some point.
 
     # If you use this:
     #       loader = TestLoader()
