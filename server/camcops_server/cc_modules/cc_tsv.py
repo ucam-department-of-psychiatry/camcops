@@ -365,19 +365,31 @@ class TsvCollection(object):
         assert page is not None, f"No such page with name {page_name}"
         return page.get_tsv()
 
-    def write_zip(self, file: Union[str, BinaryIO],
-                  encoding: str = "utf-8") -> None:
+    def write_zip(self,
+                  file: Union[str, BinaryIO],
+                  encoding: str = "utf-8",
+                  compression: int = zipfile.ZIP_DEFLATED) -> None:
         """
         Writes data to a file, as a ZIP file of TSV files.
 
         Args:
             file: filename or file-like object
             encoding: encoding to use when writing the TSV files
+            compression: compression method to use
+
+        Choice of compression method: see
+
+        - https://docs.python.org/3/library/zipfile.html
+        - https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT
+        - http://en.wikipedia.org/wiki/Zip_(file_format)#Compression_methods
+
+        Note also that ``openpyxl`` uses ``ZIP_DEFLATED``, which seems to be
+        the most portable if not the best compression.
         """
         if isinstance(file, str):  # it's a filename
             with open(file, "wb") as binaryfile:
                 return self.write_zip(binaryfile, encoding)  # recurse once
-        with zipfile.ZipFile(file, "w") as z:
+        with zipfile.ZipFile(file, mode="w", compression=compression) as z:
             # Write to ZIP.
             # If there are no valid task instances, there'll be no TSV;
             # that's OK.

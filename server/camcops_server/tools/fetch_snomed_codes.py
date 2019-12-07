@@ -255,7 +255,7 @@ CCMAP = OrderedDict([
     (SL.AUDIT_PROCEDURE_ASSESSMENT, (f"{ASSESS} {AUDIT}", ST.PROC)),
     (SL.AUDITC_SCALE, ("Alcohol use disorder identification test consumption questionnaire", ST.SCALE)),  # noqa
     (SL.AUDITC_SCORE, (f"{AUDITC} {SCORE}", ST.OBS)),
-    (SL.AUDITC_PROCEDURE_ASSESSMENT, (f"{ASSESS} {AUDIT}", ST.PROC)),
+    (SL.AUDITC_PROCEDURE_ASSESSMENT, (f"{ASSESS} {AUDITC}", ST.PROC)),
 
     (SL.BADLS_SCALE, (f"{BADLS}", ST.SCALE)),
     (SL.BADLS_SCORE, (f"{BADLS} {SCORE}", ST.OBS)),
