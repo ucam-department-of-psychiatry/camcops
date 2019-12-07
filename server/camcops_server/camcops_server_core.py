@@ -51,7 +51,6 @@ log.info("Imports starting")
 import os  # noqa: E402
 import platform  # noqa: E402
 import sys  # noqa: E402
-import tempfile  # noqa: E402
 from typing import Any, Dict, List, Optional, TYPE_CHECKING  # noqa: E402
 import unittest  # noqa: E402
 
@@ -80,14 +79,12 @@ from camcops_server.cc_modules.cc_anon import (  # noqa: E402
     write_crate_data_dictionary,
     write_cris_data_dictionary,
 )
-from camcops_server.cc_modules.cc_baseconstants import ENVVAR_CONFIG_FILE  # noqa: E402,E501
 # noinspection PyUnresolvedReferences
 import camcops_server.cc_modules.client_api  # import side effects (register unit test)  # noqa: E402,E501,F401
 from camcops_server.cc_modules.cc_config import (  # noqa: E402
     CamcopsConfig,
     get_config_filename_from_os_env,
     get_default_config_from_os_env,
-    get_demo_config,
 )
 from camcops_server.cc_modules.cc_constants import (  # noqa: E402
     ConfigDefaults,
@@ -833,9 +830,12 @@ def self_test(show_only: bool = False,
     If test_class is None, run all the tests.
 
     Args:
-        show_only: If True, just display the names of test classes, don't run
-        them.
-        test_class: Test class(es) to run.
+        show_only:
+            If True, just display the names of test classes, don't run them.
+        test_class:
+            Test class(es) to run.
+        failfast:
+            Stop on first error?
 
     Returns:
         When running tests, returns True if test run was successful, otherwise
@@ -844,70 +844,59 @@ def self_test(show_only: bool = False,
     """
     ok = True
 
-    with tempfile.TemporaryDirectory() as tmpdirname:
-        tmpconfigfilename = os.path.join(tmpdirname, "dummy_config.conf")
-        configtext = get_demo_config()
-        with open(tmpconfigfilename, "w") as file:
-            file.write(configtext)
-        # First, for safety:
-        os.environ[ENVVAR_CONFIG_FILE] = tmpconfigfilename
-        # ... we're going to be using a test (SQLite) database, but we want to
-        # be very sure that nothing writes to a real database! Also, we will
-        # want to read from this dummy config at some point.
+    # If you use this:
+    #       loader = TestLoader()
+    #       suite = loader.discover(CAMCOPS_SERVER_DIRECTORY)
+    # ... then it fails because submodules contain relative imports (e.g.
+    # "from ..cc_modules.something import x" and this gives "ValueError:
+    # attemped relative import beyond top-level package". As the unittest
+    # docs say, "In order to be compatible with test discovery, all of the
+    # test files must be modules or packages... importable from the
+    # top-level directory of the project".
+    #
+    # However, having imported everything, all our tests should be
+    # subclasses of TestCase... but so are some other things.
+    #
+    # So we have a choice:
+    # 1. manual test specification (yuk)
+    # 2. hack around TestCase.__subclasses__ to exclude "built-in" ones
+    # 3. abandon relative imports
+    #   ... not a bad general idea (they often seem to cause problems!)
+    #   ... however, the discovery process (a) fails with importing
+    #       "alembic.versions", but more problematically, imports tasks
+    #       twice, which gives errors like
+    #       "sqlalchemy.exc.InvalidRequestError: Table 'ace3' is already
+    #       defined for this MetaData instance."
+    # So, hack it is.
 
-        # If you use this:
-        #       loader = TestLoader()
-        #       suite = loader.discover(CAMCOPS_SERVER_DIRECTORY)
-        # ... then it fails because submodules contain relative imports (e.g.
-        # "from ..cc_modules.something import x" and this gives "ValueError:
-        # attemped relative import beyond top-level package". As the unittest
-        # docs say, "In order to be compatible with test discovery, all of the
-        # test files must be modules or packages... importable from the
-        # top-level directory of the project".
-        #
-        # However, having imported everything, all our tests should be
-        # subclasses of TestCase... but so are some other things.
-        #
-        # So we have a choice:
-        # 1. manual test specification (yuk)
-        # 2. hack around TestCase.__subclasses__ to exclude "built-in" ones
-        # 3. abandon relative imports
-        #   ... not a bad general idea (they often seem to cause problems!)
-        #   ... however, the discovery process (a) fails with importing
-        #       "alembic.versions", but more problematically, imports tasks
-        #       twice, which gives errors like
-        #       "sqlalchemy.exc.InvalidRequestError: Table 'ace3' is already
-        #       defined for this MetaData instance."
-        # So, hack it is.
+    # noinspection PyProtectedMember,PyUnresolvedReferences
+    skip_testclass_subclasses = [
+        # The ugly hack: what you see from
+        # unittest.TestCase.__subclasses__() from a clean import:
+        unittest.case.FunctionTestCase,  # built in
+        unittest.case._SubTest,  # built in
+        unittest.loader._FailedTest,  # built in
+        # plus our extras:
+        DemoDatabaseTestCase,  # our base class
+        DemoRequestTestCase,  # also a base class
+        ExtendedTestCase,  # also a base class
+    ]
+    suite = unittest.TestSuite()
+    for cls in gen_all_subclasses(unittest.TestCase):
+        if cls in skip_testclass_subclasses:
+            continue
+        if not cls.__module__.startswith("camcops_server"):
+            # don't, for example, run cardinal_pythonlib self-tests
+            continue
+        if test_class is None or test_class in cls.__name__:
+            log.info("Discovered test: {}", cls)
+            # noinspection PyUnresolvedReferences
+            suite.addTest(unittest.makeSuite(cls))
+    if not show_only:
+        runner = unittest.TextTestRunner(failfast=failfast)
+        result = runner.run(suite)
 
-        # noinspection PyProtectedMember,PyUnresolvedReferences
-        skip_testclass_subclasses = [
-            # The ugly hack: what you see from
-            # unittest.TestCase.__subclasses__() from a clean import:
-            unittest.case.FunctionTestCase,  # built in
-            unittest.case._SubTest,  # built in
-            unittest.loader._FailedTest,  # built in
-            # plus our extras:
-            DemoDatabaseTestCase,  # our base class
-            DemoRequestTestCase,  # also a base class
-            ExtendedTestCase,  # also a base class
-        ]
-        suite = unittest.TestSuite()
-        for cls in gen_all_subclasses(unittest.TestCase):
-            if cls in skip_testclass_subclasses:
-                continue
-            if not cls.__module__.startswith("camcops_server"):
-                # don't, for example, run cardinal_pythonlib self-tests
-                continue
-            if test_class is None or test_class in cls.__name__:
-                log.info("Discovered test: {}", cls)
-                # noinspection PyUnresolvedReferences
-                suite.addTest(unittest.makeSuite(cls))
-        if not show_only:
-            runner = unittest.TextTestRunner(failfast=failfast)
-            result = runner.run(suite)
-
-            ok = result.wasSuccessful()
+        ok = result.wasSuccessful()
 
     return ok
 
