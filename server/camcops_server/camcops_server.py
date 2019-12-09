@@ -188,9 +188,8 @@ def _downgrade_database_to_revision(
 
 def _add_dummy_data(cfg: "CamcopsConfig",
                     confirm_add_dummy_data: bool = False) -> None:
-    from camcops_server.cc_modules.cc_dummy_database import add_dummy_data  # delayed import; import side effects  # noqa
-    add_dummy_data(cfg, confirm_add_dummy_data=confirm_add_dummy_data)
-    _reindex(cfg)
+    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    core.add_dummy_data(cfg, confirm_add_dummy_data=confirm_add_dummy_data)
 
 
 def _create_database_from_scratch(cfg: "CamcopsConfig") -> None:

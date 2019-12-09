@@ -91,6 +91,7 @@ INSTALL_REQUIRES = [
     'distro==1.3.0',  # detecting Linux distribution
     'dogpile.cache==0.6.6',  # web caching
     # TO COME: 'fhirclient==3.2.0',  # For FHIR export
+    'faker==3.0.0',  # for dummy database creation
     'flake8>=3.7.8',  # for development;
     'flower==0.9.2',  # monitor for Celery
     'gunicorn==19.8.1',  # web server (Unix only)

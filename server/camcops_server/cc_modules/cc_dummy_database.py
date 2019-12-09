@@ -37,12 +37,13 @@ from cardinal_pythonlib.datetimefunc import (
 )
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.nhs import generate_random_nhs_number
+from faker import Faker
 import pendulum
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.session import sessionmaker
 from sqlalchemy.sql.expression import func
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Float, Integer
+from sqlalchemy.sql.sqltypes import Boolean, Date, Float, Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import DateFormat
 from camcops_server.cc_modules.cc_device import Device
@@ -62,16 +63,6 @@ if TYPE_CHECKING:
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
-def add_dummy_data(cfg: "CamcopsConfig",
-                   confirm_add_dummy_data: bool = False) -> None:
-    if not confirm_add_dummy_data:
-        log.critical("Destructive action not confirmed! Refusing.")
-        return
-
-    factory = DummyDataFactory(cfg)
-    factory.add_data()
-
-
 class DummyDataFactory(object):
     FIRST_PATIENT_ID = 10001
     NUM_PATIENTS = 5
@@ -85,6 +76,8 @@ class DummyDataFactory(object):
     def __init__(self, cfg: "CamcopsConfig"):
         engine = cfg.get_sqla_engine()
         self.dbsession = sessionmaker()(bind=engine)  # type: SqlASession
+
+        self.faker = Faker('en_GB')
 
     def add_data(self):
         next_id = self.next_id(Group.id)
@@ -118,8 +111,11 @@ class DummyDataFactory(object):
 
         for patient_id in range(self.FIRST_PATIENT_ID,
                                 self.FIRST_PATIENT_ID + self.NUM_PATIENTS):
+            Faker.seed(patient_id)
             self.add_patient(patient_id)
             log.info(f"Adding tasks for patient {patient_id}")
+
+            Faker.seed()
             self.add_tasks(patient_id)
 
     def add_patient(self, patient_id: int) -> Patient:
@@ -129,9 +125,21 @@ class DummyDataFactory(object):
 
         patient.id = patient_id
         self.apply_standard_db_fields(patient)
-        patient.forename = f"Forename {patient_id}"
-        patient.surname = f"Surname {patient_id}"
-        patient.dob = pendulum.parse("1950-01-01")
+
+        patient.sex = self.faker.random.choices(
+            ["M", "F", "X"],
+            weights=[49.8, 49.8, 0.4]
+        )[0]
+
+        if patient.sex == "M":
+            patient.forename = self.faker.first_name_male()
+        elif patient.sex == "F":
+            patient.forename = self.faker.first_name_female()
+        else:
+            patient.forename = self.faker.first_name()[:1]
+
+        patient.surname = self.faker.last_name()
+        patient.dob = self.faker.date_of_birth(minimum_age=0, maximum_age=120)
         self.dbsession.add(patient)
 
         self.add_patient_idnum(patient_id)
@@ -149,6 +157,7 @@ class DummyDataFactory(object):
         patient_idnum.which_idnum = self.nhs_iddef.which_idnum
 
         # Always create the same NHS number for each patient
+        # uses different random object to faker
         random.seed(patient_id)
         patient_idnum.idnum_value = generate_random_nhs_number()
         random.seed()
@@ -179,12 +188,33 @@ class DummyDataFactory(object):
 
             if isinstance(column.type, Float):
                 self.set_float_field(task, column)
+                continue
+
+            if isinstance(column.type, Boolean):
+                self.set_bool_field(task, column)
+                continue
+
+            if isinstance(column.type, Date):
+                self.set_date_field(task, column)
+                continue
+
+            if isinstance(column.type, UnicodeText):
+                self.set_unicode_text_field(task, column)
 
     def set_integer_field(self, task: "Task", column: Column):
         setattr(task, column.name, self.get_valid_integer_for_field(column))
 
     def set_float_field(self, task: "Task", column: Column):
         setattr(task, column.name, self.get_valid_float_for_field(column))
+
+    def set_bool_field(self, task: "Task", column: Column):
+        setattr(task, column.name, self.faker.random.choice([False, True]))
+
+    def set_date_field(self, task: "Task", column: Column):
+        setattr(task, column.name, self.faker.date_object())
+
+    def set_unicode_text_field(self, task: "Task", column: Column):
+        setattr(task, column.name, self.faker.text())
 
     def get_valid_integer_for_field(self, column: Column):
         min_value = self.DEFAULT_MIN_INTEGER
@@ -194,7 +224,7 @@ class DummyDataFactory(object):
 
         if value_checker is not None:
             if value_checker.permitted_values is not None:
-                return random.choice(value_checker.permitted_values)
+                return self.faker.random.choice(value_checker.permitted_values)
 
             if value_checker.minimum is not None:
                 min_value = value_checker.minimum
@@ -202,7 +232,7 @@ class DummyDataFactory(object):
             if value_checker.maximum is not None:
                 max_value = value_checker.maximum
 
-        return random.randint(min_value, max_value)
+        return self.faker.random.randint(min_value, max_value)
 
     def get_valid_float_for_field(self, column: Column):
         min_value = self.DEFAULT_MIN_FLOAT
@@ -212,7 +242,7 @@ class DummyDataFactory(object):
 
         if value_checker is not None:
             if value_checker.permitted_values is not None:
-                return random.choice(value_checker.permitted_values)
+                return self.faker.random.choice(value_checker.permitted_values)
 
             if value_checker.minimum is not None:
                 min_value = value_checker.minimum
@@ -220,7 +250,7 @@ class DummyDataFactory(object):
             if value_checker.maximum is not None:
                 max_value = value_checker.maximum
 
-        return random.uniform(min_value, max_value)
+        return self.faker.random.uniform(min_value, max_value)
 
     def column_is_q_field(self, column: Column):
         if column.name.startswith("_"):
