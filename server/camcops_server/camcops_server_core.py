@@ -739,6 +739,18 @@ def check_index(cfg: CamcopsConfig, show_all_bad: bool = False) -> bool:
     return ok
 
 
+def add_dummy_data(cfg: CamcopsConfig,
+                   confirm_add_dummy_data: bool = False) -> None:
+    if not confirm_add_dummy_data:
+        log.critical("Destructive action not confirmed! Refusing.")
+        return
+
+    from camcops_server.cc_modules.cc_dummy_database import DummyDataFactory
+    factory = DummyDataFactory(cfg)
+    factory.add_data()
+    reindex(cfg)
+
+
 # =============================================================================
 # Celery
 # =============================================================================
