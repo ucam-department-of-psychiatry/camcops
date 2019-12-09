@@ -277,7 +277,7 @@ class RedcapTaskExporter(object):
         project = self.get_project(recipient)
         fieldmap = self.get_fieldmap(req)
 
-        existing_records = self._get_existing_records(fieldmap)
+        existing_records = self._get_existing_records(project, fieldmap)
         record_id = self._get_existing_record_id(existing_records,
                                                  fieldmap,
                                                  idnum_object.idnum_value)
@@ -299,11 +299,11 @@ class RedcapTaskExporter(object):
         exported_task_redcap.redcap_record_id = new_record_id
 
     def _get_existing_records(self,
-                              fieldmap: "RedcapFieldmap") -> "DataFrame":
+                              project: redcap.project.Project,
+                              fieldmap: RedcapFieldmap) -> "DataFrame":
         # Arguments to pandas read_csv()
         df_kwargs = {"index_col": None}  # don't index by record_id
 
-        project = self.get_project()
         forms = (fieldmap.instrument_names() +
                  [fieldmap.identifier['instrument']])
 
@@ -358,7 +358,7 @@ class RedcapTaskExporter(object):
 
         return filename
 
-    def get_project(self, recipient: ExportRecipient):
+    def get_project(self, recipient: ExportRecipient) -> redcap.project.Project:
         try:
             project = redcap.project.Project(
                 recipient.redcap_api_url, recipient.redcap_api_key
