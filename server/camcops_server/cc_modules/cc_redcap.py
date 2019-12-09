@@ -281,8 +281,14 @@ class RedcapTaskExporter(object):
         record_id = self._get_existing_record_id(existing_records,
                                                  fieldmap,
                                                  idnum_object.idnum_value)
+        try:
+            instrument_name = fieldmap.instruments[task.tablename]
+        except KeyError:
+            raise RedcapExportException(
+                (f"Instrument for task '{task.tablename}' is missing from the "
+                 f"fieldmap")
+            )
 
-        instrument_name = fieldmap.instruments[task.tablename]
         next_instance_id = self._get_next_instance_id(existing_records,
                                                       instrument_name,
                                                       record_id)
@@ -1162,3 +1168,61 @@ class MultipleTaskRedcapExportTests(RedcapExportTestCase):
         record = rows[0]
 
         self.assertEquals(record["redcap_repeat_instance"], 1)
+
+
+class BadConfigurationRedcapTests(RedcapExportTestCase):
+    fieldmap = """<?xml version="1.0" encoding="UTF-8"?>
+<fieldmap>
+  <identifier instrument="patient_record" redcap_field="patient_id" />
+  <instruments>
+    <instrument task="phq9" name="patient_health_questionnaire_9">
+      <fields>
+      </fields>
+    </instrument>
+  </instruments>
+</fieldmap>"""  # noqa: E501
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.id_sequence = self.get_id()
+
+    @staticmethod
+    def get_id() -> Generator[int, None, None]:
+        i = 1
+
+        while True:
+            yield i
+            i += 1
+
+    def create_tasks(self) -> None:
+        from camcops_server.tasks.bmi import Bmi
+        patient = self.create_patient_with_idnum_1001()
+        self.task = Bmi()
+        self.apply_standard_task_fields(self.task)
+        self.task.id = next(self.id_sequence)
+        self.task.height_m = 1.83
+        self.task.mass_kg = 67.57
+        self.task.patient_id = patient.id
+        self.dbsession.add(self.task)
+        self.dbsession.commit()
+
+    def test_raises_when_instrument_missing_from_fieldmap(self) -> None:
+        from camcops_server.cc_modules.cc_exportmodels import (
+            ExportedTask,
+            ExportedTaskRedcap
+        )
+
+        exported_task = ExportedTask(task=self.task, recipient=self.recipient)
+        exported_task_redcap = ExportedTaskRedcap(exported_task)
+
+        exporter = MockRedcapTaskExporter()
+        project = exporter.get_project()
+        project.export_records.return_value = DataFrame({'patient_id': []})
+        project.import_records.return_value = ["123,0"]
+
+        with self.assertRaises(RedcapExportException) as cm:
+            exporter.export_task(self.req, exported_task_redcap)
+
+        message = str(cm.exception)
+        self.assertIn("Instrument for task 'bmi' is missing from the fieldmap",
+                      message)
