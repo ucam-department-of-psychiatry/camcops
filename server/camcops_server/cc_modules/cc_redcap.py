@@ -430,10 +430,10 @@ class RedcapUploader(object):
 
         new_record_id = self.get_new_record_id(record_id, response)
 
+        # We don't mark the patient record as complete
         patient_record = {
             "record_id": new_record_id,
             fieldmap.identifier["redcap_field"]: idnum_value,
-            f"{fieldmap.identifier['instrument']}_complete": True,
         }
         self.upload_record(patient_record)
 
@@ -856,7 +856,6 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
         record = rows[0]
 
         self.assertEquals(record["patient_id"], 555)
-        self.assertEquals(record["patient_record_complete"], True)
 
 
 class BmiRedcapUpdateTests(BmiRedcapValidFieldmapTestCase):
@@ -1031,7 +1030,6 @@ class Phq9RedcapExportTests(RedcapExportTestCase):
         rows = args[0]
         record = rows[0]
         self.assertEquals(record["patient_id"], 555)
-        self.assertEquals(record["patient_record_complete"], True)
 
 
 class MedicationTherapyRedcapExportTests(RedcapExportTestCase):
