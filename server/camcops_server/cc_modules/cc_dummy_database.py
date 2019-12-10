@@ -73,13 +73,13 @@ class DummyDataFactory(object):
     DEFAULT_MIN_INTEGER = 0
     DEFAULT_MAX_INTEGER = 1000
 
-    def __init__(self, cfg: "CamcopsConfig"):
+    def __init__(self, cfg: "CamcopsConfig") -> None:
         engine = cfg.get_sqla_engine()
         self.dbsession = sessionmaker()(bind=engine)  # type: SqlASession
 
         self.faker = Faker('en_GB')
 
-    def add_data(self):
+    def add_data(self) -> None:
         next_id = self.next_id(Group.id)
 
         self.group = Group()
@@ -98,7 +98,7 @@ class DummyDataFactory(object):
         self.era = format_datetime(self.era_time, DateFormat.ISO8601)
         self.server_device = Device.get_server_device(self.dbsession)
 
-        self.nhs_iddef = IdNumDefinition(which_idnum="1001",
+        self.nhs_iddef = IdNumDefinition(which_idnum=1001,
                                          description="NHS number (TEST)",
                                          short_description="NHS#",
                                          hl7_assigning_authority="NHS",
@@ -147,7 +147,7 @@ class DummyDataFactory(object):
 
         return patient
 
-    def add_patient_idnum(self, patient_id: int) -> PatientIdNum:
+    def add_patient_idnum(self, patient_id: int) -> None:
         next_id = self.next_id(PatientIdNum.id)
 
         patient_idnum = PatientIdNum()
@@ -164,7 +164,7 @@ class DummyDataFactory(object):
 
         self.dbsession.add(patient_idnum)
 
-    def add_tasks(self, patient_id) -> Task:
+    def add_tasks(self, patient_id: int):
         for cls in Task.all_subclasses_by_tablename():
             task = cls()
             task.id = self.next_id(cls.id)
@@ -177,7 +177,8 @@ class DummyDataFactory(object):
             self.dbsession.add(task)
             self.dbsession.commit()
 
-    def fill_in_task_fields(self, task: "Task"):
+    def fill_in_task_fields(self, task: Task) -> None:
+        # noinspection PyUnresolvedReferences
         for column in task.__table__.columns:
             if not self.column_is_q_field(column):
                 continue
@@ -201,22 +202,22 @@ class DummyDataFactory(object):
             if isinstance(column.type, UnicodeText):
                 self.set_unicode_text_field(task, column)
 
-    def set_integer_field(self, task: "Task", column: Column):
+    def set_integer_field(self, task: Task, column: Column) -> None:
         setattr(task, column.name, self.get_valid_integer_for_field(column))
 
-    def set_float_field(self, task: "Task", column: Column):
+    def set_float_field(self, task: Task, column: Column) -> None:
         setattr(task, column.name, self.get_valid_float_for_field(column))
 
-    def set_bool_field(self, task: "Task", column: Column):
+    def set_bool_field(self, task: Task, column: Column) -> None:
         setattr(task, column.name, self.faker.random.choice([False, True]))
 
-    def set_date_field(self, task: "Task", column: Column):
+    def set_date_field(self, task: Task, column: Column) -> None:
         setattr(task, column.name, self.faker.date_object())
 
-    def set_unicode_text_field(self, task: "Task", column: Column):
+    def set_unicode_text_field(self, task: Task, column: Column) -> None:
         setattr(task, column.name, self.faker.text())
 
-    def get_valid_integer_for_field(self, column: Column):
+    def get_valid_integer_for_field(self, column: Column) -> int:
         min_value = self.DEFAULT_MIN_INTEGER
         max_value = self.DEFAULT_MAX_INTEGER
 
@@ -234,7 +235,7 @@ class DummyDataFactory(object):
 
         return self.faker.random.randint(min_value, max_value)
 
-    def get_valid_float_for_field(self, column: Column):
+    def get_valid_float_for_field(self, column: Column) -> float:
         min_value = self.DEFAULT_MIN_FLOAT
         max_value = self.DEFAULT_MAX_FLOAT
 
@@ -252,7 +253,8 @@ class DummyDataFactory(object):
 
         return self.faker.random.uniform(min_value, max_value)
 
-    def column_is_q_field(self, column: Column):
+    @staticmethod
+    def column_is_q_field(column: Column) -> bool:
         if column.name.startswith("_"):
             return False
 
@@ -270,14 +272,14 @@ class DummyDataFactory(object):
 
         return True
 
-    def next_id(self, column: Column):
+    def next_id(self, column: Column) -> int:
         max_id = self.dbsession.query(func.max(column)).scalar()
         if max_id is None:
             return 1
 
         return max_id + 1
 
-    def apply_standard_task_fields(self, task: "Task") -> None:
+    def apply_standard_task_fields(self, task: Task) -> None:
         """
         Writes some default values to an SQLAlchemy ORM object representing
         a task.
