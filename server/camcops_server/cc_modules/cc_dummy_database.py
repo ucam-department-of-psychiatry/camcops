@@ -27,9 +27,10 @@ camcops_server/cc_modules/cc_dummy_database.py
 **Functions for dummy database creation for manual testing.**
 
 """
+
 import logging
 import random
-from typing import TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 from cardinal_pythonlib.datetimefunc import (
     convert_datetime_to_utc,
@@ -79,7 +80,17 @@ class DummyDataFactory(object):
 
         self.faker = Faker('en_GB')
 
+        self.era_time = pendulum.now()
+        self.era_time_utc = convert_datetime_to_utc(self.era_time)
+        self.era = format_datetime(self.era_time, DateFormat.ISO8601)
+
+        self.group = None  # type: Optional[Group]
+        self.user = None  # type: Optional[User]
+        self.server_device = None  # type: Optional[Device]
+        self.nhs_iddef = None  # type: Optional[IdNumDefinition]
+
     def add_data(self) -> None:
+        # noinspection PyTypeChecker
         next_id = self.next_id(Group.id)
 
         self.group = Group()
@@ -93,9 +104,6 @@ class DummyDataFactory(object):
         self.user = User.get_system_user(self.dbsession)
         self.user.upload_group_id = self.group.id
 
-        self.era_time = pendulum.now()
-        self.era_time_utc = convert_datetime_to_utc(self.era_time)
-        self.era = format_datetime(self.era_time, DateFormat.ISO8601)
         self.server_device = Device.get_server_device(self.dbsession)
 
         self.nhs_iddef = IdNumDefinition(which_idnum=1001,
@@ -147,6 +155,7 @@ class DummyDataFactory(object):
 
         return patient
 
+    # noinspection PyTypeChecker
     def add_patient_idnum(self, patient_id: int) -> None:
         next_id = self.next_id(PatientIdNum.id)
 
@@ -156,11 +165,13 @@ class DummyDataFactory(object):
         patient_idnum.patient_id = patient_id
         patient_idnum.which_idnum = self.nhs_iddef.which_idnum
 
-        # Always create the same NHS number for each patient
-        # uses different random object to faker
+        # Always create the same NHS number for each patient.
+        # Uses a different random object to faker.
+        # Restores the master RNG state afterwards.
+        old_random_state = random.getstate()
         random.seed(patient_id)
         patient_idnum.idnum_value = generate_random_nhs_number()
-        random.seed()
+        random.setstate(old_random_state)
 
         self.dbsession.add(patient_idnum)
 
