@@ -268,6 +268,7 @@ class RedcapTaskExporter(object):
     def export_task(self,
                     req: "CamcopsRequest",
                     exported_task_redcap: "ExportedTaskRedcap") -> None:
+
         exported_task = exported_task_redcap.exported_task
         recipient = exported_task.recipient
         task = exported_task.task
@@ -339,12 +340,15 @@ class RedcapTaskExporter(object):
             # no existing records so it's 1
             return 1
 
-        max_values = records[
+        previous_instances = records[
             (records["redcap_repeat_instrument"] == instrument) &
             (records["record_id"] == record_id)
-        ].max()
+        ]
 
-        return max_values["redcap_repeat_instance"] + 1
+        if len(previous_instances) == 0:
+            return 1
+
+        return previous_instances.max()["redcap_repeat_instance"] + 1
 
     def get_fieldmap(self, req: "CamcopsRequest") -> RedcapFieldmap:
         fieldmap = RedcapFieldmap(self.get_fieldmap_filename(req))
@@ -1190,13 +1194,20 @@ class MultipleTaskRedcapExportTests(RedcapExportTestCase):
 
         self.assertEquals(kwargs["repeat_instance"], 1)
 
+        project.export_records.return_value = DataFrame({
+            "record_id": [123],
+            "patient_id": [555],
+            "redcap_repeat_instrument": ["khandaker_mojo_medicationtherapy"],
+            "redcap_repeat_instance": [1],
+        })
         exported_task2 = ExportedTask(task=self.task2, recipient=self.recipient)
         exported_task_redcap2 = ExportedTaskRedcap(exported_task2)
 
         exporter.export_task(self.req, exported_task_redcap2)
 
-        # Initial call with new record
-        args, kwargs = project.import_records.call_args_list[0]
+        # Import of second task, but is first instance
+        # (third call to import_records)
+        args, kwargs = project.import_records.call_args_list[2]
 
         rows = args[0]
         record = rows[0]
