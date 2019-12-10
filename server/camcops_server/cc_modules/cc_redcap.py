@@ -300,7 +300,7 @@ class RedcapTaskExporter(object):
         uploader = uploader_class(req, project)
 
         new_record_id = uploader.upload(task, record_id, next_instance_id,
-                                        fieldmap)
+                                        fieldmap, idnum_object.idnum_value)
 
         exported_task_redcap.redcap_record_id = new_record_id
 
@@ -311,24 +311,25 @@ class RedcapTaskExporter(object):
         df_kwargs = {"index_col": None}  # don't index by record_id
 
         forms = (fieldmap.instrument_names() +
-                 [fieldmap.identifier['instrument']])
+                 [fieldmap.identifier["instrument"]])
 
-        return project.export_records(format='df', forms=forms,
+        return project.export_records(format="df", forms=forms,
                                       df_kwargs=df_kwargs)
 
     def _get_existing_record_id(self,
                                 records: "DataFrame",
-                                fieldmap,
-                                idnum_value) -> Union[int, None]:
+                                fieldmap: RedcapFieldmap,
+                                idnum_value: int) -> Union[int, None]:
         # TODO: Handle missing 'redcap_field' column
         has_identifier = records[
-            fieldmap.identifier['redcap_field']
+            fieldmap.identifier["redcap_field"]
         ] == idnum_value
 
         if len(records[has_identifier]) == 0:
             return 0
 
-        return records[has_identifier].iat[0, 0]
+        # Convert from numpy int64
+        return records[has_identifier].iat[0, 0].item()
 
     def _get_next_instance_id(self,
                               records: "DataFrame",
@@ -343,7 +344,7 @@ class RedcapTaskExporter(object):
             (records["record_id"] == record_id)
         ].max()
 
-        return max_values['redcap_repeat_instance'] + 1
+        return max_values["redcap_repeat_instance"] + 1
 
     def get_fieldmap(self, req: "CamcopsRequest") -> RedcapFieldmap:
         fieldmap = RedcapFieldmap(self.get_fieldmap_filename(req))
@@ -398,7 +399,8 @@ class RedcapUploader(object):
         self.project = project
 
     def upload(self, task: "Task", record_id: int,
-               next_instance_id: int, fieldmap: RedcapFieldmap) -> int:
+               next_instance_id: int, fieldmap: RedcapFieldmap,
+               idnum_value: int) -> int:
         complete_status = RedcapRecordStatus.INCOMPLETE
 
         if task.is_complete():
@@ -419,8 +421,21 @@ class RedcapUploader(object):
 
         self.transform_fields(record, task, fieldmap.fields[task.tablename])
 
-        response = self.upload_record(record)
+        import_kwargs = {
+            "return_content": self.return_content,
+            "force_auto_number": self.force_auto_number,
+        }
+
+        response = self.upload_record(record, **import_kwargs)
+
         new_record_id = self.get_new_record_id(record_id, response)
+
+        patient_record = {
+            "record_id": new_record_id,
+            fieldmap.identifier["redcap_field"]: idnum_value,
+            f"{fieldmap.identifier['instrument']}_complete": True,
+        }
+        self.upload_record(patient_record)
 
         file_dict = {}
         self.transform_fields(file_dict, task, fieldmap.files[task.tablename])
@@ -434,12 +449,11 @@ class RedcapUploader(object):
 
         return new_record_id
 
-    def upload_record(self, record: Dict) -> Any:
+    def upload_record(self, record: Dict, **kwargs) -> Any:
         try:
             response = self.project.import_records(
                 [record],
-                return_content=self.return_content,
-                force_auto_number=self.force_auto_number
+                **kwargs
             )
         except redcap.RedcapError as e:
             raise RedcapExportException(str(e))
@@ -811,13 +825,14 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
 
         exporter = MockRedcapTaskExporter()
         project = exporter.get_project()
-        project.export_records.return_value = DataFrame({'patient_id': []})
+        project.export_records.return_value = DataFrame({"patient_id": []})
         project.import_records.return_value = ["123,0"]
 
         exporter.export_task(self.req, exported_task_redcap)
         self.assertEquals(exported_task_redcap.redcap_record_id, 123)
 
-        args, kwargs = project.import_records.call_args
+        # Initial call with original record
+        args, kwargs = project.import_records.call_args_list[0]
 
         rows = args[0]
         record = rows[0]
@@ -834,6 +849,14 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
 
         self.assertEquals(kwargs["return_content"], "auto_ids")
         self.assertTrue(kwargs["force_auto_number"])
+
+        # Second call with updated patient ID
+        args, kwargs = project.import_records.call_args_list[1]
+        rows = args[0]
+        record = rows[0]
+
+        self.assertEquals(record["patient_id"], 555)
+        self.assertEquals(record["patient_record_complete"], True)
 
 
 class BmiRedcapUpdateTests(BmiRedcapValidFieldmapTestCase):
@@ -883,7 +906,9 @@ class BmiRedcapUpdateTests(BmiRedcapValidFieldmapTestCase):
         exported_task_redcap2 = ExportedTaskRedcap(exported_task2)
 
         exporter.export_task(self.req, exported_task_redcap2)
-        args, kwargs = project.import_records.call_args
+
+        # Third call (after initial record and patient ID)
+        args, kwargs = project.import_records.call_args_list[2]
 
         rows = args[0]
         record = rows[0]
@@ -970,7 +995,8 @@ class Phq9RedcapExportTests(RedcapExportTestCase):
         exporter.export_task(self.req, exported_task_redcap)
         self.assertEquals(exported_task_redcap.redcap_record_id, 123)
 
-        args, kwargs = project.import_records.call_args
+        # Initial call with new record
+        args, kwargs = project.import_records.call_args_list[0]
 
         rows = args[0]
         record = rows[0]
@@ -998,6 +1024,14 @@ class Phq9RedcapExportTests(RedcapExportTestCase):
 
         self.assertEquals(kwargs["return_content"], "auto_ids")
         self.assertTrue(kwargs["force_auto_number"])
+
+        # Second call with patient ID
+        args, kwargs = project.import_records.call_args_list[1]
+
+        rows = args[0]
+        record = rows[0]
+        self.assertEquals(record["patient_id"], 555)
+        self.assertEquals(record["patient_record_complete"], True)
 
 
 class MedicationTherapyRedcapExportTests(RedcapExportTestCase):
@@ -1162,7 +1196,9 @@ class MultipleTaskRedcapExportTests(RedcapExportTestCase):
         exported_task_redcap2 = ExportedTaskRedcap(exported_task2)
 
         exporter.export_task(self.req, exported_task_redcap2)
-        args, kwargs = project.import_records.call_args
+
+        # Initial call with new record
+        args, kwargs = project.import_records.call_args_list[0]
 
         rows = args[0]
         record = rows[0]
@@ -1217,7 +1253,7 @@ class BadConfigurationRedcapTests(RedcapExportTestCase):
 
         exporter = MockRedcapTaskExporter()
         project = exporter.get_project()
-        project.export_records.return_value = DataFrame({'patient_id': []})
+        project.export_records.return_value = DataFrame({"patient_id": []})
         project.import_records.return_value = ["123,0"]
 
         with self.assertRaises(RedcapExportException) as cm:
