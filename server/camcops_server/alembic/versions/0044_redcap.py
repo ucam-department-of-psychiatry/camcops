@@ -30,7 +30,7 @@ redcap
 
 Revision ID: 0044
 Revises: 0043
-Creation date: 2019-12-05 16:08:49.711827
+Creation date: 2019-12-10 17:25:58.604235
 
 """
 
@@ -65,6 +65,8 @@ def upgrade():
         sa.Column('id', sa.Integer(), autoincrement=True, nullable=False, comment='Arbitrary primary key'),
         sa.Column('exported_task_id', sa.BigInteger(), nullable=False, comment='FK to _exported_tasks.id'),
         sa.Column('redcap_record_id', sa.UnicodeText(), nullable=True, comment='ID of the (patient) record on the REDCap instance where this task has been exported'),
+        sa.Column('redcap_instrument_name', sa.UnicodeText(), nullable=True, comment='The name of the REDCap instrument name (form) where this task has been exported'),
+        sa.Column('redcap_instance_id', sa.Integer(), nullable=True, comment='1-based index of this particular task within the patient record. Increments on every repeat attempt.'),
         sa.ForeignKeyConstraint(['exported_task_id'], ['_exported_tasks.id'], name=op.f('fk__exported_task_redcap_exported_task_id')),
         sa.PrimaryKeyConstraint('id', name=op.f('pk__exported_task_redcap')),
         mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',

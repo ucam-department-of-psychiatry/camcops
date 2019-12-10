@@ -1125,10 +1125,23 @@ class ExportedTaskRedcap(Base):
 
     exported_task = relationship(ExportedTask)
 
+    # We store these just for logging purposes
     redcap_record_id = Column(
         "redcap_record_id", UnicodeText,
         comment=("ID of the (patient) record on the REDCap instance where "
                  "this task has been exported")
+    )
+
+    redcap_instrument_name = Column(
+        "redcap_instrument_name", UnicodeText,
+        comment=("The name of the REDCap instrument name (form) where this "
+                 "task has been exported")
+    )
+
+    redcap_instance_id = Column(
+        "redcap_instance_id", Integer,
+        comment=("1-based index of this particular task within the patient "
+                 "record. Increments on every repeat attempt.")
     )
 
     def __init__(self, exported_task: ExportedTask = None) -> None:

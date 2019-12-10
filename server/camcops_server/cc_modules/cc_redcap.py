@@ -304,6 +304,8 @@ class RedcapTaskExporter(object):
                                         fieldmap, idnum_object.idnum_value)
 
         exported_task_redcap.redcap_record_id = new_record_id
+        exported_task_redcap.redcap_instrument_name = instrument_name
+        exported_task_redcap.redcap_instance_id = next_instance_id
 
     def _get_existing_records(self,
                               project: redcap.project.Project,
@@ -834,6 +836,8 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
 
         exporter.export_task(self.req, exported_task_redcap)
         self.assertEquals(exported_task_redcap.redcap_record_id, 123)
+        self.assertEquals(exported_task_redcap.redcap_instrument_name, "bmi")
+        self.assertEquals(exported_task_redcap.redcap_instance_id, 1)
 
         # Initial call with original record
         args, kwargs = project.import_records.call_args_list[0]
@@ -898,6 +902,8 @@ class BmiRedcapUpdateTests(BmiRedcapValidFieldmapTestCase):
         exported_task_redcap1 = ExportedTaskRedcap(exported_task1)
         exporter.export_task(self.req, exported_task_redcap1)
         self.assertEquals(exported_task_redcap1.redcap_record_id, 123)
+        self.assertEquals(exported_task_redcap1.redcap_instrument_name, "bmi")
+        self.assertEquals(exported_task_redcap1.redcap_instance_id, 1)
 
         project.export_records.return_value = DataFrame({
             "record_id": [123],
@@ -909,6 +915,9 @@ class BmiRedcapUpdateTests(BmiRedcapValidFieldmapTestCase):
         exported_task_redcap2 = ExportedTaskRedcap(exported_task2)
 
         exporter.export_task(self.req, exported_task_redcap2)
+        self.assertEquals(exported_task_redcap2.redcap_record_id, 123)
+        self.assertEquals(exported_task_redcap2.redcap_instrument_name, "bmi")
+        self.assertEquals(exported_task_redcap2.redcap_instance_id, 2)
 
         # Third call (after initial record and patient ID)
         args, kwargs = project.import_records.call_args_list[2]
@@ -997,6 +1006,9 @@ class Phq9RedcapExportTests(RedcapExportTestCase):
         project.import_records.return_value = ["123,0"]
         exporter.export_task(self.req, exported_task_redcap)
         self.assertEquals(exported_task_redcap.redcap_record_id, 123)
+        self.assertEquals(exported_task_redcap.redcap_instrument_name,
+                          "patient_health_questionnaire_9")
+        self.assertEquals(exported_task_redcap.redcap_instance_id, 1)
 
         # Initial call with new record
         args, kwargs = project.import_records.call_args_list[0]
@@ -1102,6 +1114,9 @@ class MedicationTherapyRedcapExportTests(RedcapExportTestCase):
 
         exporter.export_task(self.req, exported_task_redcap)
         self.assertEquals(exported_task_redcap.redcap_record_id, 123)
+        self.assertEquals(exported_task_redcap.redcap_instrument_name,
+                          "medication_table")
+        self.assertEquals(exported_task_redcap.redcap_instance_id, 1)
 
         args, kwargs = project.import_file.call_args
 
