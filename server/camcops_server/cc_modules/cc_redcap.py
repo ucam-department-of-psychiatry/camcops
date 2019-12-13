@@ -261,8 +261,12 @@ class RedcapFieldmap(object):
 
             file_elements = instrument_element.find("files") or []
             for file_element in file_elements:
-                name = file_element.get("name")
-                formula = file_element.get("formula")
+                file_attributes = self._validate_and_return_attributes(
+                    file_element, ("name", "formula")
+                )
+
+                name = file_attributes["name"]
+                formula = file_attributes["formula"]
                 self.files[task][name] = formula
 
     def _validate_and_return_attributes(
@@ -860,6 +864,34 @@ class RedcapFieldmapTests(TestCase):
         message = str(cm.exception)
         self.assertIn(
             "'instrument' must have attributes name, task",
+            message
+        )
+        self.assertIn(fieldmap_file.name, message)
+
+    def test_raises_when_file_fields_missing_attributes(self) -> None:
+        with tempfile.NamedTemporaryFile(
+                mode="w", suffix="xml") as fieldmap_file:
+            fieldmap_file.write(
+                """<?xml version="1.0" encoding="UTF-8"?>
+                <fieldmap>
+                    <identifier instrument="patient_record" redcap_field="patient_id" />
+                    <instruments>
+                        <instrument name="bmi" task="bmi">
+                            <files>
+                                <field />
+                            </files>
+                        </instrument>
+                    </instruments>
+                </fieldmap>
+                """)  # noqa: E501
+            fieldmap_file.flush()
+
+            with self.assertRaises(RedcapExportException) as cm:
+                RedcapFieldmap(fieldmap_file.name)
+
+        message = str(cm.exception)
+        self.assertIn(
+            "'field' must have attributes name, formula",
             message
         )
         self.assertIn(fieldmap_file.name, message)
