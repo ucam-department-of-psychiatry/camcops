@@ -279,9 +279,17 @@ class RedcapTaskExporter(object):
         fieldmap = self.get_fieldmap(req)
 
         existing_records = self._get_existing_records(project, fieldmap)
-        record_id = self._get_existing_record_id(existing_records,
-                                                 fieldmap,
-                                                 idnum_object.idnum_value)
+        existing_record_id = self._get_existing_record_id(
+            existing_records,
+            fieldmap,
+            idnum_object.idnum_value
+        )
+
+        if existing_record_id is None:
+            uploader_class = RedcapNewRecordUploader
+        else:
+            uploader_class = RedcapUpdatedRecordUploader
+
         try:
             instrument_name = fieldmap.instruments[task.tablename]
         except KeyError:
@@ -292,15 +300,12 @@ class RedcapTaskExporter(object):
 
         next_instance_id = self._get_next_instance_id(existing_records,
                                                       instrument_name,
-                                                      record_id)
-
-        uploader_class = RedcapNewRecordUploader
-        if record_id != 0:
-            uploader_class = RedcapUpdatedRecordUploader
+                                                      existing_record_id)
 
         uploader = uploader_class(req, project)
 
-        new_record_id = uploader.upload(task, record_id, next_instance_id,
+        new_record_id = uploader.upload(task, existing_record_id,
+                                        next_instance_id,
                                         fieldmap, idnum_object.idnum_value)
 
         exported_task_redcap.redcap_record_id = new_record_id
@@ -329,7 +334,7 @@ class RedcapTaskExporter(object):
         ] == idnum_value
 
         if len(records[has_identifier]) == 0:
-            return 0
+            return None
 
         # Convert from numpy int64
         return records[has_identifier].iat[0, 0].item()
@@ -337,14 +342,14 @@ class RedcapTaskExporter(object):
     def _get_next_instance_id(self,
                               records: "DataFrame",
                               instrument: str,
-                              record_id: int) -> int:
-        if record_id == 0:
-            # no existing records so it's 1
+                              existing_record_id: Union[int, None]) -> int:
+        if existing_record_id is None:
+            # no previous instances
             return 1
 
         previous_instances = records[
             (records["redcap_repeat_instrument"] == instrument) &
-            (records["record_id"] == record_id)
+            (records["record_id"] == existing_record_id)
         ]
 
         if len(previous_instances) == 0:
@@ -403,8 +408,14 @@ class RedcapUploader(object):
                  project: "redcap.project.Project") -> None:
         self.req = req
         self.project = project
+        self.project_info = project.export_project_info()
+        # TODO: Exception if repeating instruments not supported
 
-    def upload(self, task: "Task", record_id: int,
+    @property
+    def autonumbering_enabled(self) -> bool:
+        return self.project_info['record_autonumbering_enabled']
+
+    def upload(self, task: "Task", existing_record_id: Union[int, None],
                next_instance_id: int, fieldmap: RedcapFieldmap,
                idnum_value: int) -> int:
         complete_status = RedcapRecordStatus.INCOMPLETE
@@ -413,7 +424,7 @@ class RedcapUploader(object):
             complete_status = RedcapRecordStatus.COMPLETE
         instrument_name = fieldmap.instruments[task.tablename]
 
-        repeat_instance = next_instance_id
+        record_id = self.get_record_id(existing_record_id)
 
         record = {
             "record_id": record_id,
@@ -421,7 +432,7 @@ class RedcapUploader(object):
             # https://community.projectredcap.org/questions/74561/unexpected-behaviour-with-import-records-repeat-in.html  # noqa
             # REDCap won't create instance IDs automatically so we have to
             # assume no one else is writing to this record
-            "redcap_repeat_instance": repeat_instance,
+            "redcap_repeat_instance": next_instance_id,
             f"{instrument_name}_complete": complete_status.value,
         }
 
@@ -436,7 +447,8 @@ class RedcapUploader(object):
 
         new_record_id = self.get_new_record_id(record_id, response)
 
-        # We don't mark the patient record as complete
+        # We don't mark the patient record as complete - it could be part of
+        # a larger form. We don't require it to be complete.
         patient_record = {
             "record_id": new_record_id,
             fieldmap.identifier["redcap_field"]: idnum_value,
@@ -448,7 +460,7 @@ class RedcapUploader(object):
 
         self.upload_files(task,
                           new_record_id,
-                          repeat_instance,
+                          next_instance_id,
                           file_dict)
 
         self.log_success(new_record_id)
@@ -515,11 +527,38 @@ class RedcapUploader(object):
 
 
 class RedcapNewRecordUploader(RedcapUploader):
-    force_auto_number = True
-    # import_records returns ["<redcap record id>, 0"]
-    return_content = "auto_ids"
+
+    @property
+    def force_auto_number(self):
+        return self.autonumbering_enabled
+
+    @property
+    def return_content(self):
+        if self.autonumbering_enabled:
+            # import_records returns ["<redcap record id>, 0"]
+            return "auto_ids"
+
+        # import_records returns {'count': 1}
+        return "count"
+
+    def get_record_id(self, existing_record_id: int) -> int:
+        """
+        Get the record ID to send to REDCap when importing records
+        """
+        if self.autonumbering_enabled:
+            # Is ignored but we still need to set this to something
+            return 0
+
+        return self.project.generate_next_record_name()
 
     def get_new_record_id(self, record_id: int, response: List[str]):
+        """
+        For autonumbering, read the generated record ID from the
+        response. Otherwise we already have it.
+        """
+        if not self.autonumbering_enabled:
+            return record_id
+
         id_pair = response[0]
 
         record_id = int(id_pair.split(",")[0])
@@ -534,6 +573,9 @@ class RedcapUpdatedRecordUploader(RedcapUploader):
     force_auto_number = False
     # import_records returns {'count': 1}
     return_content = "count"
+
+    def get_record_id(self, existing_record_id: int) -> int:
+        return existing_record_id
 
     def get_new_record_id(self, old_record_id: int, response: Any):
         return old_record_id
@@ -550,9 +592,11 @@ class MockProject(mock.Mock):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
+        self.export_project_info = mock.Mock()
         self.export_records = mock.Mock()
-        self.import_records = mock.Mock()
+        self.generate_next_record_name = mock.Mock()
         self.import_file = mock.Mock()
+        self.import_records = mock.Mock()
 
 
 class MockRedcapTaskExporter(RedcapTaskExporter):
@@ -833,6 +877,9 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
         project = exporter.get_project()
         project.export_records.return_value = DataFrame({"patient_id": []})
         project.import_records.return_value = ["123,0"]
+        project.export_project_info.return_value = {
+            "record_autonumbering_enabled": 1
+        }
 
         exporter.export_task(self.req, exported_task_redcap)
         self.assertEquals(exported_task_redcap.redcap_record_id, 123)
@@ -864,6 +911,36 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
         record = rows[0]
 
         self.assertEquals(record["patient_id"], 555)
+
+    def test_record_id_generated_when_no_autonumbering(self) -> None:
+        from camcops_server.cc_modules.cc_exportmodels import (
+            ExportedTask,
+            ExportedTaskRedcap
+        )
+
+        exported_task = ExportedTask(task=self.task, recipient=self.recipient)
+        exported_task_redcap = ExportedTaskRedcap(exported_task)
+
+        exporter = MockRedcapTaskExporter()
+        project = exporter.get_project()
+        project.export_records.return_value = DataFrame({"patient_id": []})
+        project.import_records.return_value = {"count": 1}
+        project.export_project_info.return_value = {
+            "record_autonumbering_enabled": 0
+        }
+        project.generate_next_record_name.return_value = 1
+
+        exporter.export_task(self.req, exported_task_redcap)
+
+        # Initial call with original record
+        args, kwargs = project.import_records.call_args_list[0]
+
+        rows = args[0]
+        record = rows[0]
+
+        self.assertEquals(record["record_id"], 1)
+        self.assertEquals(kwargs["return_content"], "count")
+        self.assertFalse(kwargs["force_auto_number"])
 
 
 class BmiRedcapUpdateTests(BmiRedcapValidFieldmapTestCase):
@@ -897,6 +974,9 @@ class BmiRedcapUpdateTests(BmiRedcapValidFieldmapTestCase):
         project = exporter.get_project()
         project.export_records.return_value = DataFrame({"patient_id": []})
         project.import_records.return_value = ["123,0"]
+        project.export_project_info.return_value = {
+            "record_autonumbering_enabled": 1
+        }
 
         exported_task1 = ExportedTask(task=self.task1, recipient=self.recipient)
         exported_task_redcap1 = ExportedTaskRedcap(exported_task1)
@@ -927,6 +1007,8 @@ class BmiRedcapUpdateTests(BmiRedcapValidFieldmapTestCase):
 
         self.assertEquals(record["record_id"], 123)
         self.assertEquals(record["redcap_repeat_instance"], 2)
+        self.assertEquals(kwargs["return_content"], "count")
+        self.assertFalse(kwargs["force_auto_number"])
 
 
 class Phq9RedcapExportTests(RedcapExportTestCase):
@@ -1004,6 +1086,10 @@ class Phq9RedcapExportTests(RedcapExportTestCase):
         project = exporter.get_project()
         project.export_records.return_value = DataFrame({"patient_id": []})
         project.import_records.return_value = ["123,0"]
+        project.export_project_info.return_value = {
+            "record_autonumbering_enabled": 1
+        }
+
         exporter.export_task(self.req, exported_task_redcap)
         self.assertEquals(exported_task_redcap.redcap_record_id, 123)
         self.assertEquals(exported_task_redcap.redcap_instrument_name,
@@ -1103,6 +1189,9 @@ class MedicationTherapyRedcapExportTests(RedcapExportTestCase):
         project = exporter.get_project()
         project.export_records.return_value = DataFrame({"patient_id": []})
         project.import_records.return_value = ["123,0"]
+        project.export_project_info.return_value = {
+            "record_autonumbering_enabled": 1
+        }
 
         # We can't just look at the call_args here because the file will already
         # have been closed by then
@@ -1200,6 +1289,9 @@ class MultipleTaskRedcapExportTests(RedcapExportTestCase):
         project = exporter.get_project()
         project.export_records.return_value = DataFrame({"patient_id": []})
         project.import_records.return_value = ["123,0"]
+        project.export_project_info.return_value = {
+            "record_autonumbering_enabled": 1
+        }
 
         exported_task1 = ExportedTask(task=self.task1, recipient=self.recipient)
         exported_task_redcap1 = ExportedTaskRedcap(exported_task1)
