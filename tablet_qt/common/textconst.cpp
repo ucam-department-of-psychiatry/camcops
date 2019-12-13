@@ -256,6 +256,8 @@ QString TextConst::termsConditions() {
 
         "These terms and conditions were last revised on 2017-01-23."
     );
+    // This should match the DISCLAIMER_CONTENT string in the server_string()
+    // function of camcops_server/cc_modules/cc_text.py.
 }
 
 // ============================================================================
