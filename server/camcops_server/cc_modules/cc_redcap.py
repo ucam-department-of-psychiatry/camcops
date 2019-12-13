@@ -227,16 +227,9 @@ class RedcapFieldmap(object):
                 f"'identifier' is missing from {filename}"
             )
 
-        self.identifier = identifier_element.attrib
-
-        identifier_attributes = ["instrument", "redcap_field"]
-        if not all(
-                a in self.identifier.keys() for a in identifier_attributes
-        ):
-            raise RedcapExportException(
-                (f"'identifier' must have attributes "
-                 f"{', '.join(identifier_attributes)} in {filename}")
-            )
+        self.identifier = self._validate_and_return_attributes(
+            identifier_element, ("instrument", "redcap_field")
+        )
 
         instrument_elements = root.find("instruments")
         if instrument_elements is None:
@@ -245,17 +238,12 @@ class RedcapFieldmap(object):
             )
 
         for instrument_element in instrument_elements:
-            instrument_attributes = ["name", "task"]
-            if not all(
-                    a in instrument_element.keys()
-                    for a in instrument_attributes
-            ):
-                raise RedcapExportException(
-                    (f"'instrument' must have attributes "
-                     f"{', '.join(instrument_attributes)} in {filename}")
-                )
-            task = instrument_element.get("task")
-            instrument_name = instrument_element.get("name")
+            instrument_attributes = self._validate_and_return_attributes(
+                instrument_element, ("name", "task")
+            )
+
+            task = instrument_attributes["task"]
+            instrument_name = instrument_attributes["name"]
             self.fields[task] = {}
             self.files[task] = {}
             self.instruments[task] = instrument_name
@@ -263,8 +251,11 @@ class RedcapFieldmap(object):
             field_elements = instrument_element.find("fields") or []
 
             for field_element in field_elements:
-                name = field_element.get("name")
-                formula = field_element.get("formula")
+                field_attributes = self._validate_and_return_attributes(
+                    field_element, ("name", "formula")
+                )
+                name = field_attributes["name"]
+                formula = field_attributes["formula"]
 
                 self.fields[task][name] = formula
 
@@ -273,6 +264,20 @@ class RedcapFieldmap(object):
                 name = file_element.get("name")
                 formula = file_element.get("formula")
                 self.files[task][name] = formula
+
+    def _validate_and_return_attributes(
+            self, element, expected_attributes) -> None:
+        attributes = element.attrib
+
+        if not all(
+                a in attributes.keys() for a in expected_attributes
+        ):
+            raise RedcapExportException(
+                (f"'{element.tag}' must have attributes "
+                 f"{', '.join(expected_attributes)} in {self.filename}")
+            )
+
+        return attributes
 
     def instrument_names(self) -> List:
         return list(self.instruments.values())
@@ -859,6 +864,34 @@ class RedcapFieldmapTests(TestCase):
         )
         self.assertIn(fieldmap_file.name, message)
 
+    def test_raises_when_fields_missing_attributes(self) -> None:
+        with tempfile.NamedTemporaryFile(
+                mode="w", suffix="xml") as fieldmap_file:
+            fieldmap_file.write(
+                """<?xml version="1.0" encoding="UTF-8"?>
+                <fieldmap>
+                    <identifier instrument="patient_record" redcap_field="patient_id" />
+                    <instruments>
+                        <instrument name="bmi" task="bmi">
+                            <fields>
+                                <field />
+                            </fields>
+                        </instrument>
+                    </instruments>
+                </fieldmap>
+                """)  # noqa: E501
+            fieldmap_file.flush()
+
+            with self.assertRaises(RedcapExportException) as cm:
+                RedcapFieldmap(fieldmap_file.name)
+
+        message = str(cm.exception)
+        self.assertIn(
+            "'field' must have attributes name, formula",
+            message
+        )
+        self.assertIn(fieldmap_file.name, message)
+
 
 # =============================================================================
 # Integration testing
@@ -936,7 +969,7 @@ class BmiRedcapValidFieldmapTestCase(BmiRedcapExportTestCase):
         <field name="pa_height" formula="format(task.height_m, '.1f')" />
         <field name="pa_weight" formula="format(task.mass_kg, '.1f')" />
         <field name="bmi_date" formula="format_datetime(task.when_created, DateFormat.ISO8601_DATE_ONLY)" />
-        </fields>
+      </fields>
     </instrument>
   </instruments>
 </fieldmap>"""  # noqa: E501
