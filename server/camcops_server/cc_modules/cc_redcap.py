@@ -245,14 +245,21 @@ class RedcapFieldmap(object):
             )
 
         for instrument_element in instrument_elements:
+            instrument_attributes = ["name", "task"]
+            if not all(
+                    a in instrument_element.keys()
+                    for a in instrument_attributes
+            ):
+                raise RedcapExportException(
+                    (f"'instrument' must have attributes "
+                     f"{', '.join(instrument_attributes)} in {filename}")
+                )
             task = instrument_element.get("task")
-            # TODO: name empty
             instrument_name = instrument_element.get("name")
             self.fields[task] = {}
             self.files[task] = {}
             self.instruments[task] = instrument_name
 
-            # TODO: task empty
             field_elements = instrument_element.find("fields") or []
 
             for field_element in field_elements:
@@ -339,7 +346,6 @@ class RedcapTaskExporter(object):
                                 records: "DataFrame",
                                 fieldmap: RedcapFieldmap,
                                 idnum_value: int) -> Union[int, None]:
-        # TODO: Handle missing 'redcap_field' column
         has_identifier = records[
             fieldmap.identifier["redcap_field"]
         ] == idnum_value
@@ -827,6 +833,30 @@ class RedcapFieldmapTests(TestCase):
 
         message = str(cm.exception)
         self.assertIn("'instruments' tag is missing from", message)
+        self.assertIn(fieldmap_file.name, message)
+
+    def test_raises_when_instruments_missing_attributes(self) -> None:
+        with tempfile.NamedTemporaryFile(
+                mode="w", suffix="xml") as fieldmap_file:
+            fieldmap_file.write(
+                """<?xml version="1.0" encoding="UTF-8"?>
+                <fieldmap>
+                    <identifier instrument="patient_record" redcap_field="patient_id" />
+                    <instruments>
+                        <instrument />
+                    </instruments>
+                </fieldmap>
+                """)  # noqa: E501
+            fieldmap_file.flush()
+
+            with self.assertRaises(RedcapExportException) as cm:
+                RedcapFieldmap(fieldmap_file.name)
+
+        message = str(cm.exception)
+        self.assertIn(
+            "'instrument' must have attributes name, task",
+            message
+        )
         self.assertIn(fieldmap_file.name, message)
 
 
