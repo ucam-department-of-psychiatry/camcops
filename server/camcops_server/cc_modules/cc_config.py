@@ -247,8 +247,6 @@ def get_demo_config(extra_strings_dir: str = None,
 {ConfigParamSite.RESTRICTED_TASKS} =
 {ConfigParamSite.LANGUAGE} = {cd.LANGUAGE}
 
-{ConfigParamSite.REDCAP_FIELDMAP_FILENAME} =
-
 {ConfigParamSite.SNOMED_TASK_XML_FILENAME} =
 {ConfigParamSite.SNOMED_ICD9_XML_FILENAME} =
 {ConfigParamSite.SNOMED_ICD10_XML_FILENAME} =
@@ -498,6 +496,14 @@ def get_demo_config(extra_strings_dir: str = None,
 {ConfigParamExportRecipient.RIO_IDNUM} = 2
 {ConfigParamExportRecipient.RIO_UPLOADING_USER} = CamCOPS
 {ConfigParamExportRecipient.RIO_DOCUMENT_TYPE} = CC
+
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Extra options for REDCap export
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+{ConfigParamExportRecipient.REDCAP_API_KEY} = myapikey
+{ConfigParamExportRecipient.REDCAP_API_URL} = https://domain.of.redcap.server/api/
+{ConfigParamExportRecipient.REDCAP_FIELDMAP_FILENAME} = /location/of/fieldmap.xml
 
     """  # noqa
 
@@ -1194,8 +1200,6 @@ class CamcopsConfig(object):
         self.session_timeout = datetime.timedelta(
             minutes=self.session_timeout_minutes)
 
-        self.redcap_fieldmap_filename = _get_str(
-            s, cs.REDCAP_FIELDMAP_FILENAME)
         self.snomed_task_xml_filename = _get_str(
             s, cs.SNOMED_TASK_XML_FILENAME)
         self.snomed_icd9_xml_filename = _get_str(

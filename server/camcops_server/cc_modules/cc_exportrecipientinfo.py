@@ -227,6 +227,7 @@ class ExportRecipientInfo(object):
         # REDCap
         self.redcap_api_key = ""
         self.redcap_api_url = ""
+        self.redcap_fieldmap_filename = ""
 
         # Copy from other?
         if other is not None:
@@ -515,6 +516,7 @@ class ExportRecipientInfo(object):
         if r.transmission_method == ExportTransmissionMethod.REDCAP:
             r.redcap_api_url = _get_str(cpr.REDCAP_API_URL)
             r.redcap_api_key = _get_str(cpr.REDCAP_API_KEY)
+            r.redcap_fieldmap_filename = _get_str(cpr.REDCAP_FIELDMAP_FILENAME)
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Validate the basics and return

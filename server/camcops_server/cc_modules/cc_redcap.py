@@ -177,7 +177,6 @@ from camcops_server.cc_modules.cc_exportrecipientinfo import ExportRecipientInfo
 from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 
 if TYPE_CHECKING:
-    from configparser import ConfigParser
     from camcops_server.cc_modules.cc_exportmodels import ExportedTaskRedcap
     from camcops_server.cc_modules.cc_request import CamcopsRequest
     from camcops_server.cc_modules.cc_task import Task
@@ -303,7 +302,7 @@ class RedcapTaskExporter(object):
         idnum_object = task.patient.get_idnum_object(which_idnum)
 
         project = self.get_project(recipient)
-        fieldmap = self.get_fieldmap(req)
+        fieldmap = self.get_fieldmap(recipient)
 
         existing_records = self._get_existing_records(project, fieldmap)
         existing_record_id = self._get_existing_record_id(
@@ -383,13 +382,13 @@ class RedcapTaskExporter(object):
 
         return previous_instances.max()["redcap_repeat_instance"] + 1
 
-    def get_fieldmap(self, req: "CamcopsRequest") -> RedcapFieldmap:
-        fieldmap = RedcapFieldmap(self.get_fieldmap_filename(req))
+    def get_fieldmap(self, recipient: ExportRecipient) -> RedcapFieldmap:
+        fieldmap = RedcapFieldmap(self.get_fieldmap_filename(recipient))
 
         return fieldmap
 
-    def get_fieldmap_filename(self, req: "CamcopsRequest") -> str:
-        filename = req.config.redcap_fieldmap_filename
+    def get_fieldmap_filename(self, recipient: ExportRecipient) -> str:
+        filename = recipient.redcap_fieldmap_filename
         if filename is None:
             raise RedcapExportException(
                 "REDCAP_FIELDMAP_FILENAME is not set in the config file"
@@ -662,10 +661,9 @@ class RedcapExportErrorTests(TestCase):
 
         exporter = MockRedcapTaskExporter()
 
-        mock_config = mock.Mock(redcap_fieldmap_filename="")
-        req = mock.Mock(config=mock_config)
+        recipient = mock.Mock(redcap_fieldmap_filename="")
         with self.assertRaises(RedcapExportException) as cm:
-            exporter.get_fieldmap_filename(req)
+            exporter.get_fieldmap_filename(recipient)
 
         message = str(cm.exception)
         self.assertIn("REDCAP_FIELDMAP_FILENAME is empty in the config file",
@@ -675,10 +673,9 @@ class RedcapExportErrorTests(TestCase):
 
         exporter = MockRedcapTaskExporter()
 
-        mock_config = mock.Mock(redcap_fieldmap_filename=None)
-        req = mock.Mock(config=mock_config)
+        recipient = mock.Mock(redcap_fieldmap_filename=None)
         with self.assertRaises(RedcapExportException) as cm:
-            exporter.get_fieldmap_filename(req)
+            exporter.get_fieldmap_filename(recipient)
 
         message = str(cm.exception)
         self.assertIn("REDCAP_FIELDMAP_FILENAME is not set in the config file",
@@ -931,14 +928,7 @@ class RedcapFieldmapTests(TestCase):
 class RedcapExportTestCase(DemoDatabaseTestCase):
     fieldmap = ""
 
-    def override_config_settings(self, parser: "ConfigParser"):
-        parser.set("site", "REDCAP_FIELDMAP_FILENAME", self.fieldmap_filename)
-
     def setUp(self) -> None:
-        self.fieldmap_filename = os.path.join(
-            self.tmpdir_obj.name, "redcap_fieldmap.xml")
-        self.write_fieldmaps()
-
         recipientinfo = ExportRecipientInfo()
 
         self.recipient = ExportRecipient(recipientinfo)
@@ -947,11 +937,15 @@ class RedcapExportTestCase(DemoDatabaseTestCase):
         # auto increment doesn't work for BigInteger with SQLite
         self.recipient.id = 1
         self.recipient.recipient_name = "test"
+        self.recipient.redcap_fieldmap_filename = os.path.join(
+            self.tmpdir_obj.name, "redcap_fieldmap.xml"
+        )
+        self.write_fieldmaps(self.recipient.redcap_fieldmap_filename)
 
         super().setUp()
 
-    def write_fieldmaps(self) -> None:
-        with open(self.fieldmap_filename, "w") as f:
+    def write_fieldmaps(self, filename: str) -> None:
+        with open(filename, "w") as f:
             f.write(self.fieldmap)
 
     def create_patient_with_idnum_1001(self) -> None:
