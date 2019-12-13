@@ -211,7 +211,7 @@ class RedcapFieldmap(object):
             )
         except ET.ParseError:
             raise RedcapExportException(
-                f"'instrument' is missing from {filename}"
+                f"'fieldmap' is missing from {filename}"
             )
 
         root = tree.getroot()
@@ -771,7 +771,7 @@ class RedcapFieldmapTests(TestCase):
                 RedcapFieldmap(fieldmap_file.name)
 
         message = str(cm.exception)
-        self.assertIn("'instrument' is missing from", message)
+        self.assertIn("'fieldmap' is missing from", message)
         self.assertIn(fieldmap_file.name, message)
 
     def test_raises_when_identifier_missing(self):
