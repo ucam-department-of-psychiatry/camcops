@@ -238,11 +238,10 @@ class RedcapFieldmap(object):
                  f"{', '.join(identifier_attributes)} in {filename}")
             )
 
-        try:
-            instrument_elements = root.find("instruments")
-        except ET.ParseError:
+        instrument_elements = root.find("instruments")
+        if instrument_elements is None:
             raise RedcapExportException(
-                f"No 'instruments' tag in {filename}"
+                f"'instruments' tag is missing from {filename}"
             )
 
         for instrument_element in instrument_elements:
@@ -810,6 +809,24 @@ class RedcapFieldmapTests(TestCase):
             "'identifier' must have attributes instrument, redcap_field",
             message
         )
+        self.assertIn(fieldmap_file.name, message)
+
+    def test_raises_when_instruments_missing(self):
+        with tempfile.NamedTemporaryFile(
+                mode="w", suffix="xml") as fieldmap_file:
+            fieldmap_file.write(
+                """<?xml version="1.0" encoding="UTF-8"?>
+                <fieldmap>
+                    <identifier instrument="patient_record" redcap_field="patient_id" />
+                </fieldmap>
+                """)  # noqa: E501
+            fieldmap_file.flush()
+
+            with self.assertRaises(RedcapExportException) as cm:
+                RedcapFieldmap(fieldmap_file.name)
+
+        message = str(cm.exception)
+        self.assertIn("'instruments' tag is missing from", message)
         self.assertIn(fieldmap_file.name, message)
 
 
