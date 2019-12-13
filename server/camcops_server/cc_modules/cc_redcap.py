@@ -435,7 +435,6 @@ class RedcapUploader(object):
         self.req = req
         self.project = project
         self.project_info = project.export_project_info()
-        # TODO: Exception if repeating instruments not supported
 
     @property
     def autonumbering_enabled(self) -> bool:
