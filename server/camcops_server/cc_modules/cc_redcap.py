@@ -229,6 +229,15 @@ class RedcapFieldmap(object):
 
         self.identifier = identifier_element.attrib
 
+        identifier_attributes = ["instrument", "redcap_field"]
+        if not all(
+                a in self.identifier.keys() for a in identifier_attributes
+        ):
+            raise RedcapExportException(
+                (f"'identifier' must have attributes "
+                 f"{', '.join(identifier_attributes)} in {filename}")
+            )
+
         try:
             instrument_elements = root.find("instruments")
         except ET.ParseError:
@@ -780,6 +789,27 @@ class RedcapFieldmapTests(TestCase):
 
         message = str(cm.exception)
         self.assertIn("'identifier' is missing from", message)
+        self.assertIn(fieldmap_file.name, message)
+
+    def test_raises_when_identifier_missing_attributes(self):
+        with tempfile.NamedTemporaryFile(
+                mode="w", suffix="xml") as fieldmap_file:
+            fieldmap_file.write(
+                """<?xml version="1.0" encoding="UTF-8"?>
+                <fieldmap>
+                <identifier />
+                </fieldmap>
+                """)
+            fieldmap_file.flush()
+
+            with self.assertRaises(RedcapExportException) as cm:
+                RedcapFieldmap(fieldmap_file.name)
+
+        message = str(cm.exception)
+        self.assertIn(
+            "'identifier' must have attributes instrument, redcap_field",
+            message
+        )
         self.assertIn(fieldmap_file.name, message)
 
 
