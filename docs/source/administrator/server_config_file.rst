@@ -919,7 +919,7 @@ PROXY_SCRIPT_NAME
 
 Path at which this script is mounted. Set this if you are hosting this CamCOPS
 instance at a non-root path, unless you set trusted WSGI headers instead.
-            
+
 For example, if you are running an Apache server and want this instance of
 CamCOPS to appear at ``/somewhere/camcops``, then (a) configure your Apache
 instance to proxy requests to ``/somewhere/camcops/...`` to this server (e.g.
@@ -929,7 +929,7 @@ If this option is not set, then the OS environment variable ``SCRIPT_NAME``
 will be checked as well. If that is not set, the variables within
 ``HTTP_X_SCRIPT_NAME, HTTP_X_FORWARDED_SCRIPT_NAME`` will be used, if they are
 trusted.
-            
+
 This option affects the WSGI variables ``SCRIPT_NAME`` and ``PATH_INFO``.
 
 |use_trusted_headers|
@@ -1317,6 +1317,7 @@ One of the following methods:
 - ``email``: Sends tasks via e-mail.
 - ``hl7``: Sends HL7 messages across a TCP/IP network.
 - ``file``: Writes files to a local filesystem.
+- ``redcap``: :ref:`Exports tasks to REDCap <redcap>`.
 
 
 PUSH
@@ -1918,6 +1919,39 @@ to a human-readable document type; for example, the code "APT" might map to
 "Appointment Letter". Typically we might want a code that maps to "Clinical
 Correspondence", but the code will be defined within the local RiO system
 configuration.
+
+Extra options for export to REDCap
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+See :ref:`REDCap export <redcap>`
+
+.. _REDCAP_API_URL:
+
+REDCAP_API_URL
+##############
+
+*String.*
+
+URL of the API on the redcap instance https://domain.of.redcap.server/api/
+
+.. _REDCAP_API_KEY:
+
+REDCAP_API_KEY
+##############
+
+*String.*
+
+As provided by the REDCap instance for a user who has permissions to import and
+export data to and from REDCap.
+
+.. _REDCAP_FIELDMAP_FILENAME:
+
+REDCAP_FIELDMAP_FILENAME
+########################
+
+*String.*
+
+Name of the REDCap XML fieldmap file.
 
 
 Demonstration config file

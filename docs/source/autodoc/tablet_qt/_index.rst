@@ -30,7 +30,6 @@ tablet_qt
     :maxdepth: 1
 
     android/AndroidManifest.xml.rst
-    android/res/values/libs.xml.rst
     camcops.pro.rst
     camcops_windows_innosetup.iss.rst
     common/aliases_camcops.h.rst

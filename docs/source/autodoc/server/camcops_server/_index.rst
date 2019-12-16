@@ -74,6 +74,7 @@ server/camcops_server
     alembic/versions/0041_khandaker_mojo_medicationtherapy.py.rst
     alembic/versions/0042_lynall_iam_life.py.rst
     alembic/versions/0043_clinician_removed_from_some_mojo_tasks.py.rst
+    alembic/versions/0044_redcap.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst
@@ -95,6 +96,7 @@ server/camcops_server
     cc_modules/cc_debug.py.rst
     cc_modules/cc_device.py.rst
     cc_modules/cc_dirtytables.py.rst
+    cc_modules/cc_dummy_database.py.rst
     cc_modules/cc_dump.py.rst
     cc_modules/cc_email.py.rst
     cc_modules/cc_exception.py.rst
