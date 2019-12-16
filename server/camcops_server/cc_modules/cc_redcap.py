@@ -162,7 +162,7 @@ import os
 import tempfile
 from typing import Any, Dict, Generator, List, TYPE_CHECKING, Union
 from unittest import mock, TestCase
-import xml.etree.cElementTree as ET
+import xml.etree.cElementTree as ElementTree
 
 from asteval import Interpreter, make_symbol_table
 from cardinal_pythonlib.datetimefunc import format_datetime
@@ -179,6 +179,7 @@ from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_exportmodels import ExportedTaskRedcap
     from camcops_server.cc_modules.cc_request import CamcopsRequest
+    from camcops_server.cc_modules.cc_patient import Patient
     from camcops_server.cc_modules.cc_task import Task
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
@@ -201,14 +202,14 @@ class RedcapFieldmap(object):
         self.files = {}
         self.instruments = {}
 
-        parser = ET.XMLParser(encoding="UTF-8")
+        parser = ElementTree.XMLParser(encoding="UTF-8")
         try:
-            tree = ET.parse(filename, parser=parser)
+            tree = ElementTree.parse(filename, parser=parser)
         except FileNotFoundError:
             raise RedcapExportException(
                 f"Unable to open fieldmap file '{filename}'"
             )
-        except ET.ParseError:
+        except ElementTree.ParseError:
             raise RedcapExportException(
                 f"'fieldmap' is missing from {filename}"
             )
@@ -269,8 +270,11 @@ class RedcapFieldmap(object):
                 self.files[task][name] = formula
 
     def _validate_and_return_attributes(
-            self, element, expected_attributes) -> None:
+            self, element, expected_attributes) -> Dict[str, str]:
         attributes = element.attrib
+
+        import ipdb
+        ipdb.set_trace()
 
         if not all(
                 a in attributes.keys() for a in expected_attributes
@@ -338,8 +342,8 @@ class RedcapTaskExporter(object):
         exported_task_redcap.redcap_instrument_name = instrument_name
         exported_task_redcap.redcap_instance_id = next_instance_id
 
-    def _get_existing_records(self,
-                              project: redcap.project.Project,
+    @staticmethod
+    def _get_existing_records(project: redcap.project.Project,
                               fieldmap: RedcapFieldmap) -> "DataFrame":
         # Arguments to pandas read_csv()
         df_kwargs = {"index_col": None}  # don't index by record_id
@@ -350,8 +354,8 @@ class RedcapTaskExporter(object):
         return project.export_records(format="df", forms=forms,
                                       df_kwargs=df_kwargs)
 
-    def _get_existing_record_id(self,
-                                records: "DataFrame",
+    @staticmethod
+    def _get_existing_record_id(records: "DataFrame",
                                 fieldmap: RedcapFieldmap,
                                 idnum_value: int) -> Union[int, None]:
         has_identifier = records[
@@ -364,8 +368,8 @@ class RedcapTaskExporter(object):
         # Convert from numpy int64
         return records[has_identifier].iat[0, 0].item()
 
-    def _get_next_instance_id(self,
-                              records: "DataFrame",
+    @staticmethod
+    def _get_next_instance_id(records: "DataFrame",
                               instrument: str,
                               existing_record_id: Union[int, None]) -> int:
         if existing_record_id is None:
@@ -387,7 +391,8 @@ class RedcapTaskExporter(object):
 
         return fieldmap
 
-    def get_fieldmap_filename(self, recipient: ExportRecipient) -> str:
+    @staticmethod
+    def get_fieldmap_filename(recipient: ExportRecipient) -> str:
         filename = recipient.redcap_fieldmap_filename
         if filename is None:
             raise RedcapExportException(
@@ -401,7 +406,8 @@ class RedcapTaskExporter(object):
 
         return filename
 
-    def get_project(self, recipient: ExportRecipient) -> redcap.project.Project:
+    @staticmethod
+    def get_project(recipient: ExportRecipient) -> redcap.project.Project:
         try:
             project = redcap.project.Project(
                 recipient.redcap_api_url, recipient.redcap_api_key
@@ -434,6 +440,24 @@ class RedcapUploader(object):
         self.req = req
         self.project = project
         self.project_info = project.export_project_info()
+
+    def get_record_id(self, existing_record_id: int) -> int:
+        raise NotImplementedError("implement in subclass")
+
+    @property
+    def return_content(self):
+        raise NotImplementedError("implement in subclass")
+
+    @property
+    def force_auto_number(self):
+        raise NotImplementedError("implement in subclass")
+
+    def get_new_record_id(self, record_id: int, response: List[str]):
+        raise NotImplementedError("implement in subclass")
+
+    @staticmethod
+    def log_success(record_id: int):
+        raise NotImplementedError("implement in subclass")
 
     @property
     def autonumbering_enabled(self) -> bool:
@@ -502,8 +526,8 @@ class RedcapUploader(object):
 
         return response
 
-    def upload_files(self, task: "Task", record_id: int, repeat_instance: int,
-                     file_dict: Dict):
+    def upload_files(self, task: "Task", record_id: Union[int, str],
+                     repeat_instance: int, file_dict: Dict):
         for fieldname, value in file_dict.items():
             with io.BytesIO(value) as file_obj:
                 filename = f"{task.tablename}_{record_id}_{fieldname}"
@@ -565,6 +589,7 @@ class RedcapNewRecordUploader(RedcapUploader):
         # import_records returns {'count': 1}
         return "count"
 
+    # noinspection PyUnusedLocal
     def get_record_id(self, existing_record_id: int) -> int:
         """
         Get the record ID to send to REDCap when importing records
@@ -589,7 +614,8 @@ class RedcapNewRecordUploader(RedcapUploader):
 
         return record_id
 
-    def log_success(self, record_id: int):
+    @staticmethod
+    def log_success(record_id: int):
         log.info(f"Created new REDCap record {record_id}")
 
 
@@ -598,13 +624,16 @@ class RedcapUpdatedRecordUploader(RedcapUploader):
     # import_records returns {'count': 1}
     return_content = "count"
 
+    # noinspection PyMethodMayBeStatic
     def get_record_id(self, existing_record_id: int) -> int:
         return existing_record_id
 
+    # noinspection PyMethodMayBeStatic,PyUnusedLocal
     def get_new_record_id(self, old_record_id: int, response: Any):
         return old_record_id
 
-    def log_success(self, record_id: int):
+    @staticmethod
+    def log_success(record_id: int):
         log.info(f"Updated REDCap record {record_id}")
 
 
@@ -633,6 +662,7 @@ class MockRedcapTaskExporter(RedcapTaskExporter):
 
 
 class MockRedcapNewRecordUploader(RedcapNewRecordUploader):
+    # noinspection PyMissingConstructor
     def __init__(self) -> None:
         self.req = mock.Mock()
         self.project = MockProject()
@@ -948,7 +978,7 @@ class RedcapExportTestCase(DemoDatabaseTestCase):
         with open(filename, "w") as f:
             f.write(self.fieldmap)
 
-    def create_patient_with_idnum_1001(self) -> None:
+    def create_patient_with_idnum_1001(self) -> "Patient":
         from camcops_server.cc_modules.cc_patient import Patient
         from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
         patient = Patient()
@@ -1348,10 +1378,11 @@ class MedicationTherapyRedcapExportTests(RedcapExportTestCase):
             "record_autonumbering_enabled": 1
         }
 
-        # We can't just look at the call_args here because the file will already
-        # have been closed by then
-        def read_pdf_bytes(*args, **kwargs):
-            file_obj = args[3]
+        # We can't just look at the call_args on the mock object because
+        # the file will already have been closed by then
+        def read_pdf_bytes(*import_file_args):
+            # record, field, fname, fobj
+            file_obj = import_file_args[3]
             read_pdf_bytes.pdf_header = file_obj.read(5)
 
         project.import_file.side_effect = read_pdf_bytes
@@ -1376,6 +1407,7 @@ class MedicationTherapyRedcapExportTests(RedcapExportTestCase):
         )
 
         self.assertEquals(kwargs["repeat_instance"], 1)
+        # noinspection PyUnresolvedReferences
         self.assertEquals(read_pdf_bytes.pdf_header, b"%PDF-")
 
 
