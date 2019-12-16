@@ -2852,6 +2852,7 @@ class SpreadsheetFormatSelector(SchemaNode, RequestAwareMixin):
         _ = self.gettext
         self.title = _("Spreadsheet format")
         choices = (
+            (ViewArg.R, _("R script")),
             (ViewArg.ODS, _("OpenOffice spreadsheet (ODS) file")),
             (ViewArg.XLSX, _("XLSX (Microsoft Excel) file")),
             (ViewArg.TSV_ZIP, _("ZIP file of tab-separated value (TSV) files")),
