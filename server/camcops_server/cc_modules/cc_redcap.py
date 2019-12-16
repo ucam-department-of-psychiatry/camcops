@@ -196,7 +196,7 @@ class RedcapFieldmap(object):
     the REDCap record.
     """
 
-    def __init__(self, filename: str):
+    def __init__(self, filename: str) -> None:
         self.filename = filename
         self.fields = {}
         self.files = {}
@@ -272,9 +272,6 @@ class RedcapFieldmap(object):
     def _validate_and_return_attributes(
             self, element, expected_attributes) -> Dict[str, str]:
         attributes = element.attrib
-
-        import ipdb
-        ipdb.set_trace()
 
         if not all(
                 a in attributes.keys() for a in expected_attributes
@@ -445,18 +442,18 @@ class RedcapUploader(object):
         raise NotImplementedError("implement in subclass")
 
     @property
-    def return_content(self):
+    def return_content(self) -> str:
         raise NotImplementedError("implement in subclass")
 
     @property
-    def force_auto_number(self):
+    def force_auto_number(self) -> bool:
         raise NotImplementedError("implement in subclass")
 
-    def get_new_record_id(self, record_id: int, response: List[str]):
+    def get_new_record_id(self, record_id: int, response: List[str]) -> int:
         raise NotImplementedError("implement in subclass")
 
     @staticmethod
-    def log_success(record_id: int):
+    def log_success(record_id: int) -> None:
         raise NotImplementedError("implement in subclass")
 
     @property
@@ -527,7 +524,7 @@ class RedcapUploader(object):
         return response
 
     def upload_files(self, task: "Task", record_id: Union[int, str],
-                     repeat_instance: int, file_dict: Dict):
+                     repeat_instance: int, file_dict: Dict) -> None:
         for fieldname, value in file_dict.items():
             with io.BytesIO(value) as file_obj:
                 filename = f"{task.tablename}_{record_id}_{fieldname}"
@@ -566,7 +563,7 @@ class RedcapUploader(object):
                 )
             field_dict[redcap_field] = v
 
-    def get_extra_symbols(self):
+    def get_extra_symbols(self) -> Dict[str, Any]:
         return dict(
             format_datetime=format_datetime,
             DateFormat=DateFormat,
@@ -577,11 +574,11 @@ class RedcapUploader(object):
 class RedcapNewRecordUploader(RedcapUploader):
 
     @property
-    def force_auto_number(self):
+    def force_auto_number(self) -> bool:
         return self.autonumbering_enabled
 
     @property
-    def return_content(self):
+    def return_content(self) -> str:
         if self.autonumbering_enabled:
             # import_records returns ["<redcap record id>, 0"]
             return "auto_ids"
@@ -600,7 +597,7 @@ class RedcapNewRecordUploader(RedcapUploader):
 
         return self.project.generate_next_record_name()
 
-    def get_new_record_id(self, record_id: int, response: List[str]):
+    def get_new_record_id(self, record_id: int, response: List[str]) -> int:
         """
         For autonumbering, read the generated record ID from the
         response. Otherwise we already have it.
@@ -615,7 +612,7 @@ class RedcapNewRecordUploader(RedcapUploader):
         return record_id
 
     @staticmethod
-    def log_success(record_id: int):
+    def log_success(record_id: int) -> None:
         log.info(f"Created new REDCap record {record_id}")
 
 
@@ -629,11 +626,11 @@ class RedcapUpdatedRecordUploader(RedcapUploader):
         return existing_record_id
 
     # noinspection PyMethodMayBeStatic,PyUnusedLocal
-    def get_new_record_id(self, old_record_id: int, response: Any):
+    def get_new_record_id(self, old_record_id: int, response: Any) -> int:
         return old_record_id
 
     @staticmethod
-    def log_success(record_id: int):
+    def log_success(record_id: int) -> None:
         log.info(f"Updated REDCap record {record_id}")
 
 
@@ -784,7 +781,7 @@ class RedcapFieldmapTests(TestCase):
         self.assertIn("Unable to open fieldmap file", message)
         self.assertIn("bmi.xml", message)
 
-    def test_raises_when_fieldmap_missing(self):
+    def test_raises_when_fieldmap_missing(self) -> None:
         with tempfile.NamedTemporaryFile(
                 mode="w", suffix="xml") as fieldmap_file:
             fieldmap_file.write("""<?xml version="1.0" encoding="UTF-8"?>
@@ -800,7 +797,7 @@ class RedcapFieldmapTests(TestCase):
                        "'someothertag'"), message)
         self.assertIn(fieldmap_file.name, message)
 
-    def test_raises_when_root_tag_missing(self):
+    def test_raises_when_root_tag_missing(self) -> None:
         with tempfile.NamedTemporaryFile(
                 mode="w", suffix="xml") as fieldmap_file:
             fieldmap_file.write("""<?xml version="1.0" encoding="UTF-8"?>
@@ -814,7 +811,7 @@ class RedcapFieldmapTests(TestCase):
         self.assertIn("'fieldmap' is missing from", message)
         self.assertIn(fieldmap_file.name, message)
 
-    def test_raises_when_identifier_missing(self):
+    def test_raises_when_identifier_missing(self) -> None:
         with tempfile.NamedTemporaryFile(
                 mode="w", suffix="xml") as fieldmap_file:
             fieldmap_file.write(
@@ -831,7 +828,7 @@ class RedcapFieldmapTests(TestCase):
         self.assertIn("'identifier' is missing from", message)
         self.assertIn(fieldmap_file.name, message)
 
-    def test_raises_when_identifier_missing_attributes(self):
+    def test_raises_when_identifier_missing_attributes(self) -> None:
         with tempfile.NamedTemporaryFile(
                 mode="w", suffix="xml") as fieldmap_file:
             fieldmap_file.write(
@@ -852,7 +849,7 @@ class RedcapFieldmapTests(TestCase):
         )
         self.assertIn(fieldmap_file.name, message)
 
-    def test_raises_when_instruments_missing(self):
+    def test_raises_when_instruments_missing(self) -> None:
         with tempfile.NamedTemporaryFile(
                 mode="w", suffix="xml") as fieldmap_file:
             fieldmap_file.write(
@@ -1380,7 +1377,7 @@ class MedicationTherapyRedcapExportTests(RedcapExportTestCase):
 
         # We can't just look at the call_args on the mock object because
         # the file will already have been closed by then
-        def read_pdf_bytes(*import_file_args):
+        def read_pdf_bytes(*import_file_args) -> None:
             # record, field, fname, fobj
             file_obj = import_file_args[3]
             read_pdf_bytes.pdf_header = file_obj.read(5)
