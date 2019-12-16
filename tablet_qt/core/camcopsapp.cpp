@@ -380,6 +380,14 @@ bool CamcopsApp::processCommandLineArguments(int& retcode)
     // We don't use setValueName(), so it behaves like a flag.
     parser.addOption(printIcd10Option);
 
+    // --print_terms_conditions
+    const QCommandLineOption printTermsConditions(
+        "print_terms_conditions",
+        "Print terms and conditions applicable to CamCOPS, and quit."
+    );
+    // We don't use setValueName(), so it behaves like a flag.
+    parser.addOption(printTermsConditions);
+
     // ------------------------------------------------------------------------
     // Process the arguments
     // ------------------------------------------------------------------------
@@ -418,6 +426,12 @@ bool CamcopsApp::processCommandLineArguments(int& retcode)
         const Icd10 icd10(*this, nullptr, true);
         // qDebug() << icd10;
         out << icd10;
+        return false;
+    }
+
+    const bool print_terms = parser.isSet(printTermsConditions);
+    if (print_terms) {
+        out << textconst.termsConditions();
         return false;
     }
 
