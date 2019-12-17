@@ -44,8 +44,8 @@ Prerequisites for exporting CamCOPS tasks to REDCap records
   - API Export
 
 - The CamCOPS configuration file needs to have an export recipient with
-  ``TRANSMISSION_METHOD = redcap`` (see :ref:`the configuration file
-  <redcap_config_options>`) and REDCap specific settings.
+  ``TRANSMISSION_METHOD = redcap`` (see :ref:`The CamCOPS server configuration file
+  <server_config_file>`) and :ref:`REDCap specific settings <redcap_config_options>` .
 - Any instruments in a REDCap record that CamCOPS exports to must be
   set up as "repeating" within the REDCap interface (under "Project Setup").
 

@@ -348,5 +348,4 @@ class Bmi(TaskHasPatientMixin, Task):
                     unit: cm,
                 }),
             ]))
-
         return expressions

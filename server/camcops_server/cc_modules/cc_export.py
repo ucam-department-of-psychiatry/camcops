@@ -534,16 +534,8 @@ class DownloadOptions(object):
 class TaskCollectionExporter(object):
     """
     Class to provide tasks for user download.
+    """
 
-    Converts a set of tasks to an SQLite export, either as binary or the SQL
-    text to regenerate it.
-
-    Args:
-        req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-        collection: a :class:`camcops_server.cc_modules.cc_taskcollection.TaskCollection`
-        export_options: a :class:`TaskExportOptions` object
-        as_sql_not_binary: provide SQL text, rather than SQLite binary?
-    """  # noqa
     def __init__(self,
                  req: "CamcopsRequest",
                  collection: "TaskCollection",
@@ -1041,6 +1033,7 @@ def make_exporter(req: "CamcopsRequest",
 class UserDownloadFile(object):
     """
     Represents a file that has been generated for the user to download.
+
     Test code:
 
     .. code-block:: python
@@ -1092,6 +1085,7 @@ class UserDownloadFile(object):
     # -------------------------------------------------------------------------
     # Size
     # -------------------------------------------------------------------------
+
     @property
     def size(self) -> Optional[int]:
         """

@@ -1125,7 +1125,7 @@ class ExportedTaskRedcap(Base):
 
     exported_task = relationship(ExportedTask)
 
-    # We store these just for logging purposes
+    # We store these just as an audit trail
     redcap_record_id = Column(
         "redcap_record_id", UnicodeText,
         comment=("ID of the (patient) record on the REDCap instance where "
