@@ -215,12 +215,19 @@ groups manually.
 
 The download formats include:
 
-- OpenOffice/LibreOffice spreadsheet (ODS) format;
-- Microsoft Excel (XLSX);
+- `OpenOffice <https://www.openoffice.org/>`_/`LibreOffice
+  <https://www.libreoffice.org/>`_ spreadsheet (`ODS
+  <https://en.wikipedia.org/wiki/OpenDocument>`_) format.
+- `Microsoft Excel <https://en.wikipedia.org/wiki/Office_Open_XML>`_ (XLSX).
 - A ZIP file containing multiple TSV files, one per worksheet. This is the
   least human-friendly format, but is good for automatically importing into
   statistics packages.
-- SQLite or SQL formats (see below).
+- An `R <https://www.r-project.org/>`_ script, which encapsulates the data and creates R objects for you.
+  You can pull in the data from another script (or the command line) via th
+  ``source`` command. It uses `data.table
+  <https://cran.r-project.org/web/packages/data.table/vignettes/datatable-intro.html>`_.
+
+There are also advanced data dumps in other formats (see below).
 
 **Delivery method**
 
