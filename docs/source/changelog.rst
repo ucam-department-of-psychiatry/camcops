@@ -2734,4 +2734,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - ``cardinal_pythonlib==1.0.81`` for memory efficiency, then for the
   :func:`nice_call` function that sorts this out a bit, etc.
 
+- R script file export for basic data dumps.
+
 - :ref:`Export of tasks to REDCap <redcap>`.

@@ -259,6 +259,7 @@ class ViewArg(object):
     ODS = "ods"
     PDF = "pdf"
     PDFHTML = "pdfhtml"  # the HTML to create a PDF
+    R = "r"
     SQL = "sql"
     SQLITE = "sqlite"
     TSV = "tsv"

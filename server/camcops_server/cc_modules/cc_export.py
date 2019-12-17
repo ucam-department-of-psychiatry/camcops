@@ -773,6 +773,29 @@ class OdsExporter(TaskCollectionExporter):
         return OdsResponse(body=body, filename=filename)
 
 
+class RExporter(TaskCollectionExporter):
+    """
+    Converts a set of tasks to an R script.
+    """
+    file_extension = "R"
+    viewtype = ViewArg.R
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.encoding = "utf-8"
+
+    def get_file_body(self) -> bytes:
+        return self.get_r_script().encode(self.encoding)
+
+    def get_r_script(self) -> str:
+        return self.get_tsv_collection().as_r()
+
+    def get_data_response(self, body: bytes, filename: str) -> Response:
+        filename = self.get_filename()
+        r_script = self.get_r_script()
+        return TextAttachmentResponse(body=r_script, filename=filename)
+
+
 class TsvZipExporter(TaskCollectionExporter):
     """
     Converts a set of tasks to a set of TSV (tab-separated value) file, (one
@@ -956,7 +979,7 @@ class SqlExporter(SqliteExporter):
         sql_text = self.get_sql()
         return TextAttachmentResponse(body=sql_text, filename=filename)
 
-    def get_data_response(self, body: str, filename: str) -> Response:
+    def get_data_response(self, body: bytes, filename: str) -> Response:
         """
         Unused.
         """
