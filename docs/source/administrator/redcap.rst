@@ -45,7 +45,7 @@ Prerequisites for exporting CamCOPS tasks to REDCap records
 
 - The CamCOPS configuration file needs to have an export recipient with
   ``TRANSMISSION_METHOD = redcap`` (see :ref:`the configuration file
-  <server_config_file>`) and REDCap specific settings.
+  <redcap_config_options>`) and REDCap specific settings.
 - Any instruments in a REDCap record that CamCOPS exports to must be
   set up as "repeating" within the REDCap interface (under "Project Setup").
 
@@ -99,7 +99,7 @@ or store the patient identifier.
             </instrument>
             <instrument task="khandaker_mojo_medicationtherapy" name="medication_table">
                 <files>
-                <field name="medtbl_medication_items" formula="task.get_pdf(request)" />
+                    <field name="medtbl_medication_items" formula="task.get_pdf(request)" />
                 </files>
             </instrument>
         </instruments>
@@ -120,7 +120,7 @@ following symbols:
 
 - ``task`` (the row in the database that contains the answers)
 - ``format_datetime`` (:func:`cardinal_pythonlib.datetimefunc.format_datetime`, a function for date formatting)
-- ``DateFormat`` (:func:`camcops_server.cc_modules.cc_constants.DateFormat`)
+- ``DateFormat`` (:class:`camcops_server.cc_modules.cc_constants.DateFormat`)
 - ``request`` (the CamCOPS request object, required by a number of functions)
 
 PHQ9 example
@@ -155,21 +155,22 @@ the REDCap side) have been coded differently in REDCap (1-4 instead of 0-3) so
 we need to add one to the answer.
 
 The total score in REDCap is stored rather than calculated so to fill in this
-field we call the method :meth:`camcops_server.tasks.phq9.total_score()`.
+field we call the method :meth:`camcops_server.tasks.phq9.total_score`.
 
 The REDCap PHQ9 instrument also stores the first and last names of the
-patient. We can retrieve these from the patient table associated with the task.
+patient. We can retrieve these from the patient table
+(:class:`camcops_server.cc_modules.cc_patient.Patient`) associated with the task.
 
 Finally the REDCap PHQ9 instrument has a date field (``phq9_date_enrolled``), which
-needs to be in a certain format.
+needs to be in ISO8601 (yyyy-mm-dd) format.
 
 BMI example
 ~~~~~~~~~~~
 
 In the BMI example, the height and weight fields need to be specified to
 one decimal place in REDCap so we use the python built-in ``format()`` function. In
-addition, the REDCap instrument has the height in centimetres rather than metres
-so we need to multiply by 100.
+addition, the REDCap instrument records the height in centimetres so we need to multiply
+the value in metres by 100.
 
 .. code-block:: xml
 
@@ -191,12 +192,12 @@ has a table of medications (name, dose, frequency etc) with multiple entries for
 each medication. REDCap does not have direct support for this kind of
 one-to-many relationship. One workaround is simply to upload a PDF of the task
 contents. We achieve this by creating a file upload field in REDCap and
-populating this with the output of the method ``task.get_pdf()``.
+populating this with the output of the method :meth:`camcops_server.cc_modules.cc_task.Task.get_pdf`.
 
 .. code-block:: xml
 
             <instrument task="khandaker_mojo_medicationtherapy" name="medication_table">
                 <files>
-                <field name="medtbl_medication_items" formula="task.get_pdf(request)" />
+                    <field name="medtbl_medication_items" formula="task.get_pdf(request)" />
                 </files>
             </instrument>

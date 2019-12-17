@@ -1920,6 +1920,8 @@ to a human-readable document type; for example, the code "APT" might map to
 Correspondence", but the code will be defined within the local RiO system
 configuration.
 
+.. _redcap_config_options:
+
 Extra options for export to REDCap
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
