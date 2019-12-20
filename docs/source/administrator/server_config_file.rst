@@ -1104,6 +1104,8 @@ DEBUG_SHOW_GUNICORN_OPTIONS
 Debugging option: show possible Gunicorn settings.
 
 
+.. _export_options:
+
 Options for the "[export]" section
 ----------------------------------
 
@@ -1920,12 +1922,14 @@ to a human-readable document type; for example, the code "APT" might map to
 Correspondence", but the code will be defined within the local RiO system
 configuration.
 
+
 .. _redcap_config_options:
 
 Extra options for export to REDCap
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-See :ref:`REDCap export <redcap>`
+See :ref:`REDCap export <redcap>`.
+
 
 .. _REDCAP_API_URL:
 
@@ -1934,7 +1938,9 @@ REDCAP_API_URL
 
 *String.*
 
-URL of the API on the redcap instance https://domain.of.redcap.server/api/
+URL of the API on the redcap instance, such as
+``https://domain.of.redcap.server/api/``.
+
 
 .. _REDCAP_API_KEY:
 
@@ -1943,8 +1949,9 @@ REDCAP_API_KEY
 
 *String.*
 
-As provided by the REDCap instance for a user who has permissions to import and
-export data to and from REDCap.
+API key, as provided by the REDCap instance, for a user who has permissions to
+import and export data to and from REDCap.
+
 
 .. _REDCAP_FIELDMAP_FILENAME:
 
@@ -1953,7 +1960,8 @@ REDCAP_FIELDMAP_FILENAME
 
 *String.*
 
-Name of the REDCap XML fieldmap file.
+Name of the REDCap XML fieldmap file for CamCOPS.
+See :ref:`REDCap export <redcap>`.
 
 
 Demonstration config file

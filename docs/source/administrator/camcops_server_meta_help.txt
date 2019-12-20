@@ -15,9 +15,9 @@ optional arguments:
   --ccargs [CCARGS [CCARGS ...]]
                         List of CamCOPS arguments, to which '--' will be
                         prefixed
-  --python PYTHON       Python interpreter (default: /home/martin/workspace/ca
-                        mcops/working/.server_ve/bin/python3)
-  --camcops CAMCOPS     CamCOPS server executable (default: /home/martin/works
-                        pace/camcops/server/camcops_server.py)
+  --python PYTHON       Python interpreter (default:
+                        /home/rudolf/dev/venvs/camcops/bin/python3)
+  --camcops CAMCOPS     CamCOPS server executable (default: /home/rudolf/Docum
+                        ents/code/camcops/server/camcops_server.py)
   -d, --dummyrun        Dummy run (show filenames only)
   -v, --verbose         Verbose

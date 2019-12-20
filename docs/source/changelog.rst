@@ -2731,7 +2731,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
   - We are using Python 3.6; changes afoot for 3.7?
 
-- ``cardinal_pythonlib==1.0.81`` for memory efficiency, then for the
+- ``cardinal_pythonlib==1.0.83`` for memory efficiency, then for the
   :func:`nice_call` function that sorts this out a bit, etc.
 
 - R script file export for basic data dumps.

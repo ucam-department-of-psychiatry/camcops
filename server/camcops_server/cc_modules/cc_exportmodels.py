@@ -217,8 +217,7 @@ class ExportedTask(Base):
     recipient_id = Column(
         "recipient_id", BigInteger, ForeignKey(ExportRecipient.id),
         nullable=False,
-        comment="FK to {}.{}".format(ExportRecipient.__tablename__,
-                                     ExportRecipient.id.name)
+        comment=f"FK to {ExportRecipient.__tablename__}.{ExportRecipient.id.name}"  # noqa
     )
     basetable = Column(
         "basetable", TableNameColType, nullable=False, index=True,
@@ -483,7 +482,7 @@ class ExportedTask(Base):
 
 
 # =============================================================================
-# HL7Message class
+# HL7 export
 # =============================================================================
 
 class ExportedTaskHL7Message(Base):
@@ -499,8 +498,7 @@ class ExportedTaskHL7Message(Base):
     exported_task_id = Column(
         "exported_task_id", BigInteger, ForeignKey(ExportedTask.id),
         nullable=False,
-        comment="FK to {}.{}".format(ExportedTask.__tablename__,
-                                     ExportedTask.id.name)
+        comment=f"FK to {ExportedTask.__tablename__}.{ExportedTask.id.name}"
     )
     sent_at_utc = Column(
         "sent_at_utc", DateTime,
@@ -775,7 +773,7 @@ class ExportedTaskHL7Message(Base):
 
 
 # =============================================================================
-# FileExport class
+# File export
 # =============================================================================
 
 class ExportedTaskFileGroup(Base):
@@ -791,8 +789,7 @@ class ExportedTaskFileGroup(Base):
     exported_task_id = Column(
         "exported_task_id", BigInteger, ForeignKey(ExportedTask.id),
         nullable=False,
-        comment="FK to {}.{}".format(ExportedTask.__tablename__,
-                                     ExportedTask.id.name)
+        comment=f"FK to {ExportedTask.__tablename__}.{ExportedTask.id.name}"
     )
     filenames = Column(
         "filenames", StringListType,
@@ -1013,7 +1010,7 @@ class ExportedTaskFileGroup(Base):
 
 
 # =============================================================================
-# EmailExport class
+# E-mail export
 # =============================================================================
 
 class ExportedTaskEmail(Base):
@@ -1029,13 +1026,11 @@ class ExportedTaskEmail(Base):
     exported_task_id = Column(
         "exported_task_id", BigInteger, ForeignKey(ExportedTask.id),
         nullable=False,
-        comment="FK to {}.{}".format(ExportedTask.__tablename__,
-                                     ExportedTask.id.name)
+        comment=f"FK to {ExportedTask.__tablename__}.{ExportedTask.id.name}"
     )
     email_id = Column(
         "email_id", BigInteger, ForeignKey(Email.id),
-        comment="FK to {}.{}".format(Email.__tablename__,
-                                     Email.id.name)
+        comment=f"FK to {Email.__tablename__}.{Email.id.name}"
     )
 
     exported_task = relationship(ExportedTask)
@@ -1106,6 +1101,10 @@ class ExportedTaskEmail(Base):
             exported_task.abort("Failed to send e-mail")
 
 
+# =============================================================================
+# REDCap export
+# =============================================================================
+
 class ExportedTaskRedcap(Base):
     """
     Represents an individual REDCap export.
@@ -1119,8 +1118,7 @@ class ExportedTaskRedcap(Base):
     exported_task_id = Column(
         "exported_task_id", BigInteger, ForeignKey(ExportedTask.id),
         nullable=False,
-        comment="FK to {}.{}".format(ExportedTask.__tablename__,
-                                     ExportedTask.id.name)
+        comment=f"FK to {ExportedTask.__tablename__}.{ExportedTask.id.name}"
     )
 
     exported_task = relationship(ExportedTask)
@@ -1152,6 +1150,12 @@ class ExportedTaskRedcap(Base):
         self.exported_task = exported_task
 
     def export_task(self, req: "CamcopsRequest") -> None:
+        """
+        Exports the task to REDCap.
+
+        Args:
+            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        """
         exported_task = self.exported_task
         exporter = RedcapTaskExporter()
 

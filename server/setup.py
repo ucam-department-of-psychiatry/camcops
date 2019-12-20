@@ -140,7 +140,7 @@ INSTALL_REQUIRES = [
     'Wand==0.4.4',  # ImageMagick binding
 
     # Moved to end to fix openpyxl mismatch
-    'cardinal_pythonlib==1.0.82',  # RNC libraries
+    'cardinal_pythonlib==1.0.83',  # RNC libraries
 ]
 
 
