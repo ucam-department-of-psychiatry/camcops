@@ -211,11 +211,17 @@ class RedcapTaskExporter(object):
             req:
                 a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
             exported_task_redcap:
-                a :class:`camcops_server.cc_modules.cc_exportmodels.ExportedTaskRedcap` 
+                a :class:`camcops_server.cc_modules.cc_exportmodels.ExportedTaskRedcap`
         """  # noqa
         exported_task = exported_task_redcap.exported_task
         recipient = exported_task.recipient
         task = exported_task.task
+
+        if task.is_anonymous:
+            raise RedcapExportException(
+                f"Skipping anonymous task '{task.tablename}'"
+            )
+
         which_idnum = recipient.primary_idnum
         idnum_object = task.patient.get_idnum_object(which_idnum)
 
@@ -1654,3 +1660,30 @@ class BadConfigurationRedcapTests(RedcapExportTestCase):
         message = str(cm.exception)
         self.assertIn("Instrument for task 'bmi' is missing from the fieldmap",
                       message)
+
+
+class AnonymousTaskRedcapTests(RedcapExportTestCase):
+    def create_tasks(self) -> None:
+        from camcops_server.tasks.apeq_cpft_perinatal import APEQCPFTPerinatal
+        self.task = APEQCPFTPerinatal()
+        self.apply_standard_task_fields(self.task)
+        self.task.id = 1
+        self.dbsession.add(self.task)
+        self.dbsession.commit()
+
+    def test_raises_when_task_is_anonymous(self) -> None:
+        from camcops_server.cc_modules.cc_exportmodels import (
+            ExportedTask,
+            ExportedTaskRedcap
+        )
+
+        exported_task = ExportedTask(task=self.task, recipient=self.recipient)
+        exported_task_redcap = ExportedTaskRedcap(exported_task)
+
+        exporter = MockRedcapTaskExporter()
+
+        with self.assertRaises(RedcapExportException) as cm:
+            exporter.export_task(self.req, exported_task_redcap)
+
+        message = str(cm.exception)
+        self.assertIn("Skipping anonymous task 'apeq_cpft_perinatal'", message)
