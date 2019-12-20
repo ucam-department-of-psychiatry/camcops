@@ -139,6 +139,7 @@ class ExportRecipientInfo(object):
     IGNORE_FOR_EQ_ATTRNAMES = [
         # Attribute names to ignore for equality comparison
         "email_host_password",
+        "redcap_api_key",
     ]
 
     def __init__(self, other: "ExportRecipientInfo" = None) -> None:
@@ -225,7 +226,8 @@ class ExportRecipientInfo(object):
         self.rio_document_type = ""
 
         # REDCap
-        self.redcap_api_key = ""
+
+        self.redcap_api_key = ""  # not in database for security
         self.redcap_api_url = ""
         self.redcap_fieldmap_filename = ""
 
@@ -513,6 +515,9 @@ class ExportRecipientInfo(object):
             r.rio_uploading_user = _get_str(cpr.RIO_UPLOADING_USER)
             r.rio_document_type = _get_str(cpr.RIO_DOCUMENT_TYPE)
 
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        # REDCap
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if r.transmission_method == ExportTransmissionMethod.REDCAP:
             r.redcap_api_url = _get_str(cpr.REDCAP_API_URL)
             r.redcap_api_key = _get_str(cpr.REDCAP_API_KEY)
@@ -690,6 +695,15 @@ class ExportRecipientInfo(object):
                     f"spaces, and max length {RIO_MAX_USER_LEN})")
             if not self.rio_document_type:
                 fail_missing(cpr.RIO_DOCUMENT_TYPE)
+
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        # REDCap
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        if self.transmission_method == ExportTransmissionMethod.HL7:
+            if not self.primary_idnum:
+                fail_missing(cpr.PRIMARY_IDNUM)
+            if self.include_anonymous:
+                fail_invalid("Can't include anonymous tasks for REDCap")
 
     def validate_db_dependent(self, req: "CamcopsRequest") -> None:
         """

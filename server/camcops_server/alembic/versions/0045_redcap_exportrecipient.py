@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-camcops_server/alembic/versions/0044_redcap.py
+camcops_server/alembic/versions/0045_redcap_exportrecipient.py
 
 ===============================================================================
 
@@ -26,11 +26,11 @@ camcops_server/alembic/versions/0044_redcap.py
 
 DATABASE REVISION SCRIPT
 
-redcap
+redcap_exportrecipient
 
-Revision ID: 0044
-Revises: 0043
-Creation date: 2019-12-10 17:25:58.604235
+Revision ID: 0045
+Revises: 0044
+Creation date: 2019-12-20 15:37:44.271863
 
 """
 
@@ -46,8 +46,8 @@ import sqlalchemy as sa
 # Revision identifiers, used by Alembic.
 # =============================================================================
 
-revision = '0044'
-down_revision = '0043'
+revision = '0045'
+down_revision = '0044'
 branch_labels = None
 depends_on = None
 
@@ -58,21 +58,13 @@ depends_on = None
 
 # noinspection PyPep8,PyTypeChecker
 def upgrade():
-    op.create_table(
-        '_exported_task_redcap',
-        sa.Column('id', sa.Integer(), autoincrement=True, nullable=False, comment='Arbitrary primary key'),
-        sa.Column('exported_task_id', sa.BigInteger(), nullable=False, comment='FK to _exported_tasks.id'),
-        sa.Column('redcap_record_id', sa.UnicodeText(), nullable=True, comment='ID of the (patient) record on the REDCap instance where this task has been exported'),
-        sa.Column('redcap_instrument_name', sa.UnicodeText(), nullable=True, comment='The name of the REDCap instrument name (form) where this task has been exported'),
-        sa.Column('redcap_instance_id', sa.Integer(), nullable=True, comment='1-based index of this particular task within the patient record. Increments on every repeat attempt.'),
-        sa.ForeignKeyConstraint(['exported_task_id'], ['_exported_tasks.id'], name=op.f('fk__exported_task_redcap_exported_task_id')),
-        sa.PrimaryKeyConstraint('id', name=op.f('pk__exported_task_redcap')),
-        mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
-        mysql_engine='InnoDB',
-        mysql_row_format='DYNAMIC'
-    )
+    with op.batch_alter_table('_export_recipients', schema=None) as batch_op:
+        batch_op.add_column(sa.Column('redcap_api_url', sa.Text(), nullable=True, comment='(REDCap) REDCap API URL, pointing to the REDCap server'))
+        batch_op.add_column(sa.Column('redcap_fieldmap_filename', sa.Text(), nullable=True, comment='(REDCap) File defining CamCOPS-to-REDCap field mapping'))
 
 
 # noinspection PyPep8,PyTypeChecker
 def downgrade():
-    op.drop_table('_exported_task_redcap')
+    with op.batch_alter_table('_export_recipients', schema=None) as batch_op:
+        batch_op.drop_column('redcap_fieldmap_filename')
+        batch_op.drop_column('redcap_api_url')

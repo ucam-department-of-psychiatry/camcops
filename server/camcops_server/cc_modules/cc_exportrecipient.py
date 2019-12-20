@@ -81,7 +81,7 @@ class ExportRecipient(ExportRecipientInfo, Base):
     """
     SQLAlchemy ORM class representing an export recipient.
 
-    This has a close relationship with
+    This has a close relationship with (and inherits from)
     :class:`camcops_server.cc_modules.cc_exportrecipientinfo.ExportRecipientInfo`
     (q.v.).
 
@@ -99,7 +99,6 @@ class ExportRecipient(ExportRecipientInfo, Base):
     NEEDS_RECOPYING_EACH_TIME_FROM_CONFIG_ATTRNAMES = [
         "email_host_password",
         "redcap_api_key",
-        "redcap_api_url",
     ]
 
     # -------------------------------------------------------------------------
@@ -365,6 +364,14 @@ class ExportRecipient(ExportRecipientInfo, Base):
     # -------------------------------------------------------------------------
     # REDCap export
     # -------------------------------------------------------------------------
+    redcap_api_url = Column(
+        "redcap_api_url", Text,
+        comment="(REDCap) REDCap API URL, pointing to the REDCap server"
+    )
+    redcap_fieldmap_filename = Column(
+        "redcap_fieldmap_filename", Text,
+        comment="(REDCap) File defining CamCOPS-to-REDCap field mapping"
+    )
 
     def __init__(self, *args, **kwargs) -> None:
         """
@@ -392,7 +399,6 @@ class ExportRecipient(ExportRecipientInfo, Base):
         self.group_names = []  # type: List[str]
         self.email_host_password = ""
         self.redcap_api_key = ""
-        self.redcap_api_url = ""
 
     def get_attrnames(self) -> List[str]:
         """
