@@ -3462,7 +3462,6 @@ class EditPatientSchema(CSRFSchema):
     gp = OptionalStringNode()  # must match ViewParam.GP
     other = OptionalStringNode()  # must match ViewParam.OTHER
     id_references = IdNumSequenceUniquePerWhichIdnum()  # must match ViewParam.ID_REFERENCES  # noqa
-    danger = TranslatableValidateDangerousOperationNode()
 
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
@@ -3498,16 +3497,43 @@ class EditPatientSchema(CSRFSchema):
             )
 
 
+class DangerousEditPatientSchema(EditPatientSchema):
+    danger = TranslatableValidateDangerousOperationNode()
+
+
+class LiveEditPatientSchema(EditPatientSchema):
+    group_id = MandatoryGroupIdSelectorAllGroups()  # Must match ViewParam.UPLOAD_GROUP_ID  # noqa: E501
+
+
 class EditPatientForm(DangerousForm):
     """
     Form to edit a patient.
     """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         _ = request.gettext
-        super().__init__(schema_class=EditPatientSchema,
+        super().__init__(schema_class=DangerousEditPatientSchema,
                          submit_action=FormAction.SUBMIT,
                          submit_title=_("Submit"),
                          request=request, **kwargs)
+
+
+class LiveEditPatientForm(DynamicDescriptionsForm):
+    """
+    Form to edit a patient not yet on the device (for scheduled tasks)
+    """
+    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+        schema = LiveEditPatientSchema().bind(request=request)
+        _ = request.gettext
+        super().__init__(
+            schema,
+            request=request,
+            buttons=[
+                Button(name=FormAction.SUBMIT, title=_("Submit"),
+                       css_class="btn-danger"),
+                Button(name=FormAction.CANCEL, title=_("Cancel")),
+            ],
+            **kwargs
+        )
 
 
 class ForciblyFinalizeChooseDeviceSchema(CSRFSchema):

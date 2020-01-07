@@ -674,6 +674,7 @@ class Routes(object):
     # Other
     ADD_GROUP = "add_group"
     ADD_ID_DEFINITION = "add_id_definition"
+    ADD_PATIENT = "add_patient"
     ADD_SPECIAL_NOTE = "add_special_note"
     ADD_USER = "add_user"
     AUDIT_MENU = "audit_menu"
@@ -740,6 +741,7 @@ class Routes(object):
     VIEW_GROUPS = "view_groups"
     VIEW_ID_DEFINITIONS = "view_id_definitions"
     VIEW_OWN_USER_INFO = "view_own_user_info"
+    VIEW_PATIENT_TASK_SCHEDULE = "view_patient_task_schedule"
     VIEW_SERVER_INFO = "view_server_info"
     VIEW_TASKS = "view_tasks"
     VIEW_USER = "view_user"
@@ -793,6 +795,7 @@ class RouteCollection(object):
     # Implemented
     ADD_GROUP = RoutePath(Routes.ADD_GROUP)
     ADD_ID_DEFINITION = RoutePath(Routes.ADD_ID_DEFINITION)
+    ADD_PATIENT = RoutePath(Routes.ADD_PATIENT)
     ADD_SPECIAL_NOTE = RoutePath(Routes.ADD_SPECIAL_NOTE)
     ADD_USER = RoutePath(Routes.ADD_USER)
     AUDIT_MENU = RoutePath(Routes.AUDIT_MENU)
@@ -858,6 +861,7 @@ class RouteCollection(object):
     VIEW_GROUPS = RoutePath(Routes.VIEW_GROUPS)
     VIEW_ID_DEFINITIONS = RoutePath(Routes.VIEW_ID_DEFINITIONS)
     VIEW_OWN_USER_INFO = RoutePath(Routes.VIEW_OWN_USER_INFO)
+    VIEW_PATIENT_TASK_SCHEDULE = RoutePath(Routes.VIEW_PATIENT_TASK_SCHEDULE)
     VIEW_SERVER_INFO = RoutePath(Routes.VIEW_SERVER_INFO)
     VIEW_TASKS = RoutePath(Routes.VIEW_TASKS)
     VIEW_USER = RoutePath(Routes.VIEW_USER)
