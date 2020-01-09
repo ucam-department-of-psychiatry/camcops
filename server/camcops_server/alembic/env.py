@@ -77,6 +77,25 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # - https://bitbucket.org/zzzeek/alembic/issues/46/mysqltinyint-display_width-1-vs-saboolean  # noqa
 # - http://alembic.zzzcomputing.com/en/latest/api/autogenerate.html
 # =============================================================================
+def debug_op_object(op: Union[List, OpContainer, Tuple],
+                    level: int = 0) -> str:
+    """
+    Describes a :class:`OpContainer`.
+    """
+    lines = []  # type: List[str]
+    spacer = "    " * level
+    thisobj = spacer + str(op)
+    if isinstance(op, ModifyTableOps):
+        thisobj += " for table {}".format(op.table_name)
+    if isinstance(op, AlterColumnOp):
+        thisobj += " for column {}.{}".format(op.table_name, op.column_name)
+    lines.append(thisobj)
+    if hasattr(op, "ops"):
+        for sub_op in op.ops:
+            lines.append(debug_op_object(sub_op, level + 1))
+    return "\n".join(lines)
+
+
 def is_tinyint_and_bool(inspected_type: TypeEngine,
                         metadata_type: TypeEngine) -> bool:
     return (isinstance(inspected_type, TINYINT) and
@@ -139,25 +158,6 @@ def custom_compare_type(context: MigrationContext,
             return False
 
     return None
-
-
-def debug_op_object(op: Union[List, OpContainer, Tuple],
-                    level: int = 0) -> str:
-    """
-    Describes a :class:`OpContainer`.
-    """
-    lines = []  # type: List[str]
-    spacer = "    " * level
-    thisobj = spacer + str(op)
-    if isinstance(op, ModifyTableOps):
-        thisobj += " for table {}".format(op.table_name)
-    if isinstance(op, AlterColumnOp):
-        thisobj += " for column {}.{}".format(op.table_name, op.column_name)
-    lines.append(thisobj)
-    if hasattr(op, "ops"):
-        for sub_op in op.ops:
-            lines.append(debug_op_object(sub_op, level + 1))
-    return "\n".join(lines)
 
 
 # noinspection PyUnusedLocal
