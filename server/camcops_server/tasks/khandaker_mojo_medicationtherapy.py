@@ -181,7 +181,7 @@ class KhandakerMojoTherapyItem(KhandakerMojoTableItem):
     )
     sessions_planned = CamcopsColumn(
         "sessions_planned", Integer,
-        comment="Sessions planned"
+        comment="Total number of sessions planned"
     )
     indication = CamcopsColumn(
         "indication", UnicodeText,
