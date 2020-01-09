@@ -28,20 +28,44 @@ camcops_server/cc_modules/cc_patient.py
 
 """
 
-from sqlalchemy.sql.schema import Column
+from sqlalchemy.orm import relationship
+
+from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 from camcops_server.cc_modules.cc_sqla_coltypes import (
+    PendulumDurationAsIsoTextColType,
     TableNameColType,
 )
 
 
 class TaskSchedule(Base):
+    __tablename__ = "_task_schedule"
+
     id = Column(
         "id", Integer,
         primary_key=True, autoincrement=True,
         comment="Arbitrary primary key"
+    )
+
+    items = relationship("TaskScheduleItem")
+
+
+class TaskScheduleItem(Base):
+    __tablename__ = "_task_schedule_item"
+
+    id = Column(
+        "id", Integer,
+        primary_key=True, autoincrement=True,
+        comment="Arbitrary primary key"
+    )
+
+    schedule_id = Column(
+        "schedule_id", Integer, ForeignKey(TaskSchedule.id),
+        nullable=False,
+        comment="FK to {}.{}".format(TaskSchedule.__tablename__,
+                                     TaskSchedule.id.name)
     )
 
     task_table_name = Column(
@@ -50,4 +74,14 @@ class TaskSchedule(Base):
         comment="Table name of the task's base table"
     )
 
-    # TODO: Other fields: due from, due by (relative)
+    due_from = Column(
+        "due_from", PendulumDurationAsIsoTextColType,
+        comment=("Relative time from the start date by which the task may be "
+                 "started")
+    )
+
+    due_by = Column(
+        "due_by", PendulumDurationAsIsoTextColType,
+        comment=("Relative time from the start date by which the task must be "
+                 "completed")
+    )

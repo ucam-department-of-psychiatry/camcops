@@ -80,6 +80,10 @@ from camcops_server.cc_modules.cc_serversettings import ServerSettings
 # noinspection PyUnresolvedReferences
 from camcops_server.cc_modules.cc_task import Task
 from camcops_server.cc_modules.cc_taskfilter import TaskFilter
+from camcops_server.cc_modules.cc_taskschedule import (
+    TaskSchedule,
+    TaskScheduleItem,
+)
 # noinspection PyUnresolvedReferences
 from camcops_server.cc_modules.cc_taskindex import (
     PatientIdNumIndexEntry,
@@ -155,6 +159,8 @@ RESERVED_TABLE_NAMES = [
     SpecialNote.__tablename__,
     TaskFilter.__tablename__,
     TaskIndexEntry.__tablename__,
+    TaskSchedule.__tablename__,
+    TaskScheduleItem.__tablename__,
     User.__tablename__,
     UserGroupMembership.__tablename__,
 ]
