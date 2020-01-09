@@ -101,8 +101,11 @@ def custom_compare_type(context: MigrationContext,
     Perform type comparison?
 
     Args:
-        inspected_type: a type reflected from the database
-        metadata_type: a type from the SQLAlchemy metadata
+        context: frontend to database
+        inspected_column: column from the database
+        metadata_column: column from the SQLAlchemy metadata
+        inspected_type: column type reflected from the database
+        metadata_type: column type from the SQLAlchemy metadata
 
     Returns:
         False if the metadata type is the same as the inspected type
