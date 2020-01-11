@@ -1,6 +1,6 @@
 ..  docs/source/changelog.rst
 
-..  Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+..  Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
     .
     This file is part of CamCOPS.
     .
@@ -2735,3 +2735,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
   :func:`nice_call` function that sorts this out a bit, etc.
 
 - R script file export for basic data dumps.
+
+- Create ``camcops_server.__version__``.
