@@ -745,6 +745,32 @@ class OptionalSingleTaskSelector(OptionalStringNode, RequestAwareMixin):
         return choices
 
 
+class MandatorySingleTaskSelector(MandatoryStringNode, RequestAwareMixin):
+    """
+    Node to pick one task type.
+    """
+    def __init__(self, *args, **kwargs) -> None:
+        self.title = ""  # for type checker
+        self.widget = None  # type: Optional[Widget]
+        self.validator = None  # type: Optional[ValidatorType]
+        super().__init__(*args, **kwargs)
+
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        _ = self.gettext
+        self.title = _("Task type")
+        values, pv = get_values_and_permissible(self.get_task_choices(), False)
+        self.widget = SelectWidget(values=values)
+        self.validator = OneOf(pv)
+
+    def get_task_choices(self) -> List[Tuple[str, str]]:
+        from camcops_server.cc_modules.cc_task import Task  # delayed import
+        choices = []  # type: List[Tuple[str, str]]
+        for tc in Task.all_subclasses_by_shortname():
+            choices.append((tc.tablename, tc.shortname))
+        return choices
+
+
 class MultiTaskSelector(SchemaNode, RequestAwareMixin):
     """
     Node to select multiple task types.
@@ -3523,6 +3549,50 @@ class LiveEditPatientForm(DynamicDescriptionsForm):
     """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         schema = LiveEditPatientSchema().bind(request=request)
+        _ = request.gettext
+        super().__init__(
+            schema,
+            request=request,
+            buttons=[
+                Button(name=FormAction.SUBMIT, title=_("Submit"),
+                       css_class="btn-danger"),
+                Button(name=FormAction.CANCEL, title=_("Cancel")),
+            ],
+            **kwargs
+        )
+
+
+class TaskScheduleSchema(CSRFSchema):
+    description = OptionalStringNode()
+    group_id = MandatoryGroupIdSelectorAdministeredGroups()  # must match ViewParam.GROUP_ID  # noqa
+
+
+class EditTaskScheduleForm(DynamicDescriptionsForm):
+    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+        schema = TaskScheduleSchema().bind(request=request)
+        _ = request.gettext
+        super().__init__(
+            schema,
+            request=request,
+            buttons=[
+                Button(name=FormAction.SUBMIT, title=_("Submit"),
+                       css_class="btn-danger"),
+                Button(name=FormAction.CANCEL, title=_("Cancel")),
+            ],
+            **kwargs
+        )
+
+
+class TaskScheduleItemSchema(CSRFSchema):
+    schedule_id = HiddenIntegerNode()
+    task_table_name = MandatorySingleTaskSelector()
+    due_from = MandatoryStringNode()
+    due_by = MandatoryStringNode()
+
+
+class EditTaskScheduleItemForm(DynamicDescriptionsForm):
+    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+        schema = TaskScheduleItemSchema().bind(request=request)
         _ = request.gettext
         super().__init__(
             schema,

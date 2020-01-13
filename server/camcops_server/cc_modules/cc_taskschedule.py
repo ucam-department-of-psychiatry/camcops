@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-camcops_server/cc_modules/cc_patient.py
+camcops_server/cc_modules/cc_taskschedule.py
 
 ===============================================================================
 
@@ -24,15 +24,16 @@ camcops_server/cc_modules/cc_patient.py
 
 ===============================================================================
 
-**Task schedule**
+**Task schedule item**
 
 """
 
 from sqlalchemy.orm import relationship
 
 from sqlalchemy.sql.schema import Column, ForeignKey
-from sqlalchemy.sql.sqltypes import Integer
+from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
+from camcops_server.cc_modules.cc_group import Group
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     PendulumDurationAsIsoTextColType,
@@ -49,7 +50,21 @@ class TaskSchedule(Base):
         comment="Arbitrary primary key"
     )
 
+    group_id = Column(
+        "group_id", Integer, ForeignKey(Group.id),
+        nullable=False,
+        comment="FK to {}.{}".format(Group.__tablename__,
+                                     Group.id.name)
+    )
+
+    description = Column(
+        "description", UnicodeText,
+        comment="description"
+    )
+
     items = relationship("TaskScheduleItem")
+
+    group = relationship(Group)
 
 
 class TaskScheduleItem(Base):
@@ -85,3 +100,8 @@ class TaskScheduleItem(Base):
         comment=("Relative time from the start date by which the task must be "
                  "completed")
     )
+
+    def __str__(self) -> str:
+        return (f"{self.task_table_name} "
+                f"due from {self.due_from}, "
+                f"must be completed by {self.due_by}")

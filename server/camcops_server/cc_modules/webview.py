@@ -226,6 +226,8 @@ from camcops_server.cc_modules.cc_forms import (
     EditPatientForm,
     EDIT_PATIENT_SIMPLE_PARAMS,
     EditServerSettingsForm,
+    EditTaskScheduleForm,
+    EditTaskScheduleItemForm,
     EditUserFullForm,
     EditUserGroupAdminForm,
     EditUserGroupPermissionsFullForm,
@@ -288,6 +290,10 @@ from camcops_server.cc_modules.cc_taskindex import (
     PatientIdNumIndexEntry,
     TaskIndexEntry,
     update_indexes_and_push_exports
+)
+from camcops_server.cc_modules.cc_taskschedule import (
+    TaskSchedule,
+    TaskScheduleItem,
 )
 from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_tracker import ClinicalTextView, Tracker
@@ -3676,6 +3682,44 @@ def static_bugfix_deform_missing_glyphs(req: "CamcopsRequest") -> Response:
     return FileResponse(DEFORM_MISSING_GLYPH, request=req)
 
 
+@view_config(route_name=Routes.VIEW_TASK_SCHEDULES,
+             permission=Permission.GROUPADMIN,
+             renderer="view_task_schedules.mako")
+def view_task_schedules(req: "CamcopsRequest") -> Dict[str, Any]:
+    rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
+                                      DEFAULT_ROWS_PER_PAGE)
+    page_num = req.get_int_param(ViewParam.PAGE, 1)
+    group_ids = req.user.ids_of_groups_user_is_admin_for
+    q = req.dbsession.query(TaskSchedule).filter(
+        TaskSchedule.group_id.in_(group_ids)
+    )
+    page = SqlalchemyOrmPage(query=q,
+                             page=page_num,
+                             items_per_page=rows_per_page,
+                             url_maker=PageUrl(req),
+                             request=req)
+    return dict(page=page)
+
+
+@view_config(route_name=Routes.VIEW_TASK_SCHEDULE_ITEMS,
+             permission=Permission.GROUPADMIN,
+             renderer="view_task_schedule_items.mako")
+def view_task_schedule_items(req: "CamcopsRequest") -> Dict[str, Any]:
+    rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
+                                      DEFAULT_ROWS_PER_PAGE)
+    page_num = req.get_int_param(ViewParam.PAGE, 1)
+    schedule_id = req.get_int_param(ViewParam.SCHEDULE_ID)
+    q = req.dbsession.query(TaskScheduleItem).filter(
+        TaskScheduleItem.schedule_id == schedule_id
+    )
+    page = SqlalchemyOrmPage(query=q,
+                             page=page_num,
+                             items_per_page=rows_per_page,
+                             url_maker=PageUrl(req),
+                             request=req)
+    return dict(page=page)
+
+
 @view_config(route_name=Routes.VIEW_PATIENT_TASK_SCHEDULE,
              permission=Permission.GROUPADMIN,
              renderer="view_patient_task_schedule.mako")
@@ -3690,6 +3734,93 @@ def view_patient_task_schedule(req: "CamcopsRequest") -> Dict[str, Any]:
                              url_maker=PageUrl(req),
                              request=req)
     return dict(page=page)
+
+
+@view_config(route_name=Routes.ADD_TASK_SCHEDULE,
+             permission=Permission.GROUPADMIN)
+def add_task_schedule(req: "CamcopsRequest") -> Response:
+    """
+    View to add a task schedule.
+    """
+    _ = req.gettext
+
+    route_back = Routes.VIEW_TASK_SCHEDULES
+    if FormAction.CANCEL in req.POST:
+        return HTTPFound(req.route_url(route_back))
+
+    form = EditTaskScheduleForm(request=req)
+
+    if FormAction.SUBMIT in req.POST:
+        try:
+            controls = list(req.POST.items())
+            appstruct = form.validate(controls)
+
+            schedule = TaskSchedule()
+            schedule.description = appstruct.get("description")
+            schedule.group_id = appstruct.get("group_id")
+
+            req.dbsession.add(schedule)
+
+            raise HTTPFound(req.route_url(route_back))
+        except ValidationFailure as e:
+            rendered_form = e.render()
+    else:
+        rendered_form = form.render()
+
+    return render_to_response(
+        "task_schedule_edit.mako",
+        dict(
+            form=rendered_form,
+            head_form_html=get_head_form_html(req, [form])
+        ),
+        request=req
+    )
+
+
+@view_config(route_name=Routes.ADD_TASK_SCHEDULE_ITEM,
+             permission=Permission.GROUPADMIN)
+def add_task_schedule_item(req: "CamcopsRequest") -> Response:
+    """
+    View to add a task schedule item.
+    """
+    _ = req.gettext
+
+    route_back = Routes.VIEW_TASK_SCHEDULE_ITEMS
+    if FormAction.CANCEL in req.POST:
+        return HTTPFound(req.route_url(route_back))
+
+    form = EditTaskScheduleItemForm(request=req)
+
+    if FormAction.SUBMIT in req.POST:
+        try:
+            controls = list(req.POST.items())
+            appstruct = form.validate(controls)
+
+            item = TaskScheduleItem()
+            item.schedule_id = appstruct.get("schedule_id")
+            item.task_table_name = appstruct.get("task_table_name")
+            item.due_from = appstruct.get("due_from")
+            item.due_by = appstruct.get("due_by")
+
+            req.dbsession.add(item)
+
+            raise HTTPFound(req.route_url(route_back))
+        except ValidationFailure as e:
+            rendered_form = e.render()
+    else:
+        appstruct = {
+            ViewParam.SCHEDULE_ID: req.get_int_param(ViewParam.SCHEDULE_ID)
+        }
+        rendered_form = form.render(appstruct)
+
+    return render_to_response(
+        "task_schedule_item_edit.mako",
+        dict(
+            form=rendered_form,
+            head_form_html=get_head_form_html(req, [form])
+        ),
+        request=req
+    )
 
 
 # =============================================================================

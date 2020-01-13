@@ -214,6 +214,7 @@ class ViewParam(object):
     REPORT_ID = "report_id"
     REMOTE_IP_ADDR = "remote_ip_addr"
     ROWS_PER_PAGE = "rows_per_page"
+    SCHEDULE_ID = "schedule_id"
     SERVER_PK = "server_pk"
     SEX = "sex"
     SHORT_DESCRIPTION = "short_description"
@@ -676,6 +677,8 @@ class Routes(object):
     ADD_ID_DEFINITION = "add_id_definition"
     ADD_PATIENT = "add_patient"
     ADD_SPECIAL_NOTE = "add_special_note"
+    ADD_TASK_SCHEDULE = "add_task_schedule"
+    ADD_TASK_SCHEDULE_ITEM = "add_task_schedule_item"
     ADD_USER = "add_user"
     AUDIT_MENU = "audit_menu"
     BASIC_DUMP = "basic_dump"
@@ -744,6 +747,8 @@ class Routes(object):
     VIEW_PATIENT_TASK_SCHEDULE = "view_patient_task_schedule"
     VIEW_SERVER_INFO = "view_server_info"
     VIEW_TASKS = "view_tasks"
+    VIEW_TASK_SCHEDULES = "view_task_schedules"
+    VIEW_TASK_SCHEDULE_ITEMS = "view_task_schedule_items"
     VIEW_USER = "view_user"
     VIEW_USER_EMAIL_ADDRESSES = "view_user_email_addresses"
     XLSX_DUMP = "xlsx_dump"
@@ -797,6 +802,8 @@ class RouteCollection(object):
     ADD_ID_DEFINITION = RoutePath(Routes.ADD_ID_DEFINITION)
     ADD_PATIENT = RoutePath(Routes.ADD_PATIENT)
     ADD_SPECIAL_NOTE = RoutePath(Routes.ADD_SPECIAL_NOTE)
+    ADD_TASK_SCHEDULE = RoutePath(Routes.ADD_TASK_SCHEDULE)
+    ADD_TASK_SCHEDULE_ITEM = RoutePath(Routes.ADD_TASK_SCHEDULE_ITEM)
     ADD_USER = RoutePath(Routes.ADD_USER)
     AUDIT_MENU = RoutePath(Routes.AUDIT_MENU)
     BASIC_DUMP = RoutePath(Routes.BASIC_DUMP)
@@ -864,6 +871,8 @@ class RouteCollection(object):
     VIEW_PATIENT_TASK_SCHEDULE = RoutePath(Routes.VIEW_PATIENT_TASK_SCHEDULE)
     VIEW_SERVER_INFO = RoutePath(Routes.VIEW_SERVER_INFO)
     VIEW_TASKS = RoutePath(Routes.VIEW_TASKS)
+    VIEW_TASK_SCHEDULES = RoutePath(Routes.VIEW_TASK_SCHEDULES)
+    VIEW_TASK_SCHEDULE_ITEMS = RoutePath(Routes.VIEW_TASK_SCHEDULE_ITEMS)
     VIEW_USER = RoutePath(Routes.VIEW_USER)
     VIEW_USER_EMAIL_ADDRESSES = RoutePath(Routes.VIEW_USER_EMAIL_ADDRESSES)
     XLSX_DUMP = RoutePath(Routes.XLSX_DUMP)
