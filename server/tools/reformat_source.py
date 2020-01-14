@@ -5,7 +5,7 @@ tools/reformat_source.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -57,7 +57,7 @@ TABLET_ROOT_DIR = join(CAMCOPS_ROOT_DIR, 'tablet_qt')  # .../camcops/tablet_qt
 CORRECT_COPYRIGHT_LINES = """
 ===============================================================================
 
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
