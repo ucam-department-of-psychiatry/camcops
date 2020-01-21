@@ -754,9 +754,23 @@ UDS is typically faster than TCP. If specified, this overrides the TCP options,
 HOST_ and PORT_.
 
 For example, ``/run/camcops/camcops.socket`` (as per the `Filesystem Hierarchy
-Standard <https://refspecs.linuxfoundation.org/FHS_3.0/fhs/ch05s13.html>`_.
+Standard <https://refspecs.linuxfoundation.org/FHS_3.0/fhs/ch05s13.html>`_).
 
 (Not applicable to the Pyramid test web server; CherryPy/Gunicorn only.)
+
+.. note::
+
+    The socket "file" is a pseudo-file that is created by CamCOPS during
+    operation, and vanishes when CamCOPS stops. You don't have to create it --
+    but you need to ensure that CamCOPS can write to the directory where it
+    lives. If you look at the file with ``ls -l``, you will see this:
+
+    .. code-block:: none
+
+        srwxrwxrwx  1 root root    0 Jan 21 11:05 camcops.socket
+        ^
+        |
+        The setuid bit: an indication that this is not a normal file!
 
 
 SSL_CERTIFICATE
