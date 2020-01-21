@@ -61,7 +61,7 @@ its own configuration file.
 
 If you do operate with multiple databases/configuration files, you may want to
 use the :ref:`camcops_server_meta <camcops_server_meta>` tool, which allows you
-to run the same :ref:`camcops <camcops_cli>` command over multiple
+to run the same :ref:`camcops_server <camcops_cli>` command over multiple
 configuration files in one go (for example, to upgrade the databases for a new
 version of CamCOPS).
 
