@@ -2674,6 +2674,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
   - PBQ: as per Core-10, but also for subscales
 
+- Bugfix: Automatically create EXPORT_LOCKDIR on server startup
+
 **Client and server v2.3.7, IN PROGRESS**
 
 - ``pyexcel-ods3`` and ``pyexcel-xlsx`` for spreadsheet export; faster and much
