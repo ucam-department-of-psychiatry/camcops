@@ -2739,3 +2739,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - R script file export for basic data dumps.
 
 - Create ``camcops_server.__version__``.
+
+- RabbitMQ into Debian/RPM package requirements, and installation docs.
