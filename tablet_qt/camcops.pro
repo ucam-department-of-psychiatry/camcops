@@ -304,12 +304,20 @@ ios {
     CAMCOPS_QT_LINKAGE = "dynamic"
     CAMCOPS_OPENSSL_LINKAGE = "dynamic"
 
-    contains(QT_ARCH, arm64) {
-        message("Building for iOS/ARM v8 64-bit architecture")
-        CAMCOPS_ARCH_TAG = "ios_armv8_64"
-    } else {
-        message("Building for iOS/ARM v7 (32-bit) architecture")
-        CAMCOPS_ARCH_TAG = "ios_armv7"
+    iphoneos {
+        message("Building for iPhone OS")
+        contains(QT_ARCH, arm64) {
+            message("Building for iOS/ARM v8 64-bit architecture")
+            CAMCOPS_ARCH_TAG = "ios_armv8_64"
+        } else {
+            message("Building for iOS/ARM v7 (32-bit) architecture")
+            CAMCOPS_ARCH_TAG = "ios_armv7"
+        }
+    }
+
+    iphonesimulator {
+        message("Building for iPhone Simulator")
+        CAMCOPS_ARCH_TAG = "macos_x86_64"
     }
 }
 
