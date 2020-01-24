@@ -31,8 +31,13 @@ Scored 1 point for either "disagree" rating, 0 for either "agree" rating.
 Note that high scores represent low pleasure.
 
 Several studies using the scale have made the responses consistent. Franken et
-al (2007) below uses definitely agree - definitely disagree. Responses are
-configurable through the add-on XML file.
+al (2007) below uses definitely agree - definitely disagree. See also:
+
+- https://www.ncbi.nlm.nih.gov/pubmed/30107636
+- https://www.ncbi.nlm.nih.gov/pubmed/25864641
+- https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2957191/
+
+Responses are configurable through the add-on XML file.
 
 
 Intellectual property rights
