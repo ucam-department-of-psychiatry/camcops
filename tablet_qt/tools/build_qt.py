@@ -1498,10 +1498,10 @@ class Config(object):
                 self.build_ios_arm_v7_32 = True
                 self.build_ios_arm_v8_64 = True
                 # iOS simulators for MacOS
-                # if BUILD_PLATFORM.cpu_64bit:
-                #     self.build_ios_simulator_x86_64 = True
-                # else:
-                #     self.build_ios_simulator_x86_32 = True
+                if BUILD_PLATFORM.cpu_64bit:
+                    self.build_ios_simulator_x86_64 = True
+                else:
+                    self.build_ios_simulator_x86_32 = True
             elif BUILD_PLATFORM.windows:
                 self.build_windows_x86_32 = True
                 self.build_windows_x86_64 = True
