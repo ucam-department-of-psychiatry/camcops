@@ -2850,6 +2850,10 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
         configure_args += [
             f"-D__ANDROID_API__={cfg.android_sdk_version}"
         ]
+    if target_platform.ios:
+        configure_args += [
+            "no-makedepend",
+        ]
 
     # -------------------------------------------------------------------------
     # OpenSSL: Environment 2/2
