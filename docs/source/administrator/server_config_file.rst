@@ -750,8 +750,9 @@ UNIX_DOMAIN_SOCKET
 *String.* Default: none.
 
 Filename of a UNIX domain socket (UDS) to listen on (rather than using TCP/IP).
-UDS is typically faster than TCP. If specified, this overrides the TCP options,
-HOST_ and PORT_.
+UDS is typically faster than TCP (see e.g.
+https://stackoverflow.com/questions/14973942/tcp-loopback-connection-vs-unix-domain-socket-performance).
+If specified, this overrides the TCP options, HOST_ and PORT_.
 
 For example, ``/run/camcops/camcops.socket`` (as per the `Filesystem Hierarchy
 Standard <https://refspecs.linuxfoundation.org/FHS_3.0/fhs/ch05s13.html>`_).
