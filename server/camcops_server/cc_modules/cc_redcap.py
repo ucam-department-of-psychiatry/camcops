@@ -490,7 +490,7 @@ class RedcapUploader(object):
         raise NotImplementedError("implement in subclass")
 
     @staticmethod
-    def log_success(record_id: int) -> None:
+    def log_success(record_id: str) -> None:
         """
         Report upload success to the Python log.
 
@@ -707,7 +707,7 @@ class RedcapNewRecordUploader(RedcapUploader):
 
         return self.project.generate_next_record_name()
 
-    def get_new_record_id(self, record_id: int, response: List[str]) -> str:
+    def get_new_record_id(self, record_id: str, response: List[str]) -> str:
         """
         For autonumbering, read the generated record ID from the
         response. Otherwise we already have it.
@@ -722,7 +722,7 @@ class RedcapNewRecordUploader(RedcapUploader):
         return record_id
 
     @staticmethod
-    def log_success(record_id: int) -> None:
+    def log_success(record_id: str) -> None:
         log.info(f"Created new REDCap record {record_id}")
 
 
@@ -743,7 +743,7 @@ class RedcapUpdatedRecordUploader(RedcapUploader):
         return old_record_id
 
     @staticmethod
-    def log_success(record_id: int) -> None:
+    def log_success(record_id: str) -> None:
         log.info(f"Updated REDCap record {record_id}")
 
 
