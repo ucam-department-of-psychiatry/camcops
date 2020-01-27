@@ -145,11 +145,13 @@ class RedcapFieldmap(object):
 
         record_element = root.find("record")
         if record_element is None:
-            self.record = {"redcap_field": "record_id"}
-        else:
-            self.record = self._validate_and_return_attributes(
-                record_element, ("redcap_field",)
+            raise RedcapExportException(
+                f"'record' is missing from {filename}"
             )
+
+        self.record = self._validate_and_return_attributes(
+            record_element, ("instrument", "redcap_field")
+        )
 
         instrument_elements = root.find("instruments")
         if instrument_elements is None:
@@ -308,7 +310,8 @@ class RedcapTaskExporter(object):
         }
 
         forms = (fieldmap.instrument_names() +
-                 [fieldmap.patient["instrument"]])
+                 [fieldmap.patient["instrument"]] +
+                 [fieldmap.record["instrument"]])
 
         return project.export_records(format="df", forms=forms,
                                       df_kwargs=df_kwargs)
@@ -986,6 +989,46 @@ class RedcapFieldmapTests(TestCase):
         )
         self.assertIn(fieldmap_file.name, message)
 
+    def test_raises_when_record_missing(self) -> None:
+        with tempfile.NamedTemporaryFile(
+                mode="w", suffix="xml") as fieldmap_file:
+            fieldmap_file.write(
+                """<?xml version="1.0" encoding="UTF-8"?>
+                <fieldmap>
+                    <patient instrument="patient_record" redcap_field="patient_id" />
+                </fieldmap>
+                """)  # noqa: E501
+            fieldmap_file.flush()
+
+            with self.assertRaises(RedcapExportException) as cm:
+                RedcapFieldmap(fieldmap_file.name)
+
+        message = str(cm.exception)
+        self.assertIn("'record' is missing from", message)
+        self.assertIn(fieldmap_file.name, message)
+
+    def test_raises_when_record_missing_attributes(self) -> None:
+        with tempfile.NamedTemporaryFile(
+                mode="w", suffix="xml") as fieldmap_file:
+            fieldmap_file.write(
+                """<?xml version="1.0" encoding="UTF-8"?>
+                <fieldmap>
+                   <patient instrument="patient_record" redcap_field="patient_id" />
+                   <record />
+                </fieldmap>
+                """)  # noqa: E501
+            fieldmap_file.flush()
+
+            with self.assertRaises(RedcapExportException) as cm:
+                RedcapFieldmap(fieldmap_file.name)
+
+        message = str(cm.exception)
+        self.assertIn(
+            "'record' must have attributes instrument, redcap_field",
+            message
+        )
+        self.assertIn(fieldmap_file.name, message)
+
     def test_raises_when_instruments_missing(self) -> None:
         with tempfile.NamedTemporaryFile(
                 mode="w", suffix="xml") as fieldmap_file:
@@ -993,6 +1036,7 @@ class RedcapFieldmapTests(TestCase):
                 """<?xml version="1.0" encoding="UTF-8"?>
                 <fieldmap>
                     <patient instrument="patient_record" redcap_field="patient_id" />
+                    <record instrument="patient_record" redcap_field="record_id" />
                 </fieldmap>
                 """)  # noqa: E501
             fieldmap_file.flush()
@@ -1011,6 +1055,7 @@ class RedcapFieldmapTests(TestCase):
                 """<?xml version="1.0" encoding="UTF-8"?>
                 <fieldmap>
                     <patient instrument="patient_record" redcap_field="patient_id" />
+                    <record instrument="patient_record" redcap_field="record_id" />
                     <instruments>
                         <instrument />
                     </instruments>
@@ -1035,6 +1080,7 @@ class RedcapFieldmapTests(TestCase):
                 """<?xml version="1.0" encoding="UTF-8"?>
                 <fieldmap>
                     <patient instrument="patient_record" redcap_field="patient_id" />
+                    <record instrument="patient_record" redcap_field="record_id" />
                     <instruments>
                         <instrument name="bmi" task="bmi">
                             <files>
@@ -1063,6 +1109,7 @@ class RedcapFieldmapTests(TestCase):
                 """<?xml version="1.0" encoding="UTF-8"?>
                 <fieldmap>
                     <patient instrument="patient_record" redcap_field="patient_id" />
+                    <record instrument="patient_record" redcap_field="record_id" />
                     <instruments>
                         <instrument name="bmi" task="bmi">
                             <fields>
@@ -1152,6 +1199,7 @@ class BmiRedcapValidFieldmapTestCase(BmiRedcapExportTestCase):
     fieldmap = """<?xml version="1.0" encoding="UTF-8"?>
 <fieldmap>
   <patient instrument="patient_record" redcap_field="patient_id" />
+  <record instrument="instrument_with_record_id" redcap_field="record_id" />
   <instruments>
     <instrument task="bmi" name="bmi">
       <fields>
@@ -1204,6 +1252,12 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
         self.assertEquals(exported_task_redcap.redcap_record_id, "123")
         self.assertEquals(exported_task_redcap.redcap_instrument_name, "bmi")
         self.assertEquals(exported_task_redcap.redcap_instance_id, 1)
+
+        args, kwargs = project.export_records.call_args
+
+        self.assertIn("bmi", kwargs['forms'])
+        self.assertIn("patient_record", kwargs['forms'])
+        self.assertIn("instrument_with_record_id", kwargs['forms'])
 
         # Initial call with original record
         args, kwargs = project.import_records.call_args_list[0]
@@ -1359,7 +1413,7 @@ class Phq9RedcapExportTests(RedcapExportTestCase):
     fieldmap = """<?xml version="1.0" encoding="UTF-8"?>
 <fieldmap>
   <patient instrument="patient_record" redcap_field="patient_id" />
-  <record redcap_field="my_record_id" />
+  <record instrument="patient_record" redcap_field="my_record_id" />
   <instruments>
     <instrument task="phq9" name="patient_health_questionnaire_9">
       <fields>
@@ -1483,6 +1537,7 @@ class MedicationTherapyRedcapExportTests(RedcapExportTestCase):
     fieldmap = """<?xml version="1.0" encoding="UTF-8"?>
 <fieldmap>
   <patient instrument="patient_record" redcap_field="patient_id" />
+  <record instrument="patient_record" redcap_field="record_id" />
   <instruments>
     <instrument task="khandaker_mojo_medicationtherapy" name="medication_table">
       <files>
@@ -1572,6 +1627,7 @@ class MultipleTaskRedcapExportTests(RedcapExportTestCase):
     fieldmap = """<?xml version="1.0" encoding="UTF-8"?>
 <fieldmap>
   <patient instrument="patient_record" redcap_field="patient_id" />
+  <record instrument="patient_record" redcap_field="record_id" />
   <instruments>
     <instrument task="bmi" name="bmi">
       <fields>
@@ -1670,6 +1726,7 @@ class BadConfigurationRedcapTests(RedcapExportTestCase):
     fieldmap = """<?xml version="1.0" encoding="UTF-8"?>
 <fieldmap>
   <patient instrument="patient_record" redcap_field="patient_id" />
+  <record instrument="patient_record" redcap_field="record_id" />
   <instruments>
     <instrument task="phq9" name="patient_health_questionnaire_9">
       <fields>
