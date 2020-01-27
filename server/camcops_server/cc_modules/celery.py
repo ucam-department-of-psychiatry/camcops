@@ -483,7 +483,7 @@ def delete_old_user_downloads(req: "CamcopsRequest") -> None:
     now = req.now
     lifetime = req.user_download_lifetime_duration
     oldest_allowed = now - lifetime
-    log.critical(f"Deleting files older than {oldest_allowed}")
+    log.info(f"Deleting user download files older than {oldest_allowed}")
     for root, dirs, files in os.walk(req.config.user_download_dir):
         for f in files:
             udf = UserDownloadFile(filename=f, directory=root)

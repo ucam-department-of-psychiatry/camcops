@@ -501,8 +501,8 @@ def get_demo_config(extra_strings_dir: str = None,
     # Extra options for REDCap export
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-{ConfigParamExportRecipient.REDCAP_API_KEY} = myapikey
 {ConfigParamExportRecipient.REDCAP_API_URL} = https://domain.of.redcap.server/api/
+{ConfigParamExportRecipient.REDCAP_API_KEY} = myapikey
 {ConfigParamExportRecipient.REDCAP_FIELDMAP_FILENAME} = /location/of/fieldmap.xml
 
     """  # noqa

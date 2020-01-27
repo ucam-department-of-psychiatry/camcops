@@ -1168,6 +1168,11 @@ CELERY_BROKER_URL
 Broker URL for Celery. See
 http://docs.celeryproject.org/en/latest/userguide/configuration.html#conf-broker-settings.
 
+Once you have enabled security in your broker, such as RabbitMQ, you will need
+to set this to a more secure URL (e.g. with username/password authentication).
+
+For RabbitMQ URLs, see e.g. https://www.rabbitmq.com/uri-spec.html.
+
 
 CELERY_WORKER_EXTRA_ARGS
 ########################
@@ -1951,6 +1956,8 @@ REDCAP_API_KEY
 
 API key, as provided by the REDCap instance, for a user who has permissions to
 import and export data to and from REDCap.
+
+In REDCap, open your project, and click "API" to see this key.
 
 
 .. _REDCAP_FIELDMAP_FILENAME:
