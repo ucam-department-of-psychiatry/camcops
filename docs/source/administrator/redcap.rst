@@ -219,9 +219,14 @@ Example fieldmap XML file
 The fieldmap below describes how three CamCOPS tasks are exported to a REDCap
 record for a patient.
 
-There is a tag named ``identifier`` that tells CamCOPS where in REDCap to find
+There is a tag named ``patient`` that tells CamCOPS where in REDCap to find
 or store the patient identifier. In the example, this is in a field named
 ``patient_id`` in a REDCap instrument named ``patient_record``.
+
+There is an optional tag named ``record`` that tells CamCOPS where in REDCap to
+find or store the record identifier. In the example, this is in a field named
+``custom_record_id``. This is only required if you have changed the name of this
+field from the default ``record_id`` in REDCap.
 
 This particular REDCap record has three other instruments, defined within the
 ``<instruments>`` tag. Each has a REDCap name (``name`` attribute) and a
@@ -237,7 +242,8 @@ respectively.
 
     <?xml version="1.0" encoding="UTF-8"?>
     <fieldmap>
-        <identifier instrument="patient_record" redcap_field="patient_id" />
+        <patient instrument="patient_record" redcap_field="patient_id" />
+        <record redcap_field="custom_record_id" />
         <instruments>
             <instrument task="phq9" name="patient_health_questionnaire_9">
                 <fields>
