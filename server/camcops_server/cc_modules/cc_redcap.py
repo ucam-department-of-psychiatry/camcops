@@ -450,7 +450,17 @@ class RedcapUploader(object):
     def return_content(self) -> str:
         """
         The ``return_content`` argument to be passed to
-        :meth:`redcap.project.Project.import_records`.
+        :meth:`redcap.project.Project.import_records`. Can be:
+
+        - ``count`` [default] - the number of records imported
+        - ``ids`` - a list of all record IDs that were imported
+        - ``auto_ids`` = (used only when ``forceAutoNumber=true``) a list of
+           pairs of all record IDs that were imported, includes the new ID
+           created and the ID value that was sent in the API request
+           (e.g., 323,10).
+
+        Note (2020-01-27) that it can return e.g. ``15-30,0``, i.e. the ID
+        values can be non-integer.
         """
         raise NotImplementedError("implement in subclass")
 
@@ -701,6 +711,8 @@ class RedcapNewRecordUploader(RedcapUploader):
 
         id_pair = response[0]
 
+        # log.critical(f"id_pair: {id_pair!r}")
+        # todo: PROBLEM here: can be e.g. "15-89,0"
         record_id = int(id_pair.split(",")[0])
 
         return record_id

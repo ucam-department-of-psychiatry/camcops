@@ -21,6 +21,8 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 
+.. _sourcecode:
+
 Source code
 -----------
 
