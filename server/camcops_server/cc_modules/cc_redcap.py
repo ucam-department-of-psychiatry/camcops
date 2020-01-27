@@ -333,7 +333,7 @@ class RedcapTaskExporter(object):
     @staticmethod
     def _get_next_instance_id(records: "DataFrame",
                               instrument: str,
-                              existing_record_id: Union[int, None]) -> int:
+                              existing_record_id: Optional[str]) -> int:
         """
         Returns the next REDCap record ID to use for a particular instrument,
         including for a repeating instrument (the previous highest ID plus 1,
