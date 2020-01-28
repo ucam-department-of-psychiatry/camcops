@@ -309,6 +309,12 @@ class RedcapTaskExporter(object):
             "dtype": type_dict,
         }
 
+        # There is a bug in REDCap
+        # https://community.projectredcap.org/questions/77217/export-records-api-silently-ignores-invalid-form-w.html  # noqa: E501
+        # if patient["instrument"] or record["instrument"] does not exist,
+        # REDCap won't return an error and instead all records will be exported
+        # (as if forms was empty). This shouldn't matter unless there is a lot
+        # of data, in which case there will be a performance hit.
         forms = (fieldmap.instrument_names() +
                  [fieldmap.patient["instrument"]] +
                  [fieldmap.record["instrument"]])
