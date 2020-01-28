@@ -1381,7 +1381,7 @@ One of the following:
 - ``html``
 - ``xml``
 
-Not relevant for database exports (see TRANSMISSION_METHOD_).
+Not relevant for REDCap or database exports (see TRANSMISSION_METHOD_).
 
 
 XML_FIELD_COMMENTS
@@ -1490,6 +1490,8 @@ Include anonymous tasks?
 
 - Note that anonymous tasks cannot be sent via HL7; the HL7 specification is
   heavily tied to identification.
+
+- Note that anonymous tasks cannot be sent via REDCap.
 
 - Note also that this setting operates independently of the
   REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY_ setting.
