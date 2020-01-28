@@ -171,6 +171,17 @@ def ensure_directories_exist() -> None:
     if config.user_download_dir:
         mkdir_p(config.user_download_dir)
 
+    if config.unix_domain_socket:
+        try:
+            # we might not have the right permissions
+            socket_dir = os.path.dirname(
+                os.path.realpath(config.unix_domain_socket)
+            )
+            mkdir_p(socket_dir)
+        except Exception:
+            # we'll get another error when socket creation fails
+            pass
+
 
 def join_url_fragments(*fragments: str) -> str:
     """
