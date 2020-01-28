@@ -336,14 +336,21 @@ class RedcapTaskExporter(object):
         Returns:
             REDCap record ID or ``None``
         """
-        has_identifier = records[
-            fieldmap.patient["redcap_field"]
-        ] == idnum_value
 
-        if len(records[has_identifier]) == 0:
+        patient_id_fieldname = fieldmap.patient["redcap_field"]
+
+        if patient_id_fieldname not in records:
+            raise RedcapExportException(
+                (f"Field '{patient_id_fieldname}' does not exist in REDCap. "
+                 f"Is the 'patient' tag in the fieldmap correct?")
+            )
+
+        with_identifier = records[patient_id_fieldname] == idnum_value
+
+        if len(records[with_identifier]) == 0:
             return None
 
-        return records[has_identifier].iat[0, 0]
+        return records[with_identifier].iat[0, 0]
 
     @staticmethod
     def _get_next_instance_id(records: "DataFrame",
@@ -1829,6 +1836,49 @@ class IncorrectRecordIdRedcapTests(BadConfigurationRedcapTests):
 
         message = str(cm.exception)
         self.assertIn("Field 'my_record_id' does not exist in REDCap",
+                      message)
+
+
+class IncorrectPatientIdRedcapTests(BadConfigurationRedcapTests):
+    fieldmap = """<?xml version="1.0" encoding="UTF-8"?>
+<fieldmap>
+  <patient instrument="patient_record" redcap_field="my_patient_id" />
+  <record instrument="patient_record" redcap_field="record_id" />
+  <instruments>
+    <instrument task="bmi" name="bmi">
+      <fields>
+      </fields>
+    </instrument>
+  </instruments>
+</fieldmap>"""  # noqa: E501
+
+    def test_raises_when_patient_id_is_incorrect(self) -> None:
+        from camcops_server.cc_modules.cc_exportmodels import (
+            ExportedTask,
+            ExportedTaskRedcap
+        )
+
+        exported_task = ExportedTask(task=self.task, recipient=self.recipient)
+        exported_task_redcap = ExportedTaskRedcap(exported_task)
+
+        exporter = MockRedcapTaskExporter()
+        project = exporter.get_project()
+        project.export_records.return_value = DataFrame({
+            "record_id": ["123"],
+            "patient_id": [555],
+            "redcap_repeat_instrument": ["bmi"],
+            "redcap_repeat_instance": [1],
+        })
+        project.import_records.return_value = ["123,0"]
+        project.export_project_info.return_value = {
+            "record_autonumbering_enabled": 1
+        }
+
+        with self.assertRaises(RedcapExportException) as cm:
+            exporter.export_task(self.req, exported_task_redcap)
+
+        message = str(cm.exception)
+        self.assertIn("Field 'my_patient_id' does not exist in REDCap",
                       message)
 
 
