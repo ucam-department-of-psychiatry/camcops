@@ -367,6 +367,12 @@ class RedcapTaskExporter(object):
         if existing_record_id is None:
             return 1
 
+        if record_id_fieldname not in records:
+            raise RedcapExportException(
+                (f"Field '{record_id_fieldname}' does not exist in REDCap. "
+                 f"Is the 'record' tag in the fieldmap correct?")
+            )
+
         previous_instances = records[
             (records["redcap_repeat_instrument"] == instrument) &
             (records[record_id_fieldname] == existing_record_id)
@@ -1723,18 +1729,6 @@ class MultipleTaskRedcapExportTests(RedcapExportTestCase):
 
 
 class BadConfigurationRedcapTests(RedcapExportTestCase):
-    fieldmap = """<?xml version="1.0" encoding="UTF-8"?>
-<fieldmap>
-  <patient instrument="patient_record" redcap_field="patient_id" />
-  <record instrument="patient_record" redcap_field="record_id" />
-  <instruments>
-    <instrument task="phq9" name="patient_health_questionnaire_9">
-      <fields>
-      </fields>
-    </instrument>
-  </instruments>
-</fieldmap>"""  # noqa: E501
-
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.id_sequence = self.get_id()
@@ -1759,6 +1753,20 @@ class BadConfigurationRedcapTests(RedcapExportTestCase):
         self.dbsession.add(self.task)
         self.dbsession.commit()
 
+
+class MissingInstrumentRedcapTests(BadConfigurationRedcapTests):
+    fieldmap = """<?xml version="1.0" encoding="UTF-8"?>
+<fieldmap>
+  <patient instrument="patient_record" redcap_field="patient_id" />
+  <record instrument="patient_record" redcap_field="record_id" />
+  <instruments>
+    <instrument task="phq9" name="patient_health_questionnaire_9">
+      <fields>
+      </fields>
+    </instrument>
+  </instruments>
+</fieldmap>"""  # noqa: E501
+
     def test_raises_when_instrument_missing_from_fieldmap(self) -> None:
         from camcops_server.cc_modules.cc_exportmodels import (
             ExportedTask,
@@ -1778,6 +1786,49 @@ class BadConfigurationRedcapTests(RedcapExportTestCase):
 
         message = str(cm.exception)
         self.assertIn("Instrument for task 'bmi' is missing from the fieldmap",
+                      message)
+
+
+class IncorrectRecordIdRedcapTests(BadConfigurationRedcapTests):
+    fieldmap = """<?xml version="1.0" encoding="UTF-8"?>
+<fieldmap>
+  <patient instrument="patient_record" redcap_field="patient_id" />
+  <record instrument="patient_record" redcap_field="my_record_id" />
+  <instruments>
+    <instrument task="bmi" name="bmi">
+      <fields>
+      </fields>
+    </instrument>
+  </instruments>
+</fieldmap>"""  # noqa: E501
+
+    def test_raises_when_record_id_is_incorrect(self) -> None:
+        from camcops_server.cc_modules.cc_exportmodels import (
+            ExportedTask,
+            ExportedTaskRedcap
+        )
+
+        exported_task = ExportedTask(task=self.task, recipient=self.recipient)
+        exported_task_redcap = ExportedTaskRedcap(exported_task)
+
+        exporter = MockRedcapTaskExporter()
+        project = exporter.get_project()
+        project.export_records.return_value = DataFrame({
+            "record_id": ["123"],
+            "patient_id": [555],
+            "redcap_repeat_instrument": ["bmi"],
+            "redcap_repeat_instance": [1],
+        })
+        project.import_records.return_value = ["123,0"]
+        project.export_project_info.return_value = {
+            "record_autonumbering_enabled": 1
+        }
+
+        with self.assertRaises(RedcapExportException) as cm:
+            exporter.export_task(self.req, exported_task_redcap)
+
+        message = str(cm.exception)
+        self.assertIn("Field 'my_record_id' does not exist in REDCap",
                       message)
 
 
