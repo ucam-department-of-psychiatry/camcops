@@ -5,7 +5,7 @@ camcops_server/tools/print_latest_github_version.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 

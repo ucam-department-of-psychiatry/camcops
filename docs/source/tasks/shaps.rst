@@ -1,6 +1,6 @@
 ..  docs/source/tasks/shaps.rst
 
-..  Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+..  Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
     .
     This file is part of CamCOPS.
     .
@@ -30,6 +30,15 @@ A scale to measure hedonic tone. 14 questions rated on a 4-item scale
 Scored 1 point for either "disagree" rating, 0 for either "agree" rating.
 Note that high scores represent low pleasure.
 
+Several studies using the scale have made the responses consistent. Franken et
+al (2007) below uses definitely agree - definitely disagree. See also:
+
+- https://www.ncbi.nlm.nih.gov/pubmed/30107636
+- https://www.ncbi.nlm.nih.gov/pubmed/25864641
+- https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2957191/
+
+Responses are configurable through the add-on XML file.
+
 
 Intellectual property rights
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -51,6 +60,12 @@ History
   Scale.
   *Br J Psychiatry* 167: 99–103.
   https://www.ncbi.nlm.nih.gov/pubmed/7551619
+
+- Franken IH, Rassin E, Muris P (2007).
+  The assessment of anhedonia in clinical and non-clinical populations: further
+  validation of the Snaith-Hamilton Pleasure Scale (SHAPS).
+  *J Affect Disord* 99(1-3):83-89
+  https://www.ncbi.nlm.nih.gov/pubmed/16996138
 
 
 Source

@@ -5,7 +5,7 @@ camcops_server/alembic/env.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -36,14 +36,13 @@ It is loaded directly by Alembic, via a pseudo-"main" environment.
 
 import logging
 import os
-from typing import Iterable, Generator, List, Tuple, Union
+from typing import List, Optional, Tuple, Union
 
 from alembic import context
 from alembic.config import Config
 from alembic.runtime.migration import MigrationContext
 from alembic.operations.ops import (
     AlterColumnOp,
-    DowngradeOps,
     ModifyTableOps,
     MigrationScript,
     OpContainer,
@@ -59,7 +58,7 @@ from sqlalchemy import engine_from_config, pool
 from sqlalchemy.dialects.mysql.types import LONGTEXT, TINYINT
 from sqlalchemy.sql.sqltypes import Boolean, UnicodeText
 from sqlalchemy.sql.type_api import TypeEngine
-from sqlalchemy.sql.schema import MetaData
+from sqlalchemy.sql.schema import Column, MetaData
 
 # No relative imports from within the Alembic zone.
 from camcops_server.cc_modules.cc_baseconstants import ALEMBIC_VERSION_TABLE
@@ -78,7 +77,6 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # - https://bitbucket.org/zzzeek/alembic/issues/46/mysqltinyint-display_width-1-vs-saboolean  # noqa
 # - http://alembic.zzzcomputing.com/en/latest/api/autogenerate.html
 # =============================================================================
-
 def debug_op_object(op: Union[List, OpContainer, Tuple],
                     level: int = 0) -> str:
     """
@@ -98,17 +96,42 @@ def debug_op_object(op: Union[List, OpContainer, Tuple],
     return "\n".join(lines)
 
 
-def types_equivalent(database_type: TypeEngine,
-                     metadata_type: TypeEngine) -> bool:
+def is_tinyint_and_bool(inspected_type: TypeEngine,
+                        metadata_type: TypeEngine) -> bool:
+    return (isinstance(inspected_type, TINYINT) and
+            inspected_type.display_width == 1 and
+            isinstance(metadata_type, Boolean))
+
+
+def is_longtext_and_unicode(inspected_type: TypeEngine,
+                            metadata_type: TypeEngine) -> bool:
+    return (isinstance(inspected_type, LONGTEXT) and
+            inspected_type.collation == 'utf8mb4_unicode_ci' and
+            isinstance(metadata_type, UnicodeText) and
+            metadata_type.length == 4294967295)
+
+
+def custom_compare_type(context: MigrationContext,
+                        inspected_column: Column,
+                        metadata_column: Column,
+                        inspected_type: TypeEngine,
+                        metadata_type: TypeEngine) -> Optional[bool]:
     """
-    Are two types equivalent?
+    Perform type comparison?
 
     Args:
-        database_type: a type reflected from the database
-        metadata_type: a type from the SQLAlchemy metadata
+        context: frontend to database
+        inspected_column: column from the database
+        metadata_column: column from the SQLAlchemy metadata
+        inspected_type: column type reflected from the database
+        metadata_type: column type from the SQLAlchemy metadata
 
     Returns:
-        equivalent, in a non-trivial way?
+        False if the metadata type is the same as the inspected type
+        None to allow the default implementation to compare these
+
+        A return value of True would mean the two types do not
+        match and should result in a type change operation
 
     Specifically, it detects:
 
@@ -118,88 +141,23 @@ def types_equivalent(database_type: TypeEngine,
     - ``LONGTEXT(collation='utf8mb4_unicode_ci')`` is the MySQL database
       version of ``UnicodeText(length=4294967295)``
     """
-    if (isinstance(database_type, TINYINT) and
-            database_type.display_width == 1 and
-            isinstance(metadata_type, Boolean)):
-        return True
 
-    if (isinstance(database_type, LONGTEXT) and
-            database_type.collation == 'utf8mb4_unicode_ci' and
-            isinstance(metadata_type, UnicodeText) and
-            metadata_type.length == 4294967295):
-        return True
+    checkers = (
+        is_tinyint_and_bool,
+        is_longtext_and_unicode,
+    )
 
-    return False
+    for types_equivalent in checkers:
+        if types_equivalent(inspected_type, metadata_type):
+            log.debug(
+                "Skipping duff type change of {!r} to {!r} for {}.{}",
+                inspected_type, metadata_type,
+                inspected_column.table.name, inspected_column.name
+            )
 
+            return False
 
-def filter_column_ops(column_ops: Iterable[AlterColumnOp],
-                      upgrade: bool,
-                      debug: bool = False) \
-        -> Generator[AlterColumnOp, None, None]:
-    """
-    Generates column operations removing redundant changes from one type
-    to an equivalent type, as judged by :func:`types_equivalent`.
-    """
-    method = "upgrade" if upgrade else "downgrade"
-
-    for column_op in column_ops:
-        if not isinstance(column_op, AlterColumnOp):
-            yield column_op  # don't know what it is; yield it unmodified
-            continue
-
-        modify_type = column_op.modify_type
-
-        if modify_type:
-            existing_type = column_op.existing_type
-            if upgrade:
-                database_type = existing_type
-                metadata_type = modify_type
-            else:
-                database_type = modify_type
-                metadata_type = existing_type
-            if types_equivalent(database_type=database_type,
-                                metadata_type=metadata_type):
-                log.debug(
-                    "Skipping duff {} type change of {!r} to {!r} for {}.{}",
-                    method,
-                    existing_type, modify_type,
-                    column_op.table_name, column_op.column_name
-                )
-                column_op.modify_type = None  # "don't change the type"
-                # ... though there may be other things we want to change
-            elif debug:
-                log.debug(
-                    "Processing {} type change of {!r} to {!r} for {}.{}",
-                    method,
-                    existing_type, modify_type,
-                    column_op.table_name, column_op.column_name
-                )
-
-        yield column_op
-
-
-def filter_table_ops(table_ops: Iterable[ModifyTableOps], upgrade: bool) \
-        -> Generator[ModifyTableOps, None, None]:
-    """
-    Generates table operations, removing those that fail
-    :func:`filter_column_ops`.
-    """
-    method = "upgrade" if upgrade else "downgrade"
-    log.warning("Filtering {} table operations", method)
-    for table_op in table_ops:
-        if not isinstance(table_op, ModifyTableOps):
-            log.info("Don't understand: {!r}", table_op)
-            yield table_op  # don't know what it is; yield it unmodified
-            continue
-
-        log.warning("Filtering {} ops for table: {}",
-                    method, table_op.table_name)
-        table_op.ops = list(filter_column_ops(table_op.ops, upgrade=upgrade))
-        if not table_op.ops:
-            log.warning("Nothing to do for table: {}", table_op.table_name)
-            continue
-
-        yield table_op
+    return None
 
 
 # noinspection PyUnusedLocal
@@ -215,12 +173,6 @@ def process_revision_directives(context_: MigrationContext,  # empirically!
 
         # Check/filter our upgrade table ops.
         upgrade_ops = script.upgrade_ops  # type: UpgradeOps
-        upgrade_ops.ops = list(filter_table_ops(upgrade_ops.ops, upgrade=True))
-
-        # Check/filter our upgrade table ops.
-        downgrade_ops = script.downgrade_ops  # type: DowngradeOps
-        downgrade_ops.ops = list(filter_table_ops(downgrade_ops.ops,
-                                                  upgrade=False))
 
         # If no changes to the schema are produced, don't generate a revision
         # file:
@@ -253,7 +205,7 @@ def run_migrations_offline(config: Config,
         render_as_batch=True,  # for SQLite mode; http://stackoverflow.com/questions/30378233  # noqa
         literal_binds=True,
         version_table=ALEMBIC_VERSION_TABLE,
-        compare_type=True,
+        compare_type=custom_compare_type,
         # ... http://blog.code4hire.com/2017/06/setting-up-alembic-to-detect-the-column-length-change/  # noqa
         # ... https://eshlox.net/2017/08/06/alembic-migration-for-string-length-change/  # noqa
 
@@ -284,7 +236,7 @@ def run_migrations_online(config: Config,
             target_metadata=target_metadata,
             render_as_batch=True,  # for SQLite mode; http://stackoverflow.com/questions/30378233  # noqa
             version_table=ALEMBIC_VERSION_TABLE,
-            compare_type=True,
+            compare_type=custom_compare_type,
 
             # process_revision_directives=writer,
             process_revision_directives=process_revision_directives,

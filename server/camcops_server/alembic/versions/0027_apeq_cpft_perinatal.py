@@ -5,7 +5,7 @@ camcops_server/alembic/versions/0027_apeq_cpft_perinatal.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 

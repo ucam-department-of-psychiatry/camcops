@@ -5,7 +5,7 @@ pre_commit_hooks/pre_commit_hook.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 

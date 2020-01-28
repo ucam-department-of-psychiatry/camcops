@@ -5,7 +5,7 @@ camcops_server/alembic/versions/0022_index_exported_tasks_start_at.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 

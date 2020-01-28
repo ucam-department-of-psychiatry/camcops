@@ -5,7 +5,7 @@ camcops_server/cc_modules/cc_tsv.py
 
 ===============================================================================
 
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -298,7 +298,8 @@ class TsvPage(object):
         The main thing: no leading underscores.
         """
         n = self.name
-        return n[1:] if n.startswith("_") else n
+        n = n[1:] if n.startswith("_") else n
+        return f"camcops_{n}"  # less chance of conflict within R
 
     def r_data_table_definition(self) -> str:
         """

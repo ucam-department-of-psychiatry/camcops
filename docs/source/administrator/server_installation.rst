@@ -1,6 +1,6 @@
 ..  docs/source/administrator/server_installation.rst
 
-..  Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+..  Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
     .
     This file is part of CamCOPS.
     .
@@ -16,6 +16,10 @@
     .
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+
+.. _AMQP: https://en.wikipedia.org/wiki/Advanced_Message_Queuing_Protocol
+.. _RabbitMQ: https://www.rabbitmq.com/
+
 
 .. _server_installation:
 
@@ -49,11 +53,11 @@ See :ref:`Linux flavours <linux_flavours>` for a reminder of some common
 differences between Linux operating systems.
 
 
-Ubuntu installation from Debian package
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Ubuntu installation from the CamCOPS Debian package
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To install CRATE and all its dependencies, download the Debian package and use
-gdebi:
+``gdebi``:
 
 .. code-block:: bash
 
@@ -64,11 +68,11 @@ where :code:`VERSION` is the CamCOPS version you're installing.
 
 CamCOPS will now be installed in `/usr/share/camcops`.
 
-You should be able to type ``camcops`` and see something relevant.
+You should be able to type ``camcops_server`` and see something relevant.
 
 
-CentOS installation from RPM
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+CentOS installation from the CamCOPS RPM package
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 First, to get Centos 6.5 to a basic standard, :ref:`see here
 <centos65_prerequisites>`. Then:
@@ -85,11 +89,11 @@ First, to get Centos 6.5 to a basic standard, :ref:`see here
     #     to install); use "watch pstree" or "top" to reassure yourself
     #     that progress is indeed happening.
 
-You should be able to type ``camcops`` and see something relevant.
+You should be able to type ``camcops_server`` and see something relevant.
 
 
-Windows prerequisites
-~~~~~~~~~~~~~~~~~~~~~
+Windows installation (or: generic OS installation)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - Install Python (see :ref:`Installing Python for Windows
   <windows_install_python>`).
@@ -97,11 +101,9 @@ Windows prerequisites
 - Install ImageMagick (see :ref:`Installing ImageMagick for Windows
   <windows_install_imagemagick>`).
 
+- Install RabbitMQ_, or another suitable AMQP_ broker.
 
-Generic installation for any OS
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-- Create and activate a Python 3.5+ virtual environment:
+- Create and activate a Python 3.6+ virtual environment:
 
     .. code-block:: bash
 
@@ -110,7 +112,7 @@ Generic installation for any OS
         . $CAMCOPS_VENV/bin/activate
         pip install --upgrade pip  # just in case you have an old version of pip
 
-- Install the CamCOPS server package:
+- Install the CamCOPS server package into that virtual environment:
 
     .. code-block:: bash
 
@@ -216,13 +218,6 @@ Windows 10
       installer again and say yes (e.g. :menuselection:`Python 3.6.7 (64-bit)
       Setup --> Modify --> [✓] tcl/tk and IDLE: Installs tkinter and the IDLE
       development environment --> Next --> Install`).
-
-  .. note::
-
-      If you get the error ``TypeError: descriptor '__subclasses__' of 'type'
-      object needs an argument``, using Python 3.5, then this is a Python bug;
-      upgrade to Python 3.5.3+ as per
-      https://github.com/python/typing/issues/266.
 
 - Edit the configuration file. In particular, as an absolute minimum you must
   set:

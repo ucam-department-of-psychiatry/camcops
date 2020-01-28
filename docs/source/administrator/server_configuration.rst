@@ -1,6 +1,6 @@
 ..  docs/source/administrator/server_configuration.rst
 
-..  Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+..  Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
     .
     This file is part of CamCOPS.
     .
@@ -300,14 +300,14 @@ To create tables and indexes, use the command:
 
 .. code-block:: bash
 
-    camcops upgrade_db --config CONFIG
+    camcops_server upgrade_db --config CONFIG
 
 where CONFIG is the filename of your configuration file. If your configuration
 file is only readable as `www-data`, you will need to run this with ``sudo``:
 
 .. code-block:: bash
 
-    sudo -u www-data camcops upgrade_db --config CONFIG
+    sudo -u www-data camcops_server upgrade_db --config CONFIG
 
 
 Create a superuser
@@ -317,7 +317,7 @@ Use the command:
 
 .. code-block:: bash
 
-    camcops make_superuser --config CONFIG
+    camcops_server make_superuser --config CONFIG
 
 where CONFIG is the filename of your configuration file. (Again, use ``sudo``
 as above if your configuration file requires privileged access to read.)
@@ -345,7 +345,7 @@ Here's an example, which you would typically save as
 This is where you choose which back-end web server CamCOPS should use (see
 above), by choosing the command you pass to `camcops`. For high-performance
 work under Linux, use Gunicorn, with the `serve_gunicorn` command; see the
-:ref:`options for the camcops command <camcops_cli>`.
+:ref:`options for the camcops_server command <camcops_cli>`.
 
 
 .. _configure_apache:
@@ -359,7 +359,7 @@ To generate a specimen Apache configuration file for CamCOPS, run the command
 
 .. code-block:: bash
 
-    camcops demo_apache_config > demo_apache_config_chunk.txt
+    camcops_server demo_apache_config > demo_apache_config_chunk.txt
 
 Here's an example to mount CamCOPS at the URL path `/camcops`, which you would
 edit into the Apache config file [#linuxflavours]_:
@@ -438,7 +438,7 @@ Troubleshooting access to the web site
     .. code-block:: bash
 
         cat /PATH/TO/YOUR_CONFIG_FILE  # can I read it?
-        camcops serve_pyramid --config /PATH/TO/YOUR_CONFIG_FILE
+        camcops_server serve_pyramid --config /PATH/TO/YOUR_CONFIG_FILE
 
     Note the URL and port, likely ``localhost`` on port 8000, and in a separate
     command prompt, try:

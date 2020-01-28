@@ -1,6 +1,6 @@
 ..  docs/source/changelog.rst
 
-..  Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+..  Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
     .
     This file is part of CamCOPS.
     .
@@ -2674,6 +2674,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
   - PBQ: as per Core-10, but also for subscales
 
+- Bugfix: Automatically create EXPORT_LOCKDIR on server startup
+
 **Client and server v2.3.7, IN PROGRESS**
 
 - ``pyexcel-ods3`` and ``pyexcel-xlsx`` for spreadsheet export; faster and much
@@ -2735,5 +2737,9 @@ Current C++/SQLite client, Python/SQLAlchemy server
   :func:`nice_call` function that sorts this out a bit, etc.
 
 - R script file export for basic data dumps.
+
+- Create ``camcops_server.__version__``.
+
+- RabbitMQ into Debian/RPM package requirements, and installation docs.
 
 - :ref:`Export of tasks to REDCap <redcap>`.

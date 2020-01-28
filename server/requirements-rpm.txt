@@ -10,29 +10,60 @@
 #   ... "or" allowed from rpm-4.13 (Nov 2016)
 #   ... but we have to work with RPM 4.8 (e.g. CentOS 6.9)
 #
-# Order is the same as requirements-deb.txt:
+# - For yum, some names differ from their Debian equivalents.
+#   Search e.g. with "yum list scip\*" or "yum search scipy" to find scipy.
+# - pyodbc requires {sql.h sqlext.h} which requires unixodbc-dev (Debian) or
+#   unixODBC-devel (CentOS)
+#
+# Overall order is the same as requirements-deb.txt.
 
-gcc  # gcc is not standard on CentOS, but is necessary for installation of other packages
-ImageMagick-devel
+# =============================================================================
+# Compiler
+# =============================================================================
+
+gcc  # GCC is not standard on CentOS, but is necessary for installation of other packages
+
+# =============================================================================
+# SSL libraries
+# =============================================================================
+# ... to ensure HTTPS available with Apache, for command-line
+#     management of SSL certificates, and for Qt compilation if required?
+#     Not sure now; may not be critical.
+
 openssl-devel
-libxml2-devel
-libxslt-devel
+
+# =============================================================================
+# Python 3.6
+# =============================================================================
 
 python
-# (python35u or python36u)  # NOT OK WITH OLD RPM VERSIONS
-# Python 3.5 doesn't support collection.Collection, so we have effectively
-# committed to 3.6
 python36u
 python36u-devel
 python36u-tkinter
 
+# =============================================================================
+# Requirements for Python packages
+# =============================================================================
+
+ImageMagick-devel  # MagickWand image libraries, for wand
+libxml2-devel  # for lxml
+libxslt-devel  # for lxml
+swig  # connects Python to C++; for numpy
+
+# =============================================================================
+# supervisord (for launching components)
+# =============================================================================
 
 supervisor
-swig
-wget
 
+# =============================================================================
+# RabbitMQ, as the default AMQP broker
+# =============================================================================
 
-# - For yum, some different names.
-#   Search e.g. with "yum list scip\*" or "yum search scipy" to find scipy.
-# - pyodbc requires {sql.h sqlext.h} which requires unixodbc-dev (Debian) or
-#   unixODBC-devel (CentOS)
+rabbitmq-server
+
+# =============================================================================
+# Command-line tools
+# =============================================================================
+
+wget  # for convenience

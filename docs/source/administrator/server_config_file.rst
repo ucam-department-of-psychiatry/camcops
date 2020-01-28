@@ -1,6 +1,6 @@
 ..  docs/source/administrator/server_config_file.rst
 
-..  Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+..  Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
     .
     This file is part of CamCOPS.
     .
@@ -61,7 +61,7 @@ its own configuration file.
 
 If you do operate with multiple databases/configuration files, you may want to
 use the :ref:`camcops_server_meta <camcops_server_meta>` tool, which allows you
-to run the same :ref:`camcops <camcops_cli>` command over multiple
+to run the same :ref:`camcops_server <camcops_cli>` command over multiple
 configuration files in one go (for example, to upgrade the databases for a new
 version of CamCOPS).
 
@@ -750,13 +750,28 @@ UNIX_DOMAIN_SOCKET
 *String.* Default: none.
 
 Filename of a UNIX domain socket (UDS) to listen on (rather than using TCP/IP).
-UDS is typically faster than TCP. If specified, this overrides the TCP options,
-HOST_ and PORT_.
+UDS is typically faster than TCP (see e.g.
+https://stackoverflow.com/questions/14973942/tcp-loopback-connection-vs-unix-domain-socket-performance).
+If specified, this overrides the TCP options, HOST_ and PORT_.
 
 For example, ``/run/camcops/camcops.socket`` (as per the `Filesystem Hierarchy
-Standard <https://refspecs.linuxfoundation.org/FHS_3.0/fhs/ch05s13.html>`_.
+Standard <https://refspecs.linuxfoundation.org/FHS_3.0/fhs/ch05s13.html>`_).
 
 (Not applicable to the Pyramid test web server; CherryPy/Gunicorn only.)
+
+.. note::
+
+    The socket "file" is a pseudo-file that is created by CamCOPS during
+    operation, and vanishes when CamCOPS stops. You don't have to create it --
+    but you need to ensure that CamCOPS can write to the directory where it
+    lives. If you look at the file with ``ls -l``, you will see this:
+
+    .. code-block:: none
+
+        srwxrwxrwx  1 root root    0 Jan 21 11:05 camcops.socket
+        ^
+        |
+        The setuid bit: an indication that this is not a normal file!
 
 
 SSL_CERTIFICATE

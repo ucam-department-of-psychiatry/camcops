@@ -1,6 +1,6 @@
 ..  docs/source/misc/to_do.rst
 
-..  Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+..  Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
     .
     This file is part of CamCOPS.
     .
@@ -227,6 +227,8 @@ Server
 
 - What's the optimal packaging method for the server? Is it DEB/RPM for Linux,
   and PyInstaller + Inno Setup (or just Inno Setup) for Windows?
+
+- Improve installation ease and docs.
 
 **Not a priority**
 

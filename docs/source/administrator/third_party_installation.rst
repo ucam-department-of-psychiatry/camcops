@@ -1,6 +1,6 @@
 ..  docs/source/administrator/server_third_party_installation.rst
 
-..  Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+..  Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
     .
     This file is part of CamCOPS.
     .
@@ -58,8 +58,8 @@ Advanced options:
 - [✓] Precompile standard library
 - Customize install location = ``C:\Python36``
 
-Also, you may want to allow the installer to extend the system ``MAX_PATH`` length
-limit
+Also, you may want to allow the installer to extend the system ``MAX_PATH``
+length limit
 (https://python.readthedocs.io/en/stable/using/windows.html#removing-the-max-path-limitation).
 
 
