@@ -2741,3 +2741,21 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Create ``camcops_server.__version__``.
 
 - RabbitMQ into Debian/RPM package requirements, and installation docs.
+
+- Bugfix to
+  :meth:`camcops_server.cc_modules.cc_patient.gen_patient_idnums_even_noncurrent`.
+  This created a set of PatientIdNum instances, comparing them in the usual way
+  of "do they represent the same ID number?" (implemented via the ``__hash__``
+  and ``__eq_`` functions of PatientIdNum). However, here, we are after
+  distinct database records; we therefore want the additional condition that
+  two things are "unequal" if their primary keys are different. We do this by
+  checking PK instead.
+
+  Similar changes to
+  :meth:`camcops_server.cc_modules.cc_db.GenericTabletRecordMixin.gen_ancillary_instances_even_noncurrent`
+  and
+  :meth:`camcops_server.cc_modules.cc_db.GenericTabletRecordMixin.gen_blobs_even_noncurrent`,
+  which now operate by PK.
+
+  Achieved via the generic function
+  :meth:`camcops_server.cc_modules.cc_db.GenericTabletRecordMixin._gen_unique_lineage_objects`.
