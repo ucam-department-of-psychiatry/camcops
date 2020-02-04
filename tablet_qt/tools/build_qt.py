@@ -2836,6 +2836,10 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
     # However, it does seem to be screwing up. Let's try Configure instead.
     # As of OpenSSL 1.1.1c, that's what they advise (see NOTES.ANDROID).
 
+    # If we don't do this, the binaries end up in a non-writeable folder
+    if target_platform.ios:
+        sysroot = workdir
+
     configure_args = openssl_target_os_args(target_platform)
     target_os = configure_args[0]  # may be used below
     configure_args += [
@@ -2977,6 +2981,10 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
 
         # See INSTALL, INSTALL.WIN, etc. from the OpenSSL distribution
         runmake()
+
+        # Copy the binaries to where the install_name expects them to be
+        if target_platform.ios:
+            runmake("install_runtime_libs")
 
         # ---------------------------------------------------------------------
         # OpenSSL: Test
