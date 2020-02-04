@@ -317,7 +317,7 @@ ios {
 
     iphonesimulator {
         message("Building for iPhone Simulator")
-        CAMCOPS_ARCH_TAG = "macos_x86_64"
+        CAMCOPS_ARCH_TAG = "ios_x86_64"
     }
 
     disable_warning.name = "GCC_WARN_64_TO_32_BIT_CONVERSION"
