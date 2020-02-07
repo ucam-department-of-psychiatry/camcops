@@ -2741,3 +2741,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Create ``camcops_server.__version__``.
 
 - RabbitMQ into Debian/RPM package requirements, and installation docs.
+
+- :ref:`MFI-20 <mfi20>` added as a full task (with usage restrictions)
+  following the kind permission of the lead author.
