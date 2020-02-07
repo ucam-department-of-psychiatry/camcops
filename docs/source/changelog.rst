@@ -2750,3 +2750,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
   - With no DOB present, there was an error at upload: ``Server reported an
     error: Patient JSON contains invalid non-string``. Bug was in
     :func:`camcops_server.cc_modules.client_api.op_validate_patients.ensure_string`.
+
+  - Added button to nullify DOB for the "no-DOB" policies.
