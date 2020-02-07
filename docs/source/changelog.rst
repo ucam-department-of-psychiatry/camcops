@@ -2741,3 +2741,12 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Create ``camcops_server.__version__``.
 
 - RabbitMQ into Debian/RPM package requirements, and installation docs.
+
+- Bugfixes re "no PID" ID policies:
+
+  - Client and server tables using "other" as fieldname whereas policy/docs
+    use "otherdetails". This is OK but policy mapping was wrong.
+
+  - With no DOB present, there was an error at upload: ``Server reported an
+    error: Patient JSON contains invalid non-string``. Bug was in
+    :func:`camcops_server.cc_modules.client_api.op_validate_patients.ensure_string`.
