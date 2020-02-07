@@ -528,8 +528,7 @@ def get_demo_supervisor_config() -> str:
     return f"""
 # =============================================================================
 # Demonstration 'supervisor' (supervisord) config file for CamCOPS.
-# Created by CamCOPS version {CAMCOPS_SERVER_VERSION_STRING} at {str(
-        Pendulum.now())}.
+# Created by CamCOPS version {CAMCOPS_SERVER_VERSION_STRING}.
 # =============================================================================
     # - Supervisor is a system for controlling background processes running on
     #   UNIX-like operating systems. See:
@@ -637,8 +636,7 @@ def get_demo_apache_config(
     urlbase = "/" + rootpath
     return f"""
     # Demonstration Apache config file section for CamCOPS.
-    # Created by CamCOPS version {CAMCOPS_SERVER_VERSION_STRING} at {str(
-        Pendulum.now())}.
+    # Created by CamCOPS version {CAMCOPS_SERVER_VERSION_STRING}.
     #
     # Under Ubuntu, the Apache config will be somewhere in /etc/apache2/
     # Under CentOS, the Apache config will be somewhere in /etc/httpd/

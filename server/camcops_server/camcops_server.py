@@ -822,7 +822,7 @@ def camcops_main() -> int:
         help="Print database schema (data definition language; DDL)")
     ddl_parser.add_argument(
         '--dialect', type=str, default=SqlaDialectName.MYSQL,
-        help=f"SQL dialect (options: {', '.join(ALL_SQLA_DIALECTS)})")
+        help=f"SQL dialect (options: {', '.join(sorted(ALL_SQLA_DIALECTS))})")
     ddl_parser.set_defaults(
         func=lambda args: print(_get_all_ddl(dialect_name=args.dialect)))
 
