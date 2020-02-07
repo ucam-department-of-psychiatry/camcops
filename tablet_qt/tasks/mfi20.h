@@ -45,7 +45,7 @@ public:
     virtual TaskImplementationType implementationType() const override {
         return TaskImplementationType::Full;
     }
-    virtual bool prohibitsClinical() const override { return false; }
+    virtual bool prohibitsClinical() const override { return true; }
     virtual bool prohibitsCommercial() const override { return true; }
     // ------------------------------------------------------------------------
     // Instance overrides
