@@ -51,6 +51,7 @@ log.info("Imports starting")
 import os  # noqa: E402
 import platform  # noqa: E402
 import sys  # noqa: E402
+import subprocess  # noqa: E402
 from typing import Any, Dict, List, Optional, TYPE_CHECKING  # noqa: E402
 import unittest  # noqa: E402
 
@@ -703,6 +704,61 @@ def print_database_title() -> None:
     """
     with command_line_request_context() as req:
         print(req.database_title)
+
+
+def show_database_schema(schemastem: str,
+                         make_image: bool = False,
+                         java: str = None,
+                         plantuml: str = None,
+                         height_width_limit: int = 20000,
+                         java_memory_limit_mb: int = 2048) -> None:
+    """
+    Prints the database schema to a PNG picture.
+
+    Args:
+        schemastem:
+            filename stem
+        make_image:
+            Make a PNG image? (May be impractically large!)
+        java:
+            (for ``make_image``) Java executable
+        plantuml:
+            (for ``make_image``) PlantUML Java ``.jar`` file
+        height_width_limit:
+            (for ``make_image``) maximum height and width for PNG; see
+            https://plantuml.com/faq
+        java_memory_limit_mb:
+            (for ``make_image``) Java virtual machine memory limit, in Mb
+    """
+    # noinspection PyUnresolvedReferences
+    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    import sadisplay  # delayed import
+    import camcops_server.cc_modules.cc_all_models as models  # delayed import
+    # ... a re-import to give it a name
+    uml_filename = f"{schemastem}.plantuml"
+    png_filename = f"{schemastem}.png"
+    log.info(f"Making schema PlantUML: {uml_filename}")
+    desc = sadisplay.describe([
+        getattr(models, attr) for attr in dir(models)
+    ])
+    # log.debug(desc)
+    with open(uml_filename, 'w') as f:
+        f.write(sadisplay.plantuml(desc))
+    if make_image:
+        import shutil  # delayed import
+        assert shutil.which(java), f"Can't find Java executable: {java}"
+        assert os.path.isfile(
+            plantuml), f"Can't find PlantUML JAR file: {plantuml}"  # noqa
+        log.info(f"Making schema PNG: {png_filename}")
+        cmd = [
+            java,
+            f"-Xmx{java_memory_limit_mb}m",
+            f"-DPLANTUML_LIMIT_SIZE={height_width_limit}",
+            '-jar', plantuml,
+            uml_filename
+        ]
+        log.info("Arguments: {}", cmd)
+        subprocess.check_call(cmd)
 
 
 def reindex(cfg: CamcopsConfig) -> None:
