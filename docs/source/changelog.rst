@@ -2741,3 +2741,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Create ``camcops_server.__version__``.
 
 - RabbitMQ into Debian/RPM package requirements, and installation docs.
+
+- Slightly pointless option to print database schema from command line
+  as PlantUML +/- PNG (but the PNG is huge).
