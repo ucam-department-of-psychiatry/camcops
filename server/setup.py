@@ -81,42 +81,49 @@ with open(os.path.join(THIS_DIR, 'README.rst'), encoding='utf-8') as f:
 # Package dependencies
 INSTALL_REQUIRES = [
     'alembic==1.0.7',  # database migrations
+
     'Babel==2.6.0',  # reads code, generates gettext files; dev only but was already installed  # noqa
+
     'celery==4.3.0',  # background tasks
     'colorlog==3.1.4',  # colour in logs
     'CherryPy==18.1.0',  # web server
+
     'deform==2.0.5',  # web forms
     # 'deform-bootstrap==0.2.9',  # deform with layout made easier
     'distro==1.3.0',  # detecting Linux distribution
     'dogpile.cache==0.6.6',  # web caching
+
     # TO COME: 'fhirclient==3.2.0',  # For FHIR export
     'faker==3.0.0',  # for dummy database creation
     'flake8>=3.7.8',  # for development;
     'flower==0.9.2',  # monitor for Celery
+
     'gunicorn==19.8.1',  # web server (Unix only)
     # Alternative 'internal' web server. Installs fine under Windows, but won't run (ImportError: No module named 'fcntl').  # noqa
+
     'hl7==0.3.4',  # For HL7 export
+
     'lockfile==0.12.2',  # File locking for background tasks
     'lxml==4.4.1',  # Will speed up openpyxl export [NO LONGER CRITICAL]
-    'matplotlib==3.1.1',  # Used for trackers and some tasks. SLOW INSTALLATION.  # noqa
 
+    'matplotlib==3.1.1',  # Used for trackers and some tasks. SLOW INSTALLATION.  # noqa
     # 'mysqlclient==1.3.13;platform_system=="Linux"',  # for mysql+mysqldb://...
     # # ... but adds dependency on C and mysql.h
 
     'numpy==1.17.4',  # Used by some tasks. SLOW INSTALLATION.
+
     # 'odswriter==0.4.0',  # Write OpenOffice ODS files [REPLACED BY pyexcel-ods3]  # noqa
+
     'paginate==0.5.6',  # pagination for web server
     'pendulum==2.0.4',  # better than Arrow
     'pexpect==4.6.0',  # for open_sqlcipher.py
     'pdfkit==0.6.1',  # wkhtmltopdf interface, for PDF generation from HTML
     'py-bcrypt==0.4',  # Used by rnc_crypto; for bcrypt; now works under Windows too  # noqa
     'Pygments==2.3.1',  # Syntax highlighting for introspection/DDL
-
     'PyMySQL==0.7.1',
     # ... for mysql+pymysql://... BEWARE FURTHER UPGRADES (e.g. to 0.7.11); may
     # break Pendulum handling
     # todo: setup.py: fix PyMySQL upgrade problem
-
     'pyexcel-ods3==0.5.3',  # ODS spreadsheet export
     'pyexcel-xlsx==0.5.7',  # XLSX spreadsheet export
     'PyPDF2==1.26.0',  # Used by rnc_pdf.py
@@ -124,6 +131,8 @@ INSTALL_REQUIRES = [
     'pyramid_debugtoolbar==4.4',  # debugging for Pyramid
     'python-dateutil==2.7.3',  # date/time extensions.
     'pytz==2018.5',  # timezone definitions, specifically utc.
+
+    'sadisplay==0.4.9',  # SQL Alchemy schema display script
     'scipy==1.1.0',  # used by some tasks. slow installation.
     'semantic_version==2.6.0',  # semantic versioning; better than semver
     'sphinx==1.7.6',  # development only

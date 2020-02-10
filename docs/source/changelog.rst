@@ -2742,6 +2742,13 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - RabbitMQ into Debian/RPM package requirements, and installation docs.
 
+- Slightly pointless option to print database schema from command line
+  as PlantUML +/- PNG (but the PNG is huge).
+
+- :ref:`MFI-20 <mfi20>` added as a full task (with usage restrictions)
+  following the kind permission of the lead author.
+
+<<<<<<< HEAD
 - Bugfix to
   :meth:`camcops_server.cc_modules.cc_patient.gen_patient_idnums_even_noncurrent`.
   This created a set of PatientIdNum instances, comparing them in the usual way

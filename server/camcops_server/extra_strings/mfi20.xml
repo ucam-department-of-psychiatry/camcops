@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="mfi20">
+    <!--
+        Multidimensional Fatigue Inventory (MFI-20).
+
+        Copyright Ellen Smets and colleagues.
+        See help.
+        Reproduced with permission of Ellen Smets, 3 Feb 2020 (see help).
+    -->
+
+
+    <string name="title_main">Multidimensional Fatigue Inventory (MFI-20)</string>
+
+    <!-- Original text for paper version:
+         By means of the following statements we would like to get an idea of how you have been feeling lately. There is, for example, the statement:
+         “I FEEL RELAXED”
+         If you think that this is entirely true, that indeed you have been feeling relaxed lately, please place an X in the extreme left box, like this:
+         yes, that is true 1       2       3       4       5 no, that is not true
+         The more you disagree with the statement, the more you can place an X in the direction of “no, that is not true”. Please do not miss out a statement and place only one X in a box for each statement.
+    -->
+
+    <string name="instructions">By means of the following statements we would like to get an idea of how you have been feeling <b>lately.</b> There is, for example, the statement:
+
+    “I FEEL RELAXED”
+
+    If you think that this is <b>entirely true,</b> that indeed you have been feeling relaxed lately, please mark the extreme left box "1 – yes, that is true".
+    The more you <b>disagree</b> with the statement, the more you can mark in the direction of "5 – no, that is not true".</string>
+
+    <string name="q1">I feel fit.</string>
+    <string name="q2">Physically, I feel only able to do a little.</string>
+    <string name="q3">I feel very active.</string>
+    <string name="q4">I feel like doing all sorts of nice things.</string>
+    <string name="q5">I feel tired.</string>
+    <string name="q6">I think I do a lot in a day.</string>
+    <string name="q7">When I am doing something, I can keep my thought on it.</string>
+    <string name="q8">Physically I can take on a lot.</string>
+    <string name="q9">I dread having to do things.</string>
+    <string name="q10">I think I do very little in a day.</string>
+    <string name="q11">I can concentrate well.</string>
+    <string name="q12">I am rested.</string>
+    <string name="q13">It takes a lot of effort to concentrate on things.</string>
+    <string name="q14">Physically I feel I am in a bad condition.</string>
+    <string name="q15">I have a lot of plans.</string>
+    <string name="q16">I tire easily.</string>
+    <string name="q17">I get little done.</string>
+    <string name="q18">I don’t feel like doing anything.</string>
+    <string name="q19">My thoughts easily wander.</string>
+    <string name="q20">Physically I feel I am in an excellent condition.</string>
+
+    <string name="a0">1 – yes, that is true</string>
+    <string name="a1">2</string>
+    <string name="a2">3</string>
+    <string name="a3">4</string>
+    <string name="a4">5 – no, that is not true</string>
+
+    <string name="general_fatigue">General fatigue</string>
+    <string name="physical_fatigue">Physical fatigue</string>
+    <string name="reduced_activity">Reduced activity</string>
+    <string name="reduced_motivation">Reduced motivation</string>
+    <string name="mental_fatigue">Mental fatigue</string>
+  </task>
+</resources>
