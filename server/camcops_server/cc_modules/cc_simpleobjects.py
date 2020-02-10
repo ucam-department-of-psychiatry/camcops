@@ -130,7 +130,7 @@ class BarePatientInfo(object):
                  dob: Date = None,
                  address: str = None,
                  gp: str = None,
-                 other: str = None,
+                 otherdetails: str = None,
                  idnum_definitions: List[IdNumReference] = None) -> None:
         self.forename = forename
         self.surname = surname
@@ -138,13 +138,13 @@ class BarePatientInfo(object):
         self.dob = dob
         self.address = address
         self.gp = gp
-        self.otherdetails = other
+        self.otherdetails = otherdetails
         self.idnum_definitions = idnum_definitions or []  # type: List[IdNumReference]  # noqa
 
     def __str__(self) -> str:
         return (
-            "Patient(forename={f!r}, surname={sur!r}, sex={sex}, DOB={dob}, "
-            "address={a!r}, gp={gp!r}, other={o!r}, idnums={i})".format(
+            "Patient(forename={f!r}, surname={sur!r}, sex={sex!r}, DOB={dob}, "
+            "address={a!r}, gp={gp!r}, otherdetails={o!r}, idnums={i})".format(
                 f=self.forename,
                 sur=self.surname,
                 sex=self.sex,
