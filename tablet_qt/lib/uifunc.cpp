@@ -612,6 +612,7 @@ QString textCSS(const int fontsize_pt,
 
 void visitUrl(const QString& url)
 {
+    qInfo().noquote() << "Launching URL:" << url;
     bool success = QDesktopServices::openUrl(QUrl(url));
     if (!success) {
         alert(QObject::tr("Failed to open browser"));

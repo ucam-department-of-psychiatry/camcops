@@ -2742,6 +2742,12 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - RabbitMQ into Debian/RPM package requirements, and installation docs.
 
+- Slightly pointless option to print database schema from command line
+  as PlantUML +/- PNG (but the PNG is huge).
+
+- :ref:`MFI-20 <mfi20>` added as a full task (with usage restrictions)
+  following the kind permission of the lead author.
+
 - Bugfixes re "no PID" ID policies:
 
   - Client and server tables using "other" as fieldname whereas policy/docs
