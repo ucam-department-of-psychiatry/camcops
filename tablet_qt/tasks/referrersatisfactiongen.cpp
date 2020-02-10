@@ -59,6 +59,12 @@ QString ReferrerSatisfactionGen::description() const
 }
 
 
+QString ReferrerSatisfactionGen::infoFilenameStem() const
+{
+    return "rss";
+}
+
+
 // ============================================================================
 // Instance info
 // ============================================================================

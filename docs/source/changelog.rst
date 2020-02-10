@@ -2748,6 +2748,9 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - :ref:`MFI-20 <mfi20>` added as a full task (with usage restrictions)
   following the kind permission of the lead author.
 
+- Documentation link from app fixed for FFT, CGI-I, IRAC, RSS
+  (patient-specific), RSS (survey), PSS.
+
 - Bugfix to
   :meth:`camcops_server.cc_modules.cc_patient.gen_patient_idnums_even_noncurrent`.
   This created a set of PatientIdNum instances, comparing them in the usual way
