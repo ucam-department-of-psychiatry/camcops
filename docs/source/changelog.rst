@@ -2758,3 +2758,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
     :func:`camcops_server.cc_modules.client_api.op_validate_patients.ensure_string`.
 
   - Added button to nullify DOB for the "no-DOB" policies.
+
+- Documentation link from app fixed for FFT, CGI-I, IRAC, RSS
+  (patient-specific), RSS (survey), PSS.
