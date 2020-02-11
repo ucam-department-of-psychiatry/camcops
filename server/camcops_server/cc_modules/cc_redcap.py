@@ -309,18 +309,17 @@ class RedcapTaskExporter(object):
             "dtype": type_dict,
         }
 
-        # There is a bug in REDCap
-        # https://community.projectredcap.org/questions/77217/export-records-api-silently-ignores-invalid-form-w.html  # noqa: E501
-        # if patient["instrument"] or record["instrument"] does not exist,
-        # REDCap won't return an error and instead all records will be exported
-        # (as if forms was empty). This shouldn't matter unless there is a lot
-        # of data, in which case there will be a performance hit.
         forms = (fieldmap.instrument_names() +
                  [fieldmap.patient["instrument"]] +
                  [fieldmap.record["instrument"]])
 
-        return project.export_records(format="df", forms=forms,
-                                      df_kwargs=df_kwargs)
+        try:
+            records = project.export_records(format="df", forms=forms,
+                                             df_kwargs=df_kwargs)
+        except redcap.RedcapError as e:
+            raise RedcapExportException(str(e))
+
+        return records
 
     @staticmethod
     def _get_existing_record_id(records: "DataFrame",
@@ -1886,6 +1885,41 @@ class IncorrectPatientIdRedcapTests(BadConfigurationRedcapTests):
         message = str(cm.exception)
         self.assertIn("Field 'my_patient_id' does not exist in REDCap",
                       message)
+
+
+class MissingPatientInstrumentRedcapTests(BadConfigurationRedcapTests):
+    fieldmap = """<?xml version="1.0" encoding="UTF-8"?>
+<fieldmap>
+  <patient instrument="patient_record" redcap_field="my_patient_id" />
+  <record instrument="patient_record" redcap_field="record_id" />
+  <instruments>
+    <instrument task="bmi" name="bmi">
+      <fields>
+      </fields>
+    </instrument>
+  </instruments>
+</fieldmap>"""  # noqa: E501
+
+    def test_raises_when_instrument_is_missing(self) -> None:
+        from camcops_server.cc_modules.cc_exportmodels import (
+            ExportedTask,
+            ExportedTaskRedcap
+        )
+
+        exported_task = ExportedTask(task=self.task, recipient=self.recipient)
+        exported_task_redcap = ExportedTaskRedcap(exported_task)
+
+        exporter = MockRedcapTaskExporter()
+        project = exporter.get_project()
+        project.export_records.side_effect = redcap.RedcapError(
+            "Something went wrong"
+        )
+
+        with self.assertRaises(RedcapExportException) as cm:
+            exporter.export_task(self.req, exported_task_redcap)
+
+        message = str(cm.exception)
+        self.assertIn("Something went wrong", message)
 
 
 class AnonymousTaskRedcapTests(RedcapExportTestCase):
