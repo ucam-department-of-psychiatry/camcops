@@ -53,7 +53,7 @@ def assert_minimum_python_version():
     Note that this module/function should use only Python 2 syntax!
 
     """
-    if sys.version_info < (3, 6):
+    if sys.version_info < MINIMUM_PYTHON_VERSION:
         required = ".".join(str(x) for x in MINIMUM_PYTHON_VERSION)
         actual = ".".join(str(x) for x in sys.version_info)
         raise AssertionError("Need Python %s or higher; this is %s" %

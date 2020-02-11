@@ -1,6 +1,6 @@
 
     # Demonstration Apache config file section for CamCOPS.
-    # Created by CamCOPS version 2.3.7 at 2020-01-27T11:20:06.876203+00:00.
+    # Created by CamCOPS version 2.3.7 at 2020-02-07T11:33:32.894407+00:00.
     #
     # Under Ubuntu, the Apache config will be somewhere in /etc/apache2/
     # Under CentOS, the Apache config will be somewhere in /etc/httpd/
@@ -281,5 +281,3 @@
         # cat TERENASSLCA.crt UTNAddTrustServer_CA.crt AddTrustExternalCARoot.crt > univcam.ca-bundle
 
 </VirtualHost>
-
-    

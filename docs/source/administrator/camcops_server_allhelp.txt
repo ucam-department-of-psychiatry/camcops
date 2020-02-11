@@ -1,5 +1,5 @@
 usage: camcops_server [-h] [--allhelp] [--version] [-v]
-                      {docs,demo_camcops_config,demo_supervisor_config,demo_apache_config,upgrade_db,dev_upgrade_db,dev_downgrade_db,dev_add_dummy_data,show_db_title,merge_db,create_db,ddl,reindex,check_index,make_superuser,reset_password,enable_user,export,show_export_queue,crate_dd,cris_dd,serve_cherrypy,serve_gunicorn,serve_pyramid,convert_athena_icd_snomed_to_xml,launch_workers,launch_scheduler,launch_monitor,housekeeping,purge_jobs,show_tests,self_test,dev_cli}
+                      {docs,demo_camcops_config,demo_supervisor_config,demo_apache_config,upgrade_db,dev_upgrade_db,dev_downgrade_db,dev_add_dummy_data,show_db_title,show_db_schema,merge_db,create_db,ddl,reindex,check_index,make_superuser,reset_password,enable_user,export,show_export_queue,crate_dd,cris_dd,serve_cherrypy,serve_gunicorn,serve_pyramid,convert_athena_icd_snomed_to_xml,launch_workers,launch_scheduler,launch_monitor,housekeeping,purge_jobs,show_tests,self_test,dev_cli}
                       ...
 
 CamCOPS server, created by Rudolf Cardinal; version 2.3.7.
@@ -14,7 +14,11 @@ optional arguments:
 commands:
   Valid CamCOPS commands are as follows.
 
+<<<<<<< HEAD
   {docs,demo_camcops_config,demo_supervisor_config,demo_apache_config,upgrade_db,dev_upgrade_db,dev_downgrade_db,dev_add_dummy_data,show_db_title,merge_db,create_db,ddl,reindex,check_index,make_superuser,reset_password,enable_user,export,show_export_queue,crate_dd,cris_dd,serve_cherrypy,serve_gunicorn,serve_pyramid,convert_athena_icd_snomed_to_xml,launch_workers,launch_scheduler,launch_monitor,housekeeping,purge_jobs,show_tests,self_test,dev_cli}
+=======
+  {docs,demo_camcops_config,demo_supervisor_config,demo_apache_config,upgrade_db,dev_upgrade_db,dev_downgrade_db,dev_add_dummy_data,show_db_title,show_db_schema,merge_db,create_db,ddl,reindex,check_index,make_superuser,reset_password,enable_user,export,show_export_queue,crate_dd,cris_dd,serve_cherrypy,serve_gunicorn,serve_pyramid,convert_athena_icd_snomed_to_xml,launch_workers,launch_scheduler,launch_monitor,housekeeping,purge_jobs,show_tests,self_test,dev_cli}
+>>>>>>> master
                         Specify one command.
     docs                Launch the main documentation (CamCOPS manual)
     demo_camcops_config
@@ -30,6 +34,7 @@ commands:
     dev_add_dummy_data  (DEVELOPER OPTION ONLY.) Populates the database with a
                         set of dummy patients and tasks for testing.
     show_db_title       Show database title
+    show_db_schema      Show the database schema as PlantUML +/- PNG
     merge_db            Merge in data from an old or recent CamCOPS database
     create_db           Create CamCOPS database from scratch (AVOID; use the
                         upgrade facility instead)
@@ -208,6 +213,37 @@ optional arguments:
                    variable CAMCOPS_CONFIG_FILE is checked) (default: None)
 
 ===============================================================================
+Help for command 'show_db_schema'
+===============================================================================
+usage: camcops_server show_db_schema [-h] [-v] [--config CONFIG]
+                                     [--schemastem SCHEMASTEM] [--make_image]
+                                     [--java JAVA] [--plantuml PLANTUML]
+                                     [--height_width_limit HEIGHT_WIDTH_LIMIT]
+                                     [--java_memory_limit_mb JAVA_MEMORY_LIMIT_MB]
+
+Show the database schema as PlantUML +/- PNG
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --verbose         Be verbose (default: False)
+  --config CONFIG       Configuration file (if not specified, the environment
+                        variable CAMCOPS_CONFIG_FILE is checked) (default:
+                        None)
+  --schemastem SCHEMASTEM
+                        Stem for output filenames (for schema diagrams);
+                        '.plantuml' and '.png' are appended (default: schema)
+  --make_image          Create a PNG image (impractically large!) (default:
+                        False)
+  --java JAVA           Java executable (for schema diagrams) (default: java)
+  --plantuml PLANTUML   PlantUML Java .jar file (for schema diagrams)
+                        (default: plantuml.jar)
+  --height_width_limit HEIGHT_WIDTH_LIMIT
+                        Maximum image height/width in pixels (default: 20000)
+  --java_memory_limit_mb JAVA_MEMORY_LIMIT_MB
+                        Java virtual machine memory limit in Mb (default:
+                        2048)
+
+===============================================================================
 Help for command 'merge_db'
 ===============================================================================
 usage: camcops_server merge_db [-h] [-v] --config CONFIG
@@ -281,8 +317,13 @@ optional arguments:
   -v, --verbose      Be verbose (default: False)
   --config CONFIG    Configuration file (if not specified, the environment
                      variable CAMCOPS_CONFIG_FILE is checked) (default: None)
+<<<<<<< HEAD
   --dialect DIALECT  SQL dialect (options: sybase, mysql, postgresql, oracle,
                      mssql, firebird, sqlite) (default: mysql)
+=======
+  --dialect DIALECT  SQL dialect (options: mysql, postgresql, sqlite, sybase,
+                     mssql, firebird, oracle) (default: mysql)
+>>>>>>> master
 
 ===============================================================================
 Help for command 'reindex'
@@ -632,4 +673,3 @@ optional arguments:
   -v, --verbose    Be verbose (default: False)
   --config CONFIG  Configuration file (if not specified, the environment
                    variable CAMCOPS_CONFIG_FILE is checked) (default: None)
-

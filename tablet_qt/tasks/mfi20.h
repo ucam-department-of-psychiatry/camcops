@@ -43,8 +43,10 @@ public:
     virtual QString longname() const override;
     virtual QString description() const override;
     virtual TaskImplementationType implementationType() const override {
-        return TaskImplementationType::UpgradableSkeleton;
+        return TaskImplementationType::Full;
     }
+    virtual bool prohibitsClinical() const override { return true; }
+    virtual bool prohibitsCommercial() const override { return true; }
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------

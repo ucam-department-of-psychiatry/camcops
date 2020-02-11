@@ -446,8 +446,7 @@ from cardinal_pythonlib.tee import tee_log
 import cardinal_pythonlib.version
 from semantic_version import Version
 
-if sys.version_info < (3, 6):
-    raise AssertionError("Need Python 3.6 or higher")
+assert sys.version_info >= (3, 6), "Need Python 3.6 or higher"
 
 MINIMUM_CARDINAL_PYTHONLIB = "1.0.8"
 if Version(cardinal_pythonlib.version.VERSION) < Version(MINIMUM_CARDINAL_PYTHONLIB):  # noqa
