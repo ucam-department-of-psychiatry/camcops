@@ -69,16 +69,17 @@ Problems starting CamCOPS
 
 This error has been reported (on 2020-02-14) when running CamCOPS 2.3.6
 (version number likely not very important) under Ubuntu 18.04 LTS hosted via
-the Windows Subsystem for Linux (WSL_) version XXX running under Windows XXX,
-in Singapore.
+the Windows Subsystem for Linux (WSL_) version 1 running under Windows 10,
+in Singapore (but using a GMT timezone).
 
 The problem appears to be that the WSL does not properly implement the POSIX
 standard for time "transitions" (we think this refers to e.g. daylight savings
 time adjustments in a given timezone; see tzfile_). The problem arises via
 the Pendulum_ Python module.
 
-This may reflect a known WSL bug:
+This may reflect known WSL bugs:
 
+- https://github.com/microsoft/WSL/issues/869
 - https://github.com/microsoft/WSL/issues/3747
 
 Our suggestion would be to run Ubuntu in a proper virtual machine (e.g.
