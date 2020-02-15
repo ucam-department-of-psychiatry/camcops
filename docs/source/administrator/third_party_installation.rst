@@ -58,8 +58,8 @@ Advanced options:
 - [✓] Precompile standard library
 - Customize install location = ``C:\Python36``
 
-Also, you may want to allow the installer to extend the system ``MAX_PATH`` length
-limit
+Also, you may want to allow the installer to extend the system ``MAX_PATH``
+length limit
 (https://python.readthedocs.io/en/stable/using/windows.html#removing-the-max-path-limitation).
 
 

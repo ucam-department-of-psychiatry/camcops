@@ -58,6 +58,12 @@ QString PatientSatisfaction::description() const
 }
 
 
+QString PatientSatisfaction::infoFilenameStem() const
+{
+    return "pss";
+}
+
+
 // ============================================================================
 // Instance info
 // ============================================================================

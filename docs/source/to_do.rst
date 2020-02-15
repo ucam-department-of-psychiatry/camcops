@@ -228,6 +228,8 @@ Server
 - What's the optimal packaging method for the server? Is it DEB/RPM for Linux,
   and PyInstaller + Inno Setup (or just Inno Setup) for Windows?
 
+- Improve installation ease and docs.
+
 **Not a priority**
 
 - Consider: see ``DEBUG_TEMPLATE_SOURCE`` -- would it improve performance to

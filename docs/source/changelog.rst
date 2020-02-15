@@ -2674,6 +2674,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
   - PBQ: as per Core-10, but also for subscales
 
+- Bugfix: Automatically create EXPORT_LOCKDIR on server startup
+
 **Client and server v2.3.7, IN PROGRESS**
 
 - ``pyexcel-ods3`` and ``pyexcel-xlsx`` for spreadsheet export; faster and much
@@ -2737,3 +2739,25 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - R script file export for basic data dumps.
 
 - Create ``camcops_server.__version__``.
+
+- RabbitMQ into Debian/RPM package requirements, and installation docs.
+
+- Slightly pointless option to print database schema from command line
+  as PlantUML +/- PNG (but the PNG is huge).
+
+- :ref:`MFI-20 <mfi20>` added as a full task (with usage restrictions)
+  following the kind permission of the lead author.
+
+- Bugfixes re "no PID" ID policies:
+
+  - Client and server tables using "other" as fieldname whereas policy/docs
+    use "otherdetails". This is OK but policy mapping was wrong.
+
+  - With no DOB present, there was an error at upload: ``Server reported an
+    error: Patient JSON contains invalid non-string``. Bug was in
+    :func:`camcops_server.cc_modules.client_api.op_validate_patients.ensure_string`.
+
+  - Added button to nullify DOB for the "no-DOB" policies.
+
+- Documentation link from app fixed for FFT, CGI-I, IRAC, RSS
+  (patient-specific), RSS (survey), PSS.

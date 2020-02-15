@@ -17,6 +17,8 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+// #define DEBUG_JSON
+
 #include "patient.h"
 #include <limits>
 #include <QDebug>
@@ -62,13 +64,14 @@ const QString SEX_FIELD("sex");
 
 const QString IDNUM_FIELD_PREFIX("idnum");
 const QString IDNUM_FIELD_FORMAT(IDNUM_FIELD_PREFIX + "%1");
-const QString ANY_IDNUM("anyidnum");
-const QString OTHER_IDNUM("otheridnum");
+const QString ANY_IDNUM_POLICYNAME("anyidnum");
+const QString OTHER_IDNUM_POLICYNAME("otheridnum");
+const QString OTHER_DETAILS_POLICYNAME("otherdetails");  // the *policy* name!
 
 // Not so important prior to v2.2.8, then more important (part of policies):
 const QString ADDRESS_FIELD("address");
 const QString GP_FIELD("gp");
-const QString OTHER_FIELD("other");
+const QString OTHER_DETAILS_FIELD("other");  // the *field* name!
 
 const qint64 MIN_ID_NUM_VALUE = 0;
 const qint64 MAX_ID_NUM_VALUE = std::numeric_limits<qint64>::max();
@@ -114,7 +117,7 @@ Patient::Patient(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     addField(DOB_FIELD, QVariant::Date);
     addField(ADDRESS_FIELD, QVariant::String);
     addField(GP_FIELD, QVariant::String);
-    addField(OTHER_FIELD, QVariant::String);
+    addField(OTHER_DETAILS_FIELD, QVariant::String);
 
     // ------------------------------------------------------------------------
     // Load from database (or create/save), unless this is a specimen
@@ -301,7 +304,7 @@ bool Patient::hasGP() const
 
 bool Patient::hasOtherDetails() const
 {
-    return !valueString(OTHER_FIELD).isEmpty();
+    return !valueString(OTHER_DETAILS_FIELD).isEmpty();
 }
 
 
@@ -315,7 +318,7 @@ Patient::AttributesType Patient::policyAttributes(
     map[DOB_FIELD] = hasDob();
     map[ADDRESS_FIELD] = hasAddress();
     map[GP_FIELD] = hasGP();
-    map[OTHER_FIELD] = hasOtherDetails();
+    map[OTHER_DETAILS_POLICYNAME] = hasOtherDetails();
     bool any_idnum = false;
     bool other_idnum = false;
     for (const PatientIdNumPtr& idnum : m_idnums) {
@@ -328,8 +331,8 @@ Patient::AttributesType Patient::policyAttributes(
             other_idnum = other_idnum || present;
         }
     }
-    map[ANY_IDNUM] = any_idnum;
-    map[OTHER_IDNUM] = other_idnum;
+    map[ANY_IDNUM_POLICYNAME] = any_idnum;
+    map[OTHER_IDNUM_POLICYNAME] = other_idnum;
     return map;
 }
 
@@ -337,17 +340,34 @@ Patient::AttributesType Patient::policyAttributes(
 QJsonObject Patient::jsonDescription() const
 {
     QJsonObject j;
-    j[KEY_FORENAME] = forename();
-    j[KEY_SURNAME] = surname();
-    j[KEY_SEX] = sex();
+
+    auto assignStringOrNull = [this, &j](const QString& key,
+                                         const QString& field) {
+        const QString value = valueString(field);
+        // You can assign QJsonValue::Null or a string (amongst other things),
+        // but you have to use if/else; you can't use ?: (ternary operator) since
+        // they are of different types.
+        if (value.isEmpty()) {
+            j[key] = QJsonValue::Null;
+        } else {
+            j[key] = value;
+        }
+    };
+
+    assignStringOrNull(KEY_FORENAME, FORENAME_FIELD);
+    assignStringOrNull(KEY_SURNAME, SURNAME_FIELD);
+    assignStringOrNull(KEY_SEX, SEX_FIELD);
+
     const QVariant dob = value(DOB_FIELD);
     if (dob.isNull()) {
         j[KEY_DOB] = QJsonValue::Null;
     } else {
         j[KEY_DOB] = datetime::dateToIso(dob.toDate());
     }
-    j[KEY_ADDRESS] = valueString(ADDRESS_FIELD);
-    j[KEY_GP] = valueString(GP_FIELD);
+
+    assignStringOrNull(KEY_ADDRESS, ADDRESS_FIELD);
+    assignStringOrNull(KEY_GP, GP_FIELD);
+
     for (const PatientIdNumPtr& idnum : m_idnums) {
         if (!idnum->idnumIsPresent()) {
             continue;
@@ -358,6 +378,10 @@ QJsonObject Patient::jsonDescription() const
                     KEY_IDNUM_PREFIX, QString::number(which_idnum));
         j[idkey] = idnum_value;
     }
+
+#ifdef DEBUG_JSON
+    qDebug().noquote() << "Patient jsonDescription():" << j;
+#endif
     return j;
 }
 
@@ -577,7 +601,7 @@ bool Patient::matchesForMerge(const Patient* other) const
             sameOrOneBlank(SEX_FIELD) &&
             sameOrOneBlank(ADDRESS_FIELD) &&
             sameOrOneBlank(GP_FIELD) &&
-            sameOrOneBlank(OTHER_FIELD);
+            sameOrOneBlank(OTHER_DETAILS_FIELD);
 }
 
 
@@ -695,7 +719,9 @@ void Patient::buildPage(bool read_only)
     grid->addCell(QuGridCell(new QuText(tr("Date of birth")),
                              row, 0, rowspan, colspan, ralign));
     grid->addCell(QuGridCell(
-        (new QuDateTime(fieldRef(DOB_FIELD, false)))->setMode(QuDateTime::DefaultDate),
+        (new QuDateTime(fieldRef(DOB_FIELD, false)))
+                      ->setMode(QuDateTime::DefaultDate)
+                      ->setOfferNullButton(true),  // in case policy disallows DOB
         row++, 1));
     grid->addCell(QuGridCell(new QuText(tr("Address")),
                              row, 0, rowspan, colspan, ralign));
@@ -707,7 +733,7 @@ void Patient::buildPage(bool read_only)
                              row++, 1));
     grid->addCell(QuGridCell(new QuText(tr("Other details")),
                              row, 0, rowspan, colspan, ralign));
-    grid->addCell(QuGridCell(new QuTextEdit(fieldRef(OTHER_FIELD, false)),
+    grid->addCell(QuGridCell(new QuTextEdit(fieldRef(OTHER_DETAILS_FIELD, false)),
                              row++, 1));
 
     // ------------------------------------------------------------------------
@@ -781,7 +807,7 @@ void Patient::buildPage(bool read_only)
     // Signals
     // ------------------------------------------------------------------------
     QStringList fields{FORENAME_FIELD, SURNAME_FIELD, DOB_FIELD, SEX_FIELD,
-                       ADDRESS_FIELD, GP_FIELD, OTHER_FIELD};
+                       ADDRESS_FIELD, GP_FIELD, OTHER_DETAILS_FIELD};
     for (const QString& fieldname : fields) {
         FieldRefPtr fr = fieldRef(fieldname);
         connect(fr.data(), &FieldRef::valueChanged,
@@ -812,7 +838,7 @@ void Patient::mergeInDetailsAndTakeTasksFrom(const Patient* other)
         SEX_FIELD,
         ADDRESS_FIELD,
         GP_FIELD,
-        OTHER_FIELD,
+        OTHER_DETAILS_FIELD,
     };
 
     // ------------------------------------------------------------------------

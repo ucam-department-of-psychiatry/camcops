@@ -6,27 +6,54 @@
 # For syntax, see:
 # - https://www.debian.org/doc/debian-policy/ch-relationships.html
 
-
-
-
-
-
+# =============================================================================
+# Compiler
+# =============================================================================
 
 gcc  # GCC
-libmagickwand-dev  # MagickWand image libraries
+
+# =============================================================================
+# SSL libraries
+# =============================================================================
+# ... to ensure HTTPS available with Apache, for command-line
+#     management of SSL certificates, and for Qt compilation if required?
+#     Not sure now; may not be critical.
+
 libssl-dev  # SSL libraries
-libxml2-dev
-libxslt1-dev
+
+# =============================================================================
+# Python 3.6
+# =============================================================================
 
 python  # or Lintian complains about the presence of Python scripts
-
-
-
 python3.6  # actual Python versions we're happy with
-python3-dev
+python3-dev  # for <Python.h>, etc.
 python3-tk  # tkinter, for command-line UI code
 python3-venv  # or venv complains that ensurepip is not available
 
+# =============================================================================
+# Requirements for Python packages
+# =============================================================================
+
+libmagickwand-dev  # MagickWand image libraries, for wand
+libxml2-dev  # for lxml
+libxslt1-dev  # for lxml
+swig  # connects Python to C++; for numpy
+
+# =============================================================================
+# supervisord (for launching components)
+# =============================================================================
+
 supervisor  # for managing gunicorn, etc.
-swig  # used by
-wget
+
+# =============================================================================
+# RabbitMQ, as the default AMQP broker
+# =============================================================================
+
+rabbitmq-server
+
+# =============================================================================
+# Command-line tools
+# =============================================================================
+
+wget  # for convenience

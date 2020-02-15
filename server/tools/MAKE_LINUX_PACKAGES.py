@@ -242,7 +242,7 @@ system_python_executable()
     # Echoes the preferred Python executable on the destination system.
     # Use as: $(system_python_executable) ...
     
-    python_options=(python3.6 python36 python3.5 python35 python3 python)
+    python_options=(python3.6 python36 python3 python)
     for option in ${python_options[@]}; do
         python_exe=$(which $option)
         if [ ! -z "${python_exe}" ]; then
@@ -1067,7 +1067,7 @@ def main():
         {LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR}
         {LINUX_DEFAULT_LOCK_DIR}
 
-  * checks that Python 3.5 is available on the system;
+  * checks that Python is available on the system;
 
   * uses the system Python to create a Python virtual environment within
     {LINUX_DEFAULT_CAMCOPS_DIR};

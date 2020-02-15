@@ -2519,10 +2519,13 @@ def op_validate_patients(req: "CamcopsRequest") -> str:
     Compare ``NetworkManager::getPatientInfoJson()`` on the client.
     """
     def ensure_string(value: Any, allow_none: bool = True) -> None:
-        if not allow_none and value is None:
-            fail_user_error("Patient JSON contains absent string")
+        if value is None:
+            if allow_none:
+                return  # OK
+            else:
+                fail_user_error("Patient JSON contains absent string")
         if not isinstance(value, str):
-            fail_user_error("Patient JSON contains invalid non-string")
+            fail_user_error(f"Patient JSON contains invalid non-string: {value!r}")  # noqa
 
     pt_json_list = get_json_from_post_var(req, TabletParam.PATIENT_INFO,
                                           decoder=PATIENT_INFO_JSON_DECODER,
