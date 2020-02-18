@@ -44,8 +44,9 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 <table>
     <tr>
         <th>${_("Task")}</th>
-        <th>${_("Due from")}</th>
-        <th>${_("Due by")}</th>
+        <th>${_("Due from (days)")}</th>
+        <th>${_("Due by (days)")}</th>
+        <th>${_("Edit")}</th>
     </tr>
 %for item in page:
     <tr>
@@ -53,10 +54,18 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
             ${ item.task_table_name }
         </td>
         <td>
-            ${ item.due_from }
+            ${ item.due_from.in_days() }
         </td>
         <td>
-            ${ item.due_by }
+            ${ item.due_by.in_days() }
+        </td>
+        <td>
+            <a href="${ req.route_url(
+    Routes.EDIT_TASK_SCHEDULE_ITEM,
+    _query={
+        ViewParam.SCHEDULE_ITEM_ID: item.id
+    }
+) }">${_("Edit")}</a>
         </td>
     </tr>
 %endfor

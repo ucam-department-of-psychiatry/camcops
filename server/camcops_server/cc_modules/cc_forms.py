@@ -100,6 +100,7 @@ from pprint import pformat
 from typing import (Any, Callable, Dict, List, Optional,
                     Tuple, Type, TYPE_CHECKING)
 import unittest
+from unittest import mock, TestCase
 
 from cardinal_pythonlib.colander_utils import (
     AllowNoneType,
@@ -3583,11 +3584,90 @@ class EditTaskScheduleForm(DynamicDescriptionsForm):
         )
 
 
+class DurationWidget(Widget):
+    basedir = os.path.join(TEMPLATE_DIR, "deform")
+    readonlydir = os.path.join(basedir, "readonly")
+    form = "duration.pt"
+    template = os.path.join(basedir, form)
+    readonly_template = os.path.join(readonlydir, form)
+
+    def serialize(self, field, cstruct, **kw):
+        if cstruct is colander.null:
+            cstruct = {}
+
+        months = cstruct.get("months", "")
+        weeks = cstruct.get("weeks", "")
+        days = cstruct.get("days", "")
+
+        kw.setdefault("months", months)
+        kw.setdefault("weeks", weeks)
+        kw.setdefault("days", days)
+
+        readonly = kw.get("readonly", self.readonly)
+        template = readonly and self.readonly_template or self.template
+        values = self.get_template_values(field, cstruct, kw)
+
+        return field.renderer(template, **values)
+
+    def deserialize(self, field, pstruct):
+        errors = []
+
+        try:
+            days = int(pstruct.get("days") or "0")
+        except ValueError:
+            errors.append("Please enter a valid number of days or leave blank")
+
+        try:
+            weeks = int(pstruct.get("weeks") or "0")
+        except ValueError:
+            errors.append("Please enter a valid number of weeks or leave blank")
+
+        try:
+            months = int(pstruct.get("months") or "0")
+        except ValueError:
+            errors.append(
+                "Please enter a valid number of months or leave blank"
+            )
+
+        if len(errors) > 0:
+            raise Invalid(field, errors)
+
+        return months * 30 + weeks * 7 + days
+
+
+class DurationType(object):
+    def deserialize(self, node: SchemaNode, days: int) -> int:
+        # Just pass on the number of days from the widget deserialize()
+
+        return days
+
+    def serialize(self, node: SchemaNode, duration) -> Dict:
+        if duration is colander.null:
+            # For new schedule item
+            return colander.null
+
+        # Existing schedule item
+        cstruct = {
+            "days": duration.in_days(),
+            "months": "",
+            "weeks": "",
+        }
+
+        return cstruct
+
+
+class DurationNode(SchemaNode):
+    schema_type = DurationType
+
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        self.widget = DurationWidget()
+
+
 class TaskScheduleItemSchema(CSRFSchema):
     schedule_id = HiddenIntegerNode()
     task_table_name = MandatorySingleTaskSelector()
-    due_from = MandatoryStringNode()
-    due_by = MandatoryStringNode()
+    due_from = DurationNode()
+    due_by = DurationNode()
 
 
 class EditTaskScheduleItemForm(DynamicDescriptionsForm):
@@ -3700,6 +3780,33 @@ class SchemaTests(DemoRequestTestCase):
         }
         schema = LoginSchema().bind(request=self.req)
         self._serialize_deserialize(schema, appstruct)
+
+
+class DurationWidgetTests(TestCase):
+    def test_serialize_renders_template_with_values(self) -> None:
+        widget = DurationWidget()
+
+        field = mock.Mock()
+        field.renderer = mock.Mock()
+
+        cstruct = {
+            "months": 1,
+            "weeks": 2,
+            "days": 3,
+        }
+
+        widget.serialize(field, cstruct, readonly=False)
+
+        args, kwargs = field.renderer.call_args
+
+        self.assertEqual(args[0], f"{TEMPLATE_DIR}/deform/duration.pt")
+        self.assertFalse(kwargs['readonly'])
+
+        self.assertEqual(kwargs['months'], 1)
+        self.assertEqual(kwargs['weeks'], 2)
+        self.assertEqual(kwargs['days'], 3)
+
+        self.assertEqual(kwargs['field'], field)
 
 
 # =============================================================================

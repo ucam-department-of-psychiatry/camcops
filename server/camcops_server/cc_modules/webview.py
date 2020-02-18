@@ -146,7 +146,7 @@ from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_orm_classes_from_base
 from cardinal_pythonlib.sqlalchemy.orm_query import CountStarSpecializedQuery
 from cardinal_pythonlib.sqlalchemy.session import get_engine_from_session
 from deform.exception import ValidationFailure
-from pendulum import DateTime as Pendulum
+from pendulum import DateTime as Pendulum, Duration
 from pyramid.httpexceptions import HTTPBadRequest, HTTPFound, HTTPNotFound
 from pyramid.view import (
     forbidden_view_config,
@@ -3786,8 +3786,14 @@ def add_task_schedule_item(req: "CamcopsRequest") -> Response:
     _ = req.gettext
 
     route_back = Routes.VIEW_TASK_SCHEDULE_ITEMS
+    schedule_id = req.get_int_param(ViewParam.SCHEDULE_ID)
+    querydict = {
+        ViewParam.SCHEDULE_ID: schedule_id,
+    }
+
     if FormAction.CANCEL in req.POST:
-        return HTTPFound(req.route_url(route_back))
+
+        raise HTTPFound(req.route_url(route_back, _query=querydict))
 
     form = EditTaskScheduleItemForm(request=req)
 
@@ -3799,18 +3805,87 @@ def add_task_schedule_item(req: "CamcopsRequest") -> Response:
             item = TaskScheduleItem()
             item.schedule_id = appstruct.get("schedule_id")
             item.task_table_name = appstruct.get("task_table_name")
-            item.due_from = appstruct.get("due_from")
-            item.due_by = appstruct.get("due_by")
+            item.due_from = Duration(
+                days=appstruct.get("due_from")
+            )
+            item.due_by = Duration(
+                days=appstruct.get("due_by")
+            )
 
             req.dbsession.add(item)
 
-            raise HTTPFound(req.route_url(route_back))
+            raise HTTPFound(req.route_url(route_back, _query=querydict))
         except ValidationFailure as e:
             rendered_form = e.render()
     else:
         appstruct = {
             ViewParam.SCHEDULE_ID: req.get_int_param(ViewParam.SCHEDULE_ID)
         }
+
+        rendered_form = form.render(appstruct)
+
+    return render_to_response(
+        "task_schedule_item_edit.mako",
+        dict(
+            form=rendered_form,
+            head_form_html=get_head_form_html(req, [form])
+        ),
+        request=req
+    )
+
+
+@view_config(route_name=Routes.EDIT_TASK_SCHEDULE_ITEM,
+             permission=Permission.GROUPADMIN)
+def edit_task_schedule_item(req: "CamcopsRequest") -> Response:
+    """
+    View to edit a task schedule item.
+    """
+
+    # TODO: Refactor
+
+    _ = req.gettext
+
+    item_id = req.get_int_param(ViewParam.SCHEDULE_ITEM_ID)
+
+    # TODO: item_id is None
+    item = req.dbsession.query(TaskScheduleItem).filter(
+        TaskScheduleItem.id == item_id
+    ).first()
+
+    route_back = Routes.VIEW_TASK_SCHEDULE_ITEMS
+    querydict = {
+        ViewParam.SCHEDULE_ID: item.schedule_id,
+    }
+
+    if FormAction.CANCEL in req.POST:
+        raise HTTPFound(req.route_url(route_back, _query=querydict))
+
+    form = EditTaskScheduleItemForm(request=req)
+
+    if FormAction.SUBMIT in req.POST:
+        try:
+            controls = list(req.POST.items())
+            appstruct = form.validate(controls)
+
+            item.due_from = Duration(
+                days=appstruct.get("due_from")
+            )
+            item.due_by = Duration(
+                days=appstruct.get("due_by")
+            )
+
+            req.dbsession.add(item)
+
+            raise HTTPFound(req.route_url(route_back, _query=querydict))
+        except ValidationFailure as e:
+            rendered_form = e.render()
+    else:
+        appstruct = {
+            ViewParam.DUE_FROM: item.due_from,
+            ViewParam.DUE_BY: item.due_by,
+            ViewParam.TABLE_NAME: item.task_table_name,
+        }
+
         rendered_form = form.render(appstruct)
 
     return render_to_response(

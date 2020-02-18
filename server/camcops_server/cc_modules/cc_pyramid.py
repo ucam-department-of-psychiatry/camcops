@@ -169,6 +169,8 @@ class ViewParam(object):
     DIAGNOSES_EXCLUSION = "diagnoses_exclusion"
     DUMP_METHOD = "dump_method"
     DOB = "dob"
+    DUE_BY = "due_by"
+    DUE_FROM = "due_from"
     EMAIL = "email"
     END_DATETIME = "end_datetime"
     FILENAME = "filename"
@@ -215,6 +217,7 @@ class ViewParam(object):
     REMOTE_IP_ADDR = "remote_ip_addr"
     ROWS_PER_PAGE = "rows_per_page"
     SCHEDULE_ID = "schedule_id"
+    SCHEDULE_ITEM_ID = "schedule_item_id"
     SERVER_PK = "server_pk"
     SEX = "sex"
     SHORT_DESCRIPTION = "short_description"
@@ -703,6 +706,7 @@ class Routes(object):
     EDIT_ID_DEFINITION = "edit_id_definition"
     EDIT_PATIENT = "edit_patient"
     EDIT_SERVER_SETTINGS = "edit_server_settings"
+    EDIT_TASK_SCHEDULE_ITEM = "edit_task_schedule_item"
     EDIT_USER = "edit_user"
     EDIT_USER_GROUP_MEMBERSHIP = "edit_user_group_membership"
     ERASE_TASK_LEAVING_PLACEHOLDER = "erase_task_leaving_placeholder"
@@ -828,6 +832,7 @@ class RouteCollection(object):
     EDIT_ID_DEFINITION = RoutePath(Routes.EDIT_ID_DEFINITION)
     EDIT_PATIENT = RoutePath(Routes.EDIT_PATIENT)
     EDIT_SERVER_SETTINGS = RoutePath(Routes.EDIT_SERVER_SETTINGS)
+    EDIT_TASK_SCHEDULE_ITEM = RoutePath(Routes.EDIT_TASK_SCHEDULE_ITEM)
     EDIT_USER = RoutePath(Routes.EDIT_USER)
     EDIT_USER_GROUP_MEMBERSHIP = RoutePath(Routes.EDIT_USER_GROUP_MEMBERSHIP)
     ERASE_TASK_LEAVING_PLACEHOLDER = RoutePath(Routes.ERASE_TASK_LEAVING_PLACEHOLDER)  # noqa

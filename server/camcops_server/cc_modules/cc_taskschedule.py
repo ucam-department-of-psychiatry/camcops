@@ -103,5 +103,5 @@ class TaskScheduleItem(Base):
 
     def __str__(self) -> str:
         return (f"{self.task_table_name} "
-                f"due from {self.due_from}, "
-                f"must be completed by {self.due_by}")
+                f"due from {self.due_from.in_days()} days, "
+                f"must be completed by {self.due_by.in_days()} days")
