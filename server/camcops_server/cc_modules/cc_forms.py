@@ -3860,6 +3860,45 @@ class DurationWidgetTests(TestCase):
         self.assertEqual(kwargs['weeks'], "")
         self.assertEqual(kwargs['days'], "")
 
+    def test_deserialize_converts_months_and_weeks_to_days(self) -> None:
+        widget = DurationWidget()
+
+        pstruct = {
+            "days": 1,
+            "weeks": 2,
+            "months": 3,
+        }
+
+        days = widget.deserialize(None, pstruct)
+
+        self.assertEqual(days, 105)
+
+    def test_deserialize_defaults_to_zero_days(self) -> None:
+        widget = DurationWidget()
+
+        days = widget.deserialize(None, {})
+
+        self.assertEqual(days, 0)
+
+    def test_deserialize_fails_validation(self) -> None:
+        widget = DurationWidget()
+
+        pstruct = {
+            "days": "abc",
+            "weeks": "def",
+            "months": "ghi",
+        }
+
+        with self.assertRaises(Invalid) as cm:
+            widget.deserialize(None, pstruct)
+
+        self.assertIn("Please enter a valid number of days or leave blank",
+                      cm.exception.messages())
+        self.assertIn("Please enter a valid number of weeks or leave blank",
+                      cm.exception.messages())
+        self.assertIn("Please enter a valid number of months or leave blank",
+                      cm.exception.messages())
+
 
 # =============================================================================
 # main
