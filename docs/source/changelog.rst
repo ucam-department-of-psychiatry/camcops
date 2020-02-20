@@ -2748,6 +2748,17 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - :ref:`MFI-20 <mfi20>` added as a full task (with usage restrictions)
   following the kind permission of the lead author.
 
+- Bugfixes re "no PID" ID policies:
+
+  - Client and server tables using "other" as fieldname whereas policy/docs
+    use "otherdetails". This is OK but policy mapping was wrong.
+
+  - With no DOB present, there was an error at upload: ``Server reported an
+    error: Patient JSON contains invalid non-string``. Bug was in
+    :func:`camcops_server.cc_modules.client_api.op_validate_patients.ensure_string`.
+
+  - Added button to nullify DOB for the "no-DOB" policies.
+
 - Documentation link from app fixed for FFT, CGI-I, IRAC, RSS
   (patient-specific), RSS (survey), PSS.
 

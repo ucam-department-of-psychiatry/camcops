@@ -34,12 +34,12 @@ extern const QString DOB_FIELD;
 extern const QString SEX_FIELD;
 extern const QString ADDRESS_FIELD;
 extern const QString GP_FIELD;
-extern const QString OTHER_FIELD;
+extern const QString OTHER_DETAILS_POLICYNAME;
 
 extern const QString IDNUM_FIELD_PREFIX;
 extern const QString IDNUM_FIELD_FORMAT;
-extern const QString ANY_IDNUM;
-extern const QString OTHER_IDNUM;
+extern const QString ANY_IDNUM_POLICYNAME;
+extern const QString OTHER_IDNUM_POLICYNAME;
 
 
 // Represents a patient.
