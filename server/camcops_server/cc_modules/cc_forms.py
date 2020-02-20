@@ -3808,6 +3808,44 @@ class DurationWidgetTests(TestCase):
 
         self.assertEqual(kwargs['field'], field)
 
+    def test_serialize_renders_readonly_template_with_values(self) -> None:
+        widget = DurationWidget()
+
+        field = mock.Mock()
+        field.renderer = mock.Mock()
+
+        cstruct = {
+            "months": 1,
+            "weeks": 2,
+            "days": 3,
+        }
+
+        widget.serialize(field, cstruct, readonly=True)
+
+        args, kwargs = field.renderer.call_args
+
+        self.assertEqual(args[0], f"{TEMPLATE_DIR}/deform/readonly/duration.pt")
+        self.assertTrue(kwargs['readonly'])
+
+    def test_serialize_renders_readonly_template_if_widget_is_readonly(
+            self) -> None:
+        widget = DurationWidget(readonly=True)
+
+        field = mock.Mock()
+        field.renderer = mock.Mock()
+
+        cstruct = {
+            "months": 1,
+            "weeks": 2,
+            "days": 3,
+        }
+
+        widget.serialize(field, cstruct)
+
+        args, kwargs = field.renderer.call_args
+
+        self.assertEqual(args[0], f"{TEMPLATE_DIR}/deform/readonly/duration.pt")
+
 
 # =============================================================================
 # main
