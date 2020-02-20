@@ -3846,6 +3846,20 @@ class DurationWidgetTests(TestCase):
 
         self.assertEqual(args[0], f"{TEMPLATE_DIR}/deform/readonly/duration.pt")
 
+    def test_serialize_with_null_defaults_to_blank_values(self) -> None:
+        widget = DurationWidget()
+
+        field = mock.Mock()
+        field.renderer = mock.Mock()
+
+        widget.serialize(field, colander.null)
+
+        args, kwargs = field.renderer.call_args
+
+        self.assertEqual(kwargs['months'], "")
+        self.assertEqual(kwargs['weeks'], "")
+        self.assertEqual(kwargs['days'], "")
+
 
 # =============================================================================
 # main
