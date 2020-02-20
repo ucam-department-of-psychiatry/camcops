@@ -164,6 +164,8 @@ from deform.widget import (
     Widget,
 )
 
+from pendulum import Duration
+
 # import as LITTLE AS POSSIBLE; this is used by lots of modules
 # We use some delayed imports here (search for "delayed import")
 from camcops_server.cc_modules.cc_baseconstants import TEMPLATE_DIR
@@ -3592,6 +3594,8 @@ class DurationWidget(Widget):
     readonly_template = os.path.join(readonlydir, form)
 
     def serialize(self, field, cstruct, **kw):
+        # called when rendering the form with values from DurationType.serialize
+
         if cstruct is colander.null:
             cstruct = {}
 
@@ -3610,6 +3614,9 @@ class DurationWidget(Widget):
         return field.renderer(template, **values)
 
     def deserialize(self, field, pstruct):
+        # called when validating the form on submission
+        # value is passed to the schema deserialize()
+
         errors = []
 
         try:
@@ -3632,16 +3639,23 @@ class DurationWidget(Widget):
         if len(errors) > 0:
             raise Invalid(field, errors)
 
-        return months * 30 + weeks * 7 + days
+        total_days = months * 30 + weeks * 7 + days
+
+        return {
+            "days": total_days,
+            "months": 0,
+            "weeks": 0
+        }
 
 
 class DurationType(object):
-    def deserialize(self, node: SchemaNode, days: int) -> int:
-        # Just pass on the number of days from the widget deserialize()
+    def deserialize(self, node: SchemaNode, cstruct: Dict) -> Duration:
+        # called when validating the submitted form with the total days
+        # from DurationWidget.deserialize()
 
-        return days
+        return Duration(days=cstruct["days"])
 
-    def serialize(self, node: SchemaNode, duration) -> Dict:
+    def serialize(self, node: SchemaNode, duration: Duration) -> Dict:
         if duration is colander.null:
             # For new schedule item
             return colander.null
@@ -3649,8 +3663,8 @@ class DurationType(object):
         # Existing schedule item
         cstruct = {
             "days": duration.in_days(),
-            "months": "",
-            "weeks": "",
+            "months": 0,
+            "weeks": 0,
         }
 
         return cstruct
@@ -3664,10 +3678,11 @@ class DurationNode(SchemaNode):
 
 
 class TaskScheduleItemSchema(CSRFSchema):
-    schedule_id = HiddenIntegerNode()
-    task_table_name = MandatorySingleTaskSelector()
-    due_from = DurationNode()
-    due_by = DurationNode()
+    schedule_id = HiddenIntegerNode()  # name must match ViewParam.SCHEDULE_ID
+    # name must match ViewParam.TABLE_NAME
+    table_name = MandatorySingleTaskSelector()
+    due_from = DurationNode()  # name must match ViewParam.DUE_FROM
+    due_by = DurationNode()  # name must match ViewParam.DUE_BY
 
 
 class EditTaskScheduleItemForm(DynamicDescriptionsForm):
@@ -3781,6 +3796,17 @@ class SchemaTests(DemoRequestTestCase):
         schema = LoginSchema().bind(request=self.req)
         self._serialize_deserialize(schema, appstruct)
 
+    def test_task_schedule_item_schema(self) -> None:
+        self.announce("test_task_schedule_item_schema")  # noqa
+        appstruct = {
+            ViewParam.SCHEDULE_ID: 1,
+            ViewParam.TABLE_NAME: "bmi",
+            ViewParam.DUE_FROM: Duration(days=90),
+            ViewParam.DUE_BY: Duration(days=100)
+        }
+        schema = TaskScheduleItemSchema().bind(request=self.req)
+        self._serialize_deserialize(schema, appstruct)
+
 
 class DurationWidgetTests(TestCase):
     def test_serialize_renders_template_with_values(self) -> None:
@@ -3869,16 +3895,18 @@ class DurationWidgetTests(TestCase):
             "months": 3,
         }
 
-        days = widget.deserialize(None, pstruct)
+        cstruct = widget.deserialize(None, pstruct)
 
-        self.assertEqual(days, 105)
+        self.assertEqual(cstruct["days"], 105)
+        self.assertEqual(cstruct["weeks"], 0)
+        self.assertEqual(cstruct["months"], 0)
 
     def test_deserialize_defaults_to_zero_days(self) -> None:
         widget = DurationWidget()
 
-        days = widget.deserialize(None, {})
+        cstruct = widget.deserialize(None, {})
 
-        self.assertEqual(days, 0)
+        self.assertEqual(cstruct["days"], 0)
 
     def test_deserialize_fails_validation(self) -> None:
         widget = DurationWidget()

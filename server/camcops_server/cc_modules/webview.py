@@ -3803,13 +3803,13 @@ def add_task_schedule_item(req: "CamcopsRequest") -> Response:
             appstruct = form.validate(controls)
 
             item = TaskScheduleItem()
-            item.schedule_id = appstruct.get("schedule_id")
-            item.task_table_name = appstruct.get("task_table_name")
+            item.schedule_id = appstruct.get(ViewParam.SCHEDULE_ID)
+            item.task_table_name = appstruct.get(ViewParam.TABLE_NAME)
             item.due_from = Duration(
-                days=appstruct.get("due_from")
+                days=appstruct.get(ViewParam.DUE_FROM)
             )
             item.due_by = Duration(
-                days=appstruct.get("due_by")
+                days=appstruct.get(ViewParam.DUE_BY)
             )
 
             req.dbsession.add(item)
@@ -3867,12 +3867,8 @@ def edit_task_schedule_item(req: "CamcopsRequest") -> Response:
             controls = list(req.POST.items())
             appstruct = form.validate(controls)
 
-            item.due_from = Duration(
-                days=appstruct.get("due_from")
-            )
-            item.due_by = Duration(
-                days=appstruct.get("due_by")
-            )
+            item.due_from = appstruct.get("due_from")
+            item.due_by = appstruct.get("due_by")
 
             req.dbsession.add(item)
 
