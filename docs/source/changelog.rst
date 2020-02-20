@@ -2750,3 +2750,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Documentation link from app fixed for FFT, CGI-I, IRAC, RSS
   (patient-specific), RSS (survey), PSS.
+
+- Bugfix to demo supervisord config file: indented comments are not OK on at
+  least some versions of supervisor (2020-02-20; on Ubuntu 18.04).
