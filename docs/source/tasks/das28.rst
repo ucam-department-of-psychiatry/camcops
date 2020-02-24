@@ -39,9 +39,9 @@ protein), in the DAS28-CRP.
 
 - sw28 = number of swollen joints, range [0, 28].
 
-- The CRP units are mg/L, constrained to be integer and in the range [0, 300].
+- The CRP units are mg/L and in the range [0, 300].
 
-- The ESR units are mm/hr, constrained to be integer and in the range [1, 300].
+- The ESR units are mm/hr and in the range [1, 300].
 
 - The VAS (visual analogue scale) units are mm, range [0, 100]. Low is inactive
   arthritis; high is extremely active arthritis.
