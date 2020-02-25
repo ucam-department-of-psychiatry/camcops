@@ -26,7 +26,7 @@ camcops_server/alembic/versions/0044_mojo_therapy_sessions_planned_comment.py
 
 DATABASE REVISION SCRIPT
 
-mojo_
+mojo_therapy_sessions_planned_comment
 
 Revision ID: 0044
 Revises: 0043
