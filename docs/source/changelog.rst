@@ -2764,3 +2764,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Bugfix to demo supervisord config file: indented comments are not OK on at
   least some versions of supervisor (2020-02-20; on Ubuntu 18.04).
+
+- :ref:`DAS28 <das28>` CRP and ESR changed from integer to floating point
+  (Database revision 0045).
