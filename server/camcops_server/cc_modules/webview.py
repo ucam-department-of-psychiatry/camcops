@@ -3936,3 +3936,13 @@ class WebviewTests(DemoDatabaseTestCase):
         self.dbsession.flush()
 
         self.assertFalse(any_records_use_group(self.req, group))
+
+
+class AddTaskScheduleItemViewTests(DemoDatabaseTestCase):
+    def test_schedule_item_is_created(self) -> None:
+        self.req.POST = {
+            FormAction.SUBMIT: "submit",
+        }
+
+        view = AddTaskScheduleItemView(self.req)
+        view.dispatch()
