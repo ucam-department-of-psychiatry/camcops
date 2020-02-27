@@ -531,49 +531,7 @@ def get_demo_supervisor_config() -> str:
 # Created by CamCOPS version {CAMCOPS_SERVER_VERSION_STRING} at {str(
         Pendulum.now())}.
 # =============================================================================
-    # - Supervisor is a system for controlling background processes running on
-    #   UNIX-like operating systems. See:
-    #       http://supervisord.org
-    #
-    # - On Ubuntu systems, you would typically install supervisor with
-    #       sudo apt install supervisor
-    #   and then save this file as
-    #       /etc/supervisor/conf.d/camcops.conf
-    #
-    # - IF YOU EDIT THIS FILE, run:
-    #       sudo service supervisor restart  # Ubuntu
-    #       sudo service supervisord restart  # CentOS 6
-    #
-    # - TO MONITOR SUPERVISOR, run:
-    #       sudo supervisorctl status
-    #   ... or just "sudo supervisorctl" for an interactive prompt.
-    #
-    # NOTES ON THE SUPERVISOR CONFIG FILE AND ENVIRONMENT:
-    #
-    # - Indented lines are treated as continuation (even in commands; no need
-    #   for end-of-line backslashes or similar).
-    # - The downside of that is that indented comment blocks can join onto your
-    #   commands! Beware that.
-    # - You can't put quotes around the directory variable
-    #   (http://stackoverflow.com/questions/10653590).
-    # - Python programs that are installed within a Python virtual environment
-    #   automatically use the virtualenv's copy of Python via their shebang;
-    #   you do not need to specify that by hand, nor the PYTHONPATH.
-    # - The "environment" setting sets the OS environment. The "--env"
-    #   parameter to gunicorn, if you use it, sets the WSGI environment.
-    # - Creating a group (see below; a.k.a. a "heterogeneous process group")
-    #   allows you to control all parts of CamCOPS together, as "camcops" in
-    #   this example (see
-    #   http://supervisord.org/configuration.html#group-x-section-settings).
-    #   Thus, you can do, for example:
-    #       sudo supervisorctl start camcops:*
-    #
-    # SPECIFIC EXTRA NOTES FOR CAMCOPS:
-    #
-    # - The MPLCONFIGDIR environment variable specifies a cache directory for
-    #   matplotlib, which greatly speeds up its subsequent loading.
-    # - The typical "web server" user is "www-data" under Ubuntu Linux and
-    #   "apache" under CentOS.
+# See https://camcops.readthedocs.io/en/latest/administrator/server_configuration.html#start-camcops
 
 [program:camcops_server]
 
@@ -624,7 +582,7 @@ stopwaitsecs = {stopwaitsecs}
 
 programs = camcops_server, camcops_workers, camcops_scheduler
 
-    """
+    """  # noqa
 
 
 def get_demo_apache_config(
@@ -835,9 +793,10 @@ def get_demo_apache_config(
 
         Require all granted
 
-        # ... for old Apache version (e.g. 2.2), use instead:
-        # Order allow,deny
-        # Allow from all
+            # ... for old Apache versions (e.g. 2.2), use instead:
+            #
+            #   Order allow,deny
+            #   Allow from all
 
             # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             # (d) Tell the proxied application that we are using HTTPS, and
@@ -845,40 +804,24 @@ def get_demo_apache_config(
             # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             #     ... https://stackoverflow.com/questions/16042647
             #
-            # EITHER enable mod_headers (e.g. "sudo a2enmod headers") and set:
+            # Enable mod_headers (e.g. "sudo a2enmod headers") and set:
 
         RequestHeader set X-Forwarded-Proto https
         RequestHeader set X-Script-Name {urlbase}
 
-            # and call CamCOPS like:
+            # ... then ensure the TRUSTED_PROXY_HEADERS setting in the CamCOPS
+            # config file includes:
             #
-            # camcops serve_gunicorn \\
-            #       --config SOMECONFIG \\
-            #       --trusted_proxy_headers \\
-            #           HTTP_X_FORWARDED_HOST \\
-            #           HTTP_X_FORWARDED_SERVER \\
-            #           HTTP_X_FORWARDED_PORT \\
-            #           HTTP_X_FORWARDED_PROTO \\
+            #           HTTP_X_FORWARDED_HOST
+            #           HTTP_X_FORWARDED_SERVER
+            #           HTTP_X_FORWARDED_PORT
+            #           HTTP_X_FORWARDED_PROTO
             #           HTTP_X_SCRIPT_NAME
             #
             # (X-Forwarded-For, X-Forwarded-Host, and X-Forwarded-Server are
-            # supplied by Apache automatically)
-            #
-            # ... OR specify those options by hand in the CamCOPS command.
+            # supplied by Apache automatically.)
 
     </Location>
-
-        # ---------------------------------------------------------------------
-        # 3. For additional CamCOPS instances
-        # ---------------------------------------------------------------------
-        # (a) duplicate section 1 above, editing the base URL and CamCOPS
-        #     connection (socket/port);
-        # (b) you will also need to create an additional CamCOPS instance,
-        #     as above;
-        # (c) add additional static aliases (in section 2 above).
-        #
-        # HOWEVER, consider adding more CamCOPS groups, rather than creating
-        # additional instances; the former are *much* easier to administer!
 
     #==========================================================================
     # SSL security (for HTTPS)
