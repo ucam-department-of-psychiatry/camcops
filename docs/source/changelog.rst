@@ -2767,3 +2767,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - :ref:`DAS28 <das28>` CRP and ESR changed from integer to floating point
   (Database revision 0045).
+
+- Bugfix to QuLineEditDouble, where the default minimum value was positive,
+  preventing zero or negative numbers from being entered.
