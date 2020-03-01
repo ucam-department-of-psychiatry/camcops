@@ -196,7 +196,6 @@ OpenableWidget* Eq5d5l::editor(const bool read_only)
         "0", 0
     ));
 
-    const int overspill_rows = 3;
     QString itemtext;
     for (int i = 1; i < 100; ++i) {
 
@@ -213,8 +212,7 @@ OpenableWidget* Eq5d5l::editor(const bool read_only)
             uifunc::resourceFilename(resource.arg("_sel")),  // active
             uifunc::resourceFilename(resource.arg("_unsel")),  // inactive
             itemtext,  // text
-            i,  // value
-            overspill_rows
+            i  // value
         );
 
         items.append(item);

@@ -19,16 +19,11 @@
 
 #pragma once
 
-#define QUTHERMOMETER_USE_THERMOMETER_WIDGET
-
 #include <QList>
 #include "db/fieldref.h"
 #include "questionnairelib/quelement.h"
 #include "questionnairelib/quthermometeritem.h"
-
-#ifdef QUTHERMOMETER_USE_THERMOMETER_WIDGET
 #include "widgets/thermometer.h"
-#endif
 
 class ImageButton;
 
@@ -75,13 +70,8 @@ protected:
     QVariant valueFromIndex(int index) const;
 
 protected slots:
-#ifdef QUTHERMOMETER_USE_THERMOMETER_WIDGET
     // "User has selected a new part of the thermometer."
     void thermometerSelectionChanged(int thermometer_index);  // top-to-bottom index
-#else
-    // "User has selected a new part of the thermometer."
-    void clicked(int index);  // our internal bottom-to-top index
-#endif
 
     // "The field's data has changed."
     void fieldValueChanged(const FieldRef* fieldref);
@@ -91,11 +81,5 @@ protected:
     QVector<QuThermometerItem> m_items;  // our image/text/value tuples
     bool m_rescale;  // see setRescale()
     double m_rescale_factor;  // see setRescale()
-#ifdef QUTHERMOMETER_USE_THERMOMETER_WIDGET
     QPointer<Thermometer> m_thermometer;  // our widget
-#else
-    QPointer<QWidget> m_main_widget;
-    QVector<QPointer<ImageButton>> m_active_widgets;
-    QVector<QPointer<ImageButton>> m_inactive_widgets;
-#endif
 };

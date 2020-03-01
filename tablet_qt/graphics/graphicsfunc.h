@@ -35,6 +35,7 @@ class QGraphicsScene;
 class QGraphicsRectItem;
 class QGraphicsTextItem;
 class QLabel;
+class QPaintEvent;
 class QPushButton;
 class QRectF;
 class QString;
@@ -216,6 +217,20 @@ void drawText(QPainter& painter, qreal x, qreal y, Qt::Alignment flags,
 // rectangle of the text if bounding_rect is specified.
 void drawText(QPainter& painter, const QPointF& point, Qt::Alignment flags,
               const QString& text, QRectF* bounding_rect = nullptr);
+
+// Paints a pixmap so that it fits within a rectangle, maintaining the aspect
+// ratio of the pixmap.
+void paintPixmapKeepingAspectRatio(QPainter& painter,
+                                   const QPixmap& pixmap,
+                                   const QRect& destination,
+                                   QPaintEvent* paint_event = nullptr);
+
+#if 0  // currently unused
+// Returns a QRegion whose coordinates have been scaled (multiplied) by a
+// factor.
+QRegion scaleRegion(const QRegion& region, qreal factor);
+#endif
+
 
 // ============================================================================
 // Creating QGraphicsScene objects
