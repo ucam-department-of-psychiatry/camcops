@@ -2770,3 +2770,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Bugfix to QuLineEditDouble, where the default minimum value was positive,
   preventing zero or negative numbers from being entered.
+
+- Restrict alcohol units for :ref:`Khandaker GM — MOJO — Medical questionnaire
+  <khandaker_mojo_medical>`.
