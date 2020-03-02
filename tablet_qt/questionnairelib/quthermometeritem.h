@@ -44,7 +44,6 @@ public:
             const QString& inactive_filename,
             const QString& text,
             const QVariant& value,
-            int overspill_rows = 0,
             Qt::Alignment text_alignment = Qt::AlignLeft | Qt::AlignVCenter);
 
     // Returns the active image filename.
@@ -71,6 +70,5 @@ protected:
     QString m_inactive_filename;
     QString m_text;
     QVariant m_value;
-    int m_overspill_rows;  // ignored if QUTHERMOMETER_USE_THERMOMETER_WIDGET is defined
     Qt::Alignment m_text_alignment;
 };
