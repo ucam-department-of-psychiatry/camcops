@@ -2765,6 +2765,15 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Bugfix to demo supervisord config file: indented comments are not OK on at
   least some versions of supervisor (2020-02-20; on Ubuntu 18.04).
 
+- :ref:`DAS28 <das28>` CRP and ESR changed from integer to floating point
+  (Database revision 0045).
+
+- Bugfix to QuLineEditDouble, where the default minimum value was positive,
+  preventing zero or negative numbers from being entered.
+
+- Restrict alcohol units for :ref:`Khandaker GM — MOJO — Medical questionnaire
+  <khandaker_mojo_medical>`.
+  
 - Bugfix to ``Thermometer`` widget (e.g. for EQ-5D-5L). Height suffered from
   an integer rounding problem (lots of little images stacked).
   Significant rewrite of widget code.
