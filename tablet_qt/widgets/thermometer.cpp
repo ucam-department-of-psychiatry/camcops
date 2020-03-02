@@ -141,7 +141,7 @@ Thermometer::Thermometer(const QVector<QPixmap>& active_images,
             uifunc::stopApp("Wrong right_strings length to Thermometer");
         }
         if (m_right_string_span <= 0) {
-            uifunc::stopApp("Thermometer: right_string_scale <= 0 "
+            uifunc::stopApp("Thermometer: right_string_span <= 0 "
                             "but there are right strings");
         }
     } else {
