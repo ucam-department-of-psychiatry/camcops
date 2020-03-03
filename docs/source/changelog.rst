@@ -2676,7 +2676,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Bugfix: Automatically create EXPORT_LOCKDIR on server startup
 
-**Client and server v2.3.7, IN PROGRESS**
+**Client and server v2.3.7, released 3 Mar 2020**
 
 - ``pyexcel-ods3`` and ``pyexcel-xlsx`` for spreadsheet export; faster and much
   smaller for ODS files. See ``cc_tsv.py``.
@@ -2773,7 +2773,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Restrict alcohol units for :ref:`Khandaker GM — MOJO — Medical questionnaire
   <khandaker_mojo_medical>`.
-  
+
 - Bugfix to ``Thermometer`` widget (e.g. for EQ-5D-5L). Height suffered from
   an integer rounding problem (lots of little images stacked).
   Significant rewrite of widget code.
