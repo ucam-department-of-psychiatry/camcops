@@ -2779,3 +2779,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
   Significant rewrite of widget code.
   Also removed ``QUTHERMOMETER_USE_THERMOMETER_WIDGET`` option (now always
   defined, effectively).
+
+**Client and server v2.3.8, released 3 Mar 2020**
