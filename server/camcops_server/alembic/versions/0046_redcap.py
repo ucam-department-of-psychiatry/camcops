@@ -58,6 +58,10 @@ depends_on = None
 
 # noinspection PyPep8,PyTypeChecker
 def upgrade():
+    with op.batch_alter_table('_export_recipients', schema=None) as batch_op:
+        batch_op.add_column(sa.Column('redcap_api_url', sa.Text(), nullable=True, comment='(REDCap) REDCap API URL, pointing to the REDCap server'))
+        batch_op.add_column(sa.Column('redcap_fieldmap_filename', sa.Text(), nullable=True, comment='(REDCap) File defining CamCOPS-to-REDCap field mapping'))
+
     op.create_table(
         '_exported_task_redcap',
         sa.Column('id', sa.Integer(), autoincrement=True, nullable=False, comment='Arbitrary primary key'),
@@ -75,4 +79,8 @@ def upgrade():
 
 # noinspection PyPep8,PyTypeChecker
 def downgrade():
+    with op.batch_alter_table('_export_recipients', schema=None) as batch_op:
+        batch_op.drop_column('redcap_fieldmap_filename')
+        batch_op.drop_column('redcap_api_url')
+
     op.drop_table('_exported_task_redcap')
