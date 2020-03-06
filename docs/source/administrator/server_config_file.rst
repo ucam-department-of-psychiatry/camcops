@@ -1199,6 +1199,20 @@ command used by ``camcops_server launch_workers``, after ``celery worker --app
 camcops_server --loglevel <LOGLEVEL>``.
 
 
+CELERY_EXPORT_TASK_RATE_LIMIT
+#############################
+
+*String.* Default: ``100/m``
+
+The per worker instance rate limit for exporting CamCOPS tasks.
+Integer or float values are interpreted as exports per second.
+
+The rate limits can be specified in seconds, minutes or hours by appending “/s”,
+“/m” or “/h” to the value.
+
+See https://docs.celeryproject.org/en/stable/userguide/tasks.html#Task.rate_limit
+
+
 .. _EXPORT_LOCKDIR:
 
 EXPORT_LOCKDIR

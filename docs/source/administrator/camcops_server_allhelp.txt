@@ -401,6 +401,7 @@ Help for command 'export'
 usage: camcops_server export [-h] [-v] [--config CONFIG]
                              [--recipients [RECIPIENTS [RECIPIENTS ...]]]
                              [--all_recipients] [--disable_task_index]
+                             [--schedule_via_backend]
 
 Trigger pending exports
 
@@ -416,6 +417,8 @@ optional arguments:
   --all_recipients      Use all recipients (default: False)
   --disable_task_index  Disable use of the task index (for debugging only)
                         (default: False)
+  --schedule_via_backend
+                        Export tasks as a background job (default: False)
 
 ===============================================================================
 Help for command 'show_export_queue'

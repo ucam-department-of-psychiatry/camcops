@@ -292,11 +292,13 @@ def _enable_user_cli(username: str = None) -> bool:
 
 def _cmd_export(recipient_names: List[str] = None,
                 all_recipients: bool = False,
-                via_index: bool = True) -> None:
+                via_index: bool = True,
+                schedule_via_backend: bool = False) -> None:
     import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
     return core.cmd_export(recipient_names=recipient_names,
                            all_recipients=all_recipients,
-                           via_index=via_index)
+                           via_index=via_index,
+                           schedule_via_backend=schedule_via_backend)
 
 
 def _cmd_show_export_queue(recipient_names: List[str] = None,
@@ -963,11 +965,16 @@ def camcops_main() -> int:
         subparsers, "export",
         help="Trigger pending exports")
     _add_export_options(export_parser)
+    export_parser.add_argument(
+        "--schedule_via_backend", action="store_true",
+        help="Export tasks as a background job"
+    )
     export_parser.set_defaults(
         func=lambda args: _cmd_export(
             recipient_names=args.recipients,
             all_recipients=args.all_recipients,
             via_index=not args.disable_task_index,
+            schedule_via_backend=args.schedule_via_backend,
         ))
 
     # Show export queue

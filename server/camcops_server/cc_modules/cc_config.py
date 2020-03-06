@@ -376,6 +376,7 @@ def get_demo_config(extra_strings_dir: str = None,
 {ConfigParamExportGeneral.CELERY_BEAT_SCHEDULE_DATABASE} = {lock_dir}/camcops_celerybeat_schedule
 {ConfigParamExportGeneral.CELERY_BROKER_URL} = {cd.CELERY_BROKER_URL}
 {ConfigParamExportGeneral.CELERY_WORKER_EXTRA_ARGS} =
+{ConfigParamExportGeneral.CELERY_EXPORT_TASK_RATE_LIMIT} = 100/m
 {ConfigParamExportGeneral.EXPORT_LOCKDIR} = {lock_dir}
 
 {ConfigParamExportGeneral.RECIPIENTS} =
@@ -1258,6 +1259,8 @@ class CamcopsConfig(object):
             es, ce.CELERY_BROKER_URL, cd.CELERY_BROKER_URL)
         self.celery_worker_extra_args = _get_multiline(
             es, ce.CELERY_WORKER_EXTRA_ARGS)
+        self.celery_export_task_rate_limit = _get_str(
+            es, ce.CELERY_EXPORT_TASK_RATE_LIMIT)
 
         self.export_lockdir = _get_str(es, ce.EXPORT_LOCKDIR)
         if not self.export_lockdir:
