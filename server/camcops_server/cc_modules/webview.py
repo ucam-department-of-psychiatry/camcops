@@ -146,7 +146,7 @@ from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_orm_classes_from_base
 from cardinal_pythonlib.sqlalchemy.orm_query import CountStarSpecializedQuery
 from cardinal_pythonlib.sqlalchemy.session import get_engine_from_session
 from deform.exception import ValidationFailure
-from pendulum import DateTime as Pendulum
+from pendulum import DateTime as Pendulum, Duration
 from pyramid.httpexceptions import HTTPBadRequest, HTTPFound, HTTPNotFound
 from pyramid.view import (
     forbidden_view_config,
@@ -164,6 +164,7 @@ import pygments.formatters
 from sqlalchemy.orm import Query
 from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.expression import desc, or_, select, update
+from webob.multidict import MultiDict
 
 from camcops_server.cc_modules.cc_audit import audit, AuditEntry
 from camcops_server.cc_modules.cc_all_models import CLIENT_TABLE_MAP
@@ -3940,9 +3941,94 @@ class WebviewTests(DemoDatabaseTestCase):
 
 class AddTaskScheduleItemViewTests(DemoDatabaseTestCase):
     def test_schedule_item_is_created(self) -> None:
-        self.req.POST = {
-            FormAction.SUBMIT: "submit",
-        }
+
+        schedule = TaskSchedule()
+        schedule.group_id = self.group.id
+        schedule.description = "Test"
+
+        self.dbsession.add(schedule)
+        self.dbsession.flush()
+
+        multidict = MultiDict([
+            ("_charset_", "UTF-8"),
+            ("__formid__", "deform"),
+            (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
+            (ViewParam.SCHEDULE_ID, schedule.id),
+            (ViewParam.TABLE_NAME, "ace3"),
+            ("__start__", "due_from:mapping"),
+            ("months", "1"),
+            ("weeks", "2"),
+            ("days", "3"),
+            ("__end__", "due_from:mapping"),
+            ("__start__", "due_by:mapping"),
+            ("months", "4"),
+            ("weeks", "3"),
+            ("days", "2"),
+            ("__end__", "due_by:mapping"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
 
         view = AddTaskScheduleItemView(self.req)
-        view.dispatch()
+
+        with self.assertRaises(HTTPFound):
+            view.dispatch()
+
+        item = self.dbsession.query(TaskScheduleItem).one()
+
+        self.assertEqual(item.schedule_id, schedule.id)
+        self.assertEqual(item.task_table_name, "ace3")
+        self.assertEqual(item.due_from.in_days(), 47)
+        self.assertEqual(item.due_by.in_days(), 143)
+
+
+class EditTaskScheduleItemViewTests(DemoDatabaseTestCase):
+    def test_schedule_item_is_updated(self) -> None:
+
+        schedule = TaskSchedule()
+        schedule.group_id = self.group.id
+        schedule.description = "Test"
+        self.dbsession.add(schedule)
+        self.dbsession.flush()
+
+        item = TaskScheduleItem()
+        item.schedule_id = schedule.id
+        item.task_table_name = "ace3"
+        item.due_from = Duration(days=30)
+        item.due_by = Duration(days=60)
+        self.dbsession.add(item)
+        self.dbsession.flush()
+
+        multidict = MultiDict([
+            ("_charset_", "UTF-8"),
+            ("__formid__", "deform"),
+            (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
+            (ViewParam.SCHEDULE_ID, schedule.id),
+            (ViewParam.TABLE_NAME, "bmi"),
+            ("__start__", "due_from:mapping"),
+            ("months", "0"),
+            ("weeks", "0"),
+            ("days", "30"),
+            ("__end__", "due_from:mapping"),
+            ("__start__", "due_by:mapping"),
+            ("months", "0"),
+            ("weeks", "0"),
+            ("days", "60"),
+            ("__end__", "due_by:mapping"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+
+        self.req.add_get_params({
+            ViewParam.SCHEDULE_ITEM_ID: item.id
+        }, set_method_get=False)
+        view = EditTaskScheduleItemView(self.req)
+
+        with self.assertRaises(HTTPFound):
+            view.dispatch()
+
+        # item = self.dbsession.query(TaskScheduleItem).one()
+
+        self.assertEqual(item.task_table_name, "bmi")
