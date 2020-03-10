@@ -84,6 +84,7 @@ INSTALL_REQUIRES = [
 
     'Babel==2.6.0',  # reads code, generates gettext files; dev only but was already installed  # noqa
 
+    'cardinal_pythonlib==1.0.82',  # RNC libraries
     'celery==4.3.0',  # background tasks
     'colorlog==3.1.4',  # colour in logs
     'CherryPy==18.1.0',  # web server
@@ -113,6 +114,8 @@ INSTALL_REQUIRES = [
     'numpy==1.17.4',  # Used by some tasks. SLOW INSTALLATION.
 
     # 'odswriter==0.4.0',  # Write OpenOffice ODS files [REPLACED BY pyexcel-ods3]  # noqa
+    'openpyxl==2.5.14',  # pyexcel-xlsx wants openpyxl<2.6.0,>=2.5.0
+    # if we don't set this explicitly a newer version may get installed
 
     'paginate==0.5.6',  # pagination for web server
     'pendulum==2.0.4',  # better than Arrow
@@ -144,9 +147,6 @@ INSTALL_REQUIRES = [
     # https://github.com/jupyter/notebook/issues/4311
 
     'Wand==0.4.4',  # ImageMagick binding
-
-    # Moved to end to fix openpyxl mismatch
-    'cardinal_pythonlib==1.0.82',  # RNC libraries
 ]
 
 

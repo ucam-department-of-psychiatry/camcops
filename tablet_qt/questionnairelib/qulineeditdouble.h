@@ -47,7 +47,7 @@ protected:
     virtual void extraLineEditCreation(QLineEdit* editor) override;
 
 protected:
-    double m_minimum;  // minimum; may be std::numeric_limits<double>::min()
+    double m_minimum;  // minimum; may be std::numeric_limits<double>::lowest()
     double m_maximum;  // maximum; may be std::numeric_limits<double>::max()
     int m_decimals;  // maximum number of decimal places, for StrictDoubleValidator
     bool m_allow_empty;  // allow an empty field?

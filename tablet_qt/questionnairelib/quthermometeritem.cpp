@@ -29,13 +29,11 @@ QuThermometerItem::QuThermometerItem(const QString& active_filename,
                                      const QString& inactive_filename,
                                      const QString& text,
                                      const QVariant& value,
-                                     int overspill_rows,
                                      Qt::Alignment text_alignment) :
     m_active_filename(active_filename),
     m_inactive_filename(inactive_filename),
     m_text(text),
     m_value(value),
-    m_overspill_rows(overspill_rows),
     m_text_alignment(text_alignment)
 {
     Q_ASSERT(!m_value.isNull());
@@ -63,12 +61,6 @@ QString QuThermometerItem::text() const
 QVariant QuThermometerItem::value() const
 {
     return m_value;
-}
-
-
-int QuThermometerItem::overspillRows() const
-{
-    return m_overspill_rows;
 }
 
 
