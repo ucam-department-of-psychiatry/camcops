@@ -138,6 +138,7 @@ from colander import (
     Invalid,
     Length,
     MappingSchema,
+    null,
     OneOf,
     Range,
     Schema,
@@ -3616,6 +3617,9 @@ class DurationWidget(Widget):
     def deserialize(self, field, pstruct):
         # called when validating the form on submission
         # value is passed to the schema deserialize()
+
+        if pstruct is null:
+            pstruct = {}
 
         errors = []
 
