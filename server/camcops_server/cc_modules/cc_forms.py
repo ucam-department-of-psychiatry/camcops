@@ -321,6 +321,7 @@ class TranslatableValidateDangerousOperationNode(
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         super().after_bind(node, kw)  # calls set_description()
         _ = self.gettext
+        node.title = _("Danger")
         user_entry = get_child_node(self, "user_entry")
         user_entry.title = _("Validate this dangerous operation")
 
@@ -2662,11 +2663,6 @@ class DeleteUserSchema(HardWorkConfirmationSchema):
     """
     user_id = HiddenIntegerNode()  # name must match ViewParam.USER_ID
     danger = TranslatableValidateDangerousOperationNode()
-
-    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
-        _ = self.gettext
-        danger = get_child_node(self, "danger")
-        danger.title = _("Danger")
 
 
 class DeleteUserForm(DeleteCancelForm):
