@@ -42,6 +42,7 @@ from cardinal_pythonlib.dbfunc import get_fieldnames_from_cursor
 from cardinal_pythonlib.httpconst import MimeType
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import pendulum
+from sqlalchemy import event
 from sqlalchemy.orm import Session as SqlASession
 
 from camcops_server.cc_modules.cc_idnumdef import IdNumDefinition
@@ -133,6 +134,11 @@ class DemoRequestTestCase(ExtendedTestCase):
         else:
             self.db_filename = None
 
+    def set_sqlite_pragma(self, dbapi_connection, connection_record):
+        cursor = dbapi_connection.cursor()
+        cursor.execute("PRAGMA foreign_keys=ON")
+        cursor.close()
+
     def setUp(self) -> None:
         self.announce("setUp")
         self.create_config_file()
@@ -146,6 +152,7 @@ class DemoRequestTestCase(ExtendedTestCase):
                                                   echo=self.echo)
         else:
             self.engine = make_memory_sqlite_engine(echo=self.echo)
+        event.listen(self.engine, "connect", self.set_sqlite_pragma)
         self.dbsession = sessionmaker()(bind=self.engine)  # type: SqlASession
 
         self.req = get_unittest_request(self.dbsession)
