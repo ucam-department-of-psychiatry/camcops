@@ -47,6 +47,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
         <th>${_("Due from (days)")}</th>
         <th>${_("Due by (days)")}</th>
         <th>${_("Edit")}</th>
+        <th>${_("Delete")}</th>
     </tr>
 %for item in page:
     <tr>
@@ -66,6 +67,14 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
         ViewParam.SCHEDULE_ITEM_ID: item.id
     }
 ) }">${_("Edit")}</a>
+        </td>
+        <td>
+            <a href="${ req.route_url(
+    Routes.DELETE_TASK_SCHEDULE_ITEM,
+    _query={
+        ViewParam.SCHEDULE_ITEM_ID: item.id
+    }
+) }">${_("Delete")}</a>
         </td>
     </tr>
 %endfor

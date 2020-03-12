@@ -221,6 +221,7 @@ from camcops_server.cc_modules.cc_forms import (
     DeletePatientChooseForm,
     DeletePatientConfirmForm,
     DeleteSpecialNoteForm,
+    DeleteTaskScheduleItemForm,
     DeleteUserForm,
     EditGroupForm,
     EditIdDefinitionForm,
@@ -3781,7 +3782,14 @@ def add_task_schedule(req: "CamcopsRequest") -> Response:
 class TaskScheduleItemBaseView(object):
     def __init__(self, request: "CamcopsRequest"):
         self.request = request
-        self.form = EditTaskScheduleItemForm(request=request)
+
+    @property
+    def form(self):
+        raise NotImplementedError
+
+    @property
+    def title(self):
+        raise NotImplementedError
 
     def get_schedule_items_url(self):
         return self.request.route_url(
@@ -3794,8 +3802,6 @@ class TaskScheduleItemBaseView(object):
     def dispatch(self) -> Response:
         if FormAction.CANCEL in self.request.POST:
             raise HTTPFound(self.get_schedule_items_url())
-
-        # TODO: Delete
 
         if FormAction.SUBMIT in self.request.POST:
             return self.handle_submit()
@@ -3835,6 +3841,7 @@ class TaskScheduleItemBaseView(object):
         return render_to_response(
             "task_schedule_item_edit.mako",
             dict(
+                title=self.title,
                 form=rendered_form,
                 head_form_html=get_head_form_html(self.request, [self.form])
             ),
@@ -3843,6 +3850,15 @@ class TaskScheduleItemBaseView(object):
 
 
 class AddTaskScheduleItemView(TaskScheduleItemBaseView):
+    @property
+    def title(self):
+        _ = self.request.gettext
+        return _("Add a task schedule item")
+
+    @property
+    def form(self):
+        return EditTaskScheduleItemForm(request=self.request)
+
     def get_item(self) -> TaskScheduleItem:
         item = TaskScheduleItem()
         self.request.dbsession.add(item)
@@ -3864,6 +3880,15 @@ class EditTaskScheduleItemView(TaskScheduleItemBaseView):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.item = None
+
+    @property
+    def title(self):
+        _ = self.request.gettext
+        return _("Edit details for task schedule item")
+
+    @property
+    def form(self):
+        return EditTaskScheduleItemForm(request=self.request)
 
     def get_item(self) -> TaskScheduleItem:
         if self.item is None:
@@ -3892,6 +3917,26 @@ class EditTaskScheduleItemView(TaskScheduleItemBaseView):
         return item.schedule_id
 
 
+class DeleteTaskScheduleItemView(EditTaskScheduleItemView):
+    @property
+    def title(self):
+        _ = self.request.gettext
+        return _("Delete task schedule item")
+
+    @property
+    def form(self):
+        return DeleteTaskScheduleItemForm(request=self.request)
+
+    def dispatch(self) -> Response:
+        if FormAction.DELETE in self.request.POST:
+            item = self.get_item()
+            self.request.dbsession.delete(item)
+
+            raise HTTPFound(self.get_schedule_items_url())
+
+        return super().dispatch()
+
+
 @view_config(route_name=Routes.ADD_TASK_SCHEDULE_ITEM,
              permission=Permission.GROUPADMIN)
 def add_task_schedule_item(req: "CamcopsRequest") -> Response:
@@ -3908,6 +3953,15 @@ def edit_task_schedule_item(req: "CamcopsRequest") -> Response:
     View to edit a task schedule item.
     """
     return EditTaskScheduleItemView(req).dispatch()
+
+
+@view_config(route_name=Routes.DELETE_TASK_SCHEDULE_ITEM,
+             permission=Permission.GROUPADMIN)
+def delete_task_schedule_item(req: "CamcopsRequest") -> Response:
+    """
+    View to delete a task schedule item.
+    """
+    return DeleteTaskScheduleItemView(req).dispatch()
 
 
 # =============================================================================
@@ -3984,16 +4038,18 @@ class AddTaskScheduleItemViewTests(DemoDatabaseTestCase):
 
 
 class EditTaskScheduleItemViewTests(DemoDatabaseTestCase):
-    def test_schedule_item_is_updated(self) -> None:
+    def setUp(self) -> None:
+        super().setUp()
 
-        schedule = TaskSchedule()
-        schedule.group_id = self.group.id
-        schedule.description = "Test"
-        self.dbsession.add(schedule)
+        self.schedule = TaskSchedule()
+        self.schedule.group_id = self.group.id
+        self.schedule.description = "Test"
+        self.dbsession.add(self.schedule)
         self.dbsession.flush()
 
+    def test_schedule_item_is_updated(self) -> None:
         item = TaskScheduleItem()
-        item.schedule_id = schedule.id
+        item.schedule_id = self.schedule.id
         item.task_table_name = "ace3"
         item.due_from = Duration(days=30)
         item.due_by = Duration(days=60)
@@ -4004,7 +4060,7 @@ class EditTaskScheduleItemViewTests(DemoDatabaseTestCase):
             ("_charset_", "UTF-8"),
             ("__formid__", "deform"),
             (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
-            (ViewParam.SCHEDULE_ID, schedule.id),
+            (ViewParam.SCHEDULE_ID, self.schedule.id),
             (ViewParam.TABLE_NAME, "bmi"),
             ("__start__", "due_from:mapping"),
             ("months", "0"),
@@ -4032,3 +4088,37 @@ class EditTaskScheduleItemViewTests(DemoDatabaseTestCase):
         # item = self.dbsession.query(TaskScheduleItem).one()
 
         self.assertEqual(item.task_table_name, "bmi")
+
+
+class DeleteTaskScheduleItemViewTests(DemoDatabaseTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.schedule = TaskSchedule()
+        self.schedule.group_id = self.group.id
+        self.schedule.description = "Test"
+        self.dbsession.add(self.schedule)
+        self.dbsession.flush()
+
+    def test_schedule_item_is_deleted(self) -> None:
+        item = TaskScheduleItem()
+        item.schedule_id = self.schedule.id
+        item.task_table_name = "ace3"
+        self.dbsession.add(item)
+        self.dbsession.flush()
+
+        self.req.fake_request_post_from_dict({
+            FormAction.DELETE: "delete"
+        })
+
+        self.req.add_get_params({
+            ViewParam.SCHEDULE_ITEM_ID: item.id
+        }, set_method_get=False)
+        view = DeleteTaskScheduleItemView(self.req)
+
+        with self.assertRaises(HTTPFound):
+            view.dispatch()
+
+        item = self.dbsession.query(TaskScheduleItem).one_or_none()
+
+        self.assertIsNone(item)

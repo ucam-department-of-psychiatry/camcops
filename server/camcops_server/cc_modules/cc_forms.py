@@ -3701,6 +3701,24 @@ class EditTaskScheduleItemForm(DynamicDescriptionsForm):
         )
 
 
+class DeleteTaskScheduleItemSchema(HardWorkConfirmationSchema):
+    """
+    Schema to delete a task schedule item.
+    """
+    # name must match ViewParam.SCHEDULE_ITEM_ID
+    schedule_item_id = HiddenIntegerNode()
+    danger = TranslatableValidateDangerousOperationNode()
+
+
+class DeleteTaskScheduleItemForm(DeleteCancelForm):
+    """
+    Form to delete a task schedule item.
+    """
+    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+        super().__init__(schema_class=DeleteTaskScheduleItemSchema,
+                         request=request, **kwargs)
+
+
 class ForciblyFinalizeChooseDeviceSchema(CSRFSchema):
     """
     Schema to force-finalize records from a device.
