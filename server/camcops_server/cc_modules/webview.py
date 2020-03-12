@@ -4085,8 +4085,6 @@ class EditTaskScheduleItemViewTests(DemoDatabaseTestCase):
         with self.assertRaises(HTTPFound):
             view.dispatch()
 
-        # item = self.dbsession.query(TaskScheduleItem).one()
-
         self.assertEqual(item.task_table_name, "bmi")
 
 
