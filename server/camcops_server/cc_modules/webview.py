@@ -4000,7 +4000,7 @@ class WebviewTests(DemoDatabaseTestCase):
         self.announce("test_any_records_use_group_false")
         group = Group()
         self.dbsession.add(self.group)
-        self.dbsession.flush()
+        self.dbsession.commit()
 
         self.assertFalse(any_records_use_group(self.req, group))
 
@@ -4014,7 +4014,7 @@ class AddTaskScheduleItemViewTests(DemoDatabaseTestCase):
         self.schedule.description = "Test"
 
         self.dbsession.add(self.schedule)
-        self.dbsession.flush()
+        self.dbsession.commit()
 
     def test_schedule_item_is_created(self) -> None:
         multidict = MultiDict([
@@ -4098,7 +4098,7 @@ class EditTaskScheduleItemViewTests(DemoDatabaseTestCase):
         self.schedule.group_id = self.group.id
         self.schedule.description = "Test"
         self.dbsession.add(self.schedule)
-        self.dbsession.flush()
+        self.dbsession.commit()
 
         self.item = TaskScheduleItem()
         self.item.schedule_id = self.schedule.id
@@ -4106,7 +4106,7 @@ class EditTaskScheduleItemViewTests(DemoDatabaseTestCase):
         self.item.due_from = Duration(days=30)
         self.item.due_by = Duration(days=60)
         self.dbsession.add(self.item)
-        self.dbsession.flush()
+        self.dbsession.commit()
 
     def test_schedule_item_is_updated(self) -> None:
         multidict = MultiDict([
@@ -4181,13 +4181,13 @@ class DeleteTaskScheduleItemViewTests(DemoDatabaseTestCase):
         self.schedule.group_id = self.group.id
         self.schedule.description = "Test"
         self.dbsession.add(self.schedule)
-        self.dbsession.flush()
+        self.dbsession.commit()
 
         self.item = TaskScheduleItem()
         self.item.schedule_id = self.schedule.id
         self.item.task_table_name = "ace3"
         self.dbsession.add(self.item)
-        self.dbsession.flush()
+        self.dbsession.commit()
 
     def test_schedule_item_is_deleted(self) -> None:
         self.req.fake_request_post_from_dict({
