@@ -3994,20 +3994,22 @@ class WebviewTests(DemoDatabaseTestCase):
 
 
 class AddTaskScheduleItemViewTests(DemoDatabaseTestCase):
-    def test_schedule_item_is_created(self) -> None:
+    def setUp(self) -> None:
+        super().setUp()
 
-        schedule = TaskSchedule()
-        schedule.group_id = self.group.id
-        schedule.description = "Test"
+        self.schedule = TaskSchedule()
+        self.schedule.group_id = self.group.id
+        self.schedule.description = "Test"
 
-        self.dbsession.add(schedule)
+        self.dbsession.add(self.schedule)
         self.dbsession.flush()
 
+    def test_schedule_item_is_created(self) -> None:
         multidict = MultiDict([
             ("_charset_", "UTF-8"),
             ("__formid__", "deform"),
             (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
-            (ViewParam.SCHEDULE_ID, schedule.id),
+            (ViewParam.SCHEDULE_ID, self.schedule.id),
             (ViewParam.TABLE_NAME, "ace3"),
             ("__start__", "due_from:mapping"),
             ("months", "1"),
@@ -4031,10 +4033,41 @@ class AddTaskScheduleItemViewTests(DemoDatabaseTestCase):
 
         item = self.dbsession.query(TaskScheduleItem).one()
 
-        self.assertEqual(item.schedule_id, schedule.id)
+        self.assertEqual(item.schedule_id, self.schedule.id)
         self.assertEqual(item.task_table_name, "ace3")
         self.assertEqual(item.due_from.in_days(), 47)
         self.assertEqual(item.due_by.in_days(), 143)
+
+    def test_schedule_item_is_not_created_on_cancel(self) -> None:
+        multidict = MultiDict([
+            ("_charset_", "UTF-8"),
+            ("__formid__", "deform"),
+            (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
+            (ViewParam.SCHEDULE_ID, self.schedule.id),
+            (ViewParam.TABLE_NAME, "ace3"),
+            ("__start__", "due_from:mapping"),
+            ("months", "1"),
+            ("weeks", "2"),
+            ("days", "3"),
+            ("__end__", "due_from:mapping"),
+            ("__start__", "due_by:mapping"),
+            ("months", "4"),
+            ("weeks", "3"),
+            ("days", "2"),
+            ("__end__", "due_by:mapping"),
+            (FormAction.CANCEL, "cancel"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+
+        view = AddTaskScheduleItemView(self.req)
+
+        with self.assertRaises(HTTPFound):
+            view.dispatch()
+
+        item = self.dbsession.query(TaskScheduleItem).one_or_none()
+
+        self.assertIsNone(item)
 
 
 class EditTaskScheduleItemViewTests(DemoDatabaseTestCase):
@@ -4047,15 +4080,15 @@ class EditTaskScheduleItemViewTests(DemoDatabaseTestCase):
         self.dbsession.add(self.schedule)
         self.dbsession.flush()
 
-    def test_schedule_item_is_updated(self) -> None:
-        item = TaskScheduleItem()
-        item.schedule_id = self.schedule.id
-        item.task_table_name = "ace3"
-        item.due_from = Duration(days=30)
-        item.due_by = Duration(days=60)
-        self.dbsession.add(item)
+        self.item = TaskScheduleItem()
+        self.item.schedule_id = self.schedule.id
+        self.item.task_table_name = "ace3"
+        self.item.due_from = Duration(days=30)
+        self.item.due_by = Duration(days=60)
+        self.dbsession.add(self.item)
         self.dbsession.flush()
 
+    def test_schedule_item_is_updated(self) -> None:
         multidict = MultiDict([
             ("_charset_", "UTF-8"),
             ("__formid__", "deform"),
@@ -4078,14 +4111,46 @@ class EditTaskScheduleItemViewTests(DemoDatabaseTestCase):
         self.req.fake_request_post_from_dict(multidict)
 
         self.req.add_get_params({
-            ViewParam.SCHEDULE_ITEM_ID: item.id
+            ViewParam.SCHEDULE_ITEM_ID: self.item.id
         }, set_method_get=False)
         view = EditTaskScheduleItemView(self.req)
 
         with self.assertRaises(HTTPFound):
             view.dispatch()
 
-        self.assertEqual(item.task_table_name, "bmi")
+        self.assertEqual(self.item.task_table_name, "bmi")
+
+    def test_schedule_item_is_not_updated_on_cancel(self) -> None:
+        multidict = MultiDict([
+            ("_charset_", "UTF-8"),
+            ("__formid__", "deform"),
+            (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
+            (ViewParam.SCHEDULE_ID, self.schedule.id),
+            (ViewParam.TABLE_NAME, "bmi"),
+            ("__start__", "due_from:mapping"),
+            ("months", "0"),
+            ("weeks", "0"),
+            ("days", "30"),
+            ("__end__", "due_from:mapping"),
+            ("__start__", "due_by:mapping"),
+            ("months", "0"),
+            ("weeks", "0"),
+            ("days", "60"),
+            ("__end__", "due_by:mapping"),
+            (FormAction.CANCEL, "cancel"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+
+        self.req.add_get_params({
+            ViewParam.SCHEDULE_ITEM_ID: self.item.id
+        }, set_method_get=False)
+        view = EditTaskScheduleItemView(self.req)
+
+        with self.assertRaises(HTTPFound):
+            view.dispatch()
+
+        self.assertEqual(self.item.task_table_name, "ace3")
 
 
 class DeleteTaskScheduleItemViewTests(DemoDatabaseTestCase):
@@ -4098,19 +4163,19 @@ class DeleteTaskScheduleItemViewTests(DemoDatabaseTestCase):
         self.dbsession.add(self.schedule)
         self.dbsession.flush()
 
-    def test_schedule_item_is_deleted(self) -> None:
-        item = TaskScheduleItem()
-        item.schedule_id = self.schedule.id
-        item.task_table_name = "ace3"
-        self.dbsession.add(item)
+        self.item = TaskScheduleItem()
+        self.item.schedule_id = self.schedule.id
+        self.item.task_table_name = "ace3"
+        self.dbsession.add(self.item)
         self.dbsession.flush()
 
+    def test_schedule_item_is_deleted(self) -> None:
         self.req.fake_request_post_from_dict({
             FormAction.DELETE: "delete"
         })
 
         self.req.add_get_params({
-            ViewParam.SCHEDULE_ITEM_ID: item.id
+            ViewParam.SCHEDULE_ITEM_ID: self.item.id
         }, set_method_get=False)
         view = DeleteTaskScheduleItemView(self.req)
 
@@ -4120,3 +4185,20 @@ class DeleteTaskScheduleItemViewTests(DemoDatabaseTestCase):
         item = self.dbsession.query(TaskScheduleItem).one_or_none()
 
         self.assertIsNone(item)
+
+    def test_schedule_item_not_deleted_on_cancel(self) -> None:
+        self.req.fake_request_post_from_dict({
+            FormAction.CANCEL: "cancel"
+        })
+
+        self.req.add_get_params({
+            ViewParam.SCHEDULE_ITEM_ID: self.item.id
+        }, set_method_get=False)
+        view = DeleteTaskScheduleItemView(self.req)
+
+        with self.assertRaises(HTTPFound):
+            view.dispatch()
+
+        item = self.dbsession.query(TaskScheduleItem).one_or_none()
+
+        self.assertIsNotNone(item)
