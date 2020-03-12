@@ -3866,6 +3866,18 @@ class AddTaskScheduleItemView(TaskScheduleItemBaseView):
         return item
 
     def get_form_values(self) -> Dict:
+        schedule_id = self.get_schedule_id()
+
+        schedule = self.request.dbsession.query(TaskSchedule).filter(
+            TaskSchedule.id == schedule_id
+        ).one_or_none()
+
+        if schedule is None:
+            _ = self.request.gettext
+            raise HTTPBadRequest(
+                f"{_('Missing Task Schedule for id')} {schedule_id}"
+            )
+
         return {
             ViewParam.SCHEDULE_ID: self.get_schedule_id(),
         }
@@ -4068,6 +4080,14 @@ class AddTaskScheduleItemViewTests(DemoDatabaseTestCase):
         item = self.dbsession.query(TaskScheduleItem).one_or_none()
 
         self.assertIsNone(item)
+
+    def test_non_existent_schedule_handled(self) -> None:
+        self.req.add_get_params({ViewParam.SCHEDULE_ID: 99999})
+
+        view = AddTaskScheduleItemView(self.req)
+
+        with self.assertRaises(HTTPBadRequest):
+            view.dispatch()
 
 
 class EditTaskScheduleItemViewTests(DemoDatabaseTestCase):
