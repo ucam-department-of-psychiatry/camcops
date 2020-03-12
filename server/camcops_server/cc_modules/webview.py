@@ -3883,8 +3883,6 @@ class AddTaskScheduleItemView(TaskScheduleItemBaseView):
         }
 
     def get_schedule_id(self) -> int:
-        # TODO: param is null
-
         return self.request.get_int_param(ViewParam.SCHEDULE_ID)
 
 
@@ -3906,10 +3904,15 @@ class EditTaskScheduleItemView(TaskScheduleItemBaseView):
         if self.item is None:
             item_id = self.request.get_int_param(ViewParam.SCHEDULE_ITEM_ID)
 
-            # TODO: item_id is None
             self.item = self.request.dbsession.query(TaskScheduleItem).filter(
                 TaskScheduleItem.id == item_id
-            ).first()
+            ).one_or_none()
+
+            if self.item is None:
+                _ = self.request.gettext
+                raise HTTPBadRequest(
+                    f"{_('Missing Task Schedule item for id')} {item_id}"
+                )
 
         return self.item
 
@@ -4171,6 +4174,20 @@ class EditTaskScheduleItemViewTests(DemoDatabaseTestCase):
             view.dispatch()
 
         self.assertEqual(self.item.task_table_name, "ace3")
+
+    def test_non_existent_item_handled(self) -> None:
+        self.req.add_get_params({ViewParam.SCHEDULE_ITEM_ID: 99999})
+
+        view = EditTaskScheduleItemView(self.req)
+
+        with self.assertRaises(HTTPBadRequest):
+            view.dispatch()
+
+    def test_null_item_handled(self) -> None:
+        view = EditTaskScheduleItemView(self.req)
+
+        with self.assertRaises(HTTPBadRequest):
+            view.dispatch()
 
 
 class DeleteTaskScheduleItemViewTests(DemoDatabaseTestCase):
