@@ -2783,3 +2783,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 **Client and server v2.3.8, IN PROGRESS**
 
 - Fixed openpyxl conflict when installing from Debian package
+
+- Fixed blank labels on form to delete user and translation of "Danger" on
+  other deletion forms.
