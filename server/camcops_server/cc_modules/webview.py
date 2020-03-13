@@ -306,6 +306,7 @@ from camcops_server.cc_modules.cc_user import (
     User,
 )
 from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
+from camcops_server.cc_modules.cc_view_classes import CreateView, UpdateView
 
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_request import CamcopsRequest
@@ -3779,19 +3780,18 @@ def add_task_schedule(req: "CamcopsRequest") -> Response:
     )
 
 
-class TaskScheduleItemBaseView(object):
-    def __init__(self, request: "CamcopsRequest"):
-        self.request = request
+class TaskScheduleItemMixin:
+    form_class = EditTaskScheduleItemForm
+    template_name = "task_schedule_item_edit.mako"
+    model_form_dict = {
+        "schedule_id": ViewParam.SCHEDULE_ID,
+        "task_table_name": ViewParam.TABLE_NAME,
+        "due_from": ViewParam.DUE_FROM,
+        "due_by": ViewParam.DUE_BY,
+    }
+    object_class = TaskScheduleItem
 
-    @property
-    def form(self):
-        raise NotImplementedError
-
-    @property
-    def title(self):
-        raise NotImplementedError
-
-    def get_schedule_items_url(self):
+    def get_success_url(self):
         return self.request.route_url(
             Routes.VIEW_TASK_SCHEDULE_ITEMS,
             _query={
@@ -3799,71 +3799,17 @@ class TaskScheduleItemBaseView(object):
             }
         )
 
-    def dispatch(self) -> Response:
-        if FormAction.CANCEL in self.request.POST:
-            raise HTTPFound(self.get_schedule_items_url())
-
-        if FormAction.SUBMIT in self.request.POST:
-            return self.handle_submit()
-
-        return self.display_form()
-
-    def handle_submit(self) -> Response:
-        try:
-            controls = list(self.request.POST.items())
-            appstruct = self.form.validate(controls)
-
-            item = self.get_item()
-
-            item.schedule_id = appstruct.get(ViewParam.SCHEDULE_ID)
-            item.task_table_name = appstruct.get(ViewParam.TABLE_NAME)
-            item.due_from = appstruct.get(ViewParam.DUE_FROM)
-            item.due_by = appstruct.get(ViewParam.DUE_BY)
-
-            raise HTTPFound(self.get_schedule_items_url())
-        except ValidationFailure as e:
-            return self.render_to_response(e.render())
-
-    def get_item(self) -> TaskScheduleItem:
-        raise NotImplementedError
-
-    def display_form(self) -> None:
-        appstruct = self.get_form_values()
-
-        rendered_form = self.form.render(appstruct)
-
-        return self.render_to_response(rendered_form)
-
-    def get_form_values(self) -> Dict:
-        raise NotImplementedError
-
-    def render_to_response(self, rendered_form: str) -> Response:
-        return render_to_response(
-            "task_schedule_item_edit.mako",
-            dict(
-                title=self.title,
-                form=rendered_form,
-                head_form_html=get_head_form_html(self.request, [self.form])
-            ),
-            request=self.request
-        )
+    def get_schedule_id(self) -> int:
+        return self.request.get_int_param(ViewParam.SCHEDULE_ID)
 
 
-class AddTaskScheduleItemView(TaskScheduleItemBaseView):
+class AddTaskScheduleItemView(TaskScheduleItemMixin, CreateView):
     @property
-    def title(self):
+    def extra_context(self):
         _ = self.request.gettext
-        return _("Add a task schedule item")
-
-    @property
-    def form(self):
-        return EditTaskScheduleItemForm(request=self.request)
-
-    def get_item(self) -> TaskScheduleItem:
-        item = TaskScheduleItem()
-        self.request.dbsession.add(item)
-
-        return item
+        return {
+            "title": _("Add a task schedule item"),
+        }
 
     def get_form_values(self) -> Dict:
         schedule_id = self.get_schedule_id()
@@ -3878,58 +3824,23 @@ class AddTaskScheduleItemView(TaskScheduleItemBaseView):
                 f"{_('Missing Task Schedule for id')} {schedule_id}"
             )
 
-        return {
-            ViewParam.SCHEDULE_ID: self.get_schedule_id(),
-        }
+        form_values = super().get_form_values()
+        form_values[ViewParam.SCHEDULE_ID] = schedule_id
 
-    def get_schedule_id(self) -> int:
-        return self.request.get_int_param(ViewParam.SCHEDULE_ID)
+        return form_values
 
 
-class EditTaskScheduleItemView(TaskScheduleItemBaseView):
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-        self.item = None
-
+class EditTaskScheduleItemView(TaskScheduleItemMixin, UpdateView):
     @property
-    def title(self):
+    def extra_context(self):
         _ = self.request.gettext
-        return _("Edit details for task schedule item")
-
-    @property
-    def form(self):
-        return EditTaskScheduleItemForm(request=self.request)
-
-    def get_item(self) -> TaskScheduleItem:
-        if self.item is None:
-            item_id = self.request.get_int_param(ViewParam.SCHEDULE_ITEM_ID)
-
-            self.item = self.request.dbsession.query(TaskScheduleItem).filter(
-                TaskScheduleItem.id == item_id
-            ).one_or_none()
-
-            if self.item is None:
-                _ = self.request.gettext
-                raise HTTPBadRequest(
-                    f"{_('Missing Task Schedule item for id')} {item_id}"
-                )
-
-        return self.item
-
-    def get_form_values(self) -> Dict:
-        item = self.get_item()
-
         return {
-            ViewParam.SCHEDULE_ID: item.schedule_id,
-            ViewParam.DUE_FROM: item.due_from,
-            ViewParam.DUE_BY: item.due_by,
-            ViewParam.TABLE_NAME: item.task_table_name,
+            "title": _("Edit details for a task schedule item"),
         }
 
-    def get_schedule_id(self) -> int:
-        item = self.get_item()
-
-        return item.schedule_id
+    @property
+    def pk(self) -> int:
+        return self.request.get_int_param(ViewParam.SCHEDULE_ITEM_ID)
 
 
 class DeleteTaskScheduleItemView(EditTaskScheduleItemView):
