@@ -194,6 +194,22 @@ class ModelFormMixin(FormMixin, SingleObjectMixin):
 
         return form_values
 
+    def get_object(self, **kwargs):
+        pk_property = getattr(self.object_class, "id")
+
+        obj = self.request.dbsession.query(self.object_class).filter(
+            pk_property == self.pk
+        ).one_or_none()
+
+        if obj is None:
+            _ = self.request.gettext
+
+            raise HTTPBadRequest(
+                f"{_('Cannot find object:')} {self.object_class}:{self.pk}"
+            )
+
+        return obj
+
 
 class ProcessFormView(View):
     """Render a form on GET and processes it on POST."""
@@ -266,22 +282,45 @@ class BaseUpdateView(ModelFormMixin, ProcessFormView):
         self.object = self.get_object()
         return super().post()
 
-    def get_object(self, **kwargs):
-        pk_property = getattr(self.object_class, "id")
-
-        obj = self.request.dbsession.query(self.object_class).filter(
-            pk_property == self.pk
-        ).one_or_none()
-
-        if obj is None:
-            _ = self.request.gettext
-
-            raise HTTPBadRequest(
-                f"{_('Cannot find object:')} {self.object_class}:{self.pk}"
-            )
-
-        return obj
-
 
 class UpdateView(TemplateResponseMixin, BaseUpdateView):
     """View for updating an object, with a response rendered by a template."""
+
+
+class BaseDetailView(SingleObjectMixin, View):
+    """A base view for displaying a single object."""
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
+
+
+class BaseDeleteView(ModelFormMixin, BaseDetailView):
+    """
+    Base view for deleting an object.
+
+    Using this base class requires subclassing to provide a response mixin.
+    """
+    success_url = None
+
+    def delete(self):
+        """
+        Delete the fetched object
+        """
+        self.object = self.get_object()
+        self.request.dbsession.delete(self.object)
+
+    def post(self):
+        if FormAction.DELETE in self.request.POST:
+            self.delete()
+
+        success_url = self.get_success_url()
+
+        raise HTTPFound(success_url)
+
+
+class DeleteView(TemplateResponseMixin, BaseDeleteView):
+    """
+    View for deleting an object retrieved with self.get_object(), with a
+    response rendered by a template.
+    """

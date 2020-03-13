@@ -306,7 +306,11 @@ from camcops_server.cc_modules.cc_user import (
     User,
 )
 from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
-from camcops_server.cc_modules.cc_view_classes import CreateView, UpdateView
+from camcops_server.cc_modules.cc_view_classes import (
+    CreateView,
+    DeleteView,
+    UpdateView,
+)
 
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_request import CamcopsRequest
@@ -3843,24 +3847,19 @@ class EditTaskScheduleItemView(TaskScheduleItemMixin, UpdateView):
         return self.request.get_int_param(ViewParam.SCHEDULE_ITEM_ID)
 
 
-class DeleteTaskScheduleItemView(EditTaskScheduleItemView):
+class DeleteTaskScheduleItemView(TaskScheduleItemMixin, DeleteView):
+    form_class = DeleteTaskScheduleItemForm
+
     @property
-    def title(self):
+    def extra_context(self):
         _ = self.request.gettext
-        return _("Delete task schedule item")
+        return {
+            "title": _("Edit details for a task schedule item"),
+        }
 
     @property
-    def form(self):
-        return DeleteTaskScheduleItemForm(request=self.request)
-
-    def dispatch(self) -> Response:
-        if FormAction.DELETE in self.request.POST:
-            item = self.get_item()
-            self.request.dbsession.delete(item)
-
-            raise HTTPFound(self.get_schedule_items_url())
-
-        return super().dispatch()
+    def pk(self) -> int:
+        return self.request.get_int_param(ViewParam.SCHEDULE_ITEM_ID)
 
 
 @view_config(route_name=Routes.ADD_TASK_SCHEDULE_ITEM,
