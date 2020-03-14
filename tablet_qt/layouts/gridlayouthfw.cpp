@@ -118,7 +118,14 @@ class QQGridBox
 public:
     QQGridBox(QLayoutItem* lit) { item_ = lit; }
 
-    QQGridBox(const QLayout* l, QWidget* wid) { item_ = createWidgetItem(l, wid); }
+    QQGridBox(const QLayout* l, QWidget* wid) {
+#ifdef GRIDLAYOUTHFW_ALTER_FROM_QGRIDLAYOUT
+        // Coded added 2020-03-12
+        item_ = createWidgetItem(l, wid, true);
+#else
+        item_ = createWidgetItem(l, wid);
+#endif
+    }
     ~QQGridBox() { delete item_; }
 
     QSize sizeHint() const { return item_->sizeHint(); }
@@ -638,8 +645,19 @@ void GridLayoutHfw::addHfwData(GeomInfo& gi, QQGridBox* box, int width) const
 
     if (box->hasHeightForWidth()) {
 
-        int hfw = box->heightForWidth(width);
+        const int hfw = box->heightForWidth(width);
+#ifdef GRIDLAYOUTHFW_ALTER_FROM_QGRIDLAYOUT
+        // 2020-03-12
+        QLayoutItem* item = box->item();
+        QWidget* widget = item->widget();
+        const bool can_shrink_vertically =
+                sizehelpers::canHfwPolicyShrinkVertically(widget->sizePolicy());
+        const int min_h = can_shrink_vertically ? item->minimumSize().height()
+                                                : hfw;
+        ls.minimum_size = qMax(min_h, ls.minimum_size);
+#else
         ls.minimum_size = qMax(hfw, ls.minimum_size);
+#endif
         ls.size_hint = qMax(hfw, ls.size_hint);
 #ifdef GRIDLAYOUTHFW_ALTER_FROM_QGRIDLAYOUT
         if (ls.maximum_size >= QLAYOUTSIZE_MAX) {
@@ -1287,7 +1305,12 @@ void GridLayoutHfw::addWidget(QWidget* widget, int row, int column,
         return;
     }
     addChildWidget(widget);
-    QWidgetItem* b = createWidgetItem(this, widget);
+#ifdef GRIDLAYOUTHFW_ALTER_FROM_QGRIDLAYOUT
+    bool use_hfw_capable_item = true;
+#else
+    bool use_hfw_capable_item = false;
+#endif
+    QWidgetItem* b = createWidgetItem(this, widget, use_hfw_capable_item);
     addItem(b, row, column, 1, 1, alignment);
 }
 
@@ -1644,10 +1667,12 @@ GridLayoutHfw::GeomInfo GridLayoutHfw::getGeomInfo() const
 
     if (gi.m_has_hfw) {
         for (int i = 0; i < m_nrow; i++) {
-            gi.m_hfw_data[i] = gi.m_row_data.at(i);  // copy m_row_data to m_hfw_data
+            // Copy m_row_data to m_hfw_data:
+            gi.m_hfw_data[i] = gi.m_row_data.at(i);
+            // Modify starting minimum/hint heights:
             gi.m_hfw_data[i].minimum_size = gi.m_hfw_data[i].size_hint =
                     m_r_min_heights.at(i);
-            // ... and modify starting minimum/hint heights
+            // ... start with prespecified grid row minimum heights
 #ifdef GRIDLAYOUTHFW_ALTER_FROM_QGRIDLAYOUT
             gi.m_hfw_data[i].maximum_size = qMax(gi.m_hfw_data[i].maximum_size,
                                                  gi.m_hfw_data[i].minimum_size);

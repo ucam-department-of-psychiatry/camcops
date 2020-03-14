@@ -165,4 +165,8 @@ QSize labelExtraSizeRequired(const QLabel* label,
 // Does the widget have a fixed height that is equal to "height"?
 bool fixedHeightEquals(QWidget* widget, int height);
 
+// Is a size policy an HFW one that allows vertical shrinkage?
+bool canHfwPolicyShrinkVertically(const QSizePolicy& sp);
+
+
 }  // namespace sizehelpers

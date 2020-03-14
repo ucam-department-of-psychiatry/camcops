@@ -383,7 +383,7 @@ void BoxLayoutHfw::insertWidget(int index, QWidget* widget,
     if (index < 0) {  // append
         index = m_list.count();
     }
-#if 0  // #ifdef BOXLAYOUTHFW_ALTER_FROM_QBOXLAYOUT
+#ifdef BOXLAYOUTHFW_ALTER_FROM_QBOXLAYOUT
     bool use_hfw_capable_item = true;
 #else
     bool use_hfw_capable_item = false;

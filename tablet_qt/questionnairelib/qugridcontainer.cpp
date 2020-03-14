@@ -245,6 +245,10 @@ QPointer<QWidget> QuGridContainer::makeWidget(Questionnaire* questionnaire)
             QSizePolicy sp = w->sizePolicy();
             sp.setHorizontalPolicy(QSizePolicy::Expanding);
             w->setSizePolicy(sp);
+#ifdef DEBUG_GRID_CREATION
+            qDebug().noquote()
+                    << "... forcing widget horizontal size policy to Expanding";
+#endif
 
             // Set column minimum width, and column stretch (may be modified
             // below).
@@ -254,7 +258,7 @@ QPointer<QWidget> QuGridContainer::makeWidget(Questionnaire* questionnaire)
 #ifdef DEBUG_GRID_CREATION
         {
             QSizePolicy sp = w->sizePolicy();
-            qDebug().noquote() << "... ... widget sizePolicy():"
+            qDebug().noquote() << "... widget sizePolicy():"
                                << LayoutDumper::toString(sp);
         }
 #endif

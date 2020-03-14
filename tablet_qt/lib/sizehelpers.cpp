@@ -310,4 +310,15 @@ bool fixedHeightEquals(QWidget* widget, const int height)
 }
 
 
+bool canHfwPolicyShrinkVertically(const QSizePolicy& sp)
+{
+    if (!sp.hasHeightForWidth()) {
+        return false;
+    }
+    const QSizePolicy::Policy vp = sp.verticalPolicy();
+    const bool can_shrink_vertically = vp & QSizePolicy::ShrinkFlag;
+    return can_shrink_vertically;
+}
+
+
 }  // namespace sizehelpers

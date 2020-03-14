@@ -29,6 +29,7 @@
 #include <QtWidgets/QLayout>
 #include <QtWidgets/QWidget>
 #include "lib/convert.h"
+#include "lib/sizehelpers.h"
 #include "lib/uifunc.h"
 
 namespace layoutdumper {
@@ -226,8 +227,14 @@ QString getWidgetInfo(const QWidget* w, const DumperConfig& config)
     }
     if (w->hasHeightForWidth() &&
             geom.height() < w->heightForWidth(geom.width())) {
-        elements.append("[WARNING: geometry().height() < "
-                        "heightForWidth(geometry().width())]");
+        const bool can_shrink_vertically =
+                sizehelpers::canHfwPolicyShrinkVertically(w->sizePolicy());
+        if (!can_shrink_vertically) {
+            elements.append(
+                "[WARNING: geometry().height() < "
+                "heightForWidth(geometry().width()) and policy doesn't allow "
+                "vertical shrinkage]");
+        }
     }
 
     // Bounds themselves consistent?

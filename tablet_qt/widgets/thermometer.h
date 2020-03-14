@@ -141,6 +141,10 @@ protected:
     // Coordinate calculations
     // ------------------------------------------------------------------------
 
+    // Return the part of the contentsRect() that fits our aspect ratio, in
+    // case we are sized oddly by our owner.
+    QRect activeContentsRect() const;
+
     // Returns the image rectangle for a given row, in external (screen) space.
     // Used to calculate regions for redrawing.
     QRect imageRect(int row) const;
@@ -150,17 +154,17 @@ protected:
     int rowForPoint(const QPoint& pt) const;
 
     // Scale factor, as ratio: external/internal.
-    qreal widgetScaleFactor(const QRect& contentsrect) const;
+    qreal widgetScaleFactor(const QRect& activecontentsrect) const;
 
     // Convert internal (pixmap) coordinates to external (screen) coordinates:
     QPoint externalPt(const QPointF& internal_pt,
-                      const QRect& contentsrect) const;
+                      const QRect& activecontentsrect) const;
 
     // Convert external (screen) coordinates to internal (pixmap) coordinates.
     QPointF internalPt(const QPoint& external_pt,
-                       const QRect& contentsrect) const;
+                       const QRect& activecontentsrect) const;
     QRectF internalRect(const QRect& external_rect,
-                        const QRect& contentsrect) const;
+                        const QRect& activecontentsrect) const;
 
     // ------------------------------------------------------------------------
     // Data
@@ -182,6 +186,7 @@ protected:
     bool m_rescale_images;  // rescale images?
     double m_rescale_image_factor;  // if rescale: by what factor?
     int m_text_gap_px;  // gap between images and adjacent text
+    // QColor m_unused_space_colour;  // colour for any "unpainted" area
 
     // Details of the current selection:
     int m_selected_index;  // -1 for none selected, or zero-based index of selected row

@@ -59,6 +59,7 @@
 ============================================================================ */
 
 // #define DEBUG_LAYOUT
+// #define DEBUG_LAYOUT_VERBOSE
 
 #include "qtlayouthelpers.h"
 #include <QDebug>
@@ -172,17 +173,33 @@ QSize qtlayouthelpers::WidgetItemHfw::minimumSize() const
     //    }
 
     QSize minsize = QWidgetItemV2::minimumSize();
+
+    /*
+    // Coded tried 2020-03-12:
+    if (wid->hasHeightForWidth() && wid->sizePolicy().hasHeightForWidth()) {
+        const QSizePolicy::Policy& vp = wid->sizePolicy().verticalPolicy();
+        const bool can_shrink_vertically = vp & QSizePolicy::ShrinkFlag;
+        if (can_shrink_vertically) {
+            minsize.rheight() = wid->minimumSizeHint().height();
+        }
+    }
+    */
+
 #ifdef DEBUG_LAYOUT
     qDebug().nospace()
             << Q_FUNC_INFO << " -> " << minsize
-            << " (wid->testAttribute(Qt::WA_LayoutUsesWidgetRect) == "
+            << " [wid->metaObject()->className() == "
+            << wid->metaObject()->className()
+            << ", wid->testAttribute(Qt::WA_LayoutUsesWidgetRect) == "
             << wid->testAttribute(Qt::WA_LayoutUsesWidgetRect)
             << ", wid->minimumSize() == " << wid->minimumSize()
             << ", wid->minimumSizeHint() == " << wid->minimumSizeHint()
             << ", wid->sizePolicy() == " << wid->sizePolicy()
-            << ", wid->sizePolicy().horizontalPolicy() & QSizePolicy::ShrinkFlag == "
-            << (wid->sizePolicy().horizontalPolicy() & QSizePolicy::ShrinkFlag)
-            << ")";
+            << ", wid->sizePolicy().hasHeightForWidth() == "
+            << wid->sizePolicy().hasHeightForWidth()
+            // << ", wid->sizePolicy().horizontalPolicy() & QSizePolicy::ShrinkFlag == "
+            // << (wid->sizePolicy().horizontalPolicy() & QSizePolicy::ShrinkFlag)
+            << "]";
 #endif
     return minsize;
 }
@@ -502,7 +519,7 @@ void qtlayouthelpers::qGeomCalc(QVector<QQLayoutStruct>& chain,
         }
     }
 
-#ifdef DEBUG_LAYOUT
+#ifdef DEBUG_LAYOUT_VERBOSE
     qDebug() << Q_FUNC_INFO;
     qDebug() << "- start" << start <<  "count" << count
              <<  "pos" << pos <<  "space" << space <<  "spacer" << spacer;
