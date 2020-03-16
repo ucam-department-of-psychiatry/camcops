@@ -3717,9 +3717,13 @@ def view_task_schedule_items(req: "CamcopsRequest") -> Dict[str, Any]:
                                       DEFAULT_ROWS_PER_PAGE)
     page_num = req.get_int_param(ViewParam.PAGE, 1)
     schedule_id = req.get_int_param(ViewParam.SCHEDULE_ID)
+
+    # TODO: Would like to order by "due from" duration here
+    # but the values in the database aren't zero padded. Should they
+    # be?
     q = req.dbsession.query(TaskScheduleItem).filter(
         TaskScheduleItem.schedule_id == schedule_id
-    )
+    ).order_by(TaskScheduleItem.due_from, TaskScheduleItem.due_by)
     page = SqlalchemyOrmPage(query=q,
                              page=page_num,
                              items_per_page=rows_per_page,
