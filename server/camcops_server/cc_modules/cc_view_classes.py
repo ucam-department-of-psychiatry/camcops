@@ -305,7 +305,6 @@ class BaseDeleteView(FormMixin, SingleObjectMixin, View):
         """
         Delete the fetched object
         """
-        self.object = self.get_object()
         self.request.dbsession.delete(self.object)
 
     def get(self):
@@ -318,10 +317,10 @@ class BaseDeleteView(FormMixin, SingleObjectMixin, View):
         Handle POST requests: instantiate a form instance with the passed
         POST variables and then check if it's valid.
         """
+        self.object = self.get_object()
+
         if FormAction.CANCEL in self.request.POST:
             raise HTTPFound(self.get_success_url())
-
-        self.object = self.get_object()
 
         form = self.get_form()
         controls = list(self.request.POST.items())
@@ -337,6 +336,7 @@ class BaseDeleteView(FormMixin, SingleObjectMixin, View):
         """If the form is valid, delete the associated model."""
 
         self.delete()
+
         return super().form_valid(form, appstruct)
 
     def get_form_values(self) -> Dict:

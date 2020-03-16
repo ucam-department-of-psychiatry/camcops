@@ -3803,18 +3803,6 @@ class TaskScheduleItemMixin:
             }
         )
 
-    def get_schedule_id(self) -> int:
-        return self.request.get_int_param(ViewParam.SCHEDULE_ID)
-
-
-class AddTaskScheduleItemView(TaskScheduleItemMixin, CreateView):
-    @property
-    def extra_context(self):
-        _ = self.request.gettext
-        return {
-            "title": _("Add a task schedule item"),
-        }
-
     def get_form_values(self) -> Dict:
         schedule_id = self.get_schedule_id()
 
@@ -3834,6 +3822,18 @@ class AddTaskScheduleItemView(TaskScheduleItemMixin, CreateView):
         return form_values
 
 
+class AddTaskScheduleItemView(TaskScheduleItemMixin, CreateView):
+    @property
+    def extra_context(self):
+        _ = self.request.gettext
+        return {
+            "title": _("Add a task schedule item"),
+        }
+
+    def get_schedule_id(self) -> int:
+        return self.request.get_int_param(ViewParam.SCHEDULE_ID)
+
+
 class EditTaskScheduleItemView(TaskScheduleItemMixin, UpdateView):
     @property
     def extra_context(self):
@@ -3846,6 +3846,9 @@ class EditTaskScheduleItemView(TaskScheduleItemMixin, UpdateView):
     def pk(self) -> int:
         return self.request.get_int_param(ViewParam.SCHEDULE_ITEM_ID)
 
+    def get_schedule_id(self) -> int:
+        return self.object.schedule_id
+
 
 class DeleteTaskScheduleItemView(TaskScheduleItemMixin, DeleteView):
     form_class = DeleteTaskScheduleItemForm
@@ -3854,12 +3857,15 @@ class DeleteTaskScheduleItemView(TaskScheduleItemMixin, DeleteView):
     def extra_context(self):
         _ = self.request.gettext
         return {
-            "title": _("Edit details for a task schedule item"),
+            "title": _("Delete a task schedule item"),
         }
 
     @property
     def pk(self) -> int:
         return self.request.get_int_param(ViewParam.SCHEDULE_ITEM_ID)
+
+    def get_schedule_id(self) -> int:
+        return self.object.schedule_id
 
 
 @view_config(route_name=Routes.ADD_TASK_SCHEDULE_ITEM,
@@ -3962,7 +3968,7 @@ class AddTaskScheduleItemViewTests(DemoDatabaseTestCase):
 
         view = AddTaskScheduleItemView(self.req)
 
-        with self.assertRaises(HTTPFound):
+        with self.assertRaises(HTTPFound) as e:
             view.dispatch()
 
         item = self.dbsession.query(TaskScheduleItem).one()
@@ -3971,6 +3977,12 @@ class AddTaskScheduleItemViewTests(DemoDatabaseTestCase):
         self.assertEqual(item.task_table_name, "ace3")
         self.assertEqual(item.due_from.in_days(), 47)
         self.assertEqual(item.due_by.in_days(), 143)
+
+        self.assertEqual(e.exception.status_code, 302)
+        self.assertIn(
+            f"view_task_schedule_items?schedule_id={self.schedule.id}",
+            e.exception.headers["Location"]
+        )
 
     def test_schedule_item_is_not_created_on_cancel(self) -> None:
         multidict = MultiDict([
@@ -4057,10 +4069,15 @@ class EditTaskScheduleItemViewTests(DemoDatabaseTestCase):
         }, set_method_get=False)
         view = EditTaskScheduleItemView(self.req)
 
-        with self.assertRaises(HTTPFound):
+        with self.assertRaises(HTTPFound) as e:
             view.dispatch()
 
         self.assertEqual(self.item.task_table_name, "bmi")
+        self.assertEqual(e.exception.status_code, 302)
+        self.assertIn(
+            f"view_task_schedule_items?schedule_id={self.item.schedule_id}",
+            e.exception.headers["Location"]
+        )
 
     def test_schedule_item_is_not_updated_on_cancel(self) -> None:
         multidict = MultiDict([
@@ -4171,8 +4188,14 @@ class DeleteTaskScheduleItemViewTests(DemoDatabaseTestCase):
         }, set_method_get=False)
         view = DeleteTaskScheduleItemView(self.req)
 
-        with self.assertRaises(HTTPFound):
+        with self.assertRaises(HTTPFound) as e:
             view.dispatch()
+
+        self.assertEqual(e.exception.status_code, 302)
+        self.assertIn(
+            f"view_task_schedule_items?schedule_id={self.item.schedule_id}",
+            e.exception.headers["Location"]
+        )
 
         item = self.dbsession.query(TaskScheduleItem).one_or_none()
 
