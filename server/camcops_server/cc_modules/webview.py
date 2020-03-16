@@ -4134,10 +4134,37 @@ class DeleteTaskScheduleItemViewTests(DemoDatabaseTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.body.decode("utf-8").count("<form"), 1)
 
-    def test_schedule_item_is_deleted(self) -> None:
+    def test_errors_displayed_when_deletion_validation_fails(self) -> None:
         self.req.fake_request_post_from_dict({
             FormAction.DELETE: "delete"
         })
+
+        self.req.add_get_params({
+            ViewParam.SCHEDULE_ITEM_ID: self.item.id
+        }, set_method_get=False)
+        view = DeleteTaskScheduleItemView(self.req)
+
+        response = view.dispatch()
+        self.assertIn("Errors have been highlighted",
+                      response.body.decode("utf-8"))
+
+    def test_schedule_item_is_deleted(self) -> None:
+        multidict = MultiDict([
+            ("_charset_", "UTF-8"),
+            ("__formid__", "deform"),
+            (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
+            ("confirm_1_t", "true"),
+            ("confirm_2_t", "true"),
+            ("confirm_4_t", "true"),
+            ("__start__", "danger:mapping"),
+            ("target", "7176"),
+            ("user_entry", "7176"),
+            ("__end__", "danger:mapping"),
+            ("delete", "delete"),
+            (FormAction.DELETE, "delete"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
 
         self.req.add_get_params({
             ViewParam.SCHEDULE_ITEM_ID: self.item.id

@@ -147,14 +147,15 @@ class FormMixin(ContextMixin):
     def get_context_data(self, **kwargs):
         """Insert the rendered form into the context dict."""
 
+        form = self.get_form()
         if "form" not in kwargs:
-            form = self.get_form()
             appstruct = self.get_form_values()
             rendered_form = form.render(appstruct)
             kwargs['form'] = rendered_form
-            kwargs['head_form_html'] = get_head_form_html(
-                self.request, [form]
-            )
+
+        kwargs['head_form_html'] = get_head_form_html(
+            self.request, [form]
+        )
 
         return super().get_context_data(**kwargs)
 
@@ -169,6 +170,22 @@ class SingleObjectMixin(ContextMixin):
         context.update(kwargs)
 
         return super().get_context_data(**context)
+
+    def get_object(self, **kwargs):
+        pk_property = getattr(self.object_class, "id")
+
+        obj = self.request.dbsession.query(self.object_class).filter(
+            pk_property == self.pk
+        ).one_or_none()
+
+        if obj is None:
+            _ = self.request.gettext
+
+            raise HTTPBadRequest(
+                f"{_('Cannot find object:')} {self.object_class}:{self.pk}"
+            )
+
+        return obj
 
 
 class ModelFormMixin(FormMixin, SingleObjectMixin):
@@ -198,22 +215,6 @@ class ModelFormMixin(FormMixin, SingleObjectMixin):
                 form_values[form_param] = value
 
         return form_values
-
-    def get_object(self, **kwargs):
-        pk_property = getattr(self.object_class, "id")
-
-        obj = self.request.dbsession.query(self.object_class).filter(
-            pk_property == self.pk
-        ).one_or_none()
-
-        if obj is None:
-            _ = self.request.gettext
-
-            raise HTTPBadRequest(
-                f"{_('Cannot find object:')} {self.object_class}:{self.pk}"
-            )
-
-        return obj
 
 
 class ProcessFormView(View):
@@ -292,15 +293,7 @@ class UpdateView(TemplateResponseMixin, BaseUpdateView):
     """View for updating an object, with a response rendered by a template."""
 
 
-class BaseDetailView(SingleObjectMixin, View):
-    """A base view for displaying a single object."""
-    def get(self):
-        self.object = self.get_object()
-        context = self.get_context_data(object=self.object)
-        return self.render_to_response(context)
-
-
-class BaseDeleteView(ModelFormMixin, BaseDetailView):
+class BaseDeleteView(FormMixin, SingleObjectMixin, View):
     """
     Base view for deleting an object.
 
@@ -315,13 +308,39 @@ class BaseDeleteView(ModelFormMixin, BaseDetailView):
         self.object = self.get_object()
         self.request.dbsession.delete(self.object)
 
+    def get(self):
+        self.object = self.get_object()
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
+
     def post(self):
-        if FormAction.DELETE in self.request.POST:
-            self.delete()
+        """
+        Handle POST requests: instantiate a form instance with the passed
+        POST variables and then check if it's valid.
+        """
+        if FormAction.CANCEL in self.request.POST:
+            raise HTTPFound(self.get_success_url())
 
-        success_url = self.get_success_url()
+        self.object = self.get_object()
 
-        raise HTTPFound(success_url)
+        form = self.get_form()
+        controls = list(self.request.POST.items())
+
+        try:
+            appstruct = form.validate(controls)
+
+            return self.form_valid(form, appstruct)
+        except ValidationFailure as e:
+            return self.form_invalid(e.render())
+
+    def form_valid(self, form, appstruct):
+        """If the form is valid, delete the associated model."""
+
+        self.delete()
+        return super().form_valid(form, appstruct)
+
+    def get_form_values(self) -> Dict:
+        return {}
 
 
 class DeleteView(TemplateResponseMixin, BaseDeleteView):
