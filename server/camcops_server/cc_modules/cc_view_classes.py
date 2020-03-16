@@ -36,6 +36,7 @@ from pyramid.response import Response
 import logging
 from typing import Dict, TYPE_CHECKING
 
+from cardinal_pythonlib.deform_utils import get_head_form_html
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from deform.exception import ValidationFailure
 
@@ -151,6 +152,9 @@ class FormMixin(ContextMixin):
             appstruct = self.get_form_values()
             rendered_form = form.render(appstruct)
             kwargs['form'] = rendered_form
+            kwargs['head_form_html'] = get_head_form_html(
+                self.request, [form]
+            )
 
         return super().get_context_data(**kwargs)
 
