@@ -5,7 +5,7 @@ camcops_server/templates/menu/view_task_schedule_items.mako
 
 ===============================================================================
 
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -88,5 +88,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
     }
 
 ) }">${_("Add a task schedule item")}</a>
-
+<div>
+<a href="${ req.route_url(Routes.VIEW_TASK_SCHEDULES)}">${_("Task schedule management")}</a>
 <%include file="to_main_menu.mako"/>
+</div>

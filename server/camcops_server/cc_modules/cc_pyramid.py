@@ -698,6 +698,7 @@ class Routes(object):
     DELETE_ID_DEFINITION = "delete_id_definition"
     DELETE_PATIENT = "delete_patient"
     DELETE_SPECIAL_NOTE = "delete_special_note"
+    DELETE_TASK_SCHEDULE = "delete_task_schedule"
     DELETE_TASK_SCHEDULE_ITEM = "delete_task_schedule_item"
     DELETE_USER = "delete_user"
     DEVELOPER = "developer"
@@ -707,6 +708,7 @@ class Routes(object):
     EDIT_ID_DEFINITION = "edit_id_definition"
     EDIT_PATIENT = "edit_patient"
     EDIT_SERVER_SETTINGS = "edit_server_settings"
+    EDIT_TASK_SCHEDULE = "edit_task_schedule"
     EDIT_TASK_SCHEDULE_ITEM = "edit_task_schedule_item"
     EDIT_USER = "edit_user"
     EDIT_USER_GROUP_MEMBERSHIP = "edit_user_group_membership"
@@ -825,6 +827,7 @@ class RouteCollection(object):
     DELETE_ID_DEFINITION = RoutePath(Routes.DELETE_ID_DEFINITION)
     DELETE_PATIENT = RoutePath(Routes.DELETE_PATIENT)
     DELETE_SPECIAL_NOTE = RoutePath(Routes.DELETE_SPECIAL_NOTE)
+    DELETE_TASK_SCHEDULE = RoutePath(Routes.DELETE_TASK_SCHEDULE)
     DELETE_TASK_SCHEDULE_ITEM = RoutePath(Routes.DELETE_TASK_SCHEDULE_ITEM)
     DELETE_USER = RoutePath(Routes.DELETE_USER)
     DEVELOPER = RoutePath(Routes.DEVELOPER)
@@ -834,6 +837,7 @@ class RouteCollection(object):
     EDIT_ID_DEFINITION = RoutePath(Routes.EDIT_ID_DEFINITION)
     EDIT_PATIENT = RoutePath(Routes.EDIT_PATIENT)
     EDIT_SERVER_SETTINGS = RoutePath(Routes.EDIT_SERVER_SETTINGS)
+    EDIT_TASK_SCHEDULE = RoutePath(Routes.EDIT_TASK_SCHEDULE)
     EDIT_TASK_SCHEDULE_ITEM = RoutePath(Routes.EDIT_TASK_SCHEDULE_ITEM)
     EDIT_USER = RoutePath(Routes.EDIT_USER)
     EDIT_USER_GROUP_MEMBERSHIP = RoutePath(Routes.EDIT_USER_GROUP_MEMBERSHIP)

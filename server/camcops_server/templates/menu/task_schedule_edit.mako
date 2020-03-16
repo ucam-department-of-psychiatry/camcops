@@ -5,7 +5,7 @@ camcops_server/templates/menu/task_schedule_edit.mako
 
 ===============================================================================
 
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -30,6 +30,6 @@ camcops_server/templates/menu/task_schedule_edit.mako
 
 <%include file="db_user_info.mako"/>
 
-<h1>${_("Edit details for task schedule")}</h1>
+<h1>${ title }</h1>
 
 ${ form }

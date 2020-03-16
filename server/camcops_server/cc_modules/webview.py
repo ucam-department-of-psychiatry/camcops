@@ -221,6 +221,7 @@ from camcops_server.cc_modules.cc_forms import (
     DeletePatientChooseForm,
     DeletePatientConfirmForm,
     DeleteSpecialNoteForm,
+    DeleteTaskScheduleForm,
     DeleteTaskScheduleItemForm,
     DeleteUserForm,
     EditGroupForm,
@@ -3743,45 +3744,83 @@ def view_patient_task_schedule(req: "CamcopsRequest") -> Dict[str, Any]:
     return dict(page=page)
 
 
+class TaskScheduleMixin:
+    form_class = EditTaskScheduleForm
+    template_name = "task_schedule_edit.mako"
+    model_form_dict = {
+        "description": ViewParam.DESCRIPTION,
+        "group_id": ViewParam.GROUP_ID,
+    }
+    object_class = TaskSchedule
+
+    def get_success_url(self):
+        return self.request.route_url(
+            Routes.VIEW_TASK_SCHEDULES
+        )
+
+
+class AddTaskScheduleView(TaskScheduleMixin, CreateView):
+    @property
+    def extra_context(self):
+        _ = self.request.gettext
+        return {
+            "title": _("Add a task schedule"),
+        }
+
+
+class EditTaskScheduleView(TaskScheduleMixin, UpdateView):
+    @property
+    def extra_context(self):
+        _ = self.request.gettext
+        return {
+            "title": _("Edit details for a task schedule"),
+        }
+
+    @property
+    def pk(self) -> int:
+        return self.request.get_int_param(ViewParam.SCHEDULE_ID)
+
+
+class DeleteTaskScheduleView(TaskScheduleMixin, DeleteView):
+    form_class = DeleteTaskScheduleForm
+
+    @property
+    def extra_context(self):
+        _ = self.request.gettext
+        return {
+            "title": _("Delete a task schedule"),
+        }
+
+    @property
+    def pk(self) -> int:
+        return self.request.get_int_param(ViewParam.SCHEDULE_ID)
+
+
 @view_config(route_name=Routes.ADD_TASK_SCHEDULE,
              permission=Permission.GROUPADMIN)
 def add_task_schedule(req: "CamcopsRequest") -> Response:
     """
     View to add a task schedule.
     """
-    _ = req.gettext
+    return AddTaskScheduleView(req).dispatch()
 
-    route_back = Routes.VIEW_TASK_SCHEDULES
-    if FormAction.CANCEL in req.POST:
-        return HTTPFound(req.route_url(route_back))
 
-    form = EditTaskScheduleForm(request=req)
+@view_config(route_name=Routes.EDIT_TASK_SCHEDULE,
+             permission=Permission.GROUPADMIN)
+def edit_task_schedule(req: "CamcopsRequest") -> Response:
+    """
+    View to edit a task schedule.
+    """
+    return EditTaskScheduleView(req).dispatch()
 
-    if FormAction.SUBMIT in req.POST:
-        try:
-            controls = list(req.POST.items())
-            appstruct = form.validate(controls)
 
-            schedule = TaskSchedule()
-            schedule.description = appstruct.get("description")
-            schedule.group_id = appstruct.get("group_id")
-
-            req.dbsession.add(schedule)
-
-            raise HTTPFound(req.route_url(route_back))
-        except ValidationFailure as e:
-            rendered_form = e.render()
-    else:
-        rendered_form = form.render()
-
-    return render_to_response(
-        "task_schedule_edit.mako",
-        dict(
-            form=rendered_form,
-            head_form_html=get_head_form_html(req, [form])
-        ),
-        request=req
-    )
+@view_config(route_name=Routes.DELETE_TASK_SCHEDULE,
+             permission=Permission.GROUPADMIN)
+def delete_task_schedule(req: "CamcopsRequest") -> Response:
+    """
+    View to delete a task schedule.
+    """
+    return DeleteTaskScheduleView(req).dispatch()
 
 
 class TaskScheduleItemMixin:

@@ -3583,6 +3583,24 @@ class EditTaskScheduleForm(DynamicDescriptionsForm):
         )
 
 
+class DeleteTaskScheduleSchema(HardWorkConfirmationSchema):
+    """
+    Schema to delete a task schedule.
+    """
+    # name must match ViewParam.SCHEDULE_ID
+    schedule_id = HiddenIntegerNode()
+    danger = TranslatableValidateDangerousOperationNode()
+
+
+class DeleteTaskScheduleForm(DeleteCancelForm):
+    """
+    Form to delete a task schedule.
+    """
+    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+        super().__init__(schema_class=DeleteTaskScheduleSchema,
+                         request=request, **kwargs)
+
+
 class DurationWidget(Widget):
     basedir = os.path.join(TEMPLATE_DIR, "deform")
     readonlydir = os.path.join(basedir, "readonly")

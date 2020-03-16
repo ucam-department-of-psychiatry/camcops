@@ -5,7 +5,7 @@ camcops_server/templates/menu/view_task_schedules.mako
 
 ===============================================================================
 
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -46,7 +46,9 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
         <th>${_("Group")}</th>
         <th>${_("Description")}</th>
         <th>${_("Items")}</th>
-        <th>${_("Operations")}</th>
+        <th>${_("View items")}</th>
+        <th>${_("Edit")}</th>
+        <th>${_("Delete")}</th>
     </tr>
 %for schedule in page:
     <tr>
@@ -69,6 +71,23 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
     }
 ) }">${_("View items")}</a>
         </td>
+        <td>
+            <a href="${ req.route_url(
+    Routes.EDIT_TASK_SCHEDULE,
+    _query={
+        ViewParam.SCHEDULE_ID: schedule.id
+    }
+) }">${_("Edit")}</a>
+        </td>
+        <td>
+            <a href="${ req.route_url(
+    Routes.DELETE_TASK_SCHEDULE,
+    _query={
+        ViewParam.SCHEDULE_ID: schedule.id
+    }
+) }">${_("Delete")}</a>
+        </td>
+
     </tr>
 %endfor
 </table>
