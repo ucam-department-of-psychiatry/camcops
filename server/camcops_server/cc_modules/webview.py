@@ -3929,6 +3929,15 @@ class AddTaskScheduleItemViewTests(DemoDatabaseTestCase):
         self.dbsession.add(self.schedule)
         self.dbsession.commit()
 
+    def test_schedule_item_form_displayed(self) -> None:
+        view = AddTaskScheduleItemView(self.req)
+
+        self.req.add_get_params({ViewParam.SCHEDULE_ID: self.schedule.id})
+
+        response = view.dispatch()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.body.decode("utf-8").count("<form"), 1)
+
     def test_schedule_item_is_created(self) -> None:
         multidict = MultiDict([
             ("_charset_", "UTF-8"),

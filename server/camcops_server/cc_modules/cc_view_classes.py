@@ -188,9 +188,10 @@ class ModelFormMixin(FormMixin, SingleObjectMixin):
     def get_form_values(self) -> Dict:
         form_values = {}
 
-        for (model_attr, form_param) in self.model_form_dict.items():
-            value = getattr(self.object, model_attr)
-            form_values[form_param] = value
+        if self.object is not None:
+            for (model_attr, form_param) in self.model_form_dict.items():
+                value = getattr(self.object, model_attr)
+                form_values[form_param] = value
 
         return form_values
 
