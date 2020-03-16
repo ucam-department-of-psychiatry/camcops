@@ -4125,6 +4125,15 @@ class DeleteTaskScheduleItemViewTests(DemoDatabaseTestCase):
         self.dbsession.add(self.item)
         self.dbsession.commit()
 
+    def test_delete_form_displayed(self) -> None:
+        view = DeleteTaskScheduleItemView(self.req)
+
+        self.req.add_get_params({ViewParam.SCHEDULE_ITEM_ID: self.item.id})
+
+        response = view.dispatch()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.body.decode("utf-8").count("<form"), 1)
+
     def test_schedule_item_is_deleted(self) -> None:
         self.req.fake_request_post_from_dict({
             FormAction.DELETE: "delete"
