@@ -32,6 +32,7 @@ import logging
 from typing import (
     Any, Dict, Generator, List, Optional, Set, Tuple, TYPE_CHECKING, Union,
 )
+import uuid
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.datetimefunc import (
@@ -84,6 +85,7 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
     PatientNameColType,
     SexColType,
+    UuidColType,
 )
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 from camcops_server.cc_modules.cc_tsv import TsvPage
@@ -119,6 +121,13 @@ class Patient(GenericTabletRecordMixin, Base):
         comment="Primary key (patient ID) on the source tablet device"
         # client PK
     )
+
+    uuid = CamcopsColumn(
+        "uuid", UuidColType,
+        comment="UUID",
+        default=uuid.uuid4
+    )
+
     forename = CamcopsColumn(
         "forename", PatientNameColType,
         index=True,
