@@ -102,6 +102,7 @@ import logging
 from typing import (Any, Generator, List, Optional, Tuple, Type, TYPE_CHECKING,
                     Union)
 import unittest
+import uuid
 
 from cardinal_pythonlib.datetimefunc import (
     coerce_to_pendulum,
@@ -142,6 +143,7 @@ from sqlalchemy.sql.functions import func, FunctionElement
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import (
     Boolean,
+    CHAR,
     DateTime,
     Integer,
     LargeBinary,
@@ -1241,6 +1243,35 @@ class IdNumReferenceListColType(TypeDecorator):
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
                 self._coltype_name, self, value, dialect, retval)
         return retval
+
+
+# =============================================================================
+# UUID column type
+# =============================================================================
+
+class UuidColType(TypeDecorator):
+    # Based on:
+    # https://docs.sqlalchemy.org/en/13/core/custom_types.html#backend-agnostic-guid-type  # noqa: E501
+    # which will use postgresql UUID if relevant, not doing that here
+
+    impl = CHAR(32)
+
+    def process_bind_param(self, value, dialect):
+        if value is None:
+            return value
+
+        if not isinstance(value, uuid.UUID):
+            return "%.32x" % uuid.UUID(value).int
+
+        # hexstring
+        return "%.32x" % value.int
+
+    def process_result_value(self, value, dialect):
+        if value is None:
+            return value
+
+        if not isinstance(value, uuid.UUID):
+            return uuid.UUID(value)
 
 
 # =============================================================================
