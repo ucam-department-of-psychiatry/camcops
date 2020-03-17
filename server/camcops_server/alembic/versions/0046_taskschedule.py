@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-camcops_server/alembic/versions/0046.py
+camcops_server/alembic/versions/0046_taskschedule.py
 
 ===============================================================================
 
@@ -30,7 +30,7 @@ taskschedule
 
 Revision ID: 0046
 Revises: 0045
-Creation date: 2020-01-13 17:39:31.562692
+Creation date: 2020-03-17 16:26:32.525332
 
 """
 
@@ -40,6 +40,7 @@ Creation date: 2020-01-13 17:39:31.562692
 
 from alembic import op
 import sqlalchemy as sa
+import cardinal_pythonlib.sqlalchemy.list_types
 import camcops_server.cc_modules.cc_sqla_coltypes
 
 
@@ -61,14 +62,10 @@ depends_on = None
 def upgrade():
     op.create_table(
         '_task_schedule',
-        sa.Column('id', sa.Integer(), autoincrement=True, nullable=False,
-                  comment='Arbitrary primary key'),
-        sa.Column('group_id', sa.Integer(), nullable=False,
-                  comment='FK to _security_groups.id'),
-        sa.Column('description', sa.UnicodeText(), nullable=True,
-                  comment='description'),
-        sa.ForeignKeyConstraint(['group_id'], ['_security_groups.id'],
-                                name=op.f('fk__task_schedule_group_id')),
+        sa.Column('id', sa.Integer(), autoincrement=True, nullable=False, comment='Arbitrary primary key'),
+        sa.Column('group_id', sa.Integer(), nullable=False, comment='FK to _security_groups.id'),
+        sa.Column('description', sa.UnicodeText(), nullable=True, comment='description'),
+        sa.ForeignKeyConstraint(['group_id'], ['_security_groups.id'], name=op.f('fk__task_schedule_group_id')),
         sa.PrimaryKeyConstraint('id', name=op.f('pk__task_schedule')),
         mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
         mysql_engine='InnoDB',
@@ -76,18 +73,11 @@ def upgrade():
     )
     op.create_table(
         '_task_schedule_item',
-        sa.Column('id', sa.Integer(), autoincrement=True, nullable=False,
-                  comment='Arbitrary primary key'),
-        sa.Column('schedule_id', sa.Integer(), nullable=False,
-                  comment='FK to _task_schedule.id'),
-        sa.Column('task_table_name', sa.String(length=128), nullable=True,
-                  comment="Table name of the task's base table"),
-        sa.Column('due_from',
-                  camcops_server.cc_modules.cc_sqla_coltypes.PendulumDurationAsIsoTextColType(length=29), nullable=True,
-                  comment='Relative time from the start date by which the task may be started'),
-        sa.Column('due_by',
-                  camcops_server.cc_modules.cc_sqla_coltypes.PendulumDurationAsIsoTextColType(length=29), nullable=True,
-                  comment='Relative time from the start date by which the task must be completed'),
+        sa.Column('id', sa.Integer(), autoincrement=True, nullable=False, comment='Arbitrary primary key'),
+        sa.Column('schedule_id', sa.Integer(), nullable=False, comment='FK to _task_schedule.id'),
+        sa.Column('task_table_name', sa.String(length=128), nullable=True, comment="Table name of the task's base table"),
+        sa.Column('due_from', camcops_server.cc_modules.cc_sqla_coltypes.PendulumDurationAsIsoTextColType(length=29), nullable=True, comment='Relative time from the start date by which the task may be started'),
+        sa.Column('due_by', camcops_server.cc_modules.cc_sqla_coltypes.PendulumDurationAsIsoTextColType(length=29), nullable=True, comment='Relative time from the start date by which the task must be completed'),
         sa.ForeignKeyConstraint(['schedule_id'], ['_task_schedule.id'], name=op.f('fk__task_schedule_item_schedule_id')),
         sa.PrimaryKeyConstraint('id', name=op.f('pk__task_schedule_item')),
         mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
@@ -95,19 +85,18 @@ def upgrade():
         mysql_row_format='DYNAMIC'
     )
     with op.batch_alter_table('_task_schedule_item', schema=None) as batch_op:
-        batch_op.create_index(
-            batch_op.f('ix__task_schedule_item_task_table_name'),
-            ['task_table_name'],
-            unique=False
-        )
+        batch_op.create_index(batch_op.f('ix__task_schedule_item_task_table_name'), ['task_table_name'], unique=False)
+
+    op.create_table('_patient_task_schedule',
+    sa.Column('patient_pk', sa.Integer(), nullable=True),
+    sa.Column('schedule_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['patient_pk'], ['patient._pk'], name=op.f('fk__patient_task_schedule_patient_pk')),
+    sa.ForeignKeyConstraint(['schedule_id'], ['_task_schedule.id'], name=op.f('fk__patient_task_schedule_schedule_id'))
+    )
 
 
 # noinspection PyPep8,PyTypeChecker
 def downgrade():
-    with op.batch_alter_table('_task_schedule_item', schema=None) as batch_op:
-        batch_op.drop_index(
-            batch_op.f('ix__task_schedule_item_task_table_name')
-        )
-
+    op.drop_table('_patient_task_schedule')
     op.drop_table('_task_schedule_item')
     op.drop_table('_task_schedule')
