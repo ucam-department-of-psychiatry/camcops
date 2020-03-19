@@ -70,7 +70,11 @@ class TaskSchedule(Base):
     )
 
     items = relationship("TaskScheduleItem")
-    patients = relationship("Patient", secondary=association_table)
+    patients = relationship(
+        "Patient",
+        secondary=association_table,
+        backref="task_schedules"
+    )
 
     group = relationship(Group)
 

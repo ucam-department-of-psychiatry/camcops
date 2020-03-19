@@ -161,7 +161,7 @@ import pygments.lexers
 import pygments.lexers.sql
 import pygments.lexers.web
 import pygments.formatters
-from sqlalchemy.orm import Query
+from sqlalchemy.orm import joinedload, Query
 from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.expression import desc, or_, select, update
 from webob.multidict import MultiDict
@@ -3468,79 +3468,68 @@ def edit_patient(req: "CamcopsRequest") -> Response:
     )
 
 
-@view_config(route_name=Routes.ADD_PATIENT, permission=Permission.GROUPADMIN)
-def add_patient(req: "CamcopsRequest") -> Response:
-    """
-    View to add a patient.
-    """
-    _ = req.gettext
+class AddPatientView(CreateView):
+    form_class = LiveEditPatientForm
+    template_name = "patient_add.mako"
+    object_class = Patient
 
-    route_back = Routes.VIEW_PATIENT_TASK_SCHEDULE
-    if FormAction.CANCEL in req.POST:
-        return HTTPFound(req.route_url(route_back))
+    def get_success_url(self):
+        return self.request.route_url(
+            Routes.VIEW_PATIENT_TASK_SCHEDULES
+        )
 
-    form = LiveEditPatientForm(request=req)
+    def save_object(self, appstruct):
+        server_device = Device.get_server_device(
+            self.request.dbsession
+        )
 
-    if FormAction.SUBMIT in req.POST:
-        try:
-            controls = list(req.POST.items())
-            appstruct = form.validate(controls)
+        if server_device.id is None:
+            self.request.dbsession.commit()
+        patient = Patient()
+        patient.id = 0
+        patient.create_fresh(
+            self.request,
+            device_id=server_device.id,
+            era=ERA_NOW,
+            group_id=appstruct.get(ViewParam.GROUP_ID)
+        )
 
-            server_device = Device.get_server_device(
-                req.dbsession
-            )
+        for k in EDIT_PATIENT_SIMPLE_PARAMS:
+            new_value = appstruct.get(k)
+            setattr(patient, k, new_value)
 
-            if server_device.id is None:
-                req.dbsession.commit()
+        self.request.dbsession.add(patient)
 
-            patient = Patient()
-            patient.id = 0
-            patient.create_fresh(
-                req,
+        new_idrefs = [
+            IdNumReference(which_idnum=idrefdict[ViewParam.WHICH_IDNUM],
+                           idnum_value=idrefdict[ViewParam.IDNUM_VALUE])
+            for idrefdict in appstruct.get(ViewParam.ID_REFERENCES)
+        ]
+
+        for idref in new_idrefs:
+            new_idnum = PatientIdNum()
+            new_idnum.id = 0
+            new_idnum.patient_id = patient.id
+            new_idnum.which_idnum = idref.which_idnum
+            new_idnum.idnum_value = idref.idnum_value
+            new_idnum.create_fresh(
+                self.request,
                 device_id=server_device.id,
                 era=ERA_NOW,
                 group_id=appstruct.get(ViewParam.GROUP_ID)
             )
 
-            for k in EDIT_PATIENT_SIMPLE_PARAMS:
-                new_value = appstruct.get(k)
-                setattr(patient, k, new_value)
+            self.request.dbsession.add(new_idnum)
 
-            req.dbsession.add(patient)
+        self.object = patient
 
-            new_idrefs = [
-                IdNumReference(which_idnum=idrefdict[ViewParam.WHICH_IDNUM],
-                               idnum_value=idrefdict[ViewParam.IDNUM_VALUE])
-                for idrefdict in appstruct.get(ViewParam.ID_REFERENCES)
-            ]
-            for idref in new_idrefs:
-                new_idnum = PatientIdNum()
-                new_idnum.id = 0
-                new_idnum.patient_id = patient.id
-                new_idnum.which_idnum = idref.which_idnum
-                new_idnum.idnum_value = idref.idnum_value
-                new_idnum.create_fresh(
-                    req,
-                    device_id=server_device.id,
-                    era=ERA_NOW,
-                    group_id=appstruct.get(ViewParam.GROUP_ID)
-                )
-                req.dbsession.add(new_idnum)
 
-            raise HTTPFound(req.route_url(route_back))
-        except ValidationFailure as e:
-            rendered_form = e.render()
-    else:
-        rendered_form = form.render()
-
-    return render_to_response(
-        "patient_add.mako",
-        dict(
-            form=rendered_form,
-            head_form_html=get_head_form_html(req, [form])
-        ),
-        request=req
-    )
+@view_config(route_name=Routes.ADD_PATIENT, permission=Permission.GROUPADMIN)
+def add_patient(req: "CamcopsRequest") -> Response:
+    """
+    View to add a patient.
+    """
+    return AddPatientView(req).dispatch()
 
 
 @view_config(route_name=Routes.FORCIBLY_FINALIZE,
@@ -3732,14 +3721,17 @@ def view_task_schedule_items(req: "CamcopsRequest") -> Dict[str, Any]:
     return dict(page=page)
 
 
-@view_config(route_name=Routes.VIEW_PATIENT_TASK_SCHEDULE,
+@view_config(route_name=Routes.VIEW_PATIENT_TASK_SCHEDULES,
              permission=Permission.GROUPADMIN,
              renderer="view_patient_task_schedule.mako")
 def view_patient_task_schedule(req: "CamcopsRequest") -> Dict[str, Any]:
     rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
                                       DEFAULT_ROWS_PER_PAGE)
     page_num = req.get_int_param(ViewParam.PAGE, 1)
-    q = req.dbsession.query(Patient).filter(Patient._era == ERA_NOW)
+    q = req.dbsession.query(Patient).filter(Patient._era == ERA_NOW).options(
+        joinedload("task_schedules")
+    )
+
     page = SqlalchemyOrmPage(query=q,
                              page=page_num,
                              items_per_page=rows_per_page,

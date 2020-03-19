@@ -29,6 +29,7 @@ camcops_server/templates/menu/view_patient_task_schedule.mako
 <%inherit file="base_web.mako"/>
 
 <%!
+
 from cardinal_pythonlib.datetimefunc import format_datetime
 
 from camcops_server.cc_modules.cc_constants import DateFormat
@@ -37,13 +38,16 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 
 <%include file="db_user_info.mako"/>
 
-<h1>${_("Patients")}</h1>
+<h1>${_("Patient Task Schedules")}</h1>
 
 <div>${page.pager()}</div>
 
 <table>
     <tr>
         <th>${_("Patient")}</th>
+        <th>${_("Access key")}</th>
+        <th>${_("Task schedules")}</th>
+        <th>${_("Add schedule")}</th>
     </tr>
 %for patient in page:
     <tr>
@@ -51,7 +55,18 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
             <b>${ patient.get_surname_forename_upper() }</b>
             (${ patient.get_sex_verbose() },
             ${ format_datetime(patient.dob, DateFormat.SHORT_DATE, default="?") })
-         </td>
+        </td>
+        <td>
+            ${ patient.uuid }
+        </td>
+        <td>
+            %for schedule in patient.task_schedules:
+            <a href="#">schedule.description</a><br>
+            %endfor
+        </td>
+        <td>
+            <a href="#">Add schedule</a>
+        </td>
     </tr>
 %endfor
 </table>
