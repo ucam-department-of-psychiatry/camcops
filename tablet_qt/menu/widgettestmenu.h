@@ -24,6 +24,7 @@
 #include "widgets/booleanwidget.h"
 
 class Blob;
+class QCustomPlot;
 class QSizePolicy;
 class QuElement;
 
@@ -132,6 +133,19 @@ protected:
     void testQuText(bool long_text, bool bold);
     void testQuTextEdit();
     void testQuThermometer();
+
+    // ========================================================================
+    // Graphs
+    // ========================================================================
+    // Make a QCustomPlot and return it; warn if creation failed.
+    QCustomPlot* makeQCustomPlotOrWarn();
+
+    // Take ownership of the plot pointer; show a dialogue with the plot in.
+    void showPlot(QCustomPlot* p, const QSize& minsize = QSize(300, 300));
+
+    // Plot testing
+    void testQCustomPlot1();
+    void testQCustomPlot2();
 
 protected:
     FieldRefPtr m_fieldref_1;
