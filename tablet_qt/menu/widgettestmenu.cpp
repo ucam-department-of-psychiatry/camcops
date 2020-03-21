@@ -18,8 +18,11 @@
 */
 
 #include "widgettestmenu.h"
+#include <QDebug>
 #include <QPushButton>
+#include <QRandomGenerator>
 #include <QtGlobal>
+#include <QVBoxLayout>
 #include "common/cssconst.h"
 #include "common/textconst.h"
 #include "common/uiconst.h"
@@ -32,6 +35,7 @@
 #include "lib/sizehelpers.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
+#include "qcustomplot/qcustomplot.h"
 #include "questionnairelib/mcqfunc.h"
 #include "questionnairelib/quaudioplayer.h"
 #include "questionnairelib/quboolean.h"
@@ -408,6 +412,15 @@ void WidgetTestMenu::makeItems()
                  std::bind(&WidgetTestMenu::testQuTextEdit, this)),
         MenuItem("QuThermometer",
                  std::bind(&WidgetTestMenu::testQuThermometer, this)),
+
+        // --------------------------------------------------------------------
+        MenuItem("Graphs").setLabelOnly(),
+        // --------------------------------------------------------------------
+        MenuItem("Test QCustomPlot #1: y = x<sup>2</sup>",
+                 std::bind(&WidgetTestMenu::testQCustomPlot1, this)),
+        MenuItem("Test QCustomPlot #2: date axis",
+                 std::bind(&WidgetTestMenu::testQCustomPlot2, this)),
+
     };
 }
 
@@ -1194,4 +1207,136 @@ void WidgetTestMenu::testQuThermometer()
     QuThermometer element(m_fieldref_1, thermometer_items);
     element.setRescale(true, 0.4);
     testQuestionnaireElement(&element);
+}
+
+
+// ============================================================================
+// Graphs
+// ============================================================================
+
+QCustomPlot* WidgetTestMenu::makeQCustomPlotOrWarn()
+{
+    auto p = new QCustomPlot();
+    if (!p) {
+        qWarning() << "Unable to create QCustomPlot";
+    }
+    return p;
+}
+
+
+void WidgetTestMenu::showPlot(QCustomPlot* p, const QSize& minsize)
+{
+    auto dlg = new QDialog(this);  // memory management now by Qt
+    auto layout = new QVBoxLayout();
+    dlg->setLayout(layout);
+    p->setMinimumSize(minsize);
+    layout->addWidget(p);
+    dlg->setModal(true);
+    dlg->show();
+}
+
+
+void WidgetTestMenu::testQCustomPlot1()
+{
+    // From https://www.qcustomplot.com/index.php/tutorials/basicplotting
+    auto plot = makeQCustomPlotOrWarn();
+    if (!plot) {
+        return;
+    }
+
+    // generate some data:
+    const int n = 101;
+    QVector<double> x(n), y(n);
+    for (int i = 0; i < n; ++i) {
+      x[i] = i / 50.0 - 1;  // x goes from -1 to 1
+      y[i] = x[i] * x[i];  // let's plot a quadratic function
+    }
+    // create graph and assign data to it:
+    plot->addGraph();
+    plot->graph(0)->setData(x, y);
+    // give the axes some labels:
+    plot->xAxis->setLabel("x");
+    plot->yAxis->setLabel("y");
+    // set axes ranges, so we see all data:
+    plot->xAxis->setRange(-1, 1);
+    plot->yAxis->setRange(0, 1);
+    plot->replot();
+
+    // Show dialogue
+    showPlot(plot);  // takes ownership
+}
+
+
+void WidgetTestMenu::testQCustomPlot2()
+{
+    // From https://www.qcustomplot.com/index.php/tutorials/basicplotting,
+    // modified a bit:
+    // - random number generation
+    // - seconds since epoch
+
+    auto plot = makeQCustomPlotOrWarn();
+    if (!plot) {
+        return;
+    }
+    QRandomGenerator rng(8);  // seed at creation
+
+    // set locale to english, so we get english month names:
+    plot->setLocale(QLocale(QLocale::English, QLocale::UnitedKingdom));
+    // seconds of current time, we'll use it as starting point in time for data:
+    double now = QDateTime::currentDateTime().toSecsSinceEpoch();
+    // create multiple graphs:
+    const int ngraphs = 5;
+    const int n = 250;
+    for (int gi = 0; gi < ngraphs; ++gi) {
+        plot->addGraph();
+        QColor color(20 + 200 / 4.0 * gi, 70 * (1.6 - gi / 4.0), 150, 150);
+        plot->graph()->setLineStyle(QCPGraph::lsLine);
+        plot->graph()->setPen(QPen(color.lighter(200)));
+        plot->graph()->setBrush(QBrush(color));
+        // generate random walk data:
+        QVector<QCPGraphData> timedata(n);
+        for (int i = 0; i < n; ++i) {
+            timedata[i].key = now + 24 * 3600 * i;  // units are seconds
+            const double randval = rng.generateDouble() - 0.5;  // range [-0.5, +0.5)
+            if (i == 0) {
+                timedata[i].value = (i / 50.0 + 1) * randval;
+            } else {
+                timedata[i].value =
+                        qFabs(timedata[i - 1].value) * (1 + 0.02 / 4.0 * (4 - gi)) +
+                        (i / 50.0 + 1) * randval;
+            }
+        }
+        plot->graph()->data()->set(timedata);
+    }
+    // configure bottom axis to show date instead of number:
+    QSharedPointer<QCPAxisTickerDateTime> dateTicker(new QCPAxisTickerDateTime);
+    dateTicker->setDateTimeFormat("d MMMM\nyyyy");
+    plot->xAxis->setTicker(dateTicker);
+    // configure left axis text labels:
+    QSharedPointer<QCPAxisTickerText> textTicker(new QCPAxisTickerText);
+    textTicker->addTick(10, "a bit\nlow");
+    textTicker->addTick(50, "quite\nhigh");
+    plot->yAxis->setTicker(textTicker);
+    // set a more compact font size for bottom and left axis tick labels:
+    plot->xAxis->setTickLabelFont(QFont(QFont().family(), 8));
+    plot->yAxis->setTickLabelFont(QFont(QFont().family(), 8));
+    // set axis labels:
+    plot->xAxis->setLabel("Date");
+    plot->yAxis->setLabel("Random wobbly lines value");
+    // make top and right axes visible but without ticks and labels:
+    plot->xAxis2->setVisible(true);
+    plot->yAxis2->setVisible(true);
+    plot->xAxis2->setTicks(false);
+    plot->yAxis2->setTicks(false);
+    plot->xAxis2->setTickLabels(false);
+    plot->yAxis2->setTickLabels(false);
+    // set axis ranges to show all data:
+    plot->xAxis->setRange(now, now + 24 * 3600 * n - 1);
+    plot->yAxis->setRange(0, 60);
+    // show legend with slightly transparent background brush:
+    plot->legend->setVisible(true);
+    plot->legend->setBrush(QColor(255, 255, 255, 150));
+
+    // Show dialogue
+    showPlot(plot);  // takes ownership
 }

@@ -70,6 +70,7 @@ QT += gui  # included by default; QtGui module
 QT += multimedia  # or: undefined reference to QMedia*::*
 QT += multimediawidgets
 # QT += network  # required to #include <QtNetwork/...>
+# QT += printsupport  # QCustomPlot says it needs this, but it appears not
 QT += quick  # for QML, e.g. for camera
 QT += quickwidgets  # for QQuickWidget
 QT += sql  # required to #include <QSqlDatabase>
@@ -636,6 +637,7 @@ SOURCES += \
     menulib/taskchainmenuitem.cpp \
     menulib/taskmenuitem.cpp \
     menulib/urlmenuitem.cpp \
+    qcustomplot/qcustomplot.cpp \
     qobjects/cameraframegrabber.cpp \
     qobjects/debugeventwatcher.cpp \
     qobjects/flickcharm.cpp \
@@ -1078,6 +1080,7 @@ HEADERS += \
     menulib/taskchainmenuitem.h \
     menulib/taskmenuitem.h \
     menulib/urlmenuitem.h \
+    qcustomplot/qcustomplot.h \
     qobjects/cameraframegrabber.h \
     qobjects/debugeventwatcher.h \
     qobjects/flickcharm.h \
