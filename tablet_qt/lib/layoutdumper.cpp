@@ -228,7 +228,7 @@ QString getWidgetInfo(const QWidget* w, const DumperConfig& config)
     if (w->hasHeightForWidth() &&
             geom.height() < w->heightForWidth(geom.width())) {
         const bool can_shrink_vertically =
-                sizehelpers::canHfwPolicyShrinkVertically(w->sizePolicy());
+                sizehelpers::canHFWPolicyShrinkVertically(w->sizePolicy());
         if (!can_shrink_vertically) {
             elements.append(
                 "[WARNING: geometry().height() < "

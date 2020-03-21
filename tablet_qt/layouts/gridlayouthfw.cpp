@@ -651,7 +651,7 @@ void GridLayoutHfw::addHfwData(GeomInfo& gi, QQGridBox* box, int width) const
         QLayoutItem* item = box->item();
         QWidget* widget = item->widget();
         const bool can_shrink_vertically =
-                sizehelpers::canHfwPolicyShrinkVertically(widget->sizePolicy());
+                sizehelpers::canHFWPolicyShrinkVertically(widget->sizePolicy());
         const int min_h = can_shrink_vertically ? item->minimumSize().height()
                                                 : hfw;
         ls.minimum_size = qMax(min_h, ls.minimum_size);

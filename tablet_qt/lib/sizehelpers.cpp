@@ -35,6 +35,8 @@
 #include "lib/layoutdumper.h"
 #endif
 
+#define QT_FREQUENT_STARTING_WIDTH 640
+
 
 namespace sizehelpers {
 
@@ -310,7 +312,7 @@ bool fixedHeightEquals(QWidget* widget, const int height)
 }
 
 
-bool canHfwPolicyShrinkVertically(const QSizePolicy& sp)
+bool canHFWPolicyShrinkVertically(const QSizePolicy& sp)
 {
     if (!sp.hasHeightForWidth()) {
         return false;
@@ -318,6 +320,28 @@ bool canHfwPolicyShrinkVertically(const QSizePolicy& sp)
     const QSizePolicy::Policy vp = sp.verticalPolicy();
     const bool can_shrink_vertically = vp & QSizePolicy::ShrinkFlag;
     return can_shrink_vertically;
+}
+
+
+bool isWidgetHFWTradingDimensions(const QWidget* widget)
+{
+    if (!widget->hasHeightForWidth()) {
+        return false;
+    }
+    const int h_for_small_w = widget->heightForWidth(QT_FREQUENT_STARTING_WIDTH);
+    const int h_for_big_w = widget->heightForWidth(QT_FREQUENT_STARTING_WIDTH * 2);
+    return h_for_small_w > h_for_big_w;
+}
+
+
+bool isWidgetHFWMaintaingAspectRatio(const QWidget* widget)
+{
+    if (!widget->hasHeightForWidth()) {
+        return false;
+    }
+    const int h_for_small_w = widget->heightForWidth(QT_FREQUENT_STARTING_WIDTH);
+    const int h_for_big_w = widget->heightForWidth(QT_FREQUENT_STARTING_WIDTH * 2);
+    return h_for_small_w < h_for_big_w;
 }
 
 

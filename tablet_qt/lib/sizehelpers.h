@@ -166,7 +166,18 @@ QSize labelExtraSizeRequired(const QLabel* label,
 bool fixedHeightEquals(QWidget* widget, int height);
 
 // Is a size policy an HFW one that allows vertical shrinkage?
-bool canHfwPolicyShrinkVertically(const QSizePolicy& sp);
+bool canHFWPolicyShrinkVertically(const QSizePolicy& sp);
+
+// Is this an HFW widget that appears to have an area constraint, and trading
+// width for height -- e.g. word-wrapped text -- detected as one whose
+// preferred height appears (in a very simple test) to get SMALLER as its
+// width gets larger?
+bool isWidgetHFWTradingDimensions(const QWidget* widget);
+
+// Is this an HFW widget that appears to have an aspect ratio constraint, e.g.
+// a resizable widget -- detected as one whose preferred height appears (in a
+// very simple test) to get LARGER as its width gets larger?
+bool isWidgetHFWMaintaingAspectRatio(const QWidget* widget);
 
 
 }  // namespace sizehelpers
