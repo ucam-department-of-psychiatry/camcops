@@ -277,6 +277,7 @@ class PatientIdNumIndexEntry(Base):
                     .where(idnumcols._current == True)  # noqa: E712
                     .where(idnumcols.idnum_value.isnot(None))
                     .where(patientcols._current == True)  # noqa: E712
+                    .where(patientcols.id != 0)
                 )
             )
         )
