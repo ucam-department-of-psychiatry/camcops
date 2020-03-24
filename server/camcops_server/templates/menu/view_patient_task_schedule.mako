@@ -61,7 +61,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
         </td>
         <td>
             %for schedule in patient.task_schedules:
-            <a href="#">schedule.description</a><br>
+            <a href="#">${ schedule.description }</a><br>
             %endfor
         </td>
         <td>
