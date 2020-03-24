@@ -30,7 +30,7 @@ taskschedule
 
 Revision ID: 0046
 Revises: 0045
-Creation date: 2020-03-17 16:26:32.525332
+Creation date: 2020-03-23 15:10:13.993974
 
 """
 
@@ -40,7 +40,6 @@ Creation date: 2020-03-17 16:26:32.525332
 
 from alembic import op
 import sqlalchemy as sa
-import cardinal_pythonlib.sqlalchemy.list_types
 import camcops_server.cc_modules.cc_sqla_coltypes
 
 
@@ -87,11 +86,17 @@ def upgrade():
     with op.batch_alter_table('_task_schedule_item', schema=None) as batch_op:
         batch_op.create_index(batch_op.f('ix__task_schedule_item_task_table_name'), ['task_table_name'], unique=False)
 
-    op.create_table('_patient_task_schedule',
-    sa.Column('patient_pk', sa.Integer(), nullable=True),
-    sa.Column('schedule_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['patient_pk'], ['patient._pk'], name=op.f('fk__patient_task_schedule_patient_pk')),
-    sa.ForeignKeyConstraint(['schedule_id'], ['_task_schedule.id'], name=op.f('fk__patient_task_schedule_schedule_id'))
+    op.create_table(
+        '_patient_task_schedule',
+        sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
+        sa.Column('patient_pk', sa.Integer(), nullable=True),
+        sa.Column('schedule_id', sa.Integer(), nullable=True),
+        sa.ForeignKeyConstraint(['patient_pk'], ['patient._pk'], name=op.f('fk__patient_task_schedule_patient_pk')),
+        sa.ForeignKeyConstraint(['schedule_id'], ['_task_schedule.id'], name=op.f('fk__patient_task_schedule_schedule_id')),
+        sa.PrimaryKeyConstraint('id', name=op.f('pk__patient_task_schedule')),
+        mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
+        mysql_engine='InnoDB',
+        mysql_row_format='DYNAMIC'
     )
 
 

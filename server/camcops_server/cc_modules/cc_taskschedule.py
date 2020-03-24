@@ -30,7 +30,7 @@ camcops_server/cc_modules/cc_taskschedule.py
 
 from sqlalchemy.orm import relationship
 
-from sqlalchemy.sql.schema import Column, ForeignKey, Table
+from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_group import Group
@@ -40,12 +40,15 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     TableNameColType,
 )
 
-association_table = Table(
-    "_patient_task_schedule",
-    Base.metadata,
-    Column("patient_pk", Integer, ForeignKey("patient._pk")),
-    Column("schedule_id", Integer, ForeignKey("_task_schedule.id")),
-)
+
+class PatientTaskSchedule(Base):
+    __tablename__ = "_patient_task_schedule"
+
+    id = Column("id", Integer, primary_key=True, autoincrement=True)
+    patient_pk = Column("patient_pk", Integer, ForeignKey("patient._pk"))
+    schedule_id = Column(
+        "schedule_id", Integer, ForeignKey("_task_schedule.id")
+    )
 
 
 class TaskSchedule(Base):
@@ -72,7 +75,7 @@ class TaskSchedule(Base):
     items = relationship("TaskScheduleItem")
     patients = relationship(
         "Patient",
-        secondary=association_table,
+        secondary="_patient_task_schedule",
         backref="task_schedules"
     )
 
