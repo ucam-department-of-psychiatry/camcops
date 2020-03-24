@@ -295,6 +295,7 @@ from camcops_server.cc_modules.cc_taskindex import (
     update_indexes_and_push_exports
 )
 from camcops_server.cc_modules.cc_taskschedule import (
+    PatientTaskSchedule,
     TaskSchedule,
     TaskScheduleItem,
 )
@@ -3520,6 +3521,18 @@ class AddPatientView(CreateView):
             )
 
             self.request.dbsession.add(new_idnum)
+
+        task_schedules = appstruct.get(ViewParam.TASK_SCHEDULES)
+
+        self.request.dbsession.commit()
+
+        for task_schedule in task_schedules:
+            schedule_id = task_schedule['schedule_id']
+            patient_task_schedule = PatientTaskSchedule()
+            patient_task_schedule.patient_pk = patient._pk
+            patient_task_schedule.schedule_id = schedule_id
+
+            self.request.dbsession.add(patient_task_schedule)
 
         self.object = patient
 

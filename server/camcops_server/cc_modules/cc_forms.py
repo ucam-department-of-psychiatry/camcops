@@ -206,6 +206,7 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     ID_DESCRIPTOR_MAX_LEN,
     USERNAME_CAMCOPS_MAX_LEN,
 )
+from camcops_server.cc_modules.cc_taskschedule import TaskSchedule
 from camcops_server.cc_modules.cc_unittest import DemoRequestTestCase
 
 if TYPE_CHECKING:
@@ -3527,8 +3528,70 @@ class DangerousEditPatientSchema(EditPatientSchema):
     danger = TranslatableValidateDangerousOperationNode()
 
 
+class TaskScheduleSelector(SchemaNode, RequestAwareMixin):
+    widget = SelectWidget()
+
+    def __init__(self, *args, **kwargs) -> None:
+        self.title = ""  # for type checker
+        self.description = ""  # for type checker
+        self.validator = None  # type: Optional[ValidatorType]
+        super().__init__(*args, **kwargs)
+
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        request = self.request
+        _ = request.gettext
+        self.title = _("Task schedule")
+        values = []  # type: List[Tuple[Optional[int], str]]
+
+        task_schedules = (
+            request.dbsession.query(TaskSchedule)
+            .order_by(TaskSchedule.description)
+        )
+
+        for task_schedule in task_schedules:
+            values.append((task_schedule.id, task_schedule.description))
+        values, pv = get_values_and_permissible(values, add_none=True)
+
+        self.widget.values = values
+        self.validator = OneOf(pv)
+
+    @staticmethod
+    def schema_type() -> SchemaType:
+        return Integer()
+
+
+class TaskScheduleNode(MappingSchema, RequestAwareMixin):
+    schedule_id = TaskScheduleSelector()  # must match ViewParam.SCHEDULE_ID  # noqa: E501
+
+    def __init__(self, *args, **kwargs) -> None:
+        self.title = ""  # for type checker
+        super().__init__(*args, **kwargs)
+
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        _ = self.gettext
+        self.title = _("Task schedule")
+
+
+class TaskScheduleSequence(SequenceSchema, RequestAwareMixin):
+    task_schedule_sequence = TaskScheduleNode()
+
+    def __init__(self, *args, **kwargs) -> None:
+        self.title = ""  # for type checker
+        self.widget = None  # type: Optional[Widget]
+        super().__init__(*args, **kwargs)
+
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        _ = self.gettext
+        self.title = _("Task Schedules")
+        self.widget = TranslatableSequenceWidget(request=self.request)
+
+
 class LiveEditPatientSchema(EditPatientSchema):
     group_id = MandatoryGroupIdSelectorAllGroups()  # Must match ViewParam.UPLOAD_GROUP_ID  # noqa: E501
+    task_schedules = TaskScheduleSequence()  # must match ViewParam.TASK_SCHEDULES  # noqa: E501
 
 
 class EditPatientForm(DangerousForm):

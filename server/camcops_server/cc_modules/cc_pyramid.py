@@ -229,6 +229,7 @@ class ViewParam(object):
     SURNAME = "surname"
     TABLE_NAME = "table_name"
     TASKS = "tasks"
+    TASK_SCHEDULES = "task_schedules"
     TEXT_CONTENTS = "text_contents"
     TRUNCATE = "truncate"
     UPLOAD_GROUP_ID = "upload_group_id"
