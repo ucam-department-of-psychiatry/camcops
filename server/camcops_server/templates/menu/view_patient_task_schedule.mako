@@ -57,7 +57,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
             ${ format_datetime(patient.dob, DateFormat.SHORT_DATE, default="?") })
         </td>
         <td>
-            ${ patient.uuid }
+            ${ patient.uuid_as_proquint }
         </td>
         <td>
             %for schedule in patient.task_schedules:

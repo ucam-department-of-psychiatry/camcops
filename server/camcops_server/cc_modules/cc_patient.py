@@ -75,6 +75,7 @@ from camcops_server.cc_modules.cc_patientidnum import (
     extra_id_colname,
     PatientIdNum,
 )
+from camcops_server.cc_modules.cc_proquint import proquint_from_int
 from camcops_server.cc_modules.cc_report import Report
 from camcops_server.cc_modules.cc_simpleobjects import (
     IdNumReference,
@@ -901,6 +902,18 @@ class Patient(GenericTabletRecordMixin, Base):
         Does the current user have permission to edit this patient?
         """
         return req.user.may_administer_group(self._group_id)
+
+    # --------------------------------------------------------------------------
+    # UUID
+    # --------------------------------------------------------------------------
+    @property
+    def uuid_as_proquint(self) -> Optional[str]:
+        # Convert integer into pronounceable quintuplets (proquint)
+        # https://arxiv.org/html/0901.4016
+        if self.uuid is None:
+            return None
+
+        return proquint_from_int(self.uuid.int, 128)
 
 
 # =============================================================================
