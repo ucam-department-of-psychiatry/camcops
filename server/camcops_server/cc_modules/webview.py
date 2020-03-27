@@ -3312,7 +3312,7 @@ def edit_patient(req: "CamcopsRequest") -> Response:
         raise HTTPBadRequest(_("Bad patient: not in a group"))
     if not patient.user_may_edit(req):
         raise HTTPBadRequest(_("Not authorized to edit this patient"))
-    if not patient.is_editable:
+    if not patient.is_editable(req):
         raise HTTPBadRequest(
             _("Patient is not editable (likely: not finalized, so a copy is "
               "still on a client device)"))

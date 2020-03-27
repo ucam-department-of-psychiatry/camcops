@@ -65,6 +65,7 @@ from camcops_server.cc_modules.cc_constants import (
     TSV_PATIENT_FIELD_PREFIX,
 )
 from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
+from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_hl7 import make_pid_segment
 from camcops_server.cc_modules.cc_html import answer
 from camcops_server.cc_modules.cc_simpleobjects import (
@@ -886,16 +887,25 @@ class Patient(GenericTabletRecordMixin, Base):
     # Editing
     # -------------------------------------------------------------------------
 
-    @property
-    def is_editable(self) -> bool:
+    def is_editable(self, req: "CamcopsRequest") -> bool:
         """
         Is the patient finalized (no longer available to be edited on the
         client device), and therefore editable on the server?
         """
+        if self.was_created_on_server(req):
+            return True
+
         if self._era == ERA_NOW:
             # Not finalized; no editing on server
             return False
         return True
+
+    def was_created_on_server(self, req: "CamcopsRequest") -> bool:
+        server_device = Device.get_server_device(req.dbsession)
+
+        return (self._era == ERA_NOW and
+                self.id == 0 and
+                self._device_id == server_device.id)
 
     def user_may_edit(self, req: "CamcopsRequest") -> bool:
         """
@@ -1087,5 +1097,5 @@ class PatientTests(DemoDatabaseTestCase):
         self.assertIsInstance(p.get_iddesc(req, which_idnum=1), str)
         self.assertIsInstance(p.get_idshortdesc(req, which_idnum=1), str)
         self.assertIsInstance(p.is_preserved(), bool)
-        self.assertIsInstance(p.is_editable, bool)
+        self.assertIsInstance(p.is_editable(req), bool)
         self.assertIsInstance(p.user_may_edit(req), bool)
