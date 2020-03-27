@@ -122,11 +122,13 @@ Quick tutorial on Pyramid views:
 """
 
 from collections import OrderedDict
+import datetime
 import logging
 import os
 # from pprint import pformat
 from typing import Any, Dict, List, Tuple, Type, TYPE_CHECKING
-# import unittest
+import unittest
+from unittest import mock
 
 from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.deform_utils import get_head_form_html
@@ -3497,6 +3499,8 @@ class AddPatientView(CreateView):
 
         for k in EDIT_PATIENT_SIMPLE_PARAMS:
             new_value = appstruct.get(k)
+            if k in [ViewParam.FORENAME, ViewParam.SURNAME]:
+                new_value = new_value.upper()
             setattr(patient, k, new_value)
 
         self.request.dbsession.add(patient)
@@ -3527,7 +3531,7 @@ class AddPatientView(CreateView):
         self.request.dbsession.commit()
 
         for task_schedule in task_schedules:
-            schedule_id = task_schedule['schedule_id']
+            schedule_id = task_schedule[ViewParam.SCHEDULE_ID]
             patient_task_schedule = PatientTaskSchedule()
             patient_task_schedule.patient_pk = patient._pk
             patient_task_schedule.schedule_id = schedule_id
@@ -4265,3 +4269,183 @@ class DeleteTaskScheduleItemViewTests(DemoDatabaseTestCase):
         item = self.dbsession.query(TaskScheduleItem).one_or_none()
 
         self.assertIsNotNone(item)
+
+
+class EditPatientViewTests(DemoDatabaseTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+    def test_raises_when_patient_does_not_exists(self):
+        with self.assertRaises(HTTPBadRequest) as cm:
+            edit_patient(self.req)
+
+        self.assertEqual(str(cm.exception), "No such patient")
+
+    @unittest.skip("Can't save patient in database without group")
+    def test_raises_when_patient_not_in_a_group(self):
+        patient = self.create_patient(_group_id=None)
+
+        self.req.add_get_params({
+            ViewParam.SERVER_PK: patient._pk
+        })
+
+        with self.assertRaises(HTTPBadRequest) as cm:
+            edit_patient(self.req)
+
+        self.assertEqual(str(cm.exception), "Bad patient: not in a group")
+
+    def test_raises_when_not_authorized(self):
+        patient = self.create_patient()
+
+        self.req._debugging_user = User()
+        self.req._debugging_user.may_administer_group = mock.Mock(
+            return_value=False
+        )
+
+        self.req.add_get_params({
+            ViewParam.SERVER_PK: patient._pk
+        })
+
+        with self.assertRaises(HTTPBadRequest) as cm:
+            edit_patient(self.req)
+
+        self.assertEqual(str(cm.exception),
+                         "Not authorized to edit this patient")
+
+    def test_raises_when_patient_not_editable(self):
+        patient = self.create_patient(id=1, _era=ERA_NOW)
+
+        self.req.add_get_params({
+            ViewParam.SERVER_PK: patient._pk
+        })
+
+        with self.assertRaises(HTTPBadRequest) as cm:
+            edit_patient(self.req)
+
+        self.assertIn("Patient is not editable", str(cm.exception))
+
+    def test_patient_updated(self):
+        patient = self.create_patient()
+
+        self.req.add_get_params({
+            ViewParam.SERVER_PK: patient._pk
+        }, set_method_get=False)
+
+        multidict = MultiDict([
+            ("_charset_", "UTF-8"),
+            ("__formid__", "deform"),
+            (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
+            (ViewParam.SERVER_PK, patient._pk),
+            (ViewParam.GROUP_ID, patient.group.id),
+            (ViewParam.FORENAME, "Jo"),
+            (ViewParam.SURNAME, "Patient"),
+            ("__start__", "dob:mapping"),
+            ("date", "1958-04-19"),
+            ("__end__", "dob:mapping"),
+            ("__start__", "sex:rename"),
+            ("deformField7", "X"),
+            ("__end__", "sex:rename"),
+            (ViewParam.ADDRESS, "New address"),
+            (ViewParam.GP, "New GP"),
+            (ViewParam.OTHER, "New other"),
+            ("__start__", "id_references:sequence"),
+            ("__start__", "idnum_sequence:mapping"),
+            (ViewParam.WHICH_IDNUM, self.nhs_iddef.which_idnum),
+            (ViewParam.IDNUM_VALUE, "4887211163"),
+            ("__end__", "idnum_sequence:mapping"),
+            ("__end__", "id_references:sequence"),
+            ("__start__", "danger:mapping"),
+            ("target", "7836"),
+            ("user_entry", "7836"),
+            ("__end__", "danger:mapping"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+
+        edit_patient(self.req)
+
+        self.dbsession.commit()
+
+        self.assertEqual(patient.forename, "JO")
+        self.assertEqual(patient.surname, "PATIENT")
+        self.assertEqual(patient.dob.isoformat(), "1958-04-19")
+        self.assertEqual(patient.sex, "X")
+        self.assertEqual(patient.address, "New address")
+        self.assertEqual(patient.gp, "New GP")
+        self.assertEqual(patient.other, "New other")
+
+        idnum = patient.get_idnum_objects()[0]
+        self.assertEqual(idnum.patient_id, 0)
+        self.assertEqual(idnum.which_idnum, self.nhs_iddef.which_idnum)
+        self.assertEqual(idnum.idnum_value, 4887211163)
+
+
+class AddPatientViewTests(DemoDatabaseTestCase):
+    def test_patient_created(self) -> None:
+        view = AddPatientView(self.req)
+
+        schedule1 = TaskSchedule()
+        schedule1.group_id = self.group.id
+        schedule1.description = "Test 1"
+        self.dbsession.add(schedule1)
+
+        schedule2 = TaskSchedule()
+        schedule2.group_id = self.group.id
+        schedule2.description = "Test 2"
+        self.dbsession.add(schedule2)
+        self.dbsession.commit()
+
+        appstruct = {
+            ViewParam.GROUP_ID: self.group.id,
+            ViewParam.FORENAME: "Jo",
+            ViewParam.SURNAME: "Patient",
+            ViewParam.DOB: datetime.date(1958, 4, 19),
+            ViewParam.SEX: "F",
+            ViewParam.ADDRESS: "Address",
+            ViewParam.GP: "GP",
+            ViewParam.OTHER: "Other",
+            ViewParam.ID_REFERENCES: [{
+                ViewParam.WHICH_IDNUM: self.nhs_iddef.which_idnum,
+                ViewParam.IDNUM_VALUE: 1192220552,
+            }],
+            ViewParam.TASK_SCHEDULES: [
+                {
+                    ViewParam.SCHEDULE_ID: schedule1.id,
+                },
+                {
+                    ViewParam.SCHEDULE_ID: schedule2.id,
+                },
+            ],
+        }
+
+        view.save_object(appstruct)
+
+        patient = view.object
+
+        server_device = Device.get_server_device(
+            self.req.dbsession
+        )
+
+        self.assertEqual(patient.id, 0)
+        self.assertEqual(patient._device_id, server_device.id)
+        self.assertEqual(patient._era, ERA_NOW)
+        self.assertEqual(patient.group.id, self.group.id)
+
+        self.assertEqual(patient.forename, "JO")
+        self.assertEqual(patient.surname, "PATIENT")
+        self.assertEqual(patient.dob.isoformat(), "1958-04-19")
+        self.assertEqual(patient.sex, "F")
+        self.assertEqual(patient.address, "Address")
+        self.assertEqual(patient.gp, "GP")
+        self.assertEqual(patient.other, "Other")
+
+        idnum = patient.get_idnum_objects()[0]
+        self.assertEqual(idnum.patient_id, 0)
+        self.assertEqual(idnum.which_idnum, self.nhs_iddef.which_idnum)
+        self.assertEqual(idnum.idnum_value, 1192220552)
+
+        schedule_ids = [s.id for s in patient.task_schedules]
+
+        self.assertIn(schedule1.id, schedule_ids)
+        self.assertIn(schedule2.id, schedule_ids)

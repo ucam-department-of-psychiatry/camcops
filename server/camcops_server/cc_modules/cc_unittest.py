@@ -372,6 +372,23 @@ class DemoDatabaseTestCase(DemoRequestTestCase):
 
         return patient
 
+    def create_patient(self, **kwargs) -> "Patient":
+        from camcops_server.cc_modules.cc_patient import Patient
+
+        patient = Patient()
+        self._apply_standard_db_fields(patient)
+
+        if "id" not in kwargs:
+            kwargs["id"] = 0
+
+        for key, value in kwargs.items():
+            setattr(patient, key, value)
+
+        self.dbsession.add(patient)
+        self.dbsession.commit()
+
+        return patient
+
     def create_tasks(self) -> None:
         from camcops_server.cc_modules.cc_blob import Blob
         from camcops_server.tasks.photo import Photo
