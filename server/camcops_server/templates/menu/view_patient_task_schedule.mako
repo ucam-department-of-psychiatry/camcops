@@ -65,7 +65,11 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
             %endfor
         </td>
         <td>
-            <a href="#">Add schedule</a>
+            <a href="${ req.route_url(
+                     Routes.EDIT_PATIENT,
+                     _query={
+                         ViewParam.SERVER_PK: patient._pk
+                     }) }">${_("Edit")}</a>
         </td>
     </tr>
 %endfor
