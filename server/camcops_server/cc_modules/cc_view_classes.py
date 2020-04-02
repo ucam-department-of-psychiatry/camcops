@@ -151,9 +151,9 @@ class FormMixin(ContextMixin):
         if "form" not in kwargs:
             appstruct = self.get_form_values()
             rendered_form = form.render(appstruct)
-            kwargs['form'] = rendered_form
+            kwargs["form"] = rendered_form
 
-        kwargs['head_form_html'] = get_head_form_html(
+        kwargs["head_form_html"] = get_head_form_html(
             self.request, [form]
         )
 
