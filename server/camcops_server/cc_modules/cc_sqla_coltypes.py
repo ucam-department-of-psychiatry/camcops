@@ -1256,6 +1256,13 @@ class UuidColType(TypeDecorator):
 
     impl = CHAR(32)
 
+    @property
+    def python_type(self) -> type:
+        """
+        The Python type of the object.
+        """
+        return str
+
     def process_bind_param(self, value, dialect):
         if value is None:
             return value
