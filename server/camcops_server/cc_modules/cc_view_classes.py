@@ -171,18 +171,24 @@ class SingleObjectMixin(ContextMixin):
 
         return super().get_context_data(**context)
 
-    def get_object(self, **kwargs):
-        pk_property = getattr(self.object_class, "id")
+    def get_object(self):
+        pk_value = self.request.get_int_param(self.pk_param)
+
+        pk_property = getattr(self.object_class, self.server_pk_name)
 
         obj = self.request.dbsession.query(self.object_class).filter(
-            pk_property == self.pk
+            pk_property == pk_value
         ).one_or_none()
 
         if obj is None:
             _ = self.request.gettext
 
             raise HTTPBadRequest(
-                f"{_('Cannot find object:')} {self.object_class}:{self.pk}"
+                _("Cannot find {object_class} with {server_pk_name}:{pk_value}").format(  # noqa: E501
+                    object_class=self.object_class.__name__,
+                    server_pk_name=self.server_pk_name,
+                    pk_value=pk_value
+                )
             )
 
         return obj
