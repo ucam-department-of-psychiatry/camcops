@@ -3296,135 +3296,164 @@ def delete_patient(req: "CamcopsRequest") -> Response:
     )
 
 
-@view_config(route_name=Routes.EDIT_PATIENT, permission=Permission.GROUPADMIN)
-def edit_patient(req: "CamcopsRequest") -> Response:
+class PatientMixin:
+    object_class = Patient
+
+    model_form_dict = {
+        "forename": ViewParam.FORENAME,
+        "surname": ViewParam.SURNAME,
+        "dob": ViewParam.DOB,
+        "sex": ViewParam.SEX,
+        "address": ViewParam.ADDRESS,
+        "gp": ViewParam.GP,
+        "other": ViewParam.OTHER,
+    }
+
+    def get_form_values(self) -> Dict:
+        # will populate with model_form_dict
+        form_values = super().get_form_values()
+
+        patient = self.object
+
+        if patient is not None:
+            form_values[ViewParam.SERVER_PK] = patient._pk
+            form_values[ViewParam.GROUP_ID] = patient.group.id
+            form_values[ViewParam.ID_REFERENCES] = [
+                {ViewParam.WHICH_IDNUM: pidnum.which_idnum,
+                 ViewParam.IDNUM_VALUE: pidnum.idnum_value}
+                for pidnum in patient.idnums
+            ]
+
+        return form_values
+
+
+class EditPatientView(PatientMixin, UpdateView):
     """
     View to edit details for a patient.
     """
-    if FormAction.CANCEL in req.POST:
-        return HTTPFound(req.route_url(Routes.HOME))
+    form_class = EditPatientForm
+    pk_param = ViewParam.SERVER_PK
+    server_pk_name = "_pk"
+    template_name = "patient_edit.mako"
 
-    server_pk = req.get_int_param(ViewParam.SERVER_PK)
-    patient = Patient.get_patient_by_pk(req.dbsession, server_pk)
+    def get_success_url(self):
+        return self.request.route_url(Routes.HOME)
 
-    _ = req.gettext
-    if not patient:
-        raise HTTPBadRequest(_("No such patient"))
-    if not patient.group:
-        raise HTTPBadRequest(_("Bad patient: not in a group"))
-    if not patient.user_may_edit(req):
-        raise HTTPBadRequest(_("Not authorized to edit this patient"))
-    if not patient.is_editable(req):
-        raise HTTPBadRequest(
-            _("Patient is not editable (likely: not finalized, so a copy is "
-              "still on a client device)"))
+    def get_object(self):
+        patient = super().get_object()
 
-    taskfilter = TaskFilter()
-    taskfilter.device_ids = [patient.get_device_id()]
-    taskfilter.group_ids = [patient.group.id]
-    taskfilter.era = patient.get_era()
-    collection = TaskCollection(
-        req=req,
-        taskfilter=taskfilter,
-        sort_method_global=TaskSortMethod.CREATION_DATE_DESC,
-        current_only=False  # unusual option!
-    )
-    affected_tasks = collection.all_tasks
+        _ = self.request.gettext
 
-    form = EditPatientForm(request=req)
-    dbsession = req.dbsession
-    if FormAction.SUBMIT in req.POST:
-        try:
-            controls = list(req.POST.items())
-            appstruct = form.validate(controls)
-            # -----------------------------------------------------------------
-            # Apply edits
-            # -----------------------------------------------------------------
-            # Calculate the changes, and apply them to the Patient object
-            changes = OrderedDict()  # type: Dict[str, Tuple[Any, Any]]
-            for k in EDIT_PATIENT_SIMPLE_PARAMS:
-                new_value = appstruct.get(k)
-                if k in [ViewParam.FORENAME, ViewParam.SURNAME]:
-                    new_value = new_value.upper()
-                old_value = getattr(patient, k)
-                if new_value == old_value:
-                    continue
-                if new_value in [None, ""] and old_value in [None, ""]:
-                    # Nothing really changing!
-                    continue
-                changes[k] = (old_value, new_value)
-                setattr(patient, k, new_value)
+        if not patient.group:
+            raise HTTPBadRequest(_("Bad patient: not in a group"))
+
+        if not patient.user_may_edit(self.request):
+            raise HTTPBadRequest(_("Not authorized to edit this patient"))
+
+        if not patient.is_editable(self.request):
+            raise HTTPBadRequest(
+                _("Patient is not editable (likely: not finalized, so a copy "
+                  "still on a client device)"))
+
+        return patient
+
+    def save_object(self, appstruct: Dict) -> None:
+        # -----------------------------------------------------------------
+        # Apply edits
+        # -----------------------------------------------------------------
+        # Calculate the changes, and apply them to the Patient object
+        _ = self.request.gettext
+
+        patient = self.object
+
+        changes = OrderedDict()  # type: Dict[str, Tuple[Any, Any]]
+        for k in EDIT_PATIENT_SIMPLE_PARAMS:
+            new_value = appstruct.get(k)
+            if k in [ViewParam.FORENAME, ViewParam.SURNAME]:
+                new_value = new_value.upper()
+            old_value = getattr(patient, k)
+            if new_value == old_value:
+                continue
+            if new_value in [None, ""] and old_value in [None, ""]:
+                # Nothing really changing!
+                continue
+            changes[k] = (old_value, new_value)
+            setattr(patient, k, new_value)
             # The ID numbers are more complex.
             # log.debug("{}", pformat(appstruct))
-            new_idrefs = [
-                IdNumReference(which_idnum=idrefdict[ViewParam.WHICH_IDNUM],
-                               idnum_value=idrefdict[ViewParam.IDNUM_VALUE])
-                for idrefdict in appstruct.get(ViewParam.ID_REFERENCES)
-            ]
-            for idnum in patient.idnums:
-                matching_idref = next(
-                    (idref for idref in new_idrefs
-                     if idref.which_idnum == idnum.which_idnum), None)
-                if not matching_idref:
-                    # Delete ID numbers not present in the new set
-                    changes["idnum{} ({})".format(
-                        idnum.which_idnum,
-                        req.get_id_desc(idnum.which_idnum))
-                    ] = (idnum.idnum_value, None)
-                    idnum.mark_as_deleted(req)
-                elif matching_idref.idnum_value != idnum.idnum_value:
-                    # Modify altered ID numbers present in the old + new sets
-                    changes["idnum{} ({})".format(
-                        idnum.which_idnum,
-                        req.get_id_desc(idnum.which_idnum))
-                    ] = (idnum.idnum_value, matching_idref.idnum_value)
-                    new_idnum = PatientIdNum()
-                    new_idnum.id = idnum.id
-                    new_idnum.patient_id = idnum.patient_id
-                    new_idnum.which_idnum = idnum.which_idnum
-                    new_idnum.idnum_value = matching_idref.idnum_value
-                    new_idnum.set_predecessor(req, idnum)
-            max_existing_pidnum_id = None
-            for idref in new_idrefs:
-                matching_idnum = next(
-                    (idnum for idnum in patient.idnums
-                     if idnum.which_idnum == idref.which_idnum), None)
-                if not matching_idnum:
-                    # Create ID numbers where they were absent
-                    changes["idnum{} ({})".format(
-                        idref.which_idnum,
-                        req.get_id_desc(idref.which_idnum))
-                    ] = (None, idref.idnum_value)
-                    # We need to establish an "id" field, which is the PK as
-                    # seen by the tablet. The tablet has lost interest in these
-                    # records, since _era != ERA_NOW, so all we have to do is
-                    # pick a number that's not in use.
+        new_idrefs = [
+            IdNumReference(which_idnum=idrefdict[ViewParam.WHICH_IDNUM],
+                           idnum_value=idrefdict[ViewParam.IDNUM_VALUE])
+            for idrefdict in appstruct.get(ViewParam.ID_REFERENCES)
+        ]
+        for idnum in patient.idnums:
+            matching_idref = next(
+                (idref for idref in new_idrefs
+                 if idref.which_idnum == idnum.which_idnum), None)
+            if not matching_idref:
+                # Delete ID numbers not present in the new set
+                changes["idnum{} ({})".format(
+                    idnum.which_idnum,
+                    self.request.get_id_desc(idnum.which_idnum))
+                ] = (idnum.idnum_value, None)
+                idnum.mark_as_deleted(self.request)
+            elif matching_idref.idnum_value != idnum.idnum_value:
+                # Modify altered ID numbers present in the old + new sets
+                changes["idnum{} ({})".format(
+                    idnum.which_idnum,
+                    self.request.get_id_desc(idnum.which_idnum))
+                ] = (idnum.idnum_value, matching_idref.idnum_value)
+                new_idnum = PatientIdNum()
+                new_idnum.id = idnum.id
+                new_idnum.patient_id = idnum.patient_id
+                new_idnum.which_idnum = idnum.which_idnum
+                new_idnum.idnum_value = matching_idref.idnum_value
+                new_idnum.set_predecessor(self.request, idnum)
+        max_existing_pidnum_id = None
+        for idref in new_idrefs:
+            matching_idnum = next(
+                (idnum for idnum in patient.idnums
+                 if idnum.which_idnum == idref.which_idnum), None)
+            if not matching_idnum:
+                # Create ID numbers where they were absent
+                changes["idnum{} ({})".format(
+                    idref.which_idnum,
+                    self.request.get_id_desc(idref.which_idnum))
+                ] = (None, idref.idnum_value)
+                # We need to establish an "id" field, which is the PK as
+                # seen by the tablet. The tablet has lost interest in these
+                # records, since _era != ERA_NOW, so all we have to do is
+                # pick a number that's not in use.
+                if max_existing_pidnum_id is None:
+                    # noinspection PyProtectedMember
+                    max_existing_pidnum_id = (
+                        self.request.dbsession
+                        .query(func.max(PatientIdNum.id))
+                        .filter(PatientIdNum._device_id ==
+                                patient.get_device_id())
+                        .filter(PatientIdNum._era == patient.get_era())
+                        .scalar()
+                    )
                     if max_existing_pidnum_id is None:
-                        # noinspection PyProtectedMember
-                        max_existing_pidnum_id = dbsession\
-                            .query(func.max(PatientIdNum.id))\
-                            .filter(PatientIdNum._device_id ==
-                                    patient.get_device_id())\
-                            .filter(PatientIdNum._era == patient.get_era())\
-                            .scalar()
-                        if max_existing_pidnum_id is None:
-                            max_existing_pidnum_id = 0  # so start at 1
+                        max_existing_pidnum_id = 0  # so start at 1
                     new_idnum = PatientIdNum()
                     new_idnum.id = max_existing_pidnum_id + 1
                     max_existing_pidnum_id += 1
                     new_idnum.patient_id = patient.id
                     new_idnum.which_idnum = idref.which_idnum
                     new_idnum.idnum_value = idref.idnum_value
-                    new_idnum.create_fresh(req,
+                    new_idnum.create_fresh(self.request,
                                            device_id=patient.get_device_id(),
                                            era=patient.get_era(),
                                            group_id=patient.get_group_id())
-                    dbsession.add(new_idnum)
+                    self.request.dbsession.add(new_idnum)
+
             if not changes:
-                return simple_success(
-                    req,
+                self.request.session.flash(
                     f"{_('No changes required for patient record with server PK')} "  # noqa
-                    f"{server_pk} {_('(all new values matched old values)')}")
+                    f"{patient._pk} {_('(all new values matched old values)')}"
+                )
+                return
 
             # Below here, changes have definitely been made.
             change_msg = (
@@ -3435,46 +3464,52 @@ def edit_patient(req: "CamcopsRequest") -> Response:
             )
 
             # Apply special note to patient
-            patient.apply_special_note(req, change_msg, "Patient edited")
+            patient.apply_special_note(self.request, change_msg,
+                                       "Patient edited")
 
             # Patient details changed, so resend any tasks via HL7
-            for task in affected_tasks:
-                task.cancel_from_export_log(req)
+            for task in self.get_affected_tasks():
+                task.cancel_from_export_log(self.request)
 
             # Done
-            return simple_success(
-                req,
-                f"{_('Amended patient record with server PK')} {server_pk}. "
-                f"{_('Changes were:')} {change_msg}")
-        except ValidationFailure as e:
-            rendered_form = e.render()
-    else:
-        appstruct = {k: getattr(patient, k)
-                     for k in EDIT_PATIENT_SIMPLE_PARAMS}
-        appstruct[ViewParam.SERVER_PK] = server_pk
-        appstruct[ViewParam.GROUP_ID] = patient.group.id
-        appstruct[ViewParam.ID_REFERENCES] = [
-            {ViewParam.WHICH_IDNUM: pidnum.which_idnum,
-             ViewParam.IDNUM_VALUE: pidnum.idnum_value}
-            for pidnum in patient.idnums
-        ]
-        rendered_form = form.render(appstruct)
-    return render_to_response(
-        "patient_edit.mako",
-        dict(
-            patient=patient,
-            form=rendered_form,
-            tasks=affected_tasks,
-            head_form_html=get_head_form_html(req, [form])
-        ),
-        request=req
-    )
+            self.request.session.flash(
+                f"{_('Amended patient record with server PK')} "
+                f"{patient._pk}. "
+                f"{_('Changes were:')} {change_msg}"
+            )
+
+    def get_context_data(self, **kwargs):
+        kwargs["tasks"] = self.get_affected_tasks()
+
+        return super().get_context_data(**kwargs)
+
+    def get_affected_tasks(self):
+        patient = self.object
+
+        taskfilter = TaskFilter()
+        taskfilter.device_ids = [patient.get_device_id()]
+        taskfilter.group_ids = [patient.group.id]
+        taskfilter.era = patient.get_era()
+        collection = TaskCollection(
+            req=self.request,
+            taskfilter=taskfilter,
+            sort_method_global=TaskSortMethod.CREATION_DATE_DESC,
+            current_only=False  # unusual option!
+        )
+        return collection.all_tasks
 
 
-class AddPatientView(CreateView):
+@view_config(route_name=Routes.EDIT_PATIENT, permission=Permission.GROUPADMIN)
+def edit_patient(req: "CamcopsRequest") -> Response:
+    """
+    View to edit details for a patient.
+    """
+    return EditPatientView(req).dispatch()
+
+
+class AddPatientView(PatientMixin, CreateView):
     form_class = LiveEditPatientForm
     template_name = "patient_add.mako"
-    object_class = Patient
 
     def get_success_url(self):
         return self.request.route_url(
@@ -3782,6 +3817,8 @@ class AddTaskScheduleView(TaskScheduleMixin, CreateView):
 
 
 class EditTaskScheduleView(TaskScheduleMixin, UpdateView):
+    pk_param = ViewParam.SCHEDULE_ID
+
     @property
     def extra_context(self):
         _ = self.request.gettext
@@ -3789,13 +3826,10 @@ class EditTaskScheduleView(TaskScheduleMixin, UpdateView):
             "title": _("Edit details for a task schedule"),
         }
 
-    @property
-    def pk(self) -> int:
-        return self.request.get_int_param(ViewParam.SCHEDULE_ID)
-
 
 class DeleteTaskScheduleView(TaskScheduleMixin, DeleteView):
     form_class = DeleteTaskScheduleForm
+    pk_param = ViewParam.SCHEDULE_ID
 
     @property
     def extra_context(self):
@@ -3803,10 +3837,6 @@ class DeleteTaskScheduleView(TaskScheduleMixin, DeleteView):
         return {
             "title": _("Delete a task schedule"),
         }
-
-    @property
-    def pk(self) -> int:
-        return self.request.get_int_param(ViewParam.SCHEDULE_ID)
 
 
 @view_config(route_name=Routes.ADD_TASK_SCHEDULE,
@@ -3846,6 +3876,8 @@ class TaskScheduleItemMixin:
         "due_by": ViewParam.DUE_BY,
     }
     object_class = TaskScheduleItem
+    pk_param = ViewParam.SCHEDULE_ITEM_ID
+    server_pk_name = "id"
 
     def get_success_url(self):
         return self.request.route_url(
@@ -3894,10 +3926,6 @@ class EditTaskScheduleItemView(TaskScheduleItemMixin, UpdateView):
             "title": _("Edit details for a task schedule item"),
         }
 
-    @property
-    def pk(self) -> int:
-        return self.request.get_int_param(ViewParam.SCHEDULE_ITEM_ID)
-
     def get_schedule_id(self) -> int:
         return self.object.schedule_id
 
@@ -3911,10 +3939,6 @@ class DeleteTaskScheduleItemView(TaskScheduleItemMixin, DeleteView):
         return {
             "title": _("Delete a task schedule item"),
         }
-
-    @property
-    def pk(self) -> int:
-        return self.request.get_int_param(ViewParam.SCHEDULE_ITEM_ID)
 
     def get_schedule_id(self) -> int:
         return self.object.schedule_id
@@ -4275,11 +4299,15 @@ class EditPatientViewTests(DemoDatabaseTestCase):
     def setUp(self) -> None:
         super().setUp()
 
+    def create_tasks(self):
+        # speed things up a bit
+        pass
+
     def test_raises_when_patient_does_not_exists(self):
         with self.assertRaises(HTTPBadRequest) as cm:
             edit_patient(self.req)
 
-        self.assertEqual(str(cm.exception), "No such patient")
+        self.assertEqual(str(cm.exception), "Cannot find Patient with _pk:None")
 
     @unittest.skip("Can't save patient in database without group")
     def test_raises_when_patient_not_in_a_group(self):
@@ -4363,7 +4391,8 @@ class EditPatientViewTests(DemoDatabaseTestCase):
 
         self.req.fake_request_post_from_dict(multidict)
 
-        edit_patient(self.req)
+        with self.assertRaises(HTTPFound):
+            edit_patient(self.req)
 
         self.dbsession.commit()
 
@@ -4379,6 +4408,135 @@ class EditPatientViewTests(DemoDatabaseTestCase):
         self.assertEqual(idnum.patient_id, 0)
         self.assertEqual(idnum.which_idnum, self.nhs_iddef.which_idnum)
         self.assertEqual(idnum.idnum_value, 4887211163)
+
+        self.assertEqual(len(patient.special_notes), 1)
+        note = patient.special_notes[0].note
+
+        self.assertIn("Patient details edited", note)
+        self.assertIn("forename", note)
+        self.assertIn("JO", note)
+
+        self.assertIn("surname", note)
+        self.assertIn("PATIENT", note)
+
+        self.assertIn("idnum1", note)
+        self.assertIn("4887211163", note)
+
+        messages = self.req.session.peek_flash()
+
+        self.assertIn(f"Amended patient record with server PK {patient._pk}",
+                      messages[0])
+        self.assertIn("forename", messages[0])
+        self.assertIn("JO", messages[0])
+
+        self.assertIn("surname", messages[0])
+        self.assertIn("PATIENT", messages[0])
+
+        self.assertIn("idnum1", messages[0])
+        self.assertIn("4887211163", messages[0])
+
+    def test_message_when_no_changes(self):
+        patient = self.create_patient(
+            forename="JO", surname="PATIENT", dob=datetime.date(1958, 4, 19),
+            sex="F", address="Address", gp="GP", other="Other"
+        )
+        patient_idnum = self.create_patient_idnum(
+            patient_id=patient.id, which_idnum=self.nhs_iddef.which_idnum,
+            idnum_value=4887211163
+        )
+
+        self.req.add_get_params({
+            ViewParam.SERVER_PK: patient._pk
+        }, set_method_get=False)
+
+        multidict = MultiDict([
+            ("_charset_", "UTF-8"),
+            ("__formid__", "deform"),
+            (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
+            (ViewParam.SERVER_PK, patient._pk),
+            (ViewParam.GROUP_ID, patient.group.id),
+            (ViewParam.FORENAME, patient.forename),
+            (ViewParam.SURNAME, patient.surname),
+            ("__start__", "dob:mapping"),
+            ("date", patient.dob.isoformat()),
+            ("__end__", "dob:mapping"),
+            ("__start__", "sex:rename"),
+            ("deformField7", patient.sex),
+            ("__end__", "sex:rename"),
+            (ViewParam.ADDRESS, patient.address),
+            (ViewParam.GP, patient.gp),
+            (ViewParam.OTHER, patient.other),
+            ("__start__", "id_references:sequence"),
+            ("__start__", "idnum_sequence:mapping"),
+            (ViewParam.WHICH_IDNUM, patient_idnum.which_idnum),
+            (ViewParam.IDNUM_VALUE, patient_idnum.idnum_value),
+            ("__end__", "idnum_sequence:mapping"),
+            ("__end__", "id_references:sequence"),
+            ("__start__", "danger:mapping"),
+            ("target", "7836"),
+            ("user_entry", "7836"),
+            ("__end__", "danger:mapping"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+
+        with self.assertRaises(HTTPFound):
+            edit_patient(self.req)
+
+        messages = self.req.session.peek_flash()
+
+        self.assertIn("No changes required", messages[0])
+
+    def test_template_rendered_with_values(self) -> None:
+        patient = self.create_patient(
+            id=1, forename="JO", surname="PATIENT",
+            dob=datetime.date(1958, 4, 19),
+            sex="F", address="Address", gp="GP", other="Other"
+        )
+        self.create_patient_idnum(
+            patient_id=patient.id, which_idnum=self.nhs_iddef.which_idnum,
+            idnum_value=4887211163
+        )
+
+        from camcops_server.tasks import Bmi
+
+        task1 = Bmi()
+        task1.id = 1
+        task1._device_id = patient._device_id
+        task1._group_id = patient._group_id
+        task1._era = patient._era
+        task1.patient_id = patient.id
+        task1.when_created = self.era_time
+        task1._current = False
+        self.dbsession.add(task1)
+
+        task2 = Bmi()
+        task2.id = 2
+        task2._device_id = patient._device_id
+        task2._group_id = patient._group_id
+        task2._era = patient._era
+        task2.patient_id = patient.id
+        task2.when_created = self.era_time
+        task2._current = False
+        self.dbsession.add(task2)
+        self.dbsession.commit()
+
+        self.req.add_get_params({
+            ViewParam.SERVER_PK: patient._pk
+        })
+
+        view = EditPatientView(self.req)
+        view.render_to_response = mock.Mock()
+        view.dispatch()
+
+        args, kwargs = view.render_to_response.call_args
+
+        context = args[0]
+
+        self.assertIn("form", context)
+        self.assertIn(task1, context["tasks"])
+        self.assertIn(task2, context["tasks"])
 
 
 class AddPatientViewTests(DemoDatabaseTestCase):
@@ -4449,3 +4607,14 @@ class AddPatientViewTests(DemoDatabaseTestCase):
 
         self.assertIn(schedule1.id, schedule_ids)
         self.assertIn(schedule2.id, schedule_ids)
+
+    def test_form_rendered_with_values(self) -> None:
+        view = AddPatientView(self.req)
+        view.render_to_response = mock.Mock()
+        view.dispatch()
+
+        args, kwargs = view.render_to_response.call_args
+
+        context = args[0]
+
+        self.assertIn("form", context)
