@@ -353,7 +353,6 @@ class DemoDatabaseTestCase(DemoRequestTestCase):
 
     def create_patient_with_one_idnum(self) -> "Patient":
         from camcops_server.cc_modules.cc_patient import Patient
-        from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
         patient = Patient()
         patient.id = 2
         self._apply_standard_db_fields(patient)
@@ -361,16 +360,29 @@ class DemoDatabaseTestCase(DemoRequestTestCase):
         patient.surname = "Surname2"
         patient.dob = pendulum.parse("1975-12-12")
         self.dbsession.add(patient)
-        patient_idnum1 = PatientIdNum()
-        patient_idnum1.id = 3
-        self._apply_standard_db_fields(patient_idnum1)
-        patient_idnum1.patient_id = patient.id
-        patient_idnum1.which_idnum = self.nhs_iddef.which_idnum
-        patient_idnum1.idnum_value = 555
-        self.dbsession.add(patient_idnum1)
-        self.dbsession.commit()
+
+        self.create_patient_idnum(
+            id=3, patient_id=patient.id, which_idnum=self.nhs_iddef.which_idnum,
+            idnum_value=555
+        )
 
         return patient
+
+    def create_patient_idnum(self, **kwargs):
+        from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
+        patient_idnum = PatientIdNum()
+        self._apply_standard_db_fields(patient_idnum)
+
+        if "id" not in kwargs:
+            kwargs["id"] = 0
+
+        for key, value in kwargs.items():
+            setattr(patient_idnum, key, value)
+
+        self.dbsession.add(patient_idnum)
+        self.dbsession.commit()
+
+        return patient_idnum
 
     def create_patient(self, **kwargs) -> "Patient":
         from camcops_server.cc_modules.cc_patient import Patient
