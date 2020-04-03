@@ -50,7 +50,6 @@ camcops_server/templates/base/base_web_form.mako
 
 <%doc>
 <%block name="body_end">
-    ${parent.body_end}
     <script>
         deform.load();
     </script>

@@ -45,6 +45,10 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 
 <%block name="extra_head_start">
     ${parent.extra_head_start()}
+    <script src="${request.static_url('deform:static/scripts/jquery-2.0.3.min.js')}"
+            type="text/javascript"></script>
+    <script src="${request.static_url('deform:static/scripts/bootstrap.min.js')}"
+            type="text/javascript"></script>
     <link rel="stylesheet"
           href="${request.static_url('deform:static/css/bootstrap.min.css')}"
           type="text/css" media="screen"/>
@@ -64,13 +68,6 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
         % endfor
     % endfor
     </ul>
-</%block>
-<%block name="body_end">
-    ${parent.body_end()}
-    <script src="${request.static_url('deform:static/scripts/jquery-2.0.3.min.js')}"
-            type="text/javascript"></script>
-    <script src="${request.static_url('deform:static/scripts/bootstrap.min.js')}"
-            type="text/javascript"></script>
 </%block>
 
 ${next.body()}
