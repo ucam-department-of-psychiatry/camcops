@@ -63,7 +63,12 @@ html.svg img.pngfallback {
 
 /* Overall defaults */
 
+a {
+    all: revert;
+}
+
 body {
+    color: initial;
     font-family: Arial, Helvetica, sans-serif;
     font-size: ${va.MAINFONTSIZE};
     line-height: ${va.MAINLINEHEIGHT};
@@ -113,6 +118,9 @@ h4 {
 img {
     max-width: 100%;
     max-height: 100%;
+}
+ol, ul {
+    margin: revert;
 }
 p {
     margin: ${va.ELEMENTGAP} ${va.ZERO} ${va.ELEMENTGAP} ${va.ZERO};  /* see esp. p within div, such as task footnotes for web version */
@@ -450,6 +458,10 @@ table.taskdetail td {
 }
 .warning {
     background-color: rgb(255, 100, 100);
+}
+.flash_messages {
+    padding:0;
+    margin:0;
 }
 
 /* The next three: need both L/R to float and clear:both for IE */
