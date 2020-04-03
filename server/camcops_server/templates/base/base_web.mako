@@ -53,13 +53,15 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 
 <%block name="messages">
     <ul class="flash_messages">
-    % for message in request.session.peek_flash():
-        <li class="alert alert-info alert-dismissable show" role="alert">
-            <strong>${ message }</strong>
-            <button type="button" class="close" data-dismiss="alert" aria-label="${_("Close")}">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </li>
+    % for queue in ("danger", "warning", "info", "success"):
+        % for message in request.session.pop_flash(queue):
+            <li class="alert alert-${queue} alert-dismissable show" role="alert">
+                <strong>${ message }</strong>
+                <button type="button" class="close" data-dismiss="alert" aria-label="${_("Close")}">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </li>
+        % endfor
     % endfor
     </ul>
 </%block>

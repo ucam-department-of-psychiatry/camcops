@@ -333,6 +333,14 @@ if DEBUG_REDIRECT:
 if DEBUG_REDIRECT:
     HTTPFound = HTTPFoundDebugVersion  # noqa: F811
 
+# =============================================================================
+# Flash message queues: https://getbootstrap.com/docs/3.3/components/#alerts
+# =============================================================================
+FLASH_SUCCESS = "success"
+FLASH_INFO = "info"
+FLASH_WARNING = "warning"
+FLASH_DANGER = "danger"
+
 
 # =============================================================================
 # Constants -- mutated into translated phrases
@@ -3451,7 +3459,8 @@ class EditPatientView(PatientMixin, UpdateView):
             if not changes:
                 self.request.session.flash(
                     f"{_('No changes required for patient record with server PK')} "  # noqa
-                    f"{patient._pk} {_('(all new values matched old values)')}"
+                    f"{patient._pk} {_('(all new values matched old values)')}",
+                    queue=FLASH_INFO
                 )
                 return
 
@@ -3475,7 +3484,8 @@ class EditPatientView(PatientMixin, UpdateView):
             self.request.session.flash(
                 f"{_('Amended patient record with server PK')} "
                 f"{patient._pk}. "
-                f"{_('Changes were:')} {change_msg}"
+                f"{_('Changes were:')} {change_msg}",
+                queue=FLASH_SUCCESS
             )
 
     def get_context_data(self, **kwargs):
@@ -4422,7 +4432,7 @@ class EditPatientViewTests(DemoDatabaseTestCase):
         self.assertIn("idnum1", note)
         self.assertIn("4887211163", note)
 
-        messages = self.req.session.peek_flash()
+        messages = self.req.session.peek_flash("success")
 
         self.assertIn(f"Amended patient record with server PK {patient._pk}",
                       messages[0])
@@ -4484,7 +4494,7 @@ class EditPatientViewTests(DemoDatabaseTestCase):
         with self.assertRaises(HTTPFound):
             edit_patient(self.req)
 
-        messages = self.req.session.peek_flash()
+        messages = self.req.session.peek_flash("info")
 
         self.assertIn("No changes required", messages[0])
 
