@@ -210,6 +210,7 @@ from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
 from camcops_server.cc_modules.cc_forms import (
     AddGroupForm,
     AddIdDefinitionForm,
+    AddPatientForm,
     AddSpecialNoteForm,
     AddUserGroupadminForm,
     AddUserSuperuserForm,
@@ -242,7 +243,6 @@ from camcops_server.cc_modules.cc_forms import (
     get_sql_dialect_choices,
     ForciblyFinalizeChooseDeviceForm,
     ForciblyFinalizeConfirmForm,
-    LiveEditPatientForm,
     LoginForm,
     OfferBasicDumpForm,
     OfferSqlDumpForm,
@@ -3518,7 +3518,7 @@ def edit_patient(req: "CamcopsRequest") -> Response:
 
 
 class AddPatientView(PatientMixin, CreateView):
-    form_class = LiveEditPatientForm
+    form_class = AddPatientForm
     template_name = "patient_add.mako"
 
     def get_success_url(self):

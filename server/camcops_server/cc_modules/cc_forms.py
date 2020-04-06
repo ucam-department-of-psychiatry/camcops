@@ -3475,59 +3475,6 @@ EDIT_PATIENT_SIMPLE_PARAMS = [
 ]
 
 
-class EditPatientSchema(CSRFSchema):
-    """
-    Schema to edit a patient.
-    """
-    server_pk = HiddenIntegerNode()  # must match ViewParam.SERVER_PK
-    group_id = HiddenIntegerNode()  # must match ViewParam.GROUP_ID
-    forename = OptionalStringNode()  # must match ViewParam.FORENAME
-    surname = OptionalStringNode()  # must match ViewParam.SURNAME
-    dob = DateSelectorNode()  # must match ViewParam.DOB
-    sex = MandatorySexSelector()  # must match ViewParam.SEX
-    address = OptionalStringNode()  # must match ViewParam.ADDRESS
-    gp = OptionalStringNode()  # must match ViewParam.GP
-    other = OptionalStringNode()  # must match ViewParam.OTHER
-    id_references = IdNumSequenceUniquePerWhichIdnum()  # must match ViewParam.ID_REFERENCES  # noqa
-
-    # noinspection PyUnusedLocal
-    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
-        _ = self.gettext
-        dob = get_child_node(self, "dob")
-        dob.title = _("Date of birth")
-        gp = get_child_node(self, "gp")
-        gp.title = _("GP")
-
-    def validator(self, node: SchemaNode, value: Any) -> None:
-        request = self.bindings[Binding.REQUEST]  # type: CamcopsRequest
-        dbsession = request.dbsession
-        group_id = value[ViewParam.GROUP_ID]
-        group = Group.get_group_by_id(dbsession, group_id)
-        testpatient = Patient()
-        for k in EDIT_PATIENT_SIMPLE_PARAMS:
-            setattr(testpatient, k, value[k])
-        testpatient.idnums = []
-        for idrefdict in value[ViewParam.ID_REFERENCES]:
-            pidnum = PatientIdNum()
-            pidnum.which_idnum = idrefdict[ViewParam.WHICH_IDNUM]
-            pidnum.idnum_value = idrefdict[ViewParam.IDNUM_VALUE]
-            testpatient.idnums.append(pidnum)
-        tk_finalize_policy = TokenizedPolicy(group.finalize_policy)
-        if not testpatient.satisfies_id_policy(tk_finalize_policy):
-            _ = self.gettext
-            raise Invalid(
-                node,
-                _("Patient would not meet 'finalize' ID policy for group:")
-                + f" {group.name}! [" +
-                _("That policy is:") +
-                f" {group.finalize_policy!r}]"
-            )
-
-
-class DangerousEditPatientSchema(EditPatientSchema):
-    danger = TranslatableValidateDangerousOperationNode()
-
-
 class TaskScheduleSelector(SchemaNode, RequestAwareMixin):
     widget = SelectWidget()
 
@@ -3589,9 +3536,62 @@ class TaskScheduleSequence(SequenceSchema, RequestAwareMixin):
         self.widget = TranslatableSequenceWidget(request=self.request)
 
 
-class LiveEditPatientSchema(EditPatientSchema):
-    group_id = MandatoryGroupIdSelectorAllGroups()  # Must match ViewParam.UPLOAD_GROUP_ID  # noqa: E501
+class EditPatientSchema(CSRFSchema):
+    """
+    Schema to edit a patient.
+    """
+    server_pk = HiddenIntegerNode()  # must match ViewParam.SERVER_PK
+    group_id = HiddenIntegerNode()  # must match ViewParam.GROUP_ID
+    forename = OptionalStringNode()  # must match ViewParam.FORENAME
+    surname = OptionalStringNode()  # must match ViewParam.SURNAME
+    dob = DateSelectorNode()  # must match ViewParam.DOB
+    sex = MandatorySexSelector()  # must match ViewParam.SEX
+    address = OptionalStringNode()  # must match ViewParam.ADDRESS
+    gp = OptionalStringNode()  # must match ViewParam.GP
+    other = OptionalStringNode()  # must match ViewParam.OTHER
+    id_references = IdNumSequenceUniquePerWhichIdnum()  # must match ViewParam.ID_REFERENCES  # noqa
     task_schedules = TaskScheduleSequence()  # must match ViewParam.TASK_SCHEDULES  # noqa: E501
+
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        _ = self.gettext
+        dob = get_child_node(self, "dob")
+        dob.title = _("Date of birth")
+        gp = get_child_node(self, "gp")
+        gp.title = _("GP")
+
+    def validator(self, node: SchemaNode, value: Any) -> None:
+        request = self.bindings[Binding.REQUEST]  # type: CamcopsRequest
+        dbsession = request.dbsession
+        group_id = value[ViewParam.GROUP_ID]
+        group = Group.get_group_by_id(dbsession, group_id)
+        testpatient = Patient()
+        for k in EDIT_PATIENT_SIMPLE_PARAMS:
+            setattr(testpatient, k, value[k])
+        testpatient.idnums = []
+        for idrefdict in value[ViewParam.ID_REFERENCES]:
+            pidnum = PatientIdNum()
+            pidnum.which_idnum = idrefdict[ViewParam.WHICH_IDNUM]
+            pidnum.idnum_value = idrefdict[ViewParam.IDNUM_VALUE]
+            testpatient.idnums.append(pidnum)
+        tk_finalize_policy = TokenizedPolicy(group.finalize_policy)
+        if not testpatient.satisfies_id_policy(tk_finalize_policy):
+            _ = self.gettext
+            raise Invalid(
+                node,
+                _("Patient would not meet 'finalize' ID policy for group:")
+                + f" {group.name}! [" +
+                _("That policy is:") +
+                f" {group.finalize_policy!r}]"
+            )
+
+
+class DangerousEditPatientSchema(EditPatientSchema):
+    danger = TranslatableValidateDangerousOperationNode()
+
+
+class AddPatientSchema(EditPatientSchema):
+    group_id = MandatoryGroupIdSelectorAllGroups()  # Must match ViewParam.UPLOAD_GROUP_ID  # noqa: E501
 
 
 class EditPatientForm(DangerousForm):
@@ -3606,12 +3606,12 @@ class EditPatientForm(DangerousForm):
                          request=request, **kwargs)
 
 
-class LiveEditPatientForm(DynamicDescriptionsForm):
+class AddPatientForm(DynamicDescriptionsForm):
     """
-    Form to edit a patient not yet on the device (for scheduled tasks)
+    Form to add a patient not yet on the device (for scheduled tasks)
     """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
-        schema = LiveEditPatientSchema().bind(request=request)
+        schema = AddPatientSchema().bind(request=request)
         _ = request.gettext
         super().__init__(
             schema,
