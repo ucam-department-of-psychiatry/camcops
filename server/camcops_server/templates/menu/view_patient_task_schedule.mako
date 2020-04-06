@@ -47,7 +47,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
         <th>${_("Patient")}</th>
         <th>${_("Access key")}</th>
         <th>${_("Task schedules")}</th>
-        <th>${_("Add schedule")}</th>
+        <th>${_("Edit patient")}</th>
     </tr>
 %for patient in page:
     <tr>
@@ -61,7 +61,11 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
         </td>
         <td>
             %for schedule in patient.task_schedules:
-            <a href="#">${ schedule.description }</a><br>
+            <a href="${ req.route_url(
+                     Routes.VIEW_TASK_SCHEDULE_ITEMS,
+                     _query={
+                         ViewParam.SCHEDULE_ID: schedule.id
+                     }) }">${ schedule.description }</a><br>
             %endfor
         </td>
         <td>
