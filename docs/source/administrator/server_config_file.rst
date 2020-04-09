@@ -622,9 +622,13 @@ PERMIT_IMMEDIATE_DOWNLOADS
 *Boolean.* Default: false.
 
 Should the system allow users to use the front end web service to create and
-download files? This might be convenient, but the disadvantage is that if the
+download files? This might be convenient, but a disadvantage is that if the
 file to be downloaded is large, it will take a long time. Also if you close
 your web browser or lose your internet connection, the download will be lost.
+A further disadvantage is that it "ties up" one web front end process in
+creating the download (whereas creating file for later download, as below,
+uses a pool of back-end worker processes and does not; this may have some
+performance implications for your web site).
 
 
 .. _USER_DOWNLOAD_DIR:
