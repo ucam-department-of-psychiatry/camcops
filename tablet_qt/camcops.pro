@@ -532,6 +532,7 @@ SOURCES += \
     diagnosis/icd9cm.cpp \
     dialogs/logbox.cpp \
     dialogs/logmessagebox.cpp \
+    dialogs/modedialog.cpp \
     dialogs/nvpchoicedialog.cpp \
     dialogs/pagepickerdialog.cpp \
     dialogs/passwordchangedialog.cpp \
@@ -968,6 +969,7 @@ HEADERS += \
     diagnosis/icd9cm.h \
     dialogs/logbox.h \
     dialogs/logmessagebox.h \
+    dialogs/modedialog.h \
     dialogs/nvpchoicedialog.h \
     dialogs/pagepickerdialog.h \
     dialogs/passwordchangedialog.h \

@@ -91,6 +91,9 @@ public slots:
     // "The application's lock state has changed."
     void lockStateChanged(CamcopsApp::LockState lockstate);
 
+    // Operation mode has changed - Clinician, single user...
+    void modeChanged(int mode);
+
     // "The application's need-to-upload state has changed."
     void needsUploadChanged(bool needs_upload);
 
@@ -122,6 +125,7 @@ protected:
     QPointer<QAbstractButton> m_button_locked;
     QPointer<QAbstractButton> m_button_unlocked;
     QPointer<QAbstractButton> m_button_privileged;
+    QPointer<QLabel> m_mode;
     QPointer<QLabel> m_patient_info;
     QPointer<QLabel> m_no_patient;
 };

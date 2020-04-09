@@ -137,6 +137,10 @@ public:
     // Returns the full path to a (SQLite/SQLCipher) database that we'll use.
     QString dbFullPath(const QString& filename);
 
+    // Operating mode - Single user, clinician
+    int mode();
+    void setMode(const int mode);
+
     // Change the language used.
     void setLanguage(const QString& language_code,
                      bool store_to_database = false);
@@ -145,6 +149,9 @@ public:
     QString getLanguage() const;
 
 protected:
+    // Prompt user to select operating mode
+    int getModeFromUser();
+
     // Directory used by CamCOPS to store its SQLite/SQLCipher directory.
     QString defaultDatabaseDir() const;
 
@@ -380,6 +387,9 @@ protected:
     void reloadPatient(int patient_id);
 
 signals:
+    // The operation mode has changed (Clincian, single user...)
+    void modeChanged(int mode);
+
     // The patient selection has changed (new patient selected or deselected).
     void selectedPatientChanged(const Patient* patient);
 

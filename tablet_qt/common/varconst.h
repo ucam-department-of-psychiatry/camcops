@@ -27,6 +27,12 @@ namespace varconst {
 // Names of server variables, and a few associated constants.
 // ----------------------------------------------------------------------------
 
+// Mode
+extern const QString MODE;
+extern const int MODE_CLINICIAN;
+extern const int MODE_SINGLE_USER;
+extern const int DEFAULT_MODE;
+
 // Language
 extern const QString LANGUAGE;
 

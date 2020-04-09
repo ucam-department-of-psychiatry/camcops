@@ -73,6 +73,7 @@
 #include "dbobjects/storedvar.h"
 #include "diagnosis/icd9cm.h"
 #include "diagnosis/icd10.h"
+#include "dialogs/modedialog.h"
 #include "dialogs/scrollmessagebox.h"
 #include "layouts/layouts.h"
 #include "lib/convert.h"
@@ -132,6 +133,33 @@ CamcopsApp::~CamcopsApp()
     // http://doc.qt.io/qt-5.7/objecttrees.html
     // Only delete things that haven't been assigned a parent
     delete m_p_main_window;
+}
+
+
+// ============================================================================
+// Operating mode
+// ============================================================================
+int CamcopsApp::mode()
+{
+    return var(varconst::MODE).toInt();
+}
+
+void CamcopsApp::setMode(const int mode)
+{
+    setVar(varconst::MODE, mode);
+
+    emit modeChanged(mode);
+}
+
+int CamcopsApp::getModeFromUser()
+{
+    ModeDialog dialog(nullptr);
+    const int reply = dialog.exec();
+    if (reply != QDialog::Accepted) {
+        uifunc::stopApp(tr("You did not select a mode"));
+    }
+
+    return dialog.mode();
 }
 
 
@@ -245,6 +273,11 @@ int CamcopsApp::run()
 
     // Since that might have changed our language, reset it.
     setLanguage(varString(varconst::LANGUAGE));
+
+    if (var(varconst::MODE).isNull()) {
+        int mode = getModeFromUser();
+        setMode(mode);
+    }
 
     // Set the tablet internal password to match the database password, if
     // we've just changed it. Uses a storedvar.
@@ -729,6 +762,9 @@ void CamcopsApp::createStoredVars()
     // Create stored variables: name, type, default
     // ------------------------------------------------------------------------
     DbNestableTransaction trans(*m_sysdb);  // https://www.sqlite.org/faq.html#q19
+
+    // Client mode
+    createVar(varconst::MODE, QVariant::Int);
 
     // Language
     createVar(varconst::LANGUAGE, QVariant::String,

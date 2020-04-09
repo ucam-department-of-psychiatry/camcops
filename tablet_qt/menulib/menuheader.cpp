@@ -24,6 +24,7 @@
 #include <QLabel>
 #include "common/cssconst.h"
 #include "common/uiconst.h"
+#include "common/varconst.h"
 #include "dbobjects/patient.h"
 #include "layouts/flowlayouthfw.h"
 #include "layouts/layouts.h"
@@ -51,6 +52,7 @@ MenuHeader::MenuHeader(QWidget* parent,
       m_button_locked(nullptr),
       m_button_unlocked(nullptr),
       m_button_privileged(nullptr),
+      m_mode(nullptr),
       m_patient_info(nullptr),
       m_no_patient(nullptr)
 {
@@ -173,10 +175,18 @@ MenuHeader::MenuHeader(QWidget* parent,
     m_patient_info->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     m_patient_info->setObjectName(cssconst::MENU_HEADER_PATIENT_INFO);
     mainlayout->addWidget(m_patient_info);
+
     m_no_patient = new LabelWordWrapWide(tr("No patient selected"));
     m_no_patient->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     m_no_patient->setObjectName(cssconst::MENU_HEADER_NO_PATIENT);
     mainlayout->addWidget(m_no_patient);
+
+    m_mode = new LabelWordWrapWide();
+    m_mode->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    m_mode->setObjectName(cssconst::MENU_HEADER_MODE);
+    mainlayout->addWidget(m_mode);
+
+    modeChanged(m_app.mode());
     setPatientDetails(m_app.selectedPatient());
 
     setCrippled(false);
@@ -184,6 +194,9 @@ MenuHeader::MenuHeader(QWidget* parent,
     // ========================================================================
     // Incoming signals
     // ========================================================================
+    connect(&m_app, &CamcopsApp::modeChanged,
+            this, &MenuHeader::modeChanged,
+            Qt::UniqueConnection);
     connect(&m_app, &CamcopsApp::lockStateChanged,
             this, &MenuHeader::lockStateChanged,
             Qt::UniqueConnection);
@@ -247,6 +260,21 @@ void MenuHeader::lockStateChanged(const CamcopsApp::LockState lockstate)
 void MenuHeader::needsUploadChanged(const bool needs_upload)
 {
     m_button_needs_upload->setVisible(needs_upload);
+}
+
+void MenuHeader::modeChanged(const int mode)
+{
+#ifdef DEBUG_SLOTS
+    qDebug() << Q_FUNC_INFO << "[this:" << this << "]";
+#endif
+
+    if (mode == varconst::MODE_CLINICIAN) {
+        m_mode->setText(tr("Clinician mode"));
+
+        return;
+    }
+
+    m_mode->setText(tr("Single user mode"));
 }
 
 
