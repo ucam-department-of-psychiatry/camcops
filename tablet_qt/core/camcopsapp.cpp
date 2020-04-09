@@ -151,15 +151,17 @@ void CamcopsApp::setMode(const int mode)
     emit modeChanged(mode);
 }
 
-int CamcopsApp::getModeFromUser()
+bool CamcopsApp::setModeFromUser()
 {
     ModeDialog dialog(nullptr);
     const int reply = dialog.exec();
     if (reply != QDialog::Accepted) {
-        uifunc::stopApp(tr("You did not select a mode"));
+        return false;
     }
 
-    return dialog.mode();
+    setMode(dialog.mode());
+
+    return true;
 }
 
 
@@ -275,8 +277,9 @@ int CamcopsApp::run()
     setLanguage(varString(varconst::LANGUAGE));
 
     if (var(varconst::MODE).isNull()) {
-        int mode = getModeFromUser();
-        setMode(mode);
+        if (!setModeFromUser()) {
+            uifunc::stopApp(tr("You did not select a mode"));
+        }
     }
 
     // Set the tablet internal password to match the database password, if

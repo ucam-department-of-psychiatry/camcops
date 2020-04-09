@@ -76,6 +76,7 @@ protected:
     void saveDataDbAsSql();
     void saveSystemDbAsSql();
     void chooseLanguage();
+    void changeMode();
 
     // Internal helpers:
     QString makeTitle(const QString& part1, const QString& part2 = "",

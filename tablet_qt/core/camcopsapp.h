@@ -148,10 +148,10 @@ public:
     // Return the current language code
     QString getLanguage() const;
 
-protected:
-    // Prompt user to select operating mode
-    int getModeFromUser();
+    // Prompt user to select operating mode, return false if aborted
+    bool setModeFromUser();
 
+protected:
     // Directory used by CamCOPS to store its SQLite/SQLCipher directory.
     QString defaultDatabaseDir() const;
 

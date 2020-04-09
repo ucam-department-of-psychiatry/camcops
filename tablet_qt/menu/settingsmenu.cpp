@@ -126,6 +126,11 @@ void SettingsMenu::makeItems()
         // --------------------------------------------------------------------
         MenuItem(tr("Common user settings")).setLabelOnly(),
         // --------------------------------------------------------------------
+
+        MenuItem(
+            tr("Change operating mode"),
+            std::bind(&SettingsMenu::changeMode, this)
+        ),
         MenuItem(
             tr("Choose language"),
             std::bind(&SettingsMenu::chooseLanguage, this),
@@ -1468,4 +1473,10 @@ void SettingsMenu::chooseLanguage()
         return;  // user pressed cancel, or some such
     }
     m_app.setLanguage(language.toString(), true);
+}
+
+
+void SettingsMenu::changeMode()
+{
+    m_app.setModeFromUser();
 }
