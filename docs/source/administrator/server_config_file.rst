@@ -623,7 +623,8 @@ PERMIT_IMMEDIATE_DOWNLOADS
 
 Should the system allow users to use the front end web service to create and
 download files? This might be convenient, but the disadvantage is that if the
-file to be downloaded is large, it will take a long time.
+file to be downloaded is large, it will take a long time. Also if you close
+your web browser or lose your internet connection, the download will be lost.
 
 
 .. _USER_DOWNLOAD_DIR:
