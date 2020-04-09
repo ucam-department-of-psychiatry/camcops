@@ -622,7 +622,8 @@ PERMIT_IMMEDIATE_DOWNLOADS
 *Boolean.* Default: false.
 
 Should the system allow users to use the front end web service to create and
-download files? This might be convenient, but the disadvantage is that
+download files? This might be convenient, but the disadvantage is that if the
+file to be downloaded is large, it will take a long time.
 
 
 .. _USER_DOWNLOAD_DIR:
@@ -934,7 +935,7 @@ PROXY_SCRIPT_NAME
 
 Path at which this script is mounted. Set this if you are hosting this CamCOPS
 instance at a non-root path, unless you set trusted WSGI headers instead.
-            
+
 For example, if you are running an Apache server and want this instance of
 CamCOPS to appear at ``/somewhere/camcops``, then (a) configure your Apache
 instance to proxy requests to ``/somewhere/camcops/...`` to this server (e.g.
@@ -944,7 +945,7 @@ If this option is not set, then the OS environment variable ``SCRIPT_NAME``
 will be checked as well. If that is not set, the variables within
 ``HTTP_X_SCRIPT_NAME, HTTP_X_FORWARDED_SCRIPT_NAME`` will be used, if they are
 trusted.
-            
+
 This option affects the WSGI variables ``SCRIPT_NAME`` and ``PATH_INFO``.
 
 |use_trusted_headers|
