@@ -194,6 +194,7 @@ bool gaussianInitialize(QStringList& errors,
 Eigen::VectorXd svdSolve(const Eigen::MatrixXd& A,
                          const Eigen::VectorXd& b);  // solves Ax = b [or b = Ax + e], for x, minimizing e
 
+
 // ============================================================================
 // GLM support
 // ============================================================================

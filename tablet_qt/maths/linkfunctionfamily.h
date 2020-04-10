@@ -87,7 +87,8 @@ public:
     // Inverse link function (e.g. logistic):
     InvLinkFnType inv_link_fn;
 
-    // Derivative of the inverse link function ("mu.eta" in R):
+    // Derivative of the inverse link function ("mu.eta" in R).
+    // This gives d(mu)/d(eta) as a function of eta.
     DerivativeInvLinkFnType derivative_inv_link_fn;
 
     // Variance function: gives the variance as a function of the mean; "the
@@ -97,11 +98,21 @@ public:
     // constant, probably 1.
     VarianceFnType variance_fn;
 
-    // Something related to the deviance of the residuals... ("dev.resids" in R)
+    // As per "dev.resids" in "?family" in R:
+    //      Function giving the deviance for each observation as a
+    //      function of ‘(y, mu, wt)’, used by the ‘residuals’ method
+    //      when computing deviance residuals.
+    // For example, the unit deviance for the normal distribution is given by
+    //      d(y, mu) = (y - mu)^2
+    // ... https://en.wikipedia.org/wiki/Deviance_(statistics)
+    // and so that is what statsfunc::gaussianDevResids() provides, as one of
+    // the functions that might be used here.
     DevResidsFnType dev_resids_fn;
 
-    // Validate inputs
+    // Validate the linear predictors
     ValidEtaFnType valid_eta_fn;
+
+    // Validate the means
     ValidMuFnType valid_mu_fn;
 
     // GLM initialization (ugly eval() code in R)

@@ -142,6 +142,7 @@ double derivativeOfLogistic(const double x)
     // In R's family.c, logit_mu_eta
     // Let's follow R's method, but improve its sequencing (it calculates opexp
     // when it may ignore the result).
+    // Notation: "opexp" = "one plus exp()".
     if (x > THRESH || x < MTHRESH) {
         return DOUBLE_EPS;
     }

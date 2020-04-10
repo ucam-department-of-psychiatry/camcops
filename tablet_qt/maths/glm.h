@@ -19,8 +19,6 @@
 
 #pragma once
 
-#define GLM_OFFER_R_GLM_FIT  // Success!
-
 #include <QDateTime>
 #include <QStringList>
 #include "maths/include_eigen_dense.h"
@@ -48,10 +46,8 @@ public:
     // How to solve
     enum class SolveMethod {
         IRLS_KaneLewis,
-        IRLS_SVDNewton_KaneLewis,
-#ifdef GLM_OFFER_R_GLM_FIT
-        IRLS_R_glmfit,
-#endif
+        IRLS_SVDNewton_KaneLewis,  // second best?
+        IRLS_R_glmfit,  // as per R's glm.fit() function; best?
     };
 
     // How to deal with rank-deficient matrices
@@ -63,12 +59,7 @@ public:
 
     // Constructor:
     Glm(const LinkFunctionFamily& link_fn_family,
-        SolveMethod solve_method =
-#ifdef GLM_OFFER_R_GLM_FIT
-            SolveMethod::IRLS_R_glmfit,
-#else
-            SolveMethod::IRLS_SVDNewton_KaneLewis,
-#endif
+        SolveMethod solve_method = SolveMethod::IRLS_R_glmfit,
         int max_iterations = GLM_DEFAULT_MAX_ITERATIONS,
         double tolerance = GLM_DEFAULT_TOLERANCE,
         RankDeficiencyMethod rank_deficiency_method = RankDeficiencyMethod::SelectColumns);
@@ -131,9 +122,7 @@ protected:
     // The interesting stuff:
     void fitIRLSKaneLewis();
     void fitIRLSSVDNewtonKaneLewis();
-#ifdef GLM_OFFER_R_GLM_FIT
     void fitIRLSRglmfit();
-#endif
     Eigen::Array<Eigen::Index, Eigen::Dynamic, 1> svdsubsel(
             const Eigen::MatrixXd& A, Eigen::Index k);
 

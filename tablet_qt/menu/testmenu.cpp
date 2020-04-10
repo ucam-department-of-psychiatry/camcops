@@ -460,7 +460,7 @@ summary(model)
 # R gives coefficients: intercept = -4.0777, x = 1.5046
 # (as per Wikipedia also)
 
-Our results: intercept = %1, slope = %2)
+CamCOPS results: intercept = %1, slope = %2
         )").arg(ld1.intercept()).arg(ld1.slope()));
 
     qInfo() << Q_FUNC_INFO
@@ -521,7 +521,6 @@ OUT time to fit (ms): %10
         crosscheck_x(i) = ld2.x(p);
     }
 
-#ifdef GLM_OFFER_R_GLM_FIT
     qInfo() << Q_FUNC_INFO
             << "1d. LogisticRegression(), IRLS implemented as per R glm.fit";
     LogisticRegression lr1d(Glm::SolveMethod::IRLS_R_glmfit);
@@ -530,7 +529,6 @@ OUT time to fit (ms): %10
     const VectorXd coeffs1d = lr1d.coefficients();
     results.append(QString("With our implementation of R's glm.fit IRLS: "
                            "%1").arg(qStringFromEigenMatrixOrArray(coeffs1d)));
-#endif
 
     results.append(QString(R"(
 Now some silly things:
@@ -602,7 +600,6 @@ CamCOPS: coefficients: IRLS-SVD-Newton: %2
             .arg(qStringFromEigenMatrixOrArray(coeffs2a),
                  qStringFromEigenMatrixOrArray(coeffs2b)));
 
-#ifdef GLM_OFFER_R_GLM_FIT
     qInfo() << Q_FUNC_INFO << "2c. And again with the R glm.fit method.";
     LogisticRegression lr2c(Glm::SolveMethod::IRLS_R_glmfit);
     lr2c.setVerbose(true);
@@ -611,7 +608,6 @@ CamCOPS: coefficients: IRLS-SVD-Newton: %2
     results.append(QString(
            "CamCOPS: coefficients: RNC implementation of R's "
            "glm.fit IRLS: %1").arg(qStringFromEigenMatrixOrArray(coeffs2c)));
-#endif
 
     /*
 
