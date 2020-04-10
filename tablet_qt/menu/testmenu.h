@@ -52,6 +52,8 @@ protected:
     void testRandom();
     void testOtherMaths();
     void testLogisticRegression();
+    void testGLMGaussian();
+    void testGLMPoisson();
     void testTranslation();
     void switchToEnglish();
     void switchToDanish();

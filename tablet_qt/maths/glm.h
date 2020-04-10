@@ -95,15 +95,34 @@ public:
     // Predict output:
     Eigen::VectorXd predict() const;  // ... by original predictors
     Eigen::VectorXd predict(const Eigen::MatrixXd& predictors) const;  // use new predictors
+    // Synonyms:
+    Eigen::VectorXd predictMu() const {
+        return predict();
+    }
+    Eigen::VectorXd predictMu(const Eigen::MatrixXd& predictors) const {
+        return predict(predictors);
+    }
+    Eigen::VectorXd predictResponse() const {
+        return predict();
+    }
+    Eigen::VectorXd predictResponse(const Eigen::MatrixXd& predictors) const {
+        return predict(predictors);
+    }
 
     // Residuals:
     Eigen::VectorXd residuals() const;  // ... with original predictors
     Eigen::VectorXd residuals(const Eigen::MatrixXd& predictors) const;  // use new predictors
 
-    // The intermediate variable, BEFORE the inverse link function has been
-    // applied (e.g.: logit units):
+    // The linear predictor (intermediate variable), NOT the "output" value:
     Eigen::ArrayXXd predictEta() const;  // ... with original predictors
     Eigen::ArrayXXd predictEta(const Eigen::MatrixXd& predictors) const;  // use new predictors
+    // Synonyms:
+    Eigen::ArrayXXd predictLink() const {
+        return predictEta();
+    }
+    Eigen::ArrayXXd predictLink(const Eigen::MatrixXd& predictors) const {
+        return predictEta(predictors);
+    }
 
     // Dumb stuff (see code):
     Eigen::VectorXd retrodictUnivariatePredictor(const Eigen::VectorXd& depvar) const;

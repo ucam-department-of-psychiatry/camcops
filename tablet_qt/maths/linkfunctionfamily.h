@@ -81,10 +81,10 @@ public:
     // For nasty hacks, like R does ;)
     QString family_name;  // "family" in R
 
-    // Link function (e.g. logit):
+    // Link function, giving eta = link(mu):
     LinkFnType link_fn;
 
-    // Inverse link function (e.g. logistic):
+    // Inverse link function, giving mu = invlink(eta):
     InvLinkFnType inv_link_fn;
 
     // Derivative of the inverse link function ("mu.eta" in R).
@@ -92,7 +92,7 @@ public:
     DerivativeInvLinkFnType derivative_inv_link_fn;
 
     // Variance function: gives the variance as a function of the mean; "the
-    // part of the variance that depends on" the mean.
+    // part of the variance that depends on" the mean; V(mu).
     // https://en.wikipedia.org/wiki/Variance_function
     // If the variance is independent of the mean, then this should return a
     // constant, probably 1.
@@ -133,3 +133,4 @@ extern const QString LINK_FAMILY_NAME_POISSON;
 
 extern const LinkFunctionFamily LINK_FN_FAMILY_GAUSSIAN;  // default for glm() in R
 extern const LinkFunctionFamily LINK_FN_FAMILY_LOGIT;
+extern const LinkFunctionFamily LINK_FN_FAMILY_POISSON;

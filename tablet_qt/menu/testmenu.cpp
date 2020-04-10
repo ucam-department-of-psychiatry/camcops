@@ -187,8 +187,18 @@ void TestMenu::makeItems()
             spanner
         ),
         MenuItem(
-            tr("Test logistic regression, and the underlying generalized linear model (GLM)"),
+            tr("Test logistic regression, and the underlying generalized linear model (GLM) (binomial)"),
             std::bind(&TestMenu::testLogisticRegression, this),
+            spanner
+        ),
+        MenuItem(
+            tr("Test GLM: Gaussian"),
+            std::bind(&TestMenu::testGLMGaussian, this),
+            spanner
+        ),
+        MenuItem(
+            tr("Test GLM: Poisson"),
+            std::bind(&TestMenu::testGLMPoisson, this),
             spanner
         ),
         MAKE_MENU_MENU_ITEM(WhiskerTestMenu, m_app),
@@ -664,6 +674,105 @@ Rcpp
 
     uifunc::alertLogMessageBox(results.join("\n"),
                                tr("Test logistic regression"), false);
+}
+
+
+void TestMenu::testGLMGaussian()
+{
+    using namespace eigenfunc;
+    using namespace Eigen;
+    QStringList results;
+
+    const int n = 20;
+    MatrixXd predictors(n, 1);
+    predictors <<    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1;
+    VectorXd y(n);
+    y <<    10.073, 10.006, 9.922, 10.172,
+            10.001, 10.588, 9.708, 10.451,
+            10.672, 10.390,
+            22.398, 23.426, 21.437, 21.459,
+            16.693, 18.478, 17.298, 22.090,
+            18.551, 22.266;
+    const MatrixXd X = addOnesAsFirstColumn(predictors);  // add intercept
+    Glm model(LINK_FN_FAMILY_GAUSSIAN);
+    model.fit(X, y);
+    results.append(QString(R"(
+# R code:
+
+d <- data.frame(
+    x = c(rep(0, 10), rep(1, 10)),
+    y = c(10.073, 10.006, 9.922, 10.172,
+          10.001, 10.588, 9.708, 10.451,
+          10.672, 10.390,  # from rnorm(n=10, mean=10, sd=0.5)
+          22.398, 23.426, 21.437, 21.459,
+          16.693, 18.478, 17.298, 22.090,
+          18.551, 22.266)  # from rnorm(n=10, mean=20, sd=4)
+)
+model <- glm(y ~ x, family = gaussian(), data = d)
+summary(model)
+predict(model)  # link and response are the same for gaussian()
+
+# R gives coefficients: intercept = 10.1983, x = 10.2113
+
+CamCOPS results:
+- fitted: %1
+- coefficients: %2
+- predicted: %3
+    )").arg(
+        model.fitted() ? "Y" : "N",
+        qStringFromEigenMatrixOrArray(model.coefficients()),
+        qStringFromEigenMatrixOrArray(model.predict())
+    ));
+
+    uifunc::alertLogMessageBox(results.join("\n"),
+                               tr("Test GLM: Gaussian"), false);
+}
+
+
+void TestMenu::testGLMPoisson()
+{
+    using namespace eigenfunc;
+    using namespace Eigen;
+    QStringList results;
+
+    const int n = 20;
+    MatrixXd predictors(n, 1);
+    predictors <<    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1;
+    VectorXd y(n);
+    y <<     7,  5, 16,  7, 11,  7, 18,  5, 10, 14,
+            22, 20, 15, 22, 28, 12, 24, 25, 13, 18;
+    const MatrixXd X = addOnesAsFirstColumn(predictors);  // add intercept
+    Glm model(LINK_FN_FAMILY_POISSON);
+    model.fit(X, y);
+    results.append(QString(R"(
+# R code:
+
+d <- data.frame(
+    x = c(rep(0, 10), rep(1, 10)),
+    y = c( 7,  5, 16,  7, 11,  7, 18,  5, 10, 14,  # from rpois(n=10, lambda=10)
+          22, 20, 15, 22, 28, 12, 24, 25, 13, 18)  # from rpois(n=10, lambda=20)
+)
+model <- glm(y ~ x, family = poisson(), data = d)
+summary(model)
+predict(model, type = "link")  # eta, the linear predictor; NB the DEFAULT for predict.glm
+predict(model, type = "response")  # mu, the prediction of y
+
+# R gives coefficients: intercept = 2.3026, x = 0.6881
+
+CamCOPS results:
+- fitted: %1
+- coefficients: %2
+- predicted: %3
+    )").arg(
+        model.fitted() ? "Y" : "N",
+        qStringFromEigenMatrixOrArray(model.coefficients()),
+        qStringFromEigenMatrixOrArray(model.predict())
+    ));
+
+    uifunc::alertLogMessageBox(results.join("\n"),
+                               tr("Test GLM: Poisson"), false);
 }
 
 
