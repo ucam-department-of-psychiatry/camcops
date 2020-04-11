@@ -83,6 +83,8 @@ For logistic regression, then:
 
 */
 
+// #define DEBUG_DESIGN_MATRIX
+
 #include "glm.h"
 #include <algorithm>
 #include <QDebug>
@@ -112,7 +114,7 @@ const double INF = std::numeric_limits<double>::infinity();
 
 
 // ============================================================================
-// Constructor
+// Constructors
 // ============================================================================
 
 Glm::Glm(const LinkFunctionFamily& link_fn_family,
@@ -128,6 +130,31 @@ Glm::Glm(const LinkFunctionFamily& link_fn_family,
     m_verbose(false)
 {
     reset();
+}
+
+
+Glm::Glm(const Eigen::MatrixXd& predictors,
+         const Eigen::VectorXd& dependent_variable,
+         const LinkFunctionFamily& link_fn_family,
+         bool add_intercept,
+         SolveMethod solve_method,
+         int max_iterations,
+         double tolerance,
+         RankDeficiencyMethod rank_deficiency_method) :
+    // Delegating constructor:
+    Glm(
+        link_fn_family,
+        solve_method,
+        max_iterations,
+        tolerance,
+        rank_deficiency_method
+    )
+{
+    if (add_intercept) {
+        fitAddingIntercept(predictors, dependent_variable);
+    } else {
+        fit(predictors, dependent_variable);
+    }
 }
 
 
@@ -227,6 +254,16 @@ void Glm::fit(const MatrixXd& predictors,
 }
 
 
+void Glm::fitAddingIntercept(
+        const Eigen::MatrixXd& predictors_excluding_intercept,
+        const Eigen::VectorXd& dependent_variable)
+{
+    const MatrixXd predictors = eigenfunc::addOnesAsFirstColumn(
+                predictors_excluding_intercept);
+    fit(predictors, dependent_variable);
+}
+
+
 // ============================================================================
 // Re-retrieve config
 // ============================================================================
@@ -258,6 +295,21 @@ double Glm::getTolerance() const
 Glm::RankDeficiencyMethod Glm::getRankDeficiencyMethod() const
 {
     return m_rank_deficiency_method;
+}
+
+
+// ============================================================================
+// Design matrix
+// ============================================================================
+
+MatrixXd Glm::addInterceptToPredictors(const MatrixXd& x) const
+{
+    const MatrixXd x_design = eigenfunc::addOnesAsFirstColumn(x);
+#ifdef DEBUG_DESIGN_MATRIX
+    addInfo("Design matrix: " +
+            eigenfunc::qStringFromEigenMatrixOrArray(x_design));
+#endif
+    return x_design;
 }
 
 
@@ -488,6 +540,11 @@ void Glm::fitIRLSKaneLewis()
     const LinkFunctionFamily& family = m_link_fn_family;
     const Eigen::Index n_predictors = nPredictors();
     using statsfunc::svdSolve;
+
+    if (m_p_weights) {
+        addError("Warning: weights specified but not supported by "
+                 "fitIRLSKaneLewis(); will be IGNORED");
+    }
 
     VectorXd x = VectorXd::Zero(n_predictors);  // k,1
     VectorXd xold = VectorXd::Zero(n_predictors);  // k,1

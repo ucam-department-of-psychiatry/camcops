@@ -672,8 +672,10 @@ Rcpp
 
     */
 
-    uifunc::alertLogMessageBox(results.join("\n"),
-                               tr("Test logistic regression"), false);
+    uifunc::alertLogMessageBox(
+                results.join("\n"),
+                tr("Test logistic regression and binomial GLM"),
+                false);
 }
 
 
@@ -684,8 +686,8 @@ void TestMenu::testGLMGaussian()
     QStringList results;
 
     const int n = 20;
-    MatrixXd predictors(n, 1);
-    predictors <<    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    MatrixXd x(n, 1);
+    x <<    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             1, 1, 1, 1, 1, 1, 1, 1, 1, 1;
     VectorXd y(n);
     y <<    10.073, 10.006, 9.922, 10.172,
@@ -694,9 +696,7 @@ void TestMenu::testGLMGaussian()
             22.398, 23.426, 21.437, 21.459,
             16.693, 18.478, 17.298, 22.090,
             18.551, 22.266;
-    const MatrixXd X = addOnesAsFirstColumn(predictors);  // add intercept
-    Glm model(LINK_FN_FAMILY_GAUSSIAN);
-    model.fit(X, y);
+    Glm model(x, y, LINK_FN_FAMILY_GAUSSIAN);
     results.append(QString(R"(
 # R code:
 
@@ -737,15 +737,13 @@ void TestMenu::testGLMPoisson()
     QStringList results;
 
     const int n = 20;
-    MatrixXd predictors(n, 1);
-    predictors <<    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    MatrixXd x(n, 1);
+    x <<    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             1, 1, 1, 1, 1, 1, 1, 1, 1, 1;
     VectorXd y(n);
     y <<     7,  5, 16,  7, 11,  7, 18,  5, 10, 14,
             22, 20, 15, 22, 28, 12, 24, 25, 13, 18;
-    const MatrixXd X = addOnesAsFirstColumn(predictors);  // add intercept
-    Glm model(LINK_FN_FAMILY_POISSON);
-    model.fit(X, y);
+    Glm model(x, y, LINK_FN_FAMILY_POISSON);
     results.append(QString(R"(
 # R code:
 

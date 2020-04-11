@@ -64,6 +64,16 @@ public:
         double tolerance = GLM_DEFAULT_TOLERANCE,
         RankDeficiencyMethod rank_deficiency_method = RankDeficiencyMethod::SelectColumns);
 
+    // Construct and quick fit (without weights option):
+    Glm(const Eigen::MatrixXd& predictors,  // model matrix (predictors), n_observations x n_predictors
+        const Eigen::VectorXd& dependent_variable,  // n_observations x 1
+        const LinkFunctionFamily& link_fn_family,
+        bool add_intercept = true,  // More common to want this than not
+        SolveMethod solve_method = SolveMethod::IRLS_R_glmfit,
+        int max_iterations = GLM_DEFAULT_MAX_ITERATIONS,
+        double tolerance = GLM_DEFAULT_TOLERANCE,
+        RankDeficiencyMethod rank_deficiency_method = RankDeficiencyMethod::SelectColumns);
+
     // Set options:
     void setVerbose(bool verbose);
 
@@ -73,6 +83,11 @@ public:
     int getMaxIterations() const;
     double getTolerance() const;
     RankDeficiencyMethod getRankDeficiencyMethod() const;
+
+    // Creates a design matrix by adding an initial column containing ones
+    // as the intercept term.
+    // (Resembles a Python classmethod; sort-of static function.)
+    Eigen::MatrixXd addInterceptToPredictors(const Eigen::MatrixXd& x) const;
 
     // Re-retrieve input:
     Eigen::VectorXd getDependentVariable() const;
@@ -84,7 +99,12 @@ public:
     // Fit
     void fit(const Eigen::MatrixXd& predictors,  // model matrix (predictors), n_observations x n_predictors
              const Eigen::VectorXd& dependent_variable,  // n_observations x 1
-             Eigen::VectorXd* p_weights = nullptr);  // for IRLS_SVD_Newton; n_predictors x 1
+             Eigen::VectorXd* p_weights = nullptr);  // n_predictors x 1
+    // Adds an initial intercept column (all ones), then fits (without weights
+    // option):
+    void fitAddingIntercept(
+            const Eigen::MatrixXd& predictors_excluding_intercept,  // model matrix (predictors), n_observations x (n_predictors - 1)
+            const Eigen::VectorXd& dependent_variable);  // n_observations x 1
 
     // Get output:
     bool fitted() const;
