@@ -27,6 +27,7 @@
 #include "dbobjects/patient.h"
 #include "layouts/flowlayouthfw.h"
 #include "layouts/layouts.h"
+#include "lib/sizehelpers.h"
 #include "lib/uifunc.h"
 #include "widgets/basewidget.h"
 #include "widgets/horizontalline.h"
@@ -63,6 +64,7 @@ MenuHeader::MenuHeader(QWidget* parent,
 
     // Left
     m_top_bar = new BaseWidget();
+    m_top_bar->setSizePolicy(sizehelpers::expandingFixedHFWPolicy());
     auto toprowlayout = new HBoxLayout();
     m_top_bar->setLayout(toprowlayout);
     mainlayout->addWidget(m_top_bar);

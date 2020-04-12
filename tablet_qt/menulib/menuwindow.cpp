@@ -18,7 +18,7 @@
 */
 
 // #define DEBUG_SELECTIONS
-#define OFFER_LAYOUT_DEBUG_BUTTON
+// #define OFFER_LAYOUT_DEBUG_BUTTON
 // #define SHOW_PID_TO_DEBUG_STREAM  // should be disabled for production
 #define SHOW_TASK_TIMING
 

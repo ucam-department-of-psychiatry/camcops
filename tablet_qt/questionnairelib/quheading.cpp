@@ -22,6 +22,7 @@
 #include "common/uiconst.h"
 #include "layouts/layouts.h"
 #include "lib/uifunc.h"
+#include "lib/sizehelpers.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/basewidget.h"
 #include "widgets/labelwordwrapwide.h"
@@ -56,6 +57,7 @@ QPointer<QWidget> QuHeading::makeWidget(Questionnaire* questionnaire)
 
     // Add background, and return m_container (containing m_label):
     m_container = new BaseWidget();
+    m_container->setSizePolicy(sizehelpers::expandingFixedHFWPolicy());
     auto layout = new HBoxLayout();
     m_container->setObjectName(cssconst::QUHEADING);
     m_container->setLayout(layout);

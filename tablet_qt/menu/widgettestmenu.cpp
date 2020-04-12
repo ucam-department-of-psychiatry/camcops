@@ -282,6 +282,8 @@ void WidgetTestMenu::makeItems()
         MenuItem("VBoxLayout (either QVBoxLayout or VBoxLayoutHfw), "
                  "with 2 x LabelWordWrapWide (long text)",
                  std::bind(&WidgetTestMenu::testVBoxLayout, this, true)),
+        MenuItem("HBoxLayoutHfw, icon-stretch-icon",
+                 std::bind(&WidgetTestMenu::testHBoxLayoutHfwStretch, this)),
         MenuItem("GridLayoutHfw (example 1: fixed-size icons and word-wrapping text)",
                  std::bind(&WidgetTestMenu::testGridLayoutHfw, this, 1)),
         MenuItem("GridLayoutHfw (example 2: 4 x short text, an example with "
@@ -697,6 +699,19 @@ void WidgetTestMenu::testVBoxLayout(const bool long_text)
     widget->setLayout(layout);
     layout->addWidget(new LabelWordWrapWide(sampleText(long_text)));
     layout->addWidget(new LabelWordWrapWide(sampleText(long_text)));
+    debugfunc::debugWidget(widget);
+}
+
+
+void WidgetTestMenu::testHBoxLayoutHfwStretch()
+{
+    auto widget = new QWidget();
+    widget->setSizePolicy(sizehelpers::expandingExpandingHFWPolicy());
+    auto layout = new HBoxLayoutHfw();
+    widget->setLayout(layout);
+    layout->addWidget(uifunc::iconWidget(uifunc::iconFilename(uiconst::CBS_ADD)));
+    layout->addStretch();
+    layout->addWidget(uifunc::iconWidget(uifunc::iconFilename(uiconst::CBS_ADD)));
     debugfunc::debugWidget(widget);
 }
 

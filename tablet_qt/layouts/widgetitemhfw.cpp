@@ -17,8 +17,8 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define DEBUG_LAYOUT
-#define DEBUG_SET_GEOMETRY
+// #define DEBUG_LAYOUT
+// #define DEBUG_SET_GEOMETRY
 
 #include "widgetitemhfw.h"
 #include <QDebug>

@@ -58,7 +58,7 @@
 ============================================================================ */
 
 // #define DEBUG_LAYOUT_COMMS
-#define DEBUG_LAYOUT_CALCS
+// #define DEBUG_LAYOUT_CALCS
 // #define DISABLE_CACHING
 // #define Q_OS_MAC  // for testing only, just to be sure it compiles OK...
 

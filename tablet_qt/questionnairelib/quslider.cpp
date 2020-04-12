@@ -296,7 +296,7 @@ QPointer<QWidget> QuSlider::makeWidget(Questionnaire* questionnaire)
     const QSizePolicy::Policy parallel_policy = m_abs_length_cm > 0
             ? (m_abs_length_can_shrink ? QSizePolicy::Maximum
                                        : QSizePolicy::Fixed)
-            : QSizePolicy::Preferred;
+            : (m_horizontal ? QSizePolicy::Expanding : QSizePolicy::Preferred);
     const QSizePolicy::Policy perpendicular_policy = QSizePolicy::Fixed;
     if (m_horizontal) {
         // --------------------------------------------------------------------

@@ -90,6 +90,7 @@ protected:
     void testFlowLayoutMixture();
     void testBaseWidget(bool long_text);
     void testVBoxLayout(bool long_text);
+    void testHBoxLayoutHfwStretch();
     void testGridLayoutHfw(int example);
 
     // ========================================================================
