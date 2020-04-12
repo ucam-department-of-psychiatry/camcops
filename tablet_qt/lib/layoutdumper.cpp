@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -240,7 +240,7 @@ QString getWidgetInfo(const QWidget* w, const DumperConfig& config)
     // Bounds themselves consistent?
     if (w->sizeHint().width() != -1 && w->sizeHint().height() != -1) {
         if (w->sizeHint().width() < w->minimumSizeHint().width()) {
-            elements.append("[BUG? sizeHint().width() < "
+            elements.append("[WIDGET BUG? sizeHint().width() < "
                             "minimumSizeHint().width()]");
         }
         /*
@@ -256,7 +256,7 @@ QString getWidgetInfo(const QWidget* w, const DumperConfig& config)
         }
         */
         if (w->sizeHint().height() < w->minimumSizeHint().height()) {
-            elements.append("[BUG? (Not sure!) sizeHint().height() < "
+            elements.append("[WIDGET BUG? sizeHint().height() < "
                             "minimumSizeHint().height()]");
         }
         if (!w->hasHeightForWidth()) {

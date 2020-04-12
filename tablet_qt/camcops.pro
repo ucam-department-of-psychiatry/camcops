@@ -555,6 +555,7 @@ SOURCES += \
     layouts/hboxlayouthfw.cpp \
     layouts/qtlayouthelpers.cpp \
     layouts/vboxlayouthfw.cpp \
+    layouts/widgetitemhfw.cpp \
     lib/comparers.cpp \
     lib/containers.cpp \
     lib/convert.cpp \
@@ -881,6 +882,8 @@ SOURCES += \
     widgets/clickablelabelwordwrapwide.cpp \
     widgets/diagnosticcodeselector.cpp \
     widgets/fixedareahfwtestwidget.cpp \
+    widgets/fixedaspectratiohfwtestwidget.cpp \
+    widgets/fixednumblockshfwtestwidget.cpp \
     widgets/graphicsrectitemclickable.cpp \
     widgets/growingplaintextedit.cpp \
     widgets/growingtextedit.cpp \
@@ -992,6 +995,7 @@ HEADERS += \
     layouts/layouts.h \
     layouts/qtlayouthelpers.h \
     layouts/vboxlayouthfw.h \
+    layouts/widgetitemhfw.h \
     lib/cloneable.h \
     lib/comparers.h \
     lib/containers.h \
@@ -1323,6 +1327,8 @@ HEADERS += \
     widgets/clickablelabelwordwrapwide.h \
     widgets/diagnosticcodeselector.h \
     widgets/fixedareahfwtestwidget.h \
+    widgets/fixedaspectratiohfwtestwidget.h \
+    widgets/fixednumblockshfwtestwidget.h \
     widgets/graphicsrectitemclickable.h \
     widgets/growingplaintextedit.h \
     widgets/growingtextedit.h \

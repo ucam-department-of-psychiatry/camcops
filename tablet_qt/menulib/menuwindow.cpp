@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -18,7 +18,7 @@
 */
 
 // #define DEBUG_SELECTIONS
-// #define OFFER_LAYOUT_DEBUG_BUTTON
+#define OFFER_LAYOUT_DEBUG_BUTTON
 // #define SHOW_PID_TO_DEBUG_STREAM  // should be disabled for production
 #define SHOW_TASK_TIMING
 

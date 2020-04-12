@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -210,6 +210,7 @@ void LabelWordWrapWide::resizeEvent(QResizeEvent* event)
 }
 
 
+#ifdef GUI_USE_RESIZE_FOR_HEIGHT
 void LabelWordWrapWide::forceHeight()
 {
     // We were making what follows conditional on:
@@ -262,6 +263,7 @@ void LabelWordWrapWide::forceHeight()
         updateGeometry();
     }
 }
+#endif
 
 
 // QLabel::sizeHint() produces a golden ratio, which is fine. If you want a

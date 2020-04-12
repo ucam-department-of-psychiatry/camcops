@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -59,11 +59,12 @@
 ============================================================================ */
 
 // #define DEBUG_LAYOUT
-// #define DEBUG_LAYOUT_VERBOSE
 
 #include "qtlayouthelpers.h"
 #include <QDebug>
 #include <QWidget>
+#include "layouts/widgetitemhfw.h"
+
 
 // ============================================================================
 // Constants
@@ -92,116 +93,6 @@ QDebug qtlayouthelpers::operator<<(QDebug debug,
             << ", size " << ls.size
             << "])";
     return debug;
-}
-
-
-// ============================================================================
-// WidgetItemHfw
-// ============================================================================
-
-QSize qtlayouthelpers::WidgetItemHfw::minimumSize() const
-{
-    // Originals:
-    //
-    //    class QLayoutItem {
-    //        // ...
-    //        virtual QSize minimumSize() const = 0;
-    //    };
-    //
-    //    class QWidgetItem : public QLayoutItem { ... };
-    //
-    //    QSize QWidgetItem::minimumSize() const
-    //    {
-    //        if (isEmpty())
-    //            return QSize(0, 0);
-    //        return !wid->testAttribute(Qt::WA_LayoutUsesWidgetRect)
-    //               ? toLayoutItemSize(wid->d_func(), qSmartMinSize(this))
-    //               : qSmartMinSize(this);
-    //    }
-    //
-    //    class QWidgetItemV2 : public QWidgetItem { ... }
-    //
-    //    QSize QWidgetItemV2::minimumSize() const
-    //    {
-    //        if (isEmpty())
-    //            return QSize(0, 0);
-    //
-    //        if (useSizeCache()) {  // RNC: I think generally true
-    //            updateCacheIfNecessary();
-    //            return q_cachedMinimumSize;
-    //        } else {
-    //            return QWidgetItem::minimumSize();
-    //        }
-    //    }
-    //
-    //    void QWidgetItemV2::updateCacheIfNecessary() const  // RNC: NOT VIRTUAL
-    //    {
-    //        if (q_cachedMinimumSize.width() != Dirty)
-    //            return;
-    //
-    //        const QSize sizeHint(wid->sizeHint());
-    //        const QSize minimumSizeHint(wid->minimumSizeHint());
-    //        const QSize minimumSize(wid->minimumSize());
-    //        const QSize maximumSize(wid->maximumSize());
-    //        const QSizePolicy sizePolicy(wid->sizePolicy());
-    //        const QSize expandedSizeHint(sizeHint.expandedTo(minimumSizeHint));
-    //
-    //        const QSize smartMinSize(qSmartMinSize(sizeHint, minimumSizeHint, minimumSize, maximumSize, sizePolicy));
-    //        const QSize smartMaxSize(qSmartMaxSize(expandedSizeHint, minimumSize, maximumSize, sizePolicy, align));
-    //
-    //        const bool useLayoutItemRect = !wid->testAttribute(Qt::WA_LayoutUsesWidgetRect);
-    //
-    //        q_cachedMinimumSize = useLayoutItemRect
-    //               ? toLayoutItemSize(wid->d_func(), smartMinSize)
-    //               : smartMinSize;
-    //
-    //        q_cachedSizeHint = expandedSizeHint;
-    //        q_cachedSizeHint = q_cachedSizeHint.boundedTo(maximumSize)
-    //                                           .expandedTo(minimumSize);
-    //        q_cachedSizeHint = useLayoutItemRect
-    //               ? toLayoutItemSize(wid->d_func(), q_cachedSizeHint)
-    //               : q_cachedSizeHint;
-    //
-    //        if (wid->sizePolicy().horizontalPolicy() == QSizePolicy::Ignored)
-    //            q_cachedSizeHint.setWidth(0);
-    //        if (wid->sizePolicy().verticalPolicy() == QSizePolicy::Ignored)
-    //            q_cachedSizeHint.setHeight(0);
-    //
-    //        q_cachedMaximumSize = useLayoutItemRect
-    //                   ? toLayoutItemSize(wid->d_func(), smartMaxSize)
-    //                   : smartMaxSize;
-    //    }
-
-    QSize minsize = QWidgetItemV2::minimumSize();
-
-    /*
-    // Coded tried 2020-03-12:
-    if (wid->hasHeightForWidth() && wid->sizePolicy().hasHeightForWidth()) {
-        const QSizePolicy::Policy& vp = wid->sizePolicy().verticalPolicy();
-        const bool can_shrink_vertically = vp & QSizePolicy::ShrinkFlag;
-        if (can_shrink_vertically) {
-            minsize.rheight() = wid->minimumSizeHint().height();
-        }
-    }
-    */
-
-#ifdef DEBUG_LAYOUT
-    qDebug().nospace()
-            << Q_FUNC_INFO << " -> " << minsize
-            << " [wid->metaObject()->className() == "
-            << wid->metaObject()->className()
-            << ", wid->testAttribute(Qt::WA_LayoutUsesWidgetRect) == "
-            << wid->testAttribute(Qt::WA_LayoutUsesWidgetRect)
-            << ", wid->minimumSize() == " << wid->minimumSize()
-            << ", wid->minimumSizeHint() == " << wid->minimumSizeHint()
-            << ", wid->sizePolicy() == " << wid->sizePolicy()
-            << ", wid->sizePolicy().hasHeightForWidth() == "
-            << wid->sizePolicy().hasHeightForWidth()
-            // << ", wid->sizePolicy().horizontalPolicy() & QSizePolicy::ShrinkFlag == "
-            // << (wid->sizePolicy().horizontalPolicy() & QSizePolicy::ShrinkFlag)
-            << "]";
-#endif
-    return minsize;
 }
 
 
@@ -519,7 +410,7 @@ void qtlayouthelpers::qGeomCalc(QVector<QQLayoutStruct>& chain,
         }
     }
 
-#ifdef DEBUG_LAYOUT_VERBOSE
+#ifdef DEBUG_LAYOUT
     qDebug() << Q_FUNC_INFO;
     qDebug() << "- start" << start <<  "count" << count
              <<  "pos" << pos <<  "space" << space <<  "spacer" << spacer;

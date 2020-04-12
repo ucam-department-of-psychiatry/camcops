@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -75,6 +75,8 @@
 #include "widgets/clickablelabelnowrap.h"
 #include "widgets/clickablelabelwordwrapwide.h"
 #include "widgets/fixedareahfwtestwidget.h"
+#include "widgets/fixedaspectratiohfwtestwidget.h"
+#include "widgets/fixednumblockshfwtestwidget.h"
 #include "widgets/horizontalline.h"
 #include "widgets/imagebutton.h"
 #include "widgets/labelwordwrapwide.h"
@@ -220,6 +222,10 @@ void WidgetTestMenu::makeItems()
                  std::bind(&WidgetTestMenu::testClickableLabelWordWrapWide, this, true)),
         MenuItem("FixedAreaHfwTestWidget",
                  std::bind(&WidgetTestMenu::testFixedAreaHfwTestWidget, this)),
+        MenuItem("FixedAspectRatioHfwTestWidget",
+                 std::bind(&WidgetTestMenu::testFixedAspectRatioHfwTestWidget, this)),
+        MenuItem("FixedNumBlocksHfwTestWidget",
+                 std::bind(&WidgetTestMenu::testFixedNumBlocksHfwTestWidget, this)),
         MenuItem("HorizontalLine",
                  std::bind(&WidgetTestMenu::testHorizontalLine, this)),
         MenuItem("ImageButton",
@@ -262,6 +268,10 @@ void WidgetTestMenu::makeItems()
                  std::bind(&WidgetTestMenu::testFlowLayout, this, 5, false, Qt::AlignRight)),
         MenuItem("FlowLayout (containing word-wrapped text)",
                  std::bind(&WidgetTestMenu::testFlowLayout, this, 5, true, Qt::AlignLeft)),
+        MenuItem("FlowLayout (containing FixedNumBlocksHfwTestWidget)",
+                 std::bind(&WidgetTestMenu::testFlowLayoutFixedNumBlocksHfwTestWidget, this, 4)),
+        MenuItem("FlowLayout (containing mixture)",
+                 std::bind(&WidgetTestMenu::testFlowLayoutMixture, this)),
         MenuItem("BaseWidget (with short text)",
                  std::bind(&WidgetTestMenu::testBaseWidget, this, false)),
         MenuItem("BaseWidget (with long text)",
@@ -569,6 +579,23 @@ void WidgetTestMenu::testFixedAreaHfwTestWidget()
 }
 
 
+void WidgetTestMenu::testFixedAspectRatioHfwTestWidget()
+{
+    auto widget = new FixedAspectRatioHfwTestWidget();
+    debugfunc::debugWidget(widget);
+}
+
+
+void WidgetTestMenu::testFixedNumBlocksHfwTestWidget()
+{
+    auto widget = new FixedNumBlocksHfwTestWidget();
+    const bool use_hfw_layout = true;
+    debugfunc::debugWidget(widget,
+                           false, true, layoutdumper::DumperConfig(),
+                           use_hfw_layout);
+}
+
+
 void WidgetTestMenu::testHorizontalLine()
 {
     const int width = 4;
@@ -822,6 +849,7 @@ void WidgetTestMenu::testFlowLayout(const int n_icons, const bool text,
                                     const Qt::Alignment halign)
 {
     auto widget = new QWidget();
+    widget->setSizePolicy(sizehelpers::preferredPreferredHFWPolicy());
     auto layout = new FlowLayoutHfw();
     layout->setHorizontalAlignmentOfContents(halign);
     widget->setLayout(layout);
@@ -832,6 +860,33 @@ void WidgetTestMenu::testFlowLayout(const int n_icons, const bool text,
             QLabel* icon = uifunc::iconWidget(uifunc::iconFilename(uiconst::CBS_ADD));
             layout->addWidget(icon);
         }
+    }
+    debugfunc::debugWidget(widget);
+}
+
+
+void WidgetTestMenu::testFlowLayoutFixedNumBlocksHfwTestWidget(const int n)
+{
+    auto widget = new QWidget();
+    widget->setSizePolicy(sizehelpers::preferredPreferredHFWPolicy());
+    auto layout = new FlowLayoutHfw();
+    widget->setLayout(layout);
+    for (int i = 0; i < n; ++i) {
+        layout->addWidget(new FixedNumBlocksHfwTestWidget());
+    }
+    debugfunc::debugWidget(widget);}
+
+
+void WidgetTestMenu::testFlowLayoutMixture()
+{
+    auto widget = new QWidget();
+    widget->setSizePolicy(sizehelpers::preferredPreferredHFWPolicy());
+    auto layout = new FlowLayoutHfw();
+    widget->setLayout(layout);
+    for (int i = 0; i < 4; ++i) {
+        layout->addWidget(new FixedAspectRatioHfwTestWidget());
+        layout->addWidget(new FixedNumBlocksHfwTestWidget());
+        layout->addWidget(new FixedAreaHfwTestWidget());
     }
     debugfunc::debugWidget(widget);
 }
