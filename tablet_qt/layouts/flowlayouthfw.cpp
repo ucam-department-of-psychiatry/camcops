@@ -51,6 +51,8 @@
 // #define DEBUG_LAYOUT
 // #define DEBUG_LAYOUT_VERBOSE
 
+// #define USE_WIDGETITEMHFW
+
 #include "flowlayouthfw.h"
 #include <QDebug>
 
@@ -69,6 +71,10 @@
 #include "lib/layoutdumper.h"
 #include "lib/margins.h"
 
+
+// ============================================================================
+// FlowLayoutHfw
+// ============================================================================
 
 FlowLayoutHfw::FlowLayoutHfw(QWidget* parent, const int margin,
                              const int h_spacing, const int v_spacing) :
@@ -126,8 +132,12 @@ void FlowLayoutHfw::addWidget(QWidget* w)
     // Instead of adding a QWidgetItem, we will add our custom version,
     // qtlayouthelpers::WidgetItemHfw().
 
+#ifdef USE_WIDGETITEMHFW
     addChildWidget(w);
     addItem(new WidgetItemHfw(w));
+#else
+    QLayout::addWidget(w);
+#endif
 }
 
 

@@ -148,11 +148,24 @@ QSize spacingAsSize(const QLayout* layout);
 
 // How much extra space does a QWidget need for its layout margins or its
 // stylesheet?
+// - widget: the widget to examine
+// - opt: "option" parameter passed to QStyle::sizeFromContents()
+// - child_size: "contentsSize" parameter passed to QStyle::sizeFromContents()
+// - add_style_element: add the size for the style, as well as for the margins
+//   of any layout installed on the widget?
+// - contents_type: "type" parameter passed to QStyle::sizeFromContents()
 QSize widgetExtraSizeForCssOrLayout(const QWidget* widget,
                                     const QStyleOption* opt,
                                     const QSize& child_size,
                                     bool add_style_element,
                                     QStyle::ContentsType contents_type);
+
+// Guess the QStyle::ContentsType applicable to a widget.
+// I don't know why this should be necessary...
+QStyle::ContentsType guessStyleContentsType(const QWidget* widget);
+
+// Autodetecting version.
+QSize widgetExtraSizeForCssOrLayout(const QWidget* widget);
 
 // widgetExtraSizeForCssOrLayout() for QPushButton.
 QSize pushButtonExtraSizeRequired(const QPushButton* button,

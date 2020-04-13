@@ -29,7 +29,10 @@ class WidgetItemHfw : public QWidgetItemV2
     // from QLayoutItem) -- used to encapsulate widgets in layouts.
     // This one handles height-for-width widgets better.
     //
-    // See createWidgetItem().
+    // Made by createWidgetItem() or directly.
+    //
+    //
+
 public:
     WidgetItemHfw(QWidget* widget);
     virtual QSize sizeHint() const override;
@@ -40,8 +43,10 @@ public:
     virtual void invalidate() override;
     virtual void setGeometry(const QRect& rect) override;
 protected:
+    // QSize widgetExtras() const;
     mutable QSize m_cached_sizehint;
     mutable QSize m_cached_minsize;
     mutable QSize m_cached_maxsize;
     mutable QMap<int, int> m_width_to_height;
+    // mutable QSize m_cached_widget_extras;
 };

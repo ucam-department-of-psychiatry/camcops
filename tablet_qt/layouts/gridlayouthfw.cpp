@@ -59,10 +59,12 @@
 
 // #define DEBUG_LAYOUT_BASIC
 // #define DEBUG_LAYOUT_DETAILED
-#define DEBUG_LAYOUT_COMMS
+// #define DEBUG_LAYOUT_COMMS
 
 // #define DISABLE_CACHING
 // #define Q_OS_MAC  // for testing only, just to be sure it compiles OK...
+
+// #define USE_WIDGETITEMHFW
 
 #include "gridlayouthfw.h"
 #include <QApplication>
@@ -88,6 +90,17 @@ using qtlayouthelpers::QQLayoutStruct;
 using qtlayouthelpers::qGeomCalc;
 using qtlayouthelpers::qMaxExpCalc;
 using qtlayouthelpers::qSmartSpacing;
+
+
+// ============================================================================
+// Constants
+// ============================================================================
+
+#if defined GRIDLAYOUTHFW_ALTER_FROM_QGRIDLAYOUT && defined USE_WIDGETITEMHFW
+    const bool USE_HFW_CAPABLE_ITEM = true;
+#else
+    const bool USE_HFW_CAPABLE_ITEM = false;
+#endif
 
 
 // ============================================================================
@@ -123,12 +136,8 @@ public:
     }
 
     QQGridBox(const QLayout* l, QWidget* wid) {
-#ifdef GRIDLAYOUTHFW_ALTER_FROM_QGRIDLAYOUT
         // Coded added 2020-03-12
-        item_ = createWidgetItem(l, wid, true);
-#else
-        item_ = createWidgetItem(l, wid);
-#endif
+        item_ = createWidgetItem(l, wid, USE_HFW_CAPABLE_ITEM);
     }
 
     ~QQGridBox() {
@@ -1361,12 +1370,7 @@ void GridLayoutHfw::addWidget(QWidget* w)
 {
     // The original, as per qgridlayout.h, is:
     //      QLayout::addWidget(w);
-#ifdef GRIDLAYOUTHFW_ALTER_FROM_QGRIDLAYOUT
-    const bool use_hfw_capable_item = true;
-#else
-    const bool use_hfw_capable_item = false;
-#endif
-    QWidgetItem* b = createWidgetItem(this, w, use_hfw_capable_item);
+    QWidgetItem* b = createWidgetItem(this, w, USE_HFW_CAPABLE_ITEM);
     addItem(b);
 }
 
@@ -1386,12 +1390,7 @@ void GridLayoutHfw::addWidget(QWidget* widget, int row, int column,
         return;
     }
     addChildWidget(widget);
-#ifdef GRIDLAYOUTHFW_ALTER_FROM_QGRIDLAYOUT
-    const bool use_hfw_capable_item = true;
-#else
-    const bool use_hfw_capable_item = false;
-#endif
-    QWidgetItem* b = createWidgetItem(this, widget, use_hfw_capable_item);
+    QWidgetItem* b = createWidgetItem(this, widget, USE_HFW_CAPABLE_ITEM);
     addItem(b, row, column, 1, 1, alignment);
 }
 

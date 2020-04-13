@@ -24,6 +24,7 @@
 #include <QDebug>
 #include <QStyle>
 #include <QWidget>
+#include "lib/sizehelpers.h"
 
 
 // ============================================================================
@@ -80,6 +81,7 @@ QSize WidgetItemHfw::sizeHint() const
             if (sp.verticalPolicy() & IGNORE_SIZEHINT) {
                 hint.setHeight(0);
             }
+            // hint += widgetExtras();
         }
 #ifdef DEBUG_LAYOUT
         qDebug().nospace()
@@ -199,6 +201,7 @@ QSize WidgetItemHfw::minimumSize() const
                 minsize = minsize.expandedTo(wid->minimumSize())
                         .expandedTo(wid->minimumSizeHint());
             }
+            // minsize += widgetExtras();
         }
 #ifdef DEBUG_LAYOUT
         qDebug() << Q_FUNC_INFO << "->" << minsize;
@@ -261,6 +264,15 @@ QSize WidgetItemHfw::maximumSize() const
                     // Let's try (a) for simplicity!
                 }
                 maxsize = maxsize.boundedTo(wid->maximumSize());
+
+#if 0
+                // Add in the extras, up to the overall limit:
+                const QSize extras = widgetExtras();
+                maxsize = QSize(
+                    qMin(maxsize.width() + extras.width(), QWIDGETSIZE_MAX),
+                    qMin(maxsize.height() + extras.height(), QWIDGETSIZE_MAX)
+                );
+#endif
             }
         }
 #ifdef DEBUG_LAYOUT
@@ -289,11 +301,27 @@ int WidgetItemHfw::heightForWidth(int w) const
         return -1;
     }
     if (!m_width_to_height.contains(w)) {
-        const int h = wid->heightForWidth(w);
+        const int h = wid->heightForWidth(w);  // + widgetExtras().height();
         m_width_to_height[w] = h;
     }
     return m_width_to_height[w];
 }
+
+
+#if 0
+QSize WidgetItemHfw::widgetExtras() const
+{
+    QSize& extras = m_cached_widget_extras;  // shorthand
+    if (!extras.isValid()) {
+        if (isEmpty()) {
+            extras = QSize(0, 0);
+        } else {
+            extras = sizehelpers::widgetExtraSizeForCssOrLayout(wid);
+        }
+    }
+    return extras;
+}
+#endif
 
 
 void WidgetItemHfw::invalidate()
@@ -302,6 +330,7 @@ void WidgetItemHfw::invalidate()
     m_cached_minsize = QSize();
     m_cached_maxsize = QSize();
     m_width_to_height.clear();
+    // m_cached_widget_extras = QSize();
 }
 
 

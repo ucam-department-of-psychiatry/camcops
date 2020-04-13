@@ -57,10 +57,12 @@
 **
 ============================================================================ */
 
-#define DEBUG_LAYOUT_COMMS
+// #define DEBUG_LAYOUT_COMMS
 // #define DEBUG_LAYOUT_CALCS
 // #define DISABLE_CACHING  // NOT FREE OF SIDE EFFECTS!
 // #define Q_OS_MAC  // for testing only, just to be sure it compiles OK...
+
+// #define USE_WIDGETITEMHFW
 
 #include "boxlayouthfw.h"
 #include <QApplication>
@@ -88,6 +90,17 @@ using qtlayouthelpers::defaultRectOfWidth;
 using qtlayouthelpers::qGeomCalc;
 using qtlayouthelpers::qMaxExpCalc;
 using qtlayouthelpers::qSmartSpacing;
+
+
+// ============================================================================
+// Constants
+// ============================================================================
+
+#if defined BOXLAYOUTHFW_ALTER_FROM_QBOXLAYOUT && defined USE_WIDGETITEMHFW
+    const bool USE_HFW_CAPABLE_ITEM = true;
+#else
+    const bool USE_HFW_CAPABLE_ITEM = false;
+#endif
 
 
 // ============================================================================
@@ -390,12 +403,7 @@ void BoxLayoutHfw::insertWidget(int index, QWidget* widget,
     if (index < 0) {  // append
         index = m_list.count();
     }
-#ifdef BOXLAYOUTHFW_ALTER_FROM_QBOXLAYOUT
-    const bool use_hfw_capable_item = true;
-#else
-    const bool use_hfw_capable_item = false;
-#endif
-    QWidgetItem* b = createWidgetItem(this, widget, use_hfw_capable_item);
+    QWidgetItem* b = createWidgetItem(this, widget, USE_HFW_CAPABLE_ITEM);
     b->setAlignment(alignment);
 
     BoxLayoutHfwItem* it;
