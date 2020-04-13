@@ -76,11 +76,6 @@ protected:
     void testThermometer();
     // TickSlider: see QuSlider instead
     void testVerticalLine();
-    void testVerticalScrollAreaSimple();
-    void testVerticalScrollAreaComplex(bool long_text);
-    void testVerticalScrollAreaFixedAreaHfwWidget();
-    void testVerticalScrollAreaAspectRatioPixmap();
-    void testVerticalScrollGridLayout();
 
     // ========================================================================
     // Layouts and the like
@@ -92,6 +87,11 @@ protected:
     void testVBoxLayout(bool long_text);
     void testHBoxLayoutHfwStretch();
     void testGridLayoutHfw(int example);
+    void testVerticalScrollAreaSimple();
+    void testVerticalScrollAreaComplex(bool long_text);
+    void testVerticalScrollAreaFixedAreaHfwWidget();
+    void testVerticalScrollAreaAspectRatioPixmap();
+    void testVerticalScrollGridLayout();
 
     // ========================================================================
     // Large-scale widgets

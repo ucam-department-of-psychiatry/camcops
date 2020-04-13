@@ -57,9 +57,9 @@
 **
 ============================================================================ */
 
-// #define DEBUG_LAYOUT_COMMS
+#define DEBUG_LAYOUT_COMMS
 // #define DEBUG_LAYOUT_CALCS
-// #define DISABLE_CACHING
+// #define DISABLE_CACHING  // NOT FREE OF SIDE EFFECTS!
 // #define Q_OS_MAC  // for testing only, just to be sure it compiles OK...
 
 #include "boxlayouthfw.h"
@@ -939,8 +939,18 @@ void BoxLayoutHfw::setGeometry(const QRect& initial_rect)
     if (parent_new_height != -1) {
         const bool change = !sizehelpers::fixedHeightEquals(parent,
                                                             parent_new_height);
+        // Don't resize if the parent is already trying its best.
         if (change) {
+#ifdef DEBUG_LAYOUT_COMMS
+            qDebug()
+                    << Q_FUNC_INFO
+                    << "Asking parent to change height from"
+                    << parent->geometry().height()
+                    << "to"
+                    << parent_new_height;
+#endif
             parent->setFixedHeight(parent_new_height);  // RISK OF INFINITE RECURSION
+            // ... hence the ReentryDepthGuard
             parent->updateGeometry();
         }
     }
@@ -967,7 +977,8 @@ int BoxLayoutHfw::getParentTargetHeight(QWidget* parent,
     target_min_height += parent_margins.totalHeight();
     target_max_height += parent_margins.totalHeight();
 
-    if (parent->geometry().height() < target_min_height) {
+    const int current_parent_height = parent->geometry().height();
+    if (current_parent_height < target_min_height) {
 #ifdef DEBUG_LAYOUT_CALCS
         qDebug().nospace()
                 << "... will set parent height to " << target_min_height
@@ -978,7 +989,7 @@ int BoxLayoutHfw::getParentTargetHeight(QWidget* parent,
 #endif
         parent_new_height = target_min_height;
     }
-    if (parent->geometry().height() > target_max_height) {
+    if (current_parent_height > target_max_height) {
 #ifdef DEBUG_LAYOUT_CALCS
         qDebug().nospace()
                 << "... will set parent height to " << target_max_height
@@ -1000,6 +1011,7 @@ void BoxLayoutHfw::distribute(const GeomInfo& gi,
     const QRect s = getContentsRect(layout_rect);
 
 #ifdef DEBUG_LAYOUT_COMMS
+    qDebug() << Q_FUNC_INFO;
     qDebug().nospace() << "... called with layout rect " << layout_rect
                        << ", giving final rect for children of " << s;
 #endif
@@ -1019,16 +1031,17 @@ void BoxLayoutHfw::distribute(const GeomInfo& gi,
     // height.
     if (gi.m_has_hfw && !horz(m_dir)) {
         for (int i = 0; i < n; i++) {
-            BoxLayoutHfwItem* box = m_list.at(i);
-            if (box->item->hasHeightForWidth()) {
-                const int width = qBound(box->item->minimumSize().width(),
+            const BoxLayoutHfwItem* box = m_list.at(i);
+            const QLayoutItem* item = box->item;
+            if (item->hasHeightForWidth()) {
+                const int width = qBound(item->minimumSize().width(),
                                          s.width(),
-                                         box->item->maximumSize().width());
+                                         item->maximumSize().width());
                 a[i].size_hint = a[i].minimum_size =
 #ifdef BOXLAYOUTHFW_ALTER_FROM_QBOXLAYOUT
                         a[i].maximum_size =
 #endif
-                        box->item->heightForWidth(width);
+                        item->heightForWidth(width);
             }
         }
     }
@@ -1037,8 +1050,8 @@ void BoxLayoutHfw::distribute(const GeomInfo& gi,
 
     const Direction visual_dir = getVisualDir();
     const bool reverse = horz(visual_dir)
-                    ? ((r.right() > old_rect.right()) != (visual_dir == RightToLeft))
-                    : r.bottom() > old_rect.bottom();
+            ? ((r.right() > old_rect.right()) != (visual_dir == RightToLeft))
+            : r.bottom() > old_rect.bottom();
     // ... RNC: this seems to be saying that for vertical layouts, at least,
     // then if the geometry is extending downwards (old_rect ending below
     // current), draw from the bottom up.
@@ -1505,21 +1518,22 @@ QRect BoxLayoutHfw::getContentsRect(const QRect& layout_rect) const
 
 QVector<QRect> BoxLayoutHfw::getChildRects(
         const QRect& contents_rect,
-        const QVector<QLayoutStruct>& a) const
+        const QVector<QLayoutStruct>& items) const
 {
     // following code from QBoxLayout::setGeometry()
     const QRect& s = contents_rect;
-    const int n = a.count();
+    const int n = items.count();
     QVector<QRect> rects(n);
     const Direction visual_dir = getVisualDir();
     for (int i = 0; i < n; ++i) {
+        const QLayoutStruct& item = items.at(i);
         switch (visual_dir) {
         case LeftToRight:
             {
                 rects[i] = QRect(
-                    a.at(i).pos,  // left
+                    item.pos,  // left
                     s.y(),  // top
-                    a.at(i).size,  // width
+                    item.size,  // width
                     s.height()  // height [NB widget may e.g. align top or bottom within this]
                 );
             }
@@ -1527,25 +1541,25 @@ QVector<QRect> BoxLayoutHfw::getChildRects(
         case RightToLeft:
             {
                 rects[i] = QRect(
-                    s.left() + s.right() - a.at(i).pos - a.at(i).size + 1,  // left
+                    s.left() + s.right() - item.pos - item.size + 1,  // left
                     s.y(),  // top
-                    a.at(i).size,  // width
+                    item.size,  // width
                     s.height()  // height [NB widget may e.g. align top or bottom within this]
                 );
             }
             break;
         case TopToBottom:
             rects[i] = QRect(s.x(),  // left
-                             a.at(i).pos,  // top
+                             item.pos,  // top
                              s.width(),  // width
-                             a.at(i).size);  // height
+                             item.size);  // height
             // the "size" solution should equal height-for-width if applicable
             break;
         case BottomToTop:
             rects[i] = QRect(s.x(),  // left
-                             s.top() + s.bottom() - a.at(i).pos - a.at(i).size + 1,  // top
+                             s.top() + s.bottom() - item.pos - item.size + 1,  // top
                              s.width(),  // width
-                             a.at(i).size);  // height
+                             item.size);  // height
             // the "size" solution should equal height-for-width if applicable
             break;
         }
@@ -1582,10 +1596,10 @@ Margins BoxLayoutHfw::effectiveMargins() const
 */
 Margins BoxLayoutHfw::effectiveMargins(const Margins& contents_margins) const
 {
-    const int l = contents_margins.left();
-    const int t = contents_margins.top();
-    const int r = contents_margins.right();
-    const int b = contents_margins.bottom();
+    int l = contents_margins.left();
+    int t = contents_margins.top();
+    int r = contents_margins.right();
+    int b = contents_margins.bottom();
 
 #ifdef Q_OS_MAC
     // RNC: in the original, left/top/right/bottom were pointers to receive

@@ -56,11 +56,16 @@
 #include <QRect>
 #include <QStyle>
 
+
 class FlowLayoutHfw : public QLayout
 {
     // Flow layout, as per FlowLayout Qt demo, but modified to support
     // height-for-width better (better as in: word-wrapping labels etc. get the
     // maximum width allowed, aiming for the minimum height).
+
+    // NOTE THAT THIS IS NOT A "TOP-LEVEL" HFW WIDGET THAT CAN RESIZE ITS
+    // PARENT WIDGET (compare BoxLayoutHfw, GridLayoutHfw). So it should be
+    // displayed within one of those.
 
     Q_OBJECT  // RNC
 public:
@@ -109,7 +114,7 @@ protected:  // RNC (was private)
     // alignment.
     int rowShiftToRight(int layout_width, int width_of_all_items) const;
 
-    QVector<QLayoutItem*> m_item_list;
+    QVector<QLayoutItem*> m_item_list;  // our widgets
     int m_h_space;  // horizontal spacing between items
     int m_v_space;  // vertical spacing between rows
     mutable QSize m_size_hint;  // cached size hint

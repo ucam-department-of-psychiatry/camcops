@@ -340,32 +340,35 @@ void WidgetItemHfw::setGeometry(const QRect& rect)
     }
 
     // ------------------------------------------------------------------------
-    // Establish the widget's preferred size in "pref".
+    // Set the widget's target size.
     // ------------------------------------------------------------------------
     const QSize available = rect.size();
-    QSize pref(sizeHint());  // layout item's preferred size
+    QSize widget_size(sizeHint());  // layout item's preferred size
     // ... which in our simplified layout system is also the widget's
     //     preferred size;
     // ... except that this will be (0,0) if the widget's size policy is
     //     "Ignored".
     const QSizePolicy sp = wid->sizePolicy();  // widget's size policy
-    if (sp.horizontalPolicy() & WANTS_TO_GROW) {
-        pref.setWidth(available.width());
+
+    // We are trying to get as close to what we were told as possible.
+    if (sp.horizontalPolicy() & WANTS_TO_GROW ||
+            (hasHeightForWidth() && sp.horizontalPolicy() & CAN_GROW)) {
+        widget_size.setWidth(available.width());
     }
     if (sp.verticalPolicy() & WANTS_TO_GROW) {
-        pref.setHeight(available.height());
+        widget_size.setHeight(available.height());
     }
 
-    // ------------------------------------------------------------------------
-    // Set the widget's target size.
-    // ------------------------------------------------------------------------
-    QSize widget_size = pref
+    // Apply constraints
+    widget_size = widget_size
             .expandedTo(minimumSize())
             .boundedTo(maximumSize())
             .boundedTo(available);
+
 #ifdef DEBUG_SET_GEOMETRY
     qDebug() << "... widget_size =" << widget_size;
 #endif
+
     if (hasHeightForWidth()) {
         // Redo the height as necessary for a height-for-width widget.
         int h = heightForWidth(widget_size.width());

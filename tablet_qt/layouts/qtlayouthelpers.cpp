@@ -193,7 +193,7 @@ void qtlayouthelpers::qGeomCalc(QVector<QQLayoutStruct>& chain,
     if (space < c_min + sum_spacing) {
         // Less space than minimumSize; take from the biggest first
 
-        int min_size = c_min + sum_spacing;
+        const int min_size = c_min + sum_spacing;
 
         // shrink the spacers proportionally
         if (spacer >= 0) {
@@ -210,7 +210,7 @@ void qtlayouthelpers::qGeomCalc(QVector<QQLayoutStruct>& chain,
 
         std::sort(minimum_sizes.begin(), minimum_sizes.end());
 
-        int space_left = space - sum_spacing;
+        const int space_left = space - sum_spacing;
 
         int sum = 0;
         int idx = 0;
@@ -223,9 +223,9 @@ void qtlayouthelpers::qGeomCalc(QVector<QQLayoutStruct>& chain,
             ++idx;
         }
         --idx;
-        int deficit = space_used - space_left;
+        const int deficit = space_used - space_left;
 
-        int items = count - idx;
+        const int items = count - idx;
 
         // If we truncate all items to "current", we would get "deficit" too
         // many pixels. Therefore, we have to remove deficit/items from each
@@ -233,9 +233,9 @@ void qtlayouthelpers::qGeomCalc(QVector<QQLayoutStruct>& chain,
         // deficitPerItem + remainder/items
         // "rest" is the accumulated error from using integer arithmetic.
 
-        int deficit_per_item = deficit / items;
-        int remainder = deficit % items;
-        int maxval = current - deficit_per_item;
+        const int deficit_per_item = deficit / items;
+        const int remainder = deficit % items;
+        const int maxval = current - deficit_per_item;
 
         int rest = 0;
         for (i = start; i < start + count; i++) {
@@ -272,7 +272,7 @@ void qtlayouthelpers::qGeomCalc(QVector<QQLayoutStruct>& chain,
         bool finished = n == 0;
         while (!finished) {
             finished = true;
-            Fixed64 fp_over = toFixed(overdraft);
+            const Fixed64 fp_over = toFixed(overdraft);
             Fixed64 fp_w = 0;
 
             for (i = start; i < start + count; i++) {
@@ -332,7 +332,7 @@ void qtlayouthelpers::qGeomCalc(QVector<QQLayoutStruct>& chain,
         int surplus, deficit;
         do {
             surplus = deficit = 0;
-            Fixed64 fp_space = toFixed(space_left);
+            const Fixed64 fp_space = toFixed(space_left);
             Fixed64 fp_w = 0;
             for (i = start; i < start + count; i++) {
                 QQLayoutStruct* data = &chain[i];  // RNC: extra Q
@@ -347,7 +347,7 @@ void qtlayouthelpers::qGeomCalc(QVector<QQLayoutStruct>& chain,
                 } else {
                     fp_w += fp_space * 1 / n;
                 }
-                int w = fRound(fp_w);
+                const int w = fRound(fp_w);
                 data->size = w;
                 fp_w -= toFixed(w); // give the difference to the next
                 if (w < data->smartSizeHint()) {
@@ -399,7 +399,7 @@ void qtlayouthelpers::qGeomCalc(QVector<QQLayoutStruct>& chain,
     // could, but don't, attempt a sub-pixel allocation of the extra
     // space.
 
-    int extra = extraspace / (spacer_count + 2);
+    const int extra = extraspace / (spacer_count + 2);
     int p = pos + extra;
     for (i = start; i < start + count; i++) {
         QQLayoutStruct* data = &chain[i];  // RNC: extra Q
@@ -488,7 +488,7 @@ QSize qtlayouthelpers::qSmartMaxSize(
         return QSize(QLAYOUTSIZE_MAX, QLAYOUTSIZE_MAX);
     }
     QSize s = maxSize;
-    QSize hint = sizeHint.expandedTo(minSize);
+    const QSize hint = sizeHint.expandedTo(minSize);
     if (s.width() == QWIDGETSIZE_MAX && !(align & Qt::AlignHorizontal_Mask)) {
         if (!(sizePolicy.horizontalPolicy() & QSizePolicy::GrowFlag)) {
             s.setWidth(hint.width());
