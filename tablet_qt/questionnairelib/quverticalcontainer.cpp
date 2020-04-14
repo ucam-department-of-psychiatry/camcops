@@ -67,6 +67,10 @@ QPointer<QWidget> QuVerticalContainer::makeWidget(Questionnaire* questionnaire)
                 ? DefaultWidgetAlignment
                 : e->getWidgetAlignment();
         QPointer<QWidget> w = e->widget(questionnaire);
+        if (!w) {
+            qWarning() << Q_FUNC_INFO << "Element failed to create a widget!";
+            continue;
+        }
         layout->addWidget(w, 0, alignment);
     }
     return widget;

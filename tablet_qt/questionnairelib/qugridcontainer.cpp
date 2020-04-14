@@ -235,6 +235,10 @@ QPointer<QWidget> QuGridContainer::makeWidget(Questionnaire* questionnaire)
     for (const QuGridCell& c : m_cells) {
         QuElementPtr e = c.element;
         QPointer<QWidget> w = e->widget(questionnaire);
+        if (!w) {
+            qWarning() << Q_FUNC_INFO << "Element failed to create a widget!";
+            continue;
+        }
 
 #ifdef DEBUG_GRID_CREATION
         w->setObjectName(CssConst::DEBUG_RED);

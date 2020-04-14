@@ -51,7 +51,7 @@
 // #define DEBUG_LAYOUT
 // #define DEBUG_LAYOUT_VERBOSE
 
-// #define USE_WIDGETITEMHFW
+#define USE_WIDGETITEMHFW
 
 #include "flowlayouthfw.h"
 #include <QDebug>

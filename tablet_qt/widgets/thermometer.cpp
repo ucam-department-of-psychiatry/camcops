@@ -310,7 +310,9 @@ bool Thermometer::hasHeightForWidth() const
 int Thermometer::heightForWidth(const int width) const
 {
     // We work this based on aspect ratio, which is width/height.
-    const int hfw = qCeil(static_cast<qreal>(width) / m_aspect_ratio);
+
+    const int hfw = qMin(qCeil(static_cast<qreal>(width) / m_aspect_ratio),
+                         m_target_total_size.height());
 #ifdef DEBUG_PAINTING
     qDebug() << Q_FUNC_INFO << "width" << width << "-> hfw" << hfw;
 #endif

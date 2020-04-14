@@ -50,7 +50,7 @@ public:
 
     // Rescale the thermometer? (That is, alter its maximum display size?)
     //
-    // - rescale: rescale or not?
+    // - rescale: rescale images or not?
     // - rescale_factor: scale factor relative to original images
     // - adjust_for_dpi: additionally adjust for DPI?
     QuThermometer* setRescale(bool rescale, double rescale_factor = 1.0,

@@ -64,7 +64,7 @@
 // #define DISABLE_CACHING
 // #define Q_OS_MAC  // for testing only, just to be sure it compiles OK...
 
-// #define USE_WIDGETITEMHFW
+#define USE_WIDGETITEMHFW
 
 #include "gridlayouthfw.h"
 #include <QApplication>
@@ -712,7 +712,8 @@ void GridLayoutHfw::addHfwData(GeomInfo& gi, QQGridBox* box, int width) const
     if (box->hasHeightForWidth()) {
 
         const int hfw = box->heightForWidth(width);
-#ifdef GRIDLAYOUTHFW_ALTER_FROM_QGRIDLAYOUT
+#if 0
+        // DON'T do this; it breaks things quite badly!
         // 2020-03-12
         QLayoutItem* item = box->item();
         QWidget* widget = item->widget();

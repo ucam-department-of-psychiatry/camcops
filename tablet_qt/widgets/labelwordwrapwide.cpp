@@ -40,7 +40,8 @@
 #define LWWW_USE_ANY_CACHE
 #endif
 
-#define ADD_EXTRA_FOR_LAYOUT_OR_CSS
+// #define ADD_EXTRA_FOR_LAYOUT_OR_CSS
+//
 // (?) ?avoid this; QLabel::heightForWidth() manages this by itself?
 // (*) actually - not adding extra space can break (look e.g. at the example
 //     "QuMCQGrid (expand=true, example=1)" in the widget test menu).
@@ -54,6 +55,9 @@
 //       but sometimes too much vertical space is given.
 //     - The core function is: QSize QLabelPrivate::sizeForWidth(int w) const
 //   - So USE this #define for now.
+//
+// 2020-04-13: grid layouts now using WidgetItemHfw, and this seems to work
+// OK without #define ADD_EXTRA_FOR_LAYOUT_OR_CSS.
 
 #include "labelwordwrapwide.h"
 #include <QDebug>

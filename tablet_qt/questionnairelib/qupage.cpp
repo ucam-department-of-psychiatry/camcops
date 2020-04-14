@@ -212,6 +212,10 @@ QPointer<QWidget> QuPage::widget(Questionnaire* questionnaire) const
     // Add widgets that we own directly
     for (const QuElementPtr& e : m_elements) {
         QPointer<QWidget> w = e->widget(questionnaire);
+        if (!w) {
+            qWarning() << Q_FUNC_INFO << "Element failed to create a widget!";
+            continue;
+        }
         pagelayout->addWidget(w);  // takes ownership
         pagelayout->setAlignment(w, e->getWidgetAlignment());
         w->setVisible(e->visible());  // only AFTER the widget is owned,

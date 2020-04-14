@@ -709,6 +709,7 @@ SOURCES += \
     questionnairelib/quthermometer.cpp \
     questionnairelib/quthermometeritem.cpp \
     questionnairelib/quverticalcontainer.cpp \
+    questionnairelib/quzoomcontainer.cpp \
     taskchains/khandakermojochain.cpp \
     tasklib/inittasks.cpp \
     tasklib/task.cpp \
@@ -1154,6 +1155,7 @@ HEADERS += \
     questionnairelib/quthermometer.h \
     questionnairelib/quthermometeritem.h \
     questionnairelib/quverticalcontainer.h \
+    questionnairelib/quzoomcontainer.h \
     taskchains/khandakermojochain.h \
     tasklib/inittasks.h \
     tasklib/task.h \

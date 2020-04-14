@@ -62,7 +62,7 @@
 // #define DISABLE_CACHING  // NOT FREE OF SIDE EFFECTS!
 // #define Q_OS_MAC  // for testing only, just to be sure it compiles OK...
 
-// #define USE_WIDGETITEMHFW
+#define USE_WIDGETITEMHFW
 
 #include "boxlayouthfw.h"
 #include <QApplication>
@@ -996,8 +996,8 @@ int BoxLayoutHfw::getParentTargetHeight(QWidget* parent,
                 << parent_margins.totalHeight() << "])";
 #endif
         parent_new_height = target_min_height;
-    }
-    if (current_parent_height > target_max_height) {
+
+    } else if (current_parent_height > target_max_height) {
 #ifdef DEBUG_LAYOUT_CALCS
         qDebug().nospace()
                 << "... will set parent height to " << target_max_height
@@ -1008,6 +1008,7 @@ int BoxLayoutHfw::getParentTargetHeight(QWidget* parent,
 #endif
         parent_new_height = target_max_height;
     }
+
     return parent_new_height;
 }
 

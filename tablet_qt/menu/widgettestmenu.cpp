@@ -469,6 +469,10 @@ void WidgetTestMenu::testQuestionnaireElement(QuElement* element)
 {
     Questionnaire questionnaire(m_app);
     QWidget* widget = element->widget(&questionnaire);
+    if (!widget) {
+        uifunc::alert("Element failed to create a widget!");
+        return;
+    }
     layoutdumper::DumperConfig config;
     QString stylesheet(m_app.getSubstitutedCss(uiconst::CSS_CAMCOPS_QUESTIONNAIRE));
     debugfunc::debugWidget(widget, false, false, config, true, &stylesheet);
