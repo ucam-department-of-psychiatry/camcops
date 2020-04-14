@@ -29,7 +29,7 @@ class FixedAreaHfwTestWidget : public QWidget
 
     Q_OBJECT
 public:
-    FixedAreaHfwTestWidget(int area = 500 * 100
+    FixedAreaHfwTestWidget(int area = 500 * 100,
                            int preferred_width = 1000,
                            const QSize& min_size = QSize(10, 10),
                            const QColor& background_colour = QColor(0, 0, 100),
