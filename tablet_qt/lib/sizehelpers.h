@@ -197,7 +197,7 @@ bool isWidgetHFWTradingDimensions(const QWidget* widget);
 // Is this an HFW widget that appears to have an aspect ratio constraint, e.g.
 // a resizable widget -- detected as one whose preferred height appears (in a
 // very simple test) to get LARGER as its width gets larger?
-bool isWidgetHFWMaintaingAspectRatio(const QWidget* widget);
+bool isWidgetHFWMaintainingAspectRatio(const QWidget* widget);
 
 
 }  // namespace sizehelpers
