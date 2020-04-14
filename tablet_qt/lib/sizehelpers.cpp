@@ -433,7 +433,7 @@ bool isWidgetHFWTradingDimensions(const QWidget* widget)
 }
 
 
-bool isWidgetHFWMaintaingAspectRatio(const QWidget* widget)
+bool isWidgetHFWMaintainingAspectRatio(const QWidget* widget)
 {
     if (!widget->hasHeightForWidth()) {
         return false;
