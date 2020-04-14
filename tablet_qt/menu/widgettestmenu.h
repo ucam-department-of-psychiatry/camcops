@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -64,6 +64,8 @@ protected:
     void testClickableLabelWordWrapWide(bool long_text);
     // DiagnosticCodeSelector: use QuDiagnosticCode instead
     void testFixedAreaHfwTestWidget();
+    void testFixedAspectRatioHfwTestWidget();
+    void testFixedNumBlocksHfwTestWidget();
     // GrowingTextEdit: see QuTextEdit
     void testHorizontalLine();
     void testImageButton();
@@ -75,19 +77,22 @@ protected:
     void testThermometer();
     // TickSlider: see QuSlider instead
     void testVerticalLine();
-    void testVerticalScrollAreaSimple();
-    void testVerticalScrollAreaComplex(bool long_text);
-    void testVerticalScrollAreaFixedAreaHfwWidget();
-    void testVerticalScrollAreaAspectRatioPixmap();
-    void testVerticalScrollGridLayout();
 
     // ========================================================================
     // Layouts and the like
     // ========================================================================
     void testFlowLayout(int n, bool text, Qt::Alignment halign);
+    void testFlowLayoutFixedNumBlocksHfwTestWidget(int n);
+    void testFlowLayoutMixture();
     void testBaseWidget(bool long_text);
     void testVBoxLayout(bool long_text);
+    void testHBoxLayoutHfwStretch();
     void testGridLayoutHfw(int example);
+    void testVerticalScrollAreaSimple();
+    void testVerticalScrollAreaComplex(bool long_text);
+    void testVerticalScrollAreaFixedAreaHfwWidget();
+    void testVerticalScrollAreaAspectRatioPixmap();
+    void testVerticalScrollGridLayout();
 
     // ========================================================================
     // Large-scale widgets

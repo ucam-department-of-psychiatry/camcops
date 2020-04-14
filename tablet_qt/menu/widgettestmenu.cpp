@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -79,6 +79,8 @@
 #include "widgets/clickablelabelnowrap.h"
 #include "widgets/clickablelabelwordwrapwide.h"
 #include "widgets/fixedareahfwtestwidget.h"
+#include "widgets/fixedaspectratiohfwtestwidget.h"
+#include "widgets/fixednumblockshfwtestwidget.h"
 #include "widgets/horizontalline.h"
 #include "widgets/imagebutton.h"
 #include "widgets/labelwordwrapwide.h"
@@ -224,6 +226,10 @@ void WidgetTestMenu::makeItems()
                  std::bind(&WidgetTestMenu::testClickableLabelWordWrapWide, this, true)),
         MenuItem("FixedAreaHfwTestWidget",
                  std::bind(&WidgetTestMenu::testFixedAreaHfwTestWidget, this)),
+        MenuItem("FixedAspectRatioHfwTestWidget",
+                 std::bind(&WidgetTestMenu::testFixedAspectRatioHfwTestWidget, this)),
+        MenuItem("FixedNumBlocksHfwTestWidget",
+                 std::bind(&WidgetTestMenu::testFixedNumBlocksHfwTestWidget, this)),
         MenuItem("HorizontalLine",
                  std::bind(&WidgetTestMenu::testHorizontalLine, this)),
         MenuItem("ImageButton",
@@ -242,18 +248,6 @@ void WidgetTestMenu::makeItems()
                  std::bind(&WidgetTestMenu::testThermometer, this)),
         MenuItem("VerticalLine",
                  std::bind(&WidgetTestMenu::testVerticalLine, this)),
-        MenuItem("VerticalScrollArea (QVBoxLayout, fixed-size icons)",
-                 std::bind(&WidgetTestMenu::testVerticalScrollAreaSimple, this)),
-        MenuItem("VerticalScrollArea (VBoxLayout, short text)",
-                 std::bind(&WidgetTestMenu::testVerticalScrollAreaComplex, this, false)),
-        MenuItem("VerticalScrollArea (VBoxLayout, long text)",
-                 std::bind(&WidgetTestMenu::testVerticalScrollAreaComplex, this, true)),
-        MenuItem("VerticalScrollArea (FixedAreaHfwTestWidget)",
-                 std::bind(&WidgetTestMenu::testVerticalScrollAreaFixedAreaHfwWidget, this)),
-        MenuItem("VerticalScrollArea (AspectRatioPixmap)",
-                 std::bind(&WidgetTestMenu::testVerticalScrollAreaAspectRatioPixmap, this)),
-        MenuItem("VerticalScrollArea (GridLayout)",
-                 std::bind(&WidgetTestMenu::testVerticalScrollGridLayout, this)),
 
         // --------------------------------------------------------------------
         MenuItem("Layouts and the like").setLabelOnly(),
@@ -266,6 +260,10 @@ void WidgetTestMenu::makeItems()
                  std::bind(&WidgetTestMenu::testFlowLayout, this, 5, false, Qt::AlignRight)),
         MenuItem("FlowLayout (containing word-wrapped text)",
                  std::bind(&WidgetTestMenu::testFlowLayout, this, 5, true, Qt::AlignLeft)),
+        MenuItem("FlowLayout (containing FixedNumBlocksHfwTestWidget)",
+                 std::bind(&WidgetTestMenu::testFlowLayoutFixedNumBlocksHfwTestWidget, this, 4)),
+        MenuItem("FlowLayout (containing mixture)",
+                 std::bind(&WidgetTestMenu::testFlowLayoutMixture, this)),
         MenuItem("BaseWidget (with short text)",
                  std::bind(&WidgetTestMenu::testBaseWidget, this, false)),
         MenuItem("BaseWidget (with long text)",
@@ -276,6 +274,8 @@ void WidgetTestMenu::makeItems()
         MenuItem("VBoxLayout (either QVBoxLayout or VBoxLayoutHfw), "
                  "with 2 x LabelWordWrapWide (long text)",
                  std::bind(&WidgetTestMenu::testVBoxLayout, this, true)),
+        MenuItem("HBoxLayoutHfw, icon-stretch-icon",
+                 std::bind(&WidgetTestMenu::testHBoxLayoutHfwStretch, this)),
         MenuItem("GridLayoutHfw (example 1: fixed-size icons and word-wrapping text)",
                  std::bind(&WidgetTestMenu::testGridLayoutHfw, this, 1)),
         MenuItem("GridLayoutHfw (example 2: 4 x short text, an example with "
@@ -286,6 +286,21 @@ void WidgetTestMenu::makeItems()
         MenuItem("GridLayoutHfw (example 4: 3 x ImageButton, an example with "
                  "no height-for-width items)",
                  std::bind(&WidgetTestMenu::testGridLayoutHfw, this, 4)),
+        MenuItem("GridLayoutHfw (example 5: fixed-size icons and a "
+                "FixedNumBlocksHfwTestWidget)",
+                 std::bind(&WidgetTestMenu::testGridLayoutHfw, this, 5)),
+        MenuItem("VerticalScrollArea (QVBoxLayout, fixed-size icons)",
+                 std::bind(&WidgetTestMenu::testVerticalScrollAreaSimple, this)),
+        MenuItem("VerticalScrollArea (VBoxLayout, short text)",
+                 std::bind(&WidgetTestMenu::testVerticalScrollAreaComplex, this, false)),
+        MenuItem("VerticalScrollArea (VBoxLayout, long text)",
+                 std::bind(&WidgetTestMenu::testVerticalScrollAreaComplex, this, true)),
+        MenuItem("VerticalScrollArea (FixedAreaHfwTestWidget)",
+                 std::bind(&WidgetTestMenu::testVerticalScrollAreaFixedAreaHfwWidget, this)),
+        MenuItem("VerticalScrollArea (AspectRatioPixmap)",
+                 std::bind(&WidgetTestMenu::testVerticalScrollAreaAspectRatioPixmap, this)),
+        MenuItem("VerticalScrollArea (GridLayout)",
+                 std::bind(&WidgetTestMenu::testVerticalScrollGridLayout, this)),
 
         MenuItem("Large-scale widgets").setLabelOnly(),
         MenuItem("MenuItem",
@@ -467,6 +482,10 @@ void WidgetTestMenu::testQuestionnaireElement(QuElement* element)
 {
     Questionnaire questionnaire(m_app);
     QWidget* widget = element->widget(&questionnaire);
+    if (!widget) {
+        uifunc::alert("Element failed to create a widget!");
+        return;
+    }
     layoutdumper::DumperConfig config;
     QString stylesheet(m_app.getSubstitutedCss(uiconst::CSS_CAMCOPS_QUESTIONNAIRE));
     debugfunc::debugWidget(widget, false, false, config, true, &stylesheet);
@@ -582,6 +601,23 @@ void WidgetTestMenu::testFixedAreaHfwTestWidget()
 }
 
 
+void WidgetTestMenu::testFixedAspectRatioHfwTestWidget()
+{
+    auto widget = new FixedAspectRatioHfwTestWidget();
+    debugfunc::debugWidget(widget);
+}
+
+
+void WidgetTestMenu::testFixedNumBlocksHfwTestWidget()
+{
+    auto widget = new FixedNumBlocksHfwTestWidget();
+    const bool use_hfw_layout = true;
+    debugfunc::debugWidget(widget,
+                           false, true, layoutdumper::DumperConfig(),
+                           use_hfw_layout);
+}
+
+
 void WidgetTestMenu::testHorizontalLine()
 {
     const int width = 4;
@@ -676,6 +712,74 @@ void WidgetTestMenu::testVerticalLine()
 }
 
 
+// ============================================================================
+// Layouts and the like
+// ============================================================================
+
+void WidgetTestMenu::testFlowLayout(const int n_icons, const bool text,
+                                    const Qt::Alignment halign)
+{
+    auto widget = new QWidget();
+    widget->setSizePolicy(sizehelpers::preferredPreferredHFWPolicy());
+    auto layout = new FlowLayoutHfw();
+    layout->setHorizontalAlignmentOfContents(halign);
+    widget->setLayout(layout);
+    for (int i = 0; i < n_icons; ++i) {
+        if (text) {
+            layout->addWidget(new LabelWordWrapWide("A few words"));
+        } else {
+            QLabel* icon = uifunc::iconWidget(uifunc::iconFilename(uiconst::CBS_ADD));
+            layout->addWidget(icon);
+        }
+    }
+    debugfunc::debugWidget(widget);
+}
+
+
+void WidgetTestMenu::testFlowLayoutFixedNumBlocksHfwTestWidget(const int n)
+{
+    auto widget = new QWidget();
+    widget->setSizePolicy(sizehelpers::preferredPreferredHFWPolicy());
+    auto layout = new FlowLayoutHfw();
+    widget->setLayout(layout);
+    for (int i = 0; i < n; ++i) {
+        layout->addWidget(new FixedNumBlocksHfwTestWidget());
+    }
+    const bool use_hfw_layout = true;  // just for experimentation
+    debugfunc::debugWidget(widget, false, false, layoutdumper::DumperConfig(),
+                           use_hfw_layout);
+}
+
+
+void WidgetTestMenu::testFlowLayoutMixture()
+{
+    auto widget = new QWidget();
+    widget->setSizePolicy(sizehelpers::preferredPreferredHFWPolicy());
+    auto layout = new FlowLayoutHfw();
+    widget->setLayout(layout);
+    for (int i = 0; i < 4; ++i) {
+        layout->addWidget(new FixedAspectRatioHfwTestWidget());
+        layout->addWidget(new FixedNumBlocksHfwTestWidget());
+        layout->addWidget(new FixedAreaHfwTestWidget());
+    }
+    debugfunc::debugWidget(widget);
+}
+
+
+void WidgetTestMenu::testBaseWidget(const bool long_text)
+{
+    auto layout = new FlowLayoutHfw();
+    layout->addWidget(new LabelWordWrapWide("Option Z1"));
+    QString option2 = long_text ? "Option Z2 " + TextConst::LOREM_IPSUM_2
+                                : "Option Z2";
+    layout->addWidget(new LabelWordWrapWide(option2));
+    layout->addWidget(new LabelWordWrapWide("Option Z3"));
+    auto widget = new BaseWidget();
+    widget->setLayout(layout);
+    debugfunc::debugWidget(widget);
+}
+
+
 void WidgetTestMenu::testVBoxLayout(const bool long_text)
 {
     auto widget = new QWidget();
@@ -683,6 +787,19 @@ void WidgetTestMenu::testVBoxLayout(const bool long_text)
     widget->setLayout(layout);
     layout->addWidget(new LabelWordWrapWide(sampleText(long_text)));
     layout->addWidget(new LabelWordWrapWide(sampleText(long_text)));
+    debugfunc::debugWidget(widget);
+}
+
+
+void WidgetTestMenu::testHBoxLayoutHfwStretch()
+{
+    auto widget = new QWidget();
+    widget->setSizePolicy(sizehelpers::expandingExpandingHFWPolicy());
+    auto layout = new HBoxLayoutHfw();
+    widget->setLayout(layout);
+    layout->addWidget(uifunc::iconWidget(uifunc::iconFilename(uiconst::CBS_ADD)));
+    layout->addStretch();
+    layout->addWidget(uifunc::iconWidget(uifunc::iconFilename(uiconst::CBS_ADD)));
     debugfunc::debugWidget(widget);
 }
 
@@ -742,6 +859,20 @@ void WidgetTestMenu::testGridLayoutHfw(const int example)
         grid->addWidget(new ImageButton(uiconst::CBS_ADD), 1, 0);
         // row 2
         grid->addWidget(new ImageButton(uiconst::CBS_ADD), 2, 0);
+        break;
+    case 5:
+        // row 0
+        grid->addWidget(uifunc::iconWidget(uifunc::iconFilename(uiconst::CBS_ADD)), 0, 0);
+        grid->addWidget(uifunc::iconWidget(uifunc::iconFilename(uiconst::CBS_ADD)), 0, 1);
+        grid->addWidget(uifunc::iconWidget(uifunc::iconFilename(uiconst::CBS_ADD)), 0, 2);
+        // row 1
+        grid->addWidget(uifunc::iconWidget(uifunc::iconFilename(uiconst::CBS_ADD)), 1, 0);
+        grid->addWidget(new FixedNumBlocksHfwTestWidget(), 1, 1);
+        grid->addWidget(uifunc::iconWidget(uifunc::iconFilename(uiconst::CBS_ADD)), 1, 2);
+        // row 2
+        grid->addWidget(uifunc::iconWidget(uifunc::iconFilename(uiconst::CBS_ADD)), 2, 0);
+        grid->addWidget(uifunc::iconWidget(uifunc::iconFilename(uiconst::CBS_ADD)), 2, 1);
+        grid->addWidget(uifunc::iconWidget(uifunc::iconFilename(uiconst::CBS_ADD)), 2, 2);
         break;
     }
     debugfunc::debugWidget(widget);
@@ -824,43 +955,6 @@ void WidgetTestMenu::testVerticalScrollGridLayout()
     auto scrollwidget = new VerticalScrollArea();
     scrollwidget->setWidget(contentwidget);
     debugfunc::debugWidget(scrollwidget);
-}
-
-
-// ============================================================================
-// Layouts and the like
-// ============================================================================
-
-void WidgetTestMenu::testFlowLayout(const int n_icons, const bool text,
-                                    const Qt::Alignment halign)
-{
-    auto widget = new QWidget();
-    auto layout = new FlowLayoutHfw();
-    layout->setHorizontalAlignmentOfContents(halign);
-    widget->setLayout(layout);
-    for (int i = 0; i < n_icons; ++i) {
-        if (text) {
-            layout->addWidget(new LabelWordWrapWide("A few words"));
-        } else {
-            QLabel* icon = uifunc::iconWidget(uifunc::iconFilename(uiconst::CBS_ADD));
-            layout->addWidget(icon);
-        }
-    }
-    debugfunc::debugWidget(widget);
-}
-
-
-void WidgetTestMenu::testBaseWidget(const bool long_text)
-{
-    auto layout = new FlowLayoutHfw();
-    layout->addWidget(new LabelWordWrapWide("Option Z1"));
-    QString option2 = long_text ? "Option Z2 " + TextConst::LOREM_IPSUM_2
-                                : "Option Z2";
-    layout->addWidget(new LabelWordWrapWide(option2));
-    layout->addWidget(new LabelWordWrapWide("Option Z3"));
-    auto widget = new BaseWidget();
-    widget->setLayout(layout);
-    debugfunc::debugWidget(widget);
 }
 
 
