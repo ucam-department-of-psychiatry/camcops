@@ -537,6 +537,7 @@ SOURCES += \
     dialogs/pagepickerdialog.cpp \
     dialogs/passwordchangedialog.cpp \
     dialogs/passwordentrydialog.cpp \
+    dialogs/patientregistrationdialog.cpp \
     dialogs/progressbox.cpp \
     dialogs/scrollmessagebox.cpp \
     dialogs/soundtestdialog.cpp \
@@ -643,6 +644,7 @@ SOURCES += \
     qobjects/focuswatcher.cpp \
     qobjects/keypresswatcher.cpp \
     qobjects/nhsnumbervalidator.cpp \
+    qobjects/proquintvalidator.cpp \
     qobjects/shootabug.cpp \
     qobjects/showwatcher.cpp \
     qobjects/sizewatcher.cpp \
@@ -653,6 +655,7 @@ SOURCES += \
     qobjects/strictuint64validator.cpp \
     qobjects/stylenofocusrect.cpp \
     qobjects/threadworker.cpp \
+    qobjects/urlvalidator.cpp \
     questionnairelib/commonoptions.cpp \
     questionnairelib/dynamicquestionnaire.cpp \
     questionnairelib/mcqfunc.cpp \
@@ -974,6 +977,7 @@ HEADERS += \
     dialogs/pagepickerdialog.h \
     dialogs/passwordchangedialog.h \
     dialogs/passwordentrydialog.h \
+    dialogs/patientregistrationdialog.h \
     dialogs/progressbox.h \
     dialogs/scrollmessagebox.h \
     dialogs/soundtestdialog.h \
@@ -1086,6 +1090,7 @@ HEADERS += \
     qobjects/focuswatcher.h \
     qobjects/keypresswatcher.h \
     qobjects/nhsnumbervalidator.h \
+    qobjects/proquintvalidator.h \
     qobjects/shootabug.h \
     qobjects/showwatcher.h \
     qobjects/sizewatcher.h \
@@ -1096,6 +1101,7 @@ HEADERS += \
     qobjects/strictuint64validator.h \
     qobjects/stylenofocusrect.h \
     qobjects/threadworker.h \
+    qobjects/urlvalidator.h \
     questionnairelib/commonoptions.h \
     questionnairelib/dynamicquestionnaire.h \
     questionnairelib/mcqfunc.h \

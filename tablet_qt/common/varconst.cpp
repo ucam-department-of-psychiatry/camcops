@@ -23,9 +23,10 @@ namespace varconst {
 
 // Mode
 const QString MODE("mode");
+const int MODE_NOT_SET = 0;
 const int MODE_CLINICIAN = 1;
 const int MODE_SINGLE_USER = 2;
-const int DEFAULT_MODE = MODE_SINGLE_USER;
+const int DEFAULT_MODE = MODE_NOT_SET;
 
 // Language
 const QString LANGUAGE("language");

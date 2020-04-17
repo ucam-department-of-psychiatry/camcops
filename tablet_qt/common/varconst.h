@@ -29,6 +29,7 @@ namespace varconst {
 
 // Mode
 extern const QString MODE;
+extern const int MODE_NOT_SET;
 extern const int MODE_CLINICIAN;
 extern const int MODE_SINGLE_USER;
 extern const int DEFAULT_MODE;

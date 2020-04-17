@@ -74,6 +74,7 @@
 #include "diagnosis/icd9cm.h"
 #include "diagnosis/icd10.h"
 #include "dialogs/modedialog.h"
+#include "dialogs/patientregistrationdialog.h"
 #include "dialogs/scrollmessagebox.h"
 #include "layouts/layouts.h"
 #include "lib/convert.h"
@@ -139,6 +140,16 @@ CamcopsApp::~CamcopsApp()
 // ============================================================================
 // Operating mode
 // ============================================================================
+bool CamcopsApp::isSingleUserMode()
+{
+    return this->mode() == varconst::MODE_SINGLE_USER;
+}
+
+bool CamcopsApp::isClinicianMode()
+{
+    return this->mode() == varconst::MODE_CLINICIAN;
+}
+
 int CamcopsApp::mode()
 {
     return var(varconst::MODE).toInt();
@@ -160,6 +171,22 @@ bool CamcopsApp::setModeFromUser()
     }
 
     setMode(dialog.mode());
+
+    return true;
+}
+
+bool CamcopsApp::registerPatientWithServer()
+{
+    PatientRegistrationDialog dialog(nullptr);
+    const int reply = dialog.exec();
+    if (reply != QDialog::Accepted) {
+        return false;
+    }
+
+    const QString server_url = dialog.serverUrl();
+    const QString patient_proquint = dialog.patientProquint();
+
+
 
     return true;
 }
@@ -276,9 +303,17 @@ int CamcopsApp::run()
     // Since that might have changed our language, reset it.
     setLanguage(varString(varconst::LANGUAGE));
 
-    if (var(varconst::MODE).isNull()) {
+    if (var(varconst::MODE) == varconst::MODE_NOT_SET) {
         if (!setModeFromUser()) {
             uifunc::stopApp(tr("You did not select a mode"));
+        }
+    }
+
+    if (isSingleUserMode() && !isPatientSelected()) {
+        if (!registerPatientWithServer()) {
+            uifunc::stopApp(
+                tr("You did not register your patient")
+            );
         }
     }
 
@@ -767,7 +802,7 @@ void CamcopsApp::createStoredVars()
     DbNestableTransaction trans(*m_sysdb);  // https://www.sqlite.org/faq.html#q19
 
     // Client mode
-    createVar(varconst::MODE, QVariant::Int);
+    createVar(varconst::MODE, QVariant::Int, varconst::MODE_NOT_SET);
 
     // Language
     createVar(varconst::LANGUAGE, QVariant::String,

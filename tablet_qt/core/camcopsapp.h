@@ -138,6 +138,8 @@ public:
     QString dbFullPath(const QString& filename);
 
     // Operating mode - Single user, clinician
+    bool isSingleUserMode();
+    bool isClinicianMode();
     int mode();
     void setMode(const int mode);
 
@@ -228,6 +230,9 @@ protected:
 
     // Open the CamCOPS main menu.
     void openMainWindow();
+
+    // Patient registration in single user mode
+    bool registerPatientWithServer();
 
     // ------------------------------------------------------------------------
     // Opening/closing windows
