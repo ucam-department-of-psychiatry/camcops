@@ -25,6 +25,7 @@
 #include <QPalette>
 #include <QPushButton>
 #include <QFormLayout>
+#include <QUrl>
 #include "common/varconst.h"
 #include "lib/uifunc.h"
 #include "qobjects/proquintvalidator.h"
@@ -65,7 +66,7 @@ PatientRegistrationDialog::PatientRegistrationDialog(
     );
 
     mainlayout->addRow(
-        tr("<b>Patient code</b> (e.g. badif-gohuj-kulom-nipor):"),
+        tr("<b>Patient code</b> (e.g. kidil-sovib-dufob-hivol-nutab-linuj-kivad-nozov):"),
         m_editor_patient_proquint
     );
 
@@ -78,9 +79,9 @@ QString PatientRegistrationDialog::patientProquint() const
     return m_editor_patient_proquint->text();
 }
 
-QString PatientRegistrationDialog::serverUrl() const
+QUrl PatientRegistrationDialog::serverUrl() const
 {
-    return m_editor_server_url->text();
+    return QUrl(m_editor_server_url->text());
 }
 
 void PatientRegistrationDialog::urlChanged()

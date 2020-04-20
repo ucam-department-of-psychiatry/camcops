@@ -23,6 +23,7 @@
 class QDialogButtonBox;
 class QLabel;
 class QLineEdit;
+class QUrl;
 
 
 class PatientRegistrationDialog : public QDialog
@@ -35,7 +36,7 @@ class PatientRegistrationDialog : public QDialog
 public:
     PatientRegistrationDialog(QWidget* parent = nullptr);
     QString patientProquint() const;
-    QString serverUrl() const;
+    QUrl serverUrl() const;
 protected:
     QPointer<QDialogButtonBox> m_buttonbox;
     QPointer<QLineEdit> m_editor_patient_proquint;

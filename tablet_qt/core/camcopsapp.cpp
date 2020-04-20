@@ -46,6 +46,7 @@
 #include <QStandardPaths>
 #include <QTextStream>
 #include <QTranslator>
+#include <QUrl>
 #include <QUuid>
 #include "common/appstrings.h"
 #include "common/dbconst.h"  // for NONEXISTENT_PK
@@ -183,10 +184,14 @@ bool CamcopsApp::registerPatientWithServer()
         return false;
     }
 
-    const QString server_url = dialog.serverUrl();
+    const QUrl server_url = dialog.serverUrl();
     const QString patient_proquint = dialog.patientProquint();
 
+    setVar(varconst::SERVER_ADDRESS, server_url.host());
 
+    int default_port = var(varconst::SERVER_PORT).toInt();
+    setVar(varconst::SERVER_PORT, server_url.port(default_port));
+    setVar(varconst::SERVER_PATH, server_url.path());
 
     return true;
 }
@@ -309,14 +314,6 @@ int CamcopsApp::run()
         }
     }
 
-    if (isSingleUserMode() && !isPatientSelected()) {
-        if (!registerPatientWithServer()) {
-            uifunc::stopApp(
-                tr("You did not register your patient")
-            );
-        }
-    }
-
     // Set the tablet internal password to match the database password, if
     // we've just changed it. Uses a storedvar.
 #ifdef DANGER_DEBUG_WIPE_PASSWORDS
@@ -355,6 +352,15 @@ int CamcopsApp::run()
     if (!hasAgreedTerms()) {
         offerTerms();
     }
+
+    if (isSingleUserMode() && !isPatientSelected()) {
+        if (!registerPatientWithServer()) {
+            uifunc::stopApp(
+                tr("You did not register your patient")
+            );
+        }
+    }
+
     qInfo() << "Starting Qt event processor...";
     return exec();  // Main Qt event loop
 }

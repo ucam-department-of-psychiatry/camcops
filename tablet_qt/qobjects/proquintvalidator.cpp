@@ -39,7 +39,9 @@ QValidator::State ProquintValidator::validate(QString &input, int &) const
         consonant, vowel, consonant, vowel, consonant
     );
     QRegularExpression proquint_regex(
-        QString("%1-%2-%3-%4").arg(quint,quint,quint,quint)
+        QString("%1-%2-%3-%4-%5-%6-%7-%8").arg(
+            quint,quint,quint,quint,quint,quint,quint,quint
+        )
     );
 
     QRegularExpressionMatch match = proquint_regex.match(input);
