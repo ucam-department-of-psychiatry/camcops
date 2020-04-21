@@ -76,7 +76,7 @@ from camcops_server.cc_modules.cc_patientidnum import (
     extra_id_colname,
     PatientIdNum,
 )
-from camcops_server.cc_modules.cc_proquint import proquint_from_int
+from camcops_server.cc_modules.cc_proquint import proquint_from_uuid
 from camcops_server.cc_modules.cc_report import Report
 from camcops_server.cc_modules.cc_simpleobjects import (
     IdNumReference,
@@ -923,7 +923,7 @@ class Patient(GenericTabletRecordMixin, Base):
         if self.uuid is None:
             return None
 
-        return proquint_from_int(self.uuid.int, 128)
+        return proquint_from_uuid(self.uuid)
 
 
 # =============================================================================

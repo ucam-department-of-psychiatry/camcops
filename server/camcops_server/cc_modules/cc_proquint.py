@@ -64,6 +64,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 """
 import random
+import uuid
 from unittest import TestCase
 
 
@@ -73,6 +74,10 @@ SIZE_OF_CONSONANT = 4
 
 class InvalidProquintException(Exception):
     pass
+
+
+def proquint_from_uuid(uuid_obj: uuid.UUID) -> str:
+    return proquint_from_int(uuid_obj.int, 128)
 
 
 def proquint_from_int(int_value: int,
@@ -137,6 +142,12 @@ def _proquint_from_int16(int16_value: int) -> str:
     return ''.join(proquint)
 
 
+def uuid_from_proquint(proquint: str) -> uuid.UUID:
+    int_value = int_from_proquint(proquint)
+
+    return uuid.UUID(int=int_value)
+
+
 def int_from_proquint(proquint: str) -> int:
     """Convert proquint string into integer.
 
@@ -197,11 +208,27 @@ def int_from_proquint(proquint: str) -> int:
 # =============================================================================
 
 class ProquintTest(TestCase):
-    def test_encode(self):
+    def test_int_encoded_as_proquint(self):
         self.assertEqual(proquint_from_int(0x7f000001, 32), "lusab-babad")
 
-    def test_decode(self):
+    def test_uuid_encoded_as_proquint(self):
+        self.assertEqual(
+            proquint_from_uuid(
+                uuid.UUID("6457cb90-1ca0-47a7-9f40-767567819bee")
+            ),
+            "kidil-sovib-dufob-hivol-nutab-linuj-kivad-nozov"
+        )
+
+    def test_proquint_decoded_as_int(self):
         self.assertEqual(int_from_proquint("lusab-babad"), 0x7f000001)
+
+    def test_proquint_decoded_as_uuid(self):
+        self.assertEqual(
+            uuid_from_proquint(
+                "kidil-sovib-dufob-hivol-nutab-linuj-kivad-nozov"
+            ),
+            uuid.UUID("6457cb90-1ca0-47a7-9f40-767567819bee")
+        )
 
     def test_ints_converted_to_proquints_and_back(self):
         for bits in [16, 32, 48, 64, 80, 96, 128, 256]:
