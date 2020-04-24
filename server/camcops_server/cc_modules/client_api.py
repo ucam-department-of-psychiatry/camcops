@@ -2186,6 +2186,12 @@ def op_get_allowed_tables(req: "CamcopsRequest") -> Dict[str, str]:
     return reply
 
 
+def op_get_task_schedule(req: "CamcopsRequest") -> Dict[str, str]:
+    # TODO
+
+    return {}
+
+
 # =============================================================================
 # Action processors that require UPLOAD privilege
 # =============================================================================
@@ -2811,6 +2817,7 @@ class Operations:
     GET_ALLOWED_TABLES = "get_allowed_tables"  # v2.2.0
     GET_EXTRA_STRINGS = "get_extra_strings"
     GET_ID_INFO = "get_id_info"
+    GET_TASK_SCHEDULE = "get_task_schedule"  # v2.3.???
     REGISTER = "register"
     REGISTER_PATIENT = "register_patient"  # v2.3.???
     START_PRESERVATION = "start_preservation"
@@ -2825,11 +2832,15 @@ class Operations:
 
 OPERATIONS_ANYONE = {
     Operations.CHECK_DEVICE_REGISTERED: op_check_device_registered,
+    # Anyone can register a patient provided they have the right unique code
+    # After that, a user is created for device registration and task schedule
+    # download
     Operations.REGISTER_PATIENT: op_register_patient,
 }
 OPERATIONS_REGISTRATION = {
     Operations.GET_ALLOWED_TABLES: op_get_allowed_tables,  # v2.2.0
     Operations.GET_EXTRA_STRINGS: op_get_extra_strings,
+    Operations.GET_TASK_SCHEDULE: op_get_task_schedule,  # v2.3.???
     Operations.REGISTER: op_register,
 }
 OPERATIONS_UPLOAD = {

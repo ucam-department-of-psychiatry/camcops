@@ -78,7 +78,7 @@ const QString KEY_NRECORDS("nrecords");  // B
 const QString KEY_OPERATION("operation");  // C->S
 const QString KEY_PASSWORD("password");  // C->S
 const QString KEY_PATIENT_INFO("patient_info");  // C->S, new in v2.3.0
-const QString KEY_PATIENT_PROQUINT("patient_proquint"); // C->S
+const QString KEY_PATIENT_PROQUINT("patient_proquint"); // C->S, new in v2.3.???
 const QString KEY_PKNAME("pkname");  // C->S
 const QString KEY_PKNAMEINFO("pknameinfo");  // C->S
 const QString KEY_PKVALUES("pkvalues");  // C->S
@@ -107,6 +107,7 @@ const QString OP_END_UPLOAD("end_upload");
 const QString OP_GET_EXTRA_STRINGS("get_extra_strings");
 const QString OP_GET_ID_INFO("get_id_info");
 const QString OP_GET_ALLOWED_TABLES("get_allowed_tables");  // v2.2.0
+const QString OP_GET_TASK_SCHEDULE("get_task_schedule");
 const QString OP_REGISTER("register");
 const QString OP_REGISTER_PATIENT("register_patient");  // v2.3.???
 const QString OP_START_PRESERVATION("start_preservation");
@@ -164,7 +165,8 @@ NetworkManager::NetworkManager(CamcopsApp& app,
     m_upload_current_record_index(0),
     m_recordwise_prune_req_sent(false),
     m_recordwise_pks_pruned(false),
-    m_upload_n_records(0)
+    m_upload_n_records(0),
+    m_register_next_stage(NextRegisterStage::Invalid)
 {
 }
 
@@ -592,6 +594,7 @@ void NetworkManager::cleanup()
     m_tmp_password = "";
     m_tmp_session_id = "";
     m_tmp_session_token = "";
+    m_register_next_stage = NextRegisterStage::Invalid;
     m_reply_data.clear();
     m_reply_dict.clear();
 
@@ -723,53 +726,115 @@ void NetworkManager::testReplyFinished(QNetworkReply* reply)
 
 void NetworkManager::registerWithServer()
 {
-    statusMessage(tr("Registering with ") + serverUrlDisplayString());
+    registerNext();
+}
+
+void NetworkManager::registerNext(QNetworkReply* reply)
+{
+    if (reply)
+    {
+        if (!processServerReply(reply)) {
+            return;
+        }
+
+        statusMessage(tr("... OK"));
+    }
+
     Dict dict;
-    dict[KEY_OPERATION] = OP_REGISTER;
-    dict[KEY_DEVICE_FRIENDLY_NAME] = m_app.varString(varconst::DEVICE_FRIENDLY_NAME);
-    serverPost(dict, &NetworkManager::registerSub1);
+
+    switch (m_register_next_stage) {
+
+    case NextRegisterStage::Invalid:
+        m_register_next_stage = NextRegisterStage::Register;
+        registerNext();
+        break;
+
+    case NextRegisterStage::Register:
+        statusMessage(
+            //: Server URL
+            tr("Registering with %1 and receiving identification information")
+            .arg(serverUrlDisplayString())
+        );
+        dict[KEY_OPERATION] = OP_REGISTER;
+        dict[KEY_DEVICE_FRIENDLY_NAME] = m_app.varString(
+            varconst::DEVICE_FRIENDLY_NAME
+        );
+        m_register_next_stage = NextRegisterStage::StoreServerIdentification;
+
+        serverPost(dict, &NetworkManager::registerNext);
+        break;
+
+    case NextRegisterStage::StoreServerIdentification:
+        storeServerIdentificationInfo();
+        m_register_next_stage = NextRegisterStage::GetAllowedTables;
+
+        registerNext();
+        break;
+
+    case NextRegisterStage::GetAllowedTables:
+        statusMessage(tr("Requesting allowed tables"));
+        dict[KEY_OPERATION] = OP_GET_ALLOWED_TABLES;
+        m_register_next_stage = NextRegisterStage::StoreAllowedTables;
+
+        serverPost(dict, &NetworkManager::registerNext);
+        break;
+
+    case NextRegisterStage::StoreAllowedTables:
+        storeAllowedTables();
+        m_register_next_stage = NextRegisterStage::GetExtraStrings;
+
+        registerNext();
+        break;
+
+    case NextRegisterStage::GetExtraStrings:
+        statusMessage(tr("Requesting extra strings"));
+        dict[KEY_OPERATION] = OP_GET_EXTRA_STRINGS;
+        m_register_next_stage = NextRegisterStage::StoreExtraStrings;
+
+        serverPost(dict, &NetworkManager::registerNext);
+        break;
+
+    case NextRegisterStage::StoreExtraStrings:
+        storeExtraStrings();
+
+        if (m_app.isSingleUserMode()) {
+            m_register_next_stage = NextRegisterStage::GetTaskSchedule;
+        } else {
+            m_register_next_stage = NextRegisterStage::Finished;
+        }
+
+        registerNext();
+        break;
+
+    case NextRegisterStage::GetTaskSchedule:
+        statusMessage(tr("Requesting task schedule"));
+        m_register_next_stage = NextRegisterStage::StoreTaskSchedule;
+        dict[KEY_OPERATION] = OP_GET_TASK_SCHEDULE;
+
+        serverPost(dict, &NetworkManager::registerNext);
+        break;
+
+    case NextRegisterStage::StoreTaskSchedule:
+        m_register_next_stage = NextRegisterStage::Finished;
+        storeTaskSchedule();
+        registerNext();
+        break;
+
+    case NextRegisterStage::Finished:
+        statusMessage(tr("Completed successfully."));
+
+        succeed();
+        break;
+
+    default:
+        uifunc::stopApp("Bug: unknown m_register_next_stage");
+    }
 }
 
 
-void NetworkManager::registerSub1(QNetworkReply* reply)
+void NetworkManager::storeTaskSchedule()
 {
-    if (!processServerReply(reply)) {
-        return;
-    }
-    statusMessage(tr("... registered and received identification information"));
-    storeServerIdentificationInfo();
 
-    statusMessage(tr("Requesting allowed tables"));
-    Dict dict;
-    dict[KEY_OPERATION] = OP_GET_ALLOWED_TABLES;
-    serverPost(dict, &NetworkManager::registerSub2);
-}
-
-
-void NetworkManager::registerSub2(QNetworkReply* reply)
-{
-    if (!processServerReply(reply)) {
-        return;
-    }
-    statusMessage(tr("... received allowed tables"));
-    storeAllowedTables();
-
-    statusMessage(tr("Requesting extra strings"));
-    Dict dict;
-    dict[KEY_OPERATION] = OP_GET_EXTRA_STRINGS;
-    serverPost(dict, &NetworkManager::registerSub3);
-}
-
-
-void NetworkManager::registerSub3(QNetworkReply* reply)
-{
-    if (!processServerReply(reply)) {
-        return;
-    }
-    statusMessage(tr("... received extra strings"));
-    storeExtraStrings();
-    statusMessage(tr("Completed successfully."));
-    succeed();
 }
 
 
@@ -831,11 +896,9 @@ void NetworkManager::fetchAllServerInfoSub1(QNetworkReply* reply)
     statusMessage(tr("... received identification information"));
     storeServerIdentificationInfo();
 
-    statusMessage(tr("Requesting allowed tables"));
-    Dict dict;
-    dict[KEY_OPERATION] = OP_GET_ALLOWED_TABLES;
     // Now we move across to the "registration" chain of functions:
-    serverPost(dict, &NetworkManager::registerSub2);
+    m_register_next_stage = NextRegisterStage::GetAllowedTables;
+    registerNext();
 }
 
 

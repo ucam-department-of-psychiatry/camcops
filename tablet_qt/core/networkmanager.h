@@ -204,9 +204,7 @@ public:
     void fetchExtraStrings();
 protected:
     // Multi-step operations for the above:
-    void registerSub1(QNetworkReply* reply);
-    void registerSub2(QNetworkReply* reply);
-    void registerSub3(QNetworkReply* reply);
+    void registerNext(QNetworkReply* reply = nullptr);
     void fetchIdDescriptionsSub1(QNetworkReply* reply);
     void fetchExtraStringsSub1(QNetworkReply* reply);
     void fetchAllServerInfoSub1(QNetworkReply* reply);
@@ -219,6 +217,9 @@ protected:
 
     // Store extra strings from the server.
     void storeExtraStrings();
+
+    // Store task schedule.
+    void storeTaskSchedule();
 
     // ------------------------------------------------------------------------
     // Upload
@@ -357,4 +358,20 @@ protected:
     int m_upload_n_records;  // cached as m_upload_recordwise_pks_to_send shrinks during upload
     QStringList m_upload_tables_to_wipe;
     QString m_upload_patient_info_json;
+
+    enum class NextRegisterStage {
+        Invalid,
+        Register,
+        StoreServerIdentification,
+        GetAllowedTables,
+        StoreAllowedTables,
+        GetExtraStrings,
+        StoreExtraStrings,
+        GetTaskSchedule,
+        StoreTaskSchedule,
+        Finished,
+    };
+
+    // Registration stages
+    NextRegisterStage m_register_next_stage;
 };
