@@ -188,7 +188,7 @@ MenuHeader::MenuHeader(QWidget* parent,
     m_mode->setObjectName(cssconst::MENU_HEADER_MODE);
     mainlayout->addWidget(m_mode);
 
-    modeChanged(m_app.mode());
+    modeChanged(m_app.getMode());
     setPatientDetails(m_app.selectedPatient());
 
     setCrippled(false);

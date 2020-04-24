@@ -140,7 +140,7 @@ public:
     // Operating mode - Single user, clinician
     bool isSingleUserMode();
     bool isClinicianMode();
-    int mode();
+    int getMode();
     void setMode(const int mode);
 
     // Change the language used.

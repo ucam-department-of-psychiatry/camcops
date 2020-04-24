@@ -143,15 +143,15 @@ CamcopsApp::~CamcopsApp()
 // ============================================================================
 bool CamcopsApp::isSingleUserMode()
 {
-    return this->mode() == varconst::MODE_SINGLE_USER;
+    return this->getMode() == varconst::MODE_SINGLE_USER;
 }
 
 bool CamcopsApp::isClinicianMode()
 {
-    return this->mode() == varconst::MODE_CLINICIAN;
+    return this->getMode() == varconst::MODE_CLINICIAN;
 }
 
-int CamcopsApp::mode()
+int CamcopsApp::getMode()
 {
     return var(varconst::MODE).toInt();
 }
