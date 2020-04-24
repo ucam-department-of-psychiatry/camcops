@@ -142,6 +142,8 @@ public:
     bool isClinicianMode();
     int getMode();
     void setMode(const int mode);
+    int getSinglePatientId();
+    void setSinglePatientId(const int id);
 
     // Change the language used.
     void setLanguage(const QString& language_code,
@@ -370,8 +372,8 @@ public:
     // Select a patient by ID.
     void setSelectedPatient(int patient_id, bool force_refresh = false);
 
-    // Deselect a patient.
-    void deselectPatient(bool force_refresh = false);
+    // For single user mode, set the single patient otherwise deselect
+    void setDefaultPatient(bool force_refresh = false);
 
     // Force the patient list to be refreshed
     void forceRefreshPatientList();

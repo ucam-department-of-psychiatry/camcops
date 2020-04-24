@@ -72,6 +72,12 @@ PatientRegistrationDialog::PatientRegistrationDialog(
 
     mainlayout->addWidget(m_buttonbox);
     setLayout(mainlayout);
+
+    // TODO: TEMP
+    m_editor_server_url->setText("https://www.localhost:8000/database");
+
+    // TODO: TEMP
+    m_editor_patient_proquint->setText("kidil-sovib-dufob-hivol-nutab-linuj-kivad-nozov");
 }
 
 QString PatientRegistrationDialog::patientProquint() const

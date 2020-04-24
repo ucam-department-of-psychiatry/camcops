@@ -126,6 +126,24 @@ Patient::Patient(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
 }
 
 
+Patient::Patient(CamcopsApp& app, DatabaseManager& db,
+                 const QJsonObject json_obj) : Patient(app, db)
+{
+    auto setValueOrNull = [&](const QString& field, const QString& key) {
+        QJsonValue value = json_obj.value(key);
+        if (!value.isNull()) {
+            setValue(field, value.toString());
+        }
+    };
+    setValueOrNull(FORENAME_FIELD, KEY_FORENAME);
+    setValueOrNull(SURNAME_FIELD, KEY_SURNAME);
+    setValueOrNull(SEX_FIELD, KEY_SEX);
+    setValueOrNull(DOB_FIELD, KEY_DOB);
+    setValueOrNull(ADDRESS_FIELD, KEY_ADDRESS);
+    setValueOrNull(GP_FIELD, KEY_GP);
+}
+
+
 // ============================================================================
 // Ancillary management
 // ============================================================================

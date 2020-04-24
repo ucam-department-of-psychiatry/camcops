@@ -17,6 +17,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "common/dbconst.h"
 #include "varconst.h"
 
 namespace varconst {
@@ -27,6 +28,9 @@ const int MODE_NOT_SET = 0;
 const int MODE_CLINICIAN = 1;
 const int MODE_SINGLE_USER = 2;
 const int DEFAULT_MODE = MODE_NOT_SET;
+
+// Single user mode
+const QString SINGLE_PATIENT_ID("singlePatientId");
 
 // Language
 const QString LANGUAGE("language");

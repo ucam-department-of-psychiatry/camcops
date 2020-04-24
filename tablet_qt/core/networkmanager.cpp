@@ -78,6 +78,7 @@ const QString KEY_NRECORDS("nrecords");  // B
 const QString KEY_OPERATION("operation");  // C->S
 const QString KEY_PASSWORD("password");  // C->S
 const QString KEY_PATIENT_INFO("patient_info");  // C->S, new in v2.3.0
+const QString KEY_PATIENT_PROQUINT("patient_proquint"); // C->S
 const QString KEY_PKNAME("pkname");  // C->S
 const QString KEY_PKNAMEINFO("pknameinfo");  // C->S
 const QString KEY_PKVALUES("pkvalues");  // C->S
@@ -107,6 +108,7 @@ const QString OP_GET_EXTRA_STRINGS("get_extra_strings");
 const QString OP_GET_ID_INFO("get_id_info");
 const QString OP_GET_ALLOWED_TABLES("get_allowed_tables");  // v2.2.0
 const QString OP_REGISTER("register");
+const QString OP_REGISTER_PATIENT("register_patient");  // v2.3.???
 const QString OP_START_PRESERVATION("start_preservation");
 const QString OP_START_UPLOAD("start_upload");
 const QString OP_UPLOAD_ENTIRE_DATABASE("upload_entire_database");  // v2.3.0
@@ -870,8 +872,9 @@ void NetworkManager::storeServerIdentificationInfo()
     // this to NULL, so it doesn't give the impression that we have uploaded
     // our data to the new server.
 
-    // Deselect patient, or its description text may be out of date
-    m_app.deselectPatient();
+    // Deselect patient or reload single user mode patient as its description
+    // text may be out of date
+    m_app.setDefaultPatient();
 }
 
 
@@ -1126,7 +1129,7 @@ void NetworkManager::uploadNext(QNetworkReply* reply)
         statusMessage(tr("Finished"));
         m_app.setVar(varconst::LAST_SUCCESSFUL_UPLOAD, datetime::now());
         m_app.setNeedsUpload(false);
-        m_app.deselectPatient(true);  // even for "copy" method; see changelog
+        m_app.setDefaultPatient(true);  // even for "copy" method; see changelog
         m_app.forceRefreshPatientList();
         succeed();
         break;
@@ -2160,4 +2163,45 @@ QString NetworkManager::txtPleaseRefetchServerInfo()
 {
     // return " " + tr("Please re-register with the server.");
     return " " + tr("Please re-fetch server information.");
+}
+
+// ============================================================================
+// Patient registration
+// ============================================================================
+void NetworkManager::registerPatient(const QString patient_proquint)
+{
+    Dict dict;
+    dict[KEY_OPERATION] = OP_REGISTER_PATIENT;
+    dict[KEY_PATIENT_PROQUINT] = patient_proquint;
+    serverPost(dict, &NetworkManager::registerPatientSub1, false);
+}
+
+void NetworkManager::registerPatientSub1(QNetworkReply* reply)
+{
+    if (!processServerReply(reply)) {
+        return;
+    }
+
+    m_app.setEncryptedServerPassword(m_reply_dict[KEY_PASSWORD]);
+    m_app.setVar(varconst::SERVER_USERNAME, m_reply_dict[KEY_USER]);
+
+    // TODO: Handle Null return value
+    QJsonParseError error;
+
+    QJsonDocument doc = QJsonDocument::fromJson(
+        m_reply_dict[KEY_PATIENT_INFO].toUtf8(), &error
+    );
+
+    // Consistent with uploading patients but only one element
+    // in the array
+    QJsonArray patients_json_array = doc.array();
+    QJsonObject patient_json = patients_json_array.first().toObject();
+
+    PatientPtr patient = PatientPtr(
+        new Patient(m_app, m_app.db(), patient_json)
+    );
+    patient->save();
+    m_app.setSinglePatientId(patient->id());
+
+    registerWithServer();
 }

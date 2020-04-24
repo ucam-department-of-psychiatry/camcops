@@ -98,6 +98,7 @@ class TabletParam(object):
     OTHER = "other"  # C->S, in JSON, v2.3.0
     PASSWORD = "password"  # C->S
     PATIENT_INFO = "patient_info"  # C->S; new in v2.3.0
+    PATIENT_PROQUINT = "patient_proquint"  # C->S; new in v2.3.???
     PKNAME = "pkname"  # C->S
     PKNAMEINFO = "pknameinfo"  # C->S, new in v2.3.0
     PKVALUES = "pkvalues"  # C->S
@@ -542,10 +543,10 @@ class UploadTableChanges(object):
         Records information from a :class:`UploadRecordResult`, which is itself
         the result of calling
         :func:`camcops_server.cc_modules.client_api.upload_record_core`.
-        
+
         Called by
         :func:`camcops_server.cc_modules.client_api.process_table_for_onestep_upload`.
-        
+
         Args:
             urr: a :class:`UploadRecordResult`
             preserving_new_records: are new records being preserved?

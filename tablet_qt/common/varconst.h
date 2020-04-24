@@ -34,6 +34,9 @@ extern const int MODE_CLINICIAN;
 extern const int MODE_SINGLE_USER;
 extern const int DEFAULT_MODE;
 
+// Single user mode
+extern const QString SINGLE_PATIENT_ID;
+
 // Language
 extern const QString LANGUAGE;
 

@@ -56,6 +56,10 @@ public:
             DatabaseManager& db,
             int load_pk = dbconst::NONEXISTENT_PK);
 
+    Patient(CamcopsApp& app,
+            DatabaseManager& db,
+            const QJsonObject json_obj);
+
     // ------------------------------------------------------------------------
     // Ancillary management
     // ------------------------------------------------------------------------

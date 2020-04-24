@@ -176,6 +176,16 @@ bool CamcopsApp::setModeFromUser()
     return true;
 }
 
+int CamcopsApp::getSinglePatientId()
+{
+    return var(varconst::SINGLE_PATIENT_ID).toInt();
+}
+
+void CamcopsApp::setSinglePatientId(const int id)
+{
+    setVar(varconst::SINGLE_PATIENT_ID, id);
+}
+
 bool CamcopsApp::registerPatientWithServer()
 {
     PatientRegistrationDialog dialog(nullptr);
@@ -192,6 +202,9 @@ bool CamcopsApp::registerPatientWithServer()
     int default_port = var(varconst::SERVER_PORT).toInt();
     setVar(varconst::SERVER_PORT, server_url.port(default_port));
     setVar(varconst::SERVER_PATH, server_url.path());
+
+    NetworkManager* netmgr = networkManager();
+    netmgr->registerPatient(patient_proquint);
 
     return true;
 }
@@ -291,6 +304,17 @@ int CamcopsApp::run()
 
     // Connect to our database
     registerDatabaseDrivers();
+
+    // TODO: Very temp
+    const QString data_filename = dbFullPath(dbfunc::DATA_DATABASE_FILENAME);
+    const QString sys_filename = dbFullPath(dbfunc::SYSTEM_DATABASE_FILENAME);
+
+    QFile data_file(data_filename);
+    data_file.remove();
+
+    QFile sys_file(sys_filename);
+    sys_file.remove();
+
     openOrCreateDatabases();
     QString new_user_password;
     bool user_cancelled_please_quit = false;
@@ -353,7 +377,7 @@ int CamcopsApp::run()
         offerTerms();
     }
 
-    if (isSingleUserMode() && !isPatientSelected()) {
+    if (isSingleUserMode() && getSinglePatientId() == dbconst::NONEXISTENT_PK) {
         if (!registerPatientWithServer()) {
             uifunc::stopApp(
                 tr("You did not register your patient")
@@ -809,6 +833,10 @@ void CamcopsApp::createStoredVars()
 
     // Client mode
     createVar(varconst::MODE, QVariant::Int, varconst::MODE_NOT_SET);
+
+    // If the mode is single user, store the one and only patient ID here
+    createVar(varconst::SINGLE_PATIENT_ID, QVariant::Int,
+              dbconst::NONEXISTENT_PK);
 
     // Language
     createVar(varconst::LANGUAGE, QVariant::String,
@@ -1747,9 +1775,16 @@ void CamcopsApp::setSelectedPatient(const int patient_id, bool force_refresh)
 }
 
 
-void CamcopsApp::deselectPatient(bool force_refresh)
+void CamcopsApp::setDefaultPatient(bool force_refresh)
 {
-    setSelectedPatient(dbconst::NONEXISTENT_PK, force_refresh);
+    int patient_id = dbconst::NONEXISTENT_PK;
+
+    if (isSingleUserMode())
+    {
+        patient_id = getSinglePatientId();
+    }
+
+    setSelectedPatient(patient_id, force_refresh);
 }
 
 

@@ -335,6 +335,8 @@ During any MySQL debugging, remember:
 import logging
 import json
 # from pprint import pformat
+import secrets
+import string
 import time
 from typing import Any, Dict, Iterable, List, Optional, Sequence, TYPE_CHECKING
 import unittest
@@ -346,6 +348,7 @@ from cardinal_pythonlib.convert import (
 from cardinal_pythonlib.datetimefunc import (
     coerce_to_pendulum,
     coerce_to_pendulum_date,
+    format_datetime,
 )
 from cardinal_pythonlib.logs import (
     BraceStyleAdapter,
@@ -401,6 +404,7 @@ from camcops_server.cc_modules.cc_client_api_helpers import (
 )
 from camcops_server.cc_modules.cc_constants import (
     CLIENT_DATE_FIELD,
+    DateFormat,
     ERA_NOW,
     FP_ID_NUM,
     FP_ID_DESC,
@@ -436,6 +440,7 @@ from camcops_server.cc_modules.cc_db import (
 from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_dirtytables import DirtyTable
 from camcops_server.cc_modules.cc_group import Group
+from camcops_server.cc_modules.cc_membership import UserGroupMembership
 from camcops_server.cc_modules.cc_patient import (
     Patient,
     is_candidate_patient_valid,
@@ -444,6 +449,7 @@ from camcops_server.cc_modules.cc_patientidnum import (
     fake_tablet_id_for_patientidnum,
     PatientIdNum,
 )
+from camcops_server.cc_modules.cc_proquint import uuid_from_proquint
 from camcops_server.cc_modules.cc_pyramid import Routes
 from camcops_server.cc_modules.cc_simpleobjects import (
     BarePatientInfo,
@@ -455,6 +461,7 @@ from camcops_server.cc_modules.cc_task import (
 )
 from camcops_server.cc_modules.cc_taskindex import update_indexes_and_push_exports  # noqa
 from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
+from camcops_server.cc_modules.cc_user import User
 from camcops_server.cc_modules.cc_version import (
     CAMCOPS_SERVER_VERSION_STRING,
     MINIMUM_TABLET_VERSION,
@@ -2029,6 +2036,63 @@ def op_check_device_registered(req: "CamcopsRequest") -> None:
     req.tabletsession.ensure_device_registered()
 
 
+def op_register_patient(req: "CamcopsRequest") -> Dict[str, Any]:
+    patient_proquint = get_str_var(req, TabletParam.PATIENT_PROQUINT)
+    uuid_obj = uuid_from_proquint(patient_proquint)
+
+    dbsession = req.dbsession
+    server_device = Device.get_server_device(dbsession)
+    patient = dbsession.query(Patient).filter(
+        Patient.uuid == uuid_obj,
+        Patient._era == ERA_NOW,
+        Patient._device_id == server_device.id,
+        Patient._current == True  # noqa: E712
+    ).one()
+
+    client_device_id = get_str_var(req, TabletParam.DEVICE)
+
+    user = User(username=f"user-{client_device_id}")
+    user.upload_group = patient.group
+    password = random_password()
+    user.set_password(req, password)
+    req.dbsession.add(user)
+    req.dbsession.commit()
+
+    membership = UserGroupMembership(
+        user_id=user.id,
+        group_id=patient.group.id,
+    )
+
+    membership.may_register_devices = True
+    membership.may_upload = True
+
+    user.user_group_memberships.append(membership)
+
+    patient_info = json.dumps([{
+        TabletParam.SURNAME: patient.surname,
+        TabletParam.FORENAME: patient.forename,
+        TabletParam.SEX: patient.sex,
+        TabletParam.DOB: format_datetime(patient.dob,
+                                         DateFormat.ISO8601_DATE_ONLY),
+        TabletParam.ADDRESS: patient.address,
+        TabletParam.GP: patient.gp,
+        TabletParam.OTHER: patient.other,
+    }])
+
+    return {
+        TabletParam.USER: user.username,
+        TabletParam.PASSWORD: password,
+        TabletParam.PATIENT_INFO: patient_info,
+    }
+
+
+# TODO probably of use elsewhere
+def random_password() -> str:
+    # Not trying anything clever with distributions of letters, digits etc
+    characters = string.ascii_letters + string.digits + string.punctuation
+    return "".join(secrets.choice(characters) for i in range(32))
+
+
 # =============================================================================
 # Action processors that require REGISTRATION privilege
 # =============================================================================
@@ -2672,7 +2736,7 @@ def process_table_for_onestep_upload(
         rows: List[Dict[str, Any]]) -> UploadTableChanges:
     """
     Performs all upload steps for a table.
-    
+
     Note that we arrive here in a specific and safe table order; search for
     :func:`camcops_server.cc_modules.cc_client_api_helpers.upload_commit_order_sorter`.
 
@@ -2748,6 +2812,7 @@ class Operations:
     GET_EXTRA_STRINGS = "get_extra_strings"
     GET_ID_INFO = "get_id_info"
     REGISTER = "register"
+    REGISTER_PATIENT = "register_patient"  # v2.3.???
     START_PRESERVATION = "start_preservation"
     START_UPLOAD = "start_upload"
     UPLOAD_EMPTY_TABLES = "upload_empty_tables"
@@ -2760,6 +2825,7 @@ class Operations:
 
 OPERATIONS_ANYONE = {
     Operations.CHECK_DEVICE_REGISTERED: op_check_device_registered,
+    Operations.REGISTER_PATIENT: op_register_patient,
 }
 OPERATIONS_REGISTRATION = {
     Operations.GET_ALLOWED_TABLES: op_get_allowed_tables,  # v2.2.0

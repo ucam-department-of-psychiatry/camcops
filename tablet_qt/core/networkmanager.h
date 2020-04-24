@@ -226,6 +226,7 @@ protected:
 public:
     // Upload to the server.
     void upload(UploadMethod method);
+    void registerPatient(const QString patient_proquint);
 
 protected:
     // Upload core:
@@ -263,6 +264,9 @@ protected:
     bool shouldUseOneStepUpload() const;
     void uploadOneStep();
     QString getPkInfoAsJson();
+    // Patient registration (single user mode)
+    void registerPatientSub1(QNetworkReply* reply);
+
 
     // ------------------------------------------------------------------------
     // Signals
