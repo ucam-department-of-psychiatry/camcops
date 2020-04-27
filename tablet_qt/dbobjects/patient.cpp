@@ -22,6 +22,8 @@
 #include "patient.h"
 #include <limits>
 #include <QDebug>
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
 #include <QtAlgorithms>  // for qsort()
 #include "core/camcopsapp.h"
 #include "common/dbconst.h"
@@ -141,6 +143,26 @@ Patient::Patient(CamcopsApp& app, DatabaseManager& db,
     setValueOrNull(DOB_FIELD, KEY_DOB);
     setValueOrNull(ADDRESS_FIELD, KEY_ADDRESS);
     setValueOrNull(GP_FIELD, KEY_GP);
+    setValueOrNull(OTHER_DETAILS_FIELD, KEY_OTHER);
+}
+
+
+void Patient::addIdNums(const QJsonObject json_obj)
+{
+    QRegularExpression regex(QString("%1(\\d+)").arg(IDNUM_FIELD_PREFIX));
+
+    foreach(const QString& key, json_obj.keys()) {
+        QRegularExpressionMatch match = regex.match(key);
+        if (match.hasMatch()) {
+            int which_idnum = match.captured(1).toInt();
+            qint64 idnum_value = json_obj.value(key).toVariant().toLongLong();
+
+            PatientIdNumPtr new_id(
+                new PatientIdNum(id(), which_idnum, idnum_value, m_app, m_db)
+            );
+            m_idnums.append(new_id);
+        }
+    }
 }
 
 

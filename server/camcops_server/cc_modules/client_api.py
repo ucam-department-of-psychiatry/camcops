@@ -2068,7 +2068,7 @@ def op_register_patient(req: "CamcopsRequest") -> Dict[str, Any]:
 
     user.user_group_memberships.append(membership)
 
-    patient_info = json.dumps([{
+    patient_dict = {
         TabletParam.SURNAME: patient.surname,
         TabletParam.FORENAME: patient.forename,
         TabletParam.SEX: patient.sex,
@@ -2077,7 +2077,14 @@ def op_register_patient(req: "CamcopsRequest") -> Dict[str, Any]:
         TabletParam.ADDRESS: patient.address,
         TabletParam.GP: patient.gp,
         TabletParam.OTHER: patient.other,
-    }])
+    }
+
+    for idnum in patient.idnums:
+        key = f"{TabletParam.IDNUM_PREFIX}{idnum.which_idnum}"
+        patient_dict[key] = idnum.idnum_value
+
+    # One item list to be consistent with patients uploaded from the tablet
+    patient_info = json.dumps([patient_dict])
 
     return {
         TabletParam.USER: user.username,

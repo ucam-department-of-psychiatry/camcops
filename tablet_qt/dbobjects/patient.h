@@ -60,6 +60,9 @@ public:
             DatabaseManager& db,
             const QJsonObject json_obj);
 
+    void addIdNums(const QJsonObject json_obj);
+
+
     // ------------------------------------------------------------------------
     // Ancillary management
     // ------------------------------------------------------------------------

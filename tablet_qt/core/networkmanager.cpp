@@ -2264,6 +2264,9 @@ void NetworkManager::registerPatientSub1(QNetworkReply* reply)
         new Patient(m_app, m_app.db(), patient_json)
     );
     patient->save();
+
+    patient->addIdNums(patient_json);
+
     m_app.setSinglePatientId(patient->id());
 
     registerWithServer();
