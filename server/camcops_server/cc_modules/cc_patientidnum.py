@@ -57,10 +57,7 @@ from camcops_server.cc_modules.cc_constants import (
 from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
 from camcops_server.cc_modules.cc_idnumdef import IdNumDefinition
 from camcops_server.cc_modules.cc_simpleobjects import IdNumReference
-from camcops_server.cc_modules.cc_sqla_coltypes import (
-    CamcopsColumn,
-    UuidColType,
-)
+from camcops_server.cc_modules.cc_sqla_coltypes import CamcopsColumn
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 
 if TYPE_CHECKING:
@@ -91,11 +88,6 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
         "patient_id", Integer,
         nullable=False,
         comment="FK to patient.id (for this device/era)"
-    )
-    patient_uuid = Column(
-        "patient_uuid", UuidColType,
-        nullable=True,
-        comment="FK to patient.uuid"
     )
     which_idnum = Column(
         "which_idnum", Integer, ForeignKey(IdNumDefinition.which_idnum),
