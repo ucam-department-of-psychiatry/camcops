@@ -908,7 +908,6 @@ class Patient(GenericTabletRecordMixin, Base):
         server_device = Device.get_server_device(req.dbsession)
 
         return (self._era == ERA_NOW and
-                self.id == 0 and
                 self._device_id == server_device.id)
 
     def user_may_edit(self, req: "CamcopsRequest") -> bool:

@@ -4377,7 +4377,13 @@ class EditPatientViewTests(DemoDatabaseTestCase):
                          "Not authorized to edit this patient")
 
     def test_raises_when_patient_not_editable(self):
-        patient = self.create_patient(id=1, _era=ERA_NOW)
+        device = Device(name="Not the server device")
+        self.req.dbsession.add(device)
+        self.req.dbsession.commit()
+
+        patient = self.create_patient(
+            id=1, _device_id=device.id, _era=ERA_NOW
+        )
 
         self.req.add_get_params({
             ViewParam.SERVER_PK: patient._pk
