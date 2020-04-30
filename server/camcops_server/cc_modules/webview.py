@@ -4629,7 +4629,7 @@ class AddPatientViewTests(DemoDatabaseTestCase):
             self.req.dbsession
         )
 
-        self.assertEqual(patient.id, 0)
+        self.assertEqual(patient.id, 1)
         self.assertEqual(patient._device_id, server_device.id)
         self.assertEqual(patient._era, ERA_NOW)
         self.assertEqual(patient.group.id, self.group.id)
@@ -4643,7 +4643,7 @@ class AddPatientViewTests(DemoDatabaseTestCase):
         self.assertEqual(patient.other, "Other")
 
         idnum = patient.get_idnum_objects()[0]
-        self.assertEqual(idnum.patient_id, 0)
+        self.assertEqual(idnum.patient_id, 1)
         self.assertEqual(idnum.which_idnum, self.nhs_iddef.which_idnum)
         self.assertEqual(idnum.idnum_value, 1192220552)
 
