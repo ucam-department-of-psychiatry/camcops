@@ -163,6 +163,7 @@ import pygments.lexers
 import pygments.lexers.sql
 import pygments.lexers.web
 import pygments.formatters
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import joinedload, Query
 from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.expression import desc, or_, select, update
@@ -3534,7 +3535,6 @@ class AddPatientView(PatientMixin, CreateView):
         if server_device.id is None:
             self.request.dbsession.commit()
         patient = Patient()
-        patient.id = 0
         patient.create_fresh(
             self.request,
             device_id=server_device.id,
@@ -3548,7 +3548,33 @@ class AddPatientView(PatientMixin, CreateView):
                 new_value = new_value.upper()
             setattr(patient, k, new_value)
 
-        self.request.dbsession.add(patient)
+        saved_ok = False
+
+        # MySql doesn't support "select for update" so we have to keep
+        # trying the next available patient ID and checking for an integrity
+        # error in case another user has grabbed it by the time we have
+        # committed
+        next_patient_id = (
+            self.request.dbsession
+            # func.max(Patient.id) + 1 here will do the right thing for
+            # backends that support select for update
+            .query(func.max(Patient.id))
+            .filter(Patient._device_id == server_device.id)
+            .filter(Patient._era == ERA_NOW)
+            .scalar()
+        ) + 1
+
+        while not saved_ok:
+            patient.id = next_patient_id
+
+            self.request.dbsession.add(patient)
+
+            try:
+                self.request.dbsession.flush()
+                saved_ok = True
+            except IntegrityError:
+                self.request.dbsession.rollback()
+                next_patient_id = next_patient_id + 1
 
         new_idrefs = [
             IdNumReference(which_idnum=idrefdict[ViewParam.WHICH_IDNUM],
