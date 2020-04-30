@@ -3332,6 +3332,10 @@ class PatientMixin:
                  ViewParam.IDNUM_VALUE: pidnum.idnum_value}
                 for pidnum in patient.idnums
             ]
+            form_values[ViewParam.TASK_SCHEDULES] = [
+                {ViewParam.SCHEDULE_ID: schedule.id}
+                for schedule in patient.task_schedules
+            ]
 
         return form_values
 
@@ -4581,6 +4585,60 @@ class EditPatientViewTests(DemoDatabaseTestCase):
         self.assertIn("form", context)
         self.assertIn(task1, context["tasks"])
         self.assertIn(task2, context["tasks"])
+
+    def test_form_values_for_existing_patient(self) -> None:
+        patient = self.create_patient(
+            id=1, forename="JO", surname="PATIENT",
+            dob=datetime.date(1958, 4, 19),
+            sex="F", address="Address", gp="GP", other="Other"
+        )
+
+        schedule1 = TaskSchedule()
+        schedule1.group_id = self.group.id
+        schedule1.description = "Test 1"
+        self.dbsession.add(schedule1)
+        self.dbsession.commit()
+
+        patient_task_schedule = PatientTaskSchedule()
+        patient_task_schedule.patient_pk = patient._pk
+        patient_task_schedule.schedule_id = schedule1.id
+
+        self.dbsession.add(patient_task_schedule)
+        self.dbsession.commit()
+
+        self.create_patient_idnum(
+            patient_id=patient.id, which_idnum=self.nhs_iddef.which_idnum,
+            idnum_value=4887211163
+        )
+
+        self.req.add_get_params({
+            ViewParam.SERVER_PK: patient._pk
+        })
+
+        view = EditPatientView(self.req)
+        view.object = patient
+
+        form_values = view.get_form_values()
+
+        self.assertEqual(form_values[ViewParam.FORENAME], "JO")
+        self.assertEqual(form_values[ViewParam.SURNAME], "PATIENT")
+        self.assertEqual(form_values[ViewParam.DOB], datetime.date(1958, 4, 19))
+        self.assertEqual(form_values[ViewParam.SEX], "F")
+        self.assertEqual(form_values[ViewParam.ADDRESS], "Address")
+        self.assertEqual(form_values[ViewParam.GP], "GP")
+        self.assertEqual(form_values[ViewParam.OTHER], "Other")
+
+        self.assertEqual(form_values[ViewParam.SERVER_PK], patient._pk)
+        self.assertEqual(form_values[ViewParam.GROUP_ID], patient.group.id)
+
+        idnum = form_values[ViewParam.ID_REFERENCES][0]
+        self.assertEqual(idnum[ViewParam.WHICH_IDNUM],
+                         self.nhs_iddef.which_idnum)
+        self.assertEqual(idnum[ViewParam.IDNUM_VALUE], 4887211163)
+
+        task_schedule_id = form_values[ViewParam.TASK_SCHEDULES][0]
+        self.assertEqual(task_schedule_id[ViewParam.SCHEDULE_ID],
+                         patient_task_schedule.id)
 
 
 class AddPatientViewTests(DemoDatabaseTestCase):
