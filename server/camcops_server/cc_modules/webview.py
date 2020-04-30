@@ -3554,15 +3554,17 @@ class AddPatientView(PatientMixin, CreateView):
         # trying the next available patient ID and checking for an integrity
         # error in case another user has grabbed it by the time we have
         # committed
-        next_patient_id = (
+        last_patient_id = (
             self.request.dbsession
             # func.max(Patient.id) + 1 here will do the right thing for
-            # backends that support select for update
+            # backends that support select for update (maybe not for no rows)
             .query(func.max(Patient.id))
             .filter(Patient._device_id == server_device.id)
             .filter(Patient._era == ERA_NOW)
             .scalar()
-        ) + 1
+        ) or 0
+
+        next_patient_id = last_patient_id + 1
 
         while not saved_ok:
             patient.id = next_patient_id
