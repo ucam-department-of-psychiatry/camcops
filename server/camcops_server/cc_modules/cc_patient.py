@@ -45,6 +45,7 @@ from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_web as ws
 import hl7
 import pendulum
+from sqlalchemy import UniqueConstraint
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import Session as SqlASession
@@ -116,6 +117,9 @@ class Patient(GenericTabletRecordMixin, Base):
     Class representing a patient.
     """
     __tablename__ = "patient"
+    __table_args__ = (
+        UniqueConstraint("id", "_device_id", "_era"),
+    )
 
     id = Column(
         "id", Integer,
