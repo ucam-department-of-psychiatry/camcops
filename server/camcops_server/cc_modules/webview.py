@@ -4652,6 +4652,37 @@ class AddPatientViewTests(DemoDatabaseTestCase):
         self.assertIn(schedule1.id, schedule_ids)
         self.assertIn(schedule2.id, schedule_ids)
 
+    def test_patient_takes_next_available_id(self) -> None:
+        server_device = Device.get_server_device(
+            self.req.dbsession
+        )
+        self.create_patient(id=1234, _device_id=server_device.id, _era=ERA_NOW)
+
+        view = AddPatientView(self.req)
+
+        appstruct = {
+            ViewParam.GROUP_ID: self.group.id,
+            ViewParam.FORENAME: "Jo",
+            ViewParam.SURNAME: "Patient",
+            ViewParam.DOB: datetime.date(1958, 4, 19),
+            ViewParam.SEX: "F",
+            ViewParam.ADDRESS: "Address",
+            ViewParam.GP: "GP",
+            ViewParam.OTHER: "Other",
+            ViewParam.ID_REFERENCES: [{
+                ViewParam.WHICH_IDNUM: self.nhs_iddef.which_idnum,
+                ViewParam.IDNUM_VALUE: 1192220552,
+            }],
+            ViewParam.TASK_SCHEDULES: [
+            ],
+        }
+
+        view.save_object(appstruct)
+
+        patient = view.object
+
+        self.assertEqual(patient.id, 1235)
+
     def test_form_rendered_with_values(self) -> None:
         view = AddPatientView(self.req)
         view.render_to_response = mock.Mock()
