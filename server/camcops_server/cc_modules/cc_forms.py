@@ -3498,7 +3498,7 @@ class TaskScheduleSelector(SchemaNode, RequestAwareMixin):
 
         for task_schedule in task_schedules:
             values.append((task_schedule.id, task_schedule.description))
-        values, pv = get_values_and_permissible(values, add_none=True)
+        values, pv = get_values_and_permissible(values, add_none=False)
 
         self.widget.values = values
         self.validator = OneOf(pv)
