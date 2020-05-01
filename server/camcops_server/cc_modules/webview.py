@@ -3380,6 +3380,47 @@ class EditPatientView(PatientMixin, UpdateView):
         patient = self.object
 
         changes = OrderedDict()  # type: Dict[str, Tuple[Any, Any]]
+
+        self._save_simple_params(appstruct, changes)
+        self._save_idrefs(appstruct, changes)
+        self._save_task_schedules(appstruct, changes)
+
+        if not changes:
+            self.request.session.flash(
+                f"{_('No changes required for patient record with server PK')} "  # noqa
+                f"{patient._pk} {_('(all new values matched old values)')}",
+                queue=FLASH_INFO
+            )
+            return
+
+        # Below here, changes have definitely been made.
+        change_msg = (
+            _("Patient details edited. Changes:") + " " + "; ".join(
+                f"{k}: {old!r} → {new!r}"
+                for k, (old, new) in changes.items()
+            )
+        )
+
+        # Apply special note to patient
+        patient.apply_special_note(self.request, change_msg,
+                                   "Patient edited")
+
+        # Patient details changed, so resend any tasks via HL7
+        for task in self.get_affected_tasks():
+            task.cancel_from_export_log(self.request)
+
+        # Done
+        self.request.session.flash(
+            f"{_('Amended patient record with server PK')} "
+            f"{patient._pk}. "
+            f"{_('Changes were:')} {change_msg}",
+            queue=FLASH_SUCCESS
+        )
+
+    def _save_simple_params(self,
+                            appstruct: Dict,
+                            changes: OrderedDict) -> None:
+        patient = self.object
         for k in EDIT_PATIENT_SIMPLE_PARAMS:
             new_value = appstruct.get(k)
             if k in [ViewParam.FORENAME, ViewParam.SURNAME]:
@@ -3392,8 +3433,14 @@ class EditPatientView(PatientMixin, UpdateView):
                 continue
             changes[k] = (old_value, new_value)
             setattr(patient, k, new_value)
-            # The ID numbers are more complex.
-            # log.debug("{}", pformat(appstruct))
+
+    def _save_idrefs(self,
+                     appstruct: Dict,
+                     changes: OrderedDict) -> None:
+
+        # The ID numbers are more complex.
+        # log.debug("{}", pformat(appstruct))
+        patient = self.object
         new_idrefs = [
             IdNumReference(which_idnum=idrefdict[ViewParam.WHICH_IDNUM],
                            idnum_value=idrefdict[ViewParam.IDNUM_VALUE])
@@ -3461,37 +3508,43 @@ class EditPatientView(PatientMixin, UpdateView):
                                            group_id=patient.get_group_id())
                     self.request.dbsession.add(new_idnum)
 
-            if not changes:
-                self.request.session.flash(
-                    f"{_('No changes required for patient record with server PK')} "  # noqa
-                    f"{patient._pk} {_('(all new values matched old values)')}",
-                    queue=FLASH_INFO
-                )
-                return
+    def _save_task_schedules(self,
+                             appstruct: Dict,
+                             changes: OrderedDict) -> None:
+        patient = self.object
+        new_schedule_ids = {
+            schedule_dict[ViewParam.SCHEDULE_ID]
+            for schedule_dict in appstruct.get(ViewParam.TASK_SCHEDULES)
+        }
 
-            # Below here, changes have definitely been made.
-            change_msg = (
-                _("Patient details edited. Changes:") + " " + "; ".join(
-                    f"{k}: {old!r} → {new!r}"
-                    for k, (old, new) in changes.items()
-                )
-            )
+        schedule_query = self.request.dbsession.query(TaskSchedule).filter(
+            TaskSchedule.id.in_(new_schedule_ids)
+        )
+        old_schedules = {schedule.id: schedule.description
+                         for schedule in patient.task_schedules}
 
-            # Apply special note to patient
-            patient.apply_special_note(self.request, change_msg,
-                                       "Patient edited")
+        ids_to_add = new_schedule_ids - old_schedules.keys()
+        ids_to_delete = old_schedules.keys() - new_schedule_ids
 
-            # Patient details changed, so resend any tasks via HL7
-            for task in self.get_affected_tasks():
-                task.cancel_from_export_log(self.request)
+        if not ids_to_add and not ids_to_delete:
+            return
 
-            # Done
-            self.request.session.flash(
-                f"{_('Amended patient record with server PK')} "
-                f"{patient._pk}. "
-                f"{_('Changes were:')} {change_msg}",
-                queue=FLASH_SUCCESS
-            )
+        for schedule_id in ids_to_add:
+            patient_task_schedule = PatientTaskSchedule()
+            patient_task_schedule.patient_pk = patient._pk
+            patient_task_schedule.schedule_id = schedule_id
+
+            self.request.dbsession.add(patient_task_schedule)
+
+        self.request.dbsession.query(PatientTaskSchedule).filter(
+            PatientTaskSchedule.patient_pk == patient._pk,
+            PatientTaskSchedule.schedule_id.in_(ids_to_delete)
+        ).delete(synchronize_session="fetch")
+
+        old_names = old_schedules.keys()
+        new_names = [schedule.description for schedule in schedule_query]
+
+        changes["task_schedules"] = (old_names, new_names)
 
     def get_context_data(self, **kwargs):
         kwargs["tasks"] = self.get_affected_tasks()
@@ -4482,6 +4535,96 @@ class EditPatientViewTests(DemoDatabaseTestCase):
 
         self.assertIn("idnum1", messages[0])
         self.assertIn("4887211163", messages[0])
+
+    def test_patient_task_schedules_updated(self):
+        patient = self.create_patient(sex="F")
+
+        schedule1 = TaskSchedule()
+        schedule1.group_id = self.group.id
+        schedule1.description = "Test 1"
+        self.dbsession.add(schedule1)
+        schedule2 = TaskSchedule()
+        schedule2.group_id = self.group.id
+        schedule2.description = "Test 2"
+        self.dbsession.add(schedule2)
+        schedule3 = TaskSchedule()
+        schedule3.group_id = self.group.id
+        schedule3.description = "Test 3"
+        self.dbsession.add(schedule3)
+        self.dbsession.commit()
+
+        patient_task_schedule = PatientTaskSchedule()
+        patient_task_schedule.patient_pk = patient._pk
+        patient_task_schedule.schedule_id = schedule1.id
+
+        self.dbsession.add(patient_task_schedule)
+
+        patient_task_schedule = PatientTaskSchedule()
+        patient_task_schedule.patient_pk = patient._pk
+        patient_task_schedule.schedule_id = schedule3.id
+
+        self.dbsession.add(patient_task_schedule)
+        self.dbsession.commit()
+
+        self.req.add_get_params({
+            ViewParam.SERVER_PK: patient._pk
+        }, set_method_get=False)
+
+        multidict = MultiDict([
+            ("_charset_", "UTF-8"),
+            ("__formid__", "deform"),
+            (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
+            (ViewParam.SERVER_PK, patient._pk),
+            (ViewParam.GROUP_ID, patient.group.id),
+            (ViewParam.FORENAME, patient.forename),
+            (ViewParam.SURNAME, patient.surname),
+            ("__start__", "dob:mapping"),
+            ("date", ""),
+            ("__end__", "dob:mapping"),
+            ("__start__", "sex:rename"),
+            ("deformField7", patient.sex),
+            ("__end__", "sex:rename"),
+            (ViewParam.ADDRESS, patient.address),
+            (ViewParam.GP, patient.gp),
+            (ViewParam.OTHER, patient.other),
+            ("__start__", "id_references:sequence"),
+            ("__start__", "idnum_sequence:mapping"),
+            (ViewParam.WHICH_IDNUM, self.nhs_iddef.which_idnum),
+            (ViewParam.IDNUM_VALUE, "4887211163"),
+            ("__end__", "idnum_sequence:mapping"),
+            ("__end__", "id_references:sequence"),
+            ("__start__", "danger:mapping"),
+            ("target", "7836"),
+            ("user_entry", "7836"),
+            ("__end__", "danger:mapping"),
+            ("__start__", "task_schedules:sequence"),
+            ("__start__", "task_schedule_sequence:mapping"),
+            ("schedule_id", schedule1.id),
+            ("__end__", "task_schedule_sequence:mapping"),
+            ("__start__", "task_schedule_sequence:mapping"),
+            ("schedule_id", schedule2.id),
+            ("__end__", "task_schedule_sequence:mapping"),
+            ("__end__", "task_schedules:sequence"),
+
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+
+        with self.assertRaises(HTTPFound):
+            edit_patient(self.req)
+
+        self.dbsession.commit()
+
+        schedule_names = [s.description for s in patient.task_schedules]
+        self.assertIn("Test 1", schedule_names)
+        self.assertIn("Test 2", schedule_names)
+        self.assertNotIn("Test 3", schedule_names)
+
+        messages = self.req.session.peek_flash("success")
+        self.assertIn(f"Amended patient record with server PK {patient._pk}",
+                      messages[0])
+        self.assertIn(f"Test 2", messages[0])
 
     def test_message_when_no_changes(self):
         patient = self.create_patient(
