@@ -3541,7 +3541,7 @@ class EditPatientView(PatientMixin, UpdateView):
             PatientTaskSchedule.schedule_id.in_(ids_to_delete)
         ).delete(synchronize_session="fetch")
 
-        old_names = old_schedules.keys()
+        old_names = list(old_schedules.values())
         new_names = [schedule.description for schedule in schedule_query]
 
         changes["task_schedules"] = (old_names, new_names)
