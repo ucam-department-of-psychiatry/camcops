@@ -78,7 +78,7 @@ QString CgiI::xstringTaskname() const
 
 QString CgiI::infoFilenameStem() const
 {
-    return "from_lp";
+    return "cgi";
 }
 
 

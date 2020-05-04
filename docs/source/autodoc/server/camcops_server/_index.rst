@@ -170,7 +170,6 @@ server/camcops_server
     extra_string_templates/iesr_TEMPLATE.xml.rst
     extra_string_templates/ifs_TEMPLATE.xml.rst
     extra_string_templates/lynall_iam_life_TEMPLATE.xml.rst
-    extra_string_templates/mfi20_TEMPLATE.xml.rst
     extra_string_templates/npiq_TEMPLATE.xml.rst
     extra_string_templates/ors_TEMPLATE.xml.rst
     extra_string_templates/pdss_TEMPLATE.xml.rst
@@ -242,6 +241,7 @@ server/camcops_server
     extra_strings/lynall_iam_medical.xml.rst
     extra_strings/maas.xml.rst
     extra_strings/mast.xml.rst
+    extra_strings/mfi20.xml.rst
     extra_strings/moca.xml.rst
     extra_strings/panss.xml.rst
     extra_strings/pbq.xml.rst

@@ -204,6 +204,24 @@ def _print_database_title() -> None:
     core.print_database_title()
 
 
+def _show_database_schema(schemastem: str,
+                          make_image: bool = False,
+                          java: str = None,
+                          plantuml: str = None,
+                          height_width_limit: int = None,
+                          java_memory_limit_mb: int = None) -> None:
+    # noinspection PyUnresolvedReferences
+    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    core.show_database_schema(
+        schemastem=schemastem,
+        make_image=make_image,
+        java=java,
+        plantuml=plantuml,
+        height_width_limit=height_width_limit,
+        java_memory_limit_mb=java_memory_limit_mb,
+    )
+
+
 def _merge_camcops_db(src: str,
                       echo: bool,
                       report_every: int,
@@ -274,11 +292,13 @@ def _enable_user_cli(username: str = None) -> bool:
 
 def _cmd_export(recipient_names: List[str] = None,
                 all_recipients: bool = False,
-                via_index: bool = True) -> None:
+                via_index: bool = True,
+                schedule_via_backend: bool = False) -> None:
     import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
     return core.cmd_export(recipient_names=recipient_names,
                            all_recipients=all_recipients,
-                           via_index=via_index)
+                           via_index=via_index,
+                           schedule_via_backend=schedule_via_backend)
 
 
 def _cmd_show_export_queue(recipient_names: List[str] = None,
@@ -712,6 +732,39 @@ def camcops_main() -> int:
     showdbtitle_parser.set_defaults(
         func=lambda args: _print_database_title())
 
+    # Show database schema
+    showdbschema_parser = add_sub(
+        subparsers, "show_db_schema",
+        help="Show the database schema as PlantUML +/- PNG")
+    showdbschema_parser.add_argument(
+        "--schemastem", default='schema',
+        help="Stem for output filenames (for schema diagrams); "
+        "'.plantuml' and '.png' are appended")
+    showdbschema_parser.add_argument(
+        "--make_image", action="store_true",
+        help="Create a PNG image (impractically large!)")
+    showdbschema_parser.add_argument(
+        "--java", default='java',
+        help="Java executable (for schema diagrams)")
+    showdbschema_parser.add_argument(
+        "--plantuml", default='plantuml.jar',
+        help="PlantUML Java .jar file (for schema diagrams)")
+    showdbschema_parser.add_argument(
+        "--height_width_limit", type=int, default=20000,
+        help="Maximum image height/width in pixels")
+    showdbschema_parser.add_argument(
+        "--java_memory_limit_mb", type=int, default=2048,
+        help="Java virtual machine memory limit in Mb")
+    showdbschema_parser.set_defaults(
+        func=lambda args: _show_database_schema(
+            schemastem=args.schemastem,
+            make_image=args.make_image,
+            java=args.java,
+            plantuml=args.plantuml,
+            height_width_limit=args.height_width_limit,
+            java_memory_limit_mb=args.java_memory_limit_mb,
+        ))
+
     # Merge in data fom another database
     # noinspection PyTypeChecker
     int_int_mapper = MapType(from_type=nonnegative_int,
@@ -912,11 +965,16 @@ def camcops_main() -> int:
         subparsers, "export",
         help="Trigger pending exports")
     _add_export_options(export_parser)
+    export_parser.add_argument(
+        "--schedule_via_backend", action="store_true",
+        help="Export tasks as a background job"
+    )
     export_parser.set_defaults(
         func=lambda args: _cmd_export(
             recipient_names=args.recipients,
             all_recipients=args.all_recipients,
             via_index=not args.disable_task_index,
+            schedule_via_backend=args.schedule_via_backend,
         ))
 
     # Show export queue
@@ -1174,6 +1232,15 @@ def camcops_main() -> int:
 def display_top(snapshot: tracemalloc.Snapshot,
                 key_type: str = 'lineno', limit: int = 10,
                 short_filename: bool = False) -> None:
+    """
+    Display e.g. lines of code allocating the most memory.
+
+    Args:
+        snapshot: a :class:`tracemalloc.Snapshot` object
+        key_type: thing to group by
+        limit: show the top *n*
+        short_filename: make source code filenames shorter?
+    """
     # Modified from https://docs.python.org/3/library/tracemalloc.html
     print("Calculating memory allocation...")
     snapshot = snapshot.filter_traces((
