@@ -117,6 +117,8 @@ class FormMixin(ContextMixin):
     """Provide a way to show and handle a form in a request."""
     form_class = None
     success_url = None
+    _form = None
+    _error = None
 
     def get_form_class(self):
         """Return the form class to use."""
@@ -124,9 +126,14 @@ class FormMixin(ContextMixin):
 
     def get_form(self, form_class=None):
         """Return an instance of the form to be used in this view."""
-        if form_class is None:
-            form_class = self.get_form_class()
-        return form_class(request=self.request)
+
+        # TODO: Do we need the form_class parameter?
+        if self._form is None:
+            if form_class is None:
+                form_class = self.get_form_class()
+            self._form = form_class(request=self.request)
+
+        return self._form
 
     def get_success_url(self):
         """Return the URL to redirect to after processing a valid form."""
@@ -138,26 +145,33 @@ class FormMixin(ContextMixin):
         """If the form is valid, redirect to the supplied URL."""
         raise HTTPFound(self.get_success_url())
 
-    def form_invalid(self, rendered_form):
-        """If the form is invalid, render the invalid form."""
+    def form_invalid(self, validation_error):
+        """If the form is invalid, save the invalid form."""
+        self._error = validation_error
+
         return self.render_to_response(
-            self.get_context_data(form=rendered_form)
+            self.get_context_data()
         )
 
     def get_context_data(self, **kwargs):
         """Insert the rendered form into the context dict."""
 
         form = self.get_form()
-        if "form" not in kwargs:
-            appstruct = self.get_form_values()
-            rendered_form = form.render(appstruct)
-            kwargs["form"] = rendered_form
-
+        kwargs["form"] = self.get_rendered_form()
         kwargs["head_form_html"] = get_head_form_html(
             self.request, [form]
         )
 
         return super().get_context_data(**kwargs)
+
+    def get_rendered_form(self):
+        if self._error is not None:
+            return self._error.render()
+
+        form = self.get_form()
+        appstruct = self.get_form_values()
+
+        return form.render(appstruct)
 
 
 class SingleObjectMixin(ContextMixin):
@@ -246,7 +260,7 @@ class ProcessFormView(View):
 
             return self.form_valid(form, appstruct)
         except ValidationFailure as e:
-            return self.form_invalid(e.render())
+            return self.form_invalid(e)
 
 
 class BaseFormView(FormMixin, ProcessFormView):
@@ -336,7 +350,7 @@ class BaseDeleteView(FormMixin, SingleObjectMixin, View):
 
             return self.form_valid(form, appstruct)
         except ValidationFailure as e:
-            return self.form_invalid(e.render())
+            return self.form_invalid(e)
 
     def form_valid(self, form, appstruct):
         """If the form is valid, delete the associated model."""
