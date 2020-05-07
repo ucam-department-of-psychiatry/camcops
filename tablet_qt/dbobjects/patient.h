@@ -60,6 +60,11 @@ public:
             DatabaseManager& db,
             const QJsonObject json_obj);
 
+    Patient(CamcopsApp& app, DatabaseManager& db,
+            const int load_pk,
+            const QJsonObject json_obj);
+
+    void addJsonFields(const QJsonObject json_obj);
     void addIdNums(const QJsonObject json_obj);
 
 

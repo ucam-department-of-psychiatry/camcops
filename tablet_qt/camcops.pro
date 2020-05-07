@@ -525,6 +525,8 @@ SOURCES += \
     dbobjects/patientidnumsorter.cpp \
     dbobjects/patientsorter.cpp \
     dbobjects/storedvar.cpp \
+    dbobjects/taskschedule.cpp \
+    dbobjects/taskscheduleitem.cpp \
     diagnosis/diagnosissortfiltermodel.cpp \
     diagnosis/diagnosticcode.cpp \
     diagnosis/diagnosticcodeset.cpp \
@@ -970,6 +972,8 @@ HEADERS += \
     dbobjects/patientidnumsorter.h \
     dbobjects/patientsorter.h \
     dbobjects/storedvar.h \
+    dbobjects/taskschedule.h \
+    dbobjects/taskscheduleitem.h \
     diagnosis/diagnosissortfiltermodel.h \
     diagnosis/diagnosticcode.h \
     diagnosis/diagnosticcodeset.h \

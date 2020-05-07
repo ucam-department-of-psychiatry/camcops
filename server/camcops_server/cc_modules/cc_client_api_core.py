@@ -74,12 +74,15 @@ class TabletParam(object):
     """
     ADDRESS = "address"  # C->S, in JSON, v2.3.0
     CAMCOPS_VERSION = "camcops_version"  # C->S
+    CLIENT_PK = "client_pk"  # C->S; new in v2.3.???
     DATABASE_TITLE = "databaseTitle"  # S->C
     DATEVALUES = "datevalues"  # C->S
     DBDATA = "dbdata"  # C->S, v2.3.0
     DEVICE = "device"  # C->S
     DEVICE_FRIENDLY_NAME = "devicefriendlyname"  # C->S
     DOB = "dob"  # C->S, in JSON, v2.3.0
+    DUE_BY = "due_by"  # C->S; new in v2.3.???
+    DUE_FROM = "due_from"  # C->S; new in v2.3.???
     ERROR = "error"  # S->C
     FIELDS = "fields"  # B
     FINALIZING = "finalizing"  # C->S, in JSON and upload_entire_database, v2.3.0; synonym for preserving  # noqa
@@ -97,7 +100,7 @@ class TabletParam(object):
     OPERATION = "operation"  # C->S
     OTHER = "other"  # C->S, in JSON, v2.3.0
     PASSWORD = "password"  # C->S
-    PATIENT_INFO = "patient_info"  # C->S; new in v2.3.0
+    PATIENT_INFO = "patient_info"  # C->S; new in v2.3.0, S->C new in v2.3.???
     PATIENT_PROQUINT = "patient_proquint"  # C->S; new in v2.3.???
     PKNAME = "pkname"  # C->S
     PKNAMEINFO = "pknameinfo"  # C->S, new in v2.3.0
@@ -112,6 +115,9 @@ class TabletParam(object):
     SURNAME = "surname"  # C->S, in JSON, v2.3.0
     TABLE = "table"  # C->S
     TABLES = "tables"  # C->S
+    TASK_SCHEDULES = "task_schedules"  # S->C; new in v2.3.???
+    TASK_SCHEDULE_ITEMS = "task_schedule_items"  # S->C; new in v2.3.???
+    TASK_SCHEDULE_NAME = "task_schedule_name"  # S->C; new in v2.3.???
     USER = "user"  # C->S
     VALUES = "values"  # C->S
 

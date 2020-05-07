@@ -338,7 +338,16 @@ import json
 import secrets
 import string
 import time
-from typing import Any, Dict, Iterable, List, Optional, Sequence, TYPE_CHECKING
+from typing import (
+    Any,
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    TYPE_CHECKING
+)
 import unittest
 
 from cardinal_pythonlib.convert import (
@@ -367,6 +376,7 @@ from pyramid.security import NO_PERMISSION_REQUIRED
 from semantic_version import Version
 from sqlalchemy.engine.result import ResultProxy
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import joinedload
 from sqlalchemy.sql.expression import exists, select, update
 from sqlalchemy.sql.schema import Table
 
@@ -456,10 +466,13 @@ from camcops_server.cc_modules.cc_simpleobjects import (
     IdNumReference,
 )
 from camcops_server.cc_modules.cc_specialnote import SpecialNote
+from camcops_server.cc_modules.cc_sqlalchemy import get_one_or_create
 from camcops_server.cc_modules.cc_task import (
     all_task_tables_with_min_client_version,
 )
 from camcops_server.cc_modules.cc_taskindex import update_indexes_and_push_exports  # noqa
+from camcops_server.cc_modules.cc_taskschedule import TaskSchedule
+
 from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 from camcops_server.cc_modules.cc_user import User
 from camcops_server.cc_modules.cc_version import (
@@ -2038,25 +2051,32 @@ def op_check_device_registered(req: "CamcopsRequest") -> None:
 
 def op_register_patient(req: "CamcopsRequest") -> Dict[str, Any]:
     patient_proquint = get_str_var(req, TabletParam.PATIENT_PROQUINT)
+    client_pk = get_int_var(req, TabletParam.CLIENT_PK)
     uuid_obj = uuid_from_proquint(patient_proquint)
 
     dbsession = req.dbsession
-    server_device = Device.get_server_device(dbsession)
     patient = dbsession.query(Patient).filter(
-        Patient.uuid == uuid_obj,
-        Patient._era == ERA_NOW,
-        Patient._device_id == server_device.id,
-        Patient._current == True  # noqa: E712
+        Patient.uuid == uuid_obj
     ).one()
 
-    client_device_id = get_str_var(req, TabletParam.DEVICE)
+    # No longer attached to the server device
+    client_device_name = get_str_var(req, TabletParam.DEVICE)
+    patient._device, _ = get_one_or_create(dbsession, Device,
+                                           name=client_device_name)
 
-    user = User(username=f"user-{client_device_id}")
+    patient.id = client_pk
+    dbsession.add(patient)
+    for idnum in patient.idnums:
+        idnum.patient_id = patient.id
+        idnum._device = patient._device
+        dbsession.add(idnum)
+
+    user = User(username=f"user-{client_device_name}")
     user.upload_group = patient.group
     password = random_password()
     user.set_password(req, password)
-    req.dbsession.add(user)
-    req.dbsession.commit()
+    dbsession.add(user)
+    dbsession.commit()
 
     membership = UserGroupMembership(
         user_id=user.id,
@@ -2193,10 +2213,35 @@ def op_get_allowed_tables(req: "CamcopsRequest") -> Dict[str, str]:
     return reply
 
 
-def op_get_task_schedule(req: "CamcopsRequest") -> Dict[str, str]:
-    # TODO
+def op_get_task_schedules(req: "CamcopsRequest") -> Dict[str, str]:
+    client_pk = get_int_var(req, TabletParam.CLIENT_PK)
+    dbsession = req.dbsession
 
-    return {}
+    patient = dbsession.query(Patient).filter(
+        Patient.id == client_pk,
+        Patient._device_id == req.tabletsession.device_id
+    ).options(
+        joinedload(Patient.task_schedules).joinedload(TaskSchedule.items)
+    ).first()
+
+    schedules = []
+
+    for schedule_obj in patient.task_schedules:
+        items = []
+
+        for schedule_item_obj in schedule_obj.items:
+            items.append({
+                TabletParam.TABLE: schedule_item_obj.task_table_name,
+                TabletParam.DUE_FROM: schedule_item_obj.due_from,
+                TabletParam.DUE_BY: schedule_item_obj.due_by,
+            })
+
+        schedules.append({
+            TabletParam.TASK_SCHEDULE_NAME: schedule_obj.description,
+            TabletParam.TASK_SCHEDULE_ITEMS: items,
+        })
+
+    return {TabletParam.TASK_SCHEDULES: json.dumps(schedules)}
 
 
 # =============================================================================
@@ -2595,15 +2640,6 @@ def op_validate_patients(req: "CamcopsRequest") -> str:
 
     Compare ``NetworkManager::getPatientInfoJson()`` on the client.
     """
-    def ensure_string(value: Any, allow_none: bool = True) -> None:
-        if value is None:
-            if allow_none:
-                return  # OK
-            else:
-                fail_user_error("Patient JSON contains absent string")
-        if not isinstance(value, str):
-            fail_user_error(f"Patient JSON contains invalid non-string: {value!r}")  # noqa
-
     pt_json_list = get_json_from_post_var(req, TabletParam.PATIENT_INFO,
                                           decoder=PATIENT_INFO_JSON_DECODER,
                                           mandatory=True)
@@ -2611,68 +2647,14 @@ def op_validate_patients(req: "CamcopsRequest") -> str:
         fail_user_error("Top-level JSON is not a list")
 
     group = Group.get_group_by_id(req.dbsession, req.user.upload_group_id)
-    valid_which_idnums = req.valid_which_idnums
 
     errors = []  # type: List[str]
-    finalizing = None
     for pt_dict in pt_json_list:
         if not isinstance(pt_dict, dict):
             fail_user_error("Patient JSON is not a dict")
         if not pt_dict:
             fail_user_error("Patient JSON is empty")
-        ptinfo = BarePatientInfo()
-        for k, v in pt_dict.items():
-            ensure_string(k, allow_none=False)
-            if k == TabletParam.FORENAME:
-                ensure_string(v)
-                ptinfo.forename = v
-            elif k == TabletParam.SURNAME:
-                ensure_string(v)
-                ptinfo.surname = v
-            elif k == TabletParam.SEX:
-                if v not in POSSIBLE_SEX_VALUES:
-                    fail_user_error(f"Bad sex value: {v!r}")
-                ptinfo.sex = v
-            elif k == TabletParam.DOB:
-                ensure_string(v)
-                if v:
-                    dob = coerce_to_pendulum_date(v)
-                    if dob is None:
-                        fail_user_error(f"Invalid DOB: {v!r}")
-                else:
-                    dob = None
-                ptinfo.dob = dob
-            elif k == TabletParam.ADDRESS:
-                ensure_string(v)
-                ptinfo.address = v
-            elif k == TabletParam.GP:
-                ensure_string(v)
-                ptinfo.gp = v
-            elif k == TabletParam.OTHER:
-                ensure_string(v)
-                ptinfo.otherdetails = v
-            elif k.startswith(TabletParam.IDNUM_PREFIX):
-                nstr = k[len(TabletParam.IDNUM_PREFIX):]
-                try:
-                    which_idnum = int(nstr)
-                except (TypeError, ValueError):
-                    fail_user_error(f"Bad idnum key: {k!r}")
-                # noinspection PyUnboundLocalVariable
-                if which_idnum not in valid_which_idnums:
-                    fail_user_error(f"Bad ID number type: {which_idnum}")
-                if v is not None and not isinstance(v, int):
-                    fail_user_error(f"Bad ID number value: {v!r}")
-                idref = IdNumReference(which_idnum, v)
-                if not idref.is_valid():
-                    fail_user_error(f"Bad ID number: {idref!r}")
-                ptinfo.add_idnum(idref)
-            elif k == TabletParam.FINALIZING:
-                if not isinstance(v, bool):
-                    fail_user_error(f"Bad {k!r} value: {v!r}")
-                finalizing = v
-            else:
-                fail_user_error(f"Unknown JSON key: {k!r}")
-
+        ptinfo, finalizing = get_patient_info_from_dict(pt_dict)
         if finalizing is None:
             fail_user_error(f"Missing {TabletParam.FINALIZING!r} JSON key")
 
@@ -2683,6 +2665,74 @@ def op_validate_patients(req: "CamcopsRequest") -> str:
         fail_user_error(f"Invalid patients: {' // '.join(errors)}")
     else:
         return SUCCESS_MSG
+
+
+def get_patient_info_from_dict(req: "CamcopsRequest",
+                               pt_dict: Dict) -> Tuple[BarePatientInfo, bool]:
+    def ensure_string(value: Any, allow_none: bool = True) -> None:
+        if value is None:
+            if allow_none:
+                return  # OK
+            else:
+                fail_user_error("Patient JSON contains absent string")
+        if not isinstance(value, str):
+            fail_user_error(f"Patient JSON contains invalid non-string: {value!r}")  # noqa
+
+    ptinfo = BarePatientInfo()
+    finalizing = None
+    for k, v in pt_dict.items():
+        ensure_string(k, allow_none=False)
+        if k == TabletParam.FORENAME:
+            ensure_string(v)
+            ptinfo.forename = v
+        elif k == TabletParam.SURNAME:
+            ensure_string(v)
+            ptinfo.surname = v
+        elif k == TabletParam.SEX:
+            if v not in POSSIBLE_SEX_VALUES:
+                fail_user_error(f"Bad sex value: {v!r}")
+                ptinfo.sex = v
+        elif k == TabletParam.DOB:
+            ensure_string(v)
+            if v:
+                dob = coerce_to_pendulum_date(v)
+                if dob is None:
+                    fail_user_error(f"Invalid DOB: {v!r}")
+            else:
+                dob = None
+            ptinfo.dob = dob
+        elif k == TabletParam.ADDRESS:
+            ensure_string(v)
+            ptinfo.address = v
+        elif k == TabletParam.GP:
+            ensure_string(v)
+            ptinfo.gp = v
+        elif k == TabletParam.OTHER:
+            ensure_string(v)
+            ptinfo.otherdetails = v
+        elif k.startswith(TabletParam.IDNUM_PREFIX):
+            nstr = k[len(TabletParam.IDNUM_PREFIX):]
+            try:
+                which_idnum = int(nstr)
+            except (TypeError, ValueError):
+                fail_user_error(f"Bad idnum key: {k!r}")
+            # noinspection PyUnboundLocalVariable
+            if which_idnum not in req.valid_which_idnums:
+                fail_user_error(f"Bad ID number type: {which_idnum}")
+            if v is not None and not isinstance(v, int):
+                fail_user_error(f"Bad ID number value: {v!r}")
+            idref = IdNumReference(which_idnum, v)
+            if not idref.is_valid():
+                fail_user_error(f"Bad ID number: {idref!r}")
+            ptinfo.add_idnum(idref)
+        elif k == TabletParam.FINALIZING:
+            if not isinstance(v, bool):
+                fail_user_error(f"Bad {k!r} value: {v!r}")
+            finalizing = v
+        else:
+            fail_user_error(f"Unknown JSON key: {k!r}")
+
+    return ptinfo, finalizing
 
 
 DB_JSON_DECODER = json.JSONDecoder()  # just a plain one
@@ -2824,7 +2874,7 @@ class Operations:
     GET_ALLOWED_TABLES = "get_allowed_tables"  # v2.2.0
     GET_EXTRA_STRINGS = "get_extra_strings"
     GET_ID_INFO = "get_id_info"
-    GET_TASK_SCHEDULE = "get_task_schedule"  # v2.3.???
+    GET_TASK_SCHEDULES = "get_task_schedules"  # v2.3.???
     REGISTER = "register"
     REGISTER_PATIENT = "register_patient"  # v2.3.???
     START_PRESERVATION = "start_preservation"
@@ -2847,7 +2897,7 @@ OPERATIONS_ANYONE = {
 OPERATIONS_REGISTRATION = {
     Operations.GET_ALLOWED_TABLES: op_get_allowed_tables,  # v2.2.0
     Operations.GET_EXTRA_STRINGS: op_get_extra_strings,
-    Operations.GET_TASK_SCHEDULE: op_get_task_schedule,  # v2.3.???
+    Operations.GET_TASK_SCHEDULES: op_get_task_schedules,  # v2.3.???
     Operations.REGISTER: op_register,
 }
 OPERATIONS_UPLOAD = {

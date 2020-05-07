@@ -131,12 +131,27 @@ Patient::Patient(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
 Patient::Patient(CamcopsApp& app, DatabaseManager& db,
                  const QJsonObject json_obj) : Patient(app, db)
 {
+    addJsonFields(json_obj);
+}
+
+
+Patient::Patient(CamcopsApp& app, DatabaseManager& db,
+                 const int load_pk,
+                 const QJsonObject json_obj) : Patient(app, db, load_pk)
+{
+    addJsonFields(json_obj);
+}
+
+
+void Patient::addJsonFields(const QJsonObject json_obj)
+{
     auto setValueOrNull = [&](const QString& field, const QString& key) {
         QJsonValue value = json_obj.value(key);
         if (!value.isNull()) {
             setValue(field, value.toString());
         }
     };
+
     setValueOrNull(FORENAME_FIELD, KEY_FORENAME);
     setValueOrNull(SURNAME_FIELD, KEY_SURNAME);
     setValueOrNull(SEX_FIELD, KEY_SEX);

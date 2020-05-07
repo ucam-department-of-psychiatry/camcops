@@ -48,6 +48,7 @@
 #include "dialogs/passwordentrydialog.h"
 #include "dialogs/logbox.h"
 #include "dbobjects/blob.h"
+#include "dbobjects/taskschedule.h"
 #include "lib/containers.h"
 #include "lib/convert.h"
 #include "lib/datetime.h"
@@ -62,6 +63,7 @@ using dbfunc::delimit;
 // Keys used by server or client (S server, C client, B bidirectional)
 // SEE ALSO patient.cpp, for the JSON ones.
 const QString KEY_CAMCOPS_VERSION("camcops_version");  // C->S
+const QString KEY_CLIENT_PK("client_pk");  // C->S, new in v2.3.???
 const QString KEY_DATABASE_TITLE("databaseTitle");  // S->C
 const QString KEY_DATEVALUES("datevalues");  // C->S
 const QString KEY_DBDATA("dbdata");  // C->S, new in v2.3.0
@@ -89,6 +91,7 @@ const QString KEY_SESSION_TOKEN("session_token");  // B
 const QString KEY_SUCCESS("success");  // S->C
 const QString KEY_TABLE("table");  // C->S
 const QString KEY_TABLES("tables");  // C->S
+const QString KEY_TASK_SCHEDULES("task_schedules");  // S->C, new in v2.3.???
 const QString KEY_USER("user");  // C->S
 const QString KEY_VALUES("values");  // C->S
 const QString KEYPREFIX_ID_DESCRIPTION("idDescription");  // S->C
@@ -107,7 +110,7 @@ const QString OP_END_UPLOAD("end_upload");
 const QString OP_GET_EXTRA_STRINGS("get_extra_strings");
 const QString OP_GET_ID_INFO("get_id_info");
 const QString OP_GET_ALLOWED_TABLES("get_allowed_tables");  // v2.2.0
-const QString OP_GET_TASK_SCHEDULE("get_task_schedule");
+const QString OP_GET_TASK_SCHEDULES("get_task_schedules");
 const QString OP_REGISTER("register");
 const QString OP_REGISTER_PATIENT("register_patient");  // v2.3.???
 const QString OP_START_PRESERVATION("start_preservation");
@@ -798,7 +801,7 @@ void NetworkManager::registerNext(QNetworkReply* reply)
         storeExtraStrings();
 
         if (m_app.isSingleUserMode()) {
-            m_register_next_stage = NextRegisterStage::GetTaskSchedule;
+            m_register_next_stage = NextRegisterStage::GetTaskSchedules;
         } else {
             m_register_next_stage = NextRegisterStage::Finished;
         }
@@ -806,17 +809,18 @@ void NetworkManager::registerNext(QNetworkReply* reply)
         registerNext();
         break;
 
-    case NextRegisterStage::GetTaskSchedule:
-        statusMessage(tr("Requesting task schedule"));
-        m_register_next_stage = NextRegisterStage::StoreTaskSchedule;
-        dict[KEY_OPERATION] = OP_GET_TASK_SCHEDULE;
+    case NextRegisterStage::GetTaskSchedules:
+        statusMessage(tr("Requesting task schedules"));
+        m_register_next_stage = NextRegisterStage::StoreTaskSchedules;
+        dict[KEY_OPERATION] = OP_GET_TASK_SCHEDULES;
+        dict[KEY_CLIENT_PK] = QString::number(m_app.getSinglePatientId());
 
         serverPost(dict, &NetworkManager::registerNext);
         break;
 
-    case NextRegisterStage::StoreTaskSchedule:
+    case NextRegisterStage::StoreTaskSchedules:
         m_register_next_stage = NextRegisterStage::Finished;
-        storeTaskSchedule();
+        storeTaskSchedules();
         registerNext();
         break;
 
@@ -832,9 +836,27 @@ void NetworkManager::registerNext(QNetworkReply* reply)
 }
 
 
-void NetworkManager::storeTaskSchedule()
+void NetworkManager::storeTaskSchedules()
 {
+    // TODO: Handle Null return value
+    QJsonParseError error;
 
+    QJsonDocument doc = QJsonDocument::fromJson(
+        m_reply_dict[KEY_TASK_SCHEDULES].toUtf8(), &error
+    );
+
+    const QJsonArray schedules_array = doc.array();
+
+    QJsonArray::const_iterator it;
+    for (it = schedules_array.constBegin();
+         it != schedules_array.constEnd(); it++) {
+        QJsonObject schedule_json = it->toObject();
+
+        TaskSchedulePtr schedule = TaskSchedulePtr(
+            new TaskSchedule(m_app, m_app.db(), schedule_json)
+        );
+        schedule->save();
+    }
 }
 
 
@@ -937,7 +959,7 @@ void NetworkManager::storeServerIdentificationInfo()
 
     // Deselect patient or reload single user mode patient as its description
     // text may be out of date
-    m_app.setDefaultPatient();
+    m_app.setDefaultPatient(true);
 }
 
 
@@ -2233,9 +2255,14 @@ QString NetworkManager::txtPleaseRefetchServerInfo()
 // ============================================================================
 void NetworkManager::registerPatient(const QString patient_proquint)
 {
+    PatientPtr patient = PatientPtr(new Patient(m_app, m_app.db()));
+    patient->save();
+    m_app.setSinglePatientId(patient->id());
+
     Dict dict;
     dict[KEY_OPERATION] = OP_REGISTER_PATIENT;
     dict[KEY_PATIENT_PROQUINT] = patient_proquint;
+    dict[KEY_CLIENT_PK] = QString::number(patient->id());
     serverPost(dict, &NetworkManager::registerPatientSub1, false);
 }
 
@@ -2261,13 +2288,12 @@ void NetworkManager::registerPatientSub1(QNetworkReply* reply)
     QJsonObject patient_json = patients_json_array.first().toObject();
 
     PatientPtr patient = PatientPtr(
-        new Patient(m_app, m_app.db(), patient_json)
+        new Patient(m_app, m_app.db(),
+                    m_app.getSinglePatientId(), patient_json)
     );
     patient->save();
 
     patient->addIdNums(patient_json);
-
-    m_app.setSinglePatientId(patient->id());
 
     registerWithServer();
 }

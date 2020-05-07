@@ -219,7 +219,7 @@ protected:
     void storeExtraStrings();
 
     // Store task schedule.
-    void storeTaskSchedule();
+    void storeTaskSchedules();
 
     // ------------------------------------------------------------------------
     // Upload
@@ -367,8 +367,9 @@ protected:
         StoreAllowedTables,
         GetExtraStrings,
         StoreExtraStrings,
-        GetTaskSchedule,
-        StoreTaskSchedule,
+        UploadSinglePatient,
+        GetTaskSchedules,
+        StoreTaskSchedules,
         Finished,
     };
 
