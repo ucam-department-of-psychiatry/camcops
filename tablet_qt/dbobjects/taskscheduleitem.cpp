@@ -19,7 +19,7 @@
 
 #include <QJsonObject>
 #include <QJsonValue>
-#include <QString>
+ #include <QString>
 
 #include "core/camcopsapp.h"
 #include "db/databasemanager.h"
@@ -54,8 +54,8 @@ TaskScheduleItem::TaskScheduleItem(CamcopsApp& app, DatabaseManager& db,
 {
     addField(FK_TASK_SCHEDULE, QVariant::Int, true);
     addField(FN_TASK_TABLE_NAME, QVariant::String, true);
-    addField(FN_DUE_FROM, QVariant::Int, true);
-    addField(FN_DUE_BY, QVariant::Int, true);
+    addField(FN_DUE_FROM, QVariant::String, true);
+    addField(FN_DUE_BY, QVariant::String, true);
 
     load(load_pk);
 }
