@@ -357,6 +357,7 @@ from cardinal_pythonlib.convert import (
 from cardinal_pythonlib.datetimefunc import (
     coerce_to_pendulum,
     coerce_to_pendulum_date,
+    duration_to_iso,
     format_datetime,
 )
 from cardinal_pythonlib.logs import (
@@ -2232,8 +2233,12 @@ def op_get_task_schedules(req: "CamcopsRequest") -> Dict[str, str]:
         for schedule_item_obj in schedule_obj.items:
             items.append({
                 TabletParam.TABLE: schedule_item_obj.task_table_name,
-                TabletParam.DUE_FROM: schedule_item_obj.due_from,
-                TabletParam.DUE_BY: schedule_item_obj.due_by,
+                TabletParam.DUE_FROM: duration_to_iso(
+                    schedule_item_obj.due_from
+                ),
+                TabletParam.DUE_BY: duration_to_iso(
+                    schedule_item_obj.due_by
+                ),
             })
 
         schedules.append({
