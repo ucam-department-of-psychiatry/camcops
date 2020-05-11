@@ -17,22 +17,18 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "mainmenu.h"
-#include "common/uiconst.h"
-#include "lib/uifunc.h"
+#pragma once
+#include "menu/mainmenu.h"
 
 
-
-MainMenu::MainMenu(CamcopsApp& app)
-    : MenuWindow(
-          app,
-          uifunc::iconFilename(uiconst::ICON_CAMCOPS),
-          true)
+class ClinicianMenu : public MainMenu
 {
-}
+    Q_OBJECT
 
+public:
+    ClinicianMenu(CamcopsApp& app);
 
-QString MainMenu::title() const
-{
-    return tr("CamCOPS: Cambridge Cognitive and Psychiatric Assessment Kit");
-}
+protected:
+    virtual void makeItems() override;
+    void upload();
+};

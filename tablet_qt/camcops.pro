@@ -605,6 +605,7 @@ SOURCES += \
     menu/choosepatientmenu.cpp \
     menu/clinicalmenu.cpp \
     menu/clinicalsetsmenu.cpp \
+    menu/clinicianmenu.cpp \
     menu/cognitivemenu.cpp \
     menu/executivemenu.cpp \
     menu/globalmenu.cpp \
@@ -629,6 +630,7 @@ SOURCES += \
     menu/setmenuobrien.cpp \
     menu/settingsmenu.cpp \
     menu/singletaskmenu.cpp \
+    menu/singleusermenu.cpp \
     menu/testmenu.cpp \
     menu/whiskertestmenu.cpp \
     menu/widgettestmenu.cpp \
@@ -1058,6 +1060,7 @@ HEADERS += \
     menu/choosepatientmenu.h \
     menu/clinicalmenu.h \
     menu/clinicalsetsmenu.h \
+    menu/clinicianmenu.h \
     menu/cognitivemenu.h \
     menu/executivemenu.h \
     menu/globalmenu.h \
@@ -1082,6 +1085,7 @@ HEADERS += \
     menu/setmenuobrien.h \
     menu/settingsmenu.h \
     menu/singletaskmenu.h \
+    menu/singleusermenu.h \
     menu/testmenu.h \
     menu/whiskertestmenu.h \
     menu/widgettestmenu.h \

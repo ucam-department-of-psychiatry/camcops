@@ -86,7 +86,9 @@
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 #include "lib/version.h"
+#include "menu/clinicianmenu.h"
 #include "menu/mainmenu.h"
+#include "menu/singleusermenu.h"
 #include "qobjects/debugeventwatcher.h"
 #include "qobjects/slownonguifunctioncaller.h"
 #include "questionnairelib/commonoptions.h"
@@ -1139,7 +1141,13 @@ void CamcopsApp::openMainWindow()
     m_p_main_window->setCentralWidget(m_p_window_stack);
 #endif
 
-    auto menu = new MainMenu(*this);
+    QPointer<MainMenu> menu;
+
+    if (isClinicianMode()) {
+        menu = new ClinicianMenu(*this);
+    } else {
+        menu = new SingleUserMenu(*this);
+    }
     openSubWindow(menu);
 
     m_p_main_window->showMaximized();

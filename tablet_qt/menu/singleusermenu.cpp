@@ -17,22 +17,26 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "mainmenu.h"
-#include "common/uiconst.h"
-#include "lib/uifunc.h"
+#include "singleusermenu.h"
 
 
-
-MainMenu::MainMenu(CamcopsApp& app)
-    : MenuWindow(
-          app,
-          uifunc::iconFilename(uiconst::ICON_CAMCOPS),
-          true)
+SingleUserMenu::SingleUserMenu(CamcopsApp& app) : MainMenu(app)
 {
 }
 
 
-QString MainMenu::title() const
+void SingleUserMenu::makeItems()
 {
-    return tr("CamCOPS: Cambridge Cognitive and Psychiatric Assessment Kit");
+    m_items = {
+        MenuItem(
+            tr("Change operating mode"),
+            std::bind(&SingleUserMenu::changeMode, this)
+        ),
+    };
+}
+
+
+void SingleUserMenu::changeMode()
+{
+    m_app.setModeFromUser();
 }
