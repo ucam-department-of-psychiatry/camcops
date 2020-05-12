@@ -92,6 +92,7 @@ const QString KEY_SUCCESS("success");  // S->C
 const QString KEY_TABLE("table");  // C->S
 const QString KEY_TABLES("tables");  // C->S
 const QString KEY_TASK_SCHEDULES("task_schedules");  // S->C, new in v2.3.???
+const QString KEY_TASK_SCHEDULE_ITEMS("task_schedule_items");
 const QString KEY_USER("user");  // C->S
 const QString KEY_VALUES("values");  // C->S
 const QString KEYPREFIX_ID_DESCRIPTION("idDescription");  // S->C
@@ -855,7 +856,11 @@ void NetworkManager::storeTaskSchedules()
         TaskSchedulePtr schedule = TaskSchedulePtr(
             new TaskSchedule(m_app, m_app.db(), schedule_json)
         );
+        
         schedule->save();
+        schedule->addItems(
+            schedule_json.value(KEY_TASK_SCHEDULE_ITEMS).toArray()
+        );
     }
 }
 

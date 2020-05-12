@@ -72,6 +72,8 @@
 #include "dbobjects/patientidnum.h"
 #include "dbobjects/patientsorter.h"
 #include "dbobjects/storedvar.h"
+#include "dbobjects/taskschedule.h"
+#include "dbobjects/taskscheduleitem.h"
 #include "diagnosis/icd9cm.h"
 #include "diagnosis/icd10.h"
 #include "dialogs/modedialog.h"
@@ -204,9 +206,36 @@ bool CamcopsApp::registerPatientWithServer()
     setVar(varconst::SERVER_PATH, server_url.path());
 
     NetworkManager* netmgr = networkManager();
+
+    connect(netmgr, &NetworkManager::finished,
+            this, &CamcopsApp::networkManagerFinished,
+            Qt::UniqueConnection);
+    
     netmgr->registerPatient(patient_proquint);
 
     return true;
+}
+
+void CamcopsApp::networkManagerFinished()
+{
+    createMainMenu();
+}
+
+TaskSchedulePtrList CamcopsApp::getTaskSchedules()
+{
+    TaskSchedulePtrList task_schedules;
+    TaskSchedule specimen(*this, *m_datadb, dbconst::NONEXISTENT_PK);  // this is why function can't be const
+    const WhereConditions where;  // but we don't specify any
+    const SqlArgs sqlargs = specimen.fetchQuerySql(where);
+    const QueryResult result = m_datadb->query(sqlargs);
+    const int nrows = result.nRows();
+    for (int row = 0; row < nrows; ++row) {
+        TaskSchedulePtr t(new TaskSchedule(*this, *m_datadb, dbconst::NONEXISTENT_PK));
+        t->setFromQuery(result, row, true);
+        task_schedules.append(t);
+    }
+
+    return task_schedules;
 }
 
 
@@ -394,7 +423,7 @@ void CamcopsApp::backgroundStartup()
 {
     // WORKER THREAD. BEWARE.
     const Version& old_version = upgradeDatabaseBeforeTablesMade();
-    makeOtherSystemTables();
+    makeOtherTables();
     registerTasks();  // AFTER storedvar creation, so tasks can read them
     upgradeDatabaseAfterTasksRegistered(old_version);  // AFTER tasks registered
     makeTaskTables();
@@ -967,7 +996,7 @@ void CamcopsApp::upgradeDatabaseAfterTasksRegistered(const Version& old_version)
 }
 
 
-void CamcopsApp::makeOtherSystemTables()
+void CamcopsApp::makeOtherTables()
 {
     // ------------------------------------------------------------------------
     // Make other tables
@@ -999,6 +1028,12 @@ void CamcopsApp::makeOtherSystemTables()
 
     PatientIdNum patient_idnum_specimen(*this, *m_datadb);
     patient_idnum_specimen.makeTable();
+
+    TaskSchedule task_schedule_specimen(*this, *m_datadb);
+    task_schedule_specimen.makeTable();
+
+    TaskScheduleItem task_schedule_item_specimen(*this, *m_datadb);
+    task_schedule_item_specimen.makeTable();
 }
 
 
@@ -1139,10 +1174,18 @@ void CamcopsApp::openMainWindow()
     m_p_main_window->setCentralWidget(m_p_window_stack);
 #endif
 
+    if (isClinicianMode()) {
+        createMainMenu();
+    }
+    
+    m_p_main_window->showMaximized();
+}
+
+
+void CamcopsApp::createMainMenu()
+{
     auto menu = new MainMenu(*this);
     openSubWindow(menu);
-
-    m_p_main_window->showMaximized();
 }
 
 

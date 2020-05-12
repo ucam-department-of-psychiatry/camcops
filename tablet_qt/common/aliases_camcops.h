@@ -101,6 +101,7 @@ using TaskFactoryPtr = QSharedPointer<TaskFactory>;
 
 class TaskSchedule;
 using TaskSchedulePtr = QSharedPointer<TaskSchedule>;
+using TaskSchedulePtrList = QVector<TaskSchedulePtr>;
 
 class TaskScheduleItem;
 using TaskScheduleItemPtr = QSharedPointer<TaskScheduleItem>;

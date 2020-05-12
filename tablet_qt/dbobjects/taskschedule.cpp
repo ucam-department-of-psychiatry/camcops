@@ -33,8 +33,7 @@ const QString TaskSchedule::TABLENAME("task_schedule");
 
 const QString TaskSchedule::FN_NAME("name");
 
-const QString TaskSchedule::KEY_NAME("name");
-const QString TaskSchedule::KEY_TASK_SCHEDULE_ITEMS("task_schedule_items");
+const QString TaskSchedule::KEY_TASK_SCHEDULE_NAME("task_schedule_name");
 
 
 // ============================================================================
@@ -42,10 +41,23 @@ const QString TaskSchedule::KEY_TASK_SCHEDULE_ITEMS("task_schedule_items");
 // ============================================================================
 
 
-TaskSchedule::TaskSchedule(CamcopsApp& app, DatabaseManager& db) :
-    DatabaseObject(app, db, TABLENAME)
+TaskSchedule::TaskSchedule(CamcopsApp& app, DatabaseManager& db,
+                           const int load_pk) :
+    DatabaseObject(app,
+                   db,
+                   TABLENAME,
+                   dbconst::PK_FIELDNAME,
+                   false,  // Has modification timestamp
+                   false,  // Has creation timestamp
+                   false,  // Has move off tablet field
+                   false)  // Triggers need upload
 {
     addField(FN_NAME, QVariant::String);
+
+    // ------------------------------------------------------------------------
+    // Load from database (or create/save), unless this is a specimen
+    // ------------------------------------------------------------------------
+    load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
 
 
@@ -65,8 +77,7 @@ void TaskSchedule::addJsonFields(const QJsonObject json_obj)
         }
     };
 
-    setValueOrNull(FN_NAME, KEY_NAME);
-    addItems(json_obj.value(KEY_TASK_SCHEDULE_ITEMS).toArray());
+    setValueOrNull(FN_NAME, KEY_TASK_SCHEDULE_NAME);
 }
 
 

@@ -117,11 +117,24 @@ void MainMenu::makeClinicianItems()
 void MainMenu::makeSingleUserItems()
 {
     m_items = {
+        MenuItem(tr("Schedules")).setLabelOnly(),
+    };
+
+    TaskSchedulePtrList schedules = m_app.getTaskSchedules();
+
+    for (const TaskSchedulePtr& schedule : schedules) {
+        m_items.append(MenuItem(schedule));
+    }
+    
+    QVector<MenuItem> settings_items = {
+        MenuItem(tr("Settings")).setLabelOnly(),
         MenuItem(
             tr("Change operating mode"),
             std::bind(&MainMenu::changeMode, this)
         ),
     };
+
+    m_items.append(settings_items);
 }
 
 

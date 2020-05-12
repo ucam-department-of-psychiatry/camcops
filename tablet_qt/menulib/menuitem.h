@@ -72,6 +72,8 @@ public:
     // it) as required.
     MenuItem(PatientPtr p_patient);
 
+    MenuItem(TaskSchedulePtr p_patient);
+
     // Item title.
     QString title() const;
 
@@ -83,6 +85,9 @@ public:
 
     // Patient instance that this item represents, if there is one.
     PatientPtr patient() const;
+
+    // Task schedule instance that this item represents, if there is one.
+    TaskSchedulePtr taskSchedule() const;
 
     // Set various options...
     // Return *this (https://en.wikipedia.org/wiki/Method_chaining).
@@ -139,6 +144,7 @@ protected:
     TaskPtr m_p_task;
     TaskChainPtr m_p_taskchain;
     PatientPtr m_p_patient;
+    TaskSchedulePtr m_p_task_schedule;
     HtmlMenuItem m_html_item;
     UrlMenuItem m_url_item;
 

@@ -213,7 +213,7 @@ protected:
     // Create other tables, in both databases -- e.g. blobs, patient,
     // patient_idnum (in the data database); tables for extra strings, other
     // server info (in the system database).
-    void makeOtherSystemTables();
+    void makeOtherTables();
 
     // Registers all tasks with the task factory.
     void registerTasks();
@@ -230,9 +230,12 @@ protected:
     // Set global DPI constants
     void setDPI();
 
-    // Open the CamCOPS main menu.
+    // Open the CamCOPS main window.
     void openMainWindow();
 
+    // Add the main menu to the main window
+    void createMainMenu();
+    
     // Patient registration in single user mode
     bool registerPatientWithServer();
 
@@ -270,6 +273,8 @@ public slots:
     // "Leave fullscreen mode."
     void leaveFullscreen();
 
+    void networkManagerFinished();
+    
     // ------------------------------------------------------------------------
     // Security and related
     // ------------------------------------------------------------------------
@@ -390,6 +395,9 @@ public:
     // Returns all patients.
     PatientPtrList getAllPatients(bool sorted = true);
 
+    // Returns task schedules when in single user mode
+    TaskSchedulePtrList getTaskSchedules();
+    
 protected:
     void reloadPatient(int patient_id);
 

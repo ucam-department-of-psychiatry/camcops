@@ -31,6 +31,7 @@
 #include "common/cssconst.h"
 #include "common/uiconst.h"
 #include "dbobjects/patient.h"
+#include "dbobjects/taskschedule.h"
 #include "layouts/layouts.h"
 #include "lib/convert.h"
 #include "lib/datetime.h"  // for SHORT_DATETIME_FORMAT
@@ -201,6 +202,16 @@ MenuItem::MenuItem(PatientPtr p_patient)
 }
 
 
+MenuItem::MenuItem(TaskSchedulePtr p_task_schedule)
+{
+    setDefaults();
+    m_p_task_schedule = p_task_schedule;
+#ifdef DEBUG_VERBOSE
+    qDebug() << Q_FUNC_INFO << this;
+#endif
+}
+
+
 void MenuItem::setDefaults()
 {
     // Not the most efficient, but saves lots of duplication
@@ -227,6 +238,7 @@ void MenuItem::setDefaults()
     m_p_task.clear();
     m_p_taskchain.clear();
     m_p_patient.clear();
+    m_p_task_schedule.clear();
 }
 
 
@@ -257,6 +269,15 @@ PatientPtr MenuItem::patient() const
     qDebug() << Q_FUNC_INFO << this;
 #endif
     return m_p_patient;
+}
+
+
+TaskSchedulePtr MenuItem::taskSchedule() const
+{
+#ifdef DEBUG_VERBOSE
+    qDebug() << Q_FUNC_INFO << this;
+#endif
+    return m_p_task_schedule;
 }
 
 
@@ -451,6 +472,24 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
         rowlayout->addLayout(textlayout);
         rowlayout->addStretch();
 
+    } else if (m_p_task_schedule) {
+        // --------------------------------------------------------------------
+        // Task Schedule (for task schedule choosing menu)
+        // --------------------------------------------------------------------
+        auto textlayout = new VBoxLayout();
+
+        const QSizePolicy sp(QSizePolicy::Preferred, QSizePolicy::Preferred);
+
+        auto title = new LabelWordWrapWide(m_p_task_schedule->name());
+
+        title->setAlignment(text_align);
+        title->setObjectName(cssconst::MENU_ITEM_TITLE);
+        title->setSizePolicy(sp);
+        textlayout->addWidget(title);
+
+        rowlayout->addLayout(textlayout);
+        rowlayout->addStretch();
+        
     } else {
         // --------------------------------------------------------------------
         // Conventional menu item
@@ -688,6 +727,7 @@ QDebug operator<<(QDebug debug, const MenuItem& m)
                     << " (m_title=" << m.m_title
                     << ", m_p_task=" << m.m_p_task
                     << ", m_p_patient=" << m.m_p_patient
+                    << ", m_p_task_schedule=" << m.m_p_task_schedule
                     << ")";
     return debug;
 }

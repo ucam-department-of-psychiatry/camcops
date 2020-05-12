@@ -32,7 +32,8 @@ public:
     // Creation
     // ------------------------------------------------------------------------
 
-    TaskSchedule(CamcopsApp& app, DatabaseManager& db);
+    TaskSchedule(CamcopsApp& app, DatabaseManager& db,
+                 int load_pk = dbconst::NONEXISTENT_PK);
     TaskSchedule(CamcopsApp& app, DatabaseManager& db,
                  const QJsonObject json_obj);
     void addJsonFields(const QJsonObject json_obj);
@@ -63,6 +64,6 @@ public:
     static const QString TABLENAME;
     static const QString FN_NAME;
 
-    static const QString KEY_NAME;
+    static const QString KEY_TASK_SCHEDULE_NAME;
     static const QString KEY_TASK_SCHEDULE_ITEMS;
 };
