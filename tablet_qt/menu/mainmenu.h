@@ -28,4 +28,14 @@ class MainMenu : public MenuWindow
 public:
     MainMenu(CamcopsApp& app);
     virtual QString title() const override;
+protected:
+    virtual void makeItems() override;
+    void makeClinicianItems();
+    void makeSingleUserItems();
+    void upload();
+    void changeMode();
+  
+public slots:
+    // Operation mode has changed - Clinician, single user...
+    void modeChanged(int mode);
 };
