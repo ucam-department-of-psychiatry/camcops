@@ -67,7 +67,7 @@ public:
     MenuItem(TaskPtr p_task, bool task_shows_taskname = true,
              bool task_shows_patient = false);
     // We don't have one for a Questionnaire or other generic OpenableWidget;
-    // we don't want to have to create them all just to creat the menu.
+    // we don't want to have to create them all just to create the menu.
     // Use a function instead, which can create the OpenableWidget (and open
     // it) as required.
     MenuItem(PatientPtr p_patient);
