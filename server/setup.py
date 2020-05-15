@@ -121,7 +121,7 @@ INSTALL_REQUIRES = [
     'pdfkit==0.6.1',  # wkhtmltopdf interface, for PDF generation from HTML
     'py-bcrypt==0.4',  # Used by rnc_crypto; for bcrypt; now works under Windows too  # noqa
     # REDCap integration. Pip freeze reports as version 0.0.0?
-    'pycap @ git+https://github.com/martinburchell/pycap@31abef46dbe0dfb4d4cf3e2b5f9fe68f096b2554#egg=pycap-1.0.2.2',  # noqa
+    'pycap @ git+https://github.com/martinburchell/pycap@73f276c5dbe33cd619d9f55ca05d14affa3aab8f#egg=pycap-1.0.2.3',  # noqa
     'Pygments==2.3.1',  # Syntax highlighting for introspection/DDL
     'PyMySQL==0.7.1',
     # ... for mysql+pymysql://... BEWARE FURTHER UPGRADES (e.g. to 0.7.11); may
