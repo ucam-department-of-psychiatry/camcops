@@ -212,7 +212,8 @@ Prerequisites for exporting CamCOPS tasks to REDCap records
 - Any instruments in a REDCap record to which CamCOPS exports must be
   set up as "repeating" within the REDCap interface (under "Project Setup").
 
-- One of the instruments must have a field to store the patient identifier.
+- There must be a separate, non-repeating instrument with a field to store
+  the patient identifier.
 
 - There must be a fieldmap XML file that tells CamCOPS how the task fields
   correspond to the REDCap instrument form fields. Its format is described
