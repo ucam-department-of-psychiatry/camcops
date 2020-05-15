@@ -342,6 +342,9 @@ class RedcapTaskExporter(object):
             REDCap record ID or ``None``
         """
 
+        if records.empty:
+            return None
+
         patient_id_fieldname = fieldmap.patient["redcap_field"]
 
         if patient_id_fieldname not in records:
@@ -1352,6 +1355,28 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
         self.assertEquals(record["record_id"], "15-29")
         self.assertEquals(kwargs["return_content"], "count")
         self.assertFalse(kwargs["force_auto_number"])
+
+    def test_record_imported_when_no_existing_records(self) -> None:
+        from camcops_server.cc_modules.cc_exportmodels import (
+            ExportedTask,
+            ExportedTaskRedcap,
+        )
+
+        exporter = MockRedcapTaskExporter()
+        project = exporter.get_project()
+        project.export_records.return_value = DataFrame()
+        project.import_records.return_value = ["1,0"]
+        project.export_project_info.return_value = {
+            "record_autonumbering_enabled": 1
+        }
+
+        exported_task = ExportedTask(task=self.task, recipient=self.recipient)
+        exported_task_redcap = ExportedTaskRedcap(exported_task)
+        exporter.export_task(self.req, exported_task_redcap)
+
+        self.assertEquals(exported_task_redcap.redcap_record_id, "1")
+        self.assertEquals(exported_task_redcap.redcap_instrument_name, "bmi")
+        self.assertEquals(exported_task_redcap.redcap_instance_id, 1)
 
 
 class BmiRedcapUpdateTests(BmiRedcapValidFieldmapTestCase):
