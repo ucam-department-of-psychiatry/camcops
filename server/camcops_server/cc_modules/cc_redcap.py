@@ -123,10 +123,10 @@ class RedcapFieldmap(object):
             raise RedcapExportException(
                 f"Unable to open fieldmap file '{filename}'"
             )
-        except ElementTree.ParseError:
+        except ElementTree.ParseError as e:
             raise RedcapExportException(
-                f"'fieldmap' is missing from {filename}"
-            )
+                f"There was a problem parsing {filename}: {str(e)}"
+            ) from e
 
         root = tree.getroot()
         if root.tag != "fieldmap":
@@ -994,7 +994,7 @@ class RedcapFieldmapTests(TestCase):
                 RedcapFieldmap(fieldmap_file.name)
 
         message = str(cm.exception)
-        self.assertIn("'fieldmap' is missing from", message)
+        self.assertIn("There was a problem parsing", message)
         self.assertIn(fieldmap_file.name, message)
 
     def test_raises_when_patient_missing(self) -> None:
