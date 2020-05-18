@@ -416,7 +416,7 @@ class RedcapTaskExporter(object):
         if len(previous_instances) == 0:
             return 1
 
-        return previous_instances.max()["redcap_repeat_instance"] + 1
+        return int(previous_instances.max()["redcap_repeat_instance"] + 1)
 
     def get_fieldmap(self, recipient: ExportRecipient) -> RedcapFieldmap:
         """
@@ -850,6 +850,31 @@ class MockRedcapNewRecordUploader(RedcapNewRecordUploader):
         self.req = mock.Mock()
         self.project = MockProject()
         self.task = mock.Mock(tablename="mock_task")
+
+
+class RedcapExporterTests(TestCase):
+    def test_next_instance_id_converted_to_int(self) -> None:
+        import numpy
+
+        records = DataFrame({
+            "record_id": ["1", "1", "1", "1", "1"],
+            "redcap_repeat_instrument": ["bmi", "bmi", "bmi", "bmi", "bmi"],
+            "redcap_repeat_instance": [
+                numpy.float64(1.0),
+                numpy.float64(2.0),
+                numpy.float64(3.0),
+                numpy.float64(4.0),
+                numpy.float64(5.0),
+            ],
+
+        })
+
+        next_instance_id = RedcapTaskExporter._get_next_instance_id(
+            records, "bmi", "record_id", "1"
+        )
+
+        self.assertEqual(next_instance_id, 6)
+        self.assertEqual(type(next_instance_id), int)
 
 
 class RedcapExportErrorTests(TestCase):
