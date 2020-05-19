@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -18,6 +18,7 @@
 */
 
 // #define DEBUG_PAINTING
+// #define DEBUG_ACTIVE_CONTENTS_RECT
 // #define DEBUG_VERBOSE
 // #define DEBUG_VERY_VERBOSE
 // #define DEBUG_FULL_REPAINT
@@ -109,6 +110,7 @@ Thermometer::Thermometer(const QVector<QPixmap>& active_images,
     m_rescale_images(rescale_images),
     m_rescale_image_factor(rescale_image_factor),
     m_text_gap_px(text_gap_px),
+    // m_unused_space_colour(QColor()),
     m_selected_index(UNSELECTED),
     m_touching_index(UNSELECTED),
     m_start_touch_index(UNSELECTED)
@@ -308,7 +310,9 @@ bool Thermometer::hasHeightForWidth() const
 int Thermometer::heightForWidth(const int width) const
 {
     // We work this based on aspect ratio, which is width/height.
-    const int hfw = qCeil(static_cast<qreal>(width) / m_aspect_ratio);
+
+    const int hfw = qMin(qCeil(static_cast<qreal>(width) / m_aspect_ratio),
+                         m_target_total_size.height());
 #ifdef DEBUG_PAINTING
     qDebug() << Q_FUNC_INFO << "width" << width << "-> hfw" << hfw;
 #endif
@@ -467,29 +471,41 @@ void Thermometer::paintEvent(QPaintEvent* event)
     qDebug() << Q_FUNC_INFO;
 #endif
     QPainter painter(this);
-    const QRect cr = contentsRect();
+    const QRect acr = activeContentsRect();
     const QRect external_redraw_rect = event->rect();
-    const QRectF internal_redraw_rect = internalRect(external_redraw_rect, cr);
+    const QRectF internal_redraw_rect = internalRect(external_redraw_rect, acr);
     const Qt::Alignment leftstring_align = Qt::AlignRight | Qt::AlignVCenter;
     const Qt::Alignment rightstring_align = Qt::AlignLeft | Qt::AlignVCenter;
+    // Note that using AlignVCenter throughout looks better (despite some
+    // clipping) than switching to top alignment for the top string and bottom
+    // alignment for the bottom string. Ideally we'd get rid of the clipping
+    // too by rescaling the whole image part of the widget further, but not bad
+    // as it is.
 
-#ifdef DEBUG_PAINTING
-    qDebug()
-        << Q_FUNC_INFO
-        << "contentsRect()" << cr;
-#endif
+    // painter.save();
 
     // Apply translations so we can draw using internal coordinates.
     // The translations work in an "internal to external" direction; see
     // https://doc.qt.io/qt-5/qtwidgets-painting-transformations-example.html.
     // First, we scale:
-    QSize displaysize = m_target_total_size;  // starting size
-    displaysize.scale(cr.size(), Qt::KeepAspectRatio);  // now it's e.g. smaller
+    QSize displaysize = acr.size();  // starting size
     qreal scale = static_cast<qreal>(displaysize.height()) /
             static_cast<qreal>(m_target_total_size.height());
     painter.scale(scale, scale);
     // Then we translate from internal (0,0) to the contentrect:
-    painter.translate(cr.topLeft());
+    painter.translate(acr.topLeft());
+
+    // If we are scaling the images small, the text becomes tiny. Scale the
+    // text back:
+    QFont font = painter.font();
+    // qDebug() << "font before:" << font;
+    // Looks like: QFont( "Sans Serif,12,-1,5,50,0,0,0,0,0" )
+    // See qfont.cpp.
+    // family, pointsize, pixelsize, stylehint, ...
+    // Use points, not pixels.
+    font.setPointSizeF(font.pointSizeF() / scale);
+    // qDebug() << "font after:" << font;
+    painter.setFont(font);
 
     // Draw text
     for (int row = 0; row < m_n_rows; ++row) {
@@ -509,7 +525,10 @@ void Thermometer::paintEvent(QPaintEvent* event)
         if (m_use_left_strings) {
             const QRectF leftstring_rect(m_lstring_left, row_top,
                                          m_lstring_width, row_height);
-            if (internal_redraw_rect.intersects(leftstring_rect)) {
+            // Now compensate for
+            const QString& text = m_left_strings.at(row);
+            if (!text.isEmpty() &&
+                    internal_redraw_rect.intersects(leftstring_rect)) {
 #ifdef DEBUG_PAINTING
                 qDebug() << "Drawing left string for row" << row;
 #endif
@@ -517,7 +536,7 @@ void Thermometer::paintEvent(QPaintEvent* event)
                     painter,
                     QPointF(m_lstring_right, vertical_midpoint),
                     leftstring_align,
-                    m_left_strings.at(row)
+                    text
                     // bounding rectangle? Not sure. Probably OK without (text
                     // will overlap when scaled very small)
                 );
@@ -528,7 +547,9 @@ void Thermometer::paintEvent(QPaintEvent* event)
         if (m_use_right_strings) {
             const QRectF rightstring_rect(m_rstring_left, row_top,
                                           m_rstring_width, row_height);
-            if (internal_redraw_rect.intersects(rightstring_rect)) {
+            const QString& text = m_right_strings.at(row);
+            if (!text.isEmpty() &&
+                    internal_redraw_rect.intersects(rightstring_rect)) {
 #ifdef DEBUG_PAINTING
                 qDebug() << "Drawing right string for row" << row;
 #endif
@@ -536,7 +557,7 @@ void Thermometer::paintEvent(QPaintEvent* event)
                     painter,
                     QPointF(m_rstring_left, vertical_midpoint),
                     rightstring_align,
-                    m_right_strings.at(row)
+                    text
                     // bounding rectangle? Not sure. Probably OK without (text
                     // will overlap when scaled very small)
                 );
@@ -577,6 +598,18 @@ void Thermometer::paintEvent(QPaintEvent* event)
             painter.drawPixmap(topleft_imagecoords, *chosen_images[row]);
         }
     }
+
+    // Paint unused region? Nope -- if you don't, it looks fine and just
+    // shows whatever's behind.
+    /*
+    painter.restore();
+    const QRect cr = contentsRect();
+    QRegion unused(cr);
+    unused -= QRegion(acr);
+    painter.setClipRegion(unused);
+    const QBrush brush_unused(m_unused_space_colour);
+    painter.fillRect(cr, brush_unused);
+    */
 }
 
 
@@ -637,6 +670,21 @@ void Thermometer::setTouchedIndex(int touched_index)
 // Coordinate calculations
 // ----------------------------------------------------------------------------
 
+QRect Thermometer::activeContentsRect() const
+{
+    const QRect cr = contentsRect();
+    QSize displaysize = m_target_total_size;
+    displaysize.scale(cr.size(), Qt::KeepAspectRatio);
+    const QRect acr(cr.topLeft(), displaysize);
+#ifdef DEBUG_ACTIVE_CONTENTS_RECT
+    qDebug() << Q_FUNC_INFO
+             << "contentsRect() = " << cr
+             << "-> activeContentsRect() = " << acr;
+#endif
+    return acr;
+}
+
+
 QRect Thermometer::imageRect(int row) const
 {
     // Returns an image's rectangle in EXTERNAL (SCREEN) coordinates.
@@ -647,9 +695,9 @@ QRect Thermometer::imageRect(int row) const
     }
     const QPointF internal_left_top(m_image_left, m_image_top_bottom[row].first);
     const QPointF internal_right_bottom(m_image_right, m_image_top_bottom[row].second);
-    const QRect cr = contentsRect();
-    const QPoint external_left_top = externalPt(internal_left_top, cr);
-    const QPoint external_right_bottom = externalPt(internal_right_bottom, cr);
+    const QRect acr = activeContentsRect();
+    const QPoint external_left_top = externalPt(internal_left_top, acr);
+    const QPoint external_right_bottom = externalPt(internal_right_bottom, acr);
     return QRect(external_left_top, external_right_bottom);
 }
 
@@ -659,8 +707,8 @@ int Thermometer::rowForPoint(const QPoint& pt) const
     // Which row is this event in?
     // Used to find rows corresponding to a mouse/touch event.
 
-    const QRect cr = contentsRect();
-    const QPointF ip = internalPt(pt, cr);
+    const QRect acr = activeContentsRect();
+    const QPointF ip = internalPt(pt, acr);
 
     // Out of range horizontally?
     if (ip.x() < m_image_left || ip.x() > m_image_right) {
@@ -686,41 +734,41 @@ int Thermometer::rowForPoint(const QPoint& pt) const
 }
 
 
-qreal Thermometer::widgetScaleFactor(const QRect& contentsrect) const
+qreal Thermometer::widgetScaleFactor(const QRect& activecontentsrect) const
 {
-    return divide(contentsrect.width(), m_target_total_size.width());
+    return divide(activecontentsrect.width(), m_target_total_size.width());
 }
 
 
 QPoint Thermometer::externalPt(const QPointF& internal_pt,
-                               const QRect& contentsrect) const
+                               const QRect& activecontentsrect) const
 {
-    const qreal wsf = widgetScaleFactor(contentsrect);
+    const qreal wsf = widgetScaleFactor(activecontentsrect);
     return QPoint(
-        contentsRect().left() + internal_pt.x() * wsf,
-        contentsRect().top() + internal_pt.y() * wsf
+        activecontentsrect.left() + internal_pt.x() * wsf,
+        activecontentsrect.top() + internal_pt.y() * wsf
     );
 }
 
 
 QPointF Thermometer::internalPt(const QPoint& external_pt,
-                                const QRect& contentsrect) const
+                                const QRect& activecontentsrect) const
 {
-    const qreal wsf = widgetScaleFactor(contentsrect);
+    const qreal wsf = widgetScaleFactor(activecontentsrect);
     return QPointF(
-        (external_pt.x() - contentsrect.left()) / wsf,
-        (external_pt.y() - contentsrect.top()) / wsf
+        (external_pt.x() - activecontentsrect.left()) / wsf,
+        (external_pt.y() - activecontentsrect.top()) / wsf
     );
 }
 
 
 QRectF Thermometer::internalRect(const QRect& external_rect,
-                                 const QRect& contentsrect) const
+                                 const QRect& activecontentsrect) const
 {
-    const qreal wsf = widgetScaleFactor(contentsrect);
+    const qreal wsf = widgetScaleFactor(activecontentsrect);
     return QRectF(  // left, top, width, height
-        (external_rect.left() - contentsrect.left()) / wsf,
-        (external_rect.top() - contentsrect.top()) / wsf,
+        (external_rect.left() - activecontentsrect.left()) / wsf,
+        (external_rect.top() - activecontentsrect.top()) / wsf,
         external_rect.width() / wsf,
         external_rect.height() / wsf
     );
