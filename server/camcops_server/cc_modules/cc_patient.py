@@ -735,7 +735,7 @@ class Patient(GenericTabletRecordMixin, Base):
             dob=self.dob,
             address=self.address,
             gp=self.gp,
-            other=self.other,
+            otherdetails=self.other,
             idnum_definitions=self.get_idnum_references()
         )
 

@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+set -e
+
+echo installing pip packages
+pip install -e server/.
+
+echo checking packages for conflicts
+pip check
+
+echo installing safety checker
+pip install safety
+
+echo checking packages for vulnerabilities
+safety check
+
+echo checking python for style and errors
+flake8 --config=setup.cfg server/camcops_server
+
+echo running tests
+camcops_server self_test

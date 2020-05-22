@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -340,10 +340,14 @@ OpenableWidget* KhandakerMojoMedical::editor(const bool read_only)
     };
 
     auto doubleQuestion = [this, &page](const QString &fieldname,
+                                        const double minimum,
+                                        const double maximum,
                                         const QString &hint) -> void {
         page->addElement(new QuText(xstring(Q_XML_PREFIX + fieldname)));
 
-        auto line_edit_double = new QuLineEditDouble(fieldRef(fieldname));
+        auto line_edit_double = new QuLineEditDouble(
+            fieldRef(fieldname), minimum, maximum
+        );
         line_edit_double->setHint(hint);
 
         page->addElement(line_edit_double);
@@ -412,7 +416,8 @@ OpenableWidget* KhandakerMojoMedical::editor(const bool read_only)
     yesNoQuestion(FN_HAD_INFECTION_TWO_MONTHS_PRECEDING);
     yesNoQuestion(FN_HAS_ALCOHOL_SUBSTANCE_DEPENDENCE);
     multiChoiceQuestion(FN_SMOKING_STATUS, N_SMOKING_STATUS_VALUES);
-    doubleQuestion(FN_ALCOHOL_UNITS_PER_WEEK, xstring("alcohol_units_hint"));
+    doubleQuestion(FN_ALCOHOL_UNITS_PER_WEEK, 0, 2000,
+                   xstring("alcohol_units_hint"));
 
     page->addElement(new QuText(xstring("medical_history_subtitle")));
     yesNoGrid(
