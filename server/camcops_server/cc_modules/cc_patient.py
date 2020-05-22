@@ -1063,53 +1063,42 @@ class PatientTests(DemoDatabaseTestCase):
         self.assertIsInstance(p.user_may_edit(req), bool)
 
 
-class PatientDeleteTests(DemoDatabaseTestCase):
+class LineageTests(DemoDatabaseTestCase):
     def create_tasks(self) -> None:
         # Actually not creating any tasks but we don't want the patients
         # created by default in the baseclass
-        self.patient1 = Patient()
-        self.patient1.id = 1
-        self._apply_standard_db_fields(self.patient1)
-        self.dbsession.add(self.patient1)
 
-        self.patient_idnum1 = PatientIdNum()
-        self.patient_idnum1.id = 3
-        self._apply_standard_db_fields(self.patient_idnum1)
-        self.patient_idnum1.patient_id = self.patient1.id
-        self.patient_idnum1.which_idnum = self.nhs_iddef.which_idnum
-        self.patient_idnum1.idnum_value = 555
-        self.dbsession.add(self.patient_idnum1)
+        # First record for patient 1
+        self.set_era("2020-01-01")
 
-        self.patient2 = Patient()
-        self.patient2.id = 1
-        self._apply_standard_db_fields(self.patient2)
-        self.dbsession.add(self.patient2)
+        self.patient_1 = Patient()
+        self.patient_1.id = 1
+        self._apply_standard_db_fields(self.patient_1)
+        self.dbsession.add(self.patient_1)
 
-        self.patient_idnum2 = PatientIdNum()
-        self.patient_idnum2.id = 3
-        self._apply_standard_db_fields(self.patient_idnum2)
-        self.patient_idnum2.patient_id = self.patient2.id
-        self.patient_idnum2.which_idnum = self.nhs_iddef.which_idnum
-        self.patient_idnum2.idnum_value = 555
-        self.dbsession.add(self.patient_idnum2)
+        # First ID number record for patient 1
+        self.patient_idnum_1_1 = PatientIdNum()
+        self.patient_idnum_1_1.id = 3
+        self._apply_standard_db_fields(self.patient_idnum_1_1)
+        self.patient_idnum_1_1.patient_id = 1
+        self.patient_idnum_1_1.which_idnum = self.nhs_iddef.which_idnum
+        self.patient_idnum_1_1.idnum_value = 555
+        self.dbsession.add(self.patient_idnum_1_1)
+
+        # Second ID number record for patient 1
+        self.patient_idnum_1_2 = PatientIdNum()
+        self.patient_idnum_1_2.id = 3
+        self._apply_standard_db_fields(self.patient_idnum_1_2)
+        # This one is not current
+        self.patient_idnum_1_2._current = False
+        self.patient_idnum_1_2.patient_id = 1
+        self.patient_idnum_1_2.which_idnum = self.nhs_iddef.which_idnum
+        self.patient_idnum_1_2.idnum_value = 555
+        self.dbsession.add(self.patient_idnum_1_2)
 
         self.dbsession.commit()
 
-    def test_delete_deletes_all_dependant_idnums(self) -> None:
-        patient_query = self.dbsession.query(Patient).filter(
-            Patient.id == 1
-        )
-        self.assertEqual(len(list(patient_query)), 2)
+    def test_gen_patient_idnums_even_noncurrent(self) -> None:
+        idnums = list(self.patient_1.gen_patient_idnums_even_noncurrent())
 
-        patient_idnum_query = self.dbsession.query(PatientIdNum).filter(
-            PatientIdNum.patient_id == 1
-        )
-        self.assertEqual(len(list(patient_idnum_query)), 2)
-
-        self.patient1.delete_with_dependants(self.req)
-
-        self.assertEqual(len(list(patient_idnum_query)), 0)
-        self.assertEqual(len(list(patient_query)), 1)
-
-        self.patient2.delete_with_dependants(self.req)
-        self.assertEqual(len(list(patient_query)), 0)
+        self.assertEqual(len(idnums), 2)
