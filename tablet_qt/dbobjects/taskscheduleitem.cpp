@@ -97,7 +97,7 @@ int TaskScheduleItem::id() const
 }
 
 
-QString TaskScheduleItem::due_from() const
+QString TaskScheduleItem::dueFrom() const
 {
     const QString due_from = valueString(FN_DUE_FROM);
 
@@ -105,9 +105,14 @@ QString TaskScheduleItem::due_from() const
 }
 
 
-QString TaskScheduleItem::due_by() const
+QString TaskScheduleItem::dueBy() const
 {
     const QString due_by = valueString(FN_DUE_BY);
 
     return due_by.isEmpty() ? "?" : due_by;
+}
+
+QString TaskScheduleItem::taskTableName() const
+{
+    return valueString(FN_TASK_TABLE_NAME);
 }

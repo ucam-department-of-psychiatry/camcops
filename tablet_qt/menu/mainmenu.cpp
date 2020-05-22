@@ -22,6 +22,8 @@
 #include <QSharedPointer>
 #include "common/uiconst.h"
 #include "core/networkmanager.h"
+#include "dbobjects/taskschedule.h"
+#include "dbobjects/taskscheduleitem.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 #include "menulib/menuproxy.h"
@@ -123,9 +125,15 @@ void MainMenu::makeSingleUserItems()
     TaskSchedulePtrList schedules = m_app.getTaskSchedules();
 
     for (const TaskSchedulePtr& schedule : schedules) {
-        m_items.append(MenuItem(schedule));
+        m_items.append(MenuItem(schedule).setLabelOnly());
+
+        for (const TaskScheduleItemPtr& schedule_item : schedule->items()) {
+            m_items.append(
+                MAKE_TASK_MENU_ITEM(schedule_item->taskTableName(), m_app)
+            );
+        }
     }
-    
+
     QVector<MenuItem> settings_items = {
         MenuItem(tr("Settings")).setLabelOnly(),
         MenuItem(
@@ -153,7 +161,7 @@ void MainMenu::changeMode()
 void MainMenu::modeChanged(const int mode)
 {
     Q_UNUSED(mode);
-    
+
 #ifdef DEBUG_SLOTS
     qDebug() << Q_FUNC_INFO << "[this:" << this << "]";
 #endif

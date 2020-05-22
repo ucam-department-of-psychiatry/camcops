@@ -55,6 +55,7 @@ public:
 
     int id() const;
     QString name() const;
+    QVector<TaskScheduleItemPtr> items() const;
 
 protected:
     // Schedule items

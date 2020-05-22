@@ -129,6 +129,11 @@ QVector<DatabaseObjectPtr> TaskSchedule::getAllAncillary() const
     return ancillaries;
 }
 
+QVector<TaskScheduleItemPtr> TaskSchedule::items() const
+{
+    return m_items;
+}
+
 
 // ============================================================================
 // Information about schedules
