@@ -4624,7 +4624,7 @@ class EditPatientViewTests(DemoDatabaseTestCase):
         messages = self.req.session.peek_flash("success")
         self.assertIn(f"Amended patient record with server PK {patient._pk}",
                       messages[0])
-        self.assertIn(f"Test 2", messages[0])
+        self.assertIn("Test 2", messages[0])
 
     def test_message_when_no_changes(self):
         patient = self.create_patient(
