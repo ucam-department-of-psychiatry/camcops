@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-camcops_server/alembic/versions/0048.py
+camcops_server/alembic/versions/0048_patient_unique_constraint.py
 
 ===============================================================================
 

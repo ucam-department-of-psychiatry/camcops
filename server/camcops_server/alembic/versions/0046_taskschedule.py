@@ -91,6 +91,7 @@ def upgrade():
         sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
         sa.Column('patient_pk', sa.Integer(), nullable=True),
         sa.Column('schedule_id', sa.Integer(), nullable=True),
+        sa.Column('start_date', camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(length=32), nullable=True, comment='Schedule start date for the patient. Due from/within durations for a task schedule item are relative to this.'),
         sa.ForeignKeyConstraint(['patient_pk'], ['patient._pk'], name=op.f('fk__patient_task_schedule_patient_pk')),
         sa.ForeignKeyConstraint(['schedule_id'], ['_task_schedule.id'], name=op.f('fk__patient_task_schedule_schedule_id')),
         sa.PrimaryKeyConstraint('id', name=op.f('pk__patient_task_schedule')),

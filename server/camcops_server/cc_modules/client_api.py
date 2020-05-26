@@ -357,7 +357,6 @@ from cardinal_pythonlib.convert import (
 from cardinal_pythonlib.datetimefunc import (
     coerce_to_pendulum,
     coerce_to_pendulum_date,
-    duration_to_iso,
     format_datetime,
 )
 from cardinal_pythonlib.logs import (
@@ -472,7 +471,6 @@ from camcops_server.cc_modules.cc_task import (
     all_task_tables_with_min_client_version,
 )
 from camcops_server.cc_modules.cc_taskindex import update_indexes_and_push_exports  # noqa
-from camcops_server.cc_modules.cc_taskschedule import TaskSchedule
 
 from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 from camcops_server.cc_modules.cc_user import User
@@ -2221,28 +2219,32 @@ def op_get_task_schedules(req: "CamcopsRequest") -> Dict[str, str]:
     patient = dbsession.query(Patient).filter(
         Patient.id == client_pk,
         Patient._device_id == req.tabletsession.device_id
-    ).options(
-        joinedload(Patient.task_schedules).joinedload(TaskSchedule.items)
-    ).first()
+    ).options(joinedload(Patient.task_schedules)).first()
 
     schedules = []
 
-    for schedule_obj in patient.task_schedules:
+    for patient_schedule_obj in patient.task_schedules:
+        if patient_schedule_obj.start_date is None:
+            patient_schedule_obj.start_date = req.now
+            dbsession.add(patient_schedule_obj)
+
+        start_date = patient_schedule_obj.start_date
+
+        task_schedule_obj = patient_schedule_obj.task_schedule
         items = []
 
-        for schedule_item_obj in schedule_obj.items:
+        for schedule_item_obj in task_schedule_obj.items:
+            due_from = start_date.add(days=schedule_item_obj.due_from.days)
+            due_by = start_date.add(days=schedule_item_obj.due_by.days)
+
             items.append({
                 TabletParam.TABLE: schedule_item_obj.task_table_name,
-                TabletParam.DUE_FROM: duration_to_iso(
-                    schedule_item_obj.due_from
-                ),
-                TabletParam.DUE_BY: duration_to_iso(
-                    schedule_item_obj.due_by
-                ),
+                TabletParam.DUE_FROM: due_from.to_iso8601_string(),
+                TabletParam.DUE_BY: due_by.to_iso8601_string(),
             })
 
         schedules.append({
-            TabletParam.TASK_SCHEDULE_NAME: schedule_obj.description,
+            TabletParam.TASK_SCHEDULE_NAME: task_schedule_obj.description,
             TabletParam.TASK_SCHEDULE_ITEMS: items,
         })
 

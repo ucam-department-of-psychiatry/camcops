@@ -36,6 +36,7 @@ from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 from camcops_server.cc_modules.cc_group import Group
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 from camcops_server.cc_modules.cc_sqla_coltypes import (
+    PendulumDateTimeAsIsoTextColType,
     PendulumDurationAsIsoTextColType,
     TableNameColType,
 )
@@ -44,11 +45,21 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
 class PatientTaskSchedule(Base):
     __tablename__ = "_patient_task_schedule"
 
+    # TODO: remove and make the foreign keys primary keys
     id = Column("id", Integer, primary_key=True, autoincrement=True)
     patient_pk = Column("patient_pk", Integer, ForeignKey("patient._pk"))
     schedule_id = Column(
         "schedule_id", Integer, ForeignKey("_task_schedule.id")
     )
+    start_date = Column(
+        "start_date", PendulumDateTimeAsIsoTextColType,
+        comment=(
+            "Schedule start date for the patient. Due from/within "
+            "durations for a task schedule item are relative to this."
+        )
+    )
+    patient = relationship("Patient", backref="task_schedules")
+    task_schedule = relationship("TaskSchedule", backref="patients")
 
 
 class TaskSchedule(Base):
@@ -73,11 +84,6 @@ class TaskSchedule(Base):
     )
 
     items = relationship("TaskScheduleItem")
-    patients = relationship(
-        "Patient",
-        secondary="_patient_task_schedule",
-        backref="task_schedules"
-    )
 
     group = relationship(Group)
 
