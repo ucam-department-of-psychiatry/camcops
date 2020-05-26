@@ -3520,8 +3520,8 @@ class EditPatientView(PatientMixin, UpdateView):
         schedule_query = self.request.dbsession.query(TaskSchedule).filter(
             TaskSchedule.id.in_(new_schedule_ids)
         )
-        old_schedules = {schedule.id: schedule.description
-                         for schedule in patient.task_schedules}
+        old_schedules = {pts.task_schedule.id: pts.task_schedule.description
+                         for pts in patient.task_schedules}
 
         ids_to_add = new_schedule_ids - old_schedules.keys()
         ids_to_delete = old_schedules.keys() - new_schedule_ids
@@ -4616,7 +4616,8 @@ class EditPatientViewTests(DemoDatabaseTestCase):
 
         self.dbsession.commit()
 
-        schedule_names = [s.description for s in patient.task_schedules]
+        schedule_names = [pts.task_schedule.description
+                          for pts in patient.task_schedules]
         self.assertIn("Test 1", schedule_names)
         self.assertIn("Test 2", schedule_names)
         self.assertNotIn("Test 3", schedule_names)
