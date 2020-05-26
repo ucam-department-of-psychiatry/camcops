@@ -86,30 +86,31 @@ void SingleTaskMenu::makeItems()
 
     // Common items
     const QString info_icon_filename = uifunc::iconFilename(uiconst::ICON_INFO);
-    m_items = {
-        MenuItem(tr("Options")).setLabelOnly(),
-    };
-    if (!m_anonymous) {
-        m_items.append(MAKE_CHANGE_PATIENT(m_app));
+    m_items = {};
+
+    if (m_app.isClinicianMode()) {
+        m_items.append(MenuItem(tr("Options")).setLabelOnly());
+        if (!m_anonymous) {
+            m_items.append(MAKE_CHANGE_PATIENT(m_app));
+        }
+        m_items.append(
+            MenuItem(
+                tr("Task information"),
+                UrlMenuItem(
+                    urlconst::taskDocUrl(specimen->infoFilenameStem())
+                    ),
+                info_icon_filename
+                )
+        );
+        m_items.append(MenuItem(tr("Task status"),
+                                std::bind(&SingleTaskMenu::showTaskStatus, this),
+                                info_icon_filename));
     }
     m_items.append(
         MenuItem(
-            tr("Task information"),
-            UrlMenuItem(
-                urlconst::taskDocUrl(specimen->infoFilenameStem())
-            ),
-            info_icon_filename
-        )
-    );
-    m_items.append(MenuItem(tr("Task status"),
-                            std::bind(&SingleTaskMenu::showTaskStatus, this),
-                            info_icon_filename));
-    m_items.append(
-        MenuItem(
             tr("Task instances") + ": " + specimen->menutitle()
-        ).setLabelOnly()
+            ).setLabelOnly()
     );
-
     // Task items
     TaskPtrList tasklist = factory->fetchTasks(m_tablename);
 #ifdef DEBUG_TASK_MENU_CREATION
