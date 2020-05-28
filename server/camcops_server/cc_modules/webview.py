@@ -3889,12 +3889,13 @@ def view_patient_task_schedule(req: "CamcopsRequest") -> Dict[str, Any]:
 
 class TaskScheduleMixin:
     form_class = EditTaskScheduleForm
-    template_name = "task_schedule_edit.mako"
     model_form_dict = {
         "name": ViewParam.NAME,
         "group_id": ViewParam.GROUP_ID,
     }
     object_class = TaskSchedule
+    server_pk_name = "id"
+    template_name = "task_schedule_edit.mako"
 
     def get_success_url(self):
         return self.request.route_url(
@@ -4093,6 +4094,130 @@ class WebviewTests(DemoDatabaseTestCase):
         self.dbsession.commit()
 
         self.assertFalse(any_records_use_group(self.req, group))
+
+
+class AddTaskScheduleViewTests(DemoDatabaseTestCase):
+    def test_schedule_form_displayed(self) -> None:
+        view = AddTaskScheduleView(self.req)
+
+        response = view.dispatch()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.body.decode("utf-8").count("<form"), 1)
+
+    def test_schedule_is_created(self) -> None:
+        multidict = MultiDict([
+            ("_charset_", "UTF-8"),
+            ("__formid__", "deform"),
+            (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
+            (ViewParam.NAME, "MOJO"),
+            (ViewParam.GROUP_ID, self.group.id),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+
+        view = AddTaskScheduleView(self.req)
+
+        with self.assertRaises(HTTPFound) as e:
+            view.dispatch()
+
+        schedule = self.dbsession.query(TaskSchedule).one()
+
+        self.assertEqual(schedule.name, "MOJO")
+
+        self.assertEqual(e.exception.status_code, 302)
+        self.assertIn(
+            "view_task_schedules",
+            e.exception.headers["Location"]
+        )
+
+
+class EditTaskScheduleViewTests(DemoDatabaseTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.schedule = TaskSchedule()
+        self.schedule.group_id = self.group.id
+        self.schedule.name = "Test"
+        self.dbsession.add(self.schedule)
+        self.dbsession.commit()
+
+    def test_schedule_name_can_be_updated(self) -> None:
+        multidict = MultiDict([
+            ("_charset_", "UTF-8"),
+            ("__formid__", "deform"),
+            (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
+            (ViewParam.NAME, "MOJO"),
+            (ViewParam.GROUP_ID, self.group.id),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+        self.req.add_get_params({
+            ViewParam.SCHEDULE_ID: self.schedule.id
+        }, set_method_get=False)
+
+        view = EditTaskScheduleView(self.req)
+
+        with self.assertRaises(HTTPFound) as e:
+            view.dispatch()
+
+        schedule = self.dbsession.query(TaskSchedule).one()
+
+        self.assertEqual(schedule.name, "MOJO")
+
+        self.assertEqual(e.exception.status_code, 302)
+        self.assertIn(
+            "view_task_schedules",
+            e.exception.headers["Location"]
+        )
+
+
+class DeleteTaskScheduleViewTests(DemoDatabaseTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.schedule = TaskSchedule()
+        self.schedule.group_id = self.group.id
+        self.schedule.name = "Test"
+        self.dbsession.add(self.schedule)
+        self.dbsession.commit()
+
+    def test_schedule_item_is_deleted(self) -> None:
+        multidict = MultiDict([
+            ("_charset_", "UTF-8"),
+            ("__formid__", "deform"),
+            (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
+            ("confirm_1_t", "true"),
+            ("confirm_2_t", "true"),
+            ("confirm_4_t", "true"),
+            ("__start__", "danger:mapping"),
+            ("target", "7176"),
+            ("user_entry", "7176"),
+            ("__end__", "danger:mapping"),
+            ("delete", "delete"),
+            (FormAction.DELETE, "delete"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+
+        self.req.add_get_params({
+            ViewParam.SCHEDULE_ID: self.schedule.id
+        }, set_method_get=False)
+        view = DeleteTaskScheduleView(self.req)
+
+        with self.assertRaises(HTTPFound) as e:
+            view.dispatch()
+
+        self.assertEqual(e.exception.status_code, 302)
+        self.assertIn(
+            "view_task_schedules",
+            e.exception.headers["Location"]
+        )
+
+        item = self.dbsession.query(TaskScheduleItem).one_or_none()
+
+        self.assertIsNone(item)
 
 
 class AddTaskScheduleItemViewTests(DemoDatabaseTestCase):
