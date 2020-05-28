@@ -35,9 +35,12 @@ public:
                      const QJsonObject json_obj);
     void addJsonFields(const QJsonObject json_obj);
     int id() const;
-    QString dueFrom() const;
-    QString dueBy() const;
+    QDate dueFrom() const;
+    QDate dueBy() const;
     QString taskTableName() const;
+    QString title() const;
+    QString subtitle() const;
+    bool active() const;
 
     static const QString TABLENAME;
 

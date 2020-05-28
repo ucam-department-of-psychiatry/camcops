@@ -72,7 +72,8 @@ public:
     // it) as required.
     MenuItem(PatientPtr p_patient);
 
-    MenuItem(TaskSchedulePtr p_patient);
+    MenuItem(TaskSchedulePtr p_task_schedule);
+    MenuItem(TaskScheduleItemPtr p_task_schedule_item);
 
     // Item title.
     QString title() const;
@@ -145,6 +146,7 @@ protected:
     TaskChainPtr m_p_taskchain;
     PatientPtr m_p_patient;
     TaskSchedulePtr m_p_task_schedule;
+    TaskScheduleItemPtr m_p_task_schedule_item;
     HtmlMenuItem m_html_item;
     UrlMenuItem m_url_item;
 

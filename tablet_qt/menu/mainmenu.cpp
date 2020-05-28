@@ -128,9 +128,7 @@ void MainMenu::makeSingleUserItems()
         m_items.append(MenuItem(schedule).setLabelOnly());
 
         for (const TaskScheduleItemPtr& schedule_item : schedule->items()) {
-            m_items.append(
-                MAKE_TASK_MENU_ITEM(schedule_item->taskTableName(), m_app)
-            );
+            m_items.append(MenuItem(schedule_item));
         }
     }
 

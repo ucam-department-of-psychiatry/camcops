@@ -19,11 +19,13 @@
 
 #include <QJsonObject>
 #include <QJsonValue>
- #include <QString>
+#include <QString>
 
 #include "core/camcopsapp.h"
 #include "db/databasemanager.h"
 #include "db/databaseobject.h"
+#include "lib/datetime.h"
+#include "tasklib/taskfactory.h"
 #include "taskscheduleitem.h"
 
 const QString TaskScheduleItem::TABLENAME("task_schedule_item");
@@ -97,22 +99,46 @@ int TaskScheduleItem::id() const
 }
 
 
-QString TaskScheduleItem::dueFrom() const
+QDate TaskScheduleItem::dueFrom() const
 {
-    const QString due_from = valueString(FN_DUE_FROM);
-
-    return due_from.isEmpty() ? "?" : due_from;
+    return value(FN_DUE_FROM).toDate();
 }
 
 
-QString TaskScheduleItem::dueBy() const
+QDate TaskScheduleItem::dueBy() const
 {
-    const QString due_by = valueString(FN_DUE_BY);
-
-    return due_by.isEmpty() ? "?" : due_by;
+    return value(FN_DUE_BY).toDate();
 }
 
 QString TaskScheduleItem::taskTableName() const
 {
-    return valueString(FN_TASK_TABLE_NAME);
+    const QString table_name = valueString(FN_TASK_TABLE_NAME);
+
+    return table_name.isEmpty() ? "?" : table_name;
+}
+
+QString TaskScheduleItem::title() const
+{
+    TaskFactory* factory = m_app.taskFactory();
+    TaskPtr task = factory->create(taskTableName());
+
+    return QString(task->longname());
+}
+
+QString TaskScheduleItem::subtitle() const
+{
+    TaskFactory* factory = m_app.taskFactory();
+    TaskPtr task = factory->create(taskTableName());
+
+    return QString(tr("Complete between %1 and %2")).arg(
+        dueFrom().toString(datetime::LONG_DATE_FORMAT),
+        dueBy().toString(datetime::LONG_DATE_FORMAT)
+    );
+}
+
+bool TaskScheduleItem::active() const
+{
+    auto today = QDate::currentDate();
+
+    return today >= dueFrom();
 }

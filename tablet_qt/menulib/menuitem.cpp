@@ -32,6 +32,7 @@
 #include "common/uiconst.h"
 #include "dbobjects/patient.h"
 #include "dbobjects/taskschedule.h"
+#include "dbobjects/taskscheduleitem.h"
 #include "layouts/layouts.h"
 #include "lib/convert.h"
 #include "lib/datetime.h"  // for SHORT_DATETIME_FORMAT
@@ -206,6 +207,16 @@ MenuItem::MenuItem(TaskSchedulePtr p_task_schedule)
 {
     setDefaults();
     m_p_task_schedule = p_task_schedule;
+#ifdef DEBUG_VERBOSE
+    qDebug() << Q_FUNC_INFO << this;
+#endif
+}
+
+
+MenuItem::MenuItem(TaskScheduleItemPtr p_task_schedule_item)
+{
+    setDefaults();
+    m_p_task_schedule_item = p_task_schedule_item;
 #ifdef DEBUG_VERBOSE
     qDebug() << Q_FUNC_INFO << this;
 #endif
@@ -474,7 +485,7 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
 
     } else if (m_p_task_schedule) {
         // --------------------------------------------------------------------
-        // Task Schedule (for task schedule choosing menu)
+        // Task Schedule label
         // --------------------------------------------------------------------
         auto textlayout = new VBoxLayout();
 
@@ -489,7 +500,30 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
 
         rowlayout->addLayout(textlayout);
         rowlayout->addStretch();
-        
+
+    } else if (m_p_task_schedule_item) {
+        // --------------------------------------------------------------------
+        // Task Schedule item, task description and due date
+        // --------------------------------------------------------------------
+        auto textlayout = new VBoxLayout();
+
+        const QSizePolicy sp(QSizePolicy::Preferred, QSizePolicy::Preferred);
+
+        auto title = new LabelWordWrapWide(m_p_task_schedule_item->title());
+
+        title->setAlignment(text_align);
+        title->setObjectName(cssconst::MENU_ITEM_TITLE);
+        title->setSizePolicy(sp);
+        textlayout->addWidget(title);
+        auto subtitle = new LabelWordWrapWide(m_p_task_schedule_item->subtitle());
+        subtitle->setAlignment(text_align);
+        subtitle->setObjectName(cssconst::MENU_ITEM_SUBTITLE);
+        textlayout->addWidget(subtitle);
+
+        rowlayout->addWidget(uifunc::blankIcon());
+        rowlayout->addLayout(textlayout);
+        rowlayout->addStretch();
+
     } else {
         // --------------------------------------------------------------------
         // Conventional menu item
@@ -635,6 +669,13 @@ void MenuItem::act(CamcopsApp& app) const
         uifunc::visitUrl(m_url_item.url);
         return;
     }
+    if (m_p_task_schedule_item && m_p_task_schedule_item->active()) {
+        auto pWindow = new SingleTaskMenu(
+            m_p_task_schedule_item->taskTableName(), app
+        );
+        app.openSubWindow(pWindow);
+    }
+
     qWarning() << "Menu item selected but no action specified:"
                << m_title;
 }
