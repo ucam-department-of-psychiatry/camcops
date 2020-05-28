@@ -44,7 +44,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 <table>
     <tr>
         <th>${_("Group")}</th>
-        <th>${_("Description")}</th>
+        <th>${_("Name")}</th>
         <th>${_("Items")}</th>
         <th>${_("View items")}</th>
         <th>${_("Edit")}</th>
@@ -56,7 +56,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
             ${ schedule.group.name }
         </td>
         <td>
-            ${ schedule.description }
+            ${ schedule.name }
         </td>
         <td>
 %for item in schedule.items:

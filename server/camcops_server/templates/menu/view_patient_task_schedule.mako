@@ -65,7 +65,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
                      Routes.VIEW_TASK_SCHEDULE_ITEMS,
                      _query={
                          ViewParam.SCHEDULE_ID: pts.schedule_id
-                     }) }">${ pts.task_schedule.description }</a><br>
+                     }) }">${ pts.task_schedule.name }</a><br>
             %endfor
         </td>
         <td>

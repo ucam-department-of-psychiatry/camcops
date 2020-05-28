@@ -78,10 +78,7 @@ class TaskSchedule(Base):
                                      Group.id.name)
     )
 
-    description = Column(
-        "description", UnicodeText,
-        comment="description"
-    )
+    name = Column("name", UnicodeText, comment="name")
 
     items = relationship("TaskScheduleItem")
 

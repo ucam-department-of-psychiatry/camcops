@@ -63,7 +63,7 @@ def upgrade():
         '_task_schedule',
         sa.Column('id', sa.Integer(), autoincrement=True, nullable=False, comment='Arbitrary primary key'),
         sa.Column('group_id', sa.Integer(), nullable=False, comment='FK to _security_groups.id'),
-        sa.Column('description', sa.UnicodeText(), nullable=True, comment='description'),
+        sa.Column('name', sa.UnicodeText(), nullable=True, comment='name'),
         sa.ForeignKeyConstraint(['group_id'], ['_security_groups.id'], name=op.f('fk__task_schedule_group_id')),
         sa.PrimaryKeyConstraint('id', name=op.f('pk__task_schedule')),
         mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',

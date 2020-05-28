@@ -2244,7 +2244,7 @@ def op_get_task_schedules(req: "CamcopsRequest") -> Dict[str, str]:
             })
 
         schedules.append({
-            TabletParam.TASK_SCHEDULE_NAME: task_schedule_obj.description,
+            TabletParam.TASK_SCHEDULE_NAME: task_schedule_obj.name,
             TabletParam.TASK_SCHEDULE_ITEMS: items,
         })
 

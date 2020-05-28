@@ -3520,7 +3520,7 @@ class EditPatientView(PatientMixin, UpdateView):
         schedule_query = self.request.dbsession.query(TaskSchedule).filter(
             TaskSchedule.id.in_(new_schedule_ids)
         )
-        old_schedules = {pts.task_schedule.id: pts.task_schedule.description
+        old_schedules = {pts.task_schedule.id: pts.task_schedule.name
                          for pts in patient.task_schedules}
 
         ids_to_add = new_schedule_ids - old_schedules.keys()
@@ -3542,7 +3542,7 @@ class EditPatientView(PatientMixin, UpdateView):
         ).delete(synchronize_session="fetch")
 
         old_names = list(old_schedules.values())
-        new_names = [schedule.description for schedule in schedule_query]
+        new_names = [schedule.name for schedule in schedule_query]
 
         changes["task_schedules"] = (old_names, new_names)
 
@@ -3891,7 +3891,7 @@ class TaskScheduleMixin:
     form_class = EditTaskScheduleForm
     template_name = "task_schedule_edit.mako"
     model_form_dict = {
-        "description": ViewParam.DESCRIPTION,
+        "name": ViewParam.NAME,
         "group_id": ViewParam.GROUP_ID,
     }
     object_class = TaskSchedule
@@ -4101,7 +4101,7 @@ class AddTaskScheduleItemViewTests(DemoDatabaseTestCase):
 
         self.schedule = TaskSchedule()
         self.schedule.group_id = self.group.id
-        self.schedule.description = "Test"
+        self.schedule.name = "Test"
 
         self.dbsession.add(self.schedule)
         self.dbsession.commit()
@@ -4201,7 +4201,7 @@ class EditTaskScheduleItemViewTests(DemoDatabaseTestCase):
 
         self.schedule = TaskSchedule()
         self.schedule.group_id = self.group.id
-        self.schedule.description = "Test"
+        self.schedule.name = "Test"
         self.dbsession.add(self.schedule)
         self.dbsession.commit()
 
@@ -4303,7 +4303,7 @@ class DeleteTaskScheduleItemViewTests(DemoDatabaseTestCase):
 
         self.schedule = TaskSchedule()
         self.schedule.group_id = self.group.id
-        self.schedule.description = "Test"
+        self.schedule.name = "Test"
         self.dbsession.add(self.schedule)
         self.dbsession.commit()
 
@@ -4541,15 +4541,15 @@ class EditPatientViewTests(DemoDatabaseTestCase):
 
         schedule1 = TaskSchedule()
         schedule1.group_id = self.group.id
-        schedule1.description = "Test 1"
+        schedule1.name = "Test 1"
         self.dbsession.add(schedule1)
         schedule2 = TaskSchedule()
         schedule2.group_id = self.group.id
-        schedule2.description = "Test 2"
+        schedule2.name = "Test 2"
         self.dbsession.add(schedule2)
         schedule3 = TaskSchedule()
         schedule3.group_id = self.group.id
-        schedule3.description = "Test 3"
+        schedule3.name = "Test 3"
         self.dbsession.add(schedule3)
         self.dbsession.commit()
 
@@ -4616,7 +4616,7 @@ class EditPatientViewTests(DemoDatabaseTestCase):
 
         self.dbsession.commit()
 
-        schedule_names = [pts.task_schedule.description
+        schedule_names = [pts.task_schedule.name
                           for pts in patient.task_schedules]
         self.assertIn("Test 1", schedule_names)
         self.assertIn("Test 2", schedule_names)
@@ -4739,7 +4739,7 @@ class EditPatientViewTests(DemoDatabaseTestCase):
 
         schedule1 = TaskSchedule()
         schedule1.group_id = self.group.id
-        schedule1.description = "Test 1"
+        schedule1.name = "Test 1"
         self.dbsession.add(schedule1)
         self.dbsession.commit()
 
@@ -4791,12 +4791,12 @@ class AddPatientViewTests(DemoDatabaseTestCase):
 
         schedule1 = TaskSchedule()
         schedule1.group_id = self.group.id
-        schedule1.description = "Test 1"
+        schedule1.name = "Test 1"
         self.dbsession.add(schedule1)
 
         schedule2 = TaskSchedule()
         schedule2.group_id = self.group.id
-        schedule2.description = "Test 2"
+        schedule2.name = "Test 2"
         self.dbsession.add(schedule2)
         self.dbsession.commit()
 

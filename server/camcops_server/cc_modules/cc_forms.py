@@ -3480,7 +3480,7 @@ class TaskScheduleSelector(SchemaNode, RequestAwareMixin):
 
     def __init__(self, *args, **kwargs) -> None:
         self.title = ""  # for type checker
-        self.description = ""  # for type checker
+        self.name = ""  # for type checker
         self.validator = None  # type: Optional[ValidatorType]
         super().__init__(*args, **kwargs)
 
@@ -3493,11 +3493,11 @@ class TaskScheduleSelector(SchemaNode, RequestAwareMixin):
 
         task_schedules = (
             request.dbsession.query(TaskSchedule)
-            .order_by(TaskSchedule.description)
+            .order_by(TaskSchedule.name)
         )
 
         for task_schedule in task_schedules:
-            values.append((task_schedule.id, task_schedule.description))
+            values.append((task_schedule.id, task_schedule.name))
         values, pv = get_values_and_permissible(values, add_none=False)
 
         self.widget.values = values
@@ -3626,7 +3626,7 @@ class AddPatientForm(DynamicDescriptionsForm):
 
 
 class TaskScheduleSchema(CSRFSchema):
-    description = OptionalStringNode()
+    name = OptionalStringNode()
     group_id = MandatoryGroupIdSelectorAdministeredGroups()  # must match ViewParam.GROUP_ID  # noqa
 
 
