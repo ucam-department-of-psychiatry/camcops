@@ -32,14 +32,17 @@ That is, e.g. "command --help > somefile.txt".
 
 import datetime
 import logging
-from os.path import abspath, dirname, join, pardir, realpath
+from os import DirEntry, scandir
+from os.path import abspath, dirname, exists, join, pardir, realpath
 import subprocess
 import sys
-from typing import List
+from typing import List, Optional
 
 from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
 
 log = logging.getLogger(__name__)
+
+EXIT_FAILURE = 1
 
 THIS_DIR = dirname(realpath(__file__))
 
@@ -49,8 +52,6 @@ USER_DIR = join(DOCS_SOURCE_DIR, "user")
 DEV_DIR = join(DOCS_SOURCE_DIR, "developer")
 
 CAMCOPS_ROOT_DIR = abspath(join(THIS_DIR, pardir))  # .../camcops
-TABLET_BUILD_DIR = join(CAMCOPS_ROOT_DIR, "build-camcops-Linux_x86_64-Debug")
-CAMCOPS_CLIENT_EXECUTABLE = join(TABLET_BUILD_DIR, "camcops")
 TABLET_ROOT_DIR = join(CAMCOPS_ROOT_DIR, "tablet_qt")
 TABLET_TOOLS_DIR = join(TABLET_ROOT_DIR, "tools")
 SERVER_ROOT_DIR = join(CAMCOPS_ROOT_DIR, "server")  # .../camcops/server
@@ -85,6 +86,23 @@ def run_cmd(cmdargs: List[str],
         if timestamp:
             now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             f.write(f"\n{comment_prefix}Generated at {now}\n")
+
+
+def find_camcops_client_executable() -> Optional[str]:
+    for entry in build_directories():
+        camcops_executable = join(entry.path, "camcops")
+
+        if exists(camcops_executable):
+            return camcops_executable
+
+    return None
+
+
+def build_directories() -> DirEntry:
+    with scandir(CAMCOPS_ROOT_DIR) as it:
+        for entry in it:
+            if entry.name.startswith("build-") and entry.is_dir():
+                yield entry
 
 
 def main():
@@ -126,7 +144,12 @@ def main():
              "--help"],
             join(DEV_DIR, "open_sqlcipher_help.txt"))
     # user
-    run_cmd([CAMCOPS_CLIENT_EXECUTABLE, "--help"],
+    camcops_client_executable = find_camcops_client_executable()
+    if camcops_client_executable is None:
+        log.error("Cannot find a camcops executable. Have you built it?")
+        sys.exit(EXIT_FAILURE)
+
+    run_cmd([camcops_client_executable, "--help"],
             join(USER_DIR, "camcops_client_help.txt"))
 
     log.info("Done.")
