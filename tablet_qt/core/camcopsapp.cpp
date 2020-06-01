@@ -210,7 +210,7 @@ bool CamcopsApp::registerPatientWithServer()
     connect(netmgr, &NetworkManager::finished,
             this, &CamcopsApp::networkManagerFinished,
             Qt::UniqueConnection);
-    
+
     netmgr->registerPatient(patient_proquint);
 
     return true;
@@ -333,16 +333,6 @@ int CamcopsApp::run()
 
     // Connect to our database
     registerDatabaseDrivers();
-
-    // TODO: Very temp
-    const QString data_filename = dbFullPath(dbfunc::DATA_DATABASE_FILENAME);
-    const QString sys_filename = dbFullPath(dbfunc::SYSTEM_DATABASE_FILENAME);
-
-    QFile data_file(data_filename);
-    data_file.remove();
-
-    QFile sys_file(sys_filename);
-    sys_file.remove();
 
     openOrCreateDatabases();
     QString new_user_password;

@@ -274,7 +274,7 @@ public slots:
     void leaveFullscreen();
 
     void networkManagerFinished();
-    
+
     // ------------------------------------------------------------------------
     // Security and related
     // ------------------------------------------------------------------------
@@ -397,7 +397,7 @@ public:
 
     // Returns task schedules when in single user mode
     TaskSchedulePtrList getTaskSchedules();
-    
+
 protected:
     void reloadPatient(int patient_id);
 
