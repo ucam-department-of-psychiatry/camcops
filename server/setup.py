@@ -138,7 +138,7 @@ INSTALL_REQUIRES = [
     'sadisplay==0.4.9',  # SQL Alchemy schema display script
     'scipy==1.1.0',  # used by some tasks. slow installation.
     'semantic_version==2.6.0',  # semantic versioning; better than semver
-    'sphinx==1.7.6',  # development only
+    'sphinx==3.0.4',  # development only
     # 'sphinx_rtd_theme==0.4.3',  # development only
     'sqlalchemy==1.3.0',  # database access
     'statsmodels==0.9.0',  # e.g. logistic regression
