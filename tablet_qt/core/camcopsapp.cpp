@@ -396,11 +396,9 @@ int CamcopsApp::run()
         offerTerms();
     }
 
-    if (isSingleUserMode() && getSinglePatientId() == dbconst::NONEXISTENT_PK) {
+    if (needToRegisterSinglePatient()) {
         if (!registerPatientWithServer()) {
-            uifunc::stopApp(
-                tr("You did not register your patient")
-            );
+            uifunc::stopApp(tr("You did not register your patient"));
         }
     }
 
@@ -1164,13 +1162,21 @@ void CamcopsApp::openMainWindow()
     m_p_main_window->setCentralWidget(m_p_window_stack);
 #endif
 
-    if (isClinicianMode()) {
+    if (!needToRegisterSinglePatient()) {
         createMainMenu();
     }
-    
+
     m_p_main_window->showMaximized();
 }
 
+bool CamcopsApp::needToRegisterSinglePatient()
+{
+    if (isSingleUserMode()) {
+        return getSinglePatientId() == dbconst::NONEXISTENT_PK;
+    }
+
+    return false;
+}
 
 void CamcopsApp::createMainMenu()
 {
