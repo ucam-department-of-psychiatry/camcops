@@ -32,7 +32,7 @@ That is, e.g. "command --help > somefile.txt".
 
 import datetime
 import logging
-from os import DirEntry, scandir
+from os import DirEntry, environ, scandir
 from os.path import abspath, dirname, exists, join, pardir, realpath
 import subprocess
 import sys
@@ -79,7 +79,11 @@ def run_cmd(cmdargs: List[str],
             Encoding to use
     """
     log.info(f"Running: {cmdargs}")
-    output = subprocess.check_output(cmdargs).decode(encoding)
+
+    modified_env = environ.copy()
+    modified_env["GENERATING_CAMCOPS_DOCS"] = "Yes"
+
+    output = subprocess.check_output(cmdargs, env=modified_env).decode(encoding)
     log.info(f"... writing to: {output_filename}")
     with open(output_filename, "wt") as f:
         f.write(output)
