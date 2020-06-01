@@ -400,6 +400,10 @@ int CamcopsApp::run()
         if (!registerPatientWithServer()) {
             uifunc::stopApp(tr("You did not register your patient"));
         }
+    } else {
+        if (isSingleUserMode()) {
+            setDefaultPatient();
+        }
     }
 
     qInfo() << "Starting Qt event processor...";
