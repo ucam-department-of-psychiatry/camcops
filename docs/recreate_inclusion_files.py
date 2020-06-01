@@ -58,6 +58,29 @@ SERVER_ROOT_DIR = join(CAMCOPS_ROOT_DIR, "server")  # .../camcops/server
 SERVER_TOOLS_DIR = join(SERVER_ROOT_DIR, "tools")
 
 
+def build_directories() -> DirEntry:
+    with scandir(CAMCOPS_ROOT_DIR) as it:
+        for entry in it:
+            if entry.name.startswith("build-") and entry.is_dir():
+                yield entry
+
+
+def find_camcops_client_executable() -> Optional[str]:
+    for entry in build_directories():
+        camcops_executable = join(entry.path, "camcops")
+
+        if exists(camcops_executable):
+            return camcops_executable
+
+    return None
+
+
+CAMCOPS_CLIENT_EXECUTABLE = find_camcops_client_executable()
+if CAMCOPS_CLIENT_EXECUTABLE is None:
+    log.error("Cannot find a camcops executable. Have you built it?")
+    sys.exit(EXIT_FAILURE)
+
+
 def run_cmd(cmdargs: List[str],
             output_filename: str,
             timestamp: bool = False,
@@ -81,32 +104,21 @@ def run_cmd(cmdargs: List[str],
     log.info(f"Running: {cmdargs}")
 
     modified_env = environ.copy()
-    modified_env["GENERATING_CAMCOPS_DOCS"] = "Yes"
+    modified_env["GENERATING_CAMCOPS_DOCS"] = "True"
+    modified_env.pop("CAMCOPS_QT_BASE_DIR", None)
+    modified_env["CAMCOPS_CONFIG_FILE"] = "/path/to/camcops/config_file.ini"
 
-    output = subprocess.check_output(cmdargs, env=modified_env).decode(encoding)
+    output = (
+        subprocess.check_output(cmdargs, env=modified_env).decode(encoding)
+        .replace(CAMCOPS_CLIENT_EXECUTABLE,
+                 "/path/to/camcops/client/executable")
+    )
     log.info(f"... writing to: {output_filename}")
     with open(output_filename, "wt") as f:
         f.write(output)
         if timestamp:
             now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             f.write(f"\n{comment_prefix}Generated at {now}\n")
-
-
-def find_camcops_client_executable() -> Optional[str]:
-    for entry in build_directories():
-        camcops_executable = join(entry.path, "camcops")
-
-        if exists(camcops_executable):
-            return camcops_executable
-
-    return None
-
-
-def build_directories() -> DirEntry:
-    with scandir(CAMCOPS_ROOT_DIR) as it:
-        for entry in it:
-            if entry.name.startswith("build-") and entry.is_dir():
-                yield entry
 
 
 def main():
@@ -149,10 +161,6 @@ def main():
             join(DEV_DIR, "open_sqlcipher_help.txt"))
     # user
     camcops_client_executable = find_camcops_client_executable()
-    if camcops_client_executable is None:
-        log.error("Cannot find a camcops executable. Have you built it?")
-        sys.exit(EXIT_FAILURE)
-
     run_cmd([camcops_client_executable, "--help"],
             join(USER_DIR, "camcops_client_help.txt"))
 
