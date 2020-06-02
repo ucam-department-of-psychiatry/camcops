@@ -357,6 +357,10 @@ int CamcopsApp::run()
         }
     }
 
+    if (isSingleUserMode()) {
+        setVar(varconst::OFFER_UPLOAD_AFTER_EDIT, true);
+    }
+
     // Set the tablet internal password to match the database password, if
     // we've just changed it. Uses a storedvar.
 #ifdef DANGER_DEBUG_WIPE_PASSWORDS
