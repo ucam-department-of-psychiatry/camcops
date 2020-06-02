@@ -2661,7 +2661,7 @@ def op_validate_patients(req: "CamcopsRequest") -> str:
             fail_user_error("Patient JSON is not a dict")
         if not pt_dict:
             fail_user_error("Patient JSON is empty")
-        ptinfo, finalizing = get_patient_info_from_dict(pt_dict)
+        ptinfo, finalizing = get_patient_info_from_dict(req, pt_dict)
         if finalizing is None:
             fail_user_error(f"Missing {TabletParam.FINALIZING!r} JSON key")
 
