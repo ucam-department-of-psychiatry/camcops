@@ -141,14 +141,13 @@ MenuHeader::MenuHeader(QWidget* parent,
     connect(m_button_add, &QAbstractButton::clicked,
             this, &MenuHeader::addClicked);
 
-    if (m_app.isClinicianMode()) {
-        // - Needs upload ("upload")
-        m_button_needs_upload = new ImageButton(uiconst::ICON_UPLOAD);
-        rh_icons->addWidget(m_button_needs_upload, button_align);
-        needsUploadChanged(m_app.needsUpload());
-        connect(m_button_needs_upload, &QAbstractButton::clicked,
-                &m_app, &CamcopsApp::upload);
-    }
+    // - Needs upload ("upload")
+    m_button_needs_upload = new ImageButton(uiconst::ICON_UPLOAD);
+    rh_icons->addWidget(m_button_needs_upload, button_align);
+    needsUploadChanged(m_app.needsUpload());
+    connect(m_button_needs_upload, &QAbstractButton::clicked,
+            &m_app, &CamcopsApp::upload);
+
     // - Locked/unlocked/privileged
     m_button_locked = new ImageButton(uiconst::CBS_LOCKED);
     m_button_unlocked = new ImageButton(uiconst::CBS_UNLOCKED);
