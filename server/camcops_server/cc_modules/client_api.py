@@ -2698,7 +2698,7 @@ def get_patient_info_from_dict(req: "CamcopsRequest",
         elif k == TabletParam.SEX:
             if v not in POSSIBLE_SEX_VALUES:
                 fail_user_error(f"Bad sex value: {v!r}")
-                ptinfo.sex = v
+            ptinfo.sex = v
         elif k == TabletParam.DOB:
             ensure_string(v)
             if v:
