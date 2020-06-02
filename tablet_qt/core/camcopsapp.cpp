@@ -2442,7 +2442,24 @@ void CamcopsApp::upload()
         uifunc::alertNotWhenLocked();
         return;
     }
-    QString text(tr(
+
+    auto method = NetworkManager::UploadMethod::MoveKeepingPatients;
+
+    if (isClinicianMode()) {
+        method = getUploadMethodFromUser();
+
+        if (method == NetworkManager::UploadMethod::Invalid) {
+            return;
+        }
+    }
+
+    NetworkManager* netmgr = networkManager();
+    netmgr->upload(method);
+}
+
+NetworkManager::UploadMethod CamcopsApp::getUploadMethodFromUser()
+{
+   QString text(tr(
             "Copy data to server, or move it to server?\n"
             "\n"
             "COPY: copies unfinished patients, moves finished patients.\n"
@@ -2461,21 +2478,22 @@ void CamcopsApp::upload()
     QAbstractButton* move = msgbox.addButton(tr("Move"), QMessageBox::AcceptRole);  // e.g. OK
     msgbox.addButton(TextConst::cancel(), QMessageBox::RejectRole);  // e.g. Cancel
     msgbox.exec();
-    NetworkManager::UploadMethod method;
+
     QAbstractButton* reply = msgbox.clickedButton();
     if (reply == copy) {
-        method = NetworkManager::UploadMethod::Copy;
-    } else if (reply == move_keep) {
-        method = NetworkManager::UploadMethod::MoveKeepingPatients;
-    } else if (reply == move) {
-        method = NetworkManager::UploadMethod::Move;
-    } else {
-        return;
+        return NetworkManager::UploadMethod::Copy;
     }
-    NetworkManager* netmgr = networkManager();
-    netmgr->upload(method);
-}
 
+    if (reply == move_keep) {
+        return NetworkManager::UploadMethod::MoveKeepingPatients;
+    }
+
+    if (reply == move) {
+        return NetworkManager::UploadMethod::Move;
+    }
+
+    return NetworkManager::UploadMethod::Invalid;
+}
 
 // ============================================================================
 // App strings, or derived

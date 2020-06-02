@@ -27,13 +27,13 @@
 #include "common/dpi.h"
 #include "common/textconst.h"
 #include "common/uiconst.h"  // for FontSize
+#include "core/networkmanager.h"
 #include "crypto/secureqstring.h"
 #include "db/fieldref.h"  // for FieldRefPtr
 #include "dbobjects/patient.h"
 #include "questionnairelib/namevalueoptions.h"
 #include "tasklib/task.h"  // for TaskPtr
 class IdPolicy;
-class NetworkManager;
 class OpenableWidget;
 class QSqlDatabase;
 class QMainWindow;
@@ -618,6 +618,8 @@ protected:
     // ------------------------------------------------------------------------
     // Uploading
     // ------------------------------------------------------------------------
+    NetworkManager::UploadMethod getUploadMethodFromUser();
+
 public:
     // Upload to the server.
     void upload();

@@ -58,6 +58,7 @@ class NetworkManager : public QObject
 public:
     // How should we upload?
     enum class UploadMethod {
+        Invalid,
         Copy,
         MoveKeepingPatients,
         Move
