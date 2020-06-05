@@ -1790,7 +1790,7 @@ bool NetworkManager::catalogueTablesForUpload()
     const QStringList recordwise_tables{Blob::TABLENAME};
     const QStringList patient_tables{Patient::TABLENAME,
                                      PatientIdNum::PATIENT_IDNUM_TABLENAME};
-    const QStringList all_tables = m_db.getAllTables();
+    auto all_tables = m_db.getTablesForUpload();
     const Version server_version = m_app.serverVersion();
     bool may_upload;
     bool server_has_table;  // table present on server
@@ -2198,7 +2198,7 @@ void NetworkManager::uploadOneStep()
     dict[KEY_OPERATION] = OP_UPLOAD_ENTIRE_DATABASE;
     dict[KEY_FINALIZING] = preserving ? ENCODE_TRUE : ENCODE_FALSE;
     dict[KEY_PKNAMEINFO] = getPkInfoAsJson();
-    dict[KEY_DBDATA] = m_db.getDatabaseAsJson();
+    dict[KEY_DBDATA] = m_db.getDatabaseForUploadAsJson();
 #ifdef DEBUG_JSON
     qDebug().noquote() << Q_FUNC_INFO << dict[KEY_DBDATA];
 #endif
@@ -2209,7 +2209,7 @@ void NetworkManager::uploadOneStep()
 QString NetworkManager::getPkInfoAsJson()
 {
     QJsonObject root;
-    for (const QString& tablename : m_db.getAllTables()) {
+    for (const QString& tablename : m_db.getTablesForUpload()) {
         root[tablename] = dbconst::PK_FIELDNAME;  // they're all the same...
     }
     const QJsonDocument jsondoc(root);
