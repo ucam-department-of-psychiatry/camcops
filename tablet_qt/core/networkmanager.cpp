@@ -63,7 +63,6 @@ using dbfunc::delimit;
 // Keys used by server or client (S server, C client, B bidirectional)
 // SEE ALSO patient.cpp, for the JSON ones.
 const QString KEY_CAMCOPS_VERSION("camcops_version");  // C->S
-const QString KEY_CLIENT_PK("client_pk");  // C->S, new in v2.3.???
 const QString KEY_DATABASE_TITLE("databaseTitle");  // S->C
 const QString KEY_DATEVALUES("datevalues");  // C->S
 const QString KEY_DBDATA("dbdata");  // C->S, new in v2.3.0
@@ -111,7 +110,6 @@ const QString OP_END_UPLOAD("end_upload");
 const QString OP_GET_EXTRA_STRINGS("get_extra_strings");
 const QString OP_GET_ID_INFO("get_id_info");
 const QString OP_GET_ALLOWED_TABLES("get_allowed_tables");  // v2.2.0
-const QString OP_GET_TASK_SCHEDULES("get_task_schedules");
 const QString OP_REGISTER("register");
 const QString OP_REGISTER_PATIENT("register_patient");  // v2.3.???
 const QString OP_START_PRESERVATION("start_preservation");
@@ -793,39 +791,13 @@ void NetworkManager::registerNext(QNetworkReply* reply)
     case NextRegisterStage::GetExtraStrings:
         statusMessage(tr("Requesting extra strings"));
         dict[KEY_OPERATION] = OP_GET_EXTRA_STRINGS;
-        m_register_next_stage = NextRegisterStage::StoreExtraStrings;
-
-        serverPost(dict, &NetworkManager::registerNext);
-        break;
-
-    case NextRegisterStage::StoreExtraStrings:
-        storeExtraStrings();
-
-        if (m_app.isSingleUserMode()) {
-            m_register_next_stage = NextRegisterStage::GetTaskSchedules;
-        } else {
-            m_register_next_stage = NextRegisterStage::Finished;
-        }
-
-        registerNext();
-        break;
-
-    case NextRegisterStage::GetTaskSchedules:
-        statusMessage(tr("Requesting task schedules"));
-        m_register_next_stage = NextRegisterStage::StoreTaskSchedules;
-        dict[KEY_OPERATION] = OP_GET_TASK_SCHEDULES;
-        dict[KEY_CLIENT_PK] = QString::number(m_app.getSinglePatientId());
-
-        serverPost(dict, &NetworkManager::registerNext);
-        break;
-
-    case NextRegisterStage::StoreTaskSchedules:
         m_register_next_stage = NextRegisterStage::Finished;
-        storeTaskSchedules();
-        registerNext();
+
+        serverPost(dict, &NetworkManager::registerNext);
         break;
 
     case NextRegisterStage::Finished:
+        storeExtraStrings();
         statusMessage(tr("Completed successfully."));
 
         succeed();
@@ -856,7 +828,7 @@ void NetworkManager::storeTaskSchedules()
         TaskSchedulePtr schedule = TaskSchedulePtr(
             new TaskSchedule(m_app, m_app.db(), schedule_json)
         );
-        
+
         schedule->save();
         schedule->addItems(
             schedule_json.value(KEY_TASK_SCHEDULE_ITEMS).toArray()
@@ -2267,7 +2239,7 @@ void NetworkManager::registerPatient(const QString patient_proquint)
     Dict dict;
     dict[KEY_OPERATION] = OP_REGISTER_PATIENT;
     dict[KEY_PATIENT_PROQUINT] = patient_proquint;
-    dict[KEY_CLIENT_PK] = QString::number(patient->id());
+
     serverPost(dict, &NetworkManager::registerPatientSub1, false);
 }
 
@@ -2299,6 +2271,8 @@ void NetworkManager::registerPatientSub1(QNetworkReply* reply)
     patient->save();
 
     patient->addIdNums(patient_json);
+
+    storeTaskSchedules();
 
     registerWithServer();
 }

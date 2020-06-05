@@ -74,7 +74,6 @@ class TabletParam(object):
     """
     ADDRESS = "address"  # C->S, in JSON, v2.3.0
     CAMCOPS_VERSION = "camcops_version"  # C->S
-    CLIENT_PK = "client_pk"  # C->S; new in v2.3.???
     DATABASE_TITLE = "databaseTitle"  # S->C
     DATEVALUES = "datevalues"  # C->S
     DBDATA = "dbdata"  # C->S, v2.3.0

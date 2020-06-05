@@ -368,9 +368,6 @@ protected:
         StoreAllowedTables,
         GetExtraStrings,
         StoreExtraStrings,
-        UploadSinglePatient,
-        GetTaskSchedules,
-        StoreTaskSchedules,
         Finished,
     };
 

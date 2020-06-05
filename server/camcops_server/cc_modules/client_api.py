@@ -466,7 +466,6 @@ from camcops_server.cc_modules.cc_simpleobjects import (
     IdNumReference,
 )
 from camcops_server.cc_modules.cc_specialnote import SpecialNote
-from camcops_server.cc_modules.cc_sqlalchemy import get_one_or_create
 from camcops_server.cc_modules.cc_task import (
     all_task_tables_with_min_client_version,
 )
@@ -2049,43 +2048,7 @@ def op_check_device_registered(req: "CamcopsRequest") -> None:
 
 
 def op_register_patient(req: "CamcopsRequest") -> Dict[str, Any]:
-    patient_proquint = get_str_var(req, TabletParam.PATIENT_PROQUINT)
-    client_pk = get_int_var(req, TabletParam.CLIENT_PK)
-    uuid_obj = uuid_from_proquint(patient_proquint)
-
-    dbsession = req.dbsession
-    patient = dbsession.query(Patient).filter(
-        Patient.uuid == uuid_obj
-    ).one()
-
-    # No longer attached to the server device
-    client_device_name = get_str_var(req, TabletParam.DEVICE)
-    patient._device, _ = get_one_or_create(dbsession, Device,
-                                           name=client_device_name)
-
-    patient.id = client_pk
-    dbsession.add(patient)
-    for idnum in patient.idnums:
-        idnum.patient_id = patient.id
-        idnum._device = patient._device
-        dbsession.add(idnum)
-
-    user = User(username=f"user-{client_device_name}")
-    user.upload_group = patient.group
-    password = random_password()
-    user.set_password(req, password)
-    dbsession.add(user)
-    dbsession.commit()
-
-    membership = UserGroupMembership(
-        user_id=user.id,
-        group_id=patient.group.id,
-    )
-
-    membership.may_register_devices = True
-    membership.may_upload = True
-
-    user.user_group_memberships.append(membership)
+    patient = get_single_patient(req)
 
     patient_dict = {
         TabletParam.SURNAME: patient.surname,
@@ -2105,11 +2068,51 @@ def op_register_patient(req: "CamcopsRequest") -> Dict[str, Any]:
     # One item list to be consistent with patients uploaded from the tablet
     patient_info = json.dumps([patient_dict])
 
+    task_schedules = get_task_schedules(req, patient)
+
+    client_device_name = get_str_var(req, TabletParam.DEVICE)
+    user, password = create_single_user(req, f"user-{client_device_name}",
+                                        patient.group)
     return {
         TabletParam.USER: user.username,
         TabletParam.PASSWORD: password,
         TabletParam.PATIENT_INFO: patient_info,
+        TabletParam.TASK_SCHEDULES: task_schedules
     }
+
+
+def get_single_patient(req: "CamcopsRequest") -> Patient:
+    patient_proquint = get_str_var(req, TabletParam.PATIENT_PROQUINT)
+    uuid_obj = uuid_from_proquint(patient_proquint)
+
+    return req.dbsession.query(Patient).filter(
+        Patient.uuid == uuid_obj
+    ).options(joinedload(Patient.task_schedules)).one()
+
+
+def create_single_user(req: "CamcopsRequest",
+                       name: str, group: Group) -> Tuple[str, str]:
+
+    dbsession = req.dbsession
+
+    user = User(username=name)
+    user.upload_group = group
+    password = random_password()
+    user.set_password(req, password)
+    dbsession.add(user)
+    dbsession.commit()
+
+    membership = UserGroupMembership(
+        user_id=user.id,
+        group_id=group.id,
+    )
+
+    membership.may_register_devices = True
+    membership.may_upload = True
+
+    user.user_group_memberships.append(membership)
+
+    return user, password
 
 
 # TODO probably of use elsewhere
@@ -2212,14 +2215,9 @@ def op_get_allowed_tables(req: "CamcopsRequest") -> Dict[str, str]:
     return reply
 
 
-def op_get_task_schedules(req: "CamcopsRequest") -> Dict[str, str]:
-    client_pk = get_int_var(req, TabletParam.CLIENT_PK)
+def get_task_schedules(req: "CamcopsRequest",
+                       patient: Patient) -> Dict[str, str]:
     dbsession = req.dbsession
-
-    patient = dbsession.query(Patient).filter(
-        Patient.id == client_pk,
-        Patient._device_id == req.tabletsession.device_id
-    ).options(joinedload(Patient.task_schedules)).first()
 
     schedules = []
 
@@ -2248,7 +2246,7 @@ def op_get_task_schedules(req: "CamcopsRequest") -> Dict[str, str]:
             TabletParam.TASK_SCHEDULE_ITEMS: items,
         })
 
-    return {TabletParam.TASK_SCHEDULES: json.dumps(schedules)}
+    return json.dumps(schedules)
 
 
 # =============================================================================
@@ -2904,7 +2902,6 @@ OPERATIONS_ANYONE = {
 OPERATIONS_REGISTRATION = {
     Operations.GET_ALLOWED_TABLES: op_get_allowed_tables,  # v2.2.0
     Operations.GET_EXTRA_STRINGS: op_get_extra_strings,
-    Operations.GET_TASK_SCHEDULES: op_get_task_schedules,  # v2.3.???
     Operations.REGISTER: op_register,
 }
 OPERATIONS_UPLOAD = {
