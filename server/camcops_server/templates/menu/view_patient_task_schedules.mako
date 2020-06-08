@@ -1,7 +1,7 @@
 ## -*- coding: utf-8 -*-
 <%doc>
 
-camcops_server/templates/menu/view_patient_task_schedule.mako
+camcops_server/templates/menu/view_patient_task_schedules.mako
 
 ===============================================================================
 
