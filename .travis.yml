@@ -7,6 +7,9 @@ python:
 jobs:
   include:
     - stage: "building and installing debian package"
+      before_install:
+        # Travis installs pipenv by default. We don't need it
+        - pip3 uninstall --yes pipenv
       before_script:
         # For testing the "make packages" script
         - sudo apt-get -y install alien fakeroot lintian gdebi
@@ -17,6 +20,9 @@ jobs:
       script: travis_scripts/build_and_install_package
 
     - stage: "installing pip packages and running tests"
+      before_install:
+        # Travis installs pipenv by default. We don't need it
+        - pip3 uninstall --yes pipenv
       before_script:
         # Install wkhtmltopdf on headless ubuntu 18 vps
         # https://gist.github.com/lobermann/ca0e7bb2558b3b08923c6ae2c37a26ce

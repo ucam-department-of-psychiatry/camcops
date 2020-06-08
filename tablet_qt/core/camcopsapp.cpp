@@ -452,6 +452,8 @@ QString CamcopsApp::defaultDatabaseDir() const
 
 bool CamcopsApp::processCommandLineArguments(int& retcode)
 {
+    const QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+
     // https://stackoverflow.com/questions/3886105/how-to-print-to-console-when-using-qt
     QTextStream out(stdout);
     // QTextStream err(stderr);
@@ -473,6 +475,12 @@ bool CamcopsApp::processCommandLineArguments(int& retcode)
     parser.addVersionOption();
 
     // --dbdir <DBDIR>
+    QString default_database_dir = defaultDatabaseDir();
+
+    if (env.contains("GENERATING_CAMCOPS_DOCS")) {
+        default_database_dir = "/path/to/client/database/dir";
+    }
+
     QCommandLineOption dbDirOption(
         "dbdir",  // makes "--dbdir" option
         QString(
@@ -484,7 +492,7 @@ bool CamcopsApp::processCommandLineArguments(int& retcode)
             convert::stringToCppLiteral(dbfunc::DATA_DATABASE_FILENAME),
             convert::stringToCppLiteral(dbfunc::SYSTEM_DATABASE_FILENAME),
             ENVVAR_DB_DIR,
-            convert::stringToCppLiteral(defaultDatabaseDir())
+            convert::stringToCppLiteral(default_database_dir)
         )
     );
     dbDirOption.setValueName("DBDIR");  // makes it take a parameter
@@ -523,7 +531,6 @@ bool CamcopsApp::processCommandLineArguments(int& retcode)
     // ------------------------------------------------------------------------
     // Defaults from the environment
     // ------------------------------------------------------------------------
-    const QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     m_database_path = env.value(ENVVAR_DB_DIR, defaultDatabaseDir());
 
     // ------------------------------------------------------------------------
