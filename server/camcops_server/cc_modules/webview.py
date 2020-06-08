@@ -3870,7 +3870,7 @@ def view_task_schedule_items(req: "CamcopsRequest") -> Dict[str, Any]:
 
 @view_config(route_name=Routes.VIEW_PATIENT_TASK_SCHEDULES,
              permission=Permission.GROUPADMIN,
-             renderer="view_patient_task_schedule.mako")
+             renderer="view_patient_task_schedules.mako")
 def view_patient_task_schedule(req: "CamcopsRequest") -> Dict[str, Any]:
     rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
                                       DEFAULT_ROWS_PER_PAGE)
