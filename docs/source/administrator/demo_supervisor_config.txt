@@ -1,7 +1,7 @@
 
 # =============================================================================
 # Demonstration 'supervisor' (supervisord) config file for CamCOPS.
-# Created by CamCOPS version 2.3.7 at 2020-02-20T21:46:13.874699+00:00.
+# Created by CamCOPS version 2.3.7.
 # =============================================================================
 # See https://camcops.readthedocs.io/en/latest/administrator/server_configuration.html#start-camcops
 
