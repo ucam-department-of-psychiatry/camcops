@@ -1,6 +1,6 @@
 
     # Demonstration Apache config file section for CamCOPS.
-    # Created by CamCOPS version 2.3.7 at 2020-06-01T16:34:49.111102+01:00.
+    # Created by CamCOPS version 2.3.7.
     #
     # Under Ubuntu, the Apache config will be somewhere in /etc/apache2/
     # Under CentOS, the Apache config will be somewhere in /etc/httpd/

@@ -102,7 +102,6 @@ from cardinal_pythonlib.sqlalchemy.session import (
 )
 from cardinal_pythonlib.wsgi.reverse_proxied_mw import ReverseProxiedMiddleware
 import celery.schedules
-from pendulum import DateTime as Pendulum
 from sqlalchemy.engine import create_engine
 from sqlalchemy.engine.base import Engine
 from sqlalchemy.orm import sessionmaker
@@ -218,8 +217,7 @@ def get_demo_config(extra_strings_dir: str = None,
     cd = ConfigDefaults
     return f"""
 # Demonstration CamCOPS server configuration file.
-# Created by CamCOPS server version {CAMCOPS_SERVER_VERSION_STRING} at {str(
-        Pendulum.now())}.
+# Created by CamCOPS server version {CAMCOPS_SERVER_VERSION_STRING}.
 # See help at https://camcops.readthedocs.io/.
 
 # =============================================================================
@@ -520,8 +518,7 @@ def get_demo_supervisor_config() -> str:
     return f"""
 # =============================================================================
 # Demonstration 'supervisor' (supervisord) config file for CamCOPS.
-# Created by CamCOPS version {CAMCOPS_SERVER_VERSION_STRING} at {str(
-        Pendulum.now())}.
+# Created by CamCOPS version {CAMCOPS_SERVER_VERSION_STRING}.
 # =============================================================================
 # See https://camcops.readthedocs.io/en/latest/administrator/server_configuration.html#start-camcops
 
@@ -587,8 +584,7 @@ def get_demo_apache_config(
     urlbase = "/" + rootpath
     return f"""
     # Demonstration Apache config file section for CamCOPS.
-    # Created by CamCOPS version {CAMCOPS_SERVER_VERSION_STRING} at {str(
-        Pendulum.now())}.
+    # Created by CamCOPS version {CAMCOPS_SERVER_VERSION_STRING}.
     #
     # Under Ubuntu, the Apache config will be somewhere in /etc/apache2/
     # Under CentOS, the Apache config will be somewhere in /etc/httpd/
