@@ -281,7 +281,7 @@ from camcops_server.cc_modules.cc_simpleobjects import (
 from camcops_server.cc_modules.cc_specialnote import SpecialNote
 from camcops_server.cc_modules.cc_session import CamcopsSession
 from camcops_server.cc_modules.cc_sqlalchemy import get_all_ddl
-from camcops_server.cc_modules.cc_task import Task
+from camcops_server.cc_modules.cc_task import Task, tablename_to_task_class_dict
 from camcops_server.cc_modules.cc_taskcollection import (
     TaskFilter,
     TaskCollection,
@@ -3871,7 +3871,7 @@ def view_task_schedule_items(req: "CamcopsRequest") -> Dict[str, Any]:
 @view_config(route_name=Routes.VIEW_PATIENT_TASK_SCHEDULES,
              permission=Permission.GROUPADMIN,
              renderer="view_patient_task_schedules.mako")
-def view_patient_task_schedule(req: "CamcopsRequest") -> Dict[str, Any]:
+def view_patient_task_schedules(req: "CamcopsRequest") -> Dict[str, Any]:
     rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
                                       DEFAULT_ROWS_PER_PAGE)
     page_num = req.get_int_param(ViewParam.PAGE, 1)
@@ -3885,6 +3885,71 @@ def view_patient_task_schedule(req: "CamcopsRequest") -> Dict[str, Any]:
                              url_maker=PageUrl(req),
                              request=req)
     return dict(page=page)
+
+
+@view_config(route_name=Routes.VIEW_PATIENT_TASK_SCHEDULE,
+             permission=Permission.GROUPADMIN,
+             renderer="view_patient_task_schedule.mako")
+def view_patient_task_schedule(req: "CamcopsRequest") -> Dict[str, Any]:
+    _ = req.gettext
+
+    pts_id = req.get_int_param(ViewParam.PATIENT_TASK_SCHEDULE_ID)
+
+    # TODO: 404
+    pts = req.dbsession.query(PatientTaskSchedule).filter(
+        PatientTaskSchedule.id == pts_id).options(
+            joinedload("patient.idnums"),
+            joinedload("task_schedule.items"),
+    ).one()
+
+    rows = []
+
+    task_class_lookup = tablename_to_task_class_dict()
+
+    for tsi in pts.task_schedule.items:
+        start_datetime = None
+        end_datetime = None
+        task = None
+
+        if pts.patient.idnums and pts.start_date is not None:
+            start_datetime = pts.start_date.add(days=tsi.due_from.days)
+            end_datetime = pts.start_date.add(days=tsi.due_by.days)
+
+            taskfilter = TaskFilter()
+            for idnum in pts.patient.idnums:
+                idnum_ref = IdNumReference(which_idnum=idnum.which_idnum,
+                                           idnum_value=idnum.idnum_value)
+                taskfilter.idnum_criteria.append(idnum_ref)
+
+            taskfilter.task_types = [tsi.task_table_name]
+
+            taskfilter.start_datetime = start_datetime
+            taskfilter.end_datetime = end_datetime
+
+            collection = TaskCollection(
+                req=req,
+                taskfilter=taskfilter,
+                sort_method_global=TaskSortMethod.CREATION_DATE_DESC
+            )
+
+            if len(collection.all_tasks) > 0:
+                task = collection.all_tasks[0]
+
+        row = {}
+
+        row["task_shortname"] = task_class_lookup[tsi.task_table_name].shortname
+        row["start_datetime"] = start_datetime
+        row["end_datetime"] = end_datetime
+        row["task"] = task
+
+        rows.append(row)
+
+    patient_name = pts.patient.get_surname_forename_upper()
+
+    return dict(
+        rows=rows,
+        patient_name=patient_name
+    )
 
 
 class TaskScheduleMixin:

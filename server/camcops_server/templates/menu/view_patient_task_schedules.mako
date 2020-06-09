@@ -62,9 +62,9 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
         <td>
             %for pts in patient.task_schedules:
             <a href="${ req.route_url(
-                     Routes.VIEW_TASK_SCHEDULE_ITEMS,
+                     Routes.VIEW_PATIENT_TASK_SCHEDULE,
                      _query={
-                         ViewParam.SCHEDULE_ID: pts.schedule_id
+                         ViewParam.PATIENT_TASK_SCHEDULE_ID: pts.id
                      }) }">${ pts.task_schedule.name }</a><br>
             %endfor
         </td>

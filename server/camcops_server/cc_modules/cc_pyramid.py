@@ -211,6 +211,7 @@ class ViewParam(object):
     PAGE = "page"
     PASSWORD = "password"
     PATIENT_ID_PER_ROW = "patient_id_per_row"
+    PATIENT_TASK_SCHEDULE_ID = "patient_task_schedule_id"
     RECIPIENT_NAME = "recipient_name"
     REDIRECT_URL = "redirect_url"
     REPORT_ID = "report_id"
@@ -752,6 +753,7 @@ class Routes(object):
     VIEW_GROUPS = "view_groups"
     VIEW_ID_DEFINITIONS = "view_id_definitions"
     VIEW_OWN_USER_INFO = "view_own_user_info"
+    VIEW_PATIENT_TASK_SCHEDULE = "view_patient_task_schedule"
     VIEW_PATIENT_TASK_SCHEDULES = "view_patient_task_schedules"
     VIEW_SERVER_INFO = "view_server_info"
     VIEW_TASKS = "view_tasks"
@@ -880,6 +882,7 @@ class RouteCollection(object):
     VIEW_GROUPS = RoutePath(Routes.VIEW_GROUPS)
     VIEW_ID_DEFINITIONS = RoutePath(Routes.VIEW_ID_DEFINITIONS)
     VIEW_OWN_USER_INFO = RoutePath(Routes.VIEW_OWN_USER_INFO)
+    VIEW_PATIENT_TASK_SCHEDULE = RoutePath(Routes.VIEW_PATIENT_TASK_SCHEDULE)
     VIEW_PATIENT_TASK_SCHEDULES = RoutePath(Routes.VIEW_PATIENT_TASK_SCHEDULES)
     VIEW_SERVER_INFO = RoutePath(Routes.VIEW_SERVER_INFO)
     VIEW_TASKS = RoutePath(Routes.VIEW_TASKS)
