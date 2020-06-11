@@ -3891,8 +3891,6 @@ def view_patient_task_schedules(req: "CamcopsRequest") -> Dict[str, Any]:
              permission=Permission.GROUPADMIN,
              renderer="view_patient_task_schedule.mako")
 def view_patient_task_schedule(req: "CamcopsRequest") -> Dict[str, Any]:
-    _ = req.gettext
-
     pts_id = req.get_int_param(ViewParam.PATIENT_TASK_SCHEDULE_ID)
 
     # TODO: 404
