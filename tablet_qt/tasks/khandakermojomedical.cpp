@@ -393,8 +393,8 @@ OpenableWidget* KhandakerMojoMedical::editor(const bool read_only)
     FieldRef::SetterFunction set_years = std::bind(
         &KhandakerMojoMedical::setDurationOfIllness, this, std::placeholders::_1);
 
-    m_fr_diagnosis_date = FieldRefPtr(new FieldRef(get_date, set_date, false));
-    m_fr_diagnosis_years = FieldRefPtr(new FieldRef(get_years, set_years, false));
+    m_fr_diagnosis_date = FieldRefPtr(new FieldRef(get_date, set_date, true));
+    m_fr_diagnosis_years = FieldRefPtr(new FieldRef(get_years, set_years, true));
 
     // We don't store duration of illness on the server
     page->addElement(new QuText(xstring("duration_of_illness")));
