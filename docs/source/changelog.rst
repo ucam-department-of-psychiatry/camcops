@@ -2804,3 +2804,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
   Achieved via the generic function
   :meth:`camcops_server.cc_modules.cc_db.GenericTabletRecordMixin._gen_unique_lineage_objects`.
+
+- Bugfix to :ref:`Khandaker GM — MOJO — Medical questionnaire
+  <khandaker_mojo_medical>` where the diagnosis date / years since diagnosis fields were not
+  marked as mandatory.
