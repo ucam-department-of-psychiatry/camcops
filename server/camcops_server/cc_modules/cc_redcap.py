@@ -68,6 +68,7 @@ from asteval import Interpreter, make_symbol_table
 from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from pandas import DataFrame
+from pandas.errors import EmptyDataError
 import pendulum
 import redcap
 
@@ -338,6 +339,9 @@ class RedcapTaskExporter(object):
         try:
             records = project.export_records(format="df", forms=forms,
                                              df_kwargs=df_kwargs)
+        except EmptyDataError:
+            # Should not happen, but in case of PyCap failing to catch this...
+            return DataFrame()
         except redcap.RedcapError as e:
             raise RedcapExportException(str(e))
 

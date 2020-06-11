@@ -223,6 +223,12 @@ Prerequisites for exporting CamCOPS tasks to REDCap records
   the fieldmap XML file. The instruments themselves can repeat within the
   event but the entire event cannot be repeating.
 
+  .. note::
+
+    We don't know of a way that REDCap can tell us dates associated with an
+    event. So, CamCOPS can't say to REDCap: "Which event was scheduled for
+    1 June 2020?" and then upload to that one.
+
 
 Example fieldmap XML file
 -------------------------
