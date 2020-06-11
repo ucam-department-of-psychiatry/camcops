@@ -3875,7 +3875,11 @@ def view_patient_task_schedules(req: "CamcopsRequest") -> Dict[str, Any]:
     rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
                                       DEFAULT_ROWS_PER_PAGE)
     page_num = req.get_int_param(ViewParam.PAGE, 1)
-    q = req.dbsession.query(Patient).filter(Patient._era == ERA_NOW).options(
+    q = req.dbsession.query(Patient).filter(
+        Patient._era == ERA_NOW
+    ).order_by(
+        Patient.surname, Patient.forename
+    ).options(
         joinedload("task_schedules")
     )
 
