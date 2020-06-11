@@ -47,9 +47,13 @@ class PatientTaskSchedule(Base):
 
     # TODO: remove and make the foreign keys primary keys
     id = Column("id", Integer, primary_key=True, autoincrement=True)
-    patient_pk = Column("patient_pk", Integer, ForeignKey("patient._pk"))
+    patient_pk = Column(
+        "patient_pk", Integer,
+        ForeignKey("patient._pk", ondelete="CASCADE")
+    )
     schedule_id = Column(
-        "schedule_id", Integer, ForeignKey("_task_schedule.id")
+        "schedule_id", Integer,
+        ForeignKey("_task_schedule.id", ondelete="CASCADE")
     )
     start_date = Column(
         "start_date", PendulumDateTimeAsIsoTextColType,

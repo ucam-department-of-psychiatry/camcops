@@ -699,6 +699,7 @@ class Routes(object):
     DELETE_GROUP = "delete_group"
     DELETE_ID_DEFINITION = "delete_id_definition"
     DELETE_PATIENT = "delete_patient"
+    DELETE_SCHEDULED_PATIENT = "delete_scheduled_patient"
     DELETE_SPECIAL_NOTE = "delete_special_note"
     DELETE_TASK_SCHEDULE = "delete_task_schedule"
     DELETE_TASK_SCHEDULE_ITEM = "delete_task_schedule_item"
@@ -829,6 +830,7 @@ class RouteCollection(object):
     DELETE_GROUP = RoutePath(Routes.DELETE_GROUP)
     DELETE_ID_DEFINITION = RoutePath(Routes.DELETE_ID_DEFINITION)
     DELETE_PATIENT = RoutePath(Routes.DELETE_PATIENT)
+    DELETE_SCHEDULED_PATIENT = RoutePath(Routes.DELETE_SCHEDULED_PATIENT)
     DELETE_SPECIAL_NOTE = RoutePath(Routes.DELETE_SPECIAL_NOTE)
     DELETE_TASK_SCHEDULE = RoutePath(Routes.DELETE_TASK_SCHEDULE)
     DELETE_TASK_SCHEDULE_ITEM = RoutePath(Routes.DELETE_TASK_SCHEDULE_ITEM)

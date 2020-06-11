@@ -1,7 +1,7 @@
 ## -*- coding: utf-8 -*-
 <%doc>
 
-camcops_server/templates/menu/task_schedule_edit.mako
+camcops_server/templates/menu/generic_form.mako
 
 ===============================================================================
 

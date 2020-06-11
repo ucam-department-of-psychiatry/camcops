@@ -3464,6 +3464,24 @@ class DeletePatientConfirmForm(DangerousForm):
                          request=request, **kwargs)
 
 
+class DeleteScheduledPatientSchema(HardWorkConfirmationSchema):
+    """
+    Schema to delete a patient created on the server.
+    """
+    # name must match ViewParam.SERVER_PK
+    server_pk = HiddenIntegerNode()
+    danger = TranslatableValidateDangerousOperationNode()
+
+
+class DeleteScheduledPatientForm(DeleteCancelForm):
+    """
+    Form to delete a patient created on the server
+    """
+    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+        super().__init__(schema_class=DeleteScheduledPatientSchema,
+                         request=request, **kwargs)
+
+
 EDIT_PATIENT_SIMPLE_PARAMS = [
     ViewParam.FORENAME,
     ViewParam.SURNAME,

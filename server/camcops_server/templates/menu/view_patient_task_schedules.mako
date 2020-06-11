@@ -48,6 +48,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
         <th>${_("Access key")}</th>
         <th>${_("Task schedules")}</th>
         <th>${_("Edit patient")}</th>
+        <th>${_("Delete patient")}</th>
     </tr>
 %for patient in page:
     <tr>
@@ -74,6 +75,13 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
                      _query={
                          ViewParam.SERVER_PK: patient._pk
                      }) }">${_("Edit")}</a>
+        </td>
+        <td>
+            <a href="${ req.route_url(
+                     Routes.DELETE_SCHEDULED_PATIENT,
+                     _query={
+                         ViewParam.SERVER_PK: patient._pk
+                     }) }">${_("Delete")}</a>
         </td>
     </tr>
 %endfor

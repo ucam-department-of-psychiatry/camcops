@@ -224,6 +224,7 @@ from camcops_server.cc_modules.cc_forms import (
     DeleteIdDefinitionForm,
     DeletePatientChooseForm,
     DeletePatientConfirmForm,
+    DeleteScheduledPatientForm,
     DeleteSpecialNoteForm,
     DeleteTaskScheduleForm,
     DeleteTaskScheduleItemForm,
@@ -3307,6 +3308,7 @@ def delete_patient(req: "CamcopsRequest") -> Response:
 
 class PatientMixin:
     object_class = Patient
+    server_pk_name = "_pk"
 
     model_form_dict = {
         "forename": ViewParam.FORENAME,
@@ -3346,7 +3348,6 @@ class EditPatientView(PatientMixin, UpdateView):
     """
     form_class = EditPatientForm
     pk_param = ViewParam.SERVER_PK
-    server_pk_name = "_pk"
     template_name = "patient_edit.mako"
 
     def get_success_url(self):
@@ -3679,6 +3680,37 @@ def add_patient(req: "CamcopsRequest") -> Response:
     return AddPatientView(req).dispatch()
 
 
+class DeleteScheduledPatientView(PatientMixin, DeleteView):
+    form_class = DeleteScheduledPatientForm
+    pk_param = ViewParam.SERVER_PK
+    template_name = "generic_form.mako"
+
+    @property
+    def extra_context(self):
+        _ = self.request.gettext
+        return {
+            "title": _("Delete patient"),
+        }
+
+    def get_success_url(self):
+        return self.request.route_url(
+            Routes.VIEW_PATIENT_TASK_SCHEDULES
+        )
+
+    def delete(self):
+        PatientIdNumIndexEntry.unindex_patient(
+            self.object, self.request.dbsession
+        )
+
+        super().delete()
+
+
+@view_config(route_name=Routes.DELETE_SCHEDULED_PATIENT,
+             permission=Permission.GROUPADMIN)
+def delete_scheduled_patient(req: "CamcopsRequest") -> Response:
+    return DeleteScheduledPatientView(req).dispatch()
+
+
 @view_config(route_name=Routes.FORCIBLY_FINALIZE,
              permission=Permission.GROUPADMIN)
 def forcibly_finalize(req: "CamcopsRequest") -> Response:
@@ -3962,7 +3994,7 @@ class TaskScheduleMixin:
     }
     object_class = TaskSchedule
     server_pk_name = "id"
-    template_name = "task_schedule_edit.mako"
+    template_name = "generic_form.mako"
 
     def get_success_url(self):
         return self.request.route_url(
@@ -5087,3 +5119,78 @@ class AddPatientViewTests(DemoDatabaseTestCase):
         context = args[0]
 
         self.assertIn("form", context)
+
+
+class DeleteScheduledPatientViewTests(DemoDatabaseTestCase):
+    def create_tasks(self):
+        # speed things up a bit
+        pass
+
+    def test_patient_deleted(self) -> None:
+        patient = self.create_patient(
+            id=1, forename="JO", surname="PATIENT",
+            dob=datetime.date(1958, 4, 19),
+            sex="F", address="Address", gp="GP", other="Other"
+        )
+
+        patient_pk = patient._pk
+
+        idnum = self.create_patient_idnum(
+            patient_id=patient.id, which_idnum=self.nhs_iddef.which_idnum,
+            idnum_value=4887211163
+        )
+
+        PatientIdNumIndexEntry.index_idnum(idnum, self.dbsession)
+
+        schedule = TaskSchedule()
+        schedule.group_id = self.group.id
+        schedule.name = "Test 1"
+        self.dbsession.add(schedule)
+        self.dbsession.commit()
+
+        pts = PatientTaskSchedule()
+        pts.patient_pk = patient._pk
+        pts.schedule_id = schedule.id
+        self.dbsession.add(pts)
+        self.dbsession.commit()
+
+        multidict = MultiDict([
+            ("_charset_", "UTF-8"),
+            ("__formid__", "deform"),
+            (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
+            ("confirm_1_t", "true"),
+            ("confirm_2_t", "true"),
+            ("confirm_4_t", "true"),
+            ("__start__", "danger:mapping"),
+            ("target", "7176"),
+            ("user_entry", "7176"),
+            ("__end__", "danger:mapping"),
+            ("delete", "delete"),
+            (FormAction.DELETE, "delete"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+
+        self.req.add_get_params({
+            ViewParam.SERVER_PK: patient._pk
+        }, set_method_get=False)
+        view = DeleteScheduledPatientView(self.req)
+
+        with self.assertRaises(HTTPFound) as e:
+            view.dispatch()
+
+        self.assertEqual(e.exception.status_code, 302)
+        self.assertIn(
+            "view_patient_task_schedules",
+            e.exception.headers["Location"]
+        )
+
+        patient = self.dbsession.query(Patient).filter(
+            Patient._pk == patient_pk).one_or_none()
+
+        self.assertIsNone(patient)
+
+        pts = self.dbsession.query(PatientTaskSchedule).filter(
+            PatientTaskSchedule.patient_pk == patient_pk).one_or_none()
+
+        self.assertIsNone(pts)
