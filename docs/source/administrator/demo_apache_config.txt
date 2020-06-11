@@ -266,5 +266,3 @@
         # cat TERENASSLCA.crt UTNAddTrustServer_CA.crt AddTrustExternalCARoot.crt > univcam.ca-bundle
 
 </VirtualHost>
-
-    

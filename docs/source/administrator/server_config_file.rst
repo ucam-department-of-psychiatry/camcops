@@ -1125,6 +1125,8 @@ DEBUG_SHOW_GUNICORN_OPTIONS
 Debugging option: show possible Gunicorn settings.
 
 
+.. _export_options:
+
 Options for the "[export]" section
 ----------------------------------
 
@@ -1187,6 +1189,11 @@ CELERY_BROKER_URL
 Broker URL for Celery. See
 http://docs.celeryproject.org/en/latest/userguide/configuration.html#conf-broker-settings.
 
+Once you have enabled security in your broker, such as RabbitMQ, you will need
+to set this to a more secure URL (e.g. with username/password authentication).
+
+For RabbitMQ URLs, see e.g. https://www.rabbitmq.com/uri-spec.html.
+
 
 CELERY_WORKER_EXTRA_ARGS
 ########################
@@ -1196,6 +1203,20 @@ CELERY_WORKER_EXTRA_ARGS
 Each line of this multiline string is an extra option to the ``celery worker``
 command used by ``camcops_server launch_workers``, after ``celery worker --app
 camcops_server --loglevel <LOGLEVEL>``.
+
+
+CELERY_EXPORT_TASK_RATE_LIMIT
+#############################
+
+*String.* Default: ``100/m``
+
+The per worker instance rate limit for exporting CamCOPS tasks.
+Integer or float values are interpreted as exports per second.
+
+The rate limits can be specified in seconds, minutes or hours by appending “/s”,
+“/m” or “/h” to the value.
+
+See https://docs.celeryproject.org/en/stable/userguide/tasks.html#Task.rate_limit
 
 
 .. _EXPORT_LOCKDIR:
@@ -1338,6 +1359,7 @@ One of the following methods:
 - ``email``: Sends tasks via e-mail.
 - ``hl7``: Sends HL7 messages across a TCP/IP network.
 - ``file``: Writes files to a local filesystem.
+- ``redcap``: :ref:`Exports tasks to REDCap <redcap>`.
 
 
 PUSH
@@ -1379,7 +1401,7 @@ One of the following:
 - ``html``
 - ``xml``
 
-Not relevant for database exports (see TRANSMISSION_METHOD_).
+Not relevant for REDCap or database exports (see TRANSMISSION_METHOD_).
 
 
 XML_FIELD_COMMENTS
@@ -1488,6 +1510,8 @@ Include anonymous tasks?
 
 - Note that anonymous tasks cannot be sent via HL7; the HL7 specification is
   heavily tied to identification.
+
+- Note that anonymous tasks cannot be sent via REDCap.
 
 - Note also that this setting operates independently of the
   REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY_ setting.
@@ -1939,6 +1963,49 @@ to a human-readable document type; for example, the code "APT" might map to
 "Appointment Letter". Typically we might want a code that maps to "Clinical
 Correspondence", but the code will be defined within the local RiO system
 configuration.
+
+
+.. _redcap_config_options:
+
+Extra options for export to REDCap
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+See :ref:`REDCap export <redcap>`.
+
+
+.. _REDCAP_API_URL:
+
+REDCAP_API_URL
+##############
+
+*String.*
+
+URL of the API on the redcap instance, such as
+``https://domain.of.redcap.server/api/``.
+
+
+.. _REDCAP_API_KEY:
+
+REDCAP_API_KEY
+##############
+
+*String.*
+
+API key, as provided by the REDCap instance, for a user who has permissions to
+import and export data to and from REDCap.
+
+In REDCap, open your project, and click "API" to see this key.
+
+
+.. _REDCAP_FIELDMAP_FILENAME:
+
+REDCAP_FIELDMAP_FILENAME
+########################
+
+*String.*
+
+Name of the REDCap XML fieldmap file for CamCOPS.
+See :ref:`REDCap export <redcap>`.
 
 
 Demonstration config file

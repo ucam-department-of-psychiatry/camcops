@@ -81,10 +81,11 @@ with open(os.path.join(THIS_DIR, 'README.rst'), encoding='utf-8') as f:
 # Package dependencies
 INSTALL_REQUIRES = [
     'alembic==1.0.7',  # database migrations
+    'asteval==0.9.17',  # safe-ish alternative to eval
 
     'Babel==2.6.0',  # reads code, generates gettext files; dev only but was already installed  # noqa
 
-    'cardinal_pythonlib==1.0.82',  # RNC libraries
+    'cardinal_pythonlib==1.0.83',  # RNC libraries
     'celery==4.3.0',  # background tasks
     'colorlog==3.1.4',  # colour in logs
     'CherryPy==18.1.0',  # web server
@@ -122,6 +123,8 @@ INSTALL_REQUIRES = [
     'pexpect==4.6.0',  # for open_sqlcipher.py
     'pdfkit==0.6.1',  # wkhtmltopdf interface, for PDF generation from HTML
     'py-bcrypt==0.4',  # Used by rnc_crypto; for bcrypt; now works under Windows too  # noqa
+    # REDCap integration. Pip freeze reports as version 0.0.0?
+    'pycap @ git+https://github.com/redcap-tools/pycap@ff0e8c6916352a11e16976d5c7b4aaaed7e500ac#egg=pycap-1.0.2.3',  # noqa
     'Pygments==2.3.1',  # Syntax highlighting for introspection/DDL
     'PyMySQL==0.7.1',
     # ... for mysql+pymysql://... BEWARE FURTHER UPGRADES (e.g. to 0.7.11); may
