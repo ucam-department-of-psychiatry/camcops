@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-camcops_server/alembic/versions/0046_taskschedule.py
+camcops_server/alembic/versions/0047_taskschedule.py
 
 ===============================================================================
 
@@ -28,8 +28,8 @@ DATABASE REVISION SCRIPT
 
 taskschedule
 
-Revision ID: 0046
-Revises: 0045
+Revision ID: 0047
+Revises: 0046
 Creation date: 2020-03-23 15:10:13.993974
 
 """
@@ -47,8 +47,8 @@ import camcops_server.cc_modules.cc_sqla_coltypes
 # Revision identifiers, used by Alembic.
 # =============================================================================
 
-revision = '0046'
-down_revision = '0045'
+revision = '0047'
+down_revision = '0046'
 branch_labels = None
 depends_on = None
 

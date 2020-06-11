@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-camcops_server/alembic/versions/0047_patient_uuid.py
+camcops_server/alembic/versions/0049_patient_unique_constraint.py
 
 ===============================================================================
 
@@ -26,11 +26,11 @@ camcops_server/alembic/versions/0047_patient_uuid.py
 
 DATABASE REVISION SCRIPT
 
-patient_uuid
+patient_unique_constraint
 
-Revision ID: 0047
-Revises: 0046
-Creation date: 2020-03-17 18:00:33.550294
+Revision ID: 0049
+Revises: 0048
+Creation date: 2020-04-28 11:48:52.826510
 
 """
 
@@ -39,16 +39,14 @@ Creation date: 2020-03-17 18:00:33.550294
 # =============================================================================
 
 from alembic import op
-import sqlalchemy as sa
-import camcops_server.cc_modules.cc_sqla_coltypes
 
 
 # =============================================================================
 # Revision identifiers, used by Alembic.
 # =============================================================================
 
-revision = '0047'
-down_revision = '0046'
+revision = '0049'
+down_revision = '0048'
 branch_labels = None
 depends_on = None
 
@@ -60,10 +58,12 @@ depends_on = None
 # noinspection PyPep8,PyTypeChecker
 def upgrade():
     with op.batch_alter_table('patient', schema=None) as batch_op:
-        batch_op.add_column(sa.Column('uuid', camcops_server.cc_modules.cc_sqla_coltypes.UuidColType(length=32), nullable=True, comment='UUID'))
+        batch_op.create_unique_constraint(
+            batch_op.f('uq_patient_id'), ['id', '_device_id', '_era']
+        )
 
 
 # noinspection PyPep8,PyTypeChecker
 def downgrade():
     with op.batch_alter_table('patient', schema=None) as batch_op:
-        batch_op.drop_column('uuid')
+        batch_op.drop_constraint(batch_op.f('uq_patient_id'), type_='unique')
