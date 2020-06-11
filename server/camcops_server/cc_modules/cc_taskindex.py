@@ -177,6 +177,7 @@ class PatientIdNumIndexEntry(Base):
         index.patient_pk = idnum.get_patient_server_pk()
         index.which_idnum = idnum.which_idnum
         index.idnum_value = idnum.idnum_value
+        index.indexed_at_utc = Pendulum.now()
         return index
 
     @classmethod
