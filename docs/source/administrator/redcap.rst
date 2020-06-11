@@ -246,8 +246,8 @@ corresponding CamCOPS task (``task`` attribute).
 
 If your REDCap project has events, there needs to be a global tag named
 ``event`` or an ``event`` attribute on the ``instrument`` tag to tell REDCap
-which event this record belongs to. If both global tag and event attribute exist,
-CamCOPS will use the event named in the attribute.
+which event this record belongs to. If both the global tag and an event
+attribute exist, CamCOPS will use the event named in the attribute.
 
 In this example the REDCap instruments are named ``bmi``,
 ``patient_health_questionnaire_9``, and ``medication_table``, and they

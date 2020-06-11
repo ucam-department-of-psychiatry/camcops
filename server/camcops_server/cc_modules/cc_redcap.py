@@ -87,6 +87,12 @@ if TYPE_CHECKING:
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
+MISSING_EVENT_TAG_OR_ATTRIBUTE = (
+    "The REDCap project has events but there is no 'event' tag "
+    "in the fieldmap or an instrument is missing an 'event' "
+    "attribute"
+)
+
 
 class RedcapExportException(Exception):
     pass
@@ -261,11 +267,7 @@ class RedcapTaskExporter(object):
 
         if project.is_longitudinal():
             if not all(fieldmap.events.values()):
-                raise RedcapExportException(
-                    ("The REDCap project has events but there is no event tag "
-                     "in the fieldmap or an instrument is missing an event "
-                     "attribute")
-                )
+                raise RedcapExportException(MISSING_EVENT_TAG_OR_ATTRIBUTE)
 
         existing_records = self._get_existing_records(project, fieldmap)
         existing_record_id = self._get_existing_record_id(
@@ -2074,11 +2076,7 @@ class MissingEventRedcapTests(BadConfigurationRedcapTests):
             exporter.export_task(self.req, exported_task_redcap)
 
         message = str(cm.exception)
-        self.assertEqual(
-            ("The REDCap project has events but there is no event tag in the "
-             "fieldmap or an instrument is missing an event attribute"),
-            message
-        )
+        self.assertEqual(MISSING_EVENT_TAG_OR_ATTRIBUTE, message)
 
 
 class MissingInstrumentEventRedcapTests(BadConfigurationRedcapTests):
@@ -2116,11 +2114,7 @@ class MissingInstrumentEventRedcapTests(BadConfigurationRedcapTests):
             exporter.export_task(self.req, exported_task_redcap)
 
         message = str(cm.exception)
-        self.assertEqual(
-            ("The REDCap project has events but there is no event tag in the "
-             "fieldmap or an instrument is missing an event attribute"),
-            message
-        )
+        self.assertEqual(MISSING_EVENT_TAG_OR_ATTRIBUTE, message)
 
 
 class AnonymousTaskRedcapTests(RedcapExportTestCase):
