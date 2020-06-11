@@ -575,7 +575,8 @@ def cmd_show_export_queue(recipient_names: List[str] = None,
 
 def cmd_export(recipient_names: List[str] = None,
                all_recipients: bool = False,
-               via_index: bool = True) -> None:
+               via_index: bool = True,
+               schedule_via_backend: bool = False) -> None:
     """
     Send all outbound incremental export messages (e.g. HL7).
 
@@ -589,7 +590,8 @@ def cmd_export(recipient_names: List[str] = None,
         export(req,
                recipient_names=recipient_names,
                all_recipients=all_recipients,
-               via_index=via_index)
+               via_index=via_index,
+               schedule_via_backend=schedule_via_backend)
 
 
 def make_data_dictionary(filename: str, recipient_name: str,

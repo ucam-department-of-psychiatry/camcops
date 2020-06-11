@@ -37,6 +37,7 @@ Details for people running a CamCOPS server.
     server_migrating_databases.rst
     windows_service.rst
     snomed.rst
+    redcap.rst
     tcpip_ports.rst
     linux_flavours.rst
     local/local_info.rst
