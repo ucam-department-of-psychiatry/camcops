@@ -212,11 +212,16 @@ Prerequisites for exporting CamCOPS tasks to REDCap records
 - Any instruments in a REDCap record to which CamCOPS exports must be
   set up as "repeating" within the REDCap interface (under "Project Setup").
 
-- One of the instruments must have a field to store the patient identifier.
+- There must be a separate, non-repeating instrument with a field to store
+  the patient identifier.
 
 - There must be a fieldmap XML file that tells CamCOPS how the task fields
   correspond to the REDCap instrument form fields. Its format is described
   below.
+
+- If you are using events, you must specify the name(s) of the event(s) in
+  the fieldmap XML file. The instruments themselves can repeat within the
+  event but the entire event cannot be repeating.
 
 
 Example fieldmap XML file
@@ -236,8 +241,13 @@ The instrument should be the one in REDCap where the ``record_id`` field
 is defined.
 
 This particular REDCap record has three other instruments, defined within the
-``<instruments>`` tag. Each has a REDCap name (``name`` attribute) and a
+``instruments`` tag. Each has a REDCap name (``name`` attribute) and a
 corresponding CamCOPS task (``task`` attribute).
+
+If your REDCap project has events, there needs to be a global tag named
+``event`` or an ``event`` attribute on the ``instrument`` tag to tell REDCap
+which event this record belongs to. If both global tag and event attribute exist,
+CamCOPS will use the event named in the attribute.
 
 In this example the REDCap instruments are named ``bmi``,
 ``patient_health_questionnaire_9``, and ``medication_table``, and they
@@ -251,8 +261,9 @@ respectively.
     <fieldmap>
         <patient instrument="patient_record" redcap_field="patient_id" />
         <record instrument="patient_record" redcap_field="record_id" />
+        <event name="event_1_arm_1" />
         <instruments>
-            <instrument task="phq9" name="patient_health_questionnaire_9">
+            <instrument event="event_2_arm_1" task="phq9" name="patient_health_questionnaire_9">
                 <fields>
                     <field name="phq9_1" formula="task.q1" />
                     <field name="phq9_2" formula="task.q2" />
@@ -317,7 +328,7 @@ with no processing:
 
 .. code-block:: xml
 
-    <instrument task="phq9" name="patient_health_questionnaire_9">
+    <instrument event="event_2_arm_1" task="phq9" name="patient_health_questionnaire_9">
         <fields>
             <field name="phq9_1" formula="task.q1" />
             <field name="phq9_2" formula="task.q2" />
