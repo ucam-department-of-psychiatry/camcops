@@ -3528,6 +3528,7 @@ class TaskScheduleSelector(SchemaNode, RequestAwareMixin):
 
 class TaskScheduleNode(MappingSchema, RequestAwareMixin):
     schedule_id = TaskScheduleSelector()  # must match ViewParam.SCHEDULE_ID  # noqa: E501
+    start_date = StartPendulumSelector()  # must match ViewParam.START_DATE
 
     def __init__(self, *args, **kwargs) -> None:
         self.title = ""  # for type checker
@@ -3537,6 +3538,9 @@ class TaskScheduleNode(MappingSchema, RequestAwareMixin):
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         _ = self.gettext
         self.title = _("Task schedule")
+        start_date = get_child_node(self, "start_date")
+        start_date.title = _("Start date (leave blank for date of patient "
+                             "registration)")
 
 
 class TaskScheduleSequence(SequenceSchema, RequestAwareMixin):
