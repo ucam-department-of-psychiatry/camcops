@@ -1406,20 +1406,8 @@ void CamcopsApp::closeSubWindow()
 #endif
         emit taskAlterationFinished(info.task);
 
-        if (varBool(varconst::OFFER_UPLOAD_AFTER_EDIT) &&
-                varBool(varconst::NEEDS_UPLOAD)) {
-            ScrollMessageBox msgbox(
-                        QMessageBox::Question,
-                        tr("Upload?"),
-                        tr("Task finished. Upload data to server now?"),
-                        m_p_main_window);  // parent
-            QAbstractButton* yes = msgbox.addButton(tr("Yes, upload"),
-                                                    QMessageBox::YesRole);
-            msgbox.addButton(tr("No, cancel"), QMessageBox::NoRole);
-            msgbox.exec();
-            if (msgbox.clickedButton() == yes) {
-                upload();
-            }
+        if (shouldUploadNow()) {
+            upload();
         }
     }
     if (info.patient) {
@@ -1441,6 +1429,35 @@ void CamcopsApp::closeSubWindow()
     emit subWindowFinishedClosing();
 }
 
+bool CamcopsApp::shouldUploadNow()
+{
+    if (varBool(varconst::OFFER_UPLOAD_AFTER_EDIT) &&
+        varBool(varconst::NEEDS_UPLOAD)) {
+
+        if (isClinicianMode()) {
+            return userConfirmedUpload();
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+bool CamcopsApp::userConfirmedUpload()
+{
+    ScrollMessageBox msgbox(
+        QMessageBox::Question,
+        tr("Upload?"),
+        tr("Task finished. Upload data to server now?"),
+        m_p_main_window);  // parent
+    QAbstractButton* yes = msgbox.addButton(tr("Yes, upload"),
+                                            QMessageBox::YesRole);
+    msgbox.addButton(tr("No, cancel"), QMessageBox::NoRole);
+    msgbox.exec();
+
+    return msgbox.clickedButton() == yes;
+}
 
 void CamcopsApp::enterFullscreen()
 {

@@ -620,6 +620,9 @@ protected:
     // ------------------------------------------------------------------------
     NetworkManager::UploadMethod getUploadMethodFromUser();
 
+    bool shouldUploadNow();
+    bool userConfirmedUpload();
+
 public:
     // Upload to the server.
     void upload();
