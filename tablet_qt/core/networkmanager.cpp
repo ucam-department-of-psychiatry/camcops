@@ -2232,10 +2232,6 @@ QString NetworkManager::txtPleaseRefetchServerInfo()
 // ============================================================================
 void NetworkManager::registerPatient(const QString patient_proquint)
 {
-    PatientPtr patient = PatientPtr(new Patient(m_app, m_app.db()));
-    patient->save();
-    m_app.setSinglePatientId(patient->id());
-
     Dict dict;
     dict[KEY_OPERATION] = OP_REGISTER_PATIENT;
     dict[KEY_PATIENT_PROQUINT] = patient_proquint;
@@ -2265,10 +2261,10 @@ void NetworkManager::registerPatientSub1(QNetworkReply* reply)
     QJsonObject patient_json = patients_json_array.first().toObject();
 
     PatientPtr patient = PatientPtr(
-        new Patient(m_app, m_app.db(),
-                    m_app.getSinglePatientId(), patient_json)
+        new Patient(m_app, m_app.db(), patient_json)
     );
     patient->save();
+    m_app.setSinglePatientId(patient->id());
 
     patient->addIdNums(patient_json);
 

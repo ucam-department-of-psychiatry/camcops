@@ -135,14 +135,6 @@ Patient::Patient(CamcopsApp& app, DatabaseManager& db,
 }
 
 
-Patient::Patient(CamcopsApp& app, DatabaseManager& db,
-                 const int load_pk,
-                 const QJsonObject json_obj) : Patient(app, db, load_pk)
-{
-    addJsonFields(json_obj);
-}
-
-
 void Patient::addJsonFields(const QJsonObject json_obj)
 {
     auto setValueOrNull = [&](const QString& field, const QString& key) {
