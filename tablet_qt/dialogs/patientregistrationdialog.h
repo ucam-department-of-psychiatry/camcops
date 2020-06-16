@@ -36,6 +36,7 @@ class PatientRegistrationDialog : public QDialog
 public:
     PatientRegistrationDialog(QWidget* parent = nullptr);
     QString patientProquint() const;
+    QString serverUrlAsString() const;
     QUrl serverUrl() const;
 protected:
     QPointer<QDialogButtonBox> m_buttonbox;

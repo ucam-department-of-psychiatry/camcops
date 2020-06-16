@@ -76,19 +76,24 @@ PatientRegistrationDialog::PatientRegistrationDialog(
 
 QString PatientRegistrationDialog::patientProquint() const
 {
-    return m_editor_patient_proquint->text();
+    return m_editor_patient_proquint->text().trimmed();
+}
+
+QString PatientRegistrationDialog::serverUrlAsString() const
+{
+    return m_editor_server_url->text().trimmed();
 }
 
 QUrl PatientRegistrationDialog::serverUrl() const
 {
-    return QUrl(m_editor_server_url->text());
+    return QUrl(serverUrlAsString());
 }
 
 void PatientRegistrationDialog::urlChanged()
 {
     auto validator = new UrlValidator();
 
-    QString url = m_editor_server_url->text();
+    QString url = serverUrlAsString();
 
     QColor background_color = Qt::red;
     QColor foreground_color = Qt::white;
@@ -116,7 +121,7 @@ void PatientRegistrationDialog::proquintChanged()
 {
     auto validator = new ProquintValidator();
 
-    QString proquint = m_editor_patient_proquint->text();
+    QString proquint = patientProquint();
 
     QColor background_color = Qt::red;
     QColor foreground_color = Qt::white;
