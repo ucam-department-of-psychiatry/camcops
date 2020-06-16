@@ -2085,9 +2085,19 @@ def get_single_patient(req: "CamcopsRequest") -> Patient:
     patient_proquint = get_str_var(req, TabletParam.PATIENT_PROQUINT)
     uuid_obj = uuid_from_proquint(patient_proquint)
 
-    return req.dbsession.query(Patient).filter(
+    patient = req.dbsession.query(Patient).filter(
         Patient.uuid == uuid_obj
-    ).options(joinedload(Patient.task_schedules)).one()
+    ).options(joinedload(Patient.task_schedules)).one_or_none()
+
+    _ = req.gettext
+
+    if patient is None:
+        fail_user_error(
+            _("No patient with access key {}. Have you entered it correctly?")
+            .format(patient_proquint)
+        )
+
+    return patient
 
 
 def create_single_user(req: "CamcopsRequest",
