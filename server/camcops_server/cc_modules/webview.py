@@ -4806,7 +4806,7 @@ class EditPatientViewTests(DemoDatabaseTestCase):
         patient_task_schedule = PatientTaskSchedule()
         patient_task_schedule.patient_pk = patient._pk
         patient_task_schedule.schedule_id = schedule1.id
-        patient_task_schedule.start_date = parse("2020-06-12", tz="local")
+        patient_task_schedule.start_date = parse("2020-06-12")
 
         self.dbsession.add(patient_task_schedule)
 
@@ -4853,18 +4853,12 @@ class EditPatientViewTests(DemoDatabaseTestCase):
             ("schedule_id", schedule1.id),
             ("__start__", "start_date:mapping"),
             ("date", "2020-06-19"),
-            ("date_submit", "2020-06-19"),
-            ("time", "00:00"),
-            ("time_submit", "00:00"),
             ("__end__", "start_date:mapping"),
             ("__end__", "task_schedule_sequence:mapping"),
             ("__start__", "task_schedule_sequence:mapping"),
             ("schedule_id", schedule2.id),
             ("__start__", "start_date:mapping"),
             ("date", "2020-07-01"),
-            ("date_submit", "2020-07-01"),
-            ("time", "00:00"),
-            ("time_submit", "00:00"),
             ("__end__", "start_date:mapping"),
             ("__end__", "task_schedule_sequence:mapping"),
             ("__end__", "task_schedules:sequence"),
@@ -4885,10 +4879,12 @@ class EditPatientViewTests(DemoDatabaseTestCase):
         self.assertIn("Test 2", schedules)
         self.assertNotIn("Test 3", schedules)
 
-        self.assertEqual(schedules["Test 1"].start_date,
-                         parse("2020-06-19", tz="local"))
-        self.assertEqual(schedules["Test 2"].start_date,
-                         parse("2020-07-01", tz="local"))
+        self.assertEqual(
+            schedules["Test 1"].start_date, parse("2020-06-19")
+        )
+        self.assertEqual(
+            schedules["Test 2"].start_date, parse("2020-07-01")
+        )
 
         messages = self.req.session.peek_flash("success")
         self.assertIn(f"Amended patient record with server PK {patient._pk}",

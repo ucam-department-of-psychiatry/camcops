@@ -3528,7 +3528,7 @@ class TaskScheduleSelector(SchemaNode, RequestAwareMixin):
 
 class TaskScheduleNode(MappingSchema, RequestAwareMixin):
     schedule_id = TaskScheduleSelector()  # must match ViewParam.SCHEDULE_ID  # noqa: E501
-    start_date = StartPendulumSelector()  # must match ViewParam.START_DATE
+    start_date = DateSelectorNode()  # must match ViewParam.START_DATE
 
     def __init__(self, *args, **kwargs) -> None:
         self.title = ""  # for type checker
