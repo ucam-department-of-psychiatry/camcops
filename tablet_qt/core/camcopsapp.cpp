@@ -162,6 +162,11 @@ void CamcopsApp::setMode(const int mode)
 {
     setVar(varconst::MODE, mode);
 
+    if (isSingleUserMode())
+    {
+        setDefaultPatient();
+    }
+
     emit modeChanged(mode);
 }
 
