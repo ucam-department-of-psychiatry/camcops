@@ -128,10 +128,6 @@ void SettingsMenu::makeItems()
         // --------------------------------------------------------------------
 
         MenuItem(
-            tr("Change operating mode"),
-            std::bind(&SettingsMenu::changeMode, this)
-        ),
-        MenuItem(
             tr("Choose language"),
             std::bind(&SettingsMenu::chooseLanguage, this),
             uifunc::iconFilename(uiconst::CBS_LANGUAGE)
@@ -172,6 +168,10 @@ void SettingsMenu::makeItems()
         // --------------------------------------------------------------------
         MenuItem(tr("Infrequent user functions")).setLabelOnly(),
         // --------------------------------------------------------------------
+        MenuItem(
+            tr("Change operating mode"),
+            std::bind(&SettingsMenu::changeMode, this)
+        ).setNotIfLocked(),
         MenuItem(
             tr("Fetch all server info"),
             std::bind(&SettingsMenu::fetchAllServerInfo, this)
