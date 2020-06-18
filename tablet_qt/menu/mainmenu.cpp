@@ -140,7 +140,7 @@ void MainMenu::makeSingleUserItems()
         MenuItem(
             tr("Register patient"),
             std::bind(&MainMenu::registerPatient, this)
-            )
+            ).setNotIfLocked()
     );
 
     if (!m_app.needToRegisterSinglePatient()) {
@@ -148,7 +148,7 @@ void MainMenu::makeSingleUserItems()
             MenuItem(
                 tr("Update schedules"),
                 std::bind(&MainMenu::updateTaskSchedules, this)
-            )
+            ).setNotIfLocked()
         );
     }
 
@@ -159,7 +159,7 @@ void MainMenu::makeSingleUserItems()
         MenuItem(
             tr("Change operating mode"),
             std::bind(&MainMenu::changeMode, this)
-        ),
+        ).setNotIfLocked(),
     };
 
     m_items.append(settings_items);
