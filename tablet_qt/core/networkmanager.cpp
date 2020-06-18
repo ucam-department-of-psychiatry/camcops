@@ -836,7 +836,7 @@ void NetworkManager::receivedTaskSchedules(QNetworkReply* reply)
 
 void NetworkManager::storeTaskSchedules()
 {
-    deleteTaskSchedules();
+    m_app.deleteTaskSchedules();
 
     // TODO: Handle Null return value
     QJsonParseError error;
@@ -860,16 +860,6 @@ void NetworkManager::storeTaskSchedules()
         schedule->addItems(
             schedule_json.value(KEY_TASK_SCHEDULE_ITEMS).toArray()
         );
-    }
-}
-
-
-void NetworkManager::deleteTaskSchedules()
-{
-    TaskSchedulePtrList schedules = m_app.getTaskSchedules();
-
-    for (const TaskSchedulePtr& schedule : schedules) {
-        schedule->deleteFromDatabase();
     }
 }
 
@@ -2273,7 +2263,8 @@ void NetworkManager::registerPatient(const QString patient_proquint)
     dict[KEY_OPERATION] = OP_REGISTER_PATIENT;
     dict[KEY_PATIENT_PROQUINT] = patient_proquint;
 
-    serverPost(dict, &NetworkManager::registerPatientSub1, false);
+    bool include_user = !m_app.varString(varconst::SERVER_USERNAME).isEmpty();
+    serverPost(dict, &NetworkManager::registerPatientSub1, include_user);
 }
 
 void NetworkManager::registerPatientSub1(QNetworkReply* reply)
@@ -2282,8 +2273,10 @@ void NetworkManager::registerPatientSub1(QNetworkReply* reply)
         return;
     }
 
-    m_app.setEncryptedServerPassword(m_reply_dict[KEY_PASSWORD]);
-    m_app.setVar(varconst::SERVER_USERNAME, m_reply_dict[KEY_USER]);
+    if (m_reply_dict.contains(KEY_USER)) {
+        m_app.setEncryptedServerPassword(m_reply_dict[KEY_PASSWORD]);
+        m_app.setVar(varconst::SERVER_USERNAME, m_reply_dict[KEY_USER]);
+    }
 
     // TODO: Handle Null return value
     QJsonParseError error;

@@ -224,7 +224,6 @@ protected:
     void storeExtraStrings();
 
     // Store task schedule.
-    void deleteTaskSchedules();
     void receivedTaskSchedules(QNetworkReply* reply);
     void storeTaskSchedules();
 

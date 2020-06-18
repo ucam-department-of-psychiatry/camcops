@@ -2071,14 +2071,20 @@ def op_register_patient(req: "CamcopsRequest") -> Dict[str, Any]:
     task_schedules = get_task_schedules(req, patient)
 
     client_device_name = get_str_var(req, TabletParam.DEVICE)
-    user, password = create_single_user(req, f"user-{client_device_name}",
-                                        patient.group)
-    return {
-        TabletParam.USER: user.username,
-        TabletParam.PASSWORD: password,
+
+    reply_dict = {
         TabletParam.PATIENT_INFO: patient_info,
         TabletParam.TASK_SCHEDULES: task_schedules
     }
+
+    user_name = get_str_var(req, TabletParam.USER, mandatory=False)
+    if user_name is None:
+        user, password = create_single_user(req, f"user-{client_device_name}",
+                                            patient.group)
+        reply_dict[TabletParam.USER] = user.username
+        reply_dict[TabletParam.PASSWORD] = password
+
+    return reply_dict
 
 
 def get_single_patient(req: "CamcopsRequest") -> Patient:

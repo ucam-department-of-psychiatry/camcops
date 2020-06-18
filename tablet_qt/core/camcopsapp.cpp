@@ -190,6 +190,16 @@ void CamcopsApp::setSinglePatientId(const int id)
 
 bool CamcopsApp::registerPatientWithServer()
 {
+    if (isPatientSelected()) {
+        if (!confirmDeletePatient()) {
+            return false;
+        }
+
+        deleteSelectedPatient();
+        deleteTaskSchedules();
+        createMainMenu();
+    }
+
     PatientRegistrationDialog dialog(nullptr);
     const int reply = dialog.exec();
     if (reply != QDialog::Accepted) {
@@ -216,6 +226,45 @@ bool CamcopsApp::registerPatientWithServer()
 
     return true;
 }
+
+
+bool CamcopsApp::confirmDeletePatient()
+{
+    ScrollMessageBox msgbox(
+        QMessageBox::Warning,
+        tr("Delete patient"),
+        tr("Registering a new patient will delete the current patient and any associated data. Are you sure you want to do this?") + "\n\n",
+        m_p_main_window);
+    QAbstractButton* delete_button = msgbox.addButton(
+        tr("Yes, delete"), QMessageBox::YesRole);
+    msgbox.addButton(tr("No, cancel"), QMessageBox::NoRole);
+    msgbox.exec();
+    if (msgbox.clickedButton() != delete_button) {
+        return false;
+    }
+
+    return true;
+}
+
+
+void CamcopsApp::deleteSelectedPatient()
+{
+    m_patient->deleteFromDatabase();
+
+    setSinglePatientId(dbconst::NONEXISTENT_PK);
+    setDefaultPatient();
+}
+
+
+void CamcopsApp::deleteTaskSchedules()
+{
+    TaskSchedulePtrList schedules = getTaskSchedules();
+
+    for (const TaskSchedulePtr& schedule : schedules) {
+        schedule->deleteFromDatabase();
+    }
+}
+
 
 void CamcopsApp::updateTaskSchedules()
 {

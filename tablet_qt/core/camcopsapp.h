@@ -159,6 +159,7 @@ public:
     bool registerPatientWithServer();
 
     void updateTaskSchedules();
+    void deleteTaskSchedules();
 
     // True if first time in single user mode
     bool needToRegisterSinglePatient();
@@ -405,6 +406,8 @@ public:
 
 protected:
     void reloadPatient(int patient_id);
+    bool confirmDeletePatient();
+    void deleteSelectedPatient();
 
 signals:
     // The operation mode has changed (Clincian, single user...)
