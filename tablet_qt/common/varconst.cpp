@@ -31,6 +31,7 @@ const int DEFAULT_MODE = MODE_NOT_SET;
 
 // Single user mode
 const QString SINGLE_PATIENT_ID("singlePatientId");
+const QString SINGLE_PATIENT_PROQUINT("singlePatientProquint");
 
 // Language
 const QString LANGUAGE("language");

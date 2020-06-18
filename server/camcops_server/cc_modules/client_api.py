@@ -2225,6 +2225,15 @@ def op_get_allowed_tables(req: "CamcopsRequest") -> Dict[str, str]:
     return reply
 
 
+def op_get_task_schedules(req: "CamcopsRequest") -> Dict[str, Any]:
+    patient = get_single_patient(req)
+    task_schedules = get_task_schedules(req, patient)
+
+    return {
+        TabletParam.TASK_SCHEDULES: task_schedules
+    }
+
+
 def get_task_schedules(req: "CamcopsRequest",
                        patient: Patient) -> Dict[str, str]:
     dbsession = req.dbsession
@@ -2905,13 +2914,12 @@ class Operations:
 OPERATIONS_ANYONE = {
     Operations.CHECK_DEVICE_REGISTERED: op_check_device_registered,
     # Anyone can register a patient provided they have the right unique code
-    # After that, a user is created for device registration and task schedule
-    # download
     Operations.REGISTER_PATIENT: op_register_patient,
 }
 OPERATIONS_REGISTRATION = {
     Operations.GET_ALLOWED_TABLES: op_get_allowed_tables,  # v2.2.0
     Operations.GET_EXTRA_STRINGS: op_get_extra_strings,
+    Operations.GET_TASK_SCHEDULES: op_get_task_schedules,
     Operations.REGISTER: op_register,
 }
 OPERATIONS_UPLOAD = {

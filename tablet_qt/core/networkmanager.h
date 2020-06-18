@@ -203,6 +203,10 @@ public:
 
     // Fetch extra strings from the server.
     void fetchExtraStrings();
+
+    // Update task schedules for single user
+    void updateTaskSchedules(const QString patient_proquint);
+
 protected:
     // Multi-step operations for the above:
     void registerNext(QNetworkReply* reply = nullptr);
@@ -220,6 +224,8 @@ protected:
     void storeExtraStrings();
 
     // Store task schedule.
+    void deleteTaskSchedules();
+    void receivedTaskSchedules(QNetworkReply* reply);
     void storeTaskSchedules();
 
     // ------------------------------------------------------------------------

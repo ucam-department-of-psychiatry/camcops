@@ -211,9 +211,23 @@ bool CamcopsApp::registerPatientWithServer()
             this, &CamcopsApp::networkManagerFinished,
             Qt::UniqueConnection);
 
+    setVar(varconst::SINGLE_PATIENT_PROQUINT, patient_proquint);
     netmgr->registerPatient(patient_proquint);
 
     return true;
+}
+
+void CamcopsApp::updateTaskSchedules()
+{
+    auto patient_proquint = varString(varconst::SINGLE_PATIENT_PROQUINT);
+
+    NetworkManager* netmgr = networkManager();
+
+    connect(netmgr, &NetworkManager::finished,
+            this, &CamcopsApp::networkManagerFinished,
+            Qt::UniqueConnection);
+
+    netmgr->updateTaskSchedules(patient_proquint);
 }
 
 void CamcopsApp::networkManagerFinished()
@@ -869,6 +883,7 @@ void CamcopsApp::createStoredVars()
     // If the mode is single user, store the one and only patient ID here
     createVar(varconst::SINGLE_PATIENT_ID, QVariant::Int,
               dbconst::NONEXISTENT_PK);
+    createVar(varconst::SINGLE_PATIENT_PROQUINT, QVariant::String, "");
 
     // Language
     createVar(varconst::LANGUAGE, QVariant::String,

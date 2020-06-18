@@ -155,6 +155,14 @@ public:
     // Prompt user to select operating mode, return false if aborted
     bool setModeFromUser();
 
+    // Patient registration in single user mode
+    bool registerPatientWithServer();
+
+    void updateTaskSchedules();
+
+    // True if first time in single user mode
+    bool needToRegisterSinglePatient();
+
 protected:
     // Directory used by CamCOPS to store its SQLite/SQLCipher directory.
     QString defaultDatabaseDir() const;
@@ -235,12 +243,6 @@ protected:
 
     // Add the main menu to the main window
     void createMainMenu();
-
-    // Patient registration in single user mode
-    bool registerPatientWithServer();
-
-    // True if first time in single user mode
-    bool needToRegisterSinglePatient();
 
     // ------------------------------------------------------------------------
     // Opening/closing windows

@@ -118,9 +118,9 @@ void MainMenu::makeClinicianItems()
 
 void MainMenu::makeSingleUserItems()
 {
-    m_items = {
-        MenuItem(tr("Schedules")).setLabelOnly(),
-    };
+    m_items = {};
+
+    m_items.append(MenuItem(tr("Schedules")).setLabelOnly());
 
     TaskSchedulePtrList schedules = m_app.getTaskSchedules();
 
@@ -131,6 +131,28 @@ void MainMenu::makeSingleUserItems()
             m_items.append(MenuItem(schedule_item));
         }
     }
+
+    QVector<MenuItem> registration_items = {
+        MenuItem(tr("Patient registration")).setLabelOnly(),
+    };
+
+    registration_items.append(
+        MenuItem(
+            tr("Register patient"),
+            std::bind(&MainMenu::registerPatient, this)
+            )
+    );
+
+    if (!m_app.needToRegisterSinglePatient()) {
+        registration_items.append(
+            MenuItem(
+                tr("Update schedules"),
+                std::bind(&MainMenu::updateTaskSchedules, this)
+            )
+        );
+    }
+
+    m_items.append(registration_items);
 
     QVector<MenuItem> settings_items = {
         MenuItem(tr("Settings")).setLabelOnly(),
@@ -143,6 +165,11 @@ void MainMenu::makeSingleUserItems()
     m_items.append(settings_items);
 }
 
+
+void MainMenu::updateTaskSchedules()
+{
+    m_app.updateTaskSchedules();
+}
 
 void MainMenu::upload()
 {
@@ -164,4 +191,10 @@ void MainMenu::modeChanged(const int mode)
     qDebug() << Q_FUNC_INFO << "[this:" << this << "]";
 #endif
     rebuild();
+}
+
+
+void MainMenu::registerPatient()
+{
+    m_app.registerPatientWithServer();
 }

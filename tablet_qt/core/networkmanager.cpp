@@ -110,6 +110,7 @@ const QString OP_END_UPLOAD("end_upload");
 const QString OP_GET_EXTRA_STRINGS("get_extra_strings");
 const QString OP_GET_ID_INFO("get_id_info");
 const QString OP_GET_ALLOWED_TABLES("get_allowed_tables");  // v2.2.0
+const QString OP_GET_TASK_SCHEDULES("get_task_schedules");  // v2.3.???
 const QString OP_REGISTER("register");
 const QString OP_REGISTER_PATIENT("register_patient");  // v2.3.???
 const QString OP_START_PRESERVATION("start_preservation");
@@ -808,9 +809,35 @@ void NetworkManager::registerNext(QNetworkReply* reply)
     }
 }
 
+void NetworkManager::updateTaskSchedules(const QString patient_proquint)
+{
+    Dict dict;
+
+    dict[KEY_OPERATION] = OP_GET_TASK_SCHEDULES;
+    dict[KEY_PATIENT_PROQUINT] = patient_proquint;
+
+    statusMessage(tr("Getting task schedules from ") + serverUrlDisplayString());
+
+    serverPost(dict, &NetworkManager::receivedTaskSchedules);
+}
+
+void NetworkManager::receivedTaskSchedules(QNetworkReply* reply)
+{
+    if (!processServerReply(reply)) {
+        return;
+    }
+
+    statusMessage(tr("... received task schedules "));
+
+    storeTaskSchedules();
+    succeed();
+}
+
 
 void NetworkManager::storeTaskSchedules()
 {
+    deleteTaskSchedules();
+
     // TODO: Handle Null return value
     QJsonParseError error;
 
@@ -833,6 +860,16 @@ void NetworkManager::storeTaskSchedules()
         schedule->addItems(
             schedule_json.value(KEY_TASK_SCHEDULE_ITEMS).toArray()
         );
+    }
+}
+
+
+void NetworkManager::deleteTaskSchedules()
+{
+    TaskSchedulePtrList schedules = m_app.getTaskSchedules();
+
+    for (const TaskSchedulePtr& schedule : schedules) {
+        schedule->deleteFromDatabase();
     }
 }
 
