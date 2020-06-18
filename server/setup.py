@@ -85,7 +85,7 @@ INSTALL_REQUIRES = [
 
     'Babel==2.6.0',  # reads code, generates gettext files; dev only but was already installed  # noqa
 
-    'cardinal_pythonlib @ git+https://github.com/RudolfCardinal/pythonlib@96c9560b5134f7c799aab650408d19a7c36afffc#egg==pythonlib-1.0.88.1',  # RNC libraries
+    'cardinal_pythonlib @ git+https://github.com/RudolfCardinal/pythonlib@fb0f85b25e2bfa3ed0bee4a4ad4ddb32af058595#egg==pythonlib-1.0.88.1',  # RNC libraries
     'celery==4.3.0',  # background tasks
     'colorlog==3.1.4',  # colour in logs
     'CherryPy==18.1.0',  # web server
