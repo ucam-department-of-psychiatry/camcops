@@ -48,37 +48,37 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
         <th>${_("View")}</th>
         <th>${_("Print/save")}</th>
     </tr>
-%for row in rows:
+%for task_info in task_list:
     <tr>
         <td>
-            ${ row["task_shortname"] }
+            ${ task_info.shortname }
         </td>
         <td>
-            %if row["start_datetime"]:
-            ${ format_datetime(row["start_datetime"], DateFormat.SHORT_DATETIME_NO_TZ) }
+            %if task_info.start_datetime:
+            ${ format_datetime(task_info.start_datetime, DateFormat.SHORT_DATETIME_NO_TZ) }
             %endif
         </td>
         <td>
-            %if row["end_datetime"]:
-            ${ format_datetime(row["end_datetime"], DateFormat.SHORT_DATETIME_NO_TZ) }
+            %if task_info.end_datetime:
+            ${ format_datetime(task_info.end_datetime, DateFormat.SHORT_DATETIME_NO_TZ) }
             %endif
         </td>
         <td>
-            %if row["task"]:
-            ${ format_datetime(row["task"].when_created, DateFormat.SHORT_DATETIME_NO_TZ) }
+            %if task_info.task:
+            ${ format_datetime(task_info.task.when_created, DateFormat.SHORT_DATETIME_NO_TZ) }
             %endif
         </td>
         <td
-            %if row["task"]:
-                %if not row["task"].is_complete():
+            %if task_info.task:
+                %if not task_info.task.is_complete():
                     class="incomplete"
                 %endif
                 >
                 <a href="${ req.route_url(
                     Routes.TASK,
                     _query={
-                        ViewParam.TABLE_NAME: row["task"].tablename,
-                        ViewParam.SERVER_PK: row["task"]._pk,
+                        ViewParam.TABLE_NAME: task_info.task.tablename,
+                        ViewParam.SERVER_PK: task_info.task._pk,
                         ViewParam.VIEWTYPE: ViewArg.HTML,
                     }) }">HTML</a>
             %endif
@@ -87,16 +87,16 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
         ## Hyperlink to PDF
         ## ------------------------------------------------------------
         <td
-            %if row["task"]:
-                %if not row["task"].is_complete():
+            %if task_info.task:
+                %if not task_info.task.is_complete():
                     class="incomplete"
                 %endif
                 >
                 <a href="${ req.route_url(
                     Routes.TASK,
                     _query={
-                        ViewParam.TABLE_NAME: row["task"].tablename,
-                        ViewParam.SERVER_PK: row["task"]._pk,
+                        ViewParam.TABLE_NAME: task_info.task.tablename,
+                        ViewParam.SERVER_PK: task_info.task._pk,
                         ViewParam.VIEWTYPE: ViewArg.PDF,
                     }) }">PDF</a>
             %endif

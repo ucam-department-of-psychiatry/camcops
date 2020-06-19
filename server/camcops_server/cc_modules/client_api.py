@@ -2246,28 +2246,29 @@ def get_task_schedules(req: "CamcopsRequest",
 
     schedules = []
 
-    for patient_schedule_obj in patient.task_schedules:
-        if patient_schedule_obj.start_date is None:
-            patient_schedule_obj.start_date = req.now
-            dbsession.add(patient_schedule_obj)
+    for pts in patient.task_schedules:
+        if pts.start_date is None:
+            pts.start_date = req.now
+            dbsession.add(pts)
 
-        start_date = patient_schedule_obj.start_date
-
-        task_schedule_obj = patient_schedule_obj.task_schedule
         items = []
 
-        for schedule_item_obj in task_schedule_obj.items:
-            due_from = start_date.add(days=schedule_item_obj.due_from.days)
-            due_by = start_date.add(days=schedule_item_obj.due_by.days)
+        for task_info in pts.get_list_of_scheduled_tasks(
+                req,
+                # We don't need these and the user doesn't have permission
+                include_task_objects=False
+        ):
+            due_from = task_info.start_datetime.to_iso8601_string()
+            due_by = task_info.end_datetime.to_iso8601_string()
 
             items.append({
-                TabletParam.TABLE: schedule_item_obj.task_table_name,
-                TabletParam.DUE_FROM: due_from.to_iso8601_string(),
-                TabletParam.DUE_BY: due_by.to_iso8601_string(),
+                TabletParam.TABLE: task_info.tablename,
+                TabletParam.DUE_FROM: due_from,
+                TabletParam.DUE_BY: due_by
             })
 
         schedules.append({
-            TabletParam.TASK_SCHEDULE_NAME: task_schedule_obj.name,
+            TabletParam.TASK_SCHEDULE_NAME: pts.task_schedule.name,
             TabletParam.TASK_SCHEDULE_ITEMS: items,
         })
 
