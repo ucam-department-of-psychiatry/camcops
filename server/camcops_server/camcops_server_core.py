@@ -314,12 +314,15 @@ def ensure_ok_for_webserver() -> None:
 
 
 def test_serve_pyramid(application: "Router",
-                       host: str = ConfigDefaults.HOST,
-                       port: int = ConfigDefaults.PORT) -> None:
+                       host: str = None,
+                       port: int = None) -> None:
     """
     Launches an extremely simple Pyramid web server (via
     ``wsgiref.make_server``).
     """
+    cd = ConfigDefaults()
+    host = host or cd.HOST
+    port = port or cd.PORT
     ensure_ok_for_webserver()
     server = make_server(host, port, application)
     log.info("Serving on host={}, port={}", host, port)

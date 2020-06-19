@@ -471,14 +471,18 @@ class ConfigParamExportRecipient(object):
     XML_FIELD_COMMENTS = "XML_FIELD_COMMENTS"
 
 
+class StandardPorts:
+    ALTERNATIVE_HTTP = 8000
+    AMQP = 5672
+    SMTP = 25
+    SMTP_TLS = 587
+    HL7_MLLP = 2575
+    MYSQL = 3306
+
+
 # =============================================================================
 # Configuration defaults
 # =============================================================================
-
-SMTP_PORT = 25
-SMTP_TLS_PORT = 587
-DEFAULT_HL7_MLLP_PORT = 2575
-
 
 class ConfigDefaults(object):
     """
@@ -493,11 +497,13 @@ class ConfigDefaults(object):
                                               "logo_camcops.png")
     CLIENT_API_LOGLEVEL = logging.INFO
     CLIENT_API_LOGLEVEL_TEXTFORMAT = "info"  # should match CLIENT_API_LOGLEVEL
+    DB_DATABASE = "camcops"  # for demo configs only
     DB_ECHO = False
-    DB_PORT = 3306
-    DB_SERVER = "localhost"
+    DB_PORT = StandardPorts.MYSQL  # for demo configs only
+    DB_SERVER = "localhost"  # for demo configs only
+    DB_USER = "YYY_USERNAME_REPLACE_ME"  # for demo configs only
     DISABLE_PASSWORD_AUTOCOMPLETE = True
-    EMAIL_PORT = SMTP_TLS_PORT  # or SMTP_PORT
+    EMAIL_PORT = StandardPorts.SMTP_TLS
     EMAIL_USE_TLS = True
     LANGUAGE = DEFAULT_LOCALE
     LOCAL_INSTITUTION_URL = "http://www.camcops.org/"
@@ -529,7 +535,7 @@ class ConfigDefaults(object):
     GUNICORN_NUM_WORKERS = 2 * multiprocessing.cpu_count()
     GUNICORN_TIMEOUT_S = 30
     HOST = "127.0.0.1"
-    PORT = 8000
+    PORT = StandardPorts.ALTERNATIVE_HTTP
     PROXY_REWRITE_PATH_INFO = False
     SHOW_REQUEST_IMMEDIATELY = False
     SHOW_REQUESTS = False
@@ -559,12 +565,32 @@ class ConfigDefaults(object):
     HL7_KEEP_REPLY = False
     HL7_NETWORK_TIMEOUT_MS = 10000
     HL7_PING_FIRST = True
-    HL7_PORT = DEFAULT_HL7_MLLP_PORT
+    HL7_PORT = StandardPorts.HL7_MLLP
     INCLUDE_ANONYMOUS = False
     PUSH = False
     REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY = True
     TASK_FORMAT = FileType.PDF
     XML_FIELD_COMMENTS = True
+
+    def __init__(self, for_docker: bool = False) -> None:
+        """
+        Args:
+            for_docker:
+                Amend defaults so it works within a Docker Compose application
+                without much fiddling?
+
+        Defaults for use within Docker:
+
+        - Note that a URL to another container/service looks like
+          ``protocol://container:port/``. Values here must match the Docker
+          Compose file.
+        """
+        if for_docker:
+            self.CELERY_BROKER_URL = \
+                f"amqp://rabbitmq:{StandardPorts.AMQP}/"
+            # ... container named "rabbitmq"
+            self.DB_SERVER = "mysql"  # container named "mysql"
+            self.DB_USER = "camcops"
 
 
 MINIMUM_PASSWORD_LENGTH = 8

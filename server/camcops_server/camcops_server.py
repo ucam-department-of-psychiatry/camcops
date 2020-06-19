@@ -122,11 +122,11 @@ def launch_manual() -> None:
     launch_external_file(DOCUMENTATION_URL)
 
 
-def print_demo_camcops_config() -> None:
+def print_demo_camcops_config(for_docker: bool = False) -> None:
     """
     Prints a demonstration config file to stdout.
     """
-    print(get_demo_config())
+    print(get_demo_config(for_docker=for_docker))
 
 
 def print_demo_supervisor_config() -> None:
@@ -621,8 +621,14 @@ def camcops_main() -> int:
     democonfig_parser = add_sub(
         subparsers, "demo_camcops_config", config_mandatory=None,
         help="Print a demo CamCOPS config file")
+    democonfig_parser.add_argument(
+        "--docker", action="store_true",
+        help="Create a config file with defaults for Docker Compose mode"
+    )
     democonfig_parser.set_defaults(
-        func=lambda args: print_demo_camcops_config())
+        func=lambda args: print_demo_camcops_config(
+            for_docker=args.docker
+        ))
 
     # Print demo supervisor config
     demosupervisorconf_parser = add_sub(

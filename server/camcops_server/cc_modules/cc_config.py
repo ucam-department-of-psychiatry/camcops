@@ -184,7 +184,6 @@ DEFAULT_LINUX_USER = "www-data"  # Ubuntu default
 # =============================================================================
 
 # Cosmetic demonstration constants:
-DEFAULT_DB_NAME = 'camcops'
 DEFAULT_DB_USER = 'YYY_USERNAME_REPLACE_ME'
 DEFAULT_DB_PASSWORD = 'ZZZ_PASSWORD_REPLACE_ME'
 DEFAULT_DB_READONLY_USER = 'QQQ_USERNAME_REPLACE_ME'
@@ -196,7 +195,8 @@ def get_demo_config(extra_strings_dir: str = None,
                     lock_dir: str = None,
                     static_dir: str = None,
                     db_url: str = None,
-                    user_download_dir: str = None) -> str:
+                    user_download_dir: str = None,
+                    for_docker: bool = False) -> str:
     """
     Returns a demonstration config file based on the specified parameters.
     """
@@ -210,11 +210,13 @@ def get_demo_config(extra_strings_dir: str = None,
     # https://people.canonical.com/~cjwatson/ubuntu-policy/policy.html/ch-opersys.html  # noqa
     session_cookie_secret = create_base64encoded_randomness(num_bytes=64)
 
+    cd = ConfigDefaults(for_docker=for_docker)
     if not db_url:
-        db_url = make_mysql_url(username=DEFAULT_DB_USER,
+        db_url = make_mysql_url(host=cd.DB_SERVER,
+                                port=cd.DB_PORT,
+                                username=DEFAULT_DB_USER,
                                 password=DEFAULT_DB_PASSWORD,
-                                dbname=DEFAULT_DB_NAME)
-    cd = ConfigDefaults
+                                dbname=cd.DB_DATABASE)
     return f"""
 # Demonstration CamCOPS server configuration file.
 # Created by CamCOPS server version {CAMCOPS_SERVER_VERSION_STRING}.
@@ -585,11 +587,14 @@ programs = camcops_server, camcops_workers, camcops_scheduler
 
 def get_demo_apache_config(
         rootpath: str = "camcops",  # no slash
-        specimen_internal_port: int = ConfigDefaults.PORT,
-        specimen_socket_file: str = DEFAULT_SOCKET_FILENAME) -> str:
+        specimen_internal_port: int = None,
+        specimen_socket_file: str = DEFAULT_SOCKET_FILENAME,
+        for_docker: bool = False) -> str:
     """
     Returns a demo Apache HTTPD config file section applicable to CamCOPS.
     """
+    cd = ConfigDefaults(for_docker=for_docker)
+    specimen_internal_port = specimen_internal_port or cd.PORT
     urlbase = "/" + rootpath
     return f"""
     # Demonstration Apache config file section for CamCOPS.
@@ -1047,7 +1052,7 @@ class CamcopsConfig(object):
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         s = CONFIG_FILE_SITE_SECTION
         cs = ConfigParamSite
-        cd = ConfigDefaults
+        cd = ConfigDefaults()
 
         self.allow_insecure_cookies = _get_bool(
             s, cs.ALLOW_INSECURE_COOKIES, cd.ALLOW_INSECURE_COOKIES)
