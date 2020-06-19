@@ -1,0 +1,28 @@
+#!/bin/bash
+#
+# server/docker/camcops_server_within_docker.sh
+#
+# Launches "camcops_server", with the arguments supplied, from within a
+# running Docker container (launching it if necessary).
+
+set -e
+
+THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+DOCKER_COMPOSE_DIR="${THIS_DIR}"
+
+echo "Executing camcops_server command within a Docker Compose service..."
+
+# We must change directory to pick up ".env" etc.
+
+cd "${DOCKER_COMPOSE_DIR}"
+
+# Having done so, the default filenames include docker-compose.yaml, so we
+# don't need to specify that.
+
+docker-compose run camcops_workers /camcops_venv/bin/camcops_server "$@"
+#                  ^^^^^^^^^^^^^^^ ^^^...
+#                  service        command
+#
+# We could use any service with the same image; all should have equivalent
+# volumes mounted and the same environment. The "camcops_workers" service is
+# started first (with the fewest dependencies) so will be fastest.

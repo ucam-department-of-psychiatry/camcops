@@ -1,0 +1,233 @@
+# server/docker/docker-compose.yml
+#
+# - Start CamCOPS by running "docker-compose up" from this directory, which
+#   uses the default filename of "docker-compose.yml".
+
+# =============================================================================
+# docker-compose file syntax version
+# =============================================================================
+
+version: "3.7"
+
+
+# =============================================================================
+# Data volumes
+# =============================================================================
+
+volumes:
+    # See Docker Compose "Volume configuration reference". Note that the syntax
+    # here is not the same as for "volumes:" within a service (container).
+
+    db_data_volume:
+        # Without any options, the default driver (usually "local") is used.
+        # This will probably create a volume at
+        # /var/lib/docker/volumes/VOLUME/_data on the host.
+
+    rabbitmq_volume:
+        # Again, we make it explicit (or we get Docker gibberish names).
+        
+    camcops_config_volume:
+        # Should contain "camcops.conf"
+        # The alternative is Docker "configs" but these are a bit different
+        # and don't allow single-file bind-mounting under Windows. See
+        # https://docs.docker.com/engine/swarm/configs/
+        
+        driver: local
+        driver_opts:
+            o: bind
+            type: none
+            device: /home/rudolf/tmp/camcops_docker_config/
+
+
+# =============================================================================
+# Containers (services)
+# =============================================================================
+
+services:
+
+    # -------------------------------------------------------------------------
+    # MySQL container, providing database services
+    # -------------------------------------------------------------------------
+
+    mysql:
+
+        # Base Docker image. We use a standard MySQL image; see
+        # https://hub.docker.com/_/mysql
+        image: mysql:5.7
+
+        # Restart policy
+        restart: "no"
+
+        # Environment variables.
+        # See https://hub.docker.com/_/mysql
+        environment:
+            # Create database with this name at first container startup.
+            MYSQL_DATABASE: "camcops_db"
+
+            # Create user with this name at first container startup, with
+            # GRANT ALL access to the database named in MYSQL_DATABASE.
+            MYSQL_USER: "camcops"
+
+            # Password for MYSQL_USER (set at first container startup).
+            MYSQL_PASSWORD: "tigerfur23"
+
+            # Password for user "root" (set at first container startup).
+            MYSQL_ROOT_PASSWORD: "jamtree92"
+            
+        # Expose ports from the container, "publishing" them to the host.
+        # For example, if you offer a MySQL server via "9999:3306", you should
+        # be able to run
+        #
+        #   $ mysql --host=127.0.0.1 --port=9999 --user=root --password
+        #
+        # on the host, and connect to the server.
+        ports:
+            # Short format is: "HOST_PORT:CONTAINER_PORT".
+            # Should always use explicit string format here.
+            # MySQL offers port 3306 by default.
+            - "9999:3306"
+
+        # Expose ports to linked services without publishing them to the host.
+        # Specify the container (internal) port.
+        expose:
+            - "3306"
+
+        # Note that if you do not specify mount points, some are created
+        # anyway; for example, the MySQL image wants something at
+        # /var/lib/mysql (internally) and on the hose this might actually be
+        # e.g. /var/lib/docker/volumes/<gibberish>/_data
+        volumes:
+            # Format is "[SOURCE:]TARGET[:MODE]", such as
+            # "VOLUME_NAME:CONTAINER_PATH" to use a named volume.
+            - db_data_volume:/var/lib/mysql
+
+
+    # -------------------------------------------------------------------------
+    # RabbitMQ container, providing a message queue.
+    # -------------------------------------------------------------------------
+
+    rabbitmq:
+
+        # Base Docker image.
+        image: rabbitmq:3.8.5
+
+        # Restart policy
+        restart: "no"
+
+        # Expose ports to linked services without publishing them to the host.
+        # Specify the container (internal) port.
+        expose:
+            # The default RabbitMQ port is 5672.
+            - "5672"
+
+        # Specify volumes by name, having explored the default container to
+        # find out what it creates (and where it mounts it) otherwise.
+        # (You can't have no volume.)
+        volumes:
+            - rabbitmq_volume:/var/lib/rabbitmq
+
+
+    # -------------------------------------------------------------------------
+    # CamCOPS image, with build commands (to create from the Dockerfile),
+    # running the workers.
+    # -------------------------------------------------------------------------
+
+    camcops_workers:
+        # Build a container from a Dockerfile.
+        build:
+            # Context for Docker to build the image.
+            context: ../
+            
+            # Filename of the Dockerfile to use, relative to the context.
+            dockerfile: docker/camcops_server.Dockerfile
+        
+        # If you specify "image" as well as "build", Compose names the built
+        # image. Syntax is "IMAGE[:TAG]".
+        image: camcops_server
+
+        # Start order. See docs -- note that this is "order to start", not
+        # "wait for startup to complete".
+        depends_on:
+            - mysql
+            - rabbitmq
+
+        # Restart policy
+        restart: "no"
+
+        # Mount config file directory
+        volumes:
+            - camcops_config_volume:/etc/camcops
+
+        # Environment variables
+        environment:
+            CAMCOPS_CONFIG_FILE: /etc/camcops/camcops.conf
+
+        # Command to execute
+        command: ["/camcops_venv/bin/camcops_server" , "launch_workers"]
+
+
+    # -------------------------------------------------------------------------
+    # Re-use the CamCOPS image, but run the scheduler.
+    # -------------------------------------------------------------------------
+
+    camcops_scheduler:
+
+        # Re-use the image built above.
+        image: camcops_server
+
+        # Start order.
+        depends_on:
+            - camcops_workers
+
+        # Restart policy
+        restart: "no"
+
+        # Mount config file directory
+        volumes:
+            - camcops_config_volume:/etc/camcops
+
+        # Environment variables
+        environment:
+            CAMCOPS_CONFIG_FILE: /etc/camcops/camcops.conf
+
+        # Command to execute
+        command: ["/camcops_venv/bin/camcops_server" , "launch_scheduler"]
+
+
+    # -------------------------------------------------------------------------
+    # Re-use the CamCOPS image, but run the front-end web server.
+    # -------------------------------------------------------------------------
+
+    camcops_server:
+        # Re-use the image built above.
+        image: camcops_server
+
+        # Start order.
+        depends_on:
+            - camcops_scheduler
+
+        # Restart policy
+        restart: "no"
+
+        ports:
+            # *** fixme
+            - "8080:80"
+
+        # Mount config file directory
+        volumes:
+            - camcops_config_volume:/etc/camcops
+
+        # Environment variables
+        environment:
+            CAMCOPS_CONFIG_FILE: /etc/camcops/camcops.conf
+
+        # Command to execute
+        # Can use shell-style or list-style syntax.
+        command: ["/camcops_venv/bin/camcops_server" , "serve_gunicorn"]
+
+
+# *** what's the best way to do the database? Mount from host?
+# *** TCP or Unix socket for the MySQL connection?
+# *** AMQP connection
+# *** web setup
+# *** make the default CamCOPS config support this?
