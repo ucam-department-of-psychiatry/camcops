@@ -120,16 +120,86 @@ void MainMenu::makeSingleUserItems()
 {
     m_items = {};
 
-    m_items.append(MenuItem(tr("Schedules")).setLabelOnly());
-
     TaskSchedulePtrList schedules = m_app.getTaskSchedules();
 
     for (const TaskSchedulePtr& schedule : schedules) {
-        m_items.append(MenuItem(schedule).setLabelOnly());
+        QVector<MenuItem> completed_items = {};
+        QVector<MenuItem> missed_items = {};
+        QVector<MenuItem> due_items = {};
+        QVector<MenuItem> future_items = {};
 
         for (const TaskScheduleItemPtr& schedule_item : schedule->items()) {
-            m_items.append(MenuItem(schedule_item));
+            auto state = schedule_item->state();
+
+            switch (state) {
+
+            case TaskScheduleItem::State::Completed:
+                completed_items.append(schedule_item);
+                break;
+
+            case TaskScheduleItem::State::Missed:
+                missed_items.append(schedule_item);
+                break;
+
+            case TaskScheduleItem::State::Due:
+                due_items.append(schedule_item);
+                break;
+
+            case TaskScheduleItem::State::Future:
+                future_items.append(schedule_item);
+                break;
+
+            default:
+                break;
+            }
         }
+
+        if (due_items.size() > 0) {
+            m_items.append(
+                MenuItem(
+                    tr("Due tasks for %1").arg(schedule->name())
+                ).setLabelOnly()
+            );
+
+            m_items.append(due_items);
+        }
+
+        if (future_items.size() > 0) {
+            m_items.append(
+                MenuItem(
+                    tr("Future tasks for %1").arg(schedule->name())
+                ).setLabelOnly()
+            );
+
+            m_items.append(future_items);
+        }
+
+        if (completed_items.size() > 0) {
+            m_items.append(
+                MenuItem(
+                    tr("Completed tasks for %1").arg(schedule->name())
+                ).setLabelOnly()
+            );
+
+            m_items.append(completed_items);
+        }
+
+        if (missed_items.size() > 0) {
+            m_items.append(
+                MenuItem(
+                    tr("Missed tasks for %1").arg(schedule->name())
+                ).setLabelOnly()
+            );
+
+            m_items.append(missed_items);
+        }
+
+    }
+
+    if (m_items.size() == 0) {
+        m_items.append(
+            MenuItem(tr("You do not have any scheduled tasks")).setLabelOnly()
+        );
     }
 
     QVector<MenuItem> registration_items = {

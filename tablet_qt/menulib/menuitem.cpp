@@ -669,7 +669,8 @@ void MenuItem::act(CamcopsApp& app) const
         uifunc::visitUrl(m_url_item.url);
         return;
     }
-    if (m_p_task_schedule_item && m_p_task_schedule_item->active()) {
+    if (m_p_task_schedule_item &&
+        m_p_task_schedule_item->state() == TaskScheduleItem::State::Due) {
         auto pWindow = new SingleTaskMenu(
             m_p_task_schedule_item->taskTableName(), app
         );

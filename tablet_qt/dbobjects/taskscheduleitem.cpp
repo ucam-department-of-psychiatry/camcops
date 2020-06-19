@@ -33,6 +33,7 @@ const QString TaskScheduleItem::TABLENAME("task_schedule_item");
 const QString TaskScheduleItem::FN_TASK_TABLE_NAME("task_table_name");
 const QString TaskScheduleItem::FN_DUE_FROM("due_from");
 const QString TaskScheduleItem::FN_DUE_BY("due_by");
+const QString TaskScheduleItem::FN_COMPLETE("complete");
 const QString TaskScheduleItem::FK_TASK_SCHEDULE("schedule_id");
 
 const QString TaskScheduleItem::KEY_DUE_BY("due_by");
@@ -58,6 +59,7 @@ TaskScheduleItem::TaskScheduleItem(CamcopsApp& app, DatabaseManager& db,
     addField(FN_TASK_TABLE_NAME, QVariant::String, true);
     addField(FN_DUE_FROM, QVariant::String, true);
     addField(FN_DUE_BY, QVariant::String, true);
+    addField(FN_COMPLETE, QVariant::Bool, true);
 
     load(load_pk);
 }
@@ -69,6 +71,7 @@ TaskScheduleItem::TaskScheduleItem(const int schedule_fk, CamcopsApp& app,
     TaskScheduleItem(app, db)
 {
     setValue(FK_TASK_SCHEDULE, schedule_fk);
+    setValue(FN_COMPLETE, false);
     addJsonFields(json_obj);
     save();
 }
@@ -136,9 +139,23 @@ QString TaskScheduleItem::subtitle() const
     );
 }
 
-bool TaskScheduleItem::active() const
+TaskScheduleItem::State TaskScheduleItem::state() const
 {
+    bool is_complete = value(FN_COMPLETE).toBool();
+
+    if (is_complete) {
+        return State::Completed;
+    }
+
     auto today = QDate::currentDate();
 
-    return today >= dueFrom();
+    if (today >= dueFrom() && today <= dueBy()) {
+        return State::Due;
+    }
+
+    if (today > dueBy()) {
+        return State::Missed;
+    }
+
+    return State::Future;
 }

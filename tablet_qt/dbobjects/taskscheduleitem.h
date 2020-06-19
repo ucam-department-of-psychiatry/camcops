@@ -40,13 +40,20 @@ public:
     QString taskTableName() const;
     QString title() const;
     QString subtitle() const;
-    bool active() const;
+    enum class State {
+        Completed,
+        Due,
+        Future,
+        Missed
+    };
+    State state() const;
 
     static const QString TABLENAME;
 
     static const QString FN_TASK_TABLE_NAME;
     static const QString FN_DUE_FROM;
     static const QString FN_DUE_BY;
+    static const QString FN_COMPLETE;
     static const QString FK_TASK_SCHEDULE;
 
     static const QString KEY_TABLE;
