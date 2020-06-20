@@ -100,6 +100,14 @@ Format of the configuration file
     for "no date/time".
 
 
+Note regarding Docker
+---------------------
+
+If you are using CamCOPS with Docker, see :ref:`The CamCOPS configuration file
+for Docker <camcops_config_file_docker>` as there are a few special
+requirements.
+
+
 Config file sections
 --------------------
 
@@ -163,6 +171,9 @@ http://docs.sqlalchemy.org/en/latest/core/engines.html. Examples:
 
 For our notes on database drivers for a different software package, see
 https://crateanon.readthedocs.io/en/latest/installation/database_drivers.html.
+
+If you are using CamCOPS via Docker, see :ref:`here
+<camcops_config_file_docker>`.
 
 
 DB_ECHO
@@ -1181,6 +1192,8 @@ command used by ``camcops_server launch_scheduler``, after ``celery worker
 --app camcops_server --loglevel <LOGLEVEL>``.
 
 
+.. _CELERY_BROKER_URL:
+
 CELERY_BROKER_URL
 #################
 
@@ -1193,6 +1206,9 @@ Once you have enabled security in your broker, such as RabbitMQ, you will need
 to set this to a more secure URL (e.g. with username/password authentication).
 
 For RabbitMQ URLs, see e.g. https://www.rabbitmq.com/uri-spec.html.
+
+If you are using CamCOPS via Docker, see :ref:`here
+<camcops_config_file_docker>`.
 
 
 CELERY_WORKER_EXTRA_ARGS

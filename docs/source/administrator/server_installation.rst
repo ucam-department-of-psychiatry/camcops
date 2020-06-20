@@ -43,7 +43,7 @@ URLs for CamCOPS source code
 
 - https://github.com/RudolfCardinal/camcops (for source)
 
-.. TODO: https://pypi.io/project/XXX/ (for pip install XXX)
+.. todo:: https://pypi.io/project/XXX/ (for pip install XXX)
 
 
 Installing CamCOPS

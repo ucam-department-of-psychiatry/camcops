@@ -26,6 +26,7 @@ Details for people running a CamCOPS server.
 ..  toctree::
     :maxdepth: 1
 
+    docker.rst
     server_installation.rst
     third_party_installation.rst
     server_configuration.rst

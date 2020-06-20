@@ -2,9 +2,11 @@
 #
 # Directory structure in container:
 #
-#   /camcops_src        Source code for CamCOPS server.
-#   /camcops_venv       Python 3 virtual environment.
-#       /bin            Main "camcops_server" executable.
+#   /camcops            All CamCOPS code/binaries.
+#       /cfg            Config files are mounted here.
+#       /src            Source code for CamCOPS server.
+#       /venv           Python 3 virtual environment.
+#           /bin        Main "camcops_server" executable lives here.
 
 # -----------------------------------------------------------------------------
 # FROM: Base image
@@ -29,13 +31,14 @@ FROM python:3.6-slim-buster
 #   is the directory containing "setup.py" and therefore the installation
 #   directory for our Python package.
 
-ADD . /camcops_src
+ADD . /camcops/src
 
 # -----------------------------------------------------------------------------
 # WORKDIR: Set working directory on container.
 # -----------------------------------------------------------------------------
+# Shouldn't really be necessary.
 
-WORKDIR /camcops_src
+WORKDIR /camcops
 
 # -----------------------------------------------------------------------------
 # RUN: run a command.
@@ -70,21 +73,23 @@ RUN apt-get update && apt-get install -y \
 
 # Use system python3 to create Python virtual environment (venv).
 
-RUN python3 -m venv /camcops_venv
+RUN python3 -m venv /camcops/venv
 
-# Upgrade pip within venv.
+# Upgrade pip within virtual environment.
 
-RUN /camcops_venv/bin/python3 -m pip install --upgrade pip
+RUN /camcops/venv/bin/python3 -m pip install --upgrade pip
 
-# Install CamCOPS in venv.
+# Install CamCOPS in virtual environment.
 
-RUN /camcops_venv/bin/python3 -m pip install /camcops_src
+RUN /camcops/venv/bin/python3 -m pip install /camcops/src
 
-# Install MySQL drivers
+# Install MySQL drivers for Python. Use a C-based one for speed.
 
-RUN /camcops_venv/bin/python3 -m pip install mysqlclient==1.4.6
-# ... 1.3.13 fails with: "OSError: mysql_config not found"
-# ... 1.4.6 works fine
+RUN /camcops/venv/bin/python3 -m pip install mysqlclient==1.4.6
+# ... version 1.3.13 fails to install with: "OSError: mysql_config not found"
+# ... version 1.4.6 works fine
+
+# *** upgrade database structure
 
 # -----------------------------------------------------------------------------
 # EXPOSE: expose a port.
@@ -96,7 +101,8 @@ EXPOSE 8000
 # CMD: run the foreground task whose lifetime determines the container
 # lifetime.
 # -----------------------------------------------------------------------------
-# Note: can be overridden by the "command" option in a docker-compose file.
+# Note: can be (and is) overridden by the "command" option in a docker-compose
+# file.
 
-# CMD ["/camcops_venv/bin/camcops_server" , "serve_gunicorn"]
+# CMD ["/camcops/venv/bin/camcops_server" , "serve_gunicorn"]
 CMD ["/bin/bash"]

@@ -1,22 +1,7 @@
 # server/docker/docker-compose.yml
 #
-# - Start CamCOPS by running "docker-compose up" from this directory, which
-#   uses the default filename of "docker-compose.yml".
-# - Use "camcops_server demo_camcops_config --docker" to generate a starting
-#   point config.
-
-
-# =============================================================================
-# TO DO:
-# =============================================================================
-
-# *** what's the best way to do the database? Mount from host?
-# *** ... and database password management?
-# *** ... and when to build database structure/create superuser?
-# *** TCP or Unix socket for the MySQL connection?
-# *** web setup
-# *** ... Apache config
-
+# See the help!
+# https://camcops.readthedocs.io/en/latest/administrator/docker.html
 
 # =============================================================================
 # docker-compose file syntax version
@@ -42,16 +27,20 @@ volumes:
         # Again, we make it explicit (or we get Docker gibberish names).
         
     camcops_config_volume:
-        # Should contain "camcops.conf"
-        # The alternative is Docker "configs" but these are a bit different
-        # and don't allow single-file bind-mounting under Windows. See
-        # https://docs.docker.com/engine/swarm/configs/
+        # Should contain a file whose name is set by the environment variable
+        # CAMCOPS_DOCKER_CONFIG_FILENAME.
+        #
+        # The alternative to mounting a directory is Docker "configs" but these
+        # are a bit different and don't allow single-file bind-mounting under
+        # Windows. See https://docs.docker.com/engine/swarm/configs/
         
         driver: local
         driver_opts:
             o: bind
             type: none
-            device: /home/rudolf/tmp/camcops_docker_config/
+            # We use environment variable substitution.
+            # https://docs.docker.com/compose/compose-file/#variable-substitution
+            device: "${CAMCOPS_DOCKER_CONFIG_DIR}"
 
 
 # =============================================================================
@@ -77,17 +66,17 @@ services:
         # See https://hub.docker.com/_/mysql
         environment:
             # Create database with this name at first container startup.
-            MYSQL_DATABASE: "camcops"
+            MYSQL_DATABASE: "${CAMCOPS_DOCKER_MYSQL_CAMCOPS_DATABASE_NAME}"
 
             # Create user with this name at first container startup, with
             # GRANT ALL access to the database named in MYSQL_DATABASE.
-            MYSQL_USER: "camcops"
+            MYSQL_USER: "${CAMCOPS_DOCKER_MYSQL_CAMCOPS_USER_NAME}"
 
             # Password for MYSQL_USER (set at first container startup).
-            MYSQL_PASSWORD: "tigerfur23"
+            MYSQL_PASSWORD: "${CAMCOPS_DOCKER_MYSQL_CAMCOPS_USER_PASSWORD}"
 
             # Password for user "root" (set at first container startup).
-            MYSQL_ROOT_PASSWORD: "jamtree92"
+            MYSQL_ROOT_PASSWORD: "${CAMCOPS_DOCKER_MYSQL_ROOT_PASSWORD}"
             
         # Expose ports from the container, "publishing" them to the host.
         # For example, if you offer a MySQL server via "9999:3306", you should
@@ -100,7 +89,7 @@ services:
             # Short format is: "HOST_PORT:CONTAINER_PORT".
             # Should always use explicit string format here.
             # MySQL offers port 3306 by default.
-            - "9999:3306"
+            - "${CAMCOPS_DOCKER_MYSQL_HOST_PORT}:3306"
 
         # Expose ports to linked services without publishing them to the host.
         # Specify the container (internal) port.
@@ -173,14 +162,14 @@ services:
 
         # Mount config file directory
         volumes:
-            - camcops_config_volume:/etc/camcops
+            - camcops_config_volume:/camcops/cfg
 
         # Environment variables
         environment:
-            CAMCOPS_CONFIG_FILE: /etc/camcops/camcops.conf
+            CAMCOPS_CONFIG_FILE: "/camcops/cfg/${CAMCOPS_DOCKER_CONFIG_FILENAME}"
 
         # Command to execute
-        command: ["/camcops_venv/bin/camcops_server" , "launch_workers"]
+        command: ["/camcops/venv/bin/camcops_server" , "launch_workers"]
 
 
     # -------------------------------------------------------------------------
@@ -201,14 +190,14 @@ services:
 
         # Mount config file directory
         volumes:
-            - camcops_config_volume:/etc/camcops
+            - camcops_config_volume:/camcops/cfg
 
         # Environment variables
         environment:
-            CAMCOPS_CONFIG_FILE: /etc/camcops/camcops.conf
+            CAMCOPS_CONFIG_FILE: "/camcops/cfg/${CAMCOPS_DOCKER_CONFIG_FILENAME}"
 
         # Command to execute
-        command: ["/camcops_venv/bin/camcops_server" , "launch_scheduler"]
+        command: ["/camcops/venv/bin/camcops_server" , "launch_scheduler"]
 
 
     # -------------------------------------------------------------------------
@@ -225,35 +214,39 @@ services:
 
         # Restart policy
         restart: "no"
-
+        
         # Expose ports to linked services without publishing them to the host.
         # Specify the container (internal) port.
         expose:
-            # The default CamCOPS port is 8000.
-            - "8000"
+            - "${CAMCOPS_DOCKER_HTTPS_HOST_PORT}"
 
         # Mount config file directory
         volumes:
-            - camcops_config_volume:/etc/camcops
+            - camcops_config_volume:/camcops/cfg
 
         # Environment variables
         environment:
-            CAMCOPS_CONFIG_FILE: /etc/camcops/camcops.conf
+            CAMCOPS_CONFIG_FILE: "/camcops/cfg/${CAMCOPS_DOCKER_CONFIG_FILENAME}"
 
         # Command to execute
         # Can use shell-style or list-style syntax.
-        command: ["/camcops_venv/bin/camcops_server" , "serve_gunicorn"]
+        command: ["/camcops/venv/bin/camcops_server" , "serve_gunicorn"]
 
 
     # -------------------------------------------------------------------------
-    # Apache, providing the front-end web server, and SSL.
+    # We considered Apache, as the front-end web server providing SSL.
+    # This would be via the "httpd:2.4" image, or similar.
+    # However, since Docker can guarantee us a Linux kernel, we can just use
+    # SSL via Gunicorn directly, and this saves us some complexity.
     # -------------------------------------------------------------------------
-    
-    apache:
-        
-        # Base Docker image.
-        # https://hub.docker.com/_/httpd
-        image: httpd:2.4
+
+    # -------------------------------------------------------------------------
+    # Flower monitor
+    # -------------------------------------------------------------------------
+
+    flower:
+        # Re-use the image built above.
+        image: camcops_server
 
         # Start order.
         depends_on:
@@ -262,8 +255,15 @@ services:
         # Restart policy
         restart: "no"
 
-        # Ports to publish
+        # Publish port to host.
         ports:
-            # HTTPS only
-            - "444:443"
-            # *** temporarily using 444; should be 443
+            # Default internal Flower port is 5555.
+            - "${CAMCOPS_DOCKER_FLOWER_HOST_PORT}:5555"
+
+        # Mount config file directory
+        volumes:
+            - camcops_config_volume:/camcops/cfg
+
+        # Environment variables
+        environment:
+            CAMCOPS_CONFIG_FILE: "/camcops/cfg/${CAMCOPS_DOCKER_CONFIG_FILENAME}"

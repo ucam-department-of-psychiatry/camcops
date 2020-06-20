@@ -165,13 +165,3 @@ pubm
     # apt list --installed
     # pip3 install mysqlclient
 
-
-===============================================================================
-Data storage principles
-===============================================================================
-
-- Should data be stored on the host, or in volumes?
-  Docker says: volumes.
-
-  https://docs.docker.com/storage/volumes/
-

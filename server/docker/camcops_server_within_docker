@@ -19,7 +19,7 @@ cd "${DOCKER_COMPOSE_DIR}"
 # Having done so, the default filenames include docker-compose.yaml, so we
 # don't need to specify that.
 
-docker-compose run camcops_workers /camcops_venv/bin/camcops_server "$@"
+docker-compose run camcops_workers /camcops/venv/bin/camcops_server "$@"
 #                  ^^^^^^^^^^^^^^^ ^^^...
 #                  service        command
 #
