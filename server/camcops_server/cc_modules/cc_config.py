@@ -84,6 +84,8 @@ from cardinal_pythonlib.configfiles import (
     get_config_parameter_loglevel,
     get_config_parameter_multiline
 )
+from cardinal_pythonlib.docker import running_under_docker
+from cardinal_pythonlib.fileops import relative_filename_within_dir
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.randomness import create_base64encoded_randomness
 from cardinal_pythonlib.reprfunc import auto_repr
@@ -129,6 +131,7 @@ from camcops_server.cc_modules.cc_constants import (
     ConfigParamExportRecipient,
     ConfigParamServer,
     ConfigParamSite,
+    DockerConstants,
 )
 from camcops_server.cc_modules.cc_exportrecipientinfo import (
     ExportRecipientInfo,
@@ -180,12 +183,53 @@ DEFAULT_LINUX_USER = "www-data"  # Ubuntu default
 
 
 # =============================================================================
+# Helper functions
+# =============================================================================
+
+def warn_if_not_within_docker_cfg_dir(param_name: str,
+                                      filename: str) -> None:
+    """
+    If the specified filename isn't within the config directory that will be
+    used by CamCOPS when operating within a Docker Compose application, warn
+    the user.
+
+    Args:
+        param_name:
+            name of the parameter in the CamCOPS config file
+        filename:
+            filename (or filename-like thing) to check
+    """
+    if filename and not relative_filename_within_dir(
+            filename, DockerConstants.CONFIG_DIR):
+        log.warning(
+            f"{param_name} is {filename!r}, which is not within the Docker "
+            f"config directory {DockerConstants.CONFIG_DIR!r}"
+        )
+
+
+def warn_if_not_within_docker_cfg_or_venv_dir(param_name: str,
+                                              filename: str) -> None:
+    """
+    See :func:`warn_if_not_within_docker_cfg_dir`; this version is also happy
+    if the filename is within the CamCOPS virtual environment.
+    """
+    if (filename and
+            not relative_filename_within_dir(
+                filename, DockerConstants.CONFIG_DIR) and
+            not relative_filename_within_dir(
+                filename, DockerConstants.VENV_DIR)):
+        log.warning(
+            f"{param_name} is {filename!r}, which is not within the Docker "
+            f"config directory {DockerConstants.CONFIG_DIR!r} or the Docker "
+            f"virual environment directory {DockerConstants.VENV_DIR!r}"
+        )
+
+
+# =============================================================================
 # Demo config
 # =============================================================================
 
 # Cosmetic demonstration constants:
-DEFAULT_DB_USER = 'YYY_USERNAME_REPLACE_ME'
-DEFAULT_DB_PASSWORD = 'ZZZ_PASSWORD_REPLACE_ME'
 DEFAULT_DB_READONLY_USER = 'QQQ_USERNAME_REPLACE_ME'
 DEFAULT_DB_READONLY_PASSWORD = 'PPP_PASSWORD_REPLACE_ME'
 DUMMY_INSTITUTION_URL = 'http://www.mydomain/'
@@ -210,12 +254,12 @@ def get_demo_config(extra_strings_dir: str = None,
     # https://people.canonical.com/~cjwatson/ubuntu-policy/policy.html/ch-opersys.html  # noqa
     session_cookie_secret = create_base64encoded_randomness(num_bytes=64)
 
-    cd = ConfigDefaults(for_docker=for_docker)
+    cd = ConfigDefaults(docker=for_docker)
     if not db_url:
         db_url = make_mysql_url(host=cd.DB_SERVER,
                                 port=cd.DB_PORT,
-                                username=DEFAULT_DB_USER,
-                                password=DEFAULT_DB_PASSWORD,
+                                username=cd.DB_USER,
+                                password=cd.DB_PASSWORD,
                                 dbname=cd.DB_DATABASE)
     return f"""
 # Demonstration CamCOPS server configuration file.
@@ -506,7 +550,7 @@ def get_demo_config(extra_strings_dir: str = None,
 {ConfigParamExportRecipient.REDCAP_API_KEY} = myapikey
 {ConfigParamExportRecipient.REDCAP_FIELDMAP_FILENAME} = /location/of/fieldmap.xml
 
-    """  # noqa
+    """.strip()  # noqa
 
 
 # =============================================================================
@@ -582,29 +626,28 @@ stopwaitsecs = {stopwaitsecs}
 
 programs = camcops_server, camcops_workers, camcops_scheduler
 
-    """  # noqa
+    """.strip()  # noqa
 
 
 def get_demo_apache_config(
         rootpath: str = "camcops",  # no slash
         specimen_internal_port: int = None,
-        specimen_socket_file: str = DEFAULT_SOCKET_FILENAME,
-        for_docker: bool = False) -> str:
+        specimen_socket_file: str = DEFAULT_SOCKET_FILENAME) -> str:
     """
     Returns a demo Apache HTTPD config file section applicable to CamCOPS.
     """
-    cd = ConfigDefaults(for_docker=for_docker)
+    cd = ConfigDefaults()
     specimen_internal_port = specimen_internal_port or cd.PORT
     urlbase = "/" + rootpath
     return f"""
-    # Demonstration Apache config file section for CamCOPS.
-    # Created by CamCOPS version {CAMCOPS_SERVER_VERSION_STRING}.
-    #
-    # Under Ubuntu, the Apache config will be somewhere in /etc/apache2/
-    # Under CentOS, the Apache config will be somewhere in /etc/httpd/
-    #
-    # This section should go within the <VirtualHost> directive for the secure
-    # (SSL, HTTPS) part of the web site.
+# Demonstration Apache config file section for CamCOPS.
+# Created by CamCOPS version {CAMCOPS_SERVER_VERSION_STRING}.
+#
+# Under Ubuntu, the Apache config will be somewhere in /etc/apache2/
+# Under CentOS, the Apache config will be somewhere in /etc/httpd/
+#
+# This section should go within the <VirtualHost> directive for the secure
+# (SSL, HTTPS) part of the web site.
 
 <VirtualHost *:443>
     # ...
@@ -865,7 +908,7 @@ def get_demo_apache_config(
 
 </VirtualHost>
 
-    """  # noqa
+    """.strip()  # noqa
 
 
 # =============================================================================
@@ -979,15 +1022,21 @@ class CamcopsConfig(object):
     Class representing the CamCOPS configuration.
     """
 
-    def __init__(self, config_filename: str,
-                 config_text: str = None) -> None:
+    def __init__(self,
+                 config_filename: str,
+                 config_text: str = None,
+                 docker: bool = False) -> None:
         """
         Initialize by reading the config file.
 
         Args:
-            config_filename: filename of the config file (usual method)
-            config_text: text contents of the config file (alternative method
-                for special circumstances); overrides ``config_filename``
+            config_filename:
+                Filename of the config file (usual method)
+            config_text:
+                Text contents of the config file (alternative method for
+                special circumstances); overrides ``config_filename``
+            docker:
+                Apply checks for the Docker environment?
         """
         def _get_str(section: str, paramname: str,
                      default: str = None) -> Optional[str]:
@@ -1028,6 +1077,11 @@ class CamcopsConfig(object):
             lines = _get_multiline(section, paramname)
             return list(filter(None,
                                (x.split("#")[0].strip() for x in lines if x)))
+
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        # Learn something about our environment
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        self.running_under_docker = running_under_docker()
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Open config file
@@ -1310,6 +1364,52 @@ class CamcopsConfig(object):
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         self._sqla_engine = None
 
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        # Docker checks
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        if self.running_under_docker:
+            if self.celery_broker_url != DockerConstants.CELERY_BROKER_URL:
+                log.warning(
+                    f"{ConfigParamExportGeneral.CELERY_BROKER_URL} is "
+                    f"{self.celery_broker_url!r} "
+                    f"but within Docker should be "
+                    f"{DockerConstants.CELERY_BROKER_URL!r}")
+
+            warn_if_not_within_docker_cfg_dir(
+                ConfigParamServer.SSL_CERTIFICATE,
+                self.ssl_certificate
+            )
+            warn_if_not_within_docker_cfg_dir(
+                ConfigParamServer.SSL_PRIVATE_KEY,
+                self.ssl_private_key
+            )
+
+            warn_if_not_within_docker_cfg_dir(
+                ConfigParamSite.LOCAL_LOGO_FILE_ABSOLUTE,
+                self.local_logo_file_absolute
+            )
+            warn_if_not_within_docker_cfg_or_venv_dir(
+                ConfigParamSite.CAMCOPS_LOGO_FILE_ABSOLUTE,
+                self.camcops_logo_file_absolute
+            )
+            for esf in self.extra_string_files:
+                warn_if_not_within_docker_cfg_or_venv_dir(
+                    ConfigParamSite.EXTRA_STRING_FILES,
+                    esf
+                )
+            warn_if_not_within_docker_cfg_or_venv_dir(
+                ConfigParamSite.SNOMED_ICD9_XML_FILENAME,
+                self.snomed_icd9_xml_filename
+            )
+            warn_if_not_within_docker_cfg_or_venv_dir(
+                ConfigParamSite.SNOMED_ICD10_XML_FILENAME,
+                self.snomed_icd10_xml_filename
+            )
+            warn_if_not_within_docker_cfg_or_venv_dir(
+                ConfigParamSite.SNOMED_TASK_XML_FILENAME,
+                self.snomed_task_xml_filename
+            )
+
     # -------------------------------------------------------------------------
     # Database functions
     # -------------------------------------------------------------------------
@@ -1590,14 +1690,15 @@ def get_config_filename_from_os_env() -> str:
 # =============================================================================
 
 @cache_region_static.cache_on_arguments(function_key_generator=fkg)
-def get_config(config_filename: str) -> CamcopsConfig:
+def get_config(config_filename: str,
+               docker: bool = False) -> CamcopsConfig:
     """
     Returns a :class:`camcops_server.cc_modules.cc_config.CamcopsConfig` from
     the specified config filename.
 
     Cached.
     """
-    return CamcopsConfig(config_filename)
+    return CamcopsConfig(config_filename, docker=docker)
 
 
 # =============================================================================

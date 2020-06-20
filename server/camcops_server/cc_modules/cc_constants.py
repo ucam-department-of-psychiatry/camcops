@@ -471,7 +471,10 @@ class ConfigParamExportRecipient(object):
     XML_FIELD_COMMENTS = "XML_FIELD_COMMENTS"
 
 
-class StandardPorts:
+class StandardPorts(object):
+    """
+    Standard TCP port numbers.
+    """
     ALTERNATIVE_HTTP = 8000
     AMQP = 5672
     SMTP = 25
@@ -480,13 +483,25 @@ class StandardPorts:
     MYSQL = 3306
 
 
+class DockerConstants(object):
+    """
+    Constants for the Docker environment.
+    """
+    _DOCKER_CAMCOPS_ROOT_DIR = "/camcops"
+
+    CELERY_BROKER_URL = f"amqp://rabbitmq:{StandardPorts.AMQP}/"
+    CONFIG_DIR = os.path.join(_DOCKER_CAMCOPS_ROOT_DIR, "cfg")
+    VENV_DIR = os.path.join(_DOCKER_CAMCOPS_ROOT_DIR, "venv")
+
+
 # =============================================================================
 # Configuration defaults
 # =============================================================================
 
 class ConfigDefaults(object):
     """
-    Contains default values for the config.
+    Contains default values for the config, plus some cosmetic defaults for
+    generating specimen config files.
 
     - Re ``CHERRYPY_THREADS_MAX``: beware the default MySQL connection limit of
       151; https://dev.mysql.com/doc/refman/5.7/en/too-many-connections.html
@@ -501,7 +516,8 @@ class ConfigDefaults(object):
     DB_ECHO = False
     DB_PORT = StandardPorts.MYSQL  # for demo configs only
     DB_SERVER = "localhost"  # for demo configs only
-    DB_USER = "YYY_USERNAME_REPLACE_ME"  # for demo configs only
+    DB_USER = "YYY_USERNAME_REPLACE_ME"  # cosmetic; for demo configs only
+    DB_PASSWORD = "ZZZ_PASSWORD_REPLACE_ME"  # cosmetic; for demo configs only
     DISABLE_PASSWORD_AUTOCOMPLETE = True
     EMAIL_PORT = StandardPorts.SMTP_TLS
     EMAIL_USE_TLS = True
@@ -572,10 +588,10 @@ class ConfigDefaults(object):
     TASK_FORMAT = FileType.PDF
     XML_FIELD_COMMENTS = True
 
-    def __init__(self, for_docker: bool = False) -> None:
+    def __init__(self, docker: bool = False) -> None:
         """
         Args:
-            for_docker:
+            docker:
                 Amend defaults so it works within a Docker Compose application
                 without much fiddling?
 
@@ -585,7 +601,7 @@ class ConfigDefaults(object):
           ``protocol://container:port/``. Values here must match the Docker
           Compose file.
         """
-        if for_docker:
+        if docker:
             self.CELERY_BROKER_URL = \
                 f"amqp://rabbitmq:{StandardPorts.AMQP}/"
             # ... container named "rabbitmq"

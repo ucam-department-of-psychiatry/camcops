@@ -9,7 +9,7 @@ Options:
                             precedence (highest to lowest) is (1) this argument,
                             (2) the CAMCOPS_DATABASE_DIRECTORY environment
                             variable, and (3) the default, on this particular
-                            system, of "/path/to/client/database/dir".
+                            system, of "/home/rudolf/.local/share/camcops".
   --print_icd9_codes        Print ICD-9-CM (DSM-IV) codes used by CamCOPS, and
                             quit.
   --print_icd10_codes       Print ICD-10 codes used by CamCOPS, and quit.

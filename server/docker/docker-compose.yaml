@@ -28,7 +28,7 @@ volumes:
         
     camcops_config_volume:
         # Should contain a file whose name is set by the environment variable
-        # CAMCOPS_DOCKER_CONFIG_FILENAME.
+        # CAMCOPS_DOCKER_CAMCOPS_CONFIG_FILENAME.
         #
         # The alternative to mounting a directory is Docker "configs" but these
         # are a bit different and don't allow single-file bind-mounting under
@@ -40,7 +40,7 @@ volumes:
             type: none
             # We use environment variable substitution.
             # https://docs.docker.com/compose/compose-file/#variable-substitution
-            device: "${CAMCOPS_DOCKER_CONFIG_DIR}"
+            device: "${CAMCOPS_DOCKER_CONFIG_HOST_DIR}"
 
 
 # =============================================================================
@@ -145,7 +145,7 @@ services:
             context: ../
             
             # Filename of the Dockerfile to use, relative to the context.
-            dockerfile: docker/camcops_server.Dockerfile
+            dockerfile: docker/camcops.Dockerfile
         
         # If you specify "image" as well as "build", Compose names the built
         # image. Syntax is "IMAGE[:TAG]".
@@ -166,10 +166,10 @@ services:
 
         # Environment variables
         environment:
-            CAMCOPS_CONFIG_FILE: "/camcops/cfg/${CAMCOPS_DOCKER_CONFIG_FILENAME}"
+            CAMCOPS_CONFIG_FILE: "/camcops/cfg/${CAMCOPS_DOCKER_CAMCOPS_CONFIG_FILENAME}"
 
         # Command to execute
-        command: ["/camcops/venv/bin/camcops_server" , "launch_workers"]
+        command: ["/camcops/venv/bin/camcops_server" , "launch_workers", "--docker"]
 
 
     # -------------------------------------------------------------------------
@@ -194,10 +194,10 @@ services:
 
         # Environment variables
         environment:
-            CAMCOPS_CONFIG_FILE: "/camcops/cfg/${CAMCOPS_DOCKER_CONFIG_FILENAME}"
+            CAMCOPS_CONFIG_FILE: "/camcops/cfg/${CAMCOPS_DOCKER_CAMCOPS_CONFIG_FILENAME}"
 
         # Command to execute
-        command: ["/camcops/venv/bin/camcops_server" , "launch_scheduler"]
+        command: ["/camcops/venv/bin/camcops_server" , "launch_scheduler", "--docker"]
 
 
     # -------------------------------------------------------------------------
@@ -215,10 +215,9 @@ services:
         # Restart policy
         restart: "no"
         
-        # Expose ports to linked services without publishing them to the host.
-        # Specify the container (internal) port.
-        expose:
-            - "${CAMCOPS_DOCKER_HTTPS_HOST_PORT}"
+        # Publish port to host.
+        ports:
+            - "${CAMCOPS_DOCKER_CAMCOPS_HOST_PORT}:${CAMCOPS_DOCKER_CAMCOPS_INTERNAL_PORT}"
 
         # Mount config file directory
         volumes:
@@ -226,11 +225,11 @@ services:
 
         # Environment variables
         environment:
-            CAMCOPS_CONFIG_FILE: "/camcops/cfg/${CAMCOPS_DOCKER_CONFIG_FILENAME}"
+            CAMCOPS_CONFIG_FILE: "/camcops/cfg/${CAMCOPS_DOCKER_CAMCOPS_CONFIG_FILENAME}"
 
         # Command to execute
         # Can use shell-style or list-style syntax.
-        command: ["/camcops/venv/bin/camcops_server" , "serve_gunicorn"]
+        command: ["/camcops/venv/bin/camcops_server" , "serve_gunicorn", "--docker"]
 
 
     # -------------------------------------------------------------------------
@@ -241,7 +240,7 @@ services:
     # -------------------------------------------------------------------------
 
     # -------------------------------------------------------------------------
-    # Flower monitor
+    # CamCOPS background monitor, using Flower
     # -------------------------------------------------------------------------
 
     flower:
@@ -253,7 +252,7 @@ services:
             - camcops_server
 
         # Restart policy
-        restart: "no"
+        restart: always
 
         # Publish port to host.
         ports:
@@ -266,4 +265,4 @@ services:
 
         # Environment variables
         environment:
-            CAMCOPS_CONFIG_FILE: "/camcops/cfg/${CAMCOPS_DOCKER_CONFIG_FILENAME}"
+            CAMCOPS_CONFIG_FILE: "/camcops/cfg/${CAMCOPS_DOCKER_CAMCOPS_CONFIG_FILENAME}"

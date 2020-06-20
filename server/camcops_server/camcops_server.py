@@ -122,11 +122,11 @@ def launch_manual() -> None:
     launch_external_file(DOCUMENTATION_URL)
 
 
-def print_demo_camcops_config(for_docker: bool = False) -> None:
+def print_demo_camcops_config(docker: bool = False) -> None:
     """
     Prints a demonstration config file to stdout.
     """
-    print(get_demo_config(for_docker=for_docker))
+    print(get_demo_config(for_docker=docker))
 
 
 def print_demo_supervisor_config() -> None:
@@ -496,12 +496,15 @@ def add_sub(sp: "_SubParsersAction",
         description=description,
         formatter_class=ArgumentDefaultsHelpFormatter
     )  # type: ArgumentParser
+
     # This needs to be in the top-level parser and the sub-parsers (it does not
     # appear in the subparsers just because it's in the top-level parser, which
     # sounds like an argparse bug given its help, but there you go).
     subparser.add_argument(
         '-v', '--verbose', action='store_true',
         help="Be verbose")
+
+    # Config file handling
     if config_mandatory:  # True
         cfg_help = "Configuration file"
     else:  # None, False
@@ -587,6 +590,10 @@ def camcops_main() -> int:
     parser.add_argument(
         '-v', '--verbose', action='store_true',
         help="Be verbose")
+    parser.add_argument(
+        "--no_log", action="store_true",
+        help="Disable log (stderr) entirely."
+    )
 
     # -------------------------------------------------------------------------
     # Subcommand subparser
@@ -621,14 +628,8 @@ def camcops_main() -> int:
     democonfig_parser = add_sub(
         subparsers, "demo_camcops_config", config_mandatory=None,
         help="Print a demo CamCOPS config file")
-    democonfig_parser.add_argument(
-        "--docker", action="store_true",
-        help="Create a config file with defaults for Docker Compose mode"
-    )
     democonfig_parser.set_defaults(
-        func=lambda args: print_demo_camcops_config(
-            for_docker=args.docker
-        ))
+        func=lambda args: print_demo_camcops_config(docker=args.docker))
 
     # Print demo supervisor config
     demosupervisorconf_parser = add_sub(
@@ -1182,7 +1183,12 @@ def camcops_main() -> int:
     progargs = parser.parse_args()
 
     # Initial log level (overridden later by config file but helpful for start)
-    loglevel = logging.DEBUG if progargs.verbose else logging.INFO
+    if progargs.no_log:
+        loglevel = logging.CRITICAL + 1
+    elif progargs.verbose:
+        loglevel = logging.DEBUG
+    else:
+        loglevel = logging.INFO
     main_only_quicksetup_rootlogger(
         level=loglevel, with_process_id=True, with_thread_id=True)
     rootlogger = logging.getLogger()
@@ -1220,6 +1226,8 @@ def camcops_main() -> int:
             os.environ[ENVVAR_CONFIG_FILE] = progargs.config
         cfg_name = os.environ.get(ENVVAR_CONFIG_FILE, None)
         log.info("Using configuration file: {!r}", cfg_name)
+        if progargs.docker:
+            log.info("... operating within Docker")
 
     # Call the subparser function for the chosen command
     if progargs.func is None:

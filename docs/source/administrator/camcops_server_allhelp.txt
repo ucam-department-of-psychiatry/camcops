@@ -82,13 +82,15 @@ optional arguments:
 ===============================================================================
 Help for command 'demo_camcops_config'
 ===============================================================================
-usage: camcops_server demo_camcops_config [-h] [-v]
+usage: camcops_server demo_camcops_config [-h] [-v] [--docker]
 
 Print a demo CamCOPS config file
 
 optional arguments:
   -h, --help     show this help message and exit
   -v, --verbose  Be verbose (default: False)
+  --docker       Create a config file with defaults for Docker Compose mode
+                 (default: False)
 
 ===============================================================================
 Help for command 'demo_supervisor_config'
@@ -667,3 +669,4 @@ optional arguments:
   -v, --verbose    Be verbose (default: False)
   --config CONFIG  Configuration file (if not specified, the environment
                    variable CAMCOPS_CONFIG_FILE is checked) (default: None)
+

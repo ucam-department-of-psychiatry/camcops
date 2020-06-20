@@ -105,7 +105,7 @@ Note regarding Docker
 
 If you are using CamCOPS with Docker, see :ref:`The CamCOPS configuration file
 for Docker <camcops_config_file_docker>` as there are a few special
-requirements.
+requirements. Relevant sections are also marked below.
 
 
 Config file sections
@@ -172,8 +172,7 @@ http://docs.sqlalchemy.org/en/latest/core/engines.html. Examples:
 For our notes on database drivers for a different software package, see
 https://crateanon.readthedocs.io/en/latest/installation/database_drivers.html.
 
-If you are using CamCOPS via Docker, see :ref:`here
-<camcops_config_file_docker>`.
+.. include:: include_docker_config.rst
 
 
 DB_ECHO
@@ -238,6 +237,8 @@ views use the fixed string ``static/logo_local.png``, aliased to your file via
 the Apache configuration file). Edit this setting to point to your local
 institution's logo file:
 
+.. include:: include_docker_config.rst
+
 
 CAMCOPS_LOGO_FILE_ABSOLUTE
 ##########################
@@ -246,6 +247,8 @@ CAMCOPS_LOGO_FILE_ABSOLUTE
 
 As for ``LOCAL_LOGO_FILE_ABSOLUTE``, but for the CamCOPS logo. It's fine not to
 specify this; a default will be used.
+
+.. include:: include_docker_config.rst
 
 
 .. _EXTRA_STRING_FILES:
@@ -259,6 +262,8 @@ A multiline list of filenames (with absolute paths), read by the server, and
 used as EXTRA STRING FILES. Should **as a minimum** point to the string file
 ``camcops.xml``. May use "glob" pattern-matching (see
 https://docs.python.org/3.5/library/glob.html).
+
+.. include:: include_docker_config.rst
 
 
 .. _RESTRICTED_TASKS:
@@ -320,6 +325,8 @@ Filename of special XML file containing SNOMED CT codes used by CamCOPS tasks.
 This file is OK to use in the UK, but not necessarily elsewhere. See
 :ref:`SNOMED CT <snomed>`.
 
+.. include:: include_docker_config.rst
+
 
 SNOMED_ICD9_XML_FILENAME
 ########################
@@ -331,6 +338,8 @@ Name of XML file mapping ICD-9-CM codes to SNOMED-CT.
 Created by ``camcops_server convert_athena_icd_snomed_to_xml``; see
 :ref:`SNOMED CT <snomed>`.
 
+.. include:: include_docker_config.rst
+
 
 SNOMED_ICD10_XML_FILENAME
 #########################
@@ -341,6 +350,8 @@ Name of XML file mapping ICD-10[-CM] codes to SNOMED-CT.
 
 Created by ``camcops_server convert_athena_icd_snomed_to_xml``; see
 :ref:`SNOMED CT <snomed>`.
+
+.. include:: include_docker_config.rst
 
 
 WKHTMLTOPDF_FILENAME
@@ -758,6 +769,8 @@ PORT
 
 TCP_ port number to listen on. (See also UNIX_DOMAIN_SOCKET_.)
 
+.. include:: include_docker_config.rst
+
 
 .. _UNIX_DOMAIN_SOCKET:
 
@@ -791,6 +804,8 @@ Standard <https://refspecs.linuxfoundation.org/FHS_3.0/fhs/ch05s13.html>`_).
         The setuid bit: an indication that this is not a normal file!
 
 
+.. _SSL_CERTIFICATE:
+
 SSL_CERTIFICATE
 ###############
 
@@ -805,6 +820,8 @@ If you host CamCOPS behind Apache, it's likely that you'll want Apache to
 handle HTTPS and CamCOPS to operate unencrypted behind a reverse proxy, in
 which case don't set this or SSL_PRIVATE_KEY_.
 
+.. include:: include_docker_config.rst
+
 
 .. _SSL_PRIVATE_KEY:
 
@@ -817,6 +834,8 @@ SSL private key file for HTTPS_ (e.g.
 ``/etc/ssl/private/ssl-cert-snakeoil.key``).
 
 (Not applicable to the Pyramid test web server; CherryPy/Gunicorn only.)
+
+.. include:: include_docker_config.rst
 
 
 WSGI options
@@ -1207,8 +1226,7 @@ to set this to a more secure URL (e.g. with username/password authentication).
 
 For RabbitMQ URLs, see e.g. https://www.rabbitmq.com/uri-spec.html.
 
-If you are using CamCOPS via Docker, see :ref:`here
-<camcops_config_file_docker>`.
+.. include:: include_docker_config.rst
 
 
 CELERY_WORKER_EXTRA_ARGS
