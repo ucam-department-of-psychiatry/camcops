@@ -169,7 +169,11 @@ services:
             CAMCOPS_CONFIG_FILE: "/camcops/cfg/${CAMCOPS_DOCKER_CAMCOPS_CONFIG_FILENAME}"
 
         # Command to execute
-        command: ["/camcops/venv/bin/camcops_server" , "launch_workers", "--docker"]
+        command: [
+            "wait-for-it", "--host=mysql", "--port=3306", "--timeout=0", "--strict", "--",
+            "wait-for-it", "--host=rabbitmq", "--port=5672", "--timeout=0", "--strict", "--",
+            "/camcops/venv/bin/camcops_server" , "launch_workers",
+        ]
 
 
     # -------------------------------------------------------------------------
@@ -197,7 +201,11 @@ services:
             CAMCOPS_CONFIG_FILE: "/camcops/cfg/${CAMCOPS_DOCKER_CAMCOPS_CONFIG_FILENAME}"
 
         # Command to execute
-        command: ["/camcops/venv/bin/camcops_server" , "launch_scheduler", "--docker"]
+        command: [
+            "wait-for-it", "--host=mysql", "--port=3306", "--timeout=0", "--strict", "--",
+            "wait-for-it", "--host=rabbitmq", "--port=5672", "--timeout=0", "--strict", "--",
+            "/camcops/venv/bin/camcops_server" , "launch_scheduler",
+        ]
 
 
     # -------------------------------------------------------------------------
@@ -229,7 +237,11 @@ services:
 
         # Command to execute
         # Can use shell-style or list-style syntax.
-        command: ["/camcops/venv/bin/camcops_server" , "serve_gunicorn", "--docker"]
+        command: [
+            "wait-for-it", "--host=mysql", "--port=3306", "--timeout=0", "--strict", "--",
+            "wait-for-it", "--host=rabbitmq", "--port=5672", "--timeout=0", "--strict", "--",
+            "/camcops/venv/bin/camcops_server" , "serve_gunicorn",
+        ]
 
 
     # -------------------------------------------------------------------------
@@ -266,3 +278,8 @@ services:
         # Environment variables
         environment:
             CAMCOPS_CONFIG_FILE: "/camcops/cfg/${CAMCOPS_DOCKER_CAMCOPS_CONFIG_FILENAME}"
+
+        command: [
+            "wait-for-it", "--host=rabbitmq", "--port=5672", "--timeout=0", "--strict", "--",
+            "/camcops/venv/bin/camcops_server" , "launch_monitor",
+        ]

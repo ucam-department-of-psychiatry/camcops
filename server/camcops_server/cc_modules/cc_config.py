@@ -1024,8 +1024,7 @@ class CamcopsConfig(object):
 
     def __init__(self,
                  config_filename: str,
-                 config_text: str = None,
-                 docker: bool = False) -> None:
+                 config_text: str = None) -> None:
         """
         Initialize by reading the config file.
 
@@ -1035,8 +1034,6 @@ class CamcopsConfig(object):
             config_text:
                 Text contents of the config file (alternative method for
                 special circumstances); overrides ``config_filename``
-            docker:
-                Apply checks for the Docker environment?
         """
         def _get_str(section: str, paramname: str,
                      default: str = None) -> Optional[str]:
@@ -1368,6 +1365,8 @@ class CamcopsConfig(object):
         # Docker checks
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if self.running_under_docker:
+            log.info("Docker environment detected")
+
             if self.celery_broker_url != DockerConstants.CELERY_BROKER_URL:
                 log.warning(
                     f"{ConfigParamExportGeneral.CELERY_BROKER_URL} is "
@@ -1690,15 +1689,14 @@ def get_config_filename_from_os_env() -> str:
 # =============================================================================
 
 @cache_region_static.cache_on_arguments(function_key_generator=fkg)
-def get_config(config_filename: str,
-               docker: bool = False) -> CamcopsConfig:
+def get_config(config_filename: str) -> CamcopsConfig:
     """
     Returns a :class:`camcops_server.cc_modules.cc_config.CamcopsConfig` from
     the specified config filename.
 
     Cached.
     """
-    return CamcopsConfig(config_filename, docker=docker)
+    return CamcopsConfig(config_filename)
 
 
 # =============================================================================

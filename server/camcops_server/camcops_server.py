@@ -47,6 +47,7 @@ from cardinal_pythonlib.argparse_func import (
     nonnegative_int,
 )
 from cardinal_pythonlib.debugging import pdb_run
+from cardinal_pythonlib.docker import running_under_docker
 from cardinal_pythonlib.logs import (
     BraceStyleAdapter,
     main_only_quicksetup_rootlogger,
@@ -126,7 +127,7 @@ def print_demo_camcops_config(docker: bool = False) -> None:
     """
     Prints a demonstration config file to stdout.
     """
-    print(get_demo_config(for_docker=docker))
+    print(get_demo_config(for_docker=docker or running_under_docker()))
 
 
 def print_demo_supervisor_config() -> None:
@@ -421,8 +422,7 @@ def _launch_celery_beat(verbose: bool = False) -> None:
 def _launch_celery_flower(address: str = DEFAULT_FLOWER_ADDRESS,
                           port: int = DEFAULT_FLOWER_PORT) -> None:
     import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
-    core.launch_celery_flower(address=address,
-                              port=port)
+    core.launch_celery_flower(address=address, port=port)
 
 
 def _housekeeping() -> None:
@@ -565,6 +565,7 @@ def camcops_main() -> int:
     # Base parser
     # -------------------------------------------------------------------------
 
+    # noinspection PyTypeChecker
     parser = ArgumentParser(
         description=(
             f"CamCOPS server, created by Rudolf Cardinal; version "
@@ -628,6 +629,10 @@ def camcops_main() -> int:
     democonfig_parser = add_sub(
         subparsers, "demo_camcops_config", config_mandatory=None,
         help="Print a demo CamCOPS config file")
+    democonfig_parser.add_argument(
+        "--docker", action="store_true",
+        help="Use settings for Docker"
+    )
     democonfig_parser.set_defaults(
         func=lambda args: print_demo_camcops_config(docker=args.docker))
 
@@ -1226,8 +1231,6 @@ def camcops_main() -> int:
             os.environ[ENVVAR_CONFIG_FILE] = progargs.config
         cfg_name = os.environ.get(ENVVAR_CONFIG_FILE, None)
         log.info("Using configuration file: {!r}", cfg_name)
-        if progargs.docker:
-            log.info("... operating within Docker")
 
     # Call the subparser function for the chosen command
     if progargs.func is None:

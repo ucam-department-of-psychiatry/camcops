@@ -70,6 +70,7 @@ WORKDIR /camcops
 # - python3-dev: probably installed automatically, but required
 # - python3-tk: Tkinter for Python, not installed by default
 # - wget: for fetching other stuff! See below.
+# - wait-for-it: wait for a host/TCP port (to synchronize containers)
 #
 # Also, install wkhtmltopdf in a different way, as above.
 #
@@ -91,6 +92,7 @@ RUN echo "- Updateing package information..." \
         python3-dev \
         python3-tk \
         wget \
+        wait-for-it \
     && echo "- Fetching wkhtmltopdf with patched Qt..." \
     && wget -O /tmp/wkhtmltopdf.deb \
         https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.stretch_amd64.deb \

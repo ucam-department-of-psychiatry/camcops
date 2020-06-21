@@ -487,11 +487,18 @@ class DockerConstants(object):
     """
     Constants for the Docker environment.
     """
-    _DOCKER_CAMCOPS_ROOT_DIR = "/camcops"
+    # Directories
+    DOCKER_CAMCOPS_ROOT_DIR = "/camcops"
+    CONFIG_DIR = os.path.join(DOCKER_CAMCOPS_ROOT_DIR, "cfg")
+    VENV_DIR = os.path.join(DOCKER_CAMCOPS_ROOT_DIR, "venv")
 
-    CELERY_BROKER_URL = f"amqp://rabbitmq:{StandardPorts.AMQP}/"
-    CONFIG_DIR = os.path.join(_DOCKER_CAMCOPS_ROOT_DIR, "cfg")
-    VENV_DIR = os.path.join(_DOCKER_CAMCOPS_ROOT_DIR, "venv")
+    # Container (internal) names
+    CONTAINER_RABBITMQ = "rabbitmq"
+    CONTAINER_MYSQL = "mysql"
+
+    # Other
+    CELERY_BROKER_URL = f"amqp://{CONTAINER_RABBITMQ}:{StandardPorts.AMQP}/"
+    DEFAULT_MYSQL_CAMCOPS_USER = "camcops"
 
 
 # =============================================================================
@@ -602,11 +609,9 @@ class ConfigDefaults(object):
           Compose file.
         """
         if docker:
-            self.CELERY_BROKER_URL = \
-                f"amqp://rabbitmq:{StandardPorts.AMQP}/"
-            # ... container named "rabbitmq"
-            self.DB_SERVER = "mysql"  # container named "mysql"
-            self.DB_USER = "camcops"
+            self.CELERY_BROKER_URL = DockerConstants.CELERY_BROKER_URL
+            self.DB_SERVER = DockerConstants.CONTAINER_MYSQL
+            self.DB_USER = DockerConstants.DEFAULT_MYSQL_CAMCOPS_USER
 
 
 MINIMUM_PASSWORD_LENGTH = 8
