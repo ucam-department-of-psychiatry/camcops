@@ -221,7 +221,7 @@ def warn_if_not_within_docker_cfg_or_venv_dir(param_name: str,
         log.warning(
             f"{param_name} is {filename!r}, which is not within the Docker "
             f"config directory {DockerConstants.CONFIG_DIR!r} or the Docker "
-            f"virual environment directory {DockerConstants.VENV_DIR!r}"
+            f"virtual environment directory {DockerConstants.VENV_DIR!r}"
         )
 
 
@@ -1383,7 +1383,7 @@ class CamcopsConfig(object):
                 self.ssl_private_key
             )
 
-            warn_if_not_within_docker_cfg_dir(
+            warn_if_not_within_docker_cfg_or_venv_dir(
                 ConfigParamSite.LOCAL_LOGO_FILE_ABSOLUTE,
                 self.local_logo_file_absolute
             )
@@ -1394,7 +1394,8 @@ class CamcopsConfig(object):
             for esf in self.extra_string_files:
                 warn_if_not_within_docker_cfg_or_venv_dir(
                     ConfigParamSite.EXTRA_STRING_FILES,
-                    esf
+                    esf,
+                    contains=True
                 )
             warn_if_not_within_docker_cfg_or_venv_dir(
                 ConfigParamSite.SNOMED_ICD9_XML_FILENAME,

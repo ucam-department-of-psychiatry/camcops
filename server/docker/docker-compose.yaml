@@ -264,7 +264,7 @@ services:
             - camcops_server
 
         # Restart policy
-        restart: always
+        restart: "no"
 
         # Publish port to host.
         ports:
