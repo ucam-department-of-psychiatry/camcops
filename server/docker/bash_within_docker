@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # server/docker/bash_within_camcops_docker
 #
