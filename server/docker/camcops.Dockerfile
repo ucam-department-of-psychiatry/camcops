@@ -56,7 +56,7 @@ WORKDIR /camcops
 #
 #   - https://docs.docker.com/engine/reference/builder/#run
 #   - https://stackoverflow.com/questions/39223249/multiple-run-vs-single-chained-run-in-dockerfile-what-is-better
-
+#
 # Install packages for the operating system.
 #
 # - gcc: required by some Python packages (e.g. psutil)
@@ -67,7 +67,7 @@ WORKDIR /camcops
 # - libmagickwand-dev: ImageMagick, used by CamCOPS
 # - libmysqlclient-dev: for MySQL access (needed by Python mysqlclient package)
 #   ... replaced by libmariadbclient-dev in Debian 10
-# - python3-dev: probably installed automatically, but required
+# - python3-dev: some Python packages require it
 # - python3-tk: Tkinter for Python, not installed by default
 # - wget: for fetching other stuff! See below.
 # - wait-for-it: wait for a host/TCP port (to synchronize containers)
@@ -79,29 +79,9 @@ WORKDIR /camcops
 #   more "manually". See
 #   - https://wkhtmltopdf.org/downloads.html
 #   - https://stackoverflow.com/questions/38262173/how-to-correctly-install-wkhtmltopdf-on-debian-64-bit
-
-RUN echo "- Updateing package information..." \
-    && apt-get update \
-    && echo "- Installing operating system packages..." \
-    && apt-get install -y \
-        gcc \
-        gdebi \
-        git \
-        libmagickwand-dev \
-        libmariadbclient-dev \
-        python3-dev \
-        python3-tk \
-        wget \
-        wait-for-it \
-    && echo "- Fetching wkhtmltopdf with patched Qt..." \
-    && wget -O /tmp/wkhtmltopdf.deb \
-        https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.stretch_amd64.deb \
-    && echo "- Installing wkhtmltopdf..." \
-    && gdebi --non-interactive /tmp/wkhtmltopdf.deb \
-    && echo "- Cleaning up..." \
-    && rm /tmp/wkhtmltopdf.deb \
-    && rm -rf /var/lib/apt/lists/*
-
+#
+# Then
+#
 # - Make /var/lock/camcops
 # - Make /var/tmp/camcops
 # - Use system python3 to create Python virtual environment (venv).
@@ -111,8 +91,35 @@ RUN echo "- Updateing package information..." \
 #   - use mysqlclient
 #   - version 1.3.13 fails to install with: "OSError: mysql_config not found"
 #   - version 1.4.6 works fine
+#
+# Then, because we are at 2.01 Gb:
+#
+# - remove packages that we don't need, all within a single RUN command...
+#   ... takes it from 2.01 Gb to 1.58 Gb
+#   ... and moving from python:3.6-slim-buster to python:3.7-slim-buster takes
+#       it from 1.58 Gb to 1.59 Gb, so no real difference there.
 
-RUN echo "- Making directories..." \
+RUN echo "- Updating package information..." \
+    && apt-get update \
+    && echo "- Installing operating system packages..." \
+    && apt-get install -y --no-install-recommends \
+        gcc \
+        gdebi \
+        git \
+        libmagickwand-dev \
+        libmariadbclient-dev \
+        python3-dev \
+        python3-tk \
+        wget \
+        wait-for-it \
+    && echo "- wkhtmltopdf: Fetching wkhtmltopdf with patched Qt..." \
+    && wget -O /tmp/wkhtmltopdf.deb \
+        https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.stretch_amd64.deb \
+    && echo "- wkhtmltopdf: Installing wkhtmltopdf..." \
+    && gdebi --non-interactive /tmp/wkhtmltopdf.deb \
+    && echo "- wkhtmltopdf: Cleaning up..." \
+    && rm /tmp/wkhtmltopdf.deb \
+    && echo "- Making directories..." \
     && mkdir -p /var/lock/camcops \
     && mkdir -p /var/tmp/camcops \
     && echo "- Creating Python 3 virtual environment..." \
@@ -122,7 +129,18 @@ RUN echo "- Making directories..." \
     && echo "- Installing CamCOPS and Python database drivers..." \
     && /camcops/venv/bin/python3 -m pip install \
         /camcops/src \
-        mysqlclient==1.4.6
+        mysqlclient==1.4.6 \
+    && echo "- Removing OS packages used only for the installation..." \
+    && apt-get purge -y \
+        gcc \
+        gdebi \
+        git \
+        python3-dev \
+        wget \
+    && apt-get autoremove -y \
+    && echo "- Cleaning up..." \
+    && rm -rf /var/lib/apt/lists/* \
+    && echo "- Done."
 
 
 # -----------------------------------------------------------------------------
@@ -131,6 +149,7 @@ RUN echo "- Making directories..." \
 # We'll do this via docker-compose instead.
 
 # EXPOSE 8000
+
 
 # -----------------------------------------------------------------------------
 # CMD: run the foreground task whose lifetime determines the container
