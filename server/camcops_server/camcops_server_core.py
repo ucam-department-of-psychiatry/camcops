@@ -584,10 +584,14 @@ def cmd_export(recipient_names: List[str] = None,
     Send all outbound incremental export messages (e.g. HL7).
 
     Args:
-        recipient_names: list of export recipient names (as per the config
-            file)
-        all_recipients: use all recipients?
-        via_index: use the task index (faster)?
+        recipient_names:
+            List of export recipient names (as per the config file).
+        all_recipients:
+            Use all recipients?
+        via_index:
+            Use the task index (faster)?
+        schedule_via_backend:
+            Schedule the export via the backend, rather than performing it now.
     """
     with command_line_request_context() as req:
         export(req,

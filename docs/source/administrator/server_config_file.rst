@@ -759,6 +759,8 @@ Note some variations. For example, if your machine has an IP (v4) address of
 - Using ``localhost`` will trigger a lookup from ``localhost`` to an IP
   address, typically ``127.0.0.1``.
 
+.. include:: include_docker_config.rst
+
 
 .. _PORT:
 

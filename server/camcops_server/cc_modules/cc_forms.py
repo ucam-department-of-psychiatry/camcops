@@ -1588,6 +1588,7 @@ class HardWorkConfirmationSchema(CSRFSchema):
     confirm_3_f = BooleanNode(default=True)
     confirm_4_t = BooleanNode(default=False)
 
+    # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         _ = self.gettext
         confirm_1_t = get_child_node(self, "confirm_1_t")

@@ -686,6 +686,8 @@ class RedcapUploader(object):
                 instance number for repeating instruments
             file_dict:
                 dictionary mapping filename to file contents
+            event:
+                for longitudinal projects, specify the unique event here
 
         Raises:
             :exc:`RedcapExportException`

@@ -75,7 +75,7 @@ import datetime
 import os
 import logging
 import re
-from typing import Dict, Generator, List, Optional, Union
+from typing import Any, Dict, Generator, List, Optional, Union
 from unittest import TestCase
 
 from cardinal_pythonlib.configfiles import (
@@ -186,42 +186,67 @@ DEFAULT_LINUX_USER = "www-data"  # Ubuntu default
 # Helper functions
 # =============================================================================
 
-def warn_if_not_within_docker_cfg_dir(param_name: str,
-                                      filename: str) -> None:
+def warn_if_not_within_docker_dir(param_name: str,
+                                  filespec: str,
+                                  permit_cfg: bool = True,
+                                  permit_venv: bool = False,
+                                  param_contains_not_is: bool = False) -> None:
     """
-    If the specified filename isn't within the config directory that will be
+    If the specified filename isn't within a relevant directory that will be
     used by CamCOPS when operating within a Docker Compose application, warn
     the user.
 
     Args:
         param_name:
-            name of the parameter in the CamCOPS config file
-        filename:
-            filename (or filename-like thing) to check
+            Name of the parameter in the CamCOPS config file.
+        filespec:
+            Filename (or filename-like thing) to check.
+        permit_cfg:
+            Permit the file to be in the configuration directory.
+        permit_venv:
+            Permit the file to be in the virtual environment directory.
+        param_contains_not_is:
+            The parameter "contains", not "is", the filename.
     """
-    if filename and not relative_filename_within_dir(
-            filename, DockerConstants.CONFIG_DIR):
+    if not filespec:
+        return
+    is_phrase = "contains" if param_contains_not_is else "is"
+    permitted_dirs = []  # type: List[str]
+    if permit_cfg:
+        permitted_dirs.append(DockerConstants.CONFIG_DIR)
+    if permit_venv:
+        permitted_dirs.append(DockerConstants.VENV_DIR)
+    ok = any(
+        relative_filename_within_dir(filespec, d)
+        for d in permitted_dirs
+    )
+    if not ok:
         log.warning(
-            f"{param_name} is {filename!r}, which is not within the Docker "
-            f"config directory {DockerConstants.CONFIG_DIR!r}"
+            f"Config parameter {param_name} {is_phrase} {filespec!r}, "
+            f"which is not within the permitted Docker directories "
+            f"{permitted_dirs!r}"
         )
 
 
-def warn_if_not_within_docker_cfg_or_venv_dir(param_name: str,
-                                              filename: str) -> None:
+def warn_if_not_docker_value(param_name: str,
+                             actual_value: Any,
+                             required_value: Any) -> None:
     """
-    See :func:`warn_if_not_within_docker_cfg_dir`; this version is also happy
-    if the filename is within the CamCOPS virtual environment.
+    Warn the user if a parameter does not match the specific value required
+    when operating under Docker.
+
+    Args:
+        param_name:
+            Name of the parameter in the CamCOPS config file.
+        actual_value:
+            Value in the config file.
+        required_value:
+            Value that should be used.
     """
-    if (filename and
-            not relative_filename_within_dir(
-                filename, DockerConstants.CONFIG_DIR) and
-            not relative_filename_within_dir(
-                filename, DockerConstants.VENV_DIR)):
+    if actual_value != required_value:
         log.warning(
-            f"{param_name} is {filename!r}, which is not within the Docker "
-            f"config directory {DockerConstants.CONFIG_DIR!r} or the Docker "
-            f"virtual environment directory {DockerConstants.VENV_DIR!r}"
+            f"Config parameter {param_name} is {actual_value!r}, "
+            f"but should be {required_value!r} when running inside Docker"
         )
 
 
@@ -410,6 +435,7 @@ def get_demo_config(extra_strings_dir: str = None,
 {ConfigParamServer.GUNICORN_TIMEOUT_S} = {cd.GUNICORN_TIMEOUT_S}
 {ConfigParamServer.DEBUG_SHOW_GUNICORN_OPTIONS} = {cd.DEBUG_SHOW_GUNICORN_OPTIONS}
 
+
 # =============================================================================
 # Export options
 # =============================================================================
@@ -427,6 +453,7 @@ def get_demo_config(extra_strings_dir: str = None,
 
 {ConfigParamExportGeneral.SCHEDULE_TIMEZONE} = {cd.SCHEDULE_TIMEZONE}
 {ConfigParamExportGeneral.SCHEDULE} =
+
 
 # =============================================================================
 # Details for each export recipient
@@ -1367,47 +1394,56 @@ class CamcopsConfig(object):
         if self.running_under_docker:
             log.info("Docker environment detected")
 
-            if self.celery_broker_url != DockerConstants.CELERY_BROKER_URL:
-                log.warning(
-                    f"{ConfigParamExportGeneral.CELERY_BROKER_URL} is "
-                    f"{self.celery_broker_url!r} "
-                    f"but within Docker should be "
-                    f"{DockerConstants.CELERY_BROKER_URL!r}")
-
-            warn_if_not_within_docker_cfg_dir(
-                ConfigParamServer.SSL_CERTIFICATE,
-                self.ssl_certificate
+            warn_if_not_docker_value(
+                param_name=ConfigParamExportGeneral.CELERY_BROKER_URL,
+                actual_value=self.celery_broker_url,
+                required_value=DockerConstants.CELERY_BROKER_URL
             )
-            warn_if_not_within_docker_cfg_dir(
-                ConfigParamServer.SSL_PRIVATE_KEY,
-                self.ssl_private_key
+            warn_if_not_docker_value(
+                param_name=ConfigParamServer.HOST,
+                actual_value=self.host,
+                required_value=DockerConstants.HOST
             )
 
-            warn_if_not_within_docker_cfg_or_venv_dir(
-                ConfigParamSite.LOCAL_LOGO_FILE_ABSOLUTE,
-                self.local_logo_file_absolute
+            warn_if_not_within_docker_dir(
+                param_name=ConfigParamServer.SSL_CERTIFICATE,
+                filespec=self.ssl_certificate
             )
-            warn_if_not_within_docker_cfg_or_venv_dir(
-                ConfigParamSite.CAMCOPS_LOGO_FILE_ABSOLUTE,
-                self.camcops_logo_file_absolute
+            warn_if_not_within_docker_dir(
+                param_name=ConfigParamServer.SSL_PRIVATE_KEY,
+                filespec=self.ssl_private_key
+            )
+            warn_if_not_within_docker_dir(
+                param_name=ConfigParamSite.LOCAL_LOGO_FILE_ABSOLUTE,
+                filespec=self.local_logo_file_absolute,
+                permit_venv=True
+            )
+            warn_if_not_within_docker_dir(
+                param_name=ConfigParamSite.CAMCOPS_LOGO_FILE_ABSOLUTE,
+                filespec=self.camcops_logo_file_absolute,
+                permit_venv=True
             )
             for esf in self.extra_string_files:
-                warn_if_not_within_docker_cfg_or_venv_dir(
-                    ConfigParamSite.EXTRA_STRING_FILES,
-                    esf,
-                    contains=True
+                warn_if_not_within_docker_dir(
+                    param_name=ConfigParamSite.EXTRA_STRING_FILES,
+                    filespec=esf,
+                    permit_venv=True,
+                    param_contains_not_is=True
                 )
-            warn_if_not_within_docker_cfg_or_venv_dir(
-                ConfigParamSite.SNOMED_ICD9_XML_FILENAME,
-                self.snomed_icd9_xml_filename
+            warn_if_not_within_docker_dir(
+                param_name=ConfigParamSite.SNOMED_ICD9_XML_FILENAME,
+                filespec=self.snomed_icd9_xml_filename,
+                permit_venv=True
             )
-            warn_if_not_within_docker_cfg_or_venv_dir(
-                ConfigParamSite.SNOMED_ICD10_XML_FILENAME,
-                self.snomed_icd10_xml_filename
+            warn_if_not_within_docker_dir(
+                param_name=ConfigParamSite.SNOMED_ICD10_XML_FILENAME,
+                filespec=self.snomed_icd10_xml_filename,
+                permit_venv=True
             )
-            warn_if_not_within_docker_cfg_or_venv_dir(
-                ConfigParamSite.SNOMED_TASK_XML_FILENAME,
-                self.snomed_task_xml_filename
+            warn_if_not_within_docker_dir(
+                param_name=ConfigParamSite.SNOMED_TASK_XML_FILENAME,
+                filespec=self.snomed_task_xml_filename,
+                permit_venv=True
             )
 
     # -------------------------------------------------------------------------

@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC2046
 #
 # server/docker/armageddon_WIPE_EVERYTHING_DOCKER.sh
 # https://stackoverflow.com/questions/34658836/docker-is-in-volume-in-use-but-there-arent-any-docker-containers

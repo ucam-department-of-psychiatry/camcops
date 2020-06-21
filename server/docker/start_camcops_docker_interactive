@@ -16,4 +16,9 @@ cd "${DOCKER_COMPOSE_DIR}"
 # Having done so, the default Docker Compose filenames include
 # docker-compose.yaml, so we don't need to specify that.
 
-docker-compose up
+# In interactive mode, it's also helpful if the containers abort on failure,
+# rather than restarting (though restarting needs to be the default to cope
+# with reboots in unattended mode). The "--abort-on-container-exit" option
+# does this.
+
+docker-compose up --abort-on-container-exit

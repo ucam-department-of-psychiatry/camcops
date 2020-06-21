@@ -714,7 +714,8 @@ class TsvCollectionTests(TestCase):
         )
 
     def test_ods_page_name_sanitised(self) -> None:
-        import xml.dom.minidom
+        # noinspection PyUnresolvedReferences
+        from xml.dom.minidom import parseString
         page = TsvPage(name="What perinatal service have you accessed?",
                        rows=[{"test data 1": "row 1"}])
         coll = TsvCollection()
@@ -724,7 +725,7 @@ class TsvCollectionTests(TestCase):
 
         zf = zipfile.ZipFile(io.BytesIO(data), "r")
         content = zf.read('content.xml')
-        doc = xml.dom.minidom.parseString(content)
+        doc = parseString(content)
         sheets = doc.getElementsByTagName('table:table')
         self.assertEqual(sheets[0].getAttribute("table:name"),
                          "What perinatal service have ...")

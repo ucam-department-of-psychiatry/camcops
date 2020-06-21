@@ -2811,3 +2811,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - :ref:`Export of tasks to REDCap <redcap>`.
   (Database revision 0046).
+
+- Docker support for the server.

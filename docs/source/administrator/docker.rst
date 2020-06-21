@@ -37,6 +37,10 @@ Installing and running the CamCOPS server via Docker
     :depth: 3
 
 
+.. todo::
+    Docker: User download system not working properly?
+
+
 Overview
 --------
 
@@ -62,6 +66,88 @@ Compose to set up several containers, specifically:
 - a background task monitor, using Flower_ (``camcops_monitor``).
 
 
+Quick start
+-----------
+
+#.  Ensure you have Docker and Docker Compose installed (see
+    :ref:`prerequisites <docker_prerequisites>`).
+
+#.  Obtain the CamCOPS source code.
+
+    .. todo::
+        Docker/CamCOPS source: (a) is that the right method? Or should we be
+        using ``docker-app``? (Is that experimental?) (b) Document.
+
+#.  Set the :ref:`environment variables <docker_environment_variables>`
+    required for Docker operation. (You probably want to automate this with a
+    script.)
+
+#.  Change to the ``server/docker`` directory within the CamCOPS source tree.
+
+#.  Start the containers with:
+
+    .. code-block:: bash
+
+        ./start_camcops_docker_interactive
+
+    This gives you an interactive view. As this is the first run, it will also
+    create containers, volumes, the database, and so on. It will then encounter
+    errors (e.g. config file not specified properly, or the database doesn't
+    have the right structure), and will stop.
+
+#.  Run this command to create a demonstration config file with the standard
+    name:
+
+    .. code-block:: bash
+
+        ./print_demo_camcops_config > "${CAMCOPS_DOCKER_CONFIG_HOST_DIR}/camcops.conf"
+
+#.  Edit that config file. See :ref:`here <server_config_file>` for a full
+    description and :ref:`here <camcops_config_file_docker>` for special Docker
+    requirements.
+
+#.  Create the database structure (tables):
+
+    .. code-block:: bash
+
+        ./upgrade_db
+
+#.  Create a superuser:
+
+    .. code-block:: bash
+
+        ./camcops_server make_superuser
+
+#.  Time to test! Restart with
+
+    .. code-block:: bash
+
+        ./start_camcops_docker_interactive
+
+    Everything should now be operational. Using any web browser, you should be
+    able to browse to the CamCOPS site at your chosen host port and protocol,
+    and log in using the account you have just created.
+
+#.  When you're satisfied everything is working well, you can stop interactive
+    mode (CTRL-C) and instead use
+
+    .. code-block:: bash
+
+        ./start_camcops_docker_detached
+
+    which will fire up the containers in the background. To take them down
+    again, use
+
+    .. code-block:: bash
+
+        ./stop_camcops_docker
+
+You should now be operational! If Docker is running as a service on your
+machine, CamCOPS should also be automatically restarted by Docker on reboot.
+
+
+.. _docker_prerequisites:
+
 Prerequisites
 -------------
 
@@ -76,15 +162,13 @@ Linux-under-Docker-under-Windows).
 - You need Docker Compose installed. See
   https://docs.docker.com/compose/install/.
 
-- Fetch the CamCOPS source.
 
-  .. todo:: Docker/CamCOPS source: is that the right method?
-
+.. _docker_environment_variables:
 
 Environment variables
 ---------------------
 
-Docker control files are in the ``server/docker/`` directory of the CamCOPS
+Docker control files are in the ``server/docker`` directory of the CamCOPS
 source tree. Setup is controlled by the ``docker-compose`` application.
 
 .. note::
@@ -287,13 +371,18 @@ There are a few special things to note within the Docker environment.
   Docker" (rather than the instance of MySQL supplied with CamCOPS via
   Docker). This would be unusual, but it's up to you.
 
+- **HOST.**
+  This should be ``0.0.0.0`` for operation within Docker [#host]_.
+
 - **References to files on disk.**
   CamCOPS mounts a configuration directory from host computer, specified via
   CAMCOPS_DOCKER_CONFIG_HOST_DIR_. From the perspective of the CamCOPS Docker
   containers, this directory is mounted at ``/camcops/cfg``.
 
-  Accordingly, **all other files should be placed within this directory, and
-  referred to via** ``/camcops/cfg``.
+  Accordingly, **all user-supplied configuration files should be placed within
+  this directory, and referred to via** ``/camcops/cfg``. System-supplied files
+  are also permitted within ``/camcops/venv`` (and the demonstration config
+  file will set this up for you).
 
   For example:
 
@@ -321,74 +410,25 @@ There are a few special things to note within the Docker environment.
 
         [site]
 
-        EXTRA_STRING_FILES = /camcops/cfg/extra_strings/*.xml
+        # ...
+
+        EXTRA_STRING_FILES =
+            /camcops/venv/lib/python3.6/site-packages/camcops_server/extra_strings/*.xml
+            /camcops/cfg/extra_strings/*.xml
+
+        # ...
 
         [server]
 
+        HOST = 0.0.0.0
         PORT = 8000
         SSL_CERTIFICATE = /camcops/cfg/ssl_camcops.cert
         SSL_PRIVATE_KEY = /camcops/cfg/ssl_camcops.key
 
+        # ...
+
   CamCOPS will warn you if you are using Docker but your file references are
   not within the ``/camcops/cfg`` mount point.
-
-
-Starting CamCOPS
-----------------
-
-- Set environment variables for Docker, as above.
-
-- Change to the ``server/docker`` directory within the CamCOPS source tree.
-
-  .. todo:: Docker/CamCOPS source: is that the right method?
-
-- Start the containers with:
-
-  .. code-block:: bash
-
-    docker-compose up
-
-  This gives you an interactive view. As this is the first run, it will also
-  create containers, volumes, the database, and so on.
-
-  .. note::
-    This form of the command looks for a Docker Compose configuration file with
-    a default filename; one called ``docker-compose.yaml`` is provided.
-
-  Press CTRL-C to stop all the containers.
-
-- Run this command to create a demonstration config file with the standard
-  name:
-
-  .. code-block:: bash
-
-    ./print_demo_camcops_config > "${CAMCOPS_DOCKER_CONFIG_HOST_DIR}/camcops.conf"
-
-- Edit that config file.
-
-- Now run ``./upgrade_db`` (see :ref:`below <server_docker_upgrade_db>`) to
-  create the database structure.
-
-- When you re-run the ``docker-compose up`` command, everything should now be
-  operational.
-
-- When you're satisfied everything is working well, you can instead use
-
-  .. code-block:: bash
-
-    docker-compose up -d
-    # -d is short for --detach
-
-  and that will fire up the containers in the background.
-
-.. notes:
-
-    # =============================================================================
-    # TO DO:
-    # =============================================================================
-
-    # *** ... and when to build database structure/create superuser?
-    # *** TCP or Unix socket for the MySQL connection?
 
 
 Tools
@@ -428,13 +468,19 @@ output as demonstrated above.
 start_camcops_docker_detached
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Shortcut for ``docker-compose up -d``.
+Shortcut for ``docker-compose up -d``. The ``-d`` switch is short for
+``--detach`` (or daemon mode).
 
 
 start_camcops_docker_interactive
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Shortcut for ``docker-compose up``.
+Shortcut for ``docker-compose up --abort-on-container-exit``.
+
+.. note::
+    The ``docker-compose`` command looks for a Docker Compose configuration
+    file with a default filename; one called ``docker-compose.yaml`` is
+    provided.
 
 
 stop_camcops_docker
@@ -466,9 +512,10 @@ example, to explore this container, you can do
 
     .. code-block:: bash
 
-        server/docker/within_docker /bin/bash
+        ./within_docker /bin/bash
 
-... which is equivalent to the ``bash_within_docker`` script (see above).
+... which is equivalent to the ``bash_within_docker`` script (see above and
+note the warning).
 
 
 Development notes
@@ -483,17 +530,42 @@ Development notes
   This is a little tricky. Environment variables and config files are both
   reasonable options; see e.g.
   https://stackoverflow.com/questions/22651647/docker-and-securing-passwords.
-  Docker "secrets" require Docker Swarm (not just plain Docker Compose).
+  Environment variables are visible externally (e.g. ``docker exec CONTAINER
+  env``) but you have to have Docker privileges (be in the ``docker`` group) to
+  do that. Docker "secrets" require Docker Swarm (not just plain Docker
+  Compose). We are using a config file for CamCOPS, and environment variables
+  for the MySQL container.
 
 - **Data storage.**
-  Should data (e.g. MySQL databases) be stored on the host, or in volumes?
-  Docker says clearly: volumes. See https://docs.docker.com/storage/volumes/.
+  Should data (e.g. MySQL databases) be stored on the host (via a "bind mount"
+  of a directory), or in Docker volumes? Docker says clearly: volumes. See
+  https://docs.docker.com/storage/volumes/.
 
 - **TCP versus UDS.**
   Currently the connection between CamCOPS and MySQL is via TCP/IP. It would be
   possible to use Unix domain sockets instead. This would be a bit trickier.
   Ordinarily, it would bring some speed advantages; I'm not sure if that
-  remains the case between Docker containers.
-  The method is to mount a host directory; see
+  remains the case between Docker containers. The method is to mount a host
+  directory; see
   https://superuser.com/questions/1411402/how-to-expose-linux-socket-file-from-docker-container-mysql-mariadb-etc-to.
-  It would add complexity.
+  It would add complexity. The other advantage of using TCP is that we can
+  expose the MySQL port to the host for administrative use.
+
+- **Database creation.**
+  It might be nice to upgrade the database a little more automatically, but
+  this is certainly not part of Docker *image* creation (the image is static
+  and the data is dynamic) and shouldn't be part of routine container startup,
+  so perhaps it's as good as is reasonable.
+
+- **Scaling up.**
+  At present we use a fixed number of containers, some with several processes
+  running within. There are other load distribution mechanisms possible with
+  Docker Compose.
+
+
+===============================================================================
+
+.. rubric:: Footnotes
+
+.. [#host]
+    https://nickjanetakis.com/blog/docker-tip-54-fixing-connection-reset-by-peer-or-similar-errors

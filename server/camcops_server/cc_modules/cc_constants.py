@@ -499,6 +499,9 @@ class DockerConstants(object):
     # Other
     CELERY_BROKER_URL = f"amqp://{CONTAINER_RABBITMQ}:{StandardPorts.AMQP}/"
     DEFAULT_MYSQL_CAMCOPS_USER = "camcops"
+    HOST = "0.0.0.0"
+    # ... not "localhost" or "127.0.0.1"; see
+    # https://nickjanetakis.com/blog/docker-tip-54-fixing-connection-reset-by-peer-or-similar-errors  # noqa
 
 
 # =============================================================================
@@ -612,6 +615,7 @@ class ConfigDefaults(object):
             self.CELERY_BROKER_URL = DockerConstants.CELERY_BROKER_URL
             self.DB_SERVER = DockerConstants.CONTAINER_MYSQL
             self.DB_USER = DockerConstants.DEFAULT_MYSQL_CAMCOPS_USER
+            self.HOST = DockerConstants.HOST
 
 
 MINIMUM_PASSWORD_LENGTH = 8

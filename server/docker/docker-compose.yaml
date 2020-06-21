@@ -59,8 +59,19 @@ services:
         # https://hub.docker.com/_/mysql
         image: mysql:5.7
 
-        # Restart policy
-        restart: "no"
+        # Restart policy.
+        # - I am slightly confused between "when the computer reboots" and
+        #   "if the container crashes".
+        # - See Docker Compose docs, but also
+        #   https://stackoverflow.com/questions/30449313/how-do-i-make-a-docker-container-start-automatically-on-system-boot
+        # - Empirically:
+        #   - "no" means "neither on reboot nor container crash".
+        #   - "always" includes reboots and crashes.
+        #   - The other options are "on-failure" and "unless-stopped".
+        #   - There doesn't appear to be an option for "restart on reboot, but
+        #     leave stopped if it crashed".
+        # - So: always.
+        restart: "always"
 
         # Environment variables.
         # See https://hub.docker.com/_/mysql
@@ -118,7 +129,7 @@ services:
         image: rabbitmq:3.8.5
 
         # Restart policy
-        restart: "no"
+        restart: "always"
 
         # Expose ports to linked services without publishing them to the host.
         # Specify the container (internal) port.
@@ -158,7 +169,7 @@ services:
             - rabbitmq
 
         # Restart policy
-        restart: "no"
+        restart: "always"
 
         # Mount config file directory
         volumes:
@@ -172,7 +183,7 @@ services:
         command: [
             "wait-for-it", "--host=mysql", "--port=3306", "--timeout=0", "--strict", "--",
             "wait-for-it", "--host=rabbitmq", "--port=5672", "--timeout=0", "--strict", "--",
-            "/camcops/venv/bin/camcops_server" , "launch_workers",
+            "/camcops/venv/bin/camcops_server", "launch_workers",
         ]
 
 
@@ -190,7 +201,7 @@ services:
             - camcops_workers
 
         # Restart policy
-        restart: "no"
+        restart: "always"
 
         # Mount config file directory
         volumes:
@@ -204,7 +215,7 @@ services:
         command: [
             "wait-for-it", "--host=mysql", "--port=3306", "--timeout=0", "--strict", "--",
             "wait-for-it", "--host=rabbitmq", "--port=5672", "--timeout=0", "--strict", "--",
-            "/camcops/venv/bin/camcops_server" , "launch_scheduler",
+            "/camcops/venv/bin/camcops_server", "launch_scheduler",
         ]
 
 
@@ -221,7 +232,7 @@ services:
             - camcops_scheduler
 
         # Restart policy
-        restart: "no"
+        restart: "always"
         
         # Publish port to host.
         ports:
@@ -240,16 +251,19 @@ services:
         command: [
             "wait-for-it", "--host=mysql", "--port=3306", "--timeout=0", "--strict", "--",
             "wait-for-it", "--host=rabbitmq", "--port=5672", "--timeout=0", "--strict", "--",
-            "/camcops/venv/bin/camcops_server" , "serve_gunicorn",
+            "/camcops/venv/bin/camcops_server", "serve_cherrypy",
+            # "serve_gunicorn",
         ]
 
 
+    # -------------------------------------------------------------------------
+    # Apache?
     # -------------------------------------------------------------------------
     # We considered Apache, as the front-end web server providing SSL.
     # This would be via the "httpd:2.4" image, or similar.
     # However, since Docker can guarantee us a Linux kernel, we can just use
     # SSL via Gunicorn directly, and this saves us some complexity.
-    # -------------------------------------------------------------------------
+
 
     # -------------------------------------------------------------------------
     # CamCOPS background monitor, using Flower
@@ -264,7 +278,7 @@ services:
             - camcops_server
 
         # Restart policy
-        restart: "no"
+        restart: "always"
 
         # Publish port to host.
         ports:
@@ -281,5 +295,5 @@ services:
 
         command: [
             "wait-for-it", "--host=rabbitmq", "--port=5672", "--timeout=0", "--strict", "--",
-            "/camcops/venv/bin/camcops_server" , "launch_monitor",
+            "/camcops/venv/bin/camcops_server", "launch_monitor",
         ]
