@@ -146,8 +146,9 @@ QString TaskScheduleItem::title() const
 
 QString TaskScheduleItem::subtitle() const
 {
-    TaskFactory* factory = m_app.taskFactory();
-    TaskPtr task = factory->create(taskTableName());
+    if (state() == State::Completed) {
+        return QString(tr("Completed"));
+    }
 
     return QString(tr("Complete between %1 and %2")).arg(
         dueFrom().toString(datetime::LONG_DATE_FORMAT),
