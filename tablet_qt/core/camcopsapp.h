@@ -245,6 +245,10 @@ protected:
     // Add the main menu to the main window
     void createMainMenu();
 
+public:
+    // Forces the main menu to be refreshed
+    void forceRefreshMainMenu();
+
     // ------------------------------------------------------------------------
     // Opening/closing windows
     // ------------------------------------------------------------------------
@@ -421,6 +425,9 @@ signals:
 
     // Emitted when the patient list needs to be refreshed.
     void refreshPatientList();
+
+    // Emitted when the task schedule list needs to be refreshed.
+    void refreshMainMenu();
 
     // ------------------------------------------------------------------------
     // CSS convenience; fonts etc.

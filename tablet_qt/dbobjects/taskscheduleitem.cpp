@@ -25,6 +25,8 @@
 #include "db/databasemanager.h"
 #include "db/databaseobject.h"
 #include "lib/datetime.h"
+#include "menulib/menuwindow.h"
+#include "tasklib/task.h"
 #include "tasklib/taskfactory.h"
 #include "taskscheduleitem.h"
 
@@ -35,6 +37,7 @@ const QString TaskScheduleItem::FN_DUE_FROM("due_from");
 const QString TaskScheduleItem::FN_DUE_BY("due_by");
 const QString TaskScheduleItem::FN_COMPLETE("complete");
 const QString TaskScheduleItem::FK_TASK_SCHEDULE("schedule_id");
+const QString TaskScheduleItem::FK_TASK("task");
 
 const QString TaskScheduleItem::KEY_DUE_BY("due_by");
 const QString TaskScheduleItem::KEY_DUE_FROM("due_from");
@@ -60,6 +63,7 @@ TaskScheduleItem::TaskScheduleItem(CamcopsApp& app, DatabaseManager& db,
     addField(FN_DUE_FROM, QVariant::String, true);
     addField(FN_DUE_BY, QVariant::String, true);
     addField(FN_COMPLETE, QVariant::Bool, true);
+    addField(FK_TASK, QVariant::Int, true);
 
     load(load_pk);
 }
@@ -72,6 +76,7 @@ TaskScheduleItem::TaskScheduleItem(const int schedule_fk, CamcopsApp& app,
 {
     setValue(FK_TASK_SCHEDULE, schedule_fk);
     setValue(FN_COMPLETE, false);
+    setValue(FK_TASK, dbconst::NONEXISTENT_PK);
     addJsonFields(json_obj);
     save();
 }
@@ -113,6 +118,17 @@ QDate TaskScheduleItem::dueBy() const
     return value(FN_DUE_BY).toDate();
 }
 
+TaskPtr TaskScheduleItem::getTask() const
+{
+    const int task_id = value(FK_TASK).toInt();
+    if (task_id != dbconst::NONEXISTENT_PK) {
+        TaskFactory* factory = m_app.taskFactory();
+        factory->create(taskTableName(), task_id);
+    }
+
+    return nullptr;
+}
+
 QString TaskScheduleItem::taskTableName() const
 {
     const QString table_name = valueString(FN_TASK_TABLE_NAME);
@@ -139,6 +155,7 @@ QString TaskScheduleItem::subtitle() const
     );
 }
 
+
 TaskScheduleItem::State TaskScheduleItem::state() const
 {
     bool is_complete = value(FN_COMPLETE).toBool();
@@ -158,4 +175,50 @@ TaskScheduleItem::State TaskScheduleItem::state() const
     }
 
     return State::Future;
+}
+
+
+void TaskScheduleItem::setComplete(bool complete)
+{
+    setValue(FN_COMPLETE, complete);
+    save();
+}
+
+
+void TaskScheduleItem::editTask()
+{
+    if (state() != TaskScheduleItem::State::Due) {
+        return;
+    }
+
+    TaskPtr task = getTask();
+
+    if (task == nullptr) {
+        task = m_app.taskFactory()->create(taskTableName());
+        const int patient_id = m_app.selectedPatientId();
+        task->setupForEditingAndSave(patient_id);
+    }
+
+    // TODO: Checks as in SingleTaskMenu::addTask()
+    OpenableWidget* widget = task->editor(false);
+    if (!widget) {
+        MenuWindow::complainTaskNotOfferingEditor();
+        return;
+    }
+
+    Task* ptask = task.data();
+
+    MenuWindow::connectQuestionnaireToTask(widget, ptask);  // in case it's a questionnaire
+    QObject::connect(ptask, &Task::editingFinished,
+                     this, &TaskScheduleItem::onTaskFinished);
+
+    m_app.openSubWindow(widget, task, true);
+}
+
+
+void TaskScheduleItem::onTaskFinished()
+{
+    setComplete(true);
+
+    m_app.forceRefreshMainMenu();
 }

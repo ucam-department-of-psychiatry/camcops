@@ -38,6 +38,7 @@ class Task : public DatabaseObject
     friend class SingleTaskMenu;  // so it can call setupForEditingAndSave()
     friend class Patient;  // so it can call moveToPatient()
     friend class TaskChain;  // so it can call setupForEditingAndSave()
+    friend class TaskScheduleItem;  // so it can call setupForEditingAndSave()
 
 public:
     enum class TaskImplementationType {

@@ -40,4 +40,5 @@ protected:
 public slots:
     // Operation mode has changed - Clinician, single user...
     void modeChanged(int mode);
+    void onRefreshMainMenu();
 };

@@ -58,6 +58,8 @@ MainMenu::MainMenu(CamcopsApp& app)
     connect(&m_app, &CamcopsApp::modeChanged,
             this, &MainMenu::modeChanged,
             Qt::UniqueConnection);
+    connect(&m_app, &CamcopsApp::refreshMainMenu,
+            this, &MainMenu::onRefreshMainMenu);
 }
 
 
@@ -241,6 +243,7 @@ void MainMenu::updateTaskSchedules()
     m_app.updateTaskSchedules();
 }
 
+
 void MainMenu::upload()
 {
     m_app.upload();
@@ -260,6 +263,12 @@ void MainMenu::modeChanged(const int mode)
 #ifdef DEBUG_SLOTS
     qDebug() << Q_FUNC_INFO << "[this:" << this << "]";
 #endif
+    rebuild();
+}
+
+
+void MainMenu::onRefreshMainMenu()
+{
     rebuild();
 }
 

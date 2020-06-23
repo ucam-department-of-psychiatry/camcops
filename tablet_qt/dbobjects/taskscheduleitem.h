@@ -37,6 +37,7 @@ public:
     int id() const;
     QDate dueFrom() const;
     QDate dueBy() const;
+    TaskPtr getTask() const;
     QString taskTableName() const;
     QString title() const;
     QString subtitle() const;
@@ -47,6 +48,8 @@ public:
         Missed
     };
     State state() const;
+    void setComplete(bool complete);
+    void editTask();
 
     static const QString TABLENAME;
 
@@ -55,8 +58,13 @@ public:
     static const QString FN_DUE_BY;
     static const QString FN_COMPLETE;
     static const QString FK_TASK_SCHEDULE;
+    static const QString FK_TASK;
 
     static const QString KEY_TABLE;
     static const QString KEY_DUE_FROM;
     static const QString KEY_DUE_BY;
+
+protected slots:
+    // A scheduled task is complete
+    void onTaskFinished();
 };
