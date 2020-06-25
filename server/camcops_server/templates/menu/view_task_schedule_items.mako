@@ -52,7 +52,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 %for item in page:
     <tr>
         <td>
-            ${ item.task_table_name }
+            ${ item.task_shortname }
         </td>
         <td>
             ${ item.due_from.in_days() }

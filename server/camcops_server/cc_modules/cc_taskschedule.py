@@ -212,7 +212,11 @@ class TaskScheduleItem(Base):
                  "completed")
     )
 
+    @property
+    def task_shortname(self) -> str:
+        task_class_lookup = tablename_to_task_class_dict()
+
+        return task_class_lookup[self.task_table_name].shortname
+
     def __str__(self) -> str:
-        return (f"{self.task_table_name} "
-                f"due from {self.due_from.in_days()} days, "
-                f"must be completed by {self.due_by.in_days()} days")
+        return (f"{self.task_shortname} @ {self.due_from.in_days()} days")
