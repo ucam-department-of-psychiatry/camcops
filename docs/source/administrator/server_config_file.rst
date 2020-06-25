@@ -1391,7 +1391,7 @@ TRANSMISSION_METHOD
 
 One of the following methods:
 
-- ``db``: Exports tasks to a relationship database.
+- ``db``: Exports tasks to a relational database.
 - ``email``: Sends tasks via e-mail.
 - ``hl7``: Sends HL7 messages across a TCP/IP network.
 - ``file``: Writes files to a local filesystem.
