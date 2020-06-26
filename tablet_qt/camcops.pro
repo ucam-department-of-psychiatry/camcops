@@ -641,6 +641,7 @@ SOURCES += \
     menulib/menuwindow.cpp \
     menulib/taskchainmenuitem.cpp \
     menulib/taskmenuitem.cpp \
+    menulib/taskscheduleitemmenuitem.cpp \
     menulib/urlmenuitem.cpp \
     qcustomplot/qcustomplot.cpp \
     qobjects/cameraframegrabber.cpp \
@@ -725,6 +726,7 @@ SOURCES += \
     tasklib/taskfactory.cpp \
     tasklib/taskproxy.cpp \
     tasklib/taskregistrar.cpp \
+    tasklib/taskscheduleitemeditor.cpp \
     tasklib/tasksorter.cpp \
     tasks/ace3.cpp \
     tasks/aims.cpp \
@@ -1094,6 +1096,7 @@ HEADERS += \
     menulib/menuwindow.h \
     menulib/taskchainmenuitem.h \
     menulib/taskmenuitem.h \
+    menulib/taskscheduleitemeditor.h \
     menulib/urlmenuitem.h \
     qcustomplot/qcustomplot.h \
     qobjects/cameraframegrabber.h \
@@ -1178,6 +1181,7 @@ HEADERS += \
     tasklib/taskfactory.h \
     tasklib/taskproxy.h \
     tasklib/taskregistrar.h \
+    tasklib/taskscheduleitemeditor.h \
     tasklib/tasksorter.h \
     tasks/ace3.h \
     tasks/aims.h \

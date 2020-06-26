@@ -18,26 +18,24 @@
 */
 
 #pragma once
-#include "menulib/menuwindow.h"
+
+#include "common/aliases_camcops.h"
 
 
-class MainMenu : public MenuWindow
+class TaskScheduleItemEditor : public QObject
 {
     Q_OBJECT
 
 public:
-    MainMenu(CamcopsApp& app);
-    virtual QString title() const override;
-protected:
-    virtual void makeItems() override;
-    void makeClinicianItems();
-    void makeSingleUserItems();
-    void upload();
-    void changeMode();
-    void registerPatient();
-    void updateTaskSchedules();
+    TaskScheduleItemEditor(CamcopsApp& app,
+                           TaskScheduleItemPtr task_schedule_item);
+    void editTask();
 
-public slots:
-    // Operation mode has changed - Clinician, single user...
-    void modeChanged(int mode);
+protected slots:
+    // A scheduled task is complete
+    void onTaskFinished();
+
+private:
+    CamcopsApp& m_app;
+    TaskScheduleItemPtr m_p_task_schedule_item;
 };

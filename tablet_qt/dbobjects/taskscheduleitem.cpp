@@ -48,7 +48,6 @@ const QString TaskScheduleItem::KEY_TABLE("table");
 // Creation
 // ============================================================================
 
-
 TaskScheduleItem::TaskScheduleItem(CamcopsApp& app, DatabaseManager& db,
     const int load_pk) :
     DatabaseObject(app, db, TABLENAME,
@@ -183,43 +182,4 @@ void TaskScheduleItem::setComplete(bool complete)
 {
     setValue(FN_COMPLETE, complete);
     save();
-}
-
-
-void TaskScheduleItem::editTask()
-{
-    if (state() != TaskScheduleItem::State::Due) {
-        return;
-    }
-
-    TaskPtr task = getTask();
-
-    if (task == nullptr) {
-        task = m_app.taskFactory()->create(taskTableName());
-        const int patient_id = m_app.selectedPatientId();
-        task->setupForEditingAndSave(patient_id);
-    }
-
-    // TODO: Checks as in SingleTaskMenu::addTask()
-    OpenableWidget* widget = task->editor(false);
-    if (!widget) {
-        MenuWindow::complainTaskNotOfferingEditor();
-        return;
-    }
-
-    Task* ptask = task.data();
-
-    MenuWindow::connectQuestionnaireToTask(widget, ptask);  // in case it's a questionnaire
-    QObject::connect(ptask, &Task::editingFinished,
-                     this, &TaskScheduleItem::onTaskFinished);
-
-    m_app.openSubWindow(widget, task, true);
-}
-
-
-void TaskScheduleItem::onTaskFinished()
-{
-    setComplete(true);
-
-    m_app.forceRefreshMainMenu();
 }

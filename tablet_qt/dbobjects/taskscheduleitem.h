@@ -49,7 +49,6 @@ public:
     };
     State state() const;
     void setComplete(bool complete);
-    void editTask();
 
     static const QString TABLENAME;
 
@@ -63,8 +62,4 @@ public:
     static const QString KEY_TABLE;
     static const QString KEY_DUE_FROM;
     static const QString KEY_DUE_BY;
-
-protected slots:
-    // A scheduled task is complete
-    void onTaskFinished();
 };

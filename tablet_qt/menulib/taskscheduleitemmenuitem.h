@@ -18,26 +18,19 @@
 */
 
 #pragma once
-#include "menulib/menuwindow.h"
+
+#include "common/aliases_camcops.h"
 
 
-class MainMenu : public MenuWindow
+// A structure to represent a menu item for a task schedule item.
+// Exists only to improve polymorphic constructor of MenuItem
+
+struct TaskScheduleItemMenuItem
 {
-    Q_OBJECT
-
 public:
-    MainMenu(CamcopsApp& app);
-    virtual QString title() const override;
-protected:
-    virtual void makeItems() override;
-    void makeClinicianItems();
-    void makeSingleUserItems();
-    void upload();
-    void changeMode();
-    void registerPatient();
-    void updateTaskSchedules();
-
-public slots:
-    // Operation mode has changed - Clinician, single user...
-    void modeChanged(int mode);
+    TaskScheduleItemMenuItem(TaskScheduleItemPtr task_schedule_item) :
+        task_schedule_item(task_schedule_item)
+    {}
+public:
+    TaskScheduleItemPtr task_schedule_item;
 };

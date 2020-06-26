@@ -58,8 +58,6 @@ MainMenu::MainMenu(CamcopsApp& app)
     connect(&m_app, &CamcopsApp::modeChanged,
             this, &MainMenu::modeChanged,
             Qt::UniqueConnection);
-    connect(&m_app, &CamcopsApp::refreshMainMenu,
-            this, &MainMenu::onRefreshMainMenu);
 }
 
 
@@ -136,19 +134,19 @@ void MainMenu::makeSingleUserItems()
             switch (state) {
 
             case TaskScheduleItem::State::Completed:
-                completed_items.append(schedule_item);
+                completed_items.append(TaskScheduleItemMenuItem(schedule_item));
                 break;
 
             case TaskScheduleItem::State::Missed:
-                missed_items.append(schedule_item);
+                missed_items.append(TaskScheduleItemMenuItem(schedule_item));
                 break;
 
             case TaskScheduleItem::State::Due:
-                due_items.append(schedule_item);
+                due_items.append(TaskScheduleItemMenuItem(schedule_item));
                 break;
 
             case TaskScheduleItem::State::Future:
-                future_items.append(schedule_item);
+                future_items.append(TaskScheduleItemMenuItem(schedule_item));
                 break;
 
             default:
@@ -263,12 +261,6 @@ void MainMenu::modeChanged(const int mode)
 #ifdef DEBUG_SLOTS
     qDebug() << Q_FUNC_INFO << "[this:" << this << "]";
 #endif
-    rebuild();
-}
-
-
-void MainMenu::onRefreshMainMenu()
-{
     rebuild();
 }
 

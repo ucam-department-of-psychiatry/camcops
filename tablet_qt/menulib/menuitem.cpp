@@ -42,8 +42,10 @@
 #include "menu/singletaskmenu.h"
 #include "menulib/htmlinfowindow.h"
 #include "menulib/menuwindow.h"
+#include "menulib/taskscheduleitemmenuitem.h"
 #include "tasklib/taskchain.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskscheduleitemeditor.h"
 #include "widgets/basewidget.h"
 #include "widgets/labelwordwrapwide.h"
 #include "widgets/openablewidget.h"
@@ -203,23 +205,12 @@ MenuItem::MenuItem(PatientPtr p_patient)
 }
 
 
-MenuItem::MenuItem(TaskSchedulePtr p_task_schedule)
+MenuItem::MenuItem(const TaskScheduleItemMenuItem& menu_item)
 {
     setDefaults();
-    m_p_task_schedule = p_task_schedule;
-#ifdef DEBUG_VERBOSE
-    qDebug() << Q_FUNC_INFO << this;
-#endif
-}
-
-
-MenuItem::MenuItem(TaskScheduleItemPtr p_task_schedule_item)
-{
-    setDefaults();
-    m_p_task_schedule_item = p_task_schedule_item;
-#ifdef DEBUG_VERBOSE
-    qDebug() << Q_FUNC_INFO << this;
-#endif
+    m_p_task_schedule_item = menu_item.task_schedule_item;
+    m_title = m_p_task_schedule_item->title();
+    m_subtitle = m_p_task_schedule_item->subtitle();
 }
 
 
@@ -249,7 +240,7 @@ void MenuItem::setDefaults()
     m_p_task.clear();
     m_p_taskchain.clear();
     m_p_patient.clear();
-    m_p_task_schedule.clear();
+    m_p_task_schedule_item.clear();
 }
 
 
@@ -280,15 +271,6 @@ PatientPtr MenuItem::patient() const
     qDebug() << Q_FUNC_INFO << this;
 #endif
     return m_p_patient;
-}
-
-
-TaskSchedulePtr MenuItem::taskSchedule() const
-{
-#ifdef DEBUG_VERBOSE
-    qDebug() << Q_FUNC_INFO << this;
-#endif
-    return m_p_task_schedule;
 }
 
 
@@ -482,48 +464,6 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
 
         rowlayout->addLayout(textlayout);
         rowlayout->addStretch();
-
-    } else if (m_p_task_schedule) {
-        // --------------------------------------------------------------------
-        // Task Schedule label
-        // --------------------------------------------------------------------
-        auto textlayout = new VBoxLayout();
-
-        const QSizePolicy sp(QSizePolicy::Preferred, QSizePolicy::Preferred);
-
-        auto title = new LabelWordWrapWide(m_p_task_schedule->name());
-
-        title->setAlignment(text_align);
-        title->setObjectName(cssconst::MENU_ITEM_TITLE);
-        title->setSizePolicy(sp);
-        textlayout->addWidget(title);
-
-        rowlayout->addLayout(textlayout);
-        rowlayout->addStretch();
-
-    } else if (m_p_task_schedule_item) {
-        // --------------------------------------------------------------------
-        // Task Schedule item, task description and due date
-        // --------------------------------------------------------------------
-        auto textlayout = new VBoxLayout();
-
-        const QSizePolicy sp(QSizePolicy::Preferred, QSizePolicy::Preferred);
-
-        auto title = new LabelWordWrapWide(m_p_task_schedule_item->title());
-
-        title->setAlignment(text_align);
-        title->setObjectName(cssconst::MENU_ITEM_TITLE);
-        title->setSizePolicy(sp);
-        textlayout->addWidget(title);
-        auto subtitle = new LabelWordWrapWide(m_p_task_schedule_item->subtitle());
-        subtitle->setAlignment(text_align);
-        subtitle->setObjectName(cssconst::MENU_ITEM_SUBTITLE);
-        textlayout->addWidget(subtitle);
-
-        rowlayout->addWidget(uifunc::blankIcon());
-        rowlayout->addLayout(textlayout);
-        rowlayout->addStretch();
-
     } else {
         // --------------------------------------------------------------------
         // Conventional menu item
@@ -670,7 +610,12 @@ void MenuItem::act(CamcopsApp& app) const
         return;
     }
     if (m_p_task_schedule_item) {
-        return m_p_task_schedule_item->editTask();
+        if (m_p_task_schedule_item->state() == TaskScheduleItem::State::Due) {
+            auto editor = new TaskScheduleItemEditor(app, m_p_task_schedule_item);
+            editor->editTask();
+        }
+
+        return;
     }
 
     qWarning() << "Menu item selected but no action specified:"
@@ -765,7 +710,7 @@ QDebug operator<<(QDebug debug, const MenuItem& m)
                     << " (m_title=" << m.m_title
                     << ", m_p_task=" << m.m_p_task
                     << ", m_p_patient=" << m.m_p_patient
-                    << ", m_p_task_schedule=" << m.m_p_task_schedule
+                    << ", m_p_task_schedule_item=" << m.m_p_task_schedule_item
                     << ")";
     return debug;
 }

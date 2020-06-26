@@ -1989,11 +1989,6 @@ PatientPtrList CamcopsApp::getAllPatients(const bool sorted)
     return patients;
 }
 
-void CamcopsApp::forceRefreshMainMenu()
-{
-    emit refreshMainMenu();
-}
-
 
 // ============================================================================
 // CSS convenience; fonts etc.

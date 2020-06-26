@@ -29,6 +29,7 @@
 #include "menulib/htmlmenuitem.h"  // many menus will want this
 #include "menulib/taskchainmenuitem.h"
 #include "menulib/taskmenuitem.h"  // many menus will want this
+#include "menulib/taskscheduleitemmenuitem.h"
 #include "menulib/urlmenuitem.h"
 
 class CamcopsApp;
@@ -72,8 +73,7 @@ public:
     // it) as required.
     MenuItem(PatientPtr p_patient);
 
-    MenuItem(TaskSchedulePtr p_task_schedule);
-    MenuItem(TaskScheduleItemPtr p_task_schedule_item);
+    MenuItem(const TaskScheduleItemMenuItem& item);
 
     // Item title.
     QString title() const;
@@ -86,9 +86,6 @@ public:
 
     // Patient instance that this item represents, if there is one.
     PatientPtr patient() const;
-
-    // Task schedule instance that this item represents, if there is one.
-    TaskSchedulePtr taskSchedule() const;
 
     // Set various options...
     // Return *this (https://en.wikipedia.org/wiki/Method_chaining).
@@ -145,7 +142,6 @@ protected:
     TaskPtr m_p_task;
     TaskChainPtr m_p_taskchain;
     PatientPtr m_p_patient;
-    TaskSchedulePtr m_p_task_schedule;
     TaskScheduleItemPtr m_p_task_schedule_item;
     HtmlMenuItem m_html_item;
     UrlMenuItem m_url_item;
