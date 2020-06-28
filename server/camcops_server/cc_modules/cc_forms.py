@@ -167,6 +167,7 @@ from deform.widget import (
 # We use some delayed imports here (search for "delayed import")
 from camcops_server.cc_modules.cc_baseconstants import TEMPLATE_DIR
 from camcops_server.cc_modules.cc_constants import (
+    ConfigParamSite,
     DEFAULT_ROWS_PER_PAGE,
     MINIMUM_PASSWORD_LENGTH,
     SEX_OTHER_UNSPECIFIED,
@@ -2890,7 +2891,11 @@ class DeliveryModeNode(SchemaNode, RequestAwareMixin):
         _ = request.gettext
         if value == ViewArg.IMMEDIATELY:
             if not request.config.permit_immediate_downloads:
-                raise Invalid(self, _("Disabled by the system administrator"))
+                raise Invalid(
+                    self,
+                    _("Disabled by the system administrator") +
+                    f" [{ConfigParamSite.PERMIT_IMMEDIATE_DOWNLOADS}]"
+                )
         elif value == ViewArg.EMAIL:
             if not request.user.email:
                 raise Invalid(
@@ -2898,7 +2903,11 @@ class DeliveryModeNode(SchemaNode, RequestAwareMixin):
         elif value == ViewArg.DOWNLOAD:
             if not request.user_download_dir:
                 raise Invalid(
-                    self, _("User downloads not configured by administrator"))
+                    self,
+                    _("User downloads not configured by administrator") +
+                    f" [{ConfigParamSite.USER_DOWNLOAD_DIR}, "
+                    f"{ConfigParamSite.USER_DOWNLOAD_MAX_SPACE_MB}]"
+                )
         else:
             raise Invalid(self, _("Bad value"))
 

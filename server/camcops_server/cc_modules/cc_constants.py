@@ -169,16 +169,63 @@ PDF_ENGINE = "pdfkit"  # working
 # PDF_ENGINE = "weasyprint"  # working but table <tr> element bugs
 # ... value must be one of: xhtml2pdf, weasyprint, pdfkit
 
+
 # =============================================================================
 # Simple constants for HTML/plots/display
 # =============================================================================
 
-WHOLE_PANEL = 111  # as in: ax = fig.add_subplot(111)
+class PlotDefaults(object):
+    """
+    Defaults used with matplotlib plotting.
+    """
+    DEFAULT_PLOT_DPI = 300
 
-DEFAULT_PLOT_DPI = 300
+    FULLWIDTH_PLOT_WIDTH = 6.7  # inches: full width is ~170mm
+
+    # zorder parameter:
+    # - higher = on top
+    # - defaults relate to the type of thing being plotted:
+    #   https://matplotlib.org/3.1.1/gallery/misc/zorder_demo.html
+    #   - Patch / PatchCollection = 1
+    #   - Line2D / LineCollection = 2
+    #   - Text = 3
+    # - within a Line2D object (points and lines), the default is
+    #   "markers on top of lines"
+    ZORDER_PRESET_LINES = 1
+    ZORDER_PRESET_LABELS = 2
+    ZORDER_DATA_LINES_POINTS = 3  # the default
+
+
+class MatplotlibConstants(object):
+    """
+    Constants used by matplotlib
+    """
+    # https://matplotlib.org/tutorials/colors/colors.html
+    COLOUR_BLACK = "k"
+    COLOUR_BLUE = "b"
+    COLOUR_GREEN = "g"
+    COLOUR_GREY_50 = "0.5"
+    COLOUR_GREY_90 = "0.9"  # 0.9 is close to white (0 black, 1 white)
+    COLOUR_RED = "r"
+
+    # https://matplotlib.org/gallery/lines_bars_and_markers/line_styles_reference.html  # noqa
+    # https://matplotlib.org/3.1.0/gallery/lines_bars_and_markers/linestyles.html  # noqa
+    LINESTYLE_DOTTED = ":"
+    LINESTYLE_SOLID = "-"
+    LINESTYLE_NONE = "None"
+
+    # https://matplotlib.org/3.1.1/api/markers_api.html
+    MARKER_CIRCLE = "o"
+    MARKER_NONE = ""  # also "None", " "
+    MARKER_PLUS = "+"
+    MARKER_STAR = "*"
+
+    WHOLE_PANEL = 111  # as in: ax = fig.add_subplot(111)
+
 
 # Debugging option
 USE_SVG_IN_HTML = True  # set to False for PNG debugging
+
 
 # =============================================================================
 # CSS/HTML constants
@@ -294,7 +341,6 @@ DATA_COLLECTION_UNLESS_UPGRADED_DIV = """
         original task.
     </div>
 """
-FULLWIDTH_PLOT_WIDTH = 6.7  # inches: full width is ~170mm
 ICD10_COPYRIGHT_DIV = """
     <div class="copyright">
         ICD-10 criteria: Copyright © 1992 World Health Organization.
