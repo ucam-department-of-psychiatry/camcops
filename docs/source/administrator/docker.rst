@@ -504,6 +504,13 @@ This script upgrades the CamCOPS database to the current version.
   environment variables (q.v.).
 
 
+venv_within_docker
+~~~~~~~~~~~~~~~~~~
+
+Launches a shell within the ``camcops_workers`` container, and activates the
+CamCOPS Python virtual environment too.
+
+
 within_docker
 ~~~~~~~~~~~~~
 

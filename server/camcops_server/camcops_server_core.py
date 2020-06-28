@@ -65,7 +65,7 @@ from wsgiref.simple_server import make_server  # noqa: E402
 from cardinal_pythonlib.classes import gen_all_subclasses  # noqa: E402
 from cardinal_pythonlib.fileops import mkdir_p  # noqa: E402
 from cardinal_pythonlib.process import nice_call  # noqa: E402
-from cardinal_pythonlib.ui import ask_user, ask_user_password  # noqa: E402
+from cardinal_pythonlib.ui_commandline import ask_user, ask_user_password  # noqa: E402,E501
 from cardinal_pythonlib.wsgi.request_logging_mw import RequestLoggingMiddleware  # noqa: E402,E501
 from cardinal_pythonlib.wsgi.reverse_proxied_mw import (  # noqa: E402
     ReverseProxiedConfig,

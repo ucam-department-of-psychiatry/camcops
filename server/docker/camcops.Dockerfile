@@ -20,6 +20,9 @@
 
 FROM python:3.6-slim-buster
 
+# FROM python:3.6-buster
+# ... includes some things we need, but is LARGER overall.
+
 # -----------------------------------------------------------------------------
 # ADD: files to copy
 # -----------------------------------------------------------------------------
@@ -67,10 +70,15 @@ WORKDIR /camcops
 # - libmagickwand-dev: ImageMagick, used by CamCOPS
 # - libmysqlclient-dev: for MySQL access (needed by Python mysqlclient package)
 #   ... replaced by libmariadbclient-dev in Debian 10
-# - python3-dev: some Python packages require it
-# - python3-tk: Tkinter for Python, not installed by default
 # - wget: for fetching other stuff! See below.
 # - wait-for-it: wait for a host/TCP port (to synchronize containers)
+#
+# Not now needed:
+#
+# - python3-tk: Tkinter for Python, not installed by default
+#   ... necessity removed 2020-06-28
+# - python3-dev: some Python packages require it
+#   ... seems to be present anyway
 #
 # Also, install wkhtmltopdf in a different way, as above.
 #
@@ -108,8 +116,6 @@ RUN echo "- Updating package information..." \
         git \
         libmagickwand-dev \
         libmariadbclient-dev \
-        python3-dev \
-        python3-tk \
         wget \
         wait-for-it \
     && echo "- wkhtmltopdf: Fetching wkhtmltopdf with patched Qt..." \
@@ -135,7 +141,6 @@ RUN echo "- Updating package information..." \
         gcc \
         gdebi \
         git \
-        python3-dev \
         wget \
     && apt-get autoremove -y \
     && echo "- Cleaning up..." \
