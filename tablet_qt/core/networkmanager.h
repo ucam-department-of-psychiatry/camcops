@@ -61,7 +61,8 @@ public:
         Invalid,
         Copy,
         MoveKeepingPatients,
-        Move
+        Move,
+        MoveScheduledTasks
     };
 
     // ------------------------------------------------------------------------

@@ -41,6 +41,7 @@ void TaskScheduleItemEditor::editTask()
         task = m_app.taskFactory()->create(tablename);
         const int patient_id = m_app.selectedPatientId();
         task->setupForEditingAndSave(patient_id);
+        m_p_task_schedule_item->setTask(task);
     }
 
     // TODO: Checks as in SingleTaskMenu::addTask()
@@ -63,4 +64,8 @@ void TaskScheduleItemEditor::editTask()
 void TaskScheduleItemEditor::onTaskFinished()
 {
     m_p_task_schedule_item->setComplete(true);
+
+    TaskPtr task = m_p_task_schedule_item->getTask();
+
+    task->setMoveOffTablet(true);
 }

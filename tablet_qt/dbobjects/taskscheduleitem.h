@@ -49,6 +49,7 @@ public:
     };
     State state() const;
     void setComplete(bool complete);
+    void setTask(TaskPtr task);
 
     static const QString TABLENAME;
 

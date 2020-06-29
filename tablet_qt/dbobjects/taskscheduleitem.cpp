@@ -122,7 +122,7 @@ TaskPtr TaskScheduleItem::getTask() const
     const int task_id = value(FK_TASK).toInt();
     if (task_id != dbconst::NONEXISTENT_PK) {
         TaskFactory* factory = m_app.taskFactory();
-        factory->create(taskTableName(), task_id);
+        return factory->create(taskTableName(), task_id);
     }
 
     return nullptr;
@@ -181,5 +181,12 @@ TaskScheduleItem::State TaskScheduleItem::state() const
 void TaskScheduleItem::setComplete(bool complete)
 {
     setValue(FN_COMPLETE, complete);
+    save();
+}
+
+
+void TaskScheduleItem::setTask(TaskPtr task)
+{
+    setValue(FK_TASK, task->pkvalue());
     save();
 }

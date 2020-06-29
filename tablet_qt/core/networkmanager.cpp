@@ -2199,6 +2199,11 @@ bool NetworkManager::serverSupportsOneStepUpload() const
 
 bool NetworkManager::shouldUseOneStepUpload() const
 {
+    if (m_app.isSingleUserMode()) {
+        // TODO: Maybe check if any tasks are incomplete
+        return false;
+    }
+
     if (!serverSupportsOneStepUpload()) {
         return false;
     }

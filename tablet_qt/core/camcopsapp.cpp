@@ -2536,7 +2536,7 @@ void CamcopsApp::upload()
         return;
     }
 
-    auto method = NetworkManager::UploadMethod::MoveKeepingPatients;
+    auto method = NetworkManager::UploadMethod::MoveScheduledTasks;
 
     if (isClinicianMode()) {
         method = getUploadMethodFromUser();
