@@ -2243,7 +2243,21 @@ bool CamcopsApp::cachedVarChanged(const QString& name) const
 
 bool CamcopsApp::hasAgreedTerms() const
 {
-    return !var(varconst::AGREED_TERMS_AT).isNull();
+    const QVariant agreed_at_var = var(varconst::AGREED_TERMS_AT);
+    if (agreed_at_var.isNull()) {
+        // Has not agreed yet.
+        return false;
+    }
+    const QDate agreed_at_date = agreed_at_var.toDate();
+    if (agreed_at_date < TextConst::TERMS_CONDITIONS_UPDATE_DATE) {
+        // Terms have changed since the user last agreed.
+        // They need to agree to the new terms.
+        return false;
+        // (There is an edge case here where the terms change on the same
+        // day, but the cost/benefit balance for worrying about the hour of the
+        // change seems not to be worth while!)
+    }
+    return true;
 }
 
 

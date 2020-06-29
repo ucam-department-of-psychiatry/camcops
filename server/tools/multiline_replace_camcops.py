@@ -50,7 +50,7 @@ CAMCOPS_SERVER_DIRECTORY = os.path.abspath(os.path.join(
     _this_directory, os.pardir, os.pardir))  # camcops_server
 
 INPUTDIR = CAMCOPS_SERVER_DIRECTORY
-VALID_EXTENSIONS = [
+VALID_EXTENSIONS_SOURCE = [
     ".cpp",
     ".css",
     ".h",
@@ -61,12 +61,15 @@ VALID_EXTENSIONS = [
     ".py",
     ".txt"
 ]
+VALID_EXTENSIONS_DOCS = [
+    "*.rst",
+]
 EXCLUDE_PATTERNS = [  # via fnmatch.fnmatch()
     "*/moc_*.cpp",  # Qt MOC files
     "*/docs/build/*",  # docs
 ]
 
-FROM_STRING = """
+FROM_STRING_SOURCE = """
     Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
@@ -85,7 +88,7 @@ FROM_STRING = """
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 """
 
-TO_STRING = """
+TO_STRING_SOURCE = """
     Copyright (C) 2012-2020 University of Cambridge.
     Created by Rudolf Cardinal (rudolf@pobox.com).
 
@@ -101,6 +104,45 @@ TO_STRING = """
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
 
+    You should have received a copy of the GNU General Public License
+    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+"""
+
+FROM_STRING_DOCS = """
+..  Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    .
+    This file is part of CamCOPS.
+    .
+    CamCOPS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+    .
+    CamCOPS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+    .
+    You should have received a copy of the GNU General Public License
+    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+"""
+
+TO_STRING_DOCS = """
+..  Copyright (C) 2012-2020 University of Cambridge.
+    Created by Rudolf Cardinal (rudolf@pobox.com).
+    .
+    This file is part of CamCOPS.
+    .
+    CamCOPS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+    .
+    CamCOPS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+    .
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 """
@@ -165,11 +207,22 @@ def process(rootdir: str,
 
 
 if __name__ == '__main__':
+    # 1. Source code
     process(
         rootdir=INPUTDIR,
-        find_str=FROM_STRING,
-        replace_str=TO_STRING,
-        valid_extensions=VALID_EXTENSIONS,
+        find_str=FROM_STRING_SOURCE,
+        replace_str=TO_STRING_SOURCE,
+        valid_extensions=VALID_EXTENSIONS_SOURCE,
+        exclude_patterns=EXCLUDE_PATTERNS,
+        create_backup=True,
+        dummy_run=True
+    )
+    # 2. RST files
+    process(
+        rootdir=INPUTDIR,
+        find_str=FROM_STRING_DOCS,
+        replace_str=TO_STRING_DOCS,
+        valid_extensions=VALID_EXTENSIONS_DOCS,
         exclude_patterns=EXCLUDE_PATTERNS,
         create_backup=True,
         dummy_run=True

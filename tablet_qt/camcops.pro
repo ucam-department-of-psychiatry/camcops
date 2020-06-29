@@ -138,6 +138,14 @@ msvc {
     # QMAKE_CXXFLAGS += /showIncludes  # if you think the wrong ones are being included!
 }
 
+# Until we use a version of Qt that can cope, disable "-Werror=deprecated-copy".
+# In general, note "-Werrmsg" to enable and "-Wno-errmsg" to disable:
+# https://stackoverflow.com/questions/925179/selectively-remove-warning-message-gcc
+# (This problem arose on 2020-06-29 with Ubuntu 20.04 which brought gcc 9.3.0.)
+gcc {
+    QMAKE_CXXFLAGS += -Wno-deprecated-copy
+}
+
 # In release mode, optimize heavily:
 gcc {
     QMAKE_CXXFLAGS_RELEASE -= -O
