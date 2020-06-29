@@ -182,7 +182,11 @@ from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.renderers import render_to_response
 from pyramid.response import Response
 from sqlalchemy.engine import create_engine
+from sqlalchemy.engine.result import ResultProxy
 from sqlalchemy.orm import Session as SqlASession, sessionmaker
+from sqlalchemy.sql.expression import text
+from sqlalchemy.sql.schema import Column, MetaData, Table
+from sqlalchemy.sql.sqltypes import Text
 
 from camcops_server.cc_modules.cc_audit import audit
 from camcops_server.cc_modules.cc_constants import DateFormat
@@ -199,7 +203,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
 from camcops_server.cc_modules.cc_sqlalchemy import sql_from_sqlite_database
 from camcops_server.cc_modules.cc_task import Task
-from camcops_server.cc_modules.cc_tsv import TsvCollection
+from camcops_server.cc_modules.cc_tsv import TsvCollection, TsvPage
 from camcops_server.cc_modules.celery import (
     create_user_download,
     email_basic_dump,
@@ -211,6 +215,13 @@ if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_taskcollection import TaskCollection
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
+
+
+# =============================================================================
+# Constants
+# =============================================================================
+
+INFOSCHEMA_PAGENAME = "_camcops_information_schema_columns"
 
 
 # =============================================================================
@@ -480,6 +491,79 @@ def gen_audited_tasks_by_task_class(
             yield task
 
 
+def get_information_schema_query(req: "CamcopsRequest") -> ResultProxy:
+    """
+    Returns an SQLAlchemy query object that fetches the
+    INFORMATION_SCHEMA.COLUMNS information from our source database.
+
+    This is not sensitive; there is no data, just structure/comments.
+    """
+    # Find our database name
+    # https://stackoverflow.com/questions/53554458/sqlalchemy-get-database-name-from-engine
+    dbname = req.engine.url.database
+    # Query the information schema for our database.
+    # https://docs.sqlalchemy.org/en/13/core/sqlelement.html#sqlalchemy.sql.expression.text  # noqa
+    query = text("""
+        SELECT *
+        FROM information_schema.columns
+        WHERE table_schema = :dbname
+    """).bindparams(dbname=dbname)
+    result_proxy = req.dbsession.execute(query)
+    return result_proxy
+
+
+def get_information_schema_tsv_page(
+        req: "CamcopsRequest",
+        page_name: str = INFOSCHEMA_PAGENAME) -> TsvPage:
+    """
+    Returns the server database's ``INFORMATION_SCHEMA.COLUMNS`` table as a
+    :class:`camcops_server.cc_modules.cc_tsv.TsvPage``.
+    """
+    result_proxy = get_information_schema_query(req)
+    return TsvPage.from_resultproxy(page_name, result_proxy)
+
+
+def write_information_schema_to_dst(
+        req: "CamcopsRequest",
+        dst_session: SqlASession,
+        dest_table_name: str = INFOSCHEMA_PAGENAME) -> None:
+    """
+    Writes the server's information schema to a separate database session
+    (which will be an SQLite database being created for download).
+
+    There must be no open transactions (i.e. please COMMIT before you call
+    this function), since we need to create a table.
+    """
+    # 1. Read the structure of INFORMATION_SCHEMA.COLUMNS itself.
+    # https://stackoverflow.com/questions/21770829/sqlalchemy-copy-schema-and-data-of-subquery-to-another-database  # noqa
+    src_engine = req.engine
+    dst_engine = dst_session.bind
+    metadata = MetaData(bind=dst_engine)
+    table = Table(
+        "columns",  # table name; see also "schema" argument
+        metadata,  # "load with the destination metadata"
+        # Override some specific column types by hand, or they'll fail as
+        # SQLAlchemy fails to reflect the MySQL LONGTEXT type properly:
+        Column("COLUMN_DEFAULT", Text),
+        Column("COLUMN_TYPE", Text),
+        Column("GENERATION_EXPRESSION", Text),
+        autoload=True,  # "read (reflect) structure from the database"
+        autoload_with=src_engine,  # "read (reflect) structure from the source"
+        schema="information_schema"  # schema
+    )
+    # 2. Write that structure to our new database.
+    table.name = dest_table_name  # create it with a different name
+    table.schema = ""  # we don't have a schema in the destination database
+    table.create(dst_engine)  # CREATE TABLE
+    # 3. Fetch data.
+    query = get_information_schema_query(req)
+    # 4. Write the data.
+    for row in query:
+        dst_session.execute(table.insert(row))
+    # 5. COMMIT
+    dst_session.commit()
+
+
 # =============================================================================
 # Convert task collections to different export formats for user download
 # =============================================================================
@@ -501,7 +585,8 @@ class DownloadOptions(object):
                  delivery_mode: str,
                  spreadsheet_sort_by_heading: bool = False,
                  db_include_blobs: bool = False,
-                 db_patient_id_per_row: bool = False) -> None:
+                 db_patient_id_per_row: bool = False,
+                 include_information_schema_columns: bool = True) -> None:
         """
         Args:
             user_id:
@@ -521,6 +606,8 @@ class DownloadOptions(object):
                 (For database downloads.)
                 Denormalize by include the patient ID in all rows of
                 patient-related tables?
+            include_information_schema_columns:
+                Include descriptions of the columns provided?
         """
         assert delivery_mode in self.DELIVERY_MODES
         self.user_id = user_id
@@ -529,6 +616,7 @@ class DownloadOptions(object):
         self.spreadsheet_sort_by_heading = spreadsheet_sort_by_heading
         self.db_include_blobs = db_include_blobs
         self.db_patient_id_per_row = db_patient_id_per_row
+        self.include_information_schema_columns = include_information_schema_columns  # noqa
 
 
 class TaskCollectionExporter(object):
@@ -742,6 +830,10 @@ class TaskCollectionExporter(object):
                 tsv_pages = task.get_tsv_pages(self.req)
                 tsvcoll.add_pages(tsv_pages)
 
+        if self.options.include_information_schema_columns:
+            info_schema_page = get_information_schema_tsv_page(self.req)
+            tsvcoll.add_page(info_schema_page)
+
         tsvcoll.sort_pages()
         if self.options.spreadsheet_sort_by_heading:
             tsvcoll.sort_headings_within_all_pages()
@@ -917,6 +1009,9 @@ class SqliteExporter(TaskCollectionExporter):
                                      export_options=self.get_export_options(),
                                      req=self.req)
             dst_session.commit()
+            if self.options.include_information_schema_columns:
+                # Must have committed before we do this:
+                write_information_schema_to_dst(self.req, dst_session)
             # ---------------------------------------------------------------------
             # Audit
             # ---------------------------------------------------------------------

@@ -2837,3 +2837,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
   version 0.12.5), sorted out z-order to make plotting more efficient (and
   avoided opacity).
 
+- Option to download column info (from ``INFORMATION_SCHEMA.COLUMNS``) with
+  basic and SQLite dumps.

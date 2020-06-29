@@ -188,6 +188,7 @@ class ViewParam(object):
     INCLUDE_BLOBS = "include_blobs"
     INCLUDE_CALCULATED = "include_calculated"
     INCLUDE_COMMENTS = "include_comments"
+    INCLUDE_INFORMATION_SCHEMA_COLUMNS = "include_information_schema_columns"
     INCLUDE_PATIENT = "include_patient"
     INCLUDE_SNOMED = "include_snomed"
     LANGUAGE = "language"
