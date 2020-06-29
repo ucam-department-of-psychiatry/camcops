@@ -42,6 +42,10 @@ volumes:
             # https://docs.docker.com/compose/compose-file/#variable-substitution
             device: "${CAMCOPS_DOCKER_CONFIG_HOST_DIR}"
 
+    camcops_tmp_volume:
+        # Space to put lock files, user downloads, etc., that need to be shared
+        # between containers, but which are expected to be temporary.
+
 
 # =============================================================================
 # Containers (services)
@@ -174,6 +178,7 @@ services:
         # Mount config file directory
         volumes:
             - camcops_config_volume:/camcops/cfg
+            - camcops_tmp_volume:/camcops/tmp
 
         # Environment variables
         environment:
@@ -206,6 +211,7 @@ services:
         # Mount config file directory
         volumes:
             - camcops_config_volume:/camcops/cfg
+            - camcops_tmp_volume:/camcops/tmp
 
         # Environment variables
         environment:
@@ -241,6 +247,7 @@ services:
         # Mount config file directory
         volumes:
             - camcops_config_volume:/camcops/cfg
+            - camcops_tmp_volume:/camcops/tmp
 
         # Environment variables
         environment:
@@ -288,6 +295,7 @@ services:
         # Mount config file directory
         volumes:
             - camcops_config_volume:/camcops/cfg
+            - camcops_tmp_volume:/camcops/tmp
 
         # Environment variables
         environment:

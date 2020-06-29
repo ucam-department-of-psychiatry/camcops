@@ -458,6 +458,8 @@ For example:
         ./camcops_server --help
 
 
+.. _docker_print_demo_camcops_config:
+
 print_demo_camcops_config
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 

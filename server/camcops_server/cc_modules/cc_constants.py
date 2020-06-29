@@ -34,7 +34,14 @@ import logging
 import multiprocessing
 import os
 
-from camcops_server.cc_modules.cc_baseconstants import STATIC_ROOT_DIR
+from cardinal_pythonlib.sqlalchemy.session import make_mysql_url
+
+from camcops_server.cc_modules.cc_baseconstants import (
+    DEFAULT_EXTRA_STRINGS_DIR,
+    LINUX_DEFAULT_LOCK_DIR,
+    LINUX_DEFAULT_USER_DOWNLOAD_DIR,
+    STATIC_ROOT_DIR,
+)
 from camcops_server.cc_modules.cc_language import DEFAULT_LOCALE
 
 
@@ -536,7 +543,11 @@ class DockerConstants(object):
     # Directories
     DOCKER_CAMCOPS_ROOT_DIR = "/camcops"
     CONFIG_DIR = os.path.join(DOCKER_CAMCOPS_ROOT_DIR, "cfg")
+    TMP_DIR = os.path.join(DOCKER_CAMCOPS_ROOT_DIR, "tmp")
     VENV_DIR = os.path.join(DOCKER_CAMCOPS_ROOT_DIR, "venv")
+
+    DEFAULT_USER_DOWNLOAD_DIR = os.path.join(TMP_DIR, "user_downloads")
+    DEFAULT_LOCKDIR = os.path.join(TMP_DIR, "lock")
 
     # Container (internal) names
     CONTAINER_RABBITMQ = "rabbitmq"
@@ -577,6 +588,7 @@ class ConfigDefaults(object):
     DISABLE_PASSWORD_AUTOCOMPLETE = True
     EMAIL_PORT = StandardPorts.SMTP_TLS
     EMAIL_USE_TLS = True
+    EXTRA_STRING_FILES = os.path.join(DEFAULT_EXTRA_STRINGS_DIR, "*.xml")  # cosmetic; for demo configs only  # noqa
     LANGUAGE = DEFAULT_LOCALE
     LOCAL_INSTITUTION_URL = "http://www.camcops.org/"
     LOCAL_LOGO_FILE_ABSOLUTE = os.path.join(STATIC_ROOT_DIR, "logo_local.png")
@@ -586,6 +598,7 @@ class ConfigDefaults(object):
     PATIENT_SPEC_IF_ANONYMOUS = "anonymous"
     PERMIT_IMMEDIATE_DOWNLOADS = False
     SESSION_TIMEOUT_MINUTES = 30
+    USER_DOWNLOAD_DIR = LINUX_DEFAULT_USER_DOWNLOAD_DIR  # for demo configs only  # noqa
     USER_DOWNLOAD_FILE_LIFETIME_MIN = 60
     USER_DOWNLOAD_MAX_SPACE_MB = 100
     WEBVIEW_LOGLEVEL = logging.INFO
@@ -614,8 +627,11 @@ class ConfigDefaults(object):
     SHOW_RESPONSE = False
     SHOW_TIMING = False
 
-    # Export section
+    # [export] section
     CELERY_BROKER_URL = "amqp://"
+    CELERY_BEAT_SCHEDULE_DATABASE = os.path.join(
+        LINUX_DEFAULT_LOCK_DIR, "camcops_celerybeat_schedule")  # for demo configs only  # noqa
+    EXPORT_LOCKDIR = LINUX_DEFAULT_LOCK_DIR  # for demo configs only
     SCHEDULE_TIMEZONE = "UTC"
 
     # Individual export recipients
@@ -659,9 +675,21 @@ class ConfigDefaults(object):
         """
         if docker:
             self.CELERY_BROKER_URL = DockerConstants.CELERY_BROKER_URL
+            self.CELERY_BEAT_SCHEDULE_DATABASE = os.path.join(
+                DockerConstants.DEFAULT_LOCKDIR, "camcops_celerybeat_schedule")
             self.DB_SERVER = DockerConstants.CONTAINER_MYSQL
             self.DB_USER = DockerConstants.DEFAULT_MYSQL_CAMCOPS_USER
+            self.EXPORT_LOCKDIR = DockerConstants.DEFAULT_LOCKDIR
             self.HOST = DockerConstants.HOST
+            self.USER_DOWNLOAD_DIR = DockerConstants.DEFAULT_USER_DOWNLOAD_DIR
+
+    @property
+    def demo_db_url(self) -> str:
+        return make_mysql_url(host=self.DB_SERVER,
+                              port=self.DB_PORT,
+                              username=self.DB_USER,
+                              password=self.DB_PASSWORD,
+                              dbname=self.DB_DATABASE)
 
 
 MINIMUM_PASSWORD_LENGTH = 8

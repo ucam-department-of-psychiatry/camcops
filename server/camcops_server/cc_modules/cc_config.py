@@ -98,10 +98,7 @@ from cardinal_pythonlib.sqlalchemy.engine_func import (
 )
 from cardinal_pythonlib.sqlalchemy.logs import pre_disable_sqlalchemy_extra_echo_log  # noqa
 from cardinal_pythonlib.sqlalchemy.schema import get_table_names
-from cardinal_pythonlib.sqlalchemy.session import (
-    get_safe_url_from_engine,
-    make_mysql_url,
-)
+from cardinal_pythonlib.sqlalchemy.session import get_safe_url_from_engine
 from cardinal_pythonlib.wsgi.reverse_proxied_mw import ReverseProxiedMiddleware
 import celery.schedules
 from sqlalchemy.engine import create_engine
@@ -113,13 +110,9 @@ from camcops_server.cc_modules.cc_baseconstants import (
     ALEMBIC_BASE_DIR,
     ALEMBIC_CONFIG_FILENAME,
     ALEMBIC_VERSION_TABLE,
-    DEFAULT_EXTRA_STRINGS_DIR,
     ENVVAR_CONFIG_FILE,
-    LINUX_DEFAULT_LOCK_DIR,
     LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR,
-    LINUX_DEFAULT_USER_DOWNLOAD_DIR,
     ON_READTHEDOCS,
-    STATIC_ROOT_DIR,
 )
 from camcops_server.cc_modules.cc_cache import cache_region_static, fkg
 from camcops_server.cc_modules.cc_constants import (
@@ -188,8 +181,9 @@ DEFAULT_LINUX_USER = "www-data"  # Ubuntu default
 
 def warn_if_not_within_docker_dir(param_name: str,
                                   filespec: str,
-                                  permit_cfg: bool = True,
+                                  permit_cfg: bool = False,
                                   permit_venv: bool = False,
+                                  permit_tmp: bool = False,
                                   param_contains_not_is: bool = False) -> None:
     """
     If the specified filename isn't within a relevant directory that will be
@@ -205,6 +199,8 @@ def warn_if_not_within_docker_dir(param_name: str,
             Permit the file to be in the configuration directory.
         permit_venv:
             Permit the file to be in the virtual environment directory.
+        permit_tmp:
+            Permit the file to be in the shared temporary space.
         param_contains_not_is:
             The parameter "contains", not "is", the filename.
     """
@@ -216,6 +212,8 @@ def warn_if_not_within_docker_dir(param_name: str,
         permitted_dirs.append(DockerConstants.CONFIG_DIR)
     if permit_venv:
         permitted_dirs.append(DockerConstants.VENV_DIR)
+    if permit_tmp:
+        permitted_dirs.append(DockerConstants.TMP_DIR)
     ok = any(
         relative_filename_within_dir(filespec, d)
         for d in permitted_dirs
@@ -260,36 +258,27 @@ DEFAULT_DB_READONLY_PASSWORD = 'PPP_PASSWORD_REPLACE_ME'
 DUMMY_INSTITUTION_URL = 'http://www.mydomain/'
 
 
-def get_demo_config(extra_strings_dir: str = None,
-                    lock_dir: str = None,
-                    static_dir: str = None,
-                    db_url: str = None,
-                    user_download_dir: str = None,
-                    for_docker: bool = False) -> str:
+def get_demo_config(for_docker: bool = False) -> str:
     """
     Returns a demonstration config file based on the specified parameters.
+
+    Args:
+        for_docker:
+            Adjust defaults for the Docker environment.
     """
-    extra_strings_dir = extra_strings_dir or DEFAULT_EXTRA_STRINGS_DIR
-    extra_strings_spec = os.path.join(extra_strings_dir, '*.xml')
-    lock_dir = lock_dir or LINUX_DEFAULT_LOCK_DIR
-    static_dir = static_dir or STATIC_ROOT_DIR
-    user_download_dir = user_download_dir or LINUX_DEFAULT_USER_DOWNLOAD_DIR
     # ...
     # http://www.debian.org/doc/debian-policy/ch-opersys.html#s-writing-init
     # https://people.canonical.com/~cjwatson/ubuntu-policy/policy.html/ch-opersys.html  # noqa
     session_cookie_secret = create_base64encoded_randomness(num_bytes=64)
 
     cd = ConfigDefaults(docker=for_docker)
-    if not db_url:
-        db_url = make_mysql_url(host=cd.DB_SERVER,
-                                port=cd.DB_PORT,
-                                username=cd.DB_USER,
-                                password=cd.DB_PASSWORD,
-                                dbname=cd.DB_DATABASE)
     return f"""
 # Demonstration CamCOPS server configuration file.
+#
 # Created by CamCOPS server version {CAMCOPS_SERVER_VERSION_STRING}.
 # See help at https://camcops.readthedocs.io/.
+#
+# Using defaults for Docker environment: {for_docker}
 
 # =============================================================================
 # CamCOPS site
@@ -301,7 +290,7 @@ def get_demo_config(extra_strings_dir: str = None,
 # Database connection
 # -----------------------------------------------------------------------------
 
-{ConfigParamSite.DB_URL} = {db_url}
+{ConfigParamSite.DB_URL} = {cd.demo_db_url}
 {ConfigParamSite.DB_ECHO} = {cd.DB_ECHO}
 
 # -----------------------------------------------------------------------------
@@ -309,10 +298,10 @@ def get_demo_config(extra_strings_dir: str = None,
 # -----------------------------------------------------------------------------
 
 {ConfigParamSite.LOCAL_INSTITUTION_URL} = {DUMMY_INSTITUTION_URL}
-{ConfigParamSite.LOCAL_LOGO_FILE_ABSOLUTE} = {static_dir}/logo_local.png
-{ConfigParamSite.CAMCOPS_LOGO_FILE_ABSOLUTE} = {static_dir}/logo_camcops.png
+{ConfigParamSite.LOCAL_LOGO_FILE_ABSOLUTE} = {cd.LOCAL_LOGO_FILE_ABSOLUTE}
+{ConfigParamSite.CAMCOPS_LOGO_FILE_ABSOLUTE} = {cd.CAMCOPS_LOGO_FILE_ABSOLUTE}
 
-{ConfigParamSite.EXTRA_STRING_FILES} = {extra_strings_spec}
+{ConfigParamSite.EXTRA_STRING_FILES} = {cd.EXTRA_STRING_FILES}
 {ConfigParamSite.RESTRICTED_TASKS} =
 {ConfigParamSite.LANGUAGE} = {cd.LANGUAGE}
 
@@ -362,7 +351,7 @@ def get_demo_config(extra_strings_dir: str = None,
 # -----------------------------------------------------------------------------
 
 {ConfigParamSite.PERMIT_IMMEDIATE_DOWNLOADS} = {cd.PERMIT_IMMEDIATE_DOWNLOADS}
-{ConfigParamSite.USER_DOWNLOAD_DIR} = {user_download_dir}
+{ConfigParamSite.USER_DOWNLOAD_DIR} = {cd.USER_DOWNLOAD_DIR}
 {ConfigParamSite.USER_DOWNLOAD_FILE_LIFETIME_MIN} = {cd.USER_DOWNLOAD_FILE_LIFETIME_MIN}
 {ConfigParamSite.USER_DOWNLOAD_MAX_SPACE_MB} = {cd.USER_DOWNLOAD_MAX_SPACE_MB}
 
@@ -443,11 +432,11 @@ def get_demo_config(extra_strings_dir: str = None,
 [{CONFIG_FILE_EXPORT_SECTION}]
 
 {ConfigParamExportGeneral.CELERY_BEAT_EXTRA_ARGS} =
-{ConfigParamExportGeneral.CELERY_BEAT_SCHEDULE_DATABASE} = {lock_dir}/camcops_celerybeat_schedule
+{ConfigParamExportGeneral.CELERY_BEAT_SCHEDULE_DATABASE} = {cd.CELERY_BEAT_SCHEDULE_DATABASE}
 {ConfigParamExportGeneral.CELERY_BROKER_URL} = {cd.CELERY_BROKER_URL}
 {ConfigParamExportGeneral.CELERY_WORKER_EXTRA_ARGS} =
 {ConfigParamExportGeneral.CELERY_EXPORT_TASK_RATE_LIMIT} = 100/m
-{ConfigParamExportGeneral.EXPORT_LOCKDIR} = {lock_dir}
+{ConfigParamExportGeneral.EXPORT_LOCKDIR} = {cd.EXPORT_LOCKDIR}
 
 {ConfigParamExportGeneral.RECIPIENTS} =
 
@@ -1394,6 +1383,7 @@ class CamcopsConfig(object):
         if self.running_under_docker:
             log.info("Docker environment detected")
 
+            # Values expected to be fixed
             warn_if_not_docker_value(
                 param_name=ConfigParamExportGeneral.CELERY_BROKER_URL,
                 actual_value=self.celery_broker_url,
@@ -1405,45 +1395,75 @@ class CamcopsConfig(object):
                 required_value=DockerConstants.HOST
             )
 
+            # Config-related files
+
             warn_if_not_within_docker_dir(
                 param_name=ConfigParamServer.SSL_CERTIFICATE,
-                filespec=self.ssl_certificate
+                filespec=self.ssl_certificate,
+                permit_cfg=True
             )
             warn_if_not_within_docker_dir(
                 param_name=ConfigParamServer.SSL_PRIVATE_KEY,
-                filespec=self.ssl_private_key
+                filespec=self.ssl_private_key,
+                permit_cfg=True
             )
             warn_if_not_within_docker_dir(
                 param_name=ConfigParamSite.LOCAL_LOGO_FILE_ABSOLUTE,
                 filespec=self.local_logo_file_absolute,
+                permit_cfg=True,
                 permit_venv=True
             )
             warn_if_not_within_docker_dir(
                 param_name=ConfigParamSite.CAMCOPS_LOGO_FILE_ABSOLUTE,
                 filespec=self.camcops_logo_file_absolute,
+                permit_cfg=True,
                 permit_venv=True
             )
+
             for esf in self.extra_string_files:
                 warn_if_not_within_docker_dir(
                     param_name=ConfigParamSite.EXTRA_STRING_FILES,
                     filespec=esf,
+                    permit_cfg=True,
                     permit_venv=True,
                     param_contains_not_is=True
                 )
             warn_if_not_within_docker_dir(
                 param_name=ConfigParamSite.SNOMED_ICD9_XML_FILENAME,
                 filespec=self.snomed_icd9_xml_filename,
+                permit_cfg=True,
                 permit_venv=True
             )
             warn_if_not_within_docker_dir(
                 param_name=ConfigParamSite.SNOMED_ICD10_XML_FILENAME,
                 filespec=self.snomed_icd10_xml_filename,
+                permit_cfg=True,
                 permit_venv=True
             )
             warn_if_not_within_docker_dir(
                 param_name=ConfigParamSite.SNOMED_TASK_XML_FILENAME,
                 filespec=self.snomed_task_xml_filename,
+                permit_cfg=True,
                 permit_venv=True
+            )
+
+            # Temporary/scratch space that needs to be shared between Docker
+            # containers
+
+            warn_if_not_within_docker_dir(
+                param_name=ConfigParamSite.USER_DOWNLOAD_DIR,
+                filespec=self.user_download_dir,
+                permit_tmp=True
+            )
+            warn_if_not_within_docker_dir(
+                param_name=ConfigParamExportGeneral.CELERY_BEAT_SCHEDULE_DATABASE,  # noqa
+                filespec=self.celery_beat_schedule_database,
+                permit_tmp=True
+            )
+            warn_if_not_within_docker_dir(
+                param_name=ConfigParamExportGeneral.EXPORT_LOCKDIR,
+                filespec=self.export_lockdir,
+                permit_tmp=True
             )
 
     # -------------------------------------------------------------------------

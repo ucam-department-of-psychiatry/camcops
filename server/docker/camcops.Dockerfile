@@ -138,9 +138,6 @@ RUN echo "- Updating package information..." \
     && gdebi --non-interactive /tmp/wkhtmltopdf.deb \
     && echo "- wkhtmltopdf: Cleaning up..." \
     && rm /tmp/wkhtmltopdf.deb \
-    && echo "- Making directories..." \
-    && mkdir -p /var/lock/camcops \
-    && mkdir -p /var/tmp/camcops \
     && echo "- Creating Python 3 virtual environment..." \
     && python3 -m venv /camcops/venv \
     && echo "- Upgrading pip within virtual environment..." \
