@@ -50,6 +50,7 @@ from enum import Enum
 import io
 import logging
 import os
+import sys  # noqa  # for self-tests using "sys.platform"
 import tempfile
 from typing import (
     Any,

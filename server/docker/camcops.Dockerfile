@@ -87,6 +87,19 @@ WORKDIR /camcops
 #   more "manually". See
 #   - https://wkhtmltopdf.org/downloads.html
 #   - https://stackoverflow.com/questions/38262173/how-to-correctly-install-wkhtmltopdf-on-debian-64-bit
+#   EXCEPT that although the Debian version says:
+#
+#   Reduced Functionality:
+#     This version of wkhtmltopdf has been compiled against a version of QT without
+#     the wkhtmltopdf patches. Therefore some features are missing, if you need
+#     these features please use the static version.
+#     Currently the list of features only supported with patch QT includes:
+#    - Printing more than one HTML document into a PDF file.
+#    - Running without an X11 server.
+#
+#   ... it does actually run without an X11 server.
+#   However, it doesn't add headers/footers to PDFs. So, we need the "patched
+#   Qt" version still -- and hence wget, gdebi, etc.
 #
 # Then
 #
@@ -100,7 +113,7 @@ WORKDIR /camcops
 #   - version 1.3.13 fails to install with: "OSError: mysql_config not found"
 #   - version 1.4.6 works fine
 #
-# Then, because we are at 2.01 Gb:
+# Then, because we started at 2.01 Gb:
 #
 # - remove packages that we don't need, all within a single RUN command...
 #   ... takes it from 2.01 Gb to 1.58 Gb

@@ -179,6 +179,7 @@ INSTALL_REQUIRES = [
 
     'alabaster==0.7.12',  # for sphinx
     'amqp==2.6.0',  # for celery
+    'Chameleon==3.4',  # for Deform -- todo:: ?replace Deform; bug emerges with later versions of Chameleon  # noqa
     'tornado==6.0.4',  # for celery
     'webob==1.8.6',  # for pyramid
 

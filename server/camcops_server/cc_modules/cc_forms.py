@@ -279,6 +279,38 @@ def sex_choices(request: "CamcopsRequest") -> List[Tuple[str, str]]:
 
 
 # =============================================================================
+# Deform bug fix: SelectWidget "multiple" attribute
+# =============================================================================
+
+class BugfixSelectWidget(SelectWidget):
+    """
+    Fixes a bug where newer versions of Chameleon (e.g. 3.8.0) render Deform's
+    ``multiple = False`` (in ``SelectWidget``) as this, which is wrong:
+    
+    .. code-block:: none
+
+        <select name="which_idnum" id="deformField2" class=" form-control " multiple="False">
+                                                                            ^^^^^^^^^^^^^^^^
+            <option value="1">CPFT RiO number</option>
+            <option value="2">NHS number</option>
+            <option value="1000">MyHospital number</option>
+        </select>
+
+    ... whereas previous versions of Chameleon (e.g. 3.4) omitted the tag.
+    (I think it's a Chameleon change, anyway! And it's probably a bugfix in
+    Chameleon that exposed a bug in Deform.)
+
+    See :func:`camcops_server.cc_modules.webview.debug_form_rendering`.
+    """  # noqa
+    def __init__(self, multiple=False, **kwargs) -> None:
+        multiple = True if multiple else None  # None, not False
+        super().__init__(multiple=multiple, **kwargs)
+
+
+SelectWidget = BugfixSelectWidget
+
+
+# =============================================================================
 # Mixin for Schema/SchemaNode objects for translation
 # =============================================================================
 
@@ -581,6 +613,9 @@ def make_widget_horizontal(widget: Widget) -> None:
 def make_node_widget_horizontal(node: SchemaNode) -> None:
     """
     Applies Bootstrap "form-inline" styling to the schema node's widget.
+
+    **Note:** often better to use the ``inline=True`` option to the widget's
+    constructor.
     """
     make_widget_horizontal(node.widget)
 
@@ -777,8 +812,8 @@ class MultiTaskSelector(SchemaNode, RequestAwareMixin):
         if Binding.TRACKER_TASKS_ONLY in kw:
             self.tracker_tasks_only = kw[Binding.TRACKER_TASKS_ONLY]
         values, pv = get_values_and_permissible(self.get_task_choices())
-        self.widget = CheckboxChoiceWidget(values=values)
-        make_node_widget_horizontal(self)
+        self.widget = CheckboxChoiceWidget(values=values, inline=True)
+        # make_node_widget_horizontal(self)
         self.validator = Length(min=self.minimum_number)
 
     def get_task_choices(self) -> List[Tuple[str, str]]:
@@ -1006,9 +1041,9 @@ class OptionalSexSelector(OptionalStringNode, RequestAwareMixin):
         self.title = _("Sex")
         choices = sex_choices(self.request)
         values, pv = get_values_and_permissible(choices, True, _("Any"))
-        self.widget = RadioChoiceWidget(values=values)
+        self.widget = RadioChoiceWidget(values=values, inline=True)
+        # make_node_widget_horizontal(self)
         self.validator = OneOf(pv)
-        make_node_widget_horizontal(self)
 
 
 class MandatorySexSelector(MandatoryStringNode, RequestAwareMixin):
@@ -1027,9 +1062,9 @@ class MandatorySexSelector(MandatoryStringNode, RequestAwareMixin):
         self.title = _("Sex")
         choices = sex_choices(self.request)
         values, pv = get_values_and_permissible(choices)
-        self.widget = RadioChoiceWidget(values=values)
+        self.widget = RadioChoiceWidget(values=values, inline=True)
+        # make_node_widget_horizontal(self)
         self.validator = OneOf(pv)
-        make_node_widget_horizontal(self)
 
 
 # -----------------------------------------------------------------------------

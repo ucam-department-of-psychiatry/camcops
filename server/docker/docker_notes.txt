@@ -114,3 +114,10 @@ Docker Compose
   https://stackoverflow.com/questions/35565770/difference-between-service-and-container-in-docker-compose
 pubm
   ... a single service can be run by multiple containers
+
+
+===============================================================================
+Widget bugs
+===============================================================================
+
+pip freeze | sort --ignore-case
