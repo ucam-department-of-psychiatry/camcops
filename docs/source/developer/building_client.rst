@@ -60,12 +60,13 @@ Linux
 
 - Linux should come with Python and the necessary build tools.
 
-- Tested in Aug 2018 with:
+- Tested with:
 
   .. code-block:: none
 
-    Ubuntu 16.04
-    Ubuntu 18.04 / gcc 7.3.0
+    Ubuntu 16.04                    # Aug 2018
+    Ubuntu 18.04 / gcc 7.3.0        # Aug 2018
+    Ubuntu 20.04 / gcc 9.3.0        # Jun 2020; sudo apt install libxcb-glx libdrm-dev
 
 
 Android (with a Linux build host)

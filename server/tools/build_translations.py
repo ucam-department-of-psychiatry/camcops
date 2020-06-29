@@ -146,9 +146,9 @@ locales:
 Operations:
 
     {OP_EXTRACT}
-        Extract messages from code that looks like, for example,
-            _("please translate me"),
-        in Python and Mako files. Write it to this .pot file:
+        Extract strings from code that looks like, for example,
+            _("please translate me")
+        in Python and Mako files. Write the strings to this .pot file:
             {POT_FILE}
         
     {OP_INIT_MISSING}
@@ -156,6 +156,8 @@ Operations:
 
     {OP_UPDATE}
         Updates all .po files from the .pot file.
+
+    [At this stage, edit the .po files with Poedit or similar.]
         
     {OP_COMPILE}
         Converts each .po file to an equivalent .mo file.
