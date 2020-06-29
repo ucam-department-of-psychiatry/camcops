@@ -2391,6 +2391,10 @@ def add_user(req: "CamcopsRequest") -> Dict[str, Any]:
             user.username = appstruct.get(ViewParam.USERNAME)
             user.set_password(req, appstruct.get(ViewParam.NEW_PASSWORD))
             user.must_change_password = appstruct.get(ViewParam.MUST_CHANGE_PASSWORD)  # noqa
+            # We don't ask for language initially; that can be configured
+            # later. But is is a reasonable guess that it should be the same
+            # language as used by the person creating the new user.
+            user.language = req.language
             if User.get_user_by_name(dbsession, user.username):
                 raise HTTPBadRequest(
                     f"User with username {user.username!r} already exists!")

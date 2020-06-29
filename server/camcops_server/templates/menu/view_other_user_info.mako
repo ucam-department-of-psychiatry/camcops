@@ -36,5 +36,4 @@ camcops_server/templates/menu/view_other_user_info.mako
 <%include file="user_info_detail.mako" args="user=user"/>
 
 <%include file="to_view_all_users.mako"/>
-
 <%include file="to_main_menu.mako"/>

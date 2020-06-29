@@ -511,6 +511,7 @@ class User(Base):
         user.superuser = True
         audit(req, "SUPERUSER CREATED: " + user.username, from_console=True)
         user.set_password(req, password)  # will audit
+        user.language = req.language  # a reasonable default
         dbsession.add(user)
         return True
 
