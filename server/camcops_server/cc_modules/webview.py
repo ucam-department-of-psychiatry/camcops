@@ -3912,6 +3912,11 @@ def view_task_schedule_items(req: "CamcopsRequest") -> Dict[str, Any]:
     page_num = req.get_int_param(ViewParam.PAGE, 1)
     schedule_id = req.get_int_param(ViewParam.SCHEDULE_ID)
 
+    # TODO: Handle bad id
+    schedule = req.dbsession.query(TaskSchedule).filter(
+        TaskSchedule.id == schedule_id
+    ).one_or_none()
+
     # TODO: Would like to order by "due from" duration here
     # but the values in the database aren't zero padded. Should they
     # be?
@@ -3923,7 +3928,7 @@ def view_task_schedule_items(req: "CamcopsRequest") -> Dict[str, Any]:
                              items_per_page=rows_per_page,
                              url_maker=PageUrl(req),
                              request=req)
-    return dict(page=page)
+    return dict(page=page, schedule_name=schedule.name)
 
 
 @view_config(route_name=Routes.VIEW_PATIENT_TASK_SCHEDULES,
