@@ -64,9 +64,15 @@ Linux
 
   .. code-block:: none
 
-    Ubuntu 16.04                    # Aug 2018
-    Ubuntu 18.04 / gcc 7.3.0        # Aug 2018
-    Ubuntu 20.04 / gcc 9.3.0        # Jun 2020; sudo apt install libxcb-glx libdrm-dev
+    Ubuntu 16.04
+    - tested Aug 2018
+
+    Ubuntu 18.04 / gcc 7.3.0
+    - tested Aug 2018
+
+    Ubuntu 20.04 / gcc 9.3.0
+    - Jun 2020: TESTING IN PROGRESS
+    - sudo apt install libdrm-dev libxcb-glx0-dev
 
 
 Android (with a Linux build host)
