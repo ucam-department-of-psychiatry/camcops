@@ -62,17 +62,16 @@ Linux
 
 - Tested with:
 
-  .. code-block:: none
+  - Ubuntu 16.04
 
-    Ubuntu 16.04
-    - tested Aug 2018
+  - Ubuntu 18.04 / gcc 7.3.0 (tested Aug 2018)
 
-    Ubuntu 18.04 / gcc 7.3.0
-    - tested Aug 2018
+  - Ubuntu 20.04 / gcc 9.3.0 (tested Jun 2020). Requires the following
+    extra packages:
 
-    Ubuntu 20.04 / gcc 9.3.0
-    - Jun 2020: TESTING IN PROGRESS
-    - sudo apt install libdrm-dev libxcb-glx0-dev
+    .. code-block:: bash
+
+        sudo apt install libdrm-dev libxcb-glx0-dev
 
 
 Android (with a Linux build host)
