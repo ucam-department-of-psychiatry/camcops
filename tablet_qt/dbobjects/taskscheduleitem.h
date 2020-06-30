@@ -42,14 +42,16 @@ public:
     QString title() const;
     QString subtitle() const;
     enum class State {
+        Started,
         Completed,
         Due,
         Future,
         Missed
     };
+    bool isEditable() const;
     State state() const;
     void setComplete(bool complete);
-    void setTask(TaskPtr task);
+    void setTask(int task_id);
 
     static const QString TABLENAME;
 

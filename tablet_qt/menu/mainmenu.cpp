@@ -123,15 +123,20 @@ void MainMenu::makeSingleUserItems()
     TaskSchedulePtrList schedules = m_app.getTaskSchedules();
 
     for (const TaskSchedulePtr& schedule : schedules) {
+        QVector<MenuItem> started_items = {};
+        QVector<MenuItem> due_items = {};
         QVector<MenuItem> completed_items = {};
         QVector<MenuItem> missed_items = {};
-        QVector<MenuItem> due_items = {};
         QVector<MenuItem> future_items = {};
 
         for (const TaskScheduleItemPtr& schedule_item : schedule->items()) {
             auto state = schedule_item->state();
 
             switch (state) {
+
+            case TaskScheduleItem::State::Started:
+                started_items.append(TaskScheduleItemMenuItem(schedule_item));
+                break;
 
             case TaskScheduleItem::State::Completed:
                 completed_items.append(TaskScheduleItemMenuItem(schedule_item));
@@ -152,6 +157,16 @@ void MainMenu::makeSingleUserItems()
             default:
                 break;
             }
+        }
+
+        if (started_items.size() > 0) {
+            m_items.append(
+                MenuItem(
+                    tr("Started tasks for %1").arg(schedule->name())
+                ).setLabelOnly()
+            );
+
+            m_items.append(started_items);
         }
 
         if (due_items.size() > 0) {

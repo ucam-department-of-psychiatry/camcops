@@ -156,12 +156,26 @@ QString TaskScheduleItem::subtitle() const
 }
 
 
+bool TaskScheduleItem::isEditable() const
+{
+    auto task_state = state();
+
+    return task_state == State::Started || task_state == State::Due;
+}
+
+
 TaskScheduleItem::State TaskScheduleItem::state() const
 {
     bool is_complete = value(FN_COMPLETE).toBool();
 
     if (is_complete) {
         return State::Completed;
+    }
+
+    TaskPtr task = getTask();
+
+    if (task) {
+        return State::Started;
     }
 
     auto today = QDate::currentDate();
@@ -185,8 +199,8 @@ void TaskScheduleItem::setComplete(bool complete)
 }
 
 
-void TaskScheduleItem::setTask(TaskPtr task)
+void TaskScheduleItem::setTask(int task_id)
 {
-    setValue(FK_TASK, task->pkvalue());
+    setValue(FK_TASK, task_id);
     save();
 }

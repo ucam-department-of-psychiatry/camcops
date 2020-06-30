@@ -610,7 +610,7 @@ void MenuItem::act(CamcopsApp& app) const
         return;
     }
     if (m_p_task_schedule_item) {
-        if (m_p_task_schedule_item->state() == TaskScheduleItem::State::Due) {
+        if (m_p_task_schedule_item->isEditable()) {
             auto editor = new TaskScheduleItemEditor(app, m_p_task_schedule_item);
             editor->editTask();
         }

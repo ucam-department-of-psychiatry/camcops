@@ -41,7 +41,7 @@ void TaskScheduleItemEditor::editTask()
         task = m_app.taskFactory()->create(tablename);
         const int patient_id = m_app.selectedPatientId();
         task->setupForEditingAndSave(patient_id);
-        m_p_task_schedule_item->setTask(task);
+        m_p_task_schedule_item->setTask(task->pkvalue().toInt());
     }
 
     // TODO: Checks as in SingleTaskMenu::addTask()
@@ -68,4 +68,8 @@ void TaskScheduleItemEditor::onTaskFinished()
     TaskPtr task = m_p_task_schedule_item->getTask();
 
     task->setMoveOffTablet(true);
+
+    // The task will be wiped from the database when we next
+    // connect to the server so remove our foreign key now
+    m_p_task_schedule_item->setTask(dbconst::NONEXISTENT_PK);
 }
