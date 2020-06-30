@@ -223,7 +223,7 @@ LOCAL_INSTITUTION_URL
 *String.*
 
 Clicking on your institution's logo in the CamCOPS menu will take you to this
-URL. Edit this to point to your institution:
+URL. Edit this to point to your institution.
 
 
 LOCAL_LOGO_FILE_ABSOLUTE
@@ -235,9 +235,14 @@ Specify the full path to your institution's logo file, e.g.
 ``/var/www/logo_local_myinstitution.png``. It's used for PDF generation; HTML
 views use the fixed string ``static/logo_local.png``, aliased to your file via
 the Apache configuration file). Edit this setting to point to your local
-institution's logo file:
+institution's logo file.
 
 .. include:: include_docker_config.rst
+
+Your logo will be scaled to 45% of the active page width. You may need to add
+blank space to the left if it looks funny. See picture below.
+
+.. image:: images/scaling_logos.png
 
 
 CAMCOPS_LOGO_FILE_ABSOLUTE
@@ -1594,6 +1599,8 @@ Options applicable to database export only
 
 At present, only full (not incremental) database export is supported.
 
+
+.. _EXPORT_DB_URL:
 
 DB_URL
 ######

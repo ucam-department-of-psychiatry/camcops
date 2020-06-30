@@ -267,10 +267,15 @@ Name of the MySQL database to be used for CamCOPS data.
 CAMCOPS_DOCKER_MYSQL_CAMCOPS_USER_PASSWORD
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**No default. Must be set.**
+**No default. Must be set during MySQL container creation.**
 
 MySQL password for the CamCOPS database user (whose name is set by
 CAMCOPS_DOCKER_MYSQL_CAMCOPS_USER_NAME_).
+
+.. note::
+    This only needs to be set when Docker Compose is creating the MySQL
+    container for the first time. After that, it doesn't have to be set (and is
+    probably best not set for security reasons!).
 
 
 .. _CAMCOPS_DOCKER_MYSQL_CAMCOPS_USER_NAME:
@@ -309,9 +314,14 @@ You should **not** expose this port to the "outside", beyond your host.
 CAMCOPS_DOCKER_MYSQL_ROOT_PASSWORD
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**No default. Must be set.**
+**No default. Must be set during MySQL container creation.**
 
 MySQL password for the ``root`` user.
+
+.. note::
+    This only needs to be set when Docker Compose is creating the MySQL
+    container for the first time. After that, it doesn't have to be set (and is
+    probably best not set for security reasons!).
 
 
 COMPOSE_PROJECT_NAME
@@ -429,6 +439,15 @@ There are a few special things to note within the Docker environment.
 
   CamCOPS will warn you if you are using Docker but your file references are
   not within the ``/camcops/cfg`` mount point.
+
+
+Using a database outside the Docker environment
+-----------------------------------------------
+
+CamCOPS creates a MySQL system and database inside Docker, for convenience.
+However, it's completely fine to ignore it and point CamCOPS to a database
+elsewhere on your system. Just set the :ref:`DB_URL <DB_URL>` parameter to
+point where you want.
 
 
 Tools

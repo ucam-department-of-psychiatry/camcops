@@ -35,8 +35,11 @@
 
 .. _server_configuration:
 
-Configuring the server
-======================
+(MANUAL) Configuring the server
+===============================
+
+.. include:: include_this_is_manual_see_docker.rst
+
 
 The majority of CamCOPS configuration takes place via the :ref:`server
 configuration file <server_config_file>`. Here, we deal with everything else.
@@ -592,18 +595,6 @@ See also:
 
 - http://dev.mysql.com/doc/refman/5.5/en/innodb-parameters.html
 
-
-Cosmetics
----------
-
-Your institutional logo
-~~~~~~~~~~~~~~~~~~~~~~~
-
-Your logos (see the :ref:`configuration file <server_config_file>`) will be
-scaled to 45% of the active page width. You may need to add blank space to the
-left if they look funny. See picture below.
-
-.. image:: images/scaling_logos.png
 
 
 ===============================================================================
