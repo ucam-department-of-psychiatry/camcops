@@ -58,11 +58,13 @@ class ScheduledTaskInfo(object):
     def __init__(self,
                  shortname: str,
                  tablename: str,
+                 is_anonymous: bool,
                  task: Optional[Task] = None,
                  start_datetime: Optional[Pendulum] = None,
                  end_datetime: Optional[Pendulum] = None) -> None:
         self.shortname = shortname
         self.tablename = tablename
+        self.is_anonymous = is_anonymous
         self.task = task
         self.start_datetime = start_datetime
         self.end_datetime = end_datetime
@@ -113,13 +115,16 @@ class PatientTaskSchedule(Base):
                     req, tsi, start_datetime, end_datetime
                 )
 
+            task_class = task_class_lookup[tsi.task_table_name]
+
             task_list.append(
                 ScheduledTaskInfo(
-                    task_class_lookup[tsi.task_table_name].shortname,
+                    task_class.shortname,
                     tsi.task_table_name,
+                    is_anonymous=task_class.is_anonymous,
                     task=task,
                     start_datetime=start_datetime,
-                    end_datetime=end_datetime
+                    end_datetime=end_datetime,
                 )
             )
 

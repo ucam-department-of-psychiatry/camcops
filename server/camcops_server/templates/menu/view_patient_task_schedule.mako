@@ -45,10 +45,16 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
         <th>${_("Due from")}</th>
         <th>${_("Due by")}</th>
         <th>${_("Created")}</th>
+        <th>${_("Complete")}</th>
         <th>${_("View")}</th>
         <th>${_("Print/save")}</th>
     </tr>
 %for task_info in task_list:
+    <%
+        td_attributes = ""
+        if task_info.task and not task_info.task.is_complete():
+            td_attributes = "class='incomplete'"
+    %>
     <tr>
         <td>
             ${ task_info.shortname }
@@ -64,16 +70,23 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
             %endif
         </td>
         <td>
-            %if task_info.task:
-            ${ format_datetime(task_info.task.when_created, DateFormat.SHORT_DATETIME_NO_TZ) }
+            %if task_info.is_anonymous:
+               —
+            %elif task_info.task:
+               ${ format_datetime(task_info.task.when_created, DateFormat.SHORT_DATETIME_NO_TZ) }
             %endif
         </td>
-        <td
-            %if task_info.task:
-                %if not task_info.task.is_complete():
-                    class="incomplete"
-                %endif
-                >
+        <td>
+            %if task_info.is_anonymous:
+               —
+            %elif task_info.task:
+               ${ task_info.task.is_complete() }
+            %endif
+        </td>
+        <td ${ td_attributes }>
+            %if task_info.is_anonymous:
+               —
+            %elif task_info.task:
                 <a href="${ req.route_url(
                     Routes.TASK,
                     _query={
@@ -83,15 +96,10 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
                     }) }">HTML</a>
             %endif
         </td>
-        ## ------------------------------------------------------------
-        ## Hyperlink to PDF
-        ## ------------------------------------------------------------
-        <td
-            %if task_info.task:
-                %if not task_info.task.is_complete():
-                    class="incomplete"
-                %endif
-                >
+        <td ${ td_attributes }>
+            %if task_info.is_anonymous:
+               —
+            %elif task_info.task:
                 <a href="${ req.route_url(
                     Routes.TASK,
                     _query={
