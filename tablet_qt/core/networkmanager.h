@@ -206,7 +206,7 @@ public:
     void fetchExtraStrings();
 
     // Update task schedules for single user
-    void updateTaskSchedules(const QString patient_proquint);
+    void updateTaskSchedules();
 
 protected:
     // Multi-step operations for the above:
@@ -234,7 +234,7 @@ protected:
 public:
     // Upload to the server.
     void upload(UploadMethod method);
-    void registerPatient(const QString patient_proquint);
+    void registerPatient();
 
 protected:
     // Upload core:
@@ -374,6 +374,8 @@ protected:
         StoreAllowedTables,
         GetExtraStrings,
         StoreExtraStrings,
+        GetTaskSchedules,
+        StoreTaskSchedules,
         Finished,
     };
 

@@ -39,6 +39,7 @@ const QString TaskScheduleItem::FN_COMPLETE("complete");
 const QString TaskScheduleItem::FK_TASK_SCHEDULE("schedule_id");
 const QString TaskScheduleItem::FK_TASK("task");
 
+const QString TaskScheduleItem::KEY_COMPLETE("complete");
 const QString TaskScheduleItem::KEY_DUE_BY("due_by");
 const QString TaskScheduleItem::KEY_DUE_FROM("due_from");
 const QString TaskScheduleItem::KEY_TABLE("table");
@@ -86,13 +87,18 @@ void TaskScheduleItem::addJsonFields(const QJsonObject json_obj)
     auto setValueOrNull = [&](const QString& field, const QString& key) {
         QJsonValue value = json_obj.value(key);
         if (!value.isNull()) {
-            setValue(field, value.toString());
+            if (value.isBool()) {
+                setValue(field, value.toBool());
+            } else {
+                setValue(field, value.toString());
+            }
         }
     };
 
     setValueOrNull(FN_TASK_TABLE_NAME, KEY_TABLE);
     setValueOrNull(FN_DUE_FROM, KEY_DUE_FROM);
     setValueOrNull(FN_DUE_BY, KEY_DUE_BY);
+    setValueOrNull(FN_COMPLETE, KEY_COMPLETE);
 }
 
 

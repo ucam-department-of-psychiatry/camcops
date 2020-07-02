@@ -2068,13 +2068,10 @@ def op_register_patient(req: "CamcopsRequest") -> Dict[str, Any]:
     # One item list to be consistent with patients uploaded from the tablet
     patient_info = json.dumps([patient_dict])
 
-    task_schedules = get_task_schedules(req, patient)
-
     client_device_name = get_str_var(req, TabletParam.DEVICE)
 
     reply_dict = {
         TabletParam.PATIENT_INFO: patient_info,
-        TabletParam.TASK_SCHEDULES: task_schedules
     }
 
     user_name = get_str_var(req, TabletParam.USER, mandatory=False)
@@ -2253,18 +2250,20 @@ def get_task_schedules(req: "CamcopsRequest",
 
         items = []
 
-        for task_info in pts.get_list_of_scheduled_tasks(
-                req,
-                # We don't need these and the user doesn't have permission
-                include_task_objects=False
-        ):
+        for task_info in pts.get_list_of_scheduled_tasks(req):
             due_from = task_info.start_datetime.to_iso8601_string()
             due_by = task_info.end_datetime.to_iso8601_string()
+
+            complete = False
+
+            if task_info.task:
+                complete = task_info.task.is_complete()
 
             items.append({
                 TabletParam.TABLE: task_info.tablename,
                 TabletParam.DUE_FROM: due_from,
-                TabletParam.DUE_BY: due_by
+                TabletParam.DUE_BY: due_by,
+                TabletParam.COMPLETE: complete,
             })
 
         schedules.append({

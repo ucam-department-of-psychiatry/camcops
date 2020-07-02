@@ -93,8 +93,7 @@ class PatientTaskSchedule(Base):
 
     def get_list_of_scheduled_tasks(
             self,
-            req: "CamcopsRequest",
-            include_task_objects=True
+            req: "CamcopsRequest"
     ) -> List[ScheduledTaskInfo]:
 
         task_list = []
@@ -110,10 +109,9 @@ class PatientTaskSchedule(Base):
                 start_datetime = self.start_date.add(days=tsi.due_from.days)
                 end_datetime = self.start_date.add(days=tsi.due_by.days)
 
-                if include_task_objects:
-                    task = self.find_scheduled_task(
-                        req, tsi, start_datetime, end_datetime
-                    )
+                task = self.find_scheduled_task(
+                    req, tsi, start_datetime, end_datetime
+                )
 
             task_list.append(
                 ScheduledTaskInfo(

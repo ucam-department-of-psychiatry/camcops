@@ -65,4 +65,5 @@ public:
     static const QString KEY_TABLE;
     static const QString KEY_DUE_FROM;
     static const QString KEY_DUE_BY;
+    static const QString KEY_COMPLETE;
 };

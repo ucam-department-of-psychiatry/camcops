@@ -792,13 +792,33 @@ void NetworkManager::registerNext(QNetworkReply* reply)
     case NextRegisterStage::GetExtraStrings:
         statusMessage(tr("Requesting extra strings"));
         dict[KEY_OPERATION] = OP_GET_EXTRA_STRINGS;
+
+        m_register_next_stage = NextRegisterStage::Finished;
+
+        if (m_app.isSingleUserMode()) {
+            m_register_next_stage = NextRegisterStage::GetTaskSchedules;
+        }
+
+        serverPost(dict, &NetworkManager::registerNext);
+        break;
+
+    case NextRegisterStage::GetTaskSchedules:
+        storeExtraStrings();
+        dict[KEY_OPERATION] = OP_GET_TASK_SCHEDULES;
+        dict[KEY_PATIENT_PROQUINT] = m_app.varString(
+            varconst::SINGLE_PATIENT_PROQUINT
+        );
+
         m_register_next_stage = NextRegisterStage::Finished;
 
         serverPost(dict, &NetworkManager::registerNext);
         break;
 
     case NextRegisterStage::Finished:
-        storeExtraStrings();
+        if (m_app.isSingleUserMode()) {
+            storeTaskSchedules();
+        }
+
         statusMessage(tr("Completed successfully."));
 
         succeed();
@@ -809,12 +829,14 @@ void NetworkManager::registerNext(QNetworkReply* reply)
     }
 }
 
-void NetworkManager::updateTaskSchedules(const QString patient_proquint)
+void NetworkManager::updateTaskSchedules()
 {
     Dict dict;
 
     dict[KEY_OPERATION] = OP_GET_TASK_SCHEDULES;
-    dict[KEY_PATIENT_PROQUINT] = patient_proquint;
+    dict[KEY_PATIENT_PROQUINT] = m_app.varString(
+        varconst::SINGLE_PATIENT_PROQUINT
+    );
 
     statusMessage(tr("Getting task schedules from ") + serverUrlDisplayString());
 
@@ -827,8 +849,6 @@ void NetworkManager::receivedTaskSchedules(QNetworkReply* reply)
         return;
     }
 
-    statusMessage(tr("... received task schedules "));
-
     storeTaskSchedules();
     succeed();
 }
@@ -836,6 +856,8 @@ void NetworkManager::receivedTaskSchedules(QNetworkReply* reply)
 
 void NetworkManager::storeTaskSchedules()
 {
+    statusMessage(tr("... received task schedules "));
+
     m_app.deleteTaskSchedules();
 
     // TODO: Handle Null return value
@@ -2262,11 +2284,13 @@ QString NetworkManager::txtPleaseRefetchServerInfo()
 // ============================================================================
 // Patient registration
 // ============================================================================
-void NetworkManager::registerPatient(const QString patient_proquint)
+void NetworkManager::registerPatient()
 {
     Dict dict;
     dict[KEY_OPERATION] = OP_REGISTER_PATIENT;
-    dict[KEY_PATIENT_PROQUINT] = patient_proquint;
+    dict[KEY_PATIENT_PROQUINT] = m_app.varString(
+        varconst::SINGLE_PATIENT_PROQUINT
+    );
 
     bool include_user = !m_app.varString(varconst::SERVER_USERNAME).isEmpty();
     serverPost(dict, &NetworkManager::registerPatientSub1, include_user);
@@ -2302,8 +2326,6 @@ void NetworkManager::registerPatientSub1(QNetworkReply* reply)
     m_app.setSinglePatientId(patient->id());
 
     patient->addIdNums(patient_json);
-
-    storeTaskSchedules();
 
     registerWithServer();
 }
