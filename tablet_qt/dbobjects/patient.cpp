@@ -705,6 +705,12 @@ QString Patient::oneLineHtmlDetailString() const
 }
 
 
+QString Patient::oneLineHtmlSimpleString() const
+{
+    return QString("<b>%1</b>").arg(forenameSurname());
+}
+
+
 // ============================================================================
 // Editing and other manipulations
 // ============================================================================

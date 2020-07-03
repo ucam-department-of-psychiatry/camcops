@@ -204,6 +204,9 @@ public:
     // e.g. "<b>JONES, Bob</b> (M, 19y, DOB 1 Jan 2000); RiO 12345, NHS 9876543210"
     QString oneLineHtmlDetailString() const;
 
+    // e.g. "<b>Bob Jones</b>"
+    QString oneLineHtmlSimpleString() const;
+
     // ------------------------------------------------------------------------
     // Editing and other manipulations
     // ------------------------------------------------------------------------

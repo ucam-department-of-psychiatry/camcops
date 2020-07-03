@@ -304,7 +304,11 @@ void MenuHeader::setPatientDetails(const Patient* patient)
     QString info;
 
     if (selected) {
-        info = patient->oneLineHtmlDetailString();
+        if (m_app.isSingleUserMode()) {
+            info = patient->oneLineHtmlSimpleString();
+        } else {
+            info = patient->oneLineHtmlDetailString();
+        }
     }
 #ifdef DEBUG_SLOTS
     qDebug() << Q_FUNC_INFO << info << "[patient:" << patient << "]";
