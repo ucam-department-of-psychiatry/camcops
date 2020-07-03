@@ -526,6 +526,12 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
         // ... but not for locked/needs privilege, as otherwise we'd need
         // to refresh the whole menu? Well, we could try it.
         // On Linux desktop, it's extremely fast.
+
+        if (m_p_task_schedule_item) {
+            if (m_p_task_schedule_item->isEditable()) {
+                row->setObjectName(cssconst::MENU_ITEM_EDITABLE_TASK);
+            }
+        }
     }
 
     // Size policy

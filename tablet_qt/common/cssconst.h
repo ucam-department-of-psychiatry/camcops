@@ -42,6 +42,7 @@ extern const char* MENU_HEADER_CRIPPLED;
 extern const char* MENU_HEADER_MODE;
 extern const char* MENU_HEADER_NO_PATIENT;
 extern const char* MENU_HEADER_PATIENT_INFO;
+extern const char* MENU_ITEM_EDITABLE_TASK;
 extern const char* MENU_ITEM_SUBTITLE;
 extern const char* MENU_ITEM_TITLE;
 extern const char* MENU_WINDOW_BACKGROUND;

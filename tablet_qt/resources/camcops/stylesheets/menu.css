@@ -118,6 +118,9 @@ QListWidget::item:selected {
     margin: 0;
     padding: 0;
 }
+#menu_item_editable_task {
+    background-color: lemonchiffon;
+}
 #task_item_taskname_complete {
     /* OLD SCHEME: color: white; */
     color: black;

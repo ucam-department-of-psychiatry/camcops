@@ -151,14 +151,21 @@ QString TaskScheduleItem::title() const
 
 QString TaskScheduleItem::subtitle() const
 {
-    if (state() == State::Completed) {
+    auto task_state = state();
+
+    if (task_state == State::Completed) {
         return QString(tr("Completed"));
     }
 
-    return QString(tr("Complete between %1 and %2")).arg(
-        dueFrom().toString(datetime::LONG_DATE_FORMAT),
-        dueBy().toString(datetime::LONG_DATE_FORMAT)
+    const QString readable_date = dueBy().toString(
+        datetime::LONG_DATE_FORMAT
     );
+
+    if (task_state == State::Started) {
+        return QString(tr("Started, complete by %1")).arg(readable_date);
+    }
+
+    return QString(tr("Complete by %1")).arg(readable_date);
 }
 
 

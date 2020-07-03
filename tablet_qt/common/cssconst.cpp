@@ -22,6 +22,7 @@ const char* MENU_HEADER_MODE = "menu_header_mode";
 const char* MENU_HEADER_NO_PATIENT = "menu_header_no_patient";
 const char* MENU_HEADER_PATIENT_INFO = "menu_header_patient_info";
 const char* MENU_HEADER_PATIENT_MODE = "menu_header_patient_mode";
+const char* MENU_ITEM_EDITABLE_TASK = "menu_item_editable_task";
 const char* MENU_ITEM_SUBTITLE = "menu_item_subtitle";
 const char* MENU_ITEM_TITLE = "menu_item_title";
 const char* MENU_WINDOW_BACKGROUND = "menu_window_background";

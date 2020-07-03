@@ -24,6 +24,7 @@
 #include "core/networkmanager.h"
 #include "dbobjects/taskschedule.h"
 #include "dbobjects/taskscheduleitem.h"
+#include "lib/datetime.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 #include "menulib/menuproxy.h"
@@ -126,8 +127,8 @@ void MainMenu::makeSingleUserItems()
         QVector<MenuItem> started_items = {};
         QVector<MenuItem> due_items = {};
         QVector<MenuItem> completed_items = {};
-        QVector<MenuItem> missed_items = {};
-        QVector<MenuItem> future_items = {};
+
+        auto earliest_future_date = QDate();
 
         for (const TaskScheduleItemPtr& schedule_item : schedule->items()) {
             auto state = schedule_item->state();
@@ -142,16 +143,12 @@ void MainMenu::makeSingleUserItems()
                 completed_items.append(TaskScheduleItemMenuItem(schedule_item));
                 break;
 
-            case TaskScheduleItem::State::Missed:
-                missed_items.append(TaskScheduleItemMenuItem(schedule_item));
-                break;
-
             case TaskScheduleItem::State::Due:
                 due_items.append(TaskScheduleItemMenuItem(schedule_item));
                 break;
 
             case TaskScheduleItem::State::Future:
-                future_items.append(TaskScheduleItemMenuItem(schedule_item));
+                earliest_future_date = schedule_item->dueFrom();
                 break;
 
             default:
@@ -159,61 +156,40 @@ void MainMenu::makeSingleUserItems()
             }
         }
 
-        if (started_items.size() > 0) {
+        int total_items = started_items.size() + completed_items.size() +
+            due_items.size();
+
+        if (total_items > 0 || earliest_future_date.isValid()) {
             m_items.append(
                 MenuItem(
-                    tr("Started tasks for %1").arg(schedule->name())
+                    tr("Schedule: %1").arg(schedule->name())
                 ).setLabelOnly()
             );
+        }
 
+        if (total_items > 0) {
             m_items.append(started_items);
-        }
-
-        if (due_items.size() > 0) {
-            m_items.append(
-                MenuItem(
-                    tr("Due tasks for %1").arg(schedule->name())
-                ).setLabelOnly()
-            );
-
             m_items.append(due_items);
-        }
-
-        if (future_items.size() > 0) {
-            m_items.append(
-                MenuItem(
-                    tr("Future tasks for %1").arg(schedule->name())
-                ).setLabelOnly()
-            );
-
-            m_items.append(future_items);
-        }
-
-        if (completed_items.size() > 0) {
-            m_items.append(
-                MenuItem(
-                    tr("Completed tasks for %1").arg(schedule->name())
-                ).setLabelOnly()
-            );
-
             m_items.append(completed_items);
-        }
-
-        if (missed_items.size() > 0) {
+        } else if (earliest_future_date.isValid()) {
+            QString readable_date = earliest_future_date.toString(
+                datetime::LONG_DATE_FORMAT
+            );
             m_items.append(
                 MenuItem(
-                    tr("Missed tasks for %1").arg(schedule->name())
-                ).setLabelOnly()
-            );
-
-            m_items.append(missed_items);
+                    tr("The next task will be available on %1").arg(
+                        readable_date
+                    )
+                ).setImplemented(true)
+           );
         }
-
     }
 
     if (m_items.size() == 0) {
         m_items.append(
-            MenuItem(tr("You do not have any scheduled tasks")).setLabelOnly()
+            MenuItem(
+                tr("You do not have any scheduled tasks")
+                ).setLabelOnly()
         );
     }
 
