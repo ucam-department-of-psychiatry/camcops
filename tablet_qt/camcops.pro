@@ -629,6 +629,7 @@ SOURCES += \
     menu/setmenuobrien.cpp \
     menu/settingsmenu.cpp \
     menu/singletaskmenu.cpp \
+    menu/singleusermenu.cpp \
     menu/testmenu.cpp \
     menu/whiskertestmenu.cpp \
     menu/widgettestmenu.cpp \
@@ -1084,6 +1085,7 @@ HEADERS += \
     menu/setmenuobrien.h \
     menu/settingsmenu.h \
     menu/singletaskmenu.h \
+    menu/singleusermenu.h \
     menu/testmenu.h \
     menu/whiskertestmenu.h \
     menu/widgettestmenu.h \
@@ -1096,7 +1098,6 @@ HEADERS += \
     menulib/menuwindow.h \
     menulib/taskchainmenuitem.h \
     menulib/taskmenuitem.h \
-    menulib/taskscheduleitemeditor.h \
     menulib/urlmenuitem.h \
     qcustomplot/qcustomplot.h \
     qobjects/cameraframegrabber.h \

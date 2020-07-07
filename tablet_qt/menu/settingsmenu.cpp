@@ -1479,5 +1479,4 @@ void SettingsMenu::chooseLanguage()
 void SettingsMenu::changeMode()
 {
     m_app.setModeFromUser();
-    finished();
 }

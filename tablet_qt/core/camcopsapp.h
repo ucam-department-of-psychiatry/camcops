@@ -252,6 +252,8 @@ public:
     // ------------------------------------------------------------------------
     // Opening/closing windows
     // ------------------------------------------------------------------------
+private:
+    void closeAnyOpenSubWindows();
 
 public:
     // Launches a new window and keeps track of associated information that the

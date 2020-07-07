@@ -21,14 +21,16 @@
 #include "menulib/menuwindow.h"
 
 
-class MainMenu : public MenuWindow
+class SingleUserMenu : public MenuWindow
 {
     Q_OBJECT
 
 public:
-    MainMenu(CamcopsApp& app);
+    SingleUserMenu(CamcopsApp& app);
     virtual QString title() const override;
 protected:
     virtual void makeItems() override;
-    void upload();
+    void changeMode();
+    void registerPatient();
+    void updateTaskSchedules();
 };

@@ -89,6 +89,7 @@
 #include "lib/uifunc.h"
 #include "lib/version.h"
 #include "menu/mainmenu.h"
+#include "menu/singleusermenu.h"
 #include "qobjects/debugeventwatcher.h"
 #include "qobjects/slownonguifunctioncaller.h"
 #include "questionnairelib/commonoptions.h"
@@ -165,6 +166,12 @@ void CamcopsApp::setMode(const int mode)
     if (isSingleUserMode())
     {
         setDefaultPatient();
+    }
+
+    if (m_p_main_window) {
+        // If the mode has been set on startup, we won't have a main window
+        // yet to attach the menu to, so we create it later.
+        createMainMenu();
     }
 
     emit modeChanged(mode);
@@ -1262,10 +1269,46 @@ bool CamcopsApp::needToRegisterSinglePatient()
 
 void CamcopsApp::createMainMenu()
 {
-    auto menu = new MainMenu(*this);
+    closeAnyOpenSubWindows();
+
+    if (isClinicianMode()) {
+        auto menu = new MainMenu(*this);
+        openSubWindow(menu);
+
+        return;
+    }
+
+    auto menu = new SingleUserMenu(*this);
+
     openSubWindow(menu);
 }
 
+
+void CamcopsApp::closeAnyOpenSubWindows()
+{
+    bool last_window;
+
+    do {
+        last_window = m_info_stack.isEmpty();
+
+        if (!last_window) {
+            m_info_stack.pop();
+        }
+
+        QWidget* top = m_p_window_stack->currentWidget();
+        if (top) {
+            m_p_window_stack->removeWidget(top);
+            top->deleteLater();
+
+            if (m_p_hidden_stack->count() > 0) {
+                QWidget* w = m_p_hidden_stack->widget(m_p_hidden_stack->count() - 1);
+                m_p_hidden_stack->removeWidget(w);
+                const int index = m_p_window_stack->addWidget(w);
+                m_p_window_stack->setCurrentIndex(index);
+            }
+        }
+    } while (!last_window);
+}
 
 void CamcopsApp::makeNetManager()
 {

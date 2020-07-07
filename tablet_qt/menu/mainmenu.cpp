@@ -22,9 +22,6 @@
 #include <QSharedPointer>
 #include "common/uiconst.h"
 #include "core/networkmanager.h"
-#include "dbobjects/taskschedule.h"
-#include "dbobjects/taskscheduleitem.h"
-#include "lib/datetime.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
 #include "menulib/menuproxy.h"
@@ -56,9 +53,6 @@ MainMenu::MainMenu(CamcopsApp& app)
           uifunc::iconFilename(uiconst::ICON_CAMCOPS),
           true)
 {
-    connect(&m_app, &CamcopsApp::modeChanged,
-            this, &MainMenu::modeChanged,
-            Qt::UniqueConnection);
 }
 
 
@@ -69,19 +63,6 @@ QString MainMenu::title() const
 
 
 void MainMenu::makeItems()
-{
-    if (m_app.isClinicianMode()) {
-        makeClinicianItems();
-    } else {
-        makeSingleUserItems();
-    }
-
-    connect(&m_app, &CamcopsApp::fontSizeChanged,
-            this, &MainMenu::reloadStyleSheet);
-}
-
-
-void MainMenu::makeClinicianItems()
 {
     m_items = {
         MAKE_CHANGE_PATIENT(m_app),
@@ -117,146 +98,7 @@ void MainMenu::makeClinicianItems()
 }
 
 
-void MainMenu::makeSingleUserItems()
-{
-    m_items = {};
-
-    TaskSchedulePtrList schedules = m_app.getTaskSchedules();
-
-    for (const TaskSchedulePtr& schedule : schedules) {
-        QVector<MenuItem> started_items = {};
-        QVector<MenuItem> due_items = {};
-        QVector<MenuItem> completed_items = {};
-
-        auto earliest_future_date = QDate();
-
-        for (const TaskScheduleItemPtr& schedule_item : schedule->items()) {
-            auto state = schedule_item->state();
-
-            switch (state) {
-
-            case TaskScheduleItem::State::Started:
-                started_items.append(TaskScheduleItemMenuItem(schedule_item));
-                break;
-
-            case TaskScheduleItem::State::Completed:
-                completed_items.append(TaskScheduleItemMenuItem(schedule_item));
-                break;
-
-            case TaskScheduleItem::State::Due:
-                due_items.append(TaskScheduleItemMenuItem(schedule_item));
-                break;
-
-            case TaskScheduleItem::State::Future:
-                earliest_future_date = schedule_item->dueFrom();
-                break;
-
-            default:
-                break;
-            }
-        }
-
-        int total_items = started_items.size() + completed_items.size() +
-            due_items.size();
-
-        if (total_items > 0 || earliest_future_date.isValid()) {
-            m_items.append(
-                MenuItem(
-                    tr("Schedule: %1").arg(schedule->name())
-                ).setLabelOnly()
-            );
-        }
-
-        if (total_items > 0) {
-            m_items.append(started_items);
-            m_items.append(due_items);
-            m_items.append(completed_items);
-        } else if (earliest_future_date.isValid()) {
-            QString readable_date = earliest_future_date.toString(
-                datetime::LONG_DATE_FORMAT
-            );
-            m_items.append(
-                MenuItem(
-                    tr("The next task will be available on %1").arg(
-                        readable_date
-                    )
-                ).setImplemented(true)
-           );
-        }
-    }
-
-    if (m_items.size() == 0) {
-        m_items.append(
-            MenuItem(
-                tr("You do not have any scheduled tasks")
-                ).setLabelOnly()
-        );
-    }
-
-    QVector<MenuItem> registration_items = {
-        MenuItem(tr("Patient registration")).setLabelOnly(),
-    };
-
-    registration_items.append(
-        MenuItem(
-            tr("Register patient"),
-            std::bind(&MainMenu::registerPatient, this)
-            ).setNotIfLocked()
-    );
-
-    if (!m_app.needToRegisterSinglePatient()) {
-        registration_items.append(
-            MenuItem(
-                tr("Update schedules"),
-                std::bind(&MainMenu::updateTaskSchedules, this)
-            ).setNotIfLocked()
-        );
-    }
-
-    m_items.append(registration_items);
-
-    QVector<MenuItem> settings_items = {
-        MenuItem(tr("Settings")).setLabelOnly(),
-        MenuItem(
-            tr("Change operating mode"),
-            std::bind(&MainMenu::changeMode, this)
-        ).setNotIfLocked(),
-    };
-
-    m_items.append(settings_items);
-}
-
-
-void MainMenu::updateTaskSchedules()
-{
-    m_app.updateTaskSchedules();
-}
-
-
 void MainMenu::upload()
 {
     m_app.upload();
-}
-
-
-void MainMenu::changeMode()
-{
-    m_app.setModeFromUser();
-}
-
-
-void MainMenu::modeChanged(const int mode)
-{
-    Q_UNUSED(mode);
-
-#ifdef DEBUG_SLOTS
-    qDebug() << Q_FUNC_INFO << "[this:" << this << "]";
-#endif
-    rebuild();
-}
-
-
-void MainMenu::registerPatient()
-{
-    m_app.registerPatientWithServer();
 }
