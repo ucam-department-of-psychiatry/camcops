@@ -91,9 +91,6 @@ public slots:
     // "The application's lock state has changed."
     void lockStateChanged(CamcopsApp::LockState lockstate);
 
-    // Operation mode has changed - Clinician, single user...
-    void modeChanged(int mode);
-
     // "The application's need-to-upload state has changed."
     void needsUploadChanged(bool needs_upload);
 
@@ -109,6 +106,9 @@ protected:
 
     // "Update the lines (at the bottom of the header) showing patient info."
     void setPatientDetails(const Patient* patient);
+
+private:
+    void openOptionsMenu();
 
 protected:
     CamcopsApp& m_app;
@@ -128,4 +128,5 @@ protected:
     QPointer<QLabel> m_mode;
     QPointer<QLabel> m_patient_info;
     QPointer<QLabel> m_no_patient;
+    QPointer<QPushButton> m_single_user_options;
 };

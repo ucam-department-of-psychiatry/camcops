@@ -19,6 +19,7 @@
 
 #include "singleusermenu.h"
 #include <QDebug>
+#include <QPushButton>
 #include <QSharedPointer>
 #include "common/uiconst.h"
 #include "core/networkmanager.h"
@@ -141,28 +142,12 @@ void SingleUserMenu::makeItems()
     }
 
     m_items.append(registration_items);
-
-    QVector<MenuItem> settings_items = {
-        MenuItem(tr("Settings")).setLabelOnly(),
-        MenuItem(
-            tr("Change operating mode"),
-            std::bind(&SingleUserMenu::changeMode, this)
-        ).setNotIfLocked(),
-    };
-
-    m_items.append(settings_items);
 }
 
 
 void SingleUserMenu::updateTaskSchedules()
 {
     m_app.updateTaskSchedules();
-}
-
-
-void SingleUserMenu::changeMode()
-{
-    m_app.setModeFromUser();
 }
 
 

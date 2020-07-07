@@ -30,7 +30,9 @@
 #include "layouts/layouts.h"
 #include "lib/sizehelpers.h"
 #include "lib/uifunc.h"
+#include "menu/singleuseroptionsmenu.h"
 #include "widgets/basewidget.h"
+#include "widgets/clickablelabelwordwrapwide.h"
 #include "widgets/horizontalline.h"
 #include "widgets/imagebutton.h"
 #include "widgets/labelwordwrapwide.h"
@@ -53,9 +55,9 @@ MenuHeader::MenuHeader(QWidget* parent,
       m_button_locked(nullptr),
       m_button_unlocked(nullptr),
       m_button_privileged(nullptr),
-      m_mode(nullptr),
       m_patient_info(nullptr),
-      m_no_patient(nullptr)
+      m_no_patient(nullptr),
+      m_single_user_options(nullptr)
 {
     auto mainlayout = new VBoxLayout();
     setLayout(mainlayout);
@@ -173,22 +175,30 @@ MenuHeader::MenuHeader(QWidget* parent,
     // ------------------------------------------------------------------------
     // Selected patient
     // ------------------------------------------------------------------------
+    auto patient_bar = new BaseWidget();
+    patient_bar->setSizePolicy(sizehelpers::expandingFixedHFWPolicy());
+    auto patientlayout = new HBoxLayout();
+    patient_bar->setLayout(patientlayout);
+    mainlayout->addWidget(patient_bar);
+
     m_patient_info = new LabelWordWrapWide();
     m_patient_info->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     m_patient_info->setObjectName(cssconst::MENU_HEADER_PATIENT_INFO);
-    mainlayout->addWidget(m_patient_info);
+    patientlayout->addWidget(m_patient_info, 0, text_align);
 
     m_no_patient = new LabelWordWrapWide(tr("No patient selected"));
     m_no_patient->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     m_no_patient->setObjectName(cssconst::MENU_HEADER_NO_PATIENT);
-    mainlayout->addWidget(m_no_patient);
+    patientlayout->addWidget(m_no_patient, 0, text_align);
+    patientlayout->addStretch();
 
-    m_mode = new LabelWordWrapWide();
-    m_mode->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-    m_mode->setObjectName(cssconst::MENU_HEADER_MODE);
-    mainlayout->addWidget(m_mode);
+    if (top && m_app.isSingleUserMode()) {
+        m_single_user_options = new ClickableLabelWordWrapWide(tr("More options"));
+        connect(m_single_user_options, &QAbstractButton::clicked,
+                this, &MenuHeader::openOptionsMenu);
+        patientlayout->addWidget(m_single_user_options, 0, Qt::AlignRight);
+    }
 
-    modeChanged(m_app.getMode());
     setPatientDetails(m_app.selectedPatient());
 
     setCrippled(false);
@@ -196,9 +206,6 @@ MenuHeader::MenuHeader(QWidget* parent,
     // ========================================================================
     // Incoming signals
     // ========================================================================
-    connect(&m_app, &CamcopsApp::modeChanged,
-            this, &MenuHeader::modeChanged,
-            Qt::UniqueConnection);
     connect(&m_app, &CamcopsApp::lockStateChanged,
             this, &MenuHeader::lockStateChanged,
             Qt::UniqueConnection);
@@ -264,21 +271,6 @@ void MenuHeader::needsUploadChanged(const bool needs_upload)
     m_button_needs_upload->setVisible(needs_upload);
 }
 
-void MenuHeader::modeChanged(const int mode)
-{
-#ifdef DEBUG_SLOTS
-    qDebug() << Q_FUNC_INFO << "[this:" << this << "]";
-#endif
-
-    if (mode == varconst::MODE_CLINICIAN) {
-        m_mode->setText(tr("Clinician mode"));
-
-        return;
-    }
-
-    m_mode->setText(tr("Single user mode"));
-}
-
 
 void MenuHeader::selectedPatientChanged(const Patient* patient)
 {
@@ -342,4 +334,10 @@ void MenuHeader::offerAdd(const bool offer_add)
 void MenuHeader::offerFinishFlag(const bool offer_finish_flag)
 {
     m_button_finish_flag->setVisible(offer_finish_flag);
+}
+
+
+void MenuHeader::openOptionsMenu()
+{
+    m_app.openSubWindow(new SingleUserOptionsMenu(m_app));
 }

@@ -630,6 +630,7 @@ SOURCES += \
     menu/settingsmenu.cpp \
     menu/singletaskmenu.cpp \
     menu/singleusermenu.cpp \
+    menu/singleuseroptionsmenu.cpp \
     menu/testmenu.cpp \
     menu/whiskertestmenu.cpp \
     menu/widgettestmenu.cpp \
@@ -1086,6 +1087,7 @@ HEADERS += \
     menu/settingsmenu.h \
     menu/singletaskmenu.h \
     menu/singleusermenu.h \
+    menu/singleuseroptionsmenu.h \
     menu/testmenu.h \
     menu/whiskertestmenu.h \
     menu/widgettestmenu.h \
