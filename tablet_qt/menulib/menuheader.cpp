@@ -186,14 +186,23 @@ MenuHeader::MenuHeader(QWidget* parent,
     m_patient_info->setObjectName(cssconst::MENU_HEADER_PATIENT_INFO);
     patientlayout->addWidget(m_patient_info, 0, text_align);
 
-    m_no_patient = new LabelWordWrapWide(tr("No patient selected"));
+    if (m_app.isSingleUserMode()) {
+        m_no_patient = new ClickableLabelWordWrapWide(tr("Register me"));
+        connect(m_no_patient, &QAbstractButton::clicked,
+                this, &MenuHeader::registerPatient);
+    } else {
+        m_no_patient = new ClickableLabelWordWrapWide(tr("No patient selected"));
+        m_no_patient->setObjectName(cssconst::MENU_HEADER_NO_PATIENT);
+    }
+
     m_no_patient->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-    m_no_patient->setObjectName(cssconst::MENU_HEADER_NO_PATIENT);
+
     patientlayout->addWidget(m_no_patient, 0, text_align);
     patientlayout->addStretch();
 
     if (top && m_app.isSingleUserMode()) {
         m_single_user_options = new ClickableLabelWordWrapWide(tr("More options"));
+        m_single_user_options->setObjectName(cssconst::MENU_HEADER_MORE_OPTIONS);
         connect(m_single_user_options, &QAbstractButton::clicked,
                 this, &MenuHeader::openOptionsMenu);
         patientlayout->addWidget(m_single_user_options, 0, Qt::AlignRight);
@@ -340,4 +349,10 @@ void MenuHeader::offerFinishFlag(const bool offer_finish_flag)
 void MenuHeader::openOptionsMenu()
 {
     m_app.openSubWindow(new SingleUserOptionsMenu(m_app));
+}
+
+
+void MenuHeader::registerPatient()
+{
+    m_app.registerPatientWithServer();
 }

@@ -113,45 +113,13 @@ void SingleUserMenu::makeItems()
         }
     }
 
-    if (m_items.size() == 0) {
-        m_items.append(
-            MenuItem(
-                tr("You do not have any scheduled tasks")
-                ).setLabelOnly()
-        );
-    }
-
-    QVector<MenuItem> registration_items = {
-        MenuItem(tr("Patient registration")).setLabelOnly(),
-    };
-
-    registration_items.append(
-        MenuItem(
-            tr("Register patient"),
-            std::bind(&SingleUserMenu::registerPatient, this)
-            ).setNotIfLocked()
-    );
-
     if (!m_app.needToRegisterSinglePatient()) {
-        registration_items.append(
-            MenuItem(
-                tr("Update schedules"),
-                std::bind(&SingleUserMenu::updateTaskSchedules, this)
-            ).setNotIfLocked()
-        );
+        if (m_items.size() == 0) {
+            m_items.append(
+                MenuItem(
+                    tr("You do not have any scheduled tasks")
+                    ).setLabelOnly()
+                );
+        }
     }
-
-    m_items.append(registration_items);
-}
-
-
-void SingleUserMenu::updateTaskSchedules()
-{
-    m_app.updateTaskSchedules();
-}
-
-
-void SingleUserMenu::registerPatient()
-{
-    m_app.registerPatientWithServer();
 }

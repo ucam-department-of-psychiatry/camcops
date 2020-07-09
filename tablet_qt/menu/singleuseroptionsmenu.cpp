@@ -37,17 +37,27 @@ QString SingleUserOptionsMenu::title() const
 
 void SingleUserOptionsMenu::makeItems()
 {
-    m_items = {
-        MenuItem(tr("Options")).setLabelOnly(),
+    m_items = {MenuItem(tr("Options")).setLabelOnly()};
+
+    if (!m_app.needToRegisterSinglePatient()) {
+        m_items.append(
+            MenuItem(
+                tr("Get updates to my schedules"),
+                std::bind(&SingleUserOptionsMenu::updateTaskSchedules, this)
+            ).setNotIfLocked()
+        );
+    }
+
+    m_items.append({
         MenuItem(
             tr("Change operating mode"),
             std::bind(&SingleUserOptionsMenu::changeMode, this)
         ).setNotIfLocked(),
         MenuItem(
-            tr("Register a different patient"),
+            tr("Re-register me"),
             std::bind(&SingleUserOptionsMenu::registerPatient, this)
             ).setNotIfLocked(),
-    };
+    });
 }
 
 
@@ -60,4 +70,10 @@ void SingleUserOptionsMenu::changeMode()
 void SingleUserOptionsMenu::registerPatient()
 {
     m_app.registerPatientWithServer();
+}
+
+
+void SingleUserOptionsMenu::updateTaskSchedules()
+{
+    m_app.updateTaskSchedules();
 }

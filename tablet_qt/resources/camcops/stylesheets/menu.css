@@ -72,6 +72,10 @@ BaseWidget {
     margin: 0;
     padding: 0;
 }
+#menu_header_more_options {
+    border: 0;
+    background-color: lightgray;
+}
 
 #menu_header_crippled {
     /* OLD SCHEME: background-color: rgb(60, 0, 60); */  /* very dark magenta */

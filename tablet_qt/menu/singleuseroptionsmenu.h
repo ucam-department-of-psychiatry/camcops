@@ -32,4 +32,5 @@ protected:
     virtual void makeItems() override;
     void changeMode();
     void registerPatient();
+    void updateTaskSchedules();
 };

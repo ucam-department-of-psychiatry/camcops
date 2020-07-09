@@ -30,6 +30,5 @@ public:
     virtual QString title() const override;
 protected:
     virtual void makeItems() override;
-    void registerPatient();
     void updateTaskSchedules();
 };

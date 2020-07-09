@@ -23,6 +23,7 @@
 #include "core/camcopsapp.h"  // for LockState
 
 class BaseWidget;
+class ClickableLabelWordWrapWide;
 class LabelWordWrapWide;
 class QAbstractButton;
 class QLabel;
@@ -109,6 +110,7 @@ protected:
 
 private:
     void openOptionsMenu();
+    void registerPatient();
 
 protected:
     CamcopsApp& m_app;
@@ -127,6 +129,6 @@ protected:
     QPointer<QAbstractButton> m_button_privileged;
     QPointer<QLabel> m_mode;
     QPointer<QLabel> m_patient_info;
-    QPointer<QLabel> m_no_patient;
-    QPointer<QPushButton> m_single_user_options;
+    QPointer<ClickableLabelWordWrapWide> m_no_patient;
+    QPointer<ClickableLabelWordWrapWide> m_single_user_options;
 };
