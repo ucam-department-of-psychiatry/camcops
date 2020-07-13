@@ -45,6 +45,7 @@
 #include <QStackedWidget>
 #include <QStandardPaths>
 #include <QTextStream>
+#include <QTimer>
 #include <QTranslator>
 #include <QUrl>
 #include <QUuid>
@@ -230,7 +231,7 @@ bool CamcopsApp::registerPatientWithServer()
     NetworkManager* netmgr = networkManager();
 
     connect(netmgr, &NetworkManager::finished,
-            this, &CamcopsApp::networkManagerFinished,
+            this, &CamcopsApp::patientRegistrationFinished,
             Qt::UniqueConnection);
 
     setVar(varconst::SINGLE_PATIENT_PROQUINT, patient_proquint);
@@ -283,13 +284,18 @@ void CamcopsApp::updateTaskSchedules()
     NetworkManager* netmgr = networkManager();
 
     connect(netmgr, &NetworkManager::finished,
-            this, &CamcopsApp::networkManagerFinished,
+            this, &CamcopsApp::updateTaskSchedulesFinished,
             Qt::UniqueConnection);
 
     netmgr->updateTaskSchedules();
 }
 
-void CamcopsApp::networkManagerFinished()
+void CamcopsApp::patientRegistrationFinished()
+{
+    createMainMenu();
+}
+
+void CamcopsApp::updateTaskSchedulesFinished()
 {
     createMainMenu();
 }
@@ -473,6 +479,15 @@ int CamcopsApp::run()
         offerTerms();
     }
 
+    qInfo() << "Starting Qt event processor...";
+
+    QTimer::singleShot(0, this, SLOT(maybeRegisterPatient()));
+
+    return exec();  // Main Qt event loop
+}
+
+void CamcopsApp::maybeRegisterPatient()
+{
     if (needToRegisterSinglePatient()) {
         if (!registerPatientWithServer()) {
             uifunc::stopApp(tr("You did not register your patient"));
@@ -482,11 +497,7 @@ int CamcopsApp::run()
             setDefaultPatient();
         }
     }
-
-    qInfo() << "Starting Qt event processor...";
-    return exec();  // Main Qt event loop
 }
-
 
 void CamcopsApp::backgroundStartup()
 {
@@ -1316,6 +1327,9 @@ void CamcopsApp::makeNetManager()
     m_netmgr = QSharedPointer<NetworkManager>(
                 new NetworkManager(*this, *m_datadb, m_p_task_factory,
                                    m_p_main_window.data()));
+    if (isSingleUserMode()) {
+        m_netmgr->setSilent(true);
+    }
 }
 
 

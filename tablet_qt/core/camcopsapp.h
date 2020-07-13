@@ -163,6 +163,7 @@ public:
 
     // True if first time in single user mode
     bool needToRegisterSinglePatient();
+    Q_INVOKABLE void maybeRegisterPatient();
 
 protected:
     // Directory used by CamCOPS to store its SQLite/SQLCipher directory.
@@ -285,7 +286,8 @@ public slots:
     // "Leave fullscreen mode."
     void leaveFullscreen();
 
-    void networkManagerFinished();
+    void patientRegistrationFinished();
+    void updateTaskSchedulesFinished();
 
     // ------------------------------------------------------------------------
     // Security and related
