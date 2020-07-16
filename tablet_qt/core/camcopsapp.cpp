@@ -45,7 +45,6 @@
 #include <QStackedWidget>
 #include <QStandardPaths>
 #include <QTextStream>
-#include <QTimer>
 #include <QTranslator>
 #include <QUrl>
 #include <QUuid>
@@ -479,9 +478,7 @@ int CamcopsApp::run()
         offerTerms();
     }
 
-    qInfo() << "Starting Qt event processor...";
-
-    QTimer::singleShot(0, this, SLOT(maybeRegisterPatient()));
+    maybeRegisterPatient();
 
     return exec();  // Main Qt event loop
 }

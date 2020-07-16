@@ -163,7 +163,6 @@ public:
 
     // True if first time in single user mode
     bool needToRegisterSinglePatient();
-    Q_INVOKABLE void maybeRegisterPatient();
 
 protected:
     // Directory used by CamCOPS to store its SQLite/SQLCipher directory.
@@ -245,6 +244,9 @@ protected:
 
     // Add the main menu to the main window
     void createMainMenu();
+
+    // For single user mode, register patient if not already done so
+    void maybeRegisterPatient();
 
 public:
     // Forces the main menu to be refreshed
