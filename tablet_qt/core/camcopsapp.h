@@ -248,6 +248,10 @@ protected:
     // For single user mode, register patient if not already done so
     void maybeRegisterPatient();
 
+    void handleNetworkFailure(const NetworkManager::ErrorCode error_code,
+                              const QString& error_string,
+                              const QString& base_message);
+
 public:
     // Forces the main menu to be refreshed
     void forceRefreshMainMenu();
@@ -293,6 +297,8 @@ public slots:
                                    const QString& error_string);
     void updateTaskSchedulesFailed(const NetworkManager::ErrorCode error_code,
                                    const QString& error_string);
+    void uploadFailed(const NetworkManager::ErrorCode error_code,
+                      const QString& error_string);
 
     // ------------------------------------------------------------------------
     // Security and related

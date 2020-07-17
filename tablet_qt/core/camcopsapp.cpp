@@ -231,6 +231,7 @@ bool CamcopsApp::registerPatientWithServer()
 
     NetworkManager* netmgr = networkManager();
 
+    disconnect(netmgr, nullptr, nullptr, nullptr);
     connect(netmgr, &NetworkManager::finished,
             this, &CamcopsApp::networkManagerFinished,
             Qt::UniqueConnection);
@@ -287,6 +288,7 @@ void CamcopsApp::updateTaskSchedules()
 {
     NetworkManager* netmgr = networkManager();
 
+    disconnect(netmgr, nullptr, nullptr, nullptr);
     connect(netmgr, &NetworkManager::finished,
             this, &CamcopsApp::networkManagerFinished,
             Qt::UniqueConnection);
@@ -349,9 +351,27 @@ void CamcopsApp::updateTaskSchedulesFailed(
     const QString& error_string
 )
 {
-    QString base_message = tr("There was a problem updating your task schedules");
+    handleNetworkFailure(error_code, error_string,
+                         tr("There was a problem updating your task schedules"));
+}
 
-    QString additional_message = error_string;
+
+void CamcopsApp::uploadFailed(const NetworkManager::ErrorCode error_code,
+                              const QString& error_string)
+{
+    handleNetworkFailure(
+        error_code,
+        error_string,
+        tr("There was a problem sending your completed tasks to the server")
+    );
+}
+
+
+void CamcopsApp::handleNetworkFailure(const NetworkManager::ErrorCode error_code,
+                                      const QString& error_string,
+                                      const QString& base_message)
+{
+    QString additional_message = "";
 
     switch (error_code) {
 
@@ -366,9 +386,13 @@ void CamcopsApp::updateTaskSchedulesFailed(
 
     case NetworkManager::ServerError:
         // TODO: Report this?
+        additional_message = error_string;
+        break;
+
+    case NetworkManager::GenericNetworkError:
         additional_message = tr(
-            "The server reported an error that was unexpected:\n%1"
-            ).arg(error_string);
+            "%1\n\nAre you connected to the internet?"
+        ).arg(error_string);
         break;
 
     default:
@@ -376,13 +400,12 @@ void CamcopsApp::updateTaskSchedulesFailed(
     }
 
     uifunc::alert(
-        QString("%1\n%2").arg(base_message, additional_message),
+        QString("%1\n\n%2").arg(base_message, additional_message),
         tr("Error")
     );
 
     recreateMainMenu();
 }
-
 
 TaskSchedulePtrList CamcopsApp::getTaskSchedules()
 {
@@ -2680,6 +2703,17 @@ void CamcopsApp::upload()
     }
 
     NetworkManager* netmgr = networkManager();
+
+    if (isSingleUserMode()) {
+        disconnect(netmgr, nullptr, nullptr, nullptr);
+        connect(netmgr, &NetworkManager::finished,
+                this, &CamcopsApp::networkManagerFinished,
+                Qt::UniqueConnection);
+        connect(netmgr, &NetworkManager::cancelled,
+                this, &CamcopsApp::uploadFailed,
+                Qt::UniqueConnection);
+    }
+
     netmgr->upload(method);
 }
 
