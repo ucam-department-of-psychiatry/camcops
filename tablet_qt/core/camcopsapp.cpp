@@ -2704,8 +2704,8 @@ void CamcopsApp::upload()
 
     NetworkManager* netmgr = networkManager();
 
+    disconnect(netmgr, nullptr, nullptr, nullptr);
     if (isSingleUserMode()) {
-        disconnect(netmgr, nullptr, nullptr, nullptr);
         connect(netmgr, &NetworkManager::finished,
                 this, &CamcopsApp::networkManagerFinished,
                 Qt::UniqueConnection);
