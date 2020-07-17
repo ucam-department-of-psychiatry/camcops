@@ -710,7 +710,8 @@ class Routes(object):
     DOWNLOAD_FILE = "download_file"
     EDIT_GROUP = "edit_group"
     EDIT_ID_DEFINITION = "edit_id_definition"
-    EDIT_PATIENT = "edit_patient"
+    EDIT_FINALIZED_PATIENT = "edit_finalized_patient"
+    EDIT_SCHEDULED_PATIENT = "edit_scheduled_patient"
     EDIT_SERVER_SETTINGS = "edit_server_settings"
     EDIT_TASK_SCHEDULE = "edit_task_schedule"
     EDIT_TASK_SCHEDULE_ITEM = "edit_task_schedule_item"
@@ -841,7 +842,8 @@ class RouteCollection(object):
     DOWNLOAD_FILE = RoutePath(Routes.DOWNLOAD_FILE)
     EDIT_GROUP = RoutePath(Routes.EDIT_GROUP)
     EDIT_ID_DEFINITION = RoutePath(Routes.EDIT_ID_DEFINITION)
-    EDIT_PATIENT = RoutePath(Routes.EDIT_PATIENT)
+    EDIT_FINALIZED_PATIENT = RoutePath(Routes.EDIT_FINALIZED_PATIENT)
+    EDIT_SCHEDULED_PATIENT = RoutePath(Routes.EDIT_SCHEDULED_PATIENT)
     EDIT_SERVER_SETTINGS = RoutePath(Routes.EDIT_SERVER_SETTINGS)
     EDIT_TASK_SCHEDULE = RoutePath(Routes.EDIT_TASK_SCHEDULE)
     EDIT_TASK_SCHEDULE_ITEM = RoutePath(Routes.EDIT_TASK_SCHEDULE_ITEM)

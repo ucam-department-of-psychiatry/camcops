@@ -271,7 +271,7 @@ ${ task.get_task_html(req) }
             %if req.user.may_administer_group(task._group_id):
                 %if task.has_patient and task.patient and task.patient.is_editable:
                     <p><a href="${ req.route_url(
-                                Routes.EDIT_PATIENT,
+                                Routes.EDIT_FINALIZED_PATIENT,
                                 _query={
                                     ViewParam.SERVER_PK: task.patient._pk
                                 }) }">${_("Edit patient details")}</a></p>

@@ -212,7 +212,6 @@ from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
 from camcops_server.cc_modules.cc_forms import (
     AddGroupForm,
     AddIdDefinitionForm,
-    AddPatientForm,
     AddSpecialNoteForm,
     AddUserGroupadminForm,
     AddUserSuperuserForm,
@@ -231,16 +230,17 @@ from camcops_server.cc_modules.cc_forms import (
     DeleteTaskScheduleItemForm,
     DeleteUserForm,
     EditGroupForm,
-    EditIdDefinitionForm,
-    EditPatientForm,
     EDIT_PATIENT_SIMPLE_PARAMS,
+    EditFinalizedPatientForm,
+    EditIdDefinitionForm,
+    EditScheduledPatientForm,
     EditServerSettingsForm,
     EditTaskScheduleForm,
     EditTaskScheduleItemForm,
     EditUserFullForm,
     EditUserGroupAdminForm,
-    EditUserGroupPermissionsFullForm,
     EditUserGroupMembershipGroupAdminForm,
+    EditUserGroupPermissionsFullForm,
     EraseTaskForm,
     ExportedTaskListForm,
     get_sql_dialect_choices,
@@ -3346,16 +3346,11 @@ class PatientMixin:
         return form_values
 
 
-class EditPatientView(PatientMixin, UpdateView):
+class EditPatientBaseView(PatientMixin, UpdateView):
     """
     View to edit details for a patient.
     """
-    form_class = EditPatientForm
     pk_param = ViewParam.SERVER_PK
-    template_name = "patient_edit.mako"
-
-    def get_success_url(self):
-        return self.request.route_url(Routes.HOME)
 
     def get_object(self):
         patient = super().get_object()
@@ -3592,22 +3587,45 @@ class EditPatientView(PatientMixin, UpdateView):
         return collection.all_tasks
 
 
-@view_config(route_name=Routes.EDIT_PATIENT, permission=Permission.GROUPADMIN)
-def edit_patient(req: "CamcopsRequest") -> Response:
-    """
-    View to edit details for a patient.
-    """
-    return EditPatientView(req).dispatch()
-
-
-class AddPatientView(PatientMixin, CreateView):
-    form_class = AddPatientForm
-    template_name = "patient_add.mako"
+class EditScheduledPatientView(EditPatientBaseView):
+    template_name = "scheduled_patient_edit.mako"
+    form_class = EditScheduledPatientForm
 
     def get_success_url(self):
         return self.request.route_url(
             Routes.VIEW_PATIENT_TASK_SCHEDULES
         )
+
+
+class EditFinalizedPatientView(EditPatientBaseView):
+    template_name = "finalized_patient_edit.mako"
+    form_class = EditFinalizedPatientForm
+
+    def get_success_url(self):
+        return self.request.route_url(Routes.HOME)
+
+
+@view_config(route_name=Routes.EDIT_FINALIZED_PATIENT,
+             permission=Permission.GROUPADMIN)
+def edit_finalized_patient(req: "CamcopsRequest") -> Response:
+    """
+    View to edit details for a patient.
+    """
+    return EditFinalizedPatientView(req).dispatch()
+
+
+@view_config(route_name=Routes.EDIT_SCHEDULED_PATIENT,
+             permission=Permission.GROUPADMIN)
+def edit_scheduled_patient(req: "CamcopsRequest") -> Response:
+    """
+    View to edit details for a patient.
+    """
+    return EditScheduledPatientView(req).dispatch()
+
+
+class AddPatientView(PatientMixin, CreateView):
+    form_class = EditScheduledPatientForm
+    template_name = "patient_add.mako"
 
     def save_object(self, appstruct):
         server_device = Device.get_server_device(
@@ -4613,7 +4631,7 @@ class EditPatientViewTests(DemoDatabaseTestCase):
 
     def test_raises_when_patient_does_not_exists(self):
         with self.assertRaises(HTTPBadRequest) as cm:
-            edit_patient(self.req)
+            edit_finalized_patient(self.req)
 
         self.assertEqual(str(cm.exception), "Cannot find Patient with _pk:None")
 
@@ -4626,7 +4644,7 @@ class EditPatientViewTests(DemoDatabaseTestCase):
         })
 
         with self.assertRaises(HTTPBadRequest) as cm:
-            edit_patient(self.req)
+            edit_finalized_patient(self.req)
 
         self.assertEqual(str(cm.exception), "Bad patient: not in a group")
 
@@ -4643,7 +4661,7 @@ class EditPatientViewTests(DemoDatabaseTestCase):
         })
 
         with self.assertRaises(HTTPBadRequest) as cm:
-            edit_patient(self.req)
+            edit_finalized_patient(self.req)
 
         self.assertEqual(str(cm.exception),
                          "Not authorized to edit this patient")
@@ -4662,7 +4680,7 @@ class EditPatientViewTests(DemoDatabaseTestCase):
         })
 
         with self.assertRaises(HTTPBadRequest) as cm:
-            edit_patient(self.req)
+            edit_finalized_patient(self.req)
 
         self.assertIn("Patient is not editable", str(cm.exception))
 
@@ -4706,7 +4724,7 @@ class EditPatientViewTests(DemoDatabaseTestCase):
         self.req.fake_request_post_from_dict(multidict)
 
         with self.assertRaises(HTTPFound):
-            edit_patient(self.req)
+            edit_finalized_patient(self.req)
 
         self.dbsession.commit()
 
@@ -4832,7 +4850,7 @@ class EditPatientViewTests(DemoDatabaseTestCase):
         self.req.fake_request_post_from_dict(multidict)
 
         with self.assertRaises(HTTPFound):
-            edit_patient(self.req)
+            edit_finalized_patient(self.req)
 
         self.dbsession.commit()
 
@@ -4901,7 +4919,7 @@ class EditPatientViewTests(DemoDatabaseTestCase):
         self.req.fake_request_post_from_dict(multidict)
 
         with self.assertRaises(HTTPFound):
-            edit_patient(self.req)
+            edit_finalized_patient(self.req)
 
         messages = self.req.session.peek_flash("info")
 
@@ -4945,7 +4963,7 @@ class EditPatientViewTests(DemoDatabaseTestCase):
             ViewParam.SERVER_PK: patient._pk
         })
 
-        view = EditPatientView(self.req)
+        view = EditFinalizedPatientView(self.req)
         view.render_to_response = mock.Mock()
         view.dispatch()
 
@@ -4987,7 +5005,7 @@ class EditPatientViewTests(DemoDatabaseTestCase):
             ViewParam.SERVER_PK: patient._pk
         })
 
-        view = EditPatientView(self.req)
+        view = EditFinalizedPatientView(self.req)
         view.object = patient
 
         form_values = view.get_form_values()

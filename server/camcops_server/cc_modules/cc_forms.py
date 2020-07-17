@@ -3612,13 +3612,13 @@ class DangerousEditPatientSchema(EditPatientSchema):
     danger = TranslatableValidateDangerousOperationNode()
 
 
-class AddPatientSchema(EditPatientSchema):
+class EditScheduledPatientSchema(EditPatientSchema):
     group_id = MandatoryGroupIdSelectorAllGroups()  # Must match ViewParam.UPLOAD_GROUP_ID  # noqa: E501
 
 
-class EditPatientForm(DangerousForm):
+class EditFinalizedPatientForm(DangerousForm):
     """
-    Form to edit a patient.
+    Form to edit a finalized patient.
     """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         _ = request.gettext
@@ -3628,12 +3628,12 @@ class EditPatientForm(DangerousForm):
                          request=request, **kwargs)
 
 
-class AddPatientForm(DynamicDescriptionsForm):
+class EditScheduledPatientForm(DynamicDescriptionsForm):
     """
-    Form to add a patient not yet on the device (for scheduled tasks)
+    Form to add or edit a patient not yet on the device (for scheduled tasks)
     """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
-        schema = AddPatientSchema().bind(request=request)
+        schema = EditScheduledPatientSchema().bind(request=request)
         _ = request.gettext
         super().__init__(
             schema,
