@@ -148,7 +148,7 @@ from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_orm_classes_from_base
 from cardinal_pythonlib.sqlalchemy.orm_query import CountStarSpecializedQuery
 from cardinal_pythonlib.sqlalchemy.session import get_engine_from_session
 from deform.exception import ValidationFailure
-from pendulum import DateTime as Pendulum, Duration, parse
+from pendulum import DateTime as Pendulum, Date, Duration, parse
 from pyramid.httpexceptions import HTTPBadRequest, HTTPFound, HTTPNotFound
 from pyramid.view import (
     forbidden_view_config,
@@ -3520,8 +3520,27 @@ class EditPatientBaseView(PatientMixin, UpdateView):
         new_schedule_query = self.request.dbsession.query(TaskSchedule).filter(
             TaskSchedule.id.in_(new_schedules.keys())
         )
+        schedule_name_dict = {schedule.id: schedule.name
+                              for schedule in new_schedule_query}
+
+        new_names_and_dates = [
+            (schedule_name_dict[schedule_id],
+             schedule_dict[ViewParam.START_DATE])
+            for schedule_id, schedule_dict in new_schedules.items()
+        ]
+
         old_schedules = {pts.task_schedule.id: pts
                          for pts in patient.task_schedules}
+
+        old_names_and_dates = []
+        for pts in old_schedules.values():
+            if pts.start_date is None:
+                old_start_date = None
+            else:
+                old_start_date = Date(pts.start_date.year,
+                                      pts.start_date.month,
+                                      pts.start_date.day)
+            old_names_and_dates.append((pts.task_schedule.name, old_start_date))
 
         ids_to_add = new_schedules.keys() - old_schedules.keys()
         ids_to_update = old_schedules.keys() & new_schedules.keys()
@@ -3537,29 +3556,19 @@ class EditPatientBaseView(PatientMixin, UpdateView):
 
         for schedule_id in ids_to_update:
             new_start_date = new_schedules[schedule_id]["start_date"]
+            old_start_date = old_schedules[schedule_id].start_date
 
-            self.request.dbsession.query(PatientTaskSchedule).filter(
-                PatientTaskSchedule.patient_pk == patient._pk,
-                PatientTaskSchedule.schedule_id == schedule_id
-            ).update({PatientTaskSchedule.start_date: new_start_date},
-                     synchronize_session="fetch")
+            if new_start_date != old_start_date:
+                self.request.dbsession.query(PatientTaskSchedule).filter(
+                    PatientTaskSchedule.patient_pk == patient._pk,
+                    PatientTaskSchedule.schedule_id == schedule_id
+                ).update({PatientTaskSchedule.start_date: new_start_date},
+                         synchronize_session="fetch")
 
         self.request.dbsession.query(PatientTaskSchedule).filter(
             PatientTaskSchedule.patient_pk == patient._pk,
             PatientTaskSchedule.schedule_id.in_(ids_to_delete)
         ).delete(synchronize_session="fetch")
-
-        old_names_and_dates = [(pts.task_schedule.name, pts.start_date)
-                               for pts in old_schedules.values()]
-
-        schedule_name_dict = {schedule.id: schedule.name
-                              for schedule in new_schedule_query}
-
-        new_names_and_dates = [
-            (schedule_name_dict[schedule_id],
-             schedule_dict[ViewParam.START_DATE])
-            for schedule_id, schedule_dict in new_schedules.items()
-        ]
 
         if old_names_and_dates != new_names_and_dates:
             changes["task_schedules"] = (
@@ -4881,7 +4890,18 @@ class EditPatientViewTests(DemoDatabaseTestCase):
             patient_id=patient.id, which_idnum=self.nhs_iddef.which_idnum,
             idnum_value=4887211163
         )
+        schedule1 = TaskSchedule()
+        schedule1.group_id = self.group.id
+        schedule1.name = "Test 1"
+        self.dbsession.add(schedule1)
+        self.dbsession.commit()
 
+        patient_task_schedule = PatientTaskSchedule()
+        patient_task_schedule.patient_pk = patient._pk
+        patient_task_schedule.schedule_id = schedule1.id
+        patient_task_schedule.start_date = parse("2020-06-12")
+
+        self.dbsession.add(patient_task_schedule)
         self.req.add_get_params({
             ViewParam.SERVER_PK: patient._pk
         }, set_method_get=False)
@@ -4894,25 +4914,41 @@ class EditPatientViewTests(DemoDatabaseTestCase):
             (ViewParam.GROUP_ID, patient.group.id),
             (ViewParam.FORENAME, patient.forename),
             (ViewParam.SURNAME, patient.surname),
+
             ("__start__", "dob:mapping"),
             ("date", patient.dob.isoformat()),
             ("__end__", "dob:mapping"),
+
             ("__start__", "sex:rename"),
             ("deformField7", patient.sex),
             ("__end__", "sex:rename"),
+
             (ViewParam.ADDRESS, patient.address),
             (ViewParam.GP, patient.gp),
             (ViewParam.OTHER, patient.other),
+
             ("__start__", "id_references:sequence"),
             ("__start__", "idnum_sequence:mapping"),
             (ViewParam.WHICH_IDNUM, patient_idnum.which_idnum),
             (ViewParam.IDNUM_VALUE, patient_idnum.idnum_value),
             ("__end__", "idnum_sequence:mapping"),
             ("__end__", "id_references:sequence"),
+
             ("__start__", "danger:mapping"),
             ("target", "7836"),
             ("user_entry", "7836"),
             ("__end__", "danger:mapping"),
+
+            ("__start__", "task_schedules:sequence"),
+            ("__start__", "task_schedule_sequence:mapping"),
+            ("schedule_id", schedule1.id),
+            ("__start__", "start_date:mapping"),
+            ("date", "2020-06-12"),
+            ("__end__", "start_date:mapping"),
+            ("__end__", "task_schedule_sequence:mapping"),
+            ("__end__", "task_schedules:sequence"),
+
+
             (FormAction.SUBMIT, "submit"),
         ])
 
