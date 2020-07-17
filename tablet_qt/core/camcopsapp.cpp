@@ -107,6 +107,7 @@ const QString APP_NAME("camcops");  // e.g. subdirectory of ~/.local/share; DO N
 const QString APP_PRETTY_NAME("CamCOPS");  // main window title and suffix on dialog window titles
 const QString CONNECTION_DATA("data");
 const QString CONNECTION_SYS("sys");
+const int DEFAULT_SERVER_PORT = 443; // HTTPS
 const QString ENVVAR_DB_DIR("CAMCOPS_DATABASE_DIRECTORY");
 
 
@@ -224,7 +225,7 @@ bool CamcopsApp::registerPatientWithServer()
 
     setVar(varconst::SERVER_ADDRESS, server_url.host());
 
-    int default_port = var(varconst::SERVER_PORT).toInt();
+    int default_port = DEFAULT_SERVER_PORT;
     setVar(varconst::SERVER_PORT, server_url.port(default_port));
     setVar(varconst::SERVER_PATH, server_url.path());
 
@@ -1055,7 +1056,7 @@ void CamcopsApp::createStoredVars()
 
     // Server
     createVar(varconst::SERVER_ADDRESS, QVariant::String, "");
-    createVar(varconst::SERVER_PORT, QVariant::Int, 443);  // 443 = HTTPS
+    createVar(varconst::SERVER_PORT, QVariant::Int, DEFAULT_SERVER_PORT);
     createVar(varconst::SERVER_PATH, QVariant::String, "camcops/database");
     createVar(varconst::SERVER_TIMEOUT_MS, QVariant::Int, 50000);
     createVar(varconst::VALIDATE_SSL_CERTIFICATES, QVariant::Bool, true);
