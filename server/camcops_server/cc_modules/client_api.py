@@ -2096,7 +2096,8 @@ def get_single_patient(req: "CamcopsRequest") -> Patient:
 
     if patient is None:
         fail_user_error(
-            _("No patient with access key {}. Have you entered it correctly?")
+            _("There is no patient with access key {}. "
+              "Have you entered the key correctly?")
             .format(patient_proquint)
         )
 

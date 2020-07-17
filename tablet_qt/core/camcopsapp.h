@@ -242,8 +242,8 @@ protected:
     // Open the CamCOPS main window.
     void openMainWindow();
 
-    // Add the main menu to the main window
-    void createMainMenu();
+    // Add/replace the main/single user menu attached to the main window
+    void recreateMainMenu();
 
     // For single user mode, register patient if not already done so
     void maybeRegisterPatient();
@@ -288,8 +288,11 @@ public slots:
     // "Leave fullscreen mode."
     void leaveFullscreen();
 
-    void patientRegistrationFinished();
-    void updateTaskSchedulesFinished();
+    void networkManagerFinished();
+    void patientRegistrationFailed(const NetworkManager::ErrorCode error_code,
+                                   const QString& error_string);
+    void updateTaskSchedulesFailed(const NetworkManager::ErrorCode error_code,
+                                   const QString& error_string);
 
     // ------------------------------------------------------------------------
     // Security and related

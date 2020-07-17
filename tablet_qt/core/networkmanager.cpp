@@ -265,7 +265,7 @@ void NetworkManager::logboxCancelled()
 #endif
     cleanup();
     deleteLogBox();
-    emit cancelled();
+    emit cancelled(ErrorCode::NoError, QString());
 }
 
 
@@ -450,7 +450,7 @@ bool NetworkManager::processServerReply(QNetworkReply* reply)
     reply->deleteLater();
     if (reply->error() != QNetworkReply::NoError) {
         statusMessage(tr("Network failure: ") + reply->errorString());
-        fail();
+        fail(convertQtNetworkCode(reply->error()), reply->errorString());
         return false;
     }
     m_reply_data = reply->readAll();  // can probably do this only once
@@ -467,7 +467,9 @@ bool NetworkManager::processServerReply(QNetworkReply* reply)
             "Reply is not from CamCOPS API. Are your server settings "
             "misconfigured? Reply is below."));
         htmlStatusMessage(convert::getReplyString(m_reply_data));
-        fail();
+        fail(ErrorCode::IncorrectReplyFormat,
+             tr("Reply is not from CamCOPS API. Are your server settings "
+                "misconfigured?"));
         return false;
     }
     m_tmp_session_id = m_reply_dict[KEY_SESSION_ID];
@@ -479,8 +481,20 @@ bool NetworkManager::processServerReply(QNetworkReply* reply)
     // error too:
     statusMessage(tr("Server reported an error: ") +
                   m_reply_dict[KEY_ERROR]);
-    fail();
+    fail(ErrorCode::ServerError, QString(m_reply_dict[KEY_ERROR]));
     return false;
+}
+
+
+NetworkManager::ErrorCode NetworkManager::convertQtNetworkCode(
+    const QNetworkReply::NetworkError error_code)
+{
+    Q_UNUSED(error_code)
+
+    // There doesn't seem to be a way to correctly identify the
+    // source of the problem. So for now just return the same error code and
+    // in the app produce a list of things for the user to check.
+    return NetworkManager::GenericNetworkError;
 }
 
 
@@ -635,42 +649,40 @@ void NetworkManager::cancel()
 #endif
     cleanup();
     if (m_logbox) {
-        m_logbox->reject();  // its rejected() signal calls our logboxCancelled()
-    } else {
-        emit cancelled();
+        return m_logbox->reject();  // its rejected() signal calls our logboxCancelled()
     }
+
+    emit cancelled(ErrorCode::NoError, QString());
 }
 
 
-void NetworkManager::fail()
-{
-    finish(false);
-}
-
-
-void NetworkManager::succeed()
-{
-    finish(true);
-}
-
-
-void NetworkManager::finish(const bool success)
+void NetworkManager::fail(const ErrorCode error_code,
+                          const QString& error_string)
 {
 #ifdef DEBUG_ACTIVITY
     qDebug() << Q_FUNC_INFO;
 #endif
     cleanup();
     if (m_logbox) {
-        m_logbox->finish(success);  // its signals call our logboxCancelled() or logboxFinished()
-    } else {
-        if (success) {
-            emit finished();
-        } else {
-            emit cancelled();
-        }
+        return m_logbox->finish(false);  // its signals call our logboxCancelled() or logboxFinished()
     }
+
+    emit cancelled(error_code, error_string);
 }
 
+
+void NetworkManager::succeed()
+{
+#ifdef DEBUG_ACTIVITY
+    qDebug() << Q_FUNC_INFO;
+#endif
+    cleanup();
+    if (m_logbox) {
+        return m_logbox->finish(true);  // its signals call our logboxCancelled() or logboxFinished()
+    }
+
+    emit finished();
+}
 
 
 // ============================================================================
@@ -719,7 +731,7 @@ void NetworkManager::testReplyFinished(QNetworkReply* reply)
         statusMessage(tr("Network error: ") + reply->errorString());
     }
     reply->deleteLater();  // http://doc.qt.io/qt-5/qnetworkaccessmanager.html#details
-    finish();
+    succeed();
 }
 
 

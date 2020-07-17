@@ -37,6 +37,7 @@
 #include <QIcon>
 #include <QLibraryInfo>
 #include <QMainWindow>
+#include <QNetworkReply>
 #include <QProcessEnvironment>
 #include <QPushButton>
 #include <QScreen>
@@ -171,7 +172,7 @@ void CamcopsApp::setMode(const int mode)
     if (m_p_main_window) {
         // If the mode has been set on startup, we won't have a main window
         // yet to attach the menu to, so we create it later.
-        createMainMenu();
+        recreateMainMenu();
     }
 
     emit modeChanged(mode);
@@ -209,7 +210,7 @@ bool CamcopsApp::registerPatientWithServer()
 
         deleteSelectedPatient();
         deleteTaskSchedules();
-        createMainMenu();
+        recreateMainMenu();
     }
 
     PatientRegistrationDialog dialog(nullptr);
@@ -230,7 +231,10 @@ bool CamcopsApp::registerPatientWithServer()
     NetworkManager* netmgr = networkManager();
 
     connect(netmgr, &NetworkManager::finished,
-            this, &CamcopsApp::patientRegistrationFinished,
+            this, &CamcopsApp::networkManagerFinished,
+            Qt::UniqueConnection);
+    connect(netmgr, &NetworkManager::cancelled,
+            this, &CamcopsApp::patientRegistrationFailed,
             Qt::UniqueConnection);
 
     setVar(varconst::SINGLE_PATIENT_PROQUINT, patient_proquint);
@@ -283,21 +287,101 @@ void CamcopsApp::updateTaskSchedules()
     NetworkManager* netmgr = networkManager();
 
     connect(netmgr, &NetworkManager::finished,
-            this, &CamcopsApp::updateTaskSchedulesFinished,
+            this, &CamcopsApp::networkManagerFinished,
+            Qt::UniqueConnection);
+    connect(netmgr, &NetworkManager::cancelled,
+            this, &CamcopsApp::updateTaskSchedulesFailed,
             Qt::UniqueConnection);
 
     netmgr->updateTaskSchedules();
 }
 
-void CamcopsApp::patientRegistrationFinished()
+
+void CamcopsApp::networkManagerFinished()
 {
-    createMainMenu();
+    recreateMainMenu();
 }
 
-void CamcopsApp::updateTaskSchedulesFinished()
+
+void CamcopsApp::patientRegistrationFailed(
+    const NetworkManager::ErrorCode error_code,
+    const QString& error_string
+)
 {
-    createMainMenu();
+    QString base_message = tr("There was a problem with your registration");
+
+    QString additional_message = "";
+
+    switch (error_code) {
+
+    case NetworkManager::ServerError:
+        additional_message = error_string;
+        break;
+
+    case NetworkManager::IncorrectReplyFormat:
+        additional_message = tr("Did you enter the correct CamCOPS server location?");
+        break;
+
+    case NetworkManager::GenericNetworkError:
+        additional_message = tr(
+            "%1\n\nAre you connected to the internet?\n\nDid you enter the correct CamCOPS server location?"
+        ).arg(error_string);
+        break;
+
+    default:
+        // Shouldn't get here
+        break;
+    }
+
+    // TODO: Try again option?
+    uifunc::alert(
+        QString("%1\n\n%2").arg(base_message, additional_message),
+        tr("Error")
+    );
+
+    recreateMainMenu();
 }
+
+
+void CamcopsApp::updateTaskSchedulesFailed(
+    const NetworkManager::ErrorCode error_code,
+    const QString& error_string
+)
+{
+    QString base_message = tr("There was a problem updating your task schedules");
+
+    QString additional_message = error_string;
+
+    switch (error_code) {
+
+    case NetworkManager::IncorrectReplyFormat:
+        // TODO: Report this?
+        // If we've managed to register our patient and the server is replying
+        // but in the wrong way then something bad has happened.
+        additional_message = tr(
+            "Unexpectedly, your server settings have changed."
+        );
+        break;
+
+    case NetworkManager::ServerError:
+        // TODO: Report this?
+        additional_message = tr(
+            "The server reported an error that was unexpected:\n%1"
+            ).arg(error_string);
+        break;
+
+    default:
+        break;
+    }
+
+    uifunc::alert(
+        QString("%1\n%2").arg(base_message, additional_message),
+        tr("Error")
+    );
+
+    recreateMainMenu();
+}
+
 
 TaskSchedulePtrList CamcopsApp::getTaskSchedules()
 {
@@ -1260,7 +1344,7 @@ void CamcopsApp::openMainWindow()
 #endif
 
     if (!needToRegisterSinglePatient()) {
-        createMainMenu();
+        recreateMainMenu();
     }
 
     m_p_main_window->showMaximized();
@@ -1275,25 +1359,21 @@ bool CamcopsApp::needToRegisterSinglePatient()
     return false;
 }
 
-void CamcopsApp::createMainMenu()
+void CamcopsApp::recreateMainMenu()
 {
     closeAnyOpenSubWindows();
 
     if (isClinicianMode()) {
-        auto menu = new MainMenu(*this);
-        openSubWindow(menu);
-
-        return;
+        return openSubWindow(new MainMenu(*this));
     }
 
-    auto menu = new SingleUserMenu(*this);
-
-    openSubWindow(menu);
+    return openSubWindow(new SingleUserMenu(*this));
 }
 
 
 void CamcopsApp::closeAnyOpenSubWindows()
 {
+    // Scope for optimisation here as we're tearing down everything
     bool last_window;
 
     do {

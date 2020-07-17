@@ -21,6 +21,7 @@
 
 // #define DEBUG_OFFER_HTTP_TO_SERVER  // should NOT be defined in production (which is HTTPS only)
 
+#include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QMap>
 #include <QPointer>
@@ -35,7 +36,6 @@
 class CamcopsApp;
 class LogBox;
 class QNetworkAccessManager;
-class QNetworkReply;
 
 
 // Controls network operations, optionally providing a progress display.
@@ -64,6 +64,15 @@ public:
         Move,
         MoveScheduledTasks
     };
+
+    enum ErrorCode {
+        NoError,
+        IncorrectReplyFormat,
+        GenericNetworkError,
+        ServerError
+    };
+
+    ErrorCode convertQtNetworkCode(const QNetworkReply::NetworkError error_code);
 
     // ------------------------------------------------------------------------
     // Core
@@ -165,13 +174,13 @@ public slots:
     void cancel();
 
     // "Network operation failed somehow."
-    void fail();
+    void fail(
+        const ErrorCode error_code  = ErrorCode::NoError,
+        const QString& error_string = QString()
+    );
 
     // "Network operation succeeded."
     void succeed();
-
-    // We're finished, whether successfully or not.
-    void finish(bool success = true);
 
     // ------------------------------------------------------------------------
     // Testing
@@ -281,7 +290,10 @@ protected:
     // ------------------------------------------------------------------------
 signals:
     // "Operation was cancelled."
-    void cancelled();
+    void cancelled(
+        const ErrorCode error_code,
+        const QString& error_string
+    );
 
     // "Operation has finished, successfully or not; user has acknowledged."
     void finished();
