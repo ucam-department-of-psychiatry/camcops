@@ -63,12 +63,7 @@ html.svg img.pngfallback {
 
 /* Overall defaults */
 
-a {
-    all: revert;
-}
-
 body {
-    color: initial;
     font-family: Arial, Helvetica, sans-serif;
     font-size: ${va.MAINFONTSIZE};
     line-height: ${va.MAINLINEHEIGHT};
@@ -120,7 +115,7 @@ img {
     max-height: 100%;
 }
 ol, ul {
-    margin: revert;
+    margin: ${va.ELEMENTGAP};
 }
 p {
     margin: ${va.ELEMENTGAP} ${va.ZERO} ${va.ELEMENTGAP} ${va.ZERO};  /* see esp. p within div, such as task footnotes for web version */
