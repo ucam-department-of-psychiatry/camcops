@@ -4099,6 +4099,14 @@ class TaskScheduleItemMixin:
         )
 
     def get_form_values(self) -> Dict:
+        schedule = self.get_schedule()
+
+        form_values = super().get_form_values()
+        form_values[ViewParam.SCHEDULE_ID] = schedule.id
+
+        return form_values
+
+    def get_schedule(self) -> TaskSchedule:
         schedule_id = self.get_schedule_id()
 
         schedule = self.request.dbsession.query(TaskSchedule).filter(
@@ -4111,18 +4119,18 @@ class TaskScheduleItemMixin:
                 f"{_('Missing Task Schedule for id')} {schedule_id}"
             )
 
-        form_values = super().get_form_values()
-        form_values[ViewParam.SCHEDULE_ID] = schedule_id
-
-        return form_values
+        return schedule
 
 
 class AddTaskScheduleItemView(TaskScheduleItemMixin, CreateView):
     @property
     def extra_context(self):
         _ = self.request.gettext
+
+        schedule = self.get_schedule()
+
         return {
-            "title": _("Add a task schedule item"),
+            "title": _("Add an item to the {} schedule").format(schedule.name),
         }
 
     def get_schedule_id(self) -> int:
