@@ -38,9 +38,10 @@ QValidator::State ProquintValidator::validate(QString &input, int &) const
     const QString quint = QString("%1%2%3%4%5").arg(
         consonant, vowel, consonant, vowel, consonant
     );
+    const QString check_character = consonant;
     QRegularExpression proquint_regex(
-        QString("%1-%2-%3-%4-%5-%6-%7-%8").arg(
-            quint,quint,quint,quint,quint,quint,quint,quint
+        QString("%1-%2-%3-%4-%5-%6-%7-%8-%9").arg(
+            quint,quint,quint,quint,quint,quint,quint,quint,check_character
         )
     );
 
@@ -50,5 +51,53 @@ QValidator::State ProquintValidator::validate(QString &input, int &) const
         return QValidator::Intermediate;
     }
 
+    if (!validateLuhnMod16(input)) {
+        return QValidator::Intermediate;
+    }
+
     return QValidator::Acceptable;
+}
+
+bool ProquintValidator::validateLuhnMod16(QString input) const
+{
+    const QMap<QChar, int> lookup_table {
+        {'b', 0x0},
+        {'d', 0x1},
+        {'f', 0x2},
+        {'g', 0x3},
+        {'h', 0x4},
+        {'j', 0x5},
+        {'k', 0x6},
+        {'l', 0x7},
+        {'m', 0x8},
+        {'n', 0x9},
+        {'p', 0xa},
+        {'r', 0xb},
+        {'s', 0xc},
+        {'t', 0xd},
+        {'v', 0xe},
+        {'z', 0xf},
+        {'a', 0x0},
+        {'i', 0x1},
+        {'o', 0x2},
+        {'u', 0x3},
+    };
+
+    // https://en.wikipedia.org/wiki/Luhn_mod_N_algorithm
+    QString proquint = input.trimmed().replace("-", "");
+
+    int factor = 1;
+    int sum = 0;
+
+    for (QString::const_reverse_iterator it = proquint.rbegin();
+         it != proquint.rend(); ++it) {
+        int value = lookup_table.value(*it) * factor;
+        sum += (value / 16 + value % 16);
+
+        factor = (factor == 2) ? 1 : 2;
+    }
+
+    int remainder = sum % 16;
+
+    return remainder == 0;
 }

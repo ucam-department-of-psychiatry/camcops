@@ -27,4 +27,7 @@ class ProquintValidator : public QValidator
 public:
     ProquintValidator(QObject * parent = nullptr);
     virtual QValidator::State validate(QString& input, int& pos) const override;
+
+private:
+    bool validateLuhnMod16(QString input) const;
 };

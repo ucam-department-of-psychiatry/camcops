@@ -66,7 +66,7 @@ PatientRegistrationDialog::PatientRegistrationDialog(
     );
 
     mainlayout->addRow(
-        tr("<b>Access key</b> (e.g. kidil-sovib-dufob-hivol-nutab-linuj-kivad-nozov):"),
+        tr("<b>Access key</b> (e.g. kidil-sovib-dufob-hivol-nutab-linuj-kivad-nozov-t):"),
         m_editor_patient_proquint
     );
 

@@ -67,9 +67,24 @@ import random
 import uuid
 from unittest import TestCase
 
+CONSONANTS = "bdfghjklmnprstvz"
+VOWELS = "aiou"
 
-SIZE_OF_VOWEL = 2
 SIZE_OF_CONSONANT = 4
+SIZE_OF_VOWEL = 2
+
+LOOKUP_CONSONANTS = {
+    'b': 0x0, 'd': 0x1, 'f': 0x2, 'g': 0x3,
+    'h': 0x4, 'j': 0x5, 'k': 0x6, 'l': 0x7,
+    'm': 0x8, 'n': 0x9, 'p': 0xa, 'r': 0xb,
+    's': 0xc, 't': 0xd, 'v': 0xe, 'z': 0xf,
+}
+LOOKUP_VOWELS = {
+    'a': 0x0, 'i': 0x1, 'o': 0x2, 'u': 0x3,
+}
+LOOKUP_TABLE = {
+    **LOOKUP_CONSONANTS, **LOOKUP_VOWELS,
+}
 
 
 class InvalidProquintException(Exception):
@@ -84,18 +99,18 @@ def proquint_from_int(int_value: int,
                       size_in_bits: int) -> str:
     """Convert integer value into proquint
 
-    >>> proquint_from_int(0x7f000001, 32)
-    lusab-babad
+    >>> proquint_from_int(0x493b05ee, 32)
+    hohur-bilov
 
-    0x7f000001 in binary is:
-    0011 1111 0000 0000 - 0000 0000 0000 0001
+    0x493b05ee in binary is:
+    0100 1001 0011 1011 - 0000 0101 1110 1110
 
     grouped into alternating 4 and 2 bit values:
 
     cons vo cons vo cons - cons vo cons vo cons
-    0011 11 1100 00 0000 - 0000 00 0000 00 0001
+    0100 10 0100 11 1011 - 0000 01 0111 10 1110
 
-       l  u    s  a    b -    b  a    b  a    d
+       h  o    h  u    r -    b  i    l  o    v
 
     Args:
         int_value:
@@ -117,21 +132,68 @@ def proquint_from_int(int_value: int,
 
         int_value >>= 16
 
+    check_character = _generate_check_character("".join(proquint))
+
+    proquint.append(check_character)
+
     return "-".join(proquint)
 
 
-def _proquint_from_int16(int16_value: int) -> str:
-    consonants = "bdfghjklmnprstvz"
-    vowels = "aiou"
+def _generate_check_character(proquint: str) -> str:
+    """Luhn mod 16 check digit
 
+    https://en.wikipedia.org/wiki/Luhn_mod_N_algorithm
+
+    consonant_values = {
+        'b': 0x0, 'd': 0x1, 'f': 0x2, 'g': 0x3,
+        'h': 0x4, 'j': 0x5, 'k': 0x6, 'l': 0x7,
+        'm': 0x8, 'n': 0x9, 'p': 0xa, 'r': 0xb,
+        's': 0xc, 't': 0xd, 'v': 0xe, 'z': 0xf,
+    }
+
+    vowel_values = {
+        'a': 0x0, 'i': 0x1, 'o': 0x2, 'u': 0x3,
+    }
+
+    To generate the check character, start with the last character in the string
+    and move left doubling every other code-point. The "digits" of the
+    code-points as written in hex (since there are 16 valid input characters)
+    should then be summed up:
+
+    Example (all in hex):
+
+    hohur-bilov
+
+    Character      h     o     h     u     r     b     i     l     o     v
+    Code point     4     2     4     3     b     0     1     7     2     e
+    Double               4           6           0           e          1c
+    Reduce         4     4     4     6     b     0     1     e     2   1+c
+    Sum            4     4     4     6     b     0     1     e     2     d
+
+    Total sum = 4 + 4 + 4 + 6 + b + 0 + 1 + e + 2 + d = 0x3b
+    Next multiple of 0x10 is 0x40
+
+    Check character code = 0x40 - 0x3b = 0x5
+    So check character is 'j'
+
+    """
+
+    remainder = _generate_luhn_mod_16_remainder(proquint, 2)
+
+    check_code_point = (16 - remainder) % 16
+
+    return CONSONANTS[check_code_point]
+
+
+def _proquint_from_int16(int16_value: int) -> str:
     proquint = []
     for i in range(5):
         if i & 1:
-            letters = vowels
+            letters = VOWELS
             mask = 0x3
             shift = SIZE_OF_VOWEL
         else:
-            letters = consonants
+            letters = CONSONANTS
             mask = 0xf
             shift = SIZE_OF_CONSONANT
 
@@ -151,15 +213,15 @@ def uuid_from_proquint(proquint: str) -> uuid.UUID:
 def int_from_proquint(proquint: str) -> int:
     """Convert proquint string into integer.
 
-    >>> hex(int_from_proquint('lusab-babad'))
-    '0x7F000001'
+    >>> hex(int_from_proquint('hohur-bilov-j'))
+    0x493b05ee
 
-       l    u    s    a    b -    b    a    b    a    d
-     0x7  0x3  0xc  0x0  0x0 -  0x0  0x0  0x0  0x0  0x1
+       h    o    h    u    r -    b    i    l    o    v
+     0x4  0x2  0x4  0x3  0xb -  0x0  0x1  0x7  0x2  0xe
 
-    0111   11 1100   00 0000 - 0000   00 0000   00 0001
-    0111    1111   0000 0000 - 0000    0000   0000 0001
-     0x7     0xf    0x0  0x0 -  0x0     0x0    0x0  0x1
+    0100   10 0100   11 1011 - 0000   01 0111   10 1110
+    0100    1001   0011 1011 - 0000    0101   1110 1110
+     0x4     0x9    0x3  0xb -  0x0     0x5    0xe  0xe
 
     Args:
         proquint:
@@ -168,33 +230,32 @@ def int_from_proquint(proquint: str) -> int:
         converted integer value
     """
 
-    consonant_values = {
-        'b': 0x0, 'd': 0x1, 'f': 0x2, 'g': 0x3,
-        'h': 0x4, 'j': 0x5, 'k': 0x6, 'l': 0x7,
-        'm': 0x8, 'n': 0x9, 'p': 0xa, 'r': 0xb,
-        's': 0xc, 't': 0xd, 'v': 0xe, 'z': 0xf,
-    }
-
-    vowel_values = {
-        'a': 0x0, 'i': 0x1, 'o': 0x2, 'u': 0x3,
-    }
-
     int_value = 0
 
-    for word in proquint.split("-"):
+    words = proquint.split("-")
+
+    if not _is_valid_proquint("".join(words)):
+        raise InvalidProquintException(
+            f"'{proquint}' is not valid (check character mismatch)"
+        )
+
+    # Remove check character
+    words.pop()
+
+    for word in words:
         for (i, c) in enumerate(word):
             if i & 1:
-                lookup_table = vowel_values
+                lookup_table = LOOKUP_VOWELS
                 shift = SIZE_OF_VOWEL
             else:
-                lookup_table = consonant_values
+                lookup_table = LOOKUP_CONSONANTS
                 shift = SIZE_OF_CONSONANT
 
             value = lookup_table.get(c)
 
             if value is None:
                 raise InvalidProquintException(
-                    f"'{proquint}' is not a valid proquint"
+                    f"'{proquint}' contains invalid or transposed characters"
                 )
 
             int_value <<= shift
@@ -203,29 +264,49 @@ def int_from_proquint(proquint: str) -> int:
     return int_value
 
 
+def _is_valid_proquint(proquint: str) -> None:
+    return _generate_luhn_mod_16_remainder(proquint, 1) == 0
+
+
+def _generate_luhn_mod_16_remainder(proquint: str, start_factor: int) -> int:
+    factor = start_factor
+    sum = 0
+
+    for char in reversed(proquint):
+        value = LOOKUP_TABLE[char] * factor
+        sum = sum + value // 16 + value % 16
+
+        if factor == 2:
+            factor = 1
+        else:
+            factor = 2
+
+    return sum % 16
+
+
 # =============================================================================
 # Unit tests
 # =============================================================================
 
 class ProquintTest(TestCase):
     def test_int_encoded_as_proquint(self):
-        self.assertEqual(proquint_from_int(0x7f000001, 32), "lusab-babad")
+        self.assertEqual(proquint_from_int(0x493b05ee, 32), "hohur-bilov-j")
 
     def test_uuid_encoded_as_proquint(self):
         self.assertEqual(
             proquint_from_uuid(
                 uuid.UUID("6457cb90-1ca0-47a7-9f40-767567819bee")
             ),
-            "kidil-sovib-dufob-hivol-nutab-linuj-kivad-nozov"
+            "kidil-sovib-dufob-hivol-nutab-linuj-kivad-nozov-t"
         )
 
     def test_proquint_decoded_as_int(self):
-        self.assertEqual(int_from_proquint("lusab-babad"), 0x7f000001)
+        self.assertEqual(int_from_proquint("hohur-bilov-j"), 0x493b05ee)
 
     def test_proquint_decoded_as_uuid(self):
         self.assertEqual(
             uuid_from_proquint(
-                "kidil-sovib-dufob-hivol-nutab-linuj-kivad-nozov"
+                "kidil-sovib-dufob-hivol-nutab-linuj-kivad-nozov-t"
             ),
             uuid.UUID("6457cb90-1ca0-47a7-9f40-767567819bee")
         )
@@ -237,10 +318,12 @@ class ProquintTest(TestCase):
 
                 encoded = proquint_from_int(random_int, bits)
 
-                num_expected_chunks = bits / 16
-                num_expected_dashes = num_expected_chunks - 1
-                expected_proquint_length = (5 * num_expected_chunks
-                                            + num_expected_dashes)
+                num_expected_words = bits // 16
+                num_expected_dashes = num_expected_words
+                check_character_length = 1
+                expected_proquint_length = (5 * num_expected_words
+                                            + num_expected_dashes
+                                            + check_character_length)
                 self.assertEqual(len(encoded), expected_proquint_length)
 
                 decoded = int_from_proquint(encoded)
@@ -261,14 +344,27 @@ class ProquintTest(TestCase):
 
     def test_raises_when_proquint_has_invalid_chars(self):
         with self.assertRaises(InvalidProquintException) as cm:
-            int_from_proquint("lusab-rrrrr")
+            int_from_proquint("lusab-rrrrr-s")
 
-        self.assertEqual(str(cm.exception),
-                         "'lusab-rrrrr' is not a valid proquint")
+        self.assertEqual(
+            str(cm.exception),
+            "'lusab-rrrrr-s' contains invalid or transposed characters"
+        )
 
     def test_raises_when_proquint_has_chars_in_wrong_order(self):
         with self.assertRaises(InvalidProquintException) as cm:
-            int_from_proquint("lusab-abadu")
+            int_from_proquint("lusab-abadu-b")
 
-        self.assertEqual(str(cm.exception),
-                         "'lusab-abadu' is not a valid proquint")
+        self.assertEqual(
+            str(cm.exception),
+            "'lusab-abadu-b' contains invalid or transposed characters"
+        )
+
+    def test_raises_when_checksum_doesnt_match(self):
+        with self.assertRaises(InvalidProquintException) as cm:
+            int_from_proquint("hohur-dilov-j")
+
+        self.assertEqual(
+            str(cm.exception),
+            "'hohur-dilov-j' is not valid (check character mismatch)"
+        )

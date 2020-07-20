@@ -459,7 +459,10 @@ from camcops_server.cc_modules.cc_patientidnum import (
     fake_tablet_id_for_patientidnum,
     PatientIdNum,
 )
-from camcops_server.cc_modules.cc_proquint import uuid_from_proquint
+from camcops_server.cc_modules.cc_proquint import (
+    InvalidProquintException,
+    uuid_from_proquint,
+)
 from camcops_server.cc_modules.cc_pyramid import Routes
 from camcops_server.cc_modules.cc_simpleobjects import (
     BarePatientInfo,
@@ -2085,18 +2088,29 @@ def op_register_patient(req: "CamcopsRequest") -> Dict[str, Any]:
 
 
 def get_single_patient(req: "CamcopsRequest") -> Patient:
+    _ = req.gettext
+
     patient_proquint = get_str_var(req, TabletParam.PATIENT_PROQUINT)
-    uuid_obj = uuid_from_proquint(patient_proquint)
+
+    try:
+        uuid_obj = uuid_from_proquint(patient_proquint)
+    except InvalidProquintException:
+        # Checksum failed or characters in wrong place
+        # We'll do the same validation on the client so in theory
+        # should never get here
+        fail_user_error(
+            _("There is no patient with access key '{}'. "
+              "Have you entered the key correctly?")
+            .format(patient_proquint)
+        )
 
     patient = req.dbsession.query(Patient).filter(
         Patient.uuid == uuid_obj
     ).options(joinedload(Patient.task_schedules)).one_or_none()
 
-    _ = req.gettext
-
     if patient is None:
         fail_user_error(
-            _("There is no patient with access key {}. "
+            _("There is no patient with access key '{}'. "
               "Have you entered the key correctly?")
             .format(patient_proquint)
         )
