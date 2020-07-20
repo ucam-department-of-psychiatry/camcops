@@ -1,4 +1,4 @@
-# server/docker/docker-compose.yaml
+# server/docker/dockerfiles/docker-compose.yaml
 #
 # See the help!
 # https://camcops.readthedocs.io/en/latest/administrator/docker.html

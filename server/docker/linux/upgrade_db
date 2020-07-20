@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-#
-# server/docker/upgrade_db
+# server/docker/linux/upgrade_db
 #
 # Launches the "camcops_server" command within one of the Docker containers
 # running the CamCOPS server image.
@@ -18,14 +17,14 @@ if [ -z "${CAMCOPS_DOCKER_CONFIG_HOST_DIR}" ]; then
 fi
 if [ -z "${CAMCOPS_DOCKER_CONFIG_FILENAME}" ]; then
     # Set to default (as per .env file):
-    CAMCOPS_DOCKER_CONFIG_FILENAME=camcops.conf
+    CAMCOPS_DOCKER_CONFIG_FILENAME="camcops.conf"
 fi
 
-CFG_ON_HOST=${CAMCOPS_DOCKER_CONFIG_HOST_DIR}/${CAMCOPS_DOCKER_CONFIG_FILENAME}
-CFG_ON_DOCKER=/camcops/cfg/${CAMCOPS_DOCKER_CONFIG_FILENAME}
+CFG_ON_HOST="${CAMCOPS_DOCKER_CONFIG_HOST_DIR}/${CAMCOPS_DOCKER_CONFIG_FILENAME}"
+CFG_ON_DOCKER="/camcops/cfg/${CAMCOPS_DOCKER_CONFIG_FILENAME}"
 
 echo "Upgrading CamCOPS database to current version."
 echo "- Config file on host: ${CFG_ON_HOST}"
 echo "- Config file as seen by Docker: ${CFG_ON_DOCKER}"
 
-"${CAMCOPS_SERVER}" upgrade_db --config "/camcops/cfg/${CAMCOPS_DOCKER_CONFIG_FILENAME}"
+"${CAMCOPS_SERVER}" upgrade_db --config "${CFG_ON_DOCKER}"

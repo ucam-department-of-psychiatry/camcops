@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-#
-# server/docker/camcops_server
+# server/docker/linux/camcops_server
 #
 # Launches the "camcops_server" command within one of the Docker containers
 # running the CamCOPS server image.

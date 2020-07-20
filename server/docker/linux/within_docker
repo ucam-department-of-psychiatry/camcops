@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-#
-# server/docker/exec_within_camcops_docker
+# server/docker/linux/within_docker
 #
 # Launches a command within one of the Docker containers running the CamCOPS
 # server image.
@@ -8,7 +7,7 @@
 set -e
 
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-DOCKER_COMPOSE_DIR="${THIS_DIR}"
+DOCKER_COMPOSE_DIR="${THIS_DIR}/../dockerfiles"
 SERVICE="camcops_workers"
 
 # Don't echo things to stdout. People may want to redirect the output.

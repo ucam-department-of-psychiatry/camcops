@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-#
-# server/docker/print_demo_camcops_config
+# server/docker/linux/print_demo_camcops_config
 #
 # Prints a demo CamCOPS config file.
 # This is slightly tricky because we want to get rid of some stderr (which

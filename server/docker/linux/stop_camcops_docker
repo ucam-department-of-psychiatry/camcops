@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
+# server/docker/linux/stop_camcops_docker
 #
-# server/docker/start_camcops_docker_interactive
-#
-# Launches the Docker Compose application in detached (daemon) mode.
+# Takes down the Docker Compose application.
 
 set -e
 
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-DOCKER_COMPOSE_DIR="${THIS_DIR}"
+DOCKER_COMPOSE_DIR="${THIS_DIR}/../dockerfiles"
 
 # We must change directory to pick up ".env" etc.
 
@@ -16,4 +15,4 @@ cd "${DOCKER_COMPOSE_DIR}"
 # Having done so, the default Docker Compose filenames include
 # docker-compose.yaml, so we don't need to specify that.
 
-docker-compose up -d
+docker-compose down

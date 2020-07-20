@@ -82,7 +82,13 @@ Quick start
     required for Docker operation. (You probably want to automate this with a
     script.)
 
-#.  Change to the ``server/docker`` directory within the CamCOPS source tree.
+#.  Change to the ``server/docker/linux`` directory within the CamCOPS source
+    tree.
+
+    .. note::
+        If you are using a Windows host, change to ``server/docker/windows``
+        instead, and for all the commands below, instead of ``./some_command``,
+        run ``some_command.bat``.
 
 #.  Start the containers with:
 

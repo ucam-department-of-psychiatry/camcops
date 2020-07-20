@@ -1,4 +1,4 @@
-server/docker/docker_notes.txt
+server/docker/dockerfiles/docker_notes.txt
 
 ===============================================================================
 Docker Compose file for CamCOPS.

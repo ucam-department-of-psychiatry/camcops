@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
-#
-# server/docker/start_camcops_docker_interactive
+# server/docker/linux/start_camcops_docker_interactive
 #
 # Launches the Docker Compose application in interactive mode.
 
 set -e
 
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-DOCKER_COMPOSE_DIR="${THIS_DIR}"
+DOCKER_COMPOSE_DIR="${THIS_DIR}/../dockerfiles"
 
 # We must change directory to pick up ".env" etc.
 

@@ -1,4 +1,4 @@
-# server/docker/camcops.Dockerfile
+# server/docker/dockerfiles/camcops.Dockerfile
 #
 # Directory structure in container:
 #
