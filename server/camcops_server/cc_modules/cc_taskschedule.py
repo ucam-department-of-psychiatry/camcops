@@ -31,7 +31,9 @@ from typing import List, Optional, TYPE_CHECKING
 
 from pendulum import DateTime as Pendulum
 
+from sqlalchemy import cast, Numeric
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
@@ -158,6 +160,18 @@ class PatientTaskSchedule(Base):
         return None
 
 
+# The durations are currently stored as seconds e.g. P0Y0MT2594592000.0S
+# and the seconds aren't zero padded, so we need to do some processing
+# to get them in the order we want.
+def task_schedule_item_sort_order():
+    due_from_order = cast(func.substr(TaskScheduleItem.due_from, 7),
+                          Numeric())
+    due_by_order = cast(func.substr(TaskScheduleItem.due_by, 7),
+                        Numeric())
+
+    return (due_from_order, due_by_order)
+
+
 class TaskSchedule(Base):
     __tablename__ = "_task_schedule"
 
@@ -176,7 +190,8 @@ class TaskSchedule(Base):
 
     name = Column("name", UnicodeText, comment="name")
 
-    items = relationship("TaskScheduleItem")
+    items = relationship("TaskScheduleItem",
+                         order_by=task_schedule_item_sort_order)
 
     group = relationship(Group)
 

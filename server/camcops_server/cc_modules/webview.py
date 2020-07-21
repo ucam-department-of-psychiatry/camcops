@@ -303,6 +303,7 @@ from camcops_server.cc_modules.cc_taskschedule import (
     PatientTaskSchedule,
     TaskSchedule,
     TaskScheduleItem,
+    task_schedule_item_sort_order,
 )
 from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_tracker import ClinicalTextView, Tracker
@@ -3944,12 +3945,9 @@ def view_task_schedule_items(req: "CamcopsRequest") -> Dict[str, Any]:
         TaskSchedule.id == schedule_id
     ).one_or_none()
 
-    # TODO: Would like to order by "due from" duration here
-    # but the values in the database aren't zero padded. Should they
-    # be?
     q = req.dbsession.query(TaskScheduleItem).filter(
         TaskScheduleItem.schedule_id == schedule_id
-    ).order_by(TaskScheduleItem.due_from, TaskScheduleItem.due_by)
+    ).order_by(*task_schedule_item_sort_order())
     page = SqlalchemyOrmPage(query=q,
                              page=page_num,
                              items_per_page=rows_per_page,
