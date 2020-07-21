@@ -1414,14 +1414,19 @@ class CamcopsConfig(object):
             )
 
             # Values expected to be present
-            warn_if_not_present(
-                param_name=ConfigParamServer.SSL_CERTIFICATE,
-                value=self.ssl_certificate
-            )
-            warn_if_not_present(
-                param_name=ConfigParamServer.SSL_PRIVATE_KEY,
-                value=self.ssl_private_key
-            )
+            #
+            # - Re SSL certificates: reconsidered. People may want to run
+            #   internal plain HTTP but then an Apache front end, and they
+            #   wouldn't appreciate the warnings.
+            #
+            # warn_if_not_present(
+            #     param_name=ConfigParamServer.SSL_CERTIFICATE,
+            #     value=self.ssl_certificate
+            # )
+            # warn_if_not_present(
+            #     param_name=ConfigParamServer.SSL_PRIVATE_KEY,
+            #     value=self.ssl_private_key
+            # )
 
             # Config-related files
             warn_if_not_within_docker_dir(
