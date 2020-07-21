@@ -1,7 +1,7 @@
 #!/bin/bash
 # shellcheck disable=SC2046
 #
-# server/docker/cataclysm_WIPE_DOCKER_EXCEPT_VOLUMES.sh
+# server/tools/cataclysm_WIPE_DOCKER_EXCEPT_VOLUMES.sh
 
 # set -e
 
