@@ -26,8 +26,8 @@ jobs:
       before_script:
         # Install wkhtmltopdf on headless ubuntu 18 vps
         # https://gist.github.com/lobermann/ca0e7bb2558b3b08923c6ae2c37a26ce
-        - wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.bionic_amd64.deb
+        - wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.bionic_amd64.deb
         - sudo apt-get -y install fontconfig libxrender1 xfonts-75dpi xfonts-base
-        - sudo dpkg -i wkhtmltox_0.12.6-1.bionic_amd64.deb
+        - sudo dpkg -i wkhtmltox_0.12.5-1.bionic_amd64.deb
 
       script: travis_scripts/pip_install_and_tests
