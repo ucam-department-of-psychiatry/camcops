@@ -8,6 +8,7 @@
 #       /venv           Python 3 virtual environment.
 #           /bin        Main "camcops_server" executable lives here.
 
+
 # -----------------------------------------------------------------------------
 # FROM: Base image
 # -----------------------------------------------------------------------------
@@ -23,6 +24,7 @@ FROM python:3.6-slim-buster
 # FROM python:3.6-buster
 # ... includes some things we need, but is LARGER overall.
 
+
 # -----------------------------------------------------------------------------
 # ADD: files to copy
 # -----------------------------------------------------------------------------
@@ -37,12 +39,14 @@ FROM python:3.6-slim-buster
 
 ADD . /camcops/src
 
+
 # -----------------------------------------------------------------------------
 # WORKDIR: Set working directory on container.
 # -----------------------------------------------------------------------------
 # Shouldn't really be necessary.
 
 WORKDIR /camcops
+
 
 # -----------------------------------------------------------------------------
 # RUN: run a command.
