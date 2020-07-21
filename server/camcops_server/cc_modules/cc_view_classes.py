@@ -220,11 +220,14 @@ class ModelFormMixin(FormMixin, SingleObjectMixin):
         if self.object is None:
             self.object = self.object_class()
 
+        self.set_object_properties(appstruct)
+
+        self.request.dbsession.add(self.object)
+
+    def set_object_properties(self, appstruct) -> None:
         for (model_attr, form_param) in self.model_form_dict.items():
             value = appstruct.get(form_param)
             setattr(self.object, model_attr, value)
-
-        self.request.dbsession.add(self.object)
 
     def get_form_values(self) -> Dict:
         form_values = {}

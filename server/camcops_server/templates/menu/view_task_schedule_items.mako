@@ -45,7 +45,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
     <tr>
         <th>${_("Task")}</th>
         <th>${_("Due from (days)")}</th>
-        <th>${_("Due by (days)")}</th>
+        <th>${_("Due within (days)")}</th>
         <th>${_("Edit")}</th>
         <th>${_("Delete")}</th>
     </tr>
@@ -58,7 +58,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
             ${ item.due_from.in_days() }
         </td>
         <td>
-            ${ item.due_by.in_days() }
+            ${ item.due_within.in_days() }
         </td>
         <td>
             <a href="${ req.route_url(

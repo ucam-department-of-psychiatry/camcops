@@ -3785,7 +3785,19 @@ class TaskScheduleItemSchema(CSRFSchema):
     # name must match ViewParam.TABLE_NAME
     table_name = MandatorySingleTaskSelector()
     due_from = DurationNode()  # name must match ViewParam.DUE_FROM
-    due_by = DurationNode()  # name must match ViewParam.DUE_BY
+    due_within = DurationNode()  # name must match ViewParam.DUE_WITHIN
+
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        _ = self.gettext
+        due_from = get_child_node(self, "due_from")
+        due_from.description = _(
+            "Time from the start of schedule when the patient may begin this "
+            "task"
+        )
+        due_within = get_child_node(self, "due_within")
+        due_within.description = _(
+            "Time the patient has to complete this task"
+        )
 
 
 class EditTaskScheduleItemForm(DynamicDescriptionsForm):
@@ -3923,7 +3935,7 @@ class SchemaTests(DemoRequestTestCase):
             ViewParam.SCHEDULE_ID: 1,
             ViewParam.TABLE_NAME: "bmi",
             ViewParam.DUE_FROM: Duration(days=90),
-            ViewParam.DUE_BY: Duration(days=100)
+            ViewParam.DUE_WITHIN: Duration(days=100)
         }
         schema = TaskScheduleItemSchema().bind(request=self.req)
         self._serialize_deserialize(schema, appstruct)

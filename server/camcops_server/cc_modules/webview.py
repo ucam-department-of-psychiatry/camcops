@@ -4082,7 +4082,7 @@ class TaskScheduleItemMixin:
         "schedule_id": ViewParam.SCHEDULE_ID,
         "task_table_name": ViewParam.TABLE_NAME,
         "due_from": ViewParam.DUE_FROM,
-        "due_by": ViewParam.DUE_BY,
+        # we need to convert due_within to due_by
     }
     object_class = TaskScheduleItem
     pk_param = ViewParam.SCHEDULE_ITEM_ID
@@ -4096,13 +4096,13 @@ class TaskScheduleItemMixin:
             }
         )
 
-    def get_form_values(self) -> Dict:
-        schedule = self.get_schedule()
+    def set_object_properties(self, appstruct) -> None:
+        super().set_object_properties(appstruct)
 
-        form_values = super().get_form_values()
-        form_values[ViewParam.SCHEDULE_ID] = schedule.id
+        due_from = appstruct.get(ViewParam.DUE_FROM)
+        due_within = appstruct.get(ViewParam.DUE_WITHIN)
 
-        return form_values
+        setattr(self.object, "due_by", due_from + due_within)
 
     def get_schedule(self) -> TaskSchedule:
         schedule_id = self.get_schedule_id()
@@ -4134,6 +4134,14 @@ class AddTaskScheduleItemView(TaskScheduleItemMixin, CreateView):
     def get_schedule_id(self) -> int:
         return self.request.get_int_param(ViewParam.SCHEDULE_ID)
 
+    def get_form_values(self) -> Dict:
+        schedule = self.get_schedule()
+
+        form_values = super().get_form_values()
+        form_values[ViewParam.SCHEDULE_ID] = schedule.id
+
+        return form_values
+
 
 class EditTaskScheduleItemView(TaskScheduleItemMixin, UpdateView):
     @property
@@ -4145,6 +4153,17 @@ class EditTaskScheduleItemView(TaskScheduleItemMixin, UpdateView):
 
     def get_schedule_id(self) -> int:
         return self.object.schedule_id
+
+    def get_form_values(self) -> Dict:
+        schedule = self.get_schedule()
+
+        form_values = super().get_form_values()
+        form_values[ViewParam.SCHEDULE_ID] = schedule.id
+
+        due_within = self.object.due_by - form_values[ViewParam.DUE_FROM]
+        form_values[ViewParam.DUE_WITHIN] = due_within
+
+        return form_values
 
 
 class DeleteTaskScheduleItemView(TaskScheduleItemMixin, DeleteView):
@@ -4373,11 +4392,11 @@ class AddTaskScheduleItemViewTests(DemoDatabaseTestCase):
             ("weeks", "2"),
             ("days", "3"),
             ("__end__", "due_from:mapping"),
-            ("__start__", "due_by:mapping"),
-            ("months", "4"),
-            ("weeks", "3"),
-            ("days", "2"),
-            ("__end__", "due_by:mapping"),
+            ("__start__", "due_within:mapping"),
+            ("months", "2"),  # 60 days
+            ("weeks", "3"),   # 21 days
+            ("days", "15"),   # 15 days
+            ("__end__", "due_within:mapping"),
             (FormAction.SUBMIT, "submit"),
         ])
 
@@ -4541,6 +4560,20 @@ class EditTaskScheduleItemViewTests(DemoDatabaseTestCase):
 
         with self.assertRaises(HTTPBadRequest):
             view.dispatch()
+
+    def test_get_form_values(self) -> None:
+        view = EditTaskScheduleItemView(self.req)
+        view.object = self.item
+
+        form_values = view.get_form_values()
+
+        self.assertEqual(form_values[ViewParam.SCHEDULE_ID], self.schedule.id)
+        self.assertEqual(form_values[ViewParam.TABLE_NAME],
+                         self.item.task_table_name)
+        self.assertEqual(form_values[ViewParam.DUE_FROM], self.item.due_from)
+
+        due_within = self.item.due_by - self.item.due_from
+        self.assertEqual(form_values[ViewParam.DUE_WITHIN], due_within)
 
 
 class DeleteTaskScheduleItemViewTests(DemoDatabaseTestCase):

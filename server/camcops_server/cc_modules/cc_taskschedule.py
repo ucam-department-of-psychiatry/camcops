@@ -236,5 +236,9 @@ class TaskScheduleItem(Base):
 
         return task_class_lookup[self.task_table_name].shortname
 
+    @property
+    def due_within(self) -> str:
+        return self.due_by - self.due_from
+
     def __str__(self) -> str:
         return (f"{self.task_shortname} @ {self.due_from.in_days()} days")
