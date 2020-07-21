@@ -5,6 +5,8 @@ REM Prints a demo CamCOPS config file.
 REM This is slightly tricky because we want to get rid of some stderr (which
 REM otherwise blends into stdout once passed through Docker).
 
+setlocal
+
 set THIS_DIR=%~dp0
 set CAMCOPS_SERVER=%THIS_DIR%\camcops_server.bat
 

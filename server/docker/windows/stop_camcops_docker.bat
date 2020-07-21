@@ -3,6 +3,8 @@ REM server/docker/windows/stop_camcops_docker.bat
 REM
 REM Takes down the Docker Compose application.
 
+setlocal
+
 set THIS_DIR=%~dp0
 set DOCKER_COMPOSE_DIR=%THIS_DIR%\..\dockerfiles
 

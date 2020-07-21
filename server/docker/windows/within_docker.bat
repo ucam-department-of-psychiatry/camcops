@@ -4,6 +4,8 @@ REM
 REM Launches a command within one of the Docker containers running the CamCOPS
 REM server image.
 
+setlocal
+
 set THIS_DIR=%~dp0
 set DOCKER_COMPOSE_DIR=%THIS_DIR%\..\dockerfiles
 set SERVICE="camcops_workers"

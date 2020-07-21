@@ -3,6 +3,8 @@ REM server/docker/windows/start_camcops_docker_interactive.bat
 REM
 REM Launches the Docker Compose application in interactive mode.
 
+setlocal
+
 set THIS_DIR=%~dp0
 set DOCKER_COMPOSE_DIR=%THIS_DIR%\..\dockerfiles
 
