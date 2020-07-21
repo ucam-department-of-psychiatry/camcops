@@ -33,7 +33,7 @@ armageddon() {
     removecontainers
     echo "- Pruning all networks..."
     docker network prune -f
-    echo "- Deleting all dangline images..."
+    echo "- Deleting all dangling images..."
     docker rmi -f $(docker images --filter dangling=true -qa)
     echo "- Deleting all volumes..."
     docker volume rm $(docker volume ls --filter dangling=true -q)

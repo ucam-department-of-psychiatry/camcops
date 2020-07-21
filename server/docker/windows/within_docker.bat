@@ -14,7 +14,7 @@ REM Don't echo things to stdout. People may want to redirect the output.
 REM On the other hand, docker-compose splurges stuff to stderr and you can't stop
 REM it, so we may as well too.
 
-1>&2 echo "Executing command within the '%SERVICE%' Docker Compose service..."
+echo Executing command within the '%SERVICE%' Docker Compose service... 1>&2
 
 REM We must change directory to pick up ".env" etc.
 

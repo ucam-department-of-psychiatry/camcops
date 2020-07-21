@@ -21,8 +21,8 @@ fi
 set CFG_ON_HOST="%CAMCOPS_DOCKER_CONFIG_HOST_DIR%\%CAMCOPS_DOCKER_CONFIG_FILENAME%"
 set CFG_ON_DOCKER="/camcops/cfg/%CAMCOPS_DOCKER_CONFIG_FILENAME%"
 
-echo "Upgrading CamCOPS database to current version."
-echo "- Config file on host: %CFG_ON_HOST%"
-echo "- Config file as seen by Docker: %CFG_ON_DOCKER%"
+echo Upgrading CamCOPS database to current version.
+echo - Config file on host: %CFG_ON_HOST%
+echo - Config file as seen by Docker: %CFG_ON_DOCKER%
 
 "%CAMCOPS_SERVER%" upgrade_db --config "${CFG_ON_DOCKER}"
