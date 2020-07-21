@@ -198,6 +198,12 @@ In this directory, there should be a file called ``camcops.conf``, the config
 file (or, if you have set CAMCOPS_DOCKER_CAMCOPS_CONFIG_FILENAME_, that
 filename!).
 
+.. note::
+    **Under Windows,** don't use Windows paths like
+    ``C:\Users\myuser\my_camcops_dir``. Translate this to Docker notation as
+    ``/host_mnt/c/Users/myuser/my_camcops_dir``. As of 2020-07-21, this doesn't
+    seem easy to find in the Docker docs!
+
 
 .. _CAMCOPS_DOCKER_CAMCOPS_CONFIG_FILENAME:
 
