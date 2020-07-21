@@ -8,14 +8,17 @@ setlocal
 
 set THIS_DIR=%~dp0
 set CAMCOPS_SERVER=%THIS_DIR%\camcops_server.bat
+set DEFAULT_CONFIG_FILE=camcops.conf
 
 if "%CAMCOPS_DOCKER_CONFIG_HOST_DIR%" == "" (
     echo "Must set CAMCOPS_DOCKER_CONFIG_HOST_DIR environment variable!"
     exit /b 1
 )
 if "%CAMCOPS_DOCKER_CONFIG_FILENAME%" == "" (
-    REM Set to default (as per .env file):
-    set DEFAULT_CONFIG_FILE=camcops.conf
+    REM Set to default (as per .env file).
+    REM Don't set DEFAULT_CONFIG_FILE here. Obscure, but:
+    REM https://stackoverflow.com/questions/9102422/windows-batch-set-inside-if-not-working
+    REM ... you can also use "setlocal EnableDelayedExpansion"
     echo CAMCOPS_DOCKER_CONFIG_FILENAME not set; using default of %DEFAULT_CONFIG_FILE%
     set CAMCOPS_DOCKER_CONFIG_FILENAME=%DEFAULT_CONFIG_FILE%
 )
