@@ -18,6 +18,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 .. _AMQP: https://en.wikipedia.org/wiki/Advanced_Message_Queuing_Protocol
+.. _CherryPy: https://cherrypy.org/
 .. _Docker: https://www.docker.com/
 .. _Docker Compose: https://docs.docker.com/compose/
 .. _Flower: https://flower.readthedocs.io/
@@ -35,10 +36,6 @@ Installing and running the CamCOPS server via Docker
 ..  contents::
     :local:
     :depth: 3
-
-
-.. todo::
-    Docker: User download system not working properly?
 
 
 Overview
@@ -59,7 +56,7 @@ Compose to set up several containers, specifically:
 
 - a database system, via MySQL_ on Linux (internal container name ``mysql``);
 - a message queue, via RabbitMQ_ on Linux (``rabbitmq``);
-- the CamCOPS web server itself, offering SSL directly via Gunicorn_ on Linux
+- the CamCOPS web server itself, offering SSL directly via CherryPy_ on Linux
   (``camcops_server``);
 - the CamCOPS scheduler (``camcops_scheduler``);
 - CamCOPS workers, to perform background tasks (``camcops_workers``);
