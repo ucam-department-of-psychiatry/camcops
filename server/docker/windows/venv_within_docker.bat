@@ -1,8 +1,8 @@
 @echo off
 REM server/docker/windows/bash_within_camcops_docker.bat
 REM
-REM Launches the "camcops_server" command within one of the Docker containers
-REM running the CamCOPS server image.
+REM Launches the "bash" command within the CamCOPS Python virtual environment
+REM within one of the Docker containers running the CamCOPS server image.
 
 setlocal
 

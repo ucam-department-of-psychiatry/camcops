@@ -1,8 +1,8 @@
 @echo off
 REM server/docker/windows/upgrade_db.bat
 REM
-REM Launches the "camcops_server" command within one of the Docker containers
-REM running the CamCOPS server image.
+REM Launches the "camcops_server upgrade_db" command within one of the Docker
+REM containers running the CamCOPS server image.
 
 setlocal
 
