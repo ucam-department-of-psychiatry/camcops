@@ -8,7 +8,7 @@ setlocal
 
 set THIS_DIR=%~dp0
 set DOCKER_COMPOSE_DIR=%THIS_DIR%\..\dockerfiles
-set SERVICE="camcops_workers"
+set SERVICE=camcops_workers
 
 REM Don't echo things to stdout. People may want to redirect the output.
 REM On the other hand, docker-compose splurges stuff to stderr and you can't stop

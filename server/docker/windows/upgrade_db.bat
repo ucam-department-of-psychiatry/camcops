@@ -15,14 +15,17 @@ if "%CAMCOPS_DOCKER_CONFIG_HOST_DIR%" == "" (
 )
 if "%CAMCOPS_DOCKER_CONFIG_FILENAME%" == "" (
     REM Set to default (as per .env file):
-    set CAMCOPS_DOCKER_CONFIG_FILENAME="camcops.conf"
-fi
+    set DEFAULT_CONFIG_FILE=camcops.conf
+    echo CAMCOPS_DOCKER_CONFIG_FILENAME not set; using default of %DEFAULT_CONFIG_FILE%
+    set CAMCOPS_DOCKER_CONFIG_FILENAME=%DEFAULT_CONFIG_FILE%
+)
 
-set CFG_ON_HOST="%CAMCOPS_DOCKER_CONFIG_HOST_DIR%\%CAMCOPS_DOCKER_CONFIG_FILENAME%"
-set CFG_ON_DOCKER="/camcops/cfg/%CAMCOPS_DOCKER_CONFIG_FILENAME%"
+set CFG_ON_HOST=%CAMCOPS_DOCKER_CONFIG_HOST_DIR%/%CAMCOPS_DOCKER_CONFIG_FILENAME%
+REM ... CAMCOPS_DOCKER_CONFIG_HOST_DIR will use /host_mnt/c/... notation
+set CFG_ON_DOCKER=/camcops/cfg/%CAMCOPS_DOCKER_CONFIG_FILENAME%
 
 echo Upgrading CamCOPS database to current version.
 echo - Config file on host: %CFG_ON_HOST%
 echo - Config file as seen by Docker: %CFG_ON_DOCKER%
 
-"%CAMCOPS_SERVER%" upgrade_db --config "${CFG_ON_DOCKER}"
+"%CAMCOPS_SERVER%" upgrade_db --config "%CFG_ON_DOCKER%"

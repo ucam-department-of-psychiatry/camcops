@@ -17,6 +17,8 @@ if [ -z "${CAMCOPS_DOCKER_CONFIG_HOST_DIR}" ]; then
 fi
 if [ -z "${CAMCOPS_DOCKER_CONFIG_FILENAME}" ]; then
     # Set to default (as per .env file):
+    DEFAULT_CONFIG_FILE=camcops.conf
+    echo "CAMCOPS_DOCKER_CONFIG_FILENAME not set; using default of ${DEFAULT_CONFIG_FILE}"
     CAMCOPS_DOCKER_CONFIG_FILENAME="camcops.conf"
 fi
 
