@@ -152,8 +152,8 @@ public:
     // Return the current language code
     QString getLanguage() const;
 
-    // Prompt user to select operating mode, return false if aborted
-    bool setModeFromUser();
+    // Prompt user to select operating mode, exit if app is left modeless
+    void setModeFromUser();
 
     // Patient registration in single user mode
     bool registerPatientWithServer();
@@ -634,14 +634,19 @@ protected:
 public:
     // When did the user agree the terms and conditions?
     QDateTime agreedTermsAt() const;
-    QString getTermsConditions();
+
+    // Get the text of the terms and conditions the user has already agreed to
+    QString getCurrentTermsConditions();
 
 protected:
     // Has the user agreed the terms and conditions?
     bool hasAgreedTerms() const;
 
-    // Offer terms and conditions to the user. Stop the app if they refuse.
-    void offerTerms();
+    // Get the terms and conditions for the desired operating mode
+    QString getTermsConditionsForMode(const int mode);
+
+    // Offer terms and conditions to the user. Return false if they refuse.
+    bool agreeTerms(const int new_mode);
 
     // ------------------------------------------------------------------------
     // Uploading

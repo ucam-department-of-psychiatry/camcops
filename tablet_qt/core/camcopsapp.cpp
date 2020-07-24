@@ -179,17 +179,43 @@ void CamcopsApp::setMode(const int mode)
     emit modeChanged(mode);
 }
 
-bool CamcopsApp::setModeFromUser()
+void CamcopsApp::setModeFromUser()
 {
     ModeDialog dialog(nullptr);
     const int reply = dialog.exec();
     if (reply != QDialog::Accepted) {
-        return false;
+        // Dialog cancelled
+        if (var(varconst::MODE) == varconst::MODE_NOT_SET) {
+            // Exit the app if called on startup
+            uifunc::stopApp(
+                tr("You did not select how you would like to use CamCOPS")
+            );
+        }
+
+        return;
     }
 
-    setMode(dialog.mode());
+    int new_mode = dialog.mode();
 
-    return true;
+    if (new_mode == getMode()) {
+        // No change, nothing to do
+        return;
+    }
+
+    if (!agreeTerms(new_mode)) {
+        // User changed mode but didn't agree to terms. Will exit the app if
+        // called on startup, otherwise stick with the old mode
+
+        if (!hasAgreedTerms()) {
+            uifunc::stopApp(tr("OK. Goodbye."), tr("You refused the conditions."));
+        }
+
+        // had agreed to terms for the old mode, so don't change
+
+        return;
+    }
+
+    setMode(new_mode);
 }
 
 int CamcopsApp::getSinglePatientId()
@@ -537,16 +563,6 @@ int CamcopsApp::run()
     // Since that might have changed our language, reset it.
     setLanguage(varString(varconst::LANGUAGE));
 
-    if (var(varconst::MODE) == varconst::MODE_NOT_SET) {
-        if (!setModeFromUser()) {
-            uifunc::stopApp(tr("You did not select a mode"));
-        }
-    }
-
-    if (isSingleUserMode()) {
-        setVar(varconst::OFFER_UPLOAD_AFTER_EDIT, true);
-    }
-
     // Set the tablet internal password to match the database password, if
     // we've just changed it. Uses a storedvar.
 #ifdef DANGER_DEBUG_WIPE_PASSWORDS
@@ -579,11 +595,15 @@ int CamcopsApp::run()
             TextConst::pleaseWait());
     }
 
+    if (var(varconst::MODE) == varconst::MODE_NOT_SET) {
+        setModeFromUser();
+    }
+
     openMainWindow();  // uses HelpMenu etc. and so must be AFTER TASK REGISTRATION
     makeNetManager();  // needs to be after main window created, and on GUI thread
 
-    if (!hasAgreedTerms()) {
-        offerTerms();
+    if (isSingleUserMode()) {
+        setVar(varconst::OFFER_UPLOAD_AFTER_EDIT, true);
     }
 
     maybeRegisterPatient();
@@ -594,9 +614,8 @@ int CamcopsApp::run()
 void CamcopsApp::maybeRegisterPatient()
 {
     if (needToRegisterSinglePatient()) {
-        if (!registerPatientWithServer()) {
-            uifunc::stopApp(tr("You did not register your patient"));
-        }
+        registerPatientWithServer();
+
     } else {
         if (isSingleUserMode()) {
             setDefaultPatient();
@@ -2658,9 +2677,15 @@ QDateTime CamcopsApp::agreedTermsAt() const
 }
 
 
-QString CamcopsApp::getTermsConditions()
+QString CamcopsApp::getCurrentTermsConditions()
 {
-    if (isSingleUserMode()) {
+    return getTermsConditionsForMode(getMode());
+}
+
+
+QString CamcopsApp::getTermsConditionsForMode(const int mode)
+{
+    if (mode == varconst::MODE_SINGLE_USER) {
         return TextConst::singleUserTermsConditions();
     }
 
@@ -2668,11 +2693,11 @@ QString CamcopsApp::getTermsConditions()
 }
 
 
-void CamcopsApp::offerTerms()
+bool CamcopsApp::agreeTerms(const int new_mode)
 {
     ScrollMessageBox msgbox(QMessageBox::Question,
                             tr("Terms and conditions of use"),
-                            getTermsConditions(),
+                            getTermsConditionsForMode(new_mode),
                             m_p_main_window);
     // Keep agree/disagree message short, for phones:
     QAbstractButton* yes = msgbox.addButton(tr("I AGREE"), QMessageBox::YesRole);
@@ -2685,9 +2710,10 @@ void CamcopsApp::offerTerms()
     if (msgbox.clickedButton() == yes) {
         // Agreed terms
         setVar(varconst::AGREED_TERMS_AT, QDateTime::currentDateTime());
+
+        return true;
     } else {
-        // Refused terms
-        uifunc::stopApp(tr("OK. Goodbye."), tr("You refused the conditions."));
+        return false;
     }
 }
 
