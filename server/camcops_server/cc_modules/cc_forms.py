@@ -3693,6 +3693,9 @@ class DurationWidget(Widget):
     template = os.path.join(basedir, form)
     readonly_template = os.path.join(readonlydir, form)
 
+    def __init__(self, request: "CamcopsRequest"):
+        self.request = request
+
     def serialize(self, field, cstruct, **kw):
         # called when rendering the form with values from DurationType.serialize
 
@@ -3710,6 +3713,16 @@ class DurationWidget(Widget):
         readonly = kw.get("readonly", self.readonly)
         template = readonly and self.readonly_template or self.template
         values = self.get_template_values(field, cstruct, kw)
+
+        _ = self.request.gettext
+
+        values.update(
+            weeks_placeholder=_("1 week = 7 days"),
+            months_placeholder=_("1 month = 30 days"),
+            months_label=_("Months"),
+            weeks_label=_("Weeks"),
+            days_label=_("Days"),
+        )
 
         return field.renderer(template, **values)
 
@@ -3773,11 +3786,11 @@ class DurationType(object):
         return cstruct
 
 
-class DurationNode(SchemaNode):
+class DurationNode(SchemaNode, RequestAwareMixin):
     schema_type = DurationType
 
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
-        self.widget = DurationWidget()
+        self.widget = DurationWidget(self.request)
 
 
 class TaskScheduleItemSchema(CSRFSchema):
@@ -3790,11 +3803,13 @@ class TaskScheduleItemSchema(CSRFSchema):
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         _ = self.gettext
         due_from = get_child_node(self, "due_from")
+        due_from.title = _("Due from")
         due_from.description = _(
             "Time from the start of schedule when the patient may begin this "
             "task"
         )
         due_within = get_child_node(self, "due_within")
+        due_within.title = _("Due within")
         due_within.description = _(
             "Time the patient has to complete this task"
         )

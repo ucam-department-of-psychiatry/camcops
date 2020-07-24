@@ -546,7 +546,7 @@ class TaskCollectionExporter(object):
                 a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
             collection:
                 a :class:`camcops_server.cc_modules.cc_taskcollection.TaskCollection`
-            options: 
+            options:
                 :class:`DownloadOptions` governing the download
         """  # noqa
         self.req = req
@@ -667,9 +667,9 @@ class TaskCollectionExporter(object):
             total_permitted = self.req.user_download_bytes_permitted
             msg = _(
                 "You do not have enough space to create this download. "
-                "You are allowed %s bytes and you are have %s bytes free. "
-                "This download would need %s bytes."
-            ) % (total_permitted, space, size)
+                "You are allowed {total_permitted} bytes and you are have "
+                "{space} bytes free. This download would need {size} bytes."
+            ).format(total_permitted=total_permitted, space=space, size=size)
         else:
             # Create file
             fullpath = os.path.join(download_dir, filename)
@@ -686,8 +686,8 @@ class TaskCollectionExporter(object):
             except Exception as e:
                 # Some other error
                 msg = _(
-                    "Failed to create file %s. Error was: %s"
-                ) % (filename, e)
+                    "Failed to create file {filename}. Error was: {message}"
+                ).format(filename=filename, message=e)
 
         # E-mail the user, if they have an e-mail address
         email_to = self.req.user.email
@@ -1112,7 +1112,7 @@ class UserDownloadFile(object):
     def when_last_modified(self) -> Optional[Pendulum]:
         """
         Returns the file's modification time, or ``None`` if it doesn't exist.
-        
+
         (Creation time is harder! See
         https://stackoverflow.com/questions/237079/how-to-get-file-creation-modification-date-times-in-python.)
         """  # noqa

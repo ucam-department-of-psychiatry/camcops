@@ -33,23 +33,23 @@ camcops_server/templates/deform/duration.pt
   ${field.start_mapping()}
   <div class="row">
     <div class="col-xs-4"><div class="input-group">
-      <span class="input-group-addon" i18n:translate="">Months</span>
-      <input type="text" name="months" value="${months}"
+      <span class="input-group-addon" i18n:translate="">${months_label}</span>
+      <input type="text" name="months" value="${months}" placeholder="${months_placeholder}"
              class="span2 form-control ${css_class or ''}"
              tal:attributes="style style"
              maxlength="4"
              id="${oid}"/>
     </div></div>
     <div class="col-xs-4"><div class="input-group">
-      <span class="input-group-addon" i18n:translate="">Weeks</span>
-      <input type="text" name="weeks" value="${weeks}"
+      <span class="input-group-addon" i18n:translate="">${weeks_label}</span>
+      <input type="text" name="weeks" value="${weeks}" placeholder="${weeks_placeholder}"
              class="span2 form-control ${css_class or ''}"
              tal:attributes="style style"
              maxlength="2"
              id="${oid}-weeks"/>
     </div></div>
     <div class="col-xs-4"><div class="input-group">
-      <span class="input-group-addon" i18n:translate="">Days</span>
+      <span class="input-group-addon" i18n:translate="">${days_label}</span>
       <input type="text" name="days" value="${days}"
              class="span2 form-control ${css_class or ''}"
              tal:attributes="style style"
