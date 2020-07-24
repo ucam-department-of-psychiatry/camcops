@@ -707,7 +707,15 @@ QString Patient::oneLineHtmlDetailString() const
 
 QString Patient::oneLineHtmlSimpleString() const
 {
-    return QString("<b>%1</b>").arg(forenameSurname());
+    QString patient_info;
+
+    if (hasForename() || hasSurname()) {
+        patient_info = forenameSurname();
+    } else {
+        patient_info = shortIdnumSummary();
+    }
+
+    return QString("<b>%1</b>").arg(patient_info);
 }
 
 
