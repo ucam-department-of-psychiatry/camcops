@@ -3693,7 +3693,8 @@ class DurationWidget(Widget):
     template = os.path.join(basedir, form)
     readonly_template = os.path.join(readonlydir, form)
 
-    def __init__(self, request: "CamcopsRequest"):
+    def __init__(self, request: "CamcopsRequest", *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.request = request
 
     def serialize(self, field, cstruct, **kw):
@@ -3957,8 +3958,12 @@ class SchemaTests(DemoRequestTestCase):
 
 
 class DurationWidgetTests(TestCase):
+    def setUp(self):
+        super().setUp()
+        self.request = mock.Mock(gettext=mock.Mock())
+
     def test_serialize_renders_template_with_values(self) -> None:
-        widget = DurationWidget()
+        widget = DurationWidget(self.request)
 
         field = mock.Mock()
         field.renderer = mock.Mock()
@@ -3983,7 +3988,7 @@ class DurationWidgetTests(TestCase):
         self.assertEqual(kwargs['field'], field)
 
     def test_serialize_renders_readonly_template_with_values(self) -> None:
-        widget = DurationWidget()
+        widget = DurationWidget(self.request)
 
         field = mock.Mock()
         field.renderer = mock.Mock()
@@ -4003,7 +4008,7 @@ class DurationWidgetTests(TestCase):
 
     def test_serialize_renders_readonly_template_if_widget_is_readonly(
             self) -> None:
-        widget = DurationWidget(readonly=True)
+        widget = DurationWidget(self.request, readonly=True)
 
         field = mock.Mock()
         field.renderer = mock.Mock()
@@ -4021,7 +4026,7 @@ class DurationWidgetTests(TestCase):
         self.assertEqual(args[0], f"{TEMPLATE_DIR}/deform/readonly/duration.pt")
 
     def test_serialize_with_null_defaults_to_blank_values(self) -> None:
-        widget = DurationWidget()
+        widget = DurationWidget(self.request)
 
         field = mock.Mock()
         field.renderer = mock.Mock()
@@ -4035,7 +4040,7 @@ class DurationWidgetTests(TestCase):
         self.assertEqual(kwargs['days'], "")
 
     def test_deserialize_converts_months_and_weeks_to_days(self) -> None:
-        widget = DurationWidget()
+        widget = DurationWidget(self.request)
 
         pstruct = {
             "days": 1,
@@ -4050,14 +4055,14 @@ class DurationWidgetTests(TestCase):
         self.assertEqual(cstruct["months"], 0)
 
     def test_deserialize_defaults_to_zero_days(self) -> None:
-        widget = DurationWidget()
+        widget = DurationWidget(self.request)
 
         cstruct = widget.deserialize(None, {})
 
         self.assertEqual(cstruct["days"], 0)
 
     def test_deserialize_fails_validation(self) -> None:
-        widget = DurationWidget()
+        widget = DurationWidget(self.request)
 
         pstruct = {
             "days": "abc",
