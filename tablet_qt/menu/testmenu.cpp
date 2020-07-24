@@ -354,7 +354,7 @@ void TestMenu::testScrollMessageBox()
 {
     ScrollMessageBox msgbox(QMessageBox::Question,
                             tr("ScrollMessageBox, with some lengthy text"),
-                            TextConst::termsConditions(),
+                            TextConst::clinicianTermsConditions(),
                             this);
     QAbstractButton* one = msgbox.addButton(tr("One (Yes)"),
                                             QMessageBox::YesRole);

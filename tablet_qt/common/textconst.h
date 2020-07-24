@@ -57,13 +57,13 @@ public:
     // ========================================================================
     // Common text
     // ========================================================================
-    
+
     static QString abnormal();
     static QString abort();
     static QString add();
-    
+
     static QString back();
-    
+
     static QString cancel();
     static QString category();
     static QString clinician();
@@ -81,7 +81,7 @@ public:
     static QString comments();
     static QString copy();
     static QString correct();
-    
+
     static QString dataCollectionOnlyAnnouncement();
     static QString DATA_COLLECTION_ONLY_SYMBOL;
     static QString dataCollectionOnlySubtitleSuffix();
@@ -93,7 +93,7 @@ public:
     static QString delete_();  // "delete" is a C++ keyword; "DELETE" also breaks Visual C++
     static QString description();
     static QString diagnosis();
-    
+
     static QString EXPERIMENTAL_SYMBOL;
     static QString experimentalSubtitleSuffix();
 
@@ -101,21 +101,21 @@ public:
     static QString hasClinicianSubtitleSuffix();
     static QString HAS_RESPONDENT_SYMBOL;
     static QString hasRespondentSubtitleSuffix();
-    
+
     static QString finished();
     static QString fullTask();
-    
+
     static QString enterTheAnswers();
     static QString examinerComments();
     static QString examinerCommentsPrompt();
-    
+
     static QString icd10();
     static QString idNumberType();
     static QString inAddition();
     static QString incorrect();
-    
+
     static QString location();
-    
+
     static QString meetsCriteria();
     static QString mild();
     static QString mildToModerate();
@@ -124,7 +124,7 @@ public:
     static QString moderatelySevere();
     static QString moveDown();
     static QString moveUp();
-    
+
     static QString na();  // as in "N/A", short for "not applicable"
     static QString no();
     static QString none();
@@ -135,20 +135,20 @@ public:
     static QString notRecalled();
     static QString notSpecified();
     static QString note();
-    
+
     static QString of();
     static QString off();
     static QString ok();
     static QString on();
-    
+
     static QString page();
     static QString part();
     static QString patient();
     static QString pleaseWait();
     static QString pressNextToContinue();
-    
+
     static QString question();
-    
+
     static QString rating();
     static QString reallyAbort();
     static QString recalled();
@@ -157,7 +157,7 @@ public:
     static QString respondentNameThirdPerson();
     static QString respondentRelationshipSecondPerson();
     static QString respondentRelationshipThirdPerson();
-    
+
     static QString saving();
     static QString score();
     static QString seeFacsimile();
@@ -168,7 +168,7 @@ public:
     static QString startChainQuestion();
     static QString startChainTitle();
     static QString soundTestFor();
-    
+
     static QString thankYou();
     static QString thankYouTouchToExit();
     static QString totalScore();
@@ -182,23 +182,24 @@ public:
 
     static QString unableToCreateMediaPlayer();
     static QString unknown();
-    
+
     static QString verySevere();
-    
+
     static QString wrong();
-    
+
     static QString yes();
-    
+
     // ========================================================================
     // Terms and conditions
     // ========================================================================
-    
-    static QString termsConditions();
-    
+
+    static QString singleUserTermsConditions();
+    static QString clinicianTermsConditions();
+
     // ========================================================================
     // Test text
     // ========================================================================
-    
+
     static QString LOREM_IPSUM_1;
     static QString LOREM_IPSUM_2;
     static QString LOREM_IPSUM_3;

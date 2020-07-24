@@ -634,6 +634,7 @@ protected:
 public:
     // When did the user agree the terms and conditions?
     QDateTime agreedTermsAt() const;
+    QString getTermsConditions();
 
 protected:
     // Has the user agreed the terms and conditions?

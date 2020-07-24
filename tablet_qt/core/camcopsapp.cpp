@@ -753,7 +753,8 @@ bool CamcopsApp::processCommandLineArguments(int& retcode)
 
     const bool print_terms = parser.isSet(printTermsConditions);
     if (print_terms) {
-        out << textconst.termsConditions();
+        out << textconst.clinicianTermsConditions();
+        out << textconst.singleUserTermsConditions();
         return false;
     }
 
@@ -2657,11 +2658,21 @@ QDateTime CamcopsApp::agreedTermsAt() const
 }
 
 
+QString CamcopsApp::getTermsConditions()
+{
+    if (isSingleUserMode()) {
+        return TextConst::singleUserTermsConditions();
+    }
+
+    return TextConst::clinicianTermsConditions();
+}
+
+
 void CamcopsApp::offerTerms()
 {
     ScrollMessageBox msgbox(QMessageBox::Question,
                             tr("Terms and conditions of use"),
-                            TextConst::termsConditions(),
+                            getTermsConditions(),
                             m_p_main_window);
     // Keep agree/disagree message short, for phones:
     QAbstractButton* yes = msgbox.addButton(tr("I AGREE"), QMessageBox::YesRole);

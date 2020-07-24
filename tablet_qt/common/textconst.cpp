@@ -194,7 +194,7 @@ QString TextConst::yes() { return tr("Yes"); }
 // Terms and conditions
 // ============================================================================
 
-QString TextConst::termsConditions() {
+QString TextConst::clinicianTermsConditions() {
     return tr(
         "1. By using the Cambridge Cognitive and Psychiatric Assessment Kit "
         "application or web interface (“CamCOPS”), you are agreeing in full "
@@ -259,6 +259,12 @@ QString TextConst::termsConditions() {
     // This should match the DISCLAIMER_CONTENT string in the server_string()
     // function of camcops_server/cc_modules/cc_text.py.
 }
+
+
+QString TextConst::singleUserTermsConditions() {
+    return tr("Placeholder...");
+}
+
 
 // ============================================================================
 // Test text
