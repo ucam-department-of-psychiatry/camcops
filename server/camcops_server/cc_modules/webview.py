@@ -3637,6 +3637,11 @@ class AddPatientView(PatientMixin, CreateView):
     form_class = EditScheduledPatientForm
     template_name = "patient_add.mako"
 
+    def get_success_url(self):
+        return self.request.route_url(
+            Routes.VIEW_PATIENT_TASK_SCHEDULES
+        )
+
     def save_object(self, appstruct):
         server_device = Device.get_server_device(
             self.request.dbsession
