@@ -266,7 +266,6 @@ public:
 
     // Returns the names of all tables in the database.
     QStringList getAllTables();
-    QStringList getTablesForUpload();
 
     // Does a table exist in the database?
     bool tableExists(const QString& tablename);
@@ -379,9 +378,6 @@ public:
 
     // Returns the entire database in a JSON representation.
     QString getDatabaseAsJson();
-    QString getDatabaseForUploadAsJson();
-
-    QString getTablesAsJson(const QStringList& tables);
 
     // Returns a table (with all its data) in a JSON representation.
     QJsonArray getTableAsJson(const QString& tablename);

@@ -89,7 +89,7 @@ void TaskSchedule::addItems(const QJsonArray items_json_array)
         QJsonObject item_json = it->toObject();
 
         TaskScheduleItemPtr item = TaskScheduleItemPtr(
-            new TaskScheduleItem(id(), m_app, m_app.db(), item_json)
+            new TaskScheduleItem(id(), m_app, m_app.sysdb(), item_json)
         );
         item->save();
 

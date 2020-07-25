@@ -655,21 +655,6 @@ QStringList DatabaseManager::getAllTables()
 }
 
 
-QStringList DatabaseManager::getTablesForUpload()
-{
-    // The task schedule tables are special cases. They exist on the server
-    // and the client versions are populated by the server but they aren't
-    // modified by the client and we don't want to upload them to the server.
-    // If we don't remove them here, the application will assume the client
-    // is newer than the server.
-    const QStringList special_tables = {
-        "task_schedule", "task_schedule_item"
-    };
-
-    return containers::setSubtract(getAllTables(), special_tables);
-}
-
-
 bool DatabaseManager::tableExists(const QString& tablename)
 {
     const SqlArgs sqlargs(
@@ -1225,25 +1210,16 @@ bool DatabaseManager::encryptToAnother(const QString& filename,
 // JSON output
 // ----------------------------------------------------------------------------
 
-QString DatabaseManager::getDatabaseForUploadAsJson()
-{
-    return getTablesAsJson(getTablesForUpload());
-}
-
 QString DatabaseManager::getDatabaseAsJson()
 {
-    return getTablesAsJson(getAllTables());
-}
-
-QString DatabaseManager::getTablesAsJson(const QStringList& tables)
-{
     QJsonObject root;
-    for (const QString& tablename : tables) {
+    for (const QString& tablename : getAllTables()) {
         root[tablename] = getTableAsJson(tablename);
     }
     const QJsonDocument jsondoc(root);
     return jsondoc.toJson(QJsonDocument::Compact);
 }
+
 
 QJsonArray DatabaseManager::getTableAsJson(const QString& tablename)
 {

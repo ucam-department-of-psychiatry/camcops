@@ -436,13 +436,13 @@ void CamcopsApp::handleNetworkFailure(const NetworkManager::ErrorCode error_code
 TaskSchedulePtrList CamcopsApp::getTaskSchedules()
 {
     TaskSchedulePtrList task_schedules;
-    TaskSchedule specimen(*this, *m_datadb, dbconst::NONEXISTENT_PK);  // this is why function can't be const
+    TaskSchedule specimen(*this, *m_sysdb, dbconst::NONEXISTENT_PK);  // this is why function can't be const
     const WhereConditions where;  // but we don't specify any
     const SqlArgs sqlargs = specimen.fetchQuerySql(where);
-    const QueryResult result = m_datadb->query(sqlargs);
+    const QueryResult result = m_sysdb->query(sqlargs);
     const int nrows = result.nRows();
     for (int row = 0; row < nrows; ++row) {
-        TaskSchedulePtr t(new TaskSchedule(*this, *m_datadb, dbconst::NONEXISTENT_PK));
+        TaskSchedulePtr t(new TaskSchedule(*this, *m_sysdb, dbconst::NONEXISTENT_PK));
         t->setFromQuery(result, row, true);
         task_schedules.append(t);
     }
@@ -1229,6 +1229,12 @@ void CamcopsApp::makeOtherTables()
     idnumdesc_specimen.makeTable();
     idnumdesc_specimen.makeIndexes();
 
+    TaskSchedule task_schedule_specimen(*this, *m_sysdb);
+    task_schedule_specimen.makeTable();
+
+    TaskScheduleItem task_schedule_item_specimen(*this, *m_sysdb);
+    task_schedule_item_specimen.makeTable();
+
     // Make special tables: main database
     // - See also QStringList CamcopsApp::nonTaskTables()
 
@@ -1241,12 +1247,6 @@ void CamcopsApp::makeOtherTables()
 
     PatientIdNum patient_idnum_specimen(*this, *m_datadb);
     patient_idnum_specimen.makeTable();
-
-    TaskSchedule task_schedule_specimen(*this, *m_datadb);
-    task_schedule_specimen.makeTable();
-
-    TaskScheduleItem task_schedule_item_specimen(*this, *m_datadb);
-    task_schedule_item_specimen.makeTable();
 }
 
 
