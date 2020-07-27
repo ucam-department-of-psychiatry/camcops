@@ -4392,6 +4392,7 @@ class AddTaskScheduleItemViewTests(DemoDatabaseTestCase):
             (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
             (ViewParam.SCHEDULE_ID, self.schedule.id),
             (ViewParam.TABLE_NAME, "ace3"),
+            (ViewParam.CLINICIAN_CONFIRMATION, "true"),
             ("__start__", "due_from:mapping"),
             ("months", "1"),
             ("weeks", "2"),
