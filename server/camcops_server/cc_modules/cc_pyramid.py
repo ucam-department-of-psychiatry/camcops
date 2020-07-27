@@ -158,6 +158,7 @@ class ViewParam(object):
     AGE_MAXIMUM = "age_maximum"
     ALL_TASKS = "all_tasks"
     ANONYMISE = "anonymise"
+    CLINICIAN_CONFIRMATION = "clinician_confirmation"
     CSRF_TOKEN = "csrf"
     DATABASE_TITLE = "database_title"
     DELIVERY_MODE = "delivery_mode"

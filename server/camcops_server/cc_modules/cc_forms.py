@@ -206,6 +206,7 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     ID_DESCRIPTOR_MAX_LEN,
     USERNAME_CAMCOPS_MAX_LEN,
 )
+from camcops_server.cc_modules.cc_task import tablename_to_task_class_dict
 from camcops_server.cc_modules.cc_taskschedule import TaskSchedule
 from camcops_server.cc_modules.cc_unittest import DemoRequestTestCase
 
@@ -3798,6 +3799,8 @@ class TaskScheduleItemSchema(CSRFSchema):
     schedule_id = HiddenIntegerNode()  # name must match ViewParam.SCHEDULE_ID
     # name must match ViewParam.TABLE_NAME
     table_name = MandatorySingleTaskSelector()
+    # name must match ViewParam.CLINICIAN_CONFIRMATION
+    clinician_confirmation = BooleanNode(default=False)
     due_from = DurationNode()  # name must match ViewParam.DUE_FROM
     due_within = DurationNode()  # name must match ViewParam.DUE_WITHIN
 
@@ -3814,6 +3817,22 @@ class TaskScheduleItemSchema(CSRFSchema):
         due_within.description = _(
             "Time the patient has to complete this task"
         )
+        clinician_confirmation = get_child_node(self, "clinician_confirmation")
+        clinician_confirmation.title = _("Allow clinician tasks")
+
+    def validator(self, node: SchemaNode, value: Any) -> None:
+        _ = self.gettext
+        task_class = tablename_to_task_class_dict()[value["table_name"]]
+        if task_class.has_clinician and not value["clinician_confirmation"]:
+            raise Invalid(
+                node,
+                _(
+                    "You have scheduled the task '{task_name}', which a "
+                    "patient would not normally complete by themselves. "
+                    "If you are sure you want to do this, you must tick "
+                    "'Allow clinician tasks'."
+                ).format(task_name=task_class.shortname)
+            )
 
 
 class EditTaskScheduleItemForm(DynamicDescriptionsForm):
@@ -3915,13 +3934,13 @@ class UserDownloadDeleteForm(SimpleSubmitForm):
 # Unit tests
 # =============================================================================
 
-class SchemaTests(DemoRequestTestCase):
+class SchemaTestCase(DemoRequestTestCase):
     """
     Unit tests.
     """
-    @staticmethod
-    def _serialize_deserialize(schema: Schema,
-                               appstruct: Dict[str, Any]) -> None:
+    def serialize_deserialize(self,
+                              schema: Schema,
+                              appstruct: Dict[str, Any]) -> None:
         cstruct = schema.serialize(appstruct)
         final = schema.deserialize(cstruct)
         mismatch = False
@@ -3929,32 +3948,68 @@ class SchemaTests(DemoRequestTestCase):
             if final[k] != v:
                 mismatch = True
                 break
-        assert not mismatch, (
+        self.assertFalse(mismatch, msg=(
             "Elements of final don't match corresponding elements of starting "
             "appstruct:\n"
             f"final = {pformat(final)}\n"
             f"start = {pformat(appstruct)}"
-        )
+        ))
 
-    def test_login_schema(self) -> None:
-        self.announce("test_login_schema")  # noqa
+
+class LoginSchemaTests(SchemaTestCase):
+    def test_serialize_deserialize(self) -> None:
         appstruct = {
             ViewParam.USERNAME: "testuser",
             ViewParam.PASSWORD: "testpw",
         }
         schema = LoginSchema().bind(request=self.req)
-        self._serialize_deserialize(schema, appstruct)
 
-    def test_task_schedule_item_schema(self) -> None:
-        self.announce("test_task_schedule_item_schema")  # noqa
+        self.serialize_deserialize(schema, appstruct)
+
+
+class TaskScheduleItemSchemaTests(SchemaTestCase):
+    def test_serialize_deserialize(self) -> None:
         appstruct = {
             ViewParam.SCHEDULE_ID: 1,
             ViewParam.TABLE_NAME: "bmi",
+            ViewParam.CLINICIAN_CONFIRMATION: False,
             ViewParam.DUE_FROM: Duration(days=90),
             ViewParam.DUE_WITHIN: Duration(days=100)
         }
         schema = TaskScheduleItemSchema().bind(request=self.req)
-        self._serialize_deserialize(schema, appstruct)
+        self.serialize_deserialize(schema, appstruct)
+
+    def test_invalid_for_clinician_task_with_no_confirmation(self) -> None:
+        schema = TaskScheduleItemSchema().bind(request=self.req)
+        appstruct = {
+            ViewParam.SCHEDULE_ID: 1,
+            ViewParam.TABLE_NAME: "elixhauserci",
+            ViewParam.CLINICIAN_CONFIRMATION: False,
+            ViewParam.DUE_FROM: Duration(days=90),
+            ViewParam.DUE_WITHIN: Duration(days=100)
+        }
+
+        cstruct = schema.serialize(appstruct)
+        with self.assertRaises(Invalid) as cm:
+            schema.deserialize(cstruct)
+
+            self.assertIn("you must tick 'Allow clinician tasks'",
+                          cm.exception.messages())
+
+    def test_valid_for_clinician_task_with_confirmation(self) -> None:
+        schema = TaskScheduleItemSchema().bind(request=mock.Mock())
+        appstruct = {
+            ViewParam.SCHEDULE_ID: 1,
+            ViewParam.TABLE_NAME: "elixhauserci",
+            ViewParam.CLINICIAN_CONFIRMATION: True,
+            ViewParam.DUE_FROM: Duration(days=90),
+            ViewParam.DUE_WITHIN: Duration(days=100)
+        }
+
+        try:
+            schema.serialize(appstruct)
+        except Invalid:
+            self.fail("Validation failed unexpectedly")
 
 
 class DurationWidgetTests(TestCase):
