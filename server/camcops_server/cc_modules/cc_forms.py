@@ -3821,6 +3821,11 @@ class TaskScheduleItemSchema(CSRFSchema):
         )
         clinician_confirmation = get_child_node(self, "clinician_confirmation")
         clinician_confirmation.title = _("Allow clinician tasks")
+        clinician_confirmation.label = None
+        clinician_confirmation.description = _(
+            "Tick this box to schedule a task that would normally be completed "
+            "by a clinician"
+        )
 
     def validator(self, node: SchemaNode, value: Any) -> None:
         _ = self.gettext
@@ -3829,7 +3834,7 @@ class TaskScheduleItemSchema(CSRFSchema):
             raise Invalid(
                 node,
                 _(
-                    "You have scheduled the task '{task_name}', which a "
+                    "You have selected the task '{task_name}', which a "
                     "patient would not normally complete by themselves. "
                     "If you are sure you want to do this, you must tick "
                     "'Allow clinician tasks'."
