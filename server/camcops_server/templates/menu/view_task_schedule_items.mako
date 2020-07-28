@@ -82,13 +82,14 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 
 <div>${page.pager()}</div>
 
+<div>
 <a href="${ req.route_url(Routes.ADD_TASK_SCHEDULE_ITEM,
     _query={
         ViewParam.SCHEDULE_ID: req.get_int_param(ViewParam.SCHEDULE_ID),
     }
 
 ) }">${_("Add a task schedule item")}</a>
-<div>
+</div>
 <a href="${ req.route_url(Routes.VIEW_TASK_SCHEDULES)}">${_("Task schedule management")}</a>
 <%include file="to_main_menu.mako"/>
 </div>
