@@ -674,6 +674,13 @@ class Patient(GenericTabletRecordMixin, Base):
         address = self.address  # type: Optional[str]
         return address or ""
 
+    def get_email(self) -> Optional[str]:
+        """
+        Returns email address
+        """
+        email = self.email  # type: Optional[str]
+        return email or ""
+
     # -------------------------------------------------------------------------
     # Other representations
     # -------------------------------------------------------------------------
@@ -752,6 +759,7 @@ class Patient(GenericTabletRecordMixin, Base):
             sex=self.sex,
             dob=self.dob,
             address=self.address,
+            email=self.email,
             gp=self.gp,
             otherdetails=self.other,
             idnum_definitions=self.get_idnum_references()
@@ -1089,6 +1097,7 @@ class PatientTests(DemoDatabaseTestCase):
         self.assertIsInstance(p.get_sex(), str)
         self.assertIsInstance(p.get_sex_verbose(), str)
         self.assertIsInstance(p.get_address(), str)
+        self.assertIsInstance(p.get_email(), str)
         self.assertIsInstance(p.get_hl7_pid_segment(req, self.recipdef),
                               hl7.Segment)
         self.assertIsInstanceOrNone(p.get_idnum_object(which_idnum=1),

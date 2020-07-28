@@ -85,6 +85,7 @@ TK_DOB = -11
 TK_ADDRESS = -12
 TK_GP = -13
 TK_OTHER_DETAILS = -14
+TK_EMAIL = -15
 
 # Tokens for ID numbers are from 1 upwards.
 
@@ -105,13 +106,14 @@ POLICY_TOKEN_DICT = {
     "ADDRESS": TK_ADDRESS,
     "GP": TK_GP,
     "OTHERDETAILS": TK_OTHER_DETAILS,
+    "EMAIL": TK_EMAIL,
 }
 TOKEN_POLICY_DICT = reversedict(POLICY_TOKEN_DICT)
 
 NON_IDNUM_INFO_TOKENS = [
     TK_OTHER_IDNUM, TK_ANY_IDNUM,
     TK_FORENAME, TK_SURNAME, TK_SEX, TK_DOB,
-    TK_ADDRESS, TK_GP, TK_OTHER_DETAILS,
+    TK_ADDRESS, TK_GP, TK_OTHER_DETAILS, TK_EMAIL,
 ]
 
 TOKEN_IDNUM_PREFIX = "IDNUM"
@@ -283,6 +285,10 @@ class PatientInfoPresence(object):
         return self.is_present(TK_ADDRESS)
 
     @property
+    def email_present(self) -> QuadState:
+        return self.is_present(TK_EMAIL)
+
+    @property
     def gp_present(self) -> QuadState:
         return self.is_present(TK_GP)
 
@@ -329,6 +335,7 @@ class PatientInfoPresence(object):
             TK_SEX: bool_to_quad(ptinfo.sex),
             TK_DOB: bool_to_quad(ptinfo.dob is not None),
             TK_ADDRESS: bool_to_quad(ptinfo.address),
+            TK_EMAIL: bool_to_quad(ptinfo.email),
             TK_GP: bool_to_quad(ptinfo.gp),
             TK_OTHER_DETAILS: bool_to_quad(ptinfo.otherdetails),
             TK_OTHER_IDNUM: Q_FALSE,  # may change
@@ -904,7 +911,7 @@ class TokenizedPolicy(object):
             return True
         if verbose:
             log.debug("... does not require an ID number; trying alternatives")
-        other_mandatory = [TK_FORENAME, TK_SURNAME, TK_DOB]
+        other_mandatory = [TK_FORENAME, TK_SURNAME, TK_DOB, TK_EMAIL]
         for token in other_mandatory:
             requires, _ = self._requires_prohibits(token, verbose=verbose)
             if not requires:
@@ -1226,6 +1233,7 @@ class PolicyTests(ExtendedTestCase):
             forename="forename",
             surname="surname",
             dob=Date.today(),  # random value
+            email="patient@example.com",
             sex="F",
             idnum_definitions=[
                 IdNumReference(1, 1),
@@ -1371,6 +1379,25 @@ class PolicyTests(ExtendedTestCase):
                 critical_single_numerical_id=None,
                 compatible_with_tablet_id_policy=True,
                 is_idnum_mandatory_in_policy={1: False, 3: False}
+            ),
+            TestRig(
+                "forename AND surname AND email AND sex AND idnum1",
+                syntactically_valid=True,
+                valid=True,
+                test_critical_single_numerical_id=True,
+                critical_single_numerical_id=1,
+                compatible_with_tablet_id_policy=True,
+                is_idnum_mandatory_in_policy={1: True, 3: False}
+            ),
+            TestRig(
+                "email AND sex AND idnum1",
+                syntactically_valid=True,
+                valid=True,
+                ptinfo_satisfies_id_policy=True,
+                test_critical_single_numerical_id=True,
+                critical_single_numerical_id=1,
+                compatible_with_tablet_id_policy=True,
+                is_idnum_mandatory_in_policy={1: True, 3: False}
             ),
         ]
 
