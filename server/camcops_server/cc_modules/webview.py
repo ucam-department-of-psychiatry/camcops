@@ -3925,9 +3925,9 @@ def view_task_schedules(req: "CamcopsRequest") -> Dict[str, Any]:
                                       DEFAULT_ROWS_PER_PAGE)
     page_num = req.get_int_param(ViewParam.PAGE, 1)
     group_ids = req.user.ids_of_groups_user_is_admin_for
-    q = req.dbsession.query(TaskSchedule).filter(
+    q = req.dbsession.query(TaskSchedule).join(TaskSchedule.group).filter(
         TaskSchedule.group_id.in_(group_ids)
-    )
+    ).order_by(Group.name, TaskSchedule.name)
     page = SqlalchemyOrmPage(query=q,
                              page=page_num,
                              items_per_page=rows_per_page,
