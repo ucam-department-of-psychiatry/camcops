@@ -46,6 +46,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
     <tr>
         <th>${_("Patient")}</th>
         <th>${_("Access key")}</th>
+        <th>${_("Email")}</th>
         <th>${_("Task schedules")}</th>
         <th>${_("Edit patient")}</th>
         <th>${_("Delete patient")}</th>
@@ -59,6 +60,9 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
         </td>
         <td>
             ${ patient.uuid_as_proquint }
+        </td>
+        <td>
+            ${ patient.email or "" }
         </td>
         <td>
             %for pts in patient.task_schedules:
