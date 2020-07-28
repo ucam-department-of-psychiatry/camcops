@@ -3489,6 +3489,7 @@ EDIT_PATIENT_SIMPLE_PARAMS = [
     ViewParam.DOB,
     ViewParam.SEX,
     ViewParam.ADDRESS,
+    ViewParam.EMAIL,
     ViewParam.GP,
     ViewParam.OTHER,
 ]
@@ -3570,6 +3571,7 @@ class EditPatientSchema(CSRFSchema):
     dob = DateSelectorNode()  # must match ViewParam.DOB
     sex = MandatorySexSelector()  # must match ViewParam.SEX
     address = OptionalStringNode()  # must match ViewParam.ADDRESS
+    email = OptionalStringNode()  # must match ViewParam.EMAIL
     gp = OptionalStringNode()  # must match ViewParam.GP
     other = OptionalStringNode()  # must match ViewParam.OTHER
     id_references = IdNumSequenceUniquePerWhichIdnum()  # must match ViewParam.ID_REFERENCES  # noqa

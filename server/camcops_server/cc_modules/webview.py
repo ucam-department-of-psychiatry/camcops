@@ -4760,6 +4760,7 @@ class EditPatientViewTests(DemoDatabaseTestCase):
             ("deformField7", "X"),
             ("__end__", "sex:rename"),
             (ViewParam.ADDRESS, "New address"),
+            (ViewParam.EMAIL, "newjopatient@example.com"),
             (ViewParam.GP, "New GP"),
             (ViewParam.OTHER, "New other"),
             ("__start__", "id_references:sequence"),
@@ -4787,6 +4788,7 @@ class EditPatientViewTests(DemoDatabaseTestCase):
         self.assertEqual(patient.dob.isoformat(), "1958-04-19")
         self.assertEqual(patient.sex, "X")
         self.assertEqual(patient.address, "New address")
+        self.assertEqual(patient.email, "newjopatient@example.com")
         self.assertEqual(patient.gp, "New GP")
         self.assertEqual(patient.other, "New other")
 
@@ -5139,6 +5141,7 @@ class AddPatientViewTests(DemoDatabaseTestCase):
             ViewParam.DOB: datetime.date(1958, 4, 19),
             ViewParam.SEX: "F",
             ViewParam.ADDRESS: "Address",
+            ViewParam.EMAIL: "jopatient@example.com",
             ViewParam.GP: "GP",
             ViewParam.OTHER: "Other",
             ViewParam.ID_REFERENCES: [{
@@ -5175,6 +5178,7 @@ class AddPatientViewTests(DemoDatabaseTestCase):
         self.assertEqual(patient.dob.isoformat(), "1958-04-19")
         self.assertEqual(patient.sex, "F")
         self.assertEqual(patient.address, "Address")
+        self.assertEqual(patient.email, "jopatient@example.com")
         self.assertEqual(patient.gp, "GP")
         self.assertEqual(patient.other, "Other")
 

@@ -86,6 +86,7 @@ from camcops_server.cc_modules.cc_simpleobjects import (
 from camcops_server.cc_modules.cc_specialnote import SpecialNote
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
+    EmailAddressColType,
     PatientNameColType,
     SexColType,
     UuidColType,
@@ -127,13 +128,11 @@ class Patient(GenericTabletRecordMixin, Base):
         comment="Primary key (patient ID) on the source tablet device"
         # client PK
     )
-
     uuid = CamcopsColumn(
         "uuid", UuidColType,
         comment="UUID",
         default=uuid.uuid4
     )
-
     forename = CamcopsColumn(
         "forename", PatientNameColType,
         index=True,
@@ -163,6 +162,10 @@ class Patient(GenericTabletRecordMixin, Base):
         "address", UnicodeText,
         identifies_patient=True,
         comment="Address"
+    )
+    email = Column(
+        "email", EmailAddressColType,
+        comment="Patient's e-mail address"
     )
     gp = CamcopsColumn(
         "gp", UnicodeText,
