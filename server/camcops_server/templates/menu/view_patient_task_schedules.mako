@@ -63,7 +63,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
         </td>
         <td>
             %if patient.email:
-            <a href="mailto:${ patient.email }">${ patient.email }</a>
+            <a href="mailto:${ patient.email }?body=${ patient.uuid_as_proquint }">${ patient.email }</a>
             %endif
         </td>
         <td>
