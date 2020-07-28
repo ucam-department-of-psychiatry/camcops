@@ -62,7 +62,9 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
             ${ patient.uuid_as_proquint }
         </td>
         <td>
-            ${ patient.email or "" }
+            %if patient.email:
+            <a href="mailto:${ patient.email }">${ patient.email }</a>
+            %endif
         </td>
         <td>
             %for pts in patient.task_schedules:
