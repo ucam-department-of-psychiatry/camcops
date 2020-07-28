@@ -3317,6 +3317,7 @@ class PatientMixin:
         "surname": ViewParam.SURNAME,
         "dob": ViewParam.DOB,
         "sex": ViewParam.SEX,
+        "email": ViewParam.EMAIL,
         "address": ViewParam.ADDRESS,
         "gp": ViewParam.GP,
         "other": ViewParam.OTHER,
@@ -5062,7 +5063,8 @@ class EditPatientViewTests(DemoDatabaseTestCase):
         patient = self.create_patient(
             id=1, forename="JO", surname="PATIENT",
             dob=datetime.date(1958, 4, 19),
-            sex="F", address="Address", gp="GP", other="Other"
+            sex="F", address="Address", email="jopatient@example.com",
+            gp="GP", other="Other"
         )
 
         schedule1 = TaskSchedule()
@@ -5098,6 +5100,7 @@ class EditPatientViewTests(DemoDatabaseTestCase):
         self.assertEqual(form_values[ViewParam.DOB], datetime.date(1958, 4, 19))
         self.assertEqual(form_values[ViewParam.SEX], "F")
         self.assertEqual(form_values[ViewParam.ADDRESS], "Address")
+        self.assertEqual(form_values[ViewParam.EMAIL], "jopatient@example.com")
         self.assertEqual(form_values[ViewParam.GP], "GP")
         self.assertEqual(form_values[ViewParam.OTHER], "Other")
 
