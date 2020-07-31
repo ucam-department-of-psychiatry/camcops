@@ -94,6 +94,7 @@ Form titles need to be dynamically written via
 
 """
 
+import json
 import logging
 import os
 from pprint import pformat
@@ -3528,9 +3529,76 @@ class TaskScheduleSelector(SchemaNode, RequestAwareMixin):
         return Integer()
 
 
+class JsonType(object):
+    def deserialize(self, node: SchemaNode, cstruct: str) -> Duration:
+        if cstruct in (colander.null, None):
+            return colander.null
+
+        # TODO: Handle exception
+        return json.loads(cstruct)
+
+    def serialize(self, node: SchemaNode, appstruct) -> Dict:
+        if appstruct is colander.null:
+            return colander.null
+
+        # TODO: Handle exception
+        return json.dumps(appstruct)
+
+
+class JsonWidget(Widget):
+    basedir = os.path.join(TEMPLATE_DIR, "deform")
+    readonlydir = os.path.join(basedir, "readonly")
+    form = "json.pt"
+    template = os.path.join(basedir, form)
+    readonly_template = os.path.join(readonlydir, form)
+
+    def __init__(self, request: "CamcopsRequest", *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.request = request
+
+    def serialize(self, field, cstruct, **kw):
+        if cstruct is colander.null:
+            cstruct = "{}"
+
+        readonly = kw.get('readonly', self.readonly)
+        template = readonly and self.readonly_template or self.template
+
+        values = self.get_template_values(field, cstruct, kw)
+
+        return field.renderer(template, **values)
+
+    def deserialize(self, field, pstruct):
+        # called when validating the form on submission
+        # value is passed to the schema deserialize()
+
+        if pstruct is null:
+            pstruct = "{}"
+
+        errors = []
+
+        try:
+            json.loads(pstruct)
+        except json.JSONDecodeError:
+            errors.append("Please enter valid JSON or leave blank")
+
+        if len(errors) > 0:
+            raise Invalid(field, errors)
+
+        return pstruct
+
+
+class JsonNode(SchemaNode, RequestAwareMixin):
+    schema_type = JsonType
+    missing = colander.null
+
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        self.widget = JsonWidget(self.request)
+
+
 class TaskScheduleNode(MappingSchema, RequestAwareMixin):
     schedule_id = TaskScheduleSelector()  # must match ViewParam.SCHEDULE_ID  # noqa: E501
     start_date = DateSelectorNode()  # must match ViewParam.START_DATE
+    settings = JsonNode()  # must match ViewParam.SETTINGS
 
     def __init__(self, *args, **kwargs) -> None:
         self.title = ""  # for type checker
@@ -3543,6 +3611,8 @@ class TaskScheduleNode(MappingSchema, RequestAwareMixin):
         start_date = get_child_node(self, "start_date")
         start_date.title = _("Start date (leave blank for date of patient "
                              "registration)")
+        settings = get_child_node(self, "settings")
+        settings.title = _("Task-specific settings for this patient")
 
 
 class TaskScheduleSequence(SequenceSchema, RequestAwareMixin):
@@ -3565,7 +3635,6 @@ class EditPatientSchema(CSRFSchema):
     Schema to edit a patient.
     """
     server_pk = HiddenIntegerNode()  # must match ViewParam.SERVER_PK
-    group_id = HiddenIntegerNode()  # must match ViewParam.GROUP_ID
     forename = OptionalStringNode()  # must match ViewParam.FORENAME
     surname = OptionalStringNode()  # must match ViewParam.SURNAME
     dob = DateSelectorNode()  # must match ViewParam.DOB
@@ -3612,6 +3681,7 @@ class EditPatientSchema(CSRFSchema):
 
 
 class DangerousEditPatientSchema(EditPatientSchema):
+    group_id = HiddenIntegerNode()  # must match ViewParam.GROUP_ID
     danger = TranslatableValidateDangerousOperationNode()
 
 
@@ -4140,6 +4210,106 @@ class DurationWidgetTests(TestCase):
         self.assertIn("Please enter a valid number of weeks or leave blank",
                       cm.exception.messages())
         self.assertIn("Please enter a valid number of months or leave blank",
+                      cm.exception.messages())
+
+
+class JsonWidgetTests(TestCase):
+    def setUp(self):
+        super().setUp()
+        self.request = mock.Mock(gettext=mock.Mock())
+
+    def test_serialize_renders_template_with_values(self) -> None:
+        widget = JsonWidget(self.request)
+
+        field = mock.Mock()
+        field.renderer = mock.Mock()
+
+        cstruct = json.dumps({"a": "1", "b": "2", "c": "3"})
+
+        widget.serialize(field, cstruct, readonly=False)
+
+        args, kwargs = field.renderer.call_args
+
+        self.assertEqual(args[0], f"{TEMPLATE_DIR}/deform/json.pt")
+        self.assertFalse(kwargs['readonly'])
+
+        self.assertEqual(kwargs['cstruct'], cstruct)
+        self.assertEqual(kwargs['field'], field)
+
+    def test_serialize_renders_readonly_template_with_values(self) -> None:
+        widget = JsonWidget(self.request)
+
+        field = mock.Mock()
+        field.renderer = mock.Mock()
+
+        cstruct = json.dumps({"a": "1", "b": "2", "c": "3"})
+
+        widget.serialize(field, cstruct, readonly=True)
+
+        args, kwargs = field.renderer.call_args
+
+        self.assertEqual(args[0], f"{TEMPLATE_DIR}/deform/readonly/json.pt")
+
+        self.assertEqual(kwargs['cstruct'], cstruct)
+        self.assertEqual(kwargs['field'], field)
+        self.assertTrue(kwargs['readonly'])
+
+    def test_serialize_renders_readonly_template_if_widget_is_readonly(
+            self) -> None:
+        widget = JsonWidget(self.request, readonly=True)
+
+        field = mock.Mock()
+        field.renderer = mock.Mock()
+
+        json_text = json.dumps({"a": "1", "b": "2", "c": "3"})
+
+        cstruct = {
+            "json": json_text
+        }
+
+        widget.serialize(field, cstruct)
+
+        args, kwargs = field.renderer.call_args
+
+        self.assertEqual(args[0], f"{TEMPLATE_DIR}/deform/readonly/json.pt")
+
+    def test_serialize_with_null_defaults_to_empty_json_string(self) -> None:
+        widget = JsonWidget(self.request)
+
+        field = mock.Mock()
+        field.renderer = mock.Mock()
+
+        widget.serialize(field, colander.null)
+
+        args, kwargs = field.renderer.call_args
+
+        self.assertEqual(kwargs["cstruct"], "{}")
+
+    def test_deserialize_passes_json(self) -> None:
+        widget = JsonWidget(self.request)
+
+        pstruct = json.dumps({"a": "1", "b": "2", "c": "3"})
+
+        cstruct = widget.deserialize(None, pstruct)
+
+        self.assertEqual(cstruct, pstruct)
+
+    def test_deserialize_defaults_to_empty_json_string(self) -> None:
+        widget = JsonWidget(self.request)
+
+        cstruct = widget.deserialize(None, "{}")
+
+        self.assertEqual(cstruct, "{}")
+
+    def test_deserialize_fails_validation(self) -> None:
+        widget = JsonWidget(self.request)
+
+        pstruct = "{"
+
+        with self.assertRaises(Invalid) as cm:
+            widget.deserialize(None, pstruct)
+
+        self.assertIn("Please enter valid JSON or leave blank",
                       cm.exception.messages())
 
 

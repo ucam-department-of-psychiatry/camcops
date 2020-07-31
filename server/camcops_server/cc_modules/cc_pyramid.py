@@ -221,6 +221,7 @@ class ViewParam(object):
     SCHEDULE_ID = "schedule_id"
     SCHEDULE_ITEM_ID = "schedule_item_id"
     SERVER_PK = "server_pk"
+    SETTINGS = "settings"
     SEX = "sex"
     SHORT_DESCRIPTION = "short_description"
     SORT = "sort"

@@ -286,6 +286,10 @@ class DemoDatabaseTestCase(DemoRequestTestCase):
                                          hl7_assigning_authority="CPFT",
                                          hl7_id_type="CPFT_RiO")
         self.dbsession.add(self.rio_iddef)
+        self.study_iddef = IdNumDefinition(which_idnum=3,
+                                           description="Study number",
+                                           short_description="Study")
+        self.dbsession.add(self.study_iddef)
         # ... group
         self.group = Group()
         self.group.name = "testgroup"

@@ -41,6 +41,7 @@ from camcops_server.cc_modules.cc_group import Group
 from camcops_server.cc_modules.cc_simpleobjects import IdNumReference
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 from camcops_server.cc_modules.cc_sqla_coltypes import (
+    JsonColType,
     PendulumDateTimeAsIsoTextColType,
     PendulumDurationAsIsoTextColType,
     TableNameColType,
@@ -92,6 +93,11 @@ class PatientTaskSchedule(Base):
             "durations for a task schedule item are relative to this."
         )
     )
+    settings = Column(
+        "settings", JsonColType,
+        comment=("Task-specific settings for this patient")
+    )
+
     patient = relationship("Patient", backref="task_schedules")
     task_schedule = relationship("TaskSchedule", backref="patients")
 
