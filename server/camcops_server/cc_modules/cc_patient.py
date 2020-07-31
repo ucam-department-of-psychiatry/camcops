@@ -163,8 +163,9 @@ class Patient(GenericTabletRecordMixin, Base):
         identifies_patient=True,
         comment="Address"
     )
-    email = Column(
+    email = CamcopsColumn(
         "email", EmailAddressColType,
+        identifies_patient=True,
         comment="Patient's e-mail address"
     )
     gp = CamcopsColumn(
