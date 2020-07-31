@@ -98,6 +98,7 @@ Also notes:
 # =============================================================================
 
 import datetime
+import json
 import logging
 from typing import (Any, Generator, List, Optional, Tuple, Type, TYPE_CHECKING,
                     Union)
@@ -1279,6 +1280,36 @@ class UuidColType(TypeDecorator):
 
         if not isinstance(value, uuid.UUID):
             return uuid.UUID(value)
+
+
+# =============================================================================
+# JSON column type
+# =============================================================================
+
+class JsonColType(TypeDecorator):
+    # Unlike
+    # https://docs.sqlalchemy.org/en/13/core/type_basics.html#sqlalchemy.types.JSON
+    # does not use vendor-specific JSON type
+    impl = UnicodeText
+
+    @property
+    def python_type(self) -> type:
+        """
+        The Python type of the object.
+        """
+        return str
+
+    def process_bind_param(self, value, dialect):
+        if value is None:
+            return value
+
+        return json.dumps(value)
+
+    def process_result_value(self, value, dialect):
+        if value is None:
+            return value
+
+        return json.loads(value)
 
 
 # =============================================================================
