@@ -1,0 +1,8 @@
+<textarea tal:define="css_class css_class|field.widget.css_class;
+                      oid oid|field.oid;
+                      name name|field.name;
+                      style style|field.widget.style"
+          tal:attributes="class string: form-control ${css_class or ''};
+                          style style"
+          id="${oid}"
+          name="${name}">${cstruct}</textarea>
