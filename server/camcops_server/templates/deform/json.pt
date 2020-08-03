@@ -1,8 +1,40 @@
 <textarea tal:define="css_class css_class|field.widget.css_class;
-                      oid oid|field.oid;
-                      name name|field.name;
                       style style|field.widget.style"
-          tal:attributes="class string: form-control ${css_class or ''};
+          tal:attributes="class string: form-control jsonwidget-textarea ${css_class or ''};
                           style style"
-          id="${oid}"
-          name="${name}">${cstruct}</textarea>
+          id="${field.oid}"
+          name="${field.name}">${cstruct}</textarea>
+<div id="${field.oid}-jsoneditor" class="jsonwidget-editor"></div>
+<script type="text/javascript">
+    deform.addCallback(
+        '${field.oid}',
+        function (oid) {
+            // create the editor
+            const container = document.getElementById("${field.oid}-jsoneditor");
+            const options = {
+                mode: "tree",
+                modes: ["code", "tree"],
+            };
+            const aceOptions = {
+            };
+            const textarea = document.getElementById("${field.oid}");
+            const editor = new JSONEditor(container, Object.assign({
+                onChange: function () {
+                    textarea.value = editor.getText();
+                },
+                onModeChange: function(endMode, startMode) {
+                    if (endMode == "code") {
+                        editor.aceEditor.setOptions(aceOptions);
+                    }
+                }
+            }, options));
+             const value = textarea.value;
+            try {
+                editor.set(JSON.parse(value));
+            } catch (e) {
+                editor.setMode("code");
+                editor.setText(value);
+            }
+        }
+    );
+</script>

@@ -42,6 +42,9 @@ from deform.exception import ValidationFailure
 
 from camcops_server.cc_modules.cc_exception import raise_runtime_error
 from camcops_server.cc_modules.cc_pyramid import FormAction
+from camcops_server.cc_modules.cc_resource_registry import (
+    CamcopsResourceRegistry
+)
 
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_request import CamcopsRequest
@@ -131,7 +134,9 @@ class FormMixin(ContextMixin):
         if self._form is None:
             if form_class is None:
                 form_class = self.get_form_class()
-            self._form = form_class(request=self.request)
+            registry = CamcopsResourceRegistry()
+            self._form = form_class(request=self.request,
+                                    resource_registry=registry)
 
         return self._form
 

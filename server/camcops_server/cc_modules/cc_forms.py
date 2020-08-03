@@ -99,7 +99,7 @@ import logging
 import os
 from pprint import pformat
 from typing import (Any, Callable, Dict, List, Optional,
-                    Tuple, Type, TYPE_CHECKING)
+                    Tuple, Type, TYPE_CHECKING, Union)
 import unittest
 from unittest import mock, TestCase
 
@@ -3530,18 +3530,24 @@ class TaskScheduleSelector(SchemaNode, RequestAwareMixin):
 
 
 class JsonType(object):
-    def deserialize(self, node: SchemaNode, cstruct: str) -> Duration:
+    def deserialize(self, node: SchemaNode, cstruct: str) -> Any:
         if cstruct in (colander.null, None):
             return colander.null
 
-        # TODO: Handle exception
-        return json.loads(cstruct)
+        try:
+            json_value = json.loads(cstruct)
+        except json.JSONDecodeError:
+            return colander.null
 
-    def serialize(self, node: SchemaNode, appstruct) -> Dict:
+        return json_value
+
+    def serialize(self,
+                  node: SchemaNode,
+                  appstruct) -> Union[str, object]:
         if appstruct is colander.null:
             return colander.null
 
-        # TODO: Handle exception
+        # TODO: Handle exception ??
         return json.dumps(appstruct)
 
 
@@ -3551,6 +3557,7 @@ class JsonWidget(Widget):
     form = "json.pt"
     template = os.path.join(basedir, form)
     readonly_template = os.path.join(readonlydir, form)
+    requirements = (('jsoneditor', None),)
 
     def __init__(self, request: "CamcopsRequest", *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -3574,15 +3581,11 @@ class JsonWidget(Widget):
         if pstruct is null:
             pstruct = "{}"
 
-        errors = []
-
         try:
             json.loads(pstruct)
         except json.JSONDecodeError:
-            errors.append("Please enter valid JSON or leave blank")
-
-        if len(errors) > 0:
-            raise Invalid(field, errors)
+            raise Invalid(field, "Please enter valid JSON or leave blank",
+                          pstruct)
 
         return pstruct
 
@@ -4311,6 +4314,44 @@ class JsonWidgetTests(TestCase):
 
         self.assertIn("Please enter valid JSON or leave blank",
                       cm.exception.messages())
+
+        self.assertEqual(cm.exception.value, "{")
+
+
+class JsonTypeTests(TestCase):
+    def test_deserialize_valid_json(self) -> None:
+        original = {"one": 1, "two": 2, "three": 3}
+
+        json_type = JsonType()
+        json_value = json_type.deserialize(None, json.dumps(original))
+        self.assertEqual(json_value, original)
+
+    def test_deserialize_null_returns_null(self) -> None:
+        json_type = JsonType()
+        json_value = json_type.deserialize(None, colander.null)
+        self.assertIs(json_value, colander.null)
+
+    def test_deserialize_none_returns_null(self) -> None:
+        json_type = JsonType()
+        json_value = json_type.deserialize(None, None)
+        self.assertIs(json_value, colander.null)
+
+    def test_deserialize_invalid_json_returns_null(self) -> None:
+        json_type = JsonType()
+        json_value = json_type.deserialize(None, "{")
+        self.assertIs(json_value, colander.null)
+
+    def test_serialize_valid_appstruct(self) -> None:
+        original = {"one": 1, "two": 2, "three": 3}
+
+        json_type = JsonType()
+        json_string = json_type.serialize(None, original)
+        self.assertEqual(json_string, json.dumps(original))
+
+    def test_serialize_null_returns_null(self) -> None:
+        json_type = JsonType()
+        json_string = json_type.serialize(None, colander.null)
+        self.assertIs(json_string, colander.null)
 
 
 # =============================================================================
