@@ -3531,21 +3531,24 @@ class TaskScheduleSelector(SchemaNode, RequestAwareMixin):
 
 class JsonType(object):
     def deserialize(self, node: SchemaNode, cstruct: str) -> Any:
-        if cstruct in (colander.null, None):
-            return colander.null
+        # is null when form is empty
+        if cstruct in (null, None):
+            return None
 
         try:
             json_value = json.loads(cstruct)
         except json.JSONDecodeError:
-            return colander.null
+            return None
 
         return json_value
 
     def serialize(self,
                   node: SchemaNode,
                   appstruct) -> Union[str, object]:
-        if appstruct is colander.null:
-            return colander.null
+        # is null when form is empty (new record)
+        # is None when populated from empty value in the database
+        if appstruct in (null, None):
+            return null
 
         # TODO: Handle exception ??
         return json.dumps(appstruct)
@@ -3564,8 +3567,8 @@ class JsonWidget(Widget):
         self.request = request
 
     def serialize(self, field, cstruct, **kw):
-        if cstruct is colander.null:
-            cstruct = "{}"
+        if cstruct is null:
+            cstruct = ""
 
         readonly = kw.get('readonly', self.readonly)
         template = readonly and self.readonly_template or self.template
@@ -3578,8 +3581,9 @@ class JsonWidget(Widget):
         # called when validating the form on submission
         # value is passed to the schema deserialize()
 
-        if pstruct is null:
-            pstruct = "{}"
+        # is empty string when field is empty
+        if pstruct in (null, ""):
+            return null
 
         try:
             json.loads(pstruct)
@@ -3592,7 +3596,7 @@ class JsonWidget(Widget):
 
 class JsonNode(SchemaNode, RequestAwareMixin):
     schema_type = JsonType
-    missing = colander.null
+    missing = null
 
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         self.widget = JsonWidget(self.request)
@@ -3776,7 +3780,7 @@ class DurationWidget(Widget):
     def serialize(self, field, cstruct, **kw):
         # called when rendering the form with values from DurationType.serialize
 
-        if cstruct is colander.null:
+        if cstruct is null:
             cstruct = {}
 
         months = cstruct.get("months", "")
@@ -3849,9 +3853,9 @@ class DurationType(object):
         return Duration(days=cstruct["days"])
 
     def serialize(self, node: SchemaNode, duration: Duration) -> Dict:
-        if duration is colander.null:
+        if duration is null:
             # For new schedule item
-            return colander.null
+            return null
 
         # Existing schedule item
         cstruct = {
@@ -4166,7 +4170,7 @@ class DurationWidgetTests(TestCase):
         field = mock.Mock()
         field.renderer = mock.Mock()
 
-        widget.serialize(field, colander.null)
+        widget.serialize(field, null)
 
         args, kwargs = field.renderer.call_args
 
@@ -4276,17 +4280,17 @@ class JsonWidgetTests(TestCase):
 
         self.assertEqual(args[0], f"{TEMPLATE_DIR}/deform/readonly/json.pt")
 
-    def test_serialize_with_null_defaults_to_empty_json_string(self) -> None:
+    def test_serialize_with_null_defaults_to_empty_string(self) -> None:
         widget = JsonWidget(self.request)
 
         field = mock.Mock()
         field.renderer = mock.Mock()
 
-        widget.serialize(field, colander.null)
+        widget.serialize(field, null)
 
         args, kwargs = field.renderer.call_args
 
-        self.assertEqual(kwargs["cstruct"], "{}")
+        self.assertEqual(kwargs["cstruct"], "")
 
     def test_deserialize_passes_json(self) -> None:
         widget = JsonWidget(self.request)
@@ -4326,20 +4330,20 @@ class JsonTypeTests(TestCase):
         json_value = json_type.deserialize(None, json.dumps(original))
         self.assertEqual(json_value, original)
 
-    def test_deserialize_null_returns_null(self) -> None:
+    def test_deserialize_null_returns_none(self) -> None:
         json_type = JsonType()
-        json_value = json_type.deserialize(None, colander.null)
-        self.assertIs(json_value, colander.null)
+        json_value = json_type.deserialize(None, null)
+        self.assertIs(json_value, None)
 
     def test_deserialize_none_returns_null(self) -> None:
         json_type = JsonType()
         json_value = json_type.deserialize(None, None)
-        self.assertIs(json_value, colander.null)
+        self.assertIs(json_value, None)
 
-    def test_deserialize_invalid_json_returns_null(self) -> None:
+    def test_deserialize_invalid_json_returns_none(self) -> None:
         json_type = JsonType()
         json_value = json_type.deserialize(None, "{")
-        self.assertIs(json_value, colander.null)
+        self.assertIs(json_value, None)
 
     def test_serialize_valid_appstruct(self) -> None:
         original = {"one": 1, "two": 2, "three": 3}
@@ -4350,8 +4354,8 @@ class JsonTypeTests(TestCase):
 
     def test_serialize_null_returns_null(self) -> None:
         json_type = JsonType()
-        json_string = json_type.serialize(None, colander.null)
-        self.assertIs(json_string, colander.null)
+        json_string = json_type.serialize(None, null)
+        self.assertIs(json_string, null)
 
 
 # =============================================================================
