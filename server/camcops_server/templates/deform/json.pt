@@ -9,15 +9,14 @@
     deform.addCallback(
         '${field.oid}',
         function (oid) {
-            // create the editor
-            const container = document.getElementById("${field.oid}-jsoneditor");
+            const container = document.getElementById(oid + "-jsoneditor");
             const options = {
                 mode: "tree",
                 modes: ["code", "tree"],
             };
             const aceOptions = {
             };
-            const textarea = document.getElementById("${field.oid}");
+            const textarea = document.getElementById(oid);
             const editor = new JSONEditor(container, Object.assign({
                 onChange: function () {
                     textarea.value = editor.getText();
