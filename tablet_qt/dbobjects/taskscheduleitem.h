@@ -39,6 +39,7 @@ public:
     QDate dueBy() const;
     TaskPtr getTask() const;
     QString taskTableName() const;
+    QJsonObject settings() const;
     QString title() const;
     QString subtitle() const;
     enum class State {
@@ -56,6 +57,7 @@ public:
     static const QString TABLENAME;
 
     static const QString FN_TASK_TABLE_NAME;
+    static const QString FN_SETTINGS;
     static const QString FN_DUE_FROM;
     static const QString FN_DUE_BY;
     static const QString FN_COMPLETE;
@@ -63,6 +65,7 @@ public:
     static const QString FK_TASK;
 
     static const QString KEY_TABLE;
+    static const QString KEY_SETTINGS;
     static const QString KEY_DUE_FROM;
     static const QString KEY_DUE_BY;
     static const QString KEY_COMPLETE;

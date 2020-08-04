@@ -17,7 +17,9 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <QJsonDocument>
 #include <QJsonObject>
+#include <QJsonParseError>
 #include <QJsonValue>
 #include <QString>
 
@@ -33,6 +35,7 @@
 const QString TaskScheduleItem::TABLENAME("task_schedule_item");
 
 const QString TaskScheduleItem::FN_TASK_TABLE_NAME("task_table_name");
+const QString TaskScheduleItem::FN_SETTINGS("settings");
 const QString TaskScheduleItem::FN_DUE_FROM("due_from");
 const QString TaskScheduleItem::FN_DUE_BY("due_by");
 const QString TaskScheduleItem::FN_COMPLETE("complete");
@@ -43,6 +46,7 @@ const QString TaskScheduleItem::KEY_COMPLETE("complete");
 const QString TaskScheduleItem::KEY_DUE_BY("due_by");
 const QString TaskScheduleItem::KEY_DUE_FROM("due_from");
 const QString TaskScheduleItem::KEY_TABLE("table");
+const QString TaskScheduleItem::KEY_SETTINGS("settings");
 
 
 // ============================================================================
@@ -60,6 +64,7 @@ TaskScheduleItem::TaskScheduleItem(CamcopsApp& app, DatabaseManager& db,
 {
     addField(FK_TASK_SCHEDULE, QVariant::Int, true);
     addField(FN_TASK_TABLE_NAME, QVariant::String, true);
+    addField(FN_SETTINGS, QVariant::String, true);
     addField(FN_DUE_FROM, QVariant::String, true);
     addField(FN_DUE_BY, QVariant::String, true);
     addField(FN_COMPLETE, QVariant::Bool, true);
@@ -99,6 +104,11 @@ void TaskScheduleItem::addJsonFields(const QJsonObject json_obj)
     setValueOrNull(FN_DUE_FROM, KEY_DUE_FROM);
     setValueOrNull(FN_DUE_BY, KEY_DUE_BY);
     setValueOrNull(FN_COMPLETE, KEY_COMPLETE);
+
+    QJsonObject settings = json_obj.value(KEY_SETTINGS).toObject();
+    QJsonDocument doc(settings);
+    QString json_string = doc.toJson(QJsonDocument::Compact);
+    setValue(FN_SETTINGS, json_string);
 }
 
 
@@ -139,6 +149,18 @@ QString TaskScheduleItem::taskTableName() const
     const QString table_name = valueString(FN_TASK_TABLE_NAME);
 
     return table_name.isEmpty() ? "?" : table_name;
+}
+
+QJsonObject TaskScheduleItem::settings() const
+{
+    // TODO: Handle Null return value
+    QJsonParseError error;
+
+    QJsonDocument doc = QJsonDocument::fromJson(
+        valueString(FN_SETTINGS).toUtf8(), &error
+    );
+
+    return doc.object();
 }
 
 QString TaskScheduleItem::title() const

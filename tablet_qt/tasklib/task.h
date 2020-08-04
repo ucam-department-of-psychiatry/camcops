@@ -20,6 +20,7 @@
 #pragma once
 #include <QCoreApplication>  // for Q_DECLARE_TR_FUNCTIONS
 #include <QDateTime>
+#include <QJsonObject>
 #include <QString>
 #include "common/aliases_camcops.h"
 #include "db/databaseobject.h"
@@ -308,6 +309,9 @@ protected:
     // tasks) and save to database. Use when you've created a task and want
     // to edit it.
     void setupForEditingAndSave(const int patient_id = dbconst::NONEXISTENT_PK);
+
+    // Single user mode: apply any settings (down to task implementation)
+    virtual void applySettings(const QJsonObject settings) {Q_UNUSED(settings)}
 
     // Set the clinician fields to the app's default clinician information.
     // Called when the task is first created from the menus.

@@ -110,6 +110,7 @@ class TabletParam(object):
     SERVER_CAMCOPS_VERSION = "serverCamcopsVersion"  # S->C
     SESSION_ID = "session_id"  # B
     SESSION_TOKEN = "session_token"  # B
+    SETTINGS = "settings"  # S->C; new in v2.3.???
     SEX = "sex"  # C->S, in JSON, v2.3.0
     SUCCESS = "success"  # S->C
     SURNAME = "surname"  # C->S, in JSON, v2.3.0
