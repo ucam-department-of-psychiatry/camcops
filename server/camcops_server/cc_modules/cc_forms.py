@@ -3780,7 +3780,7 @@ class DurationWidget(Widget):
     def serialize(self, field, cstruct, **kw):
         # called when rendering the form with values from DurationType.serialize
 
-        if cstruct is null:
+        if cstruct in (None, null):
             cstruct = {}
 
         months = cstruct.get("months", "")
@@ -3834,23 +3834,43 @@ class DurationWidget(Widget):
             )
 
         if len(errors) > 0:
-            raise Invalid(field, errors)
-
-        total_days = months * 30 + weeks * 7 + days
+            raise Invalid(field, errors, pstruct)
 
         return {
-            "days": total_days,
-            "months": 0,
-            "weeks": 0
+            "days": days,
+            "months": months,
+            "weeks": weeks,
         }
 
 
 class DurationType(object):
-    def deserialize(self, node: SchemaNode, cstruct: Dict) -> Duration:
+    def deserialize(self,
+                    node: SchemaNode, cstruct: Dict) -> Optional[Duration]:
         # called when validating the submitted form with the total days
         # from DurationWidget.deserialize()
+        if cstruct in (None, null):
+            return None
 
-        return Duration(days=cstruct["days"])
+        # may be passed invalid values when re-rendering widget with error
+        # messages
+        try:
+            days = int(cstruct.get("days") or "0")
+        except ValueError:
+            days = 0
+
+        try:
+            weeks = int(cstruct.get("weeks") or "0")
+        except ValueError:
+            weeks = 0
+
+        try:
+            months = int(cstruct.get("months") or "0")
+        except ValueError:
+            months = 0
+
+        total_days = months * 30 + weeks * 7 + days
+
+        return Duration(days=total_days)
 
     def serialize(self, node: SchemaNode, duration: Duration) -> Dict:
         if duration is null:
@@ -3906,8 +3926,10 @@ class TaskScheduleItemSchema(CSRFSchema):
 
     def validator(self, node: SchemaNode, value: Any) -> None:
         _ = self.gettext
-        task_class = tablename_to_task_class_dict()[value["table_name"]]
-        if task_class.has_clinician and not value["clinician_confirmation"]:
+        task_class = tablename_to_task_class_dict()[value[ViewParam.TABLE_NAME]]
+
+        clinician_confirmation = value[ViewParam.CLINICIAN_CONFIRMATION]
+        if (task_class.has_clinician and not clinician_confirmation):
             raise Invalid(
                 node,
                 _(
@@ -3916,6 +3938,20 @@ class TaskScheduleItemSchema(CSRFSchema):
                     "If you are sure you want to do this, you must tick "
                     "'Allow clinician tasks'."
                 ).format(task_name=task_class.shortname)
+            )
+
+        due_from = value[ViewParam.DUE_FROM]
+        if due_from.total_days() < 0:
+            raise Invalid(
+                node,
+                _("'Due from' must be zero or more days"),
+            )
+
+        due_within = value[ViewParam.DUE_WITHIN]
+        if due_within.total_days() <= 0:
+            raise Invalid(
+                node,
+                _("'Due within' must be more than zero days"),
             )
 
 
@@ -4077,8 +4113,8 @@ class TaskScheduleItemSchemaTests(SchemaTestCase):
         with self.assertRaises(Invalid) as cm:
             schema.deserialize(cstruct)
 
-            self.assertIn("you must tick 'Allow clinician tasks'",
-                          cm.exception.messages())
+        self.assertIn("you must tick 'Allow clinician tasks'",
+                      cm.exception.messages()[0])
 
     def test_valid_for_clinician_task_with_confirmation(self) -> None:
         schema = TaskScheduleItemSchema().bind(request=mock.Mock())
@@ -4094,6 +4130,57 @@ class TaskScheduleItemSchemaTests(SchemaTestCase):
             schema.serialize(appstruct)
         except Invalid:
             self.fail("Validation failed unexpectedly")
+
+    def test_invalid_for_zero_due_within(self) -> None:
+        schema = TaskScheduleItemSchema().bind(request=self.req)
+        appstruct = {
+            ViewParam.SCHEDULE_ID: 1,
+            ViewParam.TABLE_NAME: "phq9",
+            ViewParam.CLINICIAN_CONFIRMATION: False,
+            ViewParam.DUE_FROM: Duration(days=90),
+            ViewParam.DUE_WITHIN: Duration(days=0)
+        }
+
+        cstruct = schema.serialize(appstruct)
+        with self.assertRaises(Invalid) as cm:
+            schema.deserialize(cstruct)
+
+        self.assertIn("must be more than zero days",
+                      cm.exception.messages()[0])
+
+    def test_invalid_for_negative_due_within(self) -> None:
+        schema = TaskScheduleItemSchema().bind(request=self.req)
+        appstruct = {
+            ViewParam.SCHEDULE_ID: 1,
+            ViewParam.TABLE_NAME: "phq9",
+            ViewParam.CLINICIAN_CONFIRMATION: False,
+            ViewParam.DUE_FROM: Duration(days=90),
+            ViewParam.DUE_WITHIN: Duration(days=-1)
+        }
+
+        cstruct = schema.serialize(appstruct)
+        with self.assertRaises(Invalid) as cm:
+            schema.deserialize(cstruct)
+
+        self.assertIn("must be more than zero days",
+                      cm.exception.messages()[0])
+
+    def test_invalid_for_negative_due_from(self) -> None:
+        schema = TaskScheduleItemSchema().bind(request=self.req)
+        appstruct = {
+            ViewParam.SCHEDULE_ID: 1,
+            ViewParam.TABLE_NAME: "phq9",
+            ViewParam.CLINICIAN_CONFIRMATION: False,
+            ViewParam.DUE_FROM: Duration(days=-1),
+            ViewParam.DUE_WITHIN: Duration(days=10)
+        }
+
+        cstruct = schema.serialize(appstruct)
+        with self.assertRaises(Invalid) as cm:
+            schema.deserialize(cstruct)
+
+        self.assertIn("must be zero or more days",
+                      cm.exception.messages()[0])
 
 
 class DurationWidgetTests(TestCase):
@@ -4178,7 +4265,21 @@ class DurationWidgetTests(TestCase):
         self.assertEqual(kwargs['weeks'], "")
         self.assertEqual(kwargs['days'], "")
 
-    def test_deserialize_converts_months_and_weeks_to_days(self) -> None:
+    def test_serialize_none_defaults_to_blank_values(self) -> None:
+        widget = DurationWidget(self.request)
+
+        field = mock.Mock()
+        field.renderer = mock.Mock()
+
+        widget.serialize(field, None)
+
+        args, kwargs = field.renderer.call_args
+
+        self.assertEqual(kwargs['months'], "")
+        self.assertEqual(kwargs['weeks'], "")
+        self.assertEqual(kwargs['days'], "")
+
+    def test_deserialize_returns_valid_values(self) -> None:
         widget = DurationWidget(self.request)
 
         pstruct = {
@@ -4189,9 +4290,9 @@ class DurationWidgetTests(TestCase):
 
         cstruct = widget.deserialize(None, pstruct)
 
-        self.assertEqual(cstruct["days"], 105)
-        self.assertEqual(cstruct["weeks"], 0)
-        self.assertEqual(cstruct["months"], 0)
+        self.assertEqual(cstruct["days"], 1)
+        self.assertEqual(cstruct["weeks"], 2)
+        self.assertEqual(cstruct["months"], 3)
 
     def test_deserialize_defaults_to_zero_days(self) -> None:
         widget = DurationWidget(self.request)
@@ -4218,6 +4319,53 @@ class DurationWidgetTests(TestCase):
                       cm.exception.messages())
         self.assertIn("Please enter a valid number of months or leave blank",
                       cm.exception.messages())
+        self.assertEqual(cm.exception.value, pstruct)
+
+
+class DurationTypeTests(TestCase):
+    def test_deserialize_valid_duration(self) -> None:
+        cstruct = {"days": 45}
+
+        duration_type = DurationType()
+        duration = duration_type.deserialize(None, cstruct)
+        self.assertEqual(duration.days, 45)
+
+    def test_deserialize_none_returns_null(self) -> None:
+        duration_type = DurationType()
+        duration = duration_type.deserialize(None, None)
+        self.assertIsNone(duration)
+
+    def test_deserialize_ignores_invalid_days(self) -> None:
+        duration_type = DurationType()
+        cstruct = {"days": "abc", "months": 1, "weeks": 1}
+        duration = duration_type.deserialize(None, cstruct)
+        self.assertEqual(duration.days, 37)
+
+    def test_deserialize_ignores_invalid_months(self) -> None:
+        duration_type = DurationType()
+        cstruct = {"days": 1, "months": "abc", "weeks": 1}
+        duration = duration_type.deserialize(None, cstruct)
+        self.assertEqual(duration.days, 8)
+
+    def test_deserialize_ignores_invalid_weeks(self) -> None:
+        duration_type = DurationType()
+        cstruct = {"days": 1, "months": 1, "weeks": "abc"}
+        duration = duration_type.deserialize(None, cstruct)
+        self.assertEqual(duration.days, 31)
+
+    def test_serialize_valid_duration(self) -> None:
+        duration = Duration(days=45)
+
+        duration_type = DurationType()
+        cstruct = duration_type.serialize(None, duration)
+        self.assertEqual(cstruct["days"], 45)
+        self.assertEqual(cstruct["months"], 0)
+        self.assertEqual(cstruct["weeks"], 0)
+
+    def test_serialize_null_returns_null(self) -> None:
+        duration_type = DurationType()
+        cstruct = duration_type.serialize(None, null)
+        self.assertIs(cstruct, null)
 
 
 class JsonWidgetTests(TestCase):
@@ -4333,17 +4481,17 @@ class JsonTypeTests(TestCase):
     def test_deserialize_null_returns_none(self) -> None:
         json_type = JsonType()
         json_value = json_type.deserialize(None, null)
-        self.assertIs(json_value, None)
+        self.assertIsNone(json_value)
 
     def test_deserialize_none_returns_null(self) -> None:
         json_type = JsonType()
         json_value = json_type.deserialize(None, None)
-        self.assertIs(json_value, None)
+        self.assertIsNone(json_value)
 
     def test_deserialize_invalid_json_returns_none(self) -> None:
         json_type = JsonType()
         json_value = json_type.deserialize(None, "{")
-        self.assertIs(json_value, None)
+        self.assertIsNone(json_value)
 
     def test_serialize_valid_appstruct(self) -> None:
         original = {"one": 1, "two": 2, "three": 3}
