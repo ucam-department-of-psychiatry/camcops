@@ -614,7 +614,13 @@ int CamcopsApp::run()
 void CamcopsApp::maybeRegisterPatient()
 {
     if (needToRegisterSinglePatient()) {
-        registerPatientWithServer();
+        if (!registerPatientWithServer()) {
+            /* The user cancelled the dialog
+               If the user entered invalid values in the dialog, they
+               will have another chance from the main menu
+            */
+            uifunc::stopApp(tr("You cancelled patient registration"));
+        }
 
     } else {
         if (isSingleUserMode()) {
