@@ -983,6 +983,16 @@ bool CamcopsApp::connectDatabaseEncryption(QString& new_user_password,
             if (encryption_happy) {
                 qInfo() << "... successfully accessed encrypted databases.";
             } else {
+
+                if (!userConfirmedRetryPassword()) {
+                    if (userConfirmedDeleteDatabases()) {
+                        qInfo() << "... deleting databases.";
+                        deleteDatabases();
+                        qInfo() << "... recreating databases.";
+                        openOrCreateDatabases();
+                    }
+                }
+
                 qInfo() << "... failed to decrypt; asking for password again.";
             }
 
@@ -1006,6 +1016,40 @@ bool CamcopsApp::connectDatabaseEncryption(QString& new_user_password,
     }
     return false;  // user password not changed
 #endif
+}
+
+
+bool CamcopsApp::userConfirmedRetryPassword()
+{
+    return uifunc::confirm(
+        tr("You entered an incorrect password. Try again?"),
+        tr("Retry password?"),
+        tr("Yes, enter password again"), tr("No, I forgot the password")
+    );
+}
+
+
+bool CamcopsApp::userConfirmedDeleteDatabases()
+{
+    return uifunc::confirmDangerousOperation(
+        tr("The only way to reset your password is to delete all of the data "
+           "from the database.\nAny records not uploaded to the server will be "
+           "lost."),
+        tr("Delete database?")
+        );
+}
+
+
+void CamcopsApp::deleteDatabases()
+{
+    const QString data_filename = dbFullPath(dbfunc::DATA_DATABASE_FILENAME);
+    const QString sys_filename = dbFullPath(dbfunc::SYSTEM_DATABASE_FILENAME);
+
+    QFile data_file(data_filename);
+    data_file.remove();
+
+    QFile sys_file(sys_filename);
+    sys_file.remove();
 }
 
 

@@ -184,6 +184,9 @@ protected:
     // Open our pair of databases, or create them if they don't exist.
     void openOrCreateDatabases();
 
+    // Delete databases
+    void deleteDatabases();
+
     // Close our databases.
     void closeDatabases();
 
@@ -251,6 +254,9 @@ protected:
     void handleNetworkFailure(const NetworkManager::ErrorCode error_code,
                               const QString& error_string,
                               const QString& base_message);
+
+    bool userConfirmedRetryPassword();
+    bool userConfirmedDeleteDatabases();
 
 public:
     // Forces the main menu to be refreshed

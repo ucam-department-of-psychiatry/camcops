@@ -203,6 +203,11 @@ void alertNotWhenLocked();
 bool confirm(const QString& text, const QString& title,
              QString yes, QString no, QWidget* parent = nullptr);
 
+// Shows text in a modal dialogue box. The user must type 'Yes' to proceed
+// Returns: does the user want to proceed?
+bool confirmDangerousOperation(const QString& text, const QString& title,
+                               QWidget* parent = nullptr);
+
 // ============================================================================
 // Password checks/changes
 // ============================================================================

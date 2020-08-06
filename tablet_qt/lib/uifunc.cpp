@@ -47,6 +47,7 @@
 #include "common/platform.h"
 #include "common/textconst.h"
 #include "common/uiconst.h"
+#include "dialogs/dangerousconfirmationdialog.h"
 #include "dialogs/logmessagebox.h"
 #include "dialogs/passwordchangedialog.h"
 #include "dialogs/passwordentrydialog.h"
@@ -540,6 +541,15 @@ bool confirm(const QString& text, const QString& title,
     box.addButton(no, QDialogButtonBox::NoRole);
     box.exec();
     return box.clickedButton() == yes_button;
+}
+
+
+bool confirmDangerousOperation(const QString& text, const QString& title,
+                               QWidget* parent)
+{
+    DangerousConfirmationDialog dlg(text, title, parent);
+
+    return dlg.confirmed();
 }
 
 

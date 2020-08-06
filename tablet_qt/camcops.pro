@@ -533,6 +533,7 @@ SOURCES += \
     diagnosis/flatproxymodel.cpp \
     diagnosis/icd10.cpp \
     diagnosis/icd9cm.cpp \
+    dialogs/dangerousconfirmationdialog.cpp \
     dialogs/logbox.cpp \
     dialogs/logmessagebox.cpp \
     dialogs/modedialog.cpp \
@@ -984,6 +985,7 @@ HEADERS += \
     diagnosis/flatproxymodel.h \
     diagnosis/icd10.h \
     diagnosis/icd9cm.h \
+    dialogs/dangerousconfirmationdialog.h \
     dialogs/logbox.h \
     dialogs/logmessagebox.h \
     dialogs/modedialog.h \
