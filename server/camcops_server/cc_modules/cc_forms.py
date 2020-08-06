@@ -3585,11 +3585,22 @@ class JsonWidget(Widget):
         if pstruct in (null, ""):
             return null
 
+        _ = self.request.gettext
+        error_message = _(
+            "Please enter a valid JSON object (with settings keyed on task "
+            "table name) or leave blank"
+        )
+        failed = False
+
         try:
-            json.loads(pstruct)
+            json_object = json.loads(pstruct)
+            if not isinstance(json_object, dict):
+                failed = True
         except json.JSONDecodeError:
-            raise Invalid(field, "Please enter valid JSON or leave blank",
-                          pstruct)
+            failed = True
+
+        if (failed):
+            raise Invalid(field, error_message, pstruct)
 
         return pstruct
 
@@ -3616,10 +3627,16 @@ class TaskScheduleNode(MappingSchema, RequestAwareMixin):
         _ = self.gettext
         self.title = _("Task schedule")
         start_date = get_child_node(self, "start_date")
-        start_date.title = _("Start date (leave blank for date of patient "
-                             "registration)")
+        start_date.title = _("Start date")
+        start_date.description = _(
+            "Leave blank for date of patient registration"
+        )
         settings = get_child_node(self, "settings")
         settings.title = _("Task-specific settings for this patient")
+        settings.description = _(
+            "Only applicable to tasks that are configurable on a per-patient "
+            "basis. Format: JSON object, with settings keyed on task table name"
+        )
 
 
 class TaskScheduleSequence(SequenceSchema, RequestAwareMixin):
@@ -4186,7 +4203,7 @@ class TaskScheduleItemSchemaTests(SchemaTestCase):
 class DurationWidgetTests(TestCase):
     def setUp(self):
         super().setUp()
-        self.request = mock.Mock(gettext=mock.Mock())
+        self.request = mock.Mock(gettext=lambda t: t)
 
     def test_serialize_renders_template_with_values(self) -> None:
         widget = DurationWidget(self.request)
@@ -4371,7 +4388,7 @@ class DurationTypeTests(TestCase):
 class JsonWidgetTests(TestCase):
     def setUp(self):
         super().setUp()
-        self.request = mock.Mock(gettext=mock.Mock())
+        self.request = mock.Mock(gettext=lambda t: t)
 
     def test_serialize_renders_template_with_values(self) -> None:
         widget = JsonWidget(self.request)
@@ -4456,7 +4473,7 @@ class JsonWidgetTests(TestCase):
 
         self.assertEqual(cstruct, "{}")
 
-    def test_deserialize_fails_validation(self) -> None:
+    def test_deserialize_invalid_json_fails_validation(self) -> None:
         widget = JsonWidget(self.request)
 
         pstruct = "{"
@@ -4464,10 +4481,27 @@ class JsonWidgetTests(TestCase):
         with self.assertRaises(Invalid) as cm:
             widget.deserialize(None, pstruct)
 
-        self.assertIn("Please enter valid JSON or leave blank",
-                      cm.exception.messages())
+        self.assertIn(
+            "Please enter a valid JSON object",
+            cm.exception.messages()[0]
+        )
 
         self.assertEqual(cm.exception.value, "{")
+
+    def test_deserialize_not_a_json_object_fails_validation(self) -> None:
+        widget = JsonWidget(self.request)
+
+        pstruct = "[{}]"
+
+        with self.assertRaises(Invalid) as cm:
+            widget.deserialize(None, pstruct)
+
+        self.assertIn(
+            "Please enter a valid JSON object",
+            cm.exception.messages()[0]
+        )
+
+        self.assertEqual(cm.exception.value, "[{}]")
 
 
 class JsonTypeTests(TestCase):
