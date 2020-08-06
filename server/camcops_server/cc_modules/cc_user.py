@@ -425,6 +425,12 @@ class User(Base):
         "language", LanguageCodeColType,
         comment="Language code preferred by this user"
     )
+    auto_generated = Column(
+        "auto_generated", Boolean,
+        nullable=False,
+        default=False,
+        comment="Is automatically generated user with random password"
+    )
 
     # -------------------------------------------------------------------------
     # Relationships
