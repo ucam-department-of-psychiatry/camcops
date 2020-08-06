@@ -2125,6 +2125,7 @@ def create_single_user(req: "CamcopsRequest",
 
     user = User(username=name)
     user.upload_group = group
+    user.auto_generated = True
     password = random_password()
     user.set_password(req, password)
     dbsession.add(user)
@@ -2143,7 +2144,6 @@ def create_single_user(req: "CamcopsRequest",
     return user, password
 
 
-# TODO probably of use elsewhere
 def random_password() -> str:
     # Not trying anything clever with distributions of letters, digits etc
     characters = string.ascii_letters + string.digits + string.punctuation
