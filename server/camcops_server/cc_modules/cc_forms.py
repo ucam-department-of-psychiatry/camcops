@@ -195,7 +195,12 @@ from camcops_server.cc_modules.cc_policy import (
     TABLET_ID_POLICY_STR,
     TokenizedPolicy,
 )
-from camcops_server.cc_modules.cc_pyramid import FormAction, ViewArg, ViewParam
+from camcops_server.cc_modules.cc_pyramid import (
+    FormAction,
+    RequestMethod,
+    ViewArg,
+    ViewParam,
+)
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     DATABASE_TITLE_MAX_LEN,
     FILTER_TEXT_MAX_LEN,
@@ -1159,6 +1164,31 @@ class UsernameNode(SchemaNode, RequestAwareMixin):
                 repr(USER_NAME_FOR_SYSTEM)
             )
         self._length_validator(node, value)
+
+
+class UserFilterSchema(Schema, RequestAwareMixin):
+    # must match ViewParam.INCLUDE_AUTO_GENERATED
+    include_auto_generated = BooleanNode()
+
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        _ = self.gettext
+        include_auto_generated = get_child_node(self, "include_auto_generated")
+        include_auto_generated.title = _("Include auto-generated users")
+        include_auto_generated.label = None
+
+
+class UserFilterForm(InformativeForm):
+    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+        _ = request.gettext
+        schema = UserFilterSchema().bind(request=request)
+        super().__init__(
+            schema,
+            buttons=[Button(name=FormAction.SET_FILTERS,
+                            title=_("Refresh"))],
+            css_class=BootstrapCssClasses.FORM_INLINE,
+            method=RequestMethod.GET,
+            **kwargs
+        )
 
 
 # -----------------------------------------------------------------------------

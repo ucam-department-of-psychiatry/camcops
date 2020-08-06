@@ -256,6 +256,7 @@ from camcops_server.cc_modules.cc_forms import (
     EditTaskFilterForm,
     TasksPerPageForm,
     UserDownloadDeleteForm,
+    UserFilterForm,
     ViewDdlForm,
 )
 from camcops_server.cc_modules.cc_group import Group
@@ -2133,21 +2134,32 @@ def view_all_users(req: "CamcopsRequest") -> Dict[str, Any]:
     View all users that the current user administers. The view has hyperlinks
     to edit those users too.
     """
-    exclude_auto_generated = req.get_bool_param(
-        ViewParam.EXCLUDE_AUTO_GENERATED, True
+    include_auto_generated = req.get_bool_param(
+        ViewParam.INCLUDE_AUTO_GENERATED, False
     )
     rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
                                       DEFAULT_ROWS_PER_PAGE)
     page_num = req.get_int_param(ViewParam.PAGE, 1)
     q = query_users_that_i_manage(req)
-    if exclude_auto_generated:
+    if not include_auto_generated:
         q = q.filter(User.auto_generated == False)  # noqa: E712
     page = SqlalchemyOrmPage(query=q,
                              page=page_num,
                              items_per_page=rows_per_page,
                              url_maker=PageUrl(req),
                              request=req)
-    return dict(page=page)
+
+    form = UserFilterForm(request=req)
+    appstruct = {
+        ViewParam.INCLUDE_AUTO_GENERATED: include_auto_generated,
+    }
+    rendered_form = form.render(appstruct)
+
+    return dict(
+        page=page,
+        head_form_html=get_head_form_html(req, [form]),
+        form=rendered_form
+    )
 
 
 @view_config(route_name=Routes.VIEW_USER_EMAIL_ADDRESSES,

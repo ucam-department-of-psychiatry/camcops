@@ -174,7 +174,7 @@ class ViewParam(object):
     DUE_WITHIN = "due_within"
     EMAIL = "email"
     END_DATETIME = "end_datetime"
-    EXCLUDE_AUTO_GENERATED = "exclude_auto_generated"
+    INCLUDE_AUTO_GENERATED = "include_auto_generated"
     FILENAME = "filename"
     FINALIZE_POLICY = "finalize_policy"
     FORENAME = "forename"

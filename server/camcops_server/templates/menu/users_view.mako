@@ -39,6 +39,8 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 
 <div>${page.pager()}</div>
 
+${form}
+
 <table>
     <tr>
         <th>${_("Username")}</th>
