@@ -2133,10 +2133,15 @@ def view_all_users(req: "CamcopsRequest") -> Dict[str, Any]:
     View all users that the current user administers. The view has hyperlinks
     to edit those users too.
     """
+    exclude_auto_generated = req.get_bool_param(
+        ViewParam.EXCLUDE_AUTO_GENERATED, True
+    )
     rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
                                       DEFAULT_ROWS_PER_PAGE)
     page_num = req.get_int_param(ViewParam.PAGE, 1)
     q = query_users_that_i_manage(req)
+    if exclude_auto_generated:
+        q = q.filter(User.auto_generated == False)  # noqa: E712
     page = SqlalchemyOrmPage(query=q,
                              page=page_num,
                              items_per_page=rows_per_page,
