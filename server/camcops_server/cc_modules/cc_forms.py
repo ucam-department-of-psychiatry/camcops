@@ -3710,7 +3710,8 @@ class DangerousEditPatientSchema(EditPatientSchema):
 
 
 class EditScheduledPatientSchema(EditPatientSchema):
-    group_id = MandatoryGroupIdSelectorAllGroups()  # Must match ViewParam.UPLOAD_GROUP_ID  # noqa: E501
+    # Must match ViewParam.UPLOAD_GROUP_ID
+    group_id = MandatoryGroupIdSelectorAllGroups(insert_before="forename")
 
 
 class EditFinalizedPatientForm(DangerousForm):
