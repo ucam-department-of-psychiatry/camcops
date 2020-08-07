@@ -32,7 +32,7 @@ camcops_server/templates/menu/task_erase.mako
 
 <h1>${_("Erase task irrevocably?")}</h1>
 
-<%include file="task_descriptive_header.mako" args="task=task, anonymise=False"/>
+<%include file="task_descriptive_header.mako" args="task=object, anonymise=False"/>
 
 <div class="warning">
     <b>${_("ARE YOU REALLY SURE YOU WANT TO ERASE THIS TASK?")}</b>

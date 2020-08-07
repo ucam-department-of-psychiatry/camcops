@@ -3060,78 +3060,13 @@ def delete_special_note(req: "CamcopsRequest") -> Dict[str, Any]:
                 head_form_html=get_head_form_html(req, [form]))
 
 
-class EraseTaskBaseView(object):
-    def __init__(self, request: "CamcopsRequest"):
-        self.request = request
-        self.table_name = request.get_str_param(ViewParam.TABLE_NAME)
-        self.server_pk = request.get_int_param(ViewParam.SERVER_PK, None)
-        self.form = EraseTaskForm(request=request)
+class EraseTaskBaseView(DeleteView):
+    form_class = EraseTaskForm
 
-        if not hasattr(self, "template_name"):
-            raise NotImplementedError(
-                f"{self.__class__.__name__} must define template_name"
-            )
+    def get_object(self):
+        self.table_name = self.request.get_str_param(ViewParam.TABLE_NAME)
+        self.server_pk = self.request.get_int_param(ViewParam.SERVER_PK, None)
 
-    def dispatch(self) -> Response:
-        if FormAction.CANCEL in self.request.POST:
-            raise HTTPFound(self.get_task_url())
-
-        task = self.get_and_validate_task()
-        self.check_user_is_authorized(task)
-
-        if FormAction.DELETE in self.request.POST:
-            return self.handle_delete(task)
-
-        return self.display_form(task)
-
-    def handle_delete(self, task: Task) -> Response:
-        try:
-            controls = list(self.request.POST.items())
-            self.form.validate(controls)
-            self.erase_task(task)
-            return simple_success(
-                self.request,
-                self.get_success_message(),
-                self.get_success_extra_html()
-            )
-        except ValidationFailure as e:
-            return self.render_to_response(task, e.render())
-
-    def erase_task(self, task: Task):
-        raise NotImplementedError
-
-    def get_success_message(self) -> str:
-        _ = self.request.gettext
-        msg_erased = _("Task erased:")
-
-        return f'{msg_erased} ({self.table_name}, server PK {self.server_pk}).'
-
-    def get_success_extra_html(self) -> str:
-        return ""
-
-    def display_form(self, task) -> Response:
-        appstruct = {
-            ViewParam.TABLE_NAME: self.table_name,
-            ViewParam.SERVER_PK: self.server_pk,
-        }
-        rendered_form = self.form.render(appstruct)
-
-        return self.render_to_response(task, rendered_form)
-
-    def render_to_response(self, task: Task, rendered_form: str) -> Response:
-        # noinspection PyUnresolvedReferences
-        return render_to_response(
-            self.template_name,
-            dict(
-                task=task,
-                form=rendered_form,
-                head_form_html=get_head_form_html(self.request, [self.form]),
-                viewtype=ViewArg.HTML
-            ),
-            request=self.request
-        )
-
-    def get_and_validate_task(self) -> Task:
         task = task_factory(self.request, self.table_name, self.server_pk)
         _ = self.request.gettext
         if task is None:
@@ -3139,6 +3074,7 @@ class EraseTaskBaseView(object):
                 f"{_('No such task:')} {self.table_name}, PK={self.server_pk}")
         if task.is_live_on_tablet():
             raise HTTPBadRequest(errormsg_task_live(self.request))
+        self.check_user_is_authorized(task)
 
         return task
 
@@ -3149,7 +3085,7 @@ class EraseTaskBaseView(object):
             raise HTTPBadRequest(
                 _("Not authorized to erase tasks for this task's group"))
 
-    def get_task_url(self) -> str:
+    def get_cancel_url(self) -> str:
         return self.request.route_url(
             Routes.TASK,
             _query={
@@ -3163,31 +3099,46 @@ class EraseTaskBaseView(object):
 class EraseTaskLeavingPlaceholderView(EraseTaskBaseView):
     template_name = "task_erase.mako"
 
-    def get_and_validate_task(self) -> Task:
-        task = super().get_and_validate_task()
+    def get_object(self) -> Task:
+        task = super().get_object()
         if task.is_erased():
             _ = self.request.gettext
             raise HTTPBadRequest(_("Task already erased"))
 
         return task
 
-    def erase_task(self, task: Task) -> None:
-        task.manually_erase(self.request)
+    def delete(self) -> None:
+        self.object.manually_erase(self.request)
 
-    def get_success_extra_html(self) -> str:
-        url_back = self.get_task_url()
-        _ = self.request.gettext
-        msg_view_amended = _("View amended task")
-
-        return f'<a href="{url_back}">{msg_view_amended}</a>.'
+    def get_success_url(self) -> str:
+        return self.request.route_url(
+            Routes.TASK,
+            _query={
+                ViewParam.TABLE_NAME: self.table_name,
+                ViewParam.SERVER_PK: self.server_pk,
+                ViewParam.VIEWTYPE: ViewArg.HTML,
+            }
+        )
 
 
 class EraseTaskEntirelyView(EraseTaskBaseView):
     template_name = "task_erase_entirely.mako"
 
-    def erase_task(self, task: Task) -> None:
-        TaskIndexEntry.unindex_task(task, self.request.dbsession)
-        task.delete_entirely(self.request)
+    def delete(self) -> None:
+        TaskIndexEntry.unindex_task(self.object, self.request.dbsession)
+        self.object.delete_entirely(self.request)
+
+        _ = self.request.gettext
+
+        msg_erased = _("Task erased:")
+
+        self.request.session.flash(
+            f"{msg_erased} ({self.table_name}, server PK {self.server_pk}).",
+            queue=FLASH_SUCCESS
+        )
+
+    def get_success_url(self) -> str:
+        return self.request.route_url(Routes.VIEW_TASKS)
 
 
 @view_config(route_name=Routes.ERASE_TASK_LEAVING_PLACEHOLDER,
@@ -4569,14 +4520,14 @@ class EditTaskScheduleItemViewTests(DemoDatabaseTestCase):
         }, set_method_get=False)
         view = EditTaskScheduleItemView(self.req)
 
-        with self.assertRaises(HTTPFound) as e:
+        with self.assertRaises(HTTPFound) as cm:
             view.dispatch()
 
         self.assertEqual(self.item.task_table_name, "bmi")
-        self.assertEqual(e.exception.status_code, 302)
+        self.assertEqual(cm.exception.status_code, 302)
         self.assertIn(
             f"view_task_schedule_items?schedule_id={self.item.schedule_id}",
-            e.exception.headers["Location"]
+            cm.exception.headers["Location"]
         )
 
     def test_schedule_item_is_not_updated_on_cancel(self) -> None:
@@ -5651,12 +5602,9 @@ class EraseTaskLeavingPlaceholderViewTests(EraseTaskTestCase):
         view.dispatch()
 
         args, kwargs = view.render_to_response.call_args
+        context = args[0]
 
-        task = args[0]
-        rendered_form = args[1]
-
-        self.assertEqual(task, self.task)
-        self.assertIn("<form", rendered_form)
+        self.assertIn("form", context)
 
     def test_deletes_task_leaving_placeholder(self):
         multidict = MultiDict([
@@ -5681,7 +5629,8 @@ class EraseTaskLeavingPlaceholderViewTests(EraseTaskTestCase):
         view = EraseTaskLeavingPlaceholderView(self.req)
         self.task.manually_erase = mock.Mock()
 
-        view.dispatch()
+        with self.assertRaises(HTTPFound):
+            view.dispatch()
 
         self.task.manually_erase.assert_called_once()
         args, kwargs = self.task.manually_erase.call_args
@@ -5832,10 +5781,18 @@ class EraseTaskEntirelyViewTests(EraseTaskTestCase):
         view = EraseTaskEntirelyView(self.req)
         self.task.delete_entirely = mock.Mock()
 
-        view.dispatch()
+        with self.assertRaises(HTTPFound):
+            view.dispatch()
 
         self.task.delete_entirely.assert_called_once()
         args, kwargs = self.task.delete_entirely.call_args
         request = args[0]
 
         self.assertEqual(request, self.req)
+
+        messages = self.req.session.peek_flash(FLASH_SUCCESS)
+        self.assertTrue(len(messages) > 0)
+
+        self.assertIn("Task erased", messages[0])
+        self.assertIn(self.task.tablename, messages[0])
+        self.assertIn("server PK {}".format(self.task._pk), messages[0])

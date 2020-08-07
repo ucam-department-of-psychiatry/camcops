@@ -118,6 +118,7 @@ class TemplateResponseMixin:
 
 class FormMixin(ContextMixin):
     """Provide a way to show and handle a form in a request."""
+    cancel_url = None
     form_class = None
     success_url = None
     _form = None
@@ -139,6 +140,12 @@ class FormMixin(ContextMixin):
                                     resource_registry=registry)
 
         return self._form
+
+    def get_cancel_url(self):
+        """Return the URL to redirect to when cancelling a form."""
+        if not self.cancel_url:
+            return self.get_success_url()
+        return str(self.cancel_url)  # cancel_url may be lazy
 
     def get_success_url(self):
         """Return the URL to redirect to after processing a valid form."""
@@ -257,7 +264,7 @@ class ProcessFormView(View):
         POST variables and then check if it's valid.
         """
         if FormAction.CANCEL in self.request.POST:
-            raise HTTPFound(self.get_success_url())
+            raise HTTPFound(self.get_cancel_url())
 
         form = self.get_form()
 
@@ -348,7 +355,7 @@ class BaseDeleteView(FormMixin, SingleObjectMixin, View):
         self.object = self.get_object()
 
         if FormAction.CANCEL in self.request.POST:
-            raise HTTPFound(self.get_success_url())
+            raise HTTPFound(self.get_cancel_url())
 
         form = self.get_form()
         controls = list(self.request.POST.items())
