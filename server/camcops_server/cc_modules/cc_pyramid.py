@@ -697,6 +697,7 @@ class Routes(object):
     CHOOSE_CTV = "choose_ctv"
     CHOOSE_TRACKER = "choose_tracker"
     CLIENT_API = "client_api"
+    CLIENT_API_ALIAS = "client_api_alias"
     CRASH = "crash"
     CTV = "ctv"
     DELETE_FILE = "delete_file"
@@ -790,7 +791,8 @@ class RoutePath(object):
 
 
 MASTER_ROUTE_WEBVIEW = "/"
-MASTER_ROUTE_CLIENT_API = "/database"
+MASTER_ROUTE_CLIENT_API = "/api"
+MASTER_ROUTE_CLIENT_API_ALIAS = "/database"
 STATIC_CAMCOPS_PACKAGE_PATH = "camcops_server.static:"
 # ... the "static" package (directory with __init__.py) within the
 # "camcops_server" owning package
@@ -829,6 +831,8 @@ class RouteCollection(object):
     CHOOSE_CTV = RoutePath(Routes.CHOOSE_CTV)
     CHOOSE_TRACKER = RoutePath(Routes.CHOOSE_TRACKER)
     CLIENT_API = RoutePath(Routes.CLIENT_API, MASTER_ROUTE_CLIENT_API)
+    CLIENT_API_ALIAS = RoutePath(Routes.CLIENT_API_ALIAS,
+                                 MASTER_ROUTE_CLIENT_API_ALIAS)
     CRASH = RoutePath(Routes.CRASH)
     CTV = RoutePath(Routes.CTV)
     DELETE_FILE = RoutePath(Routes.DELETE_FILE)

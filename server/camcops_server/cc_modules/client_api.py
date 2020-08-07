@@ -3004,6 +3004,8 @@ def main_client_api(req: "CamcopsRequest") -> Dict[str, str]:
 
 
 @view_config(route_name=Routes.CLIENT_API, permission=NO_PERMISSION_REQUIRED)
+@view_config(route_name=Routes.CLIENT_API_ALIAS,
+             permission=NO_PERMISSION_REQUIRED)
 def client_api(req: "CamcopsRequest") -> Response:
     """
     View for client API. All tablet interaction comes through here.
