@@ -3902,7 +3902,9 @@ def forcibly_finalize(req: "CamcopsRequest") -> Response:
             )
             audit(req, msg)
             log.info(msg)
-            return simple_success(req, msg)
+
+            req.session.flash(msg, queue=FLASH_SUCCESS)
+            raise HTTPFound(req.route_url(Routes.HOME))
 
         except ValidationFailure as e:
             rendered_form = e.render()
