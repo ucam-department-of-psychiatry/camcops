@@ -4865,7 +4865,7 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
         self.assertIn("idnum1", note)
         self.assertIn("4887211163", note)
 
-        messages = self.req.session.peek_flash("success")
+        messages = self.req.session.peek_flash(FLASH_SUCCESS)
 
         self.assertIn(f"Amended patient record with server PK {patient._pk}",
                       messages[0])
@@ -5001,7 +5001,7 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
             schedules["Test 2"].settings, new_schedule_2_settings,
         )
 
-        messages = self.req.session.peek_flash("success")
+        messages = self.req.session.peek_flash(FLASH_SUCCESS)
 
         self.assertIn(f"Amended patient record with server PK {patient._pk}",
                       messages[0])
@@ -5093,7 +5093,7 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
         with self.assertRaises(HTTPFound):
             edit_finalized_patient(self.req)
 
-        messages = self.req.session.peek_flash("info")
+        messages = self.req.session.peek_flash(FLASH_INFO)
 
         self.assertIn("No changes required", messages[0])
 
@@ -5401,7 +5401,7 @@ class EditScheduledPatientViewTests(DemoDatabaseTestCase):
 
         self.assertEqual(patient._group_id, new_group.id)
 
-        messages = self.req.session.peek_flash("success")
+        messages = self.req.session.peek_flash(FLASH_SUCCESS)
 
         self.assertIn("testgroup", messages[0])
         self.assertIn("newgroup", messages[0])
