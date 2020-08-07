@@ -1167,6 +1167,9 @@ class UsernameNode(SchemaNode, RequestAwareMixin):
 
 
 class UserFilterSchema(Schema, RequestAwareMixin):
+    """
+    Schema to filter the list of users
+    """
     # must match ViewParam.INCLUDE_AUTO_GENERATED
     include_auto_generated = BooleanNode()
 
@@ -1178,6 +1181,9 @@ class UserFilterSchema(Schema, RequestAwareMixin):
 
 
 class UserFilterForm(InformativeForm):
+    """
+    Form to filter the list of users
+    """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         _ = request.gettext
         schema = UserFilterSchema().bind(request=request)
@@ -3527,6 +3533,9 @@ EDIT_PATIENT_SIMPLE_PARAMS = [
 
 
 class TaskScheduleSelector(SchemaNode, RequestAwareMixin):
+    """
+    Drop-down with all available task schedules
+    """
     widget = SelectWidget()
 
     def __init__(self, *args, **kwargs) -> None:
@@ -3560,12 +3569,16 @@ class TaskScheduleSelector(SchemaNode, RequestAwareMixin):
 
 
 class JsonType(object):
+    """
+    Schema type for JsonNode
+    """
     def deserialize(self, node: SchemaNode, cstruct: str) -> Any:
         # is null when form is empty
         if cstruct in (null, None):
             return None
 
         try:
+            # Validation happens on the widget class
             json_value = json.loads(cstruct)
         except json.JSONDecodeError:
             return None
@@ -3585,6 +3598,9 @@ class JsonType(object):
 
 
 class JsonWidget(Widget):
+    """
+    Widget supporting jsoneditor https://github.com/josdejong/jsoneditor
+    """
     basedir = os.path.join(TEMPLATE_DIR, "deform")
     readonlydir = os.path.join(basedir, "readonly")
     form = "json.pt"
@@ -3608,9 +3624,6 @@ class JsonWidget(Widget):
         return field.renderer(template, **values)
 
     def deserialize(self, field, pstruct):
-        # called when validating the form on submission
-        # value is passed to the schema deserialize()
-
         # is empty string when field is empty
         if pstruct in (null, ""):
             return null
