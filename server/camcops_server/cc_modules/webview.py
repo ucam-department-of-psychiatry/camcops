@@ -4496,11 +4496,11 @@ class AddTaskScheduleItemViewTests(DemoDatabaseTestCase):
             ("weeks", "2"),
             ("days", "3"),
             ("__end__", "due_from:mapping"),
-            ("__start__", "due_by:mapping"),
+            ("__start__", "due_within:mapping"),
             ("months", "4"),
             ("weeks", "3"),
             ("days", "2"),
-            ("__end__", "due_by:mapping"),
+            ("__end__", "due_within:mapping"),
             (FormAction.CANCEL, "cancel"),
         ])
 
@@ -4554,11 +4554,11 @@ class EditTaskScheduleItemViewTests(DemoDatabaseTestCase):
             ("weeks", "0"),
             ("days", "30"),
             ("__end__", "due_from:mapping"),
-            ("__start__", "due_by:mapping"),
+            ("__start__", "due_within:mapping"),
             ("months", "0"),
             ("weeks", "0"),
             ("days", "60"),
-            ("__end__", "due_by:mapping"),
+            ("__end__", "due_within:mapping"),
             (FormAction.SUBMIT, "submit"),
         ])
 
@@ -4591,11 +4591,11 @@ class EditTaskScheduleItemViewTests(DemoDatabaseTestCase):
             ("weeks", "0"),
             ("days", "30"),
             ("__end__", "due_from:mapping"),
-            ("__start__", "due_by:mapping"),
+            ("__start__", "due_within:mapping"),
             ("months", "0"),
             ("weeks", "0"),
             ("days", "60"),
-            ("__end__", "due_by:mapping"),
+            ("__end__", "due_within:mapping"),
             (FormAction.CANCEL, "cancel"),
         ])
 
