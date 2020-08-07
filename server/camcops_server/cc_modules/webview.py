@@ -3074,7 +3074,7 @@ class EraseTaskBaseView(object):
 
     def dispatch(self) -> Response:
         if FormAction.CANCEL in self.request.POST:
-            return HTTPFound(self.get_task_url())
+            raise HTTPFound(self.get_task_url())
 
         task = self.get_and_validate_task()
         self.check_user_is_authorized(task)
@@ -5623,3 +5623,64 @@ class DeleteScheduledPatientViewTests(DemoDatabaseTestCase):
             PatientTaskSchedule.patient_pk == patient_pk).one_or_none()
 
         self.assertIsNone(pts)
+
+
+class EraseTaskLeavingPlaceholderViewTests(DemoDatabaseTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+    def create_tasks(self):
+        from camcops_server.tasks.bmi import Bmi
+
+        self.task = Bmi()
+        self.task.id = 1
+        self.apply_standard_task_fields(self.task)
+        patient = self.create_patient_with_one_idnum()
+        self.task.patient_id = patient.id
+
+        self.dbsession.add(self.task)
+        self.dbsession.commit()
+
+    def test_task_not_deleted_on_cancel(self):
+        self.req.fake_request_post_from_dict({
+            FormAction.CANCEL: "cancel"
+        })
+
+        self.req.add_get_params({
+            ViewParam.SERVER_PK: self.task._pk,
+            ViewParam.TABLE_NAME: self.task.tablename,
+        }, set_method_get=False)
+        view = EraseTaskLeavingPlaceholderView(self.req)
+
+        view.dispatch()
+
+        task = self.dbsession.query(self.task.__class__).one_or_none()
+
+        self.assertIsNotNone(task)
+
+    def test_redirect_on_cancel(self):
+        self.req.fake_request_post_from_dict({
+            FormAction.CANCEL: "cancel"
+        })
+
+        self.req.add_get_params({
+            ViewParam.SERVER_PK: self.task._pk,
+            ViewParam.TABLE_NAME: self.task.tablename,
+        }, set_method_get=False)
+        view = EraseTaskLeavingPlaceholderView(self.req)
+
+        with self.assertRaises(HTTPFound) as e:
+            view.dispatch()
+
+        self.assertEqual(e.exception.status_code, 302)
+        self.assertIn(
+            "/task", e.exception.headers["Location"]
+        )
+        self.assertIn(
+            "table_name={}".format(self.task.tablename),
+            e.exception.headers["Location"]
+        )
+        self.assertIn(
+            "server_pk={}".format(self.task._pk),
+            e.exception.headers["Location"]
+        )
