@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-camcops_server/alembic/versions/0051.py
+camcops_server/alembic/versions/0051_auto_generated_user.py
 
 ===============================================================================
 
