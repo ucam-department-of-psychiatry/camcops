@@ -2410,7 +2410,13 @@ def unlock_user(req: "CamcopsRequest") -> Response:
     user = get_user_from_request_user_id_or_raise(req)
     assert_may_edit_user(req, user)
     user.enable(req)
-    return simple_success(req, f"User {user.username} enabled")
+    _ = req.gettext
+
+    req.session.flash(
+        _("User {username} enabled").format(username=user.username),
+        queue=FLASH_SUCCESS
+    )
+    raise HTTPFound(req.route_url(Routes.VIEW_ALL_USERS))
 
 
 @view_config(route_name=Routes.ADD_USER,
