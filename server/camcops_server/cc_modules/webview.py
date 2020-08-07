@@ -368,32 +368,6 @@ def errormsg_task_live(req: "CamcopsRequest") -> str:
 
 
 # =============================================================================
-# Simple success/failure/redirection, and other snippets used by views
-# =============================================================================
-
-def simple_success(req: "CamcopsRequest", msg: str,
-                   extra_html: str = "") -> Response:
-    """
-    Simple success response.
-    """
-    return render_to_response("generic_success.mako",
-                              dict(msg=msg,
-                                   extra_html=extra_html),
-                              request=req)
-
-
-def simple_failure(req: "CamcopsRequest", msg: str,
-                   extra_html: str = "") -> Response:
-    """
-    Simple failure response.
-    """
-    return render_to_response("generic_failure.mako",
-                              dict(msg=msg,
-                                   extra_html=extra_html),
-                              request=req)
-
-
-# =============================================================================
 # Unused
 # =============================================================================
 
