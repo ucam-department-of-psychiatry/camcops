@@ -3267,7 +3267,10 @@ def delete_patient(req: "CamcopsRequest") -> Response:
                 f"{n_patient_instances}."
             )
             audit(req, msg)
-            return simple_success(req, msg)
+
+            req.session.flash(msg, FLASH_SUCCESS)
+            raise HTTPFound(req.route_url(Routes.HOME))
+
         except ValidationFailure as e:
             rendered_form = e.render()
     else:
