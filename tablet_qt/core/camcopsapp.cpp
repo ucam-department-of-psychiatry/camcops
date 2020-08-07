@@ -266,6 +266,8 @@ bool CamcopsApp::registerPatientWithServer()
             Qt::UniqueConnection);
 
     setVar(varconst::SINGLE_PATIENT_PROQUINT, patient_proquint);
+    setVar(varconst::DEVICE_FRIENDLY_NAME,
+           QString("Single user device %1").arg(deviceId()));
     netmgr->registerPatient();
 
     return true;
