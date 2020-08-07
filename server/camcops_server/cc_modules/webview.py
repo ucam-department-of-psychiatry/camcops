@@ -5625,10 +5625,7 @@ class DeleteScheduledPatientViewTests(DemoDatabaseTestCase):
         self.assertIsNone(pts)
 
 
-class EraseTaskLeavingPlaceholderViewTests(DemoDatabaseTestCase):
-    def setUp(self) -> None:
-        super().setUp()
-
+class EraseTaskTestCase(DemoDatabaseTestCase):
     def create_tasks(self):
         from camcops_server.tasks.bmi import Bmi
 
@@ -5641,6 +5638,57 @@ class EraseTaskLeavingPlaceholderViewTests(DemoDatabaseTestCase):
         self.dbsession.add(self.task)
         self.dbsession.commit()
 
+
+class EraseTaskLeavingPlaceholderViewTests(EraseTaskTestCase):
+    def test_displays_form(self):
+        self.req.add_get_params({
+            ViewParam.SERVER_PK: self.task._pk,
+            ViewParam.TABLE_NAME: self.task.tablename,
+        }, set_method_get=False)
+        view = EraseTaskLeavingPlaceholderView(self.req)
+        view.render_to_response = mock.Mock()
+
+        view.dispatch()
+
+        args, kwargs = view.render_to_response.call_args
+
+        task = args[0]
+        rendered_form = args[1]
+
+        self.assertEqual(task, self.task)
+        self.assertIn("<form", rendered_form)
+
+    def test_deletes_task_leaving_placeholder(self):
+        multidict = MultiDict([
+            ("_charset_", "UTF-8"),
+            ("__formid__", "deform"),
+            (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
+            (ViewParam.SERVER_PK, self.task._pk),
+            (ViewParam.TABLE_NAME, self.task.tablename),
+            ("confirm_1_t", "true"),
+            ("confirm_2_t", "true"),
+            ("confirm_4_t", "true"),
+            ("__start__", "danger:mapping"),
+            ("target", "7176"),
+            ("user_entry", "7176"),
+            ("__end__", "danger:mapping"),
+            ("delete", "delete"),
+            (FormAction.DELETE, "delete"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+
+        view = EraseTaskLeavingPlaceholderView(self.req)
+        self.task.manually_erase = mock.Mock()
+
+        view.dispatch()
+
+        self.task.manually_erase.assert_called_once()
+        args, kwargs = self.task.manually_erase.call_args
+        request = args[0]
+
+        self.assertEqual(request, self.req)
+
     def test_task_not_deleted_on_cancel(self):
         self.req.fake_request_post_from_dict({
             FormAction.CANCEL: "cancel"
@@ -5652,7 +5700,8 @@ class EraseTaskLeavingPlaceholderViewTests(DemoDatabaseTestCase):
         }, set_method_get=False)
         view = EraseTaskLeavingPlaceholderView(self.req)
 
-        view.dispatch()
+        with self.assertRaises(HTTPFound):
+            view.dispatch()
 
         task = self.dbsession.query(self.task.__class__).one_or_none()
 
@@ -5669,18 +5718,124 @@ class EraseTaskLeavingPlaceholderViewTests(DemoDatabaseTestCase):
         }, set_method_get=False)
         view = EraseTaskLeavingPlaceholderView(self.req)
 
-        with self.assertRaises(HTTPFound) as e:
+        with self.assertRaises(HTTPFound) as cm:
             view.dispatch()
 
-        self.assertEqual(e.exception.status_code, 302)
+        self.assertEqual(cm.exception.status_code, 302)
         self.assertIn(
-            "/task", e.exception.headers["Location"]
+            "/task", cm.exception.headers["Location"]
         )
         self.assertIn(
             "table_name={}".format(self.task.tablename),
-            e.exception.headers["Location"]
+            cm.exception.headers["Location"]
         )
         self.assertIn(
             "server_pk={}".format(self.task._pk),
-            e.exception.headers["Location"]
+            cm.exception.headers["Location"]
         )
+        self.assertIn("viewtype=html", cm.exception.headers["Location"])
+
+    def test_raises_when_task_does_not_exist(self):
+        self.req.add_get_params({
+            ViewParam.SERVER_PK: 123,
+            ViewParam.TABLE_NAME: "phq9",
+        }, set_method_get=False)
+        view = EraseTaskLeavingPlaceholderView(self.req)
+
+        with self.assertRaises(HTTPBadRequest) as cm:
+            view.dispatch()
+
+        self.assertEqual(
+            cm.exception.message,
+            "No such task: phq9, PK=123"
+        )
+
+    def test_raises_when_task_is_live_on_tablet(self):
+        self.task._era = ERA_NOW
+        self.dbsession.add(self.task)
+        self.dbsession.commit()
+
+        self.req.add_get_params({
+            ViewParam.SERVER_PK: self.task._pk,
+            ViewParam.TABLE_NAME: self.task.tablename,
+        }, set_method_get=False)
+        view = EraseTaskLeavingPlaceholderView(self.req)
+
+        with self.assertRaises(HTTPBadRequest) as cm:
+            view.dispatch()
+
+        self.assertIn(
+            "Task is live on tablet",
+            cm.exception.message
+        )
+
+    def test_raises_when_user_not_authorized_to_erase(self):
+        self.user.authorized_to_erase_tasks = mock.Mock(
+            return_value=False
+        )
+
+        self.req.add_get_params({
+            ViewParam.SERVER_PK: self.task._pk,
+            ViewParam.TABLE_NAME: self.task.tablename,
+        }, set_method_get=False)
+        view = EraseTaskLeavingPlaceholderView(self.req)
+
+        with self.assertRaises(HTTPBadRequest) as cm:
+            view.dispatch()
+
+        self.assertIn(
+            "Not authorized to erase tasks",
+            cm.exception.message
+        )
+
+    def test_raises_when_task_already_erased(self):
+        self.task._manually_erased = True
+        self.dbsession.add(self.task)
+        self.dbsession.commit()
+
+        self.req.add_get_params({
+            ViewParam.SERVER_PK: self.task._pk,
+            ViewParam.TABLE_NAME: self.task.tablename,
+        }, set_method_get=False)
+        view = EraseTaskLeavingPlaceholderView(self.req)
+
+        with self.assertRaises(HTTPBadRequest) as cm:
+            view.dispatch()
+
+        self.assertIn(
+            "already erased",
+            cm.exception.message
+        )
+
+
+class EraseTaskEntirelyViewTests(EraseTaskTestCase):
+    def test_deletes_task_entirely(self):
+        multidict = MultiDict([
+            ("_charset_", "UTF-8"),
+            ("__formid__", "deform"),
+            (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
+            (ViewParam.SERVER_PK, self.task._pk),
+            (ViewParam.TABLE_NAME, self.task.tablename),
+            ("confirm_1_t", "true"),
+            ("confirm_2_t", "true"),
+            ("confirm_4_t", "true"),
+            ("__start__", "danger:mapping"),
+            ("target", "7176"),
+            ("user_entry", "7176"),
+            ("__end__", "danger:mapping"),
+            ("delete", "delete"),
+            (FormAction.DELETE, "delete"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+
+        view = EraseTaskEntirelyView(self.req)
+        self.task.delete_entirely = mock.Mock()
+
+        view.dispatch()
+
+        self.task.delete_entirely.assert_called_once()
+        args, kwargs = self.task.delete_entirely.call_args
+        request = args[0]
+
+        self.assertEqual(request, self.req)
