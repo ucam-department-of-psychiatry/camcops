@@ -3629,20 +3629,11 @@ class JsonWidget(Widget):
             return null
 
         _ = self.request.gettext
-        error_message = _(
-            "Please enter a valid JSON object (with settings keyed on task "
-            "table name) or leave blank"
-        )
-        failed = False
+        error_message = _("Please enter valid JSON or leave blank")
 
         try:
-            json_object = json.loads(pstruct)
-            if not isinstance(json_object, dict):
-                failed = True
+            json.loads(pstruct)
         except json.JSONDecodeError:
-            failed = True
-
-        if (failed):
             raise Invalid(field, error_message, pstruct)
 
         return pstruct
@@ -3680,6 +3671,20 @@ class TaskScheduleNode(MappingSchema, RequestAwareMixin):
             "Only applicable to tasks that are configurable on a per-patient "
             "basis. Format: JSON object, with settings keyed on task table name"
         )
+
+    def validator(self, node: SchemaNode, value: Any) -> None:
+        settings_value = value["settings"]
+
+        if settings_value is not None:
+            # will be None if JSON failed to validate
+            if not isinstance(settings_value, dict):
+                _ = self.request.gettext
+                error_message = _(
+                    "Please enter a valid JSON object (with settings keyed on "
+                    "task table name) or leave blank"
+                )
+
+                raise Invalid(node, error_message)
 
 
 class TaskScheduleSequence(SequenceSchema, RequestAwareMixin):
@@ -4526,26 +4531,11 @@ class JsonWidgetTests(TestCase):
             widget.deserialize(None, pstruct)
 
         self.assertIn(
-            "Please enter a valid JSON object",
+            "Please enter valid JSON",
             cm.exception.messages()[0]
         )
 
         self.assertEqual(cm.exception.value, "{")
-
-    def test_deserialize_not_a_json_object_fails_validation(self) -> None:
-        widget = JsonWidget(self.request)
-
-        pstruct = "[{}]"
-
-        with self.assertRaises(Invalid) as cm:
-            widget.deserialize(None, pstruct)
-
-        self.assertIn(
-            "Please enter a valid JSON object",
-            cm.exception.messages()[0]
-        )
-
-        self.assertEqual(cm.exception.value, "[{}]")
 
 
 class JsonTypeTests(TestCase):
@@ -4582,6 +4572,21 @@ class JsonTypeTests(TestCase):
         json_type = JsonType()
         json_string = json_type.serialize(None, null)
         self.assertIs(json_string, null)
+
+
+class TaskScheduleNodeTests(TestCase):
+
+    def test_deserialize_not_a_json_object_fails_validation(self) -> None:
+        node = TaskScheduleNode()
+        with self.assertRaises(Invalid) as cm:
+            node.deserialize({})
+
+            self.assertIn(
+                "Please enter a valid JSON object",
+                cm.exception.messages()[0]
+            )
+
+            self.assertEqual(cm.exception.value, "[{}]")
 
 
 # =============================================================================
