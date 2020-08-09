@@ -4,6 +4,28 @@
 # https://camcops.readthedocs.io/en/latest/administrator/docker.html
 
 # =============================================================================
+# Environment variables used (see help)
+# =============================================================================
+#
+# Those with defaults in the .env file in this directory:
+#
+#   CAMCOPS_DOCKER_CAMCOPS_CONFIG_FILENAME
+#   CAMCOPS_DOCKER_CAMCOPS_HOST_PORT
+#   CAMCOPS_DOCKER_CAMCOPS_INTERNAL_PORT
+#   CAMCOPS_DOCKER_FLOWER_HOST_PORT
+#   CAMCOPS_DOCKER_MYSQL_CAMCOPS_DATABASE_NAME
+#   CAMCOPS_DOCKER_MYSQL_CAMCOPS_USER_NAME
+#   CAMCOPS_DOCKER_MYSQL_HOST_PORT
+#   COMPOSE_PROJECT_NAME -- used by Docker Compose itself
+#
+# Those without defaults:
+#
+#   CAMCOPS_DOCKER_CONFIG_HOST_DIR
+#   CAMCOPS_DOCKER_MYSQL_CAMCOPS_USER_PASSWORD
+#   CAMCOPS_DOCKER_MYSQL_ROOT_PASSWORD
+
+
+# =============================================================================
 # docker-compose file syntax version
 # =============================================================================
 
