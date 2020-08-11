@@ -476,6 +476,7 @@ class CSRFToken(SchemaNode, RequestAwareMixin):
         # Deferred validator via method, as per
         # https://docs.pylonsproject.org/projects/colander/en/latest/basics.html  # noqa
         request = self.request
+
         csrf_token = request.session.get_csrf_token()  # type: str
         matches = value == csrf_token
         if DEBUG_CSRF_CHECK:
@@ -3943,11 +3944,17 @@ class DurationType(object):
             # For new schedule item
             return null
 
+        total_days = duration.in_days()
+
+        months = total_days // 30
+        weeks = (total_days % 30) // 7
+        days = (total_days % 30) % 7
+
         # Existing schedule item
         cstruct = {
-            "days": duration.in_days(),
-            "months": 0,
-            "weeks": 0,
+            "days": days,
+            "months": months,
+            "weeks": weeks,
         }
 
         return cstruct
@@ -4420,13 +4427,13 @@ class DurationTypeTests(TestCase):
         self.assertEqual(duration.days, 31)
 
     def test_serialize_valid_duration(self) -> None:
-        duration = Duration(days=45)
+        duration = Duration(days=47)
 
         duration_type = DurationType()
         cstruct = duration_type.serialize(None, duration)
-        self.assertEqual(cstruct["days"], 45)
-        self.assertEqual(cstruct["months"], 0)
-        self.assertEqual(cstruct["weeks"], 0)
+        self.assertEqual(cstruct["days"], 3)
+        self.assertEqual(cstruct["months"], 1)
+        self.assertEqual(cstruct["weeks"], 2)
 
     def test_serialize_null_returns_null(self) -> None:
         duration_type = DurationType()
