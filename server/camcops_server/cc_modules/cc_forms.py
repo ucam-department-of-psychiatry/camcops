@@ -476,7 +476,6 @@ class CSRFToken(SchemaNode, RequestAwareMixin):
         # Deferred validator via method, as per
         # https://docs.pylonsproject.org/projects/colander/en/latest/basics.html  # noqa
         request = self.request
-
         csrf_token = request.session.get_csrf_token()  # type: str
         matches = value == csrf_token
         if DEBUG_CSRF_CHECK:
@@ -3759,7 +3758,7 @@ class DangerousEditPatientSchema(EditPatientSchema):
 
 
 class EditScheduledPatientSchema(EditPatientSchema):
-    # Must match ViewParam.UPLOAD_GROUP_ID
+    # Must match ViewParam.GROUP_ID
     group_id = MandatoryGroupIdSelectorAllGroups(insert_before="forename")
 
 
