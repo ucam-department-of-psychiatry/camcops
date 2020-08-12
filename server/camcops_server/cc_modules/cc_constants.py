@@ -197,6 +197,7 @@ WKHTMLTOPDF_OPTIONS = {  # dict for pdfkit
     "header-spacing": "3",  # mm, from content up to bottom of header
     "footer-spacing": "3",  # mm, from content down to top of footer
     "quiet": "",  # Suppress "Loading pages (1/6)" etc.
+    "enable-local-file-access": "",
 }
 
 
