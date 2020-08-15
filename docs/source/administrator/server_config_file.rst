@@ -1236,6 +1236,8 @@ For RabbitMQ URLs, see e.g. https://www.rabbitmq.com/uri-spec.html.
 .. include:: include_docker_config.rst
 
 
+.. _CELERY_WORKER_EXTRA_ARGS:
+
 CELERY_WORKER_EXTRA_ARGS
 ########################
 
@@ -1244,6 +1246,35 @@ CELERY_WORKER_EXTRA_ARGS
 Each line of this multiline string is an extra option to the ``celery worker``
 command used by ``camcops_server launch_workers``, after ``celery worker --app
 camcops_server --loglevel <LOGLEVEL>``.
+
+Use ``celery worker --help`` to inspect the possible options. However, do not
+use the following options at any time (because CamCOPS does; see
+:func:`camcops_server.camcops_server_core.launch_celery_workers`):
+
+- ``--app``
+- ``-O`` (optimization)
+- ``--soft-time-limit``
+- ``--loglevel``
+
+and do not use these under Windows:
+
+- ``--concurrency``
+- ``--pool``
+
+An example to limit to a single worker (under Linux):
+
+.. code-block:: ini
+
+    CELERY_WORKER_EXTRA_ARGS =
+        --concurrency=1
+
+An example to prevent the :ref:`Celery-related memory leak
+<celery_memory_leak>`:
+
+.. code-block:: ini
+
+    CELERY_WORKER_EXTRA_ARGS =
+        --maxtasksperchild=20
 
 
 CELERY_EXPORT_TASK_RATE_LIMIT

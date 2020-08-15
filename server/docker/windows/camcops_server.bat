@@ -1,7 +1,7 @@
 @echo off
 REM server/docker/windows/camcops_server.bat
 REM
-REM Launches the "camcops_server" command within one of the Docker containers
+REM Launches the "camcops_server" command within a new Docker container
 REM running the CamCOPS server image.
 
 setlocal

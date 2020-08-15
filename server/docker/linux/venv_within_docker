@@ -2,7 +2,7 @@
 # server/docker/linux/bash_within_camcops_docker
 #
 # Launches the "bash" command within the CamCOPS Python virtual environment
-# within one of the Docker containers running the CamCOPS server image.
+# within a new Docker container running the CamCOPS server image.
 
 set -e
 

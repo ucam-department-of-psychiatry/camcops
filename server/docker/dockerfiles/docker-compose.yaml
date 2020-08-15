@@ -29,7 +29,23 @@
 # docker-compose file syntax version
 # =============================================================================
 
-version: "3.7"
+version: "3.5"
+    # - Ubuntu 18.04 LTS comes with docker-compose version 1.17.1 and docker
+    #   version 19.03.6. The help seems to suggest that this should support
+    #   version 3.7 (certainly, the Docker Engine version is high enough at
+    #   19.03.0+), but it doesn't (suggesting the docker-compose version is too
+    #   old). Empirically, the highest supported version appears to be 3.5.
+    #
+    # - Version 3.7 works fine with whatever comes with Ubuntu 20.04 LTS.
+    #
+    # - The docker-compose release notes indicate that v3.7 was supported by
+    #   docker-compose 1.22.0, and v3.6 by docker-compose 1.20.0.
+    #
+    # - We're not using v3.6+ features yet, so fine to stick with v3.5.
+    #
+    # - https://docs.docker.com/compose/compose-file/compose-versioning/
+    # - https://docs.docker.com/compose/compose-file/compose-versioning/#version-3
+    # - https://github.com/docker/compose/releases
 
 
 # =============================================================================

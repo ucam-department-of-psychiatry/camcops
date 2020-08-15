@@ -39,6 +39,7 @@ Details for people running a CamCOPS server.
     windows_service.rst
     snomed.rst
     redcap.rst
+    resource_usage.rst
     tcpip_ports.rst
     linux_flavours.rst
     local/local_info.rst

@@ -465,6 +465,8 @@ Tools
 All live in the ``server/docker`` directory.
 
 
+.. _bash_within_docker:
+
 bash_within_docker
 ~~~~~~~~~~~~~~~~~~
 
@@ -478,7 +480,7 @@ Runs a Bash shell within the ``camcops_workers`` container.
 camcops_server
 ~~~~~~~~~~~~~~
 
-This script runs the ``camcops_server`` command within the Docker container.
+This script runs the ``camcops_server`` command within a Docker container.
 For example:
 
     .. code-block:: bash
@@ -537,15 +539,15 @@ This script upgrades the CamCOPS database to the current version.
 venv_within_docker
 ~~~~~~~~~~~~~~~~~~
 
-Launches a shell within the ``camcops_workers`` container, and activates the
-CamCOPS Python virtual environment too.
+Starts a container with the CamCOPS server image, launches a shell within it,
+and activates the CamCOPS Python virtual environment too.
 
 
 within_docker
 ~~~~~~~~~~~~~
 
-This script runs a command within the ``camcops_workers`` container. For
-example, to explore this container, you can do
+This script starts a container with the CamCOPS server image and runs a command
+within it. For example, to explore this container, you can do
 
     .. code-block:: bash
 
@@ -553,6 +555,62 @@ example, to explore this container, you can do
 
 ... which is equivalent to the ``bash_within_docker`` script (see above and
 note the warning).
+
+
+.. _troubleshooting_docker:
+
+Troubleshooting
+---------------
+
+Can't start Docker containers on a Linux host
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you get an error like:
+
+.. code-block:: none
+
+    ERROR: Couldn't connect to Docker daemon at http+docker://localunixsocket - is it running?
+
+then check:
+
+1. Is Docker running (``ps aux | grep dockerd`` or a service command, such as
+  ``service docker status`` under Ubuntu)? If not, start its service (e.g.
+  under Ubuntu, ``sudo service docker start``).
+
+2. Is your user in the Docker group (``grep docker /etc/group``)? If not, add
+   your user, then log out and log in again for the changes to be picked up.
+
+
+Explore a running Docker container
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The shortcuts above (e.g. bash_within_docker_) start a **new container** (via
+``docker-compose run``). To explore a container that is **already running**,
+find the container ID via ``docker container ls`` and use ``docker exec``, e.g.
+as ``docker exec -it CONTAINER /bin/bash``.
+
+
+Warnings from Celery under Docker
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This warning:
+
+.. code-block:: none
+
+    camcops_workers_1    | /camcops/venv/lib/python3.6/site-packages/celery/platforms.py:801: RuntimeWarning: You're running the worker with superuser privileges: this is
+    camcops_workers_1    | absolutely not recommended!
+    camcops_workers_1    |
+    camcops_workers_1    | Please specify a different user using the --uid option.
+    camcops_workers_1    |
+    camcops_workers_1    | User information: uid=0 euid=0 gid=0 egid=0
+    camcops_workers_1    |
+    camcops_workers_1    |   uid=uid, euid=euid, gid=gid, egid=egid,
+
+... can be ignored.
+
+.. todo::
+    Make container apps run as non-root? See
+    https://medium.com/redbubble/running-a-docker-container-as-a-non-root-user-7d2e00f8ee15.
 
 
 Development notes

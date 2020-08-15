@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # server/docker/linux/upgrade_db
 #
-# Launches the "camcops_server upgrade_db" command within one of the Docker
-# containers running the CamCOPS server image.
+# Launches the "camcops_server upgrade_db" command within a new Docker
+# container running the CamCOPS server image.
 
 set -e
 
