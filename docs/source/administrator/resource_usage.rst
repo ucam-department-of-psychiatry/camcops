@@ -59,6 +59,8 @@ Memory
     .
     https://unix.stackexchange.com/questions/34795/correctly-determining-memory-usage-in-linux
     https://docs.docker.com/config/containers/runmetrics/
+    smem (as above)
+    smemstat (as above)
 
 **Web server**
 
@@ -114,6 +116,7 @@ Celery. See:
 - https://medium.com/@aaron.reyna/python-celery-ram-intensive-tasks-and-a-memory-leak-c2681ee98c9
   (2018)
 - https://docs.celeryproject.org/en/latest/userguide/workers.html#max-tasks-per-child-setting
+- possibly related: https://github.com/celery/celery/issues/4843 (2018)
 
 A solution: use ``--maxtasksperchild=20`` in the :ref:`CELERY_WORKER_EXTRA_ARGS
 <CELERY_WORKER_EXTRA_ARGS>` config parameter. This successfully caps memory
