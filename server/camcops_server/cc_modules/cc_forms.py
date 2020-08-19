@@ -217,6 +217,7 @@ from camcops_server.cc_modules.cc_taskschedule import TaskSchedule
 from camcops_server.cc_modules.cc_unittest import DemoRequestTestCase
 
 if TYPE_CHECKING:
+    from deform.field import Field
     from camcops_server.cc_modules.cc_request import CamcopsRequest
     from camcops_server.cc_modules.cc_user import User
 
@@ -3585,9 +3586,11 @@ class JsonType(object):
 
         return json_value
 
-    def serialize(self,
-                  node: SchemaNode,
-                  appstruct) -> Union[str, object]:
+    def serialize(
+            self,
+            node: SchemaNode,
+            appstruct: Union[Dict, None, ColanderNullType]
+    ) -> Union[str, ColanderNullType]:
         # is null when form is empty (new record)
         # is None when populated from empty value in the database
         if appstruct in (null, None):
@@ -3608,11 +3611,13 @@ class JsonWidget(Widget):
     readonly_template = os.path.join(readonlydir, form)
     requirements = (('jsoneditor', None),)
 
-    def __init__(self, request: "CamcopsRequest", *args, **kwargs):
+    def __init__(self, request: "CamcopsRequest", *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.request = request
 
-    def serialize(self, field, cstruct, **kw):
+    def serialize(
+        self, field: "Field", cstruct: Union[Dict, ColanderNullType], **kw
+    ) -> None:
         if cstruct is null:
             cstruct = ""
 
@@ -3623,7 +3628,9 @@ class JsonWidget(Widget):
 
         return field.renderer(template, **values)
 
-    def deserialize(self, field, pstruct):
+    def deserialize(
+        self, field: "Field", pstruct: Union[str, ColanderNullType]
+    ) -> None:
         # is empty string when field is empty
         if pstruct in (null, ""):
             return null
@@ -3833,19 +3840,26 @@ class DeleteTaskScheduleForm(DeleteCancelForm):
 
 
 class DurationWidget(Widget):
+    """
+    Widget for entering a duration as a number of months, weeks and days.
+    The default template renders three text input fields.
+    Total days = (months * 30) + (weeks * 7) + days.
+    """
     basedir = os.path.join(TEMPLATE_DIR, "deform")
     readonlydir = os.path.join(basedir, "readonly")
     form = "duration.pt"
     template = os.path.join(basedir, form)
     readonly_template = os.path.join(readonlydir, form)
 
-    def __init__(self, request: "CamcopsRequest", *args, **kwargs):
+    def __init__(self, request: "CamcopsRequest", *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.request = request
 
-    def serialize(self, field, cstruct, **kw):
+    def serialize(self,
+                  field: "Field",
+                  cstruct: Union[Dict[str, Any], None, ColanderNullType],
+                  **kw) -> None:
         # called when rendering the form with values from DurationType.serialize
-
         if cstruct in (None, null):
             cstruct = {}
 
@@ -3873,7 +3887,9 @@ class DurationWidget(Widget):
 
         return field.renderer(template, **values)
 
-    def deserialize(self, field, pstruct):
+    def deserialize(self,
+                    field: "Field",
+                    pstruct: Union[Dict[str, Any], ColanderNullType]) -> None:
         # called when validating the form on submission
         # value is passed to the schema deserialize()
 
@@ -3910,8 +3926,15 @@ class DurationWidget(Widget):
 
 
 class DurationType(object):
-    def deserialize(self,
-                    node: SchemaNode, cstruct: Dict) -> Optional[Duration]:
+    """
+    Custom colander schema type to convert between Pendulum Duration objects
+    and months, weeks and days.
+    """
+    def deserialize(
+            self,
+            node: SchemaNode,
+            cstruct: Union[Dict[str, Any], None, ColanderNullType]
+    ) -> Optional[Duration]:
         # called when validating the submitted form with the total days
         # from DurationWidget.deserialize()
         if cstruct in (None, null):
@@ -3938,7 +3961,9 @@ class DurationType(object):
 
         return Duration(days=total_days)
 
-    def serialize(self, node: SchemaNode, duration: Duration) -> Dict:
+    def serialize(self,
+                  node: SchemaNode,
+                  duration: Union[Duration, ColanderNullType]) -> Dict:
         if duration is null:
             # For new schedule item
             return null
@@ -3996,7 +4021,7 @@ class TaskScheduleItemSchema(CSRFSchema):
             "by a clinician"
         )
 
-    def validator(self, node: SchemaNode, value: Any) -> None:
+    def validator(self, node: SchemaNode, value: Dict[str, Any]) -> None:
         _ = self.gettext
         task_class = tablename_to_task_class_dict()[value[ViewParam.TABLE_NAME]]
 
@@ -4256,7 +4281,7 @@ class TaskScheduleItemSchemaTests(SchemaTestCase):
 
 
 class DurationWidgetTests(TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         super().setUp()
         self.request = mock.Mock(gettext=lambda t: t)
 
@@ -4441,7 +4466,7 @@ class DurationTypeTests(TestCase):
 
 
 class JsonWidgetTests(TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         super().setUp()
         self.request = mock.Mock(gettext=lambda t: t)
 
