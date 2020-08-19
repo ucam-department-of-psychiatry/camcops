@@ -155,8 +155,8 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
     def __hash__(self) -> int:
         """
         Must be compatible with __eq__.
-
-        See also
+        
+        See also 
         https://stackoverflow.com/questions/45164691/recommended-way-to-implement-eq-and-hash
         """  # noqa
         return hash(self.__members())
