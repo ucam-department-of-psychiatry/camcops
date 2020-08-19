@@ -782,8 +782,6 @@ def change_other_password(req: "CamcopsRequest") -> Response:
             # Change the password
             # -----------------------------------------------------------------
             user_id = appstruct.get(ViewParam.USER_ID)
-            if user_id == req.user_id:
-                return change_own_password(req)
             must_change_pw = appstruct.get(ViewParam.MUST_CHANGE_PASSWORD)
             new_password = appstruct.get(ViewParam.NEW_PASSWORD)
             user = User.get_user_by_id(req.dbsession, user_id)
@@ -801,7 +799,7 @@ def change_other_password(req: "CamcopsRequest") -> Response:
         if user_id is None:
             raise HTTPBadRequest(f"{_('Improper user_id of')} {user_id!r}")
         if user_id == req.user_id:
-            return change_own_password(req)
+            raise HTTPFound(req.route_url(Routes.CHANGE_OWN_PASSWORD))
         user = User.get_user_by_id(req.dbsession, user_id)
         if user is None:
             raise HTTPBadRequest(f"{_('Missing user for id')} {user_id}")
