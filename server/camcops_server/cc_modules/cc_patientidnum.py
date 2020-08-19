@@ -338,6 +338,3 @@ def all_extra_id_columns(req: "CamcopsRequest") -> List[CamcopsColumn]:
         extra_id_column(req, which_idnum)
         for which_idnum in req.valid_which_idnums
     ]
-
-
-# TODO: Add event listener that will update the UUID
