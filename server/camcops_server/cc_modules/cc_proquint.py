@@ -289,10 +289,10 @@ def _generate_luhn_mod_16_remainder(proquint: str, start_factor: int) -> int:
 # =============================================================================
 
 class ProquintTest(TestCase):
-    def test_int_encoded_as_proquint(self):
+    def test_int_encoded_as_proquint(self) -> None:
         self.assertEqual(proquint_from_int(0x493b05ee, 32), "hohur-bilov-j")
 
-    def test_uuid_encoded_as_proquint(self):
+    def test_uuid_encoded_as_proquint(self) -> None:
         self.assertEqual(
             proquint_from_uuid(
                 uuid.UUID("6457cb90-1ca0-47a7-9f40-767567819bee")
@@ -300,10 +300,10 @@ class ProquintTest(TestCase):
             "kidil-sovib-dufob-hivol-nutab-linuj-kivad-nozov-t"
         )
 
-    def test_proquint_decoded_as_int(self):
+    def test_proquint_decoded_as_int(self) -> None:
         self.assertEqual(int_from_proquint("hohur-bilov-j"), 0x493b05ee)
 
-    def test_proquint_decoded_as_uuid(self):
+    def test_proquint_decoded_as_uuid(self) -> None:
         self.assertEqual(
             uuid_from_proquint(
                 "kidil-sovib-dufob-hivol-nutab-linuj-kivad-nozov-t"
@@ -311,7 +311,7 @@ class ProquintTest(TestCase):
             uuid.UUID("6457cb90-1ca0-47a7-9f40-767567819bee")
         )
 
-    def test_ints_converted_to_proquints_and_back(self):
+    def test_ints_converted_to_proquints_and_back(self) -> None:
         for bits in [16, 32, 48, 64, 80, 96, 128, 256]:
             for i in range(1000):
                 random_int = random.getrandbits(bits)
@@ -335,14 +335,14 @@ class ProquintTest(TestCase):
                          f"encoded={encoded}, decoded={decoded} ")
                 )
 
-    def test_raises_when_bits_not_multiple_of_16(self):
+    def test_raises_when_bits_not_multiple_of_16(self) -> None:
         with self.assertRaises(ValueError) as cm:
             proquint_from_int(0, 5)
 
         self.assertEqual(str(cm.exception),
                          "size_in_bits (5) must be a multiple of 16")
 
-    def test_raises_when_proquint_has_invalid_chars(self):
+    def test_raises_when_proquint_has_invalid_chars(self) -> None:
         with self.assertRaises(InvalidProquintException) as cm:
             int_from_proquint("lusab-rrrrr-s")
 
@@ -351,7 +351,7 @@ class ProquintTest(TestCase):
             "'lusab-rrrrr-s' contains invalid or transposed characters"
         )
 
-    def test_raises_when_proquint_has_chars_in_wrong_order(self):
+    def test_raises_when_proquint_has_chars_in_wrong_order(self) -> None:
         with self.assertRaises(InvalidProquintException) as cm:
             int_from_proquint("lusab-abadu-b")
 
@@ -360,7 +360,7 @@ class ProquintTest(TestCase):
             "'lusab-abadu-b' contains invalid or transposed characters"
         )
 
-    def test_raises_when_checksum_doesnt_match(self):
+    def test_raises_when_check_character_doesnt_match(self) -> None:
         with self.assertRaises(InvalidProquintException) as cm:
             int_from_proquint("hohur-dilov-j")
 
