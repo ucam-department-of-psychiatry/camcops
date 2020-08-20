@@ -1,4 +1,4 @@
-# server/docker/camcops.Dockerfile
+# server/docker/dockerfiles/camcops.Dockerfile
 #
 # Directory structure in container:
 #
@@ -7,6 +7,7 @@
 #       /src            Source code for CamCOPS server.
 #       /venv           Python 3 virtual environment.
 #           /bin        Main "camcops_server" executable lives here.
+
 
 # -----------------------------------------------------------------------------
 # FROM: Base image
@@ -23,18 +24,21 @@ FROM python:3.6-slim-buster
 # FROM python:3.6-buster
 # ... includes some things we need, but is LARGER overall.
 
+
 # -----------------------------------------------------------------------------
 # ADD: files to copy
 # -----------------------------------------------------------------------------
 # - Syntax: ADD <host_file_spec> <container_dest_dir>
 # - The host file spec is relative to the context (and can't go "above" it).
-# - This docker file lives in the "server/docker/" directory within the CamCOPS
-#   source, so we expect Docker to be told (externally -- see e.g. the Docker
-#   Compose file) that the context is our parent directory, "server/". This
-#   is the directory containing "setup.py" and therefore the installation
+# - This docker file lives in the "server/docker/dockerfiles" directory within
+#   the CamCOPS source, so we expect Docker to be told (externally -- see e.g.
+#   the Docker Compose file) that the context is a higher directory, "server/".
+#   That is the directory containing "setup.py" and therefore the installation
 #   directory for our Python package.
+# - So in short, here we refer to the context as ".".
 
 ADD . /camcops/src
+
 
 # -----------------------------------------------------------------------------
 # WORKDIR: Set working directory on container.
@@ -42,6 +46,7 @@ ADD . /camcops/src
 # Shouldn't really be necessary.
 
 WORKDIR /camcops
+
 
 # -----------------------------------------------------------------------------
 # RUN: run a command.

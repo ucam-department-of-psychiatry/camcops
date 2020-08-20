@@ -23,8 +23,11 @@
 
 .. _server_installation:
 
-Installing CamCOPS on the server
-================================
+(MANUAL) Installing CamCOPS on the server
+=========================================
+
+.. include:: include_this_is_manual_see_docker.rst
+
 
 ..  contents::
     :local:
@@ -136,8 +139,11 @@ front-end web server and MySQL as your database:
 See also the :ref:`more detailed MySQL configuration tips <linux_mysql_setup>`.
 
 
-Specimen installations
-======================
+(MANUAL) Specimen installations
+===============================
+
+.. include:: include_this_is_manual_see_docker.rst
+
 
 Ubuntu 18.04 LTS
 ----------------

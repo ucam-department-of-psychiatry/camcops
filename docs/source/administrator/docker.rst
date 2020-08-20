@@ -18,6 +18,7 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 .. _AMQP: https://en.wikipedia.org/wiki/Advanced_Message_Queuing_Protocol
+.. _CherryPy: https://cherrypy.org/
 .. _Docker: https://www.docker.com/
 .. _Docker Compose: https://docs.docker.com/compose/
 .. _Flower: https://flower.readthedocs.io/
@@ -35,10 +36,6 @@ Installing and running the CamCOPS server via Docker
 ..  contents::
     :local:
     :depth: 3
-
-
-.. todo::
-    Docker: User download system not working properly?
 
 
 Overview
@@ -59,7 +56,7 @@ Compose to set up several containers, specifically:
 
 - a database system, via MySQL_ on Linux (internal container name ``mysql``);
 - a message queue, via RabbitMQ_ on Linux (``rabbitmq``);
-- the CamCOPS web server itself, offering SSL directly via Gunicorn_ on Linux
+- the CamCOPS web server itself, offering SSL directly via CherryPy_ on Linux
   (``camcops_server``);
 - the CamCOPS scheduler (``camcops_scheduler``);
 - CamCOPS workers, to perform background tasks (``camcops_workers``);
@@ -78,11 +75,23 @@ Quick start
         Docker/CamCOPS source: (a) is that the right method? Or should we be
         using ``docker-app``? (Is that experimental?) (b) Document.
 
+    .. todo::
+        MB 2020-08-19: I wonder if we should follow the approach here for
+        releasing docker images when we create a new release on GitHub --
+        https://docs.github.com/en/actions/language-and-framework-guides/publishing-docker-images
+        -- and publish the image on Docker Hub.
+
 #.  Set the :ref:`environment variables <docker_environment_variables>`
     required for Docker operation. (You probably want to automate this with a
     script.)
 
-#.  Change to the ``server/docker`` directory within the CamCOPS source tree.
+#.  Change to the ``server/docker/linux`` directory within the CamCOPS source
+    tree.
+
+    .. note::
+        If you are using a Windows host, change to ``server/docker/windows``
+        instead, and for all the commands below, instead of ``./some_command``,
+        run ``some_command.bat``.
 
 #.  Start the containers with:
 
@@ -192,6 +201,12 @@ In this directory, there should be a file called ``camcops.conf``, the config
 file (or, if you have set CAMCOPS_DOCKER_CAMCOPS_CONFIG_FILENAME_, that
 filename!).
 
+.. note::
+    **Under Windows,** don't use Windows paths like
+    ``C:\Users\myuser\my_camcops_dir``. Translate this to Docker notation as
+    ``/host_mnt/c/Users/myuser/my_camcops_dir``. As of 2020-07-21, this doesn't
+    seem easy to find in the Docker docs!
+
 
 .. _CAMCOPS_DOCKER_CAMCOPS_CONFIG_FILENAME:
 
@@ -267,10 +282,15 @@ Name of the MySQL database to be used for CamCOPS data.
 CAMCOPS_DOCKER_MYSQL_CAMCOPS_USER_PASSWORD
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**No default. Must be set.**
+**No default. Must be set during MySQL container creation.**
 
 MySQL password for the CamCOPS database user (whose name is set by
 CAMCOPS_DOCKER_MYSQL_CAMCOPS_USER_NAME_).
+
+.. note::
+    This only needs to be set when Docker Compose is creating the MySQL
+    container for the first time. After that, it doesn't have to be set (and is
+    probably best not set for security reasons!).
 
 
 .. _CAMCOPS_DOCKER_MYSQL_CAMCOPS_USER_NAME:
@@ -309,9 +329,14 @@ You should **not** expose this port to the "outside", beyond your host.
 CAMCOPS_DOCKER_MYSQL_ROOT_PASSWORD
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**No default. Must be set.**
+**No default. Must be set during MySQL container creation.**
 
 MySQL password for the ``root`` user.
+
+.. note::
+    This only needs to be set when Docker Compose is creating the MySQL
+    container for the first time. After that, it doesn't have to be set (and is
+    probably best not set for security reasons!).
 
 
 COMPOSE_PROJECT_NAME
@@ -431,16 +456,27 @@ There are a few special things to note within the Docker environment.
   not within the ``/camcops/cfg`` mount point.
 
 
+Using a database outside the Docker environment
+-----------------------------------------------
+
+CamCOPS creates a MySQL system and database inside Docker, for convenience.
+However, it's completely fine to ignore it and point CamCOPS to a database
+elsewhere on your system. Just set the :ref:`DB_URL <DB_URL>` parameter to
+point where you want.
+
+
 Tools
 -----
 
 All live in the ``server/docker`` directory.
 
 
+.. _bash_within_docker:
+
 bash_within_docker
 ~~~~~~~~~~~~~~~~~~
 
-Runs a Bash shell within the ``camcops_workers`` container.
+Starts a container with the CamCOPS image and runs a Bash shell within it.
 
 .. warning::
 
@@ -450,7 +486,7 @@ Runs a Bash shell within the ``camcops_workers`` container.
 camcops_server
 ~~~~~~~~~~~~~~
 
-This script runs the ``camcops_server`` command within the Docker container.
+This script runs the ``camcops_server`` command within a Docker container.
 For example:
 
     .. code-block:: bash
@@ -506,18 +542,12 @@ This script upgrades the CamCOPS database to the current version.
   environment variables (q.v.).
 
 
-venv_within_docker
-~~~~~~~~~~~~~~~~~~
-
-Launches a shell within the ``camcops_workers`` container, and activates the
-CamCOPS Python virtual environment too.
-
-
 within_docker
 ~~~~~~~~~~~~~
 
-This script runs a command within the ``camcops_workers`` container. For
-example, to explore this container, you can do
+This script starts a container with the CamCOPS server image, activates the
+CamCOPS virtual environment, and runs a command within it. For example, to
+explore this container, you can do
 
     .. code-block:: bash
 
@@ -525,6 +555,62 @@ example, to explore this container, you can do
 
 ... which is equivalent to the ``bash_within_docker`` script (see above and
 note the warning).
+
+
+.. _troubleshooting_docker:
+
+Troubleshooting
+---------------
+
+Can't start Docker containers on a Linux host
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you get an error like:
+
+.. code-block:: none
+
+    ERROR: Couldn't connect to Docker daemon at http+docker://localunixsocket - is it running?
+
+then check:
+
+1. Is Docker running (``ps aux | grep dockerd`` or a service command, such as
+  ``service docker status`` under Ubuntu)? If not, start its service (e.g.
+  under Ubuntu, ``sudo service docker start``).
+
+2. Is your user in the Docker group (``grep docker /etc/group``)? If not, add
+   your user, then log out and log in again for the changes to be picked up.
+
+
+Explore a running Docker container
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The shortcuts above (e.g. bash_within_docker_) start a **new container** (via
+``docker-compose run``). To explore a container that is **already running**,
+find the container ID via ``docker container ls`` and use ``docker exec``, e.g.
+as ``docker exec -it CONTAINER /bin/bash``.
+
+
+Warnings from Celery under Docker
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This warning:
+
+.. code-block:: none
+
+    camcops_workers_1    | /camcops/venv/lib/python3.6/site-packages/celery/platforms.py:801: RuntimeWarning: You're running the worker with superuser privileges: this is
+    camcops_workers_1    | absolutely not recommended!
+    camcops_workers_1    |
+    camcops_workers_1    | Please specify a different user using the --uid option.
+    camcops_workers_1    |
+    camcops_workers_1    | User information: uid=0 euid=0 gid=0 egid=0
+    camcops_workers_1    |
+    camcops_workers_1    |   uid=uid, euid=euid, gid=gid, egid=egid,
+
+... can be ignored.
+
+.. todo::
+    Make container apps run as non-root? See
+    https://medium.com/redbubble/running-a-docker-container-as-a-non-root-user-7d2e00f8ee15.
 
 
 Development notes

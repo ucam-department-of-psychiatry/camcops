@@ -813,7 +813,6 @@ class MultiTaskSelector(SchemaNode, RequestAwareMixin):
             self.tracker_tasks_only = kw[Binding.TRACKER_TASKS_ONLY]
         values, pv = get_values_and_permissible(self.get_task_choices())
         self.widget = CheckboxChoiceWidget(values=values, inline=True)
-        # make_node_widget_horizontal(self)
         self.validator = Length(min=self.minimum_number)
 
     def get_task_choices(self) -> List[Tuple[str, str]]:
@@ -1042,7 +1041,6 @@ class OptionalSexSelector(OptionalStringNode, RequestAwareMixin):
         choices = sex_choices(self.request)
         values, pv = get_values_and_permissible(choices, True, _("Any"))
         self.widget = RadioChoiceWidget(values=values, inline=True)
-        # make_node_widget_horizontal(self)
         self.validator = OneOf(pv)
 
 
@@ -1063,7 +1061,6 @@ class MandatorySexSelector(MandatoryStringNode, RequestAwareMixin):
         choices = sex_choices(self.request)
         values, pv = get_values_and_permissible(choices)
         self.widget = RadioChoiceWidget(values=values, inline=True)
-        # make_node_widget_horizontal(self)
         self.validator = OneOf(pv)
 
 

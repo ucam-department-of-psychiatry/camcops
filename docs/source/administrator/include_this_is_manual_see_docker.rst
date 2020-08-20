@@ -1,4 +1,4 @@
-..  docs/source/administrator/_index.rst
+..  docs/source/administrator/include_this_is_manual_see_docker.rst
 
 ..  Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
     .
@@ -17,29 +17,6 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
-Administrator's guide
-=====================
-
-Details for people running a CamCOPS server.
-
-
-..  toctree::
-    :maxdepth: 1
-
-    docker.rst
-    server_config_file.rst
-    server_installation.rst
-    third_party_installation.rst
-    server_configuration.rst
-    server_front_end_admin.rst
-    server_command_line.rst
-    server_upgrading.rst
-    server_troubleshooting.rst
-    server_migrating_databases.rst
-    windows_service.rst
-    snomed.rst
-    redcap.rst
-    resource_usage.rst
-    tcpip_ports.rst
-    linux_flavours.rst
-    local/local_info.rst
+.. note::
+    These instructions relate to manual server installation. For a simpler
+    Docker-based system, see :ref:`here <server_docker>`.

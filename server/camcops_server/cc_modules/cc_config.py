@@ -248,6 +248,24 @@ def warn_if_not_docker_value(param_name: str,
         )
 
 
+def warn_if_not_present(param_name: str, value: Any) -> None:
+    """
+    Warn the user if a parameter is not set (None, or an empty string), for
+    when operating under Docker.
+
+    Args:
+        param_name:
+            Name of the parameter in the CamCOPS config file.
+        value:
+            Value in the config file.
+    """
+    if value is None or value == "":
+        log.warning(
+            f"Config parameter {param_name} is not specified, "
+            f"but should be specified when running inside Docker"
+        )
+
+
 # =============================================================================
 # Demo config
 # =============================================================================
@@ -1395,8 +1413,22 @@ class CamcopsConfig(object):
                 required_value=DockerConstants.HOST
             )
 
-            # Config-related files
+            # Values expected to be present
+            #
+            # - Re SSL certificates: reconsidered. People may want to run
+            #   internal plain HTTP but then an Apache front end, and they
+            #   wouldn't appreciate the warnings.
+            #
+            # warn_if_not_present(
+            #     param_name=ConfigParamServer.SSL_CERTIFICATE,
+            #     value=self.ssl_certificate
+            # )
+            # warn_if_not_present(
+            #     param_name=ConfigParamServer.SSL_PRIVATE_KEY,
+            #     value=self.ssl_private_key
+            # )
 
+            # Config-related files
             warn_if_not_within_docker_dir(
                 param_name=ConfigParamServer.SSL_CERTIFICATE,
                 filespec=self.ssl_certificate,
@@ -1419,7 +1451,6 @@ class CamcopsConfig(object):
                 permit_cfg=True,
                 permit_venv=True
             )
-
             for esf in self.extra_string_files:
                 warn_if_not_within_docker_dir(
                     param_name=ConfigParamSite.EXTRA_STRING_FILES,
@@ -1449,7 +1480,6 @@ class CamcopsConfig(object):
 
             # Temporary/scratch space that needs to be shared between Docker
             # containers
-
             warn_if_not_within_docker_dir(
                 param_name=ConfigParamSite.USER_DOWNLOAD_DIR,
                 filespec=self.user_download_dir,

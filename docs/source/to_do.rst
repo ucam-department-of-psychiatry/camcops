@@ -232,26 +232,12 @@ Server
 
 **Medium**
 
-- There appears to be a bug in Deform (currently ``deform==2.0.8``) that
-  emerges when Chameleon is upgraded (e.g. from ``Chameleon==3.4`` to
-  ``Chameleon==3.8.0``, probably as Chameleon fixes some bugs in its
-  implementation of the TAL language). Specifically, a bunch of HTML attributes
-  like ``<select multiple>`` and ``<input type="checkbox" checked>`` are
-  mis-rendered as ``multiple="False"`` or ``checked="False"``, which reverses
-  their meaning. This manifests as, for example, single-select dropdowns
-  allowing multiple selections (fixed temporarily via
-  :class:`camcops_server.cc_modules.cc_forms.BugfixSelectWidget`) and things
-  being ticked when they shouldn't be (e.g. ``CheckboxChoiceWidget`` -- not so
-  obviously fixable), and the wrong defaults (e.g. ``RadioChoiceWidget``).
-
-  Temporary fix: pin Chameleon to 3.4
-
-  Long-term fix: Deform seems to be out of regular maintenance and is rated
-  "L2" (low) at e.g. https://python.libhunt.com/wtforms-alternatives. Should we
-  use WTForms (https://wtforms.readthedocs.io/)? That's rated L5.
-
 - Self-test: possible to avoid recreating database structure each time? Makes
   it very slow.
+  (MB 2020-08-19: Certainly possible with pytest / pytest-django. I haven't
+  checked if there's an equivalent for pyramid. No doubt this would require a
+  lot of work up front and would be good not to have to maintain our own test
+  runner.)
 
 **Not a priority**
 

@@ -223,7 +223,7 @@ LOCAL_INSTITUTION_URL
 *String.*
 
 Clicking on your institution's logo in the CamCOPS menu will take you to this
-URL. Edit this to point to your institution:
+URL. Edit this to point to your institution.
 
 
 LOCAL_LOGO_FILE_ABSOLUTE
@@ -235,9 +235,14 @@ Specify the full path to your institution's logo file, e.g.
 ``/var/www/logo_local_myinstitution.png``. It's used for PDF generation; HTML
 views use the fixed string ``static/logo_local.png``, aliased to your file via
 the Apache configuration file). Edit this setting to point to your local
-institution's logo file:
+institution's logo file.
 
 .. include:: include_docker_config.rst
+
+Your logo will be scaled to 45% of the active page width. You may need to add
+blank space to the left if it looks funny. See picture below.
+
+.. image:: images/scaling_logos.png
 
 
 CAMCOPS_LOGO_FILE_ABSOLUTE
@@ -1231,6 +1236,8 @@ For RabbitMQ URLs, see e.g. https://www.rabbitmq.com/uri-spec.html.
 .. include:: include_docker_config.rst
 
 
+.. _CELERY_WORKER_EXTRA_ARGS:
+
 CELERY_WORKER_EXTRA_ARGS
 ########################
 
@@ -1239,6 +1246,35 @@ CELERY_WORKER_EXTRA_ARGS
 Each line of this multiline string is an extra option to the ``celery worker``
 command used by ``camcops_server launch_workers``, after ``celery worker --app
 camcops_server --loglevel <LOGLEVEL>``.
+
+Use ``celery worker --help`` to inspect the possible options. However, do not
+use the following options at any time (because CamCOPS does; see
+:func:`camcops_server.camcops_server_core.launch_celery_workers`):
+
+- ``--app``
+- ``-O`` (optimization)
+- ``--soft-time-limit``
+- ``--loglevel``
+
+and do not use these under Windows:
+
+- ``--concurrency``
+- ``--pool``
+
+An example to limit to a single worker (under Linux):
+
+.. code-block:: ini
+
+    CELERY_WORKER_EXTRA_ARGS =
+        --concurrency=1
+
+An example to prevent the :ref:`Celery-related memory leak
+<celery_memory_leak>`:
+
+.. code-block:: ini
+
+    CELERY_WORKER_EXTRA_ARGS =
+        --maxtasksperchild=20
 
 
 CELERY_EXPORT_TASK_RATE_LIMIT
@@ -1594,6 +1630,8 @@ Options applicable to database export only
 
 At present, only full (not incremental) database export is supported.
 
+
+.. _EXPORT_DB_URL:
 
 DB_URL
 ######

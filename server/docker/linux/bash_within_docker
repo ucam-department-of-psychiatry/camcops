@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
+# server/docker/linux/bash_within_docker
 #
-# server/docker/bash_within_camcops_docker
-#
-# Launches the "camcops_server" command within one of the Docker containers
-# running the CamCOPS server image.
+# Starts a container with the CamCOPS server image and runs "bash" in it.
 
 set -e
 

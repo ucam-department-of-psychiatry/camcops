@@ -93,7 +93,7 @@ INSTALL_REQUIRES = [
     'colander==1.7.0',  # serialization/deserialization from web forms
     'CherryPy==18.6.0',  # web server
 
-    'deform==2.0.8',  # web forms
+    'deform==2.0.10',  # web forms
     # 'deform-bootstrap==0.2.9',  # deform with layout made easier
     'distro==1.3.0',  # detecting Linux distribution  # REMOVE ONCE DOCKER PREFERRED  # noqa
     'dogpile.cache==0.9.2',  # web caching
@@ -179,7 +179,7 @@ INSTALL_REQUIRES = [
 
     'alabaster==0.7.12',  # for sphinx
     'amqp==2.6.0',  # for celery
-    'Chameleon==3.4',  # for Deform -- todo:: ?replace Deform; bug emerges with later versions of Chameleon  # noqa
+    'Chameleon==3.8.1',  # for Deform
     'tornado==6.0.4',  # for celery
     'webob==1.8.6',  # for pyramid
 
@@ -354,7 +354,7 @@ if getattr(our_args, EXTRAS_ARG):
     MANIFEST_LINES = ['include camcops_server/' + x for x in extra_files]
     with open(MANIFEST_FILE, 'wt') as manifest:
         manifest.writelines([
-            "# This is an AUTOCREATED file, MANIFEST.in; see "
+            "# This is an AUTOCREATED file, server/MANIFEST.in; see "
             "server/setup.py and DO NOT EDIT BY HAND"])
         manifest.write("\n\n" + "\n".join(MANIFEST_LINES) + "\n")
 
@@ -363,7 +363,7 @@ if getattr(our_args, EXTRAS_ARG):
     # -------------------------------------------------------------------------
     with open(PIP_REQ_FILE, "w") as req_file:
         req_file.writelines([
-            "# This is an AUTOCREATED file, requirements.txt; see "
+            "# This is an AUTOCREATED file, server/requirements.txt; see "
             "server/setup.py and DO NOT EDIT BY HAND"])
         req_file.write("\n\n" + "\n".join(INSTALL_REQUIRES) + "\n")
 

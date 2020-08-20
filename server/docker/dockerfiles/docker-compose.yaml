@@ -1,13 +1,51 @@
-# server/docker/docker-compose.yaml
+# server/docker/dockerfiles/docker-compose.yaml
 #
 # See the help!
 # https://camcops.readthedocs.io/en/latest/administrator/docker.html
 
 # =============================================================================
+# Environment variables used (see help)
+# =============================================================================
+#
+# Those with defaults in the .env file in this directory:
+#
+#   CAMCOPS_DOCKER_CAMCOPS_CONFIG_FILENAME
+#   CAMCOPS_DOCKER_CAMCOPS_HOST_PORT
+#   CAMCOPS_DOCKER_CAMCOPS_INTERNAL_PORT
+#   CAMCOPS_DOCKER_FLOWER_HOST_PORT
+#   CAMCOPS_DOCKER_MYSQL_CAMCOPS_DATABASE_NAME
+#   CAMCOPS_DOCKER_MYSQL_CAMCOPS_USER_NAME
+#   CAMCOPS_DOCKER_MYSQL_HOST_PORT
+#   COMPOSE_PROJECT_NAME -- used by Docker Compose itself
+#
+# Those without defaults:
+#
+#   CAMCOPS_DOCKER_CONFIG_HOST_DIR
+#   CAMCOPS_DOCKER_MYSQL_CAMCOPS_USER_PASSWORD
+#   CAMCOPS_DOCKER_MYSQL_ROOT_PASSWORD
+
+
+# =============================================================================
 # docker-compose file syntax version
 # =============================================================================
 
-version: "3.7"
+version: "3.5"
+    # - Ubuntu 18.04 LTS comes with docker-compose version 1.17.1 and docker
+    #   version 19.03.6. The help seems to suggest that this should support
+    #   version 3.7 (certainly, the Docker Engine version is high enough at
+    #   19.03.0+), but it doesn't (suggesting the docker-compose version is too
+    #   old). Empirically, the highest supported version appears to be 3.5.
+    #
+    # - Version 3.7 works fine with whatever comes with Ubuntu 20.04 LTS.
+    #
+    # - The docker-compose release notes indicate that v3.7 was supported by
+    #   docker-compose 1.22.0, and v3.6 by docker-compose 1.20.0.
+    #
+    # - We're not using v3.6+ features yet, so fine to stick with v3.5.
+    #
+    # - https://docs.docker.com/compose/compose-file/compose-versioning/
+    # - https://docs.docker.com/compose/compose-file/compose-versioning/#version-3
+    # - https://github.com/docker/compose/releases
 
 
 # =============================================================================
@@ -40,7 +78,7 @@ volumes:
             type: none
             # We use environment variable substitution.
             # https://docs.docker.com/compose/compose-file/#variable-substitution
-            device: "${CAMCOPS_DOCKER_CONFIG_HOST_DIR}"
+            device: "${CAMCOPS_DOCKER_CAMCOPS_CONFIG_FILENAMECAMCOPS_DOCKER_CONFIG_HOST_DIR}"
 
     camcops_tmp_volume:
         # Space to put lock files, user downloads, etc., that need to be shared
@@ -156,11 +194,11 @@ services:
     camcops_workers:
         # Build a container from a Dockerfile.
         build:
-            # Context for Docker to build the image.
-            context: ../
+            # Context for Docker to build the image (relative to this file).
+            context: ../../
             
             # Filename of the Dockerfile to use, relative to the context.
-            dockerfile: docker/camcops.Dockerfile
+            dockerfile: docker/dockerfiles/camcops.Dockerfile
         
         # If you specify "image" as well as "build", Compose names the built
         # image. Syntax is "IMAGE[:TAG]".

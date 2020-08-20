@@ -31,6 +31,7 @@ Quick links:
 - :ref:`2017 <changelog_2017>`
 - :ref:`2018 <changelog_2018>`
 - :ref:`2019 <changelog_2019>`
+- :ref:`2020 <changelog_2020>`
 
 
 Contributors
@@ -2676,6 +2677,12 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Bugfix: Automatically create EXPORT_LOCKDIR on server startup
 
+
+.. _changelog_2020:
+
+2020
+~~~~
+
 **Client and server v2.3.7, released 3 Mar 2020**
 
 - ``pyexcel-ods3`` and ``pyexcel-xlsx`` for spreadsheet export; faster and much
@@ -2839,3 +2846,24 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Option to download column info (from ``INFORMATION_SCHEMA.COLUMNS``) with
   basic and SQLite dumps.
+
+- There appears to be a bug in Deform (currently ``deform==2.0.8``) that
+  emerges when Chameleon is upgraded (e.g. from ``Chameleon==3.4`` to
+  ``Chameleon==3.8.0``, probably as Chameleon fixes some bugs in its
+  implementation of the TAL language). Specifically, a bunch of HTML attributes
+  like ``<select multiple>`` and ``<input type="checkbox" checked>`` are
+  mis-rendered as ``multiple="False"`` or ``checked="False"``, which reverses
+  their meaning. This manifests as, for example, single-select dropdowns
+  allowing multiple selections (fixed temporarily via
+  :class:`camcops_server.cc_modules.cc_forms.BugfixSelectWidget`) and things
+  being ticked when they shouldn't be (e.g. ``CheckboxChoiceWidget`` -- not so
+  obviously fixable), and the wrong defaults (e.g. ``RadioChoiceWidget``).
+
+  Temporary fix: pin Chameleon to 3.4.
+
+  Consider: Deform seems to be out of regular maintenance and is rated
+  "L2" (low) at e.g. https://python.libhunt.com/wtforms-alternatives. Should we
+  use WTForms (https://wtforms.readthedocs.io/)? That's rated L5.
+
+  2020-07-24: No, Deform has caught up. See https://pypi.org/project/deform/.
+  Move to ``deform==2.0.10`` and ``Chameleon==3.8.1``.
