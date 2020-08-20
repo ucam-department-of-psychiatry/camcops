@@ -1,5 +1,5 @@
 @echo off
-REM server/docker/windows/bash_within_camcops_docker.bat
+REM server/docker/windows/bash_within_docker.bat
 REM
 REM Starts a container with the CamCOPS server image and runs "bash" in it.
 

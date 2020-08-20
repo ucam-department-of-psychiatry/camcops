@@ -9,10 +9,10 @@ setlocal
 set THIS_DIR=%~dp0
 set WITHIN_DOCKER=%THIS_DIR%\within_docker.bat
 
-"%WITHIN_DOCKER%" /camcops/venv/bin/camcops_server %*
-REM ^             ^                                ^
-REM |             |                                |
-REM |             |                                |
-REM |             |                                +- user arguments
+"%WITHIN_DOCKER%" camcops_server %*
+REM ^             ^              ^
+REM |             |              |
+REM |             |              |
+REM |             |              +- user arguments
 REM |             +- the camcops_server command
 REM +- execute within our Docker container...

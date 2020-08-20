@@ -78,7 +78,7 @@ volumes:
             type: none
             # We use environment variable substitution.
             # https://docs.docker.com/compose/compose-file/#variable-substitution
-            device: "${CAMCOPS_DOCKER_CONFIG_HOST_DIR}"
+            device: "${CAMCOPS_DOCKER_CAMCOPS_CONFIG_FILENAMECAMCOPS_DOCKER_CONFIG_HOST_DIR}"
 
     camcops_tmp_volume:
         # Space to put lock files, user downloads, etc., that need to be shared

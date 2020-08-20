@@ -470,7 +470,7 @@ All live in the ``server/docker`` directory.
 bash_within_docker
 ~~~~~~~~~~~~~~~~~~
 
-Runs a Bash shell within the ``camcops_workers`` container.
+Starts a container with the CamCOPS image and runs a Bash shell within it.
 
 .. warning::
 
@@ -536,18 +536,12 @@ This script upgrades the CamCOPS database to the current version.
   environment variables (q.v.).
 
 
-venv_within_docker
-~~~~~~~~~~~~~~~~~~
-
-Starts a container with the CamCOPS server image, launches a shell within it,
-and activates the CamCOPS Python virtual environment too.
-
-
 within_docker
 ~~~~~~~~~~~~~
 
-This script starts a container with the CamCOPS server image and runs a command
-within it. For example, to explore this container, you can do
+This script starts a container with the CamCOPS server image, activates the
+CamCOPS virtual environment, and runs a command within it. For example, to
+explore this container, you can do
 
     .. code-block:: bash
 
