@@ -32,6 +32,12 @@ Troubleshooting server problems
     :depth: 3
 
 
+Problems under Docker
+---------------------
+
+See :ref:`troubleshooting under Docker <troubleshooting_docker>`.
+
+
 Installation problems
 ---------------------
 
@@ -84,6 +90,15 @@ This may reflect known WSL bugs:
 
 Our suggestion would be to run Ubuntu in a proper virtual machine (e.g.
 VirtualBox_) or on physical hardware.
+
+
+Memory problems
+---------------
+
+Celery worker process size grows until the process dies
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+See :ref:`Celery-related memory leak <celery_memory_leak>`.
 
 
 Web server errors from Apache

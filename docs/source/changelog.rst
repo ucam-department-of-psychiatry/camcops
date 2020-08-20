@@ -2811,3 +2811,49 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - :ref:`Export of tasks to REDCap <redcap>`.
   (Database revision 0046).
+
+- Docker support for the server.
+
+- Better clarity of error messages for administrators in
+  :class:`camcops_server.cc_modules.cc_forms.DeliveryModeNode`.
+
+- Cosmetic fix: if ID numbers are always present, the tracker consistency view
+  shouldn't say "all blank or X" (makes users think it might be blank when it's
+  not). Changed in
+  :func:`camcops_server.cc_modules.cc_tracker.consistency_idnums`.
+
+- Cosmetic fix: an ``axis_min`` of zero was being ignored (the test was
+  inappropriately an implicit cast to boolean rather than ``is not None`` in
+  :meth:`camcops_server.cc_modules.cc_tracker.Tracker.get_single_plot_html`.
+  Observed in QoLSG task. Also would have been true of ``axis_max``.
+
+- Cosmetic fix: in PDF tracker generation, the PNG (rather than the SVG) was
+  being used. May relate to ``wkhtmltopdf`` version? PNG fallback removed via
+  the ``provide_png_fallback_for_svg`` option in
+  :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`.
+
+- In the process of fixing a "pixellated font" problem via wkhtmltopdf, which
+  seems to have problems with the "opacity" style in SVG (in wkhtmltopdf
+  version 0.12.5), sorted out z-order to make plotting more efficient (and
+  avoided opacity).
+
+- There appears to be a bug in Deform (currently ``deform==2.0.8``) that
+  emerges when Chameleon is upgraded (e.g. from ``Chameleon==3.4`` to
+  ``Chameleon==3.8.0``, probably as Chameleon fixes some bugs in its
+  implementation of the TAL language). Specifically, a bunch of HTML attributes
+  like ``<select multiple>`` and ``<input type="checkbox" checked>`` are
+  mis-rendered as ``multiple="False"`` or ``checked="False"``, which reverses
+  their meaning. This manifests as, for example, single-select dropdowns
+  allowing multiple selections (fixed temporarily via
+  :class:`camcops_server.cc_modules.cc_forms.BugfixSelectWidget`) and things
+  being ticked when they shouldn't be (e.g. ``CheckboxChoiceWidget`` -- not so
+  obviously fixable), and the wrong defaults (e.g. ``RadioChoiceWidget``).
+
+  Temporary fix: pin Chameleon to 3.4.
+
+  Consider: Deform seems to be out of regular maintenance and is rated
+  "L2" (low) at e.g. https://python.libhunt.com/wtforms-alternatives. Should we
+  use WTForms (https://wtforms.readthedocs.io/)? That's rated L5.
+
+  2020-07-24: No, Deform has caught up. See https://pypi.org/project/deform/.
+  Move to ``deform==2.0.10`` and ``Chameleon==3.8.1``.
