@@ -75,6 +75,12 @@ Quick start
         Docker/CamCOPS source: (a) is that the right method? Or should we be
         using ``docker-app``? (Is that experimental?) (b) Document.
 
+    .. todo::
+        MB 2020-08-19: I wonder if we should follow the approach here for
+        releasing docker images when we create a new release on GitHub --
+        https://docs.github.com/en/actions/language-and-framework-guides/publishing-docker-images
+        -- and publish the image on Docker Hub.
+
 #.  Set the :ref:`environment variables <docker_environment_variables>`
     required for Docker operation. (You probably want to automate this with a
     script.)
