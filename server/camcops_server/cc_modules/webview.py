@@ -5143,7 +5143,7 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
 
         task_schedule = form_values[ViewParam.TASK_SCHEDULES][0]
         self.assertEqual(task_schedule[ViewParam.SCHEDULE_ID],
-                         patient_task_schedule.id)
+                         patient_task_schedule.schedule_id)
         self.assertEqual(task_schedule[ViewParam.START_DATE],
                          patient_task_schedule.start_date)
         self.assertEqual(task_schedule[ViewParam.SETTINGS],
