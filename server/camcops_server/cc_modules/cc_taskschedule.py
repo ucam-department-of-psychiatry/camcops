@@ -25,9 +25,9 @@ camcops_server/cc_modules/cc_taskschedule.py
 ===============================================================================
 
 """
-from typing import List, Optional, TYPE_CHECKING
+from typing import List, Optional, Tuple, TYPE_CHECKING
 
-from pendulum import DateTime as Pendulum
+from pendulum import DateTime as Pendulum, Duration
 
 from sqlalchemy import cast, Numeric
 from sqlalchemy.orm import relationship
@@ -53,6 +53,7 @@ from camcops_server.cc_modules.cc_taskcollection import (
 from camcops_server.cc_modules.cc_unittest import DemoRequestTestCase
 
 if TYPE_CHECKING:
+    from sqlalchemy.sql.expression import Cast
     from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 
@@ -73,6 +74,10 @@ class ScheduledTaskInfo(object):
 
 
 class PatientTaskSchedule(Base):
+    """
+    Joining table that associates a patient with a task schedule
+    """
+
     __tablename__ = "_patient_task_schedule"
 
     id = Column("id", Integer, primary_key=True, autoincrement=True)
@@ -100,8 +105,7 @@ class PatientTaskSchedule(Base):
     task_schedule = relationship("TaskSchedule", backref="patients")
 
     def get_list_of_scheduled_tasks(
-            self,
-            req: "CamcopsRequest"
+            self, req: "CamcopsRequest"
     ) -> List[ScheduledTaskInfo]:
 
         task_list = []
@@ -141,6 +145,10 @@ class PatientTaskSchedule(Base):
                             tsi: "TaskScheduleItem",
                             start_datetime: Pendulum,
                             end_datetime: Pendulum) -> Optional[Task]:
+        """
+        Returns the most recently uploaded task that matches the patient,
+        task type and timeframe
+        """
         taskfilter = TaskFilter()
         for idnum in self.patient.idnums:
             idnum_ref = IdNumReference(which_idnum=idnum.which_idnum,
@@ -164,10 +172,15 @@ class PatientTaskSchedule(Base):
         return None
 
 
-# The durations are currently stored as seconds e.g. P0Y0MT2594592000.0S
-# and the seconds aren't zero padded, so we need to do some processing
-# to get them in the order we want.
-def task_schedule_item_sort_order():
+def task_schedule_item_sort_order() -> Tuple[Cast, Cast]:
+    """
+    The durations are currently stored as seconds e.g. P0Y0MT2594592000.0S
+    and the seconds aren't zero padded, so we need to do some processing
+    to get them in the order we want.
+
+    This will fail if durations ever get stored any other way.
+    """
+
     due_from_order = cast(func.substr(TaskScheduleItem.due_from, 7),
                           Numeric())
     due_by_order = cast(func.substr(TaskScheduleItem.due_by, 7),
@@ -177,6 +190,10 @@ def task_schedule_item_sort_order():
 
 
 class TaskSchedule(Base):
+    """
+    A named collection of task schedule items
+    """
+
     __tablename__ = "_task_schedule"
 
     id = Column(
@@ -201,6 +218,10 @@ class TaskSchedule(Base):
 
 
 class TaskScheduleItem(Base):
+    """
+    An individual item in a task schedule
+    """
+
     __tablename__ = "_task_schedule_item"
 
     id = Column(
@@ -241,23 +262,59 @@ class TaskScheduleItem(Base):
         return task_class_lookup[self.task_table_name].shortname
 
     @property
-    def due_within(self) -> str:
+    def due_within(self) -> Optional[Duration]:
+        if self.due_by is None:
+            # Should not be possible if created through the form
+            return None
+
+        if self.due_from is None:
+            return self.due_by
+
         return self.due_by - self.due_from
 
     def description(self, req: "CamcopsRequest") -> str:
         _ = req.gettext
 
+        due_days = "?"
+
+        if self.due_from is not None:
+            # Should not be possible if created through the form
+            due_days = self.due_from.in_days()
+
         return _("{task_name} @ {due_days} days").format(
-            task_name=self.task_shortname, due_days=self.due_from.in_days()
+            task_name=self.task_shortname, due_days=due_days
         )
 
 
 class TaskScheduleItemTests(DemoRequestTestCase):
     def test_description_shows_shortname_and_number_of_days(self) -> None:
-        from pendulum import Duration
-
         item = TaskScheduleItem()
         item.task_table_name = "bmi"
         item.due_from = Duration(days=30)
 
         self.assertEqual(item.description(self.req), "BMI @ 30 days")
+
+    def test_description_with_no_durations(self) -> None:
+        item = TaskScheduleItem()
+        item.task_table_name = "bmi"
+
+        self.assertEqual(item.description(self.req), "BMI @ ? days")
+
+    def test_due_within_calculated_from_due_by_and_due_from(self) -> None:
+        item = TaskScheduleItem()
+        item.due_from = Duration(days=30)
+        item.due_by = Duration(days=50)
+
+        self.assertEqual(item.due_within.in_days(), 20)
+
+    def test_due_within_is_none_when_missing_due_by(self) -> None:
+        item = TaskScheduleItem()
+        item.due_from = Duration(days=30)
+
+        self.assertIsNone(item.due_within)
+
+    def test_due_within_calculated_when_missing_due_from(self) -> None:
+        item = TaskScheduleItem()
+        item.due_by = Duration(days=30)
+
+        self.assertEqual(item.due_within.in_days(), 30)
