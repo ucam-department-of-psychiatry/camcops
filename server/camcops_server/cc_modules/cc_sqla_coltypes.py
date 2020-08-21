@@ -1259,27 +1259,21 @@ class UuidColType(TypeDecorator):
 
     @property
     def python_type(self) -> type:
-        """
-        The Python type of the object.
-        """
         return str
 
-    def process_bind_param(self, value, dialect):
+    def process_bind_param(self, value: uuid.UUID,
+                           dialect: Dialect) -> Optional[str]:
         if value is None:
-            return value
+            return None
 
-        if not isinstance(value, uuid.UUID):
-            return "%.32x" % uuid.UUID(value).int
-
-        # hexstring
         return "%.32x" % value.int
 
-    def process_result_value(self, value, dialect):
+    def process_result_value(self, value: Optional[str],
+                             dialect: Dialect) -> Optional[uuid.UUID]:
         if value is None:
-            return value
+            return None
 
-        if not isinstance(value, uuid.UUID):
-            return uuid.UUID(value)
+        return uuid.UUID(value)
 
 
 # =============================================================================
