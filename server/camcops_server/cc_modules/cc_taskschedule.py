@@ -24,8 +24,6 @@ camcops_server/cc_modules/cc_taskschedule.py
 
 ===============================================================================
 
-**Task schedule item**
-
 """
 from typing import List, Optional, TYPE_CHECKING
 
@@ -76,7 +74,6 @@ class ScheduledTaskInfo(object):
 class PatientTaskSchedule(Base):
     __tablename__ = "_patient_task_schedule"
 
-    # TODO: remove and make the foreign keys primary keys
     id = Column("id", Integer, primary_key=True, autoincrement=True)
     patient_pk = Column(
         "patient_pk", Integer,
