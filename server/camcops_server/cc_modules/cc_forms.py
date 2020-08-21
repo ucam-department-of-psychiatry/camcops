@@ -299,7 +299,7 @@ class BugfixSelectWidget(SelectWidget):
     """
     Fixes a bug where newer versions of Chameleon (e.g. 3.8.0) render Deform's
     ``multiple = False`` (in ``SelectWidget``) as this, which is wrong:
-    
+
     .. code-block:: none
 
         <select name="which_idnum" id="deformField2" class=" form-control " multiple="False">
@@ -342,7 +342,7 @@ class RequestAwareMixin(object):
     # noinspection PyUnresolvedReferences
     @property
     def request(self) -> "CamcopsRequest":
-        return self.bindings[Binding.REQUEST]  # type: CamcopsRequest
+        return self.bindings[Binding.REQUEST]
 
     # noinspection PyUnresolvedReferences,PyPropertyDefinition
     @property

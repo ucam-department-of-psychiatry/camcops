@@ -918,7 +918,7 @@ class GenericTabletRecordMixin(object):
         not :class:`camcops_server.cc_modules.cc_task.Task`, so that ancillary
         objects can also provide summaries.
         """
-        return []  # type: List[SummaryElement]
+        return []
 
     def get_summary_names(self, req: "CamcopsRequest") -> List[str]:
         """

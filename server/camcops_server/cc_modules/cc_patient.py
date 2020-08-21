@@ -430,7 +430,7 @@ class Patient(GenericTabletRecordMixin, Base):
 
         These are SQLAlchemy ORM objects.
         """
-        return self.idnums  # type: List[PatientIdNum]
+        return self.idnums
 
     def get_idnum_references(self) -> List[IdNumReference]:
         """
