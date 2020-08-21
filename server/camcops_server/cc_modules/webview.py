@@ -5260,6 +5260,7 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
         self.dbsession.add(patient_task_schedule)
         self.dbsession.commit()
 
+        # The patient starts on schedule 1 and schedule 3
         view = EditFinalizedPatientView(self.req)
         view.object = patient
 
@@ -5276,6 +5277,8 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
             "name 6": "value 6",
         }
 
+        # We update schedule 1, add schedule 2 and (by its absence) delete
+        # schedule 3
         appstruct = {
             ViewParam.TASK_SCHEDULES: [
                 {
