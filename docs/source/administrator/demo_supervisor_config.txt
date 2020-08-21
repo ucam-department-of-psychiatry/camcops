@@ -53,3 +53,5 @@ stopwaitsecs = 60
 [group:camcops]
 
 programs = camcops_server, camcops_workers, camcops_scheduler
+
+    

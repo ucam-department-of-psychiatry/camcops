@@ -146,7 +146,7 @@ class ExportRecipientInfo(object):
         """
         Initializes, optionally copying attributes from ``other``.
         """
-        cd = ConfigDefaults
+        cd = ConfigDefaults()
 
         self.recipient_name = ""
 
@@ -342,8 +342,8 @@ class ExportRecipientInfo(object):
         section = CONFIG_RECIPIENT_PREFIX + recipient_name
         cps = ConfigParamSite
         cpr = ConfigParamExportRecipient
-        cd = ConfigDefaults
-        r = cls()
+        cd = ConfigDefaults()
+        r = cls()  # type: ExportRecipientInfo
 
         def _get_str(paramname: str, default: str = None) -> Optional[str]:
             return get_config_parameter(

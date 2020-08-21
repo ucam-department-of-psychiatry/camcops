@@ -74,8 +74,9 @@ server/camcops_server
     alembic/versions/0041_khandaker_mojo_medicationtherapy.py.rst
     alembic/versions/0042_lynall_iam_life.py.rst
     alembic/versions/0043_clinician_removed_from_some_mojo_tasks.py.rst
-    alembic/versions/0044_redcap.py.rst
-    alembic/versions/0045_redcap_exportrecipient.py.rst
+    alembic/versions/0044_mojo_therapy_sessions_planned_comment.py.rst
+    alembic/versions/0045_das28_esr_crp_floating_point.py.rst
+    alembic/versions/0046_redcap.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst

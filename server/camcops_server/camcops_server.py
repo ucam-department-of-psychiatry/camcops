@@ -47,6 +47,7 @@ from cardinal_pythonlib.argparse_func import (
     nonnegative_int,
 )
 from cardinal_pythonlib.debugging import pdb_run
+from cardinal_pythonlib.docker import running_under_docker
 from cardinal_pythonlib.logs import (
     BraceStyleAdapter,
     main_only_quicksetup_rootlogger,
@@ -122,11 +123,11 @@ def launch_manual() -> None:
     launch_external_file(DOCUMENTATION_URL)
 
 
-def print_demo_camcops_config() -> None:
+def print_demo_camcops_config(docker: bool = False) -> None:
     """
     Prints a demonstration config file to stdout.
     """
-    print(get_demo_config())
+    print(get_demo_config(for_docker=docker or running_under_docker()))
 
 
 def print_demo_supervisor_config() -> None:
@@ -421,8 +422,7 @@ def _launch_celery_beat(verbose: bool = False) -> None:
 def _launch_celery_flower(address: str = DEFAULT_FLOWER_ADDRESS,
                           port: int = DEFAULT_FLOWER_PORT) -> None:
     import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
-    core.launch_celery_flower(address=address,
-                              port=port)
+    core.launch_celery_flower(address=address, port=port)
 
 
 def _housekeeping() -> None:
@@ -496,12 +496,15 @@ def add_sub(sp: "_SubParsersAction",
         description=description,
         formatter_class=ArgumentDefaultsHelpFormatter
     )  # type: ArgumentParser
+
     # This needs to be in the top-level parser and the sub-parsers (it does not
     # appear in the subparsers just because it's in the top-level parser, which
     # sounds like an argparse bug given its help, but there you go).
     subparser.add_argument(
         '-v', '--verbose', action='store_true',
         help="Be verbose")
+
+    # Config file handling
     if config_mandatory:  # True
         cfg_help = "Configuration file"
     else:  # None, False
@@ -562,6 +565,7 @@ def camcops_main() -> int:
     # Base parser
     # -------------------------------------------------------------------------
 
+    # noinspection PyTypeChecker
     parser = ArgumentParser(
         description=(
             f"CamCOPS server, created by Rudolf Cardinal; version "
@@ -587,6 +591,10 @@ def camcops_main() -> int:
     parser.add_argument(
         '-v', '--verbose', action='store_true',
         help="Be verbose")
+    parser.add_argument(
+        "--no_log", action="store_true",
+        help="Disable log (stderr) entirely."
+    )
 
     # -------------------------------------------------------------------------
     # Subcommand subparser
@@ -621,8 +629,12 @@ def camcops_main() -> int:
     democonfig_parser = add_sub(
         subparsers, "demo_camcops_config", config_mandatory=None,
         help="Print a demo CamCOPS config file")
+    democonfig_parser.add_argument(
+        "--docker", action="store_true",
+        help="Use settings for Docker"
+    )
     democonfig_parser.set_defaults(
-        func=lambda args: print_demo_camcops_config())
+        func=lambda args: print_demo_camcops_config(docker=args.docker))
 
     # Print demo supervisor config
     demosupervisorconf_parser = add_sub(
@@ -1176,7 +1188,12 @@ def camcops_main() -> int:
     progargs = parser.parse_args()
 
     # Initial log level (overridden later by config file but helpful for start)
-    loglevel = logging.DEBUG if progargs.verbose else logging.INFO
+    if progargs.no_log:
+        loglevel = logging.CRITICAL + 1
+    elif progargs.verbose:
+        loglevel = logging.DEBUG
+    else:
+        loglevel = logging.INFO
     main_only_quicksetup_rootlogger(
         level=loglevel, with_process_id=True, with_thread_id=True)
     rootlogger = logging.getLogger()
