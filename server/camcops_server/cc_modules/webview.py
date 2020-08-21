@@ -3747,11 +3747,13 @@ class DeleteScheduledPatientView(PatientMixin, DeleteView):
         )
 
     def delete(self):
+        patient = self.object
+
         PatientIdNumIndexEntry.unindex_patient(
-            self.object, self.request.dbsession
+            patient, self.request.dbsession
         )
 
-        super().delete()
+        patient.delete_with_dependants(self.request)
 
 
 @view_config(route_name=Routes.DELETE_SCHEDULED_PATIENT,
@@ -5548,15 +5550,24 @@ class DeleteScheduledPatientViewTests(DemoDatabaseTestCase):
             e.exception.headers["Location"]
         )
 
-        patient = self.dbsession.query(Patient).filter(
+        deleted_patient = self.dbsession.query(Patient).filter(
             Patient._pk == patient_pk).one_or_none()
 
-        self.assertIsNone(patient)
+        self.assertIsNone(deleted_patient)
 
         pts = self.dbsession.query(PatientTaskSchedule).filter(
             PatientTaskSchedule.patient_pk == patient_pk).one_or_none()
 
         self.assertIsNone(pts)
+
+        idnum = self.dbsession.query(PatientIdNum).filter(
+            PatientIdNum.patient_id == patient.id,
+            PatientIdNum._device_id == patient._device_id,
+            PatientIdNum._era == patient._era,
+            PatientIdNum._current == True  # noqa: E712
+        ).one_or_none()
+
+        self.assertIsNone(idnum)
 
 
 class EraseTaskTestCase(DemoDatabaseTestCase):
