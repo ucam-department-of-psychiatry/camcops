@@ -69,9 +69,7 @@ from pendulum import DateTime as Pendulum
 
 from sqlalchemy.engine import create_engine
 from sqlalchemy.engine.base import Engine
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
-from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.schema import MetaData
 
 from camcops_server.cc_modules.cc_cache import cache_region_static, fkg
@@ -316,26 +314,6 @@ def assert_constraint_name_ok(table_name: str, column_name: str) -> None:
             f"Constraint name too long for table {table_name!r}, column "
             f"{column_name!r}; will be {anticipated_name!r} "
             f"of length {len(anticipated_name)}")
-
-
-# https://skien.cc/blog/2014/01/15/sqlalchemy-and-race-conditions-implementing-get_one_or_create/  # noqa: E501
-def get_one_or_create(session,
-                      model,
-                      create_method='',
-                      create_method_kwargs=None,
-                      **kwargs):
-    try:
-        return session.query(model).filter_by(**kwargs).one(), True
-    except NoResultFound:
-        kwargs.update(create_method_kwargs or {})
-        created = getattr(model, create_method, model)(**kwargs)
-        try:
-            session.add(created)
-            session.commit()
-            return created, False
-        except IntegrityError:
-            session.rollback()
-            return session.query(model).filter_by(**kwargs).one(), True
 
 
 # =============================================================================
