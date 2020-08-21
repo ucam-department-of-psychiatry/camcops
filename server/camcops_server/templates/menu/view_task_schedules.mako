@@ -60,7 +60,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
         </td>
         <td>
 %for item in schedule.items:
-            ${ item }<br>
+            ${ item.description(req) }<br>
 %endfor
         </td>
         <td>

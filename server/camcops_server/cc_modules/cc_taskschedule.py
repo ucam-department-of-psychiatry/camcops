@@ -50,6 +50,7 @@ from camcops_server.cc_modules.cc_taskcollection import (
     TaskCollection,
     TaskSortMethod,
 )
+from camcops_server.cc_modules.cc_unittest import DemoRequestTestCase
 
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_request import CamcopsRequest
@@ -243,5 +244,20 @@ class TaskScheduleItem(Base):
     def due_within(self) -> str:
         return self.due_by - self.due_from
 
-    def __str__(self) -> str:
-        return (f"{self.task_shortname} @ {self.due_from.in_days()} days")
+    def description(self, req: "CamcopsRequest") -> str:
+        _ = req.gettext
+
+        return _("{task_name} @ {due_days} days").format(
+            task_name=self.task_shortname, due_days=self.due_from.in_days()
+        )
+
+
+class TaskScheduleItemTests(DemoRequestTestCase):
+    def test_description_shows_shortname_and_number_of_days(self) -> None:
+        from pendulum import Duration
+
+        item = TaskScheduleItem()
+        item.task_table_name = "bmi"
+        item.due_from = Duration(days=30)
+
+        self.assertEqual(item.description(self.req), "BMI @ 30 days")
