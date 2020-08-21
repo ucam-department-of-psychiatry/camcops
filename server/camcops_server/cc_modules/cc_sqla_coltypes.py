@@ -1288,20 +1288,17 @@ class JsonColType(TypeDecorator):
 
     @property
     def python_type(self) -> type:
-        """
-        The Python type of the object.
-        """
         return str
 
-    def process_bind_param(self, value, dialect):
+    def process_bind_param(self, value: Any, dialect: Dialect) -> str:
         if value is None:
-            return value
+            return None
 
         return json.dumps(value)
 
-    def process_result_value(self, value, dialect):
+    def process_result_value(self, value: str, dialect: Dialect) -> Any:
         if value is None:
-            return value
+            return None
 
         return json.loads(value)
 
