@@ -53,7 +53,7 @@ from camcops_server.cc_modules.cc_taskcollection import (
 from camcops_server.cc_modules.cc_unittest import DemoRequestTestCase
 
 if TYPE_CHECKING:
-    from sqlalchemy.sql.expression import Cast
+    from sqlalchemy.sql.elements import Cast
     from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 
@@ -172,7 +172,7 @@ class PatientTaskSchedule(Base):
         return None
 
 
-def task_schedule_item_sort_order() -> Tuple[Cast, Cast]:
+def task_schedule_item_sort_order() -> Tuple["Cast", "Cast"]:
     """
     The durations are currently stored as seconds e.g. P0Y0MT2594592000.0S
     and the seconds aren't zero padded, so we need to do some processing

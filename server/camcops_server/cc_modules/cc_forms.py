@@ -131,7 +131,6 @@ from cardinal_pythonlib.logs import (
 )
 from cardinal_pythonlib.sqlalchemy.dialect import SqlaDialectName
 from cardinal_pythonlib.sqlalchemy.orm_query import CountStarSpecializedQuery
-import colander
 from colander import (
     Boolean,
     Date,
@@ -148,6 +147,7 @@ from colander import (
     SequenceSchema,
     Set,
     String,
+    _null,
 )
 from deform.form import Button
 from deform.widget import (
@@ -224,7 +224,7 @@ if TYPE_CHECKING:
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
-ColanderNullType = type(colander.null)
+ColanderNullType = _null
 ValidatorType = Callable[[SchemaNode, Any], None]  # called as v(node, value)
 
 # =============================================================================
@@ -799,7 +799,7 @@ class MandatorySingleTaskSelector(MandatoryStringNode, RequestAwareMixin):
     """
     Node to pick one task type.
     """
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         self.widget = None  # type: Optional[Widget]
         self.validator = None  # type: Optional[ValidatorType]
@@ -1218,7 +1218,7 @@ class UserFilterForm(InformativeForm):
     """
     Form to filter the list of users
     """
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         _ = request.gettext
         schema = UserFilterSchema().bind(request=request)
         super().__init__(
@@ -3558,7 +3558,7 @@ class DeleteScheduledPatientForm(DeleteCancelForm):
     """
     Form to delete a patient created on the server
     """
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         super().__init__(schema_class=DeleteScheduledPatientSchema,
                          request=request, **kwargs)
 
@@ -3581,7 +3581,7 @@ class TaskScheduleSelector(SchemaNode, RequestAwareMixin):
     """
     widget = SelectWidget()
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         self.name = ""  # for type checker
         self.validator = None  # type: Optional[ValidatorType]
@@ -3615,10 +3615,13 @@ class JsonType(object):
     """
     Schema type for JsonNode
     """
-    def deserialize(self, node: SchemaNode, cstruct: str) -> Any:
+    def deserialize(self, node: SchemaNode,
+                    cstruct: Union[str, ColanderNullType, None]) -> Any:
         # is null when form is empty
         if cstruct in (null, None):
             return None
+
+        cstruct: str
 
         try:
             # Validation happens on the widget class
@@ -3638,7 +3641,8 @@ class JsonType(object):
         if appstruct in (null, None):
             return null
 
-        # TODO: Handle exception ??
+        # appstruct should be well formed here (it would already have failed
+        # when reading from the database)
         return json.dumps(appstruct)
 
 
@@ -3653,13 +3657,14 @@ class JsonWidget(Widget):
     readonly_template = os.path.join(readonlydir, form)
     requirements = (('jsoneditor', None),)
 
-    def __init__(self, request: "CamcopsRequest", *args, **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest",
+                 *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.request = request
 
     def serialize(
-        self, field: "Field", cstruct: Union[Dict, ColanderNullType], **kw
-    ) -> None:
+        self, field: "Field", cstruct: Union[str, ColanderNullType], **kw: Any
+    ) -> Any:
         if cstruct is null:
             cstruct = ""
 
@@ -3672,13 +3677,15 @@ class JsonWidget(Widget):
 
     def deserialize(
         self, field: "Field", pstruct: Union[str, ColanderNullType]
-    ) -> None:
+    ) -> Union[str, ColanderNullType]:
         # is empty string when field is empty
         if pstruct in (null, ""):
             return null
 
         _ = self.request.gettext
         error_message = _("Please enter valid JSON or leave blank")
+
+        pstruct: str
 
         try:
             json.loads(pstruct)
@@ -3701,7 +3708,7 @@ class TaskScheduleNode(MappingSchema, RequestAwareMixin):
     start_date = DateSelectorNode()  # must match ViewParam.START_DATE
     settings = JsonNode()  # must match ViewParam.SETTINGS
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         super().__init__(*args, **kwargs)
 
@@ -3739,7 +3746,7 @@ class TaskScheduleNode(MappingSchema, RequestAwareMixin):
 class TaskScheduleSequence(SequenceSchema, RequestAwareMixin):
     task_schedule_sequence = TaskScheduleNode()
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
         self.widget = None  # type: Optional[Widget]
         super().__init__(*args, **kwargs)
@@ -3815,7 +3822,7 @@ class EditFinalizedPatientForm(DangerousForm):
     """
     Form to edit a finalized patient.
     """
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         _ = request.gettext
         super().__init__(schema_class=DangerousEditPatientSchema,
                          submit_action=FormAction.SUBMIT,
@@ -3827,7 +3834,7 @@ class EditScheduledPatientForm(DynamicDescriptionsForm):
     """
     Form to add or edit a patient not yet on the device (for scheduled tasks)
     """
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         schema = EditScheduledPatientSchema().bind(request=request)
         _ = request.gettext
         super().__init__(
@@ -3848,7 +3855,7 @@ class TaskScheduleSchema(CSRFSchema):
 
 
 class EditTaskScheduleForm(DynamicDescriptionsForm):
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         schema = TaskScheduleSchema().bind(request=request)
         _ = request.gettext
         super().__init__(
@@ -3876,7 +3883,7 @@ class DeleteTaskScheduleForm(DeleteCancelForm):
     """
     Form to delete a task schedule.
     """
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         super().__init__(schema_class=DeleteTaskScheduleSchema,
                          request=request, **kwargs)
 
@@ -3893,17 +3900,20 @@ class DurationWidget(Widget):
     template = os.path.join(basedir, form)
     readonly_template = os.path.join(readonlydir, form)
 
-    def __init__(self, request: "CamcopsRequest", *args, **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest",
+                 *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.request = request
 
     def serialize(self,
                   field: "Field",
                   cstruct: Union[Dict[str, Any], None, ColanderNullType],
-                  **kw) -> None:
+                  **kw: Any) -> Any:
         # called when rendering the form with values from DurationType.serialize
         if cstruct in (None, null):
             cstruct = {}
+
+        cstruct: Dict[str, Any]
 
         months = cstruct.get("months", "")
         weeks = cstruct.get("weeks", "")
@@ -3929,14 +3939,18 @@ class DurationWidget(Widget):
 
         return field.renderer(template, **values)
 
-    def deserialize(self,
-                    field: "Field",
-                    pstruct: Union[Dict[str, Any], ColanderNullType]) -> None:
+    def deserialize(
+            self,
+            field: "Field",
+            pstruct: Union[Dict[str, Any], ColanderNullType]
+    ) -> Dict[str, int]:
         # called when validating the form on submission
         # value is passed to the schema deserialize()
 
         if pstruct is null:
             pstruct = {}
+
+        pstruct: Dict[str, Any]
 
         errors = []
 
@@ -3982,6 +3996,8 @@ class DurationType(object):
         if cstruct in (None, null):
             return None
 
+        cstruct: Dict[str, Any]
+
         # may be passed invalid values when re-rendering widget with error
         # messages
         try:
@@ -4003,12 +4019,16 @@ class DurationType(object):
 
         return Duration(days=total_days)
 
-    def serialize(self,
-                  node: SchemaNode,
-                  duration: Union[Duration, ColanderNullType]) -> Dict:
+    def serialize(
+            self,
+            node: SchemaNode,
+            duration: Union[Duration, ColanderNullType]
+    ) -> Union[Dict, ColanderNullType]:
         if duration is null:
             # For new schedule item
             return null
+
+        duration: Duration
 
         total_days = duration.in_days()
 
@@ -4095,7 +4115,7 @@ class TaskScheduleItemSchema(CSRFSchema):
 
 
 class EditTaskScheduleItemForm(DynamicDescriptionsForm):
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         schema = TaskScheduleItemSchema().bind(request=request)
         _ = request.gettext
         super().__init__(
@@ -4123,7 +4143,7 @@ class DeleteTaskScheduleItemForm(DeleteCancelForm):
     """
     Form to delete a task schedule item.
     """
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         super().__init__(schema_class=DeleteTaskScheduleItemSchema,
                          request=request, **kwargs)
 
@@ -4467,6 +4487,8 @@ class DurationTypeTests(TestCase):
 
         duration_type = DurationType()
         duration = duration_type.deserialize(None, cstruct)
+        assert duration is not None  # for type checker
+
         self.assertEqual(duration.days, 45)
 
     def test_deserialize_none_returns_null(self) -> None:
@@ -4478,18 +4500,24 @@ class DurationTypeTests(TestCase):
         duration_type = DurationType()
         cstruct = {"days": "abc", "months": 1, "weeks": 1}
         duration = duration_type.deserialize(None, cstruct)
+        assert duration is not None  # for type checker
+
         self.assertEqual(duration.days, 37)
 
     def test_deserialize_ignores_invalid_months(self) -> None:
         duration_type = DurationType()
         cstruct = {"days": 1, "months": "abc", "weeks": 1}
         duration = duration_type.deserialize(None, cstruct)
+        assert duration is not None  # for type checker
+
         self.assertEqual(duration.days, 8)
 
     def test_deserialize_ignores_invalid_weeks(self) -> None:
         duration_type = DurationType()
         cstruct = {"days": 1, "months": 1, "weeks": "abc"}
         duration = duration_type.deserialize(None, cstruct)
+        assert duration is not None  # for type checker
+
         self.assertEqual(duration.days, 31)
 
     def test_serialize_valid_duration(self) -> None:
@@ -4497,6 +4525,11 @@ class DurationTypeTests(TestCase):
 
         duration_type = DurationType()
         cstruct = duration_type.serialize(None, duration)
+
+        # For type checker
+        assert cstruct not in (null,)
+        cstruct: Dict[Any, Any]
+
         self.assertEqual(cstruct["days"], 3)
         self.assertEqual(cstruct["months"], 1)
         self.assertEqual(cstruct["weeks"], 2)
@@ -4556,12 +4589,7 @@ class JsonWidgetTests(TestCase):
         field.renderer = mock.Mock()
 
         json_text = json.dumps({"a": "1", "b": "2", "c": "3"})
-
-        cstruct = {
-            "json": json_text
-        }
-
-        widget.serialize(field, cstruct)
+        widget.serialize(field, json_text)
 
         args, kwargs = field.renderer.call_args
 
