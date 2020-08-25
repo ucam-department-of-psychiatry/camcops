@@ -35,7 +35,7 @@ import logging
 import os
 import sqlite3
 import tempfile
-from typing import List, Type, TYPE_CHECKING
+from typing import Any, List, Type, TYPE_CHECKING
 import unittest
 
 from cardinal_pythonlib.dbfunc import get_fieldnames_from_cursor
@@ -57,6 +57,7 @@ from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
     from camcops_server.cc_modules.cc_patient import Patient
+    from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
     from camcops_server.cc_modules.cc_task import Task
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
@@ -376,7 +377,7 @@ class DemoDatabaseTestCase(DemoRequestTestCase):
 
         return patient
 
-    def create_patient_idnum(self, **kwargs):
+    def create_patient_idnum(self, **kwargs: Any) -> "PatientIdNum":
         from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
         patient_idnum = PatientIdNum()
         self._apply_standard_db_fields(patient_idnum)
@@ -392,7 +393,7 @@ class DemoDatabaseTestCase(DemoRequestTestCase):
 
         return patient_idnum
 
-    def create_patient(self, **kwargs) -> "Patient":
+    def create_patient(self, **kwargs: Any) -> "Patient":
         from camcops_server.cc_modules.cc_patient import Patient
 
         patient = Patient()
