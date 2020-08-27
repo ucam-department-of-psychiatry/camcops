@@ -473,7 +473,6 @@ from camcops_server.cc_modules.cc_task import (
     all_task_tables_with_min_client_version,
 )
 from camcops_server.cc_modules.cc_taskindex import update_indexes_and_push_exports  # noqa
-
 from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 from camcops_server.cc_modules.cc_user import User
 from camcops_server.cc_modules.cc_version import (
@@ -2079,6 +2078,8 @@ def op_register_patient(req: "CamcopsRequest") -> Dict[str, Any]:
 
     user_name = get_str_var(req, TabletParam.USER, mandatory=False)
     if user_name is None:
+        assert patient.group is not None  # for type checker
+
         user, password = create_single_user(req, f"user-{client_device_name}",
                                             patient.group)
         reply_dict[TabletParam.USER] = user.username
@@ -2091,6 +2092,7 @@ def get_single_patient(req: "CamcopsRequest") -> Patient:
     _ = req.gettext
 
     patient_proquint = get_str_var(req, TabletParam.PATIENT_PROQUINT)
+    assert patient_proquint is not None  # For type checker
 
     try:
         uuid_obj = uuid_from_proquint(patient_proquint)
@@ -2119,7 +2121,7 @@ def get_single_patient(req: "CamcopsRequest") -> Patient:
 
 
 def create_single_user(req: "CamcopsRequest",
-                       name: str, group: Group) -> Tuple[str, str]:
+                       name: str, group: Group) -> Tuple[User, str]:
 
     dbsession = req.dbsession
 
@@ -2243,7 +2245,7 @@ def op_get_allowed_tables(req: "CamcopsRequest") -> Dict[str, str]:
     return reply
 
 
-def op_get_task_schedules(req: "CamcopsRequest") -> Dict[str, Any]:
+def op_get_task_schedules(req: "CamcopsRequest") -> str:
     patient = get_single_patient(req)
     task_schedules = get_task_schedules(req, patient)
 
