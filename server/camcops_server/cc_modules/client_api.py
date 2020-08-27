@@ -2245,7 +2245,7 @@ def op_get_allowed_tables(req: "CamcopsRequest") -> Dict[str, str]:
     return reply
 
 
-def op_get_task_schedules(req: "CamcopsRequest") -> str:
+def op_get_task_schedules(req: "CamcopsRequest") -> Dict[str, str]:
     patient = get_single_patient(req)
     task_schedules = get_task_schedules(req, patient)
 
@@ -2255,7 +2255,7 @@ def op_get_task_schedules(req: "CamcopsRequest") -> str:
 
 
 def get_task_schedules(req: "CamcopsRequest",
-                       patient: Patient) -> Dict[str, str]:
+                       patient: Patient) -> str:
     dbsession = req.dbsession
 
     schedules = []
