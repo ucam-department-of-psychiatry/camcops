@@ -160,6 +160,18 @@ class PatientTaskSchedule(Base):
         taskfilter.start_datetime = start_datetime
         taskfilter.end_datetime = end_datetime
 
+        # TODO: Improve error reporting
+        # Shouldn't happen in normal operation as the task schedule item form
+        # validation will ensure the dates are correct.
+        # However, it's quite easy to write tests with unintentionally
+        # inconsistent dates.
+        # If we don't assert this here, we get a more cryptic assertion
+        # failure later:
+        #
+        # cc_taskcollection.py _fetch_tasks_from_indexes()
+        # assert self._all_indexes is not None
+        assert not taskfilter.dates_inconsistent()
+
         collection = TaskCollection(
             req=req,
             taskfilter=taskfilter,

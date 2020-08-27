@@ -3344,6 +3344,158 @@ class PatientRegistrationTests(DemoDatabaseTestCase):
                       reply_dict[TabletParam.ERROR])
 
 
+class GetTaskSchedulesTests(DemoDatabaseTestCase):
+    def create_tasks(self) -> None:
+        # Speed things up a bit
+        pass
+
+    def test_returns_task_schedules(self):
+        from pendulum import DateTime as Pendulum, Duration, parse
+        import pytz
+
+        from camcops_server.cc_modules.cc_taskindex import (
+            PatientIdNumIndexEntry,
+            TaskIndexEntry,
+        )
+        from camcops_server.cc_modules.cc_taskschedule import (
+            PatientTaskSchedule,
+            TaskSchedule,
+            TaskScheduleItem
+        )
+        from camcops_server.tasks.bmi import Bmi
+
+        schedule1 = TaskSchedule()
+        schedule1.group_id = self.group.id
+        schedule1.name = "Test 1"
+        self.dbsession.add(schedule1)
+
+        schedule2 = TaskSchedule()
+        schedule2.group_id = self.group.id
+        self.dbsession.add(schedule2)
+        self.dbsession.commit()
+
+        item1 = TaskScheduleItem()
+        item1.schedule_id = schedule1.id
+        item1.task_table_name = "phq9"
+        item1.due_from = Duration(days=0)
+        item1.due_by = Duration(days=7)
+        self.dbsession.add(item1)
+
+        item2 = TaskScheduleItem()
+        item2.schedule_id = schedule1.id
+        item2.task_table_name = "bmi"
+        item2.due_from = Duration(days=0)
+        item2.due_by = Duration(days=7)
+        self.dbsession.add(item2)
+
+        item3 = TaskScheduleItem()
+        item3.schedule_id = schedule1.id
+        item3.task_table_name = "phq9"
+        item3.due_from = Duration(days=30)
+        item3.due_by = Duration(days=37)
+        self.dbsession.add(item3)
+
+        self.dbsession.commit()
+
+        patient = self.create_patient()
+        idnum = self.create_patient_idnum(
+            patient_id=patient.id, which_idnum=self.nhs_iddef.which_idnum,
+            idnum_value=4887211163
+        )
+        PatientIdNumIndexEntry.index_idnum(idnum, self.dbsession)
+
+        patient_task_schedule1 = PatientTaskSchedule()
+        patient_task_schedule1.patient_pk = patient._pk
+        patient_task_schedule1.schedule_id = schedule1.id
+
+        patient_task_schedule1.settings = {
+            "bmi": {
+                "bmi_key": "bmi_value",
+            },
+            "phq9": {
+                "phq9_key": "phq9_value",
+            }
+        }
+        patient_task_schedule1.start_date = parse("2020-07-31")
+
+        self.dbsession.add(patient_task_schedule1)
+
+        patient_task_schedule2 = PatientTaskSchedule()
+        patient_task_schedule2.patient_pk = patient._pk
+        patient_task_schedule2.schedule_id = schedule2.id
+
+        self.dbsession.add(patient_task_schedule2)
+
+        bmi = Bmi()
+        self.apply_standard_task_fields(bmi)
+        bmi.id = 1
+        bmi.height_m = 1.83
+        bmi.mass_kg = 67.57
+        bmi.patient_id = patient.id
+        bmi.when_created = parse("2020-08-01")
+        self.dbsession.add(bmi)
+
+        self.dbsession.commit()
+        TaskIndexEntry.index_task(
+            bmi,
+            self.dbsession,
+            indexed_at_utc=Pendulum.utcnow()
+        )
+        self.dbsession.commit()
+
+        self.req.fake_request_post_from_dict({
+            TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
+            TabletParam.DEVICE: self.other_device.name,
+            TabletParam.OPERATION: Operations.GET_TASK_SCHEDULES,
+            TabletParam.PATIENT_PROQUINT: patient.uuid_as_proquint,
+        })
+        response = client_api(self.req)
+        reply_dict = get_reply_dict_from_response(response)
+
+        self.assertEqual(reply_dict[TabletParam.SUCCESS], SUCCESS_CODE,
+                         msg=reply_dict)
+
+        task_schedules = json.loads(reply_dict[TabletParam.TASK_SCHEDULES])
+
+        self.assertEqual(len(task_schedules), 2)
+
+        s = task_schedules[0]
+        self.assertEqual(s[TabletParam.TASK_SCHEDULE_NAME], "Test 1")
+
+        items = s[TabletParam.TASK_SCHEDULE_ITEMS]
+        self.assertEqual(len(items), 3)
+
+        self.assertEqual(items[0][TabletParam.TABLE], "phq9")
+        self.assertEqual(items[0][TabletParam.SETTINGS], {
+            "phq9_key": "phq9_value"
+        })
+        self.assertEqual(parse(items[0][TabletParam.DUE_FROM]),
+                         Pendulum(2020, 7, 31, tzinfo=pytz.UTC))
+        self.assertEqual(parse(items[0][TabletParam.DUE_BY]),
+                         Pendulum(2020, 8, 7, tzinfo=pytz.UTC))
+        self.assertFalse(items[0][TabletParam.COMPLETE])
+
+        self.assertEqual(items[1][TabletParam.TABLE], "bmi")
+        self.assertEqual(items[1][TabletParam.SETTINGS], {
+            "bmi_key": "bmi_value",
+        })
+        self.assertEqual(parse(items[1][TabletParam.DUE_FROM]),
+                         Pendulum(2020, 7, 31, tzinfo=pytz.UTC))
+        self.assertEqual(parse(items[1][TabletParam.DUE_BY]),
+                         Pendulum(2020, 8, 7, tzinfo=pytz.UTC))
+        self.assertTrue(items[1][TabletParam.COMPLETE])
+
+        self.assertEqual(items[2][TabletParam.TABLE], "phq9")
+        self.assertEqual(items[2][TabletParam.SETTINGS], {
+            "phq9_key": "phq9_value"
+        })
+        self.assertEqual(parse(items[2][TabletParam.DUE_FROM]),
+                         Pendulum(2020, 8, 30, tzinfo=pytz.UTC))
+        self.assertEqual(parse(items[2][TabletParam.DUE_BY]),
+                         Pendulum(2020, 9, 6, tzinfo=pytz.UTC))
+        self.assertFalse(items[2][TabletParam.COMPLETE])
+
+
 # =============================================================================
 # main
 # =============================================================================
