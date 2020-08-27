@@ -3172,7 +3172,7 @@ class ClientApiTests(DemoDatabaseTestCase):
 
         # TODO: client_api.ClientApiTests: more tests here... ?
 
-    def test_client_api_antique_support_1(self):
+    def test_client_api_antique_support_1(self) -> None:
         self.announce("test_client_api_antique_support_1")
         self.req.fake_request_post_from_dict({
             TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
@@ -3184,7 +3184,7 @@ class ClientApiTests(DemoDatabaseTestCase):
         d = get_reply_dict_from_response(response)
         assert d[TabletParam.SUCCESS] == SUCCESS_CODE
 
-    def test_client_api_antique_support_2(self):
+    def test_client_api_antique_support_2(self) -> None:
         self.announce("test_client_api_antique_support_2")
         self.req.fake_request_post_from_dict({
             TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
@@ -3196,7 +3196,7 @@ class ClientApiTests(DemoDatabaseTestCase):
         d = get_reply_dict_from_response(response)
         assert d[TabletParam.SUCCESS] == FAILURE_CODE
 
-    def test_client_api_antique_support_3(self):
+    def test_client_api_antique_support_3(self) -> None:
         self.announce("test_client_api_antique_support_3")
         self.req.fake_request_post_from_dict({
             TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
@@ -3226,11 +3226,17 @@ class PatientRegistrationTests(DemoDatabaseTestCase):
             idnum_value=4887211163
         )
 
+        proquint = patient.uuid_as_proquint
+
+        # For type checker
+        assert proquint is not None
+        assert self.other_device.name is not None
+
         self.req.fake_request_post_from_dict({
             TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
             TabletParam.DEVICE: self.other_device.name,
             TabletParam.OPERATION: Operations.REGISTER_PATIENT,
-            TabletParam.PATIENT_PROQUINT: patient.uuid_as_proquint,
+            TabletParam.PATIENT_PROQUINT: proquint,
         })
         response = client_api(self.req)
         reply_dict = get_reply_dict_from_response(response)
@@ -3253,11 +3259,17 @@ class PatientRegistrationTests(DemoDatabaseTestCase):
     def test_creates_user(self) -> None:
         patient = self.create_patient(_group_id=self.group.id)
 
+        proquint = patient.uuid_as_proquint
+
+        # For type checker
+        assert proquint is not None
+        assert self.other_device.name is not None
+
         self.req.fake_request_post_from_dict({
             TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
             TabletParam.DEVICE: self.other_device.name,
             TabletParam.OPERATION: Operations.REGISTER_PATIENT,
-            TabletParam.PATIENT_PROQUINT: patient.uuid_as_proquint,
+            TabletParam.PATIENT_PROQUINT: proquint,
         })
         response = client_api(self.req)
         reply_dict = get_reply_dict_from_response(response)
@@ -3287,11 +3299,17 @@ class PatientRegistrationTests(DemoDatabaseTestCase):
 
         users_before = self.req.dbsession.query(User).count()
 
+        proquint = patient.uuid_as_proquint
+
+        # For type checker
+        assert proquint is not None
+        assert self.other_device.name is not None
+
         self.req.fake_request_post_from_dict({
             TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
             TabletParam.DEVICE: self.other_device.name,
             TabletParam.OPERATION: Operations.REGISTER_PATIENT,
-            TabletParam.PATIENT_PROQUINT: patient.uuid_as_proquint,
+            TabletParam.PATIENT_PROQUINT: proquint,
             TabletParam.USER: "testuser",
         })
         response = client_api(self.req)
@@ -3308,6 +3326,9 @@ class PatientRegistrationTests(DemoDatabaseTestCase):
         self.assertEqual(users_before, users_after)
 
     def test_raises_for_invalid_proquint(self) -> None:
+        # For type checker
+        assert self.other_device.name is not None
+
         self.req.fake_request_post_from_dict({
             TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
             TabletParam.DEVICE: self.other_device.name,
@@ -3329,6 +3350,8 @@ class PatientRegistrationTests(DemoDatabaseTestCase):
         # test proquint really is valid (should not raise)
         uuid_from_proquint(valid_proquint)
 
+        assert self.other_device.name is not None
+
         self.req.fake_request_post_from_dict({
             TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
             TabletParam.DEVICE: self.other_device.name,
@@ -3349,7 +3372,7 @@ class GetTaskSchedulesTests(DemoDatabaseTestCase):
         # Speed things up a bit
         pass
 
-    def test_returns_task_schedules(self):
+    def test_returns_task_schedules(self) -> None:
         from pendulum import DateTime as Pendulum, Duration, parse
         import pytz
 
@@ -3443,11 +3466,17 @@ class GetTaskSchedulesTests(DemoDatabaseTestCase):
         )
         self.dbsession.commit()
 
+        proquint = patient.uuid_as_proquint
+
+        # For type checker
+        assert proquint is not None
+        assert self.other_device.name is not None
+
         self.req.fake_request_post_from_dict({
             TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
             TabletParam.DEVICE: self.other_device.name,
             TabletParam.OPERATION: Operations.GET_TASK_SCHEDULES,
-            TabletParam.PATIENT_PROQUINT: patient.uuid_as_proquint,
+            TabletParam.PATIENT_PROQUINT: proquint,
         })
         response = client_api(self.req)
         reply_dict = get_reply_dict_from_response(response)
