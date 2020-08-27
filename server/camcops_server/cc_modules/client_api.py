@@ -3209,6 +3209,141 @@ class ClientApiTests(DemoDatabaseTestCase):
         assert d[TabletParam.SUCCESS] == SUCCESS_CODE
 
 
+class PatientRegistrationTests(DemoDatabaseTestCase):
+    def create_tasks(self) -> None:
+        # Speed things up a bit
+        pass
+
+    def test_returns_patient_info(self) -> None:
+        import datetime
+        patient = self.create_patient(
+            forename="JO", surname="PATIENT", dob=datetime.date(1958, 4, 19),
+            sex="F", address="Address", gp="GP", other="Other"
+        )
+
+        self.create_patient_idnum(
+            patient_id=patient.id, which_idnum=self.nhs_iddef.which_idnum,
+            idnum_value=4887211163
+        )
+
+        self.req.fake_request_post_from_dict({
+            TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
+            TabletParam.DEVICE: self.other_device.name,
+            TabletParam.OPERATION: Operations.REGISTER_PATIENT,
+            TabletParam.PATIENT_PROQUINT: patient.uuid_as_proquint,
+        })
+        response = client_api(self.req)
+        reply_dict = get_reply_dict_from_response(response)
+
+        self.assertEqual(reply_dict[TabletParam.SUCCESS], SUCCESS_CODE,
+                         msg=reply_dict)
+
+        patient_dict = json.loads(reply_dict[TabletParam.PATIENT_INFO])[0]
+
+        self.assertEqual(patient_dict[TabletParam.SURNAME], "PATIENT")
+        self.assertEqual(patient_dict[TabletParam.FORENAME], "JO")
+        self.assertEqual(patient_dict[TabletParam.SEX], "F")
+        self.assertEqual(patient_dict[TabletParam.DOB], "1958-04-19")
+        self.assertEqual(patient_dict[TabletParam.ADDRESS], "Address")
+        self.assertEqual(patient_dict[TabletParam.GP], "GP")
+        self.assertEqual(patient_dict[TabletParam.OTHER], "Other")
+        self.assertEqual(patient_dict[f"idnum{self.nhs_iddef.which_idnum}"],
+                         4887211163)
+
+    def test_creates_user(self) -> None:
+        patient = self.create_patient(_group_id=self.group.id)
+
+        self.req.fake_request_post_from_dict({
+            TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
+            TabletParam.DEVICE: self.other_device.name,
+            TabletParam.OPERATION: Operations.REGISTER_PATIENT,
+            TabletParam.PATIENT_PROQUINT: patient.uuid_as_proquint,
+        })
+        response = client_api(self.req)
+        reply_dict = get_reply_dict_from_response(response)
+
+        self.assertEqual(reply_dict[TabletParam.SUCCESS], SUCCESS_CODE,
+                         msg=reply_dict)
+
+        username = reply_dict[TabletParam.USER]
+        self.assertEqual(username,
+                         f"user-{self.other_device.name}")
+        password = reply_dict[TabletParam.PASSWORD]
+        self.assertEqual(len(password), 32)
+
+        valid_chars = string.ascii_letters + string.digits + string.punctuation
+        self.assertTrue(all(c in valid_chars for c in password))
+
+        user = self.req.dbsession.query(User).filter(
+            User.username == username).one_or_none()
+        self.assertIsNotNone(user)
+        self.assertEqual(user.upload_group, patient.group)
+        self.assertTrue(user.auto_generated)
+        self.assertTrue(user.may_register_devices)
+        self.assertTrue(user.may_upload)
+
+    def test_does_not_create_user_when_passed_in(self) -> None:
+        patient = self.create_patient(_group_id=self.group.id)
+
+        users_before = self.req.dbsession.query(User).count()
+
+        self.req.fake_request_post_from_dict({
+            TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
+            TabletParam.DEVICE: self.other_device.name,
+            TabletParam.OPERATION: Operations.REGISTER_PATIENT,
+            TabletParam.PATIENT_PROQUINT: patient.uuid_as_proquint,
+            TabletParam.USER: "testuser",
+        })
+        response = client_api(self.req)
+        reply_dict = get_reply_dict_from_response(response)
+
+        self.assertEqual(reply_dict[TabletParam.SUCCESS], SUCCESS_CODE,
+                         msg=reply_dict)
+
+        self.assertNotIn(TabletParam.USER, reply_dict)
+        self.assertNotIn(TabletParam.PASSWORD, reply_dict)
+
+        users_after = self.req.dbsession.query(User).count()
+
+        self.assertEqual(users_before, users_after)
+
+    def test_raises_for_invalid_proquint(self) -> None:
+        self.req.fake_request_post_from_dict({
+            TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
+            TabletParam.DEVICE: self.other_device.name,
+            TabletParam.OPERATION: Operations.REGISTER_PATIENT,
+            TabletParam.PATIENT_PROQUINT: "invalid",
+        })
+        response = client_api(self.req)
+        reply_dict = get_reply_dict_from_response(response)
+
+        self.assertEqual(reply_dict[TabletParam.SUCCESS], FAILURE_CODE,
+                         msg=reply_dict)
+        self.assertIn("no patient with access key 'invalid'",
+                      reply_dict[TabletParam.ERROR])
+
+    def test_raises_for_missing_valid_proquint(self) -> None:
+        valid_proquint = "sazom-diliv-navol-hubot-mufur-mamuv-kojus-loluv-v"
+
+        # Error message is same as for invalid proquint so make sure our
+        # test proquint really is valid (should not raise)
+        uuid_from_proquint(valid_proquint)
+
+        self.req.fake_request_post_from_dict({
+            TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
+            TabletParam.DEVICE: self.other_device.name,
+            TabletParam.OPERATION: Operations.REGISTER_PATIENT,
+            TabletParam.PATIENT_PROQUINT: valid_proquint,
+        })
+        response = client_api(self.req)
+        reply_dict = get_reply_dict_from_response(response)
+
+        self.assertEqual(reply_dict[TabletParam.SUCCESS], FAILURE_CODE,
+                         msg=reply_dict)
+        self.assertIn(f"no patient with access key '{valid_proquint}'",
+                      reply_dict[TabletParam.ERROR])
+
+
 # =============================================================================
 # main
 # =============================================================================
