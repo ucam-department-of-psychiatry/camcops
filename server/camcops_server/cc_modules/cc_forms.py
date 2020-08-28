@@ -3545,7 +3545,7 @@ class DeletePatientConfirmForm(DangerousForm):
                          request=request, **kwargs)
 
 
-class DeleteScheduledPatientSchema(HardWorkConfirmationSchema):
+class DeleteServerCreatedPatientSchema(HardWorkConfirmationSchema):
     """
     Schema to delete a patient created on the server.
     """
@@ -3554,12 +3554,12 @@ class DeleteScheduledPatientSchema(HardWorkConfirmationSchema):
     danger = TranslatableValidateDangerousOperationNode()
 
 
-class DeleteScheduledPatientForm(DeleteCancelForm):
+class DeleteServerCreatedPatientForm(DeleteCancelForm):
     """
     Form to delete a patient created on the server
     """
     def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
-        super().__init__(schema_class=DeleteScheduledPatientSchema,
+        super().__init__(schema_class=DeleteServerCreatedPatientSchema,
                          request=request, **kwargs)
 
 
@@ -3813,7 +3813,7 @@ class DangerousEditPatientSchema(EditPatientSchema):
     danger = TranslatableValidateDangerousOperationNode()
 
 
-class EditScheduledPatientSchema(EditPatientSchema):
+class EditServerCreatedPatientSchema(EditPatientSchema):
     # Must match ViewParam.GROUP_ID
     group_id = MandatoryGroupIdSelectorAllGroups(insert_before="forename")
 
@@ -3830,12 +3830,12 @@ class EditFinalizedPatientForm(DangerousForm):
                          request=request, **kwargs)
 
 
-class EditScheduledPatientForm(DynamicDescriptionsForm):
+class EditServerCreatedPatientForm(DynamicDescriptionsForm):
     """
     Form to add or edit a patient not yet on the device (for scheduled tasks)
     """
     def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
-        schema = EditScheduledPatientSchema().bind(request=request)
+        schema = EditServerCreatedPatientSchema().bind(request=request)
         _ = request.gettext
         super().__init__(
             schema,

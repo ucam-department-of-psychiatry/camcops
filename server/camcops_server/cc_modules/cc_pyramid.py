@@ -704,7 +704,7 @@ class Routes(object):
     DELETE_GROUP = "delete_group"
     DELETE_ID_DEFINITION = "delete_id_definition"
     DELETE_PATIENT = "delete_patient"
-    DELETE_SCHEDULED_PATIENT = "delete_scheduled_patient"
+    DELETE_SERVER_CREATED_PATIENT = "delete_server_created_patient"
     DELETE_SPECIAL_NOTE = "delete_special_note"
     DELETE_TASK_SCHEDULE = "delete_task_schedule"
     DELETE_TASK_SCHEDULE_ITEM = "delete_task_schedule_item"
@@ -715,7 +715,7 @@ class Routes(object):
     EDIT_GROUP = "edit_group"
     EDIT_ID_DEFINITION = "edit_id_definition"
     EDIT_FINALIZED_PATIENT = "edit_finalized_patient"
-    EDIT_SCHEDULED_PATIENT = "edit_scheduled_patient"
+    EDIT_SERVER_CREATED_PATIENT = "edit_server_created_patient"
     EDIT_SERVER_SETTINGS = "edit_server_settings"
     EDIT_TASK_SCHEDULE = "edit_task_schedule"
     EDIT_TASK_SCHEDULE_ITEM = "edit_task_schedule_item"
@@ -839,7 +839,9 @@ class RouteCollection(object):
     DELETE_GROUP = RoutePath(Routes.DELETE_GROUP)
     DELETE_ID_DEFINITION = RoutePath(Routes.DELETE_ID_DEFINITION)
     DELETE_PATIENT = RoutePath(Routes.DELETE_PATIENT)
-    DELETE_SCHEDULED_PATIENT = RoutePath(Routes.DELETE_SCHEDULED_PATIENT)
+    DELETE_SERVER_CREATED_PATIENT = RoutePath(
+        Routes.DELETE_SERVER_CREATED_PATIENT
+    )
     DELETE_SPECIAL_NOTE = RoutePath(Routes.DELETE_SPECIAL_NOTE)
     DELETE_TASK_SCHEDULE = RoutePath(Routes.DELETE_TASK_SCHEDULE)
     DELETE_TASK_SCHEDULE_ITEM = RoutePath(Routes.DELETE_TASK_SCHEDULE_ITEM)
@@ -850,7 +852,7 @@ class RouteCollection(object):
     EDIT_GROUP = RoutePath(Routes.EDIT_GROUP)
     EDIT_ID_DEFINITION = RoutePath(Routes.EDIT_ID_DEFINITION)
     EDIT_FINALIZED_PATIENT = RoutePath(Routes.EDIT_FINALIZED_PATIENT)
-    EDIT_SCHEDULED_PATIENT = RoutePath(Routes.EDIT_SCHEDULED_PATIENT)
+    EDIT_SERVER_CREATED_PATIENT = RoutePath(Routes.EDIT_SERVER_CREATED_PATIENT)
     EDIT_SERVER_SETTINGS = RoutePath(Routes.EDIT_SERVER_SETTINGS)
     EDIT_TASK_SCHEDULE = RoutePath(Routes.EDIT_TASK_SCHEDULE)
     EDIT_TASK_SCHEDULE_ITEM = RoutePath(Routes.EDIT_TASK_SCHEDULE_ITEM)

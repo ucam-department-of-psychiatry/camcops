@@ -225,7 +225,7 @@ from camcops_server.cc_modules.cc_forms import (
     DeleteIdDefinitionForm,
     DeletePatientChooseForm,
     DeletePatientConfirmForm,
-    DeleteScheduledPatientForm,
+    DeleteServerCreatedPatientForm,
     DeleteSpecialNoteForm,
     DeleteTaskScheduleForm,
     DeleteTaskScheduleItemForm,
@@ -234,7 +234,7 @@ from camcops_server.cc_modules.cc_forms import (
     EDIT_PATIENT_SIMPLE_PARAMS,
     EditFinalizedPatientForm,
     EditIdDefinitionForm,
-    EditScheduledPatientForm,
+    EditServerCreatedPatientForm,
     EditServerSettingsForm,
     EditTaskScheduleForm,
     EditTaskScheduleItemForm,
@@ -3566,9 +3566,9 @@ class EditPatientBaseView(PatientMixin, UpdateView):
         return collection.all_tasks
 
 
-class EditScheduledPatientView(EditPatientBaseView):
-    template_name = "scheduled_patient_edit.mako"
-    form_class = EditScheduledPatientForm
+class EditServerCreatedPatientView(EditPatientBaseView):
+    template_name = "server_created_patient_edit.mako"
+    form_class = EditServerCreatedPatientForm
 
     def get_success_url(self):
         return self.request.route_url(
@@ -3612,17 +3612,18 @@ def edit_finalized_patient(req: "CamcopsRequest") -> Response:
     return EditFinalizedPatientView(req).dispatch()
 
 
-@view_config(route_name=Routes.EDIT_SCHEDULED_PATIENT,
+@view_config(route_name=Routes.EDIT_SERVER_CREATED_PATIENT,
              permission=Permission.GROUPADMIN)
-def edit_scheduled_patient(req: "CamcopsRequest") -> Response:
+def edit_server_created_patient(req: "CamcopsRequest") -> Response:
     """
-    View to edit details for a patient.
+    View to edit details for a patient created on the server (for scheduling
+    tasks).
     """
-    return EditScheduledPatientView(req).dispatch()
+    return EditServerCreatedPatientView(req).dispatch()
 
 
 class AddPatientView(PatientMixin, CreateView):
-    form_class = EditScheduledPatientForm
+    form_class = EditServerCreatedPatientForm
     template_name = "patient_add.mako"
 
     def get_success_url(self):
@@ -3729,8 +3730,8 @@ def add_patient(req: "CamcopsRequest") -> Response:
     return AddPatientView(req).dispatch()
 
 
-class DeleteScheduledPatientView(PatientMixin, DeleteView):
-    form_class = DeleteScheduledPatientForm
+class DeleteServerCreatedPatientView(PatientMixin, DeleteView):
+    form_class = DeleteServerCreatedPatientForm
     pk_param = ViewParam.SERVER_PK
     template_name = "generic_form.mako"
 
@@ -3756,10 +3757,10 @@ class DeleteScheduledPatientView(PatientMixin, DeleteView):
         patient.delete_with_dependants(self.request)
 
 
-@view_config(route_name=Routes.DELETE_SCHEDULED_PATIENT,
+@view_config(route_name=Routes.DELETE_SERVER_CREATED_PATIENT,
              permission=Permission.GROUPADMIN)
-def delete_scheduled_patient(req: "CamcopsRequest") -> Response:
-    return DeleteScheduledPatientView(req).dispatch()
+def delete_server_created_patient(req: "CamcopsRequest") -> Response:
+    return DeleteServerCreatedPatientView(req).dispatch()
 
 
 @view_config(route_name=Routes.FORCIBLY_FINALIZE,
@@ -5314,7 +5315,7 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
                          (expected_old_3, expected_new_3))
 
 
-class EditScheduledPatientViewTests(DemoDatabaseTestCase):
+class EditServerCreatedPatientViewTests(DemoDatabaseTestCase):
     def create_tasks(self):
         # speed things up a bit
         pass
@@ -5329,7 +5330,7 @@ class EditScheduledPatientViewTests(DemoDatabaseTestCase):
         self.dbsession.add(new_group)
         self.dbsession.commit()
 
-        view = EditScheduledPatientView(self.req)
+        view = EditServerCreatedPatientView(self.req)
         view.object = patient
 
         appstruct = {
@@ -5489,7 +5490,7 @@ class AddPatientViewTests(DemoDatabaseTestCase):
         self.assertIn("form", context)
 
 
-class DeleteScheduledPatientViewTests(DemoDatabaseTestCase):
+class DeleteServerCreatedPatientViewTests(DemoDatabaseTestCase):
     def create_tasks(self):
         # speed things up a bit
         pass
@@ -5542,7 +5543,7 @@ class DeleteScheduledPatientViewTests(DemoDatabaseTestCase):
         self.req.add_get_params({
             ViewParam.SERVER_PK: patient._pk
         }, set_method_get=False)
-        view = DeleteScheduledPatientView(self.req)
+        view = DeleteServerCreatedPatientView(self.req)
 
         with self.assertRaises(HTTPFound) as e:
             view.dispatch()
