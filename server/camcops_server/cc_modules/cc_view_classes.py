@@ -70,7 +70,7 @@ To provide a custom view class to create a new object in the database:
 * Set object_class property
 * Set form_class property
 * Set template_name property
-* Set extra_context property for any extra parameters to pass to the template
+* Override get_extra_context() for any extra parameters to pass to the template
 * Set success_url or override get_success_url() to be the redirect on
   successful creation
 * For simple views, set model_form_dict property to be a mapping of
@@ -85,7 +85,7 @@ To provide a custom view class to delete an object from the database:
 * Set object_class property
 * Set form_class property
 * Set template_name property
-* Set extra_context property for any extra parameters to pass to the template
+* Override get_extra_context() for any extra parameters to pass to the template
 * Set success_url or override get_success_url() to be the redirect on
   successful creation
 * Set pk_param property to be the name of the parameter in the request
@@ -103,7 +103,7 @@ To provide a custom view class to update an object in the database:
 * Set object_class property
 * Set form_class property
 * Set template_name property
-* Set extra_context property for any extra parameters to pass to the template
+* Override get_extra_context() for any extra parameters to pass to the template
 * Set success_url or override get_success_url() to be the redirect on
   successful creation
 * Set pk_param property to be the name of the parameter in the request
@@ -146,7 +146,6 @@ from camcops_server.cc_modules.cc_resource_registry import (
 if TYPE_CHECKING:
     from deform.form import Form
     from camcops_server.cc_modules.cc_request import CamcopsRequest
-    from camcops_server.cc_modules.cc_sqlalchemy import Base
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -156,12 +155,13 @@ class ContextMixin:
     A default context mixin that passes the keyword arguments received by
     get_context_data() as the template context.
     """
-    extra_context = None
+    def get_extra_context(self) -> Dict[str, Any]:
+        return {}
 
     def get_context_data(self, **kwargs: Any) -> Any:
         kwargs.setdefault("view", self)
-        if self.extra_context is not None:
-            kwargs.update(self.extra_context)
+        kwargs.update(self.get_extra_context())
+
         return kwargs
 
 
@@ -203,7 +203,7 @@ class View:
 class TemplateResponseMixin:
     """A mixin that can be used to render a template."""
     request: "CamcopsRequest"
-    template_name = None
+    template_name: str = None
 
     def render_to_response(self, context: Dict) -> Response:
         if self.template_name is None:
@@ -219,7 +219,7 @@ class TemplateResponseMixin:
 class FormMixin(ContextMixin):
     """Provide a way to show and handle a form in a request."""
     cancel_url = None
-    form_class = None
+    form_class: Type["Form"] = None
     success_url = None
     _form = None
     _error = None
@@ -293,8 +293,8 @@ class FormMixin(ContextMixin):
 
 
 class SingleObjectMixin(ContextMixin):
-    object: Optional["Base"]
-    object_class: Optional[Type["Base"]]
+    object: Any
+    object_class: Optional[Type[Any]]
     pk_param: str
     request: "CamcopsRequest"
     server_pk_name: str
@@ -309,7 +309,7 @@ class SingleObjectMixin(ContextMixin):
 
         return super().get_context_data(**context)
 
-    def get_object(self) -> "Base":
+    def get_object(self) -> Any:
         pk_value = self.request.get_int_param(self.pk_param)
 
         if self.object_class is None:
@@ -338,10 +338,10 @@ class SingleObjectMixin(ContextMixin):
 
 
 class ModelFormMixin(FormMixin, SingleObjectMixin):
-    object_class = None
+    object_class: Optional[Type[Any]] = None
 
     model_form_dict: Dict
-    object: Optional["Base"]
+    object: Any
     request: "CamcopsRequest"
 
     def form_valid(self, form: "Form", appstruct: Dict[str, Any]) -> None:

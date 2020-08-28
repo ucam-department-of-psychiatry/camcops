@@ -127,7 +127,15 @@ import json
 import logging
 import os
 # from pprint import pformat
-from typing import Any, Dict, List, Tuple, Type, TYPE_CHECKING
+from typing import (
+    Any,
+    cast,
+    Dict,
+    List,
+    Optional,
+    Type,
+    TYPE_CHECKING,
+)
 import unittest
 from unittest import mock
 
@@ -324,6 +332,7 @@ from camcops_server.cc_modules.cc_view_classes import (
 
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_request import CamcopsRequest
+    from camcops_server.cc_modules.cc_sqlalchemy import Base
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -3041,7 +3050,7 @@ def delete_special_note(req: "CamcopsRequest") -> Dict[str, Any]:
 class EraseTaskBaseView(DeleteView):
     form_class = EraseTaskForm
 
-    def get_object(self):
+    def get_object(self) -> Any:
         self.table_name = self.request.get_str_param(ViewParam.TABLE_NAME)
         self.server_pk = self.request.get_int_param(ViewParam.SERVER_PK, None)
 
@@ -3077,8 +3086,8 @@ class EraseTaskBaseView(DeleteView):
 class EraseTaskLeavingPlaceholderView(EraseTaskBaseView):
     template_name = "task_erase.mako"
 
-    def get_object(self) -> Task:
-        task = super().get_object()
+    def get_object(self) -> Any:
+        task = cast(Task, super().get_object())
         if task.is_erased():
             _ = self.request.gettext
             raise HTTPBadRequest(_("Task already erased"))
@@ -3086,7 +3095,9 @@ class EraseTaskLeavingPlaceholderView(EraseTaskBaseView):
         return task
 
     def delete(self) -> None:
-        self.object.manually_erase(self.request)
+        task = cast(Task, self.object)
+
+        task.manually_erase(self.request)
 
     def get_success_url(self) -> str:
         return self.request.route_url(
@@ -3103,8 +3114,10 @@ class EraseTaskEntirelyView(EraseTaskBaseView):
     template_name = "task_erase_entirely.mako"
 
     def delete(self) -> None:
-        TaskIndexEntry.unindex_task(self.object, self.request.dbsession)
-        self.object.delete_entirely(self.request)
+        task = cast(Task, self.object)
+
+        TaskIndexEntry.unindex_task(task, self.request.dbsession)
+        task.delete_entirely(self.request)
 
         _ = self.request.gettext
 
@@ -3259,6 +3272,7 @@ def delete_patient(req: "CamcopsRequest") -> Response:
 
 
 class PatientMixin:
+    object: Any
     object_class = Patient
     server_pk_name = "_pk"
 
@@ -3277,7 +3291,7 @@ class PatientMixin:
         # will populate with model_form_dict
         form_values = super().get_form_values()
 
-        patient = self.object
+        patient = cast(Patient, self.object)
 
         if patient is not None:
             form_values[ViewParam.SERVER_PK] = patient._pk
@@ -3305,8 +3319,8 @@ class EditPatientBaseView(PatientMixin, UpdateView):
     """
     pk_param = ViewParam.SERVER_PK
 
-    def get_object(self):
-        patient = super().get_object()
+    def get_object(self) -> Any:
+        patient = cast(Patient, super().get_object())
 
         _ = self.request.gettext
 
@@ -3323,16 +3337,16 @@ class EditPatientBaseView(PatientMixin, UpdateView):
 
         return patient
 
-    def save_object(self, appstruct: Dict) -> None:
+    def save_object(self, appstruct: Dict[str, Any]) -> None:
         # -----------------------------------------------------------------
         # Apply edits
         # -----------------------------------------------------------------
         # Calculate the changes, and apply them to the Patient object
         _ = self.request.gettext
 
-        patient = self.object
+        patient = cast(Patient, self.object)
 
-        changes = OrderedDict()  # type: Dict[str, Tuple[Any, Any]]
+        changes = OrderedDict()  # type: OrderedDict
 
         self.save_changes(appstruct, changes)
 
@@ -3368,15 +3382,16 @@ class EditPatientBaseView(PatientMixin, UpdateView):
             queue=FLASH_SUCCESS
         )
 
-    def save_changes(self, appstruct, changes):
+    def save_changes(self,
+                     appstruct: Dict[str, Any], changes: OrderedDict) -> None:
         self._save_simple_params(appstruct, changes)
         self._save_idrefs(appstruct, changes)
         self._save_task_schedules(appstruct, changes)
 
     def _save_simple_params(self,
-                            appstruct: Dict,
+                            appstruct: Dict[str, Any],
                             changes: OrderedDict) -> None:
-        patient = self.object
+        patient = cast(Patient, self.object)
         for k in EDIT_PATIENT_SIMPLE_PARAMS:
             new_value = appstruct.get(k)
             if new_value and k in [ViewParam.FORENAME, ViewParam.SURNAME]:
@@ -3391,12 +3406,12 @@ class EditPatientBaseView(PatientMixin, UpdateView):
             setattr(patient, k, new_value)
 
     def _save_idrefs(self,
-                     appstruct: Dict,
+                     appstruct: Dict[str, Any],
                      changes: OrderedDict) -> None:
 
         # The ID numbers are more complex.
         # log.debug("{}", pformat(appstruct))
-        patient = self.object
+        patient = cast(Patient, self.object)
         new_idrefs = [
             IdNumReference(which_idnum=idrefdict[ViewParam.WHICH_IDNUM],
                            idnum_value=idrefdict[ViewParam.IDNUM_VALUE])
@@ -3465,10 +3480,10 @@ class EditPatientBaseView(PatientMixin, UpdateView):
                     self.request.dbsession.add(new_idnum)
 
     def _save_task_schedules(self,
-                             appstruct: Dict,
+                             appstruct: Dict[str, Any],
                              changes: OrderedDict) -> None:
 
-        patient = self.object
+        patient = cast(Patient, self.object)
         new_schedules = {
             schedule_dict[ViewParam.SCHEDULE_ID]: schedule_dict
             for schedule_dict in appstruct.get(ViewParam.TASK_SCHEDULES, {})
@@ -3545,13 +3560,13 @@ class EditPatientBaseView(PatientMixin, UpdateView):
                 schedule_id, schedule_name_dict[schedule_id]
             )] = ((old_start_date, old_settings), (None, None))
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs: Any) -> Any:
         kwargs["tasks"] = self.get_affected_tasks()
 
         return super().get_context_data(**kwargs)
 
-    def get_affected_tasks(self):
-        patient = self.object
+    def get_affected_tasks(self) -> Optional[List[Task]]:
+        patient = cast(Patient, self.object)
 
         taskfilter = TaskFilter()
         taskfilter.device_ids = [patient.get_device_id()]
@@ -3570,18 +3585,20 @@ class EditServerCreatedPatientView(EditPatientBaseView):
     template_name = "server_created_patient_edit.mako"
     form_class = EditServerCreatedPatientForm
 
-    def get_success_url(self):
+    def get_success_url(self) -> str:
         return self.request.route_url(
             Routes.VIEW_PATIENT_TASK_SCHEDULES
         )
 
-    def save_changes(self, appstruct, changes):
+    def save_changes(self,
+                     appstruct: Dict[str, Any], changes: OrderedDict) -> None:
         self._save_group(appstruct, changes)
 
         super().save_changes(appstruct, changes)
 
-    def _save_group(self, appstruct, changes):
-        patient = self.object
+    def _save_group(self,
+                    appstruct: Dict[str, Any], changes: OrderedDict) -> None:
+        patient = cast(Patient, self.object)
 
         old_group_id = patient.group.id
         old_group_name = patient.group.name
@@ -3599,7 +3616,7 @@ class EditFinalizedPatientView(EditPatientBaseView):
     template_name = "finalized_patient_edit.mako"
     form_class = EditFinalizedPatientForm
 
-    def get_success_url(self):
+    def get_success_url(self) -> str:
         return self.request.route_url(Routes.HOME)
 
 
@@ -3626,12 +3643,12 @@ class AddPatientView(PatientMixin, CreateView):
     form_class = EditServerCreatedPatientForm
     template_name = "patient_add.mako"
 
-    def get_success_url(self):
+    def get_success_url(self) -> str:
         return self.request.route_url(
             Routes.VIEW_PATIENT_TASK_SCHEDULES
         )
 
-    def save_object(self, appstruct):
+    def save_object(self, appstruct: Dict[str, Any]) -> None:
         server_device = Device.get_server_device(
             self.request.dbsession
         )
@@ -3730,25 +3747,26 @@ def add_patient(req: "CamcopsRequest") -> Response:
     return AddPatientView(req).dispatch()
 
 
-class DeleteServerCreatedPatientView(PatientMixin, DeleteView):
+class DeleteServerCreatedPatientView(DeleteView):
     form_class = DeleteServerCreatedPatientForm
+    object_class = Patient
     pk_param = ViewParam.SERVER_PK
+    server_pk_name = "_pk"
     template_name = "generic_form.mako"
 
-    @property
-    def extra_context(self):
+    def get_extra_context(self) -> Dict[str, Any]:
         _ = self.request.gettext
         return {
             "title": _("Delete patient"),
         }
 
-    def get_success_url(self):
+    def get_success_url(self) -> str:
         return self.request.route_url(
             Routes.VIEW_PATIENT_TASK_SCHEDULES
         )
 
-    def delete(self):
-        patient = self.object
+    def delete(self) -> None:
+        patient = cast(Patient, self.object)
 
         PatientIdNumIndexEntry.unindex_patient(
             patient, self.request.dbsession
@@ -4013,18 +4031,18 @@ class TaskScheduleMixin:
         "group_id": ViewParam.GROUP_ID,
     }
     object_class = TaskSchedule
+    request: "CamcopsRequest"
     server_pk_name = "id"
     template_name = "generic_form.mako"
 
-    def get_success_url(self):
+    def get_success_url(self) -> str:
         return self.request.route_url(
             Routes.VIEW_TASK_SCHEDULES
         )
 
 
 class AddTaskScheduleView(TaskScheduleMixin, CreateView):
-    @property
-    def extra_context(self):
+    def get_extra_context(self) -> Dict[str, Any]:
         _ = self.request.gettext
         return {
             "title": _("Add a task schedule"),
@@ -4034,8 +4052,7 @@ class AddTaskScheduleView(TaskScheduleMixin, CreateView):
 class EditTaskScheduleView(TaskScheduleMixin, UpdateView):
     pk_param = ViewParam.SCHEDULE_ID
 
-    @property
-    def extra_context(self):
+    def get_extra_context(self) -> Dict[str, Any]:
         _ = self.request.gettext
         return {
             "title": _("Edit details for a task schedule"),
@@ -4046,8 +4063,7 @@ class DeleteTaskScheduleView(TaskScheduleMixin, DeleteView):
     form_class = DeleteTaskScheduleForm
     pk_param = ViewParam.SCHEDULE_ID
 
-    @property
-    def extra_context(self):
+    def get_extra_context(self) -> Dict[str, Any]:
         _ = self.request.gettext
         return {
             "title": _("Delete a task schedule"),
@@ -4090,11 +4106,13 @@ class TaskScheduleItemMixin:
         "due_from": ViewParam.DUE_FROM,
         # we need to convert due_within to due_by
     }
-    object_class = TaskScheduleItem
+    object: Any
+    object_class = cast(Type["Base"], TaskScheduleItem)
     pk_param = ViewParam.SCHEDULE_ITEM_ID
+    request: "CamcopsRequest"
     server_pk_name = "id"
 
-    def get_success_url(self):
+    def get_success_url(self) -> str:
         return self.request.route_url(
             Routes.VIEW_TASK_SCHEDULE_ITEMS,
             _query={
@@ -4102,7 +4120,9 @@ class TaskScheduleItemMixin:
             }
         )
 
-    def set_object_properties(self, appstruct) -> None:
+
+class EditTaskScheduleItemMixin(TaskScheduleItemMixin):
+    def set_object_properties(self, appstruct: Dict[str, Any]) -> None:
         super().set_object_properties(appstruct)
 
         due_from = appstruct.get(ViewParam.DUE_FROM)
@@ -4126,9 +4146,8 @@ class TaskScheduleItemMixin:
         return schedule
 
 
-class AddTaskScheduleItemView(TaskScheduleItemMixin, CreateView):
-    @property
-    def extra_context(self):
+class AddTaskScheduleItemView(EditTaskScheduleItemMixin, CreateView):
+    def get_extra_context(self) -> Dict[str, Any]:
         _ = self.request.gettext
 
         schedule = self.get_schedule()
@@ -4149,16 +4168,17 @@ class AddTaskScheduleItemView(TaskScheduleItemMixin, CreateView):
         return form_values
 
 
-class EditTaskScheduleItemView(TaskScheduleItemMixin, UpdateView):
-    @property
-    def extra_context(self):
+class EditTaskScheduleItemView(EditTaskScheduleItemMixin, UpdateView):
+    def get_extra_context(self) -> Dict[str, Any]:
         _ = self.request.gettext
         return {
             "title": _("Edit details for a task schedule item"),
         }
 
     def get_schedule_id(self) -> int:
-        return self.object.schedule_id
+        item = cast(TaskScheduleItem, self.object)
+
+        return item.schedule_id
 
     def get_form_values(self) -> Dict:
         schedule = self.get_schedule()
@@ -4166,7 +4186,8 @@ class EditTaskScheduleItemView(TaskScheduleItemMixin, UpdateView):
         form_values = super().get_form_values()
         form_values[ViewParam.SCHEDULE_ID] = schedule.id
 
-        due_within = self.object.due_by - form_values[ViewParam.DUE_FROM]
+        item = cast(TaskScheduleItem, self.object)
+        due_within = item.due_by - form_values[ViewParam.DUE_FROM]
         form_values[ViewParam.DUE_WITHIN] = due_within
 
         return form_values
@@ -4175,15 +4196,16 @@ class EditTaskScheduleItemView(TaskScheduleItemMixin, UpdateView):
 class DeleteTaskScheduleItemView(TaskScheduleItemMixin, DeleteView):
     form_class = DeleteTaskScheduleItemForm
 
-    @property
-    def extra_context(self):
+    def get_extra_context(self) -> Dict[str, Any]:
         _ = self.request.gettext
         return {
             "title": _("Delete a task schedule item"),
         }
 
     def get_schedule_id(self) -> int:
-        return self.object.schedule_id
+        item = cast(TaskScheduleItem, self.object)
+
+        return item.schedule_id
 
 
 @view_config(route_name=Routes.ADD_TASK_SCHEDULE_ITEM,
@@ -4221,12 +4243,12 @@ class WebviewTests(DemoDatabaseTestCase):
     """
     Unit tests.
     """
-    def test_any_records_use_group_true(self):
+    def test_any_records_use_group_true(self) -> None:
         # All tasks created in DemoDatabaseTestCase will be in this group
         self.announce("test_any_records_use_group_true")
         self.assertTrue(any_records_use_group(self.req, self.group))
 
-    def test_any_records_use_group_false(self):
+    def test_any_records_use_group_false(self) -> None:
         """
         If this fails with:
         sqlalchemy.exc.InvalidRequestError: SQL expression, column, or mapped
@@ -4300,7 +4322,7 @@ class EditTaskScheduleViewTests(DemoDatabaseTestCase):
 
         self.req.fake_request_post_from_dict(multidict)
         self.req.add_get_params({
-            ViewParam.SCHEDULE_ID: self.schedule.id
+            ViewParam.SCHEDULE_ID: str(self.schedule.id)
         }, set_method_get=False)
 
         view = EditTaskScheduleView(self.req)
@@ -4348,7 +4370,7 @@ class DeleteTaskScheduleViewTests(DemoDatabaseTestCase):
         self.req.fake_request_post_from_dict(multidict)
 
         self.req.add_get_params({
-            ViewParam.SCHEDULE_ID: self.schedule.id
+            ViewParam.SCHEDULE_ID: str(self.schedule.id)
         }, set_method_get=False)
         view = DeleteTaskScheduleView(self.req)
 
@@ -4380,7 +4402,7 @@ class AddTaskScheduleItemViewTests(DemoDatabaseTestCase):
     def test_schedule_item_form_displayed(self) -> None:
         view = AddTaskScheduleItemView(self.req)
 
-        self.req.add_get_params({ViewParam.SCHEDULE_ID: self.schedule.id})
+        self.req.add_get_params({ViewParam.SCHEDULE_ID: str(self.schedule.id)})
 
         response = view.dispatch()
         self.assertEqual(response.status_code, 200)
@@ -4459,7 +4481,7 @@ class AddTaskScheduleItemViewTests(DemoDatabaseTestCase):
         self.assertIsNone(item)
 
     def test_non_existent_schedule_handled(self) -> None:
-        self.req.add_get_params({ViewParam.SCHEDULE_ID: 99999})
+        self.req.add_get_params({ViewParam.SCHEDULE_ID: "99999"})
 
         view = AddTaskScheduleItemView(self.req)
 
@@ -4508,7 +4530,7 @@ class EditTaskScheduleItemViewTests(DemoDatabaseTestCase):
         self.req.fake_request_post_from_dict(multidict)
 
         self.req.add_get_params({
-            ViewParam.SCHEDULE_ITEM_ID: self.item.id
+            ViewParam.SCHEDULE_ITEM_ID: str(self.item.id)
         }, set_method_get=False)
         view = EditTaskScheduleItemView(self.req)
 
@@ -4545,7 +4567,7 @@ class EditTaskScheduleItemViewTests(DemoDatabaseTestCase):
         self.req.fake_request_post_from_dict(multidict)
 
         self.req.add_get_params({
-            ViewParam.SCHEDULE_ITEM_ID: self.item.id
+            ViewParam.SCHEDULE_ITEM_ID: str(self.item.id)
         }, set_method_get=False)
         view = EditTaskScheduleItemView(self.req)
 
@@ -4555,7 +4577,7 @@ class EditTaskScheduleItemViewTests(DemoDatabaseTestCase):
         self.assertEqual(self.item.task_table_name, "ace3")
 
     def test_non_existent_item_handled(self) -> None:
-        self.req.add_get_params({ViewParam.SCHEDULE_ITEM_ID: 99999})
+        self.req.add_get_params({ViewParam.SCHEDULE_ITEM_ID: "99999"})
 
         view = EditTaskScheduleItemView(self.req)
 
@@ -4602,7 +4624,7 @@ class DeleteTaskScheduleItemViewTests(DemoDatabaseTestCase):
     def test_delete_form_displayed(self) -> None:
         view = DeleteTaskScheduleItemView(self.req)
 
-        self.req.add_get_params({ViewParam.SCHEDULE_ITEM_ID: self.item.id})
+        self.req.add_get_params({ViewParam.SCHEDULE_ITEM_ID: str(self.item.id)})
 
         response = view.dispatch()
         self.assertEqual(response.status_code, 200)
@@ -4614,7 +4636,7 @@ class DeleteTaskScheduleItemViewTests(DemoDatabaseTestCase):
         })
 
         self.req.add_get_params({
-            ViewParam.SCHEDULE_ITEM_ID: self.item.id
+            ViewParam.SCHEDULE_ITEM_ID: str(self.item.id)
         }, set_method_get=False)
         view = DeleteTaskScheduleItemView(self.req)
 
@@ -4641,7 +4663,7 @@ class DeleteTaskScheduleItemViewTests(DemoDatabaseTestCase):
         self.req.fake_request_post_from_dict(multidict)
 
         self.req.add_get_params({
-            ViewParam.SCHEDULE_ITEM_ID: self.item.id
+            ViewParam.SCHEDULE_ITEM_ID: str(self.item.id)
         }, set_method_get=False)
         view = DeleteTaskScheduleItemView(self.req)
 
@@ -4664,7 +4686,7 @@ class DeleteTaskScheduleItemViewTests(DemoDatabaseTestCase):
         })
 
         self.req.add_get_params({
-            ViewParam.SCHEDULE_ITEM_ID: self.item.id
+            ViewParam.SCHEDULE_ITEM_ID: str(self.item.id)
         }, set_method_get=False)
         view = DeleteTaskScheduleItemView(self.req)
 
@@ -4677,18 +4699,18 @@ class DeleteTaskScheduleItemViewTests(DemoDatabaseTestCase):
 
 
 class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
-    def create_tasks(self):
+    def create_tasks(self) -> None:
         # speed things up a bit
         pass
 
-    def test_raises_when_patient_does_not_exists(self):
+    def test_raises_when_patient_does_not_exists(self) -> None:
         with self.assertRaises(HTTPBadRequest) as cm:
             edit_finalized_patient(self.req)
 
         self.assertEqual(str(cm.exception), "Cannot find Patient with _pk:None")
 
     @unittest.skip("Can't save patient in database without group")
-    def test_raises_when_patient_not_in_a_group(self):
+    def test_raises_when_patient_not_in_a_group(self) -> None:
         patient = self.create_patient(_group_id=None)
 
         self.req.add_get_params({
@@ -4700,25 +4722,27 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
 
         self.assertEqual(str(cm.exception), "Bad patient: not in a group")
 
-    def test_raises_when_not_authorized(self):
+    def test_raises_when_not_authorized(self) -> None:
         patient = self.create_patient()
 
         self.req._debugging_user = User()
-        self.req._debugging_user.may_administer_group = mock.Mock(
-            return_value=False
-        )
 
-        self.req.add_get_params({
-            ViewParam.SERVER_PK: patient._pk
-        })
+        with mock.patch.object(
+                self.req._debugging_user,
+                "may_administer_group",
+                return_value=False
+        ):
+            self.req.add_get_params({
+                ViewParam.SERVER_PK: patient._pk
+            })
 
-        with self.assertRaises(HTTPBadRequest) as cm:
-            edit_finalized_patient(self.req)
+            with self.assertRaises(HTTPBadRequest) as cm:
+                edit_finalized_patient(self.req)
 
         self.assertEqual(str(cm.exception),
                          "Not authorized to edit this patient")
 
-    def test_raises_when_patient_not_editable(self):
+    def test_raises_when_patient_not_editable(self) -> None:
         device = Device(name="Not the server device")
         self.req.dbsession.add(device)
         self.req.dbsession.commit()
@@ -4736,7 +4760,7 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
 
         self.assertIn("Patient is not editable", str(cm.exception))
 
-    def test_patient_updated(self):
+    def test_patient_updated(self) -> None:
         patient = self.create_patient()
 
         self.req.add_get_params({
@@ -4821,7 +4845,7 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
         self.assertIn("idnum1", messages[0])
         self.assertIn("4887211163", messages[0])
 
-    def test_patient_task_schedules_updated(self):
+    def test_patient_task_schedules_updated(self) -> None:
         patient = self.create_patient(sex="F")
 
         schedule1 = TaskSchedule()
@@ -4950,7 +4974,7 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
                       messages[0])
         self.assertIn("Test 2", messages[0])
 
-    def test_message_when_no_changes(self):
+    def test_message_when_no_changes(self) -> None:
         patient = self.create_patient(
             forename="JO", surname="PATIENT", dob=datetime.date(1958, 4, 19),
             sex="F", address="Address", gp="GP", other="Other"
@@ -5079,10 +5103,10 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
         })
 
         view = EditFinalizedPatientView(self.req)
-        view.render_to_response = mock.Mock()
-        view.dispatch()
+        with mock.patch.object(view, "render_to_response") as mock_render:
+            view.dispatch()
 
-        args, kwargs = view.render_to_response.call_args
+        args, kwargs = mock_render.call_args
 
         context = args[0]
 
@@ -5156,7 +5180,7 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
         self.assertEqual(task_schedule[ViewParam.SETTINGS],
                          patient_task_schedule.settings)
 
-    def test_changes_to_simple_params(self):
+    def test_changes_to_simple_params(self) -> None:
         view = EditFinalizedPatientView(self.req)
         patient = self.create_patient(
             id=1, forename="Jo", surname="Patient",
@@ -5166,7 +5190,7 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
         )
         view.object = patient
 
-        changes = OrderedDict()
+        changes = OrderedDict()  # type: OrderedDict
 
         appstruct = {
             ViewParam.FORENAME: "Joanna",
@@ -5185,7 +5209,7 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
         self.assertEqual(changes[ViewParam.ADDRESS], ("Address", "New address"))
         self.assertNotIn(ViewParam.OTHER, changes)
 
-    def test_changes_to_idrefs(self):
+    def test_changes_to_idrefs(self) -> None:
         view = EditFinalizedPatientView(self.req)
         patient = self.create_patient(id=1)
         self.create_patient_idnum(
@@ -5199,7 +5223,7 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
 
         view.object = patient
 
-        changes = OrderedDict()
+        changes = OrderedDict()  # type: OrderedDict
 
         appstruct = {
             ViewParam.ID_REFERENCES: [
@@ -5223,7 +5247,7 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
         self.assertEqual(changes["idnum2 (RiO number)"],
                          (None, 456))
 
-    def test_changes_to_task_schedules(self):
+    def test_changes_to_task_schedules(self) -> None:
         patient = self.create_patient(sex="F")
 
         schedule1 = TaskSchedule()
@@ -5271,7 +5295,7 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
         view = EditFinalizedPatientView(self.req)
         view.object = patient
 
-        changes = OrderedDict()
+        changes = OrderedDict()  # type: OrderedDict
 
         changed_schedule_1_settings = {
             "name 1": "new value 1",
@@ -5322,11 +5346,11 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
 
 
 class EditServerCreatedPatientViewTests(DemoDatabaseTestCase):
-    def create_tasks(self):
+    def create_tasks(self) -> None:
         # speed things up a bit
         pass
 
-    def test_group_updated(self):
+    def test_group_updated(self) -> None:
         patient = self.create_patient(sex="F")
         new_group = Group()
         new_group.name = "newgroup"
@@ -5408,7 +5432,7 @@ class AddPatientViewTests(DemoDatabaseTestCase):
 
         view.save_object(appstruct)
 
-        patient = view.object
+        patient = cast(Patient, view.object)
 
         server_device = Device.get_server_device(
             self.req.dbsession
@@ -5480,16 +5504,17 @@ class AddPatientViewTests(DemoDatabaseTestCase):
 
         view.save_object(appstruct)
 
-        patient = view.object
+        patient = cast(Patient, view.object)
 
         self.assertEqual(patient.id, 1235)
 
     def test_form_rendered_with_values(self) -> None:
         view = AddPatientView(self.req)
-        view.render_to_response = mock.Mock()
-        view.dispatch()
 
-        args, kwargs = view.render_to_response.call_args
+        with mock.patch.object(view, "render_to_response") as mock_render:
+            view.dispatch()
+
+        args, kwargs = mock_render.call_args
 
         context = args[0]
 
@@ -5497,7 +5522,7 @@ class AddPatientViewTests(DemoDatabaseTestCase):
 
 
 class DeleteServerCreatedPatientViewTests(DemoDatabaseTestCase):
-    def create_tasks(self):
+    def create_tasks(self) -> None:
         # speed things up a bit
         pass
 
@@ -5581,7 +5606,7 @@ class DeleteServerCreatedPatientViewTests(DemoDatabaseTestCase):
 
 
 class EraseTaskTestCase(DemoDatabaseTestCase):
-    def create_tasks(self):
+    def create_tasks(self) -> None:
         from camcops_server.tasks.bmi import Bmi
 
         self.task = Bmi()
@@ -5595,22 +5620,22 @@ class EraseTaskTestCase(DemoDatabaseTestCase):
 
 
 class EraseTaskLeavingPlaceholderViewTests(EraseTaskTestCase):
-    def test_displays_form(self):
+    def test_displays_form(self) -> None:
         self.req.add_get_params({
             ViewParam.SERVER_PK: self.task._pk,
             ViewParam.TABLE_NAME: self.task.tablename,
         }, set_method_get=False)
         view = EraseTaskLeavingPlaceholderView(self.req)
-        view.render_to_response = mock.Mock()
 
-        view.dispatch()
+        with mock.patch.object(view, "render_to_response") as mock_render:
+            view.dispatch()
 
-        args, kwargs = view.render_to_response.call_args
+        args, kwargs = mock_render.call_args
         context = args[0]
 
         self.assertIn("form", context)
 
-    def test_deletes_task_leaving_placeholder(self):
+    def test_deletes_task_leaving_placeholder(self) -> None:
         multidict = MultiDict([
             ("_charset_", "UTF-8"),
             ("__formid__", "deform"),
@@ -5631,18 +5656,19 @@ class EraseTaskLeavingPlaceholderViewTests(EraseTaskTestCase):
         self.req.fake_request_post_from_dict(multidict)
 
         view = EraseTaskLeavingPlaceholderView(self.req)
-        self.task.manually_erase = mock.Mock()
+        with mock.patch.object(self.task,
+                               "manually_erase") as mock_manually_erase:
 
-        with self.assertRaises(HTTPFound):
-            view.dispatch()
+            with self.assertRaises(HTTPFound):
+                view.dispatch()
 
-        self.task.manually_erase.assert_called_once()
-        args, kwargs = self.task.manually_erase.call_args
+        mock_manually_erase.assert_called_once()
+        args, kwargs = mock_manually_erase.call_args
         request = args[0]
 
         self.assertEqual(request, self.req)
 
-    def test_task_not_deleted_on_cancel(self):
+    def test_task_not_deleted_on_cancel(self) -> None:
         self.req.fake_request_post_from_dict({
             FormAction.CANCEL: "cancel"
         })
@@ -5660,7 +5686,7 @@ class EraseTaskLeavingPlaceholderViewTests(EraseTaskTestCase):
 
         self.assertIsNotNone(task)
 
-    def test_redirect_on_cancel(self):
+    def test_redirect_on_cancel(self) -> None:
         self.req.fake_request_post_from_dict({
             FormAction.CANCEL: "cancel"
         })
@@ -5688,9 +5714,9 @@ class EraseTaskLeavingPlaceholderViewTests(EraseTaskTestCase):
         )
         self.assertIn("viewtype=html", cm.exception.headers["Location"])
 
-    def test_raises_when_task_does_not_exist(self):
+    def test_raises_when_task_does_not_exist(self) -> None:
         self.req.add_get_params({
-            ViewParam.SERVER_PK: 123,
+            ViewParam.SERVER_PK: "123",
             ViewParam.TABLE_NAME: "phq9",
         }, set_method_get=False)
         view = EraseTaskLeavingPlaceholderView(self.req)
@@ -5703,7 +5729,7 @@ class EraseTaskLeavingPlaceholderViewTests(EraseTaskTestCase):
             "No such task: phq9, PK=123"
         )
 
-    def test_raises_when_task_is_live_on_tablet(self):
+    def test_raises_when_task_is_live_on_tablet(self) -> None:
         self.task._era = ERA_NOW
         self.dbsession.add(self.task)
         self.dbsession.commit()
@@ -5722,26 +5748,25 @@ class EraseTaskLeavingPlaceholderViewTests(EraseTaskTestCase):
             cm.exception.message
         )
 
-    def test_raises_when_user_not_authorized_to_erase(self):
-        self.user.authorized_to_erase_tasks = mock.Mock(
-            return_value=False
-        )
+    def test_raises_when_user_not_authorized_to_erase(self) -> None:
+        with mock.patch.object(self.user, "authorized_to_erase_tasks",
+                               return_value=False):
 
-        self.req.add_get_params({
-            ViewParam.SERVER_PK: self.task._pk,
-            ViewParam.TABLE_NAME: self.task.tablename,
-        }, set_method_get=False)
-        view = EraseTaskLeavingPlaceholderView(self.req)
+            self.req.add_get_params({
+                ViewParam.SERVER_PK: self.task._pk,
+                ViewParam.TABLE_NAME: self.task.tablename,
+            }, set_method_get=False)
+            view = EraseTaskLeavingPlaceholderView(self.req)
 
-        with self.assertRaises(HTTPBadRequest) as cm:
-            view.dispatch()
+            with self.assertRaises(HTTPBadRequest) as cm:
+                view.dispatch()
 
         self.assertIn(
             "Not authorized to erase tasks",
             cm.exception.message
         )
 
-    def test_raises_when_task_already_erased(self):
+    def test_raises_when_task_already_erased(self) -> None:
         self.task._manually_erased = True
         self.dbsession.add(self.task)
         self.dbsession.commit()
@@ -5762,7 +5787,7 @@ class EraseTaskLeavingPlaceholderViewTests(EraseTaskTestCase):
 
 
 class EraseTaskEntirelyViewTests(EraseTaskTestCase):
-    def test_deletes_task_entirely(self):
+    def test_deletes_task_entirely(self) -> None:
         multidict = MultiDict([
             ("_charset_", "UTF-8"),
             ("__formid__", "deform"),
@@ -5783,13 +5808,15 @@ class EraseTaskEntirelyViewTests(EraseTaskTestCase):
         self.req.fake_request_post_from_dict(multidict)
 
         view = EraseTaskEntirelyView(self.req)
-        self.task.delete_entirely = mock.Mock()
 
-        with self.assertRaises(HTTPFound):
-            view.dispatch()
+        with mock.patch.object(self.task,
+                               "delete_entirely") as mock_delete_entirely:
 
-        self.task.delete_entirely.assert_called_once()
-        args, kwargs = self.task.delete_entirely.call_args
+            with self.assertRaises(HTTPFound):
+                view.dispatch()
+
+        mock_delete_entirely.assert_called_once()
+        args, kwargs = mock_delete_entirely.call_args
         request = args[0]
 
         self.assertEqual(request, self.req)
