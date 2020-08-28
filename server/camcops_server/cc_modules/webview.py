@@ -3940,10 +3940,13 @@ def view_task_schedule_items(req: "CamcopsRequest") -> Dict[str, Any]:
     page_num = req.get_int_param(ViewParam.PAGE, 1)
     schedule_id = req.get_int_param(ViewParam.SCHEDULE_ID)
 
-    # TODO: Handle bad id
     schedule = req.dbsession.query(TaskSchedule).filter(
         TaskSchedule.id == schedule_id
     ).one_or_none()
+
+    if schedule is None:
+        _ = req.gettext
+        raise HTTPBadRequest(_("Schedule does not exist"))
 
     q = req.dbsession.query(TaskScheduleItem).filter(
         TaskScheduleItem.schedule_id == schedule_id
