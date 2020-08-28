@@ -13,9 +13,9 @@ jobs:
       before_script:
         # For testing the "make packages" script
         - sudo apt-get -y install alien fakeroot lintian gdebi
-        - wget http://downloads.sourceforge.net/project/rpmrebuild/rpmrebuild/2.11/rpmrebuild-2.11-1.noarch.rpm
-        - fakeroot alien --to-deb rpmrebuild-2.11-1.noarch.rpm
-        - sudo dpkg -i rpmrebuild_2.11-2_all.deb
+        - wget https://downloads.sourceforge.net/project/rpmrebuild/rpmrebuild/2.15/rpmrebuild-2.15-1.noarch.rpm
+        - fakeroot alien --to-deb rpmrebuild-2.15-1.noarch.rpm
+        - sudo dpkg -i rpmrebuild_2.15-2_all.deb
 
       script: travis_scripts/build_and_install_package
 
