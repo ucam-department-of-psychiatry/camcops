@@ -3988,12 +3988,15 @@ def view_patient_task_schedules(req: "CamcopsRequest") -> Dict[str, Any]:
 def view_patient_task_schedule(req: "CamcopsRequest") -> Dict[str, Any]:
     pts_id = req.get_int_param(ViewParam.PATIENT_TASK_SCHEDULE_ID)
 
-    # TODO: 404
     pts = req.dbsession.query(PatientTaskSchedule).filter(
         PatientTaskSchedule.id == pts_id).options(
             joinedload("patient.idnums"),
             joinedload("task_schedule.items"),
-    ).one()
+    ).one_or_none()
+
+    if pts is None:
+        _ = req.gettext
+        raise HTTPBadRequest(_("Patient's task schedule does not exist"))
 
     patient_name = pts.patient.get_surname_forename_upper()
 
