@@ -1,7 +1,7 @@
 ## -*- coding: utf-8 -*-
 <%doc>
 
-camcops_server/templates/menu/patient_edit.mako
+camcops_server/templates/menu/server_created_patient_edit.mako
 
 ===============================================================================
 
