@@ -1,6 +1,6 @@
 /* Most of these changes are just resetting global styles.
-   TODO: Don't set default padding, margin, border for all divs
-   and tables
+   We might instead want to replace the global padding, margin, border for all
+   divs and tables currently in the base template with more specific rules.
 */
 
 .jsonwidget-editor {
