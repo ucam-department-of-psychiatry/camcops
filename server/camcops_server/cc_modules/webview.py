@@ -4099,7 +4099,7 @@ def delete_task_schedule(req: "CamcopsRequest") -> Response:
 
 class TaskScheduleItemMixin:
     form_class = EditTaskScheduleItemForm
-    template_name = "task_schedule_item_edit.mako"
+    template_name = "generic_form.mako"
     model_form_dict = {
         "schedule_id": ViewParam.SCHEDULE_ID,
         "task_table_name": ViewParam.TABLE_NAME,
