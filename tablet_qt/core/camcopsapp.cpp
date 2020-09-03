@@ -548,7 +548,6 @@ int CamcopsApp::run()
 
     // Connect to our database
     registerDatabaseDrivers();
-
     openOrCreateDatabases();
     QString new_user_password;
     bool user_cancelled_please_quit = false;
@@ -2828,16 +2827,13 @@ NetworkManager::UploadMethod CamcopsApp::getUploadMethodFromUser()
     QAbstractButton* move = msgbox.addButton(tr("Move"), QMessageBox::AcceptRole);  // e.g. OK
     msgbox.addButton(TextConst::cancel(), QMessageBox::RejectRole);  // e.g. Cancel
     msgbox.exec();
-
     QAbstractButton* reply = msgbox.clickedButton();
     if (reply == copy) {
         return NetworkManager::UploadMethod::Copy;
     }
-
     if (reply == move_keep) {
         return NetworkManager::UploadMethod::MoveKeepingPatients;
     }
-
     if (reply == move) {
         return NetworkManager::UploadMethod::Move;
     }

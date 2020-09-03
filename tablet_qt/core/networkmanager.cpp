@@ -1851,7 +1851,7 @@ bool NetworkManager::catalogueTablesForUpload()
     const QStringList recordwise_tables{Blob::TABLENAME};
     const QStringList patient_tables{Patient::TABLENAME,
                                      PatientIdNum::PATIENT_IDNUM_TABLENAME};
-    auto all_tables = m_db.getAllTables();
+    const QStringList all_tables = m_db.getAllTables();
     const Version server_version = m_app.serverVersion();
     bool may_upload;
     bool server_has_table;  // table present on server
@@ -2234,7 +2234,6 @@ bool NetworkManager::serverSupportsOneStepUpload() const
 bool NetworkManager::shouldUseOneStepUpload() const
 {
     if (m_app.isSingleUserMode()) {
-        // TODO: Maybe check if any tasks are incomplete
         return false;
     }
 
