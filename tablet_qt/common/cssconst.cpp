@@ -20,7 +20,6 @@ const char* MCQ_INSTRUCTION = "mcq_instruction";
 const char* MENU_HEADER_CRIPPLED = "menu_header_crippled";
 const char* MENU_HEADER_NO_PATIENT = "menu_header_no_patient";
 const char* MENU_HEADER_PATIENT_INFO = "menu_header_patient_info";
-const char* MENU_HEADER_PATIENT_MODE = "menu_header_patient_mode";
 const char* MENU_HEADER_MORE_OPTIONS = "menu_header_more_options";
 const char* MENU_ITEM_EDITABLE_TASK = "menu_item_editable_task";
 const char* MENU_ITEM_SUBTITLE = "menu_item_subtitle";
