@@ -19,6 +19,8 @@
 
 #include "core/camcopsapp.h"
 #include "dbobjects/taskscheduleitem.h"
+#include "lib/stringfunc.h"
+#include "lib/uifunc.h"
 #include "menulib/menuwindow.h"
 #include "tasklib/taskfactory.h"
 #include "taskscheduleitemeditor.h"
@@ -39,6 +41,18 @@ void TaskScheduleItemEditor::editTask()
     if (task == nullptr) {
         auto tablename = m_p_task_schedule_item->taskTableName();
         task = m_app.taskFactory()->create(tablename);
+
+        QString why_not_permissible;
+        if (!task->isTaskPermissible(why_not_permissible)) {
+            const QString reason = QString("%1<br><br>%2: %3").arg(
+                tr("You cannot complete this task with your current settings."),
+                tr("Current reason"),
+                stringfunc::bold(why_not_permissible)
+            );
+            uifunc::alert(reason, tr("Not permitted to complete task"));
+            return;
+        }
+
         const int patient_id = m_app.selectedPatientId();
         task->setupForEditingAndSave(patient_id);
         const QJsonObject settings = m_p_task_schedule_item->settings();
@@ -46,7 +60,6 @@ void TaskScheduleItemEditor::editTask()
         m_p_task_schedule_item->setTask(task->pkvalue().toInt());
     }
 
-    // TODO: Checks as in SingleTaskMenu::addTask()
     OpenableWidget* widget = task->editor(false);
     if (!widget) {
         MenuWindow::complainTaskNotOfferingEditor();
