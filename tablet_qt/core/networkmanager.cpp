@@ -872,12 +872,21 @@ void NetworkManager::storeTaskSchedules()
 
     m_app.deleteTaskSchedules();
 
-    // TODO: Handle Null return value
     QJsonParseError error;
 
     QJsonDocument doc = QJsonDocument::fromJson(
         m_reply_dict[KEY_TASK_SCHEDULES].toUtf8(), &error
     );
+
+    if (doc.isNull()) {
+        const QString message = tr("Failed to parse task schedules: %1").arg(
+            error.errorString()
+        );
+        statusMessage(message);
+        fail(ErrorCode::JsonParseError, message);
+
+        return;
+    }
 
     const QJsonArray schedules_array = doc.array();
 
