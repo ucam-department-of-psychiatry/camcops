@@ -153,12 +153,15 @@ QString TaskScheduleItem::taskTableName() const
 
 QJsonObject TaskScheduleItem::settings() const
 {
-    // TODO: Handle Null return value
-    QJsonParseError error;
-
+    // Should never be invalid as the whole JSON blob should have failed to
+    // validate when the schedules were fetched from the server.
+    // Also it's impossible to enter invalid JSON through the form when
+    // creating the patient's task schedule.
     QJsonDocument doc = QJsonDocument::fromJson(
-        valueString(FN_SETTINGS).toUtf8(), &error
+        valueString(FN_SETTINGS).toUtf8()
     );
+
+    assert(!doc.isNull());
 
     return doc.object();
 }
