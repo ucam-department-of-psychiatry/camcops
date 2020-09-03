@@ -56,7 +56,7 @@ void SingleUserOptionsMenu::makeItems()
         MenuItem(
             tr("Re-register me"),
             std::bind(&SingleUserOptionsMenu::registerPatient, this)
-            ).setNotIfLocked(),
+        ).setNotIfLocked(),
     });
 }
 

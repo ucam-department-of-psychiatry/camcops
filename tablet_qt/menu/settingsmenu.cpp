@@ -126,7 +126,6 @@ void SettingsMenu::makeItems()
         // --------------------------------------------------------------------
         MenuItem(tr("Common user settings")).setLabelOnly(),
         // --------------------------------------------------------------------
-
         MenuItem(
             tr("Choose language"),
             std::bind(&SettingsMenu::chooseLanguage, this),

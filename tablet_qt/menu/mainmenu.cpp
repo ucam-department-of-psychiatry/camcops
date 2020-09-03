@@ -95,6 +95,8 @@ void MainMenu::makeItems()
         MAKE_MENU_MENU_ITEM(ResearchSetsMenu, m_app),
         MAKE_MENU_MENU_ITEM(AllTasksMenu, m_app),
     };
+    connect(&m_app, &CamcopsApp::fontSizeChanged,
+            this, &MainMenu::reloadStyleSheet);
 }
 
 
