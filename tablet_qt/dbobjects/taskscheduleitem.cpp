@@ -113,7 +113,7 @@ void TaskScheduleItem::addJsonFields(const QJsonObject json_obj)
 
 
 // ============================================================================
-// Information about schedules
+// Information about schedule items
 // ============================================================================
 
 int TaskScheduleItem::id() const
