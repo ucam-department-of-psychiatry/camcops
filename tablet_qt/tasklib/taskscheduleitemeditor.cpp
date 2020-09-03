@@ -42,14 +42,7 @@ void TaskScheduleItemEditor::editTask()
         auto tablename = m_p_task_schedule_item->taskTableName();
         task = m_app.taskFactory()->create(tablename);
 
-        QString why_not_permissible;
-        if (!task->isTaskPermissible(why_not_permissible)) {
-            const QString reason = QString("%1<br><br>%2: %3").arg(
-                tr("You cannot complete this task with your current settings."),
-                tr("Current reason"),
-                stringfunc::bold(why_not_permissible)
-            );
-            uifunc::alert(reason, tr("Not permitted to complete task"));
+        if (!canEditTask(task)) {
             return;
         }
 
@@ -75,6 +68,33 @@ void TaskScheduleItemEditor::editTask()
     m_app.openSubWindow(widget, task, true);
 }
 
+
+bool TaskScheduleItemEditor::canEditTask(TaskPtr task)
+{
+    QString why_not_permissible;
+    if (!task->isTaskPermissible(why_not_permissible)) {
+        const QString reason = QString("%1<br><br>%2: %3").arg(
+            tr("You cannot complete this task with your current settings."),
+            tr("Current reason"),
+            stringfunc::bold(why_not_permissible)
+            );
+        uifunc::alert(reason, tr("Not permitted to complete task"));
+        return false;
+    }
+
+    QString why_not_uploadable;
+    if (!task->isTaskUploadable(why_not_uploadable)) {
+        const QString reason = QString("%1<br><br>%2: %3").arg(
+            tr("You cannot complete this task."),
+            tr("Current reason"),
+            stringfunc::bold(why_not_uploadable)
+            );
+        uifunc::alert(reason, tr("Unable to complete task"));
+        return false;
+    }
+
+    return true;
+}
 
 void TaskScheduleItemEditor::onTaskFinished()
 {

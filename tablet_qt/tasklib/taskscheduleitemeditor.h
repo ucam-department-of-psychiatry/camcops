@@ -38,4 +38,6 @@ protected slots:
 private:
     CamcopsApp& m_app;
     TaskScheduleItemPtr m_p_task_schedule_item;
+
+    bool canEditTask(TaskPtr task);
 };
