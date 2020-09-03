@@ -37,6 +37,10 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 %>
 
 <%include file="db_user_info.mako"/>
+<div>
+${_("CamCOPS server location:")} ${ req.route_url( Routes.CLIENT_API ) }
+</div>
+
 
 <h1>${_("Patient Task Schedules")}</h1>
 
@@ -63,7 +67,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
         </td>
         <td>
             %if patient.email:
-            <a href="mailto:${ patient.email }?body=${ patient.uuid_as_proquint }">${ patient.email }</a>
+            <a href="mailto:${ patient.email }?body=${ req.route_url( Routes.CLIENT_API ) }%0D%0A%0D%0A${ patient.uuid_as_proquint }">${ patient.email }</a>
             %endif
         </td>
         <td>
