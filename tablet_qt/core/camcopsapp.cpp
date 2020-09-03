@@ -405,7 +405,6 @@ void CamcopsApp::handleNetworkFailure(const NetworkManager::ErrorCode error_code
     switch (error_code) {
 
     case NetworkManager::IncorrectReplyFormat:
-        // TODO: Report this?
         // If we've managed to register our patient and the server is replying
         // but in the wrong way then something bad has happened.
         additional_message = tr(
@@ -414,7 +413,6 @@ void CamcopsApp::handleNetworkFailure(const NetworkManager::ErrorCode error_code
         break;
 
     case NetworkManager::ServerError:
-        // TODO: Report this?
         additional_message = error_string;
         break;
 
