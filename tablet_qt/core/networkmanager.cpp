@@ -2319,12 +2319,21 @@ void NetworkManager::registerPatientSub1(QNetworkReply* reply)
         m_app.setVar(varconst::SERVER_USERNAME, m_reply_dict[KEY_USER]);
     }
 
-    // TODO: Handle Null return value
     QJsonParseError error;
 
     QJsonDocument doc = QJsonDocument::fromJson(
         m_reply_dict[KEY_PATIENT_INFO].toUtf8(), &error
     );
+
+    if (doc.isNull()) {
+        const QString message = tr("Failed to parse patient info: %1").arg(
+            error.errorString()
+        );
+        statusMessage(message);
+        fail(ErrorCode::JsonParseError, message);
+
+        return;
+    }
 
     // Consistent with uploading patients but only one element
     // in the array

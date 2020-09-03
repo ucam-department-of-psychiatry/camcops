@@ -69,7 +69,8 @@ public:
         NoError,
         IncorrectReplyFormat,
         GenericNetworkError,
-        ServerError
+        ServerError,
+        JsonParseError,
     };
 
     ErrorCode convertQtNetworkCode(const QNetworkReply::NetworkError error_code);

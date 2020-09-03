@@ -346,6 +346,7 @@ void CamcopsApp::patientRegistrationFailed(
     switch (error_code) {
 
     case NetworkManager::ServerError:
+    case NetworkManager::JsonParseError:
         additional_message = error_string;
         break;
 
