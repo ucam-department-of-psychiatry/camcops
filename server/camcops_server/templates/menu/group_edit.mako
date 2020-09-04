@@ -33,7 +33,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 
 <%include file="db_user_info.mako"/>
 
-<h1>${_("Edit group")} ${ group.name | h }</h1>
+<h1>${_("Edit group")} ${ object.name | h }</h1>
 
 ${ form }
 

@@ -77,6 +77,8 @@ To provide a custom view class to create a new object in the database:
   constructor
 * For simple views, set model_form_dict property to be a mapping of
   object properties to form parameters
+* Override get_form_values() with any values additional to model_form_dict
+  to populate the form
 * Override save_object() to do anything more than a simple record save
   (saving related objects for example)
 

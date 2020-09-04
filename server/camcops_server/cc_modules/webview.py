@@ -2596,56 +2596,68 @@ def get_group_from_request_group_id_or_raise(req: "CamcopsRequest") -> Group:
     return group
 
 
+class EditGroupView(UpdateView):
+    form_class = EditGroupForm
+    model_form_dict = {
+        "name": ViewParam.NAME,
+        "description": ViewParam.DESCRIPTION,
+        "upload_policy": ViewParam.UPLOAD_POLICY,
+        "finalize_policy": ViewParam.FINALIZE_POLICY,
+    }
+    object_class = Group
+    pk_param = ViewParam.GROUP_ID
+    server_pk_name = "id"
+    template_name = "group_edit.mako"
+
+    def get_form_kwargs(self) -> Dict[str, Any]:
+        kwargs = super().get_form_kwargs()
+
+        group = cast(Group, self.object)
+        kwargs.update(group=group)
+
+        return kwargs
+
+    def get_form_values(self) -> Dict:
+        # will populate with model_form_dict
+        form_values = super().get_form_values()
+
+        group = cast(Group, self.object)
+
+        other_group_ids = list(group.ids_of_other_groups_group_may_see())
+        other_groups = Group.get_groups_from_id_list(self.request.dbsession,
+                                                     other_group_ids)
+        other_groups.sort(key=lambda g: g.name)
+
+        form_values.update({
+            ViewParam.GROUP_ID: group.id,
+            ViewParam.GROUP_IDS: [g.id for g in other_groups]
+        })
+
+        return form_values
+
+    def get_success_url(self) -> str:
+        return self.request.route_url(Routes.VIEW_GROUPS)
+
+    def save_object(self, appstruct: Dict[str, Any]) -> None:
+        super().save_object(appstruct)
+
+        group = cast(Group, self.object)
+
+        # Group cross-references
+        group_ids = appstruct.get(ViewParam.GROUP_IDS)
+        # The form validation will prevent our own group from being in here
+        other_groups = Group.get_groups_from_id_list(self.request.dbsession,
+                                                     group_ids)
+        group.can_see_other_groups = other_groups
+
+
 @view_config(route_name=Routes.EDIT_GROUP,
-             permission=Permission.SUPERUSER,
-             renderer="group_edit.mako")
+             permission=Permission.SUPERUSER)
 def edit_group(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to edit a group. Superusers only.
     """
-    route_back = Routes.VIEW_GROUPS
-    if FormAction.CANCEL in req.POST:
-        raise HTTPFound(req.route_url(route_back))
-    group = get_group_from_request_group_id_or_raise(req)
-    form = EditGroupForm(request=req, group=group)
-    dbsession = req.dbsession
-    if FormAction.SUBMIT in req.POST:
-        try:
-            controls = list(req.POST.items())
-            appstruct = form.validate(controls)
-            # -----------------------------------------------------------------
-            # Apply the changes
-            # -----------------------------------------------------------------
-            # Simple attributes
-            group.name = appstruct.get(ViewParam.NAME)
-            group.description = appstruct.get(ViewParam.DESCRIPTION)
-            group.upload_policy = appstruct.get(ViewParam.UPLOAD_POLICY)
-            group.finalize_policy = appstruct.get(ViewParam.FINALIZE_POLICY)
-            # Group cross-references
-            group_ids = appstruct.get(ViewParam.GROUP_IDS)
-            group_ids = [gid for gid in group_ids if gid != group.id]
-            # ... don't bother saying "you can see yourself"
-            other_groups = Group.get_groups_from_id_list(dbsession, group_ids)
-            group.can_see_other_groups = other_groups
-            raise HTTPFound(req.route_url(route_back))
-        except ValidationFailure as e:
-            rendered_form = e.render()
-    else:
-        other_group_ids = list(group.ids_of_other_groups_group_may_see())
-        other_groups = Group.get_groups_from_id_list(dbsession, other_group_ids)
-        other_groups.sort(key=lambda g: g.name)
-        appstruct = {
-            ViewParam.GROUP_ID: group.id,
-            ViewParam.NAME: group.name,
-            ViewParam.DESCRIPTION: group.description or "",
-            ViewParam.UPLOAD_POLICY: group.upload_policy or "",
-            ViewParam.FINALIZE_POLICY: group.finalize_policy or "",
-            ViewParam.GROUP_IDS: [g.id for g in other_groups],
-        }
-        rendered_form = form.render(appstruct)
-    return dict(group=group,
-                form=rendered_form,
-                head_form_html=get_head_form_html(req, [form]))
+    return EditGroupView(req).dispatch()
 
 
 @view_config(route_name=Routes.ADD_GROUP,
@@ -5827,6 +5839,83 @@ class EraseTaskEntirelyViewTests(EraseTaskTestCase):
         self.assertIn("Task erased", messages[0])
         self.assertIn(self.task.tablename, messages[0])
         self.assertIn("server PK {}".format(self.task._pk), messages[0])
+
+
+class EditGroupViewTests(DemoDatabaseTestCase):
+    def test_group_updated(self) -> None:
+        other_group_1 = Group()
+        other_group_1.name = "other-group-1"
+        self.dbsession.add(other_group_1)
+
+        other_group_2 = Group()
+        other_group_2.name = "other-group-2"
+        self.dbsession.add(other_group_2)
+
+        self.dbsession.commit()
+
+        multidict = MultiDict([
+            ("_charset_", "UTF-8"),
+            ("__formid__", "deform"),
+            (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
+            (ViewParam.GROUP_ID, self.group.id),
+            (ViewParam.NAME, "new-name"),
+            (ViewParam.DESCRIPTION, "new description"),
+            (ViewParam.UPLOAD_POLICY, "anyidnum AND sex"),  # reversed
+            (ViewParam.FINALIZE_POLICY, "idnum1 AND sex"),  # reversed
+            ("__start__", "group_ids:sequence"),
+            ("group_id_sequence", str(other_group_1.id)),
+            ("group_id_sequence", str(other_group_2.id)),
+            ("__end__", "group_ids:sequence"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+        self.req.fake_request_post_from_dict(multidict)
+
+        with self.assertRaises(HTTPFound):
+            edit_group(self.req)
+
+        self.assertEqual(self.group.name, "new-name")
+        self.assertEqual(self.group.description, "new description")
+        self.assertEqual(self.group.upload_policy, "anyidnum AND sex")
+        self.assertEqual(self.group.finalize_policy, "idnum1 AND sex")
+        self.assertIn(other_group_1, self.group.can_see_other_groups)
+        self.assertIn(other_group_2, self.group.can_see_other_groups)
+
+    def test_other_groups_displayed_in_form(self) -> None:
+        z_group = Group()
+        z_group.name = "z-group"
+        self.dbsession.add(z_group)
+
+        a_group = Group()
+        a_group.name = "a-group"
+        self.dbsession.add(a_group)
+        self.dbsession.commit()
+
+        other_groups = Group.get_groups_from_id_list(
+            self.dbsession, [z_group.id, a_group.id]
+        )
+        self.group.can_see_other_groups = other_groups
+
+        self.dbsession.add(self.group)
+        self.dbsession.commit()
+
+        view = EditGroupView(self.req)
+        view.object = self.group
+
+        form_values = view.get_form_values()
+
+        self.assertEqual(
+            form_values[ViewParam.GROUP_IDS], [a_group.id, z_group.id]
+        )
+
+    def test_group_id_displayed_in_form(self) -> None:
+        view = EditGroupView(self.req)
+        view.object = self.group
+
+        form_values = view.get_form_values()
+
+        self.assertEqual(
+            form_values[ViewParam.GROUP_ID], self.group.id
+        )
 
 
 def debug_form_rendering() -> None:
