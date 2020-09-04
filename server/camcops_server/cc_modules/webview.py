@@ -2603,6 +2603,10 @@ class EditGroupView(UpdateView):
         "description": ViewParam.DESCRIPTION,
         "upload_policy": ViewParam.UPLOAD_POLICY,
         "finalize_policy": ViewParam.FINALIZE_POLICY,
+        "ip_use_commercial": ViewParam.IP_USE_COMMERCIAL,
+        "ip_use_clinical": ViewParam.IP_USE_CLINICAL,
+        "ip_use_educational": ViewParam.IP_USE_EDUCATIONAL,
+        "ip_use_research": ViewParam.IP_USE_RESEARCH,
     }
     object_class = Group
     pk_param = ViewParam.GROUP_ID

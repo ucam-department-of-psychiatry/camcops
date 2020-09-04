@@ -2803,6 +2803,14 @@ class EditGroupSchema(CSRFSchema):
     description = MandatoryStringNode(  # must match ViewParam.DESCRIPTION
         validator=Length(1, GROUP_DESCRIPTION_MAX_LEN),
     )
+    # must match ViewParam.IP_USE_COMMERCIAL
+    ip_use_commercial = BooleanNode(default=False)
+    # must match ViewParam.IP_USE_CLINICAL
+    ip_use_clinical = BooleanNode(default=False)
+    # must match ViewParam.IP_USE_EDUCATIONAL
+    ip_use_educational = BooleanNode(default=False)
+    # must match ViewParam.IP_USE_RESEARCH
+    ip_use_research = BooleanNode(default=False)
     group_ids = AllOtherGroupsSequence()  # must match ViewParam.GROUP_IDS
     upload_policy = PolicyNode()  # must match ViewParam.UPLOAD_POLICY
     finalize_policy = PolicyNode()  # must match ViewParam.FINALIZE_POLICY
@@ -2812,6 +2820,43 @@ class EditGroupSchema(CSRFSchema):
         _ = self.gettext
         name = get_child_node(self, "name")
         name.title = _("Group name")
+
+        ip_use_commercial = get_child_node(self, "ip_use_commercial")
+        ip_use_commercial.title = _(
+            "This group operates in a commercial setting"
+        )
+        ip_use_commercial.label = None
+        ip_use_commercial.description = _(
+            "Some tasks may prohibit commercial use"
+        )
+
+        ip_use_clinical = get_child_node(self, "ip_use_clinical")
+        ip_use_clinical.title = _("This group operates in a clinical setting")
+        ip_use_clinical.label = None
+        ip_use_clinical.description = _(
+            "Some tasks may prohibit clinical use. WARNING: NOT FOR "
+            "GENERAL CLINICAL USE; not a Medical Device; "
+            "see Terms and Conditions"
+        )
+
+        ip_use_educational = get_child_node(self, "ip_use_educational")
+        ip_use_educational.title = _(
+            "This group operates in an educational setting"
+        )
+        ip_use_educational.label = None
+        ip_use_educational.description = _(
+            "Some tasks may prohibit educational use"
+        )
+
+        ip_use_research = get_child_node(self, "ip_use_research")
+        ip_use_research.title = _(
+            "This group operates in a research setting"
+        )
+        ip_use_research.label = None
+        ip_use_research.description = _(
+            "Some tasks may prohibit research use"
+        )
+
         group_ids = get_child_node(self, "group_ids")
         group_ids.title = _("Other groups this group may see")
         upload_policy = get_child_node(self, "upload_policy")
