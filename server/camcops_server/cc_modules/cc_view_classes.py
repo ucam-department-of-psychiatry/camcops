@@ -73,9 +73,11 @@ To provide a custom view class to create a new object in the database:
 * Override get_extra_context() for any extra parameters to pass to the template
 * Set success_url or override get_success_url() to be the redirect on
   successful creation
+* Override get_form_kwargs() for any extra parameters to pass to the form
+  constructor
 * For simple views, set model_form_dict property to be a mapping of
   object properties to form parameters
-* Override save_object to do anything more than a simple record save
+* Override save_object() to do anything more than a simple record save
   (saving related objects for example)
 
 
@@ -88,6 +90,8 @@ To provide a custom view class to delete an object from the database:
 * Override get_extra_context() for any extra parameters to pass to the template
 * Set success_url or override get_success_url() to be the redirect on
   successful creation
+* Override get_form_kwargs() for any extra parameters to pass to the form
+  constructor
 * Set pk_param property to be the name of the parameter in the request
   that holds the unique/primary key of the object to be deleted
 * Set server_pk_name property to be the name of the property on the object that
@@ -106,8 +110,10 @@ To provide a custom view class to update an object in the database:
 * Override get_extra_context() for any extra parameters to pass to the template
 * Set success_url or override get_success_url() to be the redirect on
   successful creation
+* Override get_form_kwargs() for any extra parameters to pass to the form
+  constructor
 * Set pk_param property to be the name of the parameter in the request
-  that holds the unique/primary key of the object to be deleted
+  that holds the unique/primary key of the object to be updated
 * Set server_pk_name property to be the name of the property on the object that
   is the unique/primary key
 * Override get_object() if the object cannot be retrieved with the above
@@ -238,14 +244,23 @@ class FormMixin(ContextMixin):
             if not form_class:
                 raise_runtime_error("Your view must provide a form_class.")
 
-            registry = CamcopsResourceRegistry()
-
             assert form_class is not None  # type checker
 
-            self._form = form_class(request=self.request,
-                                    resource_registry=registry)
+            self._form = form_class(**self.get_form_kwargs())
 
         return self._form
+
+    def get_form_kwargs(self) -> Dict[str, Any]:
+        """Return the keyword arguments for instantiating the form."""
+
+        registry = CamcopsResourceRegistry()
+
+        kwargs = {
+            "request": self.request,
+            "resource_registry": registry,
+        }
+
+        return kwargs
 
     def get_cancel_url(self) -> str:
         """Return the URL to redirect to when cancelling a form."""
