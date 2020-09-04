@@ -39,7 +39,7 @@ from cardinal_pythonlib.sqlalchemy.orm_query import exists_orm
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import relationship, Session as SqlASession
 from sqlalchemy.sql.schema import Column, ForeignKey, Table
-from sqlalchemy.sql.sqltypes import Integer
+from sqlalchemy.sql.sqltypes import Boolean, Integer
 
 from camcops_server.cc_modules.cc_policy import TokenizedPolicy
 from camcops_server.cc_modules.cc_sqla_coltypes import (
@@ -131,6 +131,30 @@ class Group(Base):
     finalize_policy = Column(
         "finalize_policy", IdPolicyColType,
         comment="Finalize policy for the group, as a string"
+    )
+    ip_use_commercial = Column(
+        "ip_use_commercial", Boolean,
+        nullable=False,
+        default=False,
+        comment="Group operates in a commercial setting"
+    )
+    ip_use_clinical = Column(
+        "ip_use_clinical", Boolean,
+        nullable=False,
+        default=False,
+        comment="Group operates in a clinical setting"
+    )
+    ip_use_educational = Column(
+        "ip_use_educational", Boolean,
+        nullable=False,
+        default=False,
+        comment="Group operates in an educational setting"
+    )
+    ip_use_research = Column(
+        "ip_use_research", Boolean,
+        nullable=False,
+        default=False,
+        comment="Group operates in a research setting"
     )
 
     # users = relationship(
