@@ -2085,6 +2085,15 @@ def op_register_patient(req: "CamcopsRequest") -> Dict[str, Any]:
         reply_dict[TabletParam.USER] = user.username
         reply_dict[TabletParam.PASSWORD] = password
 
+    ip_dict = {
+        TabletParam.IP_USE_COMMERCIAL: patient.group.ip_use_commercial,
+        TabletParam.IP_USE_CLINICAL: patient.group.ip_use_clinical,
+        TabletParam.IP_USE_EDUCATIONAL: patient.group.ip_use_educational,
+        TabletParam.IP_USE_RESEARCH: patient.group.ip_use_research,
+    }
+
+    reply_dict[TabletParam.IP_USE_INFO] = json.dumps(ip_dict)
+
     return reply_dict
 
 
@@ -3362,6 +3371,46 @@ class PatientRegistrationTests(DemoDatabaseTestCase):
                          msg=reply_dict)
         self.assertIn(f"no patient with access key '{valid_proquint}'",
                       reply_dict[TabletParam.ERROR])
+
+    def test_returns_ip_use_flags(self) -> None:
+        import datetime
+        patient = self.create_patient(
+            forename="JO", surname="PATIENT", dob=datetime.date(1958, 4, 19),
+            sex="F", address="Address", gp="GP", other="Other"
+        )
+
+        patient.group.ip_use_commercial = True
+        patient.group.ip_use_clinical = True
+        patient.group.ip_use_educational = False
+        patient.group.ip_use_research = False
+
+        self.dbsession.add(patient)
+        self.dbsession.commit()
+
+        proquint = patient.uuid_as_proquint
+
+        # For type checker
+        assert proquint is not None
+        assert self.other_device.name is not None
+
+        self.req.fake_request_post_from_dict({
+            TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
+            TabletParam.DEVICE: self.other_device.name,
+            TabletParam.OPERATION: Operations.REGISTER_PATIENT,
+            TabletParam.PATIENT_PROQUINT: proquint,
+        })
+        response = client_api(self.req)
+        reply_dict = get_reply_dict_from_response(response)
+
+        self.assertEqual(reply_dict[TabletParam.SUCCESS], SUCCESS_CODE,
+                         msg=reply_dict)
+
+        ip_use_info = json.loads(reply_dict[TabletParam.IP_USE_INFO])
+
+        self.assertTrue(ip_use_info[TabletParam.IP_USE_COMMERCIAL])
+        self.assertTrue(ip_use_info[TabletParam.IP_USE_CLINICAL])
+        self.assertFalse(ip_use_info[TabletParam.IP_USE_EDUCATIONAL])
+        self.assertFalse(ip_use_info[TabletParam.IP_USE_RESEARCH])
 
 
 class GetTaskSchedulesTests(DemoDatabaseTestCase):

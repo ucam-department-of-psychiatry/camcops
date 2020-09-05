@@ -94,6 +94,11 @@ class TabletParam(object):
     ID_SHORT_DESCRIPTION_PREFIX = "idShortDescription"  # S->C
     ID_VALIDATION_METHOD_PREFIX = "idValidationMethod"  # S->C; new in v2.2.8
     IDNUM_PREFIX = "idnum"  # C->S, in JSON, v2.3.0
+    IP_USE_INFO = "ip_use_info"  # S->C; new in v2.3.???
+    IP_USE_COMMERCIAL = "ip_use_commercial"  # S->C; new in v2.3.???
+    IP_USE_CLINICAL = "ip_use_clinical"  # S->C; new in v2.3.???
+    IP_USE_EDUCATIONAL = "ip_use_educational"  # S->C; new in v2.3.???
+    IP_USE_RESEARCH = "ip_use_research"  # S->C; new in v2.3.???
     MOVE_OFF_TABLET_VALUES = "move_off_tablet_values"  # C->S, v2.3.0
     NFIELDS = "nfields"  # B
     NRECORDS = "nrecords"  # B
