@@ -2086,10 +2086,10 @@ def op_register_patient(req: "CamcopsRequest") -> Dict[str, Any]:
         reply_dict[TabletParam.PASSWORD] = password
 
     ip_dict = {
-        TabletParam.IP_USE_COMMERCIAL: patient.group.ip_use_commercial,
-        TabletParam.IP_USE_CLINICAL: patient.group.ip_use_clinical,
-        TabletParam.IP_USE_EDUCATIONAL: patient.group.ip_use_educational,
-        TabletParam.IP_USE_RESEARCH: patient.group.ip_use_research,
+        TabletParam.IP_USE_COMMERCIAL: int(patient.group.ip_use_commercial),
+        TabletParam.IP_USE_CLINICAL: int(patient.group.ip_use_clinical),
+        TabletParam.IP_USE_EDUCATIONAL: int(patient.group.ip_use_educational),
+        TabletParam.IP_USE_RESEARCH: int(patient.group.ip_use_research),
     }
 
     reply_dict[TabletParam.IP_USE_INFO] = json.dumps(ip_dict)

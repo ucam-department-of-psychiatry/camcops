@@ -284,7 +284,9 @@ protected:
     QString getPkInfoAsJson();
     // Patient registration (single user mode)
     void registerPatientSub1(QNetworkReply* reply);
-
+    void setUserDetails();
+    bool createSinglePatient();
+    bool setIpUseInfo();
 
     // ------------------------------------------------------------------------
     // Signals

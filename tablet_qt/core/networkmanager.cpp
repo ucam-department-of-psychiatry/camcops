@@ -73,6 +73,11 @@ const QString KEY_FIELDS("fields");    // B; fieldnames
 const QString KEY_FINALIZING("finalizing");  // C->S, in JSON, v2.3.0
 const QString KEY_ID_POLICY_UPLOAD("idPolicyUpload");  // S->C
 const QString KEY_ID_POLICY_FINALIZE("idPolicyFinalize");  // S->C
+const QString KEY_IP_USE_INFO("ip_use_info");  // S->C, new in v2.3.???
+const QString KEY_IP_USE_COMMERCIAL("ip_use_commercial");  // S->C, new in v2.3.???
+const QString KEY_IP_USE_CLINICAL("ip_use_clinical");  // S->C, new in v2.3.???
+const QString KEY_IP_USE_EDUCATIONAL("ip_use_educational");  // S->C, new in v2.3.???
+const QString KEY_IP_USE_RESEARCH("ip_use_research");  // S->C, new in v2.3.???
 const QString KEY_MOVE_OFF_TABLET_VALUES("move_off_tablet_values");  // C->S, v2.3.0
 const QString KEY_NFIELDS("nfields");  // B
 const QString KEY_NRECORDS("nrecords");  // B
@@ -2322,11 +2327,30 @@ void NetworkManager::registerPatientSub1(QNetworkReply* reply)
         return;
     }
 
+    setUserDetails();
+    if (!createSinglePatient()) {
+        return;
+    }
+
+    if (!setIpUseInfo()) {
+        return;
+    }
+
+    registerWithServer();
+}
+
+
+void NetworkManager::setUserDetails()
+{
     if (m_reply_dict.contains(KEY_USER)) {
         m_app.setEncryptedServerPassword(m_reply_dict[KEY_PASSWORD]);
         m_app.setVar(varconst::SERVER_USERNAME, m_reply_dict[KEY_USER]);
     }
+}
 
+
+bool NetworkManager::createSinglePatient()
+{
     QJsonParseError error;
 
     QJsonDocument doc = QJsonDocument::fromJson(
@@ -2340,7 +2364,7 @@ void NetworkManager::registerPatientSub1(QNetworkReply* reply)
         statusMessage(message);
         fail(ErrorCode::JsonParseError, message);
 
-        return;
+        return false;
     }
 
     // Consistent with uploading patients but only one element
@@ -2356,5 +2380,38 @@ void NetworkManager::registerPatientSub1(QNetworkReply* reply)
 
     patient->addIdNums(patient_json);
 
-    registerWithServer();
+    return true;
+}
+
+
+bool NetworkManager::setIpUseInfo()
+{
+    QJsonParseError error;
+
+    QJsonDocument doc = QJsonDocument::fromJson(
+        m_reply_dict[KEY_IP_USE_INFO].toUtf8(), &error
+    );
+
+    if (doc.isNull()) {
+        const QString message = tr("Failed to parse IP use info: %1").arg(
+            error.errorString()
+        );
+        statusMessage(message);
+        fail(ErrorCode::JsonParseError, message);
+
+        return false;
+    }
+
+    QJsonObject ip_use_info = doc.object();
+
+    m_app.setVar(varconst::IP_USE_CLINICAL,
+                 ip_use_info.value(KEY_IP_USE_CLINICAL));
+    m_app.setVar(varconst::IP_USE_COMMERCIAL,
+                 ip_use_info.value(KEY_IP_USE_COMMERCIAL));
+    m_app.setVar(varconst::IP_USE_EDUCATIONAL,
+                 ip_use_info.value(KEY_IP_USE_EDUCATIONAL));
+    m_app.setVar(varconst::IP_USE_RESEARCH,
+                 ip_use_info.value(KEY_IP_USE_RESEARCH));
+
+    return true;
 }
