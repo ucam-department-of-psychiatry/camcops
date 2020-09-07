@@ -235,6 +235,8 @@ class Ace3(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
     shortname = "ACE-III"
     provides_trackers = True
 
+    prohibits_commercial = True
+
     age_at_leaving_full_time_education = Column(
         "age_at_leaving_full_time_education", Integer,
         comment="Age at leaving full time education"

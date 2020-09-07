@@ -520,6 +520,11 @@ class Task(GenericTabletRecordMixin, Base):
     use_landscape_for_pdf = False
     dependent_classes = []
 
+    prohibits_clinical = False
+    prohibits_commercial = False
+    prohibits_educational = False
+    prohibits_research = False
+
     # -------------------------------------------------------------------------
     # Methods always overridden by the actual task
     # -------------------------------------------------------------------------
