@@ -525,6 +525,13 @@ class Task(GenericTabletRecordMixin, Base):
     prohibits_educational = False
     prohibits_research = False
 
+    @classmethod
+    def prohibits_anything(cls) -> bool:
+        return any([cls.prohibits_clinical,
+                    cls.prohibits_commercial,
+                    cls.prohibits_educational,
+                    cls.prohibits_research])
+
     # -------------------------------------------------------------------------
     # Methods always overridden by the actual task
     # -------------------------------------------------------------------------

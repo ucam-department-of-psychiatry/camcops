@@ -215,11 +215,14 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
 )
 from camcops_server.cc_modules.cc_task import tablename_to_task_class_dict
 from camcops_server.cc_modules.cc_taskschedule import TaskSchedule
-from camcops_server.cc_modules.cc_unittest import DemoRequestTestCase
+from camcops_server.cc_modules.cc_unittest import (
+    DemoDatabaseTestCase, DemoRequestTestCase
+)
 
 if TYPE_CHECKING:
     from deform.field import Field
     from camcops_server.cc_modules.cc_request import CamcopsRequest
+    from camcops_server.cc_modules.cc_task import Task
     from camcops_server.cc_modules.cc_user import User
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
@@ -4129,9 +4132,21 @@ class TaskScheduleItemSchema(CSRFSchema):
         )
 
     def validator(self, node: SchemaNode, value: Dict[str, Any]) -> None:
-        _ = self.gettext
-        task_class = tablename_to_task_class_dict()[value[ViewParam.TABLE_NAME]]
+        task_class = self._get_task_class(value)
 
+        self._validate_clinician_status(node, value, task_class)
+        self._validate_due_dates(node, value)
+        self._validate_task_ip_use(node, value, task_class)
+
+    def _get_task_class(self, value: Dict[str, Any]) -> Type["Task"]:
+        return tablename_to_task_class_dict()[value[ViewParam.TABLE_NAME]]
+
+    def _validate_clinician_status(self,
+                                   node: SchemaNode,
+                                   value: Dict[str, Any],
+                                   task_class: Type["Task"]) -> None:
+
+        _ = self.gettext
         clinician_confirmation = value[ViewParam.CLINICIAN_CONFIRMATION]
         if (task_class.has_clinician and not clinician_confirmation):
             raise Invalid(
@@ -4144,6 +4159,10 @@ class TaskScheduleItemSchema(CSRFSchema):
                 ).format(task_name=task_class.shortname)
             )
 
+    def _validate_due_dates(self,
+                            node: SchemaNode,
+                            value: Dict[str, Any]) -> None:
+        _ = self.gettext
         due_from = value[ViewParam.DUE_FROM]
         if due_from.total_days() < 0:
             raise Invalid(
@@ -4156,6 +4175,72 @@ class TaskScheduleItemSchema(CSRFSchema):
             raise Invalid(
                 node,
                 _("'Due within' must be more than zero days"),
+            )
+
+    def _validate_task_ip_use(self,
+                              node: SchemaNode,
+                              value: Dict[str, Any],
+                              task_class: Type["Task"]) -> None:
+
+        _ = self.gettext
+
+        if not task_class.prohibits_anything():
+            return
+
+        schedule_id = value[ViewParam.SCHEDULE_ID]
+        schedule = self.request.dbsession.query(TaskSchedule).filter(
+            TaskSchedule.id == schedule_id
+        ).one()
+
+        # TODO: One the client we say 'to use this task, you must seek
+        # permission from the copyright holder'. We could do the same but at the
+        # moment there isn't a way of telling the system that we have done so.
+        if task_class.prohibits_commercial and schedule.group.ip_use_commercial:
+            raise Invalid(
+                node,
+                _("The group '{group_name}' associated with schedule "
+                  "'{schedule_name}' operates in a "
+                  "commercial setting but the task you have selected "
+                  "prohibits commercial use.").format(
+                      group_name=schedule.group.name,
+                      schedule_name=schedule.name
+                  )
+            )
+
+        if task_class.prohibits_clinical and schedule.group.ip_use_clinical:
+            raise Invalid(
+                node,
+                _("The group '{group_name}' associated with schedule "
+                  "'{schedule_name}' operates in a "
+                  "clinical setting but the task you have selected "
+                  "prohibits clinical use.").format(
+                      group_name=schedule.group.name,
+                      schedule_name=schedule.name
+                  )
+            )
+
+        if (task_class.prohibits_educational and schedule.group.ip_use_educational):  # noqa: E501
+            raise Invalid(
+                node,
+                _("The group '{group_name}' associated with schedule "
+                  "'{schedule_name}' operates in an "
+                  "educational setting but the task you have selected "
+                  "prohibits educational use.").format(
+                      group_name=schedule.group.name,
+                      schedule_name=schedule.name
+                  )
+            )
+
+        if task_class.prohibits_research and schedule.group.ip_use_research:
+            raise Invalid(
+                node,
+                _("The group '{group_name}' associated with schedule "
+                  "'{schedule_name}' operates in a "
+                  "research setting but the task you have selected "
+                  "prohibits research use.").format(
+                      group_name=schedule.group.name,
+                      schedule_name=schedule.name
+                  )
             )
 
 
@@ -4384,6 +4469,109 @@ class TaskScheduleItemSchemaTests(SchemaTestCase):
             schema.deserialize(cstruct)
 
         self.assertIn("must be zero or more days",
+                      cm.exception.messages()[0])
+
+
+class TaskScheduleItemSchemaIpTests(DemoDatabaseTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.schedule = TaskSchedule()
+        self.schedule.group_id = self.group.id
+        self.dbsession.add(self.schedule)
+        self.dbsession.commit()
+
+    def create_tasks(self) -> None:
+        # Speed things up a bit
+        pass
+
+    def test_invalid_for_commercial_mismatch(self) -> None:
+        self.group.ip_use_commercial = True
+        self.dbsession.add(self.group)
+        self.dbsession.commit()
+
+        schema = TaskScheduleItemSchema().bind(request=self.req)
+        appstruct = {
+            ViewParam.SCHEDULE_ID: self.schedule.id,
+            ViewParam.TABLE_NAME: "mfi20",
+            ViewParam.CLINICIAN_CONFIRMATION: False,
+            ViewParam.DUE_FROM: Duration(days=0),
+            ViewParam.DUE_WITHIN: Duration(days=10)
+        }
+
+        cstruct = schema.serialize(appstruct)
+        with self.assertRaises(Invalid) as cm:
+            schema.deserialize(cstruct)
+
+        self.assertIn("prohibits commercial",
+                      cm.exception.messages()[0])
+
+    def test_invalid_for_clinical_mismatch(self) -> None:
+        self.group.ip_use_clinical = True
+        self.dbsession.add(self.group)
+        self.dbsession.commit()
+
+        schema = TaskScheduleItemSchema().bind(request=self.req)
+        appstruct = {
+            ViewParam.SCHEDULE_ID: self.schedule.id,
+            ViewParam.TABLE_NAME: "mfi20",
+            ViewParam.CLINICIAN_CONFIRMATION: False,
+            ViewParam.DUE_FROM: Duration(days=0),
+            ViewParam.DUE_WITHIN: Duration(days=10),
+        }
+
+        cstruct = schema.serialize(appstruct)
+        with self.assertRaises(Invalid) as cm:
+            schema.deserialize(cstruct)
+
+        self.assertIn("prohibits clinical",
+                      cm.exception.messages()[0])
+
+    def test_invalid_for_educational_mismatch(self) -> None:
+        self.group.ip_use_educational = True
+        self.dbsession.add(self.group)
+        self.dbsession.commit()
+
+        schema = TaskScheduleItemSchema().bind(request=self.req)
+        appstruct = {
+            ViewParam.SCHEDULE_ID: self.schedule.id,
+            ViewParam.TABLE_NAME: "mfi20",
+            ViewParam.CLINICIAN_CONFIRMATION: True,
+            ViewParam.DUE_FROM: Duration(days=0),
+            ViewParam.DUE_WITHIN: Duration(days=10),
+        }
+
+        cstruct = schema.serialize(appstruct)
+
+        # No real world example prohibits educational use
+        mock_task_class = mock.Mock(prohibits_educational=True)
+        with mock.patch.object(schema, "_get_task_class",
+                               return_value=mock_task_class):
+            with self.assertRaises(Invalid) as cm:
+                schema.deserialize(cstruct)
+
+        self.assertIn("prohibits educational",
+                      cm.exception.messages()[0])
+
+    def test_invalid_for_research_mismatch(self) -> None:
+        self.group.ip_use_research = True
+        self.dbsession.add(self.group)
+        self.dbsession.commit()
+
+        schema = TaskScheduleItemSchema().bind(request=self.req)
+        appstruct = {
+            ViewParam.SCHEDULE_ID: self.schedule.id,
+            ViewParam.TABLE_NAME: "moca",
+            ViewParam.CLINICIAN_CONFIRMATION: True,
+            ViewParam.DUE_FROM: Duration(days=0),
+            ViewParam.DUE_WITHIN: Duration(days=10),
+        }
+
+        cstruct = schema.serialize(appstruct)
+        with self.assertRaises(Invalid) as cm:
+            schema.deserialize(cstruct)
+
+        self.assertIn("prohibits research",
                       cm.exception.messages()[0])
 
 
