@@ -23,7 +23,8 @@
 Khandaker GM — Insight study — medical history
 ----------------------------------------------
 
-Medical history form for Insight study.
+Medical history form for Insight study
+(https://doi.org/10.1186/ISRCTN16942542).
 
 
 Intellectual property rights
