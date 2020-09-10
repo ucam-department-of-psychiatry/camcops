@@ -38,7 +38,7 @@ camcops_server/templates/deform/duration.pt
              class="span2 form-control ${css_class or ''}"
              tal:attributes="style style"
              maxlength="4"
-             id="${oid}"/>
+             id="${oid}-months"/>
     </div></div>
     <div class="col-xs-4"><div class="input-group">
       <span class="input-group-addon" i18n:translate="">${weeks_label}</span>

@@ -25,5 +25,5 @@ camcops_server/templates/deform/readonly/duration.pt
 
 -->
 <div>
-  <p class="form-control-static" id="${oid|field.oid}">${months} months, ${weeks} weeks, ${days} days</p>
+  <p class="form-control-static" id="${oid|field.oid}">${months_label}:${months}, ${weeks_label}:${weeks}, ${days_label}:${days}</p>
 </div>
