@@ -281,6 +281,10 @@ form.filter {
     display: inline;
     margin: ${va.ZERO};
 }
+.flash_messages {
+    padding:0;
+    margin:0;
+}
 .footnotes {
     /* font-style: italic; */
     font-size: ${va.SMALLFONTSIZE};
@@ -452,10 +456,6 @@ table.taskdetail td {
 }
 .warning {
     background-color: rgb(255, 100, 100);
-}
-.flash_messages {
-    padding:0;
-    margin:0;
 }
 
 /* The next three: need both L/R to float and clear:both for IE */
