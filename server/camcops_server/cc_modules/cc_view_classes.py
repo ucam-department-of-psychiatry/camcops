@@ -390,6 +390,16 @@ class ModelFormMixin(FormMixin, SingleObjectMixin):
         if self.object is not None:
             for (model_attr, form_param) in self.model_form_dict.items():
                 value = getattr(self.object, model_attr)
+
+                # Not sure if this is a good idea. There may be legitimate
+                # reasons for keeping the value None here, but the view is
+                # likely to be overriding get_form_values() in that case.
+                # The alternative is we have to set all None string values
+                # to empty, in order to prevent the word None from appearing
+                # in text input fields.
+                if value is None:
+                    value = ""
+
                 form_values[form_param] = value
 
         return form_values
