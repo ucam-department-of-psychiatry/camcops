@@ -322,6 +322,9 @@ p.hangingindent {
     color: rgb(64, 0, 192);
     font-weight: bold;
 }
+.ip_use_label {
+    font-weight: bold;
+}
 .specialnote {
     background-color: rgb(255, 255, 153);
 }
