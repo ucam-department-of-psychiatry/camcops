@@ -66,7 +66,6 @@ html.svg img.pngfallback {
 body {
     font-family: Arial, Helvetica, sans-serif;
     font-size: ${va.MAINFONTSIZE};
-    line-height: ${va.MAINLINEHEIGHT};
     margin: ${va.ZERO} ${va.ZERO} ${va.ZERO} ${va.ZERO};  /* margin here affects form layout too */
     padding: ${va.BODYPADDING};
 }
