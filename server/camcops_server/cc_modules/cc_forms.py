@@ -4712,13 +4712,13 @@ class DurationWidgetTests(TestCase):
         args, kwargs = field.renderer.call_args
 
         self.assertEqual(args[0], f"{TEMPLATE_DIR}/deform/duration.pt")
-        self.assertFalse(kwargs['readonly'])
+        self.assertFalse(kwargs["readonly"])
 
-        self.assertEqual(kwargs['months'], 1)
-        self.assertEqual(kwargs['weeks'], 2)
-        self.assertEqual(kwargs['days'], 3)
+        self.assertEqual(kwargs["months"], 1)
+        self.assertEqual(kwargs["weeks"], 2)
+        self.assertEqual(kwargs["days"], 3)
 
-        self.assertEqual(kwargs['field'], field)
+        self.assertEqual(kwargs["field"], field)
 
     def test_serialize_renders_readonly_template_with_values(self) -> None:
         widget = DurationWidget(self.request)
@@ -4737,7 +4737,7 @@ class DurationWidgetTests(TestCase):
         args, kwargs = field.renderer.call_args
 
         self.assertEqual(args[0], f"{TEMPLATE_DIR}/deform/readonly/duration.pt")
-        self.assertTrue(kwargs['readonly'])
+        self.assertTrue(kwargs["readonly"])
 
     def test_serialize_renders_readonly_template_if_widget_is_readonly(
             self) -> None:
@@ -4768,9 +4768,9 @@ class DurationWidgetTests(TestCase):
 
         args, kwargs = field.renderer.call_args
 
-        self.assertEqual(kwargs['months'], "")
-        self.assertEqual(kwargs['weeks'], "")
-        self.assertEqual(kwargs['days'], "")
+        self.assertEqual(kwargs["months"], "")
+        self.assertEqual(kwargs["weeks"], "")
+        self.assertEqual(kwargs["days"], "")
 
     def test_serialize_none_defaults_to_blank_values(self) -> None:
         widget = DurationWidget(self.request)
@@ -4782,9 +4782,9 @@ class DurationWidgetTests(TestCase):
 
         args, kwargs = field.renderer.call_args
 
-        self.assertEqual(kwargs['months'], "")
-        self.assertEqual(kwargs['weeks'], "")
-        self.assertEqual(kwargs['days'], "")
+        self.assertEqual(kwargs["months"], "")
+        self.assertEqual(kwargs["weeks"], "")
+        self.assertEqual(kwargs["days"], "")
 
     def test_deserialize_returns_valid_values(self) -> None:
         widget = DurationWidget(self.request)
@@ -4906,10 +4906,10 @@ class JsonWidgetTests(TestCase):
         args, kwargs = field.renderer.call_args
 
         self.assertEqual(args[0], f"{TEMPLATE_DIR}/deform/json.pt")
-        self.assertFalse(kwargs['readonly'])
+        self.assertFalse(kwargs["readonly"])
 
-        self.assertEqual(kwargs['cstruct'], cstruct)
-        self.assertEqual(kwargs['field'], field)
+        self.assertEqual(kwargs["cstruct"], cstruct)
+        self.assertEqual(kwargs["field"], field)
 
     def test_serialize_renders_readonly_template_with_values(self) -> None:
         widget = JsonWidget(self.request)
@@ -4925,9 +4925,9 @@ class JsonWidgetTests(TestCase):
 
         self.assertEqual(args[0], f"{TEMPLATE_DIR}/deform/readonly/json.pt")
 
-        self.assertEqual(kwargs['cstruct'], cstruct)
-        self.assertEqual(kwargs['field'], field)
-        self.assertTrue(kwargs['readonly'])
+        self.assertEqual(kwargs["cstruct"], cstruct)
+        self.assertEqual(kwargs["field"], field)
+        self.assertTrue(kwargs["readonly"])
 
     def test_serialize_renders_readonly_template_if_widget_is_readonly(
             self) -> None:
