@@ -157,7 +157,7 @@ from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_orm_classes_from_base
 from cardinal_pythonlib.sqlalchemy.orm_query import CountStarSpecializedQuery
 from cardinal_pythonlib.sqlalchemy.session import get_engine_from_session
 from deform.exception import ValidationFailure
-from pendulum import DateTime as Pendulum, Duration, parse
+from pendulum import DateTime as Pendulum, parse
 from pyramid.httpexceptions import HTTPBadRequest, HTTPFound, HTTPNotFound
 from pyramid.view import (
     forbidden_view_config,
@@ -4510,6 +4510,7 @@ class AddTaskScheduleItemViewTests(DemoDatabaseTestCase):
 
 class EditTaskScheduleItemViewTests(DemoDatabaseTestCase):
     def setUp(self) -> None:
+        from pendulum import Duration
         super().setUp()
 
         self.schedule = TaskSchedule()
