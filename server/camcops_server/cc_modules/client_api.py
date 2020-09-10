@@ -2086,10 +2086,10 @@ def op_register_patient(req: "CamcopsRequest") -> Dict[str, Any]:
         reply_dict[TabletParam.PASSWORD] = password
 
     ip_dict = {
-        TabletParam.IP_USE_COMMERCIAL: int(patient.group.ip_use_commercial),
-        TabletParam.IP_USE_CLINICAL: int(patient.group.ip_use_clinical),
-        TabletParam.IP_USE_EDUCATIONAL: int(patient.group.ip_use_educational),
-        TabletParam.IP_USE_RESEARCH: int(patient.group.ip_use_research),
+        TabletParam.IP_USE_COMMERCIAL: int(patient.group.ip_use.commercial),
+        TabletParam.IP_USE_CLINICAL: int(patient.group.ip_use.clinical),
+        TabletParam.IP_USE_EDUCATIONAL: int(patient.group.ip_use.educational),
+        TabletParam.IP_USE_RESEARCH: int(patient.group.ip_use.research),
     }
 
     reply_dict[TabletParam.IP_USE_INFO] = json.dumps(ip_dict)
@@ -3374,17 +3374,22 @@ class PatientRegistrationTests(DemoDatabaseTestCase):
 
     def test_returns_ip_use_flags(self) -> None:
         import datetime
+
+        from camcops_server.cc_modules.cc_ipuse import IpUse
+
         patient = self.create_patient(
             forename="JO", surname="PATIENT", dob=datetime.date(1958, 4, 19),
             sex="F", address="Address", gp="GP", other="Other"
         )
 
-        patient.group.ip_use_commercial = True
-        patient.group.ip_use_clinical = True
-        patient.group.ip_use_educational = False
-        patient.group.ip_use_research = False
+        patient.group.ip_use = IpUse()
 
-        self.dbsession.add(patient)
+        patient.group.ip_use.commercial = True
+        patient.group.ip_use.clinical = True
+        patient.group.ip_use.educational = False
+        patient.group.ip_use.research = False
+
+        self.dbsession.add(patient.group)
         self.dbsession.commit()
 
         proquint = patient.uuid_as_proquint
@@ -3407,10 +3412,10 @@ class PatientRegistrationTests(DemoDatabaseTestCase):
 
         ip_use_info = json.loads(reply_dict[TabletParam.IP_USE_INFO])
 
-        self.assertTrue(ip_use_info[TabletParam.IP_USE_COMMERCIAL])
-        self.assertTrue(ip_use_info[TabletParam.IP_USE_CLINICAL])
-        self.assertFalse(ip_use_info[TabletParam.IP_USE_EDUCATIONAL])
-        self.assertFalse(ip_use_info[TabletParam.IP_USE_RESEARCH])
+        self.assertEqual(ip_use_info[TabletParam.IP_USE_COMMERCIAL], 1)
+        self.assertEqual(ip_use_info[TabletParam.IP_USE_CLINICAL], 1)
+        self.assertEqual(ip_use_info[TabletParam.IP_USE_EDUCATIONAL], 0)
+        self.assertEqual(ip_use_info[TabletParam.IP_USE_RESEARCH], 0)
 
 
 class GetTaskSchedulesTests(DemoDatabaseTestCase):

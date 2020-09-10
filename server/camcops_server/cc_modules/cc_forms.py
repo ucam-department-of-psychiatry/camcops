@@ -180,11 +180,15 @@ from camcops_server.cc_modules.cc_constants import (
     SEX_MALE,
     USER_NAME_FOR_SYSTEM,
 )
-from camcops_server.cc_modules.cc_group import Group, is_group_name_valid
+from camcops_server.cc_modules.cc_group import (
+    Group,
+    is_group_name_valid,
+)
 from camcops_server.cc_modules.cc_idnumdef import (
     IdNumDefinition,
     ID_NUM_VALIDATION_METHOD_CHOICES,
 )
+from camcops_server.cc_modules.cc_ipuse import IpUse
 from camcops_server.cc_modules.cc_language import (
     DEFAULT_LOCALE,
     POSSIBLE_LOCALES,
@@ -2797,6 +2801,121 @@ class GroupNameNode(MandatoryStringNode, RequestAwareMixin):
             raise Invalid(node, errstr.format(GROUP_NAME_MAX_LEN))
 
 
+class GroupIpUseWidget(Widget):
+    basedir = os.path.join(TEMPLATE_DIR, "deform")
+    readonlydir = os.path.join(basedir, "readonly")
+    form = "group_ip_use.pt"
+    template = os.path.join(basedir, form)
+    readonly_template = os.path.join(readonlydir, form)
+
+    def __init__(self, request: "CamcopsRequest",
+                 *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self.request = request
+
+    def serialize(self,
+                  field: "Field",
+                  cstruct: Union[Dict[str, Any], None, ColanderNullType],
+                  **kw: Any) -> Any:
+        if cstruct in (None, null):
+            cstruct = {}
+
+        cstruct: Dict[str, Any]  # For type checker
+
+        for context in IpUse.CONTEXTS:
+            value = cstruct.get(context, False)
+            kw.setdefault(context, value)
+
+        readonly = kw.get("readonly", self.readonly)
+        template = readonly and self.readonly_template or self.template
+        values = self.get_template_values(field, cstruct, kw)
+
+        _ = self.request.gettext
+
+        values.update(
+            introduction=_(
+                "These settings will be applied to the patient's device "
+                "when operating in single user mode."
+            ),
+            reason=_(
+                "The settings here influence whether CamCOPS will consider "
+                "some third-party tasks “permitted” on your behalf, according "
+                "to their published use criteria. They do <b>not</b> remove "
+                "your responsibility to ensure that you use them in accordance "
+                "with their own requirements."
+            ),
+            warning=_(
+                "WARNING. Providing incorrect information here may lead to you "
+                "VIOLATING copyright law, by using a task for a purpose that "
+                "is not permitted, and being subject to damages and/or "
+                "prosecution."
+            ),
+            disclaimer=_(
+                "The authors of CamCOPS cannot be held responsible or liable "
+                "for any consequences of you misusing materials subject to "
+                "copyright."
+            ),
+            preamble=_("In which contexts does this group operate?"),
+            clinical_label=_("Clinical"),
+            medical_device_warning=_(
+                "WARNING: NOT FOR GENERAL CLINICAL USE; not a Medical Device; "
+                "see Terms and Conditions"
+            ),
+            commercial_label=_("Commercial"),
+            educational_label=_("Educational"),
+            research_label=_("Research"),
+        )
+
+        return field.renderer(template, **values)
+
+    def deserialize(
+            self,
+            field: "Field",
+            pstruct: Union[Dict[str, Any], ColanderNullType]
+    ) -> Dict[str, bool]:
+        if pstruct is null:
+            pstruct = {}
+
+        pstruct: Dict[str, Any]  # For type checker
+
+        # It doesn't really matter what the pstruct values are. Only the
+        # options that are ticked will be present as keys in pstruct
+        return {k: k in pstruct for k in IpUse.CONTEXTS}
+
+
+class IpUseType(object):
+    def deserialize(
+            self,
+            node: SchemaNode,
+            cstruct: Union[Dict[str, Any], None, ColanderNullType]
+    ) -> Optional[IpUse]:
+        if cstruct in (None, null):
+            return None
+
+        cstruct: Dict[str, Any]  # For type checker
+
+        return IpUse(**cstruct)
+
+    def serialize(
+            self,
+            node: SchemaNode,
+            ip_use: Union[IpUse, None, ColanderNullType]
+    ) -> Union[Dict, ColanderNullType]:
+        if ip_use in [null, None]:
+            return null
+
+        return {
+            context: getattr(ip_use, context) for context in IpUse.CONTEXTS
+        }
+
+
+class GroupIpUseNode(SchemaNode, RequestAwareMixin):
+    schema_type = IpUseType
+
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        self.widget = GroupIpUseWidget(self.request)
+
+
 class EditGroupSchema(CSRFSchema):
     """
     Schema to edit a group.
@@ -2806,14 +2925,8 @@ class EditGroupSchema(CSRFSchema):
     description = MandatoryStringNode(  # must match ViewParam.DESCRIPTION
         validator=Length(1, GROUP_DESCRIPTION_MAX_LEN),
     )
-    # must match ViewParam.IP_USE_COMMERCIAL
-    ip_use_commercial = BooleanNode(default=False)
-    # must match ViewParam.IP_USE_CLINICAL
-    ip_use_clinical = BooleanNode(default=False)
-    # must match ViewParam.IP_USE_EDUCATIONAL
-    ip_use_educational = BooleanNode(default=False)
-    # must match ViewParam.IP_USE_RESEARCH
-    ip_use_research = BooleanNode(default=False)
+    ip_use = GroupIpUseNode()
+
     group_ids = AllOtherGroupsSequence()  # must match ViewParam.GROUP_IDS
     upload_policy = PolicyNode()  # must match ViewParam.UPLOAD_POLICY
     finalize_policy = PolicyNode()  # must match ViewParam.FINALIZE_POLICY
@@ -2824,41 +2937,8 @@ class EditGroupSchema(CSRFSchema):
         name = get_child_node(self, "name")
         name.title = _("Group name")
 
-        ip_use_commercial = get_child_node(self, "ip_use_commercial")
-        ip_use_commercial.title = _(
-            "This group operates in a commercial setting"
-        )
-        ip_use_commercial.label = None
-        ip_use_commercial.description = _(
-            "Some tasks may prohibit commercial use"
-        )
-
-        ip_use_clinical = get_child_node(self, "ip_use_clinical")
-        ip_use_clinical.title = _("This group operates in a clinical setting")
-        ip_use_clinical.label = None
-        ip_use_clinical.description = _(
-            "Some tasks may prohibit clinical use. WARNING: NOT FOR "
-            "GENERAL CLINICAL USE; not a Medical Device; "
-            "see Terms and Conditions"
-        )
-
-        ip_use_educational = get_child_node(self, "ip_use_educational")
-        ip_use_educational.title = _(
-            "This group operates in an educational setting"
-        )
-        ip_use_educational.label = None
-        ip_use_educational.description = _(
-            "Some tasks may prohibit educational use"
-        )
-
-        ip_use_research = get_child_node(self, "ip_use_research")
-        ip_use_research.title = _(
-            "This group operates in a research setting"
-        )
-        ip_use_research.label = None
-        ip_use_research.description = _(
-            "Some tasks may prohibit research use"
-        )
+        ip_use = get_child_node(self, "ip_use")
+        ip_use.title = _("Group IP settings")
 
         group_ids = get_child_node(self, "group_ids")
         group_ids.title = _("Other groups this group may see")
@@ -4192,51 +4272,63 @@ class TaskScheduleItemSchema(CSRFSchema):
             TaskSchedule.id == schedule_id
         ).one()
 
+        if schedule.group.ip_use is None:
+            raise Invalid(
+                node, _(
+                    "The task you have selected prohibits use in certain "
+                    "contexts. The group '{group_name}' has no IP settings. "
+                    "You need to edit the group '{group_name}' to say which "
+                    "contexts it operates in.".format(
+                        group_name=schedule.group.name
+                    )
+                )
+            )
+
         # TODO: One the client we say 'to use this task, you must seek
         # permission from the copyright holder'. We could do the same but at the
         # moment there isn't a way of telling the system that we have done so.
-        if task_class.prohibits_commercial and schedule.group.ip_use_commercial:
+        if task_class.prohibits_commercial and schedule.group.ip_use.commercial:
             raise Invalid(
                 node,
                 _("The group '{group_name}' associated with schedule "
                   "'{schedule_name}' operates in a "
-                  "commercial setting but the task you have selected "
+                  "commercial context but the task you have selected "
                   "prohibits commercial use.").format(
                       group_name=schedule.group.name,
                       schedule_name=schedule.name
                   )
             )
 
-        if task_class.prohibits_clinical and schedule.group.ip_use_clinical:
+        if task_class.prohibits_clinical and schedule.group.ip_use.clinical:
             raise Invalid(
                 node,
                 _("The group '{group_name}' associated with schedule "
                   "'{schedule_name}' operates in a "
-                  "clinical setting but the task you have selected "
+                  "clinical context but the task you have selected "
                   "prohibits clinical use.").format(
                       group_name=schedule.group.name,
                       schedule_name=schedule.name
                   )
             )
 
-        if (task_class.prohibits_educational and schedule.group.ip_use_educational):  # noqa: E501
+        if (task_class.prohibits_educational and schedule.group.ip_use.educational):  # noqa: E501
             raise Invalid(
                 node,
                 _("The group '{group_name}' associated with schedule "
                   "'{schedule_name}' operates in an "
-                  "educational setting but the task you have selected "
+                  "educational context but the task you have selected "
                   "prohibits educational use.").format(
                       group_name=schedule.group.name,
                       schedule_name=schedule.name
                   )
             )
 
-        if task_class.prohibits_research and schedule.group.ip_use_research:
+        if task_class.prohibits_research and schedule.group.ip_use.research:
             raise Invalid(
                 node,
                 _("The group '{group_name}' associated with schedule "
                   "'{schedule_name}' operates in a "
-                  "research setting but the task you have selected "
+                  "research context but the task you have selected "
                   "prohibits research use.").format(
                       group_name=schedule.group.name,
                       schedule_name=schedule.name
@@ -4486,7 +4578,7 @@ class TaskScheduleItemSchemaIpTests(DemoDatabaseTestCase):
         pass
 
     def test_invalid_for_commercial_mismatch(self) -> None:
-        self.group.ip_use_commercial = True
+        self.group.ip_use.commercial = True
         self.dbsession.add(self.group)
         self.dbsession.commit()
 
@@ -4507,7 +4599,7 @@ class TaskScheduleItemSchemaIpTests(DemoDatabaseTestCase):
                       cm.exception.messages()[0])
 
     def test_invalid_for_clinical_mismatch(self) -> None:
-        self.group.ip_use_clinical = True
+        self.group.ip_use.clinical = True
         self.dbsession.add(self.group)
         self.dbsession.commit()
 
@@ -4528,7 +4620,7 @@ class TaskScheduleItemSchemaIpTests(DemoDatabaseTestCase):
                       cm.exception.messages()[0])
 
     def test_invalid_for_educational_mismatch(self) -> None:
-        self.group.ip_use_educational = True
+        self.group.ip_use.educational = True
         self.dbsession.add(self.group)
         self.dbsession.commit()
 
@@ -4554,7 +4646,7 @@ class TaskScheduleItemSchemaIpTests(DemoDatabaseTestCase):
                       cm.exception.messages()[0])
 
     def test_invalid_for_research_mismatch(self) -> None:
-        self.group.ip_use_research = True
+        self.group.ip_use.research = True
         self.dbsession.add(self.group)
         self.dbsession.commit()
 
@@ -4573,6 +4665,29 @@ class TaskScheduleItemSchemaIpTests(DemoDatabaseTestCase):
 
         self.assertIn("prohibits research",
                       cm.exception.messages()[0])
+
+    def test_invalid_for_missing_ip_use(self) -> None:
+        self.group.ip_use = None
+        self.dbsession.add(self.group)
+        self.dbsession.commit()
+
+        schema = TaskScheduleItemSchema().bind(request=self.req)
+        appstruct = {
+            ViewParam.SCHEDULE_ID: self.schedule.id,
+            ViewParam.TABLE_NAME: "moca",
+            ViewParam.CLINICIAN_CONFIRMATION: True,
+            ViewParam.DUE_FROM: Duration(days=0),
+            ViewParam.DUE_WITHIN: Duration(days=10),
+        }
+
+        cstruct = schema.serialize(appstruct)
+        with self.assertRaises(Invalid) as cm:
+            schema.deserialize(cstruct)
+
+        self.assertIn(
+            f"The group '{self.group.name}' has no IP settings",
+            cm.exception.messages()[0]
+        )
 
 
 class DurationWidgetTests(TestCase):
@@ -4921,6 +5036,171 @@ class TaskScheduleNodeTests(TestCase):
             )
 
             self.assertEqual(cm.exception.value, "[{}]")
+
+
+class GroupIpUseWidgetTests(TestCase):
+    def setUp(self) -> None:
+        super().setUp()
+        self.request = mock.Mock(gettext=lambda t: t)
+
+    def test_serialize_renders_template_with_values(self) -> None:
+        widget = GroupIpUseWidget(self.request)
+
+        field = mock.Mock()
+        field.renderer = mock.Mock()
+
+        cstruct = {
+            "clinical": False,
+            "commercial": False,
+            "educational": True,
+            "research": True,
+        }
+
+        widget.serialize(field, cstruct, readonly=False)
+
+        args, kwargs = field.renderer.call_args
+
+        self.assertEqual(args[0], f"{TEMPLATE_DIR}/deform/group_ip_use.pt")
+        self.assertFalse(kwargs["readonly"])
+
+        self.assertFalse(kwargs["clinical"])
+        self.assertFalse(kwargs["commercial"])
+        self.assertTrue(kwargs["educational"])
+        self.assertTrue(kwargs["research"])
+        self.assertEqual(kwargs["field"], field)
+
+    def test_serialize_renders_readonly_template(self) -> None:
+        widget = GroupIpUseWidget(self.request)
+
+        field = mock.Mock()
+        field.renderer = mock.Mock()
+
+        cstruct = {
+            "clinical": False,
+            "commercial": False,
+            "educational": True,
+            "research": True,
+        }
+
+        widget.serialize(field, cstruct, readonly=True)
+
+        args, kwargs = field.renderer.call_args
+
+        self.assertEqual(args[0],
+                         f"{TEMPLATE_DIR}/deform/readonly/group_ip_use.pt")
+        self.assertTrue(kwargs["readonly"])
+
+    def test_serialize_readonly_widget_renders_readonly_template(self) -> None:
+        widget = GroupIpUseWidget(self.request, readonly=True)
+
+        field = mock.Mock()
+        field.renderer = mock.Mock()
+
+        cstruct = {
+            "clinical": False,
+            "commercial": False,
+            "educational": True,
+            "research": True,
+        }
+
+        widget.serialize(field, cstruct)
+
+        args, kwargs = field.renderer.call_args
+
+        self.assertEqual(args[0],
+                         f"{TEMPLATE_DIR}/deform/readonly/group_ip_use.pt")
+
+    def test_serialize_with_null_defaults_to_false_values(self) -> None:
+        widget = GroupIpUseWidget(self.request)
+
+        field = mock.Mock()
+        field.renderer = mock.Mock()
+
+        widget.serialize(field, null)
+
+        args, kwargs = field.renderer.call_args
+
+        self.assertFalse(kwargs["clinical"])
+        self.assertFalse(kwargs["commercial"])
+        self.assertFalse(kwargs["educational"])
+        self.assertFalse(kwargs["research"])
+
+    def test_serialize_with_none_defaults_to_false_values(self) -> None:
+        widget = GroupIpUseWidget(self.request)
+
+        field = mock.Mock()
+        field.renderer = mock.Mock()
+
+        widget.serialize(field, None)
+
+        args, kwargs = field.renderer.call_args
+
+        self.assertFalse(kwargs["clinical"])
+        self.assertFalse(kwargs["commercial"])
+        self.assertFalse(kwargs["educational"])
+        self.assertFalse(kwargs["research"])
+
+    def test_deserialize_with_null_defaults_to_false_values(self) -> None:
+        widget = GroupIpUseWidget(self.request)
+
+        field = None  # Not used
+        cstruct = widget.deserialize(field, null)
+
+        self.assertFalse(cstruct["clinical"])
+        self.assertFalse(cstruct["commercial"])
+        self.assertFalse(cstruct["educational"])
+        self.assertFalse(cstruct["research"])
+
+    def test_deserialize_converts_to_bool_values(self) -> None:
+        widget = GroupIpUseWidget(self.request)
+
+        field = None  # Not used
+
+        # It shouldn't matter what the values are set to so long as the keys
+        # are present. In practice the values will be set to "1"
+        pstruct = {
+            "educational": "1",
+            "research": "1",
+        }
+
+        cstruct = widget.deserialize(field, pstruct)
+
+        self.assertFalse(cstruct["clinical"])
+        self.assertFalse(cstruct["commercial"])
+        self.assertTrue(cstruct["educational"])
+        self.assertTrue(cstruct["research"])
+
+
+class IpUseTypeTests(TestCase):
+    def test_deserialize_none_returns_none(self) -> None:
+        ip_use_type = IpUseType()
+
+        node = None  # not used
+        self.assertIsNone(ip_use_type.deserialize(node, None), None)
+
+    def test_deserialize_null_returns_none(self) -> None:
+        ip_use_type = IpUseType()
+
+        node = None  # not used
+        self.assertIsNone(ip_use_type.deserialize(node, null), None)
+
+    def test_deserialize_returns_ip_use_object(self) -> None:
+        ip_use_type = IpUseType()
+
+        node = None  # not used
+
+        cstruct = {
+            "clinical": False,
+            "commercial": True,
+            "educational": False,
+            "research": True,
+        }
+        ip_use = ip_use_type.deserialize(node, cstruct)
+
+        self.assertFalse(ip_use.clinical)
+        self.assertTrue(ip_use.commercial)
+        self.assertFalse(ip_use.educational)
+        self.assertTrue(ip_use.research)
 
 
 # =============================================================================

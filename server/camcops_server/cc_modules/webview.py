@@ -2603,10 +2603,6 @@ class EditGroupView(UpdateView):
         "description": ViewParam.DESCRIPTION,
         "upload_policy": ViewParam.UPLOAD_POLICY,
         "finalize_policy": ViewParam.FINALIZE_POLICY,
-        "ip_use_commercial": ViewParam.IP_USE_COMMERCIAL,
-        "ip_use_clinical": ViewParam.IP_USE_CLINICAL,
-        "ip_use_educational": ViewParam.IP_USE_EDUCATIONAL,
-        "ip_use_research": ViewParam.IP_USE_RESEARCH,
     }
     object_class = Group
     pk_param = ViewParam.GROUP_ID
@@ -2633,6 +2629,7 @@ class EditGroupView(UpdateView):
         other_groups.sort(key=lambda g: g.name)
 
         form_values.update({
+            ViewParam.IP_USE: group.ip_use,
             ViewParam.GROUP_ID: group.id,
             ViewParam.GROUP_IDS: [g.id for g in other_groups]
         })
@@ -2653,6 +2650,12 @@ class EditGroupView(UpdateView):
         other_groups = Group.get_groups_from_id_list(self.request.dbsession,
                                                      group_ids)
         group.can_see_other_groups = other_groups
+
+        ip_use = appstruct.get(ViewParam.IP_USE)
+        if group.ip_use is not None:
+            ip_use.id = group.ip_use.id
+
+        group.ip_use = ip_use
 
 
 @view_config(route_name=Routes.EDIT_GROUP,
@@ -5884,6 +5887,66 @@ class EditGroupViewTests(DemoDatabaseTestCase):
         self.assertIn(other_group_1, self.group.can_see_other_groups)
         self.assertIn(other_group_2, self.group.can_see_other_groups)
 
+    def test_ip_use_added(self) -> None:
+        multidict = MultiDict([
+            ("_charset_", "UTF-8"),
+            ("__formid__", "deform"),
+            (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
+            (ViewParam.GROUP_ID, self.group.id),
+            (ViewParam.NAME, "new-name"),
+            (ViewParam.DESCRIPTION, "new description"),
+            (ViewParam.UPLOAD_POLICY, "anyidnum AND sex"),
+            (ViewParam.FINALIZE_POLICY, "idnum1 AND sex"),
+            ("__start__", "ip_use:mapping"),
+            ("clinical", "true"),
+            ("commercial", "true"),
+            ("__end__", "ip_use:mapping"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+        self.req.fake_request_post_from_dict(multidict)
+
+        with self.assertRaises(HTTPFound):
+            edit_group(self.req)
+
+        self.assertTrue(self.group.ip_use.clinical)
+        self.assertTrue(self.group.ip_use.commercial)
+        self.assertFalse(self.group.ip_use.educational)
+        self.assertFalse(self.group.ip_use.research)
+
+    def test_ip_use_updated(self) -> None:
+        self.group.ip_use.educational = True
+        self.group.ip_use.research = True
+        self.dbsession.add(self.group.ip_use)
+        self.dbsession.commit()
+
+        old_id = self.group.ip_use.id
+
+        multidict = MultiDict([
+            ("_charset_", "UTF-8"),
+            ("__formid__", "deform"),
+            (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
+            (ViewParam.GROUP_ID, self.group.id),
+            (ViewParam.NAME, "new-name"),
+            (ViewParam.DESCRIPTION, "new description"),
+            (ViewParam.UPLOAD_POLICY, "anyidnum AND sex"),
+            (ViewParam.FINALIZE_POLICY, "idnum1 AND sex"),
+            ("__start__", "ip_use:mapping"),
+            ("clinical", "true"),
+            ("commercial", "true"),
+            ("__end__", "ip_use:mapping"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+        self.req.fake_request_post_from_dict(multidict)
+
+        with self.assertRaises(HTTPFound):
+            edit_group(self.req)
+
+        self.assertTrue(self.group.ip_use.clinical)
+        self.assertTrue(self.group.ip_use.commercial)
+        self.assertFalse(self.group.ip_use.educational)
+        self.assertFalse(self.group.ip_use.research)
+        self.assertEqual(self.group.ip_use.id, old_id)
+
     def test_other_groups_displayed_in_form(self) -> None:
         z_group = Group()
         z_group.name = "z-group"
@@ -5919,6 +5982,16 @@ class EditGroupViewTests(DemoDatabaseTestCase):
 
         self.assertEqual(
             form_values[ViewParam.GROUP_ID], self.group.id
+        )
+
+    def test_ip_use_displayed_in_form(self) -> None:
+        view = EditGroupView(self.req)
+        view.object = self.group
+
+        form_values = view.get_form_values()
+
+        self.assertEqual(
+            form_values[ViewParam.IP_USE], self.group.ip_use
         )
 
 

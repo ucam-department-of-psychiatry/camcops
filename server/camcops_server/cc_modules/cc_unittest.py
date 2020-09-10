@@ -46,6 +46,7 @@ from sqlalchemy import event
 from sqlalchemy.orm import Session as SqlASession
 
 from camcops_server.cc_modules.cc_idnumdef import IdNumDefinition
+from camcops_server.cc_modules.cc_ipuse import IpUse
 from camcops_server.cc_modules.cc_sqlalchemy import (
     Base,
     make_file_sqlite_engine,
@@ -297,6 +298,7 @@ class DemoDatabaseTestCase(DemoRequestTestCase):
         self.group.description = "Test group"
         self.group.upload_policy = "sex AND anyidnum"
         self.group.finalize_policy = "sex AND idnum1"
+        self.group.ip_use = IpUse()
         self.dbsession.add(self.group)
         self.dbsession.flush()  # sets PK fields
 

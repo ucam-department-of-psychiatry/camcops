@@ -1,0 +1,111 @@
+<!--
+
+camcops_server/templates/deform/group_ip_use.pt
+
+===============================================================================
+
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+
+    This file is part of CamCOPS.
+
+    CamCOPS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    CamCOPS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+
+===============================================================================
+
+-->
+<div i18n:domain="deform"
+      tal:omit-tag=""
+      tal:define="oid oid|field.oid;
+                  name name|field.name;
+                  css_class css_class|field.widget.css_class;
+                  style style|field.widget.style;">
+  ${field.start_mapping()}
+  <div class="col-xs-12">
+    <p>
+    ${introduction}
+    </p>
+    <p>
+    <span tal:replace="structure reason"></span>
+    </p>
+    <p>
+    ${warning}
+    </p>
+    <p>
+    ${disclaimer}
+    </p>
+    <fieldset>
+    <p>
+    ${preamble}
+    </p>
+    <div class="checkbox">
+      <label for="${oid}-clinical">
+        <input
+           type="checkbox"
+           name="clinical" value="1"
+           id="${oid}-clinical"
+           tal:attributes="checked clinical == 1;
+                           class css_class;
+                           style style;
+                           attributes|field.widget.attributes|{};" />
+
+        <span class="ip_use_label">${clinical_label}</span>
+      </label>
+      <p>${medical_device_warning}</p>
+    </div>
+    <div class="checkbox">
+      <label for="${oid}-commercial">
+        <input
+           type="checkbox"
+           name="commercial" value="1"
+           id="${oid}-commercial"
+           tal:attributes="checked commercial == 1;
+                           class css_class;
+                           style style;
+                           attributes|field.widget.attributes|{};" />
+
+        <span class="ip_use_label">${commercial_label}</span>
+      </label>
+    </div>
+    <div class="checkbox">
+      <label for="${oid}-educational">
+        <input
+           type="checkbox"
+           name="${name}" value="1"
+           id="${oid}-educational"
+           tal:attributes="checked educational == 1;
+                           class css_class;
+                           style style;
+                           attributes|field.widget.attributes|{};" />
+
+        <span class="ip_use_label">${educational_label}</span>
+        </label>
+    </div>
+    <div class="checkbox">
+      <label for="${oid}-research">
+        <input
+           type="checkbox"
+           name="${name}" value="1"
+           id="${oid}-research"
+           tal:attributes="checked research == 1;
+                           class css_class;
+                           style style;
+                           attributes|field.widget.attributes|{};" />
+
+        <span class="ip_use_label">${research_label}</span>
+      </label>
+    </div>
+    </fieldset>
+  </div>
+  ${field.end_mapping()}
+</div>
