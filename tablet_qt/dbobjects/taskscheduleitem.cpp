@@ -223,22 +223,23 @@ TaskScheduleItem::State TaskScheduleItem::state() const
         return State::Completed;
     }
 
+    auto now = QDateTime::currentDateTimeUtc();
+    auto due_by = dueByUtc();
+
+    if (now > due_by) {
+        return State::Missed;
+    }
+
     TaskPtr task = getTask();
 
     if (task) {
         return State::Started;
     }
 
-    auto now = QDateTime::currentDateTimeUtc();
     auto due_from = dueFromUtc();
-    auto due_by = dueByUtc();
 
     if (now >= due_from && now <= due_by) {
         return State::Due;
-    }
-
-    if (now > due_by) {
-        return State::Missed;
     }
 
     return State::Future;
