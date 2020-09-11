@@ -2271,7 +2271,23 @@ def get_task_schedules(req: "CamcopsRequest",
 
     for pts in patient.task_schedules:
         if pts.start_date is None:
-            pts.start_date = req.now
+            # TODO:
+            # If the start date has been set on the form, it will be a date
+            # with no time so will default to 00:00 UTC on that date.
+            # If no start date has been set, we set it to the current date and
+            # time.
+            # It seems to make sense on the tablet to display the due-by date
+            # for a task as both date and time. If we just display the date,
+            # the user probably expects that they have until 23:59:59 on that
+            # date to complete the task.
+            # A small bug with the current setup is that if the date and time
+            # has been set here during registration and the patient's details
+            # are edited on the server, the start date will be set to midnight
+            # on the same date. So there will be a mismatch on the tablet and
+            # server (this would also be the case if the admin changed the start
+            # date to something completely different). If the user updates their
+            # task schedules on the tablet the dates will be in sync again.
+            pts.start_date = req.now_utc
             dbsession.add(pts)
 
         items = []

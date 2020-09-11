@@ -56,7 +56,7 @@ void SingleUserMenu::makeItems()
         QVector<MenuItem> due_items = {};
         QVector<MenuItem> completed_items = {};
 
-        auto earliest_future_date = QDate();
+        auto earliest_future_time = QDateTime();  // invalid
 
         for (const TaskScheduleItemPtr& schedule_item : schedule->items()) {
             auto state = schedule_item->state();
@@ -76,8 +76,16 @@ void SingleUserMenu::makeItems()
                 break;
 
             case TaskScheduleItem::State::Future:
-                earliest_future_date = schedule_item->dueFrom();
-                break;
+            {
+                auto future_time = schedule_item->dueFromLocal();
+
+                if (!earliest_future_time.isValid() ||
+                    future_time < earliest_future_time) {
+
+                    earliest_future_time = future_time;
+                }
+            }
+            break;
 
             default:
                 break;
@@ -87,7 +95,7 @@ void SingleUserMenu::makeItems()
         int total_items = started_items.size() + completed_items.size() +
             due_items.size();
 
-        if (total_items > 0 || earliest_future_date.isValid()) {
+        if (total_items > 0 || earliest_future_time.isValid()) {
             m_items.append(
                 MenuItem(
                     tr("Schedule: %1").arg(schedule->name())
@@ -99,14 +107,14 @@ void SingleUserMenu::makeItems()
             m_items.append(started_items);
             m_items.append(due_items);
             m_items.append(completed_items);
-        } else if (earliest_future_date.isValid()) {
-            QString readable_date = earliest_future_date.toString(
-                datetime::LONG_DATE_FORMAT
+        } else if (earliest_future_time.isValid()) {
+            QString readable_datetime = earliest_future_time.toString(
+                datetime::LONG_DATETIME_FORMAT
             );
             m_items.append(
                 MenuItem(
-                    tr("The next task will be available on %1").arg(
-                        readable_date
+                    tr("The next task will be available %1").arg(
+                        readable_datetime
                     )
                 ).setImplemented(true)
            );

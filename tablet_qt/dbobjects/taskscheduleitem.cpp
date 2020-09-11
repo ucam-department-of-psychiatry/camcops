@@ -122,16 +122,29 @@ int TaskScheduleItem::id() const
 }
 
 
-QDate TaskScheduleItem::dueFrom() const
+QDateTime TaskScheduleItem::dueFromUtc() const
 {
-    return value(FN_DUE_FROM).toDate();
+    return value(FN_DUE_FROM).toDateTime();
 }
 
 
-QDate TaskScheduleItem::dueBy() const
+QDateTime TaskScheduleItem::dueByUtc() const
 {
-    return value(FN_DUE_BY).toDate();
+    return value(FN_DUE_BY).toDateTime();
 }
+
+
+QDateTime TaskScheduleItem::dueFromLocal() const
+{
+    return dueFromUtc().toLocalTime();
+}
+
+
+QDateTime TaskScheduleItem::dueByLocal() const
+{
+    return dueByUtc().toLocalTime();
+}
+
 
 TaskPtr TaskScheduleItem::getTask() const
 {
@@ -182,15 +195,15 @@ QString TaskScheduleItem::subtitle() const
         return QString(tr("Completed"));
     }
 
-    const QString readable_date = dueBy().toString(
-        datetime::LONG_DATE_FORMAT
+    const QString readable_datetime = dueByLocal().toString(
+        datetime::LONG_DATETIME_FORMAT
     );
 
     if (task_state == State::Started) {
-        return QString(tr("Started, complete by %1")).arg(readable_date);
+        return QString(tr("Started, complete by %1")).arg(readable_datetime);
     }
 
-    return QString(tr("Complete by %1")).arg(readable_date);
+    return QString(tr("Complete by %1")).arg(readable_datetime);
 }
 
 
@@ -216,13 +229,15 @@ TaskScheduleItem::State TaskScheduleItem::state() const
         return State::Started;
     }
 
-    auto today = QDate::currentDate();
+    auto now = QDateTime::currentDateTimeUtc();
+    auto due_from = dueFromUtc();
+    auto due_by = dueByUtc();
 
-    if (today >= dueFrom() && today <= dueBy()) {
+    if (now >= due_from && now <= due_by) {
         return State::Due;
     }
 
-    if (today > dueBy()) {
+    if (now > due_by) {
         return State::Missed;
     }
 
