@@ -525,8 +525,6 @@ SOURCES += \
     dbobjects/patientidnumsorter.cpp \
     dbobjects/patientsorter.cpp \
     dbobjects/storedvar.cpp \
-    dbobjects/taskschedule.cpp \
-    dbobjects/taskscheduleitem.cpp \
     diagnosis/diagnosissortfiltermodel.cpp \
     diagnosis/diagnosticcode.cpp \
     diagnosis/diagnosticcodeset.cpp \
@@ -729,6 +727,8 @@ SOURCES += \
     tasklib/taskfactory.cpp \
     tasklib/taskproxy.cpp \
     tasklib/taskregistrar.cpp \
+    tasklib/taskschedule.cpp \
+    tasklib/taskscheduleitem.cpp \
     tasklib/taskscheduleitemeditor.cpp \
     tasklib/tasksorter.cpp \
     tasks/ace3.cpp \
@@ -977,8 +977,6 @@ HEADERS += \
     dbobjects/patientidnumsorter.h \
     dbobjects/patientsorter.h \
     dbobjects/storedvar.h \
-    dbobjects/taskschedule.h \
-    dbobjects/taskscheduleitem.h \
     diagnosis/diagnosissortfiltermodel.h \
     diagnosis/diagnosticcode.h \
     diagnosis/diagnosticcodeset.h \
@@ -1186,6 +1184,8 @@ HEADERS += \
     tasklib/taskfactory.h \
     tasklib/taskproxy.h \
     tasklib/taskregistrar.h \
+    tasklib/taskschedule.h \
+    tasklib/taskscheduleitem.h \
     tasklib/taskscheduleitemeditor.h \
     tasklib/tasksorter.h \
     tasks/ace3.h \

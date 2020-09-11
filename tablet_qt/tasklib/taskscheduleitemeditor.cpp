@@ -18,11 +18,11 @@
 */
 
 #include "core/camcopsapp.h"
-#include "dbobjects/taskscheduleitem.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 #include "menulib/menuwindow.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskscheduleitem.h"
 #include "taskscheduleitemeditor.h"
 
 TaskScheduleItemEditor::TaskScheduleItemEditor(

@@ -25,7 +25,7 @@
 #include "common/dbconst.h"
 #include "core/camcopsapp.h"
 #include "db/ancillaryfunc.h"
-#include "dbobjects/taskscheduleitem.h"
+#include "tasklib/taskscheduleitem.h"
 
 #include "taskschedule.h"
 

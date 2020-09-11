@@ -73,8 +73,6 @@
 #include "dbobjects/patientidnum.h"
 #include "dbobjects/patientsorter.h"
 #include "dbobjects/storedvar.h"
-#include "dbobjects/taskschedule.h"
-#include "dbobjects/taskscheduleitem.h"
 #include "diagnosis/icd9cm.h"
 #include "diagnosis/icd10.h"
 #include "dialogs/modedialog.h"
@@ -96,6 +94,8 @@
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/questionnaire.h"
 #include "tasklib/inittasks.h"
+#include "tasklib/taskschedule.h"
+#include "tasklib/taskscheduleitem.h"
 #include "version/camcopsversion.h"
 
 #ifdef USE_SQLCIPHER

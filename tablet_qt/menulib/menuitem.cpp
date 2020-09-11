@@ -31,8 +31,6 @@
 #include "common/cssconst.h"
 #include "common/uiconst.h"
 #include "dbobjects/patient.h"
-#include "dbobjects/taskschedule.h"
-#include "dbobjects/taskscheduleitem.h"
 #include "layouts/layouts.h"
 #include "lib/convert.h"
 #include "lib/datetime.h"  // for SHORT_DATETIME_FORMAT
@@ -45,6 +43,8 @@
 #include "menulib/taskscheduleitemmenuitem.h"
 #include "tasklib/taskchain.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskschedule.h"
+#include "tasklib/taskscheduleitem.h"
 #include "tasklib/taskscheduleitemeditor.h"
 #include "widgets/basewidget.h"
 #include "widgets/labelwordwrapwide.h"

@@ -23,11 +23,11 @@
 #include <QSharedPointer>
 #include "common/uiconst.h"
 #include "core/networkmanager.h"
-#include "dbobjects/taskschedule.h"
-#include "dbobjects/taskscheduleitem.h"
 #include "lib/datetime.h"
 #include "lib/uifunc.h"
 #include "menulib/menuitem.h"
+#include "tasklib/taskschedule.h"
+#include "tasklib/taskscheduleitem.h"
 
 
 SingleUserMenu::SingleUserMenu(CamcopsApp& app)

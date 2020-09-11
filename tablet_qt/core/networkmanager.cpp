@@ -48,7 +48,6 @@
 #include "dialogs/passwordentrydialog.h"
 #include "dialogs/logbox.h"
 #include "dbobjects/blob.h"
-#include "dbobjects/taskschedule.h"
 #include "lib/containers.h"
 #include "lib/convert.h"
 #include "lib/datetime.h"
@@ -56,6 +55,7 @@
 #include "lib/uifunc.h"
 #include "tasklib/task.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskschedule.h"
 #include "version/camcopsversion.h"
 
 using dbfunc::delimit;
