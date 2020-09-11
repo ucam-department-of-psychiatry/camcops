@@ -2151,7 +2151,10 @@ def view_user_email_addresses(req: "CamcopsRequest") -> Dict[str, Any]:
     View e-mail addresses of all users that the requesting user is authorized
     to manage.
     """
-    q = query_users_that_i_manage(req)
+    q = query_users_that_i_manage(req).filter(
+        User.auto_generated == False  # noqa: E712
+
+    )
     return dict(query=q)
 
 
