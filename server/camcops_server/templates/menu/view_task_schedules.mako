@@ -46,7 +46,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
         <th>${_("Group")}</th>
         <th>${_("Name")}</th>
         <th>${_("Items")}</th>
-        <th>${_("View items")}</th>
+        <th>${_("Edit items")}</th>
         <th>${_("Edit")}</th>
         <th>${_("Delete")}</th>
     </tr>
@@ -69,7 +69,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
     _query={
         ViewParam.SCHEDULE_ID: schedule.id
     }
-) }">${_("View items")}</a>
+) }">${_("Edit items")}</a>
         </td>
         <td>
             <a href="${ req.route_url(
