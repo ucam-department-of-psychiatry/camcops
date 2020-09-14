@@ -3943,7 +3943,9 @@ class DangerousEditPatientSchema(EditPatientSchema):
 
 class EditServerCreatedPatientSchema(EditPatientSchema):
     # Must match ViewParam.GROUP_ID
-    group_id = MandatoryGroupIdSelectorAllGroups(insert_before="forename")
+    group_id = MandatoryGroupIdSelectorAdministeredGroups(
+        insert_before="forename"
+    )
 
 
 class EditFinalizedPatientForm(DangerousForm):
