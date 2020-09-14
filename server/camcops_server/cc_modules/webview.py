@@ -4065,6 +4065,16 @@ class TaskScheduleMixin:
             Routes.VIEW_TASK_SCHEDULES
         )
 
+    def get_object(self) -> Any:
+        schedule = cast(TaskSchedule, super().get_object())
+
+        if not schedule.user_may_edit(self.request):
+            _ = self.request.gettext
+            raise HTTPBadRequest(_("You a not a group administrator for this "
+                                   "task schedule's group"))
+
+        return schedule
+
 
 class AddTaskScheduleView(TaskScheduleMixin, CreateView):
     def get_extra_context(self) -> Dict[str, Any]:
@@ -4363,6 +4373,54 @@ class EditTaskScheduleViewTests(DemoDatabaseTestCase):
         self.assertIn(
             "view_task_schedules",
             e.exception.headers["Location"]
+        )
+
+    def test_group_a_schedule_cannot_be_edited_by_group_b_admin(self) -> None:
+        group_a = Group()
+        group_a.name = "Group A"
+        self.dbsession.add(group_a)
+
+        group_b = Group()
+        group_b.name = "Group B"
+        self.dbsession.add(group_b)
+        self.dbsession.commit()
+
+        group_a_schedule = TaskSchedule()
+        group_a_schedule.group_id = group_a.id
+        group_a_schedule.name = "Group A schedule"
+        self.dbsession.add(group_a_schedule)
+        self.dbsession.commit()
+
+        self.user = User()
+        self.user.upload_group_id = group_b.id
+        self.user.username = "group b admin"
+        self.user.set_password(self.req, "secret123")
+        self.dbsession.add(self.user)
+        self.dbsession.commit()
+        self.req._debugging_user = self.user
+
+        multidict = MultiDict([
+            ("_charset_", "UTF-8"),
+            ("__formid__", "deform"),
+            (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
+            (ViewParam.NAME, "Something else"),
+            (ViewParam.GROUP_ID, self.group.id),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+        self.req.add_get_params({
+            ViewParam.SCHEDULE_ID: str(self.schedule.id)
+        }, set_method_get=False)
+
+        view = EditTaskScheduleView(self.req)
+
+        with self.assertRaises(HTTPBadRequest) as cm:
+            view.dispatch()
+
+        self.assertIn(
+            "not a group administrator",
+            cm.exception.message
         )
 
 

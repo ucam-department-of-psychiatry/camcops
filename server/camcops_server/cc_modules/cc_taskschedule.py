@@ -228,6 +228,9 @@ class TaskSchedule(Base):
 
     group = relationship(Group)
 
+    def user_may_edit(self, req: "CamcopsRequest") -> bool:
+        return req.user.may_administer_group(self.group_id)
+
 
 class TaskScheduleItem(Base):
     """
