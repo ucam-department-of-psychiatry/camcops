@@ -4006,8 +4006,11 @@ def view_patient_task_schedules(req: "CamcopsRequest") -> Dict[str, Any]:
     rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
                                       DEFAULT_ROWS_PER_PAGE)
     page_num = req.get_int_param(ViewParam.PAGE, 1)
+    allowed_group_ids = req.user.ids_of_groups_user_is_admin_for
     q = req.dbsession.query(Patient).filter(
         Patient._era == ERA_NOW
+    ).filter(
+        Patient._group_id.in_(allowed_group_ids)
     ).order_by(
         Patient.surname, Patient.forename
     ).options(
