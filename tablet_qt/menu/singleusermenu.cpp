@@ -95,6 +95,8 @@ void SingleUserMenu::makeItems()
         int total_items = started_items.size() + completed_items.size() +
             due_items.size();
 
+        int to_do_items = started_items.size() + due_items.size();
+
         if (total_items > 0 || earliest_future_time.isValid()) {
             m_items.append(
                 MenuItem(
@@ -103,11 +105,7 @@ void SingleUserMenu::makeItems()
             );
         }
 
-        if (total_items > 0) {
-            m_items.append(started_items);
-            m_items.append(due_items);
-            m_items.append(completed_items);
-        } else if (earliest_future_time.isValid()) {
+        if (to_do_items == 0 && earliest_future_time.isValid()) {
             QString readable_datetime = earliest_future_time.toString(
                 datetime::LONG_DATETIME_FORMAT
             );
@@ -119,6 +117,13 @@ void SingleUserMenu::makeItems()
                 ).setImplemented(true)
            );
         }
+
+        if (total_items > 0) {
+            m_items.append(started_items);
+            m_items.append(due_items);
+            m_items.append(completed_items);
+        }
+
     }
 
     if (!m_app.needToRegisterSinglePatient()) {
