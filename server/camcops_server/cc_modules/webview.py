@@ -4178,6 +4178,11 @@ class EditTaskScheduleItemMixin(TaskScheduleItemMixin):
                 f"{_('Missing Task Schedule for id')} {schedule_id}"
             )
 
+        if not schedule.user_may_edit(self.request):
+            _ = self.request.gettext
+            raise HTTPBadRequest(_("You a not a group administrator for this "
+                                   "task schedule's group"))
+
         return schedule
 
 
@@ -4687,6 +4692,51 @@ class EditTaskScheduleItemViewTests(DemoDatabaseTestCase):
 
         due_within = self.item.due_by - self.item.due_from
         self.assertEqual(form_values[ViewParam.DUE_WITHIN], due_within)
+
+    def test_group_a_item_cannot_be_edited_by_group_b_admin(self) -> None:
+        from pendulum import Duration
+
+        group_a = Group()
+        group_a.name = "Group A"
+        self.dbsession.add(group_a)
+
+        group_b = Group()
+        group_b.name = "Group B"
+        self.dbsession.add(group_b)
+        self.dbsession.commit()
+
+        group_a_schedule = TaskSchedule()
+        group_a_schedule.group_id = group_a.id
+        group_a_schedule.name = "Group A schedule"
+        self.dbsession.add(group_a_schedule)
+        self.dbsession.commit()
+
+        group_a_item = TaskScheduleItem()
+        group_a_item.schedule_id = group_a_schedule.id
+        group_a_item.task_table_name = "ace3"
+        group_a_item.due_from = Duration(days=30)
+        group_a_item.due_by = Duration(days=60)
+        self.dbsession.add(group_a_item)
+        self.dbsession.commit()
+
+        self.user = User()
+        self.user.upload_group_id = group_b.id
+        self.user.username = "group b admin"
+        self.user.set_password(self.req, "secret123")
+        self.dbsession.add(self.user)
+        self.dbsession.commit()
+        self.req._debugging_user = self.user
+
+        view = EditTaskScheduleItemView(self.req)
+        view.object = group_a_item
+
+        with self.assertRaises(HTTPBadRequest) as cm:
+            view.get_schedule()
+
+        self.assertIn(
+            "not a group administrator",
+            cm.exception.message
+        )
 
 
 class DeleteTaskScheduleItemViewTests(DemoDatabaseTestCase):
