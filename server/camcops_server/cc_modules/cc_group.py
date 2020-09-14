@@ -30,7 +30,7 @@ camcops_server/cc_modules/cc_group.py
 
 import logging
 import re
-from typing import List, Optional, Set, TYPE_CHECKING
+from typing import List, Optional, Set
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.reprfunc import simple_repr
@@ -50,9 +50,6 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     IdPolicyColType,
 )
 from camcops_server.cc_modules.cc_sqlalchemy import Base
-
-if TYPE_CHECKING:
-    from camcops_server.cc_modules.cc_user import User
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -155,6 +152,18 @@ class Group(Base):
         "UserGroupMembership", back_populates="group")
     users = association_proxy("user_group_memberships", "user")
 
+    regular_user_group_memberships = relationship(
+        "UserGroupMembership",
+        primaryjoin="and_("
+        "Group.id==UserGroupMembership.group_id, "
+        "User.id==UserGroupMembership.user_id, "
+        "User.auto_generated==False)"
+    )
+    regular_users = association_proxy(
+        "regular_user_group_memberships",
+        "user"
+    )
+
     can_see_other_groups = relationship(
         "Group",  # link back to our own class
         secondary=group_group_table,  # via this mapping table
@@ -248,10 +257,6 @@ class Group(Base):
         Does a particular group (specified by its integer ID) exist?
         """
         return exists_orm(dbsession, cls, cls.id == group_id)
-
-    def get_users_not_auto_generated(self) -> List["User"]:
-        # TODO: Can I do this in SQL through the association proxy somehow?
-        return [u for u in self.users if not u.auto_generated]
 
     def tokenized_upload_policy(self) -> TokenizedPolicy:
         """
