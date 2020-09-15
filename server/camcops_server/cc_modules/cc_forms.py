@@ -2985,7 +2985,7 @@ class AddGroupSchema(CSRFSchema):
     """
     Schema to add a group.
     """
-    name = SchemaNode(String())  # name must match ViewParam.NAME
+    name = GroupNameNode()  # name must match ViewParam.NAME
 
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:

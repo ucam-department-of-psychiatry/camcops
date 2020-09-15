@@ -83,6 +83,8 @@ DEFAULT_ROWS_PER_PAGE = 25
 DEVICE_NAME_FOR_SERVER = "server"  # Do not alter.
 USER_NAME_FOR_SYSTEM = "system"  # Do not alter.
 
+MINIMUM_PASSWORD_LENGTH = 8
+
 
 # =============================================================================
 # Date formats
@@ -166,6 +168,7 @@ EXTRA_COMMENT_PREFIX = "(EXTRA) "
 # CAMCOPS_URL = "http://www.camcops.org/"
 CAMCOPS_URL = "https://camcops.readthedocs.io/"
 ERA_NOW = "NOW"  # defines the current era in database records
+
 
 # =============================================================================
 # PDF engine: now always "pdfkit".
@@ -674,6 +677,7 @@ class ConfigDefaults(object):
           ``protocol://container:port/``. Values here must match the Docker
           Compose file.
         """
+        self._docker = docker
         if docker:
             self.CELERY_BROKER_URL = DockerConstants.CELERY_BROKER_URL
             self.CELERY_BEAT_SCHEDULE_DATABASE = os.path.join(
@@ -686,11 +690,15 @@ class ConfigDefaults(object):
 
     @property
     def demo_db_url(self) -> str:
-        return make_mysql_url(host=self.DB_SERVER,
+        """
+        The demonstration SQLAlchemy URL.
+        """
+        # mysqlclient ("mysqldb") for Docker -- the C-based fast one
+        # pymysql for standard installations -- fewer dependencies
+        driver = "mysqldb" if self._docker else "pymysql"
+        return make_mysql_url(driver=driver,
+                              host=self.DB_SERVER,
                               port=self.DB_PORT,
                               username=self.DB_USER,
                               password=self.DB_PASSWORD,
                               dbname=self.DB_DATABASE)
-
-
-MINIMUM_PASSWORD_LENGTH = 8
