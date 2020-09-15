@@ -59,7 +59,7 @@ from camcops_server.cc_modules.cc_version_string import (
 # =============================================================================
 
 # Extensions and file patterns
-SKIP_PATTERNS = ['*.pyc', '~*']  # files not to add
+SKIP_PATTERNS = ['*.pyc', '~*', '*~']  # files not to add
 
 # Directories
 THIS_DIR = os.path.abspath(os.path.dirname(__file__))  # .../camcops/server
