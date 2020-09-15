@@ -103,6 +103,7 @@ this slot; that will save your users some effort.
 
 .. todo:: Have the default ID number type configurable per group?
 
+.. _uploading_and_finalizing_policies:
 
 Uploading and finalizing policies
 ---------------------------------

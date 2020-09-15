@@ -344,6 +344,68 @@ To view a report’s SQL in a formatted state, paste it into an online SQL
 formatter [#sqlformat]_.
 
 
+.. _scheduling_tasks:
+
+Manage scheduled tasks for patients
+-----------------------------------
+
+You can schedule tasks for a patient to complete on their own tablet with the
+CamCOPS app running in :ref:`Single User Mode <single_user_mode>`.
+
+Your task schedules and patients will be associated with a :ref:`group <groups>`
+that you administer. You must set the IP settings for this group to describe the
+contexts in which your group operates (clinical, commercial etc.). Any tasks you
+schedule for a patient need to be permitted for these contexts.
+
+- First of all create a task schedule for your study (:menuselection:`Manage task schedules --> Add a task schedule`).
+
+- Next add items to your schedule (:menuselection:`Edit items` from the table of schedules):
+
+    - Select the task from the drop-down
+    - Enter the time from the start of the schedule when the patient may begin the
+      task and the time the patient has to complete the task. These times can be
+      expressed as a combination of months, weeks and days (1 month = 30 days, 1 week = 7 days).
+
+From the Patient Task Schedules page you can add a new patient. The patient must
+have enough identifiable information to match the
+:ref:`uploading and finalizing ID policies <uploading_and_finalizing_policies>`
+of the group. Here you can also assign one or more task schedules to the
+patient. You can specify the start date of the schedule or leave it blank. If
+you leave it blank the start date will be the date the patient registers
+themselves and their tablet with the server.
+
+Advanced use: There is an optional form field to specify any patient-specific
+settings for the tasks. This is a JSON object keyed on the task table name e.g.:
+
+.. code-block:: json
+
+  {
+    "task1": {
+      "name1": "value1",
+      "name2": "value2"
+    },
+
+    "task2": {
+      "name1": "value1"
+    }
+  }
+
+Refer to the relevant task documentation for any settings that can be applied in
+this way.
+
+If the patient has been successfully created, they should now appear in the
+table along with the unique access key that they need for registration. The
+address of the server is also displayed on this page for convenience. If you
+have provided an email address for the patient, the email link in this
+table will launch a mail client with the unique key and server address in the
+body of the email.
+
+You can view a patient's progress through the schedule by following the link to
+the named schedule from the table. From this table you can view the uploaded
+task responses as HTML or PDF. Anonymous tasks will be listed in this table but
+you will not see the responses.
+
+
 Help
 ----
 

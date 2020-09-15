@@ -164,6 +164,21 @@ of the databases, which are fixed to ``camcops_data.sqlite`` and
 ``camcops_sys.sqlite``.
 
 
+Clinician vs single user mode
+-----------------------------
+
+The CamCOPS app has two modes of operation. You select the mode when you start
+CamCOPS.
+
+When in Clinician Mode, you have full access to all settings and tasks (subject
+to copyright restrictions).
+
+:ref:`Single User Mode <single_user_mode>` is designed for a patient using the
+app at home on their own tablet and offers a much simpler user interface. Only
+those tasks that appear in the patient's :ref:`task schedule <scheduling_tasks>`
+are available.
+
+
 Terminology: usernames and passwords in CamCOPS
 -----------------------------------------------
 
@@ -172,7 +187,7 @@ Terminology: usernames and passwords in CamCOPS
     it might equally be your laptop or desktop running Windows/Linux/OS X.
 
 In a low-security environment, you’ll be your own administrator. In a
-high-security environment, we’ll distinguish the user (“clinician”) from the
+high-security environment, we’ll distinguish the user (“clinician” or “patient“) from the
 technical security person (“administrator”).
 
 CamCOPS uses the following usernames and passwords:
@@ -203,6 +218,15 @@ CamCOPS uses the following usernames and passwords:
     their username/password. The app may or may not be allowed to store the
     password — that’s a local security policy decision — but it will store the
     username.)
+
+  - When operating in :ref:`Single User Mode <single_user_mode>`, where the
+    CamCOPS app user is typically a patient using the app on their own tablet,
+    the username and password are generated automatically. First of all the
+    administrator creates a patient record on the server and this includes a
+    unique key, which is shared with the patient. When the patient starts the
+    app for the first time, they register themselves and their device with the
+    server by entering this key. At this point the server creates a username and
+    password and these are stored on the tablet.
 
   - You will type in your username and password to access the CamCOPS web
     viewer. This interface is used to view tasks that have been uploaded from
@@ -299,7 +323,11 @@ Configuring CamCOPS before using it
     If you say yes, the user will be able to create new users and manage this
     group.
 
-**On the tablet, the administrator should:**
+- If you intend to run the app in :ref:`Single User Mode <single_user_mode>`,
+  you will need to create patients and :ref:`schedule tasks <scheduling_tasks>`
+  for them.
+
+**On the tablet, when operating in Clinican Mode, the administrator should:**
 
 #. Touch the padlock (top right) to unlock. (The first time CamCOPS is run,
    there will be no lock passwords; you need to set them, as below.)
@@ -411,9 +439,12 @@ Use :menuselection:`Settings --> Fetch all server info` to inform the client of
 changes. (This is exactly like client registration, but doesn't require
 registration permissions.)
 
+When in :ref:`Single User Mode <single_user_mode>`, switch first to Clinician
+Mode with :menuselection:`More options --> Change operating mode`.
 
-Other CamCOPS app settings
---------------------------
+
+Other CamCOPS app settings (Clinician Mode)
+-------------------------------------------
 
 Language
 ~~~~~~~~

@@ -30,7 +30,6 @@ tablet_qt
     :maxdepth: 1
 
     android/AndroidManifest.xml.rst
-    android/res/values/libs.xml.rst
     camcops.pro.rst
     camcops_windows_innosetup.iss.rst
     common/aliases_camcops.h.rst
@@ -148,10 +147,14 @@ tablet_qt
     diagnosis/icd10.h.rst
     diagnosis/icd9cm.cpp.rst
     diagnosis/icd9cm.h.rst
+    dialogs/dangerousconfirmationdialog.cpp.rst
+    dialogs/dangerousconfirmationdialog.h.rst
     dialogs/logbox.cpp.rst
     dialogs/logbox.h.rst
     dialogs/logmessagebox.cpp.rst
     dialogs/logmessagebox.h.rst
+    dialogs/modedialog.cpp.rst
+    dialogs/modedialog.h.rst
     dialogs/nvpchoicedialog.cpp.rst
     dialogs/nvpchoicedialog.h.rst
     dialogs/pagepickerdialog.cpp.rst
@@ -160,6 +163,8 @@ tablet_qt
     dialogs/passwordchangedialog.h.rst
     dialogs/passwordentrydialog.cpp.rst
     dialogs/passwordentrydialog.h.rst
+    dialogs/patientregistrationdialog.cpp.rst
+    dialogs/patientregistrationdialog.h.rst
     dialogs/progressbox.cpp.rst
     dialogs/progressbox.h.rst
     dialogs/scrollmessagebox.cpp.rst
@@ -342,6 +347,10 @@ tablet_qt
     menu/settingsmenu.h.rst
     menu/singletaskmenu.cpp.rst
     menu/singletaskmenu.h.rst
+    menu/singleusermenu.cpp.rst
+    menu/singleusermenu.h.rst
+    menu/singleuseroptionsmenu.cpp.rst
+    menu/singleuseroptionsmenu.h.rst
     menu/testmenu.cpp.rst
     menu/testmenu.h.rst
     menu/whiskertestmenu.cpp.rst
@@ -366,6 +375,8 @@ tablet_qt
     menulib/taskchainmenuitem.h.rst
     menulib/taskmenuitem.cpp.rst
     menulib/taskmenuitem.h.rst
+    menulib/taskscheduleitemmenuitem.cpp.rst
+    menulib/taskscheduleitemmenuitem.h.rst
     menulib/urlmenuitem.cpp.rst
     menulib/urlmenuitem.h.rst
     qcustomplot/qcustomplot.cpp.rst
@@ -382,6 +393,8 @@ tablet_qt
     qobjects/keypresswatcher.h.rst
     qobjects/nhsnumbervalidator.cpp.rst
     qobjects/nhsnumbervalidator.h.rst
+    qobjects/proquintvalidator.cpp.rst
+    qobjects/proquintvalidator.h.rst
     qobjects/shootabug.cpp.rst
     qobjects/shootabug.h.rst
     qobjects/showwatcher.cpp.rst
@@ -402,6 +415,8 @@ tablet_qt
     qobjects/stylenofocusrect.h.rst
     qobjects/threadworker.cpp.rst
     qobjects/threadworker.h.rst
+    qobjects/urlvalidator.cpp.rst
+    qobjects/urlvalidator.h.rst
     questionnairelib/commonoptions.cpp.rst
     questionnairelib/commonoptions.h.rst
     questionnairelib/dynamicquestionnaire.cpp.rst
@@ -550,6 +565,12 @@ tablet_qt
     tasklib/taskproxy.h.rst
     tasklib/taskregistrar.cpp.rst
     tasklib/taskregistrar.h.rst
+    tasklib/taskschedule.cpp.rst
+    tasklib/taskschedule.h.rst
+    tasklib/taskscheduleitem.cpp.rst
+    tasklib/taskscheduleitem.h.rst
+    tasklib/taskscheduleitemeditor.cpp.rst
+    tasklib/taskscheduleitemeditor.h.rst
     tasklib/tasksorter.cpp.rst
     tasklib/tasksorter.h.rst
     tasks/ace3.cpp.rst
