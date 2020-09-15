@@ -2787,7 +2787,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
   Also removed ``QUTHERMOMETER_USE_THERMOMETER_WIDGET`` option (now always
   defined, effectively).
 
-**Client and server v2.3.8, IN PROGRESS**
+**Client and server v2.3.8, released 15 Sep 2020**
 
 - Fixed openpyxl conflict when installing from Debian package
 
@@ -2867,3 +2867,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
   2020-07-24: No, Deform has caught up. See https://pypi.org/project/deform/.
   Move to ``deform==2.0.10`` and ``Chameleon==3.8.1``.
+
+**Client and server v2.3.9, IN PROGRESS**
