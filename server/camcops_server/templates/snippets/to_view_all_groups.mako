@@ -1,7 +1,7 @@
 ## -*- coding: utf-8 -*-
 <%doc>
 
-camcops_server/templates/menu/user_edit_group_membership.mako
+camcops_server/templates/snippets/to_view_all_groups.mako
 
 ===============================================================================
 
@@ -26,18 +26,10 @@ camcops_server/templates/menu/user_edit_group_membership.mako
 
 </%doc>
 
-<%inherit file="base_web_form.mako"/>
-
-<%include file="db_user_info.mako"/>
-
-<h1>${_("Edit group permissions")}</h1>
+<%!
+from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
+%>
 
 <div>
-    ${_("User:")} <b>${ ugm.user.username | h }</b><br>
-    ${_("Group:")} <b>${ ugm.group.name | h }</b>
+    <a href="${ req.route_url(Routes.VIEW_GROUPS)}">${_("View all groups")}</a>
 </div>
-
-${ form }
-
-<%include file="to_view_all_users.mako"/>
-<%include file="to_main_menu.mako"/>

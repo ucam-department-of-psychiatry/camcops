@@ -3190,6 +3190,29 @@ class SortTsvByHeadingsNode(SchemaNode, RequestAwareMixin):
         self.label = _("Sort by heading (column) names within spreadsheets?")
 
 
+class IncludeInformationSchemaColumnsNode(SchemaNode, RequestAwareMixin):
+    """
+    Boolean node: should INFORMATION_SCHEMA.COLUMNS be included (for
+    downloads)?
+
+    False by default -- adds about 350 kb to an ODS download, for example.
+    """
+    schema_type = Boolean
+    default = False
+    missing = False
+
+    def __init__(self, *args, **kwargs) -> None:
+        self.title = ""  # for type checker
+        self.label = ""  # for type checker
+        super().__init__(*args, **kwargs)
+
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        _ = self.gettext
+        self.title = _("Include column information?")
+        self.label = _("Include details of all columns in the source database?")  # noqa
+
+
 class IncludeBlobsNode(SchemaNode, RequestAwareMixin):
     """
     Boolean node: should BLOBs be included (for downloads)?
@@ -3261,6 +3284,7 @@ class OfferBasicDumpSchema(CSRFSchema):
     """
     dump_method = DumpTypeSelector()  # must match ViewParam.DUMP_METHOD
     sort = SortTsvByHeadingsNode()  # must match ViewParam.SORT
+    include_information_schema_columns = IncludeInformationSchemaColumnsNode()  # must match ViewParam.INCLUDE_INFORMATION_SCHEMA_COLUMNS  # noqa
     manual = OfferDumpManualSchema()  # must match ViewParam.MANUAL
     viewtype = SpreadsheetFormatSelector()  # must match ViewParams.VIEWTYPE  # noqa
     delivery_mode = DeliveryModeNode()  # must match ViewParam.DELIVERY_MODE
@@ -3283,6 +3307,7 @@ class OfferSqlDumpSchema(CSRFSchema):
     """
     dump_method = DumpTypeSelector()  # must match ViewParam.DUMP_METHOD
     sqlite_method = SqliteSelector()  # must match ViewParam.SQLITE_METHOD
+    include_information_schema_columns = IncludeInformationSchemaColumnsNode()  # must match ViewParam.INCLUDE_INFORMATION_SCHEMA_COLUMNS  # noqa
     include_blobs = IncludeBlobsNode()  # must match ViewParam.INCLUDE_BLOBS
     patient_id_per_row = PatientIdPerRowNode()  # must match ViewParam.PATIENT_ID_PER_ROW  # noqa
     manual = OfferDumpManualSchema()  # must match ViewParam.MANUAL

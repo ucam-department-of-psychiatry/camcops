@@ -63,6 +63,7 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     UserNameCamcopsColType,
 )
 from camcops_server.cc_modules.cc_sqlalchemy import Base
+from camcops_server.cc_modules.cc_text import TERMS_CONDITIONS_UPDATE_DATE
 from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 
 if TYPE_CHECKING:
@@ -516,6 +517,7 @@ class User(Base):
         user.superuser = True
         audit(req, "SUPERUSER CREATED: " + user.username, from_console=True)
         user.set_password(req, password)  # will audit
+        user.language = req.language  # a reasonable default
         dbsession.add(user)
         return True
 
@@ -661,7 +663,13 @@ class User(Base):
         """
         Does the user still need to agree the terms/conditions of use?
         """
-        return self.when_agreed_terms_of_use is None
+        if self.when_agreed_terms_of_use is None:
+            # User hasn't agreed yet.
+            return True
+        if self.when_agreed_terms_of_use.date() < TERMS_CONDITIONS_UPDATE_DATE:
+            # User hasn't agreed since the terms were updated.
+            return True
+        return False
 
     def agree_terms(self, req: "CamcopsRequest") -> None:
         """
