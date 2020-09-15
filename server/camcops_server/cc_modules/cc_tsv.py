@@ -51,6 +51,7 @@ from cardinal_pythonlib.logs import BraceStyleAdapter
 from numpy import float64
 from pendulum.datetime import DateTime
 from semantic_version import Version
+from sqlalchemy.engine.result import ResultProxy
 
 from camcops_server.cc_modules.cc_constants import DateFormat
 
@@ -61,7 +62,7 @@ if ODS_VIA_PYEXCEL:
     import pyexcel_ods3  # e.g. pip install pyexcel-ods3==0.5.3
     ODSWriter = ODSSheet = None
 else:
-    from odswriter import ODSWriter, Sheet as ODSSheet
+    from odswriter import ODSWriter, Sheet as ODSSheet  # noqa
     pyexcel_ods3 = None
 
 if XLSX_VIA_PYEXCEL:
@@ -134,6 +135,37 @@ class TsvPage(object):
 
     def __str__(self) -> str:
         return f"TsvPage: name={self.name}\n{self.get_tsv()}"
+
+    @classmethod
+    def from_headings_rows(cls, name: str, headings: List[str],
+                           rows: List[List[Any]]) -> "TsvPage":
+        """
+        Creates a TsvPage object using a list of headings and the row data
+        as a list of lists.
+        """
+        page = cls(name=name, rows=[])
+        n_cols = len(headings)
+        page.headings = headings
+        for row in rows:
+            assert len(row) == n_cols
+            page.rows.append(dict(zip(headings, row)))
+        return page
+
+    @classmethod
+    def from_resultproxy(cls, name: str, rp: ResultProxy) -> "TsvPage":
+        """
+        Creates a TsvPage object from an SQLAlchemy ResultProxy.
+
+        Args:
+            rp:
+                A :class:` sqlalchemy.engine.result.ResultProxy`.
+            name:
+                Name for this sheet.
+        """
+        column_names = rp.keys()
+        rows = rp.fetchall()
+        return cls.from_headings_rows(
+            name=name, headings=column_names, rows=rows)
 
     @property
     def empty(self) -> bool:
@@ -288,8 +320,10 @@ class TsvPage(object):
         """
         Writes data from this page to an existing ``odswriter`` ODS sheet.
         """
+        # noinspection PyUnresolvedReferences
         ws.writerow(self.headings)
         for row in self.rows:
+            # noinspection PyUnresolvedReferences
             ws.writerow([row.get(h) for h in self.headings])
 
     def r_object_name(self) -> str:
@@ -528,6 +562,7 @@ class TsvCollection(object):
             if isinstance(file, str):  # it's a filename
                 with open(file, "wb") as binaryfile:
                     return self.write_ods(binaryfile)  # recurse once
+            # noinspection PyCallingNonCallable
             with ODSWriter(file) as odsfile:
                 valid_name_dict = self.get_pages_with_valid_sheet_names()
                 for page, title in valid_name_dict.items():

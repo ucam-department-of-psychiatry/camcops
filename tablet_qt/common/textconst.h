@@ -18,6 +18,7 @@
 */
 
 #pragma once
+#include <QDate>
 #include <QObject>
 #include <QString>
 
@@ -194,6 +195,7 @@ public:
     // ========================================================================
     
     static QString termsConditions();
+    static QDate TERMS_CONDITIONS_UPDATE_DATE;
     
     // ========================================================================
     // Test text

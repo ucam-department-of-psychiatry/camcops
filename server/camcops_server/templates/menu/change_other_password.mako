@@ -39,5 +39,4 @@ ${form}
 </div>
 
 <%include file="to_view_all_users.mako"/>
-
 <%include file="to_main_menu.mako"/>

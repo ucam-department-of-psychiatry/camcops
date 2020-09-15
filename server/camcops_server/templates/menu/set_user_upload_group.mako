@@ -42,4 +42,5 @@ camcops_server/templates/menu/set_user_upload_group.mako
 
 ${ form }
 
+<%include file="to_view_all_users.mako"/>
 <%include file="to_main_menu.mako"/>

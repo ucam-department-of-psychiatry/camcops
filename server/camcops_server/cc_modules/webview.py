@@ -1372,6 +1372,8 @@ def offer_basic_dump(req: "CamcopsRequest") -> Response:
                 ViewParam.TASKS: manual.get(ViewParam.TASKS),
                 ViewParam.VIEWTYPE: appstruct.get(ViewParam.VIEWTYPE),
                 ViewParam.DELIVERY_MODE: appstruct.get(ViewParam.DELIVERY_MODE),
+                ViewParam.INCLUDE_INFORMATION_SCHEMA_COLUMNS: appstruct.get(
+                    ViewParam.INCLUDE_INFORMATION_SCHEMA_COLUMNS),
             }
             # We could return a response, or redirect via GET.
             # The request is not sensitive, so let's redirect.
@@ -1433,10 +1435,12 @@ def serve_basic_dump(req: "CamcopsRequest") -> Response:
     """
     # Get view-specific parameters
     sort_by_heading = req.get_bool_param(ViewParam.SORT, False)
-    viewtype = req.get_str_param(ViewParam.VIEWTYPE, ViewArg.XLSX,
-                                 lower=True)
-    delivery_mode = req.get_str_param(ViewParam.DELIVERY_MODE,
-                                      ViewArg.EMAIL, lower=True)
+    viewtype = req.get_str_param(
+        ViewParam.VIEWTYPE, ViewArg.XLSX, lower=True)
+    delivery_mode = req.get_str_param(
+        ViewParam.DELIVERY_MODE, ViewArg.EMAIL, lower=True)
+    include_information_schema_columns = req.get_bool_param(
+        ViewParam.INCLUDE_INFORMATION_SCHEMA_COLUMNS, False)
 
     # Get tasks (and perform checks)
     collection = get_dump_collection(req)
@@ -1448,7 +1452,8 @@ def serve_basic_dump(req: "CamcopsRequest") -> Response:
             user_id=req.user_id,
             viewtype=viewtype,
             delivery_mode=delivery_mode,
-            spreadsheet_sort_by_heading=sort_by_heading
+            spreadsheet_sort_by_heading=sort_by_heading,
+            include_information_schema_columns=include_information_schema_columns  # noqa
         )
     )  # may raise
     # Export, or schedule an email/download
@@ -1477,6 +1482,8 @@ def offer_sql_dump(req: "CamcopsRequest") -> Response:
                 ViewParam.GROUP_IDS: manual.get(ViewParam.GROUP_IDS),
                 ViewParam.TASKS: manual.get(ViewParam.TASKS),
                 ViewParam.DELIVERY_MODE: appstruct.get(ViewParam.DELIVERY_MODE),
+                ViewParam.INCLUDE_INFORMATION_SCHEMA_COLUMNS: appstruct.get(
+                    ViewParam.INCLUDE_INFORMATION_SCHEMA_COLUMNS),
             }
             # We could return a response, or redirect via GET.
             # The request is not sensitive, so let's redirect.
@@ -1504,6 +1511,8 @@ def sql_dump(req: "CamcopsRequest") -> Response:
     patient_id_per_row = req.get_bool_param(ViewParam.PATIENT_ID_PER_ROW, True)
     delivery_mode = req.get_str_param(ViewParam.DELIVERY_MODE,
                                       ViewArg.EMAIL, lower=True)
+    include_information_schema_columns = req.get_bool_param(
+        ViewParam.INCLUDE_INFORMATION_SCHEMA_COLUMNS, False)
 
     # Get tasks (and perform checks)
     collection = get_dump_collection(req)
@@ -1517,6 +1526,7 @@ def sql_dump(req: "CamcopsRequest") -> Response:
             delivery_mode=delivery_mode,
             db_include_blobs=include_blobs,
             db_patient_id_per_row=patient_id_per_row,
+            include_information_schema_columns=include_information_schema_columns  # noqa
         )
     )  # may raise
     # Export, or schedule an email/download
@@ -2389,6 +2399,10 @@ def add_user(req: "CamcopsRequest") -> Dict[str, Any]:
             user.username = appstruct.get(ViewParam.USERNAME)
             user.set_password(req, appstruct.get(ViewParam.NEW_PASSWORD))
             user.must_change_password = appstruct.get(ViewParam.MUST_CHANGE_PASSWORD)  # noqa
+            # We don't ask for language initially; that can be configured
+            # later. But is is a reasonable guess that it should be the same
+            # language as used by the person creating the new user.
+            user.language = req.language
             if User.get_user_by_name(dbsession, user.username):
                 raise HTTPBadRequest(
                     f"User with username {user.username!r} already exists!")
@@ -3514,6 +3528,7 @@ def forcibly_finalize(req: "CamcopsRequest") -> Response:
             if not req.user.superuser:
                 admin_group_ids = req.user.ids_of_groups_user_is_admin_for
                 for clienttable in CLIENT_TABLE_MAP.values():
+                    # noinspection PyPropertyAccess
                     count_query = (
                         select([func.count()])
                         .select_from(clienttable)

@@ -132,10 +132,12 @@ RUN echo "- Updating package information..." \
         gcc \
         gdebi \
         git \
+        wget \
+        \
+        wait-for-it \
+        \
         libmagickwand-dev \
         libmariadbclient-dev \
-        wget \
-        wait-for-it \
     && echo "- wkhtmltopdf: Fetching wkhtmltopdf with patched Qt..." \
     && wget -O /tmp/wkhtmltopdf.deb \
         https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.stretch_amd64.deb \

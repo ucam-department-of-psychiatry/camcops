@@ -31,6 +31,7 @@ Quick links:
 - :ref:`2017 <changelog_2017>`
 - :ref:`2018 <changelog_2018>`
 - :ref:`2019 <changelog_2019>`
+- :ref:`2020 <changelog_2020>`
 
 
 Contributors
@@ -2676,6 +2677,12 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Bugfix: Automatically create EXPORT_LOCKDIR on server startup
 
+
+.. _changelog_2020:
+
+2020
+~~~~
+
 **Client and server v2.3.7, released 3 Mar 2020**
 
 - ``pyexcel-ods3`` and ``pyexcel-xlsx`` for spreadsheet export; faster and much
@@ -2836,6 +2843,9 @@ Current C++/SQLite client, Python/SQLAlchemy server
   seems to have problems with the "opacity" style in SVG (in wkhtmltopdf
   version 0.12.5), sorted out z-order to make plotting more efficient (and
   avoided opacity).
+
+- Option to download column info (from ``INFORMATION_SCHEMA.COLUMNS``) with
+  basic and SQLite dumps.
 
 - There appears to be a bug in Deform (currently ``deform==2.0.8``) that
   emerges when Chameleon is upgraded (e.g. from ``Chameleon==3.4`` to
