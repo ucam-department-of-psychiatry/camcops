@@ -256,6 +256,7 @@ include camcops_server/templates/snippets/query_result_core.mako
 include camcops_server/templates/snippets/query_result_orm.mako
 include camcops_server/templates/snippets/table.mako
 include camcops_server/templates/snippets/to_main_menu.mako
+include camcops_server/templates/snippets/to_view_all_groups.mako
 include camcops_server/templates/snippets/to_view_all_users.mako
 include camcops_server/templates/snippets/user_info_detail.mako
 include camcops_server/templates/taskcommon/clinician.mako
@@ -285,4 +286,3 @@ include camcops_server/templates/test/inherit_cache_test_parent.mako
 include camcops_server/templates/test/testpage.mako
 include camcops_server/translations/.gitignore
 include camcops_server/translations/da_DK/LC_MESSAGES/camcops.mo
-include camcops_server/translations/da_DK/LC_MESSAGES/camcops_da_DK.mo
