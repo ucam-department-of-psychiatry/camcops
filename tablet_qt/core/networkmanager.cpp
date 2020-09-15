@@ -73,18 +73,18 @@ const QString KEY_FIELDS("fields");    // B; fieldnames
 const QString KEY_FINALIZING("finalizing");  // C->S, in JSON, v2.3.0
 const QString KEY_ID_POLICY_UPLOAD("idPolicyUpload");  // S->C
 const QString KEY_ID_POLICY_FINALIZE("idPolicyFinalize");  // S->C
-const QString KEY_IP_USE_INFO("ip_use_info");  // S->C, new in v2.3.???
-const QString KEY_IP_USE_COMMERCIAL("ip_use_commercial");  // S->C, new in v2.3.???
-const QString KEY_IP_USE_CLINICAL("ip_use_clinical");  // S->C, new in v2.3.???
-const QString KEY_IP_USE_EDUCATIONAL("ip_use_educational");  // S->C, new in v2.3.???
-const QString KEY_IP_USE_RESEARCH("ip_use_research");  // S->C, new in v2.3.???
+const QString KEY_IP_USE_INFO("ip_use_info");  // S->C, new in v2.3.9
+const QString KEY_IP_USE_COMMERCIAL("ip_use_commercial");  // S->C, new in v2.3.9
+const QString KEY_IP_USE_CLINICAL("ip_use_clinical");  // S->C, new in v2.3.9
+const QString KEY_IP_USE_EDUCATIONAL("ip_use_educational");  // S->C, new in v2.3.9
+const QString KEY_IP_USE_RESEARCH("ip_use_research");  // S->C, new in v2.3.9
 const QString KEY_MOVE_OFF_TABLET_VALUES("move_off_tablet_values");  // C->S, v2.3.0
 const QString KEY_NFIELDS("nfields");  // B
 const QString KEY_NRECORDS("nrecords");  // B
 const QString KEY_OPERATION("operation");  // C->S
 const QString KEY_PASSWORD("password");  // C->S
 const QString KEY_PATIENT_INFO("patient_info");  // C->S, new in v2.3.0
-const QString KEY_PATIENT_PROQUINT("patient_proquint"); // C->S, new in v2.3.???
+const QString KEY_PATIENT_PROQUINT("patient_proquint"); // C->S, new in v2.3.9
 const QString KEY_PKNAME("pkname");  // C->S
 const QString KEY_PKNAMEINFO("pknameinfo");  // C->S
 const QString KEY_PKVALUES("pkvalues");  // C->S
@@ -95,7 +95,7 @@ const QString KEY_SESSION_TOKEN("session_token");  // B
 const QString KEY_SUCCESS("success");  // S->C
 const QString KEY_TABLE("table");  // C->S
 const QString KEY_TABLES("tables");  // C->S
-const QString KEY_TASK_SCHEDULES("task_schedules");  // S->C, new in v2.3.???
+const QString KEY_TASK_SCHEDULES("task_schedules");  // S->C, new in v2.3.9
 const QString KEY_TASK_SCHEDULE_ITEMS("task_schedule_items");
 const QString KEY_USER("user");  // C->S
 const QString KEY_VALUES("values");  // C->S
@@ -115,9 +115,9 @@ const QString OP_END_UPLOAD("end_upload");
 const QString OP_GET_EXTRA_STRINGS("get_extra_strings");
 const QString OP_GET_ID_INFO("get_id_info");
 const QString OP_GET_ALLOWED_TABLES("get_allowed_tables");  // v2.2.0
-const QString OP_GET_TASK_SCHEDULES("get_task_schedules");  // v2.3.???
+const QString OP_GET_TASK_SCHEDULES("get_task_schedules");  // v2.3.9
 const QString OP_REGISTER("register");
-const QString OP_REGISTER_PATIENT("register_patient");  // v2.3.???
+const QString OP_REGISTER_PATIENT("register_patient");  // v2.3.9
 const QString OP_START_PRESERVATION("start_preservation");
 const QString OP_START_UPLOAD("start_upload");
 const QString OP_UPLOAD_ENTIRE_DATABASE("upload_entire_database");  // v2.3.0
