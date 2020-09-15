@@ -83,13 +83,14 @@ optional arguments:
 ===============================================================================
 Help for command 'demo_camcops_config'
 ===============================================================================
-usage: camcops_server demo_camcops_config [-h] [-v]
+usage: camcops_server demo_camcops_config [-h] [-v] [--docker]
 
 Print a demo CamCOPS config file
 
 optional arguments:
   -h, --help     show this help message and exit
   -v, --verbose  Be verbose (default: False)
+  --docker       Use settings for Docker (default: False)
 
 ===============================================================================
 Help for command 'demo_supervisor_config'

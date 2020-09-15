@@ -1,4 +1,3 @@
-
 # =============================================================================
 # Demonstration 'supervisor' (supervisord) config file for CamCOPS.
 # Created by CamCOPS version 2.3.7.
@@ -53,5 +52,3 @@ stopwaitsecs = 60
 [group:camcops]
 
 programs = camcops_server, camcops_workers, camcops_scheduler
-
-    

@@ -191,7 +191,7 @@ Cells are blank if an instrument wasn't used in a particular row.
 
 The field ``record_id`` is not unique. Repeating instruments appear to cluster
 within a single ``record_id``, which can have a row with no
-``redcap_repeat_instrument`` or ``redcap_repeat_instance`, and some information
+``redcap_repeat_instrument`` or ``redcap_repeat_instance``, and some information
 filled in, then other rows (with different information) for repeat instance
 details.
 

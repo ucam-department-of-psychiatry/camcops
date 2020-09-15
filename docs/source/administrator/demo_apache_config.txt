@@ -1,12 +1,11 @@
-
-    # Demonstration Apache config file section for CamCOPS.
-    # Created by CamCOPS version 2.3.7.
-    #
-    # Under Ubuntu, the Apache config will be somewhere in /etc/apache2/
-    # Under CentOS, the Apache config will be somewhere in /etc/httpd/
-    #
-    # This section should go within the <VirtualHost> directive for the secure
-    # (SSL, HTTPS) part of the web site.
+# Demonstration Apache config file section for CamCOPS.
+# Created by CamCOPS version 2.3.7.
+#
+# Under Ubuntu, the Apache config will be somewhere in /etc/apache2/
+# Under CentOS, the Apache config will be somewhere in /etc/httpd/
+#
+# This section should go within the <VirtualHost> directive for the secure
+# (SSL, HTTPS) part of the web site.
 
 <VirtualHost *:443>
     # ...
@@ -62,7 +61,7 @@
         #
         #   and point your tablet devices to
         #
-        #       https://YOURSITE/camcops/database
+        #       https://YOURSITE/camcops/api
         #
         # - Don't specify trailing slashes for the ProxyPass and
         #   ProxyPassReverse directives.
@@ -266,5 +265,3 @@
         # cat TERENASSLCA.crt UTNAddTrustServer_CA.crt AddTrustExternalCARoot.crt > univcam.ca-bundle
 
 </VirtualHost>
-
-    
