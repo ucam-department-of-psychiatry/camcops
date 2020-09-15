@@ -2863,3 +2863,4 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Support for :ref:`Task Schedules <scheduling_tasks>` (on the server) and
   :ref:`Single User Mode <single_user_mode>` on the client
   to allow patients to complete tasks at home on their own devices.
+  (Database revisions 0047-0052).
