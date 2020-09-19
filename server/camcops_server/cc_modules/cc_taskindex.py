@@ -590,7 +590,7 @@ class TaskIndexEntry(Base):
         return True
 
     @property
-    def _pk(self) -> int:
+    def pk(self) -> int:
         """
         Return's the task's server PK.
         """
