@@ -594,6 +594,16 @@ class Patient(GenericTabletRecordMixin, Base):
         f = self.forename.upper() if self.surname else "(UNKNOWN)"
         return ws.webify(s + ", " + f)
 
+    def get_salutation(self, req: "CamcopsRequest") -> str:
+        """
+        Our best guess at a salutation.
+        """
+        return "{sf} ({dob}, {ids})".format(
+            sf=self.get_surname_forename_upper(),
+            dob=self.get_dob_str(),
+            ids=", ".join(i.prettystr(req) for i in self.get_idnum_objects()),
+        )
+
     def get_dob_html(self, req: "CamcopsRequest", longform: bool) -> str:
         """
         HTML fragment for date of birth.

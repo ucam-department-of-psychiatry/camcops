@@ -29,6 +29,7 @@ camcops_server/templates/menu/view_patient_task_schedules.mako
 <%inherit file="base_web.mako"/>
 
 <%!
+from urllib.parse import urlencode
 
 from cardinal_pythonlib.datetimefunc import format_datetime
 
@@ -67,16 +68,29 @@ ${_("CamCOPS server location:")} ${ req.route_url( Routes.CLIENT_API ) }
         </td>
         <td>
             %if patient.email:
-            <a href="mailto:${ patient.email }?body=${ req.route_url( Routes.CLIENT_API ) }%0D%0A%0D%0A${ patient.uuid_as_proquint }">${ patient.email }</a>
+                <%
+                    mailto_params = urlencode({
+                        "subject": _("PRIVATE: CamCOPS registration details"),
+                        "body": (
+                            patient.get_salutation(req) + ":\n\n" +
+                            _("For the CamCOPS server at") + "\n\n    " +
+                            req.route_url(Routes.CLIENT_API) + "\n\n" +
+                            _("Your registration code is:") + "\n\n    " +
+                            patient.uuid_as_proquint + "\n"
+                        )
+                    })
+                    mailto_url = f"mailto:{patient.email}?" + mailto_params
+                %>
+                <a href="${ mailto_url }">${ patient.email }</a>
             %endif
         </td>
         <td>
             %for pts in patient.task_schedules:
-            <a href="${ req.route_url(
-                     Routes.VIEW_PATIENT_TASK_SCHEDULE,
-                     _query={
-                         ViewParam.PATIENT_TASK_SCHEDULE_ID: pts.id
-                     }) }">${ pts.task_schedule.name }</a><br>
+                <a href="${ req.route_url(
+                         Routes.VIEW_PATIENT_TASK_SCHEDULE,
+                         _query={
+                             ViewParam.PATIENT_TASK_SCHEDULE_ID: pts.id
+                         }) }">${ pts.task_schedule.name }</a><br>
             %endfor
         </td>
         <td>
@@ -100,10 +114,10 @@ ${_("CamCOPS server location:")} ${ req.route_url( Routes.CLIENT_API ) }
 <div>${page.pager()}</div>
 
 <div>
-<a href="${ req.route_url(Routes.ADD_PATIENT) }">${_("Add a patient")}</a>
+    <a href="${ req.route_url(Routes.ADD_PATIENT) }">${_("Add a patient")}</a>
 </div>
 <div>
-<a href="${request.route_url(Routes.VIEW_TASK_SCHEDULES)}">${_("Manage task schedules")}</a>
+    <a href="${request.route_url(Routes.VIEW_TASK_SCHEDULES)}">${_("Manage task schedules")}</a>
 </div>
 
 <%include file="to_main_menu.mako"/>
