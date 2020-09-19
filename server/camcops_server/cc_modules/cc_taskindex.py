@@ -173,7 +173,7 @@ class PatientIdNumIndexEntry(Base):
         # noinspection PyProtectedMember
         assert idnum._current, "Only index current PatientIdNum objects"
         index = cls()
-        index.idnum_pk = idnum.get_pk()
+        index.idnum_pk = idnum.pk
         index.patient_pk = idnum.get_patient_server_pk()
         index.which_idnum = idnum.which_idnum
         index.idnum_value = idnum.idnum_value
@@ -669,19 +669,19 @@ class TaskIndexEntry(Base):
         index.indexed_at_utc = indexed_at_utc
 
         index.task_table_name = task.tablename
-        index.task_pk = task.get_pk()
+        index.task_pk = task.pk
 
         patient = task.patient
-        index.patient_pk = patient.get_pk() if patient else None
+        index.patient_pk = patient.pk if patient else None
 
-        index.device_id = task.get_device_id()
-        index.era = task.get_era()
+        index.device_id = task.device_id
+        index.era = task.era
         index.when_created_utc = task.get_creation_datetime_utc()
         index.when_created_iso = task.when_created
         # noinspection PyProtectedMember
         index.when_added_batch_utc = task._when_added_batch_utc
         index.adding_user_id = task.get_adding_user_id()
-        index.group_id = task.get_group_id()
+        index.group_id = task.group_id
         index.task_is_complete = task.is_complete()
 
         return index

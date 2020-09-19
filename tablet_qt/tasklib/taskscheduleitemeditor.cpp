@@ -26,8 +26,8 @@
 #include "taskscheduleitemeditor.h"
 
 TaskScheduleItemEditor::TaskScheduleItemEditor(
-    CamcopsApp& app,
-    TaskScheduleItemPtr task_schedule_item) :
+        CamcopsApp& app,
+        TaskScheduleItemPtr task_schedule_item) :
     m_app(app),
     m_p_task_schedule_item(task_schedule_item)
 {
@@ -39,7 +39,7 @@ void TaskScheduleItemEditor::editTask()
     TaskPtr task = m_p_task_schedule_item->getTask();
 
     if (task == nullptr) {
-        auto tablename = m_p_task_schedule_item->taskTableName();
+        const auto tablename = m_p_task_schedule_item->taskTableName();
         task = m_app.taskFactory()->create(tablename);
 
         if (!canEditTask(task)) {

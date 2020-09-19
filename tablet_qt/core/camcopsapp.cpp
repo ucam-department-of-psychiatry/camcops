@@ -107,7 +107,7 @@ const QString APP_NAME("camcops");  // e.g. subdirectory of ~/.local/share; DO N
 const QString APP_PRETTY_NAME("CamCOPS");  // main window title and suffix on dialog window titles
 const QString CONNECTION_DATA("data");
 const QString CONNECTION_SYS("sys");
-const int DEFAULT_SERVER_PORT = 443; // HTTPS
+const int DEFAULT_SERVER_PORT = 443;  // HTTPS
 const QString ENVVAR_DB_DIR("CAMCOPS_DATABASE_DIRECTORY");
 
 
@@ -146,6 +146,7 @@ CamcopsApp::~CamcopsApp()
 // ============================================================================
 // Operating mode
 // ============================================================================
+
 bool CamcopsApp::isSingleUserMode()
 {
     return this->getMode() == varconst::MODE_SINGLE_USER;
@@ -165,8 +166,7 @@ void CamcopsApp::setMode(const int mode)
 {
     setVar(varconst::MODE, mode);
 
-    if (isSingleUserMode())
-    {
+    if (isSingleUserMode()) {
         setDefaultPatient();
     }
 
@@ -195,7 +195,7 @@ void CamcopsApp::setModeFromUser()
         return;
     }
 
-    int new_mode = dialog.mode();
+    const int new_mode = dialog.mode();
 
     if (new_mode == getMode()) {
         // No change, nothing to do
@@ -251,7 +251,7 @@ bool CamcopsApp::registerPatientWithServer()
 
     setVar(varconst::SERVER_ADDRESS, server_url.host());
 
-    int default_port = DEFAULT_SERVER_PORT;
+    const int default_port = DEFAULT_SERVER_PORT;
     setVar(varconst::SERVER_PORT, server_url.port(default_port));
     setVar(varconst::SERVER_PATH, server_url.path());
 
@@ -336,10 +336,9 @@ void CamcopsApp::networkManagerFinished()
 
 void CamcopsApp::patientRegistrationFailed(
     const NetworkManager::ErrorCode error_code,
-    const QString& error_string
-)
+    const QString& error_string)
 {
-    QString base_message = tr("There was a problem with your registration");
+    const QString base_message = tr("There was a problem with your registration");
 
     QString additional_message = "";
 
@@ -377,8 +376,7 @@ void CamcopsApp::patientRegistrationFailed(
 
 void CamcopsApp::updateTaskSchedulesFailed(
     const NetworkManager::ErrorCode error_code,
-    const QString& error_string
-)
+    const QString& error_string)
 {
     handleNetworkFailure(error_code, error_string,
                          tr("There was a problem updating your task schedules"));
@@ -1042,7 +1040,7 @@ bool CamcopsApp::userConfirmedDeleteDatabases()
            "from the database.\nAny records not uploaded to the server will be "
            "lost."),
         tr("Delete database?")
-        );
+    );
 }
 
 
@@ -2145,8 +2143,7 @@ void CamcopsApp::setDefaultPatient(bool force_refresh)
 {
     int patient_id = dbconst::NONEXISTENT_PK;
 
-    if (isSingleUserMode())
-    {
+    if (isSingleUserMode()) {
         patient_id = getSinglePatientId();
     }
 

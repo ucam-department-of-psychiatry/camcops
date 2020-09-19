@@ -131,6 +131,7 @@ from cardinal_pythonlib.logs import (
 )
 from cardinal_pythonlib.sqlalchemy.dialect import SqlaDialectName
 from cardinal_pythonlib.sqlalchemy.orm_query import CountStarSpecializedQuery
+# noinspection PyProtectedMember
 from colander import (
     Boolean,
     Date,
@@ -2808,9 +2809,8 @@ class GroupIpUseWidget(Widget):
     template = os.path.join(basedir, form)
     readonly_template = os.path.join(readonlydir, form)
 
-    def __init__(self, request: "CamcopsRequest",
-                 *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
+        super().__init__(**kwargs)
         self.request = request
 
     def serialize(self,
@@ -3810,9 +3810,8 @@ class JsonWidget(Widget):
     readonly_template = os.path.join(readonlydir, form)
     requirements = (('jsoneditor', None),)
 
-    def __init__(self, request: "CamcopsRequest",
-                 *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
+        super().__init__(**kwargs)
         self.request = request
 
     def serialize(
@@ -4055,9 +4054,8 @@ class DurationWidget(Widget):
     template = os.path.join(basedir, form)
     readonly_template = os.path.join(readonlydir, form)
 
-    def __init__(self, request: "CamcopsRequest",
-                 *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
+        super().__init__(**kwargs)
         self.request = request
 
     def serialize(self,
@@ -4129,6 +4127,7 @@ class DurationWidget(Widget):
         if len(errors) > 0:
             raise Invalid(field, errors, pstruct)
 
+        # noinspection PyUnboundLocalVariable
         return {
             "days": days,
             "months": months,
@@ -4822,6 +4821,7 @@ class DurationWidgetTests(TestCase):
             "months": 3,
         }
 
+        # noinspection PyTypeChecker
         cstruct = widget.deserialize(None, pstruct)
 
         self.assertEqual(cstruct["days"], 1)
@@ -4831,6 +4831,7 @@ class DurationWidgetTests(TestCase):
     def test_deserialize_defaults_to_zero_days(self) -> None:
         widget = DurationWidget(self.request)
 
+        # noinspection PyTypeChecker
         cstruct = widget.deserialize(None, {})
 
         self.assertEqual(cstruct["days"], 0)
@@ -4845,6 +4846,7 @@ class DurationWidgetTests(TestCase):
         }
 
         with self.assertRaises(Invalid) as cm:
+            # noinspection PyTypeChecker
             widget.deserialize(None, pstruct)
 
         self.assertIn("Please enter a valid number of days or leave blank",
@@ -4987,6 +4989,7 @@ class JsonWidgetTests(TestCase):
 
         pstruct = json.dumps({"a": "1", "b": "2", "c": "3"})
 
+        # noinspection PyTypeChecker
         cstruct = widget.deserialize(None, pstruct)
 
         self.assertEqual(cstruct, pstruct)
@@ -4994,6 +4997,7 @@ class JsonWidgetTests(TestCase):
     def test_deserialize_defaults_to_empty_json_string(self) -> None:
         widget = JsonWidget(self.request)
 
+        # noinspection PyTypeChecker
         cstruct = widget.deserialize(None, "{}")
 
         self.assertEqual(cstruct, "{}")
@@ -5004,6 +5008,7 @@ class JsonWidgetTests(TestCase):
         pstruct = "{"
 
         with self.assertRaises(Invalid) as cm:
+            # noinspection PyTypeChecker
             widget.deserialize(None, pstruct)
 
         self.assertIn(
@@ -5171,6 +5176,7 @@ class GroupIpUseWidgetTests(TestCase):
         widget = GroupIpUseWidget(self.request)
 
         field = None  # Not used
+        # noinspection PyTypeChecker
         cstruct = widget.deserialize(field, null)
 
         self.assertFalse(cstruct["clinical"])
@@ -5190,6 +5196,7 @@ class GroupIpUseWidgetTests(TestCase):
             "research": "1",
         }
 
+        # noinspection PyTypeChecker
         cstruct = widget.deserialize(field, pstruct)
 
         self.assertFalse(cstruct["clinical"])

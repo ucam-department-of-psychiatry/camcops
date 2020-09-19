@@ -94,6 +94,7 @@ def main() -> None:
         textwrap.fill(x, width=79, initial_indent='', subsequent_indent='  ')
         for x in desc.splitlines()
     )
+    # noinspection PyTypeChecker
     parser = ArgumentParser(description=wrapped,
                             formatter_class=RawDescriptionHelpFormatter)
     parser.add_argument(

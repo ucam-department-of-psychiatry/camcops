@@ -24,12 +24,6 @@ playing/scrapy/camcops/spiders/add_patient.py
 
 ===============================================================================
 
-"""
-
-from cardinal_pythonlib.nhs import generate_random_nhs_number
-from scrapy import FormRequest, Request, Spider
-
-"""
 Temporary test script for generating potential race conditions when adding
 new patients.
 
@@ -39,10 +33,16 @@ which_idnum = 1
 
 Usage:
 
-pip install scrapy
-cd server/playing/scrapy/camcops
-scrapy crawl add-patient-spider
+.. code-block:: bash
+
+    pip install scrapy
+    cd server/playing/scrapy/camcops
+    scrapy crawl add-patient-spider
+
 """
+
+from cardinal_pythonlib.nhs import generate_random_nhs_number
+from scrapy import FormRequest, Request, Spider
 
 
 class AddPatientSpider(Spider):

@@ -1037,6 +1037,7 @@ def main():
     """
     check_prerequisites()
 
+    # noinspection PyTypeChecker
     parser = argparse.ArgumentParser(
         description="""
 - Creates a Debian (.deb) and RPM (.rpm) distribution file for the CamCOPS

@@ -2163,7 +2163,6 @@ def view_user_email_addresses(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     q = query_users_that_i_manage(req).filter(
         User.auto_generated == False  # noqa: E712
-
     )
     return dict(query=q)
 
@@ -2395,6 +2394,7 @@ def set_other_user_upload_group(req: "CamcopsRequest") -> Response:
     return set_user_upload_group(req, user, True)
 
 
+# noinspection PyTypeChecker
 @view_config(route_name=Routes.UNLOCK_USER,
              permission=Permission.GROUPADMIN)
 def unlock_user(req: "CamcopsRequest") -> Response:
@@ -3496,9 +3496,8 @@ class EditPatientBaseView(PatientMixin, UpdateView):
                     max_existing_pidnum_id = (
                         self.request.dbsession
                         .query(func.max(PatientIdNum.id))
-                        .filter(PatientIdNum._device_id ==
-                                patient.get_device_id())
-                        .filter(PatientIdNum._era == patient.get_era())
+                        .filter(PatientIdNum._device_id == patient.device_id)
+                        .filter(PatientIdNum._era == patient.era)
                         .scalar()
                     )
                     if max_existing_pidnum_id is None:
@@ -3510,9 +3509,9 @@ class EditPatientBaseView(PatientMixin, UpdateView):
                     new_idnum.which_idnum = idref.which_idnum
                     new_idnum.idnum_value = idref.idnum_value
                     new_idnum.create_fresh(self.request,
-                                           device_id=patient.get_device_id(),
-                                           era=patient.get_era(),
-                                           group_id=patient.get_group_id())
+                                           device_id=patient.device_id,
+                                           era=patient.era,
+                                           group_id=patient.group_id)
                     self.request.dbsession.add(new_idnum)
 
     def _save_task_schedules(self,
@@ -3605,9 +3604,9 @@ class EditPatientBaseView(PatientMixin, UpdateView):
         patient = cast(Patient, self.object)
 
         taskfilter = TaskFilter()
-        taskfilter.device_ids = [patient.get_device_id()]
+        taskfilter.device_ids = [patient.device_id]
         taskfilter.group_ids = [patient.group.id]
-        taskfilter.era = patient.get_era()
+        taskfilter.era = patient.era
         collection = TaskCollection(
             req=self.request,
             taskfilter=taskfilter,

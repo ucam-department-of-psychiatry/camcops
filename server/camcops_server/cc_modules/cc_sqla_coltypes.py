@@ -1290,7 +1290,8 @@ class JsonColType(TypeDecorator):
     def python_type(self) -> type:
         return str
 
-    def process_bind_param(self, value: Any, dialect: Dialect) -> str:
+    def process_bind_param(self, value: Any,
+                           dialect: Dialect) -> Optional[str]:
         if value is None:
             return None
 

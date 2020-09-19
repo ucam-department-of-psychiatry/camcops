@@ -545,13 +545,15 @@ class GenericTabletRecordMixin(object):
     # Fetching attributes
     # -------------------------------------------------------------------------
 
-    def get_pk(self) -> Optional[int]:
+    @property
+    def pk(self) -> Optional[int]:
         """
         Returns the (server) primary key of this record.
         """
         return self._pk
 
-    def get_era(self) -> Optional[str]:
+    @property
+    def era(self) -> Optional[str]:
         """
         Returns the era of this record (a text representation of the date/time
         of the point of record finalization, or ``NOW`` if the record is still
@@ -559,13 +561,15 @@ class GenericTabletRecordMixin(object):
         """
         return self._era
 
-    def get_device_id(self) -> Optional[int]:
+    @property
+    def device_id(self) -> Optional[int]:
         """
         Returns the client device ID of this record.
         """
         return self._device_id
 
-    def get_group_id(self) -> Optional[int]:
+    @property
+    def group_id(self) -> Optional[int]:
         """
         Returns the group ID of this record.
         """
@@ -801,7 +805,7 @@ class GenericTabletRecordMixin(object):
             if item is None:
                 continue
             for lineage_member in item.get_lineage():
-                pk = lineage_member.get_pk()
+                pk = lineage_member.pk
                 if pk in seen_pks:
                     continue
                 seen_pks.add(pk)
@@ -1104,7 +1108,7 @@ class TaskDescendant(object):
         task = self.task_ancestor()
         if not task:
             return None
-        return task.get_pk()
+        return task.pk
 
     def task_ancestor(self) -> Optional["Task"]:
         """
@@ -1148,4 +1152,4 @@ class TaskDescendant(object):
         ancestor = self.task_ancestor()
         if ancestor:
             row[EXTRA_TASK_TABLENAME_FIELD] = ancestor.tablename
-            row[EXTRA_TASK_SERVER_PK_FIELD] = ancestor.get_pk()
+            row[EXTRA_TASK_SERVER_PK_FIELD] = ancestor.pk

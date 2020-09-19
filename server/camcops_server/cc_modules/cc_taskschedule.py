@@ -25,7 +25,7 @@ camcops_server/cc_modules/cc_taskschedule.py
 ===============================================================================
 
 """
-from typing import List, Optional, Tuple, TYPE_CHECKING
+from typing import List, Iterable, Optional, Tuple, TYPE_CHECKING
 
 from pendulum import DateTime as Pendulum, Duration
 
@@ -98,15 +98,14 @@ class PatientTaskSchedule(Base):
     )
     settings = Column(
         "settings", JsonColType,
-        comment=("Task-specific settings for this patient")
+        comment="Task-specific settings for this patient"
     )
 
     patient = relationship("Patient", backref="task_schedules")
     task_schedule = relationship("TaskSchedule", backref="patients")
 
-    def get_list_of_scheduled_tasks(
-            self, req: "CamcopsRequest"
-    ) -> List[ScheduledTaskInfo]:
+    def get_list_of_scheduled_tasks(self, req: "CamcopsRequest") \
+            -> List[ScheduledTaskInfo]:
 
         task_list = []
 
@@ -198,7 +197,7 @@ def task_schedule_item_sort_order() -> Tuple["Cast", "Cast"]:
     due_by_order = cast(func.substr(TaskScheduleItem.due_by, 7),
                         Numeric())
 
-    return (due_from_order, due_by_order)
+    return due_from_order, due_by_order
 
 
 class TaskSchedule(Base):
@@ -223,8 +222,10 @@ class TaskSchedule(Base):
 
     name = Column("name", UnicodeText, comment="name")
 
-    items = relationship("TaskScheduleItem",
-                         order_by=task_schedule_item_sort_order)
+    items = relationship(
+        "TaskScheduleItem",
+        order_by=task_schedule_item_sort_order
+    )  # type: Iterable[TaskScheduleItem]
 
     group = relationship(Group)
 

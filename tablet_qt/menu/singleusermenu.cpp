@@ -76,26 +76,26 @@ void SingleUserMenu::makeItems()
                 break;
 
             case TaskScheduleItem::State::Future:
-            {
-                auto future_time = schedule_item->dueFromLocal();
+                {
+                    auto future_time = schedule_item->dueFromLocal();
 
-                if (!earliest_future_time.isValid() ||
-                    future_time < earliest_future_time) {
+                    if (!earliest_future_time.isValid() ||
+                        future_time < earliest_future_time) {
 
-                    earliest_future_time = future_time;
+                        earliest_future_time = future_time;
+                    }
                 }
-            }
-            break;
+                break;
 
             default:
                 break;
             }
         }
 
-        int total_items = started_items.size() + completed_items.size() +
+        const int total_items = started_items.size() + completed_items.size() +
             due_items.size();
 
-        int to_do_items = started_items.size() + due_items.size();
+        const int to_do_items = started_items.size() + due_items.size();
 
         if (total_items > 0 || earliest_future_time.isValid()) {
             m_items.append(
@@ -131,8 +131,8 @@ void SingleUserMenu::makeItems()
             m_items.append(
                 MenuItem(
                     tr("You do not have any scheduled tasks")
-                    ).setLabelOnly()
-                );
+                ).setLabelOnly()
+            );
         }
     }
 }

@@ -156,13 +156,13 @@ void Patient::addJsonFields(const QJsonObject json_obj)
 
 void Patient::addIdNums(const QJsonObject json_obj)
 {
-    QRegularExpression regex(QString("%1(\\d+)").arg(IDNUM_FIELD_PREFIX));
+    const QRegularExpression regex(QString("%1(\\d+)").arg(IDNUM_FIELD_PREFIX));
 
     foreach(const QString& key, json_obj.keys()) {
-        QRegularExpressionMatch match = regex.match(key);
+        const QRegularExpressionMatch match = regex.match(key);
         if (match.hasMatch()) {
-            int which_idnum = match.captured(1).toInt();
-            qint64 idnum_value = json_obj.value(key).toVariant().toLongLong();
+            const int which_idnum = match.captured(1).toInt();
+            const qint64 idnum_value = json_obj.value(key).toVariant().toLongLong();
 
             PatientIdNumPtr new_id(
                 new PatientIdNum(id(), which_idnum, idnum_value, m_app, m_db)

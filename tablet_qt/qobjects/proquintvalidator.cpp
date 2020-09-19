@@ -26,13 +26,12 @@
 #include "proquintvalidator.h"
 
 
-ProquintValidator::ProquintValidator(QObject * parent) : QValidator(parent)
+ProquintValidator::ProquintValidator(QObject* parent) : QValidator(parent)
 {
 }
 
 QValidator::State ProquintValidator::validate(QString &input, int &) const
 {
-
     const QString consonant = "[bdfghjklmnprstvz]";
     const QString vowel = "[aiou]";
     const QString quint = QString("%1%2%3%4%5").arg(
@@ -45,7 +44,7 @@ QValidator::State ProquintValidator::validate(QString &input, int &) const
         )
     );
 
-    QRegularExpressionMatch match = proquint_regex.match(input);
+    const QRegularExpressionMatch match = proquint_regex.match(input);
 
     if (!match.hasMatch()) {
         return QValidator::Intermediate;
@@ -90,14 +89,14 @@ bool ProquintValidator::validateLuhnMod16(QString input) const
     int sum = 0;
 
     for (QString::const_reverse_iterator it = proquint.rbegin();
-         it != proquint.rend(); ++it) {
-        int value = lookup_table.value(*it) * factor;
+            it != proquint.rend(); ++it) {
+        const int value = lookup_table.value(*it) * factor;
         sum += (value / 16 + value % 16);
 
         factor = (factor == 2) ? 1 : 2;
     }
 
-    int remainder = sum % 16;
+    const int remainder = sum % 16;
 
     return remainder == 0;
 }

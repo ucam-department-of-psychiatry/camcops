@@ -66,6 +66,11 @@ Contributors
   - :ref:`Snaith–Hamilton Pleasure Scale (SHAPS) <shaps>`
   - CPFT Perinatal, MOJO.
   - Back-end data processing and e-mail framework.
+  - REDCap interface.
+  - Task scheduling.
+  - Single-user mode.
+  - Improvements to web site front end.
+  - ... and lots more.
 
 
 Original Titanium/Javascript client, Python server with custom MySQL interface (defunct)

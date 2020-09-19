@@ -2115,6 +2115,7 @@ def get_single_patient(req: "CamcopsRequest") -> Patient:
             .format(patient_proquint)
         )
 
+    # noinspection PyUnboundLocalVariable
     patient = req.dbsession.query(Patient).filter(
         Patient.uuid == uuid_obj
     ).options(joinedload(Patient.task_schedules)).one_or_none()

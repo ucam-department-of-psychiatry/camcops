@@ -933,7 +933,7 @@ class ExportRecipientInfo(object):
             idnum_objects=task.get_patient_idnum_objects(),
             creation_datetime=task.get_creation_datetime(),
             basetable=task.tablename,
-            serverpk=task.get_pk(),
+            serverpk=task.pk,
             skip_conversion_to_safe_filename=not treat_as_filename,
         )
 

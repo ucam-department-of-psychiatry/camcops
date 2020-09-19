@@ -370,7 +370,7 @@ class TrackerCtvCommon(object):
             self.summary += " ~~~ "
         self.summary += " — ".join([
             "; ".join([
-                f"({task.tablename},{task.get_pk()},"
+                f"({task.tablename},{task.pk},"
                 f"{task.get_patient_server_pk()})"
                 for task in self.collection.tasks_for_task_class(cls)
             ])
@@ -483,7 +483,7 @@ class TrackerCtvCommon(object):
                 self.req,
                 audit_string,
                 table=t.tablename,
-                server_pk=t.get_pk(),
+                server_pk=t.pk,
                 patient_server_pk=t.get_patient_server_pk()
             )
         tree = XmlElement(name=xml_name, value=branches)

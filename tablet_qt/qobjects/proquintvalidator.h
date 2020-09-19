@@ -25,7 +25,7 @@ class ProquintValidator : public QValidator
 {
     Q_OBJECT
 public:
-    ProquintValidator(QObject * parent = nullptr);
+    ProquintValidator(QObject* parent = nullptr);
     virtual QValidator::State validate(QString& input, int& pos) const override;
 
 private:

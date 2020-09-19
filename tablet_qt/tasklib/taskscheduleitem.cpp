@@ -54,7 +54,7 @@ const QString TaskScheduleItem::KEY_SETTINGS("settings");
 // ============================================================================
 
 TaskScheduleItem::TaskScheduleItem(CamcopsApp& app, DatabaseManager& db,
-    const int load_pk) :
+                                   const int load_pk) :
     DatabaseObject(app, db, TABLENAME,
                    dbconst::PK_FIELDNAME,
                    true,
@@ -90,7 +90,7 @@ TaskScheduleItem::TaskScheduleItem(const int schedule_fk, CamcopsApp& app,
 void TaskScheduleItem::addJsonFields(const QJsonObject json_obj)
 {
     auto setValueOrNull = [&](const QString& field, const QString& key) {
-        QJsonValue value = json_obj.value(key);
+        const QJsonValue value = json_obj.value(key);
         if (!value.isNull()) {
             if (value.isBool()) {
                 setValue(field, value.toBool());
@@ -105,9 +105,9 @@ void TaskScheduleItem::addJsonFields(const QJsonObject json_obj)
     setValueOrNull(FN_DUE_BY, KEY_DUE_BY);
     setValueOrNull(FN_COMPLETE, KEY_COMPLETE);
 
-    QJsonObject settings = json_obj.value(KEY_SETTINGS).toObject();
-    QJsonDocument doc(settings);
-    QString json_string = doc.toJson(QJsonDocument::Compact);
+    const QJsonObject settings = json_obj.value(KEY_SETTINGS).toObject();
+    const QJsonDocument doc(settings);
+    const QString json_string = doc.toJson(QJsonDocument::Compact);
     setValue(FN_SETTINGS, json_string);
 }
 
@@ -170,7 +170,7 @@ QJsonObject TaskScheduleItem::settings() const
     // validate when the schedules were fetched from the server.
     // Also it's impossible to enter invalid JSON through the form when
     // creating the patient's task schedule.
-    QJsonDocument doc = QJsonDocument::fromJson(
+    const QJsonDocument doc = QJsonDocument::fromJson(
         valueString(FN_SETTINGS).toUtf8()
     );
 
@@ -189,7 +189,7 @@ QString TaskScheduleItem::title() const
 
 QString TaskScheduleItem::subtitle() const
 {
-    auto task_state = state();
+    const auto task_state = state();
 
     if (task_state == State::Completed) {
         return QString(tr("Completed"));
@@ -209,7 +209,7 @@ QString TaskScheduleItem::subtitle() const
 
 bool TaskScheduleItem::isEditable() const
 {
-    auto task_state = state();
+    const auto task_state = state();
 
     return task_state == State::Started || task_state == State::Due;
 }
@@ -217,14 +217,14 @@ bool TaskScheduleItem::isEditable() const
 
 TaskScheduleItem::State TaskScheduleItem::state() const
 {
-    bool is_complete = value(FN_COMPLETE).toBool();
+    const bool is_complete = value(FN_COMPLETE).toBool();
 
     if (is_complete) {
         return State::Completed;
     }
 
-    auto now = QDateTime::currentDateTimeUtc();
-    auto due_by = dueByUtc();
+    const auto now = QDateTime::currentDateTimeUtc();
+    const auto due_by = dueByUtc();
 
     if (now > due_by) {
         return State::Missed;
@@ -236,7 +236,7 @@ TaskScheduleItem::State TaskScheduleItem::state() const
         return State::Started;
     }
 
-    auto due_from = dueFromUtc();
+    const auto due_from = dueFromUtc();
 
     if (now >= due_from && now <= due_by) {
         return State::Due;

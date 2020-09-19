@@ -267,7 +267,7 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
         if not patient:
             raise ValueError(
                 "Corrupted database? PatientIdNum can't fetch its Patient")
-        return patient.get_pk()
+        return patient.pk
 
 
 # =============================================================================

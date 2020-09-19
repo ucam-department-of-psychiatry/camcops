@@ -98,9 +98,9 @@ void SingleTaskMenu::makeItems()
                 tr("Task information"),
                 UrlMenuItem(
                     urlconst::taskDocUrl(specimen->infoFilenameStem())
-                    ),
+                ),
                 info_icon_filename
-                )
+            )
         );
         m_items.append(MenuItem(tr("Task status"),
                                 std::bind(&SingleTaskMenu::showTaskStatus, this),
@@ -109,7 +109,7 @@ void SingleTaskMenu::makeItems()
     m_items.append(
         MenuItem(
             tr("Task instances") + ": " + specimen->menutitle()
-            ).setLabelOnly()
+        ).setLabelOnly()
     );
     // Task items
     TaskPtrList tasklist = factory->fetchTasks(m_tablename);

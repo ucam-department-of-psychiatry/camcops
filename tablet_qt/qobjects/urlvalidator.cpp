@@ -24,7 +24,7 @@
 #include "urlvalidator.h"
 
 
-UrlValidator::UrlValidator(QObject * parent) : QValidator(parent)
+UrlValidator::UrlValidator(QObject* parent) : QValidator(parent)
 {
 }
 

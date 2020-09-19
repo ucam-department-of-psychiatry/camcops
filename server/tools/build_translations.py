@@ -136,6 +136,7 @@ def main() -> None:
     """
     Create translation files for the CamCOPS server.
     """  # noqa
+    # noinspection PyTypeChecker
     parser = argparse.ArgumentParser(
         description=f"""
 Create translation files for CamCOPS server. CamCOPS knows about the following

@@ -71,7 +71,7 @@ TaskSchedule::TaskSchedule(CamcopsApp& app, DatabaseManager& db,
 void TaskSchedule::addJsonFields(const QJsonObject json_obj)
 {
     auto setValueOrNull = [&](const QString& field, const QString& key) {
-        QJsonValue value = json_obj.value(key);
+        const QJsonValue value = json_obj.value(key);
         if (!value.isNull()) {
             setValue(field, value.toString());
         }
@@ -85,8 +85,8 @@ void TaskSchedule::addItems(const QJsonArray items_json_array)
 {
     QJsonArray::const_iterator it;
     for (it = items_json_array.constBegin();
-         it != items_json_array.constEnd(); it++) {
-        QJsonObject item_json = it->toObject();
+            it != items_json_array.constEnd(); it++) {
+        const QJsonObject item_json = it->toObject();
 
         TaskScheduleItemPtr item = TaskScheduleItemPtr(
             new TaskScheduleItem(id(), m_app, m_app.sysdb(), item_json)

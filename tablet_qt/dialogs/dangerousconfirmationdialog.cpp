@@ -27,9 +27,9 @@
 
 
 DangerousConfirmationDialog::DangerousConfirmationDialog(
-    const QString& text,
-    const QString& title,
-    QWidget* parent) :
+        const QString& text,
+        const QString& title,
+        QWidget* parent) :
     QDialog(parent)
 {
     setWindowTitle(title);

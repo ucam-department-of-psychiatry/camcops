@@ -751,8 +751,7 @@ void NetworkManager::registerWithServer()
 
 void NetworkManager::registerNext(QNetworkReply* reply)
 {
-    if (reply)
-    {
+    if (reply) {
         if (!processServerReply(reply)) {
             return;
         }
@@ -897,7 +896,7 @@ void NetworkManager::storeTaskSchedules()
 
     QJsonArray::const_iterator it;
     for (it = schedules_array.constBegin();
-         it != schedules_array.constEnd(); it++) {
+            it != schedules_array.constEnd(); it++) {
         QJsonObject schedule_json = it->toObject();
 
         TaskSchedulePtr schedule = TaskSchedulePtr(

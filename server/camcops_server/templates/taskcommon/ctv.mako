@@ -136,7 +136,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
                     request,
                     "Clinical text view accessed",
                     table=task.tablename,
-                    server_pk=task.get_pk(),
+                    server_pk=task.pk,
                     patient_server_pk=task.get_patient_server_pk()
                 )
             %>

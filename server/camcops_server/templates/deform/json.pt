@@ -43,17 +43,18 @@ camcops_server/templates/deform/json.pt
             const aceOptions = {
             };
             const textarea = document.getElementById(oid);
+            // noinspection JSUnusedLocalSymbols
             const editor = new JSONEditor(container, Object.assign({
                 onChange: function () {
                     textarea.value = editor.getText();
                 },
                 onModeChange: function(endMode, startMode) {
-                    if (endMode == "code") {
+                    if (endMode === "code") {
                         editor.aceEditor.setOptions(aceOptions);
                     }
                 }
             }, options));
-             const value = textarea.value;
+            const value = textarea.value;
             try {
                 editor.set(JSON.parse(value));
             } catch (e) {

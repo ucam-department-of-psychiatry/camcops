@@ -371,7 +371,7 @@ def export_tasks_individually(req: "CamcopsRequest",
         for task_or_index in collection.gen_all_tasks_or_indexes():
             if isinstance(task_or_index, Task):
                 basetable = task_or_index.tablename
-                task_pk = task_or_index.get_pk()
+                task_pk = task_or_index.pk
             else:
                 basetable = task_or_index.task_table_name
                 task_pk = task_or_index.task_pk
@@ -385,7 +385,7 @@ def export_tasks_individually(req: "CamcopsRequest",
     else:
         for task in collection.gen_tasks_by_class():
             # Do NOT use this to check the working of export_task_backend():
-            # export_task_backend(recipient.recipient_name, task.tablename, task.get_pk())  # noqa
+            # export_task_backend(recipient.recipient_name, task.tablename, task.pk)  # noqa
             # ... it will deadlock at the database (because we're already
             # within a query of some sort, I presume)
             export_task(req, recipient, task)
@@ -414,7 +414,7 @@ def export_task(req: "CamcopsRequest",
     lockfilename = cfg.get_export_lockfilename_task(
         recipient_name=recipient.recipient_name,
         basetable=task.tablename,
-        pk=task.get_pk(),
+        pk=task.pk,
     )
     dbsession = req.dbsession
     try:
@@ -425,7 +425,7 @@ def export_task(req: "CamcopsRequest",
                     dbsession=dbsession,
                     recipient_name=recipient.recipient_name,
                     basetable=task.tablename,
-                    task_pk=task.get_pk()):
+                    task_pk=task.pk):
                 log.info("Task {!r} already exported to recipient {!r}; "
                          "ignoring", task, recipient)
                 # Not a warning; it's normal to see these because it allows the
@@ -463,7 +463,7 @@ def gen_audited_tasks_for_task_class(
     """  # noqa
     pklist = []  # type: List[int]
     for task in collection.tasks_for_task_class(cls):
-        pklist.append(task.get_pk())
+        pklist.append(task.pk)
         yield task
     audit_descriptions.append(
         f"{cls.__tablename__}: "

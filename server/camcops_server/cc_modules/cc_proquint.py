@@ -264,7 +264,7 @@ def int_from_proquint(proquint: str) -> int:
     return int_value
 
 
-def _is_valid_proquint(proquint: str) -> None:
+def _is_valid_proquint(proquint: str) -> bool:
     return _generate_luhn_mod_16_remainder(proquint, 1) == 0
 
 
