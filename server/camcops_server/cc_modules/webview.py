@@ -3011,8 +3011,7 @@ def add_special_note(req: "CamcopsRequest") -> Dict[str, Any]:
         raise HTTPBadRequest(
             f"{_('No such task:')} {table_name}, PK={server_pk}")
     user = req.user
-    # noinspection PyProtectedMember
-    if not user.authorized_to_add_special_note(task._group_id):
+    if not user.authorized_to_add_special_note(task.group_id):
         raise HTTPBadRequest(
             _("Not authorized to add special notes for this task's group"))
     form = AddSpecialNoteForm(request=req)
@@ -3102,8 +3101,7 @@ class EraseTaskBaseView(DeleteView):
         return task
 
     def check_user_is_authorized(self, task: Task) -> None:
-        # noinspection PyProtectedMember
-        if not self.request.user.authorized_to_erase_tasks(task._group_id):
+        if not self.request.user.authorized_to_erase_tasks(task.group_id):
             _ = self.request.gettext
             raise HTTPBadRequest(
                 _("Not authorized to erase tasks for this task's group"))
@@ -3330,7 +3328,7 @@ class PatientMixin:
         patient = cast(Patient, self.object)
 
         if patient is not None:
-            form_values[ViewParam.SERVER_PK] = patient._pk
+            form_values[ViewParam.SERVER_PK] = patient.pk
             form_values[ViewParam.GROUP_ID] = patient.group.id
             form_values[ViewParam.ID_REFERENCES] = [
                 {ViewParam.WHICH_IDNUM: pidnum.which_idnum,
@@ -3389,7 +3387,7 @@ class EditPatientBaseView(PatientMixin, UpdateView):
         if not changes:
             self.request.session.flash(
                 f"{_('No changes required for patient record with server PK')} "  # noqa
-                f"{patient._pk} {_('(all new values matched old values)')}",
+                f"{patient.pk} {_('(all new values matched old values)')}",
                 queue=FLASH_INFO
             )
             return
@@ -3413,7 +3411,7 @@ class EditPatientBaseView(PatientMixin, UpdateView):
         # Done
         self.request.session.flash(
             f"{_('Amended patient record with server PK')} "
-            f"{patient._pk}. "
+            f"{patient.pk}. "
             f"{_('Changes were:')} {change_msg}",
             queue=FLASH_SUCCESS
         )
@@ -3548,7 +3546,7 @@ class EditPatientBaseView(PatientMixin, UpdateView):
 
         for schedule_id in ids_to_add:
             pts = PatientTaskSchedule()
-            pts.patient_pk = patient._pk
+            pts.patient_pk = patient.pk
             pts.schedule_id = schedule_id
             pts.start_date = new_schedules[schedule_id]["start_date"]
             pts.settings = new_schedules[schedule_id]["settings"]
@@ -3573,7 +3571,7 @@ class EditPatientBaseView(PatientMixin, UpdateView):
 
             if len(updates) > 0:
                 self.request.dbsession.query(PatientTaskSchedule).filter(
-                    PatientTaskSchedule.patient_pk == patient._pk,
+                    PatientTaskSchedule.patient_pk == patient.pk,
                     PatientTaskSchedule.schedule_id == schedule_id
                 ).update(updates, synchronize_session="fetch")
 
@@ -3583,7 +3581,7 @@ class EditPatientBaseView(PatientMixin, UpdateView):
                       (new_start_date, new_settings))
 
         self.request.dbsession.query(PatientTaskSchedule).filter(
-            PatientTaskSchedule.patient_pk == patient._pk,
+            PatientTaskSchedule.patient_pk == patient.pk,
             PatientTaskSchedule.schedule_id.in_(ids_to_delete)
         ).delete(synchronize_session="fetch")
 
@@ -3710,6 +3708,7 @@ class AddPatientView(PatientMixin, CreateView):
         # trying the next available patient ID and checking for an integrity
         # error in case another user has grabbed it by the time we have
         # committed
+        # noinspection PyProtectedMember
         last_patient_id = (
             self.request.dbsession
             # func.max(Patient.id) + 1 here will do the right thing for
@@ -3732,7 +3731,7 @@ class AddPatientView(PatientMixin, CreateView):
                 saved_ok = True
             except IntegrityError:
                 self.request.dbsession.rollback()
-                next_patient_id = next_patient_id + 1
+                next_patient_id += 1
 
         new_idrefs = [
             IdNumReference(which_idnum=idrefdict[ViewParam.WHICH_IDNUM],
@@ -3764,7 +3763,7 @@ class AddPatientView(PatientMixin, CreateView):
             start_date = task_schedule[ViewParam.START_DATE]
             settings = task_schedule[ViewParam.SETTINGS]
             patient_task_schedule = PatientTaskSchedule()
-            patient_task_schedule.patient_pk = patient._pk
+            patient_task_schedule.patient_pk = patient.pk
             patient_task_schedule.schedule_id = schedule_id
             patient_task_schedule.start_date = start_date
             patient_task_schedule.settings = settings
@@ -4021,14 +4020,13 @@ def view_patient_task_schedules(req: "CamcopsRequest") -> Dict[str, Any]:
                                       DEFAULT_ROWS_PER_PAGE)
     page_num = req.get_int_param(ViewParam.PAGE, 1)
     allowed_group_ids = req.user.ids_of_groups_user_is_admin_for
-    q = req.dbsession.query(Patient).filter(
-        Patient._era == ERA_NOW
-    ).filter(
-        Patient._group_id.in_(allowed_group_ids)
-    ).order_by(
-        Patient.surname, Patient.forename
-    ).options(
-        joinedload("task_schedules")
+    # noinspection PyProtectedMember
+    q = (
+        req.dbsession.query(Patient)
+        .filter(Patient._era == ERA_NOW)
+        .filter(Patient._group_id.in_(allowed_group_ids))
+        .order_by(Patient.surname, Patient.forename)
+        .options(joinedload("task_schedules"))
     )
 
     page = SqlalchemyOrmPage(query=q,
@@ -4862,7 +4860,7 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
         patient = self.create_patient(_group_id=None)
 
         self.req.add_get_params({
-            ViewParam.SERVER_PK: patient._pk
+            ViewParam.SERVER_PK: patient.pk
         })
 
         with self.assertRaises(HTTPBadRequest) as cm:
@@ -4881,7 +4879,7 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
                 return_value=False
         ):
             self.req.add_get_params({
-                ViewParam.SERVER_PK: patient._pk
+                ViewParam.SERVER_PK: patient.pk
             })
 
             with self.assertRaises(HTTPBadRequest) as cm:
@@ -4900,7 +4898,7 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
         )
 
         self.req.add_get_params({
-            ViewParam.SERVER_PK: patient._pk
+            ViewParam.SERVER_PK: patient.pk
         })
 
         with self.assertRaises(HTTPBadRequest) as cm:
@@ -4912,14 +4910,14 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
         patient = self.create_patient()
 
         self.req.add_get_params({
-            ViewParam.SERVER_PK: patient._pk
+            ViewParam.SERVER_PK: patient.pk
         }, set_method_get=False)
 
         multidict = MultiDict([
             ("_charset_", "UTF-8"),
             ("__formid__", "deform"),
             (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
-            (ViewParam.SERVER_PK, patient._pk),
+            (ViewParam.SERVER_PK, patient.pk),
             (ViewParam.GROUP_ID, patient.group.id),
             (ViewParam.FORENAME, "Jo"),
             (ViewParam.SURNAME, "Patient"),
@@ -4982,7 +4980,7 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
 
         messages = self.req.session.peek_flash(FLASH_SUCCESS)
 
-        self.assertIn(f"Amended patient record with server PK {patient._pk}",
+        self.assertIn(f"Amended patient record with server PK {patient.pk}",
                       messages[0])
         self.assertIn("forename", messages[0])
         self.assertIn("JO", messages[0])
@@ -5011,7 +5009,7 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
         self.dbsession.commit()
 
         patient_task_schedule = PatientTaskSchedule()
-        patient_task_schedule.patient_pk = patient._pk
+        patient_task_schedule.patient_pk = patient.pk
         patient_task_schedule.schedule_id = schedule1.id
         patient_task_schedule.start_date = parse("2020-06-12")
         patient_task_schedule.settings = {
@@ -5023,14 +5021,14 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
         self.dbsession.add(patient_task_schedule)
 
         patient_task_schedule = PatientTaskSchedule()
-        patient_task_schedule.patient_pk = patient._pk
+        patient_task_schedule.patient_pk = patient.pk
         patient_task_schedule.schedule_id = schedule3.id
 
         self.dbsession.add(patient_task_schedule)
         self.dbsession.commit()
 
         self.req.add_get_params({
-            ViewParam.SERVER_PK: patient._pk
+            ViewParam.SERVER_PK: patient.pk
         }, set_method_get=False)
 
         changed_schedule_1_settings = {
@@ -5047,7 +5045,7 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
             ("_charset_", "UTF-8"),
             ("__formid__", "deform"),
             (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
-            (ViewParam.SERVER_PK, patient._pk),
+            (ViewParam.SERVER_PK, patient.pk),
             (ViewParam.GROUP_ID, patient.group.id),
             (ViewParam.FORENAME, patient.forename),
             (ViewParam.SURNAME, patient.surname),
@@ -5118,7 +5116,7 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
 
         messages = self.req.session.peek_flash(FLASH_SUCCESS)
 
-        self.assertIn(f"Amended patient record with server PK {patient._pk}",
+        self.assertIn(f"Amended patient record with server PK {patient.pk}",
                       messages[0])
         self.assertIn("Test 2", messages[0])
 
@@ -5138,7 +5136,7 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
         self.dbsession.commit()
 
         patient_task_schedule = PatientTaskSchedule()
-        patient_task_schedule.patient_pk = patient._pk
+        patient_task_schedule.patient_pk = patient.pk
         patient_task_schedule.schedule_id = schedule1.id
         patient_task_schedule.start_date = parse("2020-06-12")
         patient_task_schedule.settings = {
@@ -5149,14 +5147,14 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
 
         self.dbsession.add(patient_task_schedule)
         self.req.add_get_params({
-            ViewParam.SERVER_PK: patient._pk
+            ViewParam.SERVER_PK: patient.pk
         }, set_method_get=False)
 
         multidict = MultiDict([
             ("_charset_", "UTF-8"),
             ("__formid__", "deform"),
             (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
-            (ViewParam.SERVER_PK, patient._pk),
+            (ViewParam.SERVER_PK, patient.pk),
             (ViewParam.GROUP_ID, patient.group.id),
             (ViewParam.FORENAME, patient.forename),
             (ViewParam.SURNAME, patient.surname),
@@ -5227,9 +5225,9 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
 
         task1 = Bmi()
         task1.id = 1
-        task1._device_id = patient._device_id
-        task1._group_id = patient._group_id
-        task1._era = patient._era
+        task1._device_id = patient.device_id
+        task1._group_id = patient.group_id
+        task1._era = patient.era
         task1.patient_id = patient.id
         task1.when_created = self.era_time
         task1._current = False
@@ -5237,9 +5235,9 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
 
         task2 = Bmi()
         task2.id = 2
-        task2._device_id = patient._device_id
-        task2._group_id = patient._group_id
-        task2._era = patient._era
+        task2._device_id = patient.device_id
+        task2._group_id = patient.group_id
+        task2._era = patient.era
         task2.patient_id = patient.id
         task2.when_created = self.era_time
         task2._current = False
@@ -5247,7 +5245,7 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
         self.dbsession.commit()
 
         self.req.add_get_params({
-            ViewParam.SERVER_PK: patient._pk
+            ViewParam.SERVER_PK: patient.pk
         })
 
         view = EditFinalizedPatientView(self.req)
@@ -5277,7 +5275,7 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
         self.dbsession.commit()
 
         patient_task_schedule = PatientTaskSchedule()
-        patient_task_schedule.patient_pk = patient._pk
+        patient_task_schedule.patient_pk = patient.pk
         patient_task_schedule.schedule_id = schedule1.id
         patient_task_schedule.start_date = parse("2020-06-12", tz="local")
         patient_task_schedule.settings = {
@@ -5295,7 +5293,7 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
         )
 
         self.req.add_get_params({
-            ViewParam.SERVER_PK: patient._pk
+            ViewParam.SERVER_PK: patient.pk
         })
 
         view = EditFinalizedPatientView(self.req)
@@ -5312,7 +5310,7 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
         self.assertEqual(form_values[ViewParam.GP], "GP")
         self.assertEqual(form_values[ViewParam.OTHER], "Other")
 
-        self.assertEqual(form_values[ViewParam.SERVER_PK], patient._pk)
+        self.assertEqual(form_values[ViewParam.SERVER_PK], patient.pk)
         self.assertEqual(form_values[ViewParam.GROUP_ID], patient.group.id)
 
         idnum = form_values[ViewParam.ID_REFERENCES][0]
@@ -5413,7 +5411,7 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
         self.dbsession.commit()
 
         patient_task_schedule = PatientTaskSchedule()
-        patient_task_schedule.patient_pk = patient._pk
+        patient_task_schedule.patient_pk = patient.pk
         patient_task_schedule.schedule_id = schedule1.id
         patient_task_schedule.start_date = parse("2020-06-12")
 
@@ -5428,7 +5426,7 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
         self.dbsession.add(patient_task_schedule)
 
         patient_task_schedule = PatientTaskSchedule()
-        patient_task_schedule.patient_pk = patient._pk
+        patient_task_schedule.patient_pk = patient.pk
         schedule_3_settings = {
             "name 1": "value 1",
         }
@@ -5517,7 +5515,7 @@ class EditServerCreatedPatientViewTests(DemoDatabaseTestCase):
 
         view.save_object(appstruct)
 
-        self.assertEqual(patient._group_id, new_group.id)
+        self.assertEqual(patient.group_id, new_group.id)
 
         messages = self.req.session.peek_flash(FLASH_SUCCESS)
 
@@ -5587,8 +5585,8 @@ class AddPatientViewTests(DemoDatabaseTestCase):
         )
 
         self.assertEqual(patient.id, 1)
-        self.assertEqual(patient._device_id, server_device.id)
-        self.assertEqual(patient._era, ERA_NOW)
+        self.assertEqual(patient.device_id, server_device.id)
+        self.assertEqual(patient.era, ERA_NOW)
         self.assertEqual(patient.group.id, self.group.id)
 
         self.assertEqual(patient.forename, "JO")
@@ -5681,7 +5679,7 @@ class DeleteServerCreatedPatientViewTests(DemoDatabaseTestCase):
             sex="F", address="Address", gp="GP", other="Other"
         )
 
-        patient_pk = patient._pk
+        patient_pk = patient.pk
 
         idnum = self.create_patient_idnum(
             patient_id=patient.id, which_idnum=self.nhs_iddef.which_idnum,
@@ -5697,7 +5695,7 @@ class DeleteServerCreatedPatientViewTests(DemoDatabaseTestCase):
         self.dbsession.commit()
 
         pts = PatientTaskSchedule()
-        pts.patient_pk = patient._pk
+        pts.patient_pk = patient.pk
         pts.schedule_id = schedule.id
         self.dbsession.add(pts)
         self.dbsession.commit()
@@ -5720,7 +5718,7 @@ class DeleteServerCreatedPatientViewTests(DemoDatabaseTestCase):
         self.req.fake_request_post_from_dict(multidict)
 
         self.req.add_get_params({
-            ViewParam.SERVER_PK: patient._pk
+            ViewParam.SERVER_PK: patient.pk
         }, set_method_get=False)
         view = DeleteServerCreatedPatientView(self.req)
 
@@ -5734,7 +5732,7 @@ class DeleteServerCreatedPatientViewTests(DemoDatabaseTestCase):
         )
 
         deleted_patient = self.dbsession.query(Patient).filter(
-            Patient._pk == patient_pk).one_or_none()
+            Patient.pk == patient_pk).one_or_none()
 
         self.assertIsNone(deleted_patient)
 
@@ -5745,8 +5743,8 @@ class DeleteServerCreatedPatientViewTests(DemoDatabaseTestCase):
 
         idnum = self.dbsession.query(PatientIdNum).filter(
             PatientIdNum.patient_id == patient.id,
-            PatientIdNum._device_id == patient._device_id,
-            PatientIdNum._era == patient._era,
+            PatientIdNum._device_id == patient.device_id,
+            PatientIdNum._era == patient.era,
             PatientIdNum._current == True  # noqa: E712
         ).one_or_none()
 
@@ -5770,7 +5768,7 @@ class EraseTaskTestCase(DemoDatabaseTestCase):
 class EraseTaskLeavingPlaceholderViewTests(EraseTaskTestCase):
     def test_displays_form(self) -> None:
         self.req.add_get_params({
-            ViewParam.SERVER_PK: self.task._pk,
+            ViewParam.SERVER_PK: self.task.pk,
             ViewParam.TABLE_NAME: self.task.tablename,
         }, set_method_get=False)
         view = EraseTaskLeavingPlaceholderView(self.req)
@@ -5788,7 +5786,7 @@ class EraseTaskLeavingPlaceholderViewTests(EraseTaskTestCase):
             ("_charset_", "UTF-8"),
             ("__formid__", "deform"),
             (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
-            (ViewParam.SERVER_PK, self.task._pk),
+            (ViewParam.SERVER_PK, self.task.pk),
             (ViewParam.TABLE_NAME, self.task.tablename),
             ("confirm_1_t", "true"),
             ("confirm_2_t", "true"),
@@ -5822,7 +5820,7 @@ class EraseTaskLeavingPlaceholderViewTests(EraseTaskTestCase):
         })
 
         self.req.add_get_params({
-            ViewParam.SERVER_PK: self.task._pk,
+            ViewParam.SERVER_PK: self.task.pk,
             ViewParam.TABLE_NAME: self.task.tablename,
         }, set_method_get=False)
         view = EraseTaskLeavingPlaceholderView(self.req)
@@ -5840,7 +5838,7 @@ class EraseTaskLeavingPlaceholderViewTests(EraseTaskTestCase):
         })
 
         self.req.add_get_params({
-            ViewParam.SERVER_PK: self.task._pk,
+            ViewParam.SERVER_PK: self.task.pk,
             ViewParam.TABLE_NAME: self.task.tablename,
         }, set_method_get=False)
         view = EraseTaskLeavingPlaceholderView(self.req)
@@ -5857,7 +5855,7 @@ class EraseTaskLeavingPlaceholderViewTests(EraseTaskTestCase):
             cm.exception.headers["Location"]
         )
         self.assertIn(
-            "server_pk={}".format(self.task._pk),
+            "server_pk={}".format(self.task.pk),
             cm.exception.headers["Location"]
         )
         self.assertIn("viewtype=html", cm.exception.headers["Location"])
@@ -5883,7 +5881,7 @@ class EraseTaskLeavingPlaceholderViewTests(EraseTaskTestCase):
         self.dbsession.commit()
 
         self.req.add_get_params({
-            ViewParam.SERVER_PK: self.task._pk,
+            ViewParam.SERVER_PK: self.task.pk,
             ViewParam.TABLE_NAME: self.task.tablename,
         }, set_method_get=False)
         view = EraseTaskLeavingPlaceholderView(self.req)
@@ -5901,7 +5899,7 @@ class EraseTaskLeavingPlaceholderViewTests(EraseTaskTestCase):
                                return_value=False):
 
             self.req.add_get_params({
-                ViewParam.SERVER_PK: self.task._pk,
+                ViewParam.SERVER_PK: self.task.pk,
                 ViewParam.TABLE_NAME: self.task.tablename,
             }, set_method_get=False)
             view = EraseTaskLeavingPlaceholderView(self.req)
@@ -5920,7 +5918,7 @@ class EraseTaskLeavingPlaceholderViewTests(EraseTaskTestCase):
         self.dbsession.commit()
 
         self.req.add_get_params({
-            ViewParam.SERVER_PK: self.task._pk,
+            ViewParam.SERVER_PK: self.task.pk,
             ViewParam.TABLE_NAME: self.task.tablename,
         }, set_method_get=False)
         view = EraseTaskLeavingPlaceholderView(self.req)
@@ -5940,7 +5938,7 @@ class EraseTaskEntirelyViewTests(EraseTaskTestCase):
             ("_charset_", "UTF-8"),
             ("__formid__", "deform"),
             (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
-            (ViewParam.SERVER_PK, self.task._pk),
+            (ViewParam.SERVER_PK, self.task.pk),
             (ViewParam.TABLE_NAME, self.task.tablename),
             ("confirm_1_t", "true"),
             ("confirm_2_t", "true"),
@@ -5974,7 +5972,7 @@ class EraseTaskEntirelyViewTests(EraseTaskTestCase):
 
         self.assertIn("Task erased", messages[0])
         self.assertIn(self.task.tablename, messages[0])
-        self.assertIn("server PK {}".format(self.task._pk), messages[0])
+        self.assertIn("server PK {}".format(self.task.pk), messages[0])
 
 
 class EditGroupViewTests(DemoDatabaseTestCase):

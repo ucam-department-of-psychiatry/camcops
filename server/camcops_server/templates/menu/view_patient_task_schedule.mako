@@ -91,7 +91,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
                     Routes.TASK,
                     _query={
                         ViewParam.TABLE_NAME: task_info.task.tablename,
-                        ViewParam.SERVER_PK: task_info.task._pk,
+                        ViewParam.SERVER_PK: task_info.task.pk,
                         ViewParam.VIEWTYPE: ViewArg.HTML,
                     }) }">HTML</a>
             %endif
@@ -104,7 +104,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
                     Routes.TASK,
                     _query={
                         ViewParam.TABLE_NAME: task_info.task.tablename,
-                        ViewParam.SERVER_PK: task_info.task._pk,
+                        ViewParam.SERVER_PK: task_info.task.pk,
                         ViewParam.VIEWTYPE: ViewArg.PDF,
                     }) }">PDF</a>
             %endif

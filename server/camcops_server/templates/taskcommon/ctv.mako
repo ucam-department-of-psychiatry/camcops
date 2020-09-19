@@ -78,14 +78,14 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
                     Routes.TASK,
                     _query={
                         ViewParam.TABLE_NAME: task.tablename,
-                        ViewParam.SERVER_PK: task._pk,
+                        ViewParam.SERVER_PK: task.pk,
                         ViewParam.VIEWTYPE: ViewArg.HTML,
                     }) }">HTML</a>]
                 [<a href="${ req.route_url(
                     Routes.TASK,
                     _query={
                         ViewParam.TABLE_NAME: task.tablename,
-                        ViewParam.SERVER_PK: task._pk,
+                        ViewParam.SERVER_PK: task.pk,
                         ViewParam.VIEWTYPE: ViewArg.PDF,
                     }) }">PDF</a>]
             %endif

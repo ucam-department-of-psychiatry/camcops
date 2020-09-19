@@ -152,7 +152,7 @@ ${ task.get_task_html(req) }
     ${_("Uploaded at:")} ${ format_datetime(task._when_added_exact, DateFormat.SHORT_DATETIME_SECONDS) }.
     ${_("Group:")} ${ task._group.name | h } (${ task._group_id }).
     ${_("Adding user:")} ${ task.get_adding_user_username() }.
-    ${_("Server PK:")} ${ task._pk }
+    ${_("Server PK:")} ${ task.pk }
         (${_("predecessor")} ${ task._predecessor_pk },
         ${_("successor")} ${ task._successor_pk }).
     ${_("Current?")}
@@ -184,7 +184,7 @@ ${ task.get_task_html(req) }
             ## TRANSLATOR: ... [forcibly] preserved... by <username>... at <time>
             ${_("by")} ${ task.get_preserving_user_username() | h }
             ## TRANSLATOR: ... [forcibly] preserved... by <username>... at <time>
-            ${_("at")} ${ task._era }.
+            ${_("at")} ${ task.era }.
             ## ... already an UTC ISO8601 string (BUT Python transformation now).
         %else:
             ${ get_yes_no(req, False) }.
@@ -216,7 +216,7 @@ ${ task.get_task_html(req) }
                             Routes.TASK,
                             _query={
                                 ViewParam.TABLE_NAME: task.tablename,
-                                ViewParam.SERVER_PK: task._pk,
+                                ViewParam.SERVER_PK: task.pk,
                                 ViewParam.VIEWTYPE: ViewArg.XML,
                             }) }">${_("View raw data as XML")}</a>
             </p>
@@ -230,7 +230,7 @@ ${ task.get_task_html(req) }
                                 Routes.TASK,
                                 _query={
                                     ViewParam.TABLE_NAME: task.tablename,
-                                    ViewParam.SERVER_PK: task._pk,
+                                    ViewParam.SERVER_PK: task.pk,
                                     ViewParam.VIEWTYPE: ViewArg.HTML,
                                 }) }">${_("View identifiable version")}</a>
             %else:
@@ -239,7 +239,7 @@ ${ task.get_task_html(req) }
                                 Routes.TASK,
                                 _query={
                                     ViewParam.TABLE_NAME: task.tablename,
-                                    ViewParam.SERVER_PK: task._pk,
+                                    ViewParam.SERVER_PK: task.pk,
                                     ViewParam.VIEWTYPE: ViewArg.HTML,
                                     ViewParam.ANONYMISE: True,
                                 }) }">HTML</a>
@@ -248,7 +248,7 @@ ${ task.get_task_html(req) }
                                 Routes.TASK,
                                 _query={
                                     ViewParam.TABLE_NAME: task.tablename,
-                                    ViewParam.SERVER_PK: task._pk,
+                                    ViewParam.SERVER_PK: task.pk,
                                     ViewParam.VIEWTYPE: ViewArg.PDF,
                                     ViewParam.ANONYMISE: True,
                                 }) }">PDF</a>
@@ -265,7 +265,7 @@ ${ task.get_task_html(req) }
                             Routes.ADD_SPECIAL_NOTE,
                             _query={
                                 ViewParam.TABLE_NAME: task.tablename,
-                                ViewParam.SERVER_PK: task._pk,
+                                ViewParam.SERVER_PK: task.pk,
                             }) }">${_("Apply special note")}</a></p>
             %endif
             %if req.user.may_administer_group(task._group_id):
@@ -273,26 +273,26 @@ ${ task.get_task_html(req) }
                     <p><a href="${ req.route_url(
                                 Routes.EDIT_FINALIZED_PATIENT,
                                 _query={
-                                    ViewParam.SERVER_PK: task.patient._pk
+                                    ViewParam.SERVER_PK: task.patient.pk
                                 }) }">${_("Edit patient details")}</a></p>
                 %endif
             %endif
             %if req.user.authorized_to_erase_tasks(task._group_id):
                 ## Note: prohibit manual erasure for non-finalized tasks.
-                %if task._era != ERA_NOW:
+                %if task.era != ERA_NOW:
                     %if not task.is_erased():
                         <p><a href="${ req.route_url(
                                     Routes.ERASE_TASK_LEAVING_PLACEHOLDER,
                                     _query={
                                         ViewParam.TABLE_NAME: task.tablename,
-                                        ViewParam.SERVER_PK: task._pk,
+                                        ViewParam.SERVER_PK: task.pk,
                                     }) }">${_("Erase task instance, leaving placeholder")}</a></p>
                     %endif
                     <p><a href="${ req.route_url(
                                 Routes.ERASE_TASK_ENTIRELY,
                                 _query={
                                     ViewParam.TABLE_NAME: task.tablename,
-                                    ViewParam.SERVER_PK: task._pk,
+                                    ViewParam.SERVER_PK: task.pk,
                                 }) }">${_("Erase task entirely")}</a></p>
                 %endif
             %endif
@@ -335,7 +335,7 @@ ${ task.get_task_html(req) }
                     Routes.TASK,
                     _query={
                         ViewParam.TABLE_NAME: task.tablename,
-                        ViewParam.SERVER_PK: task._pk,
+                        ViewParam.SERVER_PK: task.pk,
                         ViewParam.VIEWTYPE: ViewArg.PDF,
                         ViewParam.ANONYMISE: True,
                     }) }">${_("View anonymised PDF")}</a>
@@ -344,7 +344,7 @@ ${ task.get_task_html(req) }
                     Routes.TASK,
                     _query={
                         ViewParam.TABLE_NAME: task.tablename,
-                        ViewParam.SERVER_PK: task._pk,
+                        ViewParam.SERVER_PK: task.pk,
                         ViewParam.VIEWTYPE: ViewArg.PDF,
                     }) }">${_("View PDF for printing/saving")}</a>
             %endif

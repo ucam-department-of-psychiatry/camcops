@@ -83,14 +83,14 @@ ${_("CamCOPS server location:")} ${ req.route_url( Routes.CLIENT_API ) }
             <a href="${ req.route_url(
                      Routes.EDIT_SERVER_CREATED_PATIENT,
                      _query={
-                         ViewParam.SERVER_PK: patient._pk
+                         ViewParam.SERVER_PK: patient.pk
                      }) }">${_("Edit")}</a>
         </td>
         <td>
             <a href="${ req.route_url(
                      Routes.DELETE_SERVER_CREATED_PATIENT,
                      _query={
-                         ViewParam.SERVER_PK: patient._pk
+                         ViewParam.SERVER_PK: patient.pk
                      }) }">${_("Delete")}</a>
         </td>
     </tr>

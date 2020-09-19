@@ -3496,7 +3496,7 @@ class GetTaskSchedulesTests(DemoDatabaseTestCase):
         PatientIdNumIndexEntry.index_idnum(idnum, self.dbsession)
 
         patient_task_schedule1 = PatientTaskSchedule()
-        patient_task_schedule1.patient_pk = patient._pk
+        patient_task_schedule1.patient_pk = patient.pk
         patient_task_schedule1.schedule_id = schedule1.id
 
         patient_task_schedule1.settings = {
@@ -3512,7 +3512,7 @@ class GetTaskSchedulesTests(DemoDatabaseTestCase):
         self.dbsession.add(patient_task_schedule1)
 
         patient_task_schedule2 = PatientTaskSchedule()
-        patient_task_schedule2.patient_pk = patient._pk
+        patient_task_schedule2.patient_pk = patient.pk
         patient_task_schedule2.schedule_id = schedule2.id
 
         self.dbsession.add(patient_task_schedule2)

@@ -720,11 +720,10 @@ class TaskIndexEntry(Base):
         idxtable = cls.__table__  # type: Table
         idxcols = idxtable.columns
         tasktablename = task.__class__.tablename
-        # noinspection PyProtectedMember
         session.execute(
             idxtable.delete()
             .where(idxcols.task_table_name == tasktablename)
-            .where(idxcols.task_pk == task._pk)
+            .where(idxcols.task_pk == task.pk)
         )
 
     # -------------------------------------------------------------------------

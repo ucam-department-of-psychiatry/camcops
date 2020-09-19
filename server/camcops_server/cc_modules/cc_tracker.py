@@ -365,8 +365,7 @@ class TrackerCtvCommon(object):
                     continue
                 for task in task_instances:
                     if DEBUG_TRACKER_TASK_INCLUSION:
-                        # noinspection PyProtectedMember
-                        self.summary += f" / PK {task._pk}"
+                        self.summary += f" / PK {task.pk}"
             self.summary += " ~~~ "
         self.summary += " — ".join([
             "; ".join([
@@ -644,11 +643,10 @@ class Tracker(TrackerCtvCommon):
                 specimen_tracker=alltrackers[0][tracker]
             )
         for task in tasks:
-            # noinspection PyProtectedMember
             audit(self.req,
                   "Tracker data accessed",
                   table=task.tablename,
-                  server_pk=task._pk,
+                  server_pk=task.pk,
                   patient_server_pk=task.get_patient_server_pk())
         return html
 

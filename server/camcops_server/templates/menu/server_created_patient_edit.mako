@@ -32,7 +32,7 @@ camcops_server/templates/menu/server_created_patient_edit.mako
 
 <h1>${_("Edit details for patient")}</h1>
 
-<div>${_("Server PK:")} ${object._pk}</div>
+<div>${_("Server PK:")} ${object.pk}</div>
 
 ${ form }
 
