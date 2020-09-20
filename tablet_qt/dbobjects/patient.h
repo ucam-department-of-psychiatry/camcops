@@ -34,7 +34,8 @@ extern const QString DOB_FIELD;
 extern const QString SEX_FIELD;
 extern const QString ADDRESS_FIELD;
 extern const QString GP_FIELD;
-extern const QString OTHER_DETAILS_POLICYNAME;
+extern const QString EMAIL_FIELD;
+extern const QString OTHER_DETAILS_POLICYNAME;  // policy name, not field name
 
 extern const QString IDNUM_FIELD_PREFIX;
 extern const QString IDNUM_FIELD_FORMAT;
@@ -52,17 +53,19 @@ public:
     // ------------------------------------------------------------------------
     // Creation
     // ------------------------------------------------------------------------
+
+    // Normal constructor.
     Patient(CamcopsApp& app,
             DatabaseManager& db,
             int load_pk = dbconst::NONEXISTENT_PK);
 
+    // Construct from JSON (except ID numbers).
     Patient(CamcopsApp& app,
             DatabaseManager& db,
-            const QJsonObject json_obj);
+            const QJsonObject& json_obj);
 
-    void addJsonFields(const QJsonObject json_obj);
-    void addIdNums(const QJsonObject json_obj);
-
+    // Adds ID numbers from JSON.
+    void addIdNums(const QJsonObject& json_obj);
 
     // ------------------------------------------------------------------------
     // Ancillary management
@@ -114,6 +117,9 @@ public:
 
     // Do we know the DOB?
     bool hasDob() const;
+
+    // Do we know the e-mail address?
+    bool hasEmail() const;
 
     // Do we know the address?
     bool hasAddress() const;

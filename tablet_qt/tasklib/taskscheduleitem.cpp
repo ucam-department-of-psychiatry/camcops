@@ -76,39 +76,26 @@ TaskScheduleItem::TaskScheduleItem(CamcopsApp& app, DatabaseManager& db,
 
 TaskScheduleItem::TaskScheduleItem(const int schedule_fk, CamcopsApp& app,
                                    DatabaseManager& db,
-                                   const QJsonObject json_obj) :
+                                   const QJsonObject& json_obj) :
     TaskScheduleItem(app, db)
 {
     setValue(FK_TASK_SCHEDULE, schedule_fk);
     setValue(FN_COMPLETE, false);
     setValue(FK_TASK, dbconst::NONEXISTENT_PK);
-    addJsonFields(json_obj);
-    save();
-}
-
-
-void TaskScheduleItem::addJsonFields(const QJsonObject json_obj)
-{
-    auto setValueOrNull = [&](const QString& field, const QString& key) {
-        const QJsonValue value = json_obj.value(key);
-        if (!value.isNull()) {
-            if (value.isBool()) {
-                setValue(field, value.toBool());
-            } else {
-                setValue(field, value.toString());
-            }
+    setValuesFromJson(
+        json_obj,
+        QMap<QString, QString>{
+            {FN_TASK_TABLE_NAME, KEY_TABLE},
+            {FN_DUE_FROM, KEY_DUE_FROM},
+            {FN_DUE_BY, KEY_DUE_BY},
+            {FN_COMPLETE, KEY_COMPLETE}
         }
-    };
-
-    setValueOrNull(FN_TASK_TABLE_NAME, KEY_TABLE);
-    setValueOrNull(FN_DUE_FROM, KEY_DUE_FROM);
-    setValueOrNull(FN_DUE_BY, KEY_DUE_BY);
-    setValueOrNull(FN_COMPLETE, KEY_COMPLETE);
-
+    );
     const QJsonObject settings = json_obj.value(KEY_SETTINGS).toObject();
     const QJsonDocument doc(settings);
     const QString json_string = doc.toJson(QJsonDocument::Compact);
     setValue(FN_SETTINGS, json_string);
+    save();
 }
 
 
@@ -183,6 +170,9 @@ QString TaskScheduleItem::title() const
 {
     TaskFactory* factory = m_app.taskFactory();
     TaskPtr task = factory->create(taskTableName());
+    if (!task) {
+        return "?";
+    }
 
     return QString(task->longname());
 }

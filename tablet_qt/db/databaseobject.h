@@ -126,6 +126,10 @@ public:
     // Do we have the specified field?
     bool hasField(const QString& fieldname) const;
 
+    // What's a field's type?
+    // (Returns QVariant::Type::Invalid for non-existent fields.)
+    QVariant::Type fieldType(const QString& fieldname) const;
+
     // Return all fieldnames.
     QStringList fieldnames() const;
 
@@ -138,19 +142,40 @@ public:
     // ------------------------------------------------------------------------
 
     // Sets a field's value.
+    // Returns: changed?
     bool setValue(const QString& fieldname, const QVariant& value,
-                  bool touch_record = true);  // returns: changed?
+                  bool touch_record = true);
 
     // Sets a field's value.
+    // Returns: changed?
     bool setValue(const QString& fieldname, const QVector<int>& value,
-                  bool touch_record = true);  // returns: changed?
+                  bool touch_record = true);
 
     // Sets a field's value.
+    // Returns: changed?
     bool setValue(const QString& fieldname, const QStringList& value,
-                  bool touch_record = true);  // returns: changed?
+                  bool touch_record = true);
 
     // Adds an increment to an integer field's value.
     void addToValueInt(const QString& fieldname, int increment);
+
+    // Set a field's value from a JSON object.
+    bool setValueFromJson(
+            const QJsonObject& json_obj,
+            const QString& fieldname,
+            const QString& json_key,
+            bool touch_record = true);
+
+    // ------------------------------------------------------------------------
+    // Set multiple fields
+    // ------------------------------------------------------------------------
+
+    // Set multiple fields' values from a JSON object.
+    // Returns: anything changed?
+    bool setValuesFromJson(
+            const QJsonObject& json_obj,
+            const QMap<QString, QString>& fieldnames_to_json_keys,
+            bool touch_record = true);
 
     // ------------------------------------------------------------------------
     // Read a field
@@ -219,6 +244,15 @@ public:
     // Returns a BlobFieldRef (q.v.) pointer for the specified field.
     BlobFieldRefPtr blobFieldRef(const QString& fieldname, bool mandatory);
 
+    // Reads a value as a QJsonValue (encoding dates etc. as strings).
+    QJsonValue valueAsJsonValue(const QString& fieldname) const;
+
+    // Read a value and store it in a JSON object.
+    void readValueIntoJson(
+            const QString& fieldname,
+            QJsonObject& json_obj,
+            const QString& json_key) const;
+
 protected:
     // Low-level field access (for internal use only)
     // Returns the Field object for a given fieldname.
@@ -258,6 +292,11 @@ public:
 
     // Are none of the values null or empty strings?
     bool noValuesNullOrEmpty(const QStringList& fieldnames) const;
+
+    // Read values and store them in a JSON object.
+    void readValuesIntoJson(
+            const QMap<QString, QString>& fieldnames_to_json_keys,
+            QJsonObject& json_obj) const;
 
     // ========================================================================
     // PK access

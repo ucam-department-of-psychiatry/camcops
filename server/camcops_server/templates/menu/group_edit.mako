@@ -53,8 +53,8 @@ ${ form }
         ## TRANSLATOR: group_edit.mako, advice to user about policies
         <li>${_("these named fields:")} <code>forename</code>, <code>surname</code>,
             <code>sex</code>, <code>dob</code> (date of birth),
-            <code>address</code>, <code>gp</code>,
-            <code>otherdetails</code>;</li>
+            <code>email</code>, <code>address</code>,
+            <code>gp</code>, <code>otherdetails</code></li>
 
         ## TRANSLATOR: group_edit.mako, advice to user about policies
         <li>${_("a specific ID number using")} “idnum<i>n</i>”;

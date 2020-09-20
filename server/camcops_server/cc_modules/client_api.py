@@ -2051,6 +2051,14 @@ def op_check_device_registered(req: "CamcopsRequest") -> None:
 
 
 def op_register_patient(req: "CamcopsRequest") -> Dict[str, Any]:
+    """
+    Registers a patient. That is, the client provides an access key. If all
+    is well, the server returns details of that patient, as well as key
+    server parameters, plus (if required) the username/password to use.
+    """
+    # -------------------------------------------------------------------------
+    # Patient details
+    # -------------------------------------------------------------------------
     patient = get_single_patient(req)
 
     patient_dict = {
@@ -2059,33 +2067,36 @@ def op_register_patient(req: "CamcopsRequest") -> Dict[str, Any]:
         TabletParam.SEX: patient.sex,
         TabletParam.DOB: format_datetime(patient.dob,
                                          DateFormat.ISO8601_DATE_ONLY),
+        TabletParam.EMAIL: patient.email,
         TabletParam.ADDRESS: patient.address,
         TabletParam.GP: patient.gp,
         TabletParam.OTHER: patient.other,
     }
-
     for idnum in patient.idnums:
         key = f"{TabletParam.IDNUM_PREFIX}{idnum.which_idnum}"
         patient_dict[key] = idnum.idnum_value
 
     # One item list to be consistent with patients uploaded from the tablet
     patient_info = json.dumps([patient_dict])
-
-    client_device_name = get_str_var(req, TabletParam.DEVICE)
-
     reply_dict = {
         TabletParam.PATIENT_INFO: patient_info,
     }
 
+    # -------------------------------------------------------------------------
+    # Username/password, if required
+    # -------------------------------------------------------------------------
     user_name = get_str_var(req, TabletParam.USER, mandatory=False)
     if user_name is None:
         assert patient.group is not None  # for type checker
-
+        client_device_name = get_str_var(req, TabletParam.DEVICE)
         user, password = create_single_user(req, f"user-{client_device_name}",
                                             patient.group)
         reply_dict[TabletParam.USER] = user.username
         reply_dict[TabletParam.PASSWORD] = password
 
+    # -------------------------------------------------------------------------
+    # Intellectual property settings
+    # -------------------------------------------------------------------------
     ip_use = patient.group.ip_use or IpUse()
     # ... if the group doesn't have an associated ip_use object, use defaults
     ip_dict = {
@@ -2094,13 +2105,16 @@ def op_register_patient(req: "CamcopsRequest") -> Dict[str, Any]:
         TabletParam.IP_USE_EDUCATIONAL: int(ip_use.educational),
         TabletParam.IP_USE_RESEARCH: int(ip_use.research),
     }
-
     reply_dict[TabletParam.IP_USE_INFO] = json.dumps(ip_dict)
 
     return reply_dict
 
 
 def get_single_patient(req: "CamcopsRequest") -> Patient:
+    """
+    Returns the patient identified by the proquint access key present in this
+    request, or raises.
+    """
     _ = req.gettext
 
     patient_proquint = get_str_var(req, TabletParam.PATIENT_PROQUINT)
@@ -2137,6 +2151,22 @@ def get_single_patient(req: "CamcopsRequest") -> Patient:
 
 def create_single_user(req: "CamcopsRequest",
                        name: str, group: Group) -> Tuple[User, str]:
+    """
+    Creates a user for a patient (who's using single-user mode).
+    The username must not already exist.
+
+    Args:
+        req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        name: username
+        group: group in which to place this user
+
+    Returns:
+        tuple: :class:`camcops_server.cc_modules.cc_user.User`, password
+
+    todo: Handle the case in which the username already exists? Maybe
+          implausible, but is it possible (e.g. username gets wiped but UUID
+          remains on client, so the client asks again)?
+    """
 
     dbsession = req.dbsession
 
@@ -2161,10 +2191,15 @@ def create_single_user(req: "CamcopsRequest",
     return user, password
 
 
-def random_password() -> str:
+def random_password(length: int = 32) -> str:
+    """
+    Create a random password.
+    """
     # Not trying anything clever with distributions of letters, digits etc
     characters = string.ascii_letters + string.digits + string.punctuation
-    return "".join(secrets.choice(characters) for i in range(32))
+    # We use secrets.choice() rather than random.choices() as it's better
+    # for security/cryptography purposes.
+    return "".join(secrets.choice(characters) for _ in range(length))
 
 
 # =============================================================================
@@ -2261,6 +2296,10 @@ def op_get_allowed_tables(req: "CamcopsRequest") -> Dict[str, str]:
 
 
 def op_get_task_schedules(req: "CamcopsRequest") -> Dict[str, str]:
+    """
+    Return details of the task schedules for the patient associated with
+    this request, for single-user mode.
+    """
     patient = get_single_patient(req)
     task_schedules = get_task_schedules(req, patient)
 
@@ -2271,6 +2310,10 @@ def op_get_task_schedules(req: "CamcopsRequest") -> Dict[str, str]:
 
 def get_task_schedules(req: "CamcopsRequest",
                        patient: Patient) -> str:
+    """
+    Gets a JSON string representation of the task schedules for a specified
+    patient.
+    """
     dbsession = req.dbsession
 
     schedules = []
@@ -2290,9 +2333,10 @@ def get_task_schedules(req: "CamcopsRequest",
             # has been set here during registration and the patient's details
             # are edited on the server, the start date will be set to midnight
             # on the same date. So there will be a mismatch on the tablet and
-            # server (this would also be the case if the admin changed the start
-            # date to something completely different). If the user updates their
-            # task schedules on the tablet the dates will be in sync again.
+            # server (this would also be the case if the admin changed the
+            # start date to something completely different). If the user
+            # updates their task schedules on the tablet the dates will be in
+            # sync again.
             pts.start_date = req.now_utc
             dbsession.add(pts)
 
@@ -2770,6 +2814,9 @@ def op_validate_patients(req: "CamcopsRequest") -> str:
                 else:
                     dob = None
                 ptinfo.dob = dob
+            elif k == TabletParam.EMAIL:
+                ensure_string(v)
+                ptinfo.email = v
             elif k == TabletParam.ADDRESS:
                 ensure_string(v)
                 ptinfo.address = v

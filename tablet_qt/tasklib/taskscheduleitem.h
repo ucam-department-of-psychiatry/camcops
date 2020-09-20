@@ -22,38 +22,75 @@
 
 class TaskScheduleItem : public DatabaseObject
 {
+    // Represents a scheduled task.
+
     Q_OBJECT
+
+public:
+
+    // Possible states of a scheduled task.
+    enum class State {
+        Future,  // Not yet due.
+        Due,  // Needs to be done. Ready to create task instance.
+        Started,  // Task instance has been created; not yet complete.
+        Completed,  // Task instance has been created and completed.
+        Missed  // Due date/time has passed without completion.
+    };
 
 public:
     // ------------------------------------------------------------------------
     // Creation
     // ------------------------------------------------------------------------
 
+    // Normal constructor.
     TaskScheduleItem(CamcopsApp& app, DatabaseManager& db,
                      int load_pk = dbconst::NONEXISTENT_PK);
+
+    // Construct from JSON.
     TaskScheduleItem(int schedule_fk, CamcopsApp& app, DatabaseManager& db,
-                     const QJsonObject json_obj);
-    void addJsonFields(const QJsonObject json_obj);
+                     const QJsonObject& json_obj);
+
+    // Item ID number.
     int id() const;
+
+    // When the task starts to be due, in UTC.
     QDateTime dueFromUtc() const;
+
+    // When the task should be completed by, in UTC.
     QDateTime dueByUtc() const;
+
+    // When the task starts to be due, in UTC.
     QDateTime dueFromLocal() const;
+
+    // When the task should be completed by, in the local timezone.
     QDateTime dueByLocal() const;
+
+    // Returns the associated task instance (or a null pointer if there isn't
+    // one).
     TaskPtr getTask() const;
+
+    // Returns the table name of the scheduled task.
     QString taskTableName() const;
+
+    // Returns any JSON settings set by the schedule.
     QJsonObject settings() const;
+
+    // Title of the scheduled task, used as the title for a two-line menu item.
     QString title() const;
+
+    // State/due-by information, used as the subtitle for a two-line menu item.
     QString subtitle() const;
-    enum class State {
-        Started,
-        Completed,
-        Due,
-        Future,
-        Missed
-    };
+
+    // Is the task in an editable state?
     bool isEditable() const;
+
+    // Returns the state of the scheduled task.
     State state() const;
+
+    // Marks the scheduled task as complete (or not).
     void setComplete(bool complete);
+
+    // Sets the associated task instance (using the task PK within its table).
     void setTask(int task_id);
 
     static const QString TABLENAME;

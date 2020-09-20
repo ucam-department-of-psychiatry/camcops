@@ -83,6 +83,7 @@ class TabletParam(object):
     DOB = "dob"  # C->S, in JSON, v2.3.0
     DUE_BY = "due_by"  # C->S; new in v2.3.9
     DUE_FROM = "due_from"  # C->S; new in v2.3.9
+    EMAIL = "email"  # C->S; new in v2.3.9
     ERROR = "error"  # S->C
     FIELDS = "fields"  # B
     FINALIZING = "finalizing"  # C->S, in JSON and upload_entire_database, v2.3.0; synonym for preserving  # noqa

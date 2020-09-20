@@ -41,6 +41,9 @@ void TaskScheduleItemEditor::editTask()
     if (task == nullptr) {
         const auto tablename = m_p_task_schedule_item->taskTableName();
         task = m_app.taskFactory()->create(tablename);
+        if (!task) {
+            return;
+        }
 
         if (!canEditTask(task)) {
             return;
@@ -72,6 +75,13 @@ void TaskScheduleItemEditor::editTask()
 bool TaskScheduleItemEditor::canEditTask(TaskPtr task)
 {
     QString why_not_permissible;
+
+    if (!task) {
+        uifunc::alert(tr("Null task pointer"),
+                      tr("Unable to complete task"));
+        return false;
+    }
+
     if (!task->isTaskPermissible(why_not_permissible)) {
         const QString reason = QString("%1<br><br>%2: %3").arg(
             tr("You cannot complete this task with your current settings."),

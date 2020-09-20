@@ -32,13 +32,16 @@ public:
     // Creation
     // ------------------------------------------------------------------------
 
+    // Normal constructor.
     TaskSchedule(CamcopsApp& app, DatabaseManager& db,
                  int load_pk = dbconst::NONEXISTENT_PK);
-    TaskSchedule(CamcopsApp& app, DatabaseManager& db,
-                 const QJsonObject json_obj);
-    void addJsonFields(const QJsonObject json_obj);
-    void addItems(const QJsonArray items_json_array);
 
+    // Construct from JSON.
+    TaskSchedule(CamcopsApp& app, DatabaseManager& db,
+                 const QJsonObject& json_obj);
+
+    // Add schedule items from JSON.
+    void addItems(const QJsonArray& items_json_array);
 
     // ------------------------------------------------------------------------
     // Ancillary management
@@ -48,13 +51,17 @@ public:
     virtual QVector<DatabaseObjectPtr> getAncillarySpecimens() const override;
     virtual QVector<DatabaseObjectPtr> getAllAncillary() const override;
 
-
-    // ============================================================================
+    // ========================================================================
     // Information about schedules
-    // ============================================================================
+    // ========================================================================
 
+    // Schedule ID.
     int id() const;
+
+    // Schedule name.
     QString name() const;
+
+    // Schedule items (tasks with dates/times).
     QVector<TaskScheduleItemPtr> items() const;
 
 protected:
@@ -66,5 +73,4 @@ public:
     static const QString FN_NAME;
 
     static const QString KEY_TASK_SCHEDULE_NAME;
-    static const QString KEY_TASK_SCHEDULE_ITEMS;
 };
