@@ -44,11 +44,14 @@
 #include <QUrl>
 #include "common/colourdefs.h"
 #include "common/cssconst.h"
+#include "common/languages.h"
 #include "common/platform.h"
 #include "common/textconst.h"
 #include "common/uiconst.h"
+#include "core/camcopsapp.h"
 #include "dialogs/dangerousconfirmationdialog.h"
 #include "dialogs/logmessagebox.h"
+#include "dialogs/nvpchoicedialog.h"
 #include "dialogs/passwordchangedialog.h"
 #include "dialogs/passwordentrydialog.h"
 #include "dialogs/scrollmessagebox.h"
@@ -585,6 +588,22 @@ bool getOldNewPasswords(const QString& text, const QString& title,
     old_password = dlg.oldPassword();
     new_password = dlg.newPassword();
     return true;
+}
+
+
+// ============================================================================
+// Choose language
+// ============================================================================
+
+void chooseLanguage(CamcopsApp& app, QWidget* parent_window) {
+    QVariant language = app.getLanguage();
+    NvpChoiceDialog dlg(parent_window, languages::possibleLanguages(),
+                        QObject::tr("Choose language"));
+    dlg.showExistingChoice(true);
+    if (dlg.choose(&language) != QDialog::Accepted) {
+        return;  // user pressed cancel, or some such
+    }
+    app.setLanguage(language.toString(), true);
 }
 
 

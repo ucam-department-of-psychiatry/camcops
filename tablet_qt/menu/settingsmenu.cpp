@@ -89,18 +89,6 @@ SettingsMenu::SettingsMenu(CamcopsApp& app) :
     m_fontsize_questionnaire(nullptr),
     m_ip_questionnaire(nullptr)
 {
-}
-
-
-QString SettingsMenu::title() const
-{
-    return tr("Settings");
-}
-
-
-void SettingsMenu::makeItems()
-{
-    const QString PRIVPREFIX("(†) ");
     m_fontsize_fr = m_app.storedVarFieldRef(
                 varconst::QUESTIONNAIRE_SIZE_PERCENT, true);
     m_ip_clinical_fr = m_app.storedVarFieldRef(
@@ -117,7 +105,18 @@ void SettingsMenu::makeItems()
                 varconst::OVERRIDE_PHYSICAL_DPI_X, false);
     m_dpi_override_physical_y_fr = m_app.storedVarFieldRef(
                 varconst::OVERRIDE_PHYSICAL_DPI_Y, false);
+}
 
+
+QString SettingsMenu::title() const
+{
+    return tr("Settings");
+}
+
+
+void SettingsMenu::makeItems()
+{
+    const QString PRIVPREFIX("(†) ");
     const QString spanner(uifunc::iconFilename(uiconst::CBS_SPANNER));
 
     // Safe object lifespan signal: can use std::bind
@@ -1463,7 +1462,7 @@ void SettingsMenu::viewCounts(DatabaseManager& db, const QString& title)
 
 void SettingsMenu::chooseLanguage()
 {
-    m_app.chooseLanguage(this);
+    uifunc::chooseLanguage(m_app, this);
 }
 
 

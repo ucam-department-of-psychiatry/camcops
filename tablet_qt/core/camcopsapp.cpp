@@ -76,7 +76,6 @@
 #include "diagnosis/icd9cm.h"
 #include "diagnosis/icd10.h"
 #include "dialogs/modedialog.h"
-#include "dialogs/nvpchoicedialog.h"
 #include "dialogs/patientregistrationdialog.h"
 #include "dialogs/scrollmessagebox.h"
 #include "layouts/layouts.h"
@@ -148,19 +147,19 @@ CamcopsApp::~CamcopsApp()
 // Operating mode
 // ============================================================================
 
-bool CamcopsApp::isSingleUserMode()
+bool CamcopsApp::isSingleUserMode() const
 {
-    return this->getMode() == varconst::MODE_SINGLE_USER;
+    return getMode() == varconst::MODE_SINGLE_USER;
 }
 
-bool CamcopsApp::isClinicianMode()
+bool CamcopsApp::isClinicianMode() const
 {
-    return this->getMode() == varconst::MODE_CLINICIAN;
+    return getMode() == varconst::MODE_CLINICIAN;
 }
 
-int CamcopsApp::getMode()
+int CamcopsApp::getMode() const
 {
-    return var(varconst::MODE).toInt();
+    return varInt(varconst::MODE);
 }
 
 void CamcopsApp::setMode(const int mode)
@@ -220,7 +219,7 @@ void CamcopsApp::setModeFromUser()
     setMode(new_mode);
 }
 
-int CamcopsApp::getSinglePatientId()
+int CamcopsApp::getSinglePatientId() const
 {
     return var(varconst::SINGLE_PATIENT_ID).toInt();
 }
@@ -276,12 +275,15 @@ bool CamcopsApp::registerPatientWithServer()
 }
 
 
-bool CamcopsApp::confirmDeletePatient()
+bool CamcopsApp::confirmDeletePatient() const
 {
     ScrollMessageBox msgbox(
         QMessageBox::Warning,
         tr("Delete patient"),
-        tr("Registering a new patient will delete the current patient and any associated data. Are you sure you want to do this?") + "\n\n",
+        tr(
+            "Registering a new patient will delete the current patient and "
+            "any associated data. Are you sure you want to do this?"
+        ) + "\n\n",
         m_p_main_window);
     QAbstractButton* delete_button = msgbox.addButton(
         tr("Yes, delete"), QMessageBox::YesRole);
@@ -522,19 +524,6 @@ QString CamcopsApp::getLanguage() const
 }
 
 
-void CamcopsApp::chooseLanguage(QWidget* parent)
-{
-    QVariant language = getLanguage();
-    NvpChoiceDialog dlg(parent, languages::possibleLanguages(),
-                        tr("Choose language"));
-    dlg.showExistingChoice(true);
-    if (dlg.choose(&language) != QDialog::Accepted) {
-        return;  // user pressed cancel, or some such
-    }
-    setLanguage(language.toString(), true);
-}
-
-
 int CamcopsApp::run()
 {
     // We do the minimum possible; then we fire up the GUI; then we run
@@ -611,7 +600,7 @@ int CamcopsApp::run()
             TextConst::pleaseWait());
     }
 
-    if (var(varconst::MODE) == varconst::MODE_NOT_SET) {
+    if (varInt(varconst::MODE) == varconst::MODE_NOT_SET) {
         setModeFromUser();
     }
 
@@ -806,7 +795,7 @@ bool CamcopsApp::processCommandLineArguments(int& retcode)
 }
 
 
-void CamcopsApp::announceStartup()
+void CamcopsApp::announceStartup() const
 {
     // ------------------------------------------------------------------------
     // Announce startup
@@ -1041,7 +1030,7 @@ bool CamcopsApp::connectDatabaseEncryption(QString& new_user_password,
 }
 
 
-bool CamcopsApp::userConfirmedRetryPassword()
+bool CamcopsApp::userConfirmedRetryPassword() const
 {
     return uifunc::confirm(
         tr("You entered an incorrect password. Try again?"),
@@ -1051,7 +1040,7 @@ bool CamcopsApp::userConfirmedRetryPassword()
 }
 
 
-bool CamcopsApp::userConfirmedDeleteDatabases()
+bool CamcopsApp::userConfirmedDeleteDatabases() const
 {
     return uifunc::confirmDangerousOperation(
         tr("The only way to reset your password is to delete all of the data "
@@ -1460,7 +1449,7 @@ void CamcopsApp::openMainWindow()
     m_p_main_window->showMaximized();
 }
 
-bool CamcopsApp::needToRegisterSinglePatient()
+bool CamcopsApp::needToRegisterSinglePatient() const
 {
     if (isSingleUserMode()) {
         return getSinglePatientId() == dbconst::NONEXISTENT_PK;
@@ -2128,6 +2117,15 @@ void CamcopsApp::setNeedsUpload(const bool needs_upload)
 #endif
         emit needsUploadChanged(needs_upload);
     }
+}
+
+
+bool CamcopsApp::validateSslCertificates() const
+{
+    if (isSingleUserMode()) {
+        return varconst::VALIDATE_SSL_CERTIFICATES_IN_SINGLE_USER_MODE;
+    }
+    return varBool(varconst::VALIDATE_SSL_CERTIFICATES);
 }
 
 

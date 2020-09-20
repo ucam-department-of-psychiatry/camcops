@@ -65,6 +65,7 @@ extern const QString STORE_SERVER_PASSWORD;
 extern const QString UPLOAD_METHOD;
 extern const QString MAX_DBSIZE_FOR_ONESTEP_UPLOAD;
 
+extern const bool VALIDATE_SSL_CERTIFICATES_IN_SINGLE_USER_MODE;
 extern const int UPLOAD_METHOD_MULTISTEP;  // the original way
 extern const int UPLOAD_METHOD_ONESTEP;  // available from v2.3.0
 extern const int UPLOAD_METHOD_BYSIZE;  // available from v2.3.0

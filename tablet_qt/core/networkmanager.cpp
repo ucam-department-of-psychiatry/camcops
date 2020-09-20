@@ -380,7 +380,7 @@ QNetworkRequest NetworkManager::createServerRequest(bool& success)
                 serverUrl(success),
                 true,  // always offer cancel
                 true,  // always use SSL
-                !m_app.varBool(varconst::VALIDATE_SSL_CERTIFICATES),  // ignore SSL errors?
+                !m_app.validateSslCertificates(),  // ignore SSL errors?
                 ssl_protocol);
 }
 

@@ -60,6 +60,7 @@ const QString STORE_SERVER_PASSWORD("storeServerPassword");
 const QString UPLOAD_METHOD("uploadMethod");
 const QString MAX_DBSIZE_FOR_ONESTEP_UPLOAD("maxDbSizeForOneStepUpload");
 
+const bool VALIDATE_SSL_CERTIFICATES_IN_SINGLE_USER_MODE = false;
 const int UPLOAD_METHOD_MULTISTEP = 0;
 const int UPLOAD_METHOD_ONESTEP = 1;
 const int UPLOAD_METHOD_BYSIZE = 2;

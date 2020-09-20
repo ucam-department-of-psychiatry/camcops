@@ -20,13 +20,15 @@
 #include "singleuseroptionsmenu.h"
 #include "common/urlconst.h"
 #include "lib/uifunc.h"
+#include "menu/settingsmenu.h"
 
 
 SingleUserOptionsMenu::SingleUserOptionsMenu(CamcopsApp& app)
     : MenuWindow(
           app,
           uifunc::iconFilename(uiconst::ICON_SETTINGS)
-    )
+    ),
+    m_settings_menu(new SettingsMenu(app))
 {
 }
 
@@ -62,6 +64,13 @@ void SingleUserOptionsMenu::makeItems()
             uifunc::iconFilename(uiconst::ICON_INFO)
         ),
         MenuItem(
+            tr("Questionnaire font size and DPI settings"),
+            MenuItem::OpenableWidgetMaker(
+                std::bind(&SingleUserOptionsMenu::setQuestionnaireFontSize, this,
+                       std::placeholders::_1)
+            )
+        ),
+        MenuItem(
             tr("Change operating mode"),
             std::bind(&SingleUserOptionsMenu::changeMode, this)
         ).setNotIfLocked(),
@@ -93,5 +102,10 @@ void SingleUserOptionsMenu::updateTaskSchedules()
 
 void SingleUserOptionsMenu::chooseLanguage()
 {
-    m_app.chooseLanguage(this);
+    uifunc::chooseLanguage(m_app, this);
+}
+
+OpenableWidget* SingleUserOptionsMenu::setQuestionnaireFontSize(CamcopsApp& app)
+{
+    return m_settings_menu->setQuestionnaireFontSize(app);
 }

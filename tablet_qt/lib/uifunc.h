@@ -23,6 +23,7 @@
 #include <QString>
 #include "common/uiconst.h"
 
+class CamcopsApp;
 class QAbstractButton;
 class QDialog;
 class QLabel;
@@ -30,6 +31,7 @@ class QLayout;
 class QPainter;
 class QPlainTextEdit;
 class QPointF;
+class QWidget;
 
 
 namespace uifunc {
@@ -225,6 +227,14 @@ bool getOldNewPasswords(const QString& text, const QString& title,
                         bool require_old_password,
                         QString& old_password, QString& new_password,
                         QWidget* parent);
+
+// ============================================================================
+// Choose language
+// ============================================================================
+
+// Allow the user to choose a language
+void chooseLanguage(CamcopsApp& app, QWidget* parent_window);
+
 
 // ============================================================================
 // Fonts; CSS

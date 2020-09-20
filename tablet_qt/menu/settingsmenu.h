@@ -102,4 +102,6 @@ protected:
     FieldRefPtr m_dpi_override_physical_fr;
     FieldRefPtr m_dpi_override_physical_x_fr;
     FieldRefPtr m_dpi_override_physical_y_fr;
+
+    friend class SingleUserOptionsMenu;
 };

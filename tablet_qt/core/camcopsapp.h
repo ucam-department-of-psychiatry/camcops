@@ -137,36 +137,6 @@ public:
     // Returns the full path to a (SQLite/SQLCipher) database that we'll use.
     QString dbFullPath(const QString& filename);
 
-    // Operating mode - Single user, clinician
-    bool isSingleUserMode();
-    bool isClinicianMode();
-    int getMode();
-    void setMode(const int mode);
-    int getSinglePatientId();
-    void setSinglePatientId(const int id);
-
-    // Change the language used.
-    void setLanguage(const QString& language_code,
-                     bool store_to_database = false);
-
-    // Return the current language code
-    QString getLanguage() const;
-
-    // Allow the user to choose a language
-    void chooseLanguage(QWidget* parent = nullptr);
-
-    // Prompt user to select operating mode, exit if app is left modeless
-    void setModeFromUser();
-
-    // Patient registration in single user mode
-    bool registerPatientWithServer();
-
-    void updateTaskSchedules();
-    void deleteTaskSchedules();
-
-    // True if first time in single user mode
-    bool needToRegisterSinglePatient();
-
 protected:
     // Directory used by CamCOPS to store its SQLite/SQLCipher directory.
     QString defaultDatabaseDir() const;
@@ -179,7 +149,7 @@ protected:
     bool processCommandLineArguments(int& retcode);
 
     // Announce startup information to the console/debugging stream.
-    void announceStartup();
+    void announceStartup() const;
 
     // Register database drivers (e.g. SQLCipher) with Qt.
     void registerDatabaseDrivers();
@@ -258,8 +228,8 @@ protected:
                               const QString& error_string,
                               const QString& base_message);
 
-    bool userConfirmedRetryPassword();
-    bool userConfirmedDeleteDatabases();
+    bool userConfirmedRetryPassword() const;
+    bool userConfirmedDeleteDatabases() const;
 
 public:
     // Forces the main menu to be refreshed
@@ -301,13 +271,32 @@ public slots:
     // "Leave fullscreen mode."
     void leaveFullscreen();
 
+    // Callback for when the network manager has finished talking to the server.
     void networkManagerFinished();
+
+    // Callback for patient registration failure.
     void patientRegistrationFailed(const NetworkManager::ErrorCode error_code,
                                    const QString& error_string);
+
+    // Callback for task schedule update failure.
     void updateTaskSchedulesFailed(const NetworkManager::ErrorCode error_code,
                                    const QString& error_string);
+
+    // Callback for upload failure.
     void uploadFailed(const NetworkManager::ErrorCode error_code,
                       const QString& error_string);
+
+    // ------------------------------------------------------------------------
+    // Language
+    // ------------------------------------------------------------------------
+public:
+
+    // Change the language used.
+    void setLanguage(const QString& language_code,
+                     bool store_to_database = false);
+
+    // Return the current language code
+    QString getLanguage() const;
 
     // ------------------------------------------------------------------------
     // Security and related
@@ -381,25 +370,47 @@ signals:
     void lockStateChanged(LockState lockstate);
 
     // ------------------------------------------------------------------------
-    // Network
+    // Operating mode - Single user, clinician
     // ------------------------------------------------------------------------
 public:
-    // Return the app's NetworkManager object.
-    NetworkManager* networkManager() const;
 
-    // Do we need to upload new data?
-    bool needsUpload() const;
+    // Are we in single-user mode?
+    bool isSingleUserMode() const;
 
-    // Tells the app it needs to upload new data.
-    void setNeedsUpload(bool needs_upload);
+    // Are we in clinician mode?
+    bool isClinicianMode() const;
 
-protected:
-    // Makes a new NetworkManager.
-    void makeNetManager();
+    // What mode are we in?
+    int getMode() const;
+
+    // Set the operating mode
+    void setMode(const int mode);
+
+    // Prompt user to select operating mode, exit if app is left modeless
+    void setModeFromUser();
+
+    // Return the ID (PK) of the sole patient in single-patient mode
+    int getSinglePatientId() const;
+
+    // Set the patient in single-patient mode
+    void setSinglePatientId(const int id);
+
+    // True if first time in single user mode
+    bool needToRegisterSinglePatient() const;
+
+    // Patient registration in single user mode
+    bool registerPatientWithServer();
+
+    // Talk to the server and fetch our task schedules (for single-patient
+    // mode).
+    void updateTaskSchedules();
+
+    // Delete task schedules from the client.
+    void deleteTaskSchedules();
 
 signals:
-    // Signal that the "needs upload" state has changed.
-    void needsUploadChanged(bool needs_upload);
+    // The operation mode has changed (Clincian, single user...)
+    void modeChanged(int mode);
 
     // ------------------------------------------------------------------------
     // Patient
@@ -433,14 +444,17 @@ public:
     TaskSchedulePtrList getTaskSchedules();
 
 protected:
+    // Reloads our single patient.
     void reloadPatient(int patient_id);
-    bool confirmDeletePatient();
+
+    // Ask for confirmation to delete details of the patient (for
+    // single-patient mode).
+    bool confirmDeletePatient() const;
+
+    // Delete the current patient from the database.
     void deleteSelectedPatient();
 
 signals:
-    // The operation mode has changed (Clincian, single user...)
-    void modeChanged(int mode);
-
     // The patient selection has changed (new patient selected or deselected).
     void selectedPatientChanged(const Patient* patient);
 
@@ -452,6 +466,30 @@ signals:
 
     // Emitted when the task schedule list needs to be refreshed.
     void refreshMainMenu();
+
+    // ------------------------------------------------------------------------
+    // Network
+    // ------------------------------------------------------------------------
+public:
+    // Return the app's NetworkManager object.
+    NetworkManager* networkManager() const;
+
+    // Do we need to upload new data?
+    bool needsUpload() const;
+
+    // Tells the app it needs to upload new data.
+    void setNeedsUpload(bool needs_upload);
+
+    // Should we validate SSL certificates?
+    bool validateSslCertificates() const;
+
+protected:
+    // Makes a new NetworkManager.
+    void makeNetManager();
+
+signals:
+    // Signal that the "needs upload" state has changed.
+    void needsUploadChanged(bool needs_upload);
 
     // ------------------------------------------------------------------------
     // CSS convenience; fonts etc.
@@ -489,7 +527,7 @@ public:
     IdPolicy finalizePolicy() const;
 
     // Do we have an ID description for a given ID number type?
-    bool idDescriptionExists(int which_idnum);
+    // bool idDescriptionExists(int which_idnum);
 
     // Returns the ID description for a given ID number type.
     QString idDescription(int which_idnum);
