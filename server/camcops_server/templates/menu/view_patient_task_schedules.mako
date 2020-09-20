@@ -71,11 +71,14 @@ ${_("CamCOPS server location:")} ${ req.route_url( Routes.CLIENT_API ) }
                 <%
                     mailto_params = urlencode({
                         "subject": _("CamCOPS access key"),
+                        # Avoid extra spaces; some e-mail clients make them
+                        # invisible yet copy/paste-able (Thunderbird);
+                        # confusing!
                         "body": (
                             patient.get_salutation(req) + "\n\n" +
-                            _("For the CamCOPS server at:") + "\n\n    " +
+                            _("For the CamCOPS server at:") + "\n\n" +
                             req.route_url(Routes.CLIENT_API) + "\n\n" +
-                            _("Your access key is:") + "\n\n    " +
+                            _("Your access key is:") + "\n\n" +
                             patient.uuid_as_proquint + "\n"
                         )
                     })

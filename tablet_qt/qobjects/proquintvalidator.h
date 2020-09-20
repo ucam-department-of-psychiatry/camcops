@@ -29,5 +29,5 @@ public:
     virtual QValidator::State validate(QString& input, int& pos) const override;
 
 private:
-    bool validateLuhnMod16(QString input) const;
+    bool validateLuhnMod16(const QString& input) const;
 };

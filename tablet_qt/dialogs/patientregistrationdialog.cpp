@@ -31,10 +31,16 @@
 #include "qobjects/proquintvalidator.h"
 #include "qobjects/urlvalidator.h"
 
-PatientRegistrationDialog::PatientRegistrationDialog(
-    QWidget* parent) : QDialog(parent),
-                       m_url_valid(false),
-                       m_proquint_valid(false)
+const QColor& GOOD_FOREGROUND = Qt::black;
+const QColor& GOOD_BACKGROUND = Qt::green;
+const QColor& BAD_FOREGROUND = Qt::white;
+const QColor& BAD_BACKGROUND = Qt::red;
+
+
+PatientRegistrationDialog::PatientRegistrationDialog(QWidget* parent) :
+    QDialog(parent),
+    m_url_valid(false),
+    m_proquint_valid(false)
 {
     setWindowTitle(tr("Registration"));
     setMinimumSize(uifunc::minimumSizeForTitle(this));
@@ -61,7 +67,7 @@ PatientRegistrationDialog::PatientRegistrationDialog(
     auto mainlayout = new QFormLayout();
     mainlayout->setRowWrapPolicy(QFormLayout::WrapAllRows);
     mainlayout->addRow(
-        tr("<b>CamCOPS server location</b> (e.g. https://server.example.com/camcops/database):"),
+        tr("<b>CamCOPS server location</b> (e.g. https://server.example.com/camcops/api):"),
         m_editor_server_url
     );
 
@@ -91,26 +97,17 @@ QUrl PatientRegistrationDialog::serverUrl() const
 
 void PatientRegistrationDialog::urlChanged()
 {
-    auto validator = new UrlValidator();
-
+    UrlValidator validator;
     QString url = serverUrlAsString();
-
-    QColor background_color = Qt::red;
-    QColor foreground_color = Qt::white;
-    m_url_valid = false;
-
     int pos = 0;
-    QValidator::State state = validator->validate(url, pos);
-    if (state == QValidator::Acceptable) {
-        background_color = Qt::green;
-        foreground_color = Qt::black;
+    QValidator::State state = validator.validate(url, pos);
+    m_url_valid = state == QValidator::Acceptable;
 
-        m_url_valid = true;
-    }
-
+    const QColor background = m_url_valid ? GOOD_BACKGROUND : BAD_BACKGROUND;
+    const QColor foreground = m_url_valid ? GOOD_FOREGROUND : BAD_FOREGROUND;
     QPalette palette;
-    palette.setColor(QPalette::Base, background_color);
-    palette.setColor(QPalette::Text, foreground_color);
+    palette.setColor(QPalette::Base, background);
+    palette.setColor(QPalette::Text, foreground);
 
     m_editor_server_url->setPalette(palette);
 
@@ -119,26 +116,17 @@ void PatientRegistrationDialog::urlChanged()
 
 void PatientRegistrationDialog::proquintChanged()
 {
-    auto validator = new ProquintValidator();
-
+    ProquintValidator validator;
     QString proquint = patientProquint();
-
-    QColor background_color = Qt::red;
-    QColor foreground_color = Qt::white;
-    m_proquint_valid = false;
-
     int pos = 0;
-    QValidator::State state = validator->validate(proquint, pos);
-    if (state == QValidator::Acceptable) {
-        background_color = Qt::green;
-        foreground_color = Qt::black;
+    const QValidator::State state = validator.validate(proquint, pos);
+    m_proquint_valid = state == QValidator::Acceptable;
 
-        m_proquint_valid = true;
-    }
-
+    const QColor background = m_proquint_valid ? GOOD_BACKGROUND : BAD_BACKGROUND;
+    const QColor foreground = m_proquint_valid ? GOOD_FOREGROUND : BAD_FOREGROUND;
     QPalette palette;
-    palette.setColor(QPalette::Base, background_color);
-    palette.setColor(QPalette::Text, foreground_color);
+    palette.setColor(QPalette::Base, background);
+    palette.setColor(QPalette::Text, foreground);
 
     m_editor_patient_proquint->setPalette(palette);
 
@@ -147,7 +135,7 @@ void PatientRegistrationDialog::proquintChanged()
 
 void PatientRegistrationDialog::updateOkButtonEnabledState()
 {
-    bool enable = m_url_valid && m_proquint_valid;
+    const bool enable = m_url_valid && m_proquint_valid;
 
     m_buttonbox->button(QDialogButtonBox::Ok)->setEnabled(enable);
 }

@@ -28,9 +28,9 @@ UrlValidator::UrlValidator(QObject* parent) : QValidator(parent)
 {
 }
 
-QValidator::State UrlValidator::validate(QString &input, int &) const
+QValidator::State UrlValidator::validate(QString& input, int &) const
 {
-    auto url = QUrl(input);
+    const auto url = QUrl(input);
 
     if (!url.isValid()) {
         return QValidator::Intermediate;

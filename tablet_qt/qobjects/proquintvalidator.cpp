@@ -30,15 +30,23 @@ ProquintValidator::ProquintValidator(QObject* parent) : QValidator(parent)
 {
 }
 
-QValidator::State ProquintValidator::validate(QString &input, int &) const
+QValidator::State ProquintValidator::validate(QString& input, int&) const
 {
+    const int max_len = 8 * 6 + 1;  // 8 groups of 5-and-dash, then check
+    if (input.length() > max_len) {
+        // Even though that is invalid, don't return "Invalid" -- Invalid is
+        // treated very harshly and you can't (for example) copy/paste in
+        // things that are too long (the paste operation simply does nothing)
+        // which is more confusing for users than showing the "bad colour".
+        return QValidator::Intermediate;
+    }
     const QString consonant = "[bdfghjklmnprstvz]";
     const QString vowel = "[aiou]";
     const QString quint = QString("%1%2%3%4%5").arg(
         consonant, vowel, consonant, vowel, consonant
     );
     const QString check_character = consonant;
-    QRegularExpression proquint_regex(
+    const QRegularExpression proquint_regex(
         QString("%1-%2-%3-%4-%5-%6-%7-%8-%9").arg(
             quint,quint,quint,quint,quint,quint,quint,quint,check_character
         )
@@ -57,7 +65,7 @@ QValidator::State ProquintValidator::validate(QString &input, int &) const
     return QValidator::Acceptable;
 }
 
-bool ProquintValidator::validateLuhnMod16(QString input) const
+bool ProquintValidator::validateLuhnMod16(const QString& input) const
 {
     const QMap<QChar, int> lookup_table {
         {'b', 0x0},
@@ -83,7 +91,7 @@ bool ProquintValidator::validateLuhnMod16(QString input) const
     };
 
     // https://en.wikipedia.org/wiki/Luhn_mod_N_algorithm
-    QString proquint = input.trimmed().replace("-", "");
+    const QString proquint = input.trimmed().replace("-", "");
 
     int factor = 1;
     int sum = 0;
