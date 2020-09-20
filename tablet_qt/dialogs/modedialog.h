@@ -32,7 +32,7 @@ class ModeDialog : public QDialog
 
     Q_OBJECT
 public:
-    ModeDialog(int default_choice = varconst::MODE_SINGLE_USER,
+    ModeDialog(int previous_choice = varconst::MODE_NOT_SET,
                QWidget* parent = nullptr);
     int mode() const;
 protected:

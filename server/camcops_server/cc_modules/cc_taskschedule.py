@@ -263,13 +263,13 @@ class TaskScheduleItem(Base):
         "due_from", PendulumDurationAsIsoTextColType,
         comment=("Relative time from the start date by which the task may be "
                  "started")
-    )
+    )  # type: Optional[Duration]
 
     due_by = Column(
         "due_by", PendulumDurationAsIsoTextColType,
         comment=("Relative time from the start date by which the task must be "
                  "completed")
-    )
+    )  # type: Optional[Duration]
 
     @property
     def task_shortname(self) -> str:
