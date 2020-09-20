@@ -37,6 +37,9 @@ from cardinal_pythonlib.reprfunc import auto_repr, auto_str
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 
 
+_DEFAULT_APPLICABILITY = False
+
+
 class IpContexts(object):
     """
     String constants, used as form parameter names etc.
@@ -91,15 +94,19 @@ class IpUse(Base):
         comment="Applicable to a research context"
     )
 
-    def __init__(self) -> None:
+    def __init__(self,
+                 clinical: bool = _DEFAULT_APPLICABILITY,
+                 commercial: bool = _DEFAULT_APPLICABILITY,
+                 educational: bool = _DEFAULT_APPLICABILITY,
+                 research: bool = _DEFAULT_APPLICABILITY) -> None:
         """
         We provide __init__() so we can create a default object without
         touching the database.
         """
-        self.clinical = self._DEFAULT
-        self.commercial = self._DEFAULT
-        self.educational = self._DEFAULT
-        self.research = self._DEFAULT
+        self.clinical = clinical
+        self.commercial = commercial
+        self.educational = educational
+        self.research = research
 
     def __repr__(self) -> str:
         return auto_repr(self)
