@@ -2943,7 +2943,7 @@ class EditGroupSchema(CSRFSchema):
         name.title = _("Group name")
 
         ip_use = get_child_node(self, "ip_use")
-        ip_use.title = _("Group IP settings")
+        ip_use.title = _("Group intellectual property settings")
 
         group_ids = get_child_node(self, "group_ids")
         group_ids.title = _("Other groups this group may see")
@@ -4316,7 +4316,8 @@ class TaskScheduleItemSchema(CSRFSchema):
             raise Invalid(
                 node, _(
                     "The task you have selected prohibits use in certain "
-                    "contexts. The group '{group_name}' has no IP settings. "
+                    "contexts. The group '{group_name}' has no intellectual "
+                    "property settings. "
                     "You need to edit the group '{group_name}' to say which "
                     "contexts it operates in.".format(
                         group_name=schedule.group.name
@@ -4725,7 +4726,8 @@ class TaskScheduleItemSchemaIpTests(DemoDatabaseTestCase):
             schema.deserialize(cstruct)
 
         self.assertIn(
-            f"The group '{self.group.name}' has no IP settings",
+            f"The group '{self.group.name}' has no intellectual property "
+            f"settings",
             cm.exception.messages()[0]
         )
 

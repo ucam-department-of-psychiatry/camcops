@@ -36,7 +36,6 @@
 #include "dbobjects/extrastring.h"
 #include "dbobjects/idnumdescription.h"
 #include "dialogs/logmessagebox.h"
-#include "dialogs/nvpchoicedialog.h"
 #include "lib/convert.h"
 #include "lib/uifunc.h"
 #include "menu/testmenu.h"
@@ -1464,14 +1463,7 @@ void SettingsMenu::viewCounts(DatabaseManager& db, const QString& title)
 
 void SettingsMenu::chooseLanguage()
 {
-    QVariant language = m_app.getLanguage();
-    NvpChoiceDialog dlg(this, languages::possibleLanguages(),
-                        tr("Choose language"));
-    dlg.showExistingChoice(true);
-    if (dlg.choose(&language) != QDialog::Accepted) {
-        return;  // user pressed cancel, or some such
-    }
-    m_app.setLanguage(language.toString(), true);
+    m_app.chooseLanguage(this);
 }
 
 

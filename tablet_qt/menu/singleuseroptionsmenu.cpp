@@ -18,7 +18,9 @@
 */
 
 #include "singleuseroptionsmenu.h"
+#include "common/urlconst.h"
 #include "lib/uifunc.h"
+
 
 SingleUserOptionsMenu::SingleUserOptionsMenu(CamcopsApp& app)
     : MenuWindow(
@@ -50,6 +52,16 @@ void SingleUserOptionsMenu::makeItems()
 
     m_items.append({
         MenuItem(
+            tr("Choose language"),
+            std::bind(&SingleUserOptionsMenu::chooseLanguage, this),
+            uifunc::iconFilename(uiconst::CBS_LANGUAGE)
+        ),
+        MenuItem(
+            tr("Online CamCOPS documentation"),
+            UrlMenuItem(urlconst::CAMCOPS_URL),
+            uifunc::iconFilename(uiconst::ICON_INFO)
+        ),
+        MenuItem(
             tr("Change operating mode"),
             std::bind(&SingleUserOptionsMenu::changeMode, this)
         ).setNotIfLocked(),
@@ -76,4 +88,10 @@ void SingleUserOptionsMenu::registerPatient()
 void SingleUserOptionsMenu::updateTaskSchedules()
 {
     m_app.updateTaskSchedules();
+}
+
+
+void SingleUserOptionsMenu::chooseLanguage()
+{
+    m_app.chooseLanguage(this);
 }

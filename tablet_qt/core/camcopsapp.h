@@ -152,6 +152,9 @@ public:
     // Return the current language code
     QString getLanguage() const;
 
+    // Allow the user to choose a language
+    void chooseLanguage(QWidget* parent = nullptr);
+
     // Prompt user to select operating mode, exit if app is left modeless
     void setModeFromUser();
 

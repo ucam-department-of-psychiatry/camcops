@@ -33,4 +33,5 @@ protected:
     void changeMode();
     void registerPatient();
     void updateTaskSchedules();
+    void chooseLanguage();
 };

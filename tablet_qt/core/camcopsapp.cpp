@@ -76,6 +76,7 @@
 #include "diagnosis/icd9cm.h"
 #include "diagnosis/icd10.h"
 #include "dialogs/modedialog.h"
+#include "dialogs/nvpchoicedialog.h"
 #include "dialogs/patientregistrationdialog.h"
 #include "dialogs/scrollmessagebox.h"
 #include "layouts/layouts.h"
@@ -342,7 +343,7 @@ void CamcopsApp::patientRegistrationFailed(
     const NetworkManager::ErrorCode error_code,
     const QString& error_string)
 {
-    const QString base_message = tr("There was a problem with your registration");
+    const QString base_message = tr("There was a problem with your registration.");
 
     QString additional_message = "";
 
@@ -382,8 +383,11 @@ void CamcopsApp::updateTaskSchedulesFailed(
     const NetworkManager::ErrorCode error_code,
     const QString& error_string)
 {
-    handleNetworkFailure(error_code, error_string,
-                         tr("There was a problem updating your task schedules"));
+    handleNetworkFailure(
+        error_code,
+        error_string,
+        tr("There was a problem updating your task schedules.")
+    );
 }
 
 
@@ -393,7 +397,7 @@ void CamcopsApp::uploadFailed(const NetworkManager::ErrorCode error_code,
     handleNetworkFailure(
         error_code,
         error_string,
-        tr("There was a problem sending your completed tasks to the server")
+        tr("There was a problem sending your completed tasks to the server.")
     );
 }
 
@@ -518,6 +522,19 @@ void CamcopsApp::setLanguage(const QString& language_code,
 QString CamcopsApp::getLanguage() const
 {
     return m_current_language;
+}
+
+
+void CamcopsApp::chooseLanguage(QWidget* parent)
+{
+    QVariant language = getLanguage();
+    NvpChoiceDialog dlg(parent, languages::possibleLanguages(),
+                        tr("Choose language"));
+    dlg.showExistingChoice(true);
+    if (dlg.choose(&language) != QDialog::Accepted) {
+        return;  // user pressed cancel, or some such
+    }
+    setLanguage(language.toString(), true);
 }
 
 
@@ -2855,7 +2872,7 @@ NetworkManager::UploadMethod CamcopsApp::getUploadMethodFromUser()
 }
 
 // ============================================================================
-// App strings, or derived
+// App strings, or derived, or related user functions
 // ============================================================================
 
 NameValueOptions CamcopsApp::nhsPersonMaritalStatusCodeOptions()

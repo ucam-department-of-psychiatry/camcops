@@ -111,7 +111,7 @@ void SingleUserMenu::makeItems()
             );
             m_items.append(
                 MenuItem(
-                    tr("The next task will be available %1").arg(
+                    tr("The next task will be available at: %1").arg(
                         readable_datetime
                     )
                 ).setImplemented(true)

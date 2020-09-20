@@ -854,7 +854,8 @@ void NetworkManager::updateTaskSchedules()
         varconst::SINGLE_PATIENT_PROQUINT
     );
 
-    statusMessage(tr("Getting task schedules from ") + serverUrlDisplayString());
+    statusMessage(tr("Getting task schedules from") + " " +
+                  serverUrlDisplayString());
 
     serverPost(dict, &NetworkManager::receivedTaskSchedules);
 }
@@ -872,7 +873,7 @@ void NetworkManager::receivedTaskSchedules(QNetworkReply* reply)
 
 void NetworkManager::storeTaskSchedules()
 {
-    statusMessage(tr("... received task schedules "));
+    statusMessage(tr("... received task schedules"));
 
     m_app.deleteTaskSchedules();
 
@@ -2392,9 +2393,9 @@ bool NetworkManager::setIpUseInfo()
     );
 
     if (doc.isNull()) {
-        const QString message = tr("Failed to parse IP use info: %1").arg(
-            error.errorString()
-        );
+        const QString message = tr(
+            "Failed to parse intellectual property use info: %1"
+        ).arg(error.errorString());
         statusMessage(message);
         fail(ErrorCode::JsonParseError, message);
 

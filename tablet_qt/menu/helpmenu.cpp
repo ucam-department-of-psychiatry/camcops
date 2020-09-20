@@ -53,8 +53,6 @@ QString HelpMenu::title() const
 
 void HelpMenu::makeItems()
 {
-    const QString fname_camcopsicon(uifunc::iconFilename(uiconst::ICON_CAMCOPS));
-    const QString fname_infoicon(uifunc::iconFilename(uiconst::ICON_INFO));
     // You can't point a standard web browser at a Qt resource file.
     // (They are not necessarily actual files on disk.)
     // Creating an HtmlMenuItem that points to Sphinx documentation just looks
@@ -69,11 +67,12 @@ void HelpMenu::makeItems()
     // certainly better if we need to update something quickly.
     m_items = {
         MenuItem(tr("Online CamCOPS documentation"),
-                 UrlMenuItem(urlconst::CAMCOPS_DOCS_URL),
-                 fname_infoicon),
-        MenuItem(tr("Visit") + " " + urlconst::CAMCOPS_URL,
-                 UrlMenuItem(urlconst:: CAMCOPS_URL),
-                 fname_camcopsicon),
+                 UrlMenuItem(urlconst::CAMCOPS_URL),
+                 uifunc::iconFilename(uiconst::ICON_INFO)),
+        // CAMCOPS_DOCS_URL and CAMCOPS_DOCS_URL are almost the same these days.
+        // MenuItem(tr("Visit") + " " + urlconst::CAMCOPS_URL,
+        //          UrlMenuItem(urlconst::CAMCOPS_DOCS_URL),
+        //          uifunc::iconFilename(uiconst::ICON_CAMCOPS)),
         MAKE_TASK_MENU_ITEM(DemoQuestionnaire::DEMOQUESTIONNAIRE_TABLENAME, m_app),
         MenuItem(tr("Show software versions and computer information"),
                  std::bind(&HelpMenu::softwareVersions, this)),

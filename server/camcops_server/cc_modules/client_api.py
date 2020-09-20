@@ -2113,9 +2113,10 @@ def get_single_patient(req: "CamcopsRequest") -> Patient:
         # We'll do the same validation on the client so in theory
         # should never get here
         fail_user_error(
-            _("There is no patient with access key '{}'. "
-              "Have you entered the key correctly?")
-            .format(patient_proquint)
+            _(
+                "There is no patient with access key '{access_key}'. "
+                "Have you entered the key correctly?"
+            ).format(access_key=patient_proquint)
         )
 
     # noinspection PyUnboundLocalVariable
@@ -2125,9 +2126,10 @@ def get_single_patient(req: "CamcopsRequest") -> Patient:
 
     if patient is None:
         fail_user_error(
-            _("There is no patient with access key '{}'. "
-              "Have you entered the key correctly?")
-            .format(patient_proquint)
+            _(
+                "There is no patient with access key '{access_key}'. "
+                "Have you entered the key correctly?"
+            ).format(access_key=patient_proquint)
         )
 
     return patient

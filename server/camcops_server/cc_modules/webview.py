@@ -4205,7 +4205,8 @@ class AddTaskScheduleItemView(EditTaskScheduleItemMixin, CreateView):
         schedule = self.get_schedule()
 
         return {
-            "title": _("Add an item to the {} schedule").format(schedule.name),
+            "title": _("Add an item to the {schedule_name} schedule").format(
+                schedule_name=schedule.name),
         }
 
     def get_schedule_id(self) -> int:
