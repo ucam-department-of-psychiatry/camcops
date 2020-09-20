@@ -352,30 +352,34 @@ Manage scheduled tasks for patients
 You can schedule tasks for a patient to complete on their own tablet with the
 CamCOPS app running in :ref:`Single User Mode <single_user_mode>`.
 
-Your task schedules and patients will be associated with a :ref:`group <groups>`
-that you administer. You must set the IP settings for this group to describe the
-contexts in which your group operates (clinical, commercial etc.). Any tasks you
-schedule for a patient need to be permitted for these contexts.
+Your task schedules and patients will be associated with a :ref:`group
+<groups>` that you administer. You must set the IP settings for this group to
+describe the contexts in which your group operates (clinical, commercial etc.).
+Any tasks you schedule for a patient need to be permitted for these contexts.
 
-- First of all create a task schedule for your study (:menuselection:`Manage task schedules --> Add a task schedule`).
+- First of all create a task schedule for your study (:menuselection:`Manage
+  task schedules --> Add a task schedule`).
 
-- Next add items to your schedule (:menuselection:`Edit items` from the table of schedules):
+- Next add items to your schedule (:menuselection:`Edit items` from the table
+  of schedules):
 
     - Select the task from the drop-down
-    - Enter the time from the start of the schedule when the patient may begin the
-      task and the time the patient has to complete the task. These times can be
-      expressed as a combination of months, weeks and days (1 month = 30 days, 1 week = 7 days).
+    - Enter the time from the start of the schedule when the patient may begin
+      the task and the time the patient has to complete the task. These times
+      can be expressed as a combination of months, weeks and days (1 month = 30
+      days, 1 week = 7 days).
 
-From the Patient Task Schedules page you can add a new patient. The patient must
-have enough identifiable information to match the
-:ref:`uploading and finalizing ID policies <uploading_and_finalizing_policies>`
-of the group. Here you can also assign one or more task schedules to the
-patient. You can specify the start date of the schedule or leave it blank. If
-you leave it blank the start date will be the date the patient registers
-themselves and their tablet with the server.
+From the Patient Task Schedules page you can add a new patient. The patient
+must have enough identifiable information to match the :ref:`uploading and
+finalizing ID policies <uploading_and_finalizing_policies>` of the group. Here
+you can also assign one or more task schedules to the patient. You can specify
+the start date of the schedule or leave it blank. If you leave it blank the
+start date will be the date the patient registers themselves and their tablet
+with the server.
 
 Advanced use: There is an optional form field to specify any patient-specific
-settings for the tasks. This is a JSON object keyed on the task table name e.g.:
+settings for the tasks. This is a JSON object keyed on the task table name
+e.g.:
 
 .. code-block:: json
 
@@ -390,8 +394,8 @@ settings for the tasks. This is a JSON object keyed on the task table name e.g.:
     }
   }
 
-Refer to the relevant task documentation for any settings that can be applied in
-this way.
+Refer to the relevant task documentation for any settings that can be applied
+in this way.
 
 If the patient has been successfully created, they should now appear in the
 table along with the unique access key that they need for registration. The

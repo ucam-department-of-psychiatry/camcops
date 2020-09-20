@@ -5976,6 +5976,7 @@ class EraseTaskEntirelyViewTests(EraseTaskTestCase):
 
 
 class EditGroupViewTests(DemoDatabaseTestCase):
+
     def test_group_updated(self) -> None:
         other_group_1 = Group()
         other_group_1.name = "other-group-1"
@@ -6015,6 +6016,7 @@ class EditGroupViewTests(DemoDatabaseTestCase):
         self.assertIn(other_group_2, self.group.can_see_other_groups)
 
     def test_ip_use_added(self) -> None:
+        from camcops_server.cc_modules.cc_ipuse import IpContexts
         multidict = MultiDict([
             ("_charset_", "UTF-8"),
             ("__formid__", "deform"),
@@ -6025,8 +6027,8 @@ class EditGroupViewTests(DemoDatabaseTestCase):
             (ViewParam.UPLOAD_POLICY, "anyidnum AND sex"),
             (ViewParam.FINALIZE_POLICY, "idnum1 AND sex"),
             ("__start__", "ip_use:mapping"),
-            ("clinical", "true"),
-            ("commercial", "true"),
+            (IpContexts.CLINICAL, "true"),
+            (IpContexts.COMMERCIAL, "true"),
             ("__end__", "ip_use:mapping"),
             (FormAction.SUBMIT, "submit"),
         ])
@@ -6041,6 +6043,7 @@ class EditGroupViewTests(DemoDatabaseTestCase):
         self.assertFalse(self.group.ip_use.research)
 
     def test_ip_use_updated(self) -> None:
+        from camcops_server.cc_modules.cc_ipuse import IpContexts
         self.group.ip_use.educational = True
         self.group.ip_use.research = True
         self.dbsession.add(self.group.ip_use)
@@ -6058,8 +6061,8 @@ class EditGroupViewTests(DemoDatabaseTestCase):
             (ViewParam.UPLOAD_POLICY, "anyidnum AND sex"),
             (ViewParam.FINALIZE_POLICY, "idnum1 AND sex"),
             ("__start__", "ip_use:mapping"),
-            ("clinical", "true"),
-            ("commercial", "true"),
+            (IpContexts.CLINICAL, "true"),
+            (IpContexts.COMMERCIAL, "true"),
             ("__end__", "ip_use:mapping"),
             (FormAction.SUBMIT, "submit"),
         ])

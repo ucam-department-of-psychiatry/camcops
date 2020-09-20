@@ -189,7 +189,7 @@ from camcops_server.cc_modules.cc_idnumdef import (
     IdNumDefinition,
     ID_NUM_VALIDATION_METHOD_CHOICES,
 )
-from camcops_server.cc_modules.cc_ipuse import IpUse
+from camcops_server.cc_modules.cc_ipuse import IpContexts, IpUse
 from camcops_server.cc_modules.cc_language import (
     DEFAULT_LOCALE,
     POSSIBLE_LOCALES,
@@ -821,7 +821,8 @@ class MandatorySingleTaskSelector(MandatoryStringNode, RequestAwareMixin):
         self.widget = SelectWidget(values=values)
         self.validator = OneOf(pv)
 
-    def get_task_choices(self) -> List[Tuple[str, str]]:
+    @staticmethod
+    def get_task_choices() -> List[Tuple[str, str]]:
         from camcops_server.cc_modules.cc_task import Task  # delayed import
         choices = []  # type: List[Tuple[str, str]]
         for tc in Task.all_subclasses_by_shortname():
@@ -1215,6 +1216,7 @@ class UserFilterSchema(Schema, RequestAwareMixin):
     # must match ViewParam.INCLUDE_AUTO_GENERATED
     include_auto_generated = BooleanNode()
 
+    # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         _ = self.gettext
         include_auto_generated = get_child_node(self, "include_auto_generated")
@@ -2884,11 +2886,12 @@ class GroupIpUseWidget(Widget):
 
 
 class IpUseType(object):
+    # noinspection PyMethodMayBeStatic,PyUnusedLocal
     def deserialize(
             self,
             node: SchemaNode,
-            cstruct: Union[Dict[str, Any], None, ColanderNullType]
-    ) -> Optional[IpUse]:
+            cstruct: Union[Dict[str, Any], None, ColanderNullType]) \
+            -> Optional[IpUse]:
         if cstruct in (None, null):
             return None
 
@@ -2896,11 +2899,12 @@ class IpUseType(object):
 
         return IpUse(**cstruct)
 
+    # noinspection PyMethodMayBeStatic,PyUnusedLocal
     def serialize(
             self,
             node: SchemaNode,
-            ip_use: Union[IpUse, None, ColanderNullType]
-    ) -> Union[Dict, ColanderNullType]:
+            ip_use: Union[IpUse, None, ColanderNullType]) \
+            -> Union[Dict, ColanderNullType]:
         if ip_use in [null, None]:
             return null
 
@@ -2912,6 +2916,7 @@ class IpUseType(object):
 class GroupIpUseNode(SchemaNode, RequestAwareMixin):
     schema_type = IpUseType
 
+    # noinspection PyUnusedLocal,PyAttributeOutsideInit
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         self.widget = GroupIpUseWidget(self.request)
 
@@ -3768,6 +3773,7 @@ class JsonType(object):
     """
     Schema type for JsonNode
     """
+    # noinspection PyMethodMayBeStatic, PyUnusedLocal
     def deserialize(self, node: SchemaNode,
                     cstruct: Union[str, ColanderNullType, None]) -> Any:
         # is null when form is empty
@@ -3784,11 +3790,12 @@ class JsonType(object):
 
         return json_value
 
+    # noinspection PyMethodMayBeStatic,PyUnusedLocal
     def serialize(
             self,
             node: SchemaNode,
-            appstruct: Union[Dict, None, ColanderNullType]
-    ) -> Union[str, ColanderNullType]:
+            appstruct: Union[Dict, None, ColanderNullType]) \
+            -> Union[str, ColanderNullType]:
         # is null when form is empty (new record)
         # is None when populated from empty value in the database
         if appstruct in (null, None):
@@ -3851,6 +3858,7 @@ class JsonNode(SchemaNode, RequestAwareMixin):
     schema_type = JsonType
     missing = null
 
+    # noinspection PyUnusedLocal,PyAttributeOutsideInit
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         self.widget = JsonWidget(self.request)
 
@@ -4140,11 +4148,13 @@ class DurationType(object):
     Custom colander schema type to convert between Pendulum Duration objects
     and months, weeks and days.
     """
+
+    # noinspection PyMethodMayBeStatic,PyUnusedLocal
     def deserialize(
             self,
             node: SchemaNode,
-            cstruct: Union[Dict[str, Any], None, ColanderNullType]
-    ) -> Optional[Duration]:
+            cstruct: Union[Dict[str, Any], None, ColanderNullType]) \
+            -> Optional[Duration]:
         # called when validating the submitted form with the total days
         # from DurationWidget.deserialize()
         if cstruct in (None, null):
@@ -4173,11 +4183,12 @@ class DurationType(object):
 
         return Duration(days=total_days)
 
+    # noinspection PyMethodMayBeStatic,PyUnusedLocal
     def serialize(
             self,
             node: SchemaNode,
-            duration: Union[Duration, ColanderNullType]
-    ) -> Union[Dict, ColanderNullType]:
+            duration: Union[Duration, ColanderNullType]) \
+            -> Union[Dict, ColanderNullType]:
         if duration is null:
             # For new schedule item
             return null
@@ -4203,6 +4214,7 @@ class DurationType(object):
 class DurationNode(SchemaNode, RequestAwareMixin):
     schema_type = DurationType
 
+    # noinspection PyUnusedLocal,PyAttributeOutsideInit
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         self.widget = DurationWidget(self.request)
 
@@ -4216,6 +4228,7 @@ class TaskScheduleItemSchema(CSRFSchema):
     due_from = DurationNode()  # name must match ViewParam.DUE_FROM
     due_within = DurationNode()  # name must match ViewParam.DUE_WITHIN
 
+    # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         _ = self.gettext
         due_from = get_child_node(self, "due_from")
@@ -4244,6 +4257,7 @@ class TaskScheduleItemSchema(CSRFSchema):
         self._validate_due_dates(node, value)
         self._validate_task_ip_use(node, value, task_class)
 
+    # noinspection PyMethodMayBeStatic
     def _get_task_class(self, value: Dict[str, Any]) -> Type["Task"]:
         return tablename_to_task_class_dict()[value[ViewParam.TABLE_NAME]]
 
@@ -4254,7 +4268,7 @@ class TaskScheduleItemSchema(CSRFSchema):
 
         _ = self.gettext
         clinician_confirmation = value[ViewParam.CLINICIAN_CONFIRMATION]
-        if (task_class.has_clinician and not clinician_confirmation):
+        if task_class.has_clinician and not clinician_confirmation:
             raise Invalid(
                 node,
                 _(
@@ -4337,7 +4351,7 @@ class TaskScheduleItemSchema(CSRFSchema):
                   )
             )
 
-        if (task_class.prohibits_educational and schedule.group.ip_use.educational):  # noqa: E501
+        if task_class.prohibits_educational and schedule.group.ip_use.educational:  # noqa
             raise Invalid(
                 node,
                 _("The group '{group_name}' associated with schedule "
@@ -5082,10 +5096,10 @@ class GroupIpUseWidgetTests(TestCase):
         field.renderer = mock.Mock()
 
         cstruct = {
-            "clinical": False,
-            "commercial": False,
-            "educational": True,
-            "research": True,
+            IpContexts.CLINICAL: False,
+            IpContexts.COMMERCIAL: False,
+            IpContexts.EDUCATIONAL: True,
+            IpContexts.RESEARCH: True,
         }
 
         widget.serialize(field, cstruct, readonly=False)
@@ -5095,10 +5109,10 @@ class GroupIpUseWidgetTests(TestCase):
         self.assertEqual(args[0], f"{TEMPLATE_DIR}/deform/group_ip_use.pt")
         self.assertFalse(kwargs["readonly"])
 
-        self.assertFalse(kwargs["clinical"])
-        self.assertFalse(kwargs["commercial"])
-        self.assertTrue(kwargs["educational"])
-        self.assertTrue(kwargs["research"])
+        self.assertFalse(kwargs[IpContexts.CLINICAL])
+        self.assertFalse(kwargs[IpContexts.COMMERCIAL])
+        self.assertTrue(kwargs[IpContexts.EDUCATIONAL])
+        self.assertTrue(kwargs[IpContexts.RESEARCH])
         self.assertEqual(kwargs["field"], field)
 
     def test_serialize_renders_readonly_template(self) -> None:
@@ -5108,10 +5122,10 @@ class GroupIpUseWidgetTests(TestCase):
         field.renderer = mock.Mock()
 
         cstruct = {
-            "clinical": False,
-            "commercial": False,
-            "educational": True,
-            "research": True,
+            IpContexts.CLINICAL: False,
+            IpContexts.COMMERCIAL: False,
+            IpContexts.EDUCATIONAL: True,
+            IpContexts.RESEARCH: True,
         }
 
         widget.serialize(field, cstruct, readonly=True)
@@ -5129,10 +5143,10 @@ class GroupIpUseWidgetTests(TestCase):
         field.renderer = mock.Mock()
 
         cstruct = {
-            "clinical": False,
-            "commercial": False,
-            "educational": True,
-            "research": True,
+            IpContexts.CLINICAL: False,
+            IpContexts.COMMERCIAL: False,
+            IpContexts.EDUCATIONAL: True,
+            IpContexts.RESEARCH: True,
         }
 
         widget.serialize(field, cstruct)
@@ -5152,10 +5166,10 @@ class GroupIpUseWidgetTests(TestCase):
 
         args, kwargs = field.renderer.call_args
 
-        self.assertFalse(kwargs["clinical"])
-        self.assertFalse(kwargs["commercial"])
-        self.assertFalse(kwargs["educational"])
-        self.assertFalse(kwargs["research"])
+        self.assertFalse(kwargs[IpContexts.CLINICAL])
+        self.assertFalse(kwargs[IpContexts.COMMERCIAL])
+        self.assertFalse(kwargs[IpContexts.EDUCATIONAL])
+        self.assertFalse(kwargs[IpContexts.RESEARCH])
 
     def test_serialize_with_none_defaults_to_false_values(self) -> None:
         widget = GroupIpUseWidget(self.request)
@@ -5167,10 +5181,10 @@ class GroupIpUseWidgetTests(TestCase):
 
         args, kwargs = field.renderer.call_args
 
-        self.assertFalse(kwargs["clinical"])
-        self.assertFalse(kwargs["commercial"])
-        self.assertFalse(kwargs["educational"])
-        self.assertFalse(kwargs["research"])
+        self.assertFalse(kwargs[IpContexts.CLINICAL])
+        self.assertFalse(kwargs[IpContexts.COMMERCIAL])
+        self.assertFalse(kwargs[IpContexts.EDUCATIONAL])
+        self.assertFalse(kwargs[IpContexts.RESEARCH])
 
     def test_deserialize_with_null_defaults_to_false_values(self) -> None:
         widget = GroupIpUseWidget(self.request)
@@ -5179,10 +5193,10 @@ class GroupIpUseWidgetTests(TestCase):
         # noinspection PyTypeChecker
         cstruct = widget.deserialize(field, null)
 
-        self.assertFalse(cstruct["clinical"])
-        self.assertFalse(cstruct["commercial"])
-        self.assertFalse(cstruct["educational"])
-        self.assertFalse(cstruct["research"])
+        self.assertFalse(cstruct[IpContexts.CLINICAL])
+        self.assertFalse(cstruct[IpContexts.COMMERCIAL])
+        self.assertFalse(cstruct[IpContexts.EDUCATIONAL])
+        self.assertFalse(cstruct[IpContexts.RESEARCH])
 
     def test_deserialize_converts_to_bool_values(self) -> None:
         widget = GroupIpUseWidget(self.request)
@@ -5192,17 +5206,17 @@ class GroupIpUseWidgetTests(TestCase):
         # It shouldn't matter what the values are set to so long as the keys
         # are present. In practice the values will be set to "1"
         pstruct = {
-            "educational": "1",
-            "research": "1",
+            IpContexts.EDUCATIONAL: "1",
+            IpContexts.RESEARCH: "1",
         }
 
         # noinspection PyTypeChecker
         cstruct = widget.deserialize(field, pstruct)
 
-        self.assertFalse(cstruct["clinical"])
-        self.assertFalse(cstruct["commercial"])
-        self.assertTrue(cstruct["educational"])
-        self.assertTrue(cstruct["research"])
+        self.assertFalse(cstruct[IpContexts.CLINICAL])
+        self.assertFalse(cstruct[IpContexts.COMMERCIAL])
+        self.assertTrue(cstruct[IpContexts.EDUCATIONAL])
+        self.assertTrue(cstruct[IpContexts.RESEARCH])
 
 
 class IpUseTypeTests(TestCase):
@@ -5224,10 +5238,10 @@ class IpUseTypeTests(TestCase):
         node = None  # not used
 
         cstruct = {
-            "clinical": False,
-            "commercial": True,
-            "educational": False,
-            "research": True,
+            IpContexts.CLINICAL: False,
+            IpContexts.COMMERCIAL: True,
+            IpContexts.EDUCATIONAL: False,
+            IpContexts.RESEARCH: True,
         }
         ip_use = ip_use_type.deserialize(node, cstruct)
 

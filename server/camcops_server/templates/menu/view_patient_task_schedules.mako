@@ -70,12 +70,12 @@ ${_("CamCOPS server location:")} ${ req.route_url( Routes.CLIENT_API ) }
             %if patient.email:
                 <%
                     mailto_params = urlencode({
-                        "subject": _("PRIVATE: CamCOPS registration details"),
+                        "subject": _("CamCOPS access key"),
                         "body": (
-                            patient.get_salutation(req) + ":\n\n" +
-                            _("For the CamCOPS server at") + "\n\n    " +
+                            patient.get_salutation(req) + "\n\n" +
+                            _("For the CamCOPS server at:") + "\n\n    " +
                             req.route_url(Routes.CLIENT_API) + "\n\n" +
-                            _("Your registration code is:") + "\n\n    " +
+                            _("Your access key is:") + "\n\n    " +
                             patient.uuid_as_proquint + "\n"
                         )
                     })

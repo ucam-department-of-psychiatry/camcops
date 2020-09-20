@@ -450,6 +450,7 @@ from camcops_server.cc_modules.cc_db import (
 from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_dirtytables import DirtyTable
 from camcops_server.cc_modules.cc_group import Group
+from camcops_server.cc_modules.cc_ipuse import IpUse
 from camcops_server.cc_modules.cc_membership import UserGroupMembership
 from camcops_server.cc_modules.cc_patient import (
     Patient,
@@ -2085,11 +2086,13 @@ def op_register_patient(req: "CamcopsRequest") -> Dict[str, Any]:
         reply_dict[TabletParam.USER] = user.username
         reply_dict[TabletParam.PASSWORD] = password
 
+    ip_use = patient.group.ip_use or IpUse()
+    # ... if the group doesn't have an associated ip_use object, use defaults
     ip_dict = {
-        TabletParam.IP_USE_COMMERCIAL: int(patient.group.ip_use.commercial),
-        TabletParam.IP_USE_CLINICAL: int(patient.group.ip_use.clinical),
-        TabletParam.IP_USE_EDUCATIONAL: int(patient.group.ip_use.educational),
-        TabletParam.IP_USE_RESEARCH: int(patient.group.ip_use.research),
+        TabletParam.IP_USE_COMMERCIAL: int(ip_use.commercial),
+        TabletParam.IP_USE_CLINICAL: int(ip_use.clinical),
+        TabletParam.IP_USE_EDUCATIONAL: int(ip_use.educational),
+        TabletParam.IP_USE_RESEARCH: int(ip_use.research),
     }
 
     reply_dict[TabletParam.IP_USE_INFO] = json.dumps(ip_dict)
@@ -3391,8 +3394,6 @@ class PatientRegistrationTests(DemoDatabaseTestCase):
 
     def test_returns_ip_use_flags(self) -> None:
         import datetime
-
-        from camcops_server.cc_modules.cc_ipuse import IpUse
 
         patient = self.create_patient(
             forename="JO", surname="PATIENT", dob=datetime.date(1958, 4, 19),

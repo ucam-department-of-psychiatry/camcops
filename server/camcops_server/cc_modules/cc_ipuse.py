@@ -32,18 +32,31 @@ hence the tasks that will be permitted).
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Boolean, Integer
 
+from cardinal_pythonlib.reprfunc import auto_repr, auto_str
+
 from camcops_server.cc_modules.cc_sqlalchemy import Base
+
+
+class IpContexts(object):
+    """
+    String constants, used as form parameter names etc.
+    """
+    CLINICAL = "clinical"
+    COMMERCIAL = "commercial"
+    EDUCATIONAL = "educational"
+    RESEARCH = "research"
 
 
 class IpUse(Base):
     __tablename__ = "_security_ip_use"
 
     CONTEXTS = (
-        "clinical",
-        "commercial",
-        "educational",
-        "research",
+        IpContexts.CLINICAL,
+        IpContexts.COMMERCIAL,
+        IpContexts.EDUCATIONAL,
+        IpContexts.RESEARCH,
     )
+    _DEFAULT = False
 
     id = Column(
         "id", Integer,
@@ -56,24 +69,40 @@ class IpUse(Base):
     clinical = Column(
         "clinical", Boolean,
         nullable=False,
-        default=False,
+        default=_DEFAULT,
         comment="Applicable to a clinical context"
     )
     commercial = Column(
         "commercial", Boolean,
         nullable=False,
-        default=False,
+        default=_DEFAULT,
         comment="Applicable to a commercial context"
     )
     educational = Column(
         "educational", Boolean,
         nullable=False,
-        default=False,
+        default=_DEFAULT,
         comment="Applicable to an educational context"
     )
     research = Column(
         "research", Boolean,
         nullable=False,
-        default=False,
+        default=_DEFAULT,
         comment="Applicable to a research context"
     )
+
+    def __init__(self) -> None:
+        """
+        We provide __init__() so we can create a default object without
+        touching the database.
+        """
+        self.clinical = self._DEFAULT
+        self.commercial = self._DEFAULT
+        self.educational = self._DEFAULT
+        self.research = self._DEFAULT
+
+    def __repr__(self) -> str:
+        return auto_repr(self)
+
+    def __str__(self) -> str:
+        return auto_str(self)
