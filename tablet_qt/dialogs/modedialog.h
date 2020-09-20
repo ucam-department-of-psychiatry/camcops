@@ -20,6 +20,8 @@
 #pragma once
 #include <QDialog>
 #include <QPointer>
+#include "common/varconst.h"
+
 class QButtonGroup;
 
 
@@ -30,7 +32,8 @@ class ModeDialog : public QDialog
 
     Q_OBJECT
 public:
-    ModeDialog(QWidget* parent = nullptr);
+    ModeDialog(int default_choice = varconst::MODE_SINGLE_USER,
+               QWidget* parent = nullptr);
     int mode() const;
 protected:
     QPointer<QButtonGroup> m_mode_selector;

@@ -181,11 +181,15 @@ void CamcopsApp::setMode(const int mode)
 
 void CamcopsApp::setModeFromUser()
 {
-    ModeDialog dialog(nullptr);
+    const int old_mode = varInt(varconst::MODE);
+    const int default_choice = old_mode == varconst::MODE_NOT_SET
+            ? varconst::MODE_SINGLE_USER  // default for first choice
+            : old_mode;  // default for subsequent choices
+    ModeDialog dialog(default_choice);
     const int reply = dialog.exec();
     if (reply != QDialog::Accepted) {
         // Dialog cancelled
-        if (var(varconst::MODE) == varconst::MODE_NOT_SET) {
+        if (old_mode == varconst::MODE_NOT_SET) {
             // Exit the app if called on startup
             uifunc::stopApp(
                 tr("You did not select how you would like to use CamCOPS")

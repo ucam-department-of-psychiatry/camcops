@@ -24,25 +24,31 @@
 #include <QRadioButton>
 #include <QVBoxLayout>
 #include "common/varconst.h"
+#include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 
 
-ModeDialog::ModeDialog(QWidget* parent) : QDialog(parent)
+ModeDialog::ModeDialog(int default_choice, QWidget* parent) : QDialog(parent)
 {
     setWindowTitle(tr("Select clinician or single user mode"));
     setMinimumSize(uifunc::minimumSizeForTitle(this));
 
     auto prompt = new QLabel(tr("I would like to use CamCOPS as a:"));
+    const QString single_user_text = tr("single user");
 
     m_mode_selector = new QButtonGroup();
-    auto clinician_button = new QRadioButton(tr("clinician"));
-    auto single_user_button = new QRadioButton(tr("single user"));
-    single_user_button->setChecked(true);
-    m_mode_selector->addButton(clinician_button, varconst::MODE_CLINICIAN);
+    auto single_user_button = new QRadioButton(single_user_text);
+    single_user_button->setChecked(default_choice == varconst::MODE_SINGLE_USER);
+    auto clinician_button = new QRadioButton(
+        tr("clinician/researcher, with multiple patients/participants")
+    );
+    clinician_button->setChecked(default_choice == varconst::MODE_CLINICIAN);
     m_mode_selector->addButton(single_user_button, varconst::MODE_SINGLE_USER);
+    m_mode_selector->addButton(clinician_button, varconst::MODE_CLINICIAN);
 
     auto prompt2 = new QLabel(
-        tr("If you are not sure, leave <b>single user</b> selected")
+        tr("If you are not sure, choose") + " " +
+        stringfunc::bold(single_user_text)
     );
 
     auto buttonbox = new QDialogButtonBox(QDialogButtonBox::Ok);
@@ -50,8 +56,8 @@ ModeDialog::ModeDialog(QWidget* parent) : QDialog(parent)
 
     auto mainlayout = new QVBoxLayout();
     mainlayout->addWidget(prompt);
-    mainlayout->addWidget(clinician_button);
     mainlayout->addWidget(single_user_button);
+    mainlayout->addWidget(clinician_button);
     mainlayout->addWidget(prompt2);
     mainlayout->addWidget(buttonbox);
     setLayout(mainlayout);
