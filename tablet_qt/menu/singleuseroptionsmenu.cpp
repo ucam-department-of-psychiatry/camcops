@@ -64,10 +64,10 @@ void SingleUserOptionsMenu::makeItems()
             uifunc::iconFilename(uiconst::ICON_INFO)
         ),
         MenuItem(
-            tr("Questionnaire font size and DPI settings"),
+            tr("Questionnaire font size"),
             MenuItem::OpenableWidgetMaker(
                 std::bind(&SingleUserOptionsMenu::setQuestionnaireFontSize, this,
-                       std::placeholders::_1)
+                          std::placeholders::_1)
             )
         ),
         MenuItem(
@@ -107,5 +107,6 @@ void SingleUserOptionsMenu::chooseLanguage()
 
 OpenableWidget* SingleUserOptionsMenu::setQuestionnaireFontSize(CamcopsApp& app)
 {
-    return m_settings_menu->setQuestionnaireFontSize(app);
+    const bool simplified = true;
+    return m_settings_menu->setQuestionnaireFontSize(app, simplified);
 }

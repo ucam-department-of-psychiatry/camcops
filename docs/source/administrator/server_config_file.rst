@@ -2096,5 +2096,5 @@ Note that if you are using Docker, then the command
 you a config file with appropriate defaults for the Docker environment
 (slightly different from what follows).
 
-..  literalinclude:: demo_camcops_config.ini
+..  literalinclude:: _demo_camcops_config.ini
     :language: ini

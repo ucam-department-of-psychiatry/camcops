@@ -269,7 +269,34 @@ QDate TextConst::TERMS_CONDITIONS_UPDATE_DATE(2020, 06, 29);
 
 
 QString TextConst::singleUserTermsConditions() {
-    return tr("Placeholder...");
+    // We want this to be as simple as possible.
+    // It's the clinicians'/researchers' job to worry about the context;
+    // patients WILL NOT be able to use this software in single-user mode
+    // unless they are registered with a CamCOPS server (whose operators are
+    // responsible for its use). If the patient switches to "clinician mode",
+    // they have to agree to the full terms/conditions as above.
+    //
+    // So, what do we worry about with patients in this "supervised" mode?
+    // Primarily, that they see this app as a way of communicating with a
+    // clinical or research team in a way that it isn't.
+
+    return tr(
+        "CamCOPS is a computer program to collect information for clinical "
+        "(health care) and/or research purposes.\n\n"
+
+        "Tasks may be scheduled for you by your clinical/research team, and "
+        "will then appear in CamCOPS for you to complete.\n\n"
+
+        "THIS IS NOT A SUBSTITUTE FOR DIRECT COMMUNICATION WITH YOUR "
+        "CLINICAL/RESEARCH TEAM, OR EMERGENCY SERVICES. Information you "
+        "provide via CamCOPS might not be seen promptly by a relevant person. "
+        "If you have something urgent to tell your clinical/research team, "
+        "get in touch with them directly without delay. If something is very "
+        "urgent (for example, if you are very unwell or at risk), then "
+        "contact the emergency services immediately.\n\n"
+
+        "Thank you!"
+    );
 }
 
 

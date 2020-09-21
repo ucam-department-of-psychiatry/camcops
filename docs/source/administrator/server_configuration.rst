@@ -342,7 +342,7 @@ command
 Here's an example, which you would typically save as
 `/etc/supervisor/conf.d/camcops.conf`:
 
-..  literalinclude:: demo_supervisor_config.txt
+..  literalinclude:: _demo_supervisor_config.ini
     :language: ini
 
 This is where you choose which back-end web server CamCOPS should use (see
@@ -417,7 +417,7 @@ edit into the Apache config file [#linuxflavours]_:
    will be silly.
 
 
-..  literalinclude:: demo_apache_config.txt
+..  literalinclude:: _demo_apache_config.conf
     :language: apacheconf
 
 Once you are happy with your Apache config file:

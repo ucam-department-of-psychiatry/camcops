@@ -148,7 +148,7 @@ follows.
 
 Options:
 
-..  literalinclude:: camcops_client_help.txt
+..  literalinclude:: _camcops_client_help.txt
     :language: none
 
 

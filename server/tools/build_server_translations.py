@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-tools/build_translations.py
+tools/build_server_translations.py
 
 ===============================================================================
 

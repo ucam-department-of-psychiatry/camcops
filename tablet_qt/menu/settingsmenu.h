@@ -47,7 +47,8 @@ protected:
     void userSettingsSaved();
     void userSettingsCancelled();
 
-    OpenableWidget* setQuestionnaireFontSize(CamcopsApp& app);
+    OpenableWidget* setQuestionnaireFontSize(CamcopsApp& app,
+                                             bool simplified = false);
     void fontSizeChanged();
     void fontSettingsSaved();
     void fontSettingsCancelled();
