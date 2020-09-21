@@ -585,6 +585,15 @@ class Patient(GenericTabletRecordMixin, Base):
         """
         return self.forename.upper() if self.forename else ""
 
+    def get_forename_surname(self) -> str:
+        """
+        Get "Forename Surname" as a string, using "(UNKNOWN)" for missing
+        details.
+        """
+        s = self.surname or "(UNKNOWN)"
+        f = self.forename or "(UNKNOWN)"
+        return f"{s} {f}"
+
     def get_surname_forename_upper(self) -> str:
         """
         Get "SURNAME, FORENAME" in HTML-safe format, using "(UNKNOWN)" for

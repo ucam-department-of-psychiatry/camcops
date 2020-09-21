@@ -3884,8 +3884,9 @@ class TaskScheduleNode(MappingSchema, RequestAwareMixin):
         settings = get_child_node(self, "settings")
         settings.title = _("Task-specific settings for this patient")
         settings.description = _(
-            "Only applicable to tasks that are configurable on a per-patient "
-            "basis. Format: JSON object, with settings keyed on task table name"
+            "ADVANCED. Only applicable to tasks that are configurable on a "
+            "per-patient basis. Format: JSON object, with settings keyed on "
+            "task table name."
         )
 
     def validator(self, node: SchemaNode, value: Any) -> None:
@@ -4247,7 +4248,7 @@ class TaskScheduleItemSchema(CSRFSchema):
         clinician_confirmation.label = None
         clinician_confirmation.description = _(
             "Tick this box to schedule a task that would normally be completed "
-            "by a clinician"
+            "by (or with) a clinician"
         )
 
     def validator(self, node: SchemaNode, value: Dict[str, Any]) -> None:

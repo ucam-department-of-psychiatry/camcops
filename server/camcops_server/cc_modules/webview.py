@@ -3428,8 +3428,6 @@ class EditPatientBaseView(PatientMixin, UpdateView):
         patient = cast(Patient, self.object)
         for k in EDIT_PATIENT_SIMPLE_PARAMS:
             new_value = appstruct.get(k)
-            if new_value and k in [ViewParam.FORENAME, ViewParam.SURNAME]:
-                new_value = new_value.upper()
             old_value = getattr(patient, k)
             if new_value == old_value:
                 continue
@@ -3698,8 +3696,6 @@ class AddPatientView(PatientMixin, CreateView):
 
         for k in EDIT_PATIENT_SIMPLE_PARAMS:
             new_value = appstruct.get(k)
-            if k in [ViewParam.FORENAME, ViewParam.SURNAME]:
-                new_value = new_value.upper()
             setattr(patient, k, new_value)
 
         saved_ok = False
@@ -5590,8 +5586,8 @@ class AddPatientViewTests(DemoDatabaseTestCase):
         self.assertEqual(patient.era, ERA_NOW)
         self.assertEqual(patient.group.id, self.group.id)
 
-        self.assertEqual(patient.forename, "JO")
-        self.assertEqual(patient.surname, "PATIENT")
+        self.assertEqual(patient.forename, "Jo")
+        self.assertEqual(patient.surname, "Patient")
         self.assertEqual(patient.dob.isoformat(), "1958-04-19")
         self.assertEqual(patient.sex, "F")
         self.assertEqual(patient.address, "Address")

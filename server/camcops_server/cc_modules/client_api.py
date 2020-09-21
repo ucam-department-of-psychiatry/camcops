@@ -2153,7 +2153,12 @@ def create_single_user(req: "CamcopsRequest",
                        name: str, group: Group) -> Tuple[User, str]:
     """
     Creates a user for a patient (who's using single-user mode).
+
     The username must not already exist.
+
+    Strictly, the user is associated with a CLIENT DEVICE, not a patient -- a
+    device can be re-registered to another patient (so we don't store patient
+    names or e-mails with the user details).
 
     Args:
         req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
@@ -2167,7 +2172,6 @@ def create_single_user(req: "CamcopsRequest",
           implausible, but is it possible (e.g. username gets wiped but UUID
           remains on client, so the client asks again)?
     """
-
     dbsession = req.dbsession
 
     user = User(username=name)
@@ -2175,6 +2179,7 @@ def create_single_user(req: "CamcopsRequest",
     user.auto_generated = True
     password = random_password()
     user.set_password(req, password)
+
     dbsession.add(user)
     dbsession.commit()
 
@@ -2182,7 +2187,6 @@ def create_single_user(req: "CamcopsRequest",
         user_id=user.id,
         group_id=group.id,
     )
-
     membership.may_register_devices = True
     membership.may_upload = True
 

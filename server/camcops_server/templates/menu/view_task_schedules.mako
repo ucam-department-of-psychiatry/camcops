@@ -59,33 +59,33 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
             ${ schedule.name }
         </td>
         <td>
-%for item in schedule.items:
+        %for item in schedule.items:
             ${ item.description(req) }<br>
-%endfor
-        </td>
-        <td>
-<a href="${ req.route_url(
-    Routes.VIEW_TASK_SCHEDULE_ITEMS,
-    _query={
-        ViewParam.SCHEDULE_ID: schedule.id
-    }
-) }">${_("Edit items")}</a>
+        %endfor
         </td>
         <td>
             <a href="${ req.route_url(
-    Routes.EDIT_TASK_SCHEDULE,
-    _query={
-        ViewParam.SCHEDULE_ID: schedule.id
-    }
-) }">${_("Edit")}</a>
+                Routes.VIEW_TASK_SCHEDULE_ITEMS,
+                _query={
+                    ViewParam.SCHEDULE_ID: schedule.id
+                }
+            ) }">${_("Edit items")}</a>
         </td>
         <td>
             <a href="${ req.route_url(
-    Routes.DELETE_TASK_SCHEDULE,
-    _query={
-        ViewParam.SCHEDULE_ID: schedule.id
-    }
-) }">${_("Delete")}</a>
+                Routes.EDIT_TASK_SCHEDULE,
+                _query={
+                    ViewParam.SCHEDULE_ID: schedule.id
+                }
+            ) }">${_("Edit")}</a>
+        </td>
+        <td>
+            <a href="${ req.route_url(
+                Routes.DELETE_TASK_SCHEDULE,
+                _query={
+                    ViewParam.SCHEDULE_ID: schedule.id
+                }
+            ) }">${_("Delete")}</a>
         </td>
 
     </tr>

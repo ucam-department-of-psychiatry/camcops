@@ -77,7 +77,6 @@ class PatientTaskSchedule(Base):
     """
     Joining table that associates a patient with a task schedule
     """
-
     __tablename__ = "_patient_task_schedule"
 
     id = Column("id", Integer, primary_key=True, autoincrement=True)
@@ -191,7 +190,6 @@ def task_schedule_item_sort_order() -> Tuple["Cast", "Cast"]:
 
     This will fail if durations ever get stored any other way.
     """
-
     due_from_order = cast(func.substr(TaskScheduleItem.due_from, 7),
                           Numeric())
     due_by_order = cast(func.substr(TaskScheduleItem.due_by, 7),
@@ -204,7 +202,6 @@ class TaskSchedule(Base):
     """
     A named collection of task schedule items
     """
-
     __tablename__ = "_task_schedule"
 
     id = Column(
@@ -237,7 +234,6 @@ class TaskScheduleItem(Base):
     """
     An individual item in a task schedule
     """
-
     __tablename__ = "_task_schedule_item"
 
     id = Column(
@@ -291,14 +287,15 @@ class TaskScheduleItem(Base):
     def description(self, req: "CamcopsRequest") -> str:
         _ = req.gettext
 
-        due_days = "?"
-
-        if self.due_from is not None:
+        if self.due_from is None:
             # Should not be possible if created through the form
+            due_days = "?"
+        else:
             due_days = self.due_from.in_days()
 
         return _("{task_name} @ {due_days} days").format(
-            task_name=self.task_shortname, due_days=due_days
+            task_name=self.task_shortname,
+            due_days=due_days
         )
 
 
