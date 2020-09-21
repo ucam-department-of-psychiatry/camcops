@@ -129,9 +129,11 @@ def gen_files_with_ext(directory: str, ext: str) -> Iterable[str]:
     See e.g.
     https://stackoverflow.com/questions/3964681/find-all-files-in-a-directory-with-extension-txt-in-python
     """  # noqa
-    for filename in os.listdir(directory):
-        if filename.endswith(ext):
-            yield filename
+    for root, dirs, files in os.walk(directory):
+        for filename in files:
+            if filename.endswith(ext):
+                fullpath = os.path.join(root, filename)
+                yield fullpath
 
 
 # =============================================================================
@@ -150,23 +152,23 @@ Create translation files for CamCOPS client.
 Operations:
 
     {OP_PO_TO_TS}
-        Special.
-        Converts all.po files to .ts files in the translations directory, if
-        and only if the .ts file is newer than the .po file.
+        Special. Converts all .po files to .ts files in the translations
+        directory, if and only if the .po file is newer than the .ts file (or
+        the .ts file doesn't exist).
 
     {OP_SRC_TO_TS}
         Updates all .ts files (which are XML, one per language) from the .pro
         file and thence the C++ source code.
 
-    [At this stage, you could edit the .ts files with Qt Linguist. If you
-    can't find it, use Qt Creator and look within your project in "Other files"
-    / "Translations", right-click a .ts file, and then "Open With" / "Qt
+    [At this stage, you could edit the .ts files with Qt Linguist. If you can't
+    find it, use Qt Creator and look within your project in "Other files" /
+    "Translations", right-click a .ts file, and then "Open With" / "Qt
     Linguist".]
 
     {OP_TS_TO_PO}
-        Special.
-        Converts all Qt .ts files to .po files in the translations directory,
-        if and only if the .ts file is newer than the .po file.
+        Special. Converts all Qt .ts files to .po files in the translations
+        directory, if and only if the .ts file is newer than the .po file (or
+        the .po file doesn't exist).
 
     {OP_TS_TO_QM}
         Updates all .qm files (which are binary) from the corresponding .ts

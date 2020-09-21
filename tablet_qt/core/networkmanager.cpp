@@ -705,7 +705,7 @@ void NetworkManager::testHttpGet(const QString& url, const bool offer_cancel)
                                this, std::placeholders::_1));
     // GET
     m_mgr->get(request);
-    statusMessage(tr("... sent request to: ") + url);
+    statusMessage(tr("... sent request to:") + " " + url);
 }
 
 
@@ -723,7 +723,7 @@ void NetworkManager::testHttpsGet(const QString& url, const bool offer_cancel,
     // Note: the reply callback arrives on the main (GUI) thread.
     // GET
     m_mgr->get(request);
-    statusMessage(tr("... sent request to: ") + url);
+    statusMessage(tr("... sent request to:") + " " + url);
 }
 
 
@@ -733,7 +733,7 @@ void NetworkManager::testReplyFinished(QNetworkReply* reply)
         statusMessage(tr("Result:"));
         statusMessage(reply->readAll());
     } else {
-        statusMessage(tr("Network error: ") + reply->errorString());
+        statusMessage(tr("Network error:") + " " + reply->errorString());
     }
     reply->deleteLater();  // http://doc.qt.io/qt-5/qnetworkaccessmanager.html#details
     succeed();
@@ -2157,8 +2157,8 @@ void NetworkManager::queryFail(const QString &sql)
 
 void NetworkManager::queryFailClearingMoveOffFlag(const QString& tablename)
 {
-    queryFail(tr("... trying to clear move-off-tablet flag for table: ") +
-              tablename);
+    queryFail(tr("... trying to clear move-off-tablet flag for table:") +
+              " " + tablename);
 }
 
 

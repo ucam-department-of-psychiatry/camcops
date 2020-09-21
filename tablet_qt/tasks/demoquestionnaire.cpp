@@ -1100,7 +1100,7 @@ void DemoQuestionnaire::callbackHello()
 
 void DemoQuestionnaire::callbackArg(const QString& arg)
 {
-    uifunc::alert(tr("Function argument was: ") + arg);
+    uifunc::alert(tr("Function argument was:") + " " + arg);
 }
 
 

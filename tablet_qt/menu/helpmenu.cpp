@@ -151,8 +151,8 @@ void HelpMenu::softwareVersions() const
     QString sqlite_info;
     QTextStream s(&sqlite_info);
     QSqlDriver* driver = db.driver();
-    s << tr("... supported database features (0 no, 1 yes): ")
-      << "Transactions " << driver->hasFeature(QSqlDriver::Transactions)
+    s << tr("... supported database features (0 no, 1 yes):")
+      << " Transactions " << driver->hasFeature(QSqlDriver::Transactions)
       << "; QuerySize " << driver->hasFeature(QSqlDriver::QuerySize)
       << "; BLOB " << driver->hasFeature(QSqlDriver::BLOB)
       << "; Unicode " << driver->hasFeature(QSqlDriver::Unicode)

@@ -949,8 +949,8 @@ void Patient::addIdNum()
     if (unused.isEmpty()) {
         QString msg = tr("All ID numbers offered by the server are already here!");
         if (present.isEmpty()) {
-            msg += tr(" (There are no ID numbers at all – have you "
-                      "registered with a server?)");
+            msg += " " + tr("(There are no ID numbers at all – have you "
+                            "registered with a server?)");
         }
         uifunc::alert(msg);
         return;
