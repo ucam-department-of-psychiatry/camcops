@@ -83,7 +83,7 @@ def run(cmdargs: List[str]) -> None:
     process breaks the .pot file, and then this script chugs on and uses the
     broken .po file to break (for example) your Danish .po file.
     """
-    check_call_verbose(cmdargs)
+    check_call_verbose(cmdargs, log_level=logging.DEBUG)
 
 
 def change_extension(filename: str, new_ext: str) -> str:
@@ -119,6 +119,16 @@ def convert_language_file_if_source_newer(source_filename: str,
             source_filename,
             "-o", dest_filename
         ])
+        # Now, we have converted from source to destination. The destination
+        # file will therefore be marked as newer. But this will lead to the
+        # newer file being converted back to the older, the next time round,
+        # and confusion. So now we want to mark the destination as having the
+        # SAME timestamps as the source.
+        # We can't set just the mtime, so we need to read-and-set the atime.
+        dest_atime = os.path.getatime(dest_filename)
+        source_mtime = os.path.getmtime(source_filename)
+        os.utime(dest_filename, (dest_atime, source_mtime))  # change mtime
+        # https://docs.python.org/3/library/os.html#os.utime
 
 
 def gen_files_with_ext(directory: str, ext: str) -> Iterable[str]:
@@ -175,7 +185,9 @@ Operations:
         files (discovered via the .pro file).
 
     {OP_ALL}
-        Executes all other operations in sequence.""",
+        Executes all other operations in sequence. This should be safe, and
+        allow you to use .po editors like Poedit. Run this script before and
+        after editing.""",
         formatter_class=RawDescriptionArgumentDefaultsHelpFormatter
     )
     parser.add_argument(
@@ -205,8 +217,14 @@ Operations:
         default=os.environ.get(ENVVAR_LUPDATE) or shutil.which("lupdate")
     )
     parser.add_argument(
-        "--trim", action="store_true",
-        help="Remove redundant strings."
+        "--trim", dest="trim", action="store_true",
+        help="Remove redundant strings.",
+        default=True
+    )
+    parser.add_argument(
+        "--no_trim", dest="trim", action="store_true",
+        help="Do not remove redundant strings.",
+        default=False
     )
     parser.add_argument(
         "--verbose", action="store_true",
@@ -218,7 +236,7 @@ Operations:
     op = args.operation  # type: str
 
     if op in [OP_PO_TO_TS, OP_ALL]:
-        log.info(
+        log.debug(
             f"Copying all {EXT_PO} files to corresponding {EXT_TS} files if "
             f"the {EXT_PO} file is newer (or the {EXT_TS} file doesn't "
             f"exist).")
@@ -239,7 +257,7 @@ Operations:
         run(cmdargs)
 
     if op in [OP_TS_TO_PO, OP_ALL]:
-        log.info(
+        log.debug(
             f"Copying all {EXT_TS} files to corresponding {EXT_PO} files if "
             f"the {EXT_PO} file is newer (or the {EXT_PO} file doesn't "
             f"exist).")
@@ -253,8 +271,8 @@ Operations:
 
     if op in [OP_TS_TO_QM, OP_ALL]:
         assert args.lrelease, "Missing lrelease"
-        log.info(f"Using Qt Linguist 'lupdate' to update .ts files "
-                 f"from {CAMCOPS_PRO_FILE}")
+        log.info(f"Using Qt Linguist 'lrelease' to update .qm files "
+                 f"from .ts files")
         cmdargs = [args.lrelease, CAMCOPS_PRO_FILE]
         run(cmdargs)
 

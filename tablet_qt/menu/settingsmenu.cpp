@@ -785,7 +785,7 @@ OpenableWidget* SettingsMenu::setQuestionnaireFontSize(CamcopsApp& app,
         const QString logical_info(tr(
             "Logical DPI settings are used for icon sizes and similar. "
             "You are unlikely to need to override these. "
-            "Current system logical DPI: ") +
+            "Current system logical DPI:") + " " +
             m_app.qtLogicalDotsPerInch().description());
         const QString override_log(tr("Override system logical DPI settings"));
         const QString override_log_x(tr("Logical DPI, X"));
@@ -794,7 +794,8 @@ OpenableWidget* SettingsMenu::setQuestionnaireFontSize(CamcopsApp& app,
         const QString physical_info(tr(
             "Physical DPI settings are used for absolute sizes "
             "(e.g. visual analogue scales). Override this for precise scaling if "
-            "your system gets it slightly wrong. Current system physical DPI: ") +
+            "your system gets it slightly wrong. Current system physical DPI:") +
+            " " +
             m_app.qtPhysicalDotsPerInch().description());
         const QString override_phy(tr("Override system physical DPI settings"));
         const QString override_phy_x(tr("Physical DPI, X"));

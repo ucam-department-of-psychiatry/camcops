@@ -48,8 +48,8 @@
     </message>
     <message>
         <location line="+15"/>
-        <source>Other commands not shown; subject failed practice trial</source>
-        <translation>Emne mislykket praksis prøve. Andre kommandoer vises ikke.</translation>
+        <source>Other commands not shown; subject failed practice trial.</source>
+        <translation>Andre kommandoer vises ikke; personen mislykkedes i praksis.</translation>
     </message>
     <message>
         <location line="+7"/>
@@ -1237,7 +1237,7 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
     <message>
         <location line="+6"/>
         <source>28-item brief measure of coping.</source>
-        <translation>28-punkts mål for, hvor godt folk klare sig</translation>
+        <translation>28-punkts mål for, hvor godt folk klare sig.</translation>
     </message>
 </context>
 <context>
@@ -2205,8 +2205,8 @@ enig</translation>
     </message>
     <message>
         <location line="+6"/>
-        <source>Function argument was: </source>
-        <translation>Funktionsargument var:</translation>
+        <source>Function argument was:</source>
+        <translation>Argumentet funktion var:</translation>
     </message>
 </context>
 <context>
@@ -2265,11 +2265,11 @@ enig</translation>
     <name>DiagnosisTaskBase</name>
     <message>
         <location filename="../taskxtra/diagnosistaskbase.cpp" line="+81"/>
-        <source>Relates to: </source>
-        <translation>Forholder sig til:</translation>
+        <source>Relates to:</source>
+        <translation>Vedrører:</translation>
     </message>
     <message>
-        <location line="+24"/>
+        <location line="+25"/>
         <source>Date diagnoses relate to:</source>
         <translation>Dato, hvor diagnoserne vedrører:</translation>
     </message>
@@ -2723,7 +2723,7 @@ enig</translation>
     </message>
     <message>
         <location line="+4"/>
-        <source>... supported database features (0 no, 1 yes): </source>
+        <source>... supported database features (0 no, 1 yes):</source>
         <translation>... understøttede databasefunktioner (0 nej, 1 ja):</translation>
     </message>
     <message>
@@ -2782,7 +2782,7 @@ enig</translation>
     <message>
         <location line="+6"/>
         <source>12-item clinician-rated scale.</source>
-        <translation>12-vare skala, klassificeret af kliniker</translation>
+        <translation>12-punkts kliniker-rated skala.</translation>
     </message>
 </context>
 <context>
@@ -3257,7 +3257,7 @@ enig</translation>
     <message>
         <location filename="../menulib/menuwindow.cpp" line="+230"/>
         <source>Type to filter:</source>
-        <translation>Skriv for at filtrere</translation>
+        <translation>Skriv for at filtrere:</translation>
     </message>
     <message>
         <location line="+252"/>
@@ -3491,33 +3491,12 @@ enig</translation>
         <translation>+++ Ignorerer %1 SSL-fejl(er):</translation>
     </message>
     <message>
-        <location line="+59"/>
-        <source>Testing HTTP GET connection to: </source>
-        <translation>Testning af HTTP GET-forbindelse til:</translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <location line="+18"/>
-        <source>... sent request to: </source>
-        <translation>... sendt anmodning til:</translation>
-    </message>
-    <message>
-        <location line="-8"/>
-        <source>Testing HTTPS GET connection to: </source>
-        <translation>Testning af HTTPS GET-forbindelse til:</translation>
-    </message>
-    <message>
-        <location line="+15"/>
+        <location line="+91"/>
         <source>Result:</source>
         <translation>Resultat:</translation>
     </message>
     <message>
-        <location line="+3"/>
-        <source>Network error: </source>
-        <translation>Netværksfejl:</translation>
-    </message>
-    <message>
-        <location line="+193"/>
+        <location line="+196"/>
         <source>... registered and received identification information</source>
         <translation>... registreret og modtaget identifikationsoplysninger</translation>
     </message>
@@ -3532,22 +3511,12 @@ enig</translation>
         <translation>Anmodning om ekstra strenger</translation>
     </message>
     <message>
-        <location line="+140"/>
+        <location line="+141"/>
         <source>... received extra strings</source>
         <translation>... modtaget ekstra strenge</translation>
     </message>
     <message>
-        <location line="-32"/>
-        <source>Getting ID info from </source>
-        <translation>Få ID info fra</translation>
-    </message>
-    <message>
-        <location line="+20"/>
-        <source>Getting extra strings from </source>
-        <translation>Få ekstra strenger fra </translation>
-    </message>
-    <message>
-        <location line="+20"/>
+        <location line="+8"/>
         <source>Fetching server info from </source>
         <translation>Henter serverinfo fra </translation>
     </message>
@@ -3572,12 +3541,7 @@ enig</translation>
         <translation>Gemt %1 ekstra strings</translation>
     </message>
     <message>
-        <location line="+15"/>
-        <source>Preparing to upload to: </source>
-        <translation>Forbereder at uploade til:</translation>
-    </message>
-    <message>
-        <location line="+23"/>
+        <location line="+39"/>
         <source>Removing any defunct binary large objects</source>
         <translation>Fjernelse af eventuelle hedengangne binære store objekter</translation>
     </message>
@@ -3588,8 +3552,8 @@ enig</translation>
         <translation>... gjort</translation>
     </message>
     <message>
-        <location line="-323"/>
-        <location line="+355"/>
+        <location line="-325"/>
+        <location line="+357"/>
         <location line="+878"/>
         <location line="+26"/>
         <location line="+47"/>
@@ -3597,12 +3561,33 @@ enig</translation>
         <translation>... Okay</translation>
     </message>
     <message>
-        <location line="-1589"/>
+        <location line="-1591"/>
         <source>Reply is not from CamCOPS API. Are your server settings misconfigured?</source>
         <translation>Svaret kommer ikke fra CamCOPS API. Er dine serverindstillinger forkert konfigureret?</translation>
     </message>
     <message>
-        <location line="+298"/>
+        <location line="+225"/>
+        <source>Testing HTTP GET connection to:</source>
+        <translation>Test af HTTP GET-forbindelse til:</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <location line="+18"/>
+        <source>... sent request to:</source>
+        <translation>... sendt anmodning til:</translation>
+    </message>
+    <message>
+        <location line="-8"/>
+        <source>Testing HTTPS GET connection to:</source>
+        <translation>Test af HTTPS GET-forbindelse til:</translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <source>Network error:</source>
+        <translation>Netværksfejl:</translation>
+    </message>
+    <message>
+        <location line="+38"/>
         <source>Registering with %1 and receiving identification information</source>
         <extracomment>Server URL</extracomment>
         <translation>Registrering hos %1 og modtagelse af identifikationsoplysninger</translation>
@@ -3613,7 +3598,22 @@ enig</translation>
         <translation>Mislykkedes at analysere opgaveplaner: %1</translation>
     </message>
     <message>
-        <location line="+350"/>
+        <location line="+30"/>
+        <source>Getting ID info from</source>
+        <translation>Henter id-oplysninger fra</translation>
+    </message>
+    <message>
+        <location line="+20"/>
+        <source>Getting extra strings from</source>
+        <translation>Få ekstra strenge fra</translation>
+    </message>
+    <message>
+        <location line="+110"/>
+        <source>Preparing to upload to:</source>
+        <translation>Forbereder upload til:</translation>
+    </message>
+    <message>
+        <location line="+192"/>
         <source>... server doesn&apos;t want anything from this table</source>
         <translation>... server vil ikke have noget fra denne tabel</translation>
     </message>
@@ -3759,7 +3759,12 @@ enig</translation>
         <translation>Beskrivelser stemmer ikke overens!</translation>
     </message>
     <message>
-        <location line="+236"/>
+        <location line="+90"/>
+        <source>... trying to clear move-off-tablet flag for table:</source>
+        <translation>... forsøger at rydde flytte-off-tablet flag for tabel:</translation>
+    </message>
+    <message>
+        <location line="+146"/>
         <source>Please re-fetch server information.</source>
         <translation>Hent venligst serveroplysninger igen.</translation>
     </message>
@@ -3779,7 +3784,7 @@ enig</translation>
         <translation>ADVARSEL: Tabel &apos;%1&apos; er til stede på serveren, men klienten kræver serverversion &gt;=%2; serveren er version %3; fortsætter KUN, fordi denne tabel er tom.</translation>
     </message>
     <message>
-        <location line="-1056"/>
+        <location line="-1058"/>
         <source>Completed successfully.</source>
         <translation>Afsluttet med succes.</translation>
     </message>
@@ -3794,7 +3799,7 @@ enig</translation>
         <translation>... modtaget opgaveplaner</translation>
     </message>
     <message>
-        <location line="+1035"/>
+        <location line="+1037"/>
         <source>WARNING: Table &apos;%1&apos; is present on the server but the server requires client version &gt;=%2; you are using version %3; proceeding ONLY BECAUSE THIS TABLE IS EMPTY.</source>
         <translation>ADVARSEL: Tabel &apos;%1&apos; er til stede på serveren, men serveren kræver klientversion &gt;=%2; du bruger version %3; fortsætter KUN, fordi denne tabel er tom.</translation>
     </message>
@@ -3864,12 +3869,7 @@ enig</translation>
         <translation>Query failed: </translation>
     </message>
     <message>
-        <location line="+7"/>
-        <source>... trying to clear move-off-tablet flag for table: </source>
-        <translation>... forsøger at rydde &quot;flytte&quot; flag til database tabel:</translation>
-    </message>
-    <message>
-        <location line="+54"/>
+        <location line="+61"/>
         <source>... %1 defunct BLOBs</source>
         <translation>... %1 hedengangne BLOBs</translation>
     </message>
@@ -4012,7 +4012,7 @@ enig</translation>
     <message>
         <location line="+7"/>
         <source>Email</source>
-        <translation type="unfinished"></translation>
+        <translation>E-mail</translation>
     </message>
     <message>
         <location line="+4"/>
@@ -4068,8 +4068,8 @@ enig</translation>
     </message>
     <message>
         <location line="+2"/>
-        <source> (There are no ID numbers at all – have you registered with a server?)</source>
-        <translation>(Der er slet ingen ID-numre – har du registreret dig hos en server?)</translation>
+        <source>(There are no ID numbers at all – have you registered with a server?)</source>
+        <translation>(Der er ingen ID-numre på alle - har du registreret med en server?)</translation>
     </message>
     <message>
         <location line="+32"/>
@@ -4429,7 +4429,7 @@ enig</translation>
     <message>
         <location filename="../tasks/psychiatricclerking.cpp" line="+174"/>
         <source>Psychiatric clerking</source>
-        <translation>Interview af en psykiater.</translation>
+        <translation>Interview af en psykiater</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -4456,7 +4456,7 @@ enig</translation>
         <location filename="../lib/uifunc.h" line="+181"/>
         <location line="+4"/>
         <source>Alert</source>
-        <translation>Opmærksom!</translation>
+        <translation>Opmærksom</translation>
     </message>
     <message>
         <location filename="../lib/idpolicy.cpp" line="+209"/>
@@ -4481,7 +4481,7 @@ enig</translation>
     <message>
         <location line="+76"/>
         <source>Choose language</source>
-        <translation type="unfinished">Vælg sprog</translation>
+        <translation>Vælg sprog</translation>
     </message>
     <message>
         <location line="+46"/>
@@ -4514,7 +4514,7 @@ enig</translation>
     <message>
         <location line="+6"/>
         <source>Time trade-off and response scale measures of quality of life.</source>
-        <translation>Tidafvejnings og respons skala foranstaltninger af livskvalitet</translation>
+        <translation>Tidafvejnings og respons skala foranstaltninger af livskvalitet.</translation>
     </message>
 </context>
 <context>
@@ -4527,7 +4527,7 @@ enig</translation>
     <message>
         <location line="+6"/>
         <source>Standard-gamble measure of quality of life.</source>
-        <translation>Standard gamble måling af livskvalitet</translation>
+        <translation>Standard gamble måling af livskvalitet.</translation>
     </message>
 </context>
 <context>
@@ -4554,8 +4554,8 @@ enig</translation>
     </message>
     <message>
         <location line="+4"/>
-        <source> (not running)</source>
-        <translation>(ikke kører)</translation>
+        <source>(not running)</source>
+        <translation>(kører ikke)</translation>
     </message>
 </context>
 <context>
@@ -5060,12 +5060,12 @@ enig</translation>
     </message>
     <message>
         <location line="+2"/>
-        <location line="+1163"/>
+        <location line="+1164"/>
         <source>Show server information</source>
         <translation>Vis serveroplysninger</translation>
     </message>
     <message>
-        <location line="-1156"/>
+        <location line="-1157"/>
         <source>Infrequent user functions</source>
         <translation>Ufrivillige brugerfunktioner</translation>
     </message>
@@ -5107,7 +5107,7 @@ enig</translation>
     <message>
         <location line="+1"/>
         <source>host name or IP address</source>
-        <translation>Værtsnavn eller IP-adresse</translation>
+        <translation>værtsnavn eller IP-adresse</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -5521,12 +5521,7 @@ enig</translation>
         <translation>Disse indstillinger træder i kraft, når du genstarter CamCOPS.</translation>
     </message>
     <message>
-        <location line="+2"/>
-        <source>Logical DPI settings are used for icon sizes and similar. You are unlikely to need to override these. Current system logical DPI: </source>
-        <translation>Logiske DPI-indstillinger bruges til ikonstørrelser og lignende. Det er usandsynligt, at du skal tilsidesætte disse. Nuværende system logisk DPI:</translation>
-    </message>
-    <message>
-        <location line="+5"/>
+        <location line="+7"/>
         <source>Override system logical DPI settings</source>
         <translation>Overstyr systemets logiske DPI-indstillinger</translation>
     </message>
@@ -5541,12 +5536,7 @@ enig</translation>
         <translation>Logisk DPI, Y</translation>
     </message>
     <message>
-        <location line="+2"/>
-        <source>Physical DPI settings are used for absolute sizes (e.g. visual analogue scales). Override this for precise scaling if your system gets it slightly wrong. Current system physical DPI: </source>
-        <translation>Fysiske DPI-indstillinger anvendes til absolutte størrelser (fx visuelle analoge skalaer). Overstyr dette for præcis skalering, hvis dit system får det lidt forkert. Nuværende system fysisk DPI:</translation>
-    </message>
-    <message>
-        <location line="+5"/>
+        <location line="+8"/>
         <source>Override system physical DPI settings</source>
         <translation>Overstyr systemets fysiske DPI-indstillinger</translation>
     </message>
@@ -5566,14 +5556,14 @@ enig</translation>
         <translation>Punkter pr. tommer (DPI), f.eks. 96; interval %1-%2</translation>
     </message>
     <message>
-        <location line="-54"/>
+        <location line="-55"/>
         <source>Reset to 100%</source>
         <translation>Nulstil til 100%</translation>
     </message>
     <message>
         <location line="+17"/>
         <source>Set questionnaire font size</source>
-        <translation type="unfinished"></translation>
+        <translation>Angiv skriftstørrelse for spørgeskema</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -5581,7 +5571,17 @@ enig</translation>
         <translation>Indstil spørgeskema skriftstørrelse og DPI indstillinger</translation>
     </message>
     <message>
-        <location line="+286"/>
+        <location line="+15"/>
+        <source>Logical DPI settings are used for icon sizes and similar. You are unlikely to need to override these. Current system logical DPI:</source>
+        <translation>Logiske DPI-indstillinger bruges til ikonstørrelser og lignende. Det er usandsynligt, at du behøver at tilsidesætte disse. Aktuel system logisk DPI:</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Physical DPI settings are used for absolute sizes (e.g. visual analogue scales). Override this for precise scaling if your system gets it slightly wrong. Current system physical DPI:</source>
+        <translation>Fysiske DPI-indstillinger bruges til absolutte størrelser (f.eks. visuelle analoge vægte). Tilsidesæt dette for præcis skalering, hvis dit system får det lidt forkert. Aktuelt fysisk DPI for systemet:</translation>
+    </message>
+    <message>
+        <location line="+263"/>
         <source>Server details have changed. You should consider re-registering with the server.</source>
         <translation>Serveroplysningerne er ændret. Du bør overveje at omregistrere til serveren.</translation>
     </message>
@@ -5811,7 +5811,7 @@ enig</translation>
         <translation>Optagelsestællinger for systemdatabasen</translation>
     </message>
     <message>
-        <location line="-1340"/>
+        <location line="-1341"/>
         <source>Choose language</source>
         <translation>Vælg sprog</translation>
     </message>
@@ -5928,9 +5928,7 @@ enig</translation>
     <message>
         <location line="+1"/>
         <source>Anonymous</source>
-        <translation>
-9/5000
-Anonym</translation>
+        <translation>Anonym</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -6047,7 +6045,7 @@ Anonym</translation>
     <message>
         <location line="+5"/>
         <source>Questionnaire font size</source>
-        <translation type="unfinished">Spørgeskema skriftstørrelse</translation>
+        <translation>Spørgeskema skriftstørrelse</translation>
     </message>
     <message>
         <location line="+7"/>
@@ -6142,13 +6140,13 @@ Anonym</translation>
     </message>
     <message>
         <location line="+37"/>
-        <source> You have said you ARE using this software in that context (see Settings). To use this task, you must seek permission from the copyright holder (see Task Information).</source>
-        <translation>Du har sagt, at du bruger denne software i den sammenhæng (se Indstillinger). For at bruge denne opgave skal du søge tilladelse fra indehaveren af ophavsretten (se Opgaveoplysninger).</translation>
+        <source>You have said you ARE using this software in that context (see Settings). To use this task, you must seek permission from the copyright holder (see Task Information).</source>
+        <translation>Du har sagt, at du bruger denne software i denne sammenhæng (se Indstillinger). Hvis du vil bruge denne opgave, skal du søge om tilladelse fra indehaveren af ophavsretten (se Opgaveoplysninger).</translation>
     </message>
     <message>
         <location line="+4"/>
-        <source> You have NOT SAID whether you are using this software in that context (see Settings).</source>
-        <translation>Du har ikke sagt om du bruger denne software i den sammenhæng (se Indstillinger).</translation>
+        <source>You have NOT SAID whether you are using this software in that context (see Settings).</source>
+        <translation>Du har ikke sagt, om du bruger denne software i denne sammenhæng (se Indstillinger).</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -6249,7 +6247,7 @@ Afsluttet</translation>
     <message>
         <location filename="../tasklib/taskscheduleitemeditor.cpp" line="+80"/>
         <source>Null task pointer</source>
-        <translation type="unfinished"></translation>
+        <translation>Null-opgavemarkør</translation>
     </message>
     <message>
         <location line="+7"/>
@@ -6840,7 +6838,7 @@ Afsluttet</translation>
     <message>
         <location line="+1"/>
         <source>On</source>
-        <translation>Tændt </translation>
+        <translation>Tændt</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -6885,7 +6883,7 @@ Afsluttet</translation>
     <message>
         <location line="+1"/>
         <source>Recalled</source>
-        <translation>Tilbagekaldt </translation>
+        <translation>Tilbagekaldt</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -7080,7 +7078,13 @@ Tasks may be scheduled for you by your clinical/research team, and will then app
 THIS IS NOT A SUBSTITUTE FOR DIRECT COMMUNICATION WITH YOUR CLINICAL/RESEARCH TEAM, OR EMERGENCY SERVICES. Information you provide via CamCOPS might not be seen promptly by a relevant person. If you have something urgent to tell your clinical/research team, get in touch with them directly without delay. If something is very urgent (for example, if you are very unwell or at risk), then contact the emergency services immediately.
 
 Thank you!</source>
-        <translation type="unfinished"></translation>
+        <translation>CamCOPS er et edb-program til indsamling af oplysninger til kliniske (sundhedspleje) og / eller forskningsformål.
+
+Opgaver kan planlægges for dig af dit kliniske team/ forskerhold, og vil derefter blive vist i CamCOPS for dig at fuldføre.
+
+DETTE ER IKKE EN ERSTATNING FOR DIREKTE KOMMUNIKATION MED DIT KLINISKE/FORSKERHOLD ELLER REDNINGSTJENESTER. Oplysninger, du giver via CamCOPS, kan muligvis ikke ses hurtigt af en relevant person. Hvis du har noget presserende at fortælle din kliniske / forskerhold, komme i kontakt med dem direkte uden forsinkelse. Hvis noget er meget presserende (for eksempel, hvis du er meget syg eller i fare), så kontakt alarmcentralen straks.
+
+Tak!</translation>
     </message>
 </context>
 <context>
@@ -7395,7 +7399,7 @@ Thank you!</source>
     <message>
         <location line="+6"/>
         <source>12-item caregiver-report scale.</source>
-        <translation>12-punkts skala rapporteret af en omsorgsgiver</translation>
+        <translation>12-punkts skala rapporteret af en omsorgsgiver.</translation>
     </message>
 </context>
 <context>

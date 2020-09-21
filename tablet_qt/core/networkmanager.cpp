@@ -698,7 +698,7 @@ void NetworkManager::testHttpGet(const QString& url, const bool offer_cancel)
 {
     QNetworkRequest request = createRequest(QUrl(url), offer_cancel,
                                             false, false);
-    statusMessage(tr("Testing HTTP GET connection to: ") + url);
+    statusMessage(tr("Testing HTTP GET connection to:") + " " + url);
     // Safe object lifespan signal: can use std::bind
     QObject::connect(m_mgr, &QNetworkAccessManager::finished,
                      std::bind(&NetworkManager::testReplyFinished,
@@ -715,7 +715,7 @@ void NetworkManager::testHttpsGet(const QString& url, const bool offer_cancel,
     QNetworkRequest request = createRequest(QUrl(url), offer_cancel,
                                             true, ignore_ssl_errors,
                                             QSsl::AnyProtocol);
-    statusMessage(tr("Testing HTTPS GET connection to: ") + url);
+    statusMessage(tr("Testing HTTPS GET connection to:") + " " + url);
     // Safe object lifespan signal: can use std::bind
     QObject::connect(m_mgr, &QNetworkAccessManager::finished,
                      std::bind(&NetworkManager::testReplyFinished, this,
@@ -914,7 +914,7 @@ void NetworkManager::storeTaskSchedules()
 
 void NetworkManager::fetchIdDescriptions()
 {
-    statusMessage(tr("Getting ID info from ") + serverUrlDisplayString());
+    statusMessage(tr("Getting ID info from") + " " + serverUrlDisplayString());
     Dict dict;
     dict[KEY_OPERATION] = OP_GET_ID_INFO;
     serverPost(dict, &NetworkManager::fetchIdDescriptionsSub1);
@@ -934,7 +934,8 @@ void NetworkManager::fetchIdDescriptionsSub1(QNetworkReply* reply)
 
 void NetworkManager::fetchExtraStrings()
 {
-    statusMessage(tr("Getting extra strings from ") + serverUrlDisplayString());
+    statusMessage(tr("Getting extra strings from") + " " +
+                  serverUrlDisplayString());
     Dict dict;
     dict[KEY_OPERATION] = OP_GET_EXTRA_STRINGS;
     serverPost(dict, &NetworkManager::fetchExtraStringsSub1);
@@ -1043,7 +1044,8 @@ void NetworkManager::storeExtraStrings()
 
 void NetworkManager::upload(const UploadMethod method)
 {
-    statusMessage(tr("Preparing to upload to: ") + serverUrlDisplayString());
+    statusMessage(tr("Preparing to upload to:") + " " +
+                  serverUrlDisplayString());
     // ... in part so uploadNext() status message looks OK
 
     // The GUI doesn't get a chance to respond until after this function

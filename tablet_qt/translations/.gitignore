@@ -2,3 +2,7 @@
 # The .po files are temporary.
 # See build_client_translations.py
 *.po
+
+# Something makes .mo files occasionally:
+*.mo
+
