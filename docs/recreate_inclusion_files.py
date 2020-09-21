@@ -147,6 +147,9 @@ def main():
     run_cmd(["python", join(SERVER_TOOLS_DIR, "create_database_migration.py"),
              "--help"],
             join(DEV_DIR, "_create_database_migration_help.txt"))
+    run_cmd(["python", join(TABLET_TOOLS_DIR, "build_client_translations.py"),
+             "--help"],
+            join(DEV_DIR, "_build_client_translations_help.txt"))
     run_cmd(["python", join(TABLET_TOOLS_DIR, "decrypt_sqlcipher.py"),
              "--help"],
             join(DEV_DIR, "_decrypt_sqlcipher_help.txt"))

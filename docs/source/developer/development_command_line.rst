@@ -74,6 +74,13 @@ Here's its help:
     :language: none
 
 
+build_client_translations.py
+----------------------------
+
+Builds translation files for the client. See :ref:`Internationalization
+<dev_internationalization>`.
+
+
 chord.py
 --------
 
@@ -121,8 +128,8 @@ Here's its help:
 **In server/tools:**
 
 
-build_translations.py
----------------------
+build_server_translations.py
+----------------------------
 
 Builds translation files for the server. See :ref:`Internationalization
 <dev_internationalization>`.

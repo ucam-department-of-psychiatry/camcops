@@ -24,7 +24,7 @@ tools/build_server_translations.py
 
 ===============================================================================
 
-**Make translation files via Babel.**
+**Make translation files for the CamCOPS server via Babel.**
 
 For developer use only.
 
@@ -33,7 +33,6 @@ For developer use only.
 import argparse
 import logging
 from os.path import abspath, dirname, isfile, join
-import subprocess
 from typing import List
 
 from cardinal_pythonlib.argparse_func import (
@@ -43,6 +42,7 @@ from cardinal_pythonlib.logs import (
     BraceStyleAdapter,
     main_only_quicksetup_rootlogger,
 )
+from cardinal_pythonlib.subproc import check_call_verbose
 
 from camcops_server.cc_modules.cc_baseconstants import (
     CAMCOPS_SERVER_DIRECTORY,
@@ -92,9 +92,7 @@ def run(cmdargs: List[str]) -> None:
     process breaks the .pot file, and then this script chugs on and uses the
     broken .po file to break (for example) your Danish .po file.
     """
-    log.debug(f"Running command: {cmdargs}")
-    completed_process = subprocess.run(cmdargs)
-    completed_process.check_returncode()
+    check_call_verbose(cmdargs)
 
 
 def get_po_basefilename(locale: str) -> str:

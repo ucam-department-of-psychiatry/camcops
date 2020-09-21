@@ -379,6 +379,16 @@ is as follows:
     :language: none
 
 
+Updating client strings
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Similarly, there is a client-side development tool,
+``build_client_translations.py``. Its help is as follows:
+
+.. literalinclude:: _build_client_translations_help.txt
+    :language: none
+
+
 .. todo::
     There are still some of the more complex Deform widgets that aren't properly translated on a per-request basis, such as
 
