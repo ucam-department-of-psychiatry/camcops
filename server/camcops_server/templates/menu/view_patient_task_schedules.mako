@@ -75,7 +75,7 @@ ${_("CamCOPS server location:")} ${ req.route_url( Routes.CLIENT_API ) }
                         # invisible yet copy/paste-able (Thunderbird);
                         # confusing!
                         "body": (
-                            patient.get_salutation(req) + "\n\n" +
+                            patient.get_letter_style_identifiers(req) + "\n\n" +
                             _("For the CamCOPS server at:") + "\n\n" +
                             req.route_url(Routes.CLIENT_API) + "\n\n" +
                             _("Your access key is:") + "\n\n" +

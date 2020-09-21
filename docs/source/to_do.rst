@@ -285,6 +285,14 @@ Documentation
 - Finish manual esp. web site user guide.
 
 
+Developer convenience
+---------------------
+
+- Use ``lconvert`` to convert from ``.ts`` to ``.po`` and back, so we can use
+  Poedit (with its autosuggestions) for the C++ side:
+  https://stackoverflow.com/questions/12109368/how-to-convert-gnu-gettext-po-files-to-qts-ts-files
+
+
 Wishlist and blue-sky thoughts
 ------------------------------
 

@@ -339,6 +339,12 @@ class Patient(GenericTabletRecordMixin, Base):
     def __str__(self) -> str:
         """
         A plain string version, without the need for a request object.
+
+        Example:
+
+        .. code-block:: none
+
+            SMITH, BOB (M, 1 Jan 1950, idnum1=123, idnum2=456)
         """
         return "{sf} ({sex}, {dob}, {ids})".format(
             sf=self.get_surname_forename_upper(),
@@ -353,12 +359,36 @@ class Patient(GenericTabletRecordMixin, Base):
 
         Args:
             req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+
+        Example:
+
+        .. code-block:: none
+
+            SMITH, BOB (M, 1 Jan 1950, RiO# 123, NHS# 456)
         """
         return "{sf} ({sex}, {dob}, {ids})".format(
             sf=self.get_surname_forename_upper(),
             sex=self.sex,
             dob=self.get_dob_str(),
             ids=", ".join(i.prettystr(req) for i in self.get_idnum_objects()),
+        )
+
+    def get_letter_style_identifiers(self, req: "CamcopsRequest") -> str:
+        """
+        Our best guess at the kind of text you'd put in a clinical letter to
+        say "it's about this patient".
+
+        Example:
+
+        .. code-block:: none
+
+            Bob Smith (1 Jan 1950, RiO number 123, NHS number 456)
+        """
+        return "{fs} ({dob}, {ids})".format(
+            fs=self.get_forename_surname(),
+            dob=self.get_dob_str(),
+            ids=", ".join(i.full_prettystr(req)
+                          for i in self.get_idnum_objects()),
         )
 
     # -------------------------------------------------------------------------
@@ -590,9 +620,9 @@ class Patient(GenericTabletRecordMixin, Base):
         Get "Forename Surname" as a string, using "(UNKNOWN)" for missing
         details.
         """
-        s = self.surname or "(UNKNOWN)"
         f = self.forename or "(UNKNOWN)"
-        return f"{s} {f}"
+        s = self.surname or "(UNKNOWN)"
+        return f"{f} {s}"
 
     def get_surname_forename_upper(self) -> str:
         """
@@ -602,16 +632,6 @@ class Patient(GenericTabletRecordMixin, Base):
         s = self.surname.upper() if self.surname else "(UNKNOWN)"
         f = self.forename.upper() if self.surname else "(UNKNOWN)"
         return ws.webify(s + ", " + f)
-
-    def get_salutation(self, req: "CamcopsRequest") -> str:
-        """
-        Our best guess at a salutation.
-        """
-        return "{sf} ({dob}, {ids})".format(
-            sf=self.get_surname_forename_upper(),
-            dob=self.get_dob_str(),
-            ids=", ".join(i.prettystr(req) for i in self.get_idnum_objects()),
-        )
 
     def get_dob_html(self, req: "CamcopsRequest", longform: bool) -> str:
         """
