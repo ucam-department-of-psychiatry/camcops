@@ -1,4 +1,4 @@
-usage: build_translations.py [-h] [--verbose] operation
+usage: build_server_translations.py [-h] [--verbose] operation
 
 Create translation files for CamCOPS server. CamCOPS knows about the following
 locales:
@@ -8,9 +8,9 @@ locales:
 Operations:
 
     extract
-        Extract messages from code that looks like, for example,
-            _("please translate me"),
-        in Python and Mako files. Write it to this .pot file:
+        Extract strings from code that looks like, for example,
+            _("please translate me")
+        in Python and Mako files. Write the strings to this .pot file:
             /path/to/camcops/server/translations/camcops_translations.pot
         
     init_missing
@@ -18,6 +18,8 @@ Operations:
 
     update
         Updates all .po files from the .pot file.
+
+    [At this stage, edit the .po files with Poedit or similar.]
         
     compile
         Converts each .po file to an equivalent .mo file.

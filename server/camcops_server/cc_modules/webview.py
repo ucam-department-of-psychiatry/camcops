@@ -4049,11 +4049,12 @@ def view_patient_task_schedule(req: "CamcopsRequest") -> Dict[str, Any]:
         _ = req.gettext
         raise HTTPBadRequest(_("Patient's task schedule does not exist"))
 
-    patient_name = pts.patient.get_surname_forename_upper()
+    patient_descriptor = pts.patient.prettystr(req)
 
     return dict(
+        patient_descriptor=patient_descriptor,
+        schedule_name=pts.task_schedule.name,
         task_list=pts.get_list_of_scheduled_tasks(req),
-        patient_name=patient_name
     )
 
 

@@ -37,7 +37,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 
 <%include file="db_user_info.mako"/>
 
-<h1>${_("Scheduled tasks for {patient_name}").format(patient_name=patient_name)}</h1>
+<h1>${_("Scheduled tasks for {patient} on schedule: {schedule}").format(patient=patient_descriptor, schedule=schedule_name)}</h1>
 
 <table>
     <tr>

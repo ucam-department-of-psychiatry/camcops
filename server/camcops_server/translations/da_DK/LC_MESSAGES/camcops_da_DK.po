@@ -7,17 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CamCOPS 2.3.3\n"
 "Report-Msgid-Bugs-To: rudolf@pobox.com\n"
-"POT-Creation-Date: 2020-09-20 14:10+0100\n"
-"PO-Revision-Date: 2020-09-20 14:11+0100\n"
+"POT-Creation-Date: 2020-09-22 10:52+0100\n"
+"PO-Revision-Date: 2020-09-22 10:52+0100\n"
 "Last-Translator: \n"
 "Language: da_DK\n"
 "Language-Team: da_DK <LL@li.org>\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.8.0\n"
-"X-Generator: Poedit 2.4.1\n"
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_device.py:206
 msgid "(Server) Devices registered with the server"
@@ -101,9 +100,9 @@ msgstr "Ansøg"
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:735
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2738
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2983
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4008
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4029
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4390
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4009
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4030
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4391
 msgid "Cancel"
 msgstr "Annuller"
 
@@ -111,7 +110,7 @@ msgstr "Annuller"
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3585
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3633
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3702
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4471
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4472
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/download_area.mako:45
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:48
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:59
@@ -406,7 +405,7 @@ msgid "Forename"
 msgstr "Fornavn"
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2158
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3941
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3942
 msgid "Date of birth"
 msgstr "Fødselsdato"
 
@@ -842,138 +841,138 @@ msgid "Start date"
 msgstr "Startdato"
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3881
-msgid "Leave blank for date of patient registration"
-msgstr "Lad feltet være tomt for datoen for patientregistreringen"
+msgid "Leave blank for the date the patient first downloads the schedule"
+msgstr "Lad feltet være tomt for den dato, hvor patienten første gang downloader tidsplanen"
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3885
 msgid "Task-specific settings for this patient"
 msgstr "Opgavespecifikke indstillinger for denne patient"
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3886
-msgid "Only applicable to tasks that are configurable on a per-patient basis. Format: JSON object, with settings keyed on task table name"
-msgstr "Gælder kun for opgaver, der kan konfigureres pr. patient. Format: JSON -objekt med indstillinger tastet på opgavetabelnavnet"
+msgid "ADVANCED. Only applicable to tasks that are configurable on a per-patient basis. Format: JSON object, with settings keyed on task table name."
+msgstr "Avanceret. Gælder kun for opgaver, der kan konfigureres pr. patient. Format: JSON-objekt med indstillinger tastet på opgavetabelnavnet."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3898
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3899
 msgid "Please enter a valid JSON object (with settings keyed on task table name) or leave blank"
 msgstr "Angiv et gyldigt JSON-objekt (med indstillinger indtastet på opgavetabelnavnet), eller lad det være tomt"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3917
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3918
 msgid "Task Schedules"
 msgstr "Opgaveplaner"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3943
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3944
 msgid "GP"
 msgstr "Læge"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3964
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3965
 msgid "Patient would not meet 'finalize' ID policy for group:"
 msgstr "Patient ville ikke opfylde 'færdig' ID politik for gruppe:"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3966
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3967
 msgid "That policy is:"
 msgstr "Denne politik er:"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3991
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4006
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4027
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4388
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3992
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4007
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4028
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4389
 msgid "Submit"
 msgstr "Indsend"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4094
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4095
 msgid "1 week = 7 days"
 msgstr "1 uge = 7 dage"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4095
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4096
 msgid "1 month = 30 days"
 msgstr "1 måned = 30 dage"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4096
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4097
 msgid "Months"
 msgstr "Måneder"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4097
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4098
 msgid "Weeks"
 msgstr "Uger"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4098
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4099
 msgid "Days"
 msgstr "Dage"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4235
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4236
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:45
 msgid "Due from"
 msgstr "Forfalder fra"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4236
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4237
 msgid "Time from the start of schedule when the patient may begin this task"
 msgstr "Tid fra starten af tidsplanen, hvor patienten kan begynde denne opgave"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4241
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4242
 msgid "Due within"
 msgstr "Forfalder inden for"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4242
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4243
 msgid "Time the patient has to complete this task"
 msgstr "Tid patienten har til at fuldføre denne opgave"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4246
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4247
 msgid "Allow clinician tasks"
 msgstr "Tillad klinikeropgaver"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4248
-msgid "Tick this box to schedule a task that would normally be completed by a clinician"
-msgstr "Sæt kryds i dette felt for at planlægge en opgave, der normalt ville blive udført af en kliniker"
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4249
+msgid "Tick this box to schedule a task that would normally be completed by (or with) a clinician"
+msgstr "Marker dette felt for at planlægge en opgave, der normalt ville være afsluttet af (eller med) en kliniker"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4274
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4275
 msgid "You have selected the task '{task_name}', which a patient would not normally complete by themselves. If you are sure you want to do this, you must tick 'Allow clinician tasks'."
 msgstr "Du har valgt opgaven '{task_name}', som en patient normalt ikke ville fuldføre af sig selv. Hvis du er sikker på, at du vil gøre dette, skal du sætte kryds ved \"Tillad klinikeropgaver\"."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4290
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4291
 msgid "'Due from' must be zero or more days"
 msgstr "'Forfalden fra' skal være nul eller flere dage"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4297
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4298
 msgid "'Due within' must be more than zero days"
 msgstr "'Forfalden inden' skal være mere end nul dage"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4322
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4323
 msgid "The task you have selected prohibits use in certain contexts. The group '{group_name}' has no intellectual property settings. You need to edit the group '{group_name}' to say which contexts it operates in."
 msgstr "Den valgte opgave forbyder brug i visse sammenhænge. Gruppen '{group_name}' har ingen indstillinger for immaterielle rettigheder. Du skal redigere gruppen '{group_name}' for at angive, hvilke kontekster den fungerer i."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4334
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4335
 msgid "The group '{group_name}' associated with schedule '{schedule_name}' operates in a commercial context but the task you have selected prohibits commercial use."
 msgstr "Gruppen '{group_name}', der er knyttet til tidsplanen '{schedule_name}', fungerer i en kommerciel kontekst, men den valgte opgave forbyder kommerciel brug."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4346
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4347
 msgid "The group '{group_name}' associated with schedule '{schedule_name}' operates in a clinical context but the task you have selected prohibits clinical use."
 msgstr "Gruppen '{group_name}', der er knyttet til tidsplanen '{schedule_name}', fungerer i en klinisk kontekst, men den opgave, du har valgt, forbyder klinisk brug."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4358
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4359
 msgid "The group '{group_name}' associated with schedule '{schedule_name}' operates in an educational context but the task you have selected prohibits educational use."
 msgstr "Gruppen '{group_name}', der er knyttet til tidsplanen '{schedule_name}', fungerer i en uddannelsesmæssig kontekst, men den opgave, du har valgt, forbyder undervisningsbrug."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4370
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4371
 msgid "The group '{group_name}' associated with schedule '{schedule_name}' operates in a research context but the task you have selected prohibits research use."
 msgstr "Gruppen '{group_name}', der er knyttet til tidsplanen '{schedule_name}', fungerer i en forskningskontekst, men den opgave, du har valgt, forbyder brug af forskning."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4429
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4430
 msgid "View affected tasks"
 msgstr "Få vist påvirkede opgaver"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4449
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4450
 msgid "Forcibly finalize"
 msgstr "Afslut med magt"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:616
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:645
 msgid "Date of birth:"
 msgstr "Fødselsdato:"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:619
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:648
 msgid "DOB:"
 msgstr "Født:"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:1011
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:1040
 msgid "(Server) Patients, distinct by name, sex, DOB, all ID numbers"
 msgstr "(Server) Patienter, særskilt efter navn, køn, DOB, alle ID-numre"
 
@@ -1009,7 +1008,7 @@ msgstr "(Server) Tæl nuværende opgave forekomster, efter oprettelses måned og
 msgid "(Server) Count current task instances, by creation month and user"
 msgstr "(Server) Tæl nuværende opgave forekomster, efter oprettelses måned og bruger"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_taskschedule.py:300
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_taskschedule.py:296
 msgid "{task_name} @ {due_days} days"
 msgstr "{task_name} @ {due_days} dage"
 
@@ -1244,8 +1243,8 @@ msgstr "Du er ikke gruppeadministrator for de grupper, som denne bruger er i"
 msgid "Cannot find {object_class} with {server_pk_name}:{pk_value}"
 msgstr "{object_class} blev ikke fundet med {server_pk_name}:{pk_value}"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/client_api.py:2116
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/client_api.py:2129
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/client_api.py:2130
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/client_api.py:2143
 msgid "There is no patient with access key '{access_key}'. Have you entered the key correctly?"
 msgstr "Der er ingen patient med adgangsnøglen '{access_key}'. Har du indtastet nøglen korrekt?"
 
@@ -1389,50 +1388,50 @@ msgstr "Patienten kan ikke redigeres (sandsynligvis: ikke afsluttet, så en kopi
 msgid "Patient details edited. Changes:"
 msgstr "Patient oplysninger redigeret. Ændringer:"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3794
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3790
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:57
 msgid "Delete patient"
 msgstr "Slet patient"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3892
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3888
 msgid "Some records for this device are in groups for which you are not an administrator"
 msgstr "Nogle poster for denne enhed findes i grupper, som du ikke er administrator for"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4002
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3998
 msgid "Schedule does not exist"
 msgstr "Tidsplanen findes ikke"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4054
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4050
 msgid "Patient's task schedule does not exist"
 msgstr "Patientens opgaveplan findes ikke"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4085
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4195
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4082
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4192
 msgid "You a not a group administrator for this task schedule's group"
 msgstr "Du er ikke gruppeadministrator for denne opgaveplans gruppe"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4095
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4092
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:98
 msgid "Add a task schedule"
 msgstr "Tilføje en opgaveplan"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4105
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4102
 msgid "Edit details for a task schedule"
 msgstr "Redigere detaljer for en opgaveplan"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4116
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4113
 msgid "Delete a task schedule"
 msgstr "Slette en opgaveplan"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4208
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4205
 msgid "Add an item to the {schedule_name} schedule"
 msgstr "Føje et element til tidsplanen {schedule_name}"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4228
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4225
 msgid "Edit details for a task schedule item"
 msgstr "Redigere detaljer for et opgaveskemaelement"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4255
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4252
 msgid "Delete a task schedule item"
 msgstr "Slette et opgaveplanelement"
 
@@ -3053,8 +3052,8 @@ msgid "is a member of"
 msgstr "er medlem af"
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:40
-msgid "Scheduled tasks for {patient_name}"
-msgstr "Planlagte opgaver for {patient_name}"
+msgid "Scheduled tasks for {patient} on schedule: {schedule}"
+msgstr "Planlagte opgaver for {patient} til tiden: {schedule}"
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:44
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedule_items.mako:46
@@ -3799,3 +3798,4 @@ msgstr "Maksimal alder:"
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/tasks/diagnosis_finder_report.mako:40
 msgid "Results:"
 msgstr "Resultater:"
+

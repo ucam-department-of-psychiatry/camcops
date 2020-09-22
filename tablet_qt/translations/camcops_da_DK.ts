@@ -384,12 +384,12 @@
 <context>
     <name>CamcopsApp</name>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="+599"/>
+        <location filename="../core/camcopsapp.cpp" line="+615"/>
         <source>Configuring internal database</source>
         <translation>Konfiguration af intern database</translation>
     </message>
     <message>
-        <location line="+315"/>
+        <location line="+314"/>
         <source>Enter a new password for the CamCOPS application</source>
         <translation>Indtast en ny adgangskode til CamCOPS-applikationen</translation>
     </message>
@@ -434,7 +434,7 @@
         <translation>Kan ikke læse databasen; ødelagt? krypteret? (Denne version af CamCOPS har haft sine krypteringsfaciliteter deaktiveret.)</translation>
     </message>
     <message>
-        <location line="+727"/>
+        <location line="+724"/>
         <source>Upload?</source>
         <translation>Upload?</translation>
     </message>
@@ -449,13 +449,13 @@
         <translation>Ja, upload</translation>
     </message>
     <message>
-        <location line="-1464"/>
-        <location line="+1466"/>
+        <location line="-1460"/>
+        <location line="+1462"/>
         <source>No, cancel</source>
         <translation>Nej, annuller</translation>
     </message>
     <message>
-        <location line="-1564"/>
+        <location line="-1560"/>
         <source>You did not select how you would like to use CamCOPS</source>
         <translation>Du valgte ikke, hvordan du vil bruge CamCOPS</translation>
     </message>
@@ -528,7 +528,7 @@ Are you connected to the internet?</source>
 Har du forbindelse til internettet?</translation>
     </message>
     <message>
-        <location line="+202"/>
+        <location line="+201"/>
         <source>You cancelled patient registration</source>
         <translation>Du annullerede patientregistrering</translation>
     </message>
@@ -565,7 +565,7 @@ Alle poster, der ikke uploades til serveren, går tabt.</translation>
         <translation>Slet database?</translation>
     </message>
     <message>
-        <location line="+853"/>
+        <location line="+850"/>
         <source>Enter app password</source>
         <translation>Indtast programadgangskode</translation>
     </message>
@@ -625,7 +625,7 @@ Alle poster, der ikke uploades til serveren, går tabt.</translation>
         <translation>JEG ER IKKE ENIG</translation>
     </message>
     <message>
-        <location line="-2570"/>
+        <location line="-2566"/>
         <source>OK. Goodbye.</source>
         <translation>Okay. Farvel.</translation>
     </message>
@@ -635,7 +635,7 @@ Alle poster, der ikke uploades til serveren, går tabt.</translation>
         <translation>Du nægtede betingelserne.</translation>
     </message>
     <message>
-        <location line="+2625"/>
+        <location line="+2621"/>
         <source>Copy data to server, or move it to server?
 
 COPY: copies unfinished patients, moves finished patients.
@@ -3214,7 +3214,7 @@ enig</translation>
         <translation>Registrer mig</translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="+5"/>
         <source>No patient selected</source>
         <translation>Ingen patient valgt</translation>
     </message>

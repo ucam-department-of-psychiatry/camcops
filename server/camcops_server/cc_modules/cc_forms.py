@@ -3879,7 +3879,7 @@ class TaskScheduleNode(MappingSchema, RequestAwareMixin):
         start_date = get_child_node(self, "start_date")
         start_date.title = _("Start date")
         start_date.description = _(
-            "Leave blank for date of patient registration"
+            "Leave blank for the date the patient first downloads the schedule"
         )
         settings = get_child_node(self, "settings")
         settings.title = _("Task-specific settings for this patient")
