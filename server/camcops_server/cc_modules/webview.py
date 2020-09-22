@@ -4949,8 +4949,8 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
 
         self.dbsession.commit()
 
-        self.assertEqual(patient.forename, "JO")
-        self.assertEqual(patient.surname, "PATIENT")
+        self.assertEqual(patient.forename, "Jo")
+        self.assertEqual(patient.surname, "Patient")
         self.assertEqual(patient.dob.isoformat(), "1958-04-19")
         self.assertEqual(patient.sex, "X")
         self.assertEqual(patient.address, "New address")
@@ -4968,10 +4968,10 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
 
         self.assertIn("Patient details edited", note)
         self.assertIn("forename", note)
-        self.assertIn("JO", note)
+        self.assertIn("Jo", note)
 
         self.assertIn("surname", note)
-        self.assertIn("PATIENT", note)
+        self.assertIn("Patient", note)
 
         self.assertIn("idnum1", note)
         self.assertIn("4887211163", note)
@@ -4981,10 +4981,10 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
         self.assertIn(f"Amended patient record with server PK {patient.pk}",
                       messages[0])
         self.assertIn("forename", messages[0])
-        self.assertIn("JO", messages[0])
+        self.assertIn("Jo", messages[0])
 
         self.assertIn("surname", messages[0])
-        self.assertIn("PATIENT", messages[0])
+        self.assertIn("Patient", messages[0])
 
         self.assertIn("idnum1", messages[0])
         self.assertIn("4887211163", messages[0])
@@ -5120,7 +5120,7 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
 
     def test_message_when_no_changes(self) -> None:
         patient = self.create_patient(
-            forename="JO", surname="PATIENT", dob=datetime.date(1958, 4, 19),
+            forename="Jo", surname="Patient", dob=datetime.date(1958, 4, 19),
             sex="F", address="Address", gp="GP", other="Other"
         )
         patient_idnum = self.create_patient_idnum(
@@ -5210,7 +5210,7 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
 
     def test_template_rendered_with_values(self) -> None:
         patient = self.create_patient(
-            id=1, forename="JO", surname="PATIENT",
+            id=1, forename="Jo", surname="Patient",
             dob=datetime.date(1958, 4, 19),
             sex="F", address="Address", gp="GP", other="Other"
         )
@@ -5260,7 +5260,7 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
 
     def test_form_values_for_existing_patient(self) -> None:
         patient = self.create_patient(
-            id=1, forename="JO", surname="PATIENT",
+            id=1, forename="Jo", surname="Patient",
             dob=datetime.date(1958, 4, 19),
             sex="F", address="Address", email="jopatient@example.com",
             gp="GP", other="Other"
@@ -5299,8 +5299,8 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
 
         form_values = view.get_form_values()
 
-        self.assertEqual(form_values[ViewParam.FORENAME], "JO")
-        self.assertEqual(form_values[ViewParam.SURNAME], "PATIENT")
+        self.assertEqual(form_values[ViewParam.FORENAME], "Jo")
+        self.assertEqual(form_values[ViewParam.SURNAME], "Patient")
         self.assertEqual(form_values[ViewParam.DOB], datetime.date(1958, 4, 19))
         self.assertEqual(form_values[ViewParam.SEX], "F")
         self.assertEqual(form_values[ViewParam.ADDRESS], "Address")
@@ -5346,9 +5346,9 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
 
         view._save_simple_params(appstruct, changes)
 
-        self.assertEqual(changes[ViewParam.FORENAME], ("Jo", "JOANNA"))
+        self.assertEqual(changes[ViewParam.FORENAME], ("Jo", "Joanna"))
         self.assertEqual(changes[ViewParam.SURNAME],
-                         ("Patient", "PATIENT-PATIENT"))
+                         ("Patient", "Patient-Patient"))
         self.assertNotIn(ViewParam.DOB, changes)
         self.assertEqual(changes[ViewParam.ADDRESS], ("Address", "New address"))
         self.assertNotIn(ViewParam.OTHER, changes)
@@ -5672,7 +5672,7 @@ class DeleteServerCreatedPatientViewTests(DemoDatabaseTestCase):
 
     def test_patient_deleted(self) -> None:
         patient = self.create_patient(
-            id=1, forename="JO", surname="PATIENT",
+            id=1, forename="Jo", surname="Patient",
             dob=datetime.date(1958, 4, 19),
             sex="F", address="Address", gp="GP", other="Other"
         )
