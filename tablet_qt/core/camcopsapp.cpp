@@ -164,19 +164,35 @@ int CamcopsApp::getMode() const
 
 void CamcopsApp::setMode(const int mode)
 {
-    setVar(varconst::MODE, mode);
+    const int old_mode = getMode();
+    const bool mode_changed = mode != old_mode;
+    const bool single_user_mode = mode == varconst::MODE_SINGLE_USER;
 
-    if (isSingleUserMode()) {
-        setDefaultPatient();
+    // Things we might do even if the new mode is the same as the old mode
+    // (e.g. at startup):
+    if (m_netmgr) {
+        m_netmgr->setSilent(single_user_mode);
+    }
+    if (single_user_mode) {
+        setVar(varconst::OFFER_UPLOAD_AFTER_EDIT, true);
     }
 
-    if (m_p_main_window) {
-        // If the mode has been set on startup, we won't have a main window
-        // yet to attach the menu to, so we create it later.
-        recreateMainMenu();
-    }
+    // Things we only do if the mode has actually changed:
+    if (mode_changed) {
+        setVar(varconst::MODE, mode);
 
-    emit modeChanged(mode);
+        if (single_user_mode) {
+            setDefaultPatient();
+        }
+
+        if (m_p_main_window) {
+            // If the mode has been set on startup, we won't have a main window
+            // yet to attach the menu to, so we create it later.
+            recreateMainMenu();
+        }
+
+        emit modeChanged(mode);
+    }
 }
 
 void CamcopsApp::setModeFromUser()
@@ -607,9 +623,8 @@ int CamcopsApp::run()
     openMainWindow();  // uses HelpMenu etc. and so must be AFTER TASK REGISTRATION
     makeNetManager();  // needs to be after main window created, and on GUI thread
 
-    if (isSingleUserMode()) {
-        setVar(varconst::OFFER_UPLOAD_AFTER_EDIT, true);
-    }
+    // Ensure all mode-specific things are set:
+    setMode(varInt(varconst::MODE));
 
     maybeRegisterPatient();
 
@@ -1503,9 +1518,6 @@ void CamcopsApp::makeNetManager()
     m_netmgr = QSharedPointer<NetworkManager>(
                 new NetworkManager(*this, *m_datadb, m_p_task_factory,
                                    m_p_main_window.data()));
-    if (isSingleUserMode()) {
-        m_netmgr->setSilent(true);
-    }
 }
 
 
