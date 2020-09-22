@@ -142,12 +142,17 @@ class CamcopsSession(Base):
     )
 
     user = relationship("User", lazy="joined", foreign_keys=[user_id])
-    task_filter = relationship("TaskFilter", foreign_keys=[task_filter_id],
-                               cascade="save-update, merge, delete")
+    task_filter = relationship(
+        "TaskFilter", foreign_keys=[task_filter_id],
+        cascade="all, delete-orphan",
+        single_parent=True)
     # ... "save-update, merge" is the default. We are adding "delete", which
     # means that when this CamcopsSession is deleted, the corresponding
     # TaskFilter will be deleted as well. See
     # http://docs.sqlalchemy.org/en/latest/orm/cascades.html#delete
+    # ... 2020-09-22: changed to "all, delete-orphan" and single_parent=True
+    # https://docs.sqlalchemy.org/en/13/orm/cascades.html#cascade-delete-orphan
+    # https://docs.sqlalchemy.org/en/13/errors.html#error-bbf0
 
     # -------------------------------------------------------------------------
     # Basic info
@@ -327,6 +332,15 @@ class CamcopsSession(Base):
         log.debug("Deleting expired sessions")
         dbsession.query(cls)\
             .filter(cls.last_activity_utc < oldest_last_activity_allowed)\
+            .delete(synchronize_session=False)
+        # 2020-09-22: The cascade-delete to TaskFilter (see above) isn't
+        # working, even without synchronize_session=False, and even after
+        # adding delete-orphan and single_parent=True. So:
+        subquery_active_taskfilter_ids = (
+            dbsession.query(cls.task_filter_id)
+        )
+        dbsession.query(TaskFilter)\
+            .filter(TaskFilter.id.notin_(subquery_active_taskfilter_ids))\
             .delete(synchronize_session=False)
 
     @classmethod

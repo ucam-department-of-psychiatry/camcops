@@ -45,10 +45,10 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
     <tr>
         <th>${_("Group")}</th>
         <th>${_("Name")}</th>
-        <th>${_("Items")}</th>
-        <th>${_("Edit items")}</th>
         <th>${_("Edit")}</th>
         <th>${_("Delete")}</th>
+        <th>${_("Items")}</th>
+        <th>${_("Edit items")}</th>
     </tr>
 %for schedule in page:
     <tr>
@@ -57,19 +57,6 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
         </td>
         <td>
             ${ schedule.name }
-        </td>
-        <td>
-        %for item in schedule.items:
-            ${ item.description(req) }<br>
-        %endfor
-        </td>
-        <td>
-            <a href="${ req.route_url(
-                Routes.VIEW_TASK_SCHEDULE_ITEMS,
-                _query={
-                    ViewParam.SCHEDULE_ID: schedule.id
-                }
-            ) }">${_("Edit items")}</a>
         </td>
         <td>
             <a href="${ req.route_url(
@@ -86,6 +73,19 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
                     ViewParam.SCHEDULE_ID: schedule.id
                 }
             ) }">${_("Delete")}</a>
+        </td>
+        <td>
+        %for item in schedule.items:
+            ${ item.description(req) }<br>
+        %endfor
+        </td>
+        <td>
+            <a href="${ req.route_url(
+                Routes.VIEW_TASK_SCHEDULE_ITEMS,
+                _query={
+                    ViewParam.SCHEDULE_ID: schedule.id
+                }
+            ) }">${_("Edit items")}</a>
         </td>
 
     </tr>
