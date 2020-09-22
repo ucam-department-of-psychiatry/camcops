@@ -35,8 +35,8 @@ extern const int MODE_SINGLE_USER;
 extern const int DEFAULT_MODE;
 
 // Single user mode
-extern const QString SINGLE_PATIENT_ID;
-extern const QString SINGLE_PATIENT_PROQUINT;
+extern const QString SINGLE_PATIENT_ID;  // contains the PK of the patient
+extern const QString SINGLE_PATIENT_PROQUINT;  // the registration access key
 
 // Language
 extern const QString LANGUAGE;

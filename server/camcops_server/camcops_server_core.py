@@ -996,3 +996,7 @@ def dev_cli() -> None:
         """)
         import pdb
         pdb.set_trace()
+        # There must be a line below this, or the context is not available;
+        # maybe a pdb bug; see
+        # https://stackoverflow.com/questions/51743057/custom-context-manager-is-left-when-running-pdb-set-trace  # noqa
+        pass  # this does the job

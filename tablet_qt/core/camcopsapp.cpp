@@ -271,21 +271,12 @@ bool CamcopsApp::registerPatientWithServer()
     const int default_port = DEFAULT_SERVER_PORT;
     setVar(varconst::SERVER_PORT, server_url.port(default_port));
     setVar(varconst::SERVER_PATH, server_url.path());
-
-    NetworkManager* netmgr = networkManager();
-
-    disconnect(netmgr, nullptr, nullptr, nullptr);
-    connect(netmgr, &NetworkManager::finished,
-            this, &CamcopsApp::networkManagerFinished,
-            Qt::UniqueConnection);
-    connect(netmgr, &NetworkManager::cancelled,
-            this, &CamcopsApp::patientRegistrationFailed,
-            Qt::UniqueConnection);
-
     setVar(varconst::SINGLE_PATIENT_PROQUINT, patient_proquint);
     setVar(varconst::DEVICE_FRIENDLY_NAME,
            QString("Single user device %1").arg(deviceId()));
-    netmgr->registerPatient();
+
+    reconnectNetManager(&CamcopsApp::patientRegistrationFailed);
+    networkManager()->registerPatient();
 
     return true;
 }
@@ -334,17 +325,8 @@ void CamcopsApp::deleteTaskSchedules()
 
 void CamcopsApp::updateTaskSchedules()
 {
-    NetworkManager* netmgr = networkManager();
-
-    disconnect(netmgr, nullptr, nullptr, nullptr);
-    connect(netmgr, &NetworkManager::finished,
-            this, &CamcopsApp::networkManagerFinished,
-            Qt::UniqueConnection);
-    connect(netmgr, &NetworkManager::cancelled,
-            this, &CamcopsApp::updateTaskSchedulesFailed,
-            Qt::UniqueConnection);
-
-    netmgr->updateTaskSchedules();
+    reconnectNetManager(&CamcopsApp::updateTaskSchedulesFailed);
+    networkManager()->updateTaskSchedules();
 }
 
 
@@ -1518,6 +1500,33 @@ void CamcopsApp::makeNetManager()
     m_netmgr = QSharedPointer<NetworkManager>(
                 new NetworkManager(*this, *m_datadb, m_p_task_factory,
                                    m_p_main_window.data()));
+}
+
+void CamcopsApp::reconnectNetManager(
+        NetMgrCancelledCallback cancelled_callback,
+        NetMgrFinishedCallback finished_callback)
+{
+    if (!m_netmgr) {
+        makeNetManager();
+    }
+
+    // Get the raw pointer, for signals work
+    NetworkManager* netmgr = networkManager();
+
+    // Disconnect everything connected to its signals:
+    disconnect(netmgr, nullptr, nullptr, nullptr);
+
+    // Reconnect:
+    if (finished_callback) {
+        connect(netmgr, &NetworkManager::finished,
+                this, &CamcopsApp::networkManagerFinished,
+                Qt::UniqueConnection);
+    }
+    if (cancelled_callback) {
+        connect(netmgr, &NetworkManager::cancelled,
+                this, cancelled_callback,
+                Qt::UniqueConnection);
+    }
 }
 
 
@@ -2828,19 +2837,16 @@ void CamcopsApp::upload()
         }
     }
 
-    NetworkManager* netmgr = networkManager();
+    const bool single_user_mode = isSingleUserMode();
+    reconnectNetManager(
+                single_user_mode ? &CamcopsApp::uploadFailed : nullptr,
+                single_user_mode ? &CamcopsApp::networkManagerFinished : nullptr);
+    // ... no failure handlers required in clinician mode -- the NetworkManager
+    // will not be in silent mode, so will report the error to the user
+    // directly. (And similarly, we didn't/don't need a "finished" callback in
+    // clinician mode.)
 
-    disconnect(netmgr, nullptr, nullptr, nullptr);
-    if (isSingleUserMode()) {
-        connect(netmgr, &NetworkManager::finished,
-                this, &CamcopsApp::networkManagerFinished,
-                Qt::UniqueConnection);
-        connect(netmgr, &NetworkManager::cancelled,
-                this, &CamcopsApp::uploadFailed,
-                Qt::UniqueConnection);
-    }
-
-    netmgr->upload(method);
+    networkManager()->upload(method);
 }
 
 NetworkManager::UploadMethod CamcopsApp::getUploadMethodFromUser()

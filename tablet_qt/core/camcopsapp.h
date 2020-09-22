@@ -49,6 +49,16 @@ class CamcopsApp : public QApplication
 {
     Q_OBJECT
 
+protected:
+    // Define NetMgrCancelledCallback as a type, being a member function
+    // of CamcopsApp that takes two parameters as follows:
+    typedef void (CamcopsApp::*NetMgrCancelledCallback)(
+            const NetworkManager::ErrorCode,
+            const QString&);
+
+    // Similarly: NetMgrFinishedCallback
+    typedef void (CamcopsApp::*NetMgrFinishedCallback)();
+
     // ------------------------------------------------------------------------
     // Helper classes
     // ------------------------------------------------------------------------
@@ -271,21 +281,6 @@ public slots:
     // "Leave fullscreen mode."
     void leaveFullscreen();
 
-    // Callback for when the network manager has finished talking to the server.
-    void networkManagerFinished();
-
-    // Callback for patient registration failure.
-    void patientRegistrationFailed(const NetworkManager::ErrorCode error_code,
-                                   const QString& error_string);
-
-    // Callback for task schedule update failure.
-    void updateTaskSchedulesFailed(const NetworkManager::ErrorCode error_code,
-                                   const QString& error_string);
-
-    // Callback for upload failure.
-    void uploadFailed(const NetworkManager::ErrorCode error_code,
-                      const QString& error_string);
-
     // ------------------------------------------------------------------------
     // Language
     // ------------------------------------------------------------------------
@@ -486,6 +481,25 @@ public:
 protected:
     // Makes a new NetworkManager.
     void makeNetManager();
+
+    void reconnectNetManager(
+            NetMgrCancelledCallback cancelled_callback,
+            NetMgrFinishedCallback = &CamcopsApp::networkManagerFinished);
+
+    // Callback for when the network manager has finished talking to the server.
+    void networkManagerFinished();
+
+    // Callback for patient registration failure.
+    void patientRegistrationFailed(const NetworkManager::ErrorCode error_code,
+                                   const QString& error_string);
+
+    // Callback for task schedule update failure.
+    void updateTaskSchedulesFailed(const NetworkManager::ErrorCode error_code,
+                                   const QString& error_string);
+
+    // Callback for upload failure.
+    void uploadFailed(const NetworkManager::ErrorCode error_code,
+                      const QString& error_string);
 
 signals:
     // Signal that the "needs upload" state has changed.
