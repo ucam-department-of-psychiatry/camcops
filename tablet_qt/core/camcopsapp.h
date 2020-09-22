@@ -49,15 +49,15 @@ class CamcopsApp : public QApplication
 {
     Q_OBJECT
 
-protected:
-    // Define NetMgrCancelledCallback as a type, being a member function
-    // of CamcopsApp that takes two parameters as follows:
-    typedef void (CamcopsApp::*NetMgrCancelledCallback)(
+    // NetMgrCancelledCallback means "a pointer to a member function of
+    // CamcopsApp that takes two parameters as follows..."
+    // (NB "using" syntax is nicer than "typedef"!)
+    using NetMgrCancelledCallback = void (CamcopsApp::*)(
             const NetworkManager::ErrorCode,
             const QString&);
 
     // Similarly: NetMgrFinishedCallback
-    typedef void (CamcopsApp::*NetMgrFinishedCallback)();
+    using NetMgrFinishedCallback = void (CamcopsApp::*)();
 
     // ------------------------------------------------------------------------
     // Helper classes

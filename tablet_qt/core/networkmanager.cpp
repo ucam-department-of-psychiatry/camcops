@@ -1953,6 +1953,8 @@ bool NetworkManager::catalogueTablesForUpload()
         // whether we clear it or not.)
         switch (m_upload_method) {
         case UploadMethod::Copy:
+        case UploadMethod::Invalid:
+        case UploadMethod::MoveScheduledTasks:
 #ifdef COMPILER_WANTS_DEFAULT_IN_EXHAUSTIVE_SWITCH
         default:
 #endif
@@ -2311,6 +2313,7 @@ QString NetworkManager::txtPleaseRefetchServerInfo()
 // ============================================================================
 // Patient registration
 // ============================================================================
+
 void NetworkManager::registerPatient()
 {
     Dict dict;
@@ -2319,7 +2322,7 @@ void NetworkManager::registerPatient()
         varconst::SINGLE_PATIENT_PROQUINT
     );
 
-    bool include_user = !m_app.varString(varconst::SERVER_USERNAME).isEmpty();
+    const bool include_user = !m_app.varString(varconst::SERVER_USERNAME).isEmpty();
     serverPost(dict, &NetworkManager::registerPatientSub1, include_user);
 }
 
@@ -2371,8 +2374,8 @@ bool NetworkManager::createSinglePatient()
 
     // Consistent with uploading patients but only one element
     // in the array
-    QJsonArray patients_json_array = doc.array();
-    QJsonObject patient_json = patients_json_array.first().toObject();
+    const QJsonArray patients_json_array = doc.array();
+    const QJsonObject patient_json = patients_json_array.first().toObject();
 
     PatientPtr patient = PatientPtr(
         new Patient(m_app, m_app.db(), patient_json)
@@ -2404,7 +2407,7 @@ bool NetworkManager::setIpUseInfo()
         return false;
     }
 
-    QJsonObject ip_use_info = doc.object();
+    const QJsonObject ip_use_info = doc.object();
 
     m_app.setVar(varconst::IP_USE_CLINICAL,
                  ip_use_info.value(KEY_IP_USE_CLINICAL));
