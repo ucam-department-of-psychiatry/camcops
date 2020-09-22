@@ -73,8 +73,17 @@ BaseWidget {
     padding: 0;
 }
 #menu_header_more_options {
-    border: 0;
-    background-color: lightgray;
+    /* Buttons for single-user mode */
+    font-weight: bold;
+    background-color: lightgrey;
+    border-style: solid;
+    border-width: 2px;
+    border-radius: 10px;
+    border-color: darkgrey;
+    padding: 5px;
+}
+#menu_header_more_options:pressed {
+    background-color: rgba(100, 100, 255, 200);  /* blue */ /* to match BUTTON_PRESSED_COLOUR */
 }
 
 #menu_header_crippled {

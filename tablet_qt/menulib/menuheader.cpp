@@ -188,6 +188,7 @@ MenuHeader::MenuHeader(QWidget* parent,
 
     if (m_app.isSingleUserMode()) {
         m_no_patient = new ClickableLabelWordWrapWide(tr("Register me"));
+        m_no_patient->setObjectName(cssconst::MENU_HEADER_MORE_OPTIONS);
         connect(m_no_patient, &QAbstractButton::clicked,
                 this, &MenuHeader::registerPatient);
     } else {
