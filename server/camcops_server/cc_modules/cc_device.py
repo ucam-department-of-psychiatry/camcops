@@ -152,6 +152,7 @@ class Device(Base):
             device.when_registered_utc = Pendulum.utcnow()
             device.camcops_version = CAMCOPS_SERVER_VERSION
             dbsession.add(device)
+            dbsession.flush()  # So that we can use the PK elsewhere
         return device
 
     def get_friendly_name(self) -> str:

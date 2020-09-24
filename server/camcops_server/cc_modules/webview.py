@@ -3684,8 +3684,6 @@ class AddPatientView(PatientMixin, CreateView):
             self.request.dbsession
         )
 
-        if server_device.id is None:
-            self.request.dbsession.commit()
         patient = Patient()
         patient.create_fresh(
             self.request,
