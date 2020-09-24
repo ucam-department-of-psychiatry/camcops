@@ -936,20 +936,17 @@ class Patient(GenericTabletRecordMixin, Base):
     # Editing
     # -------------------------------------------------------------------------
 
-    def is_editable(self, req: "CamcopsRequest") -> bool:
+    def is_finalized(self, req: "CamcopsRequest") -> bool:
         """
         Is the patient finalized (no longer available to be edited on the
         client device), and therefore editable on the server?
         """
-        if self.was_created_on_server(req):
-            return True
-
         if self._era == ERA_NOW:
             # Not finalized; no editing on server
             return False
         return True
 
-    def was_created_on_server(self, req: "CamcopsRequest") -> bool:
+    def created_on_server(self, req: "CamcopsRequest") -> bool:
         server_device = Device.get_server_device(req.dbsession)
 
         return (self._era == ERA_NOW and
@@ -1146,7 +1143,7 @@ class PatientTests(DemoDatabaseTestCase):
         self.assertIsInstance(p.get_iddesc(req, which_idnum=1), str)
         self.assertIsInstance(p.get_idshortdesc(req, which_idnum=1), str)
         self.assertIsInstance(p.is_preserved(), bool)
-        self.assertIsInstance(p.is_editable(req), bool)
+        self.assertIsInstance(p.is_finalized(req), bool)
         self.assertIsInstance(p.user_may_edit(req), bool)
 
 

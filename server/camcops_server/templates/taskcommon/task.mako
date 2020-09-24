@@ -269,7 +269,7 @@ ${ task.get_task_html(req) }
                             }) }">${_("Apply special note")}</a></p>
             %endif
             %if req.user.may_administer_group(task._group_id):
-                %if task.has_patient and task.patient and task.patient.is_editable:
+                %if task.has_patient and task.patient and task.patient.is_finalized:
                     <p><a href="${ req.route_url(
                                 Routes.EDIT_FINALIZED_PATIENT,
                                 _query={

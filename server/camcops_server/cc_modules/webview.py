@@ -3364,11 +3364,6 @@ class EditPatientBaseView(PatientMixin, UpdateView):
         if not patient.user_may_edit(self.request):
             raise HTTPBadRequest(_("Not authorized to edit this patient"))
 
-        if not patient.is_editable(self.request):
-            raise HTTPBadRequest(
-                _("Patient is not editable (likely: not finalized, so a copy "
-                  "still on a client device)"))
-
         return patient
 
     def save_object(self, appstruct: Dict[str, Any]) -> None:
@@ -3621,6 +3616,17 @@ class EditServerCreatedPatientView(EditPatientBaseView):
             Routes.VIEW_PATIENT_TASK_SCHEDULES
         )
 
+    def get_object(self) -> Any:
+        patient = cast(Patient, super().get_object())
+
+        if not patient.created_on_server(self.request):
+            _ = self.request.gettext
+
+            raise HTTPBadRequest(
+                _("Patient is not editable - was not created on the server"))
+
+        return patient
+
     def save_changes(self,
                      appstruct: Dict[str, Any], changes: OrderedDict) -> None:
         self._save_group(appstruct, changes)
@@ -3649,6 +3655,18 @@ class EditFinalizedPatientView(EditPatientBaseView):
 
     def get_success_url(self) -> str:
         return self.request.route_url(Routes.HOME)
+
+    def get_object(self) -> Any:
+        patient = cast(Patient, super().get_object())
+
+        if not patient.is_finalized(self.request):
+            _ = self.request.gettext
+
+            raise HTTPBadRequest(
+                _("Patient is not editable (likely: not finalized, so a copy "
+                  "still on a client device)"))
+
+        return patient
 
 
 @view_config(route_name=Routes.EDIT_FINALIZED_PATIENT,
@@ -4884,7 +4902,7 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
         self.assertEqual(str(cm.exception),
                          "Not authorized to edit this patient")
 
-    def test_raises_when_patient_not_editable(self) -> None:
+    def test_raises_when_patient_not_finalized(self) -> None:
         device = Device(name="Not the server device")
         self.req.dbsession.add(device)
         self.req.dbsession.commit()
@@ -5518,6 +5536,26 @@ class EditServerCreatedPatientViewTests(DemoDatabaseTestCase):
         self.assertIn("testgroup", messages[0])
         self.assertIn("newgroup", messages[0])
         self.assertIn("group:", messages[0])
+
+    def test_raises_when_not_created_on_the_server(self) -> None:
+        device = Device(name="Not the server device")
+        self.req.dbsession.add(device)
+        self.req.dbsession.commit()
+
+        patient = self.create_patient(
+            id=1, _device_id=device.id,
+        )
+
+        view = EditServerCreatedPatientView(self.req)
+
+        self.req.add_get_params({
+            ViewParam.SERVER_PK: patient.pk
+        })
+
+        with self.assertRaises(HTTPBadRequest) as cm:
+            view.get_object()
+
+        self.assertIn("Patient is not editable", str(cm.exception))
 
 
 class AddPatientViewTests(DemoDatabaseTestCase):
