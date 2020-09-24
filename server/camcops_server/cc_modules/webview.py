@@ -4028,6 +4028,10 @@ def view_task_schedule_items(req: "CamcopsRequest") -> Dict[str, Any]:
              permission=Permission.GROUPADMIN,
              renderer="view_patient_task_schedules.mako")
 def view_patient_task_schedules(req: "CamcopsRequest") -> Dict[str, Any]:
+    server_device = Device.get_server_device(
+        req.dbsession
+    )
+
     rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
                                       DEFAULT_ROWS_PER_PAGE)
     page_num = req.get_int_param(ViewParam.PAGE, 1)
@@ -4037,6 +4041,7 @@ def view_patient_task_schedules(req: "CamcopsRequest") -> Dict[str, Any]:
         req.dbsession.query(Patient)
         .filter(Patient._era == ERA_NOW)
         .filter(Patient._group_id.in_(allowed_group_ids))
+        .filter(Patient._device_id == server_device.id)
         .order_by(Patient.surname, Patient.forename)
         .options(joinedload("task_schedules"))
     )
