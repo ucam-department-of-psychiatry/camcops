@@ -18,31 +18,24 @@
 */
 
 #pragma once
-#include <QDialog>
-#include <QPointer>
-class QDialogButtonBox;
-class QLabel;
-class QUrl;
-class ValidatingLineEdit;
+#include <QLineEdit>
+#include <QValidator>
 
-
-class PatientRegistrationDialog : public QDialog
+class ValidatingLineEdit : public QLineEdit
 {
-    // Dialogue to select mode of operation.
-    // MODAL and BLOCKING: call exec() and read serverUrl() and
-    // patientProquint() if it succeeds.
+    // One-line text editor with validation and visual feedback
 
     Q_OBJECT
 public:
-    PatientRegistrationDialog(QWidget* parent = nullptr);
-    QString patientProquint() const;
-    QString serverUrlAsString() const;
-    QUrl serverUrl() const;
-protected:
-    QPointer<QDialogButtonBox> m_buttonbox;
-    QPointer<ValidatingLineEdit> m_editor_patient_proquint;
-    QPointer<ValidatingLineEdit> m_editor_server_url;
+    ValidatingLineEdit(QValidator* validator, QWidget* parent = nullptr);
+    void textChanged();
+    QValidator::State getState();
+    bool isValid();
+    QString getTrimmedText();
 
-protected slots:
-    void updateOkButtonEnabledState();
+private:
+    QValidator::State m_state;
+
+signals:
+    void validated();
 };
