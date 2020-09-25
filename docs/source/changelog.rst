@@ -2879,3 +2879,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
   :ref:`Single User Mode <single_user_mode>` on the client
   to allow patients to complete tasks at home on their own devices.
   (Database revisions 0047-0052).
+
+  New passwords on the client app must now be at least 8 characters long.
