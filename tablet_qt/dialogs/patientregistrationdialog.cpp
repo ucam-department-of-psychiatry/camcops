@@ -97,10 +97,10 @@ QUrl PatientRegistrationDialog::serverUrl() const
 
 void PatientRegistrationDialog::urlChanged()
 {
-    UrlValidator validator;
     QString url = serverUrlAsString();
     int pos = 0;
-    QValidator::State state = validator.validate(url, pos);
+    const QValidator *validator = m_editor_server_url->validator();
+    QValidator::State state = validator->validate(url, pos);
     m_url_valid = state == QValidator::Acceptable;
 
     const QColor background = m_url_valid ? GOOD_BACKGROUND : BAD_BACKGROUND;
@@ -116,10 +116,10 @@ void PatientRegistrationDialog::urlChanged()
 
 void PatientRegistrationDialog::proquintChanged()
 {
-    ProquintValidator validator;
     QString proquint = patientProquint();
     int pos = 0;
-    const QValidator::State state = validator.validate(proquint, pos);
+    const QValidator *validator = m_editor_patient_proquint->validator();
+    const QValidator::State state = validator->validate(proquint, pos);
     m_proquint_valid = state == QValidator::Acceptable;
 
     const QColor background = m_proquint_valid ? GOOD_BACKGROUND : BAD_BACKGROUND;
