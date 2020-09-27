@@ -18,10 +18,12 @@
 */
 
 #pragma once
+#include <QLabel>
 #include <QLineEdit>
+#include <QVBoxLayout>
 #include <QValidator>
 
-class ValidatingLineEdit : public QLineEdit
+class ValidatingLineEdit : public QVBoxLayout
 {
     // One-line text editor with validation and visual feedback
 
@@ -34,6 +36,8 @@ public:
     QString getTrimmedText();
 
 private:
+    QLabel* m_label;
+    QLineEdit* m_line_edit;
     QValidator::State m_state;
 
 signals:

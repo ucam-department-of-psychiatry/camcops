@@ -19,6 +19,7 @@
 
 #include <QColor>
 #include <QDialog>
+#include <QLabel>
 #include <QLineEdit>
 #include <QPalette>
 #include <QValidator>
@@ -33,12 +34,17 @@ const QColor& BAD_BACKGROUND = Qt::red;
 
 
 ValidatingLineEdit::ValidatingLineEdit(QValidator* validator, QWidget* parent) :
-    QLineEdit(parent)
+    QVBoxLayout(parent)
 {
-    setValidator(validator);
+    m_line_edit = new QLineEdit();
+    m_line_edit->setValidator(validator);
 
-    connect(this, &QLineEdit::textChanged, this,
+    connect(m_line_edit, &QLineEdit::textChanged, this,
             &ValidatingLineEdit::textChanged);
+    m_label = new QLabel();
+
+    addWidget(m_line_edit);
+    addWidget(m_label);
 }
 
 
@@ -47,15 +53,19 @@ void ValidatingLineEdit::textChanged()
     int pos = 0;
     QString text = getTrimmedText();;
 
-    m_state = validator()->validate(text, pos);
+    m_state = m_line_edit->validator()->validate(text, pos);
 
     const QColor background = isValid() ? GOOD_BACKGROUND : BAD_BACKGROUND;
     const QColor foreground = isValid() ? GOOD_FOREGROUND : BAD_FOREGROUND;
+    const QString feedback = isValid() ? tr("Valid") : tr("Invalid");
+
     QPalette palette;
     palette.setColor(QPalette::Base, background);
     palette.setColor(QPalette::Text, foreground);
 
-    setPalette(palette);
+    m_line_edit->setPalette(palette);
+    m_label->setText(feedback);
+    m_label->setAlignment(Qt::AlignRight);
 
     emit validated();
 }
@@ -63,7 +73,7 @@ void ValidatingLineEdit::textChanged()
 
 QString ValidatingLineEdit::getTrimmedText()
 {
-    return text().trimmed();
+    return m_line_edit->text().trimmed();
 }
 
 
