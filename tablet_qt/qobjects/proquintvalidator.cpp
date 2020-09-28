@@ -52,6 +52,11 @@ QValidator::State ProquintValidator::validate(QString& input, int&) const
         )
     );
 
+    // Note: a proquint group (5 letters: consonant/vowel/con/vo/con).
+    // represents 16 bits: https://arxiv.org/html/0901.4016
+    // ("Proquint" = "pronoucable quintuplet".)
+    // The 8-proquint version here represents 128 bits (plus a checksum).
+
     const QRegularExpressionMatch match = proquint_regex.match(input);
 
     if (!match.hasMatch()) {
