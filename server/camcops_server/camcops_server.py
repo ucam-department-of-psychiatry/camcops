@@ -85,7 +85,7 @@ from camcops_server.cc_modules.cc_snomed import send_athena_icd_snomed_to_xml
 from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 
 if TYPE_CHECKING:
-    # noinspection PyProtectedMember
+    # noinspection PyProtectedMember,PyUnresolvedReferences
     from argparse import _SubParsersAction
     from pyramid.router import Router
 

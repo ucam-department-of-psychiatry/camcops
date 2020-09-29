@@ -286,6 +286,7 @@ from camcops_server.cc_modules.cc_pyramid import (
     ViewParam,
 )
 from camcops_server.cc_modules.cc_report import get_report_instance
+from camcops_server.cc_modules.cc_request import CamcopsRequest, validate_url
 from camcops_server.cc_modules.cc_simpleobjects import (
     IdNumReference,
     TaskExportOptions,
@@ -331,7 +332,7 @@ from camcops_server.cc_modules.cc_view_classes import (
 )
 
 if TYPE_CHECKING:
-    from camcops_server.cc_modules.cc_request import CamcopsRequest
+    # noinspection PyUnresolvedReferences
     from camcops_server.cc_modules.cc_sqlalchemy import Base
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
@@ -563,7 +564,7 @@ def login_view(req: "CamcopsRequest") -> Response:
             ccsession = req.camcops_session
             username = appstruct.get(ViewParam.USERNAME)
             password = appstruct.get(ViewParam.PASSWORD)
-            redirect_url = appstruct.get(ViewParam.REDIRECT_URL)
+            redirect_url = validate_url(appstruct.get(ViewParam.REDIRECT_URL))
             # 1. If we don't have a username, let's stop quickly.
             if not username:
                 ccsession.logout()
@@ -608,7 +609,7 @@ def login_view(req: "CamcopsRequest") -> Response:
             rendered_form = e.render()
 
     else:
-        redirect_url = req.get_str_param(ViewParam.REDIRECT_URL, "")
+        redirect_url = req.get_url_param(ViewParam.REDIRECT_URL, "")
         # ... use default of "", because None gets serialized to "None", which
         #     would then get read back later as "None".
         appstruct = {ViewParam.REDIRECT_URL: redirect_url}
@@ -977,7 +978,7 @@ def set_filters(req: "CamcopsRequest") -> Response:
     """
     View to set the task filters for the current user.
     """
-    redirect_url = req.get_str_param(ViewParam.REDIRECT_URL,
+    redirect_url = req.get_url_param(ViewParam.REDIRECT_URL,
                                      req.route_url(Routes.VIEW_TASKS))
     task_filter = req.camcops_session.get_task_filter()
     return edit_filter(req, task_filter=task_filter, redirect_url=redirect_url)
@@ -3086,7 +3087,9 @@ class EraseTaskBaseView(DeleteView):
     form_class = EraseTaskForm
 
     def get_object(self) -> Any:
+        # noinspection PyAttributeOutsideInit
         self.table_name = self.request.get_str_param(ViewParam.TABLE_NAME)
+        # noinspection PyAttributeOutsideInit
         self.server_pk = self.request.get_int_param(ViewParam.SERVER_PK, None)
 
         task = task_factory(self.request, self.table_name, self.server_pk)
@@ -3323,6 +3326,7 @@ class PatientMixin:
 
     def get_form_values(self) -> Dict:
         # will populate with model_form_dict
+        # noinspection PyUnresolvedReferences
         form_values = super().get_form_values()
 
         patient = cast(Patient, self.object)
@@ -3335,6 +3339,7 @@ class PatientMixin:
                  ViewParam.IDNUM_VALUE: pidnum.idnum_value}
                 for pidnum in patient.idnums
             ]
+            # noinspection PyUnresolvedReferences
             form_values[ViewParam.TASK_SCHEDULES] = [
                 {
                     ViewParam.SCHEDULE_ID: pts.schedule_id,
@@ -3520,6 +3525,7 @@ class EditPatientBaseView(PatientMixin, UpdateView):
                               for schedule in schedule_query}
 
         old_schedules = {}
+        # noinspection PyUnresolvedReferences
         for pts in patient.task_schedules:
             old_start_date = None
             old_start_datetime = pts.start_date
@@ -4096,6 +4102,7 @@ class TaskScheduleMixin:
         )
 
     def get_object(self) -> Any:
+        # noinspection PyUnresolvedReferences
         schedule = cast(TaskSchedule, super().get_object())
 
         if not schedule.user_may_edit(self.request):
@@ -4172,12 +4179,14 @@ class TaskScheduleItemMixin:
         # we need to convert due_within to due_by
     }
     object: Any
+    # noinspection PyTypeChecker
     object_class = cast(Type["Base"], TaskScheduleItem)
     pk_param = ViewParam.SCHEDULE_ITEM_ID
     request: "CamcopsRequest"
     server_pk_name = "id"
 
     def get_success_url(self) -> str:
+        # noinspection PyUnresolvedReferences
         return self.request.route_url(
             Routes.VIEW_TASK_SCHEDULE_ITEMS,
             _query={
@@ -4188,6 +4197,7 @@ class TaskScheduleItemMixin:
 
 class EditTaskScheduleItemMixin(TaskScheduleItemMixin):
     def set_object_properties(self, appstruct: Dict[str, Any]) -> None:
+        # noinspection PyUnresolvedReferences
         super().set_object_properties(appstruct)
 
         due_from = appstruct.get(ViewParam.DUE_FROM)
@@ -4196,6 +4206,7 @@ class EditTaskScheduleItemMixin(TaskScheduleItemMixin):
         setattr(self.object, "due_by", due_from + due_within)
 
     def get_schedule(self) -> TaskSchedule:
+        # noinspection PyUnresolvedReferences
         schedule_id = self.get_schedule_id()
 
         schedule = self.request.dbsession.query(TaskSchedule).filter(
@@ -5114,6 +5125,7 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
 
         self.dbsession.commit()
 
+        # noinspection PyUnresolvedReferences
         schedules = {pts.task_schedule.name: pts
                      for pts in patient.task_schedules}
         self.assertIn("Test 1", schedules)
@@ -5642,6 +5654,7 @@ class AddPatientViewTests(DemoDatabaseTestCase):
         self.assertEqual(idnum.which_idnum, self.nhs_iddef.which_idnum)
         self.assertEqual(idnum.idnum_value, 1192220552)
 
+        # noinspection PyUnresolvedReferences
         patient_task_schedules = {
             pts.task_schedule.name: pts for pts in patient.task_schedules
         }

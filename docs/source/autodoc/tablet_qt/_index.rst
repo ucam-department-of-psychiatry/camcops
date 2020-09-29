@@ -30,6 +30,7 @@ tablet_qt
     :maxdepth: 1
 
     android/AndroidManifest.xml.rst
+    android/res/values/libs.xml.rst
     camcops.pro.rst
     camcops_windows_innosetup.iss.rst
     common/aliases_camcops.h.rst
@@ -863,6 +864,7 @@ tablet_qt
     taskxtra/photosequencephoto.h.rst
     taskxtra/satisfactioncommon.cpp.rst
     taskxtra/satisfactioncommon.h.rst
+    tools/build_client_translations.py.rst
     tools/build_qt.py.rst
     tools/chord.py.rst
     tools/decrypt_sqlcipher.py.rst
@@ -946,6 +948,8 @@ tablet_qt
     widgets/treeviewcontroldelegate.h.rst
     widgets/treeviewproxystyle.cpp.rst
     widgets/treeviewproxystyle.h.rst
+    widgets/validatinglineedit.cpp.rst
+    widgets/validatinglineedit.h.rst
     widgets/verticalline.cpp.rst
     widgets/verticalline.h.rst
     widgets/verticalscrollarea.cpp.rst

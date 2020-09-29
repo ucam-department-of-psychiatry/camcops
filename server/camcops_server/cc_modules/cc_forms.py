@@ -164,6 +164,7 @@ from deform.widget import (
     SelectWidget,
     SequenceWidget,
     TextAreaWidget,
+    TextInputWidget,
     Widget,
 )
 
@@ -273,6 +274,27 @@ class BootstrapCssClasses(object):
     RADIO_INLINE = "radio-inline"
     LIST_INLINE = "list-inline"
     CHECKBOX_INLINE = "checkbox-inline"
+
+
+AUTOCOMPLETE_ATTR = "autocomplete"
+
+
+class AutocompleteAttrValues(object):
+    """
+    Some values for the HTML "autocomplete" attribute, as per
+    https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete.
+    Not all are used.
+    """
+    BDAY = "bday"
+    CURRENT_PASSWORD = "current-password"
+    EMAIL = "email"
+    FAMILY_NAME = "family-name"
+    GIVEN_NAME = "given-name"
+    NEW_PASSWORD = "new-password"
+    OFF = "off"
+    ON = "on"  # browser decides
+    STREET_ADDRESS = "stree-address"
+    USERNAME = "username"
 
 
 # =============================================================================
@@ -538,8 +560,21 @@ class CSRFSchema(Schema, RequestAwareMixin):
     You can't put the call to ``bind()`` at the end of ``__init__()``, because
     ``bind()`` calls ``clone()`` with no arguments and ``clone()`` ends up
     calling ``__init__()```...
+
+    The item name should be one that the ZAP penetration testing tool expects,
+    or you get:
+
+    .. code-block:: none
+
+        No known Anti-CSRF token [anticsrf, CSRFToken,
+        __RequestVerificationToken, csrfmiddlewaretoken, authenticity_token,
+        OWASP_CSRFTOKEN, anoncsrf, csrf_token, _csrf, _csrfSecret] was found in
+        the following HTML form: [Form 1: "_charset_" "__formid__"
+        "deformField1" "deformField2" "deformField3" "deformField4" ].
+
     """
-    csrf = CSRFToken()  # name must match ViewParam.CSRF_TOKEN
+    csrf_token = CSRFToken()  # name must match ViewParam.CSRF_TOKEN
+    # ... name should also be one that ZAP expects, as above
 
 
 # =============================================================================
@@ -1188,15 +1223,24 @@ class UsernameNode(SchemaNode, RequestAwareMixin):
     """
     schema_type = String
     _length_validator = Length(1, USERNAME_CAMCOPS_MAX_LEN)
+    widget = TextInputWidget(attributes={
+        AUTOCOMPLETE_ATTR: AutocompleteAttrValues.OFF
+    })
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self,
+                 *args,
+                 autocomplete: str = AutocompleteAttrValues.OFF,
+                 **kwargs) -> None:
         self.title = ""  # for type checker
+        self.autocomplete = autocomplete
         super().__init__(*args, **kwargs)
 
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         _ = self.gettext
         self.title = _("Username")
+        # noinspection PyUnresolvedReferences
+        self.widget.attributes[AUTOCOMPLETE_ATTR] = self.autocomplete
 
     def validator(self, node: SchemaNode, value: Any) -> None:
         if value == USER_NAME_FOR_SYSTEM:
@@ -1732,18 +1776,31 @@ class LoginSchema(CSRFSchema):
     """
     Schema to capture login details.
     """
-    username = UsernameNode()  # name must match ViewParam.USERNAME
+    username = UsernameNode(
+        autocomplete=AutocompleteAttrValues.USERNAME
+    )  # name must match ViewParam.USERNAME
     password = SchemaNode(  # name must match ViewParam.PASSWORD
         String(),
-        widget=PasswordWidget(),
+        widget=PasswordWidget(attributes={
+            AUTOCOMPLETE_ATTR: AutocompleteAttrValues.CURRENT_PASSWORD
+        }),
     )
     redirect_url = HiddenStringNode()  # name must match ViewParam.REDIRECT_URL
+
+    def __init__(self, *args, autocomplete_password: bool = True,
+                 **kwargs) -> None:
+        self.autocomplete_password = autocomplete_password
+        super().__init__(*args, **kwargs)
 
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         _ = self.gettext
         password = get_child_node(self, "password")
         password.title = _("Password")
+        password.widget.attributes[AUTOCOMPLETE_ATTR] = (
+            AutocompleteAttrValues.CURRENT_PASSWORD
+            if self.autocomplete_password else AutocompleteAttrValues.OFF
+        )
 
 
 class LoginForm(InformativeForm):
@@ -1761,17 +1818,20 @@ class LoginForm(InformativeForm):
                 autocompletion? Note that browsers may ignore this.
         """
         _ = request.gettext
-        schema = LoginSchema().bind(request=request)
+        schema = LoginSchema(
+            autocomplete_password=autocomplete_password
+        ).bind(request=request)
         super().__init__(
             schema,
             buttons=[Button(name=FormAction.SUBMIT, title=_("Log in"))],
-            autocomplete=autocomplete_password,
+            # autocomplete=autocomplete_password,
             **kwargs
         )
         # Suboptimal: autocomplete_password is not applied to the password
         # widget, just to the form; see
         # http://stackoverflow.com/questions/2530
         # Note that e.g. Chrome may ignore this.
+        # ... fixed 2020-09-29 by applying autocomplete to LoginSchema.password
 
 
 # =============================================================================
@@ -1803,7 +1863,9 @@ class OldUserPasswordCheck(SchemaNode, RequestAwareMixin):
     Schema to capture an old password (for when a password is being changed).
     """
     schema_type = String
-    widget = PasswordWidget()
+    widget = PasswordWidget(attributes={
+        AUTOCOMPLETE_ATTR: AutocompleteAttrValues.CURRENT_PASSWORD
+    })
 
     def __init__(self, *args, **kwargs) -> None:
         self.title = ""  # for type checker
@@ -1829,7 +1891,9 @@ class NewPasswordNode(SchemaNode, RequestAwareMixin):
     """
     schema_type = String
     validator = Length(min=MINIMUM_PASSWORD_LENGTH)
-    widget = CheckedPasswordWidget()
+    widget = CheckedPasswordWidget(attributes={
+        AUTOCOMPLETE_ATTR: AutocompleteAttrValues.NEW_PASSWORD
+    })
 
     def __init__(self, *args, **kwargs) -> None:
         self.title = ""  # for type checker

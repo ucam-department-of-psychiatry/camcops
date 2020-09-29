@@ -34,3 +34,4 @@ Developer notes
     external_dependencies.rst
     specific_os_notes.rst
     internationalization.rst
+    penetration_testing.rst

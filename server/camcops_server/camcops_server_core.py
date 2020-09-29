@@ -66,6 +66,8 @@ from cardinal_pythonlib.classes import gen_all_subclasses  # noqa: E402
 from cardinal_pythonlib.fileops import mkdir_p  # noqa: E402
 from cardinal_pythonlib.process import nice_call  # noqa: E402
 from cardinal_pythonlib.ui_commandline import ask_user, ask_user_password  # noqa: E402,E501
+# from cardinal_pythonlib.wsgi.constants import TYPE_WSGI_APP  # noqa: E402,E501
+from cardinal_pythonlib.wsgi.headers_mw import AddHeadersMiddleware  # noqa: E402,E501
 from cardinal_pythonlib.wsgi.request_logging_mw import RequestLoggingMiddleware  # noqa: E402,E501
 from cardinal_pythonlib.wsgi.reverse_proxied_mw import (  # noqa: E402
     ReverseProxiedConfig,
@@ -281,7 +283,21 @@ def make_wsgi_app(debug_toolbar: bool = False,
 
     # Middleware above the Pyramid level
 
+    # noinspection PyTypeChecker
+    app = AddHeadersMiddleware(app, headers=[
+        # From ZAP penetration testing:
+        ("X-Frame-Options", "DENY"),
+        # ... or "X-Frame-Options Header Not Set"
+        ("X-Content-Type-Options", "nosniff"),
+        # ... or "X-Content-Type-Options Header Missing"
+        ("cache-control", "no-cache, no-store, must-revalidate"),
+        # ... or "Incomplete or No Cache-control and Pragma HTTP Header Set"
+        # ... note that Pragma is HTTP/1.0 and cache-control is HTTP/1.1, so
+        #     you don't have to do both.
+    ])  # type: Router
+
     if show_requests:
+        # noinspection PyTypeChecker
         app = RequestLoggingMiddleware(
             app,
             logger=logging.getLogger(__name__),
@@ -289,12 +305,14 @@ def make_wsgi_app(debug_toolbar: bool = False,
             show_request_immediately=show_request_immediately,
             show_response=show_response,
             show_timing=show_timing,
-        )
+        )  # type: Router
 
     if reverse_proxied_config and reverse_proxied_config.necessary():
-        app = ReverseProxiedMiddleware(app=app,
-                                       config=reverse_proxied_config,
-                                       debug=debug_reverse_proxy)
+        # noinspection PyTypeChecker
+        app = ReverseProxiedMiddleware(
+            app=app,
+            config=reverse_proxied_config,
+            debug=debug_reverse_proxy)  # type: Router
 
     log.debug("WSGI app created")
     return app
