@@ -489,6 +489,7 @@ server/camcops_server
     templates/snippets/query_result_orm.mako.rst
     templates/snippets/table.mako.rst
     templates/snippets/to_main_menu.mako.rst
+    templates/snippets/to_view_all_groups.mako.rst
     templates/snippets/to_view_all_users.mako.rst
     templates/snippets/user_info_detail.mako.rst
     templates/taskcommon/clinician.mako.rst

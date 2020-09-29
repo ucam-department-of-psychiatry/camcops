@@ -2880,4 +2880,27 @@ Current C++/SQLite client, Python/SQLAlchemy server
   to allow patients to complete tasks at home on their own devices.
   (Database revisions 0047-0052).
 
-  New passwords on the client app must now be at least 8 characters long.
+- New passwords on the client app must now be at least 8 characters long.
+
+- Penetration testing of the server:
+
+  - Set ``X-Frame-Options`` HTTP header to ``DENY`` (fixing alert
+    ``X-Frame-Options Header Not Set`` fom ZAP).
+
+  - Set ``X-Content-Type-Option`` HTTP header to ``nosniff`` (fixing alert
+    ``X-Content-Type-Options Header Missing`` from ZAP).
+
+  - ``autocomplete`` fields for some username and password forms. (It
+    complained at some point about not having these! Seems stylistic rather
+    than a vulnerability.)
+
+  - Changed HTML name of anti-CSRF token from ``csrf`` to ``csrf_token`` to
+    stop false ZAP alert ``Absence of Anti-CSRF Tokens``.
+
+  - :func:`camcops_server.cc_modules.cc_request.validate_url` (fixing alert
+    ``SQL Injection`` via URL redirection).
+
+  - NB occasionally the label "CSRF Token" became visible, e.g. on the login
+    page, but it went away again (Chrome cache problem during bug-fixing?).
+
+- ``account_locked.mako`` wasn't formatting its strings correctly.

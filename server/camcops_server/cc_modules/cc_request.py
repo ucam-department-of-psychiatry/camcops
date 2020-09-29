@@ -160,6 +160,21 @@ if any([DEBUG_ADD_ROUTES,
 
 
 # =============================================================================
+# Helper functions
+# =============================================================================
+
+def validate_url(url: str, default: str = None) -> Optional[str]:
+    """
+    Validates a URL. If valid, returns the URL; if not, returns ``default``.
+    See https://stackoverflow.com/questions/22238090/validating-urls-in-python
+    """
+    result = urllib.parse.urlparse(url)
+    if not result.scheme or not result.netloc:
+        return default
+    return url
+
+
+# =============================================================================
 # Modified Request interface, for type checking
 # =============================================================================
 # https://docs.pylonsproject.org/projects/pyramid_cookbook/en/latest/auth/user_object.html
@@ -725,6 +740,23 @@ class CamcopsRequest(Request):
             return coerce_to_pendulum(self.params[key])
         except (KeyError, ParserError, TypeError, ValueError):
             return None
+
+    def get_url_param(self, key: str, default: str = None) -> Optional[str]:
+        """
+        Returns a URL parameter from the HTTP request, validating it.
+        If it wasn't valid, return ``None``.
+
+        Args:
+            key:
+                the parameter's name
+            default:
+                the value to return if the parameter is not found, or is
+                invalid
+
+        Returns:
+            a URL string, or ``default``
+        """
+        return validate_url(self.get_str_param(key), default)
 
     # -------------------------------------------------------------------------
     # Routing

@@ -159,7 +159,7 @@ class ViewParam(object):
     ALL_TASKS = "all_tasks"
     ANONYMISE = "anonymise"
     CLINICIAN_CONFIRMATION = "clinician_confirmation"
-    CSRF_TOKEN = "csrf"
+    CSRF_TOKEN = "csrf_token"
     DATABASE_TITLE = "database_title"
     DELIVERY_MODE = "delivery_mode"
     DESCRIPTION = "description"
