@@ -28,7 +28,8 @@ camcops_server/cc_modules/cc_client_api_core.py
 
 """
 
-from typing import Any, Dict, Iterable, List, Optional, Set, TYPE_CHECKING
+from typing import (Any, Dict, Iterable, List, NoReturn,
+                    Optional, Set, TYPE_CHECKING)
 
 from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.reprfunc import simple_repr
@@ -205,7 +206,7 @@ def exception_description(e: Exception) -> str:
 #     return "CamCOPS: {}".format(operation)
 
 
-def fail_user_error(msg: str) -> None:
+def fail_user_error(msg: str) -> NoReturn:
     """
     Function to abort the script when the input is dodgy.
 
@@ -228,7 +229,7 @@ def require_keys(dictionary: Dict[Any, Any], keys: List[Any]) -> None:
             fail_user_error(f"Field {repr(k)} missing in client input")
 
 
-def fail_user_error_from_exception(e: Exception) -> None:
+def fail_user_error_from_exception(e: Exception) -> NoReturn:
     """
     Raise :exc:`UserErrorException` with a description that comes from
     the specified exception.
@@ -236,7 +237,7 @@ def fail_user_error_from_exception(e: Exception) -> None:
     fail_user_error(exception_description(e))
 
 
-def fail_server_error(msg: str) -> None:
+def fail_server_error(msg: str) -> NoReturn:
     """
     Function to abort the script when something's broken server-side.
 
@@ -245,7 +246,7 @@ def fail_server_error(msg: str) -> None:
     raise ServerErrorException(msg)
 
 
-def fail_server_error_from_exception(e: Exception) -> None:
+def fail_server_error_from_exception(e: Exception) -> NoReturn:
     """
     Raise :exc:`ServerErrorException` with a description that comes from
     the specified exception.
@@ -253,7 +254,7 @@ def fail_server_error_from_exception(e: Exception) -> None:
     fail_server_error(exception_description(e))
 
 
-def fail_unsupported_operation(operation: str) -> None:
+def fail_unsupported_operation(operation: str) -> NoReturn:
     """
     Abort the script (with a :exc:`UserErrorException`) when the
     operation is invalid.

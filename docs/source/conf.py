@@ -39,6 +39,7 @@ from docutils.nodes import Element, Node
 from docutils.parsers.rst.roles import register_canonical_role
 from docutils.parsers.rst.states import Inliner
 from sphinx.application import Sphinx
+from sphinx.ext.autodoc import Options
 
 from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION_STRING
 
@@ -240,10 +241,27 @@ todo_include_todos = True
 # Setup function
 # -----------------------------------------------------------------------------
 
+# noinspection PyUnusedLocal
+def skip(app: Sphinx,
+         what: str,
+         name: str,
+         obj: Any,
+         would_skip: bool,
+         options: Options) -> bool:
+    # Called by sphinx.ext.autodoc.Documenter.filter_members (q.v.).
+    if name == "__init__":
+        return False
+    return would_skip
+
+
 def setup(app: Sphinx) -> None:
     # Add CSS
     # - https://stackoverflow.com/questions/23462494/how-to-add-a-custom-css-file-to-sphinx  # noqa
     app.add_css_file('css/camcops_docs.css')  # may also be an URL
+
+    # Don't skip __init__
+    # https://stackoverflow.com/questions/5599254/how-to-use-sphinxs-autodoc-to-document-a-classs-init-self-method  # noqa
+    app.connect("autodoc-skip-member", skip)
 
 
 # -----------------------------------------------------------------------------
@@ -344,7 +362,8 @@ main_only_quicksetup_rootlogger(level=logging.INFO)
 register_css_role_allowing_content_substitution("tabletmenu")
 
 # https://stackoverflow.com/questions/5599254/how-to-use-sphinxs-autodoc-to-document-a-classs-init-self-method  # noqa
-autoclass_content = "both"
+# autoclass_content = "both"
+autoclass_content = "class"
 
 # To prevent Alembic env.py breaking:
 os.environ["_SPHINX_AUTODOC_IN_PROGRESS"] = "true"

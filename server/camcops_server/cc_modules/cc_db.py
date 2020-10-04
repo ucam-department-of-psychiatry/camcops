@@ -31,8 +31,8 @@ client.**
 
 from collections import OrderedDict
 import logging
-from typing import (Any, Callable, Dict, Generator, Iterable, List, Optional,
-                    Set, Tuple, Type, TYPE_CHECKING, TypeVar, Union)
+from typing import (Any, Callable, Dict, Generator, Iterable, List, NoReturn,
+                    Optional, Set, Tuple, Type, TYPE_CHECKING, TypeVar, Union)
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_columns
@@ -117,10 +117,9 @@ _PYMYSQL_PYTHON_TO_DB_TYPE = Callable[[Any, Optional[_PYMYSQL_ENCODER_DICT_TYPE]
 _PYMYSQL_DB_TO_PYTHON_TYPE = Callable[[_SQL_LITERAL_TYPE], Any]
 
 
-# noinspection PyUnreachableCode
 def mysqldb_crash_on_bad_conversion(o: Any,
                                     d: _MYSQL_CONVERSION_DICT_TYPE) -> \
-        _SQL_LITERAL_TYPE:
+        NoReturn:
     """
     Reports a bad conversion and crashes. For debugging only (obviously)!
 
@@ -161,13 +160,11 @@ def mysqldb_crash_on_bad_conversion(o: Any,
     )
     log.critical(failmsg)
     raise RuntimeError(failmsg)
-    return ""
 
 
-# noinspection PyUnreachableCode
 def pymysql_crash_on_bad_conversion(obj: Any,
                                     mapping: _PYMYSQL_ENCODER_DICT_TYPE) -> \
-        _SQL_LITERAL_TYPE:
+        NoReturn:
     """
     See :func:`mysqldb_crash_on_bad_conversion`.
     """
@@ -177,7 +174,6 @@ def pymysql_crash_on_bad_conversion(obj: Any,
     )
     log.critical(failmsg)
     raise RuntimeError(failmsg)
-    return ""
 
 
 # -----------------------------------------------------------------------------

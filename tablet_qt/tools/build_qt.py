@@ -398,7 +398,7 @@ import shutil
 import subprocess
 import sys
 import traceback
-from typing import Dict, List, TextIO, Tuple
+from typing import Dict, List, NoReturn, TextIO, Tuple
 
 try:
     import cardinal_pythonlib
@@ -2187,7 +2187,7 @@ class Config(object):
 # Ancillary: crash out informatively
 # =============================================================================
 
-def fail(msg: str) -> None:
+def fail(msg: str) -> NoReturn:
     log.critical(msg)
     raise ValueError(msg)
 
@@ -3789,6 +3789,7 @@ def main() -> None:
     # Command-line arguments
     # -------------------------------------------------------------------------
 
+    # noinspection PyTypeChecker
     parser = argparse.ArgumentParser(
         description="Build Qt and other libraries for CamCOPS",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)

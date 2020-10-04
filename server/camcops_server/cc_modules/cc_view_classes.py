@@ -23,111 +23,124 @@ camcops_server/cc_modules/cc_view_classes.py
 ===============================================================================
 
 Django-style class-based views for Pyramid.
-Adapted from views/generic/base.py and views/generic/edit.py
+Adapted from Django's ``views/generic/base.py`` and ``views/generic/edit.py``.
 
 Django has the following licence:
 
---8<---------------------------------------------------------------------------
+.. code-block:: none
 
-Copyright (c) Django Software Foundation and individual contributors.
-All rights reserved.
+    Copyright (c) Django Software Foundation and individual contributors.
+    All rights reserved.
 
-Redistribution and use in source and binary forms, with or without modification,
-are permitted provided that the following conditions are met:
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
 
-    1. Redistributions of source code must retain the above copyright notice,
-       this list of conditions and the following disclaimer.
+        1. Redistributions of source code must retain the above copyright
+           notice, this list of conditions and the following disclaimer.
 
-    2. Redistributions in binary form must reproduce the above copyright
-       notice, this list of conditions and the following disclaimer in the
-       documentation and/or other materials provided with the distribution.
+        2. Redistributions in binary form must reproduce the above copyright
+           notice, this list of conditions and the following disclaimer in the
+           documentation and/or other materials provided with the distribution.
 
-    3. Neither the name of Django nor the names of its contributors may be used
-       to endorse or promote products derived from this software without
-       specific prior written permission.
+        3. Neither the name of Django nor the names of its contributors may be
+           used to endorse or promote products derived from this software
+           without specific prior written permission.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
-ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
-ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+    ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+    LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+    CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+    SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+    INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+    CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+    POSSIBILITY OF SUCH DAMAGE.
 
---8<---------------------------------------------------------------------------
+Custom views typically inherit from :class:`CreateView`, :class:`DeleteView` or
+:class:`UpdateView`.
 
-Custom views typically inherit from CreateView, DeleteView or UpdateView.
+A Pyramid view function with a named route should create a view of the custom
+class, passing in the request, and return the results of its ``dispatch()``
+method. For example:
 
-A Pyramid view function with named route should create a view of the custom
-class, passing in the request and call its dispatch() method
+.. code-block:: python
+
+    @view_config(route_name="edit_server_created_patient")
+    def edit_server_created_patient(req: Request) -> Response:
+        return EditServerCreatedPatientView(req).dispatch()
 
 To provide a custom view class to create a new object in the database:
 
-* Inherit from CreateView
-* Set object_class property
-* Set form_class property
-* Set template_name property
-* Override get_extra_context() for any extra parameters to pass to the template
-* Set success_url or override get_success_url() to be the redirect on
-  successful creation
-* Override get_form_kwargs() for any extra parameters to pass to the form
-  constructor
-* For simple views, set model_form_dict property to be a mapping of
-  object properties to form parameters
-* Override get_form_values() with any values additional to model_form_dict
-  to populate the form
-* Override save_object() to do anything more than a simple record save
-  (saving related objects for example)
-
+* Inherit from :class:`CreateView`.
+* Set the ``object_class`` property.
+* Set the ``form_class`` property.
+* Set the ``template_name`` property.
+* Override ``get_extra_context()`` for any extra parameters to pass to the
+  template.
+* Set ``success_url`` or override ``get_success_url()`` to be the redirect on
+  successful creation.
+* Override ``get_form_kwargs()`` for any extra parameters to pass to the form
+  constructor.
+* For simple views, set the ``model_form_dict`` property to be a mapping of
+  object properties to form parameters.
+* Override ``get_form_values()`` with any values additional to
+  ``model_form_dict`` to populate the form.
+* Override ``save_object()` to do anything more than a simple record save
+  (saving related objects, for example).
 
 To provide a custom view class to delete an object from the database:
 
-* Inherit from DeleteView
-* Set object_class property
-* Set form_class property
-* Set template_name property
-* Override get_extra_context() for any extra parameters to pass to the template
-* Set success_url or override get_success_url() to be the redirect on
-  successful creation
-* Override get_form_kwargs() for any extra parameters to pass to the form
-  constructor
-* Set pk_param property to be the name of the parameter in the request
-  that holds the unique/primary key of the object to be deleted
-* Set server_pk_name property to be the name of the property on the object that
-  is the unique/primary key
-* Override get_object() if the object cannot be retrieved with the above
-* Override delete() to do anything more than a simple record delete, for example
-  to delete dependant objects
-
+* Inherit from :class:`DeleteView`.
+* Set the ``object_class`` property.
+* Set the ``form_class`` property.
+* Set the ``template_name`` property.
+* Override ``get_extra_context()``. for any extra parameters to pass to the
+  template.
+* Set ``success_url`` or override ``get_success_url()`` to be the redirect on
+  successful creation.
+* Override ``get_form_kwargs()`` for any extra parameters to pass to the form
+  constructor.
+* Set the ``pk_param`` property to be the name of the parameter in the request
+  that holds the unique/primary key of the object to be deleted.
+* Set the ``server_pk_name`` property to be the name of the property on the
+  object that is the unique/primary key.
+* Override ``get_object()`` if the object cannot be retrieved with the above.
+* Override ``delete()`` to do anything more than a simple record delete; for
+  example, to delete dependant objects
 
 To provide a custom view class to update an object in the database:
 
-* Inherit from UpdateView
-* Set object_class property
-* Set form_class property
-* Set template_name property
-* Override get_extra_context() for any extra parameters to pass to the template
-* Set success_url or override get_success_url() to be the redirect on
-  successful creation
-* Override get_form_kwargs() for any extra parameters to pass to the form
-  constructor
-* Set pk_param property to be the name of the parameter in the request
-  that holds the unique/primary key of the object to be updated
-* Set server_pk_name property to be the name of the property on the object that
-  is the unique/primary key
-* Override get_object() if the object cannot be retrieved with the above
-* For simple views, set model_form_dict property to be a mapping of
-  object properties to form parameters
-* Override save_object to do anything more than a simple record save
-  (saving related objects for example)
-
+* Inherit from :class:`UpdateView`.
+* Set the ``object_class`` property.
+* Set the ``form_class`` property.
+* Set the ``template_name`` property.
+* Override ``get_extra_context()`` for any extra parameters to pass to the
+  template.
+* Set ``success_url`` or override ``get_success_url()`` to be the redirect on
+  successful creation.
+* Override ``get_form_kwargs()`` for any extra parameters to pass to the form
+  constructor.
+* Set the ``pk_param`` property to be the name of the parameter in the request
+  that holds the unique/primary key of the object to be updated.
+* Set the ``server_pk_name`` property to be the name of the property on the
+  object that is the unique/primary key.
+* Override ``get_object()`` if the object cannot be retrieved with the above.
+* For simple views, set the ``model_form_dict`` property to be a mapping of
+  object properties to form parameters.
+* Override ``save_object()`` to do anything more than a simple record save
+  (saving related objects, for example).
 
 You can use mixins for settings common to multiple views.
 
-Some examples are in webview.py
+.. note::
+
+    When we move to Python 3.8, there is ``typing.Protocol``, which allows
+    mixins to be type-checked properly. Currently we suppress warnings.
+
+Some examples are in ``webview.py``.
+
 """
 
 from pyramid.httpexceptions import (
@@ -158,35 +171,49 @@ if TYPE_CHECKING:
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
-class ContextMixin:
+class ContextMixin(object):
     """
     A default context mixin that passes the keyword arguments received by
     get_context_data() as the template context.
     """
     def get_extra_context(self) -> Dict[str, Any]:
+        """
+        Override to provide extra context, merged in by
+        :meth:`get_context_data`.
+        """
         return {}
 
-    def get_context_data(self, **kwargs: Any) -> Any:
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        """
+        Provides context for a template, including the ``view`` argument and
+        any additional context provided by :meth:`get_extra_context`.
+        """
         kwargs.setdefault("view", self)
         kwargs.update(self.get_extra_context())
 
         return kwargs
 
 
-class View:
+class View(object):
     """
     Simple parent class for all views
     """
-
     http_method_names = ["get", "post"]
 
     def __init__(self, request: "CamcopsRequest") -> None:
+        """
+        Args:
+            request:
+                a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        """
         self.request = request
 
-    def dispatch(self) -> Any:
-        # Try to dispatch to the right method; if a method doesn't exist,
-        # defer to the error handler. Also defer to the error handler if the
-        # request method isn't on the approved list.
+    def dispatch(self) -> Response:
+        """
+        Try to dispatch to the right HTTP method (e.g. GET, POST). If a method
+        doesn't exist, defer to the error handler. Also defer to the error
+        handler if the request method isn't on the approved list.
+        """
         handler = self.http_method_not_allowed
 
         if self.request.method.lower() in self.http_method_names:
@@ -195,6 +222,10 @@ class View:
         return handler()
 
     def http_method_not_allowed(self) -> NoReturn:
+        """
+        Raise a :exc:`pyramid.httpexceptions.HTTPMethodNotAllowed` indicating
+        that the selected HTTP method is not allowed.
+        """
         log.warning(
             "Method Not Allowed (%s): %s",
             self.request.method, self.request.path,
@@ -205,15 +236,25 @@ class View:
         )
 
     def _allowed_methods(self) -> List[str]:
+        """
+        Which HTTP methods are allowed? Returns a list of upper-case strings.
+        """
         return [m.upper() for m in self.http_method_names if hasattr(self, m)]
 
 
-class TemplateResponseMixin:
-    """A mixin that can be used to render a template."""
+class TemplateResponseMixin(object):
+    """
+    A mixin that can be used to render a template.
+    """
     request: "CamcopsRequest"
     template_name: str = None
 
     def render_to_response(self, context: Dict) -> Response:
+        """
+        Takes the supplied context, renders it through our specified template
+        (set by ``template_name``), and returns a
+        :class:`pyramid.response.Response`.
+        """
         if self.template_name is None:
             raise_runtime_error(f"No template_name set for {self.__class__}.")
 
@@ -225,7 +266,9 @@ class TemplateResponseMixin:
 
 
 class FormMixin(ContextMixin):
-    """Provide a way to show and handle a form in a request."""
+    """
+    Provide a way to show and handle a form in a request.
+    """
     cancel_url = None
     form_class: Type["Form"] = None
     success_url = None
@@ -235,11 +278,15 @@ class FormMixin(ContextMixin):
     request: "CamcopsRequest"
 
     def get_form_class(self) -> Optional[Type["Form"]]:
-        """Return the form class to use."""
+        """
+        Return the form class to use.
+        """
         return self.form_class
 
     def get_form(self) -> "Form":
-        """Return an instance of the form to be used in this view."""
+        """
+        Return an instance of the form to be used in this view.
+        """
 
         if self._form is None:
             form_class = self.get_form_class()
@@ -253,7 +300,9 @@ class FormMixin(ContextMixin):
         return self._form
 
     def get_form_kwargs(self) -> Dict[str, Any]:
-        """Return the keyword arguments for instantiating the form."""
+        """
+        Return the keyword arguments for instantiating the form.
+        """
 
         registry = CamcopsResourceRegistry()
 
@@ -265,31 +314,44 @@ class FormMixin(ContextMixin):
         return kwargs
 
     def get_cancel_url(self) -> str:
-        """Return the URL to redirect to when cancelling a form."""
+        """
+        Return the URL to redirect to when cancelling a form.
+        """
         if not self.cancel_url:
             return self.get_success_url()
         return str(self.cancel_url)  # cancel_url may be lazy
 
     def get_success_url(self) -> str:
-        """Return the URL to redirect to after processing a valid form."""
+        """
+        Return the URL to redirect to after processing a valid form.
+        """
         if not self.success_url:
             raise_runtime_error("Your view must provide a success_url.")
         return str(self.success_url)  # success_url may be lazy
 
-    def form_valid(self, form: "Form", appstruct: Dict[str, Any]) -> None:
-        """If the form is valid, redirect to the supplied URL."""
+    def form_valid(self, form: "Form", appstruct: Dict[str, Any]) -> Response:
+        """
+        Called when the form is valid.
+        Redirects to the supplied "success" URL.
+        """
         raise HTTPFound(self.get_success_url())
 
-    def form_invalid(self, validation_error: ValidationFailure) -> Any:
-        """If the form is invalid, save the invalid form."""
+    def form_invalid(self, validation_error: ValidationFailure) -> Response:
+        """
+        Called when the form is invalid.
+        Returns a response with a rendering of the invalid form.
+        """
         self._error = validation_error
 
+        # noinspection PyUnresolvedReferences
         return self.render_to_response(
             self.get_context_data()
         )
 
-    def get_context_data(self, **kwargs: Any) -> Any:
-        """Insert the rendered form into the context dict."""
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        """
+        Insert the rendered form (as HTML) into the context dict.
+        """
 
         form = self.get_form()
         kwargs["form"] = self.get_rendered_form()
@@ -300,24 +362,33 @@ class FormMixin(ContextMixin):
         return super().get_context_data(**kwargs)
 
     def get_rendered_form(self) -> str:
+        """
+        Returns the form, rendered as HTML.
+        """
         if self._error is not None:
             return self._error.render()
 
         form = self.get_form()
+        # noinspection PyUnresolvedReferences
         appstruct = self.get_form_values()
 
         return form.render(appstruct)
 
 
 class SingleObjectMixin(ContextMixin):
+    """
+    Represents a single ORM object, for use as a mixin.
+    """
     object: Any
     object_class: Optional[Type[Any]]
     pk_param: str
     request: "CamcopsRequest"
     server_pk_name: str
 
-    def get_context_data(self, **kwargs: Any) -> Any:
-        """Insert the single object into the context dict."""
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        """
+        Insert the single object into the context dict.
+        """
         context = {}
         if self.object:
             context["object"] = self.object
@@ -355,18 +426,27 @@ class SingleObjectMixin(ContextMixin):
 
 
 class ModelFormMixin(FormMixin, SingleObjectMixin):
+    """
+    Represents an ORM object and an associated form.
+    """
     object_class: Optional[Type[Any]] = None
 
     model_form_dict: Dict
     object: Any
     request: "CamcopsRequest"
 
-    def form_valid(self, form: "Form", appstruct: Dict[str, Any]) -> None:
-        """If the form is valid, save the associated model."""
+    def form_valid(self, form: "Form", appstruct: Dict[str, Any]) -> Response:
+        """
+        Called when the form is valid.
+        Saves the associated model.
+        """
         self.save_object(appstruct)
         return super().form_valid(form, appstruct)
 
     def save_object(self, appstruct: Dict[str, Any]) -> None:
+        """
+        Saves the object in the database, from data provided via the form.
+        """
         if self.object is None:
             if self.object_class is None:
                 raise_runtime_error("Your view must provide an object_class.")
@@ -380,11 +460,18 @@ class ModelFormMixin(FormMixin, SingleObjectMixin):
         self.request.dbsession.add(self.object)
 
     def set_object_properties(self, appstruct: Dict[str, Any]) -> None:
+        """
+        Sets properties of the object, from form data.
+        """
         for (model_attr, form_param) in self.model_form_dict.items():
             value = appstruct.get(form_param)
             setattr(self.object, model_attr, value)
 
-    def get_form_values(self) -> Dict:
+    def get_form_values(self) -> Dict[str, Any]:
+        """
+        Reads form values from the object (or provides an empty dictionary if
+        there is no object yet).
+        """
         form_values = {}
 
         if self.object is not None:
@@ -406,19 +493,26 @@ class ModelFormMixin(FormMixin, SingleObjectMixin):
 
 
 class ProcessFormView(View):
-    """Render a form on GET and processes it on POST."""
-    def get(self) -> Any:
-        """Handle GET requests: instantiate a blank version of the form."""
+    """
+    Render a form on GET and processes it on POST.
+    """
+    def get(self) -> Response:
+        """
+        Handle GET requests: instantiate a blank version of the form.
+        """
+        # noinspection PyUnresolvedReferences
         return self.render_to_response(self.get_context_data())
 
-    def post(self) -> Any:
+    def post(self) -> Response:
         """
         Handle POST requests: instantiate a form instance with the passed
         POST variables and then check if it's valid.
         """
         if FormAction.CANCEL in self.request.POST:
+            # noinspection PyUnresolvedReferences
             raise HTTPFound(self.get_cancel_url())
 
+        # noinspection PyUnresolvedReferences
         form = self.get_form()
 
         controls = list(self.request.POST.items())
@@ -426,17 +520,25 @@ class ProcessFormView(View):
         try:
             appstruct = form.validate(controls)
 
+            # noinspection PyUnresolvedReferences
             return self.form_valid(form, appstruct)
         except ValidationFailure as e:
+            # noinspection PyUnresolvedReferences
             return self.form_invalid(e)
 
 
 class BaseFormView(FormMixin, ProcessFormView):
-    """A base view for displaying a form."""
+    """
+    A base view for displaying a form.
+    """
+    pass
 
 
 class FormView(TemplateResponseMixin, BaseFormView):
-    """A view for displaying a form and rendering a template response."""
+    """
+    A view for displaying a form and rendering a template response.
+    """
+    pass
 
 
 class BaseCreateView(ModelFormMixin, ProcessFormView):
@@ -458,6 +560,7 @@ class CreateView(TemplateResponseMixin, BaseCreateView):
     """
     View for creating a new object, with a response rendered by a template.
     """
+    pass
 
 
 class BaseUpdateView(ModelFormMixin, ProcessFormView):
@@ -478,7 +581,10 @@ class BaseUpdateView(ModelFormMixin, ProcessFormView):
 
 
 class UpdateView(TemplateResponseMixin, BaseUpdateView):
-    """View for updating an object, with a response rendered by a template."""
+    """
+    View for updating an object, with a response rendered by a template.
+    """
+    pass
 
 
 class BaseDeleteView(FormMixin, SingleObjectMixin, View):
@@ -495,12 +601,17 @@ class BaseDeleteView(FormMixin, SingleObjectMixin, View):
         """
         self.request.dbsession.delete(self.object)
 
-    def get(self) -> Any:
+    def get(self) -> Response:
+        """
+        Handle GET requests: fetch the object from the database, and renders
+        a form with its data.
+        """
         self.object = self.get_object()
         context = self.get_context_data(object=self.object)
+        # noinspection PyUnresolvedReferences
         return self.render_to_response(context)
 
-    def post(self) -> Any:
+    def post(self) -> Response:
         """
         Handle POST requests: instantiate a form instance with the passed
         POST variables and then check if it's valid.
@@ -520,14 +631,18 @@ class BaseDeleteView(FormMixin, SingleObjectMixin, View):
         except ValidationFailure as e:
             return self.form_invalid(e)
 
-    def form_valid(self, form: "Form", appstruct: Dict[str, Any]) -> None:
-        """If the form is valid, delete the associated model."""
+    def form_valid(self, form: "Form", appstruct: Dict[str, Any]) -> Response:
+        """
+        Called when the form is valid.
+        Deletes the associated model.
+        """
 
         self.delete()
 
         return super().form_valid(form, appstruct)
 
-    def get_form_values(self) -> Dict:
+    # noinspection PyMethodMayBeStatic
+    def get_form_values(self) -> Dict[str, Any]:
         return {}
 
 
@@ -536,3 +651,4 @@ class DeleteView(TemplateResponseMixin, BaseDeleteView):
     View for deleting an object retrieved with self.get_object(), with a
     response rendered by a template.
     """
+    pass

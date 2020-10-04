@@ -78,7 +78,7 @@ The attacks will lock out your user at some point; use ``camcops_server
 enable_user`` to re-enable it.
 
 **Alerts not fixed,** as they relate to third-party code and are low risk, or
-*are deliberate:
+are deliberate:
 
 - ``Information Disclosure - Suspicious Comments`` (risk: "Informational") in
   ``deform.js``, ``jquery-2.0.3.min.js``, ``jquery.form-3.09.js``, and
