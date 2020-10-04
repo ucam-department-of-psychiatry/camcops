@@ -105,7 +105,7 @@ from camcops_server.cc_modules.cc_pyramid import RouteCollection  # noqa: E402
 from camcops_server.cc_modules.cc_request import (  # noqa: E402
     CamcopsRequest,
     command_line_request_context,
-    pyramid_configurator_context,
+    camcops_pyramid_configurator_context,
 )
 from camcops_server.cc_modules.cc_string import all_extra_strings_as_dicts  # noqa: E402,E501
 from camcops_server.cc_modules.cc_task import Task  # noqa: E402
@@ -210,7 +210,8 @@ def make_wsgi_app(debug_toolbar: bool = False,
                   show_requests: bool = True,
                   show_request_immediately: bool = True,
                   show_response: bool = True,
-                  show_timing: bool = True) -> "Router":
+                  show_timing: bool = True,
+                  static_cache_duration_s: int = 0) -> "Router":
     """
     Makes and returns a WSGI application, attaching all our special methods.
 
@@ -242,6 +243,9 @@ def make_wsgi_app(debug_toolbar: bool = False,
         show_timing:
             [Applicable if ``show_requests``]
             Show the time that the wrapped WSGI app took?
+        static_cache_duration_s:
+            Lifetime (in seconds) for the HTTP cache-control setting for
+            static content.
 
     Returns:
         the WSGI app
@@ -276,9 +280,11 @@ def make_wsgi_app(debug_toolbar: bool = False,
     log.debug("Creating WSGI app")
 
     # Make Pyramid WSGI app
-    # - pyramid_configurator_context() is our function; see that
+    # - camcops_pyramid_configurator_context() is our function; see that
     # - config.make_wsgi_app() is then a Pyramid function
-    with pyramid_configurator_context(debug_toolbar=debug_toolbar) as config:
+    with camcops_pyramid_configurator_context(
+            debug_toolbar=debug_toolbar,
+            static_cache_duration_s=static_cache_duration_s) as config:
         app = config.make_wsgi_app()
 
     # Middleware above the Pyramid level
@@ -290,10 +296,34 @@ def make_wsgi_app(debug_toolbar: bool = False,
         # ... or "X-Frame-Options Header Not Set"
         ("X-Content-Type-Options", "nosniff"),
         # ... or "X-Content-Type-Options Header Missing"
-        ("cache-control", "no-cache, no-store, must-revalidate"),
+
+        # NOT THIS:
+        #       ("Cache-Control", "no-cache, no-store, must-revalidate"),
         # ... or "Incomplete or No Cache-control and Pragma HTTP Header Set"
         # ... note that Pragma is HTTP/1.0 and cache-control is HTTP/1.1, so
         #     you don't have to do both.
+        # BUT that prevents caching of images (e.g. logos), and we don't want
+        # that.
+        #
+        # The Pyramid @view_config decorator (or add_view function) takes an
+        # "http_cache" parameter, as per
+        # https://pyramid-pt-br.readthedocs.io/en/latest/api/config.html#pyramid.config.Configurator.add_view  # noqa
+        # and it looks like viewderivers.py implements this. The default does
+        # not set the HTTP "cache-control" header, explained at
+        # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control  # noqa
+        # The basic options are:
+        # - 0: do not cache
+        # - integer_seconds, or datetime.timedelta: lifespan
+        # - tuple (lifespan, dictionary_of_extra_cache_control_details)
+        # - tuple (None, dictionary_of_extra_cache_control_details)
+        # We now set http_cache for all our views via view_config, as well as
+        # the equivalent of using cache_max_age for add_static_view().
+
+        # However, this (as an additional Cache-Control header -- as well as
+        # any "cache, it's static" or "don't cache" header) sorts out any ZAP
+        # complaints:
+        ("Cache-Control", 'no-cache="Set-Cookie, Set-Cookie2"'),
+
     ])  # type: Router
 
     if show_requests:

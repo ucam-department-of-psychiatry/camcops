@@ -349,13 +349,22 @@ if DEBUG_REDIRECT:
 if DEBUG_REDIRECT:
     HTTPFound = HTTPFoundDebugVersion  # noqa: F811
 
+
 # =============================================================================
 # Flash message queues: https://getbootstrap.com/docs/3.3/components/#alerts
 # =============================================================================
+
 FLASH_SUCCESS = "success"
 FLASH_INFO = "info"
 FLASH_WARNING = "warning"
 FLASH_DANGER = "danger"
+
+
+# =============================================================================
+# Cache control, for the http_cache parameter of view_config etc.
+# =============================================================================
+
+NEVER_CACHE = 0
 
 
 # =============================================================================
@@ -410,7 +419,8 @@ def errormsg_task_live(req: "CamcopsRequest") -> str:
 # =============================================================================
 
 # noinspection PyUnusedLocal
-@notfound_view_config(renderer="not_found.mako")
+@notfound_view_config(renderer="not_found.mako",
+                      http_cache=NEVER_CACHE)
 def not_found(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     "Page not found" view.
@@ -422,7 +432,9 @@ def not_found(req: "CamcopsRequest") -> Dict[str, Any]:
 
 
 # noinspection PyUnusedLocal
-@view_config(context=HTTPBadRequest, renderer="bad_request.mako")
+@view_config(context=HTTPBadRequest,
+             renderer="bad_request.mako",
+             http_cache=NEVER_CACHE)
 def bad_request(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     "Bad request" view.
@@ -453,7 +465,8 @@ def bad_request(req: "CamcopsRequest") -> Dict[str, Any]:
 
 # noinspection PyUnusedLocal
 @view_config(route_name=Routes.TESTPAGE_PUBLIC_1,
-             permission=NO_PERMISSION_REQUIRED)
+             permission=NO_PERMISSION_REQUIRED,
+             http_cache=NEVER_CACHE)
 def test_page_1(req: "CamcopsRequest") -> Response:
     """
     A public test page with no content.
@@ -463,7 +476,8 @@ def test_page_1(req: "CamcopsRequest") -> Response:
 
 
 # noinspection PyUnusedLocal
-@view_config(route_name=Routes.TESTPAGE_PRIVATE_1)
+@view_config(route_name=Routes.TESTPAGE_PRIVATE_1,
+             http_cache=NEVER_CACHE)
 def test_page_private_1(req: "CamcopsRequest") -> Response:
     """
     A private test page with no informative content, but which should only
@@ -475,8 +489,9 @@ def test_page_private_1(req: "CamcopsRequest") -> Response:
 
 # noinspection PyUnusedLocal
 @view_config(route_name=Routes.TESTPAGE_PRIVATE_2,
+             permission=Permission.SUPERUSER,
              renderer="testpage.mako",
-             permission=Permission.SUPERUSER)
+             http_cache=NEVER_CACHE)
 def test_page_2(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     A private test page containing POTENTIALLY SENSITIVE test information,
@@ -488,8 +503,9 @@ def test_page_2(req: "CamcopsRequest") -> Dict[str, Any]:
 
 # noinspection PyUnusedLocal
 @view_config(route_name=Routes.TESTPAGE_PRIVATE_3,
+             permission=Permission.SUPERUSER,
              renderer="inherit_cache_test_child.mako",
-             permission=Permission.SUPERUSER)
+             http_cache=NEVER_CACHE)
 def test_page_3(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     A private test page that tests template inheritance.
@@ -498,7 +514,9 @@ def test_page_3(req: "CamcopsRequest") -> Dict[str, Any]:
 
 
 # noinspection PyUnusedLocal,PyTypeChecker
-@view_config(route_name=Routes.CRASH, permission=Permission.SUPERUSER)
+@view_config(route_name=Routes.CRASH,
+             permission=Permission.SUPERUSER,
+             http_cache=NEVER_CACHE)
 def crash(req: "CamcopsRequest") -> Response:
     """
     A view that deliberately raises an exception.
@@ -509,8 +527,10 @@ def crash(req: "CamcopsRequest") -> Response:
 
 
 # noinspection PyUnusedLocal
-@view_config(route_name=Routes.DEVELOPER, permission=Permission.SUPERUSER,
-             renderer="developer.mako")
+@view_config(route_name=Routes.DEVELOPER,
+             permission=Permission.SUPERUSER,
+             renderer="developer.mako",
+             http_cache=NEVER_CACHE)
 def developer_page(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     Shows the developer menu.
@@ -519,8 +539,10 @@ def developer_page(req: "CamcopsRequest") -> Dict[str, Any]:
 
 
 # noinspection PyUnusedLocal
-@view_config(route_name=Routes.AUDIT_MENU, permission=Permission.SUPERUSER,
-             renderer="audit_menu.mako")
+@view_config(route_name=Routes.AUDIT_MENU,
+             permission=Permission.SUPERUSER,
+             renderer="audit_menu.mako",
+             http_cache=NEVER_CACHE)
 def audit_menu(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     Shows the auditing menu.
@@ -537,7 +559,9 @@ def audit_menu(req: "CamcopsRequest") -> Dict[str, Any]:
 # "def view(context, request)", so if you add additional parameters, it thinks
 # you're doing the latter and sends parameters accordingly.
 
-@view_config(route_name=Routes.LOGIN, permission=NO_PERMISSION_REQUIRED)
+@view_config(route_name=Routes.LOGIN,
+             permission=NO_PERMISSION_REQUIRED,
+             http_cache=NEVER_CACHE)
 def login_view(req: "CamcopsRequest") -> Response:
     """
     Login view.
@@ -655,7 +679,9 @@ def account_locked(req: "CamcopsRequest", locked_until: Pendulum) -> Response:
     )
 
 
-@view_config(route_name=Routes.LOGOUT, renderer="logged_out.mako")
+@view_config(route_name=Routes.LOGOUT,
+             renderer="logged_out.mako",
+             http_cache=NEVER_CACHE)
 def logout(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     Logs a session out, and returns the "logged out" view.
@@ -668,7 +694,8 @@ def logout(req: "CamcopsRequest") -> Dict[str, Any]:
 
 @view_config(route_name=Routes.OFFER_TERMS,
              permission=Authenticated,
-             renderer="offer_terms.mako")
+             renderer="offer_terms.mako",
+             http_cache=NEVER_CACHE)
 def offer_terms(req: "CamcopsRequest") -> Response:
     """
     - GET: show terms/conditions and request acknowledgement
@@ -695,7 +722,7 @@ def offer_terms(req: "CamcopsRequest") -> Response:
     )
 
 
-@forbidden_view_config()
+@forbidden_view_config(http_cache=NEVER_CACHE)
 def forbidden(req: "CamcopsRequest") -> Response:
     """
     Generic place that Pyramid comes when permission is denied for a view.
@@ -733,7 +760,9 @@ def forbidden(req: "CamcopsRequest") -> Response:
 # Changing passwords
 # =============================================================================
 
-@view_config(route_name=Routes.CHANGE_OWN_PASSWORD, permission=Authenticated)
+@view_config(route_name=Routes.CHANGE_OWN_PASSWORD,
+             permission=Authenticated,
+             http_cache=NEVER_CACHE)
 def change_own_password(req: "CamcopsRequest") -> Response:
     """
     For any user: to change their own password.
@@ -772,7 +801,8 @@ def change_own_password(req: "CamcopsRequest") -> Response:
 
 @view_config(route_name=Routes.CHANGE_OTHER_PASSWORD,
              permission=Permission.GROUPADMIN,
-             renderer="change_other_password.mako")
+             renderer="change_other_password.mako",
+             http_cache=NEVER_CACHE)
 def change_other_password(req: "CamcopsRequest") -> Response:
     """
     For administrators, to change another's password.
@@ -848,7 +878,9 @@ def password_changed(req: "CamcopsRequest",
 # Main menu; simple information things
 # =============================================================================
 
-@view_config(route_name=Routes.HOME, renderer="main_menu.mako")
+@view_config(route_name=Routes.HOME,
+             renderer="main_menu.mako",
+             http_cache=NEVER_CACHE)
 def main_menu(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     Main CamCOPS menu view.
@@ -873,7 +905,8 @@ def main_menu(req: "CamcopsRequest") -> Dict[str, Any]:
 # Tasks
 # =============================================================================
 
-def edit_filter(req: "CamcopsRequest", task_filter: TaskFilter,
+def edit_filter(req: "CamcopsRequest",
+                task_filter: TaskFilter,
                 redirect_url: str) -> Response:
     """
     Edit the task filter for the current user.
@@ -973,7 +1006,8 @@ def edit_filter(req: "CamcopsRequest", task_filter: TaskFilter,
     )
 
 
-@view_config(route_name=Routes.SET_FILTERS)
+@view_config(route_name=Routes.SET_FILTERS,
+             http_cache=NEVER_CACHE)
 def set_filters(req: "CamcopsRequest") -> Response:
     """
     View to set the task filters for the current user.
@@ -984,7 +1018,9 @@ def set_filters(req: "CamcopsRequest") -> Response:
     return edit_filter(req, task_filter=task_filter, redirect_url=redirect_url)
 
 
-@view_config(route_name=Routes.VIEW_TASKS, renderer="view_tasks.mako")
+@view_config(route_name=Routes.VIEW_TASKS,
+             renderer="view_tasks.mako",
+             http_cache=NEVER_CACHE)
 def view_tasks(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     Main view displaying tasks and applicable filters.
@@ -1059,7 +1095,8 @@ def view_tasks(req: "CamcopsRequest") -> Dict[str, Any]:
     )
 
 
-@view_config(route_name=Routes.TASK)
+@view_config(route_name=Routes.TASK,
+             http_cache=NEVER_CACHE)
 def serve_task(req: "CamcopsRequest") -> Response:
     """
     View that serves an individual task, in a variety of possible formats
@@ -1169,7 +1206,9 @@ def choose_tracker_or_ctv(req: "CamcopsRequest",
                 head_form_html=get_head_form_html(req, [form]))
 
 
-@view_config(route_name=Routes.CHOOSE_TRACKER, renderer="choose_tracker.mako")
+@view_config(route_name=Routes.CHOOSE_TRACKER,
+             renderer="choose_tracker.mako",
+             http_cache=NEVER_CACHE)
 def choose_tracker(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to choose/configure a
@@ -1178,7 +1217,9 @@ def choose_tracker(req: "CamcopsRequest") -> Dict[str, Any]:
     return choose_tracker_or_ctv(req, as_ctv=False)
 
 
-@view_config(route_name=Routes.CHOOSE_CTV, renderer="choose_ctv.mako")
+@view_config(route_name=Routes.CHOOSE_CTV,
+             renderer="choose_ctv.mako",
+             http_cache=NEVER_CACHE)
 def choose_ctv(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to choose/configure a
@@ -1262,7 +1303,8 @@ def serve_tracker_or_ctv(req: "CamcopsRequest",
             f"({_('permissible:')} {permissible!r})")
 
 
-@view_config(route_name=Routes.TRACKER)
+@view_config(route_name=Routes.TRACKER,
+             http_cache=NEVER_CACHE)
 def serve_tracker(req: "CamcopsRequest") -> Response:
     """
     View to serve a :class:`camcops_server.cc_modules.cc_tracker.Tracker`; see
@@ -1271,7 +1313,8 @@ def serve_tracker(req: "CamcopsRequest") -> Response:
     return serve_tracker_or_ctv(req, as_ctv=False)
 
 
-@view_config(route_name=Routes.CTV)
+@view_config(route_name=Routes.CTV,
+             http_cache=NEVER_CACHE)
 def serve_ctv(req: "CamcopsRequest") -> Response:
     """
     View to serve a
@@ -1285,7 +1328,9 @@ def serve_ctv(req: "CamcopsRequest") -> Response:
 # Reports
 # =============================================================================
 
-@view_config(route_name=Routes.REPORTS_MENU, renderer="reports_menu.mako")
+@view_config(route_name=Routes.REPORTS_MENU,
+             renderer="reports_menu.mako",
+             http_cache=NEVER_CACHE)
 def reports_menu(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     Offer a menu of reports.
@@ -1300,7 +1345,8 @@ def reports_menu(req: "CamcopsRequest") -> Dict[str, Any]:
     return {}
 
 
-@view_config(route_name=Routes.OFFER_REPORT)
+@view_config(route_name=Routes.OFFER_REPORT,
+             http_cache=NEVER_CACHE)
 def offer_report(req: "CamcopsRequest") -> Response:
     """
     Offer configuration options for a single report, or (following submission)
@@ -1343,7 +1389,8 @@ def offer_report(req: "CamcopsRequest") -> Response:
     )
 
 
-@view_config(route_name=Routes.REPORT)
+@view_config(route_name=Routes.REPORT,
+             http_cache=NEVER_CACHE)
 def serve_report(req: "CamcopsRequest") -> Response:
     """
     Serve a configured report.
@@ -1366,7 +1413,8 @@ def serve_report(req: "CamcopsRequest") -> Response:
 # Research downloads
 # =============================================================================
 
-@view_config(route_name=Routes.OFFER_BASIC_DUMP)
+@view_config(route_name=Routes.OFFER_BASIC_DUMP,
+             http_cache=NEVER_CACHE)
 def offer_basic_dump(req: "CamcopsRequest") -> Response:
     """
     View to configure a basic research dump.
@@ -1444,7 +1492,8 @@ def get_dump_collection(req: "CamcopsRequest") -> TaskCollection:
     )
 
 
-@view_config(route_name=Routes.BASIC_DUMP)
+@view_config(route_name=Routes.BASIC_DUMP,
+             http_cache=NEVER_CACHE)
 def serve_basic_dump(req: "CamcopsRequest") -> Response:
     """
     View serving a TSV/ZIP basic research dump.
@@ -1476,7 +1525,8 @@ def serve_basic_dump(req: "CamcopsRequest") -> Response:
     return exporter.immediate_response(req)
 
 
-@view_config(route_name=Routes.OFFER_SQL_DUMP)
+@view_config(route_name=Routes.OFFER_SQL_DUMP,
+             http_cache=NEVER_CACHE)
 def offer_sql_dump(req: "CamcopsRequest") -> Response:
     """
     View to configure a SQL research dump.
@@ -1516,7 +1566,8 @@ def offer_sql_dump(req: "CamcopsRequest") -> Response:
     )
 
 
-@view_config(route_name=Routes.SQL_DUMP)
+@view_config(route_name=Routes.SQL_DUMP,
+             http_cache=NEVER_CACHE)
 def sql_dump(req: "CamcopsRequest") -> Response:
     """
     View serving an SQL dump in the chosen format (e.g. SQLite binary, SQL).
@@ -1551,7 +1602,8 @@ def sql_dump(req: "CamcopsRequest") -> Response:
 
 # noinspection PyUnusedLocal
 @view_config(route_name=Routes.DOWNLOAD_AREA,
-             renderer="download_area.mako")
+             renderer="download_area.mako",
+             http_cache=NEVER_CACHE)
 def download_area(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     Shows the user download area.
@@ -1573,7 +1625,8 @@ def download_area(req: "CamcopsRequest") -> Dict[str, Any]:
     )
 
 
-@view_config(route_name=Routes.DOWNLOAD_FILE)
+@view_config(route_name=Routes.DOWNLOAD_FILE,
+             http_cache=NEVER_CACHE)
 def download_file(req: "CamcopsRequest") -> Response:
     """
     Downloads a file.
@@ -1599,7 +1652,9 @@ def download_file(req: "CamcopsRequest") -> Response:
         raise HTTPBadRequest(f'{_("Error reading file:")} {filename}')
 
 
-@view_config(route_name=Routes.DELETE_FILE, request_method="POST")
+@view_config(route_name=Routes.DELETE_FILE,
+             request_method="POST",
+             http_cache=NEVER_CACHE)
 def delete_file(req: "CamcopsRequest") -> Response:
     """
     Deletes a file.
@@ -1636,7 +1691,8 @@ LEXERMAP = {
 }
 
 
-@view_config(route_name=Routes.VIEW_DDL)
+@view_config(route_name=Routes.VIEW_DDL,
+             http_cache=NEVER_CACHE)
 def view_ddl(req: "CamcopsRequest") -> Response:
     """
     Inspect table definitions (data definition language, DDL) with field
@@ -1680,7 +1736,8 @@ def view_ddl(req: "CamcopsRequest") -> Response:
 # =============================================================================
 
 @view_config(route_name=Routes.OFFER_AUDIT_TRAIL,
-             permission=Permission.SUPERUSER)
+             permission=Permission.SUPERUSER,
+             http_cache=NEVER_CACHE)
 def offer_audit_trail(req: "CamcopsRequest") -> Response:
     """
     View to configure how we'll view the audit trail. Once configured, it
@@ -1724,7 +1781,8 @@ AUDIT_TRUNCATE_AT = 100
 
 
 @view_config(route_name=Routes.VIEW_AUDIT_TRAIL,
-             permission=Permission.SUPERUSER)
+             permission=Permission.SUPERUSER,
+             http_cache=NEVER_CACHE)
 def view_audit_trail(req: "CamcopsRequest") -> Response:
     """
     View to serve the audit trail.
@@ -1805,7 +1863,8 @@ def view_audit_trail(req: "CamcopsRequest") -> Response:
 #       ExportedTaskHL7Message
 
 @view_config(route_name=Routes.OFFER_EXPORTED_TASK_LIST,
-             permission=Permission.SUPERUSER)
+             permission=Permission.SUPERUSER,
+             http_cache=NEVER_CACHE)
 def offer_exported_task_list(req: "CamcopsRequest") -> Response:
     """
     View to choose how we'll view the exported task log.
@@ -1842,7 +1901,8 @@ def offer_exported_task_list(req: "CamcopsRequest") -> Response:
 
 
 @view_config(route_name=Routes.VIEW_EXPORTED_TASK_LIST,
-             permission=Permission.SUPERUSER)
+             permission=Permission.SUPERUSER,
+             http_cache=NEVER_CACHE)
 def view_exported_task_list(req: "CamcopsRequest") -> Response:
     """
     View to serve the exported task log.
@@ -1900,6 +1960,10 @@ def view_exported_task_list(req: "CamcopsRequest") -> Response:
                               request=req)
 
 
+# =============================================================================
+# View helpers for ORM objects
+# =============================================================================
+
 def _view_generic_object_by_id(req: "CamcopsRequest",
                                cls: Type,
                                instance_name_for_mako: str,
@@ -1934,8 +1998,13 @@ def _view_generic_object_by_id(req: "CamcopsRequest",
     return render_to_response(mako_template, d, request=req)
 
 
+# =============================================================================
+# Specialized views for ORM objects
+# =============================================================================
+
 @view_config(route_name=Routes.VIEW_EMAIL,
-             permission=Permission.SUPERUSER)
+             permission=Permission.SUPERUSER,
+             http_cache=NEVER_CACHE)
 def view_email(req: "CamcopsRequest") -> Response:
     """
     View on an individual :class:`camcops_server.cc_modules.cc_email.Email`.
@@ -1949,7 +2018,8 @@ def view_email(req: "CamcopsRequest") -> Response:
 
 
 @view_config(route_name=Routes.VIEW_EXPORT_RECIPIENT,
-             permission=Permission.SUPERUSER)
+             permission=Permission.SUPERUSER,
+             http_cache=NEVER_CACHE)
 def view_export_recipient(req: "CamcopsRequest") -> Response:
     """
     View on an individual
@@ -1964,7 +2034,8 @@ def view_export_recipient(req: "CamcopsRequest") -> Response:
 
 
 @view_config(route_name=Routes.VIEW_EXPORTED_TASK,
-             permission=Permission.SUPERUSER)
+             permission=Permission.SUPERUSER,
+             http_cache=NEVER_CACHE)
 def view_exported_task(req: "CamcopsRequest") -> Response:
     """
     View on an individual
@@ -1979,7 +2050,8 @@ def view_exported_task(req: "CamcopsRequest") -> Response:
 
 
 @view_config(route_name=Routes.VIEW_EXPORTED_TASK_EMAIL,
-             permission=Permission.SUPERUSER)
+             permission=Permission.SUPERUSER,
+             http_cache=NEVER_CACHE)
 def view_exported_task_email(req: "CamcopsRequest") -> Response:
     """
     View on an individual
@@ -1994,7 +2066,8 @@ def view_exported_task_email(req: "CamcopsRequest") -> Response:
 
 
 @view_config(route_name=Routes.VIEW_EXPORTED_TASK_FILE_GROUP,
-             permission=Permission.SUPERUSER)
+             permission=Permission.SUPERUSER,
+             http_cache=NEVER_CACHE)
 def view_exported_task_file_group(req: "CamcopsRequest") -> Response:
     """
     View on an individual
@@ -2009,7 +2082,8 @@ def view_exported_task_file_group(req: "CamcopsRequest") -> Response:
 
 
 @view_config(route_name=Routes.VIEW_EXPORTED_TASK_HL7_MESSAGE,
-             permission=Permission.SUPERUSER)
+             permission=Permission.SUPERUSER,
+             http_cache=NEVER_CACHE)
 def view_exported_task_hl7_message(req: "CamcopsRequest") -> Response:
     """
     View on an individual
@@ -2028,7 +2102,8 @@ def view_exported_task_hl7_message(req: "CamcopsRequest") -> Response:
 # =============================================================================
 
 @view_config(route_name=Routes.VIEW_OWN_USER_INFO,
-             renderer="view_own_user_info.mako")
+             renderer="view_own_user_info.mako",
+             http_cache=NEVER_CACHE)
 def view_own_user_info(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to provide information about your own user.
@@ -2042,7 +2117,8 @@ def view_own_user_info(req: "CamcopsRequest") -> Dict[str, Any]:
 
 
 @view_config(route_name=Routes.VIEW_SERVER_INFO,
-             renderer="view_server_info.mako")
+             renderer="view_server_info.mako",
+             http_cache=NEVER_CACHE)
 def view_server_info(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to show the server's ID policies, etc.
@@ -2120,7 +2196,8 @@ def query_users_that_i_manage(req: "CamcopsRequest") -> Query:
 
 @view_config(route_name=Routes.VIEW_ALL_USERS,
              permission=Permission.GROUPADMIN,
-             renderer="users_view.mako")
+             renderer="users_view.mako",
+             http_cache=NEVER_CACHE)
 def view_all_users(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View all users that the current user administers. The view has hyperlinks
@@ -2156,7 +2233,8 @@ def view_all_users(req: "CamcopsRequest") -> Dict[str, Any]:
 
 @view_config(route_name=Routes.VIEW_USER_EMAIL_ADDRESSES,
              permission=Permission.GROUPADMIN,
-             renderer="view_user_email_addresses.mako")
+             renderer="view_user_email_addresses.mako",
+             http_cache=NEVER_CACHE)
 def view_user_email_addresses(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View e-mail addresses of all users that the requesting user is authorized
@@ -2191,7 +2269,8 @@ def assert_may_administer_group(req: "CamcopsRequest", group_id: int) -> None:
 
 @view_config(route_name=Routes.VIEW_USER,
              permission=Permission.GROUPADMIN,
-             renderer="view_other_user_info.mako")
+             renderer="view_other_user_info.mako",
+             http_cache=NEVER_CACHE)
 def view_user(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to show details of another user, for administrators.
@@ -2204,8 +2283,9 @@ def view_user(req: "CamcopsRequest") -> Dict[str, Any]:
 
 
 @view_config(route_name=Routes.EDIT_USER,
+             renderer="user_edit.mako",
              permission=Permission.GROUPADMIN,
-             renderer="user_edit.mako")
+             http_cache=NEVER_CACHE)
 def edit_user(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to edit a user (for administrators).
@@ -2285,8 +2365,9 @@ def edit_user(req: "CamcopsRequest") -> Dict[str, Any]:
 
 
 @view_config(route_name=Routes.EDIT_USER_GROUP_MEMBERSHIP,
+             renderer="user_edit_group_membership.mako",
              permission=Permission.GROUPADMIN,
-             renderer="user_edit_group_membership.mako")
+             http_cache=NEVER_CACHE)
 def edit_user_group_membership(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to edit the group memberships of a user (for administrators).
@@ -2374,7 +2455,8 @@ def set_user_upload_group(req: "CamcopsRequest",
     )
 
 
-@view_config(route_name=Routes.SET_OWN_USER_UPLOAD_GROUP)
+@view_config(route_name=Routes.SET_OWN_USER_UPLOAD_GROUP,
+             http_cache=NEVER_CACHE)
 def set_own_user_upload_group(req: "CamcopsRequest") -> Response:
     """
     View to set the upload group for your own user.
@@ -2383,7 +2465,8 @@ def set_own_user_upload_group(req: "CamcopsRequest") -> Response:
 
 
 @view_config(route_name=Routes.SET_OTHER_USER_UPLOAD_GROUP,
-             permission=Permission.GROUPADMIN)
+             permission=Permission.GROUPADMIN,
+             http_cache=NEVER_CACHE)
 def set_other_user_upload_group(req: "CamcopsRequest") -> Response:
     """
     View to set the upload group for another user.
@@ -2397,7 +2480,8 @@ def set_other_user_upload_group(req: "CamcopsRequest") -> Response:
 
 # noinspection PyTypeChecker
 @view_config(route_name=Routes.UNLOCK_USER,
-             permission=Permission.GROUPADMIN)
+             permission=Permission.GROUPADMIN,
+             http_cache=NEVER_CACHE)
 def unlock_user(req: "CamcopsRequest") -> Response:
     """
     View to unlock a locked user account.
@@ -2416,7 +2500,8 @@ def unlock_user(req: "CamcopsRequest") -> Response:
 
 @view_config(route_name=Routes.ADD_USER,
              permission=Permission.GROUPADMIN,
-             renderer="user_add.mako")
+             renderer="user_add.mako",
+             http_cache=NEVER_CACHE)
 def add_user(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to add a user.
@@ -2505,7 +2590,8 @@ def any_records_use_user(req: "CamcopsRequest", user: User) -> bool:
 
 @view_config(route_name=Routes.DELETE_USER,
              permission=Permission.GROUPADMIN,
-             renderer="user_delete.mako")
+             renderer="user_delete.mako",
+             http_cache=NEVER_CACHE)
 def delete_user(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to delete a user (and make it hard work).
@@ -2574,7 +2660,8 @@ def delete_user(req: "CamcopsRequest") -> Dict[str, Any]:
 
 @view_config(route_name=Routes.VIEW_GROUPS,
              permission=Permission.SUPERUSER,
-             renderer="groups_view.mako")
+             renderer="groups_view.mako",
+             http_cache=NEVER_CACHE)
 def view_groups(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to show all groups (with hyperlinks to edit them).
@@ -2615,6 +2702,9 @@ def get_group_from_request_group_id_or_raise(req: "CamcopsRequest") -> Group:
 
 
 class EditGroupView(UpdateView):
+    """
+    Django-style view to edit a CamCOPS group.
+    """
     form_class = EditGroupForm
     model_form_dict = {
         "name": ViewParam.NAME,
@@ -2677,7 +2767,8 @@ class EditGroupView(UpdateView):
 
 
 @view_config(route_name=Routes.EDIT_GROUP,
-             permission=Permission.SUPERUSER)
+             permission=Permission.SUPERUSER,
+             http_cache=NEVER_CACHE)
 def edit_group(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to edit a group. Superusers only.
@@ -2687,7 +2778,8 @@ def edit_group(req: "CamcopsRequest") -> Dict[str, Any]:
 
 @view_config(route_name=Routes.ADD_GROUP,
              permission=Permission.SUPERUSER,
-             renderer="group_add.mako")
+             renderer="group_add.mako",
+             http_cache=NEVER_CACHE)
 def add_group(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to add a group. Superusers only.
@@ -2741,7 +2833,8 @@ def any_records_use_group(req: "CamcopsRequest", group: Group) -> bool:
 
 @view_config(route_name=Routes.DELETE_GROUP,
              permission=Permission.SUPERUSER,
-             renderer="group_delete.mako")
+             renderer="group_delete.mako",
+             http_cache=NEVER_CACHE)
 def delete_group(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to delete a group. Superusers only.
@@ -2787,7 +2880,8 @@ def delete_group(req: "CamcopsRequest") -> Dict[str, Any]:
 
 @view_config(route_name=Routes.EDIT_SERVER_SETTINGS,
              permission=Permission.SUPERUSER,
-             renderer="server_settings_edit.mako")
+             renderer="server_settings_edit.mako",
+             http_cache=NEVER_CACHE)
 def edit_server_settings(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to edit server settings (like the database title).
@@ -2817,7 +2911,8 @@ def edit_server_settings(req: "CamcopsRequest") -> Dict[str, Any]:
 
 @view_config(route_name=Routes.VIEW_ID_DEFINITIONS,
              permission=Permission.SUPERUSER,
-             renderer="id_definitions_view.mako")
+             renderer="id_definitions_view.mako",
+             http_cache=NEVER_CACHE)
 def view_id_definitions(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to show all ID number definitions (with hyperlinks to edit them).
@@ -2847,7 +2942,8 @@ def get_iddef_from_request_which_idnum_or_raise(
 
 @view_config(route_name=Routes.EDIT_ID_DEFINITION,
              permission=Permission.SUPERUSER,
-             renderer="id_definition_edit.mako")
+             renderer="id_definition_edit.mako",
+             http_cache=NEVER_CACHE)
 def edit_id_definition(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to edit an ID number definition. Superusers only.
@@ -2890,7 +2986,8 @@ def edit_id_definition(req: "CamcopsRequest") -> Dict[str, Any]:
 
 @view_config(route_name=Routes.ADD_ID_DEFINITION,
              permission=Permission.SUPERUSER,
-             renderer="id_definition_add.mako")
+             renderer="id_definition_add.mako",
+             http_cache=NEVER_CACHE)
 def add_id_definition(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to add an ID number definition. Superusers only.
@@ -2946,7 +3043,8 @@ def any_records_use_iddef(req: "CamcopsRequest",
 
 @view_config(route_name=Routes.DELETE_ID_DEFINITION,
              permission=Permission.SUPERUSER,
-             renderer="id_definition_delete.mako")
+             renderer="id_definition_delete.mako",
+             http_cache=NEVER_CACHE)
 def delete_id_definition(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to delete an ID number definition. Superusers only.
@@ -2989,7 +3087,8 @@ def delete_id_definition(req: "CamcopsRequest") -> Dict[str, Any]:
 # =============================================================================
 
 @view_config(route_name=Routes.ADD_SPECIAL_NOTE,
-             renderer="special_note_add.mako")
+             renderer="special_note_add.mako",
+             http_cache=NEVER_CACHE)
 def add_special_note(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to add a special note to a task (after confirmation).
@@ -3041,7 +3140,8 @@ def add_special_note(req: "CamcopsRequest") -> Dict[str, Any]:
 
 
 @view_config(route_name=Routes.DELETE_SPECIAL_NOTE,
-             renderer="special_note_delete.mako")
+             renderer="special_note_delete.mako",
+             http_cache=NEVER_CACHE)
 def delete_special_note(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to delete a special note (after confirmation).
@@ -3084,6 +3184,9 @@ def delete_special_note(req: "CamcopsRequest") -> Dict[str, Any]:
 
 
 class EraseTaskBaseView(DeleteView):
+    """
+    Django-style view to erase a task.
+    """
     form_class = EraseTaskForm
 
     def get_object(self) -> Any:
@@ -3121,6 +3224,10 @@ class EraseTaskBaseView(DeleteView):
 
 
 class EraseTaskLeavingPlaceholderView(EraseTaskBaseView):
+    """
+    Django-style view to erase data from a task, leaving an empty
+    "placeholder".
+    """
     template_name = "task_erase.mako"
 
     def get_object(self) -> Any:
@@ -3148,6 +3255,9 @@ class EraseTaskLeavingPlaceholderView(EraseTaskBaseView):
 
 
 class EraseTaskEntirelyView(EraseTaskBaseView):
+    """
+    Django-style view to erase (delete) a task entirely.
+    """
     template_name = "task_erase_entirely.mako"
 
     def delete(self) -> None:
@@ -3170,7 +3280,8 @@ class EraseTaskEntirelyView(EraseTaskBaseView):
 
 
 @view_config(route_name=Routes.ERASE_TASK_LEAVING_PLACEHOLDER,
-             permission=Permission.GROUPADMIN)
+             permission=Permission.GROUPADMIN,
+             http_cache=NEVER_CACHE)
 def erase_task_leaving_placeholder(req: "CamcopsRequest") -> Response:
     """
     View to wipe all data from a task (after confirmation).
@@ -3181,7 +3292,8 @@ def erase_task_leaving_placeholder(req: "CamcopsRequest") -> Response:
 
 
 @view_config(route_name=Routes.ERASE_TASK_ENTIRELY,
-             permission=Permission.GROUPADMIN)
+             permission=Permission.GROUPADMIN,
+             http_cache=NEVER_CACHE)
 def erase_task_entirely(req: "CamcopsRequest") -> Response:
     """
     View to erase a task from the database entirely (after confirmation).
@@ -3190,7 +3302,8 @@ def erase_task_entirely(req: "CamcopsRequest") -> Response:
 
 
 @view_config(route_name=Routes.DELETE_PATIENT,
-             permission=Permission.GROUPADMIN)
+             permission=Permission.GROUPADMIN,
+             http_cache=NEVER_CACHE)
 def delete_patient(req: "CamcopsRequest") -> Response:
     """
     View to delete completely all data for a patient (after confirmation),
@@ -3308,7 +3421,147 @@ def delete_patient(req: "CamcopsRequest") -> Response:
     )
 
 
-class PatientMixin:
+@view_config(route_name=Routes.FORCIBLY_FINALIZE,
+             permission=Permission.GROUPADMIN,
+             http_cache=NEVER_CACHE)
+def forcibly_finalize(req: "CamcopsRequest") -> Response:
+    """
+    View to force-finalize all live (``_era == ERA_NOW``) records from a
+    device. Available to group administrators if all those records are within
+    their groups (otherwise, it's a superuser operation).
+    """
+    if FormAction.CANCEL in req.POST:
+        return HTTPFound(req.route_url(Routes.HOME))
+
+    dbsession = req.dbsession
+    first_form = ForciblyFinalizeChooseDeviceForm(request=req)
+    second_form = ForciblyFinalizeConfirmForm(request=req)
+    form = None
+    final_phase = False
+    if FormAction.SUBMIT in req.POST:
+        # FIRST form has been submitted
+        form = first_form
+    elif FormAction.FINALIZE in req.POST:
+        # SECOND form has been submitted:
+        form = second_form
+        final_phase = True
+    _ = req.gettext
+    if form is not None:
+        try:
+            controls = list(req.POST.items())
+            appstruct = form.validate(controls)
+            # log.debug("{}", pformat(appstruct))
+            device_id = appstruct.get(ViewParam.DEVICE_ID)
+            device = Device.get_device_by_id(dbsession, device_id)
+            if device is None:
+                raise HTTPBadRequest(f"{_('No such device:')} {device_id!r}")
+            # -----------------------------------------------------------------
+            # If at the first stage, bin out and offer confirmation page
+            # -----------------------------------------------------------------
+            if not final_phase:
+                appstruct = {ViewParam.DEVICE_ID: device_id}
+                rendered_form = second_form.render(appstruct)
+                taskfilter = TaskFilter()
+                taskfilter.device_ids = [device_id]
+                taskfilter.era = ERA_NOW
+                collection = TaskCollection(
+                    req=req,
+                    taskfilter=taskfilter,
+                    sort_method_global=TaskSortMethod.CREATION_DATE_DESC,
+                    current_only=False,  # unusual option!
+                    via_index=False  # required for current_only=False
+                )
+                tasks = collection.all_tasks
+                return render_to_response(
+                    "device_forcibly_finalize_confirm.mako",
+                    dict(form=rendered_form,
+                         tasks=tasks,
+                         head_form_html=get_head_form_html(req, [form])),
+                    request=req
+                )
+            # -----------------------------------------------------------------
+            # Check it's permitted
+            # -----------------------------------------------------------------
+            if not req.user.superuser:
+                admin_group_ids = req.user.ids_of_groups_user_is_admin_for
+                for clienttable in CLIENT_TABLE_MAP.values():
+                    # noinspection PyPropertyAccess
+                    count_query = (
+                        select([func.count()])
+                        .select_from(clienttable)
+                        .where(clienttable.c[FN_DEVICE_ID] == device_id)
+                        .where(clienttable.c[FN_ERA] == ERA_NOW)
+                        .where(clienttable.c[FN_GROUP_ID].notin_(admin_group_ids))  # noqa
+                    )
+                    n = dbsession.execute(count_query).scalar()
+                    if n > 0:
+                        raise HTTPBadRequest(
+                            _("Some records for this device are in groups for "
+                              "which you are not an administrator"))
+            # -----------------------------------------------------------------
+            # Forcibly finalize
+            # -----------------------------------------------------------------
+            msgs = []  # type: List[str]
+            batchdetails = BatchDetails(batchtime=req.now_utc)
+            alltables = sorted(CLIENT_TABLE_MAP.values(),
+                               key=upload_commit_order_sorter)
+            for clienttable in alltables:
+                liverecs = get_server_live_records(
+                    req, device_id, clienttable, current_only=False)
+                preservation_pks = [r.server_pk for r in liverecs]
+                if not preservation_pks:
+                    continue
+                current_pks = [r.server_pk for r in liverecs if r.current]
+                tablechanges = UploadTableChanges(clienttable)
+                tablechanges.note_preservation_pks(preservation_pks)
+                tablechanges.note_current_pks(current_pks)
+                dbsession.execute(
+                    update(clienttable)
+                    .where(clienttable.c[FN_PK].in_(preservation_pks))
+                    .values(values_preserve_now(req, batchdetails,
+                                                forcibly_preserved=True))
+                )
+                update_indexes_and_push_exports(req, batchdetails, tablechanges)
+                msgs.append(f"{clienttable.name} {preservation_pks}")
+            # Field names are different in server-side tables, so they need
+            # special handling:
+            SpecialNote.forcibly_preserve_special_notes_for_device(req,
+                                                                   device_id)
+            # -----------------------------------------------------------------
+            # Done
+            # -----------------------------------------------------------------
+            msg = (
+                f"{_('Live records for device')} {device_id} "
+                f"({device.friendly_name}) {_('forcibly finalized')} "
+                f"(PKs: {'; '.join(msgs)})"
+            )
+            audit(req, msg)
+            log.info(msg)
+
+            req.session.flash(msg, queue=FLASH_SUCCESS)
+            raise HTTPFound(req.route_url(Routes.HOME))
+
+        except ValidationFailure as e:
+            rendered_form = e.render()
+    else:
+        form = first_form
+        rendered_form = form.render()  # no appstruct
+    return render_to_response(
+        "device_forcibly_finalize_choose.mako",
+        dict(form=rendered_form,
+             head_form_html=get_head_form_html(req, [form])),
+        request=req
+    )
+
+
+# =============================================================================
+# Patient creation/editing (primarily for task scheduling)
+# =============================================================================
+
+class PatientMixin(object):
+    """
+    Mixin for views involving a patient.
+    """
     object: Any
     object_class = Patient
     server_pk_name = "_pk"
@@ -3614,6 +3867,9 @@ class EditPatientBaseView(PatientMixin, UpdateView):
 
 
 class EditServerCreatedPatientView(EditPatientBaseView):
+    """
+    View to edit a patient created on the server (as part of task scheduling).
+    """
     template_name = "server_created_patient_edit.mako"
     form_class = EditServerCreatedPatientForm
 
@@ -3656,6 +3912,9 @@ class EditServerCreatedPatientView(EditPatientBaseView):
 
 
 class EditFinalizedPatientView(EditPatientBaseView):
+    """
+    View to edit a finalized patient.
+    """
     template_name = "finalized_patient_edit.mako"
     form_class = EditFinalizedPatientForm
 
@@ -3676,7 +3935,8 @@ class EditFinalizedPatientView(EditPatientBaseView):
 
 
 @view_config(route_name=Routes.EDIT_FINALIZED_PATIENT,
-             permission=Permission.GROUPADMIN)
+             permission=Permission.GROUPADMIN,
+             http_cache=NEVER_CACHE)
 def edit_finalized_patient(req: "CamcopsRequest") -> Response:
     """
     View to edit details for a patient.
@@ -3685,7 +3945,8 @@ def edit_finalized_patient(req: "CamcopsRequest") -> Response:
 
 
 @view_config(route_name=Routes.EDIT_SERVER_CREATED_PATIENT,
-             permission=Permission.GROUPADMIN)
+             permission=Permission.GROUPADMIN,
+             http_cache=NEVER_CACHE)
 def edit_server_created_patient(req: "CamcopsRequest") -> Response:
     """
     View to edit details for a patient created on the server (for scheduling
@@ -3695,6 +3956,9 @@ def edit_server_created_patient(req: "CamcopsRequest") -> Response:
 
 
 class AddPatientView(PatientMixin, CreateView):
+    """
+    View to add a patient (for task scheduling).
+    """
     form_class = EditServerCreatedPatientForm
     template_name = "patient_add.mako"
 
@@ -3791,7 +4055,9 @@ class AddPatientView(PatientMixin, CreateView):
         self.object = patient
 
 
-@view_config(route_name=Routes.ADD_PATIENT, permission=Permission.GROUPADMIN)
+@view_config(route_name=Routes.ADD_PATIENT,
+             permission=Permission.GROUPADMIN,
+             http_cache=NEVER_CACHE)
 def add_patient(req: "CamcopsRequest") -> Response:
     """
     View to add a patient.
@@ -3800,6 +4066,9 @@ def add_patient(req: "CamcopsRequest") -> Response:
 
 
 class DeleteServerCreatedPatientView(DeleteView):
+    """
+    View to delete a patient that had been created on the server.
+    """
     form_class = DeleteServerCreatedPatientForm
     object_class = Patient
     pk_param = ViewParam.SERVER_PK
@@ -3828,165 +4097,28 @@ class DeleteServerCreatedPatientView(DeleteView):
 
 
 @view_config(route_name=Routes.DELETE_SERVER_CREATED_PATIENT,
-             permission=Permission.GROUPADMIN)
+             permission=Permission.GROUPADMIN,
+             http_cache=NEVER_CACHE)
 def delete_server_created_patient(req: "CamcopsRequest") -> Response:
+    """
+    Page to delete a patient created on the server (as part of task
+    scheduling).
+    """
     return DeleteServerCreatedPatientView(req).dispatch()
 
 
-@view_config(route_name=Routes.FORCIBLY_FINALIZE,
-             permission=Permission.GROUPADMIN)
-def forcibly_finalize(req: "CamcopsRequest") -> Response:
-    """
-    View to force-finalize all live (``_era == ERA_NOW``) records from a
-    device. Available to group administrators if all those records are within
-    their groups (otherwise, it's a superuser operation).
-    """
-    if FormAction.CANCEL in req.POST:
-        return HTTPFound(req.route_url(Routes.HOME))
-
-    dbsession = req.dbsession
-    first_form = ForciblyFinalizeChooseDeviceForm(request=req)
-    second_form = ForciblyFinalizeConfirmForm(request=req)
-    form = None
-    final_phase = False
-    if FormAction.SUBMIT in req.POST:
-        # FIRST form has been submitted
-        form = first_form
-    elif FormAction.FINALIZE in req.POST:
-        # SECOND form has been submitted:
-        form = second_form
-        final_phase = True
-    _ = req.gettext
-    if form is not None:
-        try:
-            controls = list(req.POST.items())
-            appstruct = form.validate(controls)
-            # log.debug("{}", pformat(appstruct))
-            device_id = appstruct.get(ViewParam.DEVICE_ID)
-            device = Device.get_device_by_id(dbsession, device_id)
-            if device is None:
-                raise HTTPBadRequest(f"{_('No such device:')} {device_id!r}")
-            # -----------------------------------------------------------------
-            # If at the first stage, bin out and offer confirmation page
-            # -----------------------------------------------------------------
-            if not final_phase:
-                appstruct = {ViewParam.DEVICE_ID: device_id}
-                rendered_form = second_form.render(appstruct)
-                taskfilter = TaskFilter()
-                taskfilter.device_ids = [device_id]
-                taskfilter.era = ERA_NOW
-                collection = TaskCollection(
-                    req=req,
-                    taskfilter=taskfilter,
-                    sort_method_global=TaskSortMethod.CREATION_DATE_DESC,
-                    current_only=False,  # unusual option!
-                    via_index=False  # required for current_only=False
-                )
-                tasks = collection.all_tasks
-                return render_to_response(
-                    "device_forcibly_finalize_confirm.mako",
-                    dict(form=rendered_form,
-                         tasks=tasks,
-                         head_form_html=get_head_form_html(req, [form])),
-                    request=req
-                )
-            # -----------------------------------------------------------------
-            # Check it's permitted
-            # -----------------------------------------------------------------
-            if not req.user.superuser:
-                admin_group_ids = req.user.ids_of_groups_user_is_admin_for
-                for clienttable in CLIENT_TABLE_MAP.values():
-                    # noinspection PyPropertyAccess
-                    count_query = (
-                        select([func.count()])
-                        .select_from(clienttable)
-                        .where(clienttable.c[FN_DEVICE_ID] == device_id)
-                        .where(clienttable.c[FN_ERA] == ERA_NOW)
-                        .where(clienttable.c[FN_GROUP_ID].notin_(admin_group_ids))  # noqa
-                    )
-                    n = dbsession.execute(count_query).scalar()
-                    if n > 0:
-                        raise HTTPBadRequest(
-                            _("Some records for this device are in groups for "
-                              "which you are not an administrator"))
-            # -----------------------------------------------------------------
-            # Forcibly finalize
-            # -----------------------------------------------------------------
-            msgs = []  # type: List[str]
-            batchdetails = BatchDetails(batchtime=req.now_utc)
-            alltables = sorted(CLIENT_TABLE_MAP.values(),
-                               key=upload_commit_order_sorter)
-            for clienttable in alltables:
-                liverecs = get_server_live_records(
-                    req, device_id, clienttable, current_only=False)
-                preservation_pks = [r.server_pk for r in liverecs]
-                if not preservation_pks:
-                    continue
-                current_pks = [r.server_pk for r in liverecs if r.current]
-                tablechanges = UploadTableChanges(clienttable)
-                tablechanges.note_preservation_pks(preservation_pks)
-                tablechanges.note_current_pks(current_pks)
-                dbsession.execute(
-                    update(clienttable)
-                    .where(clienttable.c[FN_PK].in_(preservation_pks))
-                    .values(values_preserve_now(req, batchdetails,
-                                                forcibly_preserved=True))
-                )
-                update_indexes_and_push_exports(req, batchdetails, tablechanges)
-                msgs.append(f"{clienttable.name} {preservation_pks}")
-            # Field names are different in server-side tables, so they need
-            # special handling:
-            SpecialNote.forcibly_preserve_special_notes_for_device(req,
-                                                                   device_id)
-            # -----------------------------------------------------------------
-            # Done
-            # -----------------------------------------------------------------
-            msg = (
-                f"{_('Live records for device')} {device_id} "
-                f"({device.friendly_name}) {_('forcibly finalized')} "
-                f"(PKs: {'; '.join(msgs)})"
-            )
-            audit(req, msg)
-            log.info(msg)
-
-            req.session.flash(msg, queue=FLASH_SUCCESS)
-            raise HTTPFound(req.route_url(Routes.HOME))
-
-        except ValidationFailure as e:
-            rendered_form = e.render()
-    else:
-        form = first_form
-        rendered_form = form.render()  # no appstruct
-    return render_to_response(
-        "device_forcibly_finalize_choose.mako",
-        dict(form=rendered_form,
-             head_form_html=get_head_form_html(req, [form])),
-        request=req
-    )
-
-
 # =============================================================================
-# Static assets
+# Task scheduling
 # =============================================================================
-# https://docs.pylonsproject.org/projects/pyramid/en/latest/narr/assets.html#advanced-static  # noqa
-
-DEFORM_MISSING_GLYPH = os.path.join(STATIC_ROOT_DIR,
-                                    "glyphicons-halflings-regular.woff2")
-
-
-@view_config(route_name=Routes.BUGFIX_DEFORM_MISSING_GLYPHS,
-             permission=NO_PERMISSION_REQUIRED)
-def static_bugfix_deform_missing_glyphs(req: "CamcopsRequest") -> Response:
-    """
-    Hack for a missing-file bug in ``deform==2.0.4``.
-    """
-    return FileResponse(DEFORM_MISSING_GLYPH, request=req)
-
 
 @view_config(route_name=Routes.VIEW_TASK_SCHEDULES,
              permission=Permission.GROUPADMIN,
-             renderer="view_task_schedules.mako")
+             renderer="view_task_schedules.mako",
+             http_cache=NEVER_CACHE)
 def view_task_schedules(req: "CamcopsRequest") -> Dict[str, Any]:
+    """
+    View whole task schedules.
+    """
     rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
                                       DEFAULT_ROWS_PER_PAGE)
     page_num = req.get_int_param(ViewParam.PAGE, 1)
@@ -4004,8 +4136,12 @@ def view_task_schedules(req: "CamcopsRequest") -> Dict[str, Any]:
 
 @view_config(route_name=Routes.VIEW_TASK_SCHEDULE_ITEMS,
              permission=Permission.GROUPADMIN,
-             renderer="view_task_schedule_items.mako")
+             renderer="view_task_schedule_items.mako",
+             http_cache=NEVER_CACHE)
 def view_task_schedule_items(req: "CamcopsRequest") -> Dict[str, Any]:
+    """
+    View items within a task schedule.
+    """
     rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
                                       DEFAULT_ROWS_PER_PAGE)
     page_num = req.get_int_param(ViewParam.PAGE, 1)
@@ -4032,8 +4168,13 @@ def view_task_schedule_items(req: "CamcopsRequest") -> Dict[str, Any]:
 
 @view_config(route_name=Routes.VIEW_PATIENT_TASK_SCHEDULES,
              permission=Permission.GROUPADMIN,
-             renderer="view_patient_task_schedules.mako")
+             renderer="view_patient_task_schedules.mako",
+             http_cache=NEVER_CACHE)
 def view_patient_task_schedules(req: "CamcopsRequest") -> Dict[str, Any]:
+    """
+    View all patients and their assigned schedules (as well as their access
+    keys, etc.).
+    """
     server_device = Device.get_server_device(
         req.dbsession
     )
@@ -4062,8 +4203,12 @@ def view_patient_task_schedules(req: "CamcopsRequest") -> Dict[str, Any]:
 
 @view_config(route_name=Routes.VIEW_PATIENT_TASK_SCHEDULE,
              permission=Permission.GROUPADMIN,
-             renderer="view_patient_task_schedule.mako")
+             renderer="view_patient_task_schedule.mako",
+             http_cache=NEVER_CACHE)
 def view_patient_task_schedule(req: "CamcopsRequest") -> Dict[str, Any]:
+    """
+    View scheduled tasks for one patient's specific task schedule.
+    """
     pts_id = req.get_int_param(ViewParam.PATIENT_TASK_SCHEDULE_ID)
 
     pts = req.dbsession.query(PatientTaskSchedule).filter(
@@ -4085,7 +4230,10 @@ def view_patient_task_schedule(req: "CamcopsRequest") -> Dict[str, Any]:
     )
 
 
-class TaskScheduleMixin:
+class TaskScheduleMixin(object):
+    """
+    Mixin for viewing/editing a task schedule.
+    """
     form_class = EditTaskScheduleForm
     model_form_dict = {
         "name": ViewParam.NAME,
@@ -4114,6 +4262,9 @@ class TaskScheduleMixin:
 
 
 class AddTaskScheduleView(TaskScheduleMixin, CreateView):
+    """
+    Django-style view class to add a task schedule.
+    """
     def get_extra_context(self) -> Dict[str, Any]:
         _ = self.request.gettext
         return {
@@ -4122,6 +4273,9 @@ class AddTaskScheduleView(TaskScheduleMixin, CreateView):
 
 
 class EditTaskScheduleView(TaskScheduleMixin, UpdateView):
+    """
+    Django-style view class to edit a task schedule.
+    """
     pk_param = ViewParam.SCHEDULE_ID
 
     def get_extra_context(self) -> Dict[str, Any]:
@@ -4132,6 +4286,9 @@ class EditTaskScheduleView(TaskScheduleMixin, UpdateView):
 
 
 class DeleteTaskScheduleView(TaskScheduleMixin, DeleteView):
+    """
+    Django-style view class to delete a task schedule.
+    """
     form_class = DeleteTaskScheduleForm
     pk_param = ViewParam.SCHEDULE_ID
 
@@ -4143,7 +4300,8 @@ class DeleteTaskScheduleView(TaskScheduleMixin, DeleteView):
 
 
 @view_config(route_name=Routes.ADD_TASK_SCHEDULE,
-             permission=Permission.GROUPADMIN)
+             permission=Permission.GROUPADMIN,
+             http_cache=NEVER_CACHE)
 def add_task_schedule(req: "CamcopsRequest") -> Response:
     """
     View to add a task schedule.
@@ -4169,7 +4327,10 @@ def delete_task_schedule(req: "CamcopsRequest") -> Response:
     return DeleteTaskScheduleView(req).dispatch()
 
 
-class TaskScheduleItemMixin:
+class TaskScheduleItemMixin(object):
+    """
+    Mixin for viewing/editing a task schedule items.
+    """
     form_class = EditTaskScheduleItemForm
     template_name = "generic_form.mako"
     model_form_dict = {
@@ -4196,6 +4357,9 @@ class TaskScheduleItemMixin:
 
 
 class EditTaskScheduleItemMixin(TaskScheduleItemMixin):
+    """
+    Django-style view class to edit a task schedule item.
+    """
     def set_object_properties(self, appstruct: Dict[str, Any]) -> None:
         # noinspection PyUnresolvedReferences
         super().set_object_properties(appstruct)
@@ -4228,6 +4392,9 @@ class EditTaskScheduleItemMixin(TaskScheduleItemMixin):
 
 
 class AddTaskScheduleItemView(EditTaskScheduleItemMixin, CreateView):
+    """
+    Django-style view class to add a task schedule item.
+    """
     def get_extra_context(self) -> Dict[str, Any]:
         _ = self.request.gettext
 
@@ -4251,6 +4418,9 @@ class AddTaskScheduleItemView(EditTaskScheduleItemMixin, CreateView):
 
 
 class EditTaskScheduleItemView(EditTaskScheduleItemMixin, UpdateView):
+    """
+    Django-style view class to edit a task schedule item.
+    """
     def get_extra_context(self) -> Dict[str, Any]:
         _ = self.request.gettext
         return {
@@ -4276,6 +4446,9 @@ class EditTaskScheduleItemView(EditTaskScheduleItemMixin, UpdateView):
 
 
 class DeleteTaskScheduleItemView(TaskScheduleItemMixin, DeleteView):
+    """
+    Django-style view class to delete a task schedule item.
+    """
     form_class = DeleteTaskScheduleItemForm
 
     def get_extra_context(self) -> Dict[str, Any]:
@@ -4318,6 +4491,28 @@ def delete_task_schedule_item(req: "CamcopsRequest") -> Response:
 
 
 # =============================================================================
+# Static assets
+# =============================================================================
+# https://docs.pylonsproject.org/projects/pyramid/en/latest/narr/assets.html#advanced-static  # noqa
+
+DEFORM_MISSING_GLYPH = os.path.join(STATIC_ROOT_DIR,
+                                    "glyphicons-halflings-regular.woff2")
+
+
+@view_config(route_name=Routes.BUGFIX_DEFORM_MISSING_GLYPHS,
+             permission=NO_PERMISSION_REQUIRED)
+def static_bugfix_deform_missing_glyphs(req: "CamcopsRequest") -> Response:
+    """
+    Hack for a missing-file bug in ``deform==2.0.4``.
+    """
+    return FileResponse(
+        path=DEFORM_MISSING_GLYPH,
+        request=req,
+        cache_max_age=req.config.static_cache_duration_s
+    )
+
+
+# =============================================================================
 # Unit testing
 # =============================================================================
 
@@ -4347,6 +4542,9 @@ class WebviewTests(DemoDatabaseTestCase):
 
 
 class AddTaskScheduleViewTests(DemoDatabaseTestCase):
+    """
+    Unit tests.
+    """
     def test_schedule_form_displayed(self) -> None:
         view = AddTaskScheduleView(self.req)
 
@@ -4383,6 +4581,9 @@ class AddTaskScheduleViewTests(DemoDatabaseTestCase):
 
 
 class EditTaskScheduleViewTests(DemoDatabaseTestCase):
+    """
+    Unit tests.
+    """
     def setUp(self) -> None:
         super().setUp()
 
@@ -4472,6 +4673,9 @@ class EditTaskScheduleViewTests(DemoDatabaseTestCase):
 
 
 class DeleteTaskScheduleViewTests(DemoDatabaseTestCase):
+    """
+    Unit tests.
+    """
     def setUp(self) -> None:
         super().setUp()
 
@@ -4519,6 +4723,9 @@ class DeleteTaskScheduleViewTests(DemoDatabaseTestCase):
 
 
 class AddTaskScheduleItemViewTests(DemoDatabaseTestCase):
+    """
+    Unit tests.
+    """
     def setUp(self) -> None:
         super().setUp()
 
@@ -4620,6 +4827,9 @@ class AddTaskScheduleItemViewTests(DemoDatabaseTestCase):
 
 
 class EditTaskScheduleItemViewTests(DemoDatabaseTestCase):
+    """
+    Unit tests.
+    """
     def setUp(self) -> None:
         from pendulum import Duration
         super().setUp()
@@ -4782,6 +4992,9 @@ class EditTaskScheduleItemViewTests(DemoDatabaseTestCase):
 
 
 class DeleteTaskScheduleItemViewTests(DemoDatabaseTestCase):
+    """
+    Unit tests.
+    """
     def setUp(self) -> None:
         super().setUp()
 
@@ -4875,6 +5088,9 @@ class DeleteTaskScheduleItemViewTests(DemoDatabaseTestCase):
 
 
 class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
+    """
+    Unit tests.
+    """
     def create_tasks(self) -> None:
         # speed things up a bit
         pass
@@ -5523,6 +5739,9 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
 
 
 class EditServerCreatedPatientViewTests(DemoDatabaseTestCase):
+    """
+    Unit tests.
+    """
     def create_tasks(self) -> None:
         # speed things up a bit
         pass
@@ -5576,6 +5795,9 @@ class EditServerCreatedPatientViewTests(DemoDatabaseTestCase):
 
 
 class AddPatientViewTests(DemoDatabaseTestCase):
+    """
+    Unit tests.
+    """
     def test_patient_created(self) -> None:
         view = AddPatientView(self.req)
 
@@ -5720,6 +5942,9 @@ class AddPatientViewTests(DemoDatabaseTestCase):
 
 
 class DeleteServerCreatedPatientViewTests(DemoDatabaseTestCase):
+    """
+    Unit tests.
+    """
     def create_tasks(self) -> None:
         # speed things up a bit
         pass
@@ -5804,6 +6029,9 @@ class DeleteServerCreatedPatientViewTests(DemoDatabaseTestCase):
 
 
 class EraseTaskTestCase(DemoDatabaseTestCase):
+    """
+    Unit tests.
+    """
     def create_tasks(self) -> None:
         from camcops_server.tasks.bmi import Bmi
 
@@ -5818,6 +6046,9 @@ class EraseTaskTestCase(DemoDatabaseTestCase):
 
 
 class EraseTaskLeavingPlaceholderViewTests(EraseTaskTestCase):
+    """
+    Unit tests.
+    """
     def test_displays_form(self) -> None:
         self.req.add_get_params({
             ViewParam.SERVER_PK: self.task.pk,
@@ -5985,6 +6216,9 @@ class EraseTaskLeavingPlaceholderViewTests(EraseTaskTestCase):
 
 
 class EraseTaskEntirelyViewTests(EraseTaskTestCase):
+    """
+    Unit tests.
+    """
     def test_deletes_task_entirely(self) -> None:
         multidict = MultiDict([
             ("_charset_", "UTF-8"),
@@ -6028,7 +6262,9 @@ class EraseTaskEntirelyViewTests(EraseTaskTestCase):
 
 
 class EditGroupViewTests(DemoDatabaseTestCase):
-
+    """
+    Unit tests.
+    """
     def test_group_updated(self) -> None:
         other_group_1 = Group()
         other_group_1.name = "other-group-1"

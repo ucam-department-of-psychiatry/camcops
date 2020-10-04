@@ -845,6 +845,15 @@ SSL private key file for HTTPS_ (e.g.
 .. include:: include_docker_config.rst
 
 
+STATIC_CACHE_DURATION_S
+#######################
+
+*Integer.* Default 86400 seconds (1 day).
+
+Time, in seconds, for which to cache static content (e.g. logos, static
+scripts).
+
+
 WSGI options
 ~~~~~~~~~~~~
 

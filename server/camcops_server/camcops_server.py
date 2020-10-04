@@ -358,6 +358,7 @@ def make_wsgi_app_from_config() -> "Router":
         show_request_immediately=cfg.show_request_immediately,
         show_response=cfg.show_response,
         show_timing=cfg.show_timing,
+        static_cache_duration_s=cfg.static_cache_duration_s,
     )
 
 

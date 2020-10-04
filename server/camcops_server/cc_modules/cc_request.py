@@ -1747,7 +1747,9 @@ def complete_request_add_cookies(req: CamcopsRequest,
 # =============================================================================
 
 @contextmanager
-def pyramid_configurator_context(debug_toolbar: bool = False) -> Configurator:
+def camcops_pyramid_configurator_context(
+        debug_toolbar: bool = False,
+        static_cache_duration_s: int = 0) -> Configurator:
     """
     Context manager to create a Pyramid configuration context, for making
     (for example) a WSGI server or a debugging request. That means setting up
@@ -1759,7 +1761,11 @@ def pyramid_configurator_context(debug_toolbar: bool = False) -> Configurator:
     - our routes and views
 
     Args:
-        debug_toolbar: add the Pyramid debug toolbar?
+        debug_toolbar:
+            Add the Pyramid debug toolbar?
+        static_cache_duration_s:
+            Lifetime (in seconds) for the HTTP cache-control setting for
+            static content.
 
     Returns:
         a :class:`Configurator` object
@@ -1821,7 +1827,25 @@ def pyramid_configurator_context(debug_toolbar: bool = False) -> Configurator:
                   "name {!r}", static_filepath, static_name)
         # ... does the name needs to start with "/" or the pattern "static/"
         # will override the later "deform_static"? Not sure.
-        config.add_static_view(name=static_name, path=static_filepath)
+
+        # We were doing this:
+        #       config.add_static_view(name=static_name, path=static_filepath)
+        # But now we need to (a) add the
+        # "cache_max_age=static_cache_duration_s" argument, and (b) set the
+        # HTTP header 'Cache-Control: no-cache="Set-Cookie, Set-Cookie2"',
+        # for the ZAP penetration tester:
+        # ... https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html#web-content-caching  # noqa
+        # We can do the former, but not the latter, via add_static_view(),
+        # because it sends its keyword arguments to add_route(), not the view
+        # creation. So, alternatives ways...
+        # - from https://github.com/Pylons/pyramid/issues/1486
+        # - and https://stackoverflow.com/questions/24854300/
+        # - to https://github.com/Pylons/pyramid/pull/2021
+        # - to https://docs.pylonsproject.org/projects/pyramid/en/latest/narr/hooks.html#view-derivers  # noqa
+
+        config.add_static_view(name=static_name,
+                               path=static_filepath,
+                               cache_max_age=static_cache_duration_s)
 
         # Add all the routes:
         for pr in RouteCollection.all_routes():
@@ -1833,7 +1857,9 @@ def pyramid_configurator_context(debug_toolbar: bool = False) -> Configurator:
 
         # Routes added EARLIER have priority. So add this AFTER our custom
         # bugfix:
-        config.add_static_view('/deform_static', 'deform:static/')
+        config.add_static_view(name='/deform_static',
+                               path='deform:static/',
+                               cache_max_age=static_cache_duration_s)
 
         # Most views are using @view_config() which calls add_view().
         # Scan for @view_config decorators, to map views to routes:
@@ -2057,7 +2083,7 @@ def get_core_debugging_request() -> CamcopsDummyRequest:
     """
     Returns a basic :class:`CamcopsDummyRequest`.
     """
-    with pyramid_configurator_context(debug_toolbar=False) as pyr_config:
+    with camcops_pyramid_configurator_context(debug_toolbar=False) as pyr_cfg:
         req = CamcopsDummyRequest(
             environ={
                 ENVVAR_CONFIG_FILE: "nonexistent_camcops_config_file.nonexistent",  # noqa
@@ -2072,8 +2098,8 @@ def get_core_debugging_request() -> CamcopsDummyRequest:
         # itself isn't OK ("TypeError: WSGI environ must be a dict; you passed
         # environ({'key1': 'value1', ...})
 
-        req.registry = pyr_config.registry
-        pyr_config.begin(request=req)
+        req.registry = pyr_cfg.registry
+        pyr_cfg.begin(request=req)
         return req
 
 
