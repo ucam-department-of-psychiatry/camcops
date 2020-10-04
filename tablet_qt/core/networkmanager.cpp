@@ -809,32 +809,40 @@ void NetworkManager::registerNext(QNetworkReply* reply)
         statusMessage(tr("Requesting extra strings"));
         dict[KEY_OPERATION] = OP_GET_EXTRA_STRINGS;
 
+        m_register_next_stage = NextRegisterStage::StoreExtraStrings;
+
+        serverPost(dict, &NetworkManager::registerNext);
+        break;
+
+    case NextRegisterStage::StoreExtraStrings:
+        storeExtraStrings();
         m_register_next_stage = NextRegisterStage::Finished;
 
         if (m_app.isSingleUserMode()) {
             m_register_next_stage = NextRegisterStage::GetTaskSchedules;
         }
-
-        serverPost(dict, &NetworkManager::registerNext);
+        registerNext();
         break;
 
     case NextRegisterStage::GetTaskSchedules:
-        storeExtraStrings();
         dict[KEY_OPERATION] = OP_GET_TASK_SCHEDULES;
         dict[KEY_PATIENT_PROQUINT] = m_app.varString(
             varconst::SINGLE_PATIENT_PROQUINT
         );
 
-        m_register_next_stage = NextRegisterStage::Finished;
+        m_register_next_stage = NextRegisterStage::StoreTaskSchedules;
 
         serverPost(dict, &NetworkManager::registerNext);
         break;
 
-    case NextRegisterStage::Finished:
-        if (m_app.isSingleUserMode()) {
-            storeTaskSchedules();
-        }
+    case NextRegisterStage::StoreTaskSchedules:
+        storeTaskSchedules();
 
+        m_register_next_stage = NextRegisterStage::Finished;
+        registerNext();
+        break;
+
+    case NextRegisterStage::Finished:
         statusMessage(tr("Completed successfully."));
 
         succeed();

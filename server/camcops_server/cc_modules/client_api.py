@@ -147,7 +147,7 @@ Note that the number of patient ID numbers uploaded (etc.) is ignored below.
 
 [Checked for one-step and multi-step upload, 2018-11-21.]
 
-#.  Create a blank ReferrerSatisfactionSurvery (table ``ref_satis_gen``).
+#.  Create a blank ReferrerSatisfactionSurvey (table ``ref_satis_gen``).
     This has the advantage of being an anonymous single-record task.
 
 #.  Upload/copy.
