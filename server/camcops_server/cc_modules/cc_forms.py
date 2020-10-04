@@ -110,12 +110,12 @@ from cardinal_pythonlib.colander_utils import (
     DateTimeSelectorNode,
     DEFAULT_WIDGET_DATE_OPTIONS_FOR_PENDULUM,
     DEFAULT_WIDGET_TIME_OPTIONS_FOR_PENDULUM,
-    EmailValidatorWithLengthConstraint,
     get_child_node,
     get_values_and_permissible,
     HiddenIntegerNode,
     HiddenStringNode,
     MandatoryStringNode,
+    OptionalEmailNode,
     OptionalIntNode,
     OptionalPendulumNode,
     OptionalStringNode,
@@ -2668,9 +2668,7 @@ class EditUserGroupAdminSchema(CSRFSchema):
     fullname = OptionalStringNode(  # name must match ViewParam.FULLNAME and User attribute  # noqa
         validator=Length(0, FULLNAME_MAX_LEN)
     )
-    email = OptionalStringNode(  # name must match ViewParam.EMAIL and User attribute  # noqa
-        validator=EmailValidatorWithLengthConstraint(),
-    )
+    email = OptionalEmailNode()  # name must match ViewParam.EMAIL and User attribute  # noqa
     must_change_password = MustChangePasswordNode()  # match ViewParam.MUST_CHANGE_PASSWORD and User attribute  # noqa
     language = LanguageSelector()  # must match ViewParam.LANGUAGE
     group_ids = AdministeredGroupsSequence()  # must match ViewParam.GROUP_IDS
@@ -3993,7 +3991,7 @@ class EditPatientSchema(CSRFSchema):
     dob = DateSelectorNode()  # must match ViewParam.DOB
     sex = MandatorySexSelector()  # must match ViewParam.SEX
     address = OptionalStringNode()  # must match ViewParam.ADDRESS
-    email = OptionalStringNode()  # must match ViewParam.EMAIL
+    email = OptionalEmailNode()  # must match ViewParam.EMAIL
     gp = OptionalStringNode()  # must match ViewParam.GP
     other = OptionalStringNode()  # must match ViewParam.OTHER
     id_references = IdNumSequenceUniquePerWhichIdnum()  # must match ViewParam.ID_REFERENCES  # noqa
