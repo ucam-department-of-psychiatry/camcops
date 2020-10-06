@@ -73,4 +73,6 @@ public:
     static const QString FN_NAME;
 
     static const QString KEY_TASK_SCHEDULE_NAME;
+
+    bool hasIncompleteCurrentTasks() const;
 };

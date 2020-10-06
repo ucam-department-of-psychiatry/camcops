@@ -207,9 +207,7 @@ bool TaskScheduleItem::isEditable() const
 
 TaskScheduleItem::State TaskScheduleItem::state() const
 {
-    const bool is_complete = value(FN_COMPLETE).toBool();
-
-    if (is_complete) {
+    if (isComplete()) {
         return State::Completed;
     }
 
@@ -236,6 +234,11 @@ TaskScheduleItem::State TaskScheduleItem::state() const
 }
 
 
+bool TaskScheduleItem::isComplete() const
+{
+    return value(FN_COMPLETE).toBool();
+}
+
 void TaskScheduleItem::setComplete(bool complete)
 {
     setValue(FN_COMPLETE, complete);
@@ -247,4 +250,10 @@ void TaskScheduleItem::setTask(int task_id)
 {
     setValue(FK_TASK, task_id);
     save();
+}
+
+
+bool TaskScheduleItem::isIncompleteAndCurrent() const
+{
+    return state() == State::Started;
 }

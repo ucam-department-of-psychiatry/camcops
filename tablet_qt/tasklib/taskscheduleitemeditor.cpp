@@ -109,12 +109,4 @@ bool TaskScheduleItemEditor::canEditTask(TaskPtr task)
 void TaskScheduleItemEditor::onTaskFinished()
 {
     m_p_task_schedule_item->setComplete(true);
-
-    TaskPtr task = m_p_task_schedule_item->getTask();
-
-    task->setMoveOffTablet(true);
-
-    // The task will be wiped from the database when we next
-    // connect to the server so remove our foreign key now
-    m_p_task_schedule_item->setTask(dbconst::NONEXISTENT_PK);
 }

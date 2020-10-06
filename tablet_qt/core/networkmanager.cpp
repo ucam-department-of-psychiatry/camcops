@@ -1962,7 +1962,6 @@ bool NetworkManager::catalogueTablesForUpload()
         switch (m_upload_method) {
         case UploadMethod::Copy:
         case UploadMethod::Invalid:
-        case UploadMethod::MoveScheduledTasks:
 #ifdef COMPILER_WANTS_DEFAULT_IN_EXHAUSTIVE_SWITCH
         default:
 #endif

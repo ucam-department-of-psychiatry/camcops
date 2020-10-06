@@ -59,10 +59,11 @@ public:
     // How should we upload?
     enum class UploadMethod {
         Invalid,  // clinician pressed "cancel"
-        Copy,  // clinician mode: copy data
-        MoveKeepingPatients,  // clinician mode: move tasks, copy patients
-        Move,  // clinician mode: move all data
-        MoveScheduledTasks  // single-user mode
+        // clinician mode or single user mode if any current tasks started
+        Copy,
+        // clinician mode or single user mode if no started current tasks
+        MoveKeepingPatients,
+        Move  // clinician mode: move all data
     };
 
     // Types of network error.

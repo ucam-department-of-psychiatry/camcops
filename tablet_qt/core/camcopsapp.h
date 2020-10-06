@@ -712,7 +712,9 @@ protected:
     // ------------------------------------------------------------------------
     // Uploading
     // ------------------------------------------------------------------------
+    NetworkManager::UploadMethod getUploadMethod();
     NetworkManager::UploadMethod getUploadMethodFromUser();
+    NetworkManager::UploadMethod getSingleUserUploadMethod();
 
     bool shouldUploadNow();
     bool userConfirmedUpload();

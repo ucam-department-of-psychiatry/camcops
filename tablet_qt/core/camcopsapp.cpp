@@ -2827,14 +2827,9 @@ void CamcopsApp::upload()
         return;
     }
 
-    auto method = NetworkManager::UploadMethod::MoveScheduledTasks;
-
-    if (isClinicianMode()) {
-        method = getUploadMethodFromUser();
-
-        if (method == NetworkManager::UploadMethod::Invalid) {
-            return;
-        }
+    auto method = getUploadMethod();
+    if (method == NetworkManager::UploadMethod::Invalid) {
+        return;
     }
 
     const bool single_user_mode = isSingleUserMode();
@@ -2848,6 +2843,32 @@ void CamcopsApp::upload()
 
     networkManager()->upload(method);
 }
+
+
+NetworkManager::UploadMethod CamcopsApp::getUploadMethod()
+{
+    if (isSingleUserMode()) {
+        return getSingleUserUploadMethod();
+    }
+
+    // Clinician mode
+    return getUploadMethodFromUser();
+}
+
+
+NetworkManager::UploadMethod CamcopsApp::getSingleUserUploadMethod()
+{
+    TaskSchedulePtrList schedules = getTaskSchedules();
+
+    for (const TaskSchedulePtr& schedule : schedules) {
+        if (schedule->hasIncompleteCurrentTasks()) {
+            return NetworkManager::UploadMethod::Copy;
+        }
+    }
+
+    return NetworkManager::UploadMethod::MoveKeepingPatients;
+}
+
 
 NetworkManager::UploadMethod CamcopsApp::getUploadMethodFromUser()
 {

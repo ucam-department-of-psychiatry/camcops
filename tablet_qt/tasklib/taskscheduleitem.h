@@ -87,11 +87,17 @@ public:
     // Returns the state of the scheduled task.
     State state() const;
 
+    // Returns the complete status of the scheduled task
+    bool isComplete() const;
+
     // Marks the scheduled task as complete (or not).
     void setComplete(bool complete);
 
     // Sets the associated task instance (using the task PK within its table).
     void setTask(int task_id);
+
+    // True if a task is incomplete and we're still before the due date
+    bool isIncompleteAndCurrent() const;
 
     static const QString TABLENAME;
 

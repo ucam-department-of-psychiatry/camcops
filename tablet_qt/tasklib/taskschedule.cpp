@@ -137,3 +137,15 @@ QString TaskSchedule::name() const
     const QString name = valueString(FN_NAME);
     return name.isEmpty() ? "?" : name;
 }
+
+
+bool TaskSchedule::hasIncompleteCurrentTasks() const
+{
+    for (const TaskScheduleItemPtr& schedule_item : items()) {
+        if (schedule_item->isIncompleteAndCurrent()) {
+            return true;
+        }
+    }
+
+    return false;
+}
