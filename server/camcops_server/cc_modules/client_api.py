@@ -2133,9 +2133,12 @@ def get_single_patient(req: "CamcopsRequest") -> Patient:
             ).format(access_key=patient_proquint)
         )
 
+    server_device = Device.get_server_device(req.dbsession)
+
     # noinspection PyUnboundLocalVariable
     patient = req.dbsession.query(Patient).filter(
-        Patient.uuid == uuid_obj
+        Patient.uuid == uuid_obj,
+        Patient._device_id == server_device.id
     ).options(joinedload(Patient.task_schedules)).one_or_none()
 
     if patient is None:
@@ -2145,6 +2148,13 @@ def get_single_patient(req: "CamcopsRequest") -> Patient:
                 "Have you entered the key correctly?"
             ).format(access_key=patient_proquint)
         )
+
+    if not patient.idnums:
+        # In theory should never happen. The patient must be created with at
+        # least one ID number. We did see this once in testing (possibly when
+        # a patient created on a device was registered)
+        _ = req.gettext
+        fail_server_error(_("Patient has no ID numbers"))
 
     return patient
 
@@ -2321,13 +2331,6 @@ def get_task_schedules(req: "CamcopsRequest",
     dbsession = req.dbsession
 
     schedules = []
-
-    if not patient.idnums:
-        # In theory should never happen. The patient must be created with at
-        # least one ID number. We did see this once in testing (possibly when
-        # a patient created on a device was registered)
-        _ = req.gettext
-        fail_server_error(_("Patient has no ID numbers"))
 
     for pts in patient.task_schedules:
         if pts.start_date is None:
@@ -3343,7 +3346,15 @@ class PatientRegistrationTests(DemoDatabaseTestCase):
                          4887211163)
 
     def test_creates_user(self) -> None:
+        from camcops_server.cc_modules.cc_taskindex import (
+            PatientIdNumIndexEntry,
+        )
         patient = self.create_patient(_group_id=self.group.id)
+        idnum = self.create_patient_idnum(
+            patient_id=patient.id, which_idnum=self.nhs_iddef.which_idnum,
+            idnum_value=4887211163
+        )
+        PatientIdNumIndexEntry.index_idnum(idnum, self.dbsession)
 
         proquint = patient.uuid_as_proquint
 
@@ -3381,7 +3392,15 @@ class PatientRegistrationTests(DemoDatabaseTestCase):
         self.assertTrue(user.may_upload)
 
     def test_does_not_create_user_when_passed_in(self) -> None:
+        from camcops_server.cc_modules.cc_taskindex import (
+            PatientIdNumIndexEntry,
+        )
         patient = self.create_patient(_group_id=self.group.id)
+        idnum = self.create_patient_idnum(
+            patient_id=patient.id, which_idnum=self.nhs_iddef.which_idnum,
+            idnum_value=4887211163
+        )
+        PatientIdNumIndexEntry.index_idnum(idnum, self.dbsession)
 
         users_before = self.req.dbsession.query(User).count()
 
@@ -3452,13 +3471,59 @@ class PatientRegistrationTests(DemoDatabaseTestCase):
         self.assertIn(f"no patient with access key '{valid_proquint}'",
                       reply_dict[TabletParam.ERROR])
 
+    def test_raises_when_no_patient_idnums(self) -> None:
+        # In theory this shouldn't be possible in normal operation as the
+        # patient cannot be created without any idnums
+        patient = self.create_patient()
+
+        proquint = patient.uuid_as_proquint
+        self.req.fake_request_post_from_dict({
+            TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
+            TabletParam.DEVICE: self.other_device.name,
+            TabletParam.OPERATION: Operations.REGISTER_PATIENT,
+            TabletParam.PATIENT_PROQUINT: proquint,
+        })
+
+        response = client_api(self.req)
+        reply_dict = get_reply_dict_from_response(response)
+        self.assertEqual(reply_dict[TabletParam.SUCCESS], FAILURE_CODE,
+                         msg=reply_dict)
+        self.assertIn("Patient has no ID numbers",
+                      reply_dict[TabletParam.ERROR])
+
+    def test_raises_when_patient_not_created_on_server(self) -> None:
+        patient = self.create_patient(_device_id=self.other_device.id)
+
+        proquint = patient.uuid_as_proquint
+        self.req.fake_request_post_from_dict({
+            TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
+            TabletParam.DEVICE: self.other_device.name,
+            TabletParam.OPERATION: Operations.REGISTER_PATIENT,
+            TabletParam.PATIENT_PROQUINT: proquint,
+        })
+
+        response = client_api(self.req)
+        reply_dict = get_reply_dict_from_response(response)
+        self.assertEqual(reply_dict[TabletParam.SUCCESS], FAILURE_CODE,
+                         msg=reply_dict)
+        self.assertIn(f"no patient with access key '{proquint}'",
+                      reply_dict[TabletParam.ERROR])
+
     def test_returns_ip_use_flags(self) -> None:
         import datetime
+        from camcops_server.cc_modules.cc_taskindex import (
+            PatientIdNumIndexEntry,
+        )
 
         patient = self.create_patient(
             forename="JO", surname="PATIENT", dob=datetime.date(1958, 4, 19),
             sex="F", address="Address", gp="GP", other="Other"
         )
+        idnum = self.create_patient_idnum(
+            patient_id=patient.id, which_idnum=self.nhs_iddef.which_idnum,
+            idnum_value=4887211163
+        )
+        PatientIdNumIndexEntry.index_idnum(idnum, self.dbsession)
 
         patient.group.ip_use = IpUse()
 
@@ -3652,52 +3717,6 @@ class GetTaskSchedulesTests(DemoDatabaseTestCase):
         self.assertEqual(parse(items[2][TabletParam.DUE_BY]),
                          Pendulum(2020, 9, 6, tzinfo=pytz.UTC))
         self.assertFalse(items[2][TabletParam.COMPLETE])
-
-    def test_raises_when_no_patient_idnums(self) -> None:
-        # In theory this shouldn't be possible in normal operation as the
-        # patient cannot be created without any idnums
-        from pendulum import Duration
-
-        from camcops_server.cc_modules.cc_taskschedule import (
-            PatientTaskSchedule,
-            TaskSchedule,
-            TaskScheduleItem
-        )
-        schedule1 = TaskSchedule()
-        schedule1.group_id = self.group.id
-        schedule1.name = "Test 1"
-        self.dbsession.add(schedule1)
-        self.dbsession.flush()
-
-        item1 = TaskScheduleItem()
-        item1.schedule_id = schedule1.id
-        item1.task_table_name = "phq9"
-        item1.due_from = Duration(days=0)
-        item1.due_by = Duration(days=7)
-        self.dbsession.add(item1)
-
-        patient = self.create_patient()
-        patient_task_schedule1 = PatientTaskSchedule()
-        patient_task_schedule1.patient_pk = patient.pk
-        patient_task_schedule1.schedule_id = schedule1.id
-        self.dbsession.add(patient_task_schedule1)
-        self.dbsession.commit()
-
-        proquint = patient.uuid_as_proquint
-        self.req.fake_request_post_from_dict({
-            TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
-            TabletParam.DEVICE: self.other_device.name,
-            TabletParam.OPERATION: Operations.GET_TASK_SCHEDULES,
-            TabletParam.PATIENT_PROQUINT: proquint,
-        })
-
-        response = client_api(self.req)
-        reply_dict = get_reply_dict_from_response(response)
-        self.assertEqual(reply_dict[TabletParam.SUCCESS], FAILURE_CODE,
-                         msg=reply_dict)
-        self.assertIn("Patient has no ID numbers",
-                      reply_dict[TabletParam.ERROR])
-        reply_dict = get_reply_dict_from_response(response)
 
 
 # =============================================================================

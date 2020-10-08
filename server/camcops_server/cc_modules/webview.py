@@ -4175,9 +4175,7 @@ def view_patient_task_schedules(req: "CamcopsRequest") -> Dict[str, Any]:
     View all patients and their assigned schedules (as well as their access
     keys, etc.).
     """
-    server_device = Device.get_server_device(
-        req.dbsession
-    )
+    server_device = Device.get_server_device(req.dbsession)
 
     rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
                                       DEFAULT_ROWS_PER_PAGE)
