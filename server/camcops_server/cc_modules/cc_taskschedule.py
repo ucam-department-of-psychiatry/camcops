@@ -115,7 +115,7 @@ class PatientTaskSchedule(Base):
             end_datetime = None
             task = None
 
-            if self.patient.idnums and self.start_date is not None:
+            if self.start_date is not None:
                 start_datetime = self.start_date.add(days=tsi.due_from.days)
                 end_datetime = self.start_date.add(days=tsi.due_by.days)
 

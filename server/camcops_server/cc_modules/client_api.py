@@ -2322,6 +2322,13 @@ def get_task_schedules(req: "CamcopsRequest",
 
     schedules = []
 
+    if not patient.idnums:
+        # In theory should never happen. The patient must be created with at
+        # least one ID number. We did see this once in testing (possibly when
+        # a patient created on a device was registered)
+        _ = req.gettext
+        fail_server_error(_("Patient has no ID numbers"))
+
     for pts in patient.task_schedules:
         if pts.start_date is None:
             # TODO:
@@ -3645,6 +3652,52 @@ class GetTaskSchedulesTests(DemoDatabaseTestCase):
         self.assertEqual(parse(items[2][TabletParam.DUE_BY]),
                          Pendulum(2020, 9, 6, tzinfo=pytz.UTC))
         self.assertFalse(items[2][TabletParam.COMPLETE])
+
+    def test_raises_when_no_patient_idnums(self) -> None:
+        # In theory this shouldn't be possible in normal operation as the
+        # patient cannot be created without any idnums
+        from pendulum import Duration
+
+        from camcops_server.cc_modules.cc_taskschedule import (
+            PatientTaskSchedule,
+            TaskSchedule,
+            TaskScheduleItem
+        )
+        schedule1 = TaskSchedule()
+        schedule1.group_id = self.group.id
+        schedule1.name = "Test 1"
+        self.dbsession.add(schedule1)
+        self.dbsession.flush()
+
+        item1 = TaskScheduleItem()
+        item1.schedule_id = schedule1.id
+        item1.task_table_name = "phq9"
+        item1.due_from = Duration(days=0)
+        item1.due_by = Duration(days=7)
+        self.dbsession.add(item1)
+
+        patient = self.create_patient()
+        patient_task_schedule1 = PatientTaskSchedule()
+        patient_task_schedule1.patient_pk = patient.pk
+        patient_task_schedule1.schedule_id = schedule1.id
+        self.dbsession.add(patient_task_schedule1)
+        self.dbsession.commit()
+
+        proquint = patient.uuid_as_proquint
+        self.req.fake_request_post_from_dict({
+            TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
+            TabletParam.DEVICE: self.other_device.name,
+            TabletParam.OPERATION: Operations.GET_TASK_SCHEDULES,
+            TabletParam.PATIENT_PROQUINT: proquint,
+        })
+
+        response = client_api(self.req)
+        reply_dict = get_reply_dict_from_response(response)
+        self.assertEqual(reply_dict[TabletParam.SUCCESS], FAILURE_CODE,
+                         msg=reply_dict)
+        self.assertIn("Patient has no ID numbers",
+                      reply_dict[TabletParam.ERROR])
+        reply_dict = get_reply_dict_from_response(response)
 
 
 # =============================================================================
