@@ -3995,7 +3995,6 @@ class EditPatientSchema(CSRFSchema):
     gp = OptionalStringNode()  # must match ViewParam.GP
     other = OptionalStringNode()  # must match ViewParam.OTHER
     id_references = IdNumSequenceUniquePerWhichIdnum()  # must match ViewParam.ID_REFERENCES  # noqa
-    task_schedules = TaskScheduleSequence()  # must match ViewParam.TASK_SCHEDULES  # noqa: E501
 
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
@@ -4041,6 +4040,7 @@ class EditServerCreatedPatientSchema(EditPatientSchema):
     group_id = MandatoryGroupIdSelectorAdministeredGroups(
         insert_before="forename"
     )
+    task_schedules = TaskScheduleSequence()  # must match ViewParam.TASK_SCHEDULES  # noqa: E501
 
 
 class EditFinalizedPatientForm(DangerousForm):

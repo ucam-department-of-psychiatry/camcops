@@ -3673,7 +3673,6 @@ class EditPatientBaseView(PatientMixin, UpdateView):
                      appstruct: Dict[str, Any], changes: OrderedDict) -> None:
         self._save_simple_params(appstruct, changes)
         self._save_idrefs(appstruct, changes)
-        self._save_task_schedules(appstruct, changes)
 
     def _save_simple_params(self,
                             appstruct: Dict[str, Any],
@@ -3763,6 +3762,71 @@ class EditPatientBaseView(PatientMixin, UpdateView):
                                            group_id=patient.group_id)
                     self.request.dbsession.add(new_idnum)
 
+    def get_context_data(self, **kwargs: Any) -> Any:
+        kwargs["tasks"] = self.get_affected_tasks()
+
+        return super().get_context_data(**kwargs)
+
+    def get_affected_tasks(self) -> Optional[List[Task]]:
+        patient = cast(Patient, self.object)
+
+        taskfilter = TaskFilter()
+        taskfilter.device_ids = [patient.device_id]
+        taskfilter.group_ids = [patient.group.id]
+        taskfilter.era = patient.era
+        collection = TaskCollection(
+            req=self.request,
+            taskfilter=taskfilter,
+            sort_method_global=TaskSortMethod.CREATION_DATE_DESC,
+            current_only=False  # unusual option!
+        )
+        return collection.all_tasks
+
+
+class EditServerCreatedPatientView(EditPatientBaseView):
+    """
+    View to edit a patient created on the server (as part of task scheduling).
+    """
+    template_name = "server_created_patient_edit.mako"
+    form_class = EditServerCreatedPatientForm
+
+    def get_success_url(self) -> str:
+        return self.request.route_url(
+            Routes.VIEW_PATIENT_TASK_SCHEDULES
+        )
+
+    def get_object(self) -> Any:
+        patient = cast(Patient, super().get_object())
+
+        if not patient.created_on_server(self.request):
+            _ = self.request.gettext
+
+            raise HTTPBadRequest(
+                _("Patient is not editable - was not created on the server"))
+
+        return patient
+
+    def save_changes(self,
+                     appstruct: Dict[str, Any], changes: OrderedDict) -> None:
+        self._save_group(appstruct, changes)
+        super().save_changes(appstruct, changes)
+        self._save_task_schedules(appstruct, changes)
+
+    def _save_group(self,
+                    appstruct: Dict[str, Any], changes: OrderedDict) -> None:
+        patient = cast(Patient, self.object)
+
+        old_group_id = patient.group.id
+        old_group_name = patient.group.name
+        new_group_id = appstruct.get(ViewParam.GROUP_ID, None)
+        new_group = self.request.dbsession.query(Group).filter(
+            Group.id == new_group_id
+        ).first()
+
+        if old_group_id != new_group_id:
+            patient._group_id = new_group_id
+            changes["group"] = (old_group_name, new_group.name)
+
     def _save_task_schedules(self,
                              appstruct: Dict[str, Any],
                              changes: OrderedDict) -> None:
@@ -3844,71 +3908,6 @@ class EditPatientBaseView(PatientMixin, UpdateView):
             changes["schedule{} ({})".format(
                 schedule_id, schedule_name_dict[schedule_id]
             )] = ((old_start_date, old_settings), (None, None))
-
-    def get_context_data(self, **kwargs: Any) -> Any:
-        kwargs["tasks"] = self.get_affected_tasks()
-
-        return super().get_context_data(**kwargs)
-
-    def get_affected_tasks(self) -> Optional[List[Task]]:
-        patient = cast(Patient, self.object)
-
-        taskfilter = TaskFilter()
-        taskfilter.device_ids = [patient.device_id]
-        taskfilter.group_ids = [patient.group.id]
-        taskfilter.era = patient.era
-        collection = TaskCollection(
-            req=self.request,
-            taskfilter=taskfilter,
-            sort_method_global=TaskSortMethod.CREATION_DATE_DESC,
-            current_only=False  # unusual option!
-        )
-        return collection.all_tasks
-
-
-class EditServerCreatedPatientView(EditPatientBaseView):
-    """
-    View to edit a patient created on the server (as part of task scheduling).
-    """
-    template_name = "server_created_patient_edit.mako"
-    form_class = EditServerCreatedPatientForm
-
-    def get_success_url(self) -> str:
-        return self.request.route_url(
-            Routes.VIEW_PATIENT_TASK_SCHEDULES
-        )
-
-    def get_object(self) -> Any:
-        patient = cast(Patient, super().get_object())
-
-        if not patient.created_on_server(self.request):
-            _ = self.request.gettext
-
-            raise HTTPBadRequest(
-                _("Patient is not editable - was not created on the server"))
-
-        return patient
-
-    def save_changes(self,
-                     appstruct: Dict[str, Any], changes: OrderedDict) -> None:
-        self._save_group(appstruct, changes)
-
-        super().save_changes(appstruct, changes)
-
-    def _save_group(self,
-                    appstruct: Dict[str, Any], changes: OrderedDict) -> None:
-        patient = cast(Patient, self.object)
-
-        old_group_id = patient.group.id
-        old_group_name = patient.group.name
-        new_group_id = appstruct.get(ViewParam.GROUP_ID, None)
-        new_group = self.request.dbsession.query(Group).filter(
-            Group.id == new_group_id
-        ).first()
-
-        if old_group_id != new_group_id:
-            patient._group_id = new_group_id
-            changes["group"] = (old_group_name, new_group.name)
 
 
 class EditFinalizedPatientView(EditPatientBaseView):
@@ -5235,136 +5234,6 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
         self.assertIn("idnum1", messages[0])
         self.assertIn("4887211163", messages[0])
 
-    def test_patient_task_schedules_updated(self) -> None:
-        patient = self.create_patient(sex="F")
-
-        schedule1 = TaskSchedule()
-        schedule1.group_id = self.group.id
-        schedule1.name = "Test 1"
-        self.dbsession.add(schedule1)
-        schedule2 = TaskSchedule()
-        schedule2.group_id = self.group.id
-        schedule2.name = "Test 2"
-        self.dbsession.add(schedule2)
-        schedule3 = TaskSchedule()
-        schedule3.group_id = self.group.id
-        schedule3.name = "Test 3"
-        self.dbsession.add(schedule3)
-        self.dbsession.commit()
-
-        patient_task_schedule = PatientTaskSchedule()
-        patient_task_schedule.patient_pk = patient.pk
-        patient_task_schedule.schedule_id = schedule1.id
-        patient_task_schedule.start_date = parse("2020-06-12")
-        patient_task_schedule.settings = {
-            "name 1": "value 1",
-            "name 2": "value 2",
-            "name 3": "value 3",
-        }
-
-        self.dbsession.add(patient_task_schedule)
-
-        patient_task_schedule = PatientTaskSchedule()
-        patient_task_schedule.patient_pk = patient.pk
-        patient_task_schedule.schedule_id = schedule3.id
-
-        self.dbsession.add(patient_task_schedule)
-        self.dbsession.commit()
-
-        self.req.add_get_params({
-            ViewParam.SERVER_PK: patient.pk
-        }, set_method_get=False)
-
-        changed_schedule_1_settings = {
-            "name 1": "new value 1",
-            "name 2": "new value 2",
-            "name 3": "new value 3",
-        }
-        new_schedule_2_settings = {
-            "name 4": "value 4",
-            "name 5": "value 5",
-            "name 6": "value 6",
-        }
-        multidict = MultiDict([
-            ("_charset_", "UTF-8"),
-            ("__formid__", "deform"),
-            (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
-            (ViewParam.SERVER_PK, patient.pk),
-            (ViewParam.GROUP_ID, patient.group.id),
-            (ViewParam.FORENAME, patient.forename),
-            (ViewParam.SURNAME, patient.surname),
-            ("__start__", "dob:mapping"),
-            ("date", ""),
-            ("__end__", "dob:mapping"),
-            ("__start__", "sex:rename"),
-            ("deformField7", patient.sex),
-            ("__end__", "sex:rename"),
-            (ViewParam.ADDRESS, patient.address),
-            (ViewParam.GP, patient.gp),
-            (ViewParam.OTHER, patient.other),
-            ("__start__", "id_references:sequence"),
-            ("__start__", "idnum_sequence:mapping"),
-            (ViewParam.WHICH_IDNUM, self.nhs_iddef.which_idnum),
-            (ViewParam.IDNUM_VALUE, "4887211163"),
-            ("__end__", "idnum_sequence:mapping"),
-            ("__end__", "id_references:sequence"),
-            ("__start__", "danger:mapping"),
-            ("target", "7836"),
-            ("user_entry", "7836"),
-            ("__end__", "danger:mapping"),
-            ("__start__", "task_schedules:sequence"),
-            ("__start__", "task_schedule_sequence:mapping"),
-            ("schedule_id", schedule1.id),
-            ("__start__", "start_date:mapping"),
-            ("date", "2020-06-19"),
-            ("__end__", "start_date:mapping"),
-            ("settings", json.dumps(changed_schedule_1_settings)),
-            ("__end__", "task_schedule_sequence:mapping"),
-            ("__start__", "task_schedule_sequence:mapping"),
-            ("schedule_id", schedule2.id),
-            ("__start__", "start_date:mapping"),
-            ("date", "2020-07-01"),
-            ("__end__", "start_date:mapping"),
-            ("settings", json.dumps(new_schedule_2_settings)),
-            ("__end__", "task_schedule_sequence:mapping"),
-            ("__end__", "task_schedules:sequence"),
-
-            (FormAction.SUBMIT, "submit"),
-        ])
-
-        self.req.fake_request_post_from_dict(multidict)
-
-        with self.assertRaises(HTTPFound):
-            edit_finalized_patient(self.req)
-
-        self.dbsession.commit()
-
-        # noinspection PyUnresolvedReferences
-        schedules = {pts.task_schedule.name: pts
-                     for pts in patient.task_schedules}
-        self.assertIn("Test 1", schedules)
-        self.assertIn("Test 2", schedules)
-        self.assertNotIn("Test 3", schedules)
-
-        self.assertEqual(
-            schedules["Test 1"].start_date, parse("2020-06-19")
-        )
-        self.assertEqual(
-            schedules["Test 1"].settings, changed_schedule_1_settings,
-        )
-        self.assertEqual(
-            schedules["Test 2"].start_date, parse("2020-07-01")
-        )
-        self.assertEqual(
-            schedules["Test 2"].settings, new_schedule_2_settings,
-        )
-
-        messages = self.req.session.peek_flash(FLASH_SUCCESS)
-
-        self.assertIn(f"Amended patient record with server PK {patient.pk}",
-                      messages[0])
-        self.assertIn("Test 2", messages[0])
-
     def test_message_when_no_changes(self) -> None:
         patient = self.create_patient(
             forename="Jo", surname="Patient", dob=datetime.date(1958, 4, 19),
@@ -5638,6 +5507,188 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
         self.assertEqual(changes["idnum2 (RiO number)"],
                          (None, 456))
 
+
+class EditServerCreatedPatientViewTests(DemoDatabaseTestCase):
+    """
+    Unit tests.
+    """
+    def create_tasks(self) -> None:
+        # speed things up a bit
+        pass
+
+    def test_group_updated(self) -> None:
+        patient = self.create_patient(sex="F")
+        new_group = Group()
+        new_group.name = "newgroup"
+        new_group.description = "New group"
+        new_group.upload_policy = "sex AND anyidnum"
+        new_group.finalize_policy = "sex AND idnum1"
+        self.dbsession.add(new_group)
+        self.dbsession.commit()
+
+        view = EditServerCreatedPatientView(self.req)
+        view.object = patient
+
+        appstruct = {
+            ViewParam.GROUP_ID: new_group.id,
+        }
+
+        view.save_object(appstruct)
+
+        self.assertEqual(patient.group_id, new_group.id)
+
+        messages = self.req.session.peek_flash(FLASH_SUCCESS)
+
+        self.assertIn("testgroup", messages[0])
+        self.assertIn("newgroup", messages[0])
+        self.assertIn("group:", messages[0])
+
+    def test_raises_when_not_created_on_the_server(self) -> None:
+        patient = self.create_patient(
+            id=1, _device_id=self.other_device.id,
+        )
+
+        view = EditServerCreatedPatientView(self.req)
+
+        self.req.add_get_params({
+            ViewParam.SERVER_PK: patient.pk
+        })
+
+        with self.assertRaises(HTTPBadRequest) as cm:
+            view.get_object()
+
+        self.assertIn("Patient is not editable", str(cm.exception))
+
+    def test_patient_task_schedules_updated(self) -> None:
+        patient = self.create_patient(sex="F", _era=ERA_NOW)
+
+        schedule1 = TaskSchedule()
+        schedule1.group_id = self.group.id
+        schedule1.name = "Test 1"
+        self.dbsession.add(schedule1)
+        schedule2 = TaskSchedule()
+        schedule2.group_id = self.group.id
+        schedule2.name = "Test 2"
+        self.dbsession.add(schedule2)
+        schedule3 = TaskSchedule()
+        schedule3.group_id = self.group.id
+        schedule3.name = "Test 3"
+        self.dbsession.add(schedule3)
+        self.dbsession.commit()
+
+        patient_task_schedule = PatientTaskSchedule()
+        patient_task_schedule.patient_pk = patient.pk
+        patient_task_schedule.schedule_id = schedule1.id
+        patient_task_schedule.start_date = parse("2020-06-12")
+        patient_task_schedule.settings = {
+            "name 1": "value 1",
+            "name 2": "value 2",
+            "name 3": "value 3",
+        }
+
+        self.dbsession.add(patient_task_schedule)
+
+        patient_task_schedule = PatientTaskSchedule()
+        patient_task_schedule.patient_pk = patient.pk
+        patient_task_schedule.schedule_id = schedule3.id
+
+        self.dbsession.add(patient_task_schedule)
+        self.dbsession.commit()
+
+        self.req.add_get_params({
+            ViewParam.SERVER_PK: patient.pk
+        }, set_method_get=False)
+
+        changed_schedule_1_settings = {
+            "name 1": "new value 1",
+            "name 2": "new value 2",
+            "name 3": "new value 3",
+        }
+        new_schedule_2_settings = {
+            "name 4": "value 4",
+            "name 5": "value 5",
+            "name 6": "value 6",
+        }
+        multidict = MultiDict([
+            ("_charset_", "UTF-8"),
+            ("__formid__", "deform"),
+            (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
+            (ViewParam.SERVER_PK, patient.pk),
+            (ViewParam.GROUP_ID, patient.group.id),
+            (ViewParam.FORENAME, patient.forename),
+            (ViewParam.SURNAME, patient.surname),
+            ("__start__", "dob:mapping"),
+            ("date", ""),
+            ("__end__", "dob:mapping"),
+            ("__start__", "sex:rename"),
+            ("deformField7", patient.sex),
+            ("__end__", "sex:rename"),
+            (ViewParam.ADDRESS, patient.address),
+            (ViewParam.GP, patient.gp),
+            (ViewParam.OTHER, patient.other),
+            ("__start__", "id_references:sequence"),
+            ("__start__", "idnum_sequence:mapping"),
+            (ViewParam.WHICH_IDNUM, self.nhs_iddef.which_idnum),
+            (ViewParam.IDNUM_VALUE, "4887211163"),
+            ("__end__", "idnum_sequence:mapping"),
+            ("__end__", "id_references:sequence"),
+            ("__start__", "danger:mapping"),
+            ("target", "7836"),
+            ("user_entry", "7836"),
+            ("__end__", "danger:mapping"),
+            ("__start__", "task_schedules:sequence"),
+            ("__start__", "task_schedule_sequence:mapping"),
+            ("schedule_id", schedule1.id),
+            ("__start__", "start_date:mapping"),
+            ("date", "2020-06-19"),
+            ("__end__", "start_date:mapping"),
+            ("settings", json.dumps(changed_schedule_1_settings)),
+            ("__end__", "task_schedule_sequence:mapping"),
+            ("__start__", "task_schedule_sequence:mapping"),
+            ("schedule_id", schedule2.id),
+            ("__start__", "start_date:mapping"),
+            ("date", "2020-07-01"),
+            ("__end__", "start_date:mapping"),
+            ("settings", json.dumps(new_schedule_2_settings)),
+            ("__end__", "task_schedule_sequence:mapping"),
+            ("__end__", "task_schedules:sequence"),
+
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+
+        with self.assertRaises(HTTPFound):
+            edit_server_created_patient(self.req)
+
+        self.dbsession.commit()
+
+        # noinspection PyUnresolvedReferences
+        schedules = {pts.task_schedule.name: pts
+                     for pts in patient.task_schedules}
+        self.assertIn("Test 1", schedules)
+        self.assertIn("Test 2", schedules)
+        self.assertNotIn("Test 3", schedules)
+
+        self.assertEqual(
+            schedules["Test 1"].start_date, parse("2020-06-19")
+        )
+        self.assertEqual(
+            schedules["Test 1"].settings, changed_schedule_1_settings,
+        )
+        self.assertEqual(
+            schedules["Test 2"].start_date, parse("2020-07-01")
+        )
+        self.assertEqual(
+            schedules["Test 2"].settings, new_schedule_2_settings,
+        )
+
+        messages = self.req.session.peek_flash(FLASH_SUCCESS)
+
+        self.assertIn(f"Amended patient record with server PK {patient.pk}",
+                      messages[0])
+        self.assertIn("Test 2", messages[0])
+
     def test_changes_to_task_schedules(self) -> None:
         patient = self.create_patient(sex="F")
 
@@ -5683,7 +5734,7 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
         self.dbsession.commit()
 
         # The patient starts on schedule 1 and schedule 3
-        view = EditFinalizedPatientView(self.req)
+        view = EditServerCreatedPatientView(self.req)
         view.object = patient
 
         changes = OrderedDict()  # type: OrderedDict
@@ -5734,62 +5785,6 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
                          (expected_old_2, expected_new_2))
         self.assertEqual(changes["schedule3 (Test 3)"],
                          (expected_old_3, expected_new_3))
-
-
-class EditServerCreatedPatientViewTests(DemoDatabaseTestCase):
-    """
-    Unit tests.
-    """
-    def create_tasks(self) -> None:
-        # speed things up a bit
-        pass
-
-    def test_group_updated(self) -> None:
-        patient = self.create_patient(sex="F")
-        new_group = Group()
-        new_group.name = "newgroup"
-        new_group.description = "New group"
-        new_group.upload_policy = "sex AND anyidnum"
-        new_group.finalize_policy = "sex AND idnum1"
-        self.dbsession.add(new_group)
-        self.dbsession.commit()
-
-        view = EditServerCreatedPatientView(self.req)
-        view.object = patient
-
-        appstruct = {
-            ViewParam.GROUP_ID: new_group.id,
-        }
-
-        view.save_object(appstruct)
-
-        self.assertEqual(patient.group_id, new_group.id)
-
-        messages = self.req.session.peek_flash(FLASH_SUCCESS)
-
-        self.assertIn("testgroup", messages[0])
-        self.assertIn("newgroup", messages[0])
-        self.assertIn("group:", messages[0])
-
-    def test_raises_when_not_created_on_the_server(self) -> None:
-        device = Device(name="Not the server device")
-        self.req.dbsession.add(device)
-        self.req.dbsession.commit()
-
-        patient = self.create_patient(
-            id=1, _device_id=device.id,
-        )
-
-        view = EditServerCreatedPatientView(self.req)
-
-        self.req.add_get_params({
-            ViewParam.SERVER_PK: patient.pk
-        })
-
-        with self.assertRaises(HTTPBadRequest) as cm:
-            view.get_object()
-
-        self.assertIn("Patient is not editable", str(cm.exception))
 
 
 class AddPatientViewTests(DemoDatabaseTestCase):
