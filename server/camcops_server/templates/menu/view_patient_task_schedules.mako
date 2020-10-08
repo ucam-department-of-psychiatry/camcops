@@ -50,6 +50,7 @@ ${_("CamCOPS server location:")} ${ req.route_url( Routes.CLIENT_API ) }
 <table>
     <tr>
         <th>${_("Patient")}</th>
+        <th>${_("Identifiers")}</th>
         <th>${_("Access key")}</th>
         <th>${_("Email")}</th>
         <th>${_("Task schedules")}</th>
@@ -62,6 +63,12 @@ ${_("CamCOPS server location:")} ${ req.route_url( Routes.CLIENT_API ) }
             <b>${ patient.get_surname_forename_upper() }</b>
             (${ patient.get_sex_verbose() },
             ${ format_datetime(patient.dob, DateFormat.SHORT_DATE, default="?") })
+        </td>
+        <td>
+            %for idobj in patient.idnums:
+                ${ idobj.short_description(request) }:&nbsp;${ idobj.idnum_value }.
+                <br>
+            %endfor
         </td>
         <td>
             ${ patient.uuid_as_proquint }
