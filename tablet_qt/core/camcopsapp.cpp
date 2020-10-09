@@ -197,6 +197,10 @@ void CamcopsApp::setMode(const int mode)
 
 void CamcopsApp::setModeFromUser()
 {
+    if (modeChangeForbidden()) {
+        return;
+    }
+
     const int old_mode = varInt(varconst::MODE);
     ModeDialog dialog(old_mode);
     const int reply = dialog.exec();
@@ -234,6 +238,26 @@ void CamcopsApp::setModeFromUser()
 
     setMode(new_mode);
 }
+
+
+bool CamcopsApp::modeChangeForbidden()
+{
+    if (isClinicianMode() && patientRecordsPresent()) {
+        uifunc::alert(
+            tr("You cannot change mode when there are patient records present")
+        );
+        return true;
+    }
+
+    return false;
+}
+
+
+bool CamcopsApp::patientRecordsPresent()
+{
+    return queryAllPatients().nRows() > 0;
+}
+
 
 int CamcopsApp::getSinglePatientId() const
 {
@@ -2232,11 +2256,8 @@ int CamcopsApp::selectedPatientId() const
 
 PatientPtrList CamcopsApp::getAllPatients(const bool sorted)
 {
+    const QueryResult result = queryAllPatients();
     PatientPtrList patients;
-    Patient specimen(*this, *m_datadb, dbconst::NONEXISTENT_PK);  // this is why function can't be const
-    const WhereConditions where;  // but we don't specify any
-    const SqlArgs sqlargs = specimen.fetchQuerySql(where);
-    const QueryResult result = m_datadb->query(sqlargs);
     const int nrows = result.nRows();
     for (int row = 0; row < nrows; ++row) {
         PatientPtr p(new Patient(*this, *m_datadb, dbconst::NONEXISTENT_PK));
@@ -2247,6 +2268,16 @@ PatientPtrList CamcopsApp::getAllPatients(const bool sorted)
         std::sort(patients.begin(), patients.end(), PatientSorter());
     }
     return patients;
+}
+
+
+QueryResult CamcopsApp::queryAllPatients()
+{
+    Patient specimen(*this, *m_datadb, dbconst::NONEXISTENT_PK);  // this is why function can't be const
+    const WhereConditions where;  // but we don't specify any
+    const SqlArgs sqlargs = specimen.fetchQuerySql(where);
+
+    return m_datadb->query(sqlargs);
 }
 
 

@@ -403,6 +403,10 @@ public:
     // Delete task schedules from the client.
     void deleteTaskSchedules();
 
+protected:
+    bool modeChangeForbidden();
+    bool patientRecordsPresent();
+
 signals:
     // The operation mode has changed (Clincian, single user...)
     void modeChanged(int mode);
@@ -448,6 +452,8 @@ protected:
 
     // Delete the current patient from the database.
     void deleteSelectedPatient();
+
+    QueryResult queryAllPatients();
 
 signals:
     // The patient selection has changed (new patient selected or deselected).
