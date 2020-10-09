@@ -21,7 +21,7 @@
 #include "common/urlconst.h"
 #include "lib/uifunc.h"
 #include "menu/settingsmenu.h"
-
+#include "menu/singleuseradvancedmenu.h"
 
 SingleUserOptionsMenu::SingleUserOptionsMenu(CamcopsApp& app)
     : MenuWindow(
@@ -71,20 +71,11 @@ void SingleUserOptionsMenu::makeItems()
             )
         ),
         MenuItem(
-            tr("Change operating mode"),
-            std::bind(&SingleUserOptionsMenu::changeMode, this)
-        ).setNotIfLocked(),
-        MenuItem(
             tr("Re-register me"),
             std::bind(&SingleUserOptionsMenu::registerPatient, this)
         ).setNotIfLocked(),
+        MAKE_MENU_MENU_ITEM(SingleUserAdvancedMenu, m_app)
     });
-}
-
-
-void SingleUserOptionsMenu::changeMode()
-{
-    m_app.setModeFromUser();
 }
 
 

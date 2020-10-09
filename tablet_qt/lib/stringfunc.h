@@ -92,6 +92,10 @@ QString standardResult(const QString& name,
                        const QString& separator = ": ",
                        const QString& suffix = ".");
 
+QString makeTitle(const QString& part1, const QString& part2 = "",
+                  bool colon = false);
+QString makeHint(const QString& part1, const QString& part2);
+
 // ============================================================================
 // Other string processing
 // ============================================================================

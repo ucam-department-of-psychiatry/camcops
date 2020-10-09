@@ -80,9 +80,6 @@ protected:
     void changeMode();
 
     // Internal helpers:
-    QString makeTitle(const QString& part1, const QString& part2 = "",
-                      bool colon = false) const;
-    QString makeHint(const QString& part1, const QString& part2) const;
     QVariant serverPasswordGetter();
     bool serverPasswordSetter(const QVariant& value);
     void viewDbAsSql(DatabaseManager& db, const QString& title);

@@ -18,27 +18,20 @@
 */
 
 #pragma once
-#include <QSharedPointer>
-#include "menulib/menuwindow.h"
-class SettingsMenu;
+#include "widgets/openablewidget.h"
 
+class CamcopsApp;
+class QuPage;
 
-class SingleUserOptionsMenu : public MenuWindow
+class ServerSettingsWindow : public QObject
 {
     Q_OBJECT
-
 public:
-    SingleUserOptionsMenu(CamcopsApp& app);
-    virtual QString title() const override;
+    ServerSettingsWindow(CamcopsApp& app);
+    OpenableWidget* editor();
+
 protected:
-    virtual void makeItems() override;
-    void registerPatient();
-    void updateTaskSchedules();
-    void chooseLanguage();
-    OpenableWidget* setQuestionnaireFontSize(CamcopsApp& app);
-protected:
-    // We want to be able to call some functions from the main settings menu.
-    // Since they require persistent state during window activity, a simple
-    // way is to own one:
-    QSharedPointer<SettingsMenu> m_settings_menu;
+    CamcopsApp& m_app;
+    void serverSettingsSaved();
+    bool validateServerSettings(QStringList& errors, const QuPage* page);
 };

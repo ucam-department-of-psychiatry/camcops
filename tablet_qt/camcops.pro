@@ -636,6 +636,7 @@ SOURCES += \
     menu/setmenuobrien.cpp \
     menu/settingsmenu.cpp \
     menu/singletaskmenu.cpp \
+    menu/singleuseradvancedmenu.cpp \
     menu/singleusermenu.cpp \
     menu/singleuseroptionsmenu.cpp \
     menu/testmenu.cpp \
@@ -648,6 +649,7 @@ SOURCES += \
     menulib/menuitem.cpp \
     menulib/menuproxy.cpp \
     menulib/menuwindow.cpp \
+    menulib/serversettingswindow.cpp \
     menulib/taskchainmenuitem.cpp \
     menulib/taskmenuitem.cpp \
     menulib/taskscheduleitemmenuitem.cpp \
@@ -1095,6 +1097,7 @@ HEADERS += \
     menu/setmenuobrien.h \
     menu/settingsmenu.h \
     menu/singletaskmenu.h \
+    menu/singleuseradvancedmenu.h \
     menu/singleusermenu.h \
     menu/singleuseroptionsmenu.h \
     menu/testmenu.h \
@@ -1107,6 +1110,7 @@ HEADERS += \
     menulib/menuitem.h \
     menulib/menuproxy.h \
     menulib/menuwindow.h \
+    menulib/serversettingswindow.h \
     menulib/taskchainmenuitem.h \
     menulib/taskmenuitem.h \
     menulib/urlmenuitem.h \

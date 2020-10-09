@@ -37,9 +37,11 @@
 #include "dbobjects/idnumdescription.h"
 #include "dialogs/logmessagebox.h"
 #include "lib/convert.h"
+#include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 #include "menu/testmenu.h"
 #include "menulib/menuitem.h"
+#include "menulib/serversettingswindow.h"
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/qubutton.h"
 #include "questionnairelib/qugridcontainer.h"
@@ -277,181 +279,9 @@ void SettingsMenu::makeItems()
 
 OpenableWidget* SettingsMenu::configureServer(CamcopsApp& app)
 {
-    // The general options here: have the Questionnaire save directly to the
-    // StoredVar but in a way that's not permanent and allows "recall/reload"
-    // upon cancel; or temporary local storage with writing to the StoredVar
-    // on OK. The latter is a generally better principle. Since C++ lambda
-    // functions don't extend the life of things they reference (see "dangling
-    // references" in the spec), the best way is by having the CamcopsApp
-    // (whose lifespan is guaranteed to be long enough) to do the storage,
-    // and having a fieldref to a cached storedvar.
-    // A third option is to use a database transaction (and forgo or invalidate
-    // any copies of storedvars maintained in memory).
+    auto window = new ServerSettingsWindow(app);
 
-    const QString DEPRECATED("(†) ");
-
-    app.clearCachedVars();  // ... in case any are left over
-
-    FieldRefPtr address_fr = app.storedVarFieldRef(varconst::SERVER_ADDRESS);
-    const QString address_t = tr("Server address");
-    const QString address_h = tr("host name or IP address");
-
-    FieldRefPtr port_fr = app.storedVarFieldRef(varconst::SERVER_PORT);
-    const QString port_t = tr("Server port for HTTPS");
-    const QString port_h = tr("default 443");
-
-    FieldRefPtr path_fr = app.storedVarFieldRef(varconst::SERVER_PATH);
-    const QString path_t = tr("Path on server");
-    const QString path_h = tr("no leading /; e.g. camcops/database");
-
-    FieldRefPtr timeout_fr = app.storedVarFieldRef(varconst::SERVER_TIMEOUT_MS);
-    const QString timeout_t = tr("Network timeout (ms)");
-    const QString timeout_h = tr("e.g. 50000");
-
-#ifdef DEBUG_OFFER_HTTP_TO_SERVER
-    FieldRefPtr https_fr = app.storedVarFieldRef(varconst::DEBUG_USE_HTTPS_TO_SERVER);
-    const QString https_t = tr("Use HTTPS to server?");
-    const QString https_h = tr("You should <b>only</b> disable this for debugging!");
-#endif
-
-    FieldRefPtr ssl_fr = app.storedVarFieldRef(
-                varconst::VALIDATE_SSL_CERTIFICATES);
-    const QString ssl_t = tr("Validate HTTPS (TLS/SSL) certificates?");
-    const QString ssl_h = tr("Should always be YES for security-conscious "
-                             "systems.");
-
-    FieldRefPtr ssl_proto_fr = app.storedVarFieldRef(varconst::SSL_PROTOCOL);
-    const QString ssl_proto_t = tr("HTTPS (TLS/SSL) protocol?");
-    const QString ssl_proto_h = tr("Stick with the default unless your server "
-                                   "can’t cope with it.");
-    const NameValueOptions options_ssl_protocol{
-        // http://doc.qt.io/qt-5/qssl.html#SslProtocol-enum
-        {tr("Known secure [default]"), convert::SSLPROTODESC_SECUREPROTOCOLS},
-        {DEPRECATED + tr("SSL v3"), convert::SSLPROTODESC_SSLV3},
-        {DEPRECATED + tr("SSL v2"), convert::SSLPROTODESC_SSLV2},
-        {DEPRECATED + tr("TLS v1.0"), convert::SSLPROTODESC_TLSV1_0},
-        {DEPRECATED + tr("TLS v1.0 or later"), convert::SSLPROTODESC_TLSV1_0_OR_LATER},
-        {tr("TLS v1.1"), convert::SSLPROTODESC_TLSV1_1},
-        {tr("TLS v1.1 or later"), convert::SSLPROTODESC_TLSV1_1_OR_LATER},
-        {tr("TLS v1.2"), convert::SSLPROTODESC_TLSV1_2},
-        {tr("TLS v1.2 or later"), convert::SSLPROTODESC_TLSV1_2_OR_LATER},
-        {DEPRECATED + tr("SSLv2, SSLv3, or TLSv1.0"), convert::SSLPROTODESC_ANYPROTOCOL},
-        {DEPRECATED + tr("TLS v1.0 or SSL v3"), convert::SSLPROTODESC_TLSV1_SSLV3},
-    };
-    const QString ssl_proto_explanation = DEPRECATED + "Insecure, deprecated.";
-
-    FieldRefPtr storepw_fr = app.storedVarFieldRef(varconst::STORE_SERVER_PASSWORD);
-    const QString storepw_t = tr("Store user’s server password?");
-    const QString storepw_h = tr(
-                "NO = fractionally more secure; YES = more convenient/"
-                "fractionally less secure, but still AES-256-encrypted.");
-
-    FieldRefPtr uploadmethod_fr = app.storedVarFieldRef(
-                varconst::UPLOAD_METHOD);
-    const QString uploadmethod_t = tr("Upload method");
-    const NameValueOptions options_upload_method{
-        {tr("Multi-step (original)"), varconst::UPLOAD_METHOD_MULTISTEP},
-        {tr("Always one-step (faster)"), varconst::UPLOAD_METHOD_ONESTEP},
-        {tr("One-step if small enough (default)"), varconst::UPLOAD_METHOD_BYSIZE},
-    };
-
-    FieldRefPtr maxsizeonestep_fr = app.storedVarFieldRef(
-                varconst::MAX_DBSIZE_FOR_ONESTEP_UPLOAD);
-    const QString maxsizeonestep_t = tr(
-            "Maximum (approximate) database size for one-step upload (bytes)");
-    const QString maxsizeonestep_h = tr("e.g. 2000000 for ~2Mb");
-
-    QuPagePtr page(new QuPage{
-        questionnairefunc::defaultGridRawPointer({
-            {
-                makeTitle(address_t, address_h, true),
-                (new QuLineEdit(address_fr))->setHint(
-                    makeHint(address_t, address_h))
-            },
-            {
-                makeTitle(port_t, port_h, true),
-                new QuLineEditInteger(port_fr,
-                    uiconst::IP_PORT_MIN, uiconst::IP_PORT_MAX)
-            },
-            {
-                makeTitle(path_t, path_h, true),
-                (new QuLineEdit(path_fr))->setHint(makeHint(path_t, path_h))
-            },
-            {
-                makeTitle(timeout_t, timeout_h, true),
-                new QuLineEditInteger(timeout_fr,
-                    uiconst::NETWORK_TIMEOUT_MS_MIN,
-                    uiconst::NETWORK_TIMEOUT_MS_MAX)
-            },
-        }, 1, 1),
-
-#ifdef DEBUG_OFFER_HTTP_TO_SERVER
-       new QuText(makeTitle(https_t, https_h)),
-       (new QuMcq(https_fr, CommonOptions::yesNoBoolean()))
-                       ->setHorizontal(true)
-                       ->setAsTextButton(true),
-#endif
-
-        new QuText(makeTitle(ssl_t, ssl_h)),
-        (new QuMcq(ssl_fr, CommonOptions::yesNoBoolean()))
-                       ->setHorizontal(true)
-                       ->setAsTextButton(true),
-
-        new QuText(makeTitle(ssl_proto_t, ssl_proto_h)),
-        (new QuMcq(ssl_proto_fr, options_ssl_protocol))
-                       ->setHorizontal(true)
-                       ->setAsTextButton(true),
-        new QuText(ssl_proto_explanation),
-
-        new QuHorizontalLine(),
-
-        new QuText(makeTitle(storepw_t, storepw_h)),
-        (new QuMcq(storepw_fr, CommonOptions::yesNoBoolean()))
-                       ->setHorizontal(true)
-                       ->setAsTextButton(true),
-
-        new QuHorizontalLine(),
-
-        new QuText(makeTitle(uploadmethod_t)),
-        (new QuMcq(uploadmethod_fr, options_upload_method))
-                       ->setHorizontal(true)
-                       ->setAsTextButton(true),
-
-        questionnairefunc::defaultGridRawPointer({
-            {
-                makeTitle(maxsizeonestep_t, maxsizeonestep_h, true),
-                (new QuLineEditInt64(maxsizeonestep_fr))->setHint(
-                    makeHint(maxsizeonestep_t, maxsizeonestep_h))
-            }
-        }, 1, 1),
-    });
-    page->setTitle(tr("Configure server settings"));
-    page->setType(QuPage::PageType::Config);
-    page->registerValidator(std::bind(&SettingsMenu::validateServerSettings,
-                                      this, std::placeholders::_1,
-                                      std::placeholders::_2));
-
-    auto questionnaire = new Questionnaire(m_app, {page});
-    questionnaire->setFinishButtonIconToTick();
-    connect(questionnaire, &Questionnaire::completed,
-            this, &SettingsMenu::serverSettingsSaved);
-    connect(questionnaire, &Questionnaire::cancelled,
-            &app, &CamcopsApp::clearCachedVars);
-    return questionnaire;
-}
-
-
-bool SettingsMenu::validateServerSettings(QStringList& errors,
-                                          const QuPage* page)
-{
-    Q_UNUSED(page)
-    // Note that we are using cached server variables.
-    const QString hostname = m_app.getCachedVar(varconst::SERVER_ADDRESS).toString();
-    if (hostname.contains("/")) {
-        errors.append("No forward slashes ('/') permitted in server hostname");
-        return false;
-    }
-    return true;
+    return window->editor();
 }
 
 
@@ -605,16 +435,16 @@ OpenableWidget* SettingsMenu::configureUser(CamcopsApp& app)
     int row = 0;
     const Qt::Alignment labelalign = Qt::AlignRight | Qt::AlignTop;
     g->addCell(QuGridCell(
-        (new QuText(makeTitle(devicename_t, devicename_h, true)))
+        (new QuText(stringfunc::makeTitle(devicename_t, devicename_h, true)))
             ->setTextAlignment(labelalign),
         row, 0));
     g->addCell(QuGridCell(
         (new QuLineEdit(devicename_fr))
-            ->setHint(makeHint(devicename_t, devicename_h)),
+            ->setHint(stringfunc::makeHint(devicename_t, devicename_h)),
         row, 1));
     ++row;
     g->addCell(QuGridCell(
-        (new QuText(makeTitle(username_t, "", true)))
+        (new QuText(stringfunc::makeTitle(username_t, "", true)))
             ->setTextAlignment(labelalign),
         row, 0));
     g->addCell(QuGridCell(
@@ -624,7 +454,7 @@ OpenableWidget* SettingsMenu::configureUser(CamcopsApp& app)
     ++row;
     if (storing_password) {
         g->addCell(QuGridCell(
-            (new QuText(makeTitle(password_t, "", true)))
+            (new QuText(stringfunc::makeTitle(password_t, "", true)))
                 ->setTextAlignment(labelalign),
             row, 0));
         g->addCell(QuGridCell(
@@ -635,7 +465,7 @@ OpenableWidget* SettingsMenu::configureUser(CamcopsApp& app)
         ++row;
     }
     g->addCell(QuGridCell(
-        (new QuText(makeTitle(upload_after_edit_t)))
+        (new QuText(stringfunc::makeTitle(upload_after_edit_t)))
             ->setTextAlignment(labelalign),
         row, 0));
     g->addCell(QuGridCell(
@@ -651,34 +481,34 @@ OpenableWidget* SettingsMenu::configureUser(CamcopsApp& app)
         (new QuText(label_clinician))->setItalic(true),
         questionnairefunc::defaultGridRawPointer({
             {
-                makeTitle(clin_specialty_t, clin_specialty_h, true),
+                stringfunc::makeTitle(clin_specialty_t, clin_specialty_h, true),
                 (new QuLineEdit(clin_specialty_fr))->setHint(
-                    makeHint(clin_specialty_t, clin_specialty_h))
+                    stringfunc::makeHint(clin_specialty_t, clin_specialty_h))
             },
             {
-                makeTitle(clin_name_t, clin_name_h, true),
+                stringfunc::makeTitle(clin_name_t, clin_name_h, true),
                 (new QuLineEdit(clin_name_fr))->setHint(
-                    makeHint(clin_name_t, clin_name_h))
+                    stringfunc::makeHint(clin_name_t, clin_name_h))
             },
             {
-                makeTitle(clin_profreg_t, clin_profreg_h, true),
+                stringfunc::makeTitle(clin_profreg_t, clin_profreg_h, true),
                 (new QuLineEdit(clin_profreg_fr))->setHint(
-                    makeHint(clin_profreg_t, clin_profreg_h))
+                    stringfunc::makeHint(clin_profreg_t, clin_profreg_h))
             },
             {
-                makeTitle(clin_post_t, clin_post_h, true),
+                stringfunc::makeTitle(clin_post_t, clin_post_h, true),
                 (new QuLineEdit(clin_post_fr))->setHint(
-                    makeHint(clin_post_t, clin_post_h))
+                    stringfunc::makeHint(clin_post_t, clin_post_h))
             },
             {
-                makeTitle(clin_service_t, clin_service_h, true),
+                stringfunc::makeTitle(clin_service_t, clin_service_h, true),
                 (new QuLineEdit(clin_service_fr))->setHint(
-                    makeHint(clin_service_t, clin_service_h))
+                    stringfunc::makeHint(clin_service_t, clin_service_h))
             },
             {
-                makeTitle(clin_contact_t, clin_contact_h, true),
+                stringfunc::makeTitle(clin_contact_t, clin_contact_h, true),
                 (new QuLineEdit(clin_contact_fr))->setHint(
-                    makeHint(clin_contact_t, clin_contact_h))
+                    stringfunc::makeHint(clin_contact_t, clin_contact_h))
             },
         }, 1, 1),
     });
@@ -734,7 +564,7 @@ OpenableWidget* SettingsMenu::setQuestionnaireFontSize(CamcopsApp& app,
 
     QuPagePtr page(new QuPage{
         new QuHeading(font_heading),
-        new QuText(makeTitle(font_prompt1)),
+        new QuText(stringfunc::makeTitle(font_prompt1)),
         new QuText(font_explan),
         questionnairefunc::defaultGridRawPointer({
             {
@@ -819,7 +649,7 @@ OpenableWidget* SettingsMenu::setQuestionnaireFontSize(CamcopsApp& app,
         ));
         ++row;
         dpi_grid->addCell(QuGridCell(
-            (new QuText(makeTitle(override_log)))->setTextAlignment(labelalign),
+            (new QuText(stringfunc::makeTitle(override_log)))->setTextAlignment(labelalign),
             row, 0));
         dpi_grid->addCell(QuGridCell(
             (new QuMcq(m_dpi_override_logical_fr, CommonOptions::yesNoBoolean()))
@@ -828,7 +658,7 @@ OpenableWidget* SettingsMenu::setQuestionnaireFontSize(CamcopsApp& app,
             row, 1));
         ++row;
         dpi_grid->addCell(QuGridCell(
-            (new QuText(makeTitle(override_log_x)))
+            (new QuText(stringfunc::makeTitle(override_log_x)))
                               ->setTextAlignment(labelalign)
                               ->addTag(TAG_DPI_LOGICAL),
             row, 0));
@@ -840,7 +670,7 @@ OpenableWidget* SettingsMenu::setQuestionnaireFontSize(CamcopsApp& app,
             row, 1));
         ++row;
         dpi_grid->addCell(QuGridCell(
-            (new QuText(makeTitle(override_log_y)))
+            (new QuText(stringfunc::makeTitle(override_log_y)))
                               ->setTextAlignment(labelalign)
                               ->addTag(TAG_DPI_LOGICAL),
             row, 0));
@@ -858,7 +688,7 @@ OpenableWidget* SettingsMenu::setQuestionnaireFontSize(CamcopsApp& app,
         ));
         ++row;
         dpi_grid->addCell(QuGridCell(
-            (new QuText(makeTitle(override_phy)))->setTextAlignment(labelalign),
+            (new QuText(stringfunc::makeTitle(override_phy)))->setTextAlignment(labelalign),
             row, 0));
         dpi_grid->addCell(QuGridCell(
             (new QuMcq(m_dpi_override_physical_fr, CommonOptions::yesNoBoolean()))
@@ -867,7 +697,7 @@ OpenableWidget* SettingsMenu::setQuestionnaireFontSize(CamcopsApp& app,
             row, 1));
         ++row;
         dpi_grid->addCell(QuGridCell(
-            (new QuText(makeTitle(override_phy_x)))
+            (new QuText(stringfunc::makeTitle(override_phy_x)))
                               ->setTextAlignment(labelalign)
                               ->addTag(TAG_DPI_PHYSICAL),
             row, 0));
@@ -879,7 +709,7 @@ OpenableWidget* SettingsMenu::setQuestionnaireFontSize(CamcopsApp& app,
             row, 1));
         ++row;
         dpi_grid->addCell(QuGridCell(
-            (new QuText(makeTitle(override_phy_y)))
+            (new QuText(stringfunc::makeTitle(override_phy_y)))
                               ->setTextAlignment(labelalign)
                               ->addTag(TAG_DPI_PHYSICAL),
             row, 0));
@@ -1017,53 +847,6 @@ void SettingsMenu::changeAppPassword()
 void SettingsMenu::changePrivPassword()
 {
     m_app.changePrivPassword();
-}
-
-
-QString SettingsMenu::makeTitle(const QString& part1,
-                                const QString& part2,
-                                const bool colon) const
-{
-    QString result;
-    if (part2.isEmpty()) {
-        result = QString("<b>%1%2</b>").arg(part1, colon ? ":" : "");
-    } else {
-        result = QString("<b>%1</b> (%2)").arg(part1, part2);
-        if (colon) {
-            result += ":";
-        }
-    }
-    return result;
-}
-
-
-QString SettingsMenu::makeHint(const QString& part1,
-                               const QString& part2) const
-{
-    return QString("%1 (%2)").arg(part1, part2);
-}
-
-
-void SettingsMenu::serverSettingsSaved()
-{
-    // User has edited server settings and then clicked OK.
-    const bool server_details_changed = (
-        m_app.cachedVarChanged(varconst::SERVER_ADDRESS)
-        || m_app.cachedVarChanged(varconst::SERVER_PORT)
-        || m_app.cachedVarChanged(varconst::SERVER_PATH)
-    );
-    if (server_details_changed) {
-        uifunc::alert(
-            tr("Server details have changed. You should consider "
-               "re-registering with the server."),
-            tr("Registration advised")
-        );
-    }
-    if (!m_app.storingServerPassword()) {
-        // Wipe the stored password
-        m_app.setCachedVar(varconst::SERVER_USERPASSWORD_OBSCURED, "");
-    }
-    m_app.saveCachedVars();
 }
 
 
