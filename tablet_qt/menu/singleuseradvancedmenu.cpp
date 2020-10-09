@@ -43,8 +43,24 @@ void SingleUserAdvancedMenu::makeItems()
                 std::bind(&SingleUserAdvancedMenu::configureServer, this,
                           std::placeholders::_1)
             )
-        )
+        ).setNotIfLocked()
     };
+
+    if (m_app.isLoggingNetwork()) {
+        m_items.append({
+            MenuItem(
+                tr("Disable network activity log"),
+                std::bind(&SingleUserAdvancedMenu::disableNetworkLogging, this)
+            )
+        });
+    } else {
+        m_items.append({
+            MenuItem(
+                tr("Enable network activity log"),
+                std::bind(&SingleUserAdvancedMenu::enableNetworkLogging, this)
+            )
+        });
+    }
 }
 
 OpenableWidget* SingleUserAdvancedMenu::configureServer(CamcopsApp& app)
@@ -52,4 +68,18 @@ OpenableWidget* SingleUserAdvancedMenu::configureServer(CamcopsApp& app)
     auto window = new ServerSettingsWindow(app);
 
     return window->editor();
+}
+
+
+void SingleUserAdvancedMenu::enableNetworkLogging()
+{
+    m_app.enableNetworkLogging();
+    rebuild();
+}
+
+
+void SingleUserAdvancedMenu::disableNetworkLogging()
+{
+    m_app.disableNetworkLogging();
+    rebuild();
 }

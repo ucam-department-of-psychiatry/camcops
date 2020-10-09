@@ -88,7 +88,9 @@ public:
     // ------------------------------------------------------------------------
 public:
     // Operate in silent mode (without status information)?
-    void setSilent(bool silent);
+    void enableLogging();
+    void disableLogging();
+    bool isLogging() const;
 
     // Sets the window title.
     void setTitle(const QString& title);

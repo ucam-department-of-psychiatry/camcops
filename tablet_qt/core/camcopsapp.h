@@ -484,6 +484,10 @@ public:
     // Should we validate SSL certificates?
     bool validateSslCertificates() const;
 
+    void enableNetworkLogging();
+    void disableNetworkLogging();
+    bool isLoggingNetwork() const;
+
 protected:
     // Makes a new NetworkManager.
     void makeNetManager();

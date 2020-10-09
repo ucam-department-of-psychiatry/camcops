@@ -219,9 +219,21 @@ void NetworkManager::deleteLogBox()
 }
 
 
-void NetworkManager::setSilent(const bool silent)
+void NetworkManager::enableLogging()
 {
-    m_silent = silent;
+    m_silent = false;
+}
+
+
+void NetworkManager::disableLogging()
+{
+    m_silent = true;
+}
+
+
+bool NetworkManager::isLogging() const
+{
+    return !m_silent;
 }
 
 

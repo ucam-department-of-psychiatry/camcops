@@ -30,4 +30,6 @@ public:
 protected:
     virtual void makeItems() override;
     OpenableWidget* configureServer(CamcopsApp& app);
+    void enableNetworkLogging();
+    void disableNetworkLogging();
 };

@@ -170,11 +170,11 @@ void CamcopsApp::setMode(const int mode)
 
     // Things we might do even if the new mode is the same as the old mode
     // (e.g. at startup):
-    if (m_netmgr) {
-        m_netmgr->setSilent(single_user_mode);
-    }
     if (single_user_mode) {
+        disableNetworkLogging();
         setVar(varconst::OFFER_UPLOAD_AFTER_EDIT, true);
+    } else {
+        enableNetworkLogging();
     }
 
     // Things we only do if the mode has actually changed:
@@ -1553,6 +1553,30 @@ void CamcopsApp::reconnectNetManager(
     }
 }
 
+void CamcopsApp::enableNetworkLogging()
+{
+    if (m_netmgr) {
+        m_netmgr->enableLogging();
+    }
+}
+
+
+void CamcopsApp::disableNetworkLogging()
+{
+    if (m_netmgr) {
+        m_netmgr->disableLogging();
+    }
+}
+
+
+bool CamcopsApp::isLoggingNetwork() const
+{
+    if (m_netmgr) {
+        return m_netmgr->isLogging();
+    }
+
+    return false;
+}
 
 // ============================================================================
 // Core
