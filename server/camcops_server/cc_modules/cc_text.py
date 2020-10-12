@@ -210,9 +210,10 @@ def server_string(req: "CamcopsRequest", w: SS) -> str:
             "\n"
             "8. The CamCOPS server uses a single secure cookie for session "
             "authentication. The cookie is not used for any other purpose. "
+            "It is deleted when you finish your session (it is a session cookie). "  # noqa
             "By using a CamCOPS server, you agree to this use of cookies.\n"
             "\n"
-            "These terms and conditions were last revised on 2020-06-29."
+            "These terms and conditions were last revised on 2020-10-12."
         )
         # ... should match textconst::TERMS_CONDITIONS in the C++ app.
         #

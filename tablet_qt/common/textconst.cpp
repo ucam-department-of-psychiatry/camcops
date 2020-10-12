@@ -254,20 +254,17 @@ QString TextConst::clinicianTermsConditions() {
         "A QUALIFIED CLINICIAN, AND THAT YOU RETAIN RESPONSIBILITY FOR "
         "DIAGNOSIS AND MANAGEMENT.\n\n"
 
-        "8. The CamCOPS server uses a single secure cookie for session "
+        "8. The CamCOPS server uses a single secure HTTP cookie for session "
         "authentication. The cookie is not used for any other purpose. "
+        "It is deleted when you finish your session (it is a session cookie). "
         "By using a CamCOPS server, you agree to this use of cookies.\n\n"
 
-        "These terms and conditions were last revised on 2020-06-29."
+        "These terms and conditions were last revised on 2020-10-12."
     );
     // This should match the DISCLAIMER_CONTENT string in the server_string()
     // function of camcops_server/cc_modules/cc_text.py.
-    // NOTE ALSO the date below.
+    // If you change this text, change TERMS_CONDITIONS_UPDATE_DATE below.
 }
-QDate TextConst::TERMS_CONDITIONS_UPDATE_DATE(2020, 06, 29);
-
-
-
 QString TextConst::singleUserTermsConditions() {
     // We want this to be as simple as possible.
     // It's the clinicians'/researchers' job to worry about the context;
@@ -297,7 +294,9 @@ QString TextConst::singleUserTermsConditions() {
 
         "Thank you!"
     );
+    // If you change this text, change TERMS_CONDITIONS_UPDATE_DATE below.
 }
+QDate TextConst::TERMS_CONDITIONS_UPDATE_DATE(2020, 10, 12);
 
 
 // ============================================================================

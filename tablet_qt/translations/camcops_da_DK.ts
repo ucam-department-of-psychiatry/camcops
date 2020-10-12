@@ -384,7 +384,7 @@
 <context>
     <name>CamcopsApp</name>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="+615"/>
+        <location filename="../core/camcopsapp.cpp" line="+634"/>
         <source>Configuring internal database</source>
         <translation>Konfiguration af intern database</translation>
     </message>
@@ -434,7 +434,7 @@
         <translation>Kan ikke læse databasen; ødelagt? krypteret? (Denne version af CamCOPS har haft sine krypteringsfaciliteter deaktiveret.)</translation>
     </message>
     <message>
-        <location line="+724"/>
+        <location line="+775"/>
         <source>Upload?</source>
         <translation>Upload?</translation>
     </message>
@@ -449,18 +449,23 @@
         <translation>Ja, upload</translation>
     </message>
     <message>
-        <location line="-1460"/>
-        <location line="+1462"/>
+        <location line="-1514"/>
+        <location line="+1516"/>
         <source>No, cancel</source>
         <translation>Nej, annuller</translation>
     </message>
     <message>
-        <location line="-1560"/>
+        <location line="-1625"/>
         <source>You did not select how you would like to use CamCOPS</source>
         <translation>Du valgte ikke, hvordan du vil bruge CamCOPS</translation>
     </message>
     <message>
-        <location line="+90"/>
+        <location line="+35"/>
+        <source>You cannot change mode when there are patient records present</source>
+        <translation>Du kan ikke ændre tilstand, når der er patientjournaler til stede</translation>
+    </message>
+    <message>
+        <location line="+66"/>
         <source>Delete patient</source>
         <translation>Slet patienten</translation>
     </message>
@@ -475,7 +480,7 @@
         <translation>Ja, slet</translation>
     </message>
     <message>
-        <location line="+56"/>
+        <location line="+53"/>
         <source>There was a problem with your registration.</source>
         <translation>Der var et problem med din registrering.</translation>
     </message>
@@ -499,17 +504,17 @@ Angav du den korrekte CamCOPS-serverplacering?</translation>
     </message>
     <message>
         <location line="+13"/>
-        <location line="+62"/>
+        <location line="+68"/>
         <source>Error</source>
         <translation>Fejl</translation>
     </message>
     <message>
-        <location line="-48"/>
+        <location line="-54"/>
         <source>There was a problem updating your task schedules.</source>
         <translation>Der opstod et problem med at opdatere dine opgaveplaner.</translation>
     </message>
     <message>
-        <location line="+11"/>
+        <location line="+17"/>
         <source>There was a problem sending your completed tasks to the server.</source>
         <translation>Der opstod et problem med at sende dine gennemførte opgaver til serveren.</translation>
     </message>
@@ -565,7 +570,7 @@ Alle poster, der ikke uploades til serveren, går tabt.</translation>
         <translation>Slet database?</translation>
     </message>
     <message>
-        <location line="+850"/>
+        <location line="+901"/>
         <source>Enter app password</source>
         <translation>Indtast programadgangskode</translation>
     </message>
@@ -610,7 +615,7 @@ Alle poster, der ikke uploades til serveren, går tabt.</translation>
         <translation>Forkert gammel adgangskode</translation>
     </message>
     <message>
-        <location line="+781"/>
+        <location line="+788"/>
         <source>Terms and conditions of use</source>
         <translation>Vilkår og betingelser for brug</translation>
     </message>
@@ -625,7 +630,7 @@ Alle poster, der ikke uploades til serveren, går tabt.</translation>
         <translation>JEG ER IKKE ENIG</translation>
     </message>
     <message>
-        <location line="-2566"/>
+        <location line="-2638"/>
         <source>OK. Goodbye.</source>
         <translation>Okay. Farvel.</translation>
     </message>
@@ -635,7 +640,12 @@ Alle poster, der ikke uploades til serveren, går tabt.</translation>
         <translation>Du nægtede betingelserne.</translation>
     </message>
     <message>
-        <location line="+2621"/>
+        <location line="+2683"/>
+        <source>Uploading...</source>
+        <translation>Uploader …</translation>
+    </message>
+    <message>
+        <location line="+35"/>
         <source>Copy data to server, or move it to server?
 
 COPY: copies unfinished patients, moves finished patients.
@@ -667,7 +677,7 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
         <translation>Flyt</translation>
     </message>
     <message>
-        <location filename="../core/camcopsapp.h" line="+253"/>
+        <location filename="../core/camcopsapp.h" line="+263"/>
         <source>Opening...</source>
         <translation>Åbning...</translation>
     </message>
@@ -2438,6 +2448,112 @@ enig</translation>
     </message>
 </context>
 <context>
+    <name>FontSizeAndDpiWindow</name>
+    <message>
+        <location filename="../menulib/fontsizeanddpiwindow.cpp" line="+81"/>
+        <source>DPI settings</source>
+        <translation type="unfinished">Punkter pr. tommer indstillinger</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Dots per inch (DPI), or more accurately pixels per inch (PPI), are a measure of screen resolution. Higher-resolution monitors have higher DPI settings. In some circumstances, CamCOPS needs to know your screen&apos;s DPI settings accurately. If your operating system mis-reports them, you can override the system settings here.</source>
+        <translation type="unfinished">Punkter pr. tommer (DPI) eller mere præcist pixel pr. tomme (PPI) er et mål for skærmopløsning. Højere opløsning skærme har højere DPI indstillinger. Under nogle omstændigheder skal CamCOPS kende din skærms DPI-indstillinger nøjagtigt. Hvis dit operativsystem mis-rapporterer dem, kan du tilsidesætte systemindstillingerne her.</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>These settings take effect when you restart CamCOPS.</source>
+        <translation type="unfinished">Disse indstillinger træder i kraft, når du genstarter CamCOPS.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Logical DPI settings are used for icon sizes and similar. You are unlikely to need to override these. Current system logical DPI:</source>
+        <translation type="unfinished">Logiske DPI-indstillinger bruges til ikonstørrelser og lignende. Det er usandsynligt, at du behøver at tilsidesætte disse. Aktuel system logisk DPI:</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Override system logical DPI settings</source>
+        <translation type="unfinished">Overstyr systemets logiske DPI-indstillinger</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Logical DPI, X</source>
+        <translation type="unfinished">Logisk DPI, X</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Logical DPI, Y</source>
+        <translation type="unfinished">Logisk DPI, Y</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Physical DPI settings are used for absolute sizes (e.g. visual analogue scales). Override this for precise scaling if your system gets it slightly wrong. Current system physical DPI:</source>
+        <translation type="unfinished">Fysiske DPI-indstillinger bruges til absolutte størrelser (f.eks. visuelle analoge vægte). Tilsidesæt dette for præcis skalering, hvis dit system får det lidt forkert. Aktuelt fysisk DPI for systemet:</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Override system physical DPI settings</source>
+        <translation type="unfinished">Overstyr systemets fysiske DPI-indstillinger</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Physical DPI, X</source>
+        <translation type="unfinished">Fysisk DPI, X</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Physical DPI, Y</source>
+        <translation type="unfinished">Fysisk DPI, Y</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Dots per inch (DPI), e.g. 96; range %1-%2</source>
+        <translation type="unfinished">Punkter pr. tommer (DPI), f.eks. 96; interval %1-%2</translation>
+    </message>
+    <message>
+        <location line="+105"/>
+        <source>Set questionnaire font size and DPI settings</source>
+        <translation type="unfinished">Indstil spørgeskema skriftstørrelse og DPI indstillinger</translation>
+    </message>
+</context>
+<context>
+    <name>FontSizeWindow</name>
+    <message>
+        <location filename="../menulib/fontsizewindow.cpp" line="+88"/>
+        <source>Questionnaire font size</source>
+        <translation type="unfinished">Spørgeskema skriftstørrelse</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Set the font size, as a percentage of the default.</source>
+        <translation type="unfinished">Indstil skriftstørrelsen som en procentdel af standardværdien.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Changes take effect when a screen is reloaded.</source>
+        <translation type="unfinished">Ændringer træder i kraft, når en skærm genindlæses.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>You can type it in:</source>
+        <translation type="unfinished">Du kan skrive det i:</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>... or set it with a slider:</source>
+        <translation type="unfinished">... eller sæt det med en skyder:</translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <source>Reset to 100%</source>
+        <translation type="unfinished">Nulstil til 100%</translation>
+    </message>
+    <message>
+        <location line="+45"/>
+        <source>Set questionnaire font size</source>
+        <translation type="unfinished">Angiv skriftstørrelse for spørgeskema</translation>
+    </message>
+</context>
+<context>
     <name>Frs</name>
     <message>
         <location filename="../tasks/frs.cpp" line="+125"/>
@@ -3406,7 +3522,7 @@ enig</translation>
 <context>
     <name>NetworkManager</name>
     <message>
-        <location filename="../core/networkmanager.cpp" line="+395"/>
+        <location filename="../core/networkmanager.cpp" line="+407"/>
         <source>Server host details not specified; see Settings</source>
         <translation>Serverhost detaljer ikke specificeret; se Indstillinger</translation>
     </message>
@@ -3496,12 +3612,12 @@ enig</translation>
         <translation>Resultat:</translation>
     </message>
     <message>
-        <location line="+196"/>
+        <location line="+204"/>
         <source>... registered and received identification information</source>
         <translation>... registreret og modtaget identifikationsoplysninger</translation>
     </message>
     <message>
-        <location line="-135"/>
+        <location line="-143"/>
         <source>Requesting allowed tables</source>
         <translation>Anmodning om tilladte tabeller</translation>
     </message>
@@ -3511,7 +3627,7 @@ enig</translation>
         <translation>Anmodning om ekstra strenger</translation>
     </message>
     <message>
-        <location line="+141"/>
+        <location line="+149"/>
         <source>... received extra strings</source>
         <translation>... modtaget ekstra strenge</translation>
     </message>
@@ -3552,16 +3668,16 @@ enig</translation>
         <translation>... gjort</translation>
     </message>
     <message>
-        <location line="-325"/>
-        <location line="+357"/>
-        <location line="+878"/>
+        <location line="-333"/>
+        <location line="+365"/>
+        <location line="+879"/>
         <location line="+26"/>
         <location line="+47"/>
         <source>... OK</source>
         <translation>... Okay</translation>
     </message>
     <message>
-        <location line="-1591"/>
+        <location line="-1600"/>
         <source>Reply is not from CamCOPS API. Are your server settings misconfigured?</source>
         <translation>Svaret kommer ikke fra CamCOPS API. Er dine serverindstillinger forkert konfigureret?</translation>
     </message>
@@ -3593,7 +3709,7 @@ enig</translation>
         <translation>Registrering hos %1 og modtagelse af identifikationsoplysninger</translation>
     </message>
     <message>
-        <location line="+113"/>
+        <location line="+121"/>
         <source>Failed to parse task schedules: %1</source>
         <translation>Mislykkedes at analysere opgaveplaner: %1</translation>
     </message>
@@ -3734,7 +3850,7 @@ enig</translation>
         <translation>FEJL: Tabellen &apos;%1&apos; indeholder data; den er til stede på serveren, men serveren kræver klientversion &gt;=%2; du bruger version %3</translation>
     </message>
     <message>
-        <location line="+83"/>
+        <location line="+84"/>
         <source>Server version (%1) doesn&apos;t match stored version (%2).</source>
         <translation>Server version (%1) matcher ikke den lagrede version (%2).</translation>
     </message>
@@ -3769,7 +3885,7 @@ enig</translation>
         <translation>Hent venligst serveroplysninger igen.</translation>
     </message>
     <message>
-        <location line="+55"/>
+        <location line="+56"/>
         <source>Failed to parse patient info: %1</source>
         <translation>Mislykkedes at parse patientoplysninger: %1</translation>
     </message>
@@ -3779,7 +3895,7 @@ enig</translation>
         <translation>Mislykkedes at analysere oplysninger om intellektuel ejendomsret: %1</translation>
     </message>
     <message>
-        <location line="-502"/>
+        <location line="-504"/>
         <source>WARNING: Table &apos;%1&apos; is present on the server but the client requires server version &gt;=%2; the server is version %3; proceeding ONLY BECAUSE THIS TABLE IS EMPTY.</source>
         <translation>ADVARSEL: Tabel &apos;%1&apos; er til stede på serveren, men klienten kræver serverversion &gt;=%2; serveren er version %3; fortsætter KUN, fordi denne tabel er tom.</translation>
     </message>
@@ -3814,7 +3930,7 @@ enig</translation>
         <translation>ADVARSEL: Tabel &apos;%1&apos; er fraværende på serveren. Du har sikkert brug for en nyere serverversion. (Når du har opgraderet serveren, skal du registrere dig igen.) Fortsæt KUN, fordi denne tabel er tom.</translation>
     </message>
     <message>
-        <location line="+45"/>
+        <location line="+46"/>
         <source>Checking server CamCOPS version</source>
         <translation>Kontrollerer server CamCOPS version</translation>
     </message>
@@ -3947,7 +4063,7 @@ enig</translation>
 <context>
     <name>PasswordChangeDialog</name>
     <message>
-        <location filename="../dialogs/passwordchangedialog.cpp" line="+46"/>
+        <location filename="../dialogs/passwordchangedialog.cpp" line="+47"/>
         <source>Enter old password:</source>
         <translation>Indtast gammel adgangskode:</translation>
     </message>
@@ -3957,7 +4073,12 @@ enig</translation>
         <translation>Indtast ny adgangskode:</translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+4"/>
+        <source>Must be at least %1 characters</source>
+        <translation>Skal være mindst %1 tegn</translation>
+    </message>
+    <message>
+        <location line="+4"/>
         <source>Enter new password again for confirmation:</source>
         <translation>Indtast ny adgangskode igen for bekræftelse:</translation>
     </message>
@@ -3967,7 +4088,12 @@ enig</translation>
         <translation>Kan ikke indstille en tom adgangskode</translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="+5"/>
+        <source>Password must be at least %1 characters long</source>
+        <translation>Adgangskoden skal være på mindst %1 tegn</translation>
+    </message>
+    <message>
+        <location line="+6"/>
         <source>New passwords don&apos;t match</source>
         <translation>Nye adgangskoder svarer ikke til hinanden</translation>
     </message>
@@ -4090,12 +4216,12 @@ enig</translation>
 <context>
     <name>PatientRegistrationDialog</name>
     <message>
-        <location filename="../dialogs/patientregistrationdialog.cpp" line="+45"/>
+        <location filename="../dialogs/patientregistrationdialog.cpp" line="+36"/>
         <source>Registration</source>
         <translation>Registrering</translation>
     </message>
     <message>
-        <location line="+25"/>
+        <location line="+21"/>
         <source>&lt;b&gt;CamCOPS server location&lt;/b&gt; (e.g. https://server.example.com/camcops/api):</source>
         <translation>&lt;b&gt;CamCOPS-serverplacering&lt;/b&gt; (f.eks. https://server.example.com/camcops/api):</translation>
     </message>
@@ -4807,6 +4933,189 @@ enig</translation>
     </message>
 </context>
 <context>
+    <name>ServerSettingsWindow</name>
+    <message>
+        <location filename="../menulib/serversettingswindow.cpp" line="+72"/>
+        <source>Server address</source>
+        <translation type="unfinished">Serveradresse</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>host name or IP address</source>
+        <translation type="unfinished">værtsnavn eller IP-adresse</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Server port for HTTPS</source>
+        <translation type="unfinished">Serverport til HTTPS</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>default 443</source>
+        <translation type="unfinished">standard 443</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Path on server</source>
+        <translation type="unfinished">Sti på server</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>no leading /; e.g. camcops/database</source>
+        <translation type="unfinished">ingen ledende /; f.eks. camcops/database</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Network timeout (ms)</source>
+        <translation type="unfinished">Netværk timeout (ms)</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>e.g. 50000</source>
+        <translation type="unfinished">f.eks. 50000</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Use HTTPS to server?</source>
+        <translation type="unfinished">Brug HTTPS til server?</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>You should &lt;b&gt;only&lt;/b&gt; disable this for debugging!</source>
+        <translation type="unfinished">Du bør &lt;b&gt;kun &lt;/b&gt; deaktivere dette til debugging!</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Validate HTTPS (TLS/SSL) certificates?</source>
+        <translation type="unfinished">Validér HTTPS (TLS/SSL) certifikater?</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Should always be YES for security-conscious systems.</source>
+        <translation type="unfinished">Bør altid være JA for sikkerhedsbevidste systemer.</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>HTTPS (TLS/SSL) protocol?</source>
+        <translation type="unfinished">HTTPS (TLS/SSL) protokol?</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Stick with the default unless your server can’t cope with it.</source>
+        <translation type="unfinished">Stand med standard, medmindre din server ikke kan klare det.</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Known secure [default]</source>
+        <translation type="unfinished">Kendt for at være sikker [standard]</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>SSL v3</source>
+        <translation type="unfinished">SSL v3</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>SSL v2</source>
+        <translation type="unfinished">SSL v2</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>TLS v1.0</source>
+        <translation type="unfinished">TLS v1.0</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>TLS v1.0 or later</source>
+        <translation type="unfinished">TLS v1.0 eller senere</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>TLS v1.1</source>
+        <translation type="unfinished">TLS v1.1</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>TLS v1.1 or later</source>
+        <translation type="unfinished">TLS v1.1 eller senere</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>TLS v1.2</source>
+        <translation type="unfinished">TLS v1.2</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>TLS v1.2 or later</source>
+        <translation type="unfinished">TLS v1.2 eller senere</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>SSLv2, SSLv3, or TLSv1.0</source>
+        <translation type="unfinished">SSLv2, SSLv3, eller TLSv1.0</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>TLS v1.0 or SSL v3</source>
+        <translation type="unfinished">TLS v1.0 eller SSL v3</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Store user’s server password?</source>
+        <translation type="unfinished">Gem brugerens serveradgangskode?</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>NO = fractionally more secure; YES = more convenient/fractionally less secure, but still AES-256-encrypted.</source>
+        <translation type="unfinished">NEJ = fraktioneret mere sikker; JA = mere praktisk / fraktioneret mindre sikker, men stadig AES-256-krypteret.</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Upload method</source>
+        <translation type="unfinished">Upload metode</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Multi-step (original)</source>
+        <translation type="unfinished">Multi-trin (original)</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Always one-step (faster)</source>
+        <translation type="unfinished">Altid en-trins (hurtigere)</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>One-step if small enough (default)</source>
+        <translation type="unfinished">Ét trin, hvis det er lille nok (standard)</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Maximum (approximate) database size for one-step upload (bytes)</source>
+        <translation type="unfinished">Maksimal (omtrentlig) databasestørrelse for en trins upload (bytes)</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>e.g. 2000000 for ~2Mb</source>
+        <translation type="unfinished">f.eks. 2000000 til ~2Mb</translation>
+    </message>
+    <message>
+        <location line="+68"/>
+        <source>Configure server settings</source>
+        <translation type="unfinished">Konfigurer serverindstillinger</translation>
+    </message>
+    <message>
+        <location line="+42"/>
+        <source>Server details have changed. You should consider re-registering with the server.</source>
+        <translation type="unfinished">Serveroplysningerne er ændret. Du bør overveje at omregistrere til serveren.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Registration advised</source>
+        <translation type="unfinished">Registrering anbefales</translation>
+    </message>
+</context>
+<context>
     <name>ServiceEvaluationMenu</name>
     <message>
         <location filename="../menu/serviceevaluationmenu.cpp" line="+46"/>
@@ -5022,7 +5331,7 @@ enig</translation>
 <context>
     <name>SettingsMenu</name>
     <message>
-        <location filename="../menu/settingsmenu.cpp" line="+113"/>
+        <location filename="../menu/settingsmenu.cpp" line="+82"/>
         <source>Settings</source>
         <translation>Indstillinger</translation>
     </message>
@@ -5038,18 +5347,18 @@ enig</translation>
     </message>
     <message>
         <location line="+7"/>
-        <location line="+545"/>
+        <location line="+373"/>
         <source>User settings</source>
         <translation>Brugerindstillinger</translation>
     </message>
     <message>
-        <location line="-538"/>
-        <location line="+369"/>
+        <location line="-366"/>
+        <location line="+197"/>
         <source>Intellectual property (IP) permissions</source>
         <translation>Intellektuelle ejendomsrettigheder</translation>
     </message>
     <message>
-        <location line="-362"/>
+        <location line="-190"/>
         <source>Change app password</source>
         <translation>Skift programadgangskode</translation>
     </message>
@@ -5060,12 +5369,12 @@ enig</translation>
     </message>
     <message>
         <location line="+2"/>
-        <location line="+1164"/>
+        <location line="+646"/>
         <source>Show server information</source>
         <translation>Vis serveroplysninger</translation>
     </message>
     <message>
-        <location line="-1157"/>
+        <location line="-639"/>
         <source>Infrequent user functions</source>
         <translation>Ufrivillige brugerfunktioner</translation>
     </message>
@@ -5100,108 +5409,12 @@ enig</translation>
         <translation>Redningsfunktioner</translation>
     </message>
     <message>
-        <location line="+68"/>
-        <source>Server address</source>
-        <translation>Serveradresse</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>host name or IP address</source>
-        <translation>værtsnavn eller IP-adresse</translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Server port for HTTPS</source>
-        <translation>Serverport til HTTPS</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>default 443</source>
-        <translation>standard 443</translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Path on server</source>
-        <translation>Sti på server</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>no leading /; e.g. camcops/database</source>
-        <translation>ingen ledende /; f.eks. camcops/database</translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Network timeout (ms)</source>
-        <translation>Netværk timeout (ms)</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>e.g. 50000</source>
-        <translation>f.eks. 50000</translation>
-    </message>
-    <message>
-        <location line="+4"/>
-        <source>Use HTTPS to server?</source>
-        <translation>Brug HTTPS til server?</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>You should &lt;b&gt;only&lt;/b&gt; disable this for debugging!</source>
-        <translation>Du bør &lt;b&gt;kun &lt;/b&gt; deaktivere dette til debugging!</translation>
-    </message>
-    <message>
-        <location line="+5"/>
-        <source>Validate HTTPS (TLS/SSL) certificates?</source>
-        <translation>Validér HTTPS (TLS/SSL) certifikater?</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Should always be YES for security-conscious systems.</source>
-        <translation>Bør altid være JA for sikkerhedsbevidste systemer.</translation>
-    </message>
-    <message>
-        <location line="+4"/>
-        <source>HTTPS (TLS/SSL) protocol?</source>
-        <translation>HTTPS (TLS/SSL) protokol?</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Stick with the default unless your server can’t cope with it.</source>
-        <translation>Stand med standard, medmindre din server ikke kan klare det.</translation>
-    </message>
-    <message>
-        <location line="+19"/>
-        <source>Store user’s server password?</source>
-        <translation>Gem brugerens serveradgangskode?</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>NO = fractionally more secure; YES = more convenient/fractionally less secure, but still AES-256-encrypted.</source>
-        <translation>NEJ = fraktioneret mere sikker; JA = mere praktisk / fraktioneret mindre sikker, men stadig AES-256-krypteret.</translation>
-    </message>
-    <message>
-        <location line="+6"/>
-        <source>Upload method</source>
-        <translation>Upload metode</translation>
-    </message>
-    <message>
-        <location line="+9"/>
-        <source>Maximum (approximate) database size for one-step upload (bytes)</source>
-        <translation>Maksimal (omtrentlig) databasestørrelse for en trins upload (bytes)</translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>e.g. 2000000 for ~2Mb</source>
-        <translation>f.eks. 2000000 til ~2Mb</translation>
-    </message>
-    <message>
-        <location line="-167"/>
-        <location line="+233"/>
+        <location line="-33"/>
         <source>Configure server settings</source>
         <translation>Konfigurer serverindstillinger</translation>
     </message>
     <message>
-        <location line="-255"/>
+        <location line="-22"/>
         <source>Fetch all server info</source>
         <translation>Hent alle serveroplysninger</translation>
     </message>
@@ -5266,77 +5479,7 @@ enig</translation>
         <translation>Skriv dekrypteret systemdatabasen til SQL-fil</translation>
     </message>
     <message>
-        <location line="+62"/>
-        <source>Known secure [default]</source>
-        <translation>Kendt for at være sikker [standard]</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>SSL v3</source>
-        <translation>SSL v3</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>SSL v2</source>
-        <translation>SSL v2</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>TLS v1.0</source>
-        <translation>TLS v1.0</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>TLS v1.0 or later</source>
-        <translation>TLS v1.0 eller senere</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>TLS v1.1</source>
-        <translation>TLS v1.1</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>TLS v1.1 or later</source>
-        <translation>TLS v1.1 eller senere</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>TLS v1.2</source>
-        <translation>TLS v1.2</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>TLS v1.2 or later</source>
-        <translation>TLS v1.2 eller senere</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>SSLv2, SSLv3, or TLSv1.0</source>
-        <translation>SSLv2, SSLv3, eller TLSv1.0</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>TLS v1.0 or SSL v3</source>
-        <translation>TLS v1.0 eller SSL v3</translation>
-    </message>
-    <message>
-        <location line="+14"/>
-        <source>Multi-step (original)</source>
-        <translation>Multi-trin (original)</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Always one-step (faster)</source>
-        <translation>Altid en-trins (hurtigere)</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>One-step if small enough (default)</source>
-        <translation>Ét trin, hvis det er lille nok (standard)</translation>
-    </message>
-    <message>
-        <location line="+107"/>
+        <location line="+23"/>
         <source>The settings here influence whether CamCOPS will consider some third-party tasks “permitted” on your behalf, according to their published use criteria. They do &lt;b&gt;not&lt;/b&gt; remove your responsibility to ensure that you use them in accordance with their own requirements.</source>
         <translation>Indstillingerne her påvirker, om CamCOPS overvejer nogle tredjepartsopgaver “tilladt” på dine vegne i henhold til deres offentliggjorte brugskriterier. De fjerner &lt;b&gt;ikke&lt;/b&gt; dit ansvar for at sikre, at du bruger dem i overensstemmelse med deres egne krav.</translation>
     </message>
@@ -5441,12 +5584,12 @@ enig</translation>
         <translation>Standard kliniker/forsker detaljer (for at spare dig for at skrive)</translation>
     </message>
     <message>
-        <location line="-407"/>
+        <location line="-235"/>
         <source>Change operating mode</source>
         <translation>Skift driftstilstand</translation>
     </message>
     <message>
-        <location line="+410"/>
+        <location line="+238"/>
         <source>Default clinician/researcher’s specialty</source>
         <translation>Standard kliniker/forskers specialitet</translation>
     </message>
@@ -5481,117 +5624,7 @@ enig</translation>
         <translation>f.eks. “x2167”</translation>
     </message>
     <message>
-        <location line="+129"/>
-        <source>Questionnaire font size</source>
-        <translation>Spørgeskema skriftstørrelse</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Set the font size, as a percentage of the default.</source>
-        <translation>Indstil skriftstørrelsen som en procentdel af standardværdien.</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Changes take effect when a screen is reloaded.</source>
-        <translation>Ændringer træder i kraft, når en skærm genindlæses.</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>You can type it in:</source>
-        <translation>Du kan skrive det i:</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>... or set it with a slider:</source>
-        <translation>... eller sæt det med en skyder:</translation>
-    </message>
-    <message>
-        <location line="+41"/>
-        <source>DPI settings</source>
-        <translation>Punkter pr. tommer indstillinger</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Dots per inch (DPI), or more accurately pixels per inch (PPI), are a measure of screen resolution. Higher-resolution monitors have higher DPI settings. In some circumstances, CamCOPS needs to know your screen&apos;s DPI settings accurately. If your operating system mis-reports them, you can override the system settings here.</source>
-        <translation>Punkter pr. tommer (DPI) eller mere præcist pixel pr. tomme (PPI) er et mål for skærmopløsning. Højere opløsning skærme har højere DPI indstillinger. Under nogle omstændigheder skal CamCOPS kende din skærms DPI-indstillinger nøjagtigt. Hvis dit operativsystem mis-rapporterer dem, kan du tilsidesætte systemindstillingerne her.</translation>
-    </message>
-    <message>
-        <location line="+8"/>
-        <source>These settings take effect when you restart CamCOPS.</source>
-        <translation>Disse indstillinger træder i kraft, når du genstarter CamCOPS.</translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>Override system logical DPI settings</source>
-        <translation>Overstyr systemets logiske DPI-indstillinger</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Logical DPI, X</source>
-        <translation>Logisk DPI, X</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Logical DPI, Y</source>
-        <translation>Logisk DPI, Y</translation>
-    </message>
-    <message>
-        <location line="+8"/>
-        <source>Override system physical DPI settings</source>
-        <translation>Overstyr systemets fysiske DPI-indstillinger</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Physical DPI, X</source>
-        <translation>Fysisk DPI, X</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Physical DPI, Y</source>
-        <translation>Fysisk DPI, Y</translation>
-    </message>
-    <message>
-        <location line="+4"/>
-        <source>Dots per inch (DPI), e.g. 96; range %1-%2</source>
-        <translation>Punkter pr. tommer (DPI), f.eks. 96; interval %1-%2</translation>
-    </message>
-    <message>
-        <location line="-55"/>
-        <source>Reset to 100%</source>
-        <translation>Nulstil til 100%</translation>
-    </message>
-    <message>
-        <location line="+17"/>
-        <source>Set questionnaire font size</source>
-        <translation>Angiv skriftstørrelse for spørgeskema</translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>Set questionnaire font size and DPI settings</source>
-        <translation>Indstil spørgeskema skriftstørrelse og DPI indstillinger</translation>
-    </message>
-    <message>
-        <location line="+15"/>
-        <source>Logical DPI settings are used for icon sizes and similar. You are unlikely to need to override these. Current system logical DPI:</source>
-        <translation>Logiske DPI-indstillinger bruges til ikonstørrelser og lignende. Det er usandsynligt, at du behøver at tilsidesætte disse. Aktuel system logisk DPI:</translation>
-    </message>
-    <message>
-        <location line="+9"/>
-        <source>Physical DPI settings are used for absolute sizes (e.g. visual analogue scales). Override this for precise scaling if your system gets it slightly wrong. Current system physical DPI:</source>
-        <translation>Fysiske DPI-indstillinger bruges til absolutte størrelser (f.eks. visuelle analoge vægte). Tilsidesæt dette for præcis skalering, hvis dit system får det lidt forkert. Aktuelt fysisk DPI for systemet:</translation>
-    </message>
-    <message>
-        <location line="+263"/>
-        <source>Server details have changed. You should consider re-registering with the server.</source>
-        <translation>Serveroplysningerne er ændret. Du bør overveje at omregistrere til serveren.</translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>Registration advised</source>
-        <translation>Registrering anbefales</translation>
-    </message>
-    <message>
-        <location line="+55"/>
+        <location line="+168"/>
         <source>&lt;b&gt;Are you sure you want to delete all extra strings?&lt;/b&gt;&lt;br&gt;(To get them back, re-download them from your server.)</source>
         <translation>&lt;b&gt;Er du sikker på, at du vil slette alle ekstra strenger?&lt;/b&gt;&lt;br&gt;(For at få dem tilbage, genindlæs dem fra din server.)</translation>
     </message>
@@ -5811,7 +5844,7 @@ enig</translation>
         <translation>Optagelsestællinger for systemdatabasen</translation>
     </message>
     <message>
-        <location line="-1341"/>
+        <location line="-823"/>
         <source>Choose language</source>
         <translation>Vælg sprog</translation>
     </message>
@@ -5845,12 +5878,12 @@ enig</translation>
 <context>
     <name>SingleTaskMenu</name>
     <message>
-        <location filename="../menu/singletaskmenu.cpp" line="+92"/>
+        <location filename="../menu/singletaskmenu.cpp" line="+90"/>
         <source>Options</source>
         <translation>Muligheder</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="+7"/>
         <source>Task information</source>
         <translation>Opgaveinformation</translation>
     </message>
@@ -5861,12 +5894,12 @@ enig</translation>
         <translation>Opgavestatus</translation>
     </message>
     <message>
-        <location line="-110"/>
+        <location line="-111"/>
         <source>Task instances</source>
         <translation>Opgaveinstanser</translation>
     </message>
     <message>
-        <location line="+34"/>
+        <location line="+35"/>
         <source>You cannot add this task with your current settings.</source>
         <translation>Du kan ikke tilføje denne opgave med dine nuværende indstillinger.</translation>
     </message>
@@ -5997,6 +6030,34 @@ enig</translation>
     </message>
 </context>
 <context>
+    <name>SingleUserAdvancedMenu</name>
+    <message>
+        <location filename="../menu/singleuseradvancedmenu.cpp" line="+32"/>
+        <source>Advanced options</source>
+        <translation>Avancerede indstillinger</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Advanced settings</source>
+        <translation>Avancerede indstillinger</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Configure server settings</source>
+        <translation type="unfinished">Konfigurer serverindstillinger</translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <source>Disable network activity log</source>
+        <translation>Deaktiver netværksaktivitetslog</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Enable network activity log</source>
+        <translation>Aktiver netværksaktivitetslog</translation>
+    </message>
+</context>
+<context>
     <name>SingleUserMenu</name>
     <message>
         <location filename="../menu/singleusermenu.cpp" line="+44"/>
@@ -6022,7 +6083,7 @@ enig</translation>
 <context>
     <name>SingleUserOptionsMenu</name>
     <message>
-        <location filename="../menu/singleuseroptionsmenu.cpp" line="+38"/>
+        <location filename="../menu/singleuseroptionsmenu.cpp" line="+39"/>
         <location line="+6"/>
         <source>Options</source>
         <translation>Muligheder</translation>
@@ -6049,11 +6110,6 @@ enig</translation>
     </message>
     <message>
         <location line="+7"/>
-        <source>Change operating mode</source>
-        <translation>Skift driftstilstand</translation>
-    </message>
-    <message>
-        <location line="+4"/>
         <source>Re-register me</source>
         <translation>Registrer mig igen</translation>
     </message>
@@ -7042,35 +7098,35 @@ You should have received a copy of the GNU General Public License along with Cam
 
 7. THIS SOFTWARE IS DESIGNED FOR USE BY QUALIFIED CLINICIANS ONLY. BY CONTINUING TO USE THIS SOFTWARE YOU ARE CONFIRMING THAT YOU ARE A QUALIFIED CLINICIAN, AND THAT YOU RETAIN RESPONSIBILITY FOR DIAGNOSIS AND MANAGEMENT.
 
-8. The CamCOPS server uses a single secure cookie for session authentication. The cookie is not used for any other purpose. By using a CamCOPS server, you agree to this use of cookies.
+8. The CamCOPS server uses a single secure HTTP cookie for session authentication. The cookie is not used for any other purpose. It is deleted when you finish your session (it is a session cookie). By using a CamCOPS server, you agree to this use of cookies.
 
-These terms and conditions were last revised on 2020-06-29.</source>
-        <translation>1. Ved at bruge Cambridge Cognitive and Psychiatric Assessment Kit-applikationen eller webgrænsefladen (&quot;CamCOPS&quot;) accepterer du fuldt ud disse vilkår og betingelser for brug. Hvis du ikke accepterer disse vilkår, skal du ikke bruge softwaren.
+These terms and conditions were last revised on 2020-10-12.</source>
+        <translation>1. Ved at bruge Cambridge Cognitive and Psychiatric Assessment Kit ansøgning eller web interface (&quot;CamCOPS&quot;), du accepterer fuldt ud til disse vilkår og betingelser for brug. Hvis du ikke accepterer disse vilkår, skal du ikke bruge softwaren.
 
-2. Indhold, der er originalt for CamCOPS, er licenseret som følger.
+2. Indhold, der er originalt til CamCOPS, er licenseret som følger.
 
-CamCOPS er gratis software: du kan omfordele den og / eller ændre den under vilkårene i GNU General Public License, som offentliggjort af Free Software Foundation, enten version 3 af licensen eller (efter eget valg) enhver senere version.
+CamCOPS er gratis software: Du kan videredistribuere den og/eller ændre den i henhold til GNU&apos;s generelle offentlige licens som offentliggjort af Free Software Foundation, enten version 3 af licensen, eller (efter eget valg) enhver nyere version.
 
-CamCOPS distribueres i håb om, at det vil være nyttigt, men UDEN GARANTI; uden engang den underforståede garanti for salgbarhed eller egnethed til et særligt formål. Se GNU General Public License for flere detaljer.
+CamCOPS distribueres i håb om, at det vil være nyttigt, men uden nogen garanti; uden selv den underforståede garanti for merchantability eller fitness til et bestemt formål. Se GNU&apos;s generelle offentlige licens for at få flere oplysninger.
 
-Du skulle have modtaget en kopi af GNU General Public License sammen med CamCOPS. Hvis ikke, se &lt;http://www.gnu.org/licenses/&gt;.
+Du skulle have modtaget en kopi af GNU&apos;s generelle offentlige licens sammen med CamCOPS. Hvis ikke, se &lt;http://www.gnu.org/licenses/&gt;.
 
-3. Indhold oprettet af andre og distribueret med CamCOPS kan være i det offentlige domæne eller distribueres under andre licenser eller tilladelser. DER KAN KRITERIER SOM GÆLDER FOR DIG, SOM BETYDER, AT DU IKKE ER TILLADT TIL AT BRUGE SPECIFIKKE OPGAVER. DET ER DIN ANSVAR AT KONTROLLERE, AT DU RETLIGT ER RET TIL AT BRUGE HVER OPGAVER. Du accepterer, at forfatterne af CamCOPS ikke er ansvarlige for eventuelle konsekvenser, der opstår som følge af din brug af en uautoriseret opgave.
+3. Indhold, der er oprettet af andre og distribueret med CamCOPS, kan være offentligt tilgængeligt eller distribueret under andre licenser eller tilladelser. DER KAN VÆRE KRITERIER, DER GÆLDER FOR DIG, SOM BETYDER, AT DU IKKE HAR TILLADELSE TIL AT BRUGE BESTEMTE OPGAVER. DET ER DIT ANSVAR AT KONTROLLERE, AT DU ER JURIDISK BERETTIGET TIL AT BRUGE HVER OPGAVE. Du accepterer, at forfatterne til CamCOPS ikke er ansvarlige for eventuelle konsekvenser, der opstår som følge af din brug af en uautoriseret opgave.
 
-4. Selvom der er gjort en indsats for at sikre, at CamCOPS er pålidelig og nøjagtig, accepterer du, at forfatterne og distributørerne af CamCOPS ikke er ansvarlige for fejl, udeladelser eller mangler i indholdet og heller ikke er ansvarlige for direkte, indirekte, tilfældige, specielle og / eller følgeskader, helt eller delvist, som følge af din brug eller enhver brugers brug af eller tillid til dets indhold.
+4. Mens der er gjort en indsats for at sikre, at CamCOPS er pålidelig og præcis, accepterer du, at ophavsmændene og distributørerne af CamCOPS ikke er ansvarlige for fejl, udeladelser eller mangler i indholdet, eller ansvarlig for nogen direkte, indirekte, tilfældige, særlige og / eller følgeskader, helt eller delvist, som følge af din brug eller nogen brugers brug af eller tillid til dens indhold.
 
-5. Indhold indeholdt i eller adgang til via CamCOPS bør på ingen måde påberåbes til medicinske formål. Denne software er ikke designet til brug af offentligheden. Hvis der kræves lægehjælp, bør du søge lægehjælp fra ekspert. Du accepterer, at du ikke vil stole på denne software til noget medicinsk formål.
+5. Indhold, der er indeholdt i eller tilgås via CamCOPS, bør ikke påberåbes til medicinske formål på nogen måde. Denne software er ikke designet til brug af den brede offentlighed. Hvis lægelig rådgivning er påkrævet, bør du søge ekspert lægehjælp. Du accepterer, at du ikke vil stole på denne software til nogen medicinsk formål.
 
-6. Med hensyn til Den Europæiske Unions rådsdirektiv 93/42 / EØF af 14. juni 1993 om medicinsk udstyr (ændret ved yderligere direktiver til og med direktiv 2007/47 / EF af 5. september 2007) (&quot;Direktivet om medicinsk udstyr&quot;): CamCOPS er ikke beregnet til diagnose og / eller overvågning af sygdomme hos mennesker. Hvis det bruges til sådanne formål, skal det bruges UDELUKKENDE TIL KLINISKE UNDERSØGELSER i en passende indstilling af personer, der er fagligt kvalificerede til at gøre det. Den har IKKE gennemgået en overensstemmelsesvurdering i henhold til direktivet om medicinsk udstyr og kan derfor ikke markedsføres eller tages i brug som et medicinsk udstyr. Du accepterer, at du ikke vil bruge det som et medicinsk udstyr.
+6. For så videre angår Den Europæiske Unions Råds direktiv 93/42/EØF af 14. Hvis det anvendes til sådanne formål, skal det udelukkende anvendes til kliniske undersøgelser i passende omgivelser af personer, der er fagligt kvalificerede til at gøre det. Det har IKKE gennemgået en overensstemmelsesvurdering i henhold til direktivet om medicinsk udstyr og kan derfor ikke markedsføres eller tages i brug som medicinsk udstyr. Du accepterer, at du ikke vil bruge det som medicinsk udstyr.
 
-7. DENNE SOFTWARE ER KUN DESIGNET TIL BRUG AF KVALIFICEREDE KLINIKERE. VED AT FORTSÆTTE AT BRUGE DENNE SOFTWARE BEKRÆFTER DU, AT DU ER KVALIFICERET KLINIKER, OG AT DU BEHOLDER ANSVAR FOR DIAGNOSE OG LEDELSE.
+7. DENNE SOFTWARE ER KUN BEREGNET TIL BRUG AF KVALIFICEREDE KLINIKERE. VED AT FORTSÆTTE MED AT BRUGE DENNE SOFTWARE BEKRÆFTER DU, AT DU ER EN KVALIFICERET KLINIKER, OG AT DU BEVARER ANSVARET FOR DIAGNOSE OG LEDELSE.
 
-8. CamCOPS-serveren bruger en enkelt sikker cookie til sessionsgodkendelse. Cookien bruges ikke til noget andet formål. Ved at bruge en CamCOPS-server accepterer du denne brug af cookies.
+8. CamCOPS-serveren bruger en enkelt sikker HTTP-cookie til sessionsgodkendelse. Cookien bruges ikke til andre formål. Den slettes, når du er færdig med din session (det er en sessionscookie). Ved at bruge en CamCOPS-server accepterer du denne brug af cookies.
 
-Disse vilkår og betingelser blev sidst revideret den 2020-06-29.</translation>
+Disse vilkår og betingelser blev senest revideret i 2020-10-12.</translation>
     </message>
     <message>
-        <location line="+85"/>
+        <location line="+82"/>
         <source>CamCOPS is a computer program to collect information for clinical (health care) and/or research purposes.
 
 Tasks may be scheduled for you by your clinical/research team, and will then appear in CamCOPS for you to complete.
@@ -7085,6 +7141,19 @@ Opgaver kan planlægges for dig af dit kliniske team/ forskerhold, og vil dereft
 DETTE ER IKKE EN ERSTATNING FOR DIREKTE KOMMUNIKATION MED DIT KLINISKE/FORSKERHOLD ELLER REDNINGSTJENESTER. Oplysninger, du giver via CamCOPS, kan muligvis ikke ses hurtigt af en relevant person. Hvis du har noget presserende at fortælle din kliniske / forskerhold, komme i kontakt med dem direkte uden forsinkelse. Hvis noget er meget presserende (for eksempel, hvis du er meget syg eller i fare), så kontakt alarmcentralen straks.
 
 Tak!</translation>
+    </message>
+</context>
+<context>
+    <name>ValidatingLineEdit</name>
+    <message>
+        <location filename="../widgets/validatinglineedit.cpp" line="+60"/>
+        <source>Valid</source>
+        <translation>Gyldig</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Invalid</source>
+        <translation>Ugyldig</translation>
     </message>
 </context>
 <context>
