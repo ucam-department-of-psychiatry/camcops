@@ -643,6 +643,7 @@ SOURCES += \
     menu/whiskertestmenu.cpp \
     menu/widgettestmenu.cpp \
     menulib/choosepatientmenuitem.cpp \
+    menulib/fontsizeanddpiwindow.cpp \
     menulib/fontsizewindow.cpp \
     menulib/htmlinfowindow.cpp \
     menulib/htmlmenuitem.cpp \
@@ -1105,6 +1106,7 @@ HEADERS += \
     menu/whiskertestmenu.h \
     menu/widgettestmenu.h \
     menulib/choosepatientmenuitem.h \
+    menulib/fontsizeanddpiwindow.h \
     menulib/fontsizewindow.h \
     menulib/htmlinfowindow.h \
     menulib/htmlmenuitem.h \

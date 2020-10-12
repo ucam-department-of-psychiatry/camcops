@@ -19,29 +19,26 @@
 
 #pragma once
 #include "common/aliases_camcops.h"
-#include "common/uiconst.h"
+#include "menulib/fontsizewindow.h"
 #include "widgets/openablewidget.h"
 
 class CamcopsApp;
-class Questionnaire;
 
-class FontSizeWindow : public QObject
+class FontSizeAndDpiWindow : public FontSizeWindow
 {
     Q_OBJECT
 public:
-    FontSizeWindow(CamcopsApp& app);
-    virtual OpenableWidget* editor();
+    FontSizeAndDpiWindow(CamcopsApp& app);
+    OpenableWidget* editor() override;
 
 protected:
-    CamcopsApp& m_app;
-    virtual QString getPageTitle();
-    void fontSizeChanged();
-    void fontSettingsSaved();
-    void fontSettingsCancelled();
-    void resetFontSize();
-    virtual void setUpPage(QuPagePtr page);
-    QString demoText(const QString& text, uiconst::FontSize fontsize_type) const;
-
-    QPointer<Questionnaire> m_fontsize_questionnaire;
-    FieldRefPtr m_fontsize_fr;
+    void dpiOverrideChanged();
+    QString getPageTitle() override;
+    void setUpPage(QuPagePtr page) override;
+    FieldRefPtr m_dpi_override_logical_fr;
+    FieldRefPtr m_dpi_override_logical_x_fr;
+    FieldRefPtr m_dpi_override_logical_y_fr;
+    FieldRefPtr m_dpi_override_physical_fr;
+    FieldRefPtr m_dpi_override_physical_x_fr;
+    FieldRefPtr m_dpi_override_physical_y_fr;
 };

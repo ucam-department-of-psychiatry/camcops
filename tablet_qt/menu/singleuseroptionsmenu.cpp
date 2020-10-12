@@ -99,9 +99,7 @@ void SingleUserOptionsMenu::chooseLanguage()
 
 OpenableWidget* SingleUserOptionsMenu::setQuestionnaireFontSize(CamcopsApp& app)
 {
-    const bool simplified = true;
     auto window = new FontSizeWindow(app);
 
-    return window->editor(simplified);
-
+    return window->editor();
 }

@@ -40,7 +40,7 @@
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 #include "menu/testmenu.h"
-#include "menulib/fontsizewindow.h"
+#include "menulib/fontsizeanddpiwindow.h"
 #include "menulib/menuitem.h"
 #include "menulib/serversettingswindow.h"
 #include "questionnairelib/commonoptions.h"
@@ -102,7 +102,7 @@ void SettingsMenu::makeItems()
             tr("Questionnaire font size and DPI settings"),
             MenuItem::OpenableWidgetMaker(
                 std::bind(&SettingsMenu::setQuestionnaireFontSize, this,
-                          std::placeholders::_1, false)
+                          std::placeholders::_1)
             )
         ),
         MenuItem(
@@ -492,12 +492,11 @@ OpenableWidget* SettingsMenu::configureUser(CamcopsApp& app)
 }
 
 
-OpenableWidget* SettingsMenu::setQuestionnaireFontSize(CamcopsApp& app,
-                                                       const bool simplified)
+OpenableWidget* SettingsMenu::setQuestionnaireFontSize(CamcopsApp& app)
 {
-    auto window = new FontSizeWindow(app);
+    auto window = new FontSizeAndDpiWindow(app);
 
-    return window->editor(simplified);
+    return window->editor();
 }
 
 
