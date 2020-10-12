@@ -39,7 +39,6 @@
 #include "questionnairelib/qulineeditint64.h"
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qutext.h"
-
 #include "widgets/openablewidget.h"
 
 // ============================================================================

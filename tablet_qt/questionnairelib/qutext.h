@@ -66,12 +66,12 @@ public:
     // Change the "static" text.
     void setText(const QString& text, bool repolish = true);
 
-    friend class SettingsMenu;
+    friend class FontSizeWindow;
 
 protected:
     virtual QPointer<QWidget> makeWidget(Questionnaire* questionnaire) override;
 
-    // Force the font size manually. For SettingsMenu only, to demonstrate
+    // Force the font size manually. For FontSizeWindow only, to demonstrate
     // font size.
     void forceFontSize(int fontsize_pt, bool repolish = true);
 

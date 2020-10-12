@@ -40,6 +40,7 @@
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 #include "menu/testmenu.h"
+#include "menulib/fontsizewindow.h"
 #include "menulib/menuitem.h"
 #include "menulib/serversettingswindow.h"
 #include "questionnairelib/commonoptions.h"
@@ -61,52 +62,18 @@
 #include "widgets/labelwordwrapwide.h"
 #include "lib/slowguiguard.h"
 
-// For font size settings:
-const QString TAG_NORMAL("Normal");
-const QString TAG_BIG("Big");
-const QString TAG_HEADING("Heading");
-const QString TAG_TITLE("Title");
-const QString TAG_MENUS("Menus");
-const QString alphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ "
-                       "abcdefghijklmnopqrstuvwxyz "
-                       "0123456789");
-const QMap<QString, uiconst::FontSize> FONT_SIZE_MAP{
-    {TAG_NORMAL, uiconst::FontSize::Normal},
-    {TAG_BIG, uiconst::FontSize::Big},
-    {TAG_HEADING, uiconst::FontSize::Heading},
-    {TAG_TITLE, uiconst::FontSize::Title},
-    {TAG_MENUS, uiconst::FontSize::Menus},
-};
 
 // For IP settings:
 const QString TAG_IP_CLINICAL_WARNING("clinical");
-
-const QString TAG_DPI_LOGICAL("dpi_logical");
-const QString TAG_DPI_PHYSICAL("dpi_physical");
 
 
 SettingsMenu::SettingsMenu(CamcopsApp& app) :
     MenuWindow(app, uifunc::iconFilename(uiconst::ICON_SETTINGS)),
     m_plaintext_pw_live(false),
-    m_fontsize_questionnaire(nullptr),
     m_ip_questionnaire(nullptr)
 {
-    m_fontsize_fr = m_app.storedVarFieldRef(
-                varconst::QUESTIONNAIRE_SIZE_PERCENT, true);
     m_ip_clinical_fr = m_app.storedVarFieldRef(
                 varconst::IP_USE_CLINICAL, false);
-    m_dpi_override_logical_fr = m_app.storedVarFieldRef(
-                varconst::OVERRIDE_LOGICAL_DPI, false);
-    m_dpi_override_logical_x_fr = m_app.storedVarFieldRef(
-                varconst::OVERRIDE_LOGICAL_DPI_X, false);
-    m_dpi_override_logical_y_fr = m_app.storedVarFieldRef(
-                varconst::OVERRIDE_LOGICAL_DPI_Y, false);
-    m_dpi_override_physical_fr = m_app.storedVarFieldRef(
-                varconst::OVERRIDE_PHYSICAL_DPI, false);
-    m_dpi_override_physical_x_fr = m_app.storedVarFieldRef(
-                varconst::OVERRIDE_PHYSICAL_DPI_X, false);
-    m_dpi_override_physical_y_fr = m_app.storedVarFieldRef(
-                varconst::OVERRIDE_PHYSICAL_DPI_Y, false);
 }
 
 
@@ -525,310 +492,12 @@ OpenableWidget* SettingsMenu::configureUser(CamcopsApp& app)
 }
 
 
-QString SettingsMenu::demoText(const QString& text,
-                               const uiconst::FontSize fontsize_type) const
-{
-    if (!m_fontsize_fr) {
-        return "?";
-    }
-    const double current_pct = m_fontsize_fr->valueDouble();
-    const int font_size_pt = m_app.fontSizePt(fontsize_type, current_pct);
-    return QString("%1 [%2 pt] %3")
-            .arg(tr(qPrintable(text)))
-            .arg(font_size_pt)
-            .arg(alphabet);
-}
-
-
 OpenableWidget* SettingsMenu::setQuestionnaireFontSize(CamcopsApp& app,
                                                        const bool simplified)
 {
-    // ------------------------------------------------------------------------
-    // Font size
-    // ------------------------------------------------------------------------
+    auto window = new FontSizeWindow(app);
 
-    const int fs_min = 70;
-    const int fs_max = 300;
-    const int fs_slider_step = 1;
-    const int fs_slider_tick_interval = 10;
-    QMap<int, QString> ticklabels;
-    for (int i = fs_min; i <= fs_max; i += fs_slider_tick_interval) {
-        ticklabels[i] = QString("%1").arg(i);
-    }
-
-    const QString font_heading(tr("Questionnaire font size"));
-    const QString font_prompt1(tr("Set the font size, as a percentage of the default."));
-    const QString font_explan(tr("Changes take effect when a screen is reloaded."));
-    const QString font_prompt2(tr("You can type it in:"));
-    const QString font_prompt3(tr("... or set it with a slider:"));
-
-    QuPagePtr page(new QuPage{
-        new QuHeading(font_heading),
-        new QuText(stringfunc::makeTitle(font_prompt1)),
-        new QuText(font_explan),
-        questionnairefunc::defaultGridRawPointer({
-            {
-                font_prompt2,
-                new QuLineEditInteger(m_fontsize_fr, fs_min, fs_max)
-            },
-        }, 1, 1),
-        new QuText(font_prompt3),
-        (new QuSlider(m_fontsize_fr, fs_min, fs_max, fs_slider_step))
-            ->setTickInterval(fs_slider_tick_interval)
-            ->setTickPosition(QSlider::TicksBothSides)
-            ->setTickLabels(ticklabels)
-            ->setTickLabelPosition(QSlider::TicksAbove),
-        new QuButton(tr("Reset to 100%"),
-                       [this](){ resetFontSize(); }),
-        (new QuText(demoText(TAG_NORMAL,
-                             uiconst::FontSize::Normal)))->addTag(TAG_NORMAL),
-        (new QuText(demoText(TAG_BIG,
-                             uiconst::FontSize::Big)))->addTag(TAG_BIG),
-        (new QuText(demoText(TAG_HEADING,
-                             uiconst::FontSize::Heading)))->addTag(TAG_HEADING),
-        (new QuText(demoText(TAG_TITLE,
-                             uiconst::FontSize::Title)))->addTag(TAG_TITLE),
-        (new QuText(demoText(TAG_MENUS,
-                             uiconst::FontSize::Menus)))->addTag(TAG_MENUS),
-    });
-
-    QString page_title;
-
-    if (simplified) {
-        page_title = tr("Set questionnaire font size");
-    } else {
-        page_title = tr("Set questionnaire font size and DPI settings");
-        // --------------------------------------------------------------------
-        // DPI extras
-        // --------------------------------------------------------------------
-        const QString dpi_heading(tr("DPI settings"));
-        const QString dpi_explanation(tr(
-            "Dots per inch (DPI), or more accurately pixels per inch (PPI), "
-            "are a measure of screen resolution. Higher-resolution monitors have "
-            "higher DPI settings. In some circumstances, CamCOPS needs to know "
-            "your screen's DPI settings accurately. If your operating system "
-            "mis-reports them, you can override the system settings here."
-        ));
-        const QString dpi_restart(
-            tr("These settings take effect when you restart CamCOPS."));
-
-        const QString logical_info(tr(
-            "Logical DPI settings are used for icon sizes and similar. "
-            "You are unlikely to need to override these. "
-            "Current system logical DPI:") + " " +
-            m_app.qtLogicalDotsPerInch().description());
-        const QString override_log(tr("Override system logical DPI settings"));
-        const QString override_log_x(tr("Logical DPI, X"));
-        const QString override_log_y(tr("Logical DPI, Y"));
-
-        const QString physical_info(tr(
-            "Physical DPI settings are used for absolute sizes "
-            "(e.g. visual analogue scales). Override this for precise scaling if "
-            "your system gets it slightly wrong. Current system physical DPI:") +
-            " " +
-            m_app.qtPhysicalDotsPerInch().description());
-        const QString override_phy(tr("Override system physical DPI settings"));
-        const QString override_phy_x(tr("Physical DPI, X"));
-        const QString override_phy_y(tr("Physical DPI, Y"));
-
-        const double dpi_min = 50;  // 67 realistic low end; https://en.wikipedia.org/wiki/Pixel_density
-        const double dpi_max = 4000;  // 3760 has been achieved; https://en.wikipedia.org/wiki/Pixel_density
-        const QString dpi_hint(tr("Dots per inch (DPI), e.g. 96; range %1-%2")
-                .arg(dpi_min).arg(dpi_max));
-
-        auto dpi_grid = new QuGridContainer();
-        dpi_grid->setColumnStretch(0, 1);
-        dpi_grid->setColumnStretch(1, 1);
-        int row = 0;
-        const Qt::Alignment labelalign = Qt::AlignRight | Qt::AlignTop;
-        const int dpi_dp = 2;
-        const bool dpi_allow_empty = true;
-        dpi_grid->addCell(QuGridCell(
-            new QuText(logical_info),
-            row, 0, 1, 2
-        ));
-        ++row;
-        dpi_grid->addCell(QuGridCell(
-            (new QuText(stringfunc::makeTitle(override_log)))->setTextAlignment(labelalign),
-            row, 0));
-        dpi_grid->addCell(QuGridCell(
-            (new QuMcq(m_dpi_override_logical_fr, CommonOptions::yesNoBoolean()))
-                ->setHorizontal(true)
-                ->setAsTextButton(true),
-            row, 1));
-        ++row;
-        dpi_grid->addCell(QuGridCell(
-            (new QuText(stringfunc::makeTitle(override_log_x)))
-                              ->setTextAlignment(labelalign)
-                              ->addTag(TAG_DPI_LOGICAL),
-            row, 0));
-        dpi_grid->addCell(QuGridCell(
-            (new QuLineEditDouble(m_dpi_override_logical_x_fr, dpi_min, dpi_max,
-                                  dpi_dp, dpi_allow_empty))
-                              ->setHint(dpi_hint)
-                              ->addTag(TAG_DPI_LOGICAL),
-            row, 1));
-        ++row;
-        dpi_grid->addCell(QuGridCell(
-            (new QuText(stringfunc::makeTitle(override_log_y)))
-                              ->setTextAlignment(labelalign)
-                              ->addTag(TAG_DPI_LOGICAL),
-            row, 0));
-        dpi_grid->addCell(QuGridCell(
-            (new QuLineEditDouble(m_dpi_override_logical_y_fr, dpi_min, dpi_max,
-                                  dpi_dp, dpi_allow_empty))
-                              ->setHint(dpi_hint)
-                              ->addTag(TAG_DPI_LOGICAL),
-            row, 1));
-        ++row;
-        // --------------------------------------------------------------------
-        dpi_grid->addCell(QuGridCell(
-            new QuText(physical_info),
-            row, 0, 1, 2
-        ));
-        ++row;
-        dpi_grid->addCell(QuGridCell(
-            (new QuText(stringfunc::makeTitle(override_phy)))->setTextAlignment(labelalign),
-            row, 0));
-        dpi_grid->addCell(QuGridCell(
-            (new QuMcq(m_dpi_override_physical_fr, CommonOptions::yesNoBoolean()))
-                ->setHorizontal(true)
-                ->setAsTextButton(true),
-            row, 1));
-        ++row;
-        dpi_grid->addCell(QuGridCell(
-            (new QuText(stringfunc::makeTitle(override_phy_x)))
-                              ->setTextAlignment(labelalign)
-                              ->addTag(TAG_DPI_PHYSICAL),
-            row, 0));
-        dpi_grid->addCell(QuGridCell(
-            (new QuLineEditDouble(m_dpi_override_physical_x_fr, dpi_min, dpi_max,
-                                  dpi_dp, dpi_allow_empty))
-                              ->setHint(dpi_hint)
-                              ->addTag(TAG_DPI_PHYSICAL),
-            row, 1));
-        ++row;
-        dpi_grid->addCell(QuGridCell(
-            (new QuText(stringfunc::makeTitle(override_phy_y)))
-                              ->setTextAlignment(labelalign)
-                              ->addTag(TAG_DPI_PHYSICAL),
-            row, 0));
-        dpi_grid->addCell(QuGridCell(
-            (new QuLineEditDouble(m_dpi_override_physical_y_fr, dpi_min, dpi_max,
-                                  dpi_dp, dpi_allow_empty))
-                              ->setHint(dpi_hint)
-                              ->addTag(TAG_DPI_PHYSICAL),
-            row, 1));
-
-        connect(m_fontsize_fr.data(), &FieldRef::valueChanged,
-                this, &SettingsMenu::fontSizeChanged,
-                Qt::UniqueConnection);
-        connect(m_dpi_override_logical_fr.data(), &FieldRef::valueChanged,
-                this, &SettingsMenu::dpiOverrideChanged,
-                Qt::UniqueConnection);
-        connect(m_dpi_override_physical_fr.data(), &FieldRef::valueChanged,
-                this, &SettingsMenu::dpiOverrideChanged,
-                Qt::UniqueConnection);
-
-        page->addElements({
-            new QuHeading(dpi_heading),
-            new QuText(dpi_explanation),
-            dpi_grid,
-            new QuText(dpi_restart),
-        });
-    }
-
-    // ------------------------------------------------------------------------
-    // Final setup
-    // ------------------------------------------------------------------------
-
-    page->setTitle(page_title);
-    page->setType(QuPage::PageType::Config);
-
-    m_fontsize_questionnaire = new Questionnaire(app, {page});
-    m_fontsize_questionnaire->setFinishButtonIconToTick();
-    connect(m_fontsize_questionnaire, &Questionnaire::completed,
-            this, &SettingsMenu::fontSettingsSaved);
-    connect(m_fontsize_questionnaire, &Questionnaire::cancelled,
-            this, &SettingsMenu::fontSettingsCancelled);
-    connect(m_fontsize_questionnaire, &Questionnaire::pageAboutToOpen,
-            this, &SettingsMenu::fontSizeChanged);
-
-    dpiOverrideChanged();
-
-    return m_fontsize_questionnaire;
-}
-
-
-void SettingsMenu::resetFontSize()
-{
-    if (!m_fontsize_fr) {
-        return;
-    }
-    m_fontsize_fr->setValue(100);
-}
-
-
-void SettingsMenu::fontSizeChanged()
-{
-    // Slightly nasty code.
-    if (!m_fontsize_questionnaire || !m_fontsize_fr) {
-        return;
-    }
-    QuPage* page = m_fontsize_questionnaire->currentPagePtr();
-    if (!page) {
-        return;
-    }
-    const double current_pct = m_fontsize_fr->valueDouble();
-    QMapIterator<QString, uiconst::FontSize> i(FONT_SIZE_MAP);
-    while (i.hasNext()) {
-        i.next();
-        QString tag = i.key();
-        uiconst::FontSize fontsize_type = i.value();
-        for (auto e : page->elementsWithTag(tag)) {
-            int fontsize_pt = m_app.fontSizePt(fontsize_type, current_pct);
-            QString text = demoText(tag, fontsize_type);
-            // Here's the slightly nasty bit:
-            QuText* textelement = dynamic_cast<QuText*>(e);
-            if (!textelement) {
-                continue;
-            }
-            textelement->forceFontSize(fontsize_pt, false);
-            textelement->setText(text);
-        }
-    }
-}
-
-
-void SettingsMenu::dpiOverrideChanged()
-{
-    if (!m_fontsize_questionnaire) {
-        return;
-    }
-    const bool logical = m_dpi_override_logical_fr->valueBool();
-    m_fontsize_questionnaire->setVisibleByTag(TAG_DPI_LOGICAL, logical);
-    m_dpi_override_logical_x_fr->setMandatory(logical);
-    m_dpi_override_logical_y_fr->setMandatory(logical);
-    const bool physical = m_dpi_override_physical_fr->valueBool();
-    m_fontsize_questionnaire->setVisibleByTag(TAG_DPI_PHYSICAL, physical);
-    m_dpi_override_physical_x_fr->setMandatory(physical);
-    m_dpi_override_physical_y_fr->setMandatory(physical);
-}
-
-
-void SettingsMenu::fontSettingsSaved()
-{
-    m_app.saveCachedVars();
-    m_fontsize_questionnaire = nullptr;
-    // Trigger reloading of reload CSS to SettingsMenu and MainMenu:
-    m_app.fontSizeChanged();
-}
-
-
-void SettingsMenu::fontSettingsCancelled()
-{
-    m_app.clearCachedVars();
-    m_fontsize_questionnaire = nullptr;
+    return window->editor(simplified);
 }
 
 

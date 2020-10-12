@@ -35,8 +35,6 @@ public:
 protected:
     virtual void makeItems() override;
     OpenableWidget* configureServer(CamcopsApp& app);
-    void serverSettingsSaved();
-    bool validateServerSettings(QStringList& errors, const QuPage* page);
 
     OpenableWidget* configureIntellectualProperty(CamcopsApp& app);
     void ipClinicalChanged();
@@ -49,13 +47,6 @@ protected:
 
     OpenableWidget* setQuestionnaireFontSize(CamcopsApp& app,
                                              bool simplified = false);
-    void fontSizeChanged();
-    void fontSettingsSaved();
-    void fontSettingsCancelled();
-    void resetFontSize();
-    QString demoText(const QString& text, uiconst::FontSize fontsize_type) const;
-    void dpiOverrideChanged();
-
     void setPrivilege();
     void changeAppPassword();
     void changePrivPassword();
@@ -90,16 +81,6 @@ protected:
 protected:
     mutable SecureQString m_temp_plaintext_password;
     bool m_plaintext_pw_live;
-    QPointer<Questionnaire> m_fontsize_questionnaire;
     QPointer<Questionnaire> m_ip_questionnaire;
-    FieldRefPtr m_fontsize_fr;
     FieldRefPtr m_ip_clinical_fr;
-    FieldRefPtr m_dpi_override_logical_fr;
-    FieldRefPtr m_dpi_override_logical_x_fr;
-    FieldRefPtr m_dpi_override_logical_y_fr;
-    FieldRefPtr m_dpi_override_physical_fr;
-    FieldRefPtr m_dpi_override_physical_x_fr;
-    FieldRefPtr m_dpi_override_physical_y_fr;
-
-    friend class SingleUserOptionsMenu;
 };

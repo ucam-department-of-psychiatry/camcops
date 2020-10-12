@@ -20,7 +20,6 @@
 #pragma once
 #include <QSharedPointer>
 #include "menulib/menuwindow.h"
-class SettingsMenu;
 
 
 class SingleUserOptionsMenu : public MenuWindow
@@ -36,9 +35,4 @@ protected:
     void updateTaskSchedules();
     void chooseLanguage();
     OpenableWidget* setQuestionnaireFontSize(CamcopsApp& app);
-protected:
-    // We want to be able to call some functions from the main settings menu.
-    // Since they require persistent state during window activity, a simple
-    // way is to own one:
-    QSharedPointer<SettingsMenu> m_settings_menu;
 };

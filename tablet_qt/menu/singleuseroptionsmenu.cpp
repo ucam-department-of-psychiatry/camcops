@@ -18,17 +18,18 @@
 */
 
 #include "singleuseroptionsmenu.h"
+
 #include "common/urlconst.h"
 #include "lib/uifunc.h"
-#include "menu/settingsmenu.h"
 #include "menu/singleuseradvancedmenu.h"
+#include "menulib/fontsizewindow.h"
+
 
 SingleUserOptionsMenu::SingleUserOptionsMenu(CamcopsApp& app)
     : MenuWindow(
           app,
           uifunc::iconFilename(uiconst::ICON_SETTINGS)
-    ),
-    m_settings_menu(new SettingsMenu(app))
+    )
 {
 }
 
@@ -99,5 +100,8 @@ void SingleUserOptionsMenu::chooseLanguage()
 OpenableWidget* SingleUserOptionsMenu::setQuestionnaireFontSize(CamcopsApp& app)
 {
     const bool simplified = true;
-    return m_settings_menu->setQuestionnaireFontSize(app, simplified);
+    auto window = new FontSizeWindow(app);
+
+    return window->editor(simplified);
+
 }
