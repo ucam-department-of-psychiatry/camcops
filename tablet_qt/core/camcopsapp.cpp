@@ -123,7 +123,8 @@ CamcopsApp::CamcopsApp(int& argc, char* argv[]) :
     m_storedvars_available(false),
     m_netmgr(nullptr),
     m_qt_logical_dpi(uiconst::DEFAULT_DPI),
-    m_qt_physical_dpi(uiconst::DEFAULT_DPI)
+    m_qt_physical_dpi(uiconst::DEFAULT_DPI),
+    m_network_gui_guard(nullptr)
 {
     setLanguage(QLocale::system().name());  // try languages::DANISH
     setApplicationName(APP_NAME);
@@ -356,6 +357,12 @@ void CamcopsApp::updateTaskSchedules()
 
 void CamcopsApp::networkManagerFinished()
 {
+    if (m_network_gui_guard) {
+        delete m_network_gui_guard;
+
+        m_network_gui_guard = nullptr;
+    }
+
     recreateMainMenu();
 }
 
@@ -415,6 +422,12 @@ void CamcopsApp::updateTaskSchedulesFailed(
 void CamcopsApp::uploadFailed(const NetworkManager::ErrorCode error_code,
                               const QString& error_string)
 {
+    if (m_network_gui_guard) {
+        delete m_network_gui_guard;
+
+        m_network_gui_guard = nullptr;
+    }
+
     handleNetworkFailure(
         error_code,
         error_string,
@@ -1569,7 +1582,7 @@ void CamcopsApp::disableNetworkLogging()
 }
 
 
-bool CamcopsApp::isLoggingNetwork() const
+bool CamcopsApp::isLoggingNetwork()
 {
     if (m_netmgr) {
         return m_netmgr->isLogging();
@@ -2895,6 +2908,13 @@ void CamcopsApp::upload()
     // will not be in silent mode, so will report the error to the user
     // directly. (And similarly, we didn't/don't need a "finished" callback in
     // clinician mode.)
+
+    if (!isLoggingNetwork()) {
+        m_network_gui_guard = new SlowGuiGuard(*this, m_p_main_window,
+                                               TextConst::pleaseWait(),
+                                               tr("Uploading..."),
+                                               100);
+    }
 
     networkManager()->upload(method);
 }

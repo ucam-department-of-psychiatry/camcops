@@ -31,6 +31,7 @@
 #include "crypto/secureqstring.h"
 #include "db/fieldref.h"  // for FieldRefPtr
 #include "dbobjects/patient.h"
+#include "lib/slowguiguard.h"
 #include "questionnairelib/namevalueoptions.h"
 #include "tasklib/task.h"  // for TaskPtr
 class IdPolicy;
@@ -40,7 +41,6 @@ class QMainWindow;
 class QStackedWidget;
 class QTextStream;
 class QTranslator;
-class SlowGuiGuard;
 class Version;
 
 
@@ -486,7 +486,7 @@ public:
 
     void enableNetworkLogging();
     void disableNetworkLogging();
-    bool isLoggingNetwork() const;
+    bool isLoggingNetwork();
 
 protected:
     // Makes a new NetworkManager.
@@ -808,4 +808,7 @@ protected:
     //   settings
     Dpi m_qt_logical_dpi;
     Dpi m_qt_physical_dpi;
+
+    // Please wait... dialog during upload
+    SlowGuiGuard *m_network_gui_guard;
 };
