@@ -135,6 +135,7 @@ from cardinal_pythonlib.sqlalchemy.orm_query import CountStarSpecializedQuery
 from colander import (
     Boolean,
     Date,
+    drop,
     Integer,
     Invalid,
     Length,
@@ -3968,6 +3969,7 @@ class TaskScheduleNode(MappingSchema, RequestAwareMixin):
 
 class TaskScheduleSequence(SequenceSchema, RequestAwareMixin):
     task_schedule_sequence = TaskScheduleNode()
+    missing = drop
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
