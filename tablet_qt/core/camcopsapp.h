@@ -499,6 +499,9 @@ protected:
     // Callback for when the network manager has finished talking to the server.
     void networkManagerFinished();
 
+    // Enable background uploads when network manager has finished or cancelled
+    void enableBackgroundUpload();
+
     // Callback for patient registration failure.
     void patientRegistrationFailed(const NetworkManager::ErrorCode error_code,
                                    const QString& error_string);
@@ -695,6 +698,9 @@ public slots:
     // Save the changes from the storedvar editing cache to the database.
     void saveCachedVars();
 
+protected slots:
+    void retryUpload();
+
 protected:
     void createVar(const QString& name, QVariant::Type type,
                    const QVariant& default_value = QVariant());
@@ -811,4 +817,6 @@ protected:
 
     // Please wait... dialog during upload
     SlowGuiGuard *m_network_gui_guard;
+
+    QDateTime m_last_automatic_upload_time;
 };

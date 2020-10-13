@@ -109,7 +109,7 @@ const QString CONNECTION_DATA("data");
 const QString CONNECTION_SYS("sys");
 const int DEFAULT_SERVER_PORT = 443;  // HTTPS
 const QString ENVVAR_DB_DIR("CAMCOPS_DATABASE_DIRECTORY");
-
+const int UPLOAD_INTERVAL_SECONDS = 10 * 60;  // 10 minutes
 
 CamcopsApp::CamcopsApp(int& argc, char* argv[]) :
     QApplication(argc, argv),
@@ -133,6 +133,8 @@ CamcopsApp::CamcopsApp(int& argc, char* argv[]) :
 #ifdef DEBUG_ALL_APPLICATION_EVENTS
     new DebugEventWatcher(this, DebugEventWatcher::All);
 #endif
+
+    m_last_automatic_upload_time = QDateTime();  // initially invalid
 }
 
 
@@ -363,6 +365,15 @@ void CamcopsApp::networkManagerFinished()
         m_network_gui_guard = nullptr;
     }
 
+    if (isSingleUserMode()) {
+        // This will upload any pending tasks or patients.
+        // In reality this will just upload the newly registered patient's
+        // details to the server.
+        // Tasks will be uploaded fully in closeSubWindow, assuming there is
+        // a connection to the server
+        retryUpload();
+    }
+
     recreateMainMenu();
 }
 
@@ -433,6 +444,26 @@ void CamcopsApp::uploadFailed(const NetworkManager::ErrorCode error_code,
         error_string,
         tr("There was a problem sending your completed tasks to the server.")
     );
+}
+
+
+void CamcopsApp::retryUpload()
+{
+    bool needs_upload = needsUpload();
+
+    qDebug() << Q_FUNC_INFO
+             << "Last automatic upload time" << m_last_automatic_upload_time
+             << "needsUpload()" << needs_upload;
+
+    if (needs_upload) {
+        const auto now = QDateTime::currentDateTimeUtc();
+
+        if (!m_last_automatic_upload_time.isValid() ||
+            m_last_automatic_upload_time.secsTo(now) > UPLOAD_INTERVAL_SECONDS) {
+            upload();
+            m_last_automatic_upload_time = now;
+        }
+    }
 }
 
 
@@ -1556,7 +1587,7 @@ void CamcopsApp::reconnectNetManager(
     // Reconnect:
     if (finished_callback) {
         connect(netmgr, &NetworkManager::finished,
-                this, &CamcopsApp::networkManagerFinished,
+                this, finished_callback,
                 Qt::UniqueConnection);
     }
     if (cancelled_callback) {
@@ -1790,6 +1821,14 @@ void CamcopsApp::closeSubWindow()
 
         if (shouldUploadNow()) {
             upload();
+        }
+    } else {
+        if (isSingleUserMode() && m_info_stack.size() == 1) {
+            // If the user went back to the main menu and haven't just
+            // finished a task, attempt to upload any pending tasks. This is
+            // really only necessary if the device wasn't connected to the
+            // network before.
+            retryUpload();
         }
     }
     if (info.patient) {
