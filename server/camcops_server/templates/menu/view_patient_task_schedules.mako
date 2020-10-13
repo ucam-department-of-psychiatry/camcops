@@ -29,7 +29,7 @@ camcops_server/templates/menu/view_patient_task_schedules.mako
 <%inherit file="base_web.mako"/>
 
 <%!
-from urllib.parse import urlencode
+from urllib.parse import quote, urlencode
 
 from cardinal_pythonlib.datetimefunc import format_datetime
 
@@ -88,7 +88,7 @@ ${_("CamCOPS server location:")} ${ req.route_url( Routes.CLIENT_API ) }
                             _("Your access key is:") + "\n\n" +
                             patient.uuid_as_proquint + "\n"
                         )
-                    })
+                    }, quote_via=quote)
                     mailto_url = f"mailto:{patient.email}?" + mailto_params
                 %>
                 <a href="${ mailto_url }">${ patient.email }</a>
