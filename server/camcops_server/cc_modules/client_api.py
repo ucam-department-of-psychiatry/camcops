@@ -377,6 +377,7 @@ from semantic_version import Version
 from sqlalchemy.engine.result import ResultProxy
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import joinedload
+from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import exists, select, update
 from sqlalchemy.sql.schema import Table
 
@@ -2178,20 +2179,23 @@ def create_single_user(req: "CamcopsRequest",
     Returns:
         tuple: :class:`camcops_server.cc_modules.cc_user.User`, password
 
-    todo: Handle the case in which the username already exists? Maybe
-          implausible, but is it possible (e.g. username gets wiped but UUID
-          remains on client, so the client asks again)?
     """
     dbsession = req.dbsession
 
-    user = User(username=name)
+    try:
+        user = dbsession.query(User).filter_by(username=name).one()
+    except NoResultFound:
+        user = User(username=name)
     user.upload_group = group
     user.auto_generated = True
     password = random_password()
     user.set_password(req, password)
 
     dbsession.add(user)
-    dbsession.commit()
+    # As the username is based on a UUID, we're pretty sure another
+    # request won't have created the same user, otherwise we'd need
+    # to catch IntegrityError
+    dbsession.flush()
 
     membership = UserGroupMembership(
         user_id=user.id,
@@ -3429,6 +3433,53 @@ class PatientRegistrationTests(DemoDatabaseTestCase):
         users_after = self.req.dbsession.query(User).count()
 
         self.assertEqual(users_before, users_after)
+
+    def test_does_not_create_user_when_name_exists(self) -> None:
+        from camcops_server.cc_modules.cc_taskindex import (
+            PatientIdNumIndexEntry,
+        )
+        patient = self.create_patient(_group_id=self.group.id)
+        idnum = self.create_patient_idnum(
+            patient_id=patient.id, which_idnum=self.nhs_iddef.which_idnum,
+            idnum_value=4887211163
+        )
+        PatientIdNumIndexEntry.index_idnum(idnum, self.dbsession)
+
+        proquint = patient.uuid_as_proquint
+
+        user = User(username=f"user-{self.other_device.name}")
+        user.set_password(self.req, "old password")
+        self.dbsession.add(user)
+        self.dbsession.commit()
+
+        self.req.fake_request_post_from_dict({
+            TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
+            TabletParam.DEVICE: self.other_device.name,
+            TabletParam.OPERATION: Operations.REGISTER_PATIENT,
+            TabletParam.PATIENT_PROQUINT: proquint,
+        })
+        response = client_api(self.req)
+        reply_dict = get_reply_dict_from_response(response)
+
+        self.assertEqual(reply_dict[TabletParam.SUCCESS], SUCCESS_CODE,
+                         msg=reply_dict)
+
+        username = reply_dict[TabletParam.USER]
+        self.assertEqual(username,
+                         f"user-{self.other_device.name}")
+        password = reply_dict[TabletParam.PASSWORD]
+        self.assertEqual(len(password), 32)
+
+        valid_chars = string.ascii_letters + string.digits + string.punctuation
+        self.assertTrue(all(c in valid_chars for c in password))
+
+        user = self.req.dbsession.query(User).filter(
+            User.username == username).one_or_none()
+        self.assertIsNotNone(user)
+        self.assertEqual(user.upload_group, patient.group)
+        self.assertTrue(user.auto_generated)
+        self.assertTrue(user.may_register_devices)
+        self.assertTrue(user.may_upload)
 
     def test_raises_for_invalid_proquint(self) -> None:
         # For type checker
