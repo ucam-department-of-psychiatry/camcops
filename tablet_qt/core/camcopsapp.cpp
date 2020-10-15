@@ -301,6 +301,10 @@ bool CamcopsApp::registerPatientWithServer()
     setVar(varconst::SINGLE_PATIENT_PROQUINT, patient_proquint);
     setVar(varconst::DEVICE_FRIENDLY_NAME,
            QString("Single user device %1").arg(deviceId()));
+    // Currently defaults to no validation, though the user can enable through
+    // the advanced settings if they so wish.
+    setVar(varconst::VALIDATE_SSL_CERTIFICATES,
+           varconst::VALIDATE_SSL_CERTIFICATES_IN_SINGLE_USER_MODE);
 
     reconnectNetManager(&CamcopsApp::patientRegistrationFailed);
     networkManager()->registerPatient();
@@ -2243,9 +2247,6 @@ void CamcopsApp::setNeedsUpload(const bool needs_upload)
 
 bool CamcopsApp::validateSslCertificates() const
 {
-    if (isSingleUserMode()) {
-        return varconst::VALIDATE_SSL_CERTIFICATES_IN_SINGLE_USER_MODE;
-    }
     return varBool(varconst::VALIDATE_SSL_CERTIFICATES);
 }
 
