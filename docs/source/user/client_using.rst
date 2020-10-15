@@ -255,8 +255,10 @@ Choose :tabletmenu:`|upload| Upload data to server` from the main menu.
 
 In :ref:`Single User Mode <single_user_mode>` uploading should happen
 automatically when you complete |finish| or abort |cancel| a task. If there was
-a problem with the automatic upload (e.g. due to no internet connection) you can
-use this option to try uploading to the server again.
+a problem with the automatic upload (e.g. due to no internet connection) the app
+will reattempt the upload when you return to the main menu from another screen,
+provided 10 minutes has elapsed since the last attempt. You can also use this option
+to reattempt the upload manually.
 
 The rest of this section applies to Clinician Mode.
 
@@ -337,11 +339,26 @@ You can select a number of other, less frequently used options by selecting
 :menuselection:`More options`:
 
 - :menuselection:`More options --> Get updates to my schedules` will fetch any
-  updates to your task schedules from the server
+  updates to your task schedules from the server.
 
-- :menuselection:`More options --> Change operating mode` will allow you to
-  change to Clinician Mode
+- :menuselection:`More options --> Choose language`
+
+- :menuselection:`More options --> Online CamCOPS documentation`
+
+- :menuselection:`More options --> Questionnaire font size`
 
 - :menuselection:`More options --> Re-register me` will allow you to re-run the
   patient registration process. **WARNING:** any records not yet uploaded to the
   server will be lost.
+
+Note that anonymous tasks are not associated with a patient when uploaded to the
+server. If the database on the app is deleted and you re-register, we have no
+way of knowing if the anonymous task has been completed or not so it will always
+appear as incomplete.
+
+There are a couple of other options from :menuselection:`More options --> Advanced options`.
+These are intended to aid debugging so you should not need to use these in normal operation.
+
+- :menuselection:`Advanced options --> Configure server settings`
+
+- :menuselection:`Advanced options --> Enable network activity log`
