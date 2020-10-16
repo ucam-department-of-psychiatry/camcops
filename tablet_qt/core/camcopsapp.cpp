@@ -356,6 +356,14 @@ void CamcopsApp::deleteTaskSchedules()
 
 void CamcopsApp::updateTaskSchedules()
 {
+    if (tasksInProgress()) {
+        uifunc::alert(
+            tr("You cannot update your task schedules when there are unfinished tasks")
+        );
+
+        return;
+    }
+
     reconnectNetManager(&CamcopsApp::updateTaskSchedulesFailed);
     networkManager()->updateTaskSchedules();
 }
@@ -2973,16 +2981,28 @@ NetworkManager::UploadMethod CamcopsApp::getUploadMethod()
 
 NetworkManager::UploadMethod CamcopsApp::getSingleUserUploadMethod()
 {
-    TaskSchedulePtrList schedules = getTaskSchedules();
-
-    for (const TaskSchedulePtr& schedule : schedules) {
-        if (schedule->hasIncompleteCurrentTasks()) {
-            return NetworkManager::UploadMethod::Copy;
-        }
+    if (tasksInProgress()) {
+        return NetworkManager::UploadMethod::Copy;
     }
 
     return NetworkManager::UploadMethod::MoveKeepingPatients;
 }
+
+
+bool CamcopsApp::tasksInProgress()
+{
+    TaskSchedulePtrList schedules = getTaskSchedules();
+
+    for (const TaskSchedulePtr& schedule : schedules) {
+        if (schedule->hasIncompleteCurrentTasks()) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
 
 
 NetworkManager::UploadMethod CamcopsApp::getUploadMethodFromUser()

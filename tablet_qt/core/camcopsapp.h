@@ -439,6 +439,9 @@ public:
     // Returns all patients.
     PatientPtrList getAllPatients(bool sorted = true);
 
+    // Returns true if any current tasks are not complete
+    bool tasksInProgress();
+
     // Returns task schedules when in single user mode
     TaskSchedulePtrList getTaskSchedules();
 
