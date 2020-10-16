@@ -88,8 +88,8 @@ class PatientTaskSchedule(Base):
         "schedule_id", Integer,
         ForeignKey("_task_schedule.id", ondelete="CASCADE")
     )
-    start_date = Column(
-        "start_date", PendulumDateTimeAsIsoTextColType,
+    start_datetime = Column(
+        "start_datetime", PendulumDateTimeAsIsoTextColType,
         comment=(
             "Schedule start date for the patient. Due from/within "
             "durations for a task schedule item are relative to this."
@@ -115,9 +115,13 @@ class PatientTaskSchedule(Base):
             end_datetime = None
             task = None
 
-            if self.start_date is not None:
-                start_datetime = self.start_date.add(days=tsi.due_from.days)
-                end_datetime = self.start_date.add(days=tsi.due_by.days)
+            if self.start_datetime is not None:
+                start_datetime = self.start_datetime.add(
+                    days=tsi.due_from.days
+                )
+                end_datetime = self.start_datetime.add(
+                    days=tsi.due_by.days
+                )
 
                 task = self.find_scheduled_task(
                     req, tsi, start_datetime, end_datetime

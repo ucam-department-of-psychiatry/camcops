@@ -56,6 +56,7 @@
 #include "tasklib/task.h"
 #include "tasklib/taskfactory.h"
 #include "tasklib/taskschedule.h"
+#include "tasklib/taskscheduleitem.h"
 #include "version/camcopsversion.h"
 
 using dbfunc::delimit;
@@ -895,10 +896,7 @@ void NetworkManager::storeTaskSchedules()
 {
     statusMessage(tr("... received task schedules"));
 
-    m_app.deleteTaskSchedules();
-
     QJsonParseError error;
-
     QJsonDocument doc = QJsonDocument::fromJson(
         m_reply_dict[KEY_TASK_SCHEDULES].toUtf8(), &error
     );
@@ -913,8 +911,10 @@ void NetworkManager::storeTaskSchedules()
         return;
     }
 
-    const QJsonArray schedules_array = doc.array();
+    TaskSchedulePtrList old_schedules = m_app.getTaskSchedules();
 
+    TaskSchedulePtrList new_schedules;
+    const QJsonArray schedules_array = doc.array();
     QJsonArray::const_iterator it;
     for (it = schedules_array.constBegin();
             it != schedules_array.constEnd(); it++) {
@@ -925,9 +925,57 @@ void NetworkManager::storeTaskSchedules()
         );
 
         schedule->save();
+
         schedule->addItems(
             schedule_json.value(KEY_TASK_SCHEDULE_ITEMS).toArray()
         );
+
+        new_schedules.append(schedule);
+    }
+
+    if (old_schedules.size() > 0) {
+        updateCompleteStatusForAnonymousTasks(old_schedules, new_schedules);
+    }
+
+    for (const TaskSchedulePtr& old_schedule : old_schedules) {
+        old_schedule->deleteFromDatabase();
+    }
+}
+
+
+void NetworkManager::updateCompleteStatusForAnonymousTasks(
+    TaskSchedulePtrList old_schedules, TaskSchedulePtrList new_schedules
+)
+{
+    // When updating the schedule, the server does not know which anonymous
+    // tasks have been completed so we use any existing data on the tablet.
+    // The new task schedule item has to match the old one exactly in terms
+    // of table name, date etc
+
+    QMap<QString, TaskSchedulePtr> old_schedule_map;
+    for (const TaskSchedulePtr& old_schedule : old_schedules) {
+        old_schedule_map[old_schedule->name()] = old_schedule;
+    }
+
+    for (const TaskSchedulePtr& new_schedule : new_schedules) {
+        QString schedule_name = new_schedule->name();
+        if (old_schedule_map.contains(schedule_name)) {
+            TaskSchedulePtr old_schedule = old_schedule_map[schedule_name];
+
+            for (const TaskScheduleItemPtr& old_item: old_schedule->items()) {
+
+                if (old_item->isAnonymous()) {
+                    TaskScheduleItemPtr new_item = new_schedule->findItem(
+                        old_item
+                    );
+
+                    if (new_item != nullptr) {
+                        new_item->setComplete(old_item->isComplete());
+                        new_item->save();
+                    }
+                }
+            }
+        }
     }
 }
 

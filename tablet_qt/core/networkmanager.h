@@ -392,6 +392,11 @@ protected:
     // Store the task schedules.
     void storeTaskSchedules();
 
+    // Copy complete status for anonymous tasks when updating tasks
+    void updateCompleteStatusForAnonymousTasks(
+        TaskSchedulePtrList old_schedules, TaskSchedulePtrList new_schedules
+    );
+
     // ------------------------------------------------------------------------
     // Signals
     // ------------------------------------------------------------------------

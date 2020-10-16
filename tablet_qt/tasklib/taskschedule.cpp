@@ -116,6 +116,22 @@ QVector<DatabaseObjectPtr> TaskSchedule::getAllAncillary() const
     return ancillaries;
 }
 
+
+TaskScheduleItemPtr TaskSchedule::findItem(const TaskScheduleItemPtr match)
+{
+    for (const TaskScheduleItemPtr& item : m_items) {
+        if (item->dueFromUtc() == match->dueFromUtc() &&
+            item->dueByUtc() == match->dueByUtc() &&
+            item->taskTableName() == match->taskTableName()) {
+
+            return item;
+        }
+    }
+
+    return nullptr;
+}
+
+
 QVector<TaskScheduleItemPtr> TaskSchedule::items() const
 {
     return m_items;

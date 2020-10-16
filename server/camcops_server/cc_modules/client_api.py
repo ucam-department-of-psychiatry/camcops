@@ -2337,25 +2337,9 @@ def get_task_schedules(req: "CamcopsRequest",
     schedules = []
 
     for pts in patient.task_schedules:
-        if pts.start_date is None:
-            # TODO:
-            # If the start date has been set on the form, it will be a date
-            # with no time so will default to 00:00 UTC on that date.
-            # If no start date has been set, we set it to the current date and
-            # time.
-            # It seems to make sense on the tablet to display the due-by date
-            # for a task as both date and time. If we just display the date,
-            # the user probably expects that they have until 23:59:59 on that
-            # date to complete the task.
-            # A small bug with the current setup is that if the date and time
-            # has been set here during registration and the patient's details
-            # are edited on the server, the start date will be set to midnight
-            # on the same date. So there will be a mismatch on the tablet and
-            # server (this would also be the case if the admin changed the
-            # start date to something completely different). If the user
-            # updates their task schedules on the tablet the dates will be in
-            # sync again.
-            pts.start_date = req.now_utc
+        if pts.start_datetime is None:
+            # Minutes granularity so we are consistent with the form
+            pts.start_datetime = req.now_utc.replace(second=0, microsecond=0)
             dbsession.add(pts)
 
         items = []
@@ -2375,6 +2359,7 @@ def get_task_schedules(req: "CamcopsRequest",
 
             items.append({
                 TabletParam.TABLE: task_info.tablename,
+                TabletParam.ANONYMOUS: task_info.is_anonymous,
                 TabletParam.SETTINGS: settings,
                 TabletParam.DUE_FROM: due_from,
                 TabletParam.DUE_BY: due_by,
@@ -3618,8 +3603,7 @@ class GetTaskSchedulesTests(DemoDatabaseTestCase):
         pass
 
     def test_returns_task_schedules(self) -> None:
-        from pendulum import DateTime as Pendulum, Duration, parse
-        import pytz
+        from pendulum import DateTime as Pendulum, Duration, local, parse
 
         from camcops_server.cc_modules.cc_taskindex import (
             PatientIdNumIndexEntry,
@@ -3653,7 +3637,7 @@ class GetTaskSchedulesTests(DemoDatabaseTestCase):
         item2.schedule_id = schedule1.id
         item2.task_table_name = "bmi"
         item2.due_from = Duration(days=0)
-        item2.due_by = Duration(days=7)
+        item2.due_by = Duration(days=8)
         self.dbsession.add(item2)
 
         item3 = TaskScheduleItem()
@@ -3663,6 +3647,12 @@ class GetTaskSchedulesTests(DemoDatabaseTestCase):
         item3.due_by = Duration(days=37)
         self.dbsession.add(item3)
 
+        item4 = TaskScheduleItem()
+        item4.schedule_id = schedule1.id
+        item4.task_table_name = "gmcpq"
+        item4.due_from = Duration(days=30)
+        item4.due_by = Duration(days=38)
+        self.dbsession.add(item4)
         self.dbsession.commit()
 
         patient = self.create_patient()
@@ -3684,7 +3674,7 @@ class GetTaskSchedulesTests(DemoDatabaseTestCase):
                 "phq9_key": "phq9_value",
             }
         }
-        patient_task_schedule1.start_date = parse("2020-07-31")
+        patient_task_schedule1.start_datetime = local(2020, 7, 31)
 
         self.dbsession.add(patient_task_schedule1)
 
@@ -3700,7 +3690,7 @@ class GetTaskSchedulesTests(DemoDatabaseTestCase):
         bmi.height_m = 1.83
         bmi.mass_kg = 67.57
         bmi.patient_id = patient.id
-        bmi.when_created = parse("2020-08-01")
+        bmi.when_created = local(2020, 8, 1)
         self.dbsession.add(bmi)
 
         self.dbsession.commit()
@@ -3737,37 +3727,43 @@ class GetTaskSchedulesTests(DemoDatabaseTestCase):
         self.assertEqual(s[TabletParam.TASK_SCHEDULE_NAME], "Test 1")
 
         items = s[TabletParam.TASK_SCHEDULE_ITEMS]
-        self.assertEqual(len(items), 3)
+        self.assertEqual(len(items), 4)
 
         self.assertEqual(items[0][TabletParam.TABLE], "phq9")
         self.assertEqual(items[0][TabletParam.SETTINGS], {
             "phq9_key": "phq9_value"
         })
         self.assertEqual(parse(items[0][TabletParam.DUE_FROM]),
-                         Pendulum(2020, 7, 31, tzinfo=pytz.UTC))
+                         local(2020, 7, 31))
         self.assertEqual(parse(items[0][TabletParam.DUE_BY]),
-                         Pendulum(2020, 8, 7, tzinfo=pytz.UTC))
+                         local(2020, 8, 7))
         self.assertFalse(items[0][TabletParam.COMPLETE])
+        self.assertFalse(items[0][TabletParam.ANONYMOUS])
 
         self.assertEqual(items[1][TabletParam.TABLE], "bmi")
         self.assertEqual(items[1][TabletParam.SETTINGS], {
             "bmi_key": "bmi_value",
         })
         self.assertEqual(parse(items[1][TabletParam.DUE_FROM]),
-                         Pendulum(2020, 7, 31, tzinfo=pytz.UTC))
+                         local(2020, 7, 31))
         self.assertEqual(parse(items[1][TabletParam.DUE_BY]),
-                         Pendulum(2020, 8, 7, tzinfo=pytz.UTC))
+                         local(2020, 8, 8))
         self.assertTrue(items[1][TabletParam.COMPLETE])
+        self.assertFalse(items[1][TabletParam.ANONYMOUS])
 
         self.assertEqual(items[2][TabletParam.TABLE], "phq9")
         self.assertEqual(items[2][TabletParam.SETTINGS], {
             "phq9_key": "phq9_value"
         })
         self.assertEqual(parse(items[2][TabletParam.DUE_FROM]),
-                         Pendulum(2020, 8, 30, tzinfo=pytz.UTC))
+                         local(2020, 8, 30))
         self.assertEqual(parse(items[2][TabletParam.DUE_BY]),
-                         Pendulum(2020, 9, 6, tzinfo=pytz.UTC))
+                         local(2020, 9, 6))
         self.assertFalse(items[2][TabletParam.COMPLETE])
+        self.assertFalse(items[2][TabletParam.ANONYMOUS])
+
+        # GMCPQ
+        self.assertTrue(items[3][TabletParam.ANONYMOUS])
 
 
 # =============================================================================

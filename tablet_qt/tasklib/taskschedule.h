@@ -61,6 +61,9 @@ public:
     // Schedule name.
     QString name() const;
 
+    // Find a schedule item for the same task and dates/times
+    TaskScheduleItemPtr findItem(const TaskScheduleItemPtr match);
+
     // Schedule items (tasks with dates/times).
     QVector<TaskScheduleItemPtr> items() const;
 

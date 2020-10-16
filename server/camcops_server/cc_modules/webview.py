@@ -157,7 +157,7 @@ from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_orm_classes_from_base
 from cardinal_pythonlib.sqlalchemy.orm_query import CountStarSpecializedQuery
 from cardinal_pythonlib.sqlalchemy.session import get_engine_from_session
 from deform.exception import ValidationFailure
-from pendulum import DateTime as Pendulum, parse
+from pendulum import DateTime as Pendulum, local
 from pyramid.httpexceptions import HTTPBadRequest, HTTPFound, HTTPNotFound
 from pyramid.view import (
     forbidden_view_config,
@@ -172,7 +172,6 @@ import pygments.lexers
 import pygments.lexers.sql
 import pygments.lexers.web
 import pygments.formatters
-import pytz
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import joinedload, Query
 from sqlalchemy.sql.functions import func
@@ -3596,7 +3595,7 @@ class PatientMixin(object):
             form_values[ViewParam.TASK_SCHEDULES] = [
                 {
                     ViewParam.SCHEDULE_ID: pts.schedule_id,
-                    ViewParam.START_DATE: pts.start_date,
+                    ViewParam.START_DATETIME: pts.start_datetime,
                     ViewParam.SETTINGS: pts.settings,
                 }
                 for pts in patient.task_schedules
@@ -3844,15 +3843,8 @@ class EditServerCreatedPatientView(EditPatientBaseView):
         old_schedules = {}
         # noinspection PyUnresolvedReferences
         for pts in patient.task_schedules:
-            old_start_date = None
-            old_start_datetime = pts.start_date
-            if old_start_datetime is not None:
-                old_start_date = datetime.date(old_start_datetime.year,
-                                               old_start_datetime.month,
-                                               old_start_datetime.day)
-
             old_schedules[pts.task_schedule.id] = {
-                "start_date": old_start_date,
+                "start_datetime": pts.start_datetime,
                 "settings": pts.settings
             }
 
@@ -3864,21 +3856,21 @@ class EditServerCreatedPatientView(EditPatientBaseView):
             pts = PatientTaskSchedule()
             pts.patient_pk = patient.pk
             pts.schedule_id = schedule_id
-            pts.start_date = new_schedules[schedule_id]["start_date"]
+            pts.start_datetime = new_schedules[schedule_id]["start_datetime"]
             pts.settings = new_schedules[schedule_id]["settings"]
 
             self.request.dbsession.add(pts)
             changes["schedule{} ({})".format(
                 schedule_id, schedule_name_dict[schedule_id]
-            )] = ((None, None), (pts.start_date, pts.settings))
+            )] = ((None, None), (pts.start_datetime, pts.settings))
 
         for schedule_id in ids_to_update:
             updates = {}
 
-            new_start_date = new_schedules[schedule_id]["start_date"]
-            old_start_date = old_schedules[schedule_id]["start_date"]
-            if new_start_date != old_start_date:
-                updates[PatientTaskSchedule.start_date] = new_start_date
+            new_start_datetime = new_schedules[schedule_id]["start_datetime"]
+            old_start_datetime = old_schedules[schedule_id]["start_datetime"]
+            if new_start_datetime != old_start_datetime:
+                updates[PatientTaskSchedule.start_datetime] = new_start_datetime
 
             new_settings = new_schedules[schedule_id]["settings"]
             old_settings = old_schedules[schedule_id]["settings"]
@@ -3893,8 +3885,8 @@ class EditServerCreatedPatientView(EditPatientBaseView):
 
                 changes["schedule{} ({})".format(
                     schedule_id, schedule_name_dict[schedule_id]
-                )] = ((old_start_date, old_settings),
-                      (new_start_date, new_settings))
+                )] = ((old_start_datetime, old_settings),
+                      (new_start_datetime, new_settings))
 
         self.request.dbsession.query(PatientTaskSchedule).filter(
             PatientTaskSchedule.patient_pk == patient.pk,
@@ -3902,12 +3894,12 @@ class EditServerCreatedPatientView(EditPatientBaseView):
         ).delete(synchronize_session="fetch")
 
         for schedule_id in ids_to_delete:
-            old_start_date = old_schedules[schedule_id]["start_date"]
+            old_start_datetime = old_schedules[schedule_id]["start_datetime"]
             old_settings = old_schedules[schedule_id]["settings"]
 
             changes["schedule{} ({})".format(
                 schedule_id, schedule_name_dict[schedule_id]
-            )] = ((old_start_date, old_settings), (None, None))
+            )] = ((old_start_datetime, old_settings), (None, None))
 
 
 class EditFinalizedPatientView(EditPatientBaseView):
@@ -4041,12 +4033,12 @@ class AddPatientView(PatientMixin, CreateView):
 
         for task_schedule in task_schedules:
             schedule_id = task_schedule[ViewParam.SCHEDULE_ID]
-            start_date = task_schedule[ViewParam.START_DATE]
+            start_datetime = task_schedule[ViewParam.START_DATETIME]
             settings = task_schedule[ViewParam.SETTINGS]
             patient_task_schedule = PatientTaskSchedule()
             patient_task_schedule.patient_pk = patient.pk
             patient_task_schedule.schedule_id = schedule_id
-            patient_task_schedule.start_date = start_date
+            patient_task_schedule.start_datetime = start_datetime
             patient_task_schedule.settings = settings
 
             self.request.dbsession.add(patient_task_schedule)
@@ -5252,7 +5244,7 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
         patient_task_schedule = PatientTaskSchedule()
         patient_task_schedule.patient_pk = patient.pk
         patient_task_schedule.schedule_id = schedule1.id
-        patient_task_schedule.start_date = parse("2020-06-12")
+        patient_task_schedule.start_datetime = local(2020, 6, 12, 9)
         patient_task_schedule.settings = {
             "name 1": "value 1",
             "name 2": "value 2",
@@ -5300,9 +5292,10 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
             ("__start__", "task_schedules:sequence"),
             ("__start__", "task_schedule_sequence:mapping"),
             ("schedule_id", schedule1.id),
-            ("__start__", "start_date:mapping"),
+            ("__start__", "start_datetime:mapping"),
             ("date", "2020-06-12"),
-            ("__end__", "start_date:mapping"),
+            ("time", "09:00:00"),
+            ("__end__", "start_datetime:mapping"),
             ("settings", json.dumps({
                 "name 1": "value 1",
                 "name 2": "value 2",
@@ -5391,7 +5384,7 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
         patient_task_schedule = PatientTaskSchedule()
         patient_task_schedule.patient_pk = patient.pk
         patient_task_schedule.schedule_id = schedule1.id
-        patient_task_schedule.start_date = parse("2020-06-12", tz="local")
+        patient_task_schedule.start_datetime = local(2020, 6, 12)
         patient_task_schedule.settings = {
             "name 1": "value 1",
             "name 2": "value 2",
@@ -5435,8 +5428,8 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
         task_schedule = form_values[ViewParam.TASK_SCHEDULES][0]
         self.assertEqual(task_schedule[ViewParam.SCHEDULE_ID],
                          patient_task_schedule.schedule_id)
-        self.assertEqual(task_schedule[ViewParam.START_DATE],
-                         patient_task_schedule.start_date)
+        self.assertEqual(task_schedule[ViewParam.START_DATETIME],
+                         patient_task_schedule.start_datetime)
         self.assertEqual(task_schedule[ViewParam.SETTINGS],
                          patient_task_schedule.settings)
 
@@ -5579,7 +5572,7 @@ class EditServerCreatedPatientViewTests(DemoDatabaseTestCase):
         patient_task_schedule = PatientTaskSchedule()
         patient_task_schedule.patient_pk = patient.pk
         patient_task_schedule.schedule_id = schedule1.id
-        patient_task_schedule.start_date = parse("2020-06-12")
+        patient_task_schedule.start_datetime = local(2020, 6, 12, 9)
         patient_task_schedule.settings = {
             "name 1": "value 1",
             "name 2": "value 2",
@@ -5639,16 +5632,18 @@ class EditServerCreatedPatientViewTests(DemoDatabaseTestCase):
             ("__start__", "task_schedules:sequence"),
             ("__start__", "task_schedule_sequence:mapping"),
             ("schedule_id", schedule1.id),
-            ("__start__", "start_date:mapping"),
+            ("__start__", "start_datetime:mapping"),
             ("date", "2020-06-19"),
-            ("__end__", "start_date:mapping"),
+            ("time", "08:00:00"),
+            ("__end__", "start_datetime:mapping"),
             ("settings", json.dumps(changed_schedule_1_settings)),
             ("__end__", "task_schedule_sequence:mapping"),
             ("__start__", "task_schedule_sequence:mapping"),
             ("schedule_id", schedule2.id),
-            ("__start__", "start_date:mapping"),
+            ("__start__", "start_datetime:mapping"),
             ("date", "2020-07-01"),
-            ("__end__", "start_date:mapping"),
+            ("time", "13:45:00"),
+            ("__end__", "start_datetime:mapping"),
             ("settings", json.dumps(new_schedule_2_settings)),
             ("__end__", "task_schedule_sequence:mapping"),
             ("__end__", "task_schedules:sequence"),
@@ -5671,13 +5666,14 @@ class EditServerCreatedPatientViewTests(DemoDatabaseTestCase):
         self.assertNotIn("Test 3", schedules)
 
         self.assertEqual(
-            schedules["Test 1"].start_date, parse("2020-06-19")
+            schedules["Test 1"].start_datetime, local(2020, 6, 19, 8)
         )
         self.assertEqual(
             schedules["Test 1"].settings, changed_schedule_1_settings,
         )
         self.assertEqual(
-            schedules["Test 2"].start_date, parse("2020-07-01")
+            schedules["Test 2"].start_datetime,
+            local(2020, 7, 1, 13, 45)
         )
         self.assertEqual(
             schedules["Test 2"].settings, new_schedule_2_settings,
@@ -5709,7 +5705,7 @@ class EditServerCreatedPatientViewTests(DemoDatabaseTestCase):
         patient_task_schedule = PatientTaskSchedule()
         patient_task_schedule.patient_pk = patient.pk
         patient_task_schedule.schedule_id = schedule1.id
-        patient_task_schedule.start_date = parse("2020-06-12")
+        patient_task_schedule.start_datetime = local(2020, 6, 12, 12, 34)
 
         schedule_1_settings = {
             "name 1": "value 1",
@@ -5728,7 +5724,7 @@ class EditServerCreatedPatientViewTests(DemoDatabaseTestCase):
         }
         patient_task_schedule.schedule_id = schedule3.id
         patient_task_schedule.settings = schedule_3_settings
-        patient_task_schedule.start_date = parse("2020-07-31")
+        patient_task_schedule.start_datetime = local(2020, 7, 31, 13, 45)
 
         self.dbsession.add(patient_task_schedule)
         self.dbsession.commit()
@@ -5756,12 +5752,15 @@ class EditServerCreatedPatientViewTests(DemoDatabaseTestCase):
             ViewParam.TASK_SCHEDULES: [
                 {
                     ViewParam.SCHEDULE_ID: schedule1.id,
-                    ViewParam.START_DATE: datetime.date(2020, 6, 19),
+                    ViewParam.START_DATETIME: local(
+                        2020, 6, 19, 0, 1
+                    ),
                     ViewParam.SETTINGS: changed_schedule_1_settings,
                 },
                 {
                     ViewParam.SCHEDULE_ID: schedule2.id,
-                    ViewParam.START_DATE: datetime.date(2020, 7, 1),
+                    ViewParam.START_DATETIME: local(
+                        2020, 7, 1, 19, 2),
                     ViewParam.SETTINGS: new_schedule_2_settings,
                 }
             ]
@@ -5769,21 +5768,24 @@ class EditServerCreatedPatientViewTests(DemoDatabaseTestCase):
 
         view._save_task_schedules(appstruct, changes)
 
-        expected_old_1 = (datetime.date(2020, 6, 12), schedule_1_settings)
-        expected_new_1 = (datetime.date(2020, 6, 19),
+        expected_old_1 = (local(2020, 6, 12, 12, 34),
+                          schedule_1_settings)
+        expected_new_1 = (local(2020, 6, 19, 0, 1),
                           changed_schedule_1_settings)
 
         expected_old_2 = (None, None)
-        expected_new_2 = (datetime.date(2020, 7, 1), new_schedule_2_settings)
+        expected_new_2 = (local(2020, 7, 1, 19, 2),
+                          new_schedule_2_settings)
 
-        expected_old_3 = (datetime.date(2020, 7, 31), schedule_3_settings)
+        expected_old_3 = (local(2020, 7, 31, 13, 45),
+                          schedule_3_settings)
         expected_new_3 = (None, None)
 
-        self.assertEqual(changes["schedule1 (Test 1)"],
+        self.assertEqual(changes[f"schedule{schedule1.id} (Test 1)"],
                          (expected_old_1, expected_new_1))
-        self.assertEqual(changes["schedule2 (Test 2)"],
+        self.assertEqual(changes[f"schedule{schedule2.id} (Test 2)"],
                          (expected_old_2, expected_new_2))
-        self.assertEqual(changes["schedule3 (Test 3)"],
+        self.assertEqual(changes[f"schedule{schedule3.id} (Test 3)"],
                          (expected_old_3, expected_new_3))
 
 
@@ -5805,8 +5807,8 @@ class AddPatientViewTests(DemoDatabaseTestCase):
         self.dbsession.add(schedule2)
         self.dbsession.commit()
 
-        start_date1 = Pendulum(2020, 6, 12, 0, 0, 0, tzinfo=pytz.UTC)
-        start_date2 = Pendulum(2020, 7, 1, 0, 0, 0, tzinfo=pytz.UTC)
+        start_datetime1 = local(2020, 6, 12)
+        start_datetime2 = local(2020, 7, 1)
 
         settings1 = json.dumps({
             "name 1": "value 1",
@@ -5831,12 +5833,12 @@ class AddPatientViewTests(DemoDatabaseTestCase):
             ViewParam.TASK_SCHEDULES: [
                 {
                     ViewParam.SCHEDULE_ID: schedule1.id,
-                    ViewParam.START_DATE: start_date1,
+                    ViewParam.START_DATETIME: start_datetime1,
                     ViewParam.SETTINGS: settings1,
                 },
                 {
                     ViewParam.SCHEDULE_ID: schedule2.id,
-                    ViewParam.START_DATE: start_date2,
+                    ViewParam.START_DATETIME: start_datetime2,
                     ViewParam.SETTINGS: {},
                 },
             ],
@@ -5878,16 +5880,16 @@ class AddPatientViewTests(DemoDatabaseTestCase):
         self.assertIn("Test 2", patient_task_schedules)
 
         self.assertEqual(
-            patient_task_schedules["Test 1"].start_date,
-            start_date1
+            patient_task_schedules["Test 1"].start_datetime,
+            start_datetime1
         )
         self.assertEqual(
             patient_task_schedules["Test 1"].settings,
             settings1
         )
         self.assertEqual(
-            patient_task_schedules["Test 2"].start_date,
-            start_date2
+            patient_task_schedules["Test 2"].start_datetime,
+            start_datetime2
         )
 
     def test_patient_takes_next_available_id(self) -> None:

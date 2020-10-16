@@ -3928,7 +3928,8 @@ class JsonNode(SchemaNode, RequestAwareMixin):
 
 class TaskScheduleNode(MappingSchema, RequestAwareMixin):
     schedule_id = TaskScheduleSelector()  # must match ViewParam.SCHEDULE_ID  # noqa: E501
-    start_date = DateSelectorNode()  # must match ViewParam.START_DATE
+    # must match ViewParam.START_DATETIME
+    start_datetime = StartPendulumSelector()
     settings = JsonNode()  # must match ViewParam.SETTINGS
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
@@ -3939,9 +3940,8 @@ class TaskScheduleNode(MappingSchema, RequestAwareMixin):
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         _ = self.gettext
         self.title = _("Task schedule")
-        start_date = get_child_node(self, "start_date")
-        start_date.title = _("Start date")
-        start_date.description = _(
+        start_datetime = get_child_node(self, "start_datetime")
+        start_datetime.description = _(
             "Leave blank for the date the patient first downloads the schedule"
         )
         settings = get_child_node(self, "settings")

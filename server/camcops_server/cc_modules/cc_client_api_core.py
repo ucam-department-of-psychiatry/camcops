@@ -74,6 +74,7 @@ class TabletParam(object):
     bidirectional).
     """
     ADDRESS = "address"  # C->S, in JSON, v2.3.0
+    ANONYMOUS = "anonymous"  # S->C; new in v2.3.9
     CAMCOPS_VERSION = "camcops_version"  # C->S
     COMPLETE = "complete"  # S->C; new in v2.3.9
     DATABASE_TITLE = "databaseTitle"  # S->C

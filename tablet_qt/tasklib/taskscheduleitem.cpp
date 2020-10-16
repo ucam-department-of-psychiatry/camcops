@@ -39,9 +39,11 @@ const QString TaskScheduleItem::FN_SETTINGS("settings");
 const QString TaskScheduleItem::FN_DUE_FROM("due_from");
 const QString TaskScheduleItem::FN_DUE_BY("due_by");
 const QString TaskScheduleItem::FN_COMPLETE("complete");
+const QString TaskScheduleItem::FN_ANONYMOUS("anonymous");
 const QString TaskScheduleItem::FK_TASK_SCHEDULE("schedule_id");
 const QString TaskScheduleItem::FK_TASK("task");
 
+const QString TaskScheduleItem::KEY_ANONYMOUS("anonymous");
 const QString TaskScheduleItem::KEY_COMPLETE("complete");
 const QString TaskScheduleItem::KEY_DUE_BY("due_by");
 const QString TaskScheduleItem::KEY_DUE_FROM("due_from");
@@ -68,6 +70,7 @@ TaskScheduleItem::TaskScheduleItem(CamcopsApp& app, DatabaseManager& db,
     addField(FN_DUE_FROM, QVariant::String, true);
     addField(FN_DUE_BY, QVariant::String, true);
     addField(FN_COMPLETE, QVariant::Bool, true);
+    addField(FN_ANONYMOUS, QVariant::Bool, true);
     addField(FK_TASK, QVariant::Int, true);
 
     load(load_pk);
@@ -88,7 +91,8 @@ TaskScheduleItem::TaskScheduleItem(const int schedule_fk, CamcopsApp& app,
             {FN_TASK_TABLE_NAME, KEY_TABLE},
             {FN_DUE_FROM, KEY_DUE_FROM},
             {FN_DUE_BY, KEY_DUE_BY},
-            {FN_COMPLETE, KEY_COMPLETE}
+            {FN_COMPLETE, KEY_COMPLETE},
+            {FN_ANONYMOUS, KEY_ANONYMOUS},
         }
     );
     const QJsonObject settings = json_obj.value(KEY_SETTINGS).toObject();
@@ -239,9 +243,23 @@ bool TaskScheduleItem::isComplete() const
     return value(FN_COMPLETE).toBool();
 }
 
+
 void TaskScheduleItem::setComplete(bool complete)
 {
     setValue(FN_COMPLETE, complete);
+    save();
+}
+
+
+bool TaskScheduleItem::isAnonymous() const
+{
+    return value(FN_ANONYMOUS).toBool();
+}
+
+
+void TaskScheduleItem::setAnonymous(bool anonymous)
+{
+    setValue(FN_ANONYMOUS, anonymous);
     save();
 }
 

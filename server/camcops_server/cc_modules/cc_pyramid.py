@@ -230,7 +230,6 @@ class ViewParam(object):
     SORT = "sort"
     SOURCE = "source"
     SQLITE_METHOD = "sqlite_method"
-    START_DATE = "start_date"
     START_DATETIME = "start_datetime"
     SUPERUSER = "superuser"
     SURNAME = "surname"

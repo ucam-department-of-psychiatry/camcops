@@ -93,6 +93,12 @@ public:
     // Marks the scheduled task as complete (or not).
     void setComplete(bool complete);
 
+    // Returns the anonymous status of the scheduled task
+    bool isAnonymous() const;
+
+    // Marks the scheduled task as anonymous (or not).
+    void setAnonymous(bool anonymous);
+
     // Sets the associated task instance (using the task PK within its table).
     void setTask(int task_id);
 
@@ -106,6 +112,7 @@ public:
     static const QString FN_DUE_FROM;
     static const QString FN_DUE_BY;
     static const QString FN_COMPLETE;
+    static const QString FN_ANONYMOUS;
     static const QString FK_TASK_SCHEDULE;
     static const QString FK_TASK;
 
@@ -114,4 +121,5 @@ public:
     static const QString KEY_DUE_FROM;
     static const QString KEY_DUE_BY;
     static const QString KEY_COMPLETE;
+    static const QString KEY_ANONYMOUS;
 };

@@ -91,7 +91,7 @@ def upgrade():
         sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
         sa.Column('patient_pk', sa.Integer(), nullable=True),
         sa.Column('schedule_id', sa.Integer(), nullable=True),
-        sa.Column('start_date', camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(length=32), nullable=True, comment='Schedule start date for the patient. Due from/within durations for a task schedule item are relative to this.'),
+        sa.Column('start_datetime', camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(length=32), nullable=True, comment='Schedule start date for the patient. Due from/within durations for a task schedule item are relative to this.'),
         sa.Column('settings',
                   camcops_server.cc_modules.cc_sqla_coltypes.JsonColType(),
                   nullable=True,
