@@ -250,8 +250,8 @@ table.clinician, table.clinician th, table.clinician td {
 .filters {
     font-style: italic;
 }
-.input-group input[type="date"],
-.input-group input[type="time"] {
+input[type="date"].form-control,
+input[type="time"].form-control {
     line-height: normal; /* Bootstrap default looks wrong */
 }
 table.extradetail {
