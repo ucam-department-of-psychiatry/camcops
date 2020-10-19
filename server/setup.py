@@ -93,7 +93,7 @@ INSTALL_REQUIRES = [
     'colander==1.7.0',  # serialization/deserialization from web forms
     'CherryPy==18.6.0',  # web server
 
-    'deform==2.0.10',  # web forms
+    'deform==2.0.14',  # web forms
     # 'deform-bootstrap==0.2.9',  # deform with layout made easier
     'distro==1.3.0',  # detecting Linux distribution  # REMOVE ONCE DOCKER PREFERRED  # noqa
     'dogpile.cache==0.9.2',  # web caching
