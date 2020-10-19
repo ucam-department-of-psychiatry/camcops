@@ -306,7 +306,10 @@ bool CamcopsApp::registerPatientWithServer()
     setVar(varconst::VALIDATE_SSL_CERTIFICATES,
            varconst::VALIDATE_SSL_CERTIFICATES_IN_SINGLE_USER_MODE);
 
-    reconnectNetManager(&CamcopsApp::patientRegistrationFailed);
+    reconnectNetManager(&CamcopsApp::patientRegistrationFailed,
+                        &CamcopsApp::patientRegistrationFinished);
+
+    showNetworkGuiGuard(tr("Registering patient..."));
     networkManager()->registerPatient();
 
     return true;
@@ -354,39 +357,24 @@ void CamcopsApp::deleteTaskSchedules()
 }
 
 
-void CamcopsApp::updateTaskSchedules()
+void CamcopsApp::updateTaskSchedules(const bool alert_unfinished_tasks)
 {
     if (tasksInProgress()) {
-        uifunc::alert(
-            tr("You cannot update your task schedules when there are unfinished tasks")
-        );
+        if (alert_unfinished_tasks) {
+            uifunc::alert(
+                tr("You cannot update your task schedules when there are "
+                   "unfinished tasks")
+            );
+        }
 
         return;
     }
 
-    reconnectNetManager(&CamcopsApp::updateTaskSchedulesFailed);
+    showNetworkGuiGuard(tr("Updating task schedules..."));
+
+    reconnectNetManager(&CamcopsApp::updateTaskSchedulesFailed,
+                        &CamcopsApp::updateTaskSchedulesFinished);
     networkManager()->updateTaskSchedules();
-}
-
-
-void CamcopsApp::networkManagerFinished()
-{
-    if (m_network_gui_guard) {
-        delete m_network_gui_guard;
-
-        m_network_gui_guard = nullptr;
-    }
-
-    if (isSingleUserMode()) {
-        // This will upload any pending tasks or patients.
-        // In reality this will just upload the newly registered patient's
-        // details to the server.
-        // Tasks will be uploaded fully in closeSubWindow, assuming there is
-        // a connection to the server
-        retryUpload();
-    }
-
-    recreateMainMenu();
 }
 
 
@@ -394,6 +382,8 @@ void CamcopsApp::patientRegistrationFailed(
     const NetworkManager::ErrorCode error_code,
     const QString& error_string)
 {
+    deleteNetworkGuiGuard();
+
     const QString base_message = tr("There was a problem with your registration.");
 
     QString additional_message = "";
@@ -430,10 +420,25 @@ void CamcopsApp::patientRegistrationFailed(
 }
 
 
+void CamcopsApp::patientRegistrationFinished()
+{
+    deleteNetworkGuiGuard();
+
+    // retryUpload() will upload any pending tasks or patients.
+    // Because we just registered, there won't be any pending tasks so
+    // this will just upload the newly registered patient's
+    // details to the server.
+    retryUpload();
+
+    recreateMainMenu();
+}
+
+
 void CamcopsApp::updateTaskSchedulesFailed(
     const NetworkManager::ErrorCode error_code,
     const QString& error_string)
 {
+    deleteNetworkGuiGuard();
     handleNetworkFailure(
         error_code,
         error_string,
@@ -442,20 +447,50 @@ void CamcopsApp::updateTaskSchedulesFailed(
 }
 
 
+void CamcopsApp::updateTaskSchedulesFinished()
+{
+    deleteNetworkGuiGuard();
+    recreateMainMenu();
+}
+
+
 void CamcopsApp::uploadFailed(const NetworkManager::ErrorCode error_code,
                               const QString& error_string)
+{
+    deleteNetworkGuiGuard();
+    handleNetworkFailure(
+        error_code,
+        error_string,
+        tr("There was a problem sending your completed tasks to the server.")
+    );
+}
+
+
+void CamcopsApp::uploadFinished()
+{
+    deleteNetworkGuiGuard();
+    const bool alert_unfinished_tasks = false;
+    updateTaskSchedules(alert_unfinished_tasks);
+
+    recreateMainMenu();
+}
+
+
+void CamcopsApp::showNetworkGuiGuard(const QString& text)
+{
+    if (!isLoggingNetwork()) {
+        m_network_gui_guard = new SlowGuiGuard(*this, m_p_main_window, text);
+    }
+}
+
+
+void CamcopsApp::deleteNetworkGuiGuard()
 {
     if (m_network_gui_guard) {
         delete m_network_gui_guard;
 
         m_network_gui_guard = nullptr;
     }
-
-    handleNetworkFailure(
-        error_code,
-        error_string,
-        tr("There was a problem sending your completed tasks to the server.")
-    );
 }
 
 
@@ -1836,9 +1871,9 @@ void CamcopsApp::closeSubWindow()
         }
     } else {
         if (isSingleUserMode() && m_info_stack.size() == 1) {
-            // If the user went back to the main menu and haven't just
-            // finished a task, attempt to upload any pending tasks. This is
-            // really only necessary if the device wasn't connected to the
+            // If the user went back to the main menu and hasn't just
+            // finished a task, attempt to upload any pending tasks. This will
+            // only be necessary when the device wasn't connected to the
             // network before.
             retryUpload();
         }
@@ -2951,19 +2986,13 @@ void CamcopsApp::upload()
     const bool single_user_mode = isSingleUserMode();
     reconnectNetManager(
                 single_user_mode ? &CamcopsApp::uploadFailed : nullptr,
-                single_user_mode ? &CamcopsApp::networkManagerFinished : nullptr);
+                single_user_mode ? &CamcopsApp::uploadFinished : nullptr);
     // ... no failure handlers required in clinician mode -- the NetworkManager
     // will not be in silent mode, so will report the error to the user
     // directly. (And similarly, we didn't/don't need a "finished" callback in
     // clinician mode.)
 
-    if (!isLoggingNetwork()) {
-        m_network_gui_guard = new SlowGuiGuard(*this, m_p_main_window,
-                                               TextConst::pleaseWait(),
-                                               tr("Uploading..."),
-                                               100);
-    }
-
+    showNetworkGuiGuard(tr("Uploading..."));
     networkManager()->upload(method);
 }
 

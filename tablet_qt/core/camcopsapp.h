@@ -398,7 +398,7 @@ public:
 
     // Talk to the server and fetch our task schedules (for single-patient
     // mode).
-    void updateTaskSchedules();
+    void updateTaskSchedules(const bool alert_unfinished_tasks = true);
 
     // Delete task schedules from the client.
     void deleteTaskSchedules();
@@ -496,14 +496,14 @@ protected:
     void makeNetManager();
 
     void reconnectNetManager(
-            NetMgrCancelledCallback cancelled_callback,
-            NetMgrFinishedCallback = &CamcopsApp::networkManagerFinished);
+        NetMgrCancelledCallback cancelled_callback = nullptr,
+        NetMgrFinishedCallback finished_callback = nullptr
+    );
 
-    // Callback for when the network manager has finished talking to the server.
-    void networkManagerFinished();
-
-    // Enable background uploads when network manager has finished or cancelled
-    void enableBackgroundUpload();
+    // Callbacks for when the network manager has finished talking to the server.
+    void patientRegistrationFinished();
+    void updateTaskSchedulesFinished();
+    void uploadFinished();
 
     // Callback for patient registration failure.
     void patientRegistrationFailed(const NetworkManager::ErrorCode error_code,
@@ -516,6 +516,11 @@ protected:
     // Callback for upload failure.
     void uploadFailed(const NetworkManager::ErrorCode error_code,
                       const QString& error_string);
+
+    // Show / hide wait box before and after network operation
+    // Allocated on the heap unlike getSlowGuiGuard()
+    void showNetworkGuiGuard(const QString& text);
+    void deleteNetworkGuiGuard();
 
 signals:
     // Signal that the "needs upload" state has changed.
