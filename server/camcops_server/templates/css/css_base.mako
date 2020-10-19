@@ -250,6 +250,10 @@ table.clinician, table.clinician th, table.clinician td {
 .filters {
     font-style: italic;
 }
+.input-group input[type="date"],
+.input-group input[type="time"] {
+    line-height: normal; /* Bootstrap default looks wrong */
+}
 table.extradetail {
     border: ${va.THINLINE} solid black;
     background-color: rgb(210, 210, 210);
