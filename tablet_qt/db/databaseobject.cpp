@@ -186,13 +186,13 @@ bool DatabaseObject::setValue(const QString& fieldname, const QVariant& value,
     const bool dirty = m_record[fieldname].setValue(value);
     if (dirty && touch_record) {
         touch();
-        if (m_triggers_need_upload) {
 #ifdef DEBUG_TRIGGERS_NEEDS_UPLOAD
+        if (m_triggers_need_upload) {
             qDebug() << "Triggering setNeedsUpload() from field" << fieldname
                      << "value" << value;
-#endif
-            m_app.setNeedsUpload(true);
         }
+#endif
+        setNeedsUpload(true);
     }
     if (dirty) {
         emit dataChanged();
@@ -1000,10 +1000,18 @@ void DatabaseObject::deleteFromDatabase()
     const bool success = m_db.deleteFrom(m_tablename, where_self);
     if (success) {
         nullify();
-        m_app.setNeedsUpload(true);
+        setNeedsUpload(true);
     } else {
         qWarning() << "Failed to delete object with PK" << pk
                    << "from table" << m_tablename;
+    }
+}
+
+
+void DatabaseObject::setNeedsUpload(const bool needs_upload)
+{
+    if (m_triggers_need_upload) {
+        m_app.setNeedsUpload(needs_upload);
     }
 }
 
