@@ -155,7 +155,9 @@ QStringList Basdai::detail() const
 
 OpenableWidget* Basdai::editor(const bool read_only)
 {
-    QuPagePtr page((new QuPage{})->setTitle(xstring("title_main")));
+    QuPagePtr page((new QuPage{
+                new QuText(xstring("instructions"))
+            })->setTitle(xstring("title_main")));
 
     auto slider_grid = new QuGridContainer();
     slider_grid->setExpandHorizontally(false);

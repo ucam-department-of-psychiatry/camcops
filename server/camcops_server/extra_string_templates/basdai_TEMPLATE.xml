@@ -4,6 +4,7 @@
     <!-- Bath Ankylosing Spondylitis Disease Activity Index -->
 
     <string name="title_main">Bath Ankylosing Spondylitis Disease Activity Index (BASDAI)</string>
+    <string name="instructions">(instructions)</string>
 
     <string name="q1">(fatigue/tiredness)</string>
     <string name="q2">(neck, back, hip)</string>
