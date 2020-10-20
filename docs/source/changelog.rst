@@ -2904,3 +2904,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
     page, but it went away again (Chrome cache problem during bug-fixing?).
 
 - ``account_locked.mako`` wasn't formatting its strings correctly.
+
+- **New task:** :ref:`Bath Ankylosing Spondylitis Disease Activity Index (BASDAI) <basdai>`.
+  (Database revision 0053.)
