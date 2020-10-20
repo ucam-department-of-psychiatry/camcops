@@ -54,6 +54,7 @@ from camcops_server.cc_modules.cc_patient import Patient
 from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
 from camcops_server.cc_modules.cc_task import Task
 from camcops_server.cc_modules.cc_user import User
+from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 
 
 if TYPE_CHECKING:
@@ -86,7 +87,7 @@ class DummyDataFactory(object):
 
         self.group = None  # type: Optional[Group]
         self.user = None  # type: Optional[User]
-        self.server_device = None  # type: Optional[Device]
+        self.device = None  # type: Optional[Device]
         self.nhs_iddef = None  # type: Optional[IdNumDefinition]
 
     def add_data(self) -> None:
@@ -104,7 +105,8 @@ class DummyDataFactory(object):
         self.user = User.get_system_user(self.dbsession)
         self.user.upload_group_id = self.group.id
 
-        self.server_device = Device.get_server_device(self.dbsession)
+        self.device = self.get_device(self.dbsession)
+        self.dbsession.commit()
 
         self.nhs_iddef = IdNumDefinition(which_idnum=1001,
                                          description="NHS number (TEST)",
@@ -125,6 +127,21 @@ class DummyDataFactory(object):
 
             Faker.seed()
             self.add_tasks(patient_id)
+
+    def get_device(self, dbsession: "SqlASession") -> "Device":
+        dummy_device_name = "dummy_device"
+
+        device = Device.get_device_by_name(dbsession, dummy_device_name)
+        if device is None:
+            device = Device()
+            device.name = dummy_device_name
+            device.friendly_name = "Dummy tablet device"
+            device.registered_by_user = User.get_system_user(dbsession)
+            device.when_registered_utc = pendulum.DateTime.utcnow()
+            device.camcops_version = CAMCOPS_SERVER_VERSION
+            dbsession.add(device)
+            dbsession.flush()  # So that we can use the PK elsewhere
+        return device
 
     def add_patient(self, patient_id: int) -> Patient:
         log.info(f"Adding patient {patient_id}")
@@ -147,6 +164,9 @@ class DummyDataFactory(object):
             patient.forename = self.faker.first_name()[:1]
 
         patient.surname = self.faker.last_name()
+
+        # Faker calculates date of birth from the current time so gives
+        # different results on different days.
         patient.dob = self.faker.date_of_birth(minimum_age=0, maximum_age=120)
         self.dbsession.add(patient)
 
@@ -304,7 +324,7 @@ class DummyDataFactory(object):
         Writes some default values to an SQLAlchemy ORM object representing a
         record uploaded from a client (tablet) device.
         """
-        obj._device_id = self.server_device.id
+        obj._device_id = self.device.id
         obj._era = self.era
         obj._group_id = self.group.id
         obj._current = True
