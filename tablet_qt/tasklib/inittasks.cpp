@@ -28,6 +28,7 @@
 #include "tasks/auditc.h"
 
 #include "tasks/badls.h"
+#include "tasks/basdai.h"
 #include "tasks/bdi.h"
 #include "tasks/bmi.h"
 #include "tasks/bprs.h"
@@ -179,6 +180,7 @@ void InitTasks(TaskFactory& factory)
     initializeAuditC(factory);
 
     initializeBadls(factory);
+    initializeBasdai(factory);
     initializeBdi(factory);
     initializeBmi(factory);
     initializeBprs(factory);
