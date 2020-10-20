@@ -34,6 +34,7 @@ from camcops_server.tasks.asdas import Asdas
 from camcops_server.tasks.audit import Audit, AuditC
 
 from camcops_server.tasks.badls import Badls
+from camcops_server.tasks.basdai import Basdai
 from camcops_server.tasks.bdi import Bdi
 from camcops_server.tasks.bmi import Bmi
 from camcops_server.tasks.bprs import Bprs
