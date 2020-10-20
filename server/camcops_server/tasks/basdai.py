@@ -160,7 +160,7 @@ class Basdai(TaskHasPatientMixin,
 
             rows += tr_qa(question_cell, score)
 
-        basdai = ws.number_to_dp(self.basdai(), 2, default="?")
+        basdai = ws.number_to_dp(self.basdai(), 1, default="?")
 
         html = """
             <div class="{CssClass.SUMMARY}">
