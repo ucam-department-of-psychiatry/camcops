@@ -136,6 +136,9 @@ class Basdai(TaskHasPatientMixin,
         The higher the BASDAI score, the more severe the patient’s disability
         due to their AS.
         """
+        if not self.is_complete():
+            return None
+
         score_a_field_names = strseq("q", 1, 4)
         score_b_field_names = strseq("q", 5, 6)
 
@@ -212,6 +215,11 @@ class BasdaiTests(unittest.TestCase):
         # 26 / 5 = 5.2
 
         self.assertEqual(basdai.basdai(), 5.2)
+
+    def test_basdai_none_when_field_none(self) -> None:
+        basdai = Basdai()
+
+        self.assertIsNone(basdai.basdai())
 
     def test_basdai_complete_when_all_answers_valid(self) -> None:
         basdai = Basdai()
