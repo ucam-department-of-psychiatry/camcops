@@ -182,8 +182,8 @@ class GMCPQ(Task):
     q10 = CamcopsColumn(
         "q10", SexColType,
         permitted_value_checker=PermittedValueChecker(
-            permitted_values=["M", "F"]),
-        comment="Sex of rater (M, F)"
+            permitted_values=["M", "F", "X"]),
+        comment="Sex of rater (M, F, X)"
     )
     q11 = CamcopsColumn(
         "q11", Integer,
