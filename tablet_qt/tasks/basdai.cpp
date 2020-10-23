@@ -186,7 +186,6 @@ OpenableWidget* Basdai::editor(const bool read_only)
         slider->setSymmetric(true);
 
         const auto question_text = new QuText(xstring(fieldname));
-        question_text->setBold(true);
         slider_grid->addCell(QuGridCell(question_text, row, 0,
                                         QUESTION_ROW_SPAN, QUESTION_COLUMN_SPAN));
         row++;
