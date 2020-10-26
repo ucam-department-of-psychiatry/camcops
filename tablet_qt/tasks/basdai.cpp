@@ -131,11 +131,32 @@ QVariant Basdai::basdai() const
 }
 
 
+QString Basdai::activityState() const
+{
+    QVariant basdai = this->basdai();
+
+    if (basdai.isNull()) {
+        return xstring("n_a");
+    }
+
+    if (basdai < 4.0) {
+        return xstring("inactive");
+    }
+
+    return xstring("active");
+}
+
+
 QStringList Basdai::summary() const
 {
+    using stringfunc::bold;
+
     return QStringList{
-        QString("%1: %2").arg(xstring("basdai"),
-                              convert::prettyValue(basdai(), DP))
+        QString("%1: %2 (%3)").arg(
+            xstring("basdai"),
+            convert::prettyValue(basdai(), DP),
+            bold(activityState())
+        )
     };
 }
 

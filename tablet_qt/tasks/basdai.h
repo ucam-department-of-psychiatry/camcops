@@ -63,4 +63,6 @@ protected:
 private:
     QStringList fieldNames() const;
     QStringList scoreAFieldNames() const;
+
+    QString activityState() const;
 };

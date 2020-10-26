@@ -30,7 +30,7 @@ camcops_server/tasks/basdai.py
 
 import statistics
 from typing import Any, Dict, List, Optional, Type, Tuple
-import unittest
+from unittest import mock, TestCase
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import add_multiple_columns
@@ -41,6 +41,7 @@ from camcops_server.cc_modules.cc_task import TaskHasPatientMixin, Task
 from camcops_server.cc_modules.cc_trackerhelpers import (
     TrackerAxisTick,
     TrackerInfo,
+    TrackerLabel,
 )
 
 import cardinal_pythonlib.rnc_web as ws
@@ -80,9 +81,12 @@ class Basdai(TaskHasPatientMixin,
     shortname = "BASDAI"
     provides_trackers = True
 
-    MAX_SCORE_SCALE = 10
     N_QUESTIONS = 6
     FIELD_NAMES = strseq("q", 1, N_QUESTIONS)
+
+    MINIMUM = 0.0
+    ACTIVE_CUTOFF = 4.0
+    MAXIMUM = 10.0
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
@@ -107,12 +111,23 @@ class Basdai(TaskHasPatientMixin,
         return True
 
     def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
-        axis_min = -0.5
-        axis_max = 10.5
+        axis_min = self.MINIMUM - 0.5
+        axis_max = self.MAXIMUM + 0.5
         axis_ticks = [TrackerAxisTick(n, str(n))
                       for n in range(0, int(axis_max) + 1)]
 
-        horizontal_lines = [10.0, 0.0]
+        horizontal_lines = [
+            self.MAXIMUM,
+            self.ACTIVE_CUTOFF,
+            self.MINIMUM,
+        ]
+
+        horizontal_labels = [
+            TrackerLabel(self.ACTIVE_CUTOFF + 0.5,
+                         self.wxstring(req, "active")),
+            TrackerLabel(self.ACTIVE_CUTOFF - 0.5,
+                         self.wxstring(req, "inactive")),
+        ]
 
         return [
             TrackerInfo(
@@ -123,6 +138,7 @@ class Basdai(TaskHasPatientMixin,
                 axis_max=axis_max,
                 axis_ticks=axis_ticks,
                 horizontal_lines=horizontal_lines,
+                horizontal_labels=horizontal_labels,
             ),
         ]
 
@@ -146,6 +162,17 @@ class Basdai(TaskHasPatientMixin,
         b = statistics.mean([getattr(self, q) for q in score_b_field_names])
 
         return (a + b) / 5
+
+    def activity_state(self, req: CamcopsRequest) -> str:
+        basdai = self.basdai()
+
+        if basdai is None:
+            return self.wxstring(req, "n_a")
+
+        if basdai < self.ACTIVE_CUTOFF:
+            return self.wxstring(req, "inactive")
+
+        return self.wxstring(req, "active")
 
     def get_task_html(self, req: CamcopsRequest) -> str:
         rows = ""
@@ -179,17 +206,18 @@ class Basdai(TaskHasPatientMixin,
             <div class="{CssClass.FOOTNOTES}">
                 [1] A. Add scores for questions 1 – 4
                     B. Calculate the mean for questions 5 and 6
-                    C. Add A and B and divide by 5
-                    The higher the BASDAI score, the more severe the patient’s
-                    disability due to their AS.
+                    C. Add A and B and divide by 5.
+                    &lt;4.0 inactive disease,
+                    &ge;4.0 active disease
             </div>
         """.format(
             CssClass=CssClass,
             tr_is_complete=self.get_is_complete_tr(req),
             basdai=tr(
                 self.wxstring(req, "basdai") + " <sup>[1]</sup>",
-                "{}".format(
+                "{} ({})".format(
                     answer(basdai),
+                    self.activity_state(req)
                 )
             ),
             rows=rows,
@@ -197,7 +225,12 @@ class Basdai(TaskHasPatientMixin,
         return html
 
 
-class BasdaiTests(unittest.TestCase):
+class BasdaiTests(TestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.request = mock.Mock()
+
     def test_basdai_calculation(self) -> None:
         basdai = Basdai()
 
@@ -259,3 +292,33 @@ class BasdaiTests(unittest.TestCase):
         basdai.q6 = 0
 
         self.assertFalse(basdai.is_complete())
+
+    def test_activity_state_n_a_for_none(self) -> None:
+        basdai = Basdai()
+
+        with mock.patch.object(basdai, "basdai") as mock_basdai:
+            mock_basdai.return_value = None
+            with mock.patch.object(basdai, "wxstring") as mock_wxstring:
+                basdai.activity_state(self.request)
+
+        mock_wxstring.assert_called_once_with(self.request, "n_a")
+
+    def test_activity_state_inactive_for_less_than_4(self) -> None:
+        basdai = Basdai()
+
+        with mock.patch.object(basdai, "basdai") as mock_basdai:
+            mock_basdai.return_value = 3.8
+            with mock.patch.object(basdai, "wxstring") as mock_wxstring:
+                basdai.activity_state(self.request)
+
+        mock_wxstring.assert_called_once_with(self.request, "inactive")
+
+    def test_activity_state_active_for_4(self) -> None:
+        basdai = Basdai()
+
+        with mock.patch.object(basdai, "basdai") as mock_basdai:
+            mock_basdai.return_value = 4
+            with mock.patch.object(basdai, "wxstring") as mock_wxstring:
+                basdai.activity_state(self.request)
+
+        mock_wxstring.assert_called_once_with(self.request, "active")
