@@ -38,7 +38,14 @@ Six numerical rating scales.
 Intellectual property rights
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**TO BE ESTABLISHED.**
+**TO BE ESTABLISHED.** Mapi Trust website states "This questionnaire is in the
+ public domain."
+
+Braun et al. (2014, p. S-100) state "Another major difference between BASDAI and
+ASDAS is that the latter is entirely in the public domain while the BASDAI,
+since 2011, is only free of charge to academic users while industry has to pay
+because of a copyright held by A. Calin represented by the MAPI trust (Mapi
+Research Trust, 27 rue de la Villette, 69003 Lyon, France)
 
 History
 ~~~~~~~
@@ -49,3 +56,19 @@ History
   *J Rheumatol* 21(12):2286-2291.
 
   https://pubmed.ncbi.nlm.nih.gov/7699630/
+
+For copyright status, see also:
+
+- Braun J, Kiltz U, Baraliakos X, van der Heijde D (2014).
+  Optimisation of rheumatology assessments - the actual situation in axial
+  spondyloarthritis including ankylosing spondylitis.
+  *Clin Exp Rheumatol.* 32(5 Suppl 85): S96-S104.
+  https://www.ncbi.nlm.nih.gov/pubmed/25365096
+
+
+Source
+~~~~~~
+
+- https://eprovide.mapi-trust.org/instruments/bath-ankylosing-spondylitis-disease-activity-index
+- http://www.basdai.com/
+- http://oml.eular.org/oml_search_results_details.cfm?id=33&action=All%20information
