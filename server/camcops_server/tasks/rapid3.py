@@ -42,6 +42,11 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
 )
 from camcops_server.cc_modules.cc_summaryelement import SummaryElement
 from camcops_server.cc_modules.cc_task import TaskHasPatientMixin, Task
+from camcops_server.cc_modules.cc_trackerhelpers import (
+    TrackerAxisTick,
+    TrackerInfo,
+    TrackerLabel,
+)
 
 import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy import Float, Integer
@@ -110,15 +115,20 @@ class Rapid3(TaskHasPatientMixin,
              metaclass=Rapid3Metaclass):
     __tablename__ = "rapid3"
     shortname = "RAPID3"
+    provides_trackers = True
 
     N_Q1_QUESTIONS = 13
     N_Q1_SCORING_QUESTIONS = 10
 
+    # > 12 = HIGH
+    # 6.1 - 12 = MODERATE
+    # 3.1 - 6 = LOW
+    # <= 3 = REMISSION
+
     MINIMUM = 0
-    NEAR_REMISSION_CUTOFF = 3
-    LOW_SEVERITY_CUTOFF = 6
-    MODERATE_SEVERITY_CUTOFF = 12
-    HIGH_SEVERITY_CUTOFF = 13
+    NEAR_REMISSION_MAX = 3
+    LOW_SEVERITY_MAX = 6
+    MODERATE_SEVERITY_MAX = 12
     MAXIMUM = 30
 
     @classmethod
@@ -160,6 +170,44 @@ class Rapid3(TaskHasPatientMixin,
                 name="rapid3", coltype=Float(),
                 value=self.rapid3(),
                 comment="RAPID3"),
+        ]
+
+    def get_trackers(self, req: CamcopsRequest) -> List[TrackerInfo]:
+        axis_min = self.MINIMUM - 0.5
+        axis_max = self.MAXIMUM + 0.5
+        axis_ticks = [TrackerAxisTick(n, str(n))
+                      for n in range(0, int(axis_max) + 1, 2)]
+
+        horizontal_lines = [
+            self.MAXIMUM,
+            self.MODERATE_SEVERITY_MAX,
+            self.LOW_SEVERITY_MAX,
+            self.NEAR_REMISSION_MAX,
+            self.MINIMUM,
+        ]
+
+        horizontal_labels = [
+            TrackerLabel(self.MODERATE_SEVERITY_MAX + 8.0,
+                         self.wxstring(req, "high_severity")),
+            TrackerLabel(self.MODERATE_SEVERITY_MAX - 3.0,
+                         self.wxstring(req, "moderate_severity")),
+            TrackerLabel(self.LOW_SEVERITY_MAX - 1.5,
+                         self.wxstring(req, "low_severity")),
+            TrackerLabel(self.NEAR_REMISSION_MAX - 1.5,
+                         self.wxstring(req, "near_remission")),
+        ]
+
+        return [
+            TrackerInfo(
+                value=self.rapid3(),
+                plot_label="RAPID3",
+                axis_label="RAPID3",
+                axis_min=axis_min,
+                axis_max=axis_max,
+                axis_ticks=axis_ticks,
+                horizontal_lines=horizontal_lines,
+                horizontal_labels=horizontal_labels,
+            ),
         ]
 
     def rapid3(self) -> Optional[float]:
@@ -235,10 +283,10 @@ class Rapid3(TaskHasPatientMixin,
                     to 1 decimal place
                     Then add this to scores for Q2 and Q3 to get RAPID3
                     cumulative score (0-30)
-                    1-3 Near Remission (NR)
-                    4-6 Low Severity (LS)
-                    7-12 Moderate Severity (MS)
-                   13-30 High Severity (HS)
+                    <=3 Near Remission (NR)
+                    3.1-6 Low Severity (LS)
+                    6.1-12 Moderate Severity (MS)
+                    >12 High Severity (HS)
             </div>
         """.format(
             CssClass=CssClass,
@@ -260,13 +308,13 @@ class Rapid3(TaskHasPatientMixin,
         if rapid3 is None:
             return self.wxstring(req, "n_a")
 
-        if rapid3 <= self.NEAR_REMISSION_CUTOFF:
+        if rapid3 <= self.NEAR_REMISSION_MAX:
             return self.wxstring(req, "near_remission")
 
-        if rapid3 <= self.LOW_SEVERITY_CUTOFF:
+        if rapid3 <= self.LOW_SEVERITY_MAX:
             return self.wxstring(req, "low_severity")
 
-        if rapid3 <= self.MODERATE_SEVERITY_CUTOFF:
+        if rapid3 <= self.MODERATE_SEVERITY_MAX:
             return self.wxstring(req, "moderate_severity")
 
         return self.wxstring(req, "high_severity")
@@ -420,11 +468,11 @@ class Rapid3Tests(unittest.TestCase):
 
         mock_wxstring.assert_called_once_with(self.request, "moderate_severity")
 
-    def test_disease_severity_high_for_30(self) -> None:
+    def test_disease_severity_high_for_12point1(self) -> None:
         rapid3 = Rapid3()
 
         with mock.patch.object(rapid3, "rapid3") as mock_rapid3:
-            mock_rapid3.return_value = 30
+            mock_rapid3.return_value = 12.1
             with mock.patch.object(rapid3, "wxstring") as mock_wxstring:
                 rapid3.disease_severity(self.request)
 
