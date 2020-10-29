@@ -155,6 +155,7 @@ from camcops_server.tasks.qolbasic import QolBasic
 from camcops_server.tasks.qolsg import QolSG
 
 from camcops_server.tasks.rand36 import Rand36
+from camcops_server.tasks.rapid3 import Rapid3
 
 from camcops_server.tasks.service_satisfaction import (
     PatientSatisfaction,
