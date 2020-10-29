@@ -159,6 +159,10 @@ class Rapid3(TaskHasPatientMixin,
         return [f for (i, f) in
                 cls.q1_indexed_fieldnames(cls.N_Q1_SCORING_QUESTIONS)]
 
+    @classmethod
+    def all_fieldnames(cls) -> List[str]:
+        return cls.q1_all_fieldnames() + ["q2", "q3"]
+
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
         _ = req.gettext
@@ -228,7 +232,7 @@ class Rapid3(TaskHasPatientMixin,
         return self.q3
 
     def is_complete(self) -> bool:
-        if self.any_fields_none(self.q1_all_fieldnames()):
+        if self.any_fields_none(self.all_fieldnames()):
             return False
 
         if not self.field_contents_valid():
@@ -382,51 +386,65 @@ class Rapid3Tests(unittest.TestCase):
 
         self.assertTrue(rapid3.is_complete())
 
-    def test_incomplete_when_a_field_none(self) -> None:
+    def test_incomplete_when_any_field_none(self) -> None:
+        all_fields = [
+            "q1a",
+            "q1b",
+            "q1c",
+            "q1d",
+            "q1e",
+            "q1f",
+            "q1g",
+            "q1h",
+            "q1i",
+            "q1j",
+            "q1k",
+            "q1l",
+            "q1m",
+            "q2",
+            "q3",
+        ]
+
+        for none_field in all_fields:
+            rapid3 = Rapid3()
+
+            for field in all_fields:
+                setattr(rapid3, field, 0.0)
+
+            setattr(rapid3, none_field, None)
+            self.assertFalse(rapid3.is_complete(),
+                             msg=f"Failed when setting {none_field} to None")
+
+    def test_incomplete_when_any_field_invalid(self) -> None:
         rapid3 = Rapid3()
 
-        rapid3.q1a = None
-        rapid3.q1b = 0
-        rapid3.q1c = 0
-        rapid3.q1d = 0
-        rapid3.q1e = 0
-        rapid3.q1f = 0
-        rapid3.q1g = 0
-        rapid3.q1h = 0
-        rapid3.q1i = 0
-        rapid3.q1j = 0
+        all_fields = [
+            "q1a",
+            "q1b",
+            "q1c",
+            "q1d",
+            "q1e",
+            "q1f",
+            "q1g",
+            "q1h",
+            "q1i",
+            "q1j",
+            "q1k",
+            "q1l",
+            "q1m",
+            "q2",
+            "q3",
+        ]
 
-        rapid3.q1k = 0
-        rapid3.q1l = 0
-        rapid3.q1m = 0
+        for invalid_field in all_fields:
+            rapid3 = Rapid3()
 
-        rapid3.q2 = 0.0
-        rapid3.q3 = 0.0
+            for field in all_fields:
+                setattr(rapid3, field, 0.0)
 
-        self.assertFalse(rapid3.is_complete())
-
-    def test_incomplete_when_a_field_invalid(self) -> None:
-        rapid3 = Rapid3()
-
-        rapid3.q1a = 0
-        rapid3.q1b = 0
-        rapid3.q1c = 0
-        rapid3.q1d = 0
-        rapid3.q1e = 0
-        rapid3.q1f = 0
-        rapid3.q1g = 0
-        rapid3.q1h = 0
-        rapid3.q1i = 0
-        rapid3.q1j = 0
-
-        rapid3.q1k = 0
-        rapid3.q1l = 0
-        rapid3.q1m = 0
-
-        rapid3.q2 = 10.5
-        rapid3.q3 = 0.0
-
-        self.assertFalse(rapid3.is_complete())
+            setattr(rapid3, invalid_field, 10.5)
+            self.assertFalse(rapid3.is_complete(),
+                             msg=f"Failed when setting {invalid_field} invald")
 
     def test_disease_severity_n_a_for_none(self) -> None:
         rapid3 = Rapid3()
