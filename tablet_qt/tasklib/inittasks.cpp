@@ -147,6 +147,7 @@
 #include "tasks/qolsg.h"
 
 #include "tasks/rand36.h"
+#include "tasks/rapid3.h"
 #include "tasks/referrersatisfactiongen.h"
 #include "tasks/referrersatisfactionspec.h"
 
@@ -299,6 +300,7 @@ void InitTasks(TaskFactory& factory)
     initializeQolSG(factory);
 
     initializeRand36(factory);
+    initializeRapid3(factory);
     initializeReferrerSatisfactionGen(factory);
     initializeReferrerSatisfactionSpec(factory);
 
