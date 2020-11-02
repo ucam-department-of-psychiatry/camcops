@@ -1581,7 +1581,8 @@ class Config(object):
         self.sqlcipher_src_gitdir = join(self.src_rootdir, "sqlcipher")  # type: str  # noqa
 
         # Eigen
-        # Changed location from bitbucket - https://gitlab.com/libeigen/eigen/-/archive/3.3.8/eigen-3.3.8.tar.gz
+        # Changed location from bitbucket:
+        # https://gitlab.com/libeigen/eigen/-/archive/3.3.8/eigen-3.3.8.tar.gz
         self.eigen_version = EIGEN_VERSION  # type: str
         self.eigen_src_url = (
             f"https://gitlab.com/libeigen/eigen/-/archive/{self.eigen_version}/eigen-{self.eigen_version}.tar.gz"  # noqa
@@ -3791,6 +3792,7 @@ def main() -> None:
     # Command-line arguments
     # -------------------------------------------------------------------------
 
+    # noinspection PyTypeChecker
     parser = argparse.ArgumentParser(
         description="Build Qt and other libraries for CamCOPS",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
