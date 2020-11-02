@@ -1581,10 +1581,12 @@ class Config(object):
         self.sqlcipher_src_gitdir = join(self.src_rootdir, "sqlcipher")  # type: str  # noqa
 
         # Eigen
+        # Changed location from bitbucket - https://gitlab.com/libeigen/eigen/-/archive/3.3.8/eigen-3.3.8.tar.gz
         self.eigen_version = EIGEN_VERSION  # type: str
         self.eigen_src_url = (
-            f"http://bitbucket.org/eigen/eigen/get/{self.eigen_version}.tar.gz"  # noqa
+            f"https://gitlab.com/libeigen/eigen/-/archive/{self.eigen_version}/eigen-{self.eigen_version}.tar.gz"  # noqa
         )
+
         self.eigen_src_dir = join(self.src_rootdir, "eigen")
         self.eigen_src_fullpath = join(
             self.eigen_src_dir,
