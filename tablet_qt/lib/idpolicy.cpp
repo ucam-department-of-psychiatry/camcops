@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -24,6 +24,7 @@
 #include "common/design_defines.h"
 #include "common/preprocessor_aid.h"
 #include "dbobjects/patient.h"
+#include "lib/convert.h"
 
 // ============================================================================
 // Constants
@@ -44,6 +45,7 @@ const int TOKEN_DOB = -11;
 const int TOKEN_ADDRESS = -12;
 const int TOKEN_GP = -13;
 const int TOKEN_OTHER_DETAILS = -14;
+const int TOKEN_EMAIL = -15;
 // Tokens for ID numbers are from 1 upwards.
 
 const QString TOKENIZE_RE_STR(
@@ -83,37 +85,25 @@ QMap<int, QString> makeTokenToNameDict()
     token_to_name[TOKEN_OR] = "or";
     token_to_name[TOKEN_NOT] = "not";
 
-    token_to_name[TOKEN_ANY_IDNUM] = ANY_IDNUM;
-    token_to_name[TOKEN_OTHER_IDNUM] = OTHER_IDNUM;
+    token_to_name[TOKEN_ANY_IDNUM] = ANY_IDNUM_POLICYNAME;
+    token_to_name[TOKEN_OTHER_IDNUM] = OTHER_IDNUM_POLICYNAME;
 
     token_to_name[TOKEN_FORENAME] = FORENAME_FIELD;
     token_to_name[TOKEN_SURNAME] = SURNAME_FIELD;
     token_to_name[TOKEN_SEX] = SEX_FIELD;
     token_to_name[TOKEN_DOB] = DOB_FIELD;
+    token_to_name[TOKEN_EMAIL] = EMAIL_FIELD;
     token_to_name[TOKEN_ADDRESS] = ADDRESS_FIELD;
     token_to_name[TOKEN_GP] = GP_FIELD;
-    token_to_name[TOKEN_OTHER_DETAILS] = OTHER_FIELD;
+    token_to_name[TOKEN_OTHER_DETAILS] = OTHER_DETAILS_POLICYNAME;
 
     return token_to_name;
 }
 
 
-QMap<QString, int> makeNameToTokenDict(const QMap<int, QString>& token_to_name)
-{
-    // function to create static data
-
-    QMap<QString, int> name_to_token;
-    QMapIterator<int, QString> it(token_to_name);
-    while (it.hasNext()) {
-        it.next();
-        name_to_token[it.value()] = it.key();
-    }
-    return name_to_token;
-}
-
-
 const QMap<int, QString> IdPolicy::s_token_to_name = makeTokenToNameDict();
-const QMap<QString, int> IdPolicy::s_name_to_token = makeNameToTokenDict(IdPolicy::s_token_to_name);
+const QMap<QString, int> IdPolicy::s_name_to_token = convert::reverseMap(
+            IdPolicy::s_token_to_name);
 
 
 // ============================================================================
@@ -135,7 +125,8 @@ int IdPolicy::nameToToken(const QString& name) const
     }
     // An ID number token?
     if (name.startsWith(IDNUM_FIELD_PREFIX)) {
-        const QString number = name.right(name.length() - IDNUM_FIELD_PREFIX.length());
+        const QString number = name.right(
+                    name.length() - IDNUM_FIELD_PREFIX.length());
         bool ok = false;
         const int which_idnum = number.toInt(&ok);
         if (ok) {

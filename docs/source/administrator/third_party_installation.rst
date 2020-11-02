@@ -18,8 +18,10 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 
-Installing third-party software
-===============================
+(MANUAL) Installing third-party software
+========================================
+
+.. include:: include_this_is_manual_see_docker.rst
 
 This sections contains some instructions and tips on installing third-party
 software. It's particularly relevant for Windows, which doesn't have a good "X
@@ -58,8 +60,8 @@ Advanced options:
 - [✓] Precompile standard library
 - Customize install location = ``C:\Python36``
 
-Also, you may want to allow the installer to extend the system ``MAX_PATH`` length
-limit
+Also, you may want to allow the installer to extend the system ``MAX_PATH``
+length limit
 (https://python.readthedocs.io/en/stable/using/windows.html#removing-the-max-path-limitation).
 
 

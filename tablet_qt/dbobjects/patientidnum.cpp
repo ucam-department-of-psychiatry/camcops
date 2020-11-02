@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -48,6 +48,18 @@ PatientIdNum::PatientIdNum(const int patient_fk, const int which_idnum,
 {
     setValue(FK_PATIENT, patient_fk);
     setValue(FN_WHICH_IDNUM, which_idnum);
+    save();
+}
+
+
+PatientIdNum::PatientIdNum(const int patient_fk, const int which_idnum,
+                           const qint64 idnum_value,
+                           CamcopsApp& app, DatabaseManager& db) :
+    PatientIdNum(app, db)  // delegating constructor
+{
+    setValue(FK_PATIENT, patient_fk);
+    setValue(FN_WHICH_IDNUM, which_idnum);
+    setValue(FN_IDNUM_VALUE, idnum_value);
     save();
 }
 

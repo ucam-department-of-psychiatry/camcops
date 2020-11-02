@@ -85,6 +85,8 @@ class Audit(TaskHasPatientMixin, Task,
     shortname = "AUDIT"
     provides_trackers = True
 
+    prohibits_commercial = True
+
     NQUESTIONS = 10
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
 
@@ -234,6 +236,8 @@ class AuditC(TaskHasPatientMixin, Task,
     __tablename__ = "audit_c"
     shortname = "AUDIT-C"
     extrastring_taskname = "audit"  # shares strings with AUDIT
+
+    prohibits_commercial = True
 
     NQUESTIONS = 3
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)

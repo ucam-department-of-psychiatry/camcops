@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -194,7 +194,7 @@ QString TextConst::yes() { return tr("Yes"); }
 // Terms and conditions
 // ============================================================================
 
-QString TextConst::termsConditions() {
+QString TextConst::clinicianTermsConditions() {
     return tr(
         "1. By using the Cambridge Cognitive and Psychiatric Assessment Kit "
         "application or web interface (“CamCOPS”), you are agreeing in full "
@@ -254,11 +254,50 @@ QString TextConst::termsConditions() {
         "A QUALIFIED CLINICIAN, AND THAT YOU RETAIN RESPONSIBILITY FOR "
         "DIAGNOSIS AND MANAGEMENT.\n\n"
 
-        "These terms and conditions were last revised on 2017-01-23."
+        "8. The CamCOPS server uses a single secure HTTP cookie for session "
+        "authentication. The cookie is not used for any other purpose. "
+        "It is deleted when you finish your session (it is a session cookie). "
+        "By using a CamCOPS server, you agree to this use of cookies.\n\n"
+
+        "These terms and conditions were last revised on 2020-10-12."
     );
     // This should match the DISCLAIMER_CONTENT string in the server_string()
     // function of camcops_server/cc_modules/cc_text.py.
+    // If you change this text, change TERMS_CONDITIONS_UPDATE_DATE below.
 }
+QString TextConst::singleUserTermsConditions() {
+    // We want this to be as simple as possible.
+    // It's the clinicians'/researchers' job to worry about the context;
+    // patients WILL NOT be able to use this software in single-user mode
+    // unless they are registered with a CamCOPS server (whose operators are
+    // responsible for its use). If the patient switches to "clinician mode",
+    // they have to agree to the full terms/conditions as above.
+    //
+    // So, what do we worry about with patients in this "supervised" mode?
+    // Primarily, that they see this app as a way of communicating with a
+    // clinical or research team in a way that it isn't.
+
+    return tr(
+        "CamCOPS is a computer program to collect information for clinical "
+        "(health care) and/or research purposes.\n\n"
+
+        "Tasks may be scheduled for you by your clinical/research team, and "
+        "will then appear in CamCOPS for you to complete.\n\n"
+
+        "THIS IS NOT A SUBSTITUTE FOR DIRECT COMMUNICATION WITH YOUR "
+        "CLINICAL/RESEARCH TEAM, OR EMERGENCY SERVICES. Information you "
+        "provide via CamCOPS might not be seen promptly by a relevant person. "
+        "If you have something urgent to tell your clinical/research team, "
+        "get in touch with them directly without delay. If something is very "
+        "urgent (for example, if you are very unwell or at risk), then "
+        "contact the emergency services immediately.\n\n"
+
+        "Thank you!"
+    );
+    // If you change this text, change TERMS_CONDITIONS_UPDATE_DATE below.
+}
+QDate TextConst::TERMS_CONDITIONS_UPDATE_DATE(2020, 10, 12);
+
 
 // ============================================================================
 // Test text

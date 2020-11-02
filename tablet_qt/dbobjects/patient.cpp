@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -17,9 +17,13 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+// #define DEBUG_JSON
+
 #include "patient.h"
 #include <limits>
 #include <QDebug>
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
 #include <QtAlgorithms>  // for qsort()
 #include "core/camcopsapp.h"
 #include "common/dbconst.h"
@@ -62,13 +66,15 @@ const QString SEX_FIELD("sex");
 
 const QString IDNUM_FIELD_PREFIX("idnum");
 const QString IDNUM_FIELD_FORMAT(IDNUM_FIELD_PREFIX + "%1");
-const QString ANY_IDNUM("anyidnum");
-const QString OTHER_IDNUM("otheridnum");
+const QString ANY_IDNUM_POLICYNAME("anyidnum");
+const QString OTHER_IDNUM_POLICYNAME("otheridnum");
+const QString OTHER_DETAILS_POLICYNAME("otherdetails");  // the *policy* name!
 
 // Not so important prior to v2.2.8, then more important (part of policies):
 const QString ADDRESS_FIELD("address");
 const QString GP_FIELD("gp");
-const QString OTHER_FIELD("other");
+const QString EMAIL_FIELD("email");
+const QString OTHER_DETAILS_FIELD("other");  // the *field* name!
 
 const qint64 MIN_ID_NUM_VALUE = 0;
 const qint64 MAX_ID_NUM_VALUE = std::numeric_limits<qint64>::max();
@@ -88,12 +94,31 @@ const QString TAG_IDCLASH_DETAIL("idclash_detail");
 // SEE ALSO patient.cpp, for the JSON ones.
 const QString KEY_ADDRESS("address");  // C->S, in JSON, v2.3.0
 const QString KEY_DOB("dob");  // C->S, in JSON, v2.3.0
+const QString KEY_EMAIL("email");  // C->S, in JSON, v2.3.9
 const QString KEY_FORENAME("forename");  // C->S, in JSON, v2.3.0
 const QString KEY_GP("gp");  // C->S, in JSON, v2.3.0
 const QString KEY_IDNUM_PREFIX("idnum");  // C->S, in JSON, v2.3.0
 const QString KEY_OTHER("other");  // C->S, in JSON, v2.3.0
 const QString KEY_SEX("sex");  // C->S, in JSON, v2.3.0
 const QString KEY_SURNAME("surname");  // C->S, in JSON, v2.3.0
+
+const QStringList MAIN_FIELDS{
+    FORENAME_FIELD, SURNAME_FIELD,
+    SEX_FIELD, DOB_FIELD,
+    EMAIL_FIELD, ADDRESS_FIELD,
+    GP_FIELD, OTHER_DETAILS_FIELD
+};  // Everything except the (linked) ID numbers.
+
+const QMap<QString, QString> FIELDNAMES_TO_JSON_KEYS{
+    {FORENAME_FIELD, KEY_FORENAME},
+    {SURNAME_FIELD, KEY_SURNAME},
+    {SEX_FIELD, KEY_SEX},
+    {DOB_FIELD, KEY_DOB},
+    {EMAIL_FIELD, KEY_EMAIL},
+    {ADDRESS_FIELD, KEY_ADDRESS},
+    {GP_FIELD, KEY_GP},
+    {OTHER_DETAILS_FIELD, KEY_OTHER},
+};
 
 
 // ============================================================================
@@ -112,14 +137,41 @@ Patient::Patient(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     addField(SURNAME_FIELD, QVariant::String);
     addField(SEX_FIELD, QVariant::String);
     addField(DOB_FIELD, QVariant::Date);
+    addField(EMAIL_FIELD, QVariant::String);
     addField(ADDRESS_FIELD, QVariant::String);
     addField(GP_FIELD, QVariant::String);
-    addField(OTHER_FIELD, QVariant::String);
+    addField(OTHER_DETAILS_FIELD, QVariant::String);
 
     // ------------------------------------------------------------------------
     // Load from database (or create/save), unless this is a specimen
     // ------------------------------------------------------------------------
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
+}
+
+
+Patient::Patient(CamcopsApp& app, DatabaseManager& db,
+                 const QJsonObject& json_obj) : Patient(app, db)
+{
+    setValuesFromJson(json_obj, FIELDNAMES_TO_JSON_KEYS);
+}
+
+
+void Patient::addIdNums(const QJsonObject& json_obj)
+{
+    const QRegularExpression regex(QString("%1(\\d+)").arg(IDNUM_FIELD_PREFIX));
+
+    foreach(const QString& key, json_obj.keys()) {
+        const QRegularExpressionMatch match = regex.match(key);
+        if (match.hasMatch()) {
+            const int which_idnum = match.captured(1).toInt();
+            const qint64 idnum_value = json_obj.value(key).toVariant().toLongLong();
+
+            PatientIdNumPtr new_id(
+                new PatientIdNum(id(), which_idnum, idnum_value, m_app, m_db)
+            );
+            m_idnums.append(new_id);
+        }
+    }
 }
 
 
@@ -287,6 +339,12 @@ bool Patient::hasDob() const
 }
 
 
+bool Patient::hasEmail() const
+{
+    return !value(EMAIL_FIELD).isNull();
+}
+
+
 bool Patient::hasAddress() const
 {
     return !valueString(ADDRESS_FIELD).isEmpty();
@@ -301,7 +359,7 @@ bool Patient::hasGP() const
 
 bool Patient::hasOtherDetails() const
 {
-    return !valueString(OTHER_FIELD).isEmpty();
+    return !valueString(OTHER_DETAILS_FIELD).isEmpty();
 }
 
 
@@ -313,23 +371,24 @@ Patient::AttributesType Patient::policyAttributes(
     map[SURNAME_FIELD] = hasSurname();
     map[SEX_FIELD] = hasSex();
     map[DOB_FIELD] = hasDob();
+    map[EMAIL_FIELD] = hasEmail();
     map[ADDRESS_FIELD] = hasAddress();
     map[GP_FIELD] = hasGP();
-    map[OTHER_FIELD] = hasOtherDetails();
-    bool any_idnum = false;
-    bool other_idnum = false;
+    map[OTHER_DETAILS_POLICYNAME] = hasOtherDetails();
+    bool has_any_idnum = false;
+    bool has_other_idnum = false;
     for (const PatientIdNumPtr& idnum : m_idnums) {
         const bool present = idnum->idnumIsPresent();
         const int which_idnum = idnum->whichIdNum();
         map[IDNUM_FIELD_FORMAT.arg(which_idnum)] = present;
-        any_idnum = any_idnum || present;
+        has_any_idnum = has_any_idnum || present;
         if (!policy_mentioned_idnums.contains(which_idnum)) {
             // "other"
-            other_idnum = other_idnum || present;
+            has_other_idnum = has_other_idnum || present;
         }
     }
-    map[ANY_IDNUM] = any_idnum;
-    map[OTHER_IDNUM] = other_idnum;
+    map[ANY_IDNUM_POLICYNAME] = has_any_idnum;
+    map[OTHER_IDNUM_POLICYNAME] = has_other_idnum;
     return map;
 }
 
@@ -337,17 +396,9 @@ Patient::AttributesType Patient::policyAttributes(
 QJsonObject Patient::jsonDescription() const
 {
     QJsonObject j;
-    j[KEY_FORENAME] = forename();
-    j[KEY_SURNAME] = surname();
-    j[KEY_SEX] = sex();
-    const QVariant dob = value(DOB_FIELD);
-    if (dob.isNull()) {
-        j[KEY_DOB] = QJsonValue::Null;
-    } else {
-        j[KEY_DOB] = datetime::dateToIso(dob.toDate());
-    }
-    j[KEY_ADDRESS] = valueString(ADDRESS_FIELD);
-    j[KEY_GP] = valueString(GP_FIELD);
+
+    readValuesIntoJson(FIELDNAMES_TO_JSON_KEYS, j);
+
     for (const PatientIdNumPtr& idnum : m_idnums) {
         if (!idnum->idnumIsPresent()) {
             continue;
@@ -358,6 +409,10 @@ QJsonObject Patient::jsonDescription() const
                     KEY_IDNUM_PREFIX, QString::number(which_idnum));
         j[idkey] = idnum_value;
     }
+
+#ifdef DEBUG_JSON
+    qDebug().noquote() << "Patient jsonDescription():" << j;
+#endif
     return j;
 }
 
@@ -415,10 +470,9 @@ void Patient::updateQuestionnaireIndicators(const FieldRef* fieldref,
     const bool tablet_ok = compliesWithTablet();
     m_questionnaire->setVisibleByTag(TAG_POLICY_APP_OK, tablet_ok);
     m_questionnaire->setVisibleByTag(TAG_POLICY_APP_FAIL, !tablet_ok);
-    fieldRef(SURNAME_FIELD)->setMandatory(!tablet_ok);
-    fieldRef(FORENAME_FIELD)->setMandatory(!tablet_ok);
-    fieldRef(SEX_FIELD)->setMandatory(!tablet_ok);
-    fieldRef(DOB_FIELD)->setMandatory(!tablet_ok);
+    for (const QString& fieldname : MAIN_FIELDS) {
+        fieldRef(fieldname)->setMandatory(!tablet_ok);
+    }
     for (const PatientIdNumPtr& idnum : m_idnums) {
         // idnum->fieldRef(PatientIdNum::FN_IDNUM_VALUE)->setMandatory(!tablet_ok);
         idnum->fieldRef(PatientIdNum::FN_IDNUM_VALUE)->setMandatory(true);
@@ -545,15 +599,14 @@ void Patient::deleteFromDatabase()
 bool Patient::matchesForMerge(const Patient* other) const
 {
     Q_ASSERT(other);
-    auto sameOrOneNull = [this, &other](const QString& fieldname) -> bool {
-        QVariant a = value(fieldname);
-        QVariant b = other->value(fieldname);
-        return a.isNull() || b.isNull() || a == b;
-    };
-    auto sameOrOneBlank = [this, &other](const QString& fieldname) -> bool {
-        QString a = valueString(fieldname);
-        QString b = other->valueString(fieldname);
-        return a.isEmpty() || b.isEmpty() || a == b;
+    auto sameOrOneNullOrBlank = [this, &other](const QString& fieldname) -> bool {
+        if (valueIsNullOrEmpty(fieldname) ||
+                other->valueIsNullOrEmpty(fieldname)) {
+            return true;  // one is null or empty
+        }
+        const QVariant a = value(fieldname);
+        const QVariant b = other->value(fieldname);
+        return a == b;  // same?
     };
 
     if (id() == other->id()) {
@@ -570,14 +623,13 @@ bool Patient::matchesForMerge(const Patient* other) const
             return false;
         }
     }
-    // Forename, surname, DOB, sex must match or be blank:
-    return sameOrOneBlank(FORENAME_FIELD) &&
-            sameOrOneBlank(SURNAME_FIELD) &&
-            sameOrOneNull(DOB_FIELD) &&
-            sameOrOneBlank(SEX_FIELD) &&
-            sameOrOneBlank(ADDRESS_FIELD) &&
-            sameOrOneBlank(GP_FIELD) &&
-            sameOrOneBlank(OTHER_FIELD);
+    for (const QString& fieldname : MAIN_FIELDS) {
+        // Forename, surname, DOB, sex, ... must all match or be blank:
+        if (!sameOrOneNullOrBlank(fieldname)) {
+            return false;
+        }
+    }
+    return true;
 }
 
 
@@ -631,6 +683,20 @@ QString Patient::oneLineHtmlDetailString() const
     return QString("<b>%1</b> (%2); %3").arg(surnameUpperForename(),
                                              sexAgeDob(),
                                              shortIdnumSummary());
+}
+
+
+QString Patient::oneLineHtmlSimpleString() const
+{
+    QString patient_info;
+
+    if (hasForename() || hasSurname()) {
+        patient_info = forenameSurname();
+    } else {
+        patient_info = shortIdnumSummary();
+    }
+
+    return QString("<b>%1</b>").arg(patient_info);
 }
 
 
@@ -695,8 +761,14 @@ void Patient::buildPage(bool read_only)
     grid->addCell(QuGridCell(new QuText(tr("Date of birth")),
                              row, 0, rowspan, colspan, ralign));
     grid->addCell(QuGridCell(
-        (new QuDateTime(fieldRef(DOB_FIELD, false)))->setMode(QuDateTime::DefaultDate),
+        (new QuDateTime(fieldRef(DOB_FIELD, false)))
+                      ->setMode(QuDateTime::DefaultDate)
+                      ->setOfferNullButton(true),  // in case policy disallows DOB
         row++, 1));
+    grid->addCell(QuGridCell(new QuText(tr("Email")),
+                             row, 0, rowspan, colspan, ralign));
+    grid->addCell(QuGridCell(new QuTextEdit(fieldRef(EMAIL_FIELD, false)),
+                             row++, 1));
     grid->addCell(QuGridCell(new QuText(tr("Address")),
                              row, 0, rowspan, colspan, ralign));
     grid->addCell(QuGridCell(new QuTextEdit(fieldRef(ADDRESS_FIELD, false)),
@@ -707,7 +779,7 @@ void Patient::buildPage(bool read_only)
                              row++, 1));
     grid->addCell(QuGridCell(new QuText(tr("Other details")),
                              row, 0, rowspan, colspan, ralign));
-    grid->addCell(QuGridCell(new QuTextEdit(fieldRef(OTHER_FIELD, false)),
+    grid->addCell(QuGridCell(new QuTextEdit(fieldRef(OTHER_DETAILS_FIELD, false)),
                              row++, 1));
 
     // ------------------------------------------------------------------------
@@ -780,9 +852,7 @@ void Patient::buildPage(bool read_only)
     // ------------------------------------------------------------------------
     // Signals
     // ------------------------------------------------------------------------
-    QStringList fields{FORENAME_FIELD, SURNAME_FIELD, DOB_FIELD, SEX_FIELD,
-                       ADDRESS_FIELD, GP_FIELD, OTHER_FIELD};
-    for (const QString& fieldname : fields) {
+    for (const QString& fieldname : MAIN_FIELDS) {
         FieldRefPtr fr = fieldRef(fieldname);
         connect(fr.data(), &FieldRef::valueChanged,
                 this, &Patient::updateQuestionnaireIndicators);
@@ -805,15 +875,6 @@ void Patient::mergeInDetailsAndTakeTasksFrom(const Patient* other)
     // Copy information from other to this
     qInfo() << Q_FUNC_INFO << "Copying information from patient" << other_pk
             << "to patient" << this_pk;
-    QStringList fields{
-        FORENAME_FIELD,
-        SURNAME_FIELD,
-        DOB_FIELD,
-        SEX_FIELD,
-        ADDRESS_FIELD,
-        GP_FIELD,
-        OTHER_FIELD,
-    };
 
     // ------------------------------------------------------------------------
     // ID numbers
@@ -855,7 +916,7 @@ void Patient::mergeInDetailsAndTakeTasksFrom(const Patient* other)
     // ------------------------------------------------------------------------
     // Other patient details
     // ------------------------------------------------------------------------
-    for (const QString& fieldname : fields) {
+    for (const QString& fieldname : MAIN_FIELDS) {
         QVariant this_value = value(fieldname);
         QVariant other_value = other->value(fieldname);
         if (this_value.isNull() || (this_value.toString().isEmpty() &&
@@ -888,8 +949,8 @@ void Patient::addIdNum()
     if (unused.isEmpty()) {
         QString msg = tr("All ID numbers offered by the server are already here!");
         if (present.isEmpty()) {
-            msg += tr(" (There are no ID numbers at all – have you "
-                      "registered with a server?)");
+            msg += " " + tr("(There are no ID numbers at all – have you "
+                            "registered with a server?)");
         }
         uifunc::alert(msg);
         return;

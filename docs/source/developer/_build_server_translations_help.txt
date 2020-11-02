@@ -1,0 +1,36 @@
+usage: build_server_translations.py [-h] [--verbose] operation
+
+Create translation files for CamCOPS server. CamCOPS knows about the following
+locales:
+
+    ['da_DK']
+
+Operations:
+
+    extract
+        Extract strings from code that looks like, for example,
+            _("please translate me")
+        in Python and Mako files. Write the strings to this .pot file:
+            /path/to/camcops/server/translations/camcops_translations.pot
+        
+    init_missing
+        For any locales that do not have a .po file, create one.
+
+    update
+        Updates all .po files from the .pot file.
+
+    [At this stage, edit the .po files with Poedit or similar.]
+        
+    compile
+        Converts each .po file to an equivalent .mo file.
+    
+    all
+        Executes all other operations in sequence.
+
+positional arguments:
+  operation   Operation to perform; possibilities are ['extract',
+              'init_missing', 'update', 'compile', 'all']
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --verbose   Be verbose (default: False)

@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -70,12 +70,6 @@ QString Irac::longname() const
 QString Irac::description() const
 {
     return tr("Clinician-specified aim of contact, and whether aim achieved.");
-}
-
-
-QString Irac::infoFilenameStem() const
-{
-    return "from_lp";
 }
 
 

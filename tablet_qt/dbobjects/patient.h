@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -34,12 +34,13 @@ extern const QString DOB_FIELD;
 extern const QString SEX_FIELD;
 extern const QString ADDRESS_FIELD;
 extern const QString GP_FIELD;
-extern const QString OTHER_FIELD;
+extern const QString EMAIL_FIELD;
+extern const QString OTHER_DETAILS_POLICYNAME;  // policy name, not field name
 
 extern const QString IDNUM_FIELD_PREFIX;
 extern const QString IDNUM_FIELD_FORMAT;
-extern const QString ANY_IDNUM;
-extern const QString OTHER_IDNUM;
+extern const QString ANY_IDNUM_POLICYNAME;
+extern const QString OTHER_IDNUM_POLICYNAME;
 
 
 // Represents a patient.
@@ -52,9 +53,19 @@ public:
     // ------------------------------------------------------------------------
     // Creation
     // ------------------------------------------------------------------------
+
+    // Normal constructor.
     Patient(CamcopsApp& app,
             DatabaseManager& db,
             int load_pk = dbconst::NONEXISTENT_PK);
+
+    // Construct from JSON (except ID numbers).
+    Patient(CamcopsApp& app,
+            DatabaseManager& db,
+            const QJsonObject& json_obj);
+
+    // Adds ID numbers from JSON.
+    void addIdNums(const QJsonObject& json_obj);
 
     // ------------------------------------------------------------------------
     // Ancillary management
@@ -106,6 +117,9 @@ public:
 
     // Do we know the DOB?
     bool hasDob() const;
+
+    // Do we know the e-mail address?
+    bool hasEmail() const;
 
     // Do we know the address?
     bool hasAddress() const;
@@ -195,6 +209,9 @@ public:
 
     // e.g. "<b>JONES, Bob</b> (M, 19y, DOB 1 Jan 2000); RiO 12345, NHS 9876543210"
     QString oneLineHtmlDetailString() const;
+
+    // e.g. "<b>Bob Jones</b>"
+    QString oneLineHtmlSimpleString() const;
 
     // ------------------------------------------------------------------------
     // Editing and other manipulations

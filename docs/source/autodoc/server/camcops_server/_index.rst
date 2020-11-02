@@ -74,6 +74,15 @@ server/camcops_server
     alembic/versions/0041_khandaker_mojo_medicationtherapy.py.rst
     alembic/versions/0042_lynall_iam_life.py.rst
     alembic/versions/0043_clinician_removed_from_some_mojo_tasks.py.rst
+    alembic/versions/0044_mojo_therapy_sessions_planned_comment.py.rst
+    alembic/versions/0045_das28_esr_crp_floating_point.py.rst
+    alembic/versions/0046_redcap.py.rst
+    alembic/versions/0047_taskschedule.py.rst
+    alembic/versions/0048_patient_uuid.py.rst
+    alembic/versions/0049_patient_unique_constraint.py.rst
+    alembic/versions/0050_patient_email.py.rst
+    alembic/versions/0051_auto_generated_user.py.rst
+    alembic/versions/0052_group_ip_use.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst
@@ -109,6 +118,7 @@ server/camcops_server
     cc_modules/cc_hl7.py.rst
     cc_modules/cc_html.py.rst
     cc_modules/cc_idnumdef.py.rst
+    cc_modules/cc_ipuse.py.rst
     cc_modules/cc_language.py.rst
     cc_modules/cc_membership.py.rst
     cc_modules/cc_nhs.py.rst
@@ -118,11 +128,13 @@ server/camcops_server
     cc_modules/cc_pdf.py.rst
     cc_modules/cc_plot.py.rst
     cc_modules/cc_policy.py.rst
+    cc_modules/cc_proquint.py.rst
     cc_modules/cc_pyramid.py.rst
     cc_modules/cc_pythonversion.py.rst
     cc_modules/cc_redcap.py.rst
     cc_modules/cc_report.py.rst
     cc_modules/cc_request.py.rst
+    cc_modules/cc_resource_registry.py.rst
     cc_modules/cc_serversettings.py.rst
     cc_modules/cc_session.py.rst
     cc_modules/cc_simpleobjects.py.rst
@@ -139,6 +151,7 @@ server/camcops_server
     cc_modules/cc_taskfilter.py.rst
     cc_modules/cc_taskindex.py.rst
     cc_modules/cc_taskreports.py.rst
+    cc_modules/cc_taskschedule.py.rst
     cc_modules/cc_text.py.rst
     cc_modules/cc_tracker.py.rst
     cc_modules/cc_trackerhelpers.py.rst
@@ -147,6 +160,7 @@ server/camcops_server
     cc_modules/cc_user.py.rst
     cc_modules/cc_version.py.rst
     cc_modules/cc_version_string.py.rst
+    cc_modules/cc_view_classes.py.rst
     cc_modules/cc_xml.py.rst
     cc_modules/celery.py.rst
     cc_modules/client_api.py.rst
@@ -168,7 +182,6 @@ server/camcops_server
     extra_string_templates/iesr_TEMPLATE.xml.rst
     extra_string_templates/ifs_TEMPLATE.xml.rst
     extra_string_templates/lynall_iam_life_TEMPLATE.xml.rst
-    extra_string_templates/mfi20_TEMPLATE.xml.rst
     extra_string_templates/npiq_TEMPLATE.xml.rst
     extra_string_templates/ors_TEMPLATE.xml.rst
     extra_string_templates/pdss_TEMPLATE.xml.rst
@@ -240,6 +253,7 @@ server/camcops_server
     extra_strings/lynall_iam_medical.xml.rst
     extra_strings/maas.xml.rst
     extra_strings/mast.xml.rst
+    extra_strings/mfi20.xml.rst
     extra_strings/moca.xml.rst
     extra_strings/panss.xml.rst
     extra_strings/pbq.xml.rst
@@ -255,6 +269,8 @@ server/camcops_server
     extra_strings/slums.xml.rst
     extra_strings/smast.xml.rst
     extra_strings/wemwbs.xml.rst
+    static/jsoneditor/jsoneditor.min.css.rst
+    static/jsoneditor/jsonwidget.css.rst
     tasks/ace3.py.rst
     tasks/aims.py.rst
     tasks/apeq_cpft_perinatal.py.rst
@@ -414,8 +430,10 @@ server/camcops_server
     templates/menu/exported_task_hl7_message.mako.rst
     templates/menu/exported_task_list.mako.rst
     templates/menu/filter_edit.mako.rst
+    templates/menu/finalized_patient_edit.mako.rst
     templates/menu/forbidden.mako.rst
     templates/menu/generic_failure.mako.rst
+    templates/menu/generic_form.mako.rst
     templates/menu/generic_success.mako.rst
     templates/menu/group_add.mako.rst
     templates/menu/group_delete.mako.rst
@@ -433,12 +451,13 @@ server/camcops_server
     templates/menu/not_found.mako.rst
     templates/menu/offer_terms.mako.rst
     templates/menu/password_changed.mako.rst
+    templates/menu/patient_add.mako.rst
     templates/menu/patient_delete_choose.mako.rst
     templates/menu/patient_delete_confirm.mako.rst
-    templates/menu/patient_edit.mako.rst
     templates/menu/report.mako.rst
     templates/menu/report_offer.mako.rst
     templates/menu/reports_menu.mako.rst
+    templates/menu/server_created_patient_edit.mako.rst
     templates/menu/server_settings_edit.mako.rst
     templates/menu/set_user_upload_group.mako.rst
     templates/menu/special_note_add.mako.rst
@@ -454,7 +473,11 @@ server/camcops_server
     templates/menu/view_email.mako.rst
     templates/menu/view_other_user_info.mako.rst
     templates/menu/view_own_user_info.mako.rst
+    templates/menu/view_patient_task_schedule.mako.rst
+    templates/menu/view_patient_task_schedules.mako.rst
     templates/menu/view_server_info.mako.rst
+    templates/menu/view_task_schedule_items.mako.rst
+    templates/menu/view_task_schedules.mako.rst
     templates/menu/view_tasks.mako.rst
     templates/menu/view_tasks_table.mako.rst
     templates/menu/view_user_email_addresses.mako.rst
@@ -466,6 +489,7 @@ server/camcops_server
     templates/snippets/query_result_orm.mako.rst
     templates/snippets/table.mako.rst
     templates/snippets/to_main_menu.mako.rst
+    templates/snippets/to_view_all_groups.mako.rst
     templates/snippets/to_view_all_users.mako.rst
     templates/snippets/user_info_detail.mako.rst
     templates/taskcommon/clinician.mako.rst

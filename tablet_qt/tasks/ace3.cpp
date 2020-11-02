@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -587,7 +587,7 @@ OpenableWidget* Ace3::editor(const bool read_only)
         boolean("lang_command1", strnum(FP_LANG_FOLLOW_CMD, 1), true, true)->addTag(TAG_EL_LANG_OPTIONAL_COMMAND),
         boolean("lang_command2", strnum(FP_LANG_FOLLOW_CMD, 2), true, true)->addTag(TAG_EL_LANG_OPTIONAL_COMMAND),
         boolean("lang_command3", strnum(FP_LANG_FOLLOW_CMD, 3), true, true)->addTag(TAG_EL_LANG_OPTIONAL_COMMAND),
-        warning(tr("Other commands not shown; subject failed practice trial"))
+        warning(tr("Other commands not shown; subject failed practice trial."))
                                             ->addTag(TAG_EL_LANG_NOT_SHOWN),
         heading("cat_lang"),
         instruction("lang_q_sentences"),

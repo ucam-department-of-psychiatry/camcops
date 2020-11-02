@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -98,6 +98,13 @@ using TaskChainPtr = QSharedPointer<TaskChain>;
 
 class TaskFactory;
 using TaskFactoryPtr = QSharedPointer<TaskFactory>;
+
+class TaskSchedule;
+using TaskSchedulePtr = QSharedPointer<TaskSchedule>;
+using TaskSchedulePtrList = QVector<TaskSchedulePtr>;
+
+class TaskScheduleItem;
+using TaskScheduleItemPtr = QSharedPointer<TaskScheduleItem>;
 
 // Phase 2, using things from Phase 1:
 

@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -24,11 +24,15 @@
 #include <QLabel>
 #include "common/cssconst.h"
 #include "common/uiconst.h"
+#include "common/varconst.h"
 #include "dbobjects/patient.h"
 #include "layouts/flowlayouthfw.h"
 #include "layouts/layouts.h"
+#include "lib/sizehelpers.h"
 #include "lib/uifunc.h"
+#include "menu/singleuseroptionsmenu.h"
 #include "widgets/basewidget.h"
+#include "widgets/clickablelabelwordwrapwide.h"
 #include "widgets/horizontalline.h"
 #include "widgets/imagebutton.h"
 #include "widgets/labelwordwrapwide.h"
@@ -52,7 +56,8 @@ MenuHeader::MenuHeader(QWidget* parent,
       m_button_unlocked(nullptr),
       m_button_privileged(nullptr),
       m_patient_info(nullptr),
-      m_no_patient(nullptr)
+      m_no_patient(nullptr),
+      m_single_user_options(nullptr)
 {
     auto mainlayout = new VBoxLayout();
     setLayout(mainlayout);
@@ -63,6 +68,7 @@ MenuHeader::MenuHeader(QWidget* parent,
 
     // Left
     m_top_bar = new BaseWidget();
+    m_top_bar->setSizePolicy(sizehelpers::expandingFixedHFWPolicy());
     auto toprowlayout = new HBoxLayout();
     m_top_bar->setLayout(toprowlayout);
     mainlayout->addWidget(m_top_bar);
@@ -169,14 +175,40 @@ MenuHeader::MenuHeader(QWidget* parent,
     // ------------------------------------------------------------------------
     // Selected patient
     // ------------------------------------------------------------------------
+    auto patient_bar = new BaseWidget();
+    patient_bar->setSizePolicy(sizehelpers::expandingFixedHFWPolicy());
+    auto patientlayout = new HBoxLayout();
+    patient_bar->setLayout(patientlayout);
+    mainlayout->addWidget(patient_bar);
+
     m_patient_info = new LabelWordWrapWide();
     m_patient_info->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     m_patient_info->setObjectName(cssconst::MENU_HEADER_PATIENT_INFO);
-    mainlayout->addWidget(m_patient_info);
-    m_no_patient = new LabelWordWrapWide(tr("No patient selected"));
+    patientlayout->addWidget(m_patient_info, 0, text_align);
+
+    if (m_app.isSingleUserMode()) {
+        m_no_patient = new ClickableLabelWordWrapWide(tr("Register me"));
+        m_no_patient->setObjectName(cssconst::MENU_HEADER_MORE_OPTIONS);
+        connect(m_no_patient, &QAbstractButton::clicked,
+                this, &MenuHeader::registerPatient);
+    } else {
+        m_no_patient = new ClickableLabelWordWrapWide(tr("No patient selected"));
+        m_no_patient->setObjectName(cssconst::MENU_HEADER_NO_PATIENT);
+    }
+
     m_no_patient->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-    m_no_patient->setObjectName(cssconst::MENU_HEADER_NO_PATIENT);
-    mainlayout->addWidget(m_no_patient);
+
+    patientlayout->addWidget(m_no_patient, 0, text_align);
+    patientlayout->addStretch();
+
+    if (top && m_app.isSingleUserMode()) {
+        m_single_user_options = new ClickableLabelWordWrapWide(tr("More options"));
+        m_single_user_options->setObjectName(cssconst::MENU_HEADER_MORE_OPTIONS);
+        connect(m_single_user_options, &QAbstractButton::clicked,
+                this, &MenuHeader::openOptionsMenu);
+        patientlayout->addWidget(m_single_user_options, 0, Qt::AlignRight);
+    }
+
     setPatientDetails(m_app.selectedPatient());
 
     setCrippled(false);
@@ -274,7 +306,11 @@ void MenuHeader::setPatientDetails(const Patient* patient)
     QString info;
 
     if (selected) {
-        info = patient->oneLineHtmlDetailString();
+        if (m_app.isSingleUserMode()) {
+            info = patient->oneLineHtmlSimpleString();
+        } else {
+            info = patient->oneLineHtmlDetailString();
+        }
     }
 #ifdef DEBUG_SLOTS
     qDebug() << Q_FUNC_INFO << info << "[patient:" << patient << "]";
@@ -308,4 +344,16 @@ void MenuHeader::offerAdd(const bool offer_add)
 void MenuHeader::offerFinishFlag(const bool offer_finish_flag)
 {
     m_button_finish_flag->setVisible(offer_finish_flag);
+}
+
+
+void MenuHeader::openOptionsMenu()
+{
+    m_app.openSubWindow(new SingleUserOptionsMenu(m_app));
+}
+
+
+void MenuHeader::registerPatient()
+{
+    m_app.registerPatientWithServer();
 }

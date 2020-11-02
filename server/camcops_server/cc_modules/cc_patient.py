@@ -30,8 +30,9 @@ camcops_server/cc_modules/cc_patient.py
 
 import logging
 from typing import (
-    Any, Dict, Generator, List, Optional, Set, Tuple, TYPE_CHECKING, Union,
+    Any, Dict, Generator, List, Optional, Tuple, TYPE_CHECKING, Union,
 )
+import uuid
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.datetimefunc import (
@@ -44,6 +45,7 @@ from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_web as ws
 import hl7
 import pendulum
+from sqlalchemy import UniqueConstraint
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import Session as SqlASession
@@ -64,6 +66,7 @@ from camcops_server.cc_modules.cc_constants import (
     TSV_PATIENT_FIELD_PREFIX,
 )
 from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
+from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_hl7 import make_pid_segment
 from camcops_server.cc_modules.cc_html import answer
 from camcops_server.cc_modules.cc_simpleobjects import (
@@ -74,6 +77,7 @@ from camcops_server.cc_modules.cc_patientidnum import (
     extra_id_colname,
     PatientIdNum,
 )
+from camcops_server.cc_modules.cc_proquint import proquint_from_uuid
 from camcops_server.cc_modules.cc_report import Report
 from camcops_server.cc_modules.cc_simpleobjects import (
     IdNumReference,
@@ -82,8 +86,10 @@ from camcops_server.cc_modules.cc_simpleobjects import (
 from camcops_server.cc_modules.cc_specialnote import SpecialNote
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
+    EmailAddressColType,
     PatientNameColType,
     SexColType,
+    UuidColType,
 )
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 from camcops_server.cc_modules.cc_tsv import TsvPage
@@ -112,12 +118,20 @@ class Patient(GenericTabletRecordMixin, Base):
     Class representing a patient.
     """
     __tablename__ = "patient"
+    __table_args__ = (
+        UniqueConstraint("id", "_device_id", "_era"),
+    )
 
     id = Column(
         "id", Integer,
         nullable=False,
         comment="Primary key (patient ID) on the source tablet device"
         # client PK
+    )
+    uuid = CamcopsColumn(
+        "uuid", UuidColType,
+        comment="UUID",
+        default=uuid.uuid4
     )
     forename = CamcopsColumn(
         "forename", PatientNameColType,
@@ -148,6 +162,11 @@ class Patient(GenericTabletRecordMixin, Base):
         "address", UnicodeText,
         identifies_patient=True,
         comment="Address"
+    )
+    email = CamcopsColumn(
+        "email", EmailAddressColType,
+        identifies_patient=True,
+        comment="Patient's e-mail address"
     )
     gp = CamcopsColumn(
         "gp", UnicodeText,
@@ -320,6 +339,12 @@ class Patient(GenericTabletRecordMixin, Base):
     def __str__(self) -> str:
         """
         A plain string version, without the need for a request object.
+
+        Example:
+
+        .. code-block:: none
+
+            SMITH, BOB (M, 1 Jan 1950, idnum1=123, idnum2=456)
         """
         return "{sf} ({sex}, {dob}, {ids})".format(
             sf=self.get_surname_forename_upper(),
@@ -334,12 +359,36 @@ class Patient(GenericTabletRecordMixin, Base):
 
         Args:
             req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+
+        Example:
+
+        .. code-block:: none
+
+            SMITH, BOB (M, 1 Jan 1950, RiO# 123, NHS# 456)
         """
         return "{sf} ({sex}, {dob}, {ids})".format(
             sf=self.get_surname_forename_upper(),
             sex=self.sex,
             dob=self.get_dob_str(),
             ids=", ".join(i.prettystr(req) for i in self.get_idnum_objects()),
+        )
+
+    def get_letter_style_identifiers(self, req: "CamcopsRequest") -> str:
+        """
+        Our best guess at the kind of text you'd put in a clinical letter to
+        say "it's about this patient".
+
+        Example:
+
+        .. code-block:: none
+
+            Bob Smith (1 Jan 1950, RiO number 123, NHS number 456)
+        """
+        return "{fs} ({dob}, {ids})".format(
+            fs=self.get_forename_surname(),
+            dob=self.get_dob_str(),
+            ids=", ".join(i.full_prettystr(req)
+                          for i in self.get_idnum_objects()),
         )
 
     # -------------------------------------------------------------------------
@@ -411,7 +460,7 @@ class Patient(GenericTabletRecordMixin, Base):
 
         These are SQLAlchemy ORM objects.
         """
-        return self.idnums  # type: List[PatientIdNum]
+        return self.idnums
 
     def get_idnum_references(self) -> List[IdNumReference]:
         """
@@ -566,6 +615,15 @@ class Patient(GenericTabletRecordMixin, Base):
         """
         return self.forename.upper() if self.forename else ""
 
+    def get_forename_surname(self) -> str:
+        """
+        Get "Forename Surname" as a string, using "(UNKNOWN)" for missing
+        details.
+        """
+        f = self.forename or "(UNKNOWN)"
+        s = self.surname or "(UNKNOWN)"
+        return f"{f} {s}"
+
     def get_surname_forename_upper(self) -> str:
         """
         Get "SURNAME, FORENAME" in HTML-safe format, using "(UNKNOWN)" for
@@ -656,6 +714,13 @@ class Patient(GenericTabletRecordMixin, Base):
         address = self.address  # type: Optional[str]
         return address or ""
 
+    def get_email(self) -> Optional[str]:
+        """
+        Returns email address
+        """
+        email = self.email  # type: Optional[str]
+        return email or ""
+
     # -------------------------------------------------------------------------
     # Other representations
     # -------------------------------------------------------------------------
@@ -734,8 +799,9 @@ class Patient(GenericTabletRecordMixin, Base):
             sex=self.sex,
             dob=self.dob,
             address=self.address,
+            email=self.email,
             gp=self.gp,
-            other=self.other,
+            otherdetails=self.other,
             idnum_definitions=self.get_idnum_references()
         )
 
@@ -853,14 +919,8 @@ class Patient(GenericTabletRecordMixin, Base):
         Generates all :class:`PatientIdNum` objects, including non-current
         ones.
         """
-        seen = set()  # type: Set[PatientIdNum]
-        for live_pidnum in self.idnums:
-            for lineage_member in live_pidnum.get_lineage():  # type: PatientIdNum  # noqa
-                if lineage_member in seen:
-                    continue
-                # noinspection PyTypeChecker
-                seen.add(lineage_member)
-                yield lineage_member
+        for lineage_member in self._gen_unique_lineage_objects(self.idnums):  # type: PatientIdNum  # noqa
+            yield lineage_member
 
     def delete_with_dependants(self, req: "CamcopsRequest") -> None:
         """
@@ -876,8 +936,7 @@ class Patient(GenericTabletRecordMixin, Base):
     # Editing
     # -------------------------------------------------------------------------
 
-    @property
-    def is_editable(self) -> bool:
+    def is_finalized(self, req: "CamcopsRequest") -> bool:
         """
         Is the patient finalized (no longer available to be edited on the
         client device), and therefore editable on the server?
@@ -887,11 +946,29 @@ class Patient(GenericTabletRecordMixin, Base):
             return False
         return True
 
+    def created_on_server(self, req: "CamcopsRequest") -> bool:
+        server_device = Device.get_server_device(req.dbsession)
+
+        return (self._era == ERA_NOW and
+                self._device_id == server_device.id)
+
     def user_may_edit(self, req: "CamcopsRequest") -> bool:
         """
         Does the current user have permission to edit this patient?
         """
         return req.user.may_administer_group(self._group_id)
+
+    # --------------------------------------------------------------------------
+    # UUID
+    # --------------------------------------------------------------------------
+    @property
+    def uuid_as_proquint(self) -> Optional[str]:
+        # Convert integer into pronounceable quintuplets (proquint)
+        # https://arxiv.org/html/0901.4016
+        if self.uuid is None:
+            return None
+
+        return proquint_from_uuid(self.uuid)
 
 
 # =============================================================================
@@ -1057,6 +1134,7 @@ class PatientTests(DemoDatabaseTestCase):
         self.assertIsInstance(p.get_sex(), str)
         self.assertIsInstance(p.get_sex_verbose(), str)
         self.assertIsInstance(p.get_address(), str)
+        self.assertIsInstance(p.get_email(), str)
         self.assertIsInstance(p.get_hl7_pid_segment(req, self.recipdef),
                               hl7.Segment)
         self.assertIsInstanceOrNone(p.get_idnum_object(which_idnum=1),
@@ -1065,5 +1143,46 @@ class PatientTests(DemoDatabaseTestCase):
         self.assertIsInstance(p.get_iddesc(req, which_idnum=1), str)
         self.assertIsInstance(p.get_idshortdesc(req, which_idnum=1), str)
         self.assertIsInstance(p.is_preserved(), bool)
-        self.assertIsInstance(p.is_editable, bool)
+        self.assertIsInstance(p.is_finalized(req), bool)
         self.assertIsInstance(p.user_may_edit(req), bool)
+
+
+class LineageTests(DemoDatabaseTestCase):
+    def create_tasks(self) -> None:
+        # Actually not creating any tasks but we don't want the patients
+        # created by default in the baseclass
+
+        # First record for patient 1
+        self.set_era("2020-01-01")
+
+        self.patient_1 = Patient()
+        self.patient_1.id = 1
+        self._apply_standard_db_fields(self.patient_1)
+        self.dbsession.add(self.patient_1)
+
+        # First ID number record for patient 1
+        self.patient_idnum_1_1 = PatientIdNum()
+        self.patient_idnum_1_1.id = 3
+        self._apply_standard_db_fields(self.patient_idnum_1_1)
+        self.patient_idnum_1_1.patient_id = 1
+        self.patient_idnum_1_1.which_idnum = self.nhs_iddef.which_idnum
+        self.patient_idnum_1_1.idnum_value = 555
+        self.dbsession.add(self.patient_idnum_1_1)
+
+        # Second ID number record for patient 1
+        self.patient_idnum_1_2 = PatientIdNum()
+        self.patient_idnum_1_2.id = 3
+        self._apply_standard_db_fields(self.patient_idnum_1_2)
+        # This one is not current
+        self.patient_idnum_1_2._current = False
+        self.patient_idnum_1_2.patient_id = 1
+        self.patient_idnum_1_2.which_idnum = self.nhs_iddef.which_idnum
+        self.patient_idnum_1_2.idnum_value = 555
+        self.dbsession.add(self.patient_idnum_1_2)
+
+        self.dbsession.commit()
+
+    def test_gen_patient_idnums_even_noncurrent(self) -> None:
+        idnums = list(self.patient_1.gen_patient_idnums_even_noncurrent())
+
+        self.assertEqual(len(idnums), 2)

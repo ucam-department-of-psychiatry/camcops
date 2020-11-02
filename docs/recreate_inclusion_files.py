@@ -32,14 +32,17 @@ That is, e.g. "command --help > somefile.txt".
 
 import datetime
 import logging
-from os.path import abspath, dirname, join, pardir, realpath
+from os import DirEntry, environ, scandir
+from os.path import abspath, dirname, exists, join, pardir, realpath
 import subprocess
 import sys
-from typing import List
+from typing import List, Optional
 
 from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
 
 log = logging.getLogger(__name__)
+
+EXIT_FAILURE = 1
 
 THIS_DIR = dirname(realpath(__file__))
 
@@ -49,12 +52,33 @@ USER_DIR = join(DOCS_SOURCE_DIR, "user")
 DEV_DIR = join(DOCS_SOURCE_DIR, "developer")
 
 CAMCOPS_ROOT_DIR = abspath(join(THIS_DIR, pardir))  # .../camcops
-TABLET_BUILD_DIR = join(CAMCOPS_ROOT_DIR, "build-camcops-Linux_x86_64-Debug")
-CAMCOPS_CLIENT_EXECUTABLE = join(TABLET_BUILD_DIR, "camcops")
 TABLET_ROOT_DIR = join(CAMCOPS_ROOT_DIR, "tablet_qt")
 TABLET_TOOLS_DIR = join(TABLET_ROOT_DIR, "tools")
 SERVER_ROOT_DIR = join(CAMCOPS_ROOT_DIR, "server")  # .../camcops/server
 SERVER_TOOLS_DIR = join(SERVER_ROOT_DIR, "tools")
+
+
+def build_directories() -> DirEntry:
+    with scandir(CAMCOPS_ROOT_DIR) as it:
+        for entry in it:
+            if entry.name.startswith("build-") and entry.is_dir():
+                yield entry
+
+
+def find_camcops_client_executable() -> Optional[str]:
+    for entry in build_directories():
+        camcops_executable = join(entry.path, "camcops")
+
+        if exists(camcops_executable):
+            return camcops_executable
+
+    return None
+
+
+CAMCOPS_CLIENT_EXECUTABLE = find_camcops_client_executable()
+if CAMCOPS_CLIENT_EXECUTABLE is None:
+    log.error("Cannot find a camcops executable. Have you built it?")
+    sys.exit(EXIT_FAILURE)
 
 
 def run_cmd(cmdargs: List[str],
@@ -78,7 +102,17 @@ def run_cmd(cmdargs: List[str],
             Encoding to use
     """
     log.info(f"Running: {cmdargs}")
-    output = subprocess.check_output(cmdargs).decode(encoding)
+
+    modified_env = environ.copy()
+    modified_env["GENERATING_CAMCOPS_DOCS"] = "True"
+    modified_env.pop("CAMCOPS_QT_BASE_DIR", None)
+    modified_env["CAMCOPS_CONFIG_FILE"] = "/path/to/camcops/config_file.ini"
+
+    output = (
+        subprocess.check_output(cmdargs, env=modified_env).decode(encoding)
+        .replace(CAMCOPS_CLIENT_EXECUTABLE,
+                 "/path/to/camcops/client/executable")
+    )
     log.info(f"... writing to: {output_filename}")
     with open(output_filename, "wt") as f:
         f.write(output)
@@ -90,44 +124,48 @@ def run_cmd(cmdargs: List[str],
 def main():
     # administrator
     run_cmd(["camcops_backup_mysql_database", "--help"],
-            join(ADMIN_DIR, "camcops_backup_mysql_database_help.txt"))
+            join(ADMIN_DIR, "_camcops_backup_mysql_database_help.txt"))
     run_cmd(["camcops_server", "--allhelp"],
-            join(ADMIN_DIR, "camcops_server_allhelp.txt"))
+            join(ADMIN_DIR, "_camcops_server_allhelp.txt"))
     run_cmd(["camcops_server_meta", "--help"],
-            join(ADMIN_DIR, "camcops_server_meta_help.txt"))
+            join(ADMIN_DIR, "_camcops_server_meta_help.txt"))
     log.warning("Skipping camcops_windows_service_help.txt (requires Windows)")
     run_cmd(["camcops_server", "demo_camcops_config"],
-            join(ADMIN_DIR, "demo_camcops_config.ini"))
+            join(ADMIN_DIR, "_demo_camcops_config.ini"))
     run_cmd(["camcops_server", "demo_supervisor_config"],
-            join(ADMIN_DIR, "demo_supervisor_config.txt"))
+            join(ADMIN_DIR, "_demo_supervisor_config.ini"))
     run_cmd(["camcops_server", "demo_apache_config"],
-            join(ADMIN_DIR, "demo_apache_config.txt"))
+            join(ADMIN_DIR, "_demo_apache_config.conf"))
     run_cmd(["camcops_fetch_snomed_codes", "--allhelp"],
-            join(ADMIN_DIR, "camcops_fetch_snomed_codes_help.txt"))
+            join(ADMIN_DIR, "_camcops_fetch_snomed_codes_help.txt"))
     # developer
     run_cmd(["python", join(TABLET_TOOLS_DIR, "build_qt.py"), "--help"],
-            join(DEV_DIR, "build_qt_help.txt"))
-    run_cmd(["python", join(SERVER_TOOLS_DIR, "build_translations.py"),
+            join(DEV_DIR, "_build_qt_help.txt"))
+    run_cmd(["python", join(SERVER_TOOLS_DIR, "build_server_translations.py"),
              "--help"],
-            join(DEV_DIR, "build_translations_help.txt"))
+            join(DEV_DIR, "_build_server_translations_help.txt"))
     run_cmd(["python", join(SERVER_TOOLS_DIR, "create_database_migration.py"),
              "--help"],
-            join(DEV_DIR, "create_database_migration_help.txt"))
+            join(DEV_DIR, "_create_database_migration_help.txt"))
+    run_cmd(["python", join(TABLET_TOOLS_DIR, "build_client_translations.py"),
+             "--help"],
+            join(DEV_DIR, "_build_client_translations_help.txt"))
     run_cmd(["python", join(TABLET_TOOLS_DIR, "decrypt_sqlcipher.py"),
              "--help"],
-            join(DEV_DIR, "decrypt_sqlcipher_help.txt"))
+            join(DEV_DIR, "_decrypt_sqlcipher_help.txt"))
     run_cmd(["python", join(TABLET_TOOLS_DIR, "encrypt_sqlcipher.py"),
              "--help"],
-            join(DEV_DIR, "encrypt_sqlcipher_help.txt"))
+            join(DEV_DIR, "_encrypt_sqlcipher_help.txt"))
     run_cmd(["python", join(SERVER_TOOLS_DIR, "make_xml_skeleton.py"),
              "--help"],
-            join(DEV_DIR, "make_xml_skeleton_help.txt"))
+            join(DEV_DIR, "_make_xml_skeleton_help.txt"))
     run_cmd(["python", join(TABLET_TOOLS_DIR, "open_sqlcipher.py"),
              "--help"],
-            join(DEV_DIR, "open_sqlcipher_help.txt"))
+            join(DEV_DIR, "_open_sqlcipher_help.txt"))
     # user
-    run_cmd([CAMCOPS_CLIENT_EXECUTABLE, "--help"],
-            join(USER_DIR, "camcops_client_help.txt"))
+    camcops_client_executable = find_camcops_client_executable()
+    run_cmd([camcops_client_executable, "--help"],
+            join(USER_DIR, "_camcops_client_help.txt"))
 
     log.info("Done.")
 

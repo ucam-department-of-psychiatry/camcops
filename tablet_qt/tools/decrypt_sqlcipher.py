@@ -34,6 +34,7 @@ import os
 import shutil
 from subprocess import Popen, PIPE
 import sys
+from typing import NoReturn
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 
@@ -49,7 +50,7 @@ def string_to_sql_literal(s: str) -> str:
     return "'{}'".format(s.replace("'", "''"))
 
 
-def main() -> None:
+def main() -> NoReturn:
     # -------------------------------------------------------------------------
     # Logging
     # -------------------------------------------------------------------------
@@ -58,6 +59,7 @@ def main() -> None:
     # -------------------------------------------------------------------------
     # Command-line arguments
     # -------------------------------------------------------------------------
+    # noinspection PyTypeChecker
     parser = argparse.ArgumentParser(
         description="Use SQLCipher to make a decrypted copy of a database",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)

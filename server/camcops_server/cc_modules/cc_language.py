@@ -47,8 +47,9 @@ DANISH = "da_DK"
 ENGLISH_UK = "en_GB"
 
 POSSIBLE_LOCALES_WITH_DESCRIPTIONS = (
+    # Default locale should be first (for auto-selecting <select> HTML).
+    (ENGLISH_UK, "English (UK)"),  # DEFAULT LOCALE
     (DANISH, "Dansk"),
-    (ENGLISH_UK, "English (UK)"),
 )
 
 
@@ -56,6 +57,6 @@ POSSIBLE_LOCALES_WITH_DESCRIPTIONS = (
 # Other constants
 # =============================================================================
 
-GETTEXT_DOMAIN = "camcops"  # don't alter this
 DEFAULT_LOCALE = ENGLISH_UK
+GETTEXT_DOMAIN = "camcops"  # don't alter this
 POSSIBLE_LOCALES = [_[0] for _ in POSSIBLE_LOCALES_WITH_DESCRIPTIONS]

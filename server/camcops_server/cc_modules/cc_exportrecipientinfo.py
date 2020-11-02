@@ -36,7 +36,7 @@ uses this, as it needs to be readable in the absence of a database connection
 import configparser
 import datetime
 import logging
-from typing import List, Optional, TYPE_CHECKING
+from typing import List, NoReturn, Optional, TYPE_CHECKING
 
 from cardinal_pythonlib.configfiles import (
     get_config_parameter,
@@ -86,8 +86,9 @@ class ExportTransmissionMethod(object):
     """
     DATABASE = "database"
     EMAIL = "email"
-    HL7 = "hl7"
     FILE = "file"
+    HL7 = "hl7"
+    REDCAP = "redcap"
 
 
 ALL_TRANSMISSION_METHODS = [
@@ -138,13 +139,14 @@ class ExportRecipientInfo(object):
     IGNORE_FOR_EQ_ATTRNAMES = [
         # Attribute names to ignore for equality comparison
         "email_host_password",
+        "redcap_api_key",
     ]
 
     def __init__(self, other: "ExportRecipientInfo" = None) -> None:
         """
         Initializes, optionally copying attributes from ``other``.
         """
-        cd = ConfigDefaults
+        cd = ConfigDefaults()
 
         self.recipient_name = ""
 
@@ -222,6 +224,12 @@ class ExportRecipientInfo(object):
         self.rio_idnum = None  # type: Optional[int]
         self.rio_uploading_user = ""
         self.rio_document_type = ""
+
+        # REDCap
+
+        self.redcap_api_key = ""  # not in database for security
+        self.redcap_api_url = ""
+        self.redcap_fieldmap_filename = ""
 
         # Copy from other?
         if other is not None:
@@ -334,8 +342,8 @@ class ExportRecipientInfo(object):
         section = CONFIG_RECIPIENT_PREFIX + recipient_name
         cps = ConfigParamSite
         cpr = ConfigParamExportRecipient
-        cd = ConfigDefaults
-        r = cls()
+        cd = ConfigDefaults()
+        r = cls()  # type: ExportRecipientInfo
 
         def _get_str(paramname: str, default: str = None) -> Optional[str]:
             return get_config_parameter(
@@ -508,6 +516,14 @@ class ExportRecipientInfo(object):
             r.rio_document_type = _get_str(cpr.RIO_DOCUMENT_TYPE)
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        # REDCap
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        if r.transmission_method == ExportTransmissionMethod.REDCAP:
+            r.redcap_api_url = _get_str(cpr.REDCAP_API_URL)
+            r.redcap_api_key = _get_str(cpr.REDCAP_API_KEY)
+            r.redcap_fieldmap_filename = _get_str(cpr.REDCAP_FIELDMAP_FILENAME)
+
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Validate the basics and return
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         r.validate_db_independent()
@@ -556,10 +572,10 @@ class ExportRecipientInfo(object):
         import camcops_server.cc_modules.cc_all_models  # import side effects (ensure all models registered)  # noqa
         from camcops_server.cc_modules.cc_task import all_task_tablenames  # delayed import # noqa
 
-        def fail_invalid(msg: str) -> None:
+        def fail_invalid(msg: str) -> NoReturn:
             raise _Invalid(self.recipient_name, msg)
 
-        def fail_missing(paramname: str) -> None:
+        def fail_missing(paramname: str) -> NoReturn:
             raise _Missing(self.recipient_name, paramname)
 
         cpr = ConfigParamExportRecipient
@@ -680,6 +696,15 @@ class ExportRecipientInfo(object):
             if not self.rio_document_type:
                 fail_missing(cpr.RIO_DOCUMENT_TYPE)
 
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        # REDCap
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        if self.transmission_method == ExportTransmissionMethod.HL7:
+            if not self.primary_idnum:
+                fail_missing(cpr.PRIMARY_IDNUM)
+            if self.include_anonymous:
+                fail_invalid("Can't include anonymous tasks for REDCap")
+
     def validate_db_dependent(self, req: "CamcopsRequest") -> None:
         """
         Validates the database-dependent aspects of the
@@ -693,7 +718,7 @@ class ExportRecipientInfo(object):
         """
         from camcops_server.cc_modules.cc_group import Group  # delayed import  # noqa
 
-        def fail_invalid(msg: str) -> None:
+        def fail_invalid(msg: str) -> NoReturn:
             raise _Invalid(self.recipient_name, msg)
 
         dbsession = req.dbsession
@@ -908,7 +933,7 @@ class ExportRecipientInfo(object):
             idnum_objects=task.get_patient_idnum_objects(),
             creation_datetime=task.get_creation_datetime(),
             basetable=task.tablename,
-            serverpk=task.get_pk(),
+            serverpk=task.pk,
             skip_conversion_to_safe_filename=not treat_as_filename,
         )
 

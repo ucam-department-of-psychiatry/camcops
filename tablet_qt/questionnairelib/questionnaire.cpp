@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -346,7 +346,10 @@ void Questionnaire::build()
 bool Questionnaire::event(QEvent* e)
 {
     const bool result = OpenableWidget::event(e);
-    if (!m_read_only && e->type() == QEvent::Show) {
+    // The order of the tests below is important.
+    // If the event is deferred delete, we get an invalid
+    // read on m_read_only
+    if (e->type() == QEvent::Show && !m_read_only) {
         emit editStarted();
     }
     return result;

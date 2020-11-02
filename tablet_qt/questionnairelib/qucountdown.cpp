@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -181,7 +181,7 @@ void QuCountdown::updateDisplay()
     } else {
         text = QString("%1 s").arg(QString::number(m_seconds_left, 'f', DP));
         if (!m_running) {
-            text += tr(" (not running)");
+            text += " " + tr("(not running)");
         }
     }
     m_label->setText(text);

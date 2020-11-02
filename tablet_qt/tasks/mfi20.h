@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -43,8 +43,10 @@ public:
     virtual QString longname() const override;
     virtual QString description() const override;
     virtual TaskImplementationType implementationType() const override {
-        return TaskImplementationType::UpgradableSkeleton;
+        return TaskImplementationType::Full;
     }
+    virtual bool prohibitsClinical() const override { return true; }
+    virtual bool prohibitsCommercial() const override { return true; }
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------

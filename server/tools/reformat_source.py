@@ -50,6 +50,7 @@ CAMCOPS_ROOT_DIR = abspath(join(THIS_DIR, pardir, pardir))  # .../camcops
 SERVER_ROOT_DIR = join(CAMCOPS_ROOT_DIR, 'server')  # .../camcops/server
 TABLET_ROOT_DIR = join(CAMCOPS_ROOT_DIR, 'tablet_qt')  # .../camcops/tablet_qt
 
+
 # =============================================================================
 # Content
 # =============================================================================
@@ -57,7 +58,8 @@ TABLET_ROOT_DIR = join(CAMCOPS_ROOT_DIR, 'tablet_qt')  # .../camcops/tablet_qt
 CORRECT_COPYRIGHT_LINES = """
 ===============================================================================
 
-    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 University of Cambridge.
+    Created by Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 

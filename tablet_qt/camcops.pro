@@ -70,6 +70,7 @@ QT += gui  # included by default; QtGui module
 QT += multimedia  # or: undefined reference to QMedia*::*
 QT += multimediawidgets
 # QT += network  # required to #include <QtNetwork/...>
+# QT += printsupport  # QCustomPlot says it needs this, but it appears not
 QT += quick  # for QML, e.g. for camera
 QT += quickwidgets  # for QQuickWidget
 QT += sql  # required to #include <QSqlDatabase>
@@ -135,6 +136,14 @@ msvc {
         # ... but we get "D9025: overriding '/W4' with '/W3'"
     QMAKE_CXXFLAGS += /WX  # treat warnings as errors
     # QMAKE_CXXFLAGS += /showIncludes  # if you think the wrong ones are being included!
+}
+
+# Until we use a version of Qt that can cope, disable "-Werror=deprecated-copy".
+# In general, note "-Werrmsg" to enable and "-Wno-errmsg" to disable:
+# https://stackoverflow.com/questions/925179/selectively-remove-warning-message-gcc
+# (This problem arose on 2020-06-29 with Ubuntu 20.04 which brought gcc 9.3.0.)
+gcc {
+    QMAKE_CXXFLAGS += -Wno-deprecated-copy
 }
 
 # In release mode, optimize heavily:
@@ -544,12 +553,15 @@ SOURCES += \
     diagnosis/flatproxymodel.cpp \
     diagnosis/icd10.cpp \
     diagnosis/icd9cm.cpp \
+    dialogs/dangerousconfirmationdialog.cpp \
     dialogs/logbox.cpp \
     dialogs/logmessagebox.cpp \
+    dialogs/modedialog.cpp \
     dialogs/nvpchoicedialog.cpp \
     dialogs/pagepickerdialog.cpp \
     dialogs/passwordchangedialog.cpp \
     dialogs/passwordentrydialog.cpp \
+    dialogs/patientregistrationdialog.cpp \
     dialogs/progressbox.cpp \
     dialogs/scrollmessagebox.cpp \
     dialogs/soundtestdialog.cpp \
@@ -569,6 +581,7 @@ SOURCES += \
     layouts/hboxlayouthfw.cpp \
     layouts/qtlayouthelpers.cpp \
     layouts/vboxlayouthfw.cpp \
+    layouts/widgetitemhfw.cpp \
     lib/comparers.cpp \
     lib/containers.cpp \
     lib/convert.cpp \
@@ -637,25 +650,34 @@ SOURCES += \
     menu/setmenuobrien.cpp \
     menu/settingsmenu.cpp \
     menu/singletaskmenu.cpp \
+    menu/singleuseradvancedmenu.cpp \
+    menu/singleusermenu.cpp \
+    menu/singleuseroptionsmenu.cpp \
     menu/testmenu.cpp \
     menu/whiskertestmenu.cpp \
     menu/widgettestmenu.cpp \
     menulib/choosepatientmenuitem.cpp \
+    menulib/fontsizeanddpiwindow.cpp \
+    menulib/fontsizewindow.cpp \
     menulib/htmlinfowindow.cpp \
     menulib/htmlmenuitem.cpp \
     menulib/menuheader.cpp \
     menulib/menuitem.cpp \
     menulib/menuproxy.cpp \
     menulib/menuwindow.cpp \
+    menulib/serversettingswindow.cpp \
     menulib/taskchainmenuitem.cpp \
     menulib/taskmenuitem.cpp \
+    menulib/taskscheduleitemmenuitem.cpp \
     menulib/urlmenuitem.cpp \
+    qcustomplot/qcustomplot.cpp \
     qobjects/cameraframegrabber.cpp \
     qobjects/debugeventwatcher.cpp \
     qobjects/flickcharm.cpp \
     qobjects/focuswatcher.cpp \
     qobjects/keypresswatcher.cpp \
     qobjects/nhsnumbervalidator.cpp \
+    qobjects/proquintvalidator.cpp \
     qobjects/shootabug.cpp \
     qobjects/showwatcher.cpp \
     qobjects/sizewatcher.cpp \
@@ -666,6 +688,7 @@ SOURCES += \
     qobjects/strictuint64validator.cpp \
     qobjects/stylenofocusrect.cpp \
     qobjects/threadworker.cpp \
+    qobjects/urlvalidator.cpp \
     questionnairelib/commonoptions.cpp \
     questionnairelib/dynamicquestionnaire.cpp \
     questionnairelib/mcqfunc.cpp \
@@ -722,6 +745,7 @@ SOURCES += \
     questionnairelib/quthermometer.cpp \
     questionnairelib/quthermometeritem.cpp \
     questionnairelib/quverticalcontainer.cpp \
+    questionnairelib/quzoomcontainer.cpp \
     taskchains/khandakermojochain.cpp \
     tasklib/inittasks.cpp \
     tasklib/task.cpp \
@@ -729,6 +753,9 @@ SOURCES += \
     tasklib/taskfactory.cpp \
     tasklib/taskproxy.cpp \
     tasklib/taskregistrar.cpp \
+    tasklib/taskschedule.cpp \
+    tasklib/taskscheduleitem.cpp \
+    tasklib/taskscheduleitemeditor.cpp \
     tasklib/tasksorter.cpp \
     tasks/ace3.cpp \
     tasks/aims.cpp \
@@ -895,6 +922,8 @@ SOURCES += \
     widgets/clickablelabelwordwrapwide.cpp \
     widgets/diagnosticcodeselector.cpp \
     widgets/fixedareahfwtestwidget.cpp \
+    widgets/fixedaspectratiohfwtestwidget.cpp \
+    widgets/fixednumblockshfwtestwidget.cpp \
     widgets/graphicsrectitemclickable.cpp \
     widgets/growingplaintextedit.cpp \
     widgets/growingtextedit.cpp \
@@ -910,6 +939,7 @@ SOURCES += \
     widgets/tickslider.cpp \
     widgets/treeviewcontroldelegate.cpp \
     widgets/treeviewproxystyle.cpp \
+    widgets/validatinglineedit.cpp \
     widgets/verticalline.cpp \
     widgets/verticalscrollarea.cpp \
     widgets/verticalscrollareaviewport.cpp \
@@ -980,12 +1010,15 @@ HEADERS += \
     diagnosis/flatproxymodel.h \
     diagnosis/icd10.h \
     diagnosis/icd9cm.h \
+    dialogs/dangerousconfirmationdialog.h \
     dialogs/logbox.h \
     dialogs/logmessagebox.h \
+    dialogs/modedialog.h \
     dialogs/nvpchoicedialog.h \
     dialogs/pagepickerdialog.h \
     dialogs/passwordchangedialog.h \
     dialogs/passwordentrydialog.h \
+    dialogs/patientregistrationdialog.h \
     dialogs/progressbox.h \
     dialogs/scrollmessagebox.h \
     dialogs/soundtestdialog.h \
@@ -1006,6 +1039,7 @@ HEADERS += \
     layouts/layouts.h \
     layouts/qtlayouthelpers.h \
     layouts/vboxlayouthfw.h \
+    layouts/widgetitemhfw.h \
     lib/cloneable.h \
     lib/comparers.h \
     lib/containers.h \
@@ -1079,25 +1113,33 @@ HEADERS += \
     menu/setmenuobrien.h \
     menu/settingsmenu.h \
     menu/singletaskmenu.h \
+    menu/singleuseradvancedmenu.h \
+    menu/singleusermenu.h \
+    menu/singleuseroptionsmenu.h \
     menu/testmenu.h \
     menu/whiskertestmenu.h \
     menu/widgettestmenu.h \
     menulib/choosepatientmenuitem.h \
+    menulib/fontsizeanddpiwindow.h \
+    menulib/fontsizewindow.h \
     menulib/htmlinfowindow.h \
     menulib/htmlmenuitem.h \
     menulib/menuheader.h \
     menulib/menuitem.h \
     menulib/menuproxy.h \
     menulib/menuwindow.h \
+    menulib/serversettingswindow.h \
     menulib/taskchainmenuitem.h \
     menulib/taskmenuitem.h \
     menulib/urlmenuitem.h \
+    qcustomplot/qcustomplot.h \
     qobjects/cameraframegrabber.h \
     qobjects/debugeventwatcher.h \
     qobjects/flickcharm.h \
     qobjects/focuswatcher.h \
     qobjects/keypresswatcher.h \
     qobjects/nhsnumbervalidator.h \
+    qobjects/proquintvalidator.h \
     qobjects/shootabug.h \
     qobjects/showwatcher.h \
     qobjects/sizewatcher.h \
@@ -1108,6 +1150,7 @@ HEADERS += \
     qobjects/strictuint64validator.h \
     qobjects/stylenofocusrect.h \
     qobjects/threadworker.h \
+    qobjects/urlvalidator.h \
     questionnairelib/commonoptions.h \
     questionnairelib/dynamicquestionnaire.h \
     questionnairelib/mcqfunc.h \
@@ -1164,6 +1207,7 @@ HEADERS += \
     questionnairelib/quthermometer.h \
     questionnairelib/quthermometeritem.h \
     questionnairelib/quverticalcontainer.h \
+    questionnairelib/quzoomcontainer.h \
     taskchains/khandakermojochain.h \
     tasklib/inittasks.h \
     tasklib/task.h \
@@ -1171,6 +1215,9 @@ HEADERS += \
     tasklib/taskfactory.h \
     tasklib/taskproxy.h \
     tasklib/taskregistrar.h \
+    tasklib/taskschedule.h \
+    tasklib/taskscheduleitem.h \
+    tasklib/taskscheduleitemeditor.h \
     tasklib/tasksorter.h \
     tasks/ace3.h \
     tasks/aims.h \
@@ -1337,6 +1384,8 @@ HEADERS += \
     widgets/clickablelabelwordwrapwide.h \
     widgets/diagnosticcodeselector.h \
     widgets/fixedareahfwtestwidget.h \
+    widgets/fixedaspectratiohfwtestwidget.h \
+    widgets/fixednumblockshfwtestwidget.h \
     widgets/graphicsrectitemclickable.h \
     widgets/growingplaintextedit.h \
     widgets/growingtextedit.h \
@@ -1352,6 +1401,7 @@ HEADERS += \
     widgets/tickslider.h \
     widgets/treeviewcontroldelegate.h \
     widgets/treeviewproxystyle.h \
+    widgets/validatinglineedit.h \
     widgets/verticalline.h \
     widgets/verticalscrollarea.h \
     widgets/verticalscrollareaviewport.h \

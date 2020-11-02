@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -91,6 +91,10 @@ QString standardResult(const QString& name,
                        const QString& value,
                        const QString& separator = ": ",
                        const QString& suffix = ".");
+
+QString makeTitle(const QString& part1, const QString& part2 = "",
+                  bool colon = false);
+QString makeHint(const QString& part1, const QString& part2);
 
 // ============================================================================
 // Other string processing

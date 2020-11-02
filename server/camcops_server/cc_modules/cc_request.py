@@ -87,7 +87,7 @@ from camcops_server.cc_modules.cc_config import (
 from camcops_server.cc_modules.cc_constants import (
     CSS_PAGED_MEDIA,
     DateFormat,
-    DEFAULT_PLOT_DPI,
+    PlotDefaults,
     USE_SVG_IN_HTML,
 )
 from camcops_server.cc_modules.cc_idnumdef import (
@@ -160,6 +160,21 @@ if any([DEBUG_ADD_ROUTES,
 
 
 # =============================================================================
+# Helper functions
+# =============================================================================
+
+def validate_url(url: str, default: str = None) -> Optional[str]:
+    """
+    Validates a URL. If valid, returns the URL; if not, returns ``default``.
+    See https://stackoverflow.com/questions/22238090/validating-urls-in-python
+    """
+    result = urllib.parse.urlparse(url)
+    if not result.scheme or not result.netloc:
+        return default
+    return url
+
+
+# =============================================================================
 # Modified Request interface, for type checking
 # =============================================================================
 # https://docs.pylonsproject.org/projects/pyramid_cookbook/en/latest/auth/user_object.html
@@ -207,7 +222,8 @@ class CamcopsRequest(Request):
 
         """  # noqa
         super().__init__(*args, **kwargs)
-        self.use_svg = False
+        self.use_svg = False  # use SVG (not just PNG) for graphics
+        self.provide_png_fallback_for_svg = True  # for SVG: provide PNG fallback image?  # noqa
         self.add_response_callback(complete_request_add_cookies)
         self._camcops_session = None  # type: Optional[CamcopsSession]
         self._debugging_db_session = None  # type: Optional[SqlASession]  # for unit testing only  # noqa
@@ -725,6 +741,23 @@ class CamcopsRequest(Request):
         except (KeyError, ParserError, TypeError, ValueError):
             return None
 
+    def get_url_param(self, key: str, default: str = None) -> Optional[str]:
+        """
+        Returns a URL parameter from the HTTP request, validating it.
+        If it wasn't valid, return ``None``.
+
+        Args:
+            key:
+                the parameter's name
+            default:
+                the value to return if the parameter is not found, or is
+                invalid
+
+        Returns:
+            a URL string, or ``default``
+        """
+        return validate_url(self.get_str_param(key), default)
+
     # -------------------------------------------------------------------------
     # Routing
     # -------------------------------------------------------------------------
@@ -1011,7 +1044,8 @@ class CamcopsRequest(Request):
             # ... even weasyprint's SVG handling is inadequate
         else:
             # This is the main method -- we use wkhtmltopdf these days
-            self.switch_output_to_svg()  # wkhtmltopdf can cope
+            self.switch_output_to_svg(provide_png_fallback=False)
+            # ... wkhtmltopdf can cope with SVGs
 
     def prepare_for_html_figures(self) -> None:
         """
@@ -1026,11 +1060,16 @@ class CamcopsRequest(Request):
         """
         self.use_svg = False
 
-    def switch_output_to_svg(self) -> None:
+    def switch_output_to_svg(self, provide_png_fallback: bool = True) -> None:
         """
         Switch server (for this request) to producing figures in SVG format.
+
+        Args:
+            provide_png_fallback:
+                Offer a PNG fallback option/
         """
         self.use_svg = True
+        self.provide_png_fallback_for_svg = provide_png_fallback
 
     @staticmethod
     def create_figure(**kwargs) -> Figure:
@@ -1081,11 +1120,90 @@ class CamcopsRequest(Request):
     def fontdict(self) -> Dict[str, Any]:
         """
         Returns a font dictionary for use with Matplotlib plotting.
-        """
+
+        **matplotlib font handling and fontdict parameter**
+
+        - http://stackoverflow.com/questions/3899980
+        - http://matplotlib.org/users/customizing.html
+        - matplotlib/font_manager.py
+
+          - Note that the default TrueType font is "DejaVu Sans"; see
+            :class:`matplotlib.font_manager.FontManager`
+
+        - Example sequence:
+
+          - CamCOPS does e.g. ``ax.set_xlabel("Date/time",
+            fontdict=self.req.fontdict)``
+
+          - matplotlib.axes.Axes.set_xlabel:
+            https://matplotlib.org/api/_as_gen/matplotlib.axes.Axes.set_xlabel.html
+
+            - matplotlib.axes.Axes.text documentation, explaining the fontdict
+              parameter:
+              https://matplotlib.org/api/_as_gen/matplotlib.axes.Axes.text.html
+
+          - What's created is probably a :class:`matplotlib.text.Text` object,
+            whose ``update()`` function is called with the dictionary. Via its
+            superclass :class:`matplotlib.artist.Artist` and its ``update()``
+            function, this sets attributes on the Text object. Ultimately,
+            without having explored this in too much depth, it's probably the
+            ``self._fontproperties`` object of Text that holds this info.
+
+          - That is an instance of
+            :class:`matplotlib.font_manager.FontProperties`.
+
+        **Linux fonts**
+
+        Anyway, the main things are (1) that the relevant fonts need to be
+        installed, and (2) that the default is DejaVu Sans.
+
+        - Linux fonts are installed in ``/usr/share/fonts``, and TrueType fonts
+          within ``/usr/share/fonts/truetype``.
+
+        - Use ``fc-match`` to see the font mappings being used.
+
+        - Use ``fc-list`` to list available fonts.
+
+        - Use ``fc-cache`` to rebuild the font cache.
+
+        - Files in ``/etc/fonts/conf.avail/`` do some thinking.
+
+        **Problems with pixellated fonts in PDFs made via wkhtmltopdf**
+
+        - See also https://github.com/wkhtmltopdf/wkhtmltopdf/issues/2193,
+          about pixellated fonts via wkhtmltopdf (which was our problem for a
+          subset of the fonts in trackers, on 2020-06-28, using wkhtmltopd
+          0.12.5 with patched Qt).
+
+        - When you get pixellated fonts in a PDF, look also at the embedded
+          font list in the PDF (e.g. in Okular: File -> Properties -> Fonts).
+
+        - Matplotlib helpfully puts the text (rendered as lines in SVG) as
+          comments.
+
+        - As a debugging sequence, we can manually trim the "pdfhtml" output
+          down to just the SVG file. Still has problems. Yet there's no text
+          in it; the text is made of pure SVG lines. And Chrome renders it
+          perfectly. As does Firefox.
+
+        - The rendering bug goes away entirely if you delete the opacity
+          styling throughout the SVG:
+
+          .. code-block:: none
+
+            <g style="opacity:0.5;" transform=...>
+               ^^^^^^^^^^^^^^^^^^^^
+               this
+
+        - So, simple fix:
+
+          - rather than opacity (alpha) 0.5 and on top...
+
+          - 50% grey colour and on the bottom.
+
+        """  # noqa
         fontsize = self.config.plot_fontsize
         return dict(
-            # http://stackoverflow.com/questions/3899980
-            # http://matplotlib.org/users/customizing.html
             family='sans-serif',
             # ... serif, sans-serif, cursive, fantasy, monospace
             style='normal',  # normal (roman), italic, oblique
@@ -1139,16 +1257,17 @@ class CamcopsRequest(Request):
         :class:`matplotlib.figure.Figure`.
         """
         if USE_SVG_IN_HTML and self.use_svg:
-            return (
-                svg_html_from_pyplot_figure(fig) +
-                png_img_html_from_pyplot_figure(fig, DEFAULT_PLOT_DPI,
-                                                "pngfallback")
-            )
-            # return both an SVG and a PNG image, for browsers that can't deal
-            # with SVG; the Javascript header will sort this out
-            # http://www.voormedia.nl/blog/2012/10/displaying-and-detecting-support-for-svg-images  # noqa
+            result = svg_html_from_pyplot_figure(fig)
+            if self.provide_png_fallback_for_svg:
+                # return both an SVG and a PNG image, for browsers that can't
+                # deal with SVG; the Javascript header will sort this out
+                # http://www.voormedia.nl/blog/2012/10/displaying-and-detecting-support-for-svg-images  # noqa
+                result += png_img_html_from_pyplot_figure(
+                    fig, PlotDefaults.DEFAULT_PLOT_DPI, "pngfallback")
+            return result
         else:
-            return png_img_html_from_pyplot_figure(fig, DEFAULT_PLOT_DPI)
+            return png_img_html_from_pyplot_figure(
+                fig, PlotDefaults.DEFAULT_PLOT_DPI)
 
     # -------------------------------------------------------------------------
     # Convenience functions for user information
@@ -1628,7 +1747,9 @@ def complete_request_add_cookies(req: CamcopsRequest,
 # =============================================================================
 
 @contextmanager
-def pyramid_configurator_context(debug_toolbar: bool = False) -> Configurator:
+def camcops_pyramid_configurator_context(
+        debug_toolbar: bool = False,
+        static_cache_duration_s: int = 0) -> Configurator:
     """
     Context manager to create a Pyramid configuration context, for making
     (for example) a WSGI server or a debugging request. That means setting up
@@ -1640,7 +1761,11 @@ def pyramid_configurator_context(debug_toolbar: bool = False) -> Configurator:
     - our routes and views
 
     Args:
-        debug_toolbar: add the Pyramid debug toolbar?
+        debug_toolbar:
+            Add the Pyramid debug toolbar?
+        static_cache_duration_s:
+            Lifetime (in seconds) for the HTTP cache-control setting for
+            static content.
 
     Returns:
         a :class:`Configurator` object
@@ -1702,7 +1827,25 @@ def pyramid_configurator_context(debug_toolbar: bool = False) -> Configurator:
                   "name {!r}", static_filepath, static_name)
         # ... does the name needs to start with "/" or the pattern "static/"
         # will override the later "deform_static"? Not sure.
-        config.add_static_view(name=static_name, path=static_filepath)
+
+        # We were doing this:
+        #       config.add_static_view(name=static_name, path=static_filepath)
+        # But now we need to (a) add the
+        # "cache_max_age=static_cache_duration_s" argument, and (b) set the
+        # HTTP header 'Cache-Control: no-cache="Set-Cookie, Set-Cookie2"',
+        # for the ZAP penetration tester:
+        # ... https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html#web-content-caching  # noqa
+        # We can do the former, but not the latter, via add_static_view(),
+        # because it sends its keyword arguments to add_route(), not the view
+        # creation. So, alternatives ways...
+        # - from https://github.com/Pylons/pyramid/issues/1486
+        # - and https://stackoverflow.com/questions/24854300/
+        # - to https://github.com/Pylons/pyramid/pull/2021
+        # - to https://docs.pylonsproject.org/projects/pyramid/en/latest/narr/hooks.html#view-derivers  # noqa
+
+        config.add_static_view(name=static_name,
+                               path=static_filepath,
+                               cache_max_age=static_cache_duration_s)
 
         # Add all the routes:
         for pr in RouteCollection.all_routes():
@@ -1714,7 +1857,9 @@ def pyramid_configurator_context(debug_toolbar: bool = False) -> Configurator:
 
         # Routes added EARLIER have priority. So add this AFTER our custom
         # bugfix:
-        config.add_static_view('/deform_static', 'deform:static/')
+        config.add_static_view(name='/deform_static',
+                               path='deform:static/',
+                               cache_max_age=static_cache_duration_s)
 
         # Most views are using @view_config() which calls add_view().
         # Scan for @view_config decorators, to map views to routes:
@@ -1938,7 +2083,7 @@ def get_core_debugging_request() -> CamcopsDummyRequest:
     """
     Returns a basic :class:`CamcopsDummyRequest`.
     """
-    with pyramid_configurator_context(debug_toolbar=False) as pyr_config:
+    with camcops_pyramid_configurator_context(debug_toolbar=False) as pyr_cfg:
         req = CamcopsDummyRequest(
             environ={
                 ENVVAR_CONFIG_FILE: "nonexistent_camcops_config_file.nonexistent",  # noqa
@@ -1953,8 +2098,8 @@ def get_core_debugging_request() -> CamcopsDummyRequest:
         # itself isn't OK ("TypeError: WSGI environ must be a dict; you passed
         # environ({'key1': 'value1', ...})
 
-        req.registry = pyr_config.registry
-        pyr_config.begin(request=req)
+        req.registry = pyr_cfg.registry
+        pyr_cfg.begin(request=req)
         return req
 
 

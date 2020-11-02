@@ -1,0 +1,61 @@
+<!--
+
+camcops_server/templates/deform/duration.pt
+
+===============================================================================
+
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+
+    This file is part of CamCOPS.
+
+    CamCOPS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    CamCOPS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+
+===============================================================================
+
+-->
+<div i18n:domain="deform"
+      tal:omit-tag=""
+      tal:define="oid oid|field.oid;
+                  name name|field.name;
+                  css_class css_class|field.widget.css_class;
+                  style style|field.widget.style;">
+  ${field.start_mapping()}
+  <div class="row">
+    <div class="col-xs-4"><div class="input-group">
+      <span class="input-group-addon" i18n:translate="">${months_label}</span>
+      <input type="text" name="months" value="${months}" placeholder="${months_placeholder}"
+             class="span2 form-control ${css_class or ''}"
+             tal:attributes="style style"
+             maxlength="4"
+             id="${oid}-months"/>
+    </div></div>
+    <div class="col-xs-4"><div class="input-group">
+      <span class="input-group-addon" i18n:translate="">${weeks_label}</span>
+      <input type="text" name="weeks" value="${weeks}" placeholder="${weeks_placeholder}"
+             class="span2 form-control ${css_class or ''}"
+             tal:attributes="style style"
+             maxlength="2"
+             id="${oid}-weeks"/>
+    </div></div>
+    <div class="col-xs-4"><div class="input-group">
+      <span class="input-group-addon" i18n:translate="">${days_label}</span>
+      <input type="text" name="days" value="${days}"
+             class="span2 form-control ${css_class or ''}"
+             tal:attributes="style style"
+             maxlength="2"
+             id="${oid}-days"/>
+    </div></div>
+  </div>
+  ${field.end_mapping()}
+</div>

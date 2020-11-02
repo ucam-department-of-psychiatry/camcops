@@ -72,6 +72,19 @@ BaseWidget {
     margin: 0;
     padding: 0;
 }
+#menu_header_more_options {
+    /* Buttons for single-user mode */
+    font-weight: bold;
+    background-color: lightgrey;
+    border-style: solid;
+    border-width: 2px;
+    border-radius: 10px;
+    border-color: darkgrey;
+    padding: 5px;
+}
+#menu_header_more_options:pressed {
+    background-color: rgba(100, 100, 255, 200);  /* blue */ /* to match BUTTON_PRESSED_COLOUR */
+}
 
 #menu_header_crippled {
     /* OLD SCHEME: background-color: rgb(60, 0, 60); */  /* very dark magenta */
@@ -117,6 +130,9 @@ QListWidget::item:selected {
     border: 0;
     margin: 0;
     padding: 0;
+}
+#menu_item_editable_task {
+    background-color: lemonchiffon;
 }
 #task_item_taskname_complete {
     /* OLD SCHEME: color: white; */

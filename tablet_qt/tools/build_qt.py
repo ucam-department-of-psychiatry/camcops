@@ -398,7 +398,7 @@ import shutil
 import subprocess
 import sys
 import traceback
-from typing import Dict, List, TextIO, Tuple
+from typing import Dict, List, NoReturn, TextIO, Tuple
 
 try:
     import cardinal_pythonlib
@@ -446,8 +446,7 @@ from cardinal_pythonlib.tee import tee_log
 import cardinal_pythonlib.version
 from semantic_version import Version
 
-if sys.version_info < (3, 6):
-    raise AssertionError("Need Python 3.6 or higher")
+assert sys.version_info >= (3, 6), "Need Python 3.6 or higher"
 
 MINIMUM_CARDINAL_PYTHONLIB = "1.0.8"
 if Version(cardinal_pythonlib.version.VERSION) < Version(MINIMUM_CARDINAL_PYTHONLIB):  # noqa
@@ -474,6 +473,9 @@ EXIT_FAILURE = 1
 # -----------------------------------------------------------------------------
 # Default directories
 # -----------------------------------------------------------------------------
+
+if "GENERATING_CAMCOPS_DOCS" in os.environ:
+    USER_DIR = "/path/to/user"
 
 DEFAULT_ROOT_DIR = join(USER_DIR, "dev", "qt_local_build")
 
@@ -2188,7 +2190,7 @@ class Config(object):
 # Ancillary: crash out informatively
 # =============================================================================
 
-def fail(msg: str) -> None:
+def fail(msg: str) -> NoReturn:
     log.critical(msg)
     raise ValueError(msg)
 
@@ -3802,6 +3804,7 @@ def main() -> None:
     # Command-line arguments
     # -------------------------------------------------------------------------
 
+    # noinspection PyTypeChecker
     parser = argparse.ArgumentParser(
         description="Build Qt and other libraries for CamCOPS",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)

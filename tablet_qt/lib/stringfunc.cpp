@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -166,6 +166,29 @@ QString standardResult(const QString& name,
                        const QString& suffix)
 {
     return QString("%1%2<b>%3</b>%4").arg(name, separator, value, suffix);
+}
+
+
+QString makeTitle(const QString& part1,
+                  const QString& part2,
+                  const bool colon)
+{
+    QString result;
+    if (part2.isEmpty()) {
+        result = QString("<b>%1%2</b>").arg(part1, colon ? ":" : "");
+    } else {
+        result = QString("<b>%1</b> (%2)").arg(part1, part2);
+        if (colon) {
+            result += ":";
+        }
+    }
+    return result;
+}
+
+
+QString makeHint(const QString& part1, const QString& part2)
+{
+    return QString("%1 (%2)").arg(part1, part2);
 }
 
 

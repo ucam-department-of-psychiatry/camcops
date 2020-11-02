@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -38,9 +38,11 @@ extern const char* MCQ_GRID;
 extern const char* MCQ_GRID_DOUBLE;
 extern const char* MCQ_GRID_SINGLE_BOOLEAN;
 extern const char* MCQ_INSTRUCTION;
+extern const char* MENU_HEADER_CRIPPLED;
+extern const char* MENU_HEADER_MORE_OPTIONS;
 extern const char* MENU_HEADER_NO_PATIENT;
 extern const char* MENU_HEADER_PATIENT_INFO;
-extern const char* MENU_HEADER_CRIPPLED;
+extern const char* MENU_ITEM_EDITABLE_TASK;
 extern const char* MENU_ITEM_SUBTITLE;
 extern const char* MENU_ITEM_TITLE;
 extern const char* MENU_WINDOW_BACKGROUND;

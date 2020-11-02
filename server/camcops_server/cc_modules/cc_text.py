@@ -32,9 +32,13 @@ from enum import auto, Enum, unique
 from typing import TYPE_CHECKING
 
 from camcops_server.cc_modules.cc_unittest import DemoRequestTestCase
+from pendulum import Date
 
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_request import CamcopsRequest
+
+
+TERMS_CONDITIONS_UPDATE_DATE = Date(2020, 6, 29)
 
 
 @unique
@@ -204,9 +208,17 @@ def server_string(req: "CamcopsRequest", w: SS) -> str:
             "YOU ARE A QUALIFIED CLINICIAN, AND THAT YOU RETAIN "
             "RESPONSIBILITY FOR DIAGNOSIS AND MANAGEMENT.\n"
             "\n"
-            "These terms and conditions were last revised on 2017-01-23."
+            "8. The CamCOPS server uses a single secure cookie for session "
+            "authentication. The cookie is not used for any other purpose. "
+            "It is deleted when you finish your session (it is a session cookie). "  # noqa
+            "By using a CamCOPS server, you agree to this use of cookies.\n"
+            "\n"
+            "These terms and conditions were last revised on 2020-10-12."
         )
-        # should match textconst::TERMS_CONDITIONS in the C++ app
+        # ... should match textconst::TERMS_CONDITIONS in the C++ app.
+        #
+        # ENSURE YOU ALSO UPDATE TERMS_CONDITIONS_UPDATE_DATE (above).
+        #
         # [OLD CONSTRAINT: ... but don't include hyperlinks; they break the XML
         # reader]
     elif w == SS.DISCLAIMER_AGREE:

@@ -122,11 +122,22 @@ Quick tutorial on Pyramid views:
 """
 
 from collections import OrderedDict
+import datetime
+import json
 import logging
 import os
 # from pprint import pformat
-from typing import Any, Dict, List, Tuple, Type, TYPE_CHECKING
-# import unittest
+from typing import (
+    Any,
+    cast,
+    Dict,
+    List,
+    Optional,
+    Type,
+    TYPE_CHECKING,
+)
+import unittest
+from unittest import mock
 
 from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.deform_utils import get_head_form_html
@@ -146,7 +157,7 @@ from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_orm_classes_from_base
 from cardinal_pythonlib.sqlalchemy.orm_query import CountStarSpecializedQuery
 from cardinal_pythonlib.sqlalchemy.session import get_engine_from_session
 from deform.exception import ValidationFailure
-from pendulum import DateTime as Pendulum
+from pendulum import DateTime as Pendulum, local
 from pyramid.httpexceptions import HTTPBadRequest, HTTPFound, HTTPNotFound
 from pyramid.view import (
     forbidden_view_config,
@@ -161,9 +172,11 @@ import pygments.lexers
 import pygments.lexers.sql
 import pygments.lexers.web
 import pygments.formatters
-from sqlalchemy.orm import Query
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import joinedload, Query
 from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.expression import desc, or_, select, update
+from webob.multidict import MultiDict
 
 from camcops_server.cc_modules.cc_audit import audit, AuditEntry
 from camcops_server.cc_modules.cc_all_models import CLIENT_TABLE_MAP
@@ -219,17 +232,23 @@ from camcops_server.cc_modules.cc_forms import (
     DeleteIdDefinitionForm,
     DeletePatientChooseForm,
     DeletePatientConfirmForm,
+    DeleteServerCreatedPatientForm,
     DeleteSpecialNoteForm,
+    DeleteTaskScheduleForm,
+    DeleteTaskScheduleItemForm,
     DeleteUserForm,
     EditGroupForm,
-    EditIdDefinitionForm,
-    EditPatientForm,
     EDIT_PATIENT_SIMPLE_PARAMS,
+    EditFinalizedPatientForm,
+    EditIdDefinitionForm,
+    EditServerCreatedPatientForm,
     EditServerSettingsForm,
+    EditTaskScheduleForm,
+    EditTaskScheduleItemForm,
     EditUserFullForm,
     EditUserGroupAdminForm,
-    EditUserGroupPermissionsFullForm,
     EditUserGroupMembershipGroupAdminForm,
+    EditUserGroupPermissionsFullForm,
     EraseTaskForm,
     ExportedTaskListForm,
     get_sql_dialect_choices,
@@ -244,6 +263,7 @@ from camcops_server.cc_modules.cc_forms import (
     EditTaskFilterForm,
     TasksPerPageForm,
     UserDownloadDeleteForm,
+    UserFilterForm,
     ViewDdlForm,
 )
 from camcops_server.cc_modules.cc_group import Group
@@ -265,6 +285,7 @@ from camcops_server.cc_modules.cc_pyramid import (
     ViewParam,
 )
 from camcops_server.cc_modules.cc_report import get_report_instance
+from camcops_server.cc_modules.cc_request import CamcopsRequest, validate_url
 from camcops_server.cc_modules.cc_simpleobjects import (
     IdNumReference,
     TaskExportOptions,
@@ -288,6 +309,12 @@ from camcops_server.cc_modules.cc_taskindex import (
     TaskIndexEntry,
     update_indexes_and_push_exports
 )
+from camcops_server.cc_modules.cc_taskschedule import (
+    PatientTaskSchedule,
+    TaskSchedule,
+    TaskScheduleItem,
+    task_schedule_item_sort_order,
+)
 from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_tracker import ClinicalTextView, Tracker
 from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
@@ -297,9 +324,15 @@ from camcops_server.cc_modules.cc_user import (
     User,
 )
 from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
+from camcops_server.cc_modules.cc_view_classes import (
+    CreateView,
+    DeleteView,
+    UpdateView,
+)
 
 if TYPE_CHECKING:
-    from camcops_server.cc_modules.cc_request import CamcopsRequest
+    # noinspection PyUnresolvedReferences
+    from camcops_server.cc_modules.cc_sqlalchemy import Base
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -314,6 +347,23 @@ if DEBUG_REDIRECT:
 
 if DEBUG_REDIRECT:
     HTTPFound = HTTPFoundDebugVersion  # noqa: F811
+
+
+# =============================================================================
+# Flash message queues: https://getbootstrap.com/docs/3.3/components/#alerts
+# =============================================================================
+
+FLASH_SUCCESS = "success"
+FLASH_INFO = "info"
+FLASH_WARNING = "warning"
+FLASH_DANGER = "danger"
+
+
+# =============================================================================
+# Cache control, for the http_cache parameter of view_config etc.
+# =============================================================================
+
+NEVER_CACHE = 0
 
 
 # =============================================================================
@@ -333,32 +383,6 @@ def errormsg_cannot_report(req: "CamcopsRequest") -> str:
 def errormsg_task_live(req: "CamcopsRequest") -> str:
     _ = req.gettext
     return _("Task is live on tablet; finalize (or force-finalize) first.")
-
-
-# =============================================================================
-# Simple success/failure/redirection, and other snippets used by views
-# =============================================================================
-
-def simple_success(req: "CamcopsRequest", msg: str,
-                   extra_html: str = "") -> Response:
-    """
-    Simple success response.
-    """
-    return render_to_response("generic_success.mako",
-                              dict(msg=msg,
-                                   extra_html=extra_html),
-                              request=req)
-
-
-def simple_failure(req: "CamcopsRequest", msg: str,
-                   extra_html: str = "") -> Response:
-    """
-    Simple failure response.
-    """
-    return render_to_response("generic_failure.mako",
-                              dict(msg=msg,
-                                   extra_html=extra_html),
-                              request=req)
 
 
 # =============================================================================
@@ -394,7 +418,8 @@ def simple_failure(req: "CamcopsRequest", msg: str,
 # =============================================================================
 
 # noinspection PyUnusedLocal
-@notfound_view_config(renderer="not_found.mako")
+@notfound_view_config(renderer="not_found.mako",
+                      http_cache=NEVER_CACHE)
 def not_found(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     "Page not found" view.
@@ -406,7 +431,9 @@ def not_found(req: "CamcopsRequest") -> Dict[str, Any]:
 
 
 # noinspection PyUnusedLocal
-@view_config(context=HTTPBadRequest, renderer="bad_request.mako")
+@view_config(context=HTTPBadRequest,
+             renderer="bad_request.mako",
+             http_cache=NEVER_CACHE)
 def bad_request(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     "Bad request" view.
@@ -437,7 +464,8 @@ def bad_request(req: "CamcopsRequest") -> Dict[str, Any]:
 
 # noinspection PyUnusedLocal
 @view_config(route_name=Routes.TESTPAGE_PUBLIC_1,
-             permission=NO_PERMISSION_REQUIRED)
+             permission=NO_PERMISSION_REQUIRED,
+             http_cache=NEVER_CACHE)
 def test_page_1(req: "CamcopsRequest") -> Response:
     """
     A public test page with no content.
@@ -447,7 +475,8 @@ def test_page_1(req: "CamcopsRequest") -> Response:
 
 
 # noinspection PyUnusedLocal
-@view_config(route_name=Routes.TESTPAGE_PRIVATE_1)
+@view_config(route_name=Routes.TESTPAGE_PRIVATE_1,
+             http_cache=NEVER_CACHE)
 def test_page_private_1(req: "CamcopsRequest") -> Response:
     """
     A private test page with no informative content, but which should only
@@ -459,8 +488,9 @@ def test_page_private_1(req: "CamcopsRequest") -> Response:
 
 # noinspection PyUnusedLocal
 @view_config(route_name=Routes.TESTPAGE_PRIVATE_2,
+             permission=Permission.SUPERUSER,
              renderer="testpage.mako",
-             permission=Permission.SUPERUSER)
+             http_cache=NEVER_CACHE)
 def test_page_2(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     A private test page containing POTENTIALLY SENSITIVE test information,
@@ -472,8 +502,9 @@ def test_page_2(req: "CamcopsRequest") -> Dict[str, Any]:
 
 # noinspection PyUnusedLocal
 @view_config(route_name=Routes.TESTPAGE_PRIVATE_3,
+             permission=Permission.SUPERUSER,
              renderer="inherit_cache_test_child.mako",
-             permission=Permission.SUPERUSER)
+             http_cache=NEVER_CACHE)
 def test_page_3(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     A private test page that tests template inheritance.
@@ -482,7 +513,9 @@ def test_page_3(req: "CamcopsRequest") -> Dict[str, Any]:
 
 
 # noinspection PyUnusedLocal,PyTypeChecker
-@view_config(route_name=Routes.CRASH, permission=Permission.SUPERUSER)
+@view_config(route_name=Routes.CRASH,
+             permission=Permission.SUPERUSER,
+             http_cache=NEVER_CACHE)
 def crash(req: "CamcopsRequest") -> Response:
     """
     A view that deliberately raises an exception.
@@ -493,8 +526,10 @@ def crash(req: "CamcopsRequest") -> Response:
 
 
 # noinspection PyUnusedLocal
-@view_config(route_name=Routes.DEVELOPER, permission=Permission.SUPERUSER,
-             renderer="developer.mako")
+@view_config(route_name=Routes.DEVELOPER,
+             permission=Permission.SUPERUSER,
+             renderer="developer.mako",
+             http_cache=NEVER_CACHE)
 def developer_page(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     Shows the developer menu.
@@ -503,8 +538,10 @@ def developer_page(req: "CamcopsRequest") -> Dict[str, Any]:
 
 
 # noinspection PyUnusedLocal
-@view_config(route_name=Routes.AUDIT_MENU, permission=Permission.SUPERUSER,
-             renderer="audit_menu.mako")
+@view_config(route_name=Routes.AUDIT_MENU,
+             permission=Permission.SUPERUSER,
+             renderer="audit_menu.mako",
+             http_cache=NEVER_CACHE)
 def audit_menu(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     Shows the auditing menu.
@@ -521,7 +558,9 @@ def audit_menu(req: "CamcopsRequest") -> Dict[str, Any]:
 # "def view(context, request)", so if you add additional parameters, it thinks
 # you're doing the latter and sends parameters accordingly.
 
-@view_config(route_name=Routes.LOGIN, permission=NO_PERMISSION_REQUIRED)
+@view_config(route_name=Routes.LOGIN,
+             permission=NO_PERMISSION_REQUIRED,
+             http_cache=NEVER_CACHE)
 def login_view(req: "CamcopsRequest") -> Response:
     """
     Login view.
@@ -548,7 +587,7 @@ def login_view(req: "CamcopsRequest") -> Response:
             ccsession = req.camcops_session
             username = appstruct.get(ViewParam.USERNAME)
             password = appstruct.get(ViewParam.PASSWORD)
-            redirect_url = appstruct.get(ViewParam.REDIRECT_URL)
+            redirect_url = validate_url(appstruct.get(ViewParam.REDIRECT_URL))
             # 1. If we don't have a username, let's stop quickly.
             if not username:
                 ccsession.logout()
@@ -593,7 +632,7 @@ def login_view(req: "CamcopsRequest") -> Response:
             rendered_form = e.render()
 
     else:
-        redirect_url = req.get_str_param(ViewParam.REDIRECT_URL, "")
+        redirect_url = req.get_url_param(ViewParam.REDIRECT_URL, "")
         # ... use default of "", because None gets serialized to "None", which
         #     would then get read back later as "None".
         appstruct = {ViewParam.REDIRECT_URL: redirect_url}
@@ -639,7 +678,9 @@ def account_locked(req: "CamcopsRequest", locked_until: Pendulum) -> Response:
     )
 
 
-@view_config(route_name=Routes.LOGOUT, renderer="logged_out.mako")
+@view_config(route_name=Routes.LOGOUT,
+             renderer="logged_out.mako",
+             http_cache=NEVER_CACHE)
 def logout(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     Logs a session out, and returns the "logged out" view.
@@ -652,7 +693,8 @@ def logout(req: "CamcopsRequest") -> Dict[str, Any]:
 
 @view_config(route_name=Routes.OFFER_TERMS,
              permission=Authenticated,
-             renderer="offer_terms.mako")
+             renderer="offer_terms.mako",
+             http_cache=NEVER_CACHE)
 def offer_terms(req: "CamcopsRequest") -> Response:
     """
     - GET: show terms/conditions and request acknowledgement
@@ -679,7 +721,7 @@ def offer_terms(req: "CamcopsRequest") -> Response:
     )
 
 
-@forbidden_view_config()
+@forbidden_view_config(http_cache=NEVER_CACHE)
 def forbidden(req: "CamcopsRequest") -> Response:
     """
     Generic place that Pyramid comes when permission is denied for a view.
@@ -717,7 +759,9 @@ def forbidden(req: "CamcopsRequest") -> Response:
 # Changing passwords
 # =============================================================================
 
-@view_config(route_name=Routes.CHANGE_OWN_PASSWORD, permission=Authenticated)
+@view_config(route_name=Routes.CHANGE_OWN_PASSWORD,
+             permission=Authenticated,
+             http_cache=NEVER_CACHE)
 def change_own_password(req: "CamcopsRequest") -> Response:
     """
     For any user: to change their own password.
@@ -756,7 +800,8 @@ def change_own_password(req: "CamcopsRequest") -> Response:
 
 @view_config(route_name=Routes.CHANGE_OTHER_PASSWORD,
              permission=Permission.GROUPADMIN,
-             renderer="change_other_password.mako")
+             renderer="change_other_password.mako",
+             http_cache=NEVER_CACHE)
 def change_other_password(req: "CamcopsRequest") -> Response:
     """
     For administrators, to change another's password.
@@ -776,8 +821,6 @@ def change_other_password(req: "CamcopsRequest") -> Response:
             # Change the password
             # -----------------------------------------------------------------
             user_id = appstruct.get(ViewParam.USER_ID)
-            if user_id == req.user_id:
-                return change_own_password(req)
             must_change_pw = appstruct.get(ViewParam.MUST_CHANGE_PASSWORD)
             new_password = appstruct.get(ViewParam.NEW_PASSWORD)
             user = User.get_user_by_id(req.dbsession, user_id)
@@ -795,7 +838,7 @@ def change_other_password(req: "CamcopsRequest") -> Response:
         if user_id is None:
             raise HTTPBadRequest(f"{_('Improper user_id of')} {user_id!r}")
         if user_id == req.user_id:
-            return change_own_password(req)
+            raise HTTPFound(req.route_url(Routes.CHANGE_OWN_PASSWORD))
         user = User.get_user_by_id(req.dbsession, user_id)
         if user is None:
             raise HTTPBadRequest(f"{_('Missing user for id')} {user_id}")
@@ -834,7 +877,9 @@ def password_changed(req: "CamcopsRequest",
 # Main menu; simple information things
 # =============================================================================
 
-@view_config(route_name=Routes.HOME, renderer="main_menu.mako")
+@view_config(route_name=Routes.HOME,
+             renderer="main_menu.mako",
+             http_cache=NEVER_CACHE)
 def main_menu(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     Main CamCOPS menu view.
@@ -859,7 +904,8 @@ def main_menu(req: "CamcopsRequest") -> Dict[str, Any]:
 # Tasks
 # =============================================================================
 
-def edit_filter(req: "CamcopsRequest", task_filter: TaskFilter,
+def edit_filter(req: "CamcopsRequest",
+                task_filter: TaskFilter,
                 redirect_url: str) -> Response:
     """
     Edit the task filter for the current user.
@@ -959,18 +1005,21 @@ def edit_filter(req: "CamcopsRequest", task_filter: TaskFilter,
     )
 
 
-@view_config(route_name=Routes.SET_FILTERS)
+@view_config(route_name=Routes.SET_FILTERS,
+             http_cache=NEVER_CACHE)
 def set_filters(req: "CamcopsRequest") -> Response:
     """
     View to set the task filters for the current user.
     """
-    redirect_url = req.get_str_param(ViewParam.REDIRECT_URL,
+    redirect_url = req.get_url_param(ViewParam.REDIRECT_URL,
                                      req.route_url(Routes.VIEW_TASKS))
     task_filter = req.camcops_session.get_task_filter()
     return edit_filter(req, task_filter=task_filter, redirect_url=redirect_url)
 
 
-@view_config(route_name=Routes.VIEW_TASKS, renderer="view_tasks.mako")
+@view_config(route_name=Routes.VIEW_TASKS,
+             renderer="view_tasks.mako",
+             http_cache=NEVER_CACHE)
 def view_tasks(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     Main view displaying tasks and applicable filters.
@@ -1045,7 +1094,8 @@ def view_tasks(req: "CamcopsRequest") -> Dict[str, Any]:
     )
 
 
-@view_config(route_name=Routes.TASK)
+@view_config(route_name=Routes.TASK,
+             http_cache=NEVER_CACHE)
 def serve_task(req: "CamcopsRequest") -> Response:
     """
     View that serves an individual task, in a variety of possible formats
@@ -1155,7 +1205,9 @@ def choose_tracker_or_ctv(req: "CamcopsRequest",
                 head_form_html=get_head_form_html(req, [form]))
 
 
-@view_config(route_name=Routes.CHOOSE_TRACKER, renderer="choose_tracker.mako")
+@view_config(route_name=Routes.CHOOSE_TRACKER,
+             renderer="choose_tracker.mako",
+             http_cache=NEVER_CACHE)
 def choose_tracker(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to choose/configure a
@@ -1164,7 +1216,9 @@ def choose_tracker(req: "CamcopsRequest") -> Dict[str, Any]:
     return choose_tracker_or_ctv(req, as_ctv=False)
 
 
-@view_config(route_name=Routes.CHOOSE_CTV, renderer="choose_ctv.mako")
+@view_config(route_name=Routes.CHOOSE_CTV,
+             renderer="choose_ctv.mako",
+             http_cache=NEVER_CACHE)
 def choose_ctv(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to choose/configure a
@@ -1248,7 +1302,8 @@ def serve_tracker_or_ctv(req: "CamcopsRequest",
             f"({_('permissible:')} {permissible!r})")
 
 
-@view_config(route_name=Routes.TRACKER)
+@view_config(route_name=Routes.TRACKER,
+             http_cache=NEVER_CACHE)
 def serve_tracker(req: "CamcopsRequest") -> Response:
     """
     View to serve a :class:`camcops_server.cc_modules.cc_tracker.Tracker`; see
@@ -1257,7 +1312,8 @@ def serve_tracker(req: "CamcopsRequest") -> Response:
     return serve_tracker_or_ctv(req, as_ctv=False)
 
 
-@view_config(route_name=Routes.CTV)
+@view_config(route_name=Routes.CTV,
+             http_cache=NEVER_CACHE)
 def serve_ctv(req: "CamcopsRequest") -> Response:
     """
     View to serve a
@@ -1271,7 +1327,9 @@ def serve_ctv(req: "CamcopsRequest") -> Response:
 # Reports
 # =============================================================================
 
-@view_config(route_name=Routes.REPORTS_MENU, renderer="reports_menu.mako")
+@view_config(route_name=Routes.REPORTS_MENU,
+             renderer="reports_menu.mako",
+             http_cache=NEVER_CACHE)
 def reports_menu(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     Offer a menu of reports.
@@ -1286,7 +1344,8 @@ def reports_menu(req: "CamcopsRequest") -> Dict[str, Any]:
     return {}
 
 
-@view_config(route_name=Routes.OFFER_REPORT)
+@view_config(route_name=Routes.OFFER_REPORT,
+             http_cache=NEVER_CACHE)
 def offer_report(req: "CamcopsRequest") -> Response:
     """
     Offer configuration options for a single report, or (following submission)
@@ -1329,7 +1388,8 @@ def offer_report(req: "CamcopsRequest") -> Response:
     )
 
 
-@view_config(route_name=Routes.REPORT)
+@view_config(route_name=Routes.REPORT,
+             http_cache=NEVER_CACHE)
 def serve_report(req: "CamcopsRequest") -> Response:
     """
     Serve a configured report.
@@ -1352,7 +1412,8 @@ def serve_report(req: "CamcopsRequest") -> Response:
 # Research downloads
 # =============================================================================
 
-@view_config(route_name=Routes.OFFER_BASIC_DUMP)
+@view_config(route_name=Routes.OFFER_BASIC_DUMP,
+             http_cache=NEVER_CACHE)
 def offer_basic_dump(req: "CamcopsRequest") -> Response:
     """
     View to configure a basic research dump.
@@ -1374,6 +1435,8 @@ def offer_basic_dump(req: "CamcopsRequest") -> Response:
                 ViewParam.TASKS: manual.get(ViewParam.TASKS),
                 ViewParam.VIEWTYPE: appstruct.get(ViewParam.VIEWTYPE),
                 ViewParam.DELIVERY_MODE: appstruct.get(ViewParam.DELIVERY_MODE),
+                ViewParam.INCLUDE_INFORMATION_SCHEMA_COLUMNS: appstruct.get(
+                    ViewParam.INCLUDE_INFORMATION_SCHEMA_COLUMNS),
             }
             # We could return a response, or redirect via GET.
             # The request is not sensitive, so let's redirect.
@@ -1428,17 +1491,20 @@ def get_dump_collection(req: "CamcopsRequest") -> TaskCollection:
     )
 
 
-@view_config(route_name=Routes.BASIC_DUMP)
+@view_config(route_name=Routes.BASIC_DUMP,
+             http_cache=NEVER_CACHE)
 def serve_basic_dump(req: "CamcopsRequest") -> Response:
     """
     View serving a TSV/ZIP basic research dump.
     """
     # Get view-specific parameters
     sort_by_heading = req.get_bool_param(ViewParam.SORT, False)
-    viewtype = req.get_str_param(ViewParam.VIEWTYPE, ViewArg.XLSX,
-                                 lower=True)
-    delivery_mode = req.get_str_param(ViewParam.DELIVERY_MODE,
-                                      ViewArg.EMAIL, lower=True)
+    viewtype = req.get_str_param(
+        ViewParam.VIEWTYPE, ViewArg.XLSX, lower=True)
+    delivery_mode = req.get_str_param(
+        ViewParam.DELIVERY_MODE, ViewArg.EMAIL, lower=True)
+    include_information_schema_columns = req.get_bool_param(
+        ViewParam.INCLUDE_INFORMATION_SCHEMA_COLUMNS, False)
 
     # Get tasks (and perform checks)
     collection = get_dump_collection(req)
@@ -1450,14 +1516,16 @@ def serve_basic_dump(req: "CamcopsRequest") -> Response:
             user_id=req.user_id,
             viewtype=viewtype,
             delivery_mode=delivery_mode,
-            spreadsheet_sort_by_heading=sort_by_heading
+            spreadsheet_sort_by_heading=sort_by_heading,
+            include_information_schema_columns=include_information_schema_columns  # noqa
         )
     )  # may raise
     # Export, or schedule an email/download
     return exporter.immediate_response(req)
 
 
-@view_config(route_name=Routes.OFFER_SQL_DUMP)
+@view_config(route_name=Routes.OFFER_SQL_DUMP,
+             http_cache=NEVER_CACHE)
 def offer_sql_dump(req: "CamcopsRequest") -> Response:
     """
     View to configure a SQL research dump.
@@ -1479,6 +1547,8 @@ def offer_sql_dump(req: "CamcopsRequest") -> Response:
                 ViewParam.GROUP_IDS: manual.get(ViewParam.GROUP_IDS),
                 ViewParam.TASKS: manual.get(ViewParam.TASKS),
                 ViewParam.DELIVERY_MODE: appstruct.get(ViewParam.DELIVERY_MODE),
+                ViewParam.INCLUDE_INFORMATION_SCHEMA_COLUMNS: appstruct.get(
+                    ViewParam.INCLUDE_INFORMATION_SCHEMA_COLUMNS),
             }
             # We could return a response, or redirect via GET.
             # The request is not sensitive, so let's redirect.
@@ -1495,7 +1565,8 @@ def offer_sql_dump(req: "CamcopsRequest") -> Response:
     )
 
 
-@view_config(route_name=Routes.SQL_DUMP)
+@view_config(route_name=Routes.SQL_DUMP,
+             http_cache=NEVER_CACHE)
 def sql_dump(req: "CamcopsRequest") -> Response:
     """
     View serving an SQL dump in the chosen format (e.g. SQLite binary, SQL).
@@ -1506,6 +1577,8 @@ def sql_dump(req: "CamcopsRequest") -> Response:
     patient_id_per_row = req.get_bool_param(ViewParam.PATIENT_ID_PER_ROW, True)
     delivery_mode = req.get_str_param(ViewParam.DELIVERY_MODE,
                                       ViewArg.EMAIL, lower=True)
+    include_information_schema_columns = req.get_bool_param(
+        ViewParam.INCLUDE_INFORMATION_SCHEMA_COLUMNS, False)
 
     # Get tasks (and perform checks)
     collection = get_dump_collection(req)
@@ -1519,6 +1592,7 @@ def sql_dump(req: "CamcopsRequest") -> Response:
             delivery_mode=delivery_mode,
             db_include_blobs=include_blobs,
             db_patient_id_per_row=patient_id_per_row,
+            include_information_schema_columns=include_information_schema_columns  # noqa
         )
     )  # may raise
     # Export, or schedule an email/download
@@ -1527,7 +1601,8 @@ def sql_dump(req: "CamcopsRequest") -> Response:
 
 # noinspection PyUnusedLocal
 @view_config(route_name=Routes.DOWNLOAD_AREA,
-             renderer="download_area.mako")
+             renderer="download_area.mako",
+             http_cache=NEVER_CACHE)
 def download_area(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     Shows the user download area.
@@ -1549,7 +1624,8 @@ def download_area(req: "CamcopsRequest") -> Dict[str, Any]:
     )
 
 
-@view_config(route_name=Routes.DOWNLOAD_FILE)
+@view_config(route_name=Routes.DOWNLOAD_FILE,
+             http_cache=NEVER_CACHE)
 def download_file(req: "CamcopsRequest") -> Response:
     """
     Downloads a file.
@@ -1575,7 +1651,9 @@ def download_file(req: "CamcopsRequest") -> Response:
         raise HTTPBadRequest(f'{_("Error reading file:")} {filename}')
 
 
-@view_config(route_name=Routes.DELETE_FILE, request_method="POST")
+@view_config(route_name=Routes.DELETE_FILE,
+             request_method="POST",
+             http_cache=NEVER_CACHE)
 def delete_file(req: "CamcopsRequest") -> Response:
     """
     Deletes a file.
@@ -1612,7 +1690,8 @@ LEXERMAP = {
 }
 
 
-@view_config(route_name=Routes.VIEW_DDL)
+@view_config(route_name=Routes.VIEW_DDL,
+             http_cache=NEVER_CACHE)
 def view_ddl(req: "CamcopsRequest") -> Response:
     """
     Inspect table definitions (data definition language, DDL) with field
@@ -1656,7 +1735,8 @@ def view_ddl(req: "CamcopsRequest") -> Response:
 # =============================================================================
 
 @view_config(route_name=Routes.OFFER_AUDIT_TRAIL,
-             permission=Permission.SUPERUSER)
+             permission=Permission.SUPERUSER,
+             http_cache=NEVER_CACHE)
 def offer_audit_trail(req: "CamcopsRequest") -> Response:
     """
     View to configure how we'll view the audit trail. Once configured, it
@@ -1700,7 +1780,8 @@ AUDIT_TRUNCATE_AT = 100
 
 
 @view_config(route_name=Routes.VIEW_AUDIT_TRAIL,
-             permission=Permission.SUPERUSER)
+             permission=Permission.SUPERUSER,
+             http_cache=NEVER_CACHE)
 def view_audit_trail(req: "CamcopsRequest") -> Response:
     """
     View to serve the audit trail.
@@ -1781,7 +1862,8 @@ def view_audit_trail(req: "CamcopsRequest") -> Response:
 #       ExportedTaskHL7Message
 
 @view_config(route_name=Routes.OFFER_EXPORTED_TASK_LIST,
-             permission=Permission.SUPERUSER)
+             permission=Permission.SUPERUSER,
+             http_cache=NEVER_CACHE)
 def offer_exported_task_list(req: "CamcopsRequest") -> Response:
     """
     View to choose how we'll view the exported task log.
@@ -1818,7 +1900,8 @@ def offer_exported_task_list(req: "CamcopsRequest") -> Response:
 
 
 @view_config(route_name=Routes.VIEW_EXPORTED_TASK_LIST,
-             permission=Permission.SUPERUSER)
+             permission=Permission.SUPERUSER,
+             http_cache=NEVER_CACHE)
 def view_exported_task_list(req: "CamcopsRequest") -> Response:
     """
     View to serve the exported task log.
@@ -1876,6 +1959,10 @@ def view_exported_task_list(req: "CamcopsRequest") -> Response:
                               request=req)
 
 
+# =============================================================================
+# View helpers for ORM objects
+# =============================================================================
+
 def _view_generic_object_by_id(req: "CamcopsRequest",
                                cls: Type,
                                instance_name_for_mako: str,
@@ -1910,8 +1997,13 @@ def _view_generic_object_by_id(req: "CamcopsRequest",
     return render_to_response(mako_template, d, request=req)
 
 
+# =============================================================================
+# Specialized views for ORM objects
+# =============================================================================
+
 @view_config(route_name=Routes.VIEW_EMAIL,
-             permission=Permission.SUPERUSER)
+             permission=Permission.SUPERUSER,
+             http_cache=NEVER_CACHE)
 def view_email(req: "CamcopsRequest") -> Response:
     """
     View on an individual :class:`camcops_server.cc_modules.cc_email.Email`.
@@ -1925,7 +2017,8 @@ def view_email(req: "CamcopsRequest") -> Response:
 
 
 @view_config(route_name=Routes.VIEW_EXPORT_RECIPIENT,
-             permission=Permission.SUPERUSER)
+             permission=Permission.SUPERUSER,
+             http_cache=NEVER_CACHE)
 def view_export_recipient(req: "CamcopsRequest") -> Response:
     """
     View on an individual
@@ -1940,7 +2033,8 @@ def view_export_recipient(req: "CamcopsRequest") -> Response:
 
 
 @view_config(route_name=Routes.VIEW_EXPORTED_TASK,
-             permission=Permission.SUPERUSER)
+             permission=Permission.SUPERUSER,
+             http_cache=NEVER_CACHE)
 def view_exported_task(req: "CamcopsRequest") -> Response:
     """
     View on an individual
@@ -1955,7 +2049,8 @@ def view_exported_task(req: "CamcopsRequest") -> Response:
 
 
 @view_config(route_name=Routes.VIEW_EXPORTED_TASK_EMAIL,
-             permission=Permission.SUPERUSER)
+             permission=Permission.SUPERUSER,
+             http_cache=NEVER_CACHE)
 def view_exported_task_email(req: "CamcopsRequest") -> Response:
     """
     View on an individual
@@ -1970,7 +2065,8 @@ def view_exported_task_email(req: "CamcopsRequest") -> Response:
 
 
 @view_config(route_name=Routes.VIEW_EXPORTED_TASK_FILE_GROUP,
-             permission=Permission.SUPERUSER)
+             permission=Permission.SUPERUSER,
+             http_cache=NEVER_CACHE)
 def view_exported_task_file_group(req: "CamcopsRequest") -> Response:
     """
     View on an individual
@@ -1985,7 +2081,8 @@ def view_exported_task_file_group(req: "CamcopsRequest") -> Response:
 
 
 @view_config(route_name=Routes.VIEW_EXPORTED_TASK_HL7_MESSAGE,
-             permission=Permission.SUPERUSER)
+             permission=Permission.SUPERUSER,
+             http_cache=NEVER_CACHE)
 def view_exported_task_hl7_message(req: "CamcopsRequest") -> Response:
     """
     View on an individual
@@ -2004,7 +2101,8 @@ def view_exported_task_hl7_message(req: "CamcopsRequest") -> Response:
 # =============================================================================
 
 @view_config(route_name=Routes.VIEW_OWN_USER_INFO,
-             renderer="view_own_user_info.mako")
+             renderer="view_own_user_info.mako",
+             http_cache=NEVER_CACHE)
 def view_own_user_info(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to provide information about your own user.
@@ -2018,7 +2116,8 @@ def view_own_user_info(req: "CamcopsRequest") -> Dict[str, Any]:
 
 
 @view_config(route_name=Routes.VIEW_SERVER_INFO,
-             renderer="view_server_info.mako")
+             renderer="view_server_info.mako",
+             http_cache=NEVER_CACHE)
 def view_server_info(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to show the server's ID policies, etc.
@@ -2096,33 +2195,53 @@ def query_users_that_i_manage(req: "CamcopsRequest") -> Query:
 
 @view_config(route_name=Routes.VIEW_ALL_USERS,
              permission=Permission.GROUPADMIN,
-             renderer="users_view.mako")
+             renderer="users_view.mako",
+             http_cache=NEVER_CACHE)
 def view_all_users(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View all users that the current user administers. The view has hyperlinks
     to edit those users too.
     """
+    include_auto_generated = req.get_bool_param(
+        ViewParam.INCLUDE_AUTO_GENERATED, False
+    )
     rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
                                       DEFAULT_ROWS_PER_PAGE)
     page_num = req.get_int_param(ViewParam.PAGE, 1)
     q = query_users_that_i_manage(req)
+    if not include_auto_generated:
+        q = q.filter(User.auto_generated == False)  # noqa: E712
     page = SqlalchemyOrmPage(query=q,
                              page=page_num,
                              items_per_page=rows_per_page,
                              url_maker=PageUrl(req),
                              request=req)
-    return dict(page=page)
+
+    form = UserFilterForm(request=req)
+    appstruct = {
+        ViewParam.INCLUDE_AUTO_GENERATED: include_auto_generated,
+    }
+    rendered_form = form.render(appstruct)
+
+    return dict(
+        page=page,
+        head_form_html=get_head_form_html(req, [form]),
+        form=rendered_form
+    )
 
 
 @view_config(route_name=Routes.VIEW_USER_EMAIL_ADDRESSES,
              permission=Permission.GROUPADMIN,
-             renderer="view_user_email_addresses.mako")
+             renderer="view_user_email_addresses.mako",
+             http_cache=NEVER_CACHE)
 def view_user_email_addresses(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View e-mail addresses of all users that the requesting user is authorized
     to manage.
     """
-    q = query_users_that_i_manage(req)
+    q = query_users_that_i_manage(req).filter(
+        User.auto_generated == False  # noqa: E712
+    )
     return dict(query=q)
 
 
@@ -2149,7 +2268,8 @@ def assert_may_administer_group(req: "CamcopsRequest", group_id: int) -> None:
 
 @view_config(route_name=Routes.VIEW_USER,
              permission=Permission.GROUPADMIN,
-             renderer="view_other_user_info.mako")
+             renderer="view_other_user_info.mako",
+             http_cache=NEVER_CACHE)
 def view_user(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to show details of another user, for administrators.
@@ -2162,8 +2282,9 @@ def view_user(req: "CamcopsRequest") -> Dict[str, Any]:
 
 
 @view_config(route_name=Routes.EDIT_USER,
+             renderer="user_edit.mako",
              permission=Permission.GROUPADMIN,
-             renderer="user_edit.mako")
+             http_cache=NEVER_CACHE)
 def edit_user(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to edit a user (for administrators).
@@ -2243,8 +2364,9 @@ def edit_user(req: "CamcopsRequest") -> Dict[str, Any]:
 
 
 @view_config(route_name=Routes.EDIT_USER_GROUP_MEMBERSHIP,
+             renderer="user_edit_group_membership.mako",
              permission=Permission.GROUPADMIN,
-             renderer="user_edit_group_membership.mako")
+             http_cache=NEVER_CACHE)
 def edit_user_group_membership(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to edit the group memberships of a user (for administrators).
@@ -2332,7 +2454,8 @@ def set_user_upload_group(req: "CamcopsRequest",
     )
 
 
-@view_config(route_name=Routes.SET_OWN_USER_UPLOAD_GROUP)
+@view_config(route_name=Routes.SET_OWN_USER_UPLOAD_GROUP,
+             http_cache=NEVER_CACHE)
 def set_own_user_upload_group(req: "CamcopsRequest") -> Response:
     """
     View to set the upload group for your own user.
@@ -2341,7 +2464,8 @@ def set_own_user_upload_group(req: "CamcopsRequest") -> Response:
 
 
 @view_config(route_name=Routes.SET_OTHER_USER_UPLOAD_GROUP,
-             permission=Permission.GROUPADMIN)
+             permission=Permission.GROUPADMIN,
+             http_cache=NEVER_CACHE)
 def set_other_user_upload_group(req: "CamcopsRequest") -> Response:
     """
     View to set the upload group for another user.
@@ -2353,8 +2477,10 @@ def set_other_user_upload_group(req: "CamcopsRequest") -> Response:
     return set_user_upload_group(req, user, True)
 
 
+# noinspection PyTypeChecker
 @view_config(route_name=Routes.UNLOCK_USER,
-             permission=Permission.GROUPADMIN)
+             permission=Permission.GROUPADMIN,
+             http_cache=NEVER_CACHE)
 def unlock_user(req: "CamcopsRequest") -> Response:
     """
     View to unlock a locked user account.
@@ -2362,12 +2488,19 @@ def unlock_user(req: "CamcopsRequest") -> Response:
     user = get_user_from_request_user_id_or_raise(req)
     assert_may_edit_user(req, user)
     user.enable(req)
-    return simple_success(req, f"User {user.username} enabled")
+    _ = req.gettext
+
+    req.session.flash(
+        _("User {username} enabled").format(username=user.username),
+        queue=FLASH_SUCCESS
+    )
+    raise HTTPFound(req.route_url(Routes.VIEW_ALL_USERS))
 
 
 @view_config(route_name=Routes.ADD_USER,
              permission=Permission.GROUPADMIN,
-             renderer="user_add.mako")
+             renderer="user_add.mako",
+             http_cache=NEVER_CACHE)
 def add_user(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to add a user.
@@ -2391,6 +2524,10 @@ def add_user(req: "CamcopsRequest") -> Dict[str, Any]:
             user.username = appstruct.get(ViewParam.USERNAME)
             user.set_password(req, appstruct.get(ViewParam.NEW_PASSWORD))
             user.must_change_password = appstruct.get(ViewParam.MUST_CHANGE_PASSWORD)  # noqa
+            # We don't ask for language initially; that can be configured
+            # later. But is is a reasonable guess that it should be the same
+            # language as used by the person creating the new user.
+            user.language = req.language
             if User.get_user_by_name(dbsession, user.username):
                 raise HTTPBadRequest(
                     f"User with username {user.username!r} already exists!")
@@ -2452,7 +2589,8 @@ def any_records_use_user(req: "CamcopsRequest", user: User) -> bool:
 
 @view_config(route_name=Routes.DELETE_USER,
              permission=Permission.GROUPADMIN,
-             renderer="user_delete.mako")
+             renderer="user_delete.mako",
+             http_cache=NEVER_CACHE)
 def delete_user(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to delete a user (and make it hard work).
@@ -2521,7 +2659,8 @@ def delete_user(req: "CamcopsRequest") -> Dict[str, Any]:
 
 @view_config(route_name=Routes.VIEW_GROUPS,
              permission=Permission.SUPERUSER,
-             renderer="groups_view.mako")
+             renderer="groups_view.mako",
+             http_cache=NEVER_CACHE)
 def view_groups(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to show all groups (with hyperlinks to edit them).
@@ -2561,61 +2700,85 @@ def get_group_from_request_group_id_or_raise(req: "CamcopsRequest") -> Group:
     return group
 
 
+class EditGroupView(UpdateView):
+    """
+    Django-style view to edit a CamCOPS group.
+    """
+    form_class = EditGroupForm
+    model_form_dict = {
+        "name": ViewParam.NAME,
+        "description": ViewParam.DESCRIPTION,
+        "upload_policy": ViewParam.UPLOAD_POLICY,
+        "finalize_policy": ViewParam.FINALIZE_POLICY,
+    }
+    object_class = Group
+    pk_param = ViewParam.GROUP_ID
+    server_pk_name = "id"
+    template_name = "group_edit.mako"
+
+    def get_form_kwargs(self) -> Dict[str, Any]:
+        kwargs = super().get_form_kwargs()
+
+        group = cast(Group, self.object)
+        kwargs.update(group=group)
+
+        return kwargs
+
+    def get_form_values(self) -> Dict:
+        # will populate with model_form_dict
+        form_values = super().get_form_values()
+
+        group = cast(Group, self.object)
+
+        other_group_ids = list(group.ids_of_other_groups_group_may_see())
+        other_groups = Group.get_groups_from_id_list(self.request.dbsession,
+                                                     other_group_ids)
+        other_groups.sort(key=lambda g: g.name)
+
+        form_values.update({
+            ViewParam.IP_USE: group.ip_use,
+            ViewParam.GROUP_ID: group.id,
+            ViewParam.GROUP_IDS: [g.id for g in other_groups]
+        })
+
+        return form_values
+
+    def get_success_url(self) -> str:
+        return self.request.route_url(Routes.VIEW_GROUPS)
+
+    def save_object(self, appstruct: Dict[str, Any]) -> None:
+        super().save_object(appstruct)
+
+        group = cast(Group, self.object)
+
+        # Group cross-references
+        group_ids = appstruct.get(ViewParam.GROUP_IDS)
+        # The form validation will prevent our own group from being in here
+        other_groups = Group.get_groups_from_id_list(self.request.dbsession,
+                                                     group_ids)
+        group.can_see_other_groups = other_groups
+
+        ip_use = appstruct.get(ViewParam.IP_USE)
+        if group.ip_use is not None:
+            ip_use.id = group.ip_use.id
+
+        group.ip_use = ip_use
+
+
 @view_config(route_name=Routes.EDIT_GROUP,
              permission=Permission.SUPERUSER,
-             renderer="group_edit.mako")
+             http_cache=NEVER_CACHE)
 def edit_group(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to edit a group. Superusers only.
     """
-    route_back = Routes.VIEW_GROUPS
-    if FormAction.CANCEL in req.POST:
-        raise HTTPFound(req.route_url(route_back))
-    group = get_group_from_request_group_id_or_raise(req)
-    form = EditGroupForm(request=req, group=group)
-    dbsession = req.dbsession
-    if FormAction.SUBMIT in req.POST:
-        try:
-            controls = list(req.POST.items())
-            appstruct = form.validate(controls)
-            # -----------------------------------------------------------------
-            # Apply the changes
-            # -----------------------------------------------------------------
-            # Simple attributes
-            group.name = appstruct.get(ViewParam.NAME)
-            group.description = appstruct.get(ViewParam.DESCRIPTION)
-            group.upload_policy = appstruct.get(ViewParam.UPLOAD_POLICY)
-            group.finalize_policy = appstruct.get(ViewParam.FINALIZE_POLICY)
-            # Group cross-references
-            group_ids = appstruct.get(ViewParam.GROUP_IDS)
-            group_ids = [gid for gid in group_ids if gid != group.id]
-            # ... don't bother saying "you can see yourself"
-            other_groups = Group.get_groups_from_id_list(dbsession, group_ids)
-            group.can_see_other_groups = other_groups
-            raise HTTPFound(req.route_url(route_back))
-        except ValidationFailure as e:
-            rendered_form = e.render()
-    else:
-        other_group_ids = list(group.ids_of_other_groups_group_may_see())
-        other_groups = Group.get_groups_from_id_list(dbsession, other_group_ids)
-        other_groups.sort(key=lambda g: g.name)
-        appstruct = {
-            ViewParam.GROUP_ID: group.id,
-            ViewParam.NAME: group.name,
-            ViewParam.DESCRIPTION: group.description or "",
-            ViewParam.UPLOAD_POLICY: group.upload_policy or "",
-            ViewParam.FINALIZE_POLICY: group.finalize_policy or "",
-            ViewParam.GROUP_IDS: [g.id for g in other_groups],
-        }
-        rendered_form = form.render(appstruct)
-    return dict(group=group,
-                form=rendered_form,
-                head_form_html=get_head_form_html(req, [form]))
+    return EditGroupView(req).dispatch()
 
 
 @view_config(route_name=Routes.ADD_GROUP,
              permission=Permission.SUPERUSER,
-             renderer="group_add.mako")
+             renderer="group_add.mako",
+             http_cache=NEVER_CACHE)
 def add_group(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to add a group. Superusers only.
@@ -2669,7 +2832,8 @@ def any_records_use_group(req: "CamcopsRequest", group: Group) -> bool:
 
 @view_config(route_name=Routes.DELETE_GROUP,
              permission=Permission.SUPERUSER,
-             renderer="group_delete.mako")
+             renderer="group_delete.mako",
+             http_cache=NEVER_CACHE)
 def delete_group(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to delete a group. Superusers only.
@@ -2715,7 +2879,8 @@ def delete_group(req: "CamcopsRequest") -> Dict[str, Any]:
 
 @view_config(route_name=Routes.EDIT_SERVER_SETTINGS,
              permission=Permission.SUPERUSER,
-             renderer="server_settings_edit.mako")
+             renderer="server_settings_edit.mako",
+             http_cache=NEVER_CACHE)
 def edit_server_settings(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to edit server settings (like the database title).
@@ -2745,7 +2910,8 @@ def edit_server_settings(req: "CamcopsRequest") -> Dict[str, Any]:
 
 @view_config(route_name=Routes.VIEW_ID_DEFINITIONS,
              permission=Permission.SUPERUSER,
-             renderer="id_definitions_view.mako")
+             renderer="id_definitions_view.mako",
+             http_cache=NEVER_CACHE)
 def view_id_definitions(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to show all ID number definitions (with hyperlinks to edit them).
@@ -2775,7 +2941,8 @@ def get_iddef_from_request_which_idnum_or_raise(
 
 @view_config(route_name=Routes.EDIT_ID_DEFINITION,
              permission=Permission.SUPERUSER,
-             renderer="id_definition_edit.mako")
+             renderer="id_definition_edit.mako",
+             http_cache=NEVER_CACHE)
 def edit_id_definition(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to edit an ID number definition. Superusers only.
@@ -2818,7 +2985,8 @@ def edit_id_definition(req: "CamcopsRequest") -> Dict[str, Any]:
 
 @view_config(route_name=Routes.ADD_ID_DEFINITION,
              permission=Permission.SUPERUSER,
-             renderer="id_definition_add.mako")
+             renderer="id_definition_add.mako",
+             http_cache=NEVER_CACHE)
 def add_id_definition(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to add an ID number definition. Superusers only.
@@ -2874,7 +3042,8 @@ def any_records_use_iddef(req: "CamcopsRequest",
 
 @view_config(route_name=Routes.DELETE_ID_DEFINITION,
              permission=Permission.SUPERUSER,
-             renderer="id_definition_delete.mako")
+             renderer="id_definition_delete.mako",
+             http_cache=NEVER_CACHE)
 def delete_id_definition(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to delete an ID number definition. Superusers only.
@@ -2917,7 +3086,8 @@ def delete_id_definition(req: "CamcopsRequest") -> Dict[str, Any]:
 # =============================================================================
 
 @view_config(route_name=Routes.ADD_SPECIAL_NOTE,
-             renderer="special_note_add.mako")
+             renderer="special_note_add.mako",
+             http_cache=NEVER_CACHE)
 def add_special_note(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to add a special note to a task (after confirmation).
@@ -2940,8 +3110,7 @@ def add_special_note(req: "CamcopsRequest") -> Dict[str, Any]:
         raise HTTPBadRequest(
             f"{_('No such task:')} {table_name}, PK={server_pk}")
     user = req.user
-    # noinspection PyProtectedMember
-    if not user.authorized_to_add_special_note(task._group_id):
+    if not user.authorized_to_add_special_note(task.group_id):
         raise HTTPBadRequest(
             _("Not authorized to add special notes for this task's group"))
     form = AddSpecialNoteForm(request=req)
@@ -2970,7 +3139,8 @@ def add_special_note(req: "CamcopsRequest") -> Dict[str, Any]:
 
 
 @view_config(route_name=Routes.DELETE_SPECIAL_NOTE,
-             renderer="special_note_delete.mako")
+             renderer="special_note_delete.mako",
+             http_cache=NEVER_CACHE)
 def delete_special_note(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to delete a special note (after confirmation).
@@ -3012,78 +3182,18 @@ def delete_special_note(req: "CamcopsRequest") -> Dict[str, Any]:
                 head_form_html=get_head_form_html(req, [form]))
 
 
-class EraseTaskBaseView(object):
-    def __init__(self, request: "CamcopsRequest"):
-        self.request = request
-        self.table_name = request.get_str_param(ViewParam.TABLE_NAME)
-        self.server_pk = request.get_int_param(ViewParam.SERVER_PK, None)
-        self.form = EraseTaskForm(request=request)
+class EraseTaskBaseView(DeleteView):
+    """
+    Django-style view to erase a task.
+    """
+    form_class = EraseTaskForm
 
-        if not hasattr(self, "template_name"):
-            raise NotImplementedError(
-                f"{self.__class__.__name__} must define template_name"
-            )
+    def get_object(self) -> Any:
+        # noinspection PyAttributeOutsideInit
+        self.table_name = self.request.get_str_param(ViewParam.TABLE_NAME)
+        # noinspection PyAttributeOutsideInit
+        self.server_pk = self.request.get_int_param(ViewParam.SERVER_PK, None)
 
-    def dispatch(self) -> Response:
-        if FormAction.CANCEL in self.request.POST:
-            return HTTPFound(self.get_task_url())
-
-        task = self.get_and_validate_task()
-        self.check_user_is_authorized(task)
-
-        if FormAction.DELETE in self.request.POST:
-            return self.handle_delete(task)
-
-        return self.display_form(task)
-
-    def handle_delete(self, task: Task) -> Response:
-        try:
-            controls = list(self.request.POST.items())
-            self.form.validate(controls)
-            self.erase_task(task)
-            return simple_success(
-                self.request,
-                self.get_success_message(),
-                self.get_success_extra_html()
-            )
-        except ValidationFailure as e:
-            return self.render_to_response(task, e.render())
-
-    def erase_task(self, task: Task):
-        raise NotImplementedError
-
-    def get_success_message(self) -> str:
-        _ = self.request.gettext
-        msg_erased = _("Task erased:")
-
-        return f'{msg_erased} ({self.table_name}, server PK {self.server_pk}).'
-
-    def get_success_extra_html(self) -> str:
-        return ""
-
-    def display_form(self, task) -> Response:
-        appstruct = {
-            ViewParam.TABLE_NAME: self.table_name,
-            ViewParam.SERVER_PK: self.server_pk,
-        }
-        rendered_form = self.form.render(appstruct)
-
-        return self.render_to_response(task, rendered_form)
-
-    def render_to_response(self, task: Task, rendered_form: str) -> Response:
-        # noinspection PyUnresolvedReferences
-        return render_to_response(
-            self.template_name,
-            dict(
-                task=task,
-                form=rendered_form,
-                head_form_html=get_head_form_html(self.request, [self.form]),
-                viewtype=ViewArg.HTML
-            ),
-            request=self.request
-        )
-
-    def get_and_validate_task(self) -> Task:
         task = task_factory(self.request, self.table_name, self.server_pk)
         _ = self.request.gettext
         if task is None:
@@ -3091,17 +3201,17 @@ class EraseTaskBaseView(object):
                 f"{_('No such task:')} {self.table_name}, PK={self.server_pk}")
         if task.is_live_on_tablet():
             raise HTTPBadRequest(errormsg_task_live(self.request))
+        self.check_user_is_authorized(task)
 
         return task
 
     def check_user_is_authorized(self, task: Task) -> None:
-        # noinspection PyProtectedMember
-        if not self.request.user.authorized_to_erase_tasks(task._group_id):
+        if not self.request.user.authorized_to_erase_tasks(task.group_id):
             _ = self.request.gettext
             raise HTTPBadRequest(
                 _("Not authorized to erase tasks for this task's group"))
 
-    def get_task_url(self) -> str:
+    def get_cancel_url(self) -> str:
         return self.request.route_url(
             Routes.TASK,
             _query={
@@ -3113,37 +3223,64 @@ class EraseTaskBaseView(object):
 
 
 class EraseTaskLeavingPlaceholderView(EraseTaskBaseView):
+    """
+    Django-style view to erase data from a task, leaving an empty
+    "placeholder".
+    """
     template_name = "task_erase.mako"
 
-    def get_and_validate_task(self) -> Task:
-        task = super().get_and_validate_task()
+    def get_object(self) -> Any:
+        task = cast(Task, super().get_object())
         if task.is_erased():
             _ = self.request.gettext
             raise HTTPBadRequest(_("Task already erased"))
 
         return task
 
-    def erase_task(self, task: Task) -> None:
+    def delete(self) -> None:
+        task = cast(Task, self.object)
+
         task.manually_erase(self.request)
 
-    def get_success_extra_html(self) -> str:
-        url_back = self.get_task_url()
-        _ = self.request.gettext
-        msg_view_amended = _("View amended task")
-
-        return f'<a href="{url_back}">{msg_view_amended}</a>.'
+    def get_success_url(self) -> str:
+        return self.request.route_url(
+            Routes.TASK,
+            _query={
+                ViewParam.TABLE_NAME: self.table_name,
+                ViewParam.SERVER_PK: self.server_pk,
+                ViewParam.VIEWTYPE: ViewArg.HTML,
+            }
+        )
 
 
 class EraseTaskEntirelyView(EraseTaskBaseView):
+    """
+    Django-style view to erase (delete) a task entirely.
+    """
     template_name = "task_erase_entirely.mako"
 
-    def erase_task(self, task: Task) -> None:
+    def delete(self) -> None:
+        task = cast(Task, self.object)
+
         TaskIndexEntry.unindex_task(task, self.request.dbsession)
         task.delete_entirely(self.request)
 
+        _ = self.request.gettext
+
+        msg_erased = _("Task erased:")
+
+        self.request.session.flash(
+            f"{msg_erased} ({self.table_name}, server PK {self.server_pk}).",
+            queue=FLASH_SUCCESS
+        )
+
+    def get_success_url(self) -> str:
+        return self.request.route_url(Routes.VIEW_TASKS)
+
 
 @view_config(route_name=Routes.ERASE_TASK_LEAVING_PLACEHOLDER,
-             permission=Permission.GROUPADMIN)
+             permission=Permission.GROUPADMIN,
+             http_cache=NEVER_CACHE)
 def erase_task_leaving_placeholder(req: "CamcopsRequest") -> Response:
     """
     View to wipe all data from a task (after confirmation).
@@ -3154,7 +3291,8 @@ def erase_task_leaving_placeholder(req: "CamcopsRequest") -> Response:
 
 
 @view_config(route_name=Routes.ERASE_TASK_ENTIRELY,
-             permission=Permission.GROUPADMIN)
+             permission=Permission.GROUPADMIN,
+             http_cache=NEVER_CACHE)
 def erase_task_entirely(req: "CamcopsRequest") -> Response:
     """
     View to erase a task from the database entirely (after confirmation).
@@ -3163,7 +3301,8 @@ def erase_task_entirely(req: "CamcopsRequest") -> Response:
 
 
 @view_config(route_name=Routes.DELETE_PATIENT,
-             permission=Permission.GROUPADMIN)
+             permission=Permission.GROUPADMIN,
+             http_cache=NEVER_CACHE)
 def delete_patient(req: "CamcopsRequest") -> Response:
     """
     View to delete completely all data for a patient (after confirmation),
@@ -3262,7 +3401,10 @@ def delete_patient(req: "CamcopsRequest") -> Response:
                 f"{n_patient_instances}."
             )
             audit(req, msg)
-            return simple_success(req, msg)
+
+            req.session.flash(msg, FLASH_SUCCESS)
+            raise HTTPFound(req.route_url(Routes.HOME))
+
         except ValidationFailure as e:
             rendered_form = e.render()
     else:
@@ -3278,183 +3420,9 @@ def delete_patient(req: "CamcopsRequest") -> Response:
     )
 
 
-@view_config(route_name=Routes.EDIT_PATIENT, permission=Permission.GROUPADMIN)
-def edit_patient(req: "CamcopsRequest") -> Response:
-    """
-    View to edit details for a patient.
-    """
-    if FormAction.CANCEL in req.POST:
-        return HTTPFound(req.route_url(Routes.HOME))
-
-    server_pk = req.get_int_param(ViewParam.SERVER_PK)
-    patient = Patient.get_patient_by_pk(req.dbsession, server_pk)
-
-    _ = req.gettext
-    if not patient:
-        raise HTTPBadRequest(_("No such patient"))
-    if not patient.group:
-        raise HTTPBadRequest(_("Bad patient: not in a group"))
-    if not patient.user_may_edit(req):
-        raise HTTPBadRequest(_("Not authorized to edit this patient"))
-    if not patient.is_editable:
-        raise HTTPBadRequest(
-            _("Patient is not editable (likely: not finalized, so a copy is "
-              "still on a client device)"))
-
-    taskfilter = TaskFilter()
-    taskfilter.device_ids = [patient.get_device_id()]
-    taskfilter.group_ids = [patient.group.id]
-    taskfilter.era = patient.get_era()
-    collection = TaskCollection(
-        req=req,
-        taskfilter=taskfilter,
-        sort_method_global=TaskSortMethod.CREATION_DATE_DESC,
-        current_only=False  # unusual option!
-    )
-    affected_tasks = collection.all_tasks
-
-    form = EditPatientForm(request=req)
-    dbsession = req.dbsession
-    if FormAction.SUBMIT in req.POST:
-        try:
-            controls = list(req.POST.items())
-            appstruct = form.validate(controls)
-            # -----------------------------------------------------------------
-            # Apply edits
-            # -----------------------------------------------------------------
-            # Calculate the changes, and apply them to the Patient object
-            changes = OrderedDict()  # type: Dict[str, Tuple[Any, Any]]
-            for k in EDIT_PATIENT_SIMPLE_PARAMS:
-                new_value = appstruct.get(k)
-                if k in [ViewParam.FORENAME, ViewParam.SURNAME]:
-                    new_value = new_value.upper()
-                old_value = getattr(patient, k)
-                if new_value == old_value:
-                    continue
-                if new_value in [None, ""] and old_value in [None, ""]:
-                    # Nothing really changing!
-                    continue
-                changes[k] = (old_value, new_value)
-                setattr(patient, k, new_value)
-            # The ID numbers are more complex.
-            # log.debug("{}", pformat(appstruct))
-            new_idrefs = [
-                IdNumReference(which_idnum=idrefdict[ViewParam.WHICH_IDNUM],
-                               idnum_value=idrefdict[ViewParam.IDNUM_VALUE])
-                for idrefdict in appstruct.get(ViewParam.ID_REFERENCES)
-            ]
-            for idnum in patient.idnums:
-                matching_idref = next(
-                    (idref for idref in new_idrefs
-                     if idref.which_idnum == idnum.which_idnum), None)
-                if not matching_idref:
-                    # Delete ID numbers not present in the new set
-                    changes["idnum{} ({})".format(
-                        idnum.which_idnum,
-                        req.get_id_desc(idnum.which_idnum))
-                    ] = (idnum.idnum_value, None)
-                    idnum.mark_as_deleted(req)
-                elif matching_idref.idnum_value != idnum.idnum_value:
-                    # Modify altered ID numbers present in the old + new sets
-                    changes["idnum{} ({})".format(
-                        idnum.which_idnum,
-                        req.get_id_desc(idnum.which_idnum))
-                    ] = (idnum.idnum_value, matching_idref.idnum_value)
-                    new_idnum = PatientIdNum()
-                    new_idnum.id = idnum.id
-                    new_idnum.patient_id = idnum.patient_id
-                    new_idnum.which_idnum = idnum.which_idnum
-                    new_idnum.idnum_value = matching_idref.idnum_value
-                    new_idnum.set_predecessor(req, idnum)
-            max_existing_pidnum_id = None
-            for idref in new_idrefs:
-                matching_idnum = next(
-                    (idnum for idnum in patient.idnums
-                     if idnum.which_idnum == idref.which_idnum), None)
-                if not matching_idnum:
-                    # Create ID numbers where they were absent
-                    changes["idnum{} ({})".format(
-                        idref.which_idnum,
-                        req.get_id_desc(idref.which_idnum))
-                    ] = (None, idref.idnum_value)
-                    # We need to establish an "id" field, which is the PK as
-                    # seen by the tablet. The tablet has lost interest in these
-                    # records, since _era != ERA_NOW, so all we have to do is
-                    # pick a number that's not in use.
-                    if max_existing_pidnum_id is None:
-                        # noinspection PyProtectedMember
-                        max_existing_pidnum_id = dbsession\
-                            .query(func.max(PatientIdNum.id))\
-                            .filter(PatientIdNum._device_id ==
-                                    patient.get_device_id())\
-                            .filter(PatientIdNum._era == patient.get_era())\
-                            .scalar()
-                        if max_existing_pidnum_id is None:
-                            max_existing_pidnum_id = 0  # so start at 1
-                    new_idnum = PatientIdNum()
-                    new_idnum.id = max_existing_pidnum_id + 1
-                    max_existing_pidnum_id += 1
-                    new_idnum.patient_id = patient.id
-                    new_idnum.which_idnum = idref.which_idnum
-                    new_idnum.idnum_value = idref.idnum_value
-                    new_idnum.create_fresh(req,
-                                           device_id=patient.get_device_id(),
-                                           era=patient.get_era(),
-                                           group_id=patient.get_group_id())
-                    dbsession.add(new_idnum)
-            if not changes:
-                return simple_success(
-                    req,
-                    f"{_('No changes required for patient record with server PK')} "  # noqa
-                    f"{server_pk} {_('(all new values matched old values)')}")
-
-            # Below here, changes have definitely been made.
-            change_msg = (
-                _("Patient details edited. Changes:") + " " + "; ".join(
-                    f"{k}: {old!r} → {new!r}"
-                    for k, (old, new) in changes.items()
-                )
-            )
-
-            # Apply special note to patient
-            patient.apply_special_note(req, change_msg, "Patient edited")
-
-            # Patient details changed, so resend any tasks via HL7
-            for task in affected_tasks:
-                task.cancel_from_export_log(req)
-
-            # Done
-            return simple_success(
-                req,
-                f"{_('Amended patient record with server PK')} {server_pk}. "
-                f"{_('Changes were:')} {change_msg}")
-        except ValidationFailure as e:
-            rendered_form = e.render()
-    else:
-        appstruct = {k: getattr(patient, k)
-                     for k in EDIT_PATIENT_SIMPLE_PARAMS}
-        appstruct[ViewParam.SERVER_PK] = server_pk
-        appstruct[ViewParam.GROUP_ID] = patient.group.id
-        appstruct[ViewParam.ID_REFERENCES] = [
-            {ViewParam.WHICH_IDNUM: pidnum.which_idnum,
-             ViewParam.IDNUM_VALUE: pidnum.idnum_value}
-            for pidnum in patient.idnums
-        ]
-        rendered_form = form.render(appstruct)
-    return render_to_response(
-        "patient_edit.mako",
-        dict(
-            patient=patient,
-            form=rendered_form,
-            tasks=affected_tasks,
-            head_form_html=get_head_form_html(req, [form])
-        ),
-        request=req
-    )
-
-
 @view_config(route_name=Routes.FORCIBLY_FINALIZE,
-             permission=Permission.GROUPADMIN)
+             permission=Permission.GROUPADMIN,
+             http_cache=NEVER_CACHE)
 def forcibly_finalize(req: "CamcopsRequest") -> Response:
     """
     View to force-finalize all live (``_era == ERA_NOW``) records from a
@@ -3516,6 +3484,7 @@ def forcibly_finalize(req: "CamcopsRequest") -> Response:
             if not req.user.superuser:
                 admin_group_ids = req.user.ids_of_groups_user_is_admin_for
                 for clienttable in CLIENT_TABLE_MAP.values():
+                    # noinspection PyPropertyAccess
                     count_query = (
                         select([func.count()])
                         .select_from(clienttable)
@@ -3567,7 +3536,9 @@ def forcibly_finalize(req: "CamcopsRequest") -> Response:
             )
             audit(req, msg)
             log.info(msg)
-            return simple_success(req, msg)
+
+            req.session.flash(msg, queue=FLASH_SUCCESS)
+            raise HTTPFound(req.route_url(Routes.HOME))
 
         except ValidationFailure as e:
             rendered_form = e.render()
@@ -3580,6 +3551,932 @@ def forcibly_finalize(req: "CamcopsRequest") -> Response:
              head_form_html=get_head_form_html(req, [form])),
         request=req
     )
+
+
+# =============================================================================
+# Patient creation/editing (primarily for task scheduling)
+# =============================================================================
+
+class PatientMixin(object):
+    """
+    Mixin for views involving a patient.
+    """
+    object: Any
+    object_class = Patient
+    server_pk_name = "_pk"
+
+    model_form_dict = {
+        "forename": ViewParam.FORENAME,
+        "surname": ViewParam.SURNAME,
+        "dob": ViewParam.DOB,
+        "sex": ViewParam.SEX,
+        "email": ViewParam.EMAIL,
+        "address": ViewParam.ADDRESS,
+        "gp": ViewParam.GP,
+        "other": ViewParam.OTHER,
+    }
+
+    def get_form_values(self) -> Dict:
+        # will populate with model_form_dict
+        # noinspection PyUnresolvedReferences
+        form_values = super().get_form_values()
+
+        patient = cast(Patient, self.object)
+
+        if patient is not None:
+            form_values[ViewParam.SERVER_PK] = patient.pk
+            form_values[ViewParam.GROUP_ID] = patient.group.id
+            form_values[ViewParam.ID_REFERENCES] = [
+                {ViewParam.WHICH_IDNUM: pidnum.which_idnum,
+                 ViewParam.IDNUM_VALUE: pidnum.idnum_value}
+                for pidnum in patient.idnums
+            ]
+            # noinspection PyUnresolvedReferences
+            form_values[ViewParam.TASK_SCHEDULES] = [
+                {
+                    ViewParam.SCHEDULE_ID: pts.schedule_id,
+                    ViewParam.START_DATETIME: pts.start_datetime,
+                    ViewParam.SETTINGS: pts.settings,
+                }
+                for pts in patient.task_schedules
+            ]
+
+        return form_values
+
+
+class EditPatientBaseView(PatientMixin, UpdateView):
+    """
+    View to edit details for a patient.
+    """
+    pk_param = ViewParam.SERVER_PK
+
+    def get_object(self) -> Any:
+        patient = cast(Patient, super().get_object())
+
+        _ = self.request.gettext
+
+        if not patient.group:
+            raise HTTPBadRequest(_("Bad patient: not in a group"))
+
+        if not patient.user_may_edit(self.request):
+            raise HTTPBadRequest(_("Not authorized to edit this patient"))
+
+        return patient
+
+    def save_object(self, appstruct: Dict[str, Any]) -> None:
+        # -----------------------------------------------------------------
+        # Apply edits
+        # -----------------------------------------------------------------
+        # Calculate the changes, and apply them to the Patient object
+        _ = self.request.gettext
+
+        patient = cast(Patient, self.object)
+
+        changes = OrderedDict()  # type: OrderedDict
+
+        self.save_changes(appstruct, changes)
+
+        if not changes:
+            self.request.session.flash(
+                f"{_('No changes required for patient record with server PK')} "  # noqa
+                f"{patient.pk} {_('(all new values matched old values)')}",
+                queue=FLASH_INFO
+            )
+            return
+
+        # Below here, changes have definitely been made.
+        change_msg = (
+            _("Patient details edited. Changes:") + " " + "; ".join(
+                f"{k}: {old!r} → {new!r}"
+                for k, (old, new) in changes.items()
+            )
+        )
+
+        # Apply special note to patient
+        patient.apply_special_note(self.request, change_msg,
+                                   "Patient edited")
+
+        # Patient details changed, so resend any tasks via HL7
+        for task in self.get_affected_tasks():
+            task.cancel_from_export_log(self.request)
+
+        # Done
+        self.request.session.flash(
+            f"{_('Amended patient record with server PK')} "
+            f"{patient.pk}. "
+            f"{_('Changes were:')} {change_msg}",
+            queue=FLASH_SUCCESS
+        )
+
+    def save_changes(self,
+                     appstruct: Dict[str, Any], changes: OrderedDict) -> None:
+        self._save_simple_params(appstruct, changes)
+        self._save_idrefs(appstruct, changes)
+
+    def _save_simple_params(self,
+                            appstruct: Dict[str, Any],
+                            changes: OrderedDict) -> None:
+        patient = cast(Patient, self.object)
+        for k in EDIT_PATIENT_SIMPLE_PARAMS:
+            new_value = appstruct.get(k)
+            old_value = getattr(patient, k)
+            if new_value == old_value:
+                continue
+            if new_value in [None, ""] and old_value in [None, ""]:
+                # Nothing really changing!
+                continue
+            changes[k] = (old_value, new_value)
+            setattr(patient, k, new_value)
+
+    def _save_idrefs(self,
+                     appstruct: Dict[str, Any],
+                     changes: OrderedDict) -> None:
+
+        # The ID numbers are more complex.
+        # log.debug("{}", pformat(appstruct))
+        patient = cast(Patient, self.object)
+        new_idrefs = [
+            IdNumReference(which_idnum=idrefdict[ViewParam.WHICH_IDNUM],
+                           idnum_value=idrefdict[ViewParam.IDNUM_VALUE])
+            for idrefdict in appstruct.get(ViewParam.ID_REFERENCES, {})
+        ]
+        for idnum in patient.idnums:
+            matching_idref = next(
+                (idref for idref in new_idrefs
+                 if idref.which_idnum == idnum.which_idnum), None)
+            if not matching_idref:
+                # Delete ID numbers not present in the new set
+                changes["idnum{} ({})".format(
+                    idnum.which_idnum,
+                    self.request.get_id_desc(idnum.which_idnum))
+                ] = (idnum.idnum_value, None)
+                idnum.mark_as_deleted(self.request)
+            elif matching_idref.idnum_value != idnum.idnum_value:
+                # Modify altered ID numbers present in the old + new sets
+                changes["idnum{} ({})".format(
+                    idnum.which_idnum,
+                    self.request.get_id_desc(idnum.which_idnum))
+                ] = (idnum.idnum_value, matching_idref.idnum_value)
+                new_idnum = PatientIdNum()
+                new_idnum.id = idnum.id
+                new_idnum.patient_id = idnum.patient_id
+                new_idnum.which_idnum = idnum.which_idnum
+                new_idnum.idnum_value = matching_idref.idnum_value
+                new_idnum.set_predecessor(self.request, idnum)
+        max_existing_pidnum_id = None
+        for idref in new_idrefs:
+            matching_idnum = next(
+                (idnum for idnum in patient.idnums
+                 if idnum.which_idnum == idref.which_idnum), None)
+            if not matching_idnum:
+                # Create ID numbers where they were absent
+                changes["idnum{} ({})".format(
+                    idref.which_idnum,
+                    self.request.get_id_desc(idref.which_idnum))
+                ] = (None, idref.idnum_value)
+                # We need to establish an "id" field, which is the PK as
+                # seen by the tablet. The tablet has lost interest in these
+                # records, since _era != ERA_NOW, so all we have to do is
+                # pick a number that's not in use.
+                if max_existing_pidnum_id is None:
+                    # noinspection PyProtectedMember
+                    max_existing_pidnum_id = (
+                        self.request.dbsession
+                        .query(func.max(PatientIdNum.id))
+                        .filter(PatientIdNum._device_id == patient.device_id)
+                        .filter(PatientIdNum._era == patient.era)
+                        .scalar()
+                    )
+                    if max_existing_pidnum_id is None:
+                        max_existing_pidnum_id = 0  # so start at 1
+                    new_idnum = PatientIdNum()
+                    new_idnum.id = max_existing_pidnum_id + 1
+                    max_existing_pidnum_id += 1
+                    new_idnum.patient_id = patient.id
+                    new_idnum.which_idnum = idref.which_idnum
+                    new_idnum.idnum_value = idref.idnum_value
+                    new_idnum.create_fresh(self.request,
+                                           device_id=patient.device_id,
+                                           era=patient.era,
+                                           group_id=patient.group_id)
+                    self.request.dbsession.add(new_idnum)
+
+    def get_context_data(self, **kwargs: Any) -> Any:
+        kwargs["tasks"] = self.get_affected_tasks()
+
+        return super().get_context_data(**kwargs)
+
+    def get_affected_tasks(self) -> Optional[List[Task]]:
+        patient = cast(Patient, self.object)
+
+        taskfilter = TaskFilter()
+        taskfilter.device_ids = [patient.device_id]
+        taskfilter.group_ids = [patient.group.id]
+        taskfilter.era = patient.era
+        collection = TaskCollection(
+            req=self.request,
+            taskfilter=taskfilter,
+            sort_method_global=TaskSortMethod.CREATION_DATE_DESC,
+            current_only=False  # unusual option!
+        )
+        return collection.all_tasks
+
+
+class EditServerCreatedPatientView(EditPatientBaseView):
+    """
+    View to edit a patient created on the server (as part of task scheduling).
+    """
+    template_name = "server_created_patient_edit.mako"
+    form_class = EditServerCreatedPatientForm
+
+    def get_success_url(self) -> str:
+        return self.request.route_url(
+            Routes.VIEW_PATIENT_TASK_SCHEDULES
+        )
+
+    def get_object(self) -> Any:
+        patient = cast(Patient, super().get_object())
+
+        if not patient.created_on_server(self.request):
+            _ = self.request.gettext
+
+            raise HTTPBadRequest(
+                _("Patient is not editable - was not created on the server"))
+
+        return patient
+
+    def save_changes(self,
+                     appstruct: Dict[str, Any], changes: OrderedDict) -> None:
+        self._save_group(appstruct, changes)
+        super().save_changes(appstruct, changes)
+        self._save_task_schedules(appstruct, changes)
+
+    def _save_group(self,
+                    appstruct: Dict[str, Any], changes: OrderedDict) -> None:
+        patient = cast(Patient, self.object)
+
+        old_group_id = patient.group.id
+        old_group_name = patient.group.name
+        new_group_id = appstruct.get(ViewParam.GROUP_ID, None)
+        new_group = self.request.dbsession.query(Group).filter(
+            Group.id == new_group_id
+        ).first()
+
+        if old_group_id != new_group_id:
+            patient._group_id = new_group_id
+            changes["group"] = (old_group_name, new_group.name)
+
+    def _save_task_schedules(self,
+                             appstruct: Dict[str, Any],
+                             changes: OrderedDict) -> None:
+
+        patient = cast(Patient, self.object)
+        new_schedules = {
+            schedule_dict[ViewParam.SCHEDULE_ID]: schedule_dict
+            for schedule_dict in appstruct.get(ViewParam.TASK_SCHEDULES, {})
+        }
+
+        schedule_query = self.request.dbsession.query(TaskSchedule)
+        schedule_name_dict = {schedule.id: schedule.name
+                              for schedule in schedule_query}
+
+        old_schedules = {}
+        # noinspection PyUnresolvedReferences
+        for pts in patient.task_schedules:
+            old_schedules[pts.task_schedule.id] = {
+                "start_datetime": pts.start_datetime,
+                "settings": pts.settings
+            }
+
+        ids_to_add = new_schedules.keys() - old_schedules.keys()
+        ids_to_update = old_schedules.keys() & new_schedules.keys()
+        ids_to_delete = old_schedules.keys() - new_schedules.keys()
+
+        for schedule_id in ids_to_add:
+            pts = PatientTaskSchedule()
+            pts.patient_pk = patient.pk
+            pts.schedule_id = schedule_id
+            pts.start_datetime = new_schedules[schedule_id]["start_datetime"]
+            pts.settings = new_schedules[schedule_id]["settings"]
+
+            self.request.dbsession.add(pts)
+            changes["schedule{} ({})".format(
+                schedule_id, schedule_name_dict[schedule_id]
+            )] = ((None, None), (pts.start_datetime, pts.settings))
+
+        for schedule_id in ids_to_update:
+            updates = {}
+
+            new_start_datetime = new_schedules[schedule_id]["start_datetime"]
+            old_start_datetime = old_schedules[schedule_id]["start_datetime"]
+            if new_start_datetime != old_start_datetime:
+                updates[PatientTaskSchedule.start_datetime] = new_start_datetime
+
+            new_settings = new_schedules[schedule_id]["settings"]
+            old_settings = old_schedules[schedule_id]["settings"]
+            if new_settings != old_settings:
+                updates[PatientTaskSchedule.settings] = new_settings
+
+            if len(updates) > 0:
+                self.request.dbsession.query(PatientTaskSchedule).filter(
+                    PatientTaskSchedule.patient_pk == patient.pk,
+                    PatientTaskSchedule.schedule_id == schedule_id
+                ).update(updates, synchronize_session="fetch")
+
+                changes["schedule{} ({})".format(
+                    schedule_id, schedule_name_dict[schedule_id]
+                )] = ((old_start_datetime, old_settings),
+                      (new_start_datetime, new_settings))
+
+        self.request.dbsession.query(PatientTaskSchedule).filter(
+            PatientTaskSchedule.patient_pk == patient.pk,
+            PatientTaskSchedule.schedule_id.in_(ids_to_delete)
+        ).delete(synchronize_session="fetch")
+
+        for schedule_id in ids_to_delete:
+            old_start_datetime = old_schedules[schedule_id]["start_datetime"]
+            old_settings = old_schedules[schedule_id]["settings"]
+
+            changes["schedule{} ({})".format(
+                schedule_id, schedule_name_dict[schedule_id]
+            )] = ((old_start_datetime, old_settings), (None, None))
+
+
+class EditFinalizedPatientView(EditPatientBaseView):
+    """
+    View to edit a finalized patient.
+    """
+    template_name = "finalized_patient_edit.mako"
+    form_class = EditFinalizedPatientForm
+
+    def get_success_url(self) -> str:
+        return self.request.route_url(Routes.HOME)
+
+    def get_object(self) -> Any:
+        patient = cast(Patient, super().get_object())
+
+        if not patient.is_finalized(self.request):
+            _ = self.request.gettext
+
+            raise HTTPBadRequest(
+                _("Patient is not editable (likely: not finalized, so a copy "
+                  "still on a client device)"))
+
+        return patient
+
+
+@view_config(route_name=Routes.EDIT_FINALIZED_PATIENT,
+             permission=Permission.GROUPADMIN,
+             http_cache=NEVER_CACHE)
+def edit_finalized_patient(req: "CamcopsRequest") -> Response:
+    """
+    View to edit details for a patient.
+    """
+    return EditFinalizedPatientView(req).dispatch()
+
+
+@view_config(route_name=Routes.EDIT_SERVER_CREATED_PATIENT,
+             permission=Permission.GROUPADMIN,
+             http_cache=NEVER_CACHE)
+def edit_server_created_patient(req: "CamcopsRequest") -> Response:
+    """
+    View to edit details for a patient created on the server (for scheduling
+    tasks).
+    """
+    return EditServerCreatedPatientView(req).dispatch()
+
+
+class AddPatientView(PatientMixin, CreateView):
+    """
+    View to add a patient (for task scheduling).
+    """
+    form_class = EditServerCreatedPatientForm
+    template_name = "patient_add.mako"
+
+    def get_success_url(self) -> str:
+        return self.request.route_url(
+            Routes.VIEW_PATIENT_TASK_SCHEDULES
+        )
+
+    def save_object(self, appstruct: Dict[str, Any]) -> None:
+        server_device = Device.get_server_device(
+            self.request.dbsession
+        )
+
+        patient = Patient()
+        patient.create_fresh(
+            self.request,
+            device_id=server_device.id,
+            era=ERA_NOW,
+            group_id=appstruct.get(ViewParam.GROUP_ID)
+        )
+
+        for k in EDIT_PATIENT_SIMPLE_PARAMS:
+            new_value = appstruct.get(k)
+            setattr(patient, k, new_value)
+
+        saved_ok = False
+
+        # MySql doesn't support "select for update" so we have to keep
+        # trying the next available patient ID and checking for an integrity
+        # error in case another user has grabbed it by the time we have
+        # committed
+        # noinspection PyProtectedMember
+        last_patient_id = (
+            self.request.dbsession
+            # func.max(Patient.id) + 1 here will do the right thing for
+            # backends that support select for update (maybe not for no rows)
+            .query(func.max(Patient.id))
+            .filter(Patient._device_id == server_device.id)
+            .filter(Patient._era == ERA_NOW)
+            .scalar()
+        ) or 0
+
+        next_patient_id = last_patient_id + 1
+
+        while not saved_ok:
+            patient.id = next_patient_id
+
+            self.request.dbsession.add(patient)
+
+            try:
+                self.request.dbsession.flush()
+                saved_ok = True
+            except IntegrityError:
+                self.request.dbsession.rollback()
+                next_patient_id += 1
+
+        new_idrefs = [
+            IdNumReference(which_idnum=idrefdict[ViewParam.WHICH_IDNUM],
+                           idnum_value=idrefdict[ViewParam.IDNUM_VALUE])
+            for idrefdict in appstruct.get(ViewParam.ID_REFERENCES)
+        ]
+
+        for idref in new_idrefs:
+            new_idnum = PatientIdNum()
+            new_idnum.id = 0
+            new_idnum.patient_id = patient.id
+            new_idnum.which_idnum = idref.which_idnum
+            new_idnum.idnum_value = idref.idnum_value
+            new_idnum.create_fresh(
+                self.request,
+                device_id=server_device.id,
+                era=ERA_NOW,
+                group_id=appstruct.get(ViewParam.GROUP_ID)
+            )
+
+            self.request.dbsession.add(new_idnum)
+
+        task_schedules = appstruct.get(ViewParam.TASK_SCHEDULES)
+
+        self.request.dbsession.commit()
+
+        for task_schedule in task_schedules:
+            schedule_id = task_schedule[ViewParam.SCHEDULE_ID]
+            start_datetime = task_schedule[ViewParam.START_DATETIME]
+            settings = task_schedule[ViewParam.SETTINGS]
+            patient_task_schedule = PatientTaskSchedule()
+            patient_task_schedule.patient_pk = patient.pk
+            patient_task_schedule.schedule_id = schedule_id
+            patient_task_schedule.start_datetime = start_datetime
+            patient_task_schedule.settings = settings
+
+            self.request.dbsession.add(patient_task_schedule)
+
+        self.object = patient
+
+
+@view_config(route_name=Routes.ADD_PATIENT,
+             permission=Permission.GROUPADMIN,
+             http_cache=NEVER_CACHE)
+def add_patient(req: "CamcopsRequest") -> Response:
+    """
+    View to add a patient.
+    """
+    return AddPatientView(req).dispatch()
+
+
+class DeleteServerCreatedPatientView(DeleteView):
+    """
+    View to delete a patient that had been created on the server.
+    """
+    form_class = DeleteServerCreatedPatientForm
+    object_class = Patient
+    pk_param = ViewParam.SERVER_PK
+    server_pk_name = "_pk"
+    template_name = "generic_form.mako"
+
+    def get_extra_context(self) -> Dict[str, Any]:
+        _ = self.request.gettext
+        return {
+            "title": _("Delete patient"),
+        }
+
+    def get_success_url(self) -> str:
+        return self.request.route_url(
+            Routes.VIEW_PATIENT_TASK_SCHEDULES
+        )
+
+    def delete(self) -> None:
+        patient = cast(Patient, self.object)
+
+        PatientIdNumIndexEntry.unindex_patient(
+            patient, self.request.dbsession
+        )
+
+        patient.delete_with_dependants(self.request)
+
+
+@view_config(route_name=Routes.DELETE_SERVER_CREATED_PATIENT,
+             permission=Permission.GROUPADMIN,
+             http_cache=NEVER_CACHE)
+def delete_server_created_patient(req: "CamcopsRequest") -> Response:
+    """
+    Page to delete a patient created on the server (as part of task
+    scheduling).
+    """
+    return DeleteServerCreatedPatientView(req).dispatch()
+
+
+# =============================================================================
+# Task scheduling
+# =============================================================================
+
+@view_config(route_name=Routes.VIEW_TASK_SCHEDULES,
+             permission=Permission.GROUPADMIN,
+             renderer="view_task_schedules.mako",
+             http_cache=NEVER_CACHE)
+def view_task_schedules(req: "CamcopsRequest") -> Dict[str, Any]:
+    """
+    View whole task schedules.
+    """
+    rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
+                                      DEFAULT_ROWS_PER_PAGE)
+    page_num = req.get_int_param(ViewParam.PAGE, 1)
+    group_ids = req.user.ids_of_groups_user_is_admin_for
+    q = req.dbsession.query(TaskSchedule).join(TaskSchedule.group).filter(
+        TaskSchedule.group_id.in_(group_ids)
+    ).order_by(Group.name, TaskSchedule.name)
+    page = SqlalchemyOrmPage(query=q,
+                             page=page_num,
+                             items_per_page=rows_per_page,
+                             url_maker=PageUrl(req),
+                             request=req)
+    return dict(page=page)
+
+
+@view_config(route_name=Routes.VIEW_TASK_SCHEDULE_ITEMS,
+             permission=Permission.GROUPADMIN,
+             renderer="view_task_schedule_items.mako",
+             http_cache=NEVER_CACHE)
+def view_task_schedule_items(req: "CamcopsRequest") -> Dict[str, Any]:
+    """
+    View items within a task schedule.
+    """
+    rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
+                                      DEFAULT_ROWS_PER_PAGE)
+    page_num = req.get_int_param(ViewParam.PAGE, 1)
+    schedule_id = req.get_int_param(ViewParam.SCHEDULE_ID)
+
+    schedule = req.dbsession.query(TaskSchedule).filter(
+        TaskSchedule.id == schedule_id
+    ).one_or_none()
+
+    if schedule is None:
+        _ = req.gettext
+        raise HTTPBadRequest(_("Schedule does not exist"))
+
+    q = req.dbsession.query(TaskScheduleItem).filter(
+        TaskScheduleItem.schedule_id == schedule_id
+    ).order_by(*task_schedule_item_sort_order())
+    page = SqlalchemyOrmPage(query=q,
+                             page=page_num,
+                             items_per_page=rows_per_page,
+                             url_maker=PageUrl(req),
+                             request=req)
+    return dict(page=page, schedule_name=schedule.name)
+
+
+@view_config(route_name=Routes.VIEW_PATIENT_TASK_SCHEDULES,
+             permission=Permission.GROUPADMIN,
+             renderer="view_patient_task_schedules.mako",
+             http_cache=NEVER_CACHE)
+def view_patient_task_schedules(req: "CamcopsRequest") -> Dict[str, Any]:
+    """
+    View all patients and their assigned schedules (as well as their access
+    keys, etc.).
+    """
+    server_device = Device.get_server_device(req.dbsession)
+
+    rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
+                                      DEFAULT_ROWS_PER_PAGE)
+    page_num = req.get_int_param(ViewParam.PAGE, 1)
+    allowed_group_ids = req.user.ids_of_groups_user_is_admin_for
+    # noinspection PyProtectedMember
+    q = (
+        req.dbsession.query(Patient)
+        .filter(Patient._era == ERA_NOW)
+        .filter(Patient._group_id.in_(allowed_group_ids))
+        .filter(Patient._device_id == server_device.id)
+        .order_by(Patient.surname, Patient.forename)
+        .options(joinedload("task_schedules"))
+    )
+
+    page = SqlalchemyOrmPage(query=q,
+                             page=page_num,
+                             items_per_page=rows_per_page,
+                             url_maker=PageUrl(req),
+                             request=req)
+    return dict(page=page)
+
+
+@view_config(route_name=Routes.VIEW_PATIENT_TASK_SCHEDULE,
+             permission=Permission.GROUPADMIN,
+             renderer="view_patient_task_schedule.mako",
+             http_cache=NEVER_CACHE)
+def view_patient_task_schedule(req: "CamcopsRequest") -> Dict[str, Any]:
+    """
+    View scheduled tasks for one patient's specific task schedule.
+    """
+    pts_id = req.get_int_param(ViewParam.PATIENT_TASK_SCHEDULE_ID)
+
+    pts = req.dbsession.query(PatientTaskSchedule).filter(
+        PatientTaskSchedule.id == pts_id).options(
+            joinedload("patient.idnums"),
+            joinedload("task_schedule.items"),
+    ).one_or_none()
+
+    if pts is None:
+        _ = req.gettext
+        raise HTTPBadRequest(_("Patient's task schedule does not exist"))
+
+    patient_descriptor = pts.patient.prettystr(req)
+
+    return dict(
+        patient_descriptor=patient_descriptor,
+        schedule_name=pts.task_schedule.name,
+        task_list=pts.get_list_of_scheduled_tasks(req),
+    )
+
+
+class TaskScheduleMixin(object):
+    """
+    Mixin for viewing/editing a task schedule.
+    """
+    form_class = EditTaskScheduleForm
+    model_form_dict = {
+        "name": ViewParam.NAME,
+        "group_id": ViewParam.GROUP_ID,
+    }
+    object_class = TaskSchedule
+    request: "CamcopsRequest"
+    server_pk_name = "id"
+    template_name = "generic_form.mako"
+
+    def get_success_url(self) -> str:
+        return self.request.route_url(
+            Routes.VIEW_TASK_SCHEDULES
+        )
+
+    def get_object(self) -> Any:
+        # noinspection PyUnresolvedReferences
+        schedule = cast(TaskSchedule, super().get_object())
+
+        if not schedule.user_may_edit(self.request):
+            _ = self.request.gettext
+            raise HTTPBadRequest(_("You a not a group administrator for this "
+                                   "task schedule's group"))
+
+        return schedule
+
+
+class AddTaskScheduleView(TaskScheduleMixin, CreateView):
+    """
+    Django-style view class to add a task schedule.
+    """
+    def get_extra_context(self) -> Dict[str, Any]:
+        _ = self.request.gettext
+        return {
+            "title": _("Add a task schedule"),
+        }
+
+
+class EditTaskScheduleView(TaskScheduleMixin, UpdateView):
+    """
+    Django-style view class to edit a task schedule.
+    """
+    pk_param = ViewParam.SCHEDULE_ID
+
+    def get_extra_context(self) -> Dict[str, Any]:
+        _ = self.request.gettext
+        return {
+            "title": _("Edit details for a task schedule"),
+        }
+
+
+class DeleteTaskScheduleView(TaskScheduleMixin, DeleteView):
+    """
+    Django-style view class to delete a task schedule.
+    """
+    form_class = DeleteTaskScheduleForm
+    pk_param = ViewParam.SCHEDULE_ID
+
+    def get_extra_context(self) -> Dict[str, Any]:
+        _ = self.request.gettext
+        return {
+            "title": _("Delete a task schedule"),
+        }
+
+
+@view_config(route_name=Routes.ADD_TASK_SCHEDULE,
+             permission=Permission.GROUPADMIN,
+             http_cache=NEVER_CACHE)
+def add_task_schedule(req: "CamcopsRequest") -> Response:
+    """
+    View to add a task schedule.
+    """
+    return AddTaskScheduleView(req).dispatch()
+
+
+@view_config(route_name=Routes.EDIT_TASK_SCHEDULE,
+             permission=Permission.GROUPADMIN)
+def edit_task_schedule(req: "CamcopsRequest") -> Response:
+    """
+    View to edit a task schedule.
+    """
+    return EditTaskScheduleView(req).dispatch()
+
+
+@view_config(route_name=Routes.DELETE_TASK_SCHEDULE,
+             permission=Permission.GROUPADMIN)
+def delete_task_schedule(req: "CamcopsRequest") -> Response:
+    """
+    View to delete a task schedule.
+    """
+    return DeleteTaskScheduleView(req).dispatch()
+
+
+class TaskScheduleItemMixin(object):
+    """
+    Mixin for viewing/editing a task schedule items.
+    """
+    form_class = EditTaskScheduleItemForm
+    template_name = "generic_form.mako"
+    model_form_dict = {
+        "schedule_id": ViewParam.SCHEDULE_ID,
+        "task_table_name": ViewParam.TABLE_NAME,
+        "due_from": ViewParam.DUE_FROM,
+        # we need to convert due_within to due_by
+    }
+    object: Any
+    # noinspection PyTypeChecker
+    object_class = cast(Type["Base"], TaskScheduleItem)
+    pk_param = ViewParam.SCHEDULE_ITEM_ID
+    request: "CamcopsRequest"
+    server_pk_name = "id"
+
+    def get_success_url(self) -> str:
+        # noinspection PyUnresolvedReferences
+        return self.request.route_url(
+            Routes.VIEW_TASK_SCHEDULE_ITEMS,
+            _query={
+                ViewParam.SCHEDULE_ID: self.get_schedule_id(),
+            }
+        )
+
+
+class EditTaskScheduleItemMixin(TaskScheduleItemMixin):
+    """
+    Django-style view class to edit a task schedule item.
+    """
+    def set_object_properties(self, appstruct: Dict[str, Any]) -> None:
+        # noinspection PyUnresolvedReferences
+        super().set_object_properties(appstruct)
+
+        due_from = appstruct.get(ViewParam.DUE_FROM)
+        due_within = appstruct.get(ViewParam.DUE_WITHIN)
+
+        setattr(self.object, "due_by", due_from + due_within)
+
+    def get_schedule(self) -> TaskSchedule:
+        # noinspection PyUnresolvedReferences
+        schedule_id = self.get_schedule_id()
+
+        schedule = self.request.dbsession.query(TaskSchedule).filter(
+            TaskSchedule.id == schedule_id
+        ).one_or_none()
+
+        if schedule is None:
+            _ = self.request.gettext
+            raise HTTPBadRequest(
+                f"{_('Missing Task Schedule for id')} {schedule_id}"
+            )
+
+        if not schedule.user_may_edit(self.request):
+            _ = self.request.gettext
+            raise HTTPBadRequest(_("You a not a group administrator for this "
+                                   "task schedule's group"))
+
+        return schedule
+
+
+class AddTaskScheduleItemView(EditTaskScheduleItemMixin, CreateView):
+    """
+    Django-style view class to add a task schedule item.
+    """
+    def get_extra_context(self) -> Dict[str, Any]:
+        _ = self.request.gettext
+
+        schedule = self.get_schedule()
+
+        return {
+            "title": _("Add an item to the {schedule_name} schedule").format(
+                schedule_name=schedule.name),
+        }
+
+    def get_schedule_id(self) -> int:
+        return self.request.get_int_param(ViewParam.SCHEDULE_ID)
+
+    def get_form_values(self) -> Dict:
+        schedule = self.get_schedule()
+
+        form_values = super().get_form_values()
+        form_values[ViewParam.SCHEDULE_ID] = schedule.id
+
+        return form_values
+
+
+class EditTaskScheduleItemView(EditTaskScheduleItemMixin, UpdateView):
+    """
+    Django-style view class to edit a task schedule item.
+    """
+    def get_extra_context(self) -> Dict[str, Any]:
+        _ = self.request.gettext
+        return {
+            "title": _("Edit details for a task schedule item"),
+        }
+
+    def get_schedule_id(self) -> int:
+        item = cast(TaskScheduleItem, self.object)
+
+        return item.schedule_id
+
+    def get_form_values(self) -> Dict:
+        schedule = self.get_schedule()
+
+        form_values = super().get_form_values()
+        form_values[ViewParam.SCHEDULE_ID] = schedule.id
+
+        item = cast(TaskScheduleItem, self.object)
+        due_within = item.due_by - form_values[ViewParam.DUE_FROM]
+        form_values[ViewParam.DUE_WITHIN] = due_within
+
+        return form_values
+
+
+class DeleteTaskScheduleItemView(TaskScheduleItemMixin, DeleteView):
+    """
+    Django-style view class to delete a task schedule item.
+    """
+    form_class = DeleteTaskScheduleItemForm
+
+    def get_extra_context(self) -> Dict[str, Any]:
+        _ = self.request.gettext
+        return {
+            "title": _("Delete a task schedule item"),
+        }
+
+    def get_schedule_id(self) -> int:
+        item = cast(TaskScheduleItem, self.object)
+
+        return item.schedule_id
+
+
+@view_config(route_name=Routes.ADD_TASK_SCHEDULE_ITEM,
+             permission=Permission.GROUPADMIN)
+def add_task_schedule_item(req: "CamcopsRequest") -> Response:
+    """
+    View to add a task schedule item.
+    """
+    return AddTaskScheduleItemView(req).dispatch()
+
+
+@view_config(route_name=Routes.EDIT_TASK_SCHEDULE_ITEM,
+             permission=Permission.GROUPADMIN)
+def edit_task_schedule_item(req: "CamcopsRequest") -> Response:
+    """
+    View to edit a task schedule item.
+    """
+    return EditTaskScheduleItemView(req).dispatch()
+
+
+@view_config(route_name=Routes.DELETE_TASK_SCHEDULE_ITEM,
+             permission=Permission.GROUPADMIN)
+def delete_task_schedule_item(req: "CamcopsRequest") -> Response:
+    """
+    View to delete a task schedule item.
+    """
+    return DeleteTaskScheduleItemView(req).dispatch()
 
 
 # =============================================================================
@@ -3597,7 +4494,11 @@ def static_bugfix_deform_missing_glyphs(req: "CamcopsRequest") -> Response:
     """
     Hack for a missing-file bug in ``deform==2.0.4``.
     """
-    return FileResponse(DEFORM_MISSING_GLYPH, request=req)
+    return FileResponse(
+        path=DEFORM_MISSING_GLYPH,
+        request=req,
+        cache_max_age=req.config.static_cache_duration_s
+    )
 
 
 # =============================================================================
@@ -3608,12 +4509,12 @@ class WebviewTests(DemoDatabaseTestCase):
     """
     Unit tests.
     """
-    def test_any_records_use_group_true(self):
+    def test_any_records_use_group_true(self) -> None:
         # All tasks created in DemoDatabaseTestCase will be in this group
         self.announce("test_any_records_use_group_true")
         self.assertTrue(any_records_use_group(self.req, self.group))
 
-    def test_any_records_use_group_false(self):
+    def test_any_records_use_group_false(self) -> None:
         """
         If this fails with:
         sqlalchemy.exc.InvalidRequestError: SQL expression, column, or mapped
@@ -3624,6 +4525,1959 @@ class WebviewTests(DemoDatabaseTestCase):
         self.announce("test_any_records_use_group_false")
         group = Group()
         self.dbsession.add(self.group)
-        self.dbsession.flush()
+        self.dbsession.commit()
 
         self.assertFalse(any_records_use_group(self.req, group))
+
+
+class AddTaskScheduleViewTests(DemoDatabaseTestCase):
+    """
+    Unit tests.
+    """
+    def test_schedule_form_displayed(self) -> None:
+        view = AddTaskScheduleView(self.req)
+
+        response = view.dispatch()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.body.decode("utf-8").count("<form"), 1)
+
+    def test_schedule_is_created(self) -> None:
+        multidict = MultiDict([
+            ("_charset_", "UTF-8"),
+            ("__formid__", "deform"),
+            (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
+            (ViewParam.NAME, "MOJO"),
+            (ViewParam.GROUP_ID, self.group.id),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+
+        view = AddTaskScheduleView(self.req)
+
+        with self.assertRaises(HTTPFound) as e:
+            view.dispatch()
+
+        schedule = self.dbsession.query(TaskSchedule).one()
+
+        self.assertEqual(schedule.name, "MOJO")
+
+        self.assertEqual(e.exception.status_code, 302)
+        self.assertIn(
+            "view_task_schedules",
+            e.exception.headers["Location"]
+        )
+
+
+class EditTaskScheduleViewTests(DemoDatabaseTestCase):
+    """
+    Unit tests.
+    """
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.schedule = TaskSchedule()
+        self.schedule.group_id = self.group.id
+        self.schedule.name = "Test"
+        self.dbsession.add(self.schedule)
+        self.dbsession.commit()
+
+    def test_schedule_name_can_be_updated(self) -> None:
+        multidict = MultiDict([
+            ("_charset_", "UTF-8"),
+            ("__formid__", "deform"),
+            (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
+            (ViewParam.NAME, "MOJO"),
+            (ViewParam.GROUP_ID, self.group.id),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+        self.req.add_get_params({
+            ViewParam.SCHEDULE_ID: str(self.schedule.id)
+        }, set_method_get=False)
+
+        view = EditTaskScheduleView(self.req)
+
+        with self.assertRaises(HTTPFound) as e:
+            view.dispatch()
+
+        schedule = self.dbsession.query(TaskSchedule).one()
+
+        self.assertEqual(schedule.name, "MOJO")
+
+        self.assertEqual(e.exception.status_code, 302)
+        self.assertIn(
+            "view_task_schedules",
+            e.exception.headers["Location"]
+        )
+
+    def test_group_a_schedule_cannot_be_edited_by_group_b_admin(self) -> None:
+        group_a = Group()
+        group_a.name = "Group A"
+        self.dbsession.add(group_a)
+
+        group_b = Group()
+        group_b.name = "Group B"
+        self.dbsession.add(group_b)
+        self.dbsession.commit()
+
+        group_a_schedule = TaskSchedule()
+        group_a_schedule.group_id = group_a.id
+        group_a_schedule.name = "Group A schedule"
+        self.dbsession.add(group_a_schedule)
+        self.dbsession.commit()
+
+        self.user = User()
+        self.user.upload_group_id = group_b.id
+        self.user.username = "group b admin"
+        self.user.set_password(self.req, "secret123")
+        self.dbsession.add(self.user)
+        self.dbsession.commit()
+        self.req._debugging_user = self.user
+
+        multidict = MultiDict([
+            ("_charset_", "UTF-8"),
+            ("__formid__", "deform"),
+            (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
+            (ViewParam.NAME, "Something else"),
+            (ViewParam.GROUP_ID, self.group.id),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+        self.req.add_get_params({
+            ViewParam.SCHEDULE_ID: str(self.schedule.id)
+        }, set_method_get=False)
+
+        view = EditTaskScheduleView(self.req)
+
+        with self.assertRaises(HTTPBadRequest) as cm:
+            view.dispatch()
+
+        self.assertIn(
+            "not a group administrator",
+            cm.exception.message
+        )
+
+
+class DeleteTaskScheduleViewTests(DemoDatabaseTestCase):
+    """
+    Unit tests.
+    """
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.schedule = TaskSchedule()
+        self.schedule.group_id = self.group.id
+        self.schedule.name = "Test"
+        self.dbsession.add(self.schedule)
+        self.dbsession.commit()
+
+    def test_schedule_item_is_deleted(self) -> None:
+        multidict = MultiDict([
+            ("_charset_", "UTF-8"),
+            ("__formid__", "deform"),
+            (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
+            ("confirm_1_t", "true"),
+            ("confirm_2_t", "true"),
+            ("confirm_4_t", "true"),
+            ("__start__", "danger:mapping"),
+            ("target", "7176"),
+            ("user_entry", "7176"),
+            ("__end__", "danger:mapping"),
+            ("delete", "delete"),
+            (FormAction.DELETE, "delete"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+
+        self.req.add_get_params({
+            ViewParam.SCHEDULE_ID: str(self.schedule.id)
+        }, set_method_get=False)
+        view = DeleteTaskScheduleView(self.req)
+
+        with self.assertRaises(HTTPFound) as e:
+            view.dispatch()
+
+        self.assertEqual(e.exception.status_code, 302)
+        self.assertIn(
+            "view_task_schedules",
+            e.exception.headers["Location"]
+        )
+
+        item = self.dbsession.query(TaskScheduleItem).one_or_none()
+
+        self.assertIsNone(item)
+
+
+class AddTaskScheduleItemViewTests(DemoDatabaseTestCase):
+    """
+    Unit tests.
+    """
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.schedule = TaskSchedule()
+        self.schedule.group_id = self.group.id
+        self.schedule.name = "Test"
+
+        self.dbsession.add(self.schedule)
+        self.dbsession.commit()
+
+    def test_schedule_item_form_displayed(self) -> None:
+        view = AddTaskScheduleItemView(self.req)
+
+        self.req.add_get_params({ViewParam.SCHEDULE_ID: str(self.schedule.id)})
+
+        response = view.dispatch()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.body.decode("utf-8").count("<form"), 1)
+
+    def test_schedule_item_is_created(self) -> None:
+        multidict = MultiDict([
+            ("_charset_", "UTF-8"),
+            ("__formid__", "deform"),
+            (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
+            (ViewParam.SCHEDULE_ID, self.schedule.id),
+            (ViewParam.TABLE_NAME, "ace3"),
+            (ViewParam.CLINICIAN_CONFIRMATION, "true"),
+            ("__start__", "due_from:mapping"),
+            ("months", "1"),
+            ("weeks", "2"),
+            ("days", "3"),
+            ("__end__", "due_from:mapping"),
+            ("__start__", "due_within:mapping"),
+            ("months", "2"),  # 60 days
+            ("weeks", "3"),   # 21 days
+            ("days", "15"),   # 15 days
+            ("__end__", "due_within:mapping"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+
+        view = AddTaskScheduleItemView(self.req)
+
+        with self.assertRaises(HTTPFound) as e:
+            view.dispatch()
+
+        item = self.dbsession.query(TaskScheduleItem).one()
+
+        self.assertEqual(item.schedule_id, self.schedule.id)
+        self.assertEqual(item.task_table_name, "ace3")
+        self.assertEqual(item.due_from.in_days(), 47)
+        self.assertEqual(item.due_by.in_days(), 143)
+
+        self.assertEqual(e.exception.status_code, 302)
+        self.assertIn(
+            f"view_task_schedule_items?schedule_id={self.schedule.id}",
+            e.exception.headers["Location"]
+        )
+
+    def test_schedule_item_is_not_created_on_cancel(self) -> None:
+        multidict = MultiDict([
+            ("_charset_", "UTF-8"),
+            ("__formid__", "deform"),
+            (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
+            (ViewParam.SCHEDULE_ID, self.schedule.id),
+            (ViewParam.TABLE_NAME, "ace3"),
+            ("__start__", "due_from:mapping"),
+            ("months", "1"),
+            ("weeks", "2"),
+            ("days", "3"),
+            ("__end__", "due_from:mapping"),
+            ("__start__", "due_within:mapping"),
+            ("months", "4"),
+            ("weeks", "3"),
+            ("days", "2"),
+            ("__end__", "due_within:mapping"),
+            (FormAction.CANCEL, "cancel"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+
+        view = AddTaskScheduleItemView(self.req)
+
+        with self.assertRaises(HTTPFound):
+            view.dispatch()
+
+        item = self.dbsession.query(TaskScheduleItem).one_or_none()
+
+        self.assertIsNone(item)
+
+    def test_non_existent_schedule_handled(self) -> None:
+        self.req.add_get_params({ViewParam.SCHEDULE_ID: "99999"})
+
+        view = AddTaskScheduleItemView(self.req)
+
+        with self.assertRaises(HTTPBadRequest):
+            view.dispatch()
+
+
+class EditTaskScheduleItemViewTests(DemoDatabaseTestCase):
+    """
+    Unit tests.
+    """
+    def setUp(self) -> None:
+        from pendulum import Duration
+        super().setUp()
+
+        self.schedule = TaskSchedule()
+        self.schedule.group_id = self.group.id
+        self.schedule.name = "Test"
+        self.dbsession.add(self.schedule)
+        self.dbsession.commit()
+
+        self.item = TaskScheduleItem()
+        self.item.schedule_id = self.schedule.id
+        self.item.task_table_name = "ace3"
+        self.item.due_from = Duration(days=30)
+        self.item.due_by = Duration(days=60)
+        self.dbsession.add(self.item)
+        self.dbsession.commit()
+
+    def test_schedule_item_is_updated(self) -> None:
+        multidict = MultiDict([
+            ("_charset_", "UTF-8"),
+            ("__formid__", "deform"),
+            (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
+            (ViewParam.SCHEDULE_ID, self.schedule.id),
+            (ViewParam.TABLE_NAME, "bmi"),
+            ("__start__", "due_from:mapping"),
+            ("months", "0"),
+            ("weeks", "0"),
+            ("days", "30"),
+            ("__end__", "due_from:mapping"),
+            ("__start__", "due_within:mapping"),
+            ("months", "0"),
+            ("weeks", "0"),
+            ("days", "60"),
+            ("__end__", "due_within:mapping"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+
+        self.req.add_get_params({
+            ViewParam.SCHEDULE_ITEM_ID: str(self.item.id)
+        }, set_method_get=False)
+        view = EditTaskScheduleItemView(self.req)
+
+        with self.assertRaises(HTTPFound) as cm:
+            view.dispatch()
+
+        self.assertEqual(self.item.task_table_name, "bmi")
+        self.assertEqual(cm.exception.status_code, 302)
+        self.assertIn(
+            f"view_task_schedule_items?schedule_id={self.item.schedule_id}",
+            cm.exception.headers["Location"]
+        )
+
+    def test_schedule_item_is_not_updated_on_cancel(self) -> None:
+        multidict = MultiDict([
+            ("_charset_", "UTF-8"),
+            ("__formid__", "deform"),
+            (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
+            (ViewParam.SCHEDULE_ID, self.schedule.id),
+            (ViewParam.TABLE_NAME, "bmi"),
+            ("__start__", "due_from:mapping"),
+            ("months", "0"),
+            ("weeks", "0"),
+            ("days", "30"),
+            ("__end__", "due_from:mapping"),
+            ("__start__", "due_within:mapping"),
+            ("months", "0"),
+            ("weeks", "0"),
+            ("days", "60"),
+            ("__end__", "due_within:mapping"),
+            (FormAction.CANCEL, "cancel"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+
+        self.req.add_get_params({
+            ViewParam.SCHEDULE_ITEM_ID: str(self.item.id)
+        }, set_method_get=False)
+        view = EditTaskScheduleItemView(self.req)
+
+        with self.assertRaises(HTTPFound):
+            view.dispatch()
+
+        self.assertEqual(self.item.task_table_name, "ace3")
+
+    def test_non_existent_item_handled(self) -> None:
+        self.req.add_get_params({ViewParam.SCHEDULE_ITEM_ID: "99999"})
+
+        view = EditTaskScheduleItemView(self.req)
+
+        with self.assertRaises(HTTPBadRequest):
+            view.dispatch()
+
+    def test_null_item_handled(self) -> None:
+        view = EditTaskScheduleItemView(self.req)
+
+        with self.assertRaises(HTTPBadRequest):
+            view.dispatch()
+
+    def test_get_form_values(self) -> None:
+        view = EditTaskScheduleItemView(self.req)
+        view.object = self.item
+
+        form_values = view.get_form_values()
+
+        self.assertEqual(form_values[ViewParam.SCHEDULE_ID], self.schedule.id)
+        self.assertEqual(form_values[ViewParam.TABLE_NAME],
+                         self.item.task_table_name)
+        self.assertEqual(form_values[ViewParam.DUE_FROM], self.item.due_from)
+
+        due_within = self.item.due_by - self.item.due_from
+        self.assertEqual(form_values[ViewParam.DUE_WITHIN], due_within)
+
+    def test_group_a_item_cannot_be_edited_by_group_b_admin(self) -> None:
+        from pendulum import Duration
+
+        group_a = Group()
+        group_a.name = "Group A"
+        self.dbsession.add(group_a)
+
+        group_b = Group()
+        group_b.name = "Group B"
+        self.dbsession.add(group_b)
+        self.dbsession.commit()
+
+        group_a_schedule = TaskSchedule()
+        group_a_schedule.group_id = group_a.id
+        group_a_schedule.name = "Group A schedule"
+        self.dbsession.add(group_a_schedule)
+        self.dbsession.commit()
+
+        group_a_item = TaskScheduleItem()
+        group_a_item.schedule_id = group_a_schedule.id
+        group_a_item.task_table_name = "ace3"
+        group_a_item.due_from = Duration(days=30)
+        group_a_item.due_by = Duration(days=60)
+        self.dbsession.add(group_a_item)
+        self.dbsession.commit()
+
+        self.user = User()
+        self.user.upload_group_id = group_b.id
+        self.user.username = "group b admin"
+        self.user.set_password(self.req, "secret123")
+        self.dbsession.add(self.user)
+        self.dbsession.commit()
+        self.req._debugging_user = self.user
+
+        view = EditTaskScheduleItemView(self.req)
+        view.object = group_a_item
+
+        with self.assertRaises(HTTPBadRequest) as cm:
+            view.get_schedule()
+
+        self.assertIn(
+            "not a group administrator",
+            cm.exception.message
+        )
+
+
+class DeleteTaskScheduleItemViewTests(DemoDatabaseTestCase):
+    """
+    Unit tests.
+    """
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.schedule = TaskSchedule()
+        self.schedule.group_id = self.group.id
+        self.schedule.name = "Test"
+        self.dbsession.add(self.schedule)
+        self.dbsession.commit()
+
+        self.item = TaskScheduleItem()
+        self.item.schedule_id = self.schedule.id
+        self.item.task_table_name = "ace3"
+        self.dbsession.add(self.item)
+        self.dbsession.commit()
+
+    def test_delete_form_displayed(self) -> None:
+        view = DeleteTaskScheduleItemView(self.req)
+
+        self.req.add_get_params({ViewParam.SCHEDULE_ITEM_ID: str(self.item.id)})
+
+        response = view.dispatch()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.body.decode("utf-8").count("<form"), 1)
+
+    def test_errors_displayed_when_deletion_validation_fails(self) -> None:
+        self.req.fake_request_post_from_dict({
+            FormAction.DELETE: "delete"
+        })
+
+        self.req.add_get_params({
+            ViewParam.SCHEDULE_ITEM_ID: str(self.item.id)
+        }, set_method_get=False)
+        view = DeleteTaskScheduleItemView(self.req)
+
+        response = view.dispatch()
+        self.assertIn("Errors have been highlighted",
+                      response.body.decode("utf-8"))
+
+    def test_schedule_item_is_deleted(self) -> None:
+        multidict = MultiDict([
+            ("_charset_", "UTF-8"),
+            ("__formid__", "deform"),
+            (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
+            ("confirm_1_t", "true"),
+            ("confirm_2_t", "true"),
+            ("confirm_4_t", "true"),
+            ("__start__", "danger:mapping"),
+            ("target", "7176"),
+            ("user_entry", "7176"),
+            ("__end__", "danger:mapping"),
+            ("delete", "delete"),
+            (FormAction.DELETE, "delete"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+
+        self.req.add_get_params({
+            ViewParam.SCHEDULE_ITEM_ID: str(self.item.id)
+        }, set_method_get=False)
+        view = DeleteTaskScheduleItemView(self.req)
+
+        with self.assertRaises(HTTPFound) as e:
+            view.dispatch()
+
+        self.assertEqual(e.exception.status_code, 302)
+        self.assertIn(
+            f"view_task_schedule_items?schedule_id={self.item.schedule_id}",
+            e.exception.headers["Location"]
+        )
+
+        item = self.dbsession.query(TaskScheduleItem).one_or_none()
+
+        self.assertIsNone(item)
+
+    def test_schedule_item_not_deleted_on_cancel(self) -> None:
+        self.req.fake_request_post_from_dict({
+            FormAction.CANCEL: "cancel"
+        })
+
+        self.req.add_get_params({
+            ViewParam.SCHEDULE_ITEM_ID: str(self.item.id)
+        }, set_method_get=False)
+        view = DeleteTaskScheduleItemView(self.req)
+
+        with self.assertRaises(HTTPFound):
+            view.dispatch()
+
+        item = self.dbsession.query(TaskScheduleItem).one_or_none()
+
+        self.assertIsNotNone(item)
+
+
+class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
+    """
+    Unit tests.
+    """
+    def create_tasks(self) -> None:
+        # speed things up a bit
+        pass
+
+    def test_raises_when_patient_does_not_exists(self) -> None:
+        with self.assertRaises(HTTPBadRequest) as cm:
+            edit_finalized_patient(self.req)
+
+        self.assertEqual(str(cm.exception), "Cannot find Patient with _pk:None")
+
+    @unittest.skip("Can't save patient in database without group")
+    def test_raises_when_patient_not_in_a_group(self) -> None:
+        patient = self.create_patient(_group_id=None)
+
+        self.req.add_get_params({
+            ViewParam.SERVER_PK: patient.pk
+        })
+
+        with self.assertRaises(HTTPBadRequest) as cm:
+            edit_finalized_patient(self.req)
+
+        self.assertEqual(str(cm.exception), "Bad patient: not in a group")
+
+    def test_raises_when_not_authorized(self) -> None:
+        patient = self.create_patient()
+
+        self.req._debugging_user = User()
+
+        with mock.patch.object(
+                self.req._debugging_user,
+                "may_administer_group",
+                return_value=False
+        ):
+            self.req.add_get_params({
+                ViewParam.SERVER_PK: patient.pk
+            })
+
+            with self.assertRaises(HTTPBadRequest) as cm:
+                edit_finalized_patient(self.req)
+
+        self.assertEqual(str(cm.exception),
+                         "Not authorized to edit this patient")
+
+    def test_raises_when_patient_not_finalized(self) -> None:
+        device = Device(name="Not the server device")
+        self.req.dbsession.add(device)
+        self.req.dbsession.commit()
+
+        patient = self.create_patient(
+            id=1, _device_id=device.id, _era=ERA_NOW
+        )
+
+        self.req.add_get_params({
+            ViewParam.SERVER_PK: patient.pk
+        })
+
+        with self.assertRaises(HTTPBadRequest) as cm:
+            edit_finalized_patient(self.req)
+
+        self.assertIn("Patient is not editable", str(cm.exception))
+
+    def test_patient_updated(self) -> None:
+        patient = self.create_patient()
+
+        self.req.add_get_params({
+            ViewParam.SERVER_PK: patient.pk
+        }, set_method_get=False)
+
+        multidict = MultiDict([
+            ("_charset_", "UTF-8"),
+            ("__formid__", "deform"),
+            (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
+            (ViewParam.SERVER_PK, patient.pk),
+            (ViewParam.GROUP_ID, patient.group.id),
+            (ViewParam.FORENAME, "Jo"),
+            (ViewParam.SURNAME, "Patient"),
+            ("__start__", "dob:mapping"),
+            ("date", "1958-04-19"),
+            ("__end__", "dob:mapping"),
+            ("__start__", "sex:rename"),
+            ("deformField7", "X"),
+            ("__end__", "sex:rename"),
+            (ViewParam.ADDRESS, "New address"),
+            (ViewParam.EMAIL, "newjopatient@example.com"),
+            (ViewParam.GP, "New GP"),
+            (ViewParam.OTHER, "New other"),
+            ("__start__", "id_references:sequence"),
+            ("__start__", "idnum_sequence:mapping"),
+            (ViewParam.WHICH_IDNUM, self.nhs_iddef.which_idnum),
+            (ViewParam.IDNUM_VALUE, "4887211163"),
+            ("__end__", "idnum_sequence:mapping"),
+            ("__end__", "id_references:sequence"),
+            ("__start__", "danger:mapping"),
+            ("target", "7836"),
+            ("user_entry", "7836"),
+            ("__end__", "danger:mapping"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+
+        with self.assertRaises(HTTPFound):
+            edit_finalized_patient(self.req)
+
+        self.dbsession.commit()
+
+        self.assertEqual(patient.forename, "Jo")
+        self.assertEqual(patient.surname, "Patient")
+        self.assertEqual(patient.dob.isoformat(), "1958-04-19")
+        self.assertEqual(patient.sex, "X")
+        self.assertEqual(patient.address, "New address")
+        self.assertEqual(patient.email, "newjopatient@example.com")
+        self.assertEqual(patient.gp, "New GP")
+        self.assertEqual(patient.other, "New other")
+
+        idnum = patient.get_idnum_objects()[0]
+        self.assertEqual(idnum.patient_id, 0)
+        self.assertEqual(idnum.which_idnum, self.nhs_iddef.which_idnum)
+        self.assertEqual(idnum.idnum_value, 4887211163)
+
+        self.assertEqual(len(patient.special_notes), 1)
+        note = patient.special_notes[0].note
+
+        self.assertIn("Patient details edited", note)
+        self.assertIn("forename", note)
+        self.assertIn("Jo", note)
+
+        self.assertIn("surname", note)
+        self.assertIn("Patient", note)
+
+        self.assertIn("idnum1", note)
+        self.assertIn("4887211163", note)
+
+        messages = self.req.session.peek_flash(FLASH_SUCCESS)
+
+        self.assertIn(f"Amended patient record with server PK {patient.pk}",
+                      messages[0])
+        self.assertIn("forename", messages[0])
+        self.assertIn("Jo", messages[0])
+
+        self.assertIn("surname", messages[0])
+        self.assertIn("Patient", messages[0])
+
+        self.assertIn("idnum1", messages[0])
+        self.assertIn("4887211163", messages[0])
+
+    def test_message_when_no_changes(self) -> None:
+        patient = self.create_patient(
+            forename="Jo", surname="Patient", dob=datetime.date(1958, 4, 19),
+            sex="F", address="Address", gp="GP", other="Other"
+        )
+        patient_idnum = self.create_patient_idnum(
+            patient_id=patient.id, which_idnum=self.nhs_iddef.which_idnum,
+            idnum_value=4887211163
+        )
+        schedule1 = TaskSchedule()
+        schedule1.group_id = self.group.id
+        schedule1.name = "Test 1"
+        self.dbsession.add(schedule1)
+        self.dbsession.commit()
+
+        patient_task_schedule = PatientTaskSchedule()
+        patient_task_schedule.patient_pk = patient.pk
+        patient_task_schedule.schedule_id = schedule1.id
+        patient_task_schedule.start_datetime = local(2020, 6, 12, 9)
+        patient_task_schedule.settings = {
+            "name 1": "value 1",
+            "name 2": "value 2",
+            "name 3": "value 3",
+        }
+
+        self.dbsession.add(patient_task_schedule)
+        self.req.add_get_params({
+            ViewParam.SERVER_PK: patient.pk
+        }, set_method_get=False)
+
+        multidict = MultiDict([
+            ("_charset_", "UTF-8"),
+            ("__formid__", "deform"),
+            (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
+            (ViewParam.SERVER_PK, patient.pk),
+            (ViewParam.GROUP_ID, patient.group.id),
+            (ViewParam.FORENAME, patient.forename),
+            (ViewParam.SURNAME, patient.surname),
+
+            ("__start__", "dob:mapping"),
+            ("date", patient.dob.isoformat()),
+            ("__end__", "dob:mapping"),
+
+            ("__start__", "sex:rename"),
+            ("deformField7", patient.sex),
+            ("__end__", "sex:rename"),
+
+            (ViewParam.ADDRESS, patient.address),
+            (ViewParam.GP, patient.gp),
+            (ViewParam.OTHER, patient.other),
+
+            ("__start__", "id_references:sequence"),
+            ("__start__", "idnum_sequence:mapping"),
+            (ViewParam.WHICH_IDNUM, patient_idnum.which_idnum),
+            (ViewParam.IDNUM_VALUE, patient_idnum.idnum_value),
+            ("__end__", "idnum_sequence:mapping"),
+            ("__end__", "id_references:sequence"),
+
+            ("__start__", "danger:mapping"),
+            ("target", "7836"),
+            ("user_entry", "7836"),
+            ("__end__", "danger:mapping"),
+
+            ("__start__", "task_schedules:sequence"),
+            ("__start__", "task_schedule_sequence:mapping"),
+            ("schedule_id", schedule1.id),
+            ("__start__", "start_datetime:mapping"),
+            ("date", "2020-06-12"),
+            ("time", "09:00:00"),
+            ("__end__", "start_datetime:mapping"),
+            ("settings", json.dumps({
+                "name 1": "value 1",
+                "name 2": "value 2",
+                "name 3": "value 3",
+            })),
+            ("__end__", "task_schedule_sequence:mapping"),
+            ("__end__", "task_schedules:sequence"),
+
+
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+
+        with self.assertRaises(HTTPFound):
+            edit_finalized_patient(self.req)
+
+        messages = self.req.session.peek_flash(FLASH_INFO)
+
+        self.assertIn("No changes required", messages[0])
+
+    def test_template_rendered_with_values(self) -> None:
+        patient = self.create_patient(
+            id=1, forename="Jo", surname="Patient",
+            dob=datetime.date(1958, 4, 19),
+            sex="F", address="Address", gp="GP", other="Other"
+        )
+        self.create_patient_idnum(
+            patient_id=patient.id, which_idnum=self.nhs_iddef.which_idnum,
+            idnum_value=4887211163
+        )
+
+        from camcops_server.tasks import Bmi
+
+        task1 = Bmi()
+        task1.id = 1
+        task1._device_id = patient.device_id
+        task1._group_id = patient.group_id
+        task1._era = patient.era
+        task1.patient_id = patient.id
+        task1.when_created = self.era_time
+        task1._current = False
+        self.dbsession.add(task1)
+
+        task2 = Bmi()
+        task2.id = 2
+        task2._device_id = patient.device_id
+        task2._group_id = patient.group_id
+        task2._era = patient.era
+        task2.patient_id = patient.id
+        task2.when_created = self.era_time
+        task2._current = False
+        self.dbsession.add(task2)
+        self.dbsession.commit()
+
+        self.req.add_get_params({
+            ViewParam.SERVER_PK: patient.pk
+        })
+
+        view = EditFinalizedPatientView(self.req)
+        with mock.patch.object(view, "render_to_response") as mock_render:
+            view.dispatch()
+
+        args, kwargs = mock_render.call_args
+
+        context = args[0]
+
+        self.assertIn("form", context)
+        self.assertIn(task1, context["tasks"])
+        self.assertIn(task2, context["tasks"])
+
+    def test_form_values_for_existing_patient(self) -> None:
+        patient = self.create_patient(
+            id=1, forename="Jo", surname="Patient",
+            dob=datetime.date(1958, 4, 19),
+            sex="F", address="Address", email="jopatient@example.com",
+            gp="GP", other="Other"
+        )
+
+        schedule1 = TaskSchedule()
+        schedule1.group_id = self.group.id
+        schedule1.name = "Test 1"
+        self.dbsession.add(schedule1)
+        self.dbsession.commit()
+
+        patient_task_schedule = PatientTaskSchedule()
+        patient_task_schedule.patient_pk = patient.pk
+        patient_task_schedule.schedule_id = schedule1.id
+        patient_task_schedule.start_datetime = local(2020, 6, 12)
+        patient_task_schedule.settings = {
+            "name 1": "value 1",
+            "name 2": "value 2",
+            "name 3": "value 3",
+        }
+
+        self.dbsession.add(patient_task_schedule)
+        self.dbsession.commit()
+
+        self.create_patient_idnum(
+            patient_id=patient.id, which_idnum=self.nhs_iddef.which_idnum,
+            idnum_value=4887211163
+        )
+
+        self.req.add_get_params({
+            ViewParam.SERVER_PK: patient.pk
+        })
+
+        view = EditFinalizedPatientView(self.req)
+        view.object = patient
+
+        form_values = view.get_form_values()
+
+        self.assertEqual(form_values[ViewParam.FORENAME], "Jo")
+        self.assertEqual(form_values[ViewParam.SURNAME], "Patient")
+        self.assertEqual(form_values[ViewParam.DOB], datetime.date(1958, 4, 19))
+        self.assertEqual(form_values[ViewParam.SEX], "F")
+        self.assertEqual(form_values[ViewParam.ADDRESS], "Address")
+        self.assertEqual(form_values[ViewParam.EMAIL], "jopatient@example.com")
+        self.assertEqual(form_values[ViewParam.GP], "GP")
+        self.assertEqual(form_values[ViewParam.OTHER], "Other")
+
+        self.assertEqual(form_values[ViewParam.SERVER_PK], patient.pk)
+        self.assertEqual(form_values[ViewParam.GROUP_ID], patient.group.id)
+
+        idnum = form_values[ViewParam.ID_REFERENCES][0]
+        self.assertEqual(idnum[ViewParam.WHICH_IDNUM],
+                         self.nhs_iddef.which_idnum)
+        self.assertEqual(idnum[ViewParam.IDNUM_VALUE], 4887211163)
+
+        task_schedule = form_values[ViewParam.TASK_SCHEDULES][0]
+        self.assertEqual(task_schedule[ViewParam.SCHEDULE_ID],
+                         patient_task_schedule.schedule_id)
+        self.assertEqual(task_schedule[ViewParam.START_DATETIME],
+                         patient_task_schedule.start_datetime)
+        self.assertEqual(task_schedule[ViewParam.SETTINGS],
+                         patient_task_schedule.settings)
+
+    def test_changes_to_simple_params(self) -> None:
+        view = EditFinalizedPatientView(self.req)
+        patient = self.create_patient(
+            id=1, forename="Jo", surname="Patient",
+            dob=datetime.date(1958, 4, 19),
+            sex="F", address="Address", email="jopatient@example.com",
+            gp="GP", other=None,
+        )
+        view.object = patient
+
+        changes = OrderedDict()  # type: OrderedDict
+
+        appstruct = {
+            ViewParam.FORENAME: "Joanna",
+            ViewParam.SURNAME: "Patient-Patient",
+            ViewParam.DOB: datetime.date(1958, 4, 19),
+            ViewParam.ADDRESS: "New address",
+            ViewParam.OTHER: "",
+        }
+
+        view._save_simple_params(appstruct, changes)
+
+        self.assertEqual(changes[ViewParam.FORENAME], ("Jo", "Joanna"))
+        self.assertEqual(changes[ViewParam.SURNAME],
+                         ("Patient", "Patient-Patient"))
+        self.assertNotIn(ViewParam.DOB, changes)
+        self.assertEqual(changes[ViewParam.ADDRESS], ("Address", "New address"))
+        self.assertNotIn(ViewParam.OTHER, changes)
+
+    def test_changes_to_idrefs(self) -> None:
+        view = EditFinalizedPatientView(self.req)
+        patient = self.create_patient(id=1)
+        self.create_patient_idnum(
+            patient_id=patient.id, which_idnum=self.nhs_iddef.which_idnum,
+            idnum_value=4887211163
+        )
+        self.create_patient_idnum(
+            patient_id=patient.id, which_idnum=self.study_iddef.which_idnum,
+            idnum_value=123
+        )
+
+        view.object = patient
+
+        changes = OrderedDict()  # type: OrderedDict
+
+        appstruct = {
+            ViewParam.ID_REFERENCES: [
+                {
+                    ViewParam.WHICH_IDNUM: self.nhs_iddef.which_idnum,
+                    ViewParam.IDNUM_VALUE: 1381277373,
+                },
+                {
+                    ViewParam.WHICH_IDNUM: self.rio_iddef.which_idnum,
+                    ViewParam.IDNUM_VALUE: 456,
+                }
+            ]
+        }
+
+        view._save_idrefs(appstruct, changes)
+
+        self.assertEqual(changes["idnum1 (NHS number)"],
+                         (4887211163, 1381277373))
+        self.assertEqual(changes["idnum3 (Study number)"],
+                         (123, None))
+        self.assertEqual(changes["idnum2 (RiO number)"],
+                         (None, 456))
+
+
+class EditServerCreatedPatientViewTests(DemoDatabaseTestCase):
+    """
+    Unit tests.
+    """
+    def create_tasks(self) -> None:
+        # speed things up a bit
+        pass
+
+    def test_group_updated(self) -> None:
+        patient = self.create_patient(sex="F")
+        new_group = Group()
+        new_group.name = "newgroup"
+        new_group.description = "New group"
+        new_group.upload_policy = "sex AND anyidnum"
+        new_group.finalize_policy = "sex AND idnum1"
+        self.dbsession.add(new_group)
+        self.dbsession.commit()
+
+        view = EditServerCreatedPatientView(self.req)
+        view.object = patient
+
+        appstruct = {
+            ViewParam.GROUP_ID: new_group.id,
+        }
+
+        view.save_object(appstruct)
+
+        self.assertEqual(patient.group_id, new_group.id)
+
+        messages = self.req.session.peek_flash(FLASH_SUCCESS)
+
+        self.assertIn("testgroup", messages[0])
+        self.assertIn("newgroup", messages[0])
+        self.assertIn("group:", messages[0])
+
+    def test_raises_when_not_created_on_the_server(self) -> None:
+        patient = self.create_patient(
+            id=1, _device_id=self.other_device.id,
+        )
+
+        view = EditServerCreatedPatientView(self.req)
+
+        self.req.add_get_params({
+            ViewParam.SERVER_PK: patient.pk
+        })
+
+        with self.assertRaises(HTTPBadRequest) as cm:
+            view.get_object()
+
+        self.assertIn("Patient is not editable", str(cm.exception))
+
+    def test_patient_task_schedules_updated(self) -> None:
+        patient = self.create_patient(sex="F", _era=ERA_NOW)
+
+        schedule1 = TaskSchedule()
+        schedule1.group_id = self.group.id
+        schedule1.name = "Test 1"
+        self.dbsession.add(schedule1)
+        schedule2 = TaskSchedule()
+        schedule2.group_id = self.group.id
+        schedule2.name = "Test 2"
+        self.dbsession.add(schedule2)
+        schedule3 = TaskSchedule()
+        schedule3.group_id = self.group.id
+        schedule3.name = "Test 3"
+        self.dbsession.add(schedule3)
+        self.dbsession.commit()
+
+        patient_task_schedule = PatientTaskSchedule()
+        patient_task_schedule.patient_pk = patient.pk
+        patient_task_schedule.schedule_id = schedule1.id
+        patient_task_schedule.start_datetime = local(2020, 6, 12, 9)
+        patient_task_schedule.settings = {
+            "name 1": "value 1",
+            "name 2": "value 2",
+            "name 3": "value 3",
+        }
+
+        self.dbsession.add(patient_task_schedule)
+
+        patient_task_schedule = PatientTaskSchedule()
+        patient_task_schedule.patient_pk = patient.pk
+        patient_task_schedule.schedule_id = schedule3.id
+
+        self.dbsession.add(patient_task_schedule)
+        self.dbsession.commit()
+
+        self.req.add_get_params({
+            ViewParam.SERVER_PK: patient.pk
+        }, set_method_get=False)
+
+        changed_schedule_1_settings = {
+            "name 1": "new value 1",
+            "name 2": "new value 2",
+            "name 3": "new value 3",
+        }
+        new_schedule_2_settings = {
+            "name 4": "value 4",
+            "name 5": "value 5",
+            "name 6": "value 6",
+        }
+        multidict = MultiDict([
+            ("_charset_", "UTF-8"),
+            ("__formid__", "deform"),
+            (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
+            (ViewParam.SERVER_PK, patient.pk),
+            (ViewParam.GROUP_ID, patient.group.id),
+            (ViewParam.FORENAME, patient.forename),
+            (ViewParam.SURNAME, patient.surname),
+            ("__start__", "dob:mapping"),
+            ("date", ""),
+            ("__end__", "dob:mapping"),
+            ("__start__", "sex:rename"),
+            ("deformField7", patient.sex),
+            ("__end__", "sex:rename"),
+            (ViewParam.ADDRESS, patient.address),
+            (ViewParam.GP, patient.gp),
+            (ViewParam.OTHER, patient.other),
+            ("__start__", "id_references:sequence"),
+            ("__start__", "idnum_sequence:mapping"),
+            (ViewParam.WHICH_IDNUM, self.nhs_iddef.which_idnum),
+            (ViewParam.IDNUM_VALUE, "4887211163"),
+            ("__end__", "idnum_sequence:mapping"),
+            ("__end__", "id_references:sequence"),
+            ("__start__", "danger:mapping"),
+            ("target", "7836"),
+            ("user_entry", "7836"),
+            ("__end__", "danger:mapping"),
+            ("__start__", "task_schedules:sequence"),
+            ("__start__", "task_schedule_sequence:mapping"),
+            ("schedule_id", schedule1.id),
+            ("__start__", "start_datetime:mapping"),
+            ("date", "2020-06-19"),
+            ("time", "08:00:00"),
+            ("__end__", "start_datetime:mapping"),
+            ("settings", json.dumps(changed_schedule_1_settings)),
+            ("__end__", "task_schedule_sequence:mapping"),
+            ("__start__", "task_schedule_sequence:mapping"),
+            ("schedule_id", schedule2.id),
+            ("__start__", "start_datetime:mapping"),
+            ("date", "2020-07-01"),
+            ("time", "13:45:00"),
+            ("__end__", "start_datetime:mapping"),
+            ("settings", json.dumps(new_schedule_2_settings)),
+            ("__end__", "task_schedule_sequence:mapping"),
+            ("__end__", "task_schedules:sequence"),
+
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+
+        with self.assertRaises(HTTPFound):
+            edit_server_created_patient(self.req)
+
+        self.dbsession.commit()
+
+        # noinspection PyUnresolvedReferences
+        schedules = {pts.task_schedule.name: pts
+                     for pts in patient.task_schedules}
+        self.assertIn("Test 1", schedules)
+        self.assertIn("Test 2", schedules)
+        self.assertNotIn("Test 3", schedules)
+
+        self.assertEqual(
+            schedules["Test 1"].start_datetime, local(2020, 6, 19, 8)
+        )
+        self.assertEqual(
+            schedules["Test 1"].settings, changed_schedule_1_settings,
+        )
+        self.assertEqual(
+            schedules["Test 2"].start_datetime,
+            local(2020, 7, 1, 13, 45)
+        )
+        self.assertEqual(
+            schedules["Test 2"].settings, new_schedule_2_settings,
+        )
+
+        messages = self.req.session.peek_flash(FLASH_SUCCESS)
+
+        self.assertIn(f"Amended patient record with server PK {patient.pk}",
+                      messages[0])
+        self.assertIn("Test 2", messages[0])
+
+    def test_changes_to_task_schedules(self) -> None:
+        patient = self.create_patient(sex="F")
+
+        schedule1 = TaskSchedule()
+        schedule1.group_id = self.group.id
+        schedule1.name = "Test 1"
+        self.dbsession.add(schedule1)
+        schedule2 = TaskSchedule()
+        schedule2.group_id = self.group.id
+        schedule2.name = "Test 2"
+        self.dbsession.add(schedule2)
+        schedule3 = TaskSchedule()
+        schedule3.group_id = self.group.id
+        schedule3.name = "Test 3"
+        self.dbsession.add(schedule3)
+        self.dbsession.commit()
+
+        patient_task_schedule = PatientTaskSchedule()
+        patient_task_schedule.patient_pk = patient.pk
+        patient_task_schedule.schedule_id = schedule1.id
+        patient_task_schedule.start_datetime = local(2020, 6, 12, 12, 34)
+
+        schedule_1_settings = {
+            "name 1": "value 1",
+            "name 2": "value 2",
+            "name 3": "value 3",
+        }
+
+        patient_task_schedule.settings = schedule_1_settings
+
+        self.dbsession.add(patient_task_schedule)
+
+        patient_task_schedule = PatientTaskSchedule()
+        patient_task_schedule.patient_pk = patient.pk
+        schedule_3_settings = {
+            "name 1": "value 1",
+        }
+        patient_task_schedule.schedule_id = schedule3.id
+        patient_task_schedule.settings = schedule_3_settings
+        patient_task_schedule.start_datetime = local(2020, 7, 31, 13, 45)
+
+        self.dbsession.add(patient_task_schedule)
+        self.dbsession.commit()
+
+        # The patient starts on schedule 1 and schedule 3
+        view = EditServerCreatedPatientView(self.req)
+        view.object = patient
+
+        changes = OrderedDict()  # type: OrderedDict
+
+        changed_schedule_1_settings = {
+            "name 1": "new value 1",
+            "name 2": "new value 2",
+            "name 3": "new value 3",
+        }
+        new_schedule_2_settings = {
+            "name 4": "value 4",
+            "name 5": "value 5",
+            "name 6": "value 6",
+        }
+
+        # We update schedule 1, add schedule 2 and (by its absence) delete
+        # schedule 3
+        appstruct = {
+            ViewParam.TASK_SCHEDULES: [
+                {
+                    ViewParam.SCHEDULE_ID: schedule1.id,
+                    ViewParam.START_DATETIME: local(
+                        2020, 6, 19, 0, 1
+                    ),
+                    ViewParam.SETTINGS: changed_schedule_1_settings,
+                },
+                {
+                    ViewParam.SCHEDULE_ID: schedule2.id,
+                    ViewParam.START_DATETIME: local(
+                        2020, 7, 1, 19, 2),
+                    ViewParam.SETTINGS: new_schedule_2_settings,
+                }
+            ]
+        }
+
+        view._save_task_schedules(appstruct, changes)
+
+        expected_old_1 = (local(2020, 6, 12, 12, 34),
+                          schedule_1_settings)
+        expected_new_1 = (local(2020, 6, 19, 0, 1),
+                          changed_schedule_1_settings)
+
+        expected_old_2 = (None, None)
+        expected_new_2 = (local(2020, 7, 1, 19, 2),
+                          new_schedule_2_settings)
+
+        expected_old_3 = (local(2020, 7, 31, 13, 45),
+                          schedule_3_settings)
+        expected_new_3 = (None, None)
+
+        self.assertEqual(changes[f"schedule{schedule1.id} (Test 1)"],
+                         (expected_old_1, expected_new_1))
+        self.assertEqual(changes[f"schedule{schedule2.id} (Test 2)"],
+                         (expected_old_2, expected_new_2))
+        self.assertEqual(changes[f"schedule{schedule3.id} (Test 3)"],
+                         (expected_old_3, expected_new_3))
+
+
+class AddPatientViewTests(DemoDatabaseTestCase):
+    """
+    Unit tests.
+    """
+    def test_patient_created(self) -> None:
+        view = AddPatientView(self.req)
+
+        schedule1 = TaskSchedule()
+        schedule1.group_id = self.group.id
+        schedule1.name = "Test 1"
+        self.dbsession.add(schedule1)
+
+        schedule2 = TaskSchedule()
+        schedule2.group_id = self.group.id
+        schedule2.name = "Test 2"
+        self.dbsession.add(schedule2)
+        self.dbsession.commit()
+
+        start_datetime1 = local(2020, 6, 12)
+        start_datetime2 = local(2020, 7, 1)
+
+        settings1 = json.dumps({
+            "name 1": "value 1",
+            "name 2": "value 2",
+            "name 3": "value 3",
+        })
+
+        appstruct = {
+            ViewParam.GROUP_ID: self.group.id,
+            ViewParam.FORENAME: "Jo",
+            ViewParam.SURNAME: "Patient",
+            ViewParam.DOB: datetime.date(1958, 4, 19),
+            ViewParam.SEX: "F",
+            ViewParam.ADDRESS: "Address",
+            ViewParam.EMAIL: "jopatient@example.com",
+            ViewParam.GP: "GP",
+            ViewParam.OTHER: "Other",
+            ViewParam.ID_REFERENCES: [{
+                ViewParam.WHICH_IDNUM: self.nhs_iddef.which_idnum,
+                ViewParam.IDNUM_VALUE: 1192220552,
+            }],
+            ViewParam.TASK_SCHEDULES: [
+                {
+                    ViewParam.SCHEDULE_ID: schedule1.id,
+                    ViewParam.START_DATETIME: start_datetime1,
+                    ViewParam.SETTINGS: settings1,
+                },
+                {
+                    ViewParam.SCHEDULE_ID: schedule2.id,
+                    ViewParam.START_DATETIME: start_datetime2,
+                    ViewParam.SETTINGS: {},
+                },
+            ],
+        }
+
+        view.save_object(appstruct)
+
+        patient = cast(Patient, view.object)
+
+        server_device = Device.get_server_device(
+            self.req.dbsession
+        )
+
+        self.assertEqual(patient.id, 1)
+        self.assertEqual(patient.device_id, server_device.id)
+        self.assertEqual(patient.era, ERA_NOW)
+        self.assertEqual(patient.group.id, self.group.id)
+
+        self.assertEqual(patient.forename, "Jo")
+        self.assertEqual(patient.surname, "Patient")
+        self.assertEqual(patient.dob.isoformat(), "1958-04-19")
+        self.assertEqual(patient.sex, "F")
+        self.assertEqual(patient.address, "Address")
+        self.assertEqual(patient.email, "jopatient@example.com")
+        self.assertEqual(patient.gp, "GP")
+        self.assertEqual(patient.other, "Other")
+
+        idnum = patient.get_idnum_objects()[0]
+        self.assertEqual(idnum.patient_id, 1)
+        self.assertEqual(idnum.which_idnum, self.nhs_iddef.which_idnum)
+        self.assertEqual(idnum.idnum_value, 1192220552)
+
+        # noinspection PyUnresolvedReferences
+        patient_task_schedules = {
+            pts.task_schedule.name: pts for pts in patient.task_schedules
+        }
+
+        self.assertIn("Test 1", patient_task_schedules)
+        self.assertIn("Test 2", patient_task_schedules)
+
+        self.assertEqual(
+            patient_task_schedules["Test 1"].start_datetime,
+            start_datetime1
+        )
+        self.assertEqual(
+            patient_task_schedules["Test 1"].settings,
+            settings1
+        )
+        self.assertEqual(
+            patient_task_schedules["Test 2"].start_datetime,
+            start_datetime2
+        )
+
+    def test_patient_takes_next_available_id(self) -> None:
+        server_device = Device.get_server_device(
+            self.req.dbsession
+        )
+        self.create_patient(id=1234, _device_id=server_device.id, _era=ERA_NOW)
+
+        view = AddPatientView(self.req)
+
+        appstruct = {
+            ViewParam.GROUP_ID: self.group.id,
+            ViewParam.FORENAME: "Jo",
+            ViewParam.SURNAME: "Patient",
+            ViewParam.DOB: datetime.date(1958, 4, 19),
+            ViewParam.SEX: "F",
+            ViewParam.ADDRESS: "Address",
+            ViewParam.GP: "GP",
+            ViewParam.OTHER: "Other",
+            ViewParam.ID_REFERENCES: [{
+                ViewParam.WHICH_IDNUM: self.nhs_iddef.which_idnum,
+                ViewParam.IDNUM_VALUE: 1192220552,
+            }],
+            ViewParam.TASK_SCHEDULES: [
+            ],
+        }
+
+        view.save_object(appstruct)
+
+        patient = cast(Patient, view.object)
+
+        self.assertEqual(patient.id, 1235)
+
+    def test_form_rendered_with_values(self) -> None:
+        view = AddPatientView(self.req)
+
+        with mock.patch.object(view, "render_to_response") as mock_render:
+            view.dispatch()
+
+        args, kwargs = mock_render.call_args
+
+        context = args[0]
+
+        self.assertIn("form", context)
+
+
+class DeleteServerCreatedPatientViewTests(DemoDatabaseTestCase):
+    """
+    Unit tests.
+    """
+    def create_tasks(self) -> None:
+        # speed things up a bit
+        pass
+
+    def test_patient_deleted(self) -> None:
+        patient = self.create_patient(
+            id=1, forename="Jo", surname="Patient",
+            dob=datetime.date(1958, 4, 19),
+            sex="F", address="Address", gp="GP", other="Other"
+        )
+
+        patient_pk = patient.pk
+
+        idnum = self.create_patient_idnum(
+            patient_id=patient.id, which_idnum=self.nhs_iddef.which_idnum,
+            idnum_value=4887211163
+        )
+
+        PatientIdNumIndexEntry.index_idnum(idnum, self.dbsession)
+
+        schedule = TaskSchedule()
+        schedule.group_id = self.group.id
+        schedule.name = "Test 1"
+        self.dbsession.add(schedule)
+        self.dbsession.commit()
+
+        pts = PatientTaskSchedule()
+        pts.patient_pk = patient.pk
+        pts.schedule_id = schedule.id
+        self.dbsession.add(pts)
+        self.dbsession.commit()
+
+        multidict = MultiDict([
+            ("_charset_", "UTF-8"),
+            ("__formid__", "deform"),
+            (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
+            ("confirm_1_t", "true"),
+            ("confirm_2_t", "true"),
+            ("confirm_4_t", "true"),
+            ("__start__", "danger:mapping"),
+            ("target", "7176"),
+            ("user_entry", "7176"),
+            ("__end__", "danger:mapping"),
+            ("delete", "delete"),
+            (FormAction.DELETE, "delete"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+
+        self.req.add_get_params({
+            ViewParam.SERVER_PK: patient.pk
+        }, set_method_get=False)
+        view = DeleteServerCreatedPatientView(self.req)
+
+        with self.assertRaises(HTTPFound) as e:
+            view.dispatch()
+
+        self.assertEqual(e.exception.status_code, 302)
+        self.assertIn(
+            "view_patient_task_schedules",
+            e.exception.headers["Location"]
+        )
+
+        deleted_patient = self.dbsession.query(Patient).filter(
+            Patient.pk == patient_pk).one_or_none()
+
+        self.assertIsNone(deleted_patient)
+
+        pts = self.dbsession.query(PatientTaskSchedule).filter(
+            PatientTaskSchedule.patient_pk == patient_pk).one_or_none()
+
+        self.assertIsNone(pts)
+
+        idnum = self.dbsession.query(PatientIdNum).filter(
+            PatientIdNum.patient_id == patient.id,
+            PatientIdNum._device_id == patient.device_id,
+            PatientIdNum._era == patient.era,
+            PatientIdNum._current == True  # noqa: E712
+        ).one_or_none()
+
+        self.assertIsNone(idnum)
+
+
+class EraseTaskTestCase(DemoDatabaseTestCase):
+    """
+    Unit tests.
+    """
+    def create_tasks(self) -> None:
+        from camcops_server.tasks.bmi import Bmi
+
+        self.task = Bmi()
+        self.task.id = 1
+        self.apply_standard_task_fields(self.task)
+        patient = self.create_patient_with_one_idnum()
+        self.task.patient_id = patient.id
+
+        self.dbsession.add(self.task)
+        self.dbsession.commit()
+
+
+class EraseTaskLeavingPlaceholderViewTests(EraseTaskTestCase):
+    """
+    Unit tests.
+    """
+    def test_displays_form(self) -> None:
+        self.req.add_get_params({
+            ViewParam.SERVER_PK: self.task.pk,
+            ViewParam.TABLE_NAME: self.task.tablename,
+        }, set_method_get=False)
+        view = EraseTaskLeavingPlaceholderView(self.req)
+
+        with mock.patch.object(view, "render_to_response") as mock_render:
+            view.dispatch()
+
+        args, kwargs = mock_render.call_args
+        context = args[0]
+
+        self.assertIn("form", context)
+
+    def test_deletes_task_leaving_placeholder(self) -> None:
+        multidict = MultiDict([
+            ("_charset_", "UTF-8"),
+            ("__formid__", "deform"),
+            (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
+            (ViewParam.SERVER_PK, self.task.pk),
+            (ViewParam.TABLE_NAME, self.task.tablename),
+            ("confirm_1_t", "true"),
+            ("confirm_2_t", "true"),
+            ("confirm_4_t", "true"),
+            ("__start__", "danger:mapping"),
+            ("target", "7176"),
+            ("user_entry", "7176"),
+            ("__end__", "danger:mapping"),
+            ("delete", "delete"),
+            (FormAction.DELETE, "delete"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+
+        view = EraseTaskLeavingPlaceholderView(self.req)
+        with mock.patch.object(self.task,
+                               "manually_erase") as mock_manually_erase:
+
+            with self.assertRaises(HTTPFound):
+                view.dispatch()
+
+        mock_manually_erase.assert_called_once()
+        args, kwargs = mock_manually_erase.call_args
+        request = args[0]
+
+        self.assertEqual(request, self.req)
+
+    def test_task_not_deleted_on_cancel(self) -> None:
+        self.req.fake_request_post_from_dict({
+            FormAction.CANCEL: "cancel"
+        })
+
+        self.req.add_get_params({
+            ViewParam.SERVER_PK: self.task.pk,
+            ViewParam.TABLE_NAME: self.task.tablename,
+        }, set_method_get=False)
+        view = EraseTaskLeavingPlaceholderView(self.req)
+
+        with self.assertRaises(HTTPFound):
+            view.dispatch()
+
+        task = self.dbsession.query(self.task.__class__).one_or_none()
+
+        self.assertIsNotNone(task)
+
+    def test_redirect_on_cancel(self) -> None:
+        self.req.fake_request_post_from_dict({
+            FormAction.CANCEL: "cancel"
+        })
+
+        self.req.add_get_params({
+            ViewParam.SERVER_PK: self.task.pk,
+            ViewParam.TABLE_NAME: self.task.tablename,
+        }, set_method_get=False)
+        view = EraseTaskLeavingPlaceholderView(self.req)
+
+        with self.assertRaises(HTTPFound) as cm:
+            view.dispatch()
+
+        self.assertEqual(cm.exception.status_code, 302)
+        self.assertIn(
+            "/task", cm.exception.headers["Location"]
+        )
+        self.assertIn(
+            "table_name={}".format(self.task.tablename),
+            cm.exception.headers["Location"]
+        )
+        self.assertIn(
+            "server_pk={}".format(self.task.pk),
+            cm.exception.headers["Location"]
+        )
+        self.assertIn("viewtype=html", cm.exception.headers["Location"])
+
+    def test_raises_when_task_does_not_exist(self) -> None:
+        self.req.add_get_params({
+            ViewParam.SERVER_PK: "123",
+            ViewParam.TABLE_NAME: "phq9",
+        }, set_method_get=False)
+        view = EraseTaskLeavingPlaceholderView(self.req)
+
+        with self.assertRaises(HTTPBadRequest) as cm:
+            view.dispatch()
+
+        self.assertEqual(
+            cm.exception.message,
+            "No such task: phq9, PK=123"
+        )
+
+    def test_raises_when_task_is_live_on_tablet(self) -> None:
+        self.task._era = ERA_NOW
+        self.dbsession.add(self.task)
+        self.dbsession.commit()
+
+        self.req.add_get_params({
+            ViewParam.SERVER_PK: self.task.pk,
+            ViewParam.TABLE_NAME: self.task.tablename,
+        }, set_method_get=False)
+        view = EraseTaskLeavingPlaceholderView(self.req)
+
+        with self.assertRaises(HTTPBadRequest) as cm:
+            view.dispatch()
+
+        self.assertIn(
+            "Task is live on tablet",
+            cm.exception.message
+        )
+
+    def test_raises_when_user_not_authorized_to_erase(self) -> None:
+        with mock.patch.object(self.user, "authorized_to_erase_tasks",
+                               return_value=False):
+
+            self.req.add_get_params({
+                ViewParam.SERVER_PK: self.task.pk,
+                ViewParam.TABLE_NAME: self.task.tablename,
+            }, set_method_get=False)
+            view = EraseTaskLeavingPlaceholderView(self.req)
+
+            with self.assertRaises(HTTPBadRequest) as cm:
+                view.dispatch()
+
+        self.assertIn(
+            "Not authorized to erase tasks",
+            cm.exception.message
+        )
+
+    def test_raises_when_task_already_erased(self) -> None:
+        self.task._manually_erased = True
+        self.dbsession.add(self.task)
+        self.dbsession.commit()
+
+        self.req.add_get_params({
+            ViewParam.SERVER_PK: self.task.pk,
+            ViewParam.TABLE_NAME: self.task.tablename,
+        }, set_method_get=False)
+        view = EraseTaskLeavingPlaceholderView(self.req)
+
+        with self.assertRaises(HTTPBadRequest) as cm:
+            view.dispatch()
+
+        self.assertIn(
+            "already erased",
+            cm.exception.message
+        )
+
+
+class EraseTaskEntirelyViewTests(EraseTaskTestCase):
+    """
+    Unit tests.
+    """
+    def test_deletes_task_entirely(self) -> None:
+        multidict = MultiDict([
+            ("_charset_", "UTF-8"),
+            ("__formid__", "deform"),
+            (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
+            (ViewParam.SERVER_PK, self.task.pk),
+            (ViewParam.TABLE_NAME, self.task.tablename),
+            ("confirm_1_t", "true"),
+            ("confirm_2_t", "true"),
+            ("confirm_4_t", "true"),
+            ("__start__", "danger:mapping"),
+            ("target", "7176"),
+            ("user_entry", "7176"),
+            ("__end__", "danger:mapping"),
+            ("delete", "delete"),
+            (FormAction.DELETE, "delete"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+
+        view = EraseTaskEntirelyView(self.req)
+
+        with mock.patch.object(self.task,
+                               "delete_entirely") as mock_delete_entirely:
+
+            with self.assertRaises(HTTPFound):
+                view.dispatch()
+
+        mock_delete_entirely.assert_called_once()
+        args, kwargs = mock_delete_entirely.call_args
+        request = args[0]
+
+        self.assertEqual(request, self.req)
+
+        messages = self.req.session.peek_flash(FLASH_SUCCESS)
+        self.assertTrue(len(messages) > 0)
+
+        self.assertIn("Task erased", messages[0])
+        self.assertIn(self.task.tablename, messages[0])
+        self.assertIn("server PK {}".format(self.task.pk), messages[0])
+
+
+class EditGroupViewTests(DemoDatabaseTestCase):
+    """
+    Unit tests.
+    """
+    def test_group_updated(self) -> None:
+        other_group_1 = Group()
+        other_group_1.name = "other-group-1"
+        self.dbsession.add(other_group_1)
+
+        other_group_2 = Group()
+        other_group_2.name = "other-group-2"
+        self.dbsession.add(other_group_2)
+
+        self.dbsession.commit()
+
+        multidict = MultiDict([
+            ("_charset_", "UTF-8"),
+            ("__formid__", "deform"),
+            (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
+            (ViewParam.GROUP_ID, self.group.id),
+            (ViewParam.NAME, "new-name"),
+            (ViewParam.DESCRIPTION, "new description"),
+            (ViewParam.UPLOAD_POLICY, "anyidnum AND sex"),  # reversed
+            (ViewParam.FINALIZE_POLICY, "idnum1 AND sex"),  # reversed
+            ("__start__", "group_ids:sequence"),
+            ("group_id_sequence", str(other_group_1.id)),
+            ("group_id_sequence", str(other_group_2.id)),
+            ("__end__", "group_ids:sequence"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+        self.req.fake_request_post_from_dict(multidict)
+
+        with self.assertRaises(HTTPFound):
+            edit_group(self.req)
+
+        self.assertEqual(self.group.name, "new-name")
+        self.assertEqual(self.group.description, "new description")
+        self.assertEqual(self.group.upload_policy, "anyidnum AND sex")
+        self.assertEqual(self.group.finalize_policy, "idnum1 AND sex")
+        self.assertIn(other_group_1, self.group.can_see_other_groups)
+        self.assertIn(other_group_2, self.group.can_see_other_groups)
+
+    def test_ip_use_added(self) -> None:
+        from camcops_server.cc_modules.cc_ipuse import IpContexts
+        multidict = MultiDict([
+            ("_charset_", "UTF-8"),
+            ("__formid__", "deform"),
+            (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
+            (ViewParam.GROUP_ID, self.group.id),
+            (ViewParam.NAME, "new-name"),
+            (ViewParam.DESCRIPTION, "new description"),
+            (ViewParam.UPLOAD_POLICY, "anyidnum AND sex"),
+            (ViewParam.FINALIZE_POLICY, "idnum1 AND sex"),
+            ("__start__", "ip_use:mapping"),
+            (IpContexts.CLINICAL, "true"),
+            (IpContexts.COMMERCIAL, "true"),
+            ("__end__", "ip_use:mapping"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+        self.req.fake_request_post_from_dict(multidict)
+
+        with self.assertRaises(HTTPFound):
+            edit_group(self.req)
+
+        self.assertTrue(self.group.ip_use.clinical)
+        self.assertTrue(self.group.ip_use.commercial)
+        self.assertFalse(self.group.ip_use.educational)
+        self.assertFalse(self.group.ip_use.research)
+
+    def test_ip_use_updated(self) -> None:
+        from camcops_server.cc_modules.cc_ipuse import IpContexts
+        self.group.ip_use.educational = True
+        self.group.ip_use.research = True
+        self.dbsession.add(self.group.ip_use)
+        self.dbsession.commit()
+
+        old_id = self.group.ip_use.id
+
+        multidict = MultiDict([
+            ("_charset_", "UTF-8"),
+            ("__formid__", "deform"),
+            (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
+            (ViewParam.GROUP_ID, self.group.id),
+            (ViewParam.NAME, "new-name"),
+            (ViewParam.DESCRIPTION, "new description"),
+            (ViewParam.UPLOAD_POLICY, "anyidnum AND sex"),
+            (ViewParam.FINALIZE_POLICY, "idnum1 AND sex"),
+            ("__start__", "ip_use:mapping"),
+            (IpContexts.CLINICAL, "true"),
+            (IpContexts.COMMERCIAL, "true"),
+            ("__end__", "ip_use:mapping"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+        self.req.fake_request_post_from_dict(multidict)
+
+        with self.assertRaises(HTTPFound):
+            edit_group(self.req)
+
+        self.assertTrue(self.group.ip_use.clinical)
+        self.assertTrue(self.group.ip_use.commercial)
+        self.assertFalse(self.group.ip_use.educational)
+        self.assertFalse(self.group.ip_use.research)
+        self.assertEqual(self.group.ip_use.id, old_id)
+
+    def test_other_groups_displayed_in_form(self) -> None:
+        z_group = Group()
+        z_group.name = "z-group"
+        self.dbsession.add(z_group)
+
+        a_group = Group()
+        a_group.name = "a-group"
+        self.dbsession.add(a_group)
+        self.dbsession.commit()
+
+        other_groups = Group.get_groups_from_id_list(
+            self.dbsession, [z_group.id, a_group.id]
+        )
+        self.group.can_see_other_groups = other_groups
+
+        self.dbsession.add(self.group)
+        self.dbsession.commit()
+
+        view = EditGroupView(self.req)
+        view.object = self.group
+
+        form_values = view.get_form_values()
+
+        self.assertEqual(
+            form_values[ViewParam.GROUP_IDS], [a_group.id, z_group.id]
+        )
+
+    def test_group_id_displayed_in_form(self) -> None:
+        view = EditGroupView(self.req)
+        view.object = self.group
+
+        form_values = view.get_form_values()
+
+        self.assertEqual(
+            form_values[ViewParam.GROUP_ID], self.group.id
+        )
+
+    def test_ip_use_displayed_in_form(self) -> None:
+        view = EditGroupView(self.req)
+        view.object = self.group
+
+        form_values = view.get_form_values()
+
+        self.assertEqual(
+            form_values[ViewParam.IP_USE], self.group.ip_use
+        )
+
+
+def debug_form_rendering() -> None:
+    r"""
+    Test code for form rendering.
+
+    From the command line:
+
+    .. code-block:: bash
+
+        # Start in the CamCOPS source root directory.
+        # - Needs the "-f" option to follow forks.
+        # - "open" doesn't show all files opened. To see what you need, try
+        #   strace cat /proc/version
+        # - ... which shows that "openat" is most useful.
+
+        strace -f --trace=openat \
+            python -c 'from camcops_server.cc_modules.webview import debug_form_rendering; debug_form_rendering()' \
+            | grep site-packages \
+            | grep -v "\.pyc"
+
+    This tells us that the templates are files like:
+
+    .. code-block:: none
+
+        site-packages/deform/templates/form.pt
+        site-packages/deform/templates/select.pt
+        site-packages/deform/templates/textinput.pt
+
+    On 2020-06-29 we are interested in why a newer (Docker) installation
+    renders buggy HTML like:
+
+    .. code-block:: none
+
+        <select name="which_idnum" id="deformField2" class=" form-control " multiple="False">
+            <option value="1">CPFT RiO number</option>
+            <option value="2">NHS number</option>
+            <option value="1000">MyHospital number</option>
+        </select>
+
+    ... the bug being that ``multiple="False"`` is wrong; an HTML boolean
+    attribute is false when *absent*, not when set to a certain value (see
+    https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes#Boolean_Attributes).
+    The ``multiple`` attribute of ``<select>`` is a boolean attribute
+    (https://developer.mozilla.org/en-US/docs/Web/HTML/Element/select).
+
+    The ``select.pt`` file indicates that this is controlled by
+    ``tal:attributes`` syntax. TAL is Template Attribution Language
+    (https://sharptal.readthedocs.io/en/latest/tal.html).
+
+    TAL is either provided by Zope (given ZPT files) or Chameleon or both. The
+    tracing suggests Chameleon. So the TAL language reference is
+    https://chameleon.readthedocs.io/en/latest/reference.html.
+
+    Chameleon changelog is
+    https://github.com/malthe/chameleon/blob/master/CHANGES.rst.
+
+    Multiple sources for ``tal:attributes`` syntax say that a null value
+    (presumably: ``None``) is required to omit the attribute, not a false
+    value.
+
+    """  # noqa
+
+    import sys
+
+    from camcops_server.cc_modules.cc_debug import makefunc_trace_unique_calls
+    from camcops_server.cc_modules.cc_forms import ChooseTrackerForm
+    from camcops_server.cc_modules.cc_request import get_core_debugging_request
+
+    req = get_core_debugging_request()
+    form = ChooseTrackerForm(req, as_ctv=False)
+
+    sys.settrace(makefunc_trace_unique_calls(file_only=True))
+    _ = form.render()
+    sys.settrace(None)

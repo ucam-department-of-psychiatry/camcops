@@ -45,8 +45,7 @@ try:
 except ImportError:
     distro = None
 
-if sys.version_info < (3, 6):
-    raise AssertionError("Need Python 3.6 or higher")
+assert sys.version_info >= (3, 6), "Need Python 3.6 or higher"
 LINUX = platform.system() == 'Linux'
 if distro:
     LINUX_DIST = distro.linux_distribution()[0].lower()
@@ -156,6 +155,7 @@ def main() -> None:
     """
     if not LINUX:
         raise AssertionError("Installation requires Linux.")
+    # noinspection PyTypeChecker
     parser = argparse.ArgumentParser(
         description=DESCRIPTION,
         formatter_class=argparse.RawDescriptionHelpFormatter)

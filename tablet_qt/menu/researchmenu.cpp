@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -64,7 +64,6 @@ void ResearchMenu::makeItems()
         MAKE_TASK_MENU_ITEM(Suppsp::SUPPSP_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Shaps::SHAPS_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Mfi20::MFI20_TABLENAME, m_app),
-
 
         MenuItem(tr("Experimental")).setLabelOnly(),
         MenuItem(

@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -35,8 +35,6 @@ public:
 protected:
     virtual void makeItems() override;
     OpenableWidget* configureServer(CamcopsApp& app);
-    void serverSettingsSaved();
-    bool validateServerSettings(QStringList& errors, const QuPage* page);
 
     OpenableWidget* configureIntellectualProperty(CamcopsApp& app);
     void ipClinicalChanged();
@@ -48,13 +46,6 @@ protected:
     void userSettingsCancelled();
 
     OpenableWidget* setQuestionnaireFontSize(CamcopsApp& app);
-    void fontSizeChanged();
-    void fontSettingsSaved();
-    void fontSettingsCancelled();
-    void resetFontSize();
-    QString demoText(const QString& text, uiconst::FontSize fontsize_type) const;
-    void dpiOverrideChanged();
-
     void setPrivilege();
     void changeAppPassword();
     void changePrivPassword();
@@ -76,11 +67,9 @@ protected:
     void saveDataDbAsSql();
     void saveSystemDbAsSql();
     void chooseLanguage();
+    void changeMode();
 
     // Internal helpers:
-    QString makeTitle(const QString& part1, const QString& part2 = "",
-                      bool colon = false) const;
-    QString makeHint(const QString& part1, const QString& part2) const;
     QVariant serverPasswordGetter();
     bool serverPasswordSetter(const QVariant& value);
     void viewDbAsSql(DatabaseManager& db, const QString& title);
@@ -91,14 +80,6 @@ protected:
 protected:
     mutable SecureQString m_temp_plaintext_password;
     bool m_plaintext_pw_live;
-    QPointer<Questionnaire> m_fontsize_questionnaire;
     QPointer<Questionnaire> m_ip_questionnaire;
-    FieldRefPtr m_fontsize_fr;
     FieldRefPtr m_ip_clinical_fr;
-    FieldRefPtr m_dpi_override_logical_fr;
-    FieldRefPtr m_dpi_override_logical_x_fr;
-    FieldRefPtr m_dpi_override_logical_y_fr;
-    FieldRefPtr m_dpi_override_physical_fr;
-    FieldRefPtr m_dpi_override_physical_x_fr;
-    FieldRefPtr m_dpi_override_physical_y_fr;
 };

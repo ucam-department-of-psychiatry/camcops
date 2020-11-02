@@ -51,6 +51,7 @@ log.info("Imports starting")
 import os  # noqa: E402
 import platform  # noqa: E402
 import sys  # noqa: E402
+import subprocess  # noqa: E402
 from typing import Any, Dict, List, Optional, TYPE_CHECKING  # noqa: E402
 import unittest  # noqa: E402
 
@@ -64,7 +65,9 @@ from wsgiref.simple_server import make_server  # noqa: E402
 from cardinal_pythonlib.classes import gen_all_subclasses  # noqa: E402
 from cardinal_pythonlib.fileops import mkdir_p  # noqa: E402
 from cardinal_pythonlib.process import nice_call  # noqa: E402
-from cardinal_pythonlib.ui import ask_user, ask_user_password  # noqa: E402
+from cardinal_pythonlib.ui_commandline import ask_user, ask_user_password  # noqa: E402,E501
+# from cardinal_pythonlib.wsgi.constants import TYPE_WSGI_APP  # noqa: E402,E501
+from cardinal_pythonlib.wsgi.headers_mw import AddHeadersMiddleware  # noqa: E402,E501
 from cardinal_pythonlib.wsgi.request_logging_mw import RequestLoggingMiddleware  # noqa: E402,E501
 from cardinal_pythonlib.wsgi.reverse_proxied_mw import (  # noqa: E402
     ReverseProxiedConfig,
@@ -102,7 +105,7 @@ from camcops_server.cc_modules.cc_pyramid import RouteCollection  # noqa: E402
 from camcops_server.cc_modules.cc_request import (  # noqa: E402
     CamcopsRequest,
     command_line_request_context,
-    pyramid_configurator_context,
+    camcops_pyramid_configurator_context,
 )
 from camcops_server.cc_modules.cc_string import all_extra_strings_as_dicts  # noqa: E402,E501
 from camcops_server.cc_modules.cc_task import Task  # noqa: E402
@@ -207,7 +210,8 @@ def make_wsgi_app(debug_toolbar: bool = False,
                   show_requests: bool = True,
                   show_request_immediately: bool = True,
                   show_response: bool = True,
-                  show_timing: bool = True) -> "Router":
+                  show_timing: bool = True,
+                  static_cache_duration_s: int = 0) -> "Router":
     """
     Makes and returns a WSGI application, attaching all our special methods.
 
@@ -239,6 +243,9 @@ def make_wsgi_app(debug_toolbar: bool = False,
         show_timing:
             [Applicable if ``show_requests``]
             Show the time that the wrapped WSGI app took?
+        static_cache_duration_s:
+            Lifetime (in seconds) for the HTTP cache-control setting for
+            static content.
 
     Returns:
         the WSGI app
@@ -273,14 +280,54 @@ def make_wsgi_app(debug_toolbar: bool = False,
     log.debug("Creating WSGI app")
 
     # Make Pyramid WSGI app
-    # - pyramid_configurator_context() is our function; see that
+    # - camcops_pyramid_configurator_context() is our function; see that
     # - config.make_wsgi_app() is then a Pyramid function
-    with pyramid_configurator_context(debug_toolbar=debug_toolbar) as config:
+    with camcops_pyramid_configurator_context(
+            debug_toolbar=debug_toolbar,
+            static_cache_duration_s=static_cache_duration_s) as config:
         app = config.make_wsgi_app()
 
     # Middleware above the Pyramid level
 
+    # noinspection PyTypeChecker
+    app = AddHeadersMiddleware(app, headers=[
+        # From ZAP penetration testing:
+        ("X-Frame-Options", "DENY"),
+        # ... or "X-Frame-Options Header Not Set"
+        ("X-Content-Type-Options", "nosniff"),
+        # ... or "X-Content-Type-Options Header Missing"
+
+        # NOT THIS:
+        #       ("Cache-Control", "no-cache, no-store, must-revalidate"),
+        # ... or "Incomplete or No Cache-control and Pragma HTTP Header Set"
+        # ... note that Pragma is HTTP/1.0 and cache-control is HTTP/1.1, so
+        #     you don't have to do both.
+        # BUT that prevents caching of images (e.g. logos), and we don't want
+        # that.
+        #
+        # The Pyramid @view_config decorator (or add_view function) takes an
+        # "http_cache" parameter, as per
+        # https://pyramid-pt-br.readthedocs.io/en/latest/api/config.html#pyramid.config.Configurator.add_view  # noqa
+        # and it looks like viewderivers.py implements this. The default does
+        # not set the HTTP "cache-control" header, explained at
+        # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control  # noqa
+        # The basic options are:
+        # - 0: do not cache
+        # - integer_seconds, or datetime.timedelta: lifespan
+        # - tuple (lifespan, dictionary_of_extra_cache_control_details)
+        # - tuple (None, dictionary_of_extra_cache_control_details)
+        # We now set http_cache for all our views via view_config, as well as
+        # the equivalent of using cache_max_age for add_static_view().
+
+        # However, this (as an additional Cache-Control header -- as well as
+        # any "cache, it's static" or "don't cache" header) sorts out any ZAP
+        # complaints:
+        ("Cache-Control", 'no-cache="Set-Cookie, Set-Cookie2"'),
+
+    ])  # type: Router
+
     if show_requests:
+        # noinspection PyTypeChecker
         app = RequestLoggingMiddleware(
             app,
             logger=logging.getLogger(__name__),
@@ -288,12 +335,14 @@ def make_wsgi_app(debug_toolbar: bool = False,
             show_request_immediately=show_request_immediately,
             show_response=show_response,
             show_timing=show_timing,
-        )
+        )  # type: Router
 
     if reverse_proxied_config and reverse_proxied_config.necessary():
-        app = ReverseProxiedMiddleware(app=app,
-                                       config=reverse_proxied_config,
-                                       debug=debug_reverse_proxy)
+        # noinspection PyTypeChecker
+        app = ReverseProxiedMiddleware(
+            app=app,
+            config=reverse_proxied_config,
+            debug=debug_reverse_proxy)  # type: Router
 
     log.debug("WSGI app created")
     return app
@@ -313,12 +362,15 @@ def ensure_ok_for_webserver() -> None:
 
 
 def test_serve_pyramid(application: "Router",
-                       host: str = ConfigDefaults.HOST,
-                       port: int = ConfigDefaults.PORT) -> None:
+                       host: str = None,
+                       port: int = None) -> None:
     """
     Launches an extremely simple Pyramid web server (via
     ``wsgiref.make_server``).
     """
+    cd = ConfigDefaults()
+    host = host or cd.HOST
+    port = port or cd.PORT
     ensure_ok_for_webserver()
     server = make_server(host, port, application)
     log.info("Serving on host={}, port={}", host, port)
@@ -574,21 +626,27 @@ def cmd_show_export_queue(recipient_names: List[str] = None,
 
 def cmd_export(recipient_names: List[str] = None,
                all_recipients: bool = False,
-               via_index: bool = True) -> None:
+               via_index: bool = True,
+               schedule_via_backend: bool = False) -> None:
     """
     Send all outbound incremental export messages (e.g. HL7).
 
     Args:
-        recipient_names: list of export recipient names (as per the config
-            file)
-        all_recipients: use all recipients?
-        via_index: use the task index (faster)?
+        recipient_names:
+            List of export recipient names (as per the config file).
+        all_recipients:
+            Use all recipients?
+        via_index:
+            Use the task index (faster)?
+        schedule_via_backend:
+            Schedule the export via the backend, rather than performing it now.
     """
     with command_line_request_context() as req:
         export(req,
                recipient_names=recipient_names,
                all_recipients=all_recipients,
-               via_index=via_index)
+               via_index=via_index,
+               schedule_via_backend=schedule_via_backend)
 
 
 def make_data_dictionary(filename: str, recipient_name: str,
@@ -703,6 +761,61 @@ def print_database_title() -> None:
     """
     with command_line_request_context() as req:
         print(req.database_title)
+
+
+def show_database_schema(schemastem: str,
+                         make_image: bool = False,
+                         java: str = None,
+                         plantuml: str = None,
+                         height_width_limit: int = 20000,
+                         java_memory_limit_mb: int = 2048) -> None:
+    """
+    Prints the database schema to a PNG picture.
+
+    Args:
+        schemastem:
+            filename stem
+        make_image:
+            Make a PNG image? (May be impractically large!)
+        java:
+            (for ``make_image``) Java executable
+        plantuml:
+            (for ``make_image``) PlantUML Java ``.jar`` file
+        height_width_limit:
+            (for ``make_image``) maximum height and width for PNG; see
+            https://plantuml.com/faq
+        java_memory_limit_mb:
+            (for ``make_image``) Java virtual machine memory limit, in Mb
+    """
+    # noinspection PyUnresolvedReferences
+    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    import sadisplay  # delayed import
+    import camcops_server.cc_modules.cc_all_models as models  # delayed import
+    # ... a re-import to give it a name
+    uml_filename = f"{schemastem}.plantuml"
+    png_filename = f"{schemastem}.png"
+    log.info(f"Making schema PlantUML: {uml_filename}")
+    desc = sadisplay.describe([
+        getattr(models, attr) for attr in dir(models)
+    ])
+    # log.debug(desc)
+    with open(uml_filename, 'w') as f:
+        f.write(sadisplay.plantuml(desc))
+    if make_image:
+        import shutil  # delayed import
+        assert shutil.which(java), f"Can't find Java executable: {java}"
+        assert os.path.isfile(
+            plantuml), f"Can't find PlantUML JAR file: {plantuml}"  # noqa
+        log.info(f"Making schema PNG: {png_filename}")
+        cmd = [
+            java,
+            f"-Xmx{java_memory_limit_mb}m",
+            f"-DPLANTUML_LIMIT_SIZE={height_width_limit}",
+            '-jar', plantuml,
+            uml_filename
+        ]
+        log.info("Arguments: {}", cmd)
+        subprocess.check_call(cmd)
 
 
 def reindex(cfg: CamcopsConfig) -> None:
@@ -931,3 +1044,7 @@ def dev_cli() -> None:
         """)
         import pdb
         pdb.set_trace()
+        # There must be a line below this, or the context is not available;
+        # maybe a pdb bug; see
+        # https://stackoverflow.com/questions/51743057/custom-context-manager-is-left-when-running-pdb-set-trace  # noqa
+        pass  # this does the job

@@ -172,7 +172,7 @@ running_centos()
 service_exists()
 {
     # arguments: $1 is the service being tested
-    
+
     servicename=$1
 
     # Ubuntu used to give "unrecognized service"
@@ -186,7 +186,7 @@ service_exists()
     # return 0  # true
 
     # And a better way: return codes; will be 4 for an unknown service [2, 3]:
-    
+
     service $servicename status >/dev/null 2>&1
     exitcode=$?
     if [ $exitcode -eq 4 ]; then
@@ -197,7 +197,7 @@ service_exists()
     # Other codes mean e.g. "running" (0) or "not running" (e.g. 1, 2, 3)
     echo "Service $servicename exists"
     return 0  # true
-    
+
     # [1] http://unix.stackexchange.com/questions/37313/how-do-i-grep-for-multiple-patterns
     # [2] https://unix.stackexchange.com/questions/226484/does-an-init-script-always-return-a-proper-exit-code-when-running-status
     # [3] http://refspecs.linuxbase.org/LSB_3.0.0/LSB-PDA/LSB-PDA/iniscrptact.html
@@ -208,7 +208,7 @@ service_supervisord_command()
     # argument: argument to "service", such as "start", "stop", "restart"
 
     # The exact supervisor program name is impossible to predict (e.g. in
-    # "supervisorctl stop camcops-gunicorn"), as it's user-defined, so we just 
+    # "supervisorctl stop camcops-gunicorn"), as it's user-defined, so we just
     # start/stop everything.
     # Ubuntu: service supervisor
     # CentOS: service supervisord
@@ -241,8 +241,8 @@ system_python_executable()
 {
     # Echoes the preferred Python executable on the destination system.
     # Use as: $(system_python_executable) ...
-    
-    python_options=(python3.6 python36 python3.5 python35 python3 python)
+
+    python_options=(python3.6 python36 python3 python)
     for option in ${python_options[@]}; do
         python_exe=$(which $option)
         if [ ! -z "${python_exe}" ]; then
@@ -389,11 +389,11 @@ def check_prerequisites() -> None:
     To install rpmrebuild:
         1. Download RPM from http://rpmrebuild.sourceforge.net/, e.g.
             cd /tmp
-            wget http://downloads.sourceforge.net/project/rpmrebuild/rpmrebuild/2.11/rpmrebuild-2.11-1.noarch.rpm
+            wget https://downloads.sourceforge.net/project/rpmrebuild/rpmrebuild/2.15/rpmrebuild-2.15-1.noarch.rpm
         2. Convert to DEB:
-            fakeroot alien --to-deb rpmrebuild-2.11-1.noarch.rpm
+            fakeroot alien --to-deb rpmrebuild-2.15-1.noarch.rpm
         3. Install:
-            sudo dpkg --install rpmrebuild_2.11-2_all.deb
+            sudo dpkg --install rpmrebuild_2.15-2_all.deb
             """)  # noqa
             log.critical("{} command not found; stopping", cmd)
             sys.exit(1)
@@ -572,7 +572,9 @@ def get_changelog() -> str:
 # -----------------------------------------------------------------------------
 
 def get_preinst() -> str:
-    return """#!/usr/bin/env bash
+    # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=953428
+    # #!/usr/bin/env bash not allowed?
+    return """#!/bin/bash
 # Exit on any errors? (Lintian strongly advises this.)
 set -e
 
@@ -588,7 +590,7 @@ echo '{PACKAGE}: preinst file executing'
 stop_supervisord
 
 echo '{PACKAGE}: preinst file finished'
-    
+
     """.format(
         BASHFUNC=BASHFUNC,
         PACKAGE=PACKAGE_DEB_NAME,
@@ -601,7 +603,9 @@ echo '{PACKAGE}: preinst file finished'
 
 def get_postinst(sdist_basefilename: str) -> str:
     dst_sdist_file = join(DSTBASEDIR, sdist_basefilename)
-    return """#!/usr/bin/env bash
+    # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=953428
+    # #!/usr/bin/env bash not allowed?
+    return """#!/bin/bash
 # Exit on any errors? (Lintian strongly advises this.)
 set -e
 
@@ -701,7 +705,9 @@ echo '{PACKAGE}: postinst file finished'
 # -----------------------------------------------------------------------------
 
 def get_prerm() -> str:
-    return """#!/usr/bin/env bash
+    # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=953428
+    # #!/usr/bin/env bash not allowed?
+    return """#!/bin/bash
 set -e
 
 {BASHFUNC}
@@ -735,7 +741,9 @@ echo '{PACKAGE}: prerm file finished'
 # -----------------------------------------------------------------------------
 
 def get_postrm() -> str:
-    return """#!/usr/bin/env bash
+    # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=953428
+    # #!/usr/bin/env bash not allowed?
+    return """#!/bin/bash
 set -e
 
 {BASHFUNC}
@@ -827,7 +835,7 @@ def get_camcops_server_launcher() -> str:
 echo 'Launching CamCOPS command-line tool...' >&2
 
 {DST_CAMCOPS_LAUNCHER} "$@"
-    
+
     """.format(
         DST_CAMCOPS_LAUNCHER=DST_CAMCOPS_LAUNCHER,
     )
@@ -840,7 +848,7 @@ def get_camcops_server_meta_launcher() -> str:
 echo 'Launching CamCOPS meta-command tool...' >&2
 
 {DST_CAMCOPS_META_LAUNCHER} "$@"
-    
+
     """.format(
         DST_CAMCOPS_META_LAUNCHER=DST_CAMCOPS_META_LAUNCHER,
     )
@@ -1029,6 +1037,7 @@ def main():
     """
     check_prerequisites()
 
+    # noinspection PyTypeChecker
     parser = argparse.ArgumentParser(
         description="""
 - Creates a Debian (.deb) and RPM (.rpm) distribution file for the CamCOPS
@@ -1067,7 +1076,7 @@ def main():
         {LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR}
         {LINUX_DEFAULT_LOCK_DIR}
 
-  * checks that Python 3.5 is available on the system;
+  * checks that Python is available on the system;
 
   * uses the system Python to create a Python virtual environment within
     {LINUX_DEFAULT_CAMCOPS_DIR};

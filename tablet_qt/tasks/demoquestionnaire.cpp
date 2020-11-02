@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -1100,7 +1100,7 @@ void DemoQuestionnaire::callbackHello()
 
 void DemoQuestionnaire::callbackArg(const QString& arg)
 {
-    uifunc::alert(tr("Function argument was: ") + arg);
+    uifunc::alert(tr("Function argument was:") + " " + arg);
 }
 
 

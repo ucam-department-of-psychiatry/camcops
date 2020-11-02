@@ -43,7 +43,8 @@ Locking
 -------
 
 The icon at the top right of the menus displays the **lock status**. Touch the
-icon to change the lock status. The icon can appear as:
+icon to change the lock status. When operating in Clinician Mode, the icon can
+appear as:
 
 - |locked| **Locked.** When CamCOPS has a patient selected, and is locked, you
   can give it to the patient, and the patient won’t be able to see details from
@@ -57,9 +58,13 @@ icon to change the lock status. The icon can appear as:
   configuration of CamCOPS. You can enter privileged mode from the
   :tabletmenu:`|settings| Settings` menu.
 
+When operating in :ref:`Single User Mode <single_user_mode>`, locking the app
+will require the patient to enter their CAMCOPS APP PASSWORD before they can
+continue using it.
 
-Patients
---------
+
+Patients (Clinician Mode only)
+------------------------------
 
 When viewing a menu, near the top of the screen, you’ll always see the
 :tabletcurrentpatient:`current patient’s details` or a message saying
@@ -105,8 +110,8 @@ When editing a patient:
 - Touch |cancel| to cancel.
 
 
-Tasks
------
+Tasks (Clinician Mode only)
+------------------------------
 
 From the main menu, you can go to the :tabletmenu:`|patient_summary| Patient
 summary`. This shows all tasks on the tablet for the current patient. You can
@@ -149,8 +154,8 @@ Some tasks are anonymous; they are not associated with any patient. (An example
 is the anonymous GMC patient satisfaction questionnaire.)
 
 
-Test subjects
--------------
+Test subjects (Clinician Mode only)
+-----------------------------------
 
 You may want to experiment with the non-anonymous tasks. A suggested way is to
 define a fake patient with an invalid ID number, or perhaps a few such patients
@@ -246,8 +251,18 @@ When viewing a read-only facsimile of a questionnaire-style task:
 Uploading
 ---------
 
-Choose :tabletmenu:`|upload| Upload data to server` from the main menu. It will
-only work if:
+Choose :tabletmenu:`|upload| Upload data to server` from the main menu.
+
+In :ref:`Single User Mode <single_user_mode>` uploading should happen
+automatically when you complete |finish| or abort |cancel| a task. If there was
+a problem with the automatic upload (e.g. due to no internet connection) the app
+will reattempt the upload when you return to the main menu from another screen,
+provided 10 minutes has elapsed since the last attempt. You can also use this option
+to reattempt the upload manually.
+
+The rest of this section applies to Clinician Mode.
+
+It will only work if:
 
 - You have chosen the server in :menuselection:`Settings --> Server settings`.
 
@@ -284,8 +299,8 @@ Use any web browser (on a computer or tablet) to browse to your CamCOPS server.
 See the :ref:`web interface instructions <website_general>` for more detail.
 
 
-Help
-----
+Help (Clinician Mode only)
+--------------------------
 
 The :tabletmenu:`|info_small| Help` menu includes, amongst other things:
 
@@ -294,3 +309,56 @@ The :tabletmenu:`|info_small| Help` menu includes, amongst other things:
 - a demonstration task, to try out all the user interface elements;
 
 - the CamCOPS app version number.
+
+
+.. _single_user_mode:
+
+Single user mode
+----------------
+
+Single User Mode is designed for a patient using the app at home on their own
+tablet. It is used in conjunction with :ref:`task schedules <scheduling_tasks>`.
+
+When you start the app for the first time, you will be prompted to enter the web
+address of the CamCOPS server and the unique access key for your patient. These
+should have been given to you by the clinician or researcher associated with the
+study you are participating in.
+
+On the main menu you will see a list of tasks that you need to complete
+and the date by which you need to complete them. You can start a task by
+selecting it from the list. When you complete |finish| or abort |cancel| a task
+and your tablet is connected to the internet, the app will upload your responses
+automatically to the server. The app then marks the task as completed. If you
+have completed all due tasks and there are tasks scheduled for future dates,
+the app will display the date when the next task will be available.
+
+If the app could not upload the tasks to the server, you can tell the app to try
+again. Choose :tabletmenu:`|upload| Upload data to server` from the main menu.
+
+You can select a number of other, less frequently used options by selecting
+:menuselection:`More options`:
+
+- :menuselection:`More options --> Get updates to my schedules` will fetch any
+  updates to your task schedules from the server.
+
+- :menuselection:`More options --> Choose language`
+
+- :menuselection:`More options --> Online CamCOPS documentation`
+
+- :menuselection:`More options --> Questionnaire font size`
+
+- :menuselection:`More options --> Re-register me` will allow you to re-run the
+  patient registration process. **WARNING:** any records not yet uploaded to the
+  server will be lost.
+
+Note that anonymous tasks are not associated with a patient when uploaded to the
+server. If the database on the app is deleted and you re-register, we have no
+way of knowing if the anonymous task has been completed or not so it will always
+appear as incomplete.
+
+There are a couple of other options from :menuselection:`More options --> Advanced options`.
+These are intended to aid debugging so you should not need to use these in normal operation.
+
+- :menuselection:`Advanced options --> Configure server settings`
+
+- :menuselection:`Advanced options --> Enable network activity log`

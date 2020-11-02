@@ -350,8 +350,8 @@ it to the system context via
     mytext = _("Please translate me")
 
 If an appropriate comment tag is used, either in Python or Mako (here,
-``TRANSLATOR:``, as defined in ``build_translations.py``), the comment appears
-in the translation files.
+``TRANSLATOR:``, as defined in ``build_server_translations.py``), the comment
+appears in the translation files.
 
 **Forms**
 
@@ -372,10 +372,20 @@ Try e.g.
 Updating server strings
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-There is a CamCOPS development tool, ``build_translations.py``. Its help is as
-follows:
+There is a CamCOPS development tool, ``build_server_translations.py``. Its help
+is as follows:
 
-.. literalinclude:: build_translations_help.txt
+.. literalinclude:: _build_server_translations_help.txt
+    :language: none
+
+
+Updating client strings
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Similarly, there is a client-side development tool,
+``build_client_translations.py``. Its help is as follows:
+
+.. literalinclude:: _build_client_translations_help.txt
     :language: none
 
 

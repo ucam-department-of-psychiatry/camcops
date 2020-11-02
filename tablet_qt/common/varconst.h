@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -26,6 +26,17 @@ namespace varconst {
 // ----------------------------------------------------------------------------
 // Names of server variables, and a few associated constants.
 // ----------------------------------------------------------------------------
+
+// Mode
+extern const QString MODE;
+extern const int MODE_NOT_SET;
+extern const int MODE_CLINICIAN;
+extern const int MODE_SINGLE_USER;
+extern const int DEFAULT_MODE;
+
+// Single user mode
+extern const QString SINGLE_PATIENT_ID;  // contains the PK of the patient
+extern const QString SINGLE_PATIENT_PROQUINT;  // the registration access key
 
 // Language
 extern const QString LANGUAGE;
@@ -54,6 +65,7 @@ extern const QString STORE_SERVER_PASSWORD;
 extern const QString UPLOAD_METHOD;
 extern const QString MAX_DBSIZE_FOR_ONESTEP_UPLOAD;
 
+extern const bool VALIDATE_SSL_CERTIFICATES_IN_SINGLE_USER_MODE;
 extern const int UPLOAD_METHOD_MULTISTEP;  // the original way
 extern const int UPLOAD_METHOD_ONESTEP;  // available from v2.3.0
 extern const int UPLOAD_METHOD_BYSIZE;  // available from v2.3.0

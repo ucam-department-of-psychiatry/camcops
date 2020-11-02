@@ -7,6 +7,10 @@ build-*/
 
 # Temporary
 *~
+
+# silver searcher
+.ignore
+
 *.tmp
 *.profile
 
@@ -14,6 +18,9 @@ build-*/
 core
 # but not core directory
 !core/
+
+# Emacs
+.dir-locals.el
 
 # PyCharm
 .idea/*
@@ -25,3 +32,5 @@ __pycache__/
 distributables/
 server/camcops_server.egg-info
 working/*
+schema.plantuml
+schema.png

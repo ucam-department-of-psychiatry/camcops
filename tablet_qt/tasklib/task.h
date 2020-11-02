@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -20,6 +20,7 @@
 #pragma once
 #include <QCoreApplication>  // for Q_DECLARE_TR_FUNCTIONS
 #include <QDateTime>
+#include <QJsonObject>
 #include <QString>
 #include "common/aliases_camcops.h"
 #include "db/databaseobject.h"
@@ -38,6 +39,7 @@ class Task : public DatabaseObject
     friend class SingleTaskMenu;  // so it can call setupForEditingAndSave()
     friend class Patient;  // so it can call moveToPatient()
     friend class TaskChain;  // so it can call setupForEditingAndSave()
+    friend class TaskScheduleItemEditor;  // so it can call setupForEditingAndSave()
 
 public:
     enum class TaskImplementationType {
@@ -307,6 +309,9 @@ protected:
     // tasks) and save to database. Use when you've created a task and want
     // to edit it.
     void setupForEditingAndSave(const int patient_id = dbconst::NONEXISTENT_PK);
+
+    // Single user mode: apply any settings (down to task implementation)
+    virtual void applySettings(const QJsonObject settings) {Q_UNUSED(settings)}
 
     // Set the clinician fields to the app's default clinician information.
     // Called when the task is first created from the menus.

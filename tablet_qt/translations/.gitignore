@@ -1,0 +1,8 @@
+# We use .ts files for Qt, but it's nice to use Poedit.
+# The .po files are temporary.
+# See build_client_translations.py
+*.po
+
+# Something makes .mo files occasionally:
+*.mo
+

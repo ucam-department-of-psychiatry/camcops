@@ -29,13 +29,14 @@ camcops_server/cc_modules/cc_exception.py
 """
 
 import logging
+from typing import NoReturn
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
-def raise_runtime_error(msg: str) -> None:
+def raise_runtime_error(msg: str) -> NoReturn:
     """
     Reports an error message to the Python log and raises a
     :exc:`RuntimeError`.

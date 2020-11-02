@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -55,6 +55,8 @@
 #include "lib/uifunc.h"
 #include "tasklib/task.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskschedule.h"
+#include "tasklib/taskscheduleitem.h"
 #include "version/camcopsversion.h"
 
 using dbfunc::delimit;
@@ -72,12 +74,18 @@ const QString KEY_FIELDS("fields");    // B; fieldnames
 const QString KEY_FINALIZING("finalizing");  // C->S, in JSON, v2.3.0
 const QString KEY_ID_POLICY_UPLOAD("idPolicyUpload");  // S->C
 const QString KEY_ID_POLICY_FINALIZE("idPolicyFinalize");  // S->C
+const QString KEY_IP_USE_INFO("ip_use_info");  // S->C, new in v2.3.9
+const QString KEY_IP_USE_COMMERCIAL("ip_use_commercial");  // S->C, new in v2.3.9
+const QString KEY_IP_USE_CLINICAL("ip_use_clinical");  // S->C, new in v2.3.9
+const QString KEY_IP_USE_EDUCATIONAL("ip_use_educational");  // S->C, new in v2.3.9
+const QString KEY_IP_USE_RESEARCH("ip_use_research");  // S->C, new in v2.3.9
 const QString KEY_MOVE_OFF_TABLET_VALUES("move_off_tablet_values");  // C->S, v2.3.0
 const QString KEY_NFIELDS("nfields");  // B
 const QString KEY_NRECORDS("nrecords");  // B
 const QString KEY_OPERATION("operation");  // C->S
 const QString KEY_PASSWORD("password");  // C->S
 const QString KEY_PATIENT_INFO("patient_info");  // C->S, new in v2.3.0
+const QString KEY_PATIENT_PROQUINT("patient_proquint"); // C->S, new in v2.3.9
 const QString KEY_PKNAME("pkname");  // C->S
 const QString KEY_PKNAMEINFO("pknameinfo");  // C->S
 const QString KEY_PKVALUES("pkvalues");  // C->S
@@ -88,6 +96,8 @@ const QString KEY_SESSION_TOKEN("session_token");  // B
 const QString KEY_SUCCESS("success");  // S->C
 const QString KEY_TABLE("table");  // C->S
 const QString KEY_TABLES("tables");  // C->S
+const QString KEY_TASK_SCHEDULES("task_schedules");  // S->C, new in v2.3.9
+const QString KEY_TASK_SCHEDULE_ITEMS("task_schedule_items");
 const QString KEY_USER("user");  // C->S
 const QString KEY_VALUES("values");  // C->S
 const QString KEYPREFIX_ID_DESCRIPTION("idDescription");  // S->C
@@ -106,7 +116,9 @@ const QString OP_END_UPLOAD("end_upload");
 const QString OP_GET_EXTRA_STRINGS("get_extra_strings");
 const QString OP_GET_ID_INFO("get_id_info");
 const QString OP_GET_ALLOWED_TABLES("get_allowed_tables");  // v2.2.0
+const QString OP_GET_TASK_SCHEDULES("get_task_schedules");  // v2.3.9
 const QString OP_REGISTER("register");
+const QString OP_REGISTER_PATIENT("register_patient");  // v2.3.9
 const QString OP_START_PRESERVATION("start_preservation");
 const QString OP_START_UPLOAD("start_upload");
 const QString OP_UPLOAD_ENTIRE_DATABASE("upload_entire_database");  // v2.3.0
@@ -162,7 +174,8 @@ NetworkManager::NetworkManager(CamcopsApp& app,
     m_upload_current_record_index(0),
     m_recordwise_prune_req_sent(false),
     m_recordwise_pks_pruned(false),
-    m_upload_n_records(0)
+    m_upload_n_records(0),
+    m_register_next_stage(NextRegisterStage::Invalid)
 {
 }
 
@@ -207,9 +220,21 @@ void NetworkManager::deleteLogBox()
 }
 
 
-void NetworkManager::setSilent(const bool silent)
+void NetworkManager::enableLogging()
 {
-    m_silent = silent;
+    m_silent = false;
+}
+
+
+void NetworkManager::disableLogging()
+{
+    m_silent = true;
+}
+
+
+bool NetworkManager::isLogging() const
+{
+    return !m_silent;
 }
 
 
@@ -258,7 +283,7 @@ void NetworkManager::logboxCancelled()
 #endif
     cleanup();
     deleteLogBox();
-    emit cancelled();
+    emit cancelled(ErrorCode::NoError, QString());
 }
 
 
@@ -368,7 +393,7 @@ QNetworkRequest NetworkManager::createServerRequest(bool& success)
                 serverUrl(success),
                 true,  // always offer cancel
                 true,  // always use SSL
-                !m_app.varBool(varconst::VALIDATE_SSL_CERTIFICATES),  // ignore SSL errors?
+                !m_app.validateSslCertificates(),  // ignore SSL errors?
                 ssl_protocol);
 }
 
@@ -443,7 +468,7 @@ bool NetworkManager::processServerReply(QNetworkReply* reply)
     reply->deleteLater();
     if (reply->error() != QNetworkReply::NoError) {
         statusMessage(tr("Network failure: ") + reply->errorString());
-        fail();
+        fail(convertQtNetworkCode(reply->error()), reply->errorString());
         return false;
     }
     m_reply_data = reply->readAll();  // can probably do this only once
@@ -460,7 +485,9 @@ bool NetworkManager::processServerReply(QNetworkReply* reply)
             "Reply is not from CamCOPS API. Are your server settings "
             "misconfigured? Reply is below."));
         htmlStatusMessage(convert::getReplyString(m_reply_data));
-        fail();
+        fail(ErrorCode::IncorrectReplyFormat,
+             tr("Reply is not from CamCOPS API. Are your server settings "
+                "misconfigured?"));
         return false;
     }
     m_tmp_session_id = m_reply_dict[KEY_SESSION_ID];
@@ -472,8 +499,20 @@ bool NetworkManager::processServerReply(QNetworkReply* reply)
     // error too:
     statusMessage(tr("Server reported an error: ") +
                   m_reply_dict[KEY_ERROR]);
-    fail();
+    fail(ErrorCode::ServerError, QString(m_reply_dict[KEY_ERROR]));
     return false;
+}
+
+
+NetworkManager::ErrorCode NetworkManager::convertQtNetworkCode(
+    const QNetworkReply::NetworkError error_code)
+{
+    Q_UNUSED(error_code)
+
+    // There doesn't seem to be a way to correctly identify the
+    // source of the problem. So for now just return the same error code and
+    // in the app produce a list of things for the user to check.
+    return NetworkManager::GenericNetworkError;
 }
 
 
@@ -590,6 +629,7 @@ void NetworkManager::cleanup()
     m_tmp_password = "";
     m_tmp_session_id = "";
     m_tmp_session_token = "";
+    m_register_next_stage = NextRegisterStage::Invalid;
     m_reply_data.clear();
     m_reply_dict.clear();
 
@@ -627,42 +667,40 @@ void NetworkManager::cancel()
 #endif
     cleanup();
     if (m_logbox) {
-        m_logbox->reject();  // its rejected() signal calls our logboxCancelled()
-    } else {
-        emit cancelled();
+        return m_logbox->reject();  // its rejected() signal calls our logboxCancelled()
     }
+
+    emit cancelled(ErrorCode::NoError, QString());
 }
 
 
-void NetworkManager::fail()
-{
-    finish(false);
-}
-
-
-void NetworkManager::succeed()
-{
-    finish(true);
-}
-
-
-void NetworkManager::finish(const bool success)
+void NetworkManager::fail(const ErrorCode error_code,
+                          const QString& error_string)
 {
 #ifdef DEBUG_ACTIVITY
     qDebug() << Q_FUNC_INFO;
 #endif
     cleanup();
     if (m_logbox) {
-        m_logbox->finish(success);  // its signals call our logboxCancelled() or logboxFinished()
-    } else {
-        if (success) {
-            emit finished();
-        } else {
-            emit cancelled();
-        }
+        return m_logbox->finish(false);  // its signals call our logboxCancelled() or logboxFinished()
     }
+
+    emit cancelled(error_code, error_string);
 }
 
+
+void NetworkManager::succeed()
+{
+#ifdef DEBUG_ACTIVITY
+    qDebug() << Q_FUNC_INFO;
+#endif
+    cleanup();
+    if (m_logbox) {
+        return m_logbox->finish(true);  // its signals call our logboxCancelled() or logboxFinished()
+    }
+
+    emit finished();
+}
 
 
 // ============================================================================
@@ -673,14 +711,14 @@ void NetworkManager::testHttpGet(const QString& url, const bool offer_cancel)
 {
     QNetworkRequest request = createRequest(QUrl(url), offer_cancel,
                                             false, false);
-    statusMessage(tr("Testing HTTP GET connection to: ") + url);
+    statusMessage(tr("Testing HTTP GET connection to:") + " " + url);
     // Safe object lifespan signal: can use std::bind
     QObject::connect(m_mgr, &QNetworkAccessManager::finished,
                      std::bind(&NetworkManager::testReplyFinished,
                                this, std::placeholders::_1));
     // GET
     m_mgr->get(request);
-    statusMessage(tr("... sent request to: ") + url);
+    statusMessage(tr("... sent request to:") + " " + url);
 }
 
 
@@ -690,7 +728,7 @@ void NetworkManager::testHttpsGet(const QString& url, const bool offer_cancel,
     QNetworkRequest request = createRequest(QUrl(url), offer_cancel,
                                             true, ignore_ssl_errors,
                                             QSsl::AnyProtocol);
-    statusMessage(tr("Testing HTTPS GET connection to: ") + url);
+    statusMessage(tr("Testing HTTPS GET connection to:") + " " + url);
     // Safe object lifespan signal: can use std::bind
     QObject::connect(m_mgr, &QNetworkAccessManager::finished,
                      std::bind(&NetworkManager::testReplyFinished, this,
@@ -698,7 +736,7 @@ void NetworkManager::testHttpsGet(const QString& url, const bool offer_cancel,
     // Note: the reply callback arrives on the main (GUI) thread.
     // GET
     m_mgr->get(request);
-    statusMessage(tr("... sent request to: ") + url);
+    statusMessage(tr("... sent request to:") + " " + url);
 }
 
 
@@ -708,10 +746,10 @@ void NetworkManager::testReplyFinished(QNetworkReply* reply)
         statusMessage(tr("Result:"));
         statusMessage(reply->readAll());
     } else {
-        statusMessage(tr("Network error: ") + reply->errorString());
+        statusMessage(tr("Network error:") + " " + reply->errorString());
     }
     reply->deleteLater();  // http://doc.qt.io/qt-5/qnetworkaccessmanager.html#details
-    finish();
+    succeed();
 }
 
 
@@ -721,59 +759,230 @@ void NetworkManager::testReplyFinished(QNetworkReply* reply)
 
 void NetworkManager::registerWithServer()
 {
-    statusMessage(tr("Registering with ") + serverUrlDisplayString());
-    Dict dict;
-    dict[KEY_OPERATION] = OP_REGISTER;
-    dict[KEY_DEVICE_FRIENDLY_NAME] = m_app.varString(varconst::DEVICE_FRIENDLY_NAME);
-    serverPost(dict, &NetworkManager::registerSub1);
+    registerNext();
 }
 
+void NetworkManager::registerNext(QNetworkReply* reply)
+{
+    if (reply) {
+        if (!processServerReply(reply)) {
+            return;
+        }
 
-void NetworkManager::registerSub1(QNetworkReply* reply)
+        statusMessage(tr("... OK"));
+    }
+
+    Dict dict;
+
+    switch (m_register_next_stage) {
+
+    case NextRegisterStage::Invalid:
+        m_register_next_stage = NextRegisterStage::Register;
+        registerNext();
+        break;
+
+    case NextRegisterStage::Register:
+        statusMessage(
+            //: Server URL
+            tr("Registering with %1 and receiving identification information")
+            .arg(serverUrlDisplayString())
+        );
+        dict[KEY_OPERATION] = OP_REGISTER;
+        dict[KEY_DEVICE_FRIENDLY_NAME] = m_app.varString(
+            varconst::DEVICE_FRIENDLY_NAME
+        );
+        m_register_next_stage = NextRegisterStage::StoreServerIdentification;
+
+        serverPost(dict, &NetworkManager::registerNext);
+        break;
+
+    case NextRegisterStage::StoreServerIdentification:
+        storeServerIdentificationInfo();
+        m_register_next_stage = NextRegisterStage::GetAllowedTables;
+
+        registerNext();
+        break;
+
+    case NextRegisterStage::GetAllowedTables:
+        statusMessage(tr("Requesting allowed tables"));
+        dict[KEY_OPERATION] = OP_GET_ALLOWED_TABLES;
+        m_register_next_stage = NextRegisterStage::StoreAllowedTables;
+
+        serverPost(dict, &NetworkManager::registerNext);
+        break;
+
+    case NextRegisterStage::StoreAllowedTables:
+        storeAllowedTables();
+        m_register_next_stage = NextRegisterStage::GetExtraStrings;
+
+        registerNext();
+        break;
+
+    case NextRegisterStage::GetExtraStrings:
+        statusMessage(tr("Requesting extra strings"));
+        dict[KEY_OPERATION] = OP_GET_EXTRA_STRINGS;
+
+        m_register_next_stage = NextRegisterStage::StoreExtraStrings;
+
+        serverPost(dict, &NetworkManager::registerNext);
+        break;
+
+    case NextRegisterStage::StoreExtraStrings:
+        storeExtraStrings();
+        m_register_next_stage = NextRegisterStage::Finished;
+
+        if (m_app.isSingleUserMode()) {
+            m_register_next_stage = NextRegisterStage::GetTaskSchedules;
+        }
+        registerNext();
+        break;
+
+    case NextRegisterStage::GetTaskSchedules:
+        dict[KEY_OPERATION] = OP_GET_TASK_SCHEDULES;
+        dict[KEY_PATIENT_PROQUINT] = m_app.varString(
+            varconst::SINGLE_PATIENT_PROQUINT
+        );
+
+        m_register_next_stage = NextRegisterStage::StoreTaskSchedules;
+
+        serverPost(dict, &NetworkManager::registerNext);
+        break;
+
+    case NextRegisterStage::StoreTaskSchedules:
+        storeTaskSchedules();
+
+        m_register_next_stage = NextRegisterStage::Finished;
+        registerNext();
+        break;
+
+    case NextRegisterStage::Finished:
+        statusMessage(tr("Completed successfully."));
+
+        succeed();
+        break;
+
+    default:
+        uifunc::stopApp("Bug: unknown m_register_next_stage");
+    }
+}
+
+void NetworkManager::updateTaskSchedules()
+{
+    Dict dict;
+
+    dict[KEY_OPERATION] = OP_GET_TASK_SCHEDULES;
+    dict[KEY_PATIENT_PROQUINT] = m_app.varString(
+        varconst::SINGLE_PATIENT_PROQUINT
+    );
+
+    statusMessage(tr("Getting task schedules from") + " " +
+                  serverUrlDisplayString());
+
+    serverPost(dict, &NetworkManager::receivedTaskSchedules);
+}
+
+void NetworkManager::receivedTaskSchedules(QNetworkReply* reply)
 {
     if (!processServerReply(reply)) {
         return;
     }
-    statusMessage(tr("... registered and received identification information"));
-    storeServerIdentificationInfo();
 
-    statusMessage(tr("Requesting allowed tables"));
-    Dict dict;
-    dict[KEY_OPERATION] = OP_GET_ALLOWED_TABLES;
-    serverPost(dict, &NetworkManager::registerSub2);
-}
-
-
-void NetworkManager::registerSub2(QNetworkReply* reply)
-{
-    if (!processServerReply(reply)) {
-        return;
-    }
-    statusMessage(tr("... received allowed tables"));
-    storeAllowedTables();
-
-    statusMessage(tr("Requesting extra strings"));
-    Dict dict;
-    dict[KEY_OPERATION] = OP_GET_EXTRA_STRINGS;
-    serverPost(dict, &NetworkManager::registerSub3);
-}
-
-
-void NetworkManager::registerSub3(QNetworkReply* reply)
-{
-    if (!processServerReply(reply)) {
-        return;
-    }
-    statusMessage(tr("... received extra strings"));
-    storeExtraStrings();
-    statusMessage(tr("Completed successfully."));
+    storeTaskSchedules();
     succeed();
+}
+
+
+void NetworkManager::storeTaskSchedules()
+{
+    statusMessage(tr("... received task schedules"));
+
+    QJsonParseError error;
+    QJsonDocument doc = QJsonDocument::fromJson(
+        m_reply_dict[KEY_TASK_SCHEDULES].toUtf8(), &error
+    );
+
+    if (doc.isNull()) {
+        const QString message = tr("Failed to parse task schedules: %1").arg(
+            error.errorString()
+        );
+        statusMessage(message);
+        fail(ErrorCode::JsonParseError, message);
+
+        return;
+    }
+
+    TaskSchedulePtrList old_schedules = m_app.getTaskSchedules();
+
+    TaskSchedulePtrList new_schedules;
+    const QJsonArray schedules_array = doc.array();
+    QJsonArray::const_iterator it;
+    for (it = schedules_array.constBegin();
+            it != schedules_array.constEnd(); it++) {
+        QJsonObject schedule_json = it->toObject();
+
+        TaskSchedulePtr schedule = TaskSchedulePtr(
+            new TaskSchedule(m_app, m_app.sysdb(), schedule_json)
+        );
+
+        schedule->save();
+
+        schedule->addItems(
+            schedule_json.value(KEY_TASK_SCHEDULE_ITEMS).toArray()
+        );
+
+        new_schedules.append(schedule);
+    }
+
+    if (old_schedules.size() > 0) {
+        updateCompleteStatusForAnonymousTasks(old_schedules, new_schedules);
+    }
+
+    for (const TaskSchedulePtr& old_schedule : old_schedules) {
+        old_schedule->deleteFromDatabase();
+    }
+}
+
+
+void NetworkManager::updateCompleteStatusForAnonymousTasks(
+    TaskSchedulePtrList old_schedules, TaskSchedulePtrList new_schedules
+)
+{
+    // When updating the schedule, the server does not know which anonymous
+    // tasks have been completed so we use any existing data on the tablet.
+    // The new task schedule item has to match the old one exactly in terms
+    // of table name, date etc
+
+    QMap<QString, TaskSchedulePtr> old_schedule_map;
+    for (const TaskSchedulePtr& old_schedule : old_schedules) {
+        old_schedule_map[old_schedule->name()] = old_schedule;
+    }
+
+    for (const TaskSchedulePtr& new_schedule : new_schedules) {
+        QString schedule_name = new_schedule->name();
+        if (old_schedule_map.contains(schedule_name)) {
+            TaskSchedulePtr old_schedule = old_schedule_map[schedule_name];
+
+            for (const TaskScheduleItemPtr& old_item: old_schedule->items()) {
+
+                if (old_item->isAnonymous()) {
+                    TaskScheduleItemPtr new_item = new_schedule->findItem(
+                        old_item
+                    );
+
+                    if (new_item != nullptr) {
+                        new_item->setComplete(old_item->isComplete());
+                        new_item->save();
+                    }
+                }
+            }
+        }
+    }
 }
 
 
 void NetworkManager::fetchIdDescriptions()
 {
-    statusMessage(tr("Getting ID info from ") + serverUrlDisplayString());
+    statusMessage(tr("Getting ID info from") + " " + serverUrlDisplayString());
     Dict dict;
     dict[KEY_OPERATION] = OP_GET_ID_INFO;
     serverPost(dict, &NetworkManager::fetchIdDescriptionsSub1);
@@ -793,7 +1002,8 @@ void NetworkManager::fetchIdDescriptionsSub1(QNetworkReply* reply)
 
 void NetworkManager::fetchExtraStrings()
 {
-    statusMessage(tr("Getting extra strings from ") + serverUrlDisplayString());
+    statusMessage(tr("Getting extra strings from") + " " +
+                  serverUrlDisplayString());
     Dict dict;
     dict[KEY_OPERATION] = OP_GET_EXTRA_STRINGS;
     serverPost(dict, &NetworkManager::fetchExtraStringsSub1);
@@ -829,11 +1039,9 @@ void NetworkManager::fetchAllServerInfoSub1(QNetworkReply* reply)
     statusMessage(tr("... received identification information"));
     storeServerIdentificationInfo();
 
-    statusMessage(tr("Requesting allowed tables"));
-    Dict dict;
-    dict[KEY_OPERATION] = OP_GET_ALLOWED_TABLES;
     // Now we move across to the "registration" chain of functions:
-    serverPost(dict, &NetworkManager::registerSub2);
+    m_register_next_stage = NextRegisterStage::GetAllowedTables;
+    registerNext();
 }
 
 
@@ -870,8 +1078,9 @@ void NetworkManager::storeServerIdentificationInfo()
     // this to NULL, so it doesn't give the impression that we have uploaded
     // our data to the new server.
 
-    // Deselect patient, or its description text may be out of date
-    m_app.deselectPatient();
+    // Deselect patient or reload single user mode patient as its description
+    // text may be out of date
+    m_app.setDefaultPatient(true);
 }
 
 
@@ -903,7 +1112,8 @@ void NetworkManager::storeExtraStrings()
 
 void NetworkManager::upload(const UploadMethod method)
 {
-    statusMessage(tr("Preparing to upload to: ") + serverUrlDisplayString());
+    statusMessage(tr("Preparing to upload to:") + " " +
+                  serverUrlDisplayString());
     // ... in part so uploadNext() status message looks OK
 
     // The GUI doesn't get a chance to respond until after this function
@@ -1126,7 +1336,7 @@ void NetworkManager::uploadNext(QNetworkReply* reply)
         statusMessage(tr("Finished"));
         m_app.setVar(varconst::LAST_SUCCESSFUL_UPLOAD, datetime::now());
         m_app.setNeedsUpload(false);
-        m_app.deselectPatient(true);  // even for "copy" method; see changelog
+        m_app.setDefaultPatient(true);  // even for "copy" method; see changelog
         m_app.forceRefreshPatientList();
         succeed();
         break;
@@ -1811,6 +2021,7 @@ bool NetworkManager::catalogueTablesForUpload()
         // whether we clear it or not.)
         switch (m_upload_method) {
         case UploadMethod::Copy:
+        case UploadMethod::Invalid:
 #ifdef COMPILER_WANTS_DEFAULT_IN_EXHAUSTIVE_SWITCH
         default:
 #endif
@@ -2017,8 +2228,8 @@ void NetworkManager::queryFail(const QString &sql)
 
 void NetworkManager::queryFailClearingMoveOffFlag(const QString& tablename)
 {
-    queryFail(tr("... trying to clear move-off-tablet flag for table: ") +
-              tablename);
+    queryFail(tr("... trying to clear move-off-tablet flag for table:") +
+              " " + tablename);
 }
 
 
@@ -2107,6 +2318,10 @@ bool NetworkManager::serverSupportsOneStepUpload() const
 
 bool NetworkManager::shouldUseOneStepUpload() const
 {
+    if (m_app.isSingleUserMode()) {
+        return false;
+    }
+
     if (!serverSupportsOneStepUpload()) {
         return false;
     }
@@ -2160,4 +2375,115 @@ QString NetworkManager::txtPleaseRefetchServerInfo()
 {
     // return " " + tr("Please re-register with the server.");
     return " " + tr("Please re-fetch server information.");
+}
+
+// ============================================================================
+// Patient registration
+// ============================================================================
+
+void NetworkManager::registerPatient()
+{
+    Dict dict;
+    dict[KEY_OPERATION] = OP_REGISTER_PATIENT;
+    dict[KEY_PATIENT_PROQUINT] = m_app.varString(
+        varconst::SINGLE_PATIENT_PROQUINT
+    );
+
+    const bool include_user = !m_app.varString(varconst::SERVER_USERNAME).isEmpty();
+    serverPost(dict, &NetworkManager::registerPatientSub1, include_user);
+}
+
+void NetworkManager::registerPatientSub1(QNetworkReply* reply)
+{
+    if (!processServerReply(reply)) {
+        return;
+    }
+
+    setUserDetails();
+    if (!createSinglePatient()) {
+        return;
+    }
+
+    if (!setIpUseInfo()) {
+        return;
+    }
+
+    registerWithServer();
+}
+
+
+void NetworkManager::setUserDetails()
+{
+    if (m_reply_dict.contains(KEY_USER)) {
+        m_app.setEncryptedServerPassword(m_reply_dict[KEY_PASSWORD]);
+        m_app.setVar(varconst::SERVER_USERNAME, m_reply_dict[KEY_USER]);
+    }
+}
+
+
+bool NetworkManager::createSinglePatient()
+{
+    QJsonParseError error;
+
+    QJsonDocument doc = QJsonDocument::fromJson(
+        m_reply_dict[KEY_PATIENT_INFO].toUtf8(), &error
+    );
+
+    if (doc.isNull()) {
+        const QString message = tr("Failed to parse patient info: %1").arg(
+            error.errorString()
+        );
+        statusMessage(message);
+        fail(ErrorCode::JsonParseError, message);
+
+        return false;
+    }
+
+    // Consistent with uploading patients but only one element
+    // in the array
+    const QJsonArray patients_json_array = doc.array();
+    const QJsonObject patient_json = patients_json_array.first().toObject();
+
+    PatientPtr patient = PatientPtr(
+        new Patient(m_app, m_app.db(), patient_json)
+    );
+    patient->save();
+    m_app.setSinglePatientId(patient->id());
+
+    patient->addIdNums(patient_json);
+
+    return true;
+}
+
+
+bool NetworkManager::setIpUseInfo()
+{
+    QJsonParseError error;
+
+    QJsonDocument doc = QJsonDocument::fromJson(
+        m_reply_dict[KEY_IP_USE_INFO].toUtf8(), &error
+    );
+
+    if (doc.isNull()) {
+        const QString message = tr(
+            "Failed to parse intellectual property use info: %1"
+        ).arg(error.errorString());
+        statusMessage(message);
+        fail(ErrorCode::JsonParseError, message);
+
+        return false;
+    }
+
+    const QJsonObject ip_use_info = doc.object();
+
+    m_app.setVar(varconst::IP_USE_CLINICAL,
+                 ip_use_info.value(KEY_IP_USE_CLINICAL));
+    m_app.setVar(varconst::IP_USE_COMMERCIAL,
+                 ip_use_info.value(KEY_IP_USE_COMMERCIAL));
+    m_app.setVar(varconst::IP_USE_EDUCATIONAL,
+                 ip_use_info.value(KEY_IP_USE_EDUCATIONAL));
+    m_app.setVar(varconst::IP_USE_RESEARCH,
+                 ip_use_info.value(KEY_IP_USE_RESEARCH));
+
+    return true;
 }

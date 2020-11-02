@@ -113,6 +113,8 @@ class Caps(TaskHasPatientMixin, Task,
     shortname = "CAPS"
     provides_trackers = True
 
+    prohibits_commercial = True
+
     NQUESTIONS = 32
     ENDORSE_FIELDS = strseq("endorse", 1, NQUESTIONS)
 

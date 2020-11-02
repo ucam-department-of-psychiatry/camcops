@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -40,8 +40,12 @@
 #include "menu/singletaskmenu.h"
 #include "menulib/htmlinfowindow.h"
 #include "menulib/menuwindow.h"
+#include "menulib/taskscheduleitemmenuitem.h"
 #include "tasklib/taskchain.h"
 #include "tasklib/taskfactory.h"
+#include "tasklib/taskschedule.h"
+#include "tasklib/taskscheduleitem.h"
+#include "tasklib/taskscheduleitemeditor.h"
 #include "widgets/basewidget.h"
 #include "widgets/labelwordwrapwide.h"
 #include "widgets/openablewidget.h"
@@ -201,6 +205,15 @@ MenuItem::MenuItem(PatientPtr p_patient)
 }
 
 
+MenuItem::MenuItem(const TaskScheduleItemMenuItem& menu_item)
+{
+    setDefaults();
+    m_p_task_schedule_item = menu_item.task_schedule_item;
+    m_title = m_p_task_schedule_item->title();
+    m_subtitle = m_p_task_schedule_item->subtitle();
+}
+
+
 void MenuItem::setDefaults()
 {
     // Not the most efficient, but saves lots of duplication
@@ -227,6 +240,7 @@ void MenuItem::setDefaults()
     m_p_task.clear();
     m_p_taskchain.clear();
     m_p_patient.clear();
+    m_p_task_schedule_item.clear();
 }
 
 
@@ -450,7 +464,6 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
 
         rowlayout->addLayout(textlayout);
         rowlayout->addStretch();
-
     } else {
         // --------------------------------------------------------------------
         // Conventional menu item
@@ -513,6 +526,12 @@ QWidget* MenuItem::rowWidget(CamcopsApp& app) const
         // ... but not for locked/needs privilege, as otherwise we'd need
         // to refresh the whole menu? Well, we could try it.
         // On Linux desktop, it's extremely fast.
+
+        if (m_p_task_schedule_item) {
+            if (m_p_task_schedule_item->isEditable()) {
+                row->setObjectName(cssconst::MENU_ITEM_EDITABLE_TASK);
+            }
+        }
     }
 
     // Size policy
@@ -596,6 +615,15 @@ void MenuItem::act(CamcopsApp& app) const
         uifunc::visitUrl(m_url_item.url);
         return;
     }
+    if (m_p_task_schedule_item) {
+        if (m_p_task_schedule_item->isEditable()) {
+            auto editor = new TaskScheduleItemEditor(app, m_p_task_schedule_item);
+            editor->editTask();
+        }
+
+        return;
+    }
+
     qWarning() << "Menu item selected but no action specified:"
                << m_title;
 }
@@ -688,6 +716,7 @@ QDebug operator<<(QDebug debug, const MenuItem& m)
                     << " (m_title=" << m.m_title
                     << ", m_p_task=" << m.m_p_task
                     << ", m_p_patient=" << m.m_p_patient
+                    << ", m_p_task_schedule_item=" << m.m_p_task_schedule_item
                     << ")";
     return debug;
 }

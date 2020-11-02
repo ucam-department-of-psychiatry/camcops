@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -78,7 +78,7 @@ QString CgiI::xstringTaskname() const
 
 QString CgiI::infoFilenameStem() const
 {
-    return "from_lp";
+    return "cgi";
 }
 
 

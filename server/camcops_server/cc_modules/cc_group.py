@@ -41,6 +41,7 @@ from sqlalchemy.orm import relationship, Session as SqlASession
 from sqlalchemy.sql.schema import Column, ForeignKey, Table
 from sqlalchemy.sql.sqltypes import Integer
 
+from camcops_server.cc_modules.cc_ipuse import IpUse
 from camcops_server.cc_modules.cc_policy import TokenizedPolicy
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     GROUP_NAME_MAX_LEN,
@@ -133,6 +134,15 @@ class Group(Base):
         comment="Finalize policy for the group, as a string"
     )
 
+    ip_use_id = Column(
+        "ip_use_id", Integer, ForeignKey(IpUse.id),
+        nullable=True,
+        comment=f"FK to {IpUse.__tablename__}.{IpUse.id.name}"
+    )
+
+    ip_use = relationship(IpUse, uselist=False, single_parent=True,
+                          cascade="all, delete-orphan")
+
     # users = relationship(
     #     "User",  # defined with string to avoid circular import
     #     secondary=user_group_table,  # link via this mapping table
@@ -141,6 +151,18 @@ class Group(Base):
     user_group_memberships = relationship(
         "UserGroupMembership", back_populates="group")
     users = association_proxy("user_group_memberships", "user")
+
+    regular_user_group_memberships = relationship(
+        "UserGroupMembership",
+        primaryjoin="and_("
+        "Group.id==UserGroupMembership.group_id, "
+        "User.id==UserGroupMembership.user_id, "
+        "User.auto_generated==False)"
+    )
+    regular_users = association_proxy(
+        "regular_user_group_memberships",
+        "user"
+    )
 
     can_see_other_groups = relationship(
         "Group",  # link back to our own class

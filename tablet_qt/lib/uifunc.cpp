@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -44,10 +44,14 @@
 #include <QUrl>
 #include "common/colourdefs.h"
 #include "common/cssconst.h"
+#include "common/languages.h"
 #include "common/platform.h"
 #include "common/textconst.h"
 #include "common/uiconst.h"
+#include "core/camcopsapp.h"
+#include "dialogs/dangerousconfirmationdialog.h"
 #include "dialogs/logmessagebox.h"
+#include "dialogs/nvpchoicedialog.h"
 #include "dialogs/passwordchangedialog.h"
 #include "dialogs/passwordentrydialog.h"
 #include "dialogs/scrollmessagebox.h"
@@ -543,6 +547,15 @@ bool confirm(const QString& text, const QString& title,
 }
 
 
+bool confirmDangerousOperation(const QString& text, const QString& title,
+                               QWidget* parent)
+{
+    DangerousConfirmationDialog dlg(text, title, parent);
+
+    return dlg.confirmed();
+}
+
+
 // ============================================================================
 // Password checks/changes
 // ============================================================================
@@ -575,6 +588,22 @@ bool getOldNewPasswords(const QString& text, const QString& title,
     old_password = dlg.oldPassword();
     new_password = dlg.newPassword();
     return true;
+}
+
+
+// ============================================================================
+// Choose language
+// ============================================================================
+
+void chooseLanguage(CamcopsApp& app, QWidget* parent_window) {
+    QVariant language = app.getLanguage();
+    NvpChoiceDialog dlg(parent_window, languages::possibleLanguages(),
+                        QObject::tr("Choose language"));
+    dlg.showExistingChoice(true);
+    if (dlg.choose(&language) != QDialog::Accepted) {
+        return;  // user pressed cancel, or some such
+    }
+    app.setLanguage(language.toString(), true);
 }
 
 
@@ -612,6 +641,7 @@ QString textCSS(const int fontsize_pt,
 
 void visitUrl(const QString& url)
 {
+    qInfo().noquote() << "Launching URL:" << url;
     bool success = QDesktopServices::openUrl(QUrl(url));
     if (!success) {
         alert(QObject::tr("Failed to open browser"));
