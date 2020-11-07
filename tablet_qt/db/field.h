@@ -72,8 +72,6 @@ public:
     // Does this field have a non-NULL default database value?
     bool hasDbDefaultValue() const;
 
-    // Sets this fid
-
     // Returns the field's name.
     QString name() const;
 

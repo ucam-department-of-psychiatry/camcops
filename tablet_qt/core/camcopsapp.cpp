@@ -981,8 +981,14 @@ void CamcopsApp::openOrCreateDatabases()
 
     const QString data_filename = dbFullPath(dbfunc::DATA_DATABASE_FILENAME);
     const QString sys_filename = dbFullPath(dbfunc::SYSTEM_DATABASE_FILENAME);
-    m_datadb = DatabaseManagerPtr(new DatabaseManager(data_filename, CONNECTION_DATA));
-    m_sysdb = DatabaseManagerPtr(new DatabaseManager(sys_filename, CONNECTION_SYS));
+    m_datadb = DatabaseManagerPtr(new DatabaseManager(
+                                      data_filename, CONNECTION_DATA));
+    m_sysdb = DatabaseManagerPtr(new DatabaseManager(
+                                     sys_filename,
+                                     CONNECTION_SYS,
+                                     whichdb::DBTYPE,
+                                     true, /* threaded */
+                                     true /* system_db */ ));
 }
 
 

@@ -943,12 +943,21 @@ void DatabaseObject::deleteFromDatabase()
     // BLOB field is simply an integer FK to the BLOB table.
     // However, we can reliably do it the other way round, and, moreover,
     // delete all associated BLOBs in one DELETE command:
-    WhereConditions where_blob;
-    where_blob.add(Blob::SRC_TABLE_FIELDNAME, tablename());
-    where_blob.add(Blob::SRC_PK_FIELDNAME, pk);
-    if (!m_db.deleteFrom(Blob::TABLENAME, where_blob)) {
-        qWarning() << "Failed to delete BLOB(s) where:" << where_blob;
+    if (!m_db.isSystemDb()) {
+        WhereConditions where_blob;
+        where_blob.add(Blob::SRC_TABLE_FIELDNAME, tablename());
+        where_blob.add(Blob::SRC_PK_FIELDNAME, pk);
+        if (!m_db.deleteFrom(Blob::TABLENAME, where_blob)) {
+            qWarning() << "Failed to delete BLOB(s) where:" << where_blob;
+        }
     }
+    // This generates a query like:
+    //   DELETE FROM "blobs" WHERE "tablename" = 'task_schedule' AND "tablepk" = 1
+    // If you try this from the "system" database, you will see
+    //   [Qt]
+    //   Query failed; error was: QSqlError("", "Parameter count mismatch", "")
+    //   [SQLite command line]
+    //   Error: no such table: blobs
 
     // ------------------------------------------------------------------------
     // Delete associated ancillary objects
