@@ -53,7 +53,7 @@ void TaskScheduleItemEditor::editTask()
         task->setupForEditingAndSave(patient_id);
         const QJsonObject settings = m_p_task_schedule_item->settings();
         task->applySettings(settings);
-        m_p_task_schedule_item->setTask(task->pkvalue().toInt());
+        m_p_task_schedule_item->setTask(task->pkvalueInt());
     }
 
     OpenableWidget* widget = task->editor(false);
