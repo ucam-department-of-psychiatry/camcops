@@ -464,25 +464,39 @@ bool amInGuiThread()
 }
 
 
+// We're not meant to use non-GUI threads for dialogue boxes.
+// However, it is very helpful to see why the app is about to die! Definitely
+// better than dying silently.
+// And it seems to work fine (at least under Linux).
+#define USE_DIALOG_FOR_CRASH_EVEN_OUTSIDE_GUI_THREAD
+
 void stopApp(const QString& error, const QString& title)
 {
     // MODAL DIALOGUE, FOLLOWED BY HARD KILL,
     // so callers don't need to worry about what happens afterwards.
+
+    // 1. Tell the user
+#ifndef USE_DIALOG_FOR_CRASH_EVEN_OUTSIDE_GUI_THREAD
     if (amInGuiThread()) {
+#endif
         ScrollMessageBox box(QMessageBox::Critical, title, error);
         box.addButton(QObject::tr("Abort"), QDialogButtonBox::AcceptRole);
         box.exec();
+#ifndef USE_DIALOG_FOR_CRASH_EVEN_OUTSIDE_GUI_THREAD
+    } else {
+        qWarning("About to abort: can't tell user as not in GUI thread.");
     }
+#endif
+
+    // 2. Tell the debug stream and die.
     const QString msg = "ABORTING: " + error;
-    qFatal("%s", qPrintable(msg));
+    qFatal("%s", qPrintable(msg));  // will not return
     // If the first argument is not a string literal:
     // "format not a string literal and no format arguments"
     // https://bugreports.qt.io/browse/QTBUG-8967
 
     // qFatal() will kill the app
     // http://doc.qt.io/qt-4.8/qtglobal.html#qFatal
-
-    // exit(EXIT_FAILURE);
 }
 
 

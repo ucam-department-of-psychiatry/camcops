@@ -965,7 +965,14 @@ void DatabaseManager::createTable(const QString& tablename,
             if (plan.intended_field->isPk()) {
                 uifunc::stopApp(QString(
                     "createTable: Cannot add a PRIMARY KEY column "
-                    "(%s.%s)").arg(tablename, plan.name));
+                    "(%1.%2)").arg(tablename, plan.name));
+            }
+            if (plan.intended_field->notNull() &&
+                    !plan.intended_field->hasDbDefaultValue()) {
+                uifunc::stopApp(QString(
+                    "createTable: Cannot add a NOT NULL column to an existing "
+                    "table without a database default "
+                    "(%1.%2)").arg(tablename, plan.name));
             }
             execNoAnswer(QString("ALTER TABLE %1 ADD COLUMN %2 %3").arg(
                 tablename,

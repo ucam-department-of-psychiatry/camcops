@@ -107,7 +107,9 @@ void DatabaseObject::addField(const QString& fieldname,
     if (m_record.contains(fieldname)) {
         uifunc::stopApp("Attempt to insert duplicate fieldname: " + fieldname);
     }
-    Field field(fieldname, type, mandatory, unique, pk, default_value);
+    Field field(fieldname, type, mandatory, unique, pk,
+                default_value /* cpp_default_value */,
+                default_value /* db_default_value */);
     m_record.insert(fieldname, field);
     m_ordered_fieldnames.append(fieldname);
 }
@@ -123,7 +125,9 @@ void DatabaseObject::addField(const QString& fieldname,
     if (m_record.contains(fieldname)) {
         uifunc::stopApp("Attempt to insert duplicate fieldname: " + fieldname);
     }
-    Field field(fieldname, type_name, mandatory, unique, pk, default_value);
+    Field field(fieldname, type_name, mandatory, unique, pk,
+                default_value /* cpp_default_value */,
+                default_value /* db_default_value */);
     m_record.insert(fieldname, field);
     m_ordered_fieldnames.append(fieldname);
 }

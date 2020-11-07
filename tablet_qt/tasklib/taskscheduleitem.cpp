@@ -70,7 +70,11 @@ TaskScheduleItem::TaskScheduleItem(CamcopsApp& app, DatabaseManager& db,
     addField(FN_DUE_FROM, QVariant::String, true);
     addField(FN_DUE_BY, QVariant::String, true);
     addField(FN_COMPLETE, QVariant::Bool, true);
-    addField(FN_ANONYMOUS, QVariant::Bool, true);
+    addField(FN_ANONYMOUS, QVariant::Bool,
+             true /* mandatory */,
+             false /* unique */,
+             false /* pk */,
+             false /* default_value */);
     addField(FK_TASK, QVariant::Int, true);
 
     load(load_pk);
