@@ -1604,7 +1604,7 @@ bool NetworkManager::isPatientInfoComplete()
             if (!complies_with_finalize) {
                 ++nfailures_move_off;
             } else {
-                m_upload_patient_ids_to_move_off.append(patient.pkvalue().toInt());
+                m_upload_patient_ids_to_move_off.append(patient.pkvalueInt());
             }
         }
 
