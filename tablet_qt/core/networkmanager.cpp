@@ -911,7 +911,7 @@ void NetworkManager::storeTaskSchedules()
         return;
     }
 
-    TaskSchedulePtrList old_schedules = m_app.getTaskSchedules();
+    const TaskSchedulePtrList old_schedules = m_app.getTaskSchedules();
 
     TaskSchedulePtrList new_schedules;
     const QJsonArray schedules_array = doc.array();
@@ -944,8 +944,8 @@ void NetworkManager::storeTaskSchedules()
 
 
 void NetworkManager::updateCompleteStatusForAnonymousTasks(
-    TaskSchedulePtrList old_schedules, TaskSchedulePtrList new_schedules
-)
+        TaskSchedulePtrList old_schedules,
+        TaskSchedulePtrList new_schedules)
 {
     // When updating the schedule, the server does not know which anonymous
     // tasks have been completed so we use any existing data on the tablet.
@@ -958,7 +958,7 @@ void NetworkManager::updateCompleteStatusForAnonymousTasks(
     }
 
     for (const TaskSchedulePtr& new_schedule : new_schedules) {
-        QString schedule_name = new_schedule->name();
+        const QString schedule_name = new_schedule->name();
         if (old_schedule_map.contains(schedule_name)) {
             TaskSchedulePtr old_schedule = old_schedule_map[schedule_name];
 

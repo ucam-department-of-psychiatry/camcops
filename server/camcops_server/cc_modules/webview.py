@@ -2768,7 +2768,7 @@ class EditGroupView(UpdateView):
 @view_config(route_name=Routes.EDIT_GROUP,
              permission=Permission.SUPERUSER,
              http_cache=NEVER_CACHE)
-def edit_group(req: "CamcopsRequest") -> Dict[str, Any]:
+def edit_group(req: "CamcopsRequest") -> Response:
     """
     View to edit a group. Superusers only.
     """
@@ -3915,7 +3915,7 @@ class EditFinalizedPatientView(EditPatientBaseView):
     def get_object(self) -> Any:
         patient = cast(Patient, super().get_object())
 
-        if not patient.is_finalized(self.request):
+        if not patient.is_finalized():
             _ = self.request.gettext
 
             raise HTTPBadRequest(

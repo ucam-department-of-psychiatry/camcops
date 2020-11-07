@@ -270,18 +270,18 @@ def _is_valid_proquint(proquint: str) -> bool:
 
 def _generate_luhn_mod_16_remainder(proquint: str, start_factor: int) -> int:
     factor = start_factor
-    sum = 0
+    sum_ = 0
 
     for char in reversed(proquint):
         value = LOOKUP_TABLE[char] * factor
-        sum = sum + value // 16 + value % 16
+        sum_ = sum_ + value // 16 + value % 16
 
         if factor == 2:
             factor = 1
         else:
             factor = 2
 
-    return sum % 16
+    return sum_ % 16
 
 
 # =============================================================================

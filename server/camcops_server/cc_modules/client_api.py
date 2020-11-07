@@ -2136,7 +2136,7 @@ def get_single_patient(req: "CamcopsRequest") -> Patient:
 
     server_device = Device.get_server_device(req.dbsession)
 
-    # noinspection PyUnboundLocalVariable
+    # noinspection PyUnboundLocalVariable,PyProtectedMember
     patient = req.dbsession.query(Patient).filter(
         Patient.uuid == uuid_obj,
         Patient._device_id == server_device.id

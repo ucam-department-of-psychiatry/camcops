@@ -74,5 +74,10 @@ SlowGuiGuard::~SlowGuiGuard()
     }
 #endif
     delete m_wait_box;
+    // If you delete a QObject, it will unregister itself from its parent; see
+    // - https://stackoverflow.com/questions/17730330/destruction-of-qobjects
+    // But if there is any possibility that someone else may have deleted it
+    // first, you should use a QPointer, which we now do.
+
     s_waiting = false;
 }

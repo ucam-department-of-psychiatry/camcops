@@ -936,7 +936,7 @@ class Patient(GenericTabletRecordMixin, Base):
     # Editing
     # -------------------------------------------------------------------------
 
-    def is_finalized(self, req: "CamcopsRequest") -> bool:
+    def is_finalized(self) -> bool:
         """
         Is the patient finalized (no longer available to be edited on the
         client device), and therefore editable on the server?
@@ -1143,7 +1143,7 @@ class PatientTests(DemoDatabaseTestCase):
         self.assertIsInstance(p.get_iddesc(req, which_idnum=1), str)
         self.assertIsInstance(p.get_idshortdesc(req, which_idnum=1), str)
         self.assertIsInstance(p.is_preserved(), bool)
-        self.assertIsInstance(p.is_finalized(req), bool)
+        self.assertIsInstance(p.is_finalized(), bool)
         self.assertIsInstance(p.user_may_edit(req), bool)
 
 

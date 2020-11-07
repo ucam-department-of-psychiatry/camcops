@@ -143,6 +143,7 @@ CamcopsApp::~CamcopsApp()
     // http://doc.qt.io/qt-5.7/objecttrees.html
     // Only delete things that haven't been assigned a parent
     delete m_p_main_window;
+    delete m_network_gui_guard;
 }
 
 
@@ -243,7 +244,7 @@ void CamcopsApp::setModeFromUser()
 }
 
 
-bool CamcopsApp::modeChangeForbidden()
+bool CamcopsApp::modeChangeForbidden() const
 {
     if (isClinicianMode() && patientRecordsPresent()) {
         uifunc::alert(
@@ -256,9 +257,9 @@ bool CamcopsApp::modeChangeForbidden()
 }
 
 
-bool CamcopsApp::patientRecordsPresent()
+bool CamcopsApp::patientRecordsPresent() const
 {
-    return queryAllPatients().nRows() > 0;
+    return nPatients() > 0;
 }
 
 
@@ -267,10 +268,12 @@ int CamcopsApp::getSinglePatientId() const
     return var(varconst::SINGLE_PATIENT_ID).toInt();
 }
 
+
 void CamcopsApp::setSinglePatientId(const int id)
 {
     setVar(varconst::SINGLE_PATIENT_ID, id);
 }
+
 
 bool CamcopsApp::registerPatientWithServer()
 {
@@ -379,8 +382,8 @@ void CamcopsApp::updateTaskSchedules(const bool alert_unfinished_tasks)
 
 
 void CamcopsApp::patientRegistrationFailed(
-    const NetworkManager::ErrorCode error_code,
-    const QString& error_string)
+        const NetworkManager::ErrorCode error_code,
+        const QString& error_string)
 {
     deleteNetworkGuiGuard();
 
@@ -435,8 +438,8 @@ void CamcopsApp::patientRegistrationFinished()
 
 
 void CamcopsApp::updateTaskSchedulesFailed(
-    const NetworkManager::ErrorCode error_code,
-    const QString& error_string)
+        const NetworkManager::ErrorCode error_code,
+        const QString& error_string)
 {
     deleteNetworkGuiGuard();
     handleNetworkFailure(
@@ -488,7 +491,6 @@ void CamcopsApp::deleteNetworkGuiGuard()
 {
     if (m_network_gui_guard) {
         delete m_network_gui_guard;
-
         m_network_gui_guard = nullptr;
     }
 }
@@ -496,7 +498,7 @@ void CamcopsApp::deleteNetworkGuiGuard()
 
 void CamcopsApp::retryUpload()
 {
-    bool needs_upload = needsUpload();
+    const bool needs_upload = needsUpload();
 
     qDebug() << Q_FUNC_INFO
              << "Last automatic upload time" << m_last_automatic_upload_time
@@ -506,7 +508,7 @@ void CamcopsApp::retryUpload()
         const auto now = QDateTime::currentDateTimeUtc();
 
         if (!m_last_automatic_upload_time.isValid() ||
-            m_last_automatic_upload_time.secsTo(now) > UPLOAD_INTERVAL_SECONDS) {
+                m_last_automatic_upload_time.secsTo(now) > UPLOAD_INTERVAL_SECONDS) {
             upload();
             m_last_automatic_upload_time = now;
         }
@@ -1897,7 +1899,7 @@ void CamcopsApp::closeSubWindow()
     emit subWindowFinishedClosing();
 }
 
-bool CamcopsApp::shouldUploadNow()
+bool CamcopsApp::shouldUploadNow() const
 {
     if (varBool(varconst::OFFER_UPLOAD_AFTER_EDIT) &&
         varBool(varconst::NEEDS_UPLOAD)) {
@@ -1912,7 +1914,7 @@ bool CamcopsApp::shouldUploadNow()
     return false;
 }
 
-bool CamcopsApp::userConfirmedUpload()
+bool CamcopsApp::userConfirmedUpload() const
 {
     ScrollMessageBox msgbox(
         QMessageBox::Question,
@@ -2398,6 +2400,12 @@ QueryResult CamcopsApp::queryAllPatients()
     const SqlArgs sqlargs = specimen.fetchQuerySql(where);
 
     return m_datadb->query(sqlargs);
+}
+
+
+int CamcopsApp::nPatients() const
+{
+    return m_datadb->count(Patient::TABLENAME);
 }
 
 
@@ -2978,7 +2986,7 @@ void CamcopsApp::upload()
         return;
     }
 
-    auto method = getUploadMethod();
+    const auto method = getUploadMethod();
     if (method == NetworkManager::UploadMethod::Invalid) {
         return;
     }
@@ -3020,7 +3028,7 @@ NetworkManager::UploadMethod CamcopsApp::getSingleUserUploadMethod()
 
 bool CamcopsApp::tasksInProgress()
 {
-    TaskSchedulePtrList schedules = getTaskSchedules();
+    const TaskSchedulePtrList schedules = getTaskSchedules();
 
     for (const TaskSchedulePtr& schedule : schedules) {
         if (schedule->hasIncompleteCurrentTasks()) {
@@ -3032,9 +3040,7 @@ bool CamcopsApp::tasksInProgress()
 }
 
 
-
-
-NetworkManager::UploadMethod CamcopsApp::getUploadMethodFromUser()
+NetworkManager::UploadMethod CamcopsApp::getUploadMethodFromUser() const
 {
    QString text(tr(
             "Copy data to server, or move it to server?\n"

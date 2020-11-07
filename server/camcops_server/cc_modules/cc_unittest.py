@@ -136,6 +136,7 @@ class DemoRequestTestCase(ExtendedTestCase):
         else:
             self.db_filename = None
 
+    # noinspection PyMethodMayBeStatic,PyUnusedLocal
     def set_sqlite_pragma(self, dbapi_connection, connection_record):
         cursor = dbapi_connection.cursor()
         cursor.execute("PRAGMA foreign_keys=ON")
