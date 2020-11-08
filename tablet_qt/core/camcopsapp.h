@@ -407,6 +407,14 @@ protected:
     // Is the user allowed to change between clinician/single-user modes?
     bool modeChangeForbidden() const;
 
+    // Are there any tasks present?
+    bool taskRecordsPresent() const;
+
+    // Delete any data that may not survive a mode change.
+    // (It can be assumed that no patients or tasks exist; that's checked by
+    // modeChangeForbidden().)
+    void wipeDataForModeChange();
+
 signals:
     // The operation mode has changed (Clincian, single user...)
     void modeChanged(int mode);
@@ -420,6 +428,9 @@ public:
 
     // Select a patient by ID.
     void setSelectedPatient(int patient_id, bool force_refresh = false);
+
+    // Deselect any selected patient.
+    void deselectPatient(bool force_refresh = false);
 
     // For single user mode, set the single patient otherwise deselect
     void setDefaultPatient(bool force_refresh = false);

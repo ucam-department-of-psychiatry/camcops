@@ -201,7 +201,7 @@ void CamcopsApp::setMode(const int mode)
 
 void CamcopsApp::setModeFromUser()
 {
-    if (modeChangeForbidden()) {
+    if (modeChangeForbidden()) {  // alerts the user as to why, if not allowed
         return;
     }
 
@@ -240,20 +240,79 @@ void CamcopsApp::setModeFromUser()
         return;
     }
 
+    wipeDataForModeChange();
     setMode(new_mode);
+    if (new_mode == varconst::MODE_SINGLE_USER) {
+        registerPatientWithServer();
+    }
 }
 
 
 bool CamcopsApp::modeChangeForbidden() const
 {
-    if (isClinicianMode() && patientRecordsPresent()) {
+    if (isClinicianMode()) {
+        // Switch from clinician mode to single-user mode
+        if (patientRecordsPresent()) {
+            uifunc::alert(
+                tr("You cannot change mode when there are patient records present")
+            );
+            return true;
+        }
+    }
+    if (taskRecordsPresent()) {
+        // Switch in either direction
         uifunc::alert(
-            tr("You cannot change mode when there are patient records present")
+            tr("You cannot change mode when there are tasks still to be uploaded")
         );
         return true;
     }
 
     return false;
+}
+
+
+bool CamcopsApp::taskRecordsPresent() const
+{
+    return m_p_task_factory->anyTasksPresent();
+}
+
+
+void CamcopsApp::wipeDataForModeChange()
+{
+    // When we switch from clinician mode to single-user mode:
+    // - We should have no patients (*).
+    // - We should have no tasks (*).
+    // - We must wipe network security details.
+    // - [We will also want the user to register using the single-user-mode
+    //   registration interface.]
+    // - We should wipe task schedules.
+    //
+    // When we switch from single-user mode to clinician mode:
+    // - There will be one patient, but that's OK. We will delete the record.
+    // - We should have no tasks (*).
+    // - We must wipe network security details -- the "single-user" accounts
+    //   are not necessarily trusted to create data for new patients.
+    //   *** but we should verify that server-side, too.
+    // - We can wipe task schedules.
+    //
+    // (*) Pre-checked by modeChangeForbidden().
+
+    // Deselect any selected patient
+    deselectPatient();
+
+    // Server security details
+    setVar(varconst::SERVER_USERNAME, "");
+    setVar(varconst::SERVER_USERPASSWORD_OBSCURED, "");
+    setVar(varconst::SINGLE_PATIENT_PROQUINT, "");
+    setVar(varconst::SINGLE_PATIENT_ID, dbconst::NONEXISTENT_PK);
+
+    // Task schedules
+    m_sysdb->deleteFrom(TaskScheduleItem::TABLENAME);
+    m_sysdb->deleteFrom(TaskSchedule::TABLENAME);
+
+    // Delete patient records (given the pre-checks, as above, this will only
+    // delete a single-user-mode patient record with no associated tasks).
+    m_datadb->deleteFrom(Patient::TABLENAME);
 }
 
 
@@ -2312,7 +2371,8 @@ bool CamcopsApp::isPatientSelected() const
 }
 
 
-void CamcopsApp::setSelectedPatient(const int patient_id, bool force_refresh)
+void CamcopsApp::setSelectedPatient(const int patient_id,
+                                    const bool force_refresh)
 {
     // We do this by ID so there's no confusion about who owns it; we own
     // our own private copy here.
@@ -2328,7 +2388,13 @@ void CamcopsApp::setSelectedPatient(const int patient_id, bool force_refresh)
 }
 
 
-void CamcopsApp::setDefaultPatient(bool force_refresh)
+void CamcopsApp::deselectPatient(const bool force_refresh)
+{
+    setSelectedPatient(dbconst::NONEXISTENT_PK, force_refresh);
+}
+
+
+void CamcopsApp::setDefaultPatient(const bool force_refresh)
 {
     int patient_id = dbconst::NONEXISTENT_PK;
 
