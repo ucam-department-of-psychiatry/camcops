@@ -18,6 +18,7 @@
 */
 
 #include "core/camcopsapp.h"
+#include "lib/datetime.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 #include "menulib/menuwindow.h"
@@ -108,5 +109,5 @@ bool TaskScheduleItemEditor::canEditTask(TaskPtr task)
 
 void TaskScheduleItemEditor::onTaskFinished()
 {
-    m_p_task_schedule_item->setComplete(true);
+    m_p_task_schedule_item->setComplete(true, datetime::now());
 }

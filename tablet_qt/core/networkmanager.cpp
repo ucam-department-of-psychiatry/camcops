@@ -970,7 +970,8 @@ void NetworkManager::updateCompleteStatusForAnonymousTasks(
                     );
 
                     if (new_item != nullptr) {
-                        new_item->setComplete(old_item->isComplete());
+                        new_item->setComplete(old_item->isComplete(),
+                                              old_item->whenCompleted());
                         new_item->save();
                     }
                 }

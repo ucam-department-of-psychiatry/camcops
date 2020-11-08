@@ -211,6 +211,10 @@ MenuItem::MenuItem(const TaskScheduleItemMenuItem& menu_item)
     m_p_task_schedule_item = menu_item.task_schedule_item;
     m_title = m_p_task_schedule_item->title();
     m_subtitle = m_p_task_schedule_item->subtitle();
+    if (m_p_task_schedule_item->isAnonymous()) {
+        // Let the user know that some tasks are anonymous.
+        m_icon = uifunc::iconFilename(uiconst::ICON_ANONYMOUS);
+    }
 }
 
 
@@ -669,6 +673,13 @@ MenuItem& MenuItem::setNotIfLocked(const bool not_if_locked)
 MenuItem& MenuItem::setUnsupported(const bool unsupported)
 {
     m_unsupported = unsupported;
+    return *this;
+}
+
+
+MenuItem& MenuItem::setIcon(const QString& icon)
+{
+    m_icon = icon;
     return *this;
 }
 

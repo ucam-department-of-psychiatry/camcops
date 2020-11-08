@@ -90,8 +90,12 @@ public:
     // Returns the complete status of the scheduled task
     bool isComplete() const;
 
+    // When was the task completed?
+    QDateTime whenCompleted() const;
+
     // Marks the scheduled task as complete (or not).
-    void setComplete(bool complete);
+    void setComplete(bool complete,
+                     const QDateTime& when_completed = QDateTime());
 
     // Returns the anonymous status of the scheduled task
     bool isAnonymous() const;
@@ -107,14 +111,15 @@ public:
 
     static const QString TABLENAME;
 
+    static const QString FK_TASK_SCHEDULE;
     static const QString FN_TASK_TABLE_NAME;
     static const QString FN_SETTINGS;
     static const QString FN_DUE_FROM;
     static const QString FN_DUE_BY;
     static const QString FN_COMPLETE;
     static const QString FN_ANONYMOUS;
-    static const QString FK_TASK_SCHEDULE;
     static const QString FK_TASK;
+    static const QString FN_WHEN_COMPLETED;
 
     static const QString KEY_TABLE;
     static const QString KEY_SETTINGS;
