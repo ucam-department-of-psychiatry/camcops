@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -56,6 +56,12 @@ QString ReferrerSatisfactionSpec::longname() const
 QString ReferrerSatisfactionSpec::description() const
 {
     return tr("Short rating of a clinical service received (patient-specific).");
+}
+
+
+QString ReferrerSatisfactionSpec::infoFilenameStem() const
+{
+    return "rss";
 }
 
 

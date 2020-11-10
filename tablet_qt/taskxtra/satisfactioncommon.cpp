@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -52,16 +52,6 @@ SatisfactionCommon::SatisfactionCommon(CamcopsApp& app,
     addField(BAD, QVariant::String);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
-}
-
-
-// ============================================================================
-// Class info
-// ============================================================================
-
-QString SatisfactionCommon::infoFilenameStem() const
-{
-    return "from_lp";
 }
 
 

@@ -7,6 +7,10 @@ build-*/
 
 # Temporary
 *~
+
+# silver searcher
+.ignore
+
 *.tmp
 *.profile
 
@@ -25,3 +29,5 @@ __pycache__/
 distributables/
 server/camcops_server.egg-info
 working/*
+schema.plantuml
+schema.png

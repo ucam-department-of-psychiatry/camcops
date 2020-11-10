@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -78,12 +78,6 @@ QString Fft::longname() const
 QString Fft::description() const
 {
     return tr("Single-question patient rating of a clinical service.");
-}
-
-
-QString Fft::infoFilenameStem() const
-{
-    return "from_lp";
 }
 
 

@@ -36,4 +36,5 @@ camcops_server/templates/menu/group_add.mako
 
 ${ form }
 
+<%include file="to_view_all_groups.mako"/>
 <%include file="to_main_menu.mako"/>

@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -83,8 +83,8 @@ QMap<int, QString> makeTokenToNameDict()
     token_to_name[TOKEN_OR] = "or";
     token_to_name[TOKEN_NOT] = "not";
 
-    token_to_name[TOKEN_ANY_IDNUM] = ANY_IDNUM;
-    token_to_name[TOKEN_OTHER_IDNUM] = OTHER_IDNUM;
+    token_to_name[TOKEN_ANY_IDNUM] = ANY_IDNUM_POLICYNAME;
+    token_to_name[TOKEN_OTHER_IDNUM] = OTHER_IDNUM_POLICYNAME;
 
     token_to_name[TOKEN_FORENAME] = FORENAME_FIELD;
     token_to_name[TOKEN_SURNAME] = SURNAME_FIELD;
@@ -92,7 +92,7 @@ QMap<int, QString> makeTokenToNameDict()
     token_to_name[TOKEN_DOB] = DOB_FIELD;
     token_to_name[TOKEN_ADDRESS] = ADDRESS_FIELD;
     token_to_name[TOKEN_GP] = GP_FIELD;
-    token_to_name[TOKEN_OTHER_DETAILS] = OTHER_FIELD;
+    token_to_name[TOKEN_OTHER_DETAILS] = OTHER_DETAILS_POLICYNAME;
 
     return token_to_name;
 }

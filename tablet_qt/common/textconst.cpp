@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -254,11 +254,18 @@ QString TextConst::termsConditions() {
         "A QUALIFIED CLINICIAN, AND THAT YOU RETAIN RESPONSIBILITY FOR "
         "DIAGNOSIS AND MANAGEMENT.\n\n"
 
-        "These terms and conditions were last revised on 2017-01-23."
+        "8. The CamCOPS server uses a single secure cookie for session "
+        "authentication. The cookie is not used for any other purpose. "
+        "By using a CamCOPS server, you agree to this use of cookies.\n\n"
+
+        "These terms and conditions were last revised on 2020-06-29."
     );
     // This should match the DISCLAIMER_CONTENT string in the server_string()
     // function of camcops_server/cc_modules/cc_text.py.
+    // NOTE ALSO the date below.
 }
+QDate TextConst::TERMS_CONDITIONS_UPDATE_DATE(2020, 06, 29);
+
 
 // ============================================================================
 // Test text

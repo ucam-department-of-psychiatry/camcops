@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -326,6 +326,8 @@ QString CamcopsApp::defaultDatabaseDir() const
 
 bool CamcopsApp::processCommandLineArguments(int& retcode)
 {
+    const QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+
     // https://stackoverflow.com/questions/3886105/how-to-print-to-console-when-using-qt
     QTextStream out(stdout);
     // QTextStream err(stderr);
@@ -347,6 +349,12 @@ bool CamcopsApp::processCommandLineArguments(int& retcode)
     parser.addVersionOption();
 
     // --dbdir <DBDIR>
+    QString default_database_dir = defaultDatabaseDir();
+
+    if (env.contains("GENERATING_CAMCOPS_DOCS")) {
+        default_database_dir = "/path/to/client/database/dir";
+    }
+
     QCommandLineOption dbDirOption(
         "dbdir",  // makes "--dbdir" option
         QString(
@@ -358,7 +366,7 @@ bool CamcopsApp::processCommandLineArguments(int& retcode)
             convert::stringToCppLiteral(dbfunc::DATA_DATABASE_FILENAME),
             convert::stringToCppLiteral(dbfunc::SYSTEM_DATABASE_FILENAME),
             ENVVAR_DB_DIR,
-            convert::stringToCppLiteral(defaultDatabaseDir())
+            convert::stringToCppLiteral(default_database_dir)
         )
     );
     dbDirOption.setValueName("DBDIR");  // makes it take a parameter
@@ -397,7 +405,6 @@ bool CamcopsApp::processCommandLineArguments(int& retcode)
     // ------------------------------------------------------------------------
     // Defaults from the environment
     // ------------------------------------------------------------------------
-    const QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     m_database_path = env.value(ENVVAR_DB_DIR, defaultDatabaseDir());
 
     // ------------------------------------------------------------------------
@@ -2236,7 +2243,21 @@ bool CamcopsApp::cachedVarChanged(const QString& name) const
 
 bool CamcopsApp::hasAgreedTerms() const
 {
-    return !var(varconst::AGREED_TERMS_AT).isNull();
+    const QVariant agreed_at_var = var(varconst::AGREED_TERMS_AT);
+    if (agreed_at_var.isNull()) {
+        // Has not agreed yet.
+        return false;
+    }
+    const QDate agreed_at_date = agreed_at_var.toDate();
+    if (agreed_at_date < TextConst::TERMS_CONDITIONS_UPDATE_DATE) {
+        // Terms have changed since the user last agreed.
+        // They need to agree to the new terms.
+        return false;
+        // (There is an edge case here where the terms change on the same
+        // day, but the cost/benefit balance for worrying about the hour of the
+        // change seems not to be worth while!)
+    }
+    return true;
 }
 
 

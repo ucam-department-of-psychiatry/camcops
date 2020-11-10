@@ -47,6 +47,7 @@ from cardinal_pythonlib.argparse_func import (
     nonnegative_int,
 )
 from cardinal_pythonlib.debugging import pdb_run
+from cardinal_pythonlib.docker import running_under_docker
 from cardinal_pythonlib.logs import (
     BraceStyleAdapter,
     main_only_quicksetup_rootlogger,
@@ -122,11 +123,11 @@ def launch_manual() -> None:
     launch_external_file(DOCUMENTATION_URL)
 
 
-def print_demo_camcops_config() -> None:
+def print_demo_camcops_config(docker: bool = False) -> None:
     """
     Prints a demonstration config file to stdout.
     """
-    print(get_demo_config())
+    print(get_demo_config(for_docker=docker or running_under_docker()))
 
 
 def print_demo_supervisor_config() -> None:
@@ -204,6 +205,24 @@ def _print_database_title() -> None:
     core.print_database_title()
 
 
+def _show_database_schema(schemastem: str,
+                          make_image: bool = False,
+                          java: str = None,
+                          plantuml: str = None,
+                          height_width_limit: int = None,
+                          java_memory_limit_mb: int = None) -> None:
+    # noinspection PyUnresolvedReferences
+    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
+    core.show_database_schema(
+        schemastem=schemastem,
+        make_image=make_image,
+        java=java,
+        plantuml=plantuml,
+        height_width_limit=height_width_limit,
+        java_memory_limit_mb=java_memory_limit_mb,
+    )
+
+
 def _merge_camcops_db(src: str,
                       echo: bool,
                       report_every: int,
@@ -274,11 +293,13 @@ def _enable_user_cli(username: str = None) -> bool:
 
 def _cmd_export(recipient_names: List[str] = None,
                 all_recipients: bool = False,
-                via_index: bool = True) -> None:
+                via_index: bool = True,
+                schedule_via_backend: bool = False) -> None:
     import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
     return core.cmd_export(recipient_names=recipient_names,
                            all_recipients=all_recipients,
-                           via_index=via_index)
+                           via_index=via_index,
+                           schedule_via_backend=schedule_via_backend)
 
 
 def _cmd_show_export_queue(recipient_names: List[str] = None,
@@ -401,8 +422,7 @@ def _launch_celery_beat(verbose: bool = False) -> None:
 def _launch_celery_flower(address: str = DEFAULT_FLOWER_ADDRESS,
                           port: int = DEFAULT_FLOWER_PORT) -> None:
     import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
-    core.launch_celery_flower(address=address,
-                              port=port)
+    core.launch_celery_flower(address=address, port=port)
 
 
 def _housekeeping() -> None:
@@ -476,12 +496,15 @@ def add_sub(sp: "_SubParsersAction",
         description=description,
         formatter_class=ArgumentDefaultsHelpFormatter
     )  # type: ArgumentParser
+
     # This needs to be in the top-level parser and the sub-parsers (it does not
     # appear in the subparsers just because it's in the top-level parser, which
     # sounds like an argparse bug given its help, but there you go).
     subparser.add_argument(
         '-v', '--verbose', action='store_true',
         help="Be verbose")
+
+    # Config file handling
     if config_mandatory:  # True
         cfg_help = "Configuration file"
     else:  # None, False
@@ -542,6 +565,7 @@ def camcops_main() -> int:
     # Base parser
     # -------------------------------------------------------------------------
 
+    # noinspection PyTypeChecker
     parser = ArgumentParser(
         description=(
             f"CamCOPS server, created by Rudolf Cardinal; version "
@@ -567,6 +591,10 @@ def camcops_main() -> int:
     parser.add_argument(
         '-v', '--verbose', action='store_true',
         help="Be verbose")
+    parser.add_argument(
+        "--no_log", action="store_true",
+        help="Disable log (stderr) entirely."
+    )
 
     # -------------------------------------------------------------------------
     # Subcommand subparser
@@ -601,8 +629,12 @@ def camcops_main() -> int:
     democonfig_parser = add_sub(
         subparsers, "demo_camcops_config", config_mandatory=None,
         help="Print a demo CamCOPS config file")
+    democonfig_parser.add_argument(
+        "--docker", action="store_true",
+        help="Use settings for Docker"
+    )
     democonfig_parser.set_defaults(
-        func=lambda args: print_demo_camcops_config())
+        func=lambda args: print_demo_camcops_config(docker=args.docker))
 
     # Print demo supervisor config
     demosupervisorconf_parser = add_sub(
@@ -711,6 +743,39 @@ def camcops_main() -> int:
         help="Show database title")
     showdbtitle_parser.set_defaults(
         func=lambda args: _print_database_title())
+
+    # Show database schema
+    showdbschema_parser = add_sub(
+        subparsers, "show_db_schema",
+        help="Show the database schema as PlantUML +/- PNG")
+    showdbschema_parser.add_argument(
+        "--schemastem", default='schema',
+        help="Stem for output filenames (for schema diagrams); "
+        "'.plantuml' and '.png' are appended")
+    showdbschema_parser.add_argument(
+        "--make_image", action="store_true",
+        help="Create a PNG image (impractically large!)")
+    showdbschema_parser.add_argument(
+        "--java", default='java',
+        help="Java executable (for schema diagrams)")
+    showdbschema_parser.add_argument(
+        "--plantuml", default='plantuml.jar',
+        help="PlantUML Java .jar file (for schema diagrams)")
+    showdbschema_parser.add_argument(
+        "--height_width_limit", type=int, default=20000,
+        help="Maximum image height/width in pixels")
+    showdbschema_parser.add_argument(
+        "--java_memory_limit_mb", type=int, default=2048,
+        help="Java virtual machine memory limit in Mb")
+    showdbschema_parser.set_defaults(
+        func=lambda args: _show_database_schema(
+            schemastem=args.schemastem,
+            make_image=args.make_image,
+            java=args.java,
+            plantuml=args.plantuml,
+            height_width_limit=args.height_width_limit,
+            java_memory_limit_mb=args.java_memory_limit_mb,
+        ))
 
     # Merge in data fom another database
     # noinspection PyTypeChecker
@@ -822,7 +887,7 @@ def camcops_main() -> int:
         help="Print database schema (data definition language; DDL)")
     ddl_parser.add_argument(
         '--dialect', type=str, default=SqlaDialectName.MYSQL,
-        help=f"SQL dialect (options: {', '.join(ALL_SQLA_DIALECTS)})")
+        help=f"SQL dialect (options: {', '.join(sorted(ALL_SQLA_DIALECTS))})")
     ddl_parser.set_defaults(
         func=lambda args: print(_get_all_ddl(dialect_name=args.dialect)))
 
@@ -912,11 +977,16 @@ def camcops_main() -> int:
         subparsers, "export",
         help="Trigger pending exports")
     _add_export_options(export_parser)
+    export_parser.add_argument(
+        "--schedule_via_backend", action="store_true",
+        help="Export tasks as a background job"
+    )
     export_parser.set_defaults(
         func=lambda args: _cmd_export(
             recipient_names=args.recipients,
             all_recipients=args.all_recipients,
             via_index=not args.disable_task_index,
+            schedule_via_backend=args.schedule_via_backend,
         ))
 
     # Show export queue
@@ -1118,7 +1188,12 @@ def camcops_main() -> int:
     progargs = parser.parse_args()
 
     # Initial log level (overridden later by config file but helpful for start)
-    loglevel = logging.DEBUG if progargs.verbose else logging.INFO
+    if progargs.no_log:
+        loglevel = logging.CRITICAL + 1
+    elif progargs.verbose:
+        loglevel = logging.DEBUG
+    else:
+        loglevel = logging.INFO
     main_only_quicksetup_rootlogger(
         level=loglevel, with_process_id=True, with_thread_id=True)
     rootlogger = logging.getLogger()
@@ -1174,6 +1249,15 @@ def camcops_main() -> int:
 def display_top(snapshot: tracemalloc.Snapshot,
                 key_type: str = 'lineno', limit: int = 10,
                 short_filename: bool = False) -> None:
+    """
+    Display e.g. lines of code allocating the most memory.
+
+    Args:
+        snapshot: a :class:`tracemalloc.Snapshot` object
+        key_type: thing to group by
+        limit: show the top *n*
+        short_filename: make source code filenames shorter?
+    """
     # Modified from https://docs.python.org/3/library/tracemalloc.html
     print("Calculating memory allocation...")
     snapshot = snapshot.filter_traces((

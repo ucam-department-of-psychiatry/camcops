@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -18,6 +18,7 @@
 */
 
 #pragma once
+#include <QDate>
 #include <QObject>
 #include <QString>
 
@@ -194,6 +195,7 @@ public:
     // ========================================================================
     
     static QString termsConditions();
+    static QDate TERMS_CONDITIONS_UPDATE_DATE;
     
     // ========================================================================
     // Test text

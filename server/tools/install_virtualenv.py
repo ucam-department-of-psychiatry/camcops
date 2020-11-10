@@ -45,8 +45,7 @@ try:
 except ImportError:
     distro = None
 
-if sys.version_info < (3, 6):
-    raise AssertionError("Need Python 3.6 or higher")
+assert sys.version_info >= (3, 6), "Need Python 3.6 or higher"
 LINUX = platform.system() == 'Linux'
 if distro:
     LINUX_DIST = distro.linux_distribution()[0].lower()

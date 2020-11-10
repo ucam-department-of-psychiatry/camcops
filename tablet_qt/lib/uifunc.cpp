@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2012-2019 Rudolf Cardinal (rudolf@pobox.com).
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
 
@@ -612,6 +612,7 @@ QString textCSS(const int fontsize_pt,
 
 void visitUrl(const QString& url)
 {
+    qInfo().noquote() << "Launching URL:" << url;
     bool success = QDesktopServices::openUrl(QUrl(url));
     if (!success) {
         alert(QObject::tr("Failed to open browser"));

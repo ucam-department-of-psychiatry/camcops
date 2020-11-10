@@ -39,4 +39,5 @@ camcops_server/templates/menu/user_edit_group_membership.mako
 
 ${ form }
 
+<%include file="to_view_all_users.mako"/>
 <%include file="to_main_menu.mako"/>

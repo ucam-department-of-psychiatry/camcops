@@ -324,13 +324,13 @@ class PatientInfoPresence(object):
         kinds of information about the patient are present or not.
         """
         presences = {
-            TK_FORENAME: bool_to_quad(ptinfo.forename),
-            TK_SURNAME: bool_to_quad(ptinfo.surname),
-            TK_SEX: bool_to_quad(ptinfo.sex),
+            TK_FORENAME: bool_to_quad(bool(ptinfo.forename)),
+            TK_SURNAME: bool_to_quad(bool(ptinfo.surname)),
+            TK_SEX: bool_to_quad(bool(ptinfo.sex)),
             TK_DOB: bool_to_quad(ptinfo.dob is not None),
-            TK_ADDRESS: bool_to_quad(ptinfo.address),
-            TK_GP: bool_to_quad(ptinfo.gp),
-            TK_OTHER_DETAILS: bool_to_quad(ptinfo.otherdetails),
+            TK_ADDRESS: bool_to_quad(bool(ptinfo.address)),
+            TK_GP: bool_to_quad(bool(ptinfo.gp)),
+            TK_OTHER_DETAILS: bool_to_quad(bool(ptinfo.otherdetails)),
             TK_OTHER_IDNUM: Q_FALSE,  # may change
         }  # type: Dict[int, QuadState]
         for iddef in ptinfo.idnum_definitions:

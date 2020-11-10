@@ -70,6 +70,7 @@ QT += gui  # included by default; QtGui module
 QT += multimedia  # or: undefined reference to QMedia*::*
 QT += multimediawidgets
 # QT += network  # required to #include <QtNetwork/...>
+QT += printsupport  # for QCustomPlot
 QT += quick  # for QML, e.g. for camera
 QT += quickwidgets  # for QQuickWidget
 QT += sql  # required to #include <QSqlDatabase>
@@ -135,6 +136,14 @@ msvc {
         # ... but we get "D9025: overriding '/W4' with '/W3'"
     QMAKE_CXXFLAGS += /WX  # treat warnings as errors
     # QMAKE_CXXFLAGS += /showIncludes  # if you think the wrong ones are being included!
+}
+
+# Until we use a version of Qt that can cope, disable "-Werror=deprecated-copy".
+# In general, note "-Werrmsg" to enable and "-Wno-errmsg" to disable:
+# https://stackoverflow.com/questions/925179/selectively-remove-warning-message-gcc
+# (This problem arose on 2020-06-29 with Ubuntu 20.04 which brought gcc 9.3.0.)
+gcc {
+    QMAKE_CXXFLAGS += -Wno-deprecated-copy
 }
 
 # In release mode, optimize heavily:
@@ -569,6 +578,7 @@ SOURCES += \
     layouts/hboxlayouthfw.cpp \
     layouts/qtlayouthelpers.cpp \
     layouts/vboxlayouthfw.cpp \
+    layouts/widgetitemhfw.cpp \
     lib/comparers.cpp \
     lib/containers.cpp \
     lib/convert.cpp \
@@ -650,6 +660,7 @@ SOURCES += \
     menulib/taskchainmenuitem.cpp \
     menulib/taskmenuitem.cpp \
     menulib/urlmenuitem.cpp \
+    qcustomplot/qcustomplot.cpp \
     qobjects/cameraframegrabber.cpp \
     qobjects/debugeventwatcher.cpp \
     qobjects/flickcharm.cpp \
@@ -722,6 +733,7 @@ SOURCES += \
     questionnairelib/quthermometer.cpp \
     questionnairelib/quthermometeritem.cpp \
     questionnairelib/quverticalcontainer.cpp \
+    questionnairelib/quzoomcontainer.cpp \
     taskchains/khandakermojochain.cpp \
     tasklib/inittasks.cpp \
     tasklib/task.cpp \
@@ -895,6 +907,8 @@ SOURCES += \
     widgets/clickablelabelwordwrapwide.cpp \
     widgets/diagnosticcodeselector.cpp \
     widgets/fixedareahfwtestwidget.cpp \
+    widgets/fixedaspectratiohfwtestwidget.cpp \
+    widgets/fixednumblockshfwtestwidget.cpp \
     widgets/graphicsrectitemclickable.cpp \
     widgets/growingplaintextedit.cpp \
     widgets/growingtextedit.cpp \
@@ -1006,6 +1020,7 @@ HEADERS += \
     layouts/layouts.h \
     layouts/qtlayouthelpers.h \
     layouts/vboxlayouthfw.h \
+    layouts/widgetitemhfw.h \
     lib/cloneable.h \
     lib/comparers.h \
     lib/containers.h \
@@ -1092,6 +1107,7 @@ HEADERS += \
     menulib/taskchainmenuitem.h \
     menulib/taskmenuitem.h \
     menulib/urlmenuitem.h \
+    qcustomplot/qcustomplot.h \
     qobjects/cameraframegrabber.h \
     qobjects/debugeventwatcher.h \
     qobjects/flickcharm.h \
@@ -1164,6 +1180,7 @@ HEADERS += \
     questionnairelib/quthermometer.h \
     questionnairelib/quthermometeritem.h \
     questionnairelib/quverticalcontainer.h \
+    questionnairelib/quzoomcontainer.h \
     taskchains/khandakermojochain.h \
     tasklib/inittasks.h \
     tasklib/task.h \
@@ -1337,6 +1354,8 @@ HEADERS += \
     widgets/clickablelabelwordwrapwide.h \
     widgets/diagnosticcodeselector.h \
     widgets/fixedareahfwtestwidget.h \
+    widgets/fixedaspectratiohfwtestwidget.h \
+    widgets/fixednumblockshfwtestwidget.h \
     widgets/graphicsrectitemclickable.h \
     widgets/growingplaintextedit.h \
     widgets/growingtextedit.h \
