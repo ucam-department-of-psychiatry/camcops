@@ -38,7 +38,7 @@
     <string name="q_anxiety">Anxiety disorder (generalised anxiety disorder, social anxiety disorder)</string>
     <string name="q_personality_disorder">Personality disorder</string>
     <string name="q_intellectual_disability">Intellectual disability</string>
-    <string name="q_other_mental_illness">Other</string>
+    <string name="q_other_mental_illness">Other mental health illness</string>
     <string name="q_other_mental_illness_details">Please list other conditions here:</string>
     <string name="q_hospitalised_in_last_year">Have you had a physical or mental illness requiring hospitalisation in the previous 12 months?</string>
     <string name="q_hospitalisation_details">Please list here (name of illness, number of hospitalisations and duration):</string>
@@ -54,7 +54,7 @@
     <string name="q_family_anxiety">Anxiety disorder (generalised anxiety disorder, social anxiety disorder)</string>
     <string name="q_family_personality_disorder">Personality disorder</string>
     <string name="q_family_intellectual_disability">Intellectual disability</string>
-    <string name="q_family_other_mental_illness">Other</string>
+    <string name="q_family_other_mental_illness">Other mental health illness</string>
     <string name="q_family_other_mental_illness_details">Please list other conditions here:</string>
 
 
