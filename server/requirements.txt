@@ -14,7 +14,7 @@ flower==0.9.4
 gunicorn==20.0.4
 hl7==0.3.5
 lockfile==0.12.2
-lxml==4.5.1
+lxml==4.6.1
 matplotlib==3.2.2
 numpy==1.19.0
 paginate==0.5.6
