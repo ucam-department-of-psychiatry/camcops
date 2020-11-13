@@ -2336,7 +2336,7 @@ def get_task_schedules(req: "CamcopsRequest",
             task = task_info.task
             if task:
                 complete = task.is_complete()
-                if task.when_last_modified:
+                if complete and task.when_last_modified:
                     when_completed = task.when_last_modified.to_iso8601_string()
 
             if pts.settings is not None:

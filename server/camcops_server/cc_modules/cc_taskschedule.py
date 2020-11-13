@@ -149,7 +149,7 @@ class PatientTaskSchedule(Base):
                             end_datetime: Pendulum) -> Optional[Task]:
         """
         Returns the most recently uploaded task that matches the patient (by
-        all ID numbers), task type and timeframe
+        any ID number, i.e. via OR), task type and timeframe
         """
         taskfilter = TaskFilter()
         for idnum in self.patient.idnums:
