@@ -3761,6 +3761,11 @@ class EditPatientBaseView(PatientMixin, UpdateView):
                     self.request.dbsession.add(new_idnum)
 
     def get_context_data(self, **kwargs: Any) -> Any:
+        # This parameter is (I think) used by Mako templates such as
+        # finalized_patient_edit.mako
+        # Todo:
+        #   Potential inefficiency: we fetch tasks regardless of the stage
+        #   of this form.
         kwargs["tasks"] = self.get_affected_tasks()
 
         return super().get_context_data(**kwargs)
@@ -3776,7 +3781,8 @@ class EditPatientBaseView(PatientMixin, UpdateView):
             req=self.request,
             taskfilter=taskfilter,
             sort_method_global=TaskSortMethod.CREATION_DATE_DESC,
-            current_only=False  # unusual option!
+            current_only=False,  # unusual option!
+            via_index=False  # for current_only=False, or we'll get a warning
         )
         return collection.all_tasks
 
