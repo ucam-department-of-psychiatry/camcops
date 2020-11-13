@@ -2332,13 +2332,17 @@ def get_task_schedules(req: "CamcopsRequest",
             due_by = task_info.end_datetime.to_iso8601_string()
 
             complete = False
+            when_completed = None
+            task = task_info.task
+            if task:
+                complete = task.is_complete()
+                if task.when_last_modified:
+                    when_completed = task.when_last_modified.to_iso8601_string()
 
-            if task_info.task:
-                complete = task_info.task.is_complete()
-
-            settings = {}
             if pts.settings is not None:
                 settings = pts.settings.get(task_info.tablename, {})
+            else:
+                settings = {}
 
             items.append({
                 TabletParam.TABLE: task_info.tablename,
@@ -2347,6 +2351,7 @@ def get_task_schedules(req: "CamcopsRequest",
                 TabletParam.DUE_FROM: due_from,
                 TabletParam.DUE_BY: due_by,
                 TabletParam.COMPLETE: complete,
+                TabletParam.WHEN_COMPLETED: when_completed,
             })
 
         schedules.append({

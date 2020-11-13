@@ -127,4 +127,5 @@ public:
     static const QString KEY_DUE_BY;
     static const QString KEY_COMPLETE;
     static const QString KEY_ANONYMOUS;
+    static const QString KEY_WHEN_COMPLETED;
 };

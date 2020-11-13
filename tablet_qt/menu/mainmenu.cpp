@@ -58,7 +58,7 @@ MainMenu::MainMenu(CamcopsApp& app)
 
 QString MainMenu::title() const
 {
-    return tr("CamCOPS: Cambridge Cognitive and Psychiatric Assessment Kit");
+    return tr("CamCOPS");
 }
 
 

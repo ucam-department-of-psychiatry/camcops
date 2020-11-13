@@ -414,6 +414,8 @@ you will not see the responses.
     If you edit patient details after the patient has registered, the client
     will pick up the changes when it next picks up schedule updates.
 
+    If you change the patient's ID numbers, though, the patient may have to
+    redo tasks (complete tasks are sought by all current patient ID numbers).
 
 Help
 ----

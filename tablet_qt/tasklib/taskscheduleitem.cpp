@@ -50,6 +50,7 @@ const QString TaskScheduleItem::KEY_DUE_BY("due_by");
 const QString TaskScheduleItem::KEY_DUE_FROM("due_from");
 const QString TaskScheduleItem::KEY_TABLE("table");
 const QString TaskScheduleItem::KEY_SETTINGS("settings");
+const QString TaskScheduleItem::KEY_WHEN_COMPLETED("when_completed");
 
 
 // ============================================================================
@@ -99,6 +100,7 @@ TaskScheduleItem::TaskScheduleItem(const int schedule_fk, CamcopsApp& app,
             {FN_DUE_BY, KEY_DUE_BY},
             {FN_COMPLETE, KEY_COMPLETE},
             {FN_ANONYMOUS, KEY_ANONYMOUS},
+            {FN_WHEN_COMPLETED, KEY_WHEN_COMPLETED},
         }
     );
     const QJsonObject settings = json_obj.value(KEY_SETTINGS).toObject();
