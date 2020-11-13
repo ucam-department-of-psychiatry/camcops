@@ -409,6 +409,13 @@ the named schedule from the table. From this table you can view the uploaded
 task responses as HTML or PDF. Anonymous tasks will be listed in this table but
 you will not see the responses.
 
+.. note::
+
+    Avoid editing patient details after the patient has registered. Because
+    CamCOPS checks that patient records uploaded in "single user mode" match
+    what's expected, changing details means that the patient will have to
+    re-register (and might lose work).
+
 
 Help
 ----

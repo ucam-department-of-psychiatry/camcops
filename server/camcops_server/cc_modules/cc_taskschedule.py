@@ -100,8 +100,8 @@ class PatientTaskSchedule(Base):
         comment="Task-specific settings for this patient"
     )
 
-    patient = relationship("Patient", backref="task_schedules")
-    task_schedule = relationship("TaskSchedule", backref="patients")
+    patient = relationship("Patient", back_populates="task_schedules")
+    task_schedule = relationship("TaskSchedule", back_populates="patients")
 
     def get_list_of_scheduled_tasks(self, req: "CamcopsRequest") \
             -> List[ScheduledTaskInfo]:
@@ -229,6 +229,9 @@ class TaskSchedule(Base):
     )  # type: Iterable[TaskScheduleItem]
 
     group = relationship(Group)
+
+    patients = relationship("PatientTaskSchedule",
+                            back_populates="task_schedule")
 
     def user_may_edit(self, req: "CamcopsRequest") -> bool:
         return req.user.may_administer_group(self.group_id)

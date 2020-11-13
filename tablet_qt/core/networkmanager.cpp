@@ -2390,7 +2390,7 @@ void NetworkManager::registerPatient()
         varconst::SINGLE_PATIENT_PROQUINT
     );
 
-    const bool include_user = !m_app.varString(varconst::SERVER_USERNAME).isEmpty();
+    const bool include_user = false;
     serverPost(dict, &NetworkManager::registerPatientSub1, include_user);
 }
 

@@ -105,6 +105,7 @@ if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_group import Group
     from camcops_server.cc_modules.cc_policy import TokenizedPolicy
     from camcops_server.cc_modules.cc_request import CamcopsRequest
+    from camcops_server.cc_modules.cc_taskschedule import PatientTaskSchedule
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -132,7 +133,7 @@ class Patient(GenericTabletRecordMixin, Base):
         "uuid", UuidColType,
         comment="UUID",
         default=uuid.uuid4
-    )
+    )  # type: Optional[uuid.UUID]
     forename = CamcopsColumn(
         "forename", PatientNameColType,
         index=True,
@@ -202,6 +203,10 @@ class Patient(GenericTabletRecordMixin, Base):
         # See also patient relationship on Task class (cc_task.py)
         lazy="subquery"
     )  # type: List[PatientIdNum]
+
+    task_schedules = relationship(
+        "PatientTaskSchedule",
+        back_populates="patient")  # type: List[PatientTaskSchedule]
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # THE FOLLOWING ARE DEFUNCT, AND THE SERVER WORKS AROUND OLD TABLETS IN
@@ -975,9 +980,9 @@ class Patient(GenericTabletRecordMixin, Base):
 # Validate candidate patient info for upload
 # =============================================================================
 
-def is_candidate_patient_valid(ptinfo: BarePatientInfo,
-                               group: "Group",
-                               finalizing: bool) -> Tuple[bool, str]:
+def is_candidate_patient_valid_for_group(ptinfo: BarePatientInfo,
+                                         group: "Group",
+                                         finalizing: bool) -> Tuple[bool, str]:
     """
     Is the specified patient acceptable to upload into this group?
 
@@ -990,7 +995,8 @@ def is_candidate_patient_valid(ptinfo: BarePatientInfo,
 
     Args:
         ptinfo:
-            a :class:`camcops_server.cc_modules.cc_simpleobjects.BarePatientInfo`
+            a
+            :class:`camcops_server.cc_modules.cc_simpleobjects.BarePatientInfo`
             representing the patient info to check
         group:
             the :class:`camcops_server.cc_modules.cc_group.Group` into which
@@ -1001,7 +1007,7 @@ def is_candidate_patient_valid(ptinfo: BarePatientInfo,
     Returns:
         tuple: valid, reason
 
-    """  # noqa
+    """
     if not group:
         return False, "Nonexistent group"
 
@@ -1013,6 +1019,44 @@ def is_candidate_patient_valid(ptinfo: BarePatientInfo,
             return False, "Fails upload ID policy"
 
     # todo: add checks against prevalidated patients here
+
+    return True, ""
+
+
+def is_candidate_patient_valid_for_restricted_user(
+        req: "CamcopsRequest",
+        ptinfo: BarePatientInfo) -> Tuple[bool, str]:
+    """
+    Is the specified patient OK to be uploaded by this user? Performs a check
+    for restricted (single-patient) users; if true, ensures that the
+    identifiers all match the expected patient.
+
+    Args:
+        req:
+            the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        ptinfo:
+            a
+            :class:`camcops_server.cc_modules.cc_simpleobjects.BarePatientInfo`
+            representing the patient info to check
+
+    Returns:
+        tuple: valid, reason
+    """
+    user = req.user
+    if not user.auto_generated:
+        # Not a restricted user; no problem.
+        return True, ""
+
+    server_patient = user.single_patient
+    if not server_patient:
+        return False, (
+            f"Restricted user {user.username} does not have associated "
+            f"patient details"
+        )
+
+    server_ptinfo = server_patient.get_bare_ptinfo()
+    if ptinfo != server_ptinfo:
+        return False, f"Should be {server_ptinfo}"
 
     return True, ""
 

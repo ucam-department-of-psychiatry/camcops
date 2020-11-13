@@ -3591,7 +3591,6 @@ class PatientMixin(object):
                  ViewParam.IDNUM_VALUE: pidnum.idnum_value}
                 for pidnum in patient.idnums
             ]
-            # noinspection PyUnresolvedReferences
             form_values[ViewParam.TASK_SCHEDULES] = [
                 {
                     ViewParam.SCHEDULE_ID: pts.schedule_id,
@@ -3841,7 +3840,6 @@ class EditServerCreatedPatientView(EditPatientBaseView):
                               for schedule in schedule_query}
 
         old_schedules = {}
-        # noinspection PyUnresolvedReferences
         for pts in patient.task_schedules:
             old_schedules[pts.task_schedule.id] = {
                 "start_datetime": pts.start_datetime,
@@ -5658,7 +5656,6 @@ class EditServerCreatedPatientViewTests(DemoDatabaseTestCase):
 
         self.dbsession.commit()
 
-        # noinspection PyUnresolvedReferences
         schedules = {pts.task_schedule.name: pts
                      for pts in patient.task_schedules}
         self.assertIn("Test 1", schedules)
@@ -5871,7 +5868,6 @@ class AddPatientViewTests(DemoDatabaseTestCase):
         self.assertEqual(idnum.which_idnum, self.nhs_iddef.which_idnum)
         self.assertEqual(idnum.idnum_value, 1192220552)
 
-        # noinspection PyUnresolvedReferences
         patient_task_schedules = {
             pts.task_schedule.name: pts for pts in patient.task_schedules
         }

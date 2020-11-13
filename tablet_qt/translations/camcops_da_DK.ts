@@ -384,12 +384,12 @@
 <context>
     <name>CamcopsApp</name>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="+634"/>
+        <location filename="../core/camcopsapp.cpp" line="+777"/>
         <source>Configuring internal database</source>
         <translation>Konfiguration af intern database</translation>
     </message>
     <message>
-        <location line="+314"/>
+        <location line="+320"/>
         <source>Enter a new password for the CamCOPS application</source>
         <translation>Indtast en ny adgangskode til CamCOPS-applikationen</translation>
     </message>
@@ -434,7 +434,7 @@
         <translation>Kan ikke læse databasen; ødelagt? krypteret? (Denne version af CamCOPS har haft sine krypteringsfaciliteter deaktiveret.)</translation>
     </message>
     <message>
-        <location line="+775"/>
+        <location line="+783"/>
         <source>Upload?</source>
         <translation>Upload?</translation>
     </message>
@@ -449,23 +449,33 @@
         <translation>Ja, upload</translation>
     </message>
     <message>
-        <location line="-1514"/>
-        <location line="+1516"/>
+        <location line="-1596"/>
+        <location line="+1598"/>
         <source>No, cancel</source>
         <translation>Nej, annuller</translation>
     </message>
     <message>
-        <location line="-1625"/>
+        <location line="-1779"/>
         <source>You did not select how you would like to use CamCOPS</source>
         <translation>Du valgte ikke, hvordan du vil bruge CamCOPS</translation>
     </message>
     <message>
-        <location line="+35"/>
+        <location line="+41"/>
         <source>You cannot change mode when there are patient records present</source>
         <translation>Du kan ikke ændre tilstand, når der er patientjournaler til stede</translation>
     </message>
     <message>
-        <location line="+66"/>
+        <location line="+8"/>
+        <source>You cannot change mode when there are tasks still to be uploaded</source>
+        <translation>Du kan ikke ændre tilstand, når der stadig er opgaver, der skal overføres</translation>
+    </message>
+    <message>
+        <location line="+113"/>
+        <source>Registering patient...</source>
+        <translation>Registrering af patient...</translation>
+    </message>
+    <message>
+        <location line="+11"/>
         <source>Delete patient</source>
         <translation>Slet patienten</translation>
     </message>
@@ -480,7 +490,17 @@
         <translation>Ja, slet</translation>
     </message>
     <message>
-        <location line="+53"/>
+        <location line="+35"/>
+        <source>You cannot update your task schedules when there are unfinished tasks</source>
+        <translation>Du kan ikke opdatere dine opgaveplaner, når der er ufærdige opgaver</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Updating task schedules...</source>
+        <translation>Opdaterer opgaveskemaer...</translation>
+    </message>
+    <message>
+        <location line="+14"/>
         <source>There was a problem with your registration.</source>
         <translation>Der var et problem med din registrering.</translation>
     </message>
@@ -504,22 +524,22 @@ Angav du den korrekte CamCOPS-serverplacering?</translation>
     </message>
     <message>
         <location line="+13"/>
-        <location line="+68"/>
+        <location line="+132"/>
         <source>Error</source>
         <translation>Fejl</translation>
     </message>
     <message>
-        <location line="-54"/>
+        <location line="-103"/>
         <source>There was a problem updating your task schedules.</source>
         <translation>Der opstod et problem med at opdatere dine opgaveplaner.</translation>
     </message>
     <message>
-        <location line="+17"/>
+        <location line="+19"/>
         <source>There was a problem sending your completed tasks to the server.</source>
         <translation>Der opstod et problem med at sende dine gennemførte opgaver til serveren.</translation>
     </message>
     <message>
-        <location line="+16"/>
+        <location line="+63"/>
         <source>Unexpectedly, your server settings have changed.</source>
         <translation>Uventet har dine serverindstillinger ændret sig.</translation>
     </message>
@@ -538,7 +558,7 @@ Har du forbindelse til internettet?</translation>
         <translation>Du annullerede patientregistrering</translation>
     </message>
     <message>
-        <location line="+409"/>
+        <location line="+415"/>
         <source>You entered an incorrect password. Try again?</source>
         <translation>Du indtastede en forkert adgangskode. Prøv igen?</translation>
     </message>
@@ -570,7 +590,7 @@ Alle poster, der ikke uploades til serveren, går tabt.</translation>
         <translation>Slet database?</translation>
     </message>
     <message>
-        <location line="+901"/>
+        <location line="+909"/>
         <source>Enter app password</source>
         <translation>Indtast programadgangskode</translation>
     </message>
@@ -615,7 +635,7 @@ Alle poster, der ikke uploades til serveren, går tabt.</translation>
         <translation>Forkert gammel adgangskode</translation>
     </message>
     <message>
-        <location line="+788"/>
+        <location line="+798"/>
         <source>Terms and conditions of use</source>
         <translation>Vilkår og betingelser for brug</translation>
     </message>
@@ -630,7 +650,7 @@ Alle poster, der ikke uploades til serveren, går tabt.</translation>
         <translation>JEG ER IKKE ENIG</translation>
     </message>
     <message>
-        <location line="-2638"/>
+        <location line="-2802"/>
         <source>OK. Goodbye.</source>
         <translation>Okay. Farvel.</translation>
     </message>
@@ -640,12 +660,12 @@ Alle poster, der ikke uploades til serveren, går tabt.</translation>
         <translation>Du nægtede betingelserne.</translation>
     </message>
     <message>
-        <location line="+2683"/>
+        <location line="+2844"/>
         <source>Uploading...</source>
         <translation>Uploader …</translation>
     </message>
     <message>
-        <location line="+35"/>
+        <location line="+42"/>
         <source>Copy data to server, or move it to server?
 
 COPY: copies unfinished patients, moves finished patients.
@@ -2452,67 +2472,67 @@ enig</translation>
     <message>
         <location filename="../menulib/fontsizeanddpiwindow.cpp" line="+81"/>
         <source>DPI settings</source>
-        <translation type="unfinished">Punkter pr. tommer indstillinger</translation>
+        <translation>Punkter pr. tommer indstillinger</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Dots per inch (DPI), or more accurately pixels per inch (PPI), are a measure of screen resolution. Higher-resolution monitors have higher DPI settings. In some circumstances, CamCOPS needs to know your screen&apos;s DPI settings accurately. If your operating system mis-reports them, you can override the system settings here.</source>
-        <translation type="unfinished">Punkter pr. tommer (DPI) eller mere præcist pixel pr. tomme (PPI) er et mål for skærmopløsning. Højere opløsning skærme har højere DPI indstillinger. Under nogle omstændigheder skal CamCOPS kende din skærms DPI-indstillinger nøjagtigt. Hvis dit operativsystem mis-rapporterer dem, kan du tilsidesætte systemindstillingerne her.</translation>
+        <translation>Punkter pr. tommer (DPI) eller mere præcist pixel pr. tomme (PPI) er et mål for skærmopløsning. Højere opløsning skærme har højere DPI indstillinger. Under nogle omstændigheder skal CamCOPS kende din skærms DPI-indstillinger nøjagtigt. Hvis dit operativsystem mis-rapporterer dem, kan du tilsidesætte systemindstillingerne her.</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>These settings take effect when you restart CamCOPS.</source>
-        <translation type="unfinished">Disse indstillinger træder i kraft, når du genstarter CamCOPS.</translation>
+        <translation>Disse indstillinger træder i kraft, når du genstarter CamCOPS.</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Logical DPI settings are used for icon sizes and similar. You are unlikely to need to override these. Current system logical DPI:</source>
-        <translation type="unfinished">Logiske DPI-indstillinger bruges til ikonstørrelser og lignende. Det er usandsynligt, at du behøver at tilsidesætte disse. Aktuel system logisk DPI:</translation>
+        <translation>Logiske DPI-indstillinger bruges til ikonstørrelser og lignende. Det er usandsynligt, at du behøver at tilsidesætte disse. Aktuel system logisk DPI:</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Override system logical DPI settings</source>
-        <translation type="unfinished">Overstyr systemets logiske DPI-indstillinger</translation>
+        <translation>Overstyr systemets logiske DPI-indstillinger</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Logical DPI, X</source>
-        <translation type="unfinished">Logisk DPI, X</translation>
+        <translation>Logisk DPI, X</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Logical DPI, Y</source>
-        <translation type="unfinished">Logisk DPI, Y</translation>
+        <translation>Logisk DPI, Y</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Physical DPI settings are used for absolute sizes (e.g. visual analogue scales). Override this for precise scaling if your system gets it slightly wrong. Current system physical DPI:</source>
-        <translation type="unfinished">Fysiske DPI-indstillinger bruges til absolutte størrelser (f.eks. visuelle analoge vægte). Tilsidesæt dette for præcis skalering, hvis dit system får det lidt forkert. Aktuelt fysisk DPI for systemet:</translation>
+        <translation>Fysiske DPI-indstillinger bruges til absolutte størrelser (f.eks. visuelle analoge vægte). Tilsidesæt dette for præcis skalering, hvis dit system får det lidt forkert. Aktuelt fysisk DPI for systemet:</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Override system physical DPI settings</source>
-        <translation type="unfinished">Overstyr systemets fysiske DPI-indstillinger</translation>
+        <translation>Overstyr systemets fysiske DPI-indstillinger</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Physical DPI, X</source>
-        <translation type="unfinished">Fysisk DPI, X</translation>
+        <translation>Fysisk DPI, X</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Physical DPI, Y</source>
-        <translation type="unfinished">Fysisk DPI, Y</translation>
+        <translation>Fysisk DPI, Y</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Dots per inch (DPI), e.g. 96; range %1-%2</source>
-        <translation type="unfinished">Punkter pr. tommer (DPI), f.eks. 96; interval %1-%2</translation>
+        <translation>Prikker pr. tomme (DPI), f.eks. rækkevidde %1-%2</translation>
     </message>
     <message>
         <location line="+105"/>
         <source>Set questionnaire font size and DPI settings</source>
-        <translation type="unfinished">Indstil spørgeskema skriftstørrelse og DPI indstillinger</translation>
+        <translation>Indstil spørgeskema skriftstørrelse og DPI indstillinger</translation>
     </message>
 </context>
 <context>
@@ -2520,37 +2540,37 @@ enig</translation>
     <message>
         <location filename="../menulib/fontsizewindow.cpp" line="+88"/>
         <source>Questionnaire font size</source>
-        <translation type="unfinished">Spørgeskema skriftstørrelse</translation>
+        <translation>Spørgeskema skriftstørrelse</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Set the font size, as a percentage of the default.</source>
-        <translation type="unfinished">Indstil skriftstørrelsen som en procentdel af standardværdien.</translation>
+        <translation>Indstil skriftstørrelsen som en procentdel af standardværdien.</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Changes take effect when a screen is reloaded.</source>
-        <translation type="unfinished">Ændringer træder i kraft, når en skærm genindlæses.</translation>
+        <translation>Ændringerne træder i kraft, når en skærm indlæses igen.</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>You can type it in:</source>
-        <translation type="unfinished">Du kan skrive det i:</translation>
+        <translation>Du kan skrive det i:</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>... or set it with a slider:</source>
-        <translation type="unfinished">... eller sæt det med en skyder:</translation>
+        <translation>... eller sæt det med en skyder:</translation>
     </message>
     <message>
         <location line="+18"/>
         <source>Reset to 100%</source>
-        <translation type="unfinished">Nulstil til 100%</translation>
+        <translation>Nulstil til 100%</translation>
     </message>
     <message>
         <location line="+45"/>
         <source>Set questionnaire font size</source>
-        <translation type="unfinished">Angiv skriftstørrelse for spørgeskema</translation>
+        <translation>Angiv skriftstørrelse for spørgeskema</translation>
     </message>
 </context>
 <context>
@@ -3348,7 +3368,7 @@ enig</translation>
         <translation>UKENDT OPGAVE</translation>
     </message>
     <message>
-        <location line="+198"/>
+        <location line="+202"/>
         <source>&lt;Anonymous task&gt;</source>
         <translation>&lt;Anonym opgave&gt;</translation>
     </message>
@@ -3522,7 +3542,7 @@ enig</translation>
 <context>
     <name>NetworkManager</name>
     <message>
-        <location filename="../core/networkmanager.cpp" line="+407"/>
+        <location filename="../core/networkmanager.cpp" line="+408"/>
         <source>Server host details not specified; see Settings</source>
         <translation>Serverhost detaljer ikke specificeret; se Indstillinger</translation>
     </message>
@@ -3612,12 +3632,12 @@ enig</translation>
         <translation>Resultat:</translation>
     </message>
     <message>
-        <location line="+204"/>
+        <location line="+252"/>
         <source>... registered and received identification information</source>
         <translation>... registreret og modtaget identifikationsoplysninger</translation>
     </message>
     <message>
-        <location line="-143"/>
+        <location line="-191"/>
         <source>Requesting allowed tables</source>
         <translation>Anmodning om tilladte tabeller</translation>
     </message>
@@ -3627,7 +3647,7 @@ enig</translation>
         <translation>Anmodning om ekstra strenger</translation>
     </message>
     <message>
-        <location line="+149"/>
+        <location line="+197"/>
         <source>... received extra strings</source>
         <translation>... modtaget ekstra strenge</translation>
     </message>
@@ -3668,8 +3688,8 @@ enig</translation>
         <translation>... gjort</translation>
     </message>
     <message>
-        <location line="-333"/>
-        <location line="+365"/>
+        <location line="-381"/>
+        <location line="+413"/>
         <location line="+879"/>
         <location line="+26"/>
         <location line="+47"/>
@@ -3677,7 +3697,7 @@ enig</translation>
         <translation>... Okay</translation>
     </message>
     <message>
-        <location line="-1600"/>
+        <location line="-1648"/>
         <source>Reply is not from CamCOPS API. Are your server settings misconfigured?</source>
         <translation>Svaret kommer ikke fra CamCOPS API. Er dine serverindstillinger forkert konfigureret?</translation>
     </message>
@@ -3709,12 +3729,12 @@ enig</translation>
         <translation>Registrering hos %1 og modtagelse af identifikationsoplysninger</translation>
     </message>
     <message>
-        <location line="+121"/>
+        <location line="+118"/>
         <source>Failed to parse task schedules: %1</source>
         <translation>Mislykkedes at analysere opgaveplaner: %1</translation>
     </message>
     <message>
-        <location line="+30"/>
+        <location line="+81"/>
         <source>Getting ID info from</source>
         <translation>Henter id-oplysninger fra</translation>
     </message>
@@ -3900,7 +3920,7 @@ enig</translation>
         <translation>ADVARSEL: Tabel &apos;%1&apos; er til stede på serveren, men klienten kræver serverversion &gt;=%2; serveren er version %3; fortsætter KUN, fordi denne tabel er tom.</translation>
     </message>
     <message>
-        <location line="-1058"/>
+        <location line="-1106"/>
         <source>Completed successfully.</source>
         <translation>Afsluttet med succes.</translation>
     </message>
@@ -3915,7 +3935,7 @@ enig</translation>
         <translation>... modtaget opgaveplaner</translation>
     </message>
     <message>
-        <location line="+1037"/>
+        <location line="+1085"/>
         <source>WARNING: Table &apos;%1&apos; is present on the server but the server requires client version &gt;=%2; you are using version %3; proceeding ONLY BECAUSE THIS TABLE IS EMPTY.</source>
         <translation>ADVARSEL: Tabel &apos;%1&apos; er til stede på serveren, men serveren kræver klientversion &gt;=%2; du bruger version %3; fortsætter KUN, fordi denne tabel er tom.</translation>
     </message>
@@ -4590,12 +4610,12 @@ enig</translation>
         <translation>[Ugyldig politik]</translation>
     </message>
     <message>
-        <location filename="../lib/uifunc.cpp" line="+473"/>
+        <location filename="../lib/uifunc.cpp" line="+483"/>
         <source>Abort</source>
         <translation>Afbryde</translation>
     </message>
     <message>
-        <location line="+51"/>
+        <location line="+55"/>
         <source>Can’t perform this action when CamCOPS is locked</source>
         <translation>Kan ikke udføre denne handling, når CamCOPS er låst</translation>
     </message>
@@ -4937,182 +4957,182 @@ enig</translation>
     <message>
         <location filename="../menulib/serversettingswindow.cpp" line="+72"/>
         <source>Server address</source>
-        <translation type="unfinished">Serveradresse</translation>
+        <translation>Serveradresse</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>host name or IP address</source>
-        <translation type="unfinished">værtsnavn eller IP-adresse</translation>
+        <translation>værtsnavn eller IP-adresse</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Server port for HTTPS</source>
-        <translation type="unfinished">Serverport til HTTPS</translation>
+        <translation>Serverport til HTTPS</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>default 443</source>
-        <translation type="unfinished">standard 443</translation>
+        <translation>standard 443</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Path on server</source>
-        <translation type="unfinished">Sti på server</translation>
+        <translation>Sti på server</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>no leading /; e.g. camcops/database</source>
-        <translation type="unfinished">ingen ledende /; f.eks. camcops/database</translation>
+        <translation>ingen ledende /; f.eks. camcops/database</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Network timeout (ms)</source>
-        <translation type="unfinished">Netværk timeout (ms)</translation>
+        <translation>Netværk timeout (ms)</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>e.g. 50000</source>
-        <translation type="unfinished">f.eks. 50000</translation>
+        <translation>f.eks. 50000</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Use HTTPS to server?</source>
-        <translation type="unfinished">Brug HTTPS til server?</translation>
+        <translation>Brug HTTPS til server?</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>You should &lt;b&gt;only&lt;/b&gt; disable this for debugging!</source>
-        <translation type="unfinished">Du bør &lt;b&gt;kun &lt;/b&gt; deaktivere dette til debugging!</translation>
+        <translation>Du bør &lt;b&gt;kun&lt;/b&gt; deaktivere dette for fejlfinding!</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Validate HTTPS (TLS/SSL) certificates?</source>
-        <translation type="unfinished">Validér HTTPS (TLS/SSL) certifikater?</translation>
+        <translation>Validér HTTPS (TLS/SSL) certifikater?</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Should always be YES for security-conscious systems.</source>
-        <translation type="unfinished">Bør altid være JA for sikkerhedsbevidste systemer.</translation>
+        <translation>Bør altid være JA for sikkerhedsbevidste systemer.</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>HTTPS (TLS/SSL) protocol?</source>
-        <translation type="unfinished">HTTPS (TLS/SSL) protokol?</translation>
+        <translation>HTTPS (TLS/SSL) protokol?</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Stick with the default unless your server can’t cope with it.</source>
-        <translation type="unfinished">Stand med standard, medmindre din server ikke kan klare det.</translation>
+        <translation>Stand med standard, medmindre din server ikke kan klare det.</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Known secure [default]</source>
-        <translation type="unfinished">Kendt for at være sikker [standard]</translation>
+        <translation>Kendt for at være sikker [standard]</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>SSL v3</source>
-        <translation type="unfinished">SSL v3</translation>
+        <translation>SSL v3</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>SSL v2</source>
-        <translation type="unfinished">SSL v2</translation>
+        <translation>SSL v2</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>TLS v1.0</source>
-        <translation type="unfinished">TLS v1.0</translation>
+        <translation>TLS v1.0</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>TLS v1.0 or later</source>
-        <translation type="unfinished">TLS v1.0 eller senere</translation>
+        <translation>TLS v1.0 eller senere</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>TLS v1.1</source>
-        <translation type="unfinished">TLS v1.1</translation>
+        <translation>TLS v1.1</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>TLS v1.1 or later</source>
-        <translation type="unfinished">TLS v1.1 eller senere</translation>
+        <translation>TLS v1.1 eller senere</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>TLS v1.2</source>
-        <translation type="unfinished">TLS v1.2</translation>
+        <translation>TLS v1.2</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>TLS v1.2 or later</source>
-        <translation type="unfinished">TLS v1.2 eller senere</translation>
+        <translation>TLS v1.2 eller senere</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>SSLv2, SSLv3, or TLSv1.0</source>
-        <translation type="unfinished">SSLv2, SSLv3, eller TLSv1.0</translation>
+        <translation>SSLv2, SSLv3, eller TLSv1.0</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>TLS v1.0 or SSL v3</source>
-        <translation type="unfinished">TLS v1.0 eller SSL v3</translation>
+        <translation>TLS v1.0 eller SSL v3</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Store user’s server password?</source>
-        <translation type="unfinished">Gem brugerens serveradgangskode?</translation>
+        <translation>Gem brugerens serveradgangskode?</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>NO = fractionally more secure; YES = more convenient/fractionally less secure, but still AES-256-encrypted.</source>
-        <translation type="unfinished">NEJ = fraktioneret mere sikker; JA = mere praktisk / fraktioneret mindre sikker, men stadig AES-256-krypteret.</translation>
+        <translation>NEJ = fraktioneret mere sikker; JA = mere praktisk / fraktioneret mindre sikker, men stadig AES-256-krypteret.</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Upload method</source>
-        <translation type="unfinished">Upload metode</translation>
+        <translation>Upload metode</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Multi-step (original)</source>
-        <translation type="unfinished">Multi-trin (original)</translation>
+        <translation>Multi-trin (original)</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Always one-step (faster)</source>
-        <translation type="unfinished">Altid en-trins (hurtigere)</translation>
+        <translation>Altid et trin (hurtigere)</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>One-step if small enough (default)</source>
-        <translation type="unfinished">Ét trin, hvis det er lille nok (standard)</translation>
+        <translation>Ét trin, hvis det er lille nok (standard)</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Maximum (approximate) database size for one-step upload (bytes)</source>
-        <translation type="unfinished">Maksimal (omtrentlig) databasestørrelse for en trins upload (bytes)</translation>
+        <translation>Maksimal (omtrentlig) databasestørrelse for en trins upload (bytes)</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>e.g. 2000000 for ~2Mb</source>
-        <translation type="unfinished">f.eks. 2000000 til ~2Mb</translation>
+        <translation>f.eks. 2000000 for ~2 Mb</translation>
     </message>
     <message>
         <location line="+68"/>
         <source>Configure server settings</source>
-        <translation type="unfinished">Konfigurer serverindstillinger</translation>
+        <translation>Konfigurere serverindstillinger</translation>
     </message>
     <message>
         <location line="+42"/>
         <source>Server details have changed. You should consider re-registering with the server.</source>
-        <translation type="unfinished">Serveroplysningerne er ændret. Du bør overveje at omregistrere til serveren.</translation>
+        <translation>Serveroplysningerne er ændret. Du bør overveje at omregistrere til serveren.</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Registration advised</source>
-        <translation type="unfinished">Registrering anbefales</translation>
+        <translation>Registrering anbefales</translation>
     </message>
 </context>
 <context>
@@ -6044,7 +6064,7 @@ enig</translation>
     <message>
         <location line="+2"/>
         <source>Configure server settings</source>
-        <translation type="unfinished">Konfigurer serverindstillinger</translation>
+        <translation>Konfigurere serverindstillinger</translation>
     </message>
     <message>
         <location line="+11"/>
@@ -6055,6 +6075,11 @@ enig</translation>
         <location line="+7"/>
         <source>Enable network activity log</source>
         <translation>Aktiver netværksaktivitetslog</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Change operating mode</source>
+        <translation>Ændre driftstilstand</translation>
     </message>
 </context>
 <context>
@@ -6075,7 +6100,7 @@ enig</translation>
         <translation>Den næste opgave vil være tilgængelig på: %1</translation>
     </message>
     <message>
-        <location line="+19"/>
+        <location line="+21"/>
         <source>You do not have any scheduled tasks</source>
         <translation>Du har ingen planlagte opgaver</translation>
     </message>
@@ -6190,7 +6215,7 @@ enig</translation>
 <context>
     <name>Task</name>
     <message>
-        <location filename="../tasklib/task.cpp" line="+256"/>
+        <location filename="../tasklib/task.cpp" line="+257"/>
         <source>MISSING PATIENT</source>
         <translation>MISSENDE PATIENT</translation>
     </message>
@@ -6282,13 +6307,18 @@ enig</translation>
 <context>
     <name>TaskScheduleItem</name>
     <message>
-        <location filename="../tasklib/taskscheduleitem.cpp" line="+185"/>
+        <location filename="../tasklib/taskscheduleitem.cpp" line="+197"/>
         <source>Completed</source>
         <translation>9/5000
 Afsluttet</translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location line="+5"/>
+        <source>Completed at: %1</source>
+        <translation>Fuldført kl.: %1</translation>
+    </message>
+    <message>
+        <location line="+9"/>
         <source>Started, complete by %1</source>
         <translation>Startet, komplet med %1</translation>
     </message>
@@ -6301,7 +6331,7 @@ Afsluttet</translation>
 <context>
     <name>TaskScheduleItemEditor</name>
     <message>
-        <location filename="../tasklib/taskscheduleitemeditor.cpp" line="+80"/>
+        <location filename="../tasklib/taskscheduleitemeditor.cpp" line="+81"/>
         <source>Null task pointer</source>
         <translation>Null-opgavemarkør</translation>
     </message>

@@ -59,14 +59,14 @@ depends_on = None
 # noinspection PyPep8,PyTypeChecker
 def upgrade():
     with op.batch_alter_table('_security_users', schema=None) as batch_op:
-        batch_op.add_column(sa.Column(
-            'auto_generated', sa.Boolean(),
-            nullable=False,
-            comment='Is automatically generated user with random password')
-        )
+        batch_op.add_column(sa.Column('auto_generated', sa.Boolean(), nullable=False, comment='Is automatically generated user with random password'))
+        batch_op.add_column(sa.Column('single_patient_pk', sa.Integer(), nullable=True, comment='For users locked to a single patient, the server PK of the server-created patient with which they are associated'))
+        batch_op.create_foreign_key(batch_op.f('fk__security_users_single_patient_pk'), 'patient', ['single_patient_pk'], ['_pk'])
 
 
 # noinspection PyPep8,PyTypeChecker
 def downgrade():
     with op.batch_alter_table('_security_users', schema=None) as batch_op:
+        batch_op.drop_constraint(batch_op.f('fk__security_users_single_patient_pk'), type_='foreignkey')
+        batch_op.drop_column('single_patient_pk')
         batch_op.drop_column('auto_generated')

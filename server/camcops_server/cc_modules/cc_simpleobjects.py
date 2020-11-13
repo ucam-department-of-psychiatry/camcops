@@ -29,6 +29,7 @@ camcops_server/cc_modules/cc_simpleobjects.py
 """
 
 import copy
+# import logging
 from typing import List, TYPE_CHECKING
 
 from pendulum import Date
@@ -40,6 +41,8 @@ from camcops_server.cc_modules.cc_constants import DateFormat
 
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_request import CamcopsRequest
+
+# log = logging.getLogger(__name__)
 
 # Prefer classes to collections.namedtuple; both support type checking but
 # classes support better parameter checking (and refactoring) via PyCharm.
@@ -172,6 +175,24 @@ class BarePatientInfo(object):
             idref: a :class:`IdNumReference`
         """
         self.idnum_definitions.append(idref)
+
+    def __eq__(self, other: "BarePatientInfo") -> bool:
+        """
+        Do all data elements match those of ``other``?
+        """
+        if not isinstance(other, BarePatientInfo):
+            return False
+        return (
+            self.forename == other.forename and
+            self.surname == other.surname and
+            self.sex == other.sex and
+            self.dob == other.dob and
+            self.address == other.address and
+            self.email == other.email and
+            self.gp == other.gp and
+            self.otherdetails == other.otherdetails and
+            self.idnum_definitions == other.idnum_definitions
+        )
 
 
 # =============================================================================

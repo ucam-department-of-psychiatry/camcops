@@ -142,8 +142,8 @@ CamcopsApp::~CamcopsApp()
 {
     // http://doc.qt.io/qt-5.7/objecttrees.html
     // Only delete things that haven't been assigned a parent
-    delete m_p_main_window;
     delete m_network_gui_guard;
+    delete m_p_main_window;
 }
 
 
@@ -293,6 +293,10 @@ void CamcopsApp::wipeDataForModeChange()
     // - We must wipe network security details -- the "single-user" accounts
     //   are not necessarily trusted to create data for new patients.
     //   *** but we should verify that server-side, too.
+    //   (Otherwise the theoretical vulnerability is that a registered user
+    //   obtains their username, cracks their obscured password, and enters
+    //   them into the clinician mode, allowing upload of data for arbitrary
+    //   patients.)
     // - We can wipe task schedules.
     //
     // (*) Pre-checked by modeChangeForbidden().
@@ -769,22 +773,23 @@ int CamcopsApp::run()
     {
         SlowNonGuiFunctionCaller slow_caller(
             std::bind(&CamcopsApp::backgroundStartup, this),
-            m_p_main_window,
+            nullptr,  // no m_p_main_window yet
             tr("Configuring internal database"),
             TextConst::pleaseWait());
-    }
-
-    if (varInt(varconst::MODE) == varconst::MODE_NOT_SET) {
-        setModeFromUser();
     }
 
     openMainWindow();  // uses HelpMenu etc. and so must be AFTER TASK REGISTRATION
     makeNetManager();  // needs to be after main window created, and on GUI thread
 
-    // Ensure all mode-specific things are set:
-    setMode(varInt(varconst::MODE));
-
-    maybeRegisterPatient();
+    if (varInt(varconst::MODE) == varconst::MODE_NOT_SET) {
+        // e.g. fresh database; which mode to use?
+        setModeFromUser();
+    } else {
+        // We know our mode from last time.
+        // Ensure all mode-specific things are set:
+        setMode(varInt(varconst::MODE));
+        maybeRegisterPatient();
+    }
 
     return exec();  // Main Qt event loop
 }
@@ -1118,7 +1123,8 @@ bool CamcopsApp::connectDatabaseEncryption(QString& new_user_password,
             qInfo() << "Databases have no password yet, and need one.";
             QString dummy_old_password;
             if (!uifunc::getOldNewPasswords(
-                        new_pw_text, new_pw_title, false,
+                        new_pw_text, new_pw_title,
+                        false /* require_old_password */,
                         dummy_old_password, new_user_password, nullptr)) {
                 user_cancelled_please_quit = true;
                 return false;

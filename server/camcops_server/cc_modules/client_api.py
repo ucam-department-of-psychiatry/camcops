@@ -377,7 +377,6 @@ from semantic_version import Version
 from sqlalchemy.engine.result import ResultProxy
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import joinedload
-from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import exists, select, update
 from sqlalchemy.sql.schema import Table
 
@@ -455,7 +454,8 @@ from camcops_server.cc_modules.cc_ipuse import IpUse
 from camcops_server.cc_modules.cc_membership import UserGroupMembership
 from camcops_server.cc_modules.cc_patient import (
     Patient,
-    is_candidate_patient_valid,
+    is_candidate_patient_valid_for_group,
+    is_candidate_patient_valid_for_restricted_user,
 )
 from camcops_server.cc_modules.cc_patientidnum import (
     fake_tablet_id_for_patientidnum,
@@ -2060,7 +2060,7 @@ def op_register_patient(req: "CamcopsRequest") -> Dict[str, Any]:
     # -------------------------------------------------------------------------
     # Patient details
     # -------------------------------------------------------------------------
-    patient = get_single_patient(req)
+    patient = get_single_patient(req)  # may fail/raise
 
     patient_dict = {
         TabletParam.SURNAME: patient.surname,
@@ -2084,16 +2084,14 @@ def op_register_patient(req: "CamcopsRequest") -> Dict[str, Any]:
     }
 
     # -------------------------------------------------------------------------
-    # Username/password, if required
+    # Username/password
     # -------------------------------------------------------------------------
-    user_name = get_str_var(req, TabletParam.USER, mandatory=False)
-    if user_name is None:
-        assert patient.group is not None  # for type checker
-        client_device_name = get_str_var(req, TabletParam.DEVICE)
-        user, password = create_single_user(req, f"user-{client_device_name}",
-                                            patient.group)
-        reply_dict[TabletParam.USER] = user.username
-        reply_dict[TabletParam.PASSWORD] = password
+    client_device_name = get_str_var(req, TabletParam.DEVICE)
+    # noinspection PyProtectedMember
+    user_name = f"user-{client_device_name}-{patient._pk}"
+    user, password = get_or_create_single_user(req, user_name, patient)
+    reply_dict[TabletParam.USER] = user.username
+    reply_dict[TabletParam.PASSWORD] = password
 
     # -------------------------------------------------------------------------
     # Intellectual property settings
@@ -2139,7 +2137,9 @@ def get_single_patient(req: "CamcopsRequest") -> Patient:
     # noinspection PyUnboundLocalVariable,PyProtectedMember
     patient = req.dbsession.query(Patient).filter(
         Patient.uuid == uuid_obj,
-        Patient._device_id == server_device.id
+        Patient._device_id == server_device.id,
+        Patient._era == ERA_NOW,
+        Patient._current == True  # noqa: E712
     ).options(joinedload(Patient.task_schedules)).one_or_none()
 
     if patient is None:
@@ -2160,42 +2160,74 @@ def get_single_patient(req: "CamcopsRequest") -> Patient:
     return patient
 
 
-def create_single_user(req: "CamcopsRequest",
-                       name: str, group: Group) -> Tuple[User, str]:
+def get_or_create_single_user(req: "CamcopsRequest",
+                              name: str,
+                              patient: Patient) -> Tuple[User, str]:
     """
     Creates a user for a patient (who's using single-user mode).
 
-    The username must not already exist.
+    The user is associated (via its name) with the combination of a client
+    device and a patient. (If a device is re-registered to another patient, the
+    username will change.)
 
-    Strictly, the user is associated with a CLIENT DEVICE, not a patient -- a
-    device can be re-registered to another patient (so we don't store patient
-    names or e-mails with the user details).
+    If the username already exists, then since we can't look up the password
+    (it's irreversibly encrypted), we will set it afresh.
+
+    - Why is a user associated with a patient? So we can enforce that the user
+      can upload only data relating to that patient.
+
+    - Why is a user associated with a device?
+
+      - If it is: then two users (e.g. "Device1-Bob" and "Device2-Bob") can
+        independently work with the same patient. This will be highly
+        confusing (mainly because it will allow "double" copies of tasks to be
+        created, though only by manually entering things twice).
+
+      - If it isn't (e.g. user "Bob"): then, because registering the patient on
+        Device2 will reset the password for the user, registering a new device
+        for a patient will "take over" from a previous device. That has some
+        potential for data loss if work was in progress (incomplete tasks won't
+        be uploadable any more, and re-registering [to fix the password on the
+        first device] would delete data).
+
+      - Since some confusion is better than some data loss, we associate users
+        with a device/patient combination.
 
     Args:
-        req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-        name: username
-        group: group in which to place this user
+        req:
+            a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        name:
+            username
+        patient:
+            associated :class:`camcops_server.cc_modules.cc_patient.Patient`,
+            which also tells us the group in which to place this user
 
     Returns:
         tuple: :class:`camcops_server.cc_modules.cc_user.User`, password
 
     """
     dbsession = req.dbsession
+    password = random_password()
+    group = patient.group
+    assert group is not None  # for type checker
 
-    try:
-        user = dbsession.query(User).filter_by(username=name).one()
-    except NoResultFound:
+    user = User.get_user_by_name(dbsession, name)
+    creating_new_user = user is None
+    if creating_new_user:
+        # Create a fresh user.
         user = User(username=name)
     user.upload_group = group
     user.auto_generated = True
-    password = random_password()
+    user.superuser = False  # should be redundant!
+    # noinspection PyProtectedMember
+    user.single_patient_pk = patient._pk
     user.set_password(req, password)
-
-    dbsession.add(user)
-    # As the username is based on a UUID, we're pretty sure another
-    # request won't have created the same user, otherwise we'd need
-    # to catch IntegrityError
-    dbsession.flush()
+    if creating_new_user:
+        dbsession.add(user)
+        # As the username is based on a UUID, we're pretty sure another
+        # request won't have created the same user, otherwise we'd need
+        # to catch IntegrityError
+        dbsession.flush()
 
     membership = UserGroupMembership(
         user_id=user.id,
@@ -2203,8 +2235,7 @@ def create_single_user(req: "CamcopsRequest",
     )
     membership.may_register_devices = True
     membership.may_upload = True
-
-    user.user_group_memberships.append(membership)
+    user.user_group_memberships = [membership]  # ... only these permissions
 
     return user, password
 
@@ -2769,6 +2800,20 @@ def op_validate_patients(req: "CamcopsRequest") -> str:
     a bank of predefined patients).
 
     Compare ``NetworkManager::getPatientInfoJson()`` on the client.
+
+    There is a slight weakness with respect to "single-patient" users, in that
+    the client *asks* if the patients are OK (rather than the server
+    *enforcing* that they are OK, via hooks into :func:`op_upload_table`,
+    :func:`op_upload_record`, :func:`op_upload_entire_database` -- made more
+    complex because ID numbers are not uploaded to the same table...). In
+    principle, the weakness is that a user could (a) crack their assigned
+    password and (b) rework the CamCOPS client, in order to upload "bad"
+    patient data into their assigned group.
+
+    todo:
+        address this by having the server *require* patient validation for
+        all uploads?
+
     """
     def ensure_string(value: Any, allow_none: bool = True) -> None:
         if value is None:
@@ -2854,7 +2899,12 @@ def op_validate_patients(req: "CamcopsRequest") -> str:
         if finalizing is None:
             fail_user_error(f"Missing {TabletParam.FINALIZING!r} JSON key")
 
-        pt_ok, reason = is_candidate_patient_valid(ptinfo, group, finalizing)
+        pt_ok, reason = is_candidate_patient_valid_for_group(
+            ptinfo, group, finalizing)
+        if not pt_ok:
+            errors.append(f"{ptinfo} -> {reason}")
+        pt_ok, reason = is_candidate_patient_valid_for_restricted_user(
+            req, ptinfo)
         if not pt_ok:
             errors.append(f"{ptinfo} -> {reason}")
     if errors:
