@@ -152,6 +152,12 @@ Patient::Patient(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
 Patient::Patient(CamcopsApp& app, DatabaseManager& db,
                  const QJsonObject& json_obj) : Patient(app, db)
 {
+    setPatientDetailsFromJson(json_obj);
+}
+
+
+void Patient::setPatientDetailsFromJson(const QJsonObject& json_obj)
+{
     setValuesFromJson(json_obj, FIELDNAMES_TO_JSON_KEYS);
 }
 
@@ -172,6 +178,13 @@ void Patient::addIdNums(const QJsonObject& json_obj)
             m_idnums.append(new_id);
         }
     }
+}
+
+
+void Patient::setIdNums(const QJsonObject& json_obj)
+{
+    deleteAllIdNums();
+    addIdNums(json_obj);
 }
 
 
@@ -998,6 +1011,16 @@ void Patient::deleteIdNum(const int which_idnum)
             return;
         }
     }
+}
+
+
+void Patient::deleteAllIdNums()
+{
+    for (int i = 0; i < m_idnums.size(); ++i) {
+        PatientIdNumPtr idnum = m_idnums.at(i);
+        idnum->deleteFromDatabase();
+    }
+    m_idnums.clear();
 }
 
 

@@ -411,10 +411,8 @@ you will not see the responses.
 
 .. note::
 
-    Avoid editing patient details after the patient has registered. Because
-    CamCOPS checks that patient records uploaded in "single user mode" match
-    what's expected, changing details means that the patient will have to
-    re-register (and might lose work).
+    If you edit patient details after the patient has registered, the client
+    will pick up the changes when it next picks up schedule updates.
 
 
 Help

@@ -525,6 +525,14 @@ DEBUG_UPLOAD = False
 
 
 # =============================================================================
+# Quasi-constants
+# =============================================================================
+
+DB_JSON_DECODER = json.JSONDecoder()  # just a plain one
+PATIENT_INFO_JSON_DECODER = json.JSONDecoder()  # just a plain one
+
+
+# =============================================================================
 # Cached information
 # =============================================================================
 
@@ -598,6 +606,24 @@ def ensure_valid_field_name(table: Table, fieldname: str) -> None:
     # example, "_PK", this would not be picked up as a reserved field (so would
     # pass that check) but then wouldn't be recognized as a valid field (so
     # would fail).
+
+
+def ensure_string(value: Any, allow_none: bool = True) -> None:
+    """
+    Used when processing JSON information about patients: ensures that a value
+    is a string, or raises.
+
+    Args:
+        value: value to test
+        allow_none: is ``None`` allowed (not just an empty string)?
+    """
+    if value is None:
+        if allow_none:
+            return  # OK
+        else:
+            fail_user_error("Patient JSON contains absent string")
+    if not isinstance(value, str):
+        fail_user_error(f"Patient JSON contains invalid non-string: {value!r}")
 
 
 # =============================================================================
@@ -2010,6 +2036,78 @@ def clear_dirty_tables(req: "CamcopsRequest") -> None:
 
 
 # =============================================================================
+# Additional helper functions for one-step upload
+# =============================================================================
+
+def process_table_for_onestep_upload(
+        req: "CamcopsRequest",
+        batchdetails: BatchDetails,
+        table: Table,
+        clientpk_name: str,
+        rows: List[Dict[str, Any]]) -> UploadTableChanges:
+    """
+    Performs all upload steps for a table.
+
+    Note that we arrive here in a specific and safe table order; search for
+    :func:`camcops_server.cc_modules.cc_client_api_helpers.upload_commit_order_sorter`.
+
+    Args:
+        req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        batchdetails: the :class:`BatchDetails`
+        table: an SQLAlchemy :class:`Table`
+        clientpk_name: the name of the PK field on the client
+        rows: a list of rows, where each row is a dictionary mapping field
+            (column) names to values (those values being encoded as SQL-style
+            literals in our extended syntax)
+
+    Returns:
+        an :class:`UploadTableChanges` object
+    """  # noqa
+    serverrecs = get_server_live_records(
+        req, req.tabletsession.device_id, table, clientpk_name,
+        current_only=False)
+    servercurrentrecs = [r for r in serverrecs if r.current]
+    if rows and not clientpk_name:
+        fail_user_error(f"Client-side PK name not specified by client for "
+                        f"non-empty table {table.name!r}")
+    tablechanges = UploadTableChanges(table)
+    server_pks_uploaded = []  # type: List[int]
+    for row in rows:
+        valuedict = {k: decode_single_value(v) for k, v in row.items()}
+        urr = upload_record_core(req, batchdetails, table,
+                                 clientpk_name, valuedict,
+                                 server_live_current_records=servercurrentrecs)
+        # ... handles addition, modification, preservation, special processing
+        # But we also make a note of these for indexing:
+        if urr.oldserverpk is not None:
+            server_pks_uploaded.append(urr.oldserverpk)
+        tablechanges.note_urr(urr,
+                              preserving_new_records=batchdetails.preserving)
+    # Which leaves:
+    # (*) Deletion (where no record was uploaded at all)
+    server_pks_for_deletion = [r.server_pk for r in servercurrentrecs
+                               if r.server_pk not in server_pks_uploaded]
+    if server_pks_for_deletion:
+        flag_deleted(req, batchdetails, table, server_pks_for_deletion)
+        tablechanges.note_removal_deleted_pks(server_pks_for_deletion)
+
+    # Preserving all records not specifically processed above, too
+    if batchdetails.preserving:
+        # Preserve all, including noncurrent:
+        preserve_all(req, batchdetails, table)
+        # Note other preserved records, for indexing:
+        tablechanges.note_preservation_pks(r.server_pk for r in serverrecs)
+
+    # (*) Indexing (and push exports)
+    update_indexes_and_push_exports(req, batchdetails, tablechanges)
+
+    if DEBUG_UPLOAD:
+        log.debug("process_table_for_onestep_upload: {}", tablechanges)
+
+    return tablechanges
+
+
+# =============================================================================
 # Audit functions
 # =============================================================================
 
@@ -2037,31 +2135,20 @@ def audit(req: "CamcopsRequest",
 
 
 # =============================================================================
-# Action processors: allowed to any user
+# Helper functions for single-user mode
 # =============================================================================
-# If they return None, the framework uses the operation name as the reply in
-# the success message. Not returning anything is the same as returning None.
-# Authentication is performed in advance of these.
 
-def op_check_device_registered(req: "CamcopsRequest") -> None:
+def json_patient_info(patient: Patient) -> str:
     """
-    Check that a device is registered, or raise
-    :exc:`UserErrorException`.
-    """
-    req.tabletsession.ensure_device_registered()
+    Converts patient details to a string representation of a JSON list (one
+    patient) containing a single JSON dictionary (detailing that patient), with
+    keys/formats known to the client.
 
+    (One item list to be consistent with patients uploaded from the tablet.)
 
-def op_register_patient(req: "CamcopsRequest") -> Dict[str, Any]:
+    Args:
+        patient: :class:`camcops_server.cc_modules.cc_patient.Patient`
     """
-    Registers a patient. That is, the client provides an access key. If all
-    is well, the server returns details of that patient, as well as key
-    server parameters, plus (if required) the username/password to use.
-    """
-    # -------------------------------------------------------------------------
-    # Patient details
-    # -------------------------------------------------------------------------
-    patient = get_single_patient(req)  # may fail/raise
-
     patient_dict = {
         TabletParam.SURNAME: patient.surname,
         TabletParam.FORENAME: patient.forename,
@@ -2076,37 +2163,8 @@ def op_register_patient(req: "CamcopsRequest") -> Dict[str, Any]:
     for idnum in patient.idnums:
         key = f"{TabletParam.IDNUM_PREFIX}{idnum.which_idnum}"
         patient_dict[key] = idnum.idnum_value
-
     # One item list to be consistent with patients uploaded from the tablet
-    patient_info = json.dumps([patient_dict])
-    reply_dict = {
-        TabletParam.PATIENT_INFO: patient_info,
-    }
-
-    # -------------------------------------------------------------------------
-    # Username/password
-    # -------------------------------------------------------------------------
-    client_device_name = get_str_var(req, TabletParam.DEVICE)
-    # noinspection PyProtectedMember
-    user_name = f"user-{client_device_name}-{patient._pk}"
-    user, password = get_or_create_single_user(req, user_name, patient)
-    reply_dict[TabletParam.USER] = user.username
-    reply_dict[TabletParam.PASSWORD] = password
-
-    # -------------------------------------------------------------------------
-    # Intellectual property settings
-    # -------------------------------------------------------------------------
-    ip_use = patient.group.ip_use or IpUse()
-    # ... if the group doesn't have an associated ip_use object, use defaults
-    ip_dict = {
-        TabletParam.IP_USE_COMMERCIAL: int(ip_use.commercial),
-        TabletParam.IP_USE_CLINICAL: int(ip_use.clinical),
-        TabletParam.IP_USE_EDUCATIONAL: int(ip_use.educational),
-        TabletParam.IP_USE_RESEARCH: int(ip_use.research),
-    }
-    reply_dict[TabletParam.IP_USE_INFO] = json.dumps(ip_dict)
-
-    return reply_dict
+    return json.dumps([patient_dict])
 
 
 def get_single_patient(req: "CamcopsRequest") -> Patient:
@@ -2251,11 +2309,115 @@ def random_password(length: int = 32) -> str:
     return "".join(secrets.choice(characters) for _ in range(length))
 
 
+def get_task_schedules(req: "CamcopsRequest",
+                       patient: Patient) -> str:
+    """
+    Gets a JSON string representation of the task schedules for a specified
+    patient.
+    """
+    dbsession = req.dbsession
+
+    schedules = []
+
+    for pts in patient.task_schedules:
+        if pts.start_datetime is None:
+            # Minutes granularity so we are consistent with the form
+            pts.start_datetime = req.now_utc.replace(second=0, microsecond=0)
+            dbsession.add(pts)
+
+        items = []
+
+        for task_info in pts.get_list_of_scheduled_tasks(req):
+            due_from = task_info.start_datetime.to_iso8601_string()
+            due_by = task_info.end_datetime.to_iso8601_string()
+
+            complete = False
+
+            if task_info.task:
+                complete = task_info.task.is_complete()
+
+            settings = {}
+            if pts.settings is not None:
+                settings = pts.settings.get(task_info.tablename, {})
+
+            items.append({
+                TabletParam.TABLE: task_info.tablename,
+                TabletParam.ANONYMOUS: task_info.is_anonymous,
+                TabletParam.SETTINGS: settings,
+                TabletParam.DUE_FROM: due_from,
+                TabletParam.DUE_BY: due_by,
+                TabletParam.COMPLETE: complete,
+            })
+
+        schedules.append({
+            TabletParam.TASK_SCHEDULE_NAME: pts.task_schedule.name,
+            TabletParam.TASK_SCHEDULE_ITEMS: items,
+        })
+
+    return json.dumps(schedules)
+
+
+# =============================================================================
+# Action processors: allowed to any user
+# =============================================================================
+# If they return None, the framework uses the operation name as the reply in
+# the success message. Not returning anything is the same as returning None.
+# Authentication is performed in advance of these.
+
+def op_check_device_registered(req: "CamcopsRequest") -> None:
+    """
+    Check that a device is registered, or raise
+    :exc:`UserErrorException`.
+    """
+    req.tabletsession.ensure_device_registered()
+
+
+def op_register_patient(req: "CamcopsRequest") -> Dict[str, Any]:
+    """
+    Registers a patient. That is, the client provides an access key. If all
+    is well, the server returns details of that patient, as well as key
+    server parameters, plus (if required) the username/password to use.
+    """
+    # -------------------------------------------------------------------------
+    # Patient details
+    # -------------------------------------------------------------------------
+    patient = get_single_patient(req)  # may fail/raise
+    patient_info = json_patient_info(patient)
+    reply_dict = {
+        TabletParam.PATIENT_INFO: patient_info,
+    }
+
+    # -------------------------------------------------------------------------
+    # Username/password
+    # -------------------------------------------------------------------------
+    client_device_name = get_str_var(req, TabletParam.DEVICE)
+    # noinspection PyProtectedMember
+    user_name = f"user-{client_device_name}-{patient._pk}"
+    user, password = get_or_create_single_user(req, user_name, patient)
+    reply_dict[TabletParam.USER] = user.username
+    reply_dict[TabletParam.PASSWORD] = password
+
+    # -------------------------------------------------------------------------
+    # Intellectual property settings
+    # -------------------------------------------------------------------------
+    ip_use = patient.group.ip_use or IpUse()
+    # ... if the group doesn't have an associated ip_use object, use defaults
+    ip_dict = {
+        TabletParam.IP_USE_COMMERCIAL: int(ip_use.commercial),
+        TabletParam.IP_USE_CLINICAL: int(ip_use.clinical),
+        TabletParam.IP_USE_EDUCATIONAL: int(ip_use.educational),
+        TabletParam.IP_USE_RESEARCH: int(ip_use.research),
+    }
+    reply_dict[TabletParam.IP_USE_INFO] = json.dumps(ip_dict)
+
+    return reply_dict
+
+
 # =============================================================================
 # Action processors that require REGISTRATION privilege
 # =============================================================================
 
-def op_register(req: "CamcopsRequest") -> Dict[str, Any]:
+def op_register_device(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     Register a device with the server.
 
@@ -2347,62 +2509,16 @@ def op_get_allowed_tables(req: "CamcopsRequest") -> Dict[str, str]:
 def op_get_task_schedules(req: "CamcopsRequest") -> Dict[str, str]:
     """
     Return details of the task schedules for the patient associated with
-    this request, for single-user mode.
+    this request, for single-user mode. Also returns details of the single
+    patient, in case that's changed.
     """
     patient = get_single_patient(req)
+    patient_info = json_patient_info(patient)
     task_schedules = get_task_schedules(req, patient)
-
     return {
-        TabletParam.TASK_SCHEDULES: task_schedules
+        TabletParam.PATIENT_INFO: patient_info,
+        TabletParam.TASK_SCHEDULES: task_schedules,
     }
-
-
-def get_task_schedules(req: "CamcopsRequest",
-                       patient: Patient) -> str:
-    """
-    Gets a JSON string representation of the task schedules for a specified
-    patient.
-    """
-    dbsession = req.dbsession
-
-    schedules = []
-
-    for pts in patient.task_schedules:
-        if pts.start_datetime is None:
-            # Minutes granularity so we are consistent with the form
-            pts.start_datetime = req.now_utc.replace(second=0, microsecond=0)
-            dbsession.add(pts)
-
-        items = []
-
-        for task_info in pts.get_list_of_scheduled_tasks(req):
-            due_from = task_info.start_datetime.to_iso8601_string()
-            due_by = task_info.end_datetime.to_iso8601_string()
-
-            complete = False
-
-            if task_info.task:
-                complete = task_info.task.is_complete()
-
-            settings = {}
-            if pts.settings is not None:
-                settings = pts.settings.get(task_info.tablename, {})
-
-            items.append({
-                TabletParam.TABLE: task_info.tablename,
-                TabletParam.ANONYMOUS: task_info.is_anonymous,
-                TabletParam.SETTINGS: settings,
-                TabletParam.DUE_FROM: due_from,
-                TabletParam.DUE_BY: due_by,
-                TabletParam.COMPLETE: complete,
-            })
-
-        schedules.append({
-            TabletParam.TASK_SCHEDULE_NAME: pts.task_schedule.name,
-            TabletParam.TASK_SCHEDULE_ITEMS: items,
-        })
-
-    return json.dumps(schedules)
 
 
 # =============================================================================
@@ -2789,9 +2905,6 @@ def op_which_keys_to_send(req: "CamcopsRequest") -> str:
     return pk_csv_list
 
 
-PATIENT_INFO_JSON_DECODER = json.JSONDecoder()  # just a plain one
-
-
 def op_validate_patients(req: "CamcopsRequest") -> str:
     """
     As of v2.3.0, the client can use this command to validate patients against
@@ -2815,15 +2928,6 @@ def op_validate_patients(req: "CamcopsRequest") -> str:
         all uploads?
 
     """
-    def ensure_string(value: Any, allow_none: bool = True) -> None:
-        if value is None:
-            if allow_none:
-                return  # OK
-            else:
-                fail_user_error("Patient JSON contains absent string")
-        if not isinstance(value, str):
-            fail_user_error(f"Patient JSON contains invalid non-string: {value!r}")  # noqa
-
     pt_json_list = get_json_from_post_var(req, TabletParam.PATIENT_INFO,
                                           decoder=PATIENT_INFO_JSON_DECODER,
                                           mandatory=True)
@@ -2913,9 +3017,6 @@ def op_validate_patients(req: "CamcopsRequest") -> str:
         return SUCCESS_MSG
 
 
-DB_JSON_DECODER = json.JSONDecoder()  # just a plain one
-
-
 def op_upload_entire_database(req: "CamcopsRequest") -> str:
     """
     Perform a one-step upload of the entire database.
@@ -2969,74 +3070,6 @@ def op_upload_entire_database(req: "CamcopsRequest") -> str:
     return SUCCESS_MSG
 
 
-def process_table_for_onestep_upload(
-        req: "CamcopsRequest",
-        batchdetails: BatchDetails,
-        table: Table,
-        clientpk_name: str,
-        rows: List[Dict[str, Any]]) -> UploadTableChanges:
-    """
-    Performs all upload steps for a table.
-
-    Note that we arrive here in a specific and safe table order; search for
-    :func:`camcops_server.cc_modules.cc_client_api_helpers.upload_commit_order_sorter`.
-
-    Args:
-        req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-        batchdetails: the :class:`BatchDetails`
-        table: an SQLAlchemy :class:`Table`
-        clientpk_name: the name of the PK field on the client
-        rows: a list of rows, where each row is a dictionary mapping field
-            (column) names to values (those values being encoded as SQL-style
-            literals in our extended syntax)
-
-    Returns:
-        an :class:`UploadTableChanges` object
-    """  # noqa
-    serverrecs = get_server_live_records(
-        req, req.tabletsession.device_id, table, clientpk_name,
-        current_only=False)
-    servercurrentrecs = [r for r in serverrecs if r.current]
-    if rows and not clientpk_name:
-        fail_user_error(f"Client-side PK name not specified by client for "
-                        f"non-empty table {table.name!r}")
-    tablechanges = UploadTableChanges(table)
-    server_pks_uploaded = []  # type: List[int]
-    for row in rows:
-        valuedict = {k: decode_single_value(v) for k, v in row.items()}
-        urr = upload_record_core(req, batchdetails, table,
-                                 clientpk_name, valuedict,
-                                 server_live_current_records=servercurrentrecs)
-        # ... handles addition, modification, preservation, special processing
-        # But we also make a note of these for indexing:
-        if urr.oldserverpk is not None:
-            server_pks_uploaded.append(urr.oldserverpk)
-        tablechanges.note_urr(urr,
-                              preserving_new_records=batchdetails.preserving)
-    # Which leaves:
-    # (*) Deletion (where no record was uploaded at all)
-    server_pks_for_deletion = [r.server_pk for r in servercurrentrecs
-                               if r.server_pk not in server_pks_uploaded]
-    if server_pks_for_deletion:
-        flag_deleted(req, batchdetails, table, server_pks_for_deletion)
-        tablechanges.note_removal_deleted_pks(server_pks_for_deletion)
-
-    # Preserving all records not specifically processed above, too
-    if batchdetails.preserving:
-        # Preserve all, including noncurrent:
-        preserve_all(req, batchdetails, table)
-        # Note other preserved records, for indexing:
-        tablechanges.note_preservation_pks(r.server_pk for r in serverrecs)
-
-    # (*) Indexing (and push exports)
-    update_indexes_and_push_exports(req, batchdetails, tablechanges)
-
-    if DEBUG_UPLOAD:
-        log.debug("process_table_for_onestep_upload: {}", tablechanges)
-
-    return tablechanges
-
-
 # =============================================================================
 # Action maps
 # =============================================================================
@@ -3074,7 +3107,7 @@ OPERATIONS_REGISTRATION = {
     Operations.GET_ALLOWED_TABLES: op_get_allowed_tables,  # v2.2.0
     Operations.GET_EXTRA_STRINGS: op_get_extra_strings,
     Operations.GET_TASK_SCHEDULES: op_get_task_schedules,
-    Operations.REGISTER: op_register,
+    Operations.REGISTER: op_register_device,
 }
 OPERATIONS_UPLOAD = {
     Operations.CHECK_UPLOAD_USER_DEVICE: op_check_upload_user_and_device,

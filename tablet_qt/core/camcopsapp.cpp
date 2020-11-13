@@ -440,7 +440,7 @@ void CamcopsApp::updateTaskSchedules(const bool alert_unfinished_tasks)
 
     reconnectNetManager(&CamcopsApp::updateTaskSchedulesFailed,
                         &CamcopsApp::updateTaskSchedulesFinished);
-    networkManager()->updateTaskSchedules();
+    networkManager()->updateTaskSchedulesAndPatientDetails();
 }
 
 
