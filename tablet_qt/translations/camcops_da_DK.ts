@@ -389,7 +389,7 @@
         <translation>Konfiguration af intern database</translation>
     </message>
     <message>
-        <location line="+320"/>
+        <location line="+321"/>
         <source>Enter a new password for the CamCOPS application</source>
         <translation>Indtast en ny adgangskode til CamCOPS-applikationen</translation>
     </message>
@@ -419,7 +419,7 @@
         <translation>Inkonsekvent database tilstand</translation>
     </message>
     <message>
-        <location line="+56"/>
+        <location line="+57"/>
         <source>Decrypting databases...</source>
         <translation>Dekryptering af databaser...</translation>
     </message>
@@ -449,13 +449,13 @@
         <translation>Ja, upload</translation>
     </message>
     <message>
-        <location line="-1596"/>
-        <location line="+1598"/>
+        <location line="-1598"/>
+        <location line="+1600"/>
         <source>No, cancel</source>
         <translation>Nej, annuller</translation>
     </message>
     <message>
-        <location line="-1779"/>
+        <location line="-1781"/>
         <source>You did not select how you would like to use CamCOPS</source>
         <translation>Du valgte ikke, hvordan du vil bruge CamCOPS</translation>
     </message>
@@ -553,12 +553,12 @@ Are you connected to the internet?</source>
 Har du forbindelse til internettet?</translation>
     </message>
     <message>
-        <location line="+201"/>
+        <location line="+202"/>
         <source>You cancelled patient registration</source>
         <translation>Du annullerede patientregistrering</translation>
     </message>
     <message>
-        <location line="+415"/>
+        <location line="+416"/>
         <source>You entered an incorrect password. Try again?</source>
         <translation>Du indtastede en forkert adgangskode. Prøv igen?</translation>
     </message>
@@ -650,7 +650,7 @@ Alle poster, der ikke uploades til serveren, går tabt.</translation>
         <translation>JEG ER IKKE ENIG</translation>
     </message>
     <message>
-        <location line="-2802"/>
+        <location line="-2804"/>
         <source>OK. Goodbye.</source>
         <translation>Okay. Farvel.</translation>
     </message>
@@ -660,7 +660,7 @@ Alle poster, der ikke uploades til serveren, går tabt.</translation>
         <translation>Du nægtede betingelserne.</translation>
     </message>
     <message>
-        <location line="+2844"/>
+        <location line="+2846"/>
         <source>Uploading...</source>
         <translation>Uploader …</translation>
     </message>
@@ -3632,12 +3632,12 @@ enig</translation>
         <translation>Resultat:</translation>
     </message>
     <message>
-        <location line="+252"/>
+        <location line="+286"/>
         <source>... registered and received identification information</source>
         <translation>... registreret og modtaget identifikationsoplysninger</translation>
     </message>
     <message>
-        <location line="-191"/>
+        <location line="-225"/>
         <source>Requesting allowed tables</source>
         <translation>Anmodning om tilladte tabeller</translation>
     </message>
@@ -3647,7 +3647,7 @@ enig</translation>
         <translation>Anmodning om ekstra strenger</translation>
     </message>
     <message>
-        <location line="+197"/>
+        <location line="+231"/>
         <source>... received extra strings</source>
         <translation>... modtaget ekstra strenge</translation>
     </message>
@@ -3688,8 +3688,8 @@ enig</translation>
         <translation>... gjort</translation>
     </message>
     <message>
-        <location line="-381"/>
-        <location line="+413"/>
+        <location line="-415"/>
+        <location line="+447"/>
         <location line="+879"/>
         <location line="+26"/>
         <location line="+47"/>
@@ -3697,7 +3697,7 @@ enig</translation>
         <translation>... Okay</translation>
     </message>
     <message>
-        <location line="-1648"/>
+        <location line="-1682"/>
         <source>Reply is not from CamCOPS API. Are your server settings misconfigured?</source>
         <translation>Svaret kommer ikke fra CamCOPS API. Er dine serverindstillinger forkert konfigureret?</translation>
     </message>
@@ -3729,12 +3729,17 @@ enig</translation>
         <translation>Registrering hos %1 og modtagelse af identifikationsoplysninger</translation>
     </message>
     <message>
-        <location line="+118"/>
+        <location line="+139"/>
+        <source>No patient selected! Unexpected in single-patient mode.</source>
+        <translation>Ingen patient valgt! Uventet i enkelt-patient mode.</translation>
+    </message>
+    <message>
+        <location line="+14"/>
         <source>Failed to parse task schedules: %1</source>
         <translation>Mislykkedes at analysere opgaveplaner: %1</translation>
     </message>
     <message>
-        <location line="+81"/>
+        <location line="+80"/>
         <source>Getting ID info from</source>
         <translation>Henter id-oplysninger fra</translation>
     </message>
@@ -3905,22 +3910,23 @@ enig</translation>
         <translation>Hent venligst serveroplysninger igen.</translation>
     </message>
     <message>
-        <location line="+56"/>
+        <location line="-1501"/>
+        <location line="+1556"/>
         <source>Failed to parse patient info: %1</source>
         <translation>Mislykkedes at parse patientoplysninger: %1</translation>
     </message>
     <message>
-        <location line="+35"/>
+        <location line="+34"/>
         <source>Failed to parse intellectual property use info: %1</source>
         <translation>Mislykkedes at analysere oplysninger om intellektuel ejendomsret: %1</translation>
     </message>
     <message>
-        <location line="-504"/>
+        <location line="-502"/>
         <source>WARNING: Table &apos;%1&apos; is present on the server but the client requires server version &gt;=%2; the server is version %3; proceeding ONLY BECAUSE THIS TABLE IS EMPTY.</source>
         <translation>ADVARSEL: Tabel &apos;%1&apos; er til stede på serveren, men klienten kræver serverversion &gt;=%2; serveren er version %3; fortsætter KUN, fordi denne tabel er tom.</translation>
     </message>
     <message>
-        <location line="-1106"/>
+        <location line="-1140"/>
         <source>Completed successfully.</source>
         <translation>Afsluttet med succes.</translation>
     </message>
@@ -3935,7 +3941,7 @@ enig</translation>
         <translation>... modtaget opgaveplaner</translation>
     </message>
     <message>
-        <location line="+1085"/>
+        <location line="+1119"/>
         <source>WARNING: Table &apos;%1&apos; is present on the server but the server requires client version &gt;=%2; you are using version %3; proceeding ONLY BECAUSE THIS TABLE IS EMPTY.</source>
         <translation>ADVARSEL: Tabel &apos;%1&apos; er til stede på serveren, men serveren kræver klientversion &gt;=%2; du bruger version %3; fortsætter KUN, fordi denne tabel er tom.</translation>
     </message>
@@ -4121,7 +4127,7 @@ enig</translation>
 <context>
     <name>Patient</name>
     <message>
-        <location filename="../dbobjects/patient.cpp" line="+454"/>
+        <location filename="../dbobjects/patient.cpp" line="+467"/>
         <source>[No ID numbers]</source>
         <translation>[Ingen ID-numre]</translation>
     </message>
@@ -6307,7 +6313,7 @@ enig</translation>
 <context>
     <name>TaskScheduleItem</name>
     <message>
-        <location filename="../tasklib/taskscheduleitem.cpp" line="+197"/>
+        <location filename="../tasklib/taskscheduleitem.cpp" line="+199"/>
         <source>Completed</source>
         <translation>9/5000
 Afsluttet</translation>
