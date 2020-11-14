@@ -598,6 +598,8 @@ tablet_qt
     tasks/auditc.h.rst
     tasks/badls.cpp.rst
     tasks/badls.h.rst
+    tasks/basdai.cpp.rst
+    tasks/basdai.h.rst
     tasks/bdi.cpp.rst
     tasks/bdi.h.rst
     tasks/bmi.cpp.rst

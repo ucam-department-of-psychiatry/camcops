@@ -83,6 +83,7 @@ server/camcops_server
     alembic/versions/0050_patient_email.py.rst
     alembic/versions/0051_auto_generated_user.py.rst
     alembic/versions/0052_group_ip_use.py.rst
+    alembic/versions/0053_basdai.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst
@@ -170,6 +171,7 @@ server/camcops_server
     extra_string_templates/BLANK_TEMPLATE.xml.rst
     extra_string_templates/asdas_TEMPLATE.xml.rst
     extra_string_templates/badls_TEMPLATE.xml.rst
+    extra_string_templates/basdai_TEMPLATE.xml.rst
     extra_string_templates/chit_TEMPLATE.xml.rst
     extra_string_templates/ctqsf_TEMPLATE.xml.rst
     extra_string_templates/dad_TEMPLATE.xml.rst
@@ -278,6 +280,7 @@ server/camcops_server
     tasks/asdas.py.rst
     tasks/audit.py.rst
     tasks/badls.py.rst
+    tasks/basdai.py.rst
     tasks/bdi.py.rst
     tasks/bmi.py.rst
     tasks/bprs.py.rst
