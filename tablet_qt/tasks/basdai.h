@@ -62,5 +62,4 @@ protected:
     QPointer<Questionnaire> m_questionnaire;
     QStringList fieldNames() const;
     QStringList scoreAFieldNames() const;
-    QString activityState() const;
 };

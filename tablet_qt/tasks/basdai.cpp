@@ -18,12 +18,10 @@
 */
 
 #include "basdai.h"
-#include "common/textconst.h"
 #include "common/uiconst.h"
 #include "maths/mathfunc.h"
 #include "lib/convert.h"
 #include "lib/stringfunc.h"
-#include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qugridcell.h"
 #include "questionnairelib/qugridcontainer.h"
@@ -134,31 +132,12 @@ QVariant Basdai::basdai() const
 }
 
 
-QString Basdai::activityState() const
-{
-    QVariant basdai_score = basdai();
-
-    if (basdai_score.isNull()) {
-        return TextConst::na();
-    }
-
-    if (basdai_score < 4.0) {
-        return xstring("inactive");
-    }
-
-    return xstring("active");
-}
-
-
 QStringList Basdai::summary() const
 {
-    using stringfunc::bold;
-
     return QStringList{
-        QString("%1: %2 (%3)").arg(
+        QString("%1: %2").arg(
             xstring("basdai"),
-            convert::prettyValue(basdai(), DP),
-            bold(activityState())
+            convert::prettyValue(basdai(), DP)
         )
     };
 }
