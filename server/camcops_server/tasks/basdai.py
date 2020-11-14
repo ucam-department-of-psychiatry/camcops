@@ -171,7 +171,7 @@ class Basdai(TaskHasPatientMixin,
         basdai = self.basdai()
 
         if basdai is None:
-            return self.wxstring(req, "n_a")
+            return "?"
 
         if basdai < self.ACTIVE_CUTOFF:
             return self.wxstring(req, "inactive")
@@ -182,7 +182,7 @@ class Basdai(TaskHasPatientMixin,
         rows = ""
         for q_num in range(1, self.N_QUESTIONS + 1):
             q_field = "q" + str(q_num)
-            qtext = self.wxstring(req, q_field)
+            qtext = self.xstring(req, q_field)  # includes HTML
             min_text = self.wxstring(req, q_field + "_min")
             max_text = self.wxstring(req, q_field + "_max")
             qtext += f" <i>(0 = {min_text}, 10 = {max_text})</i>"
@@ -208,10 +208,10 @@ class Basdai(TaskHasPatientMixin,
                 {rows}
             </table>
             <div class="{CssClass.FOOTNOTES}">
-                [1] A. Add scores for questions 1–4.
-                    B. Calculate the mean for questions 5 and 6.
-                    C. Add A and B and divide by 5, giving a total in the range
-                       0–10.
+                [1] (A) Add scores for questions 1–4.
+                    (B) Calculate the mean for questions 5 and 6.
+                    (C) Add A and B and divide by 5, giving a total in the
+                        range 0–10.
                     &lt;4.0 suggests inactive disease,
                     &ge;4.0 suggests active disease.
             </div>
@@ -302,15 +302,12 @@ class BasdaiTests(TestCase):
 
         self.assertFalse(basdai.is_complete())
 
-    def test_activity_state_n_a_for_none(self) -> None:
+    def test_activity_state_qmark_for_none(self) -> None:
         basdai = Basdai()
 
         with mock.patch.object(basdai, "basdai") as mock_basdai:
             mock_basdai.return_value = None
-            with mock.patch.object(basdai, "wxstring") as mock_wxstring:
-                basdai.activity_state(self.request)
-
-        mock_wxstring.assert_called_once_with(self.request, "n_a")
+            self.assertEqual(basdai.activity_state(self.request), "?")
 
     def test_activity_state_inactive_for_less_than_4(self) -> None:
         basdai = Basdai()
