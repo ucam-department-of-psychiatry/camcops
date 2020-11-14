@@ -292,11 +292,15 @@ void CamcopsApp::wipeDataForModeChange()
     // - We should have no tasks (*).
     // - We must wipe network security details -- the "single-user" accounts
     //   are not necessarily trusted to create data for new patients.
-    //   *** but we should verify that server-side, too.
     //   (Otherwise the theoretical vulnerability is that a registered user
     //   obtains their username, cracks their obscured password, and enters
     //   them into the clinician mode, allowing upload of data for arbitrary
     //   patients.)
+    //
+    //   todo:
+    //      At present the client verifies this, but ideally we should verify
+    //      that server-side, too.
+    //
     // - We can wipe task schedules.
     //
     // (*) Pre-checked by modeChangeForbidden().
@@ -316,6 +320,7 @@ void CamcopsApp::wipeDataForModeChange()
 
     // Delete patient records (given the pre-checks, as above, this will only
     // delete a single-user-mode patient record with no associated tasks).
+    m_datadb->deleteFrom(PatientIdNum::PATIENT_IDNUM_TABLENAME);
     m_datadb->deleteFrom(Patient::TABLENAME);
 }
 
