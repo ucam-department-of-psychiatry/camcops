@@ -175,8 +175,8 @@ to copyright restrictions).
 
 :ref:`Single User Mode <single_user_mode>` is designed for a patient using the
 app at home on their own tablet and offers a much simpler user interface. Only
-those tasks that appear in the patient's :ref:`task schedule <scheduling_tasks>`
-are available.
+those tasks that appear in the patient's :ref:`task schedule
+<scheduling_tasks>` are available.
 
 
 Terminology: usernames and passwords in CamCOPS

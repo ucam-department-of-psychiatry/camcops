@@ -18,6 +18,7 @@
 */
 
 #pragma once
+#include <QPointer>
 #include <QString>
 #include "common/textconst.h"
 
@@ -30,11 +31,17 @@ class SlowGuiGuard
 {
     // Create an instance of this object on the stack in a block containing
     // a slow GUI operation. It will:
-    //  (1) show a wait box
-    //  (2) refresh the GUI manually using processEvents()
+    //  (1) show a wait box (on construction)
+    //  (2) refresh the GUI manually using processEvents() (on construction)
     //  ... then you do your slow GUI thing
     //  ... and on destruction:
     //  (3) clear the wait box.
+    //
+    // Only one wait box can be created at any given time (detected by a
+    // static member variable).
+    //
+    // You can also create an instance of this object on the heap, but be
+    // careful!
 
 public:
     SlowGuiGuard(QApplication& app,
@@ -44,6 +51,8 @@ public:
                  int minimum_duration_ms = 100);
     ~SlowGuiGuard();
 protected:
-    WaitBox* m_wait_box;
+    QPointer<WaitBox> m_wait_box;
+
+    // "A wait box is open."
     static bool s_waiting;
 };

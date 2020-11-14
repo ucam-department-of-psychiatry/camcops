@@ -2,7 +2,7 @@
 
 alembic==1.4.2
 asteval==0.9.18
-cardinal_pythonlib==1.0.97
+cardinal_pythonlib==1.0.99
 celery==4.4.6
 colander==1.7.0
 CherryPy==18.6.0

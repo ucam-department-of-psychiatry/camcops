@@ -173,16 +173,13 @@ QString makeTitle(const QString& part1,
                   const QString& part2,
                   const bool colon)
 {
+    const QString suffix = colon ? ":" : "";
     QString result;
     if (part2.isEmpty()) {
-        result = QString("<b>%1%2</b>").arg(part1, colon ? ":" : "");
+        return QString("<b>%1%2</b>").arg(part1, suffix);
     } else {
-        result = QString("<b>%1</b> (%2)").arg(part1, part2);
-        if (colon) {
-            result += ":";
-        }
+        return QString("<b>%1</b> (%2)%3").arg(part1, part2, suffix);
     }
-    return result;
 }
 
 

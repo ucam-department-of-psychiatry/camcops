@@ -151,7 +151,8 @@ public:
     DatabaseManager(const QString& filename,
                     const QString& connection_name,
                     const QString& database_type = whichdb::DBTYPE,
-                    bool threaded = true);
+                    bool threaded = true,
+                    bool system_db = false);
     ~DatabaseManager();
 
     // ========================================================================
@@ -162,6 +163,10 @@ public:
     // (That's a good time to vacuum; users rarely care much how fast their
     // applications close.)
     void setVacuumOnClose(bool vacuum_on_close);
+
+    // (Ugly.) Is this the CamCOPS system database (rather than the main
+    // data database)?
+    bool isSystemDb() const;
 
     // ========================================================================
     // Main methods:
@@ -453,6 +458,10 @@ protected:
 
     // Are we using a multithreaded approach? (Faster.)
     bool m_threaded;  // written only in constructor; thread-safe access
+
+    // Ugly... self-awareness as to whether we are the CamCOPS "system"
+    // database.
+    bool m_system_db;  // written only in constructor; thread-safe access
 
     // Issue a VACUUM when we close the database?
     bool m_vacuum_on_close;

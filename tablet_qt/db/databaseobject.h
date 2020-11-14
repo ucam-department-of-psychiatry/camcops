@@ -528,7 +528,7 @@ protected:
     bool anyDirty() const;
 
     // Tell the app that we need to upload (if m_triggers_need_upload true)
-    void setNeedsUpload(const bool needs_upload);
+    void setNeedsUpload(bool needs_upload);
 
     // Returns all field names, in order of m_record.
     // [SHOULD MATCH fieldsOrdered(); is this pointless?]
