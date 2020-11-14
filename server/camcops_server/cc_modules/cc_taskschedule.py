@@ -25,6 +25,8 @@ camcops_server/cc_modules/cc_taskschedule.py
 ===============================================================================
 
 """
+
+import logging
 from typing import List, Iterable, Optional, Tuple, TYPE_CHECKING
 
 from pendulum import DateTime as Pendulum, Duration
@@ -56,8 +58,18 @@ if TYPE_CHECKING:
     from sqlalchemy.sql.elements import Cast
     from camcops_server.cc_modules.cc_request import CamcopsRequest
 
+log = logging.getLogger(__name__)
+
+
+# =============================================================================
+# ScheduledTaskInfo
+# =============================================================================
 
 class ScheduledTaskInfo(object):
+    """
+    Simple representation of a scheduled task (which may also contain the
+    actual completed task, in its ``task`` member, if there is one).
+    """
     def __init__(self,
                  shortname: str,
                  tablename: str,
@@ -72,6 +84,10 @@ class ScheduledTaskInfo(object):
         self.start_datetime = start_datetime
         self.end_datetime = end_datetime
 
+
+# =============================================================================
+# PatientTaskSchedule
+# =============================================================================
 
 class PatientTaskSchedule(Base):
     """
@@ -188,6 +204,9 @@ class PatientTaskSchedule(Base):
 
 def task_schedule_item_sort_order() -> Tuple["Cast", "Cast"]:
     """
+    Returns a tuple of sorting functions for use with SQLAlchemy ORM queries,
+    to sort task schedule items.
+
     The durations are currently stored as seconds e.g. P0Y0MT2594592000.0S
     and the seconds aren't zero padded, so we need to do some processing
     to get them in the order we want.
@@ -201,6 +220,10 @@ def task_schedule_item_sort_order() -> Tuple["Cast", "Cast"]:
 
     return due_from_order, due_by_order
 
+
+# =============================================================================
+# Task schedule
+# =============================================================================
 
 class TaskSchedule(Base):
     """
@@ -305,6 +328,10 @@ class TaskScheduleItem(Base):
             due_days=due_days
         )
 
+
+# =============================================================================
+# Unit tests
+# =============================================================================
 
 class TaskScheduleItemTests(DemoRequestTestCase):
     def test_description_shows_shortname_and_number_of_days(self) -> None:

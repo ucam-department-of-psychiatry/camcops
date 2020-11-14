@@ -2138,6 +2138,14 @@ def audit(req: "CamcopsRequest",
 # Helper functions for single-user mode
 # =============================================================================
 
+def make_single_user_mode_username(client_device_name: str,
+                                   patient_pk: int) -> str:
+    """
+    Returns the username for single-user mode.
+    """
+    return f"user-{client_device_name}-{patient_pk}"
+
+
 def json_patient_info(patient: Patient) -> str:
     """
     Converts patient details to a string representation of a JSON list (one
@@ -2337,7 +2345,7 @@ def get_task_schedules(req: "CamcopsRequest",
             if task:
                 complete = task.is_complete()
                 if complete and task.when_last_modified:
-                    when_completed = task.when_last_modified.to_iso8601_string()
+                    when_completed = task.when_last_modified.to_iso8601_string()  # noqa
 
             if pts.settings is not None:
                 settings = pts.settings.get(task_info.tablename, {})
@@ -2397,7 +2405,7 @@ def op_register_patient(req: "CamcopsRequest") -> Dict[str, Any]:
     # -------------------------------------------------------------------------
     client_device_name = get_str_var(req, TabletParam.DEVICE)
     # noinspection PyProtectedMember
-    user_name = f"user-{client_device_name}-{patient._pk}"
+    user_name = make_single_user_mode_username(client_device_name, patient._pk)
     user, password = get_or_create_single_user(req, user_name, patient)
     reply_dict[TabletParam.USER] = user.username
     reply_dict[TabletParam.PASSWORD] = password
@@ -3399,7 +3407,6 @@ class PatientRegistrationTests(DemoDatabaseTestCase):
         )
 
         proquint = patient.uuid_as_proquint
-        log.critical("uuid: {}, proquint: {}", patient.uuid, proquint)
 
         # For type checker
         assert proquint is not None
@@ -3462,8 +3469,10 @@ class PatientRegistrationTests(DemoDatabaseTestCase):
                          msg=reply_dict)
 
         username = reply_dict[TabletParam.USER]
-        self.assertEqual(username,
-                         f"user-{self.other_device.name}")
+        self.assertEqual(
+            username,
+            make_single_user_mode_username(self.other_device.name, patient._pk)
+        )
         password = reply_dict[TabletParam.PASSWORD]
         self.assertEqual(len(password), 32)
 
@@ -3477,48 +3486,6 @@ class PatientRegistrationTests(DemoDatabaseTestCase):
         self.assertTrue(user.auto_generated)
         self.assertTrue(user.may_register_devices)
         self.assertTrue(user.may_upload)
-
-    def test_does_not_create_user_when_passed_in(self) -> None:
-        from camcops_server.cc_modules.cc_taskindex import (
-            PatientIdNumIndexEntry,
-        )
-        patient = self.create_patient(_group_id=self.group.id,
-                                      as_server_patient=True)
-        idnum = self.create_patient_idnum(
-            patient_id=patient.id,
-            which_idnum=self.nhs_iddef.which_idnum,
-            idnum_value=TEST_NHS_NUMBER,
-            as_server_patient=True
-        )
-        PatientIdNumIndexEntry.index_idnum(idnum, self.dbsession)
-
-        users_before = self.req.dbsession.query(User).count()
-
-        proquint = patient.uuid_as_proquint
-
-        # For type checker
-        assert proquint is not None
-        assert self.other_device.name is not None
-
-        self.req.fake_request_post_from_dict({
-            TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
-            TabletParam.DEVICE: self.other_device.name,
-            TabletParam.OPERATION: Operations.REGISTER_PATIENT,
-            TabletParam.PATIENT_PROQUINT: proquint,
-            TabletParam.USER: "testuser",
-        })
-        response = client_api(self.req)
-        reply_dict = get_reply_dict_from_response(response)
-
-        self.assertEqual(reply_dict[TabletParam.SUCCESS], SUCCESS_CODE,
-                         msg=reply_dict)
-
-        self.assertNotIn(TabletParam.USER, reply_dict)
-        self.assertNotIn(TabletParam.PASSWORD, reply_dict)
-
-        users_after = self.req.dbsession.query(User).count()
-
-        self.assertEqual(users_before, users_after)
 
     def test_does_not_create_user_when_name_exists(self) -> None:
         from camcops_server.cc_modules.cc_taskindex import (
@@ -3536,7 +3503,11 @@ class PatientRegistrationTests(DemoDatabaseTestCase):
 
         proquint = patient.uuid_as_proquint
 
-        user = User(username=f"user-{self.other_device.name}")
+        user = User(
+            username=make_single_user_mode_username(
+                self.other_device.name, patient._pk
+            )
+        )
         user.set_password(self.req, "old password")
         self.dbsession.add(user)
         self.dbsession.commit()
@@ -3554,8 +3525,10 @@ class PatientRegistrationTests(DemoDatabaseTestCase):
                          msg=reply_dict)
 
         username = reply_dict[TabletParam.USER]
-        self.assertEqual(username,
-                         f"user-{self.other_device.name}")
+        self.assertEqual(
+            username,
+            make_single_user_mode_username(self.other_device.name, patient._pk)
+        )
         password = reply_dict[TabletParam.PASSWORD]
         self.assertEqual(len(password), 32)
 
@@ -3763,20 +3736,26 @@ class GetTaskSchedulesTests(DemoDatabaseTestCase):
         self.dbsession.add(item4)
         self.dbsession.commit()
 
-        patient = self.create_patient(as_server_patient=True)
+        patient = self.create_patient()
         idnum = self.create_patient_idnum(
             patient_id=patient.id,
+            which_idnum=self.nhs_iddef.which_idnum,
+            idnum_value=TEST_NHS_NUMBER
+        )
+        PatientIdNumIndexEntry.index_idnum(idnum, self.dbsession)
+
+        server_patient = self.create_patient(as_server_patient=True)
+        _ = self.create_patient_idnum(
+            patient_id=server_patient.id,
             which_idnum=self.nhs_iddef.which_idnum,
             idnum_value=TEST_NHS_NUMBER,
             as_server_patient=True
         )
-        PatientIdNumIndexEntry.index_idnum(idnum, self.dbsession)
 
-        patient_task_schedule1 = PatientTaskSchedule()
-        patient_task_schedule1.patient_pk = patient.pk
-        patient_task_schedule1.schedule_id = schedule1.id
-
-        patient_task_schedule1.settings = {
+        schedule_1 = PatientTaskSchedule()
+        schedule_1.patient_pk = server_patient.pk
+        schedule_1.schedule_id = schedule1.id
+        schedule_1.settings = {
             "bmi": {
                 "bmi_key": "bmi_value",
             },
@@ -3784,15 +3763,13 @@ class GetTaskSchedulesTests(DemoDatabaseTestCase):
                 "phq9_key": "phq9_value",
             }
         }
-        patient_task_schedule1.start_datetime = local(2020, 7, 31)
+        schedule_1.start_datetime = local(2020, 7, 31)
+        self.dbsession.add(schedule_1)
 
-        self.dbsession.add(patient_task_schedule1)
-
-        patient_task_schedule2 = PatientTaskSchedule()
-        patient_task_schedule2.patient_pk = patient.pk
-        patient_task_schedule2.schedule_id = schedule2.id
-
-        self.dbsession.add(patient_task_schedule2)
+        schedule_2 = PatientTaskSchedule()
+        schedule_2.patient_pk = server_patient.pk
+        schedule_2.schedule_id = schedule2.id
+        self.dbsession.add(schedule_2)
 
         bmi = Bmi()
         self.apply_standard_task_fields(bmi)
@@ -3802,8 +3779,9 @@ class GetTaskSchedulesTests(DemoDatabaseTestCase):
         bmi.patient_id = patient.id
         bmi.when_created = local(2020, 8, 1)
         self.dbsession.add(bmi)
-
         self.dbsession.commit()
+        self.assertTrue(bmi.is_complete())
+
         TaskIndexEntry.index_task(
             bmi,
             self.dbsession,
@@ -3811,7 +3789,7 @@ class GetTaskSchedulesTests(DemoDatabaseTestCase):
         )
         self.dbsession.commit()
 
-        proquint = patient.uuid_as_proquint
+        proquint = server_patient.uuid_as_proquint
 
         # For type checker
         assert proquint is not None
@@ -3836,44 +3814,48 @@ class GetTaskSchedulesTests(DemoDatabaseTestCase):
         s = task_schedules[0]
         self.assertEqual(s[TabletParam.TASK_SCHEDULE_NAME], "Test 1")
 
-        items = s[TabletParam.TASK_SCHEDULE_ITEMS]
-        self.assertEqual(len(items), 4)
+        schedule_items = s[TabletParam.TASK_SCHEDULE_ITEMS]
+        self.assertEqual(len(schedule_items), 4)
 
-        self.assertEqual(items[0][TabletParam.TABLE], "phq9")
-        self.assertEqual(items[0][TabletParam.SETTINGS], {
+        phq9_1_sched = schedule_items[0]
+        self.assertEqual(phq9_1_sched[TabletParam.TABLE], "phq9")
+        self.assertEqual(phq9_1_sched[TabletParam.SETTINGS], {
             "phq9_key": "phq9_value"
         })
-        self.assertEqual(parse(items[0][TabletParam.DUE_FROM]),
+        self.assertEqual(parse(phq9_1_sched[TabletParam.DUE_FROM]),
                          local(2020, 7, 31))
-        self.assertEqual(parse(items[0][TabletParam.DUE_BY]),
+        self.assertEqual(parse(phq9_1_sched[TabletParam.DUE_BY]),
                          local(2020, 8, 7))
-        self.assertFalse(items[0][TabletParam.COMPLETE])
-        self.assertFalse(items[0][TabletParam.ANONYMOUS])
+        self.assertFalse(phq9_1_sched[TabletParam.COMPLETE])
+        self.assertFalse(phq9_1_sched[TabletParam.ANONYMOUS])
 
-        self.assertEqual(items[1][TabletParam.TABLE], "bmi")
-        self.assertEqual(items[1][TabletParam.SETTINGS], {
+        bmi_sched = schedule_items[1]
+        self.assertEqual(bmi_sched[TabletParam.TABLE], "bmi")
+        self.assertEqual(bmi_sched[TabletParam.SETTINGS], {
             "bmi_key": "bmi_value",
         })
-        self.assertEqual(parse(items[1][TabletParam.DUE_FROM]),
+        self.assertEqual(parse(bmi_sched[TabletParam.DUE_FROM]),
                          local(2020, 7, 31))
-        self.assertEqual(parse(items[1][TabletParam.DUE_BY]),
+        self.assertEqual(parse(bmi_sched[TabletParam.DUE_BY]),
                          local(2020, 8, 8))
-        self.assertTrue(items[1][TabletParam.COMPLETE])
-        self.assertFalse(items[1][TabletParam.ANONYMOUS])
+        self.assertTrue(bmi_sched[TabletParam.COMPLETE])
+        self.assertFalse(bmi_sched[TabletParam.ANONYMOUS])
 
-        self.assertEqual(items[2][TabletParam.TABLE], "phq9")
-        self.assertEqual(items[2][TabletParam.SETTINGS], {
+        phq9_2_sched = schedule_items[2]
+        self.assertEqual(phq9_2_sched[TabletParam.TABLE], "phq9")
+        self.assertEqual(phq9_2_sched[TabletParam.SETTINGS], {
             "phq9_key": "phq9_value"
         })
-        self.assertEqual(parse(items[2][TabletParam.DUE_FROM]),
+        self.assertEqual(parse(phq9_2_sched[TabletParam.DUE_FROM]),
                          local(2020, 8, 30))
-        self.assertEqual(parse(items[2][TabletParam.DUE_BY]),
+        self.assertEqual(parse(phq9_2_sched[TabletParam.DUE_BY]),
                          local(2020, 9, 6))
-        self.assertFalse(items[2][TabletParam.COMPLETE])
-        self.assertFalse(items[2][TabletParam.ANONYMOUS])
+        self.assertFalse(phq9_2_sched[TabletParam.COMPLETE])
+        self.assertFalse(phq9_2_sched[TabletParam.ANONYMOUS])
 
         # GMCPQ
-        self.assertTrue(items[3][TabletParam.ANONYMOUS])
+        gmcpq_sched = schedule_items[3]
+        self.assertTrue(gmcpq_sched[TabletParam.ANONYMOUS])
 
 
 # =============================================================================
