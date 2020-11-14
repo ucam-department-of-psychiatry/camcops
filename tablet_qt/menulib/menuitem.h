@@ -105,6 +105,9 @@ public:
     // Way to indicate "unsupported".
     MenuItem& setUnsupported(bool unsupported = true);
 
+    // Set the icon filename.
+    MenuItem& setIcon(const QString& icon);
+
     // Creates and returns an (unowned) widget representing the row.
     QWidget* rowWidget(CamcopsApp& app) const;
 
@@ -124,7 +127,7 @@ public:
 protected:
     QString m_title;
     QString m_subtitle;
-    QString m_icon;
+    QString m_icon;  // icon filename
     bool m_arrow_on_right;
     bool m_chain;
     bool m_copyright_details_pending;

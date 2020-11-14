@@ -80,7 +80,8 @@ Task::Task(CamcopsApp& app,
     addField(FIRSTEXIT_IS_FINISH_FIELDNAME, QVariant::Bool);
     addField(FIRSTEXIT_IS_ABORT_FIELDNAME, QVariant::Bool);
     addField(WHEN_FIRSTEXIT_FIELDNAME, QVariant::DateTime);
-    addField(Field(EDITING_TIME_S_FIELDNAME, QVariant::Double).setDefaultValue(0.0));
+    addField(Field(EDITING_TIME_S_FIELDNAME, QVariant::Double)
+             .setCppDefaultValue(0.0));
 
     if (!is_anonymous) {
         addField(PATIENT_FK_FIELDNAME, QVariant::Int);

@@ -32,7 +32,7 @@ Has special code to deal with old databases.
 
 import logging
 from pprint import pformat
-from typing import Any, Dict, List, Optional, Type, TYPE_CHECKING
+from typing import Any, cast, Dict, List, Optional, Type, TYPE_CHECKING
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.sqlalchemy.merge_db import merge_db, TranslationContext
@@ -648,7 +648,7 @@ def translate_fn(trcon: TranslationContext) -> None:
     # one. Users with matching usernames are considered to be identical.
     # -------------------------------------------------------------------------
     if trcon.tablename == User.__tablename__:
-        src_user = oldobj  # type: User
+        src_user = cast(User, oldobj)
         src_username = src_user.username
         matching_user = (
             trcon.dst_session.query(User)
@@ -665,7 +665,7 @@ def translate_fn(trcon: TranslationContext) -> None:
     # new one. Devices with matching names are considered to be identical.
     # -------------------------------------------------------------------------
     if trcon.tablename == Device.__tablename__:
-        src_device = oldobj  # type: Device
+        src_device = cast(Device, oldobj)
         src_devicename = src_device.name
         matching_device = (
             trcon.dst_session.query(Device)
@@ -699,7 +699,7 @@ def translate_fn(trcon: TranslationContext) -> None:
         trcon.newobj = None  # don't insert this object
         # ... don't set "newobj = None"; that wouldn't alter trcon
         # Now make sure the map is OK:
-        src_group = oldobj  # type: Group
+        src_group = cast(Group, oldobj)
         trcon.objmap[oldobj] = get_dst_group(
             dest_groupnum=get_dest_groupnum(src_group.id, trcon, src_group),
             dst_session=trcon.dst_session
@@ -717,7 +717,7 @@ def translate_fn(trcon: TranslationContext) -> None:
     # -------------------------------------------------------------------------
     if trcon.tablename == Patient.__tablename__:
         # (a) Find old patient numbers
-        old_patient = oldobj  # type: Patient
+        old_patient = cast(Patient, oldobj)
         # noinspection PyUnresolvedReferences
         src_pt_query = (
             select([text('*')])
@@ -829,13 +829,13 @@ def translate_fn(trcon: TranslationContext) -> None:
     # IdNumDefinition, and that it's valid
     # -------------------------------------------------------------------------
     if trcon.tablename == PatientIdNum.__tablename__:
-        src_pidnum = oldobj  # type: PatientIdNum
+        src_pidnum = cast(PatientIdNum, oldobj)
         src_which_idnum = src_pidnum.which_idnum
         # Is it present?
         if src_which_idnum is None:
             raise ValueError(f"Bad PatientIdNum: {src_pidnum!r}")
         # Ensure the new object has an appropriate ID number FK:
-        dst_pidnum = newobj  # type: PatientIdNum
+        dst_pidnum = cast(PatientIdNum, newobj)
         dst_pidnum.which_idnum = get_dest_which_idnum(src_which_idnum,
                                                       trcon, oldobj)
 
@@ -848,7 +848,7 @@ def translate_fn(trcon: TranslationContext) -> None:
         trcon.newobj = None  # don't insert this object
         # ... don't set "newobj = None"; that wouldn't alter trcon
         # Now make sure the map is OK:
-        src_iddef = oldobj  # type: IdNumDefinition
+        src_iddef = cast(IdNumDefinition, oldobj)
         trcon.objmap[oldobj] = get_dst_iddef(
             which_idnum=get_dest_which_idnum(src_iddef.which_idnum,
                                              trcon, src_iddef),
@@ -859,6 +859,7 @@ def translate_fn(trcon: TranslationContext) -> None:
     # Check we're not creating duplicates for anything uploaded
     # -------------------------------------------------------------------------
     if isinstance(oldobj, GenericTabletRecordMixin):
+        # noinspection PyTypeChecker
         cls = newobj.__class__  # type: Type[GenericTabletRecordMixin]
         # Records uploaded from tablets must be unique on the combination of:
         #       id                  = table PK

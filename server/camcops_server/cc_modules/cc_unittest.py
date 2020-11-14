@@ -45,6 +45,7 @@ import pendulum
 from sqlalchemy import event
 from sqlalchemy.orm import Session as SqlASession
 
+from camcops_server.cc_modules.cc_constants import ERA_NOW
 from camcops_server.cc_modules.cc_idnumdef import IdNumDefinition
 from camcops_server.cc_modules.cc_ipuse import IpUse
 from camcops_server.cc_modules.cc_sqlalchemy import (
@@ -136,6 +137,7 @@ class DemoRequestTestCase(ExtendedTestCase):
         else:
             self.db_filename = None
 
+    # noinspection PyMethodMayBeStatic,PyUnusedLocal
     def set_sqlite_pragma(self, dbapi_connection, connection_record):
         cursor = dbapi_connection.cursor()
         cursor.execute("PRAGMA foreign_keys=ON")
@@ -373,16 +375,19 @@ class DemoDatabaseTestCase(DemoRequestTestCase):
         self.dbsession.add(patient)
 
         self.create_patient_idnum(
-            id=3, patient_id=patient.id, which_idnum=self.nhs_iddef.which_idnum,
+            id=3,
+            patient_id=patient.id,
+            which_idnum=self.nhs_iddef.which_idnum,
             idnum_value=555
         )
 
         return patient
 
-    def create_patient_idnum(self, **kwargs: Any) -> "PatientIdNum":
+    def create_patient_idnum(self, as_server_patient: bool = False,
+                             **kwargs: Any) -> "PatientIdNum":
         from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
         patient_idnum = PatientIdNum()
-        self._apply_standard_db_fields(patient_idnum)
+        self._apply_standard_db_fields(patient_idnum, era_now=as_server_patient)
 
         if "id" not in kwargs:
             kwargs["id"] = 0
@@ -395,11 +400,12 @@ class DemoDatabaseTestCase(DemoRequestTestCase):
 
         return patient_idnum
 
-    def create_patient(self, **kwargs: Any) -> "Patient":
+    def create_patient(self, as_server_patient: bool = False,
+                       **kwargs: Any) -> "Patient":
         from camcops_server.cc_modules.cc_patient import Patient
 
         patient = Patient()
-        self._apply_standard_db_fields(patient)
+        self._apply_standard_db_fields(patient, era_now=as_server_patient)
 
         if "id" not in kwargs:
             kwargs["id"] = 0
@@ -462,13 +468,16 @@ class DemoDatabaseTestCase(DemoRequestTestCase):
         task.when_created = self.era_time
 
     def _apply_standard_db_fields(self,
-                                  obj: "GenericTabletRecordMixin") -> None:
+                                  obj: "GenericTabletRecordMixin",
+                                  era_now: bool = False) -> None:
         """
         Writes some default values to an SQLAlchemy ORM object representing a
         record uploaded from a client (tablet) device.
+
+        Though we use the server device ID.
         """
         obj._device_id = self.server_device.id
-        obj._era = self.era
+        obj._era = ERA_NOW if era_now else self.era
         obj._group_id = self.group.id
         obj._current = True
         obj._adding_user_id = self.user.id

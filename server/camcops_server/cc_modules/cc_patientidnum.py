@@ -214,7 +214,8 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
 
     def why_invalid(self, req: "CamcopsRequest") -> str:
         if not self.is_superficially_valid():
-            return "ID number fails basic checks"
+            _ = req.gettext
+            return _("ID number fails basic checks")
         return req.why_idnum_invalid(self.which_idnum, self.idnum_value)
 
     # -------------------------------------------------------------------------

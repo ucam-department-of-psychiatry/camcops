@@ -849,7 +849,7 @@ void NetworkManager::registerNext(QNetworkReply* reply)
         break;
 
     case NextRegisterStage::StoreTaskSchedules:
-        storeTaskSchedules();
+        storeTaskSchedulesAndPatientDetails();
 
         m_register_next_stage = NextRegisterStage::Finished;
         registerNext();
@@ -866,7 +866,7 @@ void NetworkManager::registerNext(QNetworkReply* reply)
     }
 }
 
-void NetworkManager::updateTaskSchedules()
+void NetworkManager::updateTaskSchedulesAndPatientDetails()
 {
     Dict dict;
 
@@ -878,30 +878,65 @@ void NetworkManager::updateTaskSchedules()
     statusMessage(tr("Getting task schedules from") + " " +
                   serverUrlDisplayString());
 
-    serverPost(dict, &NetworkManager::receivedTaskSchedules);
+    serverPost(dict, &NetworkManager::receivedTaskSchedulesAndPatientDetails);
 }
 
-void NetworkManager::receivedTaskSchedules(QNetworkReply* reply)
+void NetworkManager::receivedTaskSchedulesAndPatientDetails(QNetworkReply* reply)
 {
     if (!processServerReply(reply)) {
         return;
     }
 
-    storeTaskSchedules();
+    storeTaskSchedulesAndPatientDetails();
     succeed();
 }
 
 
-void NetworkManager::storeTaskSchedules()
+void NetworkManager::storeTaskSchedulesAndPatientDetails()
 {
     statusMessage(tr("... received task schedules"));
 
     QJsonParseError error;
-    QJsonDocument doc = QJsonDocument::fromJson(
+
+    // ------------------------------------------------------------------------
+    // Patient
+    // ------------------------------------------------------------------------
+    // Note: Unlike in createSinglePatient(), our patient object already
+    // exists. We're just checking that the details match (in case there's been
+    // a change on the server).
+    const QJsonDocument patient_doc = QJsonDocument::fromJson(
+        m_reply_dict[KEY_PATIENT_INFO].toUtf8(), &error
+    );
+    if (patient_doc.isNull()) {
+        const QString message = tr("Failed to parse patient info: %1").arg(
+            error.errorString()
+        );
+        statusMessage(message);
+        fail(ErrorCode::JsonParseError, message);
+        return;
+    }
+    const QJsonArray patients_json_array = patient_doc.array();
+    const QJsonObject patient_json = patients_json_array.first().toObject();
+    Patient* patient = m_app.selectedPatient();
+    if (patient) {
+        patient->setPatientDetailsFromJson(patient_json);
+        patient->setIdNums(patient_json);
+        patient->save();
+    } else {
+        const QString message = tr(
+                "No patient selected! Unexpected in single-patient mode.");
+        statusMessage(message);
+        // ... but continue.
+    }
+
+    // ------------------------------------------------------------------------
+    // Schedules
+    // ------------------------------------------------------------------------
+
+    const QJsonDocument schedule_doc = QJsonDocument::fromJson(
         m_reply_dict[KEY_TASK_SCHEDULES].toUtf8(), &error
     );
-
-    if (doc.isNull()) {
+    if (schedule_doc.isNull()) {
         const QString message = tr("Failed to parse task schedules: %1").arg(
             error.errorString()
         );
@@ -911,13 +946,12 @@ void NetworkManager::storeTaskSchedules()
         return;
     }
 
-    TaskSchedulePtrList old_schedules = m_app.getTaskSchedules();
-
+    const TaskSchedulePtrList old_schedules = m_app.getTaskSchedules();
+    const QJsonArray schedules_array = schedule_doc.array();
     TaskSchedulePtrList new_schedules;
-    const QJsonArray schedules_array = doc.array();
-    QJsonArray::const_iterator it;
-    for (it = schedules_array.constBegin();
-            it != schedules_array.constEnd(); it++) {
+    for (QJsonArray::const_iterator it = schedules_array.constBegin();
+            it != schedules_array.constEnd();
+            it++) {
         QJsonObject schedule_json = it->toObject();
 
         TaskSchedulePtr schedule = TaskSchedulePtr(
@@ -944,8 +978,8 @@ void NetworkManager::storeTaskSchedules()
 
 
 void NetworkManager::updateCompleteStatusForAnonymousTasks(
-    TaskSchedulePtrList old_schedules, TaskSchedulePtrList new_schedules
-)
+        TaskSchedulePtrList old_schedules,
+        TaskSchedulePtrList new_schedules)
 {
     // When updating the schedule, the server does not know which anonymous
     // tasks have been completed so we use any existing data on the tablet.
@@ -958,7 +992,7 @@ void NetworkManager::updateCompleteStatusForAnonymousTasks(
     }
 
     for (const TaskSchedulePtr& new_schedule : new_schedules) {
-        QString schedule_name = new_schedule->name();
+        const QString schedule_name = new_schedule->name();
         if (old_schedule_map.contains(schedule_name)) {
             TaskSchedulePtr old_schedule = old_schedule_map[schedule_name];
 
@@ -970,7 +1004,8 @@ void NetworkManager::updateCompleteStatusForAnonymousTasks(
                     );
 
                     if (new_item != nullptr) {
-                        new_item->setComplete(old_item->isComplete());
+                        new_item->setComplete(old_item->isComplete(),
+                                              old_item->whenCompleted());
                         new_item->save();
                     }
                 }
@@ -1604,7 +1639,7 @@ bool NetworkManager::isPatientInfoComplete()
             if (!complies_with_finalize) {
                 ++nfailures_move_off;
             } else {
-                m_upload_patient_ids_to_move_off.append(patient.pkvalue().toInt());
+                m_upload_patient_ids_to_move_off.append(patient.pkvalueInt());
             }
         }
 
@@ -2389,7 +2424,7 @@ void NetworkManager::registerPatient()
         varconst::SINGLE_PATIENT_PROQUINT
     );
 
-    const bool include_user = !m_app.varString(varconst::SERVER_USERNAME).isEmpty();
+    const bool include_user = false;
     serverPost(dict, &NetworkManager::registerPatientSub1, include_user);
 }
 
@@ -2425,17 +2460,15 @@ bool NetworkManager::createSinglePatient()
 {
     QJsonParseError error;
 
-    QJsonDocument doc = QJsonDocument::fromJson(
+    const QJsonDocument doc = QJsonDocument::fromJson(
         m_reply_dict[KEY_PATIENT_INFO].toUtf8(), &error
     );
-
     if (doc.isNull()) {
         const QString message = tr("Failed to parse patient info: %1").arg(
             error.errorString()
         );
         statusMessage(message);
         fail(ErrorCode::JsonParseError, message);
-
         return false;
     }
 

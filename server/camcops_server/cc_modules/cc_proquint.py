@@ -92,6 +92,9 @@ class InvalidProquintException(Exception):
 
 
 def proquint_from_uuid(uuid_obj: uuid.UUID) -> str:
+    """
+    Convert UUID to proquint (via the UUID's 128-bit integer representation).
+    """
     return proquint_from_int(uuid_obj.int, 128)
 
 
@@ -99,24 +102,26 @@ def proquint_from_int(int_value: int,
                       size_in_bits: int) -> str:
     """Convert integer value into proquint
 
-    >>> proquint_from_int(0x493b05ee, 32)
-    hohur-bilov
+    .. code-block:: python
+        >>> proquint_from_int(0x493b05ee, 32)
+        hohur-bilov
 
-    0x493b05ee in binary is:
-    0100 1001 0011 1011 - 0000 0101 1110 1110
+        0x493b05ee in binary is:
+        0100 1001 0011 1011 - 0000 0101 1110 1110
 
-    grouped into alternating 4 and 2 bit values:
+        grouped into alternating 4 and 2 bit values:
 
-    cons vo cons vo cons - cons vo cons vo cons
-    0100 10 0100 11 1011 - 0000 01 0111 10 1110
+        cons vo cons vo cons - cons vo cons vo cons
+        0100 10 0100 11 1011 - 0000 01 0111 10 1110
 
-       h  o    h  u    r -    b  i    l  o    v
+           h  o    h  u    r -    b  i    l  o    v
 
     Args:
         int_value:
              integer value to encode
         size_in_bits:
              size of integer in bits (must be a multiple of 16)
+
     Returns:
         proquint string identifier
     """
@@ -140,41 +145,43 @@ def proquint_from_int(int_value: int,
 
 
 def _generate_check_character(proquint: str) -> str:
-    """Luhn mod 16 check digit
+    """
+    Luhn mod 16 check digit
 
     https://en.wikipedia.org/wiki/Luhn_mod_N_algorithm
 
-    consonant_values = {
-        'b': 0x0, 'd': 0x1, 'f': 0x2, 'g': 0x3,
-        'h': 0x4, 'j': 0x5, 'k': 0x6, 'l': 0x7,
-        'm': 0x8, 'n': 0x9, 'p': 0xa, 'r': 0xb,
-        's': 0xc, 't': 0xd, 'v': 0xe, 'z': 0xf,
-    }
+    .. code-block:: none
+        consonant_values = {
+            'b': 0x0, 'd': 0x1, 'f': 0x2, 'g': 0x3,
+            'h': 0x4, 'j': 0x5, 'k': 0x6, 'l': 0x7,
+            'm': 0x8, 'n': 0x9, 'p': 0xa, 'r': 0xb,
+            's': 0xc, 't': 0xd, 'v': 0xe, 'z': 0xf,
+        }
 
-    vowel_values = {
-        'a': 0x0, 'i': 0x1, 'o': 0x2, 'u': 0x3,
-    }
+        vowel_values = {
+            'a': 0x0, 'i': 0x1, 'o': 0x2, 'u': 0x3,
+        }
 
-    To generate the check character, start with the last character in the string
-    and move left doubling every other code-point. The "digits" of the
-    code-points as written in hex (since there are 16 valid input characters)
-    should then be summed up:
+        To generate the check character, start with the last character in the
+        string and move left doubling every other code-point. The "digits" of
+        the code-points as written in hex (since there are 16 valid input
+        characters) should then be summed up:
 
-    Example (all in hex):
+        Example (all in hex):
 
-    hohur-bilov
+        hohur-bilov
 
-    Character      h     o     h     u     r     b     i     l     o     v
-    Code point     4     2     4     3     b     0     1     7     2     e
-    Double               4           6           0           e          1c
-    Reduce         4     4     4     6     b     0     1     e     2   1+c
-    Sum            4     4     4     6     b     0     1     e     2     d
+        Character      h     o     h     u     r     b     i     l     o     v
+        Code point     4     2     4     3     b     0     1     7     2     e
+        Double               4           6           0           e          1c
+        Reduce         4     4     4     6     b     0     1     e     2   1+c
+        Sum            4     4     4     6     b     0     1     e     2     d
 
-    Total sum = 4 + 4 + 4 + 6 + b + 0 + 1 + e + 2 + d = 0x3b
-    Next multiple of 0x10 is 0x40
+        Total sum = 4 + 4 + 4 + 6 + b + 0 + 1 + e + 2 + d = 0x3b
+        Next multiple of 0x10 is 0x40
 
-    Check character code = 0x40 - 0x3b = 0x5
-    So check character is 'j'
+        Check character code = 0x40 - 0x3b = 0x5
+        So check character is 'j'
 
     """
 
@@ -186,6 +193,9 @@ def _generate_check_character(proquint: str) -> str:
 
 
 def _proquint_from_int16(int16_value: int) -> str:
+    """
+    Convert 16-bit integer into proquint.
+    """
     proquint = []
     for i in range(5):
         if i & 1:
@@ -205,13 +215,17 @@ def _proquint_from_int16(int16_value: int) -> str:
 
 
 def uuid_from_proquint(proquint: str) -> uuid.UUID:
+    """
+    Convert proquint to UUID.
+    """
     int_value = int_from_proquint(proquint)
 
     return uuid.UUID(int=int_value)
 
 
 def int_from_proquint(proquint: str) -> int:
-    """Convert proquint string into integer.
+    """
+    Convert proquint string into integer.
 
     >>> hex(int_from_proquint('hohur-bilov-j'))
     0x493b05ee
@@ -265,23 +279,31 @@ def int_from_proquint(proquint: str) -> int:
 
 
 def _is_valid_proquint(proquint: str) -> bool:
+    """
+    Does the proquint validate?
+    """
     return _generate_luhn_mod_16_remainder(proquint, 1) == 0
 
 
 def _generate_luhn_mod_16_remainder(proquint: str, start_factor: int) -> int:
+    """
+    Part of the checksum calculations; see :func:`_generate_check_character`.
+    For a valid sequence, the overall remainder should be 0.
+    See https://en.wikipedia.org/wiki/Luhn_mod_N_algorithm.
+    """
     factor = start_factor
-    sum = 0
+    sum_ = 0
 
     for char in reversed(proquint):
         value = LOOKUP_TABLE[char] * factor
-        sum = sum + value // 16 + value % 16
+        sum_ = sum_ + value // 16 + value % 16
 
         if factor == 2:
             factor = 1
         else:
             factor = 2
 
-    return sum % 16
+    return sum_ % 16
 
 
 # =============================================================================

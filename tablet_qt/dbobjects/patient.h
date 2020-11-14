@@ -59,13 +59,22 @@ public:
             DatabaseManager& db,
             int load_pk = dbconst::NONEXISTENT_PK);
 
-    // Construct from JSON (except ID numbers).
+    // Construct from JSON (except ID numbers -- because they are in a separate
+    // table that needs to refer to this patient, so the patient needs to be
+    // saved first).
     Patient(CamcopsApp& app,
             DatabaseManager& db,
             const QJsonObject& json_obj);
 
+    // Sets details (except for ID numbers)
+    void setPatientDetailsFromJson(const QJsonObject& json_obj);
+
     // Adds ID numbers from JSON.
     void addIdNums(const QJsonObject& json_obj);
+
+    // Sets ID numbers from JSON -- that is, remove any existing ID numbers and
+    // add these new ones.
+    void setIdNums(const QJsonObject& json_obj);
 
     // ------------------------------------------------------------------------
     // Ancillary management
@@ -234,7 +243,12 @@ protected:
     void addIdNum();
 
     // Delete an ID number of the specified type.
+    // Asks for confirmation.
     void deleteIdNum(int which_idnum);
+
+    // Remove all ID numbers.
+    // Does not ask for confirmation; used internally.
+    void deleteAllIdNums();
 
     // Sort ID numbers by their type, and if we are editing the patient,
     // refresh the questionnaire to reflect the current ID numbers.
