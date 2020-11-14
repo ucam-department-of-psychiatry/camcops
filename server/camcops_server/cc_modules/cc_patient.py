@@ -63,6 +63,8 @@ from camcops_server.cc_modules.cc_constants import (
     FP_ID_DESC,
     FP_ID_SHORT_DESC,
     FP_ID_NUM,
+    SEX_FEMALE,
+    SEX_MALE,
     TSV_PATIENT_FIELD_PREFIX,
 )
 from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
@@ -692,13 +694,13 @@ class Patient(GenericTabletRecordMixin, Base):
         """
         Is sex 'F'?
         """
-        return self.sex == "F"
+        return self.sex == SEX_FEMALE
 
     def is_male(self) -> bool:
         """
         Is sex 'M'?
         """
-        return self.sex == "M"
+        return self.sex == SEX_MALE
 
     def get_sex(self) -> str:
         """
