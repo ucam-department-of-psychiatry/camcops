@@ -268,6 +268,19 @@
     </message>
 </context>
 <context>
+    <name>Basdai</name>
+    <message>
+        <location filename="../tasks/basdai.cpp" line="+76"/>
+        <source>Bath Ankylosing Spondylitis Disease Activity Index</source>
+        <translation>Bath Ankylosing Spondylitis Disease Activity Index [ankyloserende spondylitis sygdom aktivitetsindeks]</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>A self-administered instrument for assessing disease activity in ankylosing spondylitis</source>
+        <translation>Et selvadministreret instrument til vurdering af sygdomsaktivitet i ankyloserende spondylitis</translation>
+    </message>
+</context>
+<context>
     <name>Bdi</name>
     <message>
         <location filename="../tasks/bdi.cpp" line="+166"/>
@@ -4545,7 +4558,7 @@ enig</translation>
 <context>
     <name>PhysicalIllnessMenu</name>
     <message>
-        <location filename="../menu/physicalillnessmenu.cpp" line="+40"/>
+        <location filename="../menu/physicalillnessmenu.cpp" line="+41"/>
         <source>Physical illness measurement</source>
         <translation>Måling af fysisk sygdom</translation>
     </message>
@@ -5298,7 +5311,7 @@ enig</translation>
 <context>
     <name>SetMenuKhandakerMojo</name>
     <message>
-        <location filename="../menu/setmenukhandakermojo.cpp" line="+53"/>
+        <location filename="../menu/setmenukhandakermojo.cpp" line="+54"/>
         <source>Khandaker GM — MOJO study</source>
         <translation>Khandaker GM — MOJO forskningsundersøgelse</translation>
     </message>
@@ -5323,7 +5336,7 @@ enig</translation>
         <translation>Emne-vurderet skalaer (sygdomsspecifik)</translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+6"/>
         <source>Primary outcome measure (subject-rated)</source>
         <translation>Primært resultatmål (emne-bedømt)</translation>
     </message>
