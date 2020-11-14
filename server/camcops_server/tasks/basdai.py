@@ -32,6 +32,11 @@ import statistics
 from typing import Any, Dict, List, Optional, Type, Tuple
 from unittest import mock, TestCase
 
+import cardinal_pythonlib.rnc_web as ws
+from cardinal_pythonlib.stringfunc import strseq
+from sqlalchemy.ext.declarative import DeclarativeMeta
+from sqlalchemy.sql.sqltypes import Float
+
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import tr_qa, tr, answer
@@ -44,11 +49,10 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
     TrackerLabel,
 )
 
-import cardinal_pythonlib.rnc_web as ws
-from cardinal_pythonlib.stringfunc import strseq
-from sqlalchemy import Float
-from sqlalchemy.ext.declarative import DeclarativeMeta
 
+# =============================================================================
+# BASDAI
+# =============================================================================
 
 class BasdaiMetaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
@@ -58,16 +62,16 @@ class BasdaiMetaclass(DeclarativeMeta):
                  classdict: Dict[str, Any]) -> None:
 
         add_multiple_columns(
-            cls, "q", 1, cls.N_QUESTIONS,
+            cls, "q", 1, cls.N_QUESTIONS, coltype=Float,
             minimum=0, maximum=10,
             comment_fmt="Q{n} - {s}",
             comment_strings=[
-                "fatigue/tiredness 0-10 (None - very severe)",
-                "AS neck, back, hip pain 0-10 (None - very severe)",
-                "other pain/swelling 0-10 (None - very severe)",
-                "discomfort from tender areas 0-10 (None - very severe)",
-                "morning stiffness level 0-10 (None - very severe)",
-                "morning stiffness duration 0-10 (None - 2 or more hours)",
+                "fatigue/tiredness 0-10 (none - very severe)",
+                "AS neck, back, hip pain 0-10 (none - very severe)",
+                "other joint pain/swelling 0-10 (none - very severe)",
+                "discomfort from tender areas 0-10 (none - very severe)",
+                "morning stiffness level 0-10 (none - very severe)",
+                "morning stiffness duration 0-10 (none - 2 or more hours)",
             ]
         )
 
@@ -204,11 +208,12 @@ class Basdai(TaskHasPatientMixin,
                 {rows}
             </table>
             <div class="{CssClass.FOOTNOTES}">
-                [1] A. Add scores for questions 1 – 4
-                    B. Calculate the mean for questions 5 and 6
-                    C. Add A and B and divide by 5.
-                    &lt;4.0 inactive disease,
-                    &ge;4.0 active disease
+                [1] A. Add scores for questions 1–4.
+                    B. Calculate the mean for questions 5 and 6.
+                    C. Add A and B and divide by 5, giving a total in the range
+                       0–10.
+                    &lt;4.0 suggests inactive disease,
+                    &ge;4.0 suggests active disease.
             </div>
         """.format(
             CssClass=CssClass,
@@ -224,6 +229,10 @@ class Basdai(TaskHasPatientMixin,
         )
         return html
 
+
+# =============================================================================
+# Unit tests
+# =============================================================================
 
 class BasdaiTests(TestCase):
     def setUp(self) -> None:
