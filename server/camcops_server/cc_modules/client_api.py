@@ -2167,7 +2167,7 @@ def json_patient_info(patient: Patient) -> str:
     return json.dumps([patient_dict])
 
 
-def get_single_patient(req: "CamcopsRequest") -> Patient:
+def get_single_server_patient(req: "CamcopsRequest") -> Patient:
     """
     Returns the patient identified by the proquint access key present in this
     request, or raises.
@@ -2386,7 +2386,7 @@ def op_register_patient(req: "CamcopsRequest") -> Dict[str, Any]:
     # -------------------------------------------------------------------------
     # Patient details
     # -------------------------------------------------------------------------
-    patient = get_single_patient(req)  # may fail/raise
+    patient = get_single_server_patient(req)  # may fail/raise
     patient_info = json_patient_info(patient)
     reply_dict = {
         TabletParam.PATIENT_INFO: patient_info,
@@ -2517,7 +2517,7 @@ def op_get_task_schedules(req: "CamcopsRequest") -> Dict[str, str]:
     this request, for single-user mode. Also returns details of the single
     patient, in case that's changed.
     """
-    patient = get_single_patient(req)
+    patient = get_single_server_patient(req)
     patient_info = json_patient_info(patient)
     task_schedules = get_task_schedules(req, patient)
     return {
@@ -3250,6 +3250,9 @@ def client_api(req: "CamcopsRequest") -> Response:
 # Unit tests
 # =============================================================================
 
+TEST_NHS_NUMBER = 4887211163  # generated at random
+
+
 def get_reply_dict_from_response(response: Response) -> Dict[str, str]:
     """
     For unit testing: convert the text in a :class:`Response` back to a
@@ -3384,15 +3387,19 @@ class PatientRegistrationTests(DemoDatabaseTestCase):
         import datetime
         patient = self.create_patient(
             forename="JO", surname="PATIENT", dob=datetime.date(1958, 4, 19),
-            sex="F", address="Address", gp="GP", other="Other"
+            sex="F", address="Address", gp="GP", other="Other",
+            as_server_patient=True
         )
 
         self.create_patient_idnum(
-            patient_id=patient.id, which_idnum=self.nhs_iddef.which_idnum,
-            idnum_value=4887211163
+            patient_id=patient.id,
+            which_idnum=self.nhs_iddef.which_idnum,
+            idnum_value=TEST_NHS_NUMBER,
+            as_server_patient=True
         )
 
         proquint = patient.uuid_as_proquint
+        log.critical("uuid: {}, proquint: {}", patient.uuid, proquint)
 
         # For type checker
         assert proquint is not None
@@ -3420,16 +3427,19 @@ class PatientRegistrationTests(DemoDatabaseTestCase):
         self.assertEqual(patient_dict[TabletParam.GP], "GP")
         self.assertEqual(patient_dict[TabletParam.OTHER], "Other")
         self.assertEqual(patient_dict[f"idnum{self.nhs_iddef.which_idnum}"],
-                         4887211163)
+                         TEST_NHS_NUMBER)
 
     def test_creates_user(self) -> None:
         from camcops_server.cc_modules.cc_taskindex import (
             PatientIdNumIndexEntry,
         )
-        patient = self.create_patient(_group_id=self.group.id)
+        patient = self.create_patient(_group_id=self.group.id,
+                                      as_server_patient=True)
         idnum = self.create_patient_idnum(
-            patient_id=patient.id, which_idnum=self.nhs_iddef.which_idnum,
-            idnum_value=4887211163
+            patient_id=patient.id,
+            which_idnum=self.nhs_iddef.which_idnum,
+            idnum_value=TEST_NHS_NUMBER,
+            as_server_patient=True
         )
         PatientIdNumIndexEntry.index_idnum(idnum, self.dbsession)
 
@@ -3472,10 +3482,13 @@ class PatientRegistrationTests(DemoDatabaseTestCase):
         from camcops_server.cc_modules.cc_taskindex import (
             PatientIdNumIndexEntry,
         )
-        patient = self.create_patient(_group_id=self.group.id)
+        patient = self.create_patient(_group_id=self.group.id,
+                                      as_server_patient=True)
         idnum = self.create_patient_idnum(
-            patient_id=patient.id, which_idnum=self.nhs_iddef.which_idnum,
-            idnum_value=4887211163
+            patient_id=patient.id,
+            which_idnum=self.nhs_iddef.which_idnum,
+            idnum_value=TEST_NHS_NUMBER,
+            as_server_patient=True
         )
         PatientIdNumIndexEntry.index_idnum(idnum, self.dbsession)
 
@@ -3511,10 +3524,13 @@ class PatientRegistrationTests(DemoDatabaseTestCase):
         from camcops_server.cc_modules.cc_taskindex import (
             PatientIdNumIndexEntry,
         )
-        patient = self.create_patient(_group_id=self.group.id)
+        patient = self.create_patient(_group_id=self.group.id,
+                                      as_server_patient=True)
         idnum = self.create_patient_idnum(
-            patient_id=patient.id, which_idnum=self.nhs_iddef.which_idnum,
-            idnum_value=4887211163
+            patient_id=patient.id,
+            which_idnum=self.nhs_iddef.which_idnum,
+            idnum_value=TEST_NHS_NUMBER,
+            as_server_patient=True
         )
         PatientIdNumIndexEntry.index_idnum(idnum, self.dbsession)
 
@@ -3598,7 +3614,7 @@ class PatientRegistrationTests(DemoDatabaseTestCase):
     def test_raises_when_no_patient_idnums(self) -> None:
         # In theory this shouldn't be possible in normal operation as the
         # patient cannot be created without any idnums
-        patient = self.create_patient()
+        patient = self.create_patient(as_server_patient=True)
 
         proquint = patient.uuid_as_proquint
         self.req.fake_request_post_from_dict({
@@ -3616,7 +3632,8 @@ class PatientRegistrationTests(DemoDatabaseTestCase):
                       reply_dict[TabletParam.ERROR])
 
     def test_raises_when_patient_not_created_on_server(self) -> None:
-        patient = self.create_patient(_device_id=self.other_device.id)
+        patient = self.create_patient(_device_id=self.other_device.id,
+                                      as_server_patient=True)
 
         proquint = patient.uuid_as_proquint
         self.req.fake_request_post_from_dict({
@@ -3641,11 +3658,14 @@ class PatientRegistrationTests(DemoDatabaseTestCase):
 
         patient = self.create_patient(
             forename="JO", surname="PATIENT", dob=datetime.date(1958, 4, 19),
-            sex="F", address="Address", gp="GP", other="Other"
+            sex="F", address="Address", gp="GP", other="Other",
+            as_server_patient=True
         )
         idnum = self.create_patient_idnum(
-            patient_id=patient.id, which_idnum=self.nhs_iddef.which_idnum,
-            idnum_value=4887211163
+            patient_id=patient.id,
+            which_idnum=self.nhs_iddef.which_idnum,
+            idnum_value=TEST_NHS_NUMBER,
+            as_server_patient=True
         )
         PatientIdNumIndexEntry.index_idnum(idnum, self.dbsession)
 
@@ -3743,10 +3763,12 @@ class GetTaskSchedulesTests(DemoDatabaseTestCase):
         self.dbsession.add(item4)
         self.dbsession.commit()
 
-        patient = self.create_patient()
+        patient = self.create_patient(as_server_patient=True)
         idnum = self.create_patient_idnum(
-            patient_id=patient.id, which_idnum=self.nhs_iddef.which_idnum,
-            idnum_value=4887211163
+            patient_id=patient.id,
+            which_idnum=self.nhs_iddef.which_idnum,
+            idnum_value=TEST_NHS_NUMBER,
+            as_server_patient=True
         )
         PatientIdNumIndexEntry.index_idnum(idnum, self.dbsession)
 
@@ -3857,7 +3879,10 @@ class GetTaskSchedulesTests(DemoDatabaseTestCase):
 # =============================================================================
 # main
 # =============================================================================
-# run with "python -m camcops_server.cc_modules.client_api -v" to be verbose
+# - run with "python -m camcops_server.cc_modules.client_api -v" to be verbose
+# - use
+#   "python -m camcops_server.cc_modules.client_api PatientRegistrationTests.test_returns_patient_info"  # noqa
+#   for a single text
 
 if __name__ == "__main__":
     main_only_quicksetup_rootlogger(level=logging.DEBUG)

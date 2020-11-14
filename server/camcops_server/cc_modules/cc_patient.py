@@ -132,7 +132,7 @@ class Patient(GenericTabletRecordMixin, Base):
     uuid = CamcopsColumn(
         "uuid", UuidColType,
         comment="UUID",
-        default=uuid.uuid4
+        default=uuid.uuid4  # generates a random UUID
     )  # type: Optional[uuid.UUID]
     forename = CamcopsColumn(
         "forename", PatientNameColType,
