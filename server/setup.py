@@ -59,7 +59,7 @@ from camcops_server.cc_modules.cc_version_string import (
 # =============================================================================
 
 # Extensions and file patterns
-SKIP_PATTERNS = ['*.pyc', '~*']  # files not to add
+SKIP_PATTERNS = ['*.pyc', '~*', '*~']  # files not to add
 
 # Directories
 THIS_DIR = os.path.abspath(os.path.dirname(__file__))  # .../camcops/server
@@ -107,7 +107,7 @@ INSTALL_REQUIRES = [
     'hl7==0.3.5',  # For HL7 export
 
     'lockfile==0.12.2',  # File locking for background tasks
-    'lxml==4.5.1',  # Will speed up openpyxl export [NO LONGER CRITICAL]
+    'lxml==4.6.1',  # Will speed up openpyxl export [NO LONGER CRITICAL]
 
     'matplotlib==3.2.2',  # Used for trackers and some tasks. SLOW INSTALLATION.  # noqa
 
