@@ -2873,12 +2873,13 @@ Current C++/SQLite client, Python/SQLAlchemy server
   2020-07-24: No, Deform has caught up. See https://pypi.org/project/deform/.
   Move to ``deform==2.0.10`` and ``Chameleon==3.8.1``.
 
-**Client and server v2.3.9, IN PROGRESS**
+**Client and server v2.3.9 to v2.4.0, IN PROGRESS**
 
 - Support for :ref:`Task Schedules <scheduling_tasks>` (on the server) and
   :ref:`Single User Mode <single_user_mode>` on the client
   to allow patients to complete tasks at home on their own devices.
-  (Database revisions 0047-0052).
+  (Database revisions 0047-0052.) Version bumped to 2.4.0 as this is a major
+  new feature.
 
 - New passwords on the client app must now be at least 8 characters long.
 

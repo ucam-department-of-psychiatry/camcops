@@ -345,6 +345,7 @@ from typing import (
     List,
     Optional,
     Sequence,
+    Set,
     Tuple,
     TYPE_CHECKING
 )
@@ -410,6 +411,7 @@ from camcops_server.cc_modules.cc_client_api_core import (
     WhichKeyToSendInfo,
 )
 from camcops_server.cc_modules.cc_client_api_helpers import (
+    is_email_valid,
     upload_commit_order_sorter,
 )
 from camcops_server.cc_modules.cc_constants import (
@@ -624,6 +626,123 @@ def ensure_string(value: Any, allow_none: bool = True) -> None:
             fail_user_error("Patient JSON contains absent string")
     if not isinstance(value, str):
         fail_user_error(f"Patient JSON contains invalid non-string: {value!r}")
+
+
+def ensure_valid_patient_json(req: "CamcopsRequest",
+                              group: Group,
+                              pt_dict: Dict[str, Any]) -> None:
+    """
+    Ensures that the JSON dictionary contains valid patient details (valid for
+    the group into which it's being uploaded), and that (if applicable) this
+    user is allowed to upload this patient.
+
+    Args:
+        req:
+            the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        group:
+            the :class:`camcops_server.cc_modules.cc_group.Group` into which
+            the upload is going
+        pt_dict:
+            a JSON dictionary from the client
+
+    Raises:
+        :exc:`UserErrorException` if invalid
+
+    """
+    if not isinstance(pt_dict, dict):
+        fail_user_error("Patient JSON is not a dict")
+    if not pt_dict:
+        fail_user_error("Patient JSON is empty")
+    valid_which_idnums = req.valid_which_idnums
+    errors = []  # type: List[str]
+    finalizing = None
+    ptinfo = BarePatientInfo()
+    idnum_types_seen = set()  # type: Set[int]
+    for k, v in pt_dict.items():
+        ensure_string(k, allow_none=False)
+
+        if k == TabletParam.FORENAME:
+            ensure_string(v)
+            ptinfo.forename = v
+
+        elif k == TabletParam.SURNAME:
+            ensure_string(v)
+            ptinfo.surname = v
+
+        elif k == TabletParam.SEX:
+            if v not in POSSIBLE_SEX_VALUES:
+                fail_user_error(f"Bad sex value: {v!r}")
+            ptinfo.sex = v
+
+        elif k == TabletParam.DOB:
+            ensure_string(v)
+            if v:
+                dob = coerce_to_pendulum_date(v)
+                if dob is None:
+                    fail_user_error(f"Invalid DOB: {v!r}")
+            else:
+                dob = None
+            ptinfo.dob = dob
+
+        elif k == TabletParam.EMAIL:
+            ensure_string(v)
+            if v and not is_email_valid(v):
+                fail_user_error(f"Bad e-mail address: {v!r}")
+            ptinfo.email = v
+
+        elif k == TabletParam.ADDRESS:
+            ensure_string(v)
+            ptinfo.address = v
+
+        elif k == TabletParam.GP:
+            ensure_string(v)
+            ptinfo.gp = v
+
+        elif k == TabletParam.OTHER:
+            ensure_string(v)
+            ptinfo.otherdetails = v
+
+        elif k.startswith(TabletParam.IDNUM_PREFIX):
+            nstr = k[len(TabletParam.IDNUM_PREFIX):]
+            try:
+                which_idnum = int(nstr)
+            except (TypeError, ValueError):
+                fail_user_error(f"Bad idnum key: {k!r}")
+            # noinspection PyUnboundLocalVariable
+            if which_idnum not in valid_which_idnums:
+                fail_user_error(f"Bad ID number type: {which_idnum}")
+            if which_idnum in idnum_types_seen:
+                fail_user_error(f"More than one ID number supplied for ID "
+                                f"number type {which_idnum}")
+            idnum_types_seen.add(which_idnum)
+            if v is not None and not isinstance(v, int):
+                fail_user_error(f"Bad ID number value: {v!r}")
+            idref = IdNumReference(which_idnum, v)
+            if not idref.is_valid():
+                fail_user_error(f"Bad ID number: {idref!r}")
+            ptinfo.add_idnum(idref)
+
+        elif k == TabletParam.FINALIZING:
+            if not isinstance(v, bool):
+                fail_user_error(f"Bad {k!r} value: {v!r}")
+            finalizing = v
+
+        else:
+            fail_user_error(f"Unknown JSON key: {k!r}")
+
+    if finalizing is None:
+        fail_user_error(f"Missing {TabletParam.FINALIZING!r} JSON key")
+
+    pt_ok, reason = is_candidate_patient_valid_for_group(
+        ptinfo, group, finalizing)
+    if not pt_ok:
+        errors.append(f"{ptinfo} -> {reason}")
+    pt_ok, reason = is_candidate_patient_valid_for_restricted_user(
+        req, ptinfo)
+    if not pt_ok:
+        errors.append(f"{ptinfo} -> {reason}")
+    if errors:
+        fail_user_error(f"Invalid patient: {' // '.join(errors)}")
 
 
 # =============================================================================
@@ -2946,88 +3065,10 @@ def op_validate_patients(req: "CamcopsRequest") -> str:
                                           mandatory=True)
     if not isinstance(pt_json_list, list):
         fail_user_error("Top-level JSON is not a list")
-
     group = Group.get_group_by_id(req.dbsession, req.user.upload_group_id)
-    valid_which_idnums = req.valid_which_idnums
-
-    errors = []  # type: List[str]
-    finalizing = None
     for pt_dict in pt_json_list:
-        if not isinstance(pt_dict, dict):
-            fail_user_error("Patient JSON is not a dict")
-        if not pt_dict:
-            fail_user_error("Patient JSON is empty")
-        ptinfo = BarePatientInfo()
-        for k, v in pt_dict.items():
-            ensure_string(k, allow_none=False)
-            if k == TabletParam.FORENAME:
-                ensure_string(v)
-                ptinfo.forename = v
-            elif k == TabletParam.SURNAME:
-                ensure_string(v)
-                ptinfo.surname = v
-            elif k == TabletParam.SEX:
-                if v not in POSSIBLE_SEX_VALUES:
-                    fail_user_error(f"Bad sex value: {v!r}")
-                ptinfo.sex = v
-            elif k == TabletParam.DOB:
-                ensure_string(v)
-                if v:
-                    dob = coerce_to_pendulum_date(v)
-                    if dob is None:
-                        fail_user_error(f"Invalid DOB: {v!r}")
-                else:
-                    dob = None
-                ptinfo.dob = dob
-            elif k == TabletParam.EMAIL:
-                ensure_string(v)
-                ptinfo.email = v
-            elif k == TabletParam.ADDRESS:
-                ensure_string(v)
-                ptinfo.address = v
-            elif k == TabletParam.GP:
-                ensure_string(v)
-                ptinfo.gp = v
-            elif k == TabletParam.OTHER:
-                ensure_string(v)
-                ptinfo.otherdetails = v
-            elif k.startswith(TabletParam.IDNUM_PREFIX):
-                nstr = k[len(TabletParam.IDNUM_PREFIX):]
-                try:
-                    which_idnum = int(nstr)
-                except (TypeError, ValueError):
-                    fail_user_error(f"Bad idnum key: {k!r}")
-                # noinspection PyUnboundLocalVariable
-                if which_idnum not in valid_which_idnums:
-                    fail_user_error(f"Bad ID number type: {which_idnum}")
-                if v is not None and not isinstance(v, int):
-                    fail_user_error(f"Bad ID number value: {v!r}")
-                idref = IdNumReference(which_idnum, v)
-                if not idref.is_valid():
-                    fail_user_error(f"Bad ID number: {idref!r}")
-                ptinfo.add_idnum(idref)
-            elif k == TabletParam.FINALIZING:
-                if not isinstance(v, bool):
-                    fail_user_error(f"Bad {k!r} value: {v!r}")
-                finalizing = v
-            else:
-                fail_user_error(f"Unknown JSON key: {k!r}")
-
-        if finalizing is None:
-            fail_user_error(f"Missing {TabletParam.FINALIZING!r} JSON key")
-
-        pt_ok, reason = is_candidate_patient_valid_for_group(
-            ptinfo, group, finalizing)
-        if not pt_ok:
-            errors.append(f"{ptinfo} -> {reason}")
-        pt_ok, reason = is_candidate_patient_valid_for_restricted_user(
-            req, ptinfo)
-        if not pt_ok:
-            errors.append(f"{ptinfo} -> {reason}")
-    if errors:
-        fail_user_error(f"Invalid patients: {' // '.join(errors)}")
-    else:
-        return SUCCESS_MSG
+        ensure_valid_patient_json(req, group, pt_dict)
+    return SUCCESS_MSG
 
 
 def op_upload_entire_database(req: "CamcopsRequest") -> str:

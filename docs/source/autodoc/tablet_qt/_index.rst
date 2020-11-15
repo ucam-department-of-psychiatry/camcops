@@ -394,6 +394,8 @@ tablet_qt
     qobjects/cameraframegrabber.h.rst
     qobjects/debugeventwatcher.cpp.rst
     qobjects/debugeventwatcher.h.rst
+    qobjects/emailvalidator.cpp.rst
+    qobjects/emailvalidator.h.rst
     qobjects/flickcharm.cpp.rst
     qobjects/flickcharm.h.rst
     qobjects/focuswatcher.cpp.rst
@@ -486,6 +488,8 @@ tablet_qt
     questionnairelib/qulineedit.h.rst
     questionnairelib/qulineeditdouble.cpp.rst
     questionnairelib/qulineeditdouble.h.rst
+    questionnairelib/qulineeditemail.cpp.rst
+    questionnairelib/qulineeditemail.h.rst
     questionnairelib/qulineeditint64.cpp.rst
     questionnairelib/qulineeditint64.h.rst
     questionnairelib/qulineeditinteger.cpp.rst

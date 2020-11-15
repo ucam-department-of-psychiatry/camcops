@@ -47,6 +47,7 @@
 #include "questionnairelib/quheading.h"
 #include "questionnairelib/quimage.h"
 #include "questionnairelib/qulineedit.h"
+#include "questionnairelib/qulineeditemail.h"
 #include "questionnairelib/qulineeditint64.h"
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qulineeditnhsnumber.h"
@@ -780,7 +781,7 @@ void Patient::buildPage(bool read_only)
         row++, 1));
     grid->addCell(QuGridCell(new QuText(tr("Email")),
                              row, 0, rowspan, colspan, ralign));
-    grid->addCell(QuGridCell(new QuTextEdit(fieldRef(EMAIL_FIELD, false)),
+    grid->addCell(QuGridCell(new QuLineEditEmail(fieldRef(EMAIL_FIELD, false)),
                              row++, 1));
     grid->addCell(QuGridCell(new QuText(tr("Address")),
                              row, 0, rowspan, colspan, ralign));
