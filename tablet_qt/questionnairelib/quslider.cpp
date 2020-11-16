@@ -82,7 +82,7 @@ QuSlider::QuSlider(FieldRefPtr fieldref,
 
 QuSlider* QuSlider::setBigStep(const int big_step)
 {
-    m_big_step = qMin(m_step, big_step);
+    m_big_step = qMax(m_step, big_step);
     return this;
 }
 

@@ -60,9 +60,6 @@ public:
     static const QString BASDAI_TABLENAME;
 protected:
     QPointer<Questionnaire> m_questionnaire;
-private:
     QStringList fieldNames() const;
     QStringList scoreAFieldNames() const;
-
-    QString activityState() const;
 };

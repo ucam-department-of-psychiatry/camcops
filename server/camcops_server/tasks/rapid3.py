@@ -24,13 +24,17 @@ camcops_server/tasks/rapid3.py
 
 ===============================================================================
 
-** Routine Assessment of Patient Index Data (RAPID 3) task.**
+**Routine Assessment of Patient Index Data (RAPID 3) task.**
 
 """
 
 from typing import Any, Dict, List, Optional, Type, Tuple
 from unittest import mock
 import unittest
+
+import cardinal_pythonlib.rnc_web as ws
+from sqlalchemy import Float, Integer
+from sqlalchemy.ext.declarative import DeclarativeMeta
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_html import answer, tr_qa, tr, tr_span_col
@@ -48,10 +52,10 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
     TrackerLabel,
 )
 
-import cardinal_pythonlib.rnc_web as ws
-from sqlalchemy import Float, Integer
-from sqlalchemy.ext.declarative import DeclarativeMeta
 
+# =============================================================================
+# RAPID 3
+# =============================================================================
 
 class Rapid3Metaclass(DeclarativeMeta):
     # noinspection PyInitNewSignature
@@ -324,6 +328,10 @@ class Rapid3(TaskHasPatientMixin,
         return self.wxstring(req, "high_severity")
 
 
+# =============================================================================
+# Unit tests
+# =============================================================================
+
 class Rapid3Tests(unittest.TestCase):
     def setUp(self) -> None:
         super().setUp()
@@ -416,8 +424,6 @@ class Rapid3Tests(unittest.TestCase):
                              msg=f"Failed when setting {none_field} to None")
 
     def test_incomplete_when_any_field_invalid(self) -> None:
-        rapid3 = Rapid3()
-
         all_fields = [
             "q1a",
             "q1b",
@@ -443,8 +449,9 @@ class Rapid3Tests(unittest.TestCase):
                 setattr(rapid3, field, 0.0)
 
             setattr(rapid3, invalid_field, 10.5)
-            self.assertFalse(rapid3.is_complete(),
-                             msg=f"Failed when setting {invalid_field} invald")
+            self.assertFalse(
+                rapid3.is_complete(),
+                msg=f"Failed when setting {invalid_field} invalid")
 
     def test_disease_severity_n_a_for_none(self) -> None:
         rapid3 = Rapid3()
