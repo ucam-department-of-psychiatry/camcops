@@ -2977,3 +2977,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Bugfix to :ref:`GMC Patient Questionnaire <gmcpq>` such that 'X' is now a
   permitted value for q10 (Sex) on the server, in line with the app.
+
+- compilation error fix - cryptofunc - error: ‘runtime_error’ is not a member of ‘std’

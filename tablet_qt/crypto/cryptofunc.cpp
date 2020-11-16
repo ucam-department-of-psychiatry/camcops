@@ -41,6 +41,7 @@
 #include "cryptofunc.h"
 #include <cmath>  // for ceil
 #include <memory>  // for std::unique_ptr
+#include <stdexcept>
 #include <openssl/evp.h>
 #include <openssl/rand.h>
 #include <openssl/opensslv.h>  // version numbers
@@ -48,6 +49,7 @@
 #include <QByteArray>
 #include "lib/convert.h"
 #include "lib/uifunc.h"
+
 
 // ----------------------------------------------------------------------------
 // Determine OpenSSL version
