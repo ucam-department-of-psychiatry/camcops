@@ -188,7 +188,8 @@ class PatientIdNumIndexEntry(Base):
         Args:
             idnum: a
                 :class:`camcops_server.cc_modules.cc_patientidnum.PatientIdNum`
-            session: an SQLAlchemy Session
+            session:
+                an SQLAlchemy Session
         """
         index = cls.make_from_idnum(idnum)
         session.add(index)

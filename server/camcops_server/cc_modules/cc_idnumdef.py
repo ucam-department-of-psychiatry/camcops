@@ -29,7 +29,7 @@ camcops_server/cc_modules/cc_idnumdef.py
 """
 
 import logging
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, TYPE_CHECKING
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.nhs import is_valid_nhs_number
@@ -44,6 +44,9 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     IdDescriptorColType,
 )
 from camcops_server.cc_modules.cc_sqlalchemy import Base
+
+if TYPE_CHECKING:
+    from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -70,7 +73,8 @@ ID_NUM_VALIDATION_METHOD_CHOICES = (
 )
 
 
-def validate_id_number(idnum: Optional[int], method: str) -> Tuple[bool, str]:
+def validate_id_number(req: "CamcopsRequest",
+                       idnum: Optional[int], method: str) -> Tuple[bool, str]:
     """
     Validates an ID number according to a method (as per
     :class:`IdNumValidationMethod`).
@@ -80,6 +84,7 @@ def validate_id_number(idnum: Optional[int], method: str) -> Tuple[bool, str]:
     (no constraints).
 
     Args:
+        req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         idnum: the ID number, or ``None``
         method:
 
@@ -88,14 +93,17 @@ def validate_id_number(idnum: Optional[int], method: str) -> Tuple[bool, str]:
         ``why_invalid`` is ``str``.
 
     """
+    _ = req.gettext
     if idnum is None or not method:
         return True, ""
     if not isinstance(idnum, int):
-        return False, "not an integer"
+        return False, _("Not an integer")
     if method == IdNumValidationMethod.UK_NHS_NUMBER:
-        valid = is_valid_nhs_number(idnum)
-        return valid, "" if valid else "invalid UK NHS number"
-    return False, "unknown validation method"
+        if is_valid_nhs_number(idnum):
+            return True, ""
+        else:
+            return False, _("Invalid UK NHS number")
+    return False, _("Unknown validation method")
 
 
 # =============================================================================

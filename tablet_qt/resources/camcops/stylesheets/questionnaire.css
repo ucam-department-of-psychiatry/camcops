@@ -249,7 +249,7 @@ LabelWordWrapWide:disabled {
 */
 
 QCalendarWidget QComboBox::drop-down,
-QCalendarWidget QComboBox::down-arrow {  /* *** trying this */
+QCalendarWidget QComboBox::down-arrow {
     width: 60px;
 }
 

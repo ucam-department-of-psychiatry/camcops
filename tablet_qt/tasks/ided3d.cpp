@@ -248,9 +248,9 @@ IDED3D::IDED3D(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     addField(FN_COLOUR_DEFINITIONS_RGB, QVariant::String);
     // Results
     addField(FN_ABORTED, QVariant::Bool);
-    getField(FN_ABORTED).setDefaultValue(false);
+    getField(FN_ABORTED).setCppDefaultValue(false);
     addField(FN_FINISHED, QVariant::Bool);
-    getField(FN_FINISHED).setDefaultValue(false);
+    getField(FN_FINISHED).setCppDefaultValue(false);
     addField(FN_LAST_TRIAL_COMPLETED, QVariant::Int);
 
     load(load_pk);

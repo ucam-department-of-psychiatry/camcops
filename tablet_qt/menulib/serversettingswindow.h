@@ -25,6 +25,9 @@ class QuPage;
 
 class ServerSettingsWindow : public QObject
 {
+    // Window to edit server configuration settings.
+    // Used by several menus.
+
     Q_OBJECT
 public:
     ServerSettingsWindow(CamcopsApp& app);

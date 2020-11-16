@@ -122,7 +122,7 @@ FieldRef::FieldRef(DatabaseObject* p_dbobject,
         m_blob = QSharedPointer<Blob>(new Blob(*p_app,
                                                p_dbobject->database(),
                                                p_dbobject->tablename(),
-                                               p_dbobject->pkvalue().toInt(),
+                                               p_dbobject->pkvalueInt(),
                                                fieldname));
         if (!m_autosave) {
             qWarning() << Q_FUNC_INFO

@@ -129,6 +129,7 @@ class TabletParam(object):
     TASK_SCHEDULE_NAME = "task_schedule_name"  # S->C; new in v2.3.9
     USER = "user"  # C->S
     VALUES = "values"  # C->S
+    WHEN_COMPLETED = "when_completed"  # S->C; new in v2.3.9
 
     # Retired (part of defunct mobileweb interface):
     # WHEREFIELDS = "wherefields"

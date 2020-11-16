@@ -58,11 +58,13 @@ using dbfunc::delimit;
 DatabaseManager::DatabaseManager(const QString& filename,
                                  const QString& connection_name,
                                  const QString& database_type,
-                                 const bool threaded) :
+                                 const bool threaded,
+                                 const bool system_db) :
     m_filename(filename),
     m_connection_name(connection_name),
     m_database_type(database_type),
     m_threaded(threaded),
+    m_system_db(system_db),
     m_vacuum_on_close(true),
     m_thread(nullptr),
     m_opened_database(false)
@@ -94,6 +96,12 @@ void DatabaseManager::setVacuumOnClose(const bool vacuum_on_close)
     qDebug() << Q_FUNC_INFO << m_connection_name;
 #endif
     m_vacuum_on_close = vacuum_on_close;
+}
+
+
+bool DatabaseManager::isSystemDb() const
+{
+    return m_system_db;
 }
 
 
@@ -965,7 +973,14 @@ void DatabaseManager::createTable(const QString& tablename,
             if (plan.intended_field->isPk()) {
                 uifunc::stopApp(QString(
                     "createTable: Cannot add a PRIMARY KEY column "
-                    "(%s.%s)").arg(tablename, plan.name));
+                    "(%1.%2)").arg(tablename, plan.name));
+            }
+            if (plan.intended_field->notNull() &&
+                    !plan.intended_field->hasDbDefaultValue()) {
+                uifunc::stopApp(QString(
+                    "createTable: Cannot add a NOT NULL column to an existing "
+                    "table without a database default "
+                    "(%1.%2)").arg(tablename, plan.name));
             }
             execNoAnswer(QString("ALTER TABLE %1 ADD COLUMN %2 %3").arg(
                 tablename,
