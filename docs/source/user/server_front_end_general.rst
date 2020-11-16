@@ -373,9 +373,9 @@ From the Patient Task Schedules page you can add a new patient. The patient
 must have enough identifiable information to match the :ref:`uploading and
 finalizing ID policies <uploading_and_finalizing_policies>` of the group. Here
 you can also assign one or more task schedules to the patient. You can specify
-the start date of the schedule or leave it blank. If you leave it blank the
-start date will be the date the patient registers themselves and their tablet
-with the server.
+the start date of the schedule or leave it blank. If you leave it blank, the
+start date will be the date the patient first downloads the schedule from the
+server.
 
 Advanced use: There is an optional form field to specify any patient-specific
 settings for the tasks. This is a JSON object keyed on the task table name
@@ -409,6 +409,13 @@ the named schedule from the table. From this table you can view the uploaded
 task responses as HTML or PDF. Anonymous tasks will be listed in this table but
 you will not see the responses.
 
+.. note::
+
+    If you edit patient details after the patient has registered, the client
+    will pick up the changes when it next picks up schedule updates.
+
+    If you change the patient's ID numbers, though, the patient may have to
+    redo tasks (complete tasks are sought by any current ID number).
 
 Help
 ----

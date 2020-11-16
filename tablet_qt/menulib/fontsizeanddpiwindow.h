@@ -26,6 +26,9 @@ class CamcopsApp;
 
 class FontSizeAndDpiWindow : public FontSizeWindow
 {
+    // Window to edit font size/DPI settings.
+    // Used by several menus.
+
     Q_OBJECT
 public:
     FontSizeAndDpiWindow(CamcopsApp& app);

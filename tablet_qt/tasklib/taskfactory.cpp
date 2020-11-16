@@ -213,6 +213,18 @@ TaskPtrList TaskFactory::fetchTasks(const QString& tablename, const bool sort) c
 }
 
 
+bool TaskFactory::anyTasksPresent() const
+{
+    DatabaseManager& db = m_app.db();
+    for (const auto tablename : m_tablenames) {  // all task base tables
+        if (db.count(tablename) > 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
 TaskPtrList TaskFactory::fetchAllTasksForPatient(const int patient_id) const
 {
     TaskPtrList tasklist;

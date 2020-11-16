@@ -1356,7 +1356,8 @@ class CamcopsRequest(Request):
         idnumdef = self.get_idnum_definition(which_idnum)
         if not idnumdef:
             return False
-        valid, _ = validate_id_number(idnum_value, idnumdef.validation_method)
+        valid, _ = validate_id_number(self,
+                                      idnum_value, idnumdef.validation_method)
         return valid
 
     def why_idnum_invalid(self, which_idnum: int,
@@ -1373,8 +1374,10 @@ class CamcopsRequest(Request):
         """
         idnumdef = self.get_idnum_definition(which_idnum)
         if not idnumdef:
-            return "Can't fetch ID number definition"
-        _, why = validate_id_number(idnum_value, idnumdef.validation_method)
+            _ = self.gettext
+            return _("Can't fetch ID number definition")
+        _, why = validate_id_number(self,
+                                    idnum_value, idnumdef.validation_method)
         return why
 
     # -------------------------------------------------------------------------

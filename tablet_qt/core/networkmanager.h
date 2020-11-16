@@ -369,7 +369,7 @@ public:
     void registerPatient();
 
     // Update task schedules for the single user.
-    void updateTaskSchedules();
+    void updateTaskSchedulesAndPatientDetails();
 
 protected:
     // Parse reply to registerPatient().
@@ -387,10 +387,10 @@ protected:
     bool setIpUseInfo();
 
     // Parse reply to updateTaskSchedules().
-    void receivedTaskSchedules(QNetworkReply* reply);
+    void receivedTaskSchedulesAndPatientDetails(QNetworkReply* reply);
 
     // Store the task schedules.
-    void storeTaskSchedules();
+    void storeTaskSchedulesAndPatientDetails();
 
     // Copy complete status for anonymous tasks when updating tasks
     void updateCompleteStatusForAnonymousTasks(

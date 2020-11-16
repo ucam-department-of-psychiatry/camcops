@@ -47,6 +47,7 @@
 #include "questionnairelib/quheading.h"
 #include "questionnairelib/quimage.h"
 #include "questionnairelib/qulineedit.h"
+#include "questionnairelib/qulineeditemail.h"
 #include "questionnairelib/qulineeditint64.h"
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qulineeditnhsnumber.h"
@@ -152,6 +153,12 @@ Patient::Patient(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
 Patient::Patient(CamcopsApp& app, DatabaseManager& db,
                  const QJsonObject& json_obj) : Patient(app, db)
 {
+    setPatientDetailsFromJson(json_obj);
+}
+
+
+void Patient::setPatientDetailsFromJson(const QJsonObject& json_obj)
+{
     setValuesFromJson(json_obj, FIELDNAMES_TO_JSON_KEYS);
 }
 
@@ -172,6 +179,13 @@ void Patient::addIdNums(const QJsonObject& json_obj)
             m_idnums.append(new_id);
         }
     }
+}
+
+
+void Patient::setIdNums(const QJsonObject& json_obj)
+{
+    deleteAllIdNums();
+    addIdNums(json_obj);
 }
 
 
@@ -767,7 +781,7 @@ void Patient::buildPage(bool read_only)
         row++, 1));
     grid->addCell(QuGridCell(new QuText(tr("Email")),
                              row, 0, rowspan, colspan, ralign));
-    grid->addCell(QuGridCell(new QuTextEdit(fieldRef(EMAIL_FIELD, false)),
+    grid->addCell(QuGridCell(new QuLineEditEmail(fieldRef(EMAIL_FIELD, false)),
                              row++, 1));
     grid->addCell(QuGridCell(new QuText(tr("Address")),
                              row, 0, rowspan, colspan, ralign));
@@ -998,6 +1012,16 @@ void Patient::deleteIdNum(const int which_idnum)
             return;
         }
     }
+}
+
+
+void Patient::deleteAllIdNums()
+{
+    for (int i = 0; i < m_idnums.size(); ++i) {
+        PatientIdNumPtr idnum = m_idnums.at(i);
+        idnum->deleteFromDatabase();
+    }
+    m_idnums.clear();
 }
 
 

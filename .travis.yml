@@ -13,7 +13,8 @@ jobs:
       before_script:
         # For testing the "make packages" script
         - sudo apt-get -y install alien fakeroot lintian gdebi
-        - wget https://downloads.sourceforge.net/project/rpmrebuild/rpmrebuild/2.15/rpmrebuild-2.15-1.noarch.rpm
+        # 429 = Too many requests. Unfortunately wget doesn't read the Retry-after header so just wait 5 minutes
+        - wget --retry-on-http-error=429 --waitretry=300 --tries=20 https://downloads.sourceforge.net/project/rpmrebuild/rpmrebuild/2.15/rpmrebuild-2.15-1.noarch.rpm
         - fakeroot alien --to-deb rpmrebuild-2.15-1.noarch.rpm
         - sudo dpkg -i rpmrebuild_2.15-2_all.deb
 
@@ -26,7 +27,8 @@ jobs:
       before_script:
         # Install wkhtmltopdf on headless ubuntu 18 vps
         # https://gist.github.com/lobermann/ca0e7bb2558b3b08923c6ae2c37a26ce
-        - wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.bionic_amd64.deb
+        # 429 = Too many requests. Unfortunately wget doesn't read the Retry-after header so just wait 5 minutes
+        - wget --retry-on-http-error=429 --waitretry=300 --tries=20 https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.bionic_amd64.deb
         - sudo apt-get -y install fontconfig libxrender1 xfonts-75dpi xfonts-base
         - sudo dpkg -i wkhtmltox_0.12.6-1.bionic_amd64.deb
 

@@ -38,7 +38,7 @@ import os
 import random
 import re
 from typing import (Any, BinaryIO, Callable, Dict, Iterable, List, Optional,
-                    Union)
+                    Sequence, Union)
 from unittest import TestCase
 import zipfile
 
@@ -138,7 +138,7 @@ class TsvPage(object):
 
     @classmethod
     def from_headings_rows(cls, name: str, headings: List[str],
-                           rows: List[List[Any]]) -> "TsvPage":
+                           rows: List[Sequence[Any]]) -> "TsvPage":
         """
         Creates a TsvPage object using a list of headings and the row data
         as a list of lists.

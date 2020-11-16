@@ -61,6 +61,14 @@ void SingleUserAdvancedMenu::makeItems()
             )
         });
     }
+
+    m_items.append(
+        MenuItem(
+            tr("Change operating mode"),
+            std::bind(&SingleUserAdvancedMenu::changeMode, this)
+        )
+    );
+
 }
 
 OpenableWidget* SingleUserAdvancedMenu::configureServer(CamcopsApp& app)
@@ -82,4 +90,10 @@ void SingleUserAdvancedMenu::disableNetworkLogging()
 {
     m_app.disableNetworkLogging();
     rebuild();
+}
+
+
+void SingleUserAdvancedMenu::changeMode()
+{
+    m_app.setModeFromUser();
 }
