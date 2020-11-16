@@ -419,6 +419,9 @@ OpenableWidget* KhandakerMojoMedical::editor(const bool read_only)
     doubleQuestion(FN_ALCOHOL_UNITS_PER_WEEK, 0, 2000,
                    xstring("alcohol_units_hint"));
 
+    yesNoQuestion(FN_HOSPITALISED_IN_LAST_YEAR);
+    textQuestion(FN_HOSPITALISATION_DETAILS);
+
     page->addElement(new QuText(xstring("medical_history_subtitle")));
     yesNoGrid(
         {
@@ -435,8 +438,6 @@ OpenableWidget* KhandakerMojoMedical::editor(const bool read_only)
     );
 
     textQuestion(FN_OTHER_MENTAL_ILLNESS_DETAILS);
-    yesNoQuestion(FN_HOSPITALISED_IN_LAST_YEAR);
-    textQuestion(FN_HOSPITALISATION_DETAILS);
 
     heading("family_history_title");
 
