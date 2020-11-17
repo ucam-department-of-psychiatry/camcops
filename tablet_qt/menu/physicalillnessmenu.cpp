@@ -27,6 +27,7 @@
 #include "tasks/das28.h"
 #include "tasks/elixhauserci.h"
 #include "tasks/esspri.h"
+#include "tasks/rapid3.h"
 #include "tasks/sfmpq2.h"
 
 
@@ -52,5 +53,6 @@ void PhysicalIllnessMenu::makeItems()
         MAKE_TASK_MENU_ITEM(Basdai::BASDAI_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Sfmpq2::SFMPQ2_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Das28::DAS28_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Rapid3::RAPID3_TABLENAME, m_app),
     };
 }
