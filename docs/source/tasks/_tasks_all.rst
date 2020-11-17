@@ -117,6 +117,7 @@ All tasks
     pswq.rst
     qol.rst
     rand36.rst
+    rapid3.rst
     rss.rst
     sfmpq2.rst
     shaps.rst
