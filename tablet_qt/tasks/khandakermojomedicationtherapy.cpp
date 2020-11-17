@@ -476,8 +476,8 @@ QuGridContainer* KhandakerMojoMedicationTherapy::getMedicationGrid()
     grid->setFixedGrid(false);
     grid->setExpandHorizontally(true);
 
-    grid->addCell(QuGridCell(new QuText(xstring("medication_name")), 0, 0));
-    grid->addCell(QuGridCell(new QuText(xstring("chemical_name")), 0, 1));
+    grid->addCell(QuGridCell(new QuText(xstring("chemical_name")), 0, 0));
+    grid->addCell(QuGridCell(new QuText(xstring("brand_name")), 0, 1));
     grid->addCell(QuGridCell(new QuText(xstring("dose")), 0, 2));
     grid->addCell(QuGridCell(new QuText(xstring("frequency")), 0, 3));
     grid->addCell(QuGridCell(new QuText(xstring("duration_months")), 0, 4));
@@ -492,13 +492,13 @@ QuGridContainer* KhandakerMojoMedicationTherapy::getMedicationGrid()
             std::bind(&KhandakerMojoMedicationTherapy::deleteMedicationItem,
                       this, i)
         );
-        auto medication_name_edit = new QuLineEdit(
-            medication->fieldRef(
-                KhandakerMojoMedicationItem::FN_MEDICATION_NAME)
-        );
         auto chemical_name_edit = new QuLineEdit(
             medication->fieldRef(
                 KhandakerMojoMedicationItem::FN_CHEMICAL_NAME)
+        );
+        auto brand_name_edit = new QuLineEdit(
+            medication->fieldRef(
+                KhandakerMojoMedicationItem::FN_BRAND_NAME)
         );
         auto dose_edit = new QuLineEdit(
             medication->fieldRef(
@@ -524,8 +524,8 @@ QuGridContainer* KhandakerMojoMedicationTherapy::getMedicationGrid()
 
         const int row = i + 1;
 
-        grid->addCell(QuGridCell(medication_name_edit, row, 0));
-        grid->addCell(QuGridCell(chemical_name_edit, row, 1));
+        grid->addCell(QuGridCell(chemical_name_edit, row, 0));
+        grid->addCell(QuGridCell(brand_name_edit, row, 1));
         grid->addCell(QuGridCell(dose_edit, row, 2));
         grid->addCell(QuGridCell(frequency_edit, row, 3));
         grid->addCell(QuGridCell(duration_edit, row, 4));

@@ -27,6 +27,7 @@
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/questionwithonefield.h"
 #include "questionnairelib/qudatetime.h"
+#include "questionnairelib/qugridcontainer.h"
 #include "questionnairelib/quheading.h"
 #include "questionnairelib/qulineeditdouble.h"
 #include "questionnairelib/qulineeditinteger.h"
@@ -396,16 +397,38 @@ OpenableWidget* KhandakerMojoMedical::editor(const bool read_only)
     m_fr_diagnosis_date = FieldRefPtr(new FieldRef(get_date, set_date, true));
     m_fr_diagnosis_years = FieldRefPtr(new FieldRef(get_years, set_years, true));
 
-    // We don't store duration of illness on the server
-    page->addElement(new QuText(xstring("duration_of_illness")));
-    page->addElement(new QuLineEditInteger(m_fr_diagnosis_years, 0, 150));
-    page->addElement(new QuText(xstring("or")));
-    page->addElement(new QuText(xstring(Q_XML_PREFIX + FN_DIAGNOSIS_DATE)));
+    // Adding grid for Dianosis date fields
+
+    auto diagnosis_date_grid = new QuGridContainer();
+    diagnosis_date_grid->setExpandHorizontally(false);
+    diagnosis_date_grid->setFixedGrid(false);
+
+    auto duration_text = new QuText(xstring("duration_of_illness"));
+    auto diagnosis_years = new QuLineEditInteger(m_fr_diagnosis_years, 0, 150);
+    auto or_text = new QuText(xstring("or"));
+    auto empty_text = new QuText("");
+    auto date_of_diagnosis_text = new QuText(xstring(Q_XML_PREFIX + FN_DIAGNOSIS_DATE));
+
     auto date_time = new QuDateTime(m_fr_diagnosis_date);
     date_time->setOfferNowButton(true);
     date_time->setMode(QuDateTime::Mode::DefaultDate);
     date_time->setMaximumDate(QDate::currentDate());
-    page->addElement(date_time);
+
+    diagnosis_date_grid->addCell(QuGridCell(duration_text, 0, 0));
+    diagnosis_date_grid->addCell(QuGridCell(or_text, 0, 1));
+    diagnosis_date_grid->addCell(QuGridCell(date_of_diagnosis_text, 0, 2));
+
+    diagnosis_date_grid->addCell(QuGridCell(diagnosis_years, 1, 0));
+    diagnosis_date_grid->addCell(QuGridCell(empty_text, 1, 1));
+    diagnosis_date_grid->addCell(QuGridCell(date_time, 1, 2));
+
+    // We don't store duration of illness on the server
+    // page->addElement(new QuText(xstring("duration_of_illness")));
+    // page->addElement(new QuLineEditInteger(m_fr_diagnosis_years, 0, 150));
+    // page->addElement(new QuText(xstring("or")));
+    // page->addElement(new QuText(xstring(Q_XML_PREFIX + FN_DIAGNOSIS_DATE)));
+
+    page->addElement(diagnosis_date_grid);
     page->addElement(new QuSpacer(QSize(uiconst::BIGSPACE, uiconst::BIGSPACE)));
 
     heading("medical_history_title");
