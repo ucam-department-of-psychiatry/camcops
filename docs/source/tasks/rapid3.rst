@@ -20,7 +20,6 @@
 
 .. _rapid3:
 
-RAPID 3
 Routine Assessment of Patient Index Data (RAPID3)
 -------------------------------------------------
 
@@ -74,8 +73,6 @@ History
   *Rheum Dis Clin North Am.* 35(4):773-8, viii.
 
   https://pubmed.ncbi.nlm.nih.gov/19962621/
-
-
 
 
 Source

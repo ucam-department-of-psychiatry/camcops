@@ -2977,3 +2977,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Bugfix to :ref:`GMC Patient Questionnaire <gmcpq>` such that 'X' is now a
   permitted value for q10 (Sex) on the server, in line with the app.
+  (Database revision 0054.)
+
+- **New task:** :ref:`Routine Assessment of Patient Index Data (RAPID3) <rapid3>`.
+  (Database revision 0055.)
