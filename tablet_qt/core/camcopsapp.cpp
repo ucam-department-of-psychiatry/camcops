@@ -803,13 +803,11 @@ void CamcopsApp::maybeRegisterPatient()
 {
     if (needToRegisterSinglePatient()) {
         if (!registerPatientWithServer()) {
-            /* The user cancelled the dialog
-               If the user entered invalid values in the dialog, they
-               will have another chance from the main menu
-            */
-            uifunc::stopApp(tr("You cancelled patient registration"));
+            // User cancelled patient registration dialog
+            // They can try again with the "Register me" button
+            // or switch to clinician mode ("More options")
+            recreateMainMenu();
         }
-
     } else {
         if (isSingleUserMode()) {
             setDefaultPatient();
