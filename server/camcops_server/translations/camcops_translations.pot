@@ -6,7 +6,7 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: CamCOPS 2.3.9\n"
+"Project-Id-Version: CamCOPS 2.4.0\n"
 "Report-Msgid-Bugs-To: rudolf@pobox.com\n"
 "POT-Creation-Date: 2020-11-13 22:44+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
@@ -3806,4 +3806,3 @@ msgstr ""
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/tasks/diagnosis_finder_report.mako:40
 msgid "Results:"
 msgstr ""
-
