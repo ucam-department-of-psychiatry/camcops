@@ -2971,3 +2971,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
     page, but it went away again (Chrome cache problem during bug-fixing?).
 
 - ``account_locked.mako`` wasn't formatting its strings correctly.
+
+- Bugfix where the names of patients with no surname were not displayed.
