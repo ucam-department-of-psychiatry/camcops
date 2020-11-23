@@ -18,6 +18,7 @@
 */
 
 #include "core/camcopsapp.h"
+#include "lib/datetime.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 #include "menulib/menuwindow.h"
@@ -53,7 +54,7 @@ void TaskScheduleItemEditor::editTask()
         task->setupForEditingAndSave(patient_id);
         const QJsonObject settings = m_p_task_schedule_item->settings();
         task->applySettings(settings);
-        m_p_task_schedule_item->setTask(task->pkvalue().toInt());
+        m_p_task_schedule_item->setTask(task->pkvalueInt());
     }
 
     OpenableWidget* widget = task->editor(false);
@@ -108,5 +109,5 @@ bool TaskScheduleItemEditor::canEditTask(TaskPtr task)
 
 void TaskScheduleItemEditor::onTaskFinished()
 {
-    m_p_task_schedule_item->setComplete(true);
+    m_p_task_schedule_item->setComplete(true, datetime::now());
 }

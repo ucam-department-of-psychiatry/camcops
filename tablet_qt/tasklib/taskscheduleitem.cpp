@@ -34,14 +34,15 @@
 
 const QString TaskScheduleItem::TABLENAME("task_schedule_item");
 
+const QString TaskScheduleItem::FK_TASK_SCHEDULE("schedule_id");
 const QString TaskScheduleItem::FN_TASK_TABLE_NAME("task_table_name");
 const QString TaskScheduleItem::FN_SETTINGS("settings");
 const QString TaskScheduleItem::FN_DUE_FROM("due_from");
 const QString TaskScheduleItem::FN_DUE_BY("due_by");
 const QString TaskScheduleItem::FN_COMPLETE("complete");
 const QString TaskScheduleItem::FN_ANONYMOUS("anonymous");
-const QString TaskScheduleItem::FK_TASK_SCHEDULE("schedule_id");
 const QString TaskScheduleItem::FK_TASK("task");
+const QString TaskScheduleItem::FN_WHEN_COMPLETED("when_completed");
 
 const QString TaskScheduleItem::KEY_ANONYMOUS("anonymous");
 const QString TaskScheduleItem::KEY_COMPLETE("complete");
@@ -49,6 +50,7 @@ const QString TaskScheduleItem::KEY_DUE_BY("due_by");
 const QString TaskScheduleItem::KEY_DUE_FROM("due_from");
 const QString TaskScheduleItem::KEY_TABLE("table");
 const QString TaskScheduleItem::KEY_SETTINGS("settings");
+const QString TaskScheduleItem::KEY_WHEN_COMPLETED("when_completed");
 
 
 // ============================================================================
@@ -70,8 +72,13 @@ TaskScheduleItem::TaskScheduleItem(CamcopsApp& app, DatabaseManager& db,
     addField(FN_DUE_FROM, QVariant::String, true);
     addField(FN_DUE_BY, QVariant::String, true);
     addField(FN_COMPLETE, QVariant::Bool, true);
-    addField(FN_ANONYMOUS, QVariant::Bool, true);
-    addField(FK_TASK, QVariant::Int, true);
+    addField(FN_ANONYMOUS, QVariant::Bool,
+             true /* mandatory */,
+             false /* unique */,
+             false /* pk */,
+             false /* default_value */);
+    addField(FK_TASK, QVariant::Int, true);  // PK of task in its table
+    addField(FN_WHEN_COMPLETED, QVariant::DateTime);
 
     load(load_pk);
 }
@@ -93,6 +100,7 @@ TaskScheduleItem::TaskScheduleItem(const int schedule_fk, CamcopsApp& app,
             {FN_DUE_BY, KEY_DUE_BY},
             {FN_COMPLETE, KEY_COMPLETE},
             {FN_ANONYMOUS, KEY_ANONYMOUS},
+            {FN_WHEN_COMPLETED, KEY_WHEN_COMPLETED},
         }
     );
     const QJsonObject settings = json_obj.value(KEY_SETTINGS).toObject();
@@ -186,7 +194,15 @@ QString TaskScheduleItem::subtitle() const
     const auto task_state = state();
 
     if (task_state == State::Completed) {
-        return QString(tr("Completed"));
+        const QDateTime when_completed = whenCompleted();
+        if (when_completed.isNull()) {
+            return QString(tr("Completed"));
+        } else {
+            const QString readable_datetime = when_completed.toString(
+                datetime::LONG_DATETIME_FORMAT
+            );
+            return QString(tr("Completed at: %1").arg(readable_datetime));
+        }
     }
 
     const QString readable_datetime = dueByLocal().toString(
@@ -240,31 +256,39 @@ TaskScheduleItem::State TaskScheduleItem::state() const
 
 bool TaskScheduleItem::isComplete() const
 {
-    return value(FN_COMPLETE).toBool();
+    return valueBool(FN_COMPLETE);
 }
 
 
-void TaskScheduleItem::setComplete(bool complete)
+QDateTime TaskScheduleItem::whenCompleted() const
+{
+    return valueDateTime(FN_WHEN_COMPLETED);
+}
+
+
+void TaskScheduleItem::setComplete(const bool complete,
+                                   const QDateTime& when_completed)
 {
     setValue(FN_COMPLETE, complete);
+    setValue(FN_WHEN_COMPLETED, when_completed);
     save();
 }
 
 
 bool TaskScheduleItem::isAnonymous() const
 {
-    return value(FN_ANONYMOUS).toBool();
+    return valueBool(FN_ANONYMOUS);
 }
 
 
-void TaskScheduleItem::setAnonymous(bool anonymous)
+void TaskScheduleItem::setAnonymous(const bool anonymous)
 {
     setValue(FN_ANONYMOUS, anonymous);
     save();
 }
 
 
-void TaskScheduleItem::setTask(int task_id)
+void TaskScheduleItem::setTask(const int task_id)
 {
     setValue(FK_TASK, task_id);
     save();

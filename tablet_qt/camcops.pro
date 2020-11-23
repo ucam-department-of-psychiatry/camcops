@@ -673,6 +673,7 @@ SOURCES += \
     qcustomplot/qcustomplot.cpp \
     qobjects/cameraframegrabber.cpp \
     qobjects/debugeventwatcher.cpp \
+    qobjects/emailvalidator.cpp \
     qobjects/flickcharm.cpp \
     qobjects/focuswatcher.cpp \
     qobjects/keypresswatcher.cpp \
@@ -719,6 +720,7 @@ SOURCES += \
     questionnairelib/quimage.cpp \
     questionnairelib/qulineedit.cpp \
     questionnairelib/qulineeditdouble.cpp \
+    questionnairelib/qulineeditemail.cpp \
     questionnairelib/qulineeditint64.cpp \
     questionnairelib/qulineeditinteger.cpp \
     questionnairelib/qulineeditnhsnumber.cpp \
@@ -1135,6 +1137,7 @@ HEADERS += \
     qcustomplot/qcustomplot.h \
     qobjects/cameraframegrabber.h \
     qobjects/debugeventwatcher.h \
+    qobjects/emailvalidator.h \
     qobjects/flickcharm.h \
     qobjects/focuswatcher.h \
     qobjects/keypresswatcher.h \
@@ -1181,6 +1184,7 @@ HEADERS += \
     questionnairelib/quimage.h \
     questionnairelib/qulineedit.h \
     questionnairelib/qulineeditdouble.h \
+    questionnairelib/qulineeditemail.h \
     questionnairelib/qulineeditint64.h \
     questionnairelib/qulineeditinteger.h \
     questionnairelib/qulineeditnhsnumber.h \

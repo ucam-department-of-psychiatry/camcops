@@ -86,6 +86,10 @@ Client core
 
 **Priority**
 
+- iOS build.
+
+- Apple App Store.
+
 - Create 64-bit ARM build, then release to Google Play Store (deadline 1 Aug
   2019). Work in progress: ``build_qt.py --build_android_arm_v8_64``.
 
@@ -106,15 +110,11 @@ Client core
 
 **Medium priority**
 
-- iOS build.
-
-- Apple App Store.
-
 - Have facility to upload and/or automatically feed patient details into the
   server, then have clients restrict to these predefined patients. Since we are
   aiming to minimize PID on the client, this could be implemented by having the
   client validate its patients with the server, and refusing to upload if they
-  don't match. This would be a per-group setting.
+  don't match (**done**). This would be a per-group setting.
 
   - Client validation check implemented.
   - Just needs server-side extensions to
@@ -131,6 +131,9 @@ Client core
   - Should "known" patients be across groups, or per-group?
 
 **Not a priority**
+
+- If user registration fails, automatically offer a "try again" option (in
+  ``CamcopsApp::patientRegistrationFailed()``)?
 
 - MacOS build.
 
@@ -157,73 +160,14 @@ Client core
   5.12.0 beta 1, so may be possible to improve dialogue boxes again on Android
   (but possibly our workaround sorted it; can't remember); check.
 
+- Via ``tablet_qt/tools/build_qt.py``, also build iOS "fat binary" with 32- and
+  64-bit versions?
+
 
 Server
 ------
 
 **Priority**
-
-- (SERVER + CLIENT) Concept of “tasks that need doing” in the context of a
-  research study.
-
-  - define patients on server (per group)
-
-    - share main patient/patient_idnum tables
-
-    - use the “server device” to create them, and always in era “NOW”
-
-  - ScheduledTask -- "task needs doing"
-
-    - patient (by ID number); group; task; due_from; due_by;
-      skip_if_not_done_by; cancelled?
-
-    - Example: "PHQ9 due for Mr X after 1 July; due by 7 July; must be
-      completed by 1 Aug"
-
-  - then for metacreation: “StudySchedule” or “TaskPanel”
-
-    - ... a list of tasks, each with: task; due_from_relative_to_start_date;
-      due_by_relative_to_start_date
-
-    - example: “In our study, we want a PHQ9 and GAD7 at the start, a PHQ9 at
-      3 months, and a PHQ9 and GAD7 at 6 months.”
-
-  - PatientSchedule
-
-    - instantiate a “StudySchedule”/“TaskPanel” with patient, group, start date
-
-    - e.g. “Mr Jones starts today.... enrol!”
-
-  - ALTERNATIVELY: do we need ScheduledTask if the main thing is a person/panel
-    association?
-
-  - Tablets should fetch “what needs doing” for any patients defined on the
-    tablet, and display them nicely.
-  - Tasks must be complete to satisfy the requirement.
-
-  - Database field type: represent :class:`pendulum.Duration` in ISO-8601
-    format, which is ``P[n]Y[n]M[n]DT[n]H[n]M[n]S``. The
-    ``pendulum.Duration.min`` and ``pendulum.Duration.max`` values are
-    ``Duration(weeks=-142857142, days=-5)`` and ``Duration(weeks=142857142,
-    days=6)`` respectively. A possible database output standard is
-    ``PT[x.y]S``, with floating-point seconds; this maps from the
-    :func:`pendulum.Duration.total_seconds` function.
-
-    - See new functions :func:`cardinal_pythonlib.datetimefunc.duration_to_iso`
-      and :func:`cardinal_pythonlib.datetimefunc.duration_from_iso`.
-
-    - New column type
-      :class:`camcops_server.cc_modules.cc_sqla_coltypes.PendulumDurationAsIsoTextColType`.
-
-- … Relating to that: consider, on the client, a “single-patient” mode
-  (distinct from the current “researcher” mode), tied to a specific server.
-  “This tablet client is attached to a specific patient and will operate in a
-  patient-friendly, single-patient mode. Show me what needs completing.” The
-  operating concept would be: if you would like someone geographically far away
-  to be able to download CamCOPS and complete a set of tasks for you, how could
-  you organize so that would be simplest for them? The minimum would that you’d
-  create login details for them, and give them a URL, username, and password.
-  **See "client" above.**
 
 - What's the optimal packaging method for the server? Is it DEB/RPM for Linux,
   and PyInstaller + Inno Setup (or just Inno Setup) for Windows?
@@ -238,6 +182,19 @@ Server
   checked if there's an equivalent for pyramid. No doubt this would require a
   lot of work up front and would be good not to have to maintain our own test
   runner.)
+
+- At present the client calls ``op_validate_patients`` prior to an upload. This
+  eliminates all realistic possibilities of uploading patient details not
+  permitted to that user. However, it doesn't prevent the theoretical
+  possibility of someone (a) obtaining a legitimate single-user account, (b)
+  cracking its password, and (c) using a hacked version of the CamCOPS client
+  to upload new "false" patient data from that user (into the group to which
+  they are legitimately allowed to upload their own data). It'd be pretty
+  traceable, and would not damage other data (just add potentially spurious
+  data), but not theoretically impossible. The fix would be to have the server
+  verify this too. (Slightly tricky as it involves validating not just the easy
+  one-step JSON upload but also the table-by-table version, which requires
+  tying patient records to ID numbers).
 
 **Not a priority**
 
@@ -277,6 +234,13 @@ Server
 
 - More generic e-mails to administrators, via backend task. (E-mail framework
   now in place.)
+
+- There are still some of the more complex Deform widgets that aren't properly
+  translated on a per-request basis, such as
+
+  - TranslatableOptionalPendulumNode
+  - TranslatableDateTimeSelectorNode
+  - CheckedPasswordWidget
 
 
 Documentation

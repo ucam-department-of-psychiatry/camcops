@@ -142,6 +142,7 @@ CamcopsApp::~CamcopsApp()
 {
     // http://doc.qt.io/qt-5.7/objecttrees.html
     // Only delete things that haven't been assigned a parent
+    delete m_network_gui_guard;
     delete m_p_main_window;
 }
 
@@ -200,7 +201,7 @@ void CamcopsApp::setMode(const int mode)
 
 void CamcopsApp::setModeFromUser()
 {
-    if (modeChangeForbidden()) {
+    if (modeChangeForbidden()) {  // alerts the user as to why, if not allowed
         return;
     }
 
@@ -239,15 +240,29 @@ void CamcopsApp::setModeFromUser()
         return;
     }
 
+    wipeDataForModeChange();
     setMode(new_mode);
+    if (new_mode == varconst::MODE_SINGLE_USER) {
+        registerPatientWithServer();
+    }
 }
 
 
-bool CamcopsApp::modeChangeForbidden()
+bool CamcopsApp::modeChangeForbidden() const
 {
-    if (isClinicianMode() && patientRecordsPresent()) {
+    if (isClinicianMode()) {
+        // Switch from clinician mode to single-user mode
+        if (patientRecordsPresent()) {
+            uifunc::alert(
+                tr("You cannot change mode when there are patient records present")
+            );
+            return true;
+        }
+    }
+    if (taskRecordsPresent()) {
+        // Switch in either direction
         uifunc::alert(
-            tr("You cannot change mode when there are patient records present")
+            tr("You cannot change mode when there are tasks still to be uploaded")
         );
         return true;
     }
@@ -256,9 +271,62 @@ bool CamcopsApp::modeChangeForbidden()
 }
 
 
-bool CamcopsApp::patientRecordsPresent()
+bool CamcopsApp::taskRecordsPresent() const
 {
-    return queryAllPatients().nRows() > 0;
+    return m_p_task_factory->anyTasksPresent();
+}
+
+
+void CamcopsApp::wipeDataForModeChange()
+{
+    // When we switch from clinician mode to single-user mode:
+    // - We should have no patients (*).
+    // - We should have no tasks (*).
+    // - We must wipe network security details.
+    // - [We will also want the user to register using the single-user-mode
+    //   registration interface.]
+    // - We should wipe task schedules.
+    //
+    // When we switch from single-user mode to clinician mode:
+    // - There will be one patient, but that's OK. We will delete the record.
+    // - We should have no tasks (*).
+    // - We must wipe network security details -- the "single-user" accounts
+    //   are not necessarily trusted to create data for new patients.
+    //   (Otherwise the theoretical vulnerability is that a registered user
+    //   obtains their username, cracks their obscured password, and enters
+    //   them into the clinician mode, allowing upload of data for arbitrary
+    //   patients.)
+    //
+    //  At present the client verifies this, but ideally we should verify that
+    //  server-side, too; see todo.rst.
+    //
+    // - We can wipe task schedules.
+    //
+    // (*) Pre-checked by modeChangeForbidden().
+
+    // Deselect any selected patient
+    deselectPatient();
+
+    // Server security details
+    setVar(varconst::SERVER_USERNAME, "");
+    setVar(varconst::SERVER_USERPASSWORD_OBSCURED, "");
+    setVar(varconst::SINGLE_PATIENT_PROQUINT, "");
+    setVar(varconst::SINGLE_PATIENT_ID, dbconst::NONEXISTENT_PK);
+
+    // Task schedules
+    m_sysdb->deleteFrom(TaskScheduleItem::TABLENAME);
+    m_sysdb->deleteFrom(TaskSchedule::TABLENAME);
+
+    // Delete patient records (given the pre-checks, as above, this will only
+    // delete a single-user-mode patient record with no associated tasks).
+    m_datadb->deleteFrom(PatientIdNum::PATIENT_IDNUM_TABLENAME);
+    m_datadb->deleteFrom(Patient::TABLENAME);
+}
+
+
+bool CamcopsApp::patientRecordsPresent() const
+{
+    return nPatients() > 0;
 }
 
 
@@ -267,10 +335,12 @@ int CamcopsApp::getSinglePatientId() const
     return var(varconst::SINGLE_PATIENT_ID).toInt();
 }
 
+
 void CamcopsApp::setSinglePatientId(const int id)
 {
     setVar(varconst::SINGLE_PATIENT_ID, id);
 }
+
 
 bool CamcopsApp::registerPatientWithServer()
 {
@@ -374,13 +444,13 @@ void CamcopsApp::updateTaskSchedules(const bool alert_unfinished_tasks)
 
     reconnectNetManager(&CamcopsApp::updateTaskSchedulesFailed,
                         &CamcopsApp::updateTaskSchedulesFinished);
-    networkManager()->updateTaskSchedules();
+    networkManager()->updateTaskSchedulesAndPatientDetails();
 }
 
 
 void CamcopsApp::patientRegistrationFailed(
-    const NetworkManager::ErrorCode error_code,
-    const QString& error_string)
+        const NetworkManager::ErrorCode error_code,
+        const QString& error_string)
 {
     deleteNetworkGuiGuard();
 
@@ -401,7 +471,9 @@ void CamcopsApp::patientRegistrationFailed(
 
     case NetworkManager::GenericNetworkError:
         additional_message = tr(
-            "%1\n\nAre you connected to the internet?\n\nDid you enter the correct CamCOPS server location?"
+            "%1\n\n"
+            "Are you connected to the internet?\n\n"
+            "Did you enter the correct CamCOPS server location?"
         ).arg(error_string);
         break;
 
@@ -410,7 +482,6 @@ void CamcopsApp::patientRegistrationFailed(
         break;
     }
 
-    // TODO: Try again option?
     uifunc::alert(
         QString("%1\n\n%2").arg(base_message, additional_message),
         tr("Error")
@@ -424,19 +495,19 @@ void CamcopsApp::patientRegistrationFinished()
 {
     deleteNetworkGuiGuard();
 
-    // retryUpload() will upload any pending tasks or patients.
-    // Because we just registered, there won't be any pending tasks so
-    // this will just upload the newly registered patient's
-    // details to the server.
-    retryUpload();
+    // Creating the single patient from the server details will trigger
+    // "needs upload" and the upload icon will be displayed. We don't want
+    // to see the icon because we will wait until there are tasks to upload
+    // before uploading the patient
+    setNeedsUpload(false);
 
     recreateMainMenu();
 }
 
 
 void CamcopsApp::updateTaskSchedulesFailed(
-    const NetworkManager::ErrorCode error_code,
-    const QString& error_string)
+        const NetworkManager::ErrorCode error_code,
+        const QString& error_string)
 {
     deleteNetworkGuiGuard();
     handleNetworkFailure(
@@ -450,6 +521,13 @@ void CamcopsApp::updateTaskSchedulesFailed(
 void CamcopsApp::updateTaskSchedulesFinished()
 {
     deleteNetworkGuiGuard();
+
+    // Updating the single patient from the server details will trigger
+    // "needs upload" and the upload icon will be displayed. We don't want
+    // to see the icon because we will wait until there are tasks to upload
+    // before uploading the patient
+    setNeedsUpload(false);
+
     recreateMainMenu();
 }
 
@@ -488,7 +566,6 @@ void CamcopsApp::deleteNetworkGuiGuard()
 {
     if (m_network_gui_guard) {
         delete m_network_gui_guard;
-
         m_network_gui_guard = nullptr;
     }
 }
@@ -496,7 +573,7 @@ void CamcopsApp::deleteNetworkGuiGuard()
 
 void CamcopsApp::retryUpload()
 {
-    bool needs_upload = needsUpload();
+    const bool needs_upload = needsUpload();
 
     qDebug() << Q_FUNC_INFO
              << "Last automatic upload time" << m_last_automatic_upload_time
@@ -506,7 +583,7 @@ void CamcopsApp::retryUpload()
         const auto now = QDateTime::currentDateTimeUtc();
 
         if (!m_last_automatic_upload_time.isValid() ||
-            m_last_automatic_upload_time.secsTo(now) > UPLOAD_INTERVAL_SECONDS) {
+                m_last_automatic_upload_time.secsTo(now) > UPLOAD_INTERVAL_SECONDS) {
             upload();
             m_last_automatic_upload_time = now;
         }
@@ -708,22 +785,23 @@ int CamcopsApp::run()
     {
         SlowNonGuiFunctionCaller slow_caller(
             std::bind(&CamcopsApp::backgroundStartup, this),
-            m_p_main_window,
+            nullptr,  // no m_p_main_window yet
             tr("Configuring internal database"),
             TextConst::pleaseWait());
-    }
-
-    if (varInt(varconst::MODE) == varconst::MODE_NOT_SET) {
-        setModeFromUser();
     }
 
     openMainWindow();  // uses HelpMenu etc. and so must be AFTER TASK REGISTRATION
     makeNetManager();  // needs to be after main window created, and on GUI thread
 
-    // Ensure all mode-specific things are set:
-    setMode(varInt(varconst::MODE));
-
-    maybeRegisterPatient();
+    if (varInt(varconst::MODE) == varconst::MODE_NOT_SET) {
+        // e.g. fresh database; which mode to use?
+        setModeFromUser();
+    } else {
+        // We know our mode from last time.
+        // Ensure all mode-specific things are set:
+        setMode(varInt(varconst::MODE));
+        maybeRegisterPatient();
+    }
 
     return exec();  // Main Qt event loop
 }
@@ -732,13 +810,11 @@ void CamcopsApp::maybeRegisterPatient()
 {
     if (needToRegisterSinglePatient()) {
         if (!registerPatientWithServer()) {
-            /* The user cancelled the dialog
-               If the user entered invalid values in the dialog, they
-               will have another chance from the main menu
-            */
-            uifunc::stopApp(tr("You cancelled patient registration"));
+            // User cancelled patient registration dialog
+            // They can try again with the "Register me" button
+            // or switch to clinician mode ("More options")
+            recreateMainMenu();
         }
-
     } else {
         if (isSingleUserMode()) {
             setDefaultPatient();
@@ -979,8 +1055,14 @@ void CamcopsApp::openOrCreateDatabases()
 
     const QString data_filename = dbFullPath(dbfunc::DATA_DATABASE_FILENAME);
     const QString sys_filename = dbFullPath(dbfunc::SYSTEM_DATABASE_FILENAME);
-    m_datadb = DatabaseManagerPtr(new DatabaseManager(data_filename, CONNECTION_DATA));
-    m_sysdb = DatabaseManagerPtr(new DatabaseManager(sys_filename, CONNECTION_SYS));
+    m_datadb = DatabaseManagerPtr(new DatabaseManager(
+                                      data_filename, CONNECTION_DATA));
+    m_sysdb = DatabaseManagerPtr(new DatabaseManager(
+                                     sys_filename,
+                                     CONNECTION_SYS,
+                                     whichdb::DBTYPE,
+                                     true, /* threaded */
+                                     true /* system_db */ ));
 }
 
 
@@ -1051,7 +1133,8 @@ bool CamcopsApp::connectDatabaseEncryption(QString& new_user_password,
             qInfo() << "Databases have no password yet, and need one.";
             QString dummy_old_password;
             if (!uifunc::getOldNewPasswords(
-                        new_pw_text, new_pw_title, false,
+                        new_pw_text, new_pw_title,
+                        false /* require_old_password */,
                         dummy_old_password, new_user_password, nullptr)) {
                 user_cancelled_please_quit = true;
                 return false;
@@ -1897,7 +1980,7 @@ void CamcopsApp::closeSubWindow()
     emit subWindowFinishedClosing();
 }
 
-bool CamcopsApp::shouldUploadNow()
+bool CamcopsApp::shouldUploadNow() const
 {
     if (varBool(varconst::OFFER_UPLOAD_AFTER_EDIT) &&
         varBool(varconst::NEEDS_UPLOAD)) {
@@ -1912,7 +1995,7 @@ bool CamcopsApp::shouldUploadNow()
     return false;
 }
 
-bool CamcopsApp::userConfirmedUpload()
+bool CamcopsApp::userConfirmedUpload() const
 {
     ScrollMessageBox msgbox(
         QMessageBox::Question,
@@ -2304,7 +2387,8 @@ bool CamcopsApp::isPatientSelected() const
 }
 
 
-void CamcopsApp::setSelectedPatient(const int patient_id, bool force_refresh)
+void CamcopsApp::setSelectedPatient(const int patient_id,
+                                    const bool force_refresh)
 {
     // We do this by ID so there's no confusion about who owns it; we own
     // our own private copy here.
@@ -2320,7 +2404,13 @@ void CamcopsApp::setSelectedPatient(const int patient_id, bool force_refresh)
 }
 
 
-void CamcopsApp::setDefaultPatient(bool force_refresh)
+void CamcopsApp::deselectPatient(const bool force_refresh)
+{
+    setSelectedPatient(dbconst::NONEXISTENT_PK, force_refresh);
+}
+
+
+void CamcopsApp::setDefaultPatient(const bool force_refresh)
 {
     int patient_id = dbconst::NONEXISTENT_PK;
 
@@ -2398,6 +2488,12 @@ QueryResult CamcopsApp::queryAllPatients()
     const SqlArgs sqlargs = specimen.fetchQuerySql(where);
 
     return m_datadb->query(sqlargs);
+}
+
+
+int CamcopsApp::nPatients() const
+{
+    return m_datadb->count(Patient::TABLENAME);
 }
 
 
@@ -2978,7 +3074,7 @@ void CamcopsApp::upload()
         return;
     }
 
-    auto method = getUploadMethod();
+    const auto method = getUploadMethod();
     if (method == NetworkManager::UploadMethod::Invalid) {
         return;
     }
@@ -3020,7 +3116,7 @@ NetworkManager::UploadMethod CamcopsApp::getSingleUserUploadMethod()
 
 bool CamcopsApp::tasksInProgress()
 {
-    TaskSchedulePtrList schedules = getTaskSchedules();
+    const TaskSchedulePtrList schedules = getTaskSchedules();
 
     for (const TaskSchedulePtr& schedule : schedules) {
         if (schedule->hasIncompleteCurrentTasks()) {
@@ -3032,9 +3128,7 @@ bool CamcopsApp::tasksInProgress()
 }
 
 
-
-
-NetworkManager::UploadMethod CamcopsApp::getUploadMethodFromUser()
+NetworkManager::UploadMethod CamcopsApp::getUploadMethodFromUser() const
 {
    QString text(tr(
             "Copy data to server, or move it to server?\n"

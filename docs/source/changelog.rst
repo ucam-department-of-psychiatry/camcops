@@ -2873,12 +2873,79 @@ Current C++/SQLite client, Python/SQLAlchemy server
   2020-07-24: No, Deform has caught up. See https://pypi.org/project/deform/.
   Move to ``deform==2.0.10`` and ``Chameleon==3.8.1``.
 
-**Client and server v2.3.9, IN PROGRESS**
+**Client and server v2.4.0, IN PROGRESS**
 
 - Support for :ref:`Task Schedules <scheduling_tasks>` (on the server) and
   :ref:`Single User Mode <single_user_mode>` on the client
   to allow patients to complete tasks at home on their own devices.
-  (Database revisions 0047-0052).
+  (Database revisions 0047-0052.) Version bumped to 2.4.0 as this is a major
+  new feature.
+
+..  Design notes were:
+    .
+    - (SERVER + CLIENT) Concept of “tasks that need doing” in the context of a
+      research study.
+    .
+      - define patients on server (per group)
+    .
+        - share main patient/patient_idnum tables
+    .
+        - use the “server device” to create them, and always in era “NOW”
+    .
+      - ScheduledTask -- "task needs doing"
+    .
+        - patient (by ID number); group; task; due_from; due_by;
+          skip_if_not_done_by; cancelled?
+    .
+        - Example: "PHQ9 due for Mr X after 1 July; due by 7 July; must be
+          completed by 1 Aug"
+    .
+      - then for metacreation: “StudySchedule” or “TaskPanel”
+    .
+        - ... a list of tasks, each with: task; due_from_relative_to_start_date;
+          due_by_relative_to_start_date
+    .
+        - example: “In our study, we want a PHQ9 and GAD7 at the start, a PHQ9 at
+          3 months, and a PHQ9 and GAD7 at 6 months.”
+    .
+      - PatientSchedule
+    .
+        - instantiate a “StudySchedule”/“TaskPanel” with patient, group, start
+          date
+    .
+        - e.g. “Mr Jones starts today.... enrol!”
+    .
+      - ALTERNATIVELY: do we need ScheduledTask if the main thing is a
+        person/panel association?
+    .
+      - Tablets should fetch “what needs doing” for any patients defined on the
+        tablet, and display them nicely.
+      - Tasks must be complete to satisfy the requirement.
+    .
+      - Database field type: represent :class:`pendulum.Duration` in ISO-8601
+        format, which is ``P[n]Y[n]M[n]DT[n]H[n]M[n]S``. The
+        ``pendulum.Duration.min`` and ``pendulum.Duration.max`` values are
+        ``Duration(weeks=-142857142, days=-5)`` and ``Duration(weeks=142857142,
+        days=6)`` respectively. A possible database output standard is
+        ``PT[x.y]S``, with floating-point seconds; this maps from the
+        :func:`pendulum.Duration.total_seconds` function.
+    .
+        - See new functions
+          :func:`cardinal_pythonlib.datetimefunc.duration_to_iso` and
+          :func:`cardinal_pythonlib.datetimefunc.duration_from_iso`.
+    .
+        - New column type
+          :class:`camcops_server.cc_modules.cc_sqla_coltypes.PendulumDurationAsIsoTextColType`.
+    .
+    - … Relating to that: consider, on the client, a “single-patient” mode
+      (distinct from the current “researcher” mode), tied to a specific server.
+      “This tablet client is attached to a specific patient and will operate in
+      a patient-friendly, single-patient mode. Show me what needs completing.”
+      The operating concept would be: if you would like someone geographically
+      far away to be able to download CamCOPS and complete a set of tasks for
+      you, how could you organize so that would be simplest for them? The
+      minimum would that you’d create login details for them, and give them a
+      URL, username, and password. *See "client" above.**
 
 - New passwords on the client app must now be at least 8 characters long.
 
@@ -2904,3 +2971,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
     page, but it went away again (Chrome cache problem during bug-fixing?).
 
 - ``account_locked.mako`` wasn't formatting its strings correctly.
+
+- Bugfix where the names of patients with no surname were not displayed.

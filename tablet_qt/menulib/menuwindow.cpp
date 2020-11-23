@@ -422,7 +422,7 @@ void MenuWindow::menuItemClicked(QListWidgetItem* item)
         bool selected = false;
         if (m_app.selectedPatientId() == patient->id()) {
             // Clicked on currently selected patient; deselect it.
-            m_app.setSelectedPatient(dbconst::NONEXISTENT_PK);
+            m_app.deselectPatient();
             m_p_listwidget->clearSelection();
         } else {
             selected = true;

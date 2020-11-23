@@ -444,9 +444,11 @@ LanguageCodeColType = String(length=LANGUAGE_CODE_MAX_LEN)
 # Large BLOB:
 # https://stackoverflow.com/questions/43791725/sqlalchemy-how-to-make-a-longblob-column-in-mysql  # noqa
 # One of these:
+# noinspection PyTypeChecker
 LongBlob = LargeBinary().with_variant(mysql.LONGBLOB, "mysql")
 # LongBlob = LargeBinary(length=LONGBLOB_LONGTEXT_MAX_LEN)  # doesn't translate to SQL Server  # noqa
 
+# noinspection PyTypeChecker
 LongText = UnicodeText().with_variant(mysql.LONGTEXT, "mysql")
 # LongText = UnicodeText(length=LONGBLOB_LONGTEXT_MAX_LEN)  # doesn't translate to SQL Server  # noqa
 

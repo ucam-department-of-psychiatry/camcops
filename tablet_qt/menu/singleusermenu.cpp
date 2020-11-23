@@ -106,7 +106,7 @@ void SingleUserMenu::makeItems()
         }
 
         if (to_do_items == 0 && earliest_future_time.isValid()) {
-            QString readable_datetime = earliest_future_time.toString(
+            const QString readable_datetime = earliest_future_time.toString(
                 datetime::LONG_DATETIME_FORMAT
             );
             m_items.append(
@@ -114,7 +114,9 @@ void SingleUserMenu::makeItems()
                     tr("The next task will be available at: %1").arg(
                         readable_datetime
                     )
-                ).setImplemented(true)
+                )
+                .setImplemented(true)
+                .setIcon(uifunc::iconFilename(uiconst::ICON_INFO))
            );
         }
 

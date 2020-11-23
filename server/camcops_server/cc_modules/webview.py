@@ -2768,7 +2768,7 @@ class EditGroupView(UpdateView):
 @view_config(route_name=Routes.EDIT_GROUP,
              permission=Permission.SUPERUSER,
              http_cache=NEVER_CACHE)
-def edit_group(req: "CamcopsRequest") -> Dict[str, Any]:
+def edit_group(req: "CamcopsRequest") -> Response:
     """
     View to edit a group. Superusers only.
     """
@@ -3591,7 +3591,6 @@ class PatientMixin(object):
                  ViewParam.IDNUM_VALUE: pidnum.idnum_value}
                 for pidnum in patient.idnums
             ]
-            # noinspection PyUnresolvedReferences
             form_values[ViewParam.TASK_SCHEDULES] = [
                 {
                     ViewParam.SCHEDULE_ID: pts.schedule_id,
@@ -3762,6 +3761,11 @@ class EditPatientBaseView(PatientMixin, UpdateView):
                     self.request.dbsession.add(new_idnum)
 
     def get_context_data(self, **kwargs: Any) -> Any:
+        # This parameter is (I think) used by Mako templates such as
+        # finalized_patient_edit.mako
+        # Todo:
+        #   Potential inefficiency: we fetch tasks regardless of the stage
+        #   of this form.
         kwargs["tasks"] = self.get_affected_tasks()
 
         return super().get_context_data(**kwargs)
@@ -3777,7 +3781,8 @@ class EditPatientBaseView(PatientMixin, UpdateView):
             req=self.request,
             taskfilter=taskfilter,
             sort_method_global=TaskSortMethod.CREATION_DATE_DESC,
-            current_only=False  # unusual option!
+            current_only=False,  # unusual option!
+            via_index=False  # for current_only=False, or we'll get a warning
         )
         return collection.all_tasks
 
@@ -3841,7 +3846,6 @@ class EditServerCreatedPatientView(EditPatientBaseView):
                               for schedule in schedule_query}
 
         old_schedules = {}
-        # noinspection PyUnresolvedReferences
         for pts in patient.task_schedules:
             old_schedules[pts.task_schedule.id] = {
                 "start_datetime": pts.start_datetime,
@@ -3915,7 +3919,7 @@ class EditFinalizedPatientView(EditPatientBaseView):
     def get_object(self) -> Any:
         patient = cast(Patient, super().get_object())
 
-        if not patient.is_finalized(self.request):
+        if not patient.is_finalized():
             _ = self.request.gettext
 
             raise HTTPBadRequest(
@@ -4504,6 +4508,10 @@ def static_bugfix_deform_missing_glyphs(req: "CamcopsRequest") -> Response:
 # =============================================================================
 # Unit testing
 # =============================================================================
+
+TEST_NHS_NUMBER_1 = 4887211163  # generated at random
+TEST_NHS_NUMBER_2 = 1381277373
+
 
 class WebviewTests(DemoDatabaseTestCase):
     """
@@ -5169,7 +5177,7 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
             ("__start__", "id_references:sequence"),
             ("__start__", "idnum_sequence:mapping"),
             (ViewParam.WHICH_IDNUM, self.nhs_iddef.which_idnum),
-            (ViewParam.IDNUM_VALUE, "4887211163"),
+            (ViewParam.IDNUM_VALUE, str(TEST_NHS_NUMBER_1)),
             ("__end__", "idnum_sequence:mapping"),
             ("__end__", "id_references:sequence"),
             ("__start__", "danger:mapping"),
@@ -5198,7 +5206,7 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
         idnum = patient.get_idnum_objects()[0]
         self.assertEqual(idnum.patient_id, 0)
         self.assertEqual(idnum.which_idnum, self.nhs_iddef.which_idnum)
-        self.assertEqual(idnum.idnum_value, 4887211163)
+        self.assertEqual(idnum.idnum_value, TEST_NHS_NUMBER_1)
 
         self.assertEqual(len(patient.special_notes), 1)
         note = patient.special_notes[0].note
@@ -5211,7 +5219,7 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
         self.assertIn("Patient", note)
 
         self.assertIn("idnum1", note)
-        self.assertIn("4887211163", note)
+        self.assertIn(str(TEST_NHS_NUMBER_1), note)
 
         messages = self.req.session.peek_flash(FLASH_SUCCESS)
 
@@ -5224,7 +5232,7 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
         self.assertIn("Patient", messages[0])
 
         self.assertIn("idnum1", messages[0])
-        self.assertIn("4887211163", messages[0])
+        self.assertIn(str(TEST_NHS_NUMBER_1), messages[0])
 
     def test_message_when_no_changes(self) -> None:
         patient = self.create_patient(
@@ -5232,8 +5240,9 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
             sex="F", address="Address", gp="GP", other="Other"
         )
         patient_idnum = self.create_patient_idnum(
-            patient_id=patient.id, which_idnum=self.nhs_iddef.which_idnum,
-            idnum_value=4887211163
+            patient_id=patient.id,
+            which_idnum=self.nhs_iddef.which_idnum,
+            idnum_value=TEST_NHS_NUMBER_1
         )
         schedule1 = TaskSchedule()
         schedule1.group_id = self.group.id
@@ -5324,8 +5333,9 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
             sex="F", address="Address", gp="GP", other="Other"
         )
         self.create_patient_idnum(
-            patient_id=patient.id, which_idnum=self.nhs_iddef.which_idnum,
-            idnum_value=4887211163
+            patient_id=patient.id,
+            which_idnum=self.nhs_iddef.which_idnum,
+            idnum_value=TEST_NHS_NUMBER_1
         )
 
         from camcops_server.tasks import Bmi
@@ -5395,8 +5405,9 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
         self.dbsession.commit()
 
         self.create_patient_idnum(
-            patient_id=patient.id, which_idnum=self.nhs_iddef.which_idnum,
-            idnum_value=4887211163
+            patient_id=patient.id,
+            which_idnum=self.nhs_iddef.which_idnum,
+            idnum_value=TEST_NHS_NUMBER_1
         )
 
         self.req.add_get_params({
@@ -5423,7 +5434,7 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
         idnum = form_values[ViewParam.ID_REFERENCES][0]
         self.assertEqual(idnum[ViewParam.WHICH_IDNUM],
                          self.nhs_iddef.which_idnum)
-        self.assertEqual(idnum[ViewParam.IDNUM_VALUE], 4887211163)
+        self.assertEqual(idnum[ViewParam.IDNUM_VALUE], TEST_NHS_NUMBER_1)
 
         task_schedule = form_values[ViewParam.TASK_SCHEDULES][0]
         self.assertEqual(task_schedule[ViewParam.SCHEDULE_ID],
@@ -5466,11 +5477,13 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
         view = EditFinalizedPatientView(self.req)
         patient = self.create_patient(id=1)
         self.create_patient_idnum(
-            patient_id=patient.id, which_idnum=self.nhs_iddef.which_idnum,
-            idnum_value=4887211163
+            patient_id=patient.id,
+            which_idnum=self.nhs_iddef.which_idnum,
+            idnum_value=TEST_NHS_NUMBER_1
         )
         self.create_patient_idnum(
-            patient_id=patient.id, which_idnum=self.study_iddef.which_idnum,
+            patient_id=patient.id,
+            which_idnum=self.study_iddef.which_idnum,
             idnum_value=123
         )
 
@@ -5482,7 +5495,7 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
             ViewParam.ID_REFERENCES: [
                 {
                     ViewParam.WHICH_IDNUM: self.nhs_iddef.which_idnum,
-                    ViewParam.IDNUM_VALUE: 1381277373,
+                    ViewParam.IDNUM_VALUE: TEST_NHS_NUMBER_2,
                 },
                 {
                     ViewParam.WHICH_IDNUM: self.rio_iddef.which_idnum,
@@ -5494,7 +5507,7 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
         view._save_idrefs(appstruct, changes)
 
         self.assertEqual(changes["idnum1 (NHS number)"],
-                         (4887211163, 1381277373))
+                         (TEST_NHS_NUMBER_1, TEST_NHS_NUMBER_2))
         self.assertEqual(changes["idnum3 (Study number)"],
                          (123, None))
         self.assertEqual(changes["idnum2 (RiO number)"],
@@ -5622,7 +5635,7 @@ class EditServerCreatedPatientViewTests(DemoDatabaseTestCase):
             ("__start__", "id_references:sequence"),
             ("__start__", "idnum_sequence:mapping"),
             (ViewParam.WHICH_IDNUM, self.nhs_iddef.which_idnum),
-            (ViewParam.IDNUM_VALUE, "4887211163"),
+            (ViewParam.IDNUM_VALUE, str(TEST_NHS_NUMBER_1)),
             ("__end__", "idnum_sequence:mapping"),
             ("__end__", "id_references:sequence"),
             ("__start__", "danger:mapping"),
@@ -5658,7 +5671,6 @@ class EditServerCreatedPatientViewTests(DemoDatabaseTestCase):
 
         self.dbsession.commit()
 
-        # noinspection PyUnresolvedReferences
         schedules = {pts.task_schedule.name: pts
                      for pts in patient.task_schedules}
         self.assertIn("Test 1", schedules)
@@ -5871,7 +5883,6 @@ class AddPatientViewTests(DemoDatabaseTestCase):
         self.assertEqual(idnum.which_idnum, self.nhs_iddef.which_idnum)
         self.assertEqual(idnum.idnum_value, 1192220552)
 
-        # noinspection PyUnresolvedReferences
         patient_task_schedules = {
             pts.task_schedule.name: pts for pts in patient.task_schedules
         }
@@ -5954,8 +5965,9 @@ class DeleteServerCreatedPatientViewTests(DemoDatabaseTestCase):
         patient_pk = patient.pk
 
         idnum = self.create_patient_idnum(
-            patient_id=patient.id, which_idnum=self.nhs_iddef.which_idnum,
-            idnum_value=4887211163
+            patient_id=patient.id,
+            which_idnum=self.nhs_iddef.which_idnum,
+            idnum_value=TEST_NHS_NUMBER_1
         )
 
         PatientIdNumIndexEntry.index_idnum(idnum, self.dbsession)

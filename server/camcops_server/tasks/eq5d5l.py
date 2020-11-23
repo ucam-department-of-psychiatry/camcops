@@ -27,7 +27,7 @@
 
 """
 
-from typing import List
+from typing import List, Optional
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.sql.sqltypes import Integer, String
@@ -107,7 +107,7 @@ class Eq5d5l(TaskHasPatientMixin, Task):
         "health_vas", Integer,
         comment="Visual analogue scale for overall health (0 worst - 100 best)",  # noqa
         permitted_value_checker=ZERO_TO_100_CHECKER,
-    )
+    )  # type: Optional[int]
 
     N_QUESTIONS = 5
     MISSING_ANSWER_VALUE = 9
