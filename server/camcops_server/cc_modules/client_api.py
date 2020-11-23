@@ -3139,9 +3139,9 @@ class Operations:
     GET_ALLOWED_TABLES = "get_allowed_tables"  # v2.2.0
     GET_EXTRA_STRINGS = "get_extra_strings"
     GET_ID_INFO = "get_id_info"
-    GET_TASK_SCHEDULES = "get_task_schedules"  # v2.3.9
+    GET_TASK_SCHEDULES = "get_task_schedules"  # v2.4.0
     REGISTER = "register"
-    REGISTER_PATIENT = "register_patient"  # v2.3.9
+    REGISTER_PATIENT = "register_patient"  # v2.4.0
     START_PRESERVATION = "start_preservation"
     START_UPLOAD = "start_upload"
     UPLOAD_EMPTY_TABLES = "upload_empty_tables"

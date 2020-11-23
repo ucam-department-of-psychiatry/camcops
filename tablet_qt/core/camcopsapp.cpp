@@ -495,11 +495,11 @@ void CamcopsApp::patientRegistrationFinished()
 {
     deleteNetworkGuiGuard();
 
-    // retryUpload() will upload any pending tasks or patients.
-    // Because we just registered, there won't be any pending tasks so
-    // this will just upload the newly registered patient's
-    // details to the server.
-    retryUpload();
+    // Creating the single patient from the server details will trigger
+    // "needs upload" and the upload icon will be displayed. We don't want
+    // to see the icon because we will wait until there are tasks to upload
+    // before uploading the patient
+    setNeedsUpload(false);
 
     recreateMainMenu();
 }
@@ -521,6 +521,13 @@ void CamcopsApp::updateTaskSchedulesFailed(
 void CamcopsApp::updateTaskSchedulesFinished()
 {
     deleteNetworkGuiGuard();
+
+    // Updating the single patient from the server details will trigger
+    // "needs upload" and the upload icon will be displayed. We don't want
+    // to see the icon because we will wait until there are tasks to upload
+    // before uploading the patient
+    setNeedsUpload(false);
+
     recreateMainMenu();
 }
 
@@ -803,13 +810,11 @@ void CamcopsApp::maybeRegisterPatient()
 {
     if (needToRegisterSinglePatient()) {
         if (!registerPatientWithServer()) {
-            /* The user cancelled the dialog
-               If the user entered invalid values in the dialog, they
-               will have another chance from the main menu
-            */
-            uifunc::stopApp(tr("You cancelled patient registration"));
+            // User cancelled patient registration dialog
+            // They can try again with the "Register me" button
+            // or switch to clinician mode ("More options")
+            recreateMainMenu();
         }
-
     } else {
         if (isSingleUserMode()) {
             setDefaultPatient();

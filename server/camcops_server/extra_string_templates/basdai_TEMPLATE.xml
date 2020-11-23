@@ -24,8 +24,11 @@
     <string name="q5_min">(min)</string>
     <string name="q5_max">(max)</string>
     <string name="q6_min">(min)</string>
-    <string name="q6_mid">(mid)</string>
     <string name="q6_max">(max)</string>
+
     <string name="basdai">BASDAI</string>
+
+    <string name="inactive">inactive_disease</string>
+    <string name="active">active_disease</string>
   </task>
 </resources>

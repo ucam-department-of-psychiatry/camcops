@@ -2873,7 +2873,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
   2020-07-24: No, Deform has caught up. See https://pypi.org/project/deform/.
   Move to ``deform==2.0.10`` and ``Chameleon==3.8.1``.
 
-**Client and server v2.3.9 to v2.4.0, IN PROGRESS**
+**Client and server v2.4.0, IN PROGRESS**
 
 - Support for :ref:`Task Schedules <scheduling_tasks>` (on the server) and
   :ref:`Single User Mode <single_user_mode>` on the client
@@ -2971,6 +2971,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
     page, but it went away again (Chrome cache problem during bug-fixing?).
 
 - ``account_locked.mako`` wasn't formatting its strings correctly.
+
+- Bugfix where the names of patients with no surname were not displayed.
 
 - **New task:** :ref:`Bath Ankylosing Spondylitis Disease Activity Index (BASDAI) <basdai>`.
   (Database revision 0053.)

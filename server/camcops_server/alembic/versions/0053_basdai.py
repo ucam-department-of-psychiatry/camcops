@@ -61,12 +61,12 @@ depends_on = None
 def upgrade():
     op.create_table(
         'basdai',
-        sa.Column('q1', sa.Integer(), nullable=True, comment='Q1 - fatigue/tiredness 0-10 (None - very severe)'),
-        sa.Column('q2', sa.Integer(), nullable=True, comment='Q2 - AS neck, back, hip pain 0-10 (None - very severe)'),
-        sa.Column('q3', sa.Integer(), nullable=True, comment='Q3 - other pain/swelling 0-10 (None - very severe)'),
-        sa.Column('q4', sa.Integer(), nullable=True, comment='Q4 - discomfort from tender areas 0-10 (None - very severe)'),
-        sa.Column('q5', sa.Integer(), nullable=True, comment='Q5 - morning stiffness level 0-10 (None - very severe)'),
-        sa.Column('q6', sa.Integer(), nullable=True, comment='Q6 - morning stiffness duration 0-10 (None - 2 or more hours)'),
+        sa.Column('q1', sa.Float(), nullable=True, comment='Q1 - fatigue/tiredness 0-10 (None - very severe)'),
+        sa.Column('q2', sa.Float(), nullable=True, comment='Q2 - AS neck, back, hip pain 0-10 (None - very severe)'),
+        sa.Column('q3', sa.Float(), nullable=True, comment='Q3 - other joint pain/swelling 0-10 (None - very severe)'),
+        sa.Column('q4', sa.Float(), nullable=True, comment='Q4 - discomfort from tender areas 0-10 (None - very severe)'),
+        sa.Column('q5', sa.Float(), nullable=True, comment='Q5 - morning stiffness level 0-10 (None - very severe)'),
+        sa.Column('q6', sa.Float(), nullable=True, comment='Q6 - morning stiffness duration 0-10 (None - 2 or more hours)'),
         sa.Column('patient_id', sa.Integer(), nullable=False, comment='(TASK) Foreign key to patient.id (for this device/era)'),
         sa.Column('when_created', camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(length=32), nullable=False, comment='(TASK) Date/time this task instance was created (ISO 8601)'),
         sa.Column('when_firstexit', camcops_server.cc_modules.cc_sqla_coltypes.PendulumDateTimeAsIsoTextColType(length=32), nullable=True, comment='(TASK) Date/time of the first exit from this task (ISO 8601)'),
