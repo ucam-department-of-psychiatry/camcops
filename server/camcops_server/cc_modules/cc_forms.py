@@ -190,6 +190,7 @@ from camcops_server.cc_modules.cc_group import (
 from camcops_server.cc_modules.cc_idnumdef import (
     IdNumDefinition,
     ID_NUM_VALIDATION_METHOD_CHOICES,
+    validate_id_number,
 )
 from camcops_server.cc_modules.cc_ipuse import IpContexts, IpUse
 from camcops_server.cc_modules.cc_language import (
@@ -983,22 +984,6 @@ class LinkingIdNumSelector(MandatoryWhichIdNumSelector):
         self.description = _("Which ID number to link on?")
 
 
-class OptionalWhichIdNumSelector(MandatoryWhichIdNumSelector):
-    """
-    Node to select (optionally) an ID number type.
-    """
-    default = None
-    missing = None
-
-    def __init__(self, *args, **kwargs) -> None:
-        self.allow_none = True
-        super().__init__(*args, **kwargs)
-
-    @staticmethod
-    def schema_type() -> SchemaType:
-        return AllowNoneType(Integer())
-
-
 class MandatoryIdNumValue(SchemaNode, RequestAwareMixin):
     """
     Mandatory node to capture an ID number value.
@@ -1016,22 +1001,12 @@ class MandatoryIdNumValue(SchemaNode, RequestAwareMixin):
         self.title = _("ID# value")
 
 
-class OptionalIdNumValue(MandatoryIdNumValue):
-    """
-    Optional node to capture an ID number value.
-    """
-    default = None
-    missing = None
-
-    @staticmethod
-    def schema_type() -> SchemaType:
-        return AllowNoneType(Integer())
-
-
 class MandatoryIdNumNode(MappingSchema, RequestAwareMixin):
     """
     Mandatory node to capture an ID number type and the associated actual
     ID number (value).
+
+    This is also where we apply ID number validation rules (e.g. NHS number).
     """
     which_idnum = MandatoryWhichIdNumSelector()  # must match ViewParam.WHICH_IDNUM  # noqa
     idnum_value = MandatoryIdNumValue()  # must match ViewParam.IDNUM_VALUE
@@ -1044,6 +1019,22 @@ class MandatoryIdNumNode(MappingSchema, RequestAwareMixin):
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         _ = self.gettext
         self.title = _("ID number")
+
+    # noinspection PyMethodMayBeStatic
+    def validator(self, node: SchemaNode, value: Dict[str, int]) -> None:
+        assert isinstance(value, dict)
+        req = self.request
+        _ = req.gettext
+        which_idnum = value[ViewParam.WHICH_IDNUM]
+        idnum_value = value[ViewParam.IDNUM_VALUE]
+        idnum_def = req.get_idnum_definition(which_idnum)
+        if not idnum_def:
+            raise Invalid(node, _("Bad ID number type"))  # shouldn't happen
+        method = idnum_def.validation_method
+        if method:
+            valid, why_invalid = validate_id_number(req, idnum_value, method)
+            if not valid:
+                raise Invalid(node, why_invalid)
 
 
 class IdNumSequenceAnyCombination(SequenceSchema, RequestAwareMixin):

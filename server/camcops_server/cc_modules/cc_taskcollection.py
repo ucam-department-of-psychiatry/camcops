@@ -213,27 +213,28 @@ class TaskCollection(object):
         """
         Args:
             req:
-                the
+                The
                 :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`.
                 ``None`` should only be used as a parameter when serializing
                 a :class:`TaskCollection` to the back-end.
             taskfilter:
-                a :class:`camcops_server.cc_modules.cc_taskfilter.TaskFilter`
+                A :class:`camcops_server.cc_modules.cc_taskfilter.TaskFilter`
                 object that contains any restrictions we may want to apply.
                 Must be supplied unless supplying ``export_recipient`` (in
                 which case, must not be supplied).
             as_dump:
-                use the "dump" permissions rather than the "view" permissions?
+                Use the "dump" permissions rather than the "view" permissions?
             sort_method_by_class:
-                how should we sort tasks within each task class?
+                How should we sort tasks within each task class?
             sort_method_global:
-                how should we sort tasks overall (across all task types)?
+                How should we sort tasks overall (across all task types)?
             current_only:
-                restrict to ``_current`` tasks only?
+                Restrict to ``_current`` tasks only?
             via_index:
-                use the server's index (faster)?
+                Use the server's index (faster)? (Not possible with
+                ``current_only=False``.)
             export_recipient:
-                a :class:`camcops_server.cc_modules.cc_exportrecipient.ExportRecipient`
+                A :class:`camcops_server.cc_modules.cc_exportrecipient.ExportRecipient`
         """  # noqa
         if via_index and not current_only:
             log.warning("Can't use index for non-current tasks")

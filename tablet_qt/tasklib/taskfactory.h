@@ -145,6 +145,9 @@ public:
     // return its Task::minimumServerVersion().
     Version minimumServerVersion(const QString& tablename) const;  // main or sub-table
 
+    // Are *any* tasks present?
+    bool anyTasksPresent() const;
+
 protected:
     CamcopsApp& m_app;  // our app
     QStringList m_tablenames;  // all task base table names

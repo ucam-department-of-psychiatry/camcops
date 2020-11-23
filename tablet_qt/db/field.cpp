@@ -35,7 +35,8 @@ Field::Field(const QString& name,
              const bool mandatory,
              const bool unique,
              const bool pk,
-             const QVariant& default_value) :
+             const QVariant& cpp_default_value,
+             const QVariant& db_default_value) :
     m_name(name),
     m_type(type),
     m_pk(pk),
@@ -44,12 +45,8 @@ Field::Field(const QString& name,
     m_set(false),
     m_dirty(true)
 {
-    if (default_value.isNull()) {
-        m_default_value = QVariant(type);  // NULL
-    } else {
-        m_default_value = default_value;
-    }
-    m_value = m_default_value;
+    setCppDefaultValue(cpp_default_value);  // will also set m_value (because m_set is false)
+    setDbDefaultValue(db_default_value);
 }
 
 
@@ -58,7 +55,8 @@ Field::Field(const QString& name,
              const bool mandatory,
              const bool unique,
              const bool pk,
-             const QVariant& default_value) :
+             const QVariant& cpp_default_value,
+             const QVariant& db_default_value) :
     m_name(name),
     m_type(QVariant::UserType),
     m_type_name(type_name),
@@ -68,14 +66,47 @@ Field::Field(const QString& name,
     m_set(false),
     m_dirty(true)
 {
-    m_default_value = default_value;
-    m_value = m_default_value;
+    setCppDefaultValue(cpp_default_value);  // will also set m_value (because m_set is false)
+    setDbDefaultValue(db_default_value);
 }
 
 
 Field::Field() :  // needed by QMap
     Field("", QVariant::Int)  // delegating constructor (C++11)
 {
+}
+
+
+Field& Field::setCppDefaultValue(const QVariant& value)
+{
+    m_cpp_default_value = value;
+    m_cpp_default_value.convert(m_type);
+    if (!m_set) {
+        m_value = m_cpp_default_value;
+    }
+    return *this;
+}
+
+
+Field& Field::setDbDefaultValue(const QVariant& value)
+{
+    m_db_default_value = value;
+    m_db_default_value.convert(m_type);
+    return *this;
+}
+
+
+Field& Field::setDefaultValue(const QVariant& value)
+{
+    setCppDefaultValue(value);
+    setDbDefaultValue(value);
+    return *this;
+}
+
+
+bool Field::hasDbDefaultValue() const
+{
+    return !m_db_default_value.isNull();
 }
 
 
@@ -96,17 +127,6 @@ Field& Field::setUnique(const bool unique)
 Field& Field::setMandatory(const bool mandatory)
 {
     m_mandatory = mandatory;
-    return *this;
-}
-
-
-Field& Field::setDefaultValue(const QVariant& value)
-{
-    m_default_value = value;
-    m_default_value.convert(m_type);
-    if (!m_set) {
-        m_value = m_default_value;
-    }
     return *this;
 }
 
@@ -162,6 +182,11 @@ QString Field::sqlColumnDef() const
     }
     if (notNull()) {
         type += " NOT NULL";
+    }
+    if (!m_db_default_value.isNull()) {
+        // https://sqlite.org/syntax/column-constraint.html
+        type += QString(" DEFAULT %1").arg(
+                    convert::toSqlLiteral(m_db_default_value));
     }
     return type;
 }

@@ -18,12 +18,14 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 .. _Babel: http://babel.pocoo.org/
+.. _Poedit: https://poedit.net/
 
 
 .. _dev_internationalization:
 
 Internationalization
 --------------------
+
 
 .. _dev_string_locations:
 
@@ -292,12 +294,9 @@ Server core
   - http://babel.pocoo.org/en/latest/
   - https://github.com/wichert/lingua
   - https://docs.python.org/3/library/gettext.html#class-based-api; there are
-    editors for ``gettext`` systems, like
-
-    - https://poedit.net/
-
-      - this is a pretty good open-source one (with a paid professional
-        upgrade); from Ubuntu, install with ``sudo snap install poedit``
+    editors for ``gettext`` systems, like Poedit_ (this is a pretty good
+    open-source one, with a paid professional upgrade; from Ubuntu, install
+    with ``sudo snap install poedit``)
 
     - https://wiki.gnome.org/Apps/Gtranslator
     - https://userbase.kde.org/Lokalize
@@ -389,9 +388,24 @@ Similarly, there is a client-side development tool,
     :language: none
 
 
-.. todo::
-    There are still some of the more complex Deform widgets that aren't properly translated on a per-request basis, such as
+Workflow
+~~~~~~~~
 
-    - TranslatableOptionalPendulumNode
-    - TranslatableDateTimeSelectorNode
-    - CheckedPasswordWidget
+- Write code using the ``_("text")`` style in Python and the ``tr("text")``
+  style in C++.
+
+- Run
+
+    .. code-block:: bash
+
+    ./server/tools/build_server_translations.py all
+    ./tablet_qt/tools/build_client_translations.py all
+
+- Edit each translation file in turn using Poedit_.
+
+- Re-run
+
+    .. code-block:: bash
+
+    ./server/tools/build_server_translations.py all
+    ./tablet_qt/tools/build_client_translations.py all

@@ -398,14 +398,22 @@ public:
 
     // Talk to the server and fetch our task schedules (for single-patient
     // mode).
-    void updateTaskSchedules(const bool alert_unfinished_tasks = true);
+    void updateTaskSchedules(bool alert_unfinished_tasks = true);
 
     // Delete task schedules from the client.
     void deleteTaskSchedules();
 
 protected:
-    bool modeChangeForbidden();
-    bool patientRecordsPresent();
+    // Is the user allowed to change between clinician/single-user modes?
+    bool modeChangeForbidden() const;
+
+    // Are there any tasks present?
+    bool taskRecordsPresent() const;
+
+    // Delete any data that may not survive a mode change.
+    // (It can be assumed that no patients or tasks exist; that's checked by
+    // modeChangeForbidden().)
+    void wipeDataForModeChange();
 
 signals:
     // The operation mode has changed (Clincian, single user...)
@@ -420,6 +428,9 @@ public:
 
     // Select a patient by ID.
     void setSelectedPatient(int patient_id, bool force_refresh = false);
+
+    // Deselect any selected patient.
+    void deselectPatient(bool force_refresh = false);
 
     // For single user mode, set the single patient otherwise deselect
     void setDefaultPatient(bool force_refresh = false);
@@ -456,7 +467,14 @@ protected:
     // Delete the current patient from the database.
     void deleteSelectedPatient();
 
+    // Selects all patients from the database and returns a QueryResult.
     QueryResult queryAllPatients();
+
+    // Counts all patients in the database.
+    int nPatients() const;
+
+    // Are there patient records?
+    bool patientRecordsPresent() const;
 
 signals:
     // The patient selection has changed (new patient selected or deselected).
@@ -487,20 +505,26 @@ public:
     // Should we validate SSL certificates?
     bool validateSslCertificates() const;
 
+    // Start reporting network interactions/errors.
     void enableNetworkLogging();
+
+    // Stop reporting network interactions/errors.
     void disableNetworkLogging();
+
+    // Will the user be able to see network interactions/errors?
     bool isLoggingNetwork();
 
 protected:
     // Makes a new NetworkManager.
     void makeNetManager();
 
+    // Point the network manager's callbacks to new functions.
     void reconnectNetManager(
         NetMgrCancelledCallback cancelled_callback = nullptr,
-        NetMgrFinishedCallback finished_callback = nullptr
-    );
+        NetMgrFinishedCallback finished_callback = nullptr);
 
-    // Callbacks for when the network manager has finished talking to the server.
+    // Callbacks for when the network manager has finished talking to the
+    // server.
     void patientRegistrationFinished();
     void updateTaskSchedulesFinished();
     void uploadFinished();
@@ -517,8 +541,8 @@ protected:
     void uploadFailed(const NetworkManager::ErrorCode error_code,
                       const QString& error_string);
 
-    // Show / hide wait box before and after network operation
-    // Allocated on the heap unlike getSlowGuiGuard()
+    // Show/hide wait box before and after network operation.
+    // Allocated on the heap, unlike getSlowGuiGuard().
     void showNetworkGuiGuard(const QString& text);
     void deleteNetworkGuiGuard();
 
@@ -737,11 +761,11 @@ protected:
     // Uploading
     // ------------------------------------------------------------------------
     NetworkManager::UploadMethod getUploadMethod();
-    NetworkManager::UploadMethod getUploadMethodFromUser();
+    NetworkManager::UploadMethod getUploadMethodFromUser() const;
     NetworkManager::UploadMethod getSingleUserUploadMethod();
 
-    bool shouldUploadNow();
-    bool userConfirmedUpload();
+    bool shouldUploadNow() const;
+    bool userConfirmedUpload() const;
 
 public:
     // Upload to the server.
@@ -824,7 +848,7 @@ protected:
     Dpi m_qt_physical_dpi;
 
     // Please wait... dialog during upload
-    SlowGuiGuard *m_network_gui_guard;
+    SlowGuiGuard* m_network_gui_guard;
 
     QDateTime m_last_automatic_upload_time;
 };

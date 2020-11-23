@@ -348,6 +348,8 @@ tablet_qt
     menu/settingsmenu.h.rst
     menu/singletaskmenu.cpp.rst
     menu/singletaskmenu.h.rst
+    menu/singleuseradvancedmenu.cpp.rst
+    menu/singleuseradvancedmenu.h.rst
     menu/singleusermenu.cpp.rst
     menu/singleusermenu.h.rst
     menu/singleuseroptionsmenu.cpp.rst
@@ -360,6 +362,10 @@ tablet_qt
     menu/widgettestmenu.h.rst
     menulib/choosepatientmenuitem.cpp.rst
     menulib/choosepatientmenuitem.h.rst
+    menulib/fontsizeanddpiwindow.cpp.rst
+    menulib/fontsizeanddpiwindow.h.rst
+    menulib/fontsizewindow.cpp.rst
+    menulib/fontsizewindow.h.rst
     menulib/htmlinfowindow.cpp.rst
     menulib/htmlinfowindow.h.rst
     menulib/htmlmenuitem.cpp.rst
@@ -372,6 +378,8 @@ tablet_qt
     menulib/menuproxy.h.rst
     menulib/menuwindow.cpp.rst
     menulib/menuwindow.h.rst
+    menulib/serversettingswindow.cpp.rst
+    menulib/serversettingswindow.h.rst
     menulib/taskchainmenuitem.cpp.rst
     menulib/taskchainmenuitem.h.rst
     menulib/taskmenuitem.cpp.rst
@@ -386,6 +394,8 @@ tablet_qt
     qobjects/cameraframegrabber.h.rst
     qobjects/debugeventwatcher.cpp.rst
     qobjects/debugeventwatcher.h.rst
+    qobjects/emailvalidator.cpp.rst
+    qobjects/emailvalidator.h.rst
     qobjects/flickcharm.cpp.rst
     qobjects/flickcharm.h.rst
     qobjects/focuswatcher.cpp.rst
@@ -478,6 +488,8 @@ tablet_qt
     questionnairelib/qulineedit.h.rst
     questionnairelib/qulineeditdouble.cpp.rst
     questionnairelib/qulineeditdouble.h.rst
+    questionnairelib/qulineeditemail.cpp.rst
+    questionnairelib/qulineeditemail.h.rst
     questionnairelib/qulineeditint64.cpp.rst
     questionnairelib/qulineeditint64.h.rst
     questionnairelib/qulineeditinteger.cpp.rst
@@ -590,6 +602,8 @@ tablet_qt
     tasks/auditc.h.rst
     tasks/badls.cpp.rst
     tasks/badls.h.rst
+    tasks/basdai.cpp.rst
+    tasks/basdai.h.rst
     tasks/bdi.cpp.rst
     tasks/bdi.h.rst
     tasks/bmi.cpp.rst

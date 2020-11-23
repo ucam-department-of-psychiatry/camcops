@@ -32,4 +32,5 @@ protected:
     OpenableWidget* configureServer(CamcopsApp& app);
     void enableNetworkLogging();
     void disableNetworkLogging();
+    void changeMode();
 };

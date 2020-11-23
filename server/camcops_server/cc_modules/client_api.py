@@ -345,6 +345,7 @@ from typing import (
     List,
     Optional,
     Sequence,
+    Set,
     Tuple,
     TYPE_CHECKING
 )
@@ -377,7 +378,6 @@ from semantic_version import Version
 from sqlalchemy.engine.result import ResultProxy
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import joinedload
-from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import exists, select, update
 from sqlalchemy.sql.schema import Table
 
@@ -411,6 +411,7 @@ from camcops_server.cc_modules.cc_client_api_core import (
     WhichKeyToSendInfo,
 )
 from camcops_server.cc_modules.cc_client_api_helpers import (
+    is_email_valid,
     upload_commit_order_sorter,
 )
 from camcops_server.cc_modules.cc_constants import (
@@ -455,7 +456,8 @@ from camcops_server.cc_modules.cc_ipuse import IpUse
 from camcops_server.cc_modules.cc_membership import UserGroupMembership
 from camcops_server.cc_modules.cc_patient import (
     Patient,
-    is_candidate_patient_valid,
+    is_candidate_patient_valid_for_group,
+    is_candidate_patient_valid_for_restricted_user,
 )
 from camcops_server.cc_modules.cc_patientidnum import (
     fake_tablet_id_for_patientidnum,
@@ -522,6 +524,14 @@ SUCCESS_CODE = "1"
 FAILURE_CODE = "0"
 
 DEBUG_UPLOAD = False
+
+
+# =============================================================================
+# Quasi-constants
+# =============================================================================
+
+DB_JSON_DECODER = json.JSONDecoder()  # just a plain one
+PATIENT_INFO_JSON_DECODER = json.JSONDecoder()  # just a plain one
 
 
 # =============================================================================
@@ -598,6 +608,141 @@ def ensure_valid_field_name(table: Table, fieldname: str) -> None:
     # example, "_PK", this would not be picked up as a reserved field (so would
     # pass that check) but then wouldn't be recognized as a valid field (so
     # would fail).
+
+
+def ensure_string(value: Any, allow_none: bool = True) -> None:
+    """
+    Used when processing JSON information about patients: ensures that a value
+    is a string, or raises.
+
+    Args:
+        value: value to test
+        allow_none: is ``None`` allowed (not just an empty string)?
+    """
+    if value is None:
+        if allow_none:
+            return  # OK
+        else:
+            fail_user_error("Patient JSON contains absent string")
+    if not isinstance(value, str):
+        fail_user_error(f"Patient JSON contains invalid non-string: {value!r}")
+
+
+def ensure_valid_patient_json(req: "CamcopsRequest",
+                              group: Group,
+                              pt_dict: Dict[str, Any]) -> None:
+    """
+    Ensures that the JSON dictionary contains valid patient details (valid for
+    the group into which it's being uploaded), and that (if applicable) this
+    user is allowed to upload this patient.
+
+    Args:
+        req:
+            the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        group:
+            the :class:`camcops_server.cc_modules.cc_group.Group` into which
+            the upload is going
+        pt_dict:
+            a JSON dictionary from the client
+
+    Raises:
+        :exc:`UserErrorException` if invalid
+
+    """
+    if not isinstance(pt_dict, dict):
+        fail_user_error("Patient JSON is not a dict")
+    if not pt_dict:
+        fail_user_error("Patient JSON is empty")
+    valid_which_idnums = req.valid_which_idnums
+    errors = []  # type: List[str]
+    finalizing = None
+    ptinfo = BarePatientInfo()
+    idnum_types_seen = set()  # type: Set[int]
+    for k, v in pt_dict.items():
+        ensure_string(k, allow_none=False)
+
+        if k == TabletParam.FORENAME:
+            ensure_string(v)
+            ptinfo.forename = v
+
+        elif k == TabletParam.SURNAME:
+            ensure_string(v)
+            ptinfo.surname = v
+
+        elif k == TabletParam.SEX:
+            if v not in POSSIBLE_SEX_VALUES:
+                fail_user_error(f"Bad sex value: {v!r}")
+            ptinfo.sex = v
+
+        elif k == TabletParam.DOB:
+            ensure_string(v)
+            if v:
+                dob = coerce_to_pendulum_date(v)
+                if dob is None:
+                    fail_user_error(f"Invalid DOB: {v!r}")
+            else:
+                dob = None
+            ptinfo.dob = dob
+
+        elif k == TabletParam.EMAIL:
+            ensure_string(v)
+            if v and not is_email_valid(v):
+                fail_user_error(f"Bad e-mail address: {v!r}")
+            ptinfo.email = v
+
+        elif k == TabletParam.ADDRESS:
+            ensure_string(v)
+            ptinfo.address = v
+
+        elif k == TabletParam.GP:
+            ensure_string(v)
+            ptinfo.gp = v
+
+        elif k == TabletParam.OTHER:
+            ensure_string(v)
+            ptinfo.otherdetails = v
+
+        elif k.startswith(TabletParam.IDNUM_PREFIX):
+            nstr = k[len(TabletParam.IDNUM_PREFIX):]
+            try:
+                which_idnum = int(nstr)
+            except (TypeError, ValueError):
+                fail_user_error(f"Bad idnum key: {k!r}")
+            # noinspection PyUnboundLocalVariable
+            if which_idnum not in valid_which_idnums:
+                fail_user_error(f"Bad ID number type: {which_idnum}")
+            if which_idnum in idnum_types_seen:
+                fail_user_error(f"More than one ID number supplied for ID "
+                                f"number type {which_idnum}")
+            idnum_types_seen.add(which_idnum)
+            if v is not None and not isinstance(v, int):
+                fail_user_error(f"Bad ID number value: {v!r}")
+            idref = IdNumReference(which_idnum, v)
+            if not idref.is_valid():
+                fail_user_error(f"Bad ID number: {idref!r}")
+            ptinfo.add_idnum(idref)
+
+        elif k == TabletParam.FINALIZING:
+            if not isinstance(v, bool):
+                fail_user_error(f"Bad {k!r} value: {v!r}")
+            finalizing = v
+
+        else:
+            fail_user_error(f"Unknown JSON key: {k!r}")
+
+    if finalizing is None:
+        fail_user_error(f"Missing {TabletParam.FINALIZING!r} JSON key")
+
+    pt_ok, reason = is_candidate_patient_valid_for_group(
+        ptinfo, group, finalizing)
+    if not pt_ok:
+        errors.append(f"{ptinfo} -> {reason}")
+    pt_ok, reason = is_candidate_patient_valid_for_restricted_user(
+        req, ptinfo)
+    if not pt_ok:
+        errors.append(f"{ptinfo} -> {reason}")
+    if errors:
+        fail_user_error(f"Invalid patient: {' // '.join(errors)}")
 
 
 # =============================================================================
@@ -2010,6 +2155,78 @@ def clear_dirty_tables(req: "CamcopsRequest") -> None:
 
 
 # =============================================================================
+# Additional helper functions for one-step upload
+# =============================================================================
+
+def process_table_for_onestep_upload(
+        req: "CamcopsRequest",
+        batchdetails: BatchDetails,
+        table: Table,
+        clientpk_name: str,
+        rows: List[Dict[str, Any]]) -> UploadTableChanges:
+    """
+    Performs all upload steps for a table.
+
+    Note that we arrive here in a specific and safe table order; search for
+    :func:`camcops_server.cc_modules.cc_client_api_helpers.upload_commit_order_sorter`.
+
+    Args:
+        req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        batchdetails: the :class:`BatchDetails`
+        table: an SQLAlchemy :class:`Table`
+        clientpk_name: the name of the PK field on the client
+        rows: a list of rows, where each row is a dictionary mapping field
+            (column) names to values (those values being encoded as SQL-style
+            literals in our extended syntax)
+
+    Returns:
+        an :class:`UploadTableChanges` object
+    """  # noqa
+    serverrecs = get_server_live_records(
+        req, req.tabletsession.device_id, table, clientpk_name,
+        current_only=False)
+    servercurrentrecs = [r for r in serverrecs if r.current]
+    if rows and not clientpk_name:
+        fail_user_error(f"Client-side PK name not specified by client for "
+                        f"non-empty table {table.name!r}")
+    tablechanges = UploadTableChanges(table)
+    server_pks_uploaded = []  # type: List[int]
+    for row in rows:
+        valuedict = {k: decode_single_value(v) for k, v in row.items()}
+        urr = upload_record_core(req, batchdetails, table,
+                                 clientpk_name, valuedict,
+                                 server_live_current_records=servercurrentrecs)
+        # ... handles addition, modification, preservation, special processing
+        # But we also make a note of these for indexing:
+        if urr.oldserverpk is not None:
+            server_pks_uploaded.append(urr.oldserverpk)
+        tablechanges.note_urr(urr,
+                              preserving_new_records=batchdetails.preserving)
+    # Which leaves:
+    # (*) Deletion (where no record was uploaded at all)
+    server_pks_for_deletion = [r.server_pk for r in servercurrentrecs
+                               if r.server_pk not in server_pks_uploaded]
+    if server_pks_for_deletion:
+        flag_deleted(req, batchdetails, table, server_pks_for_deletion)
+        tablechanges.note_removal_deleted_pks(server_pks_for_deletion)
+
+    # Preserving all records not specifically processed above, too
+    if batchdetails.preserving:
+        # Preserve all, including noncurrent:
+        preserve_all(req, batchdetails, table)
+        # Note other preserved records, for indexing:
+        tablechanges.note_preservation_pks(r.server_pk for r in serverrecs)
+
+    # (*) Indexing (and push exports)
+    update_indexes_and_push_exports(req, batchdetails, tablechanges)
+
+    if DEBUG_UPLOAD:
+        log.debug("process_table_for_onestep_upload: {}", tablechanges)
+
+    return tablechanges
+
+
+# =============================================================================
 # Audit functions
 # =============================================================================
 
@@ -2037,31 +2254,28 @@ def audit(req: "CamcopsRequest",
 
 
 # =============================================================================
-# Action processors: allowed to any user
+# Helper functions for single-user mode
 # =============================================================================
-# If they return None, the framework uses the operation name as the reply in
-# the success message. Not returning anything is the same as returning None.
-# Authentication is performed in advance of these.
 
-def op_check_device_registered(req: "CamcopsRequest") -> None:
+def make_single_user_mode_username(client_device_name: str,
+                                   patient_pk: int) -> str:
     """
-    Check that a device is registered, or raise
-    :exc:`UserErrorException`.
+    Returns the username for single-user mode.
     """
-    req.tabletsession.ensure_device_registered()
+    return f"user-{client_device_name}-{patient_pk}"
 
 
-def op_register_patient(req: "CamcopsRequest") -> Dict[str, Any]:
+def json_patient_info(patient: Patient) -> str:
     """
-    Registers a patient. That is, the client provides an access key. If all
-    is well, the server returns details of that patient, as well as key
-    server parameters, plus (if required) the username/password to use.
-    """
-    # -------------------------------------------------------------------------
-    # Patient details
-    # -------------------------------------------------------------------------
-    patient = get_single_patient(req)
+    Converts patient details to a string representation of a JSON list (one
+    patient) containing a single JSON dictionary (detailing that patient), with
+    keys/formats known to the client.
 
+    (One item list to be consistent with patients uploaded from the tablet.)
+
+    Args:
+        patient: :class:`camcops_server.cc_modules.cc_patient.Patient`
+    """
     patient_dict = {
         TabletParam.SURNAME: patient.surname,
         TabletParam.FORENAME: patient.forename,
@@ -2076,42 +2290,11 @@ def op_register_patient(req: "CamcopsRequest") -> Dict[str, Any]:
     for idnum in patient.idnums:
         key = f"{TabletParam.IDNUM_PREFIX}{idnum.which_idnum}"
         patient_dict[key] = idnum.idnum_value
-
     # One item list to be consistent with patients uploaded from the tablet
-    patient_info = json.dumps([patient_dict])
-    reply_dict = {
-        TabletParam.PATIENT_INFO: patient_info,
-    }
-
-    # -------------------------------------------------------------------------
-    # Username/password, if required
-    # -------------------------------------------------------------------------
-    user_name = get_str_var(req, TabletParam.USER, mandatory=False)
-    if user_name is None:
-        assert patient.group is not None  # for type checker
-        client_device_name = get_str_var(req, TabletParam.DEVICE)
-        user, password = create_single_user(req, f"user-{client_device_name}",
-                                            patient.group)
-        reply_dict[TabletParam.USER] = user.username
-        reply_dict[TabletParam.PASSWORD] = password
-
-    # -------------------------------------------------------------------------
-    # Intellectual property settings
-    # -------------------------------------------------------------------------
-    ip_use = patient.group.ip_use or IpUse()
-    # ... if the group doesn't have an associated ip_use object, use defaults
-    ip_dict = {
-        TabletParam.IP_USE_COMMERCIAL: int(ip_use.commercial),
-        TabletParam.IP_USE_CLINICAL: int(ip_use.clinical),
-        TabletParam.IP_USE_EDUCATIONAL: int(ip_use.educational),
-        TabletParam.IP_USE_RESEARCH: int(ip_use.research),
-    }
-    reply_dict[TabletParam.IP_USE_INFO] = json.dumps(ip_dict)
-
-    return reply_dict
+    return json.dumps([patient_dict])
 
 
-def get_single_patient(req: "CamcopsRequest") -> Patient:
+def get_single_server_patient(req: "CamcopsRequest") -> Patient:
     """
     Returns the patient identified by the proquint access key present in this
     request, or raises.
@@ -2136,10 +2319,12 @@ def get_single_patient(req: "CamcopsRequest") -> Patient:
 
     server_device = Device.get_server_device(req.dbsession)
 
-    # noinspection PyUnboundLocalVariable
+    # noinspection PyUnboundLocalVariable,PyProtectedMember
     patient = req.dbsession.query(Patient).filter(
         Patient.uuid == uuid_obj,
-        Patient._device_id == server_device.id
+        Patient._device_id == server_device.id,
+        Patient._era == ERA_NOW,
+        Patient._current == True  # noqa: E712
     ).options(joinedload(Patient.task_schedules)).one_or_none()
 
     if patient is None:
@@ -2160,42 +2345,74 @@ def get_single_patient(req: "CamcopsRequest") -> Patient:
     return patient
 
 
-def create_single_user(req: "CamcopsRequest",
-                       name: str, group: Group) -> Tuple[User, str]:
+def get_or_create_single_user(req: "CamcopsRequest",
+                              name: str,
+                              patient: Patient) -> Tuple[User, str]:
     """
     Creates a user for a patient (who's using single-user mode).
 
-    The username must not already exist.
+    The user is associated (via its name) with the combination of a client
+    device and a patient. (If a device is re-registered to another patient, the
+    username will change.)
 
-    Strictly, the user is associated with a CLIENT DEVICE, not a patient -- a
-    device can be re-registered to another patient (so we don't store patient
-    names or e-mails with the user details).
+    If the username already exists, then since we can't look up the password
+    (it's irreversibly encrypted), we will set it afresh.
+
+    - Why is a user associated with a patient? So we can enforce that the user
+      can upload only data relating to that patient.
+
+    - Why is a user associated with a device?
+
+      - If it is: then two users (e.g. "Device1-Bob" and "Device2-Bob") can
+        independently work with the same patient. This will be highly
+        confusing (mainly because it will allow "double" copies of tasks to be
+        created, though only by manually entering things twice).
+
+      - If it isn't (e.g. user "Bob"): then, because registering the patient on
+        Device2 will reset the password for the user, registering a new device
+        for a patient will "take over" from a previous device. That has some
+        potential for data loss if work was in progress (incomplete tasks won't
+        be uploadable any more, and re-registering [to fix the password on the
+        first device] would delete data).
+
+      - Since some confusion is better than some data loss, we associate users
+        with a device/patient combination.
 
     Args:
-        req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-        name: username
-        group: group in which to place this user
+        req:
+            a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        name:
+            username
+        patient:
+            associated :class:`camcops_server.cc_modules.cc_patient.Patient`,
+            which also tells us the group in which to place this user
 
     Returns:
         tuple: :class:`camcops_server.cc_modules.cc_user.User`, password
 
     """
     dbsession = req.dbsession
+    password = random_password()
+    group = patient.group
+    assert group is not None  # for type checker
 
-    try:
-        user = dbsession.query(User).filter_by(username=name).one()
-    except NoResultFound:
+    user = User.get_user_by_name(dbsession, name)
+    creating_new_user = user is None
+    if creating_new_user:
+        # Create a fresh user.
         user = User(username=name)
     user.upload_group = group
     user.auto_generated = True
-    password = random_password()
+    user.superuser = False  # should be redundant!
+    # noinspection PyProtectedMember
+    user.single_patient_pk = patient._pk
     user.set_password(req, password)
-
-    dbsession.add(user)
-    # As the username is based on a UUID, we're pretty sure another
-    # request won't have created the same user, otherwise we'd need
-    # to catch IntegrityError
-    dbsession.flush()
+    if creating_new_user:
+        dbsession.add(user)
+        # As the username is based on a UUID, we're pretty sure another
+        # request won't have created the same user, otherwise we'd need
+        # to catch IntegrityError
+        dbsession.flush()
 
     membership = UserGroupMembership(
         user_id=user.id,
@@ -2203,8 +2420,7 @@ def create_single_user(req: "CamcopsRequest",
     )
     membership.may_register_devices = True
     membership.may_upload = True
-
-    user.user_group_memberships.append(membership)
+    user.user_group_memberships = [membership]  # ... only these permissions
 
     return user, password
 
@@ -2220,11 +2436,120 @@ def random_password(length: int = 32) -> str:
     return "".join(secrets.choice(characters) for _ in range(length))
 
 
+def get_task_schedules(req: "CamcopsRequest",
+                       patient: Patient) -> str:
+    """
+    Gets a JSON string representation of the task schedules for a specified
+    patient.
+    """
+    dbsession = req.dbsession
+
+    schedules = []
+
+    for pts in patient.task_schedules:
+        if pts.start_datetime is None:
+            # Minutes granularity so we are consistent with the form
+            pts.start_datetime = req.now_utc.replace(second=0, microsecond=0)
+            dbsession.add(pts)
+
+        items = []
+
+        for task_info in pts.get_list_of_scheduled_tasks(req):
+            due_from = task_info.start_datetime.to_iso8601_string()
+            due_by = task_info.end_datetime.to_iso8601_string()
+
+            complete = False
+            when_completed = None
+            task = task_info.task
+            if task:
+                complete = task.is_complete()
+                if complete and task.when_last_modified:
+                    when_completed = task.when_last_modified.to_iso8601_string()  # noqa
+
+            if pts.settings is not None:
+                settings = pts.settings.get(task_info.tablename, {})
+            else:
+                settings = {}
+
+            items.append({
+                TabletParam.TABLE: task_info.tablename,
+                TabletParam.ANONYMOUS: task_info.is_anonymous,
+                TabletParam.SETTINGS: settings,
+                TabletParam.DUE_FROM: due_from,
+                TabletParam.DUE_BY: due_by,
+                TabletParam.COMPLETE: complete,
+                TabletParam.WHEN_COMPLETED: when_completed,
+            })
+
+        schedules.append({
+            TabletParam.TASK_SCHEDULE_NAME: pts.task_schedule.name,
+            TabletParam.TASK_SCHEDULE_ITEMS: items,
+        })
+
+    return json.dumps(schedules)
+
+
+# =============================================================================
+# Action processors: allowed to any user
+# =============================================================================
+# If they return None, the framework uses the operation name as the reply in
+# the success message. Not returning anything is the same as returning None.
+# Authentication is performed in advance of these.
+
+def op_check_device_registered(req: "CamcopsRequest") -> None:
+    """
+    Check that a device is registered, or raise
+    :exc:`UserErrorException`.
+    """
+    req.tabletsession.ensure_device_registered()
+
+
+def op_register_patient(req: "CamcopsRequest") -> Dict[str, Any]:
+    """
+    Registers a patient. That is, the client provides an access key. If all
+    is well, the server returns details of that patient, as well as key
+    server parameters, plus (if required) the username/password to use.
+    """
+    # -------------------------------------------------------------------------
+    # Patient details
+    # -------------------------------------------------------------------------
+    patient = get_single_server_patient(req)  # may fail/raise
+    patient_info = json_patient_info(patient)
+    reply_dict = {
+        TabletParam.PATIENT_INFO: patient_info,
+    }
+
+    # -------------------------------------------------------------------------
+    # Username/password
+    # -------------------------------------------------------------------------
+    client_device_name = get_str_var(req, TabletParam.DEVICE)
+    # noinspection PyProtectedMember
+    user_name = make_single_user_mode_username(client_device_name, patient._pk)
+    user, password = get_or_create_single_user(req, user_name, patient)
+    reply_dict[TabletParam.USER] = user.username
+    reply_dict[TabletParam.PASSWORD] = password
+
+    # -------------------------------------------------------------------------
+    # Intellectual property settings
+    # -------------------------------------------------------------------------
+    ip_use = patient.group.ip_use or IpUse()
+    # ... if the group doesn't have an associated ip_use object, use defaults
+    ip_dict = {
+        TabletParam.IP_USE_COMMERCIAL: int(ip_use.commercial),
+        TabletParam.IP_USE_CLINICAL: int(ip_use.clinical),
+        TabletParam.IP_USE_EDUCATIONAL: int(ip_use.educational),
+        TabletParam.IP_USE_RESEARCH: int(ip_use.research),
+    }
+    reply_dict[TabletParam.IP_USE_INFO] = json.dumps(ip_dict)
+
+    return reply_dict
+
+
 # =============================================================================
 # Action processors that require REGISTRATION privilege
 # =============================================================================
 
-def op_register(req: "CamcopsRequest") -> Dict[str, Any]:
+def op_register_device(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     Register a device with the server.
 
@@ -2316,62 +2641,16 @@ def op_get_allowed_tables(req: "CamcopsRequest") -> Dict[str, str]:
 def op_get_task_schedules(req: "CamcopsRequest") -> Dict[str, str]:
     """
     Return details of the task schedules for the patient associated with
-    this request, for single-user mode.
+    this request, for single-user mode. Also returns details of the single
+    patient, in case that's changed.
     """
-    patient = get_single_patient(req)
+    patient = get_single_server_patient(req)
+    patient_info = json_patient_info(patient)
     task_schedules = get_task_schedules(req, patient)
-
     return {
-        TabletParam.TASK_SCHEDULES: task_schedules
+        TabletParam.PATIENT_INFO: patient_info,
+        TabletParam.TASK_SCHEDULES: task_schedules,
     }
-
-
-def get_task_schedules(req: "CamcopsRequest",
-                       patient: Patient) -> str:
-    """
-    Gets a JSON string representation of the task schedules for a specified
-    patient.
-    """
-    dbsession = req.dbsession
-
-    schedules = []
-
-    for pts in patient.task_schedules:
-        if pts.start_datetime is None:
-            # Minutes granularity so we are consistent with the form
-            pts.start_datetime = req.now_utc.replace(second=0, microsecond=0)
-            dbsession.add(pts)
-
-        items = []
-
-        for task_info in pts.get_list_of_scheduled_tasks(req):
-            due_from = task_info.start_datetime.to_iso8601_string()
-            due_by = task_info.end_datetime.to_iso8601_string()
-
-            complete = False
-
-            if task_info.task:
-                complete = task_info.task.is_complete()
-
-            settings = {}
-            if pts.settings is not None:
-                settings = pts.settings.get(task_info.tablename, {})
-
-            items.append({
-                TabletParam.TABLE: task_info.tablename,
-                TabletParam.ANONYMOUS: task_info.is_anonymous,
-                TabletParam.SETTINGS: settings,
-                TabletParam.DUE_FROM: due_from,
-                TabletParam.DUE_BY: due_by,
-                TabletParam.COMPLETE: complete,
-            })
-
-        schedules.append({
-            TabletParam.TASK_SCHEDULE_NAME: pts.task_schedule.name,
-            TabletParam.TASK_SCHEDULE_ITEMS: items,
-        })
-
-    return json.dumps(schedules)
 
 
 # =============================================================================
@@ -2758,9 +3037,6 @@ def op_which_keys_to_send(req: "CamcopsRequest") -> str:
     return pk_csv_list
 
 
-PATIENT_INFO_JSON_DECODER = json.JSONDecoder()  # just a plain one
-
-
 def op_validate_patients(req: "CamcopsRequest") -> str:
     """
     As of v2.3.0, the client can use this command to validate patients against
@@ -2769,101 +3045,30 @@ def op_validate_patients(req: "CamcopsRequest") -> str:
     a bank of predefined patients).
 
     Compare ``NetworkManager::getPatientInfoJson()`` on the client.
-    """
-    def ensure_string(value: Any, allow_none: bool = True) -> None:
-        if value is None:
-            if allow_none:
-                return  # OK
-            else:
-                fail_user_error("Patient JSON contains absent string")
-        if not isinstance(value, str):
-            fail_user_error(f"Patient JSON contains invalid non-string: {value!r}")  # noqa
 
+    There is a slight weakness with respect to "single-patient" users, in that
+    the client *asks* if the patients are OK (rather than the server
+    *enforcing* that they are OK, via hooks into :func:`op_upload_table`,
+    :func:`op_upload_record`, :func:`op_upload_entire_database` -- made more
+    complex because ID numbers are not uploaded to the same table...). In
+    principle, the weakness is that a user could (a) crack their assigned
+    password and (b) rework the CamCOPS client, in order to upload "bad"
+    patient data into their assigned group.
+
+    todo:
+        address this by having the server *require* patient validation for
+        all uploads?
+
+    """
     pt_json_list = get_json_from_post_var(req, TabletParam.PATIENT_INFO,
                                           decoder=PATIENT_INFO_JSON_DECODER,
                                           mandatory=True)
     if not isinstance(pt_json_list, list):
         fail_user_error("Top-level JSON is not a list")
-
     group = Group.get_group_by_id(req.dbsession, req.user.upload_group_id)
-    valid_which_idnums = req.valid_which_idnums
-
-    errors = []  # type: List[str]
-    finalizing = None
     for pt_dict in pt_json_list:
-        if not isinstance(pt_dict, dict):
-            fail_user_error("Patient JSON is not a dict")
-        if not pt_dict:
-            fail_user_error("Patient JSON is empty")
-        ptinfo = BarePatientInfo()
-        for k, v in pt_dict.items():
-            ensure_string(k, allow_none=False)
-            if k == TabletParam.FORENAME:
-                ensure_string(v)
-                ptinfo.forename = v
-            elif k == TabletParam.SURNAME:
-                ensure_string(v)
-                ptinfo.surname = v
-            elif k == TabletParam.SEX:
-                if v not in POSSIBLE_SEX_VALUES:
-                    fail_user_error(f"Bad sex value: {v!r}")
-                ptinfo.sex = v
-            elif k == TabletParam.DOB:
-                ensure_string(v)
-                if v:
-                    dob = coerce_to_pendulum_date(v)
-                    if dob is None:
-                        fail_user_error(f"Invalid DOB: {v!r}")
-                else:
-                    dob = None
-                ptinfo.dob = dob
-            elif k == TabletParam.EMAIL:
-                ensure_string(v)
-                ptinfo.email = v
-            elif k == TabletParam.ADDRESS:
-                ensure_string(v)
-                ptinfo.address = v
-            elif k == TabletParam.GP:
-                ensure_string(v)
-                ptinfo.gp = v
-            elif k == TabletParam.OTHER:
-                ensure_string(v)
-                ptinfo.otherdetails = v
-            elif k.startswith(TabletParam.IDNUM_PREFIX):
-                nstr = k[len(TabletParam.IDNUM_PREFIX):]
-                try:
-                    which_idnum = int(nstr)
-                except (TypeError, ValueError):
-                    fail_user_error(f"Bad idnum key: {k!r}")
-                # noinspection PyUnboundLocalVariable
-                if which_idnum not in valid_which_idnums:
-                    fail_user_error(f"Bad ID number type: {which_idnum}")
-                if v is not None and not isinstance(v, int):
-                    fail_user_error(f"Bad ID number value: {v!r}")
-                idref = IdNumReference(which_idnum, v)
-                if not idref.is_valid():
-                    fail_user_error(f"Bad ID number: {idref!r}")
-                ptinfo.add_idnum(idref)
-            elif k == TabletParam.FINALIZING:
-                if not isinstance(v, bool):
-                    fail_user_error(f"Bad {k!r} value: {v!r}")
-                finalizing = v
-            else:
-                fail_user_error(f"Unknown JSON key: {k!r}")
-
-        if finalizing is None:
-            fail_user_error(f"Missing {TabletParam.FINALIZING!r} JSON key")
-
-        pt_ok, reason = is_candidate_patient_valid(ptinfo, group, finalizing)
-        if not pt_ok:
-            errors.append(f"{ptinfo} -> {reason}")
-    if errors:
-        fail_user_error(f"Invalid patients: {' // '.join(errors)}")
-    else:
-        return SUCCESS_MSG
-
-
-DB_JSON_DECODER = json.JSONDecoder()  # just a plain one
+        ensure_valid_patient_json(req, group, pt_dict)
+    return SUCCESS_MSG
 
 
 def op_upload_entire_database(req: "CamcopsRequest") -> str:
@@ -2919,74 +3124,6 @@ def op_upload_entire_database(req: "CamcopsRequest") -> str:
     return SUCCESS_MSG
 
 
-def process_table_for_onestep_upload(
-        req: "CamcopsRequest",
-        batchdetails: BatchDetails,
-        table: Table,
-        clientpk_name: str,
-        rows: List[Dict[str, Any]]) -> UploadTableChanges:
-    """
-    Performs all upload steps for a table.
-
-    Note that we arrive here in a specific and safe table order; search for
-    :func:`camcops_server.cc_modules.cc_client_api_helpers.upload_commit_order_sorter`.
-
-    Args:
-        req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-        batchdetails: the :class:`BatchDetails`
-        table: an SQLAlchemy :class:`Table`
-        clientpk_name: the name of the PK field on the client
-        rows: a list of rows, where each row is a dictionary mapping field
-            (column) names to values (those values being encoded as SQL-style
-            literals in our extended syntax)
-
-    Returns:
-        an :class:`UploadTableChanges` object
-    """  # noqa
-    serverrecs = get_server_live_records(
-        req, req.tabletsession.device_id, table, clientpk_name,
-        current_only=False)
-    servercurrentrecs = [r for r in serverrecs if r.current]
-    if rows and not clientpk_name:
-        fail_user_error(f"Client-side PK name not specified by client for "
-                        f"non-empty table {table.name!r}")
-    tablechanges = UploadTableChanges(table)
-    server_pks_uploaded = []  # type: List[int]
-    for row in rows:
-        valuedict = {k: decode_single_value(v) for k, v in row.items()}
-        urr = upload_record_core(req, batchdetails, table,
-                                 clientpk_name, valuedict,
-                                 server_live_current_records=servercurrentrecs)
-        # ... handles addition, modification, preservation, special processing
-        # But we also make a note of these for indexing:
-        if urr.oldserverpk is not None:
-            server_pks_uploaded.append(urr.oldserverpk)
-        tablechanges.note_urr(urr,
-                              preserving_new_records=batchdetails.preserving)
-    # Which leaves:
-    # (*) Deletion (where no record was uploaded at all)
-    server_pks_for_deletion = [r.server_pk for r in servercurrentrecs
-                               if r.server_pk not in server_pks_uploaded]
-    if server_pks_for_deletion:
-        flag_deleted(req, batchdetails, table, server_pks_for_deletion)
-        tablechanges.note_removal_deleted_pks(server_pks_for_deletion)
-
-    # Preserving all records not specifically processed above, too
-    if batchdetails.preserving:
-        # Preserve all, including noncurrent:
-        preserve_all(req, batchdetails, table)
-        # Note other preserved records, for indexing:
-        tablechanges.note_preservation_pks(r.server_pk for r in serverrecs)
-
-    # (*) Indexing (and push exports)
-    update_indexes_and_push_exports(req, batchdetails, tablechanges)
-
-    if DEBUG_UPLOAD:
-        log.debug("process_table_for_onestep_upload: {}", tablechanges)
-
-    return tablechanges
-
-
 # =============================================================================
 # Action maps
 # =============================================================================
@@ -3002,9 +3139,9 @@ class Operations:
     GET_ALLOWED_TABLES = "get_allowed_tables"  # v2.2.0
     GET_EXTRA_STRINGS = "get_extra_strings"
     GET_ID_INFO = "get_id_info"
-    GET_TASK_SCHEDULES = "get_task_schedules"  # v2.3.9
+    GET_TASK_SCHEDULES = "get_task_schedules"  # v2.4.0
     REGISTER = "register"
-    REGISTER_PATIENT = "register_patient"  # v2.3.9
+    REGISTER_PATIENT = "register_patient"  # v2.4.0
     START_PRESERVATION = "start_preservation"
     START_UPLOAD = "start_upload"
     UPLOAD_EMPTY_TABLES = "upload_empty_tables"
@@ -3024,7 +3161,7 @@ OPERATIONS_REGISTRATION = {
     Operations.GET_ALLOWED_TABLES: op_get_allowed_tables,  # v2.2.0
     Operations.GET_EXTRA_STRINGS: op_get_extra_strings,
     Operations.GET_TASK_SCHEDULES: op_get_task_schedules,
-    Operations.REGISTER: op_register,
+    Operations.REGISTER: op_register_device,
 }
 OPERATIONS_UPLOAD = {
     Operations.CHECK_UPLOAD_USER_DEVICE: op_check_upload_user_and_device,
@@ -3162,6 +3299,9 @@ def client_api(req: "CamcopsRequest") -> Response:
 # Unit tests
 # =============================================================================
 
+TEST_NHS_NUMBER = 4887211163  # generated at random
+
+
 def get_reply_dict_from_response(response: Response) -> Dict[str, str]:
     """
     For unit testing: convert the text in a :class:`Response` back to a
@@ -3296,12 +3436,15 @@ class PatientRegistrationTests(DemoDatabaseTestCase):
         import datetime
         patient = self.create_patient(
             forename="JO", surname="PATIENT", dob=datetime.date(1958, 4, 19),
-            sex="F", address="Address", gp="GP", other="Other"
+            sex="F", address="Address", gp="GP", other="Other",
+            as_server_patient=True
         )
 
         self.create_patient_idnum(
-            patient_id=patient.id, which_idnum=self.nhs_iddef.which_idnum,
-            idnum_value=4887211163
+            patient_id=patient.id,
+            which_idnum=self.nhs_iddef.which_idnum,
+            idnum_value=TEST_NHS_NUMBER,
+            as_server_patient=True
         )
 
         proquint = patient.uuid_as_proquint
@@ -3332,16 +3475,19 @@ class PatientRegistrationTests(DemoDatabaseTestCase):
         self.assertEqual(patient_dict[TabletParam.GP], "GP")
         self.assertEqual(patient_dict[TabletParam.OTHER], "Other")
         self.assertEqual(patient_dict[f"idnum{self.nhs_iddef.which_idnum}"],
-                         4887211163)
+                         TEST_NHS_NUMBER)
 
     def test_creates_user(self) -> None:
         from camcops_server.cc_modules.cc_taskindex import (
             PatientIdNumIndexEntry,
         )
-        patient = self.create_patient(_group_id=self.group.id)
+        patient = self.create_patient(_group_id=self.group.id,
+                                      as_server_patient=True)
         idnum = self.create_patient_idnum(
-            patient_id=patient.id, which_idnum=self.nhs_iddef.which_idnum,
-            idnum_value=4887211163
+            patient_id=patient.id,
+            which_idnum=self.nhs_iddef.which_idnum,
+            idnum_value=TEST_NHS_NUMBER,
+            as_server_patient=True
         )
         PatientIdNumIndexEntry.index_idnum(idnum, self.dbsession)
 
@@ -3364,8 +3510,10 @@ class PatientRegistrationTests(DemoDatabaseTestCase):
                          msg=reply_dict)
 
         username = reply_dict[TabletParam.USER]
-        self.assertEqual(username,
-                         f"user-{self.other_device.name}")
+        self.assertEqual(
+            username,
+            make_single_user_mode_username(self.other_device.name, patient._pk)
+        )
         password = reply_dict[TabletParam.PASSWORD]
         self.assertEqual(len(password), 32)
 
@@ -3380,59 +3528,27 @@ class PatientRegistrationTests(DemoDatabaseTestCase):
         self.assertTrue(user.may_register_devices)
         self.assertTrue(user.may_upload)
 
-    def test_does_not_create_user_when_passed_in(self) -> None:
-        from camcops_server.cc_modules.cc_taskindex import (
-            PatientIdNumIndexEntry,
-        )
-        patient = self.create_patient(_group_id=self.group.id)
-        idnum = self.create_patient_idnum(
-            patient_id=patient.id, which_idnum=self.nhs_iddef.which_idnum,
-            idnum_value=4887211163
-        )
-        PatientIdNumIndexEntry.index_idnum(idnum, self.dbsession)
-
-        users_before = self.req.dbsession.query(User).count()
-
-        proquint = patient.uuid_as_proquint
-
-        # For type checker
-        assert proquint is not None
-        assert self.other_device.name is not None
-
-        self.req.fake_request_post_from_dict({
-            TabletParam.CAMCOPS_VERSION: MINIMUM_TABLET_VERSION,
-            TabletParam.DEVICE: self.other_device.name,
-            TabletParam.OPERATION: Operations.REGISTER_PATIENT,
-            TabletParam.PATIENT_PROQUINT: proquint,
-            TabletParam.USER: "testuser",
-        })
-        response = client_api(self.req)
-        reply_dict = get_reply_dict_from_response(response)
-
-        self.assertEqual(reply_dict[TabletParam.SUCCESS], SUCCESS_CODE,
-                         msg=reply_dict)
-
-        self.assertNotIn(TabletParam.USER, reply_dict)
-        self.assertNotIn(TabletParam.PASSWORD, reply_dict)
-
-        users_after = self.req.dbsession.query(User).count()
-
-        self.assertEqual(users_before, users_after)
-
     def test_does_not_create_user_when_name_exists(self) -> None:
         from camcops_server.cc_modules.cc_taskindex import (
             PatientIdNumIndexEntry,
         )
-        patient = self.create_patient(_group_id=self.group.id)
+        patient = self.create_patient(_group_id=self.group.id,
+                                      as_server_patient=True)
         idnum = self.create_patient_idnum(
-            patient_id=patient.id, which_idnum=self.nhs_iddef.which_idnum,
-            idnum_value=4887211163
+            patient_id=patient.id,
+            which_idnum=self.nhs_iddef.which_idnum,
+            idnum_value=TEST_NHS_NUMBER,
+            as_server_patient=True
         )
         PatientIdNumIndexEntry.index_idnum(idnum, self.dbsession)
 
         proquint = patient.uuid_as_proquint
 
-        user = User(username=f"user-{self.other_device.name}")
+        user = User(
+            username=make_single_user_mode_username(
+                self.other_device.name, patient._pk
+            )
+        )
         user.set_password(self.req, "old password")
         self.dbsession.add(user)
         self.dbsession.commit()
@@ -3450,8 +3566,10 @@ class PatientRegistrationTests(DemoDatabaseTestCase):
                          msg=reply_dict)
 
         username = reply_dict[TabletParam.USER]
-        self.assertEqual(username,
-                         f"user-{self.other_device.name}")
+        self.assertEqual(
+            username,
+            make_single_user_mode_username(self.other_device.name, patient._pk)
+        )
         password = reply_dict[TabletParam.PASSWORD]
         self.assertEqual(len(password), 32)
 
@@ -3510,7 +3628,7 @@ class PatientRegistrationTests(DemoDatabaseTestCase):
     def test_raises_when_no_patient_idnums(self) -> None:
         # In theory this shouldn't be possible in normal operation as the
         # patient cannot be created without any idnums
-        patient = self.create_patient()
+        patient = self.create_patient(as_server_patient=True)
 
         proquint = patient.uuid_as_proquint
         self.req.fake_request_post_from_dict({
@@ -3528,7 +3646,8 @@ class PatientRegistrationTests(DemoDatabaseTestCase):
                       reply_dict[TabletParam.ERROR])
 
     def test_raises_when_patient_not_created_on_server(self) -> None:
-        patient = self.create_patient(_device_id=self.other_device.id)
+        patient = self.create_patient(_device_id=self.other_device.id,
+                                      as_server_patient=True)
 
         proquint = patient.uuid_as_proquint
         self.req.fake_request_post_from_dict({
@@ -3553,11 +3672,14 @@ class PatientRegistrationTests(DemoDatabaseTestCase):
 
         patient = self.create_patient(
             forename="JO", surname="PATIENT", dob=datetime.date(1958, 4, 19),
-            sex="F", address="Address", gp="GP", other="Other"
+            sex="F", address="Address", gp="GP", other="Other",
+            as_server_patient=True
         )
         idnum = self.create_patient_idnum(
-            patient_id=patient.id, which_idnum=self.nhs_iddef.which_idnum,
-            idnum_value=4887211163
+            patient_id=patient.id,
+            which_idnum=self.nhs_iddef.which_idnum,
+            idnum_value=TEST_NHS_NUMBER,
+            as_server_patient=True
         )
         PatientIdNumIndexEntry.index_idnum(idnum, self.dbsession)
 
@@ -3657,16 +3779,24 @@ class GetTaskSchedulesTests(DemoDatabaseTestCase):
 
         patient = self.create_patient()
         idnum = self.create_patient_idnum(
-            patient_id=patient.id, which_idnum=self.nhs_iddef.which_idnum,
-            idnum_value=4887211163
+            patient_id=patient.id,
+            which_idnum=self.nhs_iddef.which_idnum,
+            idnum_value=TEST_NHS_NUMBER
         )
         PatientIdNumIndexEntry.index_idnum(idnum, self.dbsession)
 
-        patient_task_schedule1 = PatientTaskSchedule()
-        patient_task_schedule1.patient_pk = patient.pk
-        patient_task_schedule1.schedule_id = schedule1.id
+        server_patient = self.create_patient(as_server_patient=True)
+        _ = self.create_patient_idnum(
+            patient_id=server_patient.id,
+            which_idnum=self.nhs_iddef.which_idnum,
+            idnum_value=TEST_NHS_NUMBER,
+            as_server_patient=True
+        )
 
-        patient_task_schedule1.settings = {
+        schedule_1 = PatientTaskSchedule()
+        schedule_1.patient_pk = server_patient.pk
+        schedule_1.schedule_id = schedule1.id
+        schedule_1.settings = {
             "bmi": {
                 "bmi_key": "bmi_value",
             },
@@ -3674,15 +3804,13 @@ class GetTaskSchedulesTests(DemoDatabaseTestCase):
                 "phq9_key": "phq9_value",
             }
         }
-        patient_task_schedule1.start_datetime = local(2020, 7, 31)
+        schedule_1.start_datetime = local(2020, 7, 31)
+        self.dbsession.add(schedule_1)
 
-        self.dbsession.add(patient_task_schedule1)
-
-        patient_task_schedule2 = PatientTaskSchedule()
-        patient_task_schedule2.patient_pk = patient.pk
-        patient_task_schedule2.schedule_id = schedule2.id
-
-        self.dbsession.add(patient_task_schedule2)
+        schedule_2 = PatientTaskSchedule()
+        schedule_2.patient_pk = server_patient.pk
+        schedule_2.schedule_id = schedule2.id
+        self.dbsession.add(schedule_2)
 
         bmi = Bmi()
         self.apply_standard_task_fields(bmi)
@@ -3692,8 +3820,9 @@ class GetTaskSchedulesTests(DemoDatabaseTestCase):
         bmi.patient_id = patient.id
         bmi.when_created = local(2020, 8, 1)
         self.dbsession.add(bmi)
-
         self.dbsession.commit()
+        self.assertTrue(bmi.is_complete())
+
         TaskIndexEntry.index_task(
             bmi,
             self.dbsession,
@@ -3701,7 +3830,7 @@ class GetTaskSchedulesTests(DemoDatabaseTestCase):
         )
         self.dbsession.commit()
 
-        proquint = patient.uuid_as_proquint
+        proquint = server_patient.uuid_as_proquint
 
         # For type checker
         assert proquint is not None
@@ -3726,50 +3855,57 @@ class GetTaskSchedulesTests(DemoDatabaseTestCase):
         s = task_schedules[0]
         self.assertEqual(s[TabletParam.TASK_SCHEDULE_NAME], "Test 1")
 
-        items = s[TabletParam.TASK_SCHEDULE_ITEMS]
-        self.assertEqual(len(items), 4)
+        schedule_items = s[TabletParam.TASK_SCHEDULE_ITEMS]
+        self.assertEqual(len(schedule_items), 4)
 
-        self.assertEqual(items[0][TabletParam.TABLE], "phq9")
-        self.assertEqual(items[0][TabletParam.SETTINGS], {
+        phq9_1_sched = schedule_items[0]
+        self.assertEqual(phq9_1_sched[TabletParam.TABLE], "phq9")
+        self.assertEqual(phq9_1_sched[TabletParam.SETTINGS], {
             "phq9_key": "phq9_value"
         })
-        self.assertEqual(parse(items[0][TabletParam.DUE_FROM]),
+        self.assertEqual(parse(phq9_1_sched[TabletParam.DUE_FROM]),
                          local(2020, 7, 31))
-        self.assertEqual(parse(items[0][TabletParam.DUE_BY]),
+        self.assertEqual(parse(phq9_1_sched[TabletParam.DUE_BY]),
                          local(2020, 8, 7))
-        self.assertFalse(items[0][TabletParam.COMPLETE])
-        self.assertFalse(items[0][TabletParam.ANONYMOUS])
+        self.assertFalse(phq9_1_sched[TabletParam.COMPLETE])
+        self.assertFalse(phq9_1_sched[TabletParam.ANONYMOUS])
 
-        self.assertEqual(items[1][TabletParam.TABLE], "bmi")
-        self.assertEqual(items[1][TabletParam.SETTINGS], {
+        bmi_sched = schedule_items[1]
+        self.assertEqual(bmi_sched[TabletParam.TABLE], "bmi")
+        self.assertEqual(bmi_sched[TabletParam.SETTINGS], {
             "bmi_key": "bmi_value",
         })
-        self.assertEqual(parse(items[1][TabletParam.DUE_FROM]),
+        self.assertEqual(parse(bmi_sched[TabletParam.DUE_FROM]),
                          local(2020, 7, 31))
-        self.assertEqual(parse(items[1][TabletParam.DUE_BY]),
+        self.assertEqual(parse(bmi_sched[TabletParam.DUE_BY]),
                          local(2020, 8, 8))
-        self.assertTrue(items[1][TabletParam.COMPLETE])
-        self.assertFalse(items[1][TabletParam.ANONYMOUS])
+        self.assertTrue(bmi_sched[TabletParam.COMPLETE])
+        self.assertFalse(bmi_sched[TabletParam.ANONYMOUS])
 
-        self.assertEqual(items[2][TabletParam.TABLE], "phq9")
-        self.assertEqual(items[2][TabletParam.SETTINGS], {
+        phq9_2_sched = schedule_items[2]
+        self.assertEqual(phq9_2_sched[TabletParam.TABLE], "phq9")
+        self.assertEqual(phq9_2_sched[TabletParam.SETTINGS], {
             "phq9_key": "phq9_value"
         })
-        self.assertEqual(parse(items[2][TabletParam.DUE_FROM]),
+        self.assertEqual(parse(phq9_2_sched[TabletParam.DUE_FROM]),
                          local(2020, 8, 30))
-        self.assertEqual(parse(items[2][TabletParam.DUE_BY]),
+        self.assertEqual(parse(phq9_2_sched[TabletParam.DUE_BY]),
                          local(2020, 9, 6))
-        self.assertFalse(items[2][TabletParam.COMPLETE])
-        self.assertFalse(items[2][TabletParam.ANONYMOUS])
+        self.assertFalse(phq9_2_sched[TabletParam.COMPLETE])
+        self.assertFalse(phq9_2_sched[TabletParam.ANONYMOUS])
 
         # GMCPQ
-        self.assertTrue(items[3][TabletParam.ANONYMOUS])
+        gmcpq_sched = schedule_items[3]
+        self.assertTrue(gmcpq_sched[TabletParam.ANONYMOUS])
 
 
 # =============================================================================
 # main
 # =============================================================================
-# run with "python -m camcops_server.cc_modules.client_api -v" to be verbose
+# - run with "python -m camcops_server.cc_modules.client_api -v" to be verbose
+# - use
+#   "python -m camcops_server.cc_modules.client_api PatientRegistrationTests.test_returns_patient_info"  # noqa
+#   for a single text
 
 if __name__ == "__main__":
     main_only_quicksetup_rootlogger(level=logging.DEBUG)

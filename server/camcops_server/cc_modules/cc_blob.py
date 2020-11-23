@@ -135,7 +135,7 @@ class Blob(GenericTabletRecordMixin, TaskDescendant, Base):
         "theblob", LongBlob,
         comment="The BLOB itself, a binary object containing arbitrary "
                 "information (such as a picture)"
-    )
+    )  # type: Optional[bytes]
 
     @classmethod
     def get_current_blob_by_client_info(cls,

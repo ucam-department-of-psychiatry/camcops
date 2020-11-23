@@ -117,6 +117,7 @@ extern const qreal DISABLED_ICON_OPACITY;
 
 // ============================================================================
 // Images (as filename stems, e.g. "addiction.png"
+// ... which need to be passed through uifunc::iconFilename() to get full paths
 // ============================================================================
 
 extern const QString ICON_ADDICTION;

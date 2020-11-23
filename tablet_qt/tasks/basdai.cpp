@@ -18,12 +18,10 @@
 */
 
 #include "basdai.h"
-#include "common/textconst.h"
 #include "common/uiconst.h"
 #include "maths/mathfunc.h"
 #include "lib/convert.h"
 #include "lib/stringfunc.h"
-#include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/qugridcell.h"
 #include "questionnairelib/qugridcontainer.h"
@@ -32,6 +30,7 @@
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
 using mathfunc::anyNull;
+using stringfunc::strnum;
 using stringfunc::strseq;
 
 const int FIRST_Q = 1;
@@ -54,7 +53,7 @@ Basdai::Basdai(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     Task(app, db, BASDAI_TABLENAME, false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
+    addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Double);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
@@ -80,7 +79,7 @@ QString Basdai::description() const
 {
     return tr(
         "A self-administered instrument for assessing disease activity in "
-        "Ankylosing Spondylitis"
+        "ankylosing spondylitis"
      );
 }
 
@@ -114,19 +113,21 @@ bool Basdai::isComplete() const
 QVariant Basdai::basdai() const
 {
     // Calculating the BASDAI:
-    // A. Add scores for questions 1 – 4
+    // A. Add scores for questions 1–4
     // B. Calculate the mean for questions 5 and 6
-    // C. Add A and B and divide by 5
+    // C. Add A and B (which is then out of 50) and divide by 5
 
     // The higher the BASDAI score, the more severe the patient’s disability
     // due to their AS.
 
+    if (!isComplete()) {
+        return QVariant();
+    }
     const double a = mathfunc::sumDouble(values(scoreAFieldNames()));
     const double b = mathfunc::mean(
         value("q5").toDouble(),
         value("q6").toDouble()
     );
-
     return (a + b) / 5;
 }
 
@@ -134,8 +135,10 @@ QVariant Basdai::basdai() const
 QStringList Basdai::summary() const
 {
     return QStringList{
-        QString("%1: %2").arg(xstring("basdai"),
-                              convert::prettyValue(basdai(), DP))
+        QString("%1: %2").arg(
+            xstring("basdai"),
+            convert::prettyValue(basdai(), DP)
+        )
     };
 }
 
@@ -167,21 +170,39 @@ OpenableWidget* Basdai::editor(const bool read_only)
 
     const int QUESTION_ROW_SPAN = 1;
     const int QUESTION_COLUMN_SPAN = 3;
+    const Qt::Alignment align_right = Qt::AlignRight | Qt::AlignVCenter;
+    const Qt::Alignment align_left = Qt::AlignLeft | Qt::AlignVCenter;
+    const Qt::Alignment align_centre = Qt::AlignCenter | Qt::AlignVCenter;
+    const int row_span = 1;
+    const int col_span = 1;
+    const double int_max = 100;
+    const double big_step = int_max / 10;
+    const double float_max = 10.0;
+    const int dp = 1;
+    const QMap<int, QString> final_q_extra_labels{
+        {int_max * 0.25, "½"},
+        {int_max * 0.5, "1"},
+        {int_max * 0.75, "1½"},
+    };
+    const bool can_shrink = true;
 
     int row = 0;
-
     for (const QString& fieldname : fieldNames()) {
-        QuSlider* slider = new QuSlider(fieldRef(fieldname), 0, 10, 1);
-        slider->setUseDefaultTickLabels(true);
+        const bool last_q = fieldname == strnum(QPREFIX, 6);
+
+        // Represent a float in the range 0-10 to 1dp, via integers in the
+        // range 0-100.
+        QuSlider* slider = new QuSlider(fieldRef(fieldname), 0, int_max, 1);
+        slider->setConvertForRealField(true, 0.0, float_max, dp);
         slider->setHorizontal(true);
-        slider->setBigStep(1);
-
-        const bool can_shrink = true;
+        slider->setBigStep(big_step);
         slider->setAbsoluteLengthCm(10, can_shrink);
-
-        slider->setTickInterval(1);
-        slider->setTickLabelPosition(QSlider::TicksAbove);
-
+        if (last_q) {
+            slider->setTickLabels(final_q_extra_labels);
+            slider->setTickLabelPosition(QSlider::TicksBelow);
+        } else {
+            slider->setTickLabelPosition(QSlider::NoTicks);
+        }
         slider->setShowValue(false);
         slider->setSymmetric(true);
 
@@ -191,19 +212,23 @@ OpenableWidget* Basdai::editor(const bool read_only)
         row++;
 
         const auto min_label = new QuText(xstring(fieldname + "_min"));
-        min_label->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
+        min_label->setTextAndWidgetAlignment(align_right);
         const auto max_label = new QuText(xstring(fieldname + "_max"));
-        slider_grid->addCell(QuGridCell(min_label, row, 0));
-        slider_grid->addCell(QuGridCell(slider, row, 1));
-        slider_grid->addCell(QuGridCell(max_label, row, 2));
-
+        max_label->setTextAndWidgetAlignment(align_left);
+        slider_grid->addCell(QuGridCell(min_label, row, 0,
+                                        row_span, col_span, align_right));
+        slider_grid->addCell(QuGridCell(slider, row, 1,
+                                        row_span, col_span, align_centre));
+        slider_grid->addCell(QuGridCell(max_label, row, 2,
+                                        row_span, col_span, align_left));
         row++;
 
-        slider_grid->addCell(QuGridCell(new QuSpacer(QSize(uiconst::BIGSPACE,
-                                                           uiconst::BIGSPACE)), row, 0));
-
-        row++;
-
+        if (!last_q) {
+            slider_grid->addCell(QuGridCell(
+                    new QuSpacer(QSize(uiconst::BIGSPACE, uiconst::BIGSPACE)),
+                    row, 0));
+            row++;
+        }
     }
 
     m_questionnaire = new Questionnaire(m_app, {page});
