@@ -95,7 +95,7 @@ const QString TAG_IDCLASH_DETAIL("idclash_detail");
 // SEE ALSO patient.cpp, for the JSON ones.
 const QString KEY_ADDRESS("address");  // C->S, in JSON, v2.3.0
 const QString KEY_DOB("dob");  // C->S, in JSON, v2.3.0
-const QString KEY_EMAIL("email");  // C->S, in JSON, v2.3.9
+const QString KEY_EMAIL("email");  // C->S, in JSON, v2.4.0
 const QString KEY_FORENAME("forename");  // C->S, in JSON, v2.3.0
 const QString KEY_GP("gp");  // C->S, in JSON, v2.3.0
 const QString KEY_IDNUM_PREFIX("idnum");  // C->S, in JSON, v2.3.0

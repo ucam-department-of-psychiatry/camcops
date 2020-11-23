@@ -45,7 +45,6 @@ from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_web as ws
 import hl7
 import pendulum
-from sqlalchemy import UniqueConstraint
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import Session as SqlASession
@@ -121,9 +120,6 @@ class Patient(GenericTabletRecordMixin, Base):
     Class representing a patient.
     """
     __tablename__ = "patient"
-    __table_args__ = (
-        UniqueConstraint("id", "_device_id", "_era"),
-    )
 
     id = Column(
         "id", Integer,
@@ -637,7 +633,7 @@ class Patient(GenericTabletRecordMixin, Base):
         missing details.
         """
         s = self.surname.upper() if self.surname else "(UNKNOWN)"
-        f = self.forename.upper() if self.surname else "(UNKNOWN)"
+        f = self.forename.upper() if self.forename else "(UNKNOWN)"
         return ws.webify(s + ", " + f)
 
     def get_dob_html(self, req: "CamcopsRequest", longform: bool) -> str:
@@ -1191,6 +1187,28 @@ class PatientTests(DemoDatabaseTestCase):
         self.assertIsInstance(p.is_preserved(), bool)
         self.assertIsInstance(p.is_finalized(), bool)
         self.assertIsInstance(p.user_may_edit(req), bool)
+
+    def test_surname_forename_upper(self) -> None:
+        patient = Patient()
+        patient.forename = "Forename"
+        patient.surname = "Surname"
+
+        self.assertEqual(patient.get_surname_forename_upper(),
+                         "SURNAME, FORENAME")
+
+    def test_surname_forename_upper_no_forename(self) -> None:
+        patient = Patient()
+        patient.surname = "Surname"
+
+        self.assertEqual(patient.get_surname_forename_upper(),
+                         "SURNAME, (UNKNOWN)")
+
+    def test_surname_forename_upper_no_surname(self) -> None:
+        patient = Patient()
+        patient.forename = "Forename"
+
+        self.assertEqual(patient.get_surname_forename_upper(),
+                         "(UNKNOWN), FORENAME")
 
 
 class LineageTests(DemoDatabaseTestCase):

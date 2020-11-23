@@ -984,22 +984,6 @@ class LinkingIdNumSelector(MandatoryWhichIdNumSelector):
         self.description = _("Which ID number to link on?")
 
 
-# class OptionalWhichIdNumSelector(MandatoryWhichIdNumSelector):
-#     """
-#     Node to select (optionally) an ID number type.
-#     """
-#     default = None
-#     missing = None
-#
-#     def __init__(self, *args, **kwargs) -> None:
-#         self.allow_none = True
-#         super().__init__(*args, **kwargs)
-#
-#     @staticmethod
-#     def schema_type() -> SchemaType:
-#         return AllowNoneType(Integer())
-
-
 class MandatoryIdNumValue(SchemaNode, RequestAwareMixin):
     """
     Mandatory node to capture an ID number value.
@@ -1015,18 +999,6 @@ class MandatoryIdNumValue(SchemaNode, RequestAwareMixin):
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         _ = self.gettext
         self.title = _("ID# value")
-
-
-# class OptionalIdNumValue(MandatoryIdNumValue):
-#     """
-#     Optional node to capture an ID number value.
-#     """
-#     default = None
-#     missing = None
-#
-#     @staticmethod
-#     def schema_type() -> SchemaType:
-#         return AllowNoneType(Integer())
 
 
 class MandatoryIdNumNode(MappingSchema, RequestAwareMixin):
