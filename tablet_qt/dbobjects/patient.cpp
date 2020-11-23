@@ -47,6 +47,7 @@
 #include "questionnairelib/quheading.h"
 #include "questionnairelib/quimage.h"
 #include "questionnairelib/qulineedit.h"
+#include "questionnairelib/qulineeditemail.h"
 #include "questionnairelib/qulineeditint64.h"
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qulineeditnhsnumber.h"
@@ -94,7 +95,7 @@ const QString TAG_IDCLASH_DETAIL("idclash_detail");
 // SEE ALSO patient.cpp, for the JSON ones.
 const QString KEY_ADDRESS("address");  // C->S, in JSON, v2.3.0
 const QString KEY_DOB("dob");  // C->S, in JSON, v2.3.0
-const QString KEY_EMAIL("email");  // C->S, in JSON, v2.3.9
+const QString KEY_EMAIL("email");  // C->S, in JSON, v2.4.0
 const QString KEY_FORENAME("forename");  // C->S, in JSON, v2.3.0
 const QString KEY_GP("gp");  // C->S, in JSON, v2.3.0
 const QString KEY_IDNUM_PREFIX("idnum");  // C->S, in JSON, v2.3.0
@@ -780,7 +781,7 @@ void Patient::buildPage(bool read_only)
         row++, 1));
     grid->addCell(QuGridCell(new QuText(tr("Email")),
                              row, 0, rowspan, colspan, ralign));
-    grid->addCell(QuGridCell(new QuTextEdit(fieldRef(EMAIL_FIELD, false)),
+    grid->addCell(QuGridCell(new QuLineEditEmail(fieldRef(EMAIL_FIELD, false)),
                              row++, 1));
     grid->addCell(QuGridCell(new QuText(tr("Address")),
                              row, 0, rowspan, colspan, ralign));

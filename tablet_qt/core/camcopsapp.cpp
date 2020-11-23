@@ -297,9 +297,8 @@ void CamcopsApp::wipeDataForModeChange()
     //   them into the clinician mode, allowing upload of data for arbitrary
     //   patients.)
     //
-    //   todo:
-    //      At present the client verifies this, but ideally we should verify
-    //      that server-side, too.
+    //  At present the client verifies this, but ideally we should verify that
+    //  server-side, too; see todo.rst.
     //
     // - We can wipe task schedules.
     //
@@ -472,7 +471,9 @@ void CamcopsApp::patientRegistrationFailed(
 
     case NetworkManager::GenericNetworkError:
         additional_message = tr(
-            "%1\n\nAre you connected to the internet?\n\nDid you enter the correct CamCOPS server location?"
+            "%1\n\n"
+            "Are you connected to the internet?\n\n"
+            "Did you enter the correct CamCOPS server location?"
         ).arg(error_string);
         break;
 
@@ -481,7 +482,6 @@ void CamcopsApp::patientRegistrationFailed(
         break;
     }
 
-    // TODO: Try again option?
     uifunc::alert(
         QString("%1\n\n%2").arg(base_message, additional_message),
         tr("Error")
@@ -495,11 +495,11 @@ void CamcopsApp::patientRegistrationFinished()
 {
     deleteNetworkGuiGuard();
 
-    // retryUpload() will upload any pending tasks or patients.
-    // Because we just registered, there won't be any pending tasks so
-    // this will just upload the newly registered patient's
-    // details to the server.
-    retryUpload();
+    // Creating the single patient from the server details will trigger
+    // "needs upload" and the upload icon will be displayed. We don't want
+    // to see the icon because we will wait until there are tasks to upload
+    // before uploading the patient
+    setNeedsUpload(false);
 
     recreateMainMenu();
 }
@@ -521,6 +521,13 @@ void CamcopsApp::updateTaskSchedulesFailed(
 void CamcopsApp::updateTaskSchedulesFinished()
 {
     deleteNetworkGuiGuard();
+
+    // Updating the single patient from the server details will trigger
+    // "needs upload" and the upload icon will be displayed. We don't want
+    // to see the icon because we will wait until there are tasks to upload
+    // before uploading the patient
+    setNeedsUpload(false);
+
     recreateMainMenu();
 }
 
@@ -803,13 +810,11 @@ void CamcopsApp::maybeRegisterPatient()
 {
     if (needToRegisterSinglePatient()) {
         if (!registerPatientWithServer()) {
-            /* The user cancelled the dialog
-               If the user entered invalid values in the dialog, they
-               will have another chance from the main menu
-            */
-            uifunc::stopApp(tr("You cancelled patient registration"));
+            // User cancelled patient registration dialog
+            // They can try again with the "Register me" button
+            // or switch to clinician mode ("More options")
+            recreateMainMenu();
         }
-
     } else {
         if (isSingleUserMode()) {
             setDefaultPatient();

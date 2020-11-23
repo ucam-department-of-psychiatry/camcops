@@ -29,12 +29,23 @@ webview for special features.**
 
 """
 
+import re
 from typing import Tuple
+import unittest
 
+from cardinal_pythonlib.colander_utils import EMAIL_ADDRESS_MAX_LEN
+from colander import EMAIL_RE
 from sqlalchemy.sql.schema import Table
 
 from camcops_server.cc_modules.cc_all_models import NONTASK_CLIENT_TABLENAMES
 from camcops_server.cc_modules.cc_patient import Patient, PatientIdNum
+
+
+# =============================================================================
+# Constants
+# =============================================================================
+
+EMAIL_RE_COMPILED = re.compile(EMAIL_RE)
 
 
 # =============================================================================
@@ -72,3 +83,46 @@ def upload_commit_order_sorter(x: Table) -> Tuple[bool, bool, bool, str]:
             x.name != PatientIdNum.__tablename__,
             x.name not in NONTASK_CLIENT_TABLENAMES,
             x.name)
+
+
+# =============================================================================
+# Email address validation
+# =============================================================================
+
+def is_email_valid(email: str) -> bool:
+    """
+    Is this a valid e-mail address?
+
+    We use the same validation system as our web form (which uses Colander's
+    method plus a length constraint).
+    """
+    if not isinstance(email, str) or not email:
+        return False
+    if len(email) > EMAIL_ADDRESS_MAX_LEN:
+        return False
+    return bool(EMAIL_RE_COMPILED.match(email))
+
+
+# =============================================================================
+# Unit tests
+# =============================================================================
+
+class EmailValidatorTests(unittest.TestCase):
+    """
+    Test our e-mail validator.
+    """
+
+    def test_email_validator(self) -> None:
+        good = [
+            "blah@somewhere.com",
+            "r&d@sillydomain.co.uk",
+        ]
+        bad = [
+            "plaintext",
+            "plain.domain.com",
+            "two@at@symbols.com",
+        ]
+        for email in good:
+            self.assertTrue(is_email_valid(email))
+        for email in bad:
+            self.assertFalse(is_email_valid(email))
