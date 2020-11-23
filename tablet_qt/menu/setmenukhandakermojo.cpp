@@ -26,6 +26,7 @@
 
 #include "taskchains/khandakermojochain.h"
 #include "tasks/asdas.h"
+#include "tasks/basdai.h"
 #include "tasks/bmi.h"
 #include "tasks/chit.h"
 #include "tasks/cisr.h"
@@ -91,6 +92,7 @@ void SetMenuKhandakerMojo::makeItems()
 
         MenuItem(tr("Subject-rated scales (condition-specific)")).setLabelOnly(),
         MAKE_TASK_MENU_ITEM(Asdas::ASDAS_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Basdai::BASDAI_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Esspri::ESSPRI_TABLENAME, m_app),
 
         // This isn't in the chain:

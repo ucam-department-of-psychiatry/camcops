@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="basdai">
+    <!-- Bath Ankylosing Spondylitis Disease Activity Index -->
+
+    <string name="title_main">Bath Ankylosing Spondylitis Disease Activity Index (BASDAI)</string>
+    <string name="instructions">(instructions)</string>
+
+    <string name="q1">(fatigue/tiredness)</string>
+    <string name="q2">(neck, back, hip)</string>
+    <string name="q3">(other joints)</string>
+    <string name="q4">(tender areas)</string>
+    <string name="q5">(stiffness level)</string>
+    <string name="q6">(stiffness duration)</string>
+
+    <string name="q1_min">(min)</string>
+    <string name="q1_max">(max)</string>
+    <string name="q2_min">(min)</string>
+    <string name="q2_max">(max)</string>
+    <string name="q3_min">(min)</string>
+    <string name="q3_max">(max)</string>
+    <string name="q4_min">(min)</string>
+    <string name="q4_max">(max)</string>
+    <string name="q5_min">(min)</string>
+    <string name="q5_max">(max)</string>
+    <string name="q6_min">(min)</string>
+    <string name="q6_max">(max)</string>
+
+    <string name="basdai">BASDAI</string>
+
+    <string name="inactive">inactive_disease</string>
+    <string name="active">active_disease</string>
+  </task>
+</resources>

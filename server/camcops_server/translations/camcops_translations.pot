@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CamCOPS 2.4.0\n"
 "Report-Msgid-Bugs-To: rudolf@pobox.com\n"
-"POT-Creation-Date: 2020-11-13 22:44+0000\n"
+"POT-Creation-Date: 2020-11-14 23:05+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1030,7 +1030,7 @@ msgstr ""
 msgid "(Server) Count current task instances, by creation month and user"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_taskschedule.py:303
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_taskschedule.py:326
 msgid "{task_name} @ {due_days} days"
 msgstr ""
 
@@ -1242,12 +1242,12 @@ msgstr ""
 msgid "Cannot find {object_class} with {server_pk_name}:{pk_value}"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/client_api.py:2187
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/client_api.py:2205
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/client_api.py:2195
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/client_api.py:2213
 msgid "There is no patient with access key '{access_key}'. Have you entered the key correctly?"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/client_api.py:2216
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/client_api.py:2224
 msgid "Patient has no ID numbers"
 msgstr ""
 
@@ -1391,54 +1391,54 @@ msgstr ""
 msgid "Patient details edited. Changes:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3803
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3809
 msgid "Patient is not editable - was not created on the server"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3920
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3926
 msgid "Patient is not editable (likely: not finalized, so a copy still on a client device)"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4070
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4076
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:58
 msgid "Delete patient"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4145
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4151
 msgid "Schedule does not exist"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4209
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4215
 msgid "Patient's task schedule does not exist"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4245
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4375
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4251
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4381
 msgid "You a not a group administrator for this task schedule's group"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4258
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4264
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:98
 msgid "Add a task schedule"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4271
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4277
 msgid "Edit details for a task schedule"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4285
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4291
 msgid "Delete a task schedule"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4391
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4397
 msgid "Add an item to the {schedule_name} schedule"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4414
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4420
 msgid "Edit details for a task schedule item"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4444
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4450
 msgid "Delete a task schedule item"
 msgstr ""
 
@@ -1517,6 +1517,10 @@ msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/badls.py:114
 msgid "Bristol Activities of Daily Living Scale"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/basdai.py:99
+msgid "Bath Ankylosing Spondylitis Disease Activity Index"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/bdi.py:194

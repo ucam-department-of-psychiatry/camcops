@@ -2973,3 +2973,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - ``account_locked.mako`` wasn't formatting its strings correctly.
 
 - Bugfix where the names of patients with no surname were not displayed.
+
+- **New task:** :ref:`Bath Ankylosing Spondylitis Disease Activity Index (BASDAI) <basdai>`.
+  (Database revision 0053.)

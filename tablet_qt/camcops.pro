@@ -753,6 +753,7 @@ SOURCES += \
     tasks/audit.cpp \
     tasks/auditc.cpp \
     tasks/badls.cpp \
+    tasks/basdai.cpp \
     tasks/bdi.cpp \
     tasks/bmi.cpp \
     tasks/bprs.cpp \
@@ -1217,6 +1218,7 @@ HEADERS += \
     tasks/audit.h \
     tasks/auditc.h \
     tasks/badls.h \
+    tasks/basdai.h \
     tasks/bdi.h \
     tasks/bmi.h \
     tasks/bprs.h \
