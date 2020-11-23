@@ -35,6 +35,9 @@ public:
     PatientIdNum(int patient_fk, int which_idnum,
                  CamcopsApp& app, DatabaseManager& db);
 
+    PatientIdNum(int patient_fk, int which_idnum,
+                 qint64 idnum_value, CamcopsApp& app, DatabaseManager& db);
+
     // Returns the ID number type (e.g. "3 meaning NHS number")
     int whichIdNum() const;
 

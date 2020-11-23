@@ -52,6 +52,18 @@ PatientIdNum::PatientIdNum(const int patient_fk, const int which_idnum,
 }
 
 
+PatientIdNum::PatientIdNum(const int patient_fk, const int which_idnum,
+                           const qint64 idnum_value,
+                           CamcopsApp& app, DatabaseManager& db) :
+    PatientIdNum(app, db)  // delegating constructor
+{
+    setValue(FK_PATIENT, patient_fk);
+    setValue(FN_WHICH_IDNUM, which_idnum);
+    setValue(FN_IDNUM_VALUE, idnum_value);
+    save();
+}
+
+
 int PatientIdNum::whichIdNum() const
 {
     return valueInt(FN_WHICH_IDNUM);

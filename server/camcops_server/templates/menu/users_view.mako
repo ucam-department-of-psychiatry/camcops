@@ -39,6 +39,8 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 
 <div>${page.pager()}</div>
 
+${form}
+
 <table>
     <tr>
         <th>${_("Username")}</th>
@@ -66,6 +68,9 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
                 %endif
                 %if user.is_locked_out(request):
                     <span class="warning">${_("Locked out;")} <a href="${ req.route_url(Routes.UNLOCK_USER, _query={ViewParam.USER_ID: user.id}) }">${_("unlock")}</a>.</span>
+                %endif
+                %if user.auto_generated:
+                    <span>${_("Auto-generated")}</span>
                 %endif
             </td>
             <td>${ (user.fullname or "") | h }</td>

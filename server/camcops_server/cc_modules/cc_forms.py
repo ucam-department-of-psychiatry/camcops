@@ -94,12 +94,14 @@ Form titles need to be dynamically written via
 
 """
 
+import json
 import logging
 import os
 from pprint import pformat
 from typing import (Any, Callable, Dict, List, Optional,
-                    Tuple, Type, TYPE_CHECKING)
+                    Tuple, Type, TYPE_CHECKING, Union)
 import unittest
+from unittest import mock, TestCase
 
 from cardinal_pythonlib.colander_utils import (
     AllowNoneType,
@@ -108,12 +110,12 @@ from cardinal_pythonlib.colander_utils import (
     DateTimeSelectorNode,
     DEFAULT_WIDGET_DATE_OPTIONS_FOR_PENDULUM,
     DEFAULT_WIDGET_TIME_OPTIONS_FOR_PENDULUM,
-    EmailValidatorWithLengthConstraint,
     get_child_node,
     get_values_and_permissible,
     HiddenIntegerNode,
     HiddenStringNode,
     MandatoryStringNode,
+    OptionalEmailNode,
     OptionalIntNode,
     OptionalPendulumNode,
     OptionalStringNode,
@@ -129,14 +131,16 @@ from cardinal_pythonlib.logs import (
 )
 from cardinal_pythonlib.sqlalchemy.dialect import SqlaDialectName
 from cardinal_pythonlib.sqlalchemy.orm_query import CountStarSpecializedQuery
-import colander
+# noinspection PyProtectedMember
 from colander import (
     Boolean,
     Date,
+    drop,
     Integer,
     Invalid,
     Length,
     MappingSchema,
+    null,
     OneOf,
     Range,
     Schema,
@@ -145,6 +149,7 @@ from colander import (
     SequenceSchema,
     Set,
     String,
+    _null,
 )
 from deform.form import Button
 from deform.widget import (
@@ -160,8 +165,11 @@ from deform.widget import (
     SelectWidget,
     SequenceWidget,
     TextAreaWidget,
+    TextInputWidget,
     Widget,
 )
+
+from pendulum import Duration
 
 # import as LITTLE AS POSSIBLE; this is used by lots of modules
 # We use some delayed imports here (search for "delayed import")
@@ -175,11 +183,16 @@ from camcops_server.cc_modules.cc_constants import (
     SEX_MALE,
     USER_NAME_FOR_SYSTEM,
 )
-from camcops_server.cc_modules.cc_group import Group, is_group_name_valid
+from camcops_server.cc_modules.cc_group import (
+    Group,
+    is_group_name_valid,
+)
 from camcops_server.cc_modules.cc_idnumdef import (
     IdNumDefinition,
     ID_NUM_VALIDATION_METHOD_CHOICES,
+    validate_id_number,
 )
+from camcops_server.cc_modules.cc_ipuse import IpContexts, IpUse
 from camcops_server.cc_modules.cc_language import (
     DEFAULT_LOCALE,
     POSSIBLE_LOCALES,
@@ -191,7 +204,12 @@ from camcops_server.cc_modules.cc_policy import (
     TABLET_ID_POLICY_STR,
     TokenizedPolicy,
 )
-from camcops_server.cc_modules.cc_pyramid import FormAction, ViewArg, ViewParam
+from camcops_server.cc_modules.cc_pyramid import (
+    FormAction,
+    RequestMethod,
+    ViewArg,
+    ViewParam,
+)
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     DATABASE_TITLE_MAX_LEN,
     FILTER_TEXT_MAX_LEN,
@@ -203,15 +221,21 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     ID_DESCRIPTOR_MAX_LEN,
     USERNAME_CAMCOPS_MAX_LEN,
 )
-from camcops_server.cc_modules.cc_unittest import DemoRequestTestCase
+from camcops_server.cc_modules.cc_task import tablename_to_task_class_dict
+from camcops_server.cc_modules.cc_taskschedule import TaskSchedule
+from camcops_server.cc_modules.cc_unittest import (
+    DemoDatabaseTestCase, DemoRequestTestCase
+)
 
 if TYPE_CHECKING:
+    from deform.field import Field
     from camcops_server.cc_modules.cc_request import CamcopsRequest
+    from camcops_server.cc_modules.cc_task import Task
     from camcops_server.cc_modules.cc_user import User
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
-ColanderNullType = type(colander.null)
+ColanderNullType = _null
 ValidatorType = Callable[[SchemaNode, Any], None]  # called as v(node, value)
 
 # =============================================================================
@@ -254,6 +278,27 @@ class BootstrapCssClasses(object):
     CHECKBOX_INLINE = "checkbox-inline"
 
 
+AUTOCOMPLETE_ATTR = "autocomplete"
+
+
+class AutocompleteAttrValues(object):
+    """
+    Some values for the HTML "autocomplete" attribute, as per
+    https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete.
+    Not all are used.
+    """
+    BDAY = "bday"
+    CURRENT_PASSWORD = "current-password"
+    EMAIL = "email"
+    FAMILY_NAME = "family-name"
+    GIVEN_NAME = "given-name"
+    NEW_PASSWORD = "new-password"
+    OFF = "off"
+    ON = "on"  # browser decides
+    STREET_ADDRESS = "stree-address"
+    USERNAME = "username"
+
+
 # =============================================================================
 # Common phrases for translation
 # =============================================================================
@@ -286,7 +331,7 @@ class BugfixSelectWidget(SelectWidget):
     """
     Fixes a bug where newer versions of Chameleon (e.g. 3.8.0) render Deform's
     ``multiple = False`` (in ``SelectWidget``) as this, which is wrong:
-    
+
     .. code-block:: none
 
         <select name="which_idnum" id="deformField2" class=" form-control " multiple="False">
@@ -329,7 +374,7 @@ class RequestAwareMixin(object):
     # noinspection PyUnresolvedReferences
     @property
     def request(self) -> "CamcopsRequest":
-        return self.bindings[Binding.REQUEST]  # type: CamcopsRequest
+        return self.bindings[Binding.REQUEST]
 
     # noinspection PyUnresolvedReferences,PyPropertyDefinition
     @property
@@ -517,8 +562,21 @@ class CSRFSchema(Schema, RequestAwareMixin):
     You can't put the call to ``bind()`` at the end of ``__init__()``, because
     ``bind()`` calls ``clone()`` with no arguments and ``clone()`` ends up
     calling ``__init__()```...
+
+    The item name should be one that the ZAP penetration testing tool expects,
+    or you get:
+
+    .. code-block:: none
+
+        No known Anti-CSRF token [anticsrf, CSRFToken,
+        __RequestVerificationToken, csrfmiddlewaretoken, authenticity_token,
+        OWASP_CSRFTOKEN, anoncsrf, csrf_token, _csrf, _csrfSecret] was found in
+        the following HTML form: [Form 1: "_charset_" "__formid__"
+        "deformField1" "deformField2" "deformField3" "deformField4" ].
+
     """
-    csrf = CSRFToken()  # name must match ViewParam.CSRF_TOKEN
+    csrf_token = CSRFToken()  # name must match ViewParam.CSRF_TOKEN
+    # ... name should also be one that ZAP expects, as above
 
 
 # =============================================================================
@@ -782,6 +840,33 @@ class OptionalSingleTaskSelector(OptionalStringNode, RequestAwareMixin):
         return choices
 
 
+class MandatorySingleTaskSelector(MandatoryStringNode, RequestAwareMixin):
+    """
+    Node to pick one task type.
+    """
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        self.title = ""  # for type checker
+        self.widget = None  # type: Optional[Widget]
+        self.validator = None  # type: Optional[ValidatorType]
+        super().__init__(*args, **kwargs)
+
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        _ = self.gettext
+        self.title = _("Task type")
+        values, pv = get_values_and_permissible(self.get_task_choices(), False)
+        self.widget = SelectWidget(values=values)
+        self.validator = OneOf(pv)
+
+    @staticmethod
+    def get_task_choices() -> List[Tuple[str, str]]:
+        from camcops_server.cc_modules.cc_task import Task  # delayed import
+        choices = []  # type: List[Tuple[str, str]]
+        for tc in Task.all_subclasses_by_shortname():
+            choices.append((tc.tablename, tc.shortname))
+        return choices
+
+
 class MultiTaskSelector(SchemaNode, RequestAwareMixin):
     """
     Node to select multiple task types.
@@ -899,22 +984,6 @@ class LinkingIdNumSelector(MandatoryWhichIdNumSelector):
         self.description = _("Which ID number to link on?")
 
 
-class OptionalWhichIdNumSelector(MandatoryWhichIdNumSelector):
-    """
-    Node to select (optionally) an ID number type.
-    """
-    default = None
-    missing = None
-
-    def __init__(self, *args, **kwargs) -> None:
-        self.allow_none = True
-        super().__init__(*args, **kwargs)
-
-    @staticmethod
-    def schema_type() -> SchemaType:
-        return AllowNoneType(Integer())
-
-
 class MandatoryIdNumValue(SchemaNode, RequestAwareMixin):
     """
     Mandatory node to capture an ID number value.
@@ -932,22 +1001,12 @@ class MandatoryIdNumValue(SchemaNode, RequestAwareMixin):
         self.title = _("ID# value")
 
 
-class OptionalIdNumValue(MandatoryIdNumValue):
-    """
-    Optional node to capture an ID number value.
-    """
-    default = None
-    missing = None
-
-    @staticmethod
-    def schema_type() -> SchemaType:
-        return AllowNoneType(Integer())
-
-
 class MandatoryIdNumNode(MappingSchema, RequestAwareMixin):
     """
     Mandatory node to capture an ID number type and the associated actual
     ID number (value).
+
+    This is also where we apply ID number validation rules (e.g. NHS number).
     """
     which_idnum = MandatoryWhichIdNumSelector()  # must match ViewParam.WHICH_IDNUM  # noqa
     idnum_value = MandatoryIdNumValue()  # must match ViewParam.IDNUM_VALUE
@@ -960,6 +1019,22 @@ class MandatoryIdNumNode(MappingSchema, RequestAwareMixin):
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         _ = self.gettext
         self.title = _("ID number")
+
+    # noinspection PyMethodMayBeStatic
+    def validator(self, node: SchemaNode, value: Dict[str, int]) -> None:
+        assert isinstance(value, dict)
+        req = self.request
+        _ = req.gettext
+        which_idnum = value[ViewParam.WHICH_IDNUM]
+        idnum_value = value[ViewParam.IDNUM_VALUE]
+        idnum_def = req.get_idnum_definition(which_idnum)
+        if not idnum_def:
+            raise Invalid(node, _("Bad ID number type"))  # shouldn't happen
+        method = idnum_def.validation_method
+        if method:
+            valid, why_invalid = validate_id_number(req, idnum_value, method)
+            if not valid:
+                raise Invalid(node, why_invalid)
 
 
 class IdNumSequenceAnyCombination(SequenceSchema, RequestAwareMixin):
@@ -1140,15 +1215,24 @@ class UsernameNode(SchemaNode, RequestAwareMixin):
     """
     schema_type = String
     _length_validator = Length(1, USERNAME_CAMCOPS_MAX_LEN)
+    widget = TextInputWidget(attributes={
+        AUTOCOMPLETE_ATTR: AutocompleteAttrValues.OFF
+    })
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self,
+                 *args,
+                 autocomplete: str = AutocompleteAttrValues.OFF,
+                 **kwargs) -> None:
         self.title = ""  # for type checker
+        self.autocomplete = autocomplete
         super().__init__(*args, **kwargs)
 
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         _ = self.gettext
         self.title = _("Username")
+        # noinspection PyUnresolvedReferences
+        self.widget.attributes[AUTOCOMPLETE_ATTR] = self.autocomplete
 
     def validator(self, node: SchemaNode, value: Any) -> None:
         if value == USER_NAME_FOR_SYSTEM:
@@ -1159,6 +1243,38 @@ class UsernameNode(SchemaNode, RequestAwareMixin):
                 repr(USER_NAME_FOR_SYSTEM)
             )
         self._length_validator(node, value)
+
+
+class UserFilterSchema(Schema, RequestAwareMixin):
+    """
+    Schema to filter the list of users
+    """
+    # must match ViewParam.INCLUDE_AUTO_GENERATED
+    include_auto_generated = BooleanNode()
+
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        _ = self.gettext
+        include_auto_generated = get_child_node(self, "include_auto_generated")
+        include_auto_generated.title = _("Include auto-generated users")
+        include_auto_generated.label = None
+
+
+class UserFilterForm(InformativeForm):
+    """
+    Form to filter the list of users
+    """
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
+        _ = request.gettext
+        schema = UserFilterSchema().bind(request=request)
+        super().__init__(
+            schema,
+            buttons=[Button(name=FormAction.SET_FILTERS,
+                            title=_("Refresh"))],
+            css_class=BootstrapCssClasses.FORM_INLINE,
+            method=RequestMethod.GET,
+            **kwargs
+        )
 
 
 # -----------------------------------------------------------------------------
@@ -1652,18 +1768,31 @@ class LoginSchema(CSRFSchema):
     """
     Schema to capture login details.
     """
-    username = UsernameNode()  # name must match ViewParam.USERNAME
+    username = UsernameNode(
+        autocomplete=AutocompleteAttrValues.USERNAME
+    )  # name must match ViewParam.USERNAME
     password = SchemaNode(  # name must match ViewParam.PASSWORD
         String(),
-        widget=PasswordWidget(),
+        widget=PasswordWidget(attributes={
+            AUTOCOMPLETE_ATTR: AutocompleteAttrValues.CURRENT_PASSWORD
+        }),
     )
     redirect_url = HiddenStringNode()  # name must match ViewParam.REDIRECT_URL
+
+    def __init__(self, *args, autocomplete_password: bool = True,
+                 **kwargs) -> None:
+        self.autocomplete_password = autocomplete_password
+        super().__init__(*args, **kwargs)
 
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         _ = self.gettext
         password = get_child_node(self, "password")
         password.title = _("Password")
+        password.widget.attributes[AUTOCOMPLETE_ATTR] = (
+            AutocompleteAttrValues.CURRENT_PASSWORD
+            if self.autocomplete_password else AutocompleteAttrValues.OFF
+        )
 
 
 class LoginForm(InformativeForm):
@@ -1681,17 +1810,20 @@ class LoginForm(InformativeForm):
                 autocompletion? Note that browsers may ignore this.
         """
         _ = request.gettext
-        schema = LoginSchema().bind(request=request)
+        schema = LoginSchema(
+            autocomplete_password=autocomplete_password
+        ).bind(request=request)
         super().__init__(
             schema,
             buttons=[Button(name=FormAction.SUBMIT, title=_("Log in"))],
-            autocomplete=autocomplete_password,
+            # autocomplete=autocomplete_password,
             **kwargs
         )
         # Suboptimal: autocomplete_password is not applied to the password
         # widget, just to the form; see
         # http://stackoverflow.com/questions/2530
         # Note that e.g. Chrome may ignore this.
+        # ... fixed 2020-09-29 by applying autocomplete to LoginSchema.password
 
 
 # =============================================================================
@@ -1723,7 +1855,9 @@ class OldUserPasswordCheck(SchemaNode, RequestAwareMixin):
     Schema to capture an old password (for when a password is being changed).
     """
     schema_type = String
-    widget = PasswordWidget()
+    widget = PasswordWidget(attributes={
+        AUTOCOMPLETE_ATTR: AutocompleteAttrValues.CURRENT_PASSWORD
+    })
 
     def __init__(self, *args, **kwargs) -> None:
         self.title = ""  # for type checker
@@ -1749,7 +1883,9 @@ class NewPasswordNode(SchemaNode, RequestAwareMixin):
     """
     schema_type = String
     validator = Length(min=MINIMUM_PASSWORD_LENGTH)
-    widget = CheckedPasswordWidget()
+    widget = CheckedPasswordWidget(attributes={
+        AUTOCOMPLETE_ATTR: AutocompleteAttrValues.NEW_PASSWORD
+    })
 
     def __init__(self, *args, **kwargs) -> None:
         self.title = ""  # for type checker
@@ -2524,9 +2660,7 @@ class EditUserGroupAdminSchema(CSRFSchema):
     fullname = OptionalStringNode(  # name must match ViewParam.FULLNAME and User attribute  # noqa
         validator=Length(0, FULLNAME_MAX_LEN)
     )
-    email = OptionalStringNode(  # name must match ViewParam.EMAIL and User attribute  # noqa
-        validator=EmailValidatorWithLengthConstraint(),
-    )
+    email = OptionalEmailNode()  # name must match ViewParam.EMAIL and User attribute  # noqa
     must_change_password = MustChangePasswordNode()  # match ViewParam.MUST_CHANGE_PASSWORD and User attribute  # noqa
     language = LanguageSelector()  # must match ViewParam.LANGUAGE
     group_ids = AdministeredGroupsSequence()  # must match ViewParam.GROUP_IDS
@@ -2724,6 +2858,123 @@ class GroupNameNode(MandatoryStringNode, RequestAwareMixin):
             raise Invalid(node, errstr.format(GROUP_NAME_MAX_LEN))
 
 
+class GroupIpUseWidget(Widget):
+    basedir = os.path.join(TEMPLATE_DIR, "deform")
+    readonlydir = os.path.join(basedir, "readonly")
+    form = "group_ip_use.pt"
+    template = os.path.join(basedir, form)
+    readonly_template = os.path.join(readonlydir, form)
+
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+        self.request = request
+
+    def serialize(self,
+                  field: "Field",
+                  cstruct: Union[Dict[str, Any], None, ColanderNullType],
+                  **kw: Any) -> Any:
+        if cstruct in (None, null):
+            cstruct = {}
+
+        cstruct: Dict[str, Any]  # For type checker
+
+        for context in IpUse.CONTEXTS:
+            value = cstruct.get(context, False)
+            kw.setdefault(context, value)
+
+        readonly = kw.get("readonly", self.readonly)
+        template = readonly and self.readonly_template or self.template
+        values = self.get_template_values(field, cstruct, kw)
+
+        _ = self.request.gettext
+
+        values.update(
+            introduction=_(
+                "These settings will be applied to the patient's device "
+                "when operating in single user mode."
+            ),
+            reason=_(
+                "The settings here influence whether CamCOPS will consider "
+                "some third-party tasks “permitted” on your behalf, according "
+                "to their published use criteria. They do <b>not</b> remove "
+                "your responsibility to ensure that you use them in accordance "
+                "with their own requirements."
+            ),
+            warning=_(
+                "WARNING. Providing incorrect information here may lead to you "
+                "VIOLATING copyright law, by using a task for a purpose that "
+                "is not permitted, and being subject to damages and/or "
+                "prosecution."
+            ),
+            disclaimer=_(
+                "The authors of CamCOPS cannot be held responsible or liable "
+                "for any consequences of you misusing materials subject to "
+                "copyright."
+            ),
+            preamble=_("In which contexts does this group operate?"),
+            clinical_label=_("Clinical"),
+            medical_device_warning=_(
+                "WARNING: NOT FOR GENERAL CLINICAL USE; not a Medical Device; "
+                "see Terms and Conditions"
+            ),
+            commercial_label=_("Commercial"),
+            educational_label=_("Educational"),
+            research_label=_("Research"),
+        )
+
+        return field.renderer(template, **values)
+
+    def deserialize(
+            self,
+            field: "Field",
+            pstruct: Union[Dict[str, Any], ColanderNullType]
+    ) -> Dict[str, bool]:
+        if pstruct is null:
+            pstruct = {}
+
+        pstruct: Dict[str, Any]  # For type checker
+
+        # It doesn't really matter what the pstruct values are. Only the
+        # options that are ticked will be present as keys in pstruct
+        return {k: k in pstruct for k in IpUse.CONTEXTS}
+
+
+class IpUseType(object):
+    # noinspection PyMethodMayBeStatic,PyUnusedLocal
+    def deserialize(
+            self,
+            node: SchemaNode,
+            cstruct: Union[Dict[str, Any], None, ColanderNullType]) \
+            -> Optional[IpUse]:
+        if cstruct in (None, null):
+            return None
+
+        cstruct: Dict[str, Any]  # For type checker
+
+        return IpUse(**cstruct)
+
+    # noinspection PyMethodMayBeStatic,PyUnusedLocal
+    def serialize(
+            self,
+            node: SchemaNode,
+            ip_use: Union[IpUse, None, ColanderNullType]) \
+            -> Union[Dict, ColanderNullType]:
+        if ip_use in [null, None]:
+            return null
+
+        return {
+            context: getattr(ip_use, context) for context in IpUse.CONTEXTS
+        }
+
+
+class GroupIpUseNode(SchemaNode, RequestAwareMixin):
+    schema_type = IpUseType
+
+    # noinspection PyUnusedLocal,PyAttributeOutsideInit
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        self.widget = GroupIpUseWidget(self.request)
+
+
 class EditGroupSchema(CSRFSchema):
     """
     Schema to edit a group.
@@ -2733,6 +2984,8 @@ class EditGroupSchema(CSRFSchema):
     description = MandatoryStringNode(  # must match ViewParam.DESCRIPTION
         validator=Length(1, GROUP_DESCRIPTION_MAX_LEN),
     )
+    ip_use = GroupIpUseNode()
+
     group_ids = AllOtherGroupsSequence()  # must match ViewParam.GROUP_IDS
     upload_policy = PolicyNode()  # must match ViewParam.UPLOAD_POLICY
     finalize_policy = PolicyNode()  # must match ViewParam.FINALIZE_POLICY
@@ -2742,6 +2995,10 @@ class EditGroupSchema(CSRFSchema):
         _ = self.gettext
         name = get_child_node(self, "name")
         name.title = _("Group name")
+
+        ip_use = get_child_node(self, "ip_use")
+        ip_use.title = _("Group intellectual property settings")
+
         group_ids = get_child_node(self, "group_ids")
         group_ids.title = _("Other groups this group may see")
         upload_policy = get_child_node(self, "upload_policy")
@@ -3500,15 +3757,221 @@ class DeletePatientConfirmForm(DangerousForm):
                          request=request, **kwargs)
 
 
+class DeleteServerCreatedPatientSchema(HardWorkConfirmationSchema):
+    """
+    Schema to delete a patient created on the server.
+    """
+    # name must match ViewParam.SERVER_PK
+    server_pk = HiddenIntegerNode()
+    danger = TranslatableValidateDangerousOperationNode()
+
+
+class DeleteServerCreatedPatientForm(DeleteCancelForm):
+    """
+    Form to delete a patient created on the server
+    """
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
+        super().__init__(schema_class=DeleteServerCreatedPatientSchema,
+                         request=request, **kwargs)
+
+
 EDIT_PATIENT_SIMPLE_PARAMS = [
     ViewParam.FORENAME,
     ViewParam.SURNAME,
     ViewParam.DOB,
     ViewParam.SEX,
     ViewParam.ADDRESS,
+    ViewParam.EMAIL,
     ViewParam.GP,
     ViewParam.OTHER,
 ]
+
+
+class TaskScheduleSelector(SchemaNode, RequestAwareMixin):
+    """
+    Drop-down with all available task schedules
+    """
+    widget = SelectWidget()
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        self.title = ""  # for type checker
+        self.name = ""  # for type checker
+        self.validator = None  # type: Optional[ValidatorType]
+        super().__init__(*args, **kwargs)
+
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        request = self.request
+        _ = request.gettext
+        self.title = _("Task schedule")
+        values = []  # type: List[Tuple[Optional[int], str]]
+
+        task_schedules = (
+            request.dbsession.query(TaskSchedule)
+            .order_by(TaskSchedule.name)
+        )
+
+        for task_schedule in task_schedules:
+            values.append((task_schedule.id, task_schedule.name))
+        values, pv = get_values_and_permissible(values, add_none=False)
+
+        self.widget.values = values
+        self.validator = OneOf(pv)
+
+    @staticmethod
+    def schema_type() -> SchemaType:
+        return Integer()
+
+
+class JsonType(object):
+    """
+    Schema type for JsonNode
+    """
+    # noinspection PyMethodMayBeStatic, PyUnusedLocal
+    def deserialize(self, node: SchemaNode,
+                    cstruct: Union[str, ColanderNullType, None]) -> Any:
+        # is null when form is empty
+        if cstruct in (null, None):
+            return None
+
+        cstruct: str
+
+        try:
+            # Validation happens on the widget class
+            json_value = json.loads(cstruct)
+        except json.JSONDecodeError:
+            return None
+
+        return json_value
+
+    # noinspection PyMethodMayBeStatic,PyUnusedLocal
+    def serialize(
+            self,
+            node: SchemaNode,
+            appstruct: Union[Dict, None, ColanderNullType]) \
+            -> Union[str, ColanderNullType]:
+        # is null when form is empty (new record)
+        # is None when populated from empty value in the database
+        if appstruct in (null, None):
+            return null
+
+        # appstruct should be well formed here (it would already have failed
+        # when reading from the database)
+        return json.dumps(appstruct)
+
+
+class JsonWidget(Widget):
+    """
+    Widget supporting jsoneditor https://github.com/josdejong/jsoneditor
+    """
+    basedir = os.path.join(TEMPLATE_DIR, "deform")
+    readonlydir = os.path.join(basedir, "readonly")
+    form = "json.pt"
+    template = os.path.join(basedir, form)
+    readonly_template = os.path.join(readonlydir, form)
+    requirements = (('jsoneditor', None),)
+
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+        self.request = request
+
+    def serialize(
+        self, field: "Field", cstruct: Union[str, ColanderNullType], **kw: Any
+    ) -> Any:
+        if cstruct is null:
+            cstruct = ""
+
+        readonly = kw.get('readonly', self.readonly)
+        template = readonly and self.readonly_template or self.template
+
+        values = self.get_template_values(field, cstruct, kw)
+
+        return field.renderer(template, **values)
+
+    def deserialize(
+        self, field: "Field", pstruct: Union[str, ColanderNullType]
+    ) -> Union[str, ColanderNullType]:
+        # is empty string when field is empty
+        if pstruct in (null, ""):
+            return null
+
+        _ = self.request.gettext
+        error_message = _("Please enter valid JSON or leave blank")
+
+        pstruct: str
+
+        try:
+            json.loads(pstruct)
+        except json.JSONDecodeError:
+            raise Invalid(field, error_message, pstruct)
+
+        return pstruct
+
+
+class JsonNode(SchemaNode, RequestAwareMixin):
+    schema_type = JsonType
+    missing = null
+
+    # noinspection PyUnusedLocal,PyAttributeOutsideInit
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        self.widget = JsonWidget(self.request)
+
+
+class TaskScheduleNode(MappingSchema, RequestAwareMixin):
+    schedule_id = TaskScheduleSelector()  # must match ViewParam.SCHEDULE_ID  # noqa: E501
+    # must match ViewParam.START_DATETIME
+    start_datetime = StartPendulumSelector()
+    settings = JsonNode()  # must match ViewParam.SETTINGS
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        self.title = ""  # for type checker
+        super().__init__(*args, **kwargs)
+
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        _ = self.gettext
+        self.title = _("Task schedule")
+        start_datetime = get_child_node(self, "start_datetime")
+        start_datetime.description = _(
+            "Leave blank for the date the patient first downloads the schedule"
+        )
+        settings = get_child_node(self, "settings")
+        settings.title = _("Task-specific settings for this patient")
+        settings.description = _(
+            "ADVANCED. Only applicable to tasks that are configurable on a "
+            "per-patient basis. Format: JSON object, with settings keyed on "
+            "task table name."
+        )
+
+    def validator(self, node: SchemaNode, value: Any) -> None:
+        settings_value = value["settings"]
+
+        if settings_value is not None:
+            # will be None if JSON failed to validate
+            if not isinstance(settings_value, dict):
+                _ = self.request.gettext
+                error_message = _(
+                    "Please enter a valid JSON object (with settings keyed on "
+                    "task table name) or leave blank"
+                )
+
+                raise Invalid(node, error_message)
+
+
+class TaskScheduleSequence(SequenceSchema, RequestAwareMixin):
+    task_schedule_sequence = TaskScheduleNode()
+    missing = drop
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        self.title = ""  # for type checker
+        self.widget = None  # type: Optional[Widget]
+        super().__init__(*args, **kwargs)
+
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        _ = self.gettext
+        self.title = _("Task Schedules")
+        self.widget = TranslatableSequenceWidget(request=self.request)
 
 
 class EditPatientSchema(CSRFSchema):
@@ -3516,16 +3979,15 @@ class EditPatientSchema(CSRFSchema):
     Schema to edit a patient.
     """
     server_pk = HiddenIntegerNode()  # must match ViewParam.SERVER_PK
-    group_id = HiddenIntegerNode()  # must match ViewParam.GROUP_ID
     forename = OptionalStringNode()  # must match ViewParam.FORENAME
     surname = OptionalStringNode()  # must match ViewParam.SURNAME
     dob = DateSelectorNode()  # must match ViewParam.DOB
     sex = MandatorySexSelector()  # must match ViewParam.SEX
     address = OptionalStringNode()  # must match ViewParam.ADDRESS
+    email = OptionalEmailNode()  # must match ViewParam.EMAIL
     gp = OptionalStringNode()  # must match ViewParam.GP
     other = OptionalStringNode()  # must match ViewParam.OTHER
     id_references = IdNumSequenceUniquePerWhichIdnum()  # must match ViewParam.ID_REFERENCES  # noqa
-    danger = TranslatableValidateDangerousOperationNode()
 
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
@@ -3561,15 +4023,447 @@ class EditPatientSchema(CSRFSchema):
             )
 
 
-class EditPatientForm(DangerousForm):
+class DangerousEditPatientSchema(EditPatientSchema):
+    group_id = HiddenIntegerNode()  # must match ViewParam.GROUP_ID
+    danger = TranslatableValidateDangerousOperationNode()
+
+
+class EditServerCreatedPatientSchema(EditPatientSchema):
+    # Must match ViewParam.GROUP_ID
+    group_id = MandatoryGroupIdSelectorAdministeredGroups(
+        insert_before="forename"
+    )
+    task_schedules = TaskScheduleSequence()  # must match ViewParam.TASK_SCHEDULES  # noqa: E501
+
+
+class EditFinalizedPatientForm(DangerousForm):
     """
-    Form to edit a patient.
+    Form to edit a finalized patient.
     """
-    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         _ = request.gettext
-        super().__init__(schema_class=EditPatientSchema,
+        super().__init__(schema_class=DangerousEditPatientSchema,
                          submit_action=FormAction.SUBMIT,
                          submit_title=_("Submit"),
+                         request=request, **kwargs)
+
+
+class EditServerCreatedPatientForm(DynamicDescriptionsForm):
+    """
+    Form to add or edit a patient not yet on the device (for scheduled tasks)
+    """
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
+        schema = EditServerCreatedPatientSchema().bind(request=request)
+        _ = request.gettext
+        super().__init__(
+            schema,
+            request=request,
+            buttons=[
+                Button(name=FormAction.SUBMIT, title=_("Submit"),
+                       css_class="btn-danger"),
+                Button(name=FormAction.CANCEL, title=_("Cancel")),
+            ],
+            **kwargs
+        )
+
+
+class TaskScheduleSchema(CSRFSchema):
+    name = OptionalStringNode()
+    group_id = MandatoryGroupIdSelectorAdministeredGroups()  # must match ViewParam.GROUP_ID  # noqa
+
+
+class EditTaskScheduleForm(DynamicDescriptionsForm):
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
+        schema = TaskScheduleSchema().bind(request=request)
+        _ = request.gettext
+        super().__init__(
+            schema,
+            request=request,
+            buttons=[
+                Button(name=FormAction.SUBMIT, title=_("Submit"),
+                       css_class="btn-danger"),
+                Button(name=FormAction.CANCEL, title=_("Cancel")),
+            ],
+            **kwargs
+        )
+
+
+class DeleteTaskScheduleSchema(HardWorkConfirmationSchema):
+    """
+    Schema to delete a task schedule.
+    """
+    # name must match ViewParam.SCHEDULE_ID
+    schedule_id = HiddenIntegerNode()
+    danger = TranslatableValidateDangerousOperationNode()
+
+
+class DeleteTaskScheduleForm(DeleteCancelForm):
+    """
+    Form to delete a task schedule.
+    """
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
+        super().__init__(schema_class=DeleteTaskScheduleSchema,
+                         request=request, **kwargs)
+
+
+class DurationWidget(Widget):
+    """
+    Widget for entering a duration as a number of months, weeks and days.
+    The default template renders three text input fields.
+    Total days = (months * 30) + (weeks * 7) + days.
+    """
+    basedir = os.path.join(TEMPLATE_DIR, "deform")
+    readonlydir = os.path.join(basedir, "readonly")
+    form = "duration.pt"
+    template = os.path.join(basedir, form)
+    readonly_template = os.path.join(readonlydir, form)
+
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+        self.request = request
+
+    def serialize(self,
+                  field: "Field",
+                  cstruct: Union[Dict[str, Any], None, ColanderNullType],
+                  **kw: Any) -> Any:
+        # called when rendering the form with values from DurationType.serialize
+        if cstruct in (None, null):
+            cstruct = {}
+
+        cstruct: Dict[str, Any]
+
+        months = cstruct.get("months", "")
+        weeks = cstruct.get("weeks", "")
+        days = cstruct.get("days", "")
+
+        kw.setdefault("months", months)
+        kw.setdefault("weeks", weeks)
+        kw.setdefault("days", days)
+
+        readonly = kw.get("readonly", self.readonly)
+        template = readonly and self.readonly_template or self.template
+        values = self.get_template_values(field, cstruct, kw)
+
+        _ = self.request.gettext
+
+        values.update(
+            weeks_placeholder=_("1 week = 7 days"),
+            months_placeholder=_("1 month = 30 days"),
+            months_label=_("Months"),
+            weeks_label=_("Weeks"),
+            days_label=_("Days"),
+        )
+
+        return field.renderer(template, **values)
+
+    def deserialize(
+            self,
+            field: "Field",
+            pstruct: Union[Dict[str, Any], ColanderNullType]
+    ) -> Dict[str, int]:
+        # called when validating the form on submission
+        # value is passed to the schema deserialize()
+
+        if pstruct is null:
+            pstruct = {}
+
+        pstruct: Dict[str, Any]
+
+        errors = []
+
+        try:
+            days = int(pstruct.get("days") or "0")
+        except ValueError:
+            errors.append("Please enter a valid number of days or leave blank")
+
+        try:
+            weeks = int(pstruct.get("weeks") or "0")
+        except ValueError:
+            errors.append("Please enter a valid number of weeks or leave blank")
+
+        try:
+            months = int(pstruct.get("months") or "0")
+        except ValueError:
+            errors.append(
+                "Please enter a valid number of months or leave blank"
+            )
+
+        if len(errors) > 0:
+            raise Invalid(field, errors, pstruct)
+
+        # noinspection PyUnboundLocalVariable
+        return {
+            "days": days,
+            "months": months,
+            "weeks": weeks,
+        }
+
+
+class DurationType(object):
+    """
+    Custom colander schema type to convert between Pendulum Duration objects
+    and months, weeks and days.
+    """
+
+    # noinspection PyMethodMayBeStatic,PyUnusedLocal
+    def deserialize(
+            self,
+            node: SchemaNode,
+            cstruct: Union[Dict[str, Any], None, ColanderNullType]) \
+            -> Optional[Duration]:
+        # called when validating the submitted form with the total days
+        # from DurationWidget.deserialize()
+        if cstruct in (None, null):
+            return None
+
+        cstruct: Dict[str, Any]
+
+        # may be passed invalid values when re-rendering widget with error
+        # messages
+        try:
+            days = int(cstruct.get("days") or "0")
+        except ValueError:
+            days = 0
+
+        try:
+            weeks = int(cstruct.get("weeks") or "0")
+        except ValueError:
+            weeks = 0
+
+        try:
+            months = int(cstruct.get("months") or "0")
+        except ValueError:
+            months = 0
+
+        total_days = months * 30 + weeks * 7 + days
+
+        return Duration(days=total_days)
+
+    # noinspection PyMethodMayBeStatic,PyUnusedLocal
+    def serialize(
+            self,
+            node: SchemaNode,
+            duration: Union[Duration, ColanderNullType]) \
+            -> Union[Dict, ColanderNullType]:
+        if duration is null:
+            # For new schedule item
+            return null
+
+        duration: Duration
+
+        total_days = duration.in_days()
+
+        months = total_days // 30
+        weeks = (total_days % 30) // 7
+        days = (total_days % 30) % 7
+
+        # Existing schedule item
+        cstruct = {
+            "days": days,
+            "months": months,
+            "weeks": weeks,
+        }
+
+        return cstruct
+
+
+class DurationNode(SchemaNode, RequestAwareMixin):
+    schema_type = DurationType
+
+    # noinspection PyUnusedLocal,PyAttributeOutsideInit
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        self.widget = DurationWidget(self.request)
+
+
+class TaskScheduleItemSchema(CSRFSchema):
+    schedule_id = HiddenIntegerNode()  # name must match ViewParam.SCHEDULE_ID
+    # name must match ViewParam.TABLE_NAME
+    table_name = MandatorySingleTaskSelector()
+    # name must match ViewParam.CLINICIAN_CONFIRMATION
+    clinician_confirmation = BooleanNode(default=False)
+    due_from = DurationNode()  # name must match ViewParam.DUE_FROM
+    due_within = DurationNode()  # name must match ViewParam.DUE_WITHIN
+
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        _ = self.gettext
+        due_from = get_child_node(self, "due_from")
+        due_from.title = _("Due from")
+        due_from.description = _(
+            "Time from the start of schedule when the patient may begin this "
+            "task"
+        )
+        due_within = get_child_node(self, "due_within")
+        due_within.title = _("Due within")
+        due_within.description = _(
+            "Time the patient has to complete this task"
+        )
+        clinician_confirmation = get_child_node(self, "clinician_confirmation")
+        clinician_confirmation.title = _("Allow clinician tasks")
+        clinician_confirmation.label = None
+        clinician_confirmation.description = _(
+            "Tick this box to schedule a task that would normally be completed "
+            "by (or with) a clinician"
+        )
+
+    def validator(self, node: SchemaNode, value: Dict[str, Any]) -> None:
+        task_class = self._get_task_class(value)
+
+        self._validate_clinician_status(node, value, task_class)
+        self._validate_due_dates(node, value)
+        self._validate_task_ip_use(node, value, task_class)
+
+    # noinspection PyMethodMayBeStatic
+    def _get_task_class(self, value: Dict[str, Any]) -> Type["Task"]:
+        return tablename_to_task_class_dict()[value[ViewParam.TABLE_NAME]]
+
+    def _validate_clinician_status(self,
+                                   node: SchemaNode,
+                                   value: Dict[str, Any],
+                                   task_class: Type["Task"]) -> None:
+
+        _ = self.gettext
+        clinician_confirmation = value[ViewParam.CLINICIAN_CONFIRMATION]
+        if task_class.has_clinician and not clinician_confirmation:
+            raise Invalid(
+                node,
+                _(
+                    "You have selected the task '{task_name}', which a "
+                    "patient would not normally complete by themselves. "
+                    "If you are sure you want to do this, you must tick "
+                    "'Allow clinician tasks'."
+                ).format(task_name=task_class.shortname)
+            )
+
+    def _validate_due_dates(self,
+                            node: SchemaNode,
+                            value: Dict[str, Any]) -> None:
+        _ = self.gettext
+        due_from = value[ViewParam.DUE_FROM]
+        if due_from.total_days() < 0:
+            raise Invalid(
+                node,
+                _("'Due from' must be zero or more days"),
+            )
+
+        due_within = value[ViewParam.DUE_WITHIN]
+        if due_within.total_days() <= 0:
+            raise Invalid(
+                node,
+                _("'Due within' must be more than zero days"),
+            )
+
+    def _validate_task_ip_use(self,
+                              node: SchemaNode,
+                              value: Dict[str, Any],
+                              task_class: Type["Task"]) -> None:
+
+        _ = self.gettext
+
+        if not task_class.prohibits_anything():
+            return
+
+        schedule_id = value[ViewParam.SCHEDULE_ID]
+        schedule = self.request.dbsession.query(TaskSchedule).filter(
+            TaskSchedule.id == schedule_id
+        ).one()
+
+        if schedule.group.ip_use is None:
+            raise Invalid(
+                node, _(
+                    "The task you have selected prohibits use in certain "
+                    "contexts. The group '{group_name}' has no intellectual "
+                    "property settings. "
+                    "You need to edit the group '{group_name}' to say which "
+                    "contexts it operates in.".format(
+                        group_name=schedule.group.name
+                    )
+                )
+            )
+
+        # TODO: One the client we say 'to use this task, you must seek
+        # permission from the copyright holder'. We could do the same but at the
+        # moment there isn't a way of telling the system that we have done so.
+        if task_class.prohibits_commercial and schedule.group.ip_use.commercial:
+            raise Invalid(
+                node,
+                _("The group '{group_name}' associated with schedule "
+                  "'{schedule_name}' operates in a "
+                  "commercial context but the task you have selected "
+                  "prohibits commercial use.").format(
+                      group_name=schedule.group.name,
+                      schedule_name=schedule.name
+                  )
+            )
+
+        if task_class.prohibits_clinical and schedule.group.ip_use.clinical:
+            raise Invalid(
+                node,
+                _("The group '{group_name}' associated with schedule "
+                  "'{schedule_name}' operates in a "
+                  "clinical context but the task you have selected "
+                  "prohibits clinical use.").format(
+                      group_name=schedule.group.name,
+                      schedule_name=schedule.name
+                  )
+            )
+
+        if task_class.prohibits_educational and schedule.group.ip_use.educational:  # noqa
+            raise Invalid(
+                node,
+                _("The group '{group_name}' associated with schedule "
+                  "'{schedule_name}' operates in an "
+                  "educational context but the task you have selected "
+                  "prohibits educational use.").format(
+                      group_name=schedule.group.name,
+                      schedule_name=schedule.name
+                  )
+            )
+
+        if task_class.prohibits_research and schedule.group.ip_use.research:
+            raise Invalid(
+                node,
+                _("The group '{group_name}' associated with schedule "
+                  "'{schedule_name}' operates in a "
+                  "research context but the task you have selected "
+                  "prohibits research use.").format(
+                      group_name=schedule.group.name,
+                      schedule_name=schedule.name
+                  )
+            )
+
+
+class EditTaskScheduleItemForm(DynamicDescriptionsForm):
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
+        schema = TaskScheduleItemSchema().bind(request=request)
+        _ = request.gettext
+        super().__init__(
+            schema,
+            request=request,
+            buttons=[
+                Button(name=FormAction.SUBMIT, title=_("Submit"),
+                       css_class="btn-danger"),
+                Button(name=FormAction.CANCEL, title=_("Cancel")),
+            ],
+            **kwargs
+        )
+
+
+class DeleteTaskScheduleItemSchema(HardWorkConfirmationSchema):
+    """
+    Schema to delete a task schedule item.
+    """
+    # name must match ViewParam.SCHEDULE_ITEM_ID
+    schedule_item_id = HiddenIntegerNode()
+    danger = TranslatableValidateDangerousOperationNode()
+
+
+class DeleteTaskScheduleItemForm(DeleteCancelForm):
+    """
+    Form to delete a task schedule item.
+    """
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
+        super().__init__(schema_class=DeleteTaskScheduleItemSchema,
                          request=request, **kwargs)
 
 
@@ -3638,13 +4532,13 @@ class UserDownloadDeleteForm(SimpleSubmitForm):
 # Unit tests
 # =============================================================================
 
-class SchemaTests(DemoRequestTestCase):
+class SchemaTestCase(DemoRequestTestCase):
     """
     Unit tests.
     """
-    @staticmethod
-    def _serialize_deserialize(schema: Schema,
-                               appstruct: Dict[str, Any]) -> None:
+    def serialize_deserialize(self,
+                              schema: Schema,
+                              appstruct: Dict[str, Any]) -> None:
         cstruct = schema.serialize(appstruct)
         final = schema.deserialize(cstruct)
         mismatch = False
@@ -3652,21 +4546,767 @@ class SchemaTests(DemoRequestTestCase):
             if final[k] != v:
                 mismatch = True
                 break
-        assert not mismatch, (
+        self.assertFalse(mismatch, msg=(
             "Elements of final don't match corresponding elements of starting "
             "appstruct:\n"
             f"final = {pformat(final)}\n"
             f"start = {pformat(appstruct)}"
-        )
+        ))
 
-    def test_login_schema(self) -> None:
-        self.announce("test_login_schema")  # noqa
+
+class LoginSchemaTests(SchemaTestCase):
+    def test_serialize_deserialize(self) -> None:
         appstruct = {
             ViewParam.USERNAME: "testuser",
             ViewParam.PASSWORD: "testpw",
         }
         schema = LoginSchema().bind(request=self.req)
-        self._serialize_deserialize(schema, appstruct)
+
+        self.serialize_deserialize(schema, appstruct)
+
+
+class TaskScheduleItemSchemaTests(SchemaTestCase):
+    def test_serialize_deserialize(self) -> None:
+        appstruct = {
+            ViewParam.SCHEDULE_ID: 1,
+            ViewParam.TABLE_NAME: "bmi",
+            ViewParam.CLINICIAN_CONFIRMATION: False,
+            ViewParam.DUE_FROM: Duration(days=90),
+            ViewParam.DUE_WITHIN: Duration(days=100)
+        }
+        schema = TaskScheduleItemSchema().bind(request=self.req)
+        self.serialize_deserialize(schema, appstruct)
+
+    def test_invalid_for_clinician_task_with_no_confirmation(self) -> None:
+        schema = TaskScheduleItemSchema().bind(request=self.req)
+        appstruct = {
+            ViewParam.SCHEDULE_ID: 1,
+            ViewParam.TABLE_NAME: "elixhauserci",
+            ViewParam.CLINICIAN_CONFIRMATION: False,
+            ViewParam.DUE_FROM: Duration(days=90),
+            ViewParam.DUE_WITHIN: Duration(days=100)
+        }
+
+        cstruct = schema.serialize(appstruct)
+        with self.assertRaises(Invalid) as cm:
+            schema.deserialize(cstruct)
+
+        self.assertIn("you must tick 'Allow clinician tasks'",
+                      cm.exception.messages()[0])
+
+    def test_valid_for_clinician_task_with_confirmation(self) -> None:
+        schema = TaskScheduleItemSchema().bind(request=mock.Mock())
+        appstruct = {
+            ViewParam.SCHEDULE_ID: 1,
+            ViewParam.TABLE_NAME: "elixhauserci",
+            ViewParam.CLINICIAN_CONFIRMATION: True,
+            ViewParam.DUE_FROM: Duration(days=90),
+            ViewParam.DUE_WITHIN: Duration(days=100)
+        }
+
+        try:
+            schema.serialize(appstruct)
+        except Invalid:
+            self.fail("Validation failed unexpectedly")
+
+    def test_invalid_for_zero_due_within(self) -> None:
+        schema = TaskScheduleItemSchema().bind(request=self.req)
+        appstruct = {
+            ViewParam.SCHEDULE_ID: 1,
+            ViewParam.TABLE_NAME: "phq9",
+            ViewParam.CLINICIAN_CONFIRMATION: False,
+            ViewParam.DUE_FROM: Duration(days=90),
+            ViewParam.DUE_WITHIN: Duration(days=0)
+        }
+
+        cstruct = schema.serialize(appstruct)
+        with self.assertRaises(Invalid) as cm:
+            schema.deserialize(cstruct)
+
+        self.assertIn("must be more than zero days",
+                      cm.exception.messages()[0])
+
+    def test_invalid_for_negative_due_within(self) -> None:
+        schema = TaskScheduleItemSchema().bind(request=self.req)
+        appstruct = {
+            ViewParam.SCHEDULE_ID: 1,
+            ViewParam.TABLE_NAME: "phq9",
+            ViewParam.CLINICIAN_CONFIRMATION: False,
+            ViewParam.DUE_FROM: Duration(days=90),
+            ViewParam.DUE_WITHIN: Duration(days=-1)
+        }
+
+        cstruct = schema.serialize(appstruct)
+        with self.assertRaises(Invalid) as cm:
+            schema.deserialize(cstruct)
+
+        self.assertIn("must be more than zero days",
+                      cm.exception.messages()[0])
+
+    def test_invalid_for_negative_due_from(self) -> None:
+        schema = TaskScheduleItemSchema().bind(request=self.req)
+        appstruct = {
+            ViewParam.SCHEDULE_ID: 1,
+            ViewParam.TABLE_NAME: "phq9",
+            ViewParam.CLINICIAN_CONFIRMATION: False,
+            ViewParam.DUE_FROM: Duration(days=-1),
+            ViewParam.DUE_WITHIN: Duration(days=10)
+        }
+
+        cstruct = schema.serialize(appstruct)
+        with self.assertRaises(Invalid) as cm:
+            schema.deserialize(cstruct)
+
+        self.assertIn("must be zero or more days",
+                      cm.exception.messages()[0])
+
+
+class TaskScheduleItemSchemaIpTests(DemoDatabaseTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.schedule = TaskSchedule()
+        self.schedule.group_id = self.group.id
+        self.dbsession.add(self.schedule)
+        self.dbsession.commit()
+
+    def create_tasks(self) -> None:
+        # Speed things up a bit
+        pass
+
+    def test_invalid_for_commercial_mismatch(self) -> None:
+        self.group.ip_use.commercial = True
+        self.dbsession.add(self.group)
+        self.dbsession.commit()
+
+        schema = TaskScheduleItemSchema().bind(request=self.req)
+        appstruct = {
+            ViewParam.SCHEDULE_ID: self.schedule.id,
+            ViewParam.TABLE_NAME: "mfi20",
+            ViewParam.CLINICIAN_CONFIRMATION: False,
+            ViewParam.DUE_FROM: Duration(days=0),
+            ViewParam.DUE_WITHIN: Duration(days=10)
+        }
+
+        cstruct = schema.serialize(appstruct)
+        with self.assertRaises(Invalid) as cm:
+            schema.deserialize(cstruct)
+
+        self.assertIn("prohibits commercial",
+                      cm.exception.messages()[0])
+
+    def test_invalid_for_clinical_mismatch(self) -> None:
+        self.group.ip_use.clinical = True
+        self.dbsession.add(self.group)
+        self.dbsession.commit()
+
+        schema = TaskScheduleItemSchema().bind(request=self.req)
+        appstruct = {
+            ViewParam.SCHEDULE_ID: self.schedule.id,
+            ViewParam.TABLE_NAME: "mfi20",
+            ViewParam.CLINICIAN_CONFIRMATION: False,
+            ViewParam.DUE_FROM: Duration(days=0),
+            ViewParam.DUE_WITHIN: Duration(days=10),
+        }
+
+        cstruct = schema.serialize(appstruct)
+        with self.assertRaises(Invalid) as cm:
+            schema.deserialize(cstruct)
+
+        self.assertIn("prohibits clinical",
+                      cm.exception.messages()[0])
+
+    def test_invalid_for_educational_mismatch(self) -> None:
+        self.group.ip_use.educational = True
+        self.dbsession.add(self.group)
+        self.dbsession.commit()
+
+        schema = TaskScheduleItemSchema().bind(request=self.req)
+        appstruct = {
+            ViewParam.SCHEDULE_ID: self.schedule.id,
+            ViewParam.TABLE_NAME: "mfi20",
+            ViewParam.CLINICIAN_CONFIRMATION: True,
+            ViewParam.DUE_FROM: Duration(days=0),
+            ViewParam.DUE_WITHIN: Duration(days=10),
+        }
+
+        cstruct = schema.serialize(appstruct)
+
+        # No real world example prohibits educational use
+        mock_task_class = mock.Mock(prohibits_educational=True)
+        with mock.patch.object(schema, "_get_task_class",
+                               return_value=mock_task_class):
+            with self.assertRaises(Invalid) as cm:
+                schema.deserialize(cstruct)
+
+        self.assertIn("prohibits educational",
+                      cm.exception.messages()[0])
+
+    def test_invalid_for_research_mismatch(self) -> None:
+        self.group.ip_use.research = True
+        self.dbsession.add(self.group)
+        self.dbsession.commit()
+
+        schema = TaskScheduleItemSchema().bind(request=self.req)
+        appstruct = {
+            ViewParam.SCHEDULE_ID: self.schedule.id,
+            ViewParam.TABLE_NAME: "moca",
+            ViewParam.CLINICIAN_CONFIRMATION: True,
+            ViewParam.DUE_FROM: Duration(days=0),
+            ViewParam.DUE_WITHIN: Duration(days=10),
+        }
+
+        cstruct = schema.serialize(appstruct)
+        with self.assertRaises(Invalid) as cm:
+            schema.deserialize(cstruct)
+
+        self.assertIn("prohibits research",
+                      cm.exception.messages()[0])
+
+    def test_invalid_for_missing_ip_use(self) -> None:
+        self.group.ip_use = None
+        self.dbsession.add(self.group)
+        self.dbsession.commit()
+
+        schema = TaskScheduleItemSchema().bind(request=self.req)
+        appstruct = {
+            ViewParam.SCHEDULE_ID: self.schedule.id,
+            ViewParam.TABLE_NAME: "moca",
+            ViewParam.CLINICIAN_CONFIRMATION: True,
+            ViewParam.DUE_FROM: Duration(days=0),
+            ViewParam.DUE_WITHIN: Duration(days=10),
+        }
+
+        cstruct = schema.serialize(appstruct)
+        with self.assertRaises(Invalid) as cm:
+            schema.deserialize(cstruct)
+
+        self.assertIn(
+            f"The group '{self.group.name}' has no intellectual property "
+            f"settings",
+            cm.exception.messages()[0]
+        )
+
+
+class DurationWidgetTests(TestCase):
+    def setUp(self) -> None:
+        super().setUp()
+        self.request = mock.Mock(gettext=lambda t: t)
+
+    def test_serialize_renders_template_with_values(self) -> None:
+        widget = DurationWidget(self.request)
+
+        field = mock.Mock()
+        field.renderer = mock.Mock()
+
+        cstruct = {
+            "months": 1,
+            "weeks": 2,
+            "days": 3,
+        }
+
+        widget.serialize(field, cstruct, readonly=False)
+
+        args, kwargs = field.renderer.call_args
+
+        self.assertEqual(args[0], f"{TEMPLATE_DIR}/deform/duration.pt")
+        self.assertFalse(kwargs["readonly"])
+
+        self.assertEqual(kwargs["months"], 1)
+        self.assertEqual(kwargs["weeks"], 2)
+        self.assertEqual(kwargs["days"], 3)
+
+        self.assertEqual(kwargs["field"], field)
+
+    def test_serialize_renders_readonly_template_with_values(self) -> None:
+        widget = DurationWidget(self.request)
+
+        field = mock.Mock()
+        field.renderer = mock.Mock()
+
+        cstruct = {
+            "months": 1,
+            "weeks": 2,
+            "days": 3,
+        }
+
+        widget.serialize(field, cstruct, readonly=True)
+
+        args, kwargs = field.renderer.call_args
+
+        self.assertEqual(args[0], f"{TEMPLATE_DIR}/deform/readonly/duration.pt")
+        self.assertTrue(kwargs["readonly"])
+
+    def test_serialize_renders_readonly_template_if_widget_is_readonly(
+            self) -> None:
+        widget = DurationWidget(self.request, readonly=True)
+
+        field = mock.Mock()
+        field.renderer = mock.Mock()
+
+        cstruct = {
+            "months": 1,
+            "weeks": 2,
+            "days": 3,
+        }
+
+        widget.serialize(field, cstruct)
+
+        args, kwargs = field.renderer.call_args
+
+        self.assertEqual(args[0], f"{TEMPLATE_DIR}/deform/readonly/duration.pt")
+
+    def test_serialize_with_null_defaults_to_blank_values(self) -> None:
+        widget = DurationWidget(self.request)
+
+        field = mock.Mock()
+        field.renderer = mock.Mock()
+
+        widget.serialize(field, null)
+
+        args, kwargs = field.renderer.call_args
+
+        self.assertEqual(kwargs["months"], "")
+        self.assertEqual(kwargs["weeks"], "")
+        self.assertEqual(kwargs["days"], "")
+
+    def test_serialize_none_defaults_to_blank_values(self) -> None:
+        widget = DurationWidget(self.request)
+
+        field = mock.Mock()
+        field.renderer = mock.Mock()
+
+        widget.serialize(field, None)
+
+        args, kwargs = field.renderer.call_args
+
+        self.assertEqual(kwargs["months"], "")
+        self.assertEqual(kwargs["weeks"], "")
+        self.assertEqual(kwargs["days"], "")
+
+    def test_deserialize_returns_valid_values(self) -> None:
+        widget = DurationWidget(self.request)
+
+        pstruct = {
+            "days": 1,
+            "weeks": 2,
+            "months": 3,
+        }
+
+        # noinspection PyTypeChecker
+        cstruct = widget.deserialize(None, pstruct)
+
+        self.assertEqual(cstruct["days"], 1)
+        self.assertEqual(cstruct["weeks"], 2)
+        self.assertEqual(cstruct["months"], 3)
+
+    def test_deserialize_defaults_to_zero_days(self) -> None:
+        widget = DurationWidget(self.request)
+
+        # noinspection PyTypeChecker
+        cstruct = widget.deserialize(None, {})
+
+        self.assertEqual(cstruct["days"], 0)
+
+    def test_deserialize_fails_validation(self) -> None:
+        widget = DurationWidget(self.request)
+
+        pstruct = {
+            "days": "abc",
+            "weeks": "def",
+            "months": "ghi",
+        }
+
+        with self.assertRaises(Invalid) as cm:
+            # noinspection PyTypeChecker
+            widget.deserialize(None, pstruct)
+
+        self.assertIn("Please enter a valid number of days or leave blank",
+                      cm.exception.messages())
+        self.assertIn("Please enter a valid number of weeks or leave blank",
+                      cm.exception.messages())
+        self.assertIn("Please enter a valid number of months or leave blank",
+                      cm.exception.messages())
+        self.assertEqual(cm.exception.value, pstruct)
+
+
+class DurationTypeTests(TestCase):
+    def test_deserialize_valid_duration(self) -> None:
+        cstruct = {"days": 45}
+
+        duration_type = DurationType()
+        duration = duration_type.deserialize(None, cstruct)
+        assert duration is not None  # for type checker
+
+        self.assertEqual(duration.days, 45)
+
+    def test_deserialize_none_returns_null(self) -> None:
+        duration_type = DurationType()
+        duration = duration_type.deserialize(None, None)
+        self.assertIsNone(duration)
+
+    def test_deserialize_ignores_invalid_days(self) -> None:
+        duration_type = DurationType()
+        cstruct = {"days": "abc", "months": 1, "weeks": 1}
+        duration = duration_type.deserialize(None, cstruct)
+        assert duration is not None  # for type checker
+
+        self.assertEqual(duration.days, 37)
+
+    def test_deserialize_ignores_invalid_months(self) -> None:
+        duration_type = DurationType()
+        cstruct = {"days": 1, "months": "abc", "weeks": 1}
+        duration = duration_type.deserialize(None, cstruct)
+        assert duration is not None  # for type checker
+
+        self.assertEqual(duration.days, 8)
+
+    def test_deserialize_ignores_invalid_weeks(self) -> None:
+        duration_type = DurationType()
+        cstruct = {"days": 1, "months": 1, "weeks": "abc"}
+        duration = duration_type.deserialize(None, cstruct)
+        assert duration is not None  # for type checker
+
+        self.assertEqual(duration.days, 31)
+
+    def test_serialize_valid_duration(self) -> None:
+        duration = Duration(days=47)
+
+        duration_type = DurationType()
+        cstruct = duration_type.serialize(None, duration)
+
+        # For type checker
+        assert cstruct not in (null,)
+        cstruct: Dict[Any, Any]
+
+        self.assertEqual(cstruct["days"], 3)
+        self.assertEqual(cstruct["months"], 1)
+        self.assertEqual(cstruct["weeks"], 2)
+
+    def test_serialize_null_returns_null(self) -> None:
+        duration_type = DurationType()
+        cstruct = duration_type.serialize(None, null)
+        self.assertIs(cstruct, null)
+
+
+class JsonWidgetTests(TestCase):
+    def setUp(self) -> None:
+        super().setUp()
+        self.request = mock.Mock(gettext=lambda t: t)
+
+    def test_serialize_renders_template_with_values(self) -> None:
+        widget = JsonWidget(self.request)
+
+        field = mock.Mock()
+        field.renderer = mock.Mock()
+
+        cstruct = json.dumps({"a": "1", "b": "2", "c": "3"})
+
+        widget.serialize(field, cstruct, readonly=False)
+
+        args, kwargs = field.renderer.call_args
+
+        self.assertEqual(args[0], f"{TEMPLATE_DIR}/deform/json.pt")
+        self.assertFalse(kwargs["readonly"])
+
+        self.assertEqual(kwargs["cstruct"], cstruct)
+        self.assertEqual(kwargs["field"], field)
+
+    def test_serialize_renders_readonly_template_with_values(self) -> None:
+        widget = JsonWidget(self.request)
+
+        field = mock.Mock()
+        field.renderer = mock.Mock()
+
+        cstruct = json.dumps({"a": "1", "b": "2", "c": "3"})
+
+        widget.serialize(field, cstruct, readonly=True)
+
+        args, kwargs = field.renderer.call_args
+
+        self.assertEqual(args[0], f"{TEMPLATE_DIR}/deform/readonly/json.pt")
+
+        self.assertEqual(kwargs["cstruct"], cstruct)
+        self.assertEqual(kwargs["field"], field)
+        self.assertTrue(kwargs["readonly"])
+
+    def test_serialize_renders_readonly_template_if_widget_is_readonly(
+            self) -> None:
+        widget = JsonWidget(self.request, readonly=True)
+
+        field = mock.Mock()
+        field.renderer = mock.Mock()
+
+        json_text = json.dumps({"a": "1", "b": "2", "c": "3"})
+        widget.serialize(field, json_text)
+
+        args, kwargs = field.renderer.call_args
+
+        self.assertEqual(args[0], f"{TEMPLATE_DIR}/deform/readonly/json.pt")
+
+    def test_serialize_with_null_defaults_to_empty_string(self) -> None:
+        widget = JsonWidget(self.request)
+
+        field = mock.Mock()
+        field.renderer = mock.Mock()
+
+        widget.serialize(field, null)
+
+        args, kwargs = field.renderer.call_args
+
+        self.assertEqual(kwargs["cstruct"], "")
+
+    def test_deserialize_passes_json(self) -> None:
+        widget = JsonWidget(self.request)
+
+        pstruct = json.dumps({"a": "1", "b": "2", "c": "3"})
+
+        # noinspection PyTypeChecker
+        cstruct = widget.deserialize(None, pstruct)
+
+        self.assertEqual(cstruct, pstruct)
+
+    def test_deserialize_defaults_to_empty_json_string(self) -> None:
+        widget = JsonWidget(self.request)
+
+        # noinspection PyTypeChecker
+        cstruct = widget.deserialize(None, "{}")
+
+        self.assertEqual(cstruct, "{}")
+
+    def test_deserialize_invalid_json_fails_validation(self) -> None:
+        widget = JsonWidget(self.request)
+
+        pstruct = "{"
+
+        with self.assertRaises(Invalid) as cm:
+            # noinspection PyTypeChecker
+            widget.deserialize(None, pstruct)
+
+        self.assertIn(
+            "Please enter valid JSON",
+            cm.exception.messages()[0]
+        )
+
+        self.assertEqual(cm.exception.value, "{")
+
+
+class JsonTypeTests(TestCase):
+    def test_deserialize_valid_json(self) -> None:
+        original = {"one": 1, "two": 2, "three": 3}
+
+        json_type = JsonType()
+        json_value = json_type.deserialize(None, json.dumps(original))
+        self.assertEqual(json_value, original)
+
+    def test_deserialize_null_returns_none(self) -> None:
+        json_type = JsonType()
+        json_value = json_type.deserialize(None, null)
+        self.assertIsNone(json_value)
+
+    def test_deserialize_none_returns_null(self) -> None:
+        json_type = JsonType()
+        json_value = json_type.deserialize(None, None)
+        self.assertIsNone(json_value)
+
+    def test_deserialize_invalid_json_returns_none(self) -> None:
+        json_type = JsonType()
+        json_value = json_type.deserialize(None, "{")
+        self.assertIsNone(json_value)
+
+    def test_serialize_valid_appstruct(self) -> None:
+        original = {"one": 1, "two": 2, "three": 3}
+
+        json_type = JsonType()
+        json_string = json_type.serialize(None, original)
+        self.assertEqual(json_string, json.dumps(original))
+
+    def test_serialize_null_returns_null(self) -> None:
+        json_type = JsonType()
+        json_string = json_type.serialize(None, null)
+        self.assertIs(json_string, null)
+
+
+class TaskScheduleNodeTests(TestCase):
+
+    def test_deserialize_not_a_json_object_fails_validation(self) -> None:
+        node = TaskScheduleNode()
+        with self.assertRaises(Invalid) as cm:
+            node.deserialize({})
+
+            self.assertIn(
+                "Please enter a valid JSON object",
+                cm.exception.messages()[0]
+            )
+
+            self.assertEqual(cm.exception.value, "[{}]")
+
+
+class GroupIpUseWidgetTests(TestCase):
+    def setUp(self) -> None:
+        super().setUp()
+        self.request = mock.Mock(gettext=lambda t: t)
+
+    def test_serialize_renders_template_with_values(self) -> None:
+        widget = GroupIpUseWidget(self.request)
+
+        field = mock.Mock()
+        field.renderer = mock.Mock()
+
+        cstruct = {
+            IpContexts.CLINICAL: False,
+            IpContexts.COMMERCIAL: False,
+            IpContexts.EDUCATIONAL: True,
+            IpContexts.RESEARCH: True,
+        }
+
+        widget.serialize(field, cstruct, readonly=False)
+
+        args, kwargs = field.renderer.call_args
+
+        self.assertEqual(args[0], f"{TEMPLATE_DIR}/deform/group_ip_use.pt")
+        self.assertFalse(kwargs["readonly"])
+
+        self.assertFalse(kwargs[IpContexts.CLINICAL])
+        self.assertFalse(kwargs[IpContexts.COMMERCIAL])
+        self.assertTrue(kwargs[IpContexts.EDUCATIONAL])
+        self.assertTrue(kwargs[IpContexts.RESEARCH])
+        self.assertEqual(kwargs["field"], field)
+
+    def test_serialize_renders_readonly_template(self) -> None:
+        widget = GroupIpUseWidget(self.request)
+
+        field = mock.Mock()
+        field.renderer = mock.Mock()
+
+        cstruct = {
+            IpContexts.CLINICAL: False,
+            IpContexts.COMMERCIAL: False,
+            IpContexts.EDUCATIONAL: True,
+            IpContexts.RESEARCH: True,
+        }
+
+        widget.serialize(field, cstruct, readonly=True)
+
+        args, kwargs = field.renderer.call_args
+
+        self.assertEqual(args[0],
+                         f"{TEMPLATE_DIR}/deform/readonly/group_ip_use.pt")
+        self.assertTrue(kwargs["readonly"])
+
+    def test_serialize_readonly_widget_renders_readonly_template(self) -> None:
+        widget = GroupIpUseWidget(self.request, readonly=True)
+
+        field = mock.Mock()
+        field.renderer = mock.Mock()
+
+        cstruct = {
+            IpContexts.CLINICAL: False,
+            IpContexts.COMMERCIAL: False,
+            IpContexts.EDUCATIONAL: True,
+            IpContexts.RESEARCH: True,
+        }
+
+        widget.serialize(field, cstruct)
+
+        args, kwargs = field.renderer.call_args
+
+        self.assertEqual(args[0],
+                         f"{TEMPLATE_DIR}/deform/readonly/group_ip_use.pt")
+
+    def test_serialize_with_null_defaults_to_false_values(self) -> None:
+        widget = GroupIpUseWidget(self.request)
+
+        field = mock.Mock()
+        field.renderer = mock.Mock()
+
+        widget.serialize(field, null)
+
+        args, kwargs = field.renderer.call_args
+
+        self.assertFalse(kwargs[IpContexts.CLINICAL])
+        self.assertFalse(kwargs[IpContexts.COMMERCIAL])
+        self.assertFalse(kwargs[IpContexts.EDUCATIONAL])
+        self.assertFalse(kwargs[IpContexts.RESEARCH])
+
+    def test_serialize_with_none_defaults_to_false_values(self) -> None:
+        widget = GroupIpUseWidget(self.request)
+
+        field = mock.Mock()
+        field.renderer = mock.Mock()
+
+        widget.serialize(field, None)
+
+        args, kwargs = field.renderer.call_args
+
+        self.assertFalse(kwargs[IpContexts.CLINICAL])
+        self.assertFalse(kwargs[IpContexts.COMMERCIAL])
+        self.assertFalse(kwargs[IpContexts.EDUCATIONAL])
+        self.assertFalse(kwargs[IpContexts.RESEARCH])
+
+    def test_deserialize_with_null_defaults_to_false_values(self) -> None:
+        widget = GroupIpUseWidget(self.request)
+
+        field = None  # Not used
+        # noinspection PyTypeChecker
+        cstruct = widget.deserialize(field, null)
+
+        self.assertFalse(cstruct[IpContexts.CLINICAL])
+        self.assertFalse(cstruct[IpContexts.COMMERCIAL])
+        self.assertFalse(cstruct[IpContexts.EDUCATIONAL])
+        self.assertFalse(cstruct[IpContexts.RESEARCH])
+
+    def test_deserialize_converts_to_bool_values(self) -> None:
+        widget = GroupIpUseWidget(self.request)
+
+        field = None  # Not used
+
+        # It shouldn't matter what the values are set to so long as the keys
+        # are present. In practice the values will be set to "1"
+        pstruct = {
+            IpContexts.EDUCATIONAL: "1",
+            IpContexts.RESEARCH: "1",
+        }
+
+        # noinspection PyTypeChecker
+        cstruct = widget.deserialize(field, pstruct)
+
+        self.assertFalse(cstruct[IpContexts.CLINICAL])
+        self.assertFalse(cstruct[IpContexts.COMMERCIAL])
+        self.assertTrue(cstruct[IpContexts.EDUCATIONAL])
+        self.assertTrue(cstruct[IpContexts.RESEARCH])
+
+
+class IpUseTypeTests(TestCase):
+    def test_deserialize_none_returns_none(self) -> None:
+        ip_use_type = IpUseType()
+
+        node = None  # not used
+        self.assertIsNone(ip_use_type.deserialize(node, None), None)
+
+    def test_deserialize_null_returns_none(self) -> None:
+        ip_use_type = IpUseType()
+
+        node = None  # not used
+        self.assertIsNone(ip_use_type.deserialize(node, null), None)
+
+    def test_deserialize_returns_ip_use_object(self) -> None:
+        ip_use_type = IpUseType()
+
+        node = None  # not used
+
+        cstruct = {
+            IpContexts.CLINICAL: False,
+            IpContexts.COMMERCIAL: True,
+            IpContexts.EDUCATIONAL: False,
+            IpContexts.RESEARCH: True,
+        }
+        ip_use = ip_use_type.deserialize(node, cstruct)
+
+        self.assertFalse(ip_use.clinical)
+        self.assertTrue(ip_use.commercial)
+        self.assertFalse(ip_use.educational)
+        self.assertTrue(ip_use.research)
 
 
 # =============================================================================

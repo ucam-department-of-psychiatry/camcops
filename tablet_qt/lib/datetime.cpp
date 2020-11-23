@@ -24,13 +24,14 @@
 namespace datetime {
 
 
-const QString LONG_DATE_FORMAT("dddd d MMMM yyyy");  // Thursday 31 Dec 2000
+const QString LONG_DATE_FORMAT("dddd d MMMM yyyy");  // Thursday 31 December 2000
 const QString TIMESTAMP_FORMAT("yyyy-MM-dd HH:mm:ss.zzz");  // 2000-12-31 23:59:59.999
 const QString SHORT_DATETIME_FORMAT("yyyy-MM-dd HH:mm");  // 2000-12-31 23:59
 const QString ISO_DATE_FORMAT("yyyy-MM-dd");  // 2000-12-31
 const QString SHORT_DATE_FORMAT(ISO_DATE_FORMAT);
 const QString TEXT_DATE_FORMAT("dd MMM yyyy");  // 31 Dec 2000
 const QString TEXT_DATETIME_FORMAT("ddd dd MMM yyyy, HH:mm");  // Thu 31 Dec 2000, 23:59
+const QString LONG_DATETIME_FORMAT("dddd d MMMM yyyy, HH:mm");  // Thursday 31 December 2000, 23:59
 const QString UNKNOWN("?");
 
 

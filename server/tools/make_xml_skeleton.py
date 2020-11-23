@@ -76,6 +76,7 @@ def main() -> None:
     """
     Command-line entry point.
     """
+    # noinspection PyTypeChecker
     parser = argparse.ArgumentParser(
         "Create an XML string file skeleton, with placeholder text, from a "
         "real but secret string file. Writes to stdout.",

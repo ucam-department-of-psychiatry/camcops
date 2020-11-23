@@ -105,6 +105,7 @@ Mostly original Deform code but with some modifications.
 
   </fieldset>
 
+  <!--suppress JSUnnecessarySemicolon -->
   <script type="text/javascript" tal:condition="use_ajax">
    deform.addCallback(
      '${formid}',

@@ -17,9 +17,21 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "common/dbconst.h"
 #include "varconst.h"
 
 namespace varconst {
+
+// Mode
+const QString MODE("mode");
+const int MODE_NOT_SET = 0;
+const int MODE_CLINICIAN = 1;
+const int MODE_SINGLE_USER = 2;
+const int DEFAULT_MODE = MODE_NOT_SET;
+
+// Single user mode
+const QString SINGLE_PATIENT_ID("singlePatientId");
+const QString SINGLE_PATIENT_PROQUINT("singlePatientProquint");
 
 // Language
 const QString LANGUAGE("language");
@@ -48,6 +60,7 @@ const QString STORE_SERVER_PASSWORD("storeServerPassword");
 const QString UPLOAD_METHOD("uploadMethod");
 const QString MAX_DBSIZE_FOR_ONESTEP_UPLOAD("maxDbSizeForOneStepUpload");
 
+const bool VALIDATE_SSL_CERTIFICATES_IN_SINGLE_USER_MODE = false;
 const int UPLOAD_METHOD_MULTISTEP = 0;
 const int UPLOAD_METHOD_ONESTEP = 1;
 const int UPLOAD_METHOD_BYSIZE = 2;

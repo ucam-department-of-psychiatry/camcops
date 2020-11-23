@@ -92,6 +92,13 @@ QString standardResult(const QString& name,
                        const QString& separator = ": ",
                        const QString& suffix = ".");
 
+// Returns "<b><part1>[:]</b>" or "<b><part1></b> (<part2>)[:]"
+QString makeTitle(const QString& part1, const QString& part2 = "",
+                  bool colon = false);
+
+// Returns "<part1> (<part2>)"
+QString makeHint(const QString& part1, const QString& part2);
+
 // ============================================================================
 // Other string processing
 // ============================================================================

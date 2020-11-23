@@ -574,8 +574,8 @@ If you get an error like:
 then check:
 
 1. Is Docker running (``ps aux | grep dockerd`` or a service command, such as
-  ``service docker status`` under Ubuntu)? If not, start its service (e.g.
-  under Ubuntu, ``sudo service docker start``).
+   ``service docker status`` under Ubuntu)? If not, start its service (e.g.
+   under Ubuntu, ``sudo service docker start``).
 
 2. Is your user in the Docker group (``grep docker /etc/group``)? If not, add
    your user, then log out and log in again for the changes to be picked up.

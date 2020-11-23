@@ -80,7 +80,8 @@ Task::Task(CamcopsApp& app,
     addField(FIRSTEXIT_IS_FINISH_FIELDNAME, QVariant::Bool);
     addField(FIRSTEXIT_IS_ABORT_FIELDNAME, QVariant::Bool);
     addField(WHEN_FIRSTEXIT_FIELDNAME, QVariant::DateTime);
-    addField(Field(EDITING_TIME_S_FIELDNAME, QVariant::Double).setDefaultValue(0.0));
+    addField(Field(EDITING_TIME_S_FIELDNAME, QVariant::Double)
+             .setCppDefaultValue(0.0));
 
     if (!is_anonymous) {
         addField(PATIENT_FK_FIELDNAME, QVariant::Int);
@@ -290,12 +291,12 @@ bool Task::isTaskPermissible(QString& why_not_permissible) const
         return v.isNull() || v.toInt() == CommonOptions::UNKNOWN_INT;
     };
 
-    const QString PROHIBITED_YES(tr(
-        " You have said you ARE using this software in that context "
+    const QString PROHIBITED_YES(" " + tr(
+        "You have said you ARE using this software in that context "
         "(see Settings). To use this task, you must seek permission "
         "from the copyright holder (see Task Information)."));
-    const QString PROHIBITED_UNKNOWN(tr(
-        " You have NOT SAID whether you are using this "
+    const QString PROHIBITED_UNKNOWN(" " + tr(
+        "You have NOT SAID whether you are using this "
         "software in that context (see Settings)."));
     const QString PERMISSIBLE(tr("Task permissible"));
 

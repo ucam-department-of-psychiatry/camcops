@@ -67,6 +67,7 @@ from camcops_server.cc_modules.cc_text import TERMS_CONDITIONS_UPDATE_DATE
 from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 
 if TYPE_CHECKING:
+    from camcops_server.cc_modules.cc_patient import Patient
     from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
@@ -379,7 +380,7 @@ class User(Base):
         "username", UserNameCamcopsColType,
         nullable=False, index=True, unique=True,
         comment="User name"
-    )
+    )  # type: str
     fullname = Column(
         "fullname", FullNameColType,
         comment="User's full name"
@@ -426,21 +427,31 @@ class User(Base):
         "language", LanguageCodeColType,
         comment="Language code preferred by this user"
     )
+    auto_generated = Column(
+        "auto_generated", Boolean,
+        nullable=False,
+        default=False,
+        comment="Is automatically generated user with random password"
+    )
+    single_patient_pk = Column(
+        "single_patient_pk", Integer, ForeignKey("patient._pk"),
+        comment="For users locked to a single patient, the server PK of the "
+                "server-created patient with which they are associated"
+    )
 
     # -------------------------------------------------------------------------
     # Relationships
     # -------------------------------------------------------------------------
 
-    # groups = relationship(
-    #     Group,
-    #     secondary=user_group_table,
-    #     back_populates="users"  # see Group.users
-    # )
     user_group_memberships = relationship(
-        "UserGroupMembership", back_populates="user")  # type: List[UserGroupMembership]  # noqa
-    groups = association_proxy("user_group_memberships", "group")  # type: List[Group]  # noqa
-
-    upload_group = relationship("Group", foreign_keys=[upload_group_id])
+        "UserGroupMembership",
+        back_populates="user")  # type: List[UserGroupMembership]
+    groups = association_proxy(
+        "user_group_memberships", "group")  # type: List[Group]
+    upload_group = relationship(
+        "Group", foreign_keys=[upload_group_id])  # type: Optional[Group]
+    single_patient = relationship(
+        "Patient", foreign_keys=[single_patient_pk])  # type: Optional[Patient]
 
     def __repr__(self) -> str:
         return simple_repr(

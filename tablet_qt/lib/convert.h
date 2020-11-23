@@ -291,7 +291,8 @@ QVector<int> qVariantToIntVector(const QVariant& v);
 // JSON
 // ============================================================================
 
-// Returns a JSON-encoded version of a string list (as a JSON array).
+// Returns a JSON-encoded version of a string list (as a JSON array, in
+// JSON string form).
 QString stringListToJson(const QStringList& list, bool compact = true);
 
 // ============================================================================
@@ -357,6 +358,26 @@ void assert_eq(const double& a, const double& b);
 // Perform a self-test of our conversion functions.
 
 void testConversions();
+
+
+// ============================================================================
+// QMap operations
+// ============================================================================
+
+// Reverse a mapping. Will produce unexpected results if the values of "map"
+// are not unique.
+
+template<typename T1, typename T2>
+QMap<T2, T1> reverseMap(const QMap<T1, T2>& map)
+{
+    QMap<T2, T1> reversed;
+    QMapIterator<T1, T2> it(map);
+    while (it.hasNext()) {
+        it.next();
+        reversed[it.value()] = it.key();
+    }
+    return reversed;
+}
 
 
 }  // namespace convert

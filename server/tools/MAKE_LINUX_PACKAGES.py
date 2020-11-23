@@ -389,11 +389,11 @@ def check_prerequisites() -> None:
     To install rpmrebuild:
         1. Download RPM from http://rpmrebuild.sourceforge.net/, e.g.
             cd /tmp
-            wget http://downloads.sourceforge.net/project/rpmrebuild/rpmrebuild/2.11/rpmrebuild-2.11-1.noarch.rpm
+            wget https://downloads.sourceforge.net/project/rpmrebuild/rpmrebuild/2.15/rpmrebuild-2.15-1.noarch.rpm
         2. Convert to DEB:
-            fakeroot alien --to-deb rpmrebuild-2.11-1.noarch.rpm
+            fakeroot alien --to-deb rpmrebuild-2.15-1.noarch.rpm
         3. Install:
-            sudo dpkg --install rpmrebuild_2.11-2_all.deb
+            sudo dpkg --install rpmrebuild_2.15-2_all.deb
             """)  # noqa
             log.critical("{} command not found; stopping", cmd)
             sys.exit(1)
@@ -1037,6 +1037,7 @@ def main():
     """
     check_prerequisites()
 
+    # noinspection PyTypeChecker
     parser = argparse.ArgumentParser(
         description="""
 - Creates a Debian (.deb) and RPM (.rpm) distribution file for the CamCOPS

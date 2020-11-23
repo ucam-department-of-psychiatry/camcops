@@ -155,6 +155,7 @@ def main() -> None:
     """
     if not LINUX:
         raise AssertionError("Installation requires Linux.")
+    # noinspection PyTypeChecker
     parser = argparse.ArgumentParser(
         description=DESCRIPTION,
         formatter_class=argparse.RawDescriptionHelpFormatter)

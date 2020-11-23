@@ -214,8 +214,7 @@ class SpecialNote(Base):
                 era=self.era
             )
             if patient:
-                # noinspection PyProtectedMember
-                group_id = patient._group_id
+                group_id = patient.group_id
         else:
             # Task
             task = task_factory_clientkeys_no_security_checks(
@@ -226,8 +225,7 @@ class SpecialNote(Base):
                 era=self.era
             )
             if task:
-                # noinspection PyProtectedMember
-                group_id = task._group_id
+                group_id = task.group_id
         return group_id
 
     def user_may_delete_specialnote(self, user: "User") -> bool:

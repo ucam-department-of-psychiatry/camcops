@@ -520,6 +520,18 @@ class Task(GenericTabletRecordMixin, Base):
     use_landscape_for_pdf = False
     dependent_classes = []
 
+    prohibits_clinical = False
+    prohibits_commercial = False
+    prohibits_educational = False
+    prohibits_research = False
+
+    @classmethod
+    def prohibits_anything(cls) -> bool:
+        return any([cls.prohibits_clinical,
+                    cls.prohibits_commercial,
+                    cls.prohibits_educational,
+                    cls.prohibits_research])
+
     # -------------------------------------------------------------------------
     # Methods always overridden by the actual task
     # -------------------------------------------------------------------------
@@ -639,7 +651,7 @@ class Task(GenericTabletRecordMixin, Base):
             patient_str = f", patient={self.patient}"
         return "{t} (_pk={pk}, when_created={wc}{patient})".format(
             t=self.tablename,
-            pk=self.get_pk(),
+            pk=self.pk,
             wc=(
                 format_datetime(self.when_created, DateFormat.ERA)
                 if self.when_created else "None"
@@ -650,7 +662,7 @@ class Task(GenericTabletRecordMixin, Base):
     def __repr__(self) -> str:
         return "<{classname}(_pk={pk}, when_created={wc})>".format(
             classname=self.__class__.__qualname__,
-            pk=self.get_pk(),
+            pk=self.pk,
             wc=(
                 format_datetime(self.when_created, DateFormat.ERA)
                 if self.when_created else "None"
@@ -837,12 +849,6 @@ class Task(GenericTabletRecordMixin, Base):
     # Server field calculations
     # -------------------------------------------------------------------------
 
-    def get_pk(self) -> Optional[int]:
-        """
-        Returns the server-side primary key for this task.
-        """
-        return self._pk
-
     def is_preserved(self) -> bool:
         """
         Is the task preserved and erased from the tablet?
@@ -899,6 +905,7 @@ class Task(GenericTabletRecordMixin, Base):
         """
         Returns the user ID of the user who uploaded this task.
         """
+        # noinspection PyTypeChecker
         return self._adding_user_id
 
     def get_adding_user_username(self) -> str:
@@ -995,7 +1002,7 @@ class Task(GenericTabletRecordMixin, Base):
         for code in codes:
             d = OrderedDict([
                 (SNOMED_COLNAME_TASKTABLE, self.tablename),
-                (SNOMED_COLNAME_TASKPK, self.get_pk()),
+                (SNOMED_COLNAME_TASKPK, self.pk),
                 (SNOMED_COLNAME_WHENCREATED_UTC,
                  self.get_creation_datetime_utc_tz_unaware()),
                 (SNOMED_COLNAME_EXPRESSION, code.as_string()),
@@ -1108,7 +1115,7 @@ class Task(GenericTabletRecordMixin, Base):
         """
         Get the server PK of the patient, or None.
         """
-        return self.patient.get_pk() if self.patient else None
+        return self.patient.pk if self.patient else None
 
     def get_patient_forename(self) -> str:
         """
@@ -2462,7 +2469,7 @@ class TaskTests(DemoDatabaseTestCase):
             for fn in t.get_blob_fields():
                 self.assertIsInstance(fn, str)
 
-            self.assertIsInstance(t.get_pk(), int)  # all our examples do have PKs  # noqa
+            self.assertIsInstance(t.pk, int)  # all our examples do have PKs  # noqa
             self.assertIsInstance(t.is_preserved(), bool)
             self.assertIsInstance(t.was_forcibly_preserved(), bool)
             self.assertIsInstanceOrNone(t.get_creation_datetime(), Pendulum)

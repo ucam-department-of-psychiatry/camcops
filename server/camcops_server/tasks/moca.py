@@ -162,6 +162,9 @@ class Moca(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
     shortname = "MoCA"
     provides_trackers = True
 
+    prohibits_commercial = True
+    prohibits_research = True
+
     education12y_or_less = CamcopsColumn(
         "education12y_or_less", Integer,
         permitted_value_checker=BIT_CHECKER,

@@ -44,10 +44,14 @@
 #include <QUrl>
 #include "common/colourdefs.h"
 #include "common/cssconst.h"
+#include "common/languages.h"
 #include "common/platform.h"
 #include "common/textconst.h"
 #include "common/uiconst.h"
+#include "core/camcopsapp.h"
+#include "dialogs/dangerousconfirmationdialog.h"
 #include "dialogs/logmessagebox.h"
+#include "dialogs/nvpchoicedialog.h"
 #include "dialogs/passwordchangedialog.h"
 #include "dialogs/passwordentrydialog.h"
 #include "dialogs/scrollmessagebox.h"
@@ -460,25 +464,39 @@ bool amInGuiThread()
 }
 
 
+// We're not meant to use non-GUI threads for dialogue boxes.
+// However, it is very helpful to see why the app is about to die! Definitely
+// better than dying silently.
+// And it seems to work fine (at least under Linux).
+#define USE_DIALOG_FOR_CRASH_EVEN_OUTSIDE_GUI_THREAD
+
 void stopApp(const QString& error, const QString& title)
 {
     // MODAL DIALOGUE, FOLLOWED BY HARD KILL,
     // so callers don't need to worry about what happens afterwards.
+
+    // 1. Tell the user
+#ifndef USE_DIALOG_FOR_CRASH_EVEN_OUTSIDE_GUI_THREAD
     if (amInGuiThread()) {
+#endif
         ScrollMessageBox box(QMessageBox::Critical, title, error);
         box.addButton(QObject::tr("Abort"), QDialogButtonBox::AcceptRole);
         box.exec();
+#ifndef USE_DIALOG_FOR_CRASH_EVEN_OUTSIDE_GUI_THREAD
+    } else {
+        qWarning("About to abort: can't tell user as not in GUI thread.");
     }
+#endif
+
+    // 2. Tell the debug stream and die.
     const QString msg = "ABORTING: " + error;
-    qFatal("%s", qPrintable(msg));
+    qFatal("%s", qPrintable(msg));  // will not return
     // If the first argument is not a string literal:
     // "format not a string literal and no format arguments"
     // https://bugreports.qt.io/browse/QTBUG-8967
 
     // qFatal() will kill the app
     // http://doc.qt.io/qt-4.8/qtglobal.html#qFatal
-
-    // exit(EXIT_FAILURE);
 }
 
 
@@ -543,6 +561,15 @@ bool confirm(const QString& text, const QString& title,
 }
 
 
+bool confirmDangerousOperation(const QString& text, const QString& title,
+                               QWidget* parent)
+{
+    DangerousConfirmationDialog dlg(text, title, parent);
+
+    return dlg.confirmed();
+}
+
+
 // ============================================================================
 // Password checks/changes
 // ============================================================================
@@ -575,6 +602,22 @@ bool getOldNewPasswords(const QString& text, const QString& title,
     old_password = dlg.oldPassword();
     new_password = dlg.newPassword();
     return true;
+}
+
+
+// ============================================================================
+// Choose language
+// ============================================================================
+
+void chooseLanguage(CamcopsApp& app, QWidget* parent_window) {
+    QVariant language = app.getLanguage();
+    NvpChoiceDialog dlg(parent_window, languages::possibleLanguages(),
+                        QObject::tr("Choose language"));
+    dlg.showExistingChoice(true);
+    if (dlg.choose(&language) != QDialog::Accepted) {
+        return;  // user pressed cancel, or some such
+    }
+    app.setLanguage(language.toString(), true);
 }
 
 

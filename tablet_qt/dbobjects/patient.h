@@ -34,7 +34,8 @@ extern const QString DOB_FIELD;
 extern const QString SEX_FIELD;
 extern const QString ADDRESS_FIELD;
 extern const QString GP_FIELD;
-extern const QString OTHER_DETAILS_POLICYNAME;
+extern const QString EMAIL_FIELD;
+extern const QString OTHER_DETAILS_POLICYNAME;  // policy name, not field name
 
 extern const QString IDNUM_FIELD_PREFIX;
 extern const QString IDNUM_FIELD_FORMAT;
@@ -52,9 +53,28 @@ public:
     // ------------------------------------------------------------------------
     // Creation
     // ------------------------------------------------------------------------
+
+    // Normal constructor.
     Patient(CamcopsApp& app,
             DatabaseManager& db,
             int load_pk = dbconst::NONEXISTENT_PK);
+
+    // Construct from JSON (except ID numbers -- because they are in a separate
+    // table that needs to refer to this patient, so the patient needs to be
+    // saved first).
+    Patient(CamcopsApp& app,
+            DatabaseManager& db,
+            const QJsonObject& json_obj);
+
+    // Sets details (except for ID numbers)
+    void setPatientDetailsFromJson(const QJsonObject& json_obj);
+
+    // Adds ID numbers from JSON.
+    void addIdNums(const QJsonObject& json_obj);
+
+    // Sets ID numbers from JSON -- that is, remove any existing ID numbers and
+    // add these new ones.
+    void setIdNums(const QJsonObject& json_obj);
 
     // ------------------------------------------------------------------------
     // Ancillary management
@@ -106,6 +126,9 @@ public:
 
     // Do we know the DOB?
     bool hasDob() const;
+
+    // Do we know the e-mail address?
+    bool hasEmail() const;
 
     // Do we know the address?
     bool hasAddress() const;
@@ -196,6 +219,9 @@ public:
     // e.g. "<b>JONES, Bob</b> (M, 19y, DOB 1 Jan 2000); RiO 12345, NHS 9876543210"
     QString oneLineHtmlDetailString() const;
 
+    // e.g. "<b>Bob Jones</b>"
+    QString oneLineHtmlSimpleString() const;
+
     // ------------------------------------------------------------------------
     // Editing and other manipulations
     // ------------------------------------------------------------------------
@@ -217,7 +243,12 @@ protected:
     void addIdNum();
 
     // Delete an ID number of the specified type.
+    // Asks for confirmation.
     void deleteIdNum(int which_idnum);
+
+    // Remove all ID numbers.
+    // Does not ask for confirmation; used internally.
+    void deleteAllIdNums();
 
     // Sort ID numbers by their type, and if we are editing the patient,
     // refresh the questionnaire to reflect the current ID numbers.

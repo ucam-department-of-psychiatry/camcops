@@ -397,6 +397,7 @@ def get_demo_config(for_docker: bool = False) -> str:
 {ConfigParamServer.UNIX_DOMAIN_SOCKET} =
 {ConfigParamServer.SSL_CERTIFICATE} =
 {ConfigParamServer.SSL_PRIVATE_KEY} =
+{ConfigParamServer.STATIC_CACHE_DURATION_S} = {cd.STATIC_CACHE_DURATION_S}
 
 # -----------------------------------------------------------------------------
 # WSGI options
@@ -1083,19 +1084,6 @@ class CamcopsConfig(object):
             return get_config_parameter(
                 parser, section, paramname, int, default)
 
-        def _get_optional_int(section: str, paramname: str) -> Optional[int]:
-            _s = get_config_parameter(parser, section, paramname, str, None)
-            if not _s:
-                return None
-            try:
-                return int(_s)
-            except (TypeError, ValueError):
-                log.warning(
-                    "Configuration variable {} not found or improper in "
-                    "section [{}]; using default of {!r}",
-                    paramname, section, None)
-                return None
-
         def _get_multiline(section: str, paramname: str) -> List[str]:
             # http://stackoverflow.com/questions/335695/lists-in-configparser
             return get_config_parameter_multiline(
@@ -1306,7 +1294,7 @@ class CamcopsConfig(object):
             ws, cw.PROXY_REWRITE_PATH_INFO, cd.PROXY_REWRITE_PATH_INFO)
         self.proxy_script_name = _get_str(ws, cw.PROXY_SCRIPT_NAME)
         self.proxy_server_name = _get_str(ws, cw.PROXY_SERVER_NAME)
-        self.proxy_server_port = _get_optional_int(ws, cw.PROXY_SERVER_PORT)
+        self.proxy_server_port = _get_int(ws, cw.PROXY_SERVER_PORT)
         self.proxy_url_scheme = _get_str(ws, cw.PROXY_URL_SCHEME)
         self.show_request_immediately = _get_bool(
             ws, cw.SHOW_REQUEST_IMMEDIATELY, cd.SHOW_REQUEST_IMMEDIATELY)
@@ -1315,6 +1303,8 @@ class CamcopsConfig(object):
         self.show_timing = _get_bool(ws, cw.SHOW_TIMING, cd.SHOW_TIMING)
         self.ssl_certificate = _get_str(ws, cw.SSL_CERTIFICATE)
         self.ssl_private_key = _get_str(ws, cw.SSL_PRIVATE_KEY)
+        self.static_cache_duration_s = _get_int(ws, cw.STATIC_CACHE_DURATION_S,
+                                                cd.STATIC_CACHE_DURATION_S)
         self.trusted_proxy_headers = _get_multiline(
             ws, cw.TRUSTED_PROXY_HEADERS)
         self.unix_domain_socket = _get_str(ws, cw.UNIX_DOMAIN_SOCKET)

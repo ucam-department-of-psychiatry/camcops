@@ -39,6 +39,8 @@
 #include "db/fieldref.h"
 #include "db/queryresult.h"
 #include "dbobjects/blob.h"
+#include "lib/convert.h"
+#include "lib/datetime.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
 
@@ -105,7 +107,9 @@ void DatabaseObject::addField(const QString& fieldname,
     if (m_record.contains(fieldname)) {
         uifunc::stopApp("Attempt to insert duplicate fieldname: " + fieldname);
     }
-    Field field(fieldname, type, mandatory, unique, pk, default_value);
+    Field field(fieldname, type, mandatory, unique, pk,
+                default_value /* cpp_default_value */,
+                default_value /* db_default_value */);
     m_record.insert(fieldname, field);
     m_ordered_fieldnames.append(fieldname);
 }
@@ -121,7 +125,9 @@ void DatabaseObject::addField(const QString& fieldname,
     if (m_record.contains(fieldname)) {
         uifunc::stopApp("Attempt to insert duplicate fieldname: " + fieldname);
     }
-    Field field(fieldname, type_name, mandatory, unique, pk, default_value);
+    Field field(fieldname, type_name, mandatory, unique, pk,
+                default_value /* cpp_default_value */,
+                default_value /* db_default_value */);
     m_record.insert(fieldname, field);
     m_ordered_fieldnames.append(fieldname);
 }
@@ -150,6 +156,16 @@ bool DatabaseObject::hasField(const QString& fieldname) const
 }
 
 
+QVariant::Type DatabaseObject::fieldType(const QString& fieldname) const
+{
+    if (!hasField(fieldname)) {
+        return QVariant::Type::Invalid;
+    }
+    const Field& field = m_record[fieldname];
+    return field.type();
+}
+
+
 QStringList DatabaseObject::fieldnames() const
 {
     return m_ordered_fieldnames;
@@ -174,13 +190,13 @@ bool DatabaseObject::setValue(const QString& fieldname, const QVariant& value,
     const bool dirty = m_record[fieldname].setValue(value);
     if (dirty && touch_record) {
         touch();
-        if (m_triggers_need_upload) {
 #ifdef DEBUG_TRIGGERS_NEEDS_UPLOAD
+        if (m_triggers_need_upload) {
             qDebug() << "Triggering setNeedsUpload() from field" << fieldname
                      << "value" << value;
-#endif
-            m_app.setNeedsUpload(true);
         }
+#endif
+        setNeedsUpload(true);
     }
     if (dirty) {
         emit dataChanged();
@@ -212,6 +228,40 @@ void DatabaseObject::addToValueInt(const QString& fieldname,
 }
 
 
+bool DatabaseObject::setValueFromJson(
+        const QJsonObject& json_obj,
+        const QString& fieldname,
+        const QString& json_key,
+        const bool touch_record)
+{
+    const QJsonValue value = json_obj.value(json_key);
+    const QVariant varval = value.toVariant();
+    return setValue(fieldname, varval, touch_record);
+}
+
+
+// ----------------------------------------------------------------------------
+// Set multiple fields
+// ----------------------------------------------------------------------------
+
+bool DatabaseObject::setValuesFromJson(
+        const QJsonObject& json_obj,
+        const QMap<QString, QString>& fieldnames_to_json_keys,
+        const bool touch_record)
+{
+    bool changed = false;
+    QMapIterator<QString, QString> it(fieldnames_to_json_keys);
+    while (it.hasNext()) {
+        it.next();
+        const QString& fieldname = it.key();
+        const QString& json_key = it.value();
+        changed = setValueFromJson(
+                    json_obj, fieldname, json_key, touch_record) || changed;
+    }
+    return changed;
+}
+
+
 // ----------------------------------------------------------------------------
 // Read a field
 // ----------------------------------------------------------------------------
@@ -223,7 +273,7 @@ QVariant DatabaseObject::value(const QString& fieldname) const
 }
 
 
-QString DatabaseObject::prettyValue(const QString &fieldname,
+QString DatabaseObject::prettyValue(const QString& fieldname,
                                     const int dp) const
 {
     requireField(fieldname);
@@ -231,21 +281,21 @@ QString DatabaseObject::prettyValue(const QString &fieldname,
 }
 
 
-bool DatabaseObject::valueIsNull(const QString &fieldname) const
+bool DatabaseObject::valueIsNull(const QString& fieldname) const
 {
     const QVariant v = value(fieldname);
     return v.isNull();
 }
 
 
-bool DatabaseObject::valueIsFalseNotNull(const QString &fieldname) const
+bool DatabaseObject::valueIsFalseNotNull(const QString& fieldname) const
 {
     const QVariant v = value(fieldname);
     return !v.isNull() && !v.toBool();
 }
 
 
-bool DatabaseObject::valueIsNullOrEmpty(const QString &fieldname) const
+bool DatabaseObject::valueIsNullOrEmpty(const QString& fieldname) const
 {
     const QVariant v = value(fieldname);
     return v.isNull() || v.toString() == "";
@@ -380,6 +430,41 @@ BlobFieldRefPtr DatabaseObject::blobFieldRef(const QString& fieldname,
 }
 
 
+QJsonValue DatabaseObject::valueAsJsonValue(const QString& fieldname) const
+{
+    const QVariant& v = value(fieldname);
+    // It may be that QJsonValue::fromVariant() would handle all this
+    // perfectly, but let's be sure for dates etc.
+    if (v.isNull()) {
+        return QJsonValue();  // null type
+    }
+    const QVariant::Type type = fieldType(fieldname);
+    QJsonValue jval;
+    switch (type) {
+        case QVariant::Date:
+            jval = QJsonValue(datetime::dateToIso(v.toDate()));
+            break;
+        case QVariant::DateTime:
+            jval = QJsonValue(datetime::datetimeToIsoMs(v.toDateTime()));
+            break;
+        default:
+            jval = QJsonValue::fromVariant(v);
+            break;
+    }
+    return jval;
+}
+
+
+void DatabaseObject::readValueIntoJson(
+        const QString& fieldname,
+        QJsonObject& json_obj,
+        const QString& json_key) const
+{
+    const QJsonValue& jval = valueAsJsonValue(fieldname);
+    json_obj[json_key] = jval;
+}
+
+
 Field& DatabaseObject::getField(const QString& fieldname)
 {
     // Dangerous in that it returns a reference.
@@ -493,6 +578,20 @@ bool DatabaseObject::noValuesNullOrEmpty(const QStringList& fieldnames) const
         }
     }
     return true;
+}
+
+
+void DatabaseObject::readValuesIntoJson(
+        const QMap<QString, QString>& fieldnames_to_json_keys,
+        QJsonObject& json_obj) const
+{
+    QMapIterator<QString, QString> it(fieldnames_to_json_keys);
+    while (it.hasNext()) {
+        it.next();
+        const QString& fieldname = it.key();
+        const QString& json_key = it.value();
+        readValueIntoJson(fieldname, json_obj, json_key);
+    }
 }
 
 
@@ -844,12 +943,21 @@ void DatabaseObject::deleteFromDatabase()
     // BLOB field is simply an integer FK to the BLOB table.
     // However, we can reliably do it the other way round, and, moreover,
     // delete all associated BLOBs in one DELETE command:
-    WhereConditions where_blob;
-    where_blob.add(Blob::SRC_TABLE_FIELDNAME, tablename());
-    where_blob.add(Blob::SRC_PK_FIELDNAME, pk);
-    if (!m_db.deleteFrom(Blob::TABLENAME, where_blob)) {
-        qWarning() << "Failed to delete BLOB(s) where:" << where_blob;
+    if (!m_db.isSystemDb()) {
+        WhereConditions where_blob;
+        where_blob.add(Blob::SRC_TABLE_FIELDNAME, tablename());
+        where_blob.add(Blob::SRC_PK_FIELDNAME, pk);
+        if (!m_db.deleteFrom(Blob::TABLENAME, where_blob)) {
+            qWarning() << "Failed to delete BLOB(s) where:" << where_blob;
+        }
     }
+    // This generates a query like:
+    //   DELETE FROM "blobs" WHERE "tablename" = 'task_schedule' AND "tablepk" = 1
+    // If you try this from the "system" database, you will see
+    //   [Qt]
+    //   Query failed; error was: QSqlError("", "Parameter count mismatch", "")
+    //   [SQLite command line]
+    //   Error: no such table: blobs
 
     // ------------------------------------------------------------------------
     // Delete associated ancillary objects
@@ -905,10 +1013,18 @@ void DatabaseObject::deleteFromDatabase()
     const bool success = m_db.deleteFrom(m_tablename, where_self);
     if (success) {
         nullify();
-        m_app.setNeedsUpload(true);
+        setNeedsUpload(true);
     } else {
         qWarning() << "Failed to delete object with PK" << pk
                    << "from table" << m_tablename;
+    }
+}
+
+
+void DatabaseObject::setNeedsUpload(const bool needs_upload)
+{
+    if (m_triggers_need_upload) {
+        m_app.setNeedsUpload(needs_upload);
     }
 }
 

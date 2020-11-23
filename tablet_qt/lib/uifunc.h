@@ -23,6 +23,7 @@
 #include <QString>
 #include "common/uiconst.h"
 
+class CamcopsApp;
 class QAbstractButton;
 class QDialog;
 class QLabel;
@@ -30,6 +31,7 @@ class QLayout;
 class QPainter;
 class QPlainTextEdit;
 class QPointF;
+class QWidget;
 
 
 namespace uifunc {
@@ -203,6 +205,11 @@ void alertNotWhenLocked();
 bool confirm(const QString& text, const QString& title,
              QString yes, QString no, QWidget* parent = nullptr);
 
+// Shows text in a modal dialogue box. The user must type 'Yes' to proceed
+// Returns: does the user want to proceed?
+bool confirmDangerousOperation(const QString& text, const QString& title,
+                               QWidget* parent = nullptr);
+
 // ============================================================================
 // Password checks/changes
 // ============================================================================
@@ -220,6 +227,14 @@ bool getOldNewPasswords(const QString& text, const QString& title,
                         bool require_old_password,
                         QString& old_password, QString& new_password,
                         QWidget* parent);
+
+// ============================================================================
+// Choose language
+// ============================================================================
+
+// Allow the user to choose a language
+void chooseLanguage(CamcopsApp& app, QWidget* parent_window);
+
 
 // ============================================================================
 // Fonts; CSS

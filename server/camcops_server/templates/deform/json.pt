@@ -1,0 +1,66 @@
+<!--
+
+camcops_server/templates/deform/json.pt
+
+===============================================================================
+
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+
+    This file is part of CamCOPS.
+
+    CamCOPS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    CamCOPS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+
+===============================================================================
+
+-->
+<textarea tal:define="css_class css_class|field.widget.css_class;
+                      style style|field.widget.style"
+          tal:attributes="class string: form-control jsonwidget-textarea ${css_class or ''};
+                          style style"
+          id="${field.oid}"
+          name="${field.name}">${cstruct}</textarea>
+<div id="${field.oid}-jsoneditor" class="jsonwidget-editor"></div>
+<script type="text/javascript">
+    deform.addCallback(
+        '${field.oid}',
+        function (oid) {
+            const container = document.getElementById(oid + "-jsoneditor");
+            const options = {
+                mode: "tree",
+                modes: ["code", "tree"],
+            };
+            const aceOptions = {
+            };
+            const textarea = document.getElementById(oid);
+            // noinspection JSUnusedLocalSymbols
+            const editor = new JSONEditor(container, Object.assign({
+                onChange: function () {
+                    textarea.value = editor.getText();
+                },
+                onModeChange: function(endMode, startMode) {
+                    if (endMode === "code") {
+                        editor.aceEditor.setOptions(aceOptions);
+                    }
+                }
+            }, options));
+            const value = textarea.value;
+            try {
+                editor.set(JSON.parse(value));
+            } catch (e) {
+                editor.setMode("code");
+                editor.setText(value);
+            }
+        }
+    );
+</script>

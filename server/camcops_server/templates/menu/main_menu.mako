@@ -73,6 +73,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
         <li><a href="${request.route_url(Routes.VIEW_USER_EMAIL_ADDRESSES)}">${_("E-mail addresses of your users")}</a></li>
         <li><a href="${request.route_url(Routes.FORCIBLY_FINALIZE)}">${_("Forcibly finalize records for a device")}</a></li>
         <li><a href="${request.route_url(Routes.DELETE_PATIENT)}">${_("Delete patient entirely")}</a></li>
+        <li><a href="${request.route_url(Routes.VIEW_PATIENT_TASK_SCHEDULES)}">${_("Manage scheduled tasks for patients")}</a></li>
     </ul>
 %endif
 

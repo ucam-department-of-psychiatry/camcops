@@ -35,16 +35,19 @@ import logging
 import os
 import sqlite3
 import tempfile
-from typing import List, Type, TYPE_CHECKING
+from typing import Any, List, Type, TYPE_CHECKING
 import unittest
 
 from cardinal_pythonlib.dbfunc import get_fieldnames_from_cursor
 from cardinal_pythonlib.httpconst import MimeType
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import pendulum
+from sqlalchemy import event
 from sqlalchemy.orm import Session as SqlASession
 
+from camcops_server.cc_modules.cc_constants import ERA_NOW
 from camcops_server.cc_modules.cc_idnumdef import IdNumDefinition
+from camcops_server.cc_modules.cc_ipuse import IpUse
 from camcops_server.cc_modules.cc_sqlalchemy import (
     Base,
     make_file_sqlite_engine,
@@ -56,6 +59,7 @@ from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
     from camcops_server.cc_modules.cc_patient import Patient
+    from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
     from camcops_server.cc_modules.cc_task import Task
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
@@ -133,6 +137,12 @@ class DemoRequestTestCase(ExtendedTestCase):
         else:
             self.db_filename = None
 
+    # noinspection PyMethodMayBeStatic,PyUnusedLocal
+    def set_sqlite_pragma(self, dbapi_connection, connection_record):
+        cursor = dbapi_connection.cursor()
+        cursor.execute("PRAGMA foreign_keys=ON")
+        cursor.close()
+
     def setUp(self) -> None:
         self.announce("setUp")
         self.create_config_file()
@@ -146,6 +156,7 @@ class DemoRequestTestCase(ExtendedTestCase):
                                                   echo=self.echo)
         else:
             self.engine = make_memory_sqlite_engine(echo=self.echo)
+        event.listen(self.engine, "connect", self.set_sqlite_pragma)
         self.dbsession = sessionmaker()(bind=self.engine)  # type: SqlASession
 
         self.req = get_unittest_request(self.dbsession)
@@ -279,12 +290,17 @@ class DemoDatabaseTestCase(DemoRequestTestCase):
                                          hl7_assigning_authority="CPFT",
                                          hl7_id_type="CPFT_RiO")
         self.dbsession.add(self.rio_iddef)
+        self.study_iddef = IdNumDefinition(which_idnum=3,
+                                           description="Study number",
+                                           short_description="Study")
+        self.dbsession.add(self.study_iddef)
         # ... group
         self.group = Group()
         self.group.name = "testgroup"
         self.group.description = "Test group"
         self.group.upload_policy = "sex AND anyidnum"
         self.group.finalize_policy = "sex AND idnum1"
+        self.group.ip_use = IpUse()
         self.dbsession.add(self.group)
         self.dbsession.flush()  # sets PK fields
 
@@ -350,7 +366,6 @@ class DemoDatabaseTestCase(DemoRequestTestCase):
 
     def create_patient_with_one_idnum(self) -> "Patient":
         from camcops_server.cc_modules.cc_patient import Patient
-        from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
         patient = Patient()
         patient.id = 2
         self._apply_standard_db_fields(patient)
@@ -358,13 +373,47 @@ class DemoDatabaseTestCase(DemoRequestTestCase):
         patient.surname = "Surname2"
         patient.dob = pendulum.parse("1975-12-12")
         self.dbsession.add(patient)
-        patient_idnum1 = PatientIdNum()
-        patient_idnum1.id = 3
-        self._apply_standard_db_fields(patient_idnum1)
-        patient_idnum1.patient_id = patient.id
-        patient_idnum1.which_idnum = self.nhs_iddef.which_idnum
-        patient_idnum1.idnum_value = 555
-        self.dbsession.add(patient_idnum1)
+
+        self.create_patient_idnum(
+            id=3,
+            patient_id=patient.id,
+            which_idnum=self.nhs_iddef.which_idnum,
+            idnum_value=555
+        )
+
+        return patient
+
+    def create_patient_idnum(self, as_server_patient: bool = False,
+                             **kwargs: Any) -> "PatientIdNum":
+        from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
+        patient_idnum = PatientIdNum()
+        self._apply_standard_db_fields(patient_idnum, era_now=as_server_patient)
+
+        if "id" not in kwargs:
+            kwargs["id"] = 0
+
+        for key, value in kwargs.items():
+            setattr(patient_idnum, key, value)
+
+        self.dbsession.add(patient_idnum)
+        self.dbsession.commit()
+
+        return patient_idnum
+
+    def create_patient(self, as_server_patient: bool = False,
+                       **kwargs: Any) -> "Patient":
+        from camcops_server.cc_modules.cc_patient import Patient
+
+        patient = Patient()
+        self._apply_standard_db_fields(patient, era_now=as_server_patient)
+
+        if "id" not in kwargs:
+            kwargs["id"] = 0
+
+        for key, value in kwargs.items():
+            setattr(patient, key, value)
+
+        self.dbsession.add(patient)
         self.dbsession.commit()
 
         return patient
@@ -419,13 +468,16 @@ class DemoDatabaseTestCase(DemoRequestTestCase):
         task.when_created = self.era_time
 
     def _apply_standard_db_fields(self,
-                                  obj: "GenericTabletRecordMixin") -> None:
+                                  obj: "GenericTabletRecordMixin",
+                                  era_now: bool = False) -> None:
         """
         Writes some default values to an SQLAlchemy ORM object representing a
         record uploaded from a client (tablet) device.
+
+        Though we use the server device ID.
         """
         obj._device_id = self.server_device.id
-        obj._era = self.era
+        obj._era = ERA_NOW if era_now else self.era
         obj._group_id = self.group.id
         obj._current = True
         obj._adding_user_id = self.user.id

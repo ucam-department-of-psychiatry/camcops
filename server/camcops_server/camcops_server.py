@@ -85,7 +85,7 @@ from camcops_server.cc_modules.cc_snomed import send_athena_icd_snomed_to_xml
 from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 
 if TYPE_CHECKING:
-    # noinspection PyProtectedMember
+    # noinspection PyProtectedMember,PyUnresolvedReferences
     from argparse import _SubParsersAction
     from pyramid.router import Router
 
@@ -358,6 +358,7 @@ def make_wsgi_app_from_config() -> "Router":
         show_request_immediately=cfg.show_request_immediately,
         show_response=cfg.show_response,
         show_timing=cfg.show_timing,
+        static_cache_duration_s=cfg.static_cache_duration_s,
     )
 
 

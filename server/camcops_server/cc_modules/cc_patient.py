@@ -32,6 +32,7 @@ import logging
 from typing import (
     Any, Dict, Generator, List, Optional, Tuple, TYPE_CHECKING, Union,
 )
+import uuid
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.datetimefunc import (
@@ -64,6 +65,7 @@ from camcops_server.cc_modules.cc_constants import (
     TSV_PATIENT_FIELD_PREFIX,
 )
 from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
+from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_hl7 import make_pid_segment
 from camcops_server.cc_modules.cc_html import answer
 from camcops_server.cc_modules.cc_simpleobjects import (
@@ -74,6 +76,7 @@ from camcops_server.cc_modules.cc_patientidnum import (
     extra_id_colname,
     PatientIdNum,
 )
+from camcops_server.cc_modules.cc_proquint import proquint_from_uuid
 from camcops_server.cc_modules.cc_report import Report
 from camcops_server.cc_modules.cc_simpleobjects import (
     IdNumReference,
@@ -82,8 +85,10 @@ from camcops_server.cc_modules.cc_simpleobjects import (
 from camcops_server.cc_modules.cc_specialnote import SpecialNote
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
+    EmailAddressColType,
     PatientNameColType,
     SexColType,
+    UuidColType,
 )
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 from camcops_server.cc_modules.cc_tsv import TsvPage
@@ -99,6 +104,7 @@ if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_group import Group
     from camcops_server.cc_modules.cc_policy import TokenizedPolicy
     from camcops_server.cc_modules.cc_request import CamcopsRequest
+    from camcops_server.cc_modules.cc_taskschedule import PatientTaskSchedule
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -119,6 +125,11 @@ class Patient(GenericTabletRecordMixin, Base):
         comment="Primary key (patient ID) on the source tablet device"
         # client PK
     )
+    uuid = CamcopsColumn(
+        "uuid", UuidColType,
+        comment="UUID",
+        default=uuid.uuid4  # generates a random UUID
+    )  # type: Optional[uuid.UUID]
     forename = CamcopsColumn(
         "forename", PatientNameColType,
         index=True,
@@ -148,6 +159,11 @@ class Patient(GenericTabletRecordMixin, Base):
         "address", UnicodeText,
         identifies_patient=True,
         comment="Address"
+    )
+    email = CamcopsColumn(
+        "email", EmailAddressColType,
+        identifies_patient=True,
+        comment="Patient's e-mail address"
     )
     gp = CamcopsColumn(
         "gp", UnicodeText,
@@ -183,6 +199,10 @@ class Patient(GenericTabletRecordMixin, Base):
         # See also patient relationship on Task class (cc_task.py)
         lazy="subquery"
     )  # type: List[PatientIdNum]
+
+    task_schedules = relationship(
+        "PatientTaskSchedule",
+        back_populates="patient")  # type: List[PatientTaskSchedule]
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # THE FOLLOWING ARE DEFUNCT, AND THE SERVER WORKS AROUND OLD TABLETS IN
@@ -320,6 +340,12 @@ class Patient(GenericTabletRecordMixin, Base):
     def __str__(self) -> str:
         """
         A plain string version, without the need for a request object.
+
+        Example:
+
+        .. code-block:: none
+
+            SMITH, BOB (M, 1 Jan 1950, idnum1=123, idnum2=456)
         """
         return "{sf} ({sex}, {dob}, {ids})".format(
             sf=self.get_surname_forename_upper(),
@@ -334,12 +360,36 @@ class Patient(GenericTabletRecordMixin, Base):
 
         Args:
             req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+
+        Example:
+
+        .. code-block:: none
+
+            SMITH, BOB (M, 1 Jan 1950, RiO# 123, NHS# 456)
         """
         return "{sf} ({sex}, {dob}, {ids})".format(
             sf=self.get_surname_forename_upper(),
             sex=self.sex,
             dob=self.get_dob_str(),
             ids=", ".join(i.prettystr(req) for i in self.get_idnum_objects()),
+        )
+
+    def get_letter_style_identifiers(self, req: "CamcopsRequest") -> str:
+        """
+        Our best guess at the kind of text you'd put in a clinical letter to
+        say "it's about this patient".
+
+        Example:
+
+        .. code-block:: none
+
+            Bob Smith (1 Jan 1950, RiO number 123, NHS number 456)
+        """
+        return "{fs} ({dob}, {ids})".format(
+            fs=self.get_forename_surname(),
+            dob=self.get_dob_str(),
+            ids=", ".join(i.full_prettystr(req)
+                          for i in self.get_idnum_objects()),
         )
 
     # -------------------------------------------------------------------------
@@ -411,7 +461,7 @@ class Patient(GenericTabletRecordMixin, Base):
 
         These are SQLAlchemy ORM objects.
         """
-        return self.idnums  # type: List[PatientIdNum]
+        return self.idnums
 
     def get_idnum_references(self) -> List[IdNumReference]:
         """
@@ -566,13 +616,22 @@ class Patient(GenericTabletRecordMixin, Base):
         """
         return self.forename.upper() if self.forename else ""
 
+    def get_forename_surname(self) -> str:
+        """
+        Get "Forename Surname" as a string, using "(UNKNOWN)" for missing
+        details.
+        """
+        f = self.forename or "(UNKNOWN)"
+        s = self.surname or "(UNKNOWN)"
+        return f"{f} {s}"
+
     def get_surname_forename_upper(self) -> str:
         """
         Get "SURNAME, FORENAME" in HTML-safe format, using "(UNKNOWN)" for
         missing details.
         """
         s = self.surname.upper() if self.surname else "(UNKNOWN)"
-        f = self.forename.upper() if self.surname else "(UNKNOWN)"
+        f = self.forename.upper() if self.forename else "(UNKNOWN)"
         return ws.webify(s + ", " + f)
 
     def get_dob_html(self, req: "CamcopsRequest", longform: bool) -> str:
@@ -656,6 +715,13 @@ class Patient(GenericTabletRecordMixin, Base):
         address = self.address  # type: Optional[str]
         return address or ""
 
+    def get_email(self) -> Optional[str]:
+        """
+        Returns email address
+        """
+        email = self.email  # type: Optional[str]
+        return email or ""
+
     # -------------------------------------------------------------------------
     # Other representations
     # -------------------------------------------------------------------------
@@ -734,6 +800,7 @@ class Patient(GenericTabletRecordMixin, Base):
             sex=self.sex,
             dob=self.dob,
             address=self.address,
+            email=self.email,
             gp=self.gp,
             otherdetails=self.other,
             idnum_definitions=self.get_idnum_references()
@@ -870,8 +937,7 @@ class Patient(GenericTabletRecordMixin, Base):
     # Editing
     # -------------------------------------------------------------------------
 
-    @property
-    def is_editable(self) -> bool:
+    def is_finalized(self) -> bool:
         """
         Is the patient finalized (no longer available to be edited on the
         client device), and therefore editable on the server?
@@ -881,20 +947,38 @@ class Patient(GenericTabletRecordMixin, Base):
             return False
         return True
 
+    def created_on_server(self, req: "CamcopsRequest") -> bool:
+        server_device = Device.get_server_device(req.dbsession)
+
+        return (self._era == ERA_NOW and
+                self._device_id == server_device.id)
+
     def user_may_edit(self, req: "CamcopsRequest") -> bool:
         """
         Does the current user have permission to edit this patient?
         """
         return req.user.may_administer_group(self._group_id)
 
+    # --------------------------------------------------------------------------
+    # UUID
+    # --------------------------------------------------------------------------
+    @property
+    def uuid_as_proquint(self) -> Optional[str]:
+        # Convert integer into pronounceable quintuplets (proquint)
+        # https://arxiv.org/html/0901.4016
+        if self.uuid is None:
+            return None
+
+        return proquint_from_uuid(self.uuid)
+
 
 # =============================================================================
 # Validate candidate patient info for upload
 # =============================================================================
 
-def is_candidate_patient_valid(ptinfo: BarePatientInfo,
-                               group: "Group",
-                               finalizing: bool) -> Tuple[bool, str]:
+def is_candidate_patient_valid_for_group(ptinfo: BarePatientInfo,
+                                         group: "Group",
+                                         finalizing: bool) -> Tuple[bool, str]:
     """
     Is the specified patient acceptable to upload into this group?
 
@@ -907,7 +991,8 @@ def is_candidate_patient_valid(ptinfo: BarePatientInfo,
 
     Args:
         ptinfo:
-            a :class:`camcops_server.cc_modules.cc_simpleobjects.BarePatientInfo`
+            a
+            :class:`camcops_server.cc_modules.cc_simpleobjects.BarePatientInfo`
             representing the patient info to check
         group:
             the :class:`camcops_server.cc_modules.cc_group.Group` into which
@@ -918,7 +1003,7 @@ def is_candidate_patient_valid(ptinfo: BarePatientInfo,
     Returns:
         tuple: valid, reason
 
-    """  # noqa
+    """
     if not group:
         return False, "Nonexistent group"
 
@@ -930,6 +1015,44 @@ def is_candidate_patient_valid(ptinfo: BarePatientInfo,
             return False, "Fails upload ID policy"
 
     # todo: add checks against prevalidated patients here
+
+    return True, ""
+
+
+def is_candidate_patient_valid_for_restricted_user(
+        req: "CamcopsRequest",
+        ptinfo: BarePatientInfo) -> Tuple[bool, str]:
+    """
+    Is the specified patient OK to be uploaded by this user? Performs a check
+    for restricted (single-patient) users; if true, ensures that the
+    identifiers all match the expected patient.
+
+    Args:
+        req:
+            the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        ptinfo:
+            a
+            :class:`camcops_server.cc_modules.cc_simpleobjects.BarePatientInfo`
+            representing the patient info to check
+
+    Returns:
+        tuple: valid, reason
+    """
+    user = req.user
+    if not user.auto_generated:
+        # Not a restricted user; no problem.
+        return True, ""
+
+    server_patient = user.single_patient
+    if not server_patient:
+        return False, (
+            f"Restricted user {user.username} does not have associated "
+            f"patient details"
+        )
+
+    server_ptinfo = server_patient.get_bare_ptinfo()
+    if ptinfo != server_ptinfo:
+        return False, f"Should be {server_ptinfo}"
 
     return True, ""
 
@@ -1051,6 +1174,7 @@ class PatientTests(DemoDatabaseTestCase):
         self.assertIsInstance(p.get_sex(), str)
         self.assertIsInstance(p.get_sex_verbose(), str)
         self.assertIsInstance(p.get_address(), str)
+        self.assertIsInstance(p.get_email(), str)
         self.assertIsInstance(p.get_hl7_pid_segment(req, self.recipdef),
                               hl7.Segment)
         self.assertIsInstanceOrNone(p.get_idnum_object(which_idnum=1),
@@ -1059,8 +1183,30 @@ class PatientTests(DemoDatabaseTestCase):
         self.assertIsInstance(p.get_iddesc(req, which_idnum=1), str)
         self.assertIsInstance(p.get_idshortdesc(req, which_idnum=1), str)
         self.assertIsInstance(p.is_preserved(), bool)
-        self.assertIsInstance(p.is_editable, bool)
+        self.assertIsInstance(p.is_finalized(), bool)
         self.assertIsInstance(p.user_may_edit(req), bool)
+
+    def test_surname_forename_upper(self) -> None:
+        patient = Patient()
+        patient.forename = "Forename"
+        patient.surname = "Surname"
+
+        self.assertEqual(patient.get_surname_forename_upper(),
+                         "SURNAME, FORENAME")
+
+    def test_surname_forename_upper_no_forename(self) -> None:
+        patient = Patient()
+        patient.surname = "Surname"
+
+        self.assertEqual(patient.get_surname_forename_upper(),
+                         "SURNAME, (UNKNOWN)")
+
+    def test_surname_forename_upper_no_surname(self) -> None:
+        patient = Patient()
+        patient.forename = "Forename"
+
+        self.assertEqual(patient.get_surname_forename_upper(),
+                         "(UNKNOWN), FORENAME")
 
 
 class LineageTests(DemoDatabaseTestCase):

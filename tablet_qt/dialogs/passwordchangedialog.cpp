@@ -24,6 +24,7 @@
 #include <QVBoxLayout>
 #include "lib/uifunc.h"
 
+const int MINIMUM_PASSWORD_LENGTH = 8;
 
 PasswordChangeDialog::PasswordChangeDialog(const QString& text,
                                            const QString& title,
@@ -51,6 +52,9 @@ PasswordChangeDialog::PasswordChangeDialog(const QString& text,
     mainlayout->addWidget(new QLabel(tr("Enter new password:")));
     m_editor_new1 = new QLineEdit();
     m_editor_new1->setEchoMode(QLineEdit::Password);
+    m_editor_new1->setPlaceholderText(
+        tr("Must be at least %1 characters").arg(MINIMUM_PASSWORD_LENGTH)
+    );
     mainlayout->addWidget(m_editor_new1);
 
     mainlayout->addWidget(new QLabel(tr("Enter new password again for confirmation:")));
@@ -97,6 +101,13 @@ void PasswordChangeDialog::okClicked()
     const QString newpw2 = m_editor_new2->text();
     if (newpw1.isEmpty()) {
         uifunc::alert(tr("Can't set an empty password"));
+        return;
+    }
+    if (newpw1.size() < MINIMUM_PASSWORD_LENGTH) {
+        uifunc::alert(
+            tr("Password must be at least %1 characters long").arg(
+                MINIMUM_PASSWORD_LENGTH)
+        );
         return;
     }
     if (newpw1 != newpw2) {

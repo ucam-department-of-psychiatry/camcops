@@ -365,12 +365,11 @@ class TrackerCtvCommon(object):
                     continue
                 for task in task_instances:
                     if DEBUG_TRACKER_TASK_INCLUSION:
-                        # noinspection PyProtectedMember
-                        self.summary += f" / PK {task._pk}"
+                        self.summary += f" / PK {task.pk}"
             self.summary += " ~~~ "
         self.summary += " — ".join([
             "; ".join([
-                f"({task.tablename},{task.get_pk()},"
+                f"({task.tablename},{task.pk},"
                 f"{task.get_patient_server_pk()})"
                 for task in self.collection.tasks_for_task_class(cls)
             ])
@@ -483,7 +482,7 @@ class TrackerCtvCommon(object):
                 self.req,
                 audit_string,
                 table=t.tablename,
-                server_pk=t.get_pk(),
+                server_pk=t.pk,
                 patient_server_pk=t.get_patient_server_pk()
             )
         tree = XmlElement(name=xml_name, value=branches)
@@ -644,11 +643,10 @@ class Tracker(TrackerCtvCommon):
                 specimen_tracker=alltrackers[0][tracker]
             )
         for task in tasks:
-            # noinspection PyProtectedMember
             audit(self.req,
                   "Tracker data accessed",
                   table=task.tablename,
-                  server_pk=task._pk,
+                  server_pk=task.pk,
                   patient_server_pk=task.get_patient_server_pk())
         return html
 

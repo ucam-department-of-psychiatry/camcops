@@ -158,7 +158,8 @@ class ViewParam(object):
     AGE_MAXIMUM = "age_maximum"
     ALL_TASKS = "all_tasks"
     ANONYMISE = "anonymise"
-    CSRF_TOKEN = "csrf"
+    CLINICIAN_CONFIRMATION = "clinician_confirmation"
+    CSRF_TOKEN = "csrf_token"
     DATABASE_TITLE = "database_title"
     DELIVERY_MODE = "delivery_mode"
     DESCRIPTION = "description"
@@ -169,8 +170,11 @@ class ViewParam(object):
     DIAGNOSES_EXCLUSION = "diagnoses_exclusion"
     DUMP_METHOD = "dump_method"
     DOB = "dob"
+    DUE_FROM = "due_from"
+    DUE_WITHIN = "due_within"
     EMAIL = "email"
     END_DATETIME = "end_datetime"
+    INCLUDE_AUTO_GENERATED = "include_auto_generated"
     FILENAME = "filename"
     FINALIZE_POLICY = "finalize_policy"
     FORENAME = "forename"
@@ -191,6 +195,7 @@ class ViewParam(object):
     INCLUDE_INFORMATION_SCHEMA_COLUMNS = "include_information_schema_columns"
     INCLUDE_PATIENT = "include_patient"
     INCLUDE_SNOMED = "include_snomed"
+    IP_USE = "ip_use"
     LANGUAGE = "language"
     MANUAL = "manual"
     MAY_ADD_NOTES = "may_add_notes"
@@ -210,12 +215,16 @@ class ViewParam(object):
     PAGE = "page"
     PASSWORD = "password"
     PATIENT_ID_PER_ROW = "patient_id_per_row"
+    PATIENT_TASK_SCHEDULE_ID = "patient_task_schedule_id"
     RECIPIENT_NAME = "recipient_name"
     REDIRECT_URL = "redirect_url"
     REPORT_ID = "report_id"
     REMOTE_IP_ADDR = "remote_ip_addr"
     ROWS_PER_PAGE = "rows_per_page"
+    SCHEDULE_ID = "schedule_id"
+    SCHEDULE_ITEM_ID = "schedule_item_id"
     SERVER_PK = "server_pk"
+    SETTINGS = "settings"
     SEX = "sex"
     SHORT_DESCRIPTION = "short_description"
     SORT = "sort"
@@ -226,6 +235,7 @@ class ViewParam(object):
     SURNAME = "surname"
     TABLE_NAME = "table_name"
     TASKS = "tasks"
+    TASK_SCHEDULES = "task_schedules"
     TEXT_CONTENTS = "text_contents"
     TRUNCATE = "truncate"
     UPLOAD_GROUP_ID = "upload_group_id"
@@ -675,7 +685,10 @@ class Routes(object):
     # Other
     ADD_GROUP = "add_group"
     ADD_ID_DEFINITION = "add_id_definition"
+    ADD_PATIENT = "add_patient"
     ADD_SPECIAL_NOTE = "add_special_note"
+    ADD_TASK_SCHEDULE = "add_task_schedule"
+    ADD_TASK_SCHEDULE_ITEM = "add_task_schedule_item"
     ADD_USER = "add_user"
     AUDIT_MENU = "audit_menu"
     BASIC_DUMP = "basic_dump"
@@ -685,21 +698,28 @@ class Routes(object):
     CHOOSE_CTV = "choose_ctv"
     CHOOSE_TRACKER = "choose_tracker"
     CLIENT_API = "client_api"
+    CLIENT_API_ALIAS = "client_api_alias"
     CRASH = "crash"
     CTV = "ctv"
     DELETE_FILE = "delete_file"
     DELETE_GROUP = "delete_group"
     DELETE_ID_DEFINITION = "delete_id_definition"
     DELETE_PATIENT = "delete_patient"
+    DELETE_SERVER_CREATED_PATIENT = "delete_server_created_patient"
     DELETE_SPECIAL_NOTE = "delete_special_note"
+    DELETE_TASK_SCHEDULE = "delete_task_schedule"
+    DELETE_TASK_SCHEDULE_ITEM = "delete_task_schedule_item"
     DELETE_USER = "delete_user"
     DEVELOPER = "developer"
     DOWNLOAD_AREA = "download_area"
     DOWNLOAD_FILE = "download_file"
     EDIT_GROUP = "edit_group"
     EDIT_ID_DEFINITION = "edit_id_definition"
-    EDIT_PATIENT = "edit_patient"
+    EDIT_FINALIZED_PATIENT = "edit_finalized_patient"
+    EDIT_SERVER_CREATED_PATIENT = "edit_server_created_patient"
     EDIT_SERVER_SETTINGS = "edit_server_settings"
+    EDIT_TASK_SCHEDULE = "edit_task_schedule"
+    EDIT_TASK_SCHEDULE_ITEM = "edit_task_schedule_item"
     EDIT_USER = "edit_user"
     EDIT_USER_GROUP_MEMBERSHIP = "edit_user_group_membership"
     ERASE_TASK_LEAVING_PLACEHOLDER = "erase_task_leaving_placeholder"
@@ -741,8 +761,12 @@ class Routes(object):
     VIEW_GROUPS = "view_groups"
     VIEW_ID_DEFINITIONS = "view_id_definitions"
     VIEW_OWN_USER_INFO = "view_own_user_info"
+    VIEW_PATIENT_TASK_SCHEDULE = "view_patient_task_schedule"
+    VIEW_PATIENT_TASK_SCHEDULES = "view_patient_task_schedules"
     VIEW_SERVER_INFO = "view_server_info"
     VIEW_TASKS = "view_tasks"
+    VIEW_TASK_SCHEDULES = "view_task_schedules"
+    VIEW_TASK_SCHEDULE_ITEMS = "view_task_schedule_items"
     VIEW_USER = "view_user"
     VIEW_USER_EMAIL_ADDRESSES = "view_user_email_addresses"
     XLSX_DUMP = "xlsx_dump"
@@ -768,7 +792,8 @@ class RoutePath(object):
 
 
 MASTER_ROUTE_WEBVIEW = "/"
-MASTER_ROUTE_CLIENT_API = "/database"
+MASTER_ROUTE_CLIENT_API = "/api"
+MASTER_ROUTE_CLIENT_API_ALIAS = "/database"
 STATIC_CAMCOPS_PACKAGE_PATH = "camcops_server.static:"
 # ... the "static" package (directory with __init__.py) within the
 # "camcops_server" owning package
@@ -794,7 +819,10 @@ class RouteCollection(object):
     # Implemented
     ADD_GROUP = RoutePath(Routes.ADD_GROUP)
     ADD_ID_DEFINITION = RoutePath(Routes.ADD_ID_DEFINITION)
+    ADD_PATIENT = RoutePath(Routes.ADD_PATIENT)
     ADD_SPECIAL_NOTE = RoutePath(Routes.ADD_SPECIAL_NOTE)
+    ADD_TASK_SCHEDULE = RoutePath(Routes.ADD_TASK_SCHEDULE)
+    ADD_TASK_SCHEDULE_ITEM = RoutePath(Routes.ADD_TASK_SCHEDULE_ITEM)
     ADD_USER = RoutePath(Routes.ADD_USER)
     AUDIT_MENU = RoutePath(Routes.AUDIT_MENU)
     BASIC_DUMP = RoutePath(Routes.BASIC_DUMP)
@@ -804,21 +832,31 @@ class RouteCollection(object):
     CHOOSE_CTV = RoutePath(Routes.CHOOSE_CTV)
     CHOOSE_TRACKER = RoutePath(Routes.CHOOSE_TRACKER)
     CLIENT_API = RoutePath(Routes.CLIENT_API, MASTER_ROUTE_CLIENT_API)
+    CLIENT_API_ALIAS = RoutePath(Routes.CLIENT_API_ALIAS,
+                                 MASTER_ROUTE_CLIENT_API_ALIAS)
     CRASH = RoutePath(Routes.CRASH)
     CTV = RoutePath(Routes.CTV)
     DELETE_FILE = RoutePath(Routes.DELETE_FILE)
     DELETE_GROUP = RoutePath(Routes.DELETE_GROUP)
     DELETE_ID_DEFINITION = RoutePath(Routes.DELETE_ID_DEFINITION)
     DELETE_PATIENT = RoutePath(Routes.DELETE_PATIENT)
+    DELETE_SERVER_CREATED_PATIENT = RoutePath(
+        Routes.DELETE_SERVER_CREATED_PATIENT
+    )
     DELETE_SPECIAL_NOTE = RoutePath(Routes.DELETE_SPECIAL_NOTE)
+    DELETE_TASK_SCHEDULE = RoutePath(Routes.DELETE_TASK_SCHEDULE)
+    DELETE_TASK_SCHEDULE_ITEM = RoutePath(Routes.DELETE_TASK_SCHEDULE_ITEM)
     DELETE_USER = RoutePath(Routes.DELETE_USER)
     DEVELOPER = RoutePath(Routes.DEVELOPER)
     DOWNLOAD_AREA = RoutePath(Routes.DOWNLOAD_AREA)
     DOWNLOAD_FILE = RoutePath(Routes.DOWNLOAD_FILE)
     EDIT_GROUP = RoutePath(Routes.EDIT_GROUP)
     EDIT_ID_DEFINITION = RoutePath(Routes.EDIT_ID_DEFINITION)
-    EDIT_PATIENT = RoutePath(Routes.EDIT_PATIENT)
+    EDIT_FINALIZED_PATIENT = RoutePath(Routes.EDIT_FINALIZED_PATIENT)
+    EDIT_SERVER_CREATED_PATIENT = RoutePath(Routes.EDIT_SERVER_CREATED_PATIENT)
     EDIT_SERVER_SETTINGS = RoutePath(Routes.EDIT_SERVER_SETTINGS)
+    EDIT_TASK_SCHEDULE = RoutePath(Routes.EDIT_TASK_SCHEDULE)
+    EDIT_TASK_SCHEDULE_ITEM = RoutePath(Routes.EDIT_TASK_SCHEDULE_ITEM)
     EDIT_USER = RoutePath(Routes.EDIT_USER)
     EDIT_USER_GROUP_MEMBERSHIP = RoutePath(Routes.EDIT_USER_GROUP_MEMBERSHIP)
     ERASE_TASK_LEAVING_PLACEHOLDER = RoutePath(Routes.ERASE_TASK_LEAVING_PLACEHOLDER)  # noqa
@@ -859,8 +897,12 @@ class RouteCollection(object):
     VIEW_GROUPS = RoutePath(Routes.VIEW_GROUPS)
     VIEW_ID_DEFINITIONS = RoutePath(Routes.VIEW_ID_DEFINITIONS)
     VIEW_OWN_USER_INFO = RoutePath(Routes.VIEW_OWN_USER_INFO)
+    VIEW_PATIENT_TASK_SCHEDULE = RoutePath(Routes.VIEW_PATIENT_TASK_SCHEDULE)
+    VIEW_PATIENT_TASK_SCHEDULES = RoutePath(Routes.VIEW_PATIENT_TASK_SCHEDULES)
     VIEW_SERVER_INFO = RoutePath(Routes.VIEW_SERVER_INFO)
     VIEW_TASKS = RoutePath(Routes.VIEW_TASKS)
+    VIEW_TASK_SCHEDULES = RoutePath(Routes.VIEW_TASK_SCHEDULES)
+    VIEW_TASK_SCHEDULE_ITEMS = RoutePath(Routes.VIEW_TASK_SCHEDULE_ITEMS)
     VIEW_USER = RoutePath(Routes.VIEW_USER)
     VIEW_USER_EMAIL_ADDRESSES = RoutePath(Routes.VIEW_USER_EMAIL_ADDRESSES)
     XLSX_DUMP = RoutePath(Routes.XLSX_DUMP)

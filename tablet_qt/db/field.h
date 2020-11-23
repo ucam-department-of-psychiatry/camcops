@@ -42,12 +42,14 @@ public:
     //  default_value: value if not otherwise set
     Field(const QString& name, QVariant::Type type,
           bool mandatory = false, bool unique = false, bool pk = false,
-          const QVariant& default_value = QVariant());
+          const QVariant& cpp_default_value = QVariant(),
+          const QVariant& db_default_value = QVariant());
 
     // Alternative constructor by type name, e.g. "QVector<int>" or "Version".
     Field(const QString& name, const QString& type_name,
           bool mandatory = false, bool unique = false, bool pk = false,
-          const QVariant& default_value = QVariant());
+          const QVariant& cpp_default_value = QVariant(),
+          const QVariant& db_default_value = QVariant());
 
     // Sets whether this field is a primary key (PK) or not.
     Field& setPk(bool pk);
@@ -58,8 +60,17 @@ public:
     // Sets whether this field has a NOT NULL constraint or not.
     Field& setMandatory(bool pk);
 
-    // Sets this field's default value.
+    // Sets this field's C++ default value.
+    Field& setCppDefaultValue(const QVariant& value);
+
+    // Sets this field's database default value.
+    Field& setDbDefaultValue(const QVariant& value);
+
+    // Sets this field's C++ and database default value.
     Field& setDefaultValue(const QVariant& value);
+
+    // Does this field have a non-NULL default database value?
+    bool hasDbDefaultValue() const;
 
     // Returns the field's name.
     QString name() const;
@@ -152,8 +163,11 @@ protected:
     // Is it dirty (requiring writing to the database)?
     bool m_dirty;
 
-    // Default value (C++, not database).
-    QVariant m_default_value;
+    // Default C++ value (not database defai;t).
+    QVariant m_cpp_default_value;
+
+    // Default database value (not C++ default).
+    QVariant m_db_default_value;
 
     // Stored value
     QVariant m_value;

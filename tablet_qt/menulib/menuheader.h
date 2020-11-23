@@ -23,6 +23,7 @@
 #include "core/camcopsapp.h"  // for LockState
 
 class BaseWidget;
+class ClickableLabelWordWrapWide;
 class LabelWordWrapWide;
 class QAbstractButton;
 class QLabel;
@@ -107,6 +108,10 @@ protected:
     // "Update the lines (at the bottom of the header) showing patient info."
     void setPatientDetails(const Patient* patient);
 
+private:
+    void openOptionsMenu();
+    void registerPatient();
+
 protected:
     CamcopsApp& m_app;
     QPointer<BaseWidget> m_top_bar;
@@ -122,6 +127,8 @@ protected:
     QPointer<QAbstractButton> m_button_locked;
     QPointer<QAbstractButton> m_button_unlocked;
     QPointer<QAbstractButton> m_button_privileged;
+    QPointer<QLabel> m_mode;
     QPointer<QLabel> m_patient_info;
-    QPointer<QLabel> m_no_patient;
+    QPointer<ClickableLabelWordWrapWide> m_no_patient;
+    QPointer<ClickableLabelWordWrapWide> m_single_user_options;
 };

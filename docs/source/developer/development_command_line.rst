@@ -70,8 +70,15 @@ architectures supported on the host you're using.
 
 Here's its help:
 
-..  literalinclude:: build_qt_help.txt
+..  literalinclude:: _build_qt_help.txt
     :language: none
+
+
+build_client_translations.py
+----------------------------
+
+Builds translation files for the client. See :ref:`Internationalization
+<dev_internationalization>`.
 
 
 chord.py
@@ -89,7 +96,7 @@ SQLite_ database from an encrypted SQLCipher_ database, given the password.
 
 Here's its help:
 
-..  literalinclude:: decrypt_sqlcipher_help.txt
+..  literalinclude:: _decrypt_sqlcipher_help.txt
     :language: none
 
 
@@ -101,7 +108,7 @@ SQLCipher_ database from a plain SQLite_ database.
 
 Here's its help:
 
-..  literalinclude:: encrypt_sqlcipher_help.txt
+..  literalinclude:: _encrypt_sqlcipher_help.txt
     :language: none
 
 
@@ -114,15 +121,15 @@ You can use this to view/edit CamCOPS databases.
 
 Here's its help:
 
-..  literalinclude:: open_sqlcipher_help.txt
+..  literalinclude:: _open_sqlcipher_help.txt
     :language: none
 
 
 **In server/tools:**
 
 
-build_translations.py
----------------------
+build_server_translations.py
+----------------------------
 
 Builds translation files for the server. See :ref:`Internationalization
 <dev_internationalization>`.
@@ -134,7 +141,7 @@ create_database_migration.py
 Creates a new database migration for the server, in
 ``server/camcops_server/alembic/versions/``. Here's its help:
 
-.. literalinclude:: create_database_migration_help.txt
+.. literalinclude:: _create_database_migration_help.txt
     :language: none
 
 
@@ -148,5 +155,5 @@ required if they too have the permissions to create the full file.
 
 Writes to stdout (so redirect it to save to a file). Here's its help:
 
-.. literalinclude:: make_xml_skeleton_help.txt
+.. literalinclude:: _make_xml_skeleton_help.txt
     :language: none

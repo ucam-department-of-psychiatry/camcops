@@ -66,7 +66,6 @@ html.svg img.pngfallback {
 body {
     font-family: Arial, Helvetica, sans-serif;
     font-size: ${va.MAINFONTSIZE};
-    line-height: ${va.MAINLINEHEIGHT};
     margin: ${va.ZERO} ${va.ZERO} ${va.ZERO} ${va.ZERO};  /* margin here affects form layout too */
     padding: ${va.BODYPADDING};
 }
@@ -113,6 +112,9 @@ h4 {
 img {
     max-width: 100%;
     max-height: 100%;
+}
+ol, ul {
+    margin: ${va.ELEMENTGAP};
 }
 p {
     margin: ${va.ELEMENTGAP} ${va.ZERO} ${va.ELEMENTGAP} ${va.ZERO};  /* see esp. p within div, such as task footnotes for web version */
@@ -248,6 +250,10 @@ table.clinician, table.clinician th, table.clinician td {
 .filters {
     font-style: italic;
 }
+input[type="date"].form-control,
+input[type="time"].form-control {
+    line-height: normal; /* Bootstrap default looks wrong */
+}
 table.extradetail {
     border: ${va.THINLINE} solid black;
     background-color: rgb(210, 210, 210);
@@ -278,6 +284,10 @@ form.filter {
     /* for task filters */
     display: inline;
     margin: ${va.ZERO};
+}
+.flash_messages {
+    padding:0;
+    margin:0;
 }
 .footnotes {
     /* font-style: italic; */
@@ -314,6 +324,9 @@ p.hangingindent {
 }
 .important {
     color: rgb(64, 0, 192);
+    font-weight: bold;
+}
+.ip_use_label {
     font-weight: bold;
 }
 .specialnote {

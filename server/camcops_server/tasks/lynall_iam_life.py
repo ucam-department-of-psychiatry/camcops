@@ -150,6 +150,8 @@ class LynallIamLifeEvents(TaskHasPatientMixin, Task,
     __tablename__ = "lynall_iam_life"
     shortname = "Lynall_IAM_Life"
 
+    prohibits_commercial = True
+
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
         _ = req.gettext

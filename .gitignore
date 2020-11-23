@@ -19,6 +19,9 @@ core
 # but not core directory
 !core/
 
+# Emacs
+.dir-locals.el
+
 # PyCharm
 .idea/*
 

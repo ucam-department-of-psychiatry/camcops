@@ -1,0 +1,78 @@
+/* Most of these changes are just resetting global styles.
+   We might instead want to replace the global padding, margin, border for all
+   divs and tables currently in the base template with more specific rules.
+*/
+
+.jsonwidget-editor {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.jsonwidget-textarea {
+    display: none;
+}
+
+.ace_active-line,
+.ace_content,
+.ace_cursor,
+.ace_gutter,
+.ace_gutter-cell,
+.ace_layer,
+.ace_line,
+.ace_line_group,
+.ace_print-margin,
+.ace_scroller,
+.jsoneditor-modes,
+.jsoneditor-select-wrapper,
+.jsoneditor-tree,
+.jsoneditor-tree-inner,
+.jsoneditor-search,
+.jsoneditor-statusbar,
+.jsoneditor-validation-errors-container,
+.jsoneditor-value > div,
+.pico-modal-contents,
+.pico-modal-header
+{
+    padding: 0;
+    margin: 0;
+}
+.ace_editor,
+.jsoneditor-modal,
+.jsoneditor-text,
+.jsoneditor-treepath
+{
+    margin: 0;
+}
+.jsoneditor-tree,
+.jsoneditor-tree tr,
+.jsoneditor-tree tr > td,
+.jsoneditor-tree tr > th {
+    border: none;
+}
+
+.jsoneditor-values {
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
+.jsoneditor-modal table {
+    border: none;
+    margin: 0;
+    padding: 0;
+}
+
+.jsoneditor-modal tr {
+    border: none;
+    margin: 0;
+    padding: 0;
+}
+
+.jsoneditor-modal td {
+    border: none;
+    margin: 0;
+    padding: 0;
+    line-height: normal;
+}

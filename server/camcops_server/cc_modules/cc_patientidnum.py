@@ -135,6 +135,15 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
         """
         return f"{self.short_description(req)} {self.idnum_value}"
 
+    def full_prettystr(self, req: "CamcopsRequest") -> str:
+        """
+        A long-version prettified version of __str__.
+
+        Args:
+            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        """
+        return f"{self.description(req)} {self.idnum_value}"
+
     def __repr__(self) -> str:
         return simple_repr(self, [
             "_pk", "_device_id", "_era",
@@ -205,7 +214,8 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
 
     def why_invalid(self, req: "CamcopsRequest") -> str:
         if not self.is_superficially_valid():
-            return "ID number fails basic checks"
+            _ = req.gettext
+            return _("ID number fails basic checks")
         return req.why_idnum_invalid(self.which_idnum, self.idnum_value)
 
     # -------------------------------------------------------------------------
@@ -267,7 +277,7 @@ class PatientIdNum(GenericTabletRecordMixin, Base):
         if not patient:
             raise ValueError(
                 "Corrupted database? PatientIdNum can't fetch its Patient")
-        return patient.get_pk()
+        return patient.pk
 
 
 # =============================================================================

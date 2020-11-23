@@ -782,6 +782,7 @@ def fetch_camcops_snomed_codes(api: SnomedApiInfo,
 # =============================================================================
 
 def main() -> None:
+    # noinspection PyTypeChecker
     parser = argparse.ArgumentParser(
         description=(
             "Fetch SNOMED CT codes from a SNOMED CT Snapshot REST API provider"

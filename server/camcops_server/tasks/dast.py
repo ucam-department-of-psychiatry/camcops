@@ -111,6 +111,8 @@ class Dast(TaskHasPatientMixin, Task,
     shortname = "DAST"
     provides_trackers = True
 
+    prohibits_commercial = True
+
     NQUESTIONS = 28
     TASK_FIELDS = strseq("q", 1, NQUESTIONS)
 

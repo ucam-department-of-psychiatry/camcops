@@ -45,4 +45,6 @@ SlowNonGuiFunctionCaller::~SlowNonGuiFunctionCaller()
 {
     m_worker_thread.quit();
     m_worker_thread.wait();
+    // Note that deletion of m_worker is accomplished by the signal to its
+    // deleteLater() operation, set up in the constructor above.
 }

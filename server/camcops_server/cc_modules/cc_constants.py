@@ -450,6 +450,7 @@ class ConfigParamServer(object):
     SHOW_TIMING = "SHOW_TIMING"
     SSL_CERTIFICATE = "SSL_CERTIFICATE"
     SSL_PRIVATE_KEY = "SSL_PRIVATE_KEY"
+    STATIC_CACHE_DURATION_S = "STATIC_CACHE_DURATION_S"
     TRUSTED_PROXY_HEADERS = "TRUSTED_PROXY_HEADERS"
     UNIX_DOMAIN_SOCKET = "UNIX_DOMAIN_SOCKET"
 
@@ -630,6 +631,7 @@ class ConfigDefaults(object):
     SHOW_REQUESTS = False
     SHOW_RESPONSE = False
     SHOW_TIMING = False
+    STATIC_CACHE_DURATION_S = 1 * 24 * 60 * 60  # 1 day, in seconds = 86400
 
     # [export] section
     CELERY_BROKER_URL = "amqp://"

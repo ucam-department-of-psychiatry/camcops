@@ -148,10 +148,14 @@ tablet_qt
     diagnosis/icd10.h.rst
     diagnosis/icd9cm.cpp.rst
     diagnosis/icd9cm.h.rst
+    dialogs/dangerousconfirmationdialog.cpp.rst
+    dialogs/dangerousconfirmationdialog.h.rst
     dialogs/logbox.cpp.rst
     dialogs/logbox.h.rst
     dialogs/logmessagebox.cpp.rst
     dialogs/logmessagebox.h.rst
+    dialogs/modedialog.cpp.rst
+    dialogs/modedialog.h.rst
     dialogs/nvpchoicedialog.cpp.rst
     dialogs/nvpchoicedialog.h.rst
     dialogs/pagepickerdialog.cpp.rst
@@ -160,6 +164,8 @@ tablet_qt
     dialogs/passwordchangedialog.h.rst
     dialogs/passwordentrydialog.cpp.rst
     dialogs/passwordentrydialog.h.rst
+    dialogs/patientregistrationdialog.cpp.rst
+    dialogs/patientregistrationdialog.h.rst
     dialogs/progressbox.cpp.rst
     dialogs/progressbox.h.rst
     dialogs/scrollmessagebox.cpp.rst
@@ -342,6 +348,12 @@ tablet_qt
     menu/settingsmenu.h.rst
     menu/singletaskmenu.cpp.rst
     menu/singletaskmenu.h.rst
+    menu/singleuseradvancedmenu.cpp.rst
+    menu/singleuseradvancedmenu.h.rst
+    menu/singleusermenu.cpp.rst
+    menu/singleusermenu.h.rst
+    menu/singleuseroptionsmenu.cpp.rst
+    menu/singleuseroptionsmenu.h.rst
     menu/testmenu.cpp.rst
     menu/testmenu.h.rst
     menu/whiskertestmenu.cpp.rst
@@ -350,6 +362,10 @@ tablet_qt
     menu/widgettestmenu.h.rst
     menulib/choosepatientmenuitem.cpp.rst
     menulib/choosepatientmenuitem.h.rst
+    menulib/fontsizeanddpiwindow.cpp.rst
+    menulib/fontsizeanddpiwindow.h.rst
+    menulib/fontsizewindow.cpp.rst
+    menulib/fontsizewindow.h.rst
     menulib/htmlinfowindow.cpp.rst
     menulib/htmlinfowindow.h.rst
     menulib/htmlmenuitem.cpp.rst
@@ -362,10 +378,14 @@ tablet_qt
     menulib/menuproxy.h.rst
     menulib/menuwindow.cpp.rst
     menulib/menuwindow.h.rst
+    menulib/serversettingswindow.cpp.rst
+    menulib/serversettingswindow.h.rst
     menulib/taskchainmenuitem.cpp.rst
     menulib/taskchainmenuitem.h.rst
     menulib/taskmenuitem.cpp.rst
     menulib/taskmenuitem.h.rst
+    menulib/taskscheduleitemmenuitem.cpp.rst
+    menulib/taskscheduleitemmenuitem.h.rst
     menulib/urlmenuitem.cpp.rst
     menulib/urlmenuitem.h.rst
     qcustomplot/qcustomplot.cpp.rst
@@ -374,6 +394,8 @@ tablet_qt
     qobjects/cameraframegrabber.h.rst
     qobjects/debugeventwatcher.cpp.rst
     qobjects/debugeventwatcher.h.rst
+    qobjects/emailvalidator.cpp.rst
+    qobjects/emailvalidator.h.rst
     qobjects/flickcharm.cpp.rst
     qobjects/flickcharm.h.rst
     qobjects/focuswatcher.cpp.rst
@@ -382,6 +404,8 @@ tablet_qt
     qobjects/keypresswatcher.h.rst
     qobjects/nhsnumbervalidator.cpp.rst
     qobjects/nhsnumbervalidator.h.rst
+    qobjects/proquintvalidator.cpp.rst
+    qobjects/proquintvalidator.h.rst
     qobjects/shootabug.cpp.rst
     qobjects/shootabug.h.rst
     qobjects/showwatcher.cpp.rst
@@ -402,6 +426,8 @@ tablet_qt
     qobjects/stylenofocusrect.h.rst
     qobjects/threadworker.cpp.rst
     qobjects/threadworker.h.rst
+    qobjects/urlvalidator.cpp.rst
+    qobjects/urlvalidator.h.rst
     questionnairelib/commonoptions.cpp.rst
     questionnairelib/commonoptions.h.rst
     questionnairelib/dynamicquestionnaire.cpp.rst
@@ -462,6 +488,8 @@ tablet_qt
     questionnairelib/qulineedit.h.rst
     questionnairelib/qulineeditdouble.cpp.rst
     questionnairelib/qulineeditdouble.h.rst
+    questionnairelib/qulineeditemail.cpp.rst
+    questionnairelib/qulineeditemail.h.rst
     questionnairelib/qulineeditint64.cpp.rst
     questionnairelib/qulineeditint64.h.rst
     questionnairelib/qulineeditinteger.cpp.rst
@@ -550,6 +578,12 @@ tablet_qt
     tasklib/taskproxy.h.rst
     tasklib/taskregistrar.cpp.rst
     tasklib/taskregistrar.h.rst
+    tasklib/taskschedule.cpp.rst
+    tasklib/taskschedule.h.rst
+    tasklib/taskscheduleitem.cpp.rst
+    tasklib/taskscheduleitem.h.rst
+    tasklib/taskscheduleitemeditor.cpp.rst
+    tasklib/taskscheduleitemeditor.h.rst
     tasklib/tasksorter.cpp.rst
     tasklib/tasksorter.h.rst
     tasks/ace3.cpp.rst
@@ -842,6 +876,7 @@ tablet_qt
     taskxtra/photosequencephoto.h.rst
     taskxtra/satisfactioncommon.cpp.rst
     taskxtra/satisfactioncommon.h.rst
+    tools/build_client_translations.py.rst
     tools/build_qt.py.rst
     tools/chord.py.rst
     tools/decrypt_sqlcipher.py.rst
@@ -925,6 +960,8 @@ tablet_qt
     widgets/treeviewcontroldelegate.h.rst
     widgets/treeviewproxystyle.cpp.rst
     widgets/treeviewproxystyle.h.rst
+    widgets/validatinglineedit.cpp.rst
+    widgets/validatinglineedit.h.rst
     widgets/verticalline.cpp.rst
     widgets/verticalline.h.rst
     widgets/verticalscrollarea.cpp.rst

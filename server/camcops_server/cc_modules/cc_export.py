@@ -371,7 +371,7 @@ def export_tasks_individually(req: "CamcopsRequest",
         for task_or_index in collection.gen_all_tasks_or_indexes():
             if isinstance(task_or_index, Task):
                 basetable = task_or_index.tablename
-                task_pk = task_or_index.get_pk()
+                task_pk = task_or_index.pk
             else:
                 basetable = task_or_index.task_table_name
                 task_pk = task_or_index.task_pk
@@ -385,7 +385,7 @@ def export_tasks_individually(req: "CamcopsRequest",
     else:
         for task in collection.gen_tasks_by_class():
             # Do NOT use this to check the working of export_task_backend():
-            # export_task_backend(recipient.recipient_name, task.tablename, task.get_pk())  # noqa
+            # export_task_backend(recipient.recipient_name, task.tablename, task.pk)  # noqa
             # ... it will deadlock at the database (because we're already
             # within a query of some sort, I presume)
             export_task(req, recipient, task)
@@ -414,7 +414,7 @@ def export_task(req: "CamcopsRequest",
     lockfilename = cfg.get_export_lockfilename_task(
         recipient_name=recipient.recipient_name,
         basetable=task.tablename,
-        pk=task.get_pk(),
+        pk=task.pk,
     )
     dbsession = req.dbsession
     try:
@@ -425,7 +425,7 @@ def export_task(req: "CamcopsRequest",
                     dbsession=dbsession,
                     recipient_name=recipient.recipient_name,
                     basetable=task.tablename,
-                    task_pk=task.get_pk()):
+                    task_pk=task.pk):
                 log.info("Task {!r} already exported to recipient {!r}; "
                          "ignoring", task, recipient)
                 # Not a warning; it's normal to see these because it allows the
@@ -463,7 +463,7 @@ def gen_audited_tasks_for_task_class(
     """  # noqa
     pklist = []  # type: List[int]
     for task in collection.tasks_for_task_class(cls):
-        pklist.append(task.get_pk())
+        pklist.append(task.pk)
         yield task
     audit_descriptions.append(
         f"{cls.__tablename__}: "
@@ -634,7 +634,7 @@ class TaskCollectionExporter(object):
                 a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
             collection:
                 a :class:`camcops_server.cc_modules.cc_taskcollection.TaskCollection`
-            options: 
+            options:
                 :class:`DownloadOptions` governing the download
         """  # noqa
         self.req = req
@@ -755,9 +755,9 @@ class TaskCollectionExporter(object):
             total_permitted = self.req.user_download_bytes_permitted
             msg = _(
                 "You do not have enough space to create this download. "
-                "You are allowed %s bytes and you are have %s bytes free. "
-                "This download would need %s bytes."
-            ) % (total_permitted, space, size)
+                "You are allowed {total_permitted} bytes and you are have "
+                "{space} bytes free. This download would need {size} bytes."
+            ).format(total_permitted=total_permitted, space=space, size=size)
         else:
             # Create file
             fullpath = os.path.join(download_dir, filename)
@@ -774,8 +774,8 @@ class TaskCollectionExporter(object):
             except Exception as e:
                 # Some other error
                 msg = _(
-                    "Failed to create file %s. Error was: %s"
-                ) % (filename, e)
+                    "Failed to create file {filename}. Error was: {message}"
+                ).format(filename=filename, message=e)
 
         # E-mail the user, if they have an e-mail address
         email_to = self.req.user.email
@@ -1207,7 +1207,7 @@ class UserDownloadFile(object):
     def when_last_modified(self) -> Optional[Pendulum]:
         """
         Returns the file's modification time, or ``None`` if it doesn't exist.
-        
+
         (Creation time is harder! See
         https://stackoverflow.com/questions/237079/how-to-get-file-creation-modification-date-times-in-python.)
         """  # noqa

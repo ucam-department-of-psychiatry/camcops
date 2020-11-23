@@ -78,7 +78,8 @@ bool DiagnosisTaskBase::isComplete() const
 QStringList DiagnosisTaskBase::summary() const
 {
     QStringList lines;
-    lines.append(tr("Relates to: ") + bold(prettyValue(RELATES_TO_DATE)) + ".");
+    lines.append(tr("Relates to:") + " " +
+                 bold(prettyValue(RELATES_TO_DATE)) + ".");
     for (const DiagnosisItemBasePtr& item : m_items) {
         lines.append(QString("%1: <b>%2 – %3</b>.").arg(
                          QString::number(item->seqnum()),

@@ -845,6 +845,15 @@ SSL private key file for HTTPS_ (e.g.
 .. include:: include_docker_config.rst
 
 
+STATIC_CACHE_DURATION_S
+#######################
+
+*Integer.* Default 86400 seconds (1 day).
+
+Time, in seconds, for which to cache static content (e.g. logos, static
+scripts).
+
+
 WSGI options
 ~~~~~~~~~~~~
 
@@ -2096,5 +2105,5 @@ Note that if you are using Docker, then the command
 you a config file with appropriate defaults for the Docker environment
 (slightly different from what follows).
 
-..  literalinclude:: demo_camcops_config.ini
+..  literalinclude:: _demo_camcops_config.ini
     :language: ini

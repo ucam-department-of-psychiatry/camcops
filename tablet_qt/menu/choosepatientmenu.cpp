@@ -189,7 +189,7 @@ void ChoosePatientMenu::deletePatient()
     qInfo() << "Deleting patient:" << patient_details;
     patient->deleteFromDatabase();
     qInfo() << "... patient deleted";
-    m_app.deselectPatient();
+    m_app.setDefaultPatient();
     refreshPatientList();
 }
 
@@ -282,7 +282,7 @@ void ChoosePatientMenu::mergePatients()
     qInfo() << Q_FUNC_INFO << "Merge complete.";
 
     // Refresh list, etc.
-    m_app.deselectPatient();
+    m_app.setDefaultPatient();
     refreshPatientList();
 }
 

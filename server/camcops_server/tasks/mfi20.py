@@ -96,6 +96,9 @@ class Mfi20(TaskHasPatientMixin,
     __tablename__ = "mfi20"
     shortname = "MFI-20"
 
+    prohibits_clinical = True
+    prohibits_commercial = True
+
     N_QUESTIONS = 20
     MIN_SCORE_PER_Q = 1
     MAX_SCORE_PER_Q = 5

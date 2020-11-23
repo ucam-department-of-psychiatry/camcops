@@ -28,7 +28,8 @@ camcops_server/cc_modules/cc_client_api_core.py
 
 """
 
-from typing import Any, Dict, Iterable, List, Optional, Set, TYPE_CHECKING
+from typing import (Any, Dict, Iterable, List, NoReturn,
+                    Optional, Set, TYPE_CHECKING)
 
 from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.reprfunc import simple_repr
@@ -73,13 +74,18 @@ class TabletParam(object):
     bidirectional).
     """
     ADDRESS = "address"  # C->S, in JSON, v2.3.0
+    ANONYMOUS = "anonymous"  # S->C; new in v2.4.0
     CAMCOPS_VERSION = "camcops_version"  # C->S
+    COMPLETE = "complete"  # S->C; new in v2.4.0
     DATABASE_TITLE = "databaseTitle"  # S->C
     DATEVALUES = "datevalues"  # C->S
     DBDATA = "dbdata"  # C->S, v2.3.0
     DEVICE = "device"  # C->S
     DEVICE_FRIENDLY_NAME = "devicefriendlyname"  # C->S
     DOB = "dob"  # C->S, in JSON, v2.3.0
+    DUE_BY = "due_by"  # C->S; new in v2.4.0
+    DUE_FROM = "due_from"  # C->S; new in v2.4.0
+    EMAIL = "email"  # C->S; new in v2.4.0
     ERROR = "error"  # S->C
     FIELDS = "fields"  # B
     FINALIZING = "finalizing"  # C->S, in JSON and upload_entire_database, v2.3.0; synonym for preserving  # noqa
@@ -91,13 +97,19 @@ class TabletParam(object):
     ID_SHORT_DESCRIPTION_PREFIX = "idShortDescription"  # S->C
     ID_VALIDATION_METHOD_PREFIX = "idValidationMethod"  # S->C; new in v2.2.8
     IDNUM_PREFIX = "idnum"  # C->S, in JSON, v2.3.0
+    IP_USE_INFO = "ip_use_info"  # S->C; new in v2.4.0
+    IP_USE_COMMERCIAL = "ip_use_commercial"  # S->C; new in v2.4.0
+    IP_USE_CLINICAL = "ip_use_clinical"  # S->C; new in v2.4.0
+    IP_USE_EDUCATIONAL = "ip_use_educational"  # S->C; new in v2.4.0
+    IP_USE_RESEARCH = "ip_use_research"  # S->C; new in v2.4.0
     MOVE_OFF_TABLET_VALUES = "move_off_tablet_values"  # C->S, v2.3.0
     NFIELDS = "nfields"  # B
     NRECORDS = "nrecords"  # B
     OPERATION = "operation"  # C->S
     OTHER = "other"  # C->S, in JSON, v2.3.0
     PASSWORD = "password"  # C->S
-    PATIENT_INFO = "patient_info"  # C->S; new in v2.3.0
+    PATIENT_INFO = "patient_info"  # C->S; new in v2.3.0, S->C new in v2.4.0
+    PATIENT_PROQUINT = "patient_proquint"  # C->S; new in v2.4.0
     PKNAME = "pkname"  # C->S
     PKNAMEINFO = "pknameinfo"  # C->S, new in v2.3.0
     PKVALUES = "pkvalues"  # C->S
@@ -106,13 +118,18 @@ class TabletParam(object):
     SERVER_CAMCOPS_VERSION = "serverCamcopsVersion"  # S->C
     SESSION_ID = "session_id"  # B
     SESSION_TOKEN = "session_token"  # B
+    SETTINGS = "settings"  # S->C; new in v2.4.0
     SEX = "sex"  # C->S, in JSON, v2.3.0
     SUCCESS = "success"  # S->C
     SURNAME = "surname"  # C->S, in JSON, v2.3.0
     TABLE = "table"  # C->S
     TABLES = "tables"  # C->S
+    TASK_SCHEDULES = "task_schedules"  # S->C; new in v2.4.0
+    TASK_SCHEDULE_ITEMS = "task_schedule_items"  # S->C; new in v2.4.0
+    TASK_SCHEDULE_NAME = "task_schedule_name"  # S->C; new in v2.4.0
     USER = "user"  # C->S
     VALUES = "values"  # C->S
+    WHEN_COMPLETED = "when_completed"  # S->C; new in v2.4.0
 
     # Retired (part of defunct mobileweb interface):
     # WHEREFIELDS = "wherefields"
@@ -191,7 +208,7 @@ def exception_description(e: Exception) -> str:
 #     return "CamCOPS: {}".format(operation)
 
 
-def fail_user_error(msg: str) -> None:
+def fail_user_error(msg: str) -> NoReturn:
     """
     Function to abort the script when the input is dodgy.
 
@@ -214,7 +231,7 @@ def require_keys(dictionary: Dict[Any, Any], keys: List[Any]) -> None:
             fail_user_error(f"Field {repr(k)} missing in client input")
 
 
-def fail_user_error_from_exception(e: Exception) -> None:
+def fail_user_error_from_exception(e: Exception) -> NoReturn:
     """
     Raise :exc:`UserErrorException` with a description that comes from
     the specified exception.
@@ -222,7 +239,7 @@ def fail_user_error_from_exception(e: Exception) -> None:
     fail_user_error(exception_description(e))
 
 
-def fail_server_error(msg: str) -> None:
+def fail_server_error(msg: str) -> NoReturn:
     """
     Function to abort the script when something's broken server-side.
 
@@ -231,7 +248,7 @@ def fail_server_error(msg: str) -> None:
     raise ServerErrorException(msg)
 
 
-def fail_server_error_from_exception(e: Exception) -> None:
+def fail_server_error_from_exception(e: Exception) -> NoReturn:
     """
     Raise :exc:`ServerErrorException` with a description that comes from
     the specified exception.
@@ -239,7 +256,7 @@ def fail_server_error_from_exception(e: Exception) -> None:
     fail_server_error(exception_description(e))
 
 
-def fail_unsupported_operation(operation: str) -> None:
+def fail_unsupported_operation(operation: str) -> NoReturn:
     """
     Abort the script (with a :exc:`UserErrorException`) when the
     operation is invalid.
@@ -542,10 +559,10 @@ class UploadTableChanges(object):
         Records information from a :class:`UploadRecordResult`, which is itself
         the result of calling
         :func:`camcops_server.cc_modules.client_api.upload_record_core`.
-        
+
         Called by
         :func:`camcops_server.cc_modules.client_api.process_table_for_onestep_upload`.
-        
+
         Args:
             urr: a :class:`UploadRecordResult`
             preserving_new_records: are new records being preserved?

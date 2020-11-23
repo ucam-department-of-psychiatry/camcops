@@ -35,7 +35,7 @@ camcops_server
 The ``camcops_server`` command is the main interface to the CamCOPS server.
 Options (output from ``camcops_server --allhelp``):
 
-..  literalinclude:: camcops_server_allhelp.txt
+..  literalinclude:: _camcops_server_allhelp.txt
     :language: none
 
 
@@ -51,7 +51,7 @@ concept of “a single database with group-level security”.
 
 Options:
 
-..  literalinclude:: camcops_server_meta_help.txt
+..  literalinclude:: _camcops_server_meta_help.txt
     :language: none
 
 
@@ -67,7 +67,7 @@ See :ref:`SNOMED CT coding <snomed>` and :ref:`SNOMED CT licensing
 
 Options:
 
-..  literalinclude:: camcops_fetch_snomed_codes_help.txt
+..  literalinclude:: _camcops_fetch_snomed_codes_help.txt
     :language: none
 
 
@@ -82,5 +82,5 @@ plus a timestamp.
 
 Options:
 
-..  literalinclude:: camcops_backup_mysql_database_help.txt
+..  literalinclude:: _camcops_backup_mysql_database_help.txt
     :language: none

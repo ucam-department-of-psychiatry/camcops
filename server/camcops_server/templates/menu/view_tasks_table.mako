@@ -57,8 +57,7 @@ OFFER_PDF_ANON_VERSION = False
             # Whether it's a Task or a TaskIndexEntry:
             task_tablename = task.tablename
             task_shortname = task.shortname
-            # noinspection PyProtectedMember
-            task_pk = task._pk
+            task_pk = task.pk
             when_created = task.when_created
             # noinspection PyProtectedMember
             adding_user = task._adding_user

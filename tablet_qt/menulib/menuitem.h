@@ -29,6 +29,7 @@
 #include "menulib/htmlmenuitem.h"  // many menus will want this
 #include "menulib/taskchainmenuitem.h"
 #include "menulib/taskmenuitem.h"  // many menus will want this
+#include "menulib/taskscheduleitemmenuitem.h"
 #include "menulib/urlmenuitem.h"
 
 class CamcopsApp;
@@ -67,10 +68,12 @@ public:
     MenuItem(TaskPtr p_task, bool task_shows_taskname = true,
              bool task_shows_patient = false);
     // We don't have one for a Questionnaire or other generic OpenableWidget;
-    // we don't want to have to create them all just to creat the menu.
+    // we don't want to have to create them all just to create the menu.
     // Use a function instead, which can create the OpenableWidget (and open
     // it) as required.
     MenuItem(PatientPtr p_patient);
+
+    MenuItem(const TaskScheduleItemMenuItem& item);
 
     // Item title.
     QString title() const;
@@ -102,6 +105,9 @@ public:
     // Way to indicate "unsupported".
     MenuItem& setUnsupported(bool unsupported = true);
 
+    // Set the icon filename.
+    MenuItem& setIcon(const QString& icon);
+
     // Creates and returns an (unowned) widget representing the row.
     QWidget* rowWidget(CamcopsApp& app) const;
 
@@ -121,7 +127,7 @@ public:
 protected:
     QString m_title;
     QString m_subtitle;
-    QString m_icon;
+    QString m_icon;  // icon filename
     bool m_arrow_on_right;
     bool m_chain;
     bool m_copyright_details_pending;
@@ -139,6 +145,7 @@ protected:
     TaskPtr m_p_task;
     TaskChainPtr m_p_taskchain;
     PatientPtr m_p_patient;
+    TaskScheduleItemPtr m_p_task_schedule_item;
     HtmlMenuItem m_html_item;
     UrlMenuItem m_url_item;
 

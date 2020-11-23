@@ -37,6 +37,7 @@
 #include <QIcon>
 #include <QLibraryInfo>
 #include <QMainWindow>
+#include <QNetworkReply>
 #include <QProcessEnvironment>
 #include <QPushButton>
 #include <QScreen>
@@ -46,6 +47,7 @@
 #include <QStandardPaths>
 #include <QTextStream>
 #include <QTranslator>
+#include <QUrl>
 #include <QUuid>
 #include "common/appstrings.h"
 #include "common/dbconst.h"  // for NONEXISTENT_PK
@@ -73,6 +75,8 @@
 #include "dbobjects/storedvar.h"
 #include "diagnosis/icd9cm.h"
 #include "diagnosis/icd10.h"
+#include "dialogs/modedialog.h"
+#include "dialogs/patientregistrationdialog.h"
 #include "dialogs/scrollmessagebox.h"
 #include "layouts/layouts.h"
 #include "lib/convert.h"
@@ -84,11 +88,14 @@
 #include "lib/uifunc.h"
 #include "lib/version.h"
 #include "menu/mainmenu.h"
+#include "menu/singleusermenu.h"
 #include "qobjects/debugeventwatcher.h"
 #include "qobjects/slownonguifunctioncaller.h"
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/questionnaire.h"
 #include "tasklib/inittasks.h"
+#include "tasklib/taskschedule.h"
+#include "tasklib/taskscheduleitem.h"
 #include "version/camcopsversion.h"
 
 #ifdef USE_SQLCIPHER
@@ -100,8 +107,9 @@ const QString APP_NAME("camcops");  // e.g. subdirectory of ~/.local/share; DO N
 const QString APP_PRETTY_NAME("CamCOPS");  // main window title and suffix on dialog window titles
 const QString CONNECTION_DATA("data");
 const QString CONNECTION_SYS("sys");
+const int DEFAULT_SERVER_PORT = 443;  // HTTPS
 const QString ENVVAR_DB_DIR("CAMCOPS_DATABASE_DIRECTORY");
-
+const int UPLOAD_INTERVAL_SECONDS = 10 * 60;  // 10 minutes
 
 CamcopsApp::CamcopsApp(int& argc, char* argv[]) :
     QApplication(argc, argv),
@@ -115,7 +123,8 @@ CamcopsApp::CamcopsApp(int& argc, char* argv[]) :
     m_storedvars_available(false),
     m_netmgr(nullptr),
     m_qt_logical_dpi(uiconst::DEFAULT_DPI),
-    m_qt_physical_dpi(uiconst::DEFAULT_DPI)
+    m_qt_physical_dpi(uiconst::DEFAULT_DPI),
+    m_network_gui_guard(nullptr)
 {
     setLanguage(QLocale::system().name());  // try languages::DANISH
     setApplicationName(APP_NAME);
@@ -124,6 +133,8 @@ CamcopsApp::CamcopsApp(int& argc, char* argv[]) :
 #ifdef DEBUG_ALL_APPLICATION_EVENTS
     new DebugEventWatcher(this, DebugEventWatcher::All);
 #endif
+
+    m_last_automatic_upload_time = QDateTime();  // initially invalid
 }
 
 
@@ -131,7 +142,508 @@ CamcopsApp::~CamcopsApp()
 {
     // http://doc.qt.io/qt-5.7/objecttrees.html
     // Only delete things that haven't been assigned a parent
+    delete m_network_gui_guard;
     delete m_p_main_window;
+}
+
+
+// ============================================================================
+// Operating mode
+// ============================================================================
+
+bool CamcopsApp::isSingleUserMode() const
+{
+    return getMode() == varconst::MODE_SINGLE_USER;
+}
+
+bool CamcopsApp::isClinicianMode() const
+{
+    return getMode() == varconst::MODE_CLINICIAN;
+}
+
+int CamcopsApp::getMode() const
+{
+    return varInt(varconst::MODE);
+}
+
+void CamcopsApp::setMode(const int mode)
+{
+    const int old_mode = getMode();
+    const bool mode_changed = mode != old_mode;
+    const bool single_user_mode = mode == varconst::MODE_SINGLE_USER;
+
+    // Things we might do even if the new mode is the same as the old mode
+    // (e.g. at startup):
+    if (single_user_mode) {
+        disableNetworkLogging();
+        setVar(varconst::OFFER_UPLOAD_AFTER_EDIT, true);
+    } else {
+        enableNetworkLogging();
+    }
+
+    // Things we only do if the mode has actually changed:
+    if (mode_changed) {
+        setVar(varconst::MODE, mode);
+
+        if (single_user_mode) {
+            setDefaultPatient();
+        }
+
+        if (m_p_main_window) {
+            // If the mode has been set on startup, we won't have a main window
+            // yet to attach the menu to, so we create it later.
+            recreateMainMenu();
+        }
+
+        emit modeChanged(mode);
+    }
+}
+
+void CamcopsApp::setModeFromUser()
+{
+    if (modeChangeForbidden()) {  // alerts the user as to why, if not allowed
+        return;
+    }
+
+    const int old_mode = varInt(varconst::MODE);
+    ModeDialog dialog(old_mode);
+    const int reply = dialog.exec();
+    if (reply != QDialog::Accepted) {
+        // Dialog cancelled
+        if (old_mode == varconst::MODE_NOT_SET) {
+            // Exit the app if called on startup
+            uifunc::stopApp(
+                tr("You did not select how you would like to use CamCOPS")
+            );
+        }
+
+        return;
+    }
+
+    const int new_mode = dialog.mode();
+
+    if (new_mode == getMode()) {
+        // No change, nothing to do
+        return;
+    }
+
+    if (!agreeTerms(new_mode)) {
+        // User changed mode but didn't agree to terms. Will exit the app if
+        // called on startup, otherwise stick with the old mode
+
+        if (!hasAgreedTerms()) {
+            uifunc::stopApp(tr("OK. Goodbye."), tr("You refused the conditions."));
+        }
+
+        // had agreed to terms for the old mode, so don't change
+
+        return;
+    }
+
+    wipeDataForModeChange();
+    setMode(new_mode);
+    if (new_mode == varconst::MODE_SINGLE_USER) {
+        registerPatientWithServer();
+    }
+}
+
+
+bool CamcopsApp::modeChangeForbidden() const
+{
+    if (isClinicianMode()) {
+        // Switch from clinician mode to single-user mode
+        if (patientRecordsPresent()) {
+            uifunc::alert(
+                tr("You cannot change mode when there are patient records present")
+            );
+            return true;
+        }
+    }
+    if (taskRecordsPresent()) {
+        // Switch in either direction
+        uifunc::alert(
+            tr("You cannot change mode when there are tasks still to be uploaded")
+        );
+        return true;
+    }
+
+    return false;
+}
+
+
+bool CamcopsApp::taskRecordsPresent() const
+{
+    return m_p_task_factory->anyTasksPresent();
+}
+
+
+void CamcopsApp::wipeDataForModeChange()
+{
+    // When we switch from clinician mode to single-user mode:
+    // - We should have no patients (*).
+    // - We should have no tasks (*).
+    // - We must wipe network security details.
+    // - [We will also want the user to register using the single-user-mode
+    //   registration interface.]
+    // - We should wipe task schedules.
+    //
+    // When we switch from single-user mode to clinician mode:
+    // - There will be one patient, but that's OK. We will delete the record.
+    // - We should have no tasks (*).
+    // - We must wipe network security details -- the "single-user" accounts
+    //   are not necessarily trusted to create data for new patients.
+    //   (Otherwise the theoretical vulnerability is that a registered user
+    //   obtains their username, cracks their obscured password, and enters
+    //   them into the clinician mode, allowing upload of data for arbitrary
+    //   patients.)
+    //
+    //  At present the client verifies this, but ideally we should verify that
+    //  server-side, too; see todo.rst.
+    //
+    // - We can wipe task schedules.
+    //
+    // (*) Pre-checked by modeChangeForbidden().
+
+    // Deselect any selected patient
+    deselectPatient();
+
+    // Server security details
+    setVar(varconst::SERVER_USERNAME, "");
+    setVar(varconst::SERVER_USERPASSWORD_OBSCURED, "");
+    setVar(varconst::SINGLE_PATIENT_PROQUINT, "");
+    setVar(varconst::SINGLE_PATIENT_ID, dbconst::NONEXISTENT_PK);
+
+    // Task schedules
+    m_sysdb->deleteFrom(TaskScheduleItem::TABLENAME);
+    m_sysdb->deleteFrom(TaskSchedule::TABLENAME);
+
+    // Delete patient records (given the pre-checks, as above, this will only
+    // delete a single-user-mode patient record with no associated tasks).
+    m_datadb->deleteFrom(PatientIdNum::PATIENT_IDNUM_TABLENAME);
+    m_datadb->deleteFrom(Patient::TABLENAME);
+}
+
+
+bool CamcopsApp::patientRecordsPresent() const
+{
+    return nPatients() > 0;
+}
+
+
+int CamcopsApp::getSinglePatientId() const
+{
+    return var(varconst::SINGLE_PATIENT_ID).toInt();
+}
+
+
+void CamcopsApp::setSinglePatientId(const int id)
+{
+    setVar(varconst::SINGLE_PATIENT_ID, id);
+}
+
+
+bool CamcopsApp::registerPatientWithServer()
+{
+    if (isPatientSelected()) {
+        if (!confirmDeletePatient()) {
+            return false;
+        }
+
+        deleteSelectedPatient();
+        deleteTaskSchedules();
+        recreateMainMenu();
+    }
+
+    PatientRegistrationDialog dialog(nullptr);
+    const int reply = dialog.exec();
+    if (reply != QDialog::Accepted) {
+        return false;
+    }
+
+    const QUrl server_url = dialog.serverUrl();
+    const QString patient_proquint = dialog.patientProquint();
+
+    setVar(varconst::SERVER_ADDRESS, server_url.host());
+
+    const int default_port = DEFAULT_SERVER_PORT;
+    setVar(varconst::SERVER_PORT, server_url.port(default_port));
+    setVar(varconst::SERVER_PATH, server_url.path());
+    setVar(varconst::SINGLE_PATIENT_PROQUINT, patient_proquint);
+    setVar(varconst::DEVICE_FRIENDLY_NAME,
+           QString("Single user device %1").arg(deviceId()));
+    // Currently defaults to no validation, though the user can enable through
+    // the advanced settings if they so wish.
+    setVar(varconst::VALIDATE_SSL_CERTIFICATES,
+           varconst::VALIDATE_SSL_CERTIFICATES_IN_SINGLE_USER_MODE);
+
+    reconnectNetManager(&CamcopsApp::patientRegistrationFailed,
+                        &CamcopsApp::patientRegistrationFinished);
+
+    showNetworkGuiGuard(tr("Registering patient..."));
+    networkManager()->registerPatient();
+
+    return true;
+}
+
+
+bool CamcopsApp::confirmDeletePatient() const
+{
+    ScrollMessageBox msgbox(
+        QMessageBox::Warning,
+        tr("Delete patient"),
+        tr(
+            "Registering a new patient will delete the current patient and "
+            "any associated data. Are you sure you want to do this?"
+        ) + "\n\n",
+        m_p_main_window);
+    QAbstractButton* delete_button = msgbox.addButton(
+        tr("Yes, delete"), QMessageBox::YesRole);
+    msgbox.addButton(tr("No, cancel"), QMessageBox::NoRole);
+    msgbox.exec();
+    if (msgbox.clickedButton() != delete_button) {
+        return false;
+    }
+
+    return true;
+}
+
+
+void CamcopsApp::deleteSelectedPatient()
+{
+    m_patient->deleteFromDatabase();
+
+    setSinglePatientId(dbconst::NONEXISTENT_PK);
+    setDefaultPatient();
+}
+
+
+void CamcopsApp::deleteTaskSchedules()
+{
+    TaskSchedulePtrList schedules = getTaskSchedules();
+
+    for (const TaskSchedulePtr& schedule : schedules) {
+        schedule->deleteFromDatabase();
+    }
+}
+
+
+void CamcopsApp::updateTaskSchedules(const bool alert_unfinished_tasks)
+{
+    if (tasksInProgress()) {
+        if (alert_unfinished_tasks) {
+            uifunc::alert(
+                tr("You cannot update your task schedules when there are "
+                   "unfinished tasks")
+            );
+        }
+
+        return;
+    }
+
+    showNetworkGuiGuard(tr("Updating task schedules..."));
+
+    reconnectNetManager(&CamcopsApp::updateTaskSchedulesFailed,
+                        &CamcopsApp::updateTaskSchedulesFinished);
+    networkManager()->updateTaskSchedulesAndPatientDetails();
+}
+
+
+void CamcopsApp::patientRegistrationFailed(
+        const NetworkManager::ErrorCode error_code,
+        const QString& error_string)
+{
+    deleteNetworkGuiGuard();
+
+    const QString base_message = tr("There was a problem with your registration.");
+
+    QString additional_message = "";
+
+    switch (error_code) {
+
+    case NetworkManager::ServerError:
+    case NetworkManager::JsonParseError:
+        additional_message = error_string;
+        break;
+
+    case NetworkManager::IncorrectReplyFormat:
+        additional_message = tr("Did you enter the correct CamCOPS server location?");
+        break;
+
+    case NetworkManager::GenericNetworkError:
+        additional_message = tr(
+            "%1\n\n"
+            "Are you connected to the internet?\n\n"
+            "Did you enter the correct CamCOPS server location?"
+        ).arg(error_string);
+        break;
+
+    default:
+        // Shouldn't get here
+        break;
+    }
+
+    uifunc::alert(
+        QString("%1\n\n%2").arg(base_message, additional_message),
+        tr("Error")
+    );
+
+    recreateMainMenu();
+}
+
+
+void CamcopsApp::patientRegistrationFinished()
+{
+    deleteNetworkGuiGuard();
+
+    // Creating the single patient from the server details will trigger
+    // "needs upload" and the upload icon will be displayed. We don't want
+    // to see the icon because we will wait until there are tasks to upload
+    // before uploading the patient
+    setNeedsUpload(false);
+
+    recreateMainMenu();
+}
+
+
+void CamcopsApp::updateTaskSchedulesFailed(
+        const NetworkManager::ErrorCode error_code,
+        const QString& error_string)
+{
+    deleteNetworkGuiGuard();
+    handleNetworkFailure(
+        error_code,
+        error_string,
+        tr("There was a problem updating your task schedules.")
+    );
+}
+
+
+void CamcopsApp::updateTaskSchedulesFinished()
+{
+    deleteNetworkGuiGuard();
+
+    // Updating the single patient from the server details will trigger
+    // "needs upload" and the upload icon will be displayed. We don't want
+    // to see the icon because we will wait until there are tasks to upload
+    // before uploading the patient
+    setNeedsUpload(false);
+
+    recreateMainMenu();
+}
+
+
+void CamcopsApp::uploadFailed(const NetworkManager::ErrorCode error_code,
+                              const QString& error_string)
+{
+    deleteNetworkGuiGuard();
+    handleNetworkFailure(
+        error_code,
+        error_string,
+        tr("There was a problem sending your completed tasks to the server.")
+    );
+}
+
+
+void CamcopsApp::uploadFinished()
+{
+    deleteNetworkGuiGuard();
+    const bool alert_unfinished_tasks = false;
+    updateTaskSchedules(alert_unfinished_tasks);
+
+    recreateMainMenu();
+}
+
+
+void CamcopsApp::showNetworkGuiGuard(const QString& text)
+{
+    if (!isLoggingNetwork()) {
+        m_network_gui_guard = new SlowGuiGuard(*this, m_p_main_window, text);
+    }
+}
+
+
+void CamcopsApp::deleteNetworkGuiGuard()
+{
+    if (m_network_gui_guard) {
+        delete m_network_gui_guard;
+        m_network_gui_guard = nullptr;
+    }
+}
+
+
+void CamcopsApp::retryUpload()
+{
+    const bool needs_upload = needsUpload();
+
+    qDebug() << Q_FUNC_INFO
+             << "Last automatic upload time" << m_last_automatic_upload_time
+             << "needsUpload()" << needs_upload;
+
+    if (needs_upload) {
+        const auto now = QDateTime::currentDateTimeUtc();
+
+        if (!m_last_automatic_upload_time.isValid() ||
+                m_last_automatic_upload_time.secsTo(now) > UPLOAD_INTERVAL_SECONDS) {
+            upload();
+            m_last_automatic_upload_time = now;
+        }
+    }
+}
+
+
+void CamcopsApp::handleNetworkFailure(const NetworkManager::ErrorCode error_code,
+                                      const QString& error_string,
+                                      const QString& base_message)
+{
+    QString additional_message = "";
+
+    switch (error_code) {
+
+    case NetworkManager::IncorrectReplyFormat:
+        // If we've managed to register our patient and the server is replying
+        // but in the wrong way then something bad has happened.
+        additional_message = tr(
+            "Unexpectedly, your server settings have changed."
+        );
+        break;
+
+    case NetworkManager::ServerError:
+        additional_message = error_string;
+        break;
+
+    case NetworkManager::GenericNetworkError:
+        additional_message = tr(
+            "%1\n\nAre you connected to the internet?"
+        ).arg(error_string);
+        break;
+
+    default:
+        break;
+    }
+
+    uifunc::alert(
+        QString("%1\n\n%2").arg(base_message, additional_message),
+        tr("Error")
+    );
+
+    recreateMainMenu();
+}
+
+TaskSchedulePtrList CamcopsApp::getTaskSchedules()
+{
+    TaskSchedulePtrList task_schedules;
+    TaskSchedule specimen(*this, *m_sysdb, dbconst::NONEXISTENT_PK);  // this is why function can't be const
+    const WhereConditions where;  // but we don't specify any
+    const SqlArgs sqlargs = specimen.fetchQuerySql(where);
+    const QueryResult result = m_sysdb->query(sqlargs);
+    const int nrows = result.nRows();
+    for (int row = 0; row < nrows; ++row) {
+        TaskSchedulePtr t(new TaskSchedule(*this, *m_sysdb, dbconst::NONEXISTENT_PK));
+        t->setFromQuery(result, row, true);
+        task_schedules.append(t);
+    }
+
+    return task_schedules;
 }
 
 
@@ -273,7 +785,7 @@ int CamcopsApp::run()
     {
         SlowNonGuiFunctionCaller slow_caller(
             std::bind(&CamcopsApp::backgroundStartup, this),
-            m_p_main_window,
+            nullptr,  // no m_p_main_window yet
             tr("Configuring internal database"),
             TextConst::pleaseWait());
     }
@@ -281,19 +793,40 @@ int CamcopsApp::run()
     openMainWindow();  // uses HelpMenu etc. and so must be AFTER TASK REGISTRATION
     makeNetManager();  // needs to be after main window created, and on GUI thread
 
-    if (!hasAgreedTerms()) {
-        offerTerms();
+    if (varInt(varconst::MODE) == varconst::MODE_NOT_SET) {
+        // e.g. fresh database; which mode to use?
+        setModeFromUser();
+    } else {
+        // We know our mode from last time.
+        // Ensure all mode-specific things are set:
+        setMode(varInt(varconst::MODE));
+        maybeRegisterPatient();
     }
-    qInfo() << "Starting Qt event processor...";
+
     return exec();  // Main Qt event loop
 }
 
+void CamcopsApp::maybeRegisterPatient()
+{
+    if (needToRegisterSinglePatient()) {
+        if (!registerPatientWithServer()) {
+            // User cancelled patient registration dialog
+            // They can try again with the "Register me" button
+            // or switch to clinician mode ("More options")
+            recreateMainMenu();
+        }
+    } else {
+        if (isSingleUserMode()) {
+            setDefaultPatient();
+        }
+    }
+}
 
 void CamcopsApp::backgroundStartup()
 {
     // WORKER THREAD. BEWARE.
     const Version& old_version = upgradeDatabaseBeforeTablesMade();
-    makeOtherSystemTables();
+    makeOtherTables();
     registerTasks();  // AFTER storedvar creation, so tasks can read them
     upgradeDatabaseAfterTasksRegistered(old_version);  // AFTER tasks registered
     makeTaskTables();
@@ -438,7 +971,8 @@ bool CamcopsApp::processCommandLineArguments(int& retcode)
 
     const bool print_terms = parser.isSet(printTermsConditions);
     if (print_terms) {
-        out << textconst.termsConditions();
+        out << textconst.clinicianTermsConditions();
+        out << textconst.singleUserTermsConditions();
         return false;
     }
 
@@ -449,7 +983,7 @@ bool CamcopsApp::processCommandLineArguments(int& retcode)
 }
 
 
-void CamcopsApp::announceStartup()
+void CamcopsApp::announceStartup() const
 {
     // ------------------------------------------------------------------------
     // Announce startup
@@ -521,8 +1055,14 @@ void CamcopsApp::openOrCreateDatabases()
 
     const QString data_filename = dbFullPath(dbfunc::DATA_DATABASE_FILENAME);
     const QString sys_filename = dbFullPath(dbfunc::SYSTEM_DATABASE_FILENAME);
-    m_datadb = DatabaseManagerPtr(new DatabaseManager(data_filename, CONNECTION_DATA));
-    m_sysdb = DatabaseManagerPtr(new DatabaseManager(sys_filename, CONNECTION_SYS));
+    m_datadb = DatabaseManagerPtr(new DatabaseManager(
+                                      data_filename, CONNECTION_DATA));
+    m_sysdb = DatabaseManagerPtr(new DatabaseManager(
+                                     sys_filename,
+                                     CONNECTION_SYS,
+                                     whichdb::DBTYPE,
+                                     true, /* threaded */
+                                     true /* system_db */ ));
 }
 
 
@@ -593,7 +1133,8 @@ bool CamcopsApp::connectDatabaseEncryption(QString& new_user_password,
             qInfo() << "Databases have no password yet, and need one.";
             QString dummy_old_password;
             if (!uifunc::getOldNewPasswords(
-                        new_pw_text, new_pw_title, false,
+                        new_pw_text, new_pw_title,
+                        false /* require_old_password */,
                         dummy_old_password, new_user_password, nullptr)) {
                 user_cancelled_please_quit = true;
                 return false;
@@ -648,6 +1189,16 @@ bool CamcopsApp::connectDatabaseEncryption(QString& new_user_password,
             if (encryption_happy) {
                 qInfo() << "... successfully accessed encrypted databases.";
             } else {
+
+                if (!userConfirmedRetryPassword()) {
+                    if (userConfirmedDeleteDatabases()) {
+                        qInfo() << "... deleting databases.";
+                        deleteDatabases();
+                        qInfo() << "... recreating databases.";
+                        openOrCreateDatabases();
+                    }
+                }
+
                 qInfo() << "... failed to decrypt; asking for password again.";
             }
 
@@ -671,6 +1222,40 @@ bool CamcopsApp::connectDatabaseEncryption(QString& new_user_password,
     }
     return false;  // user password not changed
 #endif
+}
+
+
+bool CamcopsApp::userConfirmedRetryPassword() const
+{
+    return uifunc::confirm(
+        tr("You entered an incorrect password. Try again?"),
+        tr("Retry password?"),
+        tr("Yes, enter password again"), tr("No, I forgot the password")
+    );
+}
+
+
+bool CamcopsApp::userConfirmedDeleteDatabases() const
+{
+    return uifunc::confirmDangerousOperation(
+        tr("The only way to reset your password is to delete all of the data "
+           "from the database.\nAny records not uploaded to the server will be "
+           "lost."),
+        tr("Delete database?")
+    );
+}
+
+
+void CamcopsApp::deleteDatabases()
+{
+    const QString data_filename = dbFullPath(dbfunc::DATA_DATABASE_FILENAME);
+    const QString sys_filename = dbFullPath(dbfunc::SYSTEM_DATABASE_FILENAME);
+
+    QFile data_file(data_filename);
+    data_file.remove();
+
+    QFile sys_file(sys_filename);
+    sys_file.remove();
 }
 
 
@@ -737,6 +1322,14 @@ void CamcopsApp::createStoredVars()
     // ------------------------------------------------------------------------
     DbNestableTransaction trans(*m_sysdb);  // https://www.sqlite.org/faq.html#q19
 
+    // Client mode
+    createVar(varconst::MODE, QVariant::Int, varconst::MODE_NOT_SET);
+
+    // If the mode is single user, store the one and only patient ID here
+    createVar(varconst::SINGLE_PATIENT_ID, QVariant::Int,
+              dbconst::NONEXISTENT_PK);
+    createVar(varconst::SINGLE_PATIENT_PROQUINT, QVariant::String, "");
+
     // Language
     createVar(varconst::LANGUAGE, QVariant::String,
               QLocale::system().name());
@@ -756,7 +1349,7 @@ void CamcopsApp::createStoredVars()
 
     // Server
     createVar(varconst::SERVER_ADDRESS, QVariant::String, "");
-    createVar(varconst::SERVER_PORT, QVariant::Int, 443);  // 443 = HTTPS
+    createVar(varconst::SERVER_PORT, QVariant::Int, DEFAULT_SERVER_PORT);
     createVar(varconst::SERVER_PATH, QVariant::String, "camcops/database");
     createVar(varconst::SERVER_TIMEOUT_MS, QVariant::Int, 50000);
     createVar(varconst::VALIDATE_SSL_CERTIFICATES, QVariant::Bool, true);
@@ -866,7 +1459,7 @@ void CamcopsApp::upgradeDatabaseAfterTasksRegistered(const Version& old_version)
 }
 
 
-void CamcopsApp::makeOtherSystemTables()
+void CamcopsApp::makeOtherTables()
 {
     // ------------------------------------------------------------------------
     // Make other tables
@@ -885,6 +1478,12 @@ void CamcopsApp::makeOtherSystemTables()
     IdNumDescription idnumdesc_specimen(*this, *m_sysdb);
     idnumdesc_specimen.makeTable();
     idnumdesc_specimen.makeIndexes();
+
+    TaskSchedule task_schedule_specimen(*this, *m_sysdb);
+    task_schedule_specimen.makeTable();
+
+    TaskScheduleItem task_schedule_item_specimen(*this, *m_sysdb);
+    task_schedule_item_specimen.makeTable();
 
     // Make special tables: main database
     // - See also QStringList CamcopsApp::nonTaskTables()
@@ -1038,12 +1637,60 @@ void CamcopsApp::openMainWindow()
     m_p_main_window->setCentralWidget(m_p_window_stack);
 #endif
 
-    auto menu = new MainMenu(*this);
-    openSubWindow(menu);
+    if (!needToRegisterSinglePatient()) {
+        recreateMainMenu();
+    }
 
     m_p_main_window->showMaximized();
 }
 
+bool CamcopsApp::needToRegisterSinglePatient() const
+{
+    if (isSingleUserMode()) {
+        return getSinglePatientId() == dbconst::NONEXISTENT_PK;
+    }
+
+    return false;
+}
+
+void CamcopsApp::recreateMainMenu()
+{
+    closeAnyOpenSubWindows();
+
+    if (isClinicianMode()) {
+        return openSubWindow(new MainMenu(*this));
+    }
+
+    return openSubWindow(new SingleUserMenu(*this));
+}
+
+
+void CamcopsApp::closeAnyOpenSubWindows()
+{
+    // Scope for optimisation here as we're tearing down everything
+    bool last_window;
+
+    do {
+        last_window = m_info_stack.isEmpty();
+
+        if (!last_window) {
+            m_info_stack.pop();
+        }
+
+        QWidget* top = m_p_window_stack->currentWidget();
+        if (top) {
+            m_p_window_stack->removeWidget(top);
+            top->deleteLater();
+
+            if (m_p_hidden_stack->count() > 0) {
+                QWidget* w = m_p_hidden_stack->widget(m_p_hidden_stack->count() - 1);
+                m_p_hidden_stack->removeWidget(w);
+                const int index = m_p_window_stack->addWidget(w);
+                m_p_window_stack->setCurrentIndex(index);
+            }
+        }
+    } while (!last_window);
+}
 
 void CamcopsApp::makeNetManager()
 {
@@ -1053,6 +1700,57 @@ void CamcopsApp::makeNetManager()
                                    m_p_main_window.data()));
 }
 
+void CamcopsApp::reconnectNetManager(
+        NetMgrCancelledCallback cancelled_callback,
+        NetMgrFinishedCallback finished_callback)
+{
+    if (!m_netmgr) {
+        makeNetManager();
+    }
+
+    // Get the raw pointer, for signals work
+    NetworkManager* netmgr = networkManager();
+
+    // Disconnect everything connected to its signals:
+    disconnect(netmgr, nullptr, nullptr, nullptr);
+
+    // Reconnect:
+    if (finished_callback) {
+        connect(netmgr, &NetworkManager::finished,
+                this, finished_callback,
+                Qt::UniqueConnection);
+    }
+    if (cancelled_callback) {
+        connect(netmgr, &NetworkManager::cancelled,
+                this, cancelled_callback,
+                Qt::UniqueConnection);
+    }
+}
+
+void CamcopsApp::enableNetworkLogging()
+{
+    if (m_netmgr) {
+        m_netmgr->enableLogging();
+    }
+}
+
+
+void CamcopsApp::disableNetworkLogging()
+{
+    if (m_netmgr) {
+        m_netmgr->disableLogging();
+    }
+}
+
+
+bool CamcopsApp::isLoggingNetwork()
+{
+    if (m_netmgr) {
+        return m_netmgr->isLogging();
+    }
+
+    return false;
+}
 
 // ============================================================================
 // Core
@@ -1251,20 +1949,16 @@ void CamcopsApp::closeSubWindow()
 #endif
         emit taskAlterationFinished(info.task);
 
-        if (varBool(varconst::OFFER_UPLOAD_AFTER_EDIT) &&
-                varBool(varconst::NEEDS_UPLOAD)) {
-            ScrollMessageBox msgbox(
-                        QMessageBox::Question,
-                        tr("Upload?"),
-                        tr("Task finished. Upload data to server now?"),
-                        m_p_main_window);  // parent
-            QAbstractButton* yes = msgbox.addButton(tr("Yes, upload"),
-                                                    QMessageBox::YesRole);
-            msgbox.addButton(tr("No, cancel"), QMessageBox::NoRole);
-            msgbox.exec();
-            if (msgbox.clickedButton() == yes) {
-                upload();
-            }
+        if (shouldUploadNow()) {
+            upload();
+        }
+    } else {
+        if (isSingleUserMode() && m_info_stack.size() == 1) {
+            // If the user went back to the main menu and hasn't just
+            // finished a task, attempt to upload any pending tasks. This will
+            // only be necessary when the device wasn't connected to the
+            // network before.
+            retryUpload();
         }
     }
     if (info.patient) {
@@ -1286,6 +1980,35 @@ void CamcopsApp::closeSubWindow()
     emit subWindowFinishedClosing();
 }
 
+bool CamcopsApp::shouldUploadNow() const
+{
+    if (varBool(varconst::OFFER_UPLOAD_AFTER_EDIT) &&
+        varBool(varconst::NEEDS_UPLOAD)) {
+
+        if (isClinicianMode()) {
+            return userConfirmedUpload();
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+bool CamcopsApp::userConfirmedUpload() const
+{
+    ScrollMessageBox msgbox(
+        QMessageBox::Question,
+        tr("Upload?"),
+        tr("Task finished. Upload data to server now?"),
+        m_p_main_window);  // parent
+    QAbstractButton* yes = msgbox.addButton(tr("Yes, upload"),
+                                            QMessageBox::YesRole);
+    msgbox.addButton(tr("No, cancel"), QMessageBox::NoRole);
+    msgbox.exec();
+
+    return msgbox.clickedButton() == yes;
+}
 
 void CamcopsApp::enterFullscreen()
 {
@@ -1648,6 +2371,12 @@ void CamcopsApp::setNeedsUpload(const bool needs_upload)
 }
 
 
+bool CamcopsApp::validateSslCertificates() const
+{
+    return varBool(varconst::VALIDATE_SSL_CERTIFICATES);
+}
+
+
 // ============================================================================
 // Patient
 // ============================================================================
@@ -1658,7 +2387,8 @@ bool CamcopsApp::isPatientSelected() const
 }
 
 
-void CamcopsApp::setSelectedPatient(const int patient_id, bool force_refresh)
+void CamcopsApp::setSelectedPatient(const int patient_id,
+                                    const bool force_refresh)
 {
     // We do this by ID so there's no confusion about who owns it; we own
     // our own private copy here.
@@ -1674,9 +2404,21 @@ void CamcopsApp::setSelectedPatient(const int patient_id, bool force_refresh)
 }
 
 
-void CamcopsApp::deselectPatient(bool force_refresh)
+void CamcopsApp::deselectPatient(const bool force_refresh)
 {
     setSelectedPatient(dbconst::NONEXISTENT_PK, force_refresh);
+}
+
+
+void CamcopsApp::setDefaultPatient(const bool force_refresh)
+{
+    int patient_id = dbconst::NONEXISTENT_PK;
+
+    if (isSingleUserMode()) {
+        patient_id = getSinglePatientId();
+    }
+
+    setSelectedPatient(patient_id, force_refresh);
 }
 
 
@@ -1724,11 +2466,8 @@ int CamcopsApp::selectedPatientId() const
 
 PatientPtrList CamcopsApp::getAllPatients(const bool sorted)
 {
+    const QueryResult result = queryAllPatients();
     PatientPtrList patients;
-    Patient specimen(*this, *m_datadb, dbconst::NONEXISTENT_PK);  // this is why function can't be const
-    const WhereConditions where;  // but we don't specify any
-    const SqlArgs sqlargs = specimen.fetchQuerySql(where);
-    const QueryResult result = m_datadb->query(sqlargs);
     const int nrows = result.nRows();
     for (int row = 0; row < nrows; ++row) {
         PatientPtr p(new Patient(*this, *m_datadb, dbconst::NONEXISTENT_PK));
@@ -1739,6 +2478,22 @@ PatientPtrList CamcopsApp::getAllPatients(const bool sorted)
         std::sort(patients.begin(), patients.end(), PatientSorter());
     }
     return patients;
+}
+
+
+QueryResult CamcopsApp::queryAllPatients()
+{
+    Patient specimen(*this, *m_datadb, dbconst::NONEXISTENT_PK);  // this is why function can't be const
+    const WhereConditions where;  // but we don't specify any
+    const SqlArgs sqlargs = specimen.fetchQuerySql(where);
+
+    return m_datadb->query(sqlargs);
+}
+
+
+int CamcopsApp::nPatients() const
+{
+    return m_datadb->count(Patient::TABLENAME);
 }
 
 
@@ -2267,11 +3022,27 @@ QDateTime CamcopsApp::agreedTermsAt() const
 }
 
 
-void CamcopsApp::offerTerms()
+QString CamcopsApp::getCurrentTermsConditions()
+{
+    return getTermsConditionsForMode(getMode());
+}
+
+
+QString CamcopsApp::getTermsConditionsForMode(const int mode)
+{
+    if (mode == varconst::MODE_SINGLE_USER) {
+        return TextConst::singleUserTermsConditions();
+    }
+
+    return TextConst::clinicianTermsConditions();
+}
+
+
+bool CamcopsApp::agreeTerms(const int new_mode)
 {
     ScrollMessageBox msgbox(QMessageBox::Question,
                             tr("Terms and conditions of use"),
-                            TextConst::termsConditions(),
+                            getTermsConditionsForMode(new_mode),
                             m_p_main_window);
     // Keep agree/disagree message short, for phones:
     QAbstractButton* yes = msgbox.addButton(tr("I AGREE"), QMessageBox::YesRole);
@@ -2284,9 +3055,10 @@ void CamcopsApp::offerTerms()
     if (msgbox.clickedButton() == yes) {
         // Agreed terms
         setVar(varconst::AGREED_TERMS_AT, QDateTime::currentDateTime());
+
+        return true;
     } else {
-        // Refused terms
-        uifunc::stopApp(tr("OK. Goodbye."), tr("You refused the conditions."));
+        return false;
     }
 }
 
@@ -2301,7 +3073,64 @@ void CamcopsApp::upload()
         uifunc::alertNotWhenLocked();
         return;
     }
-    QString text(tr(
+
+    const auto method = getUploadMethod();
+    if (method == NetworkManager::UploadMethod::Invalid) {
+        return;
+    }
+
+    const bool single_user_mode = isSingleUserMode();
+    reconnectNetManager(
+                single_user_mode ? &CamcopsApp::uploadFailed : nullptr,
+                single_user_mode ? &CamcopsApp::uploadFinished : nullptr);
+    // ... no failure handlers required in clinician mode -- the NetworkManager
+    // will not be in silent mode, so will report the error to the user
+    // directly. (And similarly, we didn't/don't need a "finished" callback in
+    // clinician mode.)
+
+    showNetworkGuiGuard(tr("Uploading..."));
+    networkManager()->upload(method);
+}
+
+
+NetworkManager::UploadMethod CamcopsApp::getUploadMethod()
+{
+    if (isSingleUserMode()) {
+        return getSingleUserUploadMethod();
+    }
+
+    // Clinician mode
+    return getUploadMethodFromUser();
+}
+
+
+NetworkManager::UploadMethod CamcopsApp::getSingleUserUploadMethod()
+{
+    if (tasksInProgress()) {
+        return NetworkManager::UploadMethod::Copy;
+    }
+
+    return NetworkManager::UploadMethod::MoveKeepingPatients;
+}
+
+
+bool CamcopsApp::tasksInProgress()
+{
+    const TaskSchedulePtrList schedules = getTaskSchedules();
+
+    for (const TaskSchedulePtr& schedule : schedules) {
+        if (schedule->hasIncompleteCurrentTasks()) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
+NetworkManager::UploadMethod CamcopsApp::getUploadMethodFromUser() const
+{
+   QString text(tr(
             "Copy data to server, or move it to server?\n"
             "\n"
             "COPY: copies unfinished patients, moves finished patients.\n"
@@ -2320,24 +3149,22 @@ void CamcopsApp::upload()
     QAbstractButton* move = msgbox.addButton(tr("Move"), QMessageBox::AcceptRole);  // e.g. OK
     msgbox.addButton(TextConst::cancel(), QMessageBox::RejectRole);  // e.g. Cancel
     msgbox.exec();
-    NetworkManager::UploadMethod method;
     QAbstractButton* reply = msgbox.clickedButton();
     if (reply == copy) {
-        method = NetworkManager::UploadMethod::Copy;
-    } else if (reply == move_keep) {
-        method = NetworkManager::UploadMethod::MoveKeepingPatients;
-    } else if (reply == move) {
-        method = NetworkManager::UploadMethod::Move;
-    } else {
-        return;
+        return NetworkManager::UploadMethod::Copy;
     }
-    NetworkManager* netmgr = networkManager();
-    netmgr->upload(method);
+    if (reply == move_keep) {
+        return NetworkManager::UploadMethod::MoveKeepingPatients;
+    }
+    if (reply == move) {
+        return NetworkManager::UploadMethod::Move;
+    }
+
+    return NetworkManager::UploadMethod::Invalid;
 }
 
-
 // ============================================================================
-// App strings, or derived
+// App strings, or derived, or related user functions
 // ============================================================================
 
 NameValueOptions CamcopsApp::nhsPersonMaritalStatusCodeOptions()

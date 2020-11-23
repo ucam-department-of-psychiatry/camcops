@@ -285,7 +285,7 @@ class ExportedTask(Base):
                 "Task specified; mustn't specify basetable/task_server_pk"
             )
             self.basetable = task.tablename
-            self.task_server_pk = task.get_pk()
+            self.task_server_pk = task.pk
             self._task = task
         else:
             self.basetable = basetable

@@ -18,12 +18,14 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 .. _Babel: http://babel.pocoo.org/
+.. _Poedit: https://poedit.net/
 
 
 .. _dev_internationalization:
 
 Internationalization
 --------------------
+
 
 .. _dev_string_locations:
 
@@ -292,12 +294,9 @@ Server core
   - http://babel.pocoo.org/en/latest/
   - https://github.com/wichert/lingua
   - https://docs.python.org/3/library/gettext.html#class-based-api; there are
-    editors for ``gettext`` systems, like
-
-    - https://poedit.net/
-
-      - this is a pretty good open-source one (with a paid professional
-        upgrade); from Ubuntu, install with ``sudo snap install poedit``
+    editors for ``gettext`` systems, like Poedit_ (this is a pretty good
+    open-source one, with a paid professional upgrade; from Ubuntu, install
+    with ``sudo snap install poedit``)
 
     - https://wiki.gnome.org/Apps/Gtranslator
     - https://userbase.kde.org/Lokalize
@@ -350,8 +349,8 @@ it to the system context via
     mytext = _("Please translate me")
 
 If an appropriate comment tag is used, either in Python or Mako (here,
-``TRANSLATOR:``, as defined in ``build_translations.py``), the comment appears
-in the translation files.
+``TRANSLATOR:``, as defined in ``build_server_translations.py``), the comment
+appears in the translation files.
 
 **Forms**
 
@@ -372,16 +371,41 @@ Try e.g.
 Updating server strings
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-There is a CamCOPS development tool, ``build_translations.py``. Its help is as
-follows:
+There is a CamCOPS development tool, ``build_server_translations.py``. Its help
+is as follows:
 
-.. literalinclude:: build_translations_help.txt
+.. literalinclude:: _build_server_translations_help.txt
     :language: none
 
 
-.. todo::
-    There are still some of the more complex Deform widgets that aren't properly translated on a per-request basis, such as
+Updating client strings
+~~~~~~~~~~~~~~~~~~~~~~~
 
-    - TranslatableOptionalPendulumNode
-    - TranslatableDateTimeSelectorNode
-    - CheckedPasswordWidget
+Similarly, there is a client-side development tool,
+``build_client_translations.py``. Its help is as follows:
+
+.. literalinclude:: _build_client_translations_help.txt
+    :language: none
+
+
+Workflow
+~~~~~~~~
+
+- Write code using the ``_("text")`` style in Python and the ``tr("text")``
+  style in C++.
+
+- Run
+
+    .. code-block:: bash
+
+    ./server/tools/build_server_translations.py all
+    ./tablet_qt/tools/build_client_translations.py all
+
+- Edit each translation file in turn using Poedit_.
+
+- Re-run
+
+    .. code-block:: bash
+
+    ./server/tools/build_server_translations.py all
+    ./tablet_qt/tools/build_client_translations.py all

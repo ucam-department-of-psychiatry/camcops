@@ -98,10 +98,12 @@ Also notes:
 # =============================================================================
 
 import datetime
+import json
 import logging
 from typing import (Any, Generator, List, Optional, Tuple, Type, TYPE_CHECKING,
                     Union)
 import unittest
+import uuid
 
 from cardinal_pythonlib.datetimefunc import (
     coerce_to_pendulum,
@@ -142,6 +144,7 @@ from sqlalchemy.sql.functions import func, FunctionElement
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import (
     Boolean,
+    CHAR,
     DateTime,
     Integer,
     LargeBinary,
@@ -441,9 +444,11 @@ LanguageCodeColType = String(length=LANGUAGE_CODE_MAX_LEN)
 # Large BLOB:
 # https://stackoverflow.com/questions/43791725/sqlalchemy-how-to-make-a-longblob-column-in-mysql  # noqa
 # One of these:
+# noinspection PyTypeChecker
 LongBlob = LargeBinary().with_variant(mysql.LONGBLOB, "mysql")
 # LongBlob = LargeBinary(length=LONGBLOB_LONGTEXT_MAX_LEN)  # doesn't translate to SQL Server  # noqa
 
+# noinspection PyTypeChecker
 LongText = UnicodeText().with_variant(mysql.LONGTEXT, "mysql")
 # LongText = UnicodeText(length=LONGBLOB_LONGTEXT_MAX_LEN)  # doesn't translate to SQL Server  # noqa
 
@@ -1241,6 +1246,64 @@ class IdNumReferenceListColType(TypeDecorator):
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
                 self._coltype_name, self, value, dialect, retval)
         return retval
+
+
+# =============================================================================
+# UUID column type
+# =============================================================================
+
+class UuidColType(TypeDecorator):
+    # Based on:
+    # https://docs.sqlalchemy.org/en/13/core/custom_types.html#backend-agnostic-guid-type  # noqa: E501
+    # which will use postgresql UUID if relevant, not doing that here
+
+    impl = CHAR(32)
+
+    @property
+    def python_type(self) -> type:
+        return str
+
+    def process_bind_param(self, value: uuid.UUID,
+                           dialect: Dialect) -> Optional[str]:
+        if value is None:
+            return None
+
+        return "%.32x" % value.int
+
+    def process_result_value(self, value: Optional[str],
+                             dialect: Dialect) -> Optional[uuid.UUID]:
+        if value is None:
+            return None
+
+        return uuid.UUID(value)
+
+
+# =============================================================================
+# JSON column type
+# =============================================================================
+
+class JsonColType(TypeDecorator):
+    # Unlike
+    # https://docs.sqlalchemy.org/en/13/core/type_basics.html#sqlalchemy.types.JSON
+    # does not use vendor-specific JSON type
+    impl = UnicodeText
+
+    @property
+    def python_type(self) -> type:
+        return str
+
+    def process_bind_param(self, value: Any,
+                           dialect: Dialect) -> Optional[str]:
+        if value is None:
+            return None
+
+        return json.dumps(value)
+
+    def process_result_value(self, value: str, dialect: Dialect) -> Any:
+        if value is None:
+            return None
+
+        return json.loads(value)
 
 
 # =============================================================================

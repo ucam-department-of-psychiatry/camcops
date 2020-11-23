@@ -29,6 +29,7 @@ camcops_server/cc_modules/cc_simpleobjects.py
 """
 
 import copy
+# import logging
 from typing import List, TYPE_CHECKING
 
 from pendulum import Date
@@ -40,6 +41,8 @@ from camcops_server.cc_modules.cc_constants import DateFormat
 
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_request import CamcopsRequest
+
+# log = logging.getLogger(__name__)
 
 # Prefer classes to collections.namedtuple; both support type checking but
 # classes support better parameter checking (and refactoring) via PyCharm.
@@ -129,6 +132,7 @@ class BarePatientInfo(object):
                  sex: str = None,
                  dob: Date = None,
                  address: str = None,
+                 email: str = None,
                  gp: str = None,
                  otherdetails: str = None,
                  idnum_definitions: List[IdNumReference] = None) -> None:
@@ -137,6 +141,7 @@ class BarePatientInfo(object):
         self.sex = sex
         self.dob = dob
         self.address = address
+        self.email = email
         self.gp = gp
         self.otherdetails = otherdetails
         self.idnum_definitions = idnum_definitions or []  # type: List[IdNumReference]  # noqa
@@ -144,12 +149,14 @@ class BarePatientInfo(object):
     def __str__(self) -> str:
         return (
             "Patient(forename={f!r}, surname={sur!r}, sex={sex!r}, DOB={dob}, "
-            "address={a!r}, gp={gp!r}, otherdetails={o!r}, idnums={i})".format(
+            "address={a!r}, email={email!r}, gp={gp!r}, otherdetails={o!r}, "
+            "idnums={i})".format(
                 f=self.forename,
                 sur=self.surname,
                 sex=self.sex,
                 dob=format_datetime(self.dob, DateFormat.ISO8601_DATE_ONLY),
                 a=self.address,
+                email=self.email,
                 gp=self.gp,
                 o=self.otherdetails,
                 i="[{}]".format(", ".join(
@@ -168,6 +175,24 @@ class BarePatientInfo(object):
             idref: a :class:`IdNumReference`
         """
         self.idnum_definitions.append(idref)
+
+    def __eq__(self, other: "BarePatientInfo") -> bool:
+        """
+        Do all data elements match those of ``other``?
+        """
+        if not isinstance(other, BarePatientInfo):
+            return False
+        return (
+            self.forename == other.forename and
+            self.surname == other.surname and
+            self.sex == other.sex and
+            self.dob == other.dob and
+            self.address == other.address and
+            self.email == other.email and
+            self.gp == other.gp and
+            self.otherdetails == other.otherdetails and
+            self.idnum_definitions == other.idnum_definitions
+        )
 
 
 # =============================================================================

@@ -462,7 +462,7 @@ class ExportRecipient(ExportRecipientInfo, Base):
             return False
 
         if not self.all_groups:
-            task_group_id = task.get_group_id()
+            task_group_id = task.group_id
             if task_group_id not in self.group_ids:
                 _warn(f"group_id {task_group_id} not permitted")
                 return False

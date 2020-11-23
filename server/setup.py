@@ -88,12 +88,12 @@ INSTALL_REQUIRES = [
     'alembic==1.4.2',  # database migrations
     'asteval==0.9.18',  # safe-ish alternative to eval
 
-    'cardinal_pythonlib==1.0.98',  # RNC libraries
+    'cardinal_pythonlib==1.0.99',  # RNC libraries
     'celery==4.4.6',  # background tasks
     'colander==1.7.0',  # serialization/deserialization from web forms
     'CherryPy==18.6.0',  # web server
 
-    'deform==2.0.10',  # web forms
+    'deform==2.0.14',  # web forms
     # 'deform-bootstrap==0.2.9',  # deform with layout made easier
     'distro==1.3.0',  # detecting Linux distribution  # REMOVE ONCE DOCKER PREFERRED  # noqa
     'dogpile.cache==0.9.2',  # web caching
@@ -149,6 +149,7 @@ INSTALL_REQUIRES = [
 
     'Babel==2.8.0',  # reads code, generates gettext files; dev only but was already installed  # noqa
     'flake8==3.8.3',  # code checks
+    'scrapy==2.3.0',  # development only
     'sphinx==3.1.1',  # development only
     'sphinx_rtd_theme==0.5.0',  # development only
 

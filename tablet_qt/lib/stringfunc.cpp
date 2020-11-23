@@ -169,6 +169,26 @@ QString standardResult(const QString& name,
 }
 
 
+QString makeTitle(const QString& part1,
+                  const QString& part2,
+                  const bool colon)
+{
+    const QString suffix = colon ? ":" : "";
+    QString result;
+    if (part2.isEmpty()) {
+        return QString("<b>%1%2</b>").arg(part1, suffix);
+    } else {
+        return QString("<b>%1</b> (%2)%3").arg(part1, part2, suffix);
+    }
+}
+
+
+QString makeHint(const QString& part1, const QString& part2)
+{
+    return QString("%1 (%2)").arg(part1, part2);
+}
+
+
 // ============================================================================
 // Other string processing
 // ============================================================================

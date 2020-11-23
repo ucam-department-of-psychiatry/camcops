@@ -1239,8 +1239,10 @@ class RedcapExportTestCase(DemoDatabaseTestCase):
             f.write(self.fieldmap)
 
     def create_patient_with_idnum_1001(self) -> "Patient":
+        from camcops_server.cc_modules.cc_idnumdef import IdNumDefinition
         from camcops_server.cc_modules.cc_patient import Patient
         from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
+
         patient = Patient()
         patient.id = 2
         self._apply_standard_db_fields(patient)
@@ -1248,6 +1250,13 @@ class RedcapExportTestCase(DemoDatabaseTestCase):
         patient.surname = "Surname2"
         patient.dob = pendulum.parse("1975-12-12")
         self.dbsession.add(patient)
+
+        idnumdef_1001 = IdNumDefinition()
+        idnumdef_1001.which_idnum = 1001
+        idnumdef_1001.description = "Test idnumdef 1001"
+        self.dbsession.add(idnumdef_1001)
+        self.dbsession.commit()
+
         patient_idnum1 = PatientIdNum()
         patient_idnum1.id = 3
         self._apply_standard_db_fields(patient_idnum1)

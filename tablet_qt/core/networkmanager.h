@@ -21,6 +21,7 @@
 
 // #define DEBUG_OFFER_HTTP_TO_SERVER  // should NOT be defined in production (which is HTTPS only)
 
+#include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QMap>
 #include <QPointer>
@@ -35,7 +36,6 @@
 class CamcopsApp;
 class LogBox;
 class QNetworkAccessManager;
-class QNetworkReply;
 
 
 // Controls network operations, optionally providing a progress display.
@@ -58,9 +58,21 @@ class NetworkManager : public QObject
 public:
     // How should we upload?
     enum class UploadMethod {
+        Invalid,  // clinician pressed "cancel"
+        // clinician mode or single user mode if any current tasks started
         Copy,
+        // clinician mode or single user mode if no started current tasks
         MoveKeepingPatients,
-        Move
+        Move  // clinician mode: move all data
+    };
+
+    // Types of network error.
+    enum ErrorCode {
+        NoError,
+        IncorrectReplyFormat,
+        GenericNetworkError,
+        ServerError,
+        JsonParseError,
     };
 
     // ------------------------------------------------------------------------
@@ -76,7 +88,9 @@ public:
     // ------------------------------------------------------------------------
 public:
     // Operate in silent mode (without status information)?
-    void setSilent(bool silent);
+    void enableLogging();
+    void disableLogging();
+    bool isLogging() const;
 
     // Sets the window title.
     void setTitle(const QString& title);
@@ -153,6 +167,10 @@ protected:
     // Wipe internal transmission/reply information.
     void cleanup();
 
+    // Doesn't do very much at present (but in theory converts Qt network
+    // errors to our own mapping).
+    ErrorCode convertQtNetworkCode(const QNetworkReply::NetworkError error_code);
+
 protected slots:
     // We come here when there's an SSL error and we want to ignore it.
     void sslIgnoringErrorHandler(QNetworkReply* reply,
@@ -163,13 +181,13 @@ public slots:
     void cancel();
 
     // "Network operation failed somehow."
-    void fail();
+    void fail(
+        const ErrorCode error_code  = ErrorCode::NoError,
+        const QString& error_string = QString()
+    );
 
     // "Network operation succeeded."
     void succeed();
-
-    // We're finished, whether successfully or not.
-    void finish(bool success = true);
 
     // ------------------------------------------------------------------------
     // Testing
@@ -187,7 +205,7 @@ protected:
     void testReplyFinished(QNetworkReply* reply);
 
     // ------------------------------------------------------------------------
-    // Server registration
+    // Registering a device with the server.
     // ------------------------------------------------------------------------
 public:
     // Register with the CamCOPS server.
@@ -197,18 +215,24 @@ public:
     // table details, extra strings...).
     void fetchAllServerInfo();
 
-    // Fetch ID number type description/information from the server.
+    // Fetch ID number type description/information (and group ID policies)
+    // from the server.
     void fetchIdDescriptions();
 
     // Fetch extra strings from the server.
     void fetchExtraStrings();
+
 protected:
-    // Multi-step operations for the above:
-    void registerSub1(QNetworkReply* reply);
-    void registerSub2(QNetworkReply* reply);
-    void registerSub3(QNetworkReply* reply);
+    // Regular entry point for phases under registerWithServer().
+    void registerNext(QNetworkReply* reply = nullptr);
+
+    // Parse reply to fetchIdDescriptions().
     void fetchIdDescriptionsSub1(QNetworkReply* reply);
+
+    // Parse reply to fetchExtraStrings().
     void fetchExtraStringsSub1(QNetworkReply* reply);
+
+    // Parse reply to fetchAllServerInfo().
     void fetchAllServerInfoSub1(QNetworkReply* reply);
 
     // Store ID/policy information from the server.
@@ -228,48 +252,160 @@ public:
     void upload(UploadMethod method);
 
 protected:
-    // Upload core:
+    // Upload core (called repeatedly at different phases):
     void uploadNext(QNetworkReply* reply);
-    // Specific upload comms:
+
+    // Does a "no-op"-type request to ensure our device is registered.
     void checkDeviceRegistered();
+
+    // Check our user/device is permitted to upload.
     void checkUploadUser();
+
+    // Fetch server's version/ID policies/ID descriptions.
     void uploadFetchServerIdInfo();
-    void uploadValidatePatients();
-    void uploadFetchAllowedTables();
-    void startUpload();
-    void startPreservation();
-    void sendEmptyTables(const QStringList& tablenames);
-    void sendTableWhole(const QString& tablename);
-    void sendTableRecordwise(const QString& tablename);
-    void requestRecordwisePkPrune();
-    void sendNextRecord();
-    void endUpload();
-    // Internal upload functions
-    bool isPatientInfoComplete();
-    bool applyPatientMoveOffTabletFlagsToTasks();
-    bool catalogueTablesForUpload();
-    bool isServerVersionOK() const;
-    bool arePoliciesOK() const;
-    bool areDescriptionsOK() const;
-    QVector<int> whichIdnumsUsedOnTablet() const;
-    bool pruneRecordwisePks();
-    void wipeTables();
-    void queryFail(const QString& sql);
-    void queryFailClearingMoveOffFlag(const QString& tablename);
-    bool clearMoveOffTabletFlag(const QString& tablename);
-    bool pruneDeadBlobs();
+
+    // Does this server version support validation of patient details being
+    // uploaded?
     bool serverSupportsValidatePatients() const;
+
+    // Validate patients for upload.
+    void uploadValidatePatients();
+
+    // Fetch details of which tables the server will accept.
+    void uploadFetchAllowedTables();
+
+    // Start the actual upload.
+    void startUpload();
+
+    // Ask the server to begin a preservation "transaction".
+    void startPreservation();
+
+    // Send details of all empty tables (in a quick way).
+    void sendEmptyTables(const QStringList& tablenames);
+
+    // Send a table in one go.
+    void sendTableWhole(const QString& tablename);
+
+    // Sent a table, record-wise (for giant tables).
+    void sendTableRecordwise(const QString& tablename);
+
+    // "Here are my PKs, record modification dates, etc. Which ones do you
+    // want to receive full data for?" (Used to speed up the upload of giant
+    // tables.)
+    void requestRecordwisePkPrune();
+
+    // Called repeatedly during record-wise upload.
+    void sendNextRecord();
+
+    // Tell the server the upload has finished (asking it to "commit" our
+    // ongoing transaction.)
+    void endUpload();
+
+    // Is our internal patient info complete (e.g. compliant with the server's
+    // ID policies)?
+    bool isPatientInfoComplete();
+
+    // For those patients the user has flagged individually to move off, copy
+    // the move-off status to those patients' tasks.
+    bool applyPatientMoveOffTabletFlagsToTasks();
+
+    // Trawl our tables, populating our internal catalogues
+    // (m_upload_empty_tables, m_upload_tables_to_send_recordwise,
+    // m_upload_tables_to_send_whole, m_upload_tables_to_wipe).
+    bool catalogueTablesForUpload();
+
+    // Check the server version (a) matches what we had stored, and (b) is
+    // new enough for us to upload at all.
+    bool isServerVersionOK() const;
+
+    // Do our ID policies match those of the server?
+    bool arePoliciesOK() const;
+
+    // Do our ID number description match those of the server?
+    bool areDescriptionsOK() const;
+
+    // Which ID number types are in use?
+    QVector<int> whichIdnumsUsedOnTablet() const;
+
+    // Based on the server's reply to requestRecordwisePkPrune(), restrict
+    // which records we will send.
+    bool pruneRecordwisePks();
+
+    // Wipe all tables marked to be wiped.
+    void wipeTables();
+
+    // Tell the user about the failure of a local SQL query.
+    void queryFail(const QString& sql);
+
+    // Tell the user about an SQL query failure whilst clearing the move-off
+    // flag.
+    void queryFailClearingMoveOffFlag(const QString& tablename);
+
+    // Clear the move-off flag for all records in a table.
+    bool clearMoveOffTabletFlag(const QString& tablename);
+
+    // Delete local records of any BLOBs that have become orphaned.
+    bool pruneDeadBlobs();
+
+    // Does the server support the newer one-step upload feature?
     bool serverSupportsOneStepUpload() const;
+
+    // Should we use the one-step upload feature, because (a) the user wants
+    // it, and (b) the server supports it?
     bool shouldUseOneStepUpload() const;
+
+    // Perform a one-step upload (via a big JSON dump).
     void uploadOneStep();
+
+    // Provide (as a JSON string) a mapping from table name to PK name.
     QString getPkInfoAsJson();
+
+    // ------------------------------------------------------------------------
+    // Single-user mode
+    // ------------------------------------------------------------------------
+public:
+    // In single-user mode, send the server a proquint access key and receive
+    // patient details, user details, and schedule information.
+    void registerPatient();
+
+    // Update task schedules for the single user.
+    void updateTaskSchedulesAndPatientDetails();
+
+protected:
+    // Parse reply to registerPatient().
+    void registerPatientSub1(QNetworkReply* reply);
+
+    // Store the username/password that the server has given us.
+    void setUserDetails();
+
+    // From the server's reply, including patient details, create a local
+    // patient record (and select it as our sole patient).
+    bool createSinglePatient();
+
+    // From the server's reply, set our local variables regarding the
+    // intellectual property context in which we're operating.
+    bool setIpUseInfo();
+
+    // Parse reply to updateTaskSchedules().
+    void receivedTaskSchedulesAndPatientDetails(QNetworkReply* reply);
+
+    // Store the task schedules.
+    void storeTaskSchedulesAndPatientDetails();
+
+    // Copy complete status for anonymous tasks when updating tasks
+    void updateCompleteStatusForAnonymousTasks(
+        TaskSchedulePtrList old_schedules, TaskSchedulePtrList new_schedules
+    );
 
     // ------------------------------------------------------------------------
     // Signals
     // ------------------------------------------------------------------------
 signals:
     // "Operation was cancelled."
-    void cancelled();
+    void cancelled(
+        const ErrorCode error_code,
+        const QString& error_string
+    );
 
     // "Operation has finished, successfully or not; user has acknowledged."
     void finished();
@@ -278,6 +414,7 @@ signals:
     // Translatable text
     // ------------------------------------------------------------------------
 protected:
+    // Provides text to say "please re-fetch server information".
     static QString txtPleaseRefetchServerInfo();
 
     // ------------------------------------------------------------------------
@@ -353,4 +490,21 @@ protected:
     int m_upload_n_records;  // cached as m_upload_recordwise_pks_to_send shrinks during upload
     QStringList m_upload_tables_to_wipe;
     QString m_upload_patient_info_json;
+
+    // Possible states during single-user-mode patient registration.
+    enum class NextRegisterStage {
+        Invalid,
+        Register,
+        StoreServerIdentification,
+        GetAllowedTables,
+        StoreAllowedTables,
+        GetExtraStrings,
+        StoreExtraStrings,
+        GetTaskSchedules,
+        StoreTaskSchedules,
+        Finished,
+    };
+
+    // Current registration stage.
+    NextRegisterStage m_register_next_stage;
 };

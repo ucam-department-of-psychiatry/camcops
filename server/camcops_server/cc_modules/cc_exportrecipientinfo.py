@@ -36,7 +36,7 @@ uses this, as it needs to be readable in the absence of a database connection
 import configparser
 import datetime
 import logging
-from typing import List, Optional, TYPE_CHECKING
+from typing import List, NoReturn, Optional, TYPE_CHECKING
 
 from cardinal_pythonlib.configfiles import (
     get_config_parameter,
@@ -572,10 +572,10 @@ class ExportRecipientInfo(object):
         import camcops_server.cc_modules.cc_all_models  # import side effects (ensure all models registered)  # noqa
         from camcops_server.cc_modules.cc_task import all_task_tablenames  # delayed import # noqa
 
-        def fail_invalid(msg: str) -> None:
+        def fail_invalid(msg: str) -> NoReturn:
             raise _Invalid(self.recipient_name, msg)
 
-        def fail_missing(paramname: str) -> None:
+        def fail_missing(paramname: str) -> NoReturn:
             raise _Missing(self.recipient_name, paramname)
 
         cpr = ConfigParamExportRecipient
@@ -718,7 +718,7 @@ class ExportRecipientInfo(object):
         """
         from camcops_server.cc_modules.cc_group import Group  # delayed import  # noqa
 
-        def fail_invalid(msg: str) -> None:
+        def fail_invalid(msg: str) -> NoReturn:
             raise _Invalid(self.recipient_name, msg)
 
         dbsession = req.dbsession
@@ -933,7 +933,7 @@ class ExportRecipientInfo(object):
             idnum_objects=task.get_patient_idnum_objects(),
             creation_datetime=task.get_creation_datetime(),
             basetable=task.tablename,
-            serverpk=task.get_pk(),
+            serverpk=task.pk,
             skip_conversion_to_safe_filename=not treat_as_filename,
         )
 

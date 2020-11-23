@@ -36,7 +36,7 @@ from camcops_server.cc_modules.cc_constants import DateFormat
 %>
 
 <div class="warning">
-    %if task._pk is None:
+    %if task.pk is None:
         ${_("WARNING! This is NOT a valid record. It has a blank primary key and is therefore nonsensical (and only useful for software testing).")}
     %else:
         ${_("WARNING! This is NOT a current record.")}<br>

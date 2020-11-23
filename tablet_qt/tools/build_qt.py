@@ -398,7 +398,7 @@ import shutil
 import subprocess
 import sys
 import traceback
-from typing import Dict, List, TextIO, Tuple
+from typing import Dict, List, NoReturn, TextIO, Tuple
 
 try:
     import cardinal_pythonlib
@@ -2190,7 +2190,7 @@ class Config(object):
 # Ancillary: crash out informatively
 # =============================================================================
 
-def fail(msg: str) -> None:
+def fail(msg: str) -> NoReturn:
     log.critical(msg)
     raise ValueError(msg)
 
@@ -3754,8 +3754,6 @@ def master_builder(args) -> None:
 
     if cfg.build_ios_arm_v8_64:  # for iOS (e.g. iPad) with 64-bit ARM processor  # noqa
         build_for(Os.IOS, Cpu.ARM_V8_64)
-
-    # todo: build_qt: also build iOS "fat binary" with 32- and 64-bit versions?
 
     if cfg.build_ios_simulator_x86_32:  # 32-bit iOS simulator under Intel macOS  # noqa
         build_for(Os.IOS, Cpu.X86_32)
