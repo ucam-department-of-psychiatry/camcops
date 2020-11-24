@@ -307,14 +307,18 @@ void KhandakerMojoMedicationTherapy::setDefaultsAtFirstUse()
 
 OpenableWidget* KhandakerMojoMedicationTherapy::editor(const bool read_only)
 {
-    auto page = (new QuPage())->setTitle(longname());
+    auto medication_page = (new QuPage())->setTitle(longname());
+    auto therapy_page = (new QuPage())->setTitle(longname());
 
     // Don't add the specimen blank rows here -- otherwise they get added
     // when *re*-editing.
 
-    rebuildPage(page);
+    rebuildMedicationPage(medication_page);
+    rebuildTherapyPage(therapy_page);
 
-    m_questionnaire = new Questionnaire(m_app, {QuPagePtr(page)});
+    m_questionnaire = new Questionnaire(
+        m_app, {QuPagePtr(medication_page), QuPagePtr(therapy_page)}
+    );
     m_questionnaire->setType(QuPage::PageType::Patient);
     m_questionnaire->setReadOnly(read_only);
 
@@ -435,12 +439,18 @@ void KhandakerMojoMedicationTherapy::refreshQuestionnaire()
         return;
     }
     QuPage* page = m_questionnaire->currentPagePtr();
-    rebuildPage(page);
+    const int page_index = m_questionnaire->currentPageIndex();
+    if (page_index == 0) {
+        rebuildMedicationPage(page);
+    } else {
+        rebuildTherapyPage(page);
+    }
+
     m_questionnaire->refreshCurrentPage();
 }
 
 
-void KhandakerMojoMedicationTherapy::rebuildPage(QuPage* page)
+void KhandakerMojoMedicationTherapy::rebuildMedicationPage(QuPage* page)
 {
     QVector<QuElement*> elements;
 
@@ -456,7 +466,15 @@ void KhandakerMojoMedicationTherapy::rebuildPage(QuPage* page)
 
     elements.append(getMedicationGrid());
 
-    elements.append(new QuSpacer(QSize(uiconst::BIGSPACE, uiconst::BIGSPACE)));
+    page->clearElements();
+    page->addElements(elements);
+}
+
+
+void KhandakerMojoMedicationTherapy::rebuildTherapyPage(QuPage* page)
+{
+    QVector<QuElement*> elements;
+
     elements.append((new QuText(xstring("therapy_question")))->setBold());
     elements.append(new QuButton(
         TextConst::add(),

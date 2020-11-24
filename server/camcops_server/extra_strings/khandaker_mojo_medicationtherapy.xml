@@ -6,7 +6,7 @@
     <string name="title">MOJO Study — Medications and Treatment</string>
     <string name="medication_question">What current medication do you take that has been prescribed by a doctor?</string>
     <string name="brand_name">Brand name</string>
-    <string name="chemical_name">Chemical name (if known)</string>
+    <string name="chemical_name">Chemical name</string>
     <string name="dose">Dose</string>
     <string name="frequency">Frequency</string>
     <string name="duration_months">Duration (months)</string>

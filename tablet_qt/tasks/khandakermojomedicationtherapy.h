@@ -82,7 +82,8 @@ private:
     KhandakerMojoMedicationItemPtr makeMedicationItem() const;
     KhandakerMojoTherapyItemPtr makeTherapyItem() const;
     void refreshQuestionnaire();
-    void rebuildPage(QuPage* page);
+    void rebuildMedicationPage(QuPage* page);
+    void rebuildTherapyPage(QuPage* page);
     void renumberMedicationItems();
     void renumberTherapyItems();
     QStringList medicationDetail() const;
