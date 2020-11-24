@@ -58,12 +58,22 @@ depends_on = None
 # noinspection PyPep8,PyTypeChecker
 def upgrade():
     with op.batch_alter_table('khandaker_mojo_medication_item', schema=None) as batch_op:
-        batch_op.add_column(sa.Column('brand_name', sa.UnicodeText(), nullable=True, comment='Brand name'))
-        batch_op.drop_column('medication_name')
+        batch_op.alter_column(
+            'medication_name',
+            existing_type=sa.UnicodeText(),
+            new_column_name='brand_name',
+            existing_comment='Medication name',
+            comment='Brand name'
+        )
 
 
 # noinspection PyPep8,PyTypeChecker
 def downgrade():
     with op.batch_alter_table('khandaker_mojo_medication_item', schema=None) as batch_op:
-        batch_op.add_column(sa.Column('medication_name', mysql.TEXT(collation='utf8mb4_unicode_ci'), nullable=True, comment='Medication name'))
-        batch_op.drop_column('brand_name')
+        batch_op.alter_column(
+            'brand_name',
+            existing_type=sa.UnicodeText(),
+            new_column_name='medication_name',
+            existing_comment='Brand name',
+            comment='Medication name'
+        )
