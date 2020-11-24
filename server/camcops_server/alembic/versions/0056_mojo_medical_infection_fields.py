@@ -59,15 +59,50 @@ depends_on = None
 
 def upgrade():
     with op.batch_alter_table('khandaker_mojo_medical', schema=None) as batch_op:
-        batch_op.add_column(sa.Column('infection_past_month', sa.Boolean(), nullable=True, comment='Do you currently have an infection, or had treatment for an infection (e.g antibiotics) in the past month?'))
-        batch_op.add_column(sa.Column('infection_past_three_months', sa.Boolean(name='ck_kh2mm_had_infection'), nullable=True, comment='Have you had an infection, or had treatment for an infection (e.g antibiotics) in the 3 months? '))
-        batch_op.drop_column('had_infection_two_months_preceding')
-        batch_op.drop_column('has_infection_past_month')
+        batch_op.alter_column(
+            'has_infection_past_month',
+            existing_type=sa.Boolean(),
+            new_column_name='infection_past_month',
+            existing_comment=("Do you currently have an infection, or had "
+                              "treatment for an infection (e.g antibiotics) "
+                              "in the past month?")
+
+        )
+        batch_op.alter_column(
+            'had_infection_two_months_preceding',
+            existing_type=sa.Boolean(),
+            new_column_name='infection_past_three_months',
+            existing_comment=(
+                'Have you had an infection, or had treatment for an '
+                'infection (e.g antibiotics) in the 2 months '
+                'preceding last month?'
+            ),
+            comment=('Have you had an infection, or had treatment for an '
+                     'infection (e.g antibiotics) in the 3 months? ')
+        )
 
 
 def downgrade():
     with op.batch_alter_table('khandaker_mojo_medical', schema=None) as batch_op:
-        batch_op.add_column(sa.Column('has_infection_past_month', mysql.TINYINT(display_width=1), autoincrement=False, nullable=True, comment='Do you currently have an infection, or had treatment for an infection (e.g antibiotics) in the past month?'))
-        batch_op.add_column(sa.Column('had_infection_two_months_preceding', mysql.TINYINT(display_width=1), autoincrement=False, nullable=True, comment='Have you had an infection, or had treatment for an infection (e.g antibiotics) in the 2 months preceding last month?'))
-        batch_op.drop_column('infection_past_three_months')
-        batch_op.drop_column('infection_past_month')
+        batch_op.alter_column(
+            'infection_past_month',
+            existing_type=sa.Boolean(),
+            new_column_name='has_infection_past_month',
+            existing_comment=("Do you currently have an infection, or had "
+                              "treatment for an infection (e.g antibiotics) "
+                              "in the past month?")
+        )
+        batch_op.alter_column(
+            'infection_past_three_months',
+            existing_type=sa.Boolean(),
+            new_column_name='had_infection_two_months_preceding',
+            existing_comment=(
+                'Have you had an infection, or had treatment for an '
+                'infection (e.g antibiotics) in the 3 months? '
+            ),
+            comment=(
+                'Have you had an infection, or had treatment for an '
+                'infection (e.g antibiotics) in the 2 months '
+                'preceding last month?'
+            )
+        )
