@@ -385,50 +385,7 @@ OpenableWidget* KhandakerMojoMedical::editor(const bool read_only)
 
     multiChoiceQuestion(FN_DIAGNOSIS, N_POSSIBLE_DIAGNOSES);
 
-    FieldRef::GetterFunction get_date = std::bind(
-        &KhandakerMojoMedical::getDiagnosisDate, this);
-    FieldRef::GetterFunction get_years = std::bind(
-        &KhandakerMojoMedical::getDurationOfIllness, this);
-    FieldRef::SetterFunction set_date = std::bind(
-        &KhandakerMojoMedical::setDiagnosisDate, this, std::placeholders::_1);
-    FieldRef::SetterFunction set_years = std::bind(
-        &KhandakerMojoMedical::setDurationOfIllness, this, std::placeholders::_1);
-
-    m_fr_diagnosis_date = FieldRefPtr(new FieldRef(get_date, set_date, true));
-    m_fr_diagnosis_years = FieldRefPtr(new FieldRef(get_years, set_years, true));
-
-    // Adding grid for Dianosis date fields
-
-    auto diagnosis_date_grid = new QuGridContainer();
-    diagnosis_date_grid->setExpandHorizontally(false);
-    diagnosis_date_grid->setFixedGrid(false);
-
-    auto duration_text = new QuText(xstring("duration_of_illness"));
-    auto diagnosis_years = new QuLineEditInteger(m_fr_diagnosis_years, 0, 150);
-    auto or_text = new QuText(xstring("or"));
-    auto empty_text = new QuText("");
-    auto date_of_diagnosis_text = new QuText(xstring(Q_XML_PREFIX + FN_DIAGNOSIS_DATE));
-
-    auto date_time = new QuDateTime(m_fr_diagnosis_date);
-    date_time->setOfferNowButton(true);
-    date_time->setMode(QuDateTime::Mode::DefaultDate);
-    date_time->setMaximumDate(QDate::currentDate());
-
-    diagnosis_date_grid->addCell(QuGridCell(duration_text, 0, 0));
-    diagnosis_date_grid->addCell(QuGridCell(or_text, 0, 1));
-    diagnosis_date_grid->addCell(QuGridCell(date_of_diagnosis_text, 0, 2));
-
-    diagnosis_date_grid->addCell(QuGridCell(diagnosis_years, 1, 0));
-    diagnosis_date_grid->addCell(QuGridCell(empty_text, 1, 1));
-    diagnosis_date_grid->addCell(QuGridCell(date_time, 1, 2));
-
-    // We don't store duration of illness on the server
-    // page->addElement(new QuText(xstring("duration_of_illness")));
-    // page->addElement(new QuLineEditInteger(m_fr_diagnosis_years, 0, 150));
-    // page->addElement(new QuText(xstring("or")));
-    // page->addElement(new QuText(xstring(Q_XML_PREFIX + FN_DIAGNOSIS_DATE)));
-
-    page->addElement(diagnosis_date_grid);
+    page->addElement(getDiagnosisDateGrid());
     page->addElement(new QuSpacer(QSize(uiconst::BIGSPACE, uiconst::BIGSPACE)));
 
     heading("medical_history_title");
@@ -497,6 +454,42 @@ OpenableWidget* KhandakerMojoMedical::editor(const bool read_only)
     updateMandatory();
 
     return m_questionnaire;
+}
+
+QuGridContainer* KhandakerMojoMedical::getDiagnosisDateGrid()
+{
+    FieldRef::GetterFunction get_date = std::bind(
+        &KhandakerMojoMedical::getDiagnosisDate, this);
+    FieldRef::GetterFunction get_years = std::bind(
+        &KhandakerMojoMedical::getDurationOfIllness, this);
+    FieldRef::SetterFunction set_date = std::bind(
+        &KhandakerMojoMedical::setDiagnosisDate, this, std::placeholders::_1);
+    FieldRef::SetterFunction set_years = std::bind(
+        &KhandakerMojoMedical::setDurationOfIllness, this, std::placeholders::_1);
+
+    m_fr_diagnosis_date = FieldRefPtr(new FieldRef(get_date, set_date, true));
+    m_fr_diagnosis_years = FieldRefPtr(new FieldRef(get_years, set_years, true));
+
+    auto diagnosis_date_grid = new QuGridContainer();
+    diagnosis_date_grid->setFixedGrid(true);
+
+    // We don't store duration of illness on the server
+    auto duration_text = new QuText(xstring("duration_of_illness_or_diagnosis_date"));
+    auto diagnosis_years = new QuLineEditInteger(m_fr_diagnosis_years, 0, 150);
+
+    auto date_time = new QuDateTime(m_fr_diagnosis_date);
+    date_time->setOfferNowButton(true);
+    date_time->setMode(QuDateTime::Mode::DefaultDate);
+    date_time->setMaximumDate(QDate::currentDate());
+
+    diagnosis_date_grid->addCell(QuGridCell(duration_text, 0, 0, 1, 2));
+
+    diagnosis_date_grid->addCell(QuGridCell(diagnosis_years, 1, 0));
+    diagnosis_date_grid->addCell(QuGridCell(date_time, 1, 1));
+    diagnosis_date_grid->setColumnStretch(0,1);
+    diagnosis_date_grid->setColumnStretch(1,4);
+
+    return diagnosis_date_grid;
 }
 
 QVariant KhandakerMojoMedical::getDiagnosisDate() const
