@@ -11,10 +11,14 @@
     <string name="diagnosis_0">Rheumatoid arthritis</string>
     <string name="diagnosis_1">Ankylosing spondylitis</string>
     <string name="diagnosis_2">Sjögren’s syndrome</string>
-    <string name="duration_of_illness">Duration of illness (years):</string>
-    <string name="or"><b>or</b></string>
-    <string name="q_diagnosis_date">Date of first diagnosis:</string>
+
+    <!-- We only display this on the client -->
+    <string name="duration_of_illness_or_diagnosis_date">Duration of illness (years) <b>or</b> date of first diagnosis:</string>
+
+    <!-- We only display these two on the server -->
+    <string name="q_diagnosis_date">Date of first diagnosis</string>
     <string name="q_diagnosis_date_approximate">Diagnosis date is approximate</string>
+
     <string name="q_has_fibromyalgia">Do you have a diagnosis of fibromyalgia?</string>
     <string name="q_is_pregnant">Are you, or is there any possibility that you might be pregnant?</string>
     <string name="q_infection_past_month">Do you currently have an infection, or had treatment for an infection (e.g. antibiotics) in the past <b>month</b>?</string>
