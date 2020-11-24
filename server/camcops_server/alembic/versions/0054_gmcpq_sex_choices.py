@@ -39,7 +39,7 @@ Creation date: 2020-10-24 00:23:14.292034
 # =============================================================================
 
 from alembic import op
-from sqlalchemy.dialects import mysql
+import sqlalchemy as sa
 
 
 # =============================================================================
@@ -61,8 +61,7 @@ def upgrade():
     with op.batch_alter_table('gmcpq', schema=None) as batch_op:
         batch_op.alter_column(
             'q10',
-            existing_type=mysql.VARCHAR(collation='utf8mb4_unicode_ci',
-                                        length=1),
+            existing_type=sa.String(length=1),
             comment='Sex of rater (M, F, X)',
             existing_comment='Sex of rater (M, F)',
             existing_nullable=True
@@ -74,8 +73,7 @@ def downgrade():
     with op.batch_alter_table('gmcpq', schema=None) as batch_op:
         batch_op.alter_column(
             'q10',
-            existing_type=mysql.VARCHAR(collation='utf8mb4_unicode_ci',
-                                        length=1),
+            existing_type=sa.String(length=1),
             comment='Sex of rater (M, F)',
             existing_comment='Sex of rater (M, F, X)',
             existing_nullable=True
