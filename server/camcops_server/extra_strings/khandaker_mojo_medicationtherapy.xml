@@ -11,14 +11,20 @@
     <string name="frequency">Frequency</string>
     <string name="duration_months">Duration (months)</string>
     <string name="indication">Indication</string>
-    <string name="medication_frequency_hint">e.g. twice a day, daily, weekly</string>
+
+    <string name="chemical_name_hint">e.g. abatacept</string>
+    <string name="brand_name_hint">e.g. Orencia</string>
+    <string name="dose_hint">e.g. 125mg</string>
+    <string name="medication_frequency_hint">e.g. every week</string>
+    <string name="duration_months_hint">e.g. 6</string>
     <string name="medication_indication_hint">What is the medication for?</string>
+    <string name="response_hint">e.g. Treats some symptoms</string>
+
     <string name="response">Response</string>
     <string name="response_1">Treats all symptoms</string>
     <string name="response_2">Treats most symptoms</string>
     <string name="response_3">Treats some symptoms</string>
     <string name="response_4">Treats no symptoms</string>
-    <string name="custom_medication_0">Select a common anti-inflammatory medication</string>
     <string name="custom_medication_1">abatacept</string>
     <string name="custom_medication_2">adalimumab</string>
     <string name="custom_medication_3">alemtuzumab</string>
@@ -44,13 +50,22 @@
     <string name="custom_medication_23">sulfasalazine</string>
     <string name="custom_medication_24">tocilizumab</string>
     <string name="custom_medication_25">tofacitinib</string>
-    <string name="add_instructions">Add either a blank row or one with a common anti-inflammatory medication. Then edit the row to give details.</string>
+    <string name="add_instructions">Please add <b>all</b> medications prescribed by a doctor to the table below, not just anti-inflammatory medications prescribed by your rheumatologist. Please fill in every box.</string>
+    <string name="common_medicines">You can select one of these common anti-inflammatory medications</string>
+    <string name="not_listed">If your medication isn't listed:</string>
+
     <string name="therapy_question">Are you receiving any talking therapies (e.g: cognitive–behavioural therapy)? If so, how frequently, how long have you been receiving it, and are you finding it effective?</string>
     <string name="therapy">Therapy</string>
-    <string name="therapy_frequency_hint">e.g. 1 session per week</string>
-    <string name="therapy_indication_hint">What is the therapy for?</string>
+
     <string name="sessions_completed">Sessions completed</string>
     <string name="sessions_planned">Sessions planned</string>
+
+    <string name="therapy_hint">e.g. Cognitive-behavioural therapy</string>
+    <string name="therapy_frequency_hint">e.g. 1 session per week</string>
+    <string name="sessions_completed_hint">e.g. 12</string>
+    <string name="sessions_planned_hint">e.g. 20</string>
+    <string name="therapy_indication_hint">What is the therapy for?</string>
+
     <string name="number_of_medications">Medications:</string>
     <string name="number_of_therapies">Therapies:</string>
   </task>

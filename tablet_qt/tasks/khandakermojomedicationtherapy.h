@@ -25,6 +25,7 @@
 class CamcopsApp;
 class OpenableWidget;
 class Questionnaire;
+class QuFlowContainer;
 class QuGridContainer;
 class QuPickerPopup;
 class TaskFactory;
@@ -63,17 +64,16 @@ public:
     // Task-specific
     // ------------------------------------------------------------------------
 private:
-    virtual void setDefaultsAtFirstUse() override;
     QuPickerPopup* getResponsePicker(
         FieldRefPtr fieldref, const QString fieldname);
-    QuPickerPopup* getMedicationPicker();
+    QuFlowContainer* getMedicationButtons();
     bool isCustomMedicationSet() const;
     QString getCustomMedicationName() const;
     QString getCustomMedicationName(const int index) const;
     QString getOptionName(const QString &fieldname, const int index) const;
     QString getOptionName(const QString &fieldname, const int index,
                           const QString default_str) const;
-    void addMedicationItem();
+    void addMedicationItem(int index);
     void addTherapyItem();
     void deleteMedicationItem(int index);
     void deleteTherapyItem(int index);
@@ -88,10 +88,6 @@ private:
     void renumberTherapyItems();
     QStringList medicationDetail() const;
     QStringList therapyDetail() const;
-
-protected:
-    QVariant m_custom_medication;
-    FieldRefPtr m_fr_custom_medication;
 
     // ------------------------------------------------------------------------
     // Data
