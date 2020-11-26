@@ -145,8 +145,8 @@ class KhandakerMojoMedicationItem(KhandakerMojoTableItem):
     def get_html_table_row(self, req: "CamcopsRequest") -> str:
         return f"""
             <tr>
-                <td>{answer(self.brand_name)}</td>
                 <td>{answer(self.chemical_name)}</td>
+                <td>{answer(self.brand_name)}</td>
                 <td>{answer(self.dose)}</td>
                 <td>{answer(self.frequency)}</td>
                 <td>{answer(self.duration_months)}</td>
@@ -279,8 +279,8 @@ class KhandakerMojoMedicationTherapy(TaskHasPatientMixin, Task):
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th>{self.xstring(req, "brand_name")}</th>
                     <th>{self.xstring(req, "chemical_name")}</th>
+                    <th>{self.xstring(req, "brand_name")}</th>
                     <th>{self.xstring(req, "dose")}</th>
                     <th>{self.xstring(req, "frequency")}</th>
                     <th>{self.xstring(req, "duration_months")}</th>
