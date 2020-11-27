@@ -292,6 +292,8 @@ Physical illness measurement
 
 - :ref:`Ankylosing Spondylitis Disease Activity Score (ASDAS) <asdas>`
 
+- :ref:`Bath Ankylosing Spondylitis Disease Activity Index (BASAI) <basdai>`
+
 - :ref:`Disease Activity Score-28 (DAS28) <das28>`
 
 - :ref:`Elixhauser Comorbidity Index (ElixhauserCI) <elixhauserci>`

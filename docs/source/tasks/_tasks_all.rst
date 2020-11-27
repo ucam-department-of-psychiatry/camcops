@@ -41,6 +41,7 @@ All tasks
     asdas.rst
     audit.rst
     badls.rst
+    basdai.rst
     bdi.rst
     bmi.rst
     bprs.rst
