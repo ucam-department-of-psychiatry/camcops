@@ -193,7 +193,7 @@ TEMPLATE = app
 # =============================================================================
 # See build_qt.py for how these are built (or not built) as required.
 
-INCLUDEPATH += "$${QT_BASE_DIR}/eigen/eigen-eigen-67e894c6cd8f"  # from which: <Eigen/...>
+INCLUDEPATH += "$${QT_BASE_DIR}/eigen/eigen-3.3.3"  # from which: <Eigen/...>
 # INCLUDEPATH += "$${QT_BASE_DIR}/armadillo/armadillo-7.950.0/include"  # from which: <armadillo>
 # INCLUDEPATH += "$${QT_BASE_DIR}/armadillo/armadillo-7.950.0/include/armadillo_bits"
 # INCLUDEPATH += "$${QT_BASE_DIR}/boost/boost_1_64_0"  # from which: <boost/...>
