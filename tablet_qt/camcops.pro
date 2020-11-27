@@ -142,9 +142,9 @@ msvc {
 # In general, note "-Werrmsg" to enable and "-Wno-errmsg" to disable:
 # https://stackoverflow.com/questions/925179/selectively-remove-warning-message-gcc
 # (This problem arose on 2020-06-29 with Ubuntu 20.04 which brought gcc 9.3.0.)
-# gcc {
-#     QMAKE_CXXFLAGS += -Wno-deprecated-copy
-# }
+linux-gcc {
+    QMAKE_CXXFLAGS += -Wno-deprecated-copy
+}
 
 # In release mode, optimize heavily:
 gcc {
