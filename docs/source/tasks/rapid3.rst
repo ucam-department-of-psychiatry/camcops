@@ -51,6 +51,12 @@ royalties and license fees, all of which are used to support further development
 of quantitative questionnaire measurements for patients and doctors in clinical
 rheumatology care."
 
+https://www.corptransinc.com/sites/mdhaq-rapid3/instrument-information/permissions-licenses
+states "The MDHAQ/RAPID3 is available to academic researchers without fees." and
+"Implementation of the MDHAQ/RAPID3 in an electronic medical record (EMR) is
+subject to a royalty or license fee, which goes for support of further
+development of the MDHAQ/RAPID3."
+
 
 History
 ~~~~~~~
