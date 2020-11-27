@@ -31,7 +31,10 @@ using eigenfunc::ArrayXb;
 // As per R's family.c:
 // - https://github.com/wch/r-source/blob/trunk/src/library/stats/src/family.c
 
+#ifdef STATSFUNC_OFFER_AIC
 static const double PI = 3.141592653589793238462643383279502884197169399375;  // as per R's Constants.h
+#endif
+
 static const double DOUBLE_EPS = std::numeric_limits<double>::epsilon();
 static const double THRESH = 30.;
 static const double MTHRESH = -30.;
