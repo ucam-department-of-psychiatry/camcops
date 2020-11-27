@@ -32,8 +32,8 @@ const QString KhandakerMojoMedicationItem::FN_INDICATION("indication");
 const QString KhandakerMojoMedicationItem::FN_RESPONSE("response");
 
 const QStringList KhandakerMojoMedicationItem::TABLE_FIELDNAMES{
-    KhandakerMojoMedicationItem::FN_BRAND_NAME,
     KhandakerMojoMedicationItem::FN_CHEMICAL_NAME,
+    KhandakerMojoMedicationItem::FN_BRAND_NAME,
     KhandakerMojoMedicationItem::FN_DOSE,
     KhandakerMojoMedicationItem::FN_FREQUENCY,
     KhandakerMojoMedicationItem::FN_DURATION_MONTHS,
