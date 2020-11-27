@@ -40,6 +40,9 @@
 
 #if defined __clang__  // NB defined in Qt Creator; put this first for that reason
     #define COMPILER_IS_CLANG
+    #if __clang_major__ >= 10
+        #define CLANG_AT_LEAST_10
+    #endif
 #elif defined __GNUC__  // __GNUC__ is defined for GCC and clang
     #define COMPILER_IS_GCC
     #if __GNUC__ >= 7  // gcc >= 7.0
@@ -96,6 +99,14 @@
 #ifdef GCC_AT_LEAST_7
     // https://www.gnu.org/software/gcc/gcc-7/changes.html
     #define GCC_HAS_WARNING_INT_IN_BOOL_CONTEXT
+#endif
+
+// ============================================================================
+// CLANG_HAS_WARNING_INT_IN_BOOL_CONTEXT
+// ============================================================================
+
+#ifdef CLANG_AT_LEAST_10
+    #define CLANG_HAS_WARNING_INT_IN_BOOL_CONTEXT
 #endif
 
 // No need to test "#ifdef __GNUC__" first; an undefined preprocessor constant
