@@ -86,7 +86,7 @@ bool renameFile(const QString& from, const QString& to)
 bool ensureDirectoryExists(const QString& dir)
 {
     if (!QDir(dir).exists()) {
-        if (QDir().mkdir(dir)) {
+        if (QDir().mkpath(dir)) {
             qDebug() << "Made directory:" << dir;
         } else {
             qDebug() << "Failed to make directory:" << dir;
