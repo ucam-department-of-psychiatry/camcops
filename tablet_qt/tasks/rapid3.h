@@ -25,24 +25,26 @@
 class CamcopsApp;
 class OpenableWidget;
 class Questionnaire;
-class QuGridContainer;
 class TaskFactory;
 
-void initializeKhandakerMojoMedical(TaskFactory& factory);
+void initializeRapid3(TaskFactory& factory);
 
 
-class KhandakerMojoMedical : public Task
+class Rapid3 : public Task
 {
     Q_OBJECT
 public:
-    KhandakerMojoMedical(CamcopsApp& app, DatabaseManager& db,
-                         int load_pk = dbconst::NONEXISTENT_PK);
+    Rapid3(CamcopsApp& app, DatabaseManager& db,
+           int load_pk = dbconst::NONEXISTENT_PK);
     // ------------------------------------------------------------------------
     // Class overrides
     // ------------------------------------------------------------------------
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
+    virtual TaskImplementationType implementationType() const override {
+        return TaskImplementationType::UpgradableSkeleton;
+    }
     // ------------------------------------------------------------------------
     // Instance overrides
     // ------------------------------------------------------------------------
@@ -51,42 +53,20 @@ public:
     virtual QStringList detail() const override;
     virtual OpenableWidget* editor(bool read_only = false) override;
     // ------------------------------------------------------------------------
-    // Task-specific
+    // Task-specific calculations
     // ------------------------------------------------------------------------
-private:
-    QString getDiagnosis() const;
-    QString getOptionName(const QString &fieldname, const int index) const;
-    NameValueOptions getOptions(const QString &fieldname,
-                                int num_options) const;
-
-    // ------------------------------------------------------------------------
-    // Signal handlers
-    // ------------------------------------------------------------------------
-signals:
-public slots:
-    void updateMandatory();
-private:
-    QPointer<Questionnaire> m_questionnaire;
-    // ------------------------------------------------------------------------
-    // Getters/setters
-    // ------------------------------------------------------------------------
+    QVariant rapid3() const;
+    double functionalStatus() const;
+    double painTolerance() const;
+    double globalEstimate() const;
 public:
-    QVariant getDurationOfIllness() const;
-    QVariant getDiagnosisDate() const;
-    bool setDiagnosisDate(const QVariant& value);
-    bool setDurationOfIllness(const QVariant& value);
-    void updateDiagnosisDate();
-    void updateDurationOfIllness();
-
+    static const QString RAPID3_TABLENAME;
 protected:
-    QVariant m_diagnosis_years;
-
-    FieldRefPtr m_fr_diagnosis_date;
-    FieldRefPtr m_fr_diagnosis_years;
-
+    QPointer<Questionnaire> m_questionnaire;
 private:
-    QuGridContainer* getDiagnosisDateGrid();
+    QStringList allFieldnames() const;
+    QStringList q1Fieldnames() const;
+    QStringList q1ScoringFieldnames() const;
 
-public:
-    static const QString KHANDAKERMOJOMEDICAL_TABLENAME;
+    QString diseaseSeverity() const;
 };

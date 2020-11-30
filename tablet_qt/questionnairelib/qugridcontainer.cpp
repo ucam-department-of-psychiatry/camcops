@@ -23,13 +23,13 @@
 #include <QDebug>
 #include <QWidget>
 #include "layouts/layouts.h"
-#include "lib/layoutdumper.h"
 #include "lib/sizehelpers.h"
 #include "questionnairelib/questionnaire.h"
 #include "widgets/basewidget.h"
 
 #ifdef DEBUG_GRID_CREATION
 #include "common/cssconst.h"
+#include "lib/layoutdumper.h"
 #endif
 
 
@@ -220,7 +220,7 @@ QPointer<QWidget> QuGridContainer::makeWidget(Questionnaire* questionnaire)
 #ifdef DEBUG_GRID_CREATION
     qDebug() << Q_FUNC_INFO;
     qDebug() << "... m_fixed_grid =" << m_fixed_grid;
-    widget->setObjectName(CssConst::DEBUG_GREEN);
+    widget->setObjectName(cssconst::DEBUG_GREEN);
 #endif
     auto grid = new GridLayout();
     grid->setContentsMargins(uiconst::NO_MARGINS);
@@ -241,7 +241,7 @@ QPointer<QWidget> QuGridContainer::makeWidget(Questionnaire* questionnaire)
         }
 
 #ifdef DEBUG_GRID_CREATION
-        w->setObjectName(CssConst::DEBUG_RED);
+        w->setObjectName(cssconst::DEBUG_RED);
         qDebug() << "... cell:" << c;
 #endif
         if (m_fixed_grid) {
@@ -263,7 +263,7 @@ QPointer<QWidget> QuGridContainer::makeWidget(Questionnaire* questionnaire)
         {
             QSizePolicy sp = w->sizePolicy();
             qDebug().noquote() << "... widget sizePolicy():"
-                               << LayoutDumper::toString(sp);
+                               << layoutdumper::toString(sp);
         }
 #endif
         const auto alignment = c.override_element_alignment

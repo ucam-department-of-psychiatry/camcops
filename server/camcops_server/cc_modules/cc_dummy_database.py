@@ -165,9 +165,13 @@ class DummyDataFactory(object):
 
         patient.surname = self.faker.last_name()
 
-        # Faker calculates date of birth from the current time so gives
-        # different results on different days.
-        patient.dob = self.faker.date_of_birth(minimum_age=0, maximum_age=120)
+        # Faker date_of_birth calculates from the current time so gives
+        # different results on different days. By fixing the dates we get
+        # consistent results but our population ages over time.
+        patient.dob = self.faker.date_between_dates(
+            date_start=pendulum.date(1900, 1, 1),
+            date_end=pendulum.date(2020, 1, 1)
+        )
         self.dbsession.add(patient)
 
         self.add_patient_idnum(patient_id)

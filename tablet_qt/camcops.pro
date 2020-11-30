@@ -879,6 +879,7 @@ SOURCES += \
     tasks/qolbasic.cpp \
     tasks/qolsg.cpp \
     tasks/rand36.cpp \
+    tasks/rapid3.cpp \
     tasks/referrersatisfactiongen.cpp \
     tasks/referrersatisfactionspec.cpp \
     tasks/sfmpq2.cpp \
@@ -1344,6 +1345,7 @@ HEADERS += \
     tasks/qolbasic.h \
     tasks/qolsg.h \
     tasks/rand36.h \
+    tasks/rapid3.h \
     tasks/referrersatisfactiongen.h \
     tasks/referrersatisfactionspec.h \
     tasks/sfmpq2.h \
