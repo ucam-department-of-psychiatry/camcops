@@ -87,3 +87,9 @@ bool ValidatingLineEdit::isValid()
 {
     return m_state == QValidator::Acceptable;
 }
+
+
+void ValidatingLineEdit::setInputMethodHints(Qt::InputMethodHints hints)
+{
+    m_line_edit->setInputMethodHints(hints);
+}

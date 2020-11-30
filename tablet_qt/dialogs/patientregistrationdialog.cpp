@@ -37,10 +37,15 @@ PatientRegistrationDialog::PatientRegistrationDialog(QWidget* parent) :
     setMinimumSize(uifunc::minimumSizeForTitle(this));
 
     m_editor_server_url = new ValidatingLineEdit(new UrlValidator());
+    m_editor_server_url->setInputMethodHints(Qt::ImhNoAutoUppercase |
+                                             Qt::ImhNoPredictiveText);
     connect(m_editor_server_url, &ValidatingLineEdit::validated,
             this, &PatientRegistrationDialog::updateOkButtonEnabledState);
 
     m_editor_patient_proquint = new ValidatingLineEdit(new ProquintValidator());
+    m_editor_patient_proquint->setInputMethodHints(Qt::ImhSensitiveData |
+                                                   Qt::ImhNoAutoUppercase |
+                                                   Qt::ImhNoPredictiveText);
     connect(m_editor_patient_proquint, &ValidatingLineEdit::validated,
             this, &PatientRegistrationDialog::updateOkButtonEnabledState);
 

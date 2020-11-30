@@ -34,6 +34,7 @@ public:
     QValidator::State getState();
     bool isValid();
     QString getTrimmedText();
+    void setInputMethodHints(Qt::InputMethodHints hints);
 
 private:
     QLabel* m_label;
