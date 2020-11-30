@@ -37,7 +37,7 @@ public:
     static const QString KHANDAKERMOJOMEDICATIONITEM_TABLENAME;
     static const QString FN_FK_NAME;
     static const QString FN_SEQNUM;
-    static const QString FN_MEDICATION_NAME;
+    static const QString FN_BRAND_NAME;
     static const QString FN_CHEMICAL_NAME;
     static const QString FN_DOSE;
     static const QString FN_FREQUENCY;

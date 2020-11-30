@@ -30,7 +30,10 @@ import cardinal_pythonlib.rnc_web as ws
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
-from camcops_server.cc_modules.cc_constants import CssClass
+from camcops_server.cc_modules.cc_constants import (
+    CssClass,
+    POSSIBLE_SEX_VALUES,
+)
 from camcops_server.cc_modules.cc_html import (
     get_yes_no_none,
     subheading_spanning_two_columns,
@@ -182,8 +185,8 @@ class GMCPQ(Task):
     q10 = CamcopsColumn(
         "q10", SexColType,
         permitted_value_checker=PermittedValueChecker(
-            permitted_values=["M", "F"]),
-        comment="Sex of rater (M, F)"
+            permitted_values=POSSIBLE_SEX_VALUES),
+        comment="Sex of rater (M, F, X)"
     )
     q11 = CamcopsColumn(
         "q11", Integer,

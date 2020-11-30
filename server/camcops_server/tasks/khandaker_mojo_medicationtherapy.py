@@ -98,9 +98,9 @@ class KhandakerMojoMedicationItem(KhandakerMojoTableItem):
         "seqnum", Integer, nullable=False,
         comment="Sequence number of this medication"
     )
-    medication_name = CamcopsColumn(
-        "medication_name", UnicodeText,
-        comment="Medication name"
+    brand_name = CamcopsColumn(
+        "brand_name", UnicodeText,
+        comment="Brand name"
     )
     chemical_name = CamcopsColumn(
         "chemical_name", UnicodeText,
@@ -133,7 +133,7 @@ class KhandakerMojoMedicationItem(KhandakerMojoTableItem):
     @classmethod
     def mandatory_fields(cls) -> List[str]:
         return [
-            "medication_name",
+            "brand_name",
             "chemical_name",
             "dose",
             "frequency",
@@ -145,8 +145,8 @@ class KhandakerMojoMedicationItem(KhandakerMojoTableItem):
     def get_html_table_row(self, req: "CamcopsRequest") -> str:
         return f"""
             <tr>
-                <td>{answer(self.medication_name)}</td>
                 <td>{answer(self.chemical_name)}</td>
+                <td>{answer(self.brand_name)}</td>
                 <td>{answer(self.dose)}</td>
                 <td>{answer(self.frequency)}</td>
                 <td>{answer(self.duration_months)}</td>
@@ -279,8 +279,8 @@ class KhandakerMojoMedicationTherapy(TaskHasPatientMixin, Task):
             </div>
             <table class="{CssClass.TASKDETAIL}">
                 <tr>
-                    <th>{self.xstring(req, "medication_name")}</th>
                     <th>{self.xstring(req, "chemical_name")}</th>
+                    <th>{self.xstring(req, "brand_name")}</th>
                     <th>{self.xstring(req, "dose")}</th>
                     <th>{self.xstring(req, "frequency")}</th>
                     <th>{self.xstring(req, "duration_months")}</th>

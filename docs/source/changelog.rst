@@ -2976,3 +2976,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - **New task:** :ref:`Bath Ankylosing Spondylitis Disease Activity Index (BASDAI) <basdai>`.
   (Database revision 0053.)
+
+- Bugfix to :ref:`GMC Patient Questionnaire <gmcpq>` such that 'X' is now a
+  permitted value for q10 (Sex) on the server, in line with the app.
+
+- compilation error fix - cryptofunc - error: ‘runtime_error’ is not a member of ‘std’

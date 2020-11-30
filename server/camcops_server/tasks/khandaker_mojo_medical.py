@@ -92,21 +92,20 @@ class KhandakerMojoMedicalMetaclass(DeclarativeMeta):
             )
         )
         setattr(
-            cls, cls.FN_HAS_INFECTION_PAST_MONTH,
+            cls, cls.FN_INFECTION_PAST_MONTH,
             BoolColumn(
-                cls.FN_HAS_INFECTION_PAST_MONTH,
+                cls.FN_INFECTION_PAST_MONTH,
                 comment=("Do you currently have an infection, or had "
                          "treatment for an infection (e.g antibiotics) "
                          "in the past month?")
             )
         )
         setattr(
-            cls, cls.FN_HAD_INFECTION_TWO_MONTHS_PRECEDING,
+            cls, cls.FN_INFECTION_PAST_THREE_MONTHS,
             BoolColumn(
-                cls.FN_HAD_INFECTION_TWO_MONTHS_PRECEDING,
+                cls.FN_INFECTION_PAST_THREE_MONTHS,
                 comment=("Have you had an infection, or had treatment for "
-                         "an infection (e.g antibiotics) in the 2 months "
-                         "preceding last month?"),
+                         "an infection (e.g antibiotics) in the 3 months? "),
                 constraint_name="ck_kh2mm_had_infection"
             )
         )
@@ -342,8 +341,8 @@ class KhandakerMojoMedical(
     FN_DIAGNOSIS_DATE_APPROXIMATE = "diagnosis_date_approximate"
     FN_HAS_FIBROMYALGIA = "has_fibromyalgia"
     FN_IS_PREGNANT = "is_pregnant"
-    FN_HAS_INFECTION_PAST_MONTH = "has_infection_past_month"
-    FN_HAD_INFECTION_TWO_MONTHS_PRECEDING = "had_infection_two_months_preceding"  # noqa
+    FN_INFECTION_PAST_MONTH = "infection_past_month"
+    FN_INFECTION_PAST_THREE_MONTHS = "infection_past_three_months"  # noqa
     FN_HAS_ALCOHOL_SUBSTANCE_DEPENDENCE = "has_alcohol_substance_dependence"
     FN_SMOKING_STATUS = "smoking_status"
     FN_ALCOHOL_UNITS_PER_WEEK = "alcohol_units_per_week"
@@ -379,8 +378,8 @@ class KhandakerMojoMedical(
         FN_DIAGNOSIS_DATE,
         FN_HAS_FIBROMYALGIA,
         FN_IS_PREGNANT,
-        FN_HAS_INFECTION_PAST_MONTH,
-        FN_HAD_INFECTION_TWO_MONTHS_PRECEDING,
+        FN_INFECTION_PAST_MONTH,
+        FN_INFECTION_PAST_THREE_MONTHS,
         FN_HAS_ALCOHOL_SUBSTANCE_DEPENDENCE,
         FN_SMOKING_STATUS,
         FN_ALCOHOL_UNITS_PER_WEEK,
