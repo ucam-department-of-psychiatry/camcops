@@ -314,31 +314,21 @@ ios {
     CAMCOPS_QT_LINKAGE = "dynamic"
     CAMCOPS_OPENSSL_LINKAGE = "dynamic"
 
-    iphoneos {
+    # Both iphoneos and iphonesimulator are set ?!
+    CONFIG(iphoneos, iphoneos|iphonesimulator) {
+        message("Building for iPhone OS")
         contains(QT_ARCH, arm64) {
+            message("Building for iOS/ARM v8 64-bit architecture")
             CAMCOPS_ARCH_TAG = "ios_armv8_64"
         } else {
+            message("Building for iOS/ARM v7 (32-bit) architecture")
             CAMCOPS_ARCH_TAG = "ios_armv7"
         }
     }
 
-    iphonesimulator {
-       # iphoneos AND iphonesimulator are set!
-       CAMCOPS_ARCH_TAG = "ios_x86_64"
-    }
-
-    equals(CAMCOPS_ARCH_TAG, "ios_armv8_64") {
-        message("Building for iPhone OS")
-        message("Building for iOS/ARM v8 64-bit architecture")
-    }
-
-    equals(CAMCOPS_ARCH_TAG, "ios_armv7") {
-        message("Building for iPhone OS")
-        message("Building for iOS/ARM v7 (32-bit) architecture")
-    }
-
-    equals(CAMCOPS_ARCH_TAG, "ios_x86_64") {
-       message("Building for iPhone Simulator")
+    CONFIG(iphonesimulator, iphoneos|iphonesimulator) {
+        message("Building for iPhone Simulator")
+        CAMCOPS_ARCH_TAG = "ios_x86_64"
     }
 
     disable_warning.name = "GCC_WARN_64_TO_32_BIT_CONVERSION"
