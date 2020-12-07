@@ -468,6 +468,17 @@ ANDROID_EXTRA_LIBS += "$${OPENSSL_DIR}/libcrypto$${DYNAMIC_LIB_EXT}"  # needed f
 ANDROID_EXTRA_LIBS += "$${OPENSSL_DIR}/libssl$${DYNAMIC_LIB_EXT}"
 # ... must start "lib" and end ".so", otherwise Qt complains.
 
+
+# iOS specials
+QMAKE_RPATHDIR = @executable_path/Frameworks
+crypto.files = "$${OPENSSL_DIR}/libcrypto$${DYNAMIC_LIB_EXT}"
+crypto.path = Frameworks
+QMAKE_BUNDLE_DATA += crypto
+
+ssl.files = "$${OPENSSL_DIR}/libssl$${DYNAMIC_LIB_EXT}"
+ssl.path = Frameworks
+QMAKE_BUNDLE_DATA += ssl
+
 # -----------------------------------------------------------------------------
 # SQLCipher
 # -----------------------------------------------------------------------------
