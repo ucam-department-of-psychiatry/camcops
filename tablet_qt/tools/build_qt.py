@@ -680,6 +680,7 @@ GCC = "gcc"  # GNU C compiler
 GCC_AR = "gcc-ar"  # wrapper around ar
 GIT = "git"  # Git
 GOBJDUMP = "gobjdump"  # macOS 32-bit equivalent of readelf, via brew
+INSTALL_NAME_TOOL = "install_name_tool"  # iOS dylib path fixups
 JAVAC = "javac"  # for Android builds
 LD = "ld"  # GNU linker
 MAKE = "make"  # GNU make
@@ -2748,8 +2749,9 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
     rootdir, workdir = cfg.get_openssl_rootdir_workdir(target_platform)
     dynamic_lib_ext = target_platform.dynamic_lib_ext
     static_lib_ext = target_platform.static_lib_ext
+    openssl_verparts = cfg.openssl_version.split(".")
+
     if BUILD_PLATFORM.windows:
-        openssl_verparts = cfg.openssl_version.split(".")
         openssl_major = f"-{openssl_verparts[0]}_{openssl_verparts[1]}"
         if target_platform.cpu_x86_64bit_family:
             fname_arch = "-x64"
@@ -2987,8 +2989,49 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
         # See INSTALL, INSTALL.WIN, etc. from the OpenSSL distribution
         runmake()
 
-        # Copy the binaries to where the install_name expects them to be
         if target_platform.ios:
+            # On iOS we need to change the install names to be embeddable in the
+            # app bundle's Frameworks folder
+            major_version = f".{openssl_verparts[0]}.{openssl_verparts[1]}"
+
+            libcrypto_build_path = join(
+                workdir,
+                f"libcrypto{major_version}{dynamic_lib_ext}"
+            )
+            libssl_build_path = join(
+                workdir,
+                f"libssl{major_version}{dynamic_lib_ext}"
+            )
+
+            libcrypto_install_path = join(
+                workdir,
+                "lib",
+                f"libcrypto{major_version}{dynamic_lib_ext}"
+            )
+
+            run([
+                INSTALL_NAME_TOOL,
+                "-id",
+                f"@rpath/libcrypto{dynamic_lib_ext}",
+                f"{libcrypto_build_path}"
+            ])
+
+            run([
+                INSTALL_NAME_TOOL,
+                "-id",
+                f"@rpath/libssl{dynamic_lib_ext}",
+                f"{libssl_build_path}"
+            ])
+
+            run([
+                INSTALL_NAME_TOOL,
+                "-change",
+                f"{libcrypto_install_path}",
+                f"@rpath/libcrypto{dynamic_lib_ext}",
+                f"{libssl_build_path}"
+            ])
+
+            # Copy the binaries to where the install_name expects them to be
             runmake("install_runtime_libs")
 
         # ---------------------------------------------------------------------
