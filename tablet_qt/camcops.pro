@@ -337,8 +337,11 @@ ios {
 
     QMAKE_INFO_PLIST = $${CAMCOPS_SOURCE_ROOT}/ios/Info.plist
 
-    ios_icon.files = $$files($${CAMCOPS_SOURCE_ROOT}/ios/AppIcon*.png)
+    ios_icon.files = $$files($${CAMCOPS_SOURCE_ROOT}/ios/*.png)
     QMAKE_BUNDLE_DATA += ios_icon
+
+    app_launch_screen.files = $$files($${CAMCOPS_SOURCE_ROOT}/ios/LaunchScreen.storyboard)
+    QMAKE_BUNDLE_DATA += app_launch_screen
 }
 
 isEmpty(CAMCOPS_ARCH_TAG) {
@@ -1450,6 +1453,8 @@ OTHER_FILES += \
     android/res/drawable-ldpi/icon.png \
     android/res/values/libs.xml \
     ios/Info.plist \
+    ios/*.storyboard \
+    ios/*.png \
     notes/compilation_android.txt \
     notes/compilation_linux.txt \
     notes/compilation_windows.txt \
