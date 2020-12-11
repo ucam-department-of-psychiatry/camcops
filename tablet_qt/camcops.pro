@@ -334,6 +334,11 @@ ios {
     disable_warning.name = "GCC_WARN_64_TO_32_BIT_CONVERSION"
     disable_warning.value = "No"
     QMAKE_MAC_XCODE_SETTINGS += disable_warning
+
+    QMAKE_INFO_PLIST = $${CAMCOPS_SOURCE_ROOT}/ios/Info.plist
+
+    ios_icon.files = $$files($${CAMCOPS_SOURCE_ROOT}/ios/AppIcon*.png)
+    QMAKE_BUNDLE_DATA += ios_icon
 }
 
 isEmpty(CAMCOPS_ARCH_TAG) {
@@ -1444,6 +1449,7 @@ OTHER_FILES += \
     android/gradlew.bat \
     android/res/drawable-ldpi/icon.png \
     android/res/values/libs.xml \
+    ios/Info.plist \
     notes/compilation_android.txt \
     notes/compilation_linux.txt \
     notes/compilation_windows.txt \
