@@ -573,6 +573,7 @@ SOURCES += \
     diagnosis/icd10.cpp \
     diagnosis/icd9cm.cpp \
     dialogs/dangerousconfirmationdialog.cpp \
+    dialogs/debugdialog.cpp \
     dialogs/logbox.cpp \
     dialogs/logmessagebox.cpp \
     dialogs/modedialog.cpp \
@@ -1034,6 +1035,7 @@ HEADERS += \
     diagnosis/icd10.h \
     diagnosis/icd9cm.h \
     dialogs/dangerousconfirmationdialog.h \
+    dialogs/debugdialog.h \
     dialogs/logbox.h \
     dialogs/logmessagebox.h \
     dialogs/modedialog.h \

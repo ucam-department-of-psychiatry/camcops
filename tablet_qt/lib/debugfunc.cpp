@@ -21,14 +21,6 @@
 
 #include "debugfunc.h"
 #include <QDebug>
-#include <QDialog>
-#include <QVariant>
-#include <QVBoxLayout>
-#include "common/cssconst.h"
-#include "common/uiconst.h"
-#include "layouts/vboxlayouthfw.h"
-#include "qobjects/keypresswatcher.h"
-#include "qobjects/showwatcher.h"
 
 namespace debugfunc {
 
@@ -89,54 +81,15 @@ void debugWidget(QWidget* widget,
                  const bool use_hfw_layout,
                  const QString* dialog_stylesheet)
 {
-    QDialog dlg;
-    QSizePolicy dlg_sp(QSizePolicy::Preferred, QSizePolicy::Preferred);
-    if (use_hfw_layout) {
-        dlg_sp.setHeightForWidth(true);
-    }
-    dlg.setSizePolicy(dlg_sp);
-    dlg.setWindowTitle("Press D/dump layout, A/adjustSize");
-    if (dialog_stylesheet) {
-        dlg.setStyleSheet(*dialog_stylesheet);
-    }
-    VBoxLayoutHfw* hfwlayout = use_hfw_layout ? new VBoxLayoutHfw() : nullptr;
-    QVBoxLayout* vboxlayout = use_hfw_layout ? nullptr : new QVBoxLayout();
-    QLayout* layout = use_hfw_layout ? static_cast<QLayout*>(hfwlayout)
-                                     : static_cast<QLayout*>(vboxlayout);
-    layout->setContentsMargins(uiconst::NO_MARGINS);
-    if (widget) {
-        if (set_background_by_name) {
-            widget->setObjectName(cssconst::DEBUG_GREEN);
-        }
-        if (set_background_by_stylesheet) {
-            widget->setStyleSheet("background: green;");
-        }
-        // const Qt::Alignment align = Qt::AlignTop;
-        const Qt::Alignment align = 0;
-        // We can't do what follows via the QLayout* pointer, which is why we
-        // have to maintain these two:
-        if (use_hfw_layout) {
-            hfwlayout->addWidget(widget, 0, align);
-        } else {
-            vboxlayout->addWidget(widget, 0, align);
-        }
-        auto showwatcher = new ShowWatcher(&dlg, true);
-        Q_UNUSED(showwatcher)
-        auto keywatcher = new KeyPressWatcher(&dlg);
-        // keywatcher becomes child of dlg,
-        // and LayoutDumper is a namespace, so:
-        // Safe object lifespan signal: can use std::bind
-        keywatcher->addKeyEvent(
-            Qt::Key_D,
-            std::bind(&layoutdumper::dumpWidgetHierarchy, &dlg, config));
-        keywatcher->addKeyEvent(
-            Qt::Key_A,
-            std::bind(&QWidget::adjustSize, widget));
-    } else {
-        qDebug() << Q_FUNC_INFO << "null widget";
-    }
-    dlg.setLayout(layout);
-    dlg.exec();
+    auto dlg = new DebugDialog(nullptr,
+                               widget,
+                               set_background_by_name,
+                               set_background_by_stylesheet,
+                               config,
+                               use_hfw_layout,
+                               dialog_stylesheet);
+
+    dlg->exec();
 }
 
 
