@@ -42,7 +42,7 @@ an adjusted 0–10 score for comparison with other RAPID indices.
 Intellectual property rights
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**TO BE ESTABLISHED.**
+Email from Amanda Rosett at RWS to Joel Parkinson on 7th December 2020:
 
 https://www.the-rheumatologist.org/article/remote-use-of-the-multidimensional-health-assessment-questionnaire-mdhaq/4/
 states "Dr. Theodore Pincus is president of Medical History Services LLC and
@@ -56,6 +56,16 @@ states "The MDHAQ/RAPID3 is available to academic researchers without fees." and
 "Implementation of the MDHAQ/RAPID3 in an electronic medical record (EMR) is
 subject to a royalty or license fee, which goes for support of further
 development of the MDHAQ/RAPID3."
+
+.. code-block:: none
+
+    [...]
+
+    With respect to integration into CamCOPS - individual users must obtain a
+    license for use of the RAPID-3 for their projects. Therefore, we can't
+    allow the RAPID-3 to be hosted and made publicly available at no cost. The
+    RAPID-3 can be integrated and administered via tablet device for any user
+    who has a license to use the scale in their individual project/clinic.
 
 
 History
