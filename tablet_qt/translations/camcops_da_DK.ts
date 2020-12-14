@@ -270,7 +270,7 @@
 <context>
     <name>Basdai</name>
     <message>
-        <location filename="../tasks/basdai.cpp" line="+76"/>
+        <location filename="../tasks/basdai.cpp" line="+74"/>
         <source>Bath Ankylosing Spondylitis Disease Activity Index</source>
         <translation>Bath Ankylosing Spondylitis Disease Activity Index [ankyloserende spondylitis sygdom aktivitetsindeks]</translation>
     </message>
@@ -397,12 +397,12 @@
 <context>
     <name>CamcopsApp</name>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="+777"/>
+        <location filename="../core/camcopsapp.cpp" line="+789"/>
         <source>Configuring internal database</source>
         <translation>Konfiguration af intern database</translation>
     </message>
     <message>
-        <location line="+321"/>
+        <location line="+319"/>
         <source>Enter a new password for the CamCOPS application</source>
         <translation>Indtast en ny adgangskode til CamCOPS-applikationen</translation>
     </message>
@@ -462,13 +462,13 @@
         <translation>Ja, upload</translation>
     </message>
     <message>
-        <location line="-1598"/>
-        <location line="+1600"/>
+        <location line="-1604"/>
+        <location line="+1606"/>
         <source>No, cancel</source>
         <translation>Nej, annuller</translation>
     </message>
     <message>
-        <location line="-1781"/>
+        <location line="-1791"/>
         <source>You did not select how you would like to use CamCOPS</source>
         <translation>Du valgte ikke, hvordan du vil bruge CamCOPS</translation>
     </message>
@@ -483,7 +483,7 @@
         <translation>Du kan ikke ændre tilstand, når der stadig er opgaver, der skal overføres</translation>
     </message>
     <message>
-        <location line="+113"/>
+        <location line="+117"/>
         <source>Registering patient...</source>
         <translation>Registrering af patient...</translation>
     </message>
@@ -536,18 +536,18 @@ Har du forbindelse til internettet?
 Angav du den korrekte CamCOPS-serverplacering?</translation>
     </message>
     <message>
-        <location line="+13"/>
-        <location line="+132"/>
+        <location line="+14"/>
+        <location line="+139"/>
         <source>Error</source>
         <translation>Fejl</translation>
     </message>
     <message>
-        <location line="-103"/>
+        <location line="-110"/>
         <source>There was a problem updating your task schedules.</source>
         <translation>Der opstod et problem med at opdatere dine opgaveplaner.</translation>
     </message>
     <message>
-        <location line="+19"/>
+        <location line="+26"/>
         <source>There was a problem sending your completed tasks to the server.</source>
         <translation>Der opstod et problem med at sende dine gennemførte opgaver til serveren.</translation>
     </message>
@@ -566,12 +566,7 @@ Are you connected to the internet?</source>
 Har du forbindelse til internettet?</translation>
     </message>
     <message>
-        <location line="+202"/>
-        <source>You cancelled patient registration</source>
-        <translation>Du annullerede patientregistrering</translation>
-    </message>
-    <message>
-        <location line="+416"/>
+        <location line="+616"/>
         <source>You entered an incorrect password. Try again?</source>
         <translation>Du indtastede en forkert adgangskode. Prøv igen?</translation>
     </message>
@@ -663,7 +658,7 @@ Alle poster, der ikke uploades til serveren, går tabt.</translation>
         <translation>JEG ER IKKE ENIG</translation>
     </message>
     <message>
-        <location line="-2804"/>
+        <location line="-2814"/>
         <source>OK. Goodbye.</source>
         <translation>Okay. Farvel.</translation>
     </message>
@@ -673,7 +668,7 @@ Alle poster, der ikke uploades til serveren, går tabt.</translation>
         <translation>Du nægtede betingelserne.</translation>
     </message>
     <message>
-        <location line="+2846"/>
+        <location line="+2856"/>
         <source>Uploading...</source>
         <translation>Uploader …</translation>
     </message>
@@ -4140,7 +4135,7 @@ enig</translation>
 <context>
     <name>Patient</name>
     <message>
-        <location filename="../dbobjects/patient.cpp" line="+467"/>
+        <location filename="../dbobjects/patient.cpp" line="+468"/>
         <source>[No ID numbers]</source>
         <translation>[Ingen ID-numre]</translation>
     </message>
@@ -4558,7 +4553,7 @@ enig</translation>
 <context>
     <name>PhysicalIllnessMenu</name>
     <message>
-        <location filename="../menu/physicalillnessmenu.cpp" line="+41"/>
+        <location filename="../menu/physicalillnessmenu.cpp" line="+42"/>
         <source>Physical illness measurement</source>
         <translation>Måling af fysisk sygdom</translation>
     </message>
@@ -4849,6 +4844,19 @@ enig</translation>
         <location line="+6"/>
         <source>Patient-reported survey of general health.</source>
         <translation>Patientanmeldt undersøgelse af generel sundhed.</translation>
+    </message>
+</context>
+<context>
+    <name>Rapid3</name>
+    <message>
+        <location filename="../tasks/rapid3.cpp" line="+111"/>
+        <source>Routine Assessment of Patient Index Data</source>
+        <translation>Routine Assessment of Patient Index Data [rutinemæssig vurdering af patientindeksdata]</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>A pooled index of patient-reported function, pain, and global estimate of status.</source>
+        <translation>Et samlet indeks over patientrapporteret funktion, smerte og globalt skøn over status.</translation>
     </message>
 </context>
 <context>
@@ -5311,7 +5319,7 @@ enig</translation>
 <context>
     <name>SetMenuKhandakerMojo</name>
     <message>
-        <location filename="../menu/setmenukhandakermojo.cpp" line="+54"/>
+        <location filename="../menu/setmenukhandakermojo.cpp" line="+55"/>
         <source>Khandaker GM — MOJO study</source>
         <translation>Khandaker GM — MOJO forskningsundersøgelse</translation>
     </message>
@@ -5331,7 +5339,7 @@ enig</translation>
         <translation>Emne-vurderet skalaer (alle fag)</translation>
     </message>
     <message>
-        <location line="+16"/>
+        <location line="+17"/>
         <source>Subject-rated scales (condition-specific)</source>
         <translation>Emne-vurderet skalaer (sygdomsspecifik)</translation>
     </message>
