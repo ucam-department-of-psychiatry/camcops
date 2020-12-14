@@ -78,7 +78,7 @@ def upgrade():
                 'preceding last month?'
             ),
             comment=('Have you had an infection, or had treatment for an '
-                     'infection (e.g antibiotics) in the 3 months? ')
+                     'infection (e.g antibiotics) in the past 3 months?')
         )
 
 
