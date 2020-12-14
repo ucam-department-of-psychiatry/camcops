@@ -300,6 +300,8 @@ Physical illness measurement
 
 - :ref:`EULAR Sjögren’s Syndrome Patient Reported Index (ESSPRI) <esspri>`
 
+- :ref:`Routine Assessment of Patient Index Data (RAPID3) <rapid3>`
+
 - :ref:`Short-Form McGill Pain Questionnaire 2 (SF-MPQ-2) <sfmpq2>`
 
 

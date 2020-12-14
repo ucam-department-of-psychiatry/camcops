@@ -27,6 +27,7 @@
 #include "tasks/das28.h"
 #include "tasks/elixhauserci.h"
 #include "tasks/esspri.h"
+#include "tasks/rapid3.h"
 #include "tasks/sfmpq2.h"
 
 
@@ -46,11 +47,12 @@ void PhysicalIllnessMenu::makeItems()
 {
     m_items = {
         MAKE_CHANGE_PATIENT(m_app),
+        MAKE_TASK_MENU_ITEM(Asdas::ASDAS_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Das28::DAS28_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(ElixhauserCI::ELIXHAUSERCI_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Esspri::ESSPRI_TABLENAME, m_app),
-        MAKE_TASK_MENU_ITEM(Asdas::ASDAS_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Basdai::BASDAI_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Rapid3::RAPID3_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Sfmpq2::SFMPQ2_TABLENAME, m_app),
-        MAKE_TASK_MENU_ITEM(Das28::DAS28_TABLENAME, m_app),
     };
 }
