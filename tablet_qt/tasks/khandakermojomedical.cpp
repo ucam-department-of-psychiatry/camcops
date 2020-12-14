@@ -452,6 +452,7 @@ OpenableWidget* KhandakerMojoMedical::editor(const bool read_only)
     m_questionnaire->setReadOnly(read_only);
 
     updateMandatory();
+    updateDurationOfIllness();
 
     return m_questionnaire;
 }
