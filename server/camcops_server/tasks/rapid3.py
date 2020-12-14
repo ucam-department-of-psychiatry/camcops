@@ -108,7 +108,7 @@ class Rapid3Metaclass(DeclarativeMeta):
             permitted_value_checker=PermittedValueChecker(
                 permitted_values=permitted_scale_values
             ),
-            comment=("Q3 (patient global estimate) (0 very well - very poorly)")
+            comment="Q3 (patient global estimate) (0 very well - very poorly)"
         ))
 
         super().__init__(name, bases, classdict)
@@ -170,7 +170,7 @@ class Rapid3(TaskHasPatientMixin,
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
         _ = req.gettext
-        return _("Routine Assessment of Patient Index Data (RAPID 3)")
+        return _("Routine Assessment of Patient Index Data")
 
     def get_summaries(self, req: CamcopsRequest) -> List[SummaryElement]:
         return self.standard_task_summary_fields() + [
@@ -230,9 +230,11 @@ class Rapid3(TaskHasPatientMixin,
         return round(self.sum_fields(self.q1_scoring_fieldnames()) / 3, 1)
 
     def pain_tolerance(self) -> float:
+        # noinspection PyUnresolvedReferences
         return self.q2
 
     def global_estimate(self) -> float:
+        # noinspection PyUnresolvedReferences
         return self.q3
 
     def is_complete(self) -> bool:
@@ -245,19 +247,22 @@ class Rapid3(TaskHasPatientMixin,
         return True
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        rows = tr_span_col(f'1. {self.wxstring(req, "q1")}', cols=2)
+        rows = tr_span_col(
+            f'{self.wxstring(req, "q1")}<br>'
+            f'{self.wxstring(req, "q1sub")}',
+            cols=2
+        )
         for letter in self.q1_all_letters():
             q_fieldname = f"q1{letter}"
 
             qtext = self.wxstring(req, q_fieldname)
-            question_cell = f"{letter}. {qtext}"
             score = getattr(self, q_fieldname)
 
             description = "?"
             if score is not None:
                 description = self.wxstring(req, f"q1_option{score}")
 
-            rows += tr_qa(question_cell, f"{score} — {description}")
+            rows += tr_qa(qtext, f"{score} — {description}")
 
         for q_num in (2, 3):
             q_fieldname = f"q{q_num}"
@@ -265,10 +270,9 @@ class Rapid3(TaskHasPatientMixin,
             min_text = self.wxstring(req, f"{q_fieldname}_min")
             max_text = self.wxstring(req, f"{q_fieldname}_max")
             qtext += f" <i>(0.0 = {min_text}, 10.0 = {max_text})</i>"
-            question_cell = f"{q_num}. {qtext}"
             score = getattr(self, q_fieldname)
 
-            rows += tr_qa(question_cell, score)
+            rows += tr_qa(qtext, score)
 
         rapid3 = ws.number_to_dp(self.rapid3(), 1, default="?")
 
@@ -287,20 +291,29 @@ class Rapid3(TaskHasPatientMixin,
                 {rows}
             </table>
             <div class="{CssClass.FOOTNOTES}">
-                [1] Add scores for questions 1a – 1j, divide by 3 and round
-                    to 1 decimal place
-                    Then add this to scores for Q2 and Q3 to get RAPID3
-                    cumulative score (0-30)
-                    <=3 Near Remission (NR)
-                    3.1-6 Low Severity (LS)
-                    6.1-12 Moderate Severity (MS)
-                    >12 High Severity (HS)
+                [1] Add scores for questions 1a–1j (ten questions each scored
+                    0–3), divide by 3, and round to 1 decimal place (giving a
+                    score for Q1 in the range 0–10). Then add this to scores
+                    for Q2 and Q3 (each scored 0–10) to get the RAPID3
+                    cumulative score (0–30), as shown here.
+                    Interpretation of the cumulative score:
+                    ≤3: Near remission (NR).
+                    3.1–6: Low severity (LS).
+                    6.1–12: Moderate severity (MS).
+                    >12: High severity (HS).
+
+                    Note also: questions 1k–1m are each scored 0, 1.1, 2.2, or
+                    3.3 in the PDF/paper version of the RAPID3, but do not
+                    contribute to the formal score. They are shown here with
+                    values 0, 1, 2, 3 (and, similarly, do not contribute to
+                    the overall score).
+
             </div>
         """.format(
             CssClass=CssClass,
             tr_is_complete=self.get_is_complete_tr(req),
             rapid3=tr(
-                self.wxstring(req, "rapid3") + " <sup>[1]</sup>",
+                self.wxstring(req, "rapid3") + " (0–30) <sup>[1]</sup>",
                 "{} ({})".format(
                     answer(rapid3),
                     self.disease_severity(req)

@@ -84,6 +84,8 @@ server/camcops_server
     alembic/versions/0051_auto_generated_user.py.rst
     alembic/versions/0052_group_ip_use.py.rst
     alembic/versions/0053_basdai.py.rst
+    alembic/versions/0054_gmcpq_sex_choices.py.rst
+    alembic/versions/0055_rapid3.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst
@@ -187,6 +189,7 @@ server/camcops_server
     extra_string_templates/npiq_TEMPLATE.xml.rst
     extra_string_templates/ors_TEMPLATE.xml.rst
     extra_string_templates/pdss_TEMPLATE.xml.rst
+    extra_string_templates/rapid3_TEMPLATE.xml.rst
     extra_string_templates/sfmpq2_TEMPLATE.xml.rst
     extra_string_templates/shaps_TEMPLATE.xml.rst
     extra_string_templates/srs_TEMPLATE.xml.rst
@@ -370,6 +373,7 @@ server/camcops_server
     tasks/qolbasic.py.rst
     tasks/qolsg.py.rst
     tasks/rand36.py.rst
+    tasks/rapid3.py.rst
     tasks/service_satisfaction.py.rst
     tasks/sfmpq2.py.rst
     tasks/shaps.py.rst

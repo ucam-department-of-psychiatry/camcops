@@ -810,6 +810,8 @@ tablet_qt
     tasks/qolsg.h.rst
     tasks/rand36.cpp.rst
     tasks/rand36.h.rst
+    tasks/rapid3.cpp.rst
+    tasks/rapid3.h.rst
     tasks/referrersatisfactiongen.cpp.rst
     tasks/referrersatisfactiongen.h.rst
     tasks/referrersatisfactionspec.cpp.rst

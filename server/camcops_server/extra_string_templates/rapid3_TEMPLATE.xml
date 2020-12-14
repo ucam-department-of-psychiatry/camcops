@@ -6,6 +6,7 @@
     <string name="title_main">Routine Assessment of Patient Index Data (RAPID 3)</string>
 
     <string name="q1">(physical instructions)</string>
+    <string name="q1sub">(over the last week)</string>
     <string name="q1_option0">(no)</string>
     <string name="q1_option1">(some)</string>
     <string name="q1_option2">(much)</string>
