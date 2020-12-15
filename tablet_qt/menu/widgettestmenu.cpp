@@ -28,6 +28,7 @@
 #include "common/uiconst.h"
 #include "dbobjects/blob.h"
 #include "diagnosis/icd10.h"
+#include "dialogs/debugdialog.h"
 #include "graphics/graphicsfunc.h"
 #include "layouts/flowlayouthfw.h"
 #include "lib/debugfunc.h"
@@ -1320,11 +1321,18 @@ QCustomPlot* WidgetTestMenu::makeQCustomPlotOrWarn()
 
 void WidgetTestMenu::showPlot(QCustomPlot* p, const QSize& minsize)
 {
-    auto dlg = new QDialog(this);  // memory management now by Qt
-    auto layout = new QVBoxLayout();
-    dlg->setLayout(layout);
+    const bool set_background_by_name = false;
+    const bool set_background_by_stylesheet = false;
+    const bool use_hfw_layout = false;
+
     p->setMinimumSize(minsize);
-    layout->addWidget(p);
+    auto dlg = new DebugDialog(this,
+                               p,
+                               set_background_by_name,
+                               set_background_by_stylesheet,
+                               layoutdumper::DumperConfig(),
+                               use_hfw_layout);  // memory management now by Qt
+
     dlg->setModal(true);
     dlg->show();
 }

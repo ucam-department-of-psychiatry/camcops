@@ -29,9 +29,9 @@ class DebugDialog : public QDialog
 public:
     DebugDialog(QWidget* parent,
                 QWidget* widget,
-                const bool set_background_by_name,
-                const bool set_background_by_stylesheet,
-                const layoutdumper::DumperConfig& config,
-                const bool use_hfw_layout,
-                const QString* dialog_stylesheet);
+                const bool set_background_by_name = false,
+                const bool set_background_by_stylesheet = true,
+                const layoutdumper::DumperConfig& config = layoutdumper::DumperConfig(),
+                const bool use_hfw_layout = true,
+                const QString* dialog_stylesheet = nullptr);
 };
