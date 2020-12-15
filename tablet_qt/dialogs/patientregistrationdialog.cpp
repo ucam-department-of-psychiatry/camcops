@@ -58,15 +58,20 @@ PatientRegistrationDialog::PatientRegistrationDialog(QWidget* parent) :
 
     auto mainlayout = new QFormLayout();
     mainlayout->setRowWrapPolicy(QFormLayout::WrapAllRows);
-    mainlayout->addRow(
-        tr("<b>CamCOPS server location</b> (e.g. https://server.example.com/camcops/api):"),
-        m_editor_server_url
-    );
 
-    mainlayout->addRow(
-        tr("<b>Access key</b> (e.g. abcde-fghij-klmno-pqrst-uvwxy-zabcd-efghi-jklmn-o):"),
-        m_editor_patient_proquint
+    auto server_url_label = new QLabel(
+        tr("<b>CamCOPS server location</b> (e.g. https://server.example.com/camcops/api):")
     );
+    server_url_label->setWordWrap(true);
+
+    mainlayout->addRow(server_url_label, m_editor_server_url);
+
+    auto patient_proquint_label = new QLabel(
+        tr("<b>Access key</b> (e.g. abcde-fghij-klmno-pqrst-uvwxy-zabcd-efghi-jklmn-o):")
+    );
+    patient_proquint_label->setWordWrap(true);
+
+    mainlayout->addRow(patient_proquint_label, m_editor_patient_proquint);
 
     mainlayout->addWidget(m_buttonbox);
     setLayout(mainlayout);
