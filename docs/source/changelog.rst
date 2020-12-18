@@ -2873,7 +2873,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
   2020-07-24: No, Deform has caught up. See https://pypi.org/project/deform/.
   Move to ``deform==2.0.10`` and ``Chameleon==3.8.1``.
 
-**Client and server v2.4.0, IN PROGRESS**
+**Client and server v2.4.0, released 18 Dec 2020**
 
 - Support for :ref:`Task Schedules <scheduling_tasks>` (on the server) and
   :ref:`Single User Mode <single_user_mode>` on the client
@@ -2990,3 +2990,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Usability improvements to :ref:`Khandaker GM — MOJO — Medical questionnaire
   <khandaker_mojo_medical>` and :ref:`Khandaker GM — MOJO — Medications and therapies
   <khandaker_mojo_medicationtherapy>`. (Database revisions 0056-0057)
+
+**Client and server v2.4.1, IN PROGRESS**
