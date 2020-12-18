@@ -35,15 +35,6 @@ Creation date: 2020-11-16 11:28:45.597495
 """
 
 # =============================================================================
-# Imports
-# =============================================================================
-
-from alembic import op
-import sqlalchemy as sa
-
-
-
-# =============================================================================
 # Revision identifiers, used by Alembic.
 # =============================================================================
 
@@ -58,51 +49,12 @@ depends_on = None
 # =============================================================================
 
 def upgrade():
-    with op.batch_alter_table('khandaker_mojo_medical', schema=None) as batch_op:
-        batch_op.alter_column(
-            'has_infection_past_month',
-            existing_type=sa.Boolean(),
-            new_column_name='infection_past_month',
-            existing_comment=("Do you currently have an infection, or had "
-                              "treatment for an infection (e.g antibiotics) "
-                              "in the past month?")
-
-        )
-        batch_op.alter_column(
-            'had_infection_two_months_preceding',
-            existing_type=sa.Boolean(),
-            new_column_name='infection_past_three_months',
-            existing_comment=(
-                'Have you had an infection, or had treatment for an '
-                'infection (e.g antibiotics) in the 2 months '
-                'preceding last month?'
-            ),
-            comment=('Have you had an infection, or had treatment for an '
-                     'infection (e.g antibiotics) in the past 3 months?')
-        )
+    # We considered changing the wording of the questions about having had an
+    # infection in the past month / two months preceding last month but decided
+    # against it so that old data is comparable with new data. So this migration
+    # now does nothing.
+    pass
 
 
 def downgrade():
-    with op.batch_alter_table('khandaker_mojo_medical', schema=None) as batch_op:
-        batch_op.alter_column(
-            'infection_past_month',
-            existing_type=sa.Boolean(),
-            new_column_name='has_infection_past_month',
-            existing_comment=("Do you currently have an infection, or had "
-                              "treatment for an infection (e.g antibiotics) "
-                              "in the past month?")
-        )
-        batch_op.alter_column(
-            'infection_past_three_months',
-            existing_type=sa.Boolean(),
-            new_column_name='had_infection_two_months_preceding',
-            existing_comment=(
-                'Have you had an infection, or had treatment for an '
-                'infection (e.g antibiotics) in the 3 months? '
-            ),
-            comment=(
-                'Have you had an infection, or had treatment for an '
-                'infection (e.g antibiotics) in the 2 months '
-                'preceding last month?'
-            )
-        )
+    pass

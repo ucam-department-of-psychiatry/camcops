@@ -52,8 +52,8 @@ const QString FN_DIAGNOSIS_DATE("diagnosis_date");
 const QString FN_DIAGNOSIS_DATE_APPROXIMATE("diagnosis_date_approximate");
 const QString FN_HAS_FIBROMYALGIA("has_fibromyalgia");
 const QString FN_IS_PREGNANT("is_pregnant");
-const QString FN_INFECTION_PAST_MONTH("infection_past_month");
-const QString FN_INFECTION_PAST_THREE_MONTHS("infection_past_three_months");
+const QString FN_HAS_INFECTION_PAST_MONTH("has_infection_past_month");
+const QString FN_HAD_INFECTION_TWO_MONTHS_PRECEDING("had_infection_two_months_preceding");
 const QString FN_HAS_ALCOHOL_SUBSTANCE_DEPENDENCE("has_alcohol_substance_dependence");
 const QString FN_SMOKING_STATUS("smoking_status");
 const QString FN_ALCOHOL_UNITS_PER_WEEK("alcohol_units_per_week");
@@ -89,8 +89,8 @@ const QStringList MANDATORY_FIELDNAMES{
     FN_DIAGNOSIS_DATE,
     FN_HAS_FIBROMYALGIA,
     FN_IS_PREGNANT,
-    FN_INFECTION_PAST_MONTH,
-    FN_INFECTION_PAST_THREE_MONTHS,
+    FN_HAS_INFECTION_PAST_MONTH,
+    FN_HAD_INFECTION_TWO_MONTHS_PRECEDING,
     FN_HAS_ALCOHOL_SUBSTANCE_DEPENDENCE,
     FN_SMOKING_STATUS,
     FN_ALCOHOL_UNITS_PER_WEEK,
@@ -120,8 +120,8 @@ const QStringList MANDATORY_FIELDNAMES{
 const QStringList SUMMARY_FIELDNAMES{
     FN_HAS_FIBROMYALGIA,
     FN_IS_PREGNANT,
-    FN_INFECTION_PAST_MONTH,
-    FN_INFECTION_PAST_THREE_MONTHS,
+    FN_HAS_INFECTION_PAST_MONTH,
+    FN_HAD_INFECTION_TWO_MONTHS_PRECEDING,
     FN_HAS_ALCOHOL_SUBSTANCE_DEPENDENCE,
 };
 
@@ -156,8 +156,8 @@ KhandakerMojoMedical::KhandakerMojoMedical(
     addField(FN_DIAGNOSIS_DATE_APPROXIMATE, QVariant::Bool);
     addField(FN_HAS_FIBROMYALGIA, QVariant::Bool);
     addField(FN_IS_PREGNANT, QVariant::Bool);
-    addField(FN_INFECTION_PAST_MONTH, QVariant::Bool);
-    addField(FN_INFECTION_PAST_THREE_MONTHS, QVariant::Bool);
+    addField(FN_HAS_INFECTION_PAST_MONTH, QVariant::Bool);
+    addField(FN_HAD_INFECTION_TWO_MONTHS_PRECEDING, QVariant::Bool);
     addField(FN_HAS_ALCOHOL_SUBSTANCE_DEPENDENCE, QVariant::Bool);
     addField(FN_SMOKING_STATUS, QVariant::Int);
     addField(FN_ALCOHOL_UNITS_PER_WEEK, QVariant::Double);
@@ -392,8 +392,8 @@ OpenableWidget* KhandakerMojoMedical::editor(const bool read_only)
 
     yesNoQuestion(FN_HAS_FIBROMYALGIA);
     yesNoQuestion(FN_IS_PREGNANT);
-    yesNoQuestion(FN_INFECTION_PAST_MONTH);
-    yesNoQuestion(FN_INFECTION_PAST_THREE_MONTHS);
+    yesNoQuestion(FN_HAS_INFECTION_PAST_MONTH);
+    yesNoQuestion(FN_HAD_INFECTION_TWO_MONTHS_PRECEDING);
     yesNoQuestion(FN_HAS_ALCOHOL_SUBSTANCE_DEPENDENCE);
     multiChoiceQuestion(FN_SMOKING_STATUS, N_SMOKING_STATUS_VALUES);
     doubleQuestion(FN_ALCOHOL_UNITS_PER_WEEK, 0, 2000,
