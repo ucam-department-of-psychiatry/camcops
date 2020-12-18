@@ -2986,3 +2986,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - **New task:** :ref:`Routine Assessment of Patient Index Data (RAPID3)
   <rapid3>`. (Database revision 0055.)
+
+- Usability improvements to :ref:`Khandaker GM — MOJO — Medical questionnaire
+  <khandaker_mojo_medical>` and :ref:`Khandaker GM — MOJO — Medications and therapies
+  <khandaker_mojo_medicationtherapy>`. (Database revisions 0056-0057)
