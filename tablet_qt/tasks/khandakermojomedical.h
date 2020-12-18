@@ -25,6 +25,7 @@
 class CamcopsApp;
 class OpenableWidget;
 class Questionnaire;
+class QuGridContainer;
 class TaskFactory;
 
 void initializeKhandakerMojoMedical(TaskFactory& factory);
@@ -82,6 +83,10 @@ protected:
 
     FieldRefPtr m_fr_diagnosis_date;
     FieldRefPtr m_fr_diagnosis_years;
+
+private:
+    QuGridContainer* getDiagnosisDateGrid();
+
 public:
     static const QString KHANDAKERMOJOMEDICAL_TABLENAME;
 };

@@ -2974,12 +2974,19 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Bugfix where the names of patients with no surname were not displayed.
 
-- **New task:** :ref:`Bath Ankylosing Spondylitis Disease Activity Index (BASDAI) <basdai>`.
-  (Database revision 0053.)
+- **New task:** :ref:`Bath Ankylosing Spondylitis Disease Activity Index
+  (BASDAI) <basdai>`. (Database revision 0053.)
 
 - Bugfix to :ref:`GMC Patient Questionnaire <gmcpq>` such that 'X' is now a
   permitted value for q10 (Sex) on the server, in line with the app.
   (Database revision 0054.)
 
-- **New task:** :ref:`Routine Assessment of Patient Index Data (RAPID3) <rapid3>`.
-  (Database revision 0055.)
+- compilation error fix - cryptofunc - error: ‘runtime_error’ is not a member
+  of ‘std’
+
+- **New task:** :ref:`Routine Assessment of Patient Index Data (RAPID3)
+  <rapid3>`. (Database revision 0055.)
+
+- Usability improvements to :ref:`Khandaker GM — MOJO — Medical questionnaire
+  <khandaker_mojo_medical>` and :ref:`Khandaker GM — MOJO — Medications and therapies
+  <khandaker_mojo_medicationtherapy>`. (Database revisions 0056-0057)
