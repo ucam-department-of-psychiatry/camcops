@@ -18,9 +18,12 @@
 */
 
 #include <QDialogButtonBox>
+#include <QGuiApplication>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QFormLayout>
+#include <QRect>
+#include <QScreen>
 #include <QUrl>
 #include "common/varconst.h"
 #include "lib/uifunc.h"
@@ -34,7 +37,6 @@ PatientRegistrationDialog::PatientRegistrationDialog(QWidget* parent) :
     QDialog(parent)
 {
     setWindowTitle(tr("Registration"));
-    setMinimumSize(uifunc::minimumSizeForTitle(this));
 
     m_editor_server_url = new ValidatingLineEdit(new UrlValidator());
     m_editor_server_url->setInputMethodHints(Qt::ImhNoAutoUppercase |
@@ -56,24 +58,48 @@ PatientRegistrationDialog::PatientRegistrationDialog(QWidget* parent) :
 
     updateOkButtonEnabledState();
 
-    auto mainlayout = new QFormLayout();
-    mainlayout->setRowWrapPolicy(QFormLayout::WrapAllRows);
+    // If we do this the labels won't wrap properly
+    // https://bugreports.qt.io/browse/QTBUG-89805
+    // auto mainlayout = new QFormLayout();
+    // mainlayout->setRowWrapPolicy(QFormLayout::WrapAllRows);
+
+    // So we do this instead
+    auto mainlayout = new QVBoxLayout();
 
     auto server_url_label = new QLabel(
         tr("<b>CamCOPS server location</b> (e.g. https://server.example.com/camcops/api):")
     );
-    server_url_label->setWordWrap(true);
-
-    mainlayout->addRow(server_url_label, m_editor_server_url);
 
     auto patient_proquint_label = new QLabel(
         tr("<b>Access key</b> (e.g. abcde-fghij-klmno-pqrst-uvwxy-zabcd-efghi-jklmn-o):")
     );
-    patient_proquint_label->setWordWrap(true);
 
-    mainlayout->addRow(patient_proquint_label, m_editor_patient_proquint);
+    // Reinstate when QFormLayout working:
+    // mainlayout->addRow(server_url_label, m_editor_server_url);
+    // mainlayout->addRow(patient_proquint_label, m_editor_patient_proquint);
+
+    // and remove these lines:
+    mainlayout->addWidget(server_url_label);
+    mainlayout->addLayout(m_editor_server_url);
+    mainlayout->addWidget(patient_proquint_label);
+    mainlayout->addLayout(m_editor_patient_proquint);
+    mainlayout->setAlignment(Qt::AlignLeft | Qt::AlignTop);
 
     mainlayout->addWidget(m_buttonbox);
+
+    // https://stackoverflow.com/questions/18975734/how-can-i-find-the-screen-desktop-size-in-qt-so-i-can-display-a-desktop-notific
+    QScreen *screen = QGuiApplication::primaryScreen();
+    QRect  screenGeometry = screen->geometry();
+    int screen_width = screenGeometry.width();
+
+    if (server_url_label->width() > screen_width) {
+        server_url_label->setWordWrap(true);
+    }
+
+    if (patient_proquint_label->width() > screen_width) {
+        patient_proquint_label->setWordWrap(true);
+    }
+
     setLayout(mainlayout);
 }
 
