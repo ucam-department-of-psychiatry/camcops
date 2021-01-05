@@ -45,6 +45,7 @@ ValidatingLineEdit::ValidatingLineEdit(QValidator* validator, QWidget* parent) :
 
     addWidget(m_line_edit);
     addWidget(m_label);
+    setAlignment(Qt::AlignLeft | Qt::AlignTop);
 }
 
 
