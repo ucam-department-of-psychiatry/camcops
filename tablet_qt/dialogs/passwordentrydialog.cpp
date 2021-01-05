@@ -21,7 +21,7 @@
 #include <QDialogButtonBox>
 #include <QLabel>
 #include <QLineEdit>
-#include <QFormLayout>
+#include <QVBoxLayout>
 #include "lib/uifunc.h"
 
 
@@ -34,7 +34,6 @@ PasswordEntryDialog::PasswordEntryDialog(const QString& text,
     setMinimumSize(uifunc::minimumSizeForTitle(this));
 
     auto prompt = new QLabel(text);
-    prompt->setWordWrap(true);
 
     m_editor = new QLineEdit();
     m_editor->setEchoMode(QLineEdit::Password);
@@ -46,10 +45,15 @@ PasswordEntryDialog::PasswordEntryDialog(const QString& text,
     connect(buttonbox, &QDialogButtonBox::rejected,
             this, &PasswordEntryDialog::reject);
 
-    auto mainlayout = new QFormLayout();
-    mainlayout->setRowWrapPolicy(QFormLayout::WrapAllRows);
-    mainlayout->addRow(prompt, m_editor);
+    auto mainlayout = new QVBoxLayout();
+    mainlayout->addWidget(prompt);
+    mainlayout->addWidget(m_editor);
     mainlayout->addWidget(buttonbox);
+
+    if (prompt->width() > uifunc::screenWidth()) {
+        prompt->setWordWrap(true);
+    }
+
     setLayout(mainlayout);
 }
 

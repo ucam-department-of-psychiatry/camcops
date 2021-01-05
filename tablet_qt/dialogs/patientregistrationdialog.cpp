@@ -18,12 +18,9 @@
 */
 
 #include <QDialogButtonBox>
-#include <QGuiApplication>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QFormLayout>
-#include <QRect>
-#include <QScreen>
 #include <QUrl>
 #include "common/varconst.h"
 #include "lib/uifunc.h"
@@ -87,10 +84,7 @@ PatientRegistrationDialog::PatientRegistrationDialog(QWidget* parent) :
 
     mainlayout->addWidget(m_buttonbox);
 
-    // https://stackoverflow.com/questions/18975734/how-can-i-find-the-screen-desktop-size-in-qt-so-i-can-display-a-desktop-notific
-    QScreen *screen = QGuiApplication::primaryScreen();
-    QRect  screenGeometry = screen->geometry();
-    int screen_width = screenGeometry.width();
+    int screen_width = uifunc::screenWidth();
 
     if (server_url_label->width() > screen_width) {
         server_url_label->setWordWrap(true);

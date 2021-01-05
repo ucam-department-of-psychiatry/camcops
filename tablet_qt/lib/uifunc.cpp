@@ -28,6 +28,7 @@
 #include <QDebug>
 #include <QDesktopServices>
 #include <QDialog>
+#include <QGuiApplication>
 #include <QLabel>
 #include <QLayout>
 #include <QObject>
@@ -36,6 +37,8 @@
 #include <QPixmapCache>
 #include <QPlainTextEdit>
 #include <QPushButton>
+#include <QRect>
+#include <QScreen>
 #include <QScrollBar>
 #include <QScroller>
 #include <QStyle>
@@ -927,6 +930,24 @@ QSize minimumSizeForTitle(const QDialog* dialog,
             << ", size = " << size;
 #endif
     return size;
+}
+
+QRect screenGeometry()
+{
+    // https://stackoverflow.com/questions/18975734/how-can-i-find-the-screen-desktop-size-in-qt-so-i-can-display-a-desktop-notific
+    QScreen *screen = QGuiApplication::primaryScreen();
+
+    return screen->geometry();
+}
+
+int screenWidth()
+{
+    return screenGeometry().width();
+}
+
+int screenHeight()
+{
+    return screenGeometry().height();
 }
 
 
