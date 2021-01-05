@@ -49,6 +49,7 @@ PasswordEntryDialog::PasswordEntryDialog(const QString& text,
     mainlayout->addWidget(prompt);
     mainlayout->addWidget(m_editor);
     mainlayout->addWidget(buttonbox);
+    mainlayout->setAlignment(Qt::AlignLeft | Qt::AlignTop);
 
     if (prompt->width() > uifunc::screenWidth()) {
         prompt->setWordWrap(true);
