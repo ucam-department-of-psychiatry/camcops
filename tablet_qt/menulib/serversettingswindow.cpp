@@ -143,6 +143,8 @@ OpenableWidget* ServerSettingsWindow::editor()
                 stringfunc::makeTitle(address_t, address_h, true),
                 (new QuLineEdit(address_fr))->setHint(
                     stringfunc::makeHint(address_t, address_h))
+                    ->setWidgetInputMethodHints(Qt::ImhNoAutoUppercase |
+                                                Qt::ImhNoPredictiveText)
             },
             {
                 stringfunc::makeTitle(port_t, port_h, true),
@@ -152,8 +154,9 @@ OpenableWidget* ServerSettingsWindow::editor()
             {
                 stringfunc::makeTitle(path_t, path_h, true),
                 (new QuLineEdit(path_fr))->setHint(
-                    stringfunc::makeHint(path_t, path_h)
-                )
+                    stringfunc::makeHint(path_t, path_h))
+                    ->setWidgetInputMethodHints(Qt::ImhNoAutoUppercase |
+                                                Qt::ImhNoPredictiveText)
             },
             {
                 stringfunc::makeTitle(timeout_t, timeout_h, true),
