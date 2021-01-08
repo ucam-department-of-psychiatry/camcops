@@ -26,6 +26,7 @@
 #include "common/varconst.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
+#include "widgets/labelwordwrapdialog.h"
 
 
 ModeDialog::ModeDialog(const int previous_choice,
@@ -40,7 +41,7 @@ ModeDialog::ModeDialog(const int previous_choice,
     setWindowTitle(tr("Select clinician or single user mode"));
     setMinimumSize(uifunc::minimumSizeForTitle(this));
 
-    auto prompt = new QLabel(tr("I would like to use CamCOPS as a:"));
+    auto prompt = new LabelWordWrapDialog(tr("I would like to use CamCOPS as a:"));
     const QString single_user_text = tr("single user");
     const QString clinician_text = tr(
         "clinician/researcher, with multiple patients/participants");
@@ -53,7 +54,7 @@ ModeDialog::ModeDialog(const int previous_choice,
     m_mode_selector->addButton(single_user_button, varconst::MODE_SINGLE_USER);
     m_mode_selector->addButton(clinician_button, varconst::MODE_CLINICIAN);
 
-    auto prompt2 = new QLabel(
+    auto prompt2 = new LabelWordWrapDialog(
         tr("If you are not sure, choose") + " " +
         stringfunc::bold(single_user_text)
     );
@@ -72,6 +73,8 @@ ModeDialog::ModeDialog(const int previous_choice,
     mainlayout->addWidget(clinician_button);
     mainlayout->addWidget(prompt2);
     mainlayout->addWidget(buttonbox);
+    mainlayout->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+
     setLayout(mainlayout);
 }
 
