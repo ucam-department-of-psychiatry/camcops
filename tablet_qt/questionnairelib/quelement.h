@@ -76,6 +76,11 @@ public:
     // layout that contains it (e.g. QuPage, QuGridContainer...).
     Qt::Alignment getWidgetAlignment() const;
 
+    // Sets the input method hints on the widget, useful for turning off
+    // auto capitalization etc
+    QuElement* setWidgetInputMethodHints(Qt::InputMethodHints hints);
+
+
 signals:
     // Emitted when the data represented by the element changes.
     // Connects to QuPage::elementValueChanged(),
@@ -125,6 +130,7 @@ protected:
     QStringList m_tags;  // our tags
     bool m_visible;  // are we visible?
     Qt::Alignment m_widget_alignment;  // intended alignment of widget in layout
+    Qt::InputMethodHints m_widget_input_method_hints;
 };
 
 
