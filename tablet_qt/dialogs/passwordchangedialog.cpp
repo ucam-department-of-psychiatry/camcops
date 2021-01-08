@@ -23,6 +23,8 @@
 #include <QLineEdit>
 #include <QVBoxLayout>
 #include "lib/uifunc.h"
+#include "widgets/labelwordwrapdialog.h"
+
 
 const int MINIMUM_PASSWORD_LENGTH = 8;
 
@@ -40,16 +42,17 @@ PasswordChangeDialog::PasswordChangeDialog(const QString& text,
 
     auto mainlayout = new QVBoxLayout();
 
-    auto prompt = new QLabel(text);
+    auto prompt = new LabelWordWrapDialog(text);
     mainlayout->addWidget(prompt);
 
     if (require_old_password) {
-        mainlayout->addWidget(new QLabel(tr("Enter old password:")));
+        mainlayout->addWidget(new LabelWordWrapDialog(tr("Enter old password:")));
         m_editor_old = new QLineEdit();
         m_editor_old->setEchoMode(QLineEdit::Password);
         mainlayout->addWidget(m_editor_old);
     }
-    mainlayout->addWidget(new QLabel(tr("Enter new password:")));
+
+    mainlayout->addWidget(new LabelWordWrapDialog(tr("Enter new password:")));
     m_editor_new1 = new QLineEdit();
     m_editor_new1->setEchoMode(QLineEdit::Password);
     m_editor_new1->setPlaceholderText(
@@ -57,7 +60,9 @@ PasswordChangeDialog::PasswordChangeDialog(const QString& text,
     );
     mainlayout->addWidget(m_editor_new1);
 
-    mainlayout->addWidget(new QLabel(tr("Enter new password again for confirmation:")));
+    mainlayout->addWidget(new LabelWordWrapDialog(
+        tr("Enter new password again for confirmation:")
+    ));
     m_editor_new2 = new QLineEdit();
     m_editor_new2->setEchoMode(QLineEdit::Password);
     mainlayout->addWidget(m_editor_new2);
@@ -69,6 +74,7 @@ PasswordChangeDialog::PasswordChangeDialog(const QString& text,
     connect(buttonbox, &QDialogButtonBox::rejected,
             this, &PasswordChangeDialog::reject);
     mainlayout->addWidget(buttonbox);
+    mainlayout->setAlignment(Qt::AlignLeft | Qt::AlignTop);
 
     setLayout(mainlayout);
 }

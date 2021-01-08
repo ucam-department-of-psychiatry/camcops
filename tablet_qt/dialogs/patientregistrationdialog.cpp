@@ -26,7 +26,9 @@
 #include "lib/uifunc.h"
 #include "qobjects/proquintvalidator.h"
 #include "qobjects/urlvalidator.h"
+#include "widgets/labelwordwrapdialog.h"
 #include "widgets/validatinglineedit.h"
+
 #include "patientregistrationdialog.h"
 
 
@@ -63,11 +65,11 @@ PatientRegistrationDialog::PatientRegistrationDialog(QWidget* parent) :
     // So we do this instead
     auto mainlayout = new QVBoxLayout();
 
-    auto server_url_label = new QLabel(
+    auto server_url_label = new LabelWordWrapDialog(
         tr("<b>CamCOPS server location</b> (e.g. https://server.example.com/camcops/api):")
     );
 
-    auto patient_proquint_label = new QLabel(
+    auto patient_proquint_label = new LabelWordWrapDialog(
         tr("<b>Access key</b> (e.g. abcde-fghij-klmno-pqrst-uvwxy-zabcd-efghi-jklmn-o):")
     );
 
@@ -83,16 +85,6 @@ PatientRegistrationDialog::PatientRegistrationDialog(QWidget* parent) :
     mainlayout->setAlignment(Qt::AlignLeft | Qt::AlignTop);
 
     mainlayout->addWidget(m_buttonbox);
-
-    int screen_width = uifunc::screenWidth();
-
-    if (server_url_label->width() > screen_width) {
-        server_url_label->setWordWrap(true);
-    }
-
-    if (patient_proquint_label->width() > screen_width) {
-        patient_proquint_label->setWordWrap(true);
-    }
 
     setLayout(mainlayout);
 }

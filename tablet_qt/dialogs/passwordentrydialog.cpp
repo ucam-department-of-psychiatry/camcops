@@ -23,6 +23,7 @@
 #include <QLineEdit>
 #include <QVBoxLayout>
 #include "lib/uifunc.h"
+#include "widgets/labelwordwrapdialog.h"
 
 
 PasswordEntryDialog::PasswordEntryDialog(const QString& text,
@@ -33,7 +34,7 @@ PasswordEntryDialog::PasswordEntryDialog(const QString& text,
     setWindowTitle(title);
     setMinimumSize(uifunc::minimumSizeForTitle(this));
 
-    auto prompt = new QLabel(text);
+    auto prompt = new LabelWordWrapDialog(text);
 
     m_editor = new QLineEdit();
     m_editor->setEchoMode(QLineEdit::Password);
@@ -50,10 +51,6 @@ PasswordEntryDialog::PasswordEntryDialog(const QString& text,
     mainlayout->addWidget(m_editor);
     mainlayout->addWidget(buttonbox);
     mainlayout->setAlignment(Qt::AlignLeft | Qt::AlignTop);
-
-    if (prompt->width() > uifunc::screenWidth()) {
-        prompt->setWordWrap(true);
-    }
 
     setLayout(mainlayout);
 }
