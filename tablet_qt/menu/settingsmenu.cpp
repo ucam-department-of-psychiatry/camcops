@@ -416,7 +416,10 @@ OpenableWidget* SettingsMenu::configureUser(CamcopsApp& app)
         row, 0));
     g->addCell(QuGridCell(
         (new QuLineEdit(username_fr))
-            ->setHint(username_t),
+            ->setHint(username_t)
+            ->setWidgetInputMethodHints(
+                Qt::ImhNoAutoUppercase | Qt::ImhNoPredictiveText
+            ),
         row, 1));
     ++row;
     if (storing_password) {
