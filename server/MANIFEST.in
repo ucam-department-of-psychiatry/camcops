@@ -56,10 +56,16 @@ include camcops_server/alembic/versions/0049_patient_unique_constraint.py
 include camcops_server/alembic/versions/0050_patient_email.py
 include camcops_server/alembic/versions/0051_auto_generated_user.py
 include camcops_server/alembic/versions/0052_group_ip_use.py
+include camcops_server/alembic/versions/0053_basdai.py
+include camcops_server/alembic/versions/0054_gmcpq_sex_choices.py
+include camcops_server/alembic/versions/0055_rapid3.py
+include camcops_server/alembic/versions/0056_mojo_medical_infection_fields.py
+include camcops_server/alembic/versions/0057_mojo_medication_to_brand_name.py
 include camcops_server/alembic/versions/__init__.py
 include camcops_server/extra_string_templates/BLANK_TEMPLATE.xml
 include camcops_server/extra_string_templates/asdas_TEMPLATE.xml
 include camcops_server/extra_string_templates/badls_TEMPLATE.xml
+include camcops_server/extra_string_templates/basdai_TEMPLATE.xml
 include camcops_server/extra_string_templates/chit_TEMPLATE.xml
 include camcops_server/extra_string_templates/ctqsf_TEMPLATE.xml
 include camcops_server/extra_string_templates/dad_TEMPLATE.xml
@@ -75,6 +81,7 @@ include camcops_server/extra_string_templates/lynall_iam_life_TEMPLATE.xml
 include camcops_server/extra_string_templates/npiq_TEMPLATE.xml
 include camcops_server/extra_string_templates/ors_TEMPLATE.xml
 include camcops_server/extra_string_templates/pdss_TEMPLATE.xml
+include camcops_server/extra_string_templates/rapid3_TEMPLATE.xml
 include camcops_server/extra_string_templates/sfmpq2_TEMPLATE.xml
 include camcops_server/extra_string_templates/shaps_TEMPLATE.xml
 include camcops_server/extra_string_templates/srs_TEMPLATE.xml
@@ -310,3 +317,4 @@ include camcops_server/templates/test/inherit_cache_test_parent.mako
 include camcops_server/templates/test/testpage.mako
 include camcops_server/translations/.gitignore
 include camcops_server/translations/da_DK/LC_MESSAGES/camcops.mo
+include camcops_server/translations/da_DK/LC_MESSAGES/camcops_da_DK.mo
