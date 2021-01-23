@@ -54,6 +54,8 @@ Tasks
 
 - PDSQ screener (see Clark talk 2018-09-20, MQ Data Science)
 
+- For computational fitting work, see https://lbfgspp.statr.me/
+
 
 **Consider**
 
