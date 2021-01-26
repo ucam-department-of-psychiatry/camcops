@@ -68,12 +68,10 @@ PatientRegistrationDialog::PatientRegistrationDialog(QWidget* parent) :
     auto server_url_label = new QLabel(
         tr("<b>CamCOPS server location</b> (e.g. https://server.example.com/camcops/api):")
     );
-    server_url_label->setWordWrap(true);
 
     auto patient_proquint_label = new QLabel(
         tr("<b>Access key</b> (e.g. abcde-fghij-klmno-pqrst-uvwxy-zabcd-efghi-jklmn-o):")
     );
-    patient_proquint_label->setWordWrap(true);
 
     // Reinstate when QFormLayout working:
     // mainlayout->addRow(server_url_label, m_editor_server_url);
@@ -84,10 +82,14 @@ PatientRegistrationDialog::PatientRegistrationDialog(QWidget* parent) :
     mainlayout->addLayout(m_editor_server_url);
     mainlayout->addWidget(patient_proquint_label);
     mainlayout->addLayout(m_editor_patient_proquint);
-    // Push widgets to the top on iOS
-    mainlayout->addStretch(1);
 
     mainlayout->addWidget(m_buttonbox);
+
+#ifdef Q_OS_IOS
+    server_url_label->setWordWrap(true);
+    patient_proquint_label->setWordWrap(true);
+    mainlayout->addStretch(1);
+#endif
 
     setLayout(mainlayout);
 }

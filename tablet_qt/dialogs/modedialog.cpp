@@ -43,7 +43,6 @@ ModeDialog::ModeDialog(const int previous_choice,
     // setMinimumSize(uifunc::minimumSizeForTitle(this));
 
     auto prompt = new QLabel(tr("I would like to use CamCOPS as a:"));
-    prompt->setWordWrap(true);
     const QString single_user_text = tr("single user");
     const QString clinician_text = tr(
         "clinician/researcher, with multiple patients/participants");
@@ -61,7 +60,6 @@ ModeDialog::ModeDialog(const int previous_choice,
         tr("If you are not sure, choose") + " " +
         stringfunc::bold(single_user_text)
     );
-    prompt2->setWordWrap(true);
 
     QDialogButtonBox::StandardButtons buttons = QDialogButtonBox::Ok;
     if (offer_cancel) {
@@ -77,8 +75,13 @@ ModeDialog::ModeDialog(const int previous_choice,
     mainlayout->addWidget(clinician_button);
     mainlayout->addWidget(prompt2);
     mainlayout->addWidget(buttonbox);
-    // Push widgets to the top on iOS
+
+#ifdef Q_OS_IOS
+    // Dialogs are full screen on iOS
+    prompt->setWordWrap(true);
+    prompt2->setWordWrap(true);
     mainlayout->addStretch(1);
+#endif
 
     setLayout(mainlayout);
 }

@@ -42,12 +42,13 @@ PasswordChangeDialog::PasswordChangeDialog(const QString& text,
     auto mainlayout = new QVBoxLayout();
 
     auto prompt = new QLabel(text);
-    prompt->setWordWrap(true);
     mainlayout->addWidget(prompt);
 
     if (require_old_password) {
         auto prompt_old = new QLabel(tr("Enter old password:"));
+#ifdef Q_OS_IOS
         prompt_old->setWordWrap(true);
+#endif
         mainlayout->addWidget(prompt_old);
         m_editor_old = new QLineEdit();
         m_editor_old->setEchoMode(QLineEdit::Password);
@@ -55,7 +56,6 @@ PasswordChangeDialog::PasswordChangeDialog(const QString& text,
     }
 
     auto prompt_new1 = new QLabel(tr("Enter new password:"));
-    prompt_new1->setWordWrap(true);
     mainlayout->addWidget(prompt_new1);
     m_editor_new1 = new QLineEdit();
     m_editor_new1->setEchoMode(QLineEdit::Password);
@@ -78,8 +78,13 @@ PasswordChangeDialog::PasswordChangeDialog(const QString& text,
     connect(buttonbox, &QDialogButtonBox::rejected,
             this, &PasswordChangeDialog::reject);
     mainlayout->addWidget(buttonbox);
-    // Push widgets to the top on iOS
+
+#ifdef Q_OS_IOS
+    // Dialogs are full screen on iOS
+    prompt->setWordWrap(true);
+    prompt_new1->setWordWrap(true);
     mainlayout->addStretch(1);
+#endif
 
     setLayout(mainlayout);
 }

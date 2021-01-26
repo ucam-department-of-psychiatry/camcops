@@ -65,7 +65,9 @@ ScrollMessageBox::ScrollMessageBox(const QMessageBox::Icon& icon,
     setWindowTitle(title);
 
     m_text_label = new QLabel(text);
+#ifdef Q_OS_IOS
     m_text_label->setWordWrap(true);
+#endif
     m_text_label->setTextInteractionFlags(Qt::NoTextInteraction);
     // m_text_label->setTextInteractionFlags(Qt::TextInteractionFlags(
     //         style()->styleHint(

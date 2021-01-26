@@ -34,7 +34,6 @@ PasswordEntryDialog::PasswordEntryDialog(const QString& text,
     setMinimumSize(uifunc::minimumSizeForTitle(this));
 
     auto prompt = new QLabel(text);
-    prompt->setWordWrap(true);
 
     m_editor = new QLineEdit();
     m_editor->setEchoMode(QLineEdit::Password);
@@ -50,8 +49,11 @@ PasswordEntryDialog::PasswordEntryDialog(const QString& text,
     mainlayout->addWidget(prompt);
     mainlayout->addWidget(m_editor);
     mainlayout->addWidget(buttonbox);
-    // Push widgets to the top on iOS
+
+#ifdef Q_OS_IOS
+    prompt->setWordWrap(true);
     mainlayout->addStretch(1);
+#endif
 
     setLayout(mainlayout);
 }
