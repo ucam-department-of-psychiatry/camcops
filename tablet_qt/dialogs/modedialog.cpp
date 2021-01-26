@@ -19,14 +19,15 @@
 
 #include "modedialog.h"
 #include <QButtonGroup>
+#include <QDebug>
 #include <QDialogButtonBox>
 #include <QLabel>
 #include <QRadioButton>
 #include <QVBoxLayout>
 #include "common/varconst.h"
+#include "lib/layoutdumper.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
-#include "widgets/labelwordwrapdialog.h"
 
 
 ModeDialog::ModeDialog(const int previous_choice,
@@ -39,25 +40,28 @@ ModeDialog::ModeDialog(const int previous_choice,
     const bool offer_cancel = previous_choice != varconst::MODE_NOT_SET;
 
     setWindowTitle(tr("Select clinician or single user mode"));
-    setMinimumSize(uifunc::minimumSizeForTitle(this));
+    // setMinimumSize(uifunc::minimumSizeForTitle(this));
 
-    auto prompt = new LabelWordWrapDialog(tr("I would like to use CamCOPS as a:"));
+    auto prompt = new QLabel(tr("I would like to use CamCOPS as a:"));
+    prompt->setWordWrap(true);
     const QString single_user_text = tr("single user");
     const QString clinician_text = tr(
         "clinician/researcher, with multiple patients/participants");
 
     auto single_user_button = new QRadioButton(single_user_text);
     single_user_button->setChecked(default_choice == varconst::MODE_SINGLE_USER);
+
     auto clinician_button = new QRadioButton(clinician_text);
     clinician_button->setChecked(default_choice == varconst::MODE_CLINICIAN);
     m_mode_selector = new QButtonGroup();
     m_mode_selector->addButton(single_user_button, varconst::MODE_SINGLE_USER);
     m_mode_selector->addButton(clinician_button, varconst::MODE_CLINICIAN);
 
-    auto prompt2 = new LabelWordWrapDialog(
+    auto prompt2 = new QLabel(
         tr("If you are not sure, choose") + " " +
         stringfunc::bold(single_user_text)
     );
+    prompt2->setWordWrap(true);
 
     QDialogButtonBox::StandardButtons buttons = QDialogButtonBox::Ok;
     if (offer_cancel) {
@@ -73,7 +77,8 @@ ModeDialog::ModeDialog(const int previous_choice,
     mainlayout->addWidget(clinician_button);
     mainlayout->addWidget(prompt2);
     mainlayout->addWidget(buttonbox);
-    mainlayout->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+    // Push widgets to the top on iOS
+    mainlayout->addStretch(1);
 
     setLayout(mainlayout);
 }

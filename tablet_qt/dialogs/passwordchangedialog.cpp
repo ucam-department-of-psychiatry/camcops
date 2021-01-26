@@ -23,7 +23,6 @@
 #include <QLineEdit>
 #include <QVBoxLayout>
 #include "lib/uifunc.h"
-#include "widgets/labelwordwrapdialog.h"
 
 
 const int MINIMUM_PASSWORD_LENGTH = 8;
@@ -42,17 +41,22 @@ PasswordChangeDialog::PasswordChangeDialog(const QString& text,
 
     auto mainlayout = new QVBoxLayout();
 
-    auto prompt = new LabelWordWrapDialog(text);
+    auto prompt = new QLabel(text);
+    prompt->setWordWrap(true);
     mainlayout->addWidget(prompt);
 
     if (require_old_password) {
-        mainlayout->addWidget(new LabelWordWrapDialog(tr("Enter old password:")));
+        auto prompt_old = new QLabel(tr("Enter old password:"));
+        prompt_old->setWordWrap(true);
+        mainlayout->addWidget(prompt_old);
         m_editor_old = new QLineEdit();
         m_editor_old->setEchoMode(QLineEdit::Password);
         mainlayout->addWidget(m_editor_old);
     }
 
-    mainlayout->addWidget(new LabelWordWrapDialog(tr("Enter new password:")));
+    auto prompt_new1 = new QLabel(tr("Enter new password:"));
+    prompt_new1->setWordWrap(true);
+    mainlayout->addWidget(prompt_new1);
     m_editor_new1 = new QLineEdit();
     m_editor_new1->setEchoMode(QLineEdit::Password);
     m_editor_new1->setPlaceholderText(
@@ -60,9 +64,9 @@ PasswordChangeDialog::PasswordChangeDialog(const QString& text,
     );
     mainlayout->addWidget(m_editor_new1);
 
-    mainlayout->addWidget(new LabelWordWrapDialog(
-        tr("Enter new password again for confirmation:")
-    ));
+    auto prompt_new2 = new QLabel(tr("Enter new password again for confirmation:"));
+
+    mainlayout->addWidget(prompt_new2);
     m_editor_new2 = new QLineEdit();
     m_editor_new2->setEchoMode(QLineEdit::Password);
     mainlayout->addWidget(m_editor_new2);
@@ -74,7 +78,8 @@ PasswordChangeDialog::PasswordChangeDialog(const QString& text,
     connect(buttonbox, &QDialogButtonBox::rejected,
             this, &PasswordChangeDialog::reject);
     mainlayout->addWidget(buttonbox);
-    mainlayout->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+    // Push widgets to the top on iOS
+    mainlayout->addStretch(1);
 
     setLayout(mainlayout);
 }

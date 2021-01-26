@@ -954,7 +954,6 @@ SOURCES += \
     widgets/heightforwidthlistwidget.cpp \
     widgets/horizontalline.cpp \
     widgets/imagebutton.cpp \
-    widgets/labelwordwrapdialog.cpp \
     widgets/labelwordwrapwide.cpp \
     widgets/openablewidget.cpp \
     widgets/screenlikegraphicsview.cpp \
@@ -1422,7 +1421,6 @@ HEADERS += \
     widgets/heightforwidthlistwidget.h \
     widgets/horizontalline.h \
     widgets/imagebutton.h \
-    widgets/labelwordwrapdialog.h \
     widgets/labelwordwrapwide.h \
     widgets/openablewidget.h \
     widgets/screenlikegraphicsview.h \

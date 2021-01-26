@@ -18,6 +18,7 @@
 */
 
 #include <QDialogButtonBox>
+#include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QFormLayout>
@@ -26,7 +27,6 @@
 #include "lib/uifunc.h"
 #include "qobjects/proquintvalidator.h"
 #include "qobjects/urlvalidator.h"
-#include "widgets/labelwordwrapdialog.h"
 #include "widgets/validatinglineedit.h"
 
 #include "patientregistrationdialog.h"
@@ -65,13 +65,15 @@ PatientRegistrationDialog::PatientRegistrationDialog(QWidget* parent) :
     // So we do this instead
     auto mainlayout = new QVBoxLayout();
 
-    auto server_url_label = new LabelWordWrapDialog(
+    auto server_url_label = new QLabel(
         tr("<b>CamCOPS server location</b> (e.g. https://server.example.com/camcops/api):")
     );
+    server_url_label->setWordWrap(true);
 
-    auto patient_proquint_label = new LabelWordWrapDialog(
+    auto patient_proquint_label = new QLabel(
         tr("<b>Access key</b> (e.g. abcde-fghij-klmno-pqrst-uvwxy-zabcd-efghi-jklmn-o):")
     );
+    patient_proquint_label->setWordWrap(true);
 
     // Reinstate when QFormLayout working:
     // mainlayout->addRow(server_url_label, m_editor_server_url);
@@ -82,7 +84,8 @@ PatientRegistrationDialog::PatientRegistrationDialog(QWidget* parent) :
     mainlayout->addLayout(m_editor_server_url);
     mainlayout->addWidget(patient_proquint_label);
     mainlayout->addLayout(m_editor_patient_proquint);
-    mainlayout->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+    // Push widgets to the top on iOS
+    mainlayout->addStretch(1);
 
     mainlayout->addWidget(m_buttonbox);
 

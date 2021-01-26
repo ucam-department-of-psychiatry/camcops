@@ -24,7 +24,6 @@
 #include <QVBoxLayout>
 #include "common/textconst.h"
 #include "lib/uifunc.h"
-#include "widgets/labelwordwrapdialog.h"
 
 
 DangerousConfirmationDialog::DangerousConfirmationDialog(
@@ -36,11 +35,13 @@ DangerousConfirmationDialog::DangerousConfirmationDialog(
     setWindowTitle(title);
     setMinimumSize(uifunc::minimumSizeForTitle(this));
 
-    auto prompt = new LabelWordWrapDialog(text);
-    auto prompt2 = new LabelWordWrapDialog(
+    auto prompt = new QLabel(text);
+    prompt->setWordWrap(true);
+    auto prompt2 = new QLabel(
         //: This will expand to: If you are sure, enter *Yes* here
         tr("If you are sure, enter <b>%1</b> here").arg(TextConst::yes())
     );
+    prompt->setWordWrap(true);
 
     m_editor = new QLineEdit();
 
@@ -56,7 +57,8 @@ DangerousConfirmationDialog::DangerousConfirmationDialog(
     mainlayout->addWidget(prompt2);
     mainlayout->addWidget(m_editor);
     mainlayout->addWidget(buttonbox);
-    mainlayout->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+    // Push widgets to the top on iOS
+    mainlayout->addStretch(1);
 
     setLayout(mainlayout);
 }
