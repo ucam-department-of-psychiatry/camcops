@@ -942,6 +942,7 @@ SOURCES += \
     widgets/cameraqcamera.cpp \
     widgets/cameraqml.cpp \
     widgets/canvaswidget.cpp \
+    widgets/clickablelabel.cpp \
     widgets/clickablelabelnowrap.cpp \
     widgets/clickablelabelwordwrapwide.cpp \
     widgets/diagnosticcodeselector.cpp \
@@ -956,6 +957,7 @@ SOURCES += \
     widgets/imagebutton.cpp \
     widgets/labelwordwrapwide.cpp \
     widgets/openablewidget.cpp \
+    widgets/radiobuttonwordwrap.cpp \
     widgets/screenlikegraphicsview.cpp \
     widgets/spacer.cpp \
     widgets/svgwidgetclickable.cpp \
@@ -1409,6 +1411,7 @@ HEADERS += \
     widgets/cameraqcamera.h \
     widgets/cameraqml.h \
     widgets/canvaswidget.h \
+    widgets/clickablelabel.h \
     widgets/clickablelabelnowrap.h \
     widgets/clickablelabelwordwrapwide.h \
     widgets/diagnosticcodeselector.h \
@@ -1423,6 +1426,7 @@ HEADERS += \
     widgets/imagebutton.h \
     widgets/labelwordwrapwide.h \
     widgets/openablewidget.h \
+    widgets/radiobuttonwordwrap.h \
     widgets/screenlikegraphicsview.h \
     widgets/spacer.h \
     widgets/svgwidgetclickable.h \
