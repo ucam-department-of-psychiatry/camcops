@@ -127,15 +127,21 @@ MOBILITY =
 # Warning become errors
 gcc {
     # GCC
+    message("Compiler is GCC")
     QMAKE_CXXFLAGS += -Werror  # warnings become errors
 }
 msvc {
     # Microsoft Visual C++
+    message("Compiler is Microsoft Visual C++")
     QMAKE_CXXFLAGS += /W3
         # ... /W4 is the highest level of warnings bar "/Wall"
         # ... but we get "D9025: overriding '/W4' with '/W3'"
     QMAKE_CXXFLAGS += /WX  # treat warnings as errors
     # QMAKE_CXXFLAGS += /showIncludes  # if you think the wrong ones are being included!
+}
+clang {
+    message("Compiler is clang")
+    QMAKE_CXXFLAGS += -Werror  # warnings become errors
 }
 
 # Until we use a version of Qt that can cope, disable "-Werror=deprecated-copy".
@@ -143,8 +149,10 @@ msvc {
 # https://stackoverflow.com/questions/925179/selectively-remove-warning-message-gcc
 # (This problem arose on 2020-06-29 with Ubuntu 20.04 which brought gcc 9.3.0.)
 # 2021-02-05: also true of clang v10.0.0.
-if (linux-gcc | linux-clang) {
-    QMAKE_CXXFLAGS += -Wno-deprecated-copy
+if (gcc | clang) {
+    if (!ios) {
+        QMAKE_CXXFLAGS += -Wno-deprecated-copy
+    }
 }
 
 # In release mode, optimize heavily:

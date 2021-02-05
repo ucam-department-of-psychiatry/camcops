@@ -40,18 +40,15 @@
 
 #if defined __clang__  // NB defined in Qt Creator; put this first for that reason
     #define COMPILER_IS_CLANG
-    // #pragma message("Compiler is clang v" PREPROCESSOR_STRING(__clang_major__) "." PREPROCESSOR_STRING(__clang_minor__) "." PREPROCESSOR_STRING(__clang_patchlevel__))
     #if __clang_major__ >= 10
         #define CLANG_AT_LEAST_10
     #endif
 #elif defined __GNUC__  // __GNUC__ is defined for GCC and clang
     #define COMPILER_IS_GCC
-    // #pragma message("Compiler is GCC v" PREPROCESSOR_STRING(__GNUC__) "." PREPROCESSOR_STRING(__GNUC_MINOR__))
     #if __GNUC__ >= 7  // gcc >= 7.0
         #define GCC_AT_LEAST_7
     #endif
 #elif defined _MSC_VER
-    // #pragma message("Compiler is MSC v" PREPROCESSOR_STRING(_MSC_FULL_VER))
     #define COMPILER_IS_VISUAL_CPP
 #endif
 

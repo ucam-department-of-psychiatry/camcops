@@ -21,6 +21,7 @@
 #include <QString>
 #include <QSysInfo>
 #include <QtGlobal>
+#include "common/preprocessor_aid.h"
 
 namespace platform {
 
@@ -67,7 +68,6 @@ namespace platform {
     const bool PLATFORM_TABLET = false;
 #endif
 
-
 // https://stackoverflow.com/questions/36649393/qt-check-if-current-process-is-32-or-64-bit/41863992
 
 bool isHost64Bit()
@@ -82,6 +82,46 @@ bool isBuild64Bit()
     static const bool b = QSysInfo::buildCpuArchitecture().contains(QLatin1String("64"));
     return b;
 }
+
+
+// COMPILER_NAME_VERSION
+#if defined COMPILER_IS_GCC
+    const QString COMPILER_NAME_VERSION = QString(
+            "GNU C++ compiler (GCC) version %1.%2.%3").arg(
+            QString::number(__GNUC__),
+            QString::number(__GNUC_MINOR__),
+            QString::number(__GNUC_PATCHLEVEL__));
+#elif defined COMPILER_IS_CLANG
+    const QString COMPILER_NAME_VERSION = QString(
+            "clang version %1.%2.%3").arg(
+            QString::number(__clang_major__),
+            QString::number(__clang_minor__),
+            QString::number(__clang_patchlevel__));
+#elif defined COMPILER_IS_VISUAL_CPP
+    const QString COMPILER_NAME_VERSION = QString(
+            "Microsoft Visual C++ version %").arg(
+            QString::number(_MSC_FULL_VER));
+#else
+    const QString COMPILER_NAME_VERSION("Unknown");
+#endif
+
+
+// COMPILED_WHEN
+#ifdef DISABLE_GCC_DATE_TIME_MACRO_WARNING
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wdate-time"
+#endif
+#ifdef DISABLE_CLANG_DATE_TIME_MACRO_WARNING
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wdate-time"
+#endif
+const QString COMPILED_WHEN = QString("%1 %2").arg(__DATE__, __TIME__);
+#ifdef DISABLE_GCC_DATE_TIME_MACRO_WARNING
+    #pragma GCC diagnostic pop
+#endif
+#ifdef DISABLE_CLANG_DATE_TIME_MACRO_WARNING
+    #pragma clang diagnostic pop
+#endif
 
 
 }  // namespace platform

@@ -103,6 +103,8 @@ void HelpMenu::softwareVersions() const
     versions.append(tr("CamCOPS client change date: %1").arg(
                         camcopsversion::CAMCOPS_CLIENT_CHANGEDATE.toString(Qt::ISODate)));
     versions.append(tr("CamCOPS executable is %1-bit").arg(build64 ? "64" : "32"));
+    versions.append(tr("Compiler: %1").arg(platform::COMPILER_NAME_VERSION));
+    versions.append(tr("Compiled at: %1").arg(platform::COMPILED_WHEN));
     versions.append(newline);
 
     // ------------------------------------------------------------------------
