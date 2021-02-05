@@ -113,7 +113,7 @@ int DiagnosticCodeSet::columnCount(const QModelIndex& parent_index) const
 }
 
 
-QVariant DiagnosticCodeSet::data(const QModelIndex &index,
+QVariant DiagnosticCodeSet::data(const QModelIndex& index,
                                  const int role) const
 {
     if (!index.isValid()) {

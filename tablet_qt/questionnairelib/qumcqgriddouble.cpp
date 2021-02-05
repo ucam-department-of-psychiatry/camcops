@@ -84,7 +84,7 @@ QuMcqGridDouble* QuMcqGridDouble::setWidth(const int question_width,
 }
 
 
-QuMcqGridDouble* QuMcqGridDouble::setTitle(const QString &title)
+QuMcqGridDouble* QuMcqGridDouble::setTitle(const QString& title)
 {
     m_title = title;
     return this;

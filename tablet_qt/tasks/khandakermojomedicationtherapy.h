@@ -70,8 +70,8 @@ private:
     bool isCustomMedicationSet() const;
     QString getCustomMedicationName() const;
     QString getCustomMedicationName(const int index) const;
-    QString getOptionName(const QString &fieldname, const int index) const;
-    QString getOptionName(const QString &fieldname, const int index,
+    QString getOptionName(const QString& fieldname, const int index) const;
+    QString getOptionName(const QString& fieldname, const int index,
                           const QString default_str) const;
     void addMedicationItem(int index);
     void addTherapyItem();

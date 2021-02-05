@@ -57,8 +57,8 @@ class ClickableLabel : public QLabel {
 public:
     explicit ClickableLabel(QWidget* parent = Q_NULLPTR,
                             Qt::WindowFlags f = Qt::WindowFlags());
-    explicit ClickableLabel(const QString &text,
-                            QWidget *parent = Q_NULLPTR,
+    explicit ClickableLabel(const QString& text,
+                            QWidget* parent = Q_NULLPTR,
                             Qt::WindowFlags f = Qt::WindowFlags());
     ~ClickableLabel() override;
 

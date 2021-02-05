@@ -63,20 +63,20 @@ class RadioButtonWordWrap : public QRadioButton
     Q_PROPERTY(QString text READ text WRITE setText)
 
 public:
-    RadioButtonWordWrap(QWidget *parent = Q_NULLPTR);
-    RadioButtonWordWrap(const QString &text, QWidget *parent = Q_NULLPTR);
+    RadioButtonWordWrap(QWidget* parent = Q_NULLPTR);
+    RadioButtonWordWrap(const QString& text, QWidget* parent = Q_NULLPTR);
     ~RadioButtonWordWrap();
     bool isWordWrap() const;
     void setWordWrap(bool wordwrap);
     QString text() const;
-    void setText(const QString &text);
+    void setText(const QString& text);
     QSize sizeHint() const override;
 
 private slots:
     void labelIsClicked();
 
 protected:
-    void resizeEvent(QResizeEvent *event) override;
+    void resizeEvent(QResizeEvent* event) override;
 
 private:
     void init();

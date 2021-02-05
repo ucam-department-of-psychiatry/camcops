@@ -1108,7 +1108,7 @@ bool DatabaseManager::canReadDatabase()
 }
 
 
-bool DatabaseManager::decrypt(const QString &passphrase,
+bool DatabaseManager::decrypt(const QString& passphrase,
                               const bool migrate,
                               const int compatibility_sqlcipher_major_version)
 {

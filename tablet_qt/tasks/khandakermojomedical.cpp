@@ -301,7 +301,7 @@ OpenableWidget* KhandakerMojoMedical::editor(const bool read_only)
         page->addElement((new QuText(xstring(xstringname)))->setBold(true));
     };
 
-    auto textQuestion = [this, &page](const QString &fieldname) -> void {
+    auto textQuestion = [this, &page](const QString& fieldname) -> void {
         auto text = new QuText(xstring(Q_XML_PREFIX + fieldname));
         auto text_edit = new QuTextEdit(fieldRef(fieldname));
         auto spacer = new QuSpacer(QSize(uiconst::BIGSPACE,
@@ -316,7 +316,7 @@ OpenableWidget* KhandakerMojoMedical::editor(const bool read_only)
         page->addElement(spacer);
     };
 
-    auto multiChoiceQuestion = [this, &page](const QString &fieldname,
+    auto multiChoiceQuestion = [this, &page](const QString& fieldname,
                                              int num_options) -> void {
         page->addElement(new QuText(xstring(Q_XML_PREFIX + fieldname)));
 
@@ -328,7 +328,7 @@ OpenableWidget* KhandakerMojoMedical::editor(const bool read_only)
                                             uiconst::BIGSPACE)));
     };
 
-    auto yesNoQuestion = [this, &page](const QString &fieldname) -> void {
+    auto yesNoQuestion = [this, &page](const QString& fieldname) -> void {
         page->addElement(new QuText(xstring(Q_XML_PREFIX + fieldname)));
 
         FieldRefPtr fieldref = fieldRef(fieldname);
@@ -340,10 +340,10 @@ OpenableWidget* KhandakerMojoMedical::editor(const bool read_only)
 
     };
 
-    auto doubleQuestion = [this, &page](const QString &fieldname,
+    auto doubleQuestion = [this, &page](const QString& fieldname,
                                         const double minimum,
                                         const double maximum,
-                                        const QString &hint) -> void {
+                                        const QString& hint) -> void {
         page->addElement(new QuText(xstring(Q_XML_PREFIX + fieldname)));
 
         auto line_edit_double = new QuLineEditDouble(
@@ -555,14 +555,14 @@ void KhandakerMojoMedical::updateDurationOfIllness()
 }
 
 
-QString KhandakerMojoMedical::getOptionName(const QString &fieldname,
+QString KhandakerMojoMedical::getOptionName(const QString& fieldname,
                                             const int index) const
 {
     return xstring(QString("%1_%2").arg(fieldname).arg(index));
 }
 
 
-NameValueOptions KhandakerMojoMedical::getOptions(const QString &fieldname,
+NameValueOptions KhandakerMojoMedical::getOptions(const QString& fieldname,
                                                   const int num_options) const {
     NameValueOptions options;
     for (int i = 0; i < num_options; i++) {
