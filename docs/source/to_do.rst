@@ -47,6 +47,11 @@ Tasks
 - Lewy body dementia checklist -- need details from JO'B, as per 14 Jan 2018
   meeting.
 
+- WHODAS 2.0 (12-item)
+- RCADS-25
+- Menu: Common Measures for Collecting Mental Health Data
+  = WHODAS 2.0 (12-item), PHQ-9, GAD-7, RCADS-25
+  as per https://wellcome.org/sites/default/files/CMB-and-CMA-July-2020-pdf.pdf
 
 **Not a priority**
 
