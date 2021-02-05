@@ -54,7 +54,7 @@
 #include "clickablelabel.h"
 #include "radiobuttonwordwrap.h"
 
-RadioButtonWordWrap::RadioButtonWordWrap(QWidget *parent)
+RadioButtonWordWrap::RadioButtonWordWrap(QWidget* parent)
     : QRadioButton (parent),
     m_main_layout(new QHBoxLayout(this)),
     m_label(new ClickableLabel(this))
@@ -62,7 +62,7 @@ RadioButtonWordWrap::RadioButtonWordWrap(QWidget *parent)
     init();
 }
 
-RadioButtonWordWrap::RadioButtonWordWrap(const QString &text, QWidget *parent)
+RadioButtonWordWrap::RadioButtonWordWrap(const QString& text, QWidget* parent)
     : QRadioButton (parent),
     m_main_layout(new QHBoxLayout(this)),
     m_label(new ClickableLabel(text, this))
@@ -91,7 +91,7 @@ QString RadioButtonWordWrap::text() const
     return m_label->text();
 }
 
-void RadioButtonWordWrap::setText(const QString &text)
+void RadioButtonWordWrap::setText(const QString& text)
 {
     m_label->setText(text);
 }
@@ -112,7 +112,7 @@ void RadioButtonWordWrap::labelIsClicked()
     setChecked(!isChecked());
 }
 
-void RadioButtonWordWrap::resizeEvent(QResizeEvent *event)
+void RadioButtonWordWrap::resizeEvent(QResizeEvent* event)
 {
     QWidget::resizeEvent(event);
     updateGeometry();

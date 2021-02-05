@@ -182,7 +182,7 @@ QSize qSmartMaxSize(const QWidget* w, Qt::Alignment align = 0);
 
 int qSmartSpacing(const QLayout* layout, QStyle::PixelMetric pm);
 
-void qMaxExpCalc(int& max, bool& exp, bool &empty,
+void qMaxExpCalc(int& max, bool& exp, bool& empty,
                  int boxmax, bool boxexp, bool boxempty);
 
 

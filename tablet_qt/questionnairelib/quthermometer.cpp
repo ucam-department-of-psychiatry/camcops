@@ -127,7 +127,7 @@ void QuThermometer::thermometerSelectionChanged(int thermometer_index)
 }
 
 
-int QuThermometer::indexFromValue(const QVariant &value) const
+int QuThermometer::indexFromValue(const QVariant& value) const
 {
     if (value.isNull()) {
         return -1;

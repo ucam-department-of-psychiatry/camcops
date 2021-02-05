@@ -134,7 +134,7 @@ QString timestampDateTime(const QDateTime& dt)
 }
 
 
-QString timestampDateTime(const QVariant &dt)
+QString timestampDateTime(const QVariant& dt)
 {
     return dt.isNull() ? UNKNOWN : timestampDateTime(dt.toDateTime());
 }
@@ -170,7 +170,7 @@ QString shortDate(const QDate& d)
 }
 
 
-QString shortDate(const QVariant &d)
+QString shortDate(const QVariant& d)
 {
     return d.isNull() ? UNKNOWN : shortDate(d.toDate());
 }

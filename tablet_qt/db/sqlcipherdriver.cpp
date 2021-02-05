@@ -178,7 +178,7 @@ bool SQLCipherDriver::hasFeature(DriverFeature f) const
 // SQLite dbs have no user name, passwords, hosts or ports.
 // just file names.
 bool SQLCipherDriver::open(const QString& db, const QString& user,
-                           const QString& password, const QString &host,
+                           const QString& password, const QString& host,
                            const int port, const QString& conn_opts)
 {
     Q_UNUSED(user)

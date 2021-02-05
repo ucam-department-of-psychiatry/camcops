@@ -2863,7 +2863,7 @@ Version CamcopsApp::minServerVersionForTable(const QString& tablename)
 // Stored variables: generic
 // ============================================================================
 
-void CamcopsApp::createVar(const QString &name, QVariant::Type type,
+void CamcopsApp::createVar(const QString& name, QVariant::Type type,
                            const QVariant& default_value)
 {
     if (name.isEmpty()) {
@@ -2899,19 +2899,19 @@ QVariant CamcopsApp::var(const QString& name) const
 }
 
 
-QString CamcopsApp::varString(const QString &name) const
+QString CamcopsApp::varString(const QString& name) const
 {
     return var(name).toString();
 }
 
 
-bool CamcopsApp::varBool(const QString &name) const
+bool CamcopsApp::varBool(const QString& name) const
 {
     return var(name).toBool();
 }
 
 
-int CamcopsApp::varInt(const QString &name) const
+int CamcopsApp::varInt(const QString& name) const
 {
     return var(name).toInt();
 }
@@ -2929,7 +2929,7 @@ double CamcopsApp::varDouble(const QString& name) const
 }
 
 
-bool CamcopsApp::hasVar(const QString &name) const
+bool CamcopsApp::hasVar(const QString& name) const
 {
     return m_storedvars.contains(name);
 }

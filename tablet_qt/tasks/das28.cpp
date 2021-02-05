@@ -471,7 +471,7 @@ QuGridContainer* Das28::getJointGrid()
         column += GRID_JOINT_COLUMN_SPAN;
 
         for (const QString& side : SIDES) {
-            for (const QString & state : STATES) {
+            for (const QString& state : STATES) {
                 const auto fieldname = QString("%1_%2_%3").arg(
                     side, joint, state);
                 FieldRefPtr field = fieldRef(fieldname);
@@ -518,7 +518,7 @@ void Das28::addJointGridHeading(QuGridContainer* grid, int& row)
     column += GRID_JOINT_COLUMN_SPAN;
 
     for (int i = 0; i < SIDES.length(); i++) {
-        for (const QString & state: STATES) {
+        for (const QString& state: STATES) {
             grid->addCell(QuGridCell(new QuText(xstring(state)), row, column,
                                      GRID_ROW_SPAN, GRID_STATE_COLUMN_SPAN));
             column += GRID_STATE_COLUMN_SPAN;

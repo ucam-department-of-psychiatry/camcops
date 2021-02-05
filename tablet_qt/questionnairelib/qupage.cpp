@@ -196,7 +196,7 @@ bool QuPage::skip() const
 }
 
 
-bool QuPage::hasTag(const QString &tag) const
+bool QuPage::hasTag(const QString& tag) const
 {
     return m_tags.contains(tag);
 }

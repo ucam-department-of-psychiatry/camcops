@@ -687,14 +687,14 @@ QString KhandakerMojoMedicationTherapy::getCustomMedicationName(
 
 
 QString KhandakerMojoMedicationTherapy::getOptionName(
-    const QString &prefix, const int index) const
+    const QString& prefix, const int index) const
 {
     return getOptionName(prefix, index, "");
 }
 
 
 QString KhandakerMojoMedicationTherapy::getOptionName(
-    const QString &prefix, const int index, const QString default_str) const
+    const QString& prefix, const int index, const QString default_str) const
 {
     return xstring(QString("%1_%2").arg(prefix).arg(index), default_str);
 }

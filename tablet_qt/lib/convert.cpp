@@ -424,7 +424,7 @@ QString stringToUnquotedCppLiteral(const QString& raw)
 }
 
 
-QString stringToCppLiteral(const QString &raw)
+QString stringToCppLiteral(const QString& raw)
 {
     return DQUOTE + stringToUnquotedCppLiteral(raw) + DQUOTE;
 }
