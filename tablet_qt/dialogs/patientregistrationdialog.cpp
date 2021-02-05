@@ -25,8 +25,8 @@
 #include <QUrl>
 #include "common/varconst.h"
 #include "lib/uifunc.h"
-#include "qobjects/proquintvalidator.h"
 #include "qobjects/urlvalidator.h"
+#include "widgets/proquintlineedit.h"
 #include "widgets/validatinglineedit.h"
 
 #include "patientregistrationdialog.h"
@@ -38,15 +38,14 @@ PatientRegistrationDialog::PatientRegistrationDialog(QWidget* parent) :
     setWindowTitle(tr("Registration"));
 
     m_editor_server_url = new ValidatingLineEdit(new UrlValidator());
-    m_editor_server_url->setInputMethodHints(Qt::ImhNoAutoUppercase |
-                                             Qt::ImhNoPredictiveText);
+    m_editor_server_url->getLineEdit()->setInputMethodHints(
+        Qt::ImhNoAutoUppercase |
+        Qt::ImhNoPredictiveText
+    );
     connect(m_editor_server_url, &ValidatingLineEdit::validated,
             this, &PatientRegistrationDialog::updateOkButtonEnabledState);
 
-    m_editor_patient_proquint = new ValidatingLineEdit(new ProquintValidator());
-    m_editor_patient_proquint->setInputMethodHints(Qt::ImhSensitiveData |
-                                                   Qt::ImhNoAutoUppercase |
-                                                   Qt::ImhNoPredictiveText);
+    m_editor_patient_proquint = new ProquintLineEdit();
     connect(m_editor_patient_proquint, &ValidatingLineEdit::validated,
             this, &PatientRegistrationDialog::updateOkButtonEnabledState);
 
@@ -97,13 +96,13 @@ PatientRegistrationDialog::PatientRegistrationDialog(QWidget* parent) :
 
 QString PatientRegistrationDialog::patientProquint() const
 {
-    return m_editor_patient_proquint->getTrimmedText();
+    return m_editor_patient_proquint->getLineEdit()->text().trimmed();
 }
 
 
 QString PatientRegistrationDialog::serverUrlAsString() const
 {
-    return m_editor_server_url->getTrimmedText();
+    return m_editor_server_url->getLineEdit()->text().trimmed();
 }
 
 

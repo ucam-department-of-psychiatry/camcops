@@ -957,6 +957,7 @@ SOURCES += \
     widgets/imagebutton.cpp \
     widgets/labelwordwrapwide.cpp \
     widgets/openablewidget.cpp \
+    widgets/proquintlineedit.cpp \
     widgets/radiobuttonwordwrap.cpp \
     widgets/screenlikegraphicsview.cpp \
     widgets/spacer.cpp \
@@ -1426,6 +1427,7 @@ HEADERS += \
     widgets/imagebutton.h \
     widgets/labelwordwrapwide.h \
     widgets/openablewidget.h \
+    widgets/proquintlineedit.h \
     widgets/radiobuttonwordwrap.h \
     widgets/screenlikegraphicsview.h \
     widgets/spacer.h \

@@ -18,31 +18,22 @@
 */
 
 #pragma once
-#include <QLabel>
-#include <QLineEdit>
-#include <QVBoxLayout>
-#include <QValidator>
+#include <QString>
+#include <QWidget>
 
-class ValidatingLineEdit : public QVBoxLayout
+#include "widgets/validatinglineedit.h"
+
+class ProquintLineEdit : public ValidatingLineEdit
 {
-    // One-line text editor with validation and visual feedback
-
+    // One-line editor for entering and validating patient access key
     Q_OBJECT
 public:
-    ValidatingLineEdit(QValidator* validator, QWidget* parent = nullptr);
+    ProquintLineEdit(QWidget* parent = nullptr);
     void textChanged();
-    QValidator::State getState();
-    bool isValid();
-    QLineEdit* getLineEdit();
 
 protected:
-    virtual void processChangedText();
+    void processChangedText();
 
 private:
-    QLabel* m_label;
-    QLineEdit* m_line_edit;
-    QValidator::State m_state;
-
-signals:
-    void validated();
+    QString m_old_text;
 };
