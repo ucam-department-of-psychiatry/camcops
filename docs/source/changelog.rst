@@ -2873,7 +2873,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
   2020-07-24: No, Deform has caught up. See https://pypi.org/project/deform/.
   Move to ``deform==2.0.10`` and ``Chameleon==3.8.1``.
 
-**Client and server v2.4.0, IN PROGRESS**
+**Client and server v2.4.0, released 18 Dec 2020**
 
 - Support for :ref:`Task Schedules <scheduling_tasks>` (on the server) and
   :ref:`Single User Mode <single_user_mode>` on the client
@@ -2974,10 +2974,21 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Bugfix where the names of patients with no surname were not displayed.
 
-- **New task:** :ref:`Bath Ankylosing Spondylitis Disease Activity Index (BASDAI) <basdai>`.
-  (Database revision 0053.)
+- **New task:** :ref:`Bath Ankylosing Spondylitis Disease Activity Index
+  (BASDAI) <basdai>`. (Database revision 0053.)
 
 - Bugfix to :ref:`GMC Patient Questionnaire <gmcpq>` such that 'X' is now a
   permitted value for q10 (Sex) on the server, in line with the app.
+  (Database revision 0054.)
 
-- compilation error fix - cryptofunc - error: ‘runtime_error’ is not a member of ‘std’
+- compilation error fix - cryptofunc - error: ‘runtime_error’ is not a member
+  of ‘std’
+
+- **New task:** :ref:`Routine Assessment of Patient Index Data (RAPID3)
+  <rapid3>`. (Database revision 0055.)
+
+- Usability improvements to :ref:`Khandaker GM — MOJO — Medical questionnaire
+  <khandaker_mojo_medical>` and :ref:`Khandaker GM — MOJO — Medications and therapies
+  <khandaker_mojo_medicationtherapy>`. (Database revisions 0056-0057)
+
+**Client and server v2.4.1, IN PROGRESS**

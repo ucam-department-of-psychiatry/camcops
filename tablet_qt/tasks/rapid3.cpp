@@ -165,7 +165,7 @@ double Rapid3::globalEstimate() const
 
 QString Rapid3::diseaseSeverity() const
 {
-    QVariant rapid3 = this->rapid3();
+    const QVariant rapid3 = this->rapid3();
 
     if (rapid3.isNull()) {
         return xstring("n_a");
@@ -192,7 +192,7 @@ QStringList Rapid3::summary() const
     using stringfunc::bold;
 
     return QStringList{
-        QString("%1 [0-30]: %2 (%3)").arg(
+        QString("%1 [0–30]: %2 (%3)").arg(
             xstring("rapid3"),
             convert::prettyValue(rapid3(), DP),
             bold(diseaseSeverity())
@@ -222,7 +222,8 @@ QStringList Rapid3::detail() const
 OpenableWidget* Rapid3::editor(const bool read_only)
 {
     QuPagePtr page((new QuPage{
-        new QuText(xstring("q1"))
+        new QuText(xstring("q1")),
+        (new QuText(xstring("q1sub")))->setBold()
     })->setTitle(xstring("title_main")));
 
     const NameValueOptions difficulty_options{
@@ -247,7 +248,7 @@ OpenableWidget* Rapid3::editor(const bool read_only)
     q1_grid->setWidth(question_width, option_widths);
 
     // Repeat options every five lines
-    QVector<McqGridSubtitle> subtitles{
+    const QVector<McqGridSubtitle> subtitles{
         {5, ""},
         {10, ""},
     };
@@ -289,7 +290,7 @@ OpenableWidget* Rapid3::editor(const bool read_only)
         slider->setShowValue(false);
         slider->setSymmetric(true);
 
-        const auto question_text = new QuText(xstring(fieldname));
+        const auto question_text = (new QuText(xstring(fieldname)))->setBold();
         slider_grid->addCell(QuGridCell(question_text, row, 0,
                                         QUESTION_ROW_SPAN, QUESTION_COLUMN_SPAN));
         row++;

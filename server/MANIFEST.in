@@ -317,3 +317,4 @@ include camcops_server/templates/test/inherit_cache_test_parent.mako
 include camcops_server/templates/test/testpage.mako
 include camcops_server/translations/.gitignore
 include camcops_server/translations/da_DK/LC_MESSAGES/camcops.mo
+include camcops_server/translations/da_DK/LC_MESSAGES/camcops_da_DK.mo

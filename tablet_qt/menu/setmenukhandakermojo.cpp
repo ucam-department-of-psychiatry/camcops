@@ -38,6 +38,7 @@
 #include "tasks/khandakermojomedicationtherapy.h"
 #include "tasks/khandakermojosociodemographics.h"
 #include "tasks/mfi20.h"
+#include "tasks/rapid3.h"
 #include "tasks/sfmpq2.h"
 #include "tasks/shaps.h"
 #include "tasks/suppsp.h"
@@ -89,6 +90,7 @@ void SetMenuKhandakerMojo::makeItems()
         MAKE_TASK_MENU_ITEM(Chit::CHIT_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Suppsp::SUPPSP_TABLENAME, m_app),
         MAKE_TASK_MENU_ITEM(Sfmpq2::SFMPQ2_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(Rapid3::RAPID3_TABLENAME, m_app),
 
         MenuItem(tr("Subject-rated scales (condition-specific)")).setLabelOnly(),
         MAKE_TASK_MENU_ITEM(Asdas::ASDAS_TABLENAME, m_app),

@@ -21,8 +21,8 @@
 
     <string name="q_has_fibromyalgia">Do you have a diagnosis of fibromyalgia?</string>
     <string name="q_is_pregnant">Are you, or is there any possibility that you might be pregnant?</string>
-    <string name="q_infection_past_month">Do you currently have an infection, or had treatment for an infection (e.g. antibiotics) in the past <b>month</b>?</string>
-    <string name="q_infection_past_three_months">Have you had an infection, or had treatment for an infection (e.g antibiotics) <b>in the past 3 months’</b>?</string>
+    <string name="q_has_infection_past_month">Do you currently have an infection, or had treatment for an infection (e.g. antibiotics) in the past <b>month</b>?</string>
+    <string name="q_had_infection_two_months_preceding">Have you had an infection, or had treatment for an infection (e.g. antibiotics) in the <b>2 months preceding last month</b>?</string>
     <string name="q_has_alcohol_substance_dependence">Do you have a current diagnosis of alcohol or substance dependence?</string>
     <string name="q_smoking_status">What is your smoking status?</string>
     <string name="smoking_status_0">Never smoked</string>
@@ -66,8 +66,8 @@
     <string name="answered_yes_to">Answered <b>Yes</b> to:</string>
     <string name="q_has_fibromyalgia_s">Fibromyalgia</string>
     <string name="q_is_pregnant_s">Pregnant</string>
-    <string name="q_infection_past_month_s">Infection in past month</string>
-    <string name="q_infection_past_three_months_s">Infection in past 3 months</string>
+    <string name="q_has_infection_past_month_s">Infection in past month</string>
+    <string name="q_had_infection_two_months_preceding_s">Infection 2 months preceding last</string>
     <string name="q_has_alcohol_substance_dependence_s">Alcohol or substance dependence</string>
 
   </task>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="rapid3">
+    <!-- Routine Assessment of Patient Index Data (RAPID 3) -->
+
+    <string name="title_main">Routine Assessment of Patient Index Data (RAPID 3)</string>
+
+    <string name="q1">(physical instructions)</string>
+    <string name="q1sub">(over the last week)</string>
+    <string name="q1_option0">(no)</string>
+    <string name="q1_option1">(some)</string>
+    <string name="q1_option2">(much)</string>
+    <string name="q1_option3">(unable)</string>
+    <string name="q1a">(dress)</string>
+    <string name="q1b">(bed)</string>
+    <string name="q1c">(cup)</string>
+    <string name="q1d">(walk)</string>
+    <string name="q1e">(wash)</string>
+    <string name="q1f">(bend)</string>
+    <string name="q1g">(taps)</string>
+    <string name="q1h">(car)</string>
+    <string name="q1i">(walk 2mi)</string>
+    <string name="q1j">(sports)</string>
+    <string name="q1k">(sleep)</string>
+    <string name="q1l">(anxiety)</string>
+    <string name="q1m">(depression)</string>
+
+    <string name="q2">(pain instructions)</string>
+    <string name="q2_min">(min)</string>
+    <string name="q2_max">(max)</string>
+
+    <string name="q3">(global instructions)</string>
+    <string name="q3_min">(min)</string>
+    <string name="q3_max">(max)</string>
+
+    <string name="n_a">N/A</string>
+    <string name="near_remission">(NR)</string>
+    <string name="low_severity">(LS)</string>
+    <string name="moderate_severity">(MS)</string>
+    <string name="high_severity">(HS)</string>
+    <string name="rapid3">RAPID 3</string>
+  </task>
+</resources>

@@ -49,7 +49,7 @@ Source
 
 - HoNOSCA: http://www.liv.ac.uk/honosca/glossary.pdf
 
-- HoNOS 65+: Burns et al. (199b) at
+- HoNOS 65+: Burns et al. (1999b) at
   http://bjp.rcpsych.org/content/174/5/435.full.pdf;
   http://www.health.vic.gov.au/mentalhealth/outcomes/glossary.pdf
 
