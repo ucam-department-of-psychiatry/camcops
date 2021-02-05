@@ -143,7 +143,7 @@ msvc {
 # https://stackoverflow.com/questions/925179/selectively-remove-warning-message-gcc
 # (This problem arose on 2020-06-29 with Ubuntu 20.04 which brought gcc 9.3.0.)
 # 2021-02-05: also true of clang v10.0.0.
-if (gcc | clang) {
+if (linux-gcc | linux-clang) {
     QMAKE_CXXFLAGS += -Wno-deprecated-copy
 }
 
