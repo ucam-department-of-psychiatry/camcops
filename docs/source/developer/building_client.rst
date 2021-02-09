@@ -216,13 +216,13 @@ macOS (formerly OS X)
 
 - See :ref:`Setting up an iMac for CamCOPS development <set_up_imac_for_dev>`.
 
-- Tested in Apr 2019 with:
+- Tested in Feb 2021 with:
 
   .. code-block:: none
 
-    # macOS Mojave 10.14.4
-    # Xcode 10.2.1 (macOS SDK 10.14; iOS SDK 12.2)
-    build_qt --build_all
+    # macOS Catalina 10.15.7
+    # Xcode 12.4 (macOS SDK 11.1; iOS SDK 14.4)
+    build_qt --build_macos_x86_64
 
 
 All operating systems
@@ -444,7 +444,7 @@ See :menuselection:`Tools --> Options --> Kits --> Kits`, or on MacOS, see
 :menuselection:`Qt Creator --> Preferences --> Kits --> Kits`.
 
 Options last checked against Qt Creator 4.6.2 (built June 2018), then 4.8.1
-(built Jan 2019) under Linux/Windows and 4.9.0 (built 11 Apr 2019) under MacOS.
+(built Jan 2019) under Linux/Windows and 4.13.3 (built 13 Nov 2020) under MacOS.
 
 .. note::
 
@@ -816,8 +816,6 @@ Non-default options are marked in bold and/or as "[non-default]".
 
 **Custom_iOS_armv8_64**
 
-*BEING TESTED*
-
     .. list-table::
         :header-rows: 1
         :stub-columns: 1
@@ -831,9 +829,8 @@ Non-default options are marked in bold and/or as "[non-default]".
         * - Device type
           - **iOS device**
         * - Device
-          -
+          - **Your device**
         * - Sysroot
-          - **[non-default]**
             ``/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk``
         * - Compiler: C
           - **Apple Clang (arm64)**
@@ -842,29 +839,27 @@ Non-default options are marked in bold and/or as "[non-default]".
         * - Environment
           - [not editable: "No changes to apply."]
         * - Debugger
-          - System LLDB at /usr/bin/ldb
+          - System LLDB at /Applications/Xcode.app/Contents/Developer/usr/bin/lldb
         * - Qt version
           - **THE "iOS 64-BIT" ONE FROM QT VERSIONS, ABOVE**
         * - Qt mkspec
           -
+        * - Additional Qbs Profile Settings
+          -
         * - CMake Tool
           - System CMake at /usr/local/bin/cmake
         * - CMake Generator
-          - CodeBlocks - Unix Makefiles, Platform: <none>, Toolset: <none>
+          - <none> - Unix Makefiles, Platform: <none>, Toolset: <none>
         * - CMake Configuration
           - ``CMAKE_CXX_COMPILER:STRING=%{Compiler:Executable:Cxx}``
             ``CMAKE_C_COMPILER:STRING=%{Compiler:Executable:C}``
             ``CMAKE_PREFIX_PATH:STRING=%{Qt:QT_INSTALL_PREFIX}``
             ``QT_QMAKE_EXECUTABLE:STRING=%{Qt:qmakeExecutable}``
-        * - Additional Qbs Profile Settings
-          -
 
 If Qt accept the settings, a section marked "iOS Settings" will appear in the
 "Build Settings" part of your project when configured for this kit.
 
 **Custom_iOS_Simulator_x86_64**
-
-*BEING TESTED*
 
     .. list-table::
         :header-rows: 1
@@ -884,16 +879,18 @@ If Qt accept the settings, a section marked "iOS Settings" will appear in the
           - **[non-default]**
             ``/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk``
         * - Compiler: C
-          - GCC (C, x86 64bit in /usr/bin)
+          - Apple Clang (x86_64)
         * - Compiler: C++
-          - Clang (C++, x86 64bit in /usr/bin)
+          - Apple Clang (x86_64)
         * - Environment
           - [not editable: "No changes to apply."]
         * - Debugger
-          - System LLDB at /usr/bin/ldb
+          - System LLDB at /Applications/Xcode.app/Contents/Developer/usr/bin/lldb
         * - Qt version
           - **THE "iOS SIMULATOR 64-BIT" ONE FROM QT VERSIONS, ABOVE**
         * - Qt mkspec
+          -
+        * - Additional Qbs Profile Settings
           -
         * - CMake Tool
           - System CMake at /usr/local/bin/cmake
@@ -904,8 +901,6 @@ If Qt accept the settings, a section marked "iOS Settings" will appear in the
             ``CMAKE_C_COMPILER:STRING=%{Compiler:Executable:C}``
             ``CMAKE_PREFIX_PATH:STRING=%{Qt:QT_INSTALL_PREFIX}``
             ``QT_QMAKE_EXECUTABLE:STRING=%{Qt:qmakeExecutable}``
-        * - Additional Qbs Profile Settings
-          -
 
 If Qt accept the settings, a section marked "iOS Settings" will appear in the
 "Build Settings" part of your project when configured for this kit.
@@ -1020,17 +1015,19 @@ inherit the build environment.
 iOS
 ~~~
 
-*TO BE ADDED.*
-
 See:
 
 - https://doc.qt.io/qt-5/ios.html
 - https://doc.qt.io/qtcreator/creator-developing-ios.html
 - https://doc.qt.io/qt-5/ios-platform-notes.html
 
-.. todo:: custom ios/Info.plist as per https://doc.qt.io/qt-5/ios-platform-notes.html
+It is possible to deploy to an actual device via USB or the iOS simulator using
+a development provisioning profile associated with an Apple developer ID. You
+need to enable developer mode on the device.
 
-.. todo:: iOS appicons as per https://doc.qt.io/qt-5/ios-platform-notes.html
+Many problems can be solved by restarting Qt Creator, XCode and any running iOS
+simulator.
+
 
 General
 ~~~~~~~
