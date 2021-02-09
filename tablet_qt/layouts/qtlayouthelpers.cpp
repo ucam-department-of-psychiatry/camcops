@@ -359,7 +359,7 @@ void qtlayouthelpers::qGeomCalc(QVector<QQLayoutStruct>& chain,
             if (deficit > 0 && surplus <= deficit) {
                 // give to the ones that have too little
                 for (i = start; i < start + count; i++) {
-                    QQLayoutStruct *data = &chain[i];  // RNC: extra Q
+                    QQLayoutStruct* data = &chain[i];  // RNC: extra Q
                     if (!data->done && data->size < data->smartSizeHint()) {
                         data->size = data->smartSizeHint();
                         data->done = true;

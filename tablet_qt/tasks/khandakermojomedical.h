@@ -55,8 +55,8 @@ public:
     // ------------------------------------------------------------------------
 private:
     QString getDiagnosis() const;
-    QString getOptionName(const QString &fieldname, const int index) const;
-    NameValueOptions getOptions(const QString &fieldname,
+    QString getOptionName(const QString& fieldname, const int index) const;
+    NameValueOptions getOptions(const QString& fieldname,
                                 int num_options) const;
 
     // ------------------------------------------------------------------------

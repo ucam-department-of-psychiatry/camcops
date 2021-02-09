@@ -41,7 +41,7 @@ void WhereConditions::add(const QString& column, const QString& op,
 }
 
 
-void WhereConditions::set(const SqlArgs &sql_args)
+void WhereConditions::set(const SqlArgs& sql_args)
 {
     m_raw_sqlargs = sql_args;
 }

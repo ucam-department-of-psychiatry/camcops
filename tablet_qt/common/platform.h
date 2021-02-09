@@ -40,4 +40,8 @@ bool isHost64Bit();
 // Was the build computer a 64-bit system?
 bool isBuild64Bit();
 
+// Compiler
+extern const QString COMPILER_NAME_VERSION;
+extern const QString COMPILED_WHEN;
+
 }  // namespace platform

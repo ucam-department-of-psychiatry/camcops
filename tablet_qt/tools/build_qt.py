@@ -680,6 +680,7 @@ GCC = "gcc"  # GNU C compiler
 GCC_AR = "gcc-ar"  # wrapper around ar
 GIT = "git"  # Git
 GOBJDUMP = "gobjdump"  # macOS 32-bit equivalent of readelf, via brew
+INSTALL_NAME_TOOL = "install_name_tool"  # iOS dylib path fixups
 JAVAC = "javac"  # for Android builds
 LD = "ld"  # GNU linker
 MAKE = "make"  # GNU make
@@ -1197,24 +1198,27 @@ class Platform(object):
         elif self.os in [Os.MACOS, Os.IOS]:
             return "apple"
         else:
-            raise NotImplementedError(f"gnu_vendor() doesn't know {self.os}")
+            raise NotImplementedError(f"triplet_vendor() doesn't know {self.os}")
 
     @property
     def triplet_os(self) -> str:
-        if self.os == Os.ANDROID:
-            return "android"
-        elif self.os in [Os.MACOS, Os.IOS]:
+        lookup = {
+            Os.ANDROID: "android",
             # e.g. empirically: "i386-apple-darwin15.6.0"
             # "uname -m" tells you whether you're 32 or 64 bit
             # "uname -r" gives you the release
-            # config.sub does not recognize "ios" as an OS, nor "iphoneos"
-            return "darwin"
-        elif self.os in [Os.LINUX]:
-            return "linux"
-        elif self.os in [Os.WINDOWS]:
-            return "windows"
-        else:
-            raise NotImplementedError(f"gnu_os() doesn't know {self.os}")
+            Os.MACOS: "darwin",
+            Os.IOS: "ios",
+            Os.LINUX: "linux",
+            Os.WINDOWS: "windows",
+        }
+
+        os_name = lookup.get(self.os, None)
+
+        if os_name is None:
+            raise NotImplementedError(f"triplet_os() doesn't know {self.os}")
+
+        return os_name
 
     @property
     def target_triplet(self) -> str:
@@ -1500,10 +1504,10 @@ class Config(object):
                 self.build_ios_arm_v7_32 = True
                 self.build_ios_arm_v8_64 = True
                 # iOS simulators for MacOS
-                # if BUILD_PLATFORM.cpu_64bit:
-                #     self.build_ios_simulator_x86_64 = True
-                # else:
-                #     self.build_ios_simulator_x86_32 = True
+                if BUILD_PLATFORM.cpu_64bit:
+                    self.build_ios_simulator_x86_64 = True
+                else:
+                    self.build_ios_simulator_x86_32 = True
             elif BUILD_PLATFORM.windows:
                 self.build_windows_x86_32 = True
                 self.build_windows_x86_64 = True
@@ -2745,8 +2749,9 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
     rootdir, workdir = cfg.get_openssl_rootdir_workdir(target_platform)
     dynamic_lib_ext = target_platform.dynamic_lib_ext
     static_lib_ext = target_platform.static_lib_ext
+    openssl_verparts = cfg.openssl_version.split(".")
+
     if BUILD_PLATFORM.windows:
-        openssl_verparts = cfg.openssl_version.split(".")
         openssl_major = f"-{openssl_verparts[0]}_{openssl_verparts[1]}"
         if target_platform.cpu_x86_64bit_family:
             fname_arch = "-x64"
@@ -2838,6 +2843,10 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
     # However, it does seem to be screwing up. Let's try Configure instead.
     # As of OpenSSL 1.1.1c, that's what they advise (see NOTES.ANDROID).
 
+    # If we don't do this, the binaries end up in a non-writeable folder
+    if target_platform.ios:
+        sysroot = workdir
+
     configure_args = openssl_target_os_args(target_platform)
     target_os = configure_args[0]  # may be used below
     configure_args += [
@@ -2854,6 +2863,10 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
     if target_platform.android:
         configure_args += [
             f"-D__ANDROID_API__={cfg.android_sdk_version}"
+        ]
+    if target_platform.ios:
+        configure_args += [
+            "no-makedepend",
         ]
 
     # -------------------------------------------------------------------------
@@ -2975,6 +2988,51 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
 
         # See INSTALL, INSTALL.WIN, etc. from the OpenSSL distribution
         runmake()
+
+        if target_platform.ios:
+            # On iOS we need to change the install names to be embeddable in the
+            # app bundle's Frameworks folder
+            major_version = f".{openssl_verparts[0]}.{openssl_verparts[1]}"
+
+            libcrypto_build_path = join(
+                workdir,
+                f"libcrypto{major_version}{dynamic_lib_ext}"
+            )
+            libssl_build_path = join(
+                workdir,
+                f"libssl{major_version}{dynamic_lib_ext}"
+            )
+
+            libcrypto_install_path = join(
+                workdir,
+                "lib",
+                f"libcrypto{major_version}{dynamic_lib_ext}"
+            )
+
+            run([
+                INSTALL_NAME_TOOL,
+                "-id",
+                f"@rpath/libcrypto{dynamic_lib_ext}",
+                f"{libcrypto_build_path}"
+            ])
+
+            run([
+                INSTALL_NAME_TOOL,
+                "-id",
+                f"@rpath/libssl{dynamic_lib_ext}",
+                f"{libssl_build_path}"
+            ])
+
+            run([
+                INSTALL_NAME_TOOL,
+                "-change",
+                f"{libcrypto_install_path}",
+                f"@rpath/libcrypto{dynamic_lib_ext}",
+                f"{libssl_build_path}"
+            ])
+
+            # Copy the binaries to where the install_name expects them to be
+            runmake("install_runtime_libs")
 
         # ---------------------------------------------------------------------
         # OpenSSL: Test

@@ -55,6 +55,14 @@ DangerousConfirmationDialog::DangerousConfirmationDialog(
     mainlayout->addWidget(prompt2);
     mainlayout->addWidget(m_editor);
     mainlayout->addWidget(buttonbox);
+
+#ifdef Q_OS_IOS
+    // Dialogs are full screen on iOS
+    prompt->setWordWrap(true);
+    prompt->setWordWrap(true);
+    mainlayout->addStretch(1);
+#endif
+
     setLayout(mainlayout);
 }
 

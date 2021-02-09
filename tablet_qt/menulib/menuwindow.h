@@ -142,7 +142,7 @@ public slots:
     void menuItemSelectionChanged();
 
     // "A menu item has been clicked."
-    void menuItemClicked(QListWidgetItem *item);
+    void menuItemClicked(QListWidgetItem* item);
 
     // "The application's lock state has changed."
     void lockStateChanged(CamcopsApp::LockState lockstate);

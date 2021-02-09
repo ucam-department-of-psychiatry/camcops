@@ -33,7 +33,10 @@ public:
     void textChanged();
     QValidator::State getState();
     bool isValid();
-    QString getTrimmedText();
+    QLineEdit* getLineEdit();
+
+protected:
+    virtual void processChangedText();
 
 private:
     QLabel* m_label;

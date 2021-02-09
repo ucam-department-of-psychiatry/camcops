@@ -103,6 +103,8 @@ void HelpMenu::softwareVersions() const
     versions.append(tr("CamCOPS client change date: %1").arg(
                         camcopsversion::CAMCOPS_CLIENT_CHANGEDATE.toString(Qt::ISODate)));
     versions.append(tr("CamCOPS executable is %1-bit").arg(build64 ? "64" : "32"));
+    versions.append(tr("Compiler: %1").arg(platform::COMPILER_NAME_VERSION));
+    versions.append(tr("Compiled at: %1").arg(platform::COMPILED_WHEN));
     versions.append(newline);
 
     // ------------------------------------------------------------------------
@@ -192,6 +194,8 @@ void HelpMenu::softwareVersions() const
     //      OpenSSL_version_num
     // ... all available within QtNetwork/private/qssql*.h, but not exposed.
     // However, we have this:
+    versions.append(tr("<b>Supports SSL:</b> %1").arg(
+        QSslSocket::supportsSsl()));
     versions.append(tr("<b>Compile-time OpenSSL version:</b> %1").arg(
         QSslSocket::sslLibraryBuildVersionString()));
     versions.append(tr("<b>Run-time OpenSSL version:</b> %1").arg(

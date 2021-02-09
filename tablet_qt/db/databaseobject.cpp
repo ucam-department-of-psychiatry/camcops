@@ -1033,7 +1033,7 @@ void DatabaseObject::setNeedsUpload(const bool needs_upload)
 // Debugging
 // ============================================================================
 
-void DatabaseObject::requireField(const QString &fieldname) const
+void DatabaseObject::requireField(const QString& fieldname) const
 {
     if (!m_record.contains(fieldname)) {
         uifunc::stopApp("DatabaseObject::requireField: Database object with "

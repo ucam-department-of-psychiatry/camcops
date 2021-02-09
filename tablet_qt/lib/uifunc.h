@@ -299,5 +299,8 @@ void makeItemViewScrollSmoothly(QObject* object);
 QSize minimumSizeForTitle(const QDialog* dialog,
                           bool include_app_name = false);
 
+QRect screenGeometry();
+int screenWidth();
+int screenHeight();
 
 }  // namespace uifunc

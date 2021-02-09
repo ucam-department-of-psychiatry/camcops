@@ -64,7 +64,7 @@ QuBoolean::QuBoolean(const QString& text, FieldRefPtr fieldref) :
 }
 
 
-QuBoolean::QuBoolean(const QString &filename, const QSize &size,
+QuBoolean::QuBoolean(const QString& filename, const QSize& size,
                      FieldRefPtr fieldref) :
     QuBoolean("", filename, size, fieldref)  // delegating constructor
 {

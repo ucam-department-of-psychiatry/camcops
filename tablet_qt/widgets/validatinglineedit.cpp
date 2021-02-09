@@ -45,13 +45,16 @@ ValidatingLineEdit::ValidatingLineEdit(QValidator* validator, QWidget* parent) :
 
     addWidget(m_line_edit);
     addWidget(m_label);
+    setAlignment(Qt::AlignLeft | Qt::AlignTop);
 }
 
 
 void ValidatingLineEdit::textChanged()
 {
+    processChangedText();
+
     int pos = 0;
-    QString text = getTrimmedText();;
+    QString text = m_line_edit->text().trimmed();
 
     m_state = m_line_edit->validator()->validate(text, pos);
 
@@ -71,9 +74,16 @@ void ValidatingLineEdit::textChanged()
 }
 
 
-QString ValidatingLineEdit::getTrimmedText()
+void ValidatingLineEdit::processChangedText()
 {
-    return m_line_edit->text().trimmed();
+    // May be implemented in base class to change the text
+    // in some way before validation
+}
+
+
+QLineEdit* ValidatingLineEdit::getLineEdit()
+{
+    return m_line_edit;
 }
 
 

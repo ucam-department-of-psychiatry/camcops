@@ -2254,7 +2254,7 @@ void NetworkManager::wipeTables()
 }
 
 
-void NetworkManager::queryFail(const QString &sql)
+void NetworkManager::queryFail(const QString& sql)
 {
     statusMessage(tr("Query failed: ") + sql);
     fail();

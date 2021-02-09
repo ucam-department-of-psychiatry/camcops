@@ -994,32 +994,8 @@ void CamcopsApp::announceStartup() const
     qInfo() << "CamCOPS starting at UTC time:"
             << qUtf8Printable(datetime::datetimeToIsoMsUtc(dt));
     qInfo() << "CamCOPS version:" << camcopsversion::CAMCOPS_CLIENT_VERSION;
-#if defined __GNUC__
-    qDebug().nospace()
-            << "Compiled with GNU C++ compiler version "
-            << __GNUC__ << "." << __GNUC_MINOR__ << "." << __GNUC_PATCHLEVEL__;
-#elif defined _MSC_VER
-    qDebug().nospace()
-            << "Compiled with Microsoft Visual C++ version " << _MSC_FULL_VER;
-#else
-    qDebug() << "Compiler type/version unknown";
-#endif
-
-#ifdef DISABLE_GCC_DATE_TIME_MACRO_WARNING
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdate-time"
-#endif
-#ifdef DISABLE_CLANG_DATE_TIME_MACRO_WARNING
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdate-time"
-#endif
-    qDebug() << "Compiled at" << __DATE__ << __TIME__;
-#ifdef DISABLE_GCC_DATE_TIME_MACRO_WARNING
-#pragma GCC diagnostic pop
-#endif
-#ifdef DISABLE_CLANG_DATE_TIME_MACRO_WARNING
-#pragma clang diagnostic pop
-#endif
+    qDebug().noquote() << "Compiler:" << platform::COMPILER_NAME_VERSION;
+    qDebug().noquote() << "Compiled at:" << platform::COMPILED_WHEN;
 }
 
 
@@ -2863,7 +2839,7 @@ Version CamcopsApp::minServerVersionForTable(const QString& tablename)
 // Stored variables: generic
 // ============================================================================
 
-void CamcopsApp::createVar(const QString &name, QVariant::Type type,
+void CamcopsApp::createVar(const QString& name, QVariant::Type type,
                            const QVariant& default_value)
 {
     if (name.isEmpty()) {
@@ -2899,19 +2875,19 @@ QVariant CamcopsApp::var(const QString& name) const
 }
 
 
-QString CamcopsApp::varString(const QString &name) const
+QString CamcopsApp::varString(const QString& name) const
 {
     return var(name).toString();
 }
 
 
-bool CamcopsApp::varBool(const QString &name) const
+bool CamcopsApp::varBool(const QString& name) const
 {
     return var(name).toBool();
 }
 
 
-int CamcopsApp::varInt(const QString &name) const
+int CamcopsApp::varInt(const QString& name) const
 {
     return var(name).toInt();
 }
@@ -2929,7 +2905,7 @@ double CamcopsApp::varDouble(const QString& name) const
 }
 
 
-bool CamcopsApp::hasVar(const QString &name) const
+bool CamcopsApp::hasVar(const QString& name) const
 {
     return m_storedvars.contains(name);
 }

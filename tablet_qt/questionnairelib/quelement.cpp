@@ -30,7 +30,8 @@ const Qt::Alignment DEFAULT_QUELEMENT_WIDGET_ALIGNMENT = Qt::Alignment();
 QuElement::QuElement() :
     m_widget(nullptr),
     m_visible(true),
-    m_widget_alignment(DEFAULT_QUELEMENT_WIDGET_ALIGNMENT)
+    m_widget_alignment(DEFAULT_QUELEMENT_WIDGET_ALIGNMENT),
+    m_widget_input_method_hints(0)
 {
 }
 
@@ -47,7 +48,7 @@ QuElement* QuElement::addTag(const QString& tag)
 }
 
 
-bool QuElement::hasTag(const QString &tag) const
+bool QuElement::hasTag(const QString& tag) const
 {
     return m_tags.contains(tag);
 }
@@ -66,6 +67,10 @@ QPointer<QWidget> QuElement::widget(Questionnaire* questionnaire)
             // repaints.
             m_widget->setVisible(m_visible);
         }
+
+        m_widget->setInputMethodHints(
+            m_widget->inputMethodHints() | m_widget_input_method_hints
+        );
     }
     return m_widget;
 }
@@ -155,6 +160,13 @@ QuElement* QuElement::setVisible(const bool visible)
     if (m_widget) {
         m_widget->setVisible(visible);
     }
+    return this;
+}
+
+
+QuElement* QuElement::setWidgetInputMethodHints(Qt::InputMethodHints hints)
+{
+    m_widget_input_method_hints = hints;
     return this;
 }
 

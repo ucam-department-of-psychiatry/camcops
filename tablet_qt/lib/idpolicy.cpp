@@ -212,7 +212,7 @@ QString IdPolicy::pretty() const
 }
 
 
-QString IdPolicy::stringify(const QVector<int> &tokens) const
+QString IdPolicy::stringify(const QVector<int>& tokens) const
 {
     QString policy;
     for (int i = 0; i < tokens.length(); ++i) {
@@ -229,7 +229,7 @@ QString IdPolicy::stringify(const QVector<int> &tokens) const
 }
 
 
-void IdPolicy::reportSyntaxError(const QString &msg) const
+void IdPolicy::reportSyntaxError(const QString& msg) const
 {
     qWarning().nospace() << "Syntax error in policy (" << msg
                          << "); policy text is: " << m_policy_text;

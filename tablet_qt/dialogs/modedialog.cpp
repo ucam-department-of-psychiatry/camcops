@@ -19,13 +19,15 @@
 
 #include "modedialog.h"
 #include <QButtonGroup>
+#include <QDebug>
 #include <QDialogButtonBox>
 #include <QLabel>
-#include <QRadioButton>
 #include <QVBoxLayout>
 #include "common/varconst.h"
+#include "lib/layoutdumper.h"
 #include "lib/stringfunc.h"
 #include "lib/uifunc.h"
+#include "widgets/radiobuttonwordwrap.h"
 
 
 ModeDialog::ModeDialog(const int previous_choice,
@@ -45,9 +47,10 @@ ModeDialog::ModeDialog(const int previous_choice,
     const QString clinician_text = tr(
         "clinician/researcher, with multiple patients/participants");
 
-    auto single_user_button = new QRadioButton(single_user_text);
+    auto single_user_button = new RadioButtonWordWrap(single_user_text);
     single_user_button->setChecked(default_choice == varconst::MODE_SINGLE_USER);
-    auto clinician_button = new QRadioButton(clinician_text);
+
+    auto clinician_button = new RadioButtonWordWrap(clinician_text);
     clinician_button->setChecked(default_choice == varconst::MODE_CLINICIAN);
     m_mode_selector = new QButtonGroup();
     m_mode_selector->addButton(single_user_button, varconst::MODE_SINGLE_USER);
@@ -72,6 +75,16 @@ ModeDialog::ModeDialog(const int previous_choice,
     mainlayout->addWidget(clinician_button);
     mainlayout->addWidget(prompt2);
     mainlayout->addWidget(buttonbox);
+
+#ifdef Q_OS_IOS
+    // Dialogs are full screen on iOS
+    prompt->setWordWrap(true);
+    prompt2->setWordWrap(true);
+    single_user_button->setWordWrap(true);
+    clinician_button->setWordWrap(true);
+    mainlayout->addStretch(1);
+#endif
+
     setLayout(mainlayout);
 }
 

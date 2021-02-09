@@ -95,7 +95,7 @@ QuMcqGridSingleBoolean* QuMcqGridSingleBoolean::setWidth(
 }
 
 
-QuMcqGridSingleBoolean* QuMcqGridSingleBoolean::setTitle(const QString &title)
+QuMcqGridSingleBoolean* QuMcqGridSingleBoolean::setTitle(const QString& title)
 {
     m_title = title;
     return this;

@@ -505,13 +505,13 @@ void Glm::warnReturningGarbage() const
 }
 
 
-void Glm::addInfo(const QString &msg) const
+void Glm::addInfo(const QString& msg) const
 {
     m_info.append(msg);
 }
 
 
-void Glm::addError(const QString &msg) const
+void Glm::addError(const QString& msg) const
 {
     m_calculation_errors.append(msg);
 }

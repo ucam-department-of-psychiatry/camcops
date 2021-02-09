@@ -127,22 +127,29 @@ MOBILITY =
 # Warning become errors
 gcc {
     # GCC
+    message("Compiler is GCC")
     QMAKE_CXXFLAGS += -Werror  # warnings become errors
 }
 msvc {
     # Microsoft Visual C++
+    message("Compiler is Microsoft Visual C++")
     QMAKE_CXXFLAGS += /W3
         # ... /W4 is the highest level of warnings bar "/Wall"
         # ... but we get "D9025: overriding '/W4' with '/W3'"
     QMAKE_CXXFLAGS += /WX  # treat warnings as errors
     # QMAKE_CXXFLAGS += /showIncludes  # if you think the wrong ones are being included!
 }
+clang {
+    message("Compiler is clang")
+    QMAKE_CXXFLAGS += -Werror  # warnings become errors
+}
 
 # Until we use a version of Qt that can cope, disable "-Werror=deprecated-copy".
 # In general, note "-Werrmsg" to enable and "-Wno-errmsg" to disable:
 # https://stackoverflow.com/questions/925179/selectively-remove-warning-message-gcc
 # (This problem arose on 2020-06-29 with Ubuntu 20.04 which brought gcc 9.3.0.)
-gcc {
+# 2021-02-05: also true of clang v10.0.0.
+if (gcc | clang):!ios:!android {
     QMAKE_CXXFLAGS += -Wno-deprecated-copy
 }
 
@@ -216,6 +223,7 @@ OBJ_EXT = ".o"  # unless otherwise set
 # Set OS-specific variables
 # Operating system tests include "linux", "unix", "macx", "android", "windows",
 # "ios".
+-
 linux : !android {
     # -------------------------------------------------------------------------
     # LINUX -- and not Android Linux!
@@ -313,13 +321,34 @@ ios {
     CAMCOPS_QT_LINKAGE = "dynamic"
     CAMCOPS_OPENSSL_LINKAGE = "dynamic"
 
-    contains(QT_ARCH, arm64) {
-        message("Building for iOS/ARM v8 64-bit architecture")
-        CAMCOPS_ARCH_TAG = "ios_armv8_64"
-    } else {
-        message("Building for iOS/ARM v7 (32-bit) architecture")
-        CAMCOPS_ARCH_TAG = "ios_armv7"
+    # Both iphoneos and iphonesimulator are set ?!
+    CONFIG(iphoneos, iphoneos|iphonesimulator) {
+        message("Building for iPhone OS")
+        contains(QT_ARCH, arm64) {
+            message("Building for iOS/ARM v8 64-bit architecture")
+            CAMCOPS_ARCH_TAG = "ios_armv8_64"
+        } else {
+            message("Building for iOS/ARM v7 (32-bit) architecture")
+            CAMCOPS_ARCH_TAG = "ios_armv7"
+        }
     }
+
+    CONFIG(iphonesimulator, iphoneos|iphonesimulator) {
+        message("Building for iPhone Simulator")
+        CAMCOPS_ARCH_TAG = "ios_x86_64"
+    }
+
+    disable_warning.name = "GCC_WARN_64_TO_32_BIT_CONVERSION"
+    disable_warning.value = "No"
+    QMAKE_MAC_XCODE_SETTINGS += disable_warning
+
+    QMAKE_INFO_PLIST = $${CAMCOPS_SOURCE_ROOT}/ios/Info.plist
+
+    ios_icon.files = $$files($${CAMCOPS_SOURCE_ROOT}/ios/*.png)
+    QMAKE_BUNDLE_DATA += ios_icon
+
+    app_launch_screen.files = $$files($${CAMCOPS_SOURCE_ROOT}/ios/LaunchScreen.storyboard)
+    QMAKE_BUNDLE_DATA += app_launch_screen
 }
 
 isEmpty(CAMCOPS_ARCH_TAG) {
@@ -454,6 +483,17 @@ ANDROID_EXTRA_LIBS += "$${OPENSSL_DIR}/libcrypto$${DYNAMIC_LIB_EXT}"  # needed f
 ANDROID_EXTRA_LIBS += "$${OPENSSL_DIR}/libssl$${DYNAMIC_LIB_EXT}"
 # ... must start "lib" and end ".so", otherwise Qt complains.
 
+
+# iOS specials
+QMAKE_RPATHDIR = @executable_path/Frameworks
+crypto.files = "$${OPENSSL_DIR}/libcrypto$${DYNAMIC_LIB_EXT}"
+crypto.path = Frameworks
+QMAKE_BUNDLE_DATA += crypto
+
+ssl.files = "$${OPENSSL_DIR}/libssl$${DYNAMIC_LIB_EXT}"
+ssl.path = Frameworks
+QMAKE_BUNDLE_DATA += ssl
+
 # -----------------------------------------------------------------------------
 # SQLCipher
 # -----------------------------------------------------------------------------
@@ -540,6 +580,7 @@ SOURCES += \
     diagnosis/icd10.cpp \
     diagnosis/icd9cm.cpp \
     dialogs/dangerousconfirmationdialog.cpp \
+    dialogs/debugdialog.cpp \
     dialogs/logbox.cpp \
     dialogs/logmessagebox.cpp \
     dialogs/modedialog.cpp \
@@ -908,6 +949,7 @@ SOURCES += \
     widgets/cameraqcamera.cpp \
     widgets/cameraqml.cpp \
     widgets/canvaswidget.cpp \
+    widgets/clickablelabel.cpp \
     widgets/clickablelabelnowrap.cpp \
     widgets/clickablelabelwordwrapwide.cpp \
     widgets/diagnosticcodeselector.cpp \
@@ -922,6 +964,8 @@ SOURCES += \
     widgets/imagebutton.cpp \
     widgets/labelwordwrapwide.cpp \
     widgets/openablewidget.cpp \
+    widgets/proquintlineedit.cpp \
+    widgets/radiobuttonwordwrap.cpp \
     widgets/screenlikegraphicsview.cpp \
     widgets/spacer.cpp \
     widgets/svgwidgetclickable.cpp \
@@ -1001,6 +1045,7 @@ HEADERS += \
     diagnosis/icd10.h \
     diagnosis/icd9cm.h \
     dialogs/dangerousconfirmationdialog.h \
+    dialogs/debugdialog.h \
     dialogs/logbox.h \
     dialogs/logmessagebox.h \
     dialogs/modedialog.h \
@@ -1374,6 +1419,7 @@ HEADERS += \
     widgets/cameraqcamera.h \
     widgets/cameraqml.h \
     widgets/canvaswidget.h \
+    widgets/clickablelabel.h \
     widgets/clickablelabelnowrap.h \
     widgets/clickablelabelwordwrapwide.h \
     widgets/diagnosticcodeselector.h \
@@ -1388,6 +1434,8 @@ HEADERS += \
     widgets/imagebutton.h \
     widgets/labelwordwrapwide.h \
     widgets/openablewidget.h \
+    widgets/proquintlineedit.h \
+    widgets/radiobuttonwordwrap.h \
     widgets/screenlikegraphicsview.h \
     widgets/spacer.h \
     widgets/svgwidgetclickable.h \
@@ -1419,6 +1467,9 @@ OTHER_FILES += \
     android/gradlew.bat \
     android/res/drawable-ldpi/icon.png \
     android/res/values/libs.xml \
+    ios/Info.plist \
+    ios/*.storyboard \
+    ios/*.png \
     notes/compilation_android.txt \
     notes/compilation_linux.txt \
     notes/compilation_windows.txt \

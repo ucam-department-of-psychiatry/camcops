@@ -18,15 +18,17 @@
 */
 
 #include <QDialogButtonBox>
+#include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QFormLayout>
 #include <QUrl>
 #include "common/varconst.h"
 #include "lib/uifunc.h"
-#include "qobjects/proquintvalidator.h"
 #include "qobjects/urlvalidator.h"
+#include "widgets/proquintlineedit.h"
 #include "widgets/validatinglineedit.h"
+
 #include "patientregistrationdialog.h"
 
 
@@ -34,13 +36,16 @@ PatientRegistrationDialog::PatientRegistrationDialog(QWidget* parent) :
     QDialog(parent)
 {
     setWindowTitle(tr("Registration"));
-    setMinimumSize(uifunc::minimumSizeForTitle(this));
 
     m_editor_server_url = new ValidatingLineEdit(new UrlValidator());
+    m_editor_server_url->getLineEdit()->setInputMethodHints(
+        Qt::ImhNoAutoUppercase |
+        Qt::ImhNoPredictiveText
+    );
     connect(m_editor_server_url, &ValidatingLineEdit::validated,
             this, &PatientRegistrationDialog::updateOkButtonEnabledState);
 
-    m_editor_patient_proquint = new ValidatingLineEdit(new ProquintValidator());
+    m_editor_patient_proquint = new ProquintLineEdit();
     connect(m_editor_patient_proquint, &ValidatingLineEdit::validated,
             this, &PatientRegistrationDialog::updateOkButtonEnabledState);
 
@@ -51,32 +56,53 @@ PatientRegistrationDialog::PatientRegistrationDialog(QWidget* parent) :
 
     updateOkButtonEnabledState();
 
-    auto mainlayout = new QFormLayout();
-    mainlayout->setRowWrapPolicy(QFormLayout::WrapAllRows);
-    mainlayout->addRow(
-        tr("<b>CamCOPS server location</b> (e.g. https://server.example.com/camcops/api):"),
-        m_editor_server_url
+    // If we do this the labels won't wrap properly
+    // https://bugreports.qt.io/browse/QTBUG-89805
+    // auto mainlayout = new QFormLayout();
+    // mainlayout->setRowWrapPolicy(QFormLayout::WrapAllRows);
+
+    // So we do this instead
+    auto mainlayout = new QVBoxLayout();
+
+    auto server_url_label = new QLabel(
+        tr("<b>CamCOPS server location</b> (e.g. https://server.example.com/camcops/api):")
     );
 
-    mainlayout->addRow(
-        tr("<b>Access key</b> (e.g. abcde-fghij-klmno-pqrst-uvwxy-zabcd-efghi-jklmn-o):"),
-        m_editor_patient_proquint
+    auto patient_proquint_label = new QLabel(
+        tr("<b>Access key</b> (e.g. abcde-fghij-klmno-pqrst-uvwxy-zabcd-efghi-jklmn-o):")
     );
+
+    // Reinstate when QFormLayout working:
+    // mainlayout->addRow(server_url_label, m_editor_server_url);
+    // mainlayout->addRow(patient_proquint_label, m_editor_patient_proquint);
+
+    // and remove these lines:
+    mainlayout->addWidget(server_url_label);
+    mainlayout->addLayout(m_editor_server_url);
+    mainlayout->addWidget(patient_proquint_label);
+    mainlayout->addLayout(m_editor_patient_proquint);
 
     mainlayout->addWidget(m_buttonbox);
+
+#ifdef Q_OS_IOS
+    server_url_label->setWordWrap(true);
+    patient_proquint_label->setWordWrap(true);
+    mainlayout->addStretch(1);
+#endif
+
     setLayout(mainlayout);
 }
 
 
 QString PatientRegistrationDialog::patientProquint() const
 {
-    return m_editor_patient_proquint->getTrimmedText();
+    return m_editor_patient_proquint->getLineEdit()->text().trimmed();
 }
 
 
 QString PatientRegistrationDialog::serverUrlAsString() const
 {
-    return m_editor_server_url->getTrimmedText();
+    return m_editor_server_url->getLineEdit()->text().trimmed();
 }
 
 

@@ -199,7 +199,7 @@ private:
     // Sets chain[<rownum>].spacing across the grid.
     // Used either with orientation == Qt::Horizontal for columns,
     // or with orientation == Qt::Vertical for rows.
-    void setupSpacings(QVector<QLayoutStruct> &chain, QQGridBox* grid[],
+    void setupSpacings(QVector<QLayoutStruct>& chain, QQGridBox* grid[],
                        int fixedSpacing, Qt::Orientation orientation) const;
 
     // Function removed:

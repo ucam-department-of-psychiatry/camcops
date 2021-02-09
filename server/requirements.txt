@@ -54,5 +54,5 @@ py-bcrypt==0.4
 alabaster==0.7.12
 amqp==2.6.0
 Chameleon==3.8.1
-tornado==6.0.4
+tornado==6.1
 webob==1.8.6
