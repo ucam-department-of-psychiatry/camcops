@@ -2996,6 +2996,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 2021
 ~~~~
 
-**Client and server v2.4.1, IN PROGRESS**
+**Client v2.4.1, released 9 Feb 2021**
 
 - iOS client now available for development
+
+**Client and server v2.4.2, IN PROGRESS**
