@@ -32,7 +32,7 @@ Quick links:
 - :ref:`2018 <changelog_2018>`
 - :ref:`2019 <changelog_2019>`
 - :ref:`2020 <changelog_2020>`
-
+- :ref:`2021 <changelog_2021>`
 
 Contributors
 ------------
@@ -2991,4 +2991,11 @@ Current C++/SQLite client, Python/SQLAlchemy server
   <khandaker_mojo_medical>` and :ref:`Khandaker GM — MOJO — Medications and therapies
   <khandaker_mojo_medicationtherapy>`. (Database revisions 0056-0057)
 
+.. _changelog_2021:
+
+2021
+~~~~
+
 **Client and server v2.4.1, IN PROGRESS**
+
+- iOS client now available for development
