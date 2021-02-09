@@ -56,7 +56,8 @@ void ProquintLineEdit::processChangedText()
         // Prev dash -1     5    11
 
         // ...or beyond the maximum length
-        if (new_text.length() < 49) {
+        const int max_len = 8 * 6 + 1;  // 8 groups of 5-and-dash, then check
+        if (new_text.length() < max_len) {
             int prev_dash_pos = new_text.lastIndexOf('-');
             if ((new_text.length() - prev_dash_pos) == 6) {
                 new_text += '-';
