@@ -1,12 +1,11 @@
 <?xml version="1.0"?>
-<manifest package="org.camcops.camcops" xmlns:android="http://schemas.android.com/apk/res/android" android:versionName="2.3.6" android:versionCode="13" android:installLocation="auto">
+<manifest package="org.camcops.camcops" xmlns:android="http://schemas.android.com/apk/res/android" android:versionName="2.4.1" android:versionCode="13" android:installLocation="auto">
     <application android:hardwareAccelerated="true" android:name="org.qtproject.qt5.android.bindings.QtApplication" android:label="CamCOPS" android:icon="@drawable/icon" android:allowBackup="false">
         <activity android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation" android:name="org.qtproject.qt5.android.bindings.QtActivity" android:label="CamCOPS" android:screenOrientation="unspecified" android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-
             <!-- <meta-data android:name="android.app.lib_name" android:value="CamCOPS"/> -->
             <meta-data android:name="android.app.lib_name" android:value="camcops"/>
             <meta-data android:name="android.app.qt_sources_resource_id" android:resource="@array/qt_sources"/>
@@ -29,24 +28,22 @@
             <meta-data android:value="@string/ministro_needed_msg" android:name="android.app.ministro_needed_msg"/>
             <meta-data android:value="@string/fatal_error_msg" android:name="android.app.fatal_error_msg"/>
             <!--  Messages maps -->
-
             <!-- Opt out of backup and restore infrastructure: see <application android:allowBackup>, above -->
-
             <!-- Splash screen -->
             <!--
             <meta-data android:name="android.app.splash_screen_drawable" android:resource="@drawable/logo"/>
             -->
-
             <!-- Background running -->
             <!-- Warning: changing this value to true may cause unexpected crashes if the
                           application still try to draw after
                           "applicationStateChanged(Qt::ApplicationSuspended)"
                           signal is sent! -->
             <meta-data android:name="android.app.background_running" android:value="false"/>
-
             <!-- auto screen scale factor -->
             <meta-data android:name="android.app.auto_screen_scale_factor" android:value="false"/>
-
+            <meta-data android:name="android.app.splash_screen_drawable" android:resource="@drawable/logo"/>
+            <meta-data android:name="android.app.splash_screen_drawable_portrait" android:resource="@drawable/logo_portrait"/>
+            <meta-data android:name="android.app.splash_screen_drawable_landscape" android:resource="@drawable/logo_landscape"/>
         </activity>
     </application>
     <uses-sdk android:minSdkVersion="23" android:targetSdkVersion="29"/>
