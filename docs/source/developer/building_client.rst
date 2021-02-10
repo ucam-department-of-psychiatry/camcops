@@ -80,23 +80,47 @@ Android (with a Linux build host)
 - To build Android programs under Linux, you will also need a Java development
   kit (JDK), such as OpenJDK: ``sudo apt install openjdk-8-jdk``.
 
-- Install the `Android SDK`_. This is an auto-updating set of software tools;
-  run ``tools/android`` to update it.
+- In Feb 2021, with Qt Creator 4.14.0, old versions of the Android SDK no
+  longer work. The settings at ``Tools --> Options --> Device --> Android``
+  complain, and you get silly errors like ``Project ERROR: You need to set the
+  ANDROID_NDK_ROOT environment variable to point to your Android NDK.``, even
+  when it's set (note that this environment variable is set/reset by Qt
+  Creator; https://bugreports.qt.io/browse/QTCREATORBUG-15240).
 
-  - Ensure SDK 26 is installed; this is the target version.
+- So, start your Android life afresh with Android Studio, as follows.
 
-- Android SDK version constraints:
+  Install Android Studio (e.g. in ``~/dev/android-studio``), then run
+  it (``bin/studio.sh``), and then via its ``Configure --> SDK Manager``, (a)
+  under SDK Platforms, install API level 29 (for CamCOPS), and 30 (because Qt
+  seems to want it); (b) under SDK Tools, install the defaults (Android SDK
+  Build-Tools, Android Emulator, Android SDK Platform-Tools), plus "NDK (Side
+  by side)". By default, it will install to ``~/Android/Sdk``. Then point Qt
+  Creator to that (i.e. "Android SDK location" should be ``~/Android/Sdk``).
+  Then Qt Creator should recognize everything, offer to install extras that it
+  needs, ask you to confirm licenses, and get on with it.
 
-  - Qt requires Android API ≥16 (http://doc.qt.io/qt-5/android-support.html).
+  You'll also have to reconfigure your kits to point to the compilers that come
+  with the kits.
 
-  - Qt 5.11.1 does not compile with the ``android-16`` toolchain (specifically
-    its Bluetooth components). Qt looks for a Java package
-    ``android.bluetooth.le``, which is the Bluetooth Low Energy component that
-    comes with Android SDK 18. So let's try 18 as the minimum. That does
-    compile.
+  **The current Android SDK target version** is shown in
+  ``AndroidManifest.xml``. **This is the version you need to install.**
 
-  - For whatever reasons, CamCOPS (v2.2.3-2.2.4) doesn't run on Android 4.4.x
-    (API 18) but does run on 6.0 (API 23); intermediates untested.
+- Set up a script file with variables like these:
+
+  .. code-block:: bash
+
+    export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+    export ANDROID_HOME=~/Android/Sdk
+    export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin
+
+  Source it when you want to use Android tools.
+
+- If Qt complains about e.g. ``failed to find Build Tools revision 19.1.0``,
+  then you can use ``sdkmanager --list`` and then install with e.g.
+  ``sdkmanager "build-tools;19.1.0"``, or in Qt Creator's ``Tools --> Options
+  --> Devices --> Android --> SDK Manager``..
+
+- Note some Android SDK version constraints:
 
   - Google Play store requires ``targetSdkVersion`` to be at least 26 from
     2018-11-01
@@ -116,25 +140,9 @@ Android (with a Linux build host)
     https://stackoverflow.com/questions/21888052/what-is-the-relation-between-app-platform-androidminsdkversion-and-androidtar/41079462#41079462,
     and https://developer.android.com/ndk/guides/stable_apis).
 
-- Install the `Android NDK`_. Tested with:
+- We are currently using Android NDK 19 or 20.
 
-  .. code-block:: none
-
-    android-ndk-r11c  # doesn't support 64-bit ARM
-    android-ndk-r20   # as of 2019-06-15
-
-- Android NDK version constraints:
-
-  - Qt favour Android NDK r10e (the May 2015 release)
-    (http://doc.qt.io/qt-5/androidgs.html) but r11c also seems to work fine.
-
-  - However, r11c doesn't support 64-bit ARM, which is required in the Google
-    Play Store as of Aug 2019, so we're trying r20. See
-    https://developer.android.com/distribute/best-practices/develop/64-bit.
-    Note also that Qt wants the ``android-clang`` toolchain for Qt 5.12 or
-    later and then supports the latest version (the GCC toolchain "requires
-    Android NDK r10e" [or r11c!]). So from 2019-06-15 we move to r20 with
-    clang, and add support for 64-bit ARM.
+.. todo:: Maybe "Include prebuilt OpenSSL libraries" will simplify things?
 
 
 Windows
@@ -443,8 +451,6 @@ Qt kits
 See :menuselection:`Tools --> Options --> Kits --> Kits`, or on MacOS, see
 :menuselection:`Qt Creator --> Preferences --> Kits --> Kits`.
 
-Options last checked against Qt Creator 4.6.2 (built June 2018), then 4.8.1
-(built Jan 2019) under Linux/Windows and 4.13.3 (built 13 Nov 2020) under MacOS.
 
 .. note::
 
@@ -457,6 +463,8 @@ Options last checked against Qt Creator 4.6.2 (built June 2018), then 4.8.1
 Non-default options are marked in bold and/or as "[non-default]".
 
 **Custom_Linux_x86_64**
+
+- Last checked against Qt Creator 4.8.1 (built Jan 2019).
 
     .. list-table::
         :header-rows: 1
@@ -498,53 +506,9 @@ Non-default options are marked in bold and/or as "[non-default]".
         * - Additional Qbs Profile Settings
           -
 
-**OLD_Custom_Android_ARM: DEPRECATED 32-BIT CONFIGURATION FOR GCC**
+**Custom_Android_ARM32: 32-BIT configuration for clang**
 
-    .. list-table::
-        :header-rows: 1
-        :stub-columns: 1
-
-        * - Option
-          - Setting
-        * - Name
-          - **[non-default]** ``OLD_Custom_Android_ARM``
-        * - File system name
-          -
-        * - Device type
-          - **Android Device**
-        * - Device
-          - Run on Android (default for Android)
-        * - Sysroot
-          -
-        * - Compiler: C
-          - <No compiler>
-        * - Compiler: C++
-          - Android GCC (C++, arm-4.9) [#androidgcc]_
-        * - Environment
-          - [not editable: "No changes to apply."]
-        * - Debugger
-          - Android Debugger for Android GCC (C++, arm-4.9) [#androidgcc]_
-        * - Qt version
-          - **THE "ANDROID" ONE FROM QT VERSIONS, ABOVE**
-        * - Qt mkspec
-          -
-        * - CMake Tool
-          - System CMake at ``/usr/bin/cmake``
-        * - CMake Generator
-          - CodeBlocks - Unix Makefiles
-        * - CMake Configuration
-          - [not editable]
-        * - Additional Qbs Profile Settings
-          -
-
-
-**Custom_Android_ARM32: current 32-BIT configuration for clang**
-
-    .. note::
-
-        If you have not set up your Android NDK (see above), the "Qt Versions"
-        tab will report "No compiler can produce code for this Qt version.
-        Please define one or more compilers for: arm-linux-android-elf-32bit".
+- Last checked against Qt Creator 4.14.0 (built 17 Dec 2020) under Linux.
 
     .. list-table::
         :header-rows: 1
@@ -563,19 +527,19 @@ Non-default options are marked in bold and/or as "[non-default]".
         * - Sysroot
           -
         * - Compiler: C
-          - **Android Clang (C, arm)**
+          - **Android Clang (C, arm, NDK 19.2.5345600)**
         * - Compiler: C++
-          - **Android Clang (C++, arm)**
+          - **Android Clang (C++, arm, NDK 19.2.5345600)**
         * - Environment
           - [not editable: "No changes to apply."]
         * - Debugger
-          - **Android Debugger for Android Clang (C++, arm)**
+          - **Android Debugger (armeabi-v7a, NDK 19.2.5345600)**
         * - Qt version
           - **THE "ANDROID, ARM 32-BIT" ONE FROM QT VERSIONS, ABOVE**
         * - Qt mkspec
           -
         * - CMake Tool
-          - System CMake at ``/usr/bin/cmake``
+          -
         * - CMake Generator
           - CodeBlocks - Unix Makefiles
         * - CMake Configuration
@@ -586,8 +550,9 @@ Non-default options are marked in bold and/or as "[non-default]".
         * - Additional Qbs Profile Settings
           -
 
-
 **Custom_Android_ARM64**
+
+- Last checked against Qt Creator 4.14.0 (built 17 Dec 2020) under Linux.
 
     .. list-table::
         :header-rows: 1
@@ -606,26 +571,25 @@ Non-default options are marked in bold and/or as "[non-default]".
         * - Sysroot
           -
         * - Compiler: C
-          - **Android Clang (C, aarch64)**
+          - **Android Clang (C, aarch64, NDK 19.2.5345600)**
         * - Compiler: C++
-          - **Android Clang (C++, aarch64)**
+          - **Android Clang (C++, aarch64, NDK 19.2.5345600)**
         * - Environment
           - [not editable: "No changes to apply."]
         * - Debugger
-          - **Android Debugger for Android Clang (C++, arm)**
+          - **Android Debugger (arm64-v8a, NDK 19.2.5345600)**
         * - Qt version
           - **THE "ANDROID, ARM 64-BIT" ONE FROM QT VERSIONS, ABOVE**
         * - Qt mkspec
           -
         * - CMake Tool
-          - System CMake at ``/usr/bin/cmake``
+          -
         * - CMake Generator
           - CodeBlocks - Unix Makefiles
         * - CMake Configuration
           - [not editable]
         * - Additional Qbs Profile Settings
           -
-
 
 **Custom_Android_x86** -- NOT FULLY TESTED
 
@@ -667,6 +631,8 @@ Non-default options are marked in bold and/or as "[non-default]".
           -
 
 **Custom_Windows_x86_64**
+
+- Last checked against Qt Creator 4.8.1 (built Jan 2019).
 
     .. list-table::
         :header-rows: 1
@@ -713,6 +679,8 @@ Non-default options are marked in bold and/or as "[non-default]".
 <none>, Toolset: <none>.*
 
 **Custom_Windows_x86_32**
+
+- Last checked against Qt Creator 4.8.1 (built Jan 2019).
 
     .. list-table::
         :header-rows: 1
@@ -771,8 +739,9 @@ Non-default options are marked in bold and/or as "[non-default]".
     ``amd64``; if you have a 32-bit machine, you definitely want to use ``x86``
     and ``x86_amd64``.
 
-
 **Custom_MacOS_x86_64**
+
+- Last checked against Qt Creator 4.13.3 (built 13 Nov 2020).
 
     .. list-table::
         :header-rows: 1
@@ -1135,6 +1104,10 @@ Troubleshooting qmake/compilation
   that looks like it's been pre-supplied), delete the whole build directory,
   which is not always removed by cleaning.
 
+  - That includes the Java error "duplicate class", e.g. ``error: duplicate
+    class: org.qtproject.qt5.android.bindings.QtLoader``
+    (https://stackoverflow.com/questions/43774714).
+
 - ``Error: "unsupported_android_version" is not translated``: see
   https://bugreports.qt.io/browse/QTBUG-63952. This error does not prevent you
   from continuing.
@@ -1143,8 +1116,11 @@ Troubleshooting qmake/compilation
 
   .. code-block:: none
 
-    /home/rudolf/dev/qt_local_build/qt_linux_x86_64_install/bin/qmlimportscanner: error while loading shared libraries: libicui18n.so.55: cannot open shared object file: No such file or directory
-    /home/rudolf/dev/qt_local_build/qt_linux_x86_64_install/mkspecs/features/qt.prf:312: Error parsing JSON at 1:1: illegal value
+    /home/rudolf/dev/qt_local_build/qt_linux_x86_64_install/bin/qmlimportscanner:
+    error while loading shared libraries: libicui18n.so.55: cannot open shared
+    object file: No such file or directory
+    /home/rudolf/dev/qt_local_build/qt_linux_x86_64_install/mkspecs/features/qt.prf:312:
+    Error parsing JSON at 1:1: illegal value
     Project ERROR: Failed to parse qmlimportscanner output.
 
   ... occurred after an upgrade from Ubuntu 16.04 to 18.04; the problem relates
@@ -1164,7 +1140,9 @@ Troubleshooting qmake/compilation
 
   .. code-block:: none
 
-    :-1: error: dependent 'C:\Users\rudol\dev\qt_local_build\qt_windows_x86_64_install\lib\Qt5MultimediaWidgetsd.lib' does not exist.
+    :-1: error: dependent
+    'C:\Users\rudol\dev\qt_local_build\qt_windows_x86_64_install\lib\Qt5MultimediaWidgetsd.lib'
+    does not exist.
 
   Try switching from "debug" to "release" build.
 

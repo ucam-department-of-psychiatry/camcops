@@ -30,7 +30,7 @@ QT_BASE_DIR = $$(CAMCOPS_QT_BASE_DIR)  # value at time of qmake ("now")
 isEmpty(QT_BASE_DIR) {
     error("Environment variable CAMCOPS_QT_BASE_DIR is undefined")
 }
-message("Using custom Qt/library base directory: $${QT_BASE_DIR}")
+message("From environment variable CAMCOPS_QT_BASE_DIR, using custom Qt/library base directory: $${QT_BASE_DIR}")
 message("... Qt version: $$[QT_VERSION]")
 message("... Qt is installed in: $$[QT_INSTALL_PREFIX]")
 message("... Qt resources can be found in the following locations:")
@@ -271,6 +271,8 @@ android {
     ANDROID_PACKAGE_SOURCE_DIR = "$${CAMCOPS_SOURCE_ROOT}/android"
     message("ANDROID_PACKAGE_SOURCE_DIR: $${ANDROID_PACKAGE_SOURCE_DIR}")
     # ... contains things like AndroidManifest.xml
+    message("Environment variable ANDROID_NDK_ROOT (should be set by Qt Creator): $$(ANDROID_NDK_ROOT)")
+    # ... https://bugreports.qt.io/browse/QTCREATORBUG-15240
 }
 windows {
     # -------------------------------------------------------------------------

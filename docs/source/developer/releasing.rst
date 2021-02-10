@@ -75,7 +75,19 @@ Google Play Store settings
 - **You upload a new version with** :menuselection:`Release management --> App
   releases --> Manage [production track] --> Create Release`.
 
-- Note also that if you try to install the .apk directly to a device that's
+  - You can upload two files with the same name (e.g.
+    ``android-build-release-signed.apk``) -- for example, one for 32-bit ARM
+    and one for 64-bit ARM. **But** they can't have the same version number.
+    See
+    https://developer.android.com/google/play/publishing/multiple-apks.html.
+    What Google prefer is an "Android App Bundle".
+    Qt might not support this yet:
+    https://www.qt.io/blog/2019/06/28/comply-upcoming-requirements-google-play.
+    The 64-bit version should have the higher version number.
+
+  .. todo: look at creating an Android App Bundle for multiple architectures. Does Qt now support this?
+
+- Note also that if you try to install the ``.apk`` directly to a device that's
   had an installation from Google Play Store, you'll get the error
   INSTALL_FAILED_UPDATE_INCOMPATIBLE (I think). Or if you mix debug/release
   versions.
@@ -118,8 +130,8 @@ Google Play Store release history
 +---------------+---------------------+---------------------+--------------------+---------+---------+
 | 2.3.4         | 12                  | 2.3.4               | 2019-06-21         | 23      | 26      |
 +---------------+---------------------+---------------------+--------------------+---------+---------+
-| 2.4.1         | 13                  | 2.4.1               | IN PROGRESS        | 23      | 28      |
-|               |                     |                     |                    |         |         |
+| 2.4.1         | 15 (32-bit ARM);    | 2.4.1               | 2021-02-10         | 23      | 29      |
+|               | 16 (64-bit ARM)     |                     |                    |         |         |
 +---------------+---------------------+---------------------+--------------------+---------+---------+
 
 
