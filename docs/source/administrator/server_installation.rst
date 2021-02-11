@@ -59,7 +59,7 @@ differences between Linux operating systems.
 Ubuntu installation from the CamCOPS Debian package
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To install CRATE and all its dependencies, download the Debian package and use
+To install CamCOPS and all its dependencies, download the Debian package from https://github.com/RudolfCardinal/camcops/releases and use
 ``gdebi``:
 
 .. code-block:: bash
