@@ -329,6 +329,30 @@ Is your browser correctly storing session cookies? Especially, are you trying
 to run CamCOPS over a non-encrypted (HTTP) link? The session cookies are set to
 secure and httponly for security reasons, and will not work without HTTPS.
 
+Is an intermediary between the web client and server (such as Azure Application
+Gateway) correctly setting the remote client IP address (REMOTE_ADDR
+header)?
+
+Check the entries in the database:
+
+.. code-block:: none
+
+    mysql> select * FROM _security_webviewer_sessions WHERE user_id IS NOT NULL;
+
+    +-------+--------------------------+---------------+---------+---------------------+----------------+----------------+
+    | id    | token                    | ip_address    | user_id | last_activity_utc   | number_to_view | task_filter_id |
+    +-------+--------------------------+---------------+---------+---------------------+----------------+----------------+
+    | 42622 | x7UAFgDHgVMRqpSTBA78bA== | 192.0.2.1     |       2 | 2021-02-16 17:51:16 |           NULL |           NULL |
+    | 42559 | B_uRclOdM12xhAFOdHUaNA== | 203.0.113.7   |       6 | 2021-02-16 17:42:54 |           NULL |           NULL |
+    +-------+--------------------------+---------------+---------+---------------------+----------------+----------------+
+
+The IP addresses in the table above are for a correct setup. If the addresses in
+the ``ip_address`` column include a port, which changes with each request,
+CamCOPS will consider these to be new sessions and the user will be logged out.
+
+Fix for Azure Application Gateway:
+- https://docs.microsoft.com/en-us/azure/application-gateway/rewrite-http-headers
+
 
 Tablet upload errors
 --------------------
