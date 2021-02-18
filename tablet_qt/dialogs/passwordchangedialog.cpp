@@ -19,8 +19,11 @@
 
 #include "passwordchangedialog.h"
 #include <QDialogButtonBox>
+#include <QGuiApplication>
 #include <QLabel>
 #include <QLineEdit>
+#include <QResizeEvent>
+#include <QScreen>
 #include <QVBoxLayout>
 #include "lib/uifunc.h"
 
@@ -41,8 +44,8 @@ PasswordChangeDialog::PasswordChangeDialog(const QString& text,
 
     auto mainlayout = new QVBoxLayout();
 
-    auto prompt = new QLabel(text);
-    mainlayout->addWidget(prompt);
+    m_prompt = new QLabel(text);
+    mainlayout->addWidget(m_prompt);
 
     if (require_old_password) {
         auto prompt_old = new QLabel(tr("Enter old password:"));
@@ -87,6 +90,19 @@ PasswordChangeDialog::PasswordChangeDialog(const QString& text,
 #endif
 
     setLayout(mainlayout);
+
+    QScreen *screen = QGuiApplication::primaryScreen();
+    screen->setOrientationUpdateMask(
+        Qt::LandscapeOrientation |
+        Qt::PortraitOrientation |
+        Qt::InvertedLandscapeOrientation |
+        Qt::InvertedPortraitOrientation
+    );
+
+    connect(screen, &QScreen::orientationChanged,
+            this, &PasswordChangeDialog::orientationChanged);
+
+    orientationChanged(screen->orientation());
 }
 
 
@@ -131,4 +147,23 @@ void PasswordChangeDialog::okClicked()
         return;
     }
     accept();
+}
+
+
+void PasswordChangeDialog::orientationChanged(Qt::ScreenOrientation orientation)
+{
+    QScreen* screen = QGuiApplication::primaryScreen();
+
+    QRect screen_rect = screen->geometry();
+
+    // int new_x = (screen_rect.width() - width()) / 2;
+    // int new_y = (screen_rect.height() - height()) / 2;
+
+    Qt::ScreenOrientation screen_orientation = screen->orientation();
+
+    QString label = QString("sw%1 sh%2 dw%3 dh%4 x%5 y%6 o%7 so%8").
+        arg(screen_rect.width()).arg(screen_rect.height()).arg(width()).arg(height()).arg(x()).arg(y()).arg(orientation).arg(screen_orientation);
+    m_prompt->setText(label);
+
+    // move(new_x, new_y);
 }
