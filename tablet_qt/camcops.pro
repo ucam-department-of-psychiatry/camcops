@@ -344,6 +344,9 @@ ios {
     disable_warning.value = "No"
     QMAKE_MAC_XCODE_SETTINGS += disable_warning
 
+    QMAKE_TARGET_BUNDLE_PREFIX = "uk.ac.cam.psychiatry"
+    QMAKE_BUNDLE = "camcops"
+
     QMAKE_INFO_PLIST = $${CAMCOPS_SOURCE_ROOT}/ios/Info.plist
 
     ios_icon.files = $$files($${CAMCOPS_SOURCE_ROOT}/ios/*.png)
