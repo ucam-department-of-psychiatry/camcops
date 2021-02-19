@@ -84,7 +84,7 @@ PasswordChangeDialog::PasswordChangeDialog(const QString& text,
 
 #ifdef Q_OS_IOS
     // Dialogs are full screen on iOS
-    prompt->setWordWrap(true);
+    m_prompt->setWordWrap(true);
     prompt_new1->setWordWrap(true);
     mainlayout->addStretch(1);
 #endif
