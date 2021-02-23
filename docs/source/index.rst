@@ -42,6 +42,8 @@ securely to your server.
     user/server_front_end_general.rst
     user/client_troubleshooting.rst
 
+    privacy.rst
+
     tasks/_tasks_by_category.rst
     tasks/_tasks_all.rst
     tasks/_tasks_missing.rst
