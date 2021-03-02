@@ -64,8 +64,10 @@ namespace platform {
 
 #if defined(Q_OS_ANDROID) || defined(Q_OS_IOS)
     const bool PLATFORM_TABLET = true;
+    const bool PLATFORM_FULL_SCREEN_DIALOGS = true;
 #else
     const bool PLATFORM_TABLET = false;
+    const bool PLATFORM_FULL_SCREEN_DIALOGS = false;
 #endif
 
 // https://stackoverflow.com/questions/36649393/qt-check-if-current-process-is-32-or-64-bit/41863992

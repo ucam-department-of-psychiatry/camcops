@@ -23,6 +23,7 @@
 #include <QPushButton>
 #include <QFormLayout>
 #include <QUrl>
+#include "common/platform.h"
 #include "common/varconst.h"
 #include "lib/uifunc.h"
 #include "qobjects/urlvalidator.h"
@@ -63,6 +64,10 @@ PatientRegistrationDialog::PatientRegistrationDialog(QWidget* parent) :
 
     // So we do this instead
     auto mainlayout = new QVBoxLayout();
+    if (platform::PLATFORM_FULL_SCREEN_DIALOGS) {
+        setWindowState(Qt::WindowFullScreen);
+        mainlayout->addStretch(1);
+    }
 
     auto server_url_label = new QLabel(
         tr("<b>CamCOPS server location</b> (e.g. https://server.example.com/camcops/api):")
@@ -84,11 +89,11 @@ PatientRegistrationDialog::PatientRegistrationDialog(QWidget* parent) :
 
     mainlayout->addWidget(m_buttonbox);
 
-#ifdef Q_OS_IOS
-    server_url_label->setWordWrap(true);
-    patient_proquint_label->setWordWrap(true);
-    mainlayout->addStretch(1);
-#endif
+    if (platform::PLATFORM_FULL_SCREEN_DIALOGS) {
+        server_url_label->setWordWrap(true);
+        patient_proquint_label->setWordWrap(true);
+        mainlayout->addStretch(1);
+    }
 
     setLayout(mainlayout);
 }

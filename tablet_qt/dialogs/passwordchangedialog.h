@@ -20,7 +20,6 @@
 #pragma once
 #include <QDialog>
 #include <QPointer>
-class QLabel;
 class QLineEdit;
 
 
@@ -38,12 +37,9 @@ public:
                          QWidget* parent = nullptr);
     QString oldPassword() const;
     QString newPassword() const;
-public slots:
-    void orientationChanged(Qt::ScreenOrientation orientation);
 protected:
     void okClicked();
 protected:
-    QPointer<QLabel> m_prompt;
     QPointer<QLineEdit> m_editor_old;
     QPointer<QLineEdit> m_editor_new1;
     QPointer<QLineEdit> m_editor_new2;
