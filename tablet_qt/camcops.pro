@@ -349,11 +349,11 @@ ios {
 
     QMAKE_INFO_PLIST = $${CAMCOPS_SOURCE_ROOT}/ios/Info.plist
 
-    ios_icon.files = $$files($${CAMCOPS_SOURCE_ROOT}/ios/*.png)
-    QMAKE_BUNDLE_DATA += ios_icon
-
     app_launch_screen.files = $$files($${CAMCOPS_SOURCE_ROOT}/ios/LaunchScreen.storyboard)
     QMAKE_BUNDLE_DATA += app_launch_screen
+
+    QMAKE_ASSET_CATALOGS = $${CAMCOPS_SOURCE_ROOT}/ios/Images.xcassets
+    QMAKE_ASSET_CATALOGS_APP_ICON = "AppIcon"
 }
 
 isEmpty(CAMCOPS_ARCH_TAG) {
@@ -1472,9 +1472,10 @@ OTHER_FILES += \
     android/gradlew.bat \
     android/res/drawable-ldpi/icon.png \
     android/res/values/libs.xml \
+    ios/camcops_icon_500.png \
     ios/Info.plist \
     ios/*.storyboard \
-    ios/*.png \
+    ios/Images.xcassets/AppIcon.appiconset/*.png \
     notes/compilation_android.txt \
     notes/compilation_linux.txt \
     notes/compilation_windows.txt \
