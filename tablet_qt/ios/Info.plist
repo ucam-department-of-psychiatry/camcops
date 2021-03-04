@@ -14,12 +14,21 @@
 	<string>${PRODUCT_NAME}</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
-	<key>CFBundleShortVersionString</key>
-	<string>2.4.2</string>
 	<key>CFBundleSignature</key>
 	<string>${QMAKE_PKGINFO_TYPEINFO}</string>
-	<key>CFBundleVersion</key>
+    <!-- What is the difference between these two? Good question.
+         Apple recommend three dot-separated integers for both though
+         apparently this isn't enforced.
+
+         https://developer.apple.com/documentation/bundleresources/information_property_list/cfbundleversion
+         https://developer.apple.com/documentation/bundleresources/information_property_list/cfbundleshortversionstring
+
+         You can't upload two binaries with the same CFBundleVersion
+    -->
+	<key>CFBundleShortVersionString</key>
 	<string>2.4.2</string>
+	<key>CFBundleVersion</key>
+	<string>2.4.2.8</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>MinimumOSVersion</key>
