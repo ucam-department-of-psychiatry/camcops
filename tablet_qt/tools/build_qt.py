@@ -2768,12 +2768,20 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
         fname_extra = openssl_major + fname_arch  # e.g. "-1_1-x64"
     else:
         fname_extra = ""
-    main_targets = [
-        join(workdir, f"libssl{fname_extra}{dynamic_lib_ext}"),
-        join(workdir, f"libssl{static_lib_ext}"),
-        join(workdir, f"libcrypto{fname_extra}{dynamic_lib_ext}"),
-        join(workdir, f"libcrypto{static_lib_ext}"),
-    ]
+
+    # Only build what is required because Qt can end up linking with the
+    # dynamic libraries instead of the static ones, even if you told it
+    # not to.
+    if target_platform.qt_linkage_static:
+        main_targets = [
+            join(workdir, f"libssl{static_lib_ext}"),
+            join(workdir, f"libcrypto{static_lib_ext}"),
+        ]
+    else:
+        main_targets = [
+            join(workdir, f"libssl{fname_extra}{dynamic_lib_ext}"),
+            join(workdir, f"libcrypto{fname_extra}{dynamic_lib_ext}"),
+        ]
 
     # Now, also: Linux likes to use "-lcrypto" and have that mean "look at
     # libcrypto.so", whereas under Windows we seem to have to use
@@ -2875,6 +2883,11 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
     if target_platform.ios:
         configure_args += [
             "no-makedepend",
+        ]
+
+    if target_platform.qt_linkage_static:
+        configure_args += [
+            "no-shared",
         ]
 
     # -------------------------------------------------------------------------
@@ -2996,51 +3009,6 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
 
         # See INSTALL, INSTALL.WIN, etc. from the OpenSSL distribution
         runmake()
-
-        if target_platform.ios:
-            # On iOS we need to change the install names to be embeddable in the
-            # app bundle's Frameworks folder
-            major_version = f".{openssl_verparts[0]}.{openssl_verparts[1]}"
-
-            libcrypto_build_path = join(
-                workdir,
-                f"libcrypto{major_version}{dynamic_lib_ext}"
-            )
-            libssl_build_path = join(
-                workdir,
-                f"libssl{major_version}{dynamic_lib_ext}"
-            )
-
-            libcrypto_install_path = join(
-                workdir,
-                "lib",
-                f"libcrypto{major_version}{dynamic_lib_ext}"
-            )
-
-            run([
-                INSTALL_NAME_TOOL,
-                "-id",
-                f"@rpath/libcrypto{dynamic_lib_ext}",
-                f"{libcrypto_build_path}"
-            ])
-
-            run([
-                INSTALL_NAME_TOOL,
-                "-id",
-                f"@rpath/libssl{dynamic_lib_ext}",
-                f"{libssl_build_path}"
-            ])
-
-            run([
-                INSTALL_NAME_TOOL,
-                "-change",
-                f"{libcrypto_install_path}",
-                f"@rpath/libcrypto{dynamic_lib_ext}",
-                f"{libssl_build_path}"
-            ])
-
-            # Copy the binaries to where the install_name expects them to be
-            runmake("install_runtime_libs")
 
         # ---------------------------------------------------------------------
         # OpenSSL: Test

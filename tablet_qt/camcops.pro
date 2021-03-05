@@ -320,8 +320,8 @@ ios {
     # -------------------------------------------------------------------------
     STATIC_LIB_EXT = ".a"
     DYNAMIC_LIB_EXT = ".dylib"
-    CAMCOPS_QT_LINKAGE = "dynamic"
-    CAMCOPS_OPENSSL_LINKAGE = "dynamic"
+    CAMCOPS_QT_LINKAGE = "static"
+    CAMCOPS_OPENSSL_LINKAGE = "static"
 
     # Both iphoneos and iphonesimulator are set ?!
     CONFIG(iphoneos, iphoneos|iphonesimulator) {
@@ -488,16 +488,6 @@ ANDROID_EXTRA_LIBS += "$${OPENSSL_DIR}/libcrypto$${DYNAMIC_LIB_EXT}"  # needed f
 ANDROID_EXTRA_LIBS += "$${OPENSSL_DIR}/libssl$${DYNAMIC_LIB_EXT}"
 # ... must start "lib" and end ".so", otherwise Qt complains.
 
-
-# iOS specials
-QMAKE_RPATHDIR = @executable_path/Frameworks
-crypto.files = "$${OPENSSL_DIR}/libcrypto$${DYNAMIC_LIB_EXT}"
-crypto.path = Frameworks
-QMAKE_BUNDLE_DATA += crypto
-
-ssl.files = "$${OPENSSL_DIR}/libssl$${DYNAMIC_LIB_EXT}"
-ssl.path = Frameworks
-QMAKE_BUNDLE_DATA += ssl
 
 # -----------------------------------------------------------------------------
 # SQLCipher
