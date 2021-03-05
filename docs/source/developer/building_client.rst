@@ -800,7 +800,7 @@ Non-default options are marked in bold and/or as "[non-default]".
         * - Device
           - **Your device**
         * - Sysroot
-            ``/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk``
+          - ``/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk``
         * - Compiler: C
           - **Apple Clang (arm64)**
         * - Compiler: C++
@@ -1235,12 +1235,3 @@ Troubleshooting running CamCOPS
     sudo ln -s /usr/lib/x86_64-linux-gnu/mesa-egl/libOpenVG.so.1 /usr/lib/x86_64-linux-gnu/libOpenVG.so.1
 
 .. That symlink implemented manually on wombat, osprey
-
-
-===============================================================================
-
-.. rubric:: Footnotes
-
-.. [#androidgcc]
-    Prior to Qt 5.12.0, the compiler was "Android GCC (arm-4.9)", and the
-    debugger was "Android Debugger for Android GCC (arm-4.9)".

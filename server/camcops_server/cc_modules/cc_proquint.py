@@ -102,7 +102,8 @@ def proquint_from_int(int_value: int,
                       size_in_bits: int) -> str:
     """Convert integer value into proquint
 
-    .. code-block:: python
+    .. code-block:: none
+
         >>> proquint_from_int(0x493b05ee, 32)
         hohur-bilov
 
@@ -227,15 +228,17 @@ def int_from_proquint(proquint: str) -> int:
     """
     Convert proquint string into integer.
 
-    >>> hex(int_from_proquint('hohur-bilov-j'))
-    0x493b05ee
+    .. code-block:; none
 
-       h    o    h    u    r -    b    i    l    o    v
-     0x4  0x2  0x4  0x3  0xb -  0x0  0x1  0x7  0x2  0xe
+        >>> hex(int_from_proquint('hohur-bilov-j'))
+        0x493b05ee
 
-    0100   10 0100   11 1011 - 0000   01 0111   10 1110
-    0100    1001   0011 1011 - 0000    0101   1110 1110
-     0x4     0x9    0x3  0xb -  0x0     0x5    0xe  0xe
+           h    o    h    u    r -    b    i    l    o    v
+         0x4  0x2  0x4  0x3  0xb -  0x0  0x1  0x7  0x2  0xe
+
+        0100   10 0100   11 1011 - 0000   01 0111   10 1110
+        0100    1001   0011 1011 - 0000    0101   1110 1110
+         0x4     0x9    0x3  0xb -  0x0     0x5    0xe  0xe
 
     Args:
         proquint:
