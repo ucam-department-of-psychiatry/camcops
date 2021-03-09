@@ -1075,6 +1075,7 @@ class Platform(object):
                 # Output looks like [number of spaces not right]:
                 #
                 # Archive : FILENAME        -- this line not always present
+                # libcrypto.a(aes_cfp.o)    -- (example) this line not always present
                 # Mach header
                 #       magic cputype cpusubtype  caps filetype sizeofcmds flags  # noqa
                 #  0xfeedface     ARM         V7  0x00        6       1564 NOUNDEFS DYLDLINK TWOLEVEL NO_REEXPORTED_DYLIBS  # noqa
@@ -1082,7 +1083,7 @@ class Platform(object):
                 arm64tag_present = False
                 for line in lines:
                     words = line.split()
-                    if words[0] in ["Archive", "Mach", "magic"]:
+                    if words[0] in ["Archive", "Mach", "magic"] or words[0].startswith(filename):
                         continue
                     assert len(words) > 1, "Unknown format of otool output"
                     cputype = words[1]
