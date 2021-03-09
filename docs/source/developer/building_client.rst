@@ -994,9 +994,34 @@ It is possible to deploy to an actual device via USB or the iOS simulator using
 a development provisioning profile associated with an Apple developer ID. You
 need to enable developer mode on the device.
 
-Many problems can be solved by restarting Qt Creator, XCode and any running iOS
-simulator.
+Some build/deploy problems can be solved by restarting Qt Creator, XCode and
+any running iOS simulator but check the error messages in Qt Creator first.
 
+To deploy to the Apple Store:
+
+- Up the version numbers in Info.plist
+- Build the project first in QtCreator for any configuration
+- Start Xcode
+- Load the xcodeproj file into Xcode
+- Switch to the new build system (File -> Project Settings)
+- Set the Active scheme to be Any iOS Device (arm64)
+- Archive the project (Product -> Archive)
+- Open the Organizer (Window -> Organizer)
+- Select the Archive and then Distribute App to App Store Connect, accepting all the defaults
+
+The progress bar shows 100% throughout the upload but you can watch the java
+process on the Network tab of the Activity Monitor.
+
+Validate App does not run the same set of tests as the App Store does. Even if
+after half an hour your package is successfully uploaded to App Store Connect
+there may still be problems, of which you will be notified by email several
+minutes later.
+
+If you want to debug the .ipa file sent to App Store Connect, choose the
+"Export" option. It's a zip file.
+
+The archive process will result in a broken symlink when you next build the project
+in QtCreator (error message mkdir failed). You can just delete it.
 
 General
 ~~~~~~~
