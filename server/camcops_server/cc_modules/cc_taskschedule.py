@@ -28,6 +28,7 @@ camcops_server/cc_modules/cc_taskschedule.py
 
 import logging
 from typing import List, Iterable, Optional, Tuple, TYPE_CHECKING
+from urllib.parse import quote, urlencode
 
 from pendulum import DateTime as Pendulum, Duration
 
@@ -52,7 +53,11 @@ from camcops_server.cc_modules.cc_taskcollection import (
     TaskCollection,
     TaskSortMethod,
 )
-from camcops_server.cc_modules.cc_unittest import DemoRequestTestCase
+from camcops_server.cc_modules.cc_unittest import (
+    DemoDatabaseTestCase,
+    DemoRequestTestCase,
+)
+
 
 if TYPE_CHECKING:
     from sqlalchemy.sql.elements import Cast
@@ -200,6 +205,15 @@ class PatientTaskSchedule(Base):
             return collection.all_tasks[0]
 
         return None
+
+    def mailto_url(self):
+        mailto_params = urlencode({
+            "subject": self.task_schedule.email_subject,
+        }, quote_via=quote)
+
+        mailto_url = f"mailto:{self.patient.email}?" + mailto_params
+
+        return mailto_url
 
 
 def task_schedule_item_sort_order() -> Tuple["Cast", "Cast"]:
@@ -370,3 +384,36 @@ class TaskScheduleItemTests(DemoRequestTestCase):
         item.due_by = Duration(days=30)
 
         self.assertEqual(item.due_within.in_days(), 30)
+
+
+class PatientTaskScheduleTests(DemoDatabaseTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+        import datetime
+
+        self.schedule = TaskSchedule()
+        self.schedule.group_id = self.group.id
+        self.dbsession.add(self.schedule)
+
+        self.patient = self.create_patient(
+            id=1, forename="Jo", surname="Patient",
+            dob=datetime.date(1958, 4, 19),
+            sex="F", address="Address", gp="GP", other="Other"
+        )
+
+        self.pts = PatientTaskSchedule()
+        self.pts.schedule_id = self.schedule.id
+        self.pts.patient_pk = self.patient.pk
+        self.dbsession.add(self.pts)
+        self.dbsession.flush()
+
+    def test_mailto_url_contains_patient_email(self) -> None:
+        self.assertIn(f"mailto:{self.patient.email}", self.pts.mailto_url())
+
+    def test_mailto_url_contains_subject(self) -> None:
+        self.schedule.email_subject = "CamCOPS access key"
+        self.dbsession.add(self.schedule)
+        self.dbsession.flush()
+
+        self.assertIn("subject=CamCOPS%20access%20key", self.pts.mailto_url())
