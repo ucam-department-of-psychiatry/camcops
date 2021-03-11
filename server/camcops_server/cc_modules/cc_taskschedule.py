@@ -39,6 +39,7 @@ from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_group import Group
+from camcops_server.cc_modules.cc_pyramid import Routes
 from camcops_server.cc_modules.cc_simpleobjects import IdNumReference
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 from camcops_server.cc_modules.cc_sqla_coltypes import (
@@ -206,9 +207,11 @@ class PatientTaskSchedule(Base):
 
         return None
 
-    def mailto_url(self):
+    def mailto_url(self, req: "CamcopsRequest"):
+        # TODO: random entries / badly formatted string
         template_dict = {
             "access_key": self.patient.uuid_as_proquint,
+            "server_url": req.route_url(Routes.CLIENT_API)
         }
 
         email_body = self.task_schedule.email_template.format(**template_dict)
@@ -417,14 +420,16 @@ class PatientTaskScheduleTests(DemoDatabaseTestCase):
         self.dbsession.flush()
 
     def test_mailto_url_contains_patient_email(self) -> None:
-        self.assertIn(f"mailto:{self.patient.email}", self.pts.mailto_url())
+        self.assertIn(f"mailto:{self.patient.email}",
+                      self.pts.mailto_url(self.req))
 
     def test_mailto_url_contains_subject(self) -> None:
         self.schedule.email_subject = "CamCOPS access key"
         self.dbsession.add(self.schedule)
         self.dbsession.flush()
 
-        self.assertIn("subject=CamCOPS%20access%20key", self.pts.mailto_url())
+        self.assertIn("subject=CamCOPS%20access%20key",
+                      self.pts.mailto_url(self.req))
 
     def test_mailto_url_contains_access_key(self) -> None:
         self.schedule.email_template = "{access_key}"
@@ -432,4 +437,14 @@ class PatientTaskScheduleTests(DemoDatabaseTestCase):
         self.dbsession.flush()
 
         self.assertIn(f"body={self.patient.uuid_as_proquint}",
-                      self.pts.mailto_url())
+                      self.pts.mailto_url(self.req))
+
+    def test_mailto_url_contains_server_url(self) -> None:
+        self.schedule.email_template = "{server_url}"
+        self.dbsession.add(self.schedule)
+        self.dbsession.flush()
+
+        expected_url = urlencode({"body":
+                                  self.req.route_url(Routes.CLIENT_API)})
+
+        self.assertIn(f"{expected_url}", self.pts.mailto_url(self.req))
