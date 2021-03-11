@@ -27,6 +27,7 @@ camcops_server/cc_modules/cc_taskschedule.py
 """
 
 import logging
+from string import Template
 from typing import List, Iterable, Optional, Tuple, TYPE_CHECKING
 from urllib.parse import quote, urlencode
 
@@ -208,13 +209,13 @@ class PatientTaskSchedule(Base):
         return None
 
     def mailto_url(self, req: "CamcopsRequest"):
-        # TODO: random entries / badly formatted string
-        template_dict = {
-            "access_key": self.patient.uuid_as_proquint,
-            "server_url": req.route_url(Routes.CLIENT_API)
-        }
+        template_dict = dict(
+            access_key=self.patient.uuid_as_proquint,
+            server_url=req.route_url(Routes.CLIENT_API)
+        )
 
-        email_body = self.task_schedule.email_template.format(**template_dict)
+        email_template = Template(self.task_schedule.email_template)
+        email_body = email_template.safe_substitute(template_dict)
 
         mailto_params = urlencode({
             "subject": self.task_schedule.email_subject,
@@ -432,7 +433,7 @@ class PatientTaskScheduleTests(DemoDatabaseTestCase):
                       self.pts.mailto_url(self.req))
 
     def test_mailto_url_contains_access_key(self) -> None:
-        self.schedule.email_template = "{access_key}"
+        self.schedule.email_template = "$access_key"
         self.dbsession.add(self.schedule)
         self.dbsession.flush()
 
@@ -440,7 +441,7 @@ class PatientTaskScheduleTests(DemoDatabaseTestCase):
                       self.pts.mailto_url(self.req))
 
     def test_mailto_url_contains_server_url(self) -> None:
-        self.schedule.email_template = "{server_url}"
+        self.schedule.email_template = "$server_url"
         self.dbsession.add(self.schedule)
         self.dbsession.flush()
 
@@ -448,3 +449,11 @@ class PatientTaskScheduleTests(DemoDatabaseTestCase):
                                   self.req.route_url(Routes.CLIENT_API)})
 
         self.assertIn(f"{expected_url}", self.pts.mailto_url(self.req))
+
+    def test_mailto_url_ignores_invalid_template(self) -> None:
+        self.schedule.email_template = "Something $foobar"
+        self.dbsession.add(self.schedule)
+        self.dbsession.flush()
+
+        self.assertIn("body=Something%20%24foobar",
+                      self.pts.mailto_url(self.req))
