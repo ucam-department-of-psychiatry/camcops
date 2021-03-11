@@ -261,9 +261,10 @@ class TaskSchedule(Base):
     name = Column("name", UnicodeText, comment="name")
 
     email_subject = Column("email_subject", UnicodeText,
-                           comment="email subject")
+                           comment="email subject", nullable=False, default="")
     email_template = Column("email_template", UnicodeText,
-                            comment="email template")
+                            comment="email template", nullable=False,
+                            default="")
 
     items = relationship(
         "TaskScheduleItem",
