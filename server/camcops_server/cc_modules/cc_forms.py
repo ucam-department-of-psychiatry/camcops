@@ -4067,9 +4067,28 @@ class EditServerCreatedPatientForm(DynamicDescriptionsForm):
         )
 
 
+class EmailTemplateNode(OptionalStringNode, RequestAwareMixin):
+    def __init__(self, *args, **kwargs) -> None:
+        self.title = ""  # for type checker
+        self.description = ""  # for type checker
+        super().__init__(*args, **kwargs)
+
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        _ = self.gettext
+        self.title = _("Email template")
+        self.description = _(
+            "Template of email to be sent to patients when inviting them to "
+            "complete the tasks in the schedule. Available placeholders: "
+            "$access_key, $server_url"
+        )
+        self.widget = TextAreaWidget(rows=20, cols=80)
+
+
 class TaskScheduleSchema(CSRFSchema):
     name = OptionalStringNode()
     group_id = MandatoryGroupIdSelectorAdministeredGroups()  # must match ViewParam.GROUP_ID  # noqa
+    email_subject = OptionalStringNode()
+    email_template = EmailTemplateNode()
 
 
 class EditTaskScheduleForm(DynamicDescriptionsForm):

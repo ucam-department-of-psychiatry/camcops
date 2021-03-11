@@ -4231,6 +4231,8 @@ class TaskScheduleMixin(object):
     model_form_dict = {
         "name": ViewParam.NAME,
         "group_id": ViewParam.GROUP_ID,
+        "email_subject": ViewParam.EMAIL_SUBJECT,
+        "email_template": ViewParam.EMAIL_TEMPLATE,
     }
     object_class = TaskSchedule
     request: "CamcopsRequest"
@@ -4556,6 +4558,8 @@ class AddTaskScheduleViewTests(DemoDatabaseTestCase):
             (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
             (ViewParam.NAME, "MOJO"),
             (ViewParam.GROUP_ID, self.group.id),
+            (ViewParam.EMAIL_SUBJECT, "Subject"),
+            (ViewParam.EMAIL_TEMPLATE, "Email template"),
             (FormAction.SUBMIT, "submit"),
         ])
 
@@ -4569,6 +4573,8 @@ class AddTaskScheduleViewTests(DemoDatabaseTestCase):
         schedule = self.dbsession.query(TaskSchedule).one()
 
         self.assertEqual(schedule.name, "MOJO")
+        self.assertEqual(schedule.email_subject, "Subject")
+        self.assertEqual(schedule.email_template, "Email template")
 
         self.assertEqual(e.exception.status_code, 302)
         self.assertIn(
