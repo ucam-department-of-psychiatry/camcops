@@ -207,8 +207,15 @@ class PatientTaskSchedule(Base):
         return None
 
     def mailto_url(self):
+        template_dict = {
+            "access_key": self.patient.uuid_as_proquint,
+        }
+
+        email_body = self.task_schedule.email_template.format(**template_dict)
+
         mailto_params = urlencode({
             "subject": self.task_schedule.email_subject,
+            "body": email_body,
         }, quote_via=quote)
 
         mailto_url = f"mailto:{self.patient.email}?" + mailto_params
@@ -418,3 +425,11 @@ class PatientTaskScheduleTests(DemoDatabaseTestCase):
         self.dbsession.flush()
 
         self.assertIn("subject=CamCOPS%20access%20key", self.pts.mailto_url())
+
+    def test_mailto_url_contains_access_key(self) -> None:
+        self.schedule.email_template = "{access_key}"
+        self.dbsession.add(self.schedule)
+        self.dbsession.flush()
+
+        self.assertIn(f"body={self.patient.uuid_as_proquint}",
+                      self.pts.mailto_url())
