@@ -352,13 +352,25 @@ Manage scheduled tasks for patients
 You can schedule tasks for a patient to complete on their own tablet with the
 CamCOPS app running in :ref:`Single User Mode <single_user_mode>`.
 
+The key pieces of information your patient needs to know are:
+
+- Where they can download CamCOPS for their tablet, phone, laptop etc (Google
+  Play, Apple Store, GitHub)
+- The location of the CamCOPS server
+- Their unique access key
+
+How you choose to communicate these to your patients is up to you. CamCOPS
+supports a simple email workflow.
+
 Your task schedules and patients will be associated with a :ref:`group
 <groups>` that you administer. You must set the IP settings for this group to
 describe the contexts in which your group operates (clinical, commercial etc.).
 Any tasks you schedule for a patient need to be permitted for these contexts.
 
 - First of all create a task schedule for your study (:menuselection:`Manage
-  task schedules --> Add a task schedule`).
+  task schedules --> Add a task schedule`). Here you can add an email template,
+  which can be customised to include the location of the server and the patient's
+  unique access key.
 
 - Next add items to your schedule (:menuselection:`Edit items` from the table
   of schedules):
@@ -401,8 +413,8 @@ If the patient has been successfully created, they should now appear in the
 table along with the unique access key that they need for registration. The
 address of the server is also displayed on this page for convenience. If you
 have provided an email address for the patient, the email link in this
-table will launch a mail client with the unique key and server address in the
-body of the email.
+table will launch a mail client with the body of the email populated from the
+template associated with the schedule.
 
 You can view a patient's progress through the schedule by following the link to
 the named schedule from the table. From this table you can view the uploaded
