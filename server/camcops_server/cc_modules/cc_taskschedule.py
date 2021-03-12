@@ -208,7 +208,7 @@ class PatientTaskSchedule(Base):
 
         return None
 
-    def mailto_url(self, req: "CamcopsRequest"):
+    def mailto_url(self, req: "CamcopsRequest") -> str:
         template_dict = dict(
             access_key=self.patient.uuid_as_proquint,
             server_url=req.route_url(Routes.CLIENT_API)
@@ -222,7 +222,7 @@ class PatientTaskSchedule(Base):
             "body": email_body,
         }, quote_via=quote)
 
-        mailto_url = f"mailto:{self.patient.email}?" + mailto_params
+        mailto_url = f"mailto:{self.patient.email}?{mailto_params}"
 
         return mailto_url
 
