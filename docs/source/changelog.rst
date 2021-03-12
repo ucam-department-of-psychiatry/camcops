@@ -3001,3 +3001,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - iOS client now available for development
 
 **Client and server v2.4.2, IN PROGRESS**
+
+- Ability to customise the emails sent to patients assigned to a task schedule.
+  (Database revision 0058)
