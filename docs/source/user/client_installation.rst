@@ -64,23 +64,9 @@ Manual installation of an Android package is possible like this:
 iOS
 ~~~
 
-This is currently suboptimal because CamCOPS is not yet in the Apple App Store,
-and iOS makes it almost impossible to install third-party apps via other
-routes. The only way is via an Individual or Enterprise Developer Account.
+Install the iOS app directly from the Apple App Store:
 
-Apple operate a restricted distribution system for iOS. Apps available via the
-App Store are publicly available and vetted by Apple. In addition, registered
-developers can install apps on their test hardware, and can also produce
-downloadable .IPA files. These IPA files are either locked to a specific subset
-of tablets (via a development certificate) or installable on any tablet (via an
-Enterprise distribution certificate); however, making Enterprise apps available
-outside the company concerned would be a breach of contract (specifically, of
-the iOS Developer Program Enterprise License Agreement). So the only way for
-other users to use source code is to (a) download the source code, register as
-Apple developers, and install the app to their own devices or distribute them
-within their own organization as above; or (b) wait for the App Store version.
-
-.. todo:: Submit CamCOPS to Apple App Store.
+- https://www.apple.com/uk/ios/app-store/
 
 
 Windows

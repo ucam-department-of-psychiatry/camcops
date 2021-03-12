@@ -99,10 +99,6 @@ Client core
 
 **Priority**
 
-- iOS build.
-
-- Apple App Store.
-
 - Create 64-bit ARM build, then release to Google Play Store (deadline 1 Aug
   2019). Work in progress: ``build_qt.py --build_android_arm_v8_64``.
 
