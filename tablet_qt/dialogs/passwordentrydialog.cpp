@@ -22,6 +22,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QVBoxLayout>
+#include "common/platform.h"
 #include "lib/uifunc.h"
 
 
@@ -46,14 +47,19 @@ PasswordEntryDialog::PasswordEntryDialog(const QString& text,
             this, &PasswordEntryDialog::reject);
 
     auto mainlayout = new QVBoxLayout();
+    if (platform::PLATFORM_FULL_SCREEN_DIALOGS) {
+        setWindowState(Qt::WindowFullScreen);
+        mainlayout->addStretch(1);
+    }
+
     mainlayout->addWidget(prompt);
     mainlayout->addWidget(m_editor);
     mainlayout->addWidget(buttonbox);
 
-#ifdef Q_OS_IOS
-    prompt->setWordWrap(true);
-    mainlayout->addStretch(1);
-#endif
+    if (platform::PLATFORM_FULL_SCREEN_DIALOGS) {
+        prompt->setWordWrap(true);
+        mainlayout->addStretch(1);
+    }
 
     setLayout(mainlayout);
 }
