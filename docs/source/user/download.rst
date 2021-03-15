@@ -86,19 +86,7 @@ Store, because that's simpler. However, you can also install a ``.apk``
 iOS client notes
 ~~~~~~~~~~~~~~~~
 
-Apple operate a restricted distribution system for iOS. Apps available via the
-App Store are publicly available and vetted by Apple. In addition, registered
-developers can install apps on their test hardware, and can also produce
-downloadable ``.ipa`` files. These IPA files are either locked to a specific
-subset of tablets (via a development certificate) or installable on any tablet
-(via an Enterprise distribution certificate); however, making Enterprise apps
-available outside the company concerned would be a breach of contract
-(specifically, of the iOS Developer Program Enterprise License Agreement). So:
-a restricted CPFT distribution will be available as
-``camcops_VERSION_cpft.ipa`` but all other users will either have to (a)
-download the source code, register as Apple developers, and install the app to
-their own devices or distribute them within their own organization as above; or
-(b) wait for the App Store version.
+Install from the Apple App Store.
 
 
 Server notes
@@ -117,7 +105,6 @@ Ubuntu) and ``.rpm`` packages for e.g. CentOS.
 Pending
 ~~~~~~~
 
-- Apple App Store iOS download
 - Linux client app download
 - Windows server package (unless PyPI is enough)
 

@@ -957,6 +957,14 @@ class Platform(object):
         return self.cpu in [Cpu.ARM_V8_64]
 
     # -------------------------------------------------------------------------
+    # Linkage method of Qt
+    # -------------------------------------------------------------------------
+    @property
+    def qt_linkage_static(self) -> bool:
+        # NOT Android; dynamic linkage then bundling into single-file APK.
+        return self.desktop or self.ios
+
+    # -------------------------------------------------------------------------
     # Library (e.g. .so, DLL) verification
     # -------------------------------------------------------------------------
 
@@ -1067,6 +1075,7 @@ class Platform(object):
                 # Output looks like [number of spaces not right]:
                 #
                 # Archive : FILENAME        -- this line not always present
+                # libcrypto.a(aes_cfp.o)    -- (example) this line not always present
                 # Mach header
                 #       magic cputype cpusubtype  caps filetype sizeofcmds flags  # noqa
                 #  0xfeedface     ARM         V7  0x00        6       1564 NOUNDEFS DYLDLINK TWOLEVEL NO_REEXPORTED_DYLIBS  # noqa
@@ -1074,7 +1083,7 @@ class Platform(object):
                 arm64tag_present = False
                 for line in lines:
                     words = line.split()
-                    if words[0] in ["Archive", "Mach", "magic"]:
+                    if words[0] in ["Archive", "Mach", "magic"] or words[0].startswith(filename):
                         continue
                     assert len(words) > 1, "Unknown format of otool output"
                     cputype = words[1]
@@ -2760,12 +2769,20 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
         fname_extra = openssl_major + fname_arch  # e.g. "-1_1-x64"
     else:
         fname_extra = ""
-    main_targets = [
-        join(workdir, f"libssl{fname_extra}{dynamic_lib_ext}"),
-        join(workdir, f"libssl{static_lib_ext}"),
-        join(workdir, f"libcrypto{fname_extra}{dynamic_lib_ext}"),
-        join(workdir, f"libcrypto{static_lib_ext}"),
-    ]
+
+    # Only build what is required because Qt can end up linking with the
+    # dynamic libraries instead of the static ones, even if you told it
+    # not to.
+    if target_platform.qt_linkage_static:
+        main_targets = [
+            join(workdir, f"libssl{static_lib_ext}"),
+            join(workdir, f"libcrypto{static_lib_ext}"),
+        ]
+    else:
+        main_targets = [
+            join(workdir, f"libssl{fname_extra}{dynamic_lib_ext}"),
+            join(workdir, f"libcrypto{fname_extra}{dynamic_lib_ext}"),
+        ]
 
     # Now, also: Linux likes to use "-lcrypto" and have that mean "look at
     # libcrypto.so", whereas under Windows we seem to have to use
@@ -2867,6 +2884,11 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
     if target_platform.ios:
         configure_args += [
             "no-makedepend",
+        ]
+
+    if target_platform.qt_linkage_static:
+        configure_args += [
+            "no-shared",
         ]
 
     # -------------------------------------------------------------------------
@@ -2989,51 +3011,6 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
         # See INSTALL, INSTALL.WIN, etc. from the OpenSSL distribution
         runmake()
 
-        if target_platform.ios:
-            # On iOS we need to change the install names to be embeddable in the
-            # app bundle's Frameworks folder
-            major_version = f".{openssl_verparts[0]}.{openssl_verparts[1]}"
-
-            libcrypto_build_path = join(
-                workdir,
-                f"libcrypto{major_version}{dynamic_lib_ext}"
-            )
-            libssl_build_path = join(
-                workdir,
-                f"libssl{major_version}{dynamic_lib_ext}"
-            )
-
-            libcrypto_install_path = join(
-                workdir,
-                "lib",
-                f"libcrypto{major_version}{dynamic_lib_ext}"
-            )
-
-            run([
-                INSTALL_NAME_TOOL,
-                "-id",
-                f"@rpath/libcrypto{dynamic_lib_ext}",
-                f"{libcrypto_build_path}"
-            ])
-
-            run([
-                INSTALL_NAME_TOOL,
-                "-id",
-                f"@rpath/libssl{dynamic_lib_ext}",
-                f"{libssl_build_path}"
-            ])
-
-            run([
-                INSTALL_NAME_TOOL,
-                "-change",
-                f"{libcrypto_install_path}",
-                f"@rpath/libcrypto{dynamic_lib_ext}",
-                f"{libssl_build_path}"
-            ])
-
-            # Copy the binaries to where the install_name expects them to be
-            runmake("install_runtime_libs")
-
         # ---------------------------------------------------------------------
         # OpenSSL: Test
         # ---------------------------------------------------------------------
@@ -3106,12 +3083,8 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
     # Qt: Setup
     # -------------------------------------------------------------------------
 
-    # Linkage method of Qt itself?
-    qt_linkage_static = target_platform.desktop
-    # NOT Android; dynamic linkage then bundling into single-file APK.
-
     # Means by which Qt links to OpenSSL?
-    qt_openssl_linkage_static = cfg.qt_openssl_static and qt_linkage_static
+    qt_openssl_linkage_static = cfg.qt_openssl_static and target_platform.qt_linkage_static
     # If Qt is linked dynamically, we do not let it link to OpenSSL
     # statically (it won't work).
 
@@ -3197,7 +3170,7 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         # "-sysroot": not required; Qt's configure should handle this
         # "-gcc-sysroot": not required
     ]
-    if qt_linkage_static:
+    if target_platform.qt_linkage_static:
         qt_config_args.append("-static")
         # makes a static Qt library (cf. default of "-shared")
         # ... NB ALSO NEEDS "CONFIG += static" in the .pro file
@@ -3598,7 +3571,7 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
         # Linker:
         ldflags = [f"-L{openssl_workdir}"]
 
-        link_openssl_statically = target_platform.desktop
+        link_openssl_statically = target_platform.qt_linkage_static
         # ... try for dynamic linking on Android
         if link_openssl_statically:
             log.info("Linking OpenSSL into SQLCipher STATICALLY")

@@ -22,6 +22,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QVBoxLayout>
+#include "common/platform.h"
 #include "lib/uifunc.h"
 
 
@@ -40,15 +41,19 @@ PasswordChangeDialog::PasswordChangeDialog(const QString& text,
     setMinimumSize(uifunc::minimumSizeForTitle(this));
 
     auto mainlayout = new QVBoxLayout();
+    if (platform::PLATFORM_FULL_SCREEN_DIALOGS) {
+        setWindowState(Qt::WindowFullScreen);
+        mainlayout->addStretch(1);
+    }
 
     auto prompt = new QLabel(text);
     mainlayout->addWidget(prompt);
 
     if (require_old_password) {
         auto prompt_old = new QLabel(tr("Enter old password:"));
-#ifdef Q_OS_IOS
-        prompt_old->setWordWrap(true);
-#endif
+        if (platform::PLATFORM_FULL_SCREEN_DIALOGS) {
+            prompt_old->setWordWrap(true);
+        }
         mainlayout->addWidget(prompt_old);
         m_editor_old = new QLineEdit();
         m_editor_old->setEchoMode(QLineEdit::Password);
@@ -79,12 +84,11 @@ PasswordChangeDialog::PasswordChangeDialog(const QString& text,
             this, &PasswordChangeDialog::reject);
     mainlayout->addWidget(buttonbox);
 
-#ifdef Q_OS_IOS
-    // Dialogs are full screen on iOS
-    prompt->setWordWrap(true);
-    prompt_new1->setWordWrap(true);
-    mainlayout->addStretch(1);
-#endif
+    if (platform::PLATFORM_FULL_SCREEN_DIALOGS) {
+        prompt->setWordWrap(true);
+        prompt_new1->setWordWrap(true);
+        mainlayout->addStretch(1);
+    }
 
     setLayout(mainlayout);
 }

@@ -36,6 +36,22 @@ from cardinal_pythonlib.logs import BraceStyleAdapter
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
 
+# =============================================================================
+# Exception constants
+# =============================================================================
+
+STR_FORMAT_EXCEPTIONS = (
+    # Exceptions that can be raised by str.format()
+    IndexError,  # missing positional parameter: "{}, {}".format(1)
+    KeyError,  # missing named parameter: "{x}".format(y=2)
+    ValueError  # e.g. unmatched brace: "{x".format(x=1)
+)
+
+
+# =============================================================================
+# Exception functions
+# =============================================================================
+
 def raise_runtime_error(msg: str) -> NoReturn:
     """
     Reports an error message to the Python log and raises a

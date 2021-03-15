@@ -41,6 +41,7 @@ from cardinal_pythonlib.stringfunc import mangle_unicode_to_ascii
 from pendulum import Date, DateTime as Pendulum
 
 from camcops_server.cc_modules.cc_constants import DateFormat
+from camcops_server.cc_modules.cc_exception import STR_FORMAT_EXCEPTIONS
 
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_patientidnum import PatientIdNum  # noqa: E501,F401
@@ -99,12 +100,11 @@ def patient_spec_for_filename_is_valid(patient_spec: str,
         nstr = str(n)
         testdict[pse.IDSHORTDESC_PREFIX + nstr] = pse.IDSHORTDESC_PREFIX + nstr
         testdict[pse.IDNUM_PREFIX + nstr] = pse.IDNUM_PREFIX + nstr
-    # noinspection PyBroadException
     try:
         # Legal substitutions only?
         patient_spec.format(**testdict)
         return True
-    except Exception:  # duff patient_spec; details unimportant
+    except STR_FORMAT_EXCEPTIONS:  # duff patient_spec; details unimportant
         return False
 
 
@@ -136,16 +136,12 @@ def filename_spec_is_valid(filename_spec: str,
         nstr = str(n)
         testdict[pse.IDSHORTDESC_PREFIX + nstr] = pse.IDSHORTDESC_PREFIX + nstr
         testdict[pse.IDNUM_PREFIX + nstr] = pse.IDNUM_PREFIX + nstr
-    # noinspection PyBroadException
     try:
         # Legal substitutions only?
         filename_spec.format(**testdict)
         return True
-    except Exception:  # duff filename_spec; details unimportant
+    except STR_FORMAT_EXCEPTIONS:  # duff filename_spec; details unimportant
         return False
-
-
-FORMAT_FAIL_EXCEPTIONS = (IndexError, KeyError)
 
 
 def get_export_filename(req: "CamcopsRequest",
@@ -222,7 +218,7 @@ def get_export_filename(req: "CamcopsRequest",
     else:
         try:
             patient = str(patient_spec).format(**d)
-        except FORMAT_FAIL_EXCEPTIONS:
+        except STR_FORMAT_EXCEPTIONS:
             log.warning("Bad patient_spec: {!r}; dictionary was {!r}",
                         patient_spec, d)
             patient = "invalid_patient_spec"
@@ -239,7 +235,7 @@ def get_export_filename(req: "CamcopsRequest",
     })
     try:
         formatted = str(filename_spec).format(**d)
-    except FORMAT_FAIL_EXCEPTIONS:
+    except STR_FORMAT_EXCEPTIONS:
         log.warning("Bad filename_spec: {!r}", filename_spec)
         formatted = "invalid_filename_spec"
     if skip_conversion_to_safe_filename:
