@@ -214,7 +214,7 @@ class PatientTaskSchedule(Base):
             server_url=req.route_url(Routes.CLIENT_API)
         )
 
-        formatter = SafeFormatter({"access_key", "server_url"})
+        formatter = TaskScheduleEmailTemplateFormatter()
         email_body = formatter.format(self.task_schedule.email_template,
                                       **template_dict)
 
@@ -359,6 +359,11 @@ class TaskScheduleItem(Base):
             task_name=self.task_shortname,
             due_days=due_days
         )
+
+
+class TaskScheduleEmailTemplateFormatter(SafeFormatter):
+    def __init__(self):
+        super().__init__(["access_key", "server_url"])
 
 
 # =============================================================================
