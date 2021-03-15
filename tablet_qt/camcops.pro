@@ -320,8 +320,8 @@ ios {
     # -------------------------------------------------------------------------
     STATIC_LIB_EXT = ".a"
     DYNAMIC_LIB_EXT = ".dylib"
-    CAMCOPS_QT_LINKAGE = "dynamic"
-    CAMCOPS_OPENSSL_LINKAGE = "dynamic"
+    CAMCOPS_QT_LINKAGE = "static"
+    CAMCOPS_OPENSSL_LINKAGE = "static"
 
     # Both iphoneos and iphonesimulator are set ?!
     CONFIG(iphoneos, iphoneos|iphonesimulator) {
@@ -344,13 +344,16 @@ ios {
     disable_warning.value = "No"
     QMAKE_MAC_XCODE_SETTINGS += disable_warning
 
-    QMAKE_INFO_PLIST = $${CAMCOPS_SOURCE_ROOT}/ios/Info.plist
+    QMAKE_TARGET_BUNDLE_PREFIX = "uk.ac.cam.psychiatry"
+    QMAKE_BUNDLE = "camcops"
 
-    ios_icon.files = $$files($${CAMCOPS_SOURCE_ROOT}/ios/*.png)
-    QMAKE_BUNDLE_DATA += ios_icon
+    QMAKE_INFO_PLIST = $${CAMCOPS_SOURCE_ROOT}/ios/Info.plist
 
     app_launch_screen.files = $$files($${CAMCOPS_SOURCE_ROOT}/ios/LaunchScreen.storyboard)
     QMAKE_BUNDLE_DATA += app_launch_screen
+
+    QMAKE_ASSET_CATALOGS = $${CAMCOPS_SOURCE_ROOT}/ios/Images.xcassets
+    QMAKE_ASSET_CATALOGS_APP_ICON = "AppIcon"
 }
 
 isEmpty(CAMCOPS_ARCH_TAG) {
@@ -485,16 +488,6 @@ ANDROID_EXTRA_LIBS += "$${OPENSSL_DIR}/libcrypto$${DYNAMIC_LIB_EXT}"  # needed f
 ANDROID_EXTRA_LIBS += "$${OPENSSL_DIR}/libssl$${DYNAMIC_LIB_EXT}"
 # ... must start "lib" and end ".so", otherwise Qt complains.
 
-
-# iOS specials
-QMAKE_RPATHDIR = @executable_path/Frameworks
-crypto.files = "$${OPENSSL_DIR}/libcrypto$${DYNAMIC_LIB_EXT}"
-crypto.path = Frameworks
-QMAKE_BUNDLE_DATA += crypto
-
-ssl.files = "$${OPENSSL_DIR}/libssl$${DYNAMIC_LIB_EXT}"
-ssl.path = Frameworks
-QMAKE_BUNDLE_DATA += ssl
 
 # -----------------------------------------------------------------------------
 # SQLCipher
@@ -1469,9 +1462,10 @@ OTHER_FILES += \
     android/gradlew.bat \
     android/res/drawable-ldpi/icon.png \
     android/res/values/libs.xml \
+    ios/camcops_icon_500.png \
     ios/Info.plist \
     ios/*.storyboard \
-    ios/*.png \
+    ios/Images.xcassets/AppIcon.appiconset/*.png \
     notes/compilation_android.txt \
     notes/compilation_linux.txt \
     notes/compilation_windows.txt \

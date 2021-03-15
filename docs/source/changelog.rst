@@ -3001,3 +3001,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - iOS client now available for development
 
 **Client and server v2.4.2, IN PROGRESS**
+
+- iOS client now available from Apple App Store
