@@ -41,19 +41,30 @@ class SafeFormatter(Formatter):
 
         super().__init__()
 
+    def get_valid_parameters_string(self) -> str:
+        return ", ".join(f"{{{k}}}" for k in self._allowed_keys)
+
     def get_field(self, field_name: str, args: Sequence[Any],
                   kwargs: Mapping[str, Any]):
         if field_name not in self._allowed_keys:
-            raise KeyError(f"{field_name} is not an allowed parameter")
+            raise KeyError(field_name)
 
         return super().get_field(field_name, args, kwargs)
+
+    def validate(self, format_string: str) -> None:
+        # Raises KeyError for unknown key or ValueError for
+        # unmatched {
+
+        test_dict = {k: "" for k in self._allowed_keys}
+
+        self.format(format_string, **test_dict)
 
 
 class SafeFormatterTests(TestCase):
     def setUp(self) -> None:
         super().setUp()
 
-        self.formatter = SafeFormatter({"forename", "surname", "email"})
+        self.formatter = SafeFormatter(["forename", "surname", "email"])
 
     def test_formats_with_allowed_keys(self) -> None:
         output = self.formatter.format("{forename} {surname} <{email}>",
@@ -61,6 +72,18 @@ class SafeFormatterTests(TestCase):
                                        email="erin.byrne@example.com")
         self.assertEqual(output, "Erin Byrne <erin.byrne@example.com>")
 
-    def test_raises_with_disallowed_keys(self) -> None:
+    def test_format_raises_with_disallowed_keys(self) -> None:
         with self.assertRaises(KeyError):
             self.formatter.format("{email.__class__}")
+
+    def test_returns_valid_parameters_string(self) -> None:
+        self.assertEqual(self.formatter.get_valid_parameters_string(),
+                         "{forename}, {surname}, {email}")
+
+    def test_validate_raises_key_error_for_unknown_key(self) -> None:
+        with self.assertRaises(KeyError):
+            self.formatter.validate("{phone}")
+
+    def test_validate_raises_value_error_for_mismatched_brackets(self) -> None:
+        with self.assertRaises(ValueError):
+            self.formatter.validate("{forename")
