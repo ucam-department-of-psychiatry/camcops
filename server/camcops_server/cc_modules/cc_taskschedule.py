@@ -27,7 +27,6 @@ camcops_server/cc_modules/cc_taskschedule.py
 """
 
 import logging
-from string import Template
 from typing import List, Iterable, Optional, Tuple, TYPE_CHECKING
 from urllib.parse import quote, urlencode
 
@@ -39,6 +38,7 @@ from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
+from camcops_server.cc_modules.cc_formatter import SafeFormatter
 from camcops_server.cc_modules.cc_group import Group
 from camcops_server.cc_modules.cc_pyramid import Routes
 from camcops_server.cc_modules.cc_simpleobjects import IdNumReference
@@ -214,8 +214,9 @@ class PatientTaskSchedule(Base):
             server_url=req.route_url(Routes.CLIENT_API)
         )
 
-        email_template = Template(self.task_schedule.email_template)
-        email_body = email_template.safe_substitute(template_dict)
+        formatter = SafeFormatter({"access_key", "server_url"})
+        email_body = formatter.format(self.task_schedule.email_template,
+                                      **template_dict)
 
         mailto_params = urlencode({
             "subject": self.task_schedule.email_subject,
@@ -433,7 +434,7 @@ class PatientTaskScheduleTests(DemoDatabaseTestCase):
                       self.pts.mailto_url(self.req))
 
     def test_mailto_url_contains_access_key(self) -> None:
-        self.schedule.email_template = "$access_key"
+        self.schedule.email_template = "{access_key}"
         self.dbsession.add(self.schedule)
         self.dbsession.flush()
 
@@ -441,7 +442,7 @@ class PatientTaskScheduleTests(DemoDatabaseTestCase):
                       self.pts.mailto_url(self.req))
 
     def test_mailto_url_contains_server_url(self) -> None:
-        self.schedule.email_template = "$server_url"
+        self.schedule.email_template = "{server_url}"
         self.dbsession.add(self.schedule)
         self.dbsession.flush()
 
@@ -450,10 +451,18 @@ class PatientTaskScheduleTests(DemoDatabaseTestCase):
 
         self.assertIn(f"{expected_url}", self.pts.mailto_url(self.req))
 
-    def test_mailto_url_ignores_invalid_template(self) -> None:
-        self.schedule.email_template = "Something $foobar"
+    def test_mailto_url_disallows_invalid_template(self) -> None:
+        self.schedule.email_template = "{foobar}"
         self.dbsession.add(self.schedule)
         self.dbsession.flush()
 
-        self.assertIn("body=Something%20%24foobar",
-                      self.pts.mailto_url(self.req))
+        with self.assertRaises(KeyError):
+            self.pts.mailto_url(self.req)
+
+    def test_mailto_url_disallows_accessing_properties(self) -> None:
+        self.schedule.email_template = "{server_url.__class__}"
+        self.dbsession.add(self.schedule)
+        self.dbsession.flush()
+
+        with self.assertRaises(KeyError):
+            self.pts.mailto_url(self.req)
