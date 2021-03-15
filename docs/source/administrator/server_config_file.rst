@@ -493,6 +493,8 @@ below). Possible substitutions:
 |                   | <idshortdesc5>-<idnum5>``                               |
 +-------------------+---------------------------------------------------------+
 
+Use braces for substituted variables, e.g. ``{forename}_{surname}``.
+
 
 .. _TASK_FILENAME_SPEC:
 
@@ -533,6 +535,8 @@ Possible substitutions:
 +---------------+-------------------------------------------------------------+
 
 ... plus all those substitutions applicable to PATIENT_SPEC_.
+
+Use braces for substituted variables, e.g. ``{patient}_{created}``.
 
 After these substitutions have been made, the entire filename is then processed
 to ensure that only characters generally acceptable to filenames are used (see
