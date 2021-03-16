@@ -150,6 +150,8 @@ tablet_qt
     diagnosis/icd9cm.h.rst
     dialogs/dangerousconfirmationdialog.cpp.rst
     dialogs/dangerousconfirmationdialog.h.rst
+    dialogs/debugdialog.cpp.rst
+    dialogs/debugdialog.h.rst
     dialogs/logbox.cpp.rst
     dialogs/logbox.h.rst
     dialogs/logmessagebox.cpp.rst
@@ -922,6 +924,8 @@ tablet_qt
     widgets/cameraqml.h.rst
     widgets/canvaswidget.cpp.rst
     widgets/canvaswidget.h.rst
+    widgets/clickablelabel.cpp.rst
+    widgets/clickablelabel.h.rst
     widgets/clickablelabelnowrap.cpp.rst
     widgets/clickablelabelnowrap.h.rst
     widgets/clickablelabelwordwrapwide.cpp.rst
@@ -950,6 +954,10 @@ tablet_qt
     widgets/labelwordwrapwide.h.rst
     widgets/openablewidget.cpp.rst
     widgets/openablewidget.h.rst
+    widgets/proquintlineedit.cpp.rst
+    widgets/proquintlineedit.h.rst
+    widgets/radiobuttonwordwrap.cpp.rst
+    widgets/radiobuttonwordwrap.h.rst
     widgets/screenlikegraphicsview.cpp.rst
     widgets/screenlikegraphicsview.h.rst
     widgets/spacer.cpp.rst

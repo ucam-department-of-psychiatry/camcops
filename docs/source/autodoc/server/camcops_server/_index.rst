@@ -86,6 +86,9 @@ server/camcops_server
     alembic/versions/0053_basdai.py.rst
     alembic/versions/0054_gmcpq_sex_choices.py.rst
     alembic/versions/0055_rapid3.py.rst
+    alembic/versions/0056_mojo_medical_infection_fields.py.rst
+    alembic/versions/0057_mojo_medication_to_brand_name.py.rst
+    alembic/versions/0058_schedule_email_template.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst
@@ -116,6 +119,7 @@ server/camcops_server
     cc_modules/cc_exportrecipient.py.rst
     cc_modules/cc_exportrecipientinfo.py.rst
     cc_modules/cc_filename.py.rst
+    cc_modules/cc_formatter.py.rst
     cc_modules/cc_forms.py.rst
     cc_modules/cc_group.py.rst
     cc_modules/cc_hl7.py.rst
