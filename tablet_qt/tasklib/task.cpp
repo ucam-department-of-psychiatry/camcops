@@ -329,6 +329,16 @@ bool Task::isTaskPermissible(QString& why_not_permissible) const
         return false;
     }
 
+    if (implementationType() == TaskImplementationType::UpgradableSkeleton &&
+            prohibitedIfSkeleton() &&
+            !hasExtraStrings()) {
+        why_not_permissible = tr(
+            "Task may not be created in 'skeleton' form "
+            "(strings not downloaded from server)."
+        );
+        return false;
+    }
+
     why_not_permissible = PERMISSIBLE;
     return true;
 }

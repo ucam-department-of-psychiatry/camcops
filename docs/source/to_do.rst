@@ -43,6 +43,8 @@ Tasks
 
 **To be prioritized**
 
+- Mini-ACE (mACE).
+- Free-Cog: https://pubmed.ncbi.nlm.nih.gov/33124050/
 - Test Your Memory (TYM) task (Jerry M. Brown).
 - Continuous performance task, as per RNC's similar previous task (Linda P
   and team). A/w ETB.
