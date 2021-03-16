@@ -49,6 +49,6 @@ const QDate CAMCOPS_CLIENT_CHANGEDATE(2021, 3, 16);
 // to create/upload tasks that you don't yet support.)
 // See also other upload-related version constants in networkmanager.cpp.
 
-const Version MINIMUM_SERVER_VERSION(2, 2, 0);
+const Version MINIMUM_SERVER_VERSION(2, 4, 0);
 
 }  // namespace camcopsversion
