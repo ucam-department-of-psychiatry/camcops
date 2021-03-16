@@ -3007,3 +3007,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - :ref:`MoCA <moca>` functionally disabled due to rule changes. Old data
   won't be deleted.
+
+- Ability to customise the emails sent to patients assigned to a task schedule.
+  (Database revision 0058)

@@ -52,7 +52,6 @@ ${_("CamCOPS server location:")} ${ req.route_url( Routes.CLIENT_API ) }
         <th>${_("Patient")}</th>
         <th>${_("Identifiers")}</th>
         <th>${_("Access key")}</th>
-        <th>${_("Email")}</th>
         <th>${_("Task schedules")}</th>
         <th>${_("Edit patient")}</th>
         <th>${_("Delete patient")}</th>
@@ -74,33 +73,15 @@ ${_("CamCOPS server location:")} ${ req.route_url( Routes.CLIENT_API ) }
             ${ patient.uuid_as_proquint }
         </td>
         <td>
-            %if patient.email:
-                <%
-                    mailto_params = urlencode({
-                        "subject": _("CamCOPS access key"),
-                        # Avoid extra spaces; some e-mail clients make them
-                        # invisible yet copy/paste-able (Thunderbird);
-                        # confusing!
-                        "body": (
-                            patient.get_letter_style_identifiers(req) + "\n\n" +
-                            _("For the CamCOPS server at:") + "\n\n" +
-                            req.route_url(Routes.CLIENT_API) + "\n\n" +
-                            _("Your access key is:") + "\n\n" +
-                            patient.uuid_as_proquint + "\n"
-                        )
-                    }, quote_via=quote)
-                    mailto_url = f"mailto:{patient.email}?" + mailto_params
-                %>
-                <a href="${ mailto_url }">${ patient.email }</a>
-            %endif
-        </td>
-        <td>
             %for pts in patient.task_schedules:
                 <a href="${ req.route_url(
                          Routes.VIEW_PATIENT_TASK_SCHEDULE,
                          _query={
                              ViewParam.PATIENT_TASK_SCHEDULE_ID: pts.id
-                         }) }">${ pts.task_schedule.name }</a><br>
+                         }) }">${ pts.task_schedule.name }</a>
+            %if patient.email:
+                [<a href="${ pts.mailto_url(req) }">${_("Email")}</a>]<br>
+            %endif
             %endfor
         </td>
         <td>

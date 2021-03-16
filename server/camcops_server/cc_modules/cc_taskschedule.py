@@ -28,6 +28,7 @@ camcops_server/cc_modules/cc_taskschedule.py
 
 import logging
 from typing import List, Iterable, Optional, Tuple, TYPE_CHECKING
+from urllib.parse import quote, urlencode
 
 from pendulum import DateTime as Pendulum, Duration
 
@@ -37,7 +38,9 @@ from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
+from camcops_server.cc_modules.cc_formatter import SafeFormatter
 from camcops_server.cc_modules.cc_group import Group
+from camcops_server.cc_modules.cc_pyramid import Routes
 from camcops_server.cc_modules.cc_simpleobjects import IdNumReference
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 from camcops_server.cc_modules.cc_sqla_coltypes import (
@@ -52,7 +55,11 @@ from camcops_server.cc_modules.cc_taskcollection import (
     TaskCollection,
     TaskSortMethod,
 )
-from camcops_server.cc_modules.cc_unittest import DemoRequestTestCase
+from camcops_server.cc_modules.cc_unittest import (
+    DemoDatabaseTestCase,
+    DemoRequestTestCase,
+)
+
 
 if TYPE_CHECKING:
     from sqlalchemy.sql.elements import Cast
@@ -201,6 +208,25 @@ class PatientTaskSchedule(Base):
 
         return None
 
+    def mailto_url(self, req: "CamcopsRequest") -> str:
+        template_dict = dict(
+            access_key=self.patient.uuid_as_proquint,
+            server_url=req.route_url(Routes.CLIENT_API)
+        )
+
+        formatter = TaskScheduleEmailTemplateFormatter()
+        email_body = formatter.format(self.task_schedule.email_template,
+                                      **template_dict)
+
+        mailto_params = urlencode({
+            "subject": self.task_schedule.email_subject,
+            "body": email_body,
+        }, quote_via=quote)
+
+        mailto_url = f"mailto:{self.patient.email}?{mailto_params}"
+
+        return mailto_url
+
 
 def task_schedule_item_sort_order() -> Tuple["Cast", "Cast"]:
     """
@@ -245,6 +271,12 @@ class TaskSchedule(Base):
     )
 
     name = Column("name", UnicodeText, comment="name")
+
+    email_subject = Column("email_subject", UnicodeText,
+                           comment="email subject", nullable=False, default="")
+    email_template = Column("email_template", UnicodeText,
+                            comment="email template", nullable=False,
+                            default="")
 
     items = relationship(
         "TaskScheduleItem",
@@ -329,6 +361,11 @@ class TaskScheduleItem(Base):
         )
 
 
+class TaskScheduleEmailTemplateFormatter(SafeFormatter):
+    def __init__(self):
+        super().__init__(["access_key", "server_url"])
+
+
 # =============================================================================
 # Unit tests
 # =============================================================================
@@ -365,3 +402,72 @@ class TaskScheduleItemTests(DemoRequestTestCase):
         item.due_by = Duration(days=30)
 
         self.assertEqual(item.due_within.in_days(), 30)
+
+
+class PatientTaskScheduleTests(DemoDatabaseTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+        import datetime
+
+        self.schedule = TaskSchedule()
+        self.schedule.group_id = self.group.id
+        self.dbsession.add(self.schedule)
+
+        self.patient = self.create_patient(
+            id=1, forename="Jo", surname="Patient",
+            dob=datetime.date(1958, 4, 19),
+            sex="F", address="Address", gp="GP", other="Other"
+        )
+
+        self.pts = PatientTaskSchedule()
+        self.pts.schedule_id = self.schedule.id
+        self.pts.patient_pk = self.patient.pk
+        self.dbsession.add(self.pts)
+        self.dbsession.flush()
+
+    def test_mailto_url_contains_patient_email(self) -> None:
+        self.assertIn(f"mailto:{self.patient.email}",
+                      self.pts.mailto_url(self.req))
+
+    def test_mailto_url_contains_subject(self) -> None:
+        self.schedule.email_subject = "CamCOPS access key"
+        self.dbsession.add(self.schedule)
+        self.dbsession.flush()
+
+        self.assertIn("subject=CamCOPS%20access%20key",
+                      self.pts.mailto_url(self.req))
+
+    def test_mailto_url_contains_access_key(self) -> None:
+        self.schedule.email_template = "{access_key}"
+        self.dbsession.add(self.schedule)
+        self.dbsession.flush()
+
+        self.assertIn(f"body={self.patient.uuid_as_proquint}",
+                      self.pts.mailto_url(self.req))
+
+    def test_mailto_url_contains_server_url(self) -> None:
+        self.schedule.email_template = "{server_url}"
+        self.dbsession.add(self.schedule)
+        self.dbsession.flush()
+
+        expected_url = urlencode({"body":
+                                  self.req.route_url(Routes.CLIENT_API)})
+
+        self.assertIn(f"{expected_url}", self.pts.mailto_url(self.req))
+
+    def test_mailto_url_disallows_invalid_template(self) -> None:
+        self.schedule.email_template = "{foobar}"
+        self.dbsession.add(self.schedule)
+        self.dbsession.flush()
+
+        with self.assertRaises(KeyError):
+            self.pts.mailto_url(self.req)
+
+    def test_mailto_url_disallows_accessing_properties(self) -> None:
+        self.schedule.email_template = "{server_url.__class__}"
+        self.dbsession.add(self.schedule)
+        self.dbsession.flush()
+
+        with self.assertRaises(KeyError):
+            self.pts.mailto_url(self.req)
