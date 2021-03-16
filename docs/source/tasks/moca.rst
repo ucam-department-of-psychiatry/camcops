@@ -92,5 +92,7 @@ Intellectual property rights
 
   - Old CamCOPS data will not be deleted, of course; the data are separate from
     the task. The task persists as a "skeleton" without actual task content.
+    Unlike most such tasks, you cannot even create a new "skeleton" (this would
+    be too misleading).
 
 - See also alternatives, e.g. the :ref:`ACE-III <ace3>`.
