@@ -32,29 +32,83 @@ camcops_server/cc_modules/cc_formatter.py
 from string import Formatter
 from unittest import TestCase
 
-from typing import Any, Mapping, Sequence
+from typing import Any, Mapping, Sequence, Tuple
 
 
 class SafeFormatter(Formatter):
-    def __init__(self, allowed_keys: Sequence[str]) -> None:
-        self._allowed_keys = allowed_keys
+    """
+    Safe alternative to ``str.format()`` that rejects anything not in the list
+    of allowed keys.
 
+    Basic usage:
+
+    .. code-block:: python
+
+        from camcops_server.cc_modules.cc_formatter import SafeFormatter
+
+        f = SafeFormatter(["a", "b"])
+
+        f.format("a={a}, b={b}", a=1, b=2)  # OK
+        f.format("a={a.__class__}", a=1)  # raises KeyError
+        f.format("a={a}, b={b}, c={c}", a=1, b=2, c=3)  # raises KeyError
+    """
+
+    def __init__(self, allowed_keys: Sequence[str]) -> None:
+        """
+        Args:
+            allowed_keys:
+                Keys that are permitted within a brace-delimited format string.
+        """
+        self._allowed_keys = allowed_keys
         super().__init__()
 
     def get_valid_parameters_string(self) -> str:
+        """
+        Returns a string, such as ``{a}, {b}``, that enumerates the parameters
+        allowed (e.g. for user help).
+        """
         return ", ".join(f"{{{k}}}" for k in self._allowed_keys)
 
     def get_field(self, field_name: str, args: Sequence[Any],
-                  kwargs: Mapping[str, Any]):
+                  kwargs: Mapping[str, Any]) -> Tuple[Any, str]:
+        """
+        Overrides :meth:`Formatter.get_field` (q.v.).
+
+        Args:
+            field_name:
+                name of the field to be looked up
+            args:
+                positional arguments passed to :meth:`format` (not including
+                the format string)
+            kwargs:
+                keyword arguments passed to :meth:`format`
+
+        Returns:
+            tuple: ``(obj, arg_used)`` where ``obj`` is the object that's been
+            looked up, and ``arg_used`` is the argument it came from
+
+        Raises:
+            - :exc:`KeyError` if the field_name is disallowed
+        """
+        # print(f"field_name={field_name!r}, args={args!r}, kwargs={kwargs!r}")
         if field_name not in self._allowed_keys:
             raise KeyError(field_name)
 
         return super().get_field(field_name, args, kwargs)
 
     def validate(self, format_string: str) -> None:
-        # Raises KeyError for unknown key or ValueError for
-        # unmatched {
+        """
+        Checks a format string for validity.
 
+        Args:
+            format_string:
+                string to check
+
+        Raises:
+            - :exc:`KeyError` for unknown key
+            - :exc:`ValueError` for unmatched ``{``
+
+        """
         test_dict = {k: "" for k in self._allowed_keys}
 
         self.format(format_string, **test_dict)

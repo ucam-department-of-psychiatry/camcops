@@ -4092,7 +4092,6 @@ class EmailTemplateNode(OptionalStringNode, RequestAwareMixin):
 
         try:
             self.formatter.validate(value)
-
             return
         except KeyError as e:
             error = _("{bad_key} is not a valid placeholder").format(
