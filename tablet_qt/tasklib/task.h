@@ -140,6 +140,11 @@ public:
     // Does this task prohibit research use?
     virtual bool prohibitsResearch() const { return false; }
 
+    // If the task is an upgradable skeleton, and has not been upgraded, should
+    // its use be prohibited (because the skeleton is so useless as to be
+    // misleading/harmful)?
+    virtual bool prohibitedIfSkeleton() const { return false; }
+
     // Is the task re-editable once it's been created?
     virtual bool isEditable() const { return true; }
 

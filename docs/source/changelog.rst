@@ -2991,6 +2991,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
   <khandaker_mojo_medical>` and :ref:`Khandaker GM — MOJO — Medications and therapies
   <khandaker_mojo_medicationtherapy>`. (Database revisions 0056-0057)
 
+
 .. _changelog_2021:
 
 2021
@@ -3003,6 +3004,9 @@ Current C++/SQLite client, Python/SQLAlchemy server
 **Client and server v2.4.2, IN PROGRESS**
 
 - iOS client now available from Apple App Store
+
+- :ref:`MoCA <moca>` functionally disabled due to rule changes. Old data
+  won't be deleted.
 
 - Ability to customise the emails sent to patients assigned to a task schedule.
   (Database revision 0058)

@@ -53,6 +53,7 @@ const QString IMAGE_PATH("moca/path.png");
 const QString IMAGE_CUBE("moca/cube.png");
 const QString IMAGE_CLOCK("moca/clock.png");
 const QString IMAGE_ANIMALS("moca/animals.png");
+const QString IMAGE_MISSING("moca/missing.png");
 
 const QString EDUCATION12Y_OR_LESS("education12y_or_less");
 const QString TRAILPICTURE_BLOBID("trailpicture_blobid");
@@ -206,6 +207,7 @@ QStringList Moca::detail() const
 OpenableWidget* Moca::editor(const bool read_only)
 {
     QVector<QuPagePtr> pages;
+    const bool crippled = !hasExtraStrings();
     const NameValueOptions education_options{
         {xstring("education_option0"), 0},
         {xstring("education_option1"), 1},
@@ -290,13 +292,19 @@ OpenableWidget* Moca::editor(const bool read_only)
         FieldRefPtr fr = fieldRef(blob_id_fieldname, false, true, true);
         return new QuImage(fr);
     };
-    auto canvas = [this](const QString& blob_id_fieldname,
-                         const QString& image_filename) -> QuElement* {
+    auto canvas = [this, &crippled]
+            (const QString& blob_id_fieldname, const QString& image_filename)
+            -> QuElement* {
+        const QString filename = crippled ? IMAGE_MISSING : image_filename;
         QuCanvas* c = new QuCanvas(
                     blobFieldRef(blob_id_fieldname, true),
-                    uifunc::resourceFilename(image_filename));
+                    uifunc::resourceFilename(filename));
         c->setAllowShrink(true);
         return c;
+    };
+    auto image = [&crippled](const QString& image_filename) -> QuImage* {
+        const QString filename = crippled ? IMAGE_MISSING : image_filename;
+        return new QuImage(uifunc::resourceFilename(filename));
     };
 
     addpage(xstring("title_preamble"), {
@@ -322,7 +330,7 @@ OpenableWidget* Moca::editor(const bool read_only)
 
     addpage(xstring("title_prefix_plural") + " 6–8", {
         text("naming_instructions"),
-        new QuImage(uifunc::resourceFilename(IMAGE_ANIMALS)),
+        image(IMAGE_ANIMALS),
     }, QuPage::PageType::ClinicianWithPatient);
 
     addpage(xstring("title_prefix_plural") + " 1–8 " + xstring("scoring"), {

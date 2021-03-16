@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="moca">
+
+<!--
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Montreal Cognitive Assessment (MOCA)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Copyright © Ziad Nasreddine.
+
+Sep 2012:
+    May be reproduced without permission for CLINICAL and EDUCATIONAL use.
+    You must obtain permission from the copyright holder for any other use.
+
+    See https://web.archive.org/web/20120904234436/http://www.mocatest.org/permission.asp
+
+Mar 2021:
+    Electronic reproduction not permitted.
+    See https://web.archive.org/web/20210226172214/https://www.mocatest.org/permission/
+-->
+
+    <string name="subscore_visuospatial">Visuospatial/executive</string>
+    <string name="subscore_naming">Naming</string>
+    <string name="subscore_memory">Memory</string>
+    <string name="subscore_attention">Attention</string>
+    <string name="subscore_language">Language</string>
+    <string name="subscore_abstraction">Abstraction</string>
+    <string name="subscore_orientation">Orientation</string>
+    <string name="category">Categorization</string>
+    <string name="q1_s">Q1 (VSE/path):</string>
+    <string name="q2_s">Q2 (VSE/cube):</string>
+    <string name="q3_s">Q3 (VSE/clock/contour):</string>
+    <string name="q4_s">Q4 (VSE/clock/numbers):</string>
+    <string name="q5_s">Q5 (VSE/clock/hands):</string>
+    <string name="q6_s">Q6 (naming/lion):</string>
+    <string name="q7_s">Q7 (naming/rhino):</string>
+    <string name="q8_s">Q8 (naming/camel):</string>
+    <string name="q9_s">Q9 (attention/5 digits):</string>
+    <string name="q10_s">Q10 (attention/3 digits):</string>
+    <string name="q11_s">Q11 (attention/tapping):</string>
+    <string name="q12_s">Q12 (attention/serial 7s):</string>
+    <string name="q13_s">Q13 (language/sentence 1):</string>
+    <string name="q14_s">Q14 (language/sentence 2):</string>
+    <string name="q15_s">Q15 (language/fluency):</string>
+    <string name="q16_s">Q16 (abstraction 1):</string>
+    <string name="q17_s">Q17 (abstraction 2):</string>
+    <string name="q18_s">Q18 (recall word/face):</string>
+    <string name="q19_s">Q19 (recall word/velvet):</string>
+    <string name="q20_s">Q20 (recall word/church):</string>
+    <string name="q21_s">Q21 (recall word/daisy):</string>
+    <string name="q22_s">Q22 (recall word/red):</string>
+    <string name="q23_s">Q23 (orientation/date):</string>
+    <string name="q24_s">Q24 (orientation/month):</string>
+    <string name="q25_s">Q25 (orientation/year):</string>
+    <string name="q26_s">Q26 (orientation/day):</string>
+    <string name="q27_s">Q27 (orientation/place):</string>
+    <string name="q28_s">Q28 (orientation/city):</string>
+    <string name="title_preamble">MOCA: preamble</string>
+    <string name="title_prefix_singular">MOCA: question</string>
+    <string name="title_prefix_plural">MOCA: questions</string>
+    <string name="title_memorize">XXX</string>
+    <string name="scoring">(scoring)</string>
+    <string name="education_instructions">XXX</string>
+    <string name="education_option0">XXX [>12y]</string>
+    <string name="education_option1">XXX [≤12y]</string>
+    <string name="education_s">Point for 12 or fewer years of education?</string>
+    <string name="clock_instruction">XXX</string>
+    <string name="contour">Contour</string>
+    <string name="numbers">Numbers</string>
+    <string name="hands">Hands</string>
+    <string name="trail_instructions">XXX</string>
+    <string name="q1">XXX</string>
+    <string name="cube_instructions">XXX</string>
+    <string name="q2">XXX</string>
+    <string name="clock_instructions">XXX</string>
+    <string name="q3">XXX</string>
+    <string name="q4">XXX</string>
+    <string name="q5">XXX</string>
+    <string name="naming_instructions">XXX</string>
+    <string name="q6">XXX</string>
+    <string name="q7">XXX</string>
+    <string name="q8">XXX</string>
+    <string name="memory_instruction1">XXX</string>
+    <string name="memory_instruction2">XXX</string>
+    <string name="memory_instruction3">XXX</string>
+    <string name="digit_forward_instructions">XXX</string>
+    <string name="digit_backward_instructions">XXX</string>
+    <string name="q9">XXX</string>
+    <string name="q10">XXX</string>
+    <string name="tapping_instructions">XXX</string>
+    <string name="q11">XXX</string>
+    <string name="q12">XXX</string>
+    <string name="q12_option3">XXX [4–5 correct]</string>
+    <string name="q12_option2">XXX [2–3 correct]</string>
+    <string name="q12_option1">XXX [1 correct]</string>
+    <string name="q12_option0">XXX [0 correct]</string>
+    <string name="repetition_instructions_1">XXX</string>
+    <string name="q13">XXX</string>
+    <string name="repetition_instructions_2">XXX</string>
+    <string name="q14">XXX</string>
+    <string name="fluency_instructions">XXX</string>
+    <string name="q15">XXX</string>
+    <string name="abstraction_instructions">XXX</string>
+    <string name="q16">XXX</string>
+    <string name="q17">XXX</string>
+    <string name="recall_instructions">XXX</string>
+    <string name="recalled">Recalled</string>
+    <string name="registered">Registered</string>
+    <string name="memory_1">XXX</string>
+    <string name="memory_2">XXX</string>
+    <string name="memory_3">XXX</string>
+    <string name="memory_4">XXX</string>
+    <string name="memory_5">XXX</string>
+    <string name="trial">trial</string>
+    <string name="category_recall_suffix">(CATEGORY RECALL)</string>
+    <string name="category_recall_instructions">XXX</string>
+    <string name="category_recall_1">XXX</string>
+    <string name="category_recall_2">XXX</string>
+    <string name="category_recall_3">XXX</string>
+    <string name="category_recall_4">XXX</string>
+    <string name="category_recall_5">XXX</string>
+    <string name="mc_recall_suffix">XXX</string>
+    <string name="mc_recall_instructions">XXX</string>
+    <string name="mc_recall_1">XXX</string>
+    <string name="mc_recall_2">XXX</string>
+    <string name="mc_recall_3">XXX</string>
+    <string name="mc_recall_4">XXX</string>
+    <string name="mc_recall_5">XXX</string>
+    <string name="orientation_instructions">XXX</string>
+    <string name="q23">Date</string>
+    <string name="q24">Month</string>
+    <string name="q25">Year</string>
+    <string name="q26">Day</string>
+    <string name="q27">Place</string>
+    <string name="q28">City</string>
+    <string name="date_now_is">Current date is:</string>
+    <string name="no_need_for_extra_recall">Nothing to do here (subject has already recalled everything).</string>
+
+  </task>
+</resources>

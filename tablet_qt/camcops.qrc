@@ -193,5 +193,6 @@
         <file>resources/camcops/images/language.png</file>
         <file>resources/camcops/images/service_evaluation.png</file>
         <file>resources/camcops/images/physical.png</file>
+        <file>resources/moca/missing.png</file>
     </qresource>
 </RCC>

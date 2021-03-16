@@ -402,7 +402,7 @@
         <translation>Konfiguration af intern database</translation>
     </message>
     <message>
-        <location line="+319"/>
+        <location line="+295"/>
         <source>Enter a new password for the CamCOPS application</source>
         <translation>Indtast en ny adgangskode til CamCOPS-applikationen</translation>
     </message>
@@ -447,7 +447,12 @@
         <translation>Kan ikke læse databasen; ødelagt? krypteret? (Denne version af CamCOPS har haft sine krypteringsfaciliteter deaktiveret.)</translation>
     </message>
     <message>
-        <location line="+783"/>
+        <location line="+15"/>
+        <source>No, I can&apos;t remember the password</source>
+        <translation>Nej, jeg kan ikke huske kodeordet.</translation>
+    </message>
+    <message>
+        <location line="+769"/>
         <source>Upload?</source>
         <translation>Upload?</translation>
     </message>
@@ -462,13 +467,13 @@
         <translation>Ja, upload</translation>
     </message>
     <message>
-        <location line="-1604"/>
-        <location line="+1606"/>
+        <location line="-1581"/>
+        <location line="+1583"/>
         <source>No, cancel</source>
         <translation>Nej, annuller</translation>
     </message>
     <message>
-        <location line="-1791"/>
+        <location line="-1768"/>
         <source>You did not select how you would like to use CamCOPS</source>
         <translation>Du valgte ikke, hvordan du vil bruge CamCOPS</translation>
     </message>
@@ -566,7 +571,7 @@ Are you connected to the internet?</source>
 Har du forbindelse til internettet?</translation>
     </message>
     <message>
-        <location line="+616"/>
+        <location line="+592"/>
         <source>You entered an incorrect password. Try again?</source>
         <translation>Du indtastede en forkert adgangskode. Prøv igen?</translation>
     </message>
@@ -581,12 +586,7 @@ Har du forbindelse til internettet?</translation>
         <translation>Ja, indtast adgangskoden igen</translation>
     </message>
     <message>
-        <location line="+0"/>
-        <source>No, I forgot the password</source>
-        <translation>Nej, jeg har glemt adgangskoden</translation>
-    </message>
-    <message>
-        <location line="+8"/>
+        <location line="+9"/>
         <source>The only way to reset your password is to delete all of the data from the database.
 Any records not uploaded to the server will be lost.</source>
         <translation>Den eneste måde at nulstille din adgangskode på er at slette alle data fra databasen.
@@ -658,7 +658,7 @@ Alle poster, der ikke uploades til serveren, går tabt.</translation>
         <translation>JEG ER IKKE ENIG</translation>
     </message>
     <message>
-        <location line="-2814"/>
+        <location line="-2791"/>
         <source>OK. Goodbye.</source>
         <translation>Okay. Farvel.</translation>
     </message>
@@ -668,7 +668,7 @@ Alle poster, der ikke uploades til serveren, går tabt.</translation>
         <translation>Du nægtede betingelserne.</translation>
     </message>
     <message>
-        <location line="+2856"/>
+        <location line="+2833"/>
         <source>Uploading...</source>
         <translation>Uploader …</translation>
     </message>
@@ -1325,7 +1325,7 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
 <context>
     <name>DangerousConfirmationDialog</name>
     <message>
-        <location filename="../dialogs/dangerousconfirmationdialog.cpp" line="+41"/>
+        <location filename="../dialogs/dangerousconfirmationdialog.cpp" line="+42"/>
         <source>If you are sure, enter &lt;b&gt;%1&lt;/b&gt; here</source>
         <extracomment>This will expand to: If you are sure, enter *Yes* here</extracomment>
         <translation>Hvis du er sikker, skal du indtaste &lt;b&gt;%1&lt;/b&gt; her</translation>
@@ -2806,6 +2806,16 @@ enig</translation>
         <translation>CamCOPS eksekverbar er %1-bit</translation>
     </message>
     <message>
+        <location line="+1"/>
+        <source>Compiler: %1</source>
+        <translation>Compiler: %1</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Compiled at: %1</source>
+        <translation>Kompileret kl.: %1</translation>
+    </message>
+    <message>
         <location line="+8"/>
         <source>&lt;b&gt;Current computer (host)&lt;/b&gt; is %1-bit</source>
         <translation>&lt;b&gt;Nuværende computer (vært)&lt;/b&gt; er %1-bit</translation>
@@ -2877,6 +2887,11 @@ enig</translation>
     </message>
     <message>
         <location line="+20"/>
+        <source>&lt;b&gt;Supports SSL:&lt;/b&gt; %1</source>
+        <translation>&lt;b&gt;Understøtter SSL:&lt;/b&gt; %1</translation>
+    </message>
+    <message>
+        <location line="+2"/>
         <source>&lt;b&gt;Compile-time OpenSSL version:&lt;/b&gt; %1</source>
         <translation>&lt;b&gt;Kompileringstid OpenSSL-version:&lt;/b&gt; %1</translation>
     </message>
@@ -3119,7 +3134,7 @@ enig</translation>
 <context>
     <name>KhandakerMojoMedical</name>
     <message>
-        <location filename="../tasks/khandakermojomedical.cpp" line="+207"/>
+        <location filename="../tasks/khandakermojomedical.cpp" line="+208"/>
         <source>Khandaker GM — MOJO — Medical questionnaire</source>
         <translation>Khandaker GM — MOJO — Medicinsk spørgeskema</translation>
     </message>
@@ -3142,10 +3157,30 @@ enig</translation>
         <translation>Registrering af medicin og taleterapier til MOJO-undersøgelse.</translation>
     </message>
     <message>
-        <location line="+246"/>
+        <location line="+207"/>
+        <source>Medications</source>
+        <translation>Medicin</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Therapies</source>
+        <translation>Terapi</translation>
+    </message>
+    <message>
+        <location line="+22"/>
         <location line="+22"/>
         <source>A row is blank; won’t add another</source>
         <translation>En række er tom; tilføjer ikke en anden</translation>
+    </message>
+    <message>
+        <location line="+108"/>
+        <source>Add a blank row to the table</source>
+        <translation>Føje en tom række til tabellen</translation>
+    </message>
+    <message>
+        <location line="+19"/>
+        <source>Add a row to the table</source>
+        <translation>Føje en række til tabellen</translation>
     </message>
 </context>
 <context>
@@ -3496,7 +3531,7 @@ enig</translation>
 <context>
     <name>Moca</name>
     <message>
-        <location filename="../tasks/moca.cpp" line="+114"/>
+        <location filename="../tasks/moca.cpp" line="+115"/>
         <source>Montreal Cognitive Assessment</source>
         <translation>Montreal Cognitive Assessment [Montreal kognitiv vurdering]</translation>
     </message>
@@ -3509,7 +3544,7 @@ enig</translation>
 <context>
     <name>ModeDialog</name>
     <message>
-        <location filename="../dialogs/modedialog.cpp" line="+40"/>
+        <location filename="../dialogs/modedialog.cpp" line="+43"/>
         <source>Select clinician or single user mode</source>
         <translation>Vælg kliniker eller enkeltbrugertilstand</translation>
     </message>
@@ -3529,7 +3564,7 @@ enig</translation>
         <translation>kliniker/forsker med flere patienter/deltagere</translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+13"/>
         <source>If you are not sure, choose</source>
         <translation>Hvis du ikke er sikker, skal du vælge</translation>
     </message>
@@ -4097,17 +4132,17 @@ enig</translation>
 <context>
     <name>PasswordChangeDialog</name>
     <message>
-        <location filename="../dialogs/passwordchangedialog.cpp" line="+47"/>
+        <location filename="../dialogs/passwordchangedialog.cpp" line="+53"/>
         <source>Enter old password:</source>
         <translation>Indtast gammel adgangskode:</translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+10"/>
         <source>Enter new password:</source>
         <translation>Indtast ny adgangskode:</translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="+5"/>
         <source>Must be at least %1 characters</source>
         <translation>Skal være mindst %1 tegn</translation>
     </message>
@@ -4117,7 +4152,7 @@ enig</translation>
         <translation>Indtast ny adgangskode igen for bekræftelse:</translation>
     </message>
     <message>
-        <location line="+43"/>
+        <location line="+51"/>
         <source>Can&apos;t set an empty password</source>
         <translation>Kan ikke indstille en tom adgangskode</translation>
     </message>
@@ -4250,17 +4285,17 @@ enig</translation>
 <context>
     <name>PatientRegistrationDialog</name>
     <message>
-        <location filename="../dialogs/patientregistrationdialog.cpp" line="+36"/>
+        <location filename="../dialogs/patientregistrationdialog.cpp" line="+39"/>
         <source>Registration</source>
         <translation>Registrering</translation>
     </message>
     <message>
-        <location line="+21"/>
+        <location line="+34"/>
         <source>&lt;b&gt;CamCOPS server location&lt;/b&gt; (e.g. https://server.example.com/camcops/api):</source>
         <translation>&lt;b&gt;CamCOPS-serverplacering&lt;/b&gt; (f.eks. https://server.example.com/camcops/api):</translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+4"/>
         <source>&lt;b&gt;Access key&lt;/b&gt; (e.g. abcde-fghij-klmno-pqrst-uvwxy-zabcd-efghi-jklmn-o):</source>
         <translation>&lt;b&gt;Adgangsnøgle&lt;/b&gt; (f.eks. abcde-fghij-klmno-pqrst-uvwxy-zabcd-efghi-jklmn-o):</translation>
     </message>
@@ -4624,7 +4659,7 @@ enig</translation>
         <translation>[Ugyldig politik]</translation>
     </message>
     <message>
-        <location filename="../lib/uifunc.cpp" line="+483"/>
+        <location filename="../lib/uifunc.cpp" line="+486"/>
         <source>Abort</source>
         <translation>Afbryde</translation>
     </message>
@@ -5147,7 +5182,7 @@ enig</translation>
         <translation>f.eks. 2000000 for ~2 Mb</translation>
     </message>
     <message>
-        <location line="+68"/>
+        <location line="+71"/>
         <source>Configure server settings</source>
         <translation>Konfigurere serverindstillinger</translation>
     </message>
@@ -5394,12 +5429,12 @@ enig</translation>
     </message>
     <message>
         <location line="+7"/>
-        <location line="+373"/>
+        <location line="+376"/>
         <source>User settings</source>
         <translation>Brugerindstillinger</translation>
     </message>
     <message>
-        <location line="-366"/>
+        <location line="-369"/>
         <location line="+197"/>
         <source>Intellectual property (IP) permissions</source>
         <translation>Intellektuelle ejendomsrettigheder</translation>
@@ -5416,12 +5451,12 @@ enig</translation>
     </message>
     <message>
         <location line="+2"/>
-        <location line="+646"/>
+        <location line="+649"/>
         <source>Show server information</source>
         <translation>Vis serveroplysninger</translation>
     </message>
     <message>
-        <location line="-639"/>
+        <location line="-642"/>
         <source>Infrequent user functions</source>
         <translation>Ufrivillige brugerfunktioner</translation>
     </message>
@@ -5671,7 +5706,7 @@ enig</translation>
         <translation>f.eks. “x2167”</translation>
     </message>
     <message>
-        <location line="+168"/>
+        <location line="+171"/>
         <source>&lt;b&gt;Are you sure you want to delete all extra strings?&lt;/b&gt;&lt;br&gt;(To get them back, re-download them from your server.)</source>
         <translation>&lt;b&gt;Er du sikker på, at du vil slette alle ekstra strenger?&lt;/b&gt;&lt;br&gt;(For at få dem tilbage, genindlæs dem fra din server.)</translation>
     </message>
@@ -5891,7 +5926,7 @@ enig</translation>
         <translation>Optagelsestællinger for systemdatabasen</translation>
     </message>
     <message>
-        <location line="-823"/>
+        <location line="-826"/>
         <source>Choose language</source>
         <translation>Vælg sprog</translation>
     </message>
@@ -6278,7 +6313,12 @@ enig</translation>
         <translation>Opgave ikke tilladt til uddannelsesmæssig brug (se Opgaveoplysninger).</translation>
     </message>
     <message>
-        <location line="+44"/>
+        <location line="+16"/>
+        <source>Task may not be created in &apos;skeleton&apos; form (strings not downloaded from server).</source>
+        <translation>Opgaven må ikke oprettes i &apos;skelet&apos;-form (strenge, der ikke hentes fra serveren).</translation>
+    </message>
+    <message>
+        <location line="+38"/>
         <source>Task uploadable</source>
         <translation>Opgave kan uploades</translation>
     </message>
@@ -7203,7 +7243,7 @@ Tak!</translation>
 <context>
     <name>ValidatingLineEdit</name>
     <message>
-        <location filename="../widgets/validatinglineedit.cpp" line="+60"/>
+        <location filename="../widgets/validatinglineedit.cpp" line="+63"/>
         <source>Valid</source>
         <translation>Gyldig</translation>
     </message>
@@ -7436,7 +7476,7 @@ Tak!</translation>
 <context>
     <name>WidgetTestMenu</name>
     <message>
-        <location filename="../menu/widgettestmenu.cpp" line="+138"/>
+        <location filename="../menu/widgettestmenu.cpp" line="+139"/>
         <source>Widget tests</source>
         <translation>Widget tests</translation>
     </message>

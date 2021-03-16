@@ -1206,7 +1206,8 @@ bool CamcopsApp::userConfirmedRetryPassword() const
     return uifunc::confirm(
         tr("You entered an incorrect password. Try again?"),
         tr("Retry password?"),
-        tr("Yes, enter password again"), tr("No, I forgot the password")
+        tr("Yes, enter password again"),
+        tr("No, I can't remember the password")
     );
 }
 
