@@ -222,7 +222,10 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     USERNAME_CAMCOPS_MAX_LEN,
 )
 from camcops_server.cc_modules.cc_task import tablename_to_task_class_dict
-from camcops_server.cc_modules.cc_taskschedule import TaskSchedule
+from camcops_server.cc_modules.cc_taskschedule import (
+    TaskSchedule,
+    TaskScheduleEmailTemplateFormatter,
+)
 from camcops_server.cc_modules.cc_unittest import (
     DemoDatabaseTestCase, DemoRequestTestCase
 )
@@ -4071,6 +4074,7 @@ class EmailTemplateNode(OptionalStringNode, RequestAwareMixin):
     def __init__(self, *args, **kwargs) -> None:
         self.title = ""  # for type checker
         self.description = ""  # for type checker
+        self.formatter = TaskScheduleEmailTemplateFormatter()
         super().__init__(*args, **kwargs)
 
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
@@ -4078,10 +4082,28 @@ class EmailTemplateNode(OptionalStringNode, RequestAwareMixin):
         self.title = _("Email template")
         self.description = _(
             "Template of email to be sent to patients when inviting them to "
-            "complete the tasks in the schedule. Available placeholders: "
-            "$access_key, $server_url"
-        )
+            "complete the tasks in the schedule. Valid placeholders: {}"
+        ).format(self.formatter.get_valid_parameters_string())
+
         self.widget = TextAreaWidget(rows=20, cols=80)
+
+    def validator(self, node: SchemaNode, value: Any) -> None:
+        _ = self.gettext
+
+        try:
+            self.formatter.validate(value)
+
+            return
+        except KeyError as e:
+            error = _("{bad_key} is not a valid placeholder").format(
+                bad_key=e,
+            )
+        except ValueError:
+            error = _(
+                "Invalid email template. Is there a missing '{' or '}' ?"
+            )
+
+        raise Invalid(node, error)
 
 
 class TaskScheduleSchema(CSRFSchema):
@@ -4582,6 +4604,40 @@ class LoginSchemaTests(SchemaTestCase):
         schema = LoginSchema().bind(request=self.req)
 
         self.serialize_deserialize(schema, appstruct)
+
+
+class TaskScheduleSchemaTests(DemoDatabaseTestCase):
+    def test_invalid_for_bad_template_placeholder(self) -> None:
+        schema = TaskScheduleSchema().bind(request=self.req)
+        appstruct = {
+            ViewParam.NAME: "test",
+            ViewParam.GROUP_ID: "1",
+            ViewParam.EMAIL_SUBJECT: "Subject",
+            ViewParam.EMAIL_TEMPLATE: "{bad_key}",
+        }
+
+        cstruct = schema.serialize(appstruct)
+        with self.assertRaises(Invalid) as cm:
+            schema.deserialize(cstruct)
+
+        self.assertIn("'bad_key' is not a valid placeholder",
+                      cm.exception.children[0].messages()[0])
+
+    def test_invalid_for_mismatched_braces(self) -> None:
+        schema = TaskScheduleSchema().bind(request=self.req)
+        appstruct = {
+            ViewParam.NAME: "test",
+            ViewParam.GROUP_ID: "1",
+            ViewParam.EMAIL_SUBJECT: "Subject",
+            ViewParam.EMAIL_TEMPLATE: "{server_url",
+        }
+
+        cstruct = schema.serialize(appstruct)
+        with self.assertRaises(Invalid) as cm:
+            schema.deserialize(cstruct)
+
+        self.assertIn("Invalid email template",
+                      cm.exception.children[0].messages()[0])
 
 
 class TaskScheduleItemSchemaTests(SchemaTestCase):
