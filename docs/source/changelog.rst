@@ -2250,7 +2250,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - **General release.** But Android bug; see 2.3.4.
 
 
-**Client 2.3.4 (released 2019-06-20)**
+**Client 2.3.4 (released 20 Jun 2019)**
 
 - The Google Play Store will soon require 64-bit builds
   (https://android-developers.googleblog.com/2019/01/get-your-apps-ready-for-64-bit.html).
@@ -3001,7 +3001,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - iOS client now available for development
 
-**Client and server v2.4.2, IN PROGRESS**
+**Client and server v2.4.2, released 19 Mar 2021**
 
 - iOS client now available from Apple App Store
 
@@ -3010,3 +3010,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Ability to customise the emails sent to patients assigned to a task schedule.
   (Database revision 0058)
+
+
+**Client and server v2.4.3, IN PROGRESS**
