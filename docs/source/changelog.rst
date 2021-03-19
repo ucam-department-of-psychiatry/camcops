@@ -3000,7 +3000,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - iOS client now available for development
 
-**Client and server v2.4.2, released 16 Mar 2021**
+**Client and server v2.4.2, released 19 Mar 2021**
 
 - iOS client now available from Apple App Store
 
