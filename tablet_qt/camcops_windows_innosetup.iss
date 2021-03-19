@@ -68,10 +68,6 @@
 #define CCSrcExe32 CCSrcBuild32Dir + "\" + CamcopsAppNameLowerCase + ".exe"
 #define CCSrcExe64 CCSrcBuild64Dir + "\" + CamcopsAppNameLowerCase + ".exe"
 #define CCIconName CamcopsAppNameLowerCase + ".ico"
-#define LibCrypto32 CamcopsQtBaseDir + "\openssl_windows_x86_32_build\openssl-" + OpenSSLVersion + "\libcrypto-" + OpenSSLMajorVersionUnderscores + ".dll"
-#define LibCrypto64 CamcopsQtBaseDir + "\openssl_windows_x86_64_build\openssl-" + OpenSSLVersion + "\libcrypto-" + OpenSSLMajorVersionUnderscores + "-x64.dll"
-#define LibSSL32 CamcopsQtBaseDir + "\openssl_windows_x86_32_build\openssl-" + OpenSSLVersion + "\libssl-" + OpenSSLMajorVersionUnderscores + ".dll"
-#define LibSSL64 CamcopsQtBaseDir + "\openssl_windows_x86_64_build\openssl-" + OpenSSLVersion + "\libssl-" + OpenSSLMajorVersionUnderscores + "-x64.dll"
 #define SrcIconFilename CCSrcTabletDir + "\windows\" + CCIconName
 #define VCRedist32Name "vcredist_x86.exe"
 #define VCRedist64Name "vcredist_x64.exe"
@@ -150,12 +146,6 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 ; Install 64-bit version if running in 64-bit mode (x64; see above), otherwise 32-bit version.
 Source: "{#CCSrcExe32}"; DestDir: "{app}"; DestName: "{#CCAppExeName}"; Flags: ignoreversion; Check: not Is64BitInstallMode
 Source: "{#CCSrcExe64}"; DestDir: "{app}"; DestName: "{#CCAppExeName}"; Flags: ignoreversion; Check: Is64BitInstallMode
-
-; We need libcrypto and libssl too.
-Source: "{#LibCrypto32}"; DestDir: "{app}"; Flags: ignoreversion; Check: not Is64BitInstallMode
-Source: "{#LibCrypto64}"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode
-Source: "{#LibSSL32}"; DestDir: "{app}"; Flags: ignoreversion; Check: not Is64BitInstallMode
-Source: "{#LibSSL64}"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode
 
 ; We also need VCRUNTIME140.DLL, and presumably the version of the Visual C++ redistributable is the one from our compiler.
 Source: "{#SrcVCRedist32}"; DestDir: "{tmp}"; Flags: deleteafterinstall; Check: VCRedist32NeedsInstall
