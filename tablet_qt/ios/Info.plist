@@ -23,12 +23,14 @@
          https://developer.apple.com/documentation/bundleresources/information_property_list/cfbundleversion
          https://developer.apple.com/documentation/bundleresources/information_property_list/cfbundleshortversionstring
 
-         You can't upload two binaries with the same CFBundleVersion
+         You can't upload two binaries with the same CFBundleVersion.
+         You can't upload a binary with the same CFBundleShortVersionString
+         if the version has been approved by Apple.
     -->
 	<key>CFBundleShortVersionString</key>
-	<string>2.4.2</string>
+	<string>2.4.3</string>
 	<key>CFBundleVersion</key>
-	<string>2.4.2.10</string>
+	<string>2.4.3.1</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>MinimumOSVersion</key>

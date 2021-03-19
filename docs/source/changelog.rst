@@ -3003,7 +3003,16 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 **Client and server v2.4.2, released 19 Mar 2021**
 
-- iOS client now available from Apple App Store
+- iOS client now available from Apple App Store. Note that due to the way the
+  Apple review process works, the version deployed is actually several commits older
+  than the v2.4.2 git tag. It differs from the Windows and Android releases in
+  the following ways:
+
+  - It will erroneously report its version as 2.4.1
+  - It won't report incompatibility with server >= v2.4.0. See
+    https://github.com/RudolfCardinal/camcops/issues/137
+  - Minor cosmetic differences in the display of dialogs
+  - MoCA functionality still present (see below)
 
 - :ref:`MoCA <moca>` functionally disabled due to rule changes. Old data
   won't be deleted.
@@ -3011,5 +3020,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Ability to customise the emails sent to patients assigned to a task schedule.
   (Database revision 0058)
 
+**Client v2.4.3, released 19 Mar 2021**
 
-**Client and server v2.4.3, IN PROGRESS**
+- Identical to v2.4.2. Version number changes only to work around Apple Store constraints.
+
+**Client and server v2.4.4, IN PROGRESS**
