@@ -26,6 +26,7 @@ tools/release_new_version.py
 
 """
 
+import argparse
 from datetime import datetime
 import logging
 import os
@@ -33,6 +34,7 @@ import re
 from subprocess import run
 import sys
 from typing import List, Optional, Tuple
+import xml.etree.cElementTree as ElementTree
 
 from camcops_server.cc_modules.cc_version_string import (
     CAMCOPS_SERVER_CHANGEDATE,
@@ -51,8 +53,14 @@ CHANGELOG = os.path.join(DOCS_SOURCE_DIR, "changelog.rst")
 CLIENT_VERSION_FILE = os.path.join(CPP_SOURCE_DIR,
                                    "version",
                                    "camcopsversion.cpp")
+ANDROID_MANIFEST_FILE = os.path.join(CPP_SOURCE_DIR,
+                                     "android",
+                                     "AndroidManifest.xml")
 INNOSETUP_FILE = os.path.join(CPP_SOURCE_DIR,
                               "camcops_windows_innosetup.iss")
+IOS_INFO_PLIST_FILE = os.path.join(CPP_SOURCE_DIR,
+                                   "ios",
+                                   "Info.plist")
 
 log = logging.getLogger(__name__)
 
@@ -151,6 +159,33 @@ def get_innosetup_version() -> Optional[Version]:
                 )
 
 
+def get_android_version() -> Optional[Version]:
+    parser = ElementTree.XMLParser(encoding="UTF-8")
+    tree = ElementTree.parse(ANDROID_MANIFEST_FILE, parser=parser)
+    root = tree.getroot()
+    version_string = root.attrib[
+        "{http://schemas.android.com/apk/res/android}versionName"
+    ]
+
+    return Version(version_string)
+
+
+def get_ios_version() -> Optional[Version]:
+    parser = ElementTree.XMLParser(encoding="UTF-8")
+    tree = ElementTree.parse(IOS_INFO_PLIST_FILE, parser=parser)
+    root = tree.getroot()
+    keys = [k.text for k in root.findall("./dict/key")]
+    values = [v.text for v in root.findall("./dict/string")]
+
+    property_dict = dict(zip(keys, values))
+    short_version_string = property_dict["CFBundleShortVersionString"]
+
+    # TODO: semantic_version doesn't like three dots
+    # version_string = property_dict["CFBundleVersion"]
+
+    return Version(short_version_string)
+
+
 def main() -> None:
     if not in_virtualenv():
         log.error("release_new_version.py must be run inside virtualenv")
@@ -173,6 +208,21 @@ def main() -> None:
     # so we don't get the version numbers spiralling out of control
     # this may be impossible for errors when deploying to Apple Store etc
 
+    parser = argparse.ArgumentParser(
+        description="Release CamCOPS to various places",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument(
+        "--client-version", type=str, required=True,
+        help="New client version number (x.y.z)"
+    )
+    parser.add_argument(
+        "--server-version", type=str, required=True,
+        help="New server version number (x.y.z)"
+    )
+    args = parser.parse_args()
+    new_client_version = Version(args.client_version)
+    new_server_version = Version(args.server_version)
+
     releases = get_released_versions()
     latest_version, latest_date = releases[-1]
     progress_version = get_progress_version()
@@ -182,28 +232,78 @@ def main() -> None:
                "Normally that would be the next unreleased version"))
 
     current_server_version = Version(CAMCOPS_SERVER_VERSION_STRING)
-    current_server_date = datetime.strptime(CAMCOPS_SERVER_CHANGEDATE, "%Y-%m-%d")
+    current_server_date = datetime.strptime(CAMCOPS_SERVER_CHANGEDATE,
+                                            "%Y-%m-%d")
     current_client_version = get_client_version()
     current_client_date = get_client_date()
 
     current_windows_version = get_innosetup_version()
+    current_android_version = get_android_version()
+    current_ios_short_version = get_ios_version()
 
-    if current_server_version == progress_version:
-        print(f"The current server version ({current_server_version}) matches "
-              f"the current IN PROGRESS "
-              f"version in the changelog. You probably want to bump the server "
-              f"version, or mark the version in the changelog as released")
+    errors = []
 
-    if current_client_version == progress_version:
-        print(f"The current client version ({current_client_version}) matches "
-              f"the current IN PROGRESS version in the changelog. You probably "
-              f"want to bump the server "
-              f"version, or mark the version in the changelog as released")
+    if current_server_version != new_server_version:
+        errors.append(
+            f"The current server version ({current_server_version}) does not "
+            f"match the desired server version ({new_server_version})"
+        )
 
-    if current_client_version != current_windows_version:
-        print(f"The current client version ({current_client_version}) does not "
-              f"match the Windows InnoSetup version "
-              f"({current_windows_version})")
+    if new_server_version == progress_version:
+        errors.append(
+            f"The desired server version ({new_server_version}) matches "
+            f"the current IN PROGRESS version in the changelog. You "
+            f"probably want to mark the version in the changelog as released"
+        )
+
+    if new_client_version == progress_version:
+        errors.append(
+            f"The desired client version ({new_client_version}) matches "
+            f"the current IN PROGRESS version in the changelog. You probably "
+            f"want to mark the version in the changelog as released"
+        )
+
+    if current_client_version != new_client_version:
+        errors.append(
+            f"The current client version ({current_client_version}) does not "
+            f"match the desired client version ({new_client_version})"
+        )
+
+    if current_android_version != new_client_version:
+        errors.append(
+            f"The Android version ({current_android_version}) "
+            f"does not match the desired client version "
+            f"({new_client_version})"
+        )
+
+    if current_windows_version != new_client_version:
+        errors.append(
+            f"The Windows InnoSetup version ({current_windows_version}) "
+            f"does not match the desired client version "
+            f"({new_client_version})"
+        )
+
+    if current_ios_short_version != new_client_version:
+        errors.append(
+            f"The iOS version ({current_ios_short_version}) "
+            f"does not match the desired client version "
+            f"({new_client_version})"
+        )
+
+    # TODO: semantic_version doesn't like three dots
+    # if current_ios_version < current_ios_short_version:
+    #     errors.append(
+    #         f"The iOS version ({current_ios_version}) "
+    #         f"must be greater than the short version "
+    #         f"({current_ios_short_version})"
+    #     )
+
+    if len(errors) > 0:
+        for error in errors:
+            print(error)
+        sys.exit(EXIT_FAILURE)
+
+    # OK to proceed to the next step
 
 
 if __name__ == "__main__":
