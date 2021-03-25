@@ -172,7 +172,6 @@ import pygments.lexers
 import pygments.lexers.sql
 import pygments.lexers.web
 import pygments.formatters
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import joinedload, Query
 from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.expression import desc, or_, select, update
@@ -3979,36 +3978,7 @@ class AddPatientView(PatientMixin, CreateView):
             new_value = appstruct.get(k)
             setattr(patient, k, new_value)
 
-        saved_ok = False
-
-        # MySql doesn't support "select for update" so we have to keep
-        # trying the next available patient ID and checking for an integrity
-        # error in case another user has grabbed it by the time we have
-        # committed
-        # noinspection PyProtectedMember
-        last_patient_id = (
-            self.request.dbsession
-            # func.max(Patient.id) + 1 here will do the right thing for
-            # backends that support select for update (maybe not for no rows)
-            .query(func.max(Patient.id))
-            .filter(Patient._device_id == server_device.id)
-            .filter(Patient._era == ERA_NOW)
-            .scalar()
-        ) or 0
-
-        next_patient_id = last_patient_id + 1
-
-        while not saved_ok:
-            patient.id = next_patient_id
-
-            self.request.dbsession.add(patient)
-
-            try:
-                self.request.dbsession.flush()
-                saved_ok = True
-            except IntegrityError:
-                self.request.dbsession.rollback()
-                next_patient_id += 1
+        patient.save_with_next_available_id(self.request, server_device.id)
 
         new_idrefs = [
             IdNumReference(which_idnum=idrefdict[ViewParam.WHICH_IDNUM],
@@ -4018,7 +3988,6 @@ class AddPatientView(PatientMixin, CreateView):
 
         for idref in new_idrefs:
             new_idnum = PatientIdNum()
-            new_idnum.id = 0
             new_idnum.patient_id = patient.id
             new_idnum.which_idnum = idref.which_idnum
             new_idnum.idnum_value = idref.idnum_value
@@ -4029,7 +3998,9 @@ class AddPatientView(PatientMixin, CreateView):
                 group_id=appstruct.get(ViewParam.GROUP_ID)
             )
 
-            self.request.dbsession.add(new_idnum)
+            new_idnum.save_with_next_available_id(
+                self.request, server_device.id
+            )
 
         task_schedules = appstruct.get(ViewParam.TASK_SCHEDULES)
 
@@ -5529,7 +5500,7 @@ class EditServerCreatedPatientViewTests(DemoDatabaseTestCase):
         pass
 
     def test_group_updated(self) -> None:
-        patient = self.create_patient(sex="F")
+        patient = self.create_patient(sex="F", as_server_patient=True)
         new_group = Group()
         new_group.name = "newgroup"
         new_group.description = "New group"
@@ -5572,7 +5543,7 @@ class EditServerCreatedPatientViewTests(DemoDatabaseTestCase):
         self.assertIn("Patient is not editable", str(cm.exception))
 
     def test_patient_task_schedules_updated(self) -> None:
-        patient = self.create_patient(sex="F", _era=ERA_NOW)
+        patient = self.create_patient(sex="F", as_server_patient=True)
 
         schedule1 = TaskSchedule()
         schedule1.group_id = self.group.id
@@ -5704,7 +5675,7 @@ class EditServerCreatedPatientViewTests(DemoDatabaseTestCase):
         self.assertIn("Test 2", messages[0])
 
     def test_changes_to_task_schedules(self) -> None:
-        patient = self.create_patient(sex="F")
+        patient = self.create_patient(sex="F", as_server_patient=True)
 
         schedule1 = TaskSchedule()
         schedule1.group_id = self.group.id
@@ -5910,10 +5881,7 @@ class AddPatientViewTests(DemoDatabaseTestCase):
         )
 
     def test_patient_takes_next_available_id(self) -> None:
-        server_device = Device.get_server_device(
-            self.req.dbsession
-        )
-        self.create_patient(id=1234, _device_id=server_device.id, _era=ERA_NOW)
+        self.create_patient(id=1234, as_server_patient=True)
 
         view = AddPatientView(self.req)
 
@@ -5961,7 +5929,8 @@ class DeleteServerCreatedPatientViewTests(DemoDatabaseTestCase):
         super().setUp()
 
         self.patient = self.create_patient(
-            id=1, forename="Jo", surname="Patient",
+            as_server_patient=True,
+            forename="Jo", surname="Patient",
             dob=datetime.date(1958, 4, 19),
             sex="F", address="Address", gp="GP", other="Other"
         )
@@ -5969,6 +5938,7 @@ class DeleteServerCreatedPatientViewTests(DemoDatabaseTestCase):
         patient_pk = self.patient.pk
 
         idnum = self.create_patient_idnum(
+            as_server_patient=True,
             patient_id=self.patient.id,
             which_idnum=self.nhs_iddef.which_idnum,
             idnum_value=TEST_NHS_NUMBER_1
@@ -5976,24 +5946,19 @@ class DeleteServerCreatedPatientViewTests(DemoDatabaseTestCase):
 
         PatientIdNumIndexEntry.index_idnum(idnum, self.dbsession)
 
-        schedule = TaskSchedule()
-        schedule.group_id = self.group.id
-        schedule.name = "Test 1"
-        self.dbsession.add(schedule)
+        self.schedule = TaskSchedule()
+        self.schedule.group_id = self.group.id
+        self.schedule.name = "Test 1"
+        self.dbsession.add(self.schedule)
         self.dbsession.commit()
 
         pts = PatientTaskSchedule()
         pts.patient_pk = patient_pk
-        pts.schedule_id = schedule.id
+        pts.schedule_id = self.schedule.id
         self.dbsession.add(pts)
         self.dbsession.commit()
 
-    def create_tasks(self) -> None:
-        # speed things up a bit
-        pass
-
-    def test_patient_schedule_and_idnums_deleted(self) -> None:
-        multidict = MultiDict([
+        self.multidict = MultiDict([
             ("_charset_", "UTF-8"),
             ("__formid__", "deform"),
             (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
@@ -6008,7 +5973,12 @@ class DeleteServerCreatedPatientViewTests(DemoDatabaseTestCase):
             (FormAction.DELETE, "delete"),
         ])
 
-        self.req.fake_request_post_from_dict(multidict)
+    def create_tasks(self) -> None:
+        # speed things up a bit
+        pass
+
+    def test_patient_schedule_and_idnums_deleted(self) -> None:
+        self.req.fake_request_post_from_dict(self.multidict)
 
         patient_pk = self.patient.pk
         self.req.add_get_params({
@@ -6026,7 +5996,7 @@ class DeleteServerCreatedPatientViewTests(DemoDatabaseTestCase):
         )
 
         deleted_patient = self.dbsession.query(Patient).filter(
-            Patient.pk == patient_pk).one_or_none()
+            Patient._pk == patient_pk).one_or_none()
 
         self.assertIsNone(deleted_patient)
 
@@ -6054,22 +6024,7 @@ class DeleteServerCreatedPatientViewTests(DemoDatabaseTestCase):
         user2, _ = get_or_create_single_user(self.req, "test", self.patient)
         self.assertEqual(user2.single_patient, self.patient)
 
-        multidict = MultiDict([
-            ("_charset_", "UTF-8"),
-            ("__formid__", "deform"),
-            (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
-            ("confirm_1_t", "true"),
-            ("confirm_2_t", "true"),
-            ("confirm_4_t", "true"),
-            ("__start__", "danger:mapping"),
-            ("target", "7176"),
-            ("user_entry", "7176"),
-            ("__end__", "danger:mapping"),
-            ("delete", "delete"),
-            (FormAction.DELETE, "delete"),
-        ])
-
-        self.req.fake_request_post_from_dict(multidict)
+        self.req.fake_request_post_from_dict(self.multidict)
 
         patient_pk = self.patient.pk
         self.req.add_get_params({
@@ -6081,7 +6036,7 @@ class DeleteServerCreatedPatientViewTests(DemoDatabaseTestCase):
             view.dispatch()
 
         deleted_patient = self.dbsession.query(Patient).filter(
-            Patient.pk == patient_pk).one_or_none()
+            Patient._pk == patient_pk).one_or_none()
 
         self.assertIsNone(deleted_patient)
 
@@ -6092,6 +6047,73 @@ class DeleteServerCreatedPatientViewTests(DemoDatabaseTestCase):
         user = self.dbsession.query(User).filter(
             User.id == user2.id).one_or_none()
         self.assertIsNone(user)
+
+    def test_unrelated_patient_unaffected(self) -> None:
+        other_patient = self.create_patient(
+            as_server_patient=True,
+            forename="Mo", surname="Patient",
+            dob=datetime.date(1968, 11, 30),
+            sex="M", address="Address", gp="GP", other="Other"
+        )
+        patient_pk = other_patient._pk
+
+        saved_patient = self.dbsession.query(Patient).filter(
+            Patient._pk == patient_pk).one_or_none()
+
+        self.assertIsNotNone(saved_patient)
+
+        idnum = self.create_patient_idnum(
+            as_server_patient=True,
+            patient_id=other_patient.id,
+            which_idnum=self.nhs_iddef.which_idnum,
+            idnum_value=TEST_NHS_NUMBER_2
+        )
+
+        PatientIdNumIndexEntry.index_idnum(idnum, self.dbsession)
+
+        saved_idnum = self.dbsession.query(PatientIdNum).filter(
+            PatientIdNum.patient_id == other_patient.id,
+            PatientIdNum._device_id == other_patient.device_id,
+            PatientIdNum._era == other_patient.era,
+            PatientIdNum._current == True  # noqa: E712
+        ).one_or_none()
+
+        self.assertIsNotNone(saved_idnum)
+
+        pts = PatientTaskSchedule()
+        pts.patient_pk = patient_pk
+        pts.schedule_id = self.schedule.id
+        self.dbsession.add(pts)
+        self.dbsession.commit()
+
+        self.req.fake_request_post_from_dict(self.multidict)
+
+        self.req.add_get_params({
+            ViewParam.SERVER_PK: self.patient._pk
+        }, set_method_get=False)
+        view = DeleteServerCreatedPatientView(self.req)
+
+        with self.assertRaises(HTTPFound):
+            view.dispatch()
+
+        saved_patient = self.dbsession.query(Patient).filter(
+            Patient._pk == patient_pk).one_or_none()
+
+        self.assertIsNotNone(saved_patient)
+
+        saved_pts = self.dbsession.query(PatientTaskSchedule).filter(
+            PatientTaskSchedule.patient_pk == patient_pk).one_or_none()
+
+        self.assertIsNotNone(saved_pts)
+
+        saved_idnum = self.dbsession.query(PatientIdNum).filter(
+            PatientIdNum.patient_id == other_patient.id,
+            PatientIdNum._device_id == other_patient.device_id,
+            PatientIdNum._era == other_patient.era,
+            PatientIdNum._current == True  # noqa: E712
+        ).one_or_none()
+
+        self.assertIsNotNone(saved_idnum)
 
 
 class EraseTaskTestCase(DemoDatabaseTestCase):

@@ -37,10 +37,12 @@ from typing import (Any, Callable, Dict, Generator, Iterable, List, NoReturn,
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.sqlalchemy.orm_inspect import gen_columns
 from pendulum import DateTime as Pendulum
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.relationships import RelationshipProperty
 from sqlalchemy.orm import Session as SqlASession
+from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer
 
@@ -903,6 +905,49 @@ class GenericTabletRecordMixin(object):
         self._when_added_exact = req.now
         self._when_added_batch_utc = req.now_utc
         self._adding_user_id = req.user_id
+
+    def save_with_next_available_id(self, req: "CamcopsRequest",
+                                    device_id: int) -> None:
+        """
+        Save a record with the next available client pk in sequence.
+        This is of use when creating patients and ID numbers on the server
+        to ensure uniqueness.
+
+        It would be unusual to call this with anything but the server device
+        ID
+        """
+        cls = self.__class__
+
+        saved_ok = False
+
+        # MySql doesn't support "select for update" so we have to keep
+        # trying the next available ID and checking for an integrity
+        # error in case another user has grabbed it by the time we have
+        # committed
+        # noinspection PyProtectedMember
+        last_id = (
+            req.dbsession
+            # func.max(cls.id) + 1 here will do the right thing for
+            # backends that support select for update (maybe not for no rows)
+            .query(func.max(cls.id))
+            .filter(cls._device_id == device_id)
+            .filter(cls._era == ERA_NOW)
+            .scalar()
+        ) or 0
+
+        next_id = last_id + 1
+
+        while not saved_ok:
+            self.id = next_id
+
+            req.dbsession.add(self)
+
+            try:
+                req.dbsession.flush()
+                saved_ok = True
+            except IntegrityError:
+                req.dbsession.rollback()
+                next_id += 1
 
     # -------------------------------------------------------------------------
     # Override this if you provide summaries
