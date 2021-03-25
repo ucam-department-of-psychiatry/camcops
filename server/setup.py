@@ -98,8 +98,8 @@ INSTALL_REQUIRES = [
     'distro==1.3.0',  # detecting Linux distribution  # REMOVE ONCE DOCKER PREFERRED  # noqa
     'dogpile.cache==0.9.2',  # web caching
 
-    # TO COME: 'fhirclient==3.2.0',  # For FHIR export
     'Faker==4.1.1',  # create fake data; for dummy database creation
+    'fhirclient @ git+https://github.com/smart-on-fhir/client-py@16540a46a4bab45065b9d6107c9423b5ae63be2c#egg=fhirclient-4.0.0',  # For FHIR export
     'flower==0.9.4',  # monitor for Celery
 
     'gunicorn==20.0.4',  # web server (Unix only)
