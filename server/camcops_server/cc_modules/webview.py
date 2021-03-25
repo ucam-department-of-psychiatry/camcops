@@ -5957,21 +5957,19 @@ class DeleteServerCreatedPatientViewTests(DemoDatabaseTestCase):
     """
     Unit tests.
     """
-    def create_tasks(self) -> None:
-        # speed things up a bit
-        pass
+    def setUp(self) -> None:
+        super().setUp()
 
-    def test_patient_deleted(self) -> None:
-        patient = self.create_patient(
+        self.patient = self.create_patient(
             id=1, forename="Jo", surname="Patient",
             dob=datetime.date(1958, 4, 19),
             sex="F", address="Address", gp="GP", other="Other"
         )
 
-        patient_pk = patient.pk
+        patient_pk = self.patient.pk
 
         idnum = self.create_patient_idnum(
-            patient_id=patient.id,
+            patient_id=self.patient.id,
             which_idnum=self.nhs_iddef.which_idnum,
             idnum_value=TEST_NHS_NUMBER_1
         )
@@ -5985,11 +5983,16 @@ class DeleteServerCreatedPatientViewTests(DemoDatabaseTestCase):
         self.dbsession.commit()
 
         pts = PatientTaskSchedule()
-        pts.patient_pk = patient.pk
+        pts.patient_pk = patient_pk
         pts.schedule_id = schedule.id
         self.dbsession.add(pts)
         self.dbsession.commit()
 
+    def create_tasks(self) -> None:
+        # speed things up a bit
+        pass
+
+    def test_patient_schedule_and_idnums_deleted(self) -> None:
         multidict = MultiDict([
             ("_charset_", "UTF-8"),
             ("__formid__", "deform"),
@@ -6007,8 +6010,9 @@ class DeleteServerCreatedPatientViewTests(DemoDatabaseTestCase):
 
         self.req.fake_request_post_from_dict(multidict)
 
+        patient_pk = self.patient.pk
         self.req.add_get_params({
-            ViewParam.SERVER_PK: patient.pk
+            ViewParam.SERVER_PK: patient_pk
         }, set_method_get=False)
         view = DeleteServerCreatedPatientView(self.req)
 
@@ -6032,13 +6036,62 @@ class DeleteServerCreatedPatientViewTests(DemoDatabaseTestCase):
         self.assertIsNone(pts)
 
         idnum = self.dbsession.query(PatientIdNum).filter(
-            PatientIdNum.patient_id == patient.id,
-            PatientIdNum._device_id == patient.device_id,
-            PatientIdNum._era == patient.era,
+            PatientIdNum.patient_id == self.patient.id,
+            PatientIdNum._device_id == self.patient.device_id,
+            PatientIdNum._era == self.patient.era,
             PatientIdNum._current == True  # noqa: E712
         ).one_or_none()
 
         self.assertIsNone(idnum)
+
+    def test_registered_patient_and_user_deleted(self) -> None:
+        from camcops_server.cc_modules.client_api import (
+            get_or_create_single_user,
+        )
+        user1, _ = get_or_create_single_user(self.req, "test", self.patient)
+        self.assertEqual(user1.single_patient, self.patient)
+
+        user2, _ = get_or_create_single_user(self.req, "test", self.patient)
+        self.assertEqual(user2.single_patient, self.patient)
+
+        multidict = MultiDict([
+            ("_charset_", "UTF-8"),
+            ("__formid__", "deform"),
+            (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
+            ("confirm_1_t", "true"),
+            ("confirm_2_t", "true"),
+            ("confirm_4_t", "true"),
+            ("__start__", "danger:mapping"),
+            ("target", "7176"),
+            ("user_entry", "7176"),
+            ("__end__", "danger:mapping"),
+            ("delete", "delete"),
+            (FormAction.DELETE, "delete"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+
+        patient_pk = self.patient.pk
+        self.req.add_get_params({
+            ViewParam.SERVER_PK: patient_pk
+        }, set_method_get=False)
+        view = DeleteServerCreatedPatientView(self.req)
+
+        with self.assertRaises(HTTPFound):
+            view.dispatch()
+
+        deleted_patient = self.dbsession.query(Patient).filter(
+            Patient.pk == patient_pk).one_or_none()
+
+        self.assertIsNone(deleted_patient)
+
+        user = self.dbsession.query(User).filter(
+            User.id == user1.id).one_or_none()
+        self.assertIsNone(user)
+
+        user = self.dbsession.query(User).filter(
+            User.id == user2.id).one_or_none()
+        self.assertIsNone(user)
 
 
 class EraseTaskTestCase(DemoDatabaseTestCase):

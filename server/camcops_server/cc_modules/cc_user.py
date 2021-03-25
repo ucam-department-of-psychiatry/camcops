@@ -67,7 +67,6 @@ from camcops_server.cc_modules.cc_text import TERMS_CONDITIONS_UPDATE_DATE
 from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 
 if TYPE_CHECKING:
-    from camcops_server.cc_modules.cc_patient import Patient
     from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
@@ -450,8 +449,6 @@ class User(Base):
         "user_group_memberships", "group")  # type: List[Group]
     upload_group = relationship(
         "Group", foreign_keys=[upload_group_id])  # type: Optional[Group]
-    single_patient = relationship(
-        "Patient", foreign_keys=[single_patient_pk])  # type: Optional[Patient]
 
     def __repr__(self) -> str:
         return simple_repr(

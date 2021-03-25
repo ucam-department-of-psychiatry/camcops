@@ -107,6 +107,7 @@ if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_policy import TokenizedPolicy
     from camcops_server.cc_modules.cc_request import CamcopsRequest
     from camcops_server.cc_modules.cc_taskschedule import PatientTaskSchedule
+    from camcops_server.cc_modules.cc_user import User
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -205,6 +206,13 @@ class Patient(GenericTabletRecordMixin, Base):
     task_schedules = relationship(
         "PatientTaskSchedule",
         back_populates="patient")  # type: List[PatientTaskSchedule]
+
+    single_users = relationship(
+        "User",
+        backref="single_patient",
+        foreign_keys="User.single_patient_pk",
+        cascade="all"
+    )  # type: Optional[User]
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # THE FOLLOWING ARE DEFUNCT, AND THE SERVER WORKS AROUND OLD TABLETS IN
