@@ -5181,7 +5181,7 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
         self.assertEqual(patient.other, "New other")
 
         idnum = patient.get_idnum_objects()[0]
-        self.assertEqual(idnum.patient_id, 0)
+        self.assertEqual(idnum.patient_id, patient.id)
         self.assertEqual(idnum.which_idnum, self.nhs_iddef.which_idnum)
         self.assertEqual(idnum.idnum_value, TEST_NHS_NUMBER_1)
 
