@@ -26,7 +26,7 @@ camcops_server/alembic/versions/0061_fix_up_patient_idnum_ids.py
 
 DATABASE REVISION SCRIPT
 
-user_single_patient_fk_constraint
+fix_up_patient_idnum_ids
 
 Revision ID: 0061
 Revises: 0060
