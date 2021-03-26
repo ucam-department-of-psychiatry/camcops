@@ -3025,3 +3025,15 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Identical to v2.4.2. Version number changes only to work around Apple Store constraints.
 
 **Client and server v2.4.4, IN PROGRESS**
+
+- Fix two bugs when deleting patients created on the server:
+
+  - It was impossible to delete an already registered patient
+    https://github.com/RudolfCardinal/camcops/issues/143
+    (Database revision 0060)
+
+  - Deleting a patient created on the server would delete ID numbers from
+    unrelated patients. This is because the entries in the patient_idnum table
+    were being created with the id field set to zero.
+    https://github.com/RudolfCardinal/camcops/issues/144
+    (Database revision 0061 assigns correct ids to any entries that require them)
