@@ -6014,7 +6014,7 @@ class DeleteServerCreatedPatientViewTests(DemoDatabaseTestCase):
 
         self.assertIsNone(idnum)
 
-    def test_registered_patient_and_user_deleted(self) -> None:
+    def test_registered_patient_deleted(self) -> None:
         from camcops_server.cc_modules.client_api import (
             get_or_create_single_user,
         )
@@ -6035,6 +6035,8 @@ class DeleteServerCreatedPatientViewTests(DemoDatabaseTestCase):
         with self.assertRaises(HTTPFound):
             view.dispatch()
 
+        self.dbsession.commit()
+
         deleted_patient = self.dbsession.query(Patient).filter(
             Patient._pk == patient_pk).one_or_none()
 
@@ -6042,11 +6044,11 @@ class DeleteServerCreatedPatientViewTests(DemoDatabaseTestCase):
 
         user = self.dbsession.query(User).filter(
             User.id == user1.id).one_or_none()
-        self.assertIsNone(user)
+        self.assertIsNone(user.single_patient_pk)
 
         user = self.dbsession.query(User).filter(
             User.id == user2.id).one_or_none()
-        self.assertIsNone(user)
+        self.assertIsNone(user.single_patient_pk)
 
     def test_unrelated_patient_unaffected(self) -> None:
         other_patient = self.create_patient(
