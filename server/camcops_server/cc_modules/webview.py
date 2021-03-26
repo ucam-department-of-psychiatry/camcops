@@ -3721,7 +3721,7 @@ class EditPatientBaseView(PatientMixin, UpdateView):
                 new_idnum.which_idnum = idnum.which_idnum
                 new_idnum.idnum_value = matching_idref.idnum_value
                 new_idnum.set_predecessor(self.request, idnum)
-        max_existing_pidnum_id = None
+
         for idref in new_idrefs:
             matching_idnum = next(
                 (idnum for idnum in patient.idnums
@@ -3736,28 +3736,19 @@ class EditPatientBaseView(PatientMixin, UpdateView):
                 # seen by the tablet. The tablet has lost interest in these
                 # records, since _era != ERA_NOW, so all we have to do is
                 # pick a number that's not in use.
-                if max_existing_pidnum_id is None:
-                    # noinspection PyProtectedMember
-                    max_existing_pidnum_id = (
-                        self.request.dbsession
-                        .query(func.max(PatientIdNum.id))
-                        .filter(PatientIdNum._device_id == patient.device_id)
-                        .filter(PatientIdNum._era == patient.era)
-                        .scalar()
-                    )
-                    if max_existing_pidnum_id is None:
-                        max_existing_pidnum_id = 0  # so start at 1
-                    new_idnum = PatientIdNum()
-                    new_idnum.id = max_existing_pidnum_id + 1
-                    max_existing_pidnum_id += 1
-                    new_idnum.patient_id = patient.id
-                    new_idnum.which_idnum = idref.which_idnum
-                    new_idnum.idnum_value = idref.idnum_value
-                    new_idnum.create_fresh(self.request,
-                                           device_id=patient.device_id,
-                                           era=patient.era,
-                                           group_id=patient.group_id)
-                    self.request.dbsession.add(new_idnum)
+                new_idnum = PatientIdNum()
+                new_idnum.patient_id = patient.id
+                new_idnum.which_idnum = idref.which_idnum
+                new_idnum.idnum_value = idref.idnum_value
+                new_idnum.create_fresh(self.request,
+                                       device_id=patient.device_id,
+                                       era=patient.era,
+                                       group_id=patient.group_id)
+                new_idnum.save_with_next_available_id(
+                    self.request,
+                    patient.device_id,
+                    era=patient.era
+                )
 
     def get_context_data(self, **kwargs: Any) -> Any:
         # This parameter is (I think) used by Mako templates such as
