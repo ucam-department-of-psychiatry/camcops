@@ -3024,7 +3024,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Identical to v2.4.2. Version number changes only to work around Apple Store constraints.
 
-**Client and server v2.4.4, IN PROGRESS**
+**Server v2.4.4, released 29 Mar 2021**
 
 - Fix two bugs when deleting patients created on the server:
 
@@ -3041,3 +3041,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Fix bug where patient ID numbers were not always displayed correctly in the
   list of patients and their task schedules.
   https://github.com/RudolfCardinal/camcops/issues/147
+
+**Client and server v2.4.5, IN PROGRESS**
