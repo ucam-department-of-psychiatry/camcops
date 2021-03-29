@@ -434,7 +434,8 @@ class User(Base):
         comment="Is automatically generated user with random password"
     )
     single_patient_pk = Column(
-        "single_patient_pk", Integer, ForeignKey("patient._pk"),
+        "single_patient_pk", Integer, ForeignKey("patient._pk",
+                                                 ondelete="SET NULL"),
         comment="For users locked to a single patient, the server PK of the "
                 "server-created patient with which they are associated"
     )
