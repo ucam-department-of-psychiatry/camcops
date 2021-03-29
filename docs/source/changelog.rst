@@ -3037,3 +3037,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
     were being created with the id field set to zero.
     https://github.com/RudolfCardinal/camcops/issues/144
     (Database revision 0061 assigns correct ids to any entries that require them)
+
+- Fix bug where patient ID numbers were not always displayed correctly in the
+  list of patients and their task schedules.
+  https://github.com/RudolfCardinal/camcops/issues/147
