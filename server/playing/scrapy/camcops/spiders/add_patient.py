@@ -42,12 +42,16 @@ Usage:
 """
 
 from cardinal_pythonlib.nhs import generate_random_nhs_number
+from faker import Faker
 from scrapy import FormRequest, Request, Spider
+
+
+BASE_URL = "https://192.168.1.141:8000"
 
 
 class AddPatientSpider(Spider):
     name = "add-patient-spider"
-    start_urls = ["https://www.localhost:8000/login"]
+    start_urls = [f"{BASE_URL}/login"]
 
     def parse(self, response):
         assert response.status == 200
@@ -61,7 +65,7 @@ class AddPatientSpider(Spider):
     def go_to_add_patient(self, response):
         assert response.status == 200
 
-        url = "https://www.localhost:8000/add_patient"
+        url = f"{BASE_URL}/add_patient"
 
         return Request(url, callback=self.add_patient)
 
@@ -69,21 +73,40 @@ class AddPatientSpider(Spider):
         assert response.status == 200
 
         for i in range(1, 10):
+            faker = Faker('en_GB')
+
+            sex = faker.random.choices(
+                ["M", "F", "X"],
+                weights=[49.8, 49.8, 0.4]
+            )[0]
+
+            if sex == "M":
+                forename = faker.first_name_male()
+            elif sex == "F":
+                forename = faker.first_name_female()
+            else:
+                forename = faker.first_name()[:1]
+
+            surname = faker.last_name()
+
+            dob = faker.date_of_birth()
+            address = faker.address()
+
             yield FormRequest.from_response(
                 response,
                 formdata=[
                     ("_charset_", "UTF-8"),
                     ("__formid__", "deform"),
                     ("group_id", "1"),
-                    ("forename", "Ronnie"),
-                    ("surname", "Firefox"),
+                    ("forename", forename),
+                    ("surname", surname),
                     ("__start__", "dob:mapping"),
-                    ("date", "2020-04-07"),
+                    ("date", dob.isoformat()),
                     ("__end__", "dob:mapping"),
                     ("__start__", "sex:rename"),
-                    ("deformField7", "M"),
+                    ("deformField7", sex),
                     ("__end__", "sex:rename"),
-                    ("address", "222 A"),
+                    ("address", address),
                     ("gp", ""),
                     ("other", ""),
                     ("__start__", "id_references:sequence"),

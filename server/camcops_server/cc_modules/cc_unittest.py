@@ -389,13 +389,15 @@ class DemoDatabaseTestCase(DemoRequestTestCase):
         patient_idnum = PatientIdNum()
         self._apply_standard_db_fields(patient_idnum, era_now=as_server_patient)
 
-        if "id" not in kwargs:
-            kwargs["id"] = 0
-
         for key, value in kwargs.items():
             setattr(patient_idnum, key, value)
 
-        self.dbsession.add(patient_idnum)
+        if "id" not in kwargs:
+            patient_idnum.save_with_next_available_id(self.req,
+                                                      patient_idnum._device_id)
+        else:
+            self.dbsession.add(patient_idnum)
+
         self.dbsession.commit()
 
         return patient_idnum
@@ -407,11 +409,13 @@ class DemoDatabaseTestCase(DemoRequestTestCase):
         patient = Patient()
         self._apply_standard_db_fields(patient, era_now=as_server_patient)
 
-        if "id" not in kwargs:
-            kwargs["id"] = 0
-
         for key, value in kwargs.items():
             setattr(patient, key, value)
+
+        if "id" not in kwargs:
+            patient.save_with_next_available_id(self.req, patient._device_id)
+        else:
+            self.dbsession.add(patient)
 
         self.dbsession.add(patient)
         self.dbsession.commit()
