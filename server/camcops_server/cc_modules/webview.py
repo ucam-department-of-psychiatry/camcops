@@ -4146,6 +4146,7 @@ def view_patient_task_schedules(req: "CamcopsRequest") -> Dict[str, Any]:
         .filter(Patient._device_id == server_device.id)
         .order_by(Patient.surname, Patient.forename)
         .options(joinedload("task_schedules"))
+        .options(joinedload("idnums"))
     )
 
     page = SqlalchemyOrmPage(query=q,
