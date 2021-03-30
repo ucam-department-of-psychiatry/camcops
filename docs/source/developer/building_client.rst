@@ -1023,6 +1023,24 @@ If you want to debug the .ipa file sent to App Store Connect, choose the
 The archive process will result in a broken symlink when you next build the project
 in QtCreator (error message mkdir failed). You can just delete it.
 
+
+MacOS
+-----
+
+See:
+
+- https://doc.qt.io/qt-5/macos.html
+
+Build in QtCreator as usual then sign for distribution outside the Apple Store as a dmg file:
+
+    .. code-block:: bash
+
+        /path/to/macos/qt/install/bin/macdeployqt camcops.app -verbose=3 -dmg -codesign="Apple Development: Martin Burchell (XXXXXXXXXX)" -appstore-compliant
+
+Replacing the certificate description with an Apple Development one in your Keychain.
+Note that this command must be run on the Mac directly. The signing will fail
+with ``errSecInternalComponent`` if run from another machine over ssh.
+
 General
 ~~~~~~~
 

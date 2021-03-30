@@ -3043,3 +3043,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
   https://github.com/RudolfCardinal/camcops/issues/147
 
 **Client and server v2.4.5, IN PROGRESS**
+
+  - Support for MacOS client
