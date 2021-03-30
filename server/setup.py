@@ -85,7 +85,7 @@ INSTALL_REQUIRES = [
     'hl7==0.3.5',  # For HL7 export
 
     'lockfile==0.12.2',  # File locking for background tasks
-    'lxml==4.6.2',  # Will speed up openpyxl export [NO LONGER CRITICAL]
+    'lxml==4.6.3',  # Will speed up openpyxl export [NO LONGER CRITICAL]
 
     'matplotlib==3.2.2',  # Used for trackers and some tasks. SLOW INSTALLATION.  # noqa
 
