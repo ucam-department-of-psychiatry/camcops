@@ -112,7 +112,7 @@ INSTALL_REQUIRES = [
 
     'numpy==1.19.0',  # Used by some tasks. SLOW INSTALLATION.
 
-    'paginate==30.5.6',  # pagination for web server
+    'paginate==0.5.6',  # pagination for web server
     'pendulum==2.1.0',  # better than Arrow
     'pexpect==4.8.0',  # for open_sqlcipher.py
     'pdfkit==0.6.1',  # wkhtmltopdf interface, for PDF generation from HTML
