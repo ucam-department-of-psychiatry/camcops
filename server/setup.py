@@ -69,7 +69,6 @@ CAMCOPS_SERVER_DIR = os.path.join(THIS_DIR, 'camcops_server')
 
 # Files
 MANIFEST_FILE = os.path.join(THIS_DIR, 'MANIFEST.in')
-PIP_REQ_FILE = os.path.join(THIS_DIR, 'requirements.txt')
 
 # Arguments
 EXTRAS_ARG = 'extras'
@@ -113,7 +112,7 @@ INSTALL_REQUIRES = [
 
     'numpy==1.19.0',  # Used by some tasks. SLOW INSTALLATION.
 
-    'paginate==0.5.6',  # pagination for web server
+    'paginate==30.5.6',  # pagination for web server
     'pendulum==2.1.0',  # better than Arrow
     'pexpect==4.8.0',  # for open_sqlcipher.py
     'pdfkit==0.6.1',  # wkhtmltopdf interface, for PDF generation from HTML
@@ -358,15 +357,6 @@ if getattr(our_args, EXTRAS_ARG):
             "# This is an AUTOCREATED file, server/MANIFEST.in; see "
             "server/setup.py and DO NOT EDIT BY HAND"])
         manifest.write("\n\n" + "\n".join(MANIFEST_LINES) + "\n")
-
-    # -------------------------------------------------------------------------
-    # Write requirements.txt
-    # -------------------------------------------------------------------------
-    with open(PIP_REQ_FILE, "w") as req_file:
-        req_file.writelines([
-            "# This is an AUTOCREATED file, server/requirements.txt; see "
-            "server/setup.py and DO NOT EDIT BY HAND"])
-        req_file.write("\n\n" + "\n".join(INSTALL_REQUIRES) + "\n")
 
 
 # =============================================================================
