@@ -76,6 +76,10 @@ from camcops_server.cc_modules.cc_exportrecipient import (
 from camcops_server.cc_modules.cc_exportrecipientinfo import (
     ExportTransmissionMethod,
 )
+from camcops_server.cc_modules.cc_fhir import (
+    FhirExportException,
+    FhirTaskExporter,
+)
 from camcops_server.cc_modules.cc_filename import (
     change_filename_ext,
 )
@@ -384,6 +388,11 @@ class ExportedTask(Base):
             email = ExportedTaskEmail(self)
             dbsession.add(email)
             email.export_task(req)
+
+        elif transmission_method == ExportTransmissionMethod.FHIR:
+            efhir = ExportedTaskFhir(self)
+            dbsession.add(efhir)
+            efhir.export_task(req)
 
         elif transmission_method == ExportTransmissionMethod.FILE:
             efg = ExportedTaskFileGroup(self)
@@ -1163,4 +1172,51 @@ class ExportedTaskRedcap(Base):
             exporter.export_task(req, self)
             exported_task.succeed()
         except RedcapExportException as e:
+            exported_task.abort(str(e))
+
+
+# =============================================================================
+# FHIR export
+# =============================================================================
+
+class ExportedTaskFhir(Base):
+    """
+    Represents an individual FHIR export.
+    """
+    __tablename__ = "_exported_task_fhir"
+
+    id = Column(
+        "id", Integer, primary_key=True, autoincrement=True,
+        comment="Arbitrary primary key"
+    )
+
+    exported_task_id = Column(
+        "exported_task_id", BigInteger, ForeignKey(ExportedTask.id),
+        nullable=False,
+        comment=f"FK to {ExportedTask.__tablename__}.{ExportedTask.id.name}"
+    )
+
+    exported_task = relationship(ExportedTask)
+
+    def __init__(self, exported_task: ExportedTask = None) -> None:
+        """
+        Args:
+            exported_task: :class:`ExportedTask` object
+        """
+        self.exported_task = exported_task
+
+    def export_task(self, req: "CamcopsRequest") -> None:
+        """
+        Exports the task to FHIR.
+
+        Args:
+            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        """
+        exported_task = self.exported_task
+        exporter = FhirTaskExporter()
+
+        try:
+            exporter.export_task(req, self)
+            exported_task.succeed()
+        except FhirExportException as e:
             exported_task.abort(str(e))

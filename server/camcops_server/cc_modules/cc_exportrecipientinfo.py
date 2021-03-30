@@ -86,6 +86,7 @@ class ExportTransmissionMethod(object):
     """
     DATABASE = "database"
     EMAIL = "email"
+    FHIR = "fhir"
     FILE = "file"
     HL7 = "hl7"
     REDCAP = "redcap"
@@ -230,6 +231,10 @@ class ExportRecipientInfo(object):
         self.redcap_api_key = ""  # not in database for security
         self.redcap_api_url = ""
         self.redcap_fieldmap_filename = ""
+
+        # FHIR
+
+        self.fhir_api_url = ""
 
         # Copy from other?
         if other is not None:

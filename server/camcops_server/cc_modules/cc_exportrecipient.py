@@ -373,6 +373,14 @@ class ExportRecipient(ExportRecipientInfo, Base):
         comment="(REDCap) File defining CamCOPS-to-REDCap field mapping"
     )
 
+    # -------------------------------------------------------------------------
+    # FHIR export
+    # -------------------------------------------------------------------------
+    fhir_api_url = Column(
+        "fhir_api_url", Text,
+        comment="(FHIR) FHIR API URL, pointing to the FHIR server"
+    )
+
     def __init__(self, *args, **kwargs) -> None:
         """
         Creates a blank :class:`ExportRecipient` object.
