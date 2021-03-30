@@ -875,7 +875,7 @@ def build_package() -> None:
     except OSError:
         pass
     os.chdir(SETUP_PY_DIR)  # or setup.py looks in wrong places?
-    cmdargs = ['python', setup_py, 'sdist', '--extras']  # special!
+    cmdargs = ['python', setup_py, 'sdist']
     call(cmdargs)
     remove_gzip_timestamp(src_sdist_file)
 
@@ -1046,9 +1046,7 @@ def main():
 - In brief, the following sequence is followed as the package is built:
 
   * The CamCOPS server is packaged up from source using
-        python setup.py sdist --extras
-            # ... where "--extras" is a special custom option that copies the
-            # tablet source code and packages that, plus all static files
+        python setup.py sdist
     and zipped in a Debian-safe way.
 
   * The principle is that the Python package should do all the work, not the
