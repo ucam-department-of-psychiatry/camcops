@@ -33,21 +33,21 @@ Downloading CamCOPS
 Overview
 ~~~~~~~~
 
-The Android app is at
+The Android app is in the Google Play Store at
 
 - https://play.google.com/store/apps/details?id=org.camcops.camcops
 
-Client downloads, and server distributions, are at
+The iOS app is in the Apple App Store at
+
+- https://apps.apple.com/us/app/camcops/id1554490054
+
+Windows client downloads, and server distributions, are at
 
 - https://github.com/RudolfCardinal/camcops/releases
 
 The source code is at
 
 - https://github.com/RudolfCardinal/CamCOPS
-
-**Old** client downloads, and server distributions, are at
-
-- https://egret.psychol.cam.ac.uk/camcops/download/ -- DEFUNCT.
 
 
 Windows client notes

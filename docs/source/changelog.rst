@@ -34,6 +34,7 @@ Quick links:
 - :ref:`2020 <changelog_2020>`
 - :ref:`2021 <changelog_2021>`
 
+
 Contributors
 ------------
 
@@ -75,6 +76,7 @@ Contributors
 
 Original Titanium/Javascript client, Python server with custom MySQL interface (defunct)
 ----------------------------------------------------------------------------------------
+
 
 .. _changelog_2013:
 
@@ -2988,8 +2990,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
   <rapid3>`. (Database revision 0055.)
 
 - Usability improvements to :ref:`Khandaker GM — MOJO — Medical questionnaire
-  <khandaker_mojo_medical>` and :ref:`Khandaker GM — MOJO — Medications and therapies
-  <khandaker_mojo_medicationtherapy>`. (Database revisions 0056-0057)
+  <khandaker_mojo_medical>` and :ref:`Khandaker GM — MOJO — Medications and
+  therapies <khandaker_mojo_medicationtherapy>`. (Database revisions 0056-0057)
 
 
 .. _changelog_2021:
@@ -3004,9 +3006,9 @@ Current C++/SQLite client, Python/SQLAlchemy server
 **Client and server v2.4.2, released 19 Mar 2021**
 
 - iOS client now available from Apple App Store. Note that due to the way the
-  Apple review process works, the version deployed is actually several commits older
-  than the v2.4.2 git tag. It differs from the Windows and Android releases in
-  the following ways:
+  Apple review process works, the version deployed is actually several commits
+  older than the v2.4.2 git tag. It differs from the Windows and Android
+  releases in the following ways:
 
   - It will erroneously report its version as 2.4.1
   - It won't report incompatibility with server >= v2.4.0. See
@@ -3022,6 +3024,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 **Client v2.4.3, released 19 Mar 2021**
 
-- Identical to v2.4.2. Version number changes only to work around Apple Store constraints.
+- Identical to v2.4.2. Version number changes only to work around Apple Store
+  constraints.
 
 **Client and server v2.4.4, IN PROGRESS**
