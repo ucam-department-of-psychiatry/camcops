@@ -136,9 +136,12 @@ Google Play Store release history
 | 2.4.2         | N/A, identical      | N/A                 | N/A                | 23      | 29      |
 |               | to 2.4.3            |                     |                    |         |         |
 +---------------+---------------------+---------------------+--------------------+---------+---------+
-| 2.4.3         | 17 (32-bit ARM);    | 2.4.3               | 2021-03-19         | 23      | 29      |
+| 2.4.3         | 17 (32-bit ARM);    | 2.4.3               | 2021-03-30         | 23      | 29      |
 |               | 18 (64-bit ARM)     |                     |                    |         |         |
 +---------------+---------------------+---------------------+--------------------+---------+---------+
+
+Note: target API of 30 required as of Nov 2021:
+https://android-developers.googleblog.com/2020/11/new-android-app-bundle-and-target-api.html
 
 
 Windows client
