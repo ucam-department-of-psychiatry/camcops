@@ -3045,4 +3045,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
   list of patients and their task schedules.
   https://github.com/RudolfCardinal/camcops/issues/147
 
-**Client and server v2.4.5, IN PROGRESS**
+**Client v2.4.5, released 30 Mar 2021**
+
+  - Support for MacOS client
+
+**Client and server v2.4.6, IN PROGRESS**
