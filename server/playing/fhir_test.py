@@ -30,9 +30,20 @@ https://github.com/hapifhir/hapi-fhir-jpaserver-starter/
 """
 
 from fhirclient import client
+from fhirclient.models.questionnaire import Questionnaire
 
 settings = {
     'app_id': 'camcops',
-    'api_base': 'http://localhost:8080'
+    'api_base': 'http://localhost:8080/fhir'
 }
 smart = client.FHIRClient(settings=settings)
+
+items = []
+
+jsondict = {
+    "status": "active",
+    "item": items,
+}
+
+q = Questionnaire(jsondict=jsondict)
+q.create(smart.server)
