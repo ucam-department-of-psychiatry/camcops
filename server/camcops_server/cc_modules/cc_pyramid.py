@@ -761,6 +761,7 @@ class Routes(object):
     VIEW_EXPORTED_TASK_FILE_GROUP = "view_exported_task_file_group"
     VIEW_EXPORTED_TASK_HL7_MESSAGE = "view_exported_task_hl7_message"
     VIEW_GROUPS = "view_groups"
+    VIEW_ID_DEFINITION = "view_id_definition"
     VIEW_ID_DEFINITIONS = "view_id_definitions"
     VIEW_OWN_USER_INFO = "view_own_user_info"
     VIEW_PATIENT_TASK_SCHEDULE = "view_patient_task_schedule"
@@ -897,6 +898,7 @@ class RouteCollection(object):
     VIEW_EXPORTED_TASK_FILE_GROUP = RoutePath(Routes.VIEW_EXPORTED_TASK_FILE_GROUP)  # noqa
     VIEW_EXPORTED_TASK_HL7_MESSAGE = RoutePath(Routes.VIEW_EXPORTED_TASK_HL7_MESSAGE)  # noqa
     VIEW_GROUPS = RoutePath(Routes.VIEW_GROUPS)
+    VIEW_ID_DEFINITION = RoutePath(Routes.VIEW_ID_DEFINITION)
     VIEW_ID_DEFINITIONS = RoutePath(Routes.VIEW_ID_DEFINITIONS)
     VIEW_OWN_USER_INFO = RoutePath(Routes.VIEW_OWN_USER_INFO)
     VIEW_PATIENT_TASK_SCHEDULE = RoutePath(Routes.VIEW_PATIENT_TASK_SCHEDULE)

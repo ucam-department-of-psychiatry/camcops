@@ -417,7 +417,6 @@ class DemoDatabaseTestCase(DemoRequestTestCase):
         else:
             self.dbsession.add(patient)
 
-        self.dbsession.add(patient)
         self.dbsession.commit()
 
         return patient
