@@ -37,7 +37,7 @@ from fhirclient.models.patient import Patient as FhirPatient
 
 from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
 from camcops_server.cc_modules.cc_exportrecipientinfo import ExportRecipientInfo
-from camcops_server.cc_modules.cc_pyramid import Routes, ViewParam
+from camcops_server.cc_modules.cc_pyramid import Routes
 from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 
 if TYPE_CHECKING:
@@ -83,16 +83,16 @@ class FhirTaskExporter(object):
 
         which_idnum = self.recipient.primary_idnum
         idnum_object = self.task.patient.get_idnum_object(which_idnum)
+        idnum_value = idnum_object.idnum_value
         idnum_url = self.request.route_url(
-            Routes.VIEW_ID_DEFINITION,
-            _query={
-                ViewParam.WHICH_IDNUM: which_idnum,
-            }
+            Routes.FHIR_PATIENT_ID,
+            which_idnum=which_idnum,
+            idnum_value=idnum_value
         )
 
         identifier = Identifier(jsondict={
             "system": idnum_url,
-            "value": str(idnum_object.idnum_value),
+            "value": str(idnum_value),
         })
 
         name = HumanName(jsondict={
@@ -115,7 +115,7 @@ class FhirTaskExporter(object):
         request = BundleEntryRequest(jsondict={
             "method": "POST",
             "url": "Patient",
-            "ifNoneExist": f"identifier={idnum_url}|{idnum_object.idnum_value}",
+            "ifNoneExist": f"identifier={idnum_url}|{idnum_value}",
         })
 
         bundle_entries = [

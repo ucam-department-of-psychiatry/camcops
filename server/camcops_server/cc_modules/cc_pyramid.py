@@ -726,6 +726,7 @@ class Routes(object):
     EDIT_USER_GROUP_MEMBERSHIP = "edit_user_group_membership"
     ERASE_TASK_LEAVING_PLACEHOLDER = "erase_task_leaving_placeholder"
     ERASE_TASK_ENTIRELY = "erase_task_entirely"
+    FHIR_PATIENT_ID = "fhir_patient_id/{which_idnum:\\d+}/{idnum_value:\\d+}"
     FORCIBLY_FINALIZE = "forcibly_finalize"
     HOME = "home"
     LOGIN = "login"
@@ -761,7 +762,6 @@ class Routes(object):
     VIEW_EXPORTED_TASK_FILE_GROUP = "view_exported_task_file_group"
     VIEW_EXPORTED_TASK_HL7_MESSAGE = "view_exported_task_hl7_message"
     VIEW_GROUPS = "view_groups"
-    VIEW_ID_DEFINITION = "view_id_definition"
     VIEW_ID_DEFINITIONS = "view_id_definitions"
     VIEW_OWN_USER_INFO = "view_own_user_info"
     VIEW_PATIENT_TASK_SCHEDULE = "view_patient_task_schedule"
@@ -864,6 +864,8 @@ class RouteCollection(object):
     EDIT_USER_GROUP_MEMBERSHIP = RoutePath(Routes.EDIT_USER_GROUP_MEMBERSHIP)
     ERASE_TASK_LEAVING_PLACEHOLDER = RoutePath(Routes.ERASE_TASK_LEAVING_PLACEHOLDER)  # noqa
     ERASE_TASK_ENTIRELY = RoutePath(Routes.ERASE_TASK_ENTIRELY)
+    # TODO: Route doesn't currently go anywhere, currently a unique identifier
+    FHIR_PATIENT_ID = RoutePath(Routes.FHIR_PATIENT_ID)
     FORCIBLY_FINALIZE = RoutePath(Routes.FORCIBLY_FINALIZE)
     HOME = RoutePath(Routes.HOME, MASTER_ROUTE_WEBVIEW)  # mounted at "/"
     LOGIN = RoutePath(Routes.LOGIN)
@@ -898,7 +900,6 @@ class RouteCollection(object):
     VIEW_EXPORTED_TASK_FILE_GROUP = RoutePath(Routes.VIEW_EXPORTED_TASK_FILE_GROUP)  # noqa
     VIEW_EXPORTED_TASK_HL7_MESSAGE = RoutePath(Routes.VIEW_EXPORTED_TASK_HL7_MESSAGE)  # noqa
     VIEW_GROUPS = RoutePath(Routes.VIEW_GROUPS)
-    VIEW_ID_DEFINITION = RoutePath(Routes.VIEW_ID_DEFINITION)
     VIEW_ID_DEFINITIONS = RoutePath(Routes.VIEW_ID_DEFINITIONS)
     VIEW_OWN_USER_INFO = RoutePath(Routes.VIEW_OWN_USER_INFO)
     VIEW_PATIENT_TASK_SCHEDULE = RoutePath(Routes.VIEW_PATIENT_TASK_SCHEDULE)
