@@ -30,7 +30,7 @@ from typing import TYPE_CHECKING
 from unittest import mock
 
 from fhirclient import client
-from fhirclient.models.bundle import Bundle, BundleEntry
+from fhirclient.models.bundle import Bundle, BundleEntry, BundleEntryRequest
 from fhirclient.models.humanname import HumanName
 from fhirclient.models.identifier import Identifier
 from fhirclient.models.patient import Patient as FhirPatient
@@ -69,17 +69,19 @@ class FhirTaskExporter(object):
         # TODO: Authentication
         # TODO: Server capability statement
         # TODO: Anonymous tasks
+        # TODO: Missing API URL in config
 
         which_idnum = self.recipient.primary_idnum
         idnum_object = self.task.patient.get_idnum_object(which_idnum)
+        idnum_url = self.request.route_url(
+            Routes.VIEW_ID_DEFINITION,
+            _query={
+                ViewParam.WHICH_IDNUM: which_idnum,
+            }
+        )
 
         identifier = Identifier(jsondict={
-            "system": self.request.route_url(
-                Routes.VIEW_ID_DEFINITION,
-                _query={
-                    ViewParam.WHICH_IDNUM: which_idnum,
-                }
-            ),
+            "system": idnum_url,
             "value": str(idnum_object.idnum_value),
         })
 
@@ -100,9 +102,16 @@ class FhirTaskExporter(object):
             "gender": gender_lookup.get(self.task.patient.sex, "unknown")
         })
 
+        request = BundleEntryRequest(jsondict={
+            "method": "POST",
+            "url": "Patient",
+            "ifNoneExist": f"identifier={idnum_url}|{idnum_object.idnum_value}",
+        })
+
         bundle_entries = [
             BundleEntry(jsondict={
-                "resource": patient.as_json()
+                "resource": patient.as_json(),
+                "request": request.as_json()
             }).as_json(),
         ]
 
@@ -210,8 +219,10 @@ class FhirTaskExporterTests(FhirExportTestCase):
         self.assertEqual(patient["name"][0]["given"], [self.patient.forename])
         self.assertEqual(patient["gender"], "female")
 
-        # request = sent_json["entry"][0]["request"]
-        # self.assertEqual(
-        #     request["ifNoneExist"],
-        #     (f"identifier={iddef_url}|{idnum_value}")
-        # )
+        request = sent_json["entry"][0]["request"]
+        self.assertEqual(request["method"], "POST")
+        self.assertEqual(request["url"], "Patient")
+        self.assertEqual(
+            request["ifNoneExist"],
+            (f"identifier={iddef_url}|{idnum_value}")
+        )
