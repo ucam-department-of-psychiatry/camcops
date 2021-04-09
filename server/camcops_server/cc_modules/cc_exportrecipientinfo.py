@@ -529,6 +529,12 @@ class ExportRecipientInfo(object):
             r.redcap_fieldmap_filename = _get_str(cpr.REDCAP_FIELDMAP_FILENAME)
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        # FHIR
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        if r.transmission_method == ExportTransmissionMethod.FHIR:
+            r.fhir_api_url = _get_str(cpr.FHIR_API_URL)
+
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Validate the basics and return
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         r.validate_db_independent()
