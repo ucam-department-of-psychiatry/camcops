@@ -98,7 +98,8 @@ class Device(Base):
                 "started (UTC)"
     )
     uploading_user_id = Column(
-        "uploading_user_id", Integer, ForeignKey("_security_users.id"),
+        "uploading_user_id", Integer, ForeignKey("_security_users.id",
+                                                 use_alter=True),
         comment="ID of user in the process of uploading right now"
     )
     uploading_user = relationship("User", foreign_keys=[uploading_user_id])

@@ -273,7 +273,8 @@ class GenericTabletRecordMixin(object):
     @declared_attr
     def _device_id(cls) -> Column:
         return Column(
-            FN_DEVICE_ID, Integer, ForeignKey("_security_devices.id"),
+            FN_DEVICE_ID, Integer, ForeignKey("_security_devices.id",
+                                              use_alter=True),
             nullable=False, index=True,
             comment="(SERVER) ID of the source tablet device"
         )

@@ -435,7 +435,8 @@ class User(Base):
     )
     single_patient_pk = Column(
         "single_patient_pk", Integer, ForeignKey("patient._pk",
-                                                 ondelete="SET NULL"),
+                                                 ondelete="SET NULL",
+                                                 use_alter=True),
         comment="For users locked to a single patient, the server PK of the "
                 "server-created patient with which they are associated"
     )
