@@ -726,7 +726,7 @@ class Routes(object):
     EDIT_USER_GROUP_MEMBERSHIP = "edit_user_group_membership"
     ERASE_TASK_LEAVING_PLACEHOLDER = "erase_task_leaving_placeholder"
     ERASE_TASK_ENTIRELY = "erase_task_entirely"
-    FHIR_PATIENT_ID = "fhir_patient_id/{which_idnum:\\d+}/{idnum_value:\\d+}"
+    FHIR_PATIENT_ID = "fhir_patient_id/{which_idnum:\\d+}"
     FORCIBLY_FINALIZE = "forcibly_finalize"
     HOME = "home"
     LOGIN = "login"

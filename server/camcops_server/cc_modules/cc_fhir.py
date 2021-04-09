@@ -86,8 +86,7 @@ class FhirTaskExporter(object):
         idnum_value = idnum_object.idnum_value
         idnum_url = self.request.route_url(
             Routes.FHIR_PATIENT_ID,
-            which_idnum=which_idnum,
-            idnum_value=idnum_value
+            which_idnum=which_idnum
         )
 
         identifier = Identifier(jsondict={
@@ -219,8 +218,7 @@ class FhirTaskExporterTests(FhirExportTestCase):
         which_idnum = self.patient_rio.which_idnum
         idnum_value = self.patient_rio.idnum_value
 
-        iddef_url = ("http://127.0.0.1:8000/view_id_definition"
-                     f"?which_idnum={which_idnum}")
+        iddef_url = f"http://127.0.0.1:8000/fhir_patient_id/{which_idnum}"
 
         self.assertEqual(identifier[0]["system"], iddef_url)
         self.assertEqual(identifier[0]["value"], str(idnum_value))
