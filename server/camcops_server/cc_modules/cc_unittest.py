@@ -34,7 +34,6 @@ from io import StringIO
 import logging
 import os
 import sqlite3
-import tempfile
 from typing import Any, List, Type, TYPE_CHECKING
 import unittest
 
@@ -42,16 +41,12 @@ from cardinal_pythonlib.dbfunc import get_fieldnames_from_cursor
 from cardinal_pythonlib.httpconst import MimeType
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import pendulum
-from sqlalchemy import event
-from sqlalchemy.orm import Session as SqlASession
+import pytest
 
 from camcops_server.cc_modules.cc_constants import ERA_NOW
 from camcops_server.cc_modules.cc_idnumdef import IdNumDefinition
 from camcops_server.cc_modules.cc_ipuse import IpUse
 from camcops_server.cc_modules.cc_sqlalchemy import (
-    Base,
-    make_file_sqlite_engine,
-    make_memory_sqlite_engine,
     sql_from_sqlite_database,
 )
 from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
@@ -107,64 +102,20 @@ class ExtendedTestCase(unittest.TestCase):
         self.assertIsInstance(obj, cls, msg)
 
 
+@pytest.mark.usefixtures("setup")
 class DemoRequestTestCase(ExtendedTestCase):
     """
     Test case that creates a demo Pyramid request that refers to a bare
     in-memory SQLite database.
     """
-    def __init__(self,
-                 *args,
-                 echo: bool = False,
-                 database_on_disk: bool = True,
-                 **kwargs) -> None:
-        """
-        Args:
-            echo:
-                Turn on SQL echo?
-            database_on_disk:
-                Use on-disk (rather than in-memory) SQLite database?
-                Allows dumping of contents.
-        """
-        super().__init__(*args, **kwargs)
-        self.echo = echo
-        self.database_on_disk = database_on_disk
-        self.tmpdir_obj = tempfile.TemporaryDirectory()
-        if database_on_disk:
-            tmpdir = self.tmpdir_obj.name
-            self.db_filename = os.path.join(tmpdir, "camcops_self_test.sqlite")
-            log.warning("Using temporary directory: {}", tmpdir)
-            log.warning("Using temporary database: {}", self.db_filename)
-        else:
-            self.db_filename = None
-
-    # noinspection PyMethodMayBeStatic,PyUnusedLocal
-    def set_sqlite_pragma(self, dbapi_connection, connection_record):
-        cursor = dbapi_connection.cursor()
-        cursor.execute("PRAGMA foreign_keys=ON")
-        cursor.close()
-
     def setUp(self) -> None:
         self.announce("setUp")
         self.create_config_file()
-        from sqlalchemy.orm.session import sessionmaker
         from camcops_server.cc_modules.cc_request import get_unittest_request
         from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient  # noqa
 
-        # Create SQLite in-memory database
-        if self.database_on_disk:
-            self.engine = make_file_sqlite_engine(self.db_filename,
-                                                  echo=self.echo)
-        else:
-            self.engine = make_memory_sqlite_engine(echo=self.echo)
-        event.listen(self.engine, "connect", self.set_sqlite_pragma)
-        self.dbsession = sessionmaker()(bind=self.engine)  # type: SqlASession
-
         self.req = get_unittest_request(self.dbsession)
         self.recipdef = ExportRecipient()
-
-    def tearDown(self) -> None:
-        self.engine.dispose()
-        self.tmpdir_obj.cleanup()
 
     def create_config_file(self) -> None:
         from camcops_server.cc_modules.cc_baseconstants import ENVVAR_CONFIG_FILE  # noqa: E402,E501
@@ -269,10 +220,6 @@ class DemoDatabaseTestCase(DemoRequestTestCase):
         from camcops_server.cc_modules.cc_device import Device
         from camcops_server.cc_modules.cc_group import Group
         from camcops_server.cc_modules.cc_user import User
-
-        log.warning("Creating database structure...")
-        Base.metadata.create_all(self.engine)
-        log.warning("... database structure created.")
 
         self.set_era("2010-07-07T13:40+0100")
 
