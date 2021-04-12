@@ -17,11 +17,33 @@ from camcops_server.cc_modules.cc_sqlalchemy import Base
 # - echo on / off
 # - memory or file based
 
+SERVER_DIR = os.path.dirname(os.path.realpath(__file__))
+TEST_DATABASE_FILENAME = os.path.join(SERVER_DIR, "camcops_test.sqlite")
+
+
+def pytest_addoption(parser):
+    # Borrowed from pytest-django
+    parser.addoption(
+        "--create-db",
+        action="store_true",
+        dest="create_db",
+        default=False,
+        help="Create the database even if it already exists"
+    )
+
 
 def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor = dbapi_connection.cursor()
     cursor.execute("PRAGMA foreign_keys=ON")
     cursor.close()
+
+
+@pytest.fixture(scope="session")
+def create_db(request):
+    if not os.path.exists(TEST_DATABASE_FILENAME):
+        return True
+
+    return request.config.getvalue("create_db")
 
 
 @pytest.fixture(scope="session")
@@ -35,11 +57,14 @@ def tmpdir_obj(request):
 
 # https://gist.githubusercontent.com/kissgyorgy/e2365f25a213de44b9a2/raw/f8b5bbf06c4969bc6bbe5316defef64137c9b1e3/sqlalchemy_conftest.py
 @pytest.fixture(scope="session")
-def engine(request, tmpdir_obj):
-    tmpdir = tmpdir_obj.name
-    filename = os.path.join(tmpdir, "camcops_test.sqlite")
+def engine(request, create_db):
+    if create_db:
+        try:
+            os.remove(TEST_DATABASE_FILENAME)
+        except OSError:
+            pass
 
-    engine = create_engine(make_sqlite_url(filename), echo=False)
+    engine = create_engine(make_sqlite_url(TEST_DATABASE_FILENAME), echo=False)
     event.listen(engine, "connect", set_sqlite_pragma)
 
     yield engine
@@ -47,8 +72,9 @@ def engine(request, tmpdir_obj):
 
 
 @pytest.fixture(scope="session")
-def tables(request, engine):
-    Base.metadata.create_all(engine)
+def tables(request, engine, create_db):
+    if create_db:
+        Base.metadata.create_all(engine)
     yield
     # TODO: Foreign key constraint on _security_devices prevents this
     # Base.metadata.drop_all(engine)
