@@ -3,8 +3,11 @@
 import os
 import tempfile
 
-from cardinal_pythonlib.sqlalchemy.session import make_sqlite_url
-from sqlalchemy import create_engine, event
+from camcops_server.cc_modules.cc_sqlalchemy import (
+    make_memory_sqlite_engine,
+    make_file_sqlite_engine,
+)
+from sqlalchemy import event
 from sqlalchemy.orm import Session
 import pytest
 
@@ -13,15 +16,21 @@ from camcops_server.cc_modules.cc_sqlalchemy import Base
 
 # TODO: Options as per:
 # https://stackoverflow.com/questions/58660378/how-use-pytest-to-unit-test-sqlalchemy-orm-classes
-# - create or reuse db
 # - echo on / off
-# - memory or file based
 
 SERVER_DIR = os.path.dirname(os.path.realpath(__file__))
 TEST_DATABASE_FILENAME = os.path.join(SERVER_DIR, "camcops_test.sqlite")
 
 
 def pytest_addoption(parser):
+    parser.addoption(
+        "--database-in-memory",
+        action="store_false",
+        dest="database_on_disk",
+        default=True,
+        help="Make database in memory"
+    )
+
     # Borrowed from pytest-django
     parser.addoption(
         "--create-db",
@@ -39,7 +48,15 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
 
 
 @pytest.fixture(scope="session")
-def create_db(request):
+def database_on_disk(request):
+    return request.config.getvalue("database_on_disk")
+
+
+@pytest.fixture(scope="session")
+def create_db(request, database_on_disk):
+    if not database_on_disk:
+        return True
+
     if not os.path.exists(TEST_DATABASE_FILENAME):
         return True
 
@@ -57,14 +74,18 @@ def tmpdir_obj(request):
 
 # https://gist.githubusercontent.com/kissgyorgy/e2365f25a213de44b9a2/raw/f8b5bbf06c4969bc6bbe5316defef64137c9b1e3/sqlalchemy_conftest.py
 @pytest.fixture(scope="session")
-def engine(request, create_db):
-    if create_db:
+def engine(request, create_db, database_on_disk):
+    if create_db and database_on_disk:
         try:
             os.remove(TEST_DATABASE_FILENAME)
         except OSError:
             pass
 
-    engine = create_engine(make_sqlite_url(TEST_DATABASE_FILENAME), echo=False)
+    if database_on_disk:
+        engine = make_file_sqlite_engine(TEST_DATABASE_FILENAME,
+                                         echo=False)
+    else:
+        engine = make_memory_sqlite_engine(echo=False)
     event.listen(engine, "connect", set_sqlite_pragma)
 
     yield engine
@@ -102,7 +123,10 @@ def dbsession(request, engine, tables):
 
 
 @pytest.fixture
-def setup(request, dbsession, tmpdir_obj):
+def setup(request, engine, database_on_disk, dbsession, tmpdir_obj):
+    request.cls.engine = engine
+    request.cls.database_on_disk = database_on_disk
     request.cls.dbsession = dbsession
     request.cls.tmpdir_obj = tmpdir_obj
+    request.cls.db_filename = TEST_DATABASE_FILENAME
     yield
