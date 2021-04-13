@@ -31,7 +31,6 @@ camcops_server/cc_modules/cc_text.py
 from enum import auto, Enum, unique
 from typing import TYPE_CHECKING
 
-from camcops_server.cc_modules.cc_unittest import DemoRequestTestCase
 from pendulum import Date
 
 if TYPE_CHECKING:
@@ -297,15 +296,3 @@ def server_string(req: "CamcopsRequest", w: SS) -> str:
         return _("Yes")
 
     raise ValueError("Bad value passed to server_string")
-
-
-class TextUnitTest(DemoRequestTestCase):
-    """
-    Unit tests.
-    """
-    def test_server_string(self) -> None:
-        for k in SS.__dict__.keys():
-            if k.startswith("_"):
-                continue
-            w = SS[k]
-            assert isinstance(server_string(self.req, w), str)
