@@ -31,7 +31,6 @@ webview for special features.**
 
 import re
 from typing import Tuple
-import unittest
 
 from cardinal_pythonlib.colander_utils import EMAIL_ADDRESS_MAX_LEN
 from colander import EMAIL_RE
@@ -55,10 +54,10 @@ EMAIL_RE_COMPILED = re.compile(EMAIL_RE)
 def upload_commit_order_sorter(x: Table) -> Tuple[bool, bool, bool, str]:
     """
     Function to sort tables for the commit phase of the upload.
-    
+
     - "patient" must come before "patient_idnum", since ID number indexing
       looks at the associated Patient.
-      
+
     - All of "patient", "blobs", and all ancillary tables must come before task
       tables, because task indexes depend on tasks correctly retrieving their
       subsidiary information to determine their
@@ -101,28 +100,3 @@ def is_email_valid(email: str) -> bool:
     if len(email) > EMAIL_ADDRESS_MAX_LEN:
         return False
     return bool(EMAIL_RE_COMPILED.match(email))
-
-
-# =============================================================================
-# Unit tests
-# =============================================================================
-
-class EmailValidatorTests(unittest.TestCase):
-    """
-    Test our e-mail validator.
-    """
-
-    def test_email_validator(self) -> None:
-        good = [
-            "blah@somewhere.com",
-            "r&d@sillydomain.co.uk",
-        ]
-        bad = [
-            "plaintext",
-            "plain.domain.com",
-            "two@at@symbols.com",
-        ]
-        for email in good:
-            self.assertTrue(is_email_valid(email))
-        for email in bad:
-            self.assertFalse(is_email_valid(email))
