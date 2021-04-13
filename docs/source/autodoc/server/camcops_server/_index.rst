@@ -173,7 +173,6 @@ server/camcops_server
     cc_modules/client_api.py.rst
     cc_modules/merge_db.py.rst
     cc_modules/webview.py.rst
-    discarded_upgrade_code.py.rst
     extra_string_templates/BLANK_TEMPLATE.xml.rst
     extra_string_templates/asdas_TEMPLATE.xml.rst
     extra_string_templates/badls_TEMPLATE.xml.rst
