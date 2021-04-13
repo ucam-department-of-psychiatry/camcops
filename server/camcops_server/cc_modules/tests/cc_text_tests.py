@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-camcops_server/cc_modules/cc_text.py
+camcops_server/cc_modules/tests/cc_text_tests.py
 
 ===============================================================================
 
@@ -23,8 +23,6 @@ camcops_server/cc_modules/cc_text.py
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
-
-**Text used by the server, and translated.**
 
 """
 

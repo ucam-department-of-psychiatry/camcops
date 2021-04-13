@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-camcops_server/cc_modules/test/cc_config_tests.py
+camcops_server/cc_modules/tests/cc_config_tests.py
 
 ===============================================================================
 
