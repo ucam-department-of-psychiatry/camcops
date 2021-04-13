@@ -76,7 +76,6 @@ import os
 import logging
 import re
 from typing import Any, Dict, Generator, List, Optional, Union
-from unittest import TestCase
 
 from cardinal_pythonlib.configfiles import (
     get_config_parameter,
@@ -1795,56 +1794,3 @@ def get_default_config_from_os_env() -> CamcopsConfig:
         return CamcopsConfig(config_filename="", config_text=get_demo_config())
     else:
         return get_config(get_config_filename_from_os_env())
-
-
-# =============================================================================
-# Unit tests
-# =============================================================================
-
-class EmailConfigTests(TestCase):
-
-    def setUp(self):
-        super().setUp()
-
-        from io import StringIO
-
-        # Start with a working config and just set the things we want to test
-        config_text = get_demo_config()
-        self.parser = configparser.ConfigParser()
-        self.parser.read_string(config_text)
-
-        self.parser.set("export", "RECIPIENTS", "recipient_A")
-        self.parser.set("recipient:recipient_A", "TRANSMISSION_METHOD", "email")
-
-        self.parser.set("site", "EMAIL_HOST", "smtp.example.com")
-        self.parser.set("site", "EMAIL_PORT", "587")
-        self.parser.set("site", "EMAIL_USE_TLS", "true")
-        self.parser.set("site", "EMAIL_HOST_USERNAME", "username")
-        self.parser.set("site", "EMAIL_HOST_PASSWORD", "mypassword")
-        self.parser.set("site", "EMAIL_FROM",
-                        "CamCOPS computer <from@example.com>")
-        self.parser.set("site", "EMAIL_SENDER",
-                        "CamCOPS computer <sender@example.com>")
-        self.parser.set("site", "EMAIL_REPLY_TO",
-                        "CamCOPS clinical administrator <admin@example.com>")
-
-        with StringIO() as buffer:
-            self.parser.write(buffer)
-            self.config = CamcopsConfig(config_filename="",
-                                        config_text=buffer.getvalue())
-
-    def test_export_recipients_use_site_email_config(self) -> None:
-        recipient = self.config._export_recipients[0]
-        self.assertEqual(recipient.recipient_name, "recipient_A")
-
-        self.assertEqual(recipient.email_host, "smtp.example.com")
-        self.assertEqual(recipient.email_port, 587)
-        self.assertTrue(recipient.email_use_tls)
-        self.assertEqual(recipient.email_host_username, "username")
-        self.assertEqual(recipient.email_host_password, "mypassword")
-        self.assertEqual(recipient.email_from,
-                         "CamCOPS computer <from@example.com>")
-        self.assertEqual(recipient.email_sender,
-                         "CamCOPS computer <sender@example.com>")
-        self.assertEqual(recipient.email_reply_to,
-                         "CamCOPS clinical administrator <admin@example.com>")
