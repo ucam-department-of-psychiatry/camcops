@@ -38,7 +38,6 @@ from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer, Text
 
 from camcops_server.cc_modules.cc_constants import DEVICE_NAME_FOR_SERVER
 from camcops_server.cc_modules.cc_report import Report
-from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 from camcops_server.cc_modules.cc_user import User
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     DeviceNameColType,
@@ -220,21 +219,3 @@ class DeviceReport(Report):
             .order_by(Device.id)
         )
         return query
-
-
-# =============================================================================
-# Unit tests
-# =============================================================================
-
-class DeviceTests(DemoDatabaseTestCase):
-    """
-    Unit tests.
-    """
-    def test_device(self) -> None:
-        self.announce("test_device")
-        q = self.dbsession.query(Device)
-        d = q.first()  # type: Device
-        assert d, "Missing Device in demo database!"
-        self.assertIsInstance(d.get_friendly_name(), str)
-        self.assertIsInstance(d.get_id(), int)
-        self.assertIsInstance(d.is_valid(), bool)
