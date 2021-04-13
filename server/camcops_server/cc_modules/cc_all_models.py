@@ -40,7 +40,7 @@ from sqlalchemy.sql.schema import Table
 
 from camcops_server.cc_modules.cc_baseconstants import ALEMBIC_VERSION_TABLE
 from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
-from camcops_server.cc_modules.cc_sqlalchemy import Base, log_all_ddl
+from camcops_server.cc_modules.cc_sqlalchemy import Base
 
 # =============================================================================
 # Non-task model imports representing client-side tables
@@ -89,7 +89,6 @@ from camcops_server.cc_modules.cc_taskindex import (
     PatientIdNumIndexEntry,
     TaskIndexEntry,
 )
-from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 from camcops_server.cc_modules.cc_user import (
     SecurityAccountLockout,
     SecurityLoginFailure,
@@ -190,16 +189,3 @@ for __orm_class in gen_orm_classes_from_base(Base):  # type: Type[Base]
                 NONTASK_CLIENT_TABLENAMES.append(__tablename)
 NONTASK_CLIENT_TABLENAMES.sort()
 # log.debug("NONTASK_CLIENT_TABLENAMES: {}", NONTASK_CLIENT_TABLENAMES)
-
-
-# =============================================================================
-# Notes
-# =============================================================================
-
-class ModelTests(DemoDatabaseTestCase):
-    """
-    Unit tests.
-    """
-    def test_show_ddl(self) -> None:
-        self.announce("test_show_ddl")
-        log_all_ddl()
