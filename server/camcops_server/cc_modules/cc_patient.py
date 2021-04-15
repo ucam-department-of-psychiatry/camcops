@@ -43,6 +43,11 @@ from cardinal_pythonlib.datetimefunc import (
 )
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_web as ws
+from fhirclient.models.bundle import BundleEntry, BundleEntryRequest
+from fhirclient.models.humanname import HumanName
+from fhirclient.models.identifier import Identifier
+from fhirclient.models.patient import Patient as FhirPatient
+
 import hl7
 import pendulum
 from sqlalchemy.ext.declarative import declared_attr
@@ -70,6 +75,7 @@ from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
 from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_hl7 import make_pid_segment
 from camcops_server.cc_modules.cc_html import answer
+from camcops_server.cc_modules.cc_pyramid import Routes
 from camcops_server.cc_modules.cc_simpleobjects import (
     BarePatientInfo,
     HL7PatientIdentifier,
@@ -858,6 +864,55 @@ class Patient(GenericTabletRecordMixin, Base):
             address=self.get_address(),
             patient_id_list=patient_id_tuple_list,
         )
+
+    # -------------------------------------------------------------------------
+    # FHIR
+    # -------------------------------------------------------------------------
+    def get_fhir_bundle_entry(self,
+                              req: "CamcopsRequest",
+                              recipient: "ExportRecipient") -> BundleEntry:
+        which_idnum = recipient.primary_idnum
+        idnum_object = self.get_idnum_object(which_idnum)
+        idnum_value = idnum_object.idnum_value
+        idnum_url = req.route_url(
+            Routes.FHIR_PATIENT_ID,
+            which_idnum=which_idnum
+        )
+
+        identifier = Identifier(jsondict={
+            "system": idnum_url,
+            "value": str(idnum_value),
+        })
+
+        # TODO: Other fields we could add here
+        # address, GP, DOB, email
+        name = HumanName(jsondict={
+            "family": self.surname,
+            "given": [self.forename],
+        })
+
+        gender_lookup = {
+            "F": "female",
+            "M": "male",
+            "X": "other",
+        }
+
+        fhir_patient = FhirPatient(jsondict={
+            "identifier": [identifier.as_json()],
+            "name": [name.as_json()],
+            "gender": gender_lookup.get(self.sex, "unknown")
+        })
+
+        bundle_request = BundleEntryRequest(jsondict={
+            "method": "POST",
+            "url": "Patient",
+            "ifNoneExist": f"identifier={idnum_url}|{idnum_value}",
+        })
+
+        return BundleEntry(jsondict={
+            "resource": fhir_patient.as_json(),
+            "request": bundle_request.as_json()
+        }).as_json()
 
     # -------------------------------------------------------------------------
     # Database status
