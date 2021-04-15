@@ -53,7 +53,6 @@ import platform  # noqa: E402
 import sys  # noqa: E402
 import subprocess  # noqa: E402
 from typing import Any, Dict, List, Optional, TYPE_CHECKING  # noqa: E402
-import unittest  # noqa: E402
 
 import cherrypy  # noqa: E402
 try:
@@ -62,7 +61,6 @@ except ImportError:
     BaseApplication = None  # e.g. on Windows: "ImportError: no module named 'fcntl'".  # noqa: E501
 from wsgiref.simple_server import make_server  # noqa: E402
 
-from cardinal_pythonlib.classes import gen_all_subclasses  # noqa: E402
 from cardinal_pythonlib.fileops import mkdir_p  # noqa: E402
 from cardinal_pythonlib.process import nice_call  # noqa: E402
 from cardinal_pythonlib.ui_commandline import ask_user, ask_user_password  # noqa: E402,E501
@@ -114,12 +112,6 @@ from camcops_server.cc_modules.cc_taskindex import (  # noqa: E402
     reindex_everything,
 )
 # noinspection PyUnresolvedReferences
-from camcops_server.cc_modules.cc_tracker import TrackerCtvTests  # import side effects (register unit test)  # noqa: E402,F401,E501
-from camcops_server.cc_modules.cc_unittest import (  # noqa: E402
-    DemoDatabaseTestCase,
-    DemoRequestTestCase,
-    ExtendedTestCase,
-)
 from camcops_server.cc_modules.cc_user import (  # noqa: E402
     SecurityLoginFailure,
     set_password_directly,
@@ -129,9 +121,6 @@ from camcops_server.cc_modules.celery import (  # noqa: E402
     CELERY_APP_NAME,
     CELERY_SOFT_TIME_LIMIT_SEC,
 )
-# noinspection PyUnresolvedReferences
-from camcops_server.cc_modules.webview import WebviewTests  # import side effects (register unit test)  # noqa
-
 log.info("Imports complete")
 log.info("Using {} tasks", len(Task.all_subclasses_by_tablename()))
 
@@ -941,89 +930,6 @@ def launch_celery_flower(
     ]
     log.info("Launching: {!r}", cmdargs)
     nice_call(cmdargs, cleanup_timeout=cleanup_timeout_s)
-
-
-# =============================================================================
-# Test rig
-# =============================================================================
-
-def self_test(show_only: bool = False,
-              test_class: str = None,
-              failfast: bool = False) -> bool:
-    """
-    Run unit tests that are in the class(es) whose names contain test_class.
-    If test_class is None, run all the tests.
-
-    Args:
-        show_only:
-            If True, just display the names of test classes, don't run them.
-        test_class:
-            Test class(es) to run.
-        failfast:
-            Stop on first error?
-
-    Returns:
-        When running tests, returns True if test run was successful, otherwise
-        False.
-        When displaying the names of test classes returns True always.
-    """
-    ok = True
-
-    # If you use this:
-    #       loader = TestLoader()
-    #       suite = loader.discover(CAMCOPS_SERVER_DIRECTORY)
-    # ... then it fails because submodules contain relative imports (e.g.
-    # "from ..cc_modules.something import x" and this gives "ValueError:
-    # attemped relative import beyond top-level package". As the unittest
-    # docs say, "In order to be compatible with test discovery, all of the
-    # test files must be modules or packages... importable from the
-    # top-level directory of the project".
-    #
-    # However, having imported everything, all our tests should be
-    # subclasses of TestCase... but so are some other things.
-    #
-    # So we have a choice:
-    # 1. manual test specification (yuk)
-    # 2. hack around TestCase.__subclasses__ to exclude "built-in" ones
-    # 3. abandon relative imports
-    #   ... not a bad general idea (they often seem to cause problems!)
-    #   ... however, the discovery process (a) fails with importing
-    #       "alembic.versions", but more problematically, imports tasks
-    #       twice, which gives errors like
-    #       "sqlalchemy.exc.InvalidRequestError: Table 'ace3' is already
-    #       defined for this MetaData instance."
-    # So, hack it is.
-
-    # noinspection PyProtectedMember,PyUnresolvedReferences
-    skip_testclass_subclasses = [
-        # The ugly hack: what you see from
-        # unittest.TestCase.__subclasses__() from a clean import:
-        unittest.case.FunctionTestCase,  # built in
-        unittest.case._SubTest,  # built in
-        unittest.loader._FailedTest,  # built in
-        # plus our extras:
-        DemoDatabaseTestCase,  # our base class
-        DemoRequestTestCase,  # also a base class
-        ExtendedTestCase,  # also a base class
-    ]
-    suite = unittest.TestSuite()
-    for cls in gen_all_subclasses(unittest.TestCase):
-        if cls in skip_testclass_subclasses:
-            continue
-        if not cls.__module__.startswith("camcops_server"):
-            # don't, for example, run cardinal_pythonlib self-tests
-            continue
-        if test_class is None or test_class in cls.__name__:
-            log.info("Discovered test: {}", cls)
-            # noinspection PyUnresolvedReferences
-            suite.addTest(unittest.makeSuite(cls))
-    if not show_only:
-        runner = unittest.TextTestRunner(failfast=failfast)
-        result = runner.run(suite)
-
-        ok = result.wasSuccessful()
-
-    return ok
 
 
 def dev_cli() -> None:

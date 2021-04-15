@@ -53,7 +53,6 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
 )
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 from camcops_server.cc_modules.cc_taskfilter import TaskFilter
-from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 from camcops_server.cc_modules.cc_user import (
     User,
 )
@@ -414,45 +413,3 @@ class CamcopsSession(Base):
             self.task_filter = TaskFilter()
             dbsession.add(self.task_filter)
         return self.task_filter
-
-
-# =============================================================================
-# Unit tests
-# =============================================================================
-
-class SessionTests(DemoDatabaseTestCase):
-    """
-    Unit tests.
-    """
-    def test_sessions(self) -> None:
-        self.announce("test_sessions")
-        req = self.req
-        dbsession = self.dbsession
-
-        self.assertIsInstance(generate_token(), str)
-
-        CamcopsSession.delete_old_sessions(req)
-        self.assertIsInstance(
-            CamcopsSession.get_oldest_last_activity_allowed(req), Pendulum)
-
-        s = req.camcops_session
-        u = self.dbsession.query(User).first()  # type: User
-        assert u, "Missing user in demo database!"
-
-        self.assertIsInstance(s.last_activity_utc_iso, str)
-        self.assertIsInstanceOrNone(s.username, str)
-        s.logout()
-        s.login(u)
-        self.assertIsInstance(s.get_task_filter(), TaskFilter)
-
-        # Now test deletion cascade
-        dbsession.commit()
-        numfilters = dbsession.query(TaskFilter).count()
-        assert numfilters == 1, "TaskFilter count should be 1"
-
-        dbsession.delete(s)
-        dbsession.commit()
-        numfilters = dbsession.query(TaskFilter).count()
-        assert numfilters == 0, (
-            "TaskFilter count should be 0; cascade delete not working"
-        )

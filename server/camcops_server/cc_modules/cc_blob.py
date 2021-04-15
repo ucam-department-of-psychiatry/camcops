@@ -60,7 +60,6 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     RelationshipInfo,
 )
 from camcops_server.cc_modules.cc_sqlalchemy import Base
-from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 from camcops_server.cc_modules.cc_xml import (
     get_xml_blob_element,
     XmlElement,
@@ -332,22 +331,3 @@ def get_blob_img_html(blob: Optional[Blob],
     if blob is None:
         return html_if_missing
     return blob.get_img_html() or html_if_missing
-
-
-# =============================================================================
-# Unit tests
-# =============================================================================
-
-class BlobTests(DemoDatabaseTestCase):
-    """
-    Unit tests.
-    """
-    def test_blob(self) -> None:
-        self.announce("test_blob")
-        q = self.dbsession.query(Blob)
-        b = q.first()  # type: Blob
-        assert b, "Missing BLOB in demo database!"
-        self.assertIsInstanceOrNone(b.get_rotated_image(), bytes)
-        self.assertIsInstance(b.get_img_html(), str)
-        self.assertIsInstance(b.get_xml_element(self.req), XmlElement)
-        self.assertIsInstance(b.get_data_url(), str)

@@ -61,7 +61,6 @@ from camcops_server.cc_modules.cc_taskfactory import (
 )
 from camcops_server.cc_modules.cc_taskfilter import TaskFilter
 from camcops_server.cc_modules.cc_taskindex import TaskIndexEntry
-from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 
 if TYPE_CHECKING:
     from sqlalchemy.sql.elements import ClauseElement, ColumnElement
@@ -1049,34 +1048,3 @@ register_class_for_json(
     obj_to_dict_fn=encode_task_collection,
     dict_to_obj_fn=decode_task_collection
 )
-
-
-# =============================================================================
-# Unit tests
-# =============================================================================
-
-class TaskCollectionTests(DemoDatabaseTestCase):
-    def create_tasks(self) -> None:
-        return
-
-    def test_it_can_be_serialized(self) -> None:
-        taskfilter = TaskFilter()
-        taskfilter.task_types = ['task1', 'task2', 'task3']
-        taskfilter.group_ids = [1, 2, 3]
-
-        coll = TaskCollection(
-            self.req,
-            taskfilter=taskfilter,
-            as_dump=True,
-            sort_method_by_class=TaskSortMethod.CREATION_DATE_ASC
-        )
-        content_type, encoding, data = dumps(coll, serializer="json")
-        new_coll = loads(data, content_type, encoding)
-
-        self.assertEqual(new_coll._as_dump, True)
-        self.assertEqual(new_coll._sort_method_by_class,
-                         TaskSortMethod.CREATION_DATE_ASC)
-        self.assertEqual(new_coll._filter.task_types,
-                         ['task1', 'task2', 'task3'])
-        self.assertEqual(new_coll._filter.group_ids,
-                         [1, 2, 3])

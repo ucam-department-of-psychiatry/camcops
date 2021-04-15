@@ -28,6 +28,9 @@ core
 # Python
 __pycache__/
 
+# Test database
+camcops_test.sqlite
+
 # Other
 distributables/
 server/build/
