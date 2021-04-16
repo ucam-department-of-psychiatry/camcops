@@ -29,6 +29,8 @@ camcops_server/cc_modules/tests/cc_tsv_tests.py
 import io
 from typing import Any, Dict
 from unittest import TestCase
+import uuid
+from xml.dom.minidom import parseString
 import zipfile
 
 from camcops_server.cc_modules.cc_tsv import (
@@ -125,7 +127,6 @@ class TsvCollectionTests(TestCase):
 
     def test_ods_page_name_sanitised(self) -> None:
         # noinspection PyUnresolvedReferences
-        from xml.dom.minidom import parseString
         page = TsvPage(name="What perinatal service have you accessed?",
                        rows=[{"test data 1": "row 1"}])
         coll = TsvCollection()
@@ -158,3 +159,39 @@ class TsvCollectionTests(TestCase):
         self.assertIn("abcdefghijklmnopqrstuvwxyz78...", names)
         self.assertIn("ABCDEFGHIJKLMNOPQRSTUVWXYZ78..1", names)
         self.assertIn("abcdefghijklmnopqrstuvwxyz78..2", names)
+
+    def test_uuid_exported_to_ods_as_string(self) -> None:
+        test_uuid = uuid.UUID("6457cb90-1ca0-47a7-9f40-767567819bee")
+
+        page = TsvPage(name="Testing",
+                       rows=[{"UUID": test_uuid}])
+        coll = TsvCollection()
+        coll.add_pages([page])
+
+        data = coll.as_ods()
+        zf = zipfile.ZipFile(io.BytesIO(data), "r")
+        content = zf.read('content.xml')
+        doc = parseString(content)
+        text_values = [t.firstChild.nodeValue
+                       for t in doc.getElementsByTagName("text:p")]
+
+        self.assertIn("UUID", text_values)
+        self.assertIn("6457cb90-1ca0-47a7-9f40-767567819bee", text_values)
+
+    def test_uuid_exported_to_xlsx_as_string(self) -> None:
+        test_uuid = uuid.UUID("6457cb90-1ca0-47a7-9f40-767567819bee")
+
+        page = TsvPage(name="Testing",
+                       rows=[{"UUID": test_uuid}])
+        coll = TsvCollection()
+        coll.add_pages([page])
+
+        data = coll.as_xlsx()
+        buffer = io.BytesIO(data)
+        if openpyxl:
+            self.fail("This test has not been written for openpyxl")
+        else:
+            wb = pyexcel_xlsx.get_data(buffer)  # type: Dict[str, Any]
+            self.assertIn(["UUID"], wb["Testing"])
+            self.assertIn(["6457cb90-1ca0-47a7-9f40-767567819bee"],
+                          wb["Testing"])
