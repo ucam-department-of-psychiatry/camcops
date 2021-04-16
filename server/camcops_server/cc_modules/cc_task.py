@@ -62,6 +62,8 @@ from cardinal_pythonlib.sqlalchemy.orm_inspect import (
 )
 from cardinal_pythonlib.sqlalchemy.schema import is_sqlatype_string
 from cardinal_pythonlib.stringfunc import mangle_unicode_to_ascii
+from fhirclient.models.bundle import BundleEntry, BundleEntryRequest
+from fhirclient.models.questionnaire import Questionnaire
 import hl7
 from pendulum import Date, DateTime as Pendulum
 from pyramid.renderers import render
@@ -1249,6 +1251,29 @@ class Task(GenericTabletRecordMixin, Base):
         May be overridden.
         """
         return []
+
+    # -------------------------------------------------------------------------
+    # FHIR
+    # -------------------------------------------------------------------------
+    def get_fhir_bundle_entry(self,
+                              req: "CamcopsRequest",
+                              recipient: "ExportRecipient") -> BundleEntry:
+
+        questionnaire = Questionnaire(jsondict={
+            "status": "active",  # TODO: Support draft / retired / unknown
+            "item": self.get_fhir_questionnaire_items(req)
+        })
+
+        bundle_request = BundleEntryRequest(jsondict={
+            "method": "POST",
+            "url": "Questionnaire",
+            "ifNoneExist": f"identifier={self.tablename}",
+        })
+
+        return BundleEntry(jsondict={
+            "resource": questionnaire.as_json(),
+            "request": bundle_request.as_json()
+        }).as_json()
 
     def cancel_from_export_log(self, req: "CamcopsRequest",
                                from_console: bool = False) -> None:

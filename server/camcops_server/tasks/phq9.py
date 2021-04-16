@@ -29,6 +29,7 @@ camcops_server/tasks/phq9.py
 from typing import Any, Dict, List, Tuple, Type
 
 from cardinal_pythonlib.stringfunc import strseq
+from fhirclient.models.questionnaire import QuestionnaireItem
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Boolean, Integer
 
@@ -338,3 +339,22 @@ class Phq9(TaskHasPatientMixin, Task,
             codes.append(SnomedExpression(scale, {score: self.total_score()}))
             codes.append(SnomedExpression(procedure_result))
         return codes
+
+    def get_fhir_questionnaire_items(
+            self, req: "CamcopsRequest") -> List[QuestionnaireItem]:
+        items = []
+
+        for q_field in self.MAIN_QUESTIONS:
+            items.append(QuestionnaireItem(jsondict={
+                "linkId": q_field,
+                "text": self.wxstring(req, q_field),
+                "type": "choice",
+            }).as_json())
+
+        items.append(QuestionnaireItem(jsondict={
+            "linkId": "q10",
+            "text": "10. " + self.wxstring(req, "finalq"),
+            "type": "choice",
+        }).as_json())
+
+        return items

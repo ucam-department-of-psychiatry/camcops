@@ -109,7 +109,6 @@ class DemoRequestTestCase(ExtendedTestCase):
     in-memory SQLite database.
     """
     def setUp(self) -> None:
-        self.announce("setUp")
         self.create_config_file()
         from camcops_server.cc_modules.cc_request import get_unittest_request
         from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient  # noqa

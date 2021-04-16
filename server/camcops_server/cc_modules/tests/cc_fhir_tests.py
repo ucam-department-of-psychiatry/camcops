@@ -27,10 +27,16 @@
 
 from unittest import mock
 
+from camcops_server.cc_modules.cc_exportmodels import (
+    ExportedTask,
+    ExportedTaskFhir,
+)
+
 from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
 from camcops_server.cc_modules.cc_exportrecipientinfo import ExportRecipientInfo
 from camcops_server.cc_modules.cc_fhir import FhirTaskExporter
 from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
+from camcops_server.tasks.phq9 import Phq9
 
 
 # =============================================================================
@@ -58,7 +64,6 @@ class FhirExportTestCase(DemoDatabaseTestCase):
 
 class FhirTaskExporterTests(FhirExportTestCase):
     def create_tasks(self) -> None:
-        from camcops_server.tasks.phq9 import Phq9
         self.patient = self.create_patient(
             forename="Gwendolyn",
             surname="Ryann",
@@ -92,11 +97,6 @@ class FhirTaskExporterTests(FhirExportTestCase):
         self.dbsession.commit()
 
     def test_patient_exported_with_phq9(self) -> None:
-        from camcops_server.cc_modules.cc_exportmodels import (
-            ExportedTask,
-            ExportedTaskFhir,
-        )
-
         exported_task = ExportedTask(task=self.task, recipient=self.recipient)
         exported_task_fhir = ExportedTaskFhir(exported_task)
 
@@ -136,3 +136,38 @@ class FhirTaskExporterTests(FhirExportTestCase):
             request["ifNoneExist"],
             (f"identifier={iddef_url}|{idnum_value}")
         )
+
+    def test_questionnaire_exported_with_phq9(self) -> None:
+        exported_task = ExportedTask(task=self.task, recipient=self.recipient)
+        exported_task_fhir = ExportedTaskFhir(exported_task)
+
+        exporter = MockFhirTaskExporter(self.req, exported_task_fhir)
+
+        with mock.patch.object(
+                exporter.client.server, "post_json") as mock_post:
+            exporter.export_task()
+
+        args, kwargs = mock_post.call_args
+
+        sent_json = args[1]
+
+        questionnaire = sent_json["entry"][1]["resource"]
+        self.assertEqual(questionnaire["resourceType"], "Questionnaire")
+        self.assertEqual(questionnaire["status"], "active")
+
+        question_1 = questionnaire["item"][0]
+        question_10 = questionnaire["item"][9]
+        self.assertEqual(question_1["linkId"], "q1")
+        self.assertEqual(question_1["text"],
+                         "1. Little interest or pleasure in doing things")
+        self.assertEqual(question_1["type"], "choice")
+
+        self.assertEqual(question_10["linkId"], "q10")
+        self.assertEqual(
+            question_10["text"],
+            ("10. If you checked off any problems, how difficult have these "
+             "problems made it for you to do your work, take care of things "
+             "at home, or get along with other people?")
+        )
+        self.assertEqual(question_10["type"], "choice")
+        self.assertEqual(len(questionnaire["item"]), 10)
