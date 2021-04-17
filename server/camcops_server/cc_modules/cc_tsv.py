@@ -31,7 +31,6 @@ exports.**
 
 from collections import OrderedDict
 import csv
-import datetime
 import io
 import logging
 import os
@@ -45,11 +44,11 @@ from cardinal_pythonlib.datetimefunc import (
     format_datetime,
     get_now_localtz_pendulum,
 )
-from cardinal_pythonlib.excel import convert_for_openpyxl
+from cardinal_pythonlib.excel import (
+    convert_for_openpyxl,
+    convert_for_pyexcel_ods3,
+)
 from cardinal_pythonlib.logs import BraceStyleAdapter
-from numpy import float64
-from pendulum.datetime import DateTime
-from semantic_version import Version
 from sqlalchemy.engine.result import ResultProxy
 
 from camcops_server.cc_modules.cc_constants import DateFormat
@@ -73,39 +72,6 @@ else:
     pyexcel_xlsx = None
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
-
-
-# =============================================================================
-# Helper function (may move to cardinal_pythonlib at some point
-# =============================================================================
-
-def convert_for_pyexcel_ods3(x: Any) -> Any:
-    """
-    Converts known "unusual" data types to formats suitable for
-    ``pyexcel-ods3``. Specifically, handles:
-
-    - :class:`pendulum.datetime.DateTime`
-    - :class:`datetime.datetime`
-    - :class:`semantic_version.Version`
-    - ``None``
-    - :class:`numpy.float64`
-
-    Args:
-        x: a data value
-
-    Returns:
-        the same thing, or a more suitable value!
-    """
-    if isinstance(x, (DateTime, datetime.datetime)):
-        return x.strftime(DateFormat.ISO8601)
-    elif x is None:
-        return ""
-    elif isinstance(x, Version):
-        return str(x)
-    elif isinstance(x, float64):
-        return float(x)
-    else:
-        return x
 
 
 # =============================================================================
