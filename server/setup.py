@@ -102,6 +102,7 @@ INSTALL_REQUIRES = [
     'pyexcel-xlsx==0.5.8',  # XLSX spreadsheet export
     'pyramid==1.10.4',  # web framework
     'pyramid_debugtoolbar==4.6.1',  # debugging for Pyramid
+    "pytest==6.0.2",  # automatic testing
 
     'sadisplay==0.4.9',  # SQL Alchemy schema display script
     'scipy==1.5.0',  # used by some tasks. slow installation.

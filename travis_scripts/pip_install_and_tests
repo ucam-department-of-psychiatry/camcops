@@ -22,4 +22,5 @@ export CAMCOPS_CONFIG_FILE="${HOME}/camcops.cfg"
 camcops_server demo_camcops_config > "${CAMCOPS_CONFIG_FILE}"
 
 echo running tests
-camcops_server self_test
+cd server/camcops_server
+pytest -v

@@ -49,17 +49,13 @@ from camcops_server.cc_modules.cc_filename import get_export_filename
 from camcops_server.cc_modules.cc_plot import matplotlib
 from camcops_server.cc_modules.cc_pdf import pdf_from_html
 from camcops_server.cc_modules.cc_pyramid import ViewArg, ViewParam
-from camcops_server.cc_modules.cc_simpleobjects import (
-    IdNumReference,
-    TaskExportOptions,
-)
+from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
 from camcops_server.cc_modules.cc_task import Task
 from camcops_server.cc_modules.cc_taskcollection import (
     TaskCollection,
     TaskFilter,
     TaskSortMethod,
 )
-from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 from camcops_server.cc_modules.cc_xml import (
     get_xml_document,
     XmlDataTypes,
@@ -844,44 +840,3 @@ class ClinicalTextView(TrackerCtvCommon):
                            pdf_landscape=False,
                            viewtype=ViewArg.PDF),
                       request=self.req)
-
-
-# =============================================================================
-# Unit tests
-# =============================================================================
-
-class TrackerCtvTests(DemoDatabaseTestCase):
-    """
-    Unit tests.
-    """
-    def setUp(self) -> None:
-        super().setUp()
-
-        self.taskfilter = TaskFilter()
-
-        idnum_ref = IdNumReference(which_idnum=0, idnum_value=0)
-
-        self.taskfilter.idnum_criteria = [idnum_ref]
-        self.taskfilter.tasks_with_patient_only = True
-
-    def test_tracker(self) -> None:
-        self.announce("test_tracker")
-        req = self.req
-        t = Tracker(req, self.taskfilter)
-
-        self.assertIsInstance(t.get_html(), str)
-        self.assertIsInstance(t.get_pdf(), bytes)
-        self.assertIsInstance(t.get_pdf_html(), str)
-        self.assertIsInstance(t.get_xml(), str)
-        self.assertIsInstance(t.suggested_pdf_filename(), str)
-
-    def test_ctv(self) -> None:
-        self.announce("test_ctv")
-        req = self.req
-        c = ClinicalTextView(req, self.taskfilter)
-
-        self.assertIsInstance(c.get_html(), str)
-        self.assertIsInstance(c.get_pdf(), bytes)
-        self.assertIsInstance(c.get_pdf_html(), str)
-        self.assertIsInstance(c.get_xml(), str)
-        self.assertIsInstance(c.suggested_pdf_filename(), str)

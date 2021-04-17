@@ -35,3 +35,4 @@ Developer notes
     specific_os_notes.rst
     internationalization.rst
     penetration_testing.rst
+    server_testing.rst

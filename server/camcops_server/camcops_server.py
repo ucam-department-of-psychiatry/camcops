@@ -440,14 +440,6 @@ def _purge_jobs() -> None:
 # Testing and development
 # -----------------------------------------------------------------------------
 
-def _self_test(show_only: bool = False,
-               test_class: str = None,
-               failfast: bool = False) -> bool:
-    import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
-    return core.self_test(show_only=show_only, test_class=test_class,
-                          failfast=failfast)
-
-
 def _dev_cli() -> None:
     import camcops_server.camcops_server_core as core  # delayed import; import side effects  # noqa
     core.dev_cli()
@@ -1154,27 +1146,6 @@ def camcops_main() -> int:
     # Test options
     # -------------------------------------------------------------------------
 
-    # Show available self-tests
-    showtests_parser = add_sub(
-        subparsers, "show_tests", config_mandatory=None,
-        help="Show available self-tests")
-    showtests_parser.set_defaults(func=lambda args: _self_test(show_only=True))
-
-    # Self-test
-    selftest_parser = add_sub(
-        subparsers, "self_test", config_mandatory=None,
-        help="Test internal code")
-    selftest_parser.add_argument(
-        "--test_class", type=str, default=None,
-        help="Run only the test classes whose names contain this string"
-    )
-    selftest_parser.add_argument(
-        "--failfast", action="store_true",
-        help="Stop on first error or failure"
-    )
-    selftest_parser.set_defaults(func=lambda args: _self_test(
-        test_class=args.test_class, failfast=args.failfast))
-
     # Launch a Python command line
     dev_cli_parser = add_sub(
         subparsers, "dev_cli",
@@ -1225,13 +1196,12 @@ def camcops_main() -> int:
     if DEBUG_LOG_CONFIG:
         print_report_on_all_logs()
 
-    if progargs.command not in ["self_test"]:
-        # Finalize the config filename; ensure it's in the environment variable
-        if hasattr(progargs, 'config') and progargs.config:
-            # We want the the config filename in the environment from now on:
-            os.environ[ENVVAR_CONFIG_FILE] = progargs.config
-        cfg_name = os.environ.get(ENVVAR_CONFIG_FILE, None)
-        log.info("Using configuration file: {!r}", cfg_name)
+    # Finalize the config filename; ensure it's in the environment variable
+    if hasattr(progargs, 'config') and progargs.config:
+        # We want the the config filename in the environment from now on:
+        os.environ[ENVVAR_CONFIG_FILE] = progargs.config
+    cfg_name = os.environ.get(ENVVAR_CONFIG_FILE, None)
+    log.info("Using configuration file: {!r}", cfg_name)
 
     # Call the subparser function for the chosen command
     if progargs.func is None:

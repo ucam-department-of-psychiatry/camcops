@@ -30,17 +30,14 @@ from typing import Any, Dict, List, Optional, Tuple, Type
 
 from cardinal_pythonlib.classes import classproperty
 from cardinal_pythonlib.stringfunc import strnumlist, strseq
-import pendulum
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_db import add_multiple_columns
 from camcops_server.cc_modules.cc_html import tr_qa
-from camcops_server.cc_modules.cc_patient import Patient
 from camcops_server.cc_modules.cc_report import (
     AverageScoreReport,
-    AverageScoreReportTestCase,
     ScoreDetails,
 )
 from camcops_server.cc_modules.cc_request import CamcopsRequest
@@ -321,42 +318,3 @@ class MaasReport(AverageScoreReport):
                 higher_score_is_better=True
             )
         ]
-
-
-class MaasReportTests(AverageScoreReportTestCase):
-    PROGRESS_COL = 4
-
-    def create_report(self) -> MaasReport:
-        return MaasReport(via_index=False)
-
-    def create_tasks(self) -> None:
-        self.patient_1 = self.create_patient()
-
-        self.create_task(patient=self.patient_1, q1=2, q2=2,
-                         era="2019-03-01")  # total 17 + 2 + 2
-        self.create_task(patient=self.patient_1, q1=5, q2=5,
-                         era="2019-06-01")  # total 17 + 5 + 5
-        self.dbsession.commit()
-
-    def create_task(self, patient: Patient, era: str = None, **kwargs) -> None:
-        task = Maas()
-        self.apply_standard_task_fields(task)
-        task.id = next(self.task_id_sequence)
-
-        task.patient_id = patient.id
-        for fieldname in Maas.TASK_FIELDS:
-            value = kwargs.get(fieldname, 1)
-            setattr(task, fieldname, value)
-
-        if era is not None:
-            task.when_created = pendulum.parse(era)
-
-        self.dbsession.add(task)
-
-    def test_average_progress_is_positive(self) -> None:
-        tsv_pages = self.report.get_tsv_pages(req=self.req)
-
-        expected_progress = 27 - 21
-        actual_progress = tsv_pages[0].plainrows[0][self.PROGRESS_COL]
-
-        self.assertEqual(actual_progress, expected_progress)
