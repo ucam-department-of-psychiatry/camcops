@@ -97,7 +97,7 @@ INSTALL_REQUIRES = [
     'pdfkit==0.6.1',  # wkhtmltopdf interface, for PDF generation from HTML
     # REDCap integration. Pip freeze reports as version 0.0.0?
     'pycap @ git+https://github.com/redcap-tools/pycap@ff0e8c6916352a11e16976d5c7b4aaaed7e500ac#egg=pycap-1.0.2.3',  # noqa
-    'Pygments==2.6.1',  # Syntax highlighting for introspection/DDL
+    'Pygments==2.7.4',  # Syntax highlighting for introspection/DDL
     'pyexcel-ods3==0.5.3',  # ODS spreadsheet export
     'pyexcel-xlsx==0.5.8',  # XLSX spreadsheet export
     'pyramid==1.10.4',  # web framework
