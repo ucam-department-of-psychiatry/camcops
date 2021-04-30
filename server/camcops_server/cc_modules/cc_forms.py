@@ -1899,7 +1899,10 @@ class NewPasswordNode(SchemaNode, RequestAwareMixin):
         self._length_validator(node, value)
         if password_prohibited(value):  # slower than length check
             _ = self.gettext
-            raise Invalid(node, _("That password is used too commonly"))
+            raise Invalid(
+                node,
+                _("That password is used too commonly. Please pick another.")
+            )
 
 
 class ChangeOwnPasswordSchema(CSRFSchema):

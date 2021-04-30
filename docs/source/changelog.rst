@@ -3080,9 +3080,12 @@ Current C++/SQLite client, Python/SQLAlchemy server
     - It's unclear where "10 characters" came from. Also, bcrypt is a
       deliberately slow algorithm that makes bulk hashing hard. Anyway...
 
-    - RESPONSE: ``MINIMUM_PASSWORD_LENGTH`` changed from 8 to 10. Advisory note
-      added. Server passwords checked against NCSC-supported deny list
-      (https://www.ncsc.gov.uk/blog-post/passwords-passwords-everywhere).
+    - RESPONSE:
+
+      - ``MINIMUM_PASSWORD_LENGTH`` changed from 8 to 10 (server and client).
+      - Advisory note added (on server).
+      - Server and client passwords checked against NCSC-endorsed deny list
+        (https://www.ncsc.gov.uk/blog-post/passwords-passwords-everywhere).
 
   - M2. "Out-of-date software versions."
 
@@ -3092,7 +3095,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
       2021-04-30, the latest security-fix version is 2.4.44.
 
     - RESPONSE: No changes required in CamCOPS; this is a front-end server
-      issue.
+      issue that will be fixed separately.
 
   - M3. "Forced browsing via URL manipulation."
 

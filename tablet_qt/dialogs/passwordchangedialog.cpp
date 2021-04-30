@@ -23,10 +23,20 @@
 #include <QLineEdit>
 #include <QVBoxLayout>
 #include "common/platform.h"
+#include "lib/filefunc.h"
 #include "lib/uifunc.h"
 
 
-const int MINIMUM_PASSWORD_LENGTH = 8;
+const int MINIMUM_PASSWORD_LENGTH = 10;
+const QString PROHIBITED_PASSWORDS_FILE(
+        ":/resources/camcops/prohibited_passwords/PwnedPasswordsTop100k.txt");
+
+
+bool passwordProhibited(const QString& password)
+{
+    return filefunc::fileContainsLine(PROHIBITED_PASSWORDS_FILE, password);
+}
+
 
 PasswordChangeDialog::PasswordChangeDialog(const QString& text,
                                            const QString& title,
@@ -132,6 +142,11 @@ void PasswordChangeDialog::okClicked()
     }
     if (newpw1 != newpw2) {
         uifunc::alert(tr("New passwords don't match"));
+        return;
+    }
+    if (passwordProhibited(newpw1)) {
+        uifunc::alert(tr(
+            "That password is used too commonly. Please pick another."));
         return;
     }
     accept();
