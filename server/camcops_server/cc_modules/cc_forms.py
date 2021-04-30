@@ -194,6 +194,7 @@ from camcops_server.cc_modules.cc_language import (
     POSSIBLE_LOCALES,
     POSSIBLE_LOCALES_WITH_DESCRIPTIONS,
 )
+from camcops_server.cc_modules.cc_password import password_prohibited
 from camcops_server.cc_modules.cc_patient import Patient
 from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
 from camcops_server.cc_modules.cc_policy import (
@@ -1878,7 +1879,7 @@ class NewPasswordNode(SchemaNode, RequestAwareMixin):
     Node to enter a new password.
     """
     schema_type = String
-    validator = Length(min=MINIMUM_PASSWORD_LENGTH)
+    _length_validator = Length(min=MINIMUM_PASSWORD_LENGTH)
     widget = CheckedPasswordWidget(attributes={
         AUTOCOMPLETE_ATTR: AutocompleteAttrValues.NEW_PASSWORD
     })
@@ -1893,6 +1894,12 @@ class NewPasswordNode(SchemaNode, RequestAwareMixin):
         _ = self.gettext
         self.title = _("New password")
         self.description = _("Type the new password and confirm it")
+
+    def validator(self, node: SchemaNode, value: Any) -> None:
+        self._length_validator(node, value)
+        if password_prohibited(value):  # slower than length check
+            _ = self.gettext
+            raise Invalid(node, _("That password is used too commonly"))
 
 
 class ChangeOwnPasswordSchema(CSRFSchema):
@@ -4070,6 +4077,7 @@ class EmailTemplateNode(OptionalStringNode, RequestAwareMixin):
         self.formatter = TaskScheduleEmailTemplateFormatter()
         super().__init__(*args, **kwargs)
 
+    # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         _ = self.gettext
         self.title = _("Email template")

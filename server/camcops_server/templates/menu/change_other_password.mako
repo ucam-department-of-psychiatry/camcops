@@ -35,6 +35,11 @@ camcops_server/templates/menu/change_other_password.mako
 ${form}
 
 <div>
+    ${_("Choose strong passphrases.")}
+    ${_("See")}
+    <a href="https://www.ncsc.gov.uk/blog-post/three-random-words-or-thinkrandom-0">https://www.ncsc.gov.uk/blog-post/three-random-words-or-thinkrandom-0</a>.
+</div>
+<div>
     ${_("Minimum password length is {} characters.").format(min_pw_length)}
 </div>
 

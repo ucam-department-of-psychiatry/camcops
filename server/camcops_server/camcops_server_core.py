@@ -99,6 +99,7 @@ from camcops_server.cc_modules.cc_export import (  # noqa: E402
     print_export_queue,
     export,
 )
+from camcops_server.cc_modules.cc_password import password_prohibited  # noqa: E402,E501
 from camcops_server.cc_modules.cc_pyramid import RouteCollection  # noqa: E402
 from camcops_server.cc_modules.cc_request import (  # noqa: E402
     CamcopsRequest,
@@ -574,9 +575,15 @@ def get_new_password_from_cli(username: str) -> str:
     """
     while True:
         password1 = ask_user_password(f"New password for user {username}")
-        if not password1 or len(password1) < MINIMUM_PASSWORD_LENGTH:
-            log.error("... passwords can't be blank or shorter than {} "
-                      "characters", MINIMUM_PASSWORD_LENGTH)
+        if not password1:
+            log.error("... passwords can't be blank")
+            continue
+        elif len(password1) < MINIMUM_PASSWORD_LENGTH:
+            log.error("... passwords can't be shorter than {} characters",
+                      MINIMUM_PASSWORD_LENGTH)
+            continue
+        if password_prohibited(password1):
+            log.error("... that password is used too commonly; try again")
             continue
         password2 = ask_user_password(
             f"New password for user {username} (again)")

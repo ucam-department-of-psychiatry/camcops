@@ -1,7 +1,7 @@
-## -*- coding: utf-8 -*-
-<%doc>
+#!/usr/bin/env python
 
-camcops_server/templates/menu/change_own_password.mako
+"""
+camcops_server/cc_modules/cc_nhs.py
 
 ===============================================================================
 
@@ -24,27 +24,26 @@ camcops_server/templates/menu/change_own_password.mako
 
 ===============================================================================
 
-</%doc>
+**Password-related functions.**
 
-<%inherit file="base_web_form.mako"/>
+"""
 
-<%include file="db_user_info.mako"/>
+from camcops_server.cc_modules.cc_baseconstants import PROHIBITED_PASSWORDS_FILE  # noqa
 
-%if expired:
-    <div class="important">
-        ${_("Your password has expired and must be changed.")}
-    </div>
-%endif
 
-<h1>${_("Change your password")}</h1>
+def password_prohibited(password: str) -> bool:
+    """
+    Checks a (cleartext) password and decides if it is prohibited by virtue
+    of being in the UK National Cyber Security Centre (NCSC) list of common,
+    hacked passwords
+    (https://www.ncsc.gov.uk/blog-post/passwords-passwords-everywhere) --
+    ultimately from https://haveibeenpwned.com/.
 
-${form}
-
-<div>
-    ${_("Choose strong passphrases.")}
-    ${_("See")}
-    <a href="https://www.ncsc.gov.uk/blog-post/three-random-words-or-thinkrandom-0">https://www.ncsc.gov.uk/blog-post/three-random-words-or-thinkrandom-0</a>.
-</div>
-<div>
-    ${_("Minimum password length is {} characters.").format(min_pw_length)}
-</div>
+    Speed is not critical; we don't cache the file, for example.
+    """
+    with open(PROHIBITED_PASSWORDS_FILE) as f:
+        for line in f:
+            # It doesn't matter if we check against the comment lines.
+            if password == line.rstrip():  # remove trailing newline etc.
+                return True
+        return False

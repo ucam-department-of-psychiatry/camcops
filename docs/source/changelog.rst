@@ -3051,8 +3051,9 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 **Client and server v2.4.6, IN PROGRESS**
 
-- Fixes for penetration testing, per report by Falanx Cyber, 28 Apr 2021.
-  Rated high (H), medium (M), or low (L).
+- Fixes for penetration testing, per report by Falanx Cyber Defence Ltd, 28 Apr
+  2021 (reference  FB05540-CP05394, commissioned by CPFT). Rated high (H),
+  medium (M), or low (L). None rated critical or informational.
 
   - H1. "Cross-site scripting."
 
@@ -3074,11 +3075,14 @@ Current C++/SQLite client, Python/SQLAlchemy server
       - https://www.owasp.org/index.php/Authentication_Cheat_Sheet
         [Note that this advises 8 characters as the minimum password length.]
       - https://crackstation.net/hashing-security.htm
+        [Just general well-known stuff on salting/hashing.]
 
     - It's unclear where "10 characters" came from. Also, bcrypt is a
       deliberately slow algorithm that makes bulk hashing hard. Anyway...
 
-    - RESPONSE: ``MINIMUM_PASSWORD_LENGTH`` changed from 8 to 10.
+    - RESPONSE: ``MINIMUM_PASSWORD_LENGTH`` changed from 8 to 10. Advisory note
+      added. Server passwords checked against NCSC-supported deny list
+      (https://www.ncsc.gov.uk/blog-post/passwords-passwords-everywhere).
 
   - M2. "Out-of-date software versions."
 

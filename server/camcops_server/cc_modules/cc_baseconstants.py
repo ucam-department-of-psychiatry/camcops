@@ -68,6 +68,11 @@ LINUX_DEFAULT_MATPLOTLIB_CACHE_DIR = "/var/cache/camcops/matplotlib"
 # ... Lintian dislikes using /var/local
 LINUX_DEFAULT_USER_DOWNLOAD_DIR = "/var/tmp/camcops"
 
+PROHIBITED_PASSWORDS_FILE = join(
+    CAMCOPS_SERVER_DIRECTORY,
+    "prohibited_passwords", "PwnedPasswordsTop100k.txt"
+)
+
 STATIC_ROOT_DIR = join(CAMCOPS_SERVER_DIRECTORY, "static")
 # ... mostly but not entirely superseded by STATIC_CAMCOPS_PACKAGE_PATH
 TEMPLATE_DIR = join(CAMCOPS_SERVER_DIRECTORY, "templates")
