@@ -449,7 +449,7 @@
     <message>
         <location line="+15"/>
         <source>No, I can&apos;t remember the password</source>
-        <translation>Nej, jeg kan ikke huske kodeordet.</translation>
+        <translation>Nej, jeg kan ikke huske kodeordet</translation>
     </message>
     <message>
         <location line="+769"/>
@@ -4132,7 +4132,7 @@ enig</translation>
 <context>
     <name>PasswordChangeDialog</name>
     <message>
-        <location filename="../dialogs/passwordchangedialog.cpp" line="+53"/>
+        <location filename="../dialogs/passwordchangedialog.cpp" line="+63"/>
         <source>Enter old password:</source>
         <translation>Indtast gammel adgangskode:</translation>
     </message>
@@ -4165,6 +4165,11 @@ enig</translation>
         <location line="+6"/>
         <source>New passwords don&apos;t match</source>
         <translation>Nye adgangskoder svarer ikke til hinanden</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>That password is used too commonly. Please pick another.</source>
+        <translation>Denne adgangskode bruges for ofte. Vær sød at vælge en anden.</translation>
     </message>
 </context>
 <context>
