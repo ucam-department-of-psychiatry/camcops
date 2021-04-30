@@ -3054,6 +3054,10 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Fixes for penetration testing, per report by Falanx Cyber, 28 Apr 2021.
   Rated high (H), medium (M), or low (L).
 
+  - H1. Cross-site scripting.
+
+    ***
+
   - M1. Weak password policies.
 
     - ACTION: Tester wants 10-character minimum password length, not 8.
@@ -3075,3 +3079,12 @@ Current C++/SQLite client, Python/SQLAlchemy server
       deliberately slow algorithm that makes bulk hashing hard. Anyway...
 
     - RESPONSE: ``MINIMUM_PASSWORD_LENGTH`` changed from 8 to 10.
+
+  - M2. Out-of-date software versions.
+
+    - This related to the front-end server, not CamCOPS. The recommendation was
+      to upgrade from Apache 2.4.41, based on
+      https://httpd.apache.org/security/vulnerabilities_24.html -- on
+      2021-04-30, the latest security-fix version is 2.4.44.
+
+    - No changes required in CamCOPS.
