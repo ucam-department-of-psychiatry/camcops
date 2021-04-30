@@ -3054,11 +3054,11 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Fixes for penetration testing, per report by Falanx Cyber, 28 Apr 2021.
   Rated high (H), medium (M), or low (L).
 
-  - H1. Cross-site scripting.
+  - H1. "Cross-site scripting."
 
     ***
 
-  - M1. Weak password policies.
+  - M1. "Weak password policies."
 
     - ACTION: Tester wants 10-character minimum password length, not 8.
     - Additional advisory re user education on how to pick strong passwords.
@@ -3080,11 +3080,39 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
     - RESPONSE: ``MINIMUM_PASSWORD_LENGTH`` changed from 8 to 10.
 
-  - M2. Out-of-date software versions.
+  - M2. "Out-of-date software versions."
 
     - This related to the front-end server, not CamCOPS. The recommendation was
       to upgrade from Apache 2.4.41, based on
       https://httpd.apache.org/security/vulnerabilities_24.html -- on
       2021-04-30, the latest security-fix version is 2.4.44.
 
-    - No changes required in CamCOPS.
+    - RESPONSE: No changes required in CamCOPS; this is a front-end server
+      issue.
+
+  - M3. "Forced browsing via URL manipulation."
+
+    - This relates to the ability for non-privileged users to visit the
+      ``/view_ddl`` path, which shows the structure of the database used by
+      CamCOPS.
+
+    - "User has no explicit mapping to /view_ddl under normal circumstances."
+      "Visiting DDL reveals sensitive information to low privilege user."
+
+    - References given:
+
+      - https://www.owasp.org/index.php/Forced_browsing
+        ["Forced browsing is an attack where the aim is to enumerate and access
+        resources that are not referenced by the application, but are still
+        accessible."
+      - http://searchsecurity.techtarget.co.uk/answer/Forced-browsing-Understanding-and-halting-simple-browser-attacks
+
+    - The relevant view is :func:`camcops_server.cc_modules.webview.view_ddl`.
+      The menu item is in ``camcops_server/templates/menu/main_menu.mako``.
+
+    - RESPONSE: we dispute that this is a vulnerability, as this is open-source
+      software and the entire database structure is a matter of public record.
+      Denying it is only "security through obscurity". However, the menu
+      items are only presented to users with "dump" authority
+      (``User.authorized_to_dump``), so it is consistent to restrict to that
+      group. Restricted accordingly.

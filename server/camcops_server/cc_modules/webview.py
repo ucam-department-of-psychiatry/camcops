@@ -1689,7 +1689,13 @@ def view_ddl(req: "CamcopsRequest") -> Response:
     """
     Inspect table definitions (data definition language, DDL) with field
     comments.
+
+    2021-04-30: restricted to users with "dump" authority -- not because this
+    is a vulnerability, as the penetration testers suggested, but just to make
+    it consistent with the menu item for this.
     """
+    if not req.user.authorized_to_dump:
+        raise HTTPBadRequest(errormsg_cannot_dump(req))
     form = ViewDdlForm(request=req)
     if FormAction.SUBMIT in req.POST:
         try:
