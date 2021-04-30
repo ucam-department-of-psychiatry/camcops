@@ -83,7 +83,7 @@ DEFAULT_ROWS_PER_PAGE = 25
 DEVICE_NAME_FOR_SERVER = "server"  # Do not alter.
 USER_NAME_FOR_SYSTEM = "system"  # Do not alter.
 
-MINIMUM_PASSWORD_LENGTH = 8
+MINIMUM_PASSWORD_LENGTH = 10
 
 
 # =============================================================================

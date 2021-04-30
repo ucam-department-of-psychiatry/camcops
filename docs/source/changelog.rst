@@ -3050,3 +3050,28 @@ Current C++/SQLite client, Python/SQLAlchemy server
   - Support for MacOS client
 
 **Client and server v2.4.6, IN PROGRESS**
+
+- Fixes for penetration testing, per report by Falanx Cyber, 28 Apr 2021.
+  Rated high (H), medium (M), or low (L).
+
+  - M1. Weak password policies.
+
+    - ACTION: Tester wants 10-character minimum password length, not 8.
+    - Additional advisory re user education on how to pick strong passwords.
+    - Note that the account lockout control makes direct password-guessing
+      attacks unlikely, so obtaining passwords would require some sort of other
+      attack vector such as SQL injection.
+    - Recommendation for salted/hashed password storage, which we already do.
+      Named secure algorithms include bcrypt, which we already use.
+    - References given:
+
+      - https://www.ncsc.gov.uk/guidance/password-guidance-simplifying-your-approach
+        [Note that this advises password managers; contrast L3.]
+      - https://www.owasp.org/index.php/Authentication_Cheat_Sheet
+        [Note that this advises 8 characters as the minimum password length.]
+      - https://crackstation.net/hashing-security.htm
+
+    - It's unclear where "10 characters" came from. Also, bcrypt is a
+      deliberately slow algorithm that makes bulk hashing hard. Anyway...
+
+    - RESPONSE: ``MINIMUM_PASSWORD_LENGTH`` changed from 8 to 10.
