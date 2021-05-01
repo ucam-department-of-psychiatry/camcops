@@ -3198,9 +3198,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
       .. code-block:: html
 
         <script nonce="xxx" type="text/javascript">
-            window.onload = function() {
-                deform.load();
-            };
+            window.onload = some_function;
         </script>
 
       or
@@ -3208,22 +3206,11 @@ Current C++/SQLite client, Python/SQLAlchemy server
       .. code-block:: html
 
         <script nonce="xxx" type="text/javascript">
-            document.addEventListener("DOMContentLoaded", function() {
-                some_function();
-            }, false);
-        </script>
-
-      or a version stripping out the intermediate function, such as
-
-      .. code-block:: html
-
-        <script nonce="xxx" type="text/javascript">
-            document.addEventListener("DOMContentLoaded", deform.load, false);
+            document.addEventListener("DOMContentLoaded", some_function, false);
         </script>
 
       as per
-
-      - https://stackoverflow.com/questions/7561315/alternative-to-body-onload-init/7561332
+      https://stackoverflow.com/questions/7561315/alternative-to-body-onload-init/7561332
 
     - RESPONSE: Implemented.
 
@@ -3331,3 +3318,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
   ``/deform_static/fonts/glyphicons-halflings-regular.woff2`` and corresponding
   code (``bugfix_deform_missing_glyphs``). The path still works, but now it
   goes to Deform's static files.
+
+- Removed title string from
+  :class:`camcops_server.cc_modules.cc_forms.CSRFToken`. Generally that was
+  hidden but it appeared in some circumstances.

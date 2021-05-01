@@ -524,7 +524,7 @@ class CSRFToken(SchemaNode, RequestAwareMixin):
     schema_type = String
     default = ""
     missing = ""
-    title = "CSRF token"  # doesn't need translating; always hidden
+    title = ""
     widget = HiddenWidget()
 
     # noinspection PyUnusedLocal
