@@ -3270,4 +3270,27 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
   - L5. "Concurrent user sessions."
 
+    - Allowing a user to have multiple sessions means are less likely to notice
+      if someone else has hacked their account. This is a tradeoff between
+      security and usability. Their recommendation is only one active session
+      (of course, you can have multiple tabs).
+
+    - References:
+
+      - https://www.owasp.org/index.php/Testing_for_Session_Management
+      - https://www.owasp.org/index.php/Session_Management_Cheat_Sheet
+        [section on "Simultaneous Session Logins"]
+
+    - Note that in particular we want to be able to have a user running
+      a webviewer session but simultaneously being able to upload from one or
+      maybe several client devices (which will have different IP addresses).
+      We use :class:`camcops_server.cc_modules.cc_session.CamcopsSession` to
+      represent sessions.
+
+    - RESPONSE: now only one "human" session at a time; if you log in again,
+      previous sessions are terminaed. (However, you can have an ongoing human
+      session that is not terminated by one or many API-based uploads.)
+
+  - L6. "Out-of-date jQuery version."
+
     ***
