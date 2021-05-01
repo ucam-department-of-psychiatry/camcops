@@ -89,6 +89,10 @@ server/camcops_server
     alembic/versions/0056_mojo_medical_infection_fields.py.rst
     alembic/versions/0057_mojo_medication_to_brand_name.py.rst
     alembic/versions/0058_schedule_email_template.py.rst
+    alembic/versions/0059_basdai_comments.py.rst
+    alembic/versions/0060_user_single_patient_fk_constraint.py.rst
+    alembic/versions/0061_fix_up_patient_idnum_ids.py.rst
+    alembic/versions/0062_distinguish_api_sessions.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst
@@ -130,6 +134,7 @@ server/camcops_server
     cc_modules/cc_membership.py.rst
     cc_modules/cc_nhs.py.rst
     cc_modules/cc_nlp.py.rst
+    cc_modules/cc_password.py.rst
     cc_modules/cc_patient.py.rst
     cc_modules/cc_patientidnum.py.rst
     cc_modules/cc_pdf.py.rst
@@ -142,6 +147,7 @@ server/camcops_server
     cc_modules/cc_report.py.rst
     cc_modules/cc_request.py.rst
     cc_modules/cc_resource_registry.py.rst
+    cc_modules/cc_response.py.rst
     cc_modules/cc_serversettings.py.rst
     cc_modules/cc_session.py.rst
     cc_modules/cc_simpleobjects.py.rst
@@ -172,7 +178,32 @@ server/camcops_server
     cc_modules/celery.py.rst
     cc_modules/client_api.py.rst
     cc_modules/merge_db.py.rst
+    cc_modules/tests/cc_all_models_tests.py.rst
+    cc_modules/tests/cc_blob_tests.py.rst
+    cc_modules/tests/cc_client_api_helpers_tests.py.rst
+    cc_modules/tests/cc_config_tests.py.rst
+    cc_modules/tests/cc_device_tests.py.rst
+    cc_modules/tests/cc_formatter_tests.py.rst
+    cc_modules/tests/cc_forms_tests.py.rst
+    cc_modules/tests/cc_hl7_tests.py.rst
+    cc_modules/tests/cc_patient_tests.py.rst
+    cc_modules/tests/cc_policy_tests.py.rst
+    cc_modules/tests/cc_proquint_tests.py.rst
+    cc_modules/tests/cc_redcap_tests.py.rst
+    cc_modules/tests/cc_report_tests.py.rst
+    cc_modules/tests/cc_session_tests.py.rst
+    cc_modules/tests/cc_sqla_coltypes_tests.py.rst
+    cc_modules/tests/cc_task_collection_tests.py.rst
+    cc_modules/tests/cc_task_tests.py.rst
+    cc_modules/tests/cc_taskschedule_tests.py.rst
+    cc_modules/tests/cc_text_tests.py.rst
+    cc_modules/tests/cc_tracker_tests.py.rst
+    cc_modules/tests/cc_tsv_tests.py.rst
+    cc_modules/tests/cc_user_tests.py.rst
+    cc_modules/tests/client_api_tests.py.rst
+    cc_modules/tests/webview_tests.py.rst
     cc_modules/webview.py.rst
+    conftest.py.rst
     extra_string_templates/BLANK_TEMPLATE.xml.rst
     extra_string_templates/asdas_TEMPLATE.xml.rst
     extra_string_templates/badls_TEMPLATE.xml.rst
@@ -189,6 +220,7 @@ server/camcops_server
     extra_string_templates/iesr_TEMPLATE.xml.rst
     extra_string_templates/ifs_TEMPLATE.xml.rst
     extra_string_templates/lynall_iam_life_TEMPLATE.xml.rst
+    extra_string_templates/moca_TEMPLATE.xml.rst
     extra_string_templates/npiq_TEMPLATE.xml.rst
     extra_string_templates/ors_TEMPLATE.xml.rst
     extra_string_templates/pdss_TEMPLATE.xml.rst
@@ -262,7 +294,6 @@ server/camcops_server
     extra_strings/maas.xml.rst
     extra_strings/mast.xml.rst
     extra_strings/mfi20.xml.rst
-    extra_strings/moca.xml.rst
     extra_strings/panss.xml.rst
     extra_strings/pbq.xml.rst
     extra_strings/pcl.xml.rst
@@ -384,6 +415,12 @@ server/camcops_server
     tasks/smast.py.rst
     tasks/srs.py.rst
     tasks/suppsp.py.rst
+    tasks/tests/apeq_cpft_perinatal_tests.py.rst
+    tasks/tests/basdai_tests.py.rst
+    tasks/tests/core10_tests.py.rst
+    tasks/tests/maas_tests.py.rst
+    tasks/tests/perinatalpoem_tests.py.rst
+    tasks/tests/rapid3_tests.py.rst
     tasks/wemwbs.py.rst
     tasks/wsas.py.rst
     tasks/ybocs.py.rst
