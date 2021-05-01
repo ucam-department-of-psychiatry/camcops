@@ -161,7 +161,7 @@ from pyramid.view import (
     view_config,
 )
 from pyramid.renderers import render_to_response
-from pyramid.response import FileResponse, Response
+from pyramid.response import Response
 from pyramid.security import Authenticated, NO_PERMISSION_REQUIRED
 import pygments
 import pygments.lexers
@@ -174,7 +174,6 @@ from sqlalchemy.sql.expression import desc, or_, select, update
 
 from camcops_server.cc_modules.cc_audit import audit, AuditEntry
 from camcops_server.cc_modules.cc_all_models import CLIENT_TABLE_MAP
-from camcops_server.cc_modules.cc_baseconstants import STATIC_ROOT_DIR
 from camcops_server.cc_modules.cc_client_api_core import (
     BatchDetails,
     get_server_live_records,
@@ -4452,23 +4451,6 @@ def delete_task_schedule_item(req: "CamcopsRequest") -> Response:
 # Static assets
 # =============================================================================
 # https://docs.pylonsproject.org/projects/pyramid/en/latest/narr/assets.html#advanced-static  # noqa
-
-DEFORM_MISSING_GLYPH = os.path.join(STATIC_ROOT_DIR,
-                                    "glyphicons-halflings-regular.woff2")
-
-
-@view_config(route_name=Routes.BUGFIX_DEFORM_MISSING_GLYPHS,
-             permission=NO_PERMISSION_REQUIRED)
-def static_bugfix_deform_missing_glyphs(req: "CamcopsRequest") -> Response:
-    """
-    Hack for a missing-file bug in ``deform==2.0.4``.
-    """
-    return FileResponse(
-        path=DEFORM_MISSING_GLYPH,
-        request=req,
-        cache_max_age=req.config.static_cache_duration_s
-    )
-
 
 def debug_form_rendering() -> None:
     r"""

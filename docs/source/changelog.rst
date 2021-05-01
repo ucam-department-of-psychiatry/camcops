@@ -3052,8 +3052,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 **Client and server v2.4.6, IN PROGRESS**
 
 - Fixes for penetration testing, per report by Falanx Cyber Defence Ltd, 28 Apr
-  2021 (reference  FB05540-CP05394, commissioned by CPFT). Rated high (H),
-  medium (M), or low (L). None rated critical or informational.
+  2021 (reference  FB05540-CP05394, commissioned by CPFT). Vulnerabilities
+  rated high (H), medium (M), or low (L). None rated critical or informational.
 
   - H1. "Cross-site scripting."
 
@@ -3293,4 +3293,41 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
   - L6. "Out-of-date jQuery version."
 
-    ***
+    - jQuery was 2.0.3, which has some known vulnerabilities.
+    - They note that attacks via this route are highly complex, and require
+      some other conditions to exploit, and those other conditions were not
+      found.
+    - References:
+
+      - http://code.jquery.com/jquery/ [repository of jQuery code by version]
+      - https://jquery.com/download/ [how to download]
+      - https://snyk.io/vuln/npm:jquery [list of vulnerabilities by version]
+      - http://www.cvedetails.com/vulnerability-list/vendor_id-6538/Jquery.html
+        [another index of vulnerabilities]
+
+    - Now, jQuery is being used via Deform
+      (https://docs.pylonsproject.org/projects/deform/;
+      https://pypi.org/project/deform/), and via our ``/deform_static`` path,
+      which we redirect to ``deform:static``, which means "look within the
+      deform package for the directory static/".
+
+    - jQuery was 2.0.3, via ``jquery-2.0.3.min.js``, loaded from our
+      ``base_web.mako``. This follows the advice at
+      https://docs.pylonsproject.org/projects/deform/en/2.0-branch/basics.html.
+
+    - A simple replacement of the jQuery library with v3.6.0 doesn't work (for
+      example, on the "filter tasks" page, the "expanding" categories don't
+      expand).
+
+    - RESPONSE: not changed; low concern noted; but raised as a Deform issue at
+      https://github.com/Pylons/deform/issues/511.
+
+- Also fixed REDCap example for PHQ9 (from ``task.q10 + 1``, which could fail
+  if ``q10`` was ``None``, to ``task.q10 + 1 if task.q10 is not None else
+  None``).
+
+- Also, now Deform is at 2.0.15, it has provided all its font files. So we can
+  delete the hacks for the path
+  ``/deform_static/fonts/glyphicons-halflings-regular.woff2`` and corresponding
+  code (``bugfix_deform_missing_glyphs``). The path still works, but now it
+  goes to Deform's static files.
