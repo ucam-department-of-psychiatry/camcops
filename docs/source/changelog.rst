@@ -3187,6 +3187,44 @@ Current C++/SQLite client, Python/SQLAlchemy server
       generation, and embedded Javascript, for the PDF system, so they can't be
       split into separate files.
 
+    - To replace
+
+      .. code-block:: html
+
+        <body onload="some_function();">...</body>
+
+      use e.g.
+
+      .. code-block:: html
+
+        <script nonce="xxx" type="text/javascript">
+            window.onload = function() {
+                deform.load();
+            };
+        </script>
+
+      or
+
+      .. code-block:: html
+
+        <script nonce="xxx" type="text/javascript">
+            document.addEventListener("DOMContentLoaded", function() {
+                some_function();
+            }, false);
+        </script>
+
+      or a version stripping out the intermediate function, such as
+
+      .. code-block:: html
+
+        <script nonce="xxx" type="text/javascript">
+            document.addEventListener("DOMContentLoaded", deform.load, false);
+        </script>
+
+      as per
+
+      - https://stackoverflow.com/questions/7561315/alternative-to-body-onload-init/7561332
+
     - RESPONSE: Implemented.
 
   - L3. "Form auto-complete active."

@@ -37,15 +37,16 @@ camcops_server/templates/base/base_web_form.mako
 
     ## These aren't provided by the form's automatic resource detection:
     <link rel="stylesheet"
-          href="${request.static_url('deform:static/css/form.css')}"
-          type="text/css"/>
+          href="${request.static_url('deform:static/css/form.css')}"/>
 
     ## Automatic things come here:
     ${head_form_html}
 
     ## For "${parent.BLOCKNAME()}" see http://docs.makotemplates.org/en/latest/inheritance.html#parent-namespace
-</%block>
 
-<%block name="body_tags">onload="deform.load();"</%block>
+    <script nonce="${request.nonce}">
+        document.addEventListener("DOMContentLoaded", deform.load, false);
+    </script>
+</%block>
 
 ${next.body()}

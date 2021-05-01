@@ -35,9 +35,13 @@ WORKS IN CONJUNCTION WITH wkhtmltopdf_footer.mako
     <%include file="css_wkhtmltopdf.mako"/>
 </%block>
 
-<%block name="body_tags">
-    onload="subst()"
-    ## the function itself is defined in wkhtmltopdf_footer.mako
+<%block name="extra_head_start">
+    ${parent.extra_head_start()}
+
+    <script nonce="${request.nonce}">
+        document.addEventListener("DOMContentLoaded", subst, false);
+        // the function itself is defined in wkhtmltopdf_footer.mako
+    </script>
 </%block>
 
 <div>

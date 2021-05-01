@@ -35,41 +35,41 @@ WORKS IN CONJUNCTION WITH wkhtmltopdf_header.mako
     <%include file="css_wkhtmltopdf.mako"/>
 </%block>
 
-<%block name="extra_head">
-<script nonce="${request.nonce}">
-    // Do not move this Javascript out into a file that's requested separately;
-    // wkhtmltopdf will not be able to see it.
+<%block name="extra_head_start">
+    ${parent.extra_head_start()}
 
-    // noinspection JSUnusedLocalSymbols
-    function subst() {
-        var vars = {},
-            x = document.location.search.substring(1).split('&'),
-            i,
-            z,
-            y,
-            j;
-        for (i in x) {
-            if (x.hasOwnProperty(i)) {
-                z = x[i].split('=', 2);
-                vars[z[0]] = decodeURI(z[1]);  // decodeURI() replaces unescape()
+    <script nonce="${request.nonce}">
+        // Do not move this Javascript out into a file that's requested separately;
+        // wkhtmltopdf will not be able to see it.
+
+        // noinspection JSUnusedLocalSymbols
+        function subst() {
+            var vars = {},
+                x = document.location.search.substring(1).split('&'),
+                i,
+                z,
+                y,
+                j;
+            for (i in x) {
+                if (x.hasOwnProperty(i)) {
+                    z = x[i].split('=', 2);
+                    vars[z[0]] = decodeURI(z[1]);  // decodeURI() replaces unescape()
+                }
             }
-        }
-        x = ['frompage', 'topage', 'page', 'webpage', 'section',
-             'subsection','subsubsection'];
-        for (i in x) {
-            if (x.hasOwnProperty(i)) {
-                y = document.getElementsByClassName(x[i]);
-                for (j = 0; j < y.length; ++j) {
-                    y[j].textContent = vars[x[i]];
+            x = ['frompage', 'topage', 'page', 'webpage', 'section',
+                 'subsection','subsubsection'];
+            for (i in x) {
+                if (x.hasOwnProperty(i)) {
+                    y = document.getElementsByClassName(x[i]);
+                    for (j = 0; j < y.length; ++j) {
+                        y[j].textContent = vars[x[i]];
+                    }
                 }
             }
         }
-    }
-</script>
-</%block>
 
-<%block name="body_tags">
-    onload="subst()"
+        document.addEventListener("DOMContentLoaded", subst, false);
+    </script>
 </%block>
 
 <div>
