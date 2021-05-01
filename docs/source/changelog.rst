@@ -3218,4 +3218,14 @@ Current C++/SQLite client, Python/SQLAlchemy server
       option, and the default is true (i.e. the default is to set
       ``autocomplete="off"`` for the password field).
 
-  - 
+  - L4. "Logout button not present on authenticated pages."
+
+    - They want a highly visible logout button on every authenticated page,
+      because this makes it more likely that users will log out.
+
+    - Reference:
+      https://owasp.org/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/06-Session_Management_Testing/06-Testing_for_Logout_Functionality.
+      [best practice being described as "directly visible", not "highly
+      visible", and visible without scrolling].
+
+    - RESPONSE: Implemented.

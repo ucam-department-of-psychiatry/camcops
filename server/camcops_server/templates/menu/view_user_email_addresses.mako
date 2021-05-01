@@ -34,7 +34,7 @@ from markupsafe import escape
 from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 %>
 
-<%include file="db_user_info.mako" args="offer_main_menu=True"/>
+<%include file="db_user_info.mako"/>
 
 <h1>${_("Users’ e-mail addresses")}</h1>
 

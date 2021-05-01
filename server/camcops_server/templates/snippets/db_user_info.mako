@@ -26,7 +26,11 @@ camcops_server/templates/snippets/db_user_info.mako
 
 </%doc>
 
-<%page args="offer_main_menu=False"/>
+<%page args="offer_main_menu=True"/>
+
+<%!
+from camcops_server.cc_modules.cc_pyramid import Routes
+%>
 
 <% _ = request.gettext %>
 
@@ -34,8 +38,11 @@ camcops_server/templates/snippets/db_user_info.mako
     ${_("Database")}: <b>${ request.database_title | h }</b>.
     %if request.camcops_session.username:
         ${_("Logged in as")} <b>${request.camcops_session.username | h}</b>.
-    %endif
-    %if offer_main_menu:
-        <%include file="to_main_menu.mako"/>
+        [
+            <a href="${request.route_url(Routes.LOGOUT)}">${_("Log out")}</a>
+        %if offer_main_menu:
+            | <a href="${request.route_url(Routes.HOME)}">${_("Main menu")}</a>
+        %endif
+        ]
     %endif
 </div>
