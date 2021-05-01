@@ -3166,7 +3166,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
         "enclosing" web server (e.g. Apache) and is outside the scope of
         CamCOPS.
 
-  - L2. Missing server security headers.
+  - L2. "Missing server security headers."
 
     - Missing:
 
@@ -3188,3 +3188,34 @@ Current C++/SQLite client, Python/SQLAlchemy server
       split into separate files.
 
     - RESPONSE: Implemented.
+
+  - L3. "Form auto-complete active."
+
+    - They dislike having the ``autocomplete`` attribute permitted for password
+      fields.
+
+    - Their reference:
+      https://portswigger.net/kb/issues/00500800_password-field-with-autocomplete-enabled.
+
+    - However, there is disagrement, e.g. based on the following references.
+
+      - There is security debate on both sides of this argument (the dangers of
+        local storage versus the dangers of what users do if their browser
+        doesn't provide password management functions). That is, some people
+        argue that this advice is wrong on security grounds. Even the security
+        advisory they link to notes that browsers may, and generally do, ignore
+        the directive they suggest, ``autocomplete="off`` (for these reasons).
+      - For example, see
+        https://developer.mozilla.org/en-US/docs/Web/Security/Securing_your_site/Turning_off_form_autocompletion#the_autocomplete_attribute_and_login_fields.
+      - Some casual discussion that summarises this is at
+        https://security.stackexchange.com/questions/34067/ -- that one should
+        disable autocomplete to please auditors, but not for good security!
+      - Another professional penetration testing view is at
+        https://www.pivotpointsecurity.com/blog/autocomplete-and-application-security-testing/.
+
+    - RESPONSE: As it happens, we already make this user-configurable via the
+      :ref:`DISABLE_PASSWORD_AUTOCOMPLETE <DISABLE_PASSWORD_AUTOCOMPLETE>`
+      option, and the default is true (i.e. the default is to set
+      ``autocomplete="off"`` for the password field).
+
+  - 
