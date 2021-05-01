@@ -3123,3 +3123,68 @@ Current C++/SQLite client, Python/SQLAlchemy server
       items are only presented to users with "dump" authority
       (``User.authorized_to_dump``), so it is consistent to restrict to that
       group. Restricted accordingly.
+
+  - L1. Software enumeration.
+
+    - They advise against releaseing any software version information in server
+      response headers or in banners of other services.
+
+    - Reference:
+      https://owasp.org/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/01-Information_Gathering/02-Fingerprint_Web_Server
+      [re web server version information, specifically].
+
+    - Weaknesses were:
+
+      - "Server: gunicorn/<VERSION>" in a happy (HTTP 200 OK) response.
+      - "<address>Apache/<VERSION> (Ubuntu) Server at <HOSTNAME> Port
+        443</address" from a HTTP 404 Not Found page.
+
+    - CherryPy already had this locally configurable (with a default providing
+      no version information) via the :ref:`CHERRYPY_SERVER_NAME
+      <CHERRYPY_SERVER_NAME>` variable.
+
+    - The HTTP spec is:
+
+      - https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Server
+      - https://tools.ietf.org/html/rfc7231#section-7.4.2
+
+    - So, for Gunicorn:
+
+      - https://stackoverflow.com/questions/16010565/how-to-prevent-gunicorn-from-returning-a-server-http-header
+      - https://adamj.eu/tech/2021/01/03/override-gunicorns-server-header-from-django/
+      - https://github.com/benoitc/gunicorn/issues/825
+
+    - RESPONSE:
+
+      - gunicorn upgraded to a version that doesn't show its version; it still
+        shows "gunicorn" but that is reasonable as part of the spec.
+
+      - Any "not found" error within the CamCOPS path, i.e. responded to by
+        CamCOPS, follows the same rules as successful page loads, so is OK.
+
+      - Any "not found" error outside that path is the responsibility of the
+        "enclosing" web server (e.g. Apache) and is outside the scope of
+        CamCOPS.
+
+  - L2. Missing server security headers.
+
+    - Missing:
+
+      - ``X-XSS-Protection``
+      - ``Content-Security-Policy``
+      - ``Strict-Transport-Security``
+
+    - References:
+
+      - https://scotthelme.co.uk/hardening-your-http-response-headers/
+        [gives some content security policy advice]
+      - https://owasp.org/www-project-secure-headers/
+        [helpful defaults for all sorts of things; NB also `Venom
+        <https://github.com/ovh/venom>`_]
+
+    - The tricky bit was CSP. Achieved, without any dangerous exceptions, by
+      using nonces for inline Javascript/CSS. We need on-the-fly CSS
+      generation, and embedded Javascript, for the PDF system, so they can't be
+      split into separate files.
+
+    - RESPONSE: Implemented.

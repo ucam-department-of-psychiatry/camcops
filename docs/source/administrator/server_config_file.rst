@@ -1088,6 +1088,8 @@ CherryPy options
 Additional options for the CherryPy web server.
 
 
+.. _CHERRYPY_SERVER_NAME:
+
 CHERRYPY_SERVER_NAME
 ####################
 

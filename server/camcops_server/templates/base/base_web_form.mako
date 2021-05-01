@@ -48,12 +48,4 @@ camcops_server/templates/base/base_web_form.mako
 
 <%block name="body_tags">onload="deform.load();"</%block>
 
-<%doc>
-<%block name="body_end">
-    <script>
-        deform.load();
-    </script>
-</%block>
-</%doc>
-
 ${next.body()}

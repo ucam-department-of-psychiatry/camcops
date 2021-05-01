@@ -30,7 +30,7 @@ camcops_server/templates/menu/download_area.mako
 
 <%include file="db_user_info.mako"/>
 
-<style>
+<style nonce="${request.nonce}">
     <%include file="style_deform_inside_tables.css"/>
 </style>
 

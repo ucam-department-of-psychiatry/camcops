@@ -281,12 +281,27 @@ def make_wsgi_app(debug_toolbar: bool = False,
 
     # noinspection PyTypeChecker
     app = AddHeadersMiddleware(app, headers=[
-        # From ZAP penetration testing:
-        ("X-Frame-Options", "DENY"),
-        # ... or "X-Frame-Options Header Not Set"
-        ("X-Content-Type-Options", "nosniff"),
-        # ... or "X-Content-Type-Options Header Missing"
+        # ---------------------------------------------------------------------
+        # Prevent rendering within a frame
+        # ---------------------------------------------------------------------
+        # - Recommended by ZAP penetration testing.
+        #   ... otherwise, the error is "X-Frame-Options Header Not Set"
+        # - https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options  # noqa
 
+        ("X-Frame-Options", "DENY"),
+
+        # ---------------------------------------------------------------------
+        # Opt out of MIME type sniffing
+        # ---------------------------------------------------------------------
+        # - Recommended by ZAP penetration testing.
+        #   ... otherwise, the error is "X-Content-Type-Options Header Missing"
+        # - https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options  # noqa
+
+        ("X-Content-Type-Options", "nosniff"),
+
+        # ---------------------------------------------------------------------
+        # Caching
+        # ---------------------------------------------------------------------
         # NOT THIS:
         #       ("Cache-Control", "no-cache, no-store, must-revalidate"),
         # ... or "Incomplete or No Cache-control and Pragma HTTP Header Set"
@@ -308,11 +323,39 @@ def make_wsgi_app(debug_toolbar: bool = False,
         # - tuple (None, dictionary_of_extra_cache_control_details)
         # We now set http_cache for all our views via view_config, as well as
         # the equivalent of using cache_max_age for add_static_view().
-
+        #
         # However, this (as an additional Cache-Control header -- as well as
         # any "cache, it's static" or "don't cache" header) sorts out any ZAP
         # complaints:
+
         ("Cache-Control", 'no-cache="Set-Cookie, Set-Cookie2"'),
+
+        # ---------------------------------------------------------------------
+        # Check for cross-site scripting attacks
+        # ---------------------------------------------------------------------
+        # - Recommended by Falanx penetration testing.
+        # - https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection  # noqa
+
+        ("X-XSS-Protection", "1"),
+
+        # ---------------------------------------------------------------------
+        # Control resources that are permitted to load, to mitigate against
+        # cross-site scripting attacks
+        # ---------------------------------------------------------------------
+        # - Content-Security-Policy.
+        # - This involves setting a nonce, so is done on the fly. See
+        #   CamcopsResponse.
+
+        # ---------------------------------------------------------------------
+        # Enforce HTTPS through the client.
+        # ---------------------------------------------------------------------
+        # - In part this is by e.g. telling Google (and thus Chrome) that your
+        #   site always uses HTTPS, to prevent HTTP-based spoofing.
+        # - https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security  # noqa
+        # - Advice is at
+        #   https://blog.qualys.com/vulnerabilities-research/2016/03/28/the-importance-of-a-proper-http-strict-transport-security-implementation-on-your-web-server  # noqa
+
+        ("Strict-Transport-Security", "max-age=31536000"),
 
     ])  # type: Router
 

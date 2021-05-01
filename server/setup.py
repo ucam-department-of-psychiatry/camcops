@@ -80,7 +80,7 @@ INSTALL_REQUIRES = [
     'Faker==4.1.1',  # create fake data; for dummy database creation
     'flower==0.9.4',  # monitor for Celery
 
-    'gunicorn==20.0.4',  # web server (Unix only)
+    'gunicorn==20.1.0',  # web server (Unix only)
 
     'hl7==0.3.5',  # For HL7 export
 

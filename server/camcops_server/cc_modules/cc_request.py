@@ -34,6 +34,7 @@ import datetime
 import gettext
 import logging
 import os
+import secrets
 from typing import (Any, Dict, Generator, List, Optional, Set,
                     Tuple, TYPE_CHECKING, Union)
 import urllib.parse
@@ -112,6 +113,7 @@ from camcops_server.cc_modules.cc_pyramid import (
     RouteCollection,
     STATIC_CAMCOPS_PACKAGE_PATH,
 )
+from camcops_server.cc_modules.cc_response import camcops_response_factory
 from camcops_server.cc_modules.cc_serversettings import (
     get_server_settings,
     ServerSettings,
@@ -235,6 +237,23 @@ class CamcopsRequest(Request):
         if DEBUG_REQUEST_CREATION:
             log.debug("CamcopsRequest.__init__: args={!r}, kwargs={!r}",
                       args, kwargs)
+
+    # -------------------------------------------------------------------------
+    # HTTP nonce
+    # -------------------------------------------------------------------------
+
+    @reify
+    def nonce(self) -> str:
+        """
+        Return a nonce that is generated at random for each request, but
+        remains constant for that request (because we use ``@reify``).
+
+        See https://content-security-policy.com/examples/allow-inline-style/.
+
+        And for how to make one:
+        https://stackoverflow.com/questions/5590170/what-is-the-standard-method-for-generating-a-nonce-in-python
+        """  # noqa
+        return secrets.token_urlsafe()
 
     # -------------------------------------------------------------------------
     # CamcopsSession
@@ -1808,6 +1827,7 @@ def camcops_pyramid_configurator_context(
         # ... for request attributes: config, database, etc.
         config.set_session_factory(get_session_factory())
         # ... for request.session
+        config.set_response_factory(camcops_response_factory)
 
         # ---------------------------------------------------------------------
         # Renderers
