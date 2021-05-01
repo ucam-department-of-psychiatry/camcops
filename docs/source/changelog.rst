@@ -3047,7 +3047,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 **Client v2.4.5, released 30 Mar 2021**
 
-  - Support for MacOS client
+- Support for macOS client
 
 **Client and server v2.4.6, IN PROGRESS**
 
@@ -3229,3 +3229,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
       visible", and visible without scrolling].
 
     - RESPONSE: Implemented.
+
+  - L5. "Concurrent user sessions."
+
+    ***
