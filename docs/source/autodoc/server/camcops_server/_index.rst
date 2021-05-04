@@ -165,12 +165,14 @@ server/camcops_server
     cc_modules/cc_taskindex.py.rst
     cc_modules/cc_taskreports.py.rst
     cc_modules/cc_taskschedule.py.rst
+    cc_modules/cc_testhelpers.py.rst
     cc_modules/cc_text.py.rst
     cc_modules/cc_tracker.py.rst
     cc_modules/cc_trackerhelpers.py.rst
     cc_modules/cc_tsv.py.rst
     cc_modules/cc_unittest.py.rst
     cc_modules/cc_user.py.rst
+    cc_modules/cc_validators.py.rst
     cc_modules/cc_version.py.rst
     cc_modules/cc_version_string.py.rst
     cc_modules/cc_view_classes.py.rst
@@ -180,7 +182,6 @@ server/camcops_server
     cc_modules/merge_db.py.rst
     cc_modules/tests/cc_all_models_tests.py.rst
     cc_modules/tests/cc_blob_tests.py.rst
-    cc_modules/tests/cc_client_api_helpers_tests.py.rst
     cc_modules/tests/cc_config_tests.py.rst
     cc_modules/tests/cc_device_tests.py.rst
     cc_modules/tests/cc_formatter_tests.py.rst
@@ -200,6 +201,7 @@ server/camcops_server
     cc_modules/tests/cc_tracker_tests.py.rst
     cc_modules/tests/cc_tsv_tests.py.rst
     cc_modules/tests/cc_user_tests.py.rst
+    cc_modules/tests/cc_validator_tests.py.rst
     cc_modules/tests/client_api_tests.py.rst
     cc_modules/tests/webview_tests.py.rst
     cc_modules/webview.py.rst
@@ -566,3 +568,4 @@ server/camcops_server
     templates/test/testpage.mako.rst
     tools/fetch_snomed_codes.py.rst
     tools/print_latest_github_version.py.rst
+    tools/run_server_self_tests.py.rst

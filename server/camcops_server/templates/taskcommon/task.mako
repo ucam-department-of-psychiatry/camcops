@@ -151,7 +151,7 @@ ${ task.get_task_html(req) }
     ${_("Tablet CamCOPS version at upload:")} ${ task._camcops_version }.
     ${_("Uploaded at:")} ${ format_datetime(task._when_added_exact, DateFormat.SHORT_DATETIME_SECONDS) }.
     ${_("Group:")} ${ task._group.name | h } (${ task._group_id }).
-    ${_("Adding user:")} ${ task.get_adding_user_username() }.
+    ${_("Adding user:")} ${ task.get_adding_user_username() | h }.
     ${_("Server PK:")} ${ task.pk }
         (${_("predecessor")} ${ task._predecessor_pk },
         ${_("successor")} ${ task._successor_pk }).

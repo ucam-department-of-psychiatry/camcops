@@ -63,7 +63,7 @@ from pendulum import Date, DateTime as Pendulum, Duration
 from pendulum.parsing.exceptions import ParserError
 from pyramid.config import Configurator
 from pyramid.decorator import reify
-from pyramid.httpexceptions import HTTPException
+from pyramid.httpexceptions import HTTPBadRequest, HTTPException
 from pyramid.interfaces import ISession
 from pyramid.request import Request
 from pyramid.response import Response
@@ -126,6 +126,11 @@ from camcops_server.cc_modules.cc_string import (
 from camcops_server.cc_modules.cc_tabletsession import TabletSession
 from camcops_server.cc_modules.cc_text import SS, server_string
 from camcops_server.cc_modules.cc_user import User
+from camcops_server.cc_modules.cc_validators import (
+    STRING_VALIDATOR_TYPE,
+    validate_alphanum_underscore,
+    validate_redirect_url,
+)
 
 if TYPE_CHECKING:
     from matplotlib.axis import Axis
@@ -138,6 +143,7 @@ if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_snomed import SnomedConcept
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
+
 
 # =============================================================================
 # Debugging options
@@ -162,18 +168,11 @@ if any([DEBUG_ADD_ROUTES,
 
 
 # =============================================================================
-# Helper functions
+# Constants
 # =============================================================================
 
-def validate_url(url: str, default: str = None) -> Optional[str]:
-    """
-    Validates a URL. If valid, returns the URL; if not, returns ``default``.
-    See https://stackoverflow.com/questions/22238090/validating-urls-in-python
-    """
-    result = urllib.parse.urlparse(url)
-    if not result.scheme or not result.netloc:
-        return default
-    return url
+TRUE_STRINGS_LOWER_CASE = ["true", "t", "1", "yes", "y"]
+FALSE_STRINGS_LOWER_CASE = ["false", "f", "0", "no", "n"]
 
 
 # =============================================================================
@@ -614,45 +613,61 @@ class CamcopsRequest(Request):
         """
         return key in self.params
 
-    def get_str_param(self,
-                      key: str,
-                      default: str = None,
-                      lower: bool = False,
-                      upper: bool = False) -> Optional[str]:
+    def get_str_param(
+            self,
+            key: str,
+            default: str = None,
+            lower: bool = False,
+            upper: bool = False,
+            validator: STRING_VALIDATOR_TYPE = validate_alphanum_underscore) \
+            -> Optional[str]:
         """
-        Returns an HTTP parameter from the request.
+        Returns an HTTP parameter from the request (GET or POST). If it does
+        not exist, return ``default``. If it fails the validator, raise
+        :exc:`pyramid.httpexceptions.HTTPBadRequest`.
 
         Args:
             key: the parameter's name
             default: the value to return if the parameter is not found
             lower: convert to lower case?
             upper: convert to upper case?
+            validator: validator function
 
         Returns:
             the parameter's (string) contents, or ``default``
 
         """
         # HTTP parameters are always strings at heart
-        value = self.params.get(key, default)
-        if value is None:
-            return value
+        if key not in self.params:
+            return default
+        value = self.params.get(key)
+        assert isinstance(value, str)  # ... or we wouldn't have got here
         if lower:
-            return value.lower()
-        if upper:
-            return value.upper()
-        return value
+            value = value.lower()
+        elif upper:
+            value = value.upper()
+        try:
+            validator(value, self)
+            return value
+        except ValueError as e:
+            raise HTTPBadRequest(f"Bad {key!r} parameter: {e}")
 
-    def get_str_list_param(self,
-                           key: str,
-                           lower: bool = False,
-                           upper: bool = False) -> List[str]:
+    def get_str_list_param(
+            self,
+            key: str,
+            lower: bool = False,
+            upper: bool = False,
+            validator: STRING_VALIDATOR_TYPE = validate_alphanum_underscore) \
+            -> List[str]:
         """
-        Returns a list of HTTP parameter values from the request.
+        Returns a list of HTTP parameter values from the request. Ensures all
+        have been validated.
 
         Args:
             key: the parameter's name
             lower: convert to lower case?
             upper: convert to upper case?
+            validator: validator function
 
         Returns:
             a list of string values
@@ -660,9 +675,15 @@ class CamcopsRequest(Request):
         """
         values = self.params.getall(key)
         if lower:
-            return [x.lower() for x in values]
-        if upper:
-            return [x.upper() for x in values]
+            values = [x.lower() for x in values]
+        elif upper:
+            values = [x.upper() for x in values]
+        try:
+            for v in values:
+                validator(v, self)
+        except ValueError as e:
+            raise HTTPBadRequest(
+                f"Parameter {key!r} contains a bad value: {e}")
         return values
 
     def get_int_param(self, key: str, default: int = None) -> Optional[int]:
@@ -712,18 +733,14 @@ class CamcopsRequest(Request):
         Returns:
             an integer, or ``default``
 
-        Valid "true" and "false" values (case-insensitive):
-
-        .. code-block:: none
-
-            "true", "t", "1", "yes", "y"
-            "false", "f", "0", "no", "n"
+        Valid "true" and "false" values (case-insensitive): see
+        ``TRUE_STRINGS_LOWER_CASE``, ``FALSE_STRINGS_LOWER_CASE``.
         """
         try:
             param_str = self.params[key].lower()
-            if param_str in ["true", "t", "1", "yes", "y"]:
+            if param_str in TRUE_STRINGS_LOWER_CASE:
                 return True
-            elif param_str in ["false", "f", "0", "no", "n"]:
+            elif param_str in FALSE_STRINGS_LOWER_CASE:
                 return False
             else:
                 return default
@@ -732,7 +749,8 @@ class CamcopsRequest(Request):
 
     def get_date_param(self, key: str) -> Optional[Date]:
         """
-        Returns a date parameter from the HTTP request.
+        Returns a date parameter from the HTTP request. If it is missing or
+        looks bad, return ``None``.
 
         Args:
             key: the parameter's name
@@ -747,7 +765,8 @@ class CamcopsRequest(Request):
 
     def get_datetime_param(self, key: str) -> Optional[Pendulum]:
         """
-        Returns a datetime parameter from the HTTP request.
+        Returns a datetime parameter from the HTTP request. If it is missing or
+        looks bad, return ``None``.
 
         Args:
             key: the parameter's name
@@ -760,10 +779,14 @@ class CamcopsRequest(Request):
         except (KeyError, ParserError, TypeError, ValueError):
             return None
 
-    def get_url_param(self, key: str, default: str = None) -> Optional[str]:
+    def get_redirect_url_param(self,
+                               key: str,
+                               default: str = None) -> Optional[str]:
         """
-        Returns a URL parameter from the HTTP request, validating it.
-        If it wasn't valid, return ``None``.
+        Returns a redirection URL parameter from the HTTP request, validating
+        it. (The validation process does not allow all types of URLs!)
+        If it was missing, return ``default``. If it was bad, raise
+        :exc:`pyramid.httpexceptions.HTTPBadRequest`.
 
         Args:
             key:
@@ -775,7 +798,8 @@ class CamcopsRequest(Request):
         Returns:
             a URL string, or ``default``
         """
-        return validate_url(self.get_str_param(key), default)
+        return self.get_str_param(key, default=default,
+                                  validator=validate_redirect_url)
 
     # -------------------------------------------------------------------------
     # Routing

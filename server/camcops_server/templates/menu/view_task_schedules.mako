@@ -53,10 +53,10 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 %for schedule in page:
     <tr>
         <td>
-            ${ schedule.group.name }
+            ${ schedule.group.name | h }
         </td>
         <td>
-            ${ schedule.name }
+            ${ schedule.name | h }
         </td>
         <td>
             <a href="${ req.route_url(
@@ -76,7 +76,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
         </td>
         <td>
         %for item in schedule.items:
-            ${ item.description(req) }<br>
+            ${ item.description(req) | h }<br>
         %endfor
         </td>
         <td>
@@ -95,11 +95,11 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 <div>${page.pager()}</div>
 
 <div>
-<a href="${ req.route_url(Routes.ADD_TASK_SCHEDULE) }">${_("Add a task schedule")}</a>
+    <a href="${ req.route_url(Routes.ADD_TASK_SCHEDULE) }">${_("Add a task schedule")}</a>
 </div>
 
 <div>
-<a href="${request.route_url(Routes.VIEW_PATIENT_TASK_SCHEDULES)}">${_("Manage scheduled tasks for patients")}</a>
+    <a href="${request.route_url(Routes.VIEW_PATIENT_TASK_SCHEDULES)}">${_("Manage scheduled tasks for patients")}</a>
 </div>
 
 <%include file="to_main_menu.mako"/>

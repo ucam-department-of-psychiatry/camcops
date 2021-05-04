@@ -3057,11 +3057,31 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
   - H1. "Cross-site scripting."
 
-    ***
+    - URLs (for a local test server) that did bad things:
+
+      .. code-block:: none
+
+        https://127.0.0.1:8088/report?report_id=diagnoses_finder_icd10&viewtype=html&rows_per_page=&page=1&which_idnum=1&diagnoses_inclusion=k88py%3e%3cinput%20type%3dtext%20autofocus%20onfocus%3dalert(1)%2f%2fttwcp&diagnoses_exclusion=%27%22%3E%3Csvg%2Fonload%3Dconfirm%285%29%3B%3E%7B%7B1337%2A1337%7D%7Df276e115d231089110f46050a3a77a39&age_minimum=1&age_maximum=2
+        https://127.0.0.1:8088/report?report_id=diagnoses_finder_icd10&viewtype=html&rows_per_page=&page=1&which_idnum=1&diagnoses_inclusion='%22%3e%3csvg%2fonload%3dconfirm(5)%3b%3e%7b%7b1337*1337%7d%7df276e115d231089110f46050a3a77a39ffeds%3cinput%20type%3dtext%20autofocus%20onfocus%3dalert(1)%2f%2fany2w&diagnoses_exclusion=%27%22%3E%3Csvg%2Fonload%3Dconfirm%285%29%3B%3E%7B%7B1337%2A1337%7D%7Df276e115d231089110f46050a3a77a39&age_minimum=1&age_maximum=2
+
+    - References:
+
+      - https://owasp.org/www-community/attacks/xss/ [very good overview]
+      - https://owasp.org/www-project-top-ten/OWASP_Top_Ten_2017/Top_10-2017_A7-Cross-Site_Scripting_(XSS)
+
+    - Note that these were only available to authenticated/authorized users;
+      but still concerning.
+
+    - RESPONSE:
+
+      - The execution aspects ceased to execute because when Content Security
+        Policy were turned up to maximum (see L2 below).
+      - All GET string parameters now go through validation (in
+        CamcopsRequest). That fixes these errors.
 
   - M1. "Weak password policies."
 
-    - ACTION: Tester wants 10-character minimum password length, not 8.
+    - Tester wants 10-character minimum password length, not 8.
     - Additional advisory re user education on how to pick strong passwords.
     - Note that the account lockout control makes direct password-guessing
       attacks unlikely, so obtaining passwords would require some sort of other
@@ -3111,22 +3131,22 @@ Current C++/SQLite client, Python/SQLAlchemy server
       - https://www.owasp.org/index.php/Forced_browsing
         ["Forced browsing is an attack where the aim is to enumerate and access
         resources that are not referenced by the application, but are still
-        accessible."
+        accessible."]
       - http://searchsecurity.techtarget.co.uk/answer/Forced-browsing-Understanding-and-halting-simple-browser-attacks
 
     - The relevant view is :func:`camcops_server.cc_modules.webview.view_ddl`.
       The menu item is in ``camcops_server/templates/menu/main_menu.mako``.
 
-    - RESPONSE: we dispute that this is a vulnerability, as this is open-source
-      software and the entire database structure is a matter of public record.
-      Denying it is only "security through obscurity". However, the menu
-      items are only presented to users with "dump" authority
+    - RESPONSE: we disagree that this was a vulnerability, as this is
+      open-source software and the entire database structure is a matter of
+      public record. Denying it is only "security through obscurity". However,
+      the menu items are only presented to users with "dump" authority
       (``User.authorized_to_dump``), so it is consistent to restrict to that
       group. Restricted accordingly.
 
   - L1. Software enumeration.
 
-    - They advise against releaseing any software version information in server
+    - They advise against releasing any software version information in server
       response headers or in banners of other services.
 
     - Reference:
@@ -3137,7 +3157,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
       - "Server: gunicorn/<VERSION>" in a happy (HTTP 200 OK) response.
       - "<address>Apache/<VERSION> (Ubuntu) Server at <HOSTNAME> Port
-        443</address" from a HTTP 404 Not Found page.
+        443</address>" from a HTTP 404 Not Found page.
 
     - CherryPy already had this locally configurable (with a default providing
       no version information) via the :ref:`CHERRYPY_SERVER_NAME
@@ -3212,7 +3232,16 @@ Current C++/SQLite client, Python/SQLAlchemy server
       as per
       https://stackoverflow.com/questions/7561315/alternative-to-body-onload-init/7561332
 
-    - RESPONSE: Implemented.
+    - RESPONSE: Implemented, as far as possible. See also below.
+
+    - Problem: Deform adds both ``<script>`` and ``<style>`` elements to
+      some of its widgets. These don't have the nonce, so don't execute. And
+      the ``<script>`` and ``<style>`` tags are quite embedded, e.g. in
+      ``deform/templates/form.pt``, with no obvious extensible options. See
+      https://github.com/RudolfCardinal/camcops/issues/162. At the moment,
+      CamCOPS does not use "maximum security" CSP headers. However, when Deform
+      supports this (https://github.com/Pylons/deform/issues/512), we can turn
+      them up via the ``DEFORM_SUPPORTS_CSP_NONCE`` switch in CamCOPS.
 
   - L3. "Form auto-complete active."
 
@@ -3240,7 +3269,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
     - RESPONSE: As it happens, we already make this user-configurable via the
       :ref:`DISABLE_PASSWORD_AUTOCOMPLETE <DISABLE_PASSWORD_AUTOCOMPLETE>`
-      option, and the default is true (i.e. the default is to set
+      option, for which the default is true (i.e. the default is to set
       ``autocomplete="off"`` for the password field).
 
   - L4. "Logout button not present on authenticated pages."
@@ -3307,7 +3336,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
       expand).
 
     - RESPONSE: not changed; low concern noted; but raised as a Deform issue at
-      https://github.com/Pylons/deform/issues/511.
+      https://github.com/Pylons/deform/issues/511, and tracked at
+      https://github.com/RudolfCardinal/camcops/issues/161.
 
 - Also fixed REDCap example for PHQ9 (from ``task.q10 + 1``, which could fail
   if ``q10`` was ``None``, to ``task.q10 + 1 if task.q10 is not None else

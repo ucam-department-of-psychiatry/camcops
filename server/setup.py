@@ -41,6 +41,9 @@ To install in development mode:
 import os
 from setuptools import setup, find_packages
 
+from camcops_server.cc_modules.cc_baseconstants import (
+    DEFORM_SUPPORTS_CSP_NONCE,
+)
 from camcops_server.cc_modules.cc_version_string import (
     CAMCOPS_SERVER_VERSION_STRING,
 )
@@ -71,7 +74,13 @@ INSTALL_REQUIRES = [
     'colander==1.7.0',  # serialization/deserialization from web forms
     'CherryPy==18.6.0',  # web server
 
-    'deform==2.0.15',  # web forms
+    (  # deform: web forms
+        'deform @ git+https://github.com/RudolfCardinal/deform@b40ea6ccf5fdd3116405e0d5233387bf34e20b37#egg=deform-3.0.0.dev0a'  # noqa
+        # ... "a" appended
+        if DEFORM_SUPPORTS_CSP_NONCE
+        else 'deform==2.0.15'
+    ),
+
     # 'deform-bootstrap==0.2.9',  # deform with layout made easier
     'distro==1.3.0',  # detecting Linux distribution  # REMOVE ONCE DOCKER PREFERRED  # noqa
     'dogpile.cache==0.9.2',  # web caching

@@ -1,16 +1,50 @@
+#!/usr/bin/env python
+
+"""
+camcops_server/conftest.py
+
+===============================================================================
+
+    Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
+
+    This file is part of CamCOPS.
+
+    CamCOPS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    CamCOPS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+
+===============================================================================
+
+**Configure server self-tests for Pytest.**
+
+"""
+
 # https://gist.githubusercontent.com/kissgyorgy/e2365f25a213de44b9a2/raw/f8b5bbf06c4969bc6bbe5316defef64137c9b1e3/sqlalchemy_conftest.py
 
 import os
 import tempfile
 from typing import Generator, TYPE_CHECKING
 
+import pytest
+from sqlalchemy import event
+from sqlalchemy.orm import Session
+
+import camcops_server.cc_modules.cc_all_models  # import side effects (ensure all models registered)  # noqa: F401,E501
+from camcops_server.cc_modules.cc_baseconstants import CAMCOPS_SERVER_DIRECTORY
 from camcops_server.cc_modules.cc_sqlalchemy import (
+    Base,
     make_memory_sqlite_engine,
     make_file_sqlite_engine,
 )
-from sqlalchemy import event
-from sqlalchemy.orm import Session
-import pytest
 
 if TYPE_CHECKING:
     from sqlalchemy.engine.base import Engine
@@ -19,11 +53,9 @@ if TYPE_CHECKING:
     from _pytest.config.argparsing import Parser
     from _pytest.fixtures import FixtureRequest
 
-import camcops_server.cc_modules.cc_all_models  # import side effects (ensure all models registered)  # noqa: F401,E501
-from camcops_server.cc_modules.cc_sqlalchemy import Base
 
-SERVER_DIR = os.path.dirname(os.path.realpath(__file__))
-TEST_DATABASE_FILENAME = os.path.join(SERVER_DIR, "camcops_test.sqlite")
+TEST_DATABASE_FILENAME = os.path.join(CAMCOPS_SERVER_DIRECTORY,
+                                      "camcops_test.sqlite")
 
 
 def pytest_addoption(parser: "Parser"):
@@ -53,6 +85,7 @@ def pytest_addoption(parser: "Parser"):
     )
 
 
+# noinspection PyUnusedLocal
 def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor = dbapi_connection.cursor()
     cursor.execute("PRAGMA foreign_keys=ON")
@@ -80,6 +113,7 @@ def echo(request: "FixtureRequest") -> bool:
     return request.config.getvalue("echo")
 
 
+# noinspection PyUnusedLocal
 @pytest.fixture(scope="session")
 def tmpdir_obj(request: "FixtureRequest") -> Generator[
         tempfile.TemporaryDirectory, None, None]:
@@ -91,6 +125,7 @@ def tmpdir_obj(request: "FixtureRequest") -> Generator[
 
 
 # https://gist.githubusercontent.com/kissgyorgy/e2365f25a213de44b9a2/raw/f8b5bbf06c4969bc6bbe5316defef64137c9b1e3/sqlalchemy_conftest.py
+# noinspection PyUnusedLocal
 @pytest.fixture(scope="session")
 def engine(request: "FixtureRequest",
            create_db: bool,
@@ -113,11 +148,11 @@ def engine(request: "FixtureRequest",
     engine.dispose()
 
 
+# noinspection PyUnusedLocal
 @pytest.fixture(scope="session")
-def tables(
-        request: "FixtureRequest",
-        engine: "Engine",
-        create_db: bool) -> Generator[None, None, None]:
+def tables(request: "FixtureRequest",
+           engine: "Engine",
+           create_db: bool) -> Generator[None, None, None]:
     if create_db:
         Base.metadata.create_all(engine)
     yield
@@ -129,6 +164,7 @@ def tables(
     # after running the tests
 
 
+# noinspection PyUnusedLocal
 @pytest.fixture
 def dbsession(request: "FixtureRequest",
               engine: "Engine",

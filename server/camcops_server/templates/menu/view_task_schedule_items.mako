@@ -37,7 +37,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 
 <%include file="db_user_info.mako"/>
 
-<h1>${_("Task schedule items for {schedule_name}").format(schedule_name=schedule_name)}</h1>
+<h1>${_("Task schedule items for {schedule_name}").format(schedule_name=schedule_name) | h}</h1>
 
 <div>${page.pager()}</div>
 
@@ -52,7 +52,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 %for item in page:
     <tr>
         <td>
-            ${ item.task_shortname }
+            ${ item.task_shortname | h }
         </td>
         <td>
             ${ item.due_from.in_days() }

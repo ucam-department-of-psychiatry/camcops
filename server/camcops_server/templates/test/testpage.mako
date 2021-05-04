@@ -61,7 +61,7 @@ camcops_server/templates/test/testpage.mako
     <pre>${pprint.pformat(dir(request)) | h}</pre>
 
     callers:<br>
-    <pre>${show_call_stack()}</pre>
+    <pre>${show_call_stack() | h}</pre>
 
     ## See also:
     ## http://docs.makotemplates.org/en/latest/runtime.html#all-the-built-in-names

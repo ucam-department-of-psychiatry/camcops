@@ -117,6 +117,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
             ## Content
             ## ----------------------------------------------------------------
             %for ctvinfo in ctvinfo_list:
+                <!-- These are not escaped here; see CtvInfo. -->
                 %if ctvinfo.heading:
                     <div class="ctv_fieldheading">${ ctvinfo.heading }</div>
                 %endif

@@ -64,8 +64,6 @@ from wsgiref.simple_server import make_server  # noqa: E402
 from cardinal_pythonlib.fileops import mkdir_p  # noqa: E402
 from cardinal_pythonlib.process import nice_call  # noqa: E402
 from cardinal_pythonlib.ui_commandline import ask_user, ask_user_password  # noqa: E402,E501
-# from cardinal_pythonlib.wsgi.constants import TYPE_WSGI_APP  # noqa: E402,E501
-from cardinal_pythonlib.wsgi.headers_mw import AddHeadersMiddleware  # noqa: E402,E501
 from cardinal_pythonlib.wsgi.request_logging_mw import RequestLoggingMiddleware  # noqa: E402,E501
 from cardinal_pythonlib.wsgi.reverse_proxied_mw import (  # noqa: E402
     ReverseProxiedConfig,
@@ -91,7 +89,6 @@ from camcops_server.cc_modules.cc_constants import (  # noqa: E402
     ConfigDefaults,
     DEFAULT_FLOWER_ADDRESS,
     DEFAULT_FLOWER_PORT,
-    MINIMUM_PASSWORD_LENGTH,
     USER_NAME_FOR_SYSTEM,
 )
 from camcops_server.cc_modules.cc_exception import raise_runtime_error  # noqa: E402,E501
@@ -99,7 +96,6 @@ from camcops_server.cc_modules.cc_export import (  # noqa: E402
     print_export_queue,
     export,
 )
-from camcops_server.cc_modules.cc_password import password_prohibited  # noqa: E402,E501
 from camcops_server.cc_modules.cc_pyramid import RouteCollection  # noqa: E402
 from camcops_server.cc_modules.cc_request import (  # noqa: E402
     CamcopsRequest,
@@ -118,6 +114,7 @@ from camcops_server.cc_modules.cc_user import (  # noqa: E402
     set_password_directly,
     User,
 )
+from camcops_server.cc_modules.cc_validators import validate_new_password  # noqa: E402,E501
 from camcops_server.cc_modules.celery import (  # noqa: E402
     CELERY_APP_NAME,
     CELERY_SOFT_TIME_LIMIT_SEC,
@@ -277,87 +274,7 @@ def make_wsgi_app(debug_toolbar: bool = False,
             static_cache_duration_s=static_cache_duration_s) as config:
         app = config.make_wsgi_app()
 
-    # Middleware above the Pyramid level
-
-    # noinspection PyTypeChecker
-    app = AddHeadersMiddleware(app, headers=[
-        # ---------------------------------------------------------------------
-        # Prevent rendering within a frame
-        # ---------------------------------------------------------------------
-        # - Recommended by ZAP penetration testing.
-        #   ... otherwise, the error is "X-Frame-Options Header Not Set"
-        # - https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options  # noqa
-
-        ("X-Frame-Options", "DENY"),
-
-        # ---------------------------------------------------------------------
-        # Opt out of MIME type sniffing
-        # ---------------------------------------------------------------------
-        # - Recommended by ZAP penetration testing.
-        #   ... otherwise, the error is "X-Content-Type-Options Header Missing"
-        # - https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options  # noqa
-
-        ("X-Content-Type-Options", "nosniff"),
-
-        # ---------------------------------------------------------------------
-        # Caching
-        # ---------------------------------------------------------------------
-        # NOT THIS:
-        #       ("Cache-Control", "no-cache, no-store, must-revalidate"),
-        # ... or "Incomplete or No Cache-control and Pragma HTTP Header Set"
-        # ... note that Pragma is HTTP/1.0 and cache-control is HTTP/1.1, so
-        #     you don't have to do both.
-        # BUT that prevents caching of images (e.g. logos), and we don't want
-        # that.
-        #
-        # The Pyramid @view_config decorator (or add_view function) takes an
-        # "http_cache" parameter, as per
-        # https://pyramid-pt-br.readthedocs.io/en/latest/api/config.html#pyramid.config.Configurator.add_view  # noqa
-        # and it looks like viewderivers.py implements this. The default does
-        # not set the HTTP "cache-control" header, explained at
-        # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control  # noqa
-        # The basic options are:
-        # - 0: do not cache
-        # - integer_seconds, or datetime.timedelta: lifespan
-        # - tuple (lifespan, dictionary_of_extra_cache_control_details)
-        # - tuple (None, dictionary_of_extra_cache_control_details)
-        # We now set http_cache for all our views via view_config, as well as
-        # the equivalent of using cache_max_age for add_static_view().
-        #
-        # However, this (as an additional Cache-Control header -- as well as
-        # any "cache, it's static" or "don't cache" header) sorts out any ZAP
-        # complaints:
-
-        ("Cache-Control", 'no-cache="Set-Cookie, Set-Cookie2"'),
-
-        # ---------------------------------------------------------------------
-        # Check for cross-site scripting attacks
-        # ---------------------------------------------------------------------
-        # - Recommended by Falanx penetration testing.
-        # - https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection  # noqa
-
-        ("X-XSS-Protection", "1"),
-
-        # ---------------------------------------------------------------------
-        # Control resources that are permitted to load, to mitigate against
-        # cross-site scripting attacks
-        # ---------------------------------------------------------------------
-        # - Content-Security-Policy.
-        # - This involves setting a nonce, so is done on the fly. See
-        #   CamcopsResponse.
-
-        # ---------------------------------------------------------------------
-        # Enforce HTTPS through the client.
-        # ---------------------------------------------------------------------
-        # - In part this is by e.g. telling Google (and thus Chrome) that your
-        #   site always uses HTTPS, to prevent HTTP-based spoofing.
-        # - https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security  # noqa
-        # - Advice is at
-        #   https://blog.qualys.com/vulnerabilities-research/2016/03/28/the-importance-of-a-proper-http-strict-transport-security-implementation-on-your-web-server  # noqa
-
-        ("Strict-Transport-Security", "max-age=31536000"),
-
-    ])  # type: Router
+    # Add any middleware above the Pyramid level:
 
     if show_requests:
         # noinspection PyTypeChecker
@@ -618,15 +535,10 @@ def get_new_password_from_cli(username: str) -> str:
     """
     while True:
         password1 = ask_user_password(f"New password for user {username}")
-        if not password1:
-            log.error("... passwords can't be blank")
-            continue
-        elif len(password1) < MINIMUM_PASSWORD_LENGTH:
-            log.error("... passwords can't be shorter than {} characters",
-                      MINIMUM_PASSWORD_LENGTH)
-            continue
-        if password_prohibited(password1):
-            log.error("... that password is used too commonly; try again")
+        try:
+            validate_new_password(password1)
+        except ValueError as e:
+            log.error(str(e))
             continue
         password2 = ask_user_password(
             f"New password for user {username} (again)")

@@ -25,6 +25,7 @@ camcops_server/cc_modules/tests/cc_tracker_tests.py
 ===============================================================================
 
 """
+
 from camcops_server.cc_modules.cc_simpleobjects import IdNumReference
 from camcops_server.cc_modules.cc_taskcollection import TaskFilter
 from camcops_server.cc_modules.cc_tracker import ClinicalTextView, Tracker

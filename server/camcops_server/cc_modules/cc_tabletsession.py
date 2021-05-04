@@ -45,6 +45,11 @@ from camcops_server.cc_modules.cc_constants import (
 )
 from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_pyramid import RequestMethod
+from camcops_server.cc_modules.cc_validators import (
+    validate_anything,
+    validate_device_name,
+    validate_username,
+)
 from camcops_server.cc_modules.cc_version import (
     FIRST_CPP_TABLET_VER,
     FIRST_TABLET_VER_WITH_SEPARATE_IDNUM_TABLE,
@@ -77,12 +82,20 @@ class TabletSession(object):
         # Read key things
         self.req = req
         self.operation = req.get_str_param(TabletParam.OPERATION)
-        self.device_name = req.get_str_param(TabletParam.DEVICE)
-        self.username = req.get_str_param(TabletParam.USER)
-        self.password = req.get_str_param(TabletParam.PASSWORD)
+        try:
+            self.device_name = req.get_str_param(
+                TabletParam.DEVICE, validator=validate_device_name)
+            self.username = req.get_str_param(
+                TabletParam.USER, validator=validate_username)
+        except ValueError as e:
+            fail_user_error(str(e))
+        self.password = req.get_str_param(
+            TabletParam.PASSWORD, validator=validate_anything)
         self.session_id = req.get_int_param(TabletParam.SESSION_ID)
-        self.session_token = req.get_str_param(TabletParam.SESSION_TOKEN)
-        self.tablet_version_str = req.get_str_param(TabletParam.CAMCOPS_VERSION)  # noqa
+        self.session_token = req.get_str_param(
+            TabletParam.SESSION_TOKEN, validator=validate_anything)
+        self.tablet_version_str = req.get_str_param(
+            TabletParam.CAMCOPS_VERSION, validator=validate_anything)
         try:
             self.tablet_version_ver = make_version(self.tablet_version_str)
         except ValueError:

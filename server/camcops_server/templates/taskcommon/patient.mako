@@ -30,7 +30,7 @@ camcops_server/templates/taskcommon/patient.mako
 
 <div class="patient">
     <b>${ patient.get_surname_forename_upper() | h}</b>
-        (${ patient.get_sex_verbose() })
+        (${ patient.get_sex_verbose() | h })
         ${ patient.get_dob_html(req, longform=True)}
     %for pt_id_num in patient.idnums:
         <!-- ID${ pt_id_num.which_idnum } -->

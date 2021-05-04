@@ -45,6 +45,7 @@ camcops_server/templates/base/base_web_form.mako
     ## For "${parent.BLOCKNAME()}" see http://docs.makotemplates.org/en/latest/inheritance.html#parent-namespace
 
     <script nonce="${request.nonce}">
+        // Required by Deform:
         document.addEventListener("DOMContentLoaded", deform.load, false);
     </script>
 </%block>
