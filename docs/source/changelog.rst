@@ -3114,8 +3114,12 @@ Current C++/SQLite client, Python/SQLAlchemy server
       https://httpd.apache.org/security/vulnerabilities_24.html -- on
       2021-04-30, the latest security-fix version is 2.4.44.
 
-    - RESPONSE: No changes required in CamCOPS; this is a front-end server
-      issue that will be fixed separately.
+    - RESPONSE:
+
+      - The latest version of Apache 2.4.41 packaged with Ubuntu has fixes for
+        the two vulnerabilities (CVE-2020-1927 and CVE-2020-1934) backported
+        (http://changelogs.ubuntu.com/changelogs/pool/main/a/apache2/apache2_2.4.41-4ubuntu3.1/changelog)
+      - No action required
 
   - M3. "Forced browsing via URL manipulation."
 
