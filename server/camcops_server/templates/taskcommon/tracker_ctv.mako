@@ -75,7 +75,7 @@ def inherit_file(context):
 ## ============================================================================
 
 <div class="trackerheader">
-    ${_("Patient identified by:")} <b>${ ("; ".join(x.description(request) for x in tracker.taskfilter.idnum_criteria) + ".") }</b>
+    ${_("Patient identified by:")} <b>${ ("; ".join(x.description(request) for x in tracker.taskfilter.idnum_criteria) + ".") | h }</b>
     ${_("Date range for search:")} <b>${ format_daterange(tracker.taskfilter.start_datetime, tracker.taskfilter.end_datetime) }</b>.
     ${_("The tracker information will <b>only be valid</b> (i.e. will only be from only one patient!) if all contributing tablet devices use these identifiers consistently. The consistency check is below. The patient information shown below is taken from the first task used.")}
 </div>

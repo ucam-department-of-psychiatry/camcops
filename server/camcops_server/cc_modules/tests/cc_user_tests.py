@@ -78,7 +78,7 @@ class UserTests(DemoDatabaseTestCase):
         g = self.dbsession.query(Group).first()  # type: Group
         assert g, "Missing group in demo database!"
 
-        self.assertIsInstance(u.is_password_valid("dummy_password"), bool)
+        self.assertIsInstance(u.is_password_correct("dummy_password"), bool)
         self.assertIsInstance(u.must_agree_terms, bool)
         u.agree_terms(req)
         u.clear_login_failures(req)

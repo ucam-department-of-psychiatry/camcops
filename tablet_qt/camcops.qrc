@@ -194,5 +194,6 @@
         <file>resources/camcops/images/service_evaluation.png</file>
         <file>resources/camcops/images/physical.png</file>
         <file>resources/moca/missing.png</file>
+        <file>resources/camcops/prohibited_passwords/PwnedPasswordsTop100k.txt</file>
     </qresource>
 </RCC>

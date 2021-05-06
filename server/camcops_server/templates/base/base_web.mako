@@ -45,28 +45,25 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 
 <%block name="extra_head_start">
     ${parent.extra_head_start()}
-    <script src="${request.static_url('deform:static/scripts/jquery-2.0.3.min.js')}"
-            type="text/javascript"></script>
-    <script src="${request.static_url('deform:static/scripts/bootstrap.min.js')}"
-            type="text/javascript"></script>
+    <script src="${request.static_url('deform:static/scripts/jquery-2.0.3.min.js')}"></script>
+    <script src="${request.static_url('deform:static/scripts/bootstrap.min.js')}"></script>
     <link rel="stylesheet"
           href="${request.static_url('deform:static/css/bootstrap.min.css')}"
-          type="text/css" media="screen"/>
+          media="screen"/>
 </%block>
-
 
 <%block name="messages">
     <ul class="flash_messages">
-    % for queue in ("danger", "warning", "info", "success"):
-        % for message in request.session.pop_flash(queue):
+    %for queue in ("danger", "warning", "info", "success"):
+        %for message in request.session.pop_flash(queue):
             <li class="alert alert-${queue} alert-dismissable show" role="alert">
                 <strong>${ message }</strong>
                 <button type="button" class="close" data-dismiss="alert" aria-label="${_("Close")}">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </li>
-        % endfor
-    % endfor
+        %endfor
+    %endfor
     </ul>
 </%block>
 

@@ -196,31 +196,6 @@ The problem goes away using “pymysql” rather than “mysqldb”, so try this
     DB_URL = mysql+pymysql://username:password@127.0.0.1:3306/database?charset=utf8mb4
 
 
-Missing file in Deform package
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Exceptions/warning occur as follows:
-
-::
-
-    pyramid.httpexceptions.HTTPNotFound: https://127.0.0.1:8000/deform_static/fonts/glyphicons-halflings-regular.woff2
-
-Reason: CamCOPS correctly registers a static view at `/deform_static` which
-refers to `deform:static/`; this means “look within the ‘deform’ package for the
-directory `static/`”. This is correct. The file
-`glyphicons-halflings-regular.woff2` is simply missing from the `static/fonts`
-directory in deform==2.0.4. Similar problems elsewhere:
-https://github.com/aspnet/Home/issues/959.
-
-Solution implemented: fetch the file from
-http://ajax.aspnetcdn.com/ajax/bootstrap/3.3.2/fonts/glyphicons-halflings-regular.woff2
-and route from `/deform_static/fonts/glyphicons-halflings-regular.woff2`
-to a manual view providing the file.
-
-There’s another bootstrap symbol debugging file missing, but I’ve not bothered
-with that one yet (I’m not sure exactly which version is required).
-
-
 Hardware FAQs: Sony Xperia Z2 tablet
 ------------------------------------
 

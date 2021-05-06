@@ -24,12 +24,12 @@ camcops_server/cc_modules/tests/cc_sqla_coltypes_tests.py
 
 ===============================================================================
 """
+
 import datetime
 from typing import Union
 import unittest
-from cardinal_pythonlib.datetimefunc import (
-    coerce_to_pendulum,
-)
+
+from cardinal_pythonlib.datetimefunc import coerce_to_pendulum
 from cardinal_pythonlib.sqlalchemy.session import SQLITE_MEMORY_URL
 from pendulum import DateTime as Pendulum, Duration
 from semantic_version import Version

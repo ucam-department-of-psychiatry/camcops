@@ -52,10 +52,10 @@ h2, h3 {
 
     <p>
         %if start_datetime:
-            ${_("Created")} <b>&ge; ${ start_datetime }</b>.
+            ${_("Created")} <b>&ge; ${ start_datetime | h }</b>.
         %endif
         %if end_datetime:
-            ${_("Created")} <b>&lt; ${ end_datetime }</b>.
+            ${_("Created")} <b>&lt; ${ end_datetime | h }</b>.
         %endif
     </p>
 

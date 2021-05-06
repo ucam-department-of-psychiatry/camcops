@@ -280,7 +280,7 @@ respectively.
                     <field name="phq9_7" formula="task.q7" />
                     <field name="phq9_8" formula="task.q8" />
                     <field name="phq9_9" formula="task.q9" />
-                    <field name="phq9_how_difficult" formula="task.q10 + 1" />
+                    <field name="phq9_how_difficult" formula="task.q10 + 1 if task.q10 is not None else None" />
                     <field name="phq9_total_score" formula="task.total_score()" />
                     <field name="phq9_first_name" formula="task.patient.forename" />
                     <field name="phq9_last_name" formula="task.patient.surname" />

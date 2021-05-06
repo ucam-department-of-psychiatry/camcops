@@ -60,7 +60,7 @@ h2, h3 {
     </p>
 
     %for table in tables:
-    <h2>${ table.heading }</h2>
+    <h2>${ table.heading | h }</h2>
 
     <%include file="table.mako" args="column_headings=table.column_headings, rows=table.rows, escape_cells=False"/>
 

@@ -51,7 +51,7 @@ from camcops_server.cc_modules.cc_text import SS
     %endif
 %else:
     <div class="patient">
-        ${ req.sstring(SS.ANONYMOUS_TASK) }
+        ${ req.sstring(SS.ANONYMOUS_TASK) | h }
     </div>
 %endif
 

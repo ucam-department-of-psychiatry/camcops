@@ -570,7 +570,7 @@ class User(Base):
                 # time:
                 cls.take_some_time_mimicking_password_encryption()
             return None
-        if not user.is_password_valid(password):
+        if not user.is_password_correct(password):
             return None
         return user
 
@@ -617,7 +617,7 @@ class User(Base):
         self.must_change_password = False
         audit(req, "Password changed for user " + self.username)
 
-    def is_password_valid(self, password: str) -> bool:
+    def is_password_correct(self, password: str) -> bool:
         """
         Is the supplied password valid for this user?
         """
