@@ -100,7 +100,7 @@ class TaskScheduleSchemaTests(DemoDatabaseTestCase):
         schema = TaskScheduleSchema().bind(request=self.req)
         appstruct = {
             ViewParam.NAME: "test",
-            ViewParam.GROUP_ID: "1",
+            ViewParam.GROUP_ID: str(self.group.id),
             ViewParam.EMAIL_SUBJECT: "Subject",
             ViewParam.EMAIL_TEMPLATE: "{bad_key}",
         }
@@ -116,7 +116,7 @@ class TaskScheduleSchemaTests(DemoDatabaseTestCase):
         schema = TaskScheduleSchema().bind(request=self.req)
         appstruct = {
             ViewParam.NAME: "test",
-            ViewParam.GROUP_ID: "1",
+            ViewParam.GROUP_ID: str(self.group.id),
             ViewParam.EMAIL_SUBJECT: "Subject",
             ViewParam.EMAIL_TEMPLATE: "{server_url",
         }

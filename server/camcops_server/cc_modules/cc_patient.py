@@ -203,7 +203,10 @@ class Patient(GenericTabletRecordMixin, Base):
 
     task_schedules = relationship(
         "PatientTaskSchedule",
-        back_populates="patient")  # type: List[PatientTaskSchedule]
+        back_populates="patient",
+        cascade="all, delete",
+        passive_deletes=True
+    )  # type: List[PatientTaskSchedule]
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # THE FOLLOWING ARE DEFUNCT, AND THE SERVER WORKS AROUND OLD TABLETS IN

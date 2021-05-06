@@ -9,6 +9,7 @@ from camcops_server.cc_modules.cc_sqlalchemy import (
     make_file_sqlite_engine,
 )
 from sqlalchemy import event
+from sqlalchemy.engine import create_engine
 from sqlalchemy.orm import Session
 import pytest
 
@@ -42,6 +43,14 @@ def pytest_addoption(parser: "Parser"):
         dest="create_db",
         default=False,
         help="Create the database even if it already exists"
+    )
+
+    parser.addoption(
+        "--mysql",
+        action="store_true",
+        dest="mysql",
+        default=False,
+        help="Use MySQL database test_camcops instead of sqlite"
     )
 
     parser.addoption(
@@ -81,6 +90,11 @@ def echo(request: "FixtureRequest") -> bool:
 
 
 @pytest.fixture(scope="session")
+def mysql(request: "FixtureRequest") -> bool:
+    return request.config.getvalue("mysql")
+
+
+@pytest.fixture(scope="session")
 def tmpdir_obj(request: "FixtureRequest") -> Generator[
         tempfile.TemporaryDirectory, None, None]:
     tmpdir_obj = tempfile.TemporaryDirectory()
@@ -90,24 +104,37 @@ def tmpdir_obj(request: "FixtureRequest") -> Generator[
     tmpdir_obj.cleanup()
 
 
-# https://gist.githubusercontent.com/kissgyorgy/e2365f25a213de44b9a2/raw/f8b5bbf06c4969bc6bbe5316defef64137c9b1e3/sqlalchemy_conftest.py
+# https://gist.github.com/kissgyorgy/e2365f25a213de44b9a2
+# Author says "no [license], feel free to use it"
 @pytest.fixture(scope="session")
 def engine(request: "FixtureRequest",
            create_db: bool,
            database_on_disk: bool,
-           echo: bool) -> Generator["Engine", None, None]:
-    if create_db and database_on_disk:
-        try:
-            os.remove(TEST_DATABASE_FILENAME)
-        except OSError:
-            pass
+           echo: bool,
+           mysql: bool) -> Generator["Engine", None, None]:
 
-    if database_on_disk:
-        engine = make_file_sqlite_engine(TEST_DATABASE_FILENAME,
-                                         echo=echo)
+    if mysql:
+        # Database test_camcops needs to exist along with user 'camcops' with
+        # password 'camcops':
+        # mysql> CREATE DATABASE test_camcops
+        # mysql> GRANT ALL PRIVILEGES ON `test_camcops`.*
+        #        TO `camcops`@`localhost` IDENTIFIED BY `camcops`;
+        db_url = ("mysql+mysqldb://camcops:camcops@localhost:3306/test_camcops"
+                  "?charset=utf8")
+        engine = create_engine(db_url, echo=echo, pool_pre_ping=True)
     else:
-        engine = make_memory_sqlite_engine(echo=echo)
-    event.listen(engine, "connect", set_sqlite_pragma)
+        if create_db and database_on_disk:
+            try:
+                os.remove(TEST_DATABASE_FILENAME)
+            except OSError:
+                pass
+
+        if database_on_disk:
+            engine = make_file_sqlite_engine(TEST_DATABASE_FILENAME,
+                                             echo=echo)
+        else:
+            engine = make_memory_sqlite_engine(echo=echo)
+        event.listen(engine, "connect", set_sqlite_pragma)
 
     yield engine
     engine.dispose()

@@ -101,11 +101,13 @@ class PatientTaskSchedule(Base):
     id = Column("id", Integer, primary_key=True, autoincrement=True)
     patient_pk = Column(
         "patient_pk", Integer,
-        ForeignKey("patient._pk", ondelete="CASCADE")
+        ForeignKey("patient._pk", ondelete="CASCADE"),
+        nullable=False,
     )
     schedule_id = Column(
         "schedule_id", Integer,
-        ForeignKey("_task_schedule.id", ondelete="CASCADE")
+        ForeignKey("_task_schedule.id", ondelete="CASCADE"),
+        nullable=False,
     )
     start_datetime = Column(
         "start_datetime", PendulumDateTimeAsIsoTextColType,
@@ -119,8 +121,14 @@ class PatientTaskSchedule(Base):
         comment="Task-specific settings for this patient"
     )
 
-    patient = relationship("Patient", back_populates="task_schedules")
-    task_schedule = relationship("TaskSchedule", back_populates="patients")
+    patient = relationship(
+        "Patient",
+        back_populates="task_schedules"
+    )
+    task_schedule = relationship(
+        "TaskSchedule",
+        back_populates="patients"
+    )
 
     def get_list_of_scheduled_tasks(self, req: "CamcopsRequest") \
             -> List[ScheduledTaskInfo]:
@@ -301,7 +309,8 @@ class TaskScheduleItem(Base):
     )
 
     schedule_id = Column(
-        "schedule_id", Integer, ForeignKey(TaskSchedule.id),
+        "schedule_id", Integer, ForeignKey(TaskSchedule.id,
+                                           ondelete="CASCADE"),
         nullable=False,
         comment="FK to {}.{}".format(TaskSchedule.__tablename__,
                                      TaskSchedule.id.name)

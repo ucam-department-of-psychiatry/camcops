@@ -46,6 +46,46 @@ from camcops_server.cc_modules.cc_unittest import (
 # Unit tests
 # =============================================================================
 
+class TaskScheduleTests(DemoDatabaseTestCase):
+    def test_deleting_deletes_related_objects(self) -> None:
+        schedule = TaskSchedule()
+        schedule.group_id = self.group.id
+        self.dbsession.add(schedule)
+        self.dbsession.flush()
+
+        item = TaskScheduleItem()
+        item.schedule_id = schedule.id
+        item.task_table_name = "ace3"
+        item.due_from = Duration(days=30)
+        item.due_by = Duration(days=60)
+        self.dbsession.add(item)
+        self.dbsession.flush()
+
+        patient = self.create_patient()
+
+        pts = PatientTaskSchedule()
+        pts.schedule_id = schedule.id
+        pts.patient_pk = patient.pk
+        self.dbsession.add(pts)
+        self.dbsession.commit()
+
+        self.assertIsNotNone(self.dbsession.query(TaskScheduleItem).filter(
+            TaskScheduleItem.id == item.id).one_or_none())
+        self.assertIsNotNone(self.dbsession.query(PatientTaskSchedule).filter(
+            PatientTaskSchedule.id == pts.id).one_or_none())
+
+        self.dbsession.delete(schedule)
+        self.dbsession.commit()
+
+        import ipdb
+        ipdb.set_trace()
+
+        self.assertIsNone(self.dbsession.query(TaskScheduleItem).filter(
+            TaskScheduleItem.id == item.id).one_or_none())
+        self.assertIsNone(self.dbsession.query(PatientTaskSchedule).filter(
+            PatientTaskSchedule.id == pts.id).one_or_none())
+
+
 class TaskScheduleItemTests(DemoRequestTestCase):
     def test_description_shows_shortname_and_number_of_days(self) -> None:
         item = TaskScheduleItem()
