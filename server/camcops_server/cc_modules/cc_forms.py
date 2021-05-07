@@ -213,11 +213,11 @@ from camcops_server.cc_modules.cc_taskschedule import (
 )
 from camcops_server.cc_modules.cc_validators import (
     ALPHANUM_UNDERSCORE_CHAR,
+    validate_anything,
     validate_by_char_and_length,
     validate_group_name,
     validate_hl7_aa,
     validate_hl7_id_type,
-    validate_human_name,
     validate_ip_address,
     validate_new_password,
     validate_redirect_url,
@@ -2289,8 +2289,15 @@ class DevicesSequence(SequenceSchema, RequestAwareMixin):
 class OptionalPatientNameNode(OptionalStringNode, RequestAwareMixin):
     def validator(self, node: SchemaNode, value: str) -> None:
         try:
-            validate_human_name(value, self.request)
+            # TODO: Validating human names is hard.
+            # Decide if validation here is necessary and whether it should
+            # be configurable.
+            # validate_human_name(value, self.request)
+
+            # Does nothing but better to be explicit
+            validate_anything(value, self.request)
         except ValueError as e:
+            # Should never happen with validate_anything
             raise Invalid(node, str(e))
 
 
