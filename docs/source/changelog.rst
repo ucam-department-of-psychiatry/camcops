@@ -3049,7 +3049,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Support for macOS client
 
-**Client and server v2.4.6, IN PROGRESS**
+**Client and server v2.4.6, released 7 Mar 2021**
 
 - Fixes for penetration testing, per report by Falanx Cyber Defence Ltd, 28 Apr
   2021 (reference  FB05540-CP05394, commissioned by CPFT). Vulnerabilities
@@ -3356,3 +3356,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Removed title string from
   :class:`camcops_server.cc_modules.cc_forms.CSRFToken`. Generally that was
   hidden but it appeared in some circumstances.
+
+**Client and server v2.4.7, IN PROGRESS**
