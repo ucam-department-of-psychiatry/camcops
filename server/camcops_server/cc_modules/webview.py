@@ -20,7 +20,7 @@ camcops_server/cc_modules/webview.py
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 
 ===============================================================================
 
@@ -509,6 +509,23 @@ def test_page_3(req: "CamcopsRequest") -> Dict[str, Any]:
     A private test page that tests template inheritance.
     """
     return {}
+
+
+# noinspection PyUnusedLocal
+@view_config(route_name=Routes.TESTPAGE_PRIVATE_4,
+             permission=Permission.SUPERUSER,
+             renderer="test_template_filters.mako",
+             http_cache=NEVER_CACHE)
+def test_page_4(req: "CamcopsRequest") -> Dict[str, Any]:
+    """
+    A private test page that tests Mako filtering.
+    """
+    return dict(
+        test_strings=[
+            "plain",
+            "normal <b>bold</b> normal",
+        ],
+    )
 
 
 # noinspection PyUnusedLocal,PyTypeChecker

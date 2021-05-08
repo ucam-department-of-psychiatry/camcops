@@ -20,7 +20,7 @@ camcops_server/cc_modules/cc_request.py
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 
 ===============================================================================
 
@@ -623,8 +623,8 @@ class CamcopsRequest(Request):
             -> Optional[str]:
         """
         Returns an HTTP parameter from the request (GET or POST). If it does
-        not exist, return ``default``. If it fails the validator, raise
-        :exc:`pyramid.httpexceptions.HTTPBadRequest`.
+        not exist, or is blank, return ``default``. If it fails the validator,
+        raise :exc:`pyramid.httpexceptions.HTTPBadRequest`.
 
         Args:
             key: the parameter's name
@@ -638,9 +638,11 @@ class CamcopsRequest(Request):
 
         """
         # HTTP parameters are always strings at heart
-        if key not in self.params:
+        if key not in self.params:  # missing from request?
             return default
         value = self.params.get(key)
+        if not value:  # blank, e.g. "source=" in URL?
+            return default
         assert isinstance(value, str)  # ... or we wouldn't have got here
         if lower:
             value = value.lower()
