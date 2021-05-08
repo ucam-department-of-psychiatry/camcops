@@ -91,7 +91,7 @@ Quick tutorial on Pyramid views:
         request.params
 
             ... parameters from HTTP GET or POST, including both the query
-            string (as in http://somewhere/path?key=value) and the body (e.g.
+            string (as in https://somewhere/path?key=value) and the body (e.g.
             POST).
 
         request.matchdict

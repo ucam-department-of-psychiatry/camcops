@@ -60,7 +60,7 @@ Let's use a single row, based on a fixed PK (of 1).
 On some databases, you can constrain the PK value to enforce "one row only";
 MySQL isn't one of those.
 
-- http://docs.sqlalchemy.org/en/latest/core/constraints.html#check-constraint
+- https://docs.sqlalchemy.org/en/latest/core/constraints.html#check-constraint
 
 - https://stackoverflow.com/questions/3967372/sql-server-how-to-constrain-a-table-to-contain-a-single-row
 

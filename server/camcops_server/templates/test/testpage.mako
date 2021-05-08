@@ -71,6 +71,6 @@ ${ stack_info | n }<br>
     <pre>${ show_call_stack() }</pre>
 
     ## See also:
-    ## http://docs.makotemplates.org/en/latest/runtime.html#all-the-built-in-names
+    ## https://docs.makotemplates.org/en/latest/runtime.html#all-the-built-in-names
     ## https://stackoverflow.com/questions/10689162/output-all-variables-into-mako-template
 </div>

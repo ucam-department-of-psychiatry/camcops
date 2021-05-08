@@ -138,7 +138,7 @@ def create_database_from_scratch(cfg: "CamcopsConfig") -> None:
     SQLAlchemy ORM metadata.
 
     See
-    http://alembic.zzzcomputing.com/en/latest/cookbook.html#building-an-up-to-date-database-from-scratch
+    https://alembic.zzzcomputing.com/en/latest/cookbook.html#building-an-up-to-date-database-from-scratch
 
     This function ASSUMES that the head revision "frozen" into the latest
     ``alembic/version/XXX.py`` file MATCHES THE STATE OF THE SQLALCHEMY ORM

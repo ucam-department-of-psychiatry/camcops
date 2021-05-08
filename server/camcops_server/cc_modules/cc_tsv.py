@@ -420,7 +420,7 @@ class TsvCollection(object):
 
         - https://docs.python.org/3/library/zipfile.html
         - https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT
-        - http://en.wikipedia.org/wiki/Zip_(file_format)#Compression_methods
+        - https://en.wikipedia.org/wiki/Zip_(file_format)#Compression_methods
 
         Note also that ``openpyxl`` uses ``ZIP_DEFLATED``, which seems to be
         the most portable if not the best compression.

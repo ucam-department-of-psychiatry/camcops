@@ -288,7 +288,7 @@ def blob_relationship(classname: str,
             # ... SQLAlchemy's primaryjoin uses Python-side names (class and
             #     attribute), rather than SQL-side names (table and column),
             #     at least for its fancier things:
-            # http://docs.sqlalchemy.org/en/latest/orm/join_conditions.html#relationship-primaryjoin  # noqa
+            # https://docs.sqlalchemy.org/en/latest/orm/join_conditions.html#relationship-primaryjoin  # noqa
 
     Note that this refers to the CURRENT version of the BLOB. If there is
     an editing chain, older BLOB versions are not retrieved.

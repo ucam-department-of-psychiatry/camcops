@@ -157,7 +157,7 @@ class SpecialNote(Base):
         WRITES TO DATABASE.
 
         For update methods, see also:
-        http://docs.sqlalchemy.org/en/latest/orm/persistence_techniques.html
+        https://docs.sqlalchemy.org/en/latest/orm/persistence_techniques.html
         """
         dbsession = req.dbsession
         new_era = req.now_era_format

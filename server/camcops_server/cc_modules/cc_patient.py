@@ -136,13 +136,13 @@ class Patient(GenericTabletRecordMixin, Base):
         index=True,
         identifies_patient=True, include_in_anon_staging_db=True,
         comment="Forename"
-    )
+    )  # type: Optional[str]
     surname = CamcopsColumn(
         "surname", PatientNameColType,
         index=True,
         identifies_patient=True, include_in_anon_staging_db=True,
         comment="Surname"
-    )
+    )  # type: Optional[str]
     dob = CamcopsColumn(
         "dob", sqltypes.Date,  # verified: merge_db handles this correctly
         index=True,

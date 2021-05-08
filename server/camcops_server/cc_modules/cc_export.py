@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+# noinspection HttpUrlsUsage
 """
 camcops_server/cc_modules/cc_export.py
 
@@ -24,14 +25,14 @@ camcops_server/cc_modules/cc_export.py
 
 ===============================================================================
 
-.. _ActiveMQ: http://activemq.apache.org/
+.. _ActiveMQ: https://activemq.apache.org/
 .. _AMQP: https://www.amqp.org/
 .. _APScheduler: https://apscheduler.readthedocs.io/
-.. _Celery: http://www.celeryproject.org/
+.. _Celery: https://www.celeryproject.org/
 .. _Dramatiq: https://dramatiq.io/
 .. _RabbitMQ: https://www.rabbitmq.com/
 .. _Redis: https://redis.io/
-.. _ZeroMQ: http://zeromq.org/
+.. _ZeroMQ: https://zeromq.org/
 
 **Export and research dump functions.**
 

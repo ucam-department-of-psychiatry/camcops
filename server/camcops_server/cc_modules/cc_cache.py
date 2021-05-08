@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+# noinspection HttpUrlsUsage
 """
 camcops_server/cc_modules/cc_cache.py
 
@@ -69,11 +70,11 @@ Crash using type-hinted functions under Python 3.5 with dogpile.cache==0.6.4:
   - ignoring Python caching and relying on the MySQL query cache -- but this is
     being removed because it's not all that great:
 
-    http://mysqlserverteam.com/mysql-8-0-retiring-support-for-the-query-cache/
+    https://mysqlserverteam.com/mysql-8-0-retiring-support-for-the-query-cache/
 
   - using memcached (via dogpile.cache.pylibmc)
 
-    http://www.ubergizmo.com/how-to/install-memcached-windows/
+    https://www.ubergizmo.com/how-to/install-memcached-windows/
 
   - using redis (via dogpile.cache.redis and
     https://pypi.python.org/pypi/redis/ )

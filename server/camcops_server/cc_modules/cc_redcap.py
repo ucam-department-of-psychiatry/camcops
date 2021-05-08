@@ -33,7 +33,7 @@
 
 - We use PyCap (https://pycap.readthedocs.io/ or
   https://github.com/redcap-tools/PyCap). See also
-  http://redcap-tools.github.io/projects/. PyCap is no longer being actively
+  https://redcap-tools.github.io/projects/. PyCap is no longer being actively
   developed though the author is still responding to issues and pull requests.
 
 We use an XML fieldmap to describe how the rows in CamCOPS task tables are

@@ -40,7 +40,7 @@ camcops_server/templates/base/base.mako
                 /* set "html.svg" if our browser supports SVG */
                 // noinspection JSDeprecatedSymbols
                 if (document.implementation.hasFeature(
-                        "http://www.w3.org/TR/SVG11/feature#Image", "1.1")) {
+                        "https://www.w3.org/TR/SVG11/feature#Image", "1.1")) {
                     document.documentElement.className = "svg";
                 }
             </script>

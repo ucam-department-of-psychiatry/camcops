@@ -44,12 +44,12 @@ WORKS IN CONJUNCTION WITH wkhtmltopdf_header.mako
 
         // noinspection JSUnusedLocalSymbols
         function subst() {
-            var vars = {},
-                x = document.location.search.substring(1).split('&'),
-                i,
-                z,
-                y,
-                j;
+            const vars = {};
+            let x = document.location.search.substring(1).split('&'),
+                    i,
+                    z,
+                    y,
+                    j;
             for (i in x) {
                 if (x.hasOwnProperty(i)) {
                     z = x[i].split('=', 2);

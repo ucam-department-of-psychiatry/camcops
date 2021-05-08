@@ -264,12 +264,12 @@ class Maas(TaskHasPatientMixin, Task,
           <div class="{CssClass.FOOTNOTES}">
             Condon, J. (2015). Maternal Antenatal Attachment Scale
             [Measurement instrument]. Retrieved from <a
-            href="http://hdl.handle.net/2328/35292">http://hdl.handle.net/2328/35292</a>.
+            href="https://hdl.handle.net/2328/35292">https://hdl.handle.net/2328/35292</a>.
 
             Copyright © John T Condon 2015. This is an Open Access article
             distributed under the terms of the Creative Commons Attribution
             License 3.0 AU (<a
-            href="http://creativecommons.org/licenses/by/3.0">http://creativecommons.org/licenses/by/3.0</a>),
+            href="https://creativecommons.org/licenses/by/3.0">https://creativecommons.org/licenses/by/3.0</a>),
             which permits unrestricted use, distribution, and reproduction in
             any medium, provided the original work is properly cited.
           </div>

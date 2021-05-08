@@ -34,5 +34,6 @@ class ModelTests(DemoDatabaseTestCase):
     """
     Unit tests.
     """
+    # noinspection PyMethodMayBeStatic
     def test_show_ddl(self) -> None:
         log_all_ddl()

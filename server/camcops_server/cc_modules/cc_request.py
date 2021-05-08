@@ -1168,8 +1168,8 @@ class CamcopsRequest(Request):
 
         **matplotlib font handling and fontdict parameter**
 
-        - http://stackoverflow.com/questions/3899980
-        - http://matplotlib.org/users/customizing.html
+        - https://stackoverflow.com/questions/3899980
+        - https://matplotlib.org/users/customizing.html
         - matplotlib/font_manager.py
 
           - Note that the default TrueType font is "DejaVu Sans"; see

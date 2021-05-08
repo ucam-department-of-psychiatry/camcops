@@ -98,7 +98,7 @@ def decode_single_value(v: str) -> Any:
                     (case-insensitive)
         BLOB        ``X'4D7953514C'``
                     (hex-encoded; matches MySQL method;
-                    http://dev.mysql.com/doc/refman/5.0/en/hexadecimal-literals.html)
+                    https://dev.mysql.com/doc/refman/5.0/en/hexadecimal-literals.html)
         BLOB        ``64'TXlTUUw='``
                     (base-64-encoded; this notation is my invention)
         ==========  ===========================================================

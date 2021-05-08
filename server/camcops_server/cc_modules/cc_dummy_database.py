@@ -128,6 +128,7 @@ class DummyDataFactory(object):
             Faker.seed()
             self.add_tasks(patient_id)
 
+    # noinspection PyMethodMayBeStatic
     def get_device(self, dbsession: "SqlASession") -> "Device":
         dummy_device_name = "dummy_device"
 

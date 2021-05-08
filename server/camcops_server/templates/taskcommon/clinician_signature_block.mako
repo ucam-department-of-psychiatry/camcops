@@ -45,7 +45,7 @@ camcops_server/templates/taskcommon/clinician_signature_block.mako
         <tr class="signature">
             ## ... can't get "height" to work in table; only seems to like line-height; for
             ## which, you need some text, hence the &nbsp;
-            ## http://stackoverflow.com/questions/6398172/setting-table-row-height-in-css
+            ## https://stackoverflow.com/questions/6398172/setting-table-row-height-in-css
             <td class="signature">&nbsp;</td>
             <td class="signature">&nbsp;</td>
             <td class="signature">&nbsp;</td>

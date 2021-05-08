@@ -1060,7 +1060,7 @@ def camcops_main() -> int:
     athena_icd_snomed_to_xml_parser = add_sub(
         subparsers, "convert_athena_icd_snomed_to_xml",
         help="Fetch SNOMED-CT codes for ICD-9-CM and ICD-10 from the Athena "
-             "OHDSI data set (http://athena.ohdsi.org/) and write them to "
+             "OHDSI data set (https://athena.ohdsi.org/) and write them to "
              "the CamCOPS XML format"
     )
     athena_icd_snomed_to_xml_parser.add_argument(
