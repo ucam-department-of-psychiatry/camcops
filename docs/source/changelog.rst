@@ -3047,6 +3047,314 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 **Client v2.4.5, released 30 Mar 2021**
 
-  - Support for MacOS client
+- Support for macOS client
 
-**Client and server v2.4.6, IN PROGRESS**
+**Client and server v2.4.6, released 7 Mar 2021**
+
+- Fixes for penetration testing, per report by Falanx Cyber Defence Ltd, 28 Apr
+  2021 (reference  FB05540-CP05394, commissioned by CPFT). Vulnerabilities
+  rated high (H), medium (M), or low (L). None rated critical or informational.
+
+  - H1. "Cross-site scripting."
+
+    - URLs (for a local test server) that did bad things:
+
+      .. code-block:: none
+
+        https://127.0.0.1:8088/report?report_id=diagnoses_finder_icd10&viewtype=html&rows_per_page=&page=1&which_idnum=1&diagnoses_inclusion=k88py%3e%3cinput%20type%3dtext%20autofocus%20onfocus%3dalert(1)%2f%2fttwcp&diagnoses_exclusion=%27%22%3E%3Csvg%2Fonload%3Dconfirm%285%29%3B%3E%7B%7B1337%2A1337%7D%7Df276e115d231089110f46050a3a77a39&age_minimum=1&age_maximum=2
+        https://127.0.0.1:8088/report?report_id=diagnoses_finder_icd10&viewtype=html&rows_per_page=&page=1&which_idnum=1&diagnoses_inclusion='%22%3e%3csvg%2fonload%3dconfirm(5)%3b%3e%7b%7b1337*1337%7d%7df276e115d231089110f46050a3a77a39ffeds%3cinput%20type%3dtext%20autofocus%20onfocus%3dalert(1)%2f%2fany2w&diagnoses_exclusion=%27%22%3E%3Csvg%2Fonload%3Dconfirm%285%29%3B%3E%7B%7B1337%2A1337%7D%7Df276e115d231089110f46050a3a77a39&age_minimum=1&age_maximum=2
+
+    - References:
+
+      - https://owasp.org/www-community/attacks/xss/ [very good overview]
+      - https://owasp.org/www-project-top-ten/OWASP_Top_Ten_2017/Top_10-2017_A7-Cross-Site_Scripting_(XSS)
+
+    - Note that these were only available to authenticated/authorized users;
+      but still concerning.
+
+    - RESPONSE:
+
+      - The execution aspects ceased to execute because when Content Security
+        Policy were turned up to maximum (see L2 below).
+      - All GET string parameters now go through validation (in
+        CamcopsRequest). That fixes these errors.
+
+  - M1. "Weak password policies."
+
+    - Tester wants 10-character minimum password length, not 8.
+    - Additional advisory re user education on how to pick strong passwords.
+    - Note that the account lockout control makes direct password-guessing
+      attacks unlikely, so obtaining passwords would require some sort of other
+      attack vector such as SQL injection.
+    - Recommendation for salted/hashed password storage, which we already do.
+      Named secure algorithms include bcrypt, which we already use.
+    - References given:
+
+      - https://www.ncsc.gov.uk/guidance/password-guidance-simplifying-your-approach
+        [Note that this advises password managers; contrast L3.]
+      - https://www.owasp.org/index.php/Authentication_Cheat_Sheet
+        [Note that this advises 8 characters as the minimum password length.]
+      - https://crackstation.net/hashing-security.htm
+        [Just general well-known stuff on salting/hashing.]
+
+    - It's unclear where "10 characters" came from. Also, bcrypt is a
+      deliberately slow algorithm that makes bulk hashing hard. Anyway...
+
+    - RESPONSE:
+
+      - ``MINIMUM_PASSWORD_LENGTH`` changed from 8 to 10 (server and client).
+      - Advisory note added (on server).
+      - Server and client passwords checked against NCSC-endorsed deny list
+        (https://www.ncsc.gov.uk/blog-post/passwords-passwords-everywhere).
+
+  - M2. "Out-of-date software versions."
+
+    - This related to the front-end server, not CamCOPS. The recommendation was
+      to upgrade from Apache 2.4.41, based on
+      https://httpd.apache.org/security/vulnerabilities_24.html -- on
+      2021-04-30, the latest security-fix version is 2.4.44.
+
+    - RESPONSE:
+
+      - The latest version of Apache 2.4.41 packaged with Ubuntu has fixes for
+        the two vulnerabilities (CVE-2020-1927 and CVE-2020-1934) backported
+        (http://changelogs.ubuntu.com/changelogs/pool/main/a/apache2/apache2_2.4.41-4ubuntu3.1/changelog)
+      - No action required
+
+  - M3. "Forced browsing via URL manipulation."
+
+    - This relates to the ability for non-privileged users to visit the
+      ``/view_ddl`` path, which shows the structure of the database used by
+      CamCOPS.
+
+    - "User has no explicit mapping to /view_ddl under normal circumstances."
+      "Visiting DDL reveals sensitive information to low privilege user."
+
+    - References given:
+
+      - https://www.owasp.org/index.php/Forced_browsing
+        ["Forced browsing is an attack where the aim is to enumerate and access
+        resources that are not referenced by the application, but are still
+        accessible."]
+      - http://searchsecurity.techtarget.co.uk/answer/Forced-browsing-Understanding-and-halting-simple-browser-attacks
+
+    - The relevant view is :func:`camcops_server.cc_modules.webview.view_ddl`.
+      The menu item is in ``camcops_server/templates/menu/main_menu.mako``.
+
+    - RESPONSE: we disagree that this was a vulnerability, as this is
+      open-source software and the entire database structure is a matter of
+      public record. Denying it is only "security through obscurity". However,
+      the menu items are only presented to users with "dump" authority
+      (``User.authorized_to_dump``), so it is consistent to restrict to that
+      group. Restricted accordingly.
+
+  - L1. Software enumeration.
+
+    - They advise against releasing any software version information in server
+      response headers or in banners of other services.
+
+    - Reference:
+      https://owasp.org/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/01-Information_Gathering/02-Fingerprint_Web_Server
+      [re web server version information, specifically].
+
+    - Weaknesses were:
+
+      - "Server: gunicorn/<VERSION>" in a happy (HTTP 200 OK) response.
+      - "<address>Apache/<VERSION> (Ubuntu) Server at <HOSTNAME> Port
+        443</address>" from a HTTP 404 Not Found page.
+
+    - CherryPy already had this locally configurable (with a default providing
+      no version information) via the :ref:`CHERRYPY_SERVER_NAME
+      <CHERRYPY_SERVER_NAME>` variable.
+
+    - The HTTP spec is:
+
+      - https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Server
+      - https://tools.ietf.org/html/rfc7231#section-7.4.2
+
+    - So, for Gunicorn:
+
+      - https://stackoverflow.com/questions/16010565/how-to-prevent-gunicorn-from-returning-a-server-http-header
+      - https://adamj.eu/tech/2021/01/03/override-gunicorns-server-header-from-django/
+      - https://github.com/benoitc/gunicorn/issues/825
+
+    - RESPONSE:
+
+      - gunicorn upgraded to a version that doesn't show its version; it still
+        shows "gunicorn" but that is reasonable as part of the spec.
+
+      - Any "not found" error within the CamCOPS path, i.e. responded to by
+        CamCOPS, follows the same rules as successful page loads, so is OK.
+
+      - Any "not found" error outside that path is the responsibility of the
+        "enclosing" web server (e.g. Apache) and is outside the scope of
+        CamCOPS.
+
+  - L2. "Missing server security headers."
+
+    - Missing:
+
+      - ``X-XSS-Protection``
+      - ``Content-Security-Policy``
+      - ``Strict-Transport-Security``
+
+    - References:
+
+      - https://scotthelme.co.uk/hardening-your-http-response-headers/
+        [gives some content security policy advice]
+      - https://owasp.org/www-project-secure-headers/
+        [helpful defaults for all sorts of things; NB also `Venom
+        <https://github.com/ovh/venom>`_]
+
+    - The tricky bit was CSP. Achieved, without any dangerous exceptions, by
+      using nonces for inline Javascript/CSS. We need on-the-fly CSS
+      generation, and embedded Javascript, for the PDF system, so they can't be
+      split into separate files.
+
+    - To replace
+
+      .. code-block:: html
+
+        <body onload="some_function();">...</body>
+
+      use e.g.
+
+      .. code-block:: html
+
+        <script nonce="xxx" type="text/javascript">
+            window.onload = some_function;
+        </script>
+
+      or
+
+      .. code-block:: html
+
+        <script nonce="xxx" type="text/javascript">
+            document.addEventListener("DOMContentLoaded", some_function, false);
+        </script>
+
+      as per
+      https://stackoverflow.com/questions/7561315/alternative-to-body-onload-init/7561332
+
+    - RESPONSE: Implemented, as far as possible. See also below.
+
+    - Problem: Deform adds both ``<script>`` and ``<style>`` elements to
+      some of its widgets. These don't have the nonce, so don't execute. And
+      the ``<script>`` and ``<style>`` tags are quite embedded, e.g. in
+      ``deform/templates/form.pt``, with no obvious extensible options. See
+      https://github.com/RudolfCardinal/camcops/issues/162. At the moment,
+      CamCOPS does not use "maximum security" CSP headers. However, when Deform
+      supports this (https://github.com/Pylons/deform/issues/512), we can turn
+      them up via the ``DEFORM_SUPPORTS_CSP_NONCE`` switch in CamCOPS.
+
+  - L3. "Form auto-complete active."
+
+    - They dislike having the ``autocomplete`` attribute permitted for password
+      fields.
+
+    - Their reference:
+      https://portswigger.net/kb/issues/00500800_password-field-with-autocomplete-enabled.
+
+    - However, there is disagrement, e.g. based on the following references.
+
+      - There is security debate on both sides of this argument (the dangers of
+        local storage versus the dangers of what users do if their browser
+        doesn't provide password management functions). That is, some people
+        argue that this advice is wrong on security grounds. Even the security
+        advisory they link to notes that browsers may, and generally do, ignore
+        the directive they suggest, ``autocomplete="off`` (for these reasons).
+      - For example, see
+        https://developer.mozilla.org/en-US/docs/Web/Security/Securing_your_site/Turning_off_form_autocompletion#the_autocomplete_attribute_and_login_fields.
+      - Some casual discussion that summarises this is at
+        https://security.stackexchange.com/questions/34067/ -- that one should
+        disable autocomplete to please auditors, but not for good security!
+      - Another professional penetration testing view is at
+        https://www.pivotpointsecurity.com/blog/autocomplete-and-application-security-testing/.
+
+    - RESPONSE: As it happens, we already make this user-configurable via the
+      :ref:`DISABLE_PASSWORD_AUTOCOMPLETE <DISABLE_PASSWORD_AUTOCOMPLETE>`
+      option, for which the default is true (i.e. the default is to set
+      ``autocomplete="off"`` for the password field).
+
+  - L4. "Logout button not present on authenticated pages."
+
+    - They want a highly visible logout button on every authenticated page,
+      because this makes it more likely that users will log out.
+
+    - Reference:
+      https://owasp.org/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/06-Session_Management_Testing/06-Testing_for_Logout_Functionality.
+      [best practice being described as "directly visible", not "highly
+      visible", and visible without scrolling].
+
+    - RESPONSE: Implemented.
+
+  - L5. "Concurrent user sessions."
+
+    - Allowing a user to have multiple sessions means are less likely to notice
+      if someone else has hacked their account. This is a tradeoff between
+      security and usability. Their recommendation is only one active session
+      (of course, you can have multiple tabs).
+
+    - References:
+
+      - https://www.owasp.org/index.php/Testing_for_Session_Management
+      - https://www.owasp.org/index.php/Session_Management_Cheat_Sheet
+        [section on "Simultaneous Session Logins"]
+
+    - Note that in particular we want to be able to have a user running
+      a webviewer session but simultaneously being able to upload from one or
+      maybe several client devices (which will have different IP addresses).
+      We use :class:`camcops_server.cc_modules.cc_session.CamcopsSession` to
+      represent sessions.
+
+    - RESPONSE: now only one "human" session at a time; if you log in again,
+      previous sessions are terminaed. (However, you can have an ongoing human
+      session that is not terminated by one or many API-based uploads.)
+
+  - L6. "Out-of-date jQuery version."
+
+    - jQuery was 2.0.3, which has some known vulnerabilities.
+    - They note that attacks via this route are highly complex, and require
+      some other conditions to exploit, and those other conditions were not
+      found.
+    - References:
+
+      - http://code.jquery.com/jquery/ [repository of jQuery code by version]
+      - https://jquery.com/download/ [how to download]
+      - https://snyk.io/vuln/npm:jquery [list of vulnerabilities by version]
+      - http://www.cvedetails.com/vulnerability-list/vendor_id-6538/Jquery.html
+        [another index of vulnerabilities]
+
+    - Now, jQuery is being used via Deform
+      (https://docs.pylonsproject.org/projects/deform/;
+      https://pypi.org/project/deform/), and via our ``/deform_static`` path,
+      which we redirect to ``deform:static``, which means "look within the
+      deform package for the directory static/".
+
+    - jQuery was 2.0.3, via ``jquery-2.0.3.min.js``, loaded from our
+      ``base_web.mako``. This follows the advice at
+      https://docs.pylonsproject.org/projects/deform/en/2.0-branch/basics.html.
+
+    - A simple replacement of the jQuery library with v3.6.0 doesn't work (for
+      example, on the "filter tasks" page, the "expanding" categories don't
+      expand).
+
+    - RESPONSE: not changed; low concern noted; but raised as a Deform issue at
+      https://github.com/Pylons/deform/issues/511, and tracked at
+      https://github.com/RudolfCardinal/camcops/issues/161.
+
+- Also fixed REDCap example for PHQ9 (from ``task.q10 + 1``, which could fail
+  if ``q10`` was ``None``, to ``task.q10 + 1 if task.q10 is not None else
+  None``).
+
+- Also, now Deform is at 2.0.15, it has provided all its font files. So we can
+  delete the hacks for the path
+  ``/deform_static/fonts/glyphicons-halflings-regular.woff2`` and corresponding
+  code (``bugfix_deform_missing_glyphs``). The path still works, but now it
+  goes to Deform's static files.
+
+- Removed title string from
+  :class:`camcops_server.cc_modules.cc_forms.CSRFToken`. Generally that was
+  hidden but it appeared in some circumstances.
+
+**Client and server v2.4.7, IN PROGRESS**

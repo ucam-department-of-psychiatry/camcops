@@ -23,6 +23,7 @@ camcops_server/cc_modules/tests/cc_proquint_tests.py
 ===============================================================================
 
 """
+
 import random
 import uuid
 from unittest import TestCase

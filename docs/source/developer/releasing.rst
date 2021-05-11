@@ -72,18 +72,19 @@ Google Play Store settings
   The Google Developer site will check the version codes.
   Failed uploads can sometimes block that version number.
 
-- **You upload a new version with** :menuselection:`Release management --> App
-  releases --> Manage [production track] --> Create Release`.
+- **You upload a new version with** :menuselection:`[Release] Production -->
+  Create Release`.
 
   - You can upload two files with the same name (e.g.
     ``android-build-release-signed.apk``) -- for example, one for 32-bit ARM
-    and one for 64-bit ARM. **But** they can't have the same version number.
-    See
+    (``armeabi-v7a``) and one for 64-bit ARM (``arm64-v8a``). **But** they
+    can't have the same version number. See
     https://developer.android.com/google/play/publishing/multiple-apks.html.
-    What Google prefer is an "Android App Bundle".
-    Qt might not support this yet:
+    What Google prefer is an "Android App Bundle". Qt might not support this
+    yet:
     https://www.qt.io/blog/2019/06/28/comply-upcoming-requirements-google-play.
-    The 64-bit version should have the higher version number.
+    The 64-bit version should have the higher version number. (You upload both
+    APK files before saving/reviewing/rolling out the single release.)
 
   .. todo: look at creating an Android App Bundle for multiple architectures. Does Qt now support this?
 
@@ -138,6 +139,15 @@ Google Play Store release history
 +---------------+---------------------+---------------------+--------------------+---------+---------+
 | 2.4.3         | 17 (32-bit ARM);    | 2.4.3               | 2021-03-30         | 23      | 29      |
 |               | 18 (64-bit ARM)     |                     |                    |         |         |
++---------------+---------------------+---------------------+--------------------+---------+---------+
+| 2.4.4         | N/A, server only    | N/A                 | N/A                | 23      | 29      |
+|               |                     |                     |                    |         |         |
++---------------+---------------------+---------------------+--------------------+---------+---------+
+| 2.4.5         | N/A, macOS only     | N/A                 | N/A                | 23      | 29      |
+|               |                     |                     |                    |         |         |
++---------------+---------------------+---------------------+--------------------+---------+---------+
+| 2.4.6         | 19 (32-bit ARM);    | 2.4.6               | 2021-05-08         | 23      | 29      |
+|               | 20 (64-bit ARM)     |                     |                    |         |         |
 +---------------+---------------------+---------------------+--------------------+---------+---------+
 
 Note: target API of 30 required as of Nov 2021:

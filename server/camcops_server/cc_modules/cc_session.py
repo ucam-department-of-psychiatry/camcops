@@ -43,7 +43,7 @@ from pendulum import DateTime as Pendulum
 from pyramid.interfaces import ISession
 from sqlalchemy.orm import relationship, Session as SqlASession
 from sqlalchemy.sql.schema import Column, ForeignKey
-from sqlalchemy.sql.sqltypes import DateTime, Integer
+from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer
 
 from camcops_server.cc_modules.cc_constants import DateFormat
 from camcops_server.cc_modules.cc_pyramid import CookieKey
@@ -139,6 +139,11 @@ class CamcopsSession(Base):
         ForeignKey("_task_filters.id"),
         comment="Task filter ID"
     )
+    is_api_session = Column(
+        "is_api_session", Boolean,
+        default=False,
+        comment="This session is using the client API (not a human browsing)."
+    )
 
     user = relationship("User", lazy="joined", foreign_keys=[user_id])
     task_filter = relationship(
@@ -208,30 +213,11 @@ class CamcopsSession(Base):
         User authentication is via the
         :class:`camcops_server.cc_modules.cc_session.CamcopsSession`.
         """
-
-        def login_from_ts(cc: "CamcopsSession", ts_: "TabletSession") -> None:
-            if DEBUG_CAMCOPS_SESSION_CREATION:
-                log.debug("Considering login from tablet (with username: {!r}",
-                          ts_.username)
-            if ts_.username:
-                user = User.get_user_from_username_password(
-                    ts.req, ts.username, ts.password)
-                if DEBUG_CAMCOPS_SESSION_CREATION:
-                    log.debug("... looked up User: {!r}", user)
-                if user:
-                    # Successful login of sorts, ALTHOUGH the user may be
-                    # severely restricted (if they can neither register nor
-                    # upload). However, effecting a "login" here means that the
-                    # error messages can become more helpful!
-                    cc.login(user)
-            if DEBUG_CAMCOPS_SESSION_CREATION:
-                log.debug("... final session user: {!r}", cc.user)
-
         session = cls.get_session(req=ts.req,
                                   session_id_str=ts.session_id,
                                   session_token=ts.session_token)
         if not session.user:
-            login_from_ts(session, ts)
+            session._login_from_ts(ts)
         elif session.user and session.user.username != ts.username:
             # We found a session, and it's associated with a user, but with
             # the wrong user. This is unlikely to happen!
@@ -241,8 +227,32 @@ class CamcopsSession(Base):
             # Create a fresh session.
             session = cls.get_session(req=req, session_id_str=None,
                                       session_token=None)
-            login_from_ts(session, ts)
+            session._login_from_ts(ts)
         return session
+
+    def _login_from_ts(self, ts: "TabletSession") -> None:
+        """
+        Used by :meth:`get_session_for_tablet` to log in using information
+        provided by a
+        :class:`camcops_server.cc_modules.cc_tabletsession.TabletSession`.
+        """
+        if DEBUG_CAMCOPS_SESSION_CREATION:
+            log.debug("Considering login from tablet (with username: {!r}",
+                      ts.username)
+        self.is_api_session = True
+        if ts.username:
+            user = User.get_user_from_username_password(
+                ts.req, ts.username, ts.password)
+            if DEBUG_CAMCOPS_SESSION_CREATION:
+                log.debug("... looked up User: {!r}", user)
+            if user:
+                # Successful login of sorts, ALTHOUGH the user may be
+                # severely restricted (if they can neither register nor
+                # upload). However, effecting a "login" here means that the
+                # error messages can become more helpful!
+                self.login(user)
+        if DEBUG_CAMCOPS_SESSION_CREATION:
+            log.debug("... final session user: {!r}", self.user)
 
     @classmethod
     def get_session(cls,
@@ -388,6 +398,12 @@ class CamcopsSession(Base):
         """
         Log in. Associates the user with the session and makes a new
         token.
+
+        2021-05-01: If this is an API session, we don't interfere with other
+        sessions. But if it is a human logging in, we log out any other non-API
+        sessions from the same user (per security recommendations: one session
+        per authenticated user -- with exceptions that we make for API
+        sessions).
         """
         if DEBUG_CAMCOPS_SESSION_CREATION:
             log.debug("Session {} login: username={!r}",
@@ -395,6 +411,28 @@ class CamcopsSession(Base):
         self.user = user  # will set our user_id FK
         self.token = generate_token()
         # fresh token: https://www.owasp.org/index.php/Session_fixation
+
+        if not self.is_api_session:
+            # Log out any other sessions from the same user.
+            # NOTE that "self" may not have been flushed to the database yet,
+            # so self.id may be None.
+            dbsession = SqlASession.object_session(self)
+            assert dbsession, "No dbsession for a logged-in CamcopsSession"
+            query = (
+                dbsession.query(CamcopsSession)
+                .filter(CamcopsSession.user_id == user.id)
+                # ... "same user"
+                .filter(CamcopsSession.is_api_session == False)  # noqa: E712
+                # ... "human webviewer sessions"
+                .filter(CamcopsSession.id != self.id)
+                # ... "not this session".
+                # If we have an ID, this will find sessions with a different
+                # ID. If we don't have an ID, that will equate to
+                # "CamcopsSession.id != None", which will translate in SQL to
+                # "id IS NOT NULL", as per
+                # https://docs.sqlalchemy.org/en/14/core/sqlelement.html#sqlalchemy.sql.expression.ColumnElement.__ne__  # noqa
+            )
+            query.delete(synchronize_session=False)
 
     # -------------------------------------------------------------------------
     # Filters

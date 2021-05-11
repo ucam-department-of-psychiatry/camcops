@@ -34,7 +34,7 @@ from markupsafe import escape
 from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 %>
 
-<%include file="db_user_info.mako" args="offer_main_menu=True"/>
+<%include file="db_user_info.mako"/>
 
 <h1>${_("Users’ e-mail addresses")}</h1>
 
@@ -42,7 +42,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 <ul>
     %for user in query:
         %if not user.email:
-            <li>${ user.username }</li>
+            <li>${ user.username | h }</li>
         %endif
     %endfor
 </ul>
@@ -55,7 +55,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 <p>
 %for user in query:
     %if user.email:
-        <a href="mailto:${ user.email }">${ (user.fullname or user.username) } &lt;${ user.email }&gt;</a><br>
+        <a href="mailto:${ user.email }">${ (user.fullname or user.username) | h } &lt;${ user.email | h }&gt;</a><br>
     %endif
 %endfor
 </p>

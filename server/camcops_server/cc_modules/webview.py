@@ -161,7 +161,7 @@ from pyramid.view import (
     view_config,
 )
 from pyramid.renderers import render_to_response
-from pyramid.response import FileResponse, Response
+from pyramid.response import Response
 from pyramid.security import Authenticated, NO_PERMISSION_REQUIRED
 import pygments
 import pygments.lexers
@@ -174,7 +174,6 @@ from sqlalchemy.sql.expression import desc, or_, select, update
 
 from camcops_server.cc_modules.cc_audit import audit, AuditEntry
 from camcops_server.cc_modules.cc_all_models import CLIENT_TABLE_MAP
-from camcops_server.cc_modules.cc_baseconstants import STATIC_ROOT_DIR
 from camcops_server.cc_modules.cc_client_api_core import (
     BatchDetails,
     get_server_live_records,
@@ -279,7 +278,7 @@ from camcops_server.cc_modules.cc_pyramid import (
     ViewParam,
 )
 from camcops_server.cc_modules.cc_report import get_report_instance
-from camcops_server.cc_modules.cc_request import CamcopsRequest, validate_url
+from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_simpleobjects import (
     IdNumReference,
     TaskExportOptions,
@@ -316,6 +315,12 @@ from camcops_server.cc_modules.cc_user import (
     SecurityLoginFailure,
     User,
 )
+from camcops_server.cc_modules.cc_validators import (
+    validate_export_recipient_name,
+    validate_ip_address,
+    validate_task_tablename,
+    validate_username,
+)
 from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 from camcops_server.cc_modules.cc_view_classes import (
     CreateView,
@@ -328,6 +333,7 @@ if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_sqlalchemy import Base
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
+
 
 # =============================================================================
 # Debugging options
@@ -580,7 +586,7 @@ def login_view(req: "CamcopsRequest") -> Response:
             ccsession = req.camcops_session
             username = appstruct.get(ViewParam.USERNAME)
             password = appstruct.get(ViewParam.PASSWORD)
-            redirect_url = validate_url(appstruct.get(ViewParam.REDIRECT_URL))
+            redirect_url = appstruct.get(ViewParam.REDIRECT_URL)
             # 1. If we don't have a username, let's stop quickly.
             if not username:
                 ccsession.logout()
@@ -625,7 +631,7 @@ def login_view(req: "CamcopsRequest") -> Response:
             rendered_form = e.render()
 
     else:
-        redirect_url = req.get_url_param(ViewParam.REDIRECT_URL, "")
+        redirect_url = req.get_redirect_url_param(ViewParam.REDIRECT_URL, "")
         # ... use default of "", because None gets serialized to "None", which
         #     would then get read back later as "None".
         appstruct = {ViewParam.REDIRECT_URL: redirect_url}
@@ -1004,8 +1010,8 @@ def set_filters(req: "CamcopsRequest") -> Response:
     """
     View to set the task filters for the current user.
     """
-    redirect_url = req.get_url_param(ViewParam.REDIRECT_URL,
-                                     req.route_url(Routes.VIEW_TASKS))
+    redirect_url = req.get_redirect_url_param(ViewParam.REDIRECT_URL,
+                                              req.route_url(Routes.VIEW_TASKS))
     task_filter = req.camcops_session.get_task_filter()
     return edit_filter(req, task_filter=task_filter, redirect_url=redirect_url)
 
@@ -1096,7 +1102,8 @@ def serve_task(req: "CamcopsRequest") -> Response:
     """
     _ = req.gettext
     viewtype = req.get_str_param(ViewParam.VIEWTYPE, ViewArg.HTML, lower=True)
-    tablename = req.get_str_param(ViewParam.TABLE_NAME)
+    tablename = req.get_str_param(ViewParam.TABLE_NAME,
+                                  validator=validate_task_tablename)
     server_pk = req.get_int_param(ViewParam.SERVER_PK)
     anonymise = req.get_bool_param(ViewParam.ANONYMISE, False)
 
@@ -1238,7 +1245,8 @@ def serve_tracker_or_ctv(req: "CamcopsRequest",
     idnum_value = req.get_int_param(ViewParam.IDNUM_VALUE)
     start_datetime = req.get_datetime_param(ViewParam.START_DATETIME)
     end_datetime = req.get_datetime_param(ViewParam.END_DATETIME)
-    tasks = req.get_str_list_param(ViewParam.TASKS)
+    tasks = req.get_str_list_param(ViewParam.TASKS,
+                                   validator=validate_task_tablename)
     all_tasks = req.get_bool_param(ViewParam.ALL_TASKS, True)
     viewtype = req.get_str_param(ViewParam.VIEWTYPE, ViewArg.HTML)
     via_index = req.get_bool_param(ViewParam.VIA_INDEX, True)
@@ -1459,7 +1467,8 @@ def get_dump_collection(req: "CamcopsRequest") -> TaskCollection:
     # -------------------------------------------------------------------------
     dump_method = req.get_str_param(ViewParam.DUMP_METHOD)
     group_ids = req.get_int_list_param(ViewParam.GROUP_IDS)
-    task_names = req.get_str_list_param(ViewParam.TASKS)
+    task_names = req.get_str_list_param(ViewParam.TASKS,
+                                        validator=validate_task_tablename)
 
     # -------------------------------------------------------------------------
     # Select tasks
@@ -1689,7 +1698,13 @@ def view_ddl(req: "CamcopsRequest") -> Response:
     """
     Inspect table definitions (data definition language, DDL) with field
     comments.
+
+    2021-04-30: restricted to users with "dump" authority -- not because this
+    is a vulnerability, as the penetration testers suggested, but just to make
+    it consistent with the menu item for this.
     """
+    if not req.user.authorized_to_dump:
+        raise HTTPBadRequest(errormsg_cannot_dump(req))
     form = ViewDdlForm(request=req)
     if FormAction.SUBMIT in req.POST:
         try:
@@ -1784,9 +1799,12 @@ def view_audit_trail(req: "CamcopsRequest") -> Response:
     start_datetime = req.get_datetime_param(ViewParam.START_DATETIME)
     end_datetime = req.get_datetime_param(ViewParam.END_DATETIME)
     source = req.get_str_param(ViewParam.SOURCE, None)
-    remote_addr = req.get_str_param(ViewParam.REMOTE_IP_ADDR, None)
-    username = req.get_str_param(ViewParam.USERNAME, None)
-    table_name = req.get_str_param(ViewParam.TABLE_NAME, None)
+    remote_addr = req.get_str_param(ViewParam.REMOTE_IP_ADDR, None,
+                                    validator=validate_ip_address)
+    username = req.get_str_param(ViewParam.USERNAME, None,
+                                 validator=validate_username)
+    table_name = req.get_str_param(ViewParam.TABLE_NAME, None,
+                                   validator=validate_task_tablename)
     server_pk = req.get_int_param(ViewParam.SERVER_PK, None)
     truncate = req.get_bool_param(ViewParam.TRUNCATE, True)
     page_num = req.get_int_param(ViewParam.PAGE, 1)
@@ -1901,8 +1919,12 @@ def view_exported_task_list(req: "CamcopsRequest") -> Response:
     """
     rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
                                       DEFAULT_ROWS_PER_PAGE)
-    recipient_name = req.get_str_param(ViewParam.RECIPIENT_NAME, None)
-    table_name = req.get_str_param(ViewParam.TABLE_NAME, None)
+    recipient_name = req.get_str_param(
+        ViewParam.RECIPIENT_NAME, None,
+        validator=validate_export_recipient_name)
+    table_name = req.get_str_param(
+        ViewParam.TABLE_NAME, None,
+        validator=validate_task_tablename)
     server_pk = req.get_int_param(ViewParam.SERVER_PK, None)
     et_id = req.get_int_param(ViewParam.ID, None)
     start_datetime = req.get_datetime_param(ViewParam.START_DATETIME)
@@ -3085,7 +3107,8 @@ def add_special_note(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to add a special note to a task (after confirmation).
     """
-    table_name = req.get_str_param(ViewParam.TABLE_NAME)
+    table_name = req.get_str_param(ViewParam.TABLE_NAME,
+                                   validator=validate_task_tablename)
     server_pk = req.get_int_param(ViewParam.SERVER_PK, None)
     url_back = req.route_url(
         Routes.TASK,
@@ -3183,7 +3206,8 @@ class EraseTaskBaseView(DeleteView):
 
     def get_object(self) -> Any:
         # noinspection PyAttributeOutsideInit
-        self.table_name = self.request.get_str_param(ViewParam.TABLE_NAME)
+        self.table_name = self.request.get_str_param(
+            ViewParam.TABLE_NAME, validator=validate_task_tablename)
         # noinspection PyAttributeOutsideInit
         self.server_pk = self.request.get_int_param(ViewParam.SERVER_PK, None)
 
@@ -4446,23 +4470,6 @@ def delete_task_schedule_item(req: "CamcopsRequest") -> Response:
 # Static assets
 # =============================================================================
 # https://docs.pylonsproject.org/projects/pyramid/en/latest/narr/assets.html#advanced-static  # noqa
-
-DEFORM_MISSING_GLYPH = os.path.join(STATIC_ROOT_DIR,
-                                    "glyphicons-halflings-regular.woff2")
-
-
-@view_config(route_name=Routes.BUGFIX_DEFORM_MISSING_GLYPHS,
-             permission=NO_PERMISSION_REQUIRED)
-def static_bugfix_deform_missing_glyphs(req: "CamcopsRequest") -> Response:
-    """
-    Hack for a missing-file bug in ``deform==2.0.4``.
-    """
-    return FileResponse(
-        path=DEFORM_MISSING_GLYPH,
-        request=req,
-        cache_max_age=req.config.static_cache_duration_s
-    )
-
 
 def debug_form_rendering() -> None:
     r"""

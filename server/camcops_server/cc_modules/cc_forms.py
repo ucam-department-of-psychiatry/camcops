@@ -169,20 +169,20 @@ from pendulum import Duration
 
 # import as LITTLE AS POSSIBLE; this is used by lots of modules
 # We use some delayed imports here (search for "delayed import")
-from camcops_server.cc_modules.cc_baseconstants import TEMPLATE_DIR
+from camcops_server.cc_modules.cc_baseconstants import (
+    DEFORM_SUPPORTS_CSP_NONCE,
+    TEMPLATE_DIR,
+)
 from camcops_server.cc_modules.cc_constants import (
     ConfigParamSite,
     DEFAULT_ROWS_PER_PAGE,
-    MINIMUM_PASSWORD_LENGTH,
     SEX_OTHER_UNSPECIFIED,
     SEX_FEMALE,
     SEX_MALE,
+    StringLengths,
     USER_NAME_FOR_SYSTEM,
 )
-from camcops_server.cc_modules.cc_group import (
-    Group,
-    is_group_name_valid,
-)
+from camcops_server.cc_modules.cc_group import Group
 from camcops_server.cc_modules.cc_idnumdef import (
     IdNumDefinition,
     ID_NUM_VALIDATION_METHOD_CHOICES,
@@ -206,21 +206,22 @@ from camcops_server.cc_modules.cc_pyramid import (
     ViewArg,
     ViewParam,
 )
-from camcops_server.cc_modules.cc_sqla_coltypes import (
-    DATABASE_TITLE_MAX_LEN,
-    FILTER_TEXT_MAX_LEN,
-    FULLNAME_MAX_LEN,
-    GROUP_DESCRIPTION_MAX_LEN,
-    GROUP_NAME_MAX_LEN,
-    HL7_AA_MAX_LEN,
-    HL7_ID_TYPE_MAX_LEN,
-    ID_DESCRIPTOR_MAX_LEN,
-    USERNAME_CAMCOPS_MAX_LEN,
-)
 from camcops_server.cc_modules.cc_task import tablename_to_task_class_dict
 from camcops_server.cc_modules.cc_taskschedule import (
     TaskSchedule,
     TaskScheduleEmailTemplateFormatter,
+)
+from camcops_server.cc_modules.cc_validators import (
+    ALPHANUM_UNDERSCORE_CHAR,
+    validate_anything,
+    validate_by_char_and_length,
+    validate_group_name,
+    validate_hl7_aa,
+    validate_hl7_id_type,
+    validate_ip_address,
+    validate_new_password,
+    validate_redirect_url,
+    validate_username,
 )
 
 if TYPE_CHECKING:
@@ -233,6 +234,7 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 
 ColanderNullType = _null
 ValidatorType = Callable[[SchemaNode, Any], None]  # called as v(node, value)
+
 
 # =============================================================================
 # Debugging options
@@ -352,6 +354,38 @@ SelectWidget = BugfixSelectWidget
 
 
 # =============================================================================
+# Form that handles Content-Security-Policy nonce tags
+# =============================================================================
+
+class InformativeNonceForm(InformativeForm):
+    """
+    A Form class to use our modifications to Deform, as per
+    https://github.com/Pylons/deform/issues/512, to pass a nonce value through
+    to the ``<script>`` and ``<style>`` tags in the Deform templates.
+
+    todo: if Deform is updated, work this into ``cardinal_pythonlib``.
+    """
+    if DEFORM_SUPPORTS_CSP_NONCE:
+        def __init__(self, schema: Schema, **kwargs) -> None:
+            request = schema.request  # type: CamcopsRequest
+            kwargs["nonce"] = request.nonce
+            super().__init__(schema, **kwargs)
+
+
+class DynamicDescriptionsNonceForm(DynamicDescriptionsForm):
+    """
+    Similarly; see :class:`InformativeNonceForm`.
+
+    todo: if Deform is updated, work this into ``cardinal_pythonlib``.
+    """
+    if DEFORM_SUPPORTS_CSP_NONCE:
+        def __init__(self, schema: Schema, **kwargs) -> None:
+            request = schema.request  # type: CamcopsRequest
+            kwargs["nonce"] = request.nonce
+            super().__init__(schema, **kwargs)
+
+
+# =============================================================================
 # Mixin for Schema/SchemaNode objects for translation
 # =============================================================================
 
@@ -388,6 +422,9 @@ class RequestAwareMixin(object):
 
 class TranslatableValidateDangerousOperationNode(
         ValidateDangerousOperationNode, RequestAwareMixin):
+    """
+    Translatable version of ValidateDangerousOperationNode.
+    """
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         super().after_bind(node, kw)  # calls set_description()
         _ = self.gettext
@@ -523,7 +560,9 @@ class CSRFToken(SchemaNode, RequestAwareMixin):
     schema_type = String
     default = ""
     missing = ""
-    title = "CSRF token"  # doesn't need translating; always hidden
+    title = " "
+    # ... evaluates to True but won't be visible, if the "hidden" aspect ever
+    # fails
     widget = HiddenWidget()
 
     # noinspection PyUnusedLocal
@@ -678,7 +717,7 @@ def make_node_widget_horizontal(node: SchemaNode) -> None:
 # Specialized Form classes
 # =============================================================================
 
-class SimpleSubmitForm(InformativeForm):
+class SimpleSubmitForm(InformativeNonceForm):
     """
     Form with a simple "submit" button.
     """
@@ -706,7 +745,7 @@ class SimpleSubmitForm(InformativeForm):
         )
 
 
-class ApplyCancelForm(InformativeForm):
+class ApplyCancelForm(InformativeNonceForm):
     """
     Form with "apply" and "cancel" buttons.
     """
@@ -726,7 +765,7 @@ class ApplyCancelForm(InformativeForm):
         )
 
 
-class AddCancelForm(InformativeForm):
+class AddCancelForm(InformativeNonceForm):
     """
     Form with "add" and "cancel" buttons.
     """
@@ -746,7 +785,7 @@ class AddCancelForm(InformativeForm):
         )
 
 
-class DangerousForm(DynamicDescriptionsForm):
+class DangerousForm(DynamicDescriptionsNonceForm):
     """
     Form with one "submit" button (with user-specifiable title text and action
     name), in a CSS class indicating that it's a dangerous operation, plus a
@@ -1088,7 +1127,8 @@ class IdNumSequenceUniquePerWhichIdnum(SequenceSchema, RequestAwareMixin):
             _ = self.gettext
             raise Invalid(
                 node,
-                _("You have specified >1 value for one ID number type"))
+                _("You have specified >1 value for one ID number type")
+            )
 
 
 # -----------------------------------------------------------------------------
@@ -1210,7 +1250,6 @@ class UsernameNode(SchemaNode, RequestAwareMixin):
     Node to enter a username.
     """
     schema_type = String
-    _length_validator = Length(1, USERNAME_CAMCOPS_MAX_LEN)
     widget = TextInputWidget(attributes={
         AUTOCOMPLETE_ATTR: AutocompleteAttrValues.OFF
     })
@@ -1230,7 +1269,7 @@ class UsernameNode(SchemaNode, RequestAwareMixin):
         # noinspection PyUnresolvedReferences
         self.widget.attributes[AUTOCOMPLETE_ATTR] = self.autocomplete
 
-    def validator(self, node: SchemaNode, value: Any) -> None:
+    def validator(self, node: SchemaNode, value: str) -> None:
         if value == USER_NAME_FOR_SYSTEM:
             _ = self.gettext
             raise Invalid(
@@ -1238,7 +1277,10 @@ class UsernameNode(SchemaNode, RequestAwareMixin):
                 _("Cannot use system username") + " " +
                 repr(USER_NAME_FOR_SYSTEM)
             )
-        self._length_validator(node, value)
+        try:
+            validate_username(value, self.request)
+        except ValueError as e:
+            raise Invalid(node, str(e))
 
 
 class UserFilterSchema(Schema, RequestAwareMixin):
@@ -1256,7 +1298,7 @@ class UserFilterSchema(Schema, RequestAwareMixin):
         include_auto_generated.label = None
 
 
-class UserFilterForm(InformativeForm):
+class UserFilterForm(InformativeNonceForm):
     """
     Form to filter the list of users
     """
@@ -1637,12 +1679,16 @@ class GroupsSequenceBase(SequenceSchema, RequestAwareMixin):
                   node: SchemaNode,
                   value: List[int]) -> None:
         assert isinstance(value, list)
+        _ = self.gettext
         if len(value) != len(set(value)):
-            raise Invalid(node, "You have specified duplicate groups")
+            raise Invalid(node, _("You have specified duplicate groups"))
         if len(value) < self.minimum_number:
             raise Invalid(
                 node,
-                f"You must specify at least {self.minimum_number} group(s)")
+                _("You must specify at least {} group(s)").format(
+                    self.minimum_number
+                )
+            )
 
 
 class AllGroupsSequence(GroupsSequenceBase):
@@ -1756,6 +1802,24 @@ class HardWorkConfirmationSchema(CSRFSchema):
             raise Invalid(node, _("Not fully confirmed"))
 
 
+# -----------------------------------------------------------------------------
+# URLs
+# -----------------------------------------------------------------------------
+
+class HiddenRedirectionUrlNode(HiddenStringNode, RequestAwareMixin):
+    """
+    Note to encode a hidden URL, for redirection.
+    """
+    # noinspection PyMethodMayBeStatic
+    def validator(self, node: SchemaNode, value: str) -> None:
+        if value:
+            try:
+                validate_redirect_url(value, self.request)
+            except ValueError:
+                _ = self.gettext
+                raise Invalid(node, _("Invalid redirection URL"))
+
+
 # =============================================================================
 # Login
 # =============================================================================
@@ -1773,7 +1837,7 @@ class LoginSchema(CSRFSchema):
             AUTOCOMPLETE_ATTR: AutocompleteAttrValues.CURRENT_PASSWORD
         }),
     )
-    redirect_url = HiddenStringNode()  # name must match ViewParam.REDIRECT_URL
+    redirect_url = HiddenRedirectionUrlNode()  # name must match ViewParam.REDIRECT_URL  # noqa
 
     def __init__(self, *args, autocomplete_password: bool = True,
                  **kwargs) -> None:
@@ -1791,7 +1855,7 @@ class LoginSchema(CSRFSchema):
         )
 
 
-class LoginForm(InformativeForm):
+class LoginForm(InformativeNonceForm):
     """
     Form to capture login details.
     """
@@ -1864,11 +1928,11 @@ class OldUserPasswordCheck(SchemaNode, RequestAwareMixin):
         _ = self.gettext
         self.title = _("Old password")
 
-    def validator(self, node: SchemaNode, value: Any) -> None:
+    def validator(self, node: SchemaNode, value: str) -> None:
         request = self.request
         user = request.user
         assert user is not None
-        if not user.is_password_valid(value):
+        if not user.is_password_correct(value):
             _ = request.gettext
             raise Invalid(node, _("Old password incorrect"))
 
@@ -1878,7 +1942,6 @@ class NewPasswordNode(SchemaNode, RequestAwareMixin):
     Node to enter a new password.
     """
     schema_type = String
-    validator = Length(min=MINIMUM_PASSWORD_LENGTH)
     widget = CheckedPasswordWidget(attributes={
         AUTOCOMPLETE_ATTR: AutocompleteAttrValues.NEW_PASSWORD
     })
@@ -1893,6 +1956,12 @@ class NewPasswordNode(SchemaNode, RequestAwareMixin):
         _ = self.gettext
         self.title = _("New password")
         self.description = _("Type the new password and confirm it")
+
+    def validator(self, node: SchemaNode, value: str) -> None:
+        try:
+            validate_new_password(value, self.request)
+        except ValueError as e:
+            raise Invalid(node, str(e))
 
 
 class ChangeOwnPasswordSchema(CSRFSchema):
@@ -1911,13 +1980,13 @@ class ChangeOwnPasswordSchema(CSRFSchema):
         self.must_differ = must_differ
         super().__init__(*args, **kwargs)
 
-    def validator(self, node: SchemaNode, value: Any) -> None:
+    def validator(self, node: SchemaNode, value: Dict[str, str]) -> None:
         if self.must_differ and value['new_password'] == value['old_password']:
             _ = self.gettext
             raise Invalid(node, _("New password must differ from old"))
 
 
-class ChangeOwnPasswordForm(InformativeForm):
+class ChangeOwnPasswordForm(InformativeNonceForm):
     """
     Form to change one's own password.
     """
@@ -1991,6 +2060,34 @@ class OfferTermsForm(SimpleSubmitForm):
 # View audit trail
 # =============================================================================
 
+class OptionalIPAddressNode(OptionalStringNode, RequestAwareMixin):
+    """
+    Optional IPv4 or IPv6 address.
+    """
+    def validator(self, node: SchemaNode, value: str) -> None:
+        try:
+            validate_ip_address(value, self.request)
+        except ValueError as e:
+            raise Invalid(node, e)
+
+
+class OptionalAuditSourceNode(OptionalStringNode, RequestAwareMixin):
+    """
+    Optional IPv4 or IPv6 address.
+    """
+    def validator(self, node: SchemaNode, value: str) -> None:
+        try:
+            validate_by_char_and_length(
+                value,
+                permitted_char_expression=ALPHANUM_UNDERSCORE_CHAR,
+                min_length=0,
+                max_length=StringLengths.AUDIT_SOURCE_MAX_LEN,
+                req=self.request
+            )
+        except ValueError as e:
+            raise Invalid(node, e)
+
+
 class AuditTrailSchema(CSRFSchema):
     """
     Schema to filter audit trail entries.
@@ -1998,8 +2095,8 @@ class AuditTrailSchema(CSRFSchema):
     rows_per_page = RowsPerPageSelector()  # must match ViewParam.ROWS_PER_PAGE
     start_datetime = StartPendulumSelector()  # must match ViewParam.START_DATETIME  # noqa
     end_datetime = EndPendulumSelector()  # must match ViewParam.END_DATETIME
-    source = OptionalStringNode()  # must match ViewParam.SOURCE  # noqa
-    remote_ip_addr = OptionalStringNode()  # must match ViewParam.REMOTE_IP_ADDR  # noqa
+    source = OptionalAuditSourceNode()  # must match ViewParam.SOURCE  # noqa
+    remote_ip_addr = OptionalIPAddressNode()  # must match ViewParam.REMOTE_IP_ADDR  # noqa
     username = OptionalUserNameSelector()  # must match ViewParam.USERNAME  # noqa
     table_name = OptionalSingleTaskSelector()  # must match ViewParam.TABLENAME  # noqa
     server_pk = ServerPkSelector()  # must match ViewParam.SERVER_PK
@@ -2105,8 +2202,8 @@ class TextContentsSequence(SequenceSchema, RequestAwareMixin):
     """
     text_sequence = SchemaNode(
         String(),
-        validator=Length(0, FILTER_TEXT_MAX_LEN)
-    )
+        validator=Length(0, StringLengths.FILTER_TEXT_MAX_LEN)
+    )  # BEWARE: fairly unrestricted contents.
 
     def __init__(self, *args, **kwargs) -> None:
         self.title = ""  # for type checker
@@ -2189,12 +2286,27 @@ class DevicesSequence(SequenceSchema, RequestAwareMixin):
             raise Invalid(node, "You have specified duplicate devices")
 
 
+class OptionalPatientNameNode(OptionalStringNode, RequestAwareMixin):
+    def validator(self, node: SchemaNode, value: str) -> None:
+        try:
+            # TODO: Validating human names is hard.
+            # Decide if validation here is necessary and whether it should
+            # be configurable.
+            # validate_human_name(value, self.request)
+
+            # Does nothing but better to be explicit
+            validate_anything(value, self.request)
+        except ValueError as e:
+            # Should never happen with validate_anything
+            raise Invalid(node, str(e))
+
+
 class EditTaskFilterWhoSchema(Schema, RequestAwareMixin):
     """
     Schema to edit the "who" parts of a task filter.
     """
-    surname = OptionalStringNode()  # must match ViewParam.SURNAME  # noqa
-    forename = OptionalStringNode()  # must match ViewParam.FORENAME  # noqa
+    surname = OptionalPatientNameNode()  # must match ViewParam.SURNAME  # noqa
+    forename = OptionalPatientNameNode()  # must match ViewParam.FORENAME  # noqa
     dob = SchemaNode(Date(), missing=None)  # must match ViewParam.DOB
     sex = OptionalSexSelector()  # must match ViewParam.SEX
     id_references = IdNumSequenceAnyCombination()  # must match ViewParam.ID_REFERENCES  # noqa
@@ -2303,7 +2415,7 @@ class EditTaskFilterSchema(CSRFSchema):
         admin.widget.open = kw[Binding.OPEN_ADMIN]
 
 
-class EditTaskFilterForm(InformativeForm):
+class EditTaskFilterForm(InformativeNonceForm):
     """
     Form to edit a task filter.
     """
@@ -2337,7 +2449,7 @@ class TasksPerPageSchema(CSRFSchema):
     rows_per_page = RowsPerPageSelector()  # must match ViewParam.ROWS_PER_PAGE
 
 
-class TasksPerPageForm(InformativeForm):
+class TasksPerPageForm(InformativeNonceForm):
     """
     Form to edit the number of tasks per page, for the task view.
     """
@@ -2360,7 +2472,7 @@ class RefreshTasksSchema(CSRFSchema):
     pass
 
 
-class RefreshTasksForm(InformativeForm):
+class RefreshTasksForm(InformativeNonceForm):
     """
     Form for a "refresh tasks" button.
     """
@@ -2427,7 +2539,7 @@ class ChooseTrackerSchema(CSRFSchema):
         all_tasks.label = text
 
 
-class ChooseTrackerForm(InformativeForm):
+class ChooseTrackerForm(InformativeNonceForm):
     """
     Form to select a tracker or CTV.
     """
@@ -2654,7 +2766,7 @@ class EditUserGroupAdminSchema(CSRFSchema):
     """
     username = UsernameNode()  # name must match ViewParam.USERNAME and User attribute  # noqa
     fullname = OptionalStringNode(  # name must match ViewParam.FULLNAME and User attribute  # noqa
-        validator=Length(0, FULLNAME_MAX_LEN)
+        validator=Length(0, StringLengths.FULLNAME_MAX_LEN)
     )
     email = OptionalEmailNode()  # name must match ViewParam.EMAIL and User attribute  # noqa
     must_change_password = MustChangePasswordNode()  # match ViewParam.MUST_CHANGE_PASSWORD and User attribute  # noqa
@@ -2772,7 +2884,7 @@ class SetUserUploadGroupSchema(CSRFSchema):
             "Pick a group from those to which the user belongs")
 
 
-class SetUserUploadGroupForm(InformativeForm):
+class SetUserUploadGroupForm(InformativeNonceForm):
     """
     Form to choose the group into which a user uploads.
     """
@@ -2822,11 +2934,10 @@ class PolicyNode(MandatoryStringNode, RequestAwareMixin):
         if not isinstance(value, str):
             # unlikely!
             raise Invalid(node, _("Not a string"))
-        request = self.bindings[Binding.REQUEST]  # type: CamcopsRequest
         policy = TokenizedPolicy(value)
         if not policy.is_syntactically_valid():
             raise Invalid(node, _("Syntactically invalid policy"))
-        if not policy.is_valid_for_idnums(request.valid_which_idnums):
+        if not policy.is_valid_for_idnums(self.request.valid_which_idnums):
             raise Invalid(
                 node,
                 _("Invalid policy. Have you referred to non-existent ID "
@@ -2840,18 +2951,11 @@ class GroupNameNode(MandatoryStringNode, RequestAwareMixin):
     """
     Node to capture a CamCOPS group name, and check it's valid as a string.
     """
-    def validator(self, node: SchemaNode, value: Any) -> None:
-        _ = self.gettext
-        if not isinstance(value, str):
-            # unlikely!
-            raise Invalid(node, _("Not a string"))
-        request = self.bindings[Binding.REQUEST]  # type: CamcopsRequest
-        _ = request.gettext
-        if not is_group_name_valid(value):
-            errstr = _(
-                "Invalid group name (must be between 1 and {} characters and "
-                "contain only alphanumeric, hyphen, or underscore characters).")  # noqa
-            raise Invalid(node, errstr.format(GROUP_NAME_MAX_LEN))
+    def validator(self, node: SchemaNode, value: str) -> None:
+        try:
+            validate_group_name(value, self.request)
+        except ValueError as e:
+            raise Invalid(node, str(e))
 
 
 class GroupIpUseWidget(Widget):
@@ -2978,7 +3082,8 @@ class EditGroupSchema(CSRFSchema):
     group_id = HiddenIntegerNode()  # must match ViewParam.GROUP_ID
     name = GroupNameNode()  # must match ViewParam.NAME
     description = MandatoryStringNode(  # must match ViewParam.DESCRIPTION
-        validator=Length(1, GROUP_DESCRIPTION_MAX_LEN),
+        validator=Length(StringLengths.GROUP_DESCRIPTION_MIN_LEN,
+                         StringLengths.GROUP_DESCRIPTION_MAX_LEN),
     )
     ip_use = GroupIpUseNode()
 
@@ -3017,7 +3122,7 @@ class EditGroupSchema(CSRFSchema):
             raise Invalid(node, _("Name is used by another group!"))
 
 
-class EditGroupForm(InformativeForm):
+class EditGroupForm(InformativeNonceForm):
     """
     Form to edit a group.
     """
@@ -3390,7 +3495,8 @@ class EditServerSettingsSchema(CSRFSchema):
     """
     database_title = SchemaNode(  # must match ViewParam.DATABASE_TITLE
         String(),
-        validator=Length(1, DATABASE_TITLE_MAX_LEN),
+        validator=Length(StringLengths.DATABASE_TITLE_MIN_LEN,
+                         StringLengths.DATABASE_TITLE_MAX_LEN),
     )
 
     # noinspection PyUnusedLocal
@@ -3418,7 +3524,7 @@ class IdDefinitionDescriptionNode(SchemaNode, RequestAwareMixin):
     Node to capture the description of an ID number type.
     """
     schema_type = String
-    validator = Length(1, ID_DESCRIPTOR_MAX_LEN)
+    validator = Length(1, StringLengths.ID_DESCRIPTOR_MAX_LEN)
 
     def __init__(self, *args, **kwargs) -> None:
         self.title = ""  # for type checker
@@ -3435,7 +3541,7 @@ class IdDefinitionShortDescriptionNode(SchemaNode, RequestAwareMixin):
     Node to capture the short description of an ID number type.
     """
     schema_type = String
-    validator = Length(1, ID_DESCRIPTOR_MAX_LEN)
+    validator = Length(1, StringLengths.ID_DESCRIPTOR_MAX_LEN)
 
     def __init__(self, *args, **kwargs) -> None:
         self.title = ""  # for type checker
@@ -3472,8 +3578,6 @@ class Hl7AssigningAuthorityNode(OptionalStringNode, RequestAwareMixin):
     """
     Optional node to capture the name of an HL7 Assigning Authority.
     """
-    validator = Length(0, HL7_AA_MAX_LEN)
-
     def __init__(self, *args, **kwargs) -> None:
         self.title = ""  # for type checker
         self.description = ""  # for type checker
@@ -3489,13 +3593,18 @@ class Hl7AssigningAuthorityNode(OptionalStringNode, RequestAwareMixin):
             "system/organization/agency/department that creates the data)."
         )
 
+    # noinspection PyMethodMayBeStatic
+    def validator(self, node: SchemaNode, value: str) -> None:
+        try:
+            validate_hl7_aa(value, self.request)
+        except ValueError as e:
+            raise Invalid(node, str(e))
+
 
 class Hl7IdTypeNode(OptionalStringNode, RequestAwareMixin):
     """
     Optional node to capture the name of an HL7 Identifier Type code.
     """
-    validator = Length(0, HL7_ID_TYPE_MAX_LEN)
-
     def __init__(self, *args, **kwargs) -> None:
         self.title = ""  # for type checker
         self.description = ""  # for type checker
@@ -3511,6 +3620,13 @@ class Hl7IdTypeNode(OptionalStringNode, RequestAwareMixin):
             "of identifier. In some cases, this code may be used as a "
             "qualifier to the “Assigning Authority” component.’"
         )
+
+    # noinspection PyMethodMayBeStatic
+    def validator(self, node: SchemaNode, value: str) -> None:
+        try:
+            validate_hl7_id_type(value, self.request)
+        except ValueError as e:
+            raise Invalid(node, str(e))
 
 
 class EditIdDefinitionSchema(CSRFSchema):
@@ -3975,8 +4091,8 @@ class EditPatientSchema(CSRFSchema):
     Schema to edit a patient.
     """
     server_pk = HiddenIntegerNode()  # must match ViewParam.SERVER_PK
-    forename = OptionalStringNode()  # must match ViewParam.FORENAME
-    surname = OptionalStringNode()  # must match ViewParam.SURNAME
+    forename = OptionalPatientNameNode()  # must match ViewParam.FORENAME
+    surname = OptionalPatientNameNode()  # must match ViewParam.SURNAME
     dob = DateSelectorNode()  # must match ViewParam.DOB
     sex = MandatorySexSelector()  # must match ViewParam.SEX
     address = OptionalStringNode()  # must match ViewParam.ADDRESS
@@ -4044,7 +4160,7 @@ class EditFinalizedPatientForm(DangerousForm):
                          request=request, **kwargs)
 
 
-class EditServerCreatedPatientForm(DynamicDescriptionsForm):
+class EditServerCreatedPatientForm(DynamicDescriptionsNonceForm):
     """
     Form to add or edit a patient not yet on the device (for scheduled tasks)
     """
@@ -4070,6 +4186,7 @@ class EmailTemplateNode(OptionalStringNode, RequestAwareMixin):
         self.formatter = TaskScheduleEmailTemplateFormatter()
         super().__init__(*args, **kwargs)
 
+    # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         _ = self.gettext
         self.title = _("Email template")
@@ -4078,6 +4195,7 @@ class EmailTemplateNode(OptionalStringNode, RequestAwareMixin):
             "complete the tasks in the schedule. Valid placeholders: {}"
         ).format(self.formatter.get_valid_parameters_string())
 
+        # noinspection PyAttributeOutsideInit
         self.widget = TextAreaWidget(rows=20, cols=80)
 
     def validator(self, node: SchemaNode, value: Any) -> None:
@@ -4105,7 +4223,7 @@ class TaskScheduleSchema(CSRFSchema):
     email_template = EmailTemplateNode()
 
 
-class EditTaskScheduleForm(DynamicDescriptionsForm):
+class EditTaskScheduleForm(DynamicDescriptionsNonceForm):
     def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         schema = TaskScheduleSchema().bind(request=request)
         _ = request.gettext
@@ -4466,7 +4584,7 @@ class TaskScheduleItemSchema(CSRFSchema):
             )
 
 
-class EditTaskScheduleItemForm(DynamicDescriptionsForm):
+class EditTaskScheduleItemForm(DynamicDescriptionsNonceForm):
     def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
         schema = TaskScheduleItemSchema().bind(request=request)
         _ = request.gettext

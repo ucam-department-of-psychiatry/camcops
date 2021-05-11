@@ -428,6 +428,8 @@ Suppose ``LOCKOUT_THRESHOLD = 10`` and ``LOCKOUT_DURATION_INCREMENT_MINUTES =
   on. Time and administrators can unlock accounts.
 
 
+.. _DISABLE_PASSWORD_AUTOCOMPLETE:
+
 DISABLE_PASSWORD_AUTOCOMPLETE
 #############################
 
@@ -1087,6 +1089,8 @@ CherryPy options
 
 Additional options for the CherryPy web server.
 
+
+.. _CHERRYPY_SERVER_NAME:
 
 CHERRYPY_SERVER_NAME
 ####################

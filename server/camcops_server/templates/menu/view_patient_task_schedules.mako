@@ -39,9 +39,8 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 
 <%include file="db_user_info.mako"/>
 <div>
-${_("CamCOPS server location:")} ${ req.route_url( Routes.CLIENT_API ) }
+    ${_("CamCOPS server location:")} ${ req.route_url( Routes.CLIENT_API ) }
 </div>
-
 
 <h1>${_("Patient Task Schedules")}</h1>
 
@@ -78,7 +77,7 @@ ${_("CamCOPS server location:")} ${ req.route_url( Routes.CLIENT_API ) }
                          Routes.VIEW_PATIENT_TASK_SCHEDULE,
                          _query={
                              ViewParam.PATIENT_TASK_SCHEDULE_ID: pts.id
-                         }) }">${ pts.task_schedule.name }</a>
+                         }) }">${ pts.task_schedule.name | h }</a>
             %if patient.email:
                 [<a href="${ pts.mailto_url(req) }">${_("Email")}</a>]<br>
             %endif

@@ -27,11 +27,11 @@ camcops_server/cc_modules/tests/cc_taskcollection_tests.py
 """
 
 from kombu.serialization import dumps, loads
-
 from camcops_server.cc_modules.cc_taskcollection import (
     TaskCollection,
     TaskSortMethod,
 )
+
 from camcops_server.cc_modules.cc_taskfilter import TaskFilter
 from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 

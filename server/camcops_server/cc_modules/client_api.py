@@ -363,6 +363,7 @@ from cardinal_pythonlib.sqlalchemy.core_query import (
     fetch_all_first_values,
 )
 from cardinal_pythonlib.text import escape_newlines
+from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.view import view_config
 from pyramid.response import Response
 from pyramid.security import NO_PERMISSION_REQUIRED
@@ -403,7 +404,6 @@ from camcops_server.cc_modules.cc_client_api_core import (
     WhichKeyToSendInfo,
 )
 from camcops_server.cc_modules.cc_client_api_helpers import (
-    is_email_valid,
     upload_commit_order_sorter,
 )
 from camcops_server.cc_modules.cc_constants import (
@@ -470,6 +470,11 @@ from camcops_server.cc_modules.cc_task import (
 )
 from camcops_server.cc_modules.cc_taskindex import update_indexes_and_push_exports  # noqa
 from camcops_server.cc_modules.cc_user import User
+from camcops_server.cc_modules.cc_validators import (
+    STRING_VALIDATOR_TYPE,
+    validate_anything,
+    validate_email,
+)
 from camcops_server.cc_modules.cc_version import (
     CAMCOPS_SERVER_VERSION_STRING,
     MINIMUM_TABLET_VERSION,
@@ -677,8 +682,11 @@ def ensure_valid_patient_json(req: "CamcopsRequest",
 
         elif k == TabletParam.EMAIL:
             ensure_string(v)
-            if v and not is_email_valid(v):
-                fail_user_error(f"Bad e-mail address: {v!r}")
+            if v:
+                try:
+                    validate_email(v)
+                except ValueError:
+                    fail_user_error(f"Bad e-mail address: {v!r}")
             ptinfo.email = v
 
         elif k == TabletParam.ADDRESS:
@@ -740,16 +748,24 @@ def ensure_valid_patient_json(req: "CamcopsRequest",
 # Extracting information from the POST request
 # =============================================================================
 
-def get_str_var(req: "CamcopsRequest",
-                var: str,
-                mandatory: bool = True) -> Optional[str]:
+def get_str_var(
+        req: "CamcopsRequest",
+        var: str,
+        mandatory: bool = True,
+        validator: STRING_VALIDATOR_TYPE = validate_anything) \
+        -> Optional[str]:
     """
     Retrieves a string variable from the CamcopsRequest.
+
+    By default this performs no validation (because, for example, these strings
+    can contain SQL-encoded data or JSON), but there are a number of subsequent
+    operation-specific validation steps.
 
     Args:
         req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         var: name of variable to retrieve
         mandatory: if ``True``, raise an exception if the variable is missing
+        validator: validator function to use
 
     Returns:
         value
@@ -758,10 +774,13 @@ def get_str_var(req: "CamcopsRequest",
         :exc:`UserErrorException` if the variable was mandatory and
         no value was provided
     """
-    val = req.get_str_param(var, default=None)
-    if mandatory and val is None:
-        fail_user_error(f"Must provide the variable: {var}")
-    return val
+    try:
+        val = req.get_str_param(var, default=None, validator=validator)
+        if mandatory and val is None:
+            fail_user_error(f"Must provide the variable: {var}")
+        return val
+    except HTTPBadRequest as e:  # failed the validator
+        fail_user_error(str(e))
 
 
 def get_int_var(req: "CamcopsRequest", var: str) -> int:

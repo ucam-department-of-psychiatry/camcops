@@ -1486,5 +1486,4 @@ OTHER_FILES += \
 TRANSLATIONS = \
     translations/camcops_da_DK.ts
 
-
 message("--- CamCOPS qmake finishing.")

@@ -106,4 +106,24 @@ void ensureDirectoryExistsOrDie(const QString& dir)
 }
 
 
+bool fileContainsLine(const QString& filename, const QString& line)
+{
+    // https://doc.qt.io/qt-5/qfile.html
+    // https://doc.qt.io/qt-5/qtextstream.html
+    QFile file(filename);
+    if (!file.open(QFile::ReadOnly | QFile::Text)) {
+        qCritical() << Q_FUNC_INFO << "FAILED TO OPEN FILE:" << filename;
+        return false;
+    }
+    QTextStream in(&file);
+    while (!in.atEnd()){
+        const QString file_line = in.readLine();  // strips newlines
+        if (line == file_line) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
 }  // namespace filefunc

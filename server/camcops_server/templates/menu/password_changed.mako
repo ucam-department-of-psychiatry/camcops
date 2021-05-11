@@ -28,7 +28,7 @@ camcops_server/templates/menu/password_changed.mako
 
 <%inherit file="base_web.mako"/>
 
-<div>${_("Password changed for user")} ${username}.</div>
+<div>${_("Password changed for user")} ${username | h}.</div>
 
 %if own_password:
     <div class="important">

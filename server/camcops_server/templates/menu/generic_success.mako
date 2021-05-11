@@ -32,7 +32,7 @@ camcops_server/templates/menu/generic_success.mako
 <h1>Success!</h1>
 
 %if msg:
-<div>${msg | h}</div>
+    <div>${msg | h}</div>
 %endif
 
 %if extra_html:

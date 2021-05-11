@@ -694,7 +694,6 @@ class Routes(object):
     ADD_USER = "add_user"
     AUDIT_MENU = "audit_menu"
     BASIC_DUMP = "basic_dump"
-    BUGFIX_DEFORM_MISSING_GLYPHS = "bugfix_deform_missing_glyphs"  # ... test by visiting the Task Filters page  # noqa
     CHANGE_OTHER_PASSWORD = "change_other_password"
     CHANGE_OWN_PASSWORD = "change_own_password"
     CHOOSE_CTV = "choose_ctv"
@@ -828,7 +827,6 @@ class RouteCollection(object):
     ADD_USER = RoutePath(Routes.ADD_USER)
     AUDIT_MENU = RoutePath(Routes.AUDIT_MENU)
     BASIC_DUMP = RoutePath(Routes.BASIC_DUMP)
-    BUGFIX_DEFORM_MISSING_GLYPHS = RoutePath(Routes.BUGFIX_DEFORM_MISSING_GLYPHS, "/deform_static/fonts/glyphicons-halflings-regular.woff2")  # noqa
     CHANGE_OTHER_PASSWORD = RoutePath(Routes.CHANGE_OTHER_PASSWORD)
     CHANGE_OWN_PASSWORD = RoutePath(Routes.CHANGE_OWN_PASSWORD)
     CHOOSE_CTV = RoutePath(Routes.CHOOSE_CTV)

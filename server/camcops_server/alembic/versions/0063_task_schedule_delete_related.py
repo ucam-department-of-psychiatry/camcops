@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-camcops_server/alembic/versions/0062_task_schedule_delete_related.py
+camcops_server/alembic/versions/0063_task_schedule_delete_related.py
 
 ===============================================================================
 
@@ -20,7 +20,7 @@ camcops_server/alembic/versions/0062_task_schedule_delete_related.py
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 
 ===============================================================================
 
@@ -28,8 +28,8 @@ DATABASE REVISION SCRIPT
 
 task_schedule_delete_related
 
-Revision ID: 0062
-Revises: 0061
+Revision ID: 0063
+Revises: 0062
 Creation date: 2021-04-27 15:20:01.945933
 
 """
@@ -46,8 +46,8 @@ import sqlalchemy as sa
 # Revision identifiers, used by Alembic.
 # =============================================================================
 
-revision = '0062'
-down_revision = '0061'
+revision = '0063'
+down_revision = '0062'
 branch_labels = None
 depends_on = None
 

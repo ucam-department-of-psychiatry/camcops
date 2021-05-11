@@ -32,8 +32,6 @@ camcops_server/templates/menu/logged_out.mako
 from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 %>
 
-<%include file="db_user_info.mako"/>
-
 <div>
     ${_("You have logged out.")}
 </div>
