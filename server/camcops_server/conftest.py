@@ -86,24 +86,11 @@ def pytest_addoption(parser: "Parser"):
     )
 
     parser.addoption(
-        "--db-name",
-        dest="db_name",
-        default="test_camcops",
-        help="Test database name"
-    )
-
-    parser.addoption(
-        "--db-user",
-        dest="db_user",
-        default="camcops",
-        help="Database user"
-    )
-
-    parser.addoption(
-        "--db-password",
-        dest="db_password",
-        default="camcops",
-        help="Database user's password"
+        "--db-url",
+        dest="db_url",
+        default=("mysql+mysqldb://camcops:camcops@localhost:3306/test_camcops"
+                 "?charset=utf8"),
+        help="SQLAlchemy test database URL (MySQL only)"
     )
 
     parser.addoption(
@@ -150,18 +137,8 @@ def mysql(request: "FixtureRequest") -> bool:
 
 
 @pytest.fixture(scope="session")
-def db_name(request: "FixtureRequest") -> bool:
-    return request.config.getvalue("db_name")
-
-
-@pytest.fixture(scope="session")
-def db_user(request: "FixtureRequest") -> bool:
-    return request.config.getvalue("db_user")
-
-
-@pytest.fixture(scope="session")
-def db_password(request: "FixtureRequest") -> bool:
-    return request.config.getvalue("db_password")
+def db_url(request: "FixtureRequest") -> bool:
+    return request.config.getvalue("db_url")
 
 
 @pytest.fixture(scope="session")
@@ -182,14 +159,10 @@ def engine(request: "FixtureRequest",
            database_on_disk: bool,
            echo: bool,
            mysql: bool,
-           db_name: str,
-           db_user: str,
-           db_password: str) -> Generator["Engine", None, None]:
+           db_url: str) -> Generator["Engine", None, None]:
 
     if mysql:
-        engine = create_engine_mysql(db_name,
-                                     db_user,
-                                     db_password,
+        engine = create_engine_mysql(db_url,
                                      create_db,
                                      echo)
     else:
@@ -201,18 +174,15 @@ def engine(request: "FixtureRequest",
     engine.dispose()
 
 
-def create_engine_mysql(db_name: str,
-                        db_user: str,
-                        db_password: str,
+def create_engine_mysql(db_url: str,
                         create_db: bool,
                         echo: bool):
 
-    # Database db_name and the user with the given password need to exist
+    # The database and the user with the given password from db_url
+    # need to exist.
     # mysql> CREATE DATABASE <db_name>;
     # mysql> GRANT ALL PRIVILEGES ON <db_name>.*
     #        TO <db_user>@localhost IDENTIFIED BY '<db_password>';
-    db_url = (f"mysql+mysqldb://{db_user}:{db_password}@localhost:3306/"
-              f"{db_name}?charset=utf8")
     engine = create_engine(db_url, echo=echo, pool_pre_ping=True)
 
     if create_db:

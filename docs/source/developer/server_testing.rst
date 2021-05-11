@@ -54,9 +54,7 @@ Custom CamCOPS pytest options:
 --database-in-memory  Store the database in memory instead of on disk (SQLite only).
 --echo                Log all SQL statements to the default log handler
 --mysql               Use MySQL instead of the default SQLite
---db-name             Test database name (MySQL only, default test_camcops)
---db-user             Test database user (MySQL only, default camcops)
---db-password         Test database password (MySQL only, default camcops)
+--db-url              SQLAlchemy test database URL (MySQL only, default: mysql+mysqldb://camcops:camcops@localhost:3306/test_camcops?charset=utf8
 
 
 Some common standard pytest options:
