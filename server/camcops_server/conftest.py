@@ -153,6 +153,7 @@ def tmpdir_obj(request: "FixtureRequest") -> Generator[
 
 # https://gist.github.com/kissgyorgy/e2365f25a213de44b9a2
 # Author says "no [license], feel free to use it"
+# noinspection PyUnusedLocal
 @pytest.fixture(scope="session")
 def engine(request: "FixtureRequest",
            create_db: bool,
