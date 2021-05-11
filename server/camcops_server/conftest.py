@@ -65,7 +65,7 @@ def pytest_addoption(parser: "Parser"):
         action="store_false",
         dest="database_on_disk",
         default=True,
-        help="Make sqlite database in memory"
+        help="Make SQLite database in memory"
     )
 
     # Borrowed from pytest-django
@@ -82,7 +82,7 @@ def pytest_addoption(parser: "Parser"):
         action="store_true",
         dest="mysql",
         default=False,
-        help="Use MySQL database instead of sqlite"
+        help="Use MySQL database instead of SQLite"
     )
 
     parser.addoption(
