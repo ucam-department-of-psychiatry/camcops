@@ -3358,3 +3358,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
   hidden but it appeared in some circumstances.
 
 **Client and server v2.4.7, IN PROGRESS**
+
+  Fix bug where deleting a task schedule with related items would result in
+  an internal server error.
+  https://github.com/RudolfCardinal/camcops/issues/150
