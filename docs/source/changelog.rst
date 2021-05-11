@@ -3362,3 +3362,4 @@ Current C++/SQLite client, Python/SQLAlchemy server
   Fix bug where deleting a task schedule with related items would result in
   an internal server error.
   https://github.com/RudolfCardinal/camcops/issues/150
+  (Database revision 0063)
