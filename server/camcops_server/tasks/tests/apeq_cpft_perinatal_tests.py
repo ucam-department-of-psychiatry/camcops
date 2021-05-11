@@ -159,12 +159,22 @@ class APEQCPFTPerinatalReportTests(APEQCPFTPerinatalReportTestCase):
         self.dbsession.commit()
 
     def test_main_rows_contain_percentages(self) -> None:
-        expected_q1 = [20, "50", "25", "25"]
-        expected_q2 = [20, "", "100", ""]
-        expected_q3 = [20, "5", "20", "75"]
-        expected_q4 = [20, "10", "40", "50"]
-        expected_q5 = [20, "15", "55", "30"]
-        expected_q6 = [18, "", "50", "50"]
+
+        if self.mysql:
+            # MySQL does floating point division
+            expected_q1 = [20, "50.0000", "25.0000", "25.0000"]
+            expected_q2 = [20, "", "100.0000", ""]
+            expected_q3 = [20, "5.0000", "20.0000", "75.0000"]
+            expected_q4 = [20, "10.0000", "40.0000", "50.0000"]
+            expected_q5 = [20, "15.0000", "55.0000", "30.0000"]
+            expected_q6 = [18, "", "50.0000", "50.0000"]
+        else:
+            expected_q1 = [20, "50", "25", "25"]
+            expected_q2 = [20, "", "100", ""]
+            expected_q3 = [20, "5", "20", "75"]
+            expected_q4 = [20, "10", "40", "50"]
+            expected_q5 = [20, "15", "55", "30"]
+            expected_q6 = [18, "", "50", "50"]
 
         main_rows = self.report._get_main_rows(self.req)
 
@@ -185,8 +195,13 @@ class APEQCPFTPerinatalReportTests(APEQCPFTPerinatalReportTestCase):
         self.assertEqual(main_rows[0][1:], expected_q1)
 
     def test_ff_rows_contain_percentages(self) -> None:
-        expected_ff = [20, "25", "10", "15",
-                       "10", "5", "35"]
+        if self.mysql:
+            # MySQL does floating point division
+            expected_ff = [20, "25.0000", "10.0000", "15.0000",
+                           "10.0000", "5.0000", "35.0000"]
+        else:
+            expected_ff = [20, "25", "10", "15",
+                           "10", "5", "35"]
 
         ff_rows = self.report._get_ff_rows(self.req)
 

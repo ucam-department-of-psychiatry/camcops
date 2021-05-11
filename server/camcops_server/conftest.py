@@ -65,7 +65,7 @@ def pytest_addoption(parser: "Parser"):
         action="store_false",
         dest="database_on_disk",
         default=True,
-        help="Make database in memory"
+        help="Make SQLite database in memory"
     )
 
     # Borrowed from pytest-django
@@ -82,7 +82,28 @@ def pytest_addoption(parser: "Parser"):
         action="store_true",
         dest="mysql",
         default=False,
-        help="Use MySQL database test_camcops instead of sqlite"
+        help="Use MySQL database instead of SQLite"
+    )
+
+    parser.addoption(
+        "--db-name",
+        dest="db_name",
+        default="test_camcops",
+        help="Test database name"
+    )
+
+    parser.addoption(
+        "--db-user",
+        dest="db_user",
+        default="camcops",
+        help="Database user"
+    )
+
+    parser.addoption(
+        "--db-password",
+        dest="db_password",
+        default="camcops",
+        help="Database user's password"
     )
 
     parser.addoption(
@@ -129,6 +150,21 @@ def mysql(request: "FixtureRequest") -> bool:
 
 
 @pytest.fixture(scope="session")
+def db_name(request: "FixtureRequest") -> bool:
+    return request.config.getvalue("db_name")
+
+
+@pytest.fixture(scope="session")
+def db_user(request: "FixtureRequest") -> bool:
+    return request.config.getvalue("db_user")
+
+
+@pytest.fixture(scope="session")
+def db_password(request: "FixtureRequest") -> bool:
+    return request.config.getvalue("db_password")
+
+
+@pytest.fixture(scope="session")
 def tmpdir_obj(request: "FixtureRequest") -> Generator[
         tempfile.TemporaryDirectory, None, None]:
     tmpdir_obj = tempfile.TemporaryDirectory()
@@ -145,33 +181,64 @@ def engine(request: "FixtureRequest",
            create_db: bool,
            database_on_disk: bool,
            echo: bool,
-           mysql: bool) -> Generator["Engine", None, None]:
+           mysql: bool,
+           db_name: str,
+           db_user: str,
+           db_password: str) -> Generator["Engine", None, None]:
 
     if mysql:
-        # Database test_camcops needs to exist along with user 'camcops' with
-        # password 'camcops':
-        # mysql> CREATE DATABASE test_camcops
-        # mysql> GRANT ALL PRIVILEGES ON `test_camcops`.*
-        #        TO `camcops`@`localhost` IDENTIFIED BY `camcops`;
-        db_url = ("mysql+mysqldb://camcops:camcops@localhost:3306/test_camcops"
-                  "?charset=utf8")
-        engine = create_engine(db_url, echo=echo, pool_pre_ping=True)
+        engine = create_engine_mysql(db_name,
+                                     db_user,
+                                     db_password,
+                                     create_db,
+                                     echo)
     else:
-        if create_db and database_on_disk:
-            try:
-                os.remove(TEST_DATABASE_FILENAME)
-            except OSError:
-                pass
-
-        if database_on_disk:
-            engine = make_file_sqlite_engine(TEST_DATABASE_FILENAME,
-                                             echo=echo)
-        else:
-            engine = make_memory_sqlite_engine(echo=echo)
-        event.listen(engine, "connect", set_sqlite_pragma)
+        engine = create_engine_sqlite(create_db,
+                                      echo,
+                                      database_on_disk)
 
     yield engine
     engine.dispose()
+
+
+def create_engine_mysql(db_name: str,
+                        db_user: str,
+                        db_password: str,
+                        create_db: bool,
+                        echo: bool):
+
+    # Database db_name and the user with the given password need to exist
+    # mysql> CREATE DATABASE <db_name>;
+    # mysql> GRANT ALL PRIVILEGES ON <db_name>.*
+    #        TO <db_user>@localhost IDENTIFIED BY '<db_password>';
+    db_url = (f"mysql+mysqldb://{db_user}:{db_password}@localhost:3306/"
+              f"{db_name}?charset=utf8")
+    engine = create_engine(db_url, echo=echo, pool_pre_ping=True)
+
+    if create_db:
+        Base.metadata.drop_all(engine)
+
+    return engine
+
+
+def create_engine_sqlite(create_db: bool,
+                         echo: bool,
+                         database_on_disk: bool):
+    if create_db and database_on_disk:
+        try:
+            os.remove(TEST_DATABASE_FILENAME)
+        except OSError:
+            pass
+
+    if database_on_disk:
+        engine = make_file_sqlite_engine(TEST_DATABASE_FILENAME,
+                                         echo=echo)
+    else:
+        engine = make_memory_sqlite_engine(echo=echo)
+
+    event.listen(engine, "connect", set_sqlite_pragma)
+
+    return engine
 
 
 # noinspection PyUnusedLocal
@@ -219,6 +286,7 @@ def dbsession(request: "FixtureRequest",
 def setup(request: "FixtureRequest",
           engine: "Engine",
           database_on_disk: bool,
+          mysql: bool,
           dbsession: Session,
           tmpdir_obj: tempfile.TemporaryDirectory) -> None:
     # Pytest prefers function-based tests over unittest.TestCase subclasses and
@@ -230,3 +298,4 @@ def setup(request: "FixtureRequest",
     request.cls.dbsession = dbsession
     request.cls.tmpdir_obj = tmpdir_obj
     request.cls.db_filename = TEST_DATABASE_FILENAME
+    request.cls.mysql = mysql
