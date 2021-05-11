@@ -190,10 +190,12 @@ def engine(request: "FixtureRequest",
         engine = create_engine_mysql(db_name,
                                      db_user,
                                      db_password,
-                                     create_db=create_db,
-                                     echo=echo)
+                                     create_db,
+                                     echo)
     else:
-        engine = create_engine_sqlite()
+        engine = create_engine_sqlite(create_db,
+                                      echo,
+                                      database_on_disk)
 
     yield engine
     engine.dispose()
