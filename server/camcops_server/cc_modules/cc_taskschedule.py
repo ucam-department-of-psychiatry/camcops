@@ -127,7 +127,7 @@ class PatientTaskSchedule(Base):
     )
     task_schedule = relationship(
         "TaskSchedule",
-        back_populates="patients"
+        back_populates="patient_task_schedules"
     )
 
     def get_list_of_scheduled_tasks(self, req: "CamcopsRequest") \
@@ -284,13 +284,17 @@ class TaskSchedule(Base):
 
     items = relationship(
         "TaskScheduleItem",
-        order_by=task_schedule_item_sort_order
+        order_by=task_schedule_item_sort_order,
+        cascade="all, delete"
     )  # type: Iterable[TaskScheduleItem]
 
     group = relationship(Group)
 
-    patients = relationship("PatientTaskSchedule",
-                            back_populates="task_schedule")
+    patient_task_schedules = relationship(
+        "PatientTaskSchedule",
+        back_populates="task_schedule",
+        cascade="all, delete"
+    )
 
     def user_may_edit(self, req: "CamcopsRequest") -> bool:
         return req.user.may_administer_group(self.group_id)

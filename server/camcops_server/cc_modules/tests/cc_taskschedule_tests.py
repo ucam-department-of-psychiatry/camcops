@@ -77,9 +77,6 @@ class TaskScheduleTests(DemoDatabaseTestCase):
         self.dbsession.delete(schedule)
         self.dbsession.commit()
 
-        import ipdb
-        ipdb.set_trace()
-
         self.assertIsNone(self.dbsession.query(TaskScheduleItem).filter(
             TaskScheduleItem.id == item.id).one_or_none())
         self.assertIsNone(self.dbsession.query(PatientTaskSchedule).filter(
