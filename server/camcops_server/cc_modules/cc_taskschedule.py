@@ -101,12 +101,12 @@ class PatientTaskSchedule(Base):
     id = Column("id", Integer, primary_key=True, autoincrement=True)
     patient_pk = Column(
         "patient_pk", Integer,
-        ForeignKey("patient._pk", ondelete="CASCADE"),
+        ForeignKey("patient._pk"),
         nullable=False,
     )
     schedule_id = Column(
         "schedule_id", Integer,
-        ForeignKey("_task_schedule.id", ondelete="CASCADE"),
+        ForeignKey("_task_schedule.id"),
         nullable=False,
     )
     start_datetime = Column(
@@ -313,8 +313,7 @@ class TaskScheduleItem(Base):
     )
 
     schedule_id = Column(
-        "schedule_id", Integer, ForeignKey(TaskSchedule.id,
-                                           ondelete="CASCADE"),
+        "schedule_id", Integer, ForeignKey(TaskSchedule.id),
         nullable=False,
         comment="FK to {}.{}".format(TaskSchedule.__tablename__,
                                      TaskSchedule.id.name)

@@ -30,7 +30,7 @@ task_schedule_delete_related
 
 Revision ID: 0063
 Revises: 0062
-Creation date: 2021-04-27 15:20:01.945933
+Creation date: 2021-05-11 17:29:42.967888
 
 """
 
@@ -67,29 +67,42 @@ def upgrade():
                               existing_type=sa.Integer(),
                               nullable=False)
 
-    with op.batch_alter_table('_task_schedule_item', schema=None) as batch_op:
-        batch_op.drop_constraint('fk__task_schedule_item_schedule_id',
+        batch_op.drop_constraint('fk__patient_task_schedule_patient_pk',
+                                 type_='foreignkey')
+        batch_op.drop_constraint('fk__patient_task_schedule_schedule_id',
                                  type_='foreignkey')
         batch_op.create_foreign_key(
-            batch_op.f('fk__task_schedule_item_schedule_id'),
-            '_task_schedule', ['schedule_id'], ['id'], ondelete='CASCADE'
+            batch_op.f('fk__patient_task_schedule_schedule_id'),
+            '_task_schedule', ['schedule_id'], ['id']
+        )
+        batch_op.create_foreign_key(
+            batch_op.f('fk__patient_task_schedule_patient_pk'),
+            'patient', ['patient_pk'], ['_pk']
         )
 
 
 # noinspection PyPep8,PyTypeChecker
 def downgrade():
-    with op.batch_alter_table('_task_schedule_item', schema=None) as batch_op:
+    with op.batch_alter_table(
+            '_patient_task_schedule', schema=None) as batch_op:
         batch_op.drop_constraint(
-            batch_op.f('fk__task_schedule_item_schedule_id'),
+            batch_op.f('fk__patient_task_schedule_patient_pk'),
+            type_='foreignkey'
+        )
+        batch_op.drop_constraint(
+            batch_op.f('fk__patient_task_schedule_schedule_id'),
             type_='foreignkey'
         )
         batch_op.create_foreign_key(
-            'fk__task_schedule_item_schedule_id',
-            '_task_schedule', ['schedule_id'], ['id']
+            'fk__patient_task_schedule_schedule_id',
+            '_task_schedule', ['schedule_id'], ['id'],
+            ondelete='CASCADE'
         )
-
-    with op.batch_alter_table(
-            '_patient_task_schedule', schema=None) as batch_op:
+        batch_op.create_foreign_key(
+            'fk__patient_task_schedule_patient_pk',
+            'patient', ['patient_pk'], ['_pk'],
+            ondelete='CASCADE'
+        )
         batch_op.alter_column('schedule_id',
                               existing_type=sa.Integer(),
                               nullable=True)

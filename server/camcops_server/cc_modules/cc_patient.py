@@ -204,8 +204,7 @@ class Patient(GenericTabletRecordMixin, Base):
     task_schedules = relationship(
         "PatientTaskSchedule",
         back_populates="patient",
-        cascade="all, delete",
-        passive_deletes=True
+        cascade="all, delete"
     )  # type: List[PatientTaskSchedule]
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
