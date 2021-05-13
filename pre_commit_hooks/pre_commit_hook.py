@@ -57,6 +57,7 @@ PyCharm finds more problems).
 
 import logging
 import os
+from shutil import which
 from subprocess import CalledProcessError, PIPE, run
 import sys
 from typing import List
@@ -71,6 +72,7 @@ PROJECT_ROOT = os.path.join(PRECOMMIT_DIR, "..")
 PYTHON_SOURCE_DIR = os.path.join(PROJECT_ROOT,
                                  "server", "camcops_server")
 CONFIG_FILE = os.path.abspath(os.path.join(PROJECT_ROOT, "setup.cfg"))
+TRAVIS_YML_FILE = os.path.join(PROJECT_ROOT, ".travis.yml")
 
 log = logging.getLogger(__name__)
 
@@ -84,11 +86,27 @@ def run_with_check(args: List[str]) -> None:
 
 
 def check_python_style() -> None:
+    log.info("Checking Python style...")
     run_with_check([
         "flake8",
         f"--config={CONFIG_FILE}",
         PYTHON_SOURCE_DIR,
     ])
+    log.info("... very stylish.")
+
+
+def check_travis_yml() -> None:
+    log.info("Checking .travis.yml...")
+    if which("yamllint") is None:
+        log.warning("... could not find yamllint. Skipping.")
+        return
+
+    run_with_check([
+        "yamllint",
+        TRAVIS_YML_FILE,
+    ])
+
+    log.info("...OK")
 
 
 # https://stackoverflow.com/questions/1871549/determine-if-python-is-running-inside-virtualenv
@@ -121,11 +139,9 @@ def main() -> None:
         log.error("flake8 version must be 3.7.8 or higher for type hint support")  # noqa
         sys.exit(EXIT_FAILURE)
 
-    log.info("Checking Python style...")
-
     try:
+        check_travis_yml()
         check_python_style()
-        log.info("... very stylish.")
     except CalledProcessError as e:
         log.error(str(e))
         log.error("Pre-commit hook failed. Check errors above")
