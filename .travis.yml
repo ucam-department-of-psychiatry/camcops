@@ -1,3 +1,4 @@
+---
 os: linux
 dist: bionic
 language: python
@@ -5,35 +6,42 @@ python:
     - "3.6"
 
 jobs:
-  include:
-    - stage: "building and installing debian package"
-      before_install:
-        # Travis installs pipenv by default. We don't need it
-        - pip3 uninstall --yes pipenv
-        # pip 20.3.3 installed by default has vulnerability
-        pip install -U pip
-      before_script:
-        # For testing the "make packages" script
-        - sudo apt-get -y install alien fakeroot lintian gdebi
-        # 429 = Too many requests. Unfortunately wget doesn't read the Retry-after header so just wait 5 minutes
-        - wget --retry-on-http-error=429 --waitretry=300 --tries=20 https://downloads.sourceforge.net/project/rpmrebuild/rpmrebuild/2.15/rpmrebuild-2.15-1.noarch.rpm
-        - fakeroot alien --to-deb rpmrebuild-2.15-1.noarch.rpm
-        - sudo dpkg -i rpmrebuild_2.15-2_all.deb
+    include:
+        - stage: "building and installing debian package"
+          before_install:
+              # Travis installs pipenv by default. We don't need it
+              - pip3 uninstall --yes pipenv
+              # pip 20.3.3 installed by default has vulnerability
+              - pip install -U pip
+          before_script:
+              # For testing the "make packages" script
+              - sudo apt-get -y install alien fakeroot lintian gdebi
 
-      script: travis_scripts/build_and_install_package
+              # 429 = Too many requests. Unfortunately wget doesn't read the
+              # Retry-after header so just wait 5 minutes
+              # yamllint disable-line rule:line-length
+              - wget --retry -on-http-error=429 --waitretry=300 --tries=20 https://downloads.sourceforge.net/project/rpmrebuild/rpmrebuild/2.15/rpmrebuild-2.15-1.noarch.rpm
+              - fakeroot alien --to-deb rpmrebuild-2.15-1.noarch.rpm
+              - sudo dpkg -i rpmrebuild_2.15-2_all.deb
 
-    - stage: "installing pip packages and running tests"
-      before_install:
-        # Travis installs pipenv by default. We don't need it
-        - pip3 uninstall --yes pipenv
-        # pip 20.3.3 installed by default has vulnerability
-        pip install -U pip
-      before_script:
-        # Install wkhtmltopdf on headless ubuntu 18 vps
-        # https://gist.github.com/lobermann/ca0e7bb2558b3b08923c6ae2c37a26ce
-        # 429 = Too many requests. Unfortunately wget doesn't read the Retry-after header so just wait 5 minutes
-        - wget --retry-on-http-error=429 --waitretry=300 --tries=20 https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.bionic_amd64.deb
-        - sudo apt-get -y install fontconfig libxrender1 xfonts-75dpi xfonts-base
-        - sudo dpkg -i wkhtmltox_0.12.6-1.bionic_amd64.deb
+          script: travis_scripts/build_and_install_package
 
-      script: travis_scripts/pip_install_and_tests
+        - stage: "installing pip packages and running tests"
+          before_install:
+              # Travis installs pipenv by default. We don't need it
+              - pip3 uninstall --yes pipenv
+              # pip 20.3.3 installed by default has vulnerability
+              - pip install -U pip
+          before_script:
+              # Install wkhtmltopdf on headless ubuntu 18 vps
+              # https://gist.github.com/lobermann/ca0e7bb2558b3b08923c6ae2c37a26ce
+              # 429 = Too many requests. Unfortunately wget doesn't read the
+              # Retry-after header so just wait 5 minutes
+              # yamllint disable-line rule:line-length
+              - wget --retry-on-http-error=429 --waitretry=300 --tries=20 https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.bionic_amd64.deb
+
+              # yamllint disable-line rule:line-length
+              - sudo apt-get -y install fontconfig libxrender1 xfonts-75dpi xfonts-base
+              - sudo dpkg -i wkhtmltox_0.12.6-1.bionic_amd64.deb
+
+          script: travis_scripts/pip_install_and_tests
