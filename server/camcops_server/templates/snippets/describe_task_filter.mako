@@ -48,7 +48,7 @@ from camcops_server.cc_modules.cc_constants import DateFormat
     %endif
     ## Patient
     %if task_filter.surname:
-        ${ _("Surname") } = <b>${ task_filter.surnameh }</b>.
+        ${ _("Surname") } = <b>${ task_filter.surname }</b>.
         <% some_filter = True %>
     %endif
     %if task_filter.forename:
