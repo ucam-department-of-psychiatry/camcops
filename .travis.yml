@@ -20,7 +20,7 @@ jobs:
               # 429 = Too many requests. Unfortunately wget doesn't read the
               # Retry-after header so just wait 5 minutes
               # yamllint disable-line rule:line-length
-              - wget --retry -on-http-error=429 --waitretry=300 --tries=20 https://downloads.sourceforge.net/project/rpmrebuild/rpmrebuild/2.15/rpmrebuild-2.15-1.noarch.rpm
+              - wget --retry-on-http-error=429 --waitretry=300 --tries=20 https://downloads.sourceforge.net/project/rpmrebuild/rpmrebuild/2.15/rpmrebuild-2.15-1.noarch.rpm
               - fakeroot alien --to-deb rpmrebuild-2.15-1.noarch.rpm
               - sudo dpkg -i rpmrebuild_2.15-2_all.deb
 
