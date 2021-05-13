@@ -793,8 +793,12 @@ public:
     // Internal data
     // ------------------------------------------------------------------------
 protected:
-    // Automatically select single user mode if mode not already set
-    bool m_select_single_user_mode;
+    // Default to single user mode if mode not already set
+    bool m_default_single_user_mode;
+
+    // Default patient registration settings, if not already registered
+    QUrl m_default_server_url;
+    QString m_default_patient_proquint;
 
     // Translators; see https://doc.qt.io/qt-5/internationalization.html
     QSharedPointer<QTranslator> m_qt_translator;  // translates Qt strings
