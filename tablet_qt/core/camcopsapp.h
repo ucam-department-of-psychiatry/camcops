@@ -404,6 +404,12 @@ public:
     void deleteTaskSchedules();
 
 protected:
+    // Get mode from the user via the ModeDialog
+    int getModeFromUser();
+
+    // Set the mode from the previously saved state
+    void setModeFromSavedState();
+
     // Is the user allowed to change between clinician/single-user modes?
     bool modeChangeForbidden() const;
 
@@ -787,6 +793,8 @@ public:
     // Internal data
     // ------------------------------------------------------------------------
 protected:
+    // Automatically select single user mode if mode not already set
+    bool m_select_single_user_mode;
 
     // Translators; see https://doc.qt.io/qt-5/internationalization.html
     QSharedPointer<QTranslator> m_qt_translator;  // translates Qt strings

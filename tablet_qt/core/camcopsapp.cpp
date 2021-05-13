@@ -205,26 +205,18 @@ void CamcopsApp::setModeFromUser()
         return;
     }
 
-    const int old_mode = varInt(varconst::MODE);
-    ModeDialog dialog(old_mode);
-    const int reply = dialog.exec();
-    if (reply != QDialog::Accepted) {
-        // Dialog cancelled
-        if (old_mode == varconst::MODE_NOT_SET) {
-            // Exit the app if called on startup
-            uifunc::stopApp(
-                tr("You did not select how you would like to use CamCOPS")
-            );
+    const int old_mode = getMode();
+    int new_mode;
+
+    // Single user mode specified on the command line
+    if (old_mode == varconst::MODE_NOT_SET && m_select_single_user_mode) {
+        new_mode = varconst::MODE_SINGLE_USER;
+    } else {
+        new_mode = getModeFromUser();
+        if (new_mode == old_mode) {
+            // No change, nothing to do
+            return;
         }
-
-        return;
-    }
-
-    const int new_mode = dialog.mode();
-
-    if (new_mode == getMode()) {
-        // No change, nothing to do
-        return;
     }
 
     if (!agreeTerms(new_mode)) {
@@ -245,6 +237,25 @@ void CamcopsApp::setModeFromUser()
     if (new_mode == varconst::MODE_SINGLE_USER) {
         registerPatientWithServer();
     }
+}
+
+
+int CamcopsApp::getModeFromUser()
+{
+    const int old_mode = getMode();
+    ModeDialog dialog(old_mode);
+    const int reply = dialog.exec();
+    if (reply != QDialog::Accepted) {
+        // Dialog cancelled
+        if (old_mode == varconst::MODE_NOT_SET) {
+            // Exit the app if called on startup
+            uifunc::stopApp(
+                tr("You did not select how you would like to use CamCOPS")
+            );
+        }
+    }
+
+    return dialog.mode();
 }
 
 
@@ -799,11 +810,17 @@ int CamcopsApp::run()
     } else {
         // We know our mode from last time.
         // Ensure all mode-specific things are set:
-        setMode(varInt(varconst::MODE));
-        maybeRegisterPatient();
+        setModeFromSavedState();
     }
 
     return exec();  // Main Qt event loop
+}
+
+
+void CamcopsApp::setModeFromSavedState()
+{
+    setMode(varInt(varconst::MODE));
+    maybeRegisterPatient();
 }
 
 void CamcopsApp::maybeRegisterPatient()
@@ -905,6 +922,16 @@ bool CamcopsApp::processCommandLineArguments(int& retcode)
     dbDirOption.setValueName("DBDIR");  // makes it take a parameter
     parser.addOption(dbDirOption);
 
+    // --select_single_user_mode
+    QCommandLineOption selectSingleUserModeOption(
+        "select_single_user_mode",
+        QString(
+            "If no mode has previously been selected, do not display the mode "
+            "selection dialog and select single user mode."
+        )
+    );
+    parser.addOption(selectSingleUserModeOption);
+
     // --print_icd9_codes
     QCommandLineOption printIcd9Option(
         "print_icd9_codes",
@@ -947,6 +974,8 @@ bool CamcopsApp::processCommandLineArguments(int& retcode)
     if (!db_dir.isEmpty()) {
         m_database_path = db_dir;
     }
+
+    m_select_single_user_mode = parser.isSet(selectSingleUserModeOption);
 
     // ------------------------------------------------------------------------
     // Actions that make us do something and quit
