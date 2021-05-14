@@ -45,7 +45,6 @@ from camcops_server.cc_modules.cc_client_api_core import (
     TabletParam,
     UserErrorException,
 )
-
 from camcops_server.cc_modules.cc_convert import (
     decode_values,
 )
@@ -54,10 +53,14 @@ from camcops_server.cc_modules.cc_proquint import (
     uuid_from_proquint,
 )
 from camcops_server.cc_modules.cc_taskindex import update_indexes_and_push_exports  # noqa
+from camcops_server.cc_modules.cc_testhelpers import class_attribute_names
 from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 from camcops_server.cc_modules.cc_user import User
 from camcops_server.cc_modules.cc_version import (
     MINIMUM_TABLET_VERSION,
+)
+from camcops_server.cc_modules.cc_validators import (
+    validate_alphanum_underscore,
 )
 from camcops_server.cc_modules.client_api import (
     client_api,
@@ -140,7 +143,7 @@ class ClientApiTests(DemoDatabaseTestCase):
         })
         response = client_api(self.req)
         d = get_reply_dict_from_response(response)
-        assert d[TabletParam.SUCCESS] == SUCCESS_CODE
+        self.assertEqual(d[TabletParam.SUCCESS], SUCCESS_CODE)
 
     def test_client_api_antique_support_2(self) -> None:
         self.announce("test_client_api_antique_support_2")
@@ -152,7 +155,7 @@ class ClientApiTests(DemoDatabaseTestCase):
         })
         response = client_api(self.req)
         d = get_reply_dict_from_response(response)
-        assert d[TabletParam.SUCCESS] == FAILURE_CODE
+        self.assertEqual(d[TabletParam.SUCCESS], FAILURE_CODE)
 
     def test_client_api_antique_support_3(self) -> None:
         self.announce("test_client_api_antique_support_3")
@@ -164,7 +167,15 @@ class ClientApiTests(DemoDatabaseTestCase):
         })
         response = client_api(self.req)
         d = get_reply_dict_from_response(response)
-        assert d[TabletParam.SUCCESS] == SUCCESS_CODE
+        self.assertEqual(d[TabletParam.SUCCESS], SUCCESS_CODE)
+
+    def test_client_api_validators(self) -> None:
+        self.announce("test_client_api_validators")
+        for x in class_attribute_names(Operations):
+            try:
+                validate_alphanum_underscore(x, self.req)
+            except ValueError:
+                self.fail(f"Operations.{x} fails validate_alphanum_underscore")
 
 
 class PatientRegistrationTests(DemoDatabaseTestCase):

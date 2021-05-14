@@ -34,6 +34,7 @@ import logging
 import multiprocessing
 import os
 
+from cardinal_pythonlib.randomness import create_base64encoded_randomness
 from cardinal_pythonlib.sqlalchemy.session import make_mysql_url
 
 from camcops_server.cc_modules.cc_baseconstants import (
@@ -83,7 +84,7 @@ DEFAULT_ROWS_PER_PAGE = 25
 DEVICE_NAME_FOR_SERVER = "server"  # Do not alter.
 USER_NAME_FOR_SYSTEM = "system"  # Do not alter.
 
-MINIMUM_PASSWORD_LENGTH = 8
+MINIMUM_PASSWORD_LENGTH = 10
 
 
 # =============================================================================
@@ -705,3 +706,209 @@ class ConfigDefaults(object):
                               username=self.DB_USER,
                               password=self.DB_PASSWORD,
                               dbname=self.DB_DATABASE)
+
+
+# =============================================================================
+# String length limits
+# =============================================================================
+#
+# Note: "191" relates to MySQL indexing of VARCHAR fields using utf8mb4;
+# - https://stackoverflow.com/questions/6172798/
+# - https://dev.mysql.com/doc/refman/5.7/en/innodb-restrictions.html
+# There are alternative workarounds, but these fields are OK at 191.
+#
+# Re commenting variables in Sphinx:
+# - https://stackoverflow.com/questions/20227051/how-to-document-a-module-constant-in-python  # noqa
+# - http://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#directive-autodata  # noqa
+# - URLs are a bit tricky; the colons get re-interpreted sometimes; it seems
+#   that inserting an extra colon after "#:", e.g. "#: : see http://somewhere"
+#   works.
+# - If a comment needs "# noqa" for the linter, then make it a docstring,
+#   because it will appear in the Sphinx string.
+
+
+class StringLengths:
+    # -------------------------------------------------------------------------
+    # Primary
+    # -------------------------------------------------------------------------
+    AUDIT_SOURCE_MAX_LEN = 20  #: our choice based on use in CamCOPS code
+
+    #: : See https://docs.python.org/3.7/library/codecs.html#standard-encodings.
+    #: Probably ~18 so give it some headroom.
+    CHARSET_MAX_LEN = 64
+
+    CURRENCY_MAX_LEN = 3  #: Can have Unicode symbols like € or text like "GBP"
+
+    DATABASE_TITLE_MIN_LEN = 1
+    DATABASE_TITLE_MAX_LEN = 255  #: our choice
+
+    #: 191 is the maximum for MySQL + InnoDB + VARCHAR + utf8mb4 + index;
+    #: must be compatible with tablet
+    DEVICE_NAME_MAX_LEN = 191
+
+    #: : See https://en.wikipedia.org/wiki/Email_address.
+    EMAIL_ADDRESS_MAX_LEN = 255
+
+    #: 191 is the maximum for MySQL + InnoDB + VARCHAR + utf8mb4 + index
+    EXPORT_RECIPIENT_NAME_MIN_LEN = 1
+    EXPORT_RECIPIENT_NAME_MAX_LEN = 191
+
+    #: Our choice
+    FILTER_TEXT_MAX_LEN = 255
+
+    #: Our choice; used for user full names on the server
+    FULLNAME_MAX_LEN = 255
+
+    #: Our choice
+    FILESPEC_MAX_LEN = 255
+
+    GROUP_DESCRIPTION_MIN_LEN = 1
+    #: Our choice
+    GROUP_DESCRIPTION_MAX_LEN = 255
+
+    GROUP_NAME_MIN_LEN = 1
+    #: 191 is the maximum for MySQL + InnoDB + VARCHAR + utf8mb4 + index
+    GROUP_NAME_MAX_LEN = 191
+
+    HASHED_PW_MAX_LEN = 60
+    """
+    :
+    We use ``bcrypt``. Empirically, the length of its hashed output is:
+
+    .. code-block:: none
+
+           "$2a$" (4)
+           cost parameter, e.g. "$09" for 9 rounds (3)
+           b64-enc 128-bit salt (22)
+           b64enc 184-bit hash (31)
+
+        ... total 60
+
+    See https://stackoverflow.com/questions/5881169/what-column-type-length-should-i-use-for-storing-a-bcrypt-hashed-password-in-a-d
+    """  # noqa
+
+    HL7_AA_MAX_LEN = 20
+    """
+    - The AA appears in Table 4.6 "Extended composite ID", p46-47 of
+      hl7guide-1-4-2012-08.pdf
+    - ... but is defined in Table 4.9 "Entity Identifier", p50, in which:
+
+      - component 2 is the Assigning Authority (see component 1)
+      - component 2 is also a Namespace ID with a length of 20
+
+    - ... and multiple other examples of an Assigning Authority being one
+      example of a Namespace ID
+
+    - ... and examples are in Table 0363 (p229 of the PDF), which are all
+      3-char.
+
+    - ... and several other examples of "Namespace ID" being of length 1..20
+      meaning 1-20.
+    """
+
+    HL7_ID_TYPE_MAX_LEN = 5
+    """
+    Table 4.6 "Extended composite ID", p46-47 of hl7guide-1-4-2012-08.pdf,
+    and Table 0203 "Identifier type", p204 of that PDF, in Appendix B.
+    """
+
+    HOSTNAME_MAX_LEN = 255
+    """
+    FQDN; see
+    https://stackoverflow.com/questions/8724954/what-is-the-maximum-number-of-characters-for-a-host-name-in-unix
+    """  # noqa
+
+    ICD9_CODE_MAX_LEN = 6
+    """
+    Longest is "xxx.xx"; thus, 6; see
+    https://www.cms.gov/Medicare/Quality-Initiatives-Patient-Assessment-Instruments/HospitalQualityInits/Downloads/HospitalAppendix_F.pdf
+    """  # noqa
+
+    #: longest is e.g. "F00.000"; "F10.202"; thus, 7
+    ICD10_CODE_MAX_LEN = 7
+
+    #: Our choice
+    ID_DESCRIPTOR_MAX_LEN = 255
+
+    #: Our choice
+    ID_POLICY_MAX_LEN = 255
+
+    #: : See http://stackoverflow.com/questions/166132
+    IP_ADDRESS_MAX_LEN = 45
+
+    ISO8601_DATETIME_STRING_MAX_LEN = 32
+    """
+    Max length e.g.
+
+    .. code-block:: none
+
+        2013-07-24T20:04:07.123456+01:00
+        1234567890123456789012345678901234567890
+
+    (with punctuation, T, microseconds, colon in timezone).
+    """
+
+    #: See :func:`cardinal_pythonlib.datetimefunc.duration_to_iso`
+    ISO8601_DURATION_STRING_MAX_LEN = 29
+
+    #: Two-letter language, hyphen, 2/3-letter country
+    LANGUAGE_CODE_MAX_LEN = 6
+
+    # LONGBLOB_LONGTEXT_MAX_LEN = (2 ** 32) - 1
+    # ... https://dev.mysql.com/doc/refman/8.0/en/storage-requirements.html
+
+    #: See https://stackoverflow.com/questions/643690
+    MIMETYPE_MAX_LEN = 255
+
+    #: For forename and surname, each; our choice but must match tablet
+    PATIENT_NAME_MAX_LEN = 255
+
+    RFC_2822_DATE_MAX_LEN = 31
+    """
+    e.g. ``Fri, 09 Nov 2001 01:08:47 -0000``; 3.3 in
+    https://tools.ietf.org/html/rfc2822, assuming extra white space not added
+    """
+
+    #: for export; our choice based on use in CamCOPS code
+    SENDING_FORMAT_MAX_LEN = 50
+
+    #: our choice; 64 bytes => 512 bits, which is a lot in 2017
+    SESSION_TOKEN_MAX_BYTES = 64
+
+    SQL_SEARCH_LITERAL_MIN_LENGTH = 0  # permits: LIKE ''
+    SQL_SEARCH_LITERAL_MAX_LENGTH = 255  # arbitrary
+
+    TABLENAME_MAX_LEN = 128
+    """
+    For
+
+    - MySQL: 64 -- https://dev.mysql.com/doc/refman/5.7/en/identifiers.html
+    - SQL Server: 128  -- https://msdn.microsoft.com/en-us/library/ms191240.aspx
+    - Oracle: 32, then 128 from v12.2 (2017)
+    """
+
+    TASK_SUMMARY_TEXT_FIELD_DEFAULT_MAX_LEN = 50
+    """
+    ... our choice, contains short strings like "normal", "abnormal", "severe".
+    Easy to change, since it's only used when exporting summaries, and not in
+    the core database.
+    """
+
+    #: Our choice
+    URL_MAX_LEN = 255
+
+    USERNAME_CAMCOPS_MIN_LEN = 1
+    #: 191 is the maximum for MySQL + InnoDB + VARCHAR + utf8mb4 + index
+    USERNAME_CAMCOPS_MAX_LEN = 191
+
+    #: Our choice
+    USERNAME_EXTERNAL_MAX_LEN = 255
+
+    # -------------------------------------------------------------------------
+    # Derived
+    # -------------------------------------------------------------------------
+
+    DIAGNOSTIC_CODE_MAX_LEN = max(ICD9_CODE_MAX_LEN, ICD10_CODE_MAX_LEN)
+
+    SESSION_TOKEN_MAX_LEN = len(
+        create_base64encoded_randomness(SESSION_TOKEN_MAX_BYTES))

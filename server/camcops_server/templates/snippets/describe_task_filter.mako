@@ -43,7 +43,7 @@ from camcops_server.cc_modules.cc_constants import DateFormat
 <div class="filters">
     ## Task types
     %if task_filter.task_types:
-        ${_("Task is one of:")} <b>${ ", ".join(task_filter.task_types) }</b>.
+        ${_("Task is one of:")} <b>${ ", ".join(task_filter.task_types) | h }</b>.
         <% some_filter = True %>
     %endif
     ## Patient
@@ -60,7 +60,7 @@ from camcops_server.cc_modules.cc_constants import DateFormat
         <% some_filter = True %>
     %endif
     %if task_filter.sex:
-        ${_("Sex")} = <b>${ task_filter.sex }</b>.
+        ${_("Sex")} = <b>${ task_filter.sex | h }</b>.
         <% some_filter = True %>
     %endif
     %if task_filter.idnum_criteria:
@@ -68,7 +68,7 @@ from camcops_server.cc_modules.cc_constants import DateFormat
         ${ ("; ".join("{which} = <b>{value}</b>".format(
                 which=request.get_id_shortdesc(iddef.which_idnum),
                 value=iddef.idnum_value,
-            ) for iddef in task_filter.idnum_criteria) + ".") }
+            ) for iddef in task_filter.idnum_criteria) + ".") | h }
         <% some_filter = True %>
     %endif
     ## Other

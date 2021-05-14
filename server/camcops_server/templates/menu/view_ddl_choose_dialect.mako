@@ -34,7 +34,7 @@ camcops_server/templates/menu/view_ddl_choose_dialect.mako
 
 <div>
     ${_("The server’s database is using dialect")}
-    <code>${ current_dialect }</code> (${ current_dialect_description }).
+    <code>${ current_dialect }</code> (${ current_dialect_description | h }).
 </div>
 
 ${ form }

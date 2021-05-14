@@ -750,7 +750,7 @@ class Phq9RedcapExportTests(RedcapExportTestCase):
   <instruments>
     <instrument task="phq9" name="patient_health_questionnaire_9">
       <fields>
-        <field name="phq9_how_difficult" formula="task.q10 + 1" />
+        <field name="phq9_how_difficult" formula="task.q10 + 1 if task.q10 is not None else None" />
         <field name="phq9_total_score" formula="task.total_score()" />
         <field name="phq9_first_name" formula="task.patient.forename" />
         <field name="phq9_last_name" formula="task.patient.surname" />

@@ -82,7 +82,7 @@ ${form}
                     %if i > 0:
                         <br>
                     %endif
-                    ${ ugm.group.name }
+                    ${ ugm.group.name | h }
                     %if req.user.may_administer_group(ugm.group_id):
                         [<a href="${ req.route_url(Routes.EDIT_USER_GROUP_MEMBERSHIP, _query={ViewParam.USER_GROUP_MEMBERSHIP_ID: ugm.id}) }">${_("Permissions")}</a>]
                     %endif

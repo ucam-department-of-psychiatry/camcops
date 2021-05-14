@@ -78,7 +78,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
     </tr>
     <tr>
         <th>${_("Language")}</th>
-        <td>${ user.language }</td>
+        <td>${ user.language | h }</td>
     </tr>
     <tr>
         <th>${_("Superuser?")}</th>

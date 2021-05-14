@@ -25,12 +25,17 @@ camcops_server/cc_modules/tests/cc_task_tests.py
 ===============================================================================
 
 """
+
 import logging
+
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from pendulum import Date, DateTime as Pendulum
 
 from camcops_server.cc_modules.cc_task import Task
 from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
+from camcops_server.cc_modules.cc_validators import (
+    validate_task_tablename,
+)
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -77,6 +82,9 @@ class TaskTests(DemoDatabaseTestCase):
             t = q.first()  # type: Task
 
             self.assertIsNotNone(t, "Missing task!")
+
+            # Name validity
+            validate_task_tablename(t.tablename)
 
             # Core functions
             self.assertIsInstance(t.is_complete(), bool)

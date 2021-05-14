@@ -29,7 +29,17 @@ camcops_server/cc_modules/tests/cc_report_tests.py
 import logging
 from typing import Generator, Optional, TYPE_CHECKING
 
+from cardinal_pythonlib.classes import classproperty
+from cardinal_pythonlib.logs import BraceStyleAdapter
+from cardinal_pythonlib.pyramid.responses import (
+    OdsResponse, TsvResponse, XlsxResponse,
+)
+from deform.form import Form
 import pendulum
+from pyramid.httpexceptions import HTTPBadRequest
+from pyramid.response import Response
+from sqlalchemy.orm.query import Query
+from sqlalchemy.sql.selectable import SelectBase
 
 from camcops_server.cc_modules.cc_report import (
     AverageScoreReport,
@@ -41,17 +51,9 @@ from camcops_server.cc_modules.cc_unittest import (
     DemoDatabaseTestCase,
     DemoRequestTestCase,
 )
-
-from cardinal_pythonlib.classes import classproperty
-from cardinal_pythonlib.logs import BraceStyleAdapter
-from cardinal_pythonlib.pyramid.responses import (
-    OdsResponse, TsvResponse, XlsxResponse,
+from camcops_server.cc_modules.cc_validators import (
+    validate_alphanum_underscore,
 )
-from deform.form import Form
-from pyramid.httpexceptions import HTTPBadRequest
-from pyramid.response import Response
-from sqlalchemy.orm.query import Query
-from sqlalchemy.sql.selectable import SelectBase
 
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_forms import (  # noqa: F401
@@ -82,6 +84,7 @@ class AllReportTests(DemoDatabaseTestCase):
             report = cls()
 
             self.assertIsInstance(report.report_id, str)
+            validate_alphanum_underscore(report.report_id)
             self.assertIsInstance(report.title(req), str)
             self.assertIsInstance(report.superuser_only, bool)
 

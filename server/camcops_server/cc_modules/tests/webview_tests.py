@@ -24,6 +24,7 @@ camcops_server/cc_modules/tests/webview_tests.py
 
 ===============================================================================
 """
+
 from collections import OrderedDict
 import datetime
 import json
@@ -36,24 +37,27 @@ from pyramid.httpexceptions import HTTPBadRequest, HTTPFound
 from webob.multidict import MultiDict
 
 from camcops_server.cc_modules.cc_constants import ERA_NOW
-
 from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_group import Group
 from camcops_server.cc_modules.cc_patient import Patient
 from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
 from camcops_server.cc_modules.cc_pyramid import (
     FormAction,
+    ViewArg,
     ViewParam,
 )
 from camcops_server.cc_modules.cc_taskindex import PatientIdNumIndexEntry
-
 from camcops_server.cc_modules.cc_taskschedule import (
     PatientTaskSchedule,
     TaskSchedule,
     TaskScheduleItem,
 )
+from camcops_server.cc_modules.cc_testhelpers import class_attribute_names
 from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 from camcops_server.cc_modules.cc_user import User
+from camcops_server.cc_modules.cc_validators import (
+    validate_alphanum_underscore,
+)
 from camcops_server.cc_modules.webview import (
     AddPatientView,
     AddTaskScheduleItemView,
@@ -108,6 +112,14 @@ class WebviewTests(DemoDatabaseTestCase):
         self.dbsession.commit()
 
         self.assertFalse(any_records_use_group(self.req, group))
+
+    def test_webview_constant_validators(self) -> None:
+        self.announce("test_webview_constant_validators")
+        for x in class_attribute_names(ViewArg):
+            try:
+                validate_alphanum_underscore(x, self.req)
+            except ValueError:
+                self.fail(f"Operations.{x} fails validate_alphanum_underscore")
 
 
 class AddTaskScheduleViewTests(DemoDatabaseTestCase):

@@ -132,7 +132,6 @@ from camcops_server.cc_modules.cc_exception import raise_runtime_error
 from camcops_server.cc_modules.cc_filename import (
     PatientSpecElementForFilename,
 )
-from camcops_server.cc_modules.cc_group import is_group_name_valid
 from camcops_server.cc_modules.cc_language import POSSIBLE_LOCALES
 from camcops_server.cc_modules.cc_pyramid import MASTER_ROUTE_CLIENT_API
 from camcops_server.cc_modules.cc_snomed import (
@@ -140,6 +139,10 @@ from camcops_server.cc_modules.cc_snomed import (
     get_icd9_snomed_concepts_from_xml,
     get_icd10_snomed_concepts_from_xml,
     SnomedConcept,
+)
+from camcops_server.cc_modules.cc_validators import (
+    validate_export_recipient_name,
+    validate_group_name,
 )
 from camcops_server.cc_modules.cc_version_string import (
     CAMCOPS_SERVER_VERSION_STRING,
@@ -1212,8 +1215,7 @@ class CamcopsConfig(object):
                                  f"for {xml_taskname!r}")
             groupnames = [x.strip() for x in groupnames.split(",")]
             for gn in groupnames:
-                if not is_group_name_valid(gn):
-                    raise ValueError(f"Invalid group name: {gn!r}")
+                validate_group_name(gn)
             self.restricted_tasks[xml_taskname] = groupnames
 
         self.session_timeout_minutes = _get_int(
@@ -1671,6 +1673,10 @@ class CamcopsConfig(object):
         self._export_recipients = []  # type: List[ExportRecipientInfo]
         for recip_name in self.export_recipient_names:
             log.debug("Loading export config for recipient {!r}", recip_name)
+            try:
+                validate_export_recipient_name(recip_name)
+            except ValueError as e:
+                raise ValueError(f"Bad recipient name {recip_name!r}: {e}")
             recipient = ExportRecipientInfo.read_from_config(
                 self, parser=parser, recipient_name=recip_name)
             self._export_recipients.append(recipient)

@@ -32,7 +32,7 @@ camcops_server/templates/menu/main_menu.mako
 from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 %>
 
-<%include file="db_user_info.mako"/>
+<%include file="db_user_info.mako" args="offer_main_menu=False"/>
 
 ## TRANSLATOR: Mako comment
 <h1>${_("CamCOPS web view: Main menu")}</h1>
@@ -103,11 +103,6 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 <h3>${_("Help")}</h3>
 <ul>
     <li><a href="${request.url_camcops_docs}">${_("CamCOPS documentation")}</a></li>
-</ul>
-
-<h3>${_("Log out")}</h3>
-<ul>
-    <li><a href="${request.route_url(Routes.LOGOUT)}">${_("Log out")}</a></li>
 </ul>
 
 <div class="office">

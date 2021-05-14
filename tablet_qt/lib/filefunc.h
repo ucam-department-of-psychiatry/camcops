@@ -40,4 +40,7 @@ bool ensureDirectoryExists(const QString& dir);
 // Calls ensureDirectoryExists(); stop the app upon failure.
 void ensureDirectoryExistsOrDie(const QString& dir);
 
+// Does a file contain a particular line?
+bool fileContainsLine(const QString& filename, const QString& line);
+
 }  // namespace filefunc

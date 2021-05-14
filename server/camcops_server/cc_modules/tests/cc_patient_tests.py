@@ -35,9 +35,7 @@ from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
 from camcops_server.cc_modules.cc_simpleobjects import IdNumReference
 from camcops_server.cc_modules.cc_tsv import TsvPage
 from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
-from camcops_server.cc_modules.cc_xml import (
-    XmlElement,
-)
+from camcops_server.cc_modules.cc_xml import XmlElement
 
 
 # =============================================================================

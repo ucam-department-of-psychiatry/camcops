@@ -41,9 +41,9 @@ class="${table_class}"
             %for (col_index,val) in enumerate(row):
                 <td class="table-cell col-${col_index}">
                     %if escape_cells:
-                    ${val | h}
+                        ${val | h}
                     %else:
-                    ${val}
+                        ${val}
                     %endif
                 </td>
             %endfor

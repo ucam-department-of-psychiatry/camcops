@@ -93,6 +93,9 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     CamcopsColumn,
     DiagnosticCodeColType,
 )
+from camcops_server.cc_modules.cc_validators import (
+    validate_restricted_sql_search_literal,
+)
 
 if TYPE_CHECKING:
     from sqlalchemy.sql.elements import ColumnElement
@@ -634,6 +637,12 @@ class DiagnosisNode(SchemaNode, RequestAwareMixin):
             "wildcards, i.e. _ for one character and % for zero/one/lots"
         )
 
+    def validator(self, node: SchemaNode, value: str) -> None:
+        try:
+            validate_restricted_sql_search_literal(value, self.request)
+        except ValueError as e:
+            raise Invalid(node, str(e))
+
 
 class DiagnosesSequence(SequenceSchema, RequestAwareMixin):
     diagnoses = DiagnosisNode()
@@ -876,8 +885,12 @@ class DiagnosisFinderReportBase(Report):
                                 column_names: List[str],
                                 page: CamcopsPage) -> Response:
         which_idnum = req.get_int_param(ViewParam.WHICH_IDNUM)
-        inclusion_dx = req.get_str_list_param(ViewParam.DIAGNOSES_INCLUSION)
-        exclusion_dx = req.get_str_list_param(ViewParam.DIAGNOSES_EXCLUSION)
+        inclusion_dx = req.get_str_list_param(
+            ViewParam.DIAGNOSES_INCLUSION,
+            validator=validate_restricted_sql_search_literal)
+        exclusion_dx = req.get_str_list_param(
+            ViewParam.DIAGNOSES_EXCLUSION,
+            validator=validate_restricted_sql_search_literal)
         age_minimum = req.get_int_param(ViewParam.AGE_MINIMUM)
         age_maximum = req.get_int_param(ViewParam.AGE_MAXIMUM)
         idnum_desc = req.get_id_desc(which_idnum) or "BAD_IDNUM"
@@ -913,8 +926,12 @@ class DiagnosisICD10FinderReport(DiagnosisFinderReportBase):
 
     def get_query(self, req: CamcopsRequest) -> SelectBase:
         which_idnum = req.get_int_param(ViewParam.WHICH_IDNUM)
-        inclusion_dx = req.get_str_list_param(ViewParam.DIAGNOSES_INCLUSION)
-        exclusion_dx = req.get_str_list_param(ViewParam.DIAGNOSES_EXCLUSION)
+        inclusion_dx = req.get_str_list_param(
+            ViewParam.DIAGNOSES_INCLUSION,
+            validator=validate_restricted_sql_search_literal)
+        exclusion_dx = req.get_str_list_param(
+            ViewParam.DIAGNOSES_EXCLUSION,
+            validator=validate_restricted_sql_search_literal)
         age_minimum = req.get_int_param(ViewParam.AGE_MINIMUM)
         age_maximum = req.get_int_param(ViewParam.AGE_MAXIMUM)
 
@@ -960,8 +977,12 @@ class DiagnosisICD9CMFinderReport(DiagnosisFinderReportBase):
 
     def get_query(self, req: CamcopsRequest) -> SelectBase:
         which_idnum = req.get_int_param(ViewParam.WHICH_IDNUM)
-        inclusion_dx = req.get_str_list_param(ViewParam.DIAGNOSES_INCLUSION)
-        exclusion_dx = req.get_str_list_param(ViewParam.DIAGNOSES_EXCLUSION)
+        inclusion_dx = req.get_str_list_param(
+            ViewParam.DIAGNOSES_INCLUSION,
+            validator=validate_restricted_sql_search_literal)
+        exclusion_dx = req.get_str_list_param(
+            ViewParam.DIAGNOSES_EXCLUSION,
+            validator=validate_restricted_sql_search_literal)
         age_minimum = req.get_int_param(ViewParam.AGE_MINIMUM)
         age_maximum = req.get_int_param(ViewParam.AGE_MAXIMUM)
 

@@ -33,7 +33,6 @@ from unittest import mock, TestCase
 
 # noinspection PyProtectedMember
 from colander import Invalid, null, Schema
-
 from pendulum import Duration
 
 from camcops_server.cc_modules.cc_baseconstants import TEMPLATE_DIR

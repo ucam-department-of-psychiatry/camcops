@@ -28,9 +28,7 @@ camcops_server/cc_modules/tests/cc_policy_tests.py
 import logging
 from typing import Dict
 
-from cardinal_pythonlib.logs import (
-    BraceStyleAdapter,
-)
+from cardinal_pythonlib.logs import BraceStyleAdapter
 from pendulum import Date
 
 from camcops_server.cc_modules.cc_policy import TokenizedPolicy

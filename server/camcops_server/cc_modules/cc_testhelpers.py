@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-camcops_server/cc_modules/tests/cc_client_api_helpers_tests.py
+camcops_server/cc_modules/cc_testhelpers.py
 
 ===============================================================================
 
@@ -24,32 +24,27 @@ camcops_server/cc_modules/tests/cc_client_api_helpers_tests.py
 
 ===============================================================================
 
+**Helper functions used during testing.**
+
 """
-import unittest
 
-from camcops_server.cc_modules.cc_client_api_helpers import is_email_valid
+from typing import List, Type
 
 
-# =============================================================================
-# Unit tests
-# =============================================================================
-
-class EmailValidatorTests(unittest.TestCase):
+def class_attribute_names(cls: Type,
+                          exclude_underscore: bool = True,
+                          exclude_double_underscore: bool = True) -> List[str]:
     """
-    Test our e-mail validator.
-    """
+    When given a class, returns the names of all its attributes, by default
+    excluding those starting with single and double underscores.
 
-    def test_email_validator(self) -> None:
-        good = [
-            "blah@somewhere.com",
-            "r&d@sillydomain.co.uk",
-        ]
-        bad = [
-            "plaintext",
-            "plain.domain.com",
-            "two@at@symbols.com",
-        ]
-        for email in good:
-            self.assertTrue(is_email_valid(email))
-        for email in bad:
-            self.assertFalse(is_email_valid(email))
+    Used in particular to enumerate constants provided within a class.
+    """
+    attrs = []  # type: List[str]
+    for x in cls.__dict__.keys():
+        if exclude_underscore and x.startswith("_"):
+            continue
+        if exclude_double_underscore and x.startswith("__"):
+            continue
+        attrs.append(x)
+    return attrs

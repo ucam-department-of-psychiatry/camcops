@@ -31,5 +31,5 @@ camcops_server/templates/taskcommon/patient_page_header.mako
 <b>${ patient.get_surname_forename_upper() }</b> (${ patient.get_sex_verbose() }).
 ${ patient.get_dob_html(req, longform=False) }
 %for idobj in patient.idnums:
-    ${ idobj.short_description(request) }: ${ idobj.idnum_value }
+    ${ idobj.short_description(request) | h }: ${ idobj.idnum_value }
 %endfor

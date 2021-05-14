@@ -56,7 +56,7 @@ camcops_server/templates/menu/view_server_info.mako
     </tr>
     %for k, v in recent_activity.items():
         <tr>
-            <td>${k}</td>
+            <td>${k | h}</td>
             <td>${v}</td>
         </tr>
     %endfor

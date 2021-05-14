@@ -41,6 +41,9 @@ To install in development mode:
 import os
 from setuptools import setup, find_packages
 
+from camcops_server.cc_modules.cc_baseconstants import (
+    DEFORM_SUPPORTS_CSP_NONCE,
+)
 from camcops_server.cc_modules.cc_version_string import (
     CAMCOPS_SERVER_VERSION_STRING,
 )
@@ -66,12 +69,18 @@ INSTALL_REQUIRES = [
     'alembic==1.4.2',  # database migrations
     'asteval==0.9.18',  # safe-ish alternative to eval
 
-    'cardinal_pythonlib==1.0.99',  # RNC libraries
+    'cardinal_pythonlib==1.1.4',  # RNC libraries
     'celery==4.4.6',  # background tasks
     'colander==1.7.0',  # serialization/deserialization from web forms
     'CherryPy==18.6.0',  # web server
 
-    'deform==2.0.14',  # web forms
+    (  # deform: web forms
+        'deform @ git+https://github.com/RudolfCardinal/deform@b40ea6ccf5fdd3116405e0d5233387bf34e20b37#egg=deform-3.0.0.dev0a'  # noqa
+        # ... "a" appended
+        if DEFORM_SUPPORTS_CSP_NONCE
+        else 'deform==2.0.15'
+    ),
+
     # 'deform-bootstrap==0.2.9',  # deform with layout made easier
     'distro==1.3.0',  # detecting Linux distribution  # REMOVE ONCE DOCKER PREFERRED  # noqa
     'dogpile.cache==0.9.2',  # web caching
@@ -80,7 +89,7 @@ INSTALL_REQUIRES = [
     'fhirclient @ git+https://github.com/smart-on-fhir/client-py@16540a46a4bab45065b9d6107c9423b5ae63be2c#egg=fhirclient-4.0.0',  # For FHIR export
     'flower==0.9.4',  # monitor for Celery
 
-    'gunicorn==20.0.4',  # web server (Unix only)
+    'gunicorn==20.1.0',  # web server (Unix only)
 
     'hl7==0.3.5',  # For HL7 export
 
@@ -97,7 +106,7 @@ INSTALL_REQUIRES = [
     'pdfkit==0.6.1',  # wkhtmltopdf interface, for PDF generation from HTML
     # REDCap integration. Pip freeze reports as version 0.0.0?
     'pycap @ git+https://github.com/redcap-tools/pycap@ff0e8c6916352a11e16976d5c7b4aaaed7e500ac#egg=pycap-1.0.2.3',  # noqa
-    'Pygments==2.6.1',  # Syntax highlighting for introspection/DDL
+    'Pygments==2.7.4',  # Syntax highlighting for introspection/DDL
     'pyexcel-ods3==0.5.3',  # ODS spreadsheet export
     'pyexcel-xlsx==0.5.8',  # XLSX spreadsheet export
     'pyramid==1.10.4',  # web framework
