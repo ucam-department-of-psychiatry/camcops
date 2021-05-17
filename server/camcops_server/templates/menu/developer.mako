@@ -44,6 +44,8 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
         Private test page 2</a> (<b>sensitive</b> variables)</li>
     <li><a href="${ request.route_url(Routes.TESTPAGE_PRIVATE_3) | n }">
         Private test page 3</a> (template inheritance)</li>
+    <li><a href="${ request.route_url(Routes.TESTPAGE_PRIVATE_4) | n }">
+        Private test page 4</a> (Mako filtering)</li>
     <li><a href="${ request.route_url(Routes.CRASH) | n }">
         Deliberately crash the request</a> (shouldn’t crash the server!)</li>
 </ul>
