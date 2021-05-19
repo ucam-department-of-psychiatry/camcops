@@ -63,6 +63,7 @@ from cardinal_pythonlib.sqlalchemy.orm_inspect import (
 from cardinal_pythonlib.sqlalchemy.schema import is_sqlatype_string
 from cardinal_pythonlib.stringfunc import mangle_unicode_to_ascii
 from fhirclient.models.bundle import BundleEntry, BundleEntryRequest
+from fhirclient.models.identifier import Identifier
 from fhirclient.models.questionnaire import Questionnaire
 import hl7
 from pendulum import Date, DateTime as Pendulum
@@ -105,7 +106,7 @@ from camcops_server.cc_modules.cc_html import (
     tr_qa,
 )
 from camcops_server.cc_modules.cc_pdf import pdf_from_html
-from camcops_server.cc_modules.cc_pyramid import ViewArg
+from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg
 from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
 from camcops_server.cc_modules.cc_specialnote import SpecialNote
 from camcops_server.cc_modules.cc_sqla_coltypes import (
@@ -1259,15 +1260,25 @@ class Task(GenericTabletRecordMixin, Base):
                               req: "CamcopsRequest",
                               recipient: "ExportRecipient") -> BundleEntry:
 
+        questionnaire_url = req.route_url(
+            Routes.FHIR_QUESTIONNAIRE_ID,
+        )
+
+        identifier = Identifier(jsondict={
+            "system": questionnaire_url,
+            "value": self.tablename,
+        })
+
         questionnaire = Questionnaire(jsondict={
             "status": "active",  # TODO: Support draft / retired / unknown
+            "identifier": [identifier.as_json()],
             "item": self.get_fhir_questionnaire_items(req)
         })
 
         bundle_request = BundleEntryRequest(jsondict={
             "method": "POST",
             "url": "Questionnaire",
-            "ifNoneExist": f"identifier={self.tablename}",
+            "ifNoneExist": f"identifier={questionnaire_url}|{self.tablename}",
         })
 
         return BundleEntry(jsondict={

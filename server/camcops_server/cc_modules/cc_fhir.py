@@ -73,6 +73,8 @@ class FhirTaskExporter(object):
         # TODO: Missing API URL in config
         # TODO: Return value
 
+        # TODO: Version of questionnaire?
+
         bundle_entries = [
             self.task.patient.get_fhir_bundle_entry(
                 self.request,

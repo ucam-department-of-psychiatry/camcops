@@ -726,6 +726,7 @@ class Routes(object):
     ERASE_TASK_LEAVING_PLACEHOLDER = "erase_task_leaving_placeholder"
     ERASE_TASK_ENTIRELY = "erase_task_entirely"
     FHIR_PATIENT_ID = "fhir_patient_id/{which_idnum:\\d+}"
+    FHIR_QUESTIONNAIRE_ID = "fhir_questionnaire_id"
     FORCIBLY_FINALIZE = "forcibly_finalize"
     HOME = "home"
     LOGIN = "login"
@@ -862,8 +863,9 @@ class RouteCollection(object):
     EDIT_USER_GROUP_MEMBERSHIP = RoutePath(Routes.EDIT_USER_GROUP_MEMBERSHIP)
     ERASE_TASK_LEAVING_PLACEHOLDER = RoutePath(Routes.ERASE_TASK_LEAVING_PLACEHOLDER)  # noqa
     ERASE_TASK_ENTIRELY = RoutePath(Routes.ERASE_TASK_ENTIRELY)
-    # TODO: Route doesn't currently go anywhere, currently a unique identifier
+    # TODO: FHIR Routes don't currently go anywhere
     FHIR_PATIENT_ID = RoutePath(Routes.FHIR_PATIENT_ID)
+    FHIR_QUESTIONNAIRE_ID = RoutePath(Routes.FHIR_QUESTIONNAIRE_ID)
     FORCIBLY_FINALIZE = RoutePath(Routes.FORCIBLY_FINALIZE)
     HOME = RoutePath(Routes.HOME, MASTER_ROUTE_WEBVIEW)  # mounted at "/"
     LOGIN = RoutePath(Routes.LOGIN)

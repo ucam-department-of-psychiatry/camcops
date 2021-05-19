@@ -155,6 +155,12 @@ class FhirTaskExporterTests(FhirExportTestCase):
         self.assertEqual(questionnaire["resourceType"], "Questionnaire")
         self.assertEqual(questionnaire["status"], "active")
 
+        identifier = questionnaire["identifier"]
+
+        questionnaire_url = "http://127.0.0.1:8000/fhir_questionnaire_id"
+        self.assertEqual(identifier[0]["system"], questionnaire_url)
+        self.assertEqual(identifier[0]["value"], "phq9")
+
         question_1 = questionnaire["item"][0]
         question_10 = questionnaire["item"][9]
         self.assertEqual(question_1["linkId"], "q1")
@@ -171,3 +177,11 @@ class FhirTaskExporterTests(FhirExportTestCase):
         )
         self.assertEqual(question_10["type"], "choice")
         self.assertEqual(len(questionnaire["item"]), 10)
+
+        request = sent_json["entry"][1]["request"]
+        self.assertEqual(request["method"], "POST")
+        self.assertEqual(request["url"], "Questionnaire")
+        self.assertEqual(
+            request["ifNoneExist"],
+            (f"identifier={questionnaire_url}|phq9")
+        )
