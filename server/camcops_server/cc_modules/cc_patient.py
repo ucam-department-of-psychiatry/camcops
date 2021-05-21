@@ -870,7 +870,7 @@ class Patient(GenericTabletRecordMixin, Base):
     # -------------------------------------------------------------------------
     def get_fhir_bundle_entry(self,
                               req: "CamcopsRequest",
-                              recipient: "ExportRecipient") -> BundleEntry:
+                              recipient: "ExportRecipient") -> Dict:
         which_idnum = recipient.primary_idnum
         idnum_object = self.get_idnum_object(which_idnum)
         idnum_value = idnum_object.idnum_value

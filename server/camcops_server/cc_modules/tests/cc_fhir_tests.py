@@ -185,3 +185,37 @@ class FhirTaskExporterTests(FhirExportTestCase):
             request["ifNoneExist"],
             (f"identifier={questionnaire_url}|phq9")
         )
+
+    def test_questionnaire_response_exported_with_phq9(self) -> None:
+        exported_task = ExportedTask(task=self.task, recipient=self.recipient)
+        exported_task_fhir = ExportedTaskFhir(exported_task)
+
+        exporter = MockFhirTaskExporter(self.req, exported_task_fhir)
+
+        with mock.patch.object(
+                exporter.client.server, "post_json") as mock_post:
+            exporter.export_task()
+
+        args, kwargs = mock_post.call_args
+
+        sent_json = args[1]
+
+        response = sent_json["entry"][2]["resource"]
+        self.assertEqual(response["resourceType"], "QuestionnaireResponse")
+        self.assertEqual(
+            response["questionnaire"],
+            "http://127.0.0.1:8000/fhir_questionnaire_id|phq9"
+        )
+        self.assertEqual(response["status"], "completed")
+
+        request = sent_json["entry"][2]["request"]
+        self.assertEqual(request["method"], "POST")
+        self.assertEqual(request["url"], "QuestionnaireResponse")
+        response_url = "http://127.0.0.1:8000/fhir_questionnaire_response_id/phq9"  # noqa E501
+        self.assertEqual(
+            request["ifNoneExist"],
+            (f"identifier={response_url}|{self.task._pk}")
+        )
+
+        import ipdb
+        ipdb.set_trace()

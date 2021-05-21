@@ -727,6 +727,7 @@ class Routes(object):
     ERASE_TASK_ENTIRELY = "erase_task_entirely"
     FHIR_PATIENT_ID = "fhir_patient_id/{which_idnum:\\d+}"
     FHIR_QUESTIONNAIRE_ID = "fhir_questionnaire_id"
+    FHIR_QUESTIONNAIRE_RESPONSE_ID = "fhir_questionnaire_response_id/{tablename}"  # noqa: E501
     FORCIBLY_FINALIZE = "forcibly_finalize"
     HOME = "home"
     LOGIN = "login"
@@ -866,6 +867,7 @@ class RouteCollection(object):
     # TODO: FHIR Routes don't currently go anywhere
     FHIR_PATIENT_ID = RoutePath(Routes.FHIR_PATIENT_ID)
     FHIR_QUESTIONNAIRE_ID = RoutePath(Routes.FHIR_QUESTIONNAIRE_ID)
+    FHIR_QUESTIONNAIRE_RESPONSE_ID = RoutePath(Routes.FHIR_QUESTIONNAIRE_RESPONSE_ID)  # noqa: E501
     FORCIBLY_FINALIZE = RoutePath(Routes.FORCIBLY_FINALIZE)
     HOME = RoutePath(Routes.HOME, MASTER_ROUTE_WEBVIEW)  # mounted at "/"
     LOGIN = RoutePath(Routes.LOGIN)

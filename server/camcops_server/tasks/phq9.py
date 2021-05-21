@@ -30,6 +30,7 @@ from typing import Any, Dict, List, Tuple, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from fhirclient.models.questionnaire import QuestionnaireItem
+from fhirclient.models.questionnaireresponse import QuestionnaireResponseItem
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Boolean, Integer
 
@@ -356,5 +357,12 @@ class Phq9(TaskHasPatientMixin, Task,
             "text": "10. " + self.wxstring(req, "finalq"),
             "type": "choice",
         }).as_json())
+
+        return items
+
+    def get_fhir_questionnaire_response_items(
+            self, req: "CamcopsRequest") -> List[QuestionnaireResponseItem]:
+
+        items = []
 
         return items

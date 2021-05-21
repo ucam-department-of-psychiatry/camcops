@@ -79,14 +79,13 @@ class FhirTaskExporter(object):
             self.task.patient.get_fhir_bundle_entry(
                 self.request,
                 self.exported_task.recipient
-            ),
-            self.task.get_fhir_bundle_entry(
-                self.request,
-                self.exported_task.recipient
             )
-        ]
+        ] + self.task.get_fhir_bundle_entries(
+            self.request,
+            self.exported_task.recipient
+        )
 
-        bundle = PatchedBundle(jsondict={
+        bundle = Bundle(jsondict={
             "type": "transaction",
             "entry": bundle_entries,
         })

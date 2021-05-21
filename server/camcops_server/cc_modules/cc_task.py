@@ -65,6 +65,7 @@ from cardinal_pythonlib.stringfunc import mangle_unicode_to_ascii
 from fhirclient.models.bundle import BundleEntry, BundleEntryRequest
 from fhirclient.models.identifier import Identifier
 from fhirclient.models.questionnaire import Questionnaire
+from fhirclient.models.questionnaireresponse import QuestionnaireResponse
 import hl7
 from pendulum import Date, DateTime as Pendulum
 from pyramid.renderers import render
@@ -1256,10 +1257,16 @@ class Task(GenericTabletRecordMixin, Base):
     # -------------------------------------------------------------------------
     # FHIR
     # -------------------------------------------------------------------------
-    def get_fhir_bundle_entry(self,
-                              req: "CamcopsRequest",
-                              recipient: "ExportRecipient") -> BundleEntry:
+    def get_fhir_bundle_entries(self,
+                                req: "CamcopsRequest",
+                                recipient: "ExportRecipient") -> List[Dict]:
+        return [
+            self.get_fhir_questionnaire_bundle_entry(req),
+            self.get_fhir_questionnaire_response_bundle_entry(req),
+        ]
 
+    def get_fhir_questionnaire_bundle_entry(self,
+                                            req: "CamcopsRequest") -> Dict:
         questionnaire_url = req.route_url(
             Routes.FHIR_QUESTIONNAIRE_ID,
         )
@@ -1281,10 +1288,49 @@ class Task(GenericTabletRecordMixin, Base):
             "ifNoneExist": f"identifier={questionnaire_url}|{self.tablename}",
         })
 
-        return BundleEntry(jsondict={
-            "resource": questionnaire.as_json(),
-            "request": bundle_request.as_json()
-        }).as_json()
+        return BundleEntry(
+            jsondict={
+                "resource": questionnaire.as_json(),
+                "request": bundle_request.as_json()
+            }
+        ).as_json()
+
+    def get_fhir_questionnaire_response_bundle_entry(
+            self,
+            req: "CamcopsRequest") -> Dict:
+        response_url = req.route_url(
+            Routes.FHIR_QUESTIONNAIRE_RESPONSE_ID,
+            tablename=self.tablename
+        )
+
+        identifier = Identifier(jsondict={
+            "system": response_url,
+            "value": str(self._pk),
+        })
+
+        questionnaire_url = req.route_url(
+            Routes.FHIR_QUESTIONNAIRE_ID,
+        )
+
+        response = QuestionnaireResponse(jsondict={
+            "questionnaire": f"{questionnaire_url}|{self.tablename}",
+            "status": "completed" if self.is_complete() else "in-progress",
+            "identifier": identifier.as_json(),
+            "item": self.get_fhir_questionnaire_response_items(req)
+        })
+
+        bundle_request = BundleEntryRequest(jsondict={
+            "method": "POST",
+            "url": "QuestionnaireResponse",
+            "ifNoneExist": f"identifier={response_url}|{self._pk}",
+        })
+
+        return BundleEntry(
+            jsondict={
+                "resource": response.as_json(),
+                "request": bundle_request.as_json()
+            }
+        ).as_json()
 
     def cancel_from_export_log(self, req: "CamcopsRequest",
                                from_console: bool = False) -> None:
