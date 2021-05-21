@@ -216,6 +216,3 @@ class FhirTaskExporterTests(FhirExportTestCase):
             request["ifNoneExist"],
             (f"identifier={response_url}|{self.task._pk}")
         )
-
-        import ipdb
-        ipdb.set_trace()
