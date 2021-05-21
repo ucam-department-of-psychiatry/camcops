@@ -226,3 +226,23 @@ class FhirTaskExporterTests(FhirExportTestCase):
             request["ifNoneExist"],
             (f"identifier={response_url}|{self.task._pk}")
         )
+
+        item_1 = response["item"][0]
+        item_10 = response["item"][9]
+        self.assertEqual(item_1["linkId"], "q1")
+        self.assertEqual(item_1["text"],
+                         "1. Little interest or pleasure in doing things")
+        answer_1 = item_1["answer"][0]
+        self.assertEqual(answer_1["valueInteger"], self.task.q1)
+
+        self.assertEqual(item_10["linkId"], "q10")
+        self.assertEqual(
+            item_10["text"],
+            ("10. If you checked off any problems, how difficult have these "
+             "problems made it for you to do your work, take care of things "
+             "at home, or get along with other people?")
+        )
+        answer_10 = item_10["answer"][0]
+        self.assertEqual(answer_10["valueInteger"], self.task.q10)
+
+        self.assertEqual(len(response["item"]), 10)

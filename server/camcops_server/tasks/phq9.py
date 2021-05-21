@@ -30,7 +30,10 @@ from typing import Any, Dict, List, Tuple, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from fhirclient.models.questionnaire import QuestionnaireItem
-from fhirclient.models.questionnaireresponse import QuestionnaireResponseItem
+from fhirclient.models.questionnaireresponse import (
+    QuestionnaireResponseItem,
+    QuestionnaireResponseItemAnswer,
+)
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Boolean, Integer
 
@@ -364,5 +367,25 @@ class Phq9(TaskHasPatientMixin, Task,
             self, req: "CamcopsRequest") -> List[QuestionnaireResponseItem]:
 
         items = []
+
+        for q_field in self.MAIN_QUESTIONS:
+            answer = QuestionnaireResponseItemAnswer(jsondict={
+                "valueInteger": getattr(self, q_field)
+            })
+
+            items.append(QuestionnaireResponseItem(jsondict={
+                "linkId": q_field,
+                "text": self.wxstring(req, q_field),
+                "answer": [answer.as_json()],
+            }).as_json())
+
+        answer = QuestionnaireResponseItemAnswer(jsondict={
+            "valueInteger": self.q10
+        })
+        items.append(QuestionnaireResponseItem(jsondict={
+            "linkId": "q10",
+            "text": "10. " + self.wxstring(req, "finalq"),
+            "answer": [answer.as_json()],
+        }).as_json())
 
         return items
