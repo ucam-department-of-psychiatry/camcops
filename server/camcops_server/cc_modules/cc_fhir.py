@@ -40,16 +40,6 @@ class FhirExportException(Exception):
     pass
 
 
-class PatchedBundle(Bundle):
-    # Workaround https://github.com/smart-on-fhir/client-py/issues/102
-    # TODO: Submit PR
-    def relativeBase(self):
-        if self.type == "transaction":
-            return ""
-
-        return super().relativeBase()
-
-
 class FhirTaskExporter(object):
     def __init__(self,
                  request: "CamcopsRequest",
