@@ -26,7 +26,7 @@ camcops_server/tasks/phq9.py
 
 """
 
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any, Dict, List, Tuple, Type, TYPE_CHECKING
 
 from cardinal_pythonlib.stringfunc import strseq
 from fhirclient.models.questionnaire import QuestionnaireItem
@@ -60,6 +60,9 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
     TrackerInfo,
     TrackerLabel,
 )
+
+if TYPE_CHECKING:
+    from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
 
 
 # =============================================================================
@@ -345,7 +348,9 @@ class Phq9(TaskHasPatientMixin, Task,
         return codes
 
     def get_fhir_questionnaire_items(
-            self, req: "CamcopsRequest") -> List[QuestionnaireItem]:
+            self,
+            req: "CamcopsRequest",
+            recipient: "ExportRecipient") -> List[QuestionnaireItem]:
         items = []
 
         for q_field in self.MAIN_QUESTIONS:
@@ -364,7 +369,9 @@ class Phq9(TaskHasPatientMixin, Task,
         return items
 
     def get_fhir_questionnaire_response_items(
-            self, req: "CamcopsRequest") -> List[QuestionnaireResponseItem]:
+            self,
+            req: "CamcopsRequest",
+            recipient: "ExportRecipient") -> List[QuestionnaireResponseItem]:
 
         items = []
 

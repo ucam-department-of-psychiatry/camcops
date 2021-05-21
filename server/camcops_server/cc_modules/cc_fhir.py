@@ -65,15 +65,20 @@ class FhirTaskExporter(object):
 
         # TODO: Version of questionnaire?
 
-        bundle_entries = [
-            self.task.patient.get_fhir_bundle_entry(
-                self.request,
-                self.exported_task.recipient
-            )
-        ] + self.task.get_fhir_bundle_entries(
+        patient_entry = self.task.patient.get_fhir_bundle_entry(
             self.request,
             self.exported_task.recipient
         )
+
+        try:
+            task_entries = self.task.get_fhir_bundle_entries(
+                self.request,
+                self.exported_task.recipient
+            )
+        except NotImplementedError:
+            raise FhirExportException("No FHIR support for this task")
+
+        bundle_entries = [patient_entry] + task_entries
 
         bundle = Bundle(jsondict={
             "type": "transaction",

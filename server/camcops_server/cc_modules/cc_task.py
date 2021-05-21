@@ -146,6 +146,8 @@ from camcops_server.cc_modules.cc_xml import (
 )
 
 if TYPE_CHECKING:
+    from fhirclient.models.questionnaire import QuestionnaireItem
+    from fhirclient.models.questionnaireresponse import QuestionnaireResponseItem  # noqa E501
     from camcops_server.cc_modules.cc_ctvinfo import CtvInfo  # noqa: F401
     from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient  # noqa: E501,F401
     from camcops_server.cc_modules.cc_patient import Patient  # noqa: F401
@@ -1282,7 +1284,7 @@ class Task(GenericTabletRecordMixin, Base):
         questionnaire = Questionnaire(jsondict={
             "status": "active",  # TODO: Support draft / retired / unknown
             "identifier": [identifier.as_json()],
-            "item": self.get_fhir_questionnaire_items(req)
+            "item": self.get_fhir_questionnaire_items(req, recipient)
         })
 
         bundle_request = BundleEntryRequest(jsondict={
@@ -1328,7 +1330,7 @@ class Task(GenericTabletRecordMixin, Base):
             "subject": subject.as_json(),
             "status": "completed" if self.is_complete() else "in-progress",
             "identifier": identifier.as_json(),
-            "item": self.get_fhir_questionnaire_response_items(req)
+            "item": self.get_fhir_questionnaire_response_items(req, recipient)
         })
 
         bundle_request = BundleEntryRequest(jsondict={
@@ -1343,6 +1345,30 @@ class Task(GenericTabletRecordMixin, Base):
                 "request": bundle_request.as_json()
             }
         ).as_json()
+
+    def get_fhir_questionnaire_items(
+            self, req: "CamcopsRequest",
+            recipient: "ExportRecipient") -> List["QuestionnaireItem"]:
+        """
+        Return a list of FHIR QuestionnaireItem objects for this task.
+        https://www.hl7.org/fhir/questionnaire.html#resource
+
+        Must be overridden by derived classes.
+        """
+        raise NotImplementedError(
+            "No get_fhir_questionnaire_items() for this task class!")
+
+    def get_fhir_questionnaire_response_items(
+            self, req: "CamcopsRequest",
+            recipient: "ExportRecipient") -> List["QuestionnaireResponseItem"]:
+        """
+        Return a list of FHIR QuestionnaireResponseItem objects for this task.
+        https://www.hl7.org/fhir/questionnaireresponse.html#resource
+
+        Must be overridden by derived classes.
+        """
+        raise NotImplementedError(
+            "No get_fhir_questionnaire_response_items() for this task class!")
 
     def cancel_from_export_log(self, req: "CamcopsRequest",
                                from_console: bool = False) -> None:
