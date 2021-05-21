@@ -63,6 +63,7 @@ from cardinal_pythonlib.sqlalchemy.orm_inspect import (
 from cardinal_pythonlib.sqlalchemy.schema import is_sqlatype_string
 from cardinal_pythonlib.stringfunc import mangle_unicode_to_ascii
 from fhirclient.models.bundle import BundleEntry, BundleEntryRequest
+from fhirclient.models.fhirreference import FHIRReference
 from fhirclient.models.identifier import Identifier
 from fhirclient.models.questionnaire import Questionnaire
 from fhirclient.models.questionnaireresponse import QuestionnaireResponse
@@ -1261,12 +1262,14 @@ class Task(GenericTabletRecordMixin, Base):
                                 req: "CamcopsRequest",
                                 recipient: "ExportRecipient") -> List[Dict]:
         return [
-            self.get_fhir_questionnaire_bundle_entry(req),
-            self.get_fhir_questionnaire_response_bundle_entry(req),
+            self.get_fhir_questionnaire_bundle_entry(req, recipient),
+            self.get_fhir_questionnaire_response_bundle_entry(req, recipient),
         ]
 
-    def get_fhir_questionnaire_bundle_entry(self,
-                                            req: "CamcopsRequest") -> Dict:
+    def get_fhir_questionnaire_bundle_entry(
+            self,
+            req: "CamcopsRequest",
+            recipient: "ExportRecipient") -> Dict:
         questionnaire_url = req.route_url(
             Routes.FHIR_QUESTIONNAIRE_ID,
         )
@@ -1285,7 +1288,7 @@ class Task(GenericTabletRecordMixin, Base):
         bundle_request = BundleEntryRequest(jsondict={
             "method": "POST",
             "url": "Questionnaire",
-            "ifNoneExist": f"identifier={questionnaire_url}|{self.tablename}",
+            "ifNoneExist": f"identifier={identifier.system}|{identifier.value}",
         })
 
         return BundleEntry(
@@ -1297,7 +1300,8 @@ class Task(GenericTabletRecordMixin, Base):
 
     def get_fhir_questionnaire_response_bundle_entry(
             self,
-            req: "CamcopsRequest") -> Dict:
+            req: "CamcopsRequest",
+            recipient: "ExportRecipient") -> Dict:
         response_url = req.route_url(
             Routes.FHIR_QUESTIONNAIRE_RESPONSE_ID,
             tablename=self.tablename
@@ -1312,8 +1316,16 @@ class Task(GenericTabletRecordMixin, Base):
             Routes.FHIR_QUESTIONNAIRE_ID,
         )
 
+        subject_identifier = self.patient.get_fhir_identifier(req, recipient)
+
+        subject = FHIRReference(jsondict={
+            "identifier": subject_identifier.as_json(),
+            "type": "Patient",
+        })
+
         response = QuestionnaireResponse(jsondict={
             "questionnaire": f"{questionnaire_url}|{self.tablename}",
+            "subject": subject.as_json(),
             "status": "completed" if self.is_complete() else "in-progress",
             "identifier": identifier.as_json(),
             "item": self.get_fhir_questionnaire_response_items(req)
@@ -1322,7 +1334,7 @@ class Task(GenericTabletRecordMixin, Base):
         bundle_request = BundleEntryRequest(jsondict={
             "method": "POST",
             "url": "QuestionnaireResponse",
-            "ifNoneExist": f"identifier={response_url}|{self._pk}",
+            "ifNoneExist": f"identifier={identifier.system}|{identifier.value}",
         })
 
         return BundleEntry(

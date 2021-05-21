@@ -208,6 +208,16 @@ class FhirTaskExporterTests(FhirExportTestCase):
         )
         self.assertEqual(response["status"], "completed")
 
+        subject = response["subject"]
+        identifier = subject["identifier"]
+        self.assertEqual(subject["type"], "Patient")
+        which_idnum = self.patient_rio.which_idnum
+        idnum_value = self.patient_rio.idnum_value
+
+        iddef_url = f"http://127.0.0.1:8000/fhir_patient_id/{which_idnum}"
+        self.assertEqual(identifier["system"], iddef_url)
+        self.assertEqual(identifier["value"], str(idnum_value))
+
         request = sent_json["entry"][2]["request"]
         self.assertEqual(request["method"], "POST")
         self.assertEqual(request["url"], "QuestionnaireResponse")

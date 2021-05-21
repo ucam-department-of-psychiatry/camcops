@@ -871,18 +871,7 @@ class Patient(GenericTabletRecordMixin, Base):
     def get_fhir_bundle_entry(self,
                               req: "CamcopsRequest",
                               recipient: "ExportRecipient") -> Dict:
-        which_idnum = recipient.primary_idnum
-        idnum_object = self.get_idnum_object(which_idnum)
-        idnum_value = idnum_object.idnum_value
-        idnum_url = req.route_url(
-            Routes.FHIR_PATIENT_ID,
-            which_idnum=which_idnum
-        )
-
-        identifier = Identifier(jsondict={
-            "system": idnum_url,
-            "value": str(idnum_value),
-        })
+        identifier = self.get_fhir_identifier(req, recipient)
 
         # TODO: Other fields we could add here
         # address, GP, DOB, email
@@ -906,13 +895,30 @@ class Patient(GenericTabletRecordMixin, Base):
         bundle_request = BundleEntryRequest(jsondict={
             "method": "POST",
             "url": "Patient",
-            "ifNoneExist": f"identifier={idnum_url}|{idnum_value}",
+            "ifNoneExist": f"identifier={identifier.system}|{identifier.value}",
         })
 
         return BundleEntry(jsondict={
             "resource": fhir_patient.as_json(),
             "request": bundle_request.as_json()
         }).as_json()
+
+    def get_fhir_identifier(self,
+                            req: "CamcopsRequest",
+                            recipient: "ExportRecipient") -> Identifier:
+        which_idnum = recipient.primary_idnum
+
+        idnum_object = self.get_idnum_object(which_idnum)
+        idnum_value = idnum_object.idnum_value
+        idnum_url = req.route_url(
+            Routes.FHIR_PATIENT_ID,
+            which_idnum=which_idnum
+        )
+
+        return Identifier(jsondict={
+            "system": idnum_url,
+            "value": str(idnum_value),
+        })
 
     # -------------------------------------------------------------------------
     # Database status
