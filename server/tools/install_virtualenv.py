@@ -26,6 +26,9 @@ tools/install_virtualenv.py
 
 **Creates a Python virtual environment.**
 
+Called by e.g. Debian packages installation scripts; see
+``server/tools/MAKE_LINUX_PACKAGES.py``.
+
 As of 2018-11-24, uses ``venv`` not ``virtualenv``; see
 https://www.reddit.com/r/learnpython/comments/4hsudz/pyvenv_vs_virtualenv/.
 This is present in the Python system library from Python 3.3+

@@ -166,7 +166,6 @@ EXTRA_COMMENT_PREFIX = "(EXTRA) "
 # Other special values
 # =============================================================================
 
-# CAMCOPS_URL = "http://www.camcops.org/"
 CAMCOPS_URL = "https://camcops.readthedocs.io/"
 ERA_NOW = "NOW"  # defines the current era in database records
 
@@ -596,7 +595,7 @@ class ConfigDefaults(object):
     EMAIL_USE_TLS = True
     EXTRA_STRING_FILES = os.path.join(DEFAULT_EXTRA_STRINGS_DIR, "*.xml")  # cosmetic; for demo configs only  # noqa
     LANGUAGE = DEFAULT_LOCALE
-    LOCAL_INSTITUTION_URL = "http://www.camcops.org/"
+    LOCAL_INSTITUTION_URL = "https://camcops.readthedocs.io/"
     LOCAL_LOGO_FILE_ABSOLUTE = os.path.join(STATIC_ROOT_DIR, "logo_local.png")
     LOCKOUT_DURATION_INCREMENT_MINUTES = 10
     LOCKOUT_THRESHOLD = 10

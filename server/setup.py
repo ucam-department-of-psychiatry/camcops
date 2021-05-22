@@ -69,7 +69,7 @@ INSTALL_REQUIRES = [
     'alembic==1.4.2',  # database migrations
     'asteval==0.9.18',  # safe-ish alternative to eval
 
-    'cardinal_pythonlib==1.1.4',  # RNC libraries
+    'cardinal_pythonlib==1.1.6',  # RNC libraries
     'celery==4.4.6',  # background tasks
     'colander==1.7.0',  # serialization/deserialization from web forms
     'CherryPy==18.6.0',  # web server
@@ -101,7 +101,7 @@ INSTALL_REQUIRES = [
     'numpy==1.19.0',  # Used by some tasks. SLOW INSTALLATION.
 
     'paginate==0.5.6',  # pagination for web server
-    'pendulum==2.1.0',  # better than Arrow
+    'pendulum==2.1.2',  # date/time classes
     'pexpect==4.8.0',  # for open_sqlcipher.py
     'pdfkit==0.6.1',  # wkhtmltopdf interface, for PDF generation from HTML
     # REDCap integration. Pip freeze reports as version 0.0.0?
@@ -214,6 +214,9 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
 
         'Topic :: Scientific/Engineering :: Medical Science Apps.'
     ],
