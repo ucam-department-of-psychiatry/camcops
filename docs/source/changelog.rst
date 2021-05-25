@@ -3365,3 +3365,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
   is described at https://docs.makotemplates.org/en/latest/filtering.html (and
   some clarity about permitted filter names is added by
   http://b.93z.org/notes/automatic-html-escaping-in-mako/).
+
+  Fix bug where deleting a task schedule with related items would result in
+  an internal server error.
+  https://github.com/RudolfCardinal/camcops/issues/150
+  (Database revision 0063)

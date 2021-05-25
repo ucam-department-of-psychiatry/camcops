@@ -235,7 +235,7 @@ class DemoDatabaseTestCase(DemoRequestTestCase):
                                          description="RiO number",
                                          short_description="RiO",
                                          hl7_assigning_authority="CPFT",
-                                         hl7_id_type="CPFT_RiO")
+                                         hl7_id_type="CPRiO")
         self.dbsession.add(self.rio_iddef)
         self.study_iddef = IdNumDefinition(which_idnum=3,
                                            description="Study number",
