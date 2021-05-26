@@ -26,7 +26,7 @@
 **Implements communication with a FHIR server.**
 """
 
-from typing import TYPE_CHECKING
+from typing import Dict, TYPE_CHECKING
 
 from fhirclient import client
 from fhirclient.models.bundle import Bundle
@@ -46,6 +46,7 @@ class FhirTaskExporter(object):
                  exported_task_fhir: "ExportedTaskFhir") -> None:
         self.request = request
         self.exported_task = exported_task_fhir.exported_task
+        self.exported_task_fhir = exported_task_fhir
 
         self.recipient = self.exported_task.recipient
         self.task = self.exported_task.task
@@ -85,4 +86,73 @@ class FhirTaskExporter(object):
             "entry": bundle_entries,
         })
 
-        bundle.create(self.client.server)
+        # TODO: Can raise Exception
+        response = bundle.create(self.client.server)
+        if response is None:
+            # Not sure this will ever happen.
+            # fhirabstractresource.py create() says it returns
+            # "None or the response JSON on success" but an exception will
+            # already have been raised if there was a failure
+            raise FhirExportException(
+                "The server unexpectedly returned an OK, empty response")
+
+        self.parse_response(response)
+
+    def parse_response(self, response: Dict) -> None:
+        """
+        Response looks something like this:
+        {
+          'resourceType': 'Bundle',
+          'id': 'cae48957-e7e6-4649-97f8-0a882076ad0a',
+          'type': 'transaction-response',
+          'link': [
+            {
+              'relation': 'self',
+              'url': 'http://localhost:8080/fhir'
+            }
+          ],
+          'entry': [
+            {
+              'response': {
+                'status': '200 OK',
+                'location': 'Patient/1/_history/1',
+                'etag': '1'
+              }
+            },
+            {
+              'response': {
+                'status': '200 OK',
+                'location': 'Questionnaire/26/_history/1',
+                'etag': '1'
+              }
+            },
+            {
+              'response': {
+                'status': '201 Created',
+                'location': 'QuestionnaireResponse/42/_history/1',
+                'etag': '1',
+                'lastModified': '2021-05-24T09:30:11.098+00:00'
+              }
+            }
+          ]
+        }
+        """
+        bundle = Bundle(jsondict=response)
+
+        if bundle.entry is not None:
+            self._save_exported_entries(bundle)
+
+    def _save_exported_entries(self, bundle: Bundle) -> None:
+        from camcops_server.cc_modules.cc_exportmodels import (
+            ExportedTaskFhirEntry
+        )
+        for entry in bundle.entry:
+            saved_entry = ExportedTaskFhirEntry()
+            saved_entry.exported_task_fhir_id = self.exported_task_fhir.id
+            saved_entry.status = entry.response.status
+            saved_entry.location = entry.response.location
+            saved_entry.etag = entry.response.etag
+            if entry.response.lastModified is not None:
+                saved_entry.last_modified = entry.response.lastModified.date
+
+            self.request.dbsession.add(saved_entry)

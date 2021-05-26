@@ -25,6 +25,9 @@
 
 """
 
+import datetime
+import json
+from typing import Dict
 from unittest import mock
 
 from camcops_server.cc_modules.cc_exportmodels import (
@@ -46,6 +49,14 @@ from camcops_server.tasks.phq9 import Phq9
 
 class MockFhirTaskExporter(FhirTaskExporter):
     pass
+
+
+class MockFhirResponse(mock.Mock):
+    def __init__(self, response_json: Dict):
+        super().__init__(
+            text=json.dumps(response_json),
+            json=mock.Mock(return_value=response_json)
+        )
 
 
 class FhirExportTestCase(DemoDatabaseTestCase):
@@ -102,8 +113,13 @@ class FhirTaskExporterTests(FhirExportTestCase):
 
         exporter = MockFhirTaskExporter(self.req, exported_task_fhir)
 
+        response_json = {
+            'type': 'transaction-response',
+        }
+
         with mock.patch.object(
-                exporter.client.server, "post_json") as mock_post:
+                exporter.client.server, "post_json",
+                return_value=MockFhirResponse(response_json)) as mock_post:
             exporter.export_task()
 
         args, kwargs = mock_post.call_args
@@ -143,8 +159,13 @@ class FhirTaskExporterTests(FhirExportTestCase):
 
         exporter = MockFhirTaskExporter(self.req, exported_task_fhir)
 
+        response_json = {
+            'type': 'transaction-response',
+        }
+
         with mock.patch.object(
-                exporter.client.server, "post_json") as mock_post:
+                exporter.client.server, "post_json",
+                return_value=MockFhirResponse(response_json)) as mock_post:
             exporter.export_task()
 
         args, kwargs = mock_post.call_args
@@ -192,8 +213,13 @@ class FhirTaskExporterTests(FhirExportTestCase):
 
         exporter = MockFhirTaskExporter(self.req, exported_task_fhir)
 
+        response_json = {
+            'type': 'transaction-response',
+        }
+
         with mock.patch.object(
-                exporter.client.server, "post_json") as mock_post:
+                exporter.client.server, "post_json",
+                return_value=MockFhirResponse(response_json)) as mock_post:
             exporter.export_task()
 
         args, kwargs = mock_post.call_args
@@ -246,3 +272,75 @@ class FhirTaskExporterTests(FhirExportTestCase):
         self.assertEqual(answer_10["valueInteger"], self.task.q10)
 
         self.assertEqual(len(response["item"]), 10)
+
+    def test_exported_task_saved(self) -> None:
+        exported_task = ExportedTask(task=self.task, recipient=self.recipient)
+        # auto increment doesn't work for BigInteger with SQLite
+        exported_task.id = 1
+        self.dbsession.add(exported_task)
+
+        exported_task_fhir = ExportedTaskFhir(exported_task)
+        self.dbsession.add(exported_task_fhir)
+
+        exporter = MockFhirTaskExporter(self.req, exported_task_fhir)
+
+        response_json = {
+            'resourceType': 'Bundle',
+            'id': 'cae48957-e7e6-4649-97f8-0a882076ad0a',
+            'type': 'transaction-response',
+            'link': [
+                {
+                    'relation': 'self',
+                    'url': 'http://localhost:8080/fhir'
+                }
+            ],
+            'entry': [
+                {
+                    'response': {
+                        'status': '200 OK',
+                        'location': 'Patient/1/_history/1',
+                        'etag': '1'
+                    }
+                },
+                {
+                    'response': {
+                        'status': '200 OK',
+                        'location': 'Questionnaire/26/_history/1',
+                        'etag': '1'
+                    }
+                },
+                {
+                    'response': {
+                        'status': '201 Created',
+                        'location': 'QuestionnaireResponse/42/_history/1',
+                        'etag': '1',
+                        'lastModified': '2021-05-24T09:30:11.098+00:00'
+                    }
+                }
+            ]
+        }
+
+        with mock.patch.object(exporter.client.server, "post_json",
+                               return_value=MockFhirResponse(response_json)):
+            exporter.export_task()
+
+        self.dbsession.commit()
+
+        entries = exported_task_fhir.entries
+
+        entries.sort(key=lambda e: e.location)
+
+        self.assertEqual(entries[0].status, "200 OK")
+        self.assertEqual(entries[0].location, "Patient/1/_history/1")
+        self.assertEqual(entries[0].etag, "1")
+
+        self.assertEqual(entries[1].status, "200 OK")
+        self.assertEqual(entries[1].location, "Questionnaire/26/_history/1")
+        self.assertEqual(entries[1].etag, "1")
+
+        self.assertEqual(entries[2].status, "201 Created")
+        self.assertEqual(entries[2].location,
+                         "QuestionnaireResponse/42/_history/1")
+        self.assertEqual(entries[2].etag, "1")
+        self.assertEqual(entries[2].last_modified,
+                         datetime.datetime(2021, 5, 24, 9, 30, 11, 98000))

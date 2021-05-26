@@ -392,6 +392,7 @@ class ExportedTask(Base):
         elif transmission_method == ExportTransmissionMethod.FHIR:
             efhir = ExportedTaskFhir(self)
             dbsession.add(efhir)
+            dbsession.flush()
             efhir.export_task(req)
 
         elif transmission_method == ExportTransmissionMethod.FILE:
@@ -1198,6 +1199,8 @@ class ExportedTaskFhir(Base):
 
     exported_task = relationship(ExportedTask)
 
+    entries = relationship("ExportedTaskFhirEntry")
+
     def __init__(self, exported_task: ExportedTask = None) -> None:
         """
         Args:
@@ -1220,3 +1223,44 @@ class ExportedTaskFhir(Base):
             exported_task.succeed()
         except FhirExportException as e:
             exported_task.abort(str(e))
+
+
+class ExportedTaskFhirEntry(Base):
+    """
+    Details of Patients, Questionnaires, QuestionnaireResponses exported to
+    FHIR server for a single task.
+    """
+    __tablename__ = "_exported_task_fhir_entry"
+
+    id = Column(
+        "id", Integer, primary_key=True, autoincrement=True,
+        comment="Arbitrary primary key"
+    )
+
+    exported_task_fhir_id = Column(
+        "exported_task_fhir_id", Integer, ForeignKey(ExportedTaskFhir.id),
+        nullable=False,
+        comment="FK to {}.{}".format(ExportedTaskFhir.__tablename__,
+                                     ExportedTaskFhir.id.name)
+    )
+
+    etag = Column(
+        "etag", UnicodeText, comment="The Etag for the resource (if relevant)"
+    )
+
+    last_modified = Column(
+        "last_modified", DateTime,
+        comment="Server's date time modified."
+    )
+
+    location = Column(
+        "location", UnicodeText,
+        comment="The location (if the operation returns a location)."
+    )
+
+    status = Column(
+        "status", UnicodeText,
+        comment="Status response code (text optional)."
+    )
+
+    # TODO: outcome?

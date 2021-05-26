@@ -29,8 +29,8 @@ DATABASE REVISION SCRIPT
 fhir
 
 Revision ID: 0063
-Revises: 0061
-Creation date: 2021-03-30 11:08:21.258344
+Revises: 0062
+Creation date: 2021-05-24 17:22:51.871622
 
 """
 
@@ -73,6 +73,31 @@ def upgrade():
         mysql_engine='InnoDB',
         mysql_row_format='DYNAMIC'
     )
+    op.create_table(
+        '_exported_task_fhir_entry',
+        sa.Column('id', sa.Integer(), autoincrement=True, nullable=False,
+                  comment='Arbitrary primary key'),
+        sa.Column('exported_task_fhir_id', sa.Integer(), nullable=False,
+                  comment='FK to _exported_task_fhir.id'),
+        sa.Column('etag', sa.UnicodeText(), nullable=True,
+                  comment='The Etag for the resource (if relevant)'),
+        sa.Column('last_modified', sa.DateTime(), nullable=True,
+                  comment="Server's date time modified."),
+        sa.Column('location', sa.UnicodeText(), nullable=True,
+                  comment='The location (if the operation returns a location).'),
+        sa.Column('status', sa.UnicodeText(), nullable=True,
+                  comment='Status response code (text optional).'),
+        sa.ForeignKeyConstraint(
+            ['exported_task_fhir_id'],
+            ['_exported_task_fhir.id'],
+            name=op.f('fk__exported_task_fhir_entry_exported_task_fhir_id')
+        ),
+        sa.PrimaryKeyConstraint('id',
+                                name=op.f('pk__exported_task_fhir_entry')),
+        mysql_charset='utf8mb4 COLLATE utf8mb4_unicode_ci',
+        mysql_engine='InnoDB',
+        mysql_row_format='DYNAMIC'
+    )
     with op.batch_alter_table('_export_recipients', schema=None) as batch_op:
         batch_op.add_column(
             sa.Column(
@@ -87,4 +112,5 @@ def downgrade():
     with op.batch_alter_table('_export_recipients', schema=None) as batch_op:
         batch_op.drop_column('fhir_api_url')
 
+    op.drop_table('_exported_task_fhir_entry')
     op.drop_table('_exported_task_fhir')
