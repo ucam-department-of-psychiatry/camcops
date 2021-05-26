@@ -20,7 +20,7 @@ camcops_server/cc_modules/tests/cc_patient_tests.py
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 
 ===============================================================================
 
@@ -33,6 +33,11 @@ from camcops_server.cc_modules.cc_simpleobjects import BarePatientInfo
 from camcops_server.cc_modules.cc_patient import Patient
 from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
 from camcops_server.cc_modules.cc_simpleobjects import IdNumReference
+from camcops_server.cc_modules.cc_taskschedule import (
+    PatientTaskSchedule,
+    TaskSchedule,
+    TaskScheduleItem,
+)
 from camcops_server.cc_modules.cc_tsv import TsvPage
 from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 from camcops_server.cc_modules.cc_xml import XmlElement
@@ -157,3 +162,45 @@ class LineageTests(DemoDatabaseTestCase):
         idnums = list(self.patient_1.gen_patient_idnums_even_noncurrent())
 
         self.assertEqual(len(idnums), 2)
+
+
+class PatientDeleteTests(DemoDatabaseTestCase):
+    def test_deletes_patient_task_schedule(self) -> None:
+        schedule = TaskSchedule()
+        schedule.group_id = self.group.id
+        self.dbsession.add(schedule)
+        self.dbsession.flush()
+
+        item = TaskScheduleItem()
+        item.schedule_id = schedule.id
+        item.task_table_name = "ace3"
+        item.due_from = pendulum.Duration(days=30)
+        item.due_by = pendulum.Duration(days=60)
+        self.dbsession.add(item)
+        self.dbsession.flush()
+
+        patient = self.create_patient()
+
+        pts = PatientTaskSchedule()
+        pts.schedule_id = schedule.id
+        pts.patient_pk = patient.pk
+        self.dbsession.add(pts)
+        self.dbsession.commit()
+
+        self.assertIsNotNone(self.dbsession.query(TaskSchedule).filter(
+            TaskSchedule.id == schedule.id).one_or_none())
+        self.assertIsNotNone(self.dbsession.query(TaskScheduleItem).filter(
+            TaskScheduleItem.id == item.id).one_or_none())
+        self.assertIsNotNone(self.dbsession.query(PatientTaskSchedule).filter(
+            PatientTaskSchedule.id == pts.id).one_or_none())
+
+        self.dbsession.delete(patient)
+        self.dbsession.commit()
+
+        self.assertIsNotNone(self.dbsession.query(TaskSchedule).filter(
+            TaskSchedule.id == schedule.id).one_or_none())
+        self.assertIsNotNone(self.dbsession.query(TaskScheduleItem).filter(
+            TaskScheduleItem.id == item.id).one_or_none())
+
+        self.assertIsNone(self.dbsession.query(PatientTaskSchedule).filter(
+            PatientTaskSchedule.id == pts.id).one_or_none())

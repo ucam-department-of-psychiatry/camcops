@@ -20,7 +20,7 @@ camcops_server/cc_modules/tests/cc_forms_tests.py
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 
 ===============================================================================
 
@@ -99,7 +99,7 @@ class TaskScheduleSchemaTests(DemoDatabaseTestCase):
         schema = TaskScheduleSchema().bind(request=self.req)
         appstruct = {
             ViewParam.NAME: "test",
-            ViewParam.GROUP_ID: "1",
+            ViewParam.GROUP_ID: str(self.group.id),
             ViewParam.EMAIL_SUBJECT: "Subject",
             ViewParam.EMAIL_TEMPLATE: "{bad_key}",
         }
@@ -115,7 +115,7 @@ class TaskScheduleSchemaTests(DemoDatabaseTestCase):
         schema = TaskScheduleSchema().bind(request=self.req)
         appstruct = {
             ViewParam.NAME: "test",
-            ViewParam.GROUP_ID: "1",
+            ViewParam.GROUP_ID: str(self.group.id),
             ViewParam.EMAIL_SUBJECT: "Subject",
             ViewParam.EMAIL_TEMPLATE: "{server_url",
         }
