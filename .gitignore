@@ -35,6 +35,10 @@ camcops_test.sqlite*
 server/camcops_server.egg-info
 server/build/
 
+# pytest coverage
+.coverage
+htmlcov/
+
 # Other
 distributables/
 working/*
