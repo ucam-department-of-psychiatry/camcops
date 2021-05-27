@@ -58,7 +58,10 @@ class FhirTaskExporter(object):
             "launch_token": self.recipient.fhir_launch_token,
         }
 
-        self.client = client.FHIRClient(settings=settings)
+        try:
+            self.client = client.FHIRClient(settings=settings)
+        except Exception as e:
+            raise FhirExportException(str(e))
 
     def export_task(self) -> None:
         # TODO: Authentication

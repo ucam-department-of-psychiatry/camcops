@@ -385,3 +385,14 @@ class FhirTaskExporterTests(FhirExportTestCase):
 
             message = str(cm.exception)
             self.assertIn("Something bad happened", message)
+
+    def test_raises_for_missing_api_url(self) -> None:
+        self.recipient.fhir_api_url = ""
+        exported_task = ExportedTask(task=self.task, recipient=self.recipient)
+        exported_task_fhir = ExportedTaskFhir(exported_task)
+
+        with self.assertRaises(FhirExportException) as cm:
+            FhirTaskExporter(self.req, exported_task_fhir)
+
+        message = str(cm.exception)
+        self.assertIn("must be initialized with `base_uri`", message)

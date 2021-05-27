@@ -1217,9 +1217,9 @@ class ExportedTaskFhir(Base):
             req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
         """
         exported_task = self.exported_task
-        exporter = FhirTaskExporter(req, self)
 
         try:
+            exporter = FhirTaskExporter(req, self)
             exporter.export_task()
             exported_task.succeed()
         except FhirExportException as e:
