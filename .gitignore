@@ -31,6 +31,10 @@ __pycache__/
 # Test database
 camcops_test.sqlite
 
+# pytest coverage
+.coverage
+htmlcov/
+
 # Other
 distributables/
 server/build/
