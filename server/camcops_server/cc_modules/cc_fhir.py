@@ -78,8 +78,8 @@ class FhirTaskExporter(object):
                 self.request,
                 self.exported_task.recipient
             )
-        except NotImplementedError:
-            raise FhirExportException("No FHIR support for this task")
+        except NotImplementedError as e:
+            raise FhirExportException(str(e))
 
         bundle_entries = [patient_entry] + task_entries
 

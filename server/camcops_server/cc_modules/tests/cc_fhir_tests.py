@@ -37,7 +37,10 @@ from camcops_server.cc_modules.cc_exportmodels import (
 
 from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
 from camcops_server.cc_modules.cc_exportrecipientinfo import ExportRecipientInfo
-from camcops_server.cc_modules.cc_fhir import FhirTaskExporter
+from camcops_server.cc_modules.cc_fhir import (
+    FhirExportException,
+    FhirTaskExporter,
+)
 from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 from camcops_server.tasks.phq9 import Phq9
 
@@ -344,3 +347,21 @@ class FhirTaskExporterTests(FhirExportTestCase):
         self.assertEqual(entries[2].etag, "1")
         self.assertEqual(entries[2].last_modified,
                          datetime.datetime(2021, 5, 24, 9, 30, 11, 98000))
+
+    def test_raises_when_task_does_not_support(self) -> None:
+        exported_task = ExportedTask(task=self.task, recipient=self.recipient)
+        exported_task_fhir = ExportedTaskFhir(exported_task)
+
+        exporter = MockFhirTaskExporter(self.req, exported_task_fhir)
+
+        with mock.patch.object(self.task,
+                               "get_fhir_bundle_entries") as mock_task:
+            mock_task.side_effect = NotImplementedError(
+                "Something is not implemented"
+            )
+
+            with self.assertRaises(FhirExportException) as cm:
+                exporter.export_task()
+
+            message = str(cm.exception)
+            self.assertIn("Something is not implemented", message)
