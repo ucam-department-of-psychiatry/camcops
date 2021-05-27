@@ -3370,3 +3370,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
   an internal server error.
   https://github.com/RudolfCardinal/camcops/issues/150
   (Database revision 0063)
+
+- ``GET`` requests to the API, which are likely to come from users visiting a
+  URL intended to be entered into the app, are now signposted to sensible
+  places.

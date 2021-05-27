@@ -30,18 +30,17 @@ camcops_server/templates/menu/client_api_signposting.mako
 
 <h1>${ _("Please install the CamCOPS app") }</h1>
 <div>
-<p>
-${ _("You've probably come here by mistake, having entered <b>{server_url}</b> into a web browser instead of in the CamCOPS app.").format(server_url=server_url) | n}
-</p>
+    <p>
+        ${ _("You’ve probably come here by mistake, having entered <b>{server_url}</b> into a web browser instead of into the CamCOPS app.").format(server_url=server_url) }
+    </p>
 
-<p>
-${ _("You need to download and install the CamCOPS app from one of the following places:") }
-</p>
+    <p>
+        ${ _("You need to download and install the CamCOPS app from one of the following places:") }
+    </p>
 
-<ul>
-<li>${ _("For Android smartphones and tablets, search for CamCOPS in the Google Play Store") }</li>
-<li>${ _("For iPhones and iPads, search for CamCOPS in the Apple Store") }</li>
-<li>${ _("For Windows and Mac computers, laptops and tablets, download CamCOPS from {github_link}").format(github_link=github_link) | n }</li>
-</ul>
-
+    <ul>
+        <li>${ _("For Android smartphones and tablets, search for CamCOPS in the Google Play Store") }</li>
+        <li>${ _("For iPhones and iPads, search for CamCOPS in the Apple App Store") }</li>
+        <li>${ _("For Windows and Mac computers, laptops and tablets, download CamCOPS from {github_link}").format(github_link=github_link) | n }</li>
+    </ul>
 </div>

@@ -187,6 +187,7 @@ from camcops_server.cc_modules.cc_constants import (
     CAMCOPS_URL,
     DateFormat,
     ERA_NOW,
+    GITHUB_RELEASES_URL,
     MINIMUM_PASSWORD_LENGTH,
 )
 from camcops_server.cc_modules.cc_db import (
@@ -4491,14 +4492,15 @@ def delete_task_schedule_item(req: "CamcopsRequest") -> Response:
              renderer="client_api_signposting.mako")
 def client_api_signposting(req: "CamcopsRequest") -> Dict[str, Any]:
     """
-    Patients are likely to enter the /api address into a web browser, especially
-    if it appears as a hyperlink in an email. This page will direct them to
-    download the app.
+    Patients are likely to enter the ``/api`` address into a web browser,
+    especially if it appears as a hyperlink in an email. If so, that will
+    arrive as a ``GET`` request. This page will direct them to download the
+    app.
     """
-    github_url = "https://github.com/RudolfCardinal/camcops/releases/"
-
-    return {"github_link": f"<a href='{github_url}'>GitHub</a>",
-            "server_url": req.url}
+    return {
+        "github_link": f"<a href='{GITHUB_RELEASES_URL}'>GitHub</a>",
+        "server_url": req.url
+    }
 
 
 # =============================================================================
