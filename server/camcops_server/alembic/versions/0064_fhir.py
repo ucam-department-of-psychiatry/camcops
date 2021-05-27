@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-camcops_server/alembic/versions/0063_fhir.py
+camcops_server/alembic/versions/0064_fhir.py
 
 ===============================================================================
 
@@ -28,8 +28,8 @@ DATABASE REVISION SCRIPT
 
 fhir
 
-Revision ID: 0063
-Revises: 0062
+Revision ID: 0064
+Revises: 0063
 Creation date: 2021-05-24 17:22:51.871622
 
 """
@@ -46,8 +46,8 @@ import sqlalchemy as sa
 # Revision identifiers, used by Alembic.
 # =============================================================================
 
-revision = '0063'
-down_revision = '0062'
+revision = '0064'
+down_revision = '0063'
 branch_labels = None
 depends_on = None
 
