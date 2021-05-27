@@ -4483,6 +4483,24 @@ def delete_task_schedule_item(req: "CamcopsRequest") -> Response:
     return DeleteTaskScheduleItemView(req).dispatch()
 
 
+@view_config(route_name=Routes.CLIENT_API, request_method="GET",
+             permission=NO_PERMISSION_REQUIRED,
+             renderer="client_api_signposting.mako")
+@view_config(route_name=Routes.CLIENT_API_ALIAS, request_method="GET",
+             permission=NO_PERMISSION_REQUIRED,
+             renderer="client_api_signposting.mako")
+def client_api_signposting(req: "CamcopsRequest") -> Dict[str, Any]:
+    """
+    Patients are likely to enter the /api address into a web browser, especially
+    if it appears as a hyperlink in an email. This page will direct them to
+    download the app.
+    """
+    github_url = "https://github.com/RudolfCardinal/camcops/releases/"
+
+    return {"github_link": f"<a href='{github_url}'>GitHub</a>",
+            "server_url": req.url}
+
+
 # =============================================================================
 # Static assets
 # =============================================================================
