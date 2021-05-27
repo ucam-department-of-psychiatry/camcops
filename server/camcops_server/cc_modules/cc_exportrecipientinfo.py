@@ -140,6 +140,8 @@ class ExportRecipientInfo(object):
     IGNORE_FOR_EQ_ATTRNAMES = [
         # Attribute names to ignore for equality comparison
         "email_host_password",
+        "fhir_app_secret",
+        "fhir_launch_token",
         "redcap_api_key",
     ]
 
@@ -235,6 +237,8 @@ class ExportRecipientInfo(object):
         # FHIR
 
         self.fhir_api_url = ""
+        self.fhir_app_secret = ""
+        self.fhir_launch_token = ""
 
         # Copy from other?
         if other is not None:
@@ -533,6 +537,8 @@ class ExportRecipientInfo(object):
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if r.transmission_method == ExportTransmissionMethod.FHIR:
             r.fhir_api_url = _get_str(cpr.FHIR_API_URL)
+            r.fhir_app_secret = _get_str(cpr.FHIR_APP_SECRET)
+            r.fhir_launch_token = _get_str(cpr.FHIR_LAUNCH_TOKEN)
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Validate the basics and return

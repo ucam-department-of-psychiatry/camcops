@@ -406,6 +406,8 @@ class ExportRecipient(ExportRecipientInfo, Base):
         # Python only:
         self.group_names = []  # type: List[str]
         self.email_host_password = ""
+        self.fhir_app_secret = ""
+        self.fhir_launch_token = ""
         self.redcap_api_key = ""
 
     def get_attrnames(self) -> List[str]:

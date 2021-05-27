@@ -52,7 +52,9 @@ class FhirTaskExporter(object):
         self.task = self.exported_task.task
         settings = {
             "app_id": "camcops",
-            "api_base": self.recipient.fhir_api_url
+            "api_base": self.recipient.fhir_api_url,
+            "app_secret": self.recipient.fhir_app_secret,
+            "launch_token": self.recipient.fhir_launch_token,
         }
 
         self.client = client.FHIRClient(settings=settings)
@@ -62,7 +64,6 @@ class FhirTaskExporter(object):
         # TODO: Server capability statement
         # TODO: Anonymous tasks
         # TODO: Missing API URL in config
-        # TODO: Return value
 
         # TODO: Version of questionnaire?
 
