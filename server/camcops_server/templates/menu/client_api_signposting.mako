@@ -31,7 +31,7 @@ camcops_server/templates/menu/client_api_signposting.mako
 <h1>${ _("Please install the CamCOPS app") }</h1>
 <div>
     <p>
-        ${ _("You’ve probably come here by mistake, having entered <b>{server_url}</b> into a web browser instead of into the CamCOPS app.").format(server_url=server_url) }
+        ${ _("You’ve probably come here by mistake, having entered <b>{server_url}</b> into a web browser instead of into the CamCOPS app.").format(server_url=server_url) | n}
     </p>
 
     <p>

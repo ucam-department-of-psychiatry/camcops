@@ -4499,7 +4499,7 @@ def client_api_signposting(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     return {
         "github_link": f"<a href='{GITHUB_RELEASES_URL}'>GitHub</a>",
-        "server_url": req.url
+        "server_url": req.route_url(Routes.CLIENT_API)
     }
 
 
