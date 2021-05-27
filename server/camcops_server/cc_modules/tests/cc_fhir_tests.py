@@ -30,6 +30,8 @@ import json
 from typing import Dict
 from unittest import mock
 
+from requests.exceptions import HTTPError
+
 from camcops_server.cc_modules.cc_exportmodels import (
     ExportedTask,
     ExportedTaskFhir,
@@ -365,3 +367,21 @@ class FhirTaskExporterTests(FhirExportTestCase):
 
             message = str(cm.exception)
             self.assertIn("Something is not implemented", message)
+
+    def test_raises_when_http_error(self) -> None:
+        exported_task = ExportedTask(task=self.task, recipient=self.recipient)
+        exported_task_fhir = ExportedTaskFhir(exported_task)
+
+        exporter = MockFhirTaskExporter(self.req, exported_task_fhir)
+
+        with mock.patch.object(
+                exporter.client.server, "post_json",
+                side_effect=HTTPError(
+                    response=mock.Mock(text="Something bad happened")
+                )
+        ):
+            with self.assertRaises(FhirExportException) as cm:
+                exporter.export_task()
+
+            message = str(cm.exception)
+            self.assertIn("Something bad happened", message)
