@@ -30,6 +30,7 @@ from typing import Dict, TYPE_CHECKING
 
 from fhirclient import client
 from fhirclient.models.bundle import Bundle
+from requests.exceptions import HTTPError
 
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_exportmodels import ExportedTaskFhir
@@ -88,16 +89,20 @@ class FhirTaskExporter(object):
         })
 
         # TODO: Can raise Exception
-        response = bundle.create(self.client.server)
-        if response is None:
-            # Not sure this will ever happen.
-            # fhirabstractresource.py create() says it returns
-            # "None or the response JSON on success" but an exception will
-            # already have been raised if there was a failure
-            raise FhirExportException(
-                "The server unexpectedly returned an OK, empty response")
+        try:
+            response = bundle.create(self.client.server)
+            if response is None:
+                # Not sure this will ever happen.
+                # fhirabstractresource.py create() says it returns
+                # "None or the response JSON on success" but an exception will
+                # already have been raised if there was a failure
+                raise FhirExportException(
+                    "The server unexpectedly returned an OK, empty response")
 
-        self.parse_response(response)
+            self.parse_response(response)
+        except HTTPError as e:
+            raise FhirExportException(
+                f"The server returned an error: {e.response.text}")
 
     def parse_response(self, response: Dict) -> None:
         """

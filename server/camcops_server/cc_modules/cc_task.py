@@ -1326,6 +1326,16 @@ class Task(GenericTabletRecordMixin, Base):
         })
 
         response = QuestionnaireResponse(jsondict={
+            # https://r4.smarthealthit.org does not like "questionnaire" in this
+            # form
+            # FHIR Server; FHIR 4.0.0/R4; HAPI FHIR 4.0.0-SNAPSHOT)
+            # error is:
+            # Invalid resource reference found at
+            # path[QuestionnaireResponse.questionnaire]- Resource type is
+            # unknown or not supported on this server
+            # - http://127.0.0.1:8000/fhir_questionnaire_id|phq9
+
+            # http://hapi.fhir.org/baseR4/ (4.0.1 (R4)) is OK
             "questionnaire": f"{questionnaire_url}|{self.tablename}",
             "subject": subject.as_json(),
             "status": "completed" if self.is_complete() else "in-progress",
