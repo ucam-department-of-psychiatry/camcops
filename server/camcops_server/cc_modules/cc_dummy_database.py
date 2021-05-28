@@ -52,6 +52,10 @@ from camcops_server.cc_modules.cc_group import Group
 from camcops_server.cc_modules.cc_idnumdef import IdNumDefinition
 from camcops_server.cc_modules.cc_patient import Patient
 from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
+from camcops_server.cc_modules.cc_sqla_coltypes import (
+    PendulumDateTimeAsIsoTextColType,
+)
+
 from camcops_server.cc_modules.cc_task import Task
 from camcops_server.cc_modules.cc_user import User
 from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
@@ -235,6 +239,10 @@ class DummyDataFactory(object):
                 self.set_date_field(task, column)
                 continue
 
+            if isinstance(column.type, PendulumDateTimeAsIsoTextColType):
+                self.set_datetime_field(task, column)
+                continue
+
             if isinstance(column.type, UnicodeText):
                 self.set_unicode_text_field(task, column)
 
@@ -249,6 +257,9 @@ class DummyDataFactory(object):
 
     def set_date_field(self, task: Task, column: Column) -> None:
         setattr(task, column.name, self.faker.date_object())
+
+    def set_datetime_field(self, task: Task, column: Column) -> None:
+        setattr(task, column.name, self.faker.date_time())
 
     def set_unicode_text_field(self, task: Task, column: Column) -> None:
         setattr(task, column.name, self.faker.text())
