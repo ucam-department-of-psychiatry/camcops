@@ -1318,14 +1318,7 @@ class Task(GenericTabletRecordMixin, Base):
             Routes.FHIR_QUESTIONNAIRE_ID,
         )
 
-        subject_identifier = self.patient.get_fhir_identifier(req, recipient)
-
-        subject = FHIRReference(jsondict={
-            "identifier": subject_identifier.as_json(),
-            "type": "Patient",
-        })
-
-        response = QuestionnaireResponse(jsondict={
+        jsondict = {
             # https://r4.smarthealthit.org does not like "questionnaire" in this
             # form
             # FHIR Server; FHIR 4.0.0/R4; HAPI FHIR 4.0.0-SNAPSHOT)
@@ -1337,11 +1330,24 @@ class Task(GenericTabletRecordMixin, Base):
 
             # http://hapi.fhir.org/baseR4/ (4.0.1 (R4)) is OK
             "questionnaire": f"{questionnaire_url}|{self.tablename}",
-            "subject": subject.as_json(),
             "status": "completed" if self.is_complete() else "in-progress",
             "identifier": identifier.as_json(),
             "item": self.get_fhir_questionnaire_response_items(req, recipient)
-        })
+        }
+
+        if self.has_patient:
+            subject_identifier = self.patient.get_fhir_identifier(
+                req, recipient
+            )
+
+            subject = FHIRReference(jsondict={
+                "identifier": subject_identifier.as_json(),
+                "type": "Patient",
+            })
+
+            jsondict["subject"] = subject.as_json()
+
+        response = QuestionnaireResponse(jsondict)
 
         bundle_request = BundleEntryRequest(jsondict={
             "method": "POST",

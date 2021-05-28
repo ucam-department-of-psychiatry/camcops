@@ -30,13 +30,13 @@ import json
 from typing import Dict
 from unittest import mock
 
+import pendulum
 from requests.exceptions import HTTPError
 
 from camcops_server.cc_modules.cc_exportmodels import (
     ExportedTask,
     ExportedTaskFhir,
 )
-
 from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
 from camcops_server.cc_modules.cc_exportrecipientinfo import ExportRecipientInfo
 from camcops_server.cc_modules.cc_fhir import (
@@ -44,6 +44,7 @@ from camcops_server.cc_modules.cc_fhir import (
     FhirTaskExporter,
 )
 from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
+from camcops_server.tasks.apeqpt import Apeqpt
 from camcops_server.tasks.phq9 import Phq9
 
 
@@ -78,7 +79,7 @@ class FhirExportTestCase(DemoDatabaseTestCase):
         self.recipient.recipient_name = "test"
 
 
-class FhirTaskExporterTests(FhirExportTestCase):
+class FhirTaskExporterPhq9Tests(FhirExportTestCase):
     def create_tasks(self) -> None:
         self.patient = self.create_patient(
             forename="Gwendolyn",
@@ -112,7 +113,7 @@ class FhirTaskExporterTests(FhirExportTestCase):
         self.task.save_with_next_available_id(self.req, self.patient._device_id)
         self.dbsession.commit()
 
-    def test_patient_exported_with_phq9(self) -> None:
+    def test_patient_exported(self) -> None:
         exported_task = ExportedTask(task=self.task, recipient=self.recipient)
         exported_task_fhir = ExportedTaskFhir(exported_task)
 
@@ -158,7 +159,7 @@ class FhirTaskExporterTests(FhirExportTestCase):
             (f"identifier={iddef_url}|{idnum_value}")
         )
 
-    def test_questionnaire_exported_with_phq9(self) -> None:
+    def test_questionnaire_exported(self) -> None:
         exported_task = ExportedTask(task=self.task, recipient=self.recipient)
         exported_task_fhir = ExportedTaskFhir(exported_task)
 
@@ -212,7 +213,7 @@ class FhirTaskExporterTests(FhirExportTestCase):
             (f"identifier={questionnaire_url}|phq9")
         )
 
-    def test_questionnaire_response_exported_with_phq9(self) -> None:
+    def test_questionnaire_response_exported(self) -> None:
         exported_task = ExportedTask(task=self.task, recipient=self.recipient)
         exported_task_fhir = ExportedTaskFhir(exported_task)
 
@@ -396,3 +397,219 @@ class FhirTaskExporterTests(FhirExportTestCase):
 
         message = str(cm.exception)
         self.assertIn("must be initialized with `base_uri`", message)
+
+
+class FhirTaskExporterAnonymousTests(FhirExportTestCase):
+    def create_tasks(self) -> None:
+        self.task = Apeqpt()
+        self.apply_standard_task_fields(self.task)
+        self.task.q_datetime = pendulum.now()
+        self.task.q1_choice = 0
+        self.task.q2_choice = 1
+        self.task.q3_choice = 2
+        self.task.q1_satisfaction = 3
+        self.task.q2_satisfaction = "Service experience"
+
+        self.task.save_with_next_available_id(self.req,
+                                              self.server_device.id)
+        self.dbsession.commit()
+
+    def test_questionnaire_exported(self) -> None:
+        exported_task = ExportedTask(task=self.task, recipient=self.recipient)
+        exported_task_fhir = ExportedTaskFhir(exported_task)
+
+        exporter = MockFhirTaskExporter(self.req, exported_task_fhir)
+
+        response_json = {
+            'type': 'transaction-response',
+        }
+
+        with mock.patch.object(
+                exporter.client.server, "post_json",
+                return_value=MockFhirResponse(response_json)) as mock_post:
+            exporter.export_task()
+
+        args, kwargs = mock_post.call_args
+
+        sent_json = args[1]
+
+        questionnaire = sent_json["entry"][0]["resource"]
+        self.assertEqual(questionnaire["resourceType"], "Questionnaire")
+        self.assertEqual(questionnaire["status"], "active")
+
+        identifier = questionnaire["identifier"]
+
+        questionnaire_url = "http://127.0.0.1:8000/fhir_questionnaire_id"
+        self.assertEqual(identifier[0]["system"], questionnaire_url)
+        self.assertEqual(identifier[0]["value"], "apeqpt")
+
+        q_datetime = questionnaire["item"][0]
+
+        q1_choice = questionnaire["item"][1]
+        q2_choice = questionnaire["item"][2]
+        q3_choice = questionnaire["item"][3]
+
+        q1_satisfaction = questionnaire["item"][4]
+        q2_satisfaction = questionnaire["item"][5]
+
+        # q_datetime
+        self.assertEqual(q_datetime["linkId"], "q_datetime")
+        self.assertEqual(q_datetime["text"],
+                         "Date &amp; Time the Assessment Tool was Completed")
+        self.assertEqual(q_datetime["type"], "dateTime")
+
+        # q1_choice
+        self.assertEqual(q1_choice["linkId"], "q1_choice")
+        self.assertEqual(
+            q1_choice["text"],
+            ("Were you given information about options for choosing a "
+             "treatment that is appropriate for your problems?")
+        )
+        self.assertEqual(q1_choice["type"], "choice")
+
+        # q2_choice
+        self.assertEqual(q2_choice["linkId"], "q2_choice")
+        self.assertEqual(
+            q2_choice["text"],
+            ("Do you prefer any of the treatments among the options available?")
+        )
+        self.assertEqual(q2_choice["type"], "choice")
+
+        # q3_choice
+        self.assertEqual(q3_choice["linkId"], "q3_choice")
+        self.assertEqual(
+            q3_choice["text"],
+            ("Have you been offered your preference?")
+        )
+        self.assertEqual(q3_choice["type"], "choice")
+
+        # q1_satisfaction
+        self.assertEqual(q1_satisfaction["linkId"], "q1_satisfaction")
+        self.assertEqual(
+            q1_satisfaction["text"],
+            ("How satisfied were you with your assessment")
+        )
+        self.assertEqual(q1_satisfaction["type"], "choice")
+
+        # q2 satisfaction
+        self.assertEqual(q2_satisfaction["linkId"], "q2_satisfaction")
+        self.assertEqual(
+            q2_satisfaction["text"],
+            ("Please use this space to tell us about your experience of our "
+             "service")
+        )
+        self.assertEqual(q2_satisfaction["type"], "choice")
+
+        self.assertEqual(len(questionnaire["item"]), 6)
+
+        request = sent_json["entry"][0]["request"]
+        self.assertEqual(request["method"], "POST")
+        self.assertEqual(request["url"], "Questionnaire")
+        self.assertEqual(
+            request["ifNoneExist"],
+            (f"identifier={questionnaire_url}|apeqpt")
+        )
+
+    def test_questionnaire_response_exported(self) -> None:
+        exported_task = ExportedTask(task=self.task, recipient=self.recipient)
+        exported_task_fhir = ExportedTaskFhir(exported_task)
+
+        exporter = MockFhirTaskExporter(self.req, exported_task_fhir)
+
+        response_json = {
+            'type': 'transaction-response',
+        }
+
+        with mock.patch.object(
+                exporter.client.server, "post_json",
+                return_value=MockFhirResponse(response_json)) as mock_post:
+            exporter.export_task()
+
+        args, kwargs = mock_post.call_args
+
+        sent_json = args[1]
+
+        response = sent_json["entry"][1]["resource"]
+        self.assertEqual(response["resourceType"], "QuestionnaireResponse")
+        self.assertEqual(
+            response["questionnaire"],
+            "http://127.0.0.1:8000/fhir_questionnaire_id|apeqpt"
+        )
+        self.assertEqual(response["status"], "completed")
+
+        request = sent_json["entry"][1]["request"]
+        self.assertEqual(request["method"], "POST")
+        self.assertEqual(request["url"], "QuestionnaireResponse")
+        response_url = "http://127.0.0.1:8000/fhir_questionnaire_response_id/apeqpt"  # noqa E501
+        self.assertEqual(
+            request["ifNoneExist"],
+            (f"identifier={response_url}|{self.task._pk}")
+        )
+
+        q_datetime = response["item"][0]
+
+        q1_choice = response["item"][1]
+        q2_choice = response["item"][2]
+        q3_choice = response["item"][3]
+
+        q1_satisfaction = response["item"][4]
+        q2_satisfaction = response["item"][5]
+
+        # q_datetime
+        self.assertEqual(q_datetime["linkId"], "q_datetime")
+        self.assertEqual(q_datetime["text"],
+                         "Date &amp; Time the Assessment Tool was Completed")
+        q_datetime_answer = q_datetime["answer"][0]
+        self.assertEqual(q_datetime_answer["valueDateTime"],
+                         self.task.q_datetime.isoformat())
+
+        # q1_choice
+        self.assertEqual(q1_choice["linkId"], "q1_choice")
+        self.assertEqual(
+            q1_choice["text"],
+            ("Were you given information about options for choosing a "
+             "treatment that is appropriate for your problems?")
+        )
+        q1_choice_answer = q1_choice["answer"][0]
+        self.assertEqual(q1_choice_answer["valueInteger"], self.task.q1_choice)
+
+        # q2_choice
+        self.assertEqual(q2_choice["linkId"], "q2_choice")
+        self.assertEqual(
+            q2_choice["text"],
+            ("Do you prefer any of the treatments among the options available?")
+        )
+        q2_choice_answer = q2_choice["answer"][0]
+        self.assertEqual(q2_choice_answer["valueInteger"], self.task.q2_choice)
+
+        # q3_choice
+        self.assertEqual(q3_choice["linkId"], "q3_choice")
+        self.assertEqual(
+            q3_choice["text"],
+            ("Have you been offered your preference?")
+        )
+        q3_choice_answer = q3_choice["answer"][0]
+        self.assertEqual(q3_choice_answer["valueInteger"], self.task.q3_choice)
+
+        # q1_satisfaction
+        self.assertEqual(q1_satisfaction["linkId"], "q1_satisfaction")
+        self.assertEqual(
+            q1_satisfaction["text"],
+            ("How satisfied were you with your assessment")
+        )
+        q1_satisfaction_answer = q1_satisfaction["answer"][0]
+        self.assertEqual(q1_satisfaction_answer["valueInteger"],
+                         self.task.q1_satisfaction)
+
+        # q2 satisfaction
+        self.assertEqual(q2_satisfaction["linkId"], "q2_satisfaction")
+        self.assertEqual(
+            q2_satisfaction["text"],
+            ("Please use this space to tell us about your experience of our "
+             "service")
+        )
+        q2_satisfaction_answer = q2_satisfaction["answer"][0]
+        self.assertEqual(q2_satisfaction_answer["valueString"],
+                         self.task.q2_satisfaction)
+
+        self.assertEqual(len(response["item"]), 6)

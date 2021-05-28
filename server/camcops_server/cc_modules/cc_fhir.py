@@ -64,27 +64,29 @@ class FhirTaskExporter(object):
             raise FhirExportException(str(e))
 
     def export_task(self) -> None:
-        # TODO: Authentication
         # TODO: Server capability statement
         # TODO: Anonymous tasks
-        # TODO: Missing API URL in config
-
+        # TODO: Question codes
         # TODO: Version of questionnaire?
 
-        patient_entry = self.task.patient.get_fhir_bundle_entry(
-            self.request,
-            self.exported_task.recipient
-        )
+        bundle_entries = []
+
+        if self.task.has_patient:
+            patient_entry = self.task.patient.get_fhir_bundle_entry(
+                self.request,
+                self.exported_task.recipient
+            )
+            bundle_entries.append(patient_entry)
 
         try:
             task_entries = self.task.get_fhir_bundle_entries(
                 self.request,
                 self.exported_task.recipient
             )
+            bundle_entries += task_entries
+
         except NotImplementedError as e:
             raise FhirExportException(str(e))
-
-        bundle_entries = [patient_entry] + task_entries
 
         bundle = Bundle(jsondict={
             "type": "transaction",
