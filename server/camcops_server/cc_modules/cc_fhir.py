@@ -65,7 +65,6 @@ class FhirTaskExporter(object):
 
     def export_task(self) -> None:
         # TODO: Server capability statement
-        # TODO: Anonymous tasks
         # TODO: Question codes
         # TODO: Version of questionnaire?
 
@@ -93,7 +92,6 @@ class FhirTaskExporter(object):
             "entry": bundle_entries,
         })
 
-        # TODO: Can raise Exception
         try:
             response = bundle.create(self.client.server)
             if response is None:
@@ -108,6 +106,11 @@ class FhirTaskExporter(object):
         except HTTPError as e:
             raise FhirExportException(
                 f"The server returned an error: {e.response.text}")
+
+        except Exception as e:
+            # Unfortunate that fhirclient doesn't give us anything more
+            # specific
+            raise FhirExportException(e)
 
     def parse_response(self, response: Dict) -> None:
         """

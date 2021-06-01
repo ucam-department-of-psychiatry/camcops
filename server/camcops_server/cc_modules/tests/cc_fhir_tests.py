@@ -387,6 +387,19 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
             message = str(cm.exception)
             self.assertIn("Something bad happened", message)
 
+    def test_raises_when_fhirclient_raises(self) -> None:
+        exported_task = ExportedTask(task=self.task, recipient=self.recipient)
+        exported_task_fhir = ExportedTaskFhir(exported_task)
+
+        exporter = MockFhirTaskExporter(self.req, exported_task_fhir)
+
+        exporter.client.server = None
+        with self.assertRaises(FhirExportException) as cm:
+            exporter.export_task()
+
+            message = str(cm.exception)
+            self.assertIn("Cannot create a resource without a server", message)
+
     def test_raises_for_missing_api_url(self) -> None:
         self.recipient.fhir_api_url = ""
         exported_task = ExportedTask(task=self.task, recipient=self.recipient)
