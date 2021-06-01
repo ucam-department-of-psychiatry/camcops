@@ -30,7 +30,10 @@ camcops_server/tasks/apeqpt.py
 
 from typing import List, TYPE_CHECKING
 
-from fhirclient.models.questionnaire import QuestionnaireItem
+from fhirclient.models.questionnaire import (
+    QuestionnaireItem,
+    QuestionnaireItemAnswerOption,
+)
 from fhirclient.models.questionnaireresponse import (
     QuestionnaireResponseItem,
     QuestionnaireResponseItemAnswer,
@@ -178,34 +181,69 @@ class Apeqpt(Task):
             "type": "dateTime",
         }).as_json())
 
+        yes_no_options = []
+
+        for index in range(2):
+            yes_no_options.append(QuestionnaireItemAnswerOption(jsondict={
+                "valueCoding": {
+                    "code": str(index),
+                    "display": self.wxstring(req, f"a{index}_choice"),
+                }
+            }).as_json())
+
         items.append(QuestionnaireItem(jsondict={
             "linkId": "q1_choice",
             "text": self.wxstring(req, "q1_choice"),
             "type": "choice",
+            "answerOption": yes_no_options,
         }).as_json())
 
         items.append(QuestionnaireItem(jsondict={
             "linkId": "q2_choice",
             "text": self.wxstring(req, "q2_choice"),
             "type": "choice",
+            "answerOption": yes_no_options,
         }).as_json())
+
+        yes_no_na_options = yes_no_options + [
+            QuestionnaireItemAnswerOption(
+                jsondict={
+                    "valueCoding": {
+                        "code": "2",
+                        "display": self.wxstring(req, "a2_choice"),
+                    }
+                }
+            ).as_json()
+        ]
 
         items.append(QuestionnaireItem(jsondict={
             "linkId": "q3_choice",
             "text": self.wxstring(req, "q3_choice"),
             "type": "choice",
+            "answerOption": yes_no_na_options,
         }).as_json())
+
+        satisfaction_options = []
+
+        for index in range(5):
+            satisfaction_options.append(QuestionnaireItemAnswerOption(jsondict={
+                "valueCoding": {
+                    "code": str(index),
+                    "display": self.wxstring(req, f"a{index}_satisfaction"),
+                }
+            }).as_json())
 
         items.append(QuestionnaireItem(jsondict={
             "linkId": "q1_satisfaction",
             "text": self.wxstring(req, "q1_satisfaction"),
             "type": "choice",
+            "answerOption": satisfaction_options,
         }).as_json())
 
         items.append(QuestionnaireItem(jsondict={
             "linkId": "q2_satisfaction",
             "text": self.wxstring(req, "q2_satisfaction"),
-            "type": "choice",
+            "type": "string",
         }).as_json())
 
         return items

@@ -65,7 +65,6 @@ class FhirTaskExporter(object):
 
     def export_task(self) -> None:
         # TODO: Server capability statement
-        # TODO: Question codes
         # TODO: Version of questionnaire?
 
         bundle_entries = []

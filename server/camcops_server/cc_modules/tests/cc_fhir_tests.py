@@ -512,6 +512,13 @@ class FhirTaskExporterAnonymousTests(FhirExportTestCase):
         )
         self.assertEqual(q1_choice["type"], "choice")
 
+        options = q1_choice["answerOption"]
+        self.assertEqual(options[0]["valueCoding"]["code"], "0")
+        self.assertEqual(options[0]["valueCoding"]["display"], "No")
+
+        self.assertEqual(options[1]["valueCoding"]["code"], "1")
+        self.assertEqual(options[1]["valueCoding"]["display"], "Yes")
+
         # q2_choice
         self.assertEqual(q2_choice["linkId"], "q2_choice")
         self.assertEqual(
@@ -519,6 +526,12 @@ class FhirTaskExporterAnonymousTests(FhirExportTestCase):
             ("Do you prefer any of the treatments among the options available?")
         )
         self.assertEqual(q2_choice["type"], "choice")
+        options = q2_choice["answerOption"]
+        self.assertEqual(options[0]["valueCoding"]["code"], "0")
+        self.assertEqual(options[0]["valueCoding"]["display"], "No")
+
+        self.assertEqual(options[1]["valueCoding"]["code"], "1")
+        self.assertEqual(options[1]["valueCoding"]["display"], "Yes")
 
         # q3_choice
         self.assertEqual(q3_choice["linkId"], "q3_choice")
@@ -527,6 +540,15 @@ class FhirTaskExporterAnonymousTests(FhirExportTestCase):
             ("Have you been offered your preference?")
         )
         self.assertEqual(q3_choice["type"], "choice")
+        options = q3_choice["answerOption"]
+        self.assertEqual(options[0]["valueCoding"]["code"], "0")
+        self.assertEqual(options[0]["valueCoding"]["display"], "No")
+
+        self.assertEqual(options[1]["valueCoding"]["code"], "1")
+        self.assertEqual(options[1]["valueCoding"]["display"], "Yes")
+
+        self.assertEqual(options[2]["valueCoding"]["code"], "2")
+        self.assertEqual(options[2]["valueCoding"]["display"], "N/A")
 
         # q1_satisfaction
         self.assertEqual(q1_satisfaction["linkId"], "q1_satisfaction")
@@ -535,6 +557,25 @@ class FhirTaskExporterAnonymousTests(FhirExportTestCase):
             ("How satisfied were you with your assessment")
         )
         self.assertEqual(q1_satisfaction["type"], "choice")
+        options = q1_satisfaction["answerOption"]
+        self.assertEqual(options[0]["valueCoding"]["code"], "0")
+        self.assertEqual(options[0]["valueCoding"]["display"],
+                         "Not at all Satisfied")
+
+        self.assertEqual(options[1]["valueCoding"]["code"], "1")
+        self.assertEqual(options[1]["valueCoding"]["display"], "Not Satisfied")
+
+        self.assertEqual(options[2]["valueCoding"]["code"], "2")
+        self.assertEqual(options[2]["valueCoding"]["display"],
+                         "Neither Satisfied nor Dissatisfied")
+
+        self.assertEqual(options[3]["valueCoding"]["code"], "3")
+        self.assertEqual(options[3]["valueCoding"]["display"],
+                         "Mostly Satisfied")
+
+        self.assertEqual(options[4]["valueCoding"]["code"], "4")
+        self.assertEqual(options[4]["valueCoding"]["display"],
+                         "Completely Satisfied")
 
         # q2 satisfaction
         self.assertEqual(q2_satisfaction["linkId"], "q2_satisfaction")
@@ -543,7 +584,7 @@ class FhirTaskExporterAnonymousTests(FhirExportTestCase):
             ("Please use this space to tell us about your experience of our "
              "service")
         )
-        self.assertEqual(q2_satisfaction["type"], "choice")
+        self.assertEqual(q2_satisfaction["type"], "string")
 
         self.assertEqual(len(questionnaire["item"]), 6)
 
