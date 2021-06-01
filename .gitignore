@@ -35,10 +35,12 @@ camcops_test.sqlite
 .coverage
 htmlcov/
 
+# Packaging
+server/camcops_server.egg-info
+server/build/
+
 # Other
 distributables/
-server/build/
-server/camcops_server.egg-info
 working/*
 schema.plantuml
 schema.png

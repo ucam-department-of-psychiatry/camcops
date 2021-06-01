@@ -30,8 +30,9 @@ import argparse
 from datetime import datetime
 import logging
 import os
+from pathlib import Path
 import re
-from subprocess import run
+from subprocess import PIPE, run
 import sys
 from typing import List, Optional, Tuple
 import xml.etree.cElementTree as ElementTree
@@ -49,6 +50,11 @@ ROOT_TOOLS_DIR = os.path.dirname(os.path.realpath(__file__))
 PROJECT_ROOT = os.path.join(ROOT_TOOLS_DIR, "..")
 DOCS_SOURCE_DIR = os.path.join(PROJECT_ROOT, "docs", "source")
 CPP_SOURCE_DIR = os.path.join(PROJECT_ROOT, "tablet_qt")
+SERVER_SOURCE_DIR = os.path.join(PROJECT_ROOT, "server")
+SERVER_TOOLS_DIR = os.path.join(SERVER_SOURCE_DIR, "tools")
+SERVER_DIST_DIR = os.path.join(SERVER_SOURCE_DIR, "dist")
+SERVER_PACKAGE_DIR = os.path.join(SERVER_SOURCE_DIR, "packagebuild")
+MAKE_LINUX_PACKAGES = os.path.join(SERVER_TOOLS_DIR, "MAKE_LINUX_PACKAGES.py")
 CHANGELOG = os.path.join(DOCS_SOURCE_DIR, "changelog.rst")
 CLIENT_VERSION_FILE = os.path.join(CPP_SOURCE_DIR,
                                    "version",
@@ -186,6 +192,40 @@ def get_ios_version() -> Optional[Version]:
     return Version(short_version_string)
 
 
+def valid_date(date_string: str):
+    # https://stackoverflow.com/questions/25470844/specify-date-format-for-python-argparse-input-arguments  # noqa: E501
+    try:
+        return datetime.strptime(date_string, "%Y-%m-%d").date()
+    except ValueError:
+        message = f"Not a valid date: '{date_string}'"
+        raise argparse.ArgumentTypeError(message)
+
+
+def get_release_tag(new_client_version: Version,
+                    new_server_version: Version) -> str:
+    if new_client_version == new_server_version:
+        return f"v{new_client_version}"
+
+    if new_client_version > new_server_version:
+        return f"v{new_client_version}-client"
+
+    return f"v{new_server_version}-server"
+
+
+def remove_old_packages() -> None:
+    for f in Path(SERVER_PACKAGE_DIR).glob("camcops-server_*"):
+        f.unlink()
+
+
+def get_pypi_builds() -> List[Path]:
+    return Path(SERVER_DIST_DIR).glob("camcops_server-*")
+
+
+def remove_old_pypi_builds() -> None:
+    for f in get_pypi_builds():
+        f.unlink()
+
+
 def main() -> None:
     if not in_virtualenv():
         log.error("release_new_version.py must be run inside virtualenv")
@@ -194,12 +234,13 @@ def main() -> None:
     # This is a work in progress
     # What do we want this script to do?
 
-    # Check and/or bump all the version numbers
-    # Check and/or update the changelog
-    # Check and tag the Git repository
-    # Build the Ubuntu server packages (deb/rpm)
-    # Build the pypi server package
-    # Distribute the server packages to GitHub and PyPI
+    # \ Check all the version numbers
+    # \ Check the changelog
+    # \ Check the Git repository
+    # \ Build the Ubuntu server packages (deb/rpm)
+    # \ Build the pypi server package
+    # \ Distribute the server packages to GitHub and PyPI
+    # Distribute the server packages to GitHub (or use GitHub actions)
 
     # Build the client (depending on the platform)
     # Distribute to Play Store / Apple Store / GitHub
@@ -219,9 +260,13 @@ def main() -> None:
         "--server-version", type=str, required=True,
         help="New server version number (x.y.z)"
     )
+    parser.add_argument(
+        "--release-date", type=valid_date, default=datetime.now().date(),
+        help="Release date (YYYY-MM-DD)")
     args = parser.parse_args()
     new_client_version = Version(args.client_version)
     new_server_version = Version(args.server_version)
+    release_date = args.release_date
 
     releases = get_released_versions()
     latest_version, latest_date = releases[-1]
@@ -233,7 +278,7 @@ def main() -> None:
 
     current_server_version = Version(CAMCOPS_SERVER_VERSION_STRING)
     current_server_date = datetime.strptime(CAMCOPS_SERVER_CHANGEDATE,
-                                            "%Y-%m-%d")
+                                            "%Y-%m-%d").date()
     current_client_version = get_client_version()
     current_client_date = get_client_date()
 
@@ -252,15 +297,22 @@ def main() -> None:
     if new_server_version == progress_version:
         errors.append(
             f"The desired server version ({new_server_version}) matches "
-            f"the current IN PROGRESS version in the changelog. You "
-            f"probably want to mark the version in the changelog as released"
+            "the current IN PROGRESS version in the changelog. You "
+            "probably want to mark the version in the changelog as released"
+        )
+
+    if current_server_date != release_date:
+        errors.append(
+            "The release date in cc_version_string.py "
+            f"({current_server_date}) does not match the desired release date "
+            f"({release_date})"
         )
 
     if new_client_version == progress_version:
         errors.append(
             f"The desired client version ({new_client_version}) matches "
-            f"the current IN PROGRESS version in the changelog. You probably "
-            f"want to mark the version in the changelog as released"
+            "the current IN PROGRESS version in the changelog. You probably "
+            "want to mark the version in the changelog as released"
         )
 
     if current_client_version != new_client_version:
@@ -298,12 +350,31 @@ def main() -> None:
     #         f"({current_ios_short_version})"
     #     )
 
+    release_tag = get_release_tag(new_client_version, new_server_version)
+
+    os.chdir(PROJECT_ROOT)
+    tags = run(["git", "tag"], stdout=PIPE).stdout.decode('utf-8').split()
+
+    if release_tag not in tags:
+        errors.append(f"Could not find a git tag '{release_tag}'")
+
     if len(errors) > 0:
         for error in errors:
             print(error)
         sys.exit(EXIT_FAILURE)
 
     # OK to proceed to the next step
+    if new_server_version >= new_client_version:
+        remove_old_packages()
+        run_with_check(MAKE_LINUX_PACKAGES)
+
+        remove_old_pypi_builds()
+        os.chdir(SERVER_SOURCE_DIR)
+        run_with_check(["python", "setup.py", "sdist", "bdist_wheel"])
+        pypi_packages = [str(f) for f in get_pypi_builds()]
+        run_with_check(["twine", "upload"] + pypi_packages)
+
+        print("Now upload the .rpm and .deb files to GitHub")
 
 
 if __name__ == "__main__":
