@@ -195,6 +195,21 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
                          "1. Little interest or pleasure in doing things")
         self.assertEqual(question_1["type"], "choice")
 
+        options = question_1["answerOption"]
+        self.assertEqual(options[0]["valueCoding"]["code"], "0")
+        self.assertEqual(options[0]["valueCoding"]["display"], "Not at all")
+
+        self.assertEqual(options[1]["valueCoding"]["code"], "1")
+        self.assertEqual(options[1]["valueCoding"]["display"], "Several days")
+
+        self.assertEqual(options[2]["valueCoding"]["code"], "2")
+        self.assertEqual(options[2]["valueCoding"]["display"],
+                         "More than half the days")
+
+        self.assertEqual(options[3]["valueCoding"]["code"], "3")
+        self.assertEqual(options[3]["valueCoding"]["display"],
+                         "Nearly every day")
+
         self.assertEqual(question_10["linkId"], "q10")
         self.assertEqual(
             question_10["text"],
@@ -203,6 +218,23 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
              "at home, or get along with other people?")
         )
         self.assertEqual(question_10["type"], "choice")
+        options = question_10["answerOption"]
+        self.assertEqual(options[0]["valueCoding"]["code"], "0")
+        self.assertEqual(options[0]["valueCoding"]["display"],
+                         "Not difficult at all")
+
+        self.assertEqual(options[1]["valueCoding"]["code"], "1")
+        self.assertEqual(options[1]["valueCoding"]["display"],
+                         "Somewhat difficult")
+
+        self.assertEqual(options[2]["valueCoding"]["code"], "2")
+        self.assertEqual(options[2]["valueCoding"]["display"],
+                         "Very difficult")
+
+        self.assertEqual(options[3]["valueCoding"]["code"], "3")
+        self.assertEqual(options[3]["valueCoding"]["display"],
+                         "Extremely difficult")
+
         self.assertEqual(len(questionnaire["item"]), 10)
 
         request = sent_json["entry"][1]["request"]

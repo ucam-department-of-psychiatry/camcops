@@ -29,7 +29,10 @@ camcops_server/tasks/phq9.py
 from typing import Any, Dict, List, Tuple, Type, TYPE_CHECKING
 
 from cardinal_pythonlib.stringfunc import strseq
-from fhirclient.models.questionnaire import QuestionnaireItem
+from fhirclient.models.questionnaire import (
+    QuestionnaireItem,
+    QuestionnaireItemAnswerOption,
+)
 from fhirclient.models.questionnaireresponse import (
     QuestionnaireResponseItem,
     QuestionnaireResponseItemAnswer,
@@ -353,17 +356,39 @@ class Phq9(TaskHasPatientMixin, Task,
             recipient: "ExportRecipient") -> List[QuestionnaireItem]:
         items = []
 
+        main_options = []
+
+        for index in range(4):
+            main_options.append(QuestionnaireItemAnswerOption(jsondict={
+                "valueCoding": {
+                    "code": str(index),
+                    "display": self.wxstring(req, f"a{index}"),
+                }
+            }).as_json())
+
         for q_field in self.MAIN_QUESTIONS:
             items.append(QuestionnaireItem(jsondict={
                 "linkId": q_field,
                 "text": self.wxstring(req, q_field),
                 "type": "choice",
+                "answerOption": main_options,
+            }).as_json())
+
+        q10_options = []
+
+        for index in range(4):
+            q10_options.append(QuestionnaireItemAnswerOption(jsondict={
+                "valueCoding": {
+                    "code": str(index),
+                    "display": self.wxstring(req, f"fa{index}"),
+                }
             }).as_json())
 
         items.append(QuestionnaireItem(jsondict={
             "linkId": "q10",
             "text": "10. " + self.wxstring(req, "finalq"),
             "type": "choice",
+            "answerOption": q10_options,
         }).as_json())
 
         return items
