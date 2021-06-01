@@ -3228,8 +3228,9 @@ def main_client_api(req: "CamcopsRequest") -> Dict[str, str]:
     return result
 
 
-@view_config(route_name=Routes.CLIENT_API, permission=NO_PERMISSION_REQUIRED)
-@view_config(route_name=Routes.CLIENT_API_ALIAS,
+@view_config(route_name=Routes.CLIENT_API, request_method="POST",
+             permission=NO_PERMISSION_REQUIRED)
+@view_config(route_name=Routes.CLIENT_API_ALIAS, request_method="POST",
              permission=NO_PERMISSION_REQUIRED)
 def client_api(req: "CamcopsRequest") -> Response:
     """

@@ -187,6 +187,7 @@ from camcops_server.cc_modules.cc_constants import (
     CAMCOPS_URL,
     DateFormat,
     ERA_NOW,
+    GITHUB_RELEASES_URL,
     MINIMUM_PASSWORD_LENGTH,
 )
 from camcops_server.cc_modules.cc_db import (
@@ -4481,6 +4482,25 @@ def delete_task_schedule_item(req: "CamcopsRequest") -> Response:
     View to delete a task schedule item.
     """
     return DeleteTaskScheduleItemView(req).dispatch()
+
+
+@view_config(route_name=Routes.CLIENT_API, request_method="GET",
+             permission=NO_PERMISSION_REQUIRED,
+             renderer="client_api_signposting.mako")
+@view_config(route_name=Routes.CLIENT_API_ALIAS, request_method="GET",
+             permission=NO_PERMISSION_REQUIRED,
+             renderer="client_api_signposting.mako")
+def client_api_signposting(req: "CamcopsRequest") -> Dict[str, Any]:
+    """
+    Patients are likely to enter the ``/api`` address into a web browser,
+    especially if it appears as a hyperlink in an email. If so, that will
+    arrive as a ``GET`` request. This page will direct them to download the
+    app.
+    """
+    return {
+        "github_link": f"<a href='{GITHUB_RELEASES_URL}'>GitHub</a>",
+        "server_url": req.route_url(Routes.CLIENT_API)
+    }
 
 
 # =============================================================================
