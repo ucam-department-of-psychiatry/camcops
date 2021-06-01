@@ -186,6 +186,15 @@ def get_ios_version() -> Optional[Version]:
     return Version(short_version_string)
 
 
+def valid_date(date_string: str):
+    # https://stackoverflow.com/questions/25470844/specify-date-format-for-python-argparse-input-arguments  # noqa: E501
+    try:
+        return datetime.strptime(date_string, "%Y-%m-%d").date()
+    except ValueError:
+        message = f"Not a valid date: '{date_string}'"
+        raise argparse.ArgumentTypeError(message)
+
+
 def main() -> None:
     if not in_virtualenv():
         log.error("release_new_version.py must be run inside virtualenv")
@@ -219,9 +228,13 @@ def main() -> None:
         "--server-version", type=str, required=True,
         help="New server version number (x.y.z)"
     )
+    parser.add_argument(
+        "--release-date", type=valid_date, default=datetime.now().date(),
+        help="Release date (YYYY-MM-DD)")
     args = parser.parse_args()
     new_client_version = Version(args.client_version)
     new_server_version = Version(args.server_version)
+    release_date = args.release_date
 
     releases = get_released_versions()
     latest_version, latest_date = releases[-1]
@@ -233,7 +246,7 @@ def main() -> None:
 
     current_server_version = Version(CAMCOPS_SERVER_VERSION_STRING)
     current_server_date = datetime.strptime(CAMCOPS_SERVER_CHANGEDATE,
-                                            "%Y-%m-%d")
+                                            "%Y-%m-%d").date()
     current_client_version = get_client_version()
     current_client_date = get_client_date()
 
@@ -252,15 +265,22 @@ def main() -> None:
     if new_server_version == progress_version:
         errors.append(
             f"The desired server version ({new_server_version}) matches "
-            f"the current IN PROGRESS version in the changelog. You "
-            f"probably want to mark the version in the changelog as released"
+            "the current IN PROGRESS version in the changelog. You "
+            "probably want to mark the version in the changelog as released"
+        )
+
+    if current_server_date != release_date:
+        errors.append(
+            "The release date in cc_version_string.py "
+            f"({current_server_date}) does not match the desired release date "
+            f"({release_date})"
         )
 
     if new_client_version == progress_version:
         errors.append(
             f"The desired client version ({new_client_version}) matches "
-            f"the current IN PROGRESS version in the changelog. You probably "
-            f"want to mark the version in the changelog as released"
+            "the current IN PROGRESS version in the changelog. You probably "
+            "want to mark the version in the changelog as released"
         )
 
     if current_client_version != new_client_version:
