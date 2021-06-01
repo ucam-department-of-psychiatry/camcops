@@ -30,8 +30,9 @@ import argparse
 from datetime import datetime
 import logging
 import os
+from pathlib import Path
 import re
-from subprocess import run
+from subprocess import PIPE, run
 import sys
 from typing import List, Optional, Tuple
 import xml.etree.cElementTree as ElementTree
@@ -49,6 +50,11 @@ ROOT_TOOLS_DIR = os.path.dirname(os.path.realpath(__file__))
 PROJECT_ROOT = os.path.join(ROOT_TOOLS_DIR, "..")
 DOCS_SOURCE_DIR = os.path.join(PROJECT_ROOT, "docs", "source")
 CPP_SOURCE_DIR = os.path.join(PROJECT_ROOT, "tablet_qt")
+SERVER_SOURCE_DIR = os.path.join(PROJECT_ROOT, "server")
+SERVER_TOOLS_DIR = os.path.join(SERVER_SOURCE_DIR, "tools")
+SERVER_DIST_DIR = os.path.join(SERVER_SOURCE_DIR, "dist")
+SERVER_PACKAGE_DIR = os.path.join(SERVER_SOURCE_DIR, "packagebuild")
+MAKE_LINUX_PACKAGES = os.path.join(SERVER_TOOLS_DIR, "MAKE_LINUX_PACKAGES.py")
 CHANGELOG = os.path.join(DOCS_SOURCE_DIR, "changelog.rst")
 CLIENT_VERSION_FILE = os.path.join(CPP_SOURCE_DIR,
                                    "version",
@@ -195,6 +201,31 @@ def valid_date(date_string: str):
         raise argparse.ArgumentTypeError(message)
 
 
+def get_release_tag(new_client_version: Version,
+                    new_server_version: Version) -> str:
+    if new_client_version == new_server_version:
+        return f"v{new_client_version}"
+
+    if new_client_version > new_server_version:
+        return f"v{new_client_version}-client"
+
+    return f"v{new_server_version}-server"
+
+
+def remove_old_packages() -> None:
+    for f in Path(SERVER_PACKAGE_DIR).glob("camcops-server_*"):
+        f.unlink()
+
+
+def get_pypi_builds() -> List[Path]:
+    return Path(SERVER_DIST_DIR).glob("camcops_server-*")
+
+
+def remove_old_pypi_builds() -> None:
+    for f in get_pypi_builds():
+        f.unlink()
+
+
 def main() -> None:
     if not in_virtualenv():
         log.error("release_new_version.py must be run inside virtualenv")
@@ -203,12 +234,13 @@ def main() -> None:
     # This is a work in progress
     # What do we want this script to do?
 
-    # Check and/or bump all the version numbers
-    # Check and/or update the changelog
-    # Check and tag the Git repository
-    # Build the Ubuntu server packages (deb/rpm)
-    # Build the pypi server package
-    # Distribute the server packages to GitHub and PyPI
+    # \ Check all the version numbers
+    # \ Check the changelog
+    # \ Check the Git repository
+    # \ Build the Ubuntu server packages (deb/rpm)
+    # \ Build the pypi server package
+    # \ Distribute the server packages to GitHub and PyPI
+    # Distribute the server packages to GitHub (or use GitHub actions)
 
     # Build the client (depending on the platform)
     # Distribute to Play Store / Apple Store / GitHub
@@ -318,12 +350,31 @@ def main() -> None:
     #         f"({current_ios_short_version})"
     #     )
 
+    release_tag = get_release_tag(new_client_version, new_server_version)
+
+    os.chdir(PROJECT_ROOT)
+    tags = run(["git", "tag"], stdout=PIPE).stdout.decode('utf-8').split()
+
+    if release_tag not in tags:
+        errors.append(f"Could not find a git tag '{release_tag}'")
+
     if len(errors) > 0:
         for error in errors:
             print(error)
         sys.exit(EXIT_FAILURE)
 
     # OK to proceed to the next step
+    if new_server_version >= new_client_version:
+        remove_old_packages()
+        run_with_check(MAKE_LINUX_PACKAGES)
+
+        remove_old_pypi_builds()
+        os.chdir(SERVER_SOURCE_DIR)
+        run_with_check(["python", "setup.py", "sdist", "bdist_wheel"])
+        pypi_packages = [str(f) for f in get_pypi_builds()]
+        run_with_check(["twine", "upload"] + pypi_packages)
+
+        print("Now upload the .rpm and .deb files to GitHub")
 
 
 if __name__ == "__main__":
