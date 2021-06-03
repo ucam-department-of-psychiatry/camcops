@@ -16,6 +16,10 @@ jobs:
               - pip3 uninstall --yes pipenv
               # pip 20.3.3 installed by default has vulnerability
               - pip install -U pip
+          install:
+              # if we don't override this section Travis will default to:
+              # pip install -r requirements.txt
+              - pip --version
           before_script:
               # For testing the "make packages" script
               - sudo apt-get -y install alien fakeroot lintian gdebi
@@ -35,6 +39,10 @@ jobs:
               - pip3 uninstall --yes pipenv
               # pip 20.3.3 installed by default has vulnerability
               - pip install -U pip
+          install:
+              # if we don't override this section, Travis will default to:
+              # pip install -r requirements.txt
+              - pip --version
           before_script:
               # Install wkhtmltopdf on headless ubuntu 18 vps
               # https://gist.github.com/lobermann/ca0e7bb2558b3b08923c6ae2c37a26ce
