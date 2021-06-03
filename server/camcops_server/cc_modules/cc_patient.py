@@ -875,7 +875,16 @@ class Patient(GenericTabletRecordMixin, Base):
         identifier = self.get_fhir_identifier(req, recipient)
 
         # TODO: Other fields we could add here
-        # address, GP, DOB, email
+        # https://www.hl7.org/fhir/patient.html
+
+        # dob -> birthDate
+        # address -> address (might be able to use text representation)
+        # See https://www.hl7.org/fhir/datatypes.html#Address
+
+        # email -> telecom (ContactPoint with email system)
+        # gp -> generalPractitioner (could try to fit into Practitioner)
+        # https://www.hl7.org/fhir/practitioner.html
+        # might be too structured for that
         name = HumanName(jsondict={
             "family": self.surname,
             "given": [self.forename],

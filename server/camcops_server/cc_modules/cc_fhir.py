@@ -51,6 +51,10 @@ class FhirTaskExporter(object):
 
         self.recipient = self.exported_task.recipient
         self.task = self.exported_task.task
+
+        # TODO: In theory these settings should handle authentication
+        # for any server that is SMART-compliant but we've not tested this.
+        # https://sep.com/blog/smart-on-fhir-what-is-smart-what-is-fhir/
         settings = {
             "app_id": "camcops",
             "api_base": self.recipient.fhir_api_url,
@@ -65,8 +69,14 @@ class FhirTaskExporter(object):
 
     def export_task(self) -> None:
         # TODO: Server capability statement
-        # TODO: Version of questionnaire?
+        # https://www.hl7.org/fhir/capabilitystatement.html
 
+        # statement = self.client.server.capabilityStatement
+        # The client doesn't support looking for a particular capability
+        # We could check for:
+        # fhirVersion (the client does not support multiple versions)
+        # conditional create
+        # supported resource types (statement.rest[0].resource[])
         bundle_entries = []
 
         if self.task.has_patient:

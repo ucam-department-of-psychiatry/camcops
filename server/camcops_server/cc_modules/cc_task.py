@@ -1276,13 +1276,26 @@ class Task(GenericTabletRecordMixin, Base):
             Routes.FHIR_QUESTIONNAIRE_ID,
         )
 
+        # FHIR supports versioning of questionnaires. Might be useful if the
+        # wording of questions change. Could either use FHIR's version
+        # field or include the version in the identifier below. Either way
+        # we'd need the version in the 'ifNoneExist' part of the request
         identifier = Identifier(jsondict={
             "system": questionnaire_url,
             "value": self.tablename,
         })
 
+        # TODO: Other things we could add:
+        # https://www.hl7.org/fhir/questionnaire.html
+
+        # name: Computer friendly (from shortname?)
+        # title: Human name (from longname)
+        # date: Date last changed
+        # description: Natural language description of the questionnaire
+        # copyright: Use and/or publishing restrictions
+        # useContext: https://www.hl7.org/fhir/metadatatypes.html#UsageContext
         questionnaire = Questionnaire(jsondict={
-            "status": "active",  # TODO: Support draft / retired / unknown
+            "status": "active",  # Also draft / retired / unknown
             "identifier": [identifier.as_json()],
             "item": self.get_fhir_questionnaire_items(req, recipient)
         })
@@ -1330,8 +1343,16 @@ class Task(GenericTabletRecordMixin, Base):
 
             # http://hapi.fhir.org/baseR4/ (4.0.1 (R4)) is OK
             "questionnaire": f"{questionnaire_url}|{self.tablename}",
+
+            # TODO: Is it desirable to export when in progress?
             "status": "completed" if self.is_complete() else "in-progress",
             "identifier": identifier.as_json(),
+
+            # TODO: Could also add:
+            # https://www.hl7.org/fhir/questionnaireresponse.html
+            # authored: Date the answers were gathered
+            # author: Person who received and recorded the answers
+            # source: The person who answered the questions
             "item": self.get_fhir_questionnaire_response_items(req, recipient)
         }
 
