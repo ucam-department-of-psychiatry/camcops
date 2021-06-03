@@ -242,7 +242,14 @@ system_python_executable()
     # Echoes the preferred Python executable on the destination system.
     # Use as: $(system_python_executable) ...
 
-    python_options=(python3.6 python36 python3 python)
+    python_options=(
+        python3.9 python39 
+        python3.8 python38 
+        python3.7 python37 
+        python3.6 python36 
+        python3 
+        python
+    )
     for option in ${python_options[@]}; do
         python_exe=$(which $option)
         if [ ! -z "${python_exe}" ]; then
@@ -465,7 +472,7 @@ program itself; see https://camcops.readthedocs.io/.
 show all options
 
 .SH SEE ALSO
-http://www.camcops.org/; https://camcops.readthedocs.io/
+https://camcops.readthedocs.io/
 
 .SH AUTHOR
 Rudolf Cardinal (rudolf@pobox.com)
@@ -488,7 +495,7 @@ def get_man_page_camcops_server_meta() -> str:
 show all options
 
 .SH SEE ALSO
-http://www.camcops.org/; https://camcops.readthedocs.io/
+https://camcops.readthedocs.io/
 
 .SH AUTHOR
 Rudolf Cardinal (rudolf@pobox.com)
@@ -530,7 +537,7 @@ Description: Cambridge Cognitive and Psychiatric Test Kit (CamCOPS), server
  This package contains the files necessary to run a CamCOPS server and receive
  information from the CamCOPS tablet applications (desktop, Android, iOS).
  .
- For more details, see http://www.camcops.org/
+ For more details, see https://camcops.readthedocs.io/
 """.format(
         PACKAGE=PACKAGE_DEB_NAME,
         DEBVERSION=DEBVERSION,

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+# noinspection HttpUrlsUsage
 r"""
 tools/build_qt.py
 
@@ -82,7 +83,7 @@ When is it NECESSARY to compile OpenSSL from source?
 
 - OpenSSL for Android
 
-  - http://doc.qt.io/qt-5/opensslsupport.html
+  - https://doc.qt.io/qt-5/opensslsupport.html
   - ... so: necessary.
 
 When is it NECESSARY to compile Qt from source?
@@ -90,7 +91,8 @@ When is it NECESSARY to compile Qt from source?
 - Static linking of OpenSSL (non-critical)
 
 - SQLite support (critical)
-  - http://doc.qt.io/qt-5/sql-driver.html
+
+  - https://doc.qt.io/qt-5/sql-driver.html
   - ... so: necessary.
 
 
@@ -153,11 +155,18 @@ DECISION:
 Notes
 =====
 
-- configure: http://doc.qt.io/qt-5/configure-options.html
-- sqlite: http://doc.qt.io/qt-5/sql-driver.html
-- build for Android: http://wiki.qt.io/Qt5ForAndroidBuilding
+- configure: https://doc.qt.io/qt-5/configure-options.html
+- sqlite: https://doc.qt.io/qt-5/sql-driver.html
+- build for Android: https://wiki.qt.io/Qt5ForAndroidBuilding
 - multi-core builds:
-  http://stackoverflow.com/questions/9420825/how-to-compile-on-multiple-cores-using-mingw-inside-qtcreator
+  https://stackoverflow.com/questions/9420825/how-to-compile-on-multiple-cores-using-mingw-inside-qtcreator
+
+
+Use of Python/library versions
+==============================
+
+We don't rely on a standard CamCOPS Python virtual environment -- this makes it
+a bit easier to set things up for C++ work on Windows, for example. 
 
 
 Standard environment variables
@@ -200,14 +209,14 @@ Standard environment variables
     NDK_SYSROOT
     PATH [1,6]
     PLATFORM [9]
-    RANLIB [10]: GNU ranlib program, http://man7.org/linux/man-pages/man1/ranlib.1.html
+    RANLIB [10]: GNU ranlib program, https://man7.org/linux/man-pages/man1/ranlib.1.html
     RELEASE [10]
     SYSROOT [8]
     SYSTEM [10]
     WindowsSdkDir [7]
 
 [1] Unix core. For LD_LIBRARY_PATH, see
-http://tldp.org/HOWTO/Program-Library-HOWTO/shared-libraries.html.
+https://tldp.org/HOWTO/Program-Library-HOWTO/shared-libraries.html.
 
 [2] GNU toolchain standards:
 https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
@@ -1075,7 +1084,7 @@ class Platform(object):
                 # Output looks like [number of spaces not right]:
                 #
                 # Archive : FILENAME        -- this line not always present
-                # libcrypto.a(aes_cfp.o)    -- (example) this line not always present
+                # libcrypto.a(aes_cfp.o)    -- (example) this line not always present  # noqa
                 # Mach header
                 #       magic cputype cpusubtype  caps filetype sizeofcmds flags  # noqa
                 #  0xfeedface     ARM         V7  0x00        6       1564 NOUNDEFS DYLDLINK TWOLEVEL NO_REEXPORTED_DYLIBS  # noqa
@@ -1083,7 +1092,8 @@ class Platform(object):
                 arm64tag_present = False
                 for line in lines:
                     words = line.split()
-                    if words[0] in ["Archive", "Mach", "magic"] or words[0].startswith(filename):
+                    if (words[0] in ["Archive", "Mach", "magic"] or
+                            words[0].startswith(filename)):
                         continue
                     assert len(words) > 1, "Unknown format of otool output"
                     cputype = words[1]
@@ -1207,7 +1217,8 @@ class Platform(object):
         elif self.os in [Os.MACOS, Os.IOS]:
             return "apple"
         else:
-            raise NotImplementedError(f"triplet_vendor() doesn't know {self.os}")
+            raise NotImplementedError(
+                f"triplet_vendor() doesn't know {self.os}")
 
     @property
     def triplet_os(self) -> str:
@@ -1835,7 +1846,7 @@ class Config(object):
 
         ARM supports two ABI types, one of which is the Embedded ABI:
 
-        - http://kanj.githib.io/elfs/book/armMusl/cross-tools/abi.html
+        - https://kanj.github.io/elfs/book/armMusl/cross-tools/abi.html
         - https://www.eecs.umich.edu/courses/eeecs373/readings/ARM-AAPCS-EABI-v2.08.pdf
           = Procedure Call Standard for the ARM Architecture
         """  # noqa
@@ -2289,7 +2300,7 @@ Windows                                                                 Cygwin
 -------------------------------------------------------------------------------
 cmake       Install from https://cmake.org/
 git         Install from https://git-scm.com/
-nasm        Install from http://www.nasm.us/
+nasm        Install from https://www.nasm.us/
 tclsh       Install TCL from https://www.activestate.com/activetcl
 vcvarsall.bat    Install Microsoft Visual Studio/VC++, e.g. the free Community
             edition from https://www.visualstudio.com/; download and run the
@@ -2477,6 +2488,7 @@ def is_tclsh_windows_compatible(tclsh: str = TCLSH) -> bool:
     # In Python 3.6+, we can specify the encoding and deal with str objects.
     # Now we are always using Python 3.6+.
     completed_proc = subprocess.run(cmdargs, **subproc_run_kwargs)
+    # noinspection PyTypeChecker
     result = completed_proc.stdout  # type: str
     if result == correct:
         return True
@@ -2497,6 +2509,10 @@ def is_tclsh_windows_compatible(tclsh: str = TCLSH) -> bool:
 # =============================================================================
 
 def report_all_targets_exist(package: str, targets: List[str]) -> None:
+    """
+    Tell the user that we've verified the existence of all relevant build
+    targets for a packages.
+    """
     log.info(
         "{}: All targets exist already:\n{}".format(
             package,
@@ -3084,7 +3100,9 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
     # -------------------------------------------------------------------------
 
     # Means by which Qt links to OpenSSL?
-    qt_openssl_linkage_static = cfg.qt_openssl_static and target_platform.qt_linkage_static
+    qt_openssl_linkage_static = (
+        cfg.qt_openssl_static and target_platform.qt_linkage_static
+    )
     # If Qt is linked dynamically, we do not let it link to OpenSSL
     # statically (it won't work).
 
@@ -3679,7 +3697,7 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
 def fetch_eigen(cfg: Config) -> None:
     """
     Downloads Eigen.
-    http://eigen.tuxfamily.org
+    https://eigen.tuxfamily.org
     """
     log.info("Fetching Eigen source...")
     download_if_not_exists(cfg.eigen_src_url, cfg.eigen_src_fullpath)
