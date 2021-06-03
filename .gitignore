@@ -29,7 +29,7 @@ core
 __pycache__/
 
 # Test database
-camcops_test.sqlite
+camcops_test.sqlite*
 
 # pytest coverage
 .coverage
@@ -38,6 +38,10 @@ htmlcov/
 # Packaging
 server/camcops_server.egg-info
 server/build/
+
+# pytest coverage
+.coverage
+htmlcov/
 
 # Other
 distributables/

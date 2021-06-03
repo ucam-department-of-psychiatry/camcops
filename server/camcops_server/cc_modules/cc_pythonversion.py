@@ -26,13 +26,38 @@ camcops_server/cc_modules/cc_pythonversion.py
 
 **Single place to determine the Python version required.**
 
-Currently that is v3.6 (as of CamCOPS v2.3.1, 2019). That enables:
+Currently that is a minimum of v3.6 (as of CamCOPS v2.3.1, 2019). That enables:
 
 - f-strings (v3.6)
 
-but not:
+but not, amongst other features:
 
 - dataclasses (v3.7)
+
+- assignment expressions, the "walrus" operator, ``:=`` (v3.8)
+- positional-only parameters, ``/`` (v3.8)
+- f-string ``=`` syntax to debug a variable (v3.8)
+
+- new dictionary merge/update syntax (v3.9)
+- string prefix/suffix removal functions (v3.9)
+- use of generics like ``list`` (not just ``List``) for type hinting (v3.9)
+
+Note that one can set the environment variable ``PYTHONDEVMODE=1`` to enable
+extra checks, such as whether there are deprecation warnings with newer Python
+versions.
+
+Note that Python versions are referred to in:
+
+- this file
+- ``.travis.yml``
+- ``server/setup.py``
+- ``server/docker/dockerfiles/camcops.Dockerfile``
+- ``server/tools/MAKE_LINUX_PACKAGES.py``
+
+and separately (not necessarily within a CamCOPS virtual environment) in
+
+- ``server/tools/install_virtualenv.py``
+- ``tablet_qt/tools/build_qt.py``
 
 """
 

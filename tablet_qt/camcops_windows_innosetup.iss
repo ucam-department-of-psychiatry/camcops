@@ -49,7 +49,7 @@
 #define CamcopsAppName "CamCOPS"
 #define CamcopsAppNameLowerCase "camcops"
 #define CamcopsPublisher "Rudolf Cardinal"
-#define CamcopsURL "http://www.camcops.org/"
+#define CamcopsURL "https://camcops.readthedocs.io/"
 
 ; =============================================================================
 ; Derived variables

@@ -3418,3 +3418,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 **Client and server v2.4.8, IN PROGRESS**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Updates for Python 3.9 compatibility.

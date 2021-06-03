@@ -144,7 +144,7 @@ class SqlaColtypesTest(unittest.TestCase):
 
     @staticmethod
     def _assert_duration_equal(a: Duration, b: Duration) -> None:
-        assert a == b, f"{a!r} != {b!r}"
+        assert a.total_seconds() == b.total_seconds(), f"{a!r} != {b!r}"
 
     def test_iso_duration_field(self) -> None:
         from sqlalchemy.engine import create_engine
