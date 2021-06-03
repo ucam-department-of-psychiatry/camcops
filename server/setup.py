@@ -104,6 +104,7 @@ INSTALL_REQUIRES = [
     'pendulum==2.1.2',  # date/time classes
     'pexpect==4.8.0',  # for open_sqlcipher.py
     'pdfkit==0.6.1',  # wkhtmltopdf interface, for PDF generation from HTML
+    'py==1.10.0',  # dependency, pinned to avoid CVE-2020-29651
     'pycap==1.1.1',  # REDCap integration
     'Pygments==2.7.4',  # Syntax highlighting for introspection/DDL
     'pyexcel-ods3==0.5.3',  # ODS spreadsheet export
