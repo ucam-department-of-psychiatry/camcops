@@ -101,11 +101,13 @@ class PatientTaskSchedule(Base):
     id = Column("id", Integer, primary_key=True, autoincrement=True)
     patient_pk = Column(
         "patient_pk", Integer,
-        ForeignKey("patient._pk", ondelete="CASCADE")
+        ForeignKey("patient._pk"),
+        nullable=False,
     )
     schedule_id = Column(
         "schedule_id", Integer,
-        ForeignKey("_task_schedule.id", ondelete="CASCADE")
+        ForeignKey("_task_schedule.id"),
+        nullable=False,
     )
     start_datetime = Column(
         "start_datetime", PendulumDateTimeAsIsoTextColType,
@@ -119,8 +121,14 @@ class PatientTaskSchedule(Base):
         comment="Task-specific settings for this patient"
     )
 
-    patient = relationship("Patient", back_populates="task_schedules")
-    task_schedule = relationship("TaskSchedule", back_populates="patients")
+    patient = relationship(
+        "Patient",
+        back_populates="task_schedules"
+    )
+    task_schedule = relationship(
+        "TaskSchedule",
+        back_populates="patient_task_schedules"
+    )
 
     def get_list_of_scheduled_tasks(self, req: "CamcopsRequest") \
             -> List[ScheduledTaskInfo]:
@@ -276,13 +284,17 @@ class TaskSchedule(Base):
 
     items = relationship(
         "TaskScheduleItem",
-        order_by=task_schedule_item_sort_order
+        order_by=task_schedule_item_sort_order,
+        cascade="all, delete"
     )  # type: Iterable[TaskScheduleItem]
 
     group = relationship(Group)
 
-    patients = relationship("PatientTaskSchedule",
-                            back_populates="task_schedule")
+    patient_task_schedules = relationship(
+        "PatientTaskSchedule",
+        back_populates="task_schedule",
+        cascade="all, delete"
+    )
 
     def user_may_edit(self, req: "CamcopsRequest") -> bool:
         return req.user.may_administer_group(self.group_id)

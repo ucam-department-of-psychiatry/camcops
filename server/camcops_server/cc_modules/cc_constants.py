@@ -84,6 +84,9 @@ DEFAULT_ROWS_PER_PAGE = 25
 DEVICE_NAME_FOR_SERVER = "server"  # Do not alter.
 USER_NAME_FOR_SYSTEM = "system"  # Do not alter.
 
+# Address to download Windows/Mac versions:
+GITHUB_RELEASES_URL = "https://github.com/RudolfCardinal/camcops/releases/"
+
 MINIMUM_PASSWORD_LENGTH = 10
 
 
