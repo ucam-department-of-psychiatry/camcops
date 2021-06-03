@@ -270,6 +270,8 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
             response["questionnaire"],
             "http://127.0.0.1:8000/fhir_questionnaire_id|phq9"
         )
+        self.assertEqual(response["authored"],
+                         self.task.when_created.isoformat())
         self.assertEqual(response["status"], "completed")
 
         subject = response["subject"]
@@ -621,6 +623,8 @@ class FhirTaskExporterAnonymousTests(FhirExportTestCase):
             response["questionnaire"],
             "http://127.0.0.1:8000/fhir_questionnaire_id|apeqpt"
         )
+        self.assertEqual(response["authored"],
+                         self.task.when_created.isoformat())
         self.assertEqual(response["status"], "completed")
 
         request = sent_json["entry"][1]["request"]

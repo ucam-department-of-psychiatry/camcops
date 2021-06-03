@@ -1344,13 +1344,13 @@ class Task(GenericTabletRecordMixin, Base):
             # http://hapi.fhir.org/baseR4/ (4.0.1 (R4)) is OK
             "questionnaire": f"{questionnaire_url}|{self.tablename}",
 
+            "authored": self.when_created.isoformat(),
             # TODO: Is it desirable to export when in progress?
             "status": "completed" if self.is_complete() else "in-progress",
             "identifier": identifier.as_json(),
 
             # TODO: Could also add:
             # https://www.hl7.org/fhir/questionnaireresponse.html
-            # authored: Date the answers were gathered
             # author: Person who received and recorded the answers
             # source: The person who answered the questions
             "item": self.get_fhir_questionnaire_response_items(req, recipient)
