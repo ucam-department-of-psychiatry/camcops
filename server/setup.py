@@ -113,7 +113,7 @@ INSTALL_REQUIRES = [
     "pytest==6.0.2",  # automatic testing
 
     'sadisplay==0.4.9',  # SQL Alchemy schema display script
-    'scipy==1.6.3',  # used by some tasks. slow installation.
+    'scipy==1.5.4',  # used by some tasks. slow installation.
     'semantic_version==2.8.5',  # semantic versioning; better than semver
     'sqlalchemy==1.3.18',  # database access
     'statsmodels==0.11.1',  # e.g. logistic regression
