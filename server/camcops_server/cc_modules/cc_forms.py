@@ -215,6 +215,7 @@ from camcops_server.cc_modules.cc_validators import (
     ALPHANUM_UNDERSCORE_CHAR,
     validate_anything,
     validate_by_char_and_length,
+    validate_download_filename,
     validate_group_name,
     validate_hl7_aa,
     validate_hl7_id_type,
@@ -4661,11 +4662,24 @@ class ForciblyFinalizeConfirmForm(DangerousForm):
 # User downloads
 # =============================================================================
 
+class HiddenDownloadFilenameNode(HiddenStringNode, RequestAwareMixin):
+    """
+    Note to encode a hidden filename.
+    """
+    # noinspection PyMethodMayBeStatic
+    def validator(self, node: SchemaNode, value: str) -> None:
+        if value:
+            try:
+                validate_download_filename(value, self.request)
+            except ValueError as e:
+                raise Invalid(node, str(e))
+
+
 class UserDownloadDeleteSchema(CSRFSchema):
     """
     Schema to capture details of a file to be deleted.
     """
-    filename = HiddenStringNode()  # name must match ViewParam.FILENAME
+    filename = HiddenDownloadFilenameNode()  # name must match ViewParam.FILENAME  # noqa
 
 
 class UserDownloadDeleteForm(SimpleSubmitForm):

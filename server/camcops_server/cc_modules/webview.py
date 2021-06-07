@@ -317,6 +317,7 @@ from camcops_server.cc_modules.cc_user import (
     User,
 )
 from camcops_server.cc_modules.cc_validators import (
+    validate_download_filename,
     validate_export_recipient_name,
     validate_ip_address,
     validate_task_tablename,
@@ -1651,7 +1652,8 @@ def download_file(req: "CamcopsRequest") -> Response:
     Downloads a file.
     """
     _ = req.gettext
-    filename = req.get_str_param(ViewParam.FILENAME, "")
+    filename = req.get_str_param(ViewParam.FILENAME, "",
+                                 validator=validate_download_filename)
     # Security comes here: we do NOT permit any path information in the
     # filename. It MUST be relative to and within the user download directory.
     # We cannot trust the input.
