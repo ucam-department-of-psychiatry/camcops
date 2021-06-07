@@ -2567,6 +2567,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
     it was certainly working after that, so perhaps ``matplotlib`` used to
     accept a dictionary or **kwargs and no longer does.
 
+
 .. _changelog_v2.3.6:
 
 **Client and server v2.3.6, released 31 Oct 2019**
@@ -2699,6 +2700,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 2020
 ~~~~
 
+
 .. _changelog_v2.3.7:
 
 **Client and server v2.3.7, released 3 Mar 2020**
@@ -2806,6 +2808,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
   Also removed ``QUTHERMOMETER_USE_THERMOMETER_WIDGET`` option (now always
   defined, effectively).
 
+
 .. _changelog_v2.3.8:
 
 **Client and server v2.3.8, released 15 Sep 2020**
@@ -2889,6 +2892,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
   2020-07-24: No, Deform has caught up. See https://pypi.org/project/deform/.
   Move to ``deform==2.0.10`` and ``Chameleon==3.8.1``.
+
 
 .. _changelog_v2.4.0:
 
@@ -3017,12 +3021,14 @@ Current C++/SQLite client, Python/SQLAlchemy server
 2021
 ~~~~
 
+
 .. _changelog_v2.4.1:
 
 **Client v2.4.1, released 9 Feb 2021**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - iOS client now available for development
+
 
 .. _changelog_v2.4.2:
 
@@ -3046,6 +3052,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Ability to customise the emails sent to patients assigned to a task schedule.
   (Database revision 0058)
 
+
 .. _changelog_v2.4.3:
 
 **Client v2.4.3, released 19 Mar 2021**
@@ -3053,6 +3060,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Identical to v2.4.2. Version number changes only to work around Apple Store
   constraints.
+
 
 .. _changelog_v2.4.4:
 
@@ -3075,12 +3083,14 @@ Current C++/SQLite client, Python/SQLAlchemy server
   list of patients and their task schedules.
   https://github.com/RudolfCardinal/camcops/issues/147
 
+
 .. _changelog_v2.4.5:
 
 **Client v2.4.5, released 30 Mar 2021**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Support for macOS client
+
 
 .. _changelog_v2.4.6:
 
@@ -3393,6 +3403,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
   :class:`camcops_server.cc_modules.cc_forms.CSRFToken`. Generally that was
   hidden but it appeared in some circumstances.
 
+
 .. _changelog_v2.4.7:
 
 **Server v2.4.7, released 1 Jun 2021**
@@ -3414,9 +3425,15 @@ Current C++/SQLite client, Python/SQLAlchemy server
   URL intended to be entered into the app, are now signposted to sensible
   places.
 
+
 .. _changelog_v2_4_8:
 
 **Client and server v2.4.8, IN PROGRESS**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Updates for Python 3.9 compatibility.
+
+- Bugfix in validation of download filenames (it was being overzealous and
+  preventing downloads), to fix
+  https://github.com/RudolfCardinal/camcops/issues/178, and add some additional
+  safety checks.
