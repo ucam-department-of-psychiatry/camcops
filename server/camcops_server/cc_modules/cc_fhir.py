@@ -24,6 +24,38 @@
 ===============================================================================
 
 **Implements communication with a FHIR server.**
+
+Fast Healthcare Interoperability Resources
+
+https://www.hl7.org/fhir/
+
+Our implementation exports patients and tasks as FHIR Patient, Questionnaire
+and QuestionnaireResponse resources.
+
+Currently PHQ9 and APEQPT (anonymous) are supported. Each task and patient (if
+appropriate is sent to the FHIR server in a single "transaction" Bundle)
+The resources are given a unique identifier based on the URL of the CamCOPS
+server.
+
+
+
+We use the python client https://github.com/smart-on-fhir/client-py/
+This only supports one version of the FHIR specification (currently 4.0.1).
+
+Tested with HAPI FHIR server locally, which was installed from instructions at
+https://github.com/hapifhir/hapi-fhir-jpaserver-starter (Docker)
+
+cd hapi-fhir-jpaserver-starter
+sudo docker run -p 8080:8080 hapiproject/hapi:latest
+
+with the following entry in the CamCOPS export recipient configuration:
+
+FHIR_API_URL = http://localhost:8080/fhir
+
+There are also public sandboxes at:
+http://hapi.fhir.org/baseR4
+https://r4.smarthealthit.org (errors when exporting questionnaire responses)
+
 """
 
 from typing import Dict, TYPE_CHECKING
