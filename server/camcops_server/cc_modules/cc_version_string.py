@@ -20,7 +20,7 @@ camcops_server/cc_modules/cc_version_string.py
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 
 ===============================================================================
 
@@ -40,8 +40,8 @@ camcops_server/cc_modules/cc_version_string.py
 # -----------------------------------------------------------------------------
 # When you alter the server, it is normal to change these two:
 
-CAMCOPS_SERVER_VERSION_STRING = "2.4.6"
-CAMCOPS_SERVER_CHANGEDATE = "2021-05-07"
+CAMCOPS_SERVER_VERSION_STRING = "2.4.7"
+CAMCOPS_SERVER_CHANGEDATE = "2021-06-01"
 
 # +++ NOW ALSO UPDATE: +++
 #

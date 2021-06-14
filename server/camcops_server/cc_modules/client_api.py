@@ -20,7 +20,7 @@ camcops_server/cc_modules/client_api.py
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 
 ===============================================================================
 
@@ -3228,8 +3228,9 @@ def main_client_api(req: "CamcopsRequest") -> Dict[str, str]:
     return result
 
 
-@view_config(route_name=Routes.CLIENT_API, permission=NO_PERMISSION_REQUIRED)
-@view_config(route_name=Routes.CLIENT_API_ALIAS,
+@view_config(route_name=Routes.CLIENT_API, request_method="POST",
+             permission=NO_PERMISSION_REQUIRED)
+@view_config(route_name=Routes.CLIENT_API_ALIAS, request_method="POST",
              permission=NO_PERMISSION_REQUIRED)
 def client_api(req: "CamcopsRequest") -> Response:
     """

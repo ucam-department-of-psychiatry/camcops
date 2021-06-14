@@ -20,11 +20,14 @@ tools/install_virtualenv.py
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 
 ===============================================================================
 
 **Creates a Python virtual environment.**
+
+Called by e.g. Debian packages installation scripts; see
+``server/tools/MAKE_LINUX_PACKAGES.py``.
 
 As of 2018-11-24, uses ``venv`` not ``virtualenv``; see
 https://www.reddit.com/r/learnpython/comments/4hsudz/pyvenv_vs_virtualenv/.

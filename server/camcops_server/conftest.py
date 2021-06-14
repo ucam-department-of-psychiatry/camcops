@@ -20,7 +20,7 @@ camcops_server/conftest.py
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 
 ===============================================================================
 
@@ -36,6 +36,7 @@ from typing import Generator, TYPE_CHECKING
 
 import pytest
 from sqlalchemy import event
+from sqlalchemy.engine import create_engine
 from sqlalchemy.orm import Session
 
 import camcops_server.cc_modules.cc_all_models  # import side effects (ensure all models registered)  # noqa: F401,E501
@@ -64,7 +65,7 @@ def pytest_addoption(parser: "Parser"):
         action="store_false",
         dest="database_on_disk",
         default=True,
-        help="Make database in memory"
+        help="Make SQLite database in memory"
     )
 
     # Borrowed from pytest-django
@@ -74,6 +75,22 @@ def pytest_addoption(parser: "Parser"):
         dest="create_db",
         default=False,
         help="Create the database even if it already exists"
+    )
+
+    parser.addoption(
+        "--mysql",
+        action="store_true",
+        dest="mysql",
+        default=False,
+        help="Use MySQL database instead of SQLite"
+    )
+
+    parser.addoption(
+        "--db-url",
+        dest="db_url",
+        default=("mysql+mysqldb://camcops:camcops@localhost:3306/test_camcops"
+                 "?charset=utf8"),
+        help="SQLAlchemy test database URL (MySQL only)"
     )
 
     parser.addoption(
@@ -115,6 +132,16 @@ def echo(request: "FixtureRequest") -> bool:
 
 # noinspection PyUnusedLocal
 @pytest.fixture(scope="session")
+def mysql(request: "FixtureRequest") -> bool:
+    return request.config.getvalue("mysql")
+
+
+@pytest.fixture(scope="session")
+def db_url(request: "FixtureRequest") -> bool:
+    return request.config.getvalue("db_url")
+
+
+@pytest.fixture(scope="session")
 def tmpdir_obj(request: "FixtureRequest") -> Generator[
         tempfile.TemporaryDirectory, None, None]:
     tmpdir_obj = tempfile.TemporaryDirectory()
@@ -124,13 +151,50 @@ def tmpdir_obj(request: "FixtureRequest") -> Generator[
     tmpdir_obj.cleanup()
 
 
-# https://gist.githubusercontent.com/kissgyorgy/e2365f25a213de44b9a2/raw/f8b5bbf06c4969bc6bbe5316defef64137c9b1e3/sqlalchemy_conftest.py
+# https://gist.github.com/kissgyorgy/e2365f25a213de44b9a2
+# Author says "no [license], feel free to use it"
 # noinspection PyUnusedLocal
 @pytest.fixture(scope="session")
 def engine(request: "FixtureRequest",
            create_db: bool,
            database_on_disk: bool,
-           echo: bool) -> Generator["Engine", None, None]:
+           echo: bool,
+           mysql: bool,
+           db_url: str) -> Generator["Engine", None, None]:
+
+    if mysql:
+        engine = create_engine_mysql(db_url,
+                                     create_db,
+                                     echo)
+    else:
+        engine = create_engine_sqlite(create_db,
+                                      echo,
+                                      database_on_disk)
+
+    yield engine
+    engine.dispose()
+
+
+def create_engine_mysql(db_url: str,
+                        create_db: bool,
+                        echo: bool):
+
+    # The database and the user with the given password from db_url
+    # need to exist.
+    # mysql> CREATE DATABASE <db_name>;
+    # mysql> GRANT ALL PRIVILEGES ON <db_name>.*
+    #        TO <db_user>@localhost IDENTIFIED BY '<db_password>';
+    engine = create_engine(db_url, echo=echo, pool_pre_ping=True)
+
+    if create_db:
+        Base.metadata.drop_all(engine)
+
+    return engine
+
+
+def create_engine_sqlite(create_db: bool,
+                         echo: bool,
+                         database_on_disk: bool):
     if create_db and database_on_disk:
         try:
             os.remove(TEST_DATABASE_FILENAME)
@@ -142,10 +206,10 @@ def engine(request: "FixtureRequest",
                                          echo=echo)
     else:
         engine = make_memory_sqlite_engine(echo=echo)
+
     event.listen(engine, "connect", set_sqlite_pragma)
 
-    yield engine
-    engine.dispose()
+    return engine
 
 
 # noinspection PyUnusedLocal
@@ -193,6 +257,7 @@ def dbsession(request: "FixtureRequest",
 def setup(request: "FixtureRequest",
           engine: "Engine",
           database_on_disk: bool,
+          mysql: bool,
           dbsession: Session,
           tmpdir_obj: tempfile.TemporaryDirectory) -> None:
     # Pytest prefers function-based tests over unittest.TestCase subclasses and
@@ -204,3 +269,4 @@ def setup(request: "FixtureRequest",
     request.cls.dbsession = dbsession
     request.cls.tmpdir_obj = tmpdir_obj
     request.cls.db_filename = TEST_DATABASE_FILENAME
+    request.cls.mysql = mysql

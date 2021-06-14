@@ -20,7 +20,7 @@ setup.py
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 
 ===============================================================================
 
@@ -69,7 +69,7 @@ INSTALL_REQUIRES = [
     'alembic==1.4.2',  # database migrations
     'asteval==0.9.18',  # safe-ish alternative to eval
 
-    'cardinal_pythonlib==1.1.4',  # RNC libraries
+    'cardinal_pythonlib==1.1.6',  # RNC libraries
     'celery==4.4.6',  # background tasks
     'colander==1.7.0',  # serialization/deserialization from web forms
     'CherryPy==18.6.0',  # web server
@@ -101,11 +101,11 @@ INSTALL_REQUIRES = [
     'numpy==1.19.0',  # Used by some tasks. SLOW INSTALLATION.
 
     'paginate==0.5.6',  # pagination for web server
-    'pendulum==2.1.0',  # better than Arrow
+    'pendulum==2.1.2',  # date/time classes
     'pexpect==4.8.0',  # for open_sqlcipher.py
     'pdfkit==0.6.1',  # wkhtmltopdf interface, for PDF generation from HTML
-    # REDCap integration. Pip freeze reports as version 0.0.0?
-    'pycap @ git+https://github.com/redcap-tools/pycap@ff0e8c6916352a11e16976d5c7b4aaaed7e500ac#egg=pycap-1.0.2.3',  # noqa
+    'py==1.10.0',  # dependency, pinned to avoid CVE-2020-29651
+    'pycap==1.1.1',  # REDCap integration
     'Pygments==2.7.4',  # Syntax highlighting for introspection/DDL
     'pyexcel-ods3==0.5.3',  # ODS spreadsheet export
     'pyexcel-xlsx==0.5.8',  # XLSX spreadsheet export
@@ -114,7 +114,7 @@ INSTALL_REQUIRES = [
     "pytest==6.0.2",  # automatic testing
 
     'sadisplay==0.4.9',  # SQL Alchemy schema display script
-    'scipy==1.5.0',  # used by some tasks. slow installation.
+    'scipy==1.5.4',  # used by some tasks. slow installation.
     'semantic_version==2.8.5',  # semantic versioning; better than semver
     'sqlalchemy==1.3.18',  # database access
     'statsmodels==0.11.1',  # e.g. logistic regression
@@ -214,6 +214,9 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
 
         'Topic :: Scientific/Engineering :: Medical Science Apps.'
     ],

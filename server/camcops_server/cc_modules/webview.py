@@ -20,7 +20,7 @@ camcops_server/cc_modules/webview.py
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 
 ===============================================================================
 
@@ -91,7 +91,7 @@ Quick tutorial on Pyramid views:
         request.params
 
             ... parameters from HTTP GET or POST, including both the query
-            string (as in http://somewhere/path?key=value) and the body (e.g.
+            string (as in https://somewhere/path?key=value) and the body (e.g.
             POST).
 
         request.matchdict
@@ -187,6 +187,7 @@ from camcops_server.cc_modules.cc_constants import (
     CAMCOPS_URL,
     DateFormat,
     ERA_NOW,
+    GITHUB_RELEASES_URL,
     MINIMUM_PASSWORD_LENGTH,
 )
 from camcops_server.cc_modules.cc_db import (
@@ -509,6 +510,23 @@ def test_page_3(req: "CamcopsRequest") -> Dict[str, Any]:
     A private test page that tests template inheritance.
     """
     return {}
+
+
+# noinspection PyUnusedLocal
+@view_config(route_name=Routes.TESTPAGE_PRIVATE_4,
+             permission=Permission.SUPERUSER,
+             renderer="test_template_filters.mako",
+             http_cache=NEVER_CACHE)
+def test_page_4(req: "CamcopsRequest") -> Dict[str, Any]:
+    """
+    A private test page that tests Mako filtering.
+    """
+    return dict(
+        test_strings=[
+            "plain",
+            "normal <b>bold</b> normal",
+        ],
+    )
 
 
 # noinspection PyUnusedLocal,PyTypeChecker
@@ -4464,6 +4482,25 @@ def delete_task_schedule_item(req: "CamcopsRequest") -> Response:
     View to delete a task schedule item.
     """
     return DeleteTaskScheduleItemView(req).dispatch()
+
+
+@view_config(route_name=Routes.CLIENT_API, request_method="GET",
+             permission=NO_PERMISSION_REQUIRED,
+             renderer="client_api_signposting.mako")
+@view_config(route_name=Routes.CLIENT_API_ALIAS, request_method="GET",
+             permission=NO_PERMISSION_REQUIRED,
+             renderer="client_api_signposting.mako")
+def client_api_signposting(req: "CamcopsRequest") -> Dict[str, Any]:
+    """
+    Patients are likely to enter the ``/api`` address into a web browser,
+    especially if it appears as a hyperlink in an email. If so, that will
+    arrive as a ``GET`` request. This page will direct them to download the
+    app.
+    """
+    return {
+        "github_link": f"<a href='{GITHUB_RELEASES_URL}'>GitHub</a>",
+        "server_url": req.route_url(Routes.CLIENT_API)
+    }
 
 
 # =============================================================================

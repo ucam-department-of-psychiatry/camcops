@@ -20,7 +20,7 @@ camcops_server/cc_modules/cc_constants.py
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 
 ===============================================================================
 
@@ -83,6 +83,9 @@ DEFAULT_FLOWER_PORT = 5555  # http://docs.celeryproject.org/en/latest/userguide/
 DEFAULT_ROWS_PER_PAGE = 25
 DEVICE_NAME_FOR_SERVER = "server"  # Do not alter.
 USER_NAME_FOR_SYSTEM = "system"  # Do not alter.
+
+# Address to download Windows/Mac versions:
+GITHUB_RELEASES_URL = "https://github.com/RudolfCardinal/camcops/releases/"
 
 MINIMUM_PASSWORD_LENGTH = 10
 
@@ -166,7 +169,6 @@ EXTRA_COMMENT_PREFIX = "(EXTRA) "
 # Other special values
 # =============================================================================
 
-# CAMCOPS_URL = "http://www.camcops.org/"
 CAMCOPS_URL = "https://camcops.readthedocs.io/"
 ERA_NOW = "NOW"  # defines the current era in database records
 
@@ -596,7 +598,7 @@ class ConfigDefaults(object):
     EMAIL_USE_TLS = True
     EXTRA_STRING_FILES = os.path.join(DEFAULT_EXTRA_STRINGS_DIR, "*.xml")  # cosmetic; for demo configs only  # noqa
     LANGUAGE = DEFAULT_LOCALE
-    LOCAL_INSTITUTION_URL = "http://www.camcops.org/"
+    LOCAL_INSTITUTION_URL = "https://camcops.readthedocs.io/"
     LOCAL_LOGO_FILE_ABSOLUTE = os.path.join(STATIC_ROOT_DIR, "logo_local.png")
     LOCKOUT_DURATION_INCREMENT_MINUTES = 10
     LOCKOUT_THRESHOLD = 10

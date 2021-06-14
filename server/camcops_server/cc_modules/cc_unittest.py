@@ -20,7 +20,7 @@ camcops_server/cc_modules/cc_unittest.py
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 
 ===============================================================================
 
@@ -235,7 +235,7 @@ class DemoDatabaseTestCase(DemoRequestTestCase):
                                          description="RiO number",
                                          short_description="RiO",
                                          hl7_assigning_authority="CPFT",
-                                         hl7_id_type="CPFT_RiO")
+                                         hl7_id_type="CPRiO")
         self.dbsession.add(self.rio_iddef)
         self.study_iddef = IdNumDefinition(which_idnum=3,
                                            description="Study number",

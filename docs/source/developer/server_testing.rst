@@ -51,8 +51,10 @@ By default if there is an existing test database, this will be reused.
 Custom CamCOPS pytest options:
 
 --create-db           Create a new test database. Necessary when there have been schema changes.
---database-in-memory  Store the database in memory instead of on disk.
+--database-in-memory  Store the database in memory instead of on disk (SQLite only).
 --echo                Log all SQL statements to the default log handler
+--mysql               Use MySQL instead of the default SQLite
+--db-url              SQLAlchemy test database URL (MySQL only, default: mysql+mysqldb://camcops:camcops@localhost:3306/test_camcops?charset=utf8
 
 
 Some common standard pytest options:
