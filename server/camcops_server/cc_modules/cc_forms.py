@@ -4677,3 +4677,33 @@ class UserDownloadDeleteForm(SimpleSubmitForm):
         super().__init__(schema_class=UserDownloadDeleteSchema,
                          submit_title=_("Delete"),
                          request=request, **kwargs)
+
+
+class EmailBodyNode(OptionalStringNode, RequestAwareMixin):
+    pass
+
+
+class SendEmailSchema(CSRFSchema):
+    email = OptionalEmailNode()  # name must match ViewParam.EMAIL
+    email_from = HiddenStringNode()
+    email_subject = OptionalStringNode()
+    email_body = EmailBodyNode()
+
+
+class SendEmailForm(InformativeNonceForm):
+    """
+    Form for sending email
+    """
+    def __init__(self,
+                 request: "CamcopsRequest",
+                 **kwargs) -> None:
+        schema = SendEmailSchema().bind(request=request)
+        _ = request.gettext
+        super().__init__(
+            schema,
+            buttons=[
+                Button(name=FormAction.SUBMIT, title=_("Send")),
+                Button(name=FormAction.CANCEL, title=_("Cancel")),
+            ],
+            **kwargs
+        )

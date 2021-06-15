@@ -26,6 +26,7 @@ camcops_server/cc_modules/tests/webview_tests.py
 """
 
 from collections import OrderedDict
+import configparser
 import datetime
 import json
 from typing import cast
@@ -77,6 +78,7 @@ from camcops_server.cc_modules.webview import (
     EraseTaskLeavingPlaceholderView,
     FLASH_INFO,
     FLASH_SUCCESS,
+    SendPatientEmailView,
     any_records_use_group,
     edit_group,
     edit_finalized_patient,
@@ -2108,3 +2110,43 @@ class EditGroupViewTests(DemoDatabaseTestCase):
         self.assertEqual(
             form_values[ViewParam.IP_USE], self.group.ip_use
         )
+
+
+class SendPatientEmailViewTests(BasicDatabaseTestCase):
+    def override_config_settings(self,
+                                 parser: configparser.ConfigParser) -> None:
+        parser.set("site", "EMAIL_HOST", "smtp.example.com")
+        parser.set("site", "EMAIL_PORT", "587")
+        parser.set("site", "EMAIL_HOST_USERNAME", "mailuser")
+        parser.set("site", "EMAIL_HOST_PASSWORD", "mailpassword")
+        parser.set("site", "EMAIL_USE_TLS", "true")
+
+    @mock.patch("camcops_server.cc_modules.cc_email.send_msg")
+    @mock.patch("camcops_server.cc_modules.cc_email.make_email")
+    def test_sends_email(self, mock_make_email, mock_send_msg) -> None:
+        multidict = MultiDict([
+            (ViewParam.EMAIL, "patient@example.com"),
+            (ViewParam.EMAIL_FROM, "server@example.com"),
+            (ViewParam.EMAIL_SUBJECT, "Subject"),
+            (ViewParam.EMAIL_BODY, "Email body"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+        view = SendPatientEmailView(self.req)
+
+        with self.assertRaises(HTTPFound):
+            view.dispatch()
+
+        args, kwargs = mock_make_email.call_args
+        self.assertEqual(kwargs["from_addr"], "server@example.com")
+        self.assertEqual(kwargs["to"], "patient@example.com")
+        self.assertEqual(kwargs["subject"], "Subject")
+        self.assertEqual(kwargs["body"], "Email body")
+
+        args, kwargs = mock_send_msg.call_args
+        self.assertEqual(kwargs["host"], "smtp.example.com")
+        self.assertEqual(kwargs["user"], "mailuser")
+        self.assertEqual(kwargs["password"], "mailpassword")
+        self.assertEqual(kwargs["port"], 587)
+        self.assertTrue(kwargs["use_tls"])

@@ -253,6 +253,7 @@ from camcops_server.cc_modules.cc_forms import (
     OfferSqlDumpForm,
     OfferTermsForm,
     RefreshTasksForm,
+    SendEmailForm,
     SetUserUploadGroupForm,
     EditTaskFilterForm,
     TasksPerPageForm,
@@ -326,11 +327,13 @@ from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 from camcops_server.cc_modules.cc_view_classes import (
     CreateView,
     DeleteView,
+    FormView,
     UpdateView,
 )
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
+    from deform.form import Form
     from camcops_server.cc_modules.cc_sqlalchemy import Base
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
@@ -4501,6 +4504,38 @@ def client_api_signposting(req: "CamcopsRequest") -> Dict[str, Any]:
         "github_link": f"<a href='{GITHUB_RELEASES_URL}'>GitHub</a>",
         "server_url": req.route_url(Routes.CLIENT_API)
     }
+
+
+class SendPatientEmailView(FormView):
+    form_class = SendEmailForm
+
+    def form_valid(self, form: "Form", appstruct: Dict[str, Any]) -> Response:
+        email = Email(
+            from_addr=appstruct.get(ViewParam.EMAIL_FROM),
+            to=appstruct.get(ViewParam.EMAIL),
+            subject=appstruct.get(ViewParam.EMAIL_SUBJECT),
+            body=appstruct.get(ViewParam.EMAIL_BODY),
+        )
+        config = self.request.config
+
+        email.send(host=config.email_host,
+                   username=config.email_host_username,
+                   password=config.email_host_password,
+                   port=config.email_port,
+                   use_tls=config.email_use_tls)
+
+        return super().form_valid(form, appstruct)
+
+    def get_success_url(self) -> str:
+        pts_id = self.request.get_int_param(
+            ViewParam.PATIENT_TASK_SCHEDULE_ID, None)
+
+        return self.request.route_url(
+            Routes.VIEW_PATIENT_TASK_SCHEDULE,
+            _query={
+                ViewParam.PATIENT_TASK_SCHEDULE_ID: pts_id
+            }
+        )
 
 
 # =============================================================================
