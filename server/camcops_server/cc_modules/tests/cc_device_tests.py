@@ -27,14 +27,14 @@ camcops_server/cc_modules/tests/cc_device_tests.py
 """
 
 from camcops_server.cc_modules.cc_device import Device
-from camcops_server.cc_modules.cc_unittest import DemoDatabaseWithTasksTestCase
+from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 
 
 # =============================================================================
 # Unit tests
 # =============================================================================
 
-class DeviceTests(DemoDatabaseWithTasksTestCase):
+class DeviceTests(DemoDatabaseTestCase):
     """
     Unit tests.
     """

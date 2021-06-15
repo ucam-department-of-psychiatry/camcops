@@ -48,8 +48,8 @@ from camcops_server.cc_modules.cc_report import (
     Report,
 )
 from camcops_server.cc_modules.cc_unittest import (
+    BasicDatabaseTestCase,
     DemoDatabaseTestCase,
-    DemoDatabaseWithTasksTestCase,
     DemoRequestTestCase,
 )
 from camcops_server.cc_modules.cc_validators import (
@@ -72,7 +72,7 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # Unit testing
 # =============================================================================
 
-class AllReportTests(DemoDatabaseWithTasksTestCase):
+class AllReportTests(DemoDatabaseTestCase):
     """
     Unit tests.
     """
@@ -130,7 +130,7 @@ class AllReportTests(DemoDatabaseWithTasksTestCase):
                 pass
 
 
-class AverageScoreReportTestCase(DemoDatabaseTestCase):
+class AverageScoreReportTestCase(BasicDatabaseTestCase):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.patient_id_sequence = self.get_patient_id()

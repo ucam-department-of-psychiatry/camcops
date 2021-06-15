@@ -27,7 +27,7 @@ camcops_server/cc_modules/tests/cc_blob_tests.py
 """
 
 from camcops_server.cc_modules.cc_blob import Blob
-from camcops_server.cc_modules.cc_unittest import DemoDatabaseWithTasksTestCase
+from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 from camcops_server.cc_modules.cc_xml import XmlElement
 
 
@@ -35,7 +35,7 @@ from camcops_server.cc_modules.cc_xml import XmlElement
 # Unit tests
 # =============================================================================
 
-class BlobTests(DemoDatabaseWithTasksTestCase):
+class BlobTests(DemoDatabaseTestCase):
     """
     Unit tests.
     """

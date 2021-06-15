@@ -39,7 +39,7 @@ from camcops_server.cc_modules.cc_taskschedule import (
     TaskScheduleItem,
 )
 from camcops_server.cc_modules.cc_tsv import TsvPage
-from camcops_server.cc_modules.cc_unittest import DemoDatabaseWithTasksTestCase
+from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 from camcops_server.cc_modules.cc_xml import XmlElement
 
 
@@ -47,7 +47,7 @@ from camcops_server.cc_modules.cc_xml import XmlElement
 # Unit tests
 # =============================================================================
 
-class PatientTests(DemoDatabaseWithTasksTestCase):
+class PatientTests(DemoDatabaseTestCase):
     """
     Unit tests.
     """
@@ -123,7 +123,7 @@ class PatientTests(DemoDatabaseWithTasksTestCase):
                          "(UNKNOWN), FORENAME")
 
 
-class LineageTests(DemoDatabaseWithTasksTestCase):
+class LineageTests(DemoDatabaseTestCase):
     def create_tasks(self) -> None:
         # Actually not creating any tasks but we don't want the patients
         # created by default in the baseclass
@@ -164,7 +164,7 @@ class LineageTests(DemoDatabaseWithTasksTestCase):
         self.assertEqual(len(idnums), 2)
 
 
-class PatientDeleteTests(DemoDatabaseWithTasksTestCase):
+class PatientDeleteTests(DemoDatabaseTestCase):
     def test_deletes_patient_task_schedule(self) -> None:
         schedule = TaskSchedule()
         schedule.group_id = self.group.id

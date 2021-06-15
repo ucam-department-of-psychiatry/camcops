@@ -55,8 +55,8 @@ from camcops_server.cc_modules.cc_proquint import (
 from camcops_server.cc_modules.cc_taskindex import update_indexes_and_push_exports  # noqa
 from camcops_server.cc_modules.cc_testhelpers import class_attribute_names
 from camcops_server.cc_modules.cc_unittest import (
-    DemoDatabaseTestCase,
-    DemoDatabaseWithTasksTestCase
+    BasicDatabaseTestCase,
+    DemoDatabaseTestCase
 )
 from camcops_server.cc_modules.cc_user import User
 from camcops_server.cc_modules.cc_version import (
@@ -77,7 +77,7 @@ from camcops_server.cc_modules.client_api import (
 )
 
 
-class ClientApiTests(DemoDatabaseWithTasksTestCase):
+class ClientApiTests(DemoDatabaseTestCase):
     """
     Unit tests.
     """
@@ -181,7 +181,7 @@ class ClientApiTests(DemoDatabaseWithTasksTestCase):
                 self.fail(f"Operations.{x} fails validate_alphanum_underscore")
 
 
-class PatientRegistrationTests(DemoDatabaseTestCase):
+class PatientRegistrationTests(BasicDatabaseTestCase):
     def test_returns_patient_info(self) -> None:
         import datetime
         patient = self.create_patient(
@@ -469,7 +469,7 @@ class PatientRegistrationTests(DemoDatabaseTestCase):
         self.assertEqual(ip_use_info[TabletParam.IP_USE_RESEARCH], 0)
 
 
-class GetTaskSchedulesTests(DemoDatabaseTestCase):
+class GetTaskSchedulesTests(BasicDatabaseTestCase):
     def test_returns_task_schedules(self) -> None:
         from pendulum import DateTime as Pendulum, Duration, local, parse
 

@@ -43,7 +43,7 @@ from camcops_server.cc_modules.cc_redcap import (
     RedcapRecordStatus,
     RedcapTaskExporter,
 )
-from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
+from camcops_server.cc_modules.cc_unittest import BasicDatabaseTestCase
 
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_patient import Patient
@@ -438,7 +438,7 @@ class RedcapFieldmapTests(TestCase):
 # Integration testing
 # =============================================================================
 
-class RedcapExportTestCase(DemoDatabaseTestCase):
+class RedcapExportTestCase(BasicDatabaseTestCase):
     fieldmap = ""
 
     def setUp(self) -> None:

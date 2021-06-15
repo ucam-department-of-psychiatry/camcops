@@ -37,7 +37,7 @@ from camcops_server.cc_modules.cc_taskschedule import (
     TaskScheduleItem,
 )
 from camcops_server.cc_modules.cc_unittest import (
-    DemoDatabaseWithTasksTestCase,
+    DemoDatabaseTestCase,
     DemoRequestTestCase,
 )
 
@@ -46,7 +46,7 @@ from camcops_server.cc_modules.cc_unittest import (
 # Unit tests
 # =============================================================================
 
-class TaskScheduleTests(DemoDatabaseWithTasksTestCase):
+class TaskScheduleTests(DemoDatabaseTestCase):
     def test_deleting_deletes_related_objects(self) -> None:
         schedule = TaskSchedule()
         schedule.group_id = self.group.id
@@ -117,7 +117,7 @@ class TaskScheduleItemTests(DemoRequestTestCase):
         self.assertEqual(item.due_within.in_days(), 30)
 
 
-class PatientTaskScheduleTests(DemoDatabaseWithTasksTestCase):
+class PatientTaskScheduleTests(DemoDatabaseTestCase):
     def setUp(self) -> None:
         super().setUp()
 

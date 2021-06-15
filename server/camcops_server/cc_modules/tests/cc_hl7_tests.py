@@ -42,7 +42,7 @@ from camcops_server.cc_modules.cc_simpleobjects import (
     HL7PatientIdentifier,
     TaskExportOptions,
 )
-from camcops_server.cc_modules.cc_unittest import DemoDatabaseWithTasksTestCase
+from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 from camcops_server.tasks.phq9 import Phq9
 
 
@@ -50,7 +50,7 @@ from camcops_server.tasks.phq9 import Phq9
 # Unit tests
 # =============================================================================
 
-class HL7CoreTests(DemoDatabaseWithTasksTestCase):
+class HL7CoreTests(DemoDatabaseTestCase):
     """
     Unit tests.
     """

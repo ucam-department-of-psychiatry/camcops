@@ -211,9 +211,11 @@ class DemoRequestTestCase(ExtendedTestCase):
         log.log(loglevel, "Contents of table {}:\n{}", tablename, results)
 
 
-class DemoDatabaseTestCase(DemoRequestTestCase):
+class BasicDatabaseTestCase(DemoRequestTestCase):
     """
-    Test case that sets up a demonstration CamCOPS database in memory.
+    Test case that sets up some useful database records for testing:
+    ID numbers, user, group, devices etc and has helper methods for
+    creating patients and tasks
     """
     def setUp(self) -> None:
         super().setUp()
@@ -401,10 +403,10 @@ class DemoDatabaseTestCase(DemoRequestTestCase):
         pass
 
 
-class DemoDatabaseWithTasksTestCase(DemoDatabaseTestCase):
+class DemoDatabaseTestCase(BasicDatabaseTestCase):
     """
-    Test case that sets up a demonstration CamCOPS database in memory
-    with two tasks of each type
+    Test case that sets up a demonstration CamCOPS database with two tasks of
+    each type
     """
     def create_tasks(self) -> None:
         from camcops_server.cc_modules.cc_blob import Blob
