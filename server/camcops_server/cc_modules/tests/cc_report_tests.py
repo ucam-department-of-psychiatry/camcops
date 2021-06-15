@@ -48,6 +48,7 @@ from camcops_server.cc_modules.cc_report import (
     Report,
 )
 from camcops_server.cc_modules.cc_unittest import (
+    DemoDatabaseTestCase,
     DemoDatabaseWithTasksTestCase,
     DemoRequestTestCase,
 )
@@ -129,7 +130,7 @@ class AllReportTests(DemoDatabaseWithTasksTestCase):
                 pass
 
 
-class AverageScoreReportTestCase(DemoDatabaseWithTasksTestCase):
+class AverageScoreReportTestCase(DemoDatabaseTestCase):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.patient_id_sequence = self.get_patient_id()
@@ -140,9 +141,6 @@ class AverageScoreReportTestCase(DemoDatabaseWithTasksTestCase):
         super().setUp()
 
         self.report = self.create_report()
-
-    def create_tasks(self):
-        pass
 
     def create_report(self) -> AverageScoreReport:
         raise NotImplementedError(

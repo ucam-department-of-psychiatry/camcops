@@ -53,7 +53,10 @@ from camcops_server.cc_modules.cc_taskschedule import (
     TaskScheduleItem,
 )
 from camcops_server.cc_modules.cc_testhelpers import class_attribute_names
-from camcops_server.cc_modules.cc_unittest import DemoDatabaseWithTasksTestCase
+from camcops_server.cc_modules.cc_unittest import (
+    DemoDatabaseTestCase,
+    DemoDatabaseWithTasksTestCase,
+)
 from camcops_server.cc_modules.cc_user import User
 from camcops_server.cc_modules.cc_validators import (
     validate_alphanum_underscore,
@@ -673,14 +676,10 @@ class DeleteTaskScheduleItemViewTests(DemoDatabaseWithTasksTestCase):
         self.assertIsNotNone(item)
 
 
-class EditFinalizedPatientViewTests(DemoDatabaseWithTasksTestCase):
+class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
     """
     Unit tests.
     """
-    def create_tasks(self) -> None:
-        # speed things up a bit
-        pass
-
     def test_raises_when_patient_does_not_exists(self) -> None:
         with self.assertRaises(HTTPBadRequest) as cm:
             edit_finalized_patient(self.req)
@@ -1103,14 +1102,10 @@ class EditFinalizedPatientViewTests(DemoDatabaseWithTasksTestCase):
                          (None, 456))
 
 
-class EditServerCreatedPatientViewTests(DemoDatabaseWithTasksTestCase):
+class EditServerCreatedPatientViewTests(DemoDatabaseTestCase):
     """
     Unit tests.
     """
-    def create_tasks(self) -> None:
-        # speed things up a bit
-        pass
-
     def test_group_updated(self) -> None:
         patient = self.create_patient(sex="F", as_server_patient=True)
         new_group = Group()
@@ -1533,7 +1528,7 @@ class AddPatientViewTests(DemoDatabaseWithTasksTestCase):
         self.assertIn("form", context)
 
 
-class DeleteServerCreatedPatientViewTests(DemoDatabaseWithTasksTestCase):
+class DeleteServerCreatedPatientViewTests(DemoDatabaseTestCase):
     """
     Unit tests.
     """
@@ -1584,10 +1579,6 @@ class DeleteServerCreatedPatientViewTests(DemoDatabaseWithTasksTestCase):
             ("delete", "delete"),
             (FormAction.DELETE, "delete"),
         ])
-
-    def create_tasks(self) -> None:
-        # speed things up a bit
-        pass
 
     def test_patient_schedule_and_idnums_deleted(self) -> None:
         self.req.fake_request_post_from_dict(self.multidict)
@@ -1735,7 +1726,7 @@ class DeleteServerCreatedPatientViewTests(DemoDatabaseWithTasksTestCase):
         self.assertIsNotNone(saved_idnum)
 
 
-class EraseTaskTestCase(DemoDatabaseWithTasksTestCase):
+class EraseTaskTestCase(DemoDatabaseTestCase):
     """
     Unit tests.
     """

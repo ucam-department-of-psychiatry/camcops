@@ -33,17 +33,14 @@ from camcops_server.cc_modules.cc_taskcollection import (
 )
 
 from camcops_server.cc_modules.cc_taskfilter import TaskFilter
-from camcops_server.cc_modules.cc_unittest import DemoDatabaseWithTasksTestCase
+from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 
 
 # =============================================================================
 # Unit tests
 # =============================================================================
 
-class TaskCollectionTests(DemoDatabaseWithTasksTestCase):
-    def create_tasks(self) -> None:
-        return
-
+class TaskCollectionTests(DemoDatabaseTestCase):
     def test_it_can_be_serialized(self) -> None:
         taskfilter = TaskFilter()
         taskfilter.task_types = ['task1', 'task2', 'task3']

@@ -211,7 +211,7 @@ class DemoRequestTestCase(ExtendedTestCase):
         log.log(loglevel, "Contents of table {}:\n{}", tablename, results)
 
 
-class DemoDatabaseWithTasksTestCase(DemoRequestTestCase):
+class DemoDatabaseTestCase(DemoRequestTestCase):
     """
     Test case that sets up a demonstration CamCOPS database in memory.
     """
@@ -370,6 +370,43 @@ class DemoDatabaseWithTasksTestCase(DemoRequestTestCase):
         return patient
 
     def create_tasks(self) -> None:
+        # Override in subclass
+        pass
+
+    def apply_standard_task_fields(self, task: "Task") -> None:
+        """
+        Writes some default values to an SQLAlchemy ORM object representing
+        a task.
+        """
+        self.apply_standard_db_fields(task)
+        task.when_created = self.era_time
+
+    def apply_standard_db_fields(self,
+                                 obj: "GenericTabletRecordMixin",
+                                 era_now: bool = False) -> None:
+        """
+        Writes some default values to an SQLAlchemy ORM object representing a
+        record uploaded from a client (tablet) device.
+
+        Though we use the server device ID.
+        """
+        obj._device_id = self.server_device.id
+        obj._era = ERA_NOW if era_now else self.era
+        obj._group_id = self.group.id
+        obj._current = True
+        obj._adding_user_id = self.user.id
+        obj._when_added_batch_utc = self.era_time_utc
+
+    def tearDown(self) -> None:
+        pass
+
+
+class DemoDatabaseWithTasksTestCase(DemoDatabaseTestCase):
+    """
+    Test case that sets up a demonstration CamCOPS database in memory
+    with two tasks of each type
+    """
+    def create_tasks(self) -> None:
         from camcops_server.cc_modules.cc_blob import Blob
         from camcops_server.tasks.photo import Photo
         from camcops_server.cc_modules.cc_task import Task
@@ -409,30 +446,3 @@ class DemoDatabaseWithTasksTestCase(DemoRequestTestCase):
             self.dbsession.add(t2)
 
         self.dbsession.commit()
-
-    def apply_standard_task_fields(self, task: "Task") -> None:
-        """
-        Writes some default values to an SQLAlchemy ORM object representing
-        a task.
-        """
-        self.apply_standard_db_fields(task)
-        task.when_created = self.era_time
-
-    def apply_standard_db_fields(self,
-                                 obj: "GenericTabletRecordMixin",
-                                 era_now: bool = False) -> None:
-        """
-        Writes some default values to an SQLAlchemy ORM object representing a
-        record uploaded from a client (tablet) device.
-
-        Though we use the server device ID.
-        """
-        obj._device_id = self.server_device.id
-        obj._era = ERA_NOW if era_now else self.era
-        obj._group_id = self.group.id
-        obj._current = True
-        obj._adding_user_id = self.user.id
-        obj._when_added_batch_utc = self.era_time_utc
-
-    def tearDown(self) -> None:
-        pass

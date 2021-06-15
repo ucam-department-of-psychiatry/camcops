@@ -52,6 +52,7 @@ from camcops_server.cc_modules.cc_ipuse import IpContexts
 from camcops_server.cc_modules.cc_pyramid import ViewParam
 from camcops_server.cc_modules.cc_taskschedule import TaskSchedule
 from camcops_server.cc_modules.cc_unittest import (
+    DemoDatabaseTestCase,
     DemoDatabaseWithTasksTestCase,
     DemoRequestTestCase,
 )
@@ -224,7 +225,7 @@ class TaskScheduleItemSchemaTests(SchemaTestCase):
                       cm.exception.messages()[0])
 
 
-class TaskScheduleItemSchemaIpTests(DemoDatabaseWithTasksTestCase):
+class TaskScheduleItemSchemaIpTests(DemoDatabaseTestCase):
     def setUp(self) -> None:
         super().setUp()
 
@@ -232,10 +233,6 @@ class TaskScheduleItemSchemaIpTests(DemoDatabaseWithTasksTestCase):
         self.schedule.group_id = self.group.id
         self.dbsession.add(self.schedule)
         self.dbsession.commit()
-
-    def create_tasks(self) -> None:
-        # Speed things up a bit
-        pass
 
     def test_invalid_for_commercial_mismatch(self) -> None:
         self.group.ip_use.commercial = True
