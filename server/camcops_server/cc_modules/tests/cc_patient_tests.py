@@ -133,13 +133,13 @@ class LineageTests(DemoDatabaseWithTasksTestCase):
 
         self.patient_1 = Patient()
         self.patient_1.id = 1
-        self._apply_standard_db_fields(self.patient_1)
+        self.apply_standard_db_fields(self.patient_1)
         self.dbsession.add(self.patient_1)
 
         # First ID number record for patient 1
         self.patient_idnum_1_1 = PatientIdNum()
         self.patient_idnum_1_1.id = 3
-        self._apply_standard_db_fields(self.patient_idnum_1_1)
+        self.apply_standard_db_fields(self.patient_idnum_1_1)
         self.patient_idnum_1_1.patient_id = 1
         self.patient_idnum_1_1.which_idnum = self.nhs_iddef.which_idnum
         self.patient_idnum_1_1.idnum_value = 555
@@ -148,7 +148,7 @@ class LineageTests(DemoDatabaseWithTasksTestCase):
         # Second ID number record for patient 1
         self.patient_idnum_1_2 = PatientIdNum()
         self.patient_idnum_1_2.id = 3
-        self._apply_standard_db_fields(self.patient_idnum_1_2)
+        self.apply_standard_db_fields(self.patient_idnum_1_2)
         # This one is not current
         self.patient_idnum_1_2._current = False
         self.patient_idnum_1_2.patient_id = 1

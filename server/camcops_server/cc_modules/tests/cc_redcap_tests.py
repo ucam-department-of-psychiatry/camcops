@@ -468,7 +468,7 @@ class RedcapExportTestCase(DemoDatabaseWithTasksTestCase):
 
         patient = Patient()
         patient.id = 2
-        self._apply_standard_db_fields(patient)
+        self.apply_standard_db_fields(patient)
         patient.forename = "Forename2"
         patient.surname = "Surname2"
         patient.dob = pendulum.parse("1975-12-12")
@@ -482,7 +482,7 @@ class RedcapExportTestCase(DemoDatabaseWithTasksTestCase):
 
         patient_idnum1 = PatientIdNum()
         patient_idnum1.id = 3
-        self._apply_standard_db_fields(patient_idnum1)
+        self.apply_standard_db_fields(patient_idnum1)
         patient_idnum1.patient_id = patient.id
         patient_idnum1.which_idnum = 1001
         patient_idnum1.idnum_value = 555

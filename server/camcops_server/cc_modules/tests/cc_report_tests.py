@@ -177,7 +177,7 @@ class AverageScoreReportTestCase(DemoDatabaseWithTasksTestCase):
         from camcops_server.cc_modules.cc_patient import Patient
         patient = Patient()
         patient.id = next(self.patient_id_sequence)
-        self._apply_standard_db_fields(patient)
+        self.apply_standard_db_fields(patient)
 
         patient.forename = f"Forename {patient.id}"
         patient.surname = f"Surname {patient.id}"
@@ -195,7 +195,7 @@ class AverageScoreReportTestCase(DemoDatabaseWithTasksTestCase):
         from camcops_server.cc_modules.cc_patient import PatientIdNum
         patient_idnum = PatientIdNum()
         patient_idnum.id = next(self.patient_idnum_id_sequence)
-        self._apply_standard_db_fields(patient_idnum)
+        self.apply_standard_db_fields(patient_idnum)
         patient_idnum.patient_id = patient.id
         patient_idnum.which_idnum = self.nhs_iddef.which_idnum
         patient_idnum.idnum_value = idnum_value
