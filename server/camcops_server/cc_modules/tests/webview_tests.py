@@ -97,8 +97,7 @@ class WebviewTests(DemoDatabaseTestCase):
     Unit tests.
     """
     def test_any_records_use_group_true(self) -> None:
-        # All tasks created in DemoDatabaseTestCase will be in this
-        # group
+        # All tasks created in DemoDatabaseTestCase will be in this group
         self.announce("test_any_records_use_group_true")
         self.assertTrue(any_records_use_group(self.req, self.group))
 
