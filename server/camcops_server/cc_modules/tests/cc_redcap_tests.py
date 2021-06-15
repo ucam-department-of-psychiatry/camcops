@@ -560,9 +560,9 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
         }
 
         exporter.export_task(self.req, exported_task_redcap)
-        self.assertEquals(exported_task_redcap.redcap_record_id, "123")
-        self.assertEquals(exported_task_redcap.redcap_instrument_name, "bmi")
-        self.assertEquals(exported_task_redcap.redcap_instance_id, 1)
+        self.assertEqual(exported_task_redcap.redcap_record_id, "123")
+        self.assertEqual(exported_task_redcap.redcap_instrument_name, "bmi")
+        self.assertEqual(exported_task_redcap.redcap_instance_id, 1)
 
         args, kwargs = project.export_records.call_args
 
@@ -576,17 +576,17 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
         rows = args[0]
         record = rows[0]
 
-        self.assertEquals(record["redcap_repeat_instrument"], "bmi")
-        self.assertEquals(record["redcap_repeat_instance"], 1)
-        self.assertEquals(record["record_id"], "0")
-        self.assertEquals(record["bmi_complete"],
-                          RedcapRecordStatus.COMPLETE.value)
-        self.assertEquals(record["bmi_date"], "2010-07-07")
+        self.assertEqual(record["redcap_repeat_instrument"], "bmi")
+        self.assertEqual(record["redcap_repeat_instance"], 1)
+        self.assertEqual(record["record_id"], "0")
+        self.assertEqual(record["bmi_complete"],
+                         RedcapRecordStatus.COMPLETE.value)
+        self.assertEqual(record["bmi_date"], "2010-07-07")
 
-        self.assertEquals(record["pa_height"], "1.8")
-        self.assertEquals(record["pa_weight"], "67.6")
+        self.assertEqual(record["pa_height"], "1.8")
+        self.assertEqual(record["pa_weight"], "67.6")
 
-        self.assertEquals(kwargs["return_content"], "auto_ids")
+        self.assertEqual(kwargs["return_content"], "auto_ids")
         self.assertTrue(kwargs["force_auto_number"])
 
         # Second call with updated patient ID
@@ -594,7 +594,7 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
         rows = args[0]
         record = rows[0]
 
-        self.assertEquals(record["patient_id"], 555)
+        self.assertEqual(record["patient_id"], 555)
 
     def test_record_exported_with_non_integer_id(self) -> None:
         from camcops_server.cc_modules.cc_exportmodels import (
@@ -614,7 +614,7 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
         }
 
         exporter.export_task(self.req, exported_task_redcap)
-        self.assertEquals(exported_task_redcap.redcap_record_id, "15-123")
+        self.assertEqual(exported_task_redcap.redcap_record_id, "15-123")
 
     def test_record_id_generated_when_no_autonumbering(self) -> None:
         from camcops_server.cc_modules.cc_exportmodels import (
@@ -642,8 +642,8 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
         rows = args[0]
         record = rows[0]
 
-        self.assertEquals(record["record_id"], "15-29")
-        self.assertEquals(kwargs["return_content"], "count")
+        self.assertEqual(record["record_id"], "15-29")
+        self.assertEqual(kwargs["return_content"], "count")
         self.assertFalse(kwargs["force_auto_number"])
 
     def test_record_imported_when_no_existing_records(self) -> None:
@@ -664,9 +664,9 @@ class BmiRedcapExportTests(BmiRedcapValidFieldmapTestCase):
         exported_task_redcap = ExportedTaskRedcap(exported_task)
         exporter.export_task(self.req, exported_task_redcap)
 
-        self.assertEquals(exported_task_redcap.redcap_record_id, "1")
-        self.assertEquals(exported_task_redcap.redcap_instrument_name, "bmi")
-        self.assertEquals(exported_task_redcap.redcap_instance_id, 1)
+        self.assertEqual(exported_task_redcap.redcap_record_id, "1")
+        self.assertEqual(exported_task_redcap.redcap_instrument_name, "bmi")
+        self.assertEqual(exported_task_redcap.redcap_instance_id, 1)
 
 
 class BmiRedcapUpdateTests(BmiRedcapValidFieldmapTestCase):
@@ -707,9 +707,9 @@ class BmiRedcapUpdateTests(BmiRedcapValidFieldmapTestCase):
         exported_task1 = ExportedTask(task=self.task1, recipient=self.recipient)
         exported_task_redcap1 = ExportedTaskRedcap(exported_task1)
         exporter.export_task(self.req, exported_task_redcap1)
-        self.assertEquals(exported_task_redcap1.redcap_record_id, "123")
-        self.assertEquals(exported_task_redcap1.redcap_instrument_name, "bmi")
-        self.assertEquals(exported_task_redcap1.redcap_instance_id, 1)
+        self.assertEqual(exported_task_redcap1.redcap_record_id, "123")
+        self.assertEqual(exported_task_redcap1.redcap_instrument_name, "bmi")
+        self.assertEqual(exported_task_redcap1.redcap_instance_id, 1)
 
         project.export_records.return_value = DataFrame({
             "record_id": ["123"],
@@ -721,9 +721,9 @@ class BmiRedcapUpdateTests(BmiRedcapValidFieldmapTestCase):
         exported_task_redcap2 = ExportedTaskRedcap(exported_task2)
 
         exporter.export_task(self.req, exported_task_redcap2)
-        self.assertEquals(exported_task_redcap2.redcap_record_id, "123")
-        self.assertEquals(exported_task_redcap2.redcap_instrument_name, "bmi")
-        self.assertEquals(exported_task_redcap2.redcap_instance_id, 2)
+        self.assertEqual(exported_task_redcap2.redcap_record_id, "123")
+        self.assertEqual(exported_task_redcap2.redcap_instrument_name, "bmi")
+        self.assertEqual(exported_task_redcap2.redcap_instance_id, 2)
 
         # Third call (after initial record and patient ID)
         args, kwargs = project.import_records.call_args_list[2]
@@ -731,9 +731,9 @@ class BmiRedcapUpdateTests(BmiRedcapValidFieldmapTestCase):
         rows = args[0]
         record = rows[0]
 
-        self.assertEquals(record["record_id"], "123")
-        self.assertEquals(record["redcap_repeat_instance"], 2)
-        self.assertEquals(kwargs["return_content"], "count")
+        self.assertEqual(record["record_id"], "123")
+        self.assertEqual(record["redcap_repeat_instance"], 2)
+        self.assertEqual(kwargs["return_content"], "count")
         self.assertFalse(kwargs["force_auto_number"])
 
 
@@ -819,10 +819,10 @@ class Phq9RedcapExportTests(RedcapExportTestCase):
         }
 
         exporter.export_task(self.req, exported_task_redcap)
-        self.assertEquals(exported_task_redcap.redcap_record_id, "123")
-        self.assertEquals(exported_task_redcap.redcap_instrument_name,
-                          "patient_health_questionnaire_9")
-        self.assertEquals(exported_task_redcap.redcap_instance_id, 1)
+        self.assertEqual(exported_task_redcap.redcap_record_id, "123")
+        self.assertEqual(exported_task_redcap.redcap_instrument_name,
+                         "patient_health_questionnaire_9")
+        self.assertEqual(exported_task_redcap.redcap_instance_id, 1)
 
         # Initial call with new record
         args, kwargs = project.import_records.call_args_list[0]
@@ -830,28 +830,28 @@ class Phq9RedcapExportTests(RedcapExportTestCase):
         rows = args[0]
         record = rows[0]
 
-        self.assertEquals(record["redcap_repeat_instrument"],
-                          "patient_health_questionnaire_9")
-        self.assertEquals(record["my_record_id"], "0")
-        self.assertEquals(record["patient_health_questionnaire_9_complete"],
-                          RedcapRecordStatus.COMPLETE.value)
-        self.assertEquals(record["phq9_how_difficult"], 4)
-        self.assertEquals(record["phq9_total_score"], 12)
-        self.assertEquals(record["phq9_first_name"], "Forename2")
-        self.assertEquals(record["phq9_last_name"], "Surname2")
-        self.assertEquals(record["phq9_date_enrolled"], "2010-07-07")
+        self.assertEqual(record["redcap_repeat_instrument"],
+                         "patient_health_questionnaire_9")
+        self.assertEqual(record["my_record_id"], "0")
+        self.assertEqual(record["patient_health_questionnaire_9_complete"],
+                         RedcapRecordStatus.COMPLETE.value)
+        self.assertEqual(record["phq9_how_difficult"], 4)
+        self.assertEqual(record["phq9_total_score"], 12)
+        self.assertEqual(record["phq9_first_name"], "Forename2")
+        self.assertEqual(record["phq9_last_name"], "Surname2")
+        self.assertEqual(record["phq9_date_enrolled"], "2010-07-07")
 
-        self.assertEquals(record["phq9_1"], 0)
-        self.assertEquals(record["phq9_2"], 1)
-        self.assertEquals(record["phq9_3"], 2)
-        self.assertEquals(record["phq9_4"], 3)
-        self.assertEquals(record["phq9_5"], 0)
-        self.assertEquals(record["phq9_6"], 1)
-        self.assertEquals(record["phq9_7"], 2)
-        self.assertEquals(record["phq9_8"], 3)
-        self.assertEquals(record["phq9_9"], 0)
+        self.assertEqual(record["phq9_1"], 0)
+        self.assertEqual(record["phq9_2"], 1)
+        self.assertEqual(record["phq9_3"], 2)
+        self.assertEqual(record["phq9_4"], 3)
+        self.assertEqual(record["phq9_5"], 0)
+        self.assertEqual(record["phq9_6"], 1)
+        self.assertEqual(record["phq9_7"], 2)
+        self.assertEqual(record["phq9_8"], 3)
+        self.assertEqual(record["phq9_9"], 0)
 
-        self.assertEquals(kwargs["return_content"], "auto_ids")
+        self.assertEqual(kwargs["return_content"], "auto_ids")
         self.assertTrue(kwargs["force_auto_number"])
 
         # Second call with patient ID
@@ -859,7 +859,7 @@ class Phq9RedcapExportTests(RedcapExportTestCase):
 
         rows = args[0]
         record = rows[0]
-        self.assertEquals(record["patient_id"], 555)
+        self.assertEqual(record["patient_id"], 555)
 
 
 class MedicationTherapyRedcapExportTests(RedcapExportTestCase):
@@ -934,10 +934,10 @@ class MedicationTherapyRedcapExportTests(RedcapExportTestCase):
         project.import_file.side_effect = read_pdf_bytes
 
         exporter.export_task(self.req, exported_task_redcap)
-        self.assertEquals(exported_task_redcap.redcap_record_id, "123")
-        self.assertEquals(exported_task_redcap.redcap_instrument_name,
-                          "medication_table")
-        self.assertEquals(exported_task_redcap.redcap_instance_id, 1)
+        self.assertEqual(exported_task_redcap.redcap_record_id, "123")
+        self.assertEqual(exported_task_redcap.redcap_instrument_name,
+                         "medication_table")
+        self.assertEqual(exported_task_redcap.redcap_instance_id, 1)
 
         args, kwargs = project.import_file.call_args
 
@@ -945,17 +945,17 @@ class MedicationTherapyRedcapExportTests(RedcapExportTestCase):
         fieldname = args[1]
         filename = args[2]
 
-        self.assertEquals(record_id, "123")
-        self.assertEquals(fieldname, "medtbl_medication_items")
-        self.assertEquals(
+        self.assertEqual(record_id, "123")
+        self.assertEqual(fieldname, "medtbl_medication_items")
+        self.assertEqual(
             filename,
             "khandaker_mojo_medicationtherapy_123_medtbl_medication_items"
         )
 
-        self.assertEquals(kwargs["repeat_instance"], 1)
+        self.assertEqual(kwargs["repeat_instance"], 1)
         # noinspection PyUnresolvedReferences
-        self.assertEquals(read_pdf_bytes.pdf_header, b"%PDF-")
-        self.assertEquals(kwargs["event"], "event_1_arm_1")
+        self.assertEqual(read_pdf_bytes.pdf_header, b"%PDF-")
+        self.assertEqual(kwargs["event"], "event_1_arm_1")
 
 
 class MultipleTaskRedcapExportTests(RedcapExportTestCase):
@@ -1032,10 +1032,10 @@ class MultipleTaskRedcapExportTests(RedcapExportTestCase):
                                           recipient=self.recipient)
         exported_task_redcap_mojo = ExportedTaskRedcap(exported_task_mojo)
         exporter.export_task(self.req, exported_task_redcap_mojo)
-        self.assertEquals(exported_task_redcap_mojo.redcap_record_id, "123")
+        self.assertEqual(exported_task_redcap_mojo.redcap_record_id, "123")
         args, kwargs = project.import_file.call_args
 
-        self.assertEquals(kwargs["repeat_instance"], 1)
+        self.assertEqual(kwargs["repeat_instance"], 1)
 
         project.export_records.return_value = DataFrame({
             "record_id": ["123"],
@@ -1056,7 +1056,7 @@ class MultipleTaskRedcapExportTests(RedcapExportTestCase):
         rows = args[0]
         record = rows[0]
 
-        self.assertEquals(record["redcap_repeat_instance"], 1)
+        self.assertEqual(record["redcap_repeat_instance"], 1)
 
     def test_imported_into_different_events(self) -> None:
         from camcops_server.cc_modules.cc_exportmodels import (
@@ -1083,10 +1083,10 @@ class MultipleTaskRedcapExportTests(RedcapExportTestCase):
         rows = args[0]
         record = rows[0]
 
-        self.assertEquals(record["redcap_event_name"], "mojo_event")
+        self.assertEqual(record["redcap_event_name"], "mojo_event")
         args, kwargs = project.import_file.call_args
 
-        self.assertEquals(kwargs["event"], "mojo_event")
+        self.assertEqual(kwargs["event"], "mojo_event")
 
         exported_task_bmi = ExportedTask(task=self.bmi_task,
                                          recipient=self.recipient)
@@ -1098,7 +1098,7 @@ class MultipleTaskRedcapExportTests(RedcapExportTestCase):
         args, kwargs = project.import_records.call_args_list[2]
         rows = args[0]
         record = rows[0]
-        self.assertEquals(record["redcap_event_name"], "bmi_event")
+        self.assertEqual(record["redcap_event_name"], "bmi_event")
 
 
 class BadConfigurationRedcapTests(RedcapExportTestCase):
