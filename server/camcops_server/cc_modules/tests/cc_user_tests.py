@@ -29,7 +29,7 @@ camcops_server/cc_modules/tests/cc_user_tests.py
 from pendulum import DateTime as Pendulum
 
 from camcops_server.cc_modules.cc_group import Group
-from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
+from camcops_server.cc_modules.cc_unittest import DemoDatabaseWithTasksTestCase
 from camcops_server.cc_modules.cc_user import (
     SecurityAccountLockout,
     SecurityLoginFailure,
@@ -41,7 +41,7 @@ from camcops_server.cc_modules.cc_user import (
 # Unit testing
 # =============================================================================
 
-class UserTests(DemoDatabaseTestCase):
+class UserTests(DemoDatabaseWithTasksTestCase):
     """
     Unit tests.
     """

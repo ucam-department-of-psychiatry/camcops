@@ -52,7 +52,7 @@ from camcops_server.cc_modules.cc_ipuse import IpContexts
 from camcops_server.cc_modules.cc_pyramid import ViewParam
 from camcops_server.cc_modules.cc_taskschedule import TaskSchedule
 from camcops_server.cc_modules.cc_unittest import (
-    DemoDatabaseTestCase,
+    DemoDatabaseWithTasksTestCase,
     DemoRequestTestCase,
 )
 
@@ -94,7 +94,7 @@ class LoginSchemaTests(SchemaTestCase):
         self.serialize_deserialize(schema, appstruct)
 
 
-class TaskScheduleSchemaTests(DemoDatabaseTestCase):
+class TaskScheduleSchemaTests(DemoDatabaseWithTasksTestCase):
     def test_invalid_for_bad_template_placeholder(self) -> None:
         schema = TaskScheduleSchema().bind(request=self.req)
         appstruct = {
@@ -224,7 +224,7 @@ class TaskScheduleItemSchemaTests(SchemaTestCase):
                       cm.exception.messages()[0])
 
 
-class TaskScheduleItemSchemaIpTests(DemoDatabaseTestCase):
+class TaskScheduleItemSchemaIpTests(DemoDatabaseWithTasksTestCase):
     def setUp(self) -> None:
         super().setUp()
 

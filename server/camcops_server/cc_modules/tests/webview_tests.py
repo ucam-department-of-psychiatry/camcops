@@ -53,7 +53,7 @@ from camcops_server.cc_modules.cc_taskschedule import (
     TaskScheduleItem,
 )
 from camcops_server.cc_modules.cc_testhelpers import class_attribute_names
-from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
+from camcops_server.cc_modules.cc_unittest import DemoDatabaseWithTasksTestCase
 from camcops_server.cc_modules.cc_user import User
 from camcops_server.cc_modules.cc_validators import (
     validate_alphanum_underscore,
@@ -89,12 +89,13 @@ TEST_NHS_NUMBER_1 = 4887211163  # generated at random
 TEST_NHS_NUMBER_2 = 1381277373
 
 
-class WebviewTests(DemoDatabaseTestCase):
+class WebviewTests(DemoDatabaseWithTasksTestCase):
     """
     Unit tests.
     """
     def test_any_records_use_group_true(self) -> None:
-        # All tasks created in DemoDatabaseTestCase will be in this group
+        # All tasks created in DemoDatabaseWithTasksTestCase will be in this
+        # group
         self.announce("test_any_records_use_group_true")
         self.assertTrue(any_records_use_group(self.req, self.group))
 
@@ -122,7 +123,7 @@ class WebviewTests(DemoDatabaseTestCase):
                 self.fail(f"Operations.{x} fails validate_alphanum_underscore")
 
 
-class AddTaskScheduleViewTests(DemoDatabaseTestCase):
+class AddTaskScheduleViewTests(DemoDatabaseWithTasksTestCase):
     """
     Unit tests.
     """
@@ -165,7 +166,7 @@ class AddTaskScheduleViewTests(DemoDatabaseTestCase):
         )
 
 
-class EditTaskScheduleViewTests(DemoDatabaseTestCase):
+class EditTaskScheduleViewTests(DemoDatabaseWithTasksTestCase):
     """
     Unit tests.
     """
@@ -257,7 +258,7 @@ class EditTaskScheduleViewTests(DemoDatabaseTestCase):
         )
 
 
-class DeleteTaskScheduleViewTests(DemoDatabaseTestCase):
+class DeleteTaskScheduleViewTests(DemoDatabaseWithTasksTestCase):
     """
     Unit tests.
     """
@@ -307,7 +308,7 @@ class DeleteTaskScheduleViewTests(DemoDatabaseTestCase):
         self.assertIsNone(item)
 
 
-class AddTaskScheduleItemViewTests(DemoDatabaseTestCase):
+class AddTaskScheduleItemViewTests(DemoDatabaseWithTasksTestCase):
     """
     Unit tests.
     """
@@ -411,7 +412,7 @@ class AddTaskScheduleItemViewTests(DemoDatabaseTestCase):
             view.dispatch()
 
 
-class EditTaskScheduleItemViewTests(DemoDatabaseTestCase):
+class EditTaskScheduleItemViewTests(DemoDatabaseWithTasksTestCase):
     """
     Unit tests.
     """
@@ -576,7 +577,7 @@ class EditTaskScheduleItemViewTests(DemoDatabaseTestCase):
         )
 
 
-class DeleteTaskScheduleItemViewTests(DemoDatabaseTestCase):
+class DeleteTaskScheduleItemViewTests(DemoDatabaseWithTasksTestCase):
     """
     Unit tests.
     """
@@ -672,7 +673,7 @@ class DeleteTaskScheduleItemViewTests(DemoDatabaseTestCase):
         self.assertIsNotNone(item)
 
 
-class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
+class EditFinalizedPatientViewTests(DemoDatabaseWithTasksTestCase):
     """
     Unit tests.
     """
@@ -1102,7 +1103,7 @@ class EditFinalizedPatientViewTests(DemoDatabaseTestCase):
                          (None, 456))
 
 
-class EditServerCreatedPatientViewTests(DemoDatabaseTestCase):
+class EditServerCreatedPatientViewTests(DemoDatabaseWithTasksTestCase):
     """
     Unit tests.
     """
@@ -1389,7 +1390,7 @@ class EditServerCreatedPatientViewTests(DemoDatabaseTestCase):
                          (expected_old_3, expected_new_3))
 
 
-class AddPatientViewTests(DemoDatabaseTestCase):
+class AddPatientViewTests(DemoDatabaseWithTasksTestCase):
     """
     Unit tests.
     """
@@ -1532,7 +1533,7 @@ class AddPatientViewTests(DemoDatabaseTestCase):
         self.assertIn("form", context)
 
 
-class DeleteServerCreatedPatientViewTests(DemoDatabaseTestCase):
+class DeleteServerCreatedPatientViewTests(DemoDatabaseWithTasksTestCase):
     """
     Unit tests.
     """
@@ -1734,7 +1735,7 @@ class DeleteServerCreatedPatientViewTests(DemoDatabaseTestCase):
         self.assertIsNotNone(saved_idnum)
 
 
-class EraseTaskTestCase(DemoDatabaseTestCase):
+class EraseTaskTestCase(DemoDatabaseWithTasksTestCase):
     """
     Unit tests.
     """
@@ -1967,7 +1968,7 @@ class EraseTaskEntirelyViewTests(EraseTaskTestCase):
         self.assertIn("server PK {}".format(self.task.pk), messages[0])
 
 
-class EditGroupViewTests(DemoDatabaseTestCase):
+class EditGroupViewTests(DemoDatabaseWithTasksTestCase):
     """
     Unit tests.
     """

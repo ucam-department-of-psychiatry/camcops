@@ -33,14 +33,14 @@ from camcops_server.cc_modules.cc_taskcollection import (
 )
 
 from camcops_server.cc_modules.cc_taskfilter import TaskFilter
-from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
+from camcops_server.cc_modules.cc_unittest import DemoDatabaseWithTasksTestCase
 
 
 # =============================================================================
 # Unit tests
 # =============================================================================
 
-class TaskCollectionTests(DemoDatabaseTestCase):
+class TaskCollectionTests(DemoDatabaseWithTasksTestCase):
     def create_tasks(self) -> None:
         return
 

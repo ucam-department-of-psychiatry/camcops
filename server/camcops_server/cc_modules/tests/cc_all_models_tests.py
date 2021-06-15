@@ -27,10 +27,10 @@ camcops_server/cc_modules/tests/cc_all_models_tests.py
 """
 
 from camcops_server.cc_modules.cc_sqlalchemy import log_all_ddl
-from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
+from camcops_server.cc_modules.cc_unittest import DemoDatabaseWithTasksTestCase
 
 
-class ModelTests(DemoDatabaseTestCase):
+class ModelTests(DemoDatabaseWithTasksTestCase):
     """
     Unit tests.
     """

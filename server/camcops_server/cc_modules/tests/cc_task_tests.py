@@ -32,7 +32,7 @@ from cardinal_pythonlib.logs import BraceStyleAdapter
 from pendulum import Date, DateTime as Pendulum
 
 from camcops_server.cc_modules.cc_task import Task
-from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
+from camcops_server.cc_modules.cc_unittest import DemoDatabaseWithTasksTestCase
 from camcops_server.cc_modules.cc_validators import (
     validate_task_tablename,
 )
@@ -44,7 +44,7 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # Unit testing
 # =============================================================================
 
-class TaskTests(DemoDatabaseTestCase):
+class TaskTests(DemoDatabaseWithTasksTestCase):
     """
     Unit tests.
     """

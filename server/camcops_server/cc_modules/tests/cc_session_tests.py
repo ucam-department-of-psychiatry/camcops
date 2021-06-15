@@ -30,7 +30,7 @@ from pendulum import DateTime as Pendulum
 
 from camcops_server.cc_modules.cc_session import CamcopsSession, generate_token
 from camcops_server.cc_modules.cc_taskfilter import TaskFilter
-from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
+from camcops_server.cc_modules.cc_unittest import DemoDatabaseWithTasksTestCase
 from camcops_server.cc_modules.cc_user import User
 
 
@@ -38,7 +38,7 @@ from camcops_server.cc_modules.cc_user import User
 # Unit tests
 # =============================================================================
 
-class SessionTests(DemoDatabaseTestCase):
+class SessionTests(DemoDatabaseWithTasksTestCase):
     """
     Unit tests.
     """

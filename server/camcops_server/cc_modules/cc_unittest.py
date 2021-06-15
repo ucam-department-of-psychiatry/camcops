@@ -211,7 +211,7 @@ class DemoRequestTestCase(ExtendedTestCase):
         log.log(loglevel, "Contents of table {}:\n{}", tablename, results)
 
 
-class DemoDatabaseTestCase(DemoRequestTestCase):
+class DemoDatabaseWithTasksTestCase(DemoRequestTestCase):
     """
     Test case that sets up a demonstration CamCOPS database in memory.
     """

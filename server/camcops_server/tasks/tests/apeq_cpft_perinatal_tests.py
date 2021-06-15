@@ -30,7 +30,7 @@ from typing import Generator, Optional
 
 import pendulum
 
-from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
+from camcops_server.cc_modules.cc_unittest import DemoDatabaseWithTasksTestCase
 from camcops_server.tasks.apeq_cpft_perinatal import (
     APEQCPFTPerinatal,
     APEQCPFTPerinatalReport,
@@ -41,7 +41,7 @@ from camcops_server.tasks.apeq_cpft_perinatal import (
 # Unit tests
 # =============================================================================
 
-class APEQCPFTPerinatalReportTestCase(DemoDatabaseTestCase):
+class APEQCPFTPerinatalReportTestCase(DemoDatabaseWithTasksTestCase):
     COL_Q = 0
     COL_TOTAL = 1
     COL_RESPONSE_START = 2
