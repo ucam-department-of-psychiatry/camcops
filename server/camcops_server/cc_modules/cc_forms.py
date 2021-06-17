@@ -4216,6 +4216,13 @@ class EmailTemplateNode(OptionalStringNode, RequestAwareMixin):
         raise Invalid(node, error)
 
 
+class EmailCopyNode(OptionalEmailNode, RequestAwareMixin):
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        _ = self.gettext
+        self.title = _('Copy emails to this address')
+
+
 class EmailFromNode(OptionalEmailNode, RequestAwareMixin):
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
@@ -4227,6 +4234,7 @@ class TaskScheduleSchema(CSRFSchema):
     name = OptionalStringNode()
     group_id = MandatoryGroupIdSelectorAdministeredGroups()  # must match ViewParam.GROUP_ID  # noqa
     email_from = EmailFromNode()  # must match ViewParam.EMAIL_FROM
+    email_copy = EmailCopyNode()  # must match ViewParam.EMAIL_COPY
     email_subject = OptionalStringNode()
     email_template = EmailTemplateNode()
 

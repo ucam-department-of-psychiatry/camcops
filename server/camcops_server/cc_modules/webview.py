@@ -4234,6 +4234,7 @@ class TaskScheduleMixin(object):
     model_form_dict = {
         "name": ViewParam.NAME,
         "group_id": ViewParam.GROUP_ID,
+        "email_copy": ViewParam.EMAIL_COPY,
         "email_from": ViewParam.EMAIL_FROM,
         "email_subject": ViewParam.EMAIL_SUBJECT,
         "email_template": ViewParam.EMAIL_TEMPLATE,

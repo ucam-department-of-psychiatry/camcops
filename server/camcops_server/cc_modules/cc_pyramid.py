@@ -174,6 +174,7 @@ class ViewParam(object):
     DUE_WITHIN = "due_within"
     EMAIL = "email"
     EMAIL_BODY = "email_body"
+    EMAIL_COPY = "email_copy"
     EMAIL_FROM = "email_from"
     EMAIL_SUBJECT = "email_subject"
     EMAIL_TEMPLATE = "email_template"

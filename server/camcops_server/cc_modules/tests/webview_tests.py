@@ -145,6 +145,7 @@ class AddTaskScheduleViewTests(DemoDatabaseTestCase):
             (ViewParam.NAME, "MOJO"),
             (ViewParam.GROUP_ID, self.group.id),
             (ViewParam.EMAIL_FROM, "server@example.com"),
+            (ViewParam.EMAIL_COPY, "copy@example.com"),
             (ViewParam.EMAIL_SUBJECT, "Subject"),
             (ViewParam.EMAIL_TEMPLATE, "Email template"),
             (FormAction.SUBMIT, "submit"),
@@ -161,6 +162,7 @@ class AddTaskScheduleViewTests(DemoDatabaseTestCase):
 
         self.assertEqual(schedule.name, "MOJO")
         self.assertEqual(schedule.email_from, "server@example.com")
+        self.assertEqual(schedule.email_copy, "copy@example.com")
         self.assertEqual(schedule.email_subject, "Subject")
         self.assertEqual(schedule.email_template, "Email template")
 

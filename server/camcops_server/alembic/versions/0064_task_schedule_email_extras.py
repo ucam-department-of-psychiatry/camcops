@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-camcops_server/alembic/versions/0064_task_schedule_email_from.py
+camcops_server/alembic/versions/0064_task_schedule_email_extras.py
 
 ===============================================================================
 
@@ -26,11 +26,11 @@ camcops_server/alembic/versions/0064_task_schedule_email_from.py
 
 DATABASE REVISION SCRIPT
 
-task_schedule_email_from
+task_schedule_email_extras
 
 Revision ID: 0064
 Revises: 0063
-Creation date: 2021-06-17 14:38:33.790012
+Creation date: 2021-06-17 16:34:00.796829
 
 """
 
@@ -59,7 +59,11 @@ depends_on = None
 # noinspection PyPep8,PyTypeChecker
 def upgrade():
     with op.batch_alter_table('_task_schedule', schema=None) as batch_op:
-        batch_op.add_column(sa.Column('email_from', sa.Unicode(length=255),
+        batch_op.add_column(sa.Column('email_copy', sa.Unicode(length=255),
+                                      nullable=True,
+                                      comment='Send a copy of the email to this address'))
+        batch_op.add_column(sa.Column('email_from',
+                                      sa.Unicode(length=255),
                                       nullable=True,
                                       comment="Sender's e-mail address"))
 
@@ -68,3 +72,4 @@ def upgrade():
 def downgrade():
     with op.batch_alter_table('_task_schedule', schema=None) as batch_op:
         batch_op.drop_column('email_from')
+        batch_op.drop_column('email_copy')
