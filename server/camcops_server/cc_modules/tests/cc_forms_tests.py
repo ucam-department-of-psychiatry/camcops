@@ -98,14 +98,15 @@ class LoginSchemaTests(SchemaTestCase):
 class TaskScheduleSchemaTests(DemoDatabaseTestCase):
     def test_invalid_for_bad_template_placeholder(self) -> None:
         schema = TaskScheduleSchema().bind(request=self.req)
-        appstruct = {
+        cstruct = {
             ViewParam.NAME: "test",
             ViewParam.GROUP_ID: str(self.group.id),
+            ViewParam.EMAIL_FROM: null,
+            ViewParam.EMAIL_COPY: null,
             ViewParam.EMAIL_SUBJECT: "Subject",
             ViewParam.EMAIL_TEMPLATE: "{bad_key}",
         }
 
-        cstruct = schema.serialize(appstruct)
         with self.assertRaises(Invalid) as cm:
             schema.deserialize(cstruct)
 
@@ -114,14 +115,15 @@ class TaskScheduleSchemaTests(DemoDatabaseTestCase):
 
     def test_invalid_for_mismatched_braces(self) -> None:
         schema = TaskScheduleSchema().bind(request=self.req)
-        appstruct = {
+        cstruct = {
             ViewParam.NAME: "test",
             ViewParam.GROUP_ID: str(self.group.id),
+            ViewParam.EMAIL_FROM: null,
+            ViewParam.EMAIL_COPY: null,
             ViewParam.EMAIL_SUBJECT: "Subject",
             ViewParam.EMAIL_TEMPLATE: "{server_url",
         }
 
-        cstruct = schema.serialize(appstruct)
         with self.assertRaises(Invalid) as cm:
             schema.deserialize(cstruct)
 
