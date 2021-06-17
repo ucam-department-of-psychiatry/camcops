@@ -2199,7 +2199,7 @@ class SendPatientEmailViewTests(BasicDatabaseTestCase):
         self.assertEqual(kwargs["subject"], "Subject")
         self.assertEqual(kwargs["body"], "Email body")
 
-        args, kwargs = mock_send_msg.call_args_list[0]
+        args, kwargs = mock_send_msg.call_args
         self.assertEqual(kwargs["host"], "smtp.example.com")
         self.assertEqual(kwargs["user"], "mailuser")
         self.assertEqual(kwargs["password"], "mailpassword")
@@ -2234,15 +2234,6 @@ class SendPatientEmailViewTests(BasicDatabaseTestCase):
         with self.assertRaises(HTTPFound):
             view.dispatch()
 
-        args, kwargs = mock_make_email.call_args_list[1]
-        self.assertEqual(kwargs["from_addr"], "server@example.com")
-        self.assertEqual(kwargs["to"], "copy@example.com")
-        self.assertEqual(kwargs["subject"], "Subject")
-        self.assertEqual(kwargs["body"], "Email body")
-
-        args, kwargs = mock_send_msg.call_args_list[1]
-        self.assertEqual(kwargs["host"], "smtp.example.com")
-        self.assertEqual(kwargs["user"], "mailuser")
-        self.assertEqual(kwargs["password"], "mailpassword")
-        self.assertEqual(kwargs["port"], 587)
-        self.assertTrue(kwargs["use_tls"])
+        args, kwargs = mock_make_email.call_args
+        self.assertEqual(kwargs["to"], "patient@example.com")
+        self.assertEqual(kwargs["bcc"], "copy@example.com")
