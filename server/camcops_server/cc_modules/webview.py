@@ -4219,6 +4219,7 @@ def view_patient_task_schedule(req: "CamcopsRequest") -> Dict[str, Any]:
     patient_descriptor = pts.patient.prettystr(req)
 
     return dict(
+        pts=pts,
         patient_descriptor=patient_descriptor,
         schedule_name=pts.task_schedule.name,
         task_list=pts.get_list_of_scheduled_tasks(req),
@@ -4233,6 +4234,7 @@ class TaskScheduleMixin(object):
     model_form_dict = {
         "name": ViewParam.NAME,
         "group_id": ViewParam.GROUP_ID,
+        "email_from": ViewParam.EMAIL_FROM,
         "email_subject": ViewParam.EMAIL_SUBJECT,
         "email_template": ViewParam.EMAIL_TEMPLATE,
     }
@@ -4508,6 +4510,7 @@ def client_api_signposting(req: "CamcopsRequest") -> Dict[str, Any]:
 
 class SendPatientEmailView(FormView):
     form_class = SendEmailForm
+    template_name = "send_patient_email.mako"
 
     def form_valid(self, form: "Form", appstruct: Dict[str, Any]) -> Response:
         email = Email(
@@ -4536,6 +4539,34 @@ class SendPatientEmailView(FormView):
                 ViewParam.PATIENT_TASK_SCHEDULE_ID: pts_id
             }
         )
+
+    def get_form_values(self) -> Dict:
+        pts_id = self.request.get_int_param(ViewParam.PATIENT_TASK_SCHEDULE_ID)
+
+        pts = self.request.dbsession.query(PatientTaskSchedule).filter(
+            PatientTaskSchedule.id == pts_id
+        ).one_or_none()
+
+        if pts is None:
+            _ = self.request.gettext
+            raise HTTPBadRequest(_("Patient task schedule does not exist"))
+
+        return {
+            ViewParam.EMAIL: pts.patient.email,
+            ViewParam.EMAIL_FROM: pts.task_schedule.email_from,
+            ViewParam.EMAIL_SUBJECT: pts.task_schedule.email_subject,
+            ViewParam.EMAIL_BODY: pts.email_body(self.request),
+        }
+
+
+@view_config(route_name=Routes.SEND_PATIENT_EMAIL,
+             permission=Permission.GROUPADMIN,
+             http_cache=NEVER_CACHE)
+def send_patient_email(req: "CamcopsRequest") -> Response:
+    """
+    View to send an email to a patient.
+    """
+    return SendPatientEmailView(req).dispatch()
 
 
 # =============================================================================

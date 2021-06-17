@@ -28,7 +28,6 @@ camcops_server/cc_modules/cc_taskschedule.py
 
 import logging
 from typing import List, Iterable, Optional, Tuple, TYPE_CHECKING
-from urllib.parse import quote, urlencode
 
 from pendulum import DateTime as Pendulum, Duration
 
@@ -44,6 +43,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes
 from camcops_server.cc_modules.cc_simpleobjects import IdNumReference
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 from camcops_server.cc_modules.cc_sqla_coltypes import (
+    EmailAddressColType,
     JsonColType,
     PendulumDateTimeAsIsoTextColType,
     PendulumDurationAsIsoTextColType,
@@ -212,24 +212,15 @@ class PatientTaskSchedule(Base):
 
         return None
 
-    def mailto_url(self, req: "CamcopsRequest") -> str:
+    def email_body(self, req: "CamcopsRequest") -> str:
         template_dict = dict(
             access_key=self.patient.uuid_as_proquint,
             server_url=req.route_url(Routes.CLIENT_API)
         )
 
         formatter = TaskScheduleEmailTemplateFormatter()
-        email_body = formatter.format(self.task_schedule.email_template,
-                                      **template_dict)
-
-        mailto_params = urlencode({
-            "subject": self.task_schedule.email_subject,
-            "body": email_body,
-        }, quote_via=quote)
-
-        mailto_url = f"mailto:{self.patient.email}?{mailto_params}"
-
-        return mailto_url
+        return formatter.format(self.task_schedule.email_template,
+                                **template_dict)
 
 
 def task_schedule_item_sort_order() -> Tuple["Cast", "Cast"]:
@@ -281,6 +272,8 @@ class TaskSchedule(Base):
     email_template = Column("email_template", UnicodeText,
                             comment="email template", nullable=False,
                             default="")
+    email_from = Column("email_from", EmailAddressColType,
+                        comment="Sender's e-mail address")
 
     items = relationship(
         "TaskScheduleItem",

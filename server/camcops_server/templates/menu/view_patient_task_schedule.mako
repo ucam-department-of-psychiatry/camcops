@@ -117,7 +117,15 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 </table>
 
 <div>
+<a href="${ req.route_url(
+                 Routes.SEND_PATIENT_EMAIL,
+                 _query={
+                     ViewParam.PATIENT_TASK_SCHEDULE_ID: pts.id
+                 }) | n }">${ _("Email this patient") }</a>
+</div>
+<div>
     <a href="${ req.route_url(Routes.VIEW_PATIENT_TASK_SCHEDULES) | n }">
         ${ _("Manage scheduled tasks for patients") }</a>
-    <%include file="to_main_menu.mako"/>
 </div>
+
+<%include file="to_main_menu.mako"/>

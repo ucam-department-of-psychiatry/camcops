@@ -4216,9 +4216,17 @@ class EmailTemplateNode(OptionalStringNode, RequestAwareMixin):
         raise Invalid(node, error)
 
 
+class EmailFromNode(OptionalEmailNode, RequestAwareMixin):
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        _ = self.gettext
+        self.title = _('Email "From" address')
+
+
 class TaskScheduleSchema(CSRFSchema):
     name = OptionalStringNode()
     group_id = MandatoryGroupIdSelectorAdministeredGroups()  # must match ViewParam.GROUP_ID  # noqa
+    email_from = EmailFromNode()  # must match ViewParam.EMAIL_FROM
     email_subject = OptionalStringNode()
     email_template = EmailTemplateNode()
 
@@ -4680,7 +4688,18 @@ class UserDownloadDeleteForm(SimpleSubmitForm):
 
 
 class EmailBodyNode(OptionalStringNode, RequestAwareMixin):
-    pass
+    def __init__(self, *args, **kwargs) -> None:
+        self.title = ""  # for type checker
+        super().__init__(*args, **kwargs)
+
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        _ = self.gettext
+
+        self.title = _("Message")
+
+        # noinspection PyAttributeOutsideInit
+        self.widget = TextAreaWidget(rows=20, cols=80)
 
 
 class SendEmailSchema(CSRFSchema):

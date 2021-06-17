@@ -79,9 +79,6 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
                                  _query={
                                      ViewParam.PATIENT_TASK_SCHEDULE_ID: pts.id
                                  }) | n }">${ pts.task_schedule.name }</a>
-            %if patient.email:
-                [<a href="${ pts.mailto_url(req) | n }">${ _("Email") }</a>]<br>
-            %endif
             %endfor
         </td>
         <td>

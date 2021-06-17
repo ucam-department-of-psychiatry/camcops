@@ -746,6 +746,7 @@ class Routes(object):
     OFFER_BASIC_DUMP = "offer_basic_dump"
     REPORT = "report"
     REPORTS_MENU = "reports_menu"
+    SEND_PATIENT_EMAIL = "send_patient_email"
     SET_FILTERS = "set_filters"
     SET_OTHER_USER_UPLOAD_GROUP = "set_other_user_upload_group"
     SET_OWN_USER_UPLOAD_GROUP = "set_user_upload_group"
@@ -882,6 +883,7 @@ class RouteCollection(object):
     OFFER_BASIC_DUMP = RoutePath(Routes.OFFER_BASIC_DUMP)
     REPORT = RoutePath(Routes.REPORT)
     REPORTS_MENU = RoutePath(Routes.REPORTS_MENU)
+    SEND_PATIENT_EMAIL = RoutePath(Routes.SEND_PATIENT_EMAIL)
     SET_FILTERS = RoutePath(Routes.SET_FILTERS)
     SET_OTHER_USER_UPLOAD_GROUP = RoutePath(Routes.SET_OTHER_USER_UPLOAD_GROUP)
     SET_OWN_USER_UPLOAD_GROUP = RoutePath(Routes.SET_OWN_USER_UPLOAD_GROUP)

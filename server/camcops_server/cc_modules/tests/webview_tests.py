@@ -144,6 +144,7 @@ class AddTaskScheduleViewTests(DemoDatabaseTestCase):
             (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
             (ViewParam.NAME, "MOJO"),
             (ViewParam.GROUP_ID, self.group.id),
+            (ViewParam.EMAIL_FROM, "server@example.com"),
             (ViewParam.EMAIL_SUBJECT, "Subject"),
             (ViewParam.EMAIL_TEMPLATE, "Email template"),
             (FormAction.SUBMIT, "submit"),
@@ -159,6 +160,7 @@ class AddTaskScheduleViewTests(DemoDatabaseTestCase):
         schedule = self.dbsession.query(TaskSchedule).one()
 
         self.assertEqual(schedule.name, "MOJO")
+        self.assertEqual(schedule.email_from, "server@example.com")
         self.assertEqual(schedule.email_subject, "Subject")
         self.assertEqual(schedule.email_template, "Email template")
 
@@ -2112,6 +2114,60 @@ class EditGroupViewTests(DemoDatabaseTestCase):
 
 
 class SendPatientEmailViewTests(BasicDatabaseTestCase):
+    def test_displays_form(self) -> None:
+        patient = self.create_patient(
+            as_server_patient=True,
+            forename="Jo", surname="Patient",
+            dob=datetime.date(1958, 4, 19),
+            sex="F", address="Address", gp="GP", other="Other"
+        )
+
+        patient_pk = patient.pk
+
+        idnum = self.create_patient_idnum(
+            as_server_patient=True,
+            patient_id=patient.id,
+            which_idnum=self.nhs_iddef.which_idnum,
+            idnum_value=TEST_NHS_NUMBER_1
+        )
+
+        PatientIdNumIndexEntry.index_idnum(idnum, self.dbsession)
+
+        schedule = TaskSchedule()
+        schedule.group_id = self.group.id
+        schedule.name = "Test 1"
+        self.dbsession.add(schedule)
+        self.dbsession.commit()
+
+        pts = PatientTaskSchedule()
+        pts.patient_pk = patient_pk
+        pts.schedule_id = schedule.id
+        self.dbsession.add(pts)
+        self.dbsession.commit()
+
+        self.req.add_get_params({
+            ViewParam.PATIENT_TASK_SCHEDULE_ID: pts.id,
+        })
+
+        view = SendPatientEmailView(self.req)
+        with mock.patch.object(view, "render_to_response") as mock_render:
+            view.dispatch()
+
+        args, kwargs = mock_render.call_args
+        context = args[0]
+
+        self.assertIn("form", context)
+
+    def test_raises_for_missing_pts_id(self):
+        view = SendPatientEmailView(self.req)
+        with self.assertRaises(HTTPBadRequest) as cm:
+            view.dispatch()
+
+        self.assertIn(
+            "Patient task schedule does not exist",
+            cm.exception.message
+        )
+
     @mock.patch("camcops_server.cc_modules.cc_email.send_msg")
     @mock.patch("camcops_server.cc_modules.cc_email.make_email")
     def test_sends_email(self, mock_make_email, mock_send_msg) -> None:

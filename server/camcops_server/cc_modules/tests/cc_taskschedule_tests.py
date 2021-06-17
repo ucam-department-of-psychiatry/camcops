@@ -26,8 +26,6 @@ camcops_server/cc_modules/tests/cc_taskschedule_tests.py
 
 """
 
-from urllib.parse import urlencode
-
 from pendulum import Duration
 
 from camcops_server.cc_modules.cc_pyramid import Routes
@@ -139,48 +137,35 @@ class PatientTaskScheduleTests(DemoDatabaseTestCase):
         self.dbsession.add(self.pts)
         self.dbsession.flush()
 
-    def test_mailto_url_contains_patient_email(self) -> None:
-        self.assertIn(f"mailto:{self.patient.email}",
-                      self.pts.mailto_url(self.req))
-
-    def test_mailto_url_contains_subject(self) -> None:
-        self.schedule.email_subject = "CamCOPS access key"
-        self.dbsession.add(self.schedule)
-        self.dbsession.flush()
-
-        self.assertIn("subject=CamCOPS%20access%20key",
-                      self.pts.mailto_url(self.req))
-
-    def test_mailto_url_contains_access_key(self) -> None:
+    def test_email_body_contains_access_key(self) -> None:
         self.schedule.email_template = "{access_key}"
         self.dbsession.add(self.schedule)
         self.dbsession.flush()
 
-        self.assertIn(f"body={self.patient.uuid_as_proquint}",
-                      self.pts.mailto_url(self.req))
+        self.assertIn(f"{self.patient.uuid_as_proquint}",
+                      self.pts.email_body(self.req))
 
-    def test_mailto_url_contains_server_url(self) -> None:
+    def test_email_body_contains_server_url(self) -> None:
         self.schedule.email_template = "{server_url}"
         self.dbsession.add(self.schedule)
         self.dbsession.flush()
 
-        expected_url = urlencode({"body":
-                                  self.req.route_url(Routes.CLIENT_API)})
+        expected_url = self.req.route_url(Routes.CLIENT_API)
 
-        self.assertIn(f"{expected_url}", self.pts.mailto_url(self.req))
+        self.assertIn(f"{expected_url}", self.pts.email_body(self.req))
 
-    def test_mailto_url_disallows_invalid_template(self) -> None:
+    def test_email_body_disallows_invalid_template(self) -> None:
         self.schedule.email_template = "{foobar}"
         self.dbsession.add(self.schedule)
         self.dbsession.flush()
 
         with self.assertRaises(KeyError):
-            self.pts.mailto_url(self.req)
+            self.pts.email_body(self.req)
 
-    def test_mailto_url_disallows_accessing_properties(self) -> None:
+    def test_email_body_disallows_accessing_properties(self) -> None:
         self.schedule.email_template = "{server_url.__class__}"
         self.dbsession.add(self.schedule)
         self.dbsession.flush()
 
         with self.assertRaises(KeyError):
-            self.pts.mailto_url(self.req)
+            self.pts.email_body(self.req)
