@@ -4514,19 +4514,23 @@ class SendPatientEmailView(FormView):
     template_name = "send_patient_email.mako"
 
     def form_valid(self, form: "Form", appstruct: Dict[str, Any]) -> Response:
-        email = Email(
-            from_addr=appstruct.get(ViewParam.EMAIL_FROM),
-            to=appstruct.get(ViewParam.EMAIL),
-            subject=appstruct.get(ViewParam.EMAIL_SUBJECT),
-            body=appstruct.get(ViewParam.EMAIL_BODY),
-        )
         config = self.request.config
 
-        email.send(host=config.email_host,
-                   username=config.email_host_username,
-                   password=config.email_host_password,
-                   port=config.email_port,
-                   use_tls=config.email_use_tls)
+        for email_param in [ViewParam.EMAIL, ViewParam.EMAIL_COPY]:
+            email_address = appstruct.get(email_param)
+            if email_address:
+                email = Email(
+                    from_addr=appstruct.get(ViewParam.EMAIL_FROM),
+                    to=email_address,
+                    subject=appstruct.get(ViewParam.EMAIL_SUBJECT),
+                    body=appstruct.get(ViewParam.EMAIL_BODY),
+                )
+
+                email.send(host=config.email_host,
+                           username=config.email_host_username,
+                           password=config.email_host_password,
+                           port=config.email_port,
+                           use_tls=config.email_use_tls)
 
         return super().form_valid(form, appstruct)
 
@@ -4554,6 +4558,7 @@ class SendPatientEmailView(FormView):
 
         return {
             ViewParam.EMAIL: pts.patient.email,
+            ViewParam.EMAIL_COPY: pts.task_schedule.email_copy,
             ViewParam.EMAIL_FROM: pts.task_schedule.email_from,
             ViewParam.EMAIL_SUBJECT: pts.task_schedule.email_subject,
             ViewParam.EMAIL_BODY: pts.email_body(self.request),

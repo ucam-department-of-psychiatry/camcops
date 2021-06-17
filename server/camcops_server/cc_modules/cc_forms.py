@@ -4712,6 +4712,7 @@ class EmailBodyNode(OptionalStringNode, RequestAwareMixin):
 
 class SendEmailSchema(CSRFSchema):
     email = OptionalEmailNode()  # name must match ViewParam.EMAIL
+    email_copy = HiddenStringNode()
     email_from = HiddenStringNode()
     email_subject = OptionalStringNode()
     email_body = EmailBodyNode()

@@ -2193,13 +2193,54 @@ class SendPatientEmailViewTests(BasicDatabaseTestCase):
         with self.assertRaises(HTTPFound):
             view.dispatch()
 
-        args, kwargs = mock_make_email.call_args
+        args, kwargs = mock_make_email.call_args_list[0]
         self.assertEqual(kwargs["from_addr"], "server@example.com")
         self.assertEqual(kwargs["to"], "patient@example.com")
         self.assertEqual(kwargs["subject"], "Subject")
         self.assertEqual(kwargs["body"], "Email body")
 
-        args, kwargs = mock_send_msg.call_args
+        args, kwargs = mock_send_msg.call_args_list[0]
+        self.assertEqual(kwargs["host"], "smtp.example.com")
+        self.assertEqual(kwargs["user"], "mailuser")
+        self.assertEqual(kwargs["password"], "mailpassword")
+        self.assertEqual(kwargs["port"], 587)
+        self.assertTrue(kwargs["use_tls"])
+
+        # Shouldn't send a copy because we haven't specified that
+        mock_make_email.assert_called_once()
+        mock_send_msg.assert_called_once()
+
+    @mock.patch("camcops_server.cc_modules.cc_email.send_msg")
+    @mock.patch("camcops_server.cc_modules.cc_email.make_email")
+    def test_sends_copy_of_email(self, mock_make_email, mock_send_msg) -> None:
+        self.req.config.email_host = "smtp.example.com"
+        self.req.config.email_port = 587
+        self.req.config.email_host_username = "mailuser"
+        self.req.config.email_host_password = "mailpassword"
+        self.req.config.email_use_tls = True
+
+        multidict = MultiDict([
+            (ViewParam.EMAIL, "patient@example.com"),
+            (ViewParam.EMAIL_COPY, "copy@example.com"),
+            (ViewParam.EMAIL_FROM, "server@example.com"),
+            (ViewParam.EMAIL_SUBJECT, "Subject"),
+            (ViewParam.EMAIL_BODY, "Email body"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+        view = SendPatientEmailView(self.req)
+
+        with self.assertRaises(HTTPFound):
+            view.dispatch()
+
+        args, kwargs = mock_make_email.call_args_list[1]
+        self.assertEqual(kwargs["from_addr"], "server@example.com")
+        self.assertEqual(kwargs["to"], "copy@example.com")
+        self.assertEqual(kwargs["subject"], "Subject")
+        self.assertEqual(kwargs["body"], "Email body")
+
+        args, kwargs = mock_send_msg.call_args_list[1]
         self.assertEqual(kwargs["host"], "smtp.example.com")
         self.assertEqual(kwargs["user"], "mailuser")
         self.assertEqual(kwargs["password"], "mailpassword")
