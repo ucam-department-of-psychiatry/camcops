@@ -26,7 +26,6 @@ camcops_server/cc_modules/tests/webview_tests.py
 """
 
 from collections import OrderedDict
-import configparser
 import datetime
 import json
 from typing import cast
@@ -2113,17 +2112,15 @@ class EditGroupViewTests(DemoDatabaseTestCase):
 
 
 class SendPatientEmailViewTests(BasicDatabaseTestCase):
-    def override_config_settings(self,
-                                 parser: configparser.ConfigParser) -> None:
-        parser.set("site", "EMAIL_HOST", "smtp.example.com")
-        parser.set("site", "EMAIL_PORT", "587")
-        parser.set("site", "EMAIL_HOST_USERNAME", "mailuser")
-        parser.set("site", "EMAIL_HOST_PASSWORD", "mailpassword")
-        parser.set("site", "EMAIL_USE_TLS", "true")
-
     @mock.patch("camcops_server.cc_modules.cc_email.send_msg")
     @mock.patch("camcops_server.cc_modules.cc_email.make_email")
     def test_sends_email(self, mock_make_email, mock_send_msg) -> None:
+        self.req.config.email_host = "smtp.example.com"
+        self.req.config.email_port = 587
+        self.req.config.email_host_username = "mailuser"
+        self.req.config.email_host_password = "mailpassword"
+        self.req.config.email_use_tls = True
+
         multidict = MultiDict([
             (ViewParam.EMAIL, "patient@example.com"),
             (ViewParam.EMAIL_FROM, "server@example.com"),
