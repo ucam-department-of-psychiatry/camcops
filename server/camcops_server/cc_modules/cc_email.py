@@ -87,7 +87,9 @@ class Email(Base):
     # Basic things
     # -------------------------------------------------------------------------
     id = Column(
-        "id", BigInteger, primary_key=True, autoincrement=True,
+        # SQLite doesn't support autoincrement with BigInteger
+        "id", BigInteger().with_variant(Integer, "sqlite"),
+        primary_key=True, autoincrement=True,
         comment="Arbitrary primary key"
     )
     created_at_utc = Column(
