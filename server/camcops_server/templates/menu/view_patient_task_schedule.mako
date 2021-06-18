@@ -32,15 +32,18 @@ camcops_server/templates/menu/view_patient_task_schedule.mako
 from cardinal_pythonlib.datetimefunc import format_datetime
 
 from camcops_server.cc_modules.cc_constants import DateFormat
+from camcops_server.cc_modules.cc_html import get_yes_no
 from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 %>
 
 <%include file="db_user_info.mako"/>
 
 <h1>
-    ${ _("Scheduled tasks for {patient} on schedule: {schedule}").format(
-            patient=patient_descriptor, schedule=schedule_name) }
+    ${ _("{patient} on schedule: {schedule}").format(
+          patient=patient_descriptor, schedule=schedule_name) }
 </h1>
+
+<h2>${ _("Scheduled tasks") }</h2>
 
 <table>
     <tr>
@@ -113,6 +116,35 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
             %endif
         </td>
     </tr>
+%endfor
+</table>
+
+<h2>${ _("Emails") }</h2>
+
+<table>
+    <tr>
+        <th>${ _("Subject") }</th>
+        <th>${ _("Sent") }</th>
+        <th>${ _("Sent at") }</th>
+        <th>${ _("Sending failure reason") }</th>
+    </tr>
+%for pts_email in pts.emails:
+    <%
+        tr_attributes = ""
+        sent_at = ""
+        failure_reason = ""
+        if pts_email.email.sent:
+            sent_at = format_datetime(pts_email.email.sent_at_utc, DateFormat.SHORT_DATETIME_NO_TZ)
+        else:
+            failure_reason = pts_email.email.sending_failure_reason
+            tr_attributes = "class='error'"
+    %>
+    <tr ${ tr_attributes | n }>
+        <td>${ pts_email.email.subject }</td>
+        <td>${ get_yes_no(req, pts_email.email.sent) }</td>
+        <td>${ sent_at }</td>
+        <td>${ failure_reason }</td>
+    <tr>
 %endfor
 </table>
 
