@@ -2117,39 +2117,42 @@ class EditGroupViewTests(DemoDatabaseTestCase):
 
 
 class SendPatientEmailViewTests(BasicDatabaseTestCase):
-    def test_displays_form(self) -> None:
-        patient = self.create_patient(
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.patient = self.create_patient(
             as_server_patient=True,
             forename="Jo", surname="Patient",
             dob=datetime.date(1958, 4, 19),
             sex="F", address="Address", gp="GP", other="Other"
         )
 
-        patient_pk = patient.pk
+        patient_pk = self.patient.pk
 
         idnum = self.create_patient_idnum(
             as_server_patient=True,
-            patient_id=patient.id,
+            patient_id=self.patient.id,
             which_idnum=self.nhs_iddef.which_idnum,
             idnum_value=TEST_NHS_NUMBER_1
         )
 
         PatientIdNumIndexEntry.index_idnum(idnum, self.dbsession)
 
-        schedule = TaskSchedule()
-        schedule.group_id = self.group.id
-        schedule.name = "Test 1"
-        self.dbsession.add(schedule)
+        self.schedule = TaskSchedule()
+        self.schedule.group_id = self.group.id
+        self.schedule.name = "Test 1"
+        self.dbsession.add(self.schedule)
         self.dbsession.commit()
 
-        pts = PatientTaskSchedule()
-        pts.patient_pk = patient_pk
-        pts.schedule_id = schedule.id
-        self.dbsession.add(pts)
+        self.pts = PatientTaskSchedule()
+        self.pts.patient_pk = patient_pk
+        self.pts.schedule_id = self.schedule.id
+        self.dbsession.add(self.pts)
         self.dbsession.commit()
 
+    def test_displays_form(self) -> None:
         self.req.add_get_params({
-            ViewParam.PATIENT_TASK_SCHEDULE_ID: pts.id,
+            ViewParam.PATIENT_TASK_SCHEDULE_ID: self.pts.id,
         })
 
         view = SendPatientEmailView(self.req)
@@ -2189,6 +2192,9 @@ class SendPatientEmailViewTests(BasicDatabaseTestCase):
         ])
 
         self.req.fake_request_post_from_dict(multidict)
+        self.req.add_get_params({
+            ViewParam.PATIENT_TASK_SCHEDULE_ID: str(self.pts.id)
+        }, set_method_get=False)
         view = SendPatientEmailView(self.req)
 
         with self.assertRaises(HTTPFound):
@@ -2226,6 +2232,9 @@ class SendPatientEmailViewTests(BasicDatabaseTestCase):
         ])
 
         self.req.fake_request_post_from_dict(multidict)
+        self.req.add_get_params({
+            ViewParam.PATIENT_TASK_SCHEDULE_ID: str(self.pts.id)
+        }, set_method_get=False)
         view = SendPatientEmailView(self.req)
 
         with self.assertRaises(HTTPFound):
@@ -2245,6 +2254,9 @@ class SendPatientEmailViewTests(BasicDatabaseTestCase):
         ])
 
         self.req.fake_request_post_from_dict(multidict)
+        self.req.add_get_params({
+            ViewParam.PATIENT_TASK_SCHEDULE_ID: str(self.pts.id)
+        }, set_method_get=False)
         view = SendPatientEmailView(self.req)
 
         with self.assertRaises(HTTPFound):
@@ -2266,6 +2278,9 @@ class SendPatientEmailViewTests(BasicDatabaseTestCase):
         ])
 
         self.req.fake_request_post_from_dict(multidict)
+        self.req.add_get_params({
+            ViewParam.PATIENT_TASK_SCHEDULE_ID: str(self.pts.id)
+        }, set_method_get=False)
         view = SendPatientEmailView(self.req)
 
         with self.assertRaises(HTTPFound):
@@ -2276,3 +2291,26 @@ class SendPatientEmailViewTests(BasicDatabaseTestCase):
 
         self.assertIn("Failed to send email to patient@example.com",
                       messages[0])
+
+    @mock.patch("camcops_server.cc_modules.cc_email.send_msg")
+    @mock.patch("camcops_server.cc_modules.cc_email.make_email")
+    def test_email_record_created(self, mock_make_email, mock_send_msg) -> None:
+        multidict = MultiDict([
+            (ViewParam.EMAIL, "patient@example.com"),
+            (ViewParam.EMAIL_FROM, "server@example.com"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+        self.req.add_get_params({
+            ViewParam.PATIENT_TASK_SCHEDULE_ID: str(self.pts.id)
+        }, set_method_get=False)
+        view = SendPatientEmailView(self.req)
+
+        self.assertEqual(len(self.pts.emails), 0)
+
+        with self.assertRaises(HTTPFound):
+            view.dispatch()
+
+        self.assertEqual(len(self.pts.emails), 1)
+        self.assertEqual(self.pts.emails[0].email.to, "patient@example.com")

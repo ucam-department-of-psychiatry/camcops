@@ -306,6 +306,7 @@ from camcops_server.cc_modules.cc_taskindex import (
 )
 from camcops_server.cc_modules.cc_taskschedule import (
     PatientTaskSchedule,
+    PatientTaskScheduleEmail,
     TaskSchedule,
     TaskScheduleItem,
     task_schedule_item_sort_order,
@@ -4540,6 +4541,19 @@ class SendPatientEmailView(FormView):
         else:
             self._display_failure_message(patient_email)
 
+        self.request.dbsession.add(email)
+        self.request.dbsession.flush()
+        pts_id = self.request.get_int_param(ViewParam.PATIENT_TASK_SCHEDULE_ID)
+        if pts_id is None:
+            _ = self.request.gettext
+            raise HTTPBadRequest(_("Patient task schedule does not exist"))
+
+        pts_email = PatientTaskScheduleEmail()
+        pts_email.patient_task_schedule_id = pts_id
+        pts_email.email_id = email.id
+        self.request.dbsession.add(pts_email)
+        self.request.dbsession.commit()
+
         return super().form_valid(form, appstruct)
 
     def _display_success_message(self, patient_email: str) -> None:
@@ -4559,8 +4573,7 @@ class SendPatientEmailView(FormView):
         self.request.session.flash(message, queue=FLASH_DANGER)
 
     def get_success_url(self) -> str:
-        pts_id = self.request.get_int_param(
-            ViewParam.PATIENT_TASK_SCHEDULE_ID, None)
+        pts_id = self.request.get_int_param(ViewParam.PATIENT_TASK_SCHEDULE_ID)
 
         return self.request.route_url(
             Routes.VIEW_PATIENT_TASK_SCHEDULE,

@@ -131,6 +131,11 @@ class PatientTaskSchedule(Base):
         back_populates="patient_task_schedules"
     )
 
+    emails = relationship(
+        "PatientTaskScheduleEmail",
+        back_populates="patient_task_schedule"
+    )
+
     def get_list_of_scheduled_tasks(self, req: "CamcopsRequest") \
             -> List[ScheduledTaskInfo]:
 
@@ -267,7 +272,8 @@ class PatientTaskScheduleEmail(Base):
         comment=f"FK to {Email.__tablename__}.{Email.id.name}"
     )
 
-    patient_task_schedule = relationship(PatientTaskSchedule)
+    patient_task_schedule = relationship(PatientTaskSchedule,
+                                         back_populates="emails")
     email = relationship(Email)
 
 
