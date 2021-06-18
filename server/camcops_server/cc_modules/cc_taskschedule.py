@@ -35,8 +35,9 @@ from sqlalchemy import cast, Numeric
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.schema import Column, ForeignKey
-from sqlalchemy.sql.sqltypes import Integer, UnicodeText
+from sqlalchemy.sql.sqltypes import BigInteger, Integer, UnicodeText
 
+from camcops_server.cc_modules.cc_email import Email
 from camcops_server.cc_modules.cc_formatter import SafeFormatter
 from camcops_server.cc_modules.cc_group import Group
 from camcops_server.cc_modules.cc_pyramid import Routes
@@ -240,6 +241,34 @@ def task_schedule_item_sort_order() -> Tuple["Cast", "Cast"]:
                         Numeric())
 
     return due_from_order, due_by_order
+
+
+# =============================================================================
+# Emails sent to patient
+# =============================================================================
+class PatientTaskScheduleEmail(Base):
+    """
+    Represents an email send to a patient for a particular task schedule.
+    """
+    __tablename__ = "_patient_task_schedule_email"
+
+    id = Column(
+        "id", Integer, primary_key=True, autoincrement=True,
+        comment="Arbitrary primary key"
+    )
+    patient_task_schedule_id = Column(
+        "patient_task_schedule_id", Integer, ForeignKey(PatientTaskSchedule.id),
+        nullable=False,
+        comment=(f"FK to {PatientTaskSchedule.__tablename__}."
+                 f"{PatientTaskSchedule.id.name}")
+    )
+    email_id = Column(
+        "email_id", BigInteger, ForeignKey(Email.id),
+        comment=f"FK to {Email.__tablename__}.{Email.id.name}"
+    )
+
+    patient_task_schedule = relationship(PatientTaskSchedule)
+    email = relationship(Email)
 
 
 # =============================================================================
