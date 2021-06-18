@@ -45,7 +45,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 
 <h2>${ _("Scheduled tasks") }</h2>
 
-<table>
+<table class="scheduled_tasks_table">
     <tr>
         <th>${ _("Task") }</th>
         <th>${ _("Due from") }</th>
@@ -124,25 +124,27 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 <table>
     <tr>
         <th>${ _("Subject") }</th>
+        <th>${ _("Date") }</th>
         <th>${ _("Sent") }</th>
-        <th>${ _("Sent at") }</th>
         <th>${ _("Sending failure reason") }</th>
     </tr>
 %for pts_email in pts.emails:
     <%
         tr_attributes = ""
-        sent_at = ""
         failure_reason = ""
-        if pts_email.email.sent:
-            sent_at = format_datetime(pts_email.email.sent_at_utc, DateFormat.SHORT_DATETIME_NO_TZ)
-        else:
+        if not pts_email.email.sent:
             failure_reason = pts_email.email.sending_failure_reason
             tr_attributes = "class='error'"
+
+        email_link = req.route_url(
+            Routes.VIEW_EMAIL,
+            _query={ViewParam.ID: pts_email.email_id}
+        )
     %>
     <tr ${ tr_attributes | n }>
-        <td>${ pts_email.email.subject }</td>
+        <td><a href="${ email_link | n }">${ pts_email.email.subject }</a></td>
+        <td>${ pts_email.email.date }</td>
         <td>${ get_yes_no(req, pts_email.email.sent) }</td>
-        <td>${ sent_at }</td>
         <td>${ failure_reason }</td>
     <tr>
 %endfor

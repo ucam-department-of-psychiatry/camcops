@@ -409,6 +409,9 @@ div.indented {
 table.respondent, table.respondent th, table.respondent td {
     border: ${va.THINLINE} solid black;
 }
+.scheduled_tasks_table {
+    margin-bottom: ${va.MAINMARGIN};
+}
 .signature_label {
     border: none;
     text-align: center;
