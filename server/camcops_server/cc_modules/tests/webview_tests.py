@@ -75,6 +75,7 @@ from camcops_server.cc_modules.webview import (
     EditServerCreatedPatientView,
     EraseTaskEntirelyView,
     EraseTaskLeavingPlaceholderView,
+    FLASH_DANGER,
     FLASH_INFO,
     FLASH_SUCCESS,
     SendPatientEmailView,
@@ -2237,3 +2238,45 @@ class SendPatientEmailViewTests(BasicDatabaseTestCase):
         args, kwargs = mock_make_email.call_args
         self.assertEqual(kwargs["to"], "patient@example.com")
         self.assertEqual(kwargs["bcc"], "copy@example.com")
+
+    @mock.patch("camcops_server.cc_modules.cc_email.send_msg")
+    @mock.patch("camcops_server.cc_modules.cc_email.make_email")
+    def test_message_on_success(self, mock_make_email, mock_send_msg) -> None:
+        multidict = MultiDict([
+            (ViewParam.EMAIL, "patient@example.com"),
+            (ViewParam.EMAIL_FROM, "server@example.com"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+        view = SendPatientEmailView(self.req)
+
+        with self.assertRaises(HTTPFound):
+            view.dispatch()
+
+        messages = self.req.session.peek_flash(FLASH_SUCCESS)
+        self.assertTrue(len(messages) > 0)
+
+        self.assertIn("Email sent to patient@example.com", messages[0])
+
+    @mock.patch("camcops_server.cc_modules.cc_email.send_msg",
+                side_effect=RuntimeError("Something bad happened"))
+    @mock.patch("camcops_server.cc_modules.cc_email.make_email")
+    def test_message_on_failure(self, mock_make_email, mock_send_msg) -> None:
+        multidict = MultiDict([
+            (ViewParam.EMAIL, "patient@example.com"),
+            (ViewParam.EMAIL_FROM, "server@example.com"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+        view = SendPatientEmailView(self.req)
+
+        with self.assertRaises(HTTPFound):
+            view.dispatch()
+
+        messages = self.req.session.peek_flash(FLASH_DANGER)
+        self.assertTrue(len(messages) > 0)
+
+        self.assertIn("Failed to send email to patient@example.com",
+                      messages[0])

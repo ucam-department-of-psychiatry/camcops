@@ -4516,9 +4516,11 @@ class SendPatientEmailView(FormView):
     def form_valid(self, form: "Form", appstruct: Dict[str, Any]) -> Response:
         config = self.request.config
 
+        patient_email = appstruct.get(ViewParam.EMAIL)
+
         kwargs = dict(
             from_addr=appstruct.get(ViewParam.EMAIL_FROM),
-            to=appstruct.get(ViewParam.EMAIL),
+            to=patient_email,
             subject=appstruct.get(ViewParam.EMAIL_SUBJECT),
             body=appstruct.get(ViewParam.EMAIL_BODY)
         )
@@ -4528,13 +4530,33 @@ class SendPatientEmailView(FormView):
             kwargs["bcc"] = bcc
 
         email = Email(**kwargs)
-        email.send(host=config.email_host,
-                   username=config.email_host_username,
-                   password=config.email_host_password,
-                   port=config.email_port,
-                   use_tls=config.email_use_tls)
+        ok = email.send(host=config.email_host,
+                        username=config.email_host_username,
+                        password=config.email_host_password,
+                        port=config.email_port,
+                        use_tls=config.email_use_tls)
+        if ok:
+            self._display_success_message(patient_email)
+        else:
+            self._display_failure_message(patient_email)
 
         return super().form_valid(form, appstruct)
+
+    def _display_success_message(self, patient_email: str) -> None:
+        _ = self.request.gettext
+        message = _("Email sent to {patient_email}").format(
+            patient_email=patient_email
+        )
+
+        self.request.session.flash(message, queue=FLASH_SUCCESS)
+
+    def _display_failure_message(self, patient_email: str) -> None:
+        _ = self.request.gettext
+        message = _("Failed to send email to {patient_email}").format(
+            patient_email=patient_email
+        )
+
+        self.request.session.flash(message, queue=FLASH_DANGER)
 
     def get_success_url(self) -> str:
         pts_id = self.request.get_int_param(
