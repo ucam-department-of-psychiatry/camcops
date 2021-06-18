@@ -64,7 +64,7 @@ def upgrade():
                   comment='Arbitrary primary key'),
         sa.Column('patient_task_schedule_id', sa.Integer(), nullable=False,
                   comment='FK to _patient_task_schedule.id'),
-        sa.Column('email_id', sa.BigInteger(), nullable=True,
+        sa.Column('email_id', sa.BigInteger(), nullable=False,
                   comment='FK to _emails.id'),
         sa.ForeignKeyConstraint(
             ['email_id'], ['_emails.id'],

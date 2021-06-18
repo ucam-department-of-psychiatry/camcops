@@ -273,6 +273,7 @@ class PatientTaskScheduleEmail(Base):
     )
     email_id = Column(
         "email_id", BigInteger, ForeignKey(Email.id),
+        nullable=False,
         comment=f"FK to {Email.__tablename__}.{Email.id.name}"
     )
 
