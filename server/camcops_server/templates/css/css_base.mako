@@ -403,6 +403,22 @@ div.indented {
 .photo {
     padding: ${va.ZERO};
 }
+
+.pts_mini_table {
+    padding: 0px;
+    border: none;
+}
+
+.pts_mini_table > table {
+    border-collapse:collapse;
+    border-style:hidden;
+    margin: 0px;
+}
+
+.pts_mini_table > table > tbody > tr > td {
+    border:none;
+}
+
 .respondent {
     background-color: rgb(189, 183, 107);
 }
