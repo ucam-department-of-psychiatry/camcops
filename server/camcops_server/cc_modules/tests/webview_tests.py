@@ -2207,10 +2207,6 @@ class SendPatientEmailViewTests(BasicDatabaseTestCase):
         self.assertEqual(kwargs["port"], 587)
         self.assertTrue(kwargs["use_tls"])
 
-        # Shouldn't send a copy because we haven't specified that
-        mock_make_email.assert_called_once()
-        mock_send_msg.assert_called_once()
-
     @mock.patch("camcops_server.cc_modules.cc_email.send_msg")
     @mock.patch("camcops_server.cc_modules.cc_email.make_email")
     def test_sends_copy_of_email(self, mock_make_email, mock_send_msg) -> None:
