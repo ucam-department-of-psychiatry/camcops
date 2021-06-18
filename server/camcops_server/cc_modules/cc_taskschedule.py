@@ -228,6 +228,10 @@ class PatientTaskSchedule(Base):
         return formatter.format(self.task_schedule.email_template,
                                 **template_dict)
 
+    @property
+    def email_sent(self) -> bool:
+        return any([e.email.sent for e in self.emails])
+
 
 def task_schedule_item_sort_order() -> Tuple["Cast", "Cast"]:
     """

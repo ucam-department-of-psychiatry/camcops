@@ -28,9 +28,11 @@ camcops_server/cc_modules/tests/cc_taskschedule_tests.py
 
 from pendulum import Duration
 
+from camcops_server.cc_modules.cc_email import Email
 from camcops_server.cc_modules.cc_pyramid import Routes
 from camcops_server.cc_modules.cc_taskschedule import (
     PatientTaskSchedule,
+    PatientTaskScheduleEmail,
     TaskSchedule,
     TaskScheduleItem,
 )
@@ -169,3 +171,41 @@ class PatientTaskScheduleTests(DemoDatabaseTestCase):
 
         with self.assertRaises(KeyError):
             self.pts.email_body(self.req)
+
+    def test_email_sent_false_for_no_emails(self) -> None:
+        self.assertFalse(self.pts.email_sent)
+
+    def test_email_sent_false_for_one_unsent_email(self) -> None:
+        email1 = Email()
+        email1.sent = False
+        self.dbsession.add(email1)
+        self.dbsession.flush()
+        pts_email1 = PatientTaskScheduleEmail()
+        pts_email1.email_id = email1.id
+        pts_email1.patient_task_schedule_id = self.pts.id
+        self.dbsession.add(pts_email1)
+        self.dbsession.commit()
+
+        self.assertFalse(self.pts.email_sent)
+
+    def test_email_sent_true_for_one_sent_email(self) -> None:
+        email1 = Email()
+        email1.sent = False
+        self.dbsession.add(email1)
+        self.dbsession.flush()
+        pts_email1 = PatientTaskScheduleEmail()
+        pts_email1.email_id = email1.id
+        pts_email1.patient_task_schedule_id = self.pts.id
+        self.dbsession.add(pts_email1)
+
+        email2 = Email()
+        email2.sent = True
+        self.dbsession.add(email2)
+        self.dbsession.flush()
+        pts_email2 = PatientTaskScheduleEmail()
+        pts_email2.email_id = email2.id
+        pts_email2.patient_task_schedule_id = self.pts.id
+        self.dbsession.add(pts_email2)
+        self.dbsession.commit()
+
+        self.assertTrue(self.pts.email_sent)
