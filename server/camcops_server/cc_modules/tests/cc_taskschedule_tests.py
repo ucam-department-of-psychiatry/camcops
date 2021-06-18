@@ -67,12 +67,29 @@ class TaskScheduleTests(DemoDatabaseTestCase):
         pts.schedule_id = schedule.id
         pts.patient_pk = patient.pk
         self.dbsession.add(pts)
+        self.dbsession.flush()
+
+        email = Email()
+        self.dbsession.add(email)
+        self.dbsession.flush()
+
+        pts_email = PatientTaskScheduleEmail()
+        pts_email.email_id = email.id
+        pts_email.patient_task_schedule_id = pts.id
+        self.dbsession.add(pts_email)
         self.dbsession.commit()
 
         self.assertIsNotNone(self.dbsession.query(TaskScheduleItem).filter(
             TaskScheduleItem.id == item.id).one_or_none())
         self.assertIsNotNone(self.dbsession.query(PatientTaskSchedule).filter(
             PatientTaskSchedule.id == pts.id).one_or_none())
+        self.assertIsNotNone(
+            self.dbsession.query(PatientTaskScheduleEmail).filter(
+                PatientTaskScheduleEmail.patient_task_schedule_id == pts.id
+            ).one_or_none()
+        )
+        self.assertIsNotNone(self.dbsession.query(Email).filter(
+            Email.id == email.id).one_or_none())
 
         self.dbsession.delete(schedule)
         self.dbsession.commit()
@@ -81,6 +98,13 @@ class TaskScheduleTests(DemoDatabaseTestCase):
             TaskScheduleItem.id == item.id).one_or_none())
         self.assertIsNone(self.dbsession.query(PatientTaskSchedule).filter(
             PatientTaskSchedule.id == pts.id).one_or_none())
+        self.assertIsNone(
+            self.dbsession.query(PatientTaskScheduleEmail).filter(
+                PatientTaskScheduleEmail.patient_task_schedule_id == pts.id
+            ).one_or_none()
+        )
+        self.assertIsNone(self.dbsession.query(Email).filter(
+            Email.id == email.id).one_or_none())
 
 
 class TaskScheduleItemTests(DemoRequestTestCase):

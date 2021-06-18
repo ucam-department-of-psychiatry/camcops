@@ -133,7 +133,8 @@ class PatientTaskSchedule(Base):
 
     emails = relationship(
         "PatientTaskScheduleEmail",
-        back_populates="patient_task_schedule"
+        back_populates="patient_task_schedule",
+        cascade="all, delete"
     )
 
     def get_list_of_scheduled_tasks(self, req: "CamcopsRequest") \
@@ -279,7 +280,7 @@ class PatientTaskScheduleEmail(Base):
 
     patient_task_schedule = relationship(PatientTaskSchedule,
                                          back_populates="emails")
-    email = relationship(Email)
+    email = relationship(Email, cascade="all, delete")
 
 
 # =============================================================================
