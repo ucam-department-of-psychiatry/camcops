@@ -93,7 +93,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
                     <td>
                         %if patient.email:
                         <a class="${ button_class }" href="${ req.route_url(
-                                 Routes.SEND_PATIENT_EMAIL,
+                                 Routes.SEND_EMAIL_FROM_PATIENT_LIST,
                                  _query={
                                      ViewParam.PATIENT_TASK_SCHEDULE_ID: pts.id
                                  }) | n }">${ email_text }</a>

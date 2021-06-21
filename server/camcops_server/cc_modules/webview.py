@@ -4510,7 +4510,7 @@ def client_api_signposting(req: "CamcopsRequest") -> Dict[str, Any]:
     }
 
 
-class SendPatientEmailView(FormView):
+class SendPatientEmailBaseView(FormView):
     form_class = SendEmailForm
     template_name = "send_patient_email.mako"
 
@@ -4572,16 +4572,6 @@ class SendPatientEmailView(FormView):
 
         self.request.session.flash(message, queue=FLASH_DANGER)
 
-    def get_success_url(self) -> str:
-        pts_id = self.request.get_int_param(ViewParam.PATIENT_TASK_SCHEDULE_ID)
-
-        return self.request.route_url(
-            Routes.VIEW_PATIENT_TASK_SCHEDULE,
-            _query={
-                ViewParam.PATIENT_TASK_SCHEDULE_ID: pts_id
-            }
-        )
-
     def get_form_values(self) -> Dict:
         pts_id = self.request.get_int_param(ViewParam.PATIENT_TASK_SCHEDULE_ID)
 
@@ -4602,14 +4592,43 @@ class SendPatientEmailView(FormView):
         }
 
 
-@view_config(route_name=Routes.SEND_PATIENT_EMAIL,
+class SendEmailFromPatientListView(SendPatientEmailBaseView):
+    def get_success_url(self) -> str:
+        return self.request.route_url(
+            Routes.VIEW_PATIENT_TASK_SCHEDULES,
+        )
+
+
+class SendEmailFromPatientTaskScheduleView(SendPatientEmailBaseView):
+    def get_success_url(self) -> str:
+        pts_id = self.request.get_int_param(ViewParam.PATIENT_TASK_SCHEDULE_ID)
+
+        return self.request.route_url(
+            Routes.VIEW_PATIENT_TASK_SCHEDULE,
+            _query={
+                ViewParam.PATIENT_TASK_SCHEDULE_ID: pts_id
+            }
+        )
+
+
+@view_config(route_name=Routes.SEND_EMAIL_FROM_PATIENT_TASK_SCHEDULE,
              permission=Permission.GROUPADMIN,
              http_cache=NEVER_CACHE)
-def send_patient_email(req: "CamcopsRequest") -> Response:
+def send_email_from_patient_task_schedule(req: "CamcopsRequest") -> Response:
     """
     View to send an email to a patient.
     """
-    return SendPatientEmailView(req).dispatch()
+    return SendEmailFromPatientTaskScheduleView(req).dispatch()
+
+
+@view_config(route_name=Routes.SEND_EMAIL_FROM_PATIENT_LIST,
+             permission=Permission.GROUPADMIN,
+             http_cache=NEVER_CACHE)
+def send_email_from_patient_list(req: "CamcopsRequest") -> Response:
+    """
+    View to send an email to a patient.
+    """
+    return SendEmailFromPatientListView(req).dispatch()
 
 
 # =============================================================================

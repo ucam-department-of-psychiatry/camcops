@@ -78,7 +78,7 @@ from camcops_server.cc_modules.webview import (
     FLASH_DANGER,
     FLASH_INFO,
     FLASH_SUCCESS,
-    SendPatientEmailView,
+    SendEmailFromPatientTaskScheduleView,
     any_records_use_group,
     edit_group,
     edit_finalized_patient,
@@ -2116,7 +2116,7 @@ class EditGroupViewTests(DemoDatabaseTestCase):
         )
 
 
-class SendPatientEmailViewTests(BasicDatabaseTestCase):
+class SendEmailFromPatientTaskScheduleViewTests(BasicDatabaseTestCase):
     def setUp(self) -> None:
         super().setUp()
 
@@ -2155,7 +2155,7 @@ class SendPatientEmailViewTests(BasicDatabaseTestCase):
             ViewParam.PATIENT_TASK_SCHEDULE_ID: self.pts.id,
         })
 
-        view = SendPatientEmailView(self.req)
+        view = SendEmailFromPatientTaskScheduleView(self.req)
         with mock.patch.object(view, "render_to_response") as mock_render:
             view.dispatch()
 
@@ -2165,7 +2165,7 @@ class SendPatientEmailViewTests(BasicDatabaseTestCase):
         self.assertIn("form", context)
 
     def test_raises_for_missing_pts_id(self):
-        view = SendPatientEmailView(self.req)
+        view = SendEmailFromPatientTaskScheduleView(self.req)
         with self.assertRaises(HTTPBadRequest) as cm:
             view.dispatch()
 
@@ -2195,7 +2195,7 @@ class SendPatientEmailViewTests(BasicDatabaseTestCase):
         self.req.add_get_params({
             ViewParam.PATIENT_TASK_SCHEDULE_ID: str(self.pts.id)
         }, set_method_get=False)
-        view = SendPatientEmailView(self.req)
+        view = SendEmailFromPatientTaskScheduleView(self.req)
 
         with self.assertRaises(HTTPFound):
             view.dispatch()
@@ -2235,7 +2235,7 @@ class SendPatientEmailViewTests(BasicDatabaseTestCase):
         self.req.add_get_params({
             ViewParam.PATIENT_TASK_SCHEDULE_ID: str(self.pts.id)
         }, set_method_get=False)
-        view = SendPatientEmailView(self.req)
+        view = SendEmailFromPatientTaskScheduleView(self.req)
 
         with self.assertRaises(HTTPFound):
             view.dispatch()
@@ -2259,7 +2259,7 @@ class SendPatientEmailViewTests(BasicDatabaseTestCase):
         self.req.add_get_params({
             ViewParam.PATIENT_TASK_SCHEDULE_ID: str(self.pts.id)
         }, set_method_get=False)
-        view = SendPatientEmailView(self.req)
+        view = SendEmailFromPatientTaskScheduleView(self.req)
 
         with self.assertRaises(HTTPFound):
             view.dispatch()
@@ -2285,7 +2285,7 @@ class SendPatientEmailViewTests(BasicDatabaseTestCase):
         self.req.add_get_params({
             ViewParam.PATIENT_TASK_SCHEDULE_ID: str(self.pts.id)
         }, set_method_get=False)
-        view = SendPatientEmailView(self.req)
+        view = SendEmailFromPatientTaskScheduleView(self.req)
 
         with self.assertRaises(HTTPFound):
             view.dispatch()
@@ -2311,7 +2311,7 @@ class SendPatientEmailViewTests(BasicDatabaseTestCase):
         self.req.add_get_params({
             ViewParam.PATIENT_TASK_SCHEDULE_ID: str(self.pts.id)
         }, set_method_get=False)
-        view = SendPatientEmailView(self.req)
+        view = SendEmailFromPatientTaskScheduleView(self.req)
 
         self.assertEqual(len(self.pts.emails), 0)
 
