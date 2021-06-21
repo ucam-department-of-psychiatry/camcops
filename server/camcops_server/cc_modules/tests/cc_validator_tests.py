@@ -36,6 +36,7 @@ from camcops_server.cc_modules.cc_validators import (
     STRING_VALIDATOR_TYPE,
     validate_alphanum,
     validate_alphanum_underscore,
+    validate_download_filename,
     validate_email,
     validate_human_name,
     validate_ip_address,
@@ -195,5 +196,22 @@ class ValidatorTests(unittest.TestCase):
                 "table!",
                 # ... and of course:
                 "Robert'); DROP TABLE students;--",
+            ]
+        )
+
+    def test_download_filename_validator(self) -> None:
+        self.good_bad(
+            validate_download_filename,
+            good=[
+                "01.tsv",
+                "_._",
+                "_blah.txt",
+                "CamCOPS_dump_2021-06-04T100622.zip",
+            ],
+            bad=[
+                "/etc/passwd",
+                "_",
+                "a",
+                r"C:\autoexec.bat",
             ]
         )
