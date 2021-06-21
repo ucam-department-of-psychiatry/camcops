@@ -76,11 +76,12 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
             <table>
             %for pts in patient.task_schedules:
             <%
-                email_text = _("Send email...")
-                button_class = "btn btn-success"
-                if pts.email_sent:
-                    email_text = _("Resend email...")
-                    button_class = "btn btn-primary"
+                if patient.email:
+                    email_text = _("Send email...")
+                    button_class = "btn btn-success"
+                    if pts.email_sent:
+                        email_text = _("Resend email...")
+                        button_class = "btn btn-primary"
             %>
                 <tr>
                     <td><a href="${ req.route_url(
@@ -89,11 +90,14 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
                                      ViewParam.PATIENT_TASK_SCHEDULE_ID: pts.id
                                  }) | n }">${ pts.task_schedule.name }</a>
                     </td>
-                    <td><a class="${ button_class }" href="${ req.route_url(
+                    <td>
+                        %if patient.email:
+                        <a class="${ button_class }" href="${ req.route_url(
                                  Routes.SEND_PATIENT_EMAIL,
                                  _query={
                                      ViewParam.PATIENT_TASK_SCHEDULE_ID: pts.id
                                  }) | n }">${ email_text }</a>
+                        %endif
                     </td>
                 </tr>
             %endfor
