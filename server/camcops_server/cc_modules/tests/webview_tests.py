@@ -2250,6 +2250,8 @@ class SendPatientEmailViewTests(BasicDatabaseTestCase):
         multidict = MultiDict([
             (ViewParam.EMAIL, "patient@example.com"),
             (ViewParam.EMAIL_FROM, "server@example.com"),
+            (ViewParam.EMAIL_SUBJECT, "Subject"),
+            (ViewParam.EMAIL_BODY, "Email body"),
             (FormAction.SUBMIT, "submit"),
         ])
 
@@ -2274,6 +2276,8 @@ class SendPatientEmailViewTests(BasicDatabaseTestCase):
         multidict = MultiDict([
             (ViewParam.EMAIL, "patient@example.com"),
             (ViewParam.EMAIL_FROM, "server@example.com"),
+            (ViewParam.EMAIL_SUBJECT, "Subject"),
+            (ViewParam.EMAIL_BODY, "Email body"),
             (FormAction.SUBMIT, "submit"),
         ])
 
@@ -2298,6 +2302,8 @@ class SendPatientEmailViewTests(BasicDatabaseTestCase):
         multidict = MultiDict([
             (ViewParam.EMAIL, "patient@example.com"),
             (ViewParam.EMAIL_FROM, "server@example.com"),
+            (ViewParam.EMAIL_SUBJECT, "Subject"),
+            (ViewParam.EMAIL_BODY, "Email body"),
             (FormAction.SUBMIT, "submit"),
         ])
 
