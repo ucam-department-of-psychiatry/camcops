@@ -109,7 +109,6 @@ class DemoRequestTestCase(ExtendedTestCase):
     in-memory SQLite database.
     """
     def setUp(self) -> None:
-        self.announce("setUp")
         self.create_config_file()
         from camcops_server.cc_modules.cc_request import get_unittest_request
         from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient  # noqa
@@ -211,9 +210,11 @@ class DemoRequestTestCase(ExtendedTestCase):
         log.log(loglevel, "Contents of table {}:\n{}", tablename, results)
 
 
-class DemoDatabaseTestCase(DemoRequestTestCase):
+class BasicDatabaseTestCase(DemoRequestTestCase):
     """
-    Test case that sets up a demonstration CamCOPS database in memory.
+    Test case that sets up some useful database records for testing:
+    ID numbers, user, group, devices etc and has helper methods for
+    creating patients and tasks
     """
     def setUp(self) -> None:
         super().setUp()
@@ -288,21 +289,21 @@ class DemoDatabaseTestCase(DemoRequestTestCase):
         # Populate database with two of everything
         patient = Patient()
         patient.id = 1
-        self._apply_standard_db_fields(patient)
+        self.apply_standard_db_fields(patient)
         patient.forename = "Forename1"
         patient.surname = "Surname1"
         patient.dob = pendulum.parse("1950-01-01")
         self.dbsession.add(patient)
         patient_idnum1 = PatientIdNum()
         patient_idnum1.id = 1
-        self._apply_standard_db_fields(patient_idnum1)
+        self.apply_standard_db_fields(patient_idnum1)
         patient_idnum1.patient_id = patient.id
         patient_idnum1.which_idnum = self.nhs_iddef.which_idnum
         patient_idnum1.idnum_value = 333
         self.dbsession.add(patient_idnum1)
         patient_idnum2 = PatientIdNum()
         patient_idnum2.id = 2
-        self._apply_standard_db_fields(patient_idnum2)
+        self.apply_standard_db_fields(patient_idnum2)
         patient_idnum2.patient_id = patient.id
         patient_idnum2.which_idnum = self.rio_iddef.which_idnum
         patient_idnum2.idnum_value = 444
@@ -315,7 +316,7 @@ class DemoDatabaseTestCase(DemoRequestTestCase):
         from camcops_server.cc_modules.cc_patient import Patient
         patient = Patient()
         patient.id = 2
-        self._apply_standard_db_fields(patient)
+        self.apply_standard_db_fields(patient)
         patient.forename = "Forename2"
         patient.surname = "Surname2"
         patient.dob = pendulum.parse("1975-12-12")
@@ -334,7 +335,7 @@ class DemoDatabaseTestCase(DemoRequestTestCase):
                              **kwargs: Any) -> "PatientIdNum":
         from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
         patient_idnum = PatientIdNum()
-        self._apply_standard_db_fields(patient_idnum, era_now=as_server_patient)
+        self.apply_standard_db_fields(patient_idnum, era_now=as_server_patient)
 
         for key, value in kwargs.items():
             setattr(patient_idnum, key, value)
@@ -354,7 +355,7 @@ class DemoDatabaseTestCase(DemoRequestTestCase):
         from camcops_server.cc_modules.cc_patient import Patient
 
         patient = Patient()
-        self._apply_standard_db_fields(patient, era_now=as_server_patient)
+        self.apply_standard_db_fields(patient, era_now=as_server_patient)
 
         for key, value in kwargs.items():
             setattr(patient, key, value)
@@ -369,6 +370,43 @@ class DemoDatabaseTestCase(DemoRequestTestCase):
 
         return patient
 
+    def create_tasks(self) -> None:
+        # Override in subclass
+        pass
+
+    def apply_standard_task_fields(self, task: "Task") -> None:
+        """
+        Writes some default values to an SQLAlchemy ORM object representing
+        a task.
+        """
+        self.apply_standard_db_fields(task)
+        task.when_created = self.era_time
+
+    def apply_standard_db_fields(self,
+                                 obj: "GenericTabletRecordMixin",
+                                 era_now: bool = False) -> None:
+        """
+        Writes some default values to an SQLAlchemy ORM object representing a
+        record uploaded from a client (tablet) device.
+
+        Though we use the server device ID.
+        """
+        obj._device_id = self.server_device.id
+        obj._era = ERA_NOW if era_now else self.era
+        obj._group_id = self.group.id
+        obj._current = True
+        obj._adding_user_id = self.user.id
+        obj._when_added_batch_utc = self.era_time_utc
+
+    def tearDown(self) -> None:
+        pass
+
+
+class DemoDatabaseTestCase(BasicDatabaseTestCase):
+    """
+    Test case that sets up a demonstration CamCOPS database with two tasks of
+    each type
+    """
     def create_tasks(self) -> None:
         from camcops_server.cc_modules.cc_blob import Blob
         from camcops_server.tasks.photo import Photo
@@ -387,7 +425,7 @@ class DemoDatabaseTestCase(DemoRequestTestCase):
             if isinstance(t1, Photo):
                 b = Blob()
                 b.id = 1
-                self._apply_standard_db_fields(b)
+                self.apply_standard_db_fields(b)
                 b.tablename = t1.tablename
                 b.tablepk = t1.id
                 b.fieldname = 'photo_blobid'
@@ -409,30 +447,3 @@ class DemoDatabaseTestCase(DemoRequestTestCase):
             self.dbsession.add(t2)
 
         self.dbsession.commit()
-
-    def apply_standard_task_fields(self, task: "Task") -> None:
-        """
-        Writes some default values to an SQLAlchemy ORM object representing
-        a task.
-        """
-        self._apply_standard_db_fields(task)
-        task.when_created = self.era_time
-
-    def _apply_standard_db_fields(self,
-                                  obj: "GenericTabletRecordMixin",
-                                  era_now: bool = False) -> None:
-        """
-        Writes some default values to an SQLAlchemy ORM object representing a
-        record uploaded from a client (tablet) device.
-
-        Though we use the server device ID.
-        """
-        obj._device_id = self.server_device.id
-        obj._era = ERA_NOW if era_now else self.era
-        obj._group_id = self.group.id
-        obj._current = True
-        obj._adding_user_id = self.user.id
-        obj._when_added_batch_utc = self.era_time_utc
-
-    def tearDown(self) -> None:
-        pass

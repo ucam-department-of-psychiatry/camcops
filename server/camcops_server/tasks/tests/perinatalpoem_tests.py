@@ -30,7 +30,7 @@ from typing import Generator
 
 import pendulum
 
-from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
+from camcops_server.cc_modules.cc_unittest import BasicDatabaseTestCase
 
 from camcops_server.tasks.perinatalpoem import (
     PerinatalPoem,
@@ -42,7 +42,7 @@ from camcops_server.tasks.perinatalpoem import (
 # Unit tests
 # =============================================================================
 
-class PerinatalPoemReportTestCase(DemoDatabaseTestCase):
+class PerinatalPoemReportTestCase(BasicDatabaseTestCase):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.id_sequence = self.get_id()
