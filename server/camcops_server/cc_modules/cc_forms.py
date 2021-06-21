@@ -111,6 +111,7 @@ from cardinal_pythonlib.colander_utils import (
     get_values_and_permissible,
     HiddenIntegerNode,
     HiddenStringNode,
+    MandatoryEmailNode,
     MandatoryStringNode,
     OptionalEmailNode,
     OptionalIntNode,
@@ -4695,7 +4696,7 @@ class UserDownloadDeleteForm(SimpleSubmitForm):
                          request=request, **kwargs)
 
 
-class EmailBodyNode(OptionalStringNode, RequestAwareMixin):
+class EmailBodyNode(MandatoryStringNode, RequestAwareMixin):
     def __init__(self, *args, **kwargs) -> None:
         self.title = ""  # for type checker
         super().__init__(*args, **kwargs)
@@ -4711,10 +4712,10 @@ class EmailBodyNode(OptionalStringNode, RequestAwareMixin):
 
 
 class SendEmailSchema(CSRFSchema):
-    email = OptionalEmailNode()  # name must match ViewParam.EMAIL
+    email = MandatoryEmailNode()  # name must match ViewParam.EMAIL
     email_copy = HiddenStringNode()
     email_from = HiddenStringNode()
-    email_subject = OptionalStringNode()
+    email_subject = MandatoryStringNode()
     email_body = EmailBodyNode()
 
 
