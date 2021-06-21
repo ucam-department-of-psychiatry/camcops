@@ -150,6 +150,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 %endfor
 </table>
 
+%if pts.patient.email:
 <div>
 <a href="${ req.route_url(
                  Routes.SEND_PATIENT_EMAIL,
@@ -157,6 +158,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
                      ViewParam.PATIENT_TASK_SCHEDULE_ID: pts.id
                  }) | n }">${ _("Email this patient") }</a>
 </div>
+%endif
 <div>
     <a href="${ req.route_url(Routes.VIEW_PATIENT_TASK_SCHEDULES) | n }">
         ${ _("Manage scheduled tasks for patients") }</a>
