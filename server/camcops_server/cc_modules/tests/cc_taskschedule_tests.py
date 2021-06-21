@@ -188,6 +188,14 @@ class PatientTaskScheduleTests(DemoDatabaseTestCase):
         self.assertIn(f"{self.pts.patient.forename}",
                       self.pts.email_body(self.req))
 
+    def test_email_body_contains_patient_surname(self) -> None:
+        self.schedule.email_template = "{surname}"
+        self.dbsession.add(self.schedule)
+        self.dbsession.flush()
+
+        self.assertIn(f"{self.pts.patient.surname}",
+                      self.pts.email_body(self.req))
+
     def test_email_body_disallows_invalid_template(self) -> None:
         self.schedule.email_template = "{foobar}"
         self.dbsession.add(self.schedule)

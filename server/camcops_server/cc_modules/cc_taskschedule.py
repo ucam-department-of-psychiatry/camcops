@@ -223,7 +223,8 @@ class PatientTaskSchedule(Base):
         template_dict = dict(
             access_key=self.patient.uuid_as_proquint,
             forename=self.patient.forename,
-            server_url=req.route_url(Routes.CLIENT_API)
+            server_url=req.route_url(Routes.CLIENT_API),
+            surname=self.patient.surname,
         )
 
         formatter = TaskScheduleEmailTemplateFormatter()
@@ -412,4 +413,5 @@ class TaskScheduleEmailTemplateFormatter(SafeFormatter):
             "access_key",
             "forename",
             "server_url",
+            "surname",
         ])
