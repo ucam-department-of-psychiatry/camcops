@@ -222,6 +222,7 @@ class PatientTaskSchedule(Base):
     def email_body(self, req: "CamcopsRequest") -> str:
         template_dict = dict(
             access_key=self.patient.uuid_as_proquint,
+            forename=self.patient.forename,
             server_url=req.route_url(Routes.CLIENT_API)
         )
 
@@ -407,4 +408,8 @@ class TaskScheduleItem(Base):
 
 class TaskScheduleEmailTemplateFormatter(SafeFormatter):
     def __init__(self):
-        super().__init__(["access_key", "server_url"])
+        super().__init__([
+            "access_key",
+            "forename",
+            "server_url",
+        ])
