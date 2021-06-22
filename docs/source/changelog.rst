@@ -3437,3 +3437,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
   preventing downloads), to fix
   https://github.com/RudolfCardinal/camcops/issues/178, and add some additional
   safety checks.
+
+- Replace the brittle ``mailto:`` links with the ability to email patient
+  invitations from the CamCOPS server itself.
+  https://github.com/RudolfCardinal/camcops/issues/180
