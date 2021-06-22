@@ -4517,6 +4517,16 @@ class SendPatientEmailBaseView(FormView):
     form_class = SendEmailForm
     template_name = "send_patient_email.mako"
 
+    def __init__(self, *args, **kwargs) -> None:
+        self._pts = None
+
+        super().__init__(*args, **kwargs)
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        kwargs["pts"] = self._get_patient_task_schedule()
+
+        return super().get_context_data(**kwargs)
+
     def form_valid(self, form: "Form", appstruct: Dict[str, Any]) -> Response:
         config = self.request.config
 
@@ -4580,11 +4590,7 @@ class SendPatientEmailBaseView(FormView):
         self.request.session.flash(message, queue=FLASH_DANGER)
 
     def get_form_values(self) -> Dict:
-        pts_id = self.request.get_int_param(ViewParam.PATIENT_TASK_SCHEDULE_ID)
-
-        pts = self.request.dbsession.query(PatientTaskSchedule).filter(
-            PatientTaskSchedule.id == pts_id
-        ).one_or_none()
+        pts = self._get_patient_task_schedule()
 
         if pts is None:
             _ = self.request.gettext
@@ -4598,6 +4604,18 @@ class SendPatientEmailBaseView(FormView):
             ViewParam.EMAIL_SUBJECT: pts.task_schedule.email_subject,
             ViewParam.EMAIL_BODY: pts.email_body(self.request),
         }
+
+    def _get_patient_task_schedule(self) -> Optional[PatientTaskSchedule]:
+        if self._pts is not None:
+            return self._pts
+
+        pts_id = self.request.get_int_param(ViewParam.PATIENT_TASK_SCHEDULE_ID)
+
+        self._pts = self.request.dbsession.query(PatientTaskSchedule).filter(
+            PatientTaskSchedule.id == pts_id
+        ).one_or_none()
+
+        return self._pts
 
 
 class SendEmailFromPatientListView(SendPatientEmailBaseView):

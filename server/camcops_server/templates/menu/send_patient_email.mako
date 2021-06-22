@@ -28,6 +28,6 @@ camcops_server/templates/menu/send_patient_email.mako
 
 <%inherit file="base_web_form.mako"/>
 
-<h1>${ _("Send patient email") }</h1>
+<h1>${ _("Send email to {patient}").format(patient=pts.patient.get_forename_surname()) }</h1>
 
 ${ form | n }
