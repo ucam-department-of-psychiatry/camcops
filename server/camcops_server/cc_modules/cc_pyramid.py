@@ -173,6 +173,10 @@ class ViewParam(object):
     DUE_FROM = "due_from"
     DUE_WITHIN = "due_within"
     EMAIL = "email"
+    EMAIL_BCC = "email_bcc"
+    EMAIL_BODY = "email_body"
+    EMAIL_CC = "email_cc"
+    EMAIL_FROM = "email_from"
     EMAIL_SUBJECT = "email_subject"
     EMAIL_TEMPLATE = "email_template"
     END_DATETIME = "end_datetime"
@@ -744,6 +748,8 @@ class Routes(object):
     OFFER_BASIC_DUMP = "offer_basic_dump"
     REPORT = "report"
     REPORTS_MENU = "reports_menu"
+    SEND_EMAIL_FROM_PATIENT_LIST = "send_email_from_patient_list"
+    SEND_EMAIL_FROM_PATIENT_TASK_SCHEDULE = "send_email_from_patient_task_schedule"  # noqa: E501
     SET_FILTERS = "set_filters"
     SET_OTHER_USER_UPLOAD_GROUP = "set_other_user_upload_group"
     SET_OWN_USER_UPLOAD_GROUP = "set_user_upload_group"
@@ -880,6 +886,8 @@ class RouteCollection(object):
     OFFER_BASIC_DUMP = RoutePath(Routes.OFFER_BASIC_DUMP)
     REPORT = RoutePath(Routes.REPORT)
     REPORTS_MENU = RoutePath(Routes.REPORTS_MENU)
+    SEND_EMAIL_FROM_PATIENT_LIST = RoutePath(Routes.SEND_EMAIL_FROM_PATIENT_LIST)  # noqa: E501
+    SEND_EMAIL_FROM_PATIENT_TASK_SCHEDULE = RoutePath(Routes.SEND_EMAIL_FROM_PATIENT_TASK_SCHEDULE)  # noqa: E501
     SET_FILTERS = RoutePath(Routes.SET_FILTERS)
     SET_OTHER_USER_UPLOAD_GROUP = RoutePath(Routes.SET_OTHER_USER_UPLOAD_GROUP)
     SET_OWN_USER_UPLOAD_GROUP = RoutePath(Routes.SET_OWN_USER_UPLOAD_GROUP)

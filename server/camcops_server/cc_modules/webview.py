@@ -253,6 +253,7 @@ from camcops_server.cc_modules.cc_forms import (
     OfferSqlDumpForm,
     OfferTermsForm,
     RefreshTasksForm,
+    SendEmailForm,
     SetUserUploadGroupForm,
     EditTaskFilterForm,
     TasksPerPageForm,
@@ -305,6 +306,7 @@ from camcops_server.cc_modules.cc_taskindex import (
 )
 from camcops_server.cc_modules.cc_taskschedule import (
     PatientTaskSchedule,
+    PatientTaskScheduleEmail,
     TaskSchedule,
     TaskScheduleItem,
     task_schedule_item_sort_order,
@@ -327,11 +329,13 @@ from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 from camcops_server.cc_modules.cc_view_classes import (
     CreateView,
     DeleteView,
+    FormView,
     UpdateView,
 )
 
 if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
+    from deform.form import Form
     from camcops_server.cc_modules.cc_sqlalchemy import Base
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
@@ -4218,6 +4222,7 @@ def view_patient_task_schedule(req: "CamcopsRequest") -> Dict[str, Any]:
     patient_descriptor = pts.patient.prettystr(req)
 
     return dict(
+        pts=pts,
         patient_descriptor=patient_descriptor,
         schedule_name=pts.task_schedule.name,
         task_list=pts.get_list_of_scheduled_tasks(req),
@@ -4232,6 +4237,9 @@ class TaskScheduleMixin(object):
     model_form_dict = {
         "name": ViewParam.NAME,
         "group_id": ViewParam.GROUP_ID,
+        "email_bcc": ViewParam.EMAIL_BCC,
+        "email_cc": ViewParam.EMAIL_CC,
+        "email_from": ViewParam.EMAIL_FROM,
         "email_subject": ViewParam.EMAIL_SUBJECT,
         "email_template": ViewParam.EMAIL_TEMPLATE,
     }
@@ -4503,6 +4511,150 @@ def client_api_signposting(req: "CamcopsRequest") -> Dict[str, Any]:
         "github_link": f"<a href='{GITHUB_RELEASES_URL}'>GitHub</a>",
         "server_url": req.route_url(Routes.CLIENT_API)
     }
+
+
+class SendPatientEmailBaseView(FormView):
+    form_class = SendEmailForm
+    template_name = "send_patient_email.mako"
+
+    def __init__(self, *args, **kwargs) -> None:
+        self._pts = None
+
+        super().__init__(*args, **kwargs)
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        kwargs["pts"] = self._get_patient_task_schedule()
+
+        return super().get_context_data(**kwargs)
+
+    def form_valid(self, form: "Form", appstruct: Dict[str, Any]) -> Response:
+        config = self.request.config
+
+        patient_email = appstruct.get(ViewParam.EMAIL)
+
+        kwargs = dict(
+            from_addr=appstruct.get(ViewParam.EMAIL_FROM),
+            to=patient_email,
+            subject=appstruct.get(ViewParam.EMAIL_SUBJECT),
+            body=appstruct.get(ViewParam.EMAIL_BODY)
+        )
+
+        cc = appstruct.get(ViewParam.EMAIL_CC)
+        if cc:
+            kwargs["cc"] = cc
+
+        bcc = appstruct.get(ViewParam.EMAIL_BCC)
+        if bcc:
+            kwargs["bcc"] = bcc
+
+        email = Email(**kwargs)
+        ok = email.send(host=config.email_host,
+                        username=config.email_host_username,
+                        password=config.email_host_password,
+                        port=config.email_port,
+                        use_tls=config.email_use_tls)
+        if ok:
+            self._display_success_message(patient_email)
+        else:
+            self._display_failure_message(patient_email)
+
+        self.request.dbsession.add(email)
+        self.request.dbsession.flush()
+        pts_id = self.request.get_int_param(ViewParam.PATIENT_TASK_SCHEDULE_ID)
+        if pts_id is None:
+            _ = self.request.gettext
+            raise HTTPBadRequest(_("Patient task schedule does not exist"))
+
+        pts_email = PatientTaskScheduleEmail()
+        pts_email.patient_task_schedule_id = pts_id
+        pts_email.email_id = email.id
+        self.request.dbsession.add(pts_email)
+        self.request.dbsession.commit()
+
+        return super().form_valid(form, appstruct)
+
+    def _display_success_message(self, patient_email: str) -> None:
+        _ = self.request.gettext
+        message = _("Email sent to {patient_email}").format(
+            patient_email=patient_email
+        )
+
+        self.request.session.flash(message, queue=FLASH_SUCCESS)
+
+    def _display_failure_message(self, patient_email: str) -> None:
+        _ = self.request.gettext
+        message = _("Failed to send email to {patient_email}").format(
+            patient_email=patient_email
+        )
+
+        self.request.session.flash(message, queue=FLASH_DANGER)
+
+    def get_form_values(self) -> Dict:
+        pts = self._get_patient_task_schedule()
+
+        if pts is None:
+            _ = self.request.gettext
+            raise HTTPBadRequest(_("Patient task schedule does not exist"))
+
+        return {
+            ViewParam.EMAIL: pts.patient.email,
+            ViewParam.EMAIL_CC: pts.task_schedule.email_cc,
+            ViewParam.EMAIL_BCC: pts.task_schedule.email_bcc,
+            ViewParam.EMAIL_FROM: pts.task_schedule.email_from,
+            ViewParam.EMAIL_SUBJECT: pts.task_schedule.email_subject,
+            ViewParam.EMAIL_BODY: pts.email_body(self.request),
+        }
+
+    def _get_patient_task_schedule(self) -> Optional[PatientTaskSchedule]:
+        if self._pts is not None:
+            return self._pts
+
+        pts_id = self.request.get_int_param(ViewParam.PATIENT_TASK_SCHEDULE_ID)
+
+        self._pts = self.request.dbsession.query(PatientTaskSchedule).filter(
+            PatientTaskSchedule.id == pts_id
+        ).one_or_none()
+
+        return self._pts
+
+
+class SendEmailFromPatientListView(SendPatientEmailBaseView):
+    def get_success_url(self) -> str:
+        return self.request.route_url(
+            Routes.VIEW_PATIENT_TASK_SCHEDULES,
+        )
+
+
+class SendEmailFromPatientTaskScheduleView(SendPatientEmailBaseView):
+    def get_success_url(self) -> str:
+        pts_id = self.request.get_int_param(ViewParam.PATIENT_TASK_SCHEDULE_ID)
+
+        return self.request.route_url(
+            Routes.VIEW_PATIENT_TASK_SCHEDULE,
+            _query={
+                ViewParam.PATIENT_TASK_SCHEDULE_ID: pts_id
+            }
+        )
+
+
+@view_config(route_name=Routes.SEND_EMAIL_FROM_PATIENT_TASK_SCHEDULE,
+             permission=Permission.GROUPADMIN,
+             http_cache=NEVER_CACHE)
+def send_email_from_patient_task_schedule(req: "CamcopsRequest") -> Response:
+    """
+    View to send an email to a patient from their task schedule page.
+    """
+    return SendEmailFromPatientTaskScheduleView(req).dispatch()
+
+
+@view_config(route_name=Routes.SEND_EMAIL_FROM_PATIENT_LIST,
+             permission=Permission.GROUPADMIN,
+             http_cache=NEVER_CACHE)
+def send_email_from_patient_list(req: "CamcopsRequest") -> Response:
+    """
+    View to send an email to a patient from the list of patients.
+    """
+    return SendEmailFromPatientListView(req).dispatch()
 
 
 # =============================================================================

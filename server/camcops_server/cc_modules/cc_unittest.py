@@ -136,26 +136,15 @@ class DemoRequestTestCase(ExtendedTestCase):
         parser = configparser.ConfigParser()
         parser.read_string(config_text)
 
-        self.override_config_settings(parser)
+        # To override config settings in a test just set them directly on the
+        # config object on the request:
+        # eg: self.req.config.foo = "bar"
 
         with StringIO() as buffer:
             parser.write(buffer)
             config_text = buffer.getvalue()
 
         return config_text
-
-    def override_config_settings(self,
-                                 parser: configparser.ConfigParser) -> None:
-        """
-        Allows an individual test to override config settings
-        called from :meth:`setUp`.
-
-        Example of code that could be used here:
-
-        .. code-block:: python
-
-            parser.set("site", "MY_CONFIG_SETTING", "my value")
-        """
 
     def set_echo(self, echo: bool) -> None:
         """
