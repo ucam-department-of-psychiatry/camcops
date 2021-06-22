@@ -43,6 +43,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
           patient=patient_descriptor, schedule=schedule_name) }
 </h1>
 
+<div>
 <h2>${ _("Scheduled tasks") }</h2>
 
 <table class="scheduled_tasks_table">
@@ -118,7 +119,9 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
     </tr>
 %endfor
 </table>
+</div>
 
+<div>
 <h2>${ _("Emails") }</h2>
 
 <table>
@@ -149,7 +152,6 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
     <tr>
 %endfor
 </table>
-
 %if pts.patient.email:
 <div>
 <a href="${ req.route_url(
@@ -159,6 +161,8 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
                  }) | n }">${ _("Email this patient") }</a>
 </div>
 %endif
+</div>
+
 <div>
     <a href="${ req.route_url(Routes.VIEW_PATIENT_TASK_SCHEDULES) | n }">
         ${ _("Manage scheduled tasks for patients") }</a>
