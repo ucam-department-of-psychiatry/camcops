@@ -317,8 +317,14 @@ class TaskSchedule(Base):
                             default="")
     email_from = Column("email_from", EmailAddressColType,
                         comment="Sender's e-mail address")
-    email_copy = Column("email_copy", EmailAddressColType,
-                        comment="Send a copy of the email to this address")
+    email_cc = Column(
+        "email_cc", UnicodeText,
+        comment="Send a carbon copy of the email to these addresses"
+    )
+    email_bcc = Column(
+        "email_bcc", UnicodeText,
+        comment="Send a blind carbon copy of the email to these addresses"
+    )
 
     items = relationship(
         "TaskScheduleItem",

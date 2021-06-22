@@ -4237,7 +4237,8 @@ class TaskScheduleMixin(object):
     model_form_dict = {
         "name": ViewParam.NAME,
         "group_id": ViewParam.GROUP_ID,
-        "email_copy": ViewParam.EMAIL_COPY,
+        "email_bcc": ViewParam.EMAIL_BCC,
+        "email_cc": ViewParam.EMAIL_CC,
         "email_from": ViewParam.EMAIL_FROM,
         "email_subject": ViewParam.EMAIL_SUBJECT,
         "email_template": ViewParam.EMAIL_TEMPLATE,
@@ -4528,7 +4529,11 @@ class SendPatientEmailBaseView(FormView):
             body=appstruct.get(ViewParam.EMAIL_BODY)
         )
 
-        bcc = appstruct.get(ViewParam.EMAIL_COPY)
+        cc = appstruct.get(ViewParam.EMAIL_CC)
+        if cc:
+            kwargs["cc"] = cc
+
+        bcc = appstruct.get(ViewParam.EMAIL_BCC)
         if bcc:
             kwargs["bcc"] = bcc
 
@@ -4587,7 +4592,8 @@ class SendPatientEmailBaseView(FormView):
 
         return {
             ViewParam.EMAIL: pts.patient.email,
-            ViewParam.EMAIL_COPY: pts.task_schedule.email_copy,
+            ViewParam.EMAIL_CC: pts.task_schedule.email_cc,
+            ViewParam.EMAIL_BCC: pts.task_schedule.email_bcc,
             ViewParam.EMAIL_FROM: pts.task_schedule.email_from,
             ViewParam.EMAIL_SUBJECT: pts.task_schedule.email_subject,
             ViewParam.EMAIL_BODY: pts.email_body(self.request),
@@ -4618,7 +4624,7 @@ class SendEmailFromPatientTaskScheduleView(SendPatientEmailBaseView):
              http_cache=NEVER_CACHE)
 def send_email_from_patient_task_schedule(req: "CamcopsRequest") -> Response:
     """
-    View to send an email to a patient.
+    View to send an email to a patient from their task schedule page.
     """
     return SendEmailFromPatientTaskScheduleView(req).dispatch()
 
@@ -4628,7 +4634,7 @@ def send_email_from_patient_task_schedule(req: "CamcopsRequest") -> Response:
              http_cache=NEVER_CACHE)
 def send_email_from_patient_list(req: "CamcopsRequest") -> Response:
     """
-    View to send an email to a patient.
+    View to send an email to a patient from the list of patients.
     """
     return SendEmailFromPatientListView(req).dispatch()
 

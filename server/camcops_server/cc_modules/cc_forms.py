@@ -4218,11 +4218,26 @@ class EmailTemplateNode(OptionalStringNode, RequestAwareMixin):
         raise Invalid(node, error)
 
 
-class EmailCopyNode(OptionalEmailNode, RequestAwareMixin):
+class EmailCcNode(OptionalEmailNode, RequestAwareMixin):
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         _ = self.gettext
-        self.title = _('Copy emails to this address')
+        self.title = _("Email CC")
+        self.description = _(
+            "The patient will see these email addresses. Separate multiple "
+            "addresses with commas."
+        )
+
+
+class EmailBccNode(OptionalEmailNode, RequestAwareMixin):
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        _ = self.gettext
+        self.title = _("Email BCC")
+        self.description = _(
+            "The patient will not see these email addresses. Separate multiple "
+            "addresses with commas."
+        )
 
 
 class EmailFromNode(OptionalEmailNode, RequestAwareMixin):
@@ -4236,7 +4251,8 @@ class TaskScheduleSchema(CSRFSchema):
     name = OptionalStringNode()
     group_id = MandatoryGroupIdSelectorAdministeredGroups()  # must match ViewParam.GROUP_ID  # noqa
     email_from = EmailFromNode()  # must match ViewParam.EMAIL_FROM
-    email_copy = EmailCopyNode()  # must match ViewParam.EMAIL_COPY
+    email_cc = EmailCcNode()  # must match ViewParam.EMAIL_CC
+    email_bcc = EmailBccNode()  # must match ViewParam.EMAIL_BCC
     email_subject = OptionalStringNode()
     email_template = EmailTemplateNode()
 
@@ -4727,7 +4743,8 @@ class EmailBodyNode(MandatoryStringNode, RequestAwareMixin):
 
 class SendEmailSchema(CSRFSchema):
     email = MandatoryEmailNode()  # name must match ViewParam.EMAIL
-    email_copy = HiddenStringNode()
+    email_cc = HiddenStringNode()
+    email_bcc = HiddenStringNode()
     email_from = HiddenStringNode()
     email_subject = MandatoryStringNode()
     email_body = EmailBodyNode()

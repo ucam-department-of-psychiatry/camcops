@@ -59,9 +59,16 @@ depends_on = None
 # noinspection PyPep8,PyTypeChecker
 def upgrade():
     with op.batch_alter_table('_task_schedule', schema=None) as batch_op:
-        batch_op.add_column(sa.Column('email_copy', sa.Unicode(length=255),
-                                      nullable=True,
-                                      comment='Send a copy of the email to this address'))
+        batch_op.add_column(sa.Column(
+            'email_cc', sa.UnicodeText(),
+            nullable=True,
+            comment='Send a carbon copy of the email to these addresses')
+        )
+        batch_op.add_column(sa.Column(
+            'email_bcc', sa.UnicodeText(),
+            nullable=True,
+            comment='Send a blind carbon copy of the email to these addresses')
+        )
         batch_op.add_column(sa.Column('email_from',
                                       sa.Unicode(length=255),
                                       nullable=True,
@@ -72,4 +79,5 @@ def upgrade():
 def downgrade():
     with op.batch_alter_table('_task_schedule', schema=None) as batch_op:
         batch_op.drop_column('email_from')
-        batch_op.drop_column('email_copy')
+        batch_op.drop_column('email_cc')
+        batch_op.drop_column('email_bcc')

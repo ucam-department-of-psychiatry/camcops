@@ -146,7 +146,8 @@ class AddTaskScheduleViewTests(DemoDatabaseTestCase):
             (ViewParam.NAME, "MOJO"),
             (ViewParam.GROUP_ID, self.group.id),
             (ViewParam.EMAIL_FROM, "server@example.com"),
-            (ViewParam.EMAIL_COPY, "copy@example.com"),
+            (ViewParam.EMAIL_CC, "cc@example.com"),
+            (ViewParam.EMAIL_BCC, "bcc@example.com"),
             (ViewParam.EMAIL_SUBJECT, "Subject"),
             (ViewParam.EMAIL_TEMPLATE, "Email template"),
             (FormAction.SUBMIT, "submit"),
@@ -163,7 +164,7 @@ class AddTaskScheduleViewTests(DemoDatabaseTestCase):
 
         self.assertEqual(schedule.name, "MOJO")
         self.assertEqual(schedule.email_from, "server@example.com")
-        self.assertEqual(schedule.email_copy, "copy@example.com")
+        self.assertEqual(schedule.email_bcc, "bcc@example.com")
         self.assertEqual(schedule.email_subject, "Subject")
         self.assertEqual(schedule.email_template, "Email template")
 
@@ -2215,7 +2216,7 @@ class SendEmailFromPatientTaskScheduleViewTests(BasicDatabaseTestCase):
 
     @mock.patch("camcops_server.cc_modules.cc_email.send_msg")
     @mock.patch("camcops_server.cc_modules.cc_email.make_email")
-    def test_sends_copy_of_email(self, mock_make_email, mock_send_msg) -> None:
+    def test_sends_cc_of_email(self, mock_make_email, mock_send_msg) -> None:
         self.req.config.email_host = "smtp.example.com"
         self.req.config.email_port = 587
         self.req.config.email_host_username = "mailuser"
@@ -2224,7 +2225,7 @@ class SendEmailFromPatientTaskScheduleViewTests(BasicDatabaseTestCase):
 
         multidict = MultiDict([
             (ViewParam.EMAIL, "patient@example.com"),
-            (ViewParam.EMAIL_COPY, "copy@example.com"),
+            (ViewParam.EMAIL_CC, "cc@example.com"),
             (ViewParam.EMAIL_FROM, "server@example.com"),
             (ViewParam.EMAIL_SUBJECT, "Subject"),
             (ViewParam.EMAIL_BODY, "Email body"),
@@ -2242,7 +2243,39 @@ class SendEmailFromPatientTaskScheduleViewTests(BasicDatabaseTestCase):
 
         args, kwargs = mock_make_email.call_args
         self.assertEqual(kwargs["to"], "patient@example.com")
-        self.assertEqual(kwargs["bcc"], "copy@example.com")
+        self.assertEqual(kwargs["cc"], "cc@example.com")
+
+    @mock.patch("camcops_server.cc_modules.cc_email.send_msg")
+    @mock.patch("camcops_server.cc_modules.cc_email.make_email")
+    def test_sends_bcc_of_email(self, mock_make_email, mock_send_msg) -> None:
+        self.req.config.email_host = "smtp.example.com"
+        self.req.config.email_port = 587
+        self.req.config.email_host_username = "mailuser"
+        self.req.config.email_host_password = "mailpassword"
+        self.req.config.email_use_tls = True
+
+        multidict = MultiDict([
+            (ViewParam.EMAIL, "patient@example.com"),
+            (ViewParam.EMAIL_CC, "cc@example.com"),
+            (ViewParam.EMAIL_BCC, "bcc@example.com"),
+            (ViewParam.EMAIL_FROM, "server@example.com"),
+            (ViewParam.EMAIL_SUBJECT, "Subject"),
+            (ViewParam.EMAIL_BODY, "Email body"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+        self.req.add_get_params({
+            ViewParam.PATIENT_TASK_SCHEDULE_ID: str(self.pts.id)
+        }, set_method_get=False)
+        view = SendEmailFromPatientTaskScheduleView(self.req)
+
+        with self.assertRaises(HTTPFound):
+            view.dispatch()
+
+        args, kwargs = mock_make_email.call_args
+        self.assertEqual(kwargs["to"], "patient@example.com")
+        self.assertEqual(kwargs["bcc"], "bcc@example.com")
 
     @mock.patch("camcops_server.cc_modules.cc_email.send_msg")
     @mock.patch("camcops_server.cc_modules.cc_email.make_email")

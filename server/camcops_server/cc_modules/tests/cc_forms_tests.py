@@ -102,7 +102,8 @@ class TaskScheduleSchemaTests(DemoDatabaseTestCase):
             ViewParam.NAME: "test",
             ViewParam.GROUP_ID: str(self.group.id),
             ViewParam.EMAIL_FROM: null,
-            ViewParam.EMAIL_COPY: null,
+            ViewParam.EMAIL_CC: null,
+            ViewParam.EMAIL_BCC: null,
             ViewParam.EMAIL_SUBJECT: "Subject",
             ViewParam.EMAIL_TEMPLATE: "{bad_key}",
         }
@@ -119,7 +120,8 @@ class TaskScheduleSchemaTests(DemoDatabaseTestCase):
             ViewParam.NAME: "test",
             ViewParam.GROUP_ID: str(self.group.id),
             ViewParam.EMAIL_FROM: null,
-            ViewParam.EMAIL_COPY: null,
+            ViewParam.EMAIL_CC: null,
+            ViewParam.EMAIL_BCC: null,
             ViewParam.EMAIL_SUBJECT: "Subject",
             ViewParam.EMAIL_TEMPLATE: "{server_url",
         }
