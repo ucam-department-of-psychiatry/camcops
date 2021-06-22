@@ -4245,6 +4245,9 @@ class EmailFromNode(OptionalEmailNode, RequestAwareMixin):
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         _ = self.gettext
         self.title = _('Email "From" address')
+        self.description = _(
+            "You must set this if you want to send emails to your patients"
+        )
 
 
 class TaskScheduleSchema(CSRFSchema):
