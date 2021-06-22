@@ -91,7 +91,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
                                  }) | n }">${ pts.task_schedule.name }</a>
                     </td>
                     <td>
-                        %if patient.email:
+                        %if patient.email and pts.task_schedule.email_from:
                         <a class="${ button_class }" href="${ req.route_url(
                                  Routes.SEND_EMAIL_FROM_PATIENT_LIST,
                                  _query={

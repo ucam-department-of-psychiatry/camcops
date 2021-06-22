@@ -152,7 +152,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
     <tr>
 %endfor
 </table>
-%if pts.patient.email:
+%if pts.patient.email and pts.task_schedule.email_from:
 <div>
 <a href="${ req.route_url(
                  Routes.SEND_EMAIL_FROM_PATIENT_TASK_SCHEDULE,
