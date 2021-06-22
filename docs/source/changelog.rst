@@ -3441,3 +3441,4 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Replace the brittle ``mailto:`` links with the ability to email patient
   invitations from the CamCOPS server itself.
   https://github.com/RudolfCardinal/camcops/issues/180
+  (Database revisions 0064-0065)
