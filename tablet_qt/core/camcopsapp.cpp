@@ -942,7 +942,9 @@ bool CamcopsApp::processCommandLineArguments(int& retcode)
         QString(
             "If no mode has previously been selected, do not display the mode "
             "selection dialog and default to single user mode."
-        )
+            ),
+        "DEFAULT_SINGLE_USER_MODE",
+        "false"
     );
     parser.addOption(defaultSingleUserModeOption);
 
@@ -953,7 +955,7 @@ bool CamcopsApp::processCommandLineArguments(int& retcode)
             "If no server has been registered, default to this URL "
             "e.g. https://server.example.com/camcops/api"
             ),
-        "SERVER_API_URL"
+        "DEFAULT_SERVER_LOCATION"
     );
     parser.addOption(defaultServerLocationOption);
 
@@ -964,7 +966,7 @@ bool CamcopsApp::processCommandLineArguments(int& retcode)
             "If no patient has been registered, default to this access key "
             "e.g. abcde-fghij-klmno-pqrst-uvwxy-zabcd-efghi-jklmn-o"
             ),
-        "ACCESS_KEY"
+        "DEFAULT_ACCESS_KEY"
     );
     parser.addOption(defaultAccessKeyOption);
 
@@ -1011,7 +1013,9 @@ bool CamcopsApp::processCommandLineArguments(int& retcode)
         m_database_path = db_dir;
     }
 
-    m_default_single_user_mode = parser.isSet(defaultSingleUserModeOption);
+    m_default_single_user_mode = (
+        parser.value(defaultSingleUserModeOption).toLower() == "true"
+    );
     m_default_server_url = QUrl(parser.value(defaultServerLocationOption));
     m_default_patient_proquint = parser.value(defaultAccessKeyOption);
 
