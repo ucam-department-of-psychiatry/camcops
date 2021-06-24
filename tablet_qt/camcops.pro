@@ -1462,6 +1462,7 @@ OTHER_FILES += \
     android/gradlew.bat \
     android/res/drawable-ldpi/icon.png \
     android/res/values/libs.xml \
+    android/src/org/camcops/camcops/CamcopsActivity.java \
     ios/camcops_icon_500.png \
     ios/Info.plist \
     ios/*.storyboard \
