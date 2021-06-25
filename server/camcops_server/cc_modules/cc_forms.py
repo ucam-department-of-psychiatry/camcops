@@ -159,6 +159,7 @@ from deform.widget import (
     MappingWidget,
     PasswordWidget,
     RadioChoiceWidget,
+    RichTextWidget,
     SelectWidget,
     SequenceWidget,
     TextAreaWidget,
@@ -4198,7 +4199,7 @@ class EmailTemplateNode(OptionalStringNode, RequestAwareMixin):
         ).format(self.formatter.get_valid_parameters_string())
 
         # noinspection PyAttributeOutsideInit
-        self.widget = TextAreaWidget(rows=20, cols=80)
+        self.widget = RichTextWidget()
 
     def validator(self, node: SchemaNode, value: Any) -> None:
         _ = self.gettext
@@ -4741,7 +4742,7 @@ class EmailBodyNode(MandatoryStringNode, RequestAwareMixin):
         self.title = _("Message")
 
         # noinspection PyAttributeOutsideInit
-        self.widget = TextAreaWidget(rows=20, cols=80)
+        self.widget = RichTextWidget()
 
 
 class SendEmailSchema(CSRFSchema):
