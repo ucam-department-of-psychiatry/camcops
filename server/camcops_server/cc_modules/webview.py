@@ -4536,7 +4536,8 @@ class SendPatientEmailBaseView(FormView):
             from_addr=appstruct.get(ViewParam.EMAIL_FROM),
             to=patient_email,
             subject=appstruct.get(ViewParam.EMAIL_SUBJECT),
-            body=appstruct.get(ViewParam.EMAIL_BODY)
+            body=appstruct.get(ViewParam.EMAIL_BODY),
+            content_type="text/html"
         )
 
         cc = appstruct.get(ViewParam.EMAIL_CC)

@@ -2206,6 +2206,7 @@ class SendEmailFromPatientTaskScheduleViewTests(BasicDatabaseTestCase):
         self.assertEqual(kwargs["to"], "patient@example.com")
         self.assertEqual(kwargs["subject"], "Subject")
         self.assertEqual(kwargs["body"], "Email body")
+        self.assertEqual(kwargs["content_type"], "text/html")
 
         args, kwargs = mock_send_msg.call_args
         self.assertEqual(kwargs["host"], "smtp.example.com")
