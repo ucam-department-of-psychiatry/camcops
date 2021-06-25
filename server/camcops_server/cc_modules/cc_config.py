@@ -76,6 +76,7 @@ import datetime
 import os
 import logging
 import re
+from subprocess import run, PIPE
 from typing import Any, Dict, Generator, List, Optional, Union
 
 from cardinal_pythonlib.configfiles import (
@@ -1161,6 +1162,13 @@ class CamcopsConfig(object):
         self.email_use_tls = _get_bool(s, cs.EMAIL_USE_TLS, cd.EMAIL_USE_TLS)
         self.email_host_username = _get_str(s, cs.EMAIL_HOST_USERNAME, "")
         self.email_host_password = _get_str(s, cs.EMAIL_HOST_PASSWORD, "")
+
+        # Development only: Read password from safe using GNU Pass
+        gnu_pass_lookup = _get_str(s, cs.EMAIL_HOST_PASSWORD_GNU_PASS_LOOKUP,
+                                   "")
+        if gnu_pass_lookup:
+            output = run(["pass", gnu_pass_lookup], stdout=PIPE)
+            self.email_host_password = output.stdout.decode("utf-8").split()[0]
 
         self.email_from = _get_str(s, cs.EMAIL_FROM, "")
         self.email_sender = _get_str(s, cs.EMAIL_SENDER, "")
