@@ -35,7 +35,7 @@ public class CamcopsActivity extends QtActivity
      @Override
      public void onCreate(Bundle savedInstanceState) {
           // Handle application launch from a hyperlink
-          // e.g. camcops://?default_single_user_mode=true&default_server_location=https%3A%2F%2Fserver.example.com%2Fapi&default_access_key=fomom-nobij-hirug-hukor-rudal-nukup-kilum-fanif-b
+          // e.g. http://camcops/?default_single_user_mode=true&default_server_location=https%3A%2F%2Fserver.example.com%2Fapi&default_access_key=fomom-nobij-hirug-hukor-rudal-nukup-kilum-fanif-b
 
           Intent intent = getIntent();
 
