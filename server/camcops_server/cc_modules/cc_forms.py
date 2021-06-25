@@ -300,6 +300,10 @@ class AutocompleteAttrValues(object):
     USERNAME = "username"
 
 
+class WidgetDefaults(object):
+    TINYMCE_OPTIONS = {"content_css": "static/tinymce/custom_content.css"}
+
+
 # =============================================================================
 # Common phrases for translation
 # =============================================================================
@@ -4199,7 +4203,7 @@ class EmailTemplateNode(OptionalStringNode, RequestAwareMixin):
         ).format(self.formatter.get_valid_parameters_string())
 
         # noinspection PyAttributeOutsideInit
-        self.widget = RichTextWidget()
+        self.widget = RichTextWidget(options=WidgetDefaults.TINYMCE_OPTIONS)
 
     def validator(self, node: SchemaNode, value: Any) -> None:
         _ = self.gettext
@@ -4742,7 +4746,7 @@ class EmailBodyNode(MandatoryStringNode, RequestAwareMixin):
         self.title = _("Message")
 
         # noinspection PyAttributeOutsideInit
-        self.widget = RichTextWidget()
+        self.widget = RichTextWidget(options=WidgetDefaults.TINYMCE_OPTIONS)
 
 
 class SendEmailSchema(CSRFSchema):
