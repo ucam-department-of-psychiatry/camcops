@@ -301,7 +301,14 @@ class AutocompleteAttrValues(object):
 
 
 class WidgetDefaults(object):
-    TINYMCE_OPTIONS = {"content_css": "static/tinymce/custom_content.css"}
+    TINYMCE_OPTIONS = {
+        "content_css": "static/tinymce/custom_content.css",
+        "menubar": "false",
+        "plugins": "link",
+        "toolbar": ("undo redo | bold italic underline | link | "
+                    "alignleft aligncenter alignright alignjustify | "
+                    "outdent indent"),
+    }
 
 
 # =============================================================================
