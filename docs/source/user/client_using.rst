@@ -322,7 +322,10 @@ tablet. It is used in conjunction with :ref:`task schedules <scheduling_tasks>`.
 When you start the app for the first time, you will be prompted to enter the web
 address of the CamCOPS server and the unique access key for your patient. These
 should have been given to you by the clinician or researcher associated with the
-study you are participating in.
+study you are participating in. If you have an Android phone or tablet you may
+have been emailed a web address that you can use to register your patient with
+the server. For this to work, you will need to open the link from the email on
+your phone.
 
 On the main menu you will see a list of tasks that you need to complete
 and the date by which you need to complete them. You can start a task by
