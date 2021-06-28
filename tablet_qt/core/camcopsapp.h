@@ -34,6 +34,7 @@
 #include "lib/slowguiguard.h"
 #include "questionnairelib/namevalueoptions.h"
 #include "tasklib/task.h"  // for TaskPtr
+class ConfigHandler;
 class IdPolicy;
 class OpenableWidget;
 class QSqlDatabase;
@@ -280,6 +281,10 @@ public slots:
 
     // "Leave fullscreen mode."
     void leaveFullscreen();
+
+    void setDefaultSingleUserMode(QString);
+    void setDefaultServerLocation(QString);
+    void setDefaultAccessKey(QString);
 
     // ------------------------------------------------------------------------
     // Language
@@ -863,4 +868,7 @@ protected:
     SlowGuiGuard* m_network_gui_guard;
 
     QDateTime m_last_automatic_upload_time;
+
+private:
+    ConfigHandler* m_config_handler;
 };

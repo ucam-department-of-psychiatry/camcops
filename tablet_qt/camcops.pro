@@ -533,6 +533,7 @@ SOURCES += \
     common/varconst.cpp \
     common/widgetconst.cpp \
     core/camcopsapp.cpp \
+    core/confighandler.cpp \
     core/networkmanager.cpp \
     crypto/cryptofunc.cpp \
     crypto/secureqbytearray.cpp \
@@ -997,6 +998,7 @@ HEADERS += \
     common/varconst.h \
     common/widgetconst.h \
     core/camcopsapp.h \
+    core/confighandler.h \
     core/networkmanager.h \
     crypto/cryptofunc.h \
     crypto/secureqbytearray.h \

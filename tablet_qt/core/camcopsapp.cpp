@@ -58,6 +58,7 @@
 #include "common/textconst.h"
 #include "common/uiconst.h"
 #include "common/varconst.h"
+#include "core/confighandler.h"
 #include "core/networkmanager.h"
 #include "crypto/cryptofunc.h"
 #include "db/ancillaryfunc.h"
@@ -745,6 +746,14 @@ int CamcopsApp::run()
     // everything that we can in a different thread through backgroundStartup.
     // This makes the GUI startup more responsive.
 
+    m_config_handler = ConfigHandler::getInstance();
+    connect(m_config_handler, &ConfigHandler::defaultSingleUserModeSet,
+            this, &CamcopsApp::setDefaultSingleUserMode);
+    connect(m_config_handler, &ConfigHandler::defaultServerLocationSet,
+            this, &CamcopsApp::setDefaultServerLocation);
+    connect(m_config_handler, &ConfigHandler::defaultAccessKeySet,
+            this, &CamcopsApp::setDefaultAccessKey);
+
     // Command-line arguments
     int retcode = 0;
     if (!processCommandLineArguments(retcode)) {
@@ -828,6 +837,24 @@ int CamcopsApp::run()
     }
 
     return exec();  // Main Qt event loop
+}
+
+
+void CamcopsApp::setDefaultSingleUserMode(QString value)
+{
+    m_default_single_user_mode = (value.toLower() == "true");
+}
+
+
+void CamcopsApp::setDefaultServerLocation(QString url)
+{
+    m_default_server_url = QUrl(url);
+}
+
+
+void CamcopsApp::setDefaultAccessKey(QString key)
+{
+    m_default_patient_proquint = key;
 }
 
 
@@ -1013,11 +1040,9 @@ bool CamcopsApp::processCommandLineArguments(int& retcode)
         m_database_path = db_dir;
     }
 
-    m_default_single_user_mode = (
-        parser.value(defaultSingleUserModeOption).toLower() == "true"
-    );
-    m_default_server_url = QUrl(parser.value(defaultServerLocationOption));
-    m_default_patient_proquint = parser.value(defaultAccessKeyOption);
+    setDefaultSingleUserMode(parser.value(defaultSingleUserModeOption));
+    setDefaultServerLocation(parser.value(defaultServerLocationOption));
+    setDefaultAccessKey(parser.value(defaultAccessKeyOption));
 
     // ------------------------------------------------------------------------
     // Actions that make us do something and quit
