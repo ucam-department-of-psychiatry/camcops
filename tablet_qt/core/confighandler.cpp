@@ -17,7 +17,11 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <QSysInfo>
+
+#ifdef Q_OS_ANDROID
 #include <jni.h>
+#endif
 
 #include "core/confighandler.h"
 
@@ -36,6 +40,7 @@ ConfigHandler* ConfigHandler::getInstance()
     return m_instance;
 }
 
+#ifdef Q_OS_ANDROID
 // Called from android/src/org/camcops/camcops/CamcopsActivity.java
 #ifdef __cplusplus
 extern "C" {
@@ -89,4 +94,6 @@ JNIEXPORT void JNICALL
 
 #ifdef __cplusplus
 }
+#endif
+
 #endif
