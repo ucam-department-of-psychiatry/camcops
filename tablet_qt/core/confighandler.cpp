@@ -36,6 +36,7 @@ ConfigHandler* ConfigHandler::getInstance()
     return m_instance;
 }
 
+// Called from android/src/org/camcops/camcops/CamcopsActivity.java
 #ifdef __cplusplus
 extern "C" {
 #endif

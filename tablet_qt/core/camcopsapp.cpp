@@ -209,7 +209,8 @@ void CamcopsApp::setModeFromUser()
     const int old_mode = getMode();
     int new_mode;
 
-    // Single user mode specified on the command line
+    // Single user mode specified on the command line or if the app was
+    // launched via a deep link on Android (starting http://camcops/)
     if (old_mode == varconst::MODE_NOT_SET && m_default_single_user_mode) {
         new_mode = varconst::MODE_SINGLE_USER;
     } else {
@@ -746,6 +747,7 @@ int CamcopsApp::run()
     // everything that we can in a different thread through backgroundStartup.
     // This makes the GUI startup more responsive.
 
+    // Listen for application launch from URL
     m_config_handler = ConfigHandler::getInstance();
     connect(m_config_handler, &ConfigHandler::defaultSingleUserModeSet,
             this, &CamcopsApp::setDefaultSingleUserMode);
@@ -842,6 +844,7 @@ int CamcopsApp::run()
 
 void CamcopsApp::setDefaultSingleUserMode(QString value)
 {
+    // Set from URL or command line so string not boolean
     m_default_single_user_mode = (value.toLower() == "true");
 }
 

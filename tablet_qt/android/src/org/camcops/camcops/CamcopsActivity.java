@@ -38,11 +38,18 @@ import org.qtproject.qt5.android.bindings.QtApplication;
 
 public class CamcopsActivity extends QtActivity
 {
+    /* Handle application launch from a hyperlink
+     * e.g. http://camcops/?default_single_user_mode=true&default_server_location=https%3A%2F%2Fserver.example.com%2Fapi&default_access_key=abcde-fghij-klmno-pqrst-uvwxy-zabcd-efghi-jklmn-o
+     * If no instance of the app is running, onCreate() is called and we pass
+     * the URL parameters as arguments to the app's main().
+     * If the app is already running, onNewIntent() is called and the URL
+     * parameters are sent as signals to the app via ConfigHandler. We could
+     * have used signals in both cases.
+    */
+
     private static final String TAG = "camcops";
 
-    // Handle application launch from a hyperlink
-    // e.g. http://camcops/?default_single_user_mode=true&default_server_location=https%3A%2F%2Fserver.example.com%2Fapi&default_access_key=fomom-nobij-hirug-hukor-rudal-nukup-kilum-fanif-b
-
+    // Defined in confighandler.cpp
     public static native void setDefaultSingleUserMode(String value);
     public static native void setDefaultServerLocation(String value);
     public static native void setDefaultAccessKey(String value);
@@ -87,9 +94,10 @@ public class CamcopsActivity extends QtActivity
 
     @Override
     public void onNewIntent(Intent intent) {
-        // Called when the app is already running. Send the URL parameters
-        // as signals to the app. This will work, provided the user hasn't
-        // already registered manually
+        /* Called when the app is already running. Send the URL parameters
+         * as signals to the app. If the user has already registered manually,
+         * this will have no effect.
+         */
         Log.i(TAG, "onNewIntent");
 
         super.onNewIntent(intent);
@@ -118,11 +126,9 @@ public class CamcopsActivity extends QtActivity
     }
 
     private Map<String, String> getQueryParameters(Uri uri) {
-        List<String> names = Arrays.asList(
-                                           "default_single_user_mode",
+        List<String> names = Arrays.asList("default_single_user_mode",
                                            "default_server_location",
-                                           "default_access_key"
-                                           );
+                                           "default_access_key");
 
         Map<String, String> parameters = new HashMap<String, String>();
 
@@ -138,6 +144,7 @@ public class CamcopsActivity extends QtActivity
 
     public void onConfigurationChanged(Configuration newConfig) {
         // https://bugreports.qt.io/browse/QTBUG-38971
+        // SuperNotCalled exception on orientation change
         super_onConfigurationChanged(newConfig);
         QtApplication.invokeDelegate(newConfig);
     }
