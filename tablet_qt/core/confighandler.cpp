@@ -17,7 +17,11 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <QDebug>
+#include <QDesktopServices>
 #include <QSysInfo>
+#include <QUrl>
+#include <QUrlQuery>
 
 #ifdef Q_OS_ANDROID
 #include <jni.h>
@@ -30,6 +34,32 @@ ConfigHandler* ConfigHandler::m_instance = NULL;
 ConfigHandler::ConfigHandler()
 {
     m_instance = this;
+    QDesktopServices::setUrlHandler("camcops", this, "handleUrl");
+}
+
+void ConfigHandler::handleUrl(const QUrl url)
+{
+    qDebug() << Q_FUNC_INFO << url;
+
+    auto query = QUrlQuery(url);
+    auto default_single_user_mode = query.queryItemValue("default_single_user_mode");
+    qDebug() << default_single_user_mode;
+    if (!default_single_user_mode.isEmpty()) {
+        emit defaultSingleUserModeSet(default_single_user_mode);
+    }
+
+    auto default_server_location = query.queryItemValue("default_server_location",
+                                                        QUrl::FullyDecoded);
+    qDebug() << default_server_location;
+    if (!default_server_location.isEmpty()) {
+        emit defaultServerLocationSet(default_server_location);
+    }
+
+    auto default_access_key = query.queryItemValue("default_access_key");
+    qDebug() << default_access_key;
+    if (!default_access_key.isEmpty()) {
+        emit defaultAccessKeySet(default_access_key);
+    }
 }
 
 
