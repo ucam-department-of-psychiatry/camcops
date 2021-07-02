@@ -40,7 +40,7 @@ UrlHandler::UrlHandler()
     // So this is handled in:
     // tablet_qt/android/src/org/camcops/camcops/CamcopsActivity.java
 
-    // We use 'camcops' scheme instead of 'http' (with 'camcops' domain)
+    // We use 'camcops' scheme instead of 'http' (with 'camcops.org' domain)
     // on Android:
     // https://doc.qt.io/qt-5/qdesktopservices.html#setUrlHandler says
     // "It is not possible to claim support for some well known URL schemes,
@@ -58,20 +58,17 @@ void UrlHandler::handleUrl(const QUrl url)
 
     auto query = QUrlQuery(url);
     auto default_single_user_mode = query.queryItemValue("default_single_user_mode");
-    qDebug() << default_single_user_mode;
     if (!default_single_user_mode.isEmpty()) {
         emit defaultSingleUserModeSet(default_single_user_mode);
     }
 
     auto default_server_location = query.queryItemValue("default_server_location",
                                                         QUrl::FullyDecoded);
-    qDebug() << default_server_location;
     if (!default_server_location.isEmpty()) {
         emit defaultServerLocationSet(default_server_location);
     }
 
     auto default_access_key = query.queryItemValue("default_access_key");
-    qDebug() << default_access_key;
     if (!default_access_key.isEmpty()) {
         emit defaultAccessKeySet(default_access_key);
     }
