@@ -206,8 +206,8 @@ class PatientTaskScheduleTests(DemoDatabaseTestCase):
         url = self.pts.email_body(self.req)
         (scheme, netloc, path, query, fragment) = urlsplit(url)
         self.assertEqual(scheme, "http")
-        self.assertEqual(netloc, "camcops")
-        self.assertEqual(path, "/")
+        self.assertEqual(netloc, "camcops.org")
+        self.assertEqual(path, "/register/")
         query_dict = parse_qs(query)
         self.assertEqual(query_dict["default_single_user_mode"], ["true"])
         self.assertEqual(query_dict["default_server_location"],
