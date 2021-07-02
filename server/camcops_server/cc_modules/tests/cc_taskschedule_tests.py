@@ -215,6 +215,23 @@ class PatientTaskScheduleTests(DemoDatabaseTestCase):
         self.assertEqual(query_dict["default_access_key"],
                          [self.patient.uuid_as_proquint])
 
+    def test_email_body_contains_ios_launch_url(self) -> None:
+        self.schedule.email_template = "{ios_launch_url}"
+        self.dbsession.add(self.schedule)
+        self.dbsession.flush()
+
+        url = self.pts.email_body(self.req)
+        (scheme, netloc, path, query, fragment) = urlsplit(url)
+        self.assertEqual(scheme, "camcops")
+        self.assertEqual(netloc, "camcops.org")
+        self.assertEqual(path, "/register/")
+        query_dict = parse_qs(query)
+        self.assertEqual(query_dict["default_single_user_mode"], ["true"])
+        self.assertEqual(query_dict["default_server_location"],
+                         [self.req.route_url(Routes.CLIENT_API)])
+        self.assertEqual(query_dict["default_access_key"],
+                         [self.patient.uuid_as_proquint])
+
     def test_email_body_disallows_invalid_template(self) -> None:
         self.schedule.email_template = "{foobar}"
         self.dbsession.add(self.schedule)

@@ -223,7 +223,8 @@ class PatientTaskSchedule(Base):
     def email_body(self, req: "CamcopsRequest") -> str:
         template_dict = dict(
             access_key=self.patient.uuid_as_proquint,
-            android_launch_url=self.android_launch_url(req),
+            android_launch_url=self.launch_url(req, "http"),
+            ios_launch_url=self.launch_url(req, "camcops"),
             forename=self.patient.forename,
             server_url=req.route_url(Routes.CLIENT_API),
             surname=self.patient.surname,
@@ -233,12 +234,15 @@ class PatientTaskSchedule(Base):
         return formatter.format(self.task_schedule.email_template,
                                 **template_dict)
 
-    def android_launch_url(self, req: "CamcopsRequest") -> str:
+    def launch_url(self, req: "CamcopsRequest", scheme: str) -> str:
         # Matches intent-filter in AndroidManifest.xml
-        scheme = "http"
+        # And CFBundleURLSchemes in Info.plist
+
+        # iOS doesn't care about these:
         netloc = "camcops.org"
         path = "/register/"
         fragment = ""
+
         query_dict = {
             "default_single_user_mode": "true",
             "default_server_location": req.route_url(Routes.CLIENT_API),
@@ -436,6 +440,7 @@ class TaskScheduleEmailTemplateFormatter(SafeFormatter):
             "access_key",
             "android_launch_url",
             "forename",
+            "ios_launch_url",
             "server_url",
             "surname",
         ])
