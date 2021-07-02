@@ -92,50 +92,19 @@ extern "C" {
 #endif
 
 JNIEXPORT void JNICALL
-  Java_org_camcops_camcops_CamcopsActivity_setDefaultSingleUserMode(
+  Java_org_camcops_camcops_CamcopsActivity_handleAndroidUrl(
       JNIEnv *env,
       jobject obj,
-      jstring value)
+      jstring url)
 {
     Q_UNUSED(obj)
 
-    const char *value_str = env->GetStringUTFChars(value, NULL);
+    const char *url_str = env->GetStringUTFChars(url, NULL);
 
-    emit ConfigHandler::getInstance()->defaultSingleUserModeSet(value_str);
+    ConfigHandler::getInstance()->handleUrl(QUrl(url_str));
 
-    env->ReleaseStringUTFChars(value, value_str);
+    env->ReleaseStringUTFChars(url, url_str);
 }
-
-JNIEXPORT void JNICALL
-  Java_org_camcops_camcops_CamcopsActivity_setDefaultServerLocation(
-      JNIEnv *env,
-      jobject obj,
-      jstring value)
-{
-    Q_UNUSED(obj)
-
-    const char *value_str = env->GetStringUTFChars(value, NULL);
-
-    emit ConfigHandler::getInstance()->defaultServerLocationSet(value_str);
-
-    env->ReleaseStringUTFChars(value, value_str);
-}
-
-    JNIEXPORT void JNICALL
-  Java_org_camcops_camcops_CamcopsActivity_setDefaultAccessKey(
-      JNIEnv *env,
-      jobject obj,
-      jstring value)
-{
-    Q_UNUSED(obj)
-
-    const char *value_str = env->GetStringUTFChars(value, NULL);
-
-    emit ConfigHandler::getInstance()->defaultAccessKeySet(value_str);
-
-    env->ReleaseStringUTFChars(value, value_str);
-}
-
 
 #ifdef __cplusplus
 }

@@ -43,16 +43,13 @@ public class CamcopsActivity extends QtActivity
      * If no instance of the app is running, onCreate() is called and we pass
      * the URL parameters as arguments to the app's main().
      * If the app is already running, onNewIntent() is called and the URL
-     * parameters are sent as signals to the app via ConfigHandler. We could
-     * have used signals in both cases.
+     * parameters are sent as signals to the app via ConfigHandler.
     */
 
     private static final String TAG = "camcops";
 
     // Defined in confighandler.cpp
-    public static native void setDefaultSingleUserMode(String value);
-    public static native void setDefaultServerLocation(String value);
-    public static native void setDefaultAccessKey(String value);
+    public static native void handleAndroidUrl(String url);
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -102,26 +99,16 @@ public class CamcopsActivity extends QtActivity
 
         super.onNewIntent(intent);
 
-        Uri uri = intent.getData();
+        sendUrlToApp(intent);
+    }
 
-        if (uri != null) {
-            Log.i(TAG, intent.getDataString());
+    private void sendUrlToApp(Intent intent) {
+        String url = intent.getDataString();
 
-            Map<String, String> parameters = getQueryParameters(uri);
-            String default_single_user_mode = parameters.get("default_single_user_mode");
-            if (default_single_user_mode != null) {
-                setDefaultSingleUserMode(default_single_user_mode);
-            }
+        if (url != null) {
+            Log.i(TAG, url);
 
-            String default_server_location = parameters.get("default_server_location");
-            if (default_server_location != null) {
-                setDefaultServerLocation(default_server_location);
-            }
-
-            String default_access_key = parameters.get("default_access_key");
-            if (default_access_key != null) {
-                setDefaultAccessKey(default_access_key);
-            }
+            handleAndroidUrl(url);
         }
     }
 
