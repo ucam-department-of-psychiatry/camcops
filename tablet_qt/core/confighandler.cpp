@@ -34,6 +34,21 @@ ConfigHandler* ConfigHandler::m_instance = NULL;
 ConfigHandler::ConfigHandler()
 {
     m_instance = this;
+
+    // QDesktopServices::setUrlHandler() doesn't work on Android
+    // https://bugreports.qt.io/browse/QTBUG-70170
+    // So this is handled in:
+    // tablet_qt/android/src/org/camcops/camcops/CamcopsActivity.java
+
+    // We use 'camcops' scheme instead of 'http' (with 'camcops' domain)
+    // on Android:
+    // https://doc.qt.io/qt-5/qdesktopservices.html#setUrlHandler says
+    // "It is not possible to claim support for some well known URL schemes,
+    // including http and https."
+    // Unfortunately some mail clients such as GMail don't display URLs with
+    // unknown schemes as hyperlinks, even with <a href="camcops://..."></a> in
+    // HTML email
+    // See also CFBundleURLSchemes in tablet_qt/ios/Info.plist
     QDesktopServices::setUrlHandler("camcops", this, "handleUrl");
 }
 
