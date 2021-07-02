@@ -27,11 +27,11 @@
 #include <jni.h>
 #endif
 
-#include "core/confighandler.h"
+#include "urlhandler.h"
 
-ConfigHandler* ConfigHandler::m_instance = NULL;
+UrlHandler* UrlHandler::m_instance = NULL;
 
-ConfigHandler::ConfigHandler()
+UrlHandler::UrlHandler()
 {
     m_instance = this;
 
@@ -52,7 +52,7 @@ ConfigHandler::ConfigHandler()
     QDesktopServices::setUrlHandler("camcops", this, "handleUrl");
 }
 
-void ConfigHandler::handleUrl(const QUrl url)
+void UrlHandler::handleUrl(const QUrl url)
 {
     qDebug() << Q_FUNC_INFO << url;
 
@@ -78,10 +78,10 @@ void ConfigHandler::handleUrl(const QUrl url)
 }
 
 
-ConfigHandler* ConfigHandler::getInstance()
+UrlHandler* UrlHandler::getInstance()
 {
     if (!m_instance)
-        m_instance = new ConfigHandler;
+        m_instance = new UrlHandler;
     return m_instance;
 }
 
@@ -101,7 +101,7 @@ JNIEXPORT void JNICALL
 
     const char *url_str = env->GetStringUTFChars(url, NULL);
 
-    ConfigHandler::getInstance()->handleUrl(QUrl(url_str));
+    UrlHandler::getInstance()->handleUrl(QUrl(url_str));
 
     env->ReleaseStringUTFChars(url, url_str);
 }

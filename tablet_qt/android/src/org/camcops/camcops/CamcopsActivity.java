@@ -43,12 +43,12 @@ public class CamcopsActivity extends QtActivity
      * If no instance of the app is running, onCreate() is called and we pass
      * the URL parameters as arguments to the app's main().
      * If the app is already running, onNewIntent() is called and the URL
-     * parameters are sent as signals to the app via ConfigHandler.
+     * parameters are sent as signals to the app via UrlHandler.
     */
 
     private static final String TAG = "camcops";
 
-    // Defined in confighandler.cpp
+    // Defined in urlhandler.cpp
     public static native void handleAndroidUrl(String url);
 
     @Override

@@ -24,12 +24,12 @@
 
 class QUrl;
 
-class ConfigHandler : public QObject
+class UrlHandler : public QObject
 {
     Q_OBJECT
 public:
-    explicit ConfigHandler();
-    static ConfigHandler* getInstance();
+    explicit UrlHandler();
+    static UrlHandler* getInstance();
 
 signals:
     void defaultSingleUserModeSet(const QString &single_user_mode);
@@ -40,5 +40,5 @@ public slots:
     void handleUrl(const QUrl url);
 
 private:
-    static ConfigHandler* m_instance;
+    static UrlHandler* m_instance;
 };

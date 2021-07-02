@@ -58,7 +58,6 @@
 #include "common/textconst.h"
 #include "common/uiconst.h"
 #include "common/varconst.h"
-#include "core/confighandler.h"
 #include "core/networkmanager.h"
 #include "crypto/cryptofunc.h"
 #include "db/ancillaryfunc.h"
@@ -92,6 +91,7 @@
 #include "menu/singleusermenu.h"
 #include "qobjects/debugeventwatcher.h"
 #include "qobjects/slownonguifunctioncaller.h"
+#include "qobjects/urlhandler.h"
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/questionnaire.h"
 #include "tasklib/inittasks.h"
@@ -748,12 +748,12 @@ int CamcopsApp::run()
     // This makes the GUI startup more responsive.
 
     // Listen for application launch from URL
-    m_config_handler = ConfigHandler::getInstance();
-    connect(m_config_handler, &ConfigHandler::defaultSingleUserModeSet,
+    auto url_handler = UrlHandler::getInstance();
+    connect(url_handler, &UrlHandler::defaultSingleUserModeSet,
             this, &CamcopsApp::setDefaultSingleUserMode);
-    connect(m_config_handler, &ConfigHandler::defaultServerLocationSet,
+    connect(url_handler, &UrlHandler::defaultServerLocationSet,
             this, &CamcopsApp::setDefaultServerLocation);
-    connect(m_config_handler, &ConfigHandler::defaultAccessKeySet,
+    connect(url_handler, &UrlHandler::defaultAccessKeySet,
             this, &CamcopsApp::setDefaultAccessKey);
 
     // Command-line arguments

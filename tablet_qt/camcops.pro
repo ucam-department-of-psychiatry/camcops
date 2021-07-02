@@ -533,7 +533,6 @@ SOURCES += \
     common/varconst.cpp \
     common/widgetconst.cpp \
     core/camcopsapp.cpp \
-    core/confighandler.cpp \
     core/networkmanager.cpp \
     crypto/cryptofunc.cpp \
     crypto/secureqbytearray.cpp \
@@ -712,6 +711,7 @@ SOURCES += \
     qobjects/strictuint64validator.cpp \
     qobjects/stylenofocusrect.cpp \
     qobjects/threadworker.cpp \
+    qobjects/urlhandler.cpp \
     qobjects/urlvalidator.cpp \
     questionnairelib/commonoptions.cpp \
     questionnairelib/dynamicquestionnaire.cpp \
@@ -998,7 +998,6 @@ HEADERS += \
     common/varconst.h \
     common/widgetconst.h \
     core/camcopsapp.h \
-    core/confighandler.h \
     core/networkmanager.h \
     crypto/cryptofunc.h \
     crypto/secureqbytearray.h \
@@ -1183,6 +1182,7 @@ HEADERS += \
     qobjects/strictuint64validator.h \
     qobjects/stylenofocusrect.h \
     qobjects/threadworker.h \
+    qobjects/urlhandler.h \
     qobjects/urlvalidator.h \
     questionnairelib/commonoptions.h \
     questionnairelib/dynamicquestionnaire.h \
