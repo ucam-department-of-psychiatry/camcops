@@ -234,9 +234,10 @@ class PatientTaskSchedule(Base):
                                 **template_dict)
 
     def android_launch_url(self, req: "CamcopsRequest") -> str:
+        # Matches intent-filter in AndroidManifest.xml
         scheme = "http"
-        netloc = "camcops"
-        path = "/"
+        netloc = "camcops.org"
+        path = "/register/"
         fragment = ""
         query_dict = {
             "default_single_user_mode": "true",
