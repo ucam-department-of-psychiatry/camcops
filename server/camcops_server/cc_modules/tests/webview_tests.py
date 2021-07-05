@@ -2424,6 +2424,28 @@ class EditUserGroupMembershipViewTests(BasicDatabaseTestCase):
             cm.exception.message
         )
 
+    def test_raises_if_cant_edit_user(self) -> None:
+        self.ugm.user_id = self.user.id
+        self.dbsession.add(self.ugm)
+        self.dbsession.commit()
+
+        multidict = MultiDict([
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+        self.req.add_get_params({
+            ViewParam.USER_GROUP_MEMBERSHIP_ID: str(self.ugm.id)
+        }, set_method_get=False)
+
+        with self.assertRaises(HTTPBadRequest) as cm:
+            edit_user_group_membership(self.req)
+
+        self.assertIn(
+            "Nobody may edit the system user",
+            cm.exception.message
+        )
+
     def test_cancel_returns_to_users_list(self) -> None:
         multidict = MultiDict([
             (FormAction.CANCEL, "cancel"),
