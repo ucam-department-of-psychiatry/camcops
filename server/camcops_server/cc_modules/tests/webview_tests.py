@@ -2423,3 +2423,19 @@ class EditUserGroupMembershipViewTests(BasicDatabaseTestCase):
             "No such UserGroupMembership",
             cm.exception.message
         )
+
+    def test_cancel_returns_to_users_list(self) -> None:
+        multidict = MultiDict([
+            (FormAction.CANCEL, "cancel"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+
+        with self.assertRaises(HTTPFound) as cm:
+            edit_user_group_membership(self.req)
+
+        self.assertEqual(cm.exception.status_code, 302)
+
+        self.assertIn(
+            "view_all_users", cm.exception.headers["Location"]
+        )
