@@ -39,6 +39,7 @@ from webob.multidict import MultiDict
 from camcops_server.cc_modules.cc_constants import ERA_NOW
 from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_group import Group
+from camcops_server.cc_modules.cc_membership import UserGroupMembership
 from camcops_server.cc_modules.cc_patient import Patient
 from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
 from camcops_server.cc_modules.cc_pyramid import (
@@ -83,6 +84,7 @@ from camcops_server.cc_modules.webview import (
     edit_group,
     edit_finalized_patient,
     edit_server_created_patient,
+    edit_user_group_membership,
 )
 
 
@@ -2354,3 +2356,55 @@ class SendEmailFromPatientTaskScheduleViewTests(BasicDatabaseTestCase):
 
         self.assertEqual(len(self.pts.emails), 1)
         self.assertEqual(self.pts.emails[0].email.to, "patient@example.com")
+
+
+class EditUserGroupMembershipViewTests(BasicDatabaseTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.regular_user = User()
+        self.regular_user.username = "ruser"
+        self.regular_user.hashedpw = ""
+        self.dbsession.add(self.regular_user)
+        self.dbsession.flush()
+
+        self.ugm = UserGroupMembership(user_id=self.regular_user.id,
+                                       group_id=self.group.id)
+        self.dbsession.add(self.ugm)
+        self.dbsession.commit()
+
+    def test_user_group_membership_updated(self) -> None:
+        self.assertFalse(self.ugm.may_upload)
+        self.assertFalse(self.ugm.may_register_devices)
+        self.assertFalse(self.ugm.may_use_webviewer)
+        self.assertFalse(self.ugm.view_all_patients_when_unfiltered)
+        self.assertFalse(self.ugm.may_dump_data)
+        self.assertFalse(self.ugm.may_run_reports)
+        self.assertFalse(self.ugm.may_add_notes)
+
+        multidict = MultiDict([
+            (ViewParam.MAY_UPLOAD, "true"),
+            (ViewParam.MAY_REGISTER_DEVICES, "true"),
+            (ViewParam.MAY_USE_WEBVIEWER, "true"),
+            (ViewParam.VIEW_ALL_PATIENTS_WHEN_UNFILTERED, "true"),
+            (ViewParam.MAY_DUMP_DATA, "true"),
+            (ViewParam.MAY_RUN_REPORTS, "true"),
+            (ViewParam.MAY_ADD_NOTES, "true"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+        self.req.add_get_params({
+            ViewParam.USER_GROUP_MEMBERSHIP_ID: str(self.ugm.id)
+        }, set_method_get=False)
+
+        with self.assertRaises(HTTPFound):
+            edit_user_group_membership(self.req)
+
+        self.assertTrue(self.ugm.may_upload)
+        self.assertTrue(self.ugm.may_register_devices)
+        self.assertTrue(self.ugm.may_use_webviewer)
+        self.assertTrue(self.ugm.view_all_patients_when_unfiltered)
+        self.assertTrue(self.ugm.may_dump_data)
+        self.assertTrue(self.ugm.may_run_reports)
+        self.assertTrue(self.ugm.may_add_notes)
