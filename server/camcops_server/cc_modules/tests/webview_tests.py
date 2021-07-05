@@ -2408,3 +2408,18 @@ class EditUserGroupMembershipViewTests(BasicDatabaseTestCase):
         self.assertTrue(self.ugm.may_dump_data)
         self.assertTrue(self.ugm.may_run_reports)
         self.assertTrue(self.ugm.may_add_notes)
+
+    def test_raises_for_invalid_ugm_id(self) -> None:
+        multidict = MultiDict([
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+
+        with self.assertRaises(HTTPBadRequest) as cm:
+            edit_user_group_membership(self.req)
+
+        self.assertIn(
+            "No such UserGroupMembership",
+            cm.exception.message
+        )
