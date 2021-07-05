@@ -2446,6 +2446,62 @@ class EditUserGroupMembershipViewTests(BasicDatabaseTestCase):
             cm.exception.message
         )
 
+    def test_raises_if_cant_administer_group(self) -> None:
+        # User 1 is a group administrator for group A,
+        # of which User 2 is also a member
+        group_a = Group()
+        group_a.name = "groupa"
+        self.dbsession.add(group_a)
+        group_b = Group()
+        group_b.name = "groupb"
+        self.dbsession.add(group_b)
+
+        user1 = User()
+        user1.username = "user1"
+        user1.hashedpw = ""
+        self.dbsession.add(user1)
+
+        user2 = User()
+        user2.username = "user2"
+        user2.hashedpw = ""
+        self.dbsession.add(user2)
+        self.dbsession.flush()
+
+        ugm_1a = UserGroupMembership(user_id=user1.id,
+                                     group_id=group_a.id)
+        ugm_1a.groupadmin = True
+        self.dbsession.add(ugm_1a)
+
+        ugm_2a = UserGroupMembership(user_id=user2.id,
+                                     group_id=group_a.id)
+        ugm_1a.groupadmin = True
+        self.dbsession.add(ugm_2a)
+
+        # User 1 is not an administrator of group B
+        ugm_2b = UserGroupMembership(user_id=user2.id,
+                                     group_id=group_b.id)
+        self.dbsession.add(ugm_2b)
+        self.dbsession.commit()
+
+        multidict = MultiDict([
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+        self.req.add_get_params({
+            ViewParam.USER_GROUP_MEMBERSHIP_ID: str(ugm_2b.id)
+        }, set_method_get=False)
+
+        self.req._debugging_user = user1
+
+        with self.assertRaises(HTTPBadRequest) as cm:
+            edit_user_group_membership(self.req)
+
+        self.assertIn(
+            "You may not administer this group",
+            cm.exception.message
+        )
+
     def test_cancel_returns_to_users_list(self) -> None:
         multidict = MultiDict([
             (FormAction.CANCEL, "cancel"),
