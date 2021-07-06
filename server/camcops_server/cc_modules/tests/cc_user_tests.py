@@ -593,4 +593,44 @@ class UserPermissionTests(BasicDatabaseTestCase):
 
         self.assertFalse(user.may_upload)
 
-    # TODO: may_register_devices
+    def test_may_register_devices_with_upload_group(self) -> None:
+        user = self.create_user(username="test",
+                                upload_group_id=self.group_a.id)
+        self.dbsession.flush()
+
+        self.create_membership(user, self.group_a, may_register_devices=True)
+        self.dbsession.commit()
+
+        self.assertTrue(user.may_register_devices)
+
+    def test_may_not_register_devices_with_no_upload_group(self) -> None:
+        user = self.create_user(username="test")
+        self.dbsession.flush()
+
+        self.assertFalse(user.may_register_devices)
+
+    def test_may_not_register_devices_with_upload_group_but_no_permission(
+            self) -> None:
+        user = self.create_user(username="test",
+                                upload_group_id=self.group_a.id)
+        self.dbsession.flush()
+
+        self.create_membership(user, self.group_a, may_register_devices=False)
+        self.dbsession.commit()
+
+        self.assertFalse(user.may_register_devices)
+
+    def test_superuser_may_register_devices_with_upload_group(self) -> None:
+        user = self.create_user(username="test",
+                                upload_group_id=self.group_a.id,
+                                superuser=True)
+        self.dbsession.flush()
+
+        self.assertTrue(user.may_register_devices)
+
+    def test_superuser_may_not_register_devices_with_no_upload_group(
+            self) -> None:
+        user = self.create_user(username="test", superuser=True)
+        self.dbsession.flush()
+
+        self.assertFalse(user.may_register_devices)
