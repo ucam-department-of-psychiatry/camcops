@@ -291,3 +291,19 @@ class UserPermissionTests(BasicDatabaseTestCase):
 
         self.assertEqual([self.group_c, self.group_d],
                          user.groups_user_may_see_all_pts_when_unfiltered)
+
+    def test_is_a_group_admin(self) -> None:
+        user = self.create_user(username="test")
+        self.dbsession.flush()
+
+        self.create_membership(user, self.group_d, groupadmin=True)
+
+        self.assertTrue(user.is_a_groupadmin)
+
+    def test_is_not_a_group_admin(self) -> None:
+        user = self.create_user(username="test")
+        self.dbsession.flush()
+
+        self.create_membership(user, self.group_d, groupadmin=False)
+
+        self.assertFalse(user.is_a_groupadmin)
