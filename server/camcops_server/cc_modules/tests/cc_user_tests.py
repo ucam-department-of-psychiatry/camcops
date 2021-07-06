@@ -307,3 +307,25 @@ class UserPermissionTests(BasicDatabaseTestCase):
         self.create_membership(user, self.group_d, groupadmin=False)
 
         self.assertFalse(user.is_a_groupadmin)
+
+    def test_authorized_as_groupadmin(self) -> None:
+        user = self.create_user(username="test")
+        self.dbsession.flush()
+
+        self.create_membership(user, self.group_d, groupadmin=True)
+
+        self.assertTrue(user.authorized_as_groupadmin)
+
+    def test_not_authorized_as_groupadmin(self) -> None:
+        user = self.create_user(username="test")
+        self.dbsession.flush()
+
+        self.create_membership(user, self.group_d, groupadmin=False)
+
+        self.assertFalse(user.authorized_as_groupadmin)
+
+    def test_superuser_authorized_as_groupadmin(self) -> None:
+        user = self.create_user(username="test", superuser=True)
+        self.dbsession.flush()
+
+        self.assertTrue(user.authorized_as_groupadmin)
