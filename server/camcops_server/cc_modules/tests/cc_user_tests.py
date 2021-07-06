@@ -445,6 +445,27 @@ class UserPermissionTests(BasicDatabaseTestCase):
 
         self.assertTrue(user.authorized_to_dump)
 
+    def test_authorized_for_reports(self) -> None:
+        user = self.create_user(username="test")
+        self.dbsession.flush()
+
+        self.create_membership(user, self.group_a, may_run_reports=False)
+        self.create_membership(user, self.group_c, may_run_reports=True)
+        self.dbsession.commit()
+
+        self.assertTrue(user.authorized_for_reports)
+
+    def test_not_authorized_for_reports(self) -> None:
+        user = self.create_user(username="test")
+        self.dbsession.flush()
+
+        self.assertFalse(user.authorized_for_reports)
+
+    def test_superuser_authorized_for_reports(self) -> None:
+        user = self.create_user(username="test", superuser=True)
+        self.dbsession.flush()
+
+        self.assertTrue(user.authorized_for_reports)
     # TODO: authorized_for_reports
     # TODO: may_view_all_patients_when_unfiltered
     # TODO: may_view_no_patients_when_unfiltered
