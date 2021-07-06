@@ -961,6 +961,16 @@ class User(Base):
                       key=lambda g: g.name)
 
     @property
+    def groups_user_may_manage_patients_in(self) -> List[Group]:
+        """
+        Returns a list of :class:`camcops_server.cc_modules.cc_group.Group`
+        objects for groups the user may manage patients in.
+        """
+        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+        return sorted([m.group for m in memberships if m.may_manage_patients],
+                      key=lambda g: g.name)
+
+    @property
     def is_a_groupadmin(self) -> bool:
         """
         Is the user a specifically defined group administrator (for any group)?

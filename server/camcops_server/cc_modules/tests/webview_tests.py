@@ -2383,6 +2383,7 @@ class EditUserGroupMembershipViewTests(BasicDatabaseTestCase):
         self.assertFalse(self.ugm.may_dump_data)
         self.assertFalse(self.ugm.may_run_reports)
         self.assertFalse(self.ugm.may_add_notes)
+        self.assertFalse(self.ugm.may_manage_patients)
 
         multidict = MultiDict([
             (ViewParam.MAY_UPLOAD, "true"),
@@ -2392,6 +2393,7 @@ class EditUserGroupMembershipViewTests(BasicDatabaseTestCase):
             (ViewParam.MAY_DUMP_DATA, "true"),
             (ViewParam.MAY_RUN_REPORTS, "true"),
             (ViewParam.MAY_ADD_NOTES, "true"),
+            (ViewParam.MAY_MANAGE_PATIENTS, "true"),
             (FormAction.SUBMIT, "submit"),
         ])
 
@@ -2410,6 +2412,7 @@ class EditUserGroupMembershipViewTests(BasicDatabaseTestCase):
         self.assertTrue(self.ugm.may_dump_data)
         self.assertTrue(self.ugm.may_run_reports)
         self.assertTrue(self.ugm.may_add_notes)
+        self.assertTrue(self.ugm.may_manage_patients)
 
     def test_raises_if_cant_edit_user(self) -> None:
         self.ugm.user_id = self.user.id

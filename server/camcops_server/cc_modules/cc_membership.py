@@ -138,6 +138,11 @@ class UserGroupMembership(Base):
         default=False,
         comment="May the user add special notes to tasks?"
     )
+    may_manage_patients = Column(
+        "may_manage_patients", Boolean,
+        default=False,
+        comment="May the user add/edit/delete patients?"
+    )
 
     group = relationship("Group", back_populates="user_group_memberships")
     user = relationship("User", back_populates="user_group_memberships")

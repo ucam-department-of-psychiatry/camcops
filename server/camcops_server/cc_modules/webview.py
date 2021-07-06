@@ -2414,6 +2414,7 @@ class EditUserGroupMembershipBaseView(UpdateView):
         "may_dump_data": ViewParam.MAY_DUMP_DATA,
         "may_run_reports": ViewParam.MAY_RUN_REPORTS,
         "may_add_notes": ViewParam.MAY_ADD_NOTES,
+        "may_manage_patients": ViewParam.MAY_MANAGE_PATIENTS,
     }
 
     object_class = UserGroupMembership
