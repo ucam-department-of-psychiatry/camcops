@@ -222,3 +222,14 @@ class UserPermissionTests(BasicDatabaseTestCase):
         self.assertTrue(user.may_administer_group(self.group_b.id))
         self.assertTrue(user.may_administer_group(self.group_c.id))
         self.assertTrue(user.may_administer_group(self.group_d.id))
+
+    def test_groups_user_may_dump(self) -> None:
+        user = self.create_user(username="test")
+        self.dbsession.flush()
+
+        self.create_membership(user, self.group_d, may_dump_data=True)
+        self.create_membership(user, self.group_c, may_dump_data=True)
+        self.create_membership(user, self.group_a, may_dump_data=False)
+
+        self.assertEqual([self.group_c, self.group_d],
+                         user.groups_user_may_dump)
