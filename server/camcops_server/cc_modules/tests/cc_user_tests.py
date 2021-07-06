@@ -360,7 +360,7 @@ class UserPermissionTests(BasicDatabaseTestCase):
 
         self.assertFalse(user.may_use_webviewer)
 
-    def test_superuser_may_user_webviewer(self) -> None:
+    def test_superuser_may_use_webviewer(self) -> None:
         user = self.create_user(username="test", superuser=True)
         self.dbsession.flush()
 
@@ -539,6 +539,29 @@ class UserPermissionTests(BasicDatabaseTestCase):
         self.assertNotIn(self.group_a.id, ids)
         self.assertNotIn(self.group_b.id, ids)
 
-    # TODO: may_upload_to_group
+    def test_may_upload_to_group(self) -> None:
+        user = self.create_user(username="test")
+        self.dbsession.flush()
+
+        self.create_membership(user, self.group_a, may_upload=True)
+        self.dbsession.commit()
+
+        self.assertTrue(user.may_upload_to_group(self.group_a.id))
+
+    def test_may_not_upload_to_group(self) -> None:
+        user = self.create_user(username="test")
+        self.dbsession.flush()
+
+        self.create_membership(user, self.group_a, may_upload=False)
+        self.dbsession.commit()
+
+        self.assertFalse(user.may_upload_to_group(self.group_a.id))
+
+    def test_superuser_may_upload_to_group(self) -> None:
+        user = self.create_user(username="test", superuser=True)
+        self.dbsession.flush()
+
+        self.assertTrue(user.may_upload_to_group(self.group_a.id))
+
     # TODO: may_upload
     # TODO: may_register_devices
