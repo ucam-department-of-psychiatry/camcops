@@ -137,3 +137,14 @@ class UserPermissionTests(BasicDatabaseTestCase):
         self.assertIn(self.group_d.id, ids)
         self.assertNotIn(self.group_a.id, ids)
         self.assertNotIn(self.group_b.id, ids)
+
+    def test_ids_of_groups_super_user_may_report_on(self) -> None:
+        user = self.create_user(username="test", superuser=True)
+        self.dbsession.flush()
+
+        ids = user.ids_of_groups_user_may_report_on
+
+        self.assertIn(self.group_a.id, ids)
+        self.assertIn(self.group_b.id, ids)
+        self.assertIn(self.group_c.id, ids)
+        self.assertIn(self.group_d.id, ids)
