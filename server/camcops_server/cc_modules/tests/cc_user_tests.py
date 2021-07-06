@@ -344,8 +344,22 @@ class UserPermissionTests(BasicDatabaseTestCase):
 
         self.assertIsNone(user.membership_for_group_id(self.group_a.id))
 
-    # TODO: membership_for_group_id
-    # TODO: may_use_webviewer
+    def test_user_may_use_webviewer(self) -> None:
+        user = self.create_user(username="test")
+        self.dbsession.flush()
+
+        self.create_membership(user, self.group_a, may_use_webviewer=False)
+        self.create_membership(user, self.group_c, may_use_webviewer=True)
+        self.dbsession.commit()
+
+        self.assertTrue(user.may_use_webviewer)
+
+    def test_superuser_may_user_webviewer(self) -> None:
+        user = self.create_user(username="test", superuser=True)
+        self.dbsession.flush()
+
+        self.assertTrue(user.may_use_webviewer)
+
     # TODO: authorized_to_add_special_note
     # TODO: authorized_to_erase_tasks
     # TODO: authorized_to_dump
