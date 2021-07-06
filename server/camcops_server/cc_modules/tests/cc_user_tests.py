@@ -344,7 +344,7 @@ class UserPermissionTests(BasicDatabaseTestCase):
 
         self.assertIsNone(user.membership_for_group_id(self.group_a.id))
 
-    def test_user_may_use_webviewer(self) -> None:
+    def test_may_use_webviewer(self) -> None:
         user = self.create_user(username="test")
         self.dbsession.flush()
 
@@ -359,6 +359,30 @@ class UserPermissionTests(BasicDatabaseTestCase):
         self.dbsession.flush()
 
         self.assertTrue(user.may_use_webviewer)
+
+    def test_authorized_to_add_special_note(self) -> None:
+        user = self.create_user(username="test")
+        self.dbsession.flush()
+
+        self.create_membership(user, self.group_c, may_add_notes=True)
+        self.dbsession.commit()
+
+        self.assertTrue(user.authorized_to_add_special_note(self.group_c.id))
+
+    def test_not_authorized_to_add_special_note(self) -> None:
+        user = self.create_user(username="test")
+        self.dbsession.flush()
+
+        self.create_membership(user, self.group_c, may_add_notes=False)
+        self.dbsession.commit()
+
+        self.assertFalse(user.authorized_to_add_special_note(self.group_c.id))
+
+    def test_superuser_authorized_to_add_special_note(self) -> None:
+        user = self.create_user(username="test", superuser=True)
+        self.dbsession.flush()
+
+        self.assertTrue(user.authorized_to_add_special_note(self.group_c.id))
 
     # TODO: authorized_to_add_special_note
     # TODO: authorized_to_erase_tasks
