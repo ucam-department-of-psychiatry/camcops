@@ -233,3 +233,14 @@ class UserPermissionTests(BasicDatabaseTestCase):
 
         self.assertEqual([self.group_c, self.group_d],
                          user.groups_user_may_dump)
+
+    def test_groups_user_may_report_on(self) -> None:
+        user = self.create_user(username="test")
+        self.dbsession.flush()
+
+        self.create_membership(user, self.group_d, may_run_reports=True)
+        self.create_membership(user, self.group_c, may_run_reports=True)
+        self.create_membership(user, self.group_a, may_run_reports=False)
+
+        self.assertEqual([self.group_c, self.group_d],
+                         user.groups_user_may_report_on)
