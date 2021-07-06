@@ -174,3 +174,29 @@ class UserPermissionTests(BasicDatabaseTestCase):
         self.assertIn(self.group_b.id, ids)
         self.assertIn(self.group_c.id, ids)
         self.assertIn(self.group_d.id, ids)
+
+    def test_names_of_groups_user_is_admin_for(self) -> None:
+        user = self.create_user(username="test")
+        self.dbsession.flush()
+
+        self.create_membership(user, self.group_a, groupadmin=False)
+        self.create_membership(user, self.group_c, groupadmin=True)
+        self.create_membership(user, self.group_d, groupadmin=True)
+
+        names = user.names_of_groups_user_is_admin_for
+
+        self.assertIn(self.group_c.name, names)
+        self.assertIn(self.group_d.name, names)
+        self.assertNotIn(self.group_a.name, names)
+        self.assertNotIn(self.group_b.name, names)
+
+    def test_names_of_groups_superuser_is_admin_for(self) -> None:
+        user = self.create_user(username="test", superuser=True)
+        self.dbsession.flush()
+
+        names = user.names_of_groups_user_is_admin_for
+
+        self.assertIn(self.group_a.name, names)
+        self.assertIn(self.group_b.name, names)
+        self.assertIn(self.group_c.name, names)
+        self.assertIn(self.group_d.name, names)
