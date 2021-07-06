@@ -2373,6 +2373,8 @@ class EditUserGroupMembershipViewTests(BasicDatabaseTestCase):
         self.dbsession.add(self.ugm)
         self.dbsession.commit()
 
+    # TODO: Test GET for super user / group admin
+    # TODO: Test POST for super user / group admin
     def test_user_group_membership_updated(self) -> None:
         self.assertFalse(self.ugm.may_upload)
         self.assertFalse(self.ugm.may_register_devices)
@@ -2408,21 +2410,6 @@ class EditUserGroupMembershipViewTests(BasicDatabaseTestCase):
         self.assertTrue(self.ugm.may_dump_data)
         self.assertTrue(self.ugm.may_run_reports)
         self.assertTrue(self.ugm.may_add_notes)
-
-    def test_raises_for_invalid_ugm_id(self) -> None:
-        multidict = MultiDict([
-            (FormAction.SUBMIT, "submit"),
-        ])
-
-        self.req.fake_request_post_from_dict(multidict)
-
-        with self.assertRaises(HTTPBadRequest) as cm:
-            edit_user_group_membership(self.req)
-
-        self.assertIn(
-            "No such UserGroupMembership",
-            cm.exception.message
-        )
 
     def test_raises_if_cant_edit_user(self) -> None:
         self.ugm.user_id = self.user.id
@@ -2508,6 +2495,9 @@ class EditUserGroupMembershipViewTests(BasicDatabaseTestCase):
         ])
 
         self.req.fake_request_post_from_dict(multidict)
+        self.req.add_get_params({
+            ViewParam.USER_GROUP_MEMBERSHIP_ID: str(self.ugm.id)
+        }, set_method_get=False)
 
         with self.assertRaises(HTTPFound) as cm:
             edit_user_group_membership(self.req)

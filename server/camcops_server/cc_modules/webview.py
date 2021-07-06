@@ -2402,50 +2402,65 @@ def edit_user(req: "CamcopsRequest") -> Dict[str, Any]:
                 head_form_html=get_head_form_html(req, [form]))
 
 
+class EditUserGroupMembershipBaseView(UpdateView):
+    """
+    Django-style view to edit a user's group membership.
+    """
+    model_form_dict = {
+        "may_upload": ViewParam.MAY_UPLOAD,
+        "may_register_devices": ViewParam.MAY_REGISTER_DEVICES,
+        "may_use_webviewer": ViewParam.MAY_USE_WEBVIEWER,
+        "view_all_patients_when_unfiltered": ViewParam.VIEW_ALL_PATIENTS_WHEN_UNFILTERED,  # noqa: E501
+        "may_dump_data": ViewParam.MAY_DUMP_DATA,
+        "may_run_reports": ViewParam.MAY_RUN_REPORTS,
+        "may_add_notes": ViewParam.MAY_ADD_NOTES,
+    }
+
+    object_class = UserGroupMembership
+    pk_param = ViewParam.USER_GROUP_MEMBERSHIP_ID
+    server_pk_name = "id"
+    template_name = "user_edit_group_membership.mako"
+
+    def get_success_url(self) -> str:
+        return self.request.route_url(Routes.VIEW_ALL_USERS)
+
+    def get_object(self) -> Any:
+        # noinspection PyUnresolvedReferences
+        ugm = cast(UserGroupMembership, super().get_object())
+        user = ugm.user
+        assert_may_edit_user(self.request, user)
+        assert_may_administer_group(self.request, ugm.group_id)
+
+        return ugm
+
+
+class EditUserGroupMembershipSuperUserView(EditUserGroupMembershipBaseView):
+    form_class = EditUserGroupPermissionsFullForm
+
+    def get_model_form_dict(self) -> Dict[str, str]:
+        model_form_dict = super().get_model_form_dict()
+        model_form_dict["groupadmin"] = ViewParam.GROUPADMIN
+
+        return model_form_dict
+
+
+class EditUserGroupMembershipGroupAdminView(EditUserGroupMembershipBaseView):
+    form_class = EditUserGroupMembershipGroupAdminForm
+
+
 @view_config(route_name=Routes.EDIT_USER_GROUP_MEMBERSHIP,
-             renderer="user_edit_group_membership.mako",
              permission=Permission.GROUPADMIN,
              http_cache=NEVER_CACHE)
 def edit_user_group_membership(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to edit the group memberships of a user (for administrators).
     """
-    route_back = Routes.VIEW_ALL_USERS
-    if FormAction.CANCEL in req.POST:
-        raise HTTPFound(req.route_url(route_back))
-    ugm_id = req.get_int_param(ViewParam.USER_GROUP_MEMBERSHIP_ID)
-    ugm = UserGroupMembership.get_ugm_by_id(req.dbsession, ugm_id)
-    if not ugm:
-        _ = req.gettext
-        raise HTTPBadRequest(
-            f"{_('No such UserGroupMembership ID:')} {ugm_id!r}")
-    user = ugm.user
-    assert_may_edit_user(req, user)
-    assert_may_administer_group(req, ugm.group_id)
     if req.user.superuser:
-        form = EditUserGroupPermissionsFullForm(request=req)
-        keys = EDIT_USER_GROUP_MEMBERSHIP_KEYS_SUPERUSER
+        view = EditUserGroupMembershipSuperUserView(req)
     else:
-        form = EditUserGroupMembershipGroupAdminForm(request=req)
-        keys = EDIT_USER_GROUP_MEMBERSHIP_KEYS_GROUPADMIN
-    if FormAction.SUBMIT in req.POST:
-        try:
-            controls = list(req.POST.items())
-            appstruct = form.validate(controls)
-            # -----------------------------------------------------------------
-            # Apply the changes
-            # -----------------------------------------------------------------
-            for k in keys:
-                setattr(ugm, k, appstruct.get(k))
-            raise HTTPFound(req.route_url(route_back))
-        except ValidationFailure as e:
-            rendered_form = e.render()
-    else:
-        appstruct = {k: getattr(ugm, k) for k in keys}
-        rendered_form = form.render(appstruct)
-    return dict(ugm=ugm,
-                form=rendered_form,
-                head_form_html=get_head_form_html(req, [form]))
+        view = EditUserGroupMembershipGroupAdminView(req)
+
+    return view.dispatch()
 
 
 def set_user_upload_group(req: "CamcopsRequest",
