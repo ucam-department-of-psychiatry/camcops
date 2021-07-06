@@ -497,8 +497,30 @@ class UserPermissionTests(BasicDatabaseTestCase):
 
         self.assertTrue(user.may_view_all_patients_when_unfiltered)
 
-    # TODO: may_view_all_patients_when_unfiltered
-    # TODO: may_view_no_patients_when_unfiltered
+    def test_may_view_no_patients_when_unfiltered(self) -> None:
+        user = self.create_user(username="test")
+        self.dbsession.flush()
+
+        self.assertTrue(user.may_view_no_patients_when_unfiltered)
+
+    def test_may_not_view_no_patients_when_unfiltered(self) -> None:
+        user = self.create_user(username="test")
+        self.dbsession.flush()
+
+        self.create_membership(user, self.group_a,
+                               view_all_patients_when_unfiltered=True)
+        self.create_membership(user, self.group_c,
+                               view_all_patients_when_unfiltered=True)
+        self.dbsession.commit()
+
+        self.assertFalse(user.may_view_no_patients_when_unfiltered)
+
+    def test_superuser_may_not_view_no_patients_when_unfiltered(self) -> None:
+        user = self.create_user(username="test", superuser=True)
+        self.dbsession.flush()
+
+        self.assertFalse(user.may_view_no_patients_when_unfiltered)
+
     # TODO: group_ids_that_nonsuperuser_may_see_when_unfiltered
     # TODO: may_upload_to_group
     # TODO: may_upload
