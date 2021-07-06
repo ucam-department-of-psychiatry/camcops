@@ -106,19 +106,34 @@ class UserTests(DemoDatabaseTestCase):
 class UserPermissionTests(BasicDatabaseTestCase):
     def setUp(self) -> None:
         super().setUp()
+        # Deliberately not in alphabetical order to test sorting
+        self.group_c = self.create_group("groupc")
+        self.group_b = self.create_group("groupb")
+        self.group_a = self.create_group("groupa")
+        self.group_d = self.create_group("groupd")
 
     def test_groups_user_may_manage_patients_in(self) -> None:
-        # Deliberately not in alphabetical order to test sorting
-        group_c = self.create_group("groupc")
-        self.create_group("groupb")
-        group_a = self.create_group("groupa")
-        group_d = self.create_group("groupd")
         user = self.create_user(username="test")
         self.dbsession.flush()
 
-        self.create_membership(user, group_d, may_manage_patients=True)
-        self.create_membership(user, group_c, may_manage_patients=True)
-        self.create_membership(user, group_a, may_manage_patients=False)
+        self.create_membership(user, self.group_d, may_manage_patients=True)
+        self.create_membership(user, self.group_c, may_manage_patients=True)
+        self.create_membership(user, self.group_a, may_manage_patients=False)
 
-        self.assertEqual([group_c, group_d],
+        self.assertEqual([self.group_c, self.group_d],
                          user.groups_user_may_manage_patients_in)
+
+    def test_ids_of_groups_user_may_report_on(self) -> None:
+        user = self.create_user(username="test")
+        self.dbsession.flush()
+
+        self.create_membership(user, self.group_a, may_run_reports=False)
+        self.create_membership(user, self.group_c, may_run_reports=True)
+        self.create_membership(user, self.group_d, may_run_reports=True)
+
+        ids = user.ids_of_groups_user_may_report_on
+
+        self.assertIn(self.group_c.id, ids)
+        self.assertIn(self.group_d.id, ids)
+        self.assertNotIn(self.group_a.id, ids)
+        self.assertNotIn(self.group_b.id, ids)
