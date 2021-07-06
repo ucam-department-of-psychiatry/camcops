@@ -354,6 +354,12 @@ class UserPermissionTests(BasicDatabaseTestCase):
 
         self.assertTrue(user.may_use_webviewer)
 
+    def test_may_not_use_webviewer(self) -> None:
+        user = self.create_user(username="test")
+        self.dbsession.flush()
+
+        self.assertFalse(user.may_use_webviewer)
+
     def test_superuser_may_user_webviewer(self) -> None:
         user = self.create_user(username="test", superuser=True)
         self.dbsession.flush()
@@ -417,8 +423,28 @@ class UserPermissionTests(BasicDatabaseTestCase):
 
         self.assertTrue(user.authorized_to_erase_tasks(self.group_c.id))
 
-    # TODO: authorized_to_erase_tasks
-    # TODO: authorized_to_dump
+    def test_authorized_to_dump(self) -> None:
+        user = self.create_user(username="test")
+        self.dbsession.flush()
+
+        self.create_membership(user, self.group_a, may_dump_data=False)
+        self.create_membership(user, self.group_c, may_dump_data=True)
+        self.dbsession.commit()
+
+        self.assertTrue(user.authorized_to_dump)
+
+    def test_not_authorized_to_dump(self) -> None:
+        user = self.create_user(username="test")
+        self.dbsession.flush()
+
+        self.assertFalse(user.authorized_to_dump)
+
+    def test_superuser_authorized_to_dump(self) -> None:
+        user = self.create_user(username="test", superuser=True)
+        self.dbsession.flush()
+
+        self.assertTrue(user.authorized_to_dump)
+
     # TODO: authorized_for_reports
     # TODO: may_view_all_patients_when_unfiltered
     # TODO: may_view_no_patients_when_unfiltered
