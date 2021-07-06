@@ -329,3 +329,30 @@ class UserPermissionTests(BasicDatabaseTestCase):
         self.dbsession.flush()
 
         self.assertTrue(user.authorized_as_groupadmin)
+
+    def test_membership_for_group_id(self) -> None:
+        user = self.create_user(username="test")
+        self.dbsession.flush()
+
+        ugm = self.create_membership(user, self.group_a)
+
+        self.assertEqual(user.membership_for_group_id(self.group_a.id), ugm)
+
+    def test_no_membership_for_group_id(self) -> None:
+        user = self.create_user(username="test")
+        self.dbsession.flush()
+
+        self.assertIsNone(user.membership_for_group_id(self.group_a.id))
+
+    # TODO: membership_for_group_id
+    # TODO: may_use_webviewer
+    # TODO: authorized_to_add_special_note
+    # TODO: authorized_to_erase_tasks
+    # TODO: authorized_to_dump
+    # TODO: authorized_for_reports
+    # TODO: may_view_all_patients_when_unfiltered
+    # TODO: may_view_no_patients_when_unfiltered
+    # TODO: group_ids_that_nonsuperuser_may_see_when_unfiltered
+    # TODO: may_upload_to_group
+    # TODO: may_upload
+    # TODO: may_register_devices
