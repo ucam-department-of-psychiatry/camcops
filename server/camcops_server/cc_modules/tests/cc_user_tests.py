@@ -111,6 +111,7 @@ class UserPermissionTests(BasicDatabaseTestCase):
         self.group_b = self.create_group("groupb")
         self.group_a = self.create_group("groupa")
         self.group_d = self.create_group("groupd")
+        self.dbsession.flush()
 
     def test_groups_user_may_manage_patients_in(self) -> None:
         user = self.create_user(username="test")
@@ -563,5 +564,33 @@ class UserPermissionTests(BasicDatabaseTestCase):
 
         self.assertTrue(user.may_upload_to_group(self.group_a.id))
 
-    # TODO: may_upload
+    def test_may_upload_to_upload_group(self) -> None:
+        user = self.create_user(username="test",
+                                upload_group_id=self.group_a.id)
+        self.dbsession.flush()
+
+        self.create_membership(user, self.group_a, may_upload=True)
+        self.dbsession.commit()
+
+        self.assertTrue(user.may_upload)
+
+    def test_may_not_upload_with_no_upload_group(self) -> None:
+        user = self.create_user(username="test")
+        self.dbsession.flush()
+
+        self.create_membership(user, self.group_a, may_upload=True)
+        self.dbsession.commit()
+
+        self.assertFalse(user.may_upload)
+
+    def test_may_not_upload_with_upload_group_but_no_permission(self) -> None:
+        user = self.create_user(username="test",
+                                upload_group_id=self.group_a.id)
+        self.dbsession.flush()
+
+        self.create_membership(user, self.group_a, may_upload=False)
+        self.dbsession.commit()
+
+        self.assertFalse(user.may_upload)
+
     # TODO: may_register_devices
