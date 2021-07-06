@@ -201,6 +201,17 @@ class UserPermissionTests(BasicDatabaseTestCase):
         self.assertIn(self.group_c.name, names)
         self.assertIn(self.group_d.name, names)
 
+    def test_groups_user_is_admin_for(self) -> None:
+        user = self.create_user(username="test")
+        self.dbsession.flush()
+
+        self.create_membership(user, self.group_a, groupadmin=False)
+        self.create_membership(user, self.group_c, groupadmin=True)
+        self.create_membership(user, self.group_d, groupadmin=True)
+
+        self.assertEqual([self.group_c, self.group_d],
+                         user.groups_user_is_admin_for)
+
     def test_user_may_administer_group(self) -> None:
         user = self.create_user(username="test")
         self.dbsession.flush()
