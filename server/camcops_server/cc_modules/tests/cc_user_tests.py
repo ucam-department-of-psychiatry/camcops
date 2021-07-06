@@ -29,7 +29,10 @@ camcops_server/cc_modules/tests/cc_user_tests.py
 from pendulum import DateTime as Pendulum
 
 from camcops_server.cc_modules.cc_group import Group
-from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
+from camcops_server.cc_modules.cc_unittest import (
+    BasicDatabaseTestCase,
+    DemoDatabaseTestCase,
+)
 from camcops_server.cc_modules.cc_user import (
     SecurityAccountLockout,
     SecurityLoginFailure,
@@ -98,3 +101,24 @@ class UserTests(DemoDatabaseTestCase):
         self.assertIsInstance(u.may_upload_to_group(g.id), bool)
         self.assertIsInstance(u.may_upload, bool)
         self.assertIsInstance(u.may_register_devices, bool)
+
+
+class UserPermissionTests(BasicDatabaseTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+    def test_groups_user_may_manage_patients_in(self) -> None:
+        # Deliberately not in alphabetical order to test sorting
+        group_c = self.create_group("groupc")
+        self.create_group("groupb")
+        group_a = self.create_group("groupa")
+        group_d = self.create_group("groupd")
+        user = self.create_user(username="test")
+        self.dbsession.flush()
+
+        self.create_membership(user, group_d, may_manage_patients=True)
+        self.create_membership(user, group_c, may_manage_patients=True)
+        self.create_membership(user, group_a, may_manage_patients=False)
+
+        self.assertEqual([group_c, group_d],
+                         user.groups_user_may_manage_patients_in)
