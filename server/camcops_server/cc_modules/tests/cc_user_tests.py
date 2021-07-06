@@ -266,3 +266,17 @@ class UserPermissionTests(BasicDatabaseTestCase):
 
         self.assertEqual([self.group_c, self.group_d],
                          user.groups_user_may_add_special_notes)
+
+    def test_groups_user_may_see_all_pts_when_unfiltered(self) -> None:
+        user = self.create_user(username="test")
+        self.dbsession.flush()
+
+        self.create_membership(user, self.group_d,
+                               view_all_patients_when_unfiltered=True)
+        self.create_membership(user, self.group_c,
+                               view_all_patients_when_unfiltered=True)
+        self.create_membership(user, self.group_a,
+                               view_all_patients_when_unfiltered=False)
+
+        self.assertEqual([self.group_c, self.group_d],
+                         user.groups_user_may_see_all_pts_when_unfiltered)
