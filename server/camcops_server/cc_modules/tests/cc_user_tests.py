@@ -255,3 +255,14 @@ class UserPermissionTests(BasicDatabaseTestCase):
 
         self.assertEqual([self.group_c, self.group_d],
                          user.groups_user_may_upload_into)
+
+    def test_groups_user_may_add_special_notes(self) -> None:
+        user = self.create_user(username="test")
+        self.dbsession.flush()
+
+        self.create_membership(user, self.group_d, may_add_notes=True)
+        self.create_membership(user, self.group_c, may_add_notes=True)
+        self.create_membership(user, self.group_a, may_add_notes=False)
+
+        self.assertEqual([self.group_c, self.group_d],
+                         user.groups_user_may_add_special_notes)
