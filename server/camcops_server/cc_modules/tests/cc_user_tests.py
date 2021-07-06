@@ -138,11 +138,37 @@ class UserPermissionTests(BasicDatabaseTestCase):
         self.assertNotIn(self.group_a.id, ids)
         self.assertNotIn(self.group_b.id, ids)
 
-    def test_ids_of_groups_super_user_may_report_on(self) -> None:
+    def test_ids_of_groups_superuser_may_report_on(self) -> None:
         user = self.create_user(username="test", superuser=True)
         self.dbsession.flush()
 
         ids = user.ids_of_groups_user_may_report_on
+
+        self.assertIn(self.group_a.id, ids)
+        self.assertIn(self.group_b.id, ids)
+        self.assertIn(self.group_c.id, ids)
+        self.assertIn(self.group_d.id, ids)
+
+    def test_ids_of_groups_user_is_admin_for(self) -> None:
+        user = self.create_user(username="test")
+        self.dbsession.flush()
+
+        self.create_membership(user, self.group_a, groupadmin=False)
+        self.create_membership(user, self.group_c, groupadmin=True)
+        self.create_membership(user, self.group_d, groupadmin=True)
+
+        ids = user.ids_of_groups_user_is_admin_for
+
+        self.assertIn(self.group_c.id, ids)
+        self.assertIn(self.group_d.id, ids)
+        self.assertNotIn(self.group_a.id, ids)
+        self.assertNotIn(self.group_b.id, ids)
+
+    def test_ids_of_groups_superuser_is_admin_for(self) -> None:
+        user = self.create_user(username="test", superuser=True)
+        self.dbsession.flush()
+
+        ids = user.ids_of_groups_user_is_admin_for
 
         self.assertIn(self.group_a.id, ids)
         self.assertIn(self.group_b.id, ids)
