@@ -2739,7 +2739,7 @@ class UserGroupPermissionsGroupAdminSchema(CSRFSchema):
         may_use_webviewer.title = ml_text
         may_use_webviewer.label = ml_text
         may_manage_patients = get_child_node(self, "may_manage_patients")
-        mmp_text = _("May add, edit or delete patients")
+        mmp_text = _("May add, edit or delete patients created on the server")
         may_manage_patients.title = mmp_text
         may_manage_patients.label = mmp_text
         view_all_patients_when_unfiltered = get_child_node(self, "view_all_patients_when_unfiltered")  # noqa
