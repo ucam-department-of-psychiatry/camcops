@@ -39,7 +39,10 @@ from camcops_server.cc_modules.cc_taskschedule import (
     TaskScheduleItem,
 )
 from camcops_server.cc_modules.cc_tsv import TsvPage
-from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
+from camcops_server.cc_modules.cc_unittest import (
+    BasicDatabaseTestCase,
+    DemoDatabaseTestCase,
+)
 from camcops_server.cc_modules.cc_xml import XmlElement
 
 
@@ -204,3 +207,17 @@ class PatientDeleteTests(DemoDatabaseTestCase):
 
         self.assertIsNone(self.dbsession.query(PatientTaskSchedule).filter(
             PatientTaskSchedule.id == pts.id).one_or_none())
+
+
+class PatientPermissionTests(BasicDatabaseTestCase):
+    def test_group_administrator_may_edit(self) -> None:
+        user = self.create_user(username="testuser")
+        self.dbsession.flush()
+
+        patient = self.create_patient(_group=self.group)
+
+        self.create_membership(user, self.group, groupadmin=True)
+        self.dbsession.commit()
+
+        self.req._debugging_user = user
+        self.assertTrue(patient.user_may_edit(self.req))
