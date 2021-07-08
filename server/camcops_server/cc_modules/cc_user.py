@@ -1052,6 +1052,16 @@ class User(Base):
         return any(m.may_run_reports for m in memberships)
 
     @property
+    def authorized_to_manage_patients(self) -> bool:
+        """
+        Is the user authorized to manage patients (for some group)?
+        """
+        if self.superuser:
+            return True
+        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+        return any(m.may_manage_patients for m in memberships)
+
+    @property
     def may_view_all_patients_when_unfiltered(self) -> bool:
         """
         May the user view all patients when no filters are applied (for all

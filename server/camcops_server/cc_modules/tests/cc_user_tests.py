@@ -634,3 +634,25 @@ class UserPermissionTests(BasicDatabaseTestCase):
         self.dbsession.flush()
 
         self.assertFalse(user.may_register_devices)
+
+    def test_authorized_to_manage_patients(self) -> None:
+        user = self.create_user(username="test")
+        self.dbsession.flush()
+
+        self.create_membership(user, self.group_a, may_manage_patients=False)
+        self.create_membership(user, self.group_c, may_manage_patients=True)
+        self.dbsession.commit()
+
+        self.assertTrue(user.authorized_to_manage_patients)
+
+    def test_not_authorized_to_manage_patients(self) -> None:
+        user = self.create_user(username="test")
+        self.dbsession.flush()
+
+        self.assertFalse(user.authorized_to_manage_patients)
+
+    def test_superuser_authorized_to_manage_patients(self) -> None:
+        user = self.create_user(username="test", superuser=True)
+        self.dbsession.flush()
+
+        self.assertTrue(user.authorized_to_manage_patients)
