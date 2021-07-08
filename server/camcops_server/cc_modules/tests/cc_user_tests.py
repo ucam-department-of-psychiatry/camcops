@@ -664,3 +664,38 @@ class UserPermissionTests(BasicDatabaseTestCase):
         self.dbsession.flush()
 
         self.assertTrue(user.authorized_to_manage_patients)
+
+    def test_user_may_manage_patients_in_group(self) -> None:
+        user = self.create_user(username="test")
+        self.dbsession.flush()
+
+        self.create_membership(user, self.group_a, may_manage_patients=False)
+        self.create_membership(user, self.group_c, may_manage_patients=True)
+        self.create_membership(user, self.group_d, may_manage_patients=True)
+        self.dbsession.commit()
+
+        self.assertFalse(user.may_manage_patients_in_group(self.group_a.id))
+        self.assertTrue(user.may_manage_patients_in_group(self.group_c.id))
+        self.assertTrue(user.may_manage_patients_in_group(self.group_d.id))
+
+    def test_groupadmin_may_manage_patients_in_group(self) -> None:
+        user = self.create_user(username="test")
+        self.dbsession.flush()
+
+        self.create_membership(user, self.group_a, groupadmin=False)
+        self.create_membership(user, self.group_c, groupadmin=True)
+        self.create_membership(user, self.group_d, groupadmin=True)
+        self.dbsession.commit()
+
+        self.assertFalse(user.may_manage_patients_in_group(self.group_a.id))
+        self.assertTrue(user.may_manage_patients_in_group(self.group_c.id))
+        self.assertTrue(user.may_manage_patients_in_group(self.group_d.id))
+
+    def test_superuser_may_manage_patients_in_group(self) -> None:
+        user = self.create_user(username="test", superuser=True)
+        self.dbsession.flush()
+
+        self.assertTrue(user.may_manage_patients_in_group(self.group_a.id))
+        self.assertTrue(user.may_manage_patients_in_group(self.group_b.id))
+        self.assertTrue(user.may_manage_patients_in_group(self.group_c.id))
+        self.assertTrue(user.may_manage_patients_in_group(self.group_d.id))
