@@ -4113,7 +4113,6 @@ class DeleteServerCreatedPatientView(DeleteView):
 
 
 @view_config(route_name=Routes.DELETE_SERVER_CREATED_PATIENT,
-             permission=Permission.GROUPADMIN,
              http_cache=NEVER_CACHE)
 def delete_server_created_patient(req: "CamcopsRequest") -> Response:
     """
