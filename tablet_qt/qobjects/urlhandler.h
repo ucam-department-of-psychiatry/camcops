@@ -32,12 +32,12 @@ public:
     static UrlHandler* getInstance();
 
 signals:
-    void defaultSingleUserModeSet(const QString &single_user_mode);
-    void defaultServerLocationSet(const QString &server_location);
-    void defaultAccessKeySet(const QString &access_key);
+    void defaultSingleUserModeSet(const QString& single_user_mode);
+    void defaultServerLocationSet(const QString& server_location);
+    void defaultAccessKeySet(const QString& access_key);
 
 public slots:
-    void handleUrl(const QUrl url);
+    void handleUrl(const QUrl& url);
 
 private:
     static UrlHandler* m_instance;

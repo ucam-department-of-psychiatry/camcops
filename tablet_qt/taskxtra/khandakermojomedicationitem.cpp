@@ -79,7 +79,7 @@ void KhandakerMojoMedicationItem::setSeqnum(const int seqnum)
 
 
 void KhandakerMojoMedicationItem::setChemicalName(
-    const QString chemical_name)
+    const QString& chemical_name)
 {
     setValue(FN_CHEMICAL_NAME, chemical_name);
 }

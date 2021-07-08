@@ -842,20 +842,20 @@ int CamcopsApp::run()
 }
 
 
-void CamcopsApp::setDefaultSingleUserMode(QString value)
+void CamcopsApp::setDefaultSingleUserMode(const QString& value)
 {
     // Set from URL or command line so string not boolean
     m_default_single_user_mode = (value.toLower() == "true");
 }
 
 
-void CamcopsApp::setDefaultServerLocation(QString url)
+void CamcopsApp::setDefaultServerLocation(const QString& url)
 {
     m_default_server_url = QUrl(url);
 }
 
 
-void CamcopsApp::setDefaultAccessKey(QString key)
+void CamcopsApp::setDefaultAccessKey(const QString& key)
 {
     m_default_patient_proquint = key;
 }
