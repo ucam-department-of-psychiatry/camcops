@@ -4084,6 +4084,13 @@ class DeleteServerCreatedPatientView(DeleteView):
     server_pk_name = "_pk"
     template_name = "generic_form.mako"
 
+    def get_object(self) -> Any:
+        patient = cast(Patient, super().get_object())
+        if not patient.user_may_edit(self.request):
+            _ = self.request.gettext
+            raise HTTPBadRequest(_("Not authorized to delete this patient"))
+        return patient
+
     def get_extra_context(self) -> Dict[str, Any]:
         _ = self.request.gettext
         return {
@@ -4097,10 +4104,6 @@ class DeleteServerCreatedPatientView(DeleteView):
 
     def delete(self) -> None:
         patient = cast(Patient, self.object)
-
-        if not patient.user_may_edit(self.request):
-            _ = self.request.gettext
-            raise HTTPBadRequest(_("Not authorized to delete this patient"))
 
         PatientIdNumIndexEntry.unindex_patient(
             patient, self.request.dbsession

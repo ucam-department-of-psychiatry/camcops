@@ -1790,6 +1790,26 @@ class DeleteServerCreatedPatientViewTests(BasicDatabaseTestCase):
             "Not authorized to delete this patient"
         )
 
+    def test_unprivileged_user_cannot_see_delete_form(self) -> None:
+        self.req.fake_request_post_from_dict(self.multidict)
+
+        patient_pk = self.patient.pk
+        self.req.add_get_params({ViewParam.SERVER_PK: patient_pk})
+        view = DeleteServerCreatedPatientView(self.req)
+
+        user = self.create_user(username="testuser")
+        self.dbsession.flush()
+
+        self.req._debugging_user = user
+
+        with self.assertRaises(HTTPBadRequest) as cm:
+            view.dispatch()
+
+        self.assertEqual(
+            cm.exception.message,
+            "Not authorized to delete this patient"
+        )
+
 
 class EraseTaskTestCase(BasicDatabaseTestCase):
     """
