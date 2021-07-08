@@ -233,7 +233,7 @@ class PatientTaskSchedule(Base):
 
     @property
     def email_sent(self) -> bool:
-        return any([e.email.sent for e in self.emails])
+        return any(e.email.sent for e in self.emails)
 
 
 def task_schedule_item_sort_order() -> Tuple["Cast", "Cast"]:
