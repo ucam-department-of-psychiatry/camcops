@@ -1393,6 +1393,27 @@ class EditServerCreatedPatientViewTests(BasicDatabaseTestCase):
         self.assertEqual(changes[f"schedule{schedule3.id} (Test 3)"],
                          (expected_old_3, expected_new_3))
 
+    def test_unprivileged_user_cannot_edit_patient(self) -> None:
+        patient = self.create_patient(sex="F", as_server_patient=True)
+
+        user = self.create_user(username="testuser")
+        self.dbsession.flush()
+
+        self.req._debugging_user = user
+
+        view = EditServerCreatedPatientView(self.req)
+        view.object = patient
+
+        self.req.add_get_params({ViewParam.SERVER_PK: patient.pk})
+
+        with self.assertRaises(HTTPBadRequest) as cm:
+            view.dispatch()
+
+        self.assertEqual(
+            cm.exception.message,
+            "Not authorized to edit this patient"
+        )
+
 
 class AddPatientViewTests(DemoDatabaseTestCase):
     """
@@ -1747,6 +1768,27 @@ class DeleteServerCreatedPatientViewTests(BasicDatabaseTestCase):
         ).one_or_none()
 
         self.assertIsNotNone(saved_idnum)
+
+    def test_unprivileged_user_cannot_delete_patient(self) -> None:
+        self.req.fake_request_post_from_dict(self.multidict)
+
+        patient_pk = self.patient.pk
+        self.req.add_get_params({ViewParam.SERVER_PK: patient_pk},
+                                set_method_get=False)
+        view = DeleteServerCreatedPatientView(self.req)
+
+        user = self.create_user(username="testuser")
+        self.dbsession.flush()
+
+        self.req._debugging_user = user
+
+        with self.assertRaises(HTTPBadRequest) as cm:
+            view.dispatch()
+
+        self.assertEqual(
+            cm.exception.message,
+            "Not authorized to delete this patient"
+        )
 
 
 class EraseTaskTestCase(BasicDatabaseTestCase):

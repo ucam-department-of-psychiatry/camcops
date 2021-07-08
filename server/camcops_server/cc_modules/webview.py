@@ -4098,6 +4098,10 @@ class DeleteServerCreatedPatientView(DeleteView):
     def delete(self) -> None:
         patient = cast(Patient, self.object)
 
+        if not patient.user_may_edit(self.request):
+            _ = self.request.gettext
+            raise HTTPBadRequest(_("Not authorized to delete this patient"))
+
         PatientIdNumIndexEntry.unindex_patient(
             patient, self.request.dbsession
         )
