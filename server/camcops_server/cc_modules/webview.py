@@ -3976,7 +3976,6 @@ def edit_finalized_patient(req: "CamcopsRequest") -> Response:
 
 
 @view_config(route_name=Routes.EDIT_SERVER_CREATED_PATIENT,
-             permission=Permission.GROUPADMIN,
              http_cache=NEVER_CACHE)
 def edit_server_created_patient(req: "CamcopsRequest") -> Response:
     """
