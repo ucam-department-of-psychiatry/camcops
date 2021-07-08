@@ -959,6 +959,11 @@ class Patient(GenericTabletRecordMixin, Base):
         """
         Does the current user have permission to edit this patient?
         """
+        if self.created_on_server(req):
+            # Anyone in the group with the right permission
+            return req.user.may_manage_patients_in_group(self._group_id)
+
+        # Finalized patient: Need to be group administrator
         return req.user.may_administer_group(self._group_id)
 
     # --------------------------------------------------------------------------
