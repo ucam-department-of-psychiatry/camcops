@@ -1056,7 +1056,7 @@ class User(Base):
         """
         Is the user authorized to manage patients (for some group)?
         """
-        if self.superuser:
+        if self.authorized_as_groupadmin:
             return True
         memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
         return any(m.may_manage_patients for m in memberships)
