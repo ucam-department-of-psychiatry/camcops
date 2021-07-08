@@ -80,6 +80,7 @@ from camcops_server.cc_modules.webview import (
     FLASH_INFO,
     FLASH_SUCCESS,
     SendEmailFromPatientTaskScheduleView,
+    add_patient,
     any_records_use_group,
     edit_group,
     edit_finalized_patient,
@@ -1534,6 +1535,20 @@ class AddPatientViewTests(DemoDatabaseTestCase):
         context = args[0]
 
         self.assertIn("form", context)
+
+    def test_unprivileged_user_cannot_add_patient(self) -> None:
+        user = self.create_user(username="testuser")
+        self.dbsession.flush()
+
+        self.req._debugging_user = user
+
+        with self.assertRaises(HTTPBadRequest) as cm:
+            add_patient(self.req)
+
+        self.assertEqual(
+            cm.exception.message,
+            "Not authorized to manage patients"
+        )
 
 
 class DeleteServerCreatedPatientViewTests(BasicDatabaseTestCase):

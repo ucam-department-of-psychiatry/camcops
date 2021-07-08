@@ -3993,6 +3993,13 @@ class AddPatientView(PatientMixin, CreateView):
     form_class = EditServerCreatedPatientForm
     template_name = "patient_add.mako"
 
+    def dispatch(self) -> Response:
+        if not self.request.user.authorized_to_manage_patients:
+            _ = self.request.gettext
+            raise HTTPBadRequest(_("Not authorized to manage patients"))
+
+        return super().dispatch()
+
     def get_success_url(self) -> str:
         return self.request.route_url(
             Routes.VIEW_PATIENT_TASK_SCHEDULES
@@ -4059,7 +4066,6 @@ class AddPatientView(PatientMixin, CreateView):
 
 
 @view_config(route_name=Routes.ADD_PATIENT,
-             permission=Permission.GROUPADMIN,
              http_cache=NEVER_CACHE)
 def add_patient(req: "CamcopsRequest") -> Response:
     """
