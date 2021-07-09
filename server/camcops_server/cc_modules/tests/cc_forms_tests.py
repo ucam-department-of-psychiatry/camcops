@@ -123,7 +123,7 @@ class TaskScheduleSchemaTests(DemoDatabaseTestCase):
             ViewParam.EMAIL_CC: null,
             ViewParam.EMAIL_BCC: null,
             ViewParam.EMAIL_SUBJECT: "Subject",
-            ViewParam.EMAIL_TEMPLATE: "{server_url",
+            ViewParam.EMAIL_TEMPLATE: "{server_url",  # deliberately missing }
         }
 
         with self.assertRaises(Invalid) as cm:
