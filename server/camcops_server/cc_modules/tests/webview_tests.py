@@ -75,8 +75,10 @@ from camcops_server.cc_modules.webview import (
     EditServerCreatedPatientView,
     EraseTaskEntirelyView,
     EraseTaskLeavingPlaceholderView,
+    FLASH_DANGER,
     FLASH_INFO,
     FLASH_SUCCESS,
+    SendEmailFromPatientTaskScheduleView,
     any_records_use_group,
     edit_group,
     edit_finalized_patient,
@@ -143,6 +145,9 @@ class AddTaskScheduleViewTests(DemoDatabaseTestCase):
             (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
             (ViewParam.NAME, "MOJO"),
             (ViewParam.GROUP_ID, self.group.id),
+            (ViewParam.EMAIL_FROM, "server@example.com"),
+            (ViewParam.EMAIL_CC, "cc@example.com"),
+            (ViewParam.EMAIL_BCC, "bcc@example.com"),
             (ViewParam.EMAIL_SUBJECT, "Subject"),
             (ViewParam.EMAIL_TEMPLATE, "Email template"),
             (FormAction.SUBMIT, "submit"),
@@ -158,6 +163,8 @@ class AddTaskScheduleViewTests(DemoDatabaseTestCase):
         schedule = self.dbsession.query(TaskSchedule).one()
 
         self.assertEqual(schedule.name, "MOJO")
+        self.assertEqual(schedule.email_from, "server@example.com")
+        self.assertEqual(schedule.email_bcc, "bcc@example.com")
         self.assertEqual(schedule.email_subject, "Subject")
         self.assertEqual(schedule.email_template, "Email template")
 
@@ -2108,3 +2115,241 @@ class EditGroupViewTests(DemoDatabaseTestCase):
         self.assertEqual(
             form_values[ViewParam.IP_USE], self.group.ip_use
         )
+
+
+class SendEmailFromPatientTaskScheduleViewTests(BasicDatabaseTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.patient = self.create_patient(
+            as_server_patient=True,
+            forename="Jo", surname="Patient",
+            dob=datetime.date(1958, 4, 19),
+            sex="F", address="Address", gp="GP", other="Other"
+        )
+
+        patient_pk = self.patient.pk
+
+        idnum = self.create_patient_idnum(
+            as_server_patient=True,
+            patient_id=self.patient.id,
+            which_idnum=self.nhs_iddef.which_idnum,
+            idnum_value=TEST_NHS_NUMBER_1
+        )
+
+        PatientIdNumIndexEntry.index_idnum(idnum, self.dbsession)
+
+        self.schedule = TaskSchedule()
+        self.schedule.group_id = self.group.id
+        self.schedule.name = "Test 1"
+        self.dbsession.add(self.schedule)
+        self.dbsession.commit()
+
+        self.pts = PatientTaskSchedule()
+        self.pts.patient_pk = patient_pk
+        self.pts.schedule_id = self.schedule.id
+        self.dbsession.add(self.pts)
+        self.dbsession.commit()
+
+    def test_displays_form(self) -> None:
+        self.req.add_get_params({
+            ViewParam.PATIENT_TASK_SCHEDULE_ID: self.pts.id,
+        })
+
+        view = SendEmailFromPatientTaskScheduleView(self.req)
+        with mock.patch.object(view, "render_to_response") as mock_render:
+            view.dispatch()
+
+        args, kwargs = mock_render.call_args
+        context = args[0]
+
+        self.assertIn("form", context)
+
+    def test_raises_for_missing_pts_id(self):
+        view = SendEmailFromPatientTaskScheduleView(self.req)
+        with self.assertRaises(HTTPBadRequest) as cm:
+            view.dispatch()
+
+        self.assertIn(
+            "Patient task schedule does not exist",
+            cm.exception.message
+        )
+
+    @mock.patch("camcops_server.cc_modules.cc_email.send_msg")
+    @mock.patch("camcops_server.cc_modules.cc_email.make_email")
+    def test_sends_email(self, mock_make_email, mock_send_msg) -> None:
+        self.req.config.email_host = "smtp.example.com"
+        self.req.config.email_port = 587
+        self.req.config.email_host_username = "mailuser"
+        self.req.config.email_host_password = "mailpassword"
+        self.req.config.email_use_tls = True
+
+        multidict = MultiDict([
+            (ViewParam.EMAIL, "patient@example.com"),
+            (ViewParam.EMAIL_FROM, "server@example.com"),
+            (ViewParam.EMAIL_SUBJECT, "Subject"),
+            (ViewParam.EMAIL_BODY, "Email body"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+        self.req.add_get_params({
+            ViewParam.PATIENT_TASK_SCHEDULE_ID: str(self.pts.id)
+        }, set_method_get=False)
+        view = SendEmailFromPatientTaskScheduleView(self.req)
+
+        with self.assertRaises(HTTPFound):
+            view.dispatch()
+
+        args, kwargs = mock_make_email.call_args_list[0]
+        self.assertEqual(kwargs["from_addr"], "server@example.com")
+        self.assertEqual(kwargs["to"], "patient@example.com")
+        self.assertEqual(kwargs["subject"], "Subject")
+        self.assertEqual(kwargs["body"], "Email body")
+
+        args, kwargs = mock_send_msg.call_args
+        self.assertEqual(kwargs["host"], "smtp.example.com")
+        self.assertEqual(kwargs["user"], "mailuser")
+        self.assertEqual(kwargs["password"], "mailpassword")
+        self.assertEqual(kwargs["port"], 587)
+        self.assertTrue(kwargs["use_tls"])
+
+    @mock.patch("camcops_server.cc_modules.cc_email.send_msg")
+    @mock.patch("camcops_server.cc_modules.cc_email.make_email")
+    def test_sends_cc_of_email(self, mock_make_email, mock_send_msg) -> None:
+        self.req.config.email_host = "smtp.example.com"
+        self.req.config.email_port = 587
+        self.req.config.email_host_username = "mailuser"
+        self.req.config.email_host_password = "mailpassword"
+        self.req.config.email_use_tls = True
+
+        multidict = MultiDict([
+            (ViewParam.EMAIL, "patient@example.com"),
+            (ViewParam.EMAIL_CC, "cc@example.com"),
+            (ViewParam.EMAIL_FROM, "server@example.com"),
+            (ViewParam.EMAIL_SUBJECT, "Subject"),
+            (ViewParam.EMAIL_BODY, "Email body"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+        self.req.add_get_params({
+            ViewParam.PATIENT_TASK_SCHEDULE_ID: str(self.pts.id)
+        }, set_method_get=False)
+        view = SendEmailFromPatientTaskScheduleView(self.req)
+
+        with self.assertRaises(HTTPFound):
+            view.dispatch()
+
+        args, kwargs = mock_make_email.call_args
+        self.assertEqual(kwargs["to"], "patient@example.com")
+        self.assertEqual(kwargs["cc"], "cc@example.com")
+
+    @mock.patch("camcops_server.cc_modules.cc_email.send_msg")
+    @mock.patch("camcops_server.cc_modules.cc_email.make_email")
+    def test_sends_bcc_of_email(self, mock_make_email, mock_send_msg) -> None:
+        self.req.config.email_host = "smtp.example.com"
+        self.req.config.email_port = 587
+        self.req.config.email_host_username = "mailuser"
+        self.req.config.email_host_password = "mailpassword"
+        self.req.config.email_use_tls = True
+
+        multidict = MultiDict([
+            (ViewParam.EMAIL, "patient@example.com"),
+            (ViewParam.EMAIL_CC, "cc@example.com"),
+            (ViewParam.EMAIL_BCC, "bcc@example.com"),
+            (ViewParam.EMAIL_FROM, "server@example.com"),
+            (ViewParam.EMAIL_SUBJECT, "Subject"),
+            (ViewParam.EMAIL_BODY, "Email body"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+        self.req.add_get_params({
+            ViewParam.PATIENT_TASK_SCHEDULE_ID: str(self.pts.id)
+        }, set_method_get=False)
+        view = SendEmailFromPatientTaskScheduleView(self.req)
+
+        with self.assertRaises(HTTPFound):
+            view.dispatch()
+
+        args, kwargs = mock_make_email.call_args
+        self.assertEqual(kwargs["to"], "patient@example.com")
+        self.assertEqual(kwargs["bcc"], "bcc@example.com")
+
+    @mock.patch("camcops_server.cc_modules.cc_email.send_msg")
+    @mock.patch("camcops_server.cc_modules.cc_email.make_email")
+    def test_message_on_success(self, mock_make_email, mock_send_msg) -> None:
+        multidict = MultiDict([
+            (ViewParam.EMAIL, "patient@example.com"),
+            (ViewParam.EMAIL_FROM, "server@example.com"),
+            (ViewParam.EMAIL_SUBJECT, "Subject"),
+            (ViewParam.EMAIL_BODY, "Email body"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+        self.req.add_get_params({
+            ViewParam.PATIENT_TASK_SCHEDULE_ID: str(self.pts.id)
+        }, set_method_get=False)
+        view = SendEmailFromPatientTaskScheduleView(self.req)
+
+        with self.assertRaises(HTTPFound):
+            view.dispatch()
+
+        messages = self.req.session.peek_flash(FLASH_SUCCESS)
+        self.assertTrue(len(messages) > 0)
+
+        self.assertIn("Email sent to patient@example.com", messages[0])
+
+    @mock.patch("camcops_server.cc_modules.cc_email.send_msg",
+                side_effect=RuntimeError("Something bad happened"))
+    @mock.patch("camcops_server.cc_modules.cc_email.make_email")
+    def test_message_on_failure(self, mock_make_email, mock_send_msg) -> None:
+        multidict = MultiDict([
+            (ViewParam.EMAIL, "patient@example.com"),
+            (ViewParam.EMAIL_FROM, "server@example.com"),
+            (ViewParam.EMAIL_SUBJECT, "Subject"),
+            (ViewParam.EMAIL_BODY, "Email body"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+        self.req.add_get_params({
+            ViewParam.PATIENT_TASK_SCHEDULE_ID: str(self.pts.id)
+        }, set_method_get=False)
+        view = SendEmailFromPatientTaskScheduleView(self.req)
+
+        with self.assertRaises(HTTPFound):
+            view.dispatch()
+
+        messages = self.req.session.peek_flash(FLASH_DANGER)
+        self.assertTrue(len(messages) > 0)
+
+        self.assertIn("Failed to send email to patient@example.com",
+                      messages[0])
+
+    @mock.patch("camcops_server.cc_modules.cc_email.send_msg")
+    @mock.patch("camcops_server.cc_modules.cc_email.make_email")
+    def test_email_record_created(self, mock_make_email, mock_send_msg) -> None:
+        multidict = MultiDict([
+            (ViewParam.EMAIL, "patient@example.com"),
+            (ViewParam.EMAIL_FROM, "server@example.com"),
+            (ViewParam.EMAIL_SUBJECT, "Subject"),
+            (ViewParam.EMAIL_BODY, "Email body"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+        self.req.add_get_params({
+            ViewParam.PATIENT_TASK_SCHEDULE_ID: str(self.pts.id)
+        }, set_method_get=False)
+        view = SendEmailFromPatientTaskScheduleView(self.req)
+
+        self.assertEqual(len(self.pts.emails), 0)
+
+        with self.assertRaises(HTTPFound):
+            view.dispatch()
+
+        self.assertEqual(len(self.pts.emails), 1)
+        self.assertEqual(self.pts.emails[0].email.to, "patient@example.com")

@@ -87,7 +87,9 @@ class Email(Base):
     # Basic things
     # -------------------------------------------------------------------------
     id = Column(
-        "id", BigInteger, primary_key=True, autoincrement=True,
+        # SQLite doesn't support autoincrement with BigInteger
+        "id", BigInteger().with_variant(Integer, "sqlite"),
+        primary_key=True, autoincrement=True,
         comment="Arbitrary primary key"
     )
     created_at_utc = Column(
@@ -239,8 +241,8 @@ class Email(Base):
         # -------------------------------------------------------------------------
         if not date:
             date = email.utils.format_datetime(now_local)
-        attachment_filenames = attachment_filenames or []  # type: List[str]
-        attachments_binary = attachments_binary or []  # type: List[Tuple[str, bytes]]  # noqa
+        attachment_filenames = attachment_filenames or []  # type: Sequence[str]
+        attachments_binary = attachments_binary or []  # type: Sequence[Tuple[str, bytes]]  # noqa
         if attachments_binary:
             attachment_binary_filenames, attachment_binaries = zip(
                 *attachments_binary)
@@ -353,8 +355,12 @@ class Email(Base):
             self.sent = True
             self.sent_at_utc = get_now_utc_pendulum()
             self.sending_failure_reason = None
+
+            return True
         except RuntimeError as e:
             log.error("Failed to send e-mail: {!s}", e)
             if not self.sent:
                 self.sent = False
                 self.sending_failure_reason = str(e)
+
+            return False

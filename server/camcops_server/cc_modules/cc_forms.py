@@ -111,6 +111,7 @@ from cardinal_pythonlib.colander_utils import (
     get_values_and_permissible,
     HiddenIntegerNode,
     HiddenStringNode,
+    MandatoryEmailNode,
     MandatoryStringNode,
     OptionalEmailNode,
     OptionalIntNode,
@@ -4217,9 +4218,44 @@ class EmailTemplateNode(OptionalStringNode, RequestAwareMixin):
         raise Invalid(node, error)
 
 
+class EmailCcNode(OptionalEmailNode, RequestAwareMixin):
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        _ = self.gettext
+        self.title = _("Email CC")
+        self.description = _(
+            "The patient will see these email addresses. Separate multiple "
+            "addresses with commas."
+        )
+
+
+class EmailBccNode(OptionalEmailNode, RequestAwareMixin):
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        _ = self.gettext
+        self.title = _("Email BCC")
+        self.description = _(
+            "The patient will not see these email addresses. Separate multiple "
+            "addresses with commas."
+        )
+
+
+class EmailFromNode(OptionalEmailNode, RequestAwareMixin):
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        _ = self.gettext
+        self.title = _('Email "From" address')
+        self.description = _(
+            "You must set this if you want to send emails to your patients"
+        )
+
+
 class TaskScheduleSchema(CSRFSchema):
     name = OptionalStringNode()
     group_id = MandatoryGroupIdSelectorAdministeredGroups()  # must match ViewParam.GROUP_ID  # noqa
+    email_from = EmailFromNode()  # must match ViewParam.EMAIL_FROM
+    email_cc = EmailCcNode()  # must match ViewParam.EMAIL_CC
+    email_bcc = EmailBccNode()  # must match ViewParam.EMAIL_BCC
     email_subject = OptionalStringNode()
     email_template = EmailTemplateNode()
 
@@ -4691,3 +4727,46 @@ class UserDownloadDeleteForm(SimpleSubmitForm):
         super().__init__(schema_class=UserDownloadDeleteSchema,
                          submit_title=_("Delete"),
                          request=request, **kwargs)
+
+
+class EmailBodyNode(MandatoryStringNode, RequestAwareMixin):
+    def __init__(self, *args, **kwargs) -> None:
+        self.title = ""  # for type checker
+        super().__init__(*args, **kwargs)
+
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        _ = self.gettext
+
+        self.title = _("Message")
+
+        # noinspection PyAttributeOutsideInit
+        self.widget = TextAreaWidget(rows=20, cols=80)
+
+
+class SendEmailSchema(CSRFSchema):
+    email = MandatoryEmailNode()  # name must match ViewParam.EMAIL
+    email_cc = HiddenStringNode()
+    email_bcc = HiddenStringNode()
+    email_from = HiddenStringNode()
+    email_subject = MandatoryStringNode()
+    email_body = EmailBodyNode()
+
+
+class SendEmailForm(InformativeNonceForm):
+    """
+    Form for sending email
+    """
+    def __init__(self,
+                 request: "CamcopsRequest",
+                 **kwargs) -> None:
+        schema = SendEmailSchema().bind(request=request)
+        _ = request.gettext
+        super().__init__(
+            schema,
+            buttons=[
+                Button(name=FormAction.SUBMIT, title=_("Send")),
+                Button(name=FormAction.CANCEL, title=_("Cancel")),
+            ],
+            **kwargs
+        )

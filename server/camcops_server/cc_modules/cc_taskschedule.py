@@ -28,7 +28,6 @@ camcops_server/cc_modules/cc_taskschedule.py
 
 import logging
 from typing import List, Iterable, Optional, Tuple, TYPE_CHECKING
-from urllib.parse import quote, urlencode
 
 from pendulum import DateTime as Pendulum, Duration
 
@@ -36,14 +35,16 @@ from sqlalchemy import cast, Numeric
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.schema import Column, ForeignKey
-from sqlalchemy.sql.sqltypes import Integer, UnicodeText
+from sqlalchemy.sql.sqltypes import BigInteger, Integer, UnicodeText
 
+from camcops_server.cc_modules.cc_email import Email
 from camcops_server.cc_modules.cc_formatter import SafeFormatter
 from camcops_server.cc_modules.cc_group import Group
 from camcops_server.cc_modules.cc_pyramid import Routes
 from camcops_server.cc_modules.cc_simpleobjects import IdNumReference
 from camcops_server.cc_modules.cc_sqlalchemy import Base
 from camcops_server.cc_modules.cc_sqla_coltypes import (
+    EmailAddressColType,
     JsonColType,
     PendulumDateTimeAsIsoTextColType,
     PendulumDurationAsIsoTextColType,
@@ -130,6 +131,12 @@ class PatientTaskSchedule(Base):
         back_populates="patient_task_schedules"
     )
 
+    emails = relationship(
+        "PatientTaskScheduleEmail",
+        back_populates="patient_task_schedule",
+        cascade="all, delete"
+    )
+
     def get_list_of_scheduled_tasks(self, req: "CamcopsRequest") \
             -> List[ScheduledTaskInfo]:
 
@@ -212,24 +219,21 @@ class PatientTaskSchedule(Base):
 
         return None
 
-    def mailto_url(self, req: "CamcopsRequest") -> str:
+    def email_body(self, req: "CamcopsRequest") -> str:
         template_dict = dict(
             access_key=self.patient.uuid_as_proquint,
-            server_url=req.route_url(Routes.CLIENT_API)
+            forename=self.patient.forename,
+            server_url=req.route_url(Routes.CLIENT_API),
+            surname=self.patient.surname,
         )
 
         formatter = TaskScheduleEmailTemplateFormatter()
-        email_body = formatter.format(self.task_schedule.email_template,
-                                      **template_dict)
+        return formatter.format(self.task_schedule.email_template,
+                                **template_dict)
 
-        mailto_params = urlencode({
-            "subject": self.task_schedule.email_subject,
-            "body": email_body,
-        }, quote_via=quote)
-
-        mailto_url = f"mailto:{self.patient.email}?{mailto_params}"
-
-        return mailto_url
+    @property
+    def email_sent(self) -> bool:
+        return any(e.email.sent for e in self.emails)
 
 
 def task_schedule_item_sort_order() -> Tuple["Cast", "Cast"]:
@@ -249,6 +253,36 @@ def task_schedule_item_sort_order() -> Tuple["Cast", "Cast"]:
                         Numeric())
 
     return due_from_order, due_by_order
+
+
+# =============================================================================
+# Emails sent to patient
+# =============================================================================
+class PatientTaskScheduleEmail(Base):
+    """
+    Represents an email send to a patient for a particular task schedule.
+    """
+    __tablename__ = "_patient_task_schedule_email"
+
+    id = Column(
+        "id", Integer, primary_key=True, autoincrement=True,
+        comment="Arbitrary primary key"
+    )
+    patient_task_schedule_id = Column(
+        "patient_task_schedule_id", Integer, ForeignKey(PatientTaskSchedule.id),
+        nullable=False,
+        comment=(f"FK to {PatientTaskSchedule.__tablename__}."
+                 f"{PatientTaskSchedule.id.name}")
+    )
+    email_id = Column(
+        "email_id", BigInteger, ForeignKey(Email.id),
+        nullable=False,
+        comment=f"FK to {Email.__tablename__}.{Email.id.name}"
+    )
+
+    patient_task_schedule = relationship(PatientTaskSchedule,
+                                         back_populates="emails")
+    email = relationship(Email, cascade="all, delete")
 
 
 # =============================================================================
@@ -281,6 +315,16 @@ class TaskSchedule(Base):
     email_template = Column("email_template", UnicodeText,
                             comment="email template", nullable=False,
                             default="")
+    email_from = Column("email_from", EmailAddressColType,
+                        comment="Sender's e-mail address")
+    email_cc = Column(
+        "email_cc", UnicodeText,
+        comment="Send a carbon copy of the email to these addresses"
+    )
+    email_bcc = Column(
+        "email_bcc", UnicodeText,
+        comment="Send a blind carbon copy of the email to these addresses"
+    )
 
     items = relationship(
         "TaskScheduleItem",
@@ -371,4 +415,9 @@ class TaskScheduleItem(Base):
 
 class TaskScheduleEmailTemplateFormatter(SafeFormatter):
     def __init__(self):
-        super().__init__(["access_key", "server_url"])
+        super().__init__([
+            "access_key",
+            "forename",
+            "server_url",
+            "surname",
+        ])
