@@ -351,15 +351,20 @@ def main() -> None:
     #     )
 
     # https://stackoverflow.com/questions/3878624/how-do-i-programmatically-determine-if-there-are-uncommitted-changes  # noqa: E501
+    os.chdir(PROJECT_ROOT)
     run(["git", "update-index", "--refresh"])
     try:
         run_with_check(["git", "diff-index", "--quiet", "HEAD", "--"])
     except CalledProcessError:
         errors.append("There are uncommitted changes")
 
+    log = run(["git", "log", "origin/master..HEAD"],
+              stdout=PIPE).stdout.decode('utf-8')
+    if len(log) > 0:
+        errors.append("There are unpushed changes")
+
     release_tag = get_release_tag(new_client_version, new_server_version)
 
-    os.chdir(PROJECT_ROOT)
     tags = run(["git", "tag"], stdout=PIPE).stdout.decode('utf-8').split()
 
     if release_tag not in tags:
