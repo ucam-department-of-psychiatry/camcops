@@ -4215,7 +4215,6 @@ def view_patient_task_schedules(req: "CamcopsRequest") -> Dict[str, Any]:
 
 
 @view_config(route_name=Routes.VIEW_PATIENT_TASK_SCHEDULE,
-             permission=Permission.GROUPADMIN,
              renderer="view_patient_task_schedule.mako",
              http_cache=NEVER_CACHE)
 def view_patient_task_schedule(req: "CamcopsRequest") -> Dict[str, Any]:
@@ -4230,9 +4229,12 @@ def view_patient_task_schedule(req: "CamcopsRequest") -> Dict[str, Any]:
             joinedload("task_schedule.items"),
     ).one_or_none()
 
+    _ = req.gettext
     if pts is None:
-        _ = req.gettext
         raise HTTPBadRequest(_("Patient's task schedule does not exist"))
+
+    if not pts.patient.user_may_edit(req):
+        raise HTTPBadRequest(_("Not authorized to manage this patient"))
 
     patient_descriptor = pts.patient.prettystr(req)
 
