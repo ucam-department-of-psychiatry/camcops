@@ -914,6 +914,7 @@ def main_menu(req: "CamcopsRequest") -> Dict[str, Any]:
         authorized_as_superuser=user.superuser,
         authorized_for_reports=user.authorized_for_reports,
         authorized_to_dump=user.authorized_to_dump,
+        authorized_to_manage_patients=user.authorized_to_manage_patients,
         camcops_url=CAMCOPS_URL,
         now=format_datetime(req.now, DateFormat.SHORT_DATETIME_SECONDS),
         server_version=CAMCOPS_SERVER_VERSION,
