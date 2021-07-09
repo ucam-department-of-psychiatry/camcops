@@ -372,7 +372,7 @@ def main() -> None:
 
     output = run(["git", "push", "--tags", "--dry-run"],
                  stderr=PIPE).stderr.decode('utf-8')
-    if len(output) > 0:
+    if "Everything up-to-date" not in output:
         errors.append("There are unpushed tags")
 
     if len(errors) > 0:
