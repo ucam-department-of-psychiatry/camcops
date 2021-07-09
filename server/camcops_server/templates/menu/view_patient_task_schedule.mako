@@ -165,7 +165,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 
 <div>
     <a href="${ req.route_url(Routes.VIEW_PATIENT_TASK_SCHEDULES) | n }">
-        ${ _("Manage scheduled tasks for patients") }</a>
+        ${ _("Manage patients and their tasks") }</a>
 </div>
 
 <%include file="to_main_menu.mako"/>
