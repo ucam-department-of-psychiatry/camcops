@@ -370,6 +370,11 @@ def main() -> None:
     if release_tag not in tags:
         errors.append(f"Could not find a git tag '{release_tag}'")
 
+    output = run(["git", "push", "--tags", "--dry-run"],
+                 stderr=PIPE).stderr.decode('utf-8')
+    if len(output) > 0:
+        errors.append("There are unpushed tags")
+
     if len(errors) > 0:
         for error in errors:
             print(error)
