@@ -159,6 +159,7 @@ from deform.widget import (
     MappingWidget,
     PasswordWidget,
     RadioChoiceWidget,
+    RichTextWidget,
     SelectWidget,
     SequenceWidget,
     TextAreaWidget,
@@ -297,6 +298,17 @@ class AutocompleteAttrValues(object):
     ON = "on"  # browser decides
     STREET_ADDRESS = "stree-address"
     USERNAME = "username"
+
+
+class WidgetDefaults(object):
+    TINYMCE_OPTIONS = {
+        "content_css": "static/tinymce/custom_content.css",
+        "menubar": "false",
+        "plugins": "link",
+        "toolbar": ("undo redo | bold italic underline | link | "
+                    "alignleft aligncenter alignright alignjustify | "
+                    "outdent indent"),
+    }
 
 
 # =============================================================================
@@ -4198,7 +4210,7 @@ class EmailTemplateNode(OptionalStringNode, RequestAwareMixin):
         ).format(self.formatter.get_valid_parameters_string())
 
         # noinspection PyAttributeOutsideInit
-        self.widget = TextAreaWidget(rows=20, cols=80)
+        self.widget = RichTextWidget(options=WidgetDefaults.TINYMCE_OPTIONS)
 
     def validator(self, node: SchemaNode, value: Any) -> None:
         _ = self.gettext
@@ -4741,7 +4753,7 @@ class EmailBodyNode(MandatoryStringNode, RequestAwareMixin):
         self.title = _("Message")
 
         # noinspection PyAttributeOutsideInit
-        self.widget = TextAreaWidget(rows=20, cols=80)
+        self.widget = RichTextWidget(options=WidgetDefaults.TINYMCE_OPTIONS)
 
 
 class SendEmailSchema(CSRFSchema):

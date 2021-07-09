@@ -370,8 +370,11 @@ Any tasks you schedule for a patient need to be permitted for these contexts.
 - First of all create a task schedule for your study (:menuselection:`Manage
   task schedules --> Add a task schedule`). Here you can specify the From, CC
   and BCC fields for your emails, along with an email template, which can be
-  customised to include the location of the server, the patient's name and their
-  unique access key.
+  customised to include the location of the server, the patient's name, their
+  unique access key and a unique URL that patients can use the first time they
+  launch the app. This last option will register their patient automatically
+  with the server, without the need to enter the server and access key
+  (Android only).
 
 - Next add items to your schedule (:menuselection:`Edit items` from the table
   of schedules):

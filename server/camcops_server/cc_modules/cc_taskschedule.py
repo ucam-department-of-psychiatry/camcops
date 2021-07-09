@@ -28,6 +28,7 @@ camcops_server/cc_modules/cc_taskschedule.py
 
 import logging
 from typing import List, Iterable, Optional, Tuple, TYPE_CHECKING
+from urllib.parse import urlencode, urlunsplit
 
 from pendulum import DateTime as Pendulum, Duration
 
@@ -222,6 +223,8 @@ class PatientTaskSchedule(Base):
     def email_body(self, req: "CamcopsRequest") -> str:
         template_dict = dict(
             access_key=self.patient.uuid_as_proquint,
+            android_launch_url=self.launch_url(req, "http"),
+            ios_launch_url=self.launch_url(req, "camcops"),
             forename=self.patient.forename,
             server_url=req.route_url(Routes.CLIENT_API),
             surname=self.patient.surname,
@@ -230,6 +233,24 @@ class PatientTaskSchedule(Base):
         formatter = TaskScheduleEmailTemplateFormatter()
         return formatter.format(self.task_schedule.email_template,
                                 **template_dict)
+
+    def launch_url(self, req: "CamcopsRequest", scheme: str) -> str:
+        # Matches intent-filter in AndroidManifest.xml
+        # And CFBundleURLSchemes in Info.plist
+
+        # iOS doesn't care about these:
+        netloc = "camcops.org"
+        path = "/register/"
+        fragment = ""
+
+        query_dict = {
+            "default_single_user_mode": "true",
+            "default_server_location": req.route_url(Routes.CLIENT_API),
+            "default_access_key": self.patient.uuid_as_proquint,
+        }
+        query = urlencode(query_dict)
+
+        return urlunsplit((scheme, netloc, path, query, fragment))
 
     @property
     def email_sent(self) -> bool:
@@ -417,7 +438,9 @@ class TaskScheduleEmailTemplateFormatter(SafeFormatter):
     def __init__(self):
         super().__init__([
             "access_key",
+            "android_launch_url",
             "forename",
+            "ios_launch_url",
             "server_url",
             "surname",
         ])
