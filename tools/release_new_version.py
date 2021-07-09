@@ -32,7 +32,7 @@ import logging
 import os
 from pathlib import Path
 import re
-from subprocess import PIPE, run
+from subprocess import CalledProcessError, PIPE, run
 import sys
 from typing import List, Optional, Tuple
 import xml.etree.cElementTree as ElementTree
@@ -349,6 +349,13 @@ def main() -> None:
     #         f"must be greater than the short version "
     #         f"({current_ios_short_version})"
     #     )
+
+    # https://stackoverflow.com/questions/3878624/how-do-i-programmatically-determine-if-there-are-uncommitted-changes  # noqa: E501
+    run(["git", "update-index", "--refresh"])
+    try:
+        run_with_check(["git", "diff-index", "--quiet", "HEAD", "--"])
+    except CalledProcessError:
+        errors.append("There are uncommitted changes")
 
     release_tag = get_release_tag(new_client_version, new_server_version)
 
