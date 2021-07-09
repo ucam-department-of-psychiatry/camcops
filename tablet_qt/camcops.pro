@@ -157,7 +157,7 @@ if (gcc | clang):!ios:!android:!macx {
 # of warning flags seems to be important and removing !ios above doesn't work
 # QMAKE_CXXFLAGS_WARN_ON defaults to -Wall -W and our overrides need to come
 # after that
-ios {
+if (ios | macx) {
     QMAKE_CFLAGS_WARN_ON += -Wno-deprecated-copy
     QMAKE_CXXFLAGS_WARN_ON += -Wno-deprecated-copy
 }
