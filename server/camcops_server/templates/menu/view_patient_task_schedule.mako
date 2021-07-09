@@ -145,7 +145,15 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
         )
     %>
     <tr ${ tr_attributes | n }>
-        <td><a href="${ email_link | n }">${ pts_email.email.subject }</a></td>
+        <td>
+ %if req.user.superuser:
+       <a href="${ email_link | n }">
+ %endif
+       ${ pts_email.email.subject }
+       </a>
+ %if req.user.superuser:
+       </td>
+ %endif
         <td>${ pts_email.email.date }</td>
         <td>${ get_yes_no(req, pts_email.email.sent) }</td>
         <td>${ failure_reason }</td>
