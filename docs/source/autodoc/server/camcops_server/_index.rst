@@ -93,6 +93,8 @@ server/camcops_server
     alembic/versions/0060_user_single_patient_fk_constraint.py.rst
     alembic/versions/0061_fix_up_patient_idnum_ids.py.rst
     alembic/versions/0062_distinguish_api_sessions.py.rst
+    alembic/versions/0063_task_schedule_delete_related.py.rst
+    alembic/versions/0064_fhir.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst
@@ -122,6 +124,7 @@ server/camcops_server
     cc_modules/cc_exportmodels.py.rst
     cc_modules/cc_exportrecipient.py.rst
     cc_modules/cc_exportrecipientinfo.py.rst
+    cc_modules/cc_fhir.py.rst
     cc_modules/cc_filename.py.rst
     cc_modules/cc_formatter.py.rst
     cc_modules/cc_forms.py.rst
@@ -184,6 +187,7 @@ server/camcops_server
     cc_modules/tests/cc_blob_tests.py.rst
     cc_modules/tests/cc_config_tests.py.rst
     cc_modules/tests/cc_device_tests.py.rst
+    cc_modules/tests/cc_fhir_tests.py.rst
     cc_modules/tests/cc_formatter_tests.py.rst
     cc_modules/tests/cc_forms_tests.py.rst
     cc_modules/tests/cc_hl7_tests.py.rst
@@ -463,6 +467,7 @@ server/camcops_server
     templates/menu/change_own_password.mako.rst
     templates/menu/choose_ctv.mako.rst
     templates/menu/choose_tracker.mako.rst
+    templates/menu/client_api_signposting.mako.rst
     templates/menu/developer.mako.rst
     templates/menu/device_forcibly_finalize_choose.mako.rst
     templates/menu/device_forcibly_finalize_confirm.mako.rst

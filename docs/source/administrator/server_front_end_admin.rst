@@ -217,8 +217,8 @@ Internally, this audit trail is stored in the `_security_audit` table.
 HL7 message log
 ~~~~~~~~~~~~~~~
 
-View a log of outbound HL7 messages that CamCOPS has sent (along with their
-success/failure status).
+View a log of outbound HL7 (v2) messages that CamCOPS has sent (along with
+their success/failure status).
 
 .. todo:: change docs once webview updated for new export system
 
@@ -226,9 +226,9 @@ success/failure status).
 HL7 run log
 ~~~~~~~~~~~
 
-View a log of HL7 runs. A run is when CamCOPS checks to see if any HL7 messages
-should be sent. Each message belongs to a run. An individual run may cause
-zero, one, or many messages to be sent.
+View a log of HL7 (v2) runs. A run is when CamCOPS checks to see if any HL7
+messages should be sent. Each message belongs to a run. An individual run may
+cause zero, one, or many messages to be sent.
 
 
 Manage ID number definitions
@@ -247,7 +247,7 @@ ID type number  Description                 Short description
 =============== =========================== =================
 
 You can create and edit these definitions here. When you edit them, there are a
-few additional options for HL7 messaging.
+few additional options for HL7 (v2) messaging.
 
 
 Edit server settings

@@ -393,6 +393,7 @@ class Phq9(TaskHasPatientMixin, Task,
 
         return items
 
+    # noinspection PyShadowingNames
     def get_fhir_questionnaire_response_items(
             self,
             req: "CamcopsRequest",

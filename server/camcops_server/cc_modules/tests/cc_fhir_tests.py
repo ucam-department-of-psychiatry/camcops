@@ -19,7 +19,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 
 ===============================================================================
 
@@ -51,7 +51,6 @@ from camcops_server.tasks.phq9 import Phq9
 # =============================================================================
 # Integration testing
 # =============================================================================
-
 
 class MockFhirTaskExporter(FhirTaskExporter):
     pass

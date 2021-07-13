@@ -1190,7 +1190,7 @@ called ``perinatal_admin_team`` that e-mails PDFs of tasks from your perinatal
 psychiatry group to your perinatal psychiatry administrative team (including
 immediately on receipt), for manual export to a clinical records system that
 doesn't support incoming electronic messages. You might create another called
-``smith_neutrophil_study`` that sends XML data via HL7 message, and a third
+``smith_neutrophil_study`` that sends XML data via HL7 v2 message, and a third
 called ``regular_database_dump`` that exports the entire CamCOPS database to
 a database on disk.
 
@@ -1446,7 +1446,7 @@ One of the following methods:
 
 - ``db``: Exports tasks to a relational database.
 - ``email``: Sends tasks via e-mail.
-- ``hl7``: Sends HL7 messages across a TCP/IP network.
+- ``hl7``: Sends HL7 (v2) messages across a TCP/IP network.
 - ``file``: Writes files to a local filesystem.
 - ``redcap``: :ref:`Exports tasks to REDCap <redcap>`.
 
@@ -1597,8 +1597,8 @@ INCLUDE_ANONYMOUS
 
 Include anonymous tasks?
 
-- Note that anonymous tasks cannot be sent via HL7; the HL7 specification is
-  heavily tied to identification.
+- Note that anonymous tasks cannot be sent via HL7 v2; the HL7 v2 specification
+  is heavily tied to identification.
 
 - Note that anonymous tasks cannot be sent via REDCap.
 
@@ -1616,7 +1616,7 @@ PRIMARY_IDNUM
 Which ID number type should be considered the "internal" (primary) ID number?
 If specified, only tasks with this ID number present will be exported.
 
-- Must be specified for HL7 messages.
+- Must be specified for HL7 v2 and FHIR messages.
 - May be blank for file and e-mail transmission.
 - For (e.g.) file/e-mail transmission, this does not control the behaviour of
   anonymous tasks, which are instead controlled by INCLUDE_ANONYMOUS_ (see
@@ -1794,8 +1794,8 @@ Keep the entire message (including attachments). Turning this option on
 consumes lots of database space! Use only for debugging.
 
 
-Options applicable to HL7 only
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Options applicable to HL7 (v2) only
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. _HL7_HOST:
 
@@ -1889,6 +1889,34 @@ allow you to preview messages for debugging purposes without "swallowing" them.
 BEWARE, though: if you have an automatically scheduled job (for example, to
 send messages every minute) and you divert with this flag set to false, you
 will end up with a great many message attempts!
+
+
+Options applicable to HL7 FHIR ("FHIR") only
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+FHIR_API_URL
+############
+
+*String.*
+
+The base URL of your FHIR server's application programming interface (API),
+like ``https://my.fhir.server/path/to/api``. The server is expected to support
+SMART on FHIR. See:
+
+- https://doi.org/10.1093/jamia/ocv189, describing SMART on FHIR
+- http://www.hl7.org/fhir/smart-app-launch/, the specification
+
+
+FHIR_APP_SECRET
+###############
+
+todo: ***
+
+
+FHIR_LAUNCH_TOKEN
+#################
+
+todo: ***
 
 
 Options applicable to file transfers and attachments

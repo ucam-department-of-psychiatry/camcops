@@ -25,7 +25,7 @@ camcops_server/cc_modules/cc_hl7.py
 
 ===============================================================================
 
-**Core HL7 functions, e.g. to build HL7 messages.**
+**Core HL7 functions, e.g. to build HL7 v2 messages.**
 
 General HL7 sources:
 

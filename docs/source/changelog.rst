@@ -263,7 +263,7 @@ Original Titanium/Javascript client, Python server with custom MySQL interface (
 - Better internal timezone handling.
 - Commit during menu-driven administration to prevent database locking.
 - Lock user accounts after multiple login failures.
-- HL7 message framework. (Validated internally and against HL7 Inspector.)
+- HL7 (v2) message framework. (Validated internally and against HL7 Inspector.)
 - File export message framework, with post-export script option.
 - Database title, ID descriptions, and policies now have their primary home
   in the configuration file. Copied to database purely for researcher lookup.

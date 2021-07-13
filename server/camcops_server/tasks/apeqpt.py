@@ -173,13 +173,13 @@ class Apeqpt(Task):
             self,
             req: "CamcopsRequest",
             recipient: "ExportRecipient") -> List[QuestionnaireItem]:
-        items = []
-
-        items.append(QuestionnaireItem(jsondict={
-            "linkId": "q_datetime",
-            "text": self.wxstring(req, "q_date"),
-            "type": "dateTime",
-        }).as_json())
+        items = [
+            QuestionnaireItem(jsondict={
+                "linkId": "q_datetime",
+                "text": self.wxstring(req, "q_date"),
+                "type": "dateTime",
+            }).as_json()
+        ]
 
         yes_no_options = []
 

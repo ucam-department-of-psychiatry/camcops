@@ -553,7 +553,15 @@ def get_demo_config(for_docker: bool = False) -> str:
 {ConfigParamExportRecipient.EMAIL_KEEP_MESSAGE} = {cd.HL7_KEEP_MESSAGE}
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    # Options applicable to HL7
+    # Options applicable to FHIR
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+{ConfigParamExportRecipient.FHIR_API_URL} = https://my.fhir.server/api
+{ConfigParamExportRecipient.FHIR_APP_SECRET} = my_fhir_secret_abc
+{ConfigParamExportRecipient.FHIR_LAUNCH_TOKEN} = my_fhir_launch_token_xyz123
+
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Options applicable to HL7 (v2) exports
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 {ConfigParamExportRecipient.HL7_HOST} = myhl7server.mydomain

@@ -1229,7 +1229,7 @@ class ExportedTaskFhir(Base):
 class ExportedTaskFhirEntry(Base):
     """
     Details of Patients, Questionnaires, QuestionnaireResponses exported to
-    FHIR server for a single task.
+    a FHIR server for a single task.
     """
     __tablename__ = "_exported_task_fhir_entry"
 

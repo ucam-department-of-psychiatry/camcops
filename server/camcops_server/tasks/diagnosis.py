@@ -716,6 +716,7 @@ def get_diagnosis_inc_exc_report_query(req: CamcopsRequest,
     """
     # The basics:
     desc = req.get_id_desc(which_idnum) or "BAD_IDNUM"
+    # noinspection PyUnresolvedReferences
     select_fields = [
         Patient.surname.label("surname"),
         Patient.forename.label("forename"),

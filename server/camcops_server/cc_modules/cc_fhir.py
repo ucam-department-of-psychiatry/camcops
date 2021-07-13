@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
-"""camcops_server/cc_modules/cc_fhir.py
+# noinspection HttpUrlsUsage
+"""
+camcops_server/cc_modules/cc_fhir.py
 
 ===============================================================================
 
@@ -19,7 +21,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 
 ===============================================================================
 
@@ -37,24 +39,27 @@ appropriate is sent to the FHIR server in a single "transaction" Bundle)
 The resources are given a unique identifier based on the URL of the CamCOPS
 server.
 
-
-
-We use the python client https://github.com/smart-on-fhir/client-py/
+We use the Python client https://github.com/smart-on-fhir/client-py/.
 This only supports one version of the FHIR specification (currently 4.0.1).
 
 Tested with HAPI FHIR server locally, which was installed from instructions at
-https://github.com/hapifhir/hapi-fhir-jpaserver-starter (Docker)
+https://github.com/hapifhir/hapi-fhir-jpaserver-starter (Docker):
 
-cd hapi-fhir-jpaserver-starter
-sudo docker run -p 8080:8080 hapiproject/hapi:latest
+.. code-block:: bash
+
+    cd hapi-fhir-jpaserver-starter
+    sudo docker run -p 8080:8080 hapiproject/hapi:latest
 
 with the following entry in the CamCOPS export recipient configuration:
 
-FHIR_API_URL = http://localhost:8080/fhir
+.. code-block:: none
+
+    FHIR_API_URL = http://localhost:8080/fhir
 
 There are also public sandboxes at:
-http://hapi.fhir.org/baseR4
-https://r4.smarthealthit.org (errors when exporting questionnaire responses)
+
+- http://hapi.fhir.org/baseR4
+- https://r4.smarthealthit.org (errors when exporting questionnaire responses)
 
 """
 
@@ -74,6 +79,9 @@ class FhirExportException(Exception):
 
 
 class FhirTaskExporter(object):
+    """
+    Class that knows how to export a single task to FHIR.
+    """
     def __init__(self,
                  request: "CamcopsRequest",
                  exported_task_fhir: "ExportedTaskFhir") -> None:
@@ -100,6 +108,10 @@ class FhirTaskExporter(object):
             raise FhirExportException(str(e))
 
     def export_task(self) -> None:
+        """
+        Export a single task to the server, with associated patient information
+        if the task has an associated patient.
+        """
         # TODO: Server capability statement
         # https://www.hl7.org/fhir/capabilitystatement.html
 
@@ -134,6 +146,7 @@ class FhirTaskExporter(object):
         })
 
         try:
+            # Attempt to create the receiver on the server, via POST:
             response = bundle.create(self.client.server)
             if response is None:
                 # Not sure this will ever happen.
@@ -155,42 +168,52 @@ class FhirTaskExporter(object):
 
     def parse_response(self, response: Dict) -> None:
         """
-        Response looks something like this:
-        {
-          'resourceType': 'Bundle',
-          'id': 'cae48957-e7e6-4649-97f8-0a882076ad0a',
-          'type': 'transaction-response',
-          'link': [
+        Parse the response from the FHIR server to which we have sent our
+        task. The response looks something like this:
+
+        .. code-block:: json
+
             {
-              'relation': 'self',
-              'url': 'http://localhost:8080/fhir'
+              'resourceType': 'Bundle',
+              'id': 'cae48957-e7e6-4649-97f8-0a882076ad0a',
+              'type': 'transaction-response',
+              'link': [
+                {
+                  'relation': 'self',
+                  'url': 'http://localhost:8080/fhir'
+                }
+              ],
+              'entry': [
+                {
+                  'response': {
+                    'status': '200 OK',
+                    'location': 'Patient/1/_history/1',
+                    'etag': '1'
+                  }
+                },
+                {
+                  'response': {
+                    'status': '200 OK',
+                    'location': 'Questionnaire/26/_history/1',
+                    'etag': '1'
+                  }
+                },
+                {
+                  'response': {
+                    'status': '201 Created',
+                    'location': 'QuestionnaireResponse/42/_history/1',
+                    'etag': '1',
+                    'lastModified': '2021-05-24T09:30:11.098+00:00'
+                  }
+                }
+              ]
             }
-          ],
-          'entry': [
-            {
-              'response': {
-                'status': '200 OK',
-                'location': 'Patient/1/_history/1',
-                'etag': '1'
-              }
-            },
-            {
-              'response': {
-                'status': '200 OK',
-                'location': 'Questionnaire/26/_history/1',
-                'etag': '1'
-              }
-            },
-            {
-              'response': {
-                'status': '201 Created',
-                'location': 'QuestionnaireResponse/42/_history/1',
-                'etag': '1',
-                'lastModified': '2021-05-24T09:30:11.098+00:00'
-              }
-            }
-          ]
-        }
+
+        The server's reply contains a Bundle
+        (https://www.hl7.org/fhir/bundle.html), which is a container for
+        resources. Here, the bundle contains entry objects
+        (https://www.hl7.org/fhir/bundle-definitions.html#Bundle.entry).
+
         """
         bundle = Bundle(jsondict=response)
 
@@ -198,6 +221,9 @@ class FhirTaskExporter(object):
             self._save_exported_entries(bundle)
 
     def _save_exported_entries(self, bundle: Bundle) -> None:
+        """
+        Record the server's reply components in strucured format.
+        """
         from camcops_server.cc_modules.cc_exportmodels import (
             ExportedTaskFhirEntry
         )
@@ -208,6 +234,7 @@ class FhirTaskExporter(object):
             saved_entry.location = entry.response.location
             saved_entry.etag = entry.response.etag
             if entry.response.lastModified is not None:
+                # ... of type :class:`fhirclient.models.fhirdate.FHIRDate
                 saved_entry.last_modified = entry.response.lastModified.date
 
             self.request.dbsession.add(saved_entry)

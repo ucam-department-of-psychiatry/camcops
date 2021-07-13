@@ -869,9 +869,14 @@ class Patient(GenericTabletRecordMixin, Base):
     # -------------------------------------------------------------------------
     # FHIR
     # -------------------------------------------------------------------------
+
     def get_fhir_bundle_entry(self,
                               req: "CamcopsRequest",
-                              recipient: "ExportRecipient") -> Dict:
+                              recipient: "ExportRecipient") -> Dict[str, Any]:
+        """
+        Returns a dictionary, suitable for serializing to JSON, that
+        encapsulates patient identity information in a FHIR bundle.
+        """
         identifier = self.get_fhir_identifier(req, recipient)
 
         # TODO: Other fields we could add here
@@ -916,6 +921,13 @@ class Patient(GenericTabletRecordMixin, Base):
     def get_fhir_identifier(self,
                             req: "CamcopsRequest",
                             recipient: "ExportRecipient") -> Identifier:
+        """
+        Returns a FHIR identifier for this patient, as a
+        :class:`fhirclient.models.identifier.Identifier` object.
+
+        This pairs a URL to our CamCOPS server indicating the ID number type
+        (as the "system") with the actual ID number (as the "value").
+        """
         which_idnum = recipient.primary_idnum
 
         idnum_object = self.get_idnum_object(which_idnum)
