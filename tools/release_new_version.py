@@ -34,7 +34,7 @@ from pathlib import Path
 import re
 from subprocess import CalledProcessError, PIPE, run
 import sys
-from typing import List, Optional, Tuple
+from typing import Iterable, List, Optional, Tuple
 import xml.etree.cElementTree as ElementTree
 
 from camcops_server.cc_modules.cc_version_string import (
@@ -73,6 +73,9 @@ log = logging.getLogger(__name__)
 
 # https://stackoverflow.com/questions/1871549/determine-if-python-is-running-inside-virtualenv
 def in_virtualenv() -> bool:
+    """
+    Are we running inside a Python virtual environment?
+    """
     return (
         hasattr(sys, "real_prefix") or
         (hasattr(sys, "base_prefix") and sys.base_prefix != sys.prefix)
@@ -80,10 +83,18 @@ def in_virtualenv() -> bool:
 
 
 def run_with_check(args: List[str]) -> None:
+    """
+    Run a command with arguments. Raise :exc:`CalledProcessError` if the
+    exit code was not zero.
+    """
     run(args, check=True)
 
 
 def get_progress_version() -> Optional[Version]:
+    """
+    Return the version number in the changelog marked "IN PROGRESS", or
+    ``None``.
+    """
     progress_version = None
 
     regex = r"^\*\*.*(\d+)\.(\d+)\.(\d+).*(IN PROGRESS).*\*\*$"
@@ -100,7 +111,10 @@ def get_progress_version() -> Optional[Version]:
     return progress_version
 
 
-def get_released_versions() -> List[Tuple[datetime, Version]]:
+def get_released_versions() -> List[Tuple[Version, datetime]]:
+    """
+    Returns a list of ``(version, date_released)`` tuples from the changelog.
+    """
     regex = r"^\*\*.*(\d+)\.(\d+)\.(\d+).*released\s+(\d+)\s+([a-zA-Z]+)\s+(\d+).*\*\*$"  # noqa: E501
 
     releases = []
@@ -119,7 +133,8 @@ def get_released_versions() -> List[Tuple[datetime, Version]]:
                     date_string = f"{m.group(4)} {m.group(5)} {m.group(6)}"
                     release_date = datetime.strptime(date_string, "%d %b %Y")
                 except ValueError:
-                    raise ValueError(f"Couldn't parse date when processing this line:\n{line}")
+                    raise ValueError(f"Couldn't parse date when processing "
+                                     f"this line:\n{line}")
 
                 releases.append((released_version, release_date))
 
@@ -127,7 +142,11 @@ def get_released_versions() -> List[Tuple[datetime, Version]]:
 
 
 def get_client_version() -> Optional[Version]:
-    regex = r"^const Version CAMCOPS_CLIENT_VERSION\((\d+),\s+(\d+),\s+(\d+)\);$"
+    """
+    Return the current client version, from ``camcopsversion.cpp``, or
+    ``None``.
+    """
+    regex = r"^const Version CAMCOPS_CLIENT_VERSION\((\d+),\s+(\d+),\s+(\d+)\);$"  # noqa: E501
     with open(CLIENT_VERSION_FILE, "r") as f:
         for line in f.readlines():
             m = re.match(regex, line)
@@ -140,7 +159,10 @@ def get_client_version() -> Optional[Version]:
 
 
 def get_client_date() -> Optional[datetime]:
-    regex = r"^const QDate CAMCOPS_CLIENT_CHANGEDATE\((\d+),\s+(\d+),\s+(\d+)\);$"
+    """
+    Return the client changedate, from ``camcopsversion.cpp``, or ``None``.
+    """
+    regex = r"^const QDate CAMCOPS_CLIENT_CHANGEDATE\((\d+),\s+(\d+),\s+(\d+)\);$"  # noqa: E501
     with open(CLIENT_VERSION_FILE, "r") as f:
         for line in f.readlines():
             m = re.match(regex, line)
@@ -153,6 +175,10 @@ def get_client_date() -> Optional[datetime]:
 
 
 def get_innosetup_version() -> Optional[Version]:
+    """
+    Return the version number in the Inno Setup config file,
+    ``camcops_windows_innosetup.iss``.
+    """
     regex = r"^#define CamcopsClientVersion \"(\d+)\.(\d+)\.(\d+)\""
     with open(INNOSETUP_FILE, "r") as f:
         for line in f.readlines():
@@ -166,6 +192,11 @@ def get_innosetup_version() -> Optional[Version]:
 
 
 def get_android_version() -> Optional[Version]:
+    """
+    Returns the version number in the Android manifest,
+    ``AndroidManifest.xml``, or ``None`` (actually, perhaps not ``None``; I'm
+    not sure what happens on failure; it may raise!).
+    """
     parser = ElementTree.XMLParser(encoding="UTF-8")
     tree = ElementTree.parse(ANDROID_MANIFEST_FILE, parser=parser)
     root = tree.getroot()
@@ -177,6 +208,11 @@ def get_android_version() -> Optional[Version]:
 
 
 def get_ios_version() -> Optional[Version]:
+    """
+    Returns the version number in the iOS ``Info.plist`` file, or
+    ``None``(actually, perhaps not ``None``; I'm not sure what happens on
+    failure; it may raise!).
+    """
     parser = ElementTree.XMLParser(encoding="UTF-8")
     tree = ElementTree.parse(IOS_INFO_PLIST_FILE, parser=parser)
     root = tree.getroot()
@@ -192,7 +228,10 @@ def get_ios_version() -> Optional[Version]:
     return Version(short_version_string)
 
 
-def valid_date(date_string: str):
+def valid_date(date_string: str) -> datetime.date:
+    """
+    Converts a string like "2020-12-31" to a date, or raises.
+    """
     # https://stackoverflow.com/questions/25470844/specify-date-format-for-python-argparse-input-arguments  # noqa: E501
     try:
         return datetime.strptime(date_string, "%Y-%m-%d").date()
@@ -203,6 +242,11 @@ def valid_date(date_string: str):
 
 def get_release_tag(new_client_version: Version,
                     new_server_version: Version) -> str:
+    """
+    Generates a release tag, either for a client release (if client version
+    ahead of server), a server release (if server ahead of client), or a
+    combined release (if both versions identical).
+    """
     if new_client_version == new_server_version:
         return f"v{new_client_version}"
 
@@ -213,41 +257,57 @@ def get_release_tag(new_client_version: Version,
 
 
 def remove_old_packages() -> None:
+    """
+    Deletes old server package build files (e.g. ``.deb``).
+
+    todo:: should this find all ``.rpm``, too? The RPM package builder converts
+    ``server_`` to ``server-``, not found by this expression.
+    """
     for f in Path(SERVER_PACKAGE_DIR).glob("camcops-server_*"):
         f.unlink()
 
 
-def get_pypi_builds() -> List[Path]:
+def get_pypi_builds() -> Iterable[Path]:
+    """
+    Iterates through old PyPI upload files (e.g. ``camcops_server-*.tar.gz``).
+    """
     return Path(SERVER_DIST_DIR).glob("camcops_server-*")
 
 
 def remove_old_pypi_builds() -> None:
+    """
+    Deletes old PyPI upload files (e.g. ``camcops_server-*.tar.gz``).
+    """
     for f in get_pypi_builds():
         f.unlink()
 
 
 def main() -> None:
+    """
+    Do useful things to build and release the server and client.
+
+    This is a work in progress
+    What do we want this script to do?
+
+    - Check all the version numbers
+    - Check the changelog
+    - Check the Git repository
+    - Build the Ubuntu server packages (deb/rpm)
+    - Build the pypi server package
+    - Distribute the server packages to GitHub and PyPI
+    - Distribute the server packages to GitHub (or use GitHub actions)
+
+    - Build the client (depending on the platform)
+    - Distribute to Play Store / Apple Store / GitHub
+
+    Ideally we want to do all the checks before tagging and building so we
+    don't get the version numbers spiralling out of control this may be
+    impossible for errors when deploying to Apple Store etc.
+
+    """
     if not in_virtualenv():
         log.error("release_new_version.py must be run inside virtualenv")
         sys.exit(EXIT_FAILURE)
-
-    # This is a work in progress
-    # What do we want this script to do?
-
-    # \ Check all the version numbers
-    # \ Check the changelog
-    # \ Check the Git repository
-    # \ Build the Ubuntu server packages (deb/rpm)
-    # \ Build the pypi server package
-    # \ Distribute the server packages to GitHub and PyPI
-    # Distribute the server packages to GitHub (or use GitHub actions)
-
-    # Build the client (depending on the platform)
-    # Distribute to Play Store / Apple Store / GitHub
-
-    # Ideally we want to do all the checks before tagging and building
-    # so we don't get the version numbers spiralling out of control
-    # this may be impossible for errors when deploying to Apple Store etc
 
     parser = argparse.ArgumentParser(
         description="Release CamCOPS to various places",
@@ -358,9 +418,9 @@ def main() -> None:
     except CalledProcessError:
         errors.append("There are uncommitted changes")
 
-    log = run(["git", "log", "origin/master..HEAD"],
-              stdout=PIPE).stdout.decode('utf-8')
-    if len(log) > 0:
+    git_log = run(["git", "log", "origin/master..HEAD"],
+                  stdout=PIPE).stdout.decode('utf-8')
+    if len(git_log) > 0:
         errors.append("There are unpushed changes")
 
     release_tag = get_release_tag(new_client_version, new_server_version)
@@ -383,7 +443,7 @@ def main() -> None:
     # OK to proceed to the next step
     if new_server_version >= new_client_version:
         remove_old_packages()
-        run_with_check(MAKE_LINUX_PACKAGES)
+        run_with_check([MAKE_LINUX_PACKAGES])
 
         remove_old_pypi_builds()
         os.chdir(SERVER_SOURCE_DIR)
