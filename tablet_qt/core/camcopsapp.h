@@ -281,9 +281,15 @@ public slots:
     // "Leave fullscreen mode."
     void leaveFullscreen();
 
-    void setDefaultSingleUserMode(QString);
-    void setDefaultServerLocation(QString);
-    void setDefaultAccessKey(QString);
+    // Set parameters from values passed in by the OS (e.g. Android, iOS) app
+    // launcher, for when we launch our app via a URL.
+    // These are slots, but can safely take a reference (const QString&
+    // value), as per
+    // https://doc.qt.io/qt-5/qt.html#ConnectionType-enum
+    // https://stackoverflow.com/questions/8455887/
+    void setDefaultSingleUserMode(const QString& value);
+    void setDefaultServerLocation(const QString& value);
+    void setDefaultAccessKey(const QString& value);
 
     // ------------------------------------------------------------------------
     // Language

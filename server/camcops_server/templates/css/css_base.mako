@@ -416,7 +416,7 @@ div.indented {
 }
 
 .pts_mini_table > table > tbody > tr > td {
-    border:none;
+    border: none;
 }
 
 .respondent {

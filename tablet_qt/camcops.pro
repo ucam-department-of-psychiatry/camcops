@@ -153,6 +153,15 @@ if (gcc | clang):!ios:!android:!macx {
     QMAKE_CXXFLAGS += -Wno-deprecated-copy
 }
 
+# Later versions of clang on iOS *do* support (no-)deprecated-copy but the order
+# of warning flags seems to be important and removing !ios above doesn't work
+# QMAKE_CXXFLAGS_WARN_ON defaults to -Wall -W and our overrides need to come
+# after that
+if (ios | macx) {
+    QMAKE_CFLAGS_WARN_ON += -Wno-deprecated-copy
+    QMAKE_CXXFLAGS_WARN_ON += -Wno-deprecated-copy
+}
+
 # In release mode, optimize heavily:
 gcc {
     QMAKE_CXXFLAGS_RELEASE -= -O

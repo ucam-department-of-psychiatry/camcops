@@ -32,6 +32,7 @@ import os
 import subprocess
 
 from camcops_server.cc_modules.cc_baseconstants import CAMCOPS_SERVER_DIRECTORY
+from camcops_server.conftest import TEST_DATABASE_FILENAME
 
 
 DESCRIPTION = f"""- You can run tests manually via one of these methods:
@@ -46,7 +47,8 @@ DESCRIPTION = f"""- You can run tests manually via one of these methods:
     {CAMCOPS_SERVER_DIRECTORY}/conftest.py
     {CAMCOPS_SERVER_DIRECTORY}/pytest.ini
 - Note that an SQLite database is saved in
-    {CAMCOPS_SERVER_DIRECTORY}
+    {TEST_DATABASE_FILENAME}
+  ... delete that and retry if the tests fail!
 - We'll launch pytest now for the full test suite."""
 # https://stackoverflow.com/questions/36456920
 # examples:

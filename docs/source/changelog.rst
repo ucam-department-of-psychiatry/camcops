@@ -3428,8 +3428,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 .. _changelog_v2_4_8:
 
-**Client and server v2.4.8, IN PROGRESS**
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+**Client and server v2.4.8, released 9 Jul 2021**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Updates for Python 3.9 compatibility.
 
@@ -3446,3 +3446,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Android and iOS users can now register themselves as patients by launching the
   app from a URL sent to them by email.
   https://github.com/RudolfCardinal/camcops/issues/153
+
+.. _changelog_v2_4_9:
+
+**Client and server v2.4.9, IN PROGRESS**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

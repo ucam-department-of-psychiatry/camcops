@@ -52,7 +52,7 @@ UrlHandler::UrlHandler()
     QDesktopServices::setUrlHandler("camcops", this, "handleUrl");
 }
 
-void UrlHandler::handleUrl(const QUrl url)
+void UrlHandler::handleUrl(const QUrl& url)
 {
     qDebug() << Q_FUNC_INFO << url;
 
