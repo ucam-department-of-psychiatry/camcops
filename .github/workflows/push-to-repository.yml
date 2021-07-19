@@ -19,11 +19,12 @@ jobs:
                   python -VV
                   python -m site
                   python -m pip install -U pip
+                  echo dumping GitHub-installed packages
                   python -m pip freeze
+                  echo Removing problematic GitHub-installed pip packages
+                  python -m pip uninstall Automat PyGObject
                   echo installing pip packages
                   python -m pip install -e server/.
-                  python -m pip install pipdeptree
-                  pipdeptree
                   echo checking packages for conflicts
                   python -m pip check
                   echo installing vulnerability checker
