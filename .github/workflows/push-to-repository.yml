@@ -22,7 +22,7 @@ jobs:
                   echo dumping GitHub-installed packages
                   python -m pip freeze
                   echo Removing problematic GitHub-installed pip packages
-                  python -m pip uninstall Automat PyGObject
+                  python -m pip uninstall --yes Automat PyGObject
                   echo installing pip packages
                   python -m pip install -e server/.
                   echo checking packages for conflicts
