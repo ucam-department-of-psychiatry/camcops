@@ -1,6 +1,4 @@
 ---
-# yamllint disable rule:line-length
-
 name: Tests run on push
 # yamllint disable-line rule:truthy
 on: [push]
@@ -20,12 +18,11 @@ jobs:
                   set -xe
                   python -VV
                   python -m site
+                  python -m venv ${HOME}/venv
+                  source ${HOME}/venv/bin/activate
                   python -m pip install -U pip
-                  echo dumping GitHub-installed packages
+                  echo dumping pre-installed packages
                   python -m pip freeze
-                  echo working around GitHub-installed package conflicts
-                  # yamllint disable-line rule:line-length
-                  sudo apt-get install python3-testresources python3-cairo --yes --no-install-recommends
                   echo installing pip packages
                   python -m pip install -e server/.
                   echo checking packages for conflicts
