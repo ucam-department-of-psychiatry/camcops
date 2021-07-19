@@ -18,21 +18,20 @@ jobs:
                   set -xe
                   python -VV
                   python -m site
-                  # User our own virtualenv. The one provided by
-                  # GitHub has conflicts
                   python -m venv ${HOME}/venv
                   source ${HOME}/venv/bin/activate
                   python -m pip install -U pip
                   echo dumping pre-installed packages
                   python -m pip freeze
+                  echo installing pip packages
                   python -m pip install -e server/.
-            - name: Check packages for conflicts
-              run: |
+                  echo checking packages for conflicts
                   python -m pip check
-            - name: Check packages for vulnerabilities
-              run: |
+                  echo installing vulnerability checker
                   python -m pip install safety
+                  echo checking packages for vulnerabilities
                   safety check --full-report
-            - name: Check Python style and errors
-              run: |
+                  echo checking python for style and errors
                   flake8 --config=setup.cfg server/camcops_server
+
+            - run: echo "This job's status is ${{ job.status }}."
