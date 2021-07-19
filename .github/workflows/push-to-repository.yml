@@ -19,6 +19,7 @@ jobs:
                   python -VV
                   python -m site
                   python -m pip install -U pip
+                  python -m pip freeze
                   echo installing pip packages
                   python -m pip install -e server/.
                   python -m pip install pipdeptree
