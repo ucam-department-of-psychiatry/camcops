@@ -9,10 +9,25 @@ jobs:
             matrix:
                 python: [3.6, 3.7, 3.8, 3.9]
         steps:
-            - name: Check out repository code
-              uses: actions/checkout@v2
-            - run: echo "${{ github.repository }} cloned."
-            - name: List files in the repository
+            - uses: actions/checkout@v2
+            - uses: actions/setup-python@v2
+              with:
+                  python-version: ${{ matrix.python-version }}
+            - name: Install dependencies
               run: |
-                ls ${{ github.workspace }}
+                  set -xe
+                  python -VV
+                  python -m site
+                  python -m pip install -U pip
+                  echo installing pip packages
+                  python -m pip install -e server/.
+                  echo checking packages for conflicts
+                  python -m pip check
+                  echo installing vulnerability checker
+                  python -m pip install safety
+                  echo checking packages for vulnerabilities
+                  safety check --full-report
+                  echo checking python for style and errors
+                  flake8 --config=setup.cfg server/camcops_server
+
             - run: echo "This job's status is ${{ job.status }}."
