@@ -1,4 +1,6 @@
 ---
+# yamllint disable rule:line-length
+
 name: Tests run on push
 # yamllint disable-line rule:truthy
 on: [push]
@@ -21,8 +23,9 @@ jobs:
                   python -m pip install -U pip
                   echo dumping GitHub-installed packages
                   python -m pip freeze
-                  echo Removing problematic GitHub-installed pip packages
-                  python -m pip uninstall --yes Automat PyGObject
+                  echo working around GitHub-installed package conflicts
+                  # yamllint disable-line rule:line-length
+                  apt-get install python3-testresources python3-cairo --yes --no-install-recommends
                   echo installing pip packages
                   python -m pip install -e server/.
                   echo checking packages for conflicts
