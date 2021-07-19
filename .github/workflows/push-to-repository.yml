@@ -25,7 +25,7 @@ jobs:
                   python -m pip freeze
                   echo working around GitHub-installed package conflicts
                   # yamllint disable-line rule:line-length
-                  apt-get install python3-testresources python3-cairo --yes --no-install-recommends
+                  sudo apt-get install python3-testresources python3-cairo --yes --no-install-recommends
                   echo installing pip packages
                   python -m pip install -e server/.
                   echo checking packages for conflicts
