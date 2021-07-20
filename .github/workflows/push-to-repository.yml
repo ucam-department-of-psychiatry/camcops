@@ -1,6 +1,6 @@
 ---
 # yamllint disable rule:line-length
-name: Tests run on push
+name: Build
 # yamllint disable-line rule:truthy
 on: [push]
 jobs:
