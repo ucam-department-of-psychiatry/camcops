@@ -243,11 +243,11 @@ system_python_executable()
     # Use as: $(system_python_executable) ...
 
     python_options=(
-        python3.9 python39 
-        python3.8 python38 
-        python3.7 python37 
-        python3.6 python36 
-        python3 
+        python3.9 python39
+        python3.8 python38
+        python3.7 python37
+        python3.6 python36
+        python3
         python
     )
     for option in ${python_options[@]}; do
@@ -983,7 +983,10 @@ def build_package() -> None:
     # ... "fakeroot" prefix makes all files installed as root:root
 
     log.info("Checking with Lintian")
-    call(['lintian', '--fail-on-warnings', PACKAGENAME])
+    # fail-in-warnings has gone in 2.62.0
+    # It isn't clear if lintian now exits with 0 on warnings (the previous
+    # default). Future versions seems to have a more flexible --fail-on option
+    call(['lintian', PACKAGENAME])
 
     log.info("Converting to RPM")
     call(['fakeroot', 'alien', '--to-rpm', '--scripts', PACKAGENAME],
