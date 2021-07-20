@@ -26,7 +26,6 @@ jobs:
                   sudo dpkg -i wkhtmltox_0.12.6-1.bionic_amd64.deb
                   python -m venv ${HOME}/venv
                   source ${HOME}/venv/bin/activate
-                  python -c "import sys; print(sys.version)"
                   python -VV
                   python -m site
                   python -m pip install -U pip
@@ -69,7 +68,6 @@ jobs:
                   sudo dpkg -i rpmrebuild_2.15-2_all.deb
                   python -m venv ${HOME}/venv
                   source ${HOME}/venv/bin/activate
-                  python -c "import sys; print(sys.version)"
                   python -VV
                   python -m site
                   python -m pip install -U pip
