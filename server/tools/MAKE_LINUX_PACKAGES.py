@@ -531,6 +531,7 @@ Priority: optional
 Architecture: all
 Maintainer: Rudolf Cardinal <rudolf@pobox.com>
 Depends: {DEPENDENCIES}
+X-Python3-Version: >= 3.6, <= 3.9
 Recommends: mysql-workbench
 Description: Cambridge Cognitive and Psychiatric Test Kit (CamCOPS), server
  packages.

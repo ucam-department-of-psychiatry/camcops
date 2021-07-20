@@ -22,11 +22,10 @@ gcc  # GCC
 libssl-dev  # SSL libraries
 
 # =============================================================================
-# Python 3.6
+# Python
 # =============================================================================
 
 python  # or Lintian complains about the presence of Python scripts
-python3.6  # actual Python versions we're happy with
 python3-dev  # for <Python.h>, etc.
 python3-tk  # tkinter, for command-line UI code
 python3-venv  # or venv complains that ensurepip is not available
