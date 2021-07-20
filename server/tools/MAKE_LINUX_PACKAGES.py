@@ -998,11 +998,11 @@ def build_package() -> None:
         MAINVERSION=MAINVERSION,
     )
     full_rpm_path = join(PACKAGEDIR, expected_main_rpm_name)
-    myuser = getpass.getuser()
-    call(['ls', '-l', full_rpm_path])
-    call(['whoami'])
-    call(['groups'])
-    shutil.chown(full_rpm_path, myuser, myuser)
+    # This chown is causing problems with GitHub actions. The user is 'runner'
+    # and there is no group called 'runner'. Is it needed anyway? Seems to run
+    # OK locally without this line.
+    # myuser = getpass.getuser()
+    # shutil.chown(full_rpm_path, myuser, myuser)
 
     log.info("Changing dependencies within RPM")
     # Alien does not successfully translate the dependencies, and anyway the
