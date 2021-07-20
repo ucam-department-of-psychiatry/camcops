@@ -66,6 +66,9 @@ from camcops_server.tasks.cpft_lps import (
     CPFTLPSResetResponseClock,
     CPFTLPSDischarge,
 )
+from camcops_server.tasks.cpft_research_preferences import (
+    CpftResearchPreferences,
+)
 # todo: # from camcops_server.tasks.ctqsf import Ctqsf
 
 from camcops_server.tasks.dad import Dad
