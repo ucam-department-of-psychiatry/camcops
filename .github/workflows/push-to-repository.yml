@@ -8,7 +8,7 @@ jobs:
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                python: [3.6, 3.7, 3.8, 3.9]
+                python-version: [3.6, 3.7, 3.8, 3.9]
         steps:
             - uses: actions/checkout@v2
             - uses: actions/setup-python@v2
@@ -24,8 +24,8 @@ jobs:
                   wget --retry-on-http-error=429 --waitretry=300 --tries=20 https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.bionic_amd64.deb
                   sudo apt-get -y install fontconfig libxrender1 xfonts-75dpi xfonts-base
                   sudo dpkg -i wkhtmltox_0.12.6-1.bionic_amd64.deb
-                  # python -m venv ${HOME}/venv
-                  # source ${HOME}/venv/bin/activate
+                  python -m venv ${HOME}/venv
+                  source ${HOME}/venv/bin/activate
                   python -c "import sys; print(sys.version)"
                   python -VV
                   python -m site
@@ -52,7 +52,7 @@ jobs:
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                python: [3.6, 3.7, 3.8, 3.9]
+                python-version: [3.6, 3.7, 3.8, 3.9]
         steps:
             - uses: actions/checkout@v2
             - uses: actions/setup-python@v2
@@ -67,8 +67,8 @@ jobs:
                   wget --retry-on-http-error=429 --waitretry=300 --tries=20 https://downloads.sourceforge.net/project/rpmrebuild/rpmrebuild/2.15/rpmrebuild-2.15-1.noarch.rpm
                   fakeroot alien --to-deb rpmrebuild-2.15-1.noarch.rpm
                   sudo dpkg -i rpmrebuild_2.15-2_all.deb
-                  # python -m venv ${HOME}/venv
-                  # source ${HOME}/venv/bin/activate
+                  python -m venv ${HOME}/venv
+                  source ${HOME}/venv/bin/activate
                   python -c "import sys; print(sys.version)"
                   python -VV
                   python -m site
