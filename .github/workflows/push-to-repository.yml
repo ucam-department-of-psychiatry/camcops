@@ -24,10 +24,10 @@ jobs:
                   wget --retry-on-http-error=429 --waitretry=300 --tries=20 https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.bionic_amd64.deb
                   sudo apt-get -y install fontconfig libxrender1 xfonts-75dpi xfonts-base
                   sudo dpkg -i wkhtmltox_0.12.6-1.bionic_amd64.deb
-                  python -VV
-                  python -m site
                   python -m venv ${HOME}/venv
                   source ${HOME}/venv/bin/activate
+                  python -VV
+                  python -m site
                   python -m pip install -U pip
                   echo dumping pre-installed packages
                   python -m pip freeze
@@ -66,10 +66,10 @@ jobs:
                   wget --retry-on-http-error=429 --waitretry=300 --tries=20 https://downloads.sourceforge.net/project/rpmrebuild/rpmrebuild/2.15/rpmrebuild-2.15-1.noarch.rpm
                   fakeroot alien --to-deb rpmrebuild-2.15-1.noarch.rpm
                   sudo dpkg -i rpmrebuild_2.15-2_all.deb
-                  python -VV
-                  python -m site
                   python -m venv ${HOME}/venv
                   source ${HOME}/venv/bin/activate
+                  python -VV
+                  python -m site
                   python -m pip install -U pip
                   echo dumping pre-installed packages
                   python -m pip freeze
