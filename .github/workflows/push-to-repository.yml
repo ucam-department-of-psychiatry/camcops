@@ -4,7 +4,7 @@ name: Tests run on push
 # yamllint disable-line rule:truthy
 on: [push]
 jobs:
-    build:
+    pip-install-and-tests:
         runs-on: ubuntu-latest
         strategy:
             matrix:
@@ -46,3 +46,38 @@ jobs:
                   echo running tests
                   cd server/camcops_server
                   pytest -v
+
+    build-and-install-package:
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                python: [3.6, 3.7, 3.8, 3.9]
+        steps:
+            - uses: actions/checkout@v2
+            - uses: actions/setup-python@v2
+              with:
+                  python-version: ${{ matrix.python-version }}
+            - name: Build and install debian package
+              run: |
+                  set -xe
+                  sudo apt-get -y install alien fakeroot lintian gdebi
+                  # 429 = Too many requests. Unfortunately wget doesn't read the
+                  # Retry-after header so just wait 5 minutes
+                  wget --retry-on-http-error=429 --waitretry=300 --tries=20 https://downloads.sourceforge.net/project/rpmrebuild/rpmrebuild/2.15/rpmrebuild-2.15-1.noarch.rpm
+                  fakeroot alien --to-deb rpmrebuild-2.15-1.noarch.rpm
+                  sudo dpkg -i rpmrebuild_2.15-2_all.deb
+                  python -VV
+                  python -m site
+                  python -m venv ${HOME}/venv
+                  source ${HOME}/venv/bin/activate
+                  python -m pip install -U pip
+                  echo dumping pre-installed packages
+                  python -m pip freeze
+                  echo installing pip packages
+                  python -m pip install -e server/.
+                  echo building packages
+                  server/tools/MAKE_LINUX_PACKAGES.py
+                  echo installing debian package
+                  server/tools/REINSTALL_DEBIAN_PACKAGE.sh
+                  echo checking packages for conflicts
+                  /usr/share/camcops/venv/bin/pip check
