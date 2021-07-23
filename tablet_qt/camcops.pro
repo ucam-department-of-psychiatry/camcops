@@ -832,6 +832,7 @@ SOURCES += \
     tasks/cpftlpsdischarge.cpp \
     tasks/cpftlpsreferral.cpp \
     tasks/cpftlpsresetresponseclock.cpp \
+    tasks/cpftresearchpreferences.cpp \
     tasks/dad.cpp \
     tasks/das28.cpp \
     tasks/dast.cpp \
@@ -1303,6 +1304,7 @@ HEADERS += \
     tasks/cpftlpsdischarge.h \
     tasks/cpftlpsreferral.h \
     tasks/cpftlpsresetresponseclock.h \
+    tasks/cpftresearchpreferences.h \
     tasks/dad.h \
     tasks/das28.h \
     tasks/dast.h \
