@@ -27,6 +27,8 @@
 #include "common/textconst.h"
 #include "core/camcopsapp.h"
 #include "db/databasemanager.h"
+#include "db/databaseobject.h"
+#include "lib/uifunc.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/quheading.h"
 #include "questionnairelib/qupage.h"
@@ -36,6 +38,13 @@
 
 const QString CPFTResearchPreferences::CPFTRESEARCHPREFERENCES_TABLENAME(
     "cpft_research_preferences");
+
+// Field names
+const QString FN_CONTACT_PREFERENCE("contact_preference");
+const QString FN_CONTACT_BY_EMAIL("contact_by_email");
+const QString FN_RESEARCH_OPT_OUT("research_opt_out");
+
+const QString Q_XML_PREFIX = "q_";
 
 void initializeCPFTResearchPreferences(TaskFactory& factory)
 {
@@ -49,7 +58,9 @@ CPFTResearchPreferences::CPFTResearchPreferences(
          false, false, false),  // ... anon, clin, resp
     m_questionnaire(nullptr)
 {
-    // TODO: Add fields here
+    addField(FN_CONTACT_PREFERENCE, QVariant::Char);
+    addField(FN_CONTACT_BY_EMAIL, QVariant::Bool);
+    addField(FN_RESEARCH_OPT_OUT, QVariant::Bool);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
@@ -82,7 +93,17 @@ QString CPFTResearchPreferences::description() const
 
 bool CPFTResearchPreferences::isComplete() const
 {
-    // TODO
+    if (valueIsNull(FN_CONTACT_PREFERENCE)) {
+        return false;
+    }
+
+    if (valueIsNull(FN_CONTACT_BY_EMAIL)) {
+        return false;
+    }
+
+    if (valueIsNull(FN_RESEARCH_OPT_OUT)) {
+        return false;
+    }
 
     return true;
 }
@@ -90,19 +111,24 @@ bool CPFTResearchPreferences::isComplete() const
 
 QStringList CPFTResearchPreferences::summary() const
 {
-    // TODO
+    QStringList lines;
 
-    return QStringList{TextConst::noSummarySeeFacsimile()};
+    const QString fmt = QString("%1 <b>%2</b>");
+
+    lines.append(fmt.arg(xstring(Q_XML_PREFIX + FN_CONTACT_PREFERENCE),
+                         valueQChar(FN_CONTACT_PREFERENCE)));
+    lines.append(fmt.arg(xstring(Q_XML_PREFIX + FN_CONTACT_BY_EMAIL),
+                         uifunc::yesNo(valueBool(FN_CONTACT_BY_EMAIL))));
+    lines.append(fmt.arg(xstring(Q_XML_PREFIX + FN_RESEARCH_OPT_OUT),
+                         uifunc::yesNo(valueBool(FN_RESEARCH_OPT_OUT))));
+
+    return lines;
 }
 
 
 QStringList CPFTResearchPreferences::detail() const
 {
-    QStringList lines;
-
-    // TODO
-
-    return completenessInfo() + lines;
+    return completenessInfo() + summary();
 }
 
 
