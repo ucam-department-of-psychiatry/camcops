@@ -33,7 +33,7 @@ from typing import Any, Dict, Optional, Tuple, Type
 from sqlalchemy.ext.declarative import DeclarativeMeta
 
 from camcops_server.cc_modules.cc_constants import CssClass, PV
-from camcops_server.cc_modules.cc_html import tr_qa
+from camcops_server.cc_modules.cc_html import tr_qa, get_yes_no_unknown
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     BoolColumn,
@@ -113,11 +113,12 @@ class CpftResearchPreferences(
     def get_task_html(self, req: CamcopsRequest) -> str:
         rows = ""
 
-        for field_name in self.MANDATORY_FIELD_NAMES:
-            question_text = self.xstring(req, f"q_{field_name}")
-            answer_text = self.get_answer_text(req, field_name)
-
-            rows += tr_qa(question_text, answer_text)
+        rows = [tr_qa(self.wxstring(req, f"q_{self.FN_CONTACT_PREFERENCE}"),
+                      self.get_contact_preference_answer(req)),
+                tr_qa(self.wxstring(req, f"q_{self.FN_CONTACT_BY_EMAIL}"),
+                      self.get_contact_by_email_answer(req)),
+                tr_qa(self.wxstring(req, f"q_{self.FN_RESEARCH_OPT_OUT}"),
+                      self.get_research_opt_out_answer(req))]
 
         html = f"""
             <div class="{CssClass.SUMMARY}">
@@ -130,20 +131,27 @@ class CpftResearchPreferences(
                     <th width="60%">Question</th>
                     <th width="40%">Answer</th>
                 </tr>
-                {rows}
+                {''.join(rows)}
             </table>
         """
 
         return html
 
-    def get_answer_text(
-        self, req: CamcopsRequest, field_name: str
-    ) -> Optional[str]:
-        answer = getattr(self, field_name)
+    def get_contact_preference_answer(self,
+                                      req: CamcopsRequest) -> Optional[str]:
 
+        answer = getattr(self, self.FN_CONTACT_PREFERENCE)
         if answer is None:
-            return answer
+            return None
 
-        answer_text = self.xstring(req, f"{field_name}_option{answer}")
+        return self.xstring(req, answer)
 
-        return f"{answer} — {answer_text}"
+    def get_contact_by_email_answer(self,
+                                    req: CamcopsRequest) -> Optional[str]:
+        return get_yes_no_unknown(req,
+                                  getattr(self, self.FN_CONTACT_BY_EMAIL))
+
+    def get_research_opt_out_answer(self,
+                                    req: CamcopsRequest) -> Optional[str]:
+        return get_yes_no_unknown(req,
+                                  getattr(self, self.FN_RESEARCH_OPT_OUT))

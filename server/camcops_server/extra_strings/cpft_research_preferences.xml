@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="cpft_research_preferences">
+    <!-- CPFT Research Preferences -->
+    <string name="q_contact_preference">If our researchers wish to write to you about relevant research projects, which of these three options would you prefer?</string>
+    <string name="q_contact_by_email">If you’ve chosen Yellow or Green, we will normally contact you by letter. Would you prefer us to e-mail you instead?</string>
+    <string name="q_research_opt_out">CPFT routinely anonymises information for use in improving health care and for research. You can opt out from the use of your information for research even after all details that could identify you have been removed. Tick below if you want to opt out entirely. This is completely separate from being contacted about research.</string>
+    <string name="q_contact_preference_option_R"><b>RED. I am not interested in being contacted about research. Don’t pass my details on to any researchers outside my clinical team.</b></string>
+    <string name="q_contact_preference_option_Y"><b>YELLOW. I’m not sure yet. Please ask my CPFT clinicians to consider any requests from research teams and pass them on to me if appropriate.</b> I will choose each time whether researchers can have access to my CPFT records and write to me.</string>
+    <string name="q_contact_preference_option_G"><b>GREEN. I am happy to hear directly from approved CPFT researchers inside or outside my clinical team. Please allow these researchers access to my full CPFT records and allow them to write to me about projects that might be suited to me.</b> I understand that there’s no commitment to take part in any particular project.</string>
+    <string name="R">Red</string>
+    <string name="Y">Yellow</string>
+    <string name="G">Green</string>
+    <string name=""></string>
+    <string name=""></string>
+  </task>
+</resources>
