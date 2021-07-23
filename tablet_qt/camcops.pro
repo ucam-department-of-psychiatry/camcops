@@ -124,6 +124,11 @@ MOBILITY =
 # Compiler and linker flags
 # =============================================================================
 
+gcc | clang {
+    COMPILER_VERSION = $$system($$QMAKE_CXX " -dumpversion")
+    COMPILER_MAJOR_VERSION = $$str_member($$COMPILER_VERSION)
+}
+
 # Warning become errors
 gcc {
     # GCC
@@ -150,7 +155,9 @@ clang {
 # (This problem arose on 2020-06-29 with Ubuntu 20.04 which brought gcc 9.3.0.)
 # 2021-02-05: also true of clang v10.0.0.
 if (gcc | clang):!ios:!android:!macx {
-    QMAKE_CXXFLAGS += -Wno-deprecated-copy
+    !lessThan(COMPILER_MAJOR_VERSION, 9) {
+        QMAKE_CXXFLAGS += -Wno-deprecated-copy
+    }
 }
 
 # Later versions of clang on iOS *do* support (no-)deprecated-copy but the order
