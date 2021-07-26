@@ -49,7 +49,7 @@ versions.
 Note that Python versions are referred to in:
 
 - this file
-- ``.travis.yml``
+- ``.github/workflows``
 - ``server/setup.py``
 - ``server/docker/dockerfiles/camcops.Dockerfile``
 - ``server/tools/MAKE_LINUX_PACKAGES.py``

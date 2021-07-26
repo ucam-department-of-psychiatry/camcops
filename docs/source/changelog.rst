@@ -3458,3 +3458,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
   as 0048.
   https://github.com/RudolfCardinal/camcops/issues/187
   (Database revision 0066)
+
+- Fix Debian package Python dependencies. Would fail if Python 3.6 was not installed.
