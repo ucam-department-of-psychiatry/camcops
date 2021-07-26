@@ -81,7 +81,10 @@ public:
     int size() const;
 
     // Return the name/value pair at the given (zero-based) index.
-    const NameValuePair& at(int index) const;
+    const NameValuePair& atIndex(int index) const;
+
+    // Return the name/value pair at the given (zero-based) position.
+    const NameValuePair& atPosition(int position) const;
 
     // Return the first index associated with the specified name, or -1 on
     // failure.
@@ -89,6 +92,10 @@ public:
 
     // Return the index associated with the specified value, or -1 on failure.
     int indexFromValue(const QVariant& value) const;
+
+    int indexFromPosition(const int position) const;
+
+    int positionFromValue(const QVariant& value) const;
 
     // Check there are no duplicate values, or crash the app.
     void validateOrDie();
@@ -103,11 +110,18 @@ public:
     void reverse();
 
     // Returns the name for a given index, or "" if the index is invalid.
-    QString name(int index) const;
+    QString nameFromIndex(int index) const;
 
     // Returns the name for a given index, or QVariant() if the index is
     // invalid.
-    QVariant value(int index) const;
+    QVariant valueFromIndex(int index) const;
+
+    // Returns the name for a given position, or "" if the position is invalid.
+    QString nameFromPosition(int position) const;
+
+    // Returns the name for a given position, or QVariant() if the position is
+    // invalid.
+    QVariant valueFromPosition(int position) const;
 
     // Returns the name for a given value, or a default string if there isn't
     // one.
@@ -128,6 +142,13 @@ public:
 protected:
     // Stores the options.
     QVector<NameValuePair> m_options;
+
+    // Stores the options' indexes.
+    // When the options are randomized, this is what we shuffle so we can
+    // say "give me the index of the option at position x". This allows us
+    // to maintain other vectors separately from namevalueoptions, for example
+    // the list of styles associated with multi-choice answers.
+    QVector<int> m_indexes;
 
 public:
     // Debugging description.

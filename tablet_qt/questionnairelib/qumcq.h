@@ -36,7 +36,8 @@ class QuMcq : public QuElement
 public:
 
     // Constructor
-    QuMcq(FieldRefPtr fieldref, const NameValueOptions& options);
+    QuMcq(FieldRefPtr fieldref, const NameValueOptions& options,
+          const QStringList* label_styles = nullptr);
 
     // Shuffle the options (when making the widget)?
     QuMcq* setRandomize(bool randomize);
@@ -97,6 +98,7 @@ protected slots:
 protected:
     FieldRefPtr m_fieldref;  // field
     NameValueOptions m_options;  // possible options
+    QStringList m_label_styles;;  // optional styles to apply to each label
     bool m_randomize;  // shuffle the order?
     bool m_show_instruction;  // show instruction?
     bool m_horizontal;  // horizontal layout?
