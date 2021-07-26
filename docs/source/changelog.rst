@@ -3451,3 +3451,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 **Client and server v2.4.9, IN PROGRESS**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Fix Debian package Python dependencies. Would fail if Python 3.6 was not installed.
