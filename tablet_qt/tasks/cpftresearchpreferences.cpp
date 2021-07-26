@@ -153,8 +153,14 @@ OpenableWidget* CPFTResearchPreferences::editor(const bool read_only)
     contact_options.append(NameValuePair(xstring(Q_XML_PREFIX + FN_CONTACT_PREFERENCE + "_option_R"), "R"));
     contact_options.append(NameValuePair(xstring(Q_XML_PREFIX + FN_CONTACT_PREFERENCE + "_option_Y"), "Y"));
     contact_options.append(NameValuePair(xstring(Q_XML_PREFIX + FN_CONTACT_PREFERENCE + "_option_G"), "G"));
+
+
+    QStringList contact_styles = {"color:white; background-color:red;",
+                                  "color:black; background-color:yellow;",
+                                  "color:white; background-color:green;"};
+
     page->addElement(new QuMcq(fieldRef(FN_CONTACT_PREFERENCE),
-                               contact_options));
+                               contact_options, &contact_styles));
 
     page->addElement(new QuText(xstring(Q_XML_PREFIX + FN_CONTACT_BY_EMAIL)));
     NameValueOptions email_options;
