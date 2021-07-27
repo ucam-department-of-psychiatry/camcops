@@ -31,6 +31,7 @@
 #include "lib/uifunc.h"
 #include "questionnairelib/namevalueoptions.h"
 #include "questionnairelib/namevaluepair.h"
+#include "questionnairelib/quboolean.h"
 #include "questionnairelib/questionnaire.h"
 #include "questionnairelib/quheading.h"
 #include "questionnairelib/qumcq.h"
@@ -65,7 +66,12 @@ CPFTResearchPreferences::CPFTResearchPreferences(
 {
     addField(FN_CONTACT_PREFERENCE, QVariant::Char);
     addField(FN_CONTACT_BY_EMAIL, QVariant::Bool);
-    addField(FN_RESEARCH_OPT_OUT, QVariant::Bool);
+    addField(FN_RESEARCH_OPT_OUT,
+             QVariant::Bool,
+             true,   // Mandatory
+             false,  // Unique
+             false,  // pk
+             false); // default
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
@@ -185,12 +191,13 @@ OpenableWidget* CPFTResearchPreferences::editor(const bool read_only)
     email_spacer->addTag(FN_CONTACT_BY_EMAIL);
     page->addElement(email_spacer);
 
-    page->addElement((new QuText(xstring(Q_XML_PREFIX + FN_RESEARCH_OPT_OUT)))->setBold(true));
-    NameValueOptions opt_out_options;
-    opt_out_options.append(NameValuePair(xstring(Q_XML_PREFIX + FN_RESEARCH_OPT_OUT + "_option_Y"), true));
-    opt_out_options.append(NameValuePair(xstring(Q_XML_PREFIX + FN_RESEARCH_OPT_OUT + "_option_N"), false));
-    page->addElement(new QuMcq(fieldRef(FN_RESEARCH_OPT_OUT),
-                               opt_out_options));
+    auto opt_out_text = new QuText(xstring(Q_XML_PREFIX + FN_RESEARCH_OPT_OUT+ "_intro"));
+    opt_out_text->setBold(true);
+    page->addElement(opt_out_text);
+    auto opt_out_checkbox = new QuBoolean(xstring(Q_XML_PREFIX + FN_RESEARCH_OPT_OUT),
+                                          fieldRef(FN_RESEARCH_OPT_OUT));
+    opt_out_checkbox->setFalseAppearsBlank();
+    page->addElement(opt_out_checkbox);
     page->addElement(new QuSpacer(QSize(uiconst::BIGSPACE, uiconst::BIGSPACE)));
 
     QVector<QuPagePtr> pages{page};
@@ -221,6 +228,5 @@ void CPFTResearchPreferences::updateEmailQuestion()
 
 
 // TODO:
-// Email question conditional on Yellow / Green
 // Opt-out radio button
 // Hyperlinks

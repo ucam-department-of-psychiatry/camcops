@@ -16,12 +16,11 @@
     <string name="R">Red</string>
     <string name="Y">Yellow</string>
     <string name="G">Green</string>
-    <string name="q_contact_by_email">If you’ve chosen Yellow or Green, we will normally contact you by letter. Would you prefer us to e-mail you instead?</string>
+    <string name="q_contact_by_email">We will normally contact you by letter. Would you prefer us to e-mail you instead?</string>
     <string name="q_contact_by_email_option_Y">Please use e-mail where possible.</string>
     <string name="q_contact_by_email_option_N">Please contact me by letter</string>
 
-    <string name="q_research_opt_out">CPFT routinely anonymises information for use in improving health care and for research. You can opt out from the use of your information for research even after all details that could identify you have been removed. Indicate below if you want to opt out entirely. This is completely separate from being contacted about research.</string>
-    <string name="q_research_opt_out_option_Y">Opt out: don’t use my information for medical research, even after all the information that could identify me has been removed.</string>
-    <string name="q_research_opt_out_option_N">Opt in: use my information for medical research after all the information that could identify me has been removed.</string>
+    <string name="q_research_opt_out_intro">CPFT routinely anonymises information for use in improving health care and for research. You can opt out from the use of your information for research even after all details that could identify you have been removed. Indicate below if you want to opt out entirely. This is completely separate from being contacted about research.</string>
+    <string name="q_research_opt_out">Opt out: don’t use my information for medical research, even after all the information that could identify me has been removed.</string>
   </task>
 </resources>
