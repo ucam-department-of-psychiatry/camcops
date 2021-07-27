@@ -124,13 +124,13 @@ QStringList CPFTResearchPreferences::summary() const
 {
     QStringList lines;
 
-    const QString fmt = QString("%1 <b>%2</b>");
+    const QString fmt = QString("%1: <b>%2</b><br>");
 
-    lines.append(fmt.arg(xstring(Q_XML_PREFIX + FN_CONTACT_PREFERENCE),
-                         valueQChar(FN_CONTACT_PREFERENCE)));
-    lines.append(fmt.arg(xstring(Q_XML_PREFIX + FN_CONTACT_BY_EMAIL),
+    lines.append(fmt.arg(xstring(Q_XML_PREFIX + FN_CONTACT_PREFERENCE + "_short"),
+                         xstring(valueQChar(FN_CONTACT_PREFERENCE), "?")));
+    lines.append(fmt.arg(xstring(Q_XML_PREFIX + FN_CONTACT_BY_EMAIL + "_short"),
                          uifunc::yesNo(valueBool(FN_CONTACT_BY_EMAIL))));
-    lines.append(fmt.arg(xstring(Q_XML_PREFIX + FN_RESEARCH_OPT_OUT),
+    lines.append(fmt.arg(xstring(Q_XML_PREFIX + FN_RESEARCH_OPT_OUT + "_short"),
                          uifunc::yesNo(valueBool(FN_RESEARCH_OPT_OUT))));
 
     return lines;
@@ -225,8 +225,3 @@ void CPFTResearchPreferences::updateEmailQuestion()
         m_questionnaire->setVisibleByTag(FN_CONTACT_BY_EMAIL, mandatory);
     }
 }
-
-
-// TODO:
-// Opt-out radio button
-// Hyperlinks

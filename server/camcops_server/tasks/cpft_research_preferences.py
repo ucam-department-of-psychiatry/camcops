@@ -113,11 +113,14 @@ class CpftResearchPreferences(
     def get_task_html(self, req: CamcopsRequest) -> str:
         rows = ""
 
-        rows = [tr_qa(self.wxstring(req, f"q_{self.FN_CONTACT_PREFERENCE}"),
+        rows = [tr_qa(self.wxstring(req,
+                                    f"q_{self.FN_CONTACT_PREFERENCE}_short"),
                       self.get_contact_preference_answer(req)),
-                tr_qa(self.wxstring(req, f"q_{self.FN_CONTACT_BY_EMAIL}"),
+                tr_qa(self.wxstring(req,
+                                    f"q_{self.FN_CONTACT_BY_EMAIL}_short"),
                       self.get_contact_by_email_answer(req)),
-                tr_qa(self.wxstring(req, f"q_{self.FN_RESEARCH_OPT_OUT}"),
+                tr_qa(self.wxstring(req,
+                                    f"q_{self.FN_RESEARCH_OPT_OUT}_short"),
                       self.get_research_opt_out_answer(req))]
 
         html = f"""
