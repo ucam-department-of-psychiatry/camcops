@@ -86,7 +86,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Install Qt
-              uses: jurple1/install-qt-action@v2
+              uses: jurplel/install-qt-action@v2
               with:
                   version: 5.12.11
             - name: Run client tests
