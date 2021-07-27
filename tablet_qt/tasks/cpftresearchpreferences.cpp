@@ -152,8 +152,8 @@ OpenableWidget* CPFTResearchPreferences::editor(const bool read_only)
 
     page->addElement((new QuText(xstring("decisions")))->setBold(true)->setItalic(true));
     page->addElement(new QuSpacer(QSize(uiconst::BIGSPACE, uiconst::BIGSPACE)));
-    page->addElement(new QuText(xstring("research_info")));
-    page->addElement(new QuText(xstring("database_info")));
+    page->addElement((new QuText(xstring("research_info")))->setOpenLinks());
+    page->addElement((new QuText(xstring("database_info")))->setOpenLinks());
     page->addElement(new QuSpacer(QSize(uiconst::BIGSPACE, uiconst::BIGSPACE)));
     page->addElement((new QuText(xstring("permission")))->setBold(true)->setItalic(true));
     page->addElement(new QuSpacer(QSize(uiconst::BIGSPACE, uiconst::BIGSPACE)));
