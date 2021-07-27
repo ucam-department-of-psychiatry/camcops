@@ -95,5 +95,5 @@ jobs:
                  cd tablet_qt/tests
                  qmake
                  make
-                 cd auto/questionnairelib/
+                 cd auto/questionnairelib/bin
                  ./test_questionnairelib
