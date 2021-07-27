@@ -85,7 +85,6 @@ jobs:
     run-client-tests:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v2
             - name: Install Qt
               uses: jurplel/install-qt-action@v2
               with:
