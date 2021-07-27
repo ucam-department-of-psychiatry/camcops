@@ -35,6 +35,7 @@
 #include "questionnairelib/quheading.h"
 #include "questionnairelib/qumcq.h"
 #include "questionnairelib/qupage.h"
+#include "questionnairelib/quspacer.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/task.h"
 #include "tasklib/taskfactory.h"
@@ -141,14 +142,16 @@ OpenableWidget* CPFTResearchPreferences::editor(const bool read_only)
     QuPagePtr page(new QuPage);
     page->setTitle(description());
     page->addElement(new QuHeading(xstring("title")));
-
     page->addElement(new QuText(xstring("intro")));
-    page->addElement(new QuText(xstring("decisions")));
+
+    page->addElement((new QuText(xstring("decisions")))->setBold(true)->setItalic(true));
+    page->addElement(new QuSpacer(QSize(uiconst::BIGSPACE, uiconst::BIGSPACE)));
     page->addElement(new QuText(xstring("research_info")));
     page->addElement(new QuText(xstring("database_info")));
-    page->addElement(new QuText(xstring("permission")));
-
-    page->addElement(new QuText(xstring(Q_XML_PREFIX + FN_CONTACT_PREFERENCE)));
+    page->addElement(new QuSpacer(QSize(uiconst::BIGSPACE, uiconst::BIGSPACE)));
+    page->addElement((new QuText(xstring("permission")))->setBold(true)->setItalic(true));
+    page->addElement(new QuSpacer(QSize(uiconst::BIGSPACE, uiconst::BIGSPACE)));
+    page->addElement((new QuText(xstring(Q_XML_PREFIX + FN_CONTACT_PREFERENCE)))->setBold(true));
     NameValueOptions contact_options;
     contact_options.append(NameValuePair(xstring(Q_XML_PREFIX + FN_CONTACT_PREFERENCE + "_option_R"), "R"));
     contact_options.append(NameValuePair(xstring(Q_XML_PREFIX + FN_CONTACT_PREFERENCE + "_option_Y"), "Y"));
@@ -162,19 +165,23 @@ OpenableWidget* CPFTResearchPreferences::editor(const bool read_only)
     page->addElement(new QuMcq(fieldRef(FN_CONTACT_PREFERENCE),
                                contact_options, &contact_styles));
 
-    page->addElement(new QuText(xstring(Q_XML_PREFIX + FN_CONTACT_BY_EMAIL)));
+    page->addElement(new QuSpacer(QSize(uiconst::BIGSPACE, uiconst::BIGSPACE)));
+
+    page->addElement((new QuText(xstring(Q_XML_PREFIX + FN_CONTACT_BY_EMAIL)))->setBold(true));
     NameValueOptions email_options;
     email_options.append(NameValuePair(xstring(Q_XML_PREFIX + FN_CONTACT_BY_EMAIL + "_option_Y"), true));
     email_options.append(NameValuePair(xstring(Q_XML_PREFIX + FN_CONTACT_BY_EMAIL + "_option_N"), false));
     page->addElement(new QuMcq(fieldRef(FN_CONTACT_BY_EMAIL),
                                email_options));
+    page->addElement(new QuSpacer(QSize(uiconst::BIGSPACE, uiconst::BIGSPACE)));
 
-    page->addElement(new QuText(xstring(Q_XML_PREFIX + FN_RESEARCH_OPT_OUT)));
+    page->addElement((new QuText(xstring(Q_XML_PREFIX + FN_RESEARCH_OPT_OUT)))->setBold(true));
     NameValueOptions opt_out_options;
     opt_out_options.append(NameValuePair(xstring(Q_XML_PREFIX + FN_RESEARCH_OPT_OUT + "_option_Y"), true));
     opt_out_options.append(NameValuePair(xstring(Q_XML_PREFIX + FN_RESEARCH_OPT_OUT + "_option_N"), false));
     page->addElement(new QuMcq(fieldRef(FN_RESEARCH_OPT_OUT),
                                opt_out_options));
+    page->addElement(new QuSpacer(QSize(uiconst::BIGSPACE, uiconst::BIGSPACE)));
 
     QVector<QuPagePtr> pages{page};
 
@@ -184,3 +191,9 @@ OpenableWidget* CPFTResearchPreferences::editor(const bool read_only)
 
     return m_questionnaire;
 }
+
+// TODO:
+// Spacing between elements
+// Email question conditional on Yellow / Green
+// Opt-out radio button
+// Hyperlinks
