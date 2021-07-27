@@ -42,6 +42,13 @@ public:
     virtual QStringList summary() const override;
     virtual QStringList detail() const override;
     virtual OpenableWidget* editor(bool read_only = false) override;
+
+    // ------------------------------------------------------------------------
+    // Signal handlers
+    // ------------------------------------------------------------------------
+signals:
+public slots:
+    void updateEmailQuestion();
 public:
     static const QString CPFTRESEARCHPREFERENCES_TABLENAME;
 private:

@@ -162,18 +162,28 @@ OpenableWidget* CPFTResearchPreferences::editor(const bool read_only)
                                   "color:black; background-color:yellow;",
                                   "color:white; background-color:green;"};
 
-    page->addElement(new QuMcq(fieldRef(FN_CONTACT_PREFERENCE),
-                               contact_options, &contact_styles));
+    FieldRefPtr fieldref = fieldRef(FN_CONTACT_PREFERENCE);
+    connect(fieldref.data(), &FieldRef::valueChanged,
+            this, &CPFTResearchPreferences::updateEmailQuestion);
 
+    page->addElement(new QuMcq(fieldref, contact_options, &contact_styles));
     page->addElement(new QuSpacer(QSize(uiconst::BIGSPACE, uiconst::BIGSPACE)));
 
-    page->addElement((new QuText(xstring(Q_XML_PREFIX + FN_CONTACT_BY_EMAIL)))->setBold(true));
+    auto email_text = new QuText(xstring(Q_XML_PREFIX + FN_CONTACT_BY_EMAIL));
+    email_text->setBold(true);
+    email_text->addTag(FN_CONTACT_BY_EMAIL);
+
+    page->addElement(email_text);
     NameValueOptions email_options;
     email_options.append(NameValuePair(xstring(Q_XML_PREFIX + FN_CONTACT_BY_EMAIL + "_option_Y"), true));
     email_options.append(NameValuePair(xstring(Q_XML_PREFIX + FN_CONTACT_BY_EMAIL + "_option_N"), false));
-    page->addElement(new QuMcq(fieldRef(FN_CONTACT_BY_EMAIL),
-                               email_options));
-    page->addElement(new QuSpacer(QSize(uiconst::BIGSPACE, uiconst::BIGSPACE)));
+
+    auto email_mcq = new QuMcq(fieldRef(FN_CONTACT_BY_EMAIL), email_options);
+    page->addElement(email_mcq);
+    email_mcq->addTag(FN_CONTACT_BY_EMAIL);
+    auto email_spacer = new QuSpacer(QSize(uiconst::BIGSPACE, uiconst::BIGSPACE));
+    email_spacer->addTag(FN_CONTACT_BY_EMAIL);
+    page->addElement(email_spacer);
 
     page->addElement((new QuText(xstring(Q_XML_PREFIX + FN_RESEARCH_OPT_OUT)))->setBold(true));
     NameValueOptions opt_out_options;
@@ -189,11 +199,28 @@ OpenableWidget* CPFTResearchPreferences::editor(const bool read_only)
     m_questionnaire->setType(QuPage::PageType::Patient);
     m_questionnaire->setReadOnly(read_only);
 
+    updateEmailQuestion();
+
     return m_questionnaire;
 }
 
+
+// ============================================================================
+// Signal handlers
+// ============================================================================
+
+void CPFTResearchPreferences::updateEmailQuestion()
+{
+    const bool mandatory = valueQChar(FN_CONTACT_PREFERENCE) != 'R';
+    fieldRef(FN_CONTACT_BY_EMAIL)->setMandatory(mandatory);
+
+    if (m_questionnaire) {
+        m_questionnaire->setVisibleByTag(FN_CONTACT_BY_EMAIL, mandatory);
+    }
+}
+
+
 // TODO:
-// Spacing between elements
 // Email question conditional on Yellow / Green
 // Opt-out radio button
 // Hyperlinks
