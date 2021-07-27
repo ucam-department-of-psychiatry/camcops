@@ -44,3 +44,13 @@ distributables/
 working/*
 schema.plantuml
 schema.png
+
+# Qt generated
+Makefile
+*.moc
+target_wrapper.sh
+.qmake.stash
+*.o
+moc_predefs.h
+bin/
+*_plugin_import.cpp

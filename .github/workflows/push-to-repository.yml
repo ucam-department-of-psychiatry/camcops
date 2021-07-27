@@ -81,3 +81,19 @@ jobs:
                   server/tools/REINSTALL_DEBIAN_PACKAGE.sh
                   echo checking packages for conflicts
                   /usr/share/camcops/venv/bin/pip check
+
+    run-client-tests:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Install Qt
+              uses: jurple1/install-qt-action@v2
+              with:
+                  version: 5.12.11
+            - name: Run client tests
+              run: |
+                 set -xe
+                 cd tablet_qt/tests
+                 qmake
+                 make
+                 cd auto/questionnairelib/
+                 ./test_questionnairelib
