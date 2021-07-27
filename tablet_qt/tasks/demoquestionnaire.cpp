@@ -506,6 +506,17 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
         {"Y", "Y"},
         {"Z", "Z"},
     };
+    const NameValueOptions options_G{
+        {tr("%1 (Red)").arg(makeoptn(1)), 1},
+        {tr("%1 (Yellow)").arg(makeoptn(2)), 2},
+        {tr("%1 (Green)").arg(makeoptn(3)), 3}
+    };
+
+
+    QStringList mcq_styles = {"color:white; background-color:red;",
+                              "color:black; background-color:yellow;",
+                              "color:white; background-color:green;"};
+
     QuPagePtr page_mcq((new QuPage{
         new QuHeading(tr("Plain MCQ:")),
         new QuMcq(fieldRef("mcq1"), options_A),
@@ -519,6 +530,9 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
         new QuHeading(tr("Same MCQ/field, reconfigured:")),
         (new QuMcq(fieldRef("mcq1"), options_A))
                             ->setAsTextButton(true),
+        new QuHeading(tr("Same MCQ/field, randomized with styles:")),
+            (new QuMcq(fieldRef("mcq1"), options_G, &mcq_styles))
+                   ->setRandomize(true),
         new QuHeading(tr("A second MCQ:")),
         new QuMcq(fieldRef("mcq2"), options_C),
         new QuHeading(tr("Another:")),
