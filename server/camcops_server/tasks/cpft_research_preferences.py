@@ -111,8 +111,6 @@ class CpftResearchPreferences(
         return True
 
     def get_task_html(self, req: CamcopsRequest) -> str:
-        rows = ""
-
         rows = [tr_qa(self.wxstring(req,
                                     f"q_{self.FN_CONTACT_PREFERENCE}_short"),
                       self.get_contact_preference_answer(req)),
