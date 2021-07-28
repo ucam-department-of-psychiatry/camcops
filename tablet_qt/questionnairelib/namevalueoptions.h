@@ -93,8 +93,11 @@ public:
     // Return the index associated with the specified value, or -1 on failure.
     int indexFromValue(const QVariant& value) const;
 
+    // Return the index of the item at the given position. This will only be
+    // different if the options (i.e. the option indexes) have been randomized.
     int indexFromPosition(const int position) const;
 
+    // Return the position of the option with the specified value or -1 on failure.
     int positionFromValue(const QVariant& value) const;
 
     // Check there are no duplicate values, or crash the app.
@@ -147,7 +150,8 @@ protected:
     // When the options are randomized, this is what we shuffle so we can
     // say "give me the index of the option at position x". This allows us
     // to maintain other vectors separately from namevalueoptions, for example
-    // the list of styles associated with multi-choice answers.
+    // the list of styles associated with multi-choice answers. If the answers
+    // are randomized, we still want to style the answers correctly.
     QVector<int> m_indexes;
 
 public:
