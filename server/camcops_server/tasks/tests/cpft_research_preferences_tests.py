@@ -81,8 +81,10 @@ class CpftResearchPreferencesTests(unittest.TestCase):
         for invalid_field in all_fields:
             task = CpftResearchPreferences()
 
-            for field in all_fields:
-                setattr(task, field, 0.0)
+            task.contact_preference = "G"
+            task.contact_by_email = True
+            task.research_opt_out = False
+            self.assertTrue(task.is_complete())
 
             setattr(task, invalid_field, 10.5)
             self.assertFalse(
