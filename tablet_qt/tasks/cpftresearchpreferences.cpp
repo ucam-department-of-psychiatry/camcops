@@ -104,19 +104,8 @@ QString CPFTResearchPreferences::description() const
 
 bool CPFTResearchPreferences::isComplete() const
 {
-    if (valueIsNull(FN_CONTACT_PREFERENCE)) {
-        return false;
-    }
-
-    if (valueIsNull(FN_CONTACT_BY_EMAIL)) {
-        return false;
-    }
-
-    if (valueIsNull(FN_RESEARCH_OPT_OUT)) {
-        return false;
-    }
-
-    return true;
+    return !anyValuesNull({FN_CONTACT_PREFERENCE, FN_CONTACT_BY_EMAIL,
+                FN_RESEARCH_OPT_OUT});
 }
 
 
