@@ -290,12 +290,16 @@ def upgrade():
             ["_security_users.id"],
             name=op.f("fk_cpft_research_preferences__removing_user_id"),
         ),
-        sa.PrimaryKeyConstraint("_pk", name=op.f("pk_cpft_research_preferences")),
+        sa.PrimaryKeyConstraint(
+            "_pk", name=op.f("pk_cpft_research_preferences")
+        ),
         mysql_charset="utf8mb4 COLLATE utf8mb4_unicode_ci",
         mysql_engine="InnoDB",
         mysql_row_format="DYNAMIC",
     )
-    with op.batch_alter_table("cpft_research_preferences", schema=None) as batch_op:
+    with op.batch_alter_table(
+        "cpft_research_preferences", schema=None
+    ) as batch_op:
         batch_op.create_index(
             batch_op.f("ix_cpft_research_preferences__current"),
             ["_current"],
@@ -307,7 +311,9 @@ def upgrade():
             unique=False,
         )
         batch_op.create_index(
-            batch_op.f("ix_cpft_research_preferences__era"), ["_era"], unique=False
+            batch_op.f("ix_cpft_research_preferences__era"),
+            ["_era"],
+            unique=False,
         )
         batch_op.create_index(
             batch_op.f("ix_cpft_research_preferences__group_id"),
@@ -315,7 +321,9 @@ def upgrade():
             unique=False,
         )
         batch_op.create_index(
-            batch_op.f("ix_cpft_research_preferences__pk"), ["_pk"], unique=False
+            batch_op.f("ix_cpft_research_preferences__pk"),
+            ["_pk"],
+            unique=False,
         )
         batch_op.create_index(
             batch_op.f("ix_cpft_research_preferences_id"), ["id"], unique=False
@@ -329,6 +337,18 @@ def upgrade():
             batch_op.f("ix_cpft_research_preferences_when_last_modified"),
             ["when_last_modified"],
             unique=False,
+        )
+
+    # https://github.com/sqlalchemy/alembic/issues/326
+    with op.batch_alter_table(
+        "cpft_research_preferences", schema=None
+    ) as batch_op:
+        batch_op.create_foreign_key(
+            batch_op.f("fk_cpft_research_preferences__device_id"),
+            "_security_devices",
+            ["_device_id"],
+            ["id"],
+            use_alter=True,
         )
 
 
