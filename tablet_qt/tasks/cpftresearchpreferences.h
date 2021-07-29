@@ -48,9 +48,13 @@ public:
     // ------------------------------------------------------------------------
 signals:
 public slots:
+    // Display and make mandatory email question if yellow/green contact
+    // preference selected
     void updateEmailQuestion();
+
 public:
     static const QString CPFTRESEARCHPREFERENCES_TABLENAME;
 private:
     QPointer<Questionnaire> m_questionnaire;
+    bool emailQuestionMandatory() const;
 };

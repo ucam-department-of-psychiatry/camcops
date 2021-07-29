@@ -104,8 +104,17 @@ QString CPFTResearchPreferences::description() const
 
 bool CPFTResearchPreferences::isComplete() const
 {
-    return !anyValuesNull({FN_CONTACT_PREFERENCE, FN_CONTACT_BY_EMAIL,
-                FN_RESEARCH_OPT_OUT});
+    if (valueIsNull(FN_CONTACT_PREFERENCE)) {
+        return false;
+    }
+
+    if (emailQuestionMandatory()) {
+        return !valueIsNull(FN_CONTACT_BY_EMAIL);
+    }
+
+    // Opt-out defaults to false
+
+    return true;
 }
 
 
@@ -207,10 +216,19 @@ OpenableWidget* CPFTResearchPreferences::editor(const bool read_only)
 
 void CPFTResearchPreferences::updateEmailQuestion()
 {
-    const bool mandatory = valueQChar(FN_CONTACT_PREFERENCE) != 'R';
-    fieldRef(FN_CONTACT_BY_EMAIL)->setMandatory(mandatory);
+    const bool mandatory = emailQuestionMandatory();
+
+    if (mandatory) {
+        fieldRef(FN_CONTACT_BY_EMAIL)->setMandatory(mandatory);
+    }
 
     if (m_questionnaire) {
         m_questionnaire->setVisibleByTag(FN_CONTACT_BY_EMAIL, mandatory);
     }
+}
+
+
+bool CPFTResearchPreferences::emailQuestionMandatory() const
+{
+   return valueQChar(FN_CONTACT_PREFERENCE) != 'R';
 }
