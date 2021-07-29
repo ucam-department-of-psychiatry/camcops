@@ -102,11 +102,15 @@ class CpftResearchPreferences(
         return _("CPFT Research Preferences")
 
     def is_complete(self) -> bool:
-        if self.any_fields_none(self.MANDATORY_FIELD_NAMES):
-            return False
-
         if not self.field_contents_valid():
             return False
+
+        contact_preference = getattr(self, self.FN_CONTACT_PREFERENCE)
+        if (contact_preference is None):
+            return False
+
+        if contact_preference != "R":
+            return getattr(self, self.FN_CONTACT_BY_EMAIL) is not None
 
         return True
 
