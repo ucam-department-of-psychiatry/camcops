@@ -98,6 +98,7 @@ server/camcops_server
     alembic/versions/0065_patient_task_schedule_email.py.rst
     alembic/versions/0066_fix_up_patient_uuids.py.rst
     alembic/versions/0067_cpft_research_preferences.py.rst
+    alembic/versions/0068_cpft_covid_medical.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst
@@ -263,6 +264,7 @@ server/camcops_server
     extra_strings/contactlog.xml.rst
     extra_strings/cope.xml.rst
     extra_strings/core10.xml.rst
+    extra_strings/cpft_covid_medical.xml.rst
     extra_strings/cpft_lps_discharge.xml.rst
     extra_strings/cpft_lps_referral.xml.rst
     extra_strings/cpft_lps_resetresponseclock.xml.rst
@@ -350,6 +352,7 @@ server/camcops_server
     tasks/contactlog.py.rst
     tasks/cope.py.rst
     tasks/core10.py.rst
+    tasks/cpft_covid_medical.py.rst
     tasks/cpft_lps.py.rst
     tasks/cpft_research_preferences.py.rst
     tasks/ctqsf.py.rst
@@ -430,6 +433,7 @@ server/camcops_server
     tasks/tests/apeq_cpft_perinatal_tests.py.rst
     tasks/tests/basdai_tests.py.rst
     tasks/tests/core10_tests.py.rst
+    tasks/tests/cpft_covid_medical_tests.py.rst
     tasks/tests/cpft_research_preferences_tests.py.rst
     tasks/tests/maas_tests.py.rst
     tasks/tests/perinatalpoem_tests.py.rst
