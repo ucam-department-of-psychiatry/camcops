@@ -23,6 +23,8 @@
 #include "menulib/menuitem.h"
 
 #include "tasks/cpftresearchpreferences.h"
+#include "tasks/cpftcovidmedical.h"
+
 SetMenuCpftCovid::SetMenuCpftCovid(CamcopsApp& app) :
     MenuWindow(app, uifunc::iconFilename(uiconst::ICON_SETS_CLINICAL))
 {
@@ -46,6 +48,7 @@ void SetMenuCpftCovid::makeItems()
 {
     m_items = {
         MAKE_CHANGE_PATIENT(m_app),
-        MAKE_TASK_MENU_ITEM(CPFTResearchPreferences::CPFTRESEARCHPREFERENCES_TABLENAME, m_app)
+        MAKE_TASK_MENU_ITEM(CPFTResearchPreferences::CPFTRESEARCHPREFERENCES_TABLENAME, m_app),
+        MAKE_TASK_MENU_ITEM(CPFTCovidMedical::CPFTCOVIDMEDICAL_TABLENAME, m_app)
     };
 }
