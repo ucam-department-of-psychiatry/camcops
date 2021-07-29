@@ -677,6 +677,7 @@ SOURCES += \
     menu/researchsetsmenu.cpp \
     menu/serviceevaluationmenu.cpp \
     menu/setmenucpftadrd.cpp \
+    menu/setmenucpftcovid.cpp \
     menu/setmenucpftperinatal.cpp \
     menu/setmenucpftpsychooncology.cpp \
     menu/setmenudeakin.cpp \
@@ -1150,6 +1151,7 @@ HEADERS += \
     menu/researchsetsmenu.h \
     menu/serviceevaluationmenu.h \
     menu/setmenucpftadrd.h \
+    menu/setmenucpftcovid.h \
     menu/setmenucpftperinatal.h \
     menu/setmenucpftpsychooncology.h \
     menu/setmenudeakin.h \
