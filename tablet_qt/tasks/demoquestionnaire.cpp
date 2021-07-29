@@ -661,6 +661,8 @@ OpenableWidget* DemoQuestionnaire::editor(const bool read_only)
         new QuHeading(tr("Popup picker:")),
         (new QuPickerPopup(fieldRef("picker2"), options_A))
                                 ->setPopupTitle(tr("Pickers; question 5")),
+        new QuHeading(tr("Its clone, randomized:")),
+        (new QuPickerPopup(fieldRef("picker2"), options_A))->setRandomize(true)
     })->setTitle(tr("Pickers")));
 
     // ------------------------------------------------------------------------
