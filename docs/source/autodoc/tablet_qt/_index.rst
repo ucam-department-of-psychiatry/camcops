@@ -31,6 +31,7 @@ tablet_qt
 
     android/AndroidManifest.xml.rst
     android/res/values/libs.xml.rst
+    android/src/org/camcops/camcops/CamcopsActivity.java.rst
     camcops.pro.rst
     camcops_windows_innosetup.iss.rst
     common/aliases_camcops.h.rst
@@ -328,6 +329,8 @@ tablet_qt
     menu/serviceevaluationmenu.h.rst
     menu/setmenucpftadrd.cpp.rst
     menu/setmenucpftadrd.h.rst
+    menu/setmenucpftcovid.cpp.rst
+    menu/setmenucpftcovid.h.rst
     menu/setmenucpftperinatal.cpp.rst
     menu/setmenucpftperinatal.h.rst
     menu/setmenucpftpsychooncology.cpp.rst
@@ -428,6 +431,8 @@ tablet_qt
     qobjects/stylenofocusrect.h.rst
     qobjects/threadworker.cpp.rst
     qobjects/threadworker.h.rst
+    qobjects/urlhandler.cpp.rst
+    qobjects/urlhandler.h.rst
     qobjects/urlvalidator.cpp.rst
     qobjects/urlvalidator.h.rst
     questionnairelib/commonoptions.cpp.rst
@@ -656,6 +661,8 @@ tablet_qt
     tasks/cpftlpsreferral.h.rst
     tasks/cpftlpsresetresponseclock.cpp.rst
     tasks/cpftlpsresetresponseclock.h.rst
+    tasks/cpftresearchpreferences.cpp.rst
+    tasks/cpftresearchpreferences.h.rst
     tasks/ctqsf.cpp.rst
     tasks/ctqsf.h.rst
     tasks/dad.cpp.rst
