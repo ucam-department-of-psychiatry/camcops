@@ -830,6 +830,7 @@ SOURCES += \
     tasks/contactlog.cpp \
     tasks/copebrief.cpp \
     tasks/core10.cpp \
+    tasks/cpftcovidmedical.cpp \
     tasks/cpftlpsdischarge.cpp \
     tasks/cpftlpsreferral.cpp \
     tasks/cpftlpsresetresponseclock.cpp \
@@ -1303,6 +1304,7 @@ HEADERS += \
     tasks/contactlog.h \
     tasks/copebrief.h \
     tasks/core10.h \
+    tasks/cpftcovidmedical.h \
     tasks/cpftlpsdischarge.h \
     tasks/cpftlpsreferral.h \
     tasks/cpftlpsresetresponseclock.h \
