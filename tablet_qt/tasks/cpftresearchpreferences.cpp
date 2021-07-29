@@ -127,7 +127,7 @@ QStringList CPFTResearchPreferences::summary() const
     lines.append(fmt.arg(xstring(Q_XML_PREFIX + FN_CONTACT_PREFERENCE + "_short"),
                          xstring(valueQChar(FN_CONTACT_PREFERENCE), "?")));
     lines.append(fmt.arg(xstring(Q_XML_PREFIX + FN_CONTACT_BY_EMAIL + "_short"),
-                         uifunc::yesNo(valueBool(FN_CONTACT_BY_EMAIL))));
+                         uifunc::yesNoNull(value(FN_CONTACT_BY_EMAIL))));
     lines.append(fmt.arg(xstring(Q_XML_PREFIX + FN_RESEARCH_OPT_OUT + "_short"),
                          uifunc::yesNo(valueBool(FN_RESEARCH_OPT_OUT))));
 
