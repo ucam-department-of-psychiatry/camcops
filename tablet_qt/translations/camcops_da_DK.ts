@@ -343,6 +343,15 @@
     </message>
 </context>
 <context>
+    <name>CPFTCovidMedical</name>
+    <message>
+        <location filename="../tasks/cpftcovidmedical.cpp" line="+80"/>
+        <location line="+6"/>
+        <source>CPFT Post-Covid Clinic Medical Questionnaire</source>
+        <translation>CPFT Post-Covid Clinic Medical Spørgeskema</translation>
+    </message>
+</context>
+<context>
     <name>CPFTLPSDischarge</name>
     <message>
         <location filename="../tasks/cpftlpsdischarge.cpp" line="+228"/>
@@ -5265,7 +5274,7 @@ enig</translation>
 <context>
     <name>SetMenuCpftCovid</name>
     <message>
-        <location filename="../menu/setmenucpftcovid.cpp" line="+34"/>
+        <location filename="../menu/setmenucpftcovid.cpp" line="+36"/>
         <source>CPFT Post-Covid Clinic</source>
         <translation>CPFT Post-Covid Clinic</translation>
     </message>

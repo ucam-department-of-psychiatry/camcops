@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CamCOPS 2.3.3\n"
 "Report-Msgid-Bugs-To: rudolf@pobox.com\n"
-"POT-Creation-Date: 2021-07-29 13:15+0100\n"
-"PO-Revision-Date: 2021-07-29 13:29+0100\n"
+"POT-Creation-Date: 2021-07-29 23:42+0100\n"
+"PO-Revision-Date: 2021-07-30 22:54+0100\n"
 "Last-Translator: \n"
 "Language: da_DK\n"
 "Language-Team: da_DK <LL@li.org>\n"
@@ -1790,6 +1790,10 @@ msgstr "CORE-10 — gennemsnitlig score"
 #: /home/martinb/workspace/camcops/server/camcops_server/tasks/core10.py:295
 msgid "CORE-10 clinical score"
 msgstr "CORE-10 klinisk score"
+
+#: /home/martinb/workspace/camcops/server/camcops_server/tasks/cpft_covid_medical.py:87
+msgid "CPFT Post-Covid Clinic Medical Questionnaire"
+msgstr "CPFT Post-Covid Clinic Medical Spørgeskema"
 
 #: /home/martinb/workspace/camcops/server/camcops_server/tasks/cpft_lps.py:157
 msgid "CPFT LPS – referral"
