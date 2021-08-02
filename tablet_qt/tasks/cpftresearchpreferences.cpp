@@ -52,6 +52,7 @@ const QString FN_RESEARCH_OPT_OUT("research_opt_out");
 
 const QString Q_XML_PREFIX = "q_";
 
+
 void initializeCPFTResearchPreferences(TaskFactory& factory)
 {
     static TaskRegistrar<CPFTResearchPreferences> registered(factory);
@@ -94,7 +95,7 @@ QString CPFTResearchPreferences::longname() const
 
 QString CPFTResearchPreferences::description() const
 {
-    return tr("CPFT Patients' preferences for being contacted about research");
+    return tr("CPFT patients' preferences for being contacted about research");
 }
 
 
@@ -160,7 +161,6 @@ OpenableWidget* CPFTResearchPreferences::editor(const bool read_only)
     contact_options.append(NameValuePair(xstring(Q_XML_PREFIX + FN_CONTACT_PREFERENCE + "_option_R"), "R"));
     contact_options.append(NameValuePair(xstring(Q_XML_PREFIX + FN_CONTACT_PREFERENCE + "_option_Y"), "Y"));
     contact_options.append(NameValuePair(xstring(Q_XML_PREFIX + FN_CONTACT_PREFERENCE + "_option_G"), "G"));
-
 
     QStringList contact_styles = {"color:white; background-color:red;",
                                   "color:black; background-color:yellow;",

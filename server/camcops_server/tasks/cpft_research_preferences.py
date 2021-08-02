@@ -77,8 +77,8 @@ class CpftResearchPreferencesMetaclass(DeclarativeMeta):
 
 
 class CpftResearchPreferences(
-    TaskHasPatientMixin, Task, metaclass=CpftResearchPreferencesMetaclass
-):
+        TaskHasPatientMixin, Task,
+        metaclass=CpftResearchPreferencesMetaclass):
     """
     Server implementation of the CPFT_Research_Preferences task
     """
@@ -106,7 +106,7 @@ class CpftResearchPreferences(
             return False
 
         contact_preference = getattr(self, self.FN_CONTACT_PREFERENCE)
-        if (contact_preference is None):
+        if contact_preference is None:
             return False
 
         if contact_preference != "R":
