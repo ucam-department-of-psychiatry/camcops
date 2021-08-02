@@ -156,7 +156,7 @@ int QuMcqGridSingleBoolean::spacercol(const bool first) const
 void QuMcqGridSingleBoolean::addOptions(GridLayout* grid, const int row)
 {
     for (int i = 0; i < m_mcq_options.size(); ++i) {
-        mcqfunc::addOption(grid, row, mcqColnum(i), m_mcq_options.atIndex(i).name());
+        mcqfunc::addOption(grid, row, mcqColnum(i), m_mcq_options.atPosition(i).name());
     }
     mcqfunc::addOption(grid, row, booleanColnum(), m_boolean_text);
 }

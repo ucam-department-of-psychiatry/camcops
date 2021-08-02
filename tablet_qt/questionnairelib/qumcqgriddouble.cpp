@@ -155,7 +155,7 @@ void QuMcqGridDouble::addOptions(GridLayout* grid, const int row)
         const NameValueOptions& opts = first_field ? m_options1 : m_options2;
         for (int i = 0; i < opts.size(); ++i) {
             mcqfunc::addOption(grid, row, colnum(first_field, i),
-                                   opts.atIndex(i).name());
+                                   opts.atPosition(i).name());
         }
     }
 }
