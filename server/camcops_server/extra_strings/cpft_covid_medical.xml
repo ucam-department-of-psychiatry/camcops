@@ -3,7 +3,7 @@
   <task name="cpft_covid_medical">
     <!-- CPFT Post-Covid Clinic Medical Questionnaire -->
 
-    <string name="title">CPFT Post-Covid Clinic Medical Questionnaire</string>
+    <string name="title">CPFT Post-COVID-19 Clinic Medical Questionnaire</string>
     <string name="q_how_and_when_symptoms">How and when did your symptoms start?</string>
     <string name="how_and_when_symptoms_option0">They were present before I caught COVID-19</string>
     <string name="how_and_when_symptoms_option1">They started within 6 weeks of catching COVID-19</string>

@@ -23,8 +23,9 @@
 
 CPFT Research Preferences
 -------------------------
-Form for Cambridgeshire & Peterborough NHS Foundation Trust patients to indicate
-their preferences for participating in research.
+
+Form for Cambridgeshire & Peterborough NHS Foundation Trust patients to
+indicate their preferences for participating in research.
 
 
 Intellectual property rights
@@ -38,3 +39,4 @@ Source
 
 - https://www.cpft.nhs.uk/research
 - https://www.cpft.nhs.uk/research-database
+- Text approved by an NHS Research Ethics Committee (12/EE/0407, 17/EE/0442).

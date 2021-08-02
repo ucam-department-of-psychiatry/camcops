@@ -48,6 +48,7 @@ const QString FN_HOW_AND_WHEN_SYMPTOMS("how_and_when_symptoms");
 
 const QString Q_XML_PREFIX = "q_";
 
+
 void initializeCPFTCovidMedical(TaskFactory& factory)
 {
     static TaskRegistrar<CPFTCovidMedical> registered(factory);
@@ -65,6 +66,7 @@ CPFTCovidMedical::CPFTCovidMedical(
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
 
+
 // ============================================================================
 // Class info
 // ============================================================================
@@ -77,13 +79,13 @@ QString CPFTCovidMedical::shortname() const
 
 QString CPFTCovidMedical::longname() const
 {
-    return tr("CPFT Post-Covid Clinic Medical Questionnaire");
+    return tr("CPFT Post-COVID-19 Clinic Medical Questionnaire");
 }
 
 
 QString CPFTCovidMedical::description() const
 {
-    return tr("CPFT Post-Covid Clinic Medical Questionnaire");
+    return tr("CPFT post-COVID-19 clinic medical questionnaire");
 }
 
 
@@ -122,7 +124,8 @@ QString CPFTCovidMedical::getHowAndWhenSymptomsAnswerText() const
     const int answer_int = valueInt(FN_HOW_AND_WHEN_SYMPTOMS);
 
     const QString fmt = QString("%1_option%2");
-    const QString answer_text = xstring(fmt.arg(FN_HOW_AND_WHEN_SYMPTOMS).arg(answer_int));
+    const QString answer_text = xstring(
+                fmt.arg(FN_HOW_AND_WHEN_SYMPTOMS).arg(answer_int));
 
     return answer_text;
 }
@@ -138,7 +141,8 @@ OpenableWidget* CPFTCovidMedical::editor(const bool read_only)
 {
     QuPagePtr page(new QuPage);
     page->setTitle(description());
-    page->addElement((new QuText(xstring(Q_XML_PREFIX + FN_HOW_AND_WHEN_SYMPTOMS)))->setBold(true));
+    page->addElement((new QuText(xstring(
+        Q_XML_PREFIX + FN_HOW_AND_WHEN_SYMPTOMS)))->setBold(true));
     NameValueOptions options;
     for (int i = 0; i < 4; ++i) {
         const QString fmt = QString("%1_option%2");

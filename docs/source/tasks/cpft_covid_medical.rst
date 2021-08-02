@@ -24,8 +24,8 @@
 CPFT Post-Covid Clinic Medical Questionnaire
 --------------------------------------------
 
-Medical Questionnaire for Cambridgeshire & Peterborough NHS Foundation Trust
-Post-Covid Clinic patients.
+Medical questionnaire for Cambridgeshire & Peterborough NHS Foundation Trust
+Post-COVID-19 Clinic patients.
 
 
 Intellectual property rights

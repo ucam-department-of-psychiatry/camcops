@@ -345,10 +345,14 @@
 <context>
     <name>CPFTCovidMedical</name>
     <message>
-        <location filename="../tasks/cpftcovidmedical.cpp" line="+80"/>
+        <location filename="../tasks/cpftcovidmedical.cpp" line="+82"/>
+        <source>CPFT Post-COVID-19 Clinic Medical Questionnaire</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location line="+6"/>
-        <source>CPFT Post-Covid Clinic Medical Questionnaire</source>
-        <translation>CPFT Post-Covid Clinic Medical Spørgeskema</translation>
+        <source>CPFT post-COVID-19 clinic medical questionnaire</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

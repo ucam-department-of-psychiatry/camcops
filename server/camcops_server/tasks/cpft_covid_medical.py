@@ -84,7 +84,7 @@ class CpftCovidMedical(
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
         _ = req.gettext
-        return _("CPFT Post-Covid Clinic Medical Questionnaire")
+        return _("CPFT Post-COVID-19 Clinic Medical Questionnaire")
 
     def is_complete(self) -> bool:
         if not self.field_contents_valid():
