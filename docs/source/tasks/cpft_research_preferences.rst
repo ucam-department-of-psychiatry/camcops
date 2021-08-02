@@ -30,11 +30,11 @@ their preferences for participating in research.
 Intellectual property rights
 ############################
 
-- TODO
+- Copyright © 2012 Rudolf Cardinal
+
+- License: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA
+  4.0); https://creativecommons.org/licenses/by-sa/4.0/
 
 
 Source
 ######
-
-- https://www.cpft.nhs.uk/research
-- https://www.cpft.nhs.uk/research-database
