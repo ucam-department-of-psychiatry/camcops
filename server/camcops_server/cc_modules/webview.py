@@ -4540,6 +4540,13 @@ class SendPatientEmailBaseView(FormView):
 
         super().__init__(*args, **kwargs)
 
+    def dispatch(self) -> Response:
+        if not self.request.user.authorized_to_email_patients:
+            _ = self.request.gettext
+            raise HTTPBadRequest(_("Not authorized to email patients"))
+
+        return super().dispatch()
+
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         kwargs["pts"] = self._get_patient_task_schedule()
 
@@ -4657,7 +4664,6 @@ class SendEmailFromPatientTaskScheduleView(SendPatientEmailBaseView):
 
 
 @view_config(route_name=Routes.SEND_EMAIL_FROM_PATIENT_TASK_SCHEDULE,
-             permission=Permission.GROUPADMIN,
              http_cache=NEVER_CACHE)
 def send_email_from_patient_task_schedule(req: "CamcopsRequest") -> Response:
     """

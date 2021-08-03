@@ -2434,6 +2434,34 @@ class SendEmailFromPatientTaskScheduleViewTests(BasicDatabaseTestCase):
         self.assertEqual(len(self.pts.emails), 1)
         self.assertEqual(self.pts.emails[0].email.to, "patient@example.com")
 
+    def test_unprivileged_user_cannot_email_patient(self) -> None:
+        user = self.create_user(username="testuser")
+        self.dbsession.flush()
+
+        self.req._debugging_user = user
+
+        multidict = MultiDict([
+            (ViewParam.EMAIL, "patient@example.com"),
+            (ViewParam.EMAIL_FROM, "server@example.com"),
+            (ViewParam.EMAIL_SUBJECT, "Subject"),
+            (ViewParam.EMAIL_BODY, "Email body"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+        self.req.add_get_params({
+            ViewParam.PATIENT_TASK_SCHEDULE_ID: str(self.pts.id)
+        }, set_method_get=False)
+
+        with self.assertRaises(HTTPBadRequest) as cm:
+            view = SendEmailFromPatientTaskScheduleView(self.req)
+            view.dispatch()
+
+        self.assertEqual(
+            cm.exception.message,
+            "Not authorized to email patients"
+        )
+
 
 class EditUserGroupMembershipViewTests(BasicDatabaseTestCase):
     def setUp(self) -> None:
