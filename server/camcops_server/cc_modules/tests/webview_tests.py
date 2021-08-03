@@ -2445,14 +2445,66 @@ class EditUserGroupMembershipViewTests(BasicDatabaseTestCase):
         self.dbsession.add(self.regular_user)
         self.dbsession.flush()
 
+        self.group_admin = User()
+        self.group_admin.username = "gadmin"
+        self.group_admin.hashedpw = ""
+        self.dbsession.add(self.group_admin)
+        self.dbsession.flush()
+
+        admin_ugm = UserGroupMembership(user_id=self.group_admin.id,
+                                        group_id=self.group.id)
+        admin_ugm.groupadmin = True
+        self.dbsession.add(admin_ugm)
+
         self.ugm = UserGroupMembership(user_id=self.regular_user.id,
                                        group_id=self.group.id)
         self.dbsession.add(self.ugm)
         self.dbsession.commit()
 
-    # TODO: Test GET for super user / group admin
-    # TODO: Test POST for super user / group admin
-    def test_user_group_membership_updated(self) -> None:
+    def test_superuser_can_update_user_group_membership(self) -> None:
+        self.assertFalse(self.ugm.may_upload)
+        self.assertFalse(self.ugm.may_register_devices)
+        self.assertFalse(self.ugm.may_use_webviewer)
+        self.assertFalse(self.ugm.view_all_patients_when_unfiltered)
+        self.assertFalse(self.ugm.may_dump_data)
+        self.assertFalse(self.ugm.may_run_reports)
+        self.assertFalse(self.ugm.may_add_notes)
+        self.assertFalse(self.ugm.may_manage_patients)
+        self.assertFalse(self.ugm.groupadmin)
+
+        multidict = MultiDict([
+            (ViewParam.MAY_UPLOAD, "true"),
+            (ViewParam.MAY_REGISTER_DEVICES, "true"),
+            (ViewParam.MAY_USE_WEBVIEWER, "true"),
+            (ViewParam.VIEW_ALL_PATIENTS_WHEN_UNFILTERED, "true"),
+            (ViewParam.MAY_DUMP_DATA, "true"),
+            (ViewParam.MAY_RUN_REPORTS, "true"),
+            (ViewParam.MAY_ADD_NOTES, "true"),
+            (ViewParam.MAY_MANAGE_PATIENTS, "true"),
+            (ViewParam.GROUPADMIN, "true"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+        self.req.add_get_params({
+            ViewParam.USER_GROUP_MEMBERSHIP_ID: str(self.ugm.id)
+        }, set_method_get=False)
+
+        with self.assertRaises(HTTPFound):
+            edit_user_group_membership(self.req)
+
+        self.assertTrue(self.ugm.may_upload)
+        self.assertTrue(self.ugm.may_register_devices)
+        self.assertTrue(self.ugm.may_use_webviewer)
+        self.assertTrue(self.ugm.view_all_patients_when_unfiltered)
+        self.assertTrue(self.ugm.may_dump_data)
+        self.assertTrue(self.ugm.may_run_reports)
+        self.assertTrue(self.ugm.may_add_notes)
+        self.assertTrue(self.ugm.may_manage_patients)
+
+    def test_groupadmin_can_update_user_group_membership(self) -> None:
+        self.req._debugging_user = self.group_admin
+
         self.assertFalse(self.ugm.may_upload)
         self.assertFalse(self.ugm.may_register_devices)
         self.assertFalse(self.ugm.may_use_webviewer)
