@@ -4031,4 +4031,3 @@ msgstr ""
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/tasks/diagnosis_finder_report.mako:40
 msgid "Results:"
 msgstr ""
-

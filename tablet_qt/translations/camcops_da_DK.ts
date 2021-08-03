@@ -397,14 +397,14 @@
 <context>
     <name>CPFTResearchPreferences</name>
     <message>
-        <location filename="../tasks/cpftresearchpreferences.cpp" line="+91"/>
+        <location filename="../tasks/cpftresearchpreferences.cpp" line="+92"/>
         <source>CPFT Research Preferences</source>
         <translation>CPFT-forskningspræferencer</translation>
     </message>
     <message>
         <location line="+6"/>
-        <source>CPFT Patients&apos; preferences for being contacted about research</source>
-        <translation>CPFT-patienters præferencer for at blive kontaktet vedrørende forskning</translation>
+        <source>CPFT patients&apos; preferences for being contacted about research</source>
+        <translation>CPFT patienternes præferencer for at blive kontaktet om forskning</translation>
     </message>
 </context>
 <context>
@@ -5278,14 +5278,14 @@ enig</translation>
 <context>
     <name>SetMenuCpftCovid</name>
     <message>
-        <location filename="../menu/setmenucpftcovid.cpp" line="+36"/>
-        <source>CPFT Post-Covid Clinic</source>
-        <translation>CPFT Post-Covid Clinic</translation>
+        <location filename="../menu/setmenucpftcovid.cpp" line="+34"/>
+        <source>CPFT Post-COVID-19 Clinic</source>
+        <translation>CPFT Post-COVID-19 Klinik</translation>
     </message>
     <message>
         <location line="+6"/>
-        <source>Cambridgeshire and Peterborough NHS Foundation Trust, UK — Post-Covid Clinic</source>
-        <translation>Cambridgeshire og Peterborough NHS Foundation Trust, UK - Post-Covid Clinic</translation>
+        <source>Cambridgeshire and Peterborough NHS Foundation Trust, UK — post-COVID-19 clinic</source>
+        <translation>Cambridgeshire og Peterborough NHS Foundation Trust, Storbritannien – klinik efter COVID-19</translation>
     </message>
 </context>
 <context>

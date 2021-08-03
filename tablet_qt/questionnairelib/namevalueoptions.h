@@ -80,10 +80,10 @@ public:
     // How many name/value pairs do we have?
     int size() const;
 
-    // Return the name/value pair at the given (zero-based) index.
-    const NameValuePair& atIndex(int index) const;
-
     // Return the name/value pair at the given (zero-based) position.
+    // (The item returned is affected by shuffle() and reverse(); compare
+    // atIndex(). Use this, with an incrementing position, when seeking items
+    // to display.)
     const NameValuePair& atPosition(int position) const;
 
     // Return the first index associated with the specified name, or -1 on
@@ -94,10 +94,12 @@ public:
     int indexFromValue(const QVariant& value) const;
 
     // Return the index of the item at the given position. This will only be
-    // different if the options (i.e. the option indexes) have been randomized.
+    // different from its input if the options (i.e. the option indexes) have
+    // been randomized.
     int indexFromPosition(const int position) const;
 
-    // Return the position of the option with the specified value or -1 on failure.
+    // Return the position of the option with the specified value or -1 on
+    // failure.
     int positionFromValue(const QVariant& value) const;
 
     // Check there are no duplicate values, or crash the app.
@@ -135,6 +137,12 @@ public:
     // one.
     QVariant valueFromName(const QString& name,
                            const QVariant& default_ = QVariant()) const;
+
+protected:
+    // Return the name/value pair at the given (zero-based) index.
+    // (That is: index within the UNCHANGING INTERNAL ORDERING, which is
+    // unaffected by shuffle() or reverse().)
+    const NameValuePair& atIndex(int index) const;
 
 public:
 

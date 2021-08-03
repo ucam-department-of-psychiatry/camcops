@@ -33,14 +33,14 @@ SetMenuCpftCovid::SetMenuCpftCovid(CamcopsApp& app) :
 
 QString SetMenuCpftCovid::title() const
 {
-    return tr("CPFT Post-Covid Clinic");
+    return tr("CPFT Post-COVID-19 Clinic");
 }
 
 
 QString SetMenuCpftCovid::subtitle() const
 {
     return tr("Cambridgeshire and Peterborough NHS Foundation Trust, UK — "
-              "Post-Covid Clinic");
+              "post-COVID-19 clinic");
 }
 
 
