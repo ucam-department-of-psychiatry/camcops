@@ -23,6 +23,7 @@
 #include "menulib/menuitem.h"
 
 #include "menu/setmenucpftadrd.h"
+#include "menu/setmenucpftcovid.h"
 #include "menu/setmenucpftperinatal.h"
 #include "menu/setmenucpftpsychooncology.h"
 #include "menu/setmenufromlp.h"
@@ -48,6 +49,7 @@ void ClinicalSetsMenu::makeItems()
     m_items = {
         MAKE_CHANGE_PATIENT(m_app),
         MAKE_MENU_MENU_ITEM(SetMenuCpftADRD, m_app),
+        MAKE_MENU_MENU_ITEM(SetMenuCpftCovid, m_app),
         MAKE_MENU_MENU_ITEM(SetMenuCpftPerinatal, m_app),
         MAKE_MENU_MENU_ITEM(SetMenuCpftPsychooncology, m_app),
         MAKE_MENU_MENU_ITEM(SetMenuFromLp, m_app),

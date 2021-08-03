@@ -150,7 +150,7 @@ int QuMcqGrid::colnum(const int value_index) const
 void QuMcqGrid::addOptions(GridLayout* grid, const int row)
 {
     for (int i = 0; i < m_options.size(); ++i) {
-        mcqfunc::addOption(grid, row, colnum(i), m_options.at(i).name());
+        mcqfunc::addOption(grid, row, colnum(i), m_options.atPosition(i).name());
     }
 }
 
@@ -291,7 +291,7 @@ void QuMcqGrid::clicked(const int question_index,
             m_alternate_options.contains(question_index)
             ? m_alternate_options[question_index]
             : m_options;
-    const QVariant newvalue = options.value(value_index);
+    const QVariant newvalue = options.valueFromIndex(value_index);
     FieldRefPtr fieldref = m_question_field_pairs.at(question_index).fieldref();
     fieldref->setValue(newvalue);  // Will trigger valueChanged
     emit elementValueChanged();

@@ -80,8 +80,11 @@ public:
     // How many name/value pairs do we have?
     int size() const;
 
-    // Return the name/value pair at the given (zero-based) index.
-    const NameValuePair& at(int index) const;
+    // Return the name/value pair at the given (zero-based) position.
+    // (The item returned is affected by shuffle() and reverse(); compare
+    // atIndex(). Use this, with an incrementing position, when seeking items
+    // to display.)
+    const NameValuePair& atPosition(int position) const;
 
     // Return the first index associated with the specified name, or -1 on
     // failure.
@@ -89,6 +92,15 @@ public:
 
     // Return the index associated with the specified value, or -1 on failure.
     int indexFromValue(const QVariant& value) const;
+
+    // Return the index of the item at the given position. This will only be
+    // different from its input if the options (i.e. the option indexes) have
+    // been randomized.
+    int indexFromPosition(const int position) const;
+
+    // Return the position of the option with the specified value or -1 on
+    // failure.
+    int positionFromValue(const QVariant& value) const;
 
     // Check there are no duplicate values, or crash the app.
     void validateOrDie();
@@ -103,11 +115,18 @@ public:
     void reverse();
 
     // Returns the name for a given index, or "" if the index is invalid.
-    QString name(int index) const;
+    QString nameFromIndex(int index) const;
 
     // Returns the name for a given index, or QVariant() if the index is
     // invalid.
-    QVariant value(int index) const;
+    QVariant valueFromIndex(int index) const;
+
+    // Returns the name for a given position, or "" if the position is invalid.
+    QString nameFromPosition(int position) const;
+
+    // Returns the name for a given position, or QVariant() if the position is
+    // invalid.
+    QVariant valueFromPosition(int position) const;
 
     // Returns the name for a given value, or a default string if there isn't
     // one.
@@ -119,6 +138,12 @@ public:
     QVariant valueFromName(const QString& name,
                            const QVariant& default_ = QVariant()) const;
 
+protected:
+    // Return the name/value pair at the given (zero-based) index.
+    // (That is: index within the UNCHANGING INTERNAL ORDERING, which is
+    // unaffected by shuffle() or reverse().)
+    const NameValuePair& atIndex(int index) const;
+
 public:
 
     // Returns a NameValueOptions like {{"1", 1}, {"2", 2}, {"3", 3}...}
@@ -128,6 +153,14 @@ public:
 protected:
     // Stores the options.
     QVector<NameValuePair> m_options;
+
+    // Stores the options' indexes.
+    // When the options are randomized, this is what we shuffle so we can
+    // say "give me the index of the option at position x". This allows us
+    // to maintain other vectors separately from namevalueoptions, for example
+    // the list of styles associated with multi-choice answers. If the answers
+    // are randomized, we still want to style the answers correctly.
+    QVector<int> m_indexes;
 
 public:
     // Debugging description.

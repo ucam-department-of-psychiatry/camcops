@@ -55,6 +55,7 @@
 #include "tasks/cpftlpsdischarge.h"
 #include "tasks/cpftlpsreferral.h"
 #include "tasks/cpftlpsresetresponseclock.h"
+#include "tasks/cpftresearchpreferences.h"
 #include "tasks/ctqsf.h"
 
 #include "tasks/dad.h"
@@ -208,6 +209,7 @@ void InitTasks(TaskFactory& factory)
     initializeCPFTLPSDischarge(factory);
     initializeCPFTLPSReferral(factory);
     initializeCPFTLPSResetResponseClock(factory);
+    initializeCPFTResearchPreferences(factory);
     // *** // initializeCtqsf(factory);
 
     initializeDad(factory);

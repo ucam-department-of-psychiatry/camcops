@@ -178,8 +178,8 @@ void setResponseWidgets(const NameValueOptions& options,
     }
     const QVariant value = fieldref->value();
     const bool null = value.isNull();
-    const int index = options.indexFromValue(value);
-    if (!null && index == -1) {
+    const int position = options.positionFromValue(value);
+    if (!null && position == -1) {
         qWarning().nospace()
                 << Q_FUNC_INFO << " - unknown value " << value
                 << " (options are " << options << ")";
@@ -191,9 +191,9 @@ void setResponseWidgets(const NameValueOptions& options,
             qCritical() << Q_FUNC_INFO << "- defunct pointer!";
             continue;
         }
-        if (vi == index) {
+        if (vi == position) {
             w->setState(BooleanWidget::State::True);
-        } else if (index == -1) {  // null but not selected
+        } else if (position == -1) {  // null but not selected
             w->setState(fieldref->mandatory()
                         ? BooleanWidget::State::NullRequired
                         : BooleanWidget::State::Null);

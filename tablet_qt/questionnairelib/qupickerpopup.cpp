@@ -114,7 +114,7 @@ void QuPickerPopup::fieldValueChanged(const FieldRef* fieldref)
     const int index = m_options.indexFromValue(fieldref->value());
     const bool missing = fieldref->missingInput();
     uifunc::setPropertyMissing(m_label, missing);
-    const QString text = m_options.name(index);
+    const QString text = m_options.nameFromIndex(index);
     m_label->setText(text);
 }
 
