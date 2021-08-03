@@ -121,6 +121,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 </table>
 </div>
 
+%if req.user.authorized_to_email_patients:
 <div>
 <h2>${ _("Emails") }</h2>
 
@@ -168,6 +169,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
                      ViewParam.PATIENT_TASK_SCHEDULE_ID: pts.id
                  }) | n }">${ _("Email this patient") }</a>
 </div>
+%endif
 %endif
 </div>
 
