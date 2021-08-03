@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-camcops_server/alembic/versions/0066_manage_patient_permissions.py
+camcops_server/alembic/versions/0069_manage_patient_permissions.py
 
 ===============================================================================
 
@@ -28,8 +28,8 @@ DATABASE REVISION SCRIPT
 
 manage_patient_permission
 
-Revision ID: 0066
-Revises: 0065
+Revision ID: 0069
+Revises: 0068
 Creation date: 2021-07-06 10:42:08.062255
 
 """
