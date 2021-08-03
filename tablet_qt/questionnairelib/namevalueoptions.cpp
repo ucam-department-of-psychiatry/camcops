@@ -33,11 +33,15 @@ NameValueOptions::NameValueOptions(
         std::initializer_list<NameValuePair> options) :
     m_options(options)
 {
+    for (int i = 0; i < m_options.size(); ++i) {
+        m_indexes.append(i);
+    }
 }
 
 
 void NameValueOptions::append(const NameValuePair& nvp)
 {
+    m_indexes.append(m_options.size());
     m_options.append(nvp);
 }
 
@@ -48,7 +52,7 @@ void NameValueOptions::replace(const NameValuePair& nvp,
     const int n = m_options.size();
     const QVariant v = nvp.value();
     for (int i = 0; i < n; ++i) {
-        if (m_options.at(i).value() == v) {
+        if (atIndex(i).value() == v) {
             m_options[i] = nvp;
             return;
         }
@@ -65,9 +69,15 @@ int NameValueOptions::size() const
 }
 
 
-const NameValuePair& NameValueOptions::at(const int index) const
+const NameValuePair& NameValueOptions::atIndex(const int index) const
 {
     return m_options.at(index);
+}
+
+
+const NameValuePair& NameValueOptions::atPosition(const int position) const
+{
+    return atIndex(m_indexes.at(position));
 }
 
 
@@ -75,7 +85,7 @@ int NameValueOptions::indexFromName(const QString& name) const
 {
     const int n = m_options.size();
     for (int i = 0; i < n; ++i) {
-        if (m_options.at(i).name() == name) {
+        if (atIndex(i).name() == name) {
             return i;
         }
     }
@@ -90,8 +100,29 @@ int NameValueOptions::indexFromValue(const QVariant& value) const
     }
     const int n = m_options.size();
     for (int i = 0; i < n; ++i) {
-        if (m_options.at(i).value() == value) {
+        if (atIndex(i).value() == value) {
             return i;
+        }
+    }
+    return -1;
+}
+
+
+int NameValueOptions::indexFromPosition(const int position) const
+{
+    return m_indexes.at(position);
+}
+
+
+int NameValueOptions::positionFromValue(const QVariant& value) const
+{
+    if (value.isNull()) {
+        return -1;
+    }
+    const int n = m_indexes.size();
+    for (int position = 0; position < n; ++position) {
+        if (atPosition(position).value() == value) {
+            return position;
         }
     }
     return -1;
@@ -123,31 +154,49 @@ bool NameValueOptions::validIndex(const int index) const
 
 void NameValueOptions::shuffle()
 {
-    ccrandom::shuffle(m_options);
+    ccrandom::shuffle(m_indexes);
 }
 
 
 void NameValueOptions::reverse()
 {
-    std::reverse(m_options.begin(), m_options.end());
+    std::reverse(m_indexes.begin(), m_indexes.end());
 }
 
 
-QString NameValueOptions::name(const int index) const
+QString NameValueOptions::nameFromIndex(const int index) const
 {
     if (!validIndex(index)) {
         return "";
     }
-    return m_options.at(index).name();
+    return atIndex(index).name();
 }
 
 
-QVariant NameValueOptions::value(const int index) const
+QVariant NameValueOptions::valueFromIndex(const int index) const
 {
     if (!validIndex(index)) {
         return QVariant();
     }
-    return m_options.at(index).value();
+    return atIndex(index).value();
+}
+
+
+QString NameValueOptions::nameFromPosition(const int position) const
+{
+    if (!validIndex(position)) {
+        return "";
+    }
+    return atPosition(position).name();
+}
+
+
+QVariant NameValueOptions::valueFromPosition(const int position) const
+{
+    if (!validIndex(position)) {
+        return QVariant();
+    }
+    return atPosition(position).value();
 }
 
 
@@ -178,7 +227,7 @@ QString NameValueOptions::nameFromValue(const QVariant& value,
     if (idx == -1) {
         return default_;
     }
-    return name(idx);
+    return nameFromIndex(idx);
 }
 
 
@@ -189,7 +238,7 @@ QVariant NameValueOptions::valueFromName(const QString& name,
     if (idx == -1) {
         return default_;
     }
-    return value(idx);
+    return valueFromIndex(idx);
 }
 
 

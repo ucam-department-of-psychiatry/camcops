@@ -156,7 +156,7 @@ int QuMcqGridSingleBoolean::spacercol(const bool first) const
 void QuMcqGridSingleBoolean::addOptions(GridLayout* grid, const int row)
 {
     for (int i = 0; i < m_mcq_options.size(); ++i) {
-        mcqfunc::addOption(grid, row, mcqColnum(i), m_mcq_options.at(i).name());
+        mcqfunc::addOption(grid, row, mcqColnum(i), m_mcq_options.atPosition(i).name());
     }
     mcqfunc::addOption(grid, row, booleanColnum(), m_boolean_text);
 }
@@ -295,7 +295,7 @@ void QuMcqGridSingleBoolean::mcqClicked(const int question_index,
         qWarning() << Q_FUNC_INFO << "- out of range";
         return;
     }
-    const QVariant newvalue = m_mcq_options.value(value_index);
+    const QVariant newvalue = m_mcq_options.valueFromIndex(value_index);
     FieldRefPtr fieldref = m_questions_with_fields.at(question_index)
             .firstFieldRef();
     const bool changed = fieldref->setValue(newvalue);  // Will trigger valueChanged

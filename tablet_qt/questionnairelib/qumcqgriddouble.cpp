@@ -155,7 +155,7 @@ void QuMcqGridDouble::addOptions(GridLayout* grid, const int row)
         const NameValueOptions& opts = first_field ? m_options1 : m_options2;
         for (int i = 0; i < opts.size(); ++i) {
             mcqfunc::addOption(grid, row, colnum(first_field, i),
-                                   opts.at(i).name());
+                                   opts.atPosition(i).name());
         }
     }
 }
@@ -321,7 +321,7 @@ void QuMcqGridDouble::clicked(const int question_index, const bool first_field,
         qWarning() << Q_FUNC_INFO << "- out of range";
         return;
     }
-    const QVariant newvalue = opts.value(value_index);
+    const QVariant newvalue = opts.valueFromIndex(value_index);
     FieldRefPtr fieldref = m_questions_with_fields.at(question_index)
             .fieldref(first_field);
     const bool changed = fieldref->setValue(newvalue);  // Will trigger valueChanged

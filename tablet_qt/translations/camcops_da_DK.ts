@@ -343,6 +343,19 @@
     </message>
 </context>
 <context>
+    <name>CPFTCovidMedical</name>
+    <message>
+        <location filename="../tasks/cpftcovidmedical.cpp" line="+82"/>
+        <source>CPFT Post-COVID-19 Clinic Medical Questionnaire</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>CPFT post-COVID-19 clinic medical questionnaire</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>CPFTLPSDischarge</name>
     <message>
         <location filename="../tasks/cpftlpsdischarge.cpp" line="+228"/>
@@ -382,6 +395,19 @@
     </message>
 </context>
 <context>
+    <name>CPFTResearchPreferences</name>
+    <message>
+        <location filename="../tasks/cpftresearchpreferences.cpp" line="+92"/>
+        <source>CPFT Research Preferences</source>
+        <translation>CPFT-forskningspræferencer</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>CPFT patients&apos; preferences for being contacted about research</source>
+        <translation>CPFT patienternes præferencer for at blive kontaktet om forskning</translation>
+    </message>
+</context>
+<context>
     <name>Cage</name>
     <message>
         <location filename="../tasks/cage.cpp" line="+73"/>
@@ -397,12 +423,12 @@
 <context>
     <name>CamcopsApp</name>
     <message>
-        <location filename="../core/camcopsapp.cpp" line="+789"/>
+        <location filename="../core/camcopsapp.cpp" line="+825"/>
         <source>Configuring internal database</source>
         <translation>Konfiguration af intern database</translation>
     </message>
     <message>
-        <location line="+295"/>
+        <location line="+358"/>
         <source>Enter a new password for the CamCOPS application</source>
         <translation>Indtast en ny adgangskode til CamCOPS-applikationen</translation>
     </message>
@@ -467,18 +493,18 @@
         <translation>Ja, upload</translation>
     </message>
     <message>
-        <location line="-1581"/>
-        <location line="+1583"/>
+        <location line="-1657"/>
+        <location line="+1659"/>
         <source>No, cancel</source>
         <translation>Nej, annuller</translation>
     </message>
     <message>
-        <location line="-1768"/>
+        <location line="-1828"/>
         <source>You did not select how you would like to use CamCOPS</source>
         <translation>Du valgte ikke, hvordan du vil bruge CamCOPS</translation>
     </message>
     <message>
-        <location line="+41"/>
+        <location line="+15"/>
         <source>You cannot change mode when there are patient records present</source>
         <translation>Du kan ikke ændre tilstand, når der er patientjournaler til stede</translation>
     </message>
@@ -488,7 +514,7 @@
         <translation>Du kan ikke ændre tilstand, når der stadig er opgaver, der skal overføres</translation>
     </message>
     <message>
-        <location line="+117"/>
+        <location line="+127"/>
         <source>Registering patient...</source>
         <translation>Registrering af patient...</translation>
     </message>
@@ -542,7 +568,7 @@ Angav du den korrekte CamCOPS-serverplacering?</translation>
     </message>
     <message>
         <location line="+14"/>
-        <location line="+139"/>
+        <location line="+143"/>
         <source>Error</source>
         <translation>Fejl</translation>
     </message>
@@ -571,7 +597,7 @@ Are you connected to the internet?</source>
 Har du forbindelse til internettet?</translation>
     </message>
     <message>
-        <location line="+592"/>
+        <location line="+664"/>
         <source>You entered an incorrect password. Try again?</source>
         <translation>Du indtastede en forkert adgangskode. Prøv igen?</translation>
     </message>
@@ -658,7 +684,7 @@ Alle poster, der ikke uploades til serveren, går tabt.</translation>
         <translation>JEG ER IKKE ENIG</translation>
     </message>
     <message>
-        <location line="-2791"/>
+        <location line="-2896"/>
         <source>OK. Goodbye.</source>
         <translation>Okay. Farvel.</translation>
     </message>
@@ -668,7 +694,7 @@ Alle poster, der ikke uploades til serveren, går tabt.</translation>
         <translation>Du nægtede betingelserne.</translation>
     </message>
     <message>
-        <location line="+2833"/>
+        <location line="+2938"/>
         <source>Uploading...</source>
         <translation>Uploader …</translation>
     </message>
@@ -1176,7 +1202,7 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
 <context>
     <name>ClinicalSetsMenu</name>
     <message>
-        <location filename="../menu/clinicalsetsmenu.cpp" line="+42"/>
+        <location filename="../menu/clinicalsetsmenu.cpp" line="+43"/>
         <source>Sets of tasks collected together for clinical purposes</source>
         <translation>Sæt af opgaver samlet sammen til kliniske formål</translation>
     </message>
@@ -1714,6 +1740,21 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
     </message>
     <message>
         <location line="+14"/>
+        <source>%1 (Red)</source>
+        <translation>%1 (rød)</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>%1 (Yellow)</source>
+        <translation>%1 (gul)</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>%1 (Green)</source>
+        <translation>%1 (grøn)</translation>
+    </message>
+    <message>
+        <location line="+9"/>
         <source>Plain MCQ:</source>
         <translation>Almindeligt multiple choice spørgsmål (MCQ):</translation>
     </message>
@@ -1726,6 +1767,11 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
         <location line="+7"/>
         <source>Same MCQ/field, reconfigured:</source>
         <translation>Samme MCQ/felt, omkonfigureret:</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Same MCQ/field, randomized with styles:</source>
+        <translation>Samme MCQ / felt, randomiseret med stilarter:</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -1883,6 +1929,12 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
     </message>
     <message>
         <location line="+2"/>
+        <location line="+5"/>
+        <source>Its clone, randomized:</source>
+        <translation>Dens klon, randomiseret:</translation>
+    </message>
+    <message>
+        <location line="-3"/>
         <source>Popup picker:</source>
         <translation>Popup-plukkere:</translation>
     </message>
@@ -1892,7 +1944,7 @@ Flyt venligst, når det er muligt; dette reducerer mængden af patientidentifice
         <translation>Plukkere; spørgsmål 5</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+3"/>
         <source>Pickers</source>
         <translation>Plukkere</translation>
     </message>
@@ -4787,7 +4839,7 @@ enig</translation>
 <context>
     <name>QuMcq</name>
     <message>
-        <location filename="../questionnairelib/qumcq.cpp" line="+173"/>
+        <location filename="../questionnairelib/qumcq.cpp" line="+185"/>
         <source>Pick one:</source>
         <translation>Vælg en:</translation>
     </message>
@@ -5221,6 +5273,19 @@ enig</translation>
         <location line="+6"/>
         <source>Cambridgeshire and Peterborough NHS Foundation Trust, UK — affective disorders</source>
         <translation>Cambridgeshire and Peterborough NHS Foundation Trust, UK — affektive lidelser</translation>
+    </message>
+</context>
+<context>
+    <name>SetMenuCpftCovid</name>
+    <message>
+        <location filename="../menu/setmenucpftcovid.cpp" line="+34"/>
+        <source>CPFT Post-COVID-19 Clinic</source>
+        <translation>CPFT Post-COVID-19 Klinik</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Cambridgeshire and Peterborough NHS Foundation Trust, UK — post-COVID-19 clinic</source>
+        <translation>Cambridgeshire og Peterborough NHS Foundation Trust, Storbritannien – klinik efter COVID-19</translation>
     </message>
 </context>
 <context>

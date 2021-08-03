@@ -3451,3 +3451,15 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 **Client and server v2.4.9, IN PROGRESS**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Ensure all patients records created before revision 0048 have a UUID. This
+  is mainly for consistency as we only use UUIDs for server-created patients
+  and the ability to add patients on the server was implemented at the same time
+  as 0048.
+  https://github.com/RudolfCardinal/camcops/issues/187
+  (Database revision 0066)
+
+- Fix Debian package Python dependencies. Would fail if Python 3.6 was not installed.
+
+- **New task:** :ref:`CPFT Research Preferences  <cpft_research_preferences>` (Database revision 0067).
+- **New task:** :ref:`CPFT Post-Covid Clinic Medical Questionnaire  <cpft_covid_medical>` (Database revision 0068).

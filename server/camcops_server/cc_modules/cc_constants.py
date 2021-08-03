@@ -134,6 +134,9 @@ class PV(object):
     """
     BIT = [0, 1]
 
+    # Red/Yellow/Green
+    RYG = ["R", "Y", "G"]
+
 
 NO_CHAR = 'N'
 YES_CHAR = 'Y'

@@ -72,7 +72,7 @@ PROJECT_ROOT = os.path.join(PRECOMMIT_DIR, "..")
 PYTHON_SOURCE_DIR = os.path.join(PROJECT_ROOT,
                                  "server", "camcops_server")
 CONFIG_FILE = os.path.abspath(os.path.join(PROJECT_ROOT, "setup.cfg"))
-TRAVIS_YML_FILE = os.path.join(PROJECT_ROOT, ".travis.yml")
+GITHUB_ACTIONS_DIR = os.path.join(PROJECT_ROOT, ".github", "workflows")
 
 log = logging.getLogger(__name__)
 
@@ -95,16 +95,17 @@ def check_python_style() -> None:
     log.info("... very stylish.")
 
 
-def check_travis_yml() -> None:
-    log.info("Checking .travis.yml...")
+def check_yml() -> None:
     if which("yamllint") is None:
         log.warning("... could not find yamllint. Skipping.")
         return
 
-    run_with_check([
-        "yamllint",
-        TRAVIS_YML_FILE,
-    ])
+    for name in os.listdir(GITHUB_ACTIONS_DIR):
+        if name.endswith(".yml"):
+            log.info(f"Checking {name}...")
+
+            yml_file = os.path.join(GITHUB_ACTIONS_DIR, name)
+            run_with_check(["yamllint", yml_file])
 
     log.info("...OK")
 
@@ -140,7 +141,7 @@ def main() -> None:
         sys.exit(EXIT_FAILURE)
 
     try:
-        check_travis_yml()
+        check_yml()
         check_python_style()
     except CalledProcessError as e:
         log.error(str(e))

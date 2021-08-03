@@ -93,6 +93,12 @@ server/camcops_server
     alembic/versions/0060_user_single_patient_fk_constraint.py.rst
     alembic/versions/0061_fix_up_patient_idnum_ids.py.rst
     alembic/versions/0062_distinguish_api_sessions.py.rst
+    alembic/versions/0063_task_schedule_delete_related.py.rst
+    alembic/versions/0064_task_schedule_email_extras.py.rst
+    alembic/versions/0065_patient_task_schedule_email.py.rst
+    alembic/versions/0066_fix_up_patient_uuids.py.rst
+    alembic/versions/0067_cpft_research_preferences.py.rst
+    alembic/versions/0068_cpft_covid_medical.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst
@@ -184,6 +190,7 @@ server/camcops_server
     cc_modules/tests/cc_blob_tests.py.rst
     cc_modules/tests/cc_config_tests.py.rst
     cc_modules/tests/cc_device_tests.py.rst
+    cc_modules/tests/cc_export_tests.py.rst
     cc_modules/tests/cc_formatter_tests.py.rst
     cc_modules/tests/cc_forms_tests.py.rst
     cc_modules/tests/cc_hl7_tests.py.rst
@@ -257,9 +264,11 @@ server/camcops_server
     extra_strings/contactlog.xml.rst
     extra_strings/cope.xml.rst
     extra_strings/core10.xml.rst
+    extra_strings/cpft_covid_medical.xml.rst
     extra_strings/cpft_lps_discharge.xml.rst
     extra_strings/cpft_lps_referral.xml.rst
     extra_strings/cpft_lps_resetresponseclock.xml.rst
+    extra_strings/cpft_research_preferences.xml.rst
     extra_strings/dast.xml.rst
     extra_strings/demqol.xml.rst
     extra_strings/distressthermometer.xml.rst
@@ -310,8 +319,10 @@ server/camcops_server
     extra_strings/slums.xml.rst
     extra_strings/smast.xml.rst
     extra_strings/wemwbs.xml.rst
+    htmlcov/style.css.rst
     static/jsoneditor/jsoneditor.min.css.rst
     static/jsoneditor/jsonwidget.css.rst
+    static/tinymce/custom_content.css.rst
     tasks/ace3.py.rst
     tasks/aims.py.rst
     tasks/apeq_cpft_perinatal.py.rst
@@ -341,7 +352,9 @@ server/camcops_server
     tasks/contactlog.py.rst
     tasks/cope.py.rst
     tasks/core10.py.rst
+    tasks/cpft_covid_medical.py.rst
     tasks/cpft_lps.py.rst
+    tasks/cpft_research_preferences.py.rst
     tasks/ctqsf.py.rst
     tasks/dad.py.rst
     tasks/das28.py.rst
@@ -420,6 +433,8 @@ server/camcops_server
     tasks/tests/apeq_cpft_perinatal_tests.py.rst
     tasks/tests/basdai_tests.py.rst
     tasks/tests/core10_tests.py.rst
+    tasks/tests/cpft_covid_medical_tests.py.rst
+    tasks/tests/cpft_research_preferences_tests.py.rst
     tasks/tests/maas_tests.py.rst
     tasks/tests/perinatalpoem_tests.py.rst
     tasks/tests/rapid3_tests.py.rst
@@ -463,6 +478,7 @@ server/camcops_server
     templates/menu/change_own_password.mako.rst
     templates/menu/choose_ctv.mako.rst
     templates/menu/choose_tracker.mako.rst
+    templates/menu/client_api_signposting.mako.rst
     templates/menu/developer.mako.rst
     templates/menu/device_forcibly_finalize_choose.mako.rst
     templates/menu/device_forcibly_finalize_confirm.mako.rst
@@ -506,6 +522,7 @@ server/camcops_server
     templates/menu/report.mako.rst
     templates/menu/report_offer.mako.rst
     templates/menu/reports_menu.mako.rst
+    templates/menu/send_patient_email.mako.rst
     templates/menu/server_created_patient_edit.mako.rst
     templates/menu/server_settings_edit.mako.rst
     templates/menu/set_user_upload_group.mako.rst
