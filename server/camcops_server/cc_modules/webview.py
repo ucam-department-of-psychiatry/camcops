@@ -4673,7 +4673,6 @@ def send_email_from_patient_task_schedule(req: "CamcopsRequest") -> Response:
 
 
 @view_config(route_name=Routes.SEND_EMAIL_FROM_PATIENT_LIST,
-             permission=Permission.GROUPADMIN,
              http_cache=NEVER_CACHE)
 def send_email_from_patient_list(req: "CamcopsRequest") -> Response:
     """
