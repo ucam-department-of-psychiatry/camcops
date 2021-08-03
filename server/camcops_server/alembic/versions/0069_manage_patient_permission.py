@@ -64,8 +64,14 @@ def upgrade():
                       nullable=True,
                       comment='May the user add/edit/delete patients?')
         )
+        batch_op.add_column(
+            sa.Column('may_email_patients', sa.Boolean(),
+                      nullable=True,
+                      comment='May the user send emails to patients?')
+        )
 
 
 def downgrade():
     with op.batch_alter_table('_security_user_group', schema=None) as batch_op:
         batch_op.drop_column('may_manage_patients')
+        batch_op.drop_column('may_email_patients')

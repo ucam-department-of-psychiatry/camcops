@@ -2470,6 +2470,7 @@ class EditUserGroupMembershipViewTests(BasicDatabaseTestCase):
         self.assertFalse(self.ugm.may_run_reports)
         self.assertFalse(self.ugm.may_add_notes)
         self.assertFalse(self.ugm.may_manage_patients)
+        self.assertFalse(self.ugm.may_email_patients)
         self.assertFalse(self.ugm.groupadmin)
 
         multidict = MultiDict([
@@ -2481,6 +2482,7 @@ class EditUserGroupMembershipViewTests(BasicDatabaseTestCase):
             (ViewParam.MAY_RUN_REPORTS, "true"),
             (ViewParam.MAY_ADD_NOTES, "true"),
             (ViewParam.MAY_MANAGE_PATIENTS, "true"),
+            (ViewParam.MAY_EMAIL_PATIENTS, "true"),
             (ViewParam.GROUPADMIN, "true"),
             (FormAction.SUBMIT, "submit"),
         ])
@@ -2501,6 +2503,7 @@ class EditUserGroupMembershipViewTests(BasicDatabaseTestCase):
         self.assertTrue(self.ugm.may_run_reports)
         self.assertTrue(self.ugm.may_add_notes)
         self.assertTrue(self.ugm.may_manage_patients)
+        self.assertTrue(self.ugm.may_email_patients)
 
     def test_groupadmin_can_update_user_group_membership(self) -> None:
         self.req._debugging_user = self.group_admin
@@ -2513,6 +2516,7 @@ class EditUserGroupMembershipViewTests(BasicDatabaseTestCase):
         self.assertFalse(self.ugm.may_run_reports)
         self.assertFalse(self.ugm.may_add_notes)
         self.assertFalse(self.ugm.may_manage_patients)
+        self.assertFalse(self.ugm.may_email_patients)
 
         multidict = MultiDict([
             (ViewParam.MAY_UPLOAD, "true"),
@@ -2523,6 +2527,7 @@ class EditUserGroupMembershipViewTests(BasicDatabaseTestCase):
             (ViewParam.MAY_RUN_REPORTS, "true"),
             (ViewParam.MAY_ADD_NOTES, "true"),
             (ViewParam.MAY_MANAGE_PATIENTS, "true"),
+            (ViewParam.MAY_EMAIL_PATIENTS, "true"),
             (FormAction.SUBMIT, "submit"),
         ])
 
@@ -2542,6 +2547,7 @@ class EditUserGroupMembershipViewTests(BasicDatabaseTestCase):
         self.assertTrue(self.ugm.may_run_reports)
         self.assertTrue(self.ugm.may_add_notes)
         self.assertTrue(self.ugm.may_manage_patients)
+        self.assertTrue(self.ugm.may_email_patients)
 
     def test_raises_if_cant_edit_user(self) -> None:
         self.ugm.user_id = self.user.id

@@ -143,6 +143,11 @@ class UserGroupMembership(Base):
         default=False,
         comment="May the user add/edit/delete patients?"
     )
+    may_email_patients = Column(
+        "may_email_patients", Boolean,
+        default=False,
+        comment="May the user send emails to patients?"
+    )
 
     group = relationship("Group", back_populates="user_group_memberships")
     user = relationship("User", back_populates="user_group_memberships")

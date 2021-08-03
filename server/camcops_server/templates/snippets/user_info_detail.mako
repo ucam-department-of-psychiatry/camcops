@@ -122,6 +122,12 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
         </td>
     </tr>
     <tr>
+        <th>${ _("Groups this user can send emails to patients in:") }</th>
+        <td>
+            ${ one_per_line(g.name for g in user.groups_user_may_email_patients_in) | n }
+        </td>
+    </tr>
+    <tr>
         <th>${ _("Groups this user can see data from:") }</th>
         <td>
             ${ one_per_line(g.name for g in user.groups_user_may_see) | n }
@@ -210,6 +216,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
             <td>${ get_yes_no(request, ugm.may_register_devices) }</td>
             <td>${ get_yes_no(request, ugm.may_use_webviewer) }</td>
             <td>${ get_yes_no(request, ugm.may_manage_patients) }</td>
+            <td>${ get_yes_no(request, ugm.may_email_patients) }</td>
             <td>${ get_yes_no(request, ugm.view_all_patients_when_unfiltered) }</td>
             <td>${ get_yes_no(request, ugm.may_dump_data) }</td>
             <td>${ get_yes_no(request, ugm.may_run_reports) }</td>

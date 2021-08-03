@@ -2719,6 +2719,7 @@ class UserGroupPermissionsGroupAdminSchema(CSRFSchema):
     may_register_devices = BooleanNode(default=True)  # match ViewParam.MAY_REGISTER_DEVICES and User attribute  # noqa
     may_use_webviewer = BooleanNode(default=True)  # match ViewParam.MAY_USE_WEBVIEWER and User attribute  # noqa
     may_manage_patients = BooleanNode(default=True)  # match ViewParam.MAY_MANAGE_PATIENTS  # noqa
+    may_email_patients = BooleanNode(default=True)  # match ViewParam.MAY_EMAIL_PATIENTS  # noqa
     view_all_patients_when_unfiltered = BooleanNode(default=False)  # match ViewParam.VIEW_ALL_PATIENTS_WHEN_UNFILTERED and User attribute  # noqa
     may_dump_data = BooleanNode(default=False)  # match ViewParam.MAY_DUMP_DATA and User attribute  # noqa
     may_run_reports = BooleanNode(default=False)  # match ViewParam.MAY_RUN_REPORTS and User attribute  # noqa
@@ -2742,6 +2743,10 @@ class UserGroupPermissionsGroupAdminSchema(CSRFSchema):
         mmp_text = _("May add, edit or delete patients created on the server")
         may_manage_patients.title = mmp_text
         may_manage_patients.label = mmp_text
+        may_email_patients = get_child_node(self, "may_email_patients")
+        mep_text = _("May send emails to patients created on the server")
+        may_email_patients.title = mep_text
+        may_email_patients.label = mep_text
         view_all_patients_when_unfiltered = get_child_node(self, "view_all_patients_when_unfiltered")  # noqa
         vap_text = _(
             "May view (browse) records from all patients when no patient "

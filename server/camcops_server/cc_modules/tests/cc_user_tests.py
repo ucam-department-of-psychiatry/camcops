@@ -124,6 +124,17 @@ class UserPermissionTests(BasicDatabaseTestCase):
         self.assertEqual([self.group_c, self.group_d],
                          user.groups_user_may_manage_patients_in)
 
+    def test_groups_user_may_email_patients_in(self) -> None:
+        user = self.create_user(username="test")
+        self.dbsession.flush()
+
+        self.create_membership(user, self.group_d, may_email_patients=True)
+        self.create_membership(user, self.group_c, may_email_patients=True)
+        self.create_membership(user, self.group_a, may_email_patients=False)
+
+        self.assertEqual([self.group_c, self.group_d],
+                         user.groups_user_may_email_patients_in)
+
     def test_ids_of_groups_user_may_report_on(self) -> None:
         user = self.create_user(username="test")
         self.dbsession.flush()
@@ -699,3 +710,68 @@ class UserPermissionTests(BasicDatabaseTestCase):
         self.assertTrue(user.may_manage_patients_in_group(self.group_b.id))
         self.assertTrue(user.may_manage_patients_in_group(self.group_c.id))
         self.assertTrue(user.may_manage_patients_in_group(self.group_d.id))
+
+    def test_authorized_to_email_patients(self) -> None:
+        user = self.create_user(username="test")
+        self.dbsession.flush()
+
+        self.create_membership(user, self.group_a, may_email_patients=False)
+        self.create_membership(user, self.group_c, may_email_patients=True)
+        self.dbsession.commit()
+
+        self.assertTrue(user.authorized_to_email_patients)
+
+    def test_not_authorized_to_email_patients(self) -> None:
+        user = self.create_user(username="test")
+        self.dbsession.flush()
+
+        self.assertFalse(user.authorized_to_email_patients)
+
+    def test_groupadmin_authorized_to_email_patients(self) -> None:
+        user = self.create_user(username="test")
+        self.dbsession.flush()
+
+        self.create_membership(user, self.group_a, groupadmin=True)
+
+        self.assertTrue(user.authorized_to_email_patients)
+
+    def test_superuser_authorized_to_email_patients(self) -> None:
+        user = self.create_user(username="test", superuser=True)
+        self.dbsession.flush()
+
+        self.assertTrue(user.authorized_to_email_patients)
+
+    def test_user_may_email_patients_in_group(self) -> None:
+        user = self.create_user(username="test")
+        self.dbsession.flush()
+
+        self.create_membership(user, self.group_a, may_email_patients=False)
+        self.create_membership(user, self.group_c, may_email_patients=True)
+        self.create_membership(user, self.group_d, may_email_patients=True)
+        self.dbsession.commit()
+
+        self.assertFalse(user.may_email_patients_in_group(self.group_a.id))
+        self.assertTrue(user.may_email_patients_in_group(self.group_c.id))
+        self.assertTrue(user.may_email_patients_in_group(self.group_d.id))
+
+    def test_groupadmin_may_email_patients_in_group(self) -> None:
+        user = self.create_user(username="test")
+        self.dbsession.flush()
+
+        self.create_membership(user, self.group_a, groupadmin=False)
+        self.create_membership(user, self.group_c, groupadmin=True)
+        self.create_membership(user, self.group_d, groupadmin=True)
+        self.dbsession.commit()
+
+        self.assertFalse(user.may_email_patients_in_group(self.group_a.id))
+        self.assertTrue(user.may_email_patients_in_group(self.group_c.id))
+        self.assertTrue(user.may_email_patients_in_group(self.group_d.id))
+
+    def test_superuser_may_email_patients_in_group(self) -> None:
+        user = self.create_user(username="test", superuser=True)
+        self.dbsession.flush()
+
+        self.assertTrue(user.may_email_patients_in_group(self.group_a.id))
+        self.assertTrue(user.may_email_patients_in_group(self.group_b.id))
+        self.assertTrue(user.may_email_patients_in_group(self.group_c.id))
+        self.assertTrue(user.may_email_patients_in_group(self.group_d.id))
