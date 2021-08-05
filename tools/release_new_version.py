@@ -102,6 +102,7 @@ class VersionReleaser:
     client_version_regex = r"^const Version CAMCOPS_CLIENT_VERSION\((\d+),\s+(\d+),\s+(\d+)\);$"  # noqa: E501
     client_date_regex = r"^const QDate CAMCOPS_CLIENT_CHANGEDATE\((\d+),\s+(\d+),\s+(\d+)\);$"  # noqa: E501
     windows_version_regex = r"^#define CamcopsClientVersion \"(\d+)\.(\d+)\.(\d+)\""
+    android_version_regex = r"android:versionName=\"(\d+)\.(\d+)\.(\d+)\""
 
     def __init__(self,
                  new_client_version: Version,
@@ -220,14 +221,15 @@ class VersionReleaser:
         ``AndroidManifest.xml``, or ``None`` (actually, perhaps not ``None``; I'm
         not sure what happens on failure; it may raise!).
         """
-        parser = ElementTree.XMLParser(encoding="UTF-8")
-        tree = ElementTree.parse(ANDROID_MANIFEST_FILE, parser=parser)
-        root = tree.getroot()
-        version_string = root.attrib[
-            "{http://schemas.android.com/apk/res/android}versionName"
-        ]
-
-        return Version(version_string)
+        with open(ANDROID_MANIFEST_FILE, "r") as f:
+            for line in f.readlines():
+                m = re.match(self.android_version_regex, line)
+                if m is not None:
+                    return Version(
+                        major=int(m.group(1)),
+                        minor=int(m.group(2)),
+                        patch=int(m.group(3))
+                    )
 
     def get_ios_version(self) -> Optional[Version]:
         """
@@ -347,6 +349,12 @@ class VersionReleaser:
     def check_android_version(self) -> None:
         current_android_version = self.get_android_version()
         if current_android_version != self.new_client_version:
+            if self.update_versions:
+                return self.update_file(
+                    ANDROID_MANIFEST_FILE,
+                    self.android_version_regex,
+                    f'android:versionName="{self.new_client_version}"'
+                )
             self.errors.append(
                 f"The Android version ({current_android_version}) "
                 f"does not match the desired client version "
