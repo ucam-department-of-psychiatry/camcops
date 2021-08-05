@@ -273,12 +273,21 @@ class VersionReleaser:
                 "probably want to mark the version in the changelog as released"
             )
 
-        if current_server_date != self.release_date:
-            self.errors.append(
-                "The release date in cc_version_string.py "
-                f"({current_server_date}) does not match the desired release date "
-                f"({self.release_date})"
-            )
+        if self.should_release_server and current_server_date != self.release_date:
+            if self.update_versions:
+                new_date = self.release_date.strftime("%Y-%m-%d")
+
+                self.update_file(
+                    SERVER_VERSION_FILE,
+                    r'^CAMCOPS_SERVER_CHANGEDATE = "(\d{4})-(\d{2})-(\d{2})"',
+                    f'CAMCOPS_SERVER_CHANGEDATE = "{new_date}"'
+                )
+            else:
+                self.errors.append(
+                    "The release date in cc_version_string.py "
+                    f"({current_server_date}) does not match the desired "
+                    f"release date ({self.release_date})"
+                )
 
     def check_client_version(self) -> None:
         current_client_version = self.get_client_version()
@@ -393,7 +402,7 @@ class VersionReleaser:
         self.check_unpushed_tags()
 
     def release(self) -> None:
-        if self.new_server_version >= self.new_client_version:
+        if self.should_release_server:
             self.remove_old_packages()
             self.run_with_check([MAKE_LINUX_PACKAGES])
 
@@ -404,6 +413,14 @@ class VersionReleaser:
             self.run_with_check(["twine", "upload"] + pypi_packages)
 
             print("Now upload the .rpm and .deb files to GitHub")
+
+    @property
+    def should_release_client(self) -> bool:
+        return self.new_client_version >= self.new_server_version
+
+    @property
+    def should_release_server(self) -> bool:
+        return self.new_server_version >= self.new_client_version
 
     def get_release_tag(self) -> str:
         """
