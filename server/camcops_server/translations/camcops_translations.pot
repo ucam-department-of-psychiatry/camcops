@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CamCOPS 2.4.8\n"
 "Report-Msgid-Bugs-To: rudolf@pobox.com\n"
-"POT-Creation-Date: 2021-08-02 16:57+0100\n"
+"POT-Creation-Date: 2021-08-02 17:55+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1764,6 +1764,10 @@ msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/core10.py:295
 msgid "CORE-10 clinical score"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cpft_covid_medical.py:87
+msgid "CPFT Post-COVID-19 Clinic Medical Questionnaire"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/cpft_lps.py:157
@@ -4027,4 +4031,3 @@ msgstr ""
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/tasks/diagnosis_finder_report.mako:40
 msgid "Results:"
 msgstr ""
-

@@ -66,6 +66,7 @@ from camcops_server.tasks.cpft_lps import (
     CPFTLPSResetResponseClock,
     CPFTLPSDischarge,
 )
+from camcops_server.tasks.cpft_covid_medical import CpftCovidMedical
 from camcops_server.tasks.cpft_research_preferences import (
     CpftResearchPreferences,
 )

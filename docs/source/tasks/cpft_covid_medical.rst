@@ -1,4 +1,4 @@
-..  docs/source/tasks/cpft_research_preferences.rst
+..  docs/source/tasks/cpft_covid_medical.rst
 
 ..  Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
     .
@@ -18,20 +18,24 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 
-.. _cpft_research_preferences:
+.. _cpft_covid_medical:
 
 
-CPFT Research Preferences
--------------------------
+CPFT Post-Covid Clinic Medical Questionnaire
+--------------------------------------------
 
-Form for Cambridgeshire & Peterborough NHS Foundation Trust patients to
-indicate their preferences for participating in research.
+Medical questionnaire for Cambridgeshire & Peterborough NHS Foundation Trust
+Post-COVID-19 Clinic patients.
+
+**DISCLAIMER**: This questionnaires has been designed for use with a specific
+study and with specific patient groups, so use outside of this study should be
+carefully considered.
 
 
 Intellectual property rights
 ############################
 
-- Copyright © 2012 Rudolf Cardinal
+- Copyright © 2021 David Christmas
 
 - License: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA
   4.0); https://creativecommons.org/licenses/by-sa/4.0/
@@ -40,6 +44,4 @@ Intellectual property rights
 Source
 ######
 
-- https://www.cpft.nhs.uk/research
-- https://www.cpft.nhs.uk/research-database
-- Text approved by an NHS Research Ethics Committee (12/EE/0407, 17/EE/0442).
+- David Christmas, email to Martin Burchell, 2021-08-04

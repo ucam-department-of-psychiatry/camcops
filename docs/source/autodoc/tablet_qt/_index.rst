@@ -655,6 +655,8 @@ tablet_qt
     tasks/copebrief.h.rst
     tasks/core10.cpp.rst
     tasks/core10.h.rst
+    tasks/cpftcovidmedical.cpp.rst
+    tasks/cpftcovidmedical.h.rst
     tasks/cpftlpsdischarge.cpp.rst
     tasks/cpftlpsdischarge.h.rst
     tasks/cpftlpsreferral.cpp.rst

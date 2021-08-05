@@ -343,6 +343,19 @@
     </message>
 </context>
 <context>
+    <name>CPFTCovidMedical</name>
+    <message>
+        <location filename="../tasks/cpftcovidmedical.cpp" line="+82"/>
+        <source>CPFT Post-COVID-19 Clinic Medical Questionnaire</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>CPFT post-COVID-19 clinic medical questionnaire</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>CPFTLPSDischarge</name>
     <message>
         <location filename="../tasks/cpftlpsdischarge.cpp" line="+228"/>

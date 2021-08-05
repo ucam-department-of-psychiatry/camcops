@@ -62,6 +62,7 @@ All tasks
     clinical.rst
     cope.rst
     core10.rst
+    cpft_covid_medical.rst
     cpft_research_preferences.rst
     ctqsf.rst
     dad.rst
