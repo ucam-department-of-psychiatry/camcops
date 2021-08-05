@@ -99,6 +99,9 @@ def valid_date(date_string: str) -> datetime.date:
 
 
 class VersionReleaser:
+    client_version_regex = r"^const Version CAMCOPS_CLIENT_VERSION\((\d+),\s+(\d+),\s+(\d+)\);$"  # noqa: E501
+    client_date_regex = r"^const QDate CAMCOPS_CLIENT_CHANGEDATE\((\d+),\s+(\d+),\s+(\d+)\);$"  # noqa: E501
+
     def __init__(self,
                  new_client_version: Version,
                  new_server_version: Version,
@@ -171,10 +174,9 @@ class VersionReleaser:
         Return the current client version, from ``camcopsversion.cpp``, or
         ``None``.
         """
-        regex = r"^const Version CAMCOPS_CLIENT_VERSION\((\d+),\s+(\d+),\s+(\d+)\);$"  # noqa: E501
         with open(CLIENT_VERSION_FILE, "r") as f:
             for line in f.readlines():
-                m = re.match(regex, line)
+                m = re.match(self.client_version_regex, line)
                 if m is not None:
                     return Version(
                         major=int(m.group(1)),
@@ -186,10 +188,9 @@ class VersionReleaser:
         """
         Return the client changedate, from ``camcopsversion.cpp``, or ``None``.
         """
-        regex = r"^const QDate CAMCOPS_CLIENT_CHANGEDATE\((\d+),\s+(\d+),\s+(\d+)\);$"  # noqa: E501
         with open(CLIENT_VERSION_FILE, "r") as f:
             for line in f.readlines():
-                m = re.match(regex, line)
+                m = re.match(self.client_date_regex, line)
                 if m is not None:
                     return datetime(
                         int(m.group(1)),
@@ -291,13 +292,42 @@ class VersionReleaser:
 
     def check_client_version(self) -> None:
         current_client_version = self.get_client_version()
-        current_client_date = self.get_client_date()
 
         if current_client_version != self.new_client_version:
-            self.errors.append(
-                f"The current client version ({current_client_version}) does not "
-                f"match the desired client version ({self.new_client_version})"
-            )
+            if self.update_versions:
+                new_client_version = ("const Version CAMCOPS_CLIENT_VERSION("
+                                      f"{self.new_client_version.major}, "
+                                      f"{self.new_client_version.minor}, "
+                                      f"{self.new_client_version.patch});")
+                self.update_file(
+                    CLIENT_VERSION_FILE,
+                    self.client_version_regex,
+                    new_client_version
+                )
+            else:
+                self.errors.append(
+                    f"The current client version ({current_client_version}) "
+                    "does not match the desired client version "
+                    f"({self.new_client_version})"
+                )
+
+        current_client_date = self.get_client_date()
+        if self.should_release_client and current_client_date != self.release_date:
+            if self.update_versions:
+                self.update_file(
+                    CLIENT_VERSION_FILE,
+                    self.client_date_regex,
+                    ("const QDate CAMCOPS_CLIENT_CHANGEDATE("
+                     f"{self.release_date.year}, "
+                     f"{self.release_date.month}, "
+                     f"{self.release_date.day});")
+                )
+            else:
+                self.errors.append(
+                    "The release date in cc_version_string.py "
+                    f"({current_server_date}) does not match the desired "
+                    f"release date ({self.release_date})"
+                )
 
     def check_windows_version(self) -> None:
         current_windows_version = self.get_innosetup_version()
