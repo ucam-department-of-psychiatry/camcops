@@ -197,7 +197,7 @@ class VersionReleaser:
                         int(m.group(1)),
                         int(m.group(2)),
                         int(m.group(3))
-                    )
+                    ).date()
 
     def get_innosetup_version(self) -> Optional[Version]:
         """
