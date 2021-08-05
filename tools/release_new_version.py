@@ -56,6 +56,10 @@ SERVER_DIST_DIR = os.path.join(SERVER_SOURCE_DIR, "dist")
 SERVER_PACKAGE_DIR = os.path.join(SERVER_SOURCE_DIR, "packagebuild")
 MAKE_LINUX_PACKAGES = os.path.join(SERVER_TOOLS_DIR, "MAKE_LINUX_PACKAGES.py")
 CHANGELOG = os.path.join(DOCS_SOURCE_DIR, "changelog.rst")
+SERVER_VERSION_FILE = os.path.join(SERVER_SOURCE_DIR,
+                                   "camcops_server",
+                                   "cc_modules",
+                                   "cc_version_string.py")
 CLIENT_VERSION_FILE = os.path.join(CPP_SOURCE_DIR,
                                    "version",
                                    "camcopsversion.cpp")
@@ -98,10 +102,12 @@ class VersionReleaser:
     def __init__(self,
                  new_client_version: Version,
                  new_server_version: Version,
-                 release_date: datetime.date) -> None:
+                 release_date: datetime.date,
+                 update_versions: bool) -> None:
         self.new_client_version = new_client_version
         self.new_server_version = new_server_version
         self.release_date = release_date
+        self.update_versions = update_versions
         self.errors = []
 
     def run_with_check(self, args: List[str]) -> None:
@@ -110,7 +116,6 @@ class VersionReleaser:
         exit code was not zero.
         """
         run(args, check=True)
-
 
     def get_progress_version(self) -> Optional[Version]:
         """
@@ -243,35 +248,28 @@ class VersionReleaser:
 
         return Version(short_version_string)
 
-    def perform_checks(self) -> None:
-        releases = self.get_released_versions()
-        latest_version, latest_date = releases[-1]
-        progress_version = self.get_progress_version()
-
-        if progress_version is None:
-            print(("No version is marked as IN PROGRESS in the changelog. "
-                   "Normally that would be the next unreleased version"))
-
+    def check_server_version(self) -> None:
         current_server_version = Version(CAMCOPS_SERVER_VERSION_STRING)
         current_server_date = datetime.strptime(CAMCOPS_SERVER_CHANGEDATE,
                                                 "%Y-%m-%d").date()
-        current_client_version = self.get_client_version()
-        current_client_date = self.get_client_date()
-
-        current_windows_version = self.get_innosetup_version()
-        current_android_version = self.get_android_version()
-        current_ios_short_version = self.get_ios_version()
-
         if current_server_version != self.new_server_version:
-            self.errors.append(
-                f"The current server version ({current_server_version}) does not "
-                f"match the desired server version ({self.new_server_version})"
-            )
+            if self.update_versions:
+                self.update_file(
+                    SERVER_VERSION_FILE,
+                    r'^CAMCOPS_SERVER_VERSION_STRING = "(\d+)\.(\d+)\.(\d+)"',
+                    f'CAMCOPS_SERVER_VERSION_STRING = "{self.new_server_version}"'
+                )
+            else:
+                self.errors.append(
+                    f"The current server version ({current_server_version}) "
+                    "does not match the desired server version "
+                    "({self.new_server_version})"
+                )
 
-        if self.new_server_version == progress_version:
+        if self.new_server_version == self.progress_version:
             self.errors.append(
-                f"The desired server version ({self.new_server_version}) matches "
-                "the current IN PROGRESS version in the changelog. You "
+                f"The desired server version ({self.new_server_version}) "
+                "matches the current IN PROGRESS version in the changelog. You "
                 "probably want to mark the version in the changelog as released"
             )
 
@@ -282,12 +280,9 @@ class VersionReleaser:
                 f"({self.release_date})"
             )
 
-        if self.new_client_version == progress_version:
-            self.errors.append(
-                f"The desired client version ({self.new_client_version}) matches "
-                "the current IN PROGRESS version in the changelog. You probably "
-                "want to mark the version in the changelog as released"
-            )
+    def check_client_version(self) -> None:
+        current_client_version = self.get_client_version()
+        current_client_date = self.get_client_date()
 
         if current_client_version != self.new_client_version:
             self.errors.append(
@@ -295,6 +290,17 @@ class VersionReleaser:
                 f"match the desired client version ({self.new_client_version})"
             )
 
+    def check_windows_version(self) -> None:
+        current_windows_version = self.get_innosetup_version()
+        if current_windows_version != self.new_client_version:
+            self.errors.append(
+                f"The Windows InnoSetup version ({current_windows_version}) "
+                f"does not match the desired client version "
+                f"({self.new_client_version})"
+            )
+
+    def check_android_version(self) -> None:
+        current_android_version = self.get_android_version()
         if current_android_version != self.new_client_version:
             self.errors.append(
                 f"The Android version ({current_android_version}) "
@@ -302,11 +308,14 @@ class VersionReleaser:
                 f"({self.new_client_version})"
             )
 
-        if current_windows_version != self.new_client_version:
+    def check_ios_version(self) -> None:
+        current_ios_short_version = self.get_ios_version()
+
+        if self.new_client_version == self.progress_version:
             self.errors.append(
-                f"The Windows InnoSetup version ({current_windows_version}) "
-                f"does not match the desired client version "
-                f"({self.new_client_version})"
+                f"The desired client version ({self.new_client_version}) matches "
+                "the current IN PROGRESS version in the changelog. You probably "
+                "want to mark the version in the changelog as released"
             )
 
         if current_ios_short_version != self.new_client_version:
@@ -324,6 +333,17 @@ class VersionReleaser:
         #         f"({current_ios_short_version})"
         #     )
 
+    def update_file(self, filename: str, search: str, replace: str) -> None:
+        print(f"Updating {filename}...")
+        with open(filename, "r") as f:
+            content = f.read()
+            new_content = re.sub(search, replace, content,
+                                 count=1, flags=re.MULTILINE)
+
+        with open(filename, "w") as f:
+            f.write(new_content)
+
+    def check_uncommitted_changes(self) -> None:
         # https://stackoverflow.com/questions/3878624/how-do-i-programmatically-determine-if-there-are-uncommitted-changes  # noqa: E501
         os.chdir(PROJECT_ROOT)
         run(["git", "update-index", "--refresh"])
@@ -332,11 +352,13 @@ class VersionReleaser:
         except CalledProcessError:
             self.errors.append("There are uncommitted changes")
 
+    def check_unpushed_changes(self) -> None:
         git_log = run(["git", "log", "origin/master..HEAD"],
                       stdout=PIPE).stdout.decode('utf-8')
         if len(git_log) > 0:
             self.errors.append("There are unpushed changes")
 
+    def check_release_tag(self) -> None:
         release_tag = self.get_release_tag()
 
         tags = run(["git", "tag"], stdout=PIPE).stdout.decode('utf-8').split()
@@ -344,10 +366,31 @@ class VersionReleaser:
         if release_tag not in tags:
             self.errors.append(f"Could not find a git tag '{release_tag}'")
 
+    def check_unpushed_tags(self) -> None:
         output = run(["git", "push", "--tags", "--dry-run"],
                      stderr=PIPE).stderr.decode('utf-8')
         if "Everything up-to-date" not in output:
             self.errors.append("There are unpushed tags")
+
+    def perform_checks(self) -> None:
+        releases = self.get_released_versions()
+        latest_version, latest_date = releases[-1]
+        self.progress_version = self.get_progress_version()
+
+        if self.progress_version is None:
+            print(("No version is marked as IN PROGRESS in the changelog. "
+                   "Normally that would be the next unreleased version"))
+
+        self.check_server_version()
+        self.check_client_version()
+        self.check_windows_version()
+        self.check_android_version()
+        self.check_ios_version()
+
+        self.check_uncommitted_changes()
+        self.check_unpushed_changes()
+        self.check_release_tag()
+        self.check_unpushed_tags()
 
     def release(self) -> None:
         if self.new_server_version >= self.new_client_version:
@@ -448,7 +491,8 @@ def main() -> None:
 
     releaser = VersionReleaser(new_client_version=Version(args.client_version),
                                new_server_version=Version(args.server_version),
-                               release_date=args.release_date)
+                               release_date=args.release_date,
+                               update_versions=args.update_versions)
     releaser.perform_checks()
 
     if len(releaser.errors) > 0:
