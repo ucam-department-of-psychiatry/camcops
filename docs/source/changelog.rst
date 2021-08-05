@@ -3449,8 +3449,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 .. _changelog_v2_4_9:
 
-**Client and server v2.4.9, IN PROGRESS**
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+**Client and server v2.4.9, released 5 Aug 2021**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Ensure all patients records created before revision 0048 have a UUID. This
   is mainly for consistency as we only use UUIDs for server-created patients
@@ -3463,3 +3463,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - **New task:** :ref:`CPFT Research Preferences  <cpft_research_preferences>` (Database revision 0067).
 - **New task:** :ref:`CPFT Post-Covid Clinic Medical Questionnaire  <cpft_covid_medical>` (Database revision 0068).
+
+.. _changelog_v2_4_10:
+
+**Client and server v2.4.10, IN PROGRESS**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
