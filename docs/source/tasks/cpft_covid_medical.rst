@@ -27,12 +27,21 @@ CPFT Post-Covid Clinic Medical Questionnaire
 Medical questionnaire for Cambridgeshire & Peterborough NHS Foundation Trust
 Post-COVID-19 Clinic patients.
 
+**DISCLAIMER**: This questionnaires has been designed for use with a specific
+study and with specific patient groups, so use outside of this study should be
+carefully considered.
+
 
 Intellectual property rights
 ############################
 
-- TODO
+- Copyright © 2021 David Christmas
+
+- License: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA
+  4.0); https://creativecommons.org/licenses/by-sa/4.0/
 
 
 Source
 ######
+
+- David Christmas, email to Martin Burchell, 2021-08-04
