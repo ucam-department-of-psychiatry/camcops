@@ -324,8 +324,8 @@ class VersionReleaser:
                 )
             else:
                 self.errors.append(
-                    "The release date in cc_version_string.py "
-                    f"({current_server_date}) does not match the desired "
+                    "The release date in camcopsversion.cpp "
+                    f"({current_client_date}) does not match the desired "
                     f"release date ({self.release_date})"
                 )
 
