@@ -101,6 +101,7 @@ def valid_date(date_string: str) -> datetime.date:
 class VersionReleaser:
     client_version_regex = r"^const Version CAMCOPS_CLIENT_VERSION\((\d+),\s+(\d+),\s+(\d+)\);$"  # noqa: E501
     client_date_regex = r"^const QDate CAMCOPS_CLIENT_CHANGEDATE\((\d+),\s+(\d+),\s+(\d+)\);$"  # noqa: E501
+    windows_version_regex = r"^#define CamcopsClientVersion \"(\d+)\.(\d+)\.(\d+)\""
 
     def __init__(self,
                  new_client_version: Version,
@@ -203,10 +204,9 @@ class VersionReleaser:
         Return the version number in the Inno Setup config file,
         ``camcops_windows_innosetup.iss``.
         """
-        regex = r"^#define CamcopsClientVersion \"(\d+)\.(\d+)\.(\d+)\""
         with open(INNOSETUP_FILE, "r") as f:
             for line in f.readlines():
-                m = re.match(regex, line)
+                m = re.match(self.windows_version_regex, line)
                 if m is not None:
                     return Version(
                         major=int(m.group(1)),
@@ -332,6 +332,12 @@ class VersionReleaser:
     def check_windows_version(self) -> None:
         current_windows_version = self.get_innosetup_version()
         if current_windows_version != self.new_client_version:
+            if self.update_versions:
+                return self.update_file(
+                    INNOSETUP_FILE,
+                    self.windows_version_regex,
+                    f'#define CamcopsClientVersion "{self.new_client_version}"'
+                )
             self.errors.append(
                 f"The Windows InnoSetup version ({current_windows_version}) "
                 f"does not match the desired client version "
