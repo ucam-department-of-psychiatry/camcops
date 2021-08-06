@@ -659,12 +659,12 @@ def main() -> None:
     This is a work in progress
     What do we want this script to do?
 
-    - Check all the version numbers
-    - Check the changelog
-    - Check the Git repository
-    - Build the Ubuntu server packages (deb/rpm)
-    - Build the pypi server package
-    - Distribute the server packages to PyPI
+    / Check and update all the version numbers (TODO: Android releases doc)
+    / Check the changelog
+    / Check the Git repository
+    / Build the Ubuntu server packages (deb/rpm)
+    / Build the pypi server package
+    / Distribute the server packages to PyPI
     - Distribute the server packages to GitHub (or use GitHub actions)
 
     - Build the client (depending on the platform)
