@@ -187,7 +187,7 @@ class VersionReleaser:
                         date_string = f"{m.group(4)} {m.group(5)} {m.group(6)}"
                         release_date = datetime.strptime(
                             date_string, "%d %b %Y"
-                        )
+                        ).date()
                     except ValueError:
                         raise ValueError(
                             f"Couldn't parse date when processing "
@@ -556,6 +556,18 @@ class VersionReleaser:
                 )
             )
 
+        if latest_version != self.release_version:
+            self.errors.append(
+                f"The latest version in the changelog ({latest_version}) "
+                f"does not match '{self.release_version}'"
+            )
+
+        if latest_date != self.release_date:
+            self.errors.append(
+                "The date of the latest version in the changelog "
+                f"({latest_date}) does not match '{self.release_date}'"
+            )
+
         self.check_server_version()
         if self.should_release_server:
             self.check_server_date()
@@ -594,6 +606,13 @@ class VersionReleaser:
     @property
     def should_release_server(self) -> bool:
         return self.new_server_version >= self.new_client_version
+
+    @property
+    def release_version(self) -> Version:
+        if self.should_release_server:
+            return self.new_server_version
+
+        return self.new_client_version
 
     def get_release_tag(self) -> str:
         """
