@@ -3449,7 +3449,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 .. _changelog_v2_4_9:
 
-**Client and server v2.4.9, released 5 Aug 2021**
+**Client and server v2.4.9, released 6 Aug 2021**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Ensure all patients records created before revision 0048 have a UUID. This
