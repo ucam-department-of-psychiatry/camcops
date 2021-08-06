@@ -109,12 +109,12 @@ class VersionReleaser:
     client_date_search = r"(^const QDate CAMCOPS_CLIENT_CHANGEDATE\()(\d+)(,\s+)(\d+)(,\s+)(\d+)(\);$)"  # noqa: E501
     client_date_replace = r"\g<1>{year}\g<3>{month}\g<5>{day}\g<7>"
 
-    #                          (              1                )( 2 )( 3)( 4 )( 5)( 6 )  # noqa: E501
-    windows_version_search = r'(^#define CamcopsClientVersion ")(\d+)(\.)(\d+)(\.)(\d+)"'  # noqa: E501
-    windows_version_replace = r"\g<1>{major}\g<3>{minor}\g<5>{patch}"
+    #                          (              1                )( 2 )( 3)( 4 )( 5)( 6 )(7)  # noqa: E501
+    windows_version_search = r'(^#define CamcopsClientVersion ")(\d+)(\.)(\d+)(\.)(\d+)(")'  # noqa: E501
+    windows_version_replace = r"\g<1>{major}\g<3>{minor}\g<5>{patch}\g<7>"
 
-    #                          (          1           )( 2 )( 3)( 4 )( 5)( 6 )( 7)  # noqa: E501
-    android_version_search = r"(android:versionName=\")(\d+)(\.)(\d+)(\.)(\d+)(\")"  # noqa: E501
+    #                          (          1          )( 2 )( 3)( 4 )( 5)( 6 )(7)  # noqa: E501
+    android_version_search = r'(android:versionName=")(\d+)(\.)(\d+)(\.)(\d+)(")'  # noqa: E501
     android_version_replace = r"\g<1>{major}\g<3>{minor}\g<5>{patch}\g<7>"
 
     #                            (                      1                         )( 3 )( 3)( 4 )( 5)( 6 )(    7    )  # noqa: E501
@@ -160,7 +160,7 @@ class VersionReleaser:
                     progress_version = Version(
                         major=int(m.group(1)),
                         minor=int(m.group(2)),
-                        patch=int(m.group(3))
+                        patch=int(m.group(3)),
                     )
 
         return progress_version
