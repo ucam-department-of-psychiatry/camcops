@@ -109,6 +109,7 @@ INSTALL_REQUIRES = [
     'Pygments==2.7.4',  # Syntax highlighting for introspection/DDL
     'pyexcel-ods3==0.5.3',  # ODS spreadsheet export
     'pyexcel-xlsx==0.5.8',  # XLSX spreadsheet export
+    'pyotp==2.6.0',  # Multi-factor authentication
     'pyramid==1.10.4',  # web framework
     'pyramid_debugtoolbar==4.6.1',  # debugging for Pyramid
     "pytest==6.0.2",  # automatic testing
