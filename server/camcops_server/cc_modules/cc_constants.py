@@ -738,6 +738,8 @@ class StringLengths:
     # -------------------------------------------------------------------------
     AUDIT_SOURCE_MAX_LEN = 20  #: our choice based on use in CamCOPS code
 
+    BASE32_MAX_LEN = 32
+
     #: : See https://docs.python.org/3.7/library/codecs.html#standard-encodings.
     #: Probably ~18 so give it some headroom.
     CHARSET_MAX_LEN = 64

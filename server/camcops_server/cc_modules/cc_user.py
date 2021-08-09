@@ -42,6 +42,7 @@ from cardinal_pythonlib.sqlalchemy.orm_query import (
     exists_orm,
 )
 from pendulum import DateTime as Pendulum
+import pyotp
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import relationship, Session as SqlASession, Query
 from sqlalchemy.sql import false
@@ -55,6 +56,7 @@ from camcops_server.cc_modules.cc_constants import USER_NAME_FOR_SYSTEM
 from camcops_server.cc_modules.cc_group import Group
 from camcops_server.cc_modules.cc_membership import UserGroupMembership
 from camcops_server.cc_modules.cc_sqla_coltypes import (
+    Base32ColType,
     EmailAddressColType,
     FullNameColType,
     HashedPasswordColType,
@@ -392,6 +394,13 @@ class User(Base):
         "hashedpw", HashedPasswordColType,
         nullable=False,
         comment="Password hash"
+    )
+    mfa_secret_key = Column(
+        "mfa_secret_key",
+        Base32ColType,
+        nullable=True,
+        default=pyotp.random_base32,
+        comment="Secret key used for multi-factor authentication"
     )
     last_login_at_utc = Column(
         "last_login_at_utc", DateTime,

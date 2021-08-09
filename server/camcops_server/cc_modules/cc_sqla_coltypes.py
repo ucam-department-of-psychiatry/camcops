@@ -209,6 +209,8 @@ AuditSourceColType = String(length=StringLengths.AUDIT_SOURCE_MAX_LEN)
 #     it's nonstandard and unnecessary, changed all BigIntUnsigned to
 #     BigInteger (2017-08-25).
 
+Base32ColType = String(length=StringLengths.BASE32_MAX_LEN)
+
 CharColType = String(length=1)
 CharsetColType = String(length=StringLengths.CHARSET_MAX_LEN)
 CurrencyColType = Unicode(length=StringLengths.CURRENCY_MAX_LEN)
