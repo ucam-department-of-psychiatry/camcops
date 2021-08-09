@@ -402,6 +402,13 @@ class User(Base):
         default=pyotp.random_base32,
         comment="Secret key used for multi-factor authentication"
     )
+    hotp_counter = Column(
+        "hotp_counter",
+        Integer,
+        nullable=True,
+        default=0,
+        comment="Counter used for HOTP authentication"
+    )
     last_login_at_utc = Column(
         "last_login_at_utc", DateTime,
         comment="Date/time this user last logged in (UTC)"

@@ -30,7 +30,7 @@ user_mfa_secret_key
 
 Revision ID: 0069
 Revises: 0068
-Creation date: 2021-08-09 11:24:36.462415
+Creation date: 2021-08-09 15:56:31.987769
 
 """
 
@@ -72,6 +72,14 @@ def upgrade():
     with op.batch_alter_table("_security_users", schema=None) as batch_op:
         batch_op.add_column(
             sa.Column(
+                "hotp_counter",
+                sa.Integer(),
+                nullable=True,
+                comment="Counter used for HOTP authentication",
+            )
+        )
+        batch_op.add_column(
+            sa.Column(
                 "mfa_secret_key",
                 sa.String(length=32),
                 nullable=True,
@@ -84,9 +92,6 @@ def upgrade():
         log.warning("Using mock connection; skipping step")
         return
     dbsession = orm.Session(bind=bind)
-
-    import ipdb
-    ipdb.set_trace()
 
     # noinspection PyUnresolvedReferences
     user_table = User.__table__  # type: Table
@@ -128,3 +133,4 @@ def upgrade():
 def downgrade():
     with op.batch_alter_table("_security_users", schema=None) as batch_op:
         batch_op.drop_column("mfa_secret_key")
+        batch_op.drop_column("hotp_counter")
