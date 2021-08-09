@@ -155,6 +155,9 @@ Google Play Store release history
 | 2.4.8         | 21 (32-bit ARM);    | 2.4.8               | 2021-07-09         | 23      | 29      |
 |               | 22 (64-bit ARM)     |                     |                    |         |         |
 +---------------+---------------------+---------------------+--------------------+---------+---------+
+| 2.4.9         | 23 (32-bit ARM);    | 2.4.9               |                    | 23      | 29      |
+|               | 24 (64-bit ARM)     |                     |                    |         |         |
++---------------+---------------------+---------------------+--------------------+---------+---------+
 
 Note: target API of 30 required as of Nov 2021:
 https://android-developers.googleblog.com/2020/11/new-android-app-bundle-and-target-api.html
