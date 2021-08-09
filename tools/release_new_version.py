@@ -631,11 +631,8 @@ class VersionReleaser:
     def remove_old_packages(self) -> None:
         """
         Deletes old server package build files (e.g. ``.deb``).
-
-        todo:: should this find all ``.rpm``, too? The RPM package builder converts
-        ``server_`` to ``server-``, not found by this expression.
         """
-        for f in Path(SERVER_PACKAGE_DIR).glob("camcops-server_*"):
+        for f in Path(SERVER_PACKAGE_DIR).glob("camcops-server*"):
             f.unlink()
 
     def get_pypi_builds(self) -> Iterable[Path]:
