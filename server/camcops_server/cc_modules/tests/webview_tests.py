@@ -78,6 +78,7 @@ from camcops_server.cc_modules.webview import (
     FLASH_DANGER,
     FLASH_INFO,
     FLASH_SUCCESS,
+    LoginView,
     SendEmailFromPatientTaskScheduleView,
     any_records_use_group,
     edit_group,
@@ -2354,3 +2355,33 @@ class SendEmailFromPatientTaskScheduleViewTests(BasicDatabaseTestCase):
 
         self.assertEqual(len(self.pts.emails), 1)
         self.assertEqual(self.pts.emails[0].email.to, "patient@example.com")
+
+
+class LoginViewTests(BasicDatabaseTestCase):
+    def test_form_rendered_with_values(self) -> None:
+        self.req.add_get_params({
+            ViewParam.REDIRECT_URL: "https://www.example.com",
+        })
+        view = LoginView(self.req)
+
+        with mock.patch.object(view, "render_to_response") as mock_render:
+            view.dispatch()
+
+        args, kwargs = mock_render.call_args
+        context = args[0]
+
+        self.assertIn("form", context)
+        self.assertIn("https://www.example.com", context["form"])
+
+    def test_password_autocomplete_read_from_config(self) -> None:
+        self.req.config.disable_password_autocomplete = False
+
+        view = LoginView(self.req)
+
+        with mock.patch.object(view, "render_to_response") as mock_render:
+            view.dispatch()
+
+        args, kwargs = mock_render.call_args
+        context = args[0]
+
+        self.assertIn('autocomplete="current-password"', context["form"])

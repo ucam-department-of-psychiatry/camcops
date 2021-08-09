@@ -580,6 +580,30 @@ def audit_menu(req: "CamcopsRequest") -> Dict[str, Any]:
 # "def view(context, request)", so if you add additional parameters, it thinks
 # you're doing the latter and sends parameters accordingly.
 
+
+class LoginView(FormView):
+    form_class = LoginForm
+
+    def get_form_values(self) -> Dict:
+        redirect_url = self.request.get_redirect_url_param(
+            ViewParam.REDIRECT_URL, "")
+        # ... use default of "", because None gets serialized to "None", which
+        #     would then get read back later as "None".
+
+        return {
+            ViewParam.REDIRECT_URL: redirect_url,
+        }
+
+    def get_form_kwargs(self) -> Dict[str, Any]:
+        kwargs = super().get_form_kwargs()
+
+        cfg = self.request.config
+        autocomplete_password = not cfg.disable_password_autocomplete
+        kwargs["autocomplete_password"] = autocomplete_password
+
+        return kwargs
+
+
 @view_config(route_name=Routes.LOGIN,
              permission=NO_PERMISSION_REQUIRED,
              http_cache=NEVER_CACHE)
