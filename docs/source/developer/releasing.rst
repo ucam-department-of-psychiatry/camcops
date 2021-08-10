@@ -38,8 +38,6 @@ Releasing a new client and server involves the following steps:
 Code and documentation
 ----------------------
 
-- Push to the development repository.
-
 - Push to Github (https://github.com/RudolfCardinal/camcops). This also
   automatically updates the docs at https://camcops.readthedocs.io/.
 
