@@ -585,13 +585,8 @@ class LoginView(FormView):
     form_class = LoginForm
 
     def get_form_values(self) -> Dict:
-        redirect_url = self.request.get_redirect_url_param(
-            ViewParam.REDIRECT_URL, "")
-        # ... use default of "", because None gets serialized to "None", which
-        #     would then get read back later as "None".
-
         return {
-            ViewParam.REDIRECT_URL: redirect_url,
+            ViewParam.REDIRECT_URL: self.get_redirect_url(),
         }
 
     def get_form_kwargs(self) -> Dict[str, Any]:
@@ -602,6 +597,28 @@ class LoginView(FormView):
         kwargs["autocomplete_password"] = autocomplete_password
 
         return kwargs
+
+    def form_valid(self, form: "Form", appstruct: Dict[str, Any]) -> Response:
+        username = appstruct.get(ViewParam.USERNAME)
+        locked_out_until = SecurityAccountLockout.user_locked_out_until(
+            self.request, username)
+        if locked_out_until is not None:
+            return account_locked(self.request, locked_out_until)
+
+        return super().form_valid(form, appstruct)
+
+    def get_success_url(self) -> str:
+        return self.get_redirect_url(
+            default=self.request.route_url(Routes.HOME)
+        )
+
+    def get_redirect_url(self, default: str = "") -> str:
+        # ... use default of "", because None gets serialized to "None", which
+        #     would then get read back later as "None".
+        redirect_url = self.request.get_redirect_url_param(
+            ViewParam.REDIRECT_URL, default)
+
+        return redirect_url
 
 
 @view_config(route_name=Routes.LOGIN,
@@ -636,6 +653,7 @@ def login_view(req: "CamcopsRequest") -> Response:
             redirect_url = appstruct.get(ViewParam.REDIRECT_URL)
             # 1. If we don't have a username, let's stop quickly.
             if not username:
+                # TODO: Never the case, fails validation
                 ccsession.logout()
                 return login_failed(req)
             # 2. Is the user locked?

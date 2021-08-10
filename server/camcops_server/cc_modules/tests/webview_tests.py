@@ -57,7 +57,7 @@ from camcops_server.cc_modules.cc_unittest import (
     BasicDatabaseTestCase,
     DemoDatabaseTestCase,
 )
-from camcops_server.cc_modules.cc_user import User
+from camcops_server.cc_modules.cc_user import SecurityAccountLockout, User
 from camcops_server.cc_modules.cc_validators import (
     validate_alphanum_underscore,
 )
@@ -2385,3 +2385,22 @@ class LoginViewTests(BasicDatabaseTestCase):
         context = args[0]
 
         self.assertIn('autocomplete="current-password"', context["form"])
+
+    def test_fails_when_user_locked_out(self) -> None:
+        user = self.create_user(username="test")
+        user.set_password(self.req, "secret")
+        SecurityAccountLockout.lock_user_out(self.req, user.username,
+                                             lockout_minutes=1)
+
+        multidict = MultiDict([
+            (ViewParam.USERNAME, user.username),
+            (ViewParam.PASSWORD, "secret"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+
+        view = LoginView(self.req)
+        response = view.dispatch()
+
+        self.assertIn("Account locked", response.body.decode("utf-8"))
