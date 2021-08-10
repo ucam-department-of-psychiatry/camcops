@@ -611,6 +611,11 @@ class LoginView(FormView):
         user = User.get_user_from_username_password(
             self.request, username, password)  # checks password
 
+        if not user.may_use_webviewer:
+            # This means a user who can upload from tablet but who cannot
+            # log in via the web front end.
+            return login_failed(self.request)
+
         # Successful login.
         user.login(self.request)  # will clear login failure record
         self.request.camcops_session.login(user)

@@ -2416,6 +2416,9 @@ class LoginViewTests(BasicDatabaseTestCase):
     def test_user_can_log_in(self, mock_audit) -> None:
         user = self.create_user(username="test")
         user.set_password(self.req, "secret")
+        self.dbsession.flush()
+        self.create_membership(user, self.group, may_use_webviewer=True)
+
         multidict = MultiDict([
             (ViewParam.USERNAME, user.username),
             (ViewParam.PASSWORD, "secret"),
@@ -2442,3 +2445,24 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.assertEqual(args[0], self.req)
         self.assertEqual(args[1], "Login")
         self.assertEqual(kwargs["user_id"], user.id)
+
+    @mock.patch("camcops_server.cc_modules.webview.login_failed")
+    def test_unprivileged_user_cannot_log_in(self, mock_login_failed) -> None:
+        user = self.create_user(username="test")
+        user.set_password(self.req, "secret")
+        self.dbsession.flush()
+
+        self.create_membership(user, self.group, may_use_webviewer=False)
+
+        multidict = MultiDict([
+            (ViewParam.USERNAME, user.username),
+            (ViewParam.PASSWORD, "secret"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+
+        view = LoginView(self.req)
+        view.dispatch()
+
+        args, kwargs = mock_login_failed.call_args
