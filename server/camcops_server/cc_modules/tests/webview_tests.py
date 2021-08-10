@@ -36,7 +36,6 @@ from pendulum import local
 from pyramid.httpexceptions import HTTPBadRequest, HTTPFound
 from webob.multidict import MultiDict
 
-from camcops_server.cc_modules.cc_audit import AuditEntry
 from camcops_server.cc_modules.cc_constants import ERA_NOW
 from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_group import Group
@@ -2406,7 +2405,8 @@ class LoginViewTests(BasicDatabaseTestCase):
 
         self.assertIn("Account locked", response.body.decode("utf-8"))
 
-    def test_user_can_log_in(self) -> None:
+    @mock.patch("camcops_server.cc_modules.webview.audit")
+    def test_user_can_log_in(self, mock_audit) -> None:
         user = self.create_user(username="test")
         user.set_password(self.req, "secret")
         multidict = MultiDict([
@@ -2431,10 +2431,7 @@ class LoginViewTests(BasicDatabaseTestCase):
         args, kwargs = mock_session_login.call_args
         self.assertEqual(args[0], user)
 
-        self.dbsession.flush()
-
-        entry = self.dbsession.query(AuditEntry).filter(
-            AuditEntry.details == "Login").one_or_none()
-        self.assertIsNotNone(entry)
-
-        self.assertEqual(entry.user_id, user.id)
+        args, kwargs = mock_audit.call_args
+        self.assertEqual(args[0], self.req)
+        self.assertEqual(args[1], "Login")
+        self.assertEqual(kwargs["user_id"], user.id)
