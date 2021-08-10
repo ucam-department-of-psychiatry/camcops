@@ -605,6 +605,17 @@ class LoginView(FormView):
         if locked_out_until is not None:
             return account_locked(self.request, locked_out_until)
 
+        password = appstruct.get(ViewParam.PASSWORD)
+
+        # 3. Is the username/password combination correct?
+        user = User.get_user_from_username_password(
+            self.request, username, password)  # checks password
+
+        # Successful login.
+        user.login(self.request)  # will clear login failure record
+        self.request.camcops_session.login(user)
+        audit(self.request, "Login", user_id=user.id)
+
         return super().form_valid(form, appstruct)
 
     def get_success_url(self) -> str:

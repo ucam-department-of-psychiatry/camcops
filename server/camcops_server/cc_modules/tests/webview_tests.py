@@ -36,6 +36,7 @@ from pendulum import local
 from pyramid.httpexceptions import HTTPBadRequest, HTTPFound
 from webob.multidict import MultiDict
 
+from camcops_server.cc_modules.cc_audit import AuditEntry
 from camcops_server.cc_modules.cc_constants import ERA_NOW
 from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_group import Group
@@ -2404,3 +2405,36 @@ class LoginViewTests(BasicDatabaseTestCase):
         response = view.dispatch()
 
         self.assertIn("Account locked", response.body.decode("utf-8"))
+
+    def test_user_can_log_in(self) -> None:
+        user = self.create_user(username="test")
+        user.set_password(self.req, "secret")
+        multidict = MultiDict([
+            (ViewParam.USERNAME, user.username),
+            (ViewParam.PASSWORD, "secret"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+
+        view = LoginView(self.req)
+
+        with mock.patch.object(user, "login") as mock_user_login:
+            with mock.patch.object(self.req.camcops_session,
+                                   "login") as mock_session_login:
+                with self.assertRaises(HTTPFound):
+                    view.dispatch()
+
+        args, kwargs = mock_user_login.call_args
+        self.assertEqual(args[0], self.req)
+
+        args, kwargs = mock_session_login.call_args
+        self.assertEqual(args[0], user)
+
+        self.dbsession.flush()
+
+        entry = self.dbsession.query(AuditEntry).filter(
+            AuditEntry.details == "Login").one_or_none()
+        self.assertIsNotNone(entry)
+
+        self.assertEqual(entry.user_id, user.id)
