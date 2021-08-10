@@ -57,7 +57,11 @@ from camcops_server.cc_modules.cc_unittest import (
     BasicDatabaseTestCase,
     DemoDatabaseTestCase,
 )
-from camcops_server.cc_modules.cc_user import SecurityAccountLockout, User
+from camcops_server.cc_modules.cc_user import (
+    SecurityAccountLockout,
+    SecurityLoginFailure,
+    User,
+)
 from camcops_server.cc_modules.cc_validators import (
     validate_alphanum_underscore,
 )
@@ -2466,3 +2470,31 @@ class LoginViewTests(BasicDatabaseTestCase):
         view.dispatch()
 
         args, kwargs = mock_login_failed.call_args
+        self.assertEqual(args[0], self.req)
+
+    @mock.patch("camcops_server.cc_modules.webview.login_failed")
+    def test_unknown_user_cannot_log_in(self, mock_login_failed) -> None:
+        multidict = MultiDict([
+            (ViewParam.USERNAME, "unknown"),
+            (ViewParam.PASSWORD, "secret"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+
+        view = LoginView(self.req)
+
+        with mock.patch.object(SecurityLoginFailure,
+                               "act_on_login_failure") as mock_act:
+            with mock.patch.object(self.req.camcops_session,
+                                   "logout") as mock_logout:
+                view.dispatch()
+
+        args, kwargs = mock_act.call_args
+        self.assertEqual(args[0], self.req)
+        self.assertEqual(args[1], "unknown")
+
+        mock_logout.assert_called_once()
+
+        args, kwargs = mock_login_failed.call_args
+        self.assertEqual(args[0], self.req)

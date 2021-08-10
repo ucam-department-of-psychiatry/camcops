@@ -600,6 +600,8 @@ class LoginView(FormView):
 
     def form_valid(self, form: "Form", appstruct: Dict[str, Any]) -> Response:
         username = appstruct.get(ViewParam.USERNAME)
+
+        # Is the user locked?
         locked_out_until = SecurityAccountLockout.user_locked_out_until(
             self.request, username)
         if locked_out_until is not None:
@@ -607,9 +609,18 @@ class LoginView(FormView):
 
         password = appstruct.get(ViewParam.PASSWORD)
 
-        # 3. Is the username/password combination correct?
+        # Is the username/password combination correct?
         user = User.get_user_from_username_password(
             self.request, username, password)  # checks password
+
+        if user is None:
+            # Unsuccessful. Note that the username may/may not be genuine.
+            SecurityLoginFailure.act_on_login_failure(self.request, username)
+            # ... may lock the account
+            # Now, call audit() before session.logout(), as the latter
+            # will wipe the session IP address:
+            self.request.camcops_session.logout()
+            return login_failed(self.request)
 
         if not user.may_use_webviewer:
             # This means a user who can upload from tablet but who cannot
@@ -620,6 +631,11 @@ class LoginView(FormView):
         user.login(self.request)  # will clear login failure record
         self.request.camcops_session.login(user)
         audit(self.request, "Login", user_id=user.id)
+
+        # OK, logged in.
+        # Redirect to the main menu, or wherever the user was heading.
+        # HOWEVER, that may lead us to a "change password" or "agree terms"
+        # page, via the permissions system (Permission.HAPPY or not).
 
         return super().form_valid(form, appstruct)
 
