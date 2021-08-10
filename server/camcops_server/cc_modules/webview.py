@@ -583,6 +583,7 @@ def audit_menu(req: "CamcopsRequest") -> Dict[str, Any]:
 
 class LoginView(FormView):
     form_class = LoginForm
+    template_name = "login.mako"
 
     def get_form_values(self) -> Dict:
         return {

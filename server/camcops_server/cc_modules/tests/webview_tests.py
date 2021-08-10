@@ -2377,6 +2377,12 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.assertIn("form", context)
         self.assertIn("https://www.example.com", context["form"])
 
+    def test_template_rendered(self) -> None:
+        view = LoginView(self.req)
+        response = view.dispatch()
+
+        self.assertIn("Log in", response.body.decode("utf-8"))
+
     def test_password_autocomplete_read_from_config(self) -> None:
         self.req.config.disable_password_autocomplete = False
 
