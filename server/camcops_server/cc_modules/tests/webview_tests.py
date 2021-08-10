@@ -2386,7 +2386,8 @@ class LoginViewTests(BasicDatabaseTestCase):
 
         self.assertIn('autocomplete="current-password"', context["form"])
 
-    def test_fails_when_user_locked_out(self) -> None:
+    @mock.patch("camcops_server.cc_modules.webview.account_locked")
+    def test_fails_when_user_locked_out(self, mock_account_locked) -> None:
         user = self.create_user(username="test")
         user.set_password(self.req, "secret")
         SecurityAccountLockout.lock_user_out(self.req, user.username,
@@ -2401,9 +2402,15 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.req.fake_request_post_from_dict(multidict)
 
         view = LoginView(self.req)
-        response = view.dispatch()
+        view.dispatch()
 
-        self.assertIn("Account locked", response.body.decode("utf-8"))
+        args, kwargs = mock_account_locked.call_args
+        self.assertEqual(args[0], self.req)
+
+        locked_out_until = SecurityAccountLockout.user_locked_out_until(
+            self.req, user.username
+        )
+        self.assertEqual(args[1], locked_out_until)
 
     @mock.patch("camcops_server.cc_modules.webview.audit")
     def test_user_can_log_in(self, mock_audit) -> None:
