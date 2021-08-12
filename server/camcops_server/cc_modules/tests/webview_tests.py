@@ -2591,9 +2591,7 @@ class EditUserTests(BasicDatabaseTestCase):
         )
 
     def test_raises_if_user_may_not_edit_another(self) -> None:
-        self.req.add_get_params({
-            ViewParam.USER_ID: self.user.id,
-        })
+        self.req.add_get_params({ViewParam.USER_ID: self.user.id})
 
         regular_user = self.create_user(username="regular_user")
         self.dbsession.flush()
@@ -2602,3 +2600,14 @@ class EditUserTests(BasicDatabaseTestCase):
             edit_user(self.req)
 
         self.assertIn("Nobody may edit the system user", cm.exception.message)
+
+    def test_superuser_sees_full_form(self) -> None:
+        superuser = self.create_user(username="admin", superuser=True)
+        self.dbsession.flush()
+        self.req._debugging_user = superuser
+
+        self.req.add_get_params({ViewParam.USER_ID: superuser.id})
+
+        response_dict = edit_user(self.req)
+
+        self.assertIn("Superuser (CAUTION!)", response_dict["form"])
