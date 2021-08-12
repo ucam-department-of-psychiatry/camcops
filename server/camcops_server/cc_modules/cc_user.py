@@ -399,7 +399,6 @@ class User(Base):
         "mfa_secret_key",
         Base32ColType,
         nullable=True,
-        default=pyotp.random_base32,
         comment="Secret key used for multi-factor authentication"
     )
     hotp_counter = Column(
