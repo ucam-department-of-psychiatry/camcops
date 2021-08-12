@@ -33,6 +33,7 @@ import unittest
 from unittest import mock
 
 from pendulum import local
+import pyotp
 from pyramid.httpexceptions import HTTPBadRequest, HTTPFound
 from webob.multidict import MultiDict
 
@@ -2455,6 +2456,32 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.assertEqual(args[0], self.req)
         self.assertEqual(args[1], "Login")
         self.assertEqual(kwargs["user_id"], user.id)
+
+    def test_user_with_2fa_sees_token_form(self) -> None:
+        user = self.create_user(username="test",
+                                mfa_secret_key=pyotp.random_base32())
+        user.set_password(self.req, "secret")
+        self.dbsession.flush()
+        self.create_membership(user, self.group, may_use_webviewer=True)
+
+        multidict = MultiDict([
+            (ViewParam.USERNAME, user.username),
+            (ViewParam.PASSWORD, "secret"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+
+        view = LoginView(self.req)
+
+        with mock.patch.object(view, "render_to_response") as mock_render:
+            view.dispatch()
+
+        args, kwargs = mock_render.call_args
+        context = args[0]
+
+        self.assertIn("form", context)
+        self.assertIn("Enter the six-digit code", context["form"])
 
     @mock.patch("camcops_server.cc_modules.webview.login_failed")
     def test_unprivileged_user_cannot_log_in(self, mock_login_failed) -> None:

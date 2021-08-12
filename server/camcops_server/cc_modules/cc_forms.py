@@ -1900,6 +1900,40 @@ class LoginForm(InformativeNonceForm):
         # ... fixed 2020-09-29 by applying autocomplete to LoginSchema.password
 
 
+class OtpSchema(CSRFSchema):
+    """
+    Schema to capture login details.
+    """
+    one_time_password = MandatoryStringNode()
+    redirect_url = HiddenRedirectionUrlNode()  # name must match ViewParam.REDIRECT_URL  # noqa
+
+    def __init__(self, *args, autocomplete_password: bool = True,
+                 **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        _ = self.gettext
+        one_time_password = get_child_node(self, "one_time_password")
+        one_time_password.title = _("Enter the six-digit code")
+
+
+class OtpTokenForm(InformativeNonceForm):
+    """
+    Form to capture login details.
+    """
+    def __init__(self,
+                 request: "CamcopsRequest",
+                 **kwargs) -> None:
+        _ = request.gettext
+        schema = OtpSchema().bind(request=request)
+        super().__init__(
+            schema,
+            buttons=[Button(name=FormAction.SUBMIT, title=_("Submit"))],
+            **kwargs
+        )
+
+
 # =============================================================================
 # Change password
 # =============================================================================

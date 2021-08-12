@@ -252,6 +252,7 @@ from camcops_server.cc_modules.cc_forms import (
     OfferBasicDumpForm,
     OfferSqlDumpForm,
     OfferTermsForm,
+    OtpTokenForm,
     RefreshTasksForm,
     SendEmailForm,
     SetUserUploadGroupForm,
@@ -582,8 +583,34 @@ def audit_menu(req: "CamcopsRequest") -> Dict[str, Any]:
 
 
 class LoginView(FormView):
-    form_class = LoginForm
-    template_name = "login.mako"
+    def __init__(self, *args, **kwargs) -> None:
+        self._step = None
+
+        super().__init__(*args, **kwargs)
+
+    def get_form_class(self) -> Optional[Type["Form"]]:
+        forms = {
+            ViewArg.PASSWORD: LoginForm,
+            ViewArg.TOKEN: OtpTokenForm,
+        }
+
+        return forms[self.get_step()]
+
+    def get_template_name(self) -> str:
+        templates = {
+            ViewArg.PASSWORD: "login.mako",
+            ViewArg.TOKEN: "login_token.mako",
+        }
+
+        return templates[self.get_step()]
+
+    def get_step(self) -> str:
+        if self._step is None:
+            self._step = self.request.get_str_param(
+                ViewParam.STEP, ViewArg.PASSWORD, lower=True
+            )
+
+        return self._step
 
     def get_form_values(self) -> Dict:
         return {
@@ -627,6 +654,11 @@ class LoginView(FormView):
             # This means a user who can upload from tablet but who cannot
             # log in via the web front end.
             return login_failed(self.request)
+
+        if self.get_step() == ViewArg.PASSWORD:
+            if user.mfa_secret_key is not None:
+                self._step = ViewArg.TOKEN
+                return self.render_to_response(self.get_context_data())
 
         # Successful login.
         user.login(self.request)  # will clear login failure record
