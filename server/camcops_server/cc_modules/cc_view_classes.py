@@ -277,7 +277,6 @@ class FormMixin(ContextMixin):
     cancel_url = None
     form_class: Type["Form"] = None
     success_url = None
-    _form = None
     _error = None
 
     request: "CamcopsRequest"
@@ -293,16 +292,13 @@ class FormMixin(ContextMixin):
         Return an instance of the form to be used in this view.
         """
 
-        if self._form is None:
-            form_class = self.get_form_class()
-            if not form_class:
-                raise_runtime_error("Your view must provide a form_class.")
+        form_class = self.get_form_class()
+        if not form_class:
+            raise_runtime_error("Your view must provide a form_class.")
 
-            assert form_class is not None  # type checker
+        assert form_class is not None  # type checker
 
-            self._form = form_class(**self.get_form_kwargs())
-
-        return self._form
+        return form_class(**self.get_form_kwargs())
 
     def get_form_kwargs(self) -> Dict[str, Any]:
         """
