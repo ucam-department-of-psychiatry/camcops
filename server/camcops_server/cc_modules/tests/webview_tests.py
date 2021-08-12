@@ -89,6 +89,7 @@ from camcops_server.cc_modules.webview import (
     edit_group,
     edit_finalized_patient,
     edit_server_created_patient,
+    edit_user,
 )
 
 
@@ -2570,3 +2571,21 @@ class LoginViewTests(BasicDatabaseTestCase):
 
         args, kwargs = mock_login_failed.call_args
         self.assertEqual(args[0], self.req)
+
+
+class EditUserTests(BasicDatabaseTestCase):
+    def test_redirect_on_cancel(self) -> None:
+        self.req.fake_request_post_from_dict({
+            FormAction.CANCEL: "cancel"
+        })
+        self.req.add_get_params({
+            ViewParam.USER_ID: self.user.id,
+        }, set_method_get=False)
+
+        with self.assertRaises(HTTPFound) as cm:
+            edit_user(self.req)
+
+        self.assertEqual(cm.exception.status_code, 302)
+        self.assertIn(
+            "/view_all_users", cm.exception.headers["Location"]
+        )
