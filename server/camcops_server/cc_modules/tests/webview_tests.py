@@ -2589,3 +2589,16 @@ class EditUserTests(BasicDatabaseTestCase):
         self.assertIn(
             "/view_all_users", cm.exception.headers["Location"]
         )
+
+    def test_raises_if_user_may_not_edit_another(self) -> None:
+        self.req.add_get_params({
+            ViewParam.USER_ID: self.user.id,
+        })
+
+        regular_user = self.create_user(username="regular_user")
+        self.dbsession.flush()
+        self.req._debugging_user = regular_user
+        with self.assertRaises(HTTPBadRequest) as cm:
+            edit_user(self.req)
+
+        self.assertIn("Nobody may edit the system user", cm.exception.message)
