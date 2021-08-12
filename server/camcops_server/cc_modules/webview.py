@@ -583,34 +583,17 @@ def audit_menu(req: "CamcopsRequest") -> Dict[str, Any]:
 
 
 class LoginView(FormView):
-    def __init__(self, *args, **kwargs) -> None:
-        self._step = None
-
-        super().__init__(*args, **kwargs)
-
     def get_form_class(self) -> Optional[Type["Form"]]:
-        forms = {
-            ViewArg.PASSWORD: LoginForm,
-            ViewArg.TOKEN: OtpTokenForm,
-        }
+        if self.get_authenticated_user_id() is None:
+            return LoginForm
 
-        return forms[self.get_step()]
+        return OtpTokenForm
 
     def get_template_name(self) -> str:
-        templates = {
-            ViewArg.PASSWORD: "login.mako",
-            ViewArg.TOKEN: "login_token.mako",
-        }
+        if self.get_authenticated_user_id() is None:
+            return "login.mako"
 
-        return templates[self.get_step()]
-
-    def get_step(self) -> str:
-        if self._step is None:
-            self._step = self.request.get_str_param(
-                ViewParam.STEP, ViewArg.PASSWORD, lower=True
-            )
-
-        return self._step
+        return "login_token.mako"
 
     def get_form_values(self) -> Dict:
         return {
@@ -627,19 +610,23 @@ class LoginView(FormView):
         return kwargs
 
     def form_valid(self, form: "Form", appstruct: Dict[str, Any]) -> Response:
-        username = appstruct.get(ViewParam.USERNAME)
+        user = User.get_user_by_id(self.request.dbsession,
+                                   self.get_authenticated_user_id())
 
-        # Is the user locked?
-        locked_out_until = SecurityAccountLockout.user_locked_out_until(
-            self.request, username)
-        if locked_out_until is not None:
-            return account_locked(self.request, locked_out_until)
+        if user is None:
+            username = appstruct.get(ViewParam.USERNAME)
 
-        password = appstruct.get(ViewParam.PASSWORD)
+            # Is the user locked?
+            locked_out_until = SecurityAccountLockout.user_locked_out_until(
+                self.request, username)
+            if locked_out_until is not None:
+                return account_locked(self.request, locked_out_until)
 
-        # Is the username/password combination correct?
-        user = User.get_user_from_username_password(
-            self.request, username, password)  # checks password
+            password = appstruct.get(ViewParam.PASSWORD)
+
+            # Is the username/password combination correct?
+            user = User.get_user_from_username_password(
+                self.request, username, password)  # checks password
 
         if user is None:
             # Unsuccessful. Note that the username may/may not be genuine.
@@ -655,10 +642,15 @@ class LoginView(FormView):
             # log in via the web front end.
             return login_failed(self.request)
 
-        if self.get_step() == ViewArg.PASSWORD:
-            if user.mfa_secret_key is not None:
-                self._step = ViewArg.TOKEN
+        if user.mfa_secret_key is not None:
+            if self.get_authenticated_user_id() is None:
+                self.set_authenticated_user_id(user.id)
                 return self.render_to_response(self.get_context_data())
+
+            otp = appstruct.get(ViewParam.ONE_TIME_PASSWORD)
+            if not user.verify_one_time_password(otp):
+                return login_failed(self.request)
+            self.set_authenticated_user_id(None)
 
         # Successful login.
         user.login(self.request)  # will clear login failure record
@@ -684,6 +676,12 @@ class LoginView(FormView):
             ViewParam.REDIRECT_URL, default)
 
         return redirect_url
+
+    def get_authenticated_user_id(self) -> Optional[int]:
+        return self.request.session.get("authenticated_user_id")
+
+    def set_authenticated_user_id(self, user_id: Optional[int]) -> None:
+        self.request.session["authenticated_user_id"] = user_id
 
 
 @view_config(route_name=Routes.LOGIN,

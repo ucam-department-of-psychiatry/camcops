@@ -2483,6 +2483,45 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.assertIn("form", context)
         self.assertIn("Enter the six-digit code", context["form"])
 
+    @mock.patch("camcops_server.cc_modules.webview.audit")
+    def test_user_with_2fa_can_log_in(self, mock_audit) -> None:
+        user = self.create_user(username="test",
+                                mfa_secret_key=pyotp.random_base32())
+        user.set_password(self.req, "secret")
+        self.dbsession.flush()
+        self.req.session["authenticated_user_id"] = user.id
+
+        self.create_membership(user, self.group, may_use_webviewer=True)
+
+        totp = pyotp.TOTP(user.mfa_secret_key)
+
+        multidict = MultiDict([
+            (ViewParam.ONE_TIME_PASSWORD, totp.now()),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+
+        view = LoginView(self.req)
+
+        with mock.patch.object(user, "login") as mock_user_login:
+            with mock.patch.object(self.req.camcops_session,
+                                   "login") as mock_session_login:
+                with self.assertRaises(HTTPFound):
+                    view.dispatch()
+
+        args, kwargs = mock_user_login.call_args
+        self.assertEqual(args[0], self.req)
+
+        args, kwargs = mock_session_login.call_args
+        self.assertEqual(args[0], user)
+
+        args, kwargs = mock_audit.call_args
+        self.assertEqual(args[0], self.req)
+        self.assertEqual(args[1], "Login")
+        self.assertEqual(kwargs["user_id"], user.id)
+        self.assertIsNone(self.req.session["authenticated_user_id"])
+
     @mock.patch("camcops_server.cc_modules.webview.login_failed")
     def test_unprivileged_user_cannot_log_in(self, mock_login_failed) -> None:
         user = self.create_user(username="test")

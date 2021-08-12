@@ -655,6 +655,11 @@ class User(Base):
         self.set_password_change_flag_if_necessary(req)
         self.last_login_at_utc = req.now_utc_no_tzinfo
 
+    def verify_one_time_password(self, one_time_password: str) -> bool:
+        totp = pyotp.TOTP(self.mfa_secret_key)
+
+        return totp.verify(one_time_password)
+
     def set_password_change_flag_if_necessary(self,
                                               req: "CamcopsRequest") -> None:
         """

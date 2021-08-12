@@ -216,6 +216,7 @@ class ViewParam(object):
     NOTE_ID = "note_id"
     NEW_PASSWORD = "new_password"
     OLD_PASSWORD = "old_password"
+    ONE_TIME_PASSWORD = "one_time_password"
     OTHER = "other"
     COMPLETE_ONLY = "complete_only"
     PAGE = "page"
@@ -237,7 +238,6 @@ class ViewParam(object):
     SOURCE = "source"
     SQLITE_METHOD = "sqlite_method"
     START_DATETIME = "start_datetime"
-    STEP = "step"
     SUPERUSER = "superuser"
     SURNAME = "surname"
     TABLE_NAME = "table_name"
@@ -289,10 +289,6 @@ class ViewArg(object):
     EVERYTHING = "everything"
     SPECIFIC_TASKS_GROUPS = "specific_tasks_groups"
     USE_SESSION_FILTER = "use_session_filter"
-
-    # Login steps
-    PASSWORD = "password"
-    TOKEN = "token"
 
 
 # =============================================================================
