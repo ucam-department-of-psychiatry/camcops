@@ -76,7 +76,7 @@ To provide a custom view class to create a new object in the database:
 * Inherit from :class:`CreateView`.
 * Set the ``object_class`` property.
 * Set the ``form_class`` property.
-* Set the ``template_name`` property.
+* Set the ``template_name`` property or implement ``get_template_name()``.
 * Override ``get_extra_context()`` for any extra parameters to pass to the
   template.
 * Set ``success_url`` or override ``get_success_url()`` to be the redirect on
@@ -95,7 +95,7 @@ To provide a custom view class to delete an object from the database:
 * Inherit from :class:`DeleteView`.
 * Set the ``object_class`` property.
 * Set the ``form_class`` property.
-* Set the ``template_name`` property.
+* Set the ``template_name`` property or implement ``get_template_name()``.
 * Override ``get_extra_context()``. for any extra parameters to pass to the
   template.
 * Set ``success_url`` or override ``get_success_url()`` to be the redirect on
@@ -115,7 +115,7 @@ To provide a custom view class to update an object in the database:
 * Inherit from :class:`UpdateView`.
 * Set the ``object_class`` property.
 * Set the ``form_class`` property.
-* Set the ``template_name`` property.
+* Set the ``template_name`` property or implement ``get_template_name()``.
 * Override ``get_extra_context()`` for any extra parameters to pass to the
   template.
 * Set ``success_url`` or override ``get_success_url()`` to be the redirect on
@@ -255,14 +255,19 @@ class TemplateResponseMixin(object):
         (set by ``template_name``), and returns a
         :class:`pyramid.response.Response`.
         """
-        if self.template_name is None:
-            raise_runtime_error(f"No template_name set for {self.__class__}.")
 
         return render_to_response(
-            self.template_name,
+            self.get_template_name(),
             context,
             request=self.request
         )
+
+    def get_template_name(self) -> str:
+        if self.template_name is None:
+            raise_runtime_error("You must set template_name or override "
+                                "get_template_name() in {self.__class__}.")
+
+        return self.template_name
 
 
 class FormMixin(ContextMixin):
