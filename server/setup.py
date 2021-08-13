@@ -114,6 +114,8 @@ INSTALL_REQUIRES = [
     'pyramid_debugtoolbar==4.6.1',  # debugging for Pyramid
     "pytest==6.0.2",  # automatic testing
 
+    "qrcode[pil]==7.2",  # for registering with Authenticators
+
     'sadisplay==0.4.9',  # SQL Alchemy schema display script
     'scipy==1.5.4',  # used by some tasks. slow installation.
     'semantic_version==2.8.5',  # semantic versioning; better than semver
