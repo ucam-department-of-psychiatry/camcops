@@ -41,6 +41,7 @@ from camcops_server.cc_modules.cc_forms import (
     DurationWidget,
     GroupIpUseWidget,
     IpUseType,
+    MfaSecretWidget,
     JsonType,
     JsonWidget,
     LoginSchema,
@@ -871,3 +872,56 @@ class IpUseTypeTests(TestCase):
         self.assertTrue(ip_use.commercial)
         self.assertFalse(ip_use.educational)
         self.assertTrue(ip_use.research)
+
+
+class MfaSecretWidgetTests(TestCase):
+    def setUp(self) -> None:
+        super().setUp()
+        self.request = mock.Mock(gettext=lambda t: t,
+                                 user=mock.Mock(username="test"))
+        self.mfa_secret = "HVIHV7TUFQPV7KAIJE2GSJTLTEAQIQSJ"
+
+    def test_serialize_renders_template_with_values(self) -> None:
+        widget = MfaSecretWidget(self.request)
+
+        field = mock.Mock()
+        field.renderer = mock.Mock()
+
+        cstruct = self.mfa_secret
+        widget.serialize(field, cstruct, readonly=False)
+
+        args, kwargs = field.renderer.call_args
+
+        self.assertEqual(args[0], f"{TEMPLATE_DIR}/deform/mfa_secret.pt")
+        self.assertFalse(kwargs["readonly"])
+
+        self.assertIn("<svg", kwargs["qr_code"])
+
+    def test_serialize_renders_readonly_template(self) -> None:
+        widget = MfaSecretWidget(self.request)
+
+        field = mock.Mock()
+        field.renderer = mock.Mock()
+
+        cstruct = self.mfa_secret
+        widget.serialize(field, cstruct, readonly=True)
+
+        args, kwargs = field.renderer.call_args
+
+        self.assertEqual(args[0],
+                         f"{TEMPLATE_DIR}/deform/readonly/mfa_secret.pt")
+        self.assertTrue(kwargs["readonly"])
+
+    def test_serialize_readonly_widget_renders_readonly_template(self) -> None:
+        widget = MfaSecretWidget(self.request, readonly=True)
+
+        field = mock.Mock()
+        field.renderer = mock.Mock()
+
+        cstruct = self.mfa_secret
+        widget.serialize(field, cstruct)
+
+        args, kwargs = field.renderer.call_args
+
+        self.assertEqual(args[0],
+                         f"{TEMPLATE_DIR}/deform/readonly/mfa_secret.pt")

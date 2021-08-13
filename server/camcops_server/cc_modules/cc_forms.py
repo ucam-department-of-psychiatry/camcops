@@ -94,6 +94,7 @@ Form titles need to be dynamically written via
 
 """
 
+from io import BytesIO
 import json
 import logging
 import os
@@ -168,6 +169,9 @@ from deform.widget import (
 )
 
 from pendulum import Duration
+import pyotp
+import qrcode
+import qrcode.image.svg
 
 # import as LITTLE AS POSSIBLE; this is used by lots of modules
 # We use some delayed imports here (search for "delayed import")
@@ -2075,6 +2079,51 @@ class ChangeOtherPasswordForm(SimpleSubmitForm):
 # Multi-factor authentication
 # =============================================================================
 
+class MfaSecretWidget(TextInputWidget):
+    basedir = os.path.join(TEMPLATE_DIR, "deform")
+    readonlydir = os.path.join(basedir, "readonly")
+    form = "mfa_secret.pt"
+    template = os.path.join(basedir, form)
+    readonly_template = os.path.join(readonlydir, form)
+
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+        self.request = request
+
+    def serialize(self,
+                  field: "Field",
+                  cstruct: str,
+                  **kw: Any) -> Any:
+        readonly = kw.get("readonly", self.readonly)
+        template = readonly and self.readonly_template or self.template
+        values = self.get_template_values(field, cstruct, kw)
+
+        _ = self.request.gettext
+
+        factory = qrcode.image.svg.SvgImage
+        totp = pyotp.totp.TOTP(cstruct)
+        uri = totp.provisioning_uri(
+            name=self.request.user.username,
+            issuer_name="CamCOPS"
+        )
+        img = qrcode.make(uri,
+                          image_factory=factory,
+                          box_size=20)
+        stream = BytesIO()
+        img.save(stream)
+        values.update(qr_code=stream.getvalue().decode())
+
+        return field.renderer(template, **values)
+
+
+class MfaSecretNode(SchemaNode, RequestAwareMixin):
+    schema_type = String
+
+    # noinspection PyUnusedLocal,PyAttributeOutsideInit
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        self.widget = MfaSecretWidget(self.request)
+
+
 class MfaTypeSelector(SchemaNode, RequestAwareMixin):
     """
     Node to select type of authentication
@@ -2108,7 +2157,7 @@ class EditMfaSchema(CSRFSchema):
     Schema to edit settings for Multi-factor Authentication
     """
     mfa_type = MfaTypeSelector()  # must match ViewParams.MFA_TYPE
-    mfa_secret_key = OptionalStringNode()  # must match ViewParams.MFA_SECRET_KEY  # noqa: E501
+    mfa_secret_key = MfaSecretNode()  # must match ViewParams.MFA_SECRET_KEY  # noqa: E501
 
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
@@ -2119,7 +2168,7 @@ class EditMfaSchema(CSRFSchema):
 
 class EditMfaForm(InformativeNonceForm):
     """
-    Form to change one's own password.
+    Form to change one's own secret key
     """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         schema = EditMfaSchema().bind(request=request)
