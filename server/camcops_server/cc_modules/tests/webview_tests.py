@@ -2631,6 +2631,22 @@ class EditUserTests(BasicDatabaseTestCase):
 
 
 class EditMfaViewTests(BasicDatabaseTestCase):
+    def test_form_displays_secret_key(self) -> None:
+        regular_user = self.create_user(username="regular_user")
+        self.dbsession.flush()
+
+        self.req._debugging_user = regular_user
+        view = EditMfaView(self.req)
+
+        mock_secret_key = pyotp.random_base32()
+        with mock.patch("camcops_server.cc_modules.webview.pyotp.random_base32",
+                        return_value=mock_secret_key) as mock_random_base32:
+            response = view.dispatch()
+
+        mock_random_base32.assert_called_once()
+
+        self.assertIn(mock_secret_key, response.body.decode("utf-8"))
+
     def test_user_can_set_secret_key(self) -> None:
         regular_user = self.create_user(username="regular_user")
         self.dbsession.flush()
@@ -2642,10 +2658,7 @@ class EditMfaViewTests(BasicDatabaseTestCase):
             (ViewParam.MFA_TYPE, ViewArg.TOTP),
             (FormAction.SUBMIT, "submit"),
         ])
-        self.req.add_get_params({
-            ViewParam.USER_ID: regular_user.id,
-        }, set_method_get=False)
-
+        self.req._debugging_user = regular_user
         self.req.fake_request_post_from_dict(multidict)
 
         view = EditMfaView(self.req)

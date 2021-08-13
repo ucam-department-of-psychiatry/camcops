@@ -154,6 +154,7 @@ from cardinal_pythonlib.sqlalchemy.orm_query import CountStarSpecializedQuery
 from cardinal_pythonlib.sqlalchemy.session import get_engine_from_session
 from deform.exception import ValidationFailure
 from pendulum import DateTime as Pendulum
+import pyotp
 from pyramid.httpexceptions import HTTPBadRequest, HTTPFound, HTTPNotFound
 from pyramid.view import (
     forbidden_view_config,
@@ -937,6 +938,12 @@ class EditMfaView(UpdateView):
     pk_param = ViewParam.USER_ID
     server_pk_name = "id"
 
+    def get_object(self) -> Any:
+        return self.request.user
+
+    def get_form_values(self) -> Dict[str, Any]:
+        return {ViewParam.MFA_SECRET_KEY: pyotp.random_base32()}
+
     def get_success_url(self) -> str:
         return self.request.route_url(Routes.HOME)
 
@@ -944,6 +951,14 @@ class EditMfaView(UpdateView):
         if appstruct.get(ViewParam.MFA_TYPE) == ViewArg.TOTP:
             mfa_secret_key = appstruct.get(ViewParam.MFA_SECRET_KEY)
             self.object.mfa_secret_key = mfa_secret_key
+
+
+@view_config(route_name=Routes.EDIT_MFA,
+             permission=Authenticated,
+             http_cache=NEVER_CACHE)
+def edit_mfa(request: "CamcopsRequest") -> Response:
+    view = EditMfaView(request)
+    return view.dispatch()
 
 
 # =============================================================================
