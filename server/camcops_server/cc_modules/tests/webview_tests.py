@@ -2611,3 +2611,19 @@ class EditUserTests(BasicDatabaseTestCase):
         response_dict = edit_user(self.req)
 
         self.assertIn("Superuser (CAUTION!)", response_dict["form"])
+
+    def test_groupadmin_sees_groupadmin_form(self) -> None:
+        groupadmin = self.create_user(username="groupadmin")
+        regular_user = self.create_user(username="regular_user")
+        self.dbsession.flush()
+        self.create_membership(groupadmin, self.group, groupadmin=True)
+        self.create_membership(regular_user, self.group)
+        self.dbsession.flush()
+        self.req._debugging_user = groupadmin
+
+        self.req.add_get_params({ViewParam.USER_ID: regular_user.id})
+
+        response_dict = edit_user(self.req)
+
+        self.assertIn("Full name", response_dict["form"])
+        self.assertNotIn("Superuser (CAUTION!)", response_dict["form"])
