@@ -1902,14 +1902,10 @@ class LoginForm(InformativeNonceForm):
 
 class OtpSchema(CSRFSchema):
     """
-    Schema to capture login details.
+    Schema to capture one-time password for Multi-factor Authentication
     """
     one_time_password = MandatoryStringNode()
     redirect_url = HiddenRedirectionUrlNode()  # name must match ViewParam.REDIRECT_URL  # noqa
-
-    def __init__(self, *args, autocomplete_password: bool = True,
-                 **kwargs) -> None:
-        super().__init__(*args, **kwargs)
 
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
@@ -2073,6 +2069,65 @@ class ChangeOtherPasswordForm(SimpleSubmitForm):
         super().__init__(schema_class=ChangeOtherPasswordSchema,
                          submit_title=change_password_title(request),
                          request=request, **kwargs)
+
+
+# =============================================================================
+# Multi-factor authentication
+# =============================================================================
+
+class MfaTypeSelector(SchemaNode, RequestAwareMixin):
+    """
+    Node to select type of authentication
+    """
+    schema_type = String
+    default = ViewArg.TOTP
+    missing = ViewArg.TOTP
+
+    def __init__(self, *args, **kwargs) -> None:
+        self.title = ""  # for type checker
+        self.widget = None  # type: Optional[Widget]
+        self.validator = None  # type: Optional[ValidatorType]
+        super().__init__(*args, **kwargs)
+
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        _ = self.gettext
+        self.title = _("Authentication type")
+        choices = (
+            (ViewArg.TOTP, _("Use authentication app")),
+            (ViewArg.HOTP_EMAIL, _("Send me a code by email")),
+            (ViewArg.HOTP_SMS, _("Send me a code by text message")),
+        )
+        values, pv = get_values_and_permissible(choices)
+        self.widget = RadioChoiceWidget(values=values)
+        self.validator = OneOf(pv)
+
+
+class EditMfaSchema(CSRFSchema):
+    """
+    Schema to edit settings for Multi-factor Authentication
+    """
+    mfa_type = MfaTypeSelector()  # must match ViewParams.MFA_TYPE
+    mfa_secret_key = OptionalStringNode()  # must match ViewParams.MFA_SECRET_KEY  # noqa: E501
+
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        _ = self.gettext
+        mfa_type = get_child_node(self, "mfa_type")
+        mfa_type.title = _("How do you wish to authenticate?")
+
+
+class EditMfaForm(InformativeNonceForm):
+    """
+    Form to change one's own password.
+    """
+    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+        schema = EditMfaSchema().bind(request=request)
+        super().__init__(
+            schema,
+            buttons=[Button(name=FormAction.SUBMIT)],
+            **kwargs
+        )
 
 
 # =============================================================================

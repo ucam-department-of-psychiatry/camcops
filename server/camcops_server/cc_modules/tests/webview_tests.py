@@ -73,6 +73,7 @@ from camcops_server.cc_modules.webview import (
     DeleteServerCreatedPatientView,
     DeleteTaskScheduleItemView,
     DeleteTaskScheduleView,
+    EditMfaView,
     EditTaskScheduleItemView,
     EditTaskScheduleView,
     EditFinalizedPatientView,
@@ -2627,3 +2628,29 @@ class EditUserTests(BasicDatabaseTestCase):
 
         self.assertIn("Full name", response_dict["form"])
         self.assertNotIn("Superuser (CAUTION!)", response_dict["form"])
+
+
+class EditMfaViewTests(BasicDatabaseTestCase):
+    def test_user_can_set_secret_key(self) -> None:
+        regular_user = self.create_user(username="regular_user")
+        self.dbsession.flush()
+
+        mfa_secret_key = pyotp.random_base32()
+
+        multidict = MultiDict([
+            (ViewParam.MFA_SECRET_KEY, mfa_secret_key),
+            (ViewParam.MFA_TYPE, ViewArg.TOTP),
+            (FormAction.SUBMIT, "submit"),
+        ])
+        self.req.add_get_params({
+            ViewParam.USER_ID: regular_user.id,
+        }, set_method_get=False)
+
+        self.req.fake_request_post_from_dict(multidict)
+
+        view = EditMfaView(self.req)
+
+        with self.assertRaises(HTTPFound):
+            view.dispatch()
+
+        self.assertEqual(regular_user.mfa_secret_key, mfa_secret_key)

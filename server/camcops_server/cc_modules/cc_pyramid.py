@@ -210,6 +210,8 @@ class ViewParam(object):
     MAY_RUN_REPORTS = "may_run_reports"
     MAY_UPLOAD = "may_upload"
     MAY_USE_WEBVIEWER = "may_use_webviewer"
+    MFA_SECRET_KEY = "mfa_secret_key"
+    MFA_TYPE = "mfa_type"
     MUST_CHANGE_PASSWORD = "must_change_password"
     NAME = "name"
     NOTE = "note"
@@ -289,6 +291,11 @@ class ViewArg(object):
     EVERYTHING = "everything"
     SPECIFIC_TASKS_GROUPS = "specific_tasks_groups"
     USE_SESSION_FILTER = "use_session_filter"
+
+    # Authentication types
+    HOTP_EMAIL = "hotp_email"
+    HOTP_SMS = "hotp_sms"
+    TOTP = "totp"
 
 
 # =============================================================================

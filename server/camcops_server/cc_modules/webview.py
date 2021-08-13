@@ -154,6 +154,7 @@ from cardinal_pythonlib.sqlalchemy.orm_query import CountStarSpecializedQuery
 from cardinal_pythonlib.sqlalchemy.session import get_engine_from_session
 from deform.exception import ValidationFailure
 from pendulum import DateTime as Pendulum
+import pyotp
 from pyramid.httpexceptions import HTTPBadRequest, HTTPFound, HTTPNotFound
 from pyramid.view import (
     forbidden_view_config,
@@ -235,6 +236,7 @@ from camcops_server.cc_modules.cc_forms import (
     EDIT_PATIENT_SIMPLE_PARAMS,
     EditFinalizedPatientForm,
     EditIdDefinitionForm,
+    EditMfaForm,
     EditServerCreatedPatientForm,
     EditServerSettingsForm,
     EditTaskScheduleForm,
@@ -927,6 +929,22 @@ def password_changed(req: "CamcopsRequest",
                               dict(username=username,
                                    own_password=own_password),
                               request=req)
+
+
+class EditMfaView(UpdateView):
+    object_class = User
+    form_class = EditMfaForm
+    template_name = "edit_mfa.mako"
+    pk_param = ViewParam.USER_ID
+    server_pk_name = "id"
+
+    def get_success_url(self) -> str:
+        return self.request.route_url(Routes.HOME)
+
+    def set_object_properties(self, appstruct: Dict[str, Any]) -> None:
+        if appstruct.get(ViewParam.MFA_TYPE) == ViewArg.TOTP:
+            mfa_secret_key = appstruct.get(ViewParam.MFA_SECRET_KEY)
+            self.object.mfa_secret_key = mfa_secret_key
 
 
 # =============================================================================
