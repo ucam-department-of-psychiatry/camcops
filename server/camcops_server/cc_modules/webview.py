@@ -154,7 +154,6 @@ from cardinal_pythonlib.sqlalchemy.orm_query import CountStarSpecializedQuery
 from cardinal_pythonlib.sqlalchemy.session import get_engine_from_session
 from deform.exception import ValidationFailure
 from pendulum import DateTime as Pendulum
-import pyotp
 from pyramid.httpexceptions import HTTPBadRequest, HTTPFound, HTTPNotFound
 from pyramid.view import (
     forbidden_view_config,
