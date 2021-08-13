@@ -34,6 +34,7 @@ import datetime
 import gettext
 import logging
 import os
+import re
 import secrets
 from typing import (Any, Dict, Generator, List, Optional, Set,
                     Tuple, TYPE_CHECKING, Union)
@@ -1913,7 +1914,8 @@ def camcops_pyramid_configurator_context(
         # Most views are using @view_config() which calls add_view().
         # Scan for @view_config decorators, to map views to routes:
         # https://docs.pylonsproject.org/projects/venusian/en/latest/api.html
-        config.scan("camcops_server.cc_modules")
+        config.scan("camcops_server.cc_modules",
+                    ignore=[re.compile("_tests$").search])
 
         # ---------------------------------------------------------------------
         # Add tweens (inner to outer)
