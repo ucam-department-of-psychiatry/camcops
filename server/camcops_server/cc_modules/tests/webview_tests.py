@@ -2486,6 +2486,82 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.assertIn("form", context)
         self.assertIn("Enter the six-digit code", context["form"])
 
+    @mock.patch("camcops_server.cc_modules.cc_email.send_msg")
+    @mock.patch("camcops_server.cc_modules.cc_email.make_email")
+    def test_user_with_hotp_is_sent_email(self,
+                                          mock_make_email,
+                                          mock_send_msg) -> None:
+        self.req.config.email_host = "smtp.example.com"
+        self.req.config.email_port = 587
+        self.req.config.email_host_username = "mailuser"
+        self.req.config.email_host_password = "mailpassword"
+        self.req.config.email_use_tls = True
+        self.req.config.email_from = "server@example.com"
+
+        user = self.create_user(username="test",
+                                email="user@example.com",
+                                mfa_secret_key=pyotp.random_base32(),
+                                mfa_preference=AuthenticationType.HOTP_EMAIL,
+                                hotp_counter=0)
+        user.set_password(self.req, "secret")
+        self.dbsession.flush()
+        self.create_membership(user, self.group, may_use_webviewer=True)
+
+        multidict = MultiDict([
+            (ViewParam.USERNAME, user.username),
+            (ViewParam.PASSWORD, "secret"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+
+        view = LoginView(self.req)
+        expected_code = pyotp.HOTP(user.mfa_secret_key).at(1)
+        view.dispatch()
+
+        args, kwargs = mock_make_email.call_args_list[0]
+        self.assertEqual(kwargs["from_addr"], "server@example.com")
+        self.assertEqual(kwargs["to"], "user@example.com")
+        self.assertEqual(kwargs["subject"], "CamCOPS two-step login")
+        self.assertIn(f"Your verification code is {expected_code}",
+                      kwargs["body"])
+        self.assertEqual(kwargs["content_type"], "text/plain")
+
+        args, kwargs = mock_send_msg.call_args
+        self.assertEqual(kwargs["host"], "smtp.example.com")
+        self.assertEqual(kwargs["user"], "mailuser")
+        self.assertEqual(kwargs["password"], "mailpassword")
+        self.assertEqual(kwargs["port"], 587)
+        self.assertTrue(kwargs["use_tls"])
+
+    @mock.patch("camcops_server.cc_modules.cc_email.send_msg")
+    @mock.patch("camcops_server.cc_modules.cc_email.make_email")
+    def test_login_with_hotp_increments_counter(self,
+                                                mock_make_email,
+                                                mock_send_msg) -> None:
+        user = self.create_user(username="test",
+                                email="user@example.com",
+                                mfa_secret_key=pyotp.random_base32(),
+                                mfa_preference=AuthenticationType.HOTP_EMAIL,
+                                hotp_counter=0)
+        user.set_password(self.req, "secret")
+        self.dbsession.flush()
+        self.create_membership(user, self.group, may_use_webviewer=True)
+
+        multidict = MultiDict([
+            (ViewParam.USERNAME, user.username),
+            (ViewParam.PASSWORD, "secret"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+
+        view = LoginView(self.req)
+
+        view.dispatch()
+
+        self.assertEqual(user.hotp_counter, 1)
+
     @mock.patch("camcops_server.cc_modules.webview.audit")
     def test_user_with_totp_can_log_in(self, mock_audit) -> None:
         user = self.create_user(username="test",
@@ -2531,7 +2607,7 @@ class LoginViewTests(BasicDatabaseTestCase):
         user = self.create_user(username="test",
                                 mfa_preference=AuthenticationType.HOTP_EMAIL,
                                 mfa_secret_key=pyotp.random_base32(),
-                                hotp_counter=0)
+                                hotp_counter=1)
         user.set_password(self.req, "secret")
         self.dbsession.flush()
         self.req.session["authenticated_user_id"] = user.id
@@ -2539,9 +2615,8 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.create_membership(user, self.group, may_use_webviewer=True)
 
         hotp = pyotp.HOTP(user.mfa_secret_key)
-
         multidict = MultiDict([
-            (ViewParam.ONE_TIME_PASSWORD, hotp.at(user.hotp_counter)),
+            (ViewParam.ONE_TIME_PASSWORD, hotp.at(1)),
             (FormAction.SUBMIT, "submit"),
         ])
 
@@ -2711,7 +2786,7 @@ class EditMfaViewTests(BasicDatabaseTestCase):
 
         self.assertEqual(regular_user.mfa_secret_key, mfa_secret_key)
 
-    def test_user_can_set_preferences(self) -> None:
+    def test_user_can_set_preference_totp(self) -> None:
         regular_user = self.create_user(username="regular_user")
         self.dbsession.flush()
 
@@ -2732,3 +2807,51 @@ class EditMfaViewTests(BasicDatabaseTestCase):
 
         self.assertEqual(regular_user.mfa_secret_key, mfa_secret_key)
         self.assertEqual(regular_user.mfa_preference, AuthenticationType.TOTP)
+
+    def test_user_can_set_preference_hotp_email(self) -> None:
+        regular_user = self.create_user(username="regular_user")
+        self.dbsession.flush()
+
+        mfa_secret_key = pyotp.random_base32()
+
+        multidict = MultiDict([
+            (ViewParam.MFA_SECRET_KEY, mfa_secret_key),
+            (ViewParam.MFA_TYPE, AuthenticationType.HOTP_EMAIL),
+            (FormAction.SUBMIT, "submit"),
+        ])
+        self.req._debugging_user = regular_user
+        self.req.fake_request_post_from_dict(multidict)
+
+        view = EditMfaView(self.req)
+
+        with self.assertRaises(HTTPFound):
+            view.dispatch()
+
+        self.assertEqual(regular_user.mfa_secret_key, mfa_secret_key)
+        self.assertEqual(regular_user.mfa_preference,
+                         AuthenticationType.HOTP_EMAIL)
+        self.assertEqual(regular_user.hotp_counter, 0)
+
+    def test_user_can_set_preference_hotp_sms(self) -> None:
+        regular_user = self.create_user(username="regular_user")
+        self.dbsession.flush()
+
+        mfa_secret_key = pyotp.random_base32()
+
+        multidict = MultiDict([
+            (ViewParam.MFA_SECRET_KEY, mfa_secret_key),
+            (ViewParam.MFA_TYPE, AuthenticationType.HOTP_SMS),
+            (FormAction.SUBMIT, "submit"),
+        ])
+        self.req._debugging_user = regular_user
+        self.req.fake_request_post_from_dict(multidict)
+
+        view = EditMfaView(self.req)
+
+        with self.assertRaises(HTTPFound):
+            view.dispatch()
+
+        self.assertEqual(regular_user.mfa_secret_key, mfa_secret_key)
+        self.assertEqual(regular_user.mfa_preference,
+                         AuthenticationType.HOTP_SMS)
+        self.assertEqual(regular_user.hotp_counter, 0)

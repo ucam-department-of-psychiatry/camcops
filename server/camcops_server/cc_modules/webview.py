@@ -317,6 +317,7 @@ from camcops_server.cc_modules.cc_taskschedule import (
 from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_tracker import ClinicalTextView, Tracker
 from camcops_server.cc_modules.cc_user import (
+    AuthenticationType,
     SecurityAccountLockout,
     SecurityLoginFailure,
     User,
@@ -647,6 +648,10 @@ class LoginView(FormView):
         if user.mfa_secret_key is not None:
             if self.get_authenticated_user_id() is None:
                 self.set_authenticated_user_id(user.id)
+
+                if user.mfa_preference == AuthenticationType.HOTP_EMAIL:
+                    self.send_authentication_email(user)
+
                 return self.render_to_response(self.get_context_data())
 
             otp = appstruct.get(ViewParam.ONE_TIME_PASSWORD)
@@ -665,6 +670,29 @@ class LoginView(FormView):
         # page, via the permissions system (Permission.HAPPY or not).
 
         return super().form_valid(form, appstruct)
+
+    def send_authentication_email(self, user: User) -> None:
+        _ = self.request.gettext
+        config = self.request.config
+        user.hotp_counter += 1
+        self.request.dbsession.add(user)
+        code = pyotp.HOTP(user.mfa_secret_key).at(user.hotp_counter)
+        kwargs = dict(
+            from_addr=config.email_from,
+            to=user.email,
+            subject=_("CamCOPS two-step login"),
+            body=_("Your verification code is {}").format(code),
+            content_type="text/plain"
+        )
+
+        email = Email(**kwargs)
+        email.send(host=config.email_host,
+                   username=config.email_host_username,
+                   password=config.email_host_password,
+                   port=config.email_port,
+                   use_tls=config.email_use_tls)
+
+        # TODO: should we handle failure or ignore silently?
 
     def get_success_url(self) -> str:
         return self.get_redirect_url(
@@ -954,9 +982,14 @@ class EditMfaView(UpdateView):
     def set_object_properties(self, appstruct: Dict[str, Any]) -> None:
         super().set_object_properties(appstruct)
 
-        if appstruct.get(ViewParam.MFA_TYPE) == ViewArg.TOTP:
-            mfa_secret_key = appstruct.get(ViewParam.MFA_SECRET_KEY)
-            self.object.mfa_secret_key = mfa_secret_key
+        mfa_secret_key = appstruct.get(ViewParam.MFA_SECRET_KEY)
+        self.object.mfa_secret_key = mfa_secret_key
+
+        hotp_types = (AuthenticationType.HOTP_EMAIL,
+                      AuthenticationType.HOTP_SMS)
+
+        if appstruct.get(ViewParam.MFA_TYPE) in hotp_types:
+            self.request.user.hotp_counter = 0
 
 
 @view_config(route_name=Routes.EDIT_MFA,
