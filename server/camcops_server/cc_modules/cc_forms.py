@@ -217,6 +217,7 @@ from camcops_server.cc_modules.cc_taskschedule import (
     TaskSchedule,
     TaskScheduleEmailTemplateFormatter,
 )
+from camcops_server.cc_modules.cc_user import AuthenticationType
 from camcops_server.cc_modules.cc_validators import (
     ALPHANUM_UNDERSCORE_CHAR,
     validate_anything,
@@ -2129,8 +2130,8 @@ class MfaTypeSelector(SchemaNode, RequestAwareMixin):
     Node to select type of authentication
     """
     schema_type = String
-    default = ViewArg.TOTP
-    missing = ViewArg.TOTP
+    default = AuthenticationType.TOTP
+    missing = AuthenticationType.TOTP
 
     def __init__(self, *args, **kwargs) -> None:
         self.title = ""  # for type checker
@@ -2143,9 +2144,9 @@ class MfaTypeSelector(SchemaNode, RequestAwareMixin):
         _ = self.gettext
         self.title = _("Authentication type")
         choices = (
-            (ViewArg.TOTP, _("Use authentication app")),
-            (ViewArg.HOTP_EMAIL, _("Send me a code by email")),
-            (ViewArg.HOTP_SMS, _("Send me a code by text message")),
+            (AuthenticationType.TOTP, _("Use authentication app")),
+            (AuthenticationType.HOTP_EMAIL, _("Send me a code by email")),
+            (AuthenticationType.HOTP_SMS, _("Send me a code by text message")),
         )
         values, pv = get_values_and_permissible(choices)
         self.widget = RadioChoiceWidget(values=values)

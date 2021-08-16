@@ -292,11 +292,6 @@ class ViewArg(object):
     SPECIFIC_TASKS_GROUPS = "specific_tasks_groups"
     USE_SESSION_FILTER = "use_session_filter"
 
-    # Authentication types
-    HOTP_EMAIL = "hotp_email"
-    HOTP_SMS = "hotp_sms"
-    TOTP = "totp"
-
 
 # =============================================================================
 # Templates

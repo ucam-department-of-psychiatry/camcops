@@ -359,6 +359,12 @@ class SecurityLoginFailure(Base):
         ss.last_dummy_login_failure_clearance_at_utc = now
 
 
+class AuthenticationType:
+    HOTP_EMAIL = "hotp_email"
+    HOTP_SMS = "hotp_sms"
+    TOTP = "totp"
+
+
 # =============================================================================
 # User class
 # =============================================================================
@@ -662,9 +668,17 @@ class User(Base):
         self.last_login_at_utc = req.now_utc_no_tzinfo
 
     def verify_one_time_password(self, one_time_password: str) -> bool:
-        totp = pyotp.TOTP(self.mfa_secret_key)
+        if self.mfa_preference is None:
+            return false
 
-        return totp.verify(one_time_password)
+        if self.mfa_preference == AuthenticationType.TOTP:
+            totp = pyotp.TOTP(self.mfa_secret_key)
+
+            return totp.verify(one_time_password)
+
+        hotp = pyotp.HOTP(self.mfa_secret_key)
+
+        return one_time_password == hotp.at(self.hotp_counter)
 
     def set_password_change_flag_if_necessary(self,
                                               req: "CamcopsRequest") -> None:

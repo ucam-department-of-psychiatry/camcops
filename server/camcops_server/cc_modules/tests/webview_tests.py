@@ -59,6 +59,7 @@ from camcops_server.cc_modules.cc_unittest import (
     DemoDatabaseTestCase,
 )
 from camcops_server.cc_modules.cc_user import (
+    AuthenticationType,
     SecurityAccountLockout,
     SecurityLoginFailure,
     User,
@@ -2486,8 +2487,9 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.assertIn("Enter the six-digit code", context["form"])
 
     @mock.patch("camcops_server.cc_modules.webview.audit")
-    def test_user_with_2fa_can_log_in(self, mock_audit) -> None:
+    def test_user_with_totp_can_log_in(self, mock_audit) -> None:
         user = self.create_user(username="test",
+                                mfa_preference=AuthenticationType.TOTP,
                                 mfa_secret_key=pyotp.random_base32())
         user.set_password(self.req, "secret")
         self.dbsession.flush()
@@ -2499,6 +2501,47 @@ class LoginViewTests(BasicDatabaseTestCase):
 
         multidict = MultiDict([
             (ViewParam.ONE_TIME_PASSWORD, totp.now()),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+
+        view = LoginView(self.req)
+
+        with mock.patch.object(user, "login") as mock_user_login:
+            with mock.patch.object(self.req.camcops_session,
+                                   "login") as mock_session_login:
+                with self.assertRaises(HTTPFound):
+                    view.dispatch()
+
+        args, kwargs = mock_user_login.call_args
+        self.assertEqual(args[0], self.req)
+
+        args, kwargs = mock_session_login.call_args
+        self.assertEqual(args[0], user)
+
+        args, kwargs = mock_audit.call_args
+        self.assertEqual(args[0], self.req)
+        self.assertEqual(args[1], "Login")
+        self.assertEqual(kwargs["user_id"], user.id)
+        self.assertIsNone(self.req.session["authenticated_user_id"])
+
+    @mock.patch("camcops_server.cc_modules.webview.audit")
+    def test_user_with_hotp_can_log_in(self, mock_audit) -> None:
+        user = self.create_user(username="test",
+                                mfa_preference=AuthenticationType.HOTP_EMAIL,
+                                mfa_secret_key=pyotp.random_base32(),
+                                hotp_counter=0)
+        user.set_password(self.req, "secret")
+        self.dbsession.flush()
+        self.req.session["authenticated_user_id"] = user.id
+
+        self.create_membership(user, self.group, may_use_webviewer=True)
+
+        hotp = pyotp.HOTP(user.mfa_secret_key)
+
+        multidict = MultiDict([
+            (ViewParam.ONE_TIME_PASSWORD, hotp.at(user.hotp_counter)),
             (FormAction.SUBMIT, "submit"),
         ])
 
@@ -2655,7 +2698,7 @@ class EditMfaViewTests(BasicDatabaseTestCase):
 
         multidict = MultiDict([
             (ViewParam.MFA_SECRET_KEY, mfa_secret_key),
-            (ViewParam.MFA_TYPE, ViewArg.TOTP),
+            (ViewParam.MFA_TYPE, AuthenticationType.TOTP),
             (FormAction.SUBMIT, "submit"),
         ])
         self.req._debugging_user = regular_user
@@ -2676,7 +2719,7 @@ class EditMfaViewTests(BasicDatabaseTestCase):
 
         multidict = MultiDict([
             (ViewParam.MFA_SECRET_KEY, mfa_secret_key),
-            (ViewParam.MFA_TYPE, ViewArg.TOTP),
+            (ViewParam.MFA_TYPE, AuthenticationType.TOTP),
             (FormAction.SUBMIT, "submit"),
         ])
         self.req._debugging_user = regular_user
@@ -2688,4 +2731,4 @@ class EditMfaViewTests(BasicDatabaseTestCase):
             view.dispatch()
 
         self.assertEqual(regular_user.mfa_secret_key, mfa_secret_key)
-        self.assertEqual(regular_user.mfa_preference, ViewArg.TOTP)
+        self.assertEqual(regular_user.mfa_preference, AuthenticationType.TOTP)
