@@ -2667,3 +2667,25 @@ class EditMfaViewTests(BasicDatabaseTestCase):
             view.dispatch()
 
         self.assertEqual(regular_user.mfa_secret_key, mfa_secret_key)
+
+    def test_user_can_set_preferences(self) -> None:
+        regular_user = self.create_user(username="regular_user")
+        self.dbsession.flush()
+
+        mfa_secret_key = pyotp.random_base32()
+
+        multidict = MultiDict([
+            (ViewParam.MFA_SECRET_KEY, mfa_secret_key),
+            (ViewParam.MFA_TYPE, ViewArg.TOTP),
+            (FormAction.SUBMIT, "submit"),
+        ])
+        self.req._debugging_user = regular_user
+        self.req.fake_request_post_from_dict(multidict)
+
+        view = EditMfaView(self.req)
+
+        with self.assertRaises(HTTPFound):
+            view.dispatch()
+
+        self.assertEqual(regular_user.mfa_secret_key, mfa_secret_key)
+        self.assertEqual(regular_user.mfa_preference, ViewArg.TOTP)

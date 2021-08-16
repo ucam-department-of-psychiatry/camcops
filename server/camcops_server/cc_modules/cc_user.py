@@ -61,6 +61,7 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     FullNameColType,
     HashedPasswordColType,
     LanguageCodeColType,
+    MfaPreferenceColType,
     PendulumDateTimeAsIsoTextColType,
     UserNameCamcopsColType,
 )
@@ -401,11 +402,16 @@ class User(Base):
         nullable=True,
         comment="Secret key used for multi-factor authentication"
     )
+    mfa_preference = Column(
+        "mfa_preference",
+        MfaPreferenceColType,
+        nullable=True,
+        comment="Preferred method of multi-factor authentication"
+    )
     hotp_counter = Column(
         "hotp_counter",
         Integer,
         nullable=True,
-        default=0,
         comment="Counter used for HOTP authentication"
     )
     last_login_at_utc = Column(

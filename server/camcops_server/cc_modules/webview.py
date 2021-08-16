@@ -938,6 +938,10 @@ class EditMfaView(UpdateView):
     pk_param = ViewParam.USER_ID
     server_pk_name = "id"
 
+    model_form_dict = {
+        "mfa_preference": ViewParam.MFA_TYPE,
+    }
+
     def get_object(self) -> Any:
         return self.request.user
 
@@ -948,6 +952,8 @@ class EditMfaView(UpdateView):
         return self.request.route_url(Routes.HOME)
 
     def set_object_properties(self, appstruct: Dict[str, Any]) -> None:
+        super().set_object_properties(appstruct)
+
         if appstruct.get(ViewParam.MFA_TYPE) == ViewArg.TOTP:
             mfa_secret_key = appstruct.get(ViewParam.MFA_SECRET_KEY)
             self.object.mfa_secret_key = mfa_secret_key

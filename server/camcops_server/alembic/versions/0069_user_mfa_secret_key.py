@@ -30,7 +30,7 @@ user_mfa_secret_key
 
 Revision ID: 0069
 Revises: 0068
-Creation date: 2021-08-09 15:56:31.987769
+Creation date: 2021-08-13 17:31:27.293904
 
 """
 
@@ -38,12 +38,8 @@ Creation date: 2021-08-09 15:56:31.987769
 # Imports
 # =============================================================================
 
-import logging
-
 from alembic import op
 import sqlalchemy as sa
-
-log = logging.getLogger(__name__)
 
 
 # =============================================================================
@@ -73,6 +69,14 @@ def upgrade():
         )
         batch_op.add_column(
             sa.Column(
+                "mfa_preference",
+                sa.String(length=20),
+                nullable=True,
+                comment="Preferred method of multi-factor authentication",
+            )
+        )
+        batch_op.add_column(
+            sa.Column(
                 "mfa_secret_key",
                 sa.String(length=32),
                 nullable=True,
@@ -85,4 +89,5 @@ def upgrade():
 def downgrade():
     with op.batch_alter_table("_security_users", schema=None) as batch_op:
         batch_op.drop_column("mfa_secret_key")
+        batch_op.drop_column("mfa_preference")
         batch_op.drop_column("hotp_counter")
