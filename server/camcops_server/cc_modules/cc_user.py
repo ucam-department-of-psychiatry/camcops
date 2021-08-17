@@ -63,6 +63,7 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     LanguageCodeColType,
     MfaPreferenceColType,
     PendulumDateTimeAsIsoTextColType,
+    PhoneNumberColType,
     UserNameCamcopsColType,
 )
 from camcops_server.cc_modules.cc_sqlalchemy import Base
@@ -396,6 +397,10 @@ class User(Base):
     email = Column(
         "email", EmailAddressColType,
         comment="User's e-mail address"
+    )
+    phone = Column(
+        "phone", PhoneNumberColType,
+        comment="User's phone number"
     )
     hashedpw = Column(
         "hashedpw", HashedPasswordColType,

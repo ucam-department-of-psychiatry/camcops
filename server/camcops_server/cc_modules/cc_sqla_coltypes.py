@@ -273,6 +273,7 @@ MfaPreferenceColType = String(length=StringLengths.MFA_PREFERENCE_MAX_LEN)
 MimeTypeColType = String(length=StringLengths.MIMETYPE_MAX_LEN)
 
 PatientNameColType = Unicode(length=StringLengths.PATIENT_NAME_MAX_LEN)
+PhoneNumberColType = Unicode(length=StringLengths.PHONE_NUMBER_MAX_LEN)
 
 Rfc2822DateColType = String(length=StringLengths.RFC_2822_DATE_MAX_LEN)
 

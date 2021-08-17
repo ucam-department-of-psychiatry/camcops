@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-camcops_server/alembic/versions/0069_user_mfa_secret_key.py
+camcops_server/alembic/versions/0069_user_mfa.py
 
 ===============================================================================
 
@@ -26,11 +26,11 @@ camcops_server/alembic/versions/0069_user_mfa_secret_key.py
 
 DATABASE REVISION SCRIPT
 
-user_mfa_secret_key
+user_mfa
 
 Revision ID: 0069
 Revises: 0068
-Creation date: 2021-08-13 17:31:27.293904
+Creation date: 2021-08-17 13:42:41.130743
 
 """
 
@@ -83,11 +83,20 @@ def upgrade():
                 comment="Secret key used for multi-factor authentication",
             )
         )
+        batch_op.add_column(
+            sa.Column(
+                "phone",
+                sa.Unicode(length=128),
+                nullable=True,
+                comment="User's phone number",
+            )
+        )
 
 
 # noinspection PyPep8,PyTypeChecker
 def downgrade():
     with op.batch_alter_table("_security_users", schema=None) as batch_op:
+        batch_op.drop_column("phone")
         batch_op.drop_column("mfa_secret_key")
         batch_op.drop_column("mfa_preference")
         batch_op.drop_column("hotp_counter")

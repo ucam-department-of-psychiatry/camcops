@@ -873,6 +873,8 @@ class StringLengths:
     #: For forename and surname, each; our choice but must match tablet
     PATIENT_NAME_MAX_LEN = 255
 
+    PHONE_NUMBER_MAX_LEN = 128
+
     RFC_2822_DATE_MAX_LEN = 31
     """
     e.g. ``Fri, 09 Nov 2001 01:08:47 -0000``; 3.3 in
