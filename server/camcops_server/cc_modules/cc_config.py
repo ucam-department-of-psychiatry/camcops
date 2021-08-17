@@ -136,6 +136,7 @@ from camcops_server.cc_modules.cc_filename import (
 )
 from camcops_server.cc_modules.cc_language import POSSIBLE_LOCALES
 from camcops_server.cc_modules.cc_pyramid import MASTER_ROUTE_CLIENT_API
+from camcops_server.cc_modules.cc_sms import get_sms_backend
 from camcops_server.cc_modules.cc_snomed import (
     get_all_task_snomed_concepts,
     get_icd9_snomed_concepts_from_xml,
@@ -369,6 +370,12 @@ def get_demo_config(for_docker: bool = False) -> str:
 {ConfigParamSite.EMAIL_REPLY_TO} = CamCOPS clinical administrator <admin@myinstitution.mydomain>
 
 # -----------------------------------------------------------------------------
+# SMS options
+# -----------------------------------------------------------------------------
+
+{ConfigParamSite.SMS_BACKEND} = console
+
+# -----------------------------------------------------------------------------
 # User download options
 # -----------------------------------------------------------------------------
 
@@ -593,6 +600,15 @@ def get_demo_config(for_docker: bool = False) -> str:
 {ConfigParamExportRecipient.REDCAP_API_URL} = https://domain.of.redcap.server/api/
 {ConfigParamExportRecipient.REDCAP_API_KEY} = myapikey
 {ConfigParamExportRecipient.REDCAP_FIELDMAP_FILENAME} = /location/of/fieldmap.xml
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Example SMS Backends. No configuration needed for 'console' (testing only).
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+[sms_backend:kapow]
+
+USERNAME = myusername
+PASSWORD = mypassword
 
     """.strip()  # noqa
 
@@ -1233,6 +1249,9 @@ class CamcopsConfig(object):
         self.session_cookie_secret = _get_str(s, cs.SESSION_COOKIE_SECRET)
         self.session_timeout = datetime.timedelta(
             minutes=self.session_timeout_minutes)
+        sms_label = _get_str(s, cs.SMS_BACKEND, cd.SMS_BACKEND)
+        self._read_sms_config(parser, sms_label)
+        self.sms_backend = get_sms_backend(sms_label, self.sms_config)
         self.snomed_task_xml_filename = _get_str(
             s, cs.SNOMED_TASK_XML_FILENAME)
         self.snomed_icd9_xml_filename = _get_str(
@@ -1760,6 +1779,22 @@ class CamcopsConfig(object):
         """
         filename = "camcops_celerybeat.pid"
         return os.path.join(self.export_lockdir, filename)
+
+    # -------------------------------------------------------------------------
+    # SMS backend
+    # -------------------------------------------------------------------------
+    def _read_sms_config(
+            self,
+            parser: configparser.ConfigParser,
+            sms_label) -> None:
+        self.sms_config = {}
+
+        section_name = f"sms_backend:{sms_label}"
+        if not parser.has_section(section_name):
+            return
+
+        for key in parser[section_name]:
+            self.sms_config[key.lower()] = parser[section_name][key]
 
 
 # =============================================================================
