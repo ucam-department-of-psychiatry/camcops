@@ -610,6 +610,11 @@ def get_demo_config(for_docker: bool = False) -> str:
 USERNAME = myusername
 PASSWORD = mypassword
 
+[sms_backend:twilio]
+
+SID = mysid
+TOKEN = mytoken
+
     """.strip()  # noqa
 
 

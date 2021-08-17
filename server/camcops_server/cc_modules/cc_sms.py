@@ -33,6 +33,7 @@ from typing import Any, Dict
 
 
 import requests
+from twilio.rest import Client
 
 _backends = {}
 log = logging.getLogger(__name__)
@@ -72,8 +73,20 @@ class KapowSmsBackend(SmsBackend):
         requests.post(self.API_URL, data=data)
 
 
+class TwilioSmsBackend(SmsBackend):
+    def __init__(self, config: Dict[str, Any]) -> None:
+        super().__init__(config)
+
+        self.client = Client(self.config["sid"], self.config["token"])
+
+    def send_sms(self, recipient: str, message: str, sender: str = None):
+        self.client.messages.create(to=recipient, body=message,
+                                    from_=self.config["phone_number"])
+
+
 register_backend("console", ConsoleSmsBackend)
 register_backend("kapow", KapowSmsBackend)
+register_backend("twilio", TwilioSmsBackend)
 
 
 def get_sms_backend(label: str, config: Dict[str, Any]) -> SmsBackend:
