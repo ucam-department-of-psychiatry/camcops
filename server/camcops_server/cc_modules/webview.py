@@ -647,12 +647,7 @@ class LoginView(FormView):
 
         if user.mfa_secret_key is not None:
             if self.get_authenticated_user_id() is None:
-                self.set_authenticated_user_id(user.id)
-
-                if user.mfa_preference == AuthenticationType.HOTP_EMAIL:
-                    self.send_authentication_email(user)
-
-                return self.render_to_response(self.get_context_data())
+                return self.prompt_for_additional_verification(user)
 
             otp = appstruct.get(ViewParam.ONE_TIME_PASSWORD)
             if not user.verify_one_time_password(otp):
@@ -671,17 +666,28 @@ class LoginView(FormView):
 
         return super().form_valid(form, appstruct)
 
+    def prompt_for_additional_verification(self, user: User) -> None:
+        self.set_authenticated_user_id(user.id)
+        self.handle_authentication_type(user)
+        return self.render_to_response(self.get_context_data())
+
+    def handle_authentication_type(self, user: User) -> None:
+        if user.mfa_preference == AuthenticationType.TOTP:
+            return
+
+        if user.mfa_preference == AuthenticationType.HOTP_EMAIL:
+            return self.send_authentication_email(user)
+
+        return self.send_authentication_sms(user)
+
     def send_authentication_email(self, user: User) -> None:
         _ = self.request.gettext
         config = self.request.config
-        user.hotp_counter += 1
-        self.request.dbsession.add(user)
-        code = pyotp.HOTP(user.mfa_secret_key).at(user.hotp_counter)
         kwargs = dict(
             from_addr=config.email_from,
             to=user.email,
             subject=_("CamCOPS two-step login"),
-            body=_("Your verification code is {}").format(code),
+            body=self.get_hotp_message(user),
             content_type="text/plain"
         )
 
@@ -693,6 +699,18 @@ class LoginView(FormView):
                    use_tls=config.email_use_tls)
 
         # TODO: should we handle failure or ignore silently?
+
+    def send_authentication_sms(self, user: User) -> None:
+        backend = self.request.config.sms_backend
+        backend.send_sms(user.phone, self.get_hotp_message(user))
+
+    def get_hotp_message(self, user: User) -> str:
+        user.hotp_counter += 1
+        self.request.dbsession.add(user)
+        _ = self.request.gettext
+        code = pyotp.HOTP(user.mfa_secret_key).at(user.hotp_counter)
+
+        return _("Your CamCOPS verification code is {}").format(code)
 
     def get_success_url(self) -> str:
         return self.get_redirect_url(

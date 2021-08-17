@@ -28,6 +28,7 @@ camcops_server/cc_modules/tests/webview_tests.py
 from collections import OrderedDict
 import datetime
 import json
+import logging
 from typing import cast
 import unittest
 from unittest import mock
@@ -47,6 +48,7 @@ from camcops_server.cc_modules.cc_pyramid import (
     ViewArg,
     ViewParam,
 )
+from camcops_server.cc_modules.cc_sms import get_sms_backend
 from camcops_server.cc_modules.cc_taskindex import PatientIdNumIndexEntry
 from camcops_server.cc_modules.cc_taskschedule import (
     PatientTaskSchedule,
@@ -101,6 +103,10 @@ from camcops_server.cc_modules.webview import (
 
 TEST_NHS_NUMBER_1 = 4887211163  # generated at random
 TEST_NHS_NUMBER_2 = 1381277373
+
+# https://www.ofcom.org.uk/phones-telecoms-and-internet/information-for-industry/numbering/numbers-for-drama  # noqa: E501
+# 07700 900000 to 900999 reserved for TV and Radio drama purposes
+TEST_PHONE_NUMBER = "+447700900123"
 
 
 class WebviewTests(DemoDatabaseTestCase):
@@ -2460,9 +2466,11 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.assertEqual(args[1], "Login")
         self.assertEqual(kwargs["user_id"], user.id)
 
-    def test_user_with_2fa_sees_token_form(self) -> None:
+    def test_user_with_mfa_sees_token_form(self) -> None:
         user = self.create_user(username="test",
-                                mfa_secret_key=pyotp.random_base32())
+                                mfa_secret_key=pyotp.random_base32(),
+                                mfa_preference=AuthenticationType.HOTP_SMS,
+                                hotp_counter=0)
         user.set_password(self.req, "secret")
         self.dbsession.flush()
         self.create_membership(user, self.group, may_use_webviewer=True)
@@ -2523,7 +2531,7 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.assertEqual(kwargs["from_addr"], "server@example.com")
         self.assertEqual(kwargs["to"], "user@example.com")
         self.assertEqual(kwargs["subject"], "CamCOPS two-step login")
-        self.assertIn(f"Your verification code is {expected_code}",
+        self.assertIn(f"Your CamCOPS verification code is {expected_code}",
                       kwargs["body"])
         self.assertEqual(kwargs["content_type"], "text/plain")
 
@@ -2533,6 +2541,46 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.assertEqual(kwargs["password"], "mailpassword")
         self.assertEqual(kwargs["port"], 587)
         self.assertTrue(kwargs["use_tls"])
+
+    def test_user_with_hotp_is_sent_sms(self) -> None:
+        # https://www.ofcom.org.uk/phones-telecoms-and-internet/information-for-industry/numbering/numbers-for-drama  # noqa: E501
+        # 07700 900000 to 900999 reserved for TV and Radio drama purposes
+        test_config = {"username": "testuser",
+                       "password": "testpass"}
+
+        self.req.config.sms_backend = get_sms_backend("console", {})
+        self.req.config.sms_config = test_config
+
+        user = self.create_user(username="test",
+                                email="user@example.com",
+                                phone=TEST_PHONE_NUMBER,
+                                mfa_secret_key=pyotp.random_base32(),
+                                mfa_preference=AuthenticationType.HOTP_SMS,
+                                hotp_counter=0)
+        user.set_password(self.req, "secret")
+        self.dbsession.flush()
+        self.create_membership(user, self.group, may_use_webviewer=True)
+
+        multidict = MultiDict([
+            (ViewParam.USERNAME, user.username),
+            (ViewParam.PASSWORD, "secret"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+
+        view = LoginView(self.req)
+        expected_code = pyotp.HOTP(user.mfa_secret_key).at(1)
+
+        with self.assertLogs(level=logging.INFO) as logging_cm:
+            view.dispatch()
+
+        expected_message = f"Your CamCOPS verification code is {expected_code}"
+
+        self.assertIn(
+            f"Sent message '{expected_message}' to {TEST_PHONE_NUMBER}",
+            logging_cm.output[0]
+        )
 
     @mock.patch("camcops_server.cc_modules.cc_email.send_msg")
     @mock.patch("camcops_server.cc_modules.cc_email.make_email")
