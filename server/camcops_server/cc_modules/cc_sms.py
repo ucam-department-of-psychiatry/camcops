@@ -77,7 +77,10 @@ register_backend("kapow", KapowSmsBackend)
 
 
 def get_sms_backend(label: str, config: Dict[str, Any]) -> SmsBackend:
+    global _backends
     try:
-        return _backends[label](config)
+        backend_class = _backends[label]
     except KeyError:
         raise MissingBackendException(f"No backend '{label}' registered")
+
+    return backend_class(config)
