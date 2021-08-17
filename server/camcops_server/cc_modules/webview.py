@@ -649,10 +649,10 @@ class LoginView(FormView):
             if self.get_authenticated_user_id() is None:
                 return self.prompt_for_additional_verification(user)
 
+            self.set_authenticated_user_id(None)
             otp = appstruct.get(ViewParam.ONE_TIME_PASSWORD)
             if not user.verify_one_time_password(otp):
                 return login_failed(self.request)
-            self.set_authenticated_user_id(None)
 
         # Successful login.
         user.login(self.request)  # will clear login failure record

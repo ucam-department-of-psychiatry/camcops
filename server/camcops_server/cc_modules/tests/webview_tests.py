@@ -2691,6 +2691,34 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.assertIsNone(self.req.session["authenticated_user_id"])
 
     @mock.patch("camcops_server.cc_modules.webview.login_failed")
+    def test_session_user_cleared_on_failed_login(self,
+                                                  mock_login_failed) -> None:
+        user = self.create_user(username="test",
+                                mfa_preference=AuthenticationType.HOTP_EMAIL,
+                                mfa_secret_key=pyotp.random_base32(),
+                                hotp_counter=1)
+        user.set_password(self.req, "secret")
+        self.dbsession.flush()
+        self.req.session["authenticated_user_id"] = user.id
+
+        self.create_membership(user, self.group, may_use_webviewer=True)
+
+        hotp = pyotp.HOTP(user.mfa_secret_key)
+
+        multidict = MultiDict([
+            (ViewParam.ONE_TIME_PASSWORD, hotp.at(2)),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+
+        view = LoginView(self.req)
+        view.dispatch()
+
+        mock_login_failed.assert_called_once()
+        self.assertIsNone(self.req.session["authenticated_user_id"])
+
+    @mock.patch("camcops_server.cc_modules.webview.login_failed")
     def test_unprivileged_user_cannot_log_in(self, mock_login_failed) -> None:
         user = self.create_user(username="test")
         user.set_password(self.req, "secret")
