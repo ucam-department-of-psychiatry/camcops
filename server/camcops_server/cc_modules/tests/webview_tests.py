@@ -2749,21 +2749,33 @@ class EditUserTests(BasicDatabaseTestCase):
 
 
 class EditMfaViewTests(BasicDatabaseTestCase):
-    def test_form_displays_secret_key(self) -> None:
-        regular_user = self.create_user(username="regular_user")
+    def test_get_form_values(self) -> None:
+        regular_user = self.create_user(
+            username="regular_user",
+            mfa_preference=AuthenticationType.HOTP_SMS,
+            phone=TEST_PHONE_NUMBER
+        )
         self.dbsession.flush()
 
         self.req._debugging_user = regular_user
         view = EditMfaView(self.req)
 
+        # Would normally be set when going through dispatch()
+        view.object = regular_user
+
         mock_secret_key = pyotp.random_base32()
         with mock.patch("camcops_server.cc_modules.webview.pyotp.random_base32",
                         return_value=mock_secret_key) as mock_random_base32:
-            response = view.dispatch()
+            form_values = view.get_form_values()
 
         mock_random_base32.assert_called_once()
 
-        self.assertIn(mock_secret_key, response.body.decode("utf-8"))
+        self.assertEqual(form_values[ViewParam.MFA_SECRET_KEY],
+                         mock_secret_key)
+        self.assertEqual(form_values[ViewParam.MFA_TYPE],
+                         regular_user.mfa_preference)
+        self.assertEqual(form_values[ViewParam.PHONE_NUMBER],
+                         regular_user.phone)
 
     def test_user_can_set_secret_key(self) -> None:
         regular_user = self.create_user(username="regular_user")
@@ -2855,3 +2867,24 @@ class EditMfaViewTests(BasicDatabaseTestCase):
         self.assertEqual(regular_user.mfa_preference,
                          AuthenticationType.HOTP_SMS)
         self.assertEqual(regular_user.hotp_counter, 0)
+
+    def test_user_can_set_phone_number(self) -> None:
+        regular_user = self.create_user(username="regular_user")
+        self.dbsession.flush()
+
+        mfa_secret_key = pyotp.random_base32()
+
+        multidict = MultiDict([
+            (ViewParam.MFA_SECRET_KEY, mfa_secret_key),
+            (ViewParam.PHONE_NUMBER, TEST_PHONE_NUMBER),
+            (FormAction.SUBMIT, "submit"),
+        ])
+        self.req._debugging_user = regular_user
+        self.req.fake_request_post_from_dict(multidict)
+
+        view = EditMfaView(self.req)
+
+        with self.assertRaises(HTTPFound):
+            view.dispatch()
+
+        self.assertEqual(regular_user.phone, TEST_PHONE_NUMBER)

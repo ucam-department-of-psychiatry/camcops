@@ -225,6 +225,7 @@ class ViewParam(object):
     PASSWORD = "password"
     PATIENT_ID_PER_ROW = "patient_id_per_row"
     PATIENT_TASK_SCHEDULE_ID = "patient_task_schedule_id"
+    PHONE_NUMBER = "phone_number"
     RECIPIENT_NAME = "recipient_name"
     REDIRECT_URL = "redirect_url"
     REPORT_ID = "report_id"

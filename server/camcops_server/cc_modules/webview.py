@@ -968,13 +968,17 @@ class EditMfaView(UpdateView):
 
     model_form_dict = {
         "mfa_preference": ViewParam.MFA_TYPE,
+        "phone": ViewParam.PHONE_NUMBER,
     }
 
     def get_object(self) -> Any:
         return self.request.user
 
     def get_form_values(self) -> Dict[str, Any]:
-        return {ViewParam.MFA_SECRET_KEY: pyotp.random_base32()}
+        form_values = super().get_form_values()
+        form_values[ViewParam.MFA_SECRET_KEY] = pyotp.random_base32()
+
+        return form_values
 
     def get_success_url(self) -> str:
         return self.request.route_url(Routes.HOME)
