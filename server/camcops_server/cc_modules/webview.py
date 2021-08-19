@@ -125,6 +125,7 @@ from collections import OrderedDict
 import logging
 import os
 # from pprint import pformat
+import time
 from typing import (
     Any,
     cast,
@@ -654,6 +655,8 @@ class LoginView(FormView):
                 return self.prompt_for_additional_verification()
 
             self.set_authenticated_user_id(None)
+            if self.timed_out():
+                return login_failed(self.request)
             otp = appstruct.get(ViewParam.ONE_TIME_PASSWORD)
             if not self.user.verify_one_time_password(otp):
                 return login_failed(self.request)
@@ -672,8 +675,18 @@ class LoginView(FormView):
 
     def prompt_for_additional_verification(self) -> None:
         self.set_authenticated_user_id(self.user.id)
+        self.request.session["authentication_time"] = int(time.time())
         self.handle_authentication_type()
         return self.render_to_response(self.get_context_data())
+
+    def timed_out(self) -> bool:
+        timeout = self.request.config.mfa_timeout_s
+        if timeout == 0:
+            return
+
+        login_time = self.request.session["authentication_time"]
+
+        return int(time.time()) > login_time + timeout
 
     def handle_authentication_type(self) -> None:
         if self.user.mfa_preference == AuthenticationType.TOTP:

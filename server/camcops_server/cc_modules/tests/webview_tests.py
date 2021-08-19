@@ -29,6 +29,7 @@ from collections import OrderedDict
 import datetime
 import json
 import logging
+import time
 from typing import cast
 import unittest
 from unittest import mock
@@ -2494,6 +2495,33 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.assertIn("form", context)
         self.assertIn("Enter the six-digit code", context["form"])
 
+    @mock.patch("camcops_server.cc_modules.webview.time")
+    def test_session_variables_set_for_user_with_mfa(self, mock_time) -> None:
+        user = self.create_user(username="test",
+                                mfa_secret_key=pyotp.random_base32(),
+                                mfa_preference=AuthenticationType.TOTP)
+        user.set_password(self.req, "secret")
+        self.dbsession.flush()
+        self.create_membership(user, self.group, may_use_webviewer=True)
+
+        multidict = MultiDict([
+            (ViewParam.USERNAME, user.username),
+            (ViewParam.PASSWORD, "secret"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+
+        view = LoginView(self.req)
+
+        with mock.patch.object(mock_time, "time",
+                               return_value=1234567890.1234567):
+            view.dispatch()
+
+        self.assertEqual(self.req.session["authenticated_user_id"], user.id)
+        self.assertEqual(self.req.session["authentication_time"],
+                         1234567890)
+
     @mock.patch("camcops_server.cc_modules.cc_email.send_msg")
     @mock.patch("camcops_server.cc_modules.cc_email.make_email")
     def test_user_with_hotp_is_sent_email(self,
@@ -2635,8 +2663,9 @@ class LoginViewTests(BasicDatabaseTestCase):
         with mock.patch.object(user, "login") as mock_user_login:
             with mock.patch.object(self.req.camcops_session,
                                    "login") as mock_session_login:
-                with self.assertRaises(HTTPFound):
-                    view.dispatch()
+                with mock.patch.object(view, "timed_out", return_value=False):
+                    with self.assertRaises(HTTPFound):
+                        view.dispatch()
 
         args, kwargs = mock_user_login.call_args
         self.assertEqual(args[0], self.req)
@@ -2675,8 +2704,9 @@ class LoginViewTests(BasicDatabaseTestCase):
         with mock.patch.object(user, "login") as mock_user_login:
             with mock.patch.object(self.req.camcops_session,
                                    "login") as mock_session_login:
-                with self.assertRaises(HTTPFound):
-                    view.dispatch()
+                with mock.patch.object(view, "timed_out", return_value=False):
+                    with self.assertRaises(HTTPFound):
+                        view.dispatch()
 
         args, kwargs = mock_user_login.call_args
         self.assertEqual(args[0], self.req)
@@ -2707,6 +2737,37 @@ class LoginViewTests(BasicDatabaseTestCase):
 
         multidict = MultiDict([
             (ViewParam.ONE_TIME_PASSWORD, hotp.at(2)),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+
+        view = LoginView(self.req)
+        with mock.patch.object(view, "timed_out", return_value=False):
+            view.dispatch()
+
+        mock_login_failed.assert_called_once()
+        self.assertIsNone(self.req.session["authenticated_user_id"])
+
+    @mock.patch("camcops_server.cc_modules.webview.login_failed")
+    def test_user_cannot_log_in_if_timed_out(self, mock_login_failed) -> None:
+        self.req.config.mfa_timeout_s = 600
+        user = self.create_user(username="test",
+                                mfa_preference=AuthenticationType.TOTP,
+                                mfa_secret_key=pyotp.random_base32())
+        user.set_password(self.req, "secret")
+        self.dbsession.flush()
+        self.req.session.update(
+            authenticated_user_id=user.id,
+            authentication_time=int(time.time()-601)
+        )
+
+        self.create_membership(user, self.group, may_use_webviewer=True)
+
+        totp = pyotp.TOTP(user.mfa_secret_key)
+
+        multidict = MultiDict([
+            (ViewParam.ONE_TIME_PASSWORD, totp.now()),
             (FormAction.SUBMIT, "submit"),
         ])
 
@@ -2766,6 +2827,14 @@ class LoginViewTests(BasicDatabaseTestCase):
 
         args, kwargs = mock_login_failed.call_args
         self.assertEqual(args[0], self.req)
+
+    def test_timed_out_false_when_timeout_zero(self) -> None:
+        self.req.config.mfa_timeout_s = 0
+        view = LoginView(self.req)
+
+        self.req.session["authentication_time"] = 0
+
+        self.assertFalse(view.timed_out())
 
 
 class EditUserTests(BasicDatabaseTestCase):
