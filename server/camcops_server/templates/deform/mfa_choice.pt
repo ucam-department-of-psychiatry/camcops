@@ -27,27 +27,17 @@
     </label>
     <script type="text/javascript">
       function hideAndShowElements() {
-          selected_value = $("input[name=${oid}]:checked").val();
-          if (selected_value == "totp") {
-              $(".item-mfa_secret_key").show();
-              $(".item-email").hide();
-              $(".item-phone_number").hide();
+          var lookup = {"totp": ".item-mfa_secret_key",
+                        "hotp_email": ".item-email",
+                        "hotp_sms": ".item-phone_number"};
 
-              return;
+          for (var name in lookup) {
+              $(lookup[name]).hide();
           }
 
-          if (selected_value == "hotp_email") {
-              $(".item-mfa_secret_key").hide();
-              $(".item-email").show();
-              $(".item-phone_number").hide();
-
-              return;
-          }
-
-          if (selected_value == "hotp_sms") {
-              $(".item-mfa_secret_key").hide();
-              $(".item-email").hide();
-              $(".item-phone_number").show();
+          var selected_value = $("input[name=${oid}]:checked").val();
+          if (selected_value) {
+              $(lookup[selected_value]).show();
           }
       }
 
