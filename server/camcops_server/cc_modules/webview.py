@@ -586,6 +586,10 @@ def audit_menu(req: "CamcopsRequest") -> Dict[str, Any]:
 
 
 class LoginView(FormView):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.user = None
+
     def get_form_class(self) -> Optional[Type["Form"]]:
         if self.get_authenticated_user_id() is None:
             return LoginForm
@@ -613,10 +617,10 @@ class LoginView(FormView):
         return kwargs
 
     def form_valid(self, form: "Form", appstruct: Dict[str, Any]) -> Response:
-        user = User.get_user_by_id(self.request.dbsession,
-                                   self.get_authenticated_user_id())
+        self.user = User.get_user_by_id(self.request.dbsession,
+                                        self.get_authenticated_user_id())
 
-        if user is None:
+        if self.user is None:
             username = appstruct.get(ViewParam.USERNAME)
 
             # Is the user locked?
@@ -628,10 +632,10 @@ class LoginView(FormView):
             password = appstruct.get(ViewParam.PASSWORD)
 
             # Is the username/password combination correct?
-            user = User.get_user_from_username_password(
+            self.user = User.get_user_from_username_password(
                 self.request, username, password)  # checks password
 
-        if user is None:
+        if self.user is None:
             # Unsuccessful. Note that the username may/may not be genuine.
             SecurityLoginFailure.act_on_login_failure(self.request, username)
             # ... may lock the account
@@ -640,24 +644,24 @@ class LoginView(FormView):
             self.request.camcops_session.logout()
             return login_failed(self.request)
 
-        if not user.may_use_webviewer:
+        if not self.user.may_use_webviewer:
             # This means a user who can upload from tablet but who cannot
             # log in via the web front end.
             return login_failed(self.request)
 
-        if user.mfa_preference != AuthenticationType.NONE:
+        if self.user.mfa_preference != AuthenticationType.NONE:
             if self.get_authenticated_user_id() is None:
-                return self.prompt_for_additional_verification(user)
+                return self.prompt_for_additional_verification()
 
             self.set_authenticated_user_id(None)
             otp = appstruct.get(ViewParam.ONE_TIME_PASSWORD)
-            if not user.verify_one_time_password(otp):
+            if not self.user.verify_one_time_password(otp):
                 return login_failed(self.request)
 
         # Successful login.
-        user.login(self.request)  # will clear login failure record
-        self.request.camcops_session.login(user)
-        audit(self.request, "Login", user_id=user.id)
+        self.user.login(self.request)  # will clear login failure record
+        self.request.camcops_session.login(self.user)
+        audit(self.request, "Login", user_id=self.user.id)
 
         # OK, logged in.
         # Redirect to the main menu, or wherever the user was heading.
@@ -666,28 +670,28 @@ class LoginView(FormView):
 
         return super().form_valid(form, appstruct)
 
-    def prompt_for_additional_verification(self, user: User) -> None:
-        self.set_authenticated_user_id(user.id)
-        self.handle_authentication_type(user)
+    def prompt_for_additional_verification(self) -> None:
+        self.set_authenticated_user_id(self.user.id)
+        self.handle_authentication_type()
         return self.render_to_response(self.get_context_data())
 
-    def handle_authentication_type(self, user: User) -> None:
-        if user.mfa_preference == AuthenticationType.TOTP:
+    def handle_authentication_type(self) -> None:
+        if self.user.mfa_preference == AuthenticationType.TOTP:
             return
 
-        if user.mfa_preference == AuthenticationType.HOTP_EMAIL:
-            return self.send_authentication_email(user)
+        if self.user.mfa_preference == AuthenticationType.HOTP_EMAIL:
+            return self.send_authentication_email()
 
-        return self.send_authentication_sms(user)
+        return self.send_authentication_sms()
 
-    def send_authentication_email(self, user: User) -> None:
+    def send_authentication_email(self) -> None:
         _ = self.request.gettext
         config = self.request.config
         kwargs = dict(
             from_addr=config.email_from,
-            to=user.email,
+            to=self.user.email,
             subject=_("CamCOPS two-step login"),
-            body=self.get_hotp_message(user),
+            body=self.get_hotp_message(),
             content_type="text/plain"
         )
 
@@ -700,15 +704,15 @@ class LoginView(FormView):
 
         # TODO: should we handle failure or ignore silently?
 
-    def send_authentication_sms(self, user: User) -> None:
+    def send_authentication_sms(self) -> None:
         backend = self.request.config.sms_backend
-        backend.send_sms(user.phone, self.get_hotp_message(user))
+        backend.send_sms(self.user.phone, self.get_hotp_message())
 
-    def get_hotp_message(self, user: User) -> str:
-        user.hotp_counter += 1
-        self.request.dbsession.add(user)
+    def get_hotp_message(self) -> str:
+        self.user.hotp_counter += 1
+        self.request.dbsession.add(self.user)
         _ = self.request.gettext
-        code = pyotp.HOTP(user.mfa_secret_key).at(user.hotp_counter)
+        code = pyotp.HOTP(self.user.mfa_secret_key).at(self.user.hotp_counter)
 
         return _("Your CamCOPS verification code is {}").format(code)
 
