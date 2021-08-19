@@ -985,6 +985,7 @@ class EditMfaView(UpdateView):
     server_pk_name = "id"
 
     model_form_dict = {
+        "email": ViewParam.EMAIL,
         "mfa_preference": ViewParam.MFA_TYPE,
         "phone": ViewParam.PHONE_NUMBER,
     }

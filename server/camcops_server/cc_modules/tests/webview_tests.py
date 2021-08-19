@@ -2829,7 +2829,8 @@ class EditMfaViewTests(BasicDatabaseTestCase):
         regular_user = self.create_user(
             username="regular_user",
             mfa_preference=AuthenticationType.HOTP_SMS,
-            phone=TEST_PHONE_NUMBER
+            phone=TEST_PHONE_NUMBER,
+            email="regular_user@example.com",
         )
         self.dbsession.flush()
 
@@ -2852,6 +2853,7 @@ class EditMfaViewTests(BasicDatabaseTestCase):
                          regular_user.mfa_preference)
         self.assertEqual(form_values[ViewParam.PHONE_NUMBER],
                          regular_user.phone)
+        self.assertEqual(form_values[ViewParam.EMAIL], regular_user.email)
 
     def test_user_can_set_secret_key(self) -> None:
         regular_user = self.create_user(username="regular_user")
@@ -2964,3 +2966,24 @@ class EditMfaViewTests(BasicDatabaseTestCase):
             view.dispatch()
 
         self.assertEqual(regular_user.phone, TEST_PHONE_NUMBER)
+
+    def test_user_can_set_email_address(self) -> None:
+        regular_user = self.create_user(username="regular_user")
+        self.dbsession.flush()
+
+        mfa_secret_key = pyotp.random_base32()
+
+        multidict = MultiDict([
+            (ViewParam.MFA_SECRET_KEY, mfa_secret_key),
+            (ViewParam.EMAIL, "regular_user@example.com"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+        self.req._debugging_user = regular_user
+        self.req.fake_request_post_from_dict(multidict)
+
+        view = EditMfaView(self.req)
+
+        with self.assertRaises(HTTPFound):
+            view.dispatch()
+
+        self.assertEqual(regular_user.email, "regular_user@example.com")

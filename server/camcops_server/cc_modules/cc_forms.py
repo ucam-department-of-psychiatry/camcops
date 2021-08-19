@@ -2159,6 +2159,7 @@ class EditMfaSchema(CSRFSchema):
     """
     mfa_type = MfaTypeSelector()  # must match ViewParams.MFA_TYPE
     mfa_secret_key = MfaSecretNode()  # must match ViewParams.MFA_SECRET_KEY  # noqa: E501
+    email = OptionalEmailNode()  # must match ViewParams.EMAIL
     phone_number = OptionalStringNode()  # must match ViewParams.PHONE_NUMBER
 
     # noinspection PyUnusedLocal
