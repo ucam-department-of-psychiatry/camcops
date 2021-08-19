@@ -1,0 +1,8 @@
+<div tal:define="oid oid|field.oid;">
+  <tal:loop tal:repeat="choice values | field.widget.values">
+    <p tal:define="(value, description) choice"
+       tal:condition="value == cstruct"
+       id="${oid}-${repeat.choice.index}"
+       class="form-control-static">${description}</p>
+  </tal:loop>
+</div>

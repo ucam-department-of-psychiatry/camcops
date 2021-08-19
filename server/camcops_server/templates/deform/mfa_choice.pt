@@ -1,0 +1,71 @@
+<div tal:define="oid oid|field.oid;
+                 css_class css_class|field.widget.css_class;
+                 style style|field.widget.style;
+                 inline getattr(field.widget, 'inline', False);
+                 autofocus autofocus|field.autofocus"
+     tal:omit-tag="not inline">
+  ${field.start_rename()}
+  <div tal:repeat="choice values | field.widget.values"
+       tal:omit-tag="inline"
+       class="radio">
+    <label for="${oid}-${repeat.choice.index}"
+           tal:define="(value, title) choice"
+           tal:attributes="class inline and 'radio-inline'">
+      <input tal:attributes="checked value == cstruct;
+                             class css_class;
+                             style style;
+                             autofocus not repeat.choice.index and autofocus;
+                             readonly 'readonly' in getattr(field.widget, 'attributes', {}) and value == cstruct;
+                             disabled 'readonly' in getattr(field.widget, 'attributes', {}) and value != cstruct;
+                             attributes|field.widget.attributes|{};
+                             "
+             type="radio"
+             name="${oid}"
+             value="${value}"
+             id="${oid}-${repeat.choice.index}"/>
+      ${title}
+    </label>
+    <script type="text/javascript">
+      function hideAndShowElements() {
+          selected_value = $("input[name=${oid}]:checked").val();
+          if (selected_value == "totp") {
+              $(".item-mfa_secret_key").show();
+              $(".item-email").hide();
+              $(".item-phone_number").hide();
+
+              return;
+          }
+
+          if (selected_value == "hotp_email") {
+              $(".item-mfa_secret_key").hide();
+              $(".item-email").show();
+              $(".item-phone_number").hide();
+
+              return;
+          }
+
+          if (selected_value == "hotp_sms") {
+              $(".item-mfa_secret_key").hide();
+              $(".item-email").hide();
+              $(".item-phone_number").show();
+          }
+      }
+
+      deform.addCallback(
+         '${oid}-${repeat.choice.index}',
+         function (oid) {
+            $("#" + oid).change(function() {
+                hideAndShowElements();
+            });
+         });
+    </script>
+  </div>
+  ${field.end_rename()}
+    <script type="text/javascript">
+      deform.addCallback(
+         '${oid}',
+         function (oid) {
+            hideAndShowElements();
+         });
+    </script>
+</div>

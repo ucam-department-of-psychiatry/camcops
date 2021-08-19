@@ -2149,7 +2149,14 @@ class MfaTypeSelector(SchemaNode, RequestAwareMixin):
             (AuthenticationType.HOTP_SMS, _("Send me a code by text message")),
         )
         values, pv = get_values_and_permissible(choices)
-        self.widget = RadioChoiceWidget(values=values)
+        basedir = os.path.join(TEMPLATE_DIR, "deform")
+        readonlydir = os.path.join(basedir, "readonly")
+        file = "mfa_choice.pt"
+        template = os.path.join(basedir, file)
+        readonly_template = os.path.join(readonlydir, file)
+
+        self.widget = RadioChoiceWidget(values=values, template=template,
+                                        readonly_template=readonly_template)
         self.validator = OneOf(pv)
 
 
