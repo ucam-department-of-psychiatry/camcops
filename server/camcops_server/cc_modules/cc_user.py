@@ -43,6 +43,7 @@ from cardinal_pythonlib.sqlalchemy.orm_query import (
 )
 from pendulum import DateTime as Pendulum
 import pyotp
+from sqlalchemy import text
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import relationship, Session as SqlASession, Query
 from sqlalchemy.sql import false
@@ -363,6 +364,7 @@ class SecurityLoginFailure(Base):
 class AuthenticationType:
     HOTP_EMAIL = "hotp_email"
     HOTP_SMS = "hotp_sms"
+    NONE = 'none'
     TOTP = "totp"
 
 
@@ -416,13 +418,15 @@ class User(Base):
     mfa_preference = Column(
         "mfa_preference",
         MfaPreferenceColType,
-        nullable=True,
+        nullable=False,
+        server_default=AuthenticationType.NONE,
         comment="Preferred method of multi-factor authentication"
     )
     hotp_counter = Column(
         "hotp_counter",
         Integer,
-        nullable=True,
+        nullable=False,
+        server_default=text("0"),
         comment="Counter used for HOTP authentication"
     )
     last_login_at_utc = Column(

@@ -2946,6 +2946,28 @@ class EditMfaViewTests(BasicDatabaseTestCase):
                          AuthenticationType.HOTP_SMS)
         self.assertEqual(regular_user.hotp_counter, 0)
 
+    def test_user_can_disable_mfa(self) -> None:
+        regular_user = self.create_user(username="regular_user",
+                                        mfa_preference=AuthenticationType.TOTP)
+        self.dbsession.flush()
+
+        mfa_secret_key = pyotp.random_base32()
+
+        multidict = MultiDict([
+            (ViewParam.MFA_SECRET_KEY, mfa_secret_key),
+            (ViewParam.MFA_TYPE, AuthenticationType.NONE),
+            (FormAction.SUBMIT, "submit"),
+        ])
+        self.req._debugging_user = regular_user
+        self.req.fake_request_post_from_dict(multidict)
+
+        view = EditMfaView(self.req)
+
+        with self.assertRaises(HTTPFound):
+            view.dispatch()
+
+        self.assertEqual(regular_user.mfa_preference, AuthenticationType.NONE)
+
     def test_user_can_set_phone_number(self) -> None:
         regular_user = self.create_user(username="regular_user")
         self.dbsession.flush()

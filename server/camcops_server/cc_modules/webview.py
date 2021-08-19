@@ -645,7 +645,7 @@ class LoginView(FormView):
             # log in via the web front end.
             return login_failed(self.request)
 
-        if user.mfa_secret_key is not None:
+        if user.mfa_preference != AuthenticationType.NONE:
             if self.get_authenticated_user_id() is None:
                 return self.prompt_for_additional_verification(user)
 

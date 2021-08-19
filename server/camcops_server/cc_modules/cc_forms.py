@@ -2144,9 +2144,11 @@ class MfaTypeSelector(SchemaNode, RequestAwareMixin):
         _ = self.gettext
         self.title = _("Authentication type")
         choices = (
-            (AuthenticationType.TOTP, _("Use authentication app")),
+            (AuthenticationType.TOTP,
+             _("Use an app such as Google Authenticator or Twilio Authy")),
             (AuthenticationType.HOTP_EMAIL, _("Send me a code by email")),
             (AuthenticationType.HOTP_SMS, _("Send me a code by text message")),
+            (AuthenticationType.NONE, _("Disable two-step verification")),
         )
         values, pv = get_values_and_permissible(choices)
         basedir = os.path.join(TEMPLATE_DIR, "deform")

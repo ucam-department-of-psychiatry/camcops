@@ -30,7 +30,7 @@ user_mfa
 
 Revision ID: 0069
 Revises: 0068
-Creation date: 2021-08-17 13:42:41.130743
+Creation date: 2021-08-19 15:23:40.312972
 
 """
 
@@ -63,7 +63,8 @@ def upgrade():
             sa.Column(
                 "hotp_counter",
                 sa.Integer(),
-                nullable=True,
+                server_default=sa.text("0"),
+                nullable=False,
                 comment="Counter used for HOTP authentication",
             )
         )
@@ -71,7 +72,8 @@ def upgrade():
             sa.Column(
                 "mfa_preference",
                 sa.String(length=20),
-                nullable=True,
+                server_default="none",
+                nullable=False,
                 comment="Preferred method of multi-factor authentication",
             )
         )
