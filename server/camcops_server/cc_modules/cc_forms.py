@@ -2112,12 +2112,20 @@ class MfaSecretWidget(TextInputWidget):
                           box_size=20)
         stream = BytesIO()
         img.save(stream)
-        values.update(qr_code=stream.getvalue().decode())
+        values.update(
+            open_app=_("Open your authentication app."),
+            scan_qr_code=_("Add CamCOPS to the app by scanning this QR code:"),
+            qr_code=stream.getvalue().decode(),
+            enter_key=_("If you can't scan the QR code, enter this key "
+                        "instead:"),
+            enter_code=_("The next time you log in, enter the 6-digit "
+                         "code displayed on the app.")
+        )
 
         return field.renderer(template, **values)
 
 
-class MfaSecretNode(SchemaNode, RequestAwareMixin):
+class MfaSecretNode(OptionalStringNode, RequestAwareMixin):
     schema_type = String
 
     # noinspection PyUnusedLocal,PyAttributeOutsideInit
@@ -2176,6 +2184,9 @@ class EditMfaSchema(CSRFSchema):
         _ = self.gettext
         mfa_type = get_child_node(self, "mfa_type")
         mfa_type.title = _("How do you wish to authenticate?")
+
+        mfa_secret_key = get_child_node(self, "mfa_secret_key")
+        mfa_secret_key.title = _("Follow these steps:")
 
 
 class EditMfaForm(InformativeNonceForm):
