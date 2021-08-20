@@ -2407,8 +2407,7 @@ class LoginViewTests(BasicDatabaseTestCase):
 
         self.assertIn('autocomplete="current-password"', context["form"])
 
-    @mock.patch("camcops_server.cc_modules.webview.account_locked")
-    def test_fails_when_user_locked_out(self, mock_account_locked) -> None:
+    def test_fails_when_user_locked_out(self) -> None:
         user = self.create_user(username="test")
         user.set_password(self.req, "secret")
         SecurityAccountLockout.lock_user_out(self.req, user.username,
@@ -2423,15 +2422,15 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.req.fake_request_post_from_dict(multidict)
 
         view = LoginView(self.req)
-        view.dispatch()
 
-        args, kwargs = mock_account_locked.call_args
-        self.assertEqual(args[0], self.req)
+        with mock.patch.object(view, "fail_locked_out") as mock_fail_locked_out:
+            view.dispatch()
 
+        args, kwargs = mock_fail_locked_out.call_args
         locked_out_until = SecurityAccountLockout.user_locked_out_until(
             self.req, user.username
         )
-        self.assertEqual(args[1], locked_out_until)
+        self.assertEqual(args[0], locked_out_until)
 
     @mock.patch("camcops_server.cc_modules.webview.audit")
     def test_user_can_log_in(self, mock_audit) -> None:
@@ -2784,9 +2783,7 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.assertEqual(kwargs["user_id"], user.id)
         self.assertIsNone(self.req.session["authenticated_user_id"])
 
-    @mock.patch("camcops_server.cc_modules.webview.login_failed")
-    def test_session_user_cleared_on_failed_login(self,
-                                                  mock_login_failed) -> None:
+    def test_session_user_cleared_on_failed_login(self) -> None:
         user = self.create_user(username="test",
                                 mfa_preference=AuthenticationType.HOTP_EMAIL,
                                 mfa_secret_key=pyotp.random_base32(),
@@ -2808,13 +2805,15 @@ class LoginViewTests(BasicDatabaseTestCase):
 
         view = LoginView(self.req)
         with mock.patch.object(view, "timed_out", return_value=False):
-            view.dispatch()
+            with mock.patch.object(
+                    view,
+                    "fail_bad_mfa_code") as mock_fail_bad_mfa_code:
+                view.dispatch()
 
-        mock_login_failed.assert_called_once()
+        mock_fail_bad_mfa_code.assert_called_once()
         self.assertIsNone(self.req.session["authenticated_user_id"])
 
-    @mock.patch("camcops_server.cc_modules.webview.login_failed")
-    def test_user_cannot_log_in_if_timed_out(self, mock_login_failed) -> None:
+    def test_user_cannot_log_in_if_timed_out(self) -> None:
         self.req.config.mfa_timeout_s = 600
         user = self.create_user(username="test",
                                 mfa_preference=AuthenticationType.TOTP,
@@ -2838,13 +2837,14 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.req.fake_request_post_from_dict(multidict)
 
         view = LoginView(self.req)
-        view.dispatch()
 
-        mock_login_failed.assert_called_once()
+        with mock.patch.object(view, "fail_timed_out") as mock_fail_timed_out:
+            view.dispatch()
+
+        mock_fail_timed_out.assert_called_once()
         self.assertIsNone(self.req.session["authenticated_user_id"])
 
-    @mock.patch("camcops_server.cc_modules.webview.login_failed")
-    def test_unprivileged_user_cannot_log_in(self, mock_login_failed) -> None:
+    def test_unprivileged_user_cannot_log_in(self) -> None:
         user = self.create_user(username="test")
         user.set_password(self.req, "secret")
         self.dbsession.flush()
@@ -2860,13 +2860,15 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.req.fake_request_post_from_dict(multidict)
 
         view = LoginView(self.req)
-        view.dispatch()
 
-        args, kwargs = mock_login_failed.call_args
-        self.assertEqual(args[0], self.req)
+        with mock.patch.object(
+                view,
+                "fail_not_authorized") as mock_fail_not_authorized:
+            view.dispatch()
 
-    @mock.patch("camcops_server.cc_modules.webview.login_failed")
-    def test_unknown_user_cannot_log_in(self, mock_login_failed) -> None:
+        mock_fail_not_authorized.assert_called_once
+
+    def test_unknown_user_cannot_log_in(self) -> None:
         multidict = MultiDict([
             (ViewParam.USERNAME, "unknown"),
             (ViewParam.PASSWORD, "secret"),
@@ -2881,7 +2883,10 @@ class LoginViewTests(BasicDatabaseTestCase):
                                "act_on_login_failure") as mock_act:
             with mock.patch.object(self.req.camcops_session,
                                    "logout") as mock_logout:
-                view.dispatch()
+                with mock.patch.object(
+                        view,
+                        "fail_not_authorized") as mock_fail_not_authorized:
+                    view.dispatch()
 
         args, kwargs = mock_act.call_args
         self.assertEqual(args[0], self.req)
@@ -2889,8 +2894,8 @@ class LoginViewTests(BasicDatabaseTestCase):
 
         mock_logout.assert_called_once()
 
-        args, kwargs = mock_login_failed.call_args
-        self.assertEqual(args[0], self.req)
+        args, kwargs = mock_fail_not_authorized.call_args
+        mock_fail_not_authorized.assert_called_once()
 
     def test_timed_out_false_when_timeout_zero(self) -> None:
         self.req.config.mfa_timeout_s = 0

@@ -593,7 +593,7 @@ class LoginView(FormView):
     def dispatch(self) -> Response:
         if self.timed_out():
             self.set_authenticated_user_id(None)
-            return login_failed(self.request)
+            return self.fail_timed_out()
 
         self.user = User.get_user_by_id(self.request.dbsession,
                                         self.get_authenticated_user_id())
@@ -640,7 +640,7 @@ class LoginView(FormView):
             locked_out_until = SecurityAccountLockout.user_locked_out_until(
                 self.request, username)
             if locked_out_until is not None:
-                return account_locked(self.request, locked_out_until)
+                return self.fail_locked_out(locked_out_until)
 
             password = appstruct.get(ViewParam.PASSWORD)
 
@@ -655,12 +655,12 @@ class LoginView(FormView):
             # Now, call audit() before session.logout(), as the latter
             # will wipe the session IP address:
             self.request.camcops_session.logout()
-            return login_failed(self.request)
+            return self.fail_not_authorized()
 
         if not self.user.may_use_webviewer:
             # This means a user who can upload from tablet but who cannot
             # log in via the web front end.
-            return login_failed(self.request)
+            return self.fail_not_authorized()
 
         if self.user.mfa_preference != AuthenticationType.NONE:
             if self.get_authenticated_user_id() is None:
@@ -669,7 +669,7 @@ class LoginView(FormView):
             self.set_authenticated_user_id(None)
             otp = appstruct.get(ViewParam.ONE_TIME_PASSWORD)
             if not self.user.verify_one_time_password(otp):
-                return login_failed(self.request)
+                return self.fail_bad_mfa_code()
 
         # Successful login.
         self.user.login(self.request)  # will clear login failure record
@@ -781,6 +781,36 @@ class LoginView(FormView):
     def set_authenticated_user_id(self, user_id: Optional[int]) -> None:
         self.request.session["authenticated_user_id"] = user_id
 
+    def fail_not_authorized(self) -> None:
+        _ = self.request.gettext
+        self.fail(_("Invalid username/password (or user not authorized)."))
+
+    def fail_bad_mfa_code(self) -> None:
+        _ = self.request.gettext
+        self.fail(_("You entered an invalid code. Please try again."))
+
+    def fail_timed_out(self) -> None:
+        _ = self.request.gettext
+        self.fail(_("Your code expired. Please try again."))
+
+    def fail_locked_out(self, locked_until: Pendulum) -> None:
+        _ = self.request.gettext
+        locked_until = format_datetime(locked_until,
+                                       DateFormat.LONG_DATETIME_WITH_DAY,
+                                       _("(never)"))
+
+        message = _("Account locked until {} due to multiple login failures. "
+                    "Try again later or contact your administrator.").format(
+                        locked_until
+                    )
+
+        self.fail(message)
+
+    def fail(self, message: str) -> None:
+        self.request.session.flash(message, queue=FLASH_DANGER)
+
+        raise HTTPFound(self.request.route_url(Routes.LOGIN))
+
 
 @view_config(route_name=Routes.LOGIN,
              permission=NO_PERMISSION_REQUIRED,
@@ -799,37 +829,6 @@ def login_view(req: "CamcopsRequest") -> Response:
         - redirects to the home view if not.
     """
     return LoginView(req).dispatch()
-
-
-def login_failed(req: "CamcopsRequest") -> Response:
-    """
-    Response given after login failure.
-    Returned by :func:`login_view` only.
-    """
-    return render_to_response(
-        "login_failed.mako",
-        dict(),
-        request=req
-    )
-
-
-def account_locked(req: "CamcopsRequest", locked_until: Pendulum) -> Response:
-    """
-    Response given when account locked out.
-    Returned by :func:`login_view` only.
-    """
-    _ = req.gettext
-    return render_to_response(
-        "account_locked.mako",
-        dict(
-            locked_until=format_datetime(locked_until,
-                                         DateFormat.LONG_DATETIME_WITH_DAY,
-                                         _("(never)")),
-            msg="",
-            extra_html="",
-        ),
-        request=req
-    )
 
 
 @view_config(route_name=Routes.LOGOUT,
