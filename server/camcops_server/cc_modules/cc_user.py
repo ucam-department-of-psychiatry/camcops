@@ -689,6 +689,17 @@ class User(Base):
 
         return one_time_password == hotp.at(self.hotp_counter)
 
+    @property
+    def partial_email(self) -> str:
+        regex = r"^(.+)@(.*)$"
+
+        m = re.search(regex, self.email)
+        first_letter = m.group(1)[0]
+        last_letter = m.group(1)[-1]
+        domain = m.group(2)
+
+        return f"{first_letter}*****{last_letter}@{domain}"
+
     def set_password_change_flag_if_necessary(self,
                                               req: "CamcopsRequest") -> None:
         """

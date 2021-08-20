@@ -98,3 +98,33 @@ class UserTests(DemoDatabaseTestCase):
         self.assertIsInstance(u.may_upload_to_group(g.id), bool)
         self.assertIsInstance(u.may_upload, bool)
         self.assertIsInstance(u.may_register_devices, bool)
+
+    def test_partial_email(self) -> None:
+        # https://en.wikipedia.org/wiki/Email_address
+        tests = (
+            ("simple@example.com", "s*****e@example.com"),
+            ("very.common@example.com", "v*****n@example.com"),
+            ("disposable.style.email.with+symbol@example.com",
+             "d*****l@example.com"),
+            ("other.email-with-hyphen@example.com", "o*****n@example.com"),
+            ("x@example.com", "x*****x@example.com"),
+            ("example-indeed@strange-example.com",
+             "e*****d@strange-example.com"),
+            ("test/test@test.com", "t*****t@test.com"),
+            ("admin@mailserver1", "a*****n@mailserver1"),
+            ("example@s.example", "e*****e@s.example"),
+            ('" "@example.org', '"*****"@example.org'),
+            ('"john..doe"@example.org', '"*****"@example.org'),
+            ("mailhost!username@example.org", "m*****e@example.org"),
+            ("user%example.com@example.org", "u*****m@example.org"),
+            ("user-@example.org", "u*****-@example.org"),
+            ('very.unusual.”@”.unusual.com@example.com',
+             "v*****m@example.com"),
+        )
+
+        user = self.create_user()
+
+        for email, expected_partial in tests:
+            user.email = email
+            self.assertEqual(user.partial_email, expected_partial,
+                             msg=f"Failed for {email}")
