@@ -35,6 +35,10 @@ camcops_server/templates/menu/login_token.mako
     ${ _("All use is recorded and monitored.") }
 </div>
 
-<h1>${ _("Please log in to CamCOPS") }</h1>
+<h1>${ _("Two-step verification") }</h1>
+
+<p>
+${instructions}
+</p>
 
 ${form | n}

@@ -2467,10 +2467,43 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.assertEqual(args[1], "Login")
         self.assertEqual(kwargs["user_id"], user.id)
 
-    def test_user_with_mfa_sees_token_form(self) -> None:
+    def test_user_with_totp_sees_token_form(self) -> None:
         user = self.create_user(username="test",
                                 mfa_secret_key=pyotp.random_base32(),
-                                mfa_preference=AuthenticationType.HOTP_SMS,
+                                mfa_preference=AuthenticationType.TOTP)
+        user.set_password(self.req, "secret")
+        self.dbsession.flush()
+        self.create_membership(user, self.group, may_use_webviewer=True)
+
+        multidict = MultiDict([
+            (ViewParam.USERNAME, user.username),
+            (ViewParam.PASSWORD, "secret"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+
+        view = LoginView(self.req)
+
+        with mock.patch.object(view, "render_to_response") as mock_render:
+            view.dispatch()
+
+        args, kwargs = mock_render.call_args
+        context = args[0]
+
+        self.assertIn("form", context)
+        self.assertIn("Enter the six-digit code", context["form"])
+        self.assertIn("Enter the code for CamCOPS displayed",
+                      context["instructions"])
+
+    @mock.patch("camcops_server.cc_modules.cc_email.send_msg")
+    @mock.patch("camcops_server.cc_modules.cc_email.make_email")
+    def test_user_with_hotp_email_sees_token_form(self, mock_make_email,
+                                                  mock_send_msg) -> None:
+        user = self.create_user(username="test",
+                                mfa_secret_key=pyotp.random_base32(),
+                                mfa_preference=AuthenticationType.HOTP_EMAIL,
+                                email="user@example.com",
                                 hotp_counter=0)
         user.set_password(self.req, "secret")
         self.dbsession.flush()
@@ -2494,6 +2527,39 @@ class LoginViewTests(BasicDatabaseTestCase):
 
         self.assertIn("form", context)
         self.assertIn("Enter the six-digit code", context["form"])
+        self.assertIn("We've sent a code by email", context["instructions"])
+
+    def test_user_with_hotp_sms_sees_token_form(self) -> None:
+        self.req.config.sms_backend = get_sms_backend("console", {})
+        user = self.create_user(username="test",
+                                mfa_secret_key=pyotp.random_base32(),
+                                mfa_preference=AuthenticationType.HOTP_SMS,
+                                phone_number=TEST_PHONE_NUMBER,
+                                hotp_counter=0)
+        user.set_password(self.req, "secret")
+        self.dbsession.flush()
+        self.create_membership(user, self.group, may_use_webviewer=True)
+
+        multidict = MultiDict([
+            (ViewParam.USERNAME, user.username),
+            (ViewParam.PASSWORD, "secret"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+
+        view = LoginView(self.req)
+
+        with mock.patch.object(view, "render_to_response") as mock_render:
+            view.dispatch()
+
+        args, kwargs = mock_render.call_args
+        context = args[0]
+
+        self.assertIn("form", context)
+        self.assertIn("Enter the six-digit code", context["form"])
+        self.assertIn("We've sent a code by text message",
+                      context["instructions"])
 
     @mock.patch("camcops_server.cc_modules.webview.time")
     def test_session_variables_set_for_user_with_mfa(self, mock_time) -> None:
@@ -2571,8 +2637,6 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.assertTrue(kwargs["use_tls"])
 
     def test_user_with_hotp_is_sent_sms(self) -> None:
-        # https://www.ofcom.org.uk/phones-telecoms-and-internet/information-for-industry/numbering/numbers-for-drama  # noqa: E501
-        # 07700 900000 to 900999 reserved for TV and Radio drama purposes
         test_config = {"username": "testuser",
                        "password": "testpass"}
 
@@ -2581,7 +2645,7 @@ class LoginViewTests(BasicDatabaseTestCase):
 
         user = self.create_user(username="test",
                                 email="user@example.com",
-                                phone=TEST_PHONE_NUMBER,
+                                phone_number=TEST_PHONE_NUMBER,
                                 mfa_secret_key=pyotp.random_base32(),
                                 mfa_preference=AuthenticationType.HOTP_SMS,
                                 hotp_counter=0)
@@ -2898,7 +2962,7 @@ class EditMfaViewTests(BasicDatabaseTestCase):
         regular_user = self.create_user(
             username="regular_user",
             mfa_preference=AuthenticationType.HOTP_SMS,
-            phone=TEST_PHONE_NUMBER,
+            phone_number=TEST_PHONE_NUMBER,
             email="regular_user@example.com",
         )
         self.dbsession.flush()
@@ -2921,7 +2985,7 @@ class EditMfaViewTests(BasicDatabaseTestCase):
         self.assertEqual(form_values[ViewParam.MFA_TYPE],
                          regular_user.mfa_preference)
         self.assertEqual(form_values[ViewParam.PHONE_NUMBER],
-                         regular_user.phone)
+                         regular_user.phone_number)
         self.assertEqual(form_values[ViewParam.EMAIL], regular_user.email)
 
     def test_user_can_set_secret_key(self) -> None:
@@ -3056,7 +3120,7 @@ class EditMfaViewTests(BasicDatabaseTestCase):
         with self.assertRaises(HTTPFound):
             view.dispatch()
 
-        self.assertEqual(regular_user.phone, TEST_PHONE_NUMBER)
+        self.assertEqual(regular_user.phone_number, TEST_PHONE_NUMBER)
 
     def test_user_can_set_email_address(self) -> None:
         regular_user = self.create_user(username="regular_user")

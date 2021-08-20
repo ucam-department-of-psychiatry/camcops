@@ -400,8 +400,8 @@ class User(Base):
         "email", EmailAddressColType,
         comment="User's e-mail address"
     )
-    phone = Column(
-        "phone", PhoneNumberColType,
+    phone_number = Column(
+        "phone_number", PhoneNumberColType,
         comment="User's phone number"
     )
     hashedpw = Column(

@@ -676,8 +676,11 @@ class LoginView(FormView):
     def prompt_for_additional_verification(self) -> None:
         self.set_authenticated_user_id(self.user.id)
         self.request.session["authentication_time"] = int(time.time())
+
         self.handle_authentication_type()
-        return self.render_to_response(self.get_context_data())
+        context_data = self.get_context_data()
+        context_data["instructions"] = self.get_mfa_instructions()
+        return self.render_to_response(context_data)
 
     def timed_out(self) -> bool:
         timeout = self.request.config.mfa_timeout_s
@@ -695,7 +698,23 @@ class LoginView(FormView):
         if self.user.mfa_preference == AuthenticationType.HOTP_EMAIL:
             return self.send_authentication_email()
 
-        return self.send_authentication_sms()
+        self.send_authentication_sms()
+
+    def get_mfa_instructions(self) -> str:
+        _ = self.request.gettext
+
+        if self.user.mfa_preference == AuthenticationType.TOTP:
+            return _("Enter the code for CamCOPS displayed on your "
+                     "authentication app.")
+
+        if self.user.mfa_preference == AuthenticationType.HOTP_EMAIL:
+            return _("We've sent a code by email to {}.").format(
+                self.user.partial_email
+            )
+
+        return _("We've sent a code by text message to {}").format(
+            self.user.partial_phone_number
+        )
 
     def send_authentication_email(self) -> None:
         _ = self.request.gettext
@@ -719,7 +738,7 @@ class LoginView(FormView):
 
     def send_authentication_sms(self) -> None:
         backend = self.request.config.sms_backend
-        backend.send_sms(self.user.phone, self.get_hotp_message())
+        backend.send_sms(self.user.phone_number, self.get_hotp_message())
 
     def get_hotp_message(self) -> str:
         self.user.hotp_counter += 1
@@ -1004,7 +1023,7 @@ class EditMfaView(UpdateView):
     model_form_dict = {
         "email": ViewParam.EMAIL,
         "mfa_preference": ViewParam.MFA_TYPE,
-        "phone": ViewParam.PHONE_NUMBER,
+        "phone_number": ViewParam.PHONE_NUMBER,
     }
 
     def get_object(self) -> Any:

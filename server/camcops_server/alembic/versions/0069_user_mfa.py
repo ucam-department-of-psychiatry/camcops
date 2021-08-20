@@ -87,7 +87,7 @@ def upgrade():
         )
         batch_op.add_column(
             sa.Column(
-                "phone",
+                "phone_number",
                 sa.Unicode(length=128),
                 nullable=True,
                 comment="User's phone number",
@@ -98,7 +98,7 @@ def upgrade():
 # noinspection PyPep8,PyTypeChecker
 def downgrade():
     with op.batch_alter_table("_security_users", schema=None) as batch_op:
-        batch_op.drop_column("phone")
+        batch_op.drop_column("phone_number")
         batch_op.drop_column("mfa_secret_key")
         batch_op.drop_column("mfa_preference")
         batch_op.drop_column("hotp_counter")
