@@ -2900,6 +2900,21 @@ class LoginViewTests(BasicDatabaseTestCase):
 
         self.assertFalse(view.timed_out())
 
+    def test_timed_out_false_when_no_authenticated_user(self) -> None:
+        view = LoginView(self.req)
+
+        self.assertFalse(view.timed_out())
+
+    def test_timed_out_false_when_no_authentication_time(self) -> None:
+        view = LoginView(self.req)
+
+        user = self.create_user(username="test")
+        # Should never be the case that we have a user ID but no
+        # authentication time
+        self.req.session["authenticated_user_id"] = user.id
+
+        self.assertFalse(view.timed_out())
+
 
 class EditUserTests(BasicDatabaseTestCase):
     def test_redirect_on_cancel(self) -> None:

@@ -589,7 +589,16 @@ def audit_menu(req: "CamcopsRequest") -> Dict[str, Any]:
 class LoginView(FormView):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.user = None
+
+    def dispatch(self) -> Response:
+        if self.timed_out():
+            self.set_authenticated_user_id(None)
+            return login_failed(self.request)
+
+        self.user = User.get_user_by_id(self.request.dbsession,
+                                        self.get_authenticated_user_id())
+
+        return super().dispatch()
 
     def get_form_class(self) -> Optional[Type["Form"]]:
         if self.get_authenticated_user_id() is None:
@@ -602,6 +611,12 @@ class LoginView(FormView):
             return "login.mako"
 
         return "login_token.mako"
+
+    def get_extra_context(self) -> Dict[str, Any]:
+        if self.get_authenticated_user_id() is None:
+            return {}
+
+        return {"instructions": self.get_mfa_instructions()}
 
     def get_form_values(self) -> Dict:
         return {
@@ -618,9 +633,6 @@ class LoginView(FormView):
         return kwargs
 
     def form_valid(self, form: "Form", appstruct: Dict[str, Any]) -> Response:
-        self.user = User.get_user_by_id(self.request.dbsession,
-                                        self.get_authenticated_user_id())
-
         if self.user is None:
             username = appstruct.get(ViewParam.USERNAME)
 
@@ -655,8 +667,6 @@ class LoginView(FormView):
                 return self.prompt_for_additional_verification()
 
             self.set_authenticated_user_id(None)
-            if self.timed_out():
-                return login_failed(self.request)
             otp = appstruct.get(ViewParam.ONE_TIME_PASSWORD)
             if not self.user.verify_one_time_password(otp):
                 return login_failed(self.request)
@@ -678,16 +688,20 @@ class LoginView(FormView):
         self.request.session["authentication_time"] = int(time.time())
 
         self.handle_authentication_type()
-        context_data = self.get_context_data()
-        context_data["instructions"] = self.get_mfa_instructions()
-        return self.render_to_response(context_data)
+        return self.render_to_response(self.get_context_data())
 
     def timed_out(self) -> bool:
+        if self.get_authenticated_user_id() is None:
+            return False
+
         timeout = self.request.config.mfa_timeout_s
         if timeout == 0:
-            return
+            return False
 
-        login_time = self.request.session["authentication_time"]
+        login_time = self.request.session.get("authentication_time")
+
+        if login_time is None:
+            return False
 
         return int(time.time()) > login_time + timeout
 
