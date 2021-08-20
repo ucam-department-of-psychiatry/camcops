@@ -128,3 +128,10 @@ class UserTests(DemoDatabaseTestCase):
             user.email = email
             self.assertEqual(user.partial_email, expected_partial,
                              msg=f"Failed for {email}")
+
+    def test_partial_phone_number(self) -> None:
+        user = self.create_user()
+        # https://www.ofcom.org.uk/phones-telecoms-and-internet/information-for-industry/numbering/numbers-for-drama  # noqa: E501
+        user.phone_number = "+447700900123"
+
+        self.assertEqual(user.partial_phone_number, "**********23")

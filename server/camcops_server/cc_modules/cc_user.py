@@ -700,6 +700,10 @@ class User(Base):
 
         return f"{first_letter}*****{last_letter}@{domain}"
 
+    @property
+    def partial_phone_number(self) -> str:
+        return f"**********{self.phone_number[-2:]}"
+
     def set_password_change_flag_if_necessary(self,
                                               req: "CamcopsRequest") -> None:
         """
