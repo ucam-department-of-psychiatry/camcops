@@ -2151,11 +2151,19 @@ class MfaTypeSelector(SchemaNode, RequestAwareMixin):
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         _ = self.gettext
         self.title = _("Authentication type")
-        choices = (
+        request = self.bindings[Binding.REQUEST]  # type: CamcopsRequest
+        all_mfa_choices = [
             (AuthenticationType.TOTP,
              _("Use an app such as Google Authenticator or Twilio Authy")),
             (AuthenticationType.HOTP_EMAIL, _("Send me a code by email")),
             (AuthenticationType.HOTP_SMS, _("Send me a code by text message")),
+        ]
+
+        choices = []
+        for (label, description) in all_mfa_choices:
+            if label in request.config.mfa_methods:
+                choices.append((label, description))
+        choices.append(
             (AuthenticationType.NONE, _("Disable two-step verification")),
         )
         values, pv = get_values_and_permissible(choices)
