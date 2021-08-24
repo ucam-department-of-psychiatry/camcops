@@ -2248,10 +2248,10 @@ class EditMfaSchema(CSRFSchema):
     """
     Schema to edit settings for Multi-factor Authentication
     """
-    mfa_type = MfaTypeSelector()  # must match ViewParams.MFA_TYPE
-    mfa_secret_key = MfaSecretNode()  # must match ViewParams.MFA_SECRET_KEY  # noqa: E501
-    email = OptionalEmailNode()  # must match ViewParams.EMAIL
-    phone_number = OptionalPhoneNumberNode()  # must match ViewParams.PHONE_NUMBER  # noqa: E501
+    mfa_type = MfaTypeSelector()  # must match ViewParam.MFA_TYPE
+    mfa_secret_key = MfaSecretNode()  # must match ViewParam.MFA_SECRET_KEY  # noqa: E501
+    email = OptionalEmailNode()  # must match ViewParam.EMAIL
+    phone_number = OptionalPhoneNumberNode()  # must match ViewParam.PHONE_NUMBER  # noqa: E501
 
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
@@ -2267,6 +2267,23 @@ class EditMfaSchema(CSRFSchema):
             "Include the country code (eg +123) for numbers outside of the "
             "'{region_code}' region").format(
                 region_code=self.request.config.region_code
+            )
+
+    def validator(self, node: SchemaNode, value: Dict[str, Any]) -> None:
+        mfa_preference = value[ViewParam.MFA_TYPE]
+        if mfa_preference == AuthenticationType.HOTP_EMAIL:
+            self._validate_hotp_email(node, value)
+            return
+
+    def _validate_hotp_email(self, node: SchemaNode,
+                             value: Dict[str, Any]) -> None:
+        _ = self.gettext
+
+        email_address = value[ViewParam.EMAIL]
+        if not email_address:
+            raise Invalid(
+                node,
+                _("You must provide an email address")
             )
 
 
@@ -2784,7 +2801,7 @@ class ChooseTrackerSchema(CSRFSchema):
     tasks = MultiTaskSelector()  # must match ViewParam.TASKS
     # tracker_tasks_only will be set via the binding
     via_index = ViaIndexSelector()  # must match ViewParam.VIA_INDEX
-    viewtype = TaskTrackerOutputTypeSelector()  # must match ViewParams.VIEWTYPE  # noqa
+    viewtype = TaskTrackerOutputTypeSelector()  # must match ViewParam.VIEWTYPE  # noqa
 
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
@@ -3702,7 +3719,7 @@ class OfferBasicDumpSchema(CSRFSchema):
     sort = SortTsvByHeadingsNode()  # must match ViewParam.SORT
     include_information_schema_columns = IncludeInformationSchemaColumnsNode()  # must match ViewParam.INCLUDE_INFORMATION_SCHEMA_COLUMNS  # noqa
     manual = OfferDumpManualSchema()  # must match ViewParam.MANUAL
-    viewtype = SpreadsheetFormatSelector()  # must match ViewParams.VIEWTYPE  # noqa
+    viewtype = SpreadsheetFormatSelector()  # must match ViewParam.VIEWTYPE  # noqa
     delivery_mode = DeliveryModeNode()  # must match ViewParam.DELIVERY_MODE
 
 
