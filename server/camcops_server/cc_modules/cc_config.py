@@ -335,6 +335,12 @@ def get_demo_config(for_docker: bool = False) -> str:
 {ConfigParamSite.WKHTMLTOPDF_FILENAME} =
 
 # -----------------------------------------------------------------------------
+# Server location
+# -----------------------------------------------------------------------------
+
+{ConfigParamSite.REGION_CODE} = GB
+
+# -----------------------------------------------------------------------------
 # Login and session configuration
 # -----------------------------------------------------------------------------
 
@@ -1231,6 +1237,7 @@ class CamcopsConfig(object):
         # currently not configurable, but easy to add in the future:
         self.plot_fontsize = cd.PLOT_FONTSIZE
 
+        self.region_code = _get_str(s, cs.REGION_CODE, cd.REGION_CODE)
         self.restricted_tasks = {}  # type: Dict[str, List[str]]
         # ... maps XML task names to lists of authorized group names
         restricted_tasks = _get_multiline(s, cs.RESTRICTED_TASKS)

@@ -34,6 +34,7 @@ from unittest import mock, TestCase
 # noinspection PyProtectedMember
 from colander import Invalid, null, Schema
 from pendulum import Duration
+import phonenumbers
 
 from camcops_server.cc_modules.cc_baseconstants import TEMPLATE_DIR
 from camcops_server.cc_modules.cc_forms import (
@@ -45,6 +46,7 @@ from camcops_server.cc_modules.cc_forms import (
     JsonType,
     JsonWidget,
     LoginSchema,
+    PhoneNumberType,
     TaskScheduleItemSchema,
     TaskScheduleNode,
     TaskScheduleSchema,
@@ -57,6 +59,9 @@ from camcops_server.cc_modules.cc_unittest import (
     DemoDatabaseTestCase,
     DemoRequestTestCase,
 )
+
+# https://www.ofcom.org.uk/phones-telecoms-and-internet/information-for-industry/numbering/numbers-for-drama  # noqa: E501
+TEST_PHONE_NUMBER = "+441134960123"
 
 
 # =============================================================================
@@ -925,3 +930,58 @@ class MfaSecretWidgetTests(TestCase):
 
         self.assertEqual(args[0],
                          f"{TEMPLATE_DIR}/deform/readonly/mfa_secret.pt")
+
+
+class PhoneNumberTypeTestCase(TestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.request = mock.Mock()
+        self.phone_type = PhoneNumberType(self.request)
+        self.node = mock.Mock()
+
+
+class PhoneNumberTypeDeserializeTests(PhoneNumberTypeTestCase):
+    def test_returns_null_for_null_cstruct(self) -> None:
+        phone_number = self.phone_type.deserialize(self.node, null)
+        self.assertIs(phone_number, null)
+
+    def test_raises_for_unparsable_number(self) -> None:
+        with self.assertRaises(Invalid) as cm:
+            self.phone_type.deserialize(self.node, "abc")
+
+            self.assertIn(
+                "Invalid phone number",
+                cm.exception.messages()[0]
+            )
+
+    def test_raises_for_invalid_parsable_number(self) -> None:
+        with self.assertRaises(Invalid) as cm:
+            self.phone_type.deserialize(self.node, "+4411349600")
+
+            self.assertIn(
+                "Invalid phone number",
+                cm.exception.messages()[0]
+            )
+
+    def test_returns_valid_phone_number(self) -> None:
+        phone_number = self.phone_type.deserialize(
+            self.node, TEST_PHONE_NUMBER)
+
+        self.assertIsInstance(phone_number, phonenumbers.PhoneNumber)
+
+        self.assertEqual(phonenumbers.format_number(
+            phone_number,
+            phonenumbers.PhoneNumberFormat.E164
+        ), TEST_PHONE_NUMBER)
+
+
+class PhoneNumberTypeSerializeTests(PhoneNumberTypeTestCase):
+    def test_returns_null_for_appstruct_none(self) -> None:
+        self.assertIs(self.phone_type.serialize(self.node, None), null)
+
+    def test_returns_number_formatted_e164(self) -> None:
+        phone_number = phonenumbers.parse(TEST_PHONE_NUMBER)
+
+        self.assertEqual(self.phone_type.serialize(self.node, phone_number),
+                         TEST_PHONE_NUMBER)

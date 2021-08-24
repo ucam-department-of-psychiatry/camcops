@@ -169,6 +169,7 @@ from deform.widget import (
 )
 
 from pendulum import Duration
+import phonenumbers
 import pyotp
 import qrcode
 import qrcode.image.svg
@@ -1839,6 +1840,71 @@ class HiddenRedirectionUrlNode(HiddenStringNode, RequestAwareMixin):
                 raise Invalid(node, _("Invalid redirection URL"))
 
 
+# -----------------------------------------------------------------------------
+# Phone number
+# -----------------------------------------------------------------------------
+
+class PhoneNumberType(String):
+    def __init__(self, request: "CamcopsRequest", *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+        self.request = request
+
+    # noinspection PyMethodMayBeStatic, PyUnusedLocal
+    def deserialize(
+            self,
+            node: SchemaNode,
+            cstruct: Union[str, ColanderNullType, None]
+    ) -> Optional[phonenumbers.PhoneNumber]:
+        # is null when form is empty
+        if not cstruct:
+            return null
+
+        cstruct: str
+
+        request = self.request  # type: CamcopsRequest
+
+        _ = request.gettext
+        message = _("Invalid phone number")
+
+        try:
+            phone_number = phonenumbers.parse(cstruct,
+                                              request.config.region_code)
+        except phonenumbers.NumberParseException:
+            raise Invalid(node, message)
+
+        if not phonenumbers.is_valid_number(phone_number):
+            # the number may parse but could still be invalid
+            # (e.g. too few digits)
+            raise Invalid(node, message)
+
+        return phone_number
+
+    # noinspection PyMethodMayBeStatic,PyUnusedLocal
+    def serialize(
+            self,
+            node: SchemaNode,
+            appstruct: Union[phonenumbers.PhoneNumber, None,
+                             ColanderNullType]) \
+            -> Union[str, ColanderNullType]:
+        # is None when populated from empty value in the database
+        if not appstruct:
+            return null
+
+        # appstruct should be well formed here (it would already have failed
+        # when reading from the database)
+        return phonenumbers.format_number(appstruct,
+                                          phonenumbers.PhoneNumberFormat.E164)
+
+
+class OptionalPhoneNumberNode(OptionalStringNode, RequestAwareMixin):
+    default = None
+    missing = None
+
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        self.typ = PhoneNumberType(self.request)
+
+
 # =============================================================================
 # Login
 # =============================================================================
@@ -2185,7 +2251,7 @@ class EditMfaSchema(CSRFSchema):
     mfa_type = MfaTypeSelector()  # must match ViewParams.MFA_TYPE
     mfa_secret_key = MfaSecretNode()  # must match ViewParams.MFA_SECRET_KEY  # noqa: E501
     email = OptionalEmailNode()  # must match ViewParams.EMAIL
-    phone_number = OptionalStringNode()  # must match ViewParams.PHONE_NUMBER
+    phone_number = OptionalPhoneNumberNode()  # must match ViewParams.PHONE_NUMBER  # noqa: E501
 
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
@@ -2195,6 +2261,13 @@ class EditMfaSchema(CSRFSchema):
 
         mfa_secret_key = get_child_node(self, "mfa_secret_key")
         mfa_secret_key.title = _("Follow these steps:")
+
+        phone_number = get_child_node(self, "phone_number")
+        phone_number.description = _(
+            "Include the country code (eg +123) for numbers outside of the "
+            "'{region_code}' region").format(
+                region_code=self.request.config.region_code
+            )
 
 
 class EditMfaForm(InformativeNonceForm):
