@@ -127,6 +127,7 @@ from cardinal_pythonlib.sqlalchemy.sqlfunc import (
 from isodate.isoerror import ISO8601Error
 from pendulum import DateTime as Pendulum, Duration
 from pendulum.parsing.exceptions import ParserError
+import phonenumbers
 from semantic_version import Version
 from sqlalchemy import util
 from sqlalchemy.dialects import mysql
@@ -273,7 +274,6 @@ MfaPreferenceColType = String(length=StringLengths.MFA_PREFERENCE_MAX_LEN)
 MimeTypeColType = String(length=StringLengths.MIMETYPE_MAX_LEN)
 
 PatientNameColType = Unicode(length=StringLengths.PATIENT_NAME_MAX_LEN)
-PhoneNumberColType = Unicode(length=StringLengths.PHONE_NUMBER_MAX_LEN)
 
 Rfc2822DateColType = String(length=StringLengths.RFC_2822_DATE_MAX_LEN)
 
@@ -1128,6 +1128,33 @@ class JsonColType(TypeDecorator):
             return None
 
         return json.loads(value)
+
+
+# =============================================================================
+# Phone number column type
+# =============================================================================
+
+class PhoneNumberColType(TypeDecorator):
+    impl = Unicode(length=StringLengths.PHONE_NUMBER_MAX_LEN)
+
+    @property
+    def python_type(self) -> type:
+        return str
+
+    def process_bind_param(self, value: Any,
+                           dialect: Dialect) -> Optional[str]:
+        if value is None:
+            return None
+
+        return phonenumbers.format_number(value,
+                                          phonenumbers.PhoneNumberFormat.E164)
+
+    def process_result_value(self, value: str, dialect: Dialect) -> Any:
+        if not value:
+            return None
+
+        # Should be stored as E164 so no need to pass a region
+        return phonenumbers.parse(value, None)
 
 
 # =============================================================================
