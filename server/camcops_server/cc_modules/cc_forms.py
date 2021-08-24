@@ -2275,6 +2275,9 @@ class EditMfaSchema(CSRFSchema):
             self._validate_hotp_email(node, value)
             return
 
+        if mfa_preference == AuthenticationType.HOTP_SMS:
+            self._validate_hotp_sms(node, value)
+
     def _validate_hotp_email(self, node: SchemaNode,
                              value: Dict[str, Any]) -> None:
         _ = self.gettext
@@ -2284,6 +2287,17 @@ class EditMfaSchema(CSRFSchema):
             raise Invalid(
                 node,
                 _("You must provide an email address")
+            )
+
+    def _validate_hotp_sms(self, node: SchemaNode,
+                           value: Dict[str, Any]) -> None:
+        _ = self.gettext
+
+        phone_number = value[ViewParam.PHONE_NUMBER]
+        if not phone_number:
+            raise Invalid(
+                node,
+                _("You must provide a phone number")
             )
 
 
