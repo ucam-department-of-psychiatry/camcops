@@ -1052,9 +1052,16 @@ class EditMfaView(UpdateView):
         return self.request.route_url(Routes.HOME)
 
     def set_object_properties(self, appstruct: Dict[str, Any]) -> None:
+        # We show only the relevant fields on the form with CSS but
+        # it is possible that the user could fill in an email address
+        # and then change the authentication method to SMS. We want to
+        # only save the properties relevant to the selected authentication
+        # method
         mfa_type = appstruct.get(ViewParam.MFA_TYPE)
         if mfa_type == AuthenticationType.HOTP_SMS:
             appstruct.pop(ViewParam.EMAIL)
+        elif mfa_type == AuthenticationType.HOTP_EMAIL:
+            appstruct.pop(ViewParam.PHONE_NUMBER)
 
         super().set_object_properties(appstruct)
 
