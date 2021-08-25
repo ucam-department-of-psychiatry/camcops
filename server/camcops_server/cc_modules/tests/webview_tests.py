@@ -3162,3 +3162,28 @@ class EditMfaViewTests(BasicDatabaseTestCase):
             view.dispatch()
 
         self.assertEqual(regular_user.email, "regular_user@example.com")
+
+    def test_email_address_not_set_for_hotp_sms(self) -> None:
+        regular_user = self.create_user(username="regular_user",
+                                        email="regular_user@example.com")
+        self.dbsession.flush()
+
+        mfa_secret_key = pyotp.random_base32()
+
+        multidict = MultiDict([
+            (ViewParam.MFA_SECRET_KEY, mfa_secret_key),
+            (ViewParam.MFA_TYPE, AuthenticationType.HOTP_SMS),
+            (ViewParam.PHONE_NUMBER, TEST_PHONE_NUMBER),
+            (ViewParam.EMAIL, "something_else@example.com"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+        self.req._debugging_user = regular_user
+        self.req.fake_request_post_from_dict(multidict)
+        self.req.config.mfa_methods = ["hotp_sms"]
+
+        view = EditMfaView(self.req)
+
+        with self.assertRaises(HTTPFound):
+            view.dispatch()
+
+        self.assertEqual(regular_user.email, "regular_user@example.com")

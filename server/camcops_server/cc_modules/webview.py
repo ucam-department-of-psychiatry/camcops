@@ -1052,6 +1052,10 @@ class EditMfaView(UpdateView):
         return self.request.route_url(Routes.HOME)
 
     def set_object_properties(self, appstruct: Dict[str, Any]) -> None:
+        mfa_type = appstruct.get(ViewParam.MFA_TYPE)
+        if mfa_type == AuthenticationType.HOTP_SMS:
+            appstruct.pop(ViewParam.EMAIL)
+
         super().set_object_properties(appstruct)
 
         mfa_secret_key = appstruct.get(ViewParam.MFA_SECRET_KEY)
@@ -1060,7 +1064,7 @@ class EditMfaView(UpdateView):
         hotp_types = (AuthenticationType.HOTP_EMAIL,
                       AuthenticationType.HOTP_SMS)
 
-        if appstruct.get(ViewParam.MFA_TYPE) in hotp_types:
+        if mfa_type in hotp_types:
             self.request.user.hotp_counter = 0
 
 
