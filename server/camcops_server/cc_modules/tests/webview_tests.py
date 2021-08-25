@@ -35,6 +35,7 @@ import unittest
 from unittest import mock
 
 from pendulum import local
+import phonenumbers
 import pyotp
 from pyramid.httpexceptions import HTTPBadRequest, HTTPFound
 from webob.multidict import MultiDict
@@ -107,7 +108,10 @@ TEST_NHS_NUMBER_2 = 1381277373
 
 # https://www.ofcom.org.uk/phones-telecoms-and-internet/information-for-industry/numbering/numbers-for-drama  # noqa: E501
 # 07700 900000 to 900999 reserved for TV and Radio drama purposes
-TEST_PHONE_NUMBER = "+447700900123"
+# but unfortunately phonenumbers considers these invalid
+# Landlines seem OK
+# 0113 496 0000 to 496 0999 for Leeds
+TEST_PHONE_NUMBER = "+441134960123"
 
 
 class WebviewTests(DemoDatabaseTestCase):
@@ -2530,10 +2534,12 @@ class LoginViewTests(BasicDatabaseTestCase):
 
     def test_user_with_hotp_sms_sees_token_form(self) -> None:
         self.req.config.sms_backend = get_sms_backend("console", {})
+
+        phone_number = phonenumbers.parse(TEST_PHONE_NUMBER)
         user = self.create_user(username="test",
                                 mfa_secret_key=pyotp.random_base32(),
                                 mfa_preference=AuthenticationType.HOTP_SMS,
-                                phone_number=TEST_PHONE_NUMBER,
+                                phone_number=phone_number,
                                 hotp_counter=0)
         user.set_password(self.req, "secret")
         self.dbsession.flush()
@@ -2642,9 +2648,10 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.req.config.sms_backend = get_sms_backend("console", {})
         self.req.config.sms_config = test_config
 
+        phone_number = phonenumbers.parse(TEST_PHONE_NUMBER)
         user = self.create_user(username="test",
                                 email="user@example.com",
-                                phone_number=TEST_PHONE_NUMBER,
+                                phone_number=phone_number,
                                 mfa_secret_key=pyotp.random_base32(),
                                 mfa_preference=AuthenticationType.HOTP_SMS,
                                 hotp_counter=0)
@@ -2982,7 +2989,7 @@ class EditMfaViewTests(BasicDatabaseTestCase):
         regular_user = self.create_user(
             username="regular_user",
             mfa_preference=AuthenticationType.HOTP_SMS,
-            phone_number=TEST_PHONE_NUMBER,
+            phone_number=phonenumbers.parse(TEST_PHONE_NUMBER),
             email="regular_user@example.com",
         )
         self.dbsession.flush()

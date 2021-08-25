@@ -1010,3 +1010,18 @@ class EditMfaSchemaTests(TestCase):
 
         self.assertIn("You must provide an email address",
                       cm.exception.messages()[0])
+
+    def test_invalid_for_hotp_sms_with_no_user_phone_number(self):
+        schema = EditMfaSchema().bind(request=self.request)
+        cstruct = {
+            ViewParam.MFA_TYPE: AuthenticationType.HOTP_SMS,
+            ViewParam.MFA_SECRET_KEY: pyotp.random_base32(),
+            ViewParam.EMAIL: null,
+            ViewParam.PHONE_NUMBER: null,
+        }
+
+        with self.assertRaises(Invalid) as cm:
+            schema.deserialize(cstruct)
+
+        self.assertIn("You must provide a phone number",
+                      cm.exception.messages()[0])
