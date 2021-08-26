@@ -3350,7 +3350,7 @@ class EditUserAuthenticationViewTests(BasicDatabaseTestCase):
                                                   "monkeybusiness")
         self.assertFalse(regular_user.must_change_password)
 
-        messages = self.req.session.peek_flash(FLASH_INFO)
+        messages = self.req.session.peek_flash(FLASH_SUCCESS)
         self.assertTrue(len(messages) > 0)
         self.assertIn("Password changed for user 'regular_user'",
                       messages[0])
@@ -3387,7 +3387,7 @@ class EditUserAuthenticationViewTests(BasicDatabaseTestCase):
 
         self.assertEqual(regular_user.mfa_method, MfaMethod.NONE)
 
-        messages = self.req.session.peek_flash(FLASH_INFO)
+        messages = self.req.session.peek_flash(FLASH_SUCCESS)
         self.assertTrue(len(messages) > 0)
         self.assertIn(
             "Multi-factor authentication disabled for user 'regular_user'",

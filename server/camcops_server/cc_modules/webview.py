@@ -990,7 +990,7 @@ class EditUserAuthenticationView(UpdateView):
                 _("Password changed for user '{username}'").format(
                     username=user.username
                 ),
-                queue=FLASH_INFO
+                queue=FLASH_SUCCESS
             )
         except KeyError:
             pass
@@ -1000,7 +1000,7 @@ class EditUserAuthenticationView(UpdateView):
             self.request.session.flash(
                 _("Multi-factor authentication disabled for user "
                   "'{username}'").format(username=user.username),
-                queue=FLASH_INFO
+                queue=FLASH_SUCCESS
             )
 
     def get_extra_context(self) -> Dict[str, Any]:
