@@ -168,6 +168,7 @@ class ViewParam(object):
     DIALECT = "dialect"
     DIAGNOSES_INCLUSION = "diagnoses_inclusion"
     DIAGNOSES_EXCLUSION = "diagnoses_exclusion"
+    DISABLE_MFA = "disable_mfa"
     DUMP_METHOD = "dump_method"
     DOB = "dob"
     DUE_FROM = "due_from"

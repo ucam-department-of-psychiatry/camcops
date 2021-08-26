@@ -3355,6 +3355,45 @@ class EditUserAuthenticationViewTests(BasicDatabaseTestCase):
         self.assertIn("Password changed for user 'regular_user'",
                       messages[0])
 
+    def test_disable_mfa(self) -> None:
+        groupadmin = self.create_user(username="groupadmin")
+        regular_user = self.create_user(username="regular_user",
+                                        mfa_method=MfaMethod.TOTP)
+        self.dbsession.flush()
+        self.create_membership(groupadmin, self.group, groupadmin=True)
+        self.create_membership(regular_user, self.group)
+        self.dbsession.flush()
+
+        self.assertFalse(regular_user.must_change_password)
+
+        multidict = MultiDict([
+            # ("__start__", "new_password:mapping"),
+            # (ViewParam.NEW_PASSWORD, ""),
+            # ("new_password-confirm", ""),
+            # ("__end__", "new_password:mapping"),
+            (ViewParam.DISABLE_MFA, "true"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+        self.req._debugging_user = groupadmin
+        self.req.fake_request_post_from_dict(multidict)
+
+        self.req.add_get_params({
+            ViewParam.USER_ID: regular_user.id
+        }, set_method_get=False)
+
+        view = EditUserAuthenticationView(self.req)
+        with self.assertRaises(HTTPFound):
+            view.dispatch()
+
+        self.assertEqual(regular_user.mfa_method, MfaMethod.NONE)
+
+        messages = self.req.session.peek_flash(FLASH_INFO)
+        self.assertTrue(len(messages) > 0)
+        self.assertIn(
+            "Multi-factor authentication disabled for user 'regular_user'",
+            messages[0]
+        )
+
     def test_user_forced_to_change_password(self) -> None:
         groupadmin = self.create_user(username="groupadmin")
         regular_user = self.create_user(username="regular_user")

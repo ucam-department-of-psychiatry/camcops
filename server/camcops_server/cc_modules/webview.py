@@ -975,23 +975,33 @@ class EditUserAuthenticationView(UpdateView):
     def set_object_properties(self, appstruct: Dict[str, Any]) -> None:
         super().set_object_properties(appstruct)
 
-        # -----------------------------------------------------------------
-        # Change the password
-        # -----------------------------------------------------------------
-        new_password = appstruct.get(ViewParam.NEW_PASSWORD)
         user = cast(User, self.object)
-        user.set_password(self.request, new_password)
-        must_change_pw = appstruct.get(ViewParam.MUST_CHANGE_PASSWORD)
-        if must_change_pw:
-            user.force_password_change()
-
         _ = self.request.gettext
-        self.request.session.flash(
-            _("Password changed for user '{username}'").format(
-                username=user.username
-            ),
-            queue=FLASH_INFO
-        )
+        try:
+            # -----------------------------------------------------------------
+            # Change the password
+            # -----------------------------------------------------------------
+            new_password = appstruct[ViewParam.NEW_PASSWORD]
+            user.set_password(self.request, new_password)
+            must_change_pw = appstruct.get(ViewParam.MUST_CHANGE_PASSWORD)
+            if must_change_pw:
+                user.force_password_change()
+            self.request.session.flash(
+                _("Password changed for user '{username}'").format(
+                    username=user.username
+                ),
+                queue=FLASH_INFO
+            )
+        except KeyError:
+            pass
+
+        if appstruct.get(ViewParam.DISABLE_MFA):
+            user.mfa_method = MfaMethod.NONE
+            self.request.session.flash(
+                _("Multi-factor authentication disabled for user "
+                  "'{username}'").format(username=user.username),
+                queue=FLASH_INFO
+            )
 
     def get_extra_context(self) -> Dict[str, Any]:
         user = cast(User, self.object)

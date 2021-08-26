@@ -2161,13 +2161,40 @@ class ChangeOwnPasswordForm(InformativeNonceForm):
         )
 
 
+class DisableMfaNode(SchemaNode, RequestAwareMixin):
+    """
+    Boolean node: disable multi-factor authentication
+    """
+    schema_type = Boolean
+    default = False
+    missing = False
+
+    def __init__(self, *args, **kwargs) -> None:
+        self.label = ""  # for type checker
+        self.title = ""  # for type checker
+        super().__init__(*args, **kwargs)
+
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        _ = self.gettext
+        self.label = _("Disable multi-factor authentication")
+        self.title = _("Disable multi-factor authentication?")
+
+
 class EditUserAuthenticationSchema(CSRFSchema):
     """
     Schema to change another user's password.
     """
     user_id = HiddenIntegerNode()  # name must match ViewParam.USER_ID
-    must_change_password = MustChangePasswordNode()  # match ViewParam.MUST_CHANGE_PASSWORD  # noqa
     new_password = NewPasswordNode()  # name must match ViewParam.NEW_PASSWORD
+    must_change_password = MustChangePasswordNode()  # match ViewParam.MUST_CHANGE_PASSWORD  # noqa
+    disable_mfa = DisableMfaNode()  # match ViewParam.DISABLE_MFA
+
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        _ = self.gettext
+        new_password = get_child_node(self, "new_password")
+        new_password.missing = drop
 
 
 class EditUserAuthenticationForm(SimpleSubmitForm):
@@ -2175,8 +2202,9 @@ class EditUserAuthenticationForm(SimpleSubmitForm):
     Form to change another user's password.
     """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+        _ = request.gettext
         super().__init__(schema_class=EditUserAuthenticationSchema,
-                         submit_title=change_password_title(request),
+                         submit_title=_("Submit"),
                          request=request, **kwargs)
 
 
