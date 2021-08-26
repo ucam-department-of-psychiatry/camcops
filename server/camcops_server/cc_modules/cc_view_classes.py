@@ -531,6 +531,8 @@ class ProcessFormView(View):
             # noinspection PyUnresolvedReferences
             return self.form_valid(form, appstruct)
         except ValidationFailure as e:
+            # e.error.asdict() will reveal more
+
             # noinspection PyUnresolvedReferences
             return self.form_invalid(e)
 
