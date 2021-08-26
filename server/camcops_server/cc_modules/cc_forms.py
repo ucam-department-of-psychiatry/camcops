@@ -183,6 +183,7 @@ from camcops_server.cc_modules.cc_baseconstants import (
 from camcops_server.cc_modules.cc_constants import (
     ConfigParamSite,
     DEFAULT_ROWS_PER_PAGE,
+    MINIMUM_PASSWORD_LENGTH,
     SEX_OTHER_UNSPECIFIED,
     SEX_FEMALE,
     SEX_MALE,
@@ -2052,14 +2053,46 @@ class OldUserPasswordCheck(SchemaNode, RequestAwareMixin):
             raise Invalid(node, _("Old password incorrect"))
 
 
+class InformationalCheckedPasswordWidget(CheckedPasswordWidget):
+    basedir = os.path.join(TEMPLATE_DIR, "deform")
+    readonlydir = os.path.join(basedir, "readonly")
+    form = "informational_checked_password.pt"
+    template = os.path.join(basedir, form)
+    readonly_template = os.path.join(readonlydir, form)
+
+    def __init__(self, request: "CamcopsRequest", **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+        self.request = request
+
+    def get_template_values(self, field: "Field", cstruct: str,
+                            kw: Dict[str, Any]) -> Dict[str, Any]:
+        values = super().get_template_values(field, cstruct, kw)
+
+        _ = self.request.gettext
+
+        href = "https://www.ncsc.gov.uk/blog-post/three-random-words-or-thinkrandom-0"  # noqa: E501
+        link = f'<a href="{href}">{href}</a>'
+        password_advice = _("Choose strong passphrases. See {link}").format(
+            link=link
+        )
+        min_password_length = _("Minimum password length is {limit} "
+                                "characters.").format(
+                                    limit=MINIMUM_PASSWORD_LENGTH
+                                )
+
+        values.update(
+            password_advice=password_advice,
+            min_password_length=min_password_length,
+        )
+
+        return values
+
+
 class NewPasswordNode(SchemaNode, RequestAwareMixin):
     """
     Node to enter a new password.
     """
     schema_type = String
-    widget = CheckedPasswordWidget(attributes={
-        AUTOCOMPLETE_ATTR: AutocompleteAttrValues.NEW_PASSWORD
-    })
 
     def __init__(self, *args, **kwargs) -> None:
         self.title = ""  # for type checker
@@ -2071,6 +2104,11 @@ class NewPasswordNode(SchemaNode, RequestAwareMixin):
         _ = self.gettext
         self.title = _("New password")
         self.description = _("Type the new password and confirm it")
+        self.widget = InformationalCheckedPasswordWidget(
+            self.request, attributes={
+                AUTOCOMPLETE_ATTR: AutocompleteAttrValues.NEW_PASSWORD
+            }
+        )
 
     def validator(self, node: SchemaNode, value: str) -> None:
         try:

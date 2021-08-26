@@ -190,7 +190,6 @@ from camcops_server.cc_modules.cc_constants import (
     DateFormat,
     ERA_NOW,
     GITHUB_RELEASES_URL,
-    MINIMUM_PASSWORD_LENGTH,
 )
 from camcops_server.cc_modules.cc_db import (
     GenericTabletRecordMixin,
@@ -946,7 +945,6 @@ def change_own_password(req: "CamcopsRequest") -> Response:
         "change_own_password.mako",
         dict(form=rendered_form,
              expired=expired,
-             min_pw_length=MINIMUM_PASSWORD_LENGTH,
              head_form_html=get_head_form_html(req, [form])),
         request=req)
 
@@ -1000,7 +998,6 @@ class EditUserAuthenticationView(UpdateView):
 
         return {
             "username":  user.username,
-            "min_pw_length": MINIMUM_PASSWORD_LENGTH,
         }
 
 

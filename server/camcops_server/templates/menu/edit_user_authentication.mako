@@ -34,15 +34,5 @@ camcops_server/templates/menu/edit_user_authentication.mako
 
 ${form | n}
 
-<div>
-    ${ _("Choose strong passphrases.") }
-    ${ _("See") }
-    <a href="https://www.ncsc.gov.uk/blog-post/three-random-words-or-thinkrandom-0">
-        https://www.ncsc.gov.uk/blog-post/three-random-words-or-thinkrandom-0</a>.
-</div>
-<div>
-    ${ _("Minimum password length is {} characters.").format(min_pw_length) }
-</div>
-
 <%include file="to_view_all_users.mako"/>
 <%include file="to_main_menu.mako"/>
