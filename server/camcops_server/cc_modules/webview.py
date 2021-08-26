@@ -968,6 +968,11 @@ class EditUserAuthenticationView(UpdateView):
 
         return user
 
+    def set_object_properties(self, appstruct: Dict[str, Any]) -> None:
+        super().set_object_properties(appstruct)
+        new_password = appstruct.get(ViewParam.NEW_PASSWORD)
+        self.object.set_password(self.request, new_password)
+
 
 @view_config(route_name=Routes.CHANGE_OTHER_PASSWORD,
              permission=Permission.GROUPADMIN,

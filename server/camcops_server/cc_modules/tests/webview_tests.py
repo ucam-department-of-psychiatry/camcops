@@ -3314,3 +3314,35 @@ class EditUserAuthenticationViewTests(BasicDatabaseTestCase):
             view.dispatch()
 
         self.assertIn("Nobody may edit the system user", cm.exception.message)
+
+    def test_password_set(self) -> None:
+        groupadmin = self.create_user(username="groupadmin")
+        regular_user = self.create_user(username="regular_user")
+        self.dbsession.flush()
+        self.create_membership(groupadmin, self.group, groupadmin=True)
+        self.create_membership(regular_user, self.group)
+        self.dbsession.flush()
+
+        multidict = MultiDict([
+            ("__start__", "new_password:mapping"),
+            (ViewParam.NEW_PASSWORD, "monkeybusiness"),
+            ("new_password-confirm", "monkeybusiness"),
+            ("__end__", "new_password:mapping"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+        self.req._debugging_user = groupadmin
+        self.req.fake_request_post_from_dict(multidict)
+
+        self.req.add_get_params({
+            ViewParam.USER_ID: regular_user.id
+        }, set_method_get=False)
+
+        view = EditUserAuthenticationView(self.req)
+
+        with mock.patch.object(regular_user,
+                               "set_password") as mock_set_password:
+            with self.assertRaises(HTTPFound):
+                view.dispatch()
+
+        mock_set_password.assert_called_once_with(self.req,
+                                                  "monkeybusiness")
