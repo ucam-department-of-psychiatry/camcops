@@ -2269,6 +2269,21 @@ class EditMfaSchema(CSRFSchema):
                 region_code=self.request.config.region_code
             )
 
+    def deserialize(self, cstruct=null):
+        # We show only the relevant fields on the form with CSS but
+        # it is possible that the user could fill in an email address
+        # and then change the authentication method to SMS. We want to
+        # only save the properties relevant to the selected authentication
+        # method
+        if cstruct:
+            if cstruct[ViewParam.MFA_TYPE] == AuthenticationType.HOTP_EMAIL:
+                cstruct[ViewParam.PHONE_NUMBER] = drop
+
+            if cstruct[ViewParam.MFA_TYPE] == AuthenticationType.HOTP_SMS:
+                cstruct[ViewParam.EMAIL] = drop
+
+        return super().deserialize(cstruct)
+
     def validator(self, node: SchemaNode, value: Dict[str, Any]) -> None:
         mfa_preference = value[ViewParam.MFA_TYPE]
         if mfa_preference == AuthenticationType.HOTP_EMAIL:

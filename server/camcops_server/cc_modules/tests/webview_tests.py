@@ -3227,3 +3227,48 @@ class EditMfaViewTests(BasicDatabaseTestCase):
             view.dispatch()
 
         self.assertIsNone(regular_user.phone_number)
+
+    def test_invalid_email_address_ignored_for_hotp_sms(self) -> None:
+        regular_user = self.create_user(username="regular_user",
+                                        email="regular_user@example.com")
+        self.dbsession.flush()
+
+        mfa_secret_key = pyotp.random_base32()
+
+        multidict = MultiDict([
+            (ViewParam.MFA_SECRET_KEY, mfa_secret_key),
+            (ViewParam.MFA_TYPE, AuthenticationType.HOTP_SMS),
+            (ViewParam.PHONE_NUMBER, TEST_PHONE_NUMBER),
+            (ViewParam.EMAIL, "abc"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+        self.req._debugging_user = regular_user
+        self.req.fake_request_post_from_dict(multidict)
+        self.req.config.mfa_methods = ["hotp_sms"]
+
+        view = EditMfaView(self.req)
+
+        with self.assertRaises(HTTPFound):
+            view.dispatch()
+
+    def test_invalid_phone_number_ignored_for_hotp_email(self) -> None:
+        regular_user = self.create_user(username="regular_user")
+        self.dbsession.flush()
+
+        mfa_secret_key = pyotp.random_base32()
+
+        multidict = MultiDict([
+            (ViewParam.MFA_SECRET_KEY, mfa_secret_key),
+            (ViewParam.MFA_TYPE, AuthenticationType.HOTP_EMAIL),
+            (ViewParam.PHONE_NUMBER, "123"),
+            (ViewParam.EMAIL, "regular_user@example.com"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+        self.req._debugging_user = regular_user
+        self.req.fake_request_post_from_dict(multidict)
+        self.req.config.mfa_methods = ["hotp_email"]
+
+        view = EditMfaView(self.req)
+
+        with self.assertRaises(HTTPFound):
+            view.dispatch()
