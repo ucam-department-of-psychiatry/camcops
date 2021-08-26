@@ -976,6 +976,10 @@ class EditUserAuthenticationView(UpdateView):
 
     def set_object_properties(self, appstruct: Dict[str, Any]) -> None:
         super().set_object_properties(appstruct)
+
+        # -----------------------------------------------------------------
+        # Change the password
+        # -----------------------------------------------------------------
         new_password = appstruct.get(ViewParam.NEW_PASSWORD)
         user = cast(User, self.object)
         user.set_password(self.request, new_password)
@@ -1012,49 +1016,8 @@ def change_other_password(req: "CamcopsRequest") -> Response:
       changing your own password, return :func:`change_own_password`.
     - POST/submit: change the password and return :func:`password_changed`.
     """
-    form = ChangeOtherPasswordForm(request=req)
-    username = None  # for type checker
-    _ = req.gettext
-    if FormAction.SUBMIT in req.POST:
-        try:
-            controls = list(req.POST.items())
-            appstruct = form.validate(controls)
-            # -----------------------------------------------------------------
-            # Change the password
-            # -----------------------------------------------------------------
-            user_id = appstruct.get(ViewParam.USER_ID)
-            must_change_pw = appstruct.get(ViewParam.MUST_CHANGE_PASSWORD)
-            new_password = appstruct.get(ViewParam.NEW_PASSWORD)
-            user = User.get_user_by_id(req.dbsession, user_id)
-            if not user:
-                raise HTTPBadRequest(f"{_('Missing user for id')} {user_id}")
-            assert_may_edit_user(req, user)
-            user.set_password(req, new_password)
-            if must_change_pw:
-                user.force_password_change()
-            return password_changed(req, user.username, own_password=False)
-        except ValidationFailure as e:
-            rendered_form = e.render()
-    else:
-        user_id = req.get_int_param(ViewParam.USER_ID)
-        if user_id is None:
-            raise HTTPBadRequest(f"{_('Improper user_id of')} {user_id!r}")
-        if user_id == req.user_id:
-            raise HTTPFound(req.route_url(Routes.CHANGE_OWN_PASSWORD))
-        user = User.get_user_by_id(req.dbsession, user_id)
-        if user is None:
-            raise HTTPBadRequest(f"{_('Missing user for id')} {user_id}")
-        assert_may_edit_user(req, user)
-        username = user.username
-        appstruct = {ViewParam.USER_ID: user_id}
-        rendered_form = form.render(appstruct)
-    return render_to_response(
-        "change_other_password.mako",
-        dict(username=username,
-             form=rendered_form,
-             min_pw_length=MINIMUM_PASSWORD_LENGTH,
-             head_form_html=get_head_form_html(req, [form])),
-        request=req)
+    view = EditUserAuthenticationView(req)
+    return view.dispatch()
 
 
 def password_changed(req: "CamcopsRequest",
