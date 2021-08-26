@@ -2123,7 +2123,7 @@ class ChangeOwnPasswordForm(InformativeNonceForm):
         )
 
 
-class ChangeOtherPasswordSchema(CSRFSchema):
+class EditUserAuthenticationSchema(CSRFSchema):
     """
     Schema to change another user's password.
     """
@@ -2137,7 +2137,7 @@ class EditUserAuthenticationForm(SimpleSubmitForm):
     Form to change another user's password.
     """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
-        super().__init__(schema_class=ChangeOtherPasswordSchema,
+        super().__init__(schema_class=EditUserAuthenticationSchema,
                          submit_title=change_password_title(request),
                          request=request, **kwargs)
 
