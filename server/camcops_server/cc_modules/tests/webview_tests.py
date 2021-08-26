@@ -84,6 +84,7 @@ from camcops_server.cc_modules.webview import (
     EditFinalizedPatientView,
     EditGroupView,
     EditServerCreatedPatientView,
+    EditUserAuthenticationView,
     EraseTaskEntirelyView,
     EraseTaskLeavingPlaceholderView,
     FLASH_DANGER,
@@ -3272,3 +3273,44 @@ class EditMfaViewTests(BasicDatabaseTestCase):
 
         with self.assertRaises(HTTPFound):
             view.dispatch()
+
+
+class EditUserAuthenticationViewTests(BasicDatabaseTestCase):
+    def test_raises_for_invalid_user(self) -> None:
+        multidict = MultiDict([
+            (FormAction.SUBMIT, "submit"),
+        ])
+        self.req.fake_request_post_from_dict(multidict)
+
+        self.req.add_get_params({
+            ViewParam.USER_ID: "123"
+        }, set_method_get=False)
+
+        view = EditUserAuthenticationView(self.req)
+        with self.assertRaises(HTTPBadRequest) as cm:
+            view.dispatch()
+
+        self.assertIn("Cannot find User with id:123", cm.exception.message)
+
+    def test_raises_when_user_may_not_edit_other_user(self) -> None:
+        regular_user = self.create_user(username="regular_user")
+        self.dbsession.flush()
+        multidict = MultiDict([
+            ("__start__", "new_password:mapping"),
+            (ViewParam.NEW_PASSWORD, "monkeybusiness"),
+            ("new_password-confirm", "monkeybusiness"),
+            ("__end__", "new_password:mapping"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+        self.req._debugging_user = regular_user
+        self.req.fake_request_post_from_dict(multidict)
+
+        self.req.add_get_params({
+            ViewParam.USER_ID: self.user.id
+        }, set_method_get=False)
+
+        view = EditUserAuthenticationView(self.req)
+        with self.assertRaises(HTTPBadRequest) as cm:
+            view.dispatch()
+
+        self.assertIn("Nobody may edit the system user", cm.exception.message)

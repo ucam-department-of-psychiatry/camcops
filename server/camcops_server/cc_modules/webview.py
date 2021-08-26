@@ -951,6 +951,24 @@ def change_own_password(req: "CamcopsRequest") -> Response:
         request=req)
 
 
+class EditUserAuthenticationView(UpdateView):
+    object_class = User
+    form_class = ChangeOtherPasswordForm
+    template_name = "change_other_password.mako"
+    pk_param = ViewParam.USER_ID
+    server_pk_name = "id"
+    model_form_dict = {}
+
+    def get_success_url(self) -> str:
+        return self.request.route_url(Routes.VIEW_ALL_USERS)
+
+    def get_object(self) -> Any:
+        user = cast(User, super().get_object())
+        assert_may_edit_user(self.request, user)
+
+        return user
+
+
 @view_config(route_name=Routes.CHANGE_OTHER_PASSWORD,
              permission=Permission.GROUPADMIN,
              renderer="change_other_password.mako",
