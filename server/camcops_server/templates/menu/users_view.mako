@@ -52,7 +52,7 @@ ${form | n}
         <th>${ _("Edit") }</th>
         <th>${ _("Groups") }</th>
         <th>${ _("Upload group") }</th>
-        <th>${ _("Change password") }</th>
+        <th>${ _("Change authentication") }</th>
         <th>${ _("Delete") }</th>
     </tr>
     %for user in page:
@@ -111,9 +111,9 @@ ${form | n}
                             ) | n }">${ _("change") }</a>]
             </td>
             <td><a href="${ req.route_url(
-                                Routes.CHANGE_OTHER_PASSWORD,
+                                Routes.EDIT_USER_AUTHENTICATION,
                                 _query={ViewParam.USER_ID: user.id}
-                            ) | n }">${ _("Change password") }</a></td>
+                            ) | n }">${ _("Change authentication") }</a></td>
             <td><a href="${ req.route_url(
                                 Routes.DELETE_USER,
                                 _query={ViewParam.USER_ID: user.id}

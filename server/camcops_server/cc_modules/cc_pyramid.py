@@ -708,7 +708,7 @@ class Routes(object):
     ADD_USER = "add_user"
     AUDIT_MENU = "audit_menu"
     BASIC_DUMP = "basic_dump"
-    CHANGE_OTHER_PASSWORD = "change_other_password"
+    EDIT_USER_AUTHENTICATION = "edit_user_authentication"
     CHANGE_OWN_PASSWORD = "change_own_password"
     CHOOSE_CTV = "choose_ctv"
     CHOOSE_TRACKER = "choose_tracker"
@@ -845,7 +845,7 @@ class RouteCollection(object):
     ADD_USER = RoutePath(Routes.ADD_USER)
     AUDIT_MENU = RoutePath(Routes.AUDIT_MENU)
     BASIC_DUMP = RoutePath(Routes.BASIC_DUMP)
-    CHANGE_OTHER_PASSWORD = RoutePath(Routes.CHANGE_OTHER_PASSWORD)
+    EDIT_USER_AUTHENTICATION = RoutePath(Routes.EDIT_USER_AUTHENTICATION)
     CHANGE_OWN_PASSWORD = RoutePath(Routes.CHANGE_OWN_PASSWORD)
     CHOOSE_CTV = RoutePath(Routes.CHOOSE_CTV)
     CHOOSE_TRACKER = RoutePath(Routes.CHOOSE_TRACKER)

@@ -220,7 +220,6 @@ from camcops_server.cc_modules.cc_forms import (
     AddUserGroupadminForm,
     AddUserSuperuserForm,
     AuditTrailForm,
-    ChangeOtherPasswordForm,
     ChangeOwnPasswordForm,
     ChooseTrackerForm,
     DEFAULT_ROWS_PER_PAGE,
@@ -242,6 +241,7 @@ from camcops_server.cc_modules.cc_forms import (
     EditServerSettingsForm,
     EditTaskScheduleForm,
     EditTaskScheduleItemForm,
+    EditUserAuthenticationForm,
     EditUserFullForm,
     EditUserGroupAdminForm,
     EditUserGroupMembershipGroupAdminForm,
@@ -953,8 +953,8 @@ def change_own_password(req: "CamcopsRequest") -> Response:
 
 class EditUserAuthenticationView(UpdateView):
     object_class = User
-    form_class = ChangeOtherPasswordForm
-    template_name = "change_other_password.mako"
+    form_class = EditUserAuthenticationForm
+    template_name = "edit_user_authentication.mako"
     pk_param = ViewParam.USER_ID
     server_pk_name = "id"
     model_form_dict = {}
@@ -1004,11 +1004,10 @@ class EditUserAuthenticationView(UpdateView):
         }
 
 
-@view_config(route_name=Routes.CHANGE_OTHER_PASSWORD,
+@view_config(route_name=Routes.EDIT_USER_AUTHENTICATION,
              permission=Permission.GROUPADMIN,
-             renderer="change_other_password.mako",
              http_cache=NEVER_CACHE)
-def change_other_password(req: "CamcopsRequest") -> Response:
+def edit_user_authentication(req: "CamcopsRequest") -> Response:
     """
     For administrators, to change another's password.
 

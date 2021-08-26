@@ -2132,7 +2132,7 @@ class ChangeOtherPasswordSchema(CSRFSchema):
     new_password = NewPasswordNode()  # name must match ViewParam.NEW_PASSWORD
 
 
-class ChangeOtherPasswordForm(SimpleSubmitForm):
+class EditUserAuthenticationForm(SimpleSubmitForm):
     """
     Form to change another user's password.
     """
