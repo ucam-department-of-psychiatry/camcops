@@ -962,6 +962,12 @@ class EditUserAuthenticationView(UpdateView):
     def get_success_url(self) -> str:
         return self.request.route_url(Routes.VIEW_ALL_USERS)
 
+    def get(self) -> Response:
+        if self.get_pk_value() == self.request.user_id:
+            raise HTTPFound(self.request.route_url(Routes.CHANGE_OWN_PASSWORD))
+
+        return super().get()
+
     def get_object(self) -> Any:
         user = cast(User, super().get_object())
         assert_may_edit_user(self.request, user)
@@ -984,6 +990,14 @@ class EditUserAuthenticationView(UpdateView):
             ),
             queue=FLASH_INFO
         )
+
+    def get_extra_context(self) -> Dict[str, Any]:
+        user = cast(User, self.object)
+
+        return {
+            "username":  user.username,
+            "min_pw_length": MINIMUM_PASSWORD_LENGTH,
+        }
 
 
 @view_config(route_name=Routes.CHANGE_OTHER_PASSWORD,

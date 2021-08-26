@@ -399,7 +399,7 @@ class SingleObjectMixin(ContextMixin):
         return super().get_context_data(**context)
 
     def get_object(self) -> Any:
-        pk_value = self.request.get_int_param(self.pk_param)
+        pk_value = self.get_pk_value()
 
         if self.object_class is None:
             raise_runtime_error("Your view must provide an object_class.")
@@ -424,6 +424,9 @@ class SingleObjectMixin(ContextMixin):
             )
 
         return obj
+
+    def get_pk_value(self) -> int:
+        return self.request.get_int_param(self.pk_param)
 
 
 class ModelFormMixin(FormMixin, SingleObjectMixin):

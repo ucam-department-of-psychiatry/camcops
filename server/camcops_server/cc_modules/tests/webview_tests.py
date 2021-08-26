@@ -3386,3 +3386,18 @@ class EditUserAuthenticationViewTests(BasicDatabaseTestCase):
                 view.dispatch()
 
         mock_force_change.assert_called_once()
+
+    def test_redirects_if_editing_own_account(self) -> None:
+        superuser = self.create_user(username="admin", superuser=True)
+        self.dbsession.flush()
+        self.req._debugging_user = superuser
+        self.req.add_get_params({ViewParam.USER_ID: superuser.id})
+
+        view = EditUserAuthenticationView(self.req)
+        with self.assertRaises(HTTPFound) as cm:
+            view.dispatch()
+
+        self.assertEqual(cm.exception.status_code, 302)
+        self.assertIn(
+            "/change_own_password", cm.exception.headers["Location"]
+        )
