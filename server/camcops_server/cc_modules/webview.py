@@ -977,6 +977,14 @@ class EditUserAuthenticationView(UpdateView):
         if must_change_pw:
             user.force_password_change()
 
+        _ = self.request.gettext
+        self.request.session.flash(
+            _("Password changed for user '{username}'").format(
+                username=user.username
+            ),
+            queue=FLASH_INFO
+        )
+
 
 @view_config(route_name=Routes.CHANGE_OTHER_PASSWORD,
              permission=Permission.GROUPADMIN,

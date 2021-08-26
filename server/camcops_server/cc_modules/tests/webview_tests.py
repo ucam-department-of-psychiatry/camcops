@@ -3350,6 +3350,11 @@ class EditUserAuthenticationViewTests(BasicDatabaseTestCase):
                                                   "monkeybusiness")
         self.assertFalse(regular_user.must_change_password)
 
+        messages = self.req.session.peek_flash(FLASH_INFO)
+        self.assertTrue(len(messages) > 0)
+        self.assertIn("Password changed for user 'regular_user'",
+                      messages[0])
+
     def test_user_forced_to_change_password(self) -> None:
         groupadmin = self.create_user(username="groupadmin")
         regular_user = self.create_user(username="regular_user")
