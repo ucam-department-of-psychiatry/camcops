@@ -971,7 +971,11 @@ class EditUserAuthenticationView(UpdateView):
     def set_object_properties(self, appstruct: Dict[str, Any]) -> None:
         super().set_object_properties(appstruct)
         new_password = appstruct.get(ViewParam.NEW_PASSWORD)
-        self.object.set_password(self.request, new_password)
+        user = cast(User, self.object)
+        user.set_password(self.request, new_password)
+        must_change_pw = appstruct.get(ViewParam.MUST_CHANGE_PASSWORD)
+        if must_change_pw:
+            user.force_password_change()
 
 
 @view_config(route_name=Routes.CHANGE_OTHER_PASSWORD,

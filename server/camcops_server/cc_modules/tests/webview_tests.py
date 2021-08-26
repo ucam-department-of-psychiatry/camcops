@@ -3323,6 +3323,8 @@ class EditUserAuthenticationViewTests(BasicDatabaseTestCase):
         self.create_membership(regular_user, self.group)
         self.dbsession.flush()
 
+        self.assertFalse(regular_user.must_change_password)
+
         multidict = MultiDict([
             ("__start__", "new_password:mapping"),
             (ViewParam.NEW_PASSWORD, "monkeybusiness"),
@@ -3346,3 +3348,36 @@ class EditUserAuthenticationViewTests(BasicDatabaseTestCase):
 
         mock_set_password.assert_called_once_with(self.req,
                                                   "monkeybusiness")
+        self.assertFalse(regular_user.must_change_password)
+
+    def test_user_forced_to_change_password(self) -> None:
+        groupadmin = self.create_user(username="groupadmin")
+        regular_user = self.create_user(username="regular_user")
+        self.dbsession.flush()
+        self.create_membership(groupadmin, self.group, groupadmin=True)
+        self.create_membership(regular_user, self.group)
+        self.dbsession.flush()
+
+        multidict = MultiDict([
+            (ViewParam.MUST_CHANGE_PASSWORD, "true"),
+            ("__start__", "new_password:mapping"),
+            (ViewParam.NEW_PASSWORD, "monkeybusiness"),
+            ("new_password-confirm", "monkeybusiness"),
+            ("__end__", "new_password:mapping"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+        self.req._debugging_user = groupadmin
+        self.req.fake_request_post_from_dict(multidict)
+
+        self.req.add_get_params({
+            ViewParam.USER_ID: regular_user.id
+        }, set_method_get=False)
+
+        view = EditUserAuthenticationView(self.req)
+
+        with mock.patch.object(regular_user,
+                               "force_password_change") as mock_force_change:
+            with self.assertRaises(HTTPFound):
+                view.dispatch()
+
+        mock_force_change.assert_called_once()
