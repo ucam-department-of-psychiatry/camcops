@@ -211,7 +211,7 @@ class ViewParam(object):
     MAY_UPLOAD = "may_upload"
     MAY_USE_WEBVIEWER = "may_use_webviewer"
     MFA_SECRET_KEY = "mfa_secret_key"
-    MFA_TYPE = "mfa_type"
+    MFA_METHOD = "mfa_method"
     MUST_CHANGE_PASSWORD = "must_change_password"
     NAME = "name"
     NOTE = "note"

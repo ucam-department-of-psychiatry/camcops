@@ -318,7 +318,7 @@ from camcops_server.cc_modules.cc_taskschedule import (
 from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_tracker import ClinicalTextView, Tracker
 from camcops_server.cc_modules.cc_user import (
-    AuthenticationType,
+    MfaMethod,
     SecurityAccountLockout,
     SecurityLoginFailure,
     User,
@@ -662,7 +662,7 @@ class LoginView(FormView):
             # log in via the web front end.
             return self.fail_not_authorized()
 
-        if self.user.mfa_preference != AuthenticationType.NONE:
+        if self.user.mfa_method != MfaMethod.NONE:
             if self.get_authenticated_user_id() is None:
                 return self.prompt_for_additional_verification()
 
@@ -706,10 +706,10 @@ class LoginView(FormView):
         return int(time.time()) > login_time + timeout
 
     def handle_authentication_type(self) -> None:
-        if self.user.mfa_preference == AuthenticationType.TOTP:
+        if self.user.mfa_method == MfaMethod.TOTP:
             return
 
-        if self.user.mfa_preference == AuthenticationType.HOTP_EMAIL:
+        if self.user.mfa_method == MfaMethod.HOTP_EMAIL:
             return self.send_authentication_email()
 
         self.send_authentication_sms()
@@ -717,11 +717,11 @@ class LoginView(FormView):
     def get_mfa_instructions(self) -> str:
         _ = self.request.gettext
 
-        if self.user.mfa_preference == AuthenticationType.TOTP:
+        if self.user.mfa_method == MfaMethod.TOTP:
             return _("Enter the code for CamCOPS displayed on your "
                      "authentication app.")
 
-        if self.user.mfa_preference == AuthenticationType.HOTP_EMAIL:
+        if self.user.mfa_method == MfaMethod.HOTP_EMAIL:
             return _("We've sent a code by email to {}.").format(
                 self.user.partial_email
             )
@@ -1035,7 +1035,7 @@ class EditMfaView(UpdateView):
 
     model_form_dict = {
         "email": ViewParam.EMAIL,
-        "mfa_preference": ViewParam.MFA_TYPE,
+        "mfa_method": ViewParam.MFA_METHOD,
         "phone_number": ViewParam.PHONE_NUMBER,
     }
 
@@ -1057,11 +1057,10 @@ class EditMfaView(UpdateView):
         mfa_secret_key = appstruct.get(ViewParam.MFA_SECRET_KEY)
         self.object.mfa_secret_key = mfa_secret_key
 
-        hotp_types = (AuthenticationType.HOTP_EMAIL,
-                      AuthenticationType.HOTP_SMS)
+        hotp_types = (MfaMethod.HOTP_EMAIL, MfaMethod.HOTP_SMS)
 
-        mfa_type = appstruct.get(ViewParam.MFA_TYPE)
-        if mfa_type in hotp_types:
+        mfa_method = appstruct.get(ViewParam.MFA_METHOD)
+        if mfa_method in hotp_types:
             self.request.user.hotp_counter = 0
 
 

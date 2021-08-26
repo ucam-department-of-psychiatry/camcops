@@ -61,7 +61,7 @@ from camcops_server.cc_modules.cc_unittest import (
     DemoDatabaseTestCase,
     DemoRequestTestCase,
 )
-from camcops_server.cc_modules.cc_user import AuthenticationType
+from camcops_server.cc_modules.cc_user import MfaMethod
 
 # https://www.ofcom.org.uk/phones-telecoms-and-internet/information-for-industry/numbering/numbers-for-drama  # noqa: E501
 TEST_PHONE_NUMBER = "+441134960123"
@@ -999,7 +999,7 @@ class EditMfaSchemaTests(TestCase):
     def test_invalid_for_hotp_email_with_no_user_email(self):
         schema = EditMfaSchema().bind(request=self.request)
         cstruct = {
-            ViewParam.MFA_TYPE: AuthenticationType.HOTP_EMAIL,
+            ViewParam.MFA_METHOD: MfaMethod.HOTP_EMAIL,
             ViewParam.MFA_SECRET_KEY: pyotp.random_base32(),
             ViewParam.EMAIL: null,
             ViewParam.PHONE_NUMBER: null,
@@ -1014,7 +1014,7 @@ class EditMfaSchemaTests(TestCase):
     def test_invalid_for_hotp_sms_with_no_user_phone_number(self):
         schema = EditMfaSchema().bind(request=self.request)
         cstruct = {
-            ViewParam.MFA_TYPE: AuthenticationType.HOTP_SMS,
+            ViewParam.MFA_METHOD: MfaMethod.HOTP_SMS,
             ViewParam.MFA_SECRET_KEY: pyotp.random_base32(),
             ViewParam.EMAIL: null,
             ViewParam.PHONE_NUMBER: null,

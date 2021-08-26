@@ -63,7 +63,7 @@ from camcops_server.cc_modules.cc_unittest import (
     DemoDatabaseTestCase,
 )
 from camcops_server.cc_modules.cc_user import (
-    AuthenticationType,
+    MfaMethod,
     SecurityAccountLockout,
     SecurityLoginFailure,
     User,
@@ -2473,7 +2473,7 @@ class LoginViewTests(BasicDatabaseTestCase):
     def test_user_with_totp_sees_token_form(self) -> None:
         user = self.create_user(username="test",
                                 mfa_secret_key=pyotp.random_base32(),
-                                mfa_preference=AuthenticationType.TOTP)
+                                mfa_method=MfaMethod.TOTP)
         user.set_password(self.req, "secret")
         self.dbsession.flush()
         self.create_membership(user, self.group, may_use_webviewer=True)
@@ -2505,7 +2505,7 @@ class LoginViewTests(BasicDatabaseTestCase):
                                                   mock_send_msg) -> None:
         user = self.create_user(username="test",
                                 mfa_secret_key=pyotp.random_base32(),
-                                mfa_preference=AuthenticationType.HOTP_EMAIL,
+                                mfa_method=MfaMethod.HOTP_EMAIL,
                                 email="user@example.com",
                                 hotp_counter=0)
         user.set_password(self.req, "secret")
@@ -2538,7 +2538,7 @@ class LoginViewTests(BasicDatabaseTestCase):
         phone_number = phonenumbers.parse(TEST_PHONE_NUMBER)
         user = self.create_user(username="test",
                                 mfa_secret_key=pyotp.random_base32(),
-                                mfa_preference=AuthenticationType.HOTP_SMS,
+                                mfa_method=MfaMethod.HOTP_SMS,
                                 phone_number=phone_number,
                                 hotp_counter=0)
         user.set_password(self.req, "secret")
@@ -2570,7 +2570,7 @@ class LoginViewTests(BasicDatabaseTestCase):
     def test_session_variables_set_for_user_with_mfa(self, mock_time) -> None:
         user = self.create_user(username="test",
                                 mfa_secret_key=pyotp.random_base32(),
-                                mfa_preference=AuthenticationType.TOTP)
+                                mfa_method=MfaMethod.TOTP)
         user.set_password(self.req, "secret")
         self.dbsession.flush()
         self.create_membership(user, self.group, may_use_webviewer=True)
@@ -2608,7 +2608,7 @@ class LoginViewTests(BasicDatabaseTestCase):
         user = self.create_user(username="test",
                                 email="user@example.com",
                                 mfa_secret_key=pyotp.random_base32(),
-                                mfa_preference=AuthenticationType.HOTP_EMAIL,
+                                mfa_method=MfaMethod.HOTP_EMAIL,
                                 hotp_counter=0)
         user.set_password(self.req, "secret")
         self.dbsession.flush()
@@ -2653,7 +2653,7 @@ class LoginViewTests(BasicDatabaseTestCase):
                                 email="user@example.com",
                                 phone_number=phone_number,
                                 mfa_secret_key=pyotp.random_base32(),
-                                mfa_preference=AuthenticationType.HOTP_SMS,
+                                mfa_method=MfaMethod.HOTP_SMS,
                                 hotp_counter=0)
         user.set_password(self.req, "secret")
         self.dbsession.flush()
@@ -2688,7 +2688,7 @@ class LoginViewTests(BasicDatabaseTestCase):
         user = self.create_user(username="test",
                                 email="user@example.com",
                                 mfa_secret_key=pyotp.random_base32(),
-                                mfa_preference=AuthenticationType.HOTP_EMAIL,
+                                mfa_method=MfaMethod.HOTP_EMAIL,
                                 hotp_counter=0)
         user.set_password(self.req, "secret")
         self.dbsession.flush()
@@ -2711,7 +2711,7 @@ class LoginViewTests(BasicDatabaseTestCase):
     @mock.patch("camcops_server.cc_modules.webview.audit")
     def test_user_with_totp_can_log_in(self, mock_audit) -> None:
         user = self.create_user(username="test",
-                                mfa_preference=AuthenticationType.TOTP,
+                                mfa_method=MfaMethod.TOTP,
                                 mfa_secret_key=pyotp.random_base32())
         user.set_password(self.req, "secret")
         self.dbsession.flush()
@@ -2752,7 +2752,7 @@ class LoginViewTests(BasicDatabaseTestCase):
     @mock.patch("camcops_server.cc_modules.webview.audit")
     def test_user_with_hotp_can_log_in(self, mock_audit) -> None:
         user = self.create_user(username="test",
-                                mfa_preference=AuthenticationType.HOTP_EMAIL,
+                                mfa_method=MfaMethod.HOTP_EMAIL,
                                 mfa_secret_key=pyotp.random_base32(),
                                 hotp_counter=1)
         user.set_password(self.req, "secret")
@@ -2792,7 +2792,7 @@ class LoginViewTests(BasicDatabaseTestCase):
 
     def test_session_user_cleared_on_failed_login(self) -> None:
         user = self.create_user(username="test",
-                                mfa_preference=AuthenticationType.HOTP_EMAIL,
+                                mfa_method=MfaMethod.HOTP_EMAIL,
                                 mfa_secret_key=pyotp.random_base32(),
                                 hotp_counter=1)
         user.set_password(self.req, "secret")
@@ -2823,7 +2823,7 @@ class LoginViewTests(BasicDatabaseTestCase):
     def test_user_cannot_log_in_if_timed_out(self) -> None:
         self.req.config.mfa_timeout_s = 600
         user = self.create_user(username="test",
-                                mfa_preference=AuthenticationType.TOTP,
+                                mfa_method=MfaMethod.TOTP,
                                 mfa_secret_key=pyotp.random_base32())
         user.set_password(self.req, "secret")
         self.dbsession.flush()
@@ -2988,7 +2988,7 @@ class EditMfaViewTests(BasicDatabaseTestCase):
     def test_get_form_values(self) -> None:
         regular_user = self.create_user(
             username="regular_user",
-            mfa_preference=AuthenticationType.HOTP_SMS,
+            mfa_method=MfaMethod.HOTP_SMS,
             phone_number=phonenumbers.parse(TEST_PHONE_NUMBER),
             email="regular_user@example.com",
         )
@@ -3009,8 +3009,8 @@ class EditMfaViewTests(BasicDatabaseTestCase):
 
         self.assertEqual(form_values[ViewParam.MFA_SECRET_KEY],
                          mock_secret_key)
-        self.assertEqual(form_values[ViewParam.MFA_TYPE],
-                         regular_user.mfa_preference)
+        self.assertEqual(form_values[ViewParam.MFA_METHOD],
+                         regular_user.mfa_method)
         self.assertEqual(form_values[ViewParam.PHONE_NUMBER],
                          regular_user.phone_number)
         self.assertEqual(form_values[ViewParam.EMAIL], regular_user.email)
@@ -3023,7 +3023,7 @@ class EditMfaViewTests(BasicDatabaseTestCase):
 
         multidict = MultiDict([
             (ViewParam.MFA_SECRET_KEY, mfa_secret_key),
-            (ViewParam.MFA_TYPE, AuthenticationType.TOTP),
+            (ViewParam.MFA_METHOD, MfaMethod.TOTP),
             (FormAction.SUBMIT, "submit"),
         ])
         self.req._debugging_user = regular_user
@@ -3037,7 +3037,7 @@ class EditMfaViewTests(BasicDatabaseTestCase):
 
         self.assertEqual(regular_user.mfa_secret_key, mfa_secret_key)
 
-    def test_user_can_set_preference_totp(self) -> None:
+    def test_user_can_set_method_totp(self) -> None:
         regular_user = self.create_user(username="regular_user")
         self.dbsession.flush()
 
@@ -3045,7 +3045,7 @@ class EditMfaViewTests(BasicDatabaseTestCase):
 
         multidict = MultiDict([
             (ViewParam.MFA_SECRET_KEY, mfa_secret_key),
-            (ViewParam.MFA_TYPE, AuthenticationType.TOTP),
+            (ViewParam.MFA_METHOD, MfaMethod.TOTP),
             (FormAction.SUBMIT, "submit"),
         ])
         self.req._debugging_user = regular_user
@@ -3058,9 +3058,9 @@ class EditMfaViewTests(BasicDatabaseTestCase):
             view.dispatch()
 
         self.assertEqual(regular_user.mfa_secret_key, mfa_secret_key)
-        self.assertEqual(regular_user.mfa_preference, AuthenticationType.TOTP)
+        self.assertEqual(regular_user.mfa_method, MfaMethod.TOTP)
 
-    def test_user_can_set_preference_hotp_email(self) -> None:
+    def test_user_can_set_method_hotp_email(self) -> None:
         regular_user = self.create_user(username="regular_user")
         self.dbsession.flush()
 
@@ -3068,7 +3068,7 @@ class EditMfaViewTests(BasicDatabaseTestCase):
 
         multidict = MultiDict([
             (ViewParam.MFA_SECRET_KEY, mfa_secret_key),
-            (ViewParam.MFA_TYPE, AuthenticationType.HOTP_EMAIL),
+            (ViewParam.MFA_METHOD, MfaMethod.HOTP_EMAIL),
             (ViewParam.EMAIL, "regular_user@example.com"),
             (FormAction.SUBMIT, "submit"),
         ])
@@ -3082,11 +3082,11 @@ class EditMfaViewTests(BasicDatabaseTestCase):
             view.dispatch()
 
         self.assertEqual(regular_user.mfa_secret_key, mfa_secret_key)
-        self.assertEqual(regular_user.mfa_preference,
-                         AuthenticationType.HOTP_EMAIL)
+        self.assertEqual(regular_user.mfa_method,
+                         MfaMethod.HOTP_EMAIL)
         self.assertEqual(regular_user.hotp_counter, 0)
 
-    def test_user_can_set_preference_hotp_sms(self) -> None:
+    def test_user_can_set_method_hotp_sms(self) -> None:
         regular_user = self.create_user(username="regular_user")
         self.dbsession.flush()
 
@@ -3094,7 +3094,7 @@ class EditMfaViewTests(BasicDatabaseTestCase):
 
         multidict = MultiDict([
             (ViewParam.MFA_SECRET_KEY, mfa_secret_key),
-            (ViewParam.MFA_TYPE, AuthenticationType.HOTP_SMS),
+            (ViewParam.MFA_METHOD, MfaMethod.HOTP_SMS),
             (ViewParam.PHONE_NUMBER, TEST_PHONE_NUMBER),
             (FormAction.SUBMIT, "submit"),
         ])
@@ -3108,20 +3108,20 @@ class EditMfaViewTests(BasicDatabaseTestCase):
             view.dispatch()
 
         self.assertEqual(regular_user.mfa_secret_key, mfa_secret_key)
-        self.assertEqual(regular_user.mfa_preference,
-                         AuthenticationType.HOTP_SMS)
+        self.assertEqual(regular_user.mfa_method,
+                         MfaMethod.HOTP_SMS)
         self.assertEqual(regular_user.hotp_counter, 0)
 
     def test_user_can_disable_mfa(self) -> None:
         regular_user = self.create_user(username="regular_user",
-                                        mfa_preference=AuthenticationType.TOTP)
+                                        mfa_method=MfaMethod.TOTP)
         self.dbsession.flush()
 
         mfa_secret_key = pyotp.random_base32()
 
         multidict = MultiDict([
             (ViewParam.MFA_SECRET_KEY, mfa_secret_key),
-            (ViewParam.MFA_TYPE, AuthenticationType.NONE),
+            (ViewParam.MFA_METHOD, MfaMethod.NONE),
             (FormAction.SUBMIT, "submit"),
         ])
         self.req._debugging_user = regular_user
@@ -3132,7 +3132,7 @@ class EditMfaViewTests(BasicDatabaseTestCase):
         with self.assertRaises(HTTPFound):
             view.dispatch()
 
-        self.assertEqual(regular_user.mfa_preference, AuthenticationType.NONE)
+        self.assertEqual(regular_user.mfa_method, MfaMethod.NONE)
 
     def test_user_can_set_phone_number(self) -> None:
         regular_user = self.create_user(username="regular_user")
@@ -3142,7 +3142,7 @@ class EditMfaViewTests(BasicDatabaseTestCase):
 
         multidict = MultiDict([
             (ViewParam.MFA_SECRET_KEY, mfa_secret_key),
-            (ViewParam.MFA_TYPE, AuthenticationType.HOTP_SMS),
+            (ViewParam.MFA_METHOD, MfaMethod.HOTP_SMS),
             (ViewParam.PHONE_NUMBER, TEST_PHONE_NUMBER),
             (FormAction.SUBMIT, "submit"),
         ])
@@ -3188,7 +3188,7 @@ class EditMfaViewTests(BasicDatabaseTestCase):
 
         multidict = MultiDict([
             (ViewParam.MFA_SECRET_KEY, mfa_secret_key),
-            (ViewParam.MFA_TYPE, AuthenticationType.HOTP_SMS),
+            (ViewParam.MFA_METHOD, MfaMethod.HOTP_SMS),
             (ViewParam.PHONE_NUMBER, TEST_PHONE_NUMBER),
             (ViewParam.EMAIL, "something_else@example.com"),
             (FormAction.SUBMIT, "submit"),
@@ -3212,7 +3212,7 @@ class EditMfaViewTests(BasicDatabaseTestCase):
 
         multidict = MultiDict([
             (ViewParam.MFA_SECRET_KEY, mfa_secret_key),
-            (ViewParam.MFA_TYPE, AuthenticationType.HOTP_EMAIL),
+            (ViewParam.MFA_METHOD, MfaMethod.HOTP_EMAIL),
             (ViewParam.PHONE_NUMBER, TEST_PHONE_NUMBER),
             (ViewParam.EMAIL, "regular_user@example.com"),
             (FormAction.SUBMIT, "submit"),
@@ -3237,7 +3237,7 @@ class EditMfaViewTests(BasicDatabaseTestCase):
 
         multidict = MultiDict([
             (ViewParam.MFA_SECRET_KEY, mfa_secret_key),
-            (ViewParam.MFA_TYPE, AuthenticationType.HOTP_SMS),
+            (ViewParam.MFA_METHOD, MfaMethod.HOTP_SMS),
             (ViewParam.PHONE_NUMBER, TEST_PHONE_NUMBER),
             (ViewParam.EMAIL, "abc"),
             (FormAction.SUBMIT, "submit"),
@@ -3259,7 +3259,7 @@ class EditMfaViewTests(BasicDatabaseTestCase):
 
         multidict = MultiDict([
             (ViewParam.MFA_SECRET_KEY, mfa_secret_key),
-            (ViewParam.MFA_TYPE, AuthenticationType.HOTP_EMAIL),
+            (ViewParam.MFA_METHOD, MfaMethod.HOTP_EMAIL),
             (ViewParam.PHONE_NUMBER, "123"),
             (ViewParam.EMAIL, "regular_user@example.com"),
             (FormAction.SUBMIT, "submit"),

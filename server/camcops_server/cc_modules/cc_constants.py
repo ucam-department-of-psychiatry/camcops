@@ -872,7 +872,7 @@ class StringLengths:
     # ... https://dev.mysql.com/doc/refman/8.0/en/storage-requirements.html
 
     # The longest is currently "hotp_email" (ViewArg, cc_pyramid.py)
-    MFA_PREFERENCE_MAX_LEN = 20
+    MFA_METHOD_MAX_LEN = 20
 
     #: See https://stackoverflow.com/questions/643690
     MIMETYPE_MAX_LEN = 255

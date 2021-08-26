@@ -270,7 +270,7 @@ LongBlob = LargeBinary().with_variant(mysql.LONGBLOB, "mysql")
 LongText = UnicodeText().with_variant(mysql.LONGTEXT, "mysql")
 # LongText = UnicodeText(length=LONGBLOB_LONGTEXT_MAX_LEN)  # doesn't translate to SQL Server  # noqa
 
-MfaPreferenceColType = String(length=StringLengths.MFA_PREFERENCE_MAX_LEN)
+MfaMethodColType = String(length=StringLengths.MFA_METHOD_MAX_LEN)
 MimeTypeColType = String(length=StringLengths.MIMETYPE_MAX_LEN)
 
 PatientNameColType = Unicode(length=StringLengths.PATIENT_NAME_MAX_LEN)

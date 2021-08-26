@@ -63,7 +63,7 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     FullNameColType,
     HashedPasswordColType,
     LanguageCodeColType,
-    MfaPreferenceColType,
+    MfaMethodColType,
     PendulumDateTimeAsIsoTextColType,
     PhoneNumberColType,
     UserNameCamcopsColType,
@@ -362,7 +362,7 @@ class SecurityLoginFailure(Base):
         ss.last_dummy_login_failure_clearance_at_utc = now
 
 
-class AuthenticationType:
+class MfaMethod:
     HOTP_EMAIL = "hotp_email"
     HOTP_SMS = "hotp_sms"
     NONE = 'none'
@@ -416,11 +416,11 @@ class User(Base):
         nullable=True,
         comment="Secret key used for multi-factor authentication"
     )
-    mfa_preference = Column(
-        "mfa_preference",
-        MfaPreferenceColType,
+    mfa_method = Column(
+        "mfa_method",
+        MfaMethodColType,
         nullable=False,
-        server_default=AuthenticationType.NONE,
+        server_default=MfaMethod.NONE,
         comment="Preferred method of multi-factor authentication"
     )
     hotp_counter = Column(
@@ -678,10 +678,10 @@ class User(Base):
         self.last_login_at_utc = req.now_utc_no_tzinfo
 
     def verify_one_time_password(self, one_time_password: str) -> bool:
-        if self.mfa_preference is None:
+        if self.mfa_method is None:
             return false
 
-        if self.mfa_preference == AuthenticationType.TOTP:
+        if self.mfa_method == MfaMethod.TOTP:
             totp = pyotp.TOTP(self.mfa_secret_key)
 
             return totp.verify(one_time_password)

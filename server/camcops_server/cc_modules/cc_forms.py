@@ -218,7 +218,7 @@ from camcops_server.cc_modules.cc_taskschedule import (
     TaskSchedule,
     TaskScheduleEmailTemplateFormatter,
 )
-from camcops_server.cc_modules.cc_user import AuthenticationType
+from camcops_server.cc_modules.cc_user import MfaMethod
 from camcops_server.cc_modules.cc_validators import (
     ALPHANUM_UNDERSCORE_CHAR,
     validate_anything,
@@ -2199,13 +2199,13 @@ class MfaSecretNode(OptionalStringNode, RequestAwareMixin):
         self.widget = MfaSecretWidget(self.request)
 
 
-class MfaTypeSelector(SchemaNode, RequestAwareMixin):
+class MfaMethodSelector(SchemaNode, RequestAwareMixin):
     """
     Node to select type of authentication
     """
     schema_type = String
-    default = AuthenticationType.TOTP
-    missing = AuthenticationType.TOTP
+    default = MfaMethod.TOTP
+    missing = MfaMethod.TOTP
 
     def __init__(self, *args, **kwargs) -> None:
         self.title = ""  # for type checker
@@ -2219,10 +2219,10 @@ class MfaTypeSelector(SchemaNode, RequestAwareMixin):
         self.title = _("Authentication type")
         request = self.bindings[Binding.REQUEST]  # type: CamcopsRequest
         all_mfa_choices = [
-            (AuthenticationType.TOTP,
+            (MfaMethod.TOTP,
              _("Use an app such as Google Authenticator or Twilio Authy")),
-            (AuthenticationType.HOTP_EMAIL, _("Send me a code by email")),
-            (AuthenticationType.HOTP_SMS, _("Send me a code by text message")),
+            (MfaMethod.HOTP_EMAIL, _("Send me a code by email")),
+            (MfaMethod.HOTP_SMS, _("Send me a code by text message")),
         ]
 
         choices = []
@@ -2230,7 +2230,7 @@ class MfaTypeSelector(SchemaNode, RequestAwareMixin):
             if label in request.config.mfa_methods:
                 choices.append((label, description))
         choices.append(
-            (AuthenticationType.NONE, _("Disable two-step verification")),
+            (MfaMethod.NONE, _("Disable two-step verification")),
         )
         values, pv = get_values_and_permissible(choices)
         basedir = os.path.join(TEMPLATE_DIR, "deform")
@@ -2248,7 +2248,7 @@ class EditMfaSchema(CSRFSchema):
     """
     Schema to edit settings for Multi-factor Authentication
     """
-    mfa_type = MfaTypeSelector()  # must match ViewParam.MFA_TYPE
+    mfa_method = MfaMethodSelector()  # must match ViewParam.MFA_METHOD
     mfa_secret_key = MfaSecretNode()  # must match ViewParam.MFA_SECRET_KEY  # noqa: E501
     email = OptionalEmailNode()  # must match ViewParam.EMAIL
     phone_number = OptionalPhoneNumberNode()  # must match ViewParam.PHONE_NUMBER  # noqa: E501
@@ -2256,8 +2256,8 @@ class EditMfaSchema(CSRFSchema):
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         _ = self.gettext
-        mfa_type = get_child_node(self, "mfa_type")
-        mfa_type.title = _("How do you wish to authenticate?")
+        mfa_method = get_child_node(self, "mfa_method")
+        mfa_method.title = _("How do you wish to authenticate?")
 
         mfa_secret_key = get_child_node(self, "mfa_secret_key")
         mfa_secret_key.title = _("Follow these steps:")
@@ -2276,21 +2276,21 @@ class EditMfaSchema(CSRFSchema):
         # only save the properties relevant to the selected authentication
         # method
         if cstruct:
-            if cstruct[ViewParam.MFA_TYPE] == AuthenticationType.HOTP_EMAIL:
+            if cstruct[ViewParam.MFA_METHOD] == MfaMethod.HOTP_EMAIL:
                 cstruct[ViewParam.PHONE_NUMBER] = drop
 
-            if cstruct[ViewParam.MFA_TYPE] == AuthenticationType.HOTP_SMS:
+            if cstruct[ViewParam.MFA_METHOD] == MfaMethod.HOTP_SMS:
                 cstruct[ViewParam.EMAIL] = drop
 
         return super().deserialize(cstruct)
 
     def validator(self, node: SchemaNode, value: Dict[str, Any]) -> None:
-        mfa_preference = value[ViewParam.MFA_TYPE]
-        if mfa_preference == AuthenticationType.HOTP_EMAIL:
+        mfa_method = value[ViewParam.MFA_METHOD]
+        if mfa_method == MfaMethod.HOTP_EMAIL:
             self._validate_hotp_email(node, value)
             return
 
-        if mfa_preference == AuthenticationType.HOTP_SMS:
+        if mfa_method == MfaMethod.HOTP_SMS:
             self._validate_hotp_sms(node, value)
 
     def _validate_hotp_email(self, node: SchemaNode,
