@@ -42,6 +42,7 @@ from cardinal_pythonlib.sqlalchemy.orm_query import (
     exists_orm,
 )
 from pendulum import DateTime as Pendulum
+import phonenumbers
 import pyotp
 from sqlalchemy import text
 from sqlalchemy.ext.associationproxy import association_proxy
@@ -701,8 +702,15 @@ class User(Base):
         return f"{first_letter}*****{last_letter}@{domain}"
 
     @property
+    def raw_phone_number(self) -> str:
+        return phonenumbers.format_number(
+            self.phone_number,
+            phonenumbers.PhoneNumberFormat.E164
+        )
+
+    @property
     def partial_phone_number(self) -> str:
-        return f"**********{self.phone_number[-2:]}"
+        return f"**********{self.raw_phone_number[-2:]}"
 
     def set_password_change_flag_if_necessary(self,
                                               req: "CamcopsRequest") -> None:

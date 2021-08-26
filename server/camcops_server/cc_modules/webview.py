@@ -752,7 +752,7 @@ class LoginView(FormView):
 
     def send_authentication_sms(self) -> None:
         backend = self.request.config.sms_backend
-        backend.send_sms(self.user.phone_number, self.get_hotp_message())
+        backend.send_sms(self.user.raw_phone_number, self.get_hotp_message())
 
     def get_hotp_message(self) -> str:
         self.user.hotp_counter += 1

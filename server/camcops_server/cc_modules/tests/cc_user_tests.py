@@ -27,6 +27,7 @@ camcops_server/cc_modules/tests/cc_user_tests.py
 """
 
 from pendulum import DateTime as Pendulum
+import phonenumbers
 
 from camcops_server.cc_modules.cc_group import Group
 from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
@@ -132,6 +133,6 @@ class UserTests(DemoDatabaseTestCase):
     def test_partial_phone_number(self) -> None:
         user = self.create_user()
         # https://www.ofcom.org.uk/phones-telecoms-and-internet/information-for-industry/numbering/numbers-for-drama  # noqa: E501
-        user.phone_number = "+447700900123"
+        user.phone_number = phonenumbers.parse("+447700900123")
 
         self.assertEqual(user.partial_phone_number, "**********23")
