@@ -1,5 +1,5 @@
+<div tal:replace="nothing">
 <!--
-
 camcops_server/templates/deform/group_ip_use.pt
 
 ===============================================================================
@@ -22,8 +22,8 @@ camcops_server/templates/deform/group_ip_use.pt
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
 ===============================================================================
-
 -->
+</div>
 <div i18n:domain="deform"
       tal:omit-tag=""
       tal:define="oid oid|field.oid;

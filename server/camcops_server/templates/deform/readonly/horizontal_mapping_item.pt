@@ -1,3 +1,4 @@
+<div tal:replace="nothing">
 <!--
 
 camcops_server/templates/deform/readonly/horizontal_mapping_item.pt
@@ -27,7 +28,7 @@ A Zope page template, used by Deform.
 Mostly original Deform code but with some modifications.
 
 -->
-
+</div>
 <div tal:define="error_class error_class|field.widget.error_class;
                  description description|field.description;
                  title title|field.title;

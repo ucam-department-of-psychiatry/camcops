@@ -1,3 +1,4 @@
+<div tal:replace="nothing">
 <!--
 
 camcops_server/templates/deform/json.pt
@@ -24,6 +25,7 @@ camcops_server/templates/deform/json.pt
 ===============================================================================
 
 -->
+</div>
 <textarea tal:define="css_class css_class|field.widget.css_class;
                       style style|field.widget.style"
           tal:attributes="class string: form-control jsonwidget-textarea ${css_class or ''};

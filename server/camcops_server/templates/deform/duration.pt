@@ -1,3 +1,4 @@
+<div tal:replace="nothing">
 <!--
 
 camcops_server/templates/deform/duration.pt
@@ -24,6 +25,7 @@ camcops_server/templates/deform/duration.pt
 ===============================================================================
 
 -->
+</div>
 <div i18n:domain="deform"
       tal:omit-tag=""
       tal:define="oid oid|field.oid;
