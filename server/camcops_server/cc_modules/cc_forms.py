@@ -2329,7 +2329,7 @@ class MfaMethodSelector(SchemaNode, RequestAwareMixin):
             if label in request.config.mfa_methods:
                 choices.append((label, description))
         choices.append(
-            (MfaMethod.NONE, _("Disable two-step verification")),
+            (MfaMethod.NONE, _("Disable multi-factor authentication")),
         )
         values, pv = get_values_and_permissible(choices)
         basedir = os.path.join(TEMPLATE_DIR, "deform")

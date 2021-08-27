@@ -30,7 +30,7 @@ camcops_server/templates/menu/edit_mfa.mako
 
 <%include file="db_user_info.mako"/>
 
-<h1>${ _("Two-step verification settings") }</h1>
+<h1>${ _("Multi-factor authentication settings") }</h1>
 
 ${form | n}
 
