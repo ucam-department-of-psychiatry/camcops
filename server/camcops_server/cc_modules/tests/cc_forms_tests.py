@@ -42,6 +42,7 @@ from camcops_server.cc_modules.cc_forms import (
     DurationType,
     DurationWidget,
     EditMfaSchema,
+    EditUserAuthenticationSchema,
     GroupIpUseWidget,
     IpUseType,
     MfaSecretWidget,
@@ -1025,3 +1026,34 @@ class EditMfaSchemaTests(TestCase):
 
         self.assertIn("You must provide a phone number",
                       cm.exception.messages()[0])
+
+
+class EditUserAuthenticationSchemaTests(TestCase):
+    def setUp(self) -> None:
+        super().setUp()
+        self.request = mock.Mock(gettext=lambda t: t)
+
+    def test_invalid_for_empty_password_when_change_true(self):
+        schema = EditUserAuthenticationSchema().bind(request=self.request)
+        value = {
+            ViewParam.CHANGE_PASSWORD: True,
+            ViewParam.DISABLE_MFA: False,
+        }
+
+        with self.assertRaises(Invalid) as cm:
+            schema.validator(None, value)
+
+        self.assertIn("You must provide a password",
+                      cm.exception.messages()[0])
+
+    def test_valid_for_empty_password_when_change_false(self):
+        schema = EditUserAuthenticationSchema().bind(request=self.request)
+        value = {
+            ViewParam.CHANGE_PASSWORD: False,
+            ViewParam.DISABLE_MFA: False,
+        }
+
+        try:
+            schema.validator(None, value)
+        except Invalid:
+            self.fail("Schema unexpectedly failed validation")

@@ -27,12 +27,24 @@ camcops_server/templates/menu/edit_user_authentication.mako
 </%doc>
 
 <%inherit file="base_web_form.mako"/>
-
 <%include file="db_user_info.mako"/>
 
 <h1>${ _("Change authentication for user: {username}").format(username=username) }</h1>
 
 ${form | n}
+
+<script type="text/javascript">
+    <%text>
+        document.addEventListener("DOMContentLoaded", function(event) {
+            $('input[name="change_password"]').change(function() {
+                var show = $('input[name="change_password"]:checked').val() !== undefined;
+                $(".item-new_password, .item-must_change_password").toggle(show);
+            });
+            $('input[name="change_password"]').change();
+        });
+    </%text>
+</script>
+
 
 <%include file="to_view_all_users.mako"/>
 <%include file="to_main_menu.mako"/>

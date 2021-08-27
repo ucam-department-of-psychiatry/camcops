@@ -2026,6 +2026,26 @@ class MustChangePasswordNode(SchemaNode, RequestAwareMixin):
         self.title = _("Must change password at next login?")
 
 
+class ChangePasswordNode(SchemaNode, RequestAwareMixin):
+    """
+    Boolean node: Change this user's password?
+    """
+    schema_type = Boolean
+    default = False
+    missing = False
+
+    def __init__(self, *args, **kwargs) -> None:
+        self.label = ""  # for type checker
+        self.title = ""  # for type checker
+        super().__init__(*args, **kwargs)
+
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        _ = self.gettext
+        self.label = _("Change password")
+        self.title = _("Change this user's password?")
+
+
 class OldUserPasswordCheck(SchemaNode, RequestAwareMixin):
     """
     Schema to capture an old password (for when a password is being changed).
@@ -2183,11 +2203,13 @@ class DisableMfaNode(SchemaNode, RequestAwareMixin):
 
 class EditUserAuthenticationSchema(CSRFSchema):
     """
-    Schema to change another user's password.
+    Schema to change another user's password or reset multi-factor
+    authentication.
     """
     user_id = HiddenIntegerNode()  # name must match ViewParam.USER_ID
+    change_password = ChangePasswordNode()  # name must match View_Param.CHANGE_PASSWORD  # noqa: E501
     new_password = NewPasswordNode()  # name must match ViewParam.NEW_PASSWORD
-    must_change_password = MustChangePasswordNode()  # match ViewParam.MUST_CHANGE_PASSWORD  # noqa
+    must_change_password = MustChangePasswordNode()  # match ViewParam.MUST_CHANGE_PASSWORD  # noqa: E501
     disable_mfa = DisableMfaNode()  # match ViewParam.DISABLE_MFA
 
     # noinspection PyUnusedLocal
@@ -2195,6 +2217,17 @@ class EditUserAuthenticationSchema(CSRFSchema):
         _ = self.gettext
         new_password = get_child_node(self, "new_password")
         new_password.missing = drop
+
+    def validator(self, node: SchemaNode, value: Dict[str, Any]) -> None:
+        if not value[ViewParam.CHANGE_PASSWORD]:
+            return
+
+        if ViewParam.NEW_PASSWORD not in value:
+            _ = self.gettext
+            raise Invalid(
+                node,
+                _("You must provide a password")
+            )
 
 
 class EditUserAuthenticationForm(SimpleSubmitForm):
