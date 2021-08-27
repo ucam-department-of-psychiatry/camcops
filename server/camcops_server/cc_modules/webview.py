@@ -586,9 +586,6 @@ def audit_menu(req: "CamcopsRequest") -> Dict[str, Any]:
 
 
 class LoginView(FormView):
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-
     def dispatch(self) -> Response:
         if self.timed_out():
             self.set_authenticated_user_id(None)
@@ -646,6 +643,9 @@ class LoginView(FormView):
             # Is the username/password combination correct?
             self.user = User.get_user_from_username_password(
                 self.request, username, password)  # checks password
+
+        # Some trade-off between usability and security here.
+        # For failed attempts, the user has some idea as to what the problem is.
 
         if self.user is None:
             # Unsuccessful. Note that the username may/may not be genuine.
@@ -819,7 +819,8 @@ def login_view(req: "CamcopsRequest") -> Response:
     Login view.
 
     - GET: presents the login screen
-    - POST/submit: attempts to log in;
+    - POST/submit: attempts to log in (with optional multi-factor
+      authentication);
 
       - failure: returns a login failure view or an account lockout view
       - success:

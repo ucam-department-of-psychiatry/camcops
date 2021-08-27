@@ -290,6 +290,9 @@ class FormMixin(ContextMixin):
     def get_form(self) -> "Form":
         """
         Return an instance of the form to be used in this view.
+
+        We used to cache the form on the view, but this meant we couldn't
+        have alternative forms on the same view (see LoginView).
         """
 
         form_class = self.get_form_class()

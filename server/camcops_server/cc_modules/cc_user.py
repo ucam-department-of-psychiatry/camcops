@@ -363,10 +363,19 @@ class SecurityLoginFailure(Base):
 
 
 class MfaMethod:
-    HOTP_EMAIL = "hotp_email"
-    HOTP_SMS = "hotp_sms"
-    NONE = 'none'
-    TOTP = "totp"
+    """
+    Open Multi-factor authentication (MFA) standards are defined in RFC 4226
+    (HOTP: An HMAC-Based One-Time Password Algorithm) and in RFC 6238 (TOTP:
+    Time-Based One-Time Password Algorithm).
+
+    HMAC:  Hash-based Message Authentication Code
+    https://en.wikipedia.org/wiki/HMAC
+    """
+
+    HOTP_EMAIL = "hotp_email"  # Send a code by email
+    HOTP_SMS = "hotp_sms"  # Send a code by SMS
+    NONE = 'none'  # No multi-factor authentication
+    TOTP = "totp"  # Use an app such as Google Authenticator, Twilio Authy
 
 
 # =============================================================================
@@ -692,12 +701,15 @@ class User(Base):
 
     @property
     def partial_email(self) -> str:
+        # There doesn't seem to be an agreed way of doing this
         regex = r"^(.+)@(.*)$"
 
         m = re.search(regex, self.email)
         first_letter = m.group(1)[0]
         last_letter = m.group(1)[-1]
         domain = m.group(2)
+
+        # a@example.com will be displayed as a*****a@example.com.
 
         return f"{first_letter}*****{last_letter}@{domain}"
 
@@ -710,6 +722,8 @@ class User(Base):
 
     @property
     def partial_phone_number(self) -> str:
+        # There doesn't seem to be an agreed way of doing this either
+        # https://www.karansaini.com/fuzzing-obfuscated-phone-numbers/
         return f"**********{self.raw_phone_number[-2:]}"
 
     def set_password_change_flag_if_necessary(self,

@@ -1974,7 +1974,7 @@ class LoginForm(InformativeNonceForm):
 
 class OtpSchema(CSRFSchema):
     """
-    Schema to capture one-time password for Multi-factor Authentication
+    Schema to capture a one-time password for Multi-factor Authentication.
     """
     one_time_password = MandatoryStringNode()
     redirect_url = HiddenRedirectionUrlNode()  # name must match ViewParam.REDIRECT_URL  # noqa
@@ -1988,7 +1988,7 @@ class OtpSchema(CSRFSchema):
 
 class OtpTokenForm(InformativeNonceForm):
     """
-    Form to capture login details.
+    Form to capture a one-time password for Multi-factor authentication.
     """
     def __init__(self,
                  request: "CamcopsRequest",
@@ -2074,6 +2074,11 @@ class OldUserPasswordCheck(SchemaNode, RequestAwareMixin):
 
 
 class InformationalCheckedPasswordWidget(CheckedPasswordWidget):
+    """
+    A more verbose version of Deform's CheckedPasswordWidget
+    which provides advice on good passwords.
+    """
+
     basedir = os.path.join(TEMPLATE_DIR, "deform")
     readonlydir = os.path.join(basedir, "readonly")
     form = "informational_checked_password.pt"
@@ -2232,7 +2237,7 @@ class EditUserAuthenticationSchema(CSRFSchema):
 
 class EditUserAuthenticationForm(SimpleSubmitForm):
     """
-    Form to change another user's password.
+    Form to change another user's password or reset multi-factor authentication.
     """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         _ = request.gettext
@@ -2246,6 +2251,9 @@ class EditUserAuthenticationForm(SimpleSubmitForm):
 # =============================================================================
 
 class MfaSecretWidget(TextInputWidget):
+    """
+    Display the TOTP secret as a QR code and alphanumeric string.
+    """
     basedir = os.path.join(TEMPLATE_DIR, "deform")
     readonlydir = os.path.join(basedir, "readonly")
     form = "mfa_secret.pt"
