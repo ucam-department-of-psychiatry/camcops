@@ -33,3 +33,32 @@ camcops_server/templates/menu/edit_mfa.mako
 <h1>${ _("Two-step verification settings") }</h1>
 
 ${form | n}
+
+<script type="text/javascript">
+    <%text>
+        document.addEventListener("DOMContentLoaded", function(e) {
+            function hideAndShowElements(checkedName) {
+                var lookup = {"totp": ".item-mfa_secret_key",
+                              "hotp_email": ".item-email",
+                              "hotp_sms": ".item-phone_number"};
+
+                for (var name in lookup) {
+                    $(lookup[name]).hide();
+                }
+
+                if (checkedName) {
+                    var selected_value = $("input[name=" + checkedName + "]:checked").val();
+                    if (selected_value) {
+                        $(lookup[selected_value]).show();
+                    }
+                }
+            }
+
+            document.addEventListener("mfaTypeChanged", function(e) {
+                hideAndShowElements(e.detail);
+            });
+
+            hideAndShowElements();
+        });
+    </%text>
+</script>

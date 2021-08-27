@@ -26,36 +26,15 @@
       ${title}
     </label>
     <script type="text/javascript">
-      function hideAndShowElements() {
-          var lookup = {"totp": ".item-mfa_secret_key",
-                        "hotp_email": ".item-email",
-                        "hotp_sms": ".item-phone_number"};
-
-          for (var name in lookup) {
-              $(lookup[name]).hide();
-          }
-
-          var selected_value = $("input[name=${oid}]:checked").val();
-          if (selected_value) {
-              $(lookup[selected_value]).show();
-          }
-      }
-
       deform.addCallback(
          '${oid}-${repeat.choice.index}',
          function (oid) {
             $("#" + oid).change(function() {
-                hideAndShowElements();
+                event = new CustomEvent("mfaTypeChanged", {detail: "${oid}"});
+                document.dispatchEvent(event);
             });
          });
     </script>
   </div>
   ${field.end_rename()}
-    <script type="text/javascript">
-      deform.addCallback(
-         '${oid}',
-         function (oid) {
-            hideAndShowElements();
-         });
-    </script>
 </div>
