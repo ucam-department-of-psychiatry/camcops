@@ -710,7 +710,6 @@ class Routes(object):
     ADD_USER = "add_user"
     AUDIT_MENU = "audit_menu"
     BASIC_DUMP = "basic_dump"
-    EDIT_USER_AUTHENTICATION = "edit_user_authentication"
     CHANGE_OWN_PASSWORD = "change_own_password"
     CHOOSE_CTV = "choose_ctv"
     CHOOSE_TRACKER = "choose_tracker"
@@ -739,6 +738,7 @@ class Routes(object):
     EDIT_TASK_SCHEDULE = "edit_task_schedule"
     EDIT_TASK_SCHEDULE_ITEM = "edit_task_schedule_item"
     EDIT_USER = "edit_user"
+    EDIT_USER_AUTHENTICATION = "edit_user_authentication"
     EDIT_USER_GROUP_MEMBERSHIP = "edit_user_group_membership"
     ERASE_TASK_LEAVING_PLACEHOLDER = "erase_task_leaving_placeholder"
     ERASE_TASK_ENTIRELY = "erase_task_entirely"
@@ -847,7 +847,6 @@ class RouteCollection(object):
     ADD_USER = RoutePath(Routes.ADD_USER)
     AUDIT_MENU = RoutePath(Routes.AUDIT_MENU)
     BASIC_DUMP = RoutePath(Routes.BASIC_DUMP)
-    EDIT_USER_AUTHENTICATION = RoutePath(Routes.EDIT_USER_AUTHENTICATION)
     CHANGE_OWN_PASSWORD = RoutePath(Routes.CHANGE_OWN_PASSWORD)
     CHOOSE_CTV = RoutePath(Routes.CHOOSE_CTV)
     CHOOSE_TRACKER = RoutePath(Routes.CHOOSE_TRACKER)
@@ -879,6 +878,7 @@ class RouteCollection(object):
     EDIT_TASK_SCHEDULE = RoutePath(Routes.EDIT_TASK_SCHEDULE)
     EDIT_TASK_SCHEDULE_ITEM = RoutePath(Routes.EDIT_TASK_SCHEDULE_ITEM)
     EDIT_USER = RoutePath(Routes.EDIT_USER)
+    EDIT_USER_AUTHENTICATION = RoutePath(Routes.EDIT_USER_AUTHENTICATION)
     EDIT_USER_GROUP_MEMBERSHIP = RoutePath(Routes.EDIT_USER_GROUP_MEMBERSHIP)
     ERASE_TASK_LEAVING_PLACEHOLDER = RoutePath(Routes.ERASE_TASK_LEAVING_PLACEHOLDER)  # noqa
     ERASE_TASK_ENTIRELY = RoutePath(Routes.ERASE_TASK_ENTIRELY)
