@@ -374,11 +374,11 @@ msgstr "Gammel adgangskode er forkert"
 
 #: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2100
 msgid "Choose strong passphrases. See {link}"
-msgstr "Vælg stærke adgangskoder. Se {link}"
+msgstr "Vælg stærke adgangsudtryk. Se {link}"
 
 #: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2103
 msgid "Minimum password length is {limit} characters."
-msgstr "Mindste adgangskodelængde er {limit} tegn."
+msgstr "Minimum længden af adgangskoden er {limit} tegn."
 
 #: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2130
 msgid "New password"
@@ -431,7 +431,7 @@ msgstr "Brug en app som f.eks. Google Authenticator eller Twilio Authy"
 
 #: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2331
 msgid "Send me a code by email"
-msgstr "Send mig en kode på e -mail"
+msgstr "Send mig en kode på e-mail"
 
 #: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2332
 msgid "Send me a code by text message"
@@ -451,7 +451,7 @@ msgstr "Medtag landekoden (f.eks. +123) for numre uden for området '{region_cod
 
 #: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2411
 msgid "You must provide an email address"
-msgstr "Du skal angive en e -mail -adresse"
+msgstr "Du skal angive en e-mail-adresse"
 
 #: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2422
 msgid "You must provide a phone number"
@@ -1526,7 +1526,7 @@ msgstr "Indtast koden til CamCOPS, der vises på din godkendelsesapp."
 
 #: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:724
 msgid "We've sent a code by email to {}."
-msgstr "Vi har sendt en kode via e -mail til {}."
+msgstr "Vi har sendt en kode via e-mail til {}."
 
 #: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:728
 msgid "We've sent a code by text message to {}"
@@ -1562,7 +1562,7 @@ msgstr "Kontoen er låst indtil {} på grund af flere loginfejl. Prøv igen sene
 
 #: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:991
 msgid "Password changed for user '{username}'"
-msgstr "Adgangskode ændret for brugeren '{brugernavn}'"
+msgstr "Adgangskode ændret for bruger '{username}'"
 
 #: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:1002
 msgid "Multi-factor authentication disabled for user '{username}'"
