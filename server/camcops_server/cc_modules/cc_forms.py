@@ -3110,9 +3110,16 @@ class UserGroupPermissionsGroupAdminSchema(CSRFSchema):
     """
     Edit group-specific permissions for a user. For group administrators.
     """
-    may_upload = BooleanNode(default=True)  # match ViewParam.MAY_UPLOAD and User attribute  # noqa
-    may_register_devices = BooleanNode(default=True)  # match ViewParam.MAY_REGISTER_DEVICES and User attribute  # noqa
-    may_use_webviewer = BooleanNode(default=True)  # match ViewParam.MAY_USE_WEBVIEWER and User attribute  # noqa
+
+    # Currently the defaults here will be ignored because we don't use this
+    # schema to create new UserGroupMembership records. The record will already
+    # exist by the time we see the forms that use this schema. So the database
+    # defaults will be used instead.
+    may_upload = BooleanNode(default=False)  # match ViewParam.MAY_UPLOAD and User attribute  # noqa
+    may_register_devices = BooleanNode(default=False)  # match ViewParam.MAY_REGISTER_DEVICES and User attribute  # noqa
+    may_use_webviewer = BooleanNode(default=False)  # match ViewParam.MAY_USE_WEBVIEWER and User attribute  # noqa
+    may_manage_patients = BooleanNode(default=False)  # match ViewParam.MAY_MANAGE_PATIENTS  # noqa
+    may_email_patients = BooleanNode(default=False)  # match ViewParam.MAY_EMAIL_PATIENTS  # noqa
     view_all_patients_when_unfiltered = BooleanNode(default=False)  # match ViewParam.VIEW_ALL_PATIENTS_WHEN_UNFILTERED and User attribute  # noqa
     may_dump_data = BooleanNode(default=False)  # match ViewParam.MAY_DUMP_DATA and User attribute  # noqa
     may_run_reports = BooleanNode(default=False)  # match ViewParam.MAY_RUN_REPORTS and User attribute  # noqa
@@ -3132,6 +3139,14 @@ class UserGroupPermissionsGroupAdminSchema(CSRFSchema):
         ml_text = _("May log in to web front end")
         may_use_webviewer.title = ml_text
         may_use_webviewer.label = ml_text
+        may_manage_patients = get_child_node(self, "may_manage_patients")
+        mmp_text = _("May add, edit or delete patients created on the server")
+        may_manage_patients.title = mmp_text
+        may_manage_patients.label = mmp_text
+        may_email_patients = get_child_node(self, "may_email_patients")
+        mep_text = _("May send emails to patients created on the server")
+        may_email_patients.title = mep_text
+        may_email_patients.label = mep_text
         view_all_patients_when_unfiltered = get_child_node(self, "view_all_patients_when_unfiltered")  # noqa
         vap_text = _(
             "May view (browse) records from all patients when no patient "
@@ -3158,7 +3173,7 @@ class UserGroupPermissionsFullSchema(UserGroupPermissionsGroupAdminSchema):
     Edit group-specific permissions for a user. For superusers; includes the
     option to make the user a groupadmin.
     """
-    groupadmin = BooleanNode(default=True)  # match ViewParam.GROUPADMIN and User attribute  # noqa
+    groupadmin = BooleanNode(default=False)  # match ViewParam.GROUPADMIN and User attribute  # noqa: E501
 
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         super().after_bind(node, kw)

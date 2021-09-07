@@ -43,6 +43,7 @@ from webob.multidict import MultiDict
 from camcops_server.cc_modules.cc_constants import ERA_NOW
 from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_group import Group
+from camcops_server.cc_modules.cc_membership import UserGroupMembership
 from camcops_server.cc_modules.cc_patient import Patient
 from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
 from camcops_server.cc_modules.cc_pyramid import (
@@ -92,11 +93,13 @@ from camcops_server.cc_modules.webview import (
     FLASH_SUCCESS,
     LoginView,
     SendEmailFromPatientTaskScheduleView,
+    add_patient,
     any_records_use_group,
     edit_group,
     edit_finalized_patient,
     edit_server_created_patient,
     edit_user,
+    edit_user_group_membership,
 )
 
 
@@ -1411,6 +1414,27 @@ class EditServerCreatedPatientViewTests(BasicDatabaseTestCase):
         self.assertEqual(changes[f"schedule{schedule3.id} (Test 3)"],
                          (expected_old_3, expected_new_3))
 
+    def test_unprivileged_user_cannot_edit_patient(self) -> None:
+        patient = self.create_patient(sex="F", as_server_patient=True)
+
+        user = self.create_user(username="testuser")
+        self.dbsession.flush()
+
+        self.req._debugging_user = user
+
+        view = EditServerCreatedPatientView(self.req)
+        view.object = patient
+
+        self.req.add_get_params({ViewParam.SERVER_PK: patient.pk})
+
+        with self.assertRaises(HTTPBadRequest) as cm:
+            view.dispatch()
+
+        self.assertEqual(
+            cm.exception.message,
+            "Not authorized to edit this patient"
+        )
+
 
 class AddPatientViewTests(DemoDatabaseTestCase):
     """
@@ -1553,6 +1577,20 @@ class AddPatientViewTests(DemoDatabaseTestCase):
         context = args[0]
 
         self.assertIn("form", context)
+
+    def test_unprivileged_user_cannot_add_patient(self) -> None:
+        user = self.create_user(username="testuser")
+        self.dbsession.flush()
+
+        self.req._debugging_user = user
+
+        with self.assertRaises(HTTPBadRequest) as cm:
+            add_patient(self.req)
+
+        self.assertEqual(
+            cm.exception.message,
+            "Not authorized to manage patients"
+        )
 
 
 class DeleteServerCreatedPatientViewTests(BasicDatabaseTestCase):
@@ -1751,6 +1789,47 @@ class DeleteServerCreatedPatientViewTests(BasicDatabaseTestCase):
         ).one_or_none()
 
         self.assertIsNotNone(saved_idnum)
+
+    def test_unprivileged_user_cannot_delete_patient(self) -> None:
+        self.req.fake_request_post_from_dict(self.multidict)
+
+        patient_pk = self.patient.pk
+        self.req.add_get_params({ViewParam.SERVER_PK: patient_pk},
+                                set_method_get=False)
+        view = DeleteServerCreatedPatientView(self.req)
+
+        user = self.create_user(username="testuser")
+        self.dbsession.flush()
+
+        self.req._debugging_user = user
+
+        with self.assertRaises(HTTPBadRequest) as cm:
+            view.dispatch()
+
+        self.assertEqual(
+            cm.exception.message,
+            "Not authorized to delete this patient"
+        )
+
+    def test_unprivileged_user_cannot_see_delete_form(self) -> None:
+        self.req.fake_request_post_from_dict(self.multidict)
+
+        patient_pk = self.patient.pk
+        self.req.add_get_params({ViewParam.SERVER_PK: patient_pk})
+        view = DeleteServerCreatedPatientView(self.req)
+
+        user = self.create_user(username="testuser")
+        self.dbsession.flush()
+
+        self.req._debugging_user = user
+
+        with self.assertRaises(HTTPBadRequest) as cm:
+            view.dispatch()
+
+        self.assertEqual(
+            cm.exception.message,
+            "Not authorized to delete this patient"
+        )
 
 
 class EraseTaskTestCase(BasicDatabaseTestCase):
@@ -2376,6 +2455,34 @@ class SendEmailFromPatientTaskScheduleViewTests(BasicDatabaseTestCase):
         self.assertEqual(len(self.pts.emails), 1)
         self.assertEqual(self.pts.emails[0].email.to, "patient@example.com")
 
+    def test_unprivileged_user_cannot_email_patient(self) -> None:
+        user = self.create_user(username="testuser")
+        self.dbsession.flush()
+
+        self.req._debugging_user = user
+
+        multidict = MultiDict([
+            (ViewParam.EMAIL, "patient@example.com"),
+            (ViewParam.EMAIL_FROM, "server@example.com"),
+            (ViewParam.EMAIL_SUBJECT, "Subject"),
+            (ViewParam.EMAIL_BODY, "Email body"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+        self.req.add_get_params({
+            ViewParam.PATIENT_TASK_SCHEDULE_ID: str(self.pts.id)
+        }, set_method_get=False)
+
+        with self.assertRaises(HTTPBadRequest) as cm:
+            view = SendEmailFromPatientTaskScheduleView(self.req)
+            view.dispatch()
+
+        self.assertEqual(
+            cm.exception.message,
+            "Not authorized to email patients"
+        )
+
 
 class LoginViewTests(BasicDatabaseTestCase):
     def test_form_rendered_with_values(self) -> None:
@@ -2547,8 +2654,10 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.create_membership(user, self.group, may_use_webviewer=True)
 
         multidict = MultiDict([
-            (ViewParam.USERNAME, user.username),
-            (ViewParam.PASSWORD, "secret"),
+            (ViewParam.EMAIL, "patient@example.com"),
+            (ViewParam.EMAIL_FROM, "server@example.com"),
+            (ViewParam.EMAIL_SUBJECT, "Subject"),
+            (ViewParam.EMAIL_BODY, "Email body"),
             (FormAction.SUBMIT, "submit"),
         ])
 
@@ -3439,4 +3548,197 @@ class EditUserAuthenticationViewTests(BasicDatabaseTestCase):
         self.assertEqual(cm.exception.status_code, 302)
         self.assertIn(
             "/change_own_password", cm.exception.headers["Location"]
+        )
+
+
+class EditUserGroupMembershipViewTests(BasicDatabaseTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.regular_user = User()
+        self.regular_user.username = "ruser"
+        self.regular_user.hashedpw = ""
+        self.dbsession.add(self.regular_user)
+        self.dbsession.flush()
+
+        self.group_admin = User()
+        self.group_admin.username = "gadmin"
+        self.group_admin.hashedpw = ""
+        self.dbsession.add(self.group_admin)
+        self.dbsession.flush()
+
+        admin_ugm = UserGroupMembership(user_id=self.group_admin.id,
+                                        group_id=self.group.id)
+        admin_ugm.groupadmin = True
+        self.dbsession.add(admin_ugm)
+
+        self.ugm = UserGroupMembership(user_id=self.regular_user.id,
+                                       group_id=self.group.id)
+        self.dbsession.add(self.ugm)
+        self.dbsession.commit()
+
+    def test_superuser_can_update_user_group_membership(self) -> None:
+        self.assertFalse(self.ugm.may_upload)
+        self.assertFalse(self.ugm.may_register_devices)
+        self.assertFalse(self.ugm.may_use_webviewer)
+        self.assertFalse(self.ugm.view_all_patients_when_unfiltered)
+        self.assertFalse(self.ugm.may_dump_data)
+        self.assertFalse(self.ugm.may_run_reports)
+        self.assertFalse(self.ugm.may_add_notes)
+        self.assertFalse(self.ugm.may_manage_patients)
+        self.assertFalse(self.ugm.may_email_patients)
+        self.assertFalse(self.ugm.groupadmin)
+
+        multidict = MultiDict([
+            (ViewParam.MAY_UPLOAD, "true"),
+            (ViewParam.MAY_REGISTER_DEVICES, "true"),
+            (ViewParam.MAY_USE_WEBVIEWER, "true"),
+            (ViewParam.VIEW_ALL_PATIENTS_WHEN_UNFILTERED, "true"),
+            (ViewParam.MAY_DUMP_DATA, "true"),
+            (ViewParam.MAY_RUN_REPORTS, "true"),
+            (ViewParam.MAY_ADD_NOTES, "true"),
+            (ViewParam.MAY_MANAGE_PATIENTS, "true"),
+            (ViewParam.MAY_EMAIL_PATIENTS, "true"),
+            (ViewParam.GROUPADMIN, "true"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+        self.req.add_get_params({
+            ViewParam.USER_GROUP_MEMBERSHIP_ID: str(self.ugm.id)
+        }, set_method_get=False)
+
+        with self.assertRaises(HTTPFound):
+            edit_user_group_membership(self.req)
+
+        self.assertTrue(self.ugm.may_upload)
+        self.assertTrue(self.ugm.may_register_devices)
+        self.assertTrue(self.ugm.may_use_webviewer)
+        self.assertTrue(self.ugm.view_all_patients_when_unfiltered)
+        self.assertTrue(self.ugm.may_dump_data)
+        self.assertTrue(self.ugm.may_run_reports)
+        self.assertTrue(self.ugm.may_add_notes)
+        self.assertTrue(self.ugm.may_manage_patients)
+        self.assertTrue(self.ugm.may_email_patients)
+
+    def test_groupadmin_can_update_user_group_membership(self) -> None:
+        self.req._debugging_user = self.group_admin
+
+        self.assertFalse(self.ugm.may_upload)
+        self.assertFalse(self.ugm.may_register_devices)
+        self.assertFalse(self.ugm.may_use_webviewer)
+        self.assertFalse(self.ugm.view_all_patients_when_unfiltered)
+        self.assertFalse(self.ugm.may_dump_data)
+        self.assertFalse(self.ugm.may_run_reports)
+        self.assertFalse(self.ugm.may_add_notes)
+        self.assertFalse(self.ugm.may_manage_patients)
+        self.assertFalse(self.ugm.may_email_patients)
+
+        multidict = MultiDict([
+            (ViewParam.MAY_UPLOAD, "true"),
+            (ViewParam.MAY_REGISTER_DEVICES, "true"),
+            (ViewParam.MAY_USE_WEBVIEWER, "true"),
+            (ViewParam.VIEW_ALL_PATIENTS_WHEN_UNFILTERED, "true"),
+            (ViewParam.MAY_DUMP_DATA, "true"),
+            (ViewParam.MAY_RUN_REPORTS, "true"),
+            (ViewParam.MAY_ADD_NOTES, "true"),
+            (ViewParam.MAY_MANAGE_PATIENTS, "true"),
+            (ViewParam.MAY_EMAIL_PATIENTS, "true"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+        self.req.add_get_params({
+            ViewParam.USER_GROUP_MEMBERSHIP_ID: str(self.ugm.id)
+        }, set_method_get=False)
+
+        with self.assertRaises(HTTPFound):
+            edit_user_group_membership(self.req)
+
+        self.assertTrue(self.ugm.may_upload)
+        self.assertTrue(self.ugm.may_register_devices)
+        self.assertTrue(self.ugm.may_use_webviewer)
+        self.assertTrue(self.ugm.view_all_patients_when_unfiltered)
+        self.assertTrue(self.ugm.may_dump_data)
+        self.assertTrue(self.ugm.may_run_reports)
+        self.assertTrue(self.ugm.may_add_notes)
+        self.assertTrue(self.ugm.may_manage_patients)
+        self.assertTrue(self.ugm.may_email_patients)
+
+    def test_raises_if_cant_edit_user(self) -> None:
+        self.ugm.user_id = self.user.id
+        self.dbsession.add(self.ugm)
+        self.dbsession.commit()
+
+        multidict = MultiDict([
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+        self.req.add_get_params({
+            ViewParam.USER_GROUP_MEMBERSHIP_ID: str(self.ugm.id)
+        }, set_method_get=False)
+
+        with self.assertRaises(HTTPBadRequest) as cm:
+            edit_user_group_membership(self.req)
+
+        self.assertIn(
+            "Nobody may edit the system user",
+            cm.exception.message
+        )
+
+    def test_raises_if_cant_administer_group(self) -> None:
+        group_a = self.create_group("groupa")
+        group_b = self.create_group("groupb")
+
+        user1 = self.create_user(username="user1")
+        user2 = self.create_user(username="user2")
+        self.dbsession.flush()
+
+        # User 1 is a group administrator for group A,
+        # User 2 is a member if group A
+        self.create_membership(user1, group_a, groupadmin=True)
+        self.create_membership(user2, group_a),
+
+        # User 1 is not an administrator of group B
+        # User 2 is a member of group B
+        ugm = self.create_membership(user2, group_b)
+        self.dbsession.commit()
+
+        multidict = MultiDict([
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+        self.req.add_get_params({
+            ViewParam.USER_GROUP_MEMBERSHIP_ID: str(ugm.id)
+        }, set_method_get=False)
+
+        self.req._debugging_user = user1
+
+        with self.assertRaises(HTTPBadRequest) as cm:
+            edit_user_group_membership(self.req)
+
+        self.assertIn(
+            "You may not administer this group",
+            cm.exception.message
+        )
+
+    def test_cancel_returns_to_users_list(self) -> None:
+        multidict = MultiDict([
+            (FormAction.CANCEL, "cancel"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+        self.req.add_get_params({
+            ViewParam.USER_GROUP_MEMBERSHIP_ID: str(self.ugm.id)
+        }, set_method_get=False)
+
+        with self.assertRaises(HTTPFound) as cm:
+            edit_user_group_membership(self.req)
+
+        self.assertEqual(cm.exception.status_code, 302)
+
+        self.assertIn(
+            "view_all_users", cm.exception.headers["Location"]
         )

@@ -99,6 +99,7 @@ server/camcops_server
     alembic/versions/0066_fix_up_patient_uuids.py.rst
     alembic/versions/0067_cpft_research_preferences.py.rst
     alembic/versions/0068_cpft_covid_medical.py.rst
+    alembic/versions/0069_manage_patient_permission.py.rst
     camcops_server.py.rst
     camcops_server_core.py.rst
     camcops_server_meta.py.rst

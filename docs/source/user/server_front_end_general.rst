@@ -346,8 +346,8 @@ formatter [#sqlformat]_.
 
 .. _scheduling_tasks:
 
-Manage scheduled tasks for patients
------------------------------------
+Manage patients and their tasks
+-------------------------------
 
 You can schedule tasks for a patient to complete on their own tablet with the
 CamCOPS app running in :ref:`Single User Mode <single_user_mode>`.

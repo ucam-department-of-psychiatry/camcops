@@ -38,8 +38,6 @@ Releasing a new client and server involves the following steps:
 Code and documentation
 ----------------------
 
-- Push to the development repository.
-
 - Push to Github (https://github.com/RudolfCardinal/camcops). This also
   automatically updates the docs at https://camcops.readthedocs.io/.
 
@@ -155,7 +153,7 @@ Google Play Store release history
 | 2.4.8         | 21 (32-bit ARM);    | 2.4.8               | 2021-07-09         | 23      | 29      |
 |               | 22 (64-bit ARM)     |                     |                    |         |         |
 +---------------+---------------------+---------------------+--------------------+---------+---------+
-| 2.4.9         | 23 (32-bit ARM);    | 2.4.9               |                    | 23      | 29      |
+| 2.4.9         | 23 (32-bit ARM);    | 2.4.9               | 2021-08-10         | 23      | 29      |
 |               | 24 (64-bit ARM)     |                     |                    |         |         |
 +---------------+---------------------+---------------------+--------------------+---------+---------+
 

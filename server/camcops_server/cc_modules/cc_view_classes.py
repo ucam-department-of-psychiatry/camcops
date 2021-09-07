@@ -466,10 +466,14 @@ class ModelFormMixin(FormMixin, SingleObjectMixin):
 
         self.request.dbsession.add(self.object)
 
+    def get_model_form_dict(self) -> Dict[str, str]:
+        return self.model_form_dict
+
     def set_object_properties(self, appstruct: Dict[str, Any]) -> None:
         """
         Sets properties of the object, from form data.
         """
+
         for (model_attr, form_param) in self.model_form_dict.items():
             try:
                 value = appstruct[form_param]
@@ -477,6 +481,10 @@ class ModelFormMixin(FormMixin, SingleObjectMixin):
             except KeyError:
                 # Value may have been removed from appstruct: don't change
                 pass
+
+        for (model_attr, form_param) in self.get_model_form_dict().items():
+            value = appstruct.get(form_param)
+            setattr(self.object, model_attr, value)
 
     def get_form_values(self) -> Dict[str, Any]:
         """
@@ -486,7 +494,7 @@ class ModelFormMixin(FormMixin, SingleObjectMixin):
         form_values = {}
 
         if self.object is not None:
-            for (model_attr, form_param) in self.model_form_dict.items():
+            for (model_attr, form_param) in self.get_model_form_dict().items():
                 value = getattr(self.object, model_attr)
 
                 # Not sure if this is a good idea. There may be legitimate

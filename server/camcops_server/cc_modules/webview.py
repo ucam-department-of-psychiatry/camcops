@@ -1110,6 +1110,7 @@ def main_menu(req: "CamcopsRequest") -> Dict[str, Any]:
         authorized_as_superuser=user.superuser,
         authorized_for_reports=user.authorized_for_reports,
         authorized_to_dump=user.authorized_to_dump,
+        authorized_to_manage_patients=user.authorized_to_manage_patients,
         camcops_url=CAMCOPS_URL,
         now=format_datetime(req.now, DateFormat.SHORT_DATETIME_SECONDS),
         server_version=CAMCOPS_SERVER_VERSION,
@@ -2395,18 +2396,6 @@ EDIT_USER_KEYS_GROUPADMIN = [
 EDIT_USER_KEYS_SUPERUSER = EDIT_USER_KEYS_GROUPADMIN + [
     ViewParam.SUPERUSER,
 ]
-EDIT_USER_GROUP_MEMBERSHIP_KEYS_GROUPADMIN = [
-    ViewParam.MAY_UPLOAD,
-    ViewParam.MAY_REGISTER_DEVICES,
-    ViewParam.MAY_USE_WEBVIEWER,
-    ViewParam.VIEW_ALL_PATIENTS_WHEN_UNFILTERED,
-    ViewParam.MAY_DUMP_DATA,
-    ViewParam.MAY_RUN_REPORTS,
-    ViewParam.MAY_ADD_NOTES,
-]
-EDIT_USER_GROUP_MEMBERSHIP_KEYS_SUPERUSER = EDIT_USER_GROUP_MEMBERSHIP_KEYS_GROUPADMIN + [  # noqa
-    ViewParam.GROUPADMIN,
-]
 
 
 def get_user_from_request_user_id_or_raise(req: "CamcopsRequest") -> User:
@@ -2598,50 +2587,67 @@ def edit_user(req: "CamcopsRequest") -> Dict[str, Any]:
                 head_form_html=get_head_form_html(req, [form]))
 
 
+class EditUserGroupMembershipBaseView(UpdateView):
+    """
+    Django-style view to edit a user's group membership.
+    """
+    model_form_dict = {
+        "may_upload": ViewParam.MAY_UPLOAD,
+        "may_register_devices": ViewParam.MAY_REGISTER_DEVICES,
+        "may_use_webviewer": ViewParam.MAY_USE_WEBVIEWER,
+        "view_all_patients_when_unfiltered": ViewParam.VIEW_ALL_PATIENTS_WHEN_UNFILTERED,  # noqa: E501
+        "may_dump_data": ViewParam.MAY_DUMP_DATA,
+        "may_run_reports": ViewParam.MAY_RUN_REPORTS,
+        "may_add_notes": ViewParam.MAY_ADD_NOTES,
+        "may_manage_patients": ViewParam.MAY_MANAGE_PATIENTS,
+        "may_email_patients": ViewParam.MAY_EMAIL_PATIENTS,
+    }
+
+    object_class = UserGroupMembership
+    pk_param = ViewParam.USER_GROUP_MEMBERSHIP_ID
+    server_pk_name = "id"
+    template_name = "user_edit_group_membership.mako"
+
+    def get_success_url(self) -> str:
+        return self.request.route_url(Routes.VIEW_ALL_USERS)
+
+    def get_object(self) -> Any:
+        # noinspection PyUnresolvedReferences
+        ugm = cast(UserGroupMembership, super().get_object())
+        user = ugm.user
+        assert_may_edit_user(self.request, user)
+        assert_may_administer_group(self.request, ugm.group_id)
+
+        return ugm
+
+
+class EditUserGroupMembershipSuperUserView(EditUserGroupMembershipBaseView):
+    form_class = EditUserGroupPermissionsFullForm
+
+    def get_model_form_dict(self) -> Dict[str, str]:
+        model_form_dict = super().get_model_form_dict()
+        model_form_dict["groupadmin"] = ViewParam.GROUPADMIN
+
+        return model_form_dict
+
+
+class EditUserGroupMembershipGroupAdminView(EditUserGroupMembershipBaseView):
+    form_class = EditUserGroupMembershipGroupAdminForm
+
+
 @view_config(route_name=Routes.EDIT_USER_GROUP_MEMBERSHIP,
-             renderer="user_edit_group_membership.mako",
              permission=Permission.GROUPADMIN,
              http_cache=NEVER_CACHE)
 def edit_user_group_membership(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to edit the group memberships of a user (for administrators).
     """
-    route_back = Routes.VIEW_ALL_USERS
-    if FormAction.CANCEL in req.POST:
-        raise HTTPFound(req.route_url(route_back))
-    ugm_id = req.get_int_param(ViewParam.USER_GROUP_MEMBERSHIP_ID)
-    ugm = UserGroupMembership.get_ugm_by_id(req.dbsession, ugm_id)
-    if not ugm:
-        _ = req.gettext
-        raise HTTPBadRequest(
-            f"{_('No such UserGroupMembership ID:')} {ugm_id!r}")
-    user = ugm.user
-    assert_may_edit_user(req, user)
-    assert_may_administer_group(req, ugm.group_id)
     if req.user.superuser:
-        form = EditUserGroupPermissionsFullForm(request=req)
-        keys = EDIT_USER_GROUP_MEMBERSHIP_KEYS_SUPERUSER
+        view = EditUserGroupMembershipSuperUserView(req)
     else:
-        form = EditUserGroupMembershipGroupAdminForm(request=req)
-        keys = EDIT_USER_GROUP_MEMBERSHIP_KEYS_GROUPADMIN
-    if FormAction.SUBMIT in req.POST:
-        try:
-            controls = list(req.POST.items())
-            appstruct = form.validate(controls)
-            # -----------------------------------------------------------------
-            # Apply the changes
-            # -----------------------------------------------------------------
-            for k in keys:
-                setattr(ugm, k, appstruct.get(k))
-            raise HTTPFound(req.route_url(route_back))
-        except ValidationFailure as e:
-            rendered_form = e.render()
-    else:
-        appstruct = {k: getattr(ugm, k) for k in keys}
-        rendered_form = form.render(appstruct)
-    return dict(ugm=ugm,
-                form=rendered_form,
-                head_form_html=get_head_form_html(req, [form]))
+        view = EditUserGroupMembershipGroupAdminView(req)
+
+    return view.dispatch()
 
 
 def set_user_upload_group(req: "CamcopsRequest",
@@ -4168,7 +4174,6 @@ def edit_finalized_patient(req: "CamcopsRequest") -> Response:
 
 
 @view_config(route_name=Routes.EDIT_SERVER_CREATED_PATIENT,
-             permission=Permission.GROUPADMIN,
              http_cache=NEVER_CACHE)
 def edit_server_created_patient(req: "CamcopsRequest") -> Response:
     """
@@ -4184,6 +4189,13 @@ class AddPatientView(PatientMixin, CreateView):
     """
     form_class = EditServerCreatedPatientForm
     template_name = "patient_add.mako"
+
+    def dispatch(self) -> Response:
+        if not self.request.user.authorized_to_manage_patients:
+            _ = self.request.gettext
+            raise HTTPBadRequest(_("Not authorized to manage patients"))
+
+        return super().dispatch()
 
     def get_success_url(self) -> str:
         return self.request.route_url(
@@ -4251,7 +4263,6 @@ class AddPatientView(PatientMixin, CreateView):
 
 
 @view_config(route_name=Routes.ADD_PATIENT,
-             permission=Permission.GROUPADMIN,
              http_cache=NEVER_CACHE)
 def add_patient(req: "CamcopsRequest") -> Response:
     """
@@ -4269,6 +4280,13 @@ class DeleteServerCreatedPatientView(DeleteView):
     pk_param = ViewParam.SERVER_PK
     server_pk_name = "_pk"
     template_name = "generic_form.mako"
+
+    def get_object(self) -> Any:
+        patient = cast(Patient, super().get_object())
+        if not patient.user_may_edit(self.request):
+            _ = self.request.gettext
+            raise HTTPBadRequest(_("Not authorized to delete this patient"))
+        return patient
 
     def get_extra_context(self) -> Dict[str, Any]:
         _ = self.request.gettext
@@ -4292,7 +4310,6 @@ class DeleteServerCreatedPatientView(DeleteView):
 
 
 @view_config(route_name=Routes.DELETE_SERVER_CREATED_PATIENT,
-             permission=Permission.GROUPADMIN,
              http_cache=NEVER_CACHE)
 def delete_server_created_patient(req: "CamcopsRequest") -> Response:
     """
@@ -4362,7 +4379,6 @@ def view_task_schedule_items(req: "CamcopsRequest") -> Dict[str, Any]:
 
 
 @view_config(route_name=Routes.VIEW_PATIENT_TASK_SCHEDULES,
-             permission=Permission.GROUPADMIN,
              renderer="view_patient_task_schedules.mako",
              http_cache=NEVER_CACHE)
 def view_patient_task_schedules(req: "CamcopsRequest") -> Dict[str, Any]:
@@ -4375,7 +4391,7 @@ def view_patient_task_schedules(req: "CamcopsRequest") -> Dict[str, Any]:
     rows_per_page = req.get_int_param(ViewParam.ROWS_PER_PAGE,
                                       DEFAULT_ROWS_PER_PAGE)
     page_num = req.get_int_param(ViewParam.PAGE, 1)
-    allowed_group_ids = req.user.ids_of_groups_user_is_admin_for
+    allowed_group_ids = req.user.ids_of_groups_user_may_manage_patients_in
     # noinspection PyProtectedMember
     q = (
         req.dbsession.query(Patient)
@@ -4396,7 +4412,6 @@ def view_patient_task_schedules(req: "CamcopsRequest") -> Dict[str, Any]:
 
 
 @view_config(route_name=Routes.VIEW_PATIENT_TASK_SCHEDULE,
-             permission=Permission.GROUPADMIN,
              renderer="view_patient_task_schedule.mako",
              http_cache=NEVER_CACHE)
 def view_patient_task_schedule(req: "CamcopsRequest") -> Dict[str, Any]:
@@ -4411,9 +4426,12 @@ def view_patient_task_schedule(req: "CamcopsRequest") -> Dict[str, Any]:
             joinedload("task_schedule.items"),
     ).one_or_none()
 
+    _ = req.gettext
     if pts is None:
-        _ = req.gettext
         raise HTTPBadRequest(_("Patient's task schedule does not exist"))
+
+    if not pts.patient.user_may_edit(req):
+        raise HTTPBadRequest(_("Not authorized to manage this patient"))
 
     patient_descriptor = pts.patient.prettystr(req)
 
@@ -4718,6 +4736,13 @@ class SendPatientEmailBaseView(FormView):
 
         super().__init__(*args, **kwargs)
 
+    def dispatch(self) -> Response:
+        if not self.request.user.authorized_to_email_patients:
+            _ = self.request.gettext
+            raise HTTPBadRequest(_("Not authorized to email patients"))
+
+        return super().dispatch()
+
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         kwargs["pts"] = self._get_patient_task_schedule()
 
@@ -4835,7 +4860,6 @@ class SendEmailFromPatientTaskScheduleView(SendPatientEmailBaseView):
 
 
 @view_config(route_name=Routes.SEND_EMAIL_FROM_PATIENT_TASK_SCHEDULE,
-             permission=Permission.GROUPADMIN,
              http_cache=NEVER_CACHE)
 def send_email_from_patient_task_schedule(req: "CamcopsRequest") -> Response:
     """
@@ -4845,7 +4869,6 @@ def send_email_from_patient_task_schedule(req: "CamcopsRequest") -> Response:
 
 
 @view_config(route_name=Routes.SEND_EMAIL_FROM_PATIENT_LIST,
-             permission=Permission.GROUPADMIN,
              http_cache=NEVER_CACHE)
 def send_email_from_patient_list(req: "CamcopsRequest") -> Response:
     """
