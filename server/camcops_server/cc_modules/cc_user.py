@@ -829,6 +829,32 @@ class User(Base):
         return [m.group_id for m in memberships if m.groupadmin]
 
     @property
+    def ids_of_groups_user_may_manage_patients_in(self) -> List[int]:
+        """
+        Returns a list of group IDs for groups that the user may
+        add/edit/delete patients in
+        """
+        if self.superuser:
+            return Group.all_group_ids(
+                dbsession=SqlASession.object_session(self))
+        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+        return [m.group_id for m in memberships
+                if m.may_manage_patients or m.groupadmin]
+
+    @property
+    def ids_of_groups_user_may_email_patients_in(self) -> List[int]:
+        """
+        Returns a list of group IDs for groups that the user may send emails to
+        patients in
+        """
+        if self.superuser:
+            return Group.all_group_ids(
+                dbsession=SqlASession.object_session(self))
+        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+        return [m.group_id for m in memberships
+                if m.may_email_patients or m.groupadmin]
+
+    @property
     def names_of_groups_user_is_admin_for(self) -> List[str]:
         """
         Returns a list of group names for groups that the user is an
@@ -856,6 +882,23 @@ class User(Base):
         if self.superuser:
             return True
         return group_id in self.ids_of_groups_user_is_admin_for
+
+    def may_manage_patients_in_group(self, group_id: int) -> bool:
+        """
+        May this user manage patients in the group identified by ``group_id``?
+        """
+        if self.superuser:
+            return True
+        return group_id in self.ids_of_groups_user_may_manage_patients_in
+
+    def may_email_patients_in_group(self, group_id: int) -> bool:
+        """
+        May this user send emails to patients in the group identified by
+        ``group_id``?
+        """
+        if self.superuser:
+            return True
+        return group_id in self.ids_of_groups_user_may_email_patients_in
 
     @property
     def groups_user_may_see(self) -> List[Group]:
@@ -961,6 +1004,26 @@ class User(Base):
                       key=lambda g: g.name)
 
     @property
+    def groups_user_may_manage_patients_in(self) -> List[Group]:
+        """
+        Returns a list of :class:`camcops_server.cc_modules.cc_group.Group`
+        objects for groups the user may manage patients in.
+        """
+        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+        return sorted([m.group for m in memberships if m.may_manage_patients],
+                      key=lambda g: g.name)
+
+    @property
+    def groups_user_may_email_patients_in(self) -> List[Group]:
+        """
+        Returns a list of :class:`camcops_server.cc_modules.cc_group.Group`
+        objects for groups the user may send emails to patients in.
+        """
+        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+        return sorted([m.group for m in memberships if m.may_email_patients],
+                      key=lambda g: g.name)
+
+    @property
     def is_a_groupadmin(self) -> bool:
         """
         Is the user a specifically defined group administrator (for any group)?
@@ -1040,6 +1103,26 @@ class User(Base):
             return True
         memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
         return any(m.may_run_reports for m in memberships)
+
+    @property
+    def authorized_to_manage_patients(self) -> bool:
+        """
+        Is the user authorized to manage patients (for some group)?
+        """
+        if self.authorized_as_groupadmin:
+            return True
+        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+        return any(m.may_manage_patients for m in memberships)
+
+    @property
+    def authorized_to_email_patients(self) -> bool:
+        """
+        Is the user authorized to send emails to patients (for some group)?
+        """
+        if self.authorized_as_groupadmin:
+            return True
+        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+        return any(m.may_email_patients for m in memberships)
 
     @property
     def may_view_all_patients_when_unfiltered(self) -> bool:

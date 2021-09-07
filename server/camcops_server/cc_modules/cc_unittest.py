@@ -44,11 +44,15 @@ import pendulum
 import pytest
 
 from camcops_server.cc_modules.cc_constants import ERA_NOW
+from camcops_server.cc_modules.cc_device import Device
+from camcops_server.cc_modules.cc_group import Group
 from camcops_server.cc_modules.cc_idnumdef import IdNumDefinition
 from camcops_server.cc_modules.cc_ipuse import IpUse
 from camcops_server.cc_modules.cc_sqlalchemy import (
     sql_from_sqlite_database,
 )
+from camcops_server.cc_modules.cc_user import User
+from camcops_server.cc_modules.cc_membership import UserGroupMembership
 from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 
 if TYPE_CHECKING:
@@ -207,9 +211,6 @@ class BasicDatabaseTestCase(DemoRequestTestCase):
     """
     def setUp(self) -> None:
         super().setUp()
-        from camcops_server.cc_modules.cc_device import Device
-        from camcops_server.cc_modules.cc_group import Group
-        from camcops_server.cc_modules.cc_user import User
 
         self.set_era("2010-07-07T13:40+0100")
 
@@ -386,6 +387,39 @@ class BasicDatabaseTestCase(DemoRequestTestCase):
         obj._current = True
         obj._adding_user_id = self.user.id
         obj._when_added_batch_utc = self.era_time_utc
+
+    def create_user(self, **kwargs) -> User:
+        user = User()
+        user.hashedpw = ""
+
+        for key, value in kwargs.items():
+            setattr(user, key, value)
+
+        self.dbsession.add(user)
+
+        return user
+
+    def create_group(self, name: str, **kwargs) -> Group:
+        group = Group()
+        group.name = name
+
+        for key, value in kwargs.items():
+            setattr(group, key, value)
+
+        self.dbsession.add(group)
+
+        return group
+
+    def create_membership(self, user: User, group: Group,
+                          **kwargs) -> UserGroupMembership:
+        ugm = UserGroupMembership(user_id=user.id, group_id=group.id)
+
+        for key, value in kwargs.items():
+            setattr(ugm, key, value)
+
+        self.dbsession.add(ugm)
+
+        return ugm
 
     def tearDown(self) -> None:
         pass

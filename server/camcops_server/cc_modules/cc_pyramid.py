@@ -206,6 +206,8 @@ class ViewParam(object):
     MANUAL = "manual"
     MAY_ADD_NOTES = "may_add_notes"
     MAY_DUMP_DATA = "may_dump_data"
+    MAY_EMAIL_PATIENTS = "may_email_patients"
+    MAY_MANAGE_PATIENTS = "may_manage_patients"
     MAY_REGISTER_DEVICES = "may_register_devices"
     MAY_RUN_REPORTS = "may_run_reports"
     MAY_UPLOAD = "may_upload"
