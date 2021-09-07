@@ -371,6 +371,16 @@ http://stackoverflow.com/questions/9604625/ . A suitable one is bundled with
 CamCOPS, so you shouldn't have to alter this default. A blank parameter here
 usually ends up calling ``/usr/bin/wkhtmltopdf``
 
+Server location
+~~~~~~~~~~~~~~~
+
+REGION_CODE
+###########
+
+*String.* Default: GB.
+
+ISO 3166-1 alpha-2 region code. Currently used for parsing telephone numbers.
+
 
 Login and session configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -441,6 +451,28 @@ cache passwords, versus allow a password manager so that users can use
 better/unique passwords). Note that some browsers (e.g. Chrome v34 and up) may
 ignore this.
 
+MFA_METHODS
+###########
+
+*Multiline string.*
+
+A multiline list of supported multi-factor authentication methods.
+
+Possible values:
+
+-- code-block:: none
+
+    totp
+    hotp_email
+    hotp_sms
+
+MFA_TIMEOUT_S
+#############
+
+*Integer.* Default: 600.
+
+Seconds the user has to enter their six-digit code, having entered their user
+name and password. Zero means never time out.
 
 Suggested filenames for saving PDFs from the web view
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -644,6 +676,32 @@ EMAIL_REPLY_TO
 *String.*
 
 "Reply-To:" address used in e-mails. See `RFC 5322`_.
+
+
+SMS options
+~~~~~~~~~~~
+
+SMS_BACKEND
+###########
+
+*String.* Default: console.
+
+Supported backends are 'kapow' and 'twilio'. A paid account is needed for these
+services, which are then configured as follows:
+
+.. code-block:: none
+
+    [sms_backend:kapow]
+
+    USERNAME =
+    PASSWORD =
+
+
+    [sms_backend:twilio]
+
+    SID =
+    TOKEN =
+    PHONE_NUMBER =
 
 
 User download options
