@@ -2715,11 +2715,11 @@ class UserGroupPermissionsGroupAdminSchema(CSRFSchema):
     """
     Edit group-specific permissions for a user. For group administrators.
     """
-    may_upload = BooleanNode(default=True)  # match ViewParam.MAY_UPLOAD and User attribute  # noqa
-    may_register_devices = BooleanNode(default=True)  # match ViewParam.MAY_REGISTER_DEVICES and User attribute  # noqa
-    may_use_webviewer = BooleanNode(default=True)  # match ViewParam.MAY_USE_WEBVIEWER and User attribute  # noqa
-    may_manage_patients = BooleanNode(default=True)  # match ViewParam.MAY_MANAGE_PATIENTS  # noqa
-    may_email_patients = BooleanNode(default=True)  # match ViewParam.MAY_EMAIL_PATIENTS  # noqa
+    may_upload = BooleanNode(default=False)  # match ViewParam.MAY_UPLOAD and User attribute  # noqa
+    may_register_devices = BooleanNode(default=False)  # match ViewParam.MAY_REGISTER_DEVICES and User attribute  # noqa
+    may_use_webviewer = BooleanNode(default=False)  # match ViewParam.MAY_USE_WEBVIEWER and User attribute  # noqa
+    may_manage_patients = BooleanNode(default=False)  # match ViewParam.MAY_MANAGE_PATIENTS  # noqa
+    may_email_patients = BooleanNode(default=False)  # match ViewParam.MAY_EMAIL_PATIENTS  # noqa
     view_all_patients_when_unfiltered = BooleanNode(default=False)  # match ViewParam.VIEW_ALL_PATIENTS_WHEN_UNFILTERED and User attribute  # noqa
     may_dump_data = BooleanNode(default=False)  # match ViewParam.MAY_DUMP_DATA and User attribute  # noqa
     may_run_reports = BooleanNode(default=False)  # match ViewParam.MAY_RUN_REPORTS and User attribute  # noqa
@@ -2773,7 +2773,7 @@ class UserGroupPermissionsFullSchema(UserGroupPermissionsGroupAdminSchema):
     Edit group-specific permissions for a user. For superusers; includes the
     option to make the user a groupadmin.
     """
-    groupadmin = BooleanNode(default=True)  # match ViewParam.GROUPADMIN and User attribute  # noqa
+    groupadmin = BooleanNode(default=False)  # match ViewParam.GROUPADMIN and User attribute  # noqa: E501
 
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         super().after_bind(node, kw)
