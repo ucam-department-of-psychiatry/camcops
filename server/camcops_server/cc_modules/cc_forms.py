@@ -2715,6 +2715,11 @@ class UserGroupPermissionsGroupAdminSchema(CSRFSchema):
     """
     Edit group-specific permissions for a user. For group administrators.
     """
+
+    # Currently the defaults here will be ignored because we don't use this
+    # schema to create new UserGroupMembership records. The record will already
+    # exist by the time we see the forms that use this schema. So the database
+    # defaults will be used instead.
     may_upload = BooleanNode(default=False)  # match ViewParam.MAY_UPLOAD and User attribute  # noqa
     may_register_devices = BooleanNode(default=False)  # match ViewParam.MAY_REGISTER_DEVICES and User attribute  # noqa
     may_use_webviewer = BooleanNode(default=False)  # match ViewParam.MAY_USE_WEBVIEWER and User attribute  # noqa
