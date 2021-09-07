@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-camcops_server/alembic/versions/0069_user_mfa.py
+camcops_server/alembic/versions/0070_user_mfa.py
 
 ===============================================================================
 
@@ -28,8 +28,8 @@ DATABASE REVISION SCRIPT
 
 user_mfa
 
-Revision ID: 0069
-Revises: 0068
+Revision ID: 0070
+Revises: 0069
 Creation date: 2021-08-19 15:23:40.312972
 
 """
@@ -46,8 +46,8 @@ import sqlalchemy as sa
 # Revision identifiers, used by Alembic.
 # =============================================================================
 
-revision = "0069"
-down_revision = "0068"
+revision = "0070"
+down_revision = "0069"
 branch_labels = None
 depends_on = None
 
