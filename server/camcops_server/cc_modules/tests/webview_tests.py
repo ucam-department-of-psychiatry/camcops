@@ -2654,10 +2654,8 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.create_membership(user, self.group, may_use_webviewer=True)
 
         multidict = MultiDict([
-            (ViewParam.EMAIL, "patient@example.com"),
-            (ViewParam.EMAIL_FROM, "server@example.com"),
-            (ViewParam.EMAIL_SUBJECT, "Subject"),
-            (ViewParam.EMAIL_BODY, "Email body"),
+            (ViewParam.USERNAME, user.username),
+            (ViewParam.PASSWORD, "secret"),
             (FormAction.SUBMIT, "submit"),
         ])
 
