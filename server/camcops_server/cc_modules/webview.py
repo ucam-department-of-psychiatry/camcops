@@ -2505,91 +2505,124 @@ def view_user(req: "CamcopsRequest") -> Dict[str, Any]:
     # here, but can't alter it.
 
 
+class EditUserBaseView(UpdateView):
+    """
+    Django-style view to edit a user and their groups
+    """
+    model_form_dict = {
+        "username": ViewParam.USERNAME,
+        "fullname": ViewParam.FULLNAME,
+        "email": ViewParam.EMAIL,
+        "must_change_password": ViewParam.MUST_CHANGE_PASSWORD,
+        "language": ViewParam.LANGUAGE,
+    }
+    object_class = User
+    pk_param = ViewParam.USER_ID
+    server_pk_name = "id"
+    template_name = "user_edit.mako"
+
+    def get_success_url(self) -> str:
+        return self.request.route_url(Routes.VIEW_ALL_USERS)
+
+    def get_object(self) -> Any:
+        user = cast(User, super().get_object())
+
+        assert_may_edit_user(self.request, user)
+
+        return user
+
+    def set_object_properties(self, appstruct: Dict[str, Any]) -> None:
+        user = cast(User, self.object)
+        _ = self.request.gettext
+
+        new_user_name = appstruct.get(ViewParam.USERNAME)
+        existing_user = User.get_user_by_name(self.request.dbsession,
+                                              new_user_name)
+        if existing_user and existing_user.id != user.id:
+            # noinspection PyUnresolvedReferences
+            cant_rename_user = _("Can't rename user")
+            conflicts = _("that conflicts with an existing user with ID")
+            raise HTTPBadRequest(
+                f"{cant_rename_user} {user.username!r} (#{user.id!r}) → "
+                f"{new_user_name!r}; {conflicts} {existing_user.id!r}")
+
+        super().set_object_properties(appstruct)
+
+        # Groups that we might change memberships for:
+        all_fluid_groups = self.request.user.ids_of_groups_user_is_admin_for
+        # All groups that the user is currently in:
+        user_group_ids = user.group_ids
+        # Group membership we won't touch:
+        user_frozen_group_ids = list(set(user_group_ids) -
+                                     set(all_fluid_groups))
+        group_ids = appstruct.get(ViewParam.GROUP_IDS)
+        # Add back in the groups we're not going to alter:
+        final_group_ids = list(set(group_ids) | set(user_frozen_group_ids))
+        user.set_group_ids(final_group_ids)
+        # Also, if the user was uploading to a group that they are now no
+        # longer a member of, we need to fix that
+        if user.upload_group_id not in final_group_ids:
+            user.upload_group_id = None
+
+    def get_form_values(self) -> Dict[str, Any]:
+        # will populate with model_form_dict
+        form_values = super().get_form_values()
+
+        user = cast(User, self.object)
+
+        # Superusers can do everything, of course.
+        # Groupadmins can change group memberships only for groups they control
+        # (here: "fluid"). That means that there may be a subset of group
+        # memberships for this user that they will neither see nor be able to
+        # alter (here: "frozen"). They can also edit only a restricted set of
+        # permissions.
+
+        # Groups that we might change memberships for:
+        all_fluid_groups = self.request.user.ids_of_groups_user_is_admin_for
+        # All groups that the user is currently in:
+        user_group_ids = user.group_ids
+        # Group memberships we might alter:
+        user_fluid_group_ids = list(set(user_group_ids) & set(all_fluid_groups))
+        form_values.update({
+            ViewParam.USER_ID: user.id,
+            ViewParam.GROUP_IDS: user_fluid_group_ids,
+        })
+
+        return form_values
+
+
+class EditUserGroupAdminView(EditUserBaseView):
+    form_class = EditUserGroupAdminForm
+
+
+class EditUserSuperUserView(EditUserBaseView):
+    form_class = EditUserFullForm
+
+    def get_model_form_dict(self) -> Dict[str, Any]:
+        model_form_dict = super().get_model_form_dict()
+        model_form_dict["superuser"] = ViewParam.SUPERUSER
+
+        return model_form_dict
+
+
 @view_config(route_name=Routes.EDIT_USER,
-             renderer="user_edit.mako",
              permission=Permission.GROUPADMIN,
              http_cache=NEVER_CACHE)
-def edit_user(req: "CamcopsRequest") -> Dict[str, Any]:
+def edit_user(req: "CamcopsRequest") -> Response:
     """
     View to edit a user (for administrators).
     """
-    route_back = Routes.VIEW_ALL_USERS
-    if FormAction.CANCEL in req.POST:
-        raise HTTPFound(req.route_url(route_back))
-    user = get_user_from_request_user_id_or_raise(req)
-    assert_may_edit_user(req, user)
-    # Superusers can do everything, of course.
-    # Groupadmins can change group memberships only for groups they control
-    # (here: "fluid"). That means that there may be a subset of group
-    # memberships for this user that they will neither see nor be able to
-    # alter (here: "frozen"). They can also edit only a restricted set of
-    # permissions.
     if req.user.superuser:
-        form = EditUserFullForm(request=req)
-        keys = EDIT_USER_KEYS_SUPERUSER
+        view = EditUserSuperUserView(req)
     else:
-        form = EditUserGroupAdminForm(request=req)
-        keys = EDIT_USER_KEYS_GROUPADMIN
-    # Groups that we might change memberships for:
-    all_fluid_groups = req.user.ids_of_groups_user_is_admin_for
-    # All groups that the user is currently in:
-    user_group_ids = user.group_ids
-    # Group membership we won't touch:
-    user_frozen_group_ids = list(set(user_group_ids) - set(all_fluid_groups))
-    # Group memberships we might alter:
-    user_fluid_group_ids = list(set(user_group_ids) & set(all_fluid_groups))
-    # log.debug(
-    #     "all_fluid_groups={}, user_group_ids={}, "
-    #     "user_frozen_group_ids={}, user_fluid_group_ids={}",
-    #     all_fluid_groups, user_group_ids,
-    #     user_frozen_group_ids, user_fluid_group_ids
-    # )
-    if FormAction.SUBMIT in req.POST:
-        try:
-            controls = list(req.POST.items())
-            appstruct = form.validate(controls)
-            # -----------------------------------------------------------------
-            # Apply the edits
-            # -----------------------------------------------------------------
-            dbsession = req.dbsession
-            new_user_name = appstruct.get(ViewParam.USERNAME)
-            existing_user = User.get_user_by_name(dbsession, new_user_name)
-            if existing_user and existing_user.id != user.id:
-                # noinspection PyUnresolvedReferences
-                _ = req.gettext
-                cant_rename_user = _("Can't rename user")
-                conflicts = _("that conflicts with an existing user with ID")
-                raise HTTPBadRequest(
-                    f"{cant_rename_user} {user.username!r} (#{user.id!r}) → "
-                    f"{new_user_name!r}; {conflicts} {existing_user.id!r}")
-            for k in keys:
-                # What follows assumes that the keys are relevant and valid
-                # attributes of a User.
-                setattr(user, k, appstruct.get(k))
-            group_ids = appstruct.get(ViewParam.GROUP_IDS)
-            # Add back in the groups we're not going to alter:
-            final_group_ids = list(set(group_ids) | set(user_frozen_group_ids))
-            user.set_group_ids(final_group_ids)
-            # Also, if the user was uploading to a group that they are now no
-            # longer a member of, we need to fix that
-            if user.upload_group_id not in final_group_ids:
-                user.upload_group_id = None
-            raise HTTPFound(req.route_url(route_back))
-        except ValidationFailure as e:
-            rendered_form = e.render()
-    else:
-        appstruct = {k: getattr(user, k) for k in keys}
-        appstruct[ViewParam.USER_ID] = user.id
-        appstruct[ViewParam.GROUP_IDS] = user_fluid_group_ids
-        rendered_form = form.render(appstruct)
-    return dict(user=user,
-                form=rendered_form,
-                head_form_html=get_head_form_html(req, [form]))
+        view = EditUserGroupAdminView(req)
+
+    return view.dispatch()
 
 
 class EditUserGroupMembershipBaseView(UpdateView):
     """
-    Django-style view to edit a user's group membership.
+    Django-style view to edit a user's group membership permissions.
     """
     model_form_dict = {
         "may_upload": ViewParam.MAY_UPLOAD,
@@ -2638,7 +2671,7 @@ class EditUserGroupMembershipGroupAdminView(EditUserGroupMembershipBaseView):
 @view_config(route_name=Routes.EDIT_USER_GROUP_MEMBERSHIP,
              permission=Permission.GROUPADMIN,
              http_cache=NEVER_CACHE)
-def edit_user_group_membership(req: "CamcopsRequest") -> Dict[str, Any]:
+def edit_user_group_membership(req: "CamcopsRequest") -> Response:
     """
     View to edit the group memberships of a user (for administrators).
     """

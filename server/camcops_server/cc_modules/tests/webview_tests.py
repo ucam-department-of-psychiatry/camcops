@@ -86,6 +86,7 @@ from camcops_server.cc_modules.webview import (
     EditGroupView,
     EditServerCreatedPatientView,
     EditUserAuthenticationView,
+    EditUserGroupAdminView,
     EraseTaskEntirelyView,
     EraseTaskLeavingPlaceholderView,
     FLASH_DANGER,
@@ -3038,11 +3039,13 @@ class LoginViewTests(BasicDatabaseTestCase):
 
 class EditUserViewTests(BasicDatabaseTestCase):
     def test_redirect_on_cancel(self) -> None:
+        regular_user = self.create_user(username="regular_user")
+        self.dbsession.flush()
         self.req.fake_request_post_from_dict({
             FormAction.CANCEL: "cancel"
         })
         self.req.add_get_params({
-            ViewParam.USER_ID: self.user.id,
+            ViewParam.USER_ID: regular_user.id,
         }, set_method_get=False)
 
         with self.assertRaises(HTTPFound) as cm:
@@ -3071,9 +3074,9 @@ class EditUserViewTests(BasicDatabaseTestCase):
 
         self.req.add_get_params({ViewParam.USER_ID: superuser.id})
 
-        response_dict = edit_user(self.req)
+        response = edit_user(self.req)
 
-        self.assertIn("Superuser (CAUTION!)", response_dict["form"])
+        self.assertIn("Superuser (CAUTION!)", response.body.decode("UTF-8"))
 
     def test_groupadmin_sees_groupadmin_form(self) -> None:
         groupadmin = self.create_user(username="groupadmin")
@@ -3086,10 +3089,11 @@ class EditUserViewTests(BasicDatabaseTestCase):
 
         self.req.add_get_params({ViewParam.USER_ID: regular_user.id})
 
-        response_dict = edit_user(self.req)
+        response = edit_user(self.req)
+        content = response.body.decode("UTF-8")
 
-        self.assertIn("Full name", response_dict["form"])
-        self.assertNotIn("Superuser (CAUTION!)", response_dict["form"])
+        self.assertIn("Full name", content)
+        self.assertNotIn("Superuser (CAUTION!)", content)
 
     def test_raises_for_conflicting_user_name(self) -> None:
         self.create_user(username="existing_user")
@@ -3222,7 +3226,7 @@ class EditUserViewTests(BasicDatabaseTestCase):
 
         self.assertIsNone(regular_user.upload_group_id)
 
-    def test_form_rendered_with_values(self) -> None:
+    def test_get_form_values(self) -> None:
         regular_user = self.create_user(username="regular_user",
                                         fullname="Full Name",
                                         email="user@example.com",
@@ -3237,18 +3241,17 @@ class EditUserViewTests(BasicDatabaseTestCase):
         self.dbsession.flush()
         self.req._debugging_user = group_b_admin
 
-        self.req.add_get_params({ViewParam.USER_ID: regular_user.id})
+        view = EditUserGroupAdminView(self.req)
+        # Would normally be set when going through dispatch()
+        view.object = regular_user
 
-        values = edit_user(self.req)
+        form_values = view.get_form_values()
 
-        self.assertIn('name="username" value="regular_user"', values["form"])
-        self.assertIn('name="fullname" value="Full Name"', values["form"])
-        self.assertIn('name="email" value="user@example.com"', values["form"])
-        self.assertIn('selected="selected" value="da_DK"', values["form"])
-        self.assertIn(f'selected="selected" value="{group_b.id}"',
-                      values["form"])
-        self.assertNotIn(f'selected="selected" value="{group_a.id}"',
-                         values["form"])
+        self.assertEqual(form_values[ViewParam.USERNAME], regular_user.username)
+        self.assertEqual(form_values[ViewParam.FULLNAME], regular_user.fullname)
+        self.assertEqual(form_values[ViewParam.EMAIL], regular_user.email)
+        self.assertEqual(form_values[ViewParam.LANGUAGE], regular_user.language)
+        self.assertEqual(form_values[ViewParam.GROUP_IDS], [group_b.id])
 
 
 class EditMfaViewTests(BasicDatabaseTestCase):
