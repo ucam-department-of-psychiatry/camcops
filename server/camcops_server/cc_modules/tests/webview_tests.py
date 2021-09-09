@@ -3036,7 +3036,7 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.assertFalse(view.timed_out())
 
 
-class EditUserTests(BasicDatabaseTestCase):
+class EditUserViewTests(BasicDatabaseTestCase):
     def test_redirect_on_cancel(self) -> None:
         self.req.fake_request_post_from_dict({
             FormAction.CANCEL: "cancel"
@@ -3090,6 +3090,165 @@ class EditUserTests(BasicDatabaseTestCase):
 
         self.assertIn("Full name", response_dict["form"])
         self.assertNotIn("Superuser (CAUTION!)", response_dict["form"])
+
+    def test_raises_for_conflicting_user_name(self) -> None:
+        self.create_user(username="existing_user")
+        other_user = self.create_user(username="other_user")
+        self.dbsession.flush()
+
+        multidict = MultiDict([
+            (ViewParam.USERNAME, "existing_user"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+        self.req.fake_request_post_from_dict(multidict)
+        self.req.add_get_params({
+            ViewParam.USER_ID: other_user.id,
+        }, set_method_get=False)
+
+        with self.assertRaises(HTTPBadRequest) as cm:
+            edit_user(self.req)
+
+        self.assertIn("Can't rename user", cm.exception.message)
+
+    def test_user_is_updated(self) -> None:
+        user = self.create_user(username="old_username",
+                                fullname="Old Name",
+                                email="old@example.com",
+                                language="da_DK")
+        self.dbsession.flush()
+
+        multidict = MultiDict([
+            (ViewParam.USERNAME, "new_username"),
+            (ViewParam.FULLNAME, "New Name"),
+            (ViewParam.EMAIL, "new@example.com"),
+            (ViewParam.LANGUAGE, "en_GB"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+        self.req.fake_request_post_from_dict(multidict)
+        self.req.add_get_params({
+            ViewParam.USER_ID: user.id,
+        }, set_method_get=False)
+
+        with self.assertRaises(HTTPFound):
+            edit_user(self.req)
+
+        self.assertEqual(user.username, "new_username")
+        self.assertEqual(user.fullname, "New Name")
+        self.assertEqual(user.email, "new@example.com")
+        self.assertEqual(user.language, "en_GB")
+
+    def test_user_is_added_to_group(self) -> None:
+        user = self.create_user(username="regular_user")
+        group = self.create_group("group")
+        self.dbsession.flush()
+
+        multidict = MultiDict([
+            (ViewParam.USERNAME, user.username),
+            ("__start__", "group_ids:sequence"),
+            ("group_id_sequence", str(group.id)),
+            ("__end__", "group_ids:sequence"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+        self.req.fake_request_post_from_dict(multidict)
+        self.req.add_get_params({
+            ViewParam.USER_ID: user.id,
+        }, set_method_get=False)
+
+        with mock.patch.object(user, "set_group_ids") as mock_set_group_ids:
+            with self.assertRaises(HTTPFound):
+                edit_user(self.req)
+
+        mock_set_group_ids.assert_called_once_with([group.id])
+
+    def test_user_stays_in_group_the_groupadmin_cannot_edit(self) -> None:
+        regular_user = self.create_user(username="regular_user")
+        group_b_admin = self.create_user(username="group_b_admin")
+        group_a = self.create_group("group_a")
+        group_b = self.create_group("group_b")
+        self.dbsession.flush()
+        self.create_membership(regular_user, group_a)
+        self.create_membership(regular_user, group_b)
+        self.create_membership(group_b_admin, group_b, groupadmin=True)
+        self.dbsession.flush()
+        self.req._debugging_user = group_b_admin
+
+        multidict = MultiDict([
+            (ViewParam.USERNAME, regular_user.username),
+            ("__start__", "group_ids:sequence"),
+            ("group_id_sequence", str(group_b.id)),
+            ("__end__", "group_ids:sequence"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+        self.req.fake_request_post_from_dict(multidict)
+        self.req.add_get_params({
+            ViewParam.USER_ID: regular_user.id,
+        }, set_method_get=False)
+
+        with mock.patch.object(regular_user,
+                               "set_group_ids") as mock_set_group_ids:
+            with self.assertRaises(HTTPFound):
+                edit_user(self.req)
+
+        mock_set_group_ids.assert_called_once_with([group_a.id, group_b.id])
+
+    def test_upload_group_id_unset_when_membership_removed(self) -> None:
+        group_a = self.create_group("group_a")
+        group_b = self.create_group("group_b")
+        regular_user = self.create_user(username="regular_user",
+                                        upload_group=group_a)
+        groupadmin = self.create_user(username="groupadmin")
+        self.dbsession.flush()
+        self.create_membership(regular_user, group_a)
+        self.create_membership(regular_user, group_b)
+        self.create_membership(groupadmin, group_a, groupadmin=True)
+        self.create_membership(groupadmin, group_b, groupadmin=True)
+        self.dbsession.flush()
+        self.req._debugging_user = groupadmin
+
+        multidict = MultiDict([
+            (ViewParam.USERNAME, regular_user.username),
+            ("__start__", "group_ids:sequence"),
+            ("group_id_sequence", str(group_b.id)),
+            ("__end__", "group_ids:sequence"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+        self.req.fake_request_post_from_dict(multidict)
+        self.req.add_get_params({
+            ViewParam.USER_ID: regular_user.id,
+        }, set_method_get=False)
+
+        with self.assertRaises(HTTPFound):
+            edit_user(self.req)
+
+        self.assertIsNone(regular_user.upload_group_id)
+
+    def test_form_rendered_with_values(self) -> None:
+        regular_user = self.create_user(username="regular_user",
+                                        fullname="Full Name",
+                                        email="user@example.com",
+                                        language="da_DK")
+        group_b_admin = self.create_user(username="group_b_admin")
+        group_a = self.create_group("group_a")
+        group_b = self.create_group("group_b")
+        self.dbsession.flush()
+        self.create_membership(regular_user, group_a)
+        self.create_membership(regular_user, group_b)
+        self.create_membership(group_b_admin, group_b, groupadmin=True)
+        self.dbsession.flush()
+        self.req._debugging_user = group_b_admin
+
+        self.req.add_get_params({ViewParam.USER_ID: regular_user.id})
+
+        values = edit_user(self.req)
+
+        self.assertIn('name="username" value="regular_user"', values["form"])
+        self.assertIn('name="fullname" value="Full Name"', values["form"])
+        self.assertIn('name="email" value="user@example.com"', values["form"])
+        self.assertIn('selected="selected" value="da_DK"', values["form"])
+        self.assertIn(f'selected="selected" value="{group_b.id}"',
+                      values["form"])
+        self.assertNotIn(f'selected="selected" value="{group_a.id}"',
+                         values["form"])
 
 
 class EditMfaViewTests(BasicDatabaseTestCase):
