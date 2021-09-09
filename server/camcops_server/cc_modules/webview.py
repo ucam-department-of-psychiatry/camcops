@@ -2384,20 +2384,6 @@ def view_server_info(req: "CamcopsRequest") -> Dict[str, Any]:
 # User management
 # =============================================================================
 
-EDIT_USER_KEYS_GROUPADMIN = [
-    # SPECIAL HANDLING # ViewParam.USER_ID,
-    ViewParam.USERNAME,
-    ViewParam.FULLNAME,
-    ViewParam.EMAIL,
-    ViewParam.MUST_CHANGE_PASSWORD,
-    ViewParam.LANGUAGE,
-    # SPECIAL HANDLING # ViewParam.GROUP_IDS,
-]
-EDIT_USER_KEYS_SUPERUSER = EDIT_USER_KEYS_GROUPADMIN + [
-    ViewParam.SUPERUSER,
-]
-
-
 def get_user_from_request_user_id_or_raise(req: "CamcopsRequest") -> User:
     """
     Returns the :class:`camcops_server.cc_modules.cc_user.User` represented by
