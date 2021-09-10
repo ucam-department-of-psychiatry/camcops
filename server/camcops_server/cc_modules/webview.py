@@ -2532,6 +2532,15 @@ class EditUserBaseView(UpdateView):
                 f"{cant_rename_user} {user.username!r} (#{user.id!r}) → "
                 f"{new_user_name!r}; {conflicts} {existing_user.id!r}")
 
+        email = appstruct.get(ViewParam.EMAIL)
+        if not email and user.mfa_method == MfaMethod.HOTP_EMAIL:
+            message = _("This user's email address is used for multi-factor "
+                        "authentication. If you want to remove their email "
+                        "address, you must first disable multi-factor "
+                        "authentication")
+
+            raise HTTPBadRequest(message)
+
         super().set_object_properties(appstruct)
 
         # Groups that we might change memberships for:

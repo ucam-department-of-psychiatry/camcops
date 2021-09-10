@@ -3253,6 +3253,28 @@ class EditUserViewTests(BasicDatabaseTestCase):
         self.assertEqual(form_values[ViewParam.LANGUAGE], regular_user.language)
         self.assertEqual(form_values[ViewParam.GROUP_IDS], [group_b.id])
 
+    def test_raises_if_email_address_used_for_mfa(self) -> None:
+        regular_user = self.create_user(username="regular_user",
+                                        mfa_method=MfaMethod.HOTP_EMAIL,
+                                        email="user@example.com")
+        self.dbsession.flush()
+
+        multidict = MultiDict([
+            (ViewParam.USERNAME, regular_user.username),
+            (ViewParam.EMAIL, ""),
+            (FormAction.SUBMIT, "submit"),
+        ])
+        self.req.fake_request_post_from_dict(multidict)
+        self.req.add_get_params({
+            ViewParam.USER_ID: regular_user.id,
+        }, set_method_get=False)
+
+        with self.assertRaises(HTTPBadRequest) as cm:
+            edit_user(self.req)
+
+        self.assertIn("used for multi-factor authentication",
+                      cm.exception.message)
+
 
 class EditMfaViewTests(BasicDatabaseTestCase):
     def test_get_form_values(self) -> None:
