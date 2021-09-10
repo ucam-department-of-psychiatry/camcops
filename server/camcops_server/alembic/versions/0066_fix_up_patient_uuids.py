@@ -109,15 +109,16 @@ def upgrade():
         for _pk in pks_needing_uuid
     ]
 
-    # UPDATE patient SET uuid=%(uuid)s WHERE patient._pk = %(pk)s:
-    update_statement = (
-        update(patient_table).
-        where(pk_col == bindparam("pk")).
-        values(uuid=bindparam("uuid"))
-    )
-    # ... with many parameter pairs:
-    # https://docs.sqlalchemy.org/en/14/tutorial/data_update.html
-    dbsession.execute(update_statement, update_values)
+    if update_values:
+        # UPDATE patient SET uuid=%(uuid)s WHERE patient._pk = %(pk)s:
+        update_statement = (
+            update(patient_table).
+            where(pk_col == bindparam("pk")).
+            values(uuid=bindparam("uuid"))
+        )
+        # ... with many parameter pairs:
+        # https://docs.sqlalchemy.org/en/14/tutorial/data_update.html
+        dbsession.execute(update_statement, update_values)
 
     # COMMIT:
     dbsession.commit()
