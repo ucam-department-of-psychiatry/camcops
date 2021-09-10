@@ -64,7 +64,8 @@ jobs:
                   python -m pip install pymysql
                   camcops_server upgrade_db --config ${CAMCOPS_CONFIG_FILE} --show_sql_only
                   camcops_server upgrade_db --config ${CAMCOPS_CONFIG_FILE}
-                  camcops_server dev_downgrade_db --config ${CAMCOPS_CONFIG_FILE} --destination_db_revision 0001 --confirm_downgrade_db --show_sql_only
+                  # WARNING: Current Alembic v1.0.0 bug in downgrading with as_sql=True; may fail
+                  # camcops_server dev_downgrade_db --config ${CAMCOPS_CONFIG_FILE} --destination_db_revision 0001 --confirm_downgrade_db --show_sql_only
                   camcops_server dev_downgrade_db --config ${CAMCOPS_CONFIG_FILE} --destination_db_revision 0001 --confirm_downgrade_db
                   camcops_server upgrade_db --config ${CAMCOPS_CONFIG_FILE} --show_sql_only
                   camcops_server upgrade_db --config ${CAMCOPS_CONFIG_FILE}
