@@ -465,6 +465,10 @@ Possible values:
     totp
     hotp_email
     hotp_sms
+    none
+
+To enforce multi-factor authentication on the server, do not include ``none`` in
+this list.
 
 MFA_TIMEOUT_S
 #############

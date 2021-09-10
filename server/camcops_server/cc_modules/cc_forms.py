@@ -2330,15 +2330,13 @@ class MfaMethodSelector(SchemaNode, RequestAwareMixin):
              _("Use an app such as Google Authenticator or Twilio Authy")),
             (MfaMethod.HOTP_EMAIL, _("Send me a code by email")),
             (MfaMethod.HOTP_SMS, _("Send me a code by text message")),
+            (MfaMethod.NONE, _("Disable multi-factor authentication")),
         ]
 
         choices = []
         for (label, description) in all_mfa_choices:
             if label in request.config.mfa_methods:
                 choices.append((label, description))
-        choices.append(
-            (MfaMethod.NONE, _("Disable multi-factor authentication")),
-        )
         values, pv = get_values_and_permissible(choices)
         basedir = os.path.join(TEMPLATE_DIR, "deform")
         readonlydir = os.path.join(basedir, "readonly")
