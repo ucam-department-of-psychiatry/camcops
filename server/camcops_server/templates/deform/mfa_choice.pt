@@ -60,6 +60,9 @@ camcops_server/templates/deform/mfa_choice.pt
                 event = new CustomEvent("mfaTypeChanged", {detail: "${oid}"});
                 document.dispatchEvent(event);
             });
+            window.addEventListener("DOMContentLoaded", function() {
+                $("#" + oid).change();
+            });
          });
     </script>
   </div>

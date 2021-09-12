@@ -57,8 +57,6 @@ ${form | n}
             document.addEventListener("mfaTypeChanged", function(e) {
                 hideAndShowElements(e.detail);
             });
-
-            hideAndShowElements();
         });
     </%text>
 </script>
