@@ -893,6 +893,8 @@ def forbidden(req: "CamcopsRequest") -> Response:
             return HTTPFound(req.route_url(Routes.CHANGE_OWN_PASSWORD))
         if user.must_agree_terms:
             return HTTPFound(req.route_url(Routes.OFFER_TERMS))
+        if user.mfa_method not in req.config.mfa_methods:
+            return HTTPFound(req.route_url(Routes.EDIT_MFA))
     # ... but with "raise HTTPFound" instead.
     # BUT there is only one level of exception handling in Pyramid, i.e. you
     # can't raise exceptions from exceptions:
