@@ -1035,6 +1035,7 @@ class Permission(object):
     HAPPY = "happy"  # logged in, can use webview, no need to change p/w, agreed to terms  # noqa
     MUST_AGREE_TERMS = "must_agree_terms"
     MUST_CHANGE_PASSWORD = "must_change_password"
+    MUST_SET_MFA = "must_set_mfa"
     SUPERUSER = "superuser"
 
 
@@ -1087,6 +1088,8 @@ class CamcopsAuthenticationPolicy(object):
                     principals.append(Permission.MUST_CHANGE_PASSWORD)
                 elif user.must_agree_terms:
                     principals.append(Permission.MUST_AGREE_TERMS)
+                elif user.mfa_method not in request.config.mfa_methods:
+                    principals.append(Permission.MUST_SET_MFA)
                 else:
                     principals.append(Permission.HAPPY)
             if user.superuser:
