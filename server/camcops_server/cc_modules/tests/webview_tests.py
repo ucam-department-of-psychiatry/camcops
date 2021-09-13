@@ -3418,6 +3418,8 @@ class EditMfaViewTests(BasicDatabaseTestCase):
         ])
         self.req._debugging_user = regular_user
         self.req.fake_request_post_from_dict(multidict)
+        self.req.config.mfa_methods = ["totp", "hotp_sms", "hotp_email",
+                                       "none"]
 
         view = EditMfaView(self.req)
 
