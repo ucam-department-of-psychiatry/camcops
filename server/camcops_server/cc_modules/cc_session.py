@@ -144,6 +144,15 @@ class CamcopsSession(Base):
         default=False,
         comment="This session is using the client API (not a human browsing)."
     )
+    mfa_user_id = Column(
+        "mfa_user_id", Integer,
+        ForeignKey("_security_users.id", ondelete="CASCADE"),
+        comment="Temporary ID of User during multi-factor-authentication"
+    )
+    mfa_time = Column(
+        "mfa_time", Integer,
+        comment="To determine multi-factor-authentication session expiry"
+    )
 
     user = relationship("User", lazy="joined", foreign_keys=[user_id])
     task_filter = relationship(
@@ -157,6 +166,7 @@ class CamcopsSession(Base):
     # ... 2020-09-22: changed to "all, delete-orphan" and single_parent=True
     # https://docs.sqlalchemy.org/en/13/orm/cascades.html#cascade-delete-orphan
     # https://docs.sqlalchemy.org/en/13/errors.html#error-bbf0
+    mfa_user = relationship("User", lazy="joined", foreign_keys=[mfa_user_id])
 
     # -------------------------------------------------------------------------
     # Basic info

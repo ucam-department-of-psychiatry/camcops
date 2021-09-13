@@ -586,30 +586,39 @@ def audit_menu(req: "CamcopsRequest") -> Dict[str, Any]:
 
 
 class LoginView(FormView):
+    PASSWORD = "password"
+    MFA = "mfa"
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+        if self.request.camcops_session.mfa_user is None:
+            self.step = self.PASSWORD
+            return
+
+        self.step = self.MFA
+
     def dispatch(self) -> Response:
         if self.timed_out():
-            self.set_authenticated_user_id(None)
+            self.request.camcops_session.mfa_user = None
             return self.fail_timed_out()
-
-        self.user = User.get_user_by_id(self.request.dbsession,
-                                        self.get_authenticated_user_id())
 
         return super().dispatch()
 
     def get_form_class(self) -> Optional[Type["Form"]]:
-        if self.get_authenticated_user_id() is None:
+        if self.step == self.PASSWORD:
             return LoginForm
 
         return OtpTokenForm
 
     def get_template_name(self) -> str:
-        if self.get_authenticated_user_id() is None:
+        if self.step == self.PASSWORD:
             return "login.mako"
 
         return "login_token.mako"
 
     def get_extra_context(self) -> Dict[str, Any]:
-        if self.get_authenticated_user_id() is None:
+        if self.step == self.PASSWORD:
             return {}
 
         return {"instructions": self.get_mfa_instructions()}
@@ -629,7 +638,9 @@ class LoginView(FormView):
         return kwargs
 
     def form_valid(self, form: "Form", appstruct: Dict[str, Any]) -> Response:
-        if self.user is None:
+        self.user = self.request.camcops_session.mfa_user
+
+        if self.step == self.PASSWORD:
             username = appstruct.get(ViewParam.USERNAME)
 
             # Is the user locked?
@@ -662,10 +673,16 @@ class LoginView(FormView):
             return self.fail_not_authorized()
 
         if self.user.mfa_method != MfaMethod.NONE:
-            if self.get_authenticated_user_id() is None:
+            if self.step == self.PASSWORD:
+                self.request.camcops_session.mfa_user = self.user
+                self.request.camcops_session.mfa_time = int(
+                    time.time()
+                )
+                self.step = self.MFA
+
                 return self.prompt_for_additional_verification()
 
-            self.set_authenticated_user_id(None)
+            self.request.camcops_session.mfa_user = None
             otp = appstruct.get(ViewParam.ONE_TIME_PASSWORD)
             if not self.user.verify_one_time_password(otp):
                 return self.fail_bad_mfa_code()
@@ -683,21 +700,18 @@ class LoginView(FormView):
         return super().form_valid(form, appstruct)
 
     def prompt_for_additional_verification(self) -> None:
-        self.set_authenticated_user_id(self.user.id)
-        self.request.session["authentication_time"] = int(time.time())
-
         self.handle_authentication_type()
         return self.render_to_response(self.get_context_data())
 
     def timed_out(self) -> bool:
-        if self.get_authenticated_user_id() is None:
+        if self.step != self.MFA:
             return False
 
         timeout = self.request.config.mfa_timeout_s
         if timeout == 0:
             return False
 
-        login_time = self.request.session.get("authentication_time")
+        login_time = self.request.camcops_session.mfa_time
 
         if login_time is None:
             return False
@@ -773,12 +787,6 @@ class LoginView(FormView):
             ViewParam.REDIRECT_URL, default)
 
         return redirect_url
-
-    def get_authenticated_user_id(self) -> Optional[int]:
-        return self.request.session.get("authenticated_user_id")
-
-    def set_authenticated_user_id(self, user_id: Optional[int]) -> None:
-        self.request.session["authenticated_user_id"] = user_id
 
     def fail_not_authorized(self) -> None:
         _ = self.request.gettext

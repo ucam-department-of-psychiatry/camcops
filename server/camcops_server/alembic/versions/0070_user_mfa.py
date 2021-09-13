@@ -30,7 +30,7 @@ user_mfa
 
 Revision ID: 0070
 Revises: 0069
-Creation date: 2021-08-19 15:23:40.312972
+Creation date: 2021-09-13 23:03:00.729047
 
 """
 
@@ -41,6 +41,7 @@ Creation date: 2021-08-19 15:23:40.312972
 from alembic import op
 import sqlalchemy as sa
 
+from camcops_server.cc_modules.cc_sqla_coltypes import PhoneNumberColType
 
 # =============================================================================
 # Revision identifiers, used by Alembic.
@@ -88,15 +89,52 @@ def upgrade():
         batch_op.add_column(
             sa.Column(
                 "phone_number",
-                sa.Unicode(length=128),
+                PhoneNumberColType(length=128),
                 nullable=True,
                 comment="User's phone number",
             )
         )
 
+    with op.batch_alter_table(
+        "_security_webviewer_sessions", schema=None
+    ) as batch_op:
+        batch_op.add_column(
+            sa.Column(
+                "mfa_time",
+                sa.Integer(),
+                nullable=True,
+                comment="To determine multi-factor authentication session expiry",
+            )
+        )
+        batch_op.add_column(
+            sa.Column(
+                "mfa_user_id",
+                sa.Integer(),
+                nullable=True,
+                comment="Temporary ID of User during multi-factor authentication",
+            )
+        )
+        batch_op.create_foreign_key(
+            batch_op.f("fk__security_webviewer_sessions_mfa_user_id"),
+            "_security_users",
+            ["mfa_user_id"],
+            ["id"],
+            ondelete="CASCADE",
+        )
+
 
 # noinspection PyPep8,PyTypeChecker
 def downgrade():
+    with op.batch_alter_table(
+        "_security_webviewer_sessions", schema=None
+    ) as batch_op:
+        batch_op.drop_constraint(
+            batch_op.f("fk__security_webviewer_sessions_mfa_user_id"),
+            type_="foreignkey",
+        )
+        batch_op.drop_column("mfa_user_id")
+        batch_op.drop_column("mfa_time")
+
     with op.batch_alter_table("_security_users", schema=None) as batch_op:
         batch_op.drop_column("phone_number")
         batch_op.drop_column("mfa_secret_key")

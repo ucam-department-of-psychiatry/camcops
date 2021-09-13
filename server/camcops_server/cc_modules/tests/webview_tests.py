@@ -2698,8 +2698,8 @@ class LoginViewTests(BasicDatabaseTestCase):
                                return_value=1234567890.1234567):
             view.dispatch()
 
-        self.assertEqual(self.req.session["authenticated_user_id"], user.id)
-        self.assertEqual(self.req.session["authentication_time"],
+        self.assertEqual(self.req.camcops_session.mfa_user, user)
+        self.assertEqual(self.req.camcops_session.mfa_time,
                          1234567890)
 
     @mock.patch("camcops_server.cc_modules.cc_email.send_msg")
@@ -2824,7 +2824,7 @@ class LoginViewTests(BasicDatabaseTestCase):
                                 mfa_secret_key=pyotp.random_base32())
         user.set_password(self.req, "secret")
         self.dbsession.flush()
-        self.req.session["authenticated_user_id"] = user.id
+        self.req.camcops_session.mfa_user = user
 
         self.create_membership(user, self.group, may_use_webviewer=True)
 
@@ -2856,7 +2856,7 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.assertEqual(args[0], self.req)
         self.assertEqual(args[1], "Login")
         self.assertEqual(kwargs["user_id"], user.id)
-        self.assertIsNone(self.req.session["authenticated_user_id"])
+        self.assertIsNone(self.req.camcops_session.mfa_user)
 
     @mock.patch("camcops_server.cc_modules.webview.audit")
     def test_user_with_hotp_can_log_in(self, mock_audit) -> None:
@@ -2866,7 +2866,7 @@ class LoginViewTests(BasicDatabaseTestCase):
                                 hotp_counter=1)
         user.set_password(self.req, "secret")
         self.dbsession.flush()
-        self.req.session["authenticated_user_id"] = user.id
+        self.req.camcops_session.mfa_user = user
 
         self.create_membership(user, self.group, may_use_webviewer=True)
 
@@ -2897,7 +2897,7 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.assertEqual(args[0], self.req)
         self.assertEqual(args[1], "Login")
         self.assertEqual(kwargs["user_id"], user.id)
-        self.assertIsNone(self.req.session["authenticated_user_id"])
+        self.assertIsNone(self.req.camcops_session.mfa_user)
 
     def test_session_user_cleared_on_failed_login(self) -> None:
         user = self.create_user(username="test",
@@ -2906,7 +2906,7 @@ class LoginViewTests(BasicDatabaseTestCase):
                                 hotp_counter=1)
         user.set_password(self.req, "secret")
         self.dbsession.flush()
-        self.req.session["authenticated_user_id"] = user.id
+        self.req.camcops_session.mfa_user = user
 
         self.create_membership(user, self.group, may_use_webviewer=True)
 
@@ -2927,7 +2927,7 @@ class LoginViewTests(BasicDatabaseTestCase):
                 view.dispatch()
 
         mock_fail_bad_mfa_code.assert_called_once()
-        self.assertIsNone(self.req.session["authenticated_user_id"])
+        self.assertIsNone(self.req.camcops_session.mfa_user)
 
     def test_user_cannot_log_in_if_timed_out(self) -> None:
         self.req.config.mfa_timeout_s = 600
@@ -2936,10 +2936,8 @@ class LoginViewTests(BasicDatabaseTestCase):
                                 mfa_secret_key=pyotp.random_base32())
         user.set_password(self.req, "secret")
         self.dbsession.flush()
-        self.req.session.update(
-            authenticated_user_id=user.id,
-            authentication_time=int(time.time()-601)
-        )
+        self.req.camcops_session.mfa_user = user
+        self.req.camcops_session.mfa_time = int(time.time()-601)
 
         self.create_membership(user, self.group, may_use_webviewer=True)
 
@@ -2958,7 +2956,7 @@ class LoginViewTests(BasicDatabaseTestCase):
             view.dispatch()
 
         mock_fail_timed_out.assert_called_once()
-        self.assertIsNone(self.req.session["authenticated_user_id"])
+        self.assertIsNone(self.req.camcops_session.mfa_user)
 
     def test_unprivileged_user_cannot_log_in(self) -> None:
         user = self.create_user(username="test")
@@ -3017,7 +3015,7 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.req.config.mfa_timeout_s = 0
         view = LoginView(self.req)
 
-        self.req.session["authentication_time"] = 0
+        self.req.camcops_session.mfa_time = 0
 
         self.assertFalse(view.timed_out())
 
@@ -3032,7 +3030,7 @@ class LoginViewTests(BasicDatabaseTestCase):
         user = self.create_user(username="test")
         # Should never be the case that we have a user ID but no
         # authentication time
-        self.req.session["authenticated_user_id"] = user.id
+        self.req.session.mfa_user = user
 
         self.assertFalse(view.timed_out())
 
