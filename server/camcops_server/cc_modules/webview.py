@@ -832,6 +832,7 @@ def login_view(req: "CamcopsRequest") -> Response:
 
 
 @view_config(route_name=Routes.LOGOUT,
+             permission=Authenticated,
              renderer="logged_out.mako",
              http_cache=NEVER_CACHE)
 def logout(req: "CamcopsRequest") -> Dict[str, Any]:
