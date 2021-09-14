@@ -96,6 +96,7 @@ from camcops_server.cc_modules.webview import (
     SendEmailFromPatientTaskScheduleView,
     add_patient,
     any_records_use_group,
+    change_own_password,
     edit_group,
     edit_finalized_patient,
     edit_server_created_patient,
@@ -3924,3 +3925,26 @@ class EditUserGroupMembershipViewTests(BasicDatabaseTestCase):
         self.assertIn(
             "view_all_users", cm.exception.headers["Location"]
         )
+
+
+class ChangeOwnPasswordViewTests(BasicDatabaseTestCase):
+    def test_user_can_change_password(self) -> None:
+        user = self.create_user(username="user")
+        user.set_password(self.req, "secret")
+        multidict = MultiDict([
+            (ViewParam.OLD_PASSWORD, "secret"),
+            ("__start__", "new_password:mapping"),
+            (ViewParam.NEW_PASSWORD, "monkeybusiness"),
+            ("new_password-confirm", "monkeybusiness"),
+            ("__end__", "new_password-mapping"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+
+        self.req.fake_request_post_from_dict(multidict)
+        self.req._debugging_user = user
+
+        response = change_own_password(self.req)
+        content = response.body.decode("UTF-8")
+
+        self.assertIn("Password changed for user", content)
+        self.assertIn("If you store", content)
