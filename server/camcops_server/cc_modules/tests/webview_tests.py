@@ -3009,8 +3009,6 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.assertEqual(args[1], "unknown")
 
         mock_logout.assert_called_once()
-
-        args, kwargs = mock_fail_not_authorized.call_args
         mock_fail_not_authorized.assert_called_once()
 
     def test_timed_out_false_when_timeout_zero(self) -> None:

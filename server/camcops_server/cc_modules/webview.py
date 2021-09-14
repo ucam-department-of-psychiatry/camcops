@@ -974,7 +974,7 @@ def change_own_password(req: "CamcopsRequest") -> Response:
     For any user: to change their own password.
 
     - GET: offer "change own password" view
-    - POST/submit: change the password and return :func:`password_changed`.
+    - POST/submit: change the password and display success message.
     """
     view = ChangeOwnPasswordView(req)
 
@@ -1052,35 +1052,15 @@ def edit_user_authentication(req: "CamcopsRequest") -> Response:
 
     - GET: offer "change another's password" view (except that if you're
       changing your own password, return :func:`change_own_password`.
-    - POST/submit: change the password and return :func:`password_changed`.
+    - POST/submit: change the password and display success message.
     """
     view = EditUserAuthenticationView(req)
     return view.dispatch()
 
 
-def password_changed(req: "CamcopsRequest",
-                     username: str,
-                     own_password: bool) -> Response:
-    """
-    Generic "the password has been changed" view (whether changing your own
-    or another's password).
-
-    Args:
-        req: the :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-        username: the username whose password is being changed?
-        own_password: is the user changing their own password?
-    """
-    return render_to_response("password_changed.mako",
-                              dict(username=username,
-                                   own_password=own_password),
-                              request=req)
-
-
 class EditMfaView(UpdateView):
-    object_class = User
     form_class = EditMfaForm
     template_name = "edit_mfa.mako"
-    pk_param = ViewParam.USER_ID
     server_pk_name = "id"
 
     model_form_dict = {
