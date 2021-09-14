@@ -923,6 +923,49 @@ def forbidden(req: "CamcopsRequest") -> Response:
 # Changing passwords
 # =============================================================================
 
+class ChangeOwnPasswordView(UpdateView):
+    form_class = ChangeOwnPasswordForm
+    template_name = "change_own_password.mako"
+    model_form_dict = {}
+
+    def get(self) -> Response:
+        _ = self.request.gettext
+
+        if self.request.user.must_change_password:
+            self.request.session.flash(
+                _("Your password has expired and must be changed."),
+                queue=FLASH_DANGER
+            )
+        return super().get()
+
+    def get_object(self) -> Any:
+        return self.request.user
+
+    def get_form_kwargs(self) -> Dict[str, Any]:
+        kwargs = super().get_form_kwargs()
+
+        kwargs.update(must_differ=True)
+
+        return kwargs
+
+    def get_success_url(self) -> str:
+        return self.request.route_url(Routes.HOME)
+
+    def set_object_properties(self, appstruct: Dict[str, Any]) -> None:
+        user = cast(User, self.object)
+        # ... form has validated old password, etc.
+        new_password = appstruct[ViewParam.NEW_PASSWORD]
+        user.set_password(self.request, new_password)
+
+        _ = self.request.gettext
+        self.request.session.flash(
+            _("You have changed your password. "
+              "If you store your password in your CamCOPS tablet application, "
+              "remember to change it there as well."),
+            queue=FLASH_SUCCESS
+        )
+
+
 @view_config(route_name=Routes.CHANGE_OWN_PASSWORD,
              permission=Authenticated,
              http_cache=NEVER_CACHE)
@@ -933,32 +976,9 @@ def change_own_password(req: "CamcopsRequest") -> Response:
     - GET: offer "change own password" view
     - POST/submit: change the password and return :func:`password_changed`.
     """
-    user = req.user
-    assert user is not None
-    expired = user.must_change_password
-    form = ChangeOwnPasswordForm(request=req, must_differ=True)
-    if FormAction.SUBMIT in req.POST:
-        try:
-            controls = list(req.POST.items())
-            appstruct = form.validate(controls)
-            # -----------------------------------------------------------------
-            # Change the password
-            # -----------------------------------------------------------------
-            new_password = appstruct.get(ViewParam.NEW_PASSWORD)
-            # ... form will validate old password, etc.
-            # OK
-            user.set_password(req, new_password)
-            return password_changed(req, user.username, own_password=True)
-        except ValidationFailure as e:
-            rendered_form = e.render()
-    else:
-        rendered_form = form.render()
-    return render_to_response(
-        "change_own_password.mako",
-        dict(form=rendered_form,
-             expired=expired,
-             head_form_html=get_head_form_html(req, [form])),
-        request=req)
+    view = ChangeOwnPasswordView(req)
+
+    return view.dispatch()
 
 
 class EditUserAuthenticationView(UpdateView):

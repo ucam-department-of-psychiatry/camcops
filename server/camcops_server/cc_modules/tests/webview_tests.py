@@ -76,6 +76,7 @@ from camcops_server.cc_modules.webview import (
     AddPatientView,
     AddTaskScheduleItemView,
     AddTaskScheduleView,
+    ChangeOwnPasswordView,
     DeleteServerCreatedPatientView,
     DeleteTaskScheduleItemView,
     DeleteTaskScheduleView,
@@ -3929,13 +3930,15 @@ class EditUserGroupMembershipViewTests(BasicDatabaseTestCase):
 
 class ChangeOwnPasswordViewTests(BasicDatabaseTestCase):
     def test_user_can_change_password(self) -> None:
+        new_password = "monkeybusiness"
+
         user = self.create_user(username="user")
         user.set_password(self.req, "secret")
         multidict = MultiDict([
             (ViewParam.OLD_PASSWORD, "secret"),
             ("__start__", "new_password:mapping"),
-            (ViewParam.NEW_PASSWORD, "monkeybusiness"),
-            ("new_password-confirm", "monkeybusiness"),
+            (ViewParam.NEW_PASSWORD, new_password),
+            ("new_password-confirm", new_password),
             ("__end__", "new_password-mapping"),
             (FormAction.SUBMIT, "submit"),
         ])
@@ -3943,8 +3946,34 @@ class ChangeOwnPasswordViewTests(BasicDatabaseTestCase):
         self.req.fake_request_post_from_dict(multidict)
         self.req._debugging_user = user
 
-        response = change_own_password(self.req)
-        content = response.body.decode("UTF-8")
+        with mock.patch.object(user, "set_password") as mock_set_password:
+            with self.assertRaises(HTTPFound):
+                change_own_password(self.req)
 
-        self.assertIn("Password changed for user", content)
-        self.assertIn("If you store", content)
+        mock_set_password.assert_called_once_with(self.req, new_password)
+
+        messages = self.req.session.peek_flash(FLASH_SUCCESS)
+        self.assertTrue(len(messages) > 0)
+        self.assertIn(
+            "You have changed your password",
+            messages[0]
+        )
+
+    def test_user_sees_expiry_message(self) -> None:
+        user = self.create_user(username="user",
+                                must_change_password=True)
+        self.req._debugging_user = user
+
+        with mock.patch.object(self.req.session, "flash") as mock_flash:
+            change_own_password(self.req)
+
+        args, kwargs = mock_flash.call_args
+        self.assertIn("Your password has expired", args[0])
+        self.assertEqual(kwargs["queue"], FLASH_DANGER)
+
+    def test_password_must_differ(self) -> None:
+        view = ChangeOwnPasswordView(self.req)
+
+        form_kwargs = view.get_form_kwargs()
+        self.assertIn("must_differ", form_kwargs)
+        self.assertTrue(form_kwargs["must_differ"])
