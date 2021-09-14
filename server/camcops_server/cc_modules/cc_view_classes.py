@@ -668,3 +668,26 @@ class DeleteView(TemplateResponseMixin, BaseDeleteView):
     response rendered by a template.
     """
     pass
+
+
+class FormWizardMixin:
+    """
+    Lightweight support for multi-step form entry
+    For more complexity we could do something like
+    https://github.com/jazzband/django-formtools/tree/master/formtools/wizard
+    """
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.step = self.get_current_step()
+
+    def get_current_step(self) -> str:
+        raise NotImplementedError
+
+    def get_form_class(self) -> Optional[Type["Form"]]:
+        return self.wizard_forms[self.step]
+
+    def get_template_name(self) -> str:
+        return self.wizard_templates[self.step]
+
+    def get_extra_context(self) -> Dict[str, Any]:
+        return self.wizard_extra_contexts[self.step]

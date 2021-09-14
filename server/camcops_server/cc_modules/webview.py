@@ -334,6 +334,7 @@ from camcops_server.cc_modules.cc_view_classes import (
     CreateView,
     DeleteView,
     FormView,
+    FormWizardMixin,
     UpdateView,
 )
 
@@ -585,18 +586,22 @@ def audit_menu(req: "CamcopsRequest") -> Dict[str, Any]:
 # you're doing the latter and sends parameters accordingly.
 
 
-class LoginView(FormView):
-    PASSWORD = "password"
-    MFA = "mfa"
+class LoginView(FormWizardMixin, FormView):
+    wizard_forms = {
+        "password": LoginForm,
+        "mfa": OtpTokenForm,
+    }
 
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
+    wizard_templates = {
+        "password": "login.mako",
+        "mfa": "login_token.mako",
+    }
 
+    def get_current_step(self) -> str:
         if self.request.camcops_session.mfa_user is None:
-            self.step = self.PASSWORD
-            return
+            return "password"
 
-        self.step = self.MFA
+        return "mfa"
 
     def dispatch(self) -> Response:
         if self.timed_out():
@@ -605,20 +610,8 @@ class LoginView(FormView):
 
         return super().dispatch()
 
-    def get_form_class(self) -> Optional[Type["Form"]]:
-        if self.step == self.PASSWORD:
-            return LoginForm
-
-        return OtpTokenForm
-
-    def get_template_name(self) -> str:
-        if self.step == self.PASSWORD:
-            return "login.mako"
-
-        return "login_token.mako"
-
     def get_extra_context(self) -> Dict[str, Any]:
-        if self.step == self.PASSWORD:
+        if self.step == "password":
             return {}
 
         return {"instructions": self.get_mfa_instructions()}
@@ -640,24 +633,29 @@ class LoginView(FormView):
     def form_valid(self, form: "Form", appstruct: Dict[str, Any]) -> Response:
         self.user = self.request.camcops_session.mfa_user
 
-        if self.step == self.PASSWORD:
-            username = appstruct.get(ViewParam.USERNAME)
+        if self.step == "password":
+            return self.form_valid_password(form, appstruct)
 
-            # Is the user locked?
-            locked_out_until = SecurityAccountLockout.user_locked_out_until(
-                self.request, username)
-            if locked_out_until is not None:
-                return self.fail_locked_out(locked_out_until)
+        return self.form_valid_mfa(form, appstruct)
 
-            password = appstruct.get(ViewParam.PASSWORD)
+    def form_valid_password(self, form: "Form",
+                            appstruct: Dict[str, Any]) -> Response:
+        username = appstruct.get(ViewParam.USERNAME)
 
-            # Is the username/password combination correct?
-            self.user = User.get_user_from_username_password(
-                self.request, username, password)  # checks password
+        # Is the user locked?
+        locked_out_until = SecurityAccountLockout.user_locked_out_until(
+            self.request, username)
+        if locked_out_until is not None:
+            return self.fail_locked_out(locked_out_until)
+
+        password = appstruct.get(ViewParam.PASSWORD)
+
+        # Is the username/password combination correct?
+        self.user = User.get_user_from_username_password(
+            self.request, username, password)  # checks password
 
         # Some trade-off between usability and security here.
         # For failed attempts, the user has some idea as to what the problem is.
-
         if self.user is None:
             # Unsuccessful. Note that the username may/may not be genuine.
             SecurityLoginFailure.act_on_login_failure(self.request, username)
@@ -673,20 +671,25 @@ class LoginView(FormView):
             return self.fail_not_authorized()
 
         if self.user.mfa_method != MfaMethod.NONE:
-            if self.step == self.PASSWORD:
-                self.request.camcops_session.mfa_user = self.user
-                self.request.camcops_session.mfa_time = int(
-                    time.time()
-                )
-                self.step = self.MFA
+            self.request.camcops_session.mfa_user = self.user
+            self.request.camcops_session.mfa_time = int(time.time())
+            self.step = "mfa"
 
-                return self.prompt_for_additional_verification()
+            return self.prompt_for_additional_verification()
 
-            self.request.camcops_session.mfa_user = None
-            otp = appstruct.get(ViewParam.ONE_TIME_PASSWORD)
-            if not self.user.verify_one_time_password(otp):
-                return self.fail_bad_mfa_code()
+        return self.form_valid_success(form, appstruct)
 
+    def form_valid_mfa(self, form: "Form",
+                       appstruct: Dict[str, Any]) -> Response:
+        self.request.camcops_session.mfa_user = None
+        otp = appstruct.get(ViewParam.ONE_TIME_PASSWORD)
+        if not self.user.verify_one_time_password(otp):
+            return self.fail_bad_mfa_code()
+
+        return self.form_valid_success(form, appstruct)
+
+    def form_valid_success(self, form: "Form",
+                           appstruct: Dict[str, Any]) -> Response:
         # Successful login.
         self.user.login(self.request)  # will clear login failure record
         self.request.camcops_session.login(self.user)
@@ -704,7 +707,7 @@ class LoginView(FormView):
         return self.render_to_response(self.get_context_data())
 
     def timed_out(self) -> bool:
-        if self.step != self.MFA:
+        if self.step != "mfa":
             return False
 
         timeout = self.request.config.mfa_timeout_s
