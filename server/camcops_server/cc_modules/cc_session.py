@@ -49,6 +49,7 @@ from camcops_server.cc_modules.cc_constants import DateFormat
 from camcops_server.cc_modules.cc_pyramid import CookieKey
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     IPAddressColType,
+    JsonColType,
     SessionTokenColType,
 )
 from camcops_server.cc_modules.cc_sqlalchemy import Base
@@ -144,16 +145,11 @@ class CamcopsSession(Base):
         default=False,
         comment="This session is using the client API (not a human browsing)."
     )
-    mfa_user_id = Column(
-        "mfa_user_id", Integer,
-        ForeignKey("_security_users.id", ondelete="CASCADE"),
-        comment="Temporary ID of User during multi-factor-authentication"
+    form_state = Column(
+        "form_state", JsonColType,
+        comment=("Any state that needs to be saved temporarily during "
+                 "wizard-style form submission")
     )
-    mfa_time = Column(
-        "mfa_time", Integer,
-        comment="To determine multi-factor-authentication session expiry"
-    )
-
     user = relationship("User", lazy="joined", foreign_keys=[user_id])
     task_filter = relationship(
         "TaskFilter", foreign_keys=[task_filter_id],
@@ -166,7 +162,6 @@ class CamcopsSession(Base):
     # ... 2020-09-22: changed to "all, delete-orphan" and single_parent=True
     # https://docs.sqlalchemy.org/en/13/orm/cascades.html#cascade-delete-orphan
     # https://docs.sqlalchemy.org/en/13/errors.html#error-bbf0
-    mfa_user = relationship("User", lazy="joined", foreign_keys=[mfa_user_id])
 
     # -------------------------------------------------------------------------
     # Basic info

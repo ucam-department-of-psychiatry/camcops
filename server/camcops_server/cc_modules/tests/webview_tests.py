@@ -2589,15 +2589,12 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.dbsession.flush()
         self.create_membership(user, self.group, may_use_webviewer=True)
 
-        multidict = MultiDict([
-            (ViewParam.USERNAME, user.username),
-            (ViewParam.PASSWORD, "secret"),
-            (FormAction.SUBMIT, "submit"),
-        ])
-
-        self.req.fake_request_post_from_dict(multidict)
-
         view = LoginView(self.req)
+        view.state.update(
+            mfa_user_id=user.id,
+            step="mfa",
+            mfa_time=int(time.time())
+        )
 
         with mock.patch.object(view, "render_to_response") as mock_render:
             view.dispatch()
@@ -2622,16 +2619,12 @@ class LoginViewTests(BasicDatabaseTestCase):
         user.set_password(self.req, "secret")
         self.dbsession.flush()
         self.create_membership(user, self.group, may_use_webviewer=True)
-
-        multidict = MultiDict([
-            (ViewParam.USERNAME, user.username),
-            (ViewParam.PASSWORD, "secret"),
-            (FormAction.SUBMIT, "submit"),
-        ])
-
-        self.req.fake_request_post_from_dict(multidict)
-
         view = LoginView(self.req)
+        view.state.update(
+            mfa_user_id=user.id,
+            step="mfa",
+            mfa_time=int(time.time())
+        )
 
         with mock.patch.object(view, "render_to_response") as mock_render:
             view.dispatch()
@@ -2656,15 +2649,12 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.dbsession.flush()
         self.create_membership(user, self.group, may_use_webviewer=True)
 
-        multidict = MultiDict([
-            (ViewParam.USERNAME, user.username),
-            (ViewParam.PASSWORD, "secret"),
-            (FormAction.SUBMIT, "submit"),
-        ])
-
-        self.req.fake_request_post_from_dict(multidict)
-
         view = LoginView(self.req)
+        view.state.update(
+            mfa_user_id=user.id,
+            step="mfa",
+            mfa_time=int(time.time())
+        )
 
         with mock.patch.object(view, "render_to_response") as mock_render:
             view.dispatch()
@@ -2678,7 +2668,7 @@ class LoginViewTests(BasicDatabaseTestCase):
                       context["instructions"])
 
     @mock.patch("camcops_server.cc_modules.webview.time")
-    def test_session_variables_set_for_user_with_mfa(self, mock_time) -> None:
+    def test_session_state_set_for_user_with_mfa(self, mock_time) -> None:
         user = self.create_user(username="test",
                                 mfa_secret_key=pyotp.random_base32(),
                                 mfa_method=MfaMethod.TOTP)
@@ -2698,11 +2688,14 @@ class LoginViewTests(BasicDatabaseTestCase):
 
         with mock.patch.object(mock_time, "time",
                                return_value=1234567890.1234567):
-            view.dispatch()
+            with self.assertRaises(HTTPFound):
+                view.dispatch()
 
-        self.assertEqual(self.req.camcops_session.mfa_user, user)
-        self.assertEqual(self.req.camcops_session.mfa_time,
+        self.assertEqual(self.req.camcops_session.form_state["mfa_user_id"],
+                         user.id)
+        self.assertEqual(self.req.camcops_session.form_state["mfa_time"],
                          1234567890)
+        self.assertEqual(self.req.camcops_session.form_state["step"], "mfa")
 
     @mock.patch("camcops_server.cc_modules.cc_email.send_msg")
     @mock.patch("camcops_server.cc_modules.cc_email.make_email")
@@ -2735,7 +2728,8 @@ class LoginViewTests(BasicDatabaseTestCase):
 
         view = LoginView(self.req)
         expected_code = pyotp.HOTP(user.mfa_secret_key).at(1)
-        view.dispatch()
+        with self.assertRaises(HTTPFound):
+            view.dispatch()
 
         args, kwargs = mock_make_email.call_args_list[0]
         self.assertEqual(kwargs["from_addr"], "server@example.com")
@@ -2782,7 +2776,8 @@ class LoginViewTests(BasicDatabaseTestCase):
         expected_code = pyotp.HOTP(user.mfa_secret_key).at(1)
 
         with self.assertLogs(level=logging.INFO) as logging_cm:
-            view.dispatch()
+            with self.assertRaises(HTTPFound):
+                view.dispatch()
 
         expected_message = f"Your CamCOPS verification code is {expected_code}"
 
@@ -2815,7 +2810,8 @@ class LoginViewTests(BasicDatabaseTestCase):
 
         view = LoginView(self.req)
 
-        view.dispatch()
+        with self.assertRaises(HTTPFound):
+            view.dispatch()
 
         self.assertEqual(user.hotp_counter, 1)
 
@@ -2826,7 +2822,6 @@ class LoginViewTests(BasicDatabaseTestCase):
                                 mfa_secret_key=pyotp.random_base32())
         user.set_password(self.req, "secret")
         self.dbsession.flush()
-        self.req.camcops_session.mfa_user = user
 
         self.create_membership(user, self.group, may_use_webviewer=True)
 
@@ -2840,6 +2835,7 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.req.fake_request_post_from_dict(multidict)
 
         view = LoginView(self.req)
+        view.state.update(mfa_user_id=user.id, step="mfa")
 
         with mock.patch.object(user, "login") as mock_user_login:
             with mock.patch.object(self.req.camcops_session,
@@ -2858,7 +2854,9 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.assertEqual(args[0], self.req)
         self.assertEqual(args[1], "Login")
         self.assertEqual(kwargs["user_id"], user.id)
-        self.assertIsNone(self.req.camcops_session.mfa_user)
+        self.assertIsNone(self.req.camcops_session.form_state["mfa_user_id"])
+        self.assertEqual(self.req.camcops_session.form_state["step"],
+                         "finished")
 
     @mock.patch("camcops_server.cc_modules.webview.audit")
     def test_user_with_hotp_can_log_in(self, mock_audit) -> None:
@@ -2868,7 +2866,6 @@ class LoginViewTests(BasicDatabaseTestCase):
                                 hotp_counter=1)
         user.set_password(self.req, "secret")
         self.dbsession.flush()
-        self.req.camcops_session.mfa_user = user
 
         self.create_membership(user, self.group, may_use_webviewer=True)
 
@@ -2881,6 +2878,7 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.req.fake_request_post_from_dict(multidict)
 
         view = LoginView(self.req)
+        view.state.update(mfa_user_id=user.id, step="mfa")
 
         with mock.patch.object(user, "login") as mock_user_login:
             with mock.patch.object(self.req.camcops_session,
@@ -2899,17 +2897,17 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.assertEqual(args[0], self.req)
         self.assertEqual(args[1], "Login")
         self.assertEqual(kwargs["user_id"], user.id)
-        self.assertIsNone(self.req.camcops_session.mfa_user)
+        self.assertIsNone(self.req.camcops_session.form_state["mfa_user_id"])
+        self.assertEqual(self.req.camcops_session.form_state["step"],
+                         "finished")
 
-    def test_session_user_cleared_on_failed_login(self) -> None:
+    def test_form_state_cleared_on_failed_login(self) -> None:
         user = self.create_user(username="test",
                                 mfa_method=MfaMethod.HOTP_EMAIL,
                                 mfa_secret_key=pyotp.random_base32(),
                                 hotp_counter=1)
         user.set_password(self.req, "secret")
         self.dbsession.flush()
-        self.req.camcops_session.mfa_user = user
-
         self.create_membership(user, self.group, may_use_webviewer=True)
 
         hotp = pyotp.HOTP(user.mfa_secret_key)
@@ -2922,14 +2920,17 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.req.fake_request_post_from_dict(multidict)
 
         view = LoginView(self.req)
+        view.state.update(step="mfa", mfa_user_id=user.id)
+
         with mock.patch.object(view, "timed_out", return_value=False):
-            with mock.patch.object(
-                    view,
-                    "fail_bad_mfa_code") as mock_fail_bad_mfa_code:
+            with self.assertRaises(HTTPFound):
                 view.dispatch()
 
-        mock_fail_bad_mfa_code.assert_called_once()
-        self.assertIsNone(self.req.camcops_session.mfa_user)
+        messages = self.req.session.peek_flash(FLASH_DANGER)
+        self.assertTrue(len(messages) > 0)
+        self.assertIn("You entered an invalid code", messages[0])
+
+        self.assertIsNone(self.req.camcops_session.form_state)
 
     def test_user_cannot_log_in_if_timed_out(self) -> None:
         self.req.config.mfa_timeout_s = 600
@@ -2938,9 +2939,6 @@ class LoginViewTests(BasicDatabaseTestCase):
                                 mfa_secret_key=pyotp.random_base32())
         user.set_password(self.req, "secret")
         self.dbsession.flush()
-        self.req.camcops_session.mfa_user = user
-        self.req.camcops_session.mfa_time = int(time.time()-601)
-
         self.create_membership(user, self.group, may_use_webviewer=True)
 
         totp = pyotp.TOTP(user.mfa_secret_key)
@@ -2953,12 +2951,17 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.req.fake_request_post_from_dict(multidict)
 
         view = LoginView(self.req)
+        view.state.update(
+            mfa_user=user.id,
+            mfa_time=int(time.time()-601),
+            step="mfa"
+        )
 
         with mock.patch.object(view, "fail_timed_out") as mock_fail_timed_out:
             view.dispatch()
 
         mock_fail_timed_out.assert_called_once()
-        self.assertIsNone(self.req.camcops_session.mfa_user)
+        self.assertIsNone(self.req.camcops_session.form_state)
 
     def test_unprivileged_user_cannot_log_in(self) -> None:
         user = self.create_user(username="test")
@@ -3030,7 +3033,7 @@ class LoginViewTests(BasicDatabaseTestCase):
         user = self.create_user(username="test")
         # Should never be the case that we have a user ID but no
         # authentication time
-        self.req.session.mfa_user = user
+        view.state["mfa_user_id"] = user.id
 
         self.assertFalse(view.timed_out())
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-camcops_server/alembic/versions/0070_user_mfa.py
+camcops_server/alembic/versions/0070_mfa.py
 
 ===============================================================================
 
@@ -26,11 +26,11 @@ camcops_server/alembic/versions/0070_user_mfa.py
 
 DATABASE REVISION SCRIPT
 
-user_mfa
+mfa
 
 Revision ID: 0070
 Revises: 0069
-Creation date: 2021-09-13 23:03:00.729047
+Creation date: 2021-09-17 12:13:15.831936
 
 """
 
@@ -41,7 +41,11 @@ Creation date: 2021-09-13 23:03:00.729047
 from alembic import op
 import sqlalchemy as sa
 
-from camcops_server.cc_modules.cc_sqla_coltypes import PhoneNumberColType
+from camcops_server.cc_modules.cc_sqla_coltypes import (
+    JsonColType,
+    PhoneNumberColType,
+)
+
 
 # =============================================================================
 # Revision identifiers, used by Alembic.
@@ -100,26 +104,11 @@ def upgrade():
     ) as batch_op:
         batch_op.add_column(
             sa.Column(
-                "mfa_time",
-                sa.Integer(),
+                "form_state",
+                JsonColType(),
                 nullable=True,
-                comment="To determine multi-factor authentication session expiry",
+                comment="Any state that needs to be saved temporarily during wizard-style form submission",
             )
-        )
-        batch_op.add_column(
-            sa.Column(
-                "mfa_user_id",
-                sa.Integer(),
-                nullable=True,
-                comment="Temporary ID of User during multi-factor authentication",
-            )
-        )
-        batch_op.create_foreign_key(
-            batch_op.f("fk__security_webviewer_sessions_mfa_user_id"),
-            "_security_users",
-            ["mfa_user_id"],
-            ["id"],
-            ondelete="CASCADE",
         )
 
 
@@ -128,12 +117,7 @@ def downgrade():
     with op.batch_alter_table(
         "_security_webviewer_sessions", schema=None
     ) as batch_op:
-        batch_op.drop_constraint(
-            batch_op.f("fk__security_webviewer_sessions_mfa_user_id"),
-            type_="foreignkey",
-        )
-        batch_op.drop_column("mfa_user_id")
-        batch_op.drop_column("mfa_time")
+        batch_op.drop_column("form_state")
 
     with op.batch_alter_table("_security_users", schema=None) as batch_op:
         batch_op.drop_column("phone_number")

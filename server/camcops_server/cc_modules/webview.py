@@ -587,6 +587,8 @@ def audit_menu(req: "CamcopsRequest") -> Dict[str, Any]:
 
 
 class LoginView(FormWizardMixin, FormView):
+    wizard_first_step = "password"
+
     wizard_forms = {
         "password": LoginForm,
         "mfa": OtpTokenForm,
@@ -597,15 +599,34 @@ class LoginView(FormWizardMixin, FormView):
         "mfa": "login_token.mako",
     }
 
-    def get_current_step(self) -> str:
-        if self.request.camcops_session.mfa_user is None:
-            return "password"
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self._mfa_user = None
 
-        return "mfa"
+    def _get_mfa_user(self) -> Optional[User]:
+        if self._mfa_user is None:
+            try:
+                user_id = self.state["mfa_user_id"]
+                self.mfa_user = self.request.dbsession.query(User).filter(
+                    User.id == user_id
+                ).one_or_none()
+            except KeyError:
+                pass
+
+        return self._mfa_user
+
+    def _set_mfa_user(self, user: Optional[User]) -> None:
+        self._mfa_user = user
+        if user is None:
+            self.state["mfa_user_id"] = None
+            return
+
+        self.state["mfa_user_id"] = user.id
+
+    mfa_user = property(_get_mfa_user, _set_mfa_user)
 
     def dispatch(self) -> Response:
         if self.timed_out():
-            self.request.camcops_session.mfa_user = None
             return self.fail_timed_out()
 
         return super().dispatch()
@@ -631,12 +652,12 @@ class LoginView(FormWizardMixin, FormView):
         return kwargs
 
     def form_valid(self, form: "Form", appstruct: Dict[str, Any]) -> Response:
-        self.user = self.request.camcops_session.mfa_user
+        self.user = self.mfa_user
 
         if self.step == "password":
             return self.form_valid_password(form, appstruct)
 
-        return self.form_valid_mfa(form, appstruct)
+        self.form_valid_mfa(form, appstruct)
 
     def form_valid_password(self, form: "Form",
                             appstruct: Dict[str, Any]) -> Response:
@@ -670,41 +691,48 @@ class LoginView(FormWizardMixin, FormView):
             # log in via the web front end.
             return self.fail_not_authorized()
 
-        if self.user.mfa_method != MfaMethod.NONE:
-            self.request.camcops_session.mfa_user = self.user
-            self.request.camcops_session.mfa_time = int(time.time())
-            self.step = "mfa"
-
-            return self.prompt_for_additional_verification()
+        self.password_next_step()
 
         return self.form_valid_success(form, appstruct)
 
     def form_valid_mfa(self, form: "Form",
                        appstruct: Dict[str, Any]) -> Response:
-        self.request.camcops_session.mfa_user = None
+        self.mfa_user = None
+
         otp = appstruct.get(ViewParam.ONE_TIME_PASSWORD)
         if not self.user.verify_one_time_password(otp):
             return self.fail_bad_mfa_code()
 
+        self.step = "finished"
+
         return self.form_valid_success(form, appstruct)
+
+    def password_next_step(self) -> None:
+        if self.user.mfa_method == MfaMethod.NONE:
+            self.step = "finished"
+            return
+
+        self.step = "mfa"
+        self.mfa_user = self.user
+        self.state["mfa_time"] = int(time.time())
+        self.handle_authentication_type()
 
     def form_valid_success(self, form: "Form",
                            appstruct: Dict[str, Any]) -> Response:
-        # Successful login.
-        self.user.login(self.request)  # will clear login failure record
-        self.request.camcops_session.login(self.user)
-        audit(self.request, "Login", user_id=self.user.id)
+        if self.step == "finished":
+            # Successful login.
+            self.user.login(self.request)  # will clear login failure record
+            self.request.camcops_session.login(self.user)
+            audit(self.request, "Login", user_id=self.user.id)
 
-        # OK, logged in.
-        # Redirect to the main menu, or wherever the user was heading.
-        # HOWEVER, that may lead us to a "change password" or "agree terms"
-        # page, via the permissions system (Permission.HAPPY or not).
+            # OK, logged in.
+            # Redirect to the main menu, or wherever the user was heading.
+            # HOWEVER, that may lead us to a "change password" or "agree terms"
+            # page, via the permissions system (Permission.HAPPY or not).
+
+        self.save_state()
 
         return super().form_valid(form, appstruct)
-
-    def prompt_for_additional_verification(self) -> None:
-        self.handle_authentication_type()
-        return self.render_to_response(self.get_context_data())
 
     def timed_out(self) -> bool:
         if self.step != "mfa":
@@ -714,7 +742,7 @@ class LoginView(FormWizardMixin, FormView):
         if timeout == 0:
             return False
 
-        login_time = self.request.camcops_session.mfa_time
+        login_time = self.state["mfa_time"]
 
         if login_time is None:
             return False
@@ -733,17 +761,17 @@ class LoginView(FormWizardMixin, FormView):
     def get_mfa_instructions(self) -> str:
         _ = self.request.gettext
 
-        if self.user.mfa_method == MfaMethod.TOTP:
+        if self.mfa_user.mfa_method == MfaMethod.TOTP:
             return _("Enter the code for CamCOPS displayed on your "
                      "authentication app.")
 
-        if self.user.mfa_method == MfaMethod.HOTP_EMAIL:
+        if self.mfa_user.mfa_method == MfaMethod.HOTP_EMAIL:
             return _("We've sent a code by email to {}.").format(
-                self.user.partial_email
+                self.mfa_user.partial_email
             )
 
         return _("We've sent a code by text message to {}").format(
-            self.user.partial_phone_number
+            self.mfa_user.partial_phone_number
         )
 
     def send_authentication_email(self) -> None:
@@ -779,17 +807,21 @@ class LoginView(FormWizardMixin, FormView):
         return _("Your CamCOPS verification code is {}").format(code)
 
     def get_success_url(self) -> str:
-        return self.get_redirect_url(
-            default=self.request.route_url(Routes.HOME)
+        if self.step == "finished":
+            return self.get_redirect_url()
+
+        return self.request.route_url(
+            Routes.LOGIN,
+            _query={
+                ViewParam.REDIRECT_URL: self.get_redirect_url(),
+            }
         )
 
-    def get_redirect_url(self, default: str = "") -> str:
-        # ... use default of "", because None gets serialized to "None", which
-        #     would then get read back later as "None".
-        redirect_url = self.request.get_redirect_url_param(
-            ViewParam.REDIRECT_URL, default)
-
-        return redirect_url
+    def get_redirect_url(self) -> str:
+        return self.request.get_redirect_url_param(
+            ViewParam.REDIRECT_URL,
+            default=self.request.route_url(Routes.HOME)
+        )
 
     def fail_not_authorized(self) -> None:
         _ = self.request.gettext
@@ -817,6 +849,9 @@ class LoginView(FormWizardMixin, FormView):
         self.fail(message)
 
     def fail(self, message: str) -> None:
+        self.state = None
+        self.save_state()
+
         self.request.session.flash(message, queue=FLASH_DANGER)
 
         raise HTTPFound(self.request.route_url(Routes.LOGIN))
@@ -929,6 +964,8 @@ def forbidden(req: "CamcopsRequest") -> Response:
 class ChangeOwnPasswordView(FormWizardMixin, UpdateView):
     model_form_dict = {}
 
+    wizard_first_step = "password"
+
     wizard_forms = {
         "password": ChangeOwnPasswordForm,
     }
@@ -940,9 +977,6 @@ class ChangeOwnPasswordView(FormWizardMixin, UpdateView):
     wizard_templates = {
         "password": "change_own_password.mako",
     }
-
-    def get_current_step(self) -> str:
-        return "password"
 
     def get(self) -> Response:
         _ = self.request.gettext

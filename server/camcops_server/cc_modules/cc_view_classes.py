@@ -672,16 +672,31 @@ class DeleteView(TemplateResponseMixin, BaseDeleteView):
 
 class FormWizardMixin:
     """
-    Lightweight support for multi-step form entry
+    Basic support for multi-step form entry.
     For more complexity we could do something like
     https://github.com/jazzband/django-formtools/tree/master/formtools/wizard
     """
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.step = self.get_current_step()
+        self.state = self.request.camcops_session.form_state
+        if self.state is None:
+            self.state = dict()
 
-    def get_current_step(self) -> str:
-        raise NotImplementedError
+    def save_state(self) -> None:
+        self.request.camcops_session.form_state = self.state
+        self.request.dbsession.add(self.request.camcops_session)
+
+    def _get_step(self) -> str:
+        return self.state.setdefault("step",
+                                     self.get_first_step())
+
+    def _set_step(self, step: str) -> None:
+        self.state["step"] = step
+
+    step = property(_get_step, _set_step)
+
+    def get_first_step(self) -> str:
+        return self.wizard_first_step
 
     def get_form_class(self) -> Optional[Type["Form"]]:
         return self.wizard_forms[self.step]
