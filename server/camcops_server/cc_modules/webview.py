@@ -926,10 +926,23 @@ def forbidden(req: "CamcopsRequest") -> Response:
 # Changing passwords
 # =============================================================================
 
-class ChangeOwnPasswordView(UpdateView):
-    form_class = ChangeOwnPasswordForm
-    template_name = "change_own_password.mako"
+class ChangeOwnPasswordView(FormWizardMixin, UpdateView):
     model_form_dict = {}
+
+    wizard_forms = {
+        "password": ChangeOwnPasswordForm,
+    }
+
+    wizard_extra_contexts = {
+        "password": {},
+    }
+
+    wizard_templates = {
+        "password": "change_own_password.mako",
+    }
+
+    def get_current_step(self) -> str:
+        return "password"
 
     def get(self) -> Response:
         _ = self.request.gettext
