@@ -273,6 +273,7 @@ from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
 import camcops_server.cc_modules.cc_plot  # import side effects (configure matplotlib)  # noqa
 from camcops_server.cc_modules.cc_pyramid import (
     CamcopsPage,
+    FlashQueue,
     FormAction,
     HTTPFoundDebugVersion,
     PageUrl,
@@ -357,16 +358,6 @@ if DEBUG_REDIRECT:
 
 if DEBUG_REDIRECT:
     HTTPFound = HTTPFoundDebugVersion  # noqa: F811
-
-
-# =============================================================================
-# Flash message queues: https://getbootstrap.com/docs/3.3/components/#alerts
-# =============================================================================
-
-FLASH_SUCCESS = "success"
-FLASH_INFO = "info"
-FLASH_WARNING = "warning"
-FLASH_DANGER = "danger"
 
 
 # =============================================================================
@@ -585,8 +576,77 @@ def audit_menu(req: "CamcopsRequest") -> Dict[str, Any]:
 # "def view(context, request)", so if you add additional parameters, it thinks
 # you're doing the latter and sends parameters accordingly.
 
+class MfaMixin:
+    def get_mfa_instructions(self) -> str:
+        _ = self.request.gettext
 
-class LoginView(FormWizardMixin, FormView):
+        if self.mfa_user.mfa_method == MfaMethod.TOTP:
+            return _("Enter the code for CamCOPS displayed on your "
+                     "authentication app.")
+
+        if self.mfa_user.mfa_method == MfaMethod.HOTP_EMAIL:
+            return _("We've sent a code by email to {}.").format(
+                self.mfa_user.partial_email
+            )
+
+        return _("We've sent a code by text message to {}").format(
+            self.mfa_user.partial_phone_number
+        )
+
+    def handle_authentication_type(self) -> None:
+        if self.mfa_user.mfa_method == MfaMethod.TOTP:
+            return
+
+        if self.mfa_user.mfa_method == MfaMethod.HOTP_EMAIL:
+            return self.send_authentication_email()
+
+        self.send_authentication_sms()
+
+    def send_authentication_email(self) -> None:
+        _ = self.request.gettext
+        config = self.request.config
+        kwargs = dict(
+            from_addr=config.email_from,
+            to=self.mfa_user.email,
+            subject=_("CamCOPS two-step login"),
+            body=self.get_hotp_message(),
+            content_type="text/plain"
+        )
+
+        email = Email(**kwargs)
+        email.send(host=config.email_host,
+                   username=config.email_host_username,
+                   password=config.email_host_password,
+                   port=config.email_port,
+                   use_tls=config.email_use_tls)
+
+        # TODO: should we handle failure or ignore silently?
+
+    def send_authentication_sms(self) -> None:
+        backend = self.request.config.sms_backend
+        backend.send_sms(self.mfa_user.raw_phone_number,
+                         self.get_hotp_message())
+
+    def get_hotp_message(self) -> str:
+        self.mfa_user.hotp_counter += 1
+        self.request.dbsession.add(self.mfa_user)
+        _ = self.request.gettext
+        code = pyotp.HOTP(self.mfa_user.mfa_secret_key).at(
+            self.mfa_user.hotp_counter
+        )
+
+        return _("Your CamCOPS verification code is {}").format(code)
+
+    def otp_is_valid(self, appstruct: Dict[str, Any]) -> bool:
+        otp = appstruct.get(ViewParam.ONE_TIME_PASSWORD)
+        return self.mfa_user.verify_one_time_password(otp)
+
+    def fail_bad_mfa_code(self) -> None:
+        _ = self.request.gettext
+        self.fail(_("You entered an invalid code. Please try again."))
+
+
+class LoginView(MfaMixin, FormWizardMixin, FormView):
     wizard_first_step = "password"
 
     wizard_forms = {
@@ -652,8 +712,6 @@ class LoginView(FormWizardMixin, FormView):
         return kwargs
 
     def form_valid(self, form: "Form", appstruct: Dict[str, Any]) -> Response:
-        self.user = self.mfa_user
-
         if self.step == "password":
             return self.form_valid_password(form, appstruct)
 
@@ -672,12 +730,12 @@ class LoginView(FormWizardMixin, FormView):
         password = appstruct.get(ViewParam.PASSWORD)
 
         # Is the username/password combination correct?
-        self.user = User.get_user_from_username_password(
+        user = User.get_user_from_username_password(
             self.request, username, password)  # checks password
 
         # Some trade-off between usability and security here.
         # For failed attempts, the user has some idea as to what the problem is.
-        if self.user is None:
+        if user is None:
             # Unsuccessful. Note that the username may/may not be genuine.
             SecurityLoginFailure.act_on_login_failure(self.request, username)
             # ... may lock the account
@@ -686,44 +744,41 @@ class LoginView(FormWizardMixin, FormView):
             self.request.camcops_session.logout()
             return self.fail_not_authorized()
 
-        if not self.user.may_use_webviewer:
+        if not user.may_use_webviewer:
             # This means a user who can upload from tablet but who cannot
             # log in via the web front end.
             return self.fail_not_authorized()
 
+        self.mfa_user = user
         self.password_next_step()
 
         return self.form_valid_success(form, appstruct)
 
     def form_valid_mfa(self, form: "Form",
                        appstruct: Dict[str, Any]) -> Response:
-        self.mfa_user = None
-
-        otp = appstruct.get(ViewParam.ONE_TIME_PASSWORD)
-        if not self.user.verify_one_time_password(otp):
+        if not self.otp_is_valid(appstruct):
             return self.fail_bad_mfa_code()
 
-        self.step = "finished"
+        self.state = None
 
         return self.form_valid_success(form, appstruct)
 
     def password_next_step(self) -> None:
-        if self.user.mfa_method == MfaMethod.NONE:
-            self.step = "finished"
+        if self.mfa_user.mfa_method == MfaMethod.NONE:
+            self.state = None
             return
 
         self.step = "mfa"
-        self.mfa_user = self.user
         self.state["mfa_time"] = int(time.time())
         self.handle_authentication_type()
 
     def form_valid_success(self, form: "Form",
                            appstruct: Dict[str, Any]) -> Response:
-        if self.step == "finished":
+        if self.state is None:
             # Successful login.
-            self.user.login(self.request)  # will clear login failure record
-            self.request.camcops_session.login(self.user)
-            audit(self.request, "Login", user_id=self.user.id)
+            self.mfa_user.login(self.request)  # will clear login failure record
+            self.request.camcops_session.login(self.mfa_user)
+            audit(self.request, "Login", user_id=self.mfa_user.id)
 
             # OK, logged in.
             # Redirect to the main menu, or wherever the user was heading.
@@ -749,67 +804,18 @@ class LoginView(FormWizardMixin, FormView):
 
         return int(time.time()) > login_time + timeout
 
-    def handle_authentication_type(self) -> None:
-        if self.user.mfa_method == MfaMethod.TOTP:
-            return
-
-        if self.user.mfa_method == MfaMethod.HOTP_EMAIL:
-            return self.send_authentication_email()
-
-        self.send_authentication_sms()
-
-    def get_mfa_instructions(self) -> str:
-        _ = self.request.gettext
-
-        if self.mfa_user.mfa_method == MfaMethod.TOTP:
-            return _("Enter the code for CamCOPS displayed on your "
-                     "authentication app.")
-
-        if self.mfa_user.mfa_method == MfaMethod.HOTP_EMAIL:
-            return _("We've sent a code by email to {}.").format(
-                self.mfa_user.partial_email
-            )
-
-        return _("We've sent a code by text message to {}").format(
-            self.mfa_user.partial_phone_number
-        )
-
-    def send_authentication_email(self) -> None:
-        _ = self.request.gettext
-        config = self.request.config
-        kwargs = dict(
-            from_addr=config.email_from,
-            to=self.user.email,
-            subject=_("CamCOPS two-step login"),
-            body=self.get_hotp_message(),
-            content_type="text/plain"
-        )
-
-        email = Email(**kwargs)
-        email.send(host=config.email_host,
-                   username=config.email_host_username,
-                   password=config.email_host_password,
-                   port=config.email_port,
-                   use_tls=config.email_use_tls)
-
-        # TODO: should we handle failure or ignore silently?
-
-    def send_authentication_sms(self) -> None:
-        backend = self.request.config.sms_backend
-        backend.send_sms(self.user.raw_phone_number, self.get_hotp_message())
-
-    def get_hotp_message(self) -> str:
-        self.user.hotp_counter += 1
-        self.request.dbsession.add(self.user)
-        _ = self.request.gettext
-        code = pyotp.HOTP(self.user.mfa_secret_key).at(self.user.hotp_counter)
-
-        return _("Your CamCOPS verification code is {}").format(code)
-
     def get_success_url(self) -> str:
-        if self.step == "finished":
+        if self.state is None:
             return self.get_redirect_url()
 
+        return self.request.route_url(
+            Routes.LOGIN,
+            _query={
+                ViewParam.REDIRECT_URL: self.get_redirect_url(),
+            }
+        )
+
+    def get_failure_url(self) -> None:
         return self.request.route_url(
             Routes.LOGIN,
             _query={
@@ -827,10 +833,6 @@ class LoginView(FormWizardMixin, FormView):
         _ = self.request.gettext
         self.fail(_("Invalid username/password (or user not authorized)."))
 
-    def fail_bad_mfa_code(self) -> None:
-        _ = self.request.gettext
-        self.fail(_("You entered an invalid code. Please try again."))
-
     def fail_timed_out(self) -> None:
         _ = self.request.gettext
         self.fail(_("Your code expired. Please try again."))
@@ -847,14 +849,6 @@ class LoginView(FormWizardMixin, FormView):
                     )
 
         self.fail(message)
-
-    def fail(self, message: str) -> None:
-        self.state = None
-        self.save_state()
-
-        self.request.session.flash(message, queue=FLASH_DANGER)
-
-        raise HTTPFound(self.request.route_url(Routes.LOGIN))
 
 
 @view_config(route_name=Routes.LOGIN,
@@ -961,30 +955,50 @@ def forbidden(req: "CamcopsRequest") -> Response:
 # Changing passwords
 # =============================================================================
 
-class ChangeOwnPasswordView(FormWizardMixin, UpdateView):
+class ChangeOwnPasswordView(MfaMixin, FormWizardMixin, UpdateView):
     model_form_dict = {}
 
-    wizard_first_step = "password"
-
     wizard_forms = {
+        "mfa": OtpTokenForm,
         "password": ChangeOwnPasswordForm,
     }
 
-    wizard_extra_contexts = {
-        "password": {},
-    }
-
     wizard_templates = {
+        "mfa": "login_token.mako",
         "password": "change_own_password.mako",
     }
 
+    wizard_extra_contexts = {
+        "mfa": {},
+        "password": {},
+    }
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.mfa_user = self.request.user
+
+    def get_extra_context(self) -> Dict[str, Any]:
+        if self.step == "mfa":
+            return {"instructions": self.get_mfa_instructions()}
+
+        return {}
+
+    def get_first_step(self) -> str:
+        if self.request.user.mfa_method == MfaMethod.NONE:
+            return "password"
+
+        return "mfa"
+
     def get(self) -> Response:
+        if self.step == "mfa":
+            self.handle_authentication_type()
+
         _ = self.request.gettext
 
         if self.request.user.must_change_password:
             self.request.session.flash(
                 _("Your password has expired and must be changed."),
-                queue=FLASH_DANGER
+                queue=FlashQueue.DANGER
             )
         return super().get()
 
@@ -999,9 +1013,32 @@ class ChangeOwnPasswordView(FormWizardMixin, UpdateView):
         return kwargs
 
     def get_success_url(self) -> str:
+        if self.state is None:
+            return self.request.route_url(Routes.HOME)
+
+        return self.request.route_url(Routes.CHANGE_OWN_PASSWORD)
+
+    def get_failure_url(self) -> str:
         return self.request.route_url(Routes.HOME)
 
+    def form_valid(self, form: "Form",
+                   appstruct: Dict[str, Any]) -> Response:
+        if self.step == "mfa":
+            if not self.otp_is_valid(appstruct):
+                self.fail_bad_mfa_code()
+
+        super().form_valid(form, appstruct)
+
     def set_object_properties(self, appstruct: Dict[str, Any]) -> None:
+        if self.step == "password":
+            self.set_password(appstruct)
+            self.state = None
+        elif self.step == "mfa":
+            self.step = "password"
+
+        self.save_state()
+
+    def set_password(self, appstruct: Dict[str, Any]) -> None:
         user = cast(User, self.object)
         # ... form has validated old password, etc.
         new_password = appstruct[ViewParam.NEW_PASSWORD]
@@ -1012,7 +1049,7 @@ class ChangeOwnPasswordView(FormWizardMixin, UpdateView):
             _("You have changed your password. "
               "If you store your password in your CamCOPS tablet application, "
               "remember to change it there as well."),
-            queue=FLASH_SUCCESS
+            queue=FlashQueue.SUCCESS
         )
 
 
@@ -1072,7 +1109,7 @@ class EditUserAuthenticationView(UpdateView):
                 _("Password changed for user '{username}'").format(
                     username=user.username
                 ),
-                queue=FLASH_SUCCESS
+                queue=FlashQueue.SUCCESS
             )
         except KeyError:
             pass
@@ -1082,7 +1119,7 @@ class EditUserAuthenticationView(UpdateView):
             self.request.session.flash(
                 _("Multi-factor authentication disabled for user "
                   "'{username}'").format(username=user.username),
-                queue=FLASH_SUCCESS
+                queue=FlashQueue.SUCCESS
             )
 
     def get_extra_context(self) -> Dict[str, Any]:
@@ -2822,7 +2859,7 @@ def unlock_user(req: "CamcopsRequest") -> Response:
 
     req.session.flash(
         _("User {username} enabled").format(username=user.username),
-        queue=FLASH_SUCCESS
+        queue=FlashQueue.SUCCESS
     )
     raise HTTPFound(req.route_url(Routes.VIEW_ALL_USERS))
 
@@ -3603,7 +3640,7 @@ class EraseTaskEntirelyView(EraseTaskBaseView):
 
         self.request.session.flash(
             f"{msg_erased} ({self.table_name}, server PK {self.server_pk}).",
-            queue=FLASH_SUCCESS
+            queue=FlashQueue.SUCCESS
         )
 
     def get_success_url(self) -> str:
@@ -3734,7 +3771,7 @@ def delete_patient(req: "CamcopsRequest") -> Response:
             )
             audit(req, msg)
 
-            req.session.flash(msg, FLASH_SUCCESS)
+            req.session.flash(msg, FlashQueue.SUCCESS)
             raise HTTPFound(req.route_url(Routes.HOME))
 
         except ValidationFailure as e:
@@ -3869,7 +3906,7 @@ def forcibly_finalize(req: "CamcopsRequest") -> Response:
             audit(req, msg)
             log.info(msg)
 
-            req.session.flash(msg, queue=FLASH_SUCCESS)
+            req.session.flash(msg, queue=FlashQueue.SUCCESS)
             raise HTTPFound(req.route_url(Routes.HOME))
 
         except ValidationFailure as e:
@@ -3971,7 +4008,7 @@ class EditPatientBaseView(PatientMixin, UpdateView):
             self.request.session.flash(
                 f"{_('No changes required for patient record with server PK')} "  # noqa
                 f"{patient.pk} {_('(all new values matched old values)')}",
-                queue=FLASH_INFO
+                queue=FlashQueue.INFO
             )
             return
 
@@ -3996,7 +4033,7 @@ class EditPatientBaseView(PatientMixin, UpdateView):
             f"{_('Amended patient record with server PK')} "
             f"{patient.pk}. "
             f"{_('Changes were:')} {change_msg}",
-            queue=FLASH_SUCCESS
+            queue=FlashQueue.SUCCESS
         )
 
     def save_changes(self,
@@ -4890,7 +4927,7 @@ class SendPatientEmailBaseView(FormView):
             patient_email=patient_email
         )
 
-        self.request.session.flash(message, queue=FLASH_SUCCESS)
+        self.request.session.flash(message, queue=FlashQueue.SUCCESS)
 
     def _display_failure_message(self, patient_email: str) -> None:
         _ = self.request.gettext
@@ -4898,7 +4935,7 @@ class SendPatientEmailBaseView(FormView):
             patient_email=patient_email
         )
 
-        self.request.session.flash(message, queue=FLASH_DANGER)
+        self.request.session.flash(message, queue=FlashQueue.DANGER)
 
     def get_form_values(self) -> Dict:
         pts = self._get_patient_task_schedule()

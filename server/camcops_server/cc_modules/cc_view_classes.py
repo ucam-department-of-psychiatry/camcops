@@ -159,7 +159,7 @@ from cardinal_pythonlib.logs import BraceStyleAdapter
 from deform.exception import ValidationFailure
 
 from camcops_server.cc_modules.cc_exception import raise_runtime_error
-from camcops_server.cc_modules.cc_pyramid import FormAction
+from camcops_server.cc_modules.cc_pyramid import FlashQueue, FormAction
 from camcops_server.cc_modules.cc_resource_registry import (
     CamcopsResourceRegistry
 )
@@ -333,6 +333,15 @@ class FormMixin(ContextMixin):
             raise_runtime_error("Your view must provide a success_url.")
         return str(self.success_url)  # success_url may be lazy
 
+    def get_failure_url(self) -> str:
+        """
+        Return the URL to redirect to on error after processing a valid form.
+        e.g. when a password is of the correct form but is invalid.
+        """
+        if not self.failure_url:
+            raise_runtime_error("Your view must provide a failure_url.")
+        return str(self.failure_url)  # failure_url may be lazy
+
     def form_valid(self, form: "Form", appstruct: Dict[str, Any]) -> Response:
         """
         Called when the form is valid.
@@ -377,6 +386,11 @@ class FormMixin(ContextMixin):
         appstruct = self.get_form_values()
 
         return form.render(appstruct)
+
+    def fail(self, message: str) -> None:
+        self.request.session.flash(message, queue=FlashQueue.DANGER)
+
+        raise HTTPFound(self.get_failure_url())
 
 
 class SingleObjectMixin(ContextMixin):
@@ -706,3 +720,9 @@ class FormWizardMixin:
 
     def get_extra_context(self) -> Dict[str, Any]:
         return self.wizard_extra_contexts[self.step]
+
+    def fail(self, message: str) -> None:
+        self.state = None
+        self.save_state()
+
+        super().fail(message)

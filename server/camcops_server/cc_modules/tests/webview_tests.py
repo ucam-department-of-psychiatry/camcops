@@ -47,6 +47,7 @@ from camcops_server.cc_modules.cc_membership import UserGroupMembership
 from camcops_server.cc_modules.cc_patient import Patient
 from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
 from camcops_server.cc_modules.cc_pyramid import (
+    FlashQueue,
     FormAction,
     ViewArg,
     ViewParam,
@@ -90,9 +91,6 @@ from camcops_server.cc_modules.webview import (
     EditUserGroupAdminView,
     EraseTaskEntirelyView,
     EraseTaskLeavingPlaceholderView,
-    FLASH_DANGER,
-    FLASH_INFO,
-    FLASH_SUCCESS,
     LoginView,
     SendEmailFromPatientTaskScheduleView,
     add_patient,
@@ -842,7 +840,7 @@ class EditFinalizedPatientViewTests(BasicDatabaseTestCase):
         self.assertIn("idnum1", note)
         self.assertIn(str(TEST_NHS_NUMBER_1), note)
 
-        messages = self.req.session.peek_flash(FLASH_SUCCESS)
+        messages = self.req.session.peek_flash(FlashQueue.SUCCESS)
 
         self.assertIn(f"Amended patient record with server PK {patient.pk}",
                       messages[0])
@@ -943,7 +941,7 @@ class EditFinalizedPatientViewTests(BasicDatabaseTestCase):
         with self.assertRaises(HTTPFound):
             edit_finalized_patient(self.req)
 
-        messages = self.req.session.peek_flash(FLASH_INFO)
+        messages = self.req.session.peek_flash(FlashQueue.INFO)
 
         self.assertIn("No changes required", messages[0])
 
@@ -1160,7 +1158,7 @@ class EditServerCreatedPatientViewTests(BasicDatabaseTestCase):
 
         self.assertEqual(patient.group_id, new_group.id)
 
-        messages = self.req.session.peek_flash(FLASH_SUCCESS)
+        messages = self.req.session.peek_flash(FlashQueue.SUCCESS)
 
         self.assertIn("testgroup", messages[0])
         self.assertIn("newgroup", messages[0])
@@ -1308,7 +1306,7 @@ class EditServerCreatedPatientViewTests(BasicDatabaseTestCase):
             schedules["Test 2"].settings, new_schedule_2_settings,
         )
 
-        messages = self.req.session.peek_flash(FLASH_SUCCESS)
+        messages = self.req.session.peek_flash(FlashQueue.SUCCESS)
 
         self.assertIn(f"Amended patient record with server PK {patient.pk}",
                       messages[0])
@@ -2060,7 +2058,7 @@ class EraseTaskEntirelyViewTests(EraseTaskTestCase):
 
         self.assertEqual(request, self.req)
 
-        messages = self.req.session.peek_flash(FLASH_SUCCESS)
+        messages = self.req.session.peek_flash(FlashQueue.SUCCESS)
         self.assertTrue(len(messages) > 0)
 
         self.assertIn("Task erased", messages[0])
@@ -2401,7 +2399,7 @@ class SendEmailFromPatientTaskScheduleViewTests(BasicDatabaseTestCase):
         with self.assertRaises(HTTPFound):
             view.dispatch()
 
-        messages = self.req.session.peek_flash(FLASH_SUCCESS)
+        messages = self.req.session.peek_flash(FlashQueue.SUCCESS)
         self.assertTrue(len(messages) > 0)
 
         self.assertIn("Email sent to patient@example.com", messages[0])
@@ -2427,7 +2425,7 @@ class SendEmailFromPatientTaskScheduleViewTests(BasicDatabaseTestCase):
         with self.assertRaises(HTTPFound):
             view.dispatch()
 
-        messages = self.req.session.peek_flash(FLASH_DANGER)
+        messages = self.req.session.peek_flash(FlashQueue.DANGER)
         self.assertTrue(len(messages) > 0)
 
         self.assertIn("Failed to send email to patient@example.com",
@@ -2854,9 +2852,7 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.assertEqual(args[0], self.req)
         self.assertEqual(args[1], "Login")
         self.assertEqual(kwargs["user_id"], user.id)
-        self.assertIsNone(self.req.camcops_session.form_state["mfa_user_id"])
-        self.assertEqual(self.req.camcops_session.form_state["step"],
-                         "finished")
+        self.assertIsNone(self.req.camcops_session.form_state)
 
     @mock.patch("camcops_server.cc_modules.webview.audit")
     def test_user_with_hotp_can_log_in(self, mock_audit) -> None:
@@ -2897,9 +2893,7 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.assertEqual(args[0], self.req)
         self.assertEqual(args[1], "Login")
         self.assertEqual(kwargs["user_id"], user.id)
-        self.assertIsNone(self.req.camcops_session.form_state["mfa_user_id"])
-        self.assertEqual(self.req.camcops_session.form_state["step"],
-                         "finished")
+        self.assertIsNone(self.req.camcops_session.form_state)
 
     def test_form_state_cleared_on_failed_login(self) -> None:
         user = self.create_user(username="test",
@@ -2926,7 +2920,7 @@ class LoginViewTests(BasicDatabaseTestCase):
             with self.assertRaises(HTTPFound):
                 view.dispatch()
 
-        messages = self.req.session.peek_flash(FLASH_DANGER)
+        messages = self.req.session.peek_flash(FlashQueue.DANGER)
         self.assertTrue(len(messages) > 0)
         self.assertIn("You entered an invalid code", messages[0])
 
@@ -3644,7 +3638,7 @@ class EditUserAuthenticationViewTests(BasicDatabaseTestCase):
                                                   "monkeybusiness")
         self.assertFalse(regular_user.must_change_password)
 
-        messages = self.req.session.peek_flash(FLASH_SUCCESS)
+        messages = self.req.session.peek_flash(FlashQueue.SUCCESS)
         self.assertTrue(len(messages) > 0)
         self.assertIn("Password changed for user 'regular_user'",
                       messages[0])
@@ -3681,7 +3675,7 @@ class EditUserAuthenticationViewTests(BasicDatabaseTestCase):
 
         self.assertEqual(regular_user.mfa_method, MfaMethod.NONE)
 
-        messages = self.req.session.peek_flash(FLASH_SUCCESS)
+        messages = self.req.session.peek_flash(FlashQueue.SUCCESS)
         self.assertTrue(len(messages) > 0)
         self.assertIn(
             "Multi-factor authentication disabled for user 'regular_user'",
@@ -3933,7 +3927,7 @@ class ChangeOwnPasswordViewTests(BasicDatabaseTestCase):
     def test_user_can_change_password(self) -> None:
         new_password = "monkeybusiness"
 
-        user = self.create_user(username="user")
+        user = self.create_user(username="user", mfa_method=MfaMethod.NONE)
         user.set_password(self.req, "secret")
         multidict = MultiDict([
             (ViewParam.OLD_PASSWORD, "secret"),
@@ -3953,15 +3947,17 @@ class ChangeOwnPasswordViewTests(BasicDatabaseTestCase):
 
         mock_set_password.assert_called_once_with(self.req, new_password)
 
-        messages = self.req.session.peek_flash(FLASH_SUCCESS)
+        messages = self.req.session.peek_flash(FlashQueue.SUCCESS)
         self.assertTrue(len(messages) > 0)
         self.assertIn(
             "You have changed your password",
             messages[0]
         )
+        self.assertIsNone(self.req.camcops_session.form_state)
 
     def test_user_sees_expiry_message(self) -> None:
         user = self.create_user(username="user",
+                                mfa_method=MfaMethod.NONE,
                                 must_change_password=True)
         self.req._debugging_user = user
 
@@ -3970,7 +3966,7 @@ class ChangeOwnPasswordViewTests(BasicDatabaseTestCase):
 
         args, kwargs = mock_flash.call_args
         self.assertIn("Your password has expired", args[0])
-        self.assertEqual(kwargs["queue"], FLASH_DANGER)
+        self.assertEqual(kwargs["queue"], FlashQueue.DANGER)
 
     def test_password_must_differ(self) -> None:
         view = ChangeOwnPasswordView(self.req)
@@ -3978,3 +3974,108 @@ class ChangeOwnPasswordViewTests(BasicDatabaseTestCase):
         form_kwargs = view.get_form_kwargs()
         self.assertIn("must_differ", form_kwargs)
         self.assertTrue(form_kwargs["must_differ"])
+
+    @mock.patch("camcops_server.cc_modules.cc_email.send_msg")
+    @mock.patch("camcops_server.cc_modules.cc_email.make_email")
+    def test_user_sees_otp_form_if_mfa_setup(self,
+                                             mock_make_email,
+                                             mock_send_msg) -> None:
+        user = self.create_user(username="user",
+                                email="user@example.com",
+                                mfa_method=MfaMethod.HOTP_EMAIL,
+                                mfa_secret_key=pyotp.random_base32(),
+                                hotp_counter=0)
+        self.req._debugging_user = user
+
+        view = ChangeOwnPasswordView(self.req)
+
+        with mock.patch.object(view, "render_to_response") as mock_render:
+            view.dispatch()
+
+        args, kwargs = mock_render.call_args
+        context = args[0]
+
+        self.assertIn("form", context)
+        self.assertIn("Enter the six-digit code", context["form"])
+
+    def test_code_sent_if_mfa_setup(self) -> None:
+        self.req.config.sms_backend = get_sms_backend("console", {})
+        phone_number = phonenumbers.parse(TEST_PHONE_NUMBER)
+        user = self.create_user(username="user",
+                                email="user@example.com",
+                                phone_number=phone_number,
+                                mfa_secret_key=pyotp.random_base32(),
+                                mfa_method=MfaMethod.HOTP_SMS,
+                                hotp_counter=0)
+
+        self.req._debugging_user = user
+        view = ChangeOwnPasswordView(self.req)
+        with self.assertLogs(level=logging.INFO) as logging_cm:
+            view.dispatch()
+
+        expected_code = pyotp.HOTP(user.mfa_secret_key).at(1)
+        expected_message = f"Your CamCOPS verification code is {expected_code}"
+
+        self.assertIn(
+            f"Sent message '{expected_message}' to {TEST_PHONE_NUMBER}",
+            logging_cm.output[0]
+        )
+
+    def test_user_can_enter_token(self) -> None:
+        user = self.create_user(username="user",
+                                mfa_method=MfaMethod.HOTP_EMAIL,
+                                mfa_secret_key=pyotp.random_base32(),
+                                email="user@example.com",
+                                hotp_counter=1)
+        user.set_password(self.req, "secret")
+        self.dbsession.flush()
+
+        self.req._debugging_user = user
+
+        hotp = pyotp.HOTP(user.mfa_secret_key)
+        multidict = MultiDict([
+            (ViewParam.ONE_TIME_PASSWORD, hotp.at(1)),
+            (FormAction.SUBMIT, "submit"),
+        ])
+        self.req.fake_request_post_from_dict(multidict)
+
+        view = ChangeOwnPasswordView(self.req)
+
+        with self.assertRaises(HTTPFound) as e:
+            view.dispatch()
+
+        self.assertEqual(self.req.camcops_session.form_state["step"],
+                         "password")
+        self.assertIn(
+            "change_own_password",
+            e.exception.headers["Location"]
+        )
+
+    def test_form_state_cleared_on_invalid_token(self) -> None:
+        user = self.create_user(username="user",
+                                mfa_method=MfaMethod.HOTP_EMAIL,
+                                mfa_secret_key=pyotp.random_base32(),
+                                email="user@example.com",
+                                hotp_counter=1)
+        user.set_password(self.req, "secret")
+        self.dbsession.flush()
+
+        self.req._debugging_user = user
+
+        hotp = pyotp.HOTP(user.mfa_secret_key)
+        multidict = MultiDict([
+            (ViewParam.ONE_TIME_PASSWORD, hotp.at(2)),
+            (FormAction.SUBMIT, "submit"),
+        ])
+        self.req.fake_request_post_from_dict(multidict)
+
+        view = ChangeOwnPasswordView(self.req)
+
+        with self.assertRaises(HTTPFound):
+            view.dispatch()
+
+        messages = self.req.session.peek_flash(FlashQueue.DANGER)
+        self.assertTrue(len(messages) > 0)
+        self.assertIn("You entered an invalid code", messages[0])
+
+        self.assertIsNone(self.req.camcops_session.form_state)

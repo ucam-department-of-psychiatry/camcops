@@ -299,6 +299,17 @@ class ViewArg(object):
 
 
 # =============================================================================
+# Flash message queues: https://getbootstrap.com/docs/3.3/components/#alerts
+# =============================================================================
+
+class FlashQueue:
+    SUCCESS = "success"
+    INFO = "info"
+    WARNING = "warning"
+    DANGER = "danger"
+
+
+# =============================================================================
 # Templates
 # =============================================================================
 # Adaptation of a small part of pyramid_mako, so we can use our own Mako
