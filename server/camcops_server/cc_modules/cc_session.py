@@ -52,7 +52,7 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     JsonColType,
     SessionTokenColType,
 )
-from camcops_server.cc_modules.cc_sqlalchemy import Base
+from camcops_server.cc_modules.cc_sqlalchemy import Base, MutableDict
 from camcops_server.cc_modules.cc_taskfilter import TaskFilter
 from camcops_server.cc_modules.cc_user import (
     User,
@@ -146,7 +146,7 @@ class CamcopsSession(Base):
         comment="This session is using the client API (not a human browsing)."
     )
     form_state = Column(
-        "form_state", JsonColType,
+        "form_state", MutableDict.as_mutable(JsonColType),
         comment=("Any state that needs to be saved temporarily during "
                  "wizard-style form submission")
     )
