@@ -1,7 +1,7 @@
 ## -*- coding: utf-8 -*-
 <%doc>
 
-camcops_server/templates/menu/edit_mfa.mako
+camcops_server/templates/menu/form_with_title.mako
 
 ===============================================================================
 
@@ -30,33 +30,6 @@ camcops_server/templates/menu/edit_mfa.mako
 
 <%include file="db_user_info.mako"/>
 
-<h1>${ _("Multi-factor authentication settings") }</h1>
+<h1>${title}</h1>
 
 ${form | n}
-
-<script type="text/javascript">
-    <%text>
-        document.addEventListener("DOMContentLoaded", function(e) {
-            function hideAndShowElements(checkedName) {
-                var lookup = {"totp": ".item-mfa_secret_key",
-                              "hotp_email": ".item-email",
-                              "hotp_sms": ".item-phone_number"};
-
-                for (var name in lookup) {
-                    $(lookup[name]).hide();
-                }
-
-                if (checkedName) {
-                    var selected_value = $("input[name=" + checkedName + "]:checked").val();
-                    if (selected_value) {
-                        $(lookup[selected_value]).show();
-                    }
-                }
-            }
-
-            document.addEventListener("mfaTypeChanged", function(e) {
-                hideAndShowElements(e.detail);
-            });
-        });
-    </%text>
-</script>

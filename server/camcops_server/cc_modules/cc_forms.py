@@ -1898,7 +1898,7 @@ class PhoneNumberType(String):
                                           phonenumbers.PhoneNumberFormat.E164)
 
 
-class OptionalPhoneNumberNode(OptionalStringNode, RequestAwareMixin):
+class MandatoryPhoneNumberNode(MandatoryStringNode, RequestAwareMixin):
     default = None
     missing = None
 
@@ -2338,25 +2338,16 @@ class MfaMethodSelector(SchemaNode, RequestAwareMixin):
             if label in request.config.mfa_methods:
                 choices.append((label, description))
         values, pv = get_values_and_permissible(choices)
-        basedir = os.path.join(TEMPLATE_DIR, "deform")
-        readonlydir = os.path.join(basedir, "readonly")
-        file = "mfa_choice.pt"
-        template = os.path.join(basedir, file)
-        readonly_template = os.path.join(readonlydir, file)
 
-        self.widget = RadioChoiceWidget(values=values, template=template,
-                                        readonly_template=readonly_template)
+        self.widget = RadioChoiceWidget(values=values)
         self.validator = OneOf(pv)
 
 
-class EditMfaSchema(CSRFSchema):
+class MfaMethodSchema(CSRFSchema):
     """
-    Schema to edit settings for Multi-factor Authentication
+    Schema to edit Multi-factor Authentication method
     """
     mfa_method = MfaMethodSelector()  # must match ViewParam.MFA_METHOD
-    mfa_secret_key = MfaSecretNode()  # must match ViewParam.MFA_SECRET_KEY  # noqa: E501
-    email = OptionalEmailNode()  # must match ViewParam.EMAIL
-    phone_number = OptionalPhoneNumberNode()  # must match ViewParam.PHONE_NUMBER  # noqa: E501
 
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
@@ -2364,9 +2355,42 @@ class EditMfaSchema(CSRFSchema):
         mfa_method = get_child_node(self, "mfa_method")
         mfa_method.title = _("How do you wish to authenticate?")
 
+
+class MfaTotpSchema(CSRFSchema):
+    """
+    Schema to set up Multi-factor Authentication with authentication app
+    """
+    mfa_secret_key = MfaSecretNode()  # must match ViewParam.MFA_SECRET_KEY  # noqa: E501
+
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        _ = self.gettext
         mfa_secret_key = get_child_node(self, "mfa_secret_key")
         mfa_secret_key.title = _("Follow these steps:")
 
+
+class MfaHotpEmailSchema(CSRFSchema):
+    """
+    Schema to change a user's email address for multi-factor authentication
+    """
+    mfa_secret_key = HiddenStringNode()  # must match ViewParam.MFA_SECRET_KEY  # noqa: E501
+    email = MandatoryEmailNode()  # must match ViewParam.EMAIL
+
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        _ = self.gettext
+
+
+class MfaHotpSmsSchema(CSRFSchema):
+    """
+    Schema to change a user's phone number for multi-factor authentication
+    """
+    mfa_secret_key = HiddenStringNode()  # must match ViewParam.MFA_SECRET_KEY  # noqa: E501
+    phone_number = MandatoryPhoneNumberNode()  # must match ViewParam.PHONE_NUMBER  # noqa: E501
+
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        _ = self.gettext
         phone_number = get_child_node(self, "phone_number")
         phone_number.description = _(
             "Include the country code (eg +123) for numbers outside of the "
@@ -2374,59 +2398,52 @@ class EditMfaSchema(CSRFSchema):
                 region_code=self.request.config.region_code
             )
 
-    def deserialize(self, cstruct=null):
-        # We show only the relevant fields on the form with CSS but
-        # it is possible that the user could fill in an email address
-        # and then change the authentication method to SMS. We want to
-        # only save the properties relevant to the selected authentication
-        # method
-        if cstruct:
-            if cstruct[ViewParam.MFA_METHOD] == MfaMethod.HOTP_EMAIL:
-                cstruct[ViewParam.PHONE_NUMBER] = drop
 
-            if cstruct[ViewParam.MFA_METHOD] == MfaMethod.HOTP_SMS:
-                cstruct[ViewParam.EMAIL] = drop
-
-        return super().deserialize(cstruct)
-
-    def validator(self, node: SchemaNode, value: Dict[str, Any]) -> None:
-        mfa_method = value[ViewParam.MFA_METHOD]
-        if mfa_method == MfaMethod.HOTP_EMAIL:
-            self._validate_hotp_email(node, value)
-            return
-
-        if mfa_method == MfaMethod.HOTP_SMS:
-            self._validate_hotp_sms(node, value)
-
-    def _validate_hotp_email(self, node: SchemaNode,
-                             value: Dict[str, Any]) -> None:
-        _ = self.gettext
-
-        email_address = value[ViewParam.EMAIL]
-        if not email_address:
-            raise Invalid(
-                node,
-                _("You must provide an email address")
-            )
-
-    def _validate_hotp_sms(self, node: SchemaNode,
-                           value: Dict[str, Any]) -> None:
-        _ = self.gettext
-
-        phone_number = value[ViewParam.PHONE_NUMBER]
-        if not phone_number:
-            raise Invalid(
-                node,
-                _("You must provide a phone number")
-            )
-
-
-class EditMfaForm(InformativeNonceForm):
+class MfaMethodForm(InformativeNonceForm):
     """
-    Form to change one's own secret key
+    Form to change one's own Multi-factor Authentication settings
     """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
-        schema = EditMfaSchema().bind(request=request)
+        schema = MfaMethodSchema().bind(request=request)
+        super().__init__(
+            schema,
+            buttons=[Button(name=FormAction.SUBMIT)],
+            **kwargs
+        )
+
+
+class MfaTotpForm(InformativeNonceForm):
+    """
+    Form to set up Multi-factor Authentication with authentication app
+    """
+    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+        schema = MfaTotpSchema().bind(request=request)
+        super().__init__(
+            schema,
+            buttons=[Button(name=FormAction.SUBMIT)],
+            **kwargs
+        )
+
+
+class MfaHotpEmailForm(InformativeNonceForm):
+    """
+    Form to change a user's email address for multi-factor authentication
+    """
+    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+        schema = MfaHotpEmailSchema().bind(request=request)
+        super().__init__(
+            schema,
+            buttons=[Button(name=FormAction.SUBMIT)],
+            **kwargs
+        )
+
+
+class MfaHotpSmsForm(InformativeNonceForm):
+    """
+    Form to change a user's phone number for multi-factor authentication
+    """
+    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+        schema = MfaHotpSmsSchema().bind(request=request)
         super().__init__(
             schema,
             buttons=[Button(name=FormAction.SUBMIT)],

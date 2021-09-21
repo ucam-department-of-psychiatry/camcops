@@ -35,13 +35,11 @@ from unittest import mock, TestCase
 from colander import Invalid, null, Schema
 from pendulum import Duration
 import phonenumbers
-import pyotp
 
 from camcops_server.cc_modules.cc_baseconstants import TEMPLATE_DIR
 from camcops_server.cc_modules.cc_forms import (
     DurationType,
     DurationWidget,
-    EditMfaSchema,
     EditUserAuthenticationSchema,
     GroupIpUseWidget,
     IpUseType,
@@ -62,7 +60,6 @@ from camcops_server.cc_modules.cc_unittest import (
     DemoDatabaseTestCase,
     DemoRequestTestCase,
 )
-from camcops_server.cc_modules.cc_user import MfaMethod
 
 # https://www.ofcom.org.uk/phones-telecoms-and-internet/information-for-industry/numbering/numbers-for-drama  # noqa: E501
 TEST_PHONE_NUMBER = "+441134960123"
@@ -989,43 +986,6 @@ class PhoneNumberTypeSerializeTests(PhoneNumberTypeTestCase):
 
         self.assertEqual(self.phone_type.serialize(self.node, phone_number),
                          TEST_PHONE_NUMBER)
-
-
-class EditMfaSchemaTests(TestCase):
-    def setUp(self) -> None:
-        mock_config = mock.Mock(mfa_methods=["totp", "hotp_email", "hotp_sms"])
-        self.request = mock.Mock(config=mock_config,
-                                 gettext=lambda t: t)
-
-    def test_invalid_for_hotp_email_with_no_user_email(self):
-        schema = EditMfaSchema().bind(request=self.request)
-        cstruct = {
-            ViewParam.MFA_METHOD: MfaMethod.HOTP_EMAIL,
-            ViewParam.MFA_SECRET_KEY: pyotp.random_base32(),
-            ViewParam.EMAIL: null,
-            ViewParam.PHONE_NUMBER: null,
-        }
-
-        with self.assertRaises(Invalid) as cm:
-            schema.deserialize(cstruct)
-
-        self.assertIn("You must provide an email address",
-                      cm.exception.messages()[0])
-
-    def test_invalid_for_hotp_sms_with_no_user_phone_number(self):
-        schema = EditMfaSchema().bind(request=self.request)
-        cstruct = {
-            ViewParam.MFA_METHOD: MfaMethod.HOTP_SMS,
-            ViewParam.MFA_SECRET_KEY: pyotp.random_base32(),
-            ViewParam.EMAIL: null,
-            ViewParam.PHONE_NUMBER: null,
-        }
-
-        with self.assertRaises(Invalid) as cm:
-            schema.deserialize(cstruct)
-
-        self.assertIn("You must provide a phone number",
-                      cm.exception.messages()[0])
 
 
 class EditUserAuthenticationSchemaTests(TestCase):

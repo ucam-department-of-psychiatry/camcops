@@ -487,7 +487,7 @@ class ModelFormMixin(FormMixin, SingleObjectMixin):
         """
         Sets properties of the object, from form data.
         """
-        for (model_attr, form_param) in self.model_form_dict.items():
+        for (model_attr, form_param) in self.get_model_form_dict().items():
             try:
                 value = appstruct[form_param]
                 setattr(self.object, model_attr, value)
@@ -722,7 +722,19 @@ class FormWizardMixin:
         return self.wizard_extra_contexts[self.step]
 
     def fail(self, message: str) -> None:
+        self.finished()
+
+        super().fail(message)
+
+    def save_step(self, step: str) -> None:
+        self.step = step
+        self.save_state()
+
+    def finish(self) -> None:
         self.state = None
         self.save_state()
 
-        super().fail(message)
+    def finished(self) -> None:
+        # If we try to access self.state will it initialise?
+        # TODO: Check this
+        return self.request.camcops_session.form_state is None

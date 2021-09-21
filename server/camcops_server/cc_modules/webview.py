@@ -235,7 +235,6 @@ from camcops_server.cc_modules.cc_forms import (
     EDIT_PATIENT_SIMPLE_PARAMS,
     EditFinalizedPatientForm,
     EditIdDefinitionForm,
-    EditMfaForm,
     EditServerCreatedPatientForm,
     EditServerSettingsForm,
     EditTaskScheduleForm,
@@ -251,6 +250,10 @@ from camcops_server.cc_modules.cc_forms import (
     ForciblyFinalizeChooseDeviceForm,
     ForciblyFinalizeConfirmForm,
     LoginForm,
+    MfaHotpEmailForm,
+    MfaHotpSmsForm,
+    MfaMethodForm,
+    MfaTotpForm,
     OfferBasicDumpForm,
     OfferSqlDumpForm,
     OfferTermsForm,
@@ -759,14 +762,13 @@ class LoginView(MfaMixin, FormWizardMixin, FormView):
         if not self.otp_is_valid(appstruct):
             return self.fail_bad_mfa_code()
 
-        self.state = None
+        self.finish()
 
         return self.form_valid_success(form, appstruct)
 
     def password_next_step(self) -> None:
         if self.mfa_user.mfa_method == MfaMethod.NONE:
-            self.state = None
-            return
+            return self.finish()
 
         self.step = "mfa"
         self.state["mfa_time"] = int(time.time())
@@ -774,7 +776,7 @@ class LoginView(MfaMixin, FormWizardMixin, FormView):
 
     def form_valid_success(self, form: "Form",
                            appstruct: Dict[str, Any]) -> Response:
-        if self.state is None:
+        if self.finished():
             # Successful login.
             self.mfa_user.login(self.request)  # will clear login failure record
             self.request.camcops_session.login(self.mfa_user)
@@ -805,7 +807,7 @@ class LoginView(MfaMixin, FormWizardMixin, FormView):
         return int(time.time()) > login_time + timeout
 
     def get_success_url(self) -> str:
-        if self.state is None:
+        if self.finished():
             return self.get_redirect_url()
 
         return self.request.route_url(
@@ -1013,7 +1015,7 @@ class ChangeOwnPasswordView(MfaMixin, FormWizardMixin, UpdateView):
         return kwargs
 
     def get_success_url(self) -> str:
-        if self.state is None:
+        if self.finished():
             return self.request.route_url(Routes.HOME)
 
         return self.request.route_url(Routes.CHANGE_OWN_PASSWORD)
@@ -1032,11 +1034,10 @@ class ChangeOwnPasswordView(MfaMixin, FormWizardMixin, UpdateView):
     def set_object_properties(self, appstruct: Dict[str, Any]) -> None:
         if self.step == "password":
             self.set_password(appstruct)
-            self.state = None
-        elif self.step == "mfa":
-            self.step = "password"
+            return self.finish()
 
-        self.save_state()
+        if self.step == "mfa":
+            self.save_step("password")
 
     def set_password(self, appstruct: Dict[str, Any]) -> None:
         user = cast(User, self.object)
@@ -1145,40 +1146,120 @@ def edit_user_authentication(req: "CamcopsRequest") -> Response:
     return view.dispatch()
 
 
-class EditMfaView(UpdateView):
-    form_class = EditMfaForm
-    template_name = "edit_mfa.mako"
-    server_pk_name = "id"
+class EditMfaView(MfaMixin, FormWizardMixin, UpdateView):
+    wizard_first_step = "mfa_method"
 
-    model_form_dict = {
-        "email": ViewParam.EMAIL,
-        "mfa_method": ViewParam.MFA_METHOD,
-        "phone_number": ViewParam.PHONE_NUMBER,
+    wizard_forms = {
+        "mfa_method": MfaMethodForm,
+        "totp": MfaTotpForm,
+        "hotp_email": MfaHotpEmailForm,
+        "hotp_sms": MfaHotpSmsForm,
+        "mfa": OtpTokenForm,
     }
+
+    wizard_templates = {
+        "mfa_method": "form_with_title.mako",
+        "totp": "form_with_title.mako",
+        "hotp_email": "form_with_title.mako",
+        "hotp_sms": "form_with_title.mako",
+        "mfa": "login_token.mako",
+    }
+
+    hotp_steps = ("hotp_email", "hotp_sms")
+    secret_key_steps = ("totp", "hotp_email", "hotp_sms")
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.mfa_user = self.request.user
+
+    def get(self) -> Response:
+        if self.step == "mfa":
+            self.handle_authentication_type()
+
+        return super().get()
+
+    def get_model_form_dict(self) -> Dict[str, Any]:
+        model_form_dict = {}
+
+        if self.step == "mfa_method":
+            model_form_dict["mfa_method"] = ViewParam.MFA_METHOD
+
+        if self.step == "hotp_email":
+            model_form_dict["email"] = ViewParam.EMAIL
+
+        if self.step == "hotp_sms":
+            model_form_dict["phone_number"] = ViewParam.PHONE_NUMBER
+
+        return model_form_dict
 
     def get_object(self) -> Any:
         return self.request.user
 
     def get_form_values(self) -> Dict[str, Any]:
+        # Will call get_model_form_dict()
         form_values = super().get_form_values()
-        form_values[ViewParam.MFA_SECRET_KEY] = pyotp.random_base32()
+
+        if self.step in self.secret_key_steps:
+            # Always create a new one, so don't include in get_model_form_dict()
+            form_values[ViewParam.MFA_SECRET_KEY] = pyotp.random_base32()
 
         return form_values
 
+    def get_extra_context(self) -> Dict[str, Any]:
+        if self.step == "mfa":
+            return {"instructions": self.get_mfa_instructions()}
+
+        _ = self.request.gettext
+
+        titles = {
+            "mfa_method": _("Multi-factor authentication settings"),
+            "totp": _("Authenticate with app"),
+            "hotp_email": _("Authenticate by email"),
+            "hotp_sms": _("Authenticate by text message"),
+        }
+
+        return {"title": titles[self.step]}
+
     def get_success_url(self) -> str:
+        if self.finished():
+            return self.request.route_url(Routes.HOME)
+
+        return self.request.route_url(Routes.EDIT_MFA)
+
+    def get_failure_url(self) -> str:
         return self.request.route_url(Routes.HOME)
 
     def set_object_properties(self, appstruct: Dict[str, Any]) -> None:
         super().set_object_properties(appstruct)
 
-        mfa_secret_key = appstruct.get(ViewParam.MFA_SECRET_KEY)
-        self.object.mfa_secret_key = mfa_secret_key
+        user = cast(User, self.object)
 
-        hotp_types = (MfaMethod.HOTP_EMAIL, MfaMethod.HOTP_SMS)
+        if self.step in self.secret_key_steps:
+            mfa_secret_key = appstruct.get(ViewParam.MFA_SECRET_KEY)
+            user.mfa_secret_key = mfa_secret_key
 
-        mfa_method = appstruct.get(ViewParam.MFA_METHOD)
-        if mfa_method in hotp_types:
-            self.request.user.hotp_counter = 0
+        if self.step in self.hotp_steps:
+            user.hotp_counter = 0
+
+        if self.step == "mfa":
+            if not self.otp_is_valid(appstruct):
+                self.finish()
+                self.fail_bad_mfa_code()
+
+        self.next_step(appstruct)
+
+    def next_step(self, appstruct: Dict[str, Any]) -> None:
+        if self.step == "mfa_method":
+            mfa_method = appstruct.get(ViewParam.MFA_METHOD)
+            if mfa_method == "none":
+                return self.finish()
+
+            return self.save_step(mfa_method)
+
+        if self.step == "mfa":
+            return self.finish()
+
+        self.save_step("mfa")
 
 
 @view_config(route_name=Routes.EDIT_MFA,
