@@ -580,6 +580,27 @@ def audit_menu(req: "CamcopsRequest") -> Dict[str, Any]:
 # you're doing the latter and sends parameters accordingly.
 
 class MfaMixin:
+    def dispatch(self) -> Response:
+        if self.timed_out():
+            return self.fail_timed_out()
+
+        return super().dispatch()
+
+    def timed_out(self) -> bool:
+        if self.step != "mfa":
+            return False
+
+        timeout = self.request.config.mfa_timeout_s
+        if timeout == 0:
+            return False
+
+        login_time = self.state.get("mfa_time")
+
+        if login_time is None:
+            return False
+
+        return int(time.time()) > login_time + timeout
+
     def get_mfa_instructions(self) -> str:
         _ = self.request.gettext
 
@@ -600,6 +621,7 @@ class MfaMixin:
         if self.mfa_user.mfa_method == MfaMethod.TOTP:
             return
 
+        self.state["mfa_time"] = int(time.time())
         if self.mfa_user.mfa_method == MfaMethod.HOTP_EMAIL:
             return self.send_authentication_email()
 
@@ -648,6 +670,10 @@ class MfaMixin:
         _ = self.request.gettext
         self.fail(_("You entered an invalid code. Please try again."))
 
+    def fail_timed_out(self) -> None:
+        _ = self.request.gettext
+        self.fail(_("Your code expired. Please try again."))
+
 
 class LoginView(MfaMixin, FormWizardMixin, FormView):
     wizard_first_step = "password"
@@ -687,12 +713,6 @@ class LoginView(MfaMixin, FormWizardMixin, FormView):
         self.state["mfa_user_id"] = user.id
 
     mfa_user = property(_get_mfa_user, _set_mfa_user)
-
-    def dispatch(self) -> Response:
-        if self.timed_out():
-            return self.fail_timed_out()
-
-        return super().dispatch()
 
     def get_extra_context(self) -> Dict[str, Any]:
         if self.step == "password":
@@ -771,7 +791,6 @@ class LoginView(MfaMixin, FormWizardMixin, FormView):
             return self.finish()
 
         self.step = "mfa"
-        self.state["mfa_time"] = int(time.time())
         self.handle_authentication_type()
 
     def form_valid_success(self, form: "Form",
@@ -790,21 +809,6 @@ class LoginView(MfaMixin, FormWizardMixin, FormView):
         self.save_state()
 
         return super().form_valid(form, appstruct)
-
-    def timed_out(self) -> bool:
-        if self.step != "mfa":
-            return False
-
-        timeout = self.request.config.mfa_timeout_s
-        if timeout == 0:
-            return False
-
-        login_time = self.state["mfa_time"]
-
-        if login_time is None:
-            return False
-
-        return int(time.time()) > login_time + timeout
 
     def get_success_url(self) -> str:
         if self.finished():
@@ -834,10 +838,6 @@ class LoginView(MfaMixin, FormWizardMixin, FormView):
     def fail_not_authorized(self) -> None:
         _ = self.request.gettext
         self.fail(_("Invalid username/password (or user not authorized)."))
-
-    def fail_timed_out(self) -> None:
-        _ = self.request.gettext
-        self.fail(_("Your code expired. Please try again."))
 
     def fail_locked_out(self, locked_until: Pendulum) -> None:
         _ = self.request.gettext

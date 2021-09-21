@@ -2665,11 +2665,17 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.assertIn("We've sent a code by text message",
                       context["instructions"])
 
+    @mock.patch("camcops_server.cc_modules.cc_email.send_msg")
+    @mock.patch("camcops_server.cc_modules.cc_email.make_email")
     @mock.patch("camcops_server.cc_modules.webview.time")
-    def test_session_state_set_for_user_with_mfa(self, mock_time) -> None:
+    def test_session_state_set_for_user_with_mfa(self,
+                                                 mock_time,
+                                                 mock_make_email,
+                                                 mock_send_msg) -> None:
         user = self.create_user(username="test",
                                 mfa_secret_key=pyotp.random_base32(),
-                                mfa_method=MfaMethod.TOTP)
+                                mfa_method=MfaMethod.HOTP_EMAIL,
+                                email="user@example.com")
         user.set_password(self.req, "secret")
         self.dbsession.flush()
         self.create_membership(user, self.group, may_use_webviewer=True)
@@ -4036,4 +4042,34 @@ class ChangeOwnPasswordViewTests(BasicDatabaseTestCase):
         self.assertTrue(len(messages) > 0)
         self.assertIn("You entered an invalid code", messages[0])
 
+        self.assertIsNone(self.req.camcops_session.form_state)
+
+    def test_cannot_change_password_if_timed_out(self) -> None:
+        self.req.config.mfa_timeout_s = 600
+        user = self.create_user(username="user",
+                                mfa_method=MfaMethod.TOTP,
+                                mfa_secret_key=pyotp.random_base32())
+        user.set_password(self.req, "secret")
+        self.dbsession.flush()
+
+        self.req._debugging_user = user
+
+        totp = pyotp.TOTP(user.mfa_secret_key)
+        multidict = MultiDict([
+            (ViewParam.ONE_TIME_PASSWORD, totp.now()),
+            (FormAction.SUBMIT, "submit"),
+        ])
+        self.req.fake_request_post_from_dict(multidict)
+
+        view = ChangeOwnPasswordView(self.req)
+        view.state.update(
+            mfa_user=user.id,
+            mfa_time=int(time.time()-601),
+            step="mfa"
+        )
+
+        with mock.patch.object(view, "fail_timed_out") as mock_fail_timed_out:
+            view.dispatch()
+
+        mock_fail_timed_out.assert_called_once()
         self.assertIsNone(self.req.camcops_session.form_state)
