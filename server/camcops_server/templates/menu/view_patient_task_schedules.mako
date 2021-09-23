@@ -72,7 +72,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
         <td>
             ${ patient.uuid_as_proquint }
         </td>
-        <td class="pts_mini_table">
+        <td class="mini_table">
             <table>
             %for pts in patient.task_schedules:
             <%

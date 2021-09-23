@@ -158,7 +158,6 @@ class ViewParam(object):
     AGE_MAXIMUM = "age_maximum"
     ALL_TASKS = "all_tasks"
     ANONYMISE = "anonymise"
-    CHANGE_PASSWORD = "change_password"
     CLINICIAN_CONFIRMATION = "clinician_confirmation"
     CSRF_TOKEN = "csrf_token"
     DATABASE_TITLE = "database_title"
@@ -723,6 +722,7 @@ class Routes(object):
     ADD_USER = "add_user"
     AUDIT_MENU = "audit_menu"
     BASIC_DUMP = "basic_dump"
+    CHANGE_OTHER_PASSWORD = "change_other_password"
     CHANGE_OWN_PASSWORD = "change_own_password"
     CHOOSE_CTV = "choose_ctv"
     CHOOSE_TRACKER = "choose_tracker"
@@ -753,6 +753,7 @@ class Routes(object):
     EDIT_USER = "edit_user"
     EDIT_USER_AUTHENTICATION = "edit_user_authentication"
     EDIT_USER_GROUP_MEMBERSHIP = "edit_user_group_membership"
+    EDIT_USER_MFA = "edit_user_mfa"
     ERASE_TASK_LEAVING_PLACEHOLDER = "erase_task_leaving_placeholder"
     ERASE_TASK_ENTIRELY = "erase_task_entirely"
     FORCIBLY_FINALIZE = "forcibly_finalize"
@@ -860,6 +861,7 @@ class RouteCollection(object):
     ADD_USER = RoutePath(Routes.ADD_USER)
     AUDIT_MENU = RoutePath(Routes.AUDIT_MENU)
     BASIC_DUMP = RoutePath(Routes.BASIC_DUMP)
+    CHANGE_OTHER_PASSWORD = RoutePath(Routes.CHANGE_OTHER_PASSWORD)
     CHANGE_OWN_PASSWORD = RoutePath(Routes.CHANGE_OWN_PASSWORD)
     CHOOSE_CTV = RoutePath(Routes.CHOOSE_CTV)
     CHOOSE_TRACKER = RoutePath(Routes.CHOOSE_TRACKER)
@@ -893,6 +895,7 @@ class RouteCollection(object):
     EDIT_USER = RoutePath(Routes.EDIT_USER)
     EDIT_USER_AUTHENTICATION = RoutePath(Routes.EDIT_USER_AUTHENTICATION)
     EDIT_USER_GROUP_MEMBERSHIP = RoutePath(Routes.EDIT_USER_GROUP_MEMBERSHIP)
+    EDIT_USER_MFA = RoutePath(Routes.EDIT_USER_MFA)
     ERASE_TASK_LEAVING_PLACEHOLDER = RoutePath(Routes.ERASE_TASK_LEAVING_PLACEHOLDER)  # noqa
     ERASE_TASK_ENTIRELY = RoutePath(Routes.ERASE_TASK_ENTIRELY)
     FORCIBLY_FINALIZE = RoutePath(Routes.FORCIBLY_FINALIZE)

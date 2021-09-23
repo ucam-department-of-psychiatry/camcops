@@ -219,6 +219,7 @@ from camcops_server.cc_modules.cc_forms import (
     AddUserGroupadminForm,
     AddUserSuperuserForm,
     AuditTrailForm,
+    ChangeOtherPasswordForm,
     ChangeOwnPasswordForm,
     ChooseTrackerForm,
     DEFAULT_ROWS_PER_PAGE,
@@ -239,11 +240,11 @@ from camcops_server.cc_modules.cc_forms import (
     EditServerSettingsForm,
     EditTaskScheduleForm,
     EditTaskScheduleItemForm,
-    EditUserAuthenticationForm,
     EditUserFullForm,
     EditUserGroupAdminForm,
     EditUserGroupMembershipGroupAdminForm,
     EditUserGroupPermissionsFullForm,
+    EditUserMfaForm,
     EraseTaskForm,
     ExportedTaskListForm,
     get_sql_dialect_choices,
@@ -1069,10 +1070,10 @@ def change_own_password(req: "CamcopsRequest") -> Response:
     return view.dispatch()
 
 
-class EditUserAuthenticationView(UpdateView):
+class ChangeOtherPasswordView(UpdateView):
     object_class = User
-    form_class = EditUserAuthenticationForm
-    template_name = "edit_user_authentication.mako"
+    form_class = ChangeOtherPasswordForm
+    template_name = "change_other_password.mako"
     pk_param = ViewParam.USER_ID
     server_pk_name = "id"
     model_form_dict = {}
@@ -1097,24 +1098,72 @@ class EditUserAuthenticationView(UpdateView):
 
         user = cast(User, self.object)
         _ = self.request.gettext
-        try:
-            # -----------------------------------------------------------------
-            # Change the password
-            # -----------------------------------------------------------------
-            new_password = appstruct[ViewParam.NEW_PASSWORD]
-            user.set_password(self.request, new_password)
-            must_change_pw = appstruct.get(ViewParam.MUST_CHANGE_PASSWORD)
-            if must_change_pw:
-                user.force_password_change()
-            self.request.session.flash(
-                _("Password changed for user '{username}'").format(
-                    username=user.username
-                ),
-                queue=FlashQueue.SUCCESS
-            )
-        except KeyError:
-            pass
+        # -----------------------------------------------------------------
+        # Change the password
+        # -----------------------------------------------------------------
+        new_password = appstruct[ViewParam.NEW_PASSWORD]
+        user.set_password(self.request, new_password)
+        must_change_pw = appstruct.get(ViewParam.MUST_CHANGE_PASSWORD)
+        if must_change_pw:
+            user.force_password_change()
+        self.request.session.flash(
+            _("Password changed for user '{username}'").format(
+                username=user.username
+            ),
+            queue=FlashQueue.SUCCESS
+        )
 
+    def get_extra_context(self) -> Dict[str, Any]:
+        user = cast(User, self.object)
+
+        return {
+            "username":  user.username,
+        }
+
+
+@view_config(route_name=Routes.CHANGE_OTHER_PASSWORD,
+             permission=Permission.GROUPADMIN,
+             http_cache=NEVER_CACHE)
+def change_other_password(req: "CamcopsRequest") -> Response:
+    """
+    For administrators, to change another's password.
+
+    - GET: offer "change another's password" view (except that if you're
+      changing your own password, return :func:`change_own_password`.
+    - POST/submit: change the password and display success message.
+    """
+    view = ChangeOtherPasswordView(req)
+    return view.dispatch()
+
+
+class EditUserMfaView(UpdateView):
+    object_class = User
+    form_class = EditUserMfaForm
+    template_name = "edit_user_mfa.mako"
+    pk_param = ViewParam.USER_ID
+    server_pk_name = "id"
+    model_form_dict = {}
+
+    def get_success_url(self) -> str:
+        return self.request.route_url(Routes.VIEW_ALL_USERS)
+
+    def get(self) -> Response:
+        if self.get_pk_value() == self.request.user_id:
+            raise HTTPFound(self.request.route_url(Routes.EDIT_MFA))
+
+        return super().get()
+
+    def get_object(self) -> Any:
+        user = cast(User, super().get_object())
+        assert_may_edit_user(self.request, user)
+
+        return user
+
+    def set_object_properties(self, appstruct: Dict[str, Any]) -> None:
+        super().set_object_properties(appstruct)
+
+        user = cast(User, self.object)
+        _ = self.request.gettext
         if appstruct.get(ViewParam.DISABLE_MFA):
             user.mfa_method = MfaMethod.NONE
             self.request.session.flash(
@@ -1131,10 +1180,10 @@ class EditUserAuthenticationView(UpdateView):
         }
 
 
-@view_config(route_name=Routes.EDIT_USER_AUTHENTICATION,
+@view_config(route_name=Routes.EDIT_USER_MFA,
              permission=Permission.GROUPADMIN,
              http_cache=NEVER_CACHE)
-def edit_user_authentication(req: "CamcopsRequest") -> Response:
+def edit_user_mfa(req: "CamcopsRequest") -> Response:
     """
     For administrators, to change another's password.
 
@@ -1142,7 +1191,7 @@ def edit_user_authentication(req: "CamcopsRequest") -> Response:
       changing your own password, return :func:`change_own_password`.
     - POST/submit: change the password and display success message.
     """
-    view = EditUserAuthenticationView(req)
+    view = EditUserMfaView(req)
     return view.dispatch()
 
 

@@ -52,7 +52,7 @@ ${form | n}
         <th>${ _("Edit") }</th>
         <th>${ _("Groups") }</th>
         <th>${ _("Upload group") }</th>
-        <th>${ _("Change authentication") }</th>
+        <th>${ _("Authentication") }</th>
         <th>${ _("Delete") }</th>
     </tr>
     %for user in page:
@@ -110,10 +110,24 @@ ${form | n}
                                 _query={ViewParam.USER_ID: user.id}
                             ) | n }">${ _("change") }</a>]
             </td>
-            <td><a href="${ req.route_url(
-                                Routes.EDIT_USER_AUTHENTICATION,
+            <td class="mini_table">
+                <table>
+                    <tr>
+                        <td><a href="${ req.route_url(
+                                Routes.CHANGE_OTHER_PASSWORD,
                                 _query={ViewParam.USER_ID: user.id}
-                            ) | n }">${ _("Change authentication") }</a></td>
+                            ) | n }">${ _("Change password") }</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><a href="${ req.route_url(
+                                Routes.EDIT_USER_MFA,
+                                _query={ViewParam.USER_ID: user.id}
+                            ) | n }">${ _("Change multi-factor authentication") }</a>
+                        </td>
+                    </tr>
+                </table>
+            </td>
             <td><a href="${ req.route_url(
                                 Routes.DELETE_USER,
                                 _query={ViewParam.USER_ID: user.id}

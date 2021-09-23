@@ -413,18 +413,18 @@ div.indented {
     padding: ${va.ZERO};
 }
 
-.pts_mini_table {
+.mini_table {
     padding: 0px;
     border: none;
 }
 
-.pts_mini_table > table {
+.mini_table > table {
     border-collapse:collapse;
     border-style:hidden;
     margin: 0px;
 }
 
-.pts_mini_table > table > tbody > tr > td {
+.mini_table > table > tbody > tr > td {
     border: none;
 }
 .qr_container {

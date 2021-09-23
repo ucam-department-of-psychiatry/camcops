@@ -40,7 +40,6 @@ from camcops_server.cc_modules.cc_baseconstants import TEMPLATE_DIR
 from camcops_server.cc_modules.cc_forms import (
     DurationType,
     DurationWidget,
-    EditUserAuthenticationSchema,
     GroupIpUseWidget,
     IpUseType,
     MfaSecretWidget,
@@ -986,34 +985,3 @@ class PhoneNumberTypeSerializeTests(PhoneNumberTypeTestCase):
 
         self.assertEqual(self.phone_type.serialize(self.node, phone_number),
                          TEST_PHONE_NUMBER)
-
-
-class EditUserAuthenticationSchemaTests(TestCase):
-    def setUp(self) -> None:
-        super().setUp()
-        self.request = mock.Mock(gettext=lambda t: t)
-
-    def test_invalid_for_empty_password_when_change_true(self):
-        schema = EditUserAuthenticationSchema().bind(request=self.request)
-        value = {
-            ViewParam.CHANGE_PASSWORD: True,
-            ViewParam.DISABLE_MFA: False,
-        }
-
-        with self.assertRaises(Invalid) as cm:
-            schema.validator(None, value)
-
-        self.assertIn("You must provide a password",
-                      cm.exception.messages()[0])
-
-    def test_valid_for_empty_password_when_change_false(self):
-        schema = EditUserAuthenticationSchema().bind(request=self.request)
-        value = {
-            ViewParam.CHANGE_PASSWORD: False,
-            ViewParam.DISABLE_MFA: False,
-        }
-
-        try:
-            schema.validator(None, value)
-        except Invalid:
-            self.fail("Schema unexpectedly failed validation")

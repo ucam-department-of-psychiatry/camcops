@@ -2026,26 +2026,6 @@ class MustChangePasswordNode(SchemaNode, RequestAwareMixin):
         self.title = _("Must change password at next login?")
 
 
-class ChangePasswordNode(SchemaNode, RequestAwareMixin):
-    """
-    Boolean node: Change this user's password?
-    """
-    schema_type = Boolean
-    default = False
-    missing = False
-
-    def __init__(self, *args, **kwargs) -> None:
-        self.label = ""  # for type checker
-        self.title = ""  # for type checker
-        super().__init__(*args, **kwargs)
-
-    # noinspection PyUnusedLocal
-    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
-        _ = self.gettext
-        self.label = _("Change password")
-        self.title = _("Change this user's password?")
-
-
 class OldUserPasswordCheck(SchemaNode, RequestAwareMixin):
     """
     Schema to capture an old password (for when a password is being changed).
@@ -2186,6 +2166,26 @@ class ChangeOwnPasswordForm(InformativeNonceForm):
         )
 
 
+class ChangeOtherPasswordSchema(CSRFSchema):
+    """
+    Schema to change another user's password.
+    """
+    user_id = HiddenIntegerNode()  # name must match ViewParam.USER_ID
+    must_change_password = MustChangePasswordNode()  # match ViewParam.MUST_CHANGE_PASSWORD  # noqa: E501
+    new_password = NewPasswordNode()  # name must match ViewParam.NEW_PASSWORD
+
+
+class ChangeOtherPasswordForm(SimpleSubmitForm):
+    """
+    Form to change another user's password.
+    """
+    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+        _ = request.gettext
+        super().__init__(schema_class=ChangeOtherPasswordSchema,
+                         submit_title=_("Submit"),
+                         request=request, **kwargs)
+
+
 class DisableMfaNode(SchemaNode, RequestAwareMixin):
     """
     Boolean node: disable multi-factor authentication
@@ -2206,42 +2206,21 @@ class DisableMfaNode(SchemaNode, RequestAwareMixin):
         self.title = _("Disable multi-factor authentication?")
 
 
-class EditUserAuthenticationSchema(CSRFSchema):
+class EditUserMfaSchema(CSRFSchema):
     """
-    Schema to change another user's password or reset multi-factor
-    authentication.
+    Schema to reset multi-factor authentication for another user.
     """
     user_id = HiddenIntegerNode()  # name must match ViewParam.USER_ID
-    change_password = ChangePasswordNode()  # name must match View_Param.CHANGE_PASSWORD  # noqa: E501
-    new_password = NewPasswordNode()  # name must match ViewParam.NEW_PASSWORD
-    must_change_password = MustChangePasswordNode()  # match ViewParam.MUST_CHANGE_PASSWORD  # noqa: E501
     disable_mfa = DisableMfaNode()  # match ViewParam.DISABLE_MFA
 
-    # noinspection PyUnusedLocal
-    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
-        _ = self.gettext
-        new_password = get_child_node(self, "new_password")
-        new_password.missing = drop
 
-    def validator(self, node: SchemaNode, value: Dict[str, Any]) -> None:
-        if not value[ViewParam.CHANGE_PASSWORD]:
-            return
-
-        if ViewParam.NEW_PASSWORD not in value:
-            _ = self.gettext
-            raise Invalid(
-                node,
-                _("You must provide a password")
-            )
-
-
-class EditUserAuthenticationForm(SimpleSubmitForm):
+class EditUserMfaForm(SimpleSubmitForm):
     """
-    Form to change another user's password or reset multi-factor authentication.
+    Form to reset multi-factor authentication for another user.
     """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         _ = request.gettext
-        super().__init__(schema_class=EditUserAuthenticationSchema,
+        super().__init__(schema_class=EditUserMfaSchema,
                          submit_title=_("Submit"),
                          request=request, **kwargs)
 

@@ -77,6 +77,7 @@ from camcops_server.cc_modules.webview import (
     AddPatientView,
     AddTaskScheduleItemView,
     AddTaskScheduleView,
+    ChangeOtherPasswordView,
     ChangeOwnPasswordView,
     DeleteServerCreatedPatientView,
     DeleteTaskScheduleItemView,
@@ -87,7 +88,7 @@ from camcops_server.cc_modules.webview import (
     EditFinalizedPatientView,
     EditGroupView,
     EditServerCreatedPatientView,
-    EditUserAuthenticationView,
+    EditUserMfaView,
     EditUserGroupAdminView,
     EraseTaskEntirelyView,
     EraseTaskLeavingPlaceholderView,
@@ -3527,7 +3528,7 @@ class EditMfaViewTests(BasicDatabaseTestCase):
         self.assertEqual(regular_user.email, "regular_user@example.com")
 
 
-class EditUserAuthenticationViewTests(BasicDatabaseTestCase):
+class ChangeOtherPasswordViewTests(BasicDatabaseTestCase):
     def test_raises_for_invalid_user(self) -> None:
         multidict = MultiDict([
             (FormAction.SUBMIT, "submit"),
@@ -3538,7 +3539,7 @@ class EditUserAuthenticationViewTests(BasicDatabaseTestCase):
             ViewParam.USER_ID: "123"
         }, set_method_get=False)
 
-        view = EditUserAuthenticationView(self.req)
+        view = ChangeOtherPasswordView(self.req)
         with self.assertRaises(HTTPBadRequest) as cm:
             view.dispatch()
 
@@ -3561,7 +3562,7 @@ class EditUserAuthenticationViewTests(BasicDatabaseTestCase):
             ViewParam.USER_ID: self.user.id
         }, set_method_get=False)
 
-        view = EditUserAuthenticationView(self.req)
+        view = ChangeOtherPasswordView(self.req)
         with self.assertRaises(HTTPBadRequest) as cm:
             view.dispatch()
 
@@ -3591,7 +3592,7 @@ class EditUserAuthenticationViewTests(BasicDatabaseTestCase):
             ViewParam.USER_ID: regular_user.id
         }, set_method_get=False)
 
-        view = EditUserAuthenticationView(self.req)
+        view = ChangeOtherPasswordView(self.req)
 
         with mock.patch.object(regular_user,
                                "set_password") as mock_set_password:
@@ -3606,45 +3607,6 @@ class EditUserAuthenticationViewTests(BasicDatabaseTestCase):
         self.assertTrue(len(messages) > 0)
         self.assertIn("Password changed for user 'regular_user'",
                       messages[0])
-
-    def test_disable_mfa(self) -> None:
-        groupadmin = self.create_user(username="groupadmin")
-        regular_user = self.create_user(username="regular_user",
-                                        mfa_method=MfaMethod.TOTP)
-        self.dbsession.flush()
-        self.create_membership(groupadmin, self.group, groupadmin=True)
-        self.create_membership(regular_user, self.group)
-        self.dbsession.flush()
-
-        self.assertFalse(regular_user.must_change_password)
-
-        multidict = MultiDict([
-            # ("__start__", "new_password:mapping"),
-            # (ViewParam.NEW_PASSWORD, ""),
-            # ("new_password-confirm", ""),
-            # ("__end__", "new_password:mapping"),
-            (ViewParam.DISABLE_MFA, "true"),
-            (FormAction.SUBMIT, "submit"),
-        ])
-        self.req._debugging_user = groupadmin
-        self.req.fake_request_post_from_dict(multidict)
-
-        self.req.add_get_params({
-            ViewParam.USER_ID: regular_user.id
-        }, set_method_get=False)
-
-        view = EditUserAuthenticationView(self.req)
-        with self.assertRaises(HTTPFound):
-            view.dispatch()
-
-        self.assertEqual(regular_user.mfa_method, MfaMethod.NONE)
-
-        messages = self.req.session.peek_flash(FlashQueue.SUCCESS)
-        self.assertTrue(len(messages) > 0)
-        self.assertIn(
-            "Multi-factor authentication disabled for user 'regular_user'",
-            messages[0]
-        )
 
     def test_user_forced_to_change_password(self) -> None:
         groupadmin = self.create_user(username="groupadmin")
@@ -3669,7 +3631,7 @@ class EditUserAuthenticationViewTests(BasicDatabaseTestCase):
             ViewParam.USER_ID: regular_user.id
         }, set_method_get=False)
 
-        view = EditUserAuthenticationView(self.req)
+        view = ChangeOtherPasswordView(self.req)
 
         with mock.patch.object(regular_user,
                                "force_password_change") as mock_force_change:
@@ -3684,13 +3646,100 @@ class EditUserAuthenticationViewTests(BasicDatabaseTestCase):
         self.req._debugging_user = superuser
         self.req.add_get_params({ViewParam.USER_ID: superuser.id})
 
-        view = EditUserAuthenticationView(self.req)
+        view = ChangeOtherPasswordView(self.req)
         with self.assertRaises(HTTPFound) as cm:
             view.dispatch()
 
         self.assertEqual(cm.exception.status_code, 302)
         self.assertIn(
             "/change_own_password", cm.exception.headers["Location"]
+        )
+
+
+class EditUserMfaViewTests(BasicDatabaseTestCase):
+    def test_raises_for_invalid_user(self) -> None:
+        multidict = MultiDict([
+            (FormAction.SUBMIT, "submit"),
+        ])
+        self.req.fake_request_post_from_dict(multidict)
+
+        self.req.add_get_params({
+            ViewParam.USER_ID: "123"
+        }, set_method_get=False)
+
+        view = EditUserMfaView(self.req)
+        with self.assertRaises(HTTPBadRequest) as cm:
+            view.dispatch()
+
+        self.assertIn("Cannot find User with id:123", cm.exception.message)
+
+    def test_raises_when_user_may_not_edit_other_user(self) -> None:
+        regular_user = self.create_user(username="regular_user")
+        self.dbsession.flush()
+        multidict = MultiDict([
+            (FormAction.SUBMIT, "submit"),
+        ])
+        self.req._debugging_user = regular_user
+        self.req.fake_request_post_from_dict(multidict)
+
+        self.req.add_get_params({
+            ViewParam.USER_ID: self.user.id
+        }, set_method_get=False)
+
+        view = EditUserMfaView(self.req)
+        with self.assertRaises(HTTPBadRequest) as cm:
+            view.dispatch()
+
+        self.assertIn("Nobody may edit the system user", cm.exception.message)
+
+    def test_disable_mfa(self) -> None:
+        groupadmin = self.create_user(username="groupadmin")
+        regular_user = self.create_user(username="regular_user",
+                                        mfa_method=MfaMethod.TOTP)
+        self.dbsession.flush()
+        self.create_membership(groupadmin, self.group, groupadmin=True)
+        self.create_membership(regular_user, self.group)
+        self.dbsession.flush()
+
+        self.assertFalse(regular_user.must_change_password)
+
+        multidict = MultiDict([
+            (ViewParam.DISABLE_MFA, "true"),
+            (FormAction.SUBMIT, "submit"),
+        ])
+        self.req._debugging_user = groupadmin
+        self.req.fake_request_post_from_dict(multidict)
+
+        self.req.add_get_params({
+            ViewParam.USER_ID: regular_user.id
+        }, set_method_get=False)
+
+        view = EditUserMfaView(self.req)
+        with self.assertRaises(HTTPFound):
+            view.dispatch()
+
+        self.assertEqual(regular_user.mfa_method, MfaMethod.NONE)
+
+        messages = self.req.session.peek_flash(FlashQueue.SUCCESS)
+        self.assertTrue(len(messages) > 0)
+        self.assertIn(
+            "Multi-factor authentication disabled for user 'regular_user'",
+            messages[0]
+        )
+
+    def test_redirects_if_editing_own_account(self) -> None:
+        superuser = self.create_user(username="admin", superuser=True)
+        self.dbsession.flush()
+        self.req._debugging_user = superuser
+        self.req.add_get_params({ViewParam.USER_ID: superuser.id})
+
+        view = EditUserMfaView(self.req)
+        with self.assertRaises(HTTPFound) as cm:
+            view.dispatch()
+
+        self.assertEqual(cm.exception.status_code, 302)
+        self.assertIn(
+            "/edit_mfa", cm.exception.headers["Location"]
         )
 
 
