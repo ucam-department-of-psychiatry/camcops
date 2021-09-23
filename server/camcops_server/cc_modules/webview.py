@@ -1070,28 +1070,38 @@ def change_own_password(req: "CamcopsRequest") -> Response:
     return view.dispatch()
 
 
-class ChangeOtherPasswordView(UpdateView):
+class EditUserAuthenticationView(UpdateView):
+    model_form_dict = {}
     object_class = User
-    form_class = ChangeOtherPasswordForm
-    template_name = "change_other_password.mako"
     pk_param = ViewParam.USER_ID
     server_pk_name = "id"
-    model_form_dict = {}
 
     def get_success_url(self) -> str:
         return self.request.route_url(Routes.VIEW_ALL_USERS)
-
-    def get(self) -> Response:
-        if self.get_pk_value() == self.request.user_id:
-            raise HTTPFound(self.request.route_url(Routes.CHANGE_OWN_PASSWORD))
-
-        return super().get()
 
     def get_object(self) -> Any:
         user = cast(User, super().get_object())
         assert_may_edit_user(self.request, user)
 
         return user
+
+    def get_extra_context(self) -> Dict[str, Any]:
+        user = cast(User, self.object)
+
+        return {
+            "username":  user.username,
+        }
+
+
+class ChangeOtherPasswordView(EditUserAuthenticationView):
+    form_class = ChangeOtherPasswordForm
+    template_name = "change_other_password.mako"
+
+    def get(self) -> Response:
+        if self.get_pk_value() == self.request.user_id:
+            raise HTTPFound(self.request.route_url(Routes.CHANGE_OWN_PASSWORD))
+
+        return super().get()
 
     def set_object_properties(self, appstruct: Dict[str, Any]) -> None:
         super().set_object_properties(appstruct)
@@ -1113,13 +1123,6 @@ class ChangeOtherPasswordView(UpdateView):
             queue=FlashQueue.SUCCESS
         )
 
-    def get_extra_context(self) -> Dict[str, Any]:
-        user = cast(User, self.object)
-
-        return {
-            "username":  user.username,
-        }
-
 
 @view_config(route_name=Routes.CHANGE_OTHER_PASSWORD,
              permission=Permission.GROUPADMIN,
@@ -1136,28 +1139,15 @@ def change_other_password(req: "CamcopsRequest") -> Response:
     return view.dispatch()
 
 
-class EditUserMfaView(UpdateView):
-    object_class = User
+class EditUserMfaView(EditUserAuthenticationView):
     form_class = EditUserMfaForm
     template_name = "edit_user_mfa.mako"
-    pk_param = ViewParam.USER_ID
-    server_pk_name = "id"
-    model_form_dict = {}
-
-    def get_success_url(self) -> str:
-        return self.request.route_url(Routes.VIEW_ALL_USERS)
 
     def get(self) -> Response:
         if self.get_pk_value() == self.request.user_id:
             raise HTTPFound(self.request.route_url(Routes.EDIT_MFA))
 
         return super().get()
-
-    def get_object(self) -> Any:
-        user = cast(User, super().get_object())
-        assert_may_edit_user(self.request, user)
-
-        return user
 
     def set_object_properties(self, appstruct: Dict[str, Any]) -> None:
         super().set_object_properties(appstruct)
@@ -1171,13 +1161,6 @@ class EditUserMfaView(UpdateView):
                   "'{username}'").format(username=user.username),
                 queue=FlashQueue.SUCCESS
             )
-
-    def get_extra_context(self) -> Dict[str, Any]:
-        user = cast(User, self.object)
-
-        return {
-            "username":  user.username,
-        }
 
 
 @view_config(route_name=Routes.EDIT_USER_MFA,
