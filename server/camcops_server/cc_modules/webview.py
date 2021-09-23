@@ -602,6 +602,12 @@ class MfaMixin:
 
         return int(time.time()) > login_time + timeout
 
+    def get_extra_context(self) -> Dict[str, Any]:
+        if self.step == "mfa":
+            return {"instructions": self.get_mfa_instructions()}
+
+        return {}
+
     def get_mfa_instructions(self) -> str:
         _ = self.request.gettext
 
@@ -714,12 +720,6 @@ class LoginView(MfaMixin, FormWizardMixin, FormView):
         self.state["mfa_user_id"] = user.id
 
     mfa_user = property(_get_mfa_user, _set_mfa_user)
-
-    def get_extra_context(self) -> Dict[str, Any]:
-        if self.step == "password":
-            return {}
-
-        return {"instructions": self.get_mfa_instructions()}
 
     def get_form_values(self) -> Dict:
         return {
@@ -980,12 +980,6 @@ class ChangeOwnPasswordView(MfaMixin, FormWizardMixin, UpdateView):
         super().__init__(*args, **kwargs)
         self.mfa_user = self.request.user
 
-    def get_extra_context(self) -> Dict[str, Any]:
-        if self.step == "mfa":
-            return {"instructions": self.get_mfa_instructions()}
-
-        return {}
-
     def get_first_step(self) -> str:
         if self.request.user.mfa_method == MfaMethod.NONE:
             return "password"
@@ -1070,14 +1064,21 @@ def change_own_password(req: "CamcopsRequest") -> Response:
     return view.dispatch()
 
 
-class EditUserAuthenticationView(UpdateView):
+class EditUserAuthenticationView(MfaMixin, FormWizardMixin, UpdateView):
     model_form_dict = {}
     object_class = User
     pk_param = ViewParam.USER_ID
     server_pk_name = "id"
 
-    def get_success_url(self) -> str:
-        return self.request.route_url(Routes.VIEW_ALL_USERS)
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.mfa_user = self.request.user
+
+    def get(self) -> Response:
+        if self.step == "mfa":
+            self.handle_authentication_type()
+
+        return super().get()
 
     def get_object(self) -> Any:
         user = cast(User, super().get_object())
@@ -1086,16 +1087,37 @@ class EditUserAuthenticationView(UpdateView):
         return user
 
     def get_extra_context(self) -> Dict[str, Any]:
+        if self.step == "mfa":
+            return super().get_extra_context()
+
         user = cast(User, self.object)
 
         return {
             "username":  user.username,
         }
 
+    def form_valid(self, form: "Form",
+                   appstruct: Dict[str, Any]) -> Response:
+        if self.step == "mfa":
+            if not self.otp_is_valid(appstruct):
+                self.fail_bad_mfa_code()
+
+        super().form_valid(form, appstruct)
+
+    def get_failure_url(self) -> str:
+        return self.request.route_url(Routes.VIEW_ALL_USERS)
+
 
 class ChangeOtherPasswordView(EditUserAuthenticationView):
-    form_class = ChangeOtherPasswordForm
-    template_name = "change_other_password.mako"
+    wizard_forms = {
+        "mfa": OtpTokenForm,
+        "password": ChangeOtherPasswordForm
+    }
+
+    wizard_templates = {
+        "mfa": "login_token.mako",
+        "password": "change_other_password.mako"
+    }
 
     def get(self) -> Response:
         if self.get_pk_value() == self.request.user_id:
@@ -1103,9 +1125,21 @@ class ChangeOtherPasswordView(EditUserAuthenticationView):
 
         return super().get()
 
-    def set_object_properties(self, appstruct: Dict[str, Any]) -> None:
-        super().set_object_properties(appstruct)
+    def get_first_step(self) -> str:
+        if self.request.user.mfa_method != MfaMethod.NONE:
+            return "mfa"
 
+        return "password"
+
+    def set_object_properties(self, appstruct: Dict[str, Any]) -> None:
+        if self.step == "password":
+            self.set_password(appstruct)
+            return self.finish()
+
+        if self.step == "mfa":
+            self.save_step("password")
+
+    def set_password(self, appstruct: Dict[str, Any]) -> None:
         user = cast(User, self.object)
         _ = self.request.gettext
         # -----------------------------------------------------------------
@@ -1121,6 +1155,19 @@ class ChangeOtherPasswordView(EditUserAuthenticationView):
                 username=user.username
             ),
             queue=FlashQueue.SUCCESS
+        )
+
+    def get_success_url(self) -> str:
+        if self.finished():
+            return self.request.route_url(Routes.VIEW_ALL_USERS)
+
+        user = cast(User, self.object)
+
+        return self.request.route_url(
+            Routes.CHANGE_OTHER_PASSWORD,
+            _query={
+                ViewParam.USER_ID: user.id,
+            }
         )
 
 
@@ -1140,8 +1187,15 @@ def change_other_password(req: "CamcopsRequest") -> Response:
 
 
 class EditUserMfaView(EditUserAuthenticationView):
-    form_class = EditUserMfaForm
-    template_name = "edit_user_mfa.mako"
+    wizard_forms = {
+        "mfa": OtpTokenForm,
+        "other_user_mfa": EditUserMfaForm,
+    }
+
+    wizard_templates = {
+        "mfa": "login_token.mako",
+        "other_user_mfa": "edit_user_mfa.mako",
+    }
 
     def get(self) -> Response:
         if self.get_pk_value() == self.request.user_id:
@@ -1149,18 +1203,44 @@ class EditUserMfaView(EditUserAuthenticationView):
 
         return super().get()
 
-    def set_object_properties(self, appstruct: Dict[str, Any]) -> None:
-        super().set_object_properties(appstruct)
+    def get_first_step(self) -> str:
+        if self.request.user.mfa_method != MfaMethod.NONE:
+            return "mfa"
 
-        user = cast(User, self.object)
-        _ = self.request.gettext
+        return "other_user_mfa"
+
+    def set_object_properties(self, appstruct: Dict[str, Any]) -> None:
+        if self.step == "other_user_mfa":
+            self.maybe_disable_mfa(appstruct)
+            return self.finish()
+
+        if self.step == "mfa":
+            self.save_step("other_user_mfa")
+
+    def maybe_disable_mfa(self, appstruct: Dict[str, Any]) -> None:
         if appstruct.get(ViewParam.DISABLE_MFA):
+            user = cast(User, self.object)
+            _ = self.request.gettext
+
             user.mfa_method = MfaMethod.NONE
             self.request.session.flash(
                 _("Multi-factor authentication disabled for user "
                   "'{username}'").format(username=user.username),
                 queue=FlashQueue.SUCCESS
             )
+
+    def get_success_url(self) -> str:
+        if self.finished():
+            return self.request.route_url(Routes.VIEW_ALL_USERS)
+
+        user = cast(User, self.object)
+
+        return self.request.route_url(
+            Routes.EDIT_USER_MFA,
+            _query={
+                ViewParam.USER_ID: user.id,
+            }
+        )
 
 
 @view_config(route_name=Routes.EDIT_USER_MFA,
@@ -1239,7 +1319,7 @@ class EditMfaView(MfaMixin, FormWizardMixin, UpdateView):
 
     def get_extra_context(self) -> Dict[str, Any]:
         if self.step == "mfa":
-            return {"instructions": self.get_mfa_instructions()}
+            return super().get_extra_context()
 
         _ = self.request.gettext
 

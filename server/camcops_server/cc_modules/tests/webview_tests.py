@@ -3644,7 +3644,9 @@ class ChangeOtherPasswordViewTests(BasicDatabaseTestCase):
         superuser = self.create_user(username="admin", superuser=True)
         self.dbsession.flush()
         self.req._debugging_user = superuser
-        self.req.add_get_params({ViewParam.USER_ID: superuser.id})
+        self.req.add_get_params({
+            ViewParam.USER_ID: superuser.id
+        }, set_method_get=False)
 
         view = ChangeOtherPasswordView(self.req)
         with self.assertRaises(HTTPFound) as cm:
@@ -3654,6 +3656,171 @@ class ChangeOtherPasswordViewTests(BasicDatabaseTestCase):
         self.assertIn(
             "/change_own_password", cm.exception.headers["Location"]
         )
+
+    @mock.patch("camcops_server.cc_modules.cc_email.send_msg")
+    @mock.patch("camcops_server.cc_modules.cc_email.make_email")
+    def test_user_sees_otp_form_if_mfa_setup(self,
+                                             mock_make_email,
+                                             mock_send_msg) -> None:
+        superuser = self.create_user(username="admin",
+                                     superuser=True,
+                                     email="admin@example.com",
+                                     mfa_method=MfaMethod.HOTP_EMAIL,
+                                     mfa_secret_key=pyotp.random_base32(),
+                                     hotp_counter=0)
+
+        user = self.create_user(username="user")
+        self.dbsession.flush()
+        self.req._debugging_user = superuser
+        self.req.add_get_params({
+            ViewParam.USER_ID: user.id
+        }, set_method_get=False)
+
+        view = ChangeOtherPasswordView(self.req)
+
+        with mock.patch.object(view, "render_to_response") as mock_render:
+            view.dispatch()
+
+        args, kwargs = mock_render.call_args
+        context = args[0]
+
+        self.assertIn("form", context)
+        self.assertIn("Enter the six-digit code", context["form"])
+
+    def test_code_sent_if_mfa_setup(self) -> None:
+        self.req.config.sms_backend = get_sms_backend("console", {})
+
+        phone_number = phonenumbers.parse(TEST_PHONE_NUMBER)
+        superuser = self.create_user(username="admin",
+                                     superuser=True,
+                                     email="admin@example.com",
+                                     phone_number=phone_number,
+                                     mfa_secret_key=pyotp.random_base32(),
+                                     mfa_method=MfaMethod.HOTP_SMS,
+                                     hotp_counter=0)
+        user = self.create_user(username="user",
+                                email="user@example.com")
+        self.dbsession.flush()
+
+        self.req._debugging_user = superuser
+        self.req.add_get_params({
+            ViewParam.USER_ID: user.id
+        }, set_method_get=False)
+
+        view = ChangeOtherPasswordView(self.req)
+        with self.assertLogs(level=logging.INFO) as logging_cm:
+            view.dispatch()
+
+        expected_code = pyotp.HOTP(superuser.mfa_secret_key).at(1)
+        expected_message = f"Your CamCOPS verification code is {expected_code}"
+
+        self.assertIn(
+            f"Sent message '{expected_message}' to {TEST_PHONE_NUMBER}",
+            logging_cm.output[0]
+        )
+
+    def test_user_can_enter_token(self) -> None:
+        superuser = self.create_user(username="admin",
+                                     superuser=True,
+                                     mfa_method=MfaMethod.HOTP_EMAIL,
+                                     mfa_secret_key=pyotp.random_base32(),
+                                     email="user@example.com",
+                                     hotp_counter=1)
+        user = self.create_user(username="user",
+                                email="user@example.com")
+        self.dbsession.flush()
+
+        self.req._debugging_user = superuser
+        self.req.add_get_params({
+            ViewParam.USER_ID: user.id
+        }, set_method_get=False)
+
+        hotp = pyotp.HOTP(superuser.mfa_secret_key)
+        multidict = MultiDict([
+            (ViewParam.ONE_TIME_PASSWORD, hotp.at(1)),
+            (FormAction.SUBMIT, "submit"),
+        ])
+        self.req.fake_request_post_from_dict(multidict)
+
+        view = ChangeOtherPasswordView(self.req)
+
+        with self.assertRaises(HTTPFound) as e:
+            view.dispatch()
+
+        self.assertEqual(self.req.camcops_session.form_state["step"],
+                         "password")
+        self.assertIn(
+            f"change_other_password?user_id={user.id}",
+            e.exception.headers["Location"]
+        )
+
+    def test_form_state_cleared_on_invalid_token(self) -> None:
+        superuser = self.create_user(username="superuser",
+                                     superuser=True,
+                                     mfa_method=MfaMethod.HOTP_EMAIL,
+                                     mfa_secret_key=pyotp.random_base32(),
+                                     email="user@example.com",
+                                     hotp_counter=1)
+        user = self.create_user(username="user",
+                                email="user@example.com")
+        self.dbsession.flush()
+
+        self.req._debugging_user = superuser
+        self.req.add_get_params({
+            ViewParam.USER_ID: user.id
+        }, set_method_get=False)
+
+        hotp = pyotp.HOTP(superuser.mfa_secret_key)
+        multidict = MultiDict([
+            (ViewParam.ONE_TIME_PASSWORD, hotp.at(2)),
+            (FormAction.SUBMIT, "submit"),
+        ])
+        self.req.fake_request_post_from_dict(multidict)
+
+        view = ChangeOtherPasswordView(self.req)
+
+        with self.assertRaises(HTTPFound):
+            view.dispatch()
+
+        messages = self.req.session.peek_flash(FlashQueue.DANGER)
+        self.assertTrue(len(messages) > 0)
+        self.assertIn("You entered an invalid code", messages[0])
+
+        self.assertIsNone(self.req.camcops_session.form_state)
+
+    def test_cannot_change_password_if_timed_out(self) -> None:
+        self.req.config.mfa_timeout_s = 600
+        superuser = self.create_user(username="admin",
+                                     superuser=True,
+                                     mfa_method=MfaMethod.TOTP,
+                                     mfa_secret_key=pyotp.random_base32())
+        user = self.create_user(username="user")
+        self.dbsession.flush()
+
+        self.req._debugging_user = superuser
+        self.req.add_get_params({
+            ViewParam.USER_ID: user.id
+        }, set_method_get=False)
+
+        totp = pyotp.TOTP(superuser.mfa_secret_key)
+        multidict = MultiDict([
+            (ViewParam.ONE_TIME_PASSWORD, totp.now()),
+            (FormAction.SUBMIT, "submit"),
+        ])
+        self.req.fake_request_post_from_dict(multidict)
+
+        view = ChangeOtherPasswordView(self.req)
+        view.state.update(
+            mfa_user=superuser.id,
+            mfa_time=int(time.time()-601),
+            step="mfa"
+        )
+
+        with mock.patch.object(view, "fail_timed_out") as mock_fail_timed_out:
+            view.dispatch()
+
+        mock_fail_timed_out.assert_called_once()
+        self.assertIsNone(self.req.camcops_session.form_state)
 
 
 class EditUserMfaViewTests(BasicDatabaseTestCase):
@@ -3741,6 +3908,171 @@ class EditUserMfaViewTests(BasicDatabaseTestCase):
         self.assertIn(
             "/edit_mfa", cm.exception.headers["Location"]
         )
+
+    @mock.patch("camcops_server.cc_modules.cc_email.send_msg")
+    @mock.patch("camcops_server.cc_modules.cc_email.make_email")
+    def test_user_sees_otp_form_if_mfa_setup(self,
+                                             mock_make_email,
+                                             mock_send_msg) -> None:
+        superuser = self.create_user(username="admin",
+                                     superuser=True,
+                                     email="admin@example.com",
+                                     mfa_method=MfaMethod.HOTP_EMAIL,
+                                     mfa_secret_key=pyotp.random_base32(),
+                                     hotp_counter=0)
+
+        user = self.create_user(username="user")
+        self.dbsession.flush()
+        self.req._debugging_user = superuser
+        self.req.add_get_params({
+            ViewParam.USER_ID: user.id
+        }, set_method_get=False)
+
+        view = EditUserMfaView(self.req)
+
+        with mock.patch.object(view, "render_to_response") as mock_render:
+            view.dispatch()
+
+        args, kwargs = mock_render.call_args
+        context = args[0]
+
+        self.assertIn("form", context)
+        self.assertIn("Enter the six-digit code", context["form"])
+
+    def test_code_sent_if_mfa_setup(self) -> None:
+        self.req.config.sms_backend = get_sms_backend("console", {})
+
+        phone_number = phonenumbers.parse(TEST_PHONE_NUMBER)
+        superuser = self.create_user(username="admin",
+                                     superuser=True,
+                                     email="admin@example.com",
+                                     phone_number=phone_number,
+                                     mfa_secret_key=pyotp.random_base32(),
+                                     mfa_method=MfaMethod.HOTP_SMS,
+                                     hotp_counter=0)
+        user = self.create_user(username="user",
+                                email="user@example.com")
+        self.dbsession.flush()
+
+        self.req._debugging_user = superuser
+        self.req.add_get_params({
+            ViewParam.USER_ID: user.id
+        }, set_method_get=False)
+
+        view = EditUserMfaView(self.req)
+        with self.assertLogs(level=logging.INFO) as logging_cm:
+            view.dispatch()
+
+        expected_code = pyotp.HOTP(superuser.mfa_secret_key).at(1)
+        expected_message = f"Your CamCOPS verification code is {expected_code}"
+
+        self.assertIn(
+            f"Sent message '{expected_message}' to {TEST_PHONE_NUMBER}",
+            logging_cm.output[0]
+        )
+
+    def test_user_can_enter_token(self) -> None:
+        superuser = self.create_user(username="admin",
+                                     superuser=True,
+                                     mfa_method=MfaMethod.HOTP_EMAIL,
+                                     mfa_secret_key=pyotp.random_base32(),
+                                     email="user@example.com",
+                                     hotp_counter=1)
+        user = self.create_user(username="user",
+                                email="user@example.com")
+        self.dbsession.flush()
+
+        self.req._debugging_user = superuser
+        self.req.add_get_params({
+            ViewParam.USER_ID: user.id
+        }, set_method_get=False)
+
+        hotp = pyotp.HOTP(superuser.mfa_secret_key)
+        multidict = MultiDict([
+            (ViewParam.ONE_TIME_PASSWORD, hotp.at(1)),
+            (FormAction.SUBMIT, "submit"),
+        ])
+        self.req.fake_request_post_from_dict(multidict)
+
+        view = EditUserMfaView(self.req)
+
+        with self.assertRaises(HTTPFound) as e:
+            view.dispatch()
+
+        self.assertEqual(self.req.camcops_session.form_state["step"],
+                         "other_user_mfa")
+        self.assertIn(
+            f"edit_user_mfa?user_id={user.id}",
+            e.exception.headers["Location"]
+        )
+
+    def test_form_state_cleared_on_invalid_token(self) -> None:
+        superuser = self.create_user(username="superuser",
+                                     superuser=True,
+                                     mfa_method=MfaMethod.HOTP_EMAIL,
+                                     mfa_secret_key=pyotp.random_base32(),
+                                     email="user@example.com",
+                                     hotp_counter=1)
+        user = self.create_user(username="user",
+                                email="user@example.com")
+        self.dbsession.flush()
+
+        self.req._debugging_user = superuser
+        self.req.add_get_params({
+            ViewParam.USER_ID: user.id
+        }, set_method_get=False)
+
+        hotp = pyotp.HOTP(superuser.mfa_secret_key)
+        multidict = MultiDict([
+            (ViewParam.ONE_TIME_PASSWORD, hotp.at(2)),
+            (FormAction.SUBMIT, "submit"),
+        ])
+        self.req.fake_request_post_from_dict(multidict)
+
+        view = EditUserMfaView(self.req)
+
+        with self.assertRaises(HTTPFound):
+            view.dispatch()
+
+        messages = self.req.session.peek_flash(FlashQueue.DANGER)
+        self.assertTrue(len(messages) > 0)
+        self.assertIn("You entered an invalid code", messages[0])
+
+        self.assertIsNone(self.req.camcops_session.form_state)
+
+    def test_cannot_change_password_if_timed_out(self) -> None:
+        self.req.config.mfa_timeout_s = 600
+        superuser = self.create_user(username="admin",
+                                     superuser=True,
+                                     mfa_method=MfaMethod.TOTP,
+                                     mfa_secret_key=pyotp.random_base32())
+        user = self.create_user(username="user")
+        self.dbsession.flush()
+
+        self.req._debugging_user = superuser
+        self.req.add_get_params({
+            ViewParam.USER_ID: user.id
+        }, set_method_get=False)
+
+        totp = pyotp.TOTP(superuser.mfa_secret_key)
+        multidict = MultiDict([
+            (ViewParam.ONE_TIME_PASSWORD, totp.now()),
+            (FormAction.SUBMIT, "submit"),
+        ])
+        self.req.fake_request_post_from_dict(multidict)
+
+        view = ChangeOwnPasswordView(self.req)
+        view.state.update(
+            mfa_user=superuser.id,
+            mfa_time=int(time.time()-601),
+            step="mfa"
+        )
+
+        with mock.patch.object(view, "fail_timed_out") as mock_fail_timed_out:
+            view.dispatch()
+
+        mock_fail_timed_out.assert_called_once()
+        self.assertIsNone(self.req.camcops_session.form_state)
 
 
 class EditUserGroupMembershipViewTests(BasicDatabaseTestCase):
