@@ -2291,8 +2291,8 @@ class MfaSecretWidget(TextInputWidget):
             qr_code=stream.getvalue().decode(),
             enter_key=_("If you can't scan the QR code, enter this key "
                         "instead:"),
-            enter_code=_("The next time you log in, enter the 6-digit "
-                         "code displayed on the app.")
+            enter_code=_("When prompted, enter the 6-digit code displayed on "
+                         "the app.")
         )
 
         return field.renderer(template, **values)
