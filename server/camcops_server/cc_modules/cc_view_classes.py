@@ -752,6 +752,6 @@ class FormWizardMixin:
         self.state = None
 
     def finished(self) -> None:
-        # If we try to access self.state will it initialise?
-        # TODO: Check this
+        # If we read self.state, we will initialise it to not
+        # be None!
         return self.request.camcops_session.form_state is None

@@ -144,3 +144,17 @@ class FormWizardMixinTests(BasicDatabaseTestCase):
         ).one()
 
         self.assertEqual(session.form_state["test_field"], "test_value")
+
+    def test_finish_and_finished(self) -> None:
+        self.req.camcops_session.form_state = {
+            "step": "previous_step",
+            "route_name": "test_route",
+        }
+        self.req.dbsession.add(self.req.camcops_session)
+        self.req.dbsession.commit()
+
+        view = TestView(self.req)
+        view.finish()
+
+        self.assertTrue(view.finished())
+        self.assertIsNone(self.req.camcops_session.form_state)
