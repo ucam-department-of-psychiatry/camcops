@@ -82,8 +82,8 @@ from camcops_server.cc_modules.webview import (
     DeleteServerCreatedPatientView,
     DeleteTaskScheduleItemView,
     DeleteTaskScheduleView,
-    EditMfaView,
     EditOtherUserMfaView,
+    EditOwnUserMfaView,
     EditTaskScheduleItemView,
     EditTaskScheduleView,
     EditFinalizedPatientView,
@@ -3282,7 +3282,7 @@ class EditUserViewTests(BasicDatabaseTestCase):
                       cm.exception.message)
 
 
-class EditMfaViewTests(BasicDatabaseTestCase):
+class EditOwnUserMfaViewTests(BasicDatabaseTestCase):
     def test_get_form_values_mfa_method(self) -> None:
         regular_user = self.create_user(
             username="regular_user",
@@ -3291,7 +3291,7 @@ class EditMfaViewTests(BasicDatabaseTestCase):
         self.dbsession.flush()
 
         self.req._debugging_user = regular_user
-        view = EditMfaView(self.req)
+        view = EditOwnUserMfaView(self.req)
 
         # Would normally be set when going through dispatch()
         view.object = regular_user
@@ -3310,7 +3310,7 @@ class EditMfaViewTests(BasicDatabaseTestCase):
         self.dbsession.flush()
 
         self.req._debugging_user = regular_user
-        view = EditMfaView(self.req)
+        view = EditOwnUserMfaView(self.req)
 
         # Would normally be set when going through dispatch()
         view.object = regular_user
@@ -3336,7 +3336,7 @@ class EditMfaViewTests(BasicDatabaseTestCase):
         self.dbsession.flush()
 
         self.req._debugging_user = regular_user
-        view = EditMfaView(self.req)
+        view = EditOwnUserMfaView(self.req)
 
         # Would normally be set when going through dispatch()
         view.object = regular_user
@@ -3362,7 +3362,7 @@ class EditMfaViewTests(BasicDatabaseTestCase):
         self.dbsession.flush()
 
         self.req._debugging_user = regular_user
-        view = EditMfaView(self.req)
+        view = EditOwnUserMfaView(self.req)
 
         # Would normally be set when going through dispatch()
         view.object = regular_user
@@ -3392,7 +3392,7 @@ class EditMfaViewTests(BasicDatabaseTestCase):
         self.req.fake_request_post_from_dict(multidict)
         self.req.config.mfa_methods = ["totp"]
 
-        view = EditMfaView(self.req)
+        view = EditOwnUserMfaView(self.req)
         view.state.update(step="totp")
 
         with self.assertRaises(HTTPFound):
@@ -3412,7 +3412,7 @@ class EditMfaViewTests(BasicDatabaseTestCase):
         self.req.fake_request_post_from_dict(multidict)
         self.req.config.mfa_methods = ["totp"]
 
-        view = EditMfaView(self.req)
+        view = EditOwnUserMfaView(self.req)
 
         with self.assertRaises(HTTPFound):
             view.dispatch()
@@ -3432,7 +3432,7 @@ class EditMfaViewTests(BasicDatabaseTestCase):
         self.req.fake_request_post_from_dict(multidict)
         self.req.config.mfa_methods = ["hotp_email"]
 
-        view = EditMfaView(self.req)
+        view = EditOwnUserMfaView(self.req)
 
         with self.assertRaises(HTTPFound):
             view.dispatch()
@@ -3454,7 +3454,7 @@ class EditMfaViewTests(BasicDatabaseTestCase):
         self.req.fake_request_post_from_dict(multidict)
         self.req.config.mfa_methods = ["hotp_sms"]
 
-        view = EditMfaView(self.req)
+        view = EditOwnUserMfaView(self.req)
 
         with self.assertRaises(HTTPFound):
             view.dispatch()
@@ -3477,7 +3477,7 @@ class EditMfaViewTests(BasicDatabaseTestCase):
         self.req.config.mfa_methods = ["totp", "hotp_sms", "hotp_email",
                                        "none"]
 
-        view = EditMfaView(self.req)
+        view = EditOwnUserMfaView(self.req)
 
         with self.assertRaises(HTTPFound):
             view.dispatch()
@@ -3500,7 +3500,7 @@ class EditMfaViewTests(BasicDatabaseTestCase):
         self.req.fake_request_post_from_dict(multidict)
         self.req.config.mfa_methods = ["hotp_sms"]
 
-        view = EditMfaView(self.req)
+        view = EditOwnUserMfaView(self.req)
         view.state.update(step="hotp_sms")
 
         with self.assertRaises(HTTPFound):
@@ -3523,7 +3523,7 @@ class EditMfaViewTests(BasicDatabaseTestCase):
         self.req._debugging_user = regular_user
         self.req.fake_request_post_from_dict(multidict)
 
-        view = EditMfaView(self.req)
+        view = EditOwnUserMfaView(self.req)
         view.state.update(step="hotp_email")
 
         with self.assertRaises(HTTPFound):

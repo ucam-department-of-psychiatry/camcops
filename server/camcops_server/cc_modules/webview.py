@@ -936,7 +936,7 @@ def forbidden(req: "CamcopsRequest") -> Response:
         if user.must_agree_terms:
             return HTTPFound(req.route_url(Routes.OFFER_TERMS))
         if user.mfa_method not in req.config.mfa_methods:
-            return HTTPFound(req.route_url(Routes.EDIT_MFA))
+            return HTTPFound(req.route_url(Routes.EDIT_OWN_USER_MFA))
     # ... but with "raise HTTPFound" instead.
     # BUT there is only one level of exception handling in Pyramid, i.e. you
     # can't raise exceptions from exceptions:
@@ -1197,7 +1197,7 @@ class EditOtherUserMfaView(EditUserAuthenticationView):
 
     def get(self) -> Response:
         if self.get_pk_value() == self.request.user_id:
-            raise HTTPFound(self.request.route_url(Routes.EDIT_MFA))
+            raise HTTPFound(self.request.route_url(Routes.EDIT_OWN_USER_MFA))
 
         return super().get()
 
@@ -1258,7 +1258,7 @@ def edit_other_user_mfa(req: "CamcopsRequest") -> Response:
     return view.dispatch()
 
 
-class EditMfaView(MfaMixin, FormWizardMixin, UpdateView):
+class EditOwnUserMfaView(MfaMixin, FormWizardMixin, UpdateView):
     wizard_first_step = "mfa_method"
 
     wizard_forms = {
@@ -1336,7 +1336,7 @@ class EditMfaView(MfaMixin, FormWizardMixin, UpdateView):
         if self.finished():
             return self.request.route_url(Routes.HOME)
 
-        return self.request.route_url(Routes.EDIT_MFA)
+        return self.request.route_url(Routes.EDIT_OWN_USER_MFA)
 
     def get_failure_url(self) -> str:
         return self.request.route_url(Routes.HOME)
@@ -1374,11 +1374,11 @@ class EditMfaView(MfaMixin, FormWizardMixin, UpdateView):
         self.save_step("mfa")
 
 
-@view_config(route_name=Routes.EDIT_MFA,
+@view_config(route_name=Routes.EDIT_OWN_USER_MFA,
              permission=Authenticated,
              http_cache=NEVER_CACHE)
-def edit_mfa(request: "CamcopsRequest") -> Response:
-    view = EditMfaView(request)
+def edit_own_user_mfa(request: "CamcopsRequest") -> Response:
+    view = EditOwnUserMfaView(request)
     return view.dispatch()
 
 
