@@ -118,6 +118,7 @@ class DemoRequestTestCase(ExtendedTestCase):
         from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient  # noqa
 
         self.req = get_unittest_request(self.dbsession)
+        self.req.matched_route = unittest.mock.Mock()
         self.recipdef = ExportRecipient()
 
     def create_config_file(self) -> None:

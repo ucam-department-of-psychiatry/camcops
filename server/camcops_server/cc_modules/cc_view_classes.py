@@ -692,17 +692,26 @@ class FormWizardMixin:
     """
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.state = self.request.camcops_session.form_state
-        if self.state is None:
-            self.state = dict()
 
-    def save_state(self) -> None:
-        self.request.camcops_session.form_state = self.state
+        if self.route_name != self.request.matched_route.name:
+            # Form state is incomplete from previous occasion
+            self.state = {"route_name": self.request.matched_route.name}
+
         self.request.dbsession.add(self.request.camcops_session)
 
+    def _get_state(self) -> Dict[str, Any]:
+        if self.request.camcops_session.form_state is None:
+            self.request.camcops_session.form_state = dict()
+
+        return self.request.camcops_session.form_state
+
+    def _set_state(self, state: Optional[Dict[str, Any]]):
+        self.request.camcops_session.form_state = state
+
+    state = property(_get_state, _set_state)
+
     def _get_step(self) -> str:
-        return self.state.setdefault("step",
-                                     self.get_first_step())
+        return self.state.setdefault("step", self.get_first_step())
 
     def _set_step(self, step: str) -> None:
         self.state["step"] = step
@@ -711,6 +720,15 @@ class FormWizardMixin:
 
     def get_first_step(self) -> str:
         return self.wizard_first_step
+
+    def _get_route_name(self) -> Optional[str]:
+        return self.state.setdefault("route_name",
+                                     self.request.matched_route.name)
+
+    def _set_route_name(self, route_name: str) -> None:
+        self.state["route_name"] = route_name
+
+    route_name = property(_get_route_name, _set_route_name)
 
     def get_form_class(self) -> Optional[Type["Form"]]:
         return self.wizard_forms[self.step]
@@ -722,17 +740,15 @@ class FormWizardMixin:
         return self.wizard_extra_contexts[self.step]
 
     def fail(self, message: str) -> None:
-        self.finished()
+        self.finish()
 
         super().fail(message)
 
     def save_step(self, step: str) -> None:
         self.step = step
-        self.save_state()
 
     def finish(self) -> None:
         self.state = None
-        self.save_state()
 
     def finished(self) -> None:
         # If we try to access self.state will it initialise?

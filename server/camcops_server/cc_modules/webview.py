@@ -807,8 +807,6 @@ class LoginView(MfaMixin, FormWizardMixin, FormView):
             # HOWEVER, that may lead us to a "change password" or "agree terms"
             # page, via the permissions system (Permission.HAPPY or not).
 
-        self.save_state()
-
         return super().form_valid(form, appstruct)
 
     def get_success_url(self) -> str:

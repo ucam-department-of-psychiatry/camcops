@@ -2487,6 +2487,11 @@ class SendEmailFromPatientTaskScheduleViewTests(BasicDatabaseTestCase):
 
 
 class LoginViewTests(BasicDatabaseTestCase):
+    def setUp(self):
+        super().setUp()
+
+        self.req.matched_route.name = "login_view"
+
     def test_form_rendered_with_values(self) -> None:
         self.req.add_get_params({
             ViewParam.REDIRECT_URL: "https://www.example.com",
@@ -2962,7 +2967,6 @@ class LoginViewTests(BasicDatabaseTestCase):
             view.dispatch()
 
         mock_fail_timed_out.assert_called_once()
-        self.assertIsNone(self.req.camcops_session.form_state)
 
     def test_unprivileged_user_cannot_log_in(self) -> None:
         user = self.create_user(username="test")
@@ -3529,6 +3533,11 @@ class EditMfaViewTests(BasicDatabaseTestCase):
 
 
 class ChangeOtherPasswordViewTests(BasicDatabaseTestCase):
+    def setUp(self):
+        super().setUp()
+
+        self.req.matched_route.name = "change_other_password"
+
     def test_raises_for_invalid_user(self) -> None:
         multidict = MultiDict([
             (FormAction.SUBMIT, "submit"),
@@ -3820,10 +3829,14 @@ class ChangeOtherPasswordViewTests(BasicDatabaseTestCase):
             view.dispatch()
 
         mock_fail_timed_out.assert_called_once()
-        self.assertIsNone(self.req.camcops_session.form_state)
 
 
 class EditUserMfaViewTests(BasicDatabaseTestCase):
+    def setUp(self):
+        super().setUp()
+
+        self.req.matched_route.name = "edit_user_mfa"
+
     def test_raises_for_invalid_user(self) -> None:
         multidict = MultiDict([
             (FormAction.SUBMIT, "submit"),
@@ -4040,40 +4053,6 @@ class EditUserMfaViewTests(BasicDatabaseTestCase):
 
         self.assertIsNone(self.req.camcops_session.form_state)
 
-    def test_cannot_change_password_if_timed_out(self) -> None:
-        self.req.config.mfa_timeout_s = 600
-        superuser = self.create_user(username="admin",
-                                     superuser=True,
-                                     mfa_method=MfaMethod.TOTP,
-                                     mfa_secret_key=pyotp.random_base32())
-        user = self.create_user(username="user")
-        self.dbsession.flush()
-
-        self.req._debugging_user = superuser
-        self.req.add_get_params({
-            ViewParam.USER_ID: user.id
-        }, set_method_get=False)
-
-        totp = pyotp.TOTP(superuser.mfa_secret_key)
-        multidict = MultiDict([
-            (ViewParam.ONE_TIME_PASSWORD, totp.now()),
-            (FormAction.SUBMIT, "submit"),
-        ])
-        self.req.fake_request_post_from_dict(multidict)
-
-        view = ChangeOwnPasswordView(self.req)
-        view.state.update(
-            mfa_user=superuser.id,
-            mfa_time=int(time.time()-601),
-            step="mfa"
-        )
-
-        with mock.patch.object(view, "fail_timed_out") as mock_fail_timed_out:
-            view.dispatch()
-
-        mock_fail_timed_out.assert_called_once()
-        self.assertIsNone(self.req.camcops_session.form_state)
-
 
 class EditUserGroupMembershipViewTests(BasicDatabaseTestCase):
     def setUp(self) -> None:
@@ -4269,6 +4248,11 @@ class EditUserGroupMembershipViewTests(BasicDatabaseTestCase):
 
 
 class ChangeOwnPasswordViewTests(BasicDatabaseTestCase):
+    def setUp(self):
+        super().setUp()
+
+        self.req.matched_route.name = "change_own_password"
+
     def test_user_can_change_password(self) -> None:
         new_password = "monkeybusiness"
 
@@ -4453,4 +4437,3 @@ class ChangeOwnPasswordViewTests(BasicDatabaseTestCase):
             view.dispatch()
 
         mock_fail_timed_out.assert_called_once()
-        self.assertIsNone(self.req.camcops_session.form_state)
