@@ -690,14 +690,37 @@ class FormWizardMixin:
     Basic support for multi-step form entry.
     For more complexity we could do something like
     https://github.com/jazzband/django-formtools/tree/master/formtools/wizard
+
+    We store temporary state on the CamcopsSession object on the request.
+    Arbitrary values can be stored in the form state.
+
+    "step" is used by this mixin to store the name of the current form entry
+    step.
+    "route_name" is used by this mixin to store the name of the current route
+    so we can detect if the form state is stale from a previous incomplete
+    operation.
+
+    Views using this Mixin should implement:
+
+    wizard_first_step: The name of the first form entry step
+    wizard_forms: step name -> Form lookup
+    wizard_templates: step name -> template filename lookup
+    wizard_extra_context: step_name -> context dict lookup
+
+    alternatively subclasses can override get_first_step() etc
+
+    The logic of changing steps is left to the subclass.
     """
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
+        # if self.route_name is None at this point, it will be initialised to
+        # self.request.matched_route.name so this test will be False
         if self.route_name != self.request.matched_route.name:
-            # Form state is incomplete from previous occasion
+            # Form state is incomplete from previous occasion: discard
             self.state = {"route_name": self.request.matched_route.name}
 
+        # Make sure we save any changes to the form state
         self.request.dbsession.add(self.request.camcops_session)
 
     def _get_state(self) -> Dict[str, Any]:
