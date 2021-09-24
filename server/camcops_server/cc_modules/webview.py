@@ -580,7 +580,27 @@ def audit_menu(req: "CamcopsRequest") -> Dict[str, Any]:
 # "def view(context, request)", so if you add additional parameters, it thinks
 # you're doing the latter and sends parameters accordingly.
 
-class MfaMixin:
+class MfaMixin(FormWizardMixin):
+    """
+    Enhances FormWizardMixin to include a multi-factor authentication step.
+    This must be named "mfa" in the subclass.
+
+    This handles:
+    - Timing out
+    - Generating, sending and checking the six-digit code used for
+      authentication
+
+    The subclass should:
+    - Set ``mfa_user`` on the class to be an instance of the User to be
+      authenticated.
+    - Call ``handle_authentication_type()`` in the appropriate step.
+    - Call ``otp_is_valid()`` and ``fail_bad_mfa_code()`` in the appropriate
+      step.
+
+    See ``LoginView`` for an example that works with the yet-to-be-logged-in
+    user.
+    See ``ChangeOwnPasswordView`` for an example with the logged in user.
+    """
     def dispatch(self) -> Response:
         if self.timed_out():
             return self.fail_timed_out()
@@ -626,6 +646,7 @@ class MfaMixin:
 
     def handle_authentication_type(self) -> None:
         if self.mfa_user.mfa_method == MfaMethod.TOTP:
+            # Nothing to do. The app generates the code.
             return
 
         self.state["mfa_time"] = int(time.time())
@@ -682,7 +703,17 @@ class MfaMixin:
         self.fail(_("Your code expired. Please try again."))
 
 
-class LoginView(MfaMixin, FormWizardMixin, FormView):
+class LoggedInUserMfaMixin(MfaMixin):
+    """
+    Handles multi-factor authentication for the currently logged in user
+    (everything except ``LoginView``).
+    """
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.mfa_user = self.request.user
+
+
+class LoginView(MfaMixin, FormView):
     wizard_first_step = "password"
 
     wizard_forms = {
@@ -956,7 +987,7 @@ def forbidden(req: "CamcopsRequest") -> Response:
 # Changing passwords
 # =============================================================================
 
-class ChangeOwnPasswordView(MfaMixin, FormWizardMixin, UpdateView):
+class ChangeOwnPasswordView(LoggedInUserMfaMixin, UpdateView):
     model_form_dict = {}
 
     wizard_forms = {
@@ -973,10 +1004,6 @@ class ChangeOwnPasswordView(MfaMixin, FormWizardMixin, UpdateView):
         "mfa": {},
         "password": {},
     }
-
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-        self.mfa_user = self.request.user
 
     def get_first_step(self) -> str:
         if self.request.user.mfa_method == MfaMethod.NONE:
@@ -1062,15 +1089,11 @@ def change_own_password(req: "CamcopsRequest") -> Response:
     return view.dispatch()
 
 
-class EditUserAuthenticationView(MfaMixin, FormWizardMixin, UpdateView):
+class EditUserAuthenticationView(LoggedInUserMfaMixin, UpdateView):
     model_form_dict = {}
     object_class = User
     pk_param = ViewParam.USER_ID
     server_pk_name = "id"
-
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-        self.mfa_user = self.request.user
 
     def get(self) -> Response:
         if self.step == "mfa":
@@ -1258,7 +1281,7 @@ def edit_other_user_mfa(req: "CamcopsRequest") -> Response:
     return view.dispatch()
 
 
-class EditOwnUserMfaView(MfaMixin, FormWizardMixin, UpdateView):
+class EditOwnUserMfaView(LoggedInUserMfaMixin, UpdateView):
     wizard_first_step = "mfa_method"
 
     wizard_forms = {
@@ -1279,10 +1302,6 @@ class EditOwnUserMfaView(MfaMixin, FormWizardMixin, UpdateView):
 
     hotp_steps = ("hotp_email", "hotp_sms")
     secret_key_steps = ("totp", "hotp_email", "hotp_sms")
-
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-        self.mfa_user = self.request.user
 
     def get(self) -> Response:
         if self.step == "mfa":
@@ -1355,7 +1374,6 @@ class EditOwnUserMfaView(MfaMixin, FormWizardMixin, UpdateView):
 
         if self.step == "mfa":
             if not self.otp_is_valid(appstruct):
-                self.finish()
                 self.fail_bad_mfa_code()
 
         self.next_step(appstruct)

@@ -702,12 +702,12 @@ class FormWizardMixin:
 
     Views using this Mixin should implement:
 
-    wizard_first_step: The name of the first form entry step
-    wizard_forms: step name -> Form lookup
-    wizard_templates: step name -> template filename lookup
-    wizard_extra_context: step_name -> context dict lookup
+    ``wizard_first_step``: The name of the first form entry step
+    ``wizard_forms``: step name -> Form dict
+    ``wizard_templates``: step name -> template filename dict
+    ``wizard_extra_context``: step name -> context dict dict
 
-    alternatively subclasses can override get_first_step() etc
+    alternatively subclasses can override ``get_first_step()`` etc.
 
     The logic of changing steps is left to the subclass.
     """
