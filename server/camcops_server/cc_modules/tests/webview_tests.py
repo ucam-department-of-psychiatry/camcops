@@ -3919,7 +3919,7 @@ class EditOtherUserMfaViewTests(BasicDatabaseTestCase):
 
         self.assertEqual(cm.exception.status_code, 302)
         self.assertIn(
-            "/edit_mfa", cm.exception.headers["Location"]
+            "/edit_own_user_mfa", cm.exception.headers["Location"]
         )
 
     @mock.patch("camcops_server.cc_modules.cc_email.send_msg")
