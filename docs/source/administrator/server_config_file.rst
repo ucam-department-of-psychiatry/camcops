@@ -451,6 +451,8 @@ cache passwords, versus allow a password manager so that users can use
 better/unique passwords). Note that some browsers (e.g. Chrome v34 and up) may
 ignore this.
 
+.. _MFA_METHODS:
+
 MFA_METHODS
 ###########
 
@@ -475,8 +477,8 @@ MFA_TIMEOUT_S
 
 *Integer.* Default: 600.
 
-Seconds the user has to enter their six-digit code, having entered their user
-name and password. Zero means never time out.
+Seconds the user has to enter their six-digit code during multi-factor
+authentication.  Zero means never time out.
 
 Suggested filenames for saving PDFs from the web view
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
