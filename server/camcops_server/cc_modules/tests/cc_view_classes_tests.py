@@ -154,6 +154,8 @@ class FormWizardMixinTests(BasicDatabaseTestCase):
         self.req.dbsession.commit()
 
         view = TestView(self.req)
+        self.assertFalse(view.finished())
+
         view.finish()
 
         self.assertTrue(view.finished())
