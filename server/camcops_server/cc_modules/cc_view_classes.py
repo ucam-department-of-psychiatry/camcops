@@ -768,9 +768,6 @@ class FormWizardMixin:
 
         super().fail(message)
 
-    def save_step(self, step: str) -> None:
-        self.step = step
-
     def finish(self) -> None:
         self.state = None
 

@@ -1057,7 +1057,7 @@ class ChangeOwnPasswordView(LoggedInUserMfaMixin, UpdateView):
             return self.finish()
 
         if self.step == "mfa":
-            self.save_step("password")
+            self.step = "password"
 
     def set_password(self, appstruct: Dict[str, Any]) -> None:
         user = cast(User, self.object)
@@ -1158,7 +1158,7 @@ class ChangeOtherPasswordView(EditUserAuthenticationView):
             return self.finish()
 
         if self.step == "mfa":
-            self.save_step("password")
+            self.step = "password"
 
     def set_password(self, appstruct: Dict[str, Any]) -> None:
         user = cast(User, self.object)
@@ -1236,7 +1236,7 @@ class EditOtherUserMfaView(EditUserAuthenticationView):
             return self.finish()
 
         if self.step == "mfa":
-            self.save_step("other_user_mfa")
+            self.step = "other_user_mfa"
 
     def maybe_disable_mfa(self, appstruct: Dict[str, Any]) -> None:
         if appstruct.get(ViewParam.DISABLE_MFA):
@@ -1384,12 +1384,13 @@ class EditOwnUserMfaView(LoggedInUserMfaMixin, UpdateView):
             if mfa_method == "none":
                 return self.finish()
 
-            return self.save_step(mfa_method)
+            self.step = mfa_method
+            return
 
         if self.step == "mfa":
             return self.finish()
 
-        self.save_step("mfa")
+        self.step = "mfa"
 
 
 @view_config(route_name=Routes.EDIT_OWN_USER_MFA,
