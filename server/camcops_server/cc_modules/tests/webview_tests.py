@@ -3425,7 +3425,6 @@ class EditOwnUserMfaViewTests(BasicDatabaseTestCase):
 
         multidict = MultiDict([
             (ViewParam.MFA_METHOD, MfaMethod.HOTP_EMAIL),
-            (ViewParam.EMAIL, "regular_user@example.com"),
             (FormAction.SUBMIT, "submit"),
         ])
         self.req._debugging_user = regular_user
@@ -3447,7 +3446,6 @@ class EditOwnUserMfaViewTests(BasicDatabaseTestCase):
 
         multidict = MultiDict([
             (ViewParam.MFA_METHOD, MfaMethod.HOTP_SMS),
-            (ViewParam.PHONE_NUMBER, TEST_PHONE_NUMBER),
             (FormAction.SUBMIT, "submit"),
         ])
         self.req._debugging_user = regular_user
@@ -3488,11 +3486,7 @@ class EditOwnUserMfaViewTests(BasicDatabaseTestCase):
         regular_user = self.create_user(username="regular_user")
         self.dbsession.flush()
 
-        mfa_secret_key = pyotp.random_base32()
-
         multidict = MultiDict([
-            (ViewParam.MFA_SECRET_KEY, mfa_secret_key),
-            (ViewParam.MFA_METHOD, MfaMethod.HOTP_SMS),
             (ViewParam.PHONE_NUMBER, TEST_PHONE_NUMBER),
             (FormAction.SUBMIT, "submit"),
         ])
@@ -3513,10 +3507,7 @@ class EditOwnUserMfaViewTests(BasicDatabaseTestCase):
         regular_user = self.create_user(username="regular_user")
         self.dbsession.flush()
 
-        mfa_secret_key = pyotp.random_base32()
-
         multidict = MultiDict([
-            (ViewParam.MFA_SECRET_KEY, mfa_secret_key),
             (ViewParam.EMAIL, "regular_user@example.com"),
             (FormAction.SUBMIT, "submit"),
         ])
