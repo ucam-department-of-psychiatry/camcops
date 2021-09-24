@@ -706,7 +706,7 @@ class MfaMixin(FormWizardMixin):
 class LoggedInUserMfaMixin(MfaMixin):
     """
     Handles multi-factor authentication for the currently logged in user
-    (everything except ``LoginView``).
+    (everything except :class:`LoginView`).
     """
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
