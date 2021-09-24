@@ -746,6 +746,7 @@ class Routes(object):
     EDIT_ID_DEFINITION = "edit_id_definition"
     EDIT_FINALIZED_PATIENT = "edit_finalized_patient"
     EDIT_MFA = "edit_mfa"
+    EDIT_OTHER_USER_MFA = "edit_other_user_mfa"
     EDIT_SERVER_CREATED_PATIENT = "edit_server_created_patient"
     EDIT_SERVER_SETTINGS = "edit_server_settings"
     EDIT_TASK_SCHEDULE = "edit_task_schedule"
@@ -753,7 +754,6 @@ class Routes(object):
     EDIT_USER = "edit_user"
     EDIT_USER_AUTHENTICATION = "edit_user_authentication"
     EDIT_USER_GROUP_MEMBERSHIP = "edit_user_group_membership"
-    EDIT_USER_MFA = "edit_user_mfa"
     ERASE_TASK_LEAVING_PLACEHOLDER = "erase_task_leaving_placeholder"
     ERASE_TASK_ENTIRELY = "erase_task_entirely"
     FORCIBLY_FINALIZE = "forcibly_finalize"
@@ -888,6 +888,7 @@ class RouteCollection(object):
     EDIT_ID_DEFINITION = RoutePath(Routes.EDIT_ID_DEFINITION)
     EDIT_FINALIZED_PATIENT = RoutePath(Routes.EDIT_FINALIZED_PATIENT)
     EDIT_MFA = RoutePath(Routes.EDIT_MFA)
+    EDIT_OTHER_USER_MFA = RoutePath(Routes.EDIT_OTHER_USER_MFA)
     EDIT_SERVER_CREATED_PATIENT = RoutePath(Routes.EDIT_SERVER_CREATED_PATIENT)
     EDIT_SERVER_SETTINGS = RoutePath(Routes.EDIT_SERVER_SETTINGS)
     EDIT_TASK_SCHEDULE = RoutePath(Routes.EDIT_TASK_SCHEDULE)
@@ -895,7 +896,6 @@ class RouteCollection(object):
     EDIT_USER = RoutePath(Routes.EDIT_USER)
     EDIT_USER_AUTHENTICATION = RoutePath(Routes.EDIT_USER_AUTHENTICATION)
     EDIT_USER_GROUP_MEMBERSHIP = RoutePath(Routes.EDIT_USER_GROUP_MEMBERSHIP)
-    EDIT_USER_MFA = RoutePath(Routes.EDIT_USER_MFA)
     ERASE_TASK_LEAVING_PLACEHOLDER = RoutePath(Routes.ERASE_TASK_LEAVING_PLACEHOLDER)  # noqa
     ERASE_TASK_ENTIRELY = RoutePath(Routes.ERASE_TASK_ENTIRELY)
     FORCIBLY_FINALIZE = RoutePath(Routes.FORCIBLY_FINALIZE)

@@ -83,12 +83,12 @@ from camcops_server.cc_modules.webview import (
     DeleteTaskScheduleItemView,
     DeleteTaskScheduleView,
     EditMfaView,
+    EditOtherUserMfaView,
     EditTaskScheduleItemView,
     EditTaskScheduleView,
     EditFinalizedPatientView,
     EditGroupView,
     EditServerCreatedPatientView,
-    EditUserMfaView,
     EditUserGroupAdminView,
     EraseTaskEntirelyView,
     EraseTaskLeavingPlaceholderView,
@@ -3831,11 +3831,11 @@ class ChangeOtherPasswordViewTests(BasicDatabaseTestCase):
         mock_fail_timed_out.assert_called_once()
 
 
-class EditUserMfaViewTests(BasicDatabaseTestCase):
+class EditOtherUserMfaViewTests(BasicDatabaseTestCase):
     def setUp(self):
         super().setUp()
 
-        self.req.matched_route.name = "edit_user_mfa"
+        self.req.matched_route.name = "edit_other_user_mfa"
 
     def test_raises_for_invalid_user(self) -> None:
         multidict = MultiDict([
@@ -3847,7 +3847,7 @@ class EditUserMfaViewTests(BasicDatabaseTestCase):
             ViewParam.USER_ID: "123"
         }, set_method_get=False)
 
-        view = EditUserMfaView(self.req)
+        view = EditOtherUserMfaView(self.req)
         with self.assertRaises(HTTPBadRequest) as cm:
             view.dispatch()
 
@@ -3866,7 +3866,7 @@ class EditUserMfaViewTests(BasicDatabaseTestCase):
             ViewParam.USER_ID: self.user.id
         }, set_method_get=False)
 
-        view = EditUserMfaView(self.req)
+        view = EditOtherUserMfaView(self.req)
         with self.assertRaises(HTTPBadRequest) as cm:
             view.dispatch()
 
@@ -3894,7 +3894,7 @@ class EditUserMfaViewTests(BasicDatabaseTestCase):
             ViewParam.USER_ID: regular_user.id
         }, set_method_get=False)
 
-        view = EditUserMfaView(self.req)
+        view = EditOtherUserMfaView(self.req)
         with self.assertRaises(HTTPFound):
             view.dispatch()
 
@@ -3913,7 +3913,7 @@ class EditUserMfaViewTests(BasicDatabaseTestCase):
         self.req._debugging_user = superuser
         self.req.add_get_params({ViewParam.USER_ID: superuser.id})
 
-        view = EditUserMfaView(self.req)
+        view = EditOtherUserMfaView(self.req)
         with self.assertRaises(HTTPFound) as cm:
             view.dispatch()
 
@@ -3941,7 +3941,7 @@ class EditUserMfaViewTests(BasicDatabaseTestCase):
             ViewParam.USER_ID: user.id
         }, set_method_get=False)
 
-        view = EditUserMfaView(self.req)
+        view = EditOtherUserMfaView(self.req)
 
         with mock.patch.object(view, "render_to_response") as mock_render:
             view.dispatch()
@@ -3972,7 +3972,7 @@ class EditUserMfaViewTests(BasicDatabaseTestCase):
             ViewParam.USER_ID: user.id
         }, set_method_get=False)
 
-        view = EditUserMfaView(self.req)
+        view = EditOtherUserMfaView(self.req)
         with self.assertLogs(level=logging.INFO) as logging_cm:
             view.dispatch()
 
@@ -4007,7 +4007,7 @@ class EditUserMfaViewTests(BasicDatabaseTestCase):
         ])
         self.req.fake_request_post_from_dict(multidict)
 
-        view = EditUserMfaView(self.req)
+        view = EditOtherUserMfaView(self.req)
 
         with self.assertRaises(HTTPFound) as e:
             view.dispatch()
@@ -4015,7 +4015,7 @@ class EditUserMfaViewTests(BasicDatabaseTestCase):
         self.assertEqual(self.req.camcops_session.form_state["step"],
                          "other_user_mfa")
         self.assertIn(
-            f"edit_user_mfa?user_id={user.id}",
+            f"edit_other_user_mfa?user_id={user.id}",
             e.exception.headers["Location"]
         )
 
@@ -4042,7 +4042,7 @@ class EditUserMfaViewTests(BasicDatabaseTestCase):
         ])
         self.req.fake_request_post_from_dict(multidict)
 
-        view = EditUserMfaView(self.req)
+        view = EditOtherUserMfaView(self.req)
 
         with self.assertRaises(HTTPFound):
             view.dispatch()

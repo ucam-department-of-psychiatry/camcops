@@ -29,7 +29,7 @@ camcops_server/templates/menu/edit_user_mfa.mako
 <%inherit file="base_web_form.mako"/>
 <%include file="db_user_info.mako"/>
 
-<h1>${ _("Disable multi-factor authentication for user: {username}").format(username=username) }</h1>
+<h1>${ _("Edit multi-factor authentication for user: {username}").format(username=username) }</h1>
 
 ${form | n}
 

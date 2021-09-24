@@ -2206,7 +2206,7 @@ class DisableMfaNode(SchemaNode, RequestAwareMixin):
         self.title = _("Disable multi-factor authentication?")
 
 
-class EditUserMfaSchema(CSRFSchema):
+class EditOtherUserMfaSchema(CSRFSchema):
     """
     Schema to reset multi-factor authentication for another user.
     """
@@ -2214,13 +2214,13 @@ class EditUserMfaSchema(CSRFSchema):
     disable_mfa = DisableMfaNode()  # match ViewParam.DISABLE_MFA
 
 
-class EditUserMfaForm(SimpleSubmitForm):
+class EditOtherUserMfaForm(SimpleSubmitForm):
     """
     Form to reset multi-factor authentication for another user.
     """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         _ = request.gettext
-        super().__init__(schema_class=EditUserMfaSchema,
+        super().__init__(schema_class=EditOtherUserMfaSchema,
                          submit_title=_("Submit"),
                          request=request, **kwargs)
 

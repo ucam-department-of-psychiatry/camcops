@@ -121,7 +121,7 @@ ${form | n}
                     </tr>
                     <tr>
                         <td><a href="${ req.route_url(
-                                Routes.EDIT_USER_MFA,
+                                Routes.EDIT_OTHER_USER_MFA,
                                 _query={ViewParam.USER_ID: user.id}
                             ) | n }">${ _("Change multi-factor authentication") }</a>
                         </td>

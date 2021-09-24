@@ -236,6 +236,7 @@ from camcops_server.cc_modules.cc_forms import (
     EDIT_PATIENT_SIMPLE_PARAMS,
     EditFinalizedPatientForm,
     EditIdDefinitionForm,
+    EditOtherUserMfaForm,
     EditServerCreatedPatientForm,
     EditServerSettingsForm,
     EditTaskScheduleForm,
@@ -244,7 +245,6 @@ from camcops_server.cc_modules.cc_forms import (
     EditUserGroupAdminForm,
     EditUserGroupMembershipGroupAdminForm,
     EditUserGroupPermissionsFullForm,
-    EditUserMfaForm,
     EraseTaskForm,
     ExportedTaskListForm,
     get_sql_dialect_choices,
@@ -1184,15 +1184,15 @@ def change_other_password(req: "CamcopsRequest") -> Response:
     return view.dispatch()
 
 
-class EditUserMfaView(EditUserAuthenticationView):
+class EditOtherUserMfaView(EditUserAuthenticationView):
     wizard_forms = {
         "mfa": OtpTokenForm,
-        "other_user_mfa": EditUserMfaForm,
+        "other_user_mfa": EditOtherUserMfaForm,
     }
 
     wizard_templates = {
         "mfa": "login_token.mako",
-        "other_user_mfa": "edit_user_mfa.mako",
+        "other_user_mfa": "edit_other_user_mfa.mako",
     }
 
     def get(self) -> Response:
@@ -1234,25 +1234,27 @@ class EditUserMfaView(EditUserAuthenticationView):
         user = cast(User, self.object)
 
         return self.request.route_url(
-            Routes.EDIT_USER_MFA,
+            Routes.EDIT_OTHER_USER_MFA,
             _query={
                 ViewParam.USER_ID: user.id,
             }
         )
 
 
-@view_config(route_name=Routes.EDIT_USER_MFA,
+@view_config(route_name=Routes.EDIT_OTHER_USER_MFA,
              permission=Permission.GROUPADMIN,
              http_cache=NEVER_CACHE)
-def edit_user_mfa(req: "CamcopsRequest") -> Response:
+def edit_other_user_mfa(req: "CamcopsRequest") -> Response:
     """
-    For administrators, to change another's password.
+    For administrators, to change another users's Multi-factor Authentication.
+    Currently it is only possible to disable Multi-factor authentication for
+    a user.
 
-    - GET: offer "change another's password" view (except that if you're
-      changing your own password, return :func:`change_own_password`.
-    - POST/submit: change the password and display success message.
+    - GET: offer "edit another's MFA" view (except that if you're
+      changing your own MFA, return :func:`edit_own_user_mfa`.
+    - POST/submit: edit MFA  and display success message.
     """
-    view = EditUserMfaView(req)
+    view = EditOtherUserMfaView(req)
     return view.dispatch()
 
 
