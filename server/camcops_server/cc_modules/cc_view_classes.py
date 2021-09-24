@@ -691,19 +691,19 @@ class FormWizardMixin:
     For more complexity we could do something like
     https://github.com/jazzband/django-formtools/tree/master/formtools/wizard
 
-    We store temporary state on the CamcopsSession object on the request.
-    Arbitrary values can be stored in the form state.
+    We store temporary state in the ``form_state`` dictionary on the
+    :class:`CamcopsSession` object on the request.
+    Arbitrary values can be stored in ``form_state``. The following are used
+    by this mixin:
 
-    "step" is used by this mixin to store the name of the current form entry
-    step.
-    "route_name" is used by this mixin to store the name of the current route
-    so we can detect if the form state is stale from a previous incomplete
-    operation.
+    - "step" stores the name of the current form entry step.
+    - "route"_stores the name of the current route so we can detect if the form
+      state is stale from a previous incomplete operation.
 
     Views using this Mixin should implement:
 
     ``wizard_first_step``: The name of the first form entry step
-    ``wizard_forms``: step name -> Form dict
+    ``wizard_forms``: step name -> :class:``Form`` dict
     ``wizard_templates``: step name -> template filename dict
     ``wizard_extra_context``: step name -> context dict dict
 
