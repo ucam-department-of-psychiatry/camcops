@@ -339,12 +339,17 @@ def hack_pendulum_into_pymysql() -> None:
 hack_pendulum_into_pymysql()
 
 
-# https://docs.sqlalchemy.org/en/14/orm/extensions/mutable.html
-
 class MutableDict(Mutable, dict):
+    """
+    Source:
+    https://docs.sqlalchemy.org/en/14/orm/extensions/mutable.html
+    """
+
     @classmethod
     def coerce(cls, key, value):
-        "Convert plain dictionaries to MutableDict."
+        """
+        Convert plain dictionaries to MutableDict.
+        """
 
         if not isinstance(value, MutableDict):
             if isinstance(value, dict):
@@ -356,13 +361,17 @@ class MutableDict(Mutable, dict):
             return value
 
     def __setitem__(self, key, value):
-        "Detect dictionary set events and emit change events."
+        """
+        Detect dictionary set events and emit change events.
+        """
 
         dict.__setitem__(self, key, value)
         self.changed()
 
     def __delitem__(self, key):
-        "Detect dictionary del events and emit change events."
+        """
+        Detect dictionary del events and emit change events.
+        """
 
         dict.__delitem__(self, key)
         self.changed()
