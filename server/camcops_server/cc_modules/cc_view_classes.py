@@ -277,6 +277,7 @@ class FormMixin(ContextMixin):
     cancel_url = None
     form_class: Type["Form"] = None
     success_url = None
+    _form = None
     _error = None
 
     request: "CamcopsRequest"
@@ -290,18 +291,18 @@ class FormMixin(ContextMixin):
     def get_form(self) -> "Form":
         """
         Return an instance of the form to be used in this view.
-
-        We used to cache the form on the view, but this meant we couldn't
-        have alternative forms on the same view (see LoginView).
         """
 
-        form_class = self.get_form_class()
-        if not form_class:
-            raise_runtime_error("Your view must provide a form_class.")
+        if self._form is None:
+            form_class = self.get_form_class()
+            if not form_class:
+                raise_runtime_error("Your view must provide a form_class.")
 
-        assert form_class is not None  # type checker
+            assert form_class is not None  # type checker
 
-        return form_class(**self.get_form_kwargs())
+            self._form = form_class(**self.get_form_kwargs())
+
+        return self._form
 
     def get_form_kwargs(self) -> Dict[str, Any]:
         """
