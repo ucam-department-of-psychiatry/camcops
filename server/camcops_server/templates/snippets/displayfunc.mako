@@ -38,7 +38,7 @@ camcops_server/templates/snippets/displayfunc.mako
         %if escape:
             ${ x }
         %else:
-            ${ x | n }
+            ${ x | n, str }
         %endif
     %endfor
 </%def>

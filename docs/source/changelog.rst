@@ -3476,3 +3476,9 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Reinstate Danish, which disappeared from the server in v2.4.9.
   https://github.com/RudolfCardinal/camcops/issues/200
+
+- Fix internal server error when viewing HTML APEQ CPFT Perinatal Report.
+  https://github.com/RudolfCardinal/camcops/issues/203
+
+- Fix database revision 0066, which failed if no patient records were missing UUIDs
+  https://github.com/RudolfCardinal/camcops/issues/192
