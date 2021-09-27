@@ -735,24 +735,24 @@ class FormWizardMixin(_FormWizardMixinBase):
         # Make sure we save any changes to the form state
         self.request.dbsession.add(self.request.camcops_session)
 
-    def _get_state(self) -> Dict[str, Any]:
+    @property
+    def state(self) -> Dict[str, Any]:
         if self.request.camcops_session.form_state is None:
             self.request.camcops_session.form_state = dict()
 
         return self.request.camcops_session.form_state
 
-    def _set_state(self, state: Optional[Dict[str, Any]]) -> None:
+    @state.setter
+    def state(self, state: Optional[Dict[str, Any]]) -> None:
         self.request.camcops_session.form_state = state
 
-    state = property(_get_state, _set_state)
-
-    def _get_step(self) -> str:
+    @property
+    def step(self) -> str:
         return self.state.setdefault("step", self.get_first_step())
 
-    def _set_step(self, step: str) -> None:
+    @step.setter
+    def step(self, step: str) -> None:
         self.state["step"] = step
-
-    step = property(_get_step, _set_step)
 
     def get_first_step(self) -> str:
         return self.wizard_first_step
