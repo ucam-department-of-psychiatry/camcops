@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CamCOPS 2.4.9\n"
 "Report-Msgid-Bugs-To: rudolf@pobox.com\n"
-"POT-Creation-Date: 2021-08-27 17:26+0100\n"
+"POT-Creation-Date: 2021-09-24 23:53+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -48,8 +48,8 @@ msgid "If you specify more than one, they will be joined with OR."
 msgstr ""
 
 #: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:332
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2045
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:124
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:130
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/users_view.mako:119
 msgid "Change password"
 msgstr ""
 
@@ -80,7 +80,7 @@ msgstr ""
 
 #: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:476
 #: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:802
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4188
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4197
 msgid "Add"
 msgstr ""
 
@@ -89,32 +89,32 @@ msgid "Bad CSRF token"
 msgstr ""
 
 #: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:782
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3546
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3555
 msgid "Apply"
 msgstr ""
 
 #: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:783
 #: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:803
 #: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:828
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3309
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3547
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4585
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4680
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:5041
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:5176
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3318
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3556
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4594
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4689
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:5050
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:5185
 msgid "Cancel"
 msgstr ""
 
 #: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:847
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4160
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4208
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4277
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:5135
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4169
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4217
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4286
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:5144
 #: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/download_area.mako:45
 #: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:48
 #: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:65
 #: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/users_view.mako:56
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/users_view.mako:120
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/users_view.mako:134
 #: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:118
 #: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/view_task_schedule_items.mako:50
 #: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/view_task_schedule_items.mako:73
@@ -132,7 +132,7 @@ msgid "Task type"
 msgstr ""
 
 #: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:885
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2568
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2562
 msgid "[Any]"
 msgstr ""
 
@@ -229,7 +229,7 @@ msgid "Include auto-generated users"
 msgstr ""
 
 #: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:1332
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2894
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2888
 msgid "Refresh"
 msgstr ""
 
@@ -341,11 +341,12 @@ msgid "Enter the six-digit code"
 msgstr ""
 
 #: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2000
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2245
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4568
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4583
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4678
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:5039
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2185
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2224
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4577
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4592
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4687
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:5048
 msgid "Submit"
 msgstr ""
 
@@ -358,40 +359,36 @@ msgstr ""
 msgid "Must change password at next login?"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2046
-msgid "Change this user's password?"
-msgstr ""
-
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2065
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2045
 msgid "Old password"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2073
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2053
 msgid "Old password incorrect"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2100
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2080
 msgid "Choose strong passphrases. See {link}"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2103
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2083
 msgid "Minimum password length is {limit} characters."
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2130
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2110
 msgid "New password"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2131
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2111
 msgid "Type the new password and confirm it"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2164
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2144
 msgid "New password must differ from old"
 msgstr ""
 
 #: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2205
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2340
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2312
 msgid "Disable multi-factor authentication"
 msgstr ""
 
@@ -399,709 +396,705 @@ msgstr ""
 msgid "Disable multi-factor authentication?"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2234
-msgid "You must provide a password"
-msgstr ""
-
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2289
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2268
 msgid "Open your authentication app."
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2290
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2269
 msgid "Add CamCOPS to the app by scanning this QR code:"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2292
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2271
 msgid "If you can't scan the QR code, enter this key instead:"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2294
-msgid "The next time you log in, enter the 6-digit code displayed on the app."
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2273
+msgid "When prompted, enter the 6-digit code displayed on the app."
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2326
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2305
 msgid "Authentication type"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2330
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2309
 msgid "Use an app such as Google Authenticator or Twilio Authy"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2331
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2310
 msgid "Send me a code by email"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2332
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2311
 msgid "Send me a code by text message"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2367
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2335
 msgid "How do you wish to authenticate?"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2370
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2348
 msgid "Follow these steps:"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2373
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2374
 msgid "Include the country code (eg +123) for numbers outside of the '{region_code}' region"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2411
-msgid "You must provide an email address"
-msgstr ""
-
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2422
-msgid "You must provide a phone number"
-msgstr ""
-
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2518
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2512
 msgid "Source (e.g. webviewer, tablet, console)"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2520
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2514
 msgid "Remote IP address"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2522
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2516
 msgid "Truncate details for easy viewing"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2532
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2526
 msgid "View audit trail"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2589
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2583
 msgid "ExportedTask ID"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2599
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2593
 msgid "View exported task log"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2626
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2620
 msgid "Text contents"
 msgstr ""
 
 #. TRANSLATOR: For the task filter form: the text in "Add text"
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2633
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2627
 msgid "text"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2640
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2634
 msgid "You have specified duplicate text filters"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2659
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2653
 msgid "Uploading users"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2668
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2662
 msgid "You have specified duplicate users"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2687
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2681
 msgid "Uploading devices"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2727
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2721
 #: /home/martinb/workspace/camcops/server/camcops_server/templates/snippets/describe_task_filter.mako:51
 msgid "Surname"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2729
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2723
 #: /home/martinb/workspace/camcops/server/camcops_server/templates/snippets/describe_task_filter.mako:55
 msgid "Forename"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2731
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4517
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2725
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4526
 msgid "Date of birth"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2756
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2750
 msgid "Only completed tasks?"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2815
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2809
 msgid "Who"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2816
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2810
 msgid "What"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2817
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2811
 msgid "When"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2818
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2812
 msgid "Administrative criteria"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2847
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2841
 msgid "Set filters"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2849
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2843
 msgid "Clear"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2871
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2865
 msgid "Set n/page"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2925
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2997
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2919
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2991
 msgid "View as"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2946
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2940
 msgid "Use all eligible task types?"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2969
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2963
 msgid "View CTV"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2969
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:2963
 msgid "View tracker"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3007
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3001
 msgid "HTML"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3008
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3653
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3002
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3662
 msgid "OpenOffice spreadsheet (ODS) file"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3009
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3003
 msgid "TSV (tab-separated values)"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3010
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3654
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3004
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3663
 msgid "XLSX (Microsoft Excel) file"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3037
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3031
 msgid "View report"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3052
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3046
 msgid "[WILL NOT WORK]"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3080
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3074
 msgid "SQL dialect to use (not all may be valid)"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3101
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3095
 msgid "View DDL"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3124
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3125
 msgid "Permitted to upload from a tablet/device"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3128
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3129
 msgid "Permitted to register tablet/client devices"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3132
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3133
 msgid "May log in to web front end"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3136
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3137
+msgid "May add, edit or delete patients created on the server"
+msgstr ""
+
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3141
+msgid "May send emails to patients created on the server"
+msgstr ""
+
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3145
 msgid "May view (browse) records from all patients when no patient filter set"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3143
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3152
 msgid "May perform bulk data dumps"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3147
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3156
 msgid "May run reports"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3151
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3160
 msgid "May add special notes to tasks"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3167
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3176
 msgid "User is a privileged group administrator for this group"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3188
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3197
 #: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/users_view.mako:49
 #: /home/martinb/workspace/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:52
 msgid "Full name"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3190
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3199
 #: /home/martinb/workspace/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:56
 msgid "E-mail address"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3204
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3213
 msgid "Superuser (CAUTION!)"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3291
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3300
 msgid "Group into which to upload data"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3292
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3301
 msgid "Pick a group from those to which the user belongs"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3308
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3317
 msgid "Set"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3345
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3354
 msgid "Not a string"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3348
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3357
 msgid "Syntactically invalid policy"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3352
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3361
 msgid "Invalid policy. Have you referred to non-existent ID numbers? Is the policy less restrictive than the tablet’s minimum ID policy?"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3401
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3410
 msgid "These settings will be applied to the patient's device when operating in single user mode."
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3405
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3414
 msgid "The settings here influence whether CamCOPS will consider some third-party tasks “permitted” on your behalf, according to their published use criteria. They do <b>not</b> remove your responsibility to ensure that you use them in accordance with their own requirements."
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3412
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3421
 msgid "WARNING. Providing incorrect information here may lead to you VIOLATING copyright law, by using a task for a purpose that is not permitted, and being subject to damages and/or prosecution."
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3418
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3427
 msgid "The authors of CamCOPS cannot be held responsible or liable for any consequences of you misusing materials subject to copyright."
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3423
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3432
 msgid "In which contexts does this group operate?"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3424
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3433
 msgid "Clinical"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3425
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3434
 msgid "WARNING: NOT FOR GENERAL CLINICAL USE; not a Medical Device; see Terms and Conditions"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3429
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3438
 msgid "Commercial"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3430
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3439
 msgid "Educational"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3431
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3440
 msgid "Research"
 msgstr ""
 
 #. TRANSLATOR: keep short; table heading in user_info_detail.mako
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3507
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3563
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3516
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3572
 #: /home/martinb/workspace/camcops/server/camcops_server/templates/snippets/groups_table.mako:40
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:171
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:183
 msgid "Group name"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3510
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3519
 msgid "Group intellectual property settings"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3513
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3522
 msgid "Other groups this group may see"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3515
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3524
 msgid "Upload policy"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3516
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3525
 msgid "Minimum required patient information to copy data to server"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3519
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3528
 msgid "Finalize policy"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3520
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3529
 msgid "Minimum required patient information to clear data off source device"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3531
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3571
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3540
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3580
 msgid "Name is used by another group!"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3621
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3630
 msgid "Dump method"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3623
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3632
 msgid "Everything"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3625
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3634
 msgid "Use the session filter settings"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3627
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3636
 msgid "Specify tasks/groups manually (see below)"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3650
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3659
 msgid "Spreadsheet format"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3652
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3661
 msgid "R script"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3655
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3664
 msgid "ZIP file of tab-separated value (TSV) files"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3678
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3687
 msgid "Delivery"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3680
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3689
 msgid "Serve immediately"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3681
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3690
 msgid "E-mail me"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3682
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3691
 msgid "Create a file for me to download"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3695
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3704
 msgid "Disabled by the system administrator"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3701
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3710
 msgid "Your user does not have an email address"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3706
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3715
 msgid "User downloads not configured by administrator"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3711
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3720
 msgid "Bad value"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3731
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3740
 msgid "Database download method"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3734
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3743
 msgid "Binary SQLite database"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3735
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3744
 msgid "SQL text to create SQLite database"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3758
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3767
 msgid "Sort columns?"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3759
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3768
 msgid "Sort by heading (column) names within spreadsheets?"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3781
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3790
 msgid "Include column information?"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3782
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3791
 msgid "Include details of all columns in the source database?"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3801
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3810
 msgid "Include BLOBs?"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3802
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3811
 msgid "Include binary large objects (BLOBs)? WARNING: may be large"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3825
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3834
 msgid "Patient ID per row?"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3826
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3835
 msgid "Include patient ID numbers and task cross-referencing (denormalized) information per row?"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3847
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3856
 msgid "Manual settings"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3869
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3893
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3878
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3902
 msgid "Dump"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3915
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3924
 msgid "Database friendly title"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3945
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3954
 msgid "Full description (e.g. “NHS number”)"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3963
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3972
 msgid "Short description (e.g. “NHS#”)"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3964
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3973
 msgid "Try to keep it very short!"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3982
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3991
 #: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:44
 msgid "Validation method"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3983
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3992
 msgid "Built-in CamCOPS ID number validation method"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3998
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4007
 #: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:46
 msgid "HL7 Assigning Authority"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:3999
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4008
 msgid "For HL7 messaging: HL7 Assigning Authority for ID number (unique name of the system/organization/agency/department that creates the data)."
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4025
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4034
 msgid "HL7 Identifier Type"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4026
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4035
 msgid "For HL7 messaging: HL7 Identifier Type code: ‘a code corresponding to the type of identifier. In some cases, this code may be used as a qualifier to the “Assigning Authority” component.’"
-msgstr ""
-
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4062
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4123
-msgid "Description is used by another ID number!"
 msgstr ""
 
 #: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4071
 #: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4132
+msgid "Description is used by another ID number!"
+msgstr ""
+
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4080
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4141
 msgid "Short description is used by another ID number!"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4099
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4108
 msgid "Which ID number?"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4115
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4124
 msgid "ID# clashes with another ID number!"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4233
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4242
 msgid "Erase"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4255
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4264
 msgid "Show tasks that will be deleted"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4327
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4454
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4336
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4463
 msgid "Task schedule"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4420
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4429
 msgid "Please enter valid JSON or leave blank"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4456
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4465
 msgid "Leave blank for the date the patient first downloads the schedule"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4460
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4469
 msgid "Task-specific settings for this patient"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4461
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4470
 msgid "ADVANCED. Only applicable to tasks that are configurable on a per-patient basis. Format: JSON object, with settings keyed on task table name."
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4474
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4483
 msgid "Please enter a valid JSON object (with settings keyed on task table name) or leave blank"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4494
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4503
 msgid "Task Schedules"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4519
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4528
 msgid "GP"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4540
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4549
 msgid "Patient would not meet 'finalize' ID policy for group:"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4542
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4551
 msgid "That policy is:"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4601
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4610
 msgid "Email template"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4602
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4611
 msgid "Template of email to be sent to patients when inviting them to complete the tasks in the schedule. Valid placeholders: {}"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4617
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4626
 msgid "{bad_key} is not a valid placeholder"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4621
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4630
 msgid "Invalid email template. Is there a missing '{' or '}' ?"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4632
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4641
 msgid "Email CC"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4633
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4642
 msgid "The patient will see these email addresses. Separate multiple addresses with commas."
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4643
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4652
 msgid "Email BCC"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4644
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4653
 msgid "The patient will not see these email addresses. Separate multiple addresses with commas."
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4654
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4663
 msgid "Email \"From\" address"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4655
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4664
 msgid "You must set this if you want to send emails to your patients"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4745
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4754
 msgid "1 week = 7 days"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4746
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4755
 msgid "1 month = 30 days"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4747
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4756
 msgid "Months"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4748
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4757
 msgid "Weeks"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4749
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4758
 msgid "Days"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4886
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4895
 #: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:52
 msgid "Due from"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4887
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4896
 msgid "Time from the start of schedule when the patient may begin this task"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4892
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4901
 msgid "Due within"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4893
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4902
 msgid "Time the patient has to complete this task"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4897
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4906
 msgid "Allow clinician tasks"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4899
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4908
 msgid "Tick this box to schedule a task that would normally be completed by (or with) a clinician"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4925
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4934
 msgid "You have selected the task '{task_name}', which a patient would not normally complete by themselves. If you are sure you want to do this, you must tick 'Allow clinician tasks'."
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4941
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4950
 msgid "'Due from' must be zero or more days"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4948
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4957
 msgid "'Due within' must be more than zero days"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4973
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4982
 msgid "The task you have selected prohibits use in certain contexts. The group '{group_name}' has no intellectual property settings. You need to edit the group '{group_name}' to say which contexts it operates in."
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4985
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4994
 msgid "The group '{group_name}' associated with schedule '{schedule_name}' operates in a commercial context but the task you have selected prohibits commercial use."
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:4997
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:5006
 msgid "The group '{group_name}' associated with schedule '{schedule_name}' operates in a clinical context but the task you have selected prohibits clinical use."
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:5009
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:5018
 msgid "The group '{group_name}' associated with schedule '{schedule_name}' operates in an educational context but the task you have selected prohibits educational use."
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:5021
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:5030
 msgid "The group '{group_name}' associated with schedule '{schedule_name}' operates in a research context but the task you have selected prohibits research use."
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:5080
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:5089
 msgid "View affected tasks"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:5100
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:5109
 msgid "Forcibly finalize"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:5148
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:5157
 msgid "Message"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:5175
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_forms.py:5184
 msgid "Send"
 msgstr ""
 
@@ -1125,7 +1118,7 @@ msgstr ""
 msgid "DOB:"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_patient.py:1079
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_patient.py:1084
 msgid "(Server) Patients, distinct by name, sex, DOB, all ID numbers"
 msgstr ""
 
@@ -1133,7 +1126,7 @@ msgstr ""
 msgid "ID number fails basic checks"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_pyramid.py:1274
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_pyramid.py:1293
 msgid "Page $page of $page_count; total $item_count records"
 msgstr ""
 
@@ -1365,19 +1358,19 @@ msgstr ""
 msgid "consistent (no values)"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_user.py:1251
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_user.py:1334
 msgid "Nobody may edit the system user"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_user.py:1254
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_user.py:1337
 msgid "You may not edit a superuser"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_user.py:1256
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_user.py:1339
 msgid "You may not edit a group administrator"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_user.py:1259
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_user.py:1342
 msgid "You are not a group administrator for any groups that this user is in"
 msgstr ""
 
@@ -1458,7 +1451,7 @@ msgstr ""
 msgid "Download filenames must (1) begin with an alphanumeric/underscore character; (2) contain only alphanumeric characters, underscores, and hyphens; and (3) end with a full stop followed by an alphanumeric/underscore extension."
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_view_classes.py:422
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/cc_view_classes.py:437
 msgid "Cannot find {object_class} with {server_pk_name}:{pk_value}"
 msgstr ""
 
@@ -1471,251 +1464,296 @@ msgstr ""
 msgid "Patient has no ID numbers"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:384
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:380
 msgid "User not authorized to dump data (for any group)."
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:389
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:385
 msgid "User not authorized to run reports (for any group)."
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:394
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:390
 msgid "Task is live on tablet; finalize (or force-finalize) first."
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:483
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:479
 msgid "Hello! This is a public CamCOPS test page."
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:495
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:491
 msgid "Private test page."
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:550
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:546
 msgid "Deliberately crashed. Should not affect other processes."
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:720
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:635
 msgid "Enter the code for CamCOPS displayed on your authentication app."
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:724
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:639
 msgid "We've sent a code by email to {}."
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:728
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:643
 msgid "We've sent a code by text message to {}"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:738
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:664
 msgid "CamCOPS two-step login"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:762
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:691
 msgid "Your CamCOPS verification code is {}"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:785
-msgid "Invalid username/password (or user not authorized)."
-msgstr ""
-
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:789
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:699
 msgid "You entered an invalid code. Please try again."
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:793
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:703
 msgid "Your code expired. Please try again."
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:799
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:870
+msgid "Invalid username/password (or user not authorized)."
+msgstr ""
+
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:876
 msgid "(never)"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:801
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:878
 msgid "Account locked until {} due to multiple login failures. Try again later or contact your administrator."
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:991
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:1022
+msgid "Your password has expired and must be changed."
+msgstr ""
+
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:1070
+msgid "You have changed your password. If you store your password in your CamCOPS tablet application, remember to change it there as well."
+msgstr ""
+
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:1175
 msgid "Password changed for user '{username}'"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:1002
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:1248
 msgid "Multi-factor authentication disabled for user '{username}'"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:1480
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:1346
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:135
+msgid "Multi-factor authentication settings"
+msgstr ""
+
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:1347
+msgid "Authenticate with app"
+msgstr ""
+
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:1348
+msgid "Authenticate by email"
+msgstr ""
+
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:1349
+msgid "Authenticate by text message"
+msgstr ""
+
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:1791
 msgid "Invalid tasks specified"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:1482
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:1793
 msgid "Not all tasks specified provide trackers"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:2363
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:2674
 msgid "Last 1 minute"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:2365
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:2676
 msgid "Last 5 minutes"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:2367
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:2678
 msgid "Last 10 minutes"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:2369
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:2680
 msgid "Last 1 hour"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:2501
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:2786
 msgid "You may not administer this group"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:2571
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:2839
 msgid "Can't rename user"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:2572
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:2840
 msgid "that conflicts with an existing user with ID"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:2729
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:2847
+msgid "This user's email address is used for multi-factor authentication. If you want to remove their email address, you must first disable multi-factor authentication"
+msgstr ""
+
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:3073
 msgid "User {username} enabled"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:2842
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:3186
 msgid "Can't delete your own user!"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:2844
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:3188
 msgid "Unable to delete user: user still has webviewer login and/or tablet upload permission"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:2847
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:3191
 msgid "Unable to delete user: they are a superuser and you are not"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:2852
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:3196
 msgid "Unable to delete user: user belongs to groups that you do not administer"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:2856
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:3200
 msgid "Unable to delete user; records (or audit trails) refer to that user. Disable login and upload permissions instead."
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:3085
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:3429
 msgid "Unable to delete group; there are users who are members!"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:3088
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:3432
 msgid "Unable to delete group; records refer to it."
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:3295
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:3639
 msgid "Unable to delete ID definition; records refer to it."
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:3351
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:3695
 msgid "Not authorized to add special notes for this task's group"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:3398
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:3742
 msgid "Not authorized to delete this special note"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:3449
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:3793
 msgid "Not authorized to erase tasks for this task's group"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:3473
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:3817
 msgid "Task already erased"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:3507
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:3851
 msgid "Task erased:"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:3573
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:3917
 msgid "You're not an admin for this group"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:3735
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:4079
 msgid "Some records for this device are in groups for which you are not an administrator"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:3855
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:4199
 msgid "Bad patient: not in a group"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:3858
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:4202
 msgid "Not authorized to edit this patient"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:3885
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:4229
 msgid "Patient details edited. Changes:"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:4037
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:4381
 msgid "Patient is not editable - was not created on the server"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:4154
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:4498
 msgid "Patient is not editable (likely: not finalized, so a copy still on a client device)"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:4276
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:4534
+msgid "Not authorized to manage patients"
+msgstr ""
+
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:4626
+msgid "Not authorized to delete this patient"
+msgstr ""
+
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:4632
 #: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:57
 msgid "Delete patient"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:4351
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:4706
 msgid "Schedule does not exist"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:4416
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:4769
 msgid "Patient's task schedule does not exist"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:4458
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:4588
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:4772
+msgid "Not authorized to manage this patient"
+msgstr ""
+
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:4814
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:4944
 msgid "You a not a group administrator for this task schedule's group"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:4471
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:4827
 #: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:93
 msgid "Add a task schedule"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:4484
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:4840
 msgid "Edit details for a task schedule"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:4498
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:4854
 msgid "Delete a task schedule"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:4604
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:4960
 msgid "Add an item to the {schedule_name} schedule"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:4627
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:4983
 msgid "Edit details for a task schedule item"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:4657
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:5013
 msgid "Delete a task schedule item"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:4763
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:4794
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:5080
+msgid "Not authorized to email patients"
+msgstr ""
+
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:5126
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:5157
 msgid "Patient task schedule does not exist"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:4775
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:5138
 msgid "Email sent to {patient_email}"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:4783
+#: /home/martinb/workspace/camcops/server/camcops_server/cc_modules/webview.py:5146
 msgid "Failed to send email to {patient_email}"
 msgstr ""
 
@@ -2510,11 +2548,11 @@ msgstr ""
 msgid "Bad request!"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/change_own_password.mako:35
-msgid "Your password has expired and must be changed."
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/change_other_password.mako:32
+msgid "Change password for user: {username}"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/change_own_password.mako:39
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/change_own_password.mako:33
 msgid "Change your password"
 msgstr ""
 
@@ -2577,7 +2615,7 @@ msgstr ""
 
 #: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/download_area.mako:37
 #: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/download_scheduled.mako:41
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:68
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:76
 msgid "Download area"
 msgstr ""
 
@@ -2727,13 +2765,8 @@ msgstr ""
 msgid "Choose SQL dump parameters"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/edit_mfa.mako:33
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:129
-msgid "Multi-factor authentication settings"
-msgstr ""
-
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/edit_user_authentication.mako:32
-msgid "Change authentication for user: {username}"
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/edit_other_user_mfa.mako:32
+msgid "Edit multi-factor authentication for user: {username}"
 msgstr ""
 
 #: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/email_scheduled.mako:31
@@ -2935,8 +2968,8 @@ msgstr ""
 #: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:65
 #: /home/martinb/workspace/camcops/server/camcops_server/templates/snippets/groups_table.mako:50
 #: /home/martinb/workspace/camcops/server/camcops_server/templates/snippets/groups_table.mako:101
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:191
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:212
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:205
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:228
 msgid "Edit"
 msgstr ""
 
@@ -2975,159 +3008,155 @@ msgstr ""
 msgid "CamCOPS web view: Main menu"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:40
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:41
+msgid "Patients"
+msgstr ""
+
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:44
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:178
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:98
+msgid "Manage patients and their tasks"
+msgstr ""
+
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:48
 msgid "Tasks, trackers, and clinical text views"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:47
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:55
 msgid "Filter tasks"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:51
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:59
 msgid "View tasks"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:53
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:61
 msgid "Trackers for numerical information"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:55
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:63
 msgid "Clinical text views"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:59
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:67
 msgid "Research views"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:62
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:70
 msgid "Basic research dump (fields and summaries)"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:64
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:72
 msgid "Advanced research dump (SQL or database)"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:66
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:74
 msgid "Inspect table definitions"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:73
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:81
 msgid "Reports"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:76
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:84
 msgid "Run reports"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:81
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:89
 msgid "Group administrator options"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:84
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:92
 msgid "User management"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:86
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:94
 msgid "E-mail addresses of your users"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:88
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:96
 msgid "Forcibly finalize records for a device"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:90
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:98
 #: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/patient_delete_choose.mako:33
 msgid "Delete patient entirely"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:92
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:168
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:98
-msgid "Manage scheduled tasks for patients"
-msgstr ""
-
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:97
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:103
 msgid "Superuser options"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:100
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:106
 msgid "Group management"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:102
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:108
 msgid "Audit menu"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:104
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:110
 msgid "ID number definition management"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:106
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:112
 msgid "Edit server settings"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:108
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:114
 msgid "Developer test pages"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:112
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:118
 msgid "Settings"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:115
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:121
 msgid "Choose group into which to upload data"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:117
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:123
 msgid "View your user settings"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:119
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:125
 msgid "View server information"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:126
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:132
 msgid "No username!"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:132
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:138
 msgid "Help"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:135
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:141
 msgid "CamCOPS documentation"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:139
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:145
 msgid "The time is"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:140
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:146
 msgid "Server version:"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:141
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:147
 msgid "See"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:142
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:148
 msgid "for more information on CamCOPS."
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:143
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/main_menu.mako:149
 msgid "Clicking on the CamCOPS logo will return you to the main menu."
 msgstr ""
 
 #: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/not_found.mako:32
 msgid "Page not found!"
-msgstr ""
-
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/password_changed.mako:31
-msgid "Password changed for user"
-msgstr ""
-
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/password_changed.mako:35
-msgid "If you store your password in your CamCOPS tablet application, remember to change it there as well."
 msgstr ""
 
 #: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/patient_add.mako:33
@@ -3304,8 +3333,7 @@ msgid "Upload group"
 msgstr ""
 
 #: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/users_view.mako:55
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/users_view.mako:116
-msgid "Change authentication"
+msgid "Authentication"
 msgstr ""
 
 #: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/users_view.mako:64
@@ -3342,7 +3370,11 @@ msgstr ""
 msgid "change"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/users_view.mako:127
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/users_view.mako:126
+msgid "Change multi-factor authentication"
+msgstr ""
+
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/users_view.mako:141
 msgid "Add a user"
 msgstr ""
 
@@ -3397,27 +3429,27 @@ msgstr ""
 msgid "Print/save"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:125
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:126
 msgid "Emails"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:129
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:130
 msgid "Subject"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:130
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:131
 msgid "Date"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:131
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:132
 msgid "Sent"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:132
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:133
 msgid "Sending failure reason"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:161
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:170
 msgid "Email this patient"
 msgstr ""
 
@@ -3460,7 +3492,7 @@ msgstr ""
 msgid "Resend email..."
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:131
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:132
 msgid "Manage task schedules"
 msgstr ""
 
@@ -3635,7 +3667,7 @@ msgstr ""
 
 #. TRANSLATOR: keep short; table heading in user_info_detail.mako
 #: /home/martinb/workspace/camcops/server/camcops_server/templates/snippets/groups_table.mako:41
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:173
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:185
 msgid "Group ID"
 msgstr ""
 
@@ -3728,78 +3760,91 @@ msgid "Groups this user is an administrator for:"
 msgstr ""
 
 #: /home/martinb/workspace/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:119
-msgid "Groups this user can see data from:"
+msgid "Groups this user can add/edit/delete patients in:"
 msgstr ""
 
 #: /home/martinb/workspace/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:125
-msgid "Groups this user can see all patients from, when no task filters are applied? (For other groups, only anonymous tasks will be shown if no patient filters are applied.)"
+msgid "Groups this user can send emails to patients in:"
 msgstr ""
 
 #: /home/martinb/workspace/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:131
-msgid "Groups this user can upload into:"
+msgid "Groups this user can see data from:"
 msgstr ""
 
 #: /home/martinb/workspace/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:137
-msgid "Groups this user may add special notes to tasks for:"
+msgid "Groups this user can see all patients from, when no task filters are applied? (For other groups, only anonymous tasks will be shown if no patient filters are applied.)"
 msgstr ""
 
 #: /home/martinb/workspace/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:143
-msgid "Groups this user can dump data from:"
+msgid "Groups this user can upload into:"
 msgstr ""
 
 #: /home/martinb/workspace/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:149
-msgid "Groups this user can run reports on:"
+msgid "Groups this user may add special notes to tasks for:"
 msgstr ""
 
 #: /home/martinb/workspace/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:155
+msgid "Groups this user can dump data from:"
+msgstr ""
+
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:161
+msgid "Groups this user can run reports on:"
+msgstr ""
+
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:167
 msgid "Group this user is currently set to upload into:"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:160
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:172
 msgid "(None)"
 msgstr ""
 
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:166
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:178
 msgid "Detailed group membership information"
 msgstr ""
 
 #. TRANSLATOR: keep short; table heading in user_info_detail.mako
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:175
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:187
 msgid "Group administrator?"
 msgstr ""
 
 #. TRANSLATOR: keep short; table heading in user_info_detail.mako
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:177
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:189
 msgid "May upload?"
 msgstr ""
 
 #. TRANSLATOR: keep short; table heading in user_info_detail.mako
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:179
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:191
 msgid "May register devices?"
 msgstr ""
 
 #. TRANSLATOR: keep short; table heading in user_info_detail.mako
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:181
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:193
 msgid "May use webviewer?"
 msgstr ""
 
 #. TRANSLATOR: keep short; table heading in user_info_detail.mako
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:183
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:195
+msgid "May manage patients?"
+msgstr ""
+
+#. TRANSLATOR: keep short; table heading in user_info_detail.mako
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:197
 msgid "View all pts when unfiltered?"
 msgstr ""
 
 #. TRANSLATOR: keep short; table heading in user_info_detail.mako
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:185
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:199
 msgid "May dump?"
 msgstr ""
 
 #. TRANSLATOR: keep short; table heading in user_info_detail.mako
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:187
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:201
 msgid "May run reports?"
 msgstr ""
 
 #. TRANSLATOR: keep short; table heading in user_info_detail.mako
-#: /home/martinb/workspace/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:189
+#: /home/martinb/workspace/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:203
 msgid "May add notes?"
 msgstr ""
 
