@@ -1,7 +1,7 @@
-## -*- coding: utf-8 -*-
-<%doc>
+#!/usr/bin/env python
 
-camcops_server/templates/snippets/displayfunc.mako
+"""
+camcops_server/cc_modules/tests/cc_request_tests.py
 
 ===============================================================================
 
@@ -24,21 +24,18 @@ camcops_server/templates/snippets/displayfunc.mako
 
 ===============================================================================
 
-</%doc>
+"""
 
-<%def name="one_per_line(iterable, escape=True)">
-    ## Don't escape the output of this function (i.e. prevent escaping using
-    ## "| n"), because it returns HTML <br> tags. However, you should ask it to
-    ## escape the inputs, using escape=True, unless you have already done that
-    ## or want to pass raw HTML in.
-    %for idx, x in enumerate(iterable):
-        %if idx > 0:
-            <br>
-        %endif
-        %if escape:
-            ${ x }
-        %else:
-            ${ x | n, str }
-        %endif
-    %endfor
-</%def>
+from unittest import mock, TestCase
+
+from camcops_server.cc_modules.cc_request import CamcopsRequest
+
+
+class RequestTests(TestCase):
+    def test_gettext_danish(self):
+        environ = dict()
+        request = CamcopsRequest(environ)
+        request._debugging_user = mock.Mock(language="da_DK")
+
+        # Something unlikely to change
+        self.assertEqual(request.gettext("Cancel"), "Annuller")
