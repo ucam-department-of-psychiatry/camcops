@@ -723,7 +723,7 @@ class EditFinalizedPatientViewTests(BasicDatabaseTestCase):
         patient = self.create_patient(_group_id=None)
 
         self.req.add_get_params({
-            ViewParam.SERVER_PK: patient.pk
+            ViewParam.SERVER_PK: str(patient.pk)
         })
 
         with self.assertRaises(HTTPBadRequest) as cm:
@@ -742,7 +742,7 @@ class EditFinalizedPatientViewTests(BasicDatabaseTestCase):
                 return_value=False
         ):
             self.req.add_get_params({
-                ViewParam.SERVER_PK: patient.pk
+                ViewParam.SERVER_PK: str(patient.pk)
             })
 
             with self.assertRaises(HTTPBadRequest) as cm:
@@ -761,7 +761,7 @@ class EditFinalizedPatientViewTests(BasicDatabaseTestCase):
         )
 
         self.req.add_get_params({
-            ViewParam.SERVER_PK: patient.pk
+            ViewParam.SERVER_PK: str(patient.pk)
         })
 
         with self.assertRaises(HTTPBadRequest) as cm:
@@ -773,15 +773,15 @@ class EditFinalizedPatientViewTests(BasicDatabaseTestCase):
         patient = self.create_patient()
 
         self.req.add_get_params({
-            ViewParam.SERVER_PK: patient.pk
+            ViewParam.SERVER_PK: str(patient.pk)
         }, set_method_get=False)
 
         multidict = MultiDict([
             ("_charset_", "UTF-8"),
             ("__formid__", "deform"),
             (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
-            (ViewParam.SERVER_PK, patient.pk),
-            (ViewParam.GROUP_ID, patient.group.id),
+            (ViewParam.SERVER_PK, str(patient.pk)),
+            (ViewParam.GROUP_ID, str(patient.group.id)),
             (ViewParam.FORENAME, "Jo"),
             (ViewParam.SURNAME, "Patient"),
             ("__start__", "dob:mapping"),
@@ -882,14 +882,14 @@ class EditFinalizedPatientViewTests(BasicDatabaseTestCase):
 
         self.dbsession.add(patient_task_schedule)
         self.req.add_get_params({
-            ViewParam.SERVER_PK: patient.pk
+            ViewParam.SERVER_PK: str(patient.pk)
         }, set_method_get=False)
 
         multidict = MultiDict([
             ("_charset_", "UTF-8"),
             ("__formid__", "deform"),
             (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
-            (ViewParam.SERVER_PK, patient.pk),
+            (ViewParam.SERVER_PK, str(patient.pk)),
             (ViewParam.GROUP_ID, patient.group.id),
             (ViewParam.FORENAME, patient.forename),
             (ViewParam.SURNAME, patient.surname),
@@ -982,7 +982,7 @@ class EditFinalizedPatientViewTests(BasicDatabaseTestCase):
         self.dbsession.commit()
 
         self.req.add_get_params({
-            ViewParam.SERVER_PK: patient.pk
+            ViewParam.SERVER_PK: str(patient.pk)
         })
 
         view = EditFinalizedPatientView(self.req)
@@ -1031,7 +1031,7 @@ class EditFinalizedPatientViewTests(BasicDatabaseTestCase):
         )
 
         self.req.add_get_params({
-            ViewParam.SERVER_PK: patient.pk
+            ViewParam.SERVER_PK: str(patient.pk)
         })
 
         view = EditFinalizedPatientView(self.req)
@@ -1173,7 +1173,7 @@ class EditServerCreatedPatientViewTests(BasicDatabaseTestCase):
         view = EditServerCreatedPatientView(self.req)
 
         self.req.add_get_params({
-            ViewParam.SERVER_PK: patient.pk
+            ViewParam.SERVER_PK: str(patient.pk)
         })
 
         with self.assertRaises(HTTPBadRequest) as cm:
@@ -1218,7 +1218,7 @@ class EditServerCreatedPatientViewTests(BasicDatabaseTestCase):
         self.dbsession.commit()
 
         self.req.add_get_params({
-            ViewParam.SERVER_PK: patient.pk
+            ViewParam.SERVER_PK: str(patient.pk)
         }, set_method_get=False)
 
         changed_schedule_1_settings = {
@@ -1427,7 +1427,7 @@ class EditServerCreatedPatientViewTests(BasicDatabaseTestCase):
         view = EditServerCreatedPatientView(self.req)
         view.object = patient
 
-        self.req.add_get_params({ViewParam.SERVER_PK: patient.pk})
+        self.req.add_get_params({ViewParam.SERVER_PK: str(patient.pk)})
 
         with self.assertRaises(HTTPBadRequest) as cm:
             view.dispatch()
@@ -1652,7 +1652,7 @@ class DeleteServerCreatedPatientViewTests(BasicDatabaseTestCase):
 
         patient_pk = self.patient.pk
         self.req.add_get_params({
-            ViewParam.SERVER_PK: patient_pk
+            ViewParam.SERVER_PK: str(patient_pk),
         }, set_method_get=False)
         view = DeleteServerCreatedPatientView(self.req)
 
@@ -1698,7 +1698,7 @@ class DeleteServerCreatedPatientViewTests(BasicDatabaseTestCase):
 
         patient_pk = self.patient.pk
         self.req.add_get_params({
-            ViewParam.SERVER_PK: patient_pk
+            ViewParam.SERVER_PK: str(patient_pk),
         }, set_method_get=False)
         view = DeleteServerCreatedPatientView(self.req)
 
@@ -1796,7 +1796,7 @@ class DeleteServerCreatedPatientViewTests(BasicDatabaseTestCase):
         self.req.fake_request_post_from_dict(self.multidict)
 
         patient_pk = self.patient.pk
-        self.req.add_get_params({ViewParam.SERVER_PK: patient_pk},
+        self.req.add_get_params({ViewParam.SERVER_PK: str(patient_pk)},
                                 set_method_get=False)
         view = DeleteServerCreatedPatientView(self.req)
 
@@ -1817,7 +1817,7 @@ class DeleteServerCreatedPatientViewTests(BasicDatabaseTestCase):
         self.req.fake_request_post_from_dict(self.multidict)
 
         patient_pk = self.patient.pk
-        self.req.add_get_params({ViewParam.SERVER_PK: patient_pk})
+        self.req.add_get_params({ViewParam.SERVER_PK: str(patient_pk)})
         view = DeleteServerCreatedPatientView(self.req)
 
         user = self.create_user(username="testuser")
@@ -1857,7 +1857,7 @@ class EraseTaskLeavingPlaceholderViewTests(EraseTaskTestCase):
     """
     def test_displays_form(self) -> None:
         self.req.add_get_params({
-            ViewParam.SERVER_PK: self.task.pk,
+            ViewParam.SERVER_PK: str(self.task.pk),
             ViewParam.TABLE_NAME: self.task.tablename,
         }, set_method_get=False)
         view = EraseTaskLeavingPlaceholderView(self.req)
@@ -1909,7 +1909,7 @@ class EraseTaskLeavingPlaceholderViewTests(EraseTaskTestCase):
         })
 
         self.req.add_get_params({
-            ViewParam.SERVER_PK: self.task.pk,
+            ViewParam.SERVER_PK: str(self.task.pk),
             ViewParam.TABLE_NAME: self.task.tablename,
         }, set_method_get=False)
         view = EraseTaskLeavingPlaceholderView(self.req)
@@ -1927,7 +1927,7 @@ class EraseTaskLeavingPlaceholderViewTests(EraseTaskTestCase):
         })
 
         self.req.add_get_params({
-            ViewParam.SERVER_PK: self.task.pk,
+            ViewParam.SERVER_PK: str(self.task.pk),
             ViewParam.TABLE_NAME: self.task.tablename,
         }, set_method_get=False)
         view = EraseTaskLeavingPlaceholderView(self.req)
@@ -1970,7 +1970,7 @@ class EraseTaskLeavingPlaceholderViewTests(EraseTaskTestCase):
         self.dbsession.commit()
 
         self.req.add_get_params({
-            ViewParam.SERVER_PK: self.task.pk,
+            ViewParam.SERVER_PK: str(self.task.pk),
             ViewParam.TABLE_NAME: self.task.tablename,
         }, set_method_get=False)
         view = EraseTaskLeavingPlaceholderView(self.req)
@@ -1988,7 +1988,7 @@ class EraseTaskLeavingPlaceholderViewTests(EraseTaskTestCase):
                                return_value=False):
 
             self.req.add_get_params({
-                ViewParam.SERVER_PK: self.task.pk,
+                ViewParam.SERVER_PK: str(self.task.pk),
                 ViewParam.TABLE_NAME: self.task.tablename,
             }, set_method_get=False)
             view = EraseTaskLeavingPlaceholderView(self.req)
@@ -2007,7 +2007,7 @@ class EraseTaskLeavingPlaceholderViewTests(EraseTaskTestCase):
         self.dbsession.commit()
 
         self.req.add_get_params({
-            ViewParam.SERVER_PK: self.task.pk,
+            ViewParam.SERVER_PK: str(self.task.pk),
             ViewParam.TABLE_NAME: self.task.tablename,
         }, set_method_get=False)
         view = EraseTaskLeavingPlaceholderView(self.req)
@@ -2255,7 +2255,7 @@ class SendEmailFromPatientTaskScheduleViewTests(BasicDatabaseTestCase):
 
     def test_displays_form(self) -> None:
         self.req.add_get_params({
-            ViewParam.PATIENT_TASK_SCHEDULE_ID: self.pts.id,
+            ViewParam.PATIENT_TASK_SCHEDULE_ID: str(self.pts.id),
         })
 
         view = SendEmailFromPatientTaskScheduleView(self.req)
@@ -2267,7 +2267,7 @@ class SendEmailFromPatientTaskScheduleViewTests(BasicDatabaseTestCase):
 
         self.assertIn("form", context)
 
-    def test_raises_for_missing_pts_id(self):
+    def test_raises_for_missing_pts_id(self) -> None:
         view = SendEmailFromPatientTaskScheduleView(self.req)
         with self.assertRaises(HTTPBadRequest) as cm:
             view.dispatch()
@@ -2279,7 +2279,9 @@ class SendEmailFromPatientTaskScheduleViewTests(BasicDatabaseTestCase):
 
     @mock.patch("camcops_server.cc_modules.cc_email.send_msg")
     @mock.patch("camcops_server.cc_modules.cc_email.make_email")
-    def test_sends_email(self, mock_make_email, mock_send_msg) -> None:
+    def test_sends_email(self,
+                         mock_make_email: mock.Mock,
+                         mock_send_msg: mock.Mock) -> None:
         self.req.config.email_host = "smtp.example.com"
         self.req.config.email_port = 587
         self.req.config.email_host_username = "mailuser"
@@ -2319,7 +2321,9 @@ class SendEmailFromPatientTaskScheduleViewTests(BasicDatabaseTestCase):
 
     @mock.patch("camcops_server.cc_modules.cc_email.send_msg")
     @mock.patch("camcops_server.cc_modules.cc_email.make_email")
-    def test_sends_cc_of_email(self, mock_make_email, mock_send_msg) -> None:
+    def test_sends_cc_of_email(self,
+                               mock_make_email: mock.Mock,
+                               mock_send_msg: mock.Mock) -> None:
         self.req.config.email_host = "smtp.example.com"
         self.req.config.email_port = 587
         self.req.config.email_host_username = "mailuser"
@@ -2350,7 +2354,9 @@ class SendEmailFromPatientTaskScheduleViewTests(BasicDatabaseTestCase):
 
     @mock.patch("camcops_server.cc_modules.cc_email.send_msg")
     @mock.patch("camcops_server.cc_modules.cc_email.make_email")
-    def test_sends_bcc_of_email(self, mock_make_email, mock_send_msg) -> None:
+    def test_sends_bcc_of_email(self,
+                                mock_make_email: mock.Mock,
+                                mock_send_msg: mock.Mock) -> None:
         self.req.config.email_host = "smtp.example.com"
         self.req.config.email_port = 587
         self.req.config.email_host_username = "mailuser"
@@ -2382,7 +2388,9 @@ class SendEmailFromPatientTaskScheduleViewTests(BasicDatabaseTestCase):
 
     @mock.patch("camcops_server.cc_modules.cc_email.send_msg")
     @mock.patch("camcops_server.cc_modules.cc_email.make_email")
-    def test_message_on_success(self, mock_make_email, mock_send_msg) -> None:
+    def test_message_on_success(self,
+                                mock_make_email: mock.Mock,
+                                mock_send_msg: mock.Mock) -> None:
         multidict = MultiDict([
             (ViewParam.EMAIL, "patient@example.com"),
             (ViewParam.EMAIL_FROM, "server@example.com"),
@@ -2408,7 +2416,9 @@ class SendEmailFromPatientTaskScheduleViewTests(BasicDatabaseTestCase):
     @mock.patch("camcops_server.cc_modules.cc_email.send_msg",
                 side_effect=RuntimeError("Something bad happened"))
     @mock.patch("camcops_server.cc_modules.cc_email.make_email")
-    def test_message_on_failure(self, mock_make_email, mock_send_msg) -> None:
+    def test_message_on_failure(self,
+                                mock_make_email: mock.Mock,
+                                mock_send_msg: mock.Mock) -> None:
         multidict = MultiDict([
             (ViewParam.EMAIL, "patient@example.com"),
             (ViewParam.EMAIL_FROM, "server@example.com"),
@@ -2434,7 +2444,9 @@ class SendEmailFromPatientTaskScheduleViewTests(BasicDatabaseTestCase):
 
     @mock.patch("camcops_server.cc_modules.cc_email.send_msg")
     @mock.patch("camcops_server.cc_modules.cc_email.make_email")
-    def test_email_record_created(self, mock_make_email, mock_send_msg) -> None:
+    def test_email_record_created(self,
+                                  mock_make_email: mock.Mock,
+                                  mock_send_msg: mock.Mock) -> None:
         multidict = MultiDict([
             (ViewParam.EMAIL, "patient@example.com"),
             (ViewParam.EMAIL_FROM, "server@example.com"),
@@ -2487,7 +2499,7 @@ class SendEmailFromPatientTaskScheduleViewTests(BasicDatabaseTestCase):
 
 
 class LoginViewTests(BasicDatabaseTestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         super().setUp()
 
         self.req.matched_route.name = "login_view"
@@ -2552,7 +2564,7 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.assertEqual(args[0], locked_out_until)
 
     @mock.patch("camcops_server.cc_modules.webview.audit")
-    def test_user_can_log_in(self, mock_audit) -> None:
+    def test_user_can_log_in(self, mock_audit: mock.Mock) -> None:
         user = self.create_user(username="test")
         user.set_password(self.req, "secret")
         self.dbsession.flush()
@@ -2613,8 +2625,10 @@ class LoginViewTests(BasicDatabaseTestCase):
 
     @mock.patch("camcops_server.cc_modules.cc_email.send_msg")
     @mock.patch("camcops_server.cc_modules.cc_email.make_email")
-    def test_user_with_hotp_email_sees_token_form(self, mock_make_email,
-                                                  mock_send_msg) -> None:
+    def test_user_with_hotp_email_sees_token_form(
+            self,
+            mock_make_email: mock.Mock,
+            mock_send_msg: mock.Mock) -> None:
         user = self.create_user(username="test",
                                 mfa_secret_key=pyotp.random_base32(),
                                 mfa_method=MfaMethod.HOTP_EMAIL,
@@ -2674,10 +2688,11 @@ class LoginViewTests(BasicDatabaseTestCase):
     @mock.patch("camcops_server.cc_modules.cc_email.send_msg")
     @mock.patch("camcops_server.cc_modules.cc_email.make_email")
     @mock.patch("camcops_server.cc_modules.webview.time")
-    def test_session_state_set_for_user_with_mfa(self,
-                                                 mock_time,
-                                                 mock_make_email,
-                                                 mock_send_msg) -> None:
+    def test_session_state_set_for_user_with_mfa(
+            self,
+            mock_time: mock.Mock,
+            mock_make_email: mock.Mock,
+            mock_send_msg: mock.Mock) -> None:
         user = self.create_user(username="test",
                                 mfa_secret_key=pyotp.random_base32(),
                                 mfa_method=MfaMethod.HOTP_EMAIL,
@@ -2710,8 +2725,8 @@ class LoginViewTests(BasicDatabaseTestCase):
     @mock.patch("camcops_server.cc_modules.cc_email.send_msg")
     @mock.patch("camcops_server.cc_modules.cc_email.make_email")
     def test_user_with_hotp_is_sent_email(self,
-                                          mock_make_email,
-                                          mock_send_msg) -> None:
+                                          mock_make_email: mock.Mock,
+                                          mock_send_msg: mock.Mock) -> None:
         self.req.config.email_host = "smtp.example.com"
         self.req.config.email_port = 587
         self.req.config.email_host_username = "mailuser"
@@ -2798,9 +2813,10 @@ class LoginViewTests(BasicDatabaseTestCase):
 
     @mock.patch("camcops_server.cc_modules.cc_email.send_msg")
     @mock.patch("camcops_server.cc_modules.cc_email.make_email")
-    def test_login_with_hotp_increments_counter(self,
-                                                mock_make_email,
-                                                mock_send_msg) -> None:
+    def test_login_with_hotp_increments_counter(
+            self,
+            mock_make_email: mock.Mock,
+            mock_send_msg: mock.Mock) -> None:
         user = self.create_user(username="test",
                                 email="user@example.com",
                                 mfa_secret_key=pyotp.random_base32(),
@@ -2826,7 +2842,7 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.assertEqual(user.hotp_counter, 1)
 
     @mock.patch("camcops_server.cc_modules.webview.audit")
-    def test_user_with_totp_can_log_in(self, mock_audit) -> None:
+    def test_user_with_totp_can_log_in(self, mock_audit: mock.Mock) -> None:
         user = self.create_user(username="test",
                                 mfa_method=MfaMethod.TOTP,
                                 mfa_secret_key=pyotp.random_base32())
@@ -2867,7 +2883,7 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.assertIsNone(self.req.camcops_session.form_state)
 
     @mock.patch("camcops_server.cc_modules.webview.audit")
-    def test_user_with_hotp_can_log_in(self, mock_audit) -> None:
+    def test_user_with_hotp_can_log_in(self, mock_audit: mock.Mock) -> None:
         user = self.create_user(username="test",
                                 mfa_method=MfaMethod.HOTP_EMAIL,
                                 mfa_secret_key=pyotp.random_base32(),
@@ -3022,8 +3038,7 @@ class LoginViewTests(BasicDatabaseTestCase):
     def test_timed_out_false_when_timeout_zero(self) -> None:
         self.req.config.mfa_timeout_s = 0
         view = LoginView(self.req)
-
-        self.req.camcops_session.mfa_time = 0
+        view.state["mfa_time"] = 0
 
         self.assertFalse(view.timed_out())
 
@@ -3051,7 +3066,7 @@ class EditUserViewTests(BasicDatabaseTestCase):
             FormAction.CANCEL: "cancel"
         })
         self.req.add_get_params({
-            ViewParam.USER_ID: regular_user.id,
+            ViewParam.USER_ID: str(regular_user.id),
         }, set_method_get=False)
 
         with self.assertRaises(HTTPFound) as cm:
@@ -3063,7 +3078,7 @@ class EditUserViewTests(BasicDatabaseTestCase):
         )
 
     def test_raises_if_user_may_not_edit_another(self) -> None:
-        self.req.add_get_params({ViewParam.USER_ID: self.user.id})
+        self.req.add_get_params({ViewParam.USER_ID: str(self.user.id)})
 
         regular_user = self.create_user(username="regular_user")
         self.dbsession.flush()
@@ -3078,7 +3093,7 @@ class EditUserViewTests(BasicDatabaseTestCase):
         self.dbsession.flush()
         self.req._debugging_user = superuser
 
-        self.req.add_get_params({ViewParam.USER_ID: superuser.id})
+        self.req.add_get_params({ViewParam.USER_ID: str(superuser.id)})
 
         response = edit_user(self.req)
 
@@ -3093,7 +3108,7 @@ class EditUserViewTests(BasicDatabaseTestCase):
         self.dbsession.flush()
         self.req._debugging_user = groupadmin
 
-        self.req.add_get_params({ViewParam.USER_ID: regular_user.id})
+        self.req.add_get_params({ViewParam.USER_ID: str(regular_user.id)})
 
         response = edit_user(self.req)
         content = response.body.decode("UTF-8")
@@ -3112,7 +3127,7 @@ class EditUserViewTests(BasicDatabaseTestCase):
         ])
         self.req.fake_request_post_from_dict(multidict)
         self.req.add_get_params({
-            ViewParam.USER_ID: other_user.id,
+            ViewParam.USER_ID: str(other_user.id),
         }, set_method_get=False)
 
         with self.assertRaises(HTTPBadRequest) as cm:
@@ -3136,7 +3151,7 @@ class EditUserViewTests(BasicDatabaseTestCase):
         ])
         self.req.fake_request_post_from_dict(multidict)
         self.req.add_get_params({
-            ViewParam.USER_ID: user.id,
+            ViewParam.USER_ID: str(user.id),
         }, set_method_get=False)
 
         with self.assertRaises(HTTPFound):
@@ -3161,7 +3176,7 @@ class EditUserViewTests(BasicDatabaseTestCase):
         ])
         self.req.fake_request_post_from_dict(multidict)
         self.req.add_get_params({
-            ViewParam.USER_ID: user.id,
+            ViewParam.USER_ID: str(user.id),
         }, set_method_get=False)
 
         with mock.patch.object(user, "set_group_ids") as mock_set_group_ids:
@@ -3191,7 +3206,7 @@ class EditUserViewTests(BasicDatabaseTestCase):
         ])
         self.req.fake_request_post_from_dict(multidict)
         self.req.add_get_params({
-            ViewParam.USER_ID: regular_user.id,
+            ViewParam.USER_ID: str(regular_user.id),
         }, set_method_get=False)
 
         with mock.patch.object(regular_user,
@@ -3224,7 +3239,7 @@ class EditUserViewTests(BasicDatabaseTestCase):
         ])
         self.req.fake_request_post_from_dict(multidict)
         self.req.add_get_params({
-            ViewParam.USER_ID: regular_user.id,
+            ViewParam.USER_ID: str(regular_user.id),
         }, set_method_get=False)
 
         with self.assertRaises(HTTPFound):
@@ -3272,7 +3287,7 @@ class EditUserViewTests(BasicDatabaseTestCase):
         ])
         self.req.fake_request_post_from_dict(multidict)
         self.req.add_get_params({
-            ViewParam.USER_ID: regular_user.id,
+            ViewParam.USER_ID: str(regular_user.id),
         }, set_method_get=False)
 
         with self.assertRaises(HTTPBadRequest) as cm:
@@ -3524,7 +3539,7 @@ class EditOwnUserMfaViewTests(BasicDatabaseTestCase):
 
 
 class ChangeOtherPasswordViewTests(BasicDatabaseTestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         super().setUp()
 
         self.req.matched_route.name = "change_other_password"
@@ -3559,7 +3574,7 @@ class ChangeOtherPasswordViewTests(BasicDatabaseTestCase):
         self.req.fake_request_post_from_dict(multidict)
 
         self.req.add_get_params({
-            ViewParam.USER_ID: self.user.id
+            ViewParam.USER_ID: str(self.user.id)
         }, set_method_get=False)
 
         view = ChangeOtherPasswordView(self.req)
@@ -3589,7 +3604,7 @@ class ChangeOtherPasswordViewTests(BasicDatabaseTestCase):
         self.req.fake_request_post_from_dict(multidict)
 
         self.req.add_get_params({
-            ViewParam.USER_ID: regular_user.id
+            ViewParam.USER_ID: str(regular_user.id)
         }, set_method_get=False)
 
         view = ChangeOtherPasswordView(self.req)
@@ -3628,7 +3643,7 @@ class ChangeOtherPasswordViewTests(BasicDatabaseTestCase):
         self.req.fake_request_post_from_dict(multidict)
 
         self.req.add_get_params({
-            ViewParam.USER_ID: regular_user.id
+            ViewParam.USER_ID: str(regular_user.id)
         }, set_method_get=False)
 
         view = ChangeOtherPasswordView(self.req)
@@ -3645,7 +3660,7 @@ class ChangeOtherPasswordViewTests(BasicDatabaseTestCase):
         self.dbsession.flush()
         self.req._debugging_user = superuser
         self.req.add_get_params({
-            ViewParam.USER_ID: superuser.id
+            ViewParam.USER_ID: str(superuser.id)
         }, set_method_get=False)
 
         view = ChangeOtherPasswordView(self.req)
@@ -3660,8 +3675,8 @@ class ChangeOtherPasswordViewTests(BasicDatabaseTestCase):
     @mock.patch("camcops_server.cc_modules.cc_email.send_msg")
     @mock.patch("camcops_server.cc_modules.cc_email.make_email")
     def test_user_sees_otp_form_if_mfa_setup(self,
-                                             mock_make_email,
-                                             mock_send_msg) -> None:
+                                             mock_make_email: mock.Mock,
+                                             mock_send_msg: mock.Mock) -> None:
         superuser = self.create_user(username="admin",
                                      superuser=True,
                                      email="admin@example.com",
@@ -3673,7 +3688,7 @@ class ChangeOtherPasswordViewTests(BasicDatabaseTestCase):
         self.dbsession.flush()
         self.req._debugging_user = superuser
         self.req.add_get_params({
-            ViewParam.USER_ID: user.id
+            ViewParam.USER_ID: str(user.id)
         }, set_method_get=False)
 
         view = ChangeOtherPasswordView(self.req)
@@ -3704,7 +3719,7 @@ class ChangeOtherPasswordViewTests(BasicDatabaseTestCase):
 
         self.req._debugging_user = superuser
         self.req.add_get_params({
-            ViewParam.USER_ID: user.id
+            ViewParam.USER_ID: str(user.id)
         }, set_method_get=False)
 
         view = ChangeOtherPasswordView(self.req)
@@ -3732,7 +3747,7 @@ class ChangeOtherPasswordViewTests(BasicDatabaseTestCase):
 
         self.req._debugging_user = superuser
         self.req.add_get_params({
-            ViewParam.USER_ID: user.id
+            ViewParam.USER_ID: str(user.id)
         }, set_method_get=False)
 
         hotp = pyotp.HOTP(superuser.mfa_secret_key)
@@ -3767,7 +3782,7 @@ class ChangeOtherPasswordViewTests(BasicDatabaseTestCase):
 
         self.req._debugging_user = superuser
         self.req.add_get_params({
-            ViewParam.USER_ID: user.id
+            ViewParam.USER_ID: str(user.id),
         }, set_method_get=False)
 
         hotp = pyotp.HOTP(superuser.mfa_secret_key)
@@ -3799,7 +3814,7 @@ class ChangeOtherPasswordViewTests(BasicDatabaseTestCase):
 
         self.req._debugging_user = superuser
         self.req.add_get_params({
-            ViewParam.USER_ID: user.id
+            ViewParam.USER_ID: str(user.id),
         }, set_method_get=False)
 
         totp = pyotp.TOTP(superuser.mfa_secret_key)
@@ -3823,7 +3838,7 @@ class ChangeOtherPasswordViewTests(BasicDatabaseTestCase):
 
 
 class EditOtherUserMfaViewTests(BasicDatabaseTestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         super().setUp()
 
         self.req.matched_route.name = "edit_other_user_mfa"
@@ -3854,7 +3869,7 @@ class EditOtherUserMfaViewTests(BasicDatabaseTestCase):
         self.req.fake_request_post_from_dict(multidict)
 
         self.req.add_get_params({
-            ViewParam.USER_ID: self.user.id
+            ViewParam.USER_ID: str(self.user.id),
         }, set_method_get=False)
 
         view = EditOtherUserMfaView(self.req)
@@ -3882,7 +3897,7 @@ class EditOtherUserMfaViewTests(BasicDatabaseTestCase):
         self.req.fake_request_post_from_dict(multidict)
 
         self.req.add_get_params({
-            ViewParam.USER_ID: regular_user.id
+            ViewParam.USER_ID: str(regular_user.id),
         }, set_method_get=False)
 
         view = EditOtherUserMfaView(self.req)
@@ -3902,7 +3917,7 @@ class EditOtherUserMfaViewTests(BasicDatabaseTestCase):
         superuser = self.create_user(username="admin", superuser=True)
         self.dbsession.flush()
         self.req._debugging_user = superuser
-        self.req.add_get_params({ViewParam.USER_ID: superuser.id})
+        self.req.add_get_params({ViewParam.USER_ID: str(superuser.id)})
 
         view = EditOtherUserMfaView(self.req)
         with self.assertRaises(HTTPFound) as cm:
@@ -3916,8 +3931,8 @@ class EditOtherUserMfaViewTests(BasicDatabaseTestCase):
     @mock.patch("camcops_server.cc_modules.cc_email.send_msg")
     @mock.patch("camcops_server.cc_modules.cc_email.make_email")
     def test_user_sees_otp_form_if_mfa_setup(self,
-                                             mock_make_email,
-                                             mock_send_msg) -> None:
+                                             mock_make_email: mock.Mock,
+                                             mock_send_msg: mock.Mock) -> None:
         superuser = self.create_user(username="admin",
                                      superuser=True,
                                      email="admin@example.com",
@@ -3929,7 +3944,7 @@ class EditOtherUserMfaViewTests(BasicDatabaseTestCase):
         self.dbsession.flush()
         self.req._debugging_user = superuser
         self.req.add_get_params({
-            ViewParam.USER_ID: user.id
+            ViewParam.USER_ID: str(user.id),
         }, set_method_get=False)
 
         view = EditOtherUserMfaView(self.req)
@@ -3960,7 +3975,7 @@ class EditOtherUserMfaViewTests(BasicDatabaseTestCase):
 
         self.req._debugging_user = superuser
         self.req.add_get_params({
-            ViewParam.USER_ID: user.id
+            ViewParam.USER_ID: str(user.id),
         }, set_method_get=False)
 
         view = EditOtherUserMfaView(self.req)
@@ -3988,7 +4003,7 @@ class EditOtherUserMfaViewTests(BasicDatabaseTestCase):
 
         self.req._debugging_user = superuser
         self.req.add_get_params({
-            ViewParam.USER_ID: user.id
+            ViewParam.USER_ID: str(user.id)
         }, set_method_get=False)
 
         hotp = pyotp.HOTP(superuser.mfa_secret_key)
@@ -4023,7 +4038,7 @@ class EditOtherUserMfaViewTests(BasicDatabaseTestCase):
 
         self.req._debugging_user = superuser
         self.req.add_get_params({
-            ViewParam.USER_ID: user.id
+            ViewParam.USER_ID: str(user.id)
         }, set_method_get=False)
 
         hotp = pyotp.HOTP(superuser.mfa_secret_key)
@@ -4239,7 +4254,7 @@ class EditUserGroupMembershipViewTests(BasicDatabaseTestCase):
 
 
 class ChangeOwnPasswordViewTests(BasicDatabaseTestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         super().setUp()
 
         self.req.matched_route.name = "change_own_password"
@@ -4298,8 +4313,8 @@ class ChangeOwnPasswordViewTests(BasicDatabaseTestCase):
     @mock.patch("camcops_server.cc_modules.cc_email.send_msg")
     @mock.patch("camcops_server.cc_modules.cc_email.make_email")
     def test_user_sees_otp_form_if_mfa_setup(self,
-                                             mock_make_email,
-                                             mock_send_msg) -> None:
+                                             mock_make_email: mock.Mock,
+                                             mock_send_msg: mock.Mock) -> None:
         user = self.create_user(username="user",
                                 email="user@example.com",
                                 mfa_method=MfaMethod.HOTP_EMAIL,

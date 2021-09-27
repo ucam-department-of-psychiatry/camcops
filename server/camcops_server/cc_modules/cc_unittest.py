@@ -56,6 +56,7 @@ from camcops_server.cc_modules.cc_membership import UserGroupMembership
 from camcops_server.cc_modules.cc_version import CAMCOPS_SERVER_VERSION
 
 if TYPE_CHECKING:
+    from sqlalchemy.orm import Session
     from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
     from camcops_server.cc_modules.cc_patient import Patient
     from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
@@ -112,6 +113,9 @@ class DemoRequestTestCase(ExtendedTestCase):
     Test case that creates a demo Pyramid request that refers to a bare
     in-memory SQLite database.
     """
+
+    dbsession: "Session"
+
     def setUp(self) -> None:
         self.create_config_file()
         from camcops_server.cc_modules.cc_request import get_unittest_request

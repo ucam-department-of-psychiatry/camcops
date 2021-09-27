@@ -29,7 +29,7 @@ camcops_server/cc_modules/cc_sms.py
 """
 
 import logging
-from typing import Any, Dict, Type
+from typing import Any, Dict, Optional, Type
 
 
 import requests
@@ -72,6 +72,8 @@ class KapowSmsBackend(SmsBackend):
 
 
 class TwilioSmsBackend(SmsBackend):
+    client: Optional[Client] = None
+
     def __init__(self, config: Dict[str, Any]) -> None:
         super().__init__(config)
 

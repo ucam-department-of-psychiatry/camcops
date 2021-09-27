@@ -27,9 +27,14 @@ camcops_server/cc_modules/tests/cc_sms_tests.py
 """
 
 import logging
+from typing import cast, TYPE_CHECKING
 from unittest import mock, TestCase
 
 from camcops_server.cc_modules.cc_sms import get_sms_backend
+
+if TYPE_CHECKING:
+    from camcops_server.cc_modules.cc_sms import TwilioSmsBackend
+
 
 TEST_MESSAGE = "Test Message"
 # https://www.ofcom.org.uk/phones-telecoms-and-internet/information-for-industry/numbering/numbers-for-drama  # noqa: E501
@@ -40,7 +45,7 @@ TEST_SENDER = "+447700900456"
 
 class KapowSmsBackendTests(TestCase):
     @mock.patch("camcops_server.cc_modules.cc_sms.requests.post")
-    def test_sends_sms(self, mock_post) -> None:
+    def test_sends_sms(self, mock_post: mock.Mock) -> None:
 
         config = {"username": "testuser", "password": "testpass"}
 
@@ -64,7 +69,7 @@ class TwilioSmsBackendTests(TestCase):
                   "token": "testtoken",
                   "phone_number": TEST_SENDER}
 
-        backend = get_sms_backend("twilio", config)
+        backend = cast("TwilioSmsBackend", get_sms_backend("twilio", config))
 
         self.assertEqual(backend.client.username, "testsid")
         self.assertEqual(backend.client.password, "testtoken")
@@ -74,7 +79,7 @@ class TwilioSmsBackendTests(TestCase):
                   "token": "testtoken",
                   "phone_number": TEST_SENDER}
 
-        backend = get_sms_backend("twilio", config)
+        backend = cast("TwilioSmsBackend", get_sms_backend("twilio", config))
 
         with mock.patch.object(backend.client.messages,
                                "create") as mock_create:

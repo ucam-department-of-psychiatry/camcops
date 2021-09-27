@@ -685,7 +685,13 @@ class DeleteView(TemplateResponseMixin, BaseDeleteView):
     pass
 
 
-class FormWizardMixin:
+if TYPE_CHECKING:
+    _FormWizardMixinBase = FormMixin
+else:
+    _FormWizardMixinBase = object
+
+
+class FormWizardMixin(_FormWizardMixinBase):
     """
     Basic support for multi-step form entry.
     For more complexity we could do something like
@@ -705,12 +711,18 @@ class FormWizardMixin:
     ``wizard_first_step``: The name of the first form entry step
     ``wizard_forms``: step name -> :class:``Form`` dict
     ``wizard_templates``: step name -> template filename dict
-    ``wizard_extra_context``: step name -> context dict dict
+    ``wizard_extra_contexts``: step name -> context dict dict
 
     alternatively subclasses can override ``get_first_step()`` etc.
 
     The logic of changing steps is left to the subclass.
     """
+
+    wizard_first_step: Optional[str] = None
+    wizard_forms: Dict[str, "Form"] = {}
+    wizard_templates: Dict[str, str] = {}
+    wizard_extra_contexts: Dict[str, Dict[str, Any]] = {}
+
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 

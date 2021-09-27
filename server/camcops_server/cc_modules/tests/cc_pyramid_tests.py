@@ -41,14 +41,14 @@ class CamcopsAuthenticationPolicyTests(BasicDatabaseTestCase):
     def setUp(self) -> None:
         super().setUp()
 
-    def test_principals_for_no_user(self):
+    def test_principals_for_no_user(self) -> None:
         self.req._debugging_user = None
         self.assertEqual(
             CamcopsAuthenticationPolicy.effective_principals(self.req),
             [Everyone]
         )
 
-    def test_principals_for_authenticated_user(self):
+    def test_principals_for_authenticated_user(self) -> None:
         user = self.create_user(username="test")
         self.dbsession.flush()
 
@@ -62,7 +62,7 @@ class CamcopsAuthenticationPolicyTests(BasicDatabaseTestCase):
             CamcopsAuthenticationPolicy.effective_principals(self.req)
         )
 
-    def test_principals_when_user_must_change_pasword(self):
+    def test_principals_when_user_must_change_pasword(self) -> None:
         user = self.create_user(username="test",
                                 must_change_password=True)
         self.dbsession.flush()
@@ -74,7 +74,7 @@ class CamcopsAuthenticationPolicyTests(BasicDatabaseTestCase):
             CamcopsAuthenticationPolicy.effective_principals(self.req)
         )
 
-    def test_principals_when_user_must_set_up_mfa(self):
+    def test_principals_when_user_must_set_up_mfa(self) -> None:
         user = self.create_user(username="test",
                                 mfa_method="none")
         user.agree_terms(self.req)
@@ -88,7 +88,7 @@ class CamcopsAuthenticationPolicyTests(BasicDatabaseTestCase):
             CamcopsAuthenticationPolicy.effective_principals(self.req)
         )
 
-    def test_principals_when_user_must_agree_terms(self):
+    def test_principals_when_user_must_agree_terms(self) -> None:
         user = self.create_user(username="test",
                                 when_agreed_terms_of_use=None)
         self.dbsession.flush()
@@ -100,7 +100,7 @@ class CamcopsAuthenticationPolicyTests(BasicDatabaseTestCase):
             CamcopsAuthenticationPolicy.effective_principals(self.req)
         )
 
-    def test_principals_when_everything_ok(self):
+    def test_principals_when_everything_ok(self) -> None:
         user = self.create_user(username="test", mfa_method=MfaMethod.NONE)
         user.agree_terms(self.req)
         self.dbsession.flush()
@@ -113,7 +113,7 @@ class CamcopsAuthenticationPolicyTests(BasicDatabaseTestCase):
             CamcopsAuthenticationPolicy.effective_principals(self.req)
         )
 
-    def test_principals_for_superuser(self):
+    def test_principals_for_superuser(self) -> None:
         user = self.create_user(username="test", superuser=True)
         self.dbsession.flush()
 
@@ -123,7 +123,7 @@ class CamcopsAuthenticationPolicyTests(BasicDatabaseTestCase):
             CamcopsAuthenticationPolicy.effective_principals(self.req)
         )
 
-    def test_principals_for_groupadmin(self):
+    def test_principals_for_groupadmin(self) -> None:
         user = self.create_user(username="test")
         self.dbsession.flush()
         self.create_membership(user, self.group, groupadmin=True)

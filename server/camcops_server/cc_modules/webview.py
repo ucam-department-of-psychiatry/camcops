@@ -347,6 +347,7 @@ if TYPE_CHECKING:
     # noinspection PyUnresolvedReferences
     from deform.form import Form
     from camcops_server.cc_modules.cc_sqlalchemy import Base
+    from camcops_server.cc_modules.cc_view_classes import View
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -580,7 +581,13 @@ def audit_menu(req: "CamcopsRequest") -> Dict[str, Any]:
 # "def view(context, request)", so if you add additional parameters, it thinks
 # you're doing the latter and sends parameters accordingly.
 
-class MfaMixin(FormWizardMixin):
+if TYPE_CHECKING:
+    _MfaMixinExtraBase = View
+else:
+    _MfaMixinExtraBase = object
+
+
+class MfaMixin(FormWizardMixin, _MfaMixinExtraBase):
     """
     Enhances FormWizardMixin to include a multi-factor authentication step.
     This must be named "mfa" in the subclass.
@@ -601,6 +608,19 @@ class MfaMixin(FormWizardMixin):
     user.
     See ``ChangeOwnPasswordView`` for an example with the logged in user.
     """
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self._mfa_user: Optional[User] = None
+
+    @property
+    def mfa_user(self) -> Optional[User]:
+        return self._mfa_user
+
+    @mfa_user.setter
+    def mfa_user(self, user: Optional[User]) -> None:
+        self._mfa_user = user
+
     def dispatch(self) -> Response:
         if self.timed_out():
             return self.fail_timed_out()
@@ -714,6 +734,7 @@ class LoggedInUserMfaMixin(MfaMixin):
 
 
 class LoginView(MfaMixin, FormView):
+    _mfa_user: Optional[User]
     wizard_first_step = "password"
 
     wizard_forms = {
@@ -730,7 +751,8 @@ class LoginView(MfaMixin, FormView):
         super().__init__(*args, **kwargs)
         self._mfa_user = None
 
-    def _get_mfa_user(self) -> Optional[User]:
+    @property
+    def mfa_user(self) -> Optional[User]:
         if self._mfa_user is None:
             try:
                 user_id = self.state["mfa_user_id"]
@@ -742,15 +764,14 @@ class LoginView(MfaMixin, FormView):
 
         return self._mfa_user
 
-    def _set_mfa_user(self, user: Optional[User]) -> None:
+    @mfa_user.setter
+    def mfa_user(self, user: Optional[User]) -> None:
         self._mfa_user = user
         if user is None:
             self.state["mfa_user_id"] = None
             return
 
         self.state["mfa_user_id"] = user.id
-
-    mfa_user = property(_get_mfa_user, _set_mfa_user)
 
     def get_form_values(self) -> Dict:
         return {
@@ -988,7 +1009,7 @@ def forbidden(req: "CamcopsRequest") -> Response:
 # =============================================================================
 
 class ChangeOwnPasswordView(LoggedInUserMfaMixin, UpdateView):
-    model_form_dict = {}
+    model_form_dict: Dict[str, "Form"] = {}
 
     wizard_forms = {
         "mfa": OtpTokenForm,
@@ -1000,7 +1021,7 @@ class ChangeOwnPasswordView(LoggedInUserMfaMixin, UpdateView):
         "password": "change_own_password.mako",
     }
 
-    wizard_extra_contexts = {
+    wizard_extra_contexts: Dict[str, Dict[str, Any]] = {
         "mfa": {},
         "password": {},
     }
@@ -1090,7 +1111,7 @@ def change_own_password(req: "CamcopsRequest") -> Response:
 
 
 class EditUserAuthenticationView(LoggedInUserMfaMixin, UpdateView):
-    model_form_dict = {}
+    model_form_dict: Dict[str, "Form"] = {}
     object_class = User
     pk_param = ViewParam.USER_ID
     server_pk_name = "id"
@@ -2917,6 +2938,9 @@ def edit_user(req: "CamcopsRequest") -> Response:
     """
     View to edit a user (for administrators).
     """
+
+    view: EditUserBaseView
+
     if req.user.superuser:
         view = EditUserSuperUserView(req)
     else:
