@@ -3474,5 +3474,9 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Any user with the right privilege (not just the group administrator) can
   add/edit/delete and send emails to patients created on the server. The menu option **Manage scheduled tasks for patients** is now **Manage patients and their tasks**. (Database revision 0069)
 
+- Fix internal server error when viewing HTML APEQ CPFT Perinatal Report.
+  https://github.com/RudolfCardinal/camcops/issues/203
+
 - Fix database revision 0066, which failed if no patient records were missing UUIDs
   https://github.com/RudolfCardinal/camcops/issues/192
+

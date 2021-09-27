@@ -29,7 +29,7 @@ camcops_server/templates/test/test_template_filters.mako
 <%inherit file="base_web.mako"/>
 
 <div>
-    Testing Mako filtering:<br>
+    <h1>Testing Mako filtering:</h1>
 
     <table>
         <tr>
@@ -47,4 +47,15 @@ camcops_server/templates/test/test_template_filters.mako
             </tr>
         %endfor
     </table>
+
+    <%namespace file="displayfunc.mako" import="one_per_line"/>
+
+    <h2>one_per_line(), escaped</h2>
+    <p>
+        ${ one_per_line(["<span>Apple</span>", "Banana", "Carrot", 3.14159265359], escape=True ) | n}
+    </p>
+    <h2>one_per_line(), not escaped</h2>
+    <p>
+        ${ one_per_line(["<span>Apple</span>", "Banana", "Carrot", 3.14159265359], escape=False ) | n}
+    </p>
 </div>
