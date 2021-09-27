@@ -729,7 +729,7 @@ class FormWizardMixin:
 
         return self.request.camcops_session.form_state
 
-    def _set_state(self, state: Optional[Dict[str, Any]]):
+    def _set_state(self, state: Optional[Dict[str, Any]]) -> None:
         self.request.camcops_session.form_state = state
 
     state = property(_get_state, _set_state)
@@ -771,7 +771,7 @@ class FormWizardMixin:
     def finish(self) -> None:
         self.state = None
 
-    def finished(self) -> None:
+    def finished(self) -> bool:
         # If we read self.state, we will initialise it to not
         # be None!
         return self.request.camcops_session.form_state is None

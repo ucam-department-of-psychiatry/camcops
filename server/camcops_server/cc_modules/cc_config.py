@@ -1805,7 +1805,7 @@ class CamcopsConfig(object):
     def _read_sms_config(
             self,
             parser: configparser.ConfigParser,
-            sms_label) -> None:
+            sms_label: str) -> None:
         self.sms_config = {}
 
         section_name = f"sms_backend:{sms_label}"

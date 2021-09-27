@@ -57,6 +57,7 @@ from abc import ABCMeta
 from io import StringIO
 import logging
 import sqlite3
+from typing import Any
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.sqlalchemy.dialect import SqlaDialectName
@@ -346,7 +347,7 @@ class MutableDict(Mutable, dict):
     """
 
     @classmethod
-    def coerce(cls, key, value):
+    def coerce(cls, key: str, value: Any) -> Any:
         """
         Convert plain dictionaries to MutableDict.
         """
@@ -360,7 +361,7 @@ class MutableDict(Mutable, dict):
         else:
             return value
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key: str, value: Any) -> None:
         """
         Detect dictionary set events and emit change events.
         """
@@ -368,7 +369,7 @@ class MutableDict(Mutable, dict):
         dict.__setitem__(self, key, value)
         self.changed()
 
-    def __delitem__(self, key):
+    def __delitem__(self, key: str) -> None:
         """
         Detect dictionary del events and emit change events.
         """

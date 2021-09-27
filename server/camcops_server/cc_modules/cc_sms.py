@@ -29,7 +29,7 @@ camcops_server/cc_modules/cc_sms.py
 """
 
 import logging
-from typing import Any, Dict
+from typing import Any, Dict, Type
 
 
 import requests
@@ -43,28 +43,26 @@ class MissingBackendException(Exception):
     pass
 
 
-def register_backend(name: str, backend_class) -> None:
-    global _backends
-    _backends[name] = backend_class
-
-
 class SmsBackend:
     def __init__(self, config: Dict[str, Any]) -> None:
         self.config = config
 
-    def send_sms(self, recipient: str, message: str, sender: str = None):
+    def send_sms(self, recipient: str,
+                 message: str, sender: str = None) -> None:
         raise NotImplementedError
 
 
 class ConsoleSmsBackend(SmsBackend):
-    def send_sms(self, recipient: str, message: str, sender: str = None):
+    def send_sms(self, recipient: str,
+                 message: str, sender: str = None) -> None:
         log.info(f"Sent message '{message}' to {recipient}")
 
 
 class KapowSmsBackend(SmsBackend):
     API_URL = "https://www.kapow.co.uk/scripts/sendsms.php"
 
-    def send_sms(self, recipient: str, message: str, sender: str = None):
+    def send_sms(self, recipient: str,
+                 message: str, sender: str = None) -> None:
         data = {"username": self.config["username"],
                 "password": self.config["password"]}
 
@@ -79,9 +77,18 @@ class TwilioSmsBackend(SmsBackend):
 
         self.client = Client(self.config["sid"], self.config["token"])
 
-    def send_sms(self, recipient: str, message: str, sender: str = None):
+    def send_sms(self, recipient: str, message:
+                 str, sender: str = None) -> None:
+
+        # Twilio accounts are associated with a phone number so we ignore
+        # ``sender``
         self.client.messages.create(to=recipient, body=message,
                                     from_=self.config["phone_number"])
+
+
+def register_backend(name: str, backend_class: Type[SmsBackend]) -> None:
+    global _backends
+    _backends[name] = backend_class
 
 
 register_backend("console", ConsoleSmsBackend)
