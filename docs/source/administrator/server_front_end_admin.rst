@@ -312,7 +312,7 @@ paid account with a supported provider (currently Kapow or
 Twilio).
 
 Administrators can enforce MFA by omitting 'none' from the list of supported MFA
-methods on the server. See :ref:`MFA_METHODS` <MFA_METHODS>`. In this case a
+methods on the server. See :ref:`MFA_METHODS <MFA_METHODS>`. In this case a
 user without MFA will be prompted to set it up once they have logged in.
 
 ===============================================================================
