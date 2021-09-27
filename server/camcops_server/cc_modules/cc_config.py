@@ -624,6 +624,8 @@ PASSWORD = mypassword
 
 SID = mysid
 TOKEN = mytoken
+PHONE_NUMBER = myphonenumber
+
 
     """.strip()  # noqa
 

@@ -299,6 +299,7 @@ Show your user settings
 
 This shows details about your user (including group memberships).
 
+.. _multi_factor_authentication:
 
 Multi-factor authentication settings
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

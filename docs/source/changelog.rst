@@ -3482,3 +3482,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Fix database revision 0066, which failed if no patient records were missing UUIDs
   https://github.com/RudolfCardinal/camcops/issues/192
+
+- Support for :ref:`Multi-factor authentication (MFA) <multi_factor_authentication>` on the server.
