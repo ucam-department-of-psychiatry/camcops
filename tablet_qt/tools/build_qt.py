@@ -508,10 +508,10 @@ DEFAULT_ANDROID_NDK_HOST = "linux-x86_64"
 DEFAULT_ANDROID_TOOLCHAIN_VERSION = "4.9"
 
 # Qt
-
+# Yes qt5.git is correct even for qt6
 QT_GIT_URL = "git://code.qt.io/qt/qt5.git"
-QT_GIT_BRANCH = "5.12"  # is 5.12.4 as of 2019-06-18 (released 2019-06-17)
-QT_GIT_COMMIT = HEAD
+QT_GIT_BRANCH = "6.2"
+QT_GIT_COMMIT = "v6.2.0"  # Tagged release 6.2.0
 QT_SPECIFIC_VERSION = ""
 
 if QT_SPECIFIC_VERSION:
