@@ -18,12 +18,17 @@
 */
 
 #include "wsas.h"
+#include <QScreen>
 #include "common/appstrings.h"
 #include "maths/mathfunc.h"
 #include "lib/stringfunc.h"
+#include "lib/uifunc.h"
+#include "questionnairelib/namevalueoptions.h"
 #include "questionnairelib/namevaluepair.h"
 #include "questionnairelib/quboolean.h"
 #include "questionnairelib/questionnaire.h"
+#include "questionnairelib/questionwithonefield.h"
+#include "questionnairelib/qumcq.h"
 #include "questionnairelib/qumcqgrid.h"
 #include "questionnairelib/qutext.h"
 #include "tasklib/taskfactory.h"
@@ -55,6 +60,28 @@ Wsas::Wsas(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
+
+    m_options = {
+        {appstring(appstrings::WSAS_A_PREFIX + "0"), 0},
+        {appstring(appstrings::WSAS_A_PREFIX + "1"), 1},
+        {appstring(appstrings::WSAS_A_PREFIX + "2"), 2},
+        {appstring(appstrings::WSAS_A_PREFIX + "3"), 3},
+        {appstring(appstrings::WSAS_A_PREFIX + "4"), 4},
+        {appstring(appstrings::WSAS_A_PREFIX + "5"), 5},
+        {appstring(appstrings::WSAS_A_PREFIX + "6"), 6},
+        {appstring(appstrings::WSAS_A_PREFIX + "7"), 7},
+        {appstring(appstrings::WSAS_A_PREFIX + "8"), 8},
+    };
+
+    m_q1_fields = {QuestionWithOneField(
+                   xstring(strnum("q", FIRST_Q), strnum("Q", FIRST_Q)),
+                   fieldRef(strnum(QPREFIX, FIRST_Q)))};
+
+    for (int i = FIRST_Q + 1; i <= N_QUESTIONS; ++i) {
+        m_other_q_fields.append(QuestionWithOneField(
+                                xstring(strnum("q", i), strnum("Q", i)),
+                                fieldRef(strnum(QPREFIX, i))));
+    }
 }
 
 
@@ -105,37 +132,11 @@ QStringList Wsas::detail() const
 
 OpenableWidget* Wsas::editor(const bool read_only)
 {
-    const NameValueOptions options{
-        {appstring(appstrings::WSAS_A_PREFIX + "0"), 0},
-        {appstring(appstrings::WSAS_A_PREFIX + "1"), 1},
-        {appstring(appstrings::WSAS_A_PREFIX + "2"), 2},
-        {appstring(appstrings::WSAS_A_PREFIX + "3"), 3},
-        {appstring(appstrings::WSAS_A_PREFIX + "4"), 4},
-        {appstring(appstrings::WSAS_A_PREFIX + "5"), 5},
-        {appstring(appstrings::WSAS_A_PREFIX + "6"), 6},
-        {appstring(appstrings::WSAS_A_PREFIX + "7"), 7},
-        {appstring(appstrings::WSAS_A_PREFIX + "8"), 8},
-    };
-
-    QVector<QuestionWithOneField> q1fields{QuestionWithOneField(
-                    xstring(strnum("q", FIRST_Q), strnum("Q", FIRST_Q)),
-                    fieldRef(strnum(QPREFIX, FIRST_Q)))};
-
-    QVector<QuestionWithOneField> otherqfields;
-    for (int i = FIRST_Q + 1; i <= N_QUESTIONS; ++i) {
-        otherqfields.append(QuestionWithOneField(
-                           xstring(strnum("q", i), strnum("Q", i)),
-                           fieldRef(strnum(QPREFIX, i))));
-    }
-
     FieldRefPtr fr_retired = fieldRef(RETIRED_ETC, false);
 
-    QuPagePtr page((new QuPage{
-        (new QuText(xstring("instruction")))->setBold(),
-        new QuBoolean(xstring("q_retired_etc"), fr_retired),
-        (new QuMcqGrid(q1fields, options))->addTag(Q1_TAG),
-        new QuMcqGrid(otherqfields, options),
-    })->setTitle(longname()));
+    auto page = (new QuPage())->setTitle(longname());
+
+    rebuildPage(page);
 
     connect(fr_retired.data(), &FieldRef::valueChanged,
             this, &Wsas::workChanged);
@@ -146,9 +147,71 @@ OpenableWidget* Wsas::editor(const bool read_only)
 
     workChanged();
 
+    QScreen *screen = uifunc::screen();
+    screen->setOrientationUpdateMask(
+        Qt::LandscapeOrientation |
+        Qt::PortraitOrientation |
+        Qt::InvertedLandscapeOrientation |
+        Qt::InvertedPortraitOrientation
+    );
+
+    connect(screen, &QScreen::orientationChanged,
+            this, &Wsas::orientationChanged);
+
     return m_questionnaire;
 }
 
+
+void Wsas::orientationChanged(Qt::ScreenOrientation orientation)
+{
+    Q_UNUSED(orientation)
+
+    refreshQuestionnaire();
+}
+
+
+void Wsas::refreshQuestionnaire()
+{
+    if (!m_questionnaire) {
+        return;
+    }
+    QuPage* page = m_questionnaire->currentPagePtr();
+    rebuildPage(page);
+
+    m_questionnaire->refreshCurrentPage();
+}
+
+
+void Wsas::rebuildPage(QuPage* page)
+{
+    QVector<QuElement*> elements;
+
+    elements.append((new QuText(xstring("instruction")))->setBold());
+    elements.append(new QuBoolean(xstring("q_retired_etc"),
+                                  fieldRef(RETIRED_ETC, false)));
+
+    qreal width_inches = uifunc::screenWidth() / uifunc::screenDpi();
+    const bool use_grid = width_inches > 7.0;
+
+    elements.append(new QuText(QString("width: %1").arg(width_inches)));
+
+    if (use_grid) {
+        elements.append((new QuMcqGrid(m_q1_fields, m_options))->addTag(Q1_TAG));
+        elements.append(new QuMcqGrid(m_other_q_fields, m_options));
+    } else {
+        for (const auto& field : m_q1_fields) {
+            elements.append((new QuText(field.question()))->setBold()->addTag(Q1_TAG));
+            elements.append((new QuMcq(field.fieldref(), m_options))->addTag(Q1_TAG));
+        }
+        for (const auto& field : m_other_q_fields) {
+            elements.append((new QuText(field.question()))->setBold());
+            elements.append(new QuMcq(field.fieldref(), m_options));
+        }
+    }
+
+    page->clearElements();
+    page->addElements(elements);
+}
 
 // ============================================================================
 // Task-specific calculations
