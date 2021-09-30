@@ -615,8 +615,8 @@ QT_CONFIG_COMMON_ARGS = [
     "-no-sql-oci",
     "-no-sql-odbc",  # ... for future: maybe re-enable as a plugin
     "-no-sql-psql",  # ... for future: maybe re-enable as a plugin
-    "-no-sql-sqlite2",  # this is an old SQLite version
-    "-no-sql-tds",  # this one specifically was causing library problems
+    # "-no-sql-sqlite2",  # this is an old SQLite version
+    # "-no-sql-tds",  # this one specifically was causing library problems
 
     # -------------------------------------------------------------------------
     # Libraries
@@ -3185,8 +3185,7 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         join(cfg.qt_src_gitdir, configure_prog_name),
         # General options:
         "-prefix", installdir,  # where to install Qt
-        "-recheck-all",  # don't cache from previous configure runs
-        "OPENSSL_LIBS=" + openssl_libs,
+        # "OPENSSL_LIBS=" + openssl_libs,
         # "-sysroot": not required; Qt's configure should handle this
         # "-gcc-sysroot": not required
     ]
