@@ -3341,6 +3341,15 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
     # Qt: configure
     # -------------------------------------------------------------------------
     with pushd(builddir):
+        # https://doc-snapshots.qt.io/qt6-dev/qt6-buildsystem.html#re-running-configure
+        # -recheck-all no longer supported
+        # remove this file instead
+        cmake_cache = os.path.join(builddir, "CMakeCache.txt")
+        try:
+            os.remove(cmake_cache)
+        except OSError:
+            pass
+
         try:
             run(qt_config_args, env)  # The configure step takes a few seconds.
         except subprocess.CalledProcessError:
