@@ -493,7 +493,7 @@ DEFAULT_ANDROID_NDK = join(USER_DIR, "dev", "android-ndk-r20")  # from 2019-06-1
 
 DEFAULT_JAVA_HOME = "/usr/lib/jvm/java-11-openjdk-amd64"
 
-DEFAULT_QT_SRC_DIRNAME = "qt5"
+DEFAULT_QT_SRC_DIRNAME = "qt6"
 
 # -----------------------------------------------------------------------------
 # Downloading and versions
