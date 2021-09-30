@@ -166,7 +166,7 @@ Use of Python/library versions
 ==============================
 
 We don't rely on a standard CamCOPS Python virtual environment -- this makes it
-a bit easier to set things up for C++ work on Windows, for example. 
+a bit easier to set things up for C++ work on Windows, for example.
 
 
 Standard environment variables
@@ -584,12 +584,6 @@ QT_CONFIG_COMMON_ARGS = [
     # http://doc.qt.io/qt-4.8/configure-options.html  # NB better docs than 5.7
     # http://doc.qt.io/qt-5.7/configure-options.html  # less helpful
     # http://doc.qt.io/qt-5.9/configure-options.html
-
-    # -------------------------------------------------------------------------
-    # Qt license
-    # -------------------------------------------------------------------------
-
-    "-opensource", "-confirm-license",  # Choose our Qt edition.
 
     # -------------------------------------------------------------------------
     # debug v. release
