@@ -511,8 +511,8 @@ DEFAULT_ANDROID_TOOLCHAIN_VERSION = "4.9"
 # Yes qt5.git is correct even for qt6
 QT_GIT_URL = "git://code.qt.io/qt/qt5.git"
 QT_GIT_BRANCH = "6.2"
-QT_GIT_COMMIT = "v6.2.0"  # Tagged release 6.2.0
-QT_SPECIFIC_VERSION = ""
+QT_GIT_COMMIT = HEAD
+QT_SPECIFIC_VERSION = "6.2.0"
 
 if QT_SPECIFIC_VERSION:
     QT_VERSION = Version(QT_SPECIFIC_VERSION)
@@ -3062,7 +3062,7 @@ def fetch_qt(cfg: Config) -> None:
     run([PERL, "init-repository"])
     # Now, as per https://wiki.qt.io/Android:
     if QT_SPECIFIC_VERSION:
-        run([GIT, "checkout", QT_SPECIFIC_VERSION])
+        run([GIT, "checkout", f"v{QT_SPECIFIC_VERSION}"])
         run([GIT, "submodule", "update", "--recursive"])
 
 
