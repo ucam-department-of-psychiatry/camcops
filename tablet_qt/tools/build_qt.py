@@ -166,7 +166,7 @@ Use of Python/library versions
 ==============================
 
 We don't rely on a standard CamCOPS Python virtual environment -- this makes it
-a bit easier to set things up for C++ work on Windows, for example. 
+a bit easier to set things up for C++ work on Windows, for example.
 
 
 Standard environment variables
@@ -512,7 +512,7 @@ DEFAULT_ANDROID_TOOLCHAIN_VERSION = "4.9"
 QT_GIT_URL = "git://code.qt.io/qt/qt5.git"
 QT_GIT_BRANCH = "5.12"  # is 5.12.4 as of 2019-06-18 (released 2019-06-17)
 QT_GIT_COMMIT = HEAD
-QT_SPECIFIC_VERSION = ""
+QT_SPECIFIC_VERSION = "5.12.11"
 
 if QT_SPECIFIC_VERSION:
     QT_VERSION = Version(QT_SPECIFIC_VERSION)
@@ -3068,7 +3068,7 @@ def fetch_qt(cfg: Config) -> None:
     run([PERL, "init-repository"])
     # Now, as per https://wiki.qt.io/Android:
     if QT_SPECIFIC_VERSION:
-        run([GIT, "checkout", QT_SPECIFIC_VERSION])
+        run([GIT, "checkout", f"v{QT_SPECIFIC_VERSION}"])
         run([GIT, "submodule", "update", "--recursive"])
 
 
