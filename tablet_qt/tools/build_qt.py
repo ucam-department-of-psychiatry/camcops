@@ -524,7 +524,7 @@ DEFAULT_QT_USE_OPENSSL_STATICALLY = True
 QT_XCB_SUPPORT_OK = True  # see 2017-12-01 above, fixed 2017-12-08
 ADD_SO_VERSION_OF_LIBQTFORANDROID = False
 USE_CLANG_NOT_GCC_FOR_ANDROID_ARM = (
-    QT_VERSION >= Version("5.12", partial=True)  # new feature 2019-06-15
+    QT_VERSION >= Version("5.12.0")  # new feature 2019-06-15
 )
 
 # OpenSSL
