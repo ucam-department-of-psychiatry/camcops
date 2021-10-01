@@ -6,6 +6,7 @@ on:
     push:
         paths:
             - tablet_qt/tools/build_qt.py
+            - .github/workflows/build-qt.yml
 jobs:
     build-qt:
         runs-on: ubuntu-latest
@@ -28,6 +29,7 @@ jobs:
                   pip install cardinal_pythonlib
             - name: Build Qt
               run: |
+                  source ${HOME}/venv/bin/activate
                   export CAMCOPS_QT_BASE_DIR=${HOME}/qt_local_build
                   cd tablet_qt/tools
                   ./build_qt.py --build_linux_x86_64
