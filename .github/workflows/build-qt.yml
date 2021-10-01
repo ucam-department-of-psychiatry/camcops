@@ -27,6 +27,7 @@ jobs:
                   python -m pip freeze
                   echo installing pip packages
                   pip install cardinal_pythonlib
+                  pip install distro
             - name: Build Qt
               run: |
                   source ${HOME}/venv/bin/activate
