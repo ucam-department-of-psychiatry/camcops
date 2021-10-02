@@ -15,6 +15,12 @@ jobs:
             - uses: actions/setup-python@v2
               with:
                   python-version: 3.8
+            - name: Qt prerequisites
+              run: |
+                  set -xe
+                  sudo apt-get -y build-dep qt5-default
+                  sudo apt-get -y install libxcb-xinerama0-dev
+                  sudo apt-get -y install libdrm-dev libxcb-glx0-dev
             - name: Pip install
               run: |
                   set -xe
