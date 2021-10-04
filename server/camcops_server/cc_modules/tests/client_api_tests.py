@@ -31,6 +31,7 @@ import json
 import string
 from typing import Dict
 
+from cardinal_pythonlib.classes import class_attribute_names
 from cardinal_pythonlib.convert import (
     base64_64format_encode,
     hex_xformat_encode,
@@ -55,7 +56,6 @@ from camcops_server.cc_modules.cc_proquint import (
     uuid_from_proquint,
 )
 from camcops_server.cc_modules.cc_taskindex import update_indexes_and_push_exports  # noqa
-from camcops_server.cc_modules.cc_testhelpers import class_attribute_names
 from camcops_server.cc_modules.cc_unittest import (
     BasicDatabaseTestCase,
     DemoDatabaseTestCase

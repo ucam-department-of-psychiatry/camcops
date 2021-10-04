@@ -34,6 +34,7 @@ from typing import cast
 import unittest
 from unittest import mock
 
+from cardinal_pythonlib.classes import class_attribute_names
 from cardinal_pythonlib.httpconst import MimeType
 from pendulum import local
 import phonenumbers
@@ -41,7 +42,11 @@ import pyotp
 from pyramid.httpexceptions import HTTPBadRequest, HTTPFound
 from webob.multidict import MultiDict
 
-from camcops_server.cc_modules.cc_constants import ERA_NOW, SmsBackendNames
+from camcops_server.cc_modules.cc_constants import (
+    ERA_NOW,
+    MfaMethod,
+    SmsBackendNames,
+)
 from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_group import Group
 from camcops_server.cc_modules.cc_membership import UserGroupMembership
@@ -63,13 +68,11 @@ from camcops_server.cc_modules.cc_taskschedule import (
     TaskSchedule,
     TaskScheduleItem,
 )
-from camcops_server.cc_modules.cc_testhelpers import class_attribute_names
 from camcops_server.cc_modules.cc_unittest import (
     BasicDatabaseTestCase,
     DemoDatabaseTestCase,
 )
 from camcops_server.cc_modules.cc_user import (
-    MfaMethod,
     SecurityAccountLockout,
     SecurityLoginFailure,
     User,
@@ -3344,7 +3347,7 @@ class EditOwnUserMfaViewTests(BasicDatabaseTestCase):
 
         # Would normally be set when going through dispatch()
         view.object = regular_user
-        view.state.update(step="hotp_email")
+        view.state.update(step=EditOwnUserMfaView.STEP_HOTP_EMAIL)
 
         mock_secret_key = pyotp.random_base32()
         with mock.patch("camcops_server.cc_modules.webview.pyotp.random_base32",
@@ -3370,7 +3373,7 @@ class EditOwnUserMfaViewTests(BasicDatabaseTestCase):
 
         # Would normally be set when going through dispatch()
         view.object = regular_user
-        view.state.update(step="hotp_sms")
+        view.state.update(step=EditOwnUserMfaView.STEP_HOTP_SMS)
 
         mock_secret_key = pyotp.random_base32()
         with mock.patch("camcops_server.cc_modules.webview.pyotp.random_base32",
@@ -3396,7 +3399,7 @@ class EditOwnUserMfaViewTests(BasicDatabaseTestCase):
 
         # Would normally be set when going through dispatch()
         view.object = regular_user
-        view.state.update(step="totp")
+        view.state.update(step=EditOwnUserMfaView.STEP_TOTP)
 
         mock_secret_key = pyotp.random_base32()
         with mock.patch("camcops_server.cc_modules.webview.pyotp.random_base32",
@@ -3420,10 +3423,10 @@ class EditOwnUserMfaViewTests(BasicDatabaseTestCase):
         ])
         self.req._debugging_user = regular_user
         self.req.fake_request_post_from_dict(multidict)
-        self.req.config.mfa_methods = ["totp"]
+        self.req.config.mfa_methods = [MfaMethod.TOTP]
 
         view = EditOwnUserMfaView(self.req)
-        view.state.update(step="totp")
+        view.state.update(step=EditOwnUserMfaView.STEP_TOTP)
 
         with self.assertRaises(HTTPFound):
             view.dispatch()
@@ -3440,7 +3443,7 @@ class EditOwnUserMfaViewTests(BasicDatabaseTestCase):
         ])
         self.req._debugging_user = regular_user
         self.req.fake_request_post_from_dict(multidict)
-        self.req.config.mfa_methods = ["totp"]
+        self.req.config.mfa_methods = [MfaMethod.TOTP]
 
         view = EditOwnUserMfaView(self.req)
 
@@ -3459,7 +3462,7 @@ class EditOwnUserMfaViewTests(BasicDatabaseTestCase):
         ])
         self.req._debugging_user = regular_user
         self.req.fake_request_post_from_dict(multidict)
-        self.req.config.mfa_methods = ["hotp_email"]
+        self.req.config.mfa_methods = [MfaMethod.HOTP_EMAIL]
 
         view = EditOwnUserMfaView(self.req)
 
@@ -3480,7 +3483,7 @@ class EditOwnUserMfaViewTests(BasicDatabaseTestCase):
         ])
         self.req._debugging_user = regular_user
         self.req.fake_request_post_from_dict(multidict)
-        self.req.config.mfa_methods = ["hotp_sms"]
+        self.req.config.mfa_methods = [MfaMethod.HOTP_SMS]
 
         view = EditOwnUserMfaView(self.req)
 
@@ -3497,20 +3500,20 @@ class EditOwnUserMfaViewTests(BasicDatabaseTestCase):
         self.dbsession.flush()
 
         multidict = MultiDict([
-            (ViewParam.MFA_METHOD, MfaMethod.NONE),
+            (ViewParam.MFA_METHOD, MfaMethod.NO_MFA),
             (FormAction.SUBMIT, "submit"),
         ])
         self.req._debugging_user = regular_user
         self.req.fake_request_post_from_dict(multidict)
-        self.req.config.mfa_methods = ["totp", "hotp_sms", "hotp_email",
-                                       "none"]
+        self.req.config.mfa_methods = [MfaMethod.TOTP, MfaMethod.HOTP_SMS,
+                                       MfaMethod.HOTP_EMAIL, MfaMethod.NO_MFA]
 
         view = EditOwnUserMfaView(self.req)
 
         with self.assertRaises(HTTPFound):
             view.dispatch()
 
-        self.assertEqual(regular_user.mfa_method, MfaMethod.NONE)
+        self.assertEqual(regular_user.mfa_method, MfaMethod.NO_MFA)
 
     def test_user_can_set_phone_number(self) -> None:
         regular_user = self.create_user(username="regular_user")
@@ -3522,10 +3525,10 @@ class EditOwnUserMfaViewTests(BasicDatabaseTestCase):
         ])
         self.req._debugging_user = regular_user
         self.req.fake_request_post_from_dict(multidict)
-        self.req.config.mfa_methods = ["hotp_sms"]
+        self.req.config.mfa_methods = [MfaMethod.HOTP_SMS]
 
         view = EditOwnUserMfaView(self.req)
-        view.state.update(step="hotp_sms")
+        view.state.update(step=EditOwnUserMfaView.STEP_HOTP_SMS)
 
         with self.assertRaises(HTTPFound):
             view.dispatch()
@@ -3545,7 +3548,7 @@ class EditOwnUserMfaViewTests(BasicDatabaseTestCase):
         self.req.fake_request_post_from_dict(multidict)
 
         view = EditOwnUserMfaView(self.req)
-        view.state.update(step="hotp_email")
+        view.state.update(step=EditOwnUserMfaView.STEP_HOTP_EMAIL)
 
         with self.assertRaises(HTTPFound):
             view.dispatch()
@@ -3922,7 +3925,7 @@ class EditOtherUserMfaViewTests(BasicDatabaseTestCase):
         with self.assertRaises(HTTPFound):
             view.dispatch()
 
-        self.assertEqual(regular_user.mfa_method, MfaMethod.NONE)
+        self.assertEqual(regular_user.mfa_method, MfaMethod.NO_MFA)
 
         messages = self.req.session.peek_flash(FlashQueue.SUCCESS)
         self.assertTrue(len(messages) > 0)
@@ -4283,7 +4286,7 @@ class ChangeOwnPasswordViewTests(BasicDatabaseTestCase):
     def test_user_can_change_password(self) -> None:
         new_password = "monkeybusiness"
 
-        user = self.create_user(username="user", mfa_method=MfaMethod.NONE)
+        user = self.create_user(username="user", mfa_method=MfaMethod.NO_MFA)
         user.set_password(self.req, "secret")
         multidict = MultiDict([
             (ViewParam.OLD_PASSWORD, "secret"),
@@ -4313,7 +4316,7 @@ class ChangeOwnPasswordViewTests(BasicDatabaseTestCase):
 
     def test_user_sees_expiry_message(self) -> None:
         user = self.create_user(username="user",
-                                mfa_method=MfaMethod.NONE,
+                                mfa_method=MfaMethod.NO_MFA,
                                 must_change_password=True)
         self.req._debugging_user = user
 

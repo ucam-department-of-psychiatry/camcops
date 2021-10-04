@@ -55,6 +55,7 @@ from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer
 
 from camcops_server.cc_modules.cc_audit import audit
 from camcops_server.cc_modules.cc_constants import (
+    MfaMethod,
     OBSCURE_EMAIL_ASTERISKS,
     OBSCURE_PHONE_ASTERISKS,
     USER_NAME_FOR_SYSTEM,
@@ -366,22 +367,6 @@ class SecurityLoginFailure(Base):
         ss.last_dummy_login_failure_clearance_at_utc = now
 
 
-class MfaMethod:
-    """
-    Open multi-factor authentication (MFA) standards are defined in RFC 4226
-    (HOTP: An HMAC-Based One-Time Password Algorithm) and in RFC 6238 (TOTP:
-    Time-Based One-Time Password Algorithm).
-
-    HMAC:  Hash-based Message Authentication Code
-    https://en.wikipedia.org/wiki/HMAC
-    """
-
-    HOTP_EMAIL = "hotp_email"  # Send a code by email
-    HOTP_SMS = "hotp_sms"  # Send a code by SMS
-    NONE = "none"  # No multi-factor authentication
-    TOTP = "totp"  # Use an app such as Google Authenticator, Twilio Authy
-
-
 # =============================================================================
 # User class
 # =============================================================================
@@ -433,7 +418,7 @@ class User(Base):
         "mfa_method",
         MfaMethodColType,
         nullable=False,
-        server_default=MfaMethod.NONE,
+        server_default=MfaMethod.NO_MFA,
         comment="Preferred method of multi-factor authentication"
     )
     hotp_counter = Column(
@@ -697,17 +682,14 @@ class User(Base):
 
         Returns ``False`` if no MFA method is selected.
         """
-        if self.mfa_method is None:
+        if self.mfa_method is None or self.mfa_method == MfaMethod.NO_MFA:
             return False
-        # *** todo: RNC check: None versus "none"
 
         if self.mfa_method == MfaMethod.TOTP:
             totp = pyotp.TOTP(self.mfa_secret_key)
-
             return totp.verify(one_time_password)
 
         hotp = pyotp.HOTP(self.mfa_secret_key)
-
         return one_time_password == hotp.at(self.hotp_counter)
 
     @property

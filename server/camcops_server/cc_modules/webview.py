@@ -190,6 +190,7 @@ from camcops_server.cc_modules.cc_constants import (
     DateFormat,
     ERA_NOW,
     GITHUB_RELEASES_URL,
+    MfaMethod,
 )
 from camcops_server.cc_modules.cc_db import (
     GenericTabletRecordMixin,
@@ -322,7 +323,6 @@ from camcops_server.cc_modules.cc_taskschedule import (
 from camcops_server.cc_modules.cc_text import SS
 from camcops_server.cc_modules.cc_tracker import ClinicalTextView, Tracker
 from camcops_server.cc_modules.cc_user import (
-    MfaMethod,
     SecurityAccountLockout,
     SecurityLoginFailure,
     User,
@@ -913,7 +913,7 @@ class LoginView(MfaMixin, FormView):
         """
         The user has entered a password correctly; what's the next step?
         """
-        if self.mfa_user.mfa_method == MfaMethod.NONE:
+        if self.mfa_user.mfa_method == MfaMethod.NO_MFA:
             return self.finish()
 
         self.step = self.STEP_MFA
@@ -1129,7 +1129,7 @@ class ChangeOwnPasswordView(LoggedInUserMfaMixin, UpdateView):
     }
 
     def get_first_step(self) -> str:
-        if self.request.user.mfa_method == MfaMethod.NONE:
+        if self.request.user.mfa_method == MfaMethod.NO_MFA:
             return self.STEP_PASSWORD
 
         return self.STEP_MFA
@@ -1277,7 +1277,7 @@ class ChangeOtherPasswordView(EditUserAuthenticationView):
         return super().get()
 
     def get_first_step(self) -> str:
-        if self.request.user.mfa_method != MfaMethod.NONE:
+        if self.request.user.mfa_method != MfaMethod.NO_MFA:
             return self.STEP_MFA
 
         return self.STEP_PASSWORD
@@ -1362,7 +1362,7 @@ class EditOtherUserMfaView(EditUserAuthenticationView):
         return super().get()
 
     def get_first_step(self) -> str:
-        if self.request.user.mfa_method != MfaMethod.NONE:
+        if self.request.user.mfa_method != MfaMethod.NO_MFA:
             return self.STEP_MFA
 
         return self.STEP_OTHER_USER_MFA
@@ -1383,7 +1383,7 @@ class EditOtherUserMfaView(EditUserAuthenticationView):
             user = cast(User, self.object)
             _ = self.request.gettext
 
-            user.mfa_method = MfaMethod.NONE
+            user.mfa_method = MfaMethod.NO_MFA
             self.request.session.flash(
                 _("Multi-factor authentication disabled for user "
                   "'{username}'").format(username=user.username),
@@ -1531,7 +1531,7 @@ class EditOwnUserMfaView(LoggedInUserMfaMixin, UpdateView):
     def next_step(self, appstruct: Dict[str, Any]) -> None:
         if self.step == self.STEP_MFA_METHOD:
             mfa_method = appstruct.get(ViewParam.MFA_METHOD)
-            if mfa_method == MfaMethod.NONE:
+            if mfa_method == MfaMethod.NO_MFA:
                 return self.finish()
 
             self.step = mfa_method

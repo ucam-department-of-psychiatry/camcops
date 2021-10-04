@@ -29,12 +29,12 @@ camcops_server/cc_modules/tests/cc_pyramid_tests.py
 
 from pyramid.security import Authenticated, Everyone
 
+from camcops_server.cc_modules.cc_constants import MfaMethod
 from camcops_server.cc_modules.cc_pyramid import (
     CamcopsAuthenticationPolicy,
     Permission,
 )
 from camcops_server.cc_modules.cc_unittest import BasicDatabaseTestCase
-from camcops_server.cc_modules.cc_user import MfaMethod
 
 
 class CamcopsAuthenticationPolicyTests(BasicDatabaseTestCase):
@@ -76,13 +76,13 @@ class CamcopsAuthenticationPolicyTests(BasicDatabaseTestCase):
 
     def test_principals_when_user_must_set_up_mfa(self) -> None:
         user = self.create_user(username="test",
-                                mfa_method="none")
+                                mfa_method=MfaMethod.NO_MFA)
         user.agree_terms(self.req)
         self.dbsession.flush()
         self.create_membership(user, self.group, may_use_webviewer=True)
 
         self.req._debugging_user = user
-        self.req.config.mfa_methods = ["hotp_email"]  # Not "none"
+        self.req.config.mfa_methods = [MfaMethod.HOTP_EMAIL]
         self.assertIn(
             Permission.MUST_SET_MFA,
             CamcopsAuthenticationPolicy.effective_principals(self.req)
@@ -101,13 +101,13 @@ class CamcopsAuthenticationPolicyTests(BasicDatabaseTestCase):
         )
 
     def test_principals_when_everything_ok(self) -> None:
-        user = self.create_user(username="test", mfa_method=MfaMethod.NONE)
+        user = self.create_user(username="test", mfa_method=MfaMethod.NO_MFA)
         user.agree_terms(self.req)
         self.dbsession.flush()
         self.create_membership(user, self.group, may_use_webviewer=True)
 
         self.req._debugging_user = user
-        self.req.config.mfa_methods = [MfaMethod.NONE]
+        self.req.config.mfa_methods = [MfaMethod.NO_MFA]
         self.assertIn(
             Permission.HAPPY,
             CamcopsAuthenticationPolicy.effective_principals(self.req)

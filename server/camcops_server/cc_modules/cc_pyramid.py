@@ -1026,7 +1026,7 @@ def get_session_factory() -> Callable[["CamcopsRequest"], ISession]:
             timeout=None,  # we handle timeouts at the database level instead
             reissue_time=0,  # default; reissue cookie at every request
             set_on_exception=True,  # (default) cookie even if exception raised
-            serializer=JSONSerializer,
+            serializer=JSONSerializer(),
             # ... pyramid.session.PickleSerializer was the default but is
             # deprecated as of Pyramid 1.9; the default is
             # pyramid.session.JSONSerializer as of Pyramid 2.0.

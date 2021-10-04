@@ -470,19 +470,7 @@ MFA_METHODS
 A multiline list of enabled multi-factor authentication (MFA) methods. Users
 can choose from the options that you enable here.
 
-Possible values:
-
-.. code-block:: none
-
-    totp
-    hotp_email
-    hotp_sms
-    none
-
-To enforce multi-factor authentication on the server, do not include ``none``
-in this list.
-
-The options are:
+The possible values are:
 
 - ``totp``: Use an app such as `Google Authenticator`_ or `Twilio Authy`_.
 
@@ -491,8 +479,12 @@ The options are:
 - ``hotp_sms``: Send a code by `SMS`_ (text message). For this option, you must
   also configure SMS_BACKEND_.
 
-- ``none``: permit login with no MFA (i.e. just with a username/password
+- ``no_mfa``: permit login with no MFA (i.e. just with a username/password
   combination).
+
+To enforce multi-factor authentication on the server, do not include ``no_mfa``
+in this list (but include at least one other). If you don't specify anything,
+only ``no_mfa`` is used.
 
 Open MFA standards are defined in `RFC 4226`_ (HOTP: An HMAC-Based One-Time
 Password Algorithm) and in `RFC 6238`_ (TOTP: Time-Based One-Time Password

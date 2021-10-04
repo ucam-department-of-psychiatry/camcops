@@ -556,6 +556,21 @@ class StandardPorts(object):
     MYSQL = 3306
 
 
+class MfaMethod:
+    """
+    Open multi-factor authentication (MFA) standards are defined in RFC 4226
+    (HOTP: An HMAC-Based One-Time Password Algorithm) and in RFC 6238 (TOTP:
+    Time-Based One-Time Password Algorithm).
+
+    HMAC:  Hash-based Message Authentication Code
+    https://en.wikipedia.org/wiki/HMAC
+    """
+    HOTP_EMAIL = "hotp_email"  # Send a code by email
+    HOTP_SMS = "hotp_sms"  # Send a code by SMS
+    NO_MFA = "no_mfa"  # No multi-factor authentication; username/password only
+    TOTP = "totp"  # Use an app such as Google Authenticator, Twilio Authy
+
+
 class SmsBackendNames:
     """
     Names of allowed SMS backends.
@@ -623,6 +638,7 @@ class ConfigDefaults(object):
     LOCAL_LOGO_FILE_ABSOLUTE = os.path.join(STATIC_ROOT_DIR, "logo_local.png")
     LOCKOUT_DURATION_INCREMENT_MINUTES = 10
     LOCKOUT_THRESHOLD = 10
+    MFA_METHODS = [MfaMethod.NO_MFA]
     MFA_TIMEOUT_S = 600  # zero for never
     PASSWORD_CHANGE_FREQUENCY_DAYS = 0  # zero for never
     PATIENT_SPEC_IF_ANONYMOUS = "anonymous"

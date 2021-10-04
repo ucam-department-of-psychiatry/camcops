@@ -183,6 +183,7 @@ from camcops_server.cc_modules.cc_baseconstants import (
 from camcops_server.cc_modules.cc_constants import (
     ConfigParamSite,
     DEFAULT_ROWS_PER_PAGE,
+    MfaMethod,
     MINIMUM_PASSWORD_LENGTH,
     SEX_OTHER_UNSPECIFIED,
     SEX_FEMALE,
@@ -219,7 +220,6 @@ from camcops_server.cc_modules.cc_taskschedule import (
     TaskSchedule,
     TaskScheduleEmailTemplateFormatter,
 )
-from camcops_server.cc_modules.cc_user import MfaMethod
 from camcops_server.cc_modules.cc_validators import (
     ALPHANUM_UNDERSCORE_CHAR,
     validate_anything,
@@ -2309,7 +2309,7 @@ class MfaMethodSelector(SchemaNode, RequestAwareMixin):
              _("Use an app such as Google Authenticator or Twilio Authy")),
             (MfaMethod.HOTP_EMAIL, _("Send me a code by email")),
             (MfaMethod.HOTP_SMS, _("Send me a code by text message")),
-            (MfaMethod.NONE, _("Disable multi-factor authentication")),
+            (MfaMethod.NO_MFA, _("Disable multi-factor authentication")),
         ]
 
         choices = []
