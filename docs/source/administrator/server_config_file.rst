@@ -19,12 +19,19 @@
 
 .. _Apache: https://httpd.apache.org/
 .. _CherryPy: https://cherrypy.org/
+.. _Google Authenticator: https://en.wikipedia.org/wiki/Google_Authenticator
 .. _Gunicorn: https://gunicorn.org/
 .. _HTTPS: https://en.wikipedia.org/wiki/HTTPS
 .. _ISO 8601: https://en.wikipedia.org/wiki/ISO_8601
+.. _Kapow: https://www.kapow.co.uk/
 .. _Pyramid: https://trypyramid.com/
+.. _RFC 4226: https://datatracker.ietf.org/doc/html/rfc4226
 .. _RFC 5322: https://tools.ietf.org/html/rfc5322#section-3.6.2
+.. _RFC 6238: https://datatracker.ietf.org/doc/html/rfc6238
+.. _SMS: https://en.wikipedia.org/wiki/SMS
 .. _TCP: https://en.wikipedia.org/wiki/Transmission_Control_Protocol
+.. _Twilio Authy: https://authy.com/
+.. _Twilio SMS: https://www.twilio.com/sms
 .. _WSGI: https://en.wikipedia.org/wiki/Web_Server_Gateway_Interface
 
 .. |use_trusted_headers| replace::
@@ -371,6 +378,7 @@ http://stackoverflow.com/questions/9604625/ . A suitable one is bundled with
 CamCOPS, so you shouldn't have to alter this default. A blank parameter here
 usually ends up calling ``/usr/bin/wkhtmltopdf``
 
+
 Server location
 ~~~~~~~~~~~~~~~
 
@@ -451,6 +459,7 @@ cache passwords, versus allow a password manager so that users can use
 better/unique passwords). Note that some browsers (e.g. Chrome v34 and up) may
 ignore this.
 
+
 .. _MFA_METHODS:
 
 MFA_METHODS
@@ -458,19 +467,37 @@ MFA_METHODS
 
 *Multiline string.*
 
-A multiline list of supported multi-factor authentication methods.
+A multiline list of enabled multi-factor authentication (MFA) methods. Users
+can choose from the options that you enable here.
 
 Possible values:
 
--- code-block:: none
+.. code-block:: none
 
     totp
     hotp_email
     hotp_sms
     none
 
-To enforce multi-factor authentication on the server, do not include ``none`` in
-this list.
+To enforce multi-factor authentication on the server, do not include ``none``
+in this list.
+
+The options are:
+
+- ``totp``: Use an app such as `Google Authenticator`_ or `Twilio Authy`_.
+
+- ``hotp_email``: Send a code by email.
+
+- ``hotp_sms``: Send a code by `SMS`_ (text message). For this option, you must
+  also configure SMS_BACKEND_.
+
+- ``none``: permit login with no MFA (i.e. just with a username/password
+  combination).
+
+Open MFA standards are defined in `RFC 4226`_ (HOTP: An HMAC-Based One-Time
+Password Algorithm) and in `RFC 6238`_ (TOTP: Time-Based One-Time Password
+Algorithm).
+
 
 MFA_TIMEOUT_S
 #############
@@ -478,7 +505,8 @@ MFA_TIMEOUT_S
 *Integer.* Default: 600.
 
 Seconds the user has to enter their six-digit code during multi-factor
-authentication.  Zero means never time out.
+authentication. Zero means never time out.
+
 
 Suggested filenames for saving PDFs from the web view
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -687,15 +715,29 @@ EMAIL_REPLY_TO
 SMS options
 ~~~~~~~~~~~
 
+.. _SMS_BACKEND:
+
 SMS_BACKEND
 ###########
 
-*String.* Default: console.
+*String.* Default: ``console``.
 
-Supported backends are 'kapow' and 'twilio'. A paid account is needed for these
-services, which are then configured as follows:
+Back-end service to send `SMS`_ (text) messages as part of multi-factor
+authentication (see MFA_METHODS_).
 
-.. code-block:: none
+Options are:
+
+- ``kapow``
+- ``twilio``
+- ``console``
+
+The ``console`` option is only for testing; it prints the SMS to the server's
+console log, but does nothing useful.
+
+Supported backends are Kapow_ and `Twilio SMS`_. A paid account is needed for
+these services, which are then configured as follows:
+
+.. code-block:: ini
 
     [sms_backend:kapow]
 
@@ -707,7 +749,7 @@ services, which are then configured as follows:
 
     SID =
     TOKEN =
-    PHONE_NUMBER =
+    FROM_PHONE_NUMBER =
 
 
 User download options

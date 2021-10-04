@@ -54,7 +54,11 @@ from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer
 
 from camcops_server.cc_modules.cc_audit import audit
-from camcops_server.cc_modules.cc_constants import USER_NAME_FOR_SYSTEM
+from camcops_server.cc_modules.cc_constants import (
+    OBSCURE_EMAIL_ASTERISKS,
+    OBSCURE_PHONE_ASTERISKS,
+    USER_NAME_FOR_SYSTEM,
+)
 from camcops_server.cc_modules.cc_group import Group
 from camcops_server.cc_modules.cc_membership import UserGroupMembership
 from camcops_server.cc_modules.cc_sqla_coltypes import (
@@ -364,7 +368,7 @@ class SecurityLoginFailure(Base):
 
 class MfaMethod:
     """
-    Open Multi-factor authentication (MFA) standards are defined in RFC 4226
+    Open multi-factor authentication (MFA) standards are defined in RFC 4226
     (HOTP: An HMAC-Based One-Time Password Algorithm) and in RFC 6238 (TOTP:
     Time-Based One-Time Password Algorithm).
 
@@ -374,7 +378,7 @@ class MfaMethod:
 
     HOTP_EMAIL = "hotp_email"  # Send a code by email
     HOTP_SMS = "hotp_sms"  # Send a code by SMS
-    NONE = 'none'  # No multi-factor authentication
+    NONE = "none"  # No multi-factor authentication
     TOTP = "totp"  # Use an app such as Google Authenticator, Twilio Authy
 
 
@@ -687,8 +691,15 @@ class User(Base):
         self.last_login_at_utc = req.now_utc_no_tzinfo
 
     def verify_one_time_password(self, one_time_password: str) -> bool:
+        """
+        Determines whether the supplied one-time password is valid for the
+        multi-factor authentication (MFA) currently selected.
+
+        Returns ``False`` if no MFA method is selected.
+        """
         if self.mfa_method is None:
-            return false
+            return False
+        # *** todo: RNC check: None versus "none"
 
         if self.mfa_method == MfaMethod.TOTP:
             totp = pyotp.TOTP(self.mfa_secret_key)
@@ -701,7 +712,14 @@ class User(Base):
 
     @property
     def partial_email(self) -> str:
-        # There doesn't seem to be an agreed way of doing this
+        """
+        Returns a partially obscured version of the user's e-mail address.
+
+        There doesn't seem to be an agreed way of doing this. Here we show the
+        first and last letter of the "local-part" (see
+        https://en.wikipedia.org/wiki/Email_address), separated by asterisks.
+        If the local part is a single letter, it's shown twice.
+        """
         regex = r"^(.+)@(.*)$"
 
         m = re.search(regex, self.email)
@@ -709,12 +727,14 @@ class User(Base):
         last_letter = m.group(1)[-1]
         domain = m.group(2)
 
-        # a@example.com will be displayed as a*****a@example.com.
-
-        return f"{first_letter}*****{last_letter}@{domain}"
+        return f"{first_letter}{OBSCURE_EMAIL_ASTERISKS}{last_letter}@{domain}"
 
     @property
     def raw_phone_number(self) -> str:
+        """
+        Returns the user's phone number in E164 format:
+        https://en.wikipedia.org/wiki/E.164
+        """
         return phonenumbers.format_number(
             self.phone_number,
             phonenumbers.PhoneNumberFormat.E164
@@ -722,9 +742,13 @@ class User(Base):
 
     @property
     def partial_phone_number(self) -> str:
-        # There doesn't seem to be an agreed way of doing this either
-        # https://www.karansaini.com/fuzzing-obfuscated-phone-numbers/
-        return f"**********{self.raw_phone_number[-2:]}"
+        """
+        Returns a partially obscured version of the user's phone number.
+
+        There doesn't seem to be an agreed way of doing this either.
+        https://www.karansaini.com/fuzzing-obfuscated-phone-numbers/
+        """
+        return f"{OBSCURE_PHONE_ASTERISKS}{self.raw_phone_number[-2:]}"
 
     def set_password_change_flag_if_necessary(self,
                                               req: "CamcopsRequest") -> None:

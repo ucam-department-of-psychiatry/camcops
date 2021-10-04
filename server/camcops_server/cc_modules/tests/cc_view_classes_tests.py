@@ -43,16 +43,18 @@ class FormWizardMixinTests(BasicDatabaseTestCase):
 
     def test_route_name_is_saved_in_existing_session(self) -> None:
         self.req.camcops_session.form_state = {
-            "step": "some-previous-step",
-            "route_name": "some_previous_route_name",
+            FormWizardMixin.PARAM_STEP: "some-previous-step",
+            FormWizardMixin.PARAM_ROUTE_NAME: "some_previous_route_name",
         }
         self.req.dbsession.add(self.req.camcops_session)
         self.req.dbsession.commit()
 
         TestView(self.req)
 
-        self.assertEqual(self.req.camcops_session.form_state["route_name"],
-                         "test_route")
+        self.assertEqual(
+            self.req.camcops_session.form_state[FormWizardMixin.PARAM_ROUTE_NAME],  # noqa
+            "test_route"
+        )
 
         self.req.dbsession.flush()
         session_id = self.req.camcops_session.id
@@ -64,12 +66,16 @@ class FormWizardMixinTests(BasicDatabaseTestCase):
             CamcopsSession.id == session_id
         ).one()
 
-        self.assertEqual(session.form_state["route_name"], "test_route")
+        self.assertEqual(session.form_state[FormWizardMixin.PARAM_ROUTE_NAME],
+                         "test_route")
 
     def test_step_is_saved_in_new_session(self) -> None:
         view = TestView(self.req)
         view.step = "test"
-        self.assertEqual(self.req.camcops_session.form_state["step"], "test")
+        self.assertEqual(
+            self.req.camcops_session.form_state[FormWizardMixin.PARAM_STEP],
+            "test"
+        )
 
         self.req.dbsession.flush()
         session_id = self.req.camcops_session.id
@@ -81,13 +87,16 @@ class FormWizardMixinTests(BasicDatabaseTestCase):
             CamcopsSession.id == session_id
         ).one()
 
-        self.assertEqual(session.form_state["step"], "test")
+        self.assertEqual(session.form_state[FormWizardMixin.PARAM_STEP],
+                         "test")
 
     def test_route_name_is_saved_in_new_session(self) -> None:
         TestView(self.req)
 
-        self.assertEqual(self.req.camcops_session.form_state["route_name"],
-                         "test_route")
+        self.assertEqual(
+            self.req.camcops_session.form_state[FormWizardMixin.PARAM_ROUTE_NAME],  # noqa
+            "test_route"
+        )
 
         self.req.dbsession.flush()
         session_id = self.req.camcops_session.id
@@ -99,20 +108,23 @@ class FormWizardMixinTests(BasicDatabaseTestCase):
             CamcopsSession.id == session_id
         ).one()
 
-        self.assertEqual(session.form_state["route_name"], "test_route")
+        self.assertEqual(session.form_state[FormWizardMixin.PARAM_ROUTE_NAME],
+                         "test_route")
 
     def test_step_is_updated_for_same_route(self) -> None:
         self.req.camcops_session.form_state = {
-            "step": "previous_step",
-            "route_name": "test_route",
+            FormWizardMixin.PARAM_STEP: "previous_step",
+            FormWizardMixin.PARAM_ROUTE_NAME: "test_route",
         }
         self.req.dbsession.add(self.req.camcops_session)
         self.req.dbsession.commit()
 
         view = TestView(self.req)
         view.step = "next_step"
-        self.assertEqual(self.req.camcops_session.form_state["step"],
-                         "next_step")
+        self.assertEqual(
+            self.req.camcops_session.form_state[FormWizardMixin.PARAM_STEP],
+            "next_step"
+        )
 
         self.req.dbsession.flush()
         session_id = self.req.camcops_session.id
@@ -124,7 +136,8 @@ class FormWizardMixinTests(BasicDatabaseTestCase):
             CamcopsSession.id == session_id
         ).one()
 
-        self.assertEqual(session.form_state["step"], "next_step")
+        self.assertEqual(session.form_state[FormWizardMixin.PARAM_STEP],
+                         "next_step")
 
     def test_arbitrary_field_is_saved_in_new_session(self) -> None:
         view = TestView(self.req)
@@ -147,8 +160,8 @@ class FormWizardMixinTests(BasicDatabaseTestCase):
 
     def test_finish_and_finished(self) -> None:
         self.req.camcops_session.form_state = {
-            "step": "previous_step",
-            "route_name": "test_route",
+            FormWizardMixin.PARAM_STEP: "previous_step",
+            FormWizardMixin.PARAM_ROUTE_NAME: "test_route",
         }
         self.req.dbsession.add(self.req.camcops_session)
         self.req.dbsession.commit()

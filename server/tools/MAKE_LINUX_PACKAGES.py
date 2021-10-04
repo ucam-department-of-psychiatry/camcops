@@ -61,7 +61,6 @@ Note that you can get CentOS version/architecture with:
 # fails.
 
 import argparse
-import getpass
 import logging
 import os
 from os.path import join

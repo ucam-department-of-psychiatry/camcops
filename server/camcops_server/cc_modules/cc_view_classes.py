@@ -255,7 +255,6 @@ class TemplateResponseMixin(object):
         (set by ``template_name``), and returns a
         :class:`pyramid.response.Response`.
         """
-
         return render_to_response(
             self.get_template_name(),
             context,
@@ -263,9 +262,12 @@ class TemplateResponseMixin(object):
         )
 
     def get_template_name(self) -> str:
+        """
+        Returns the template filename.
+        """
         if self.template_name is None:
             raise_runtime_error("You must set template_name or override "
-                                "get_template_name() in {self.__class__}.")
+                                f"get_template_name() in {self.__class__}.")
 
         return self.template_name
 
@@ -292,7 +294,6 @@ class FormMixin(ContextMixin):
         """
         Return an instance of the form to be used in this view.
         """
-
         if self._form is None:
             form_class = self.get_form_class()
             if not form_class:
@@ -308,15 +309,10 @@ class FormMixin(ContextMixin):
         """
         Return the keyword arguments for instantiating the form.
         """
-
-        registry = CamcopsResourceRegistry()
-
-        kwargs = {
+        return {
             "request": self.request,
-            "resource_registry": registry,
+            "resource_registry": CamcopsResourceRegistry(),
         }
-
-        return kwargs
 
     def get_cancel_url(self) -> str:
         """
@@ -366,7 +362,6 @@ class FormMixin(ContextMixin):
         """
         Insert the rendered form (as HTML) into the context dict.
         """
-
         form = self.get_form()
         kwargs["form"] = self.get_rendered_form()
         kwargs["head_form_html"] = get_head_form_html(
@@ -388,7 +383,13 @@ class FormMixin(ContextMixin):
 
         return form.render(appstruct)
 
-    def fail(self, message: str) -> None:
+    # noinspection PyTypeChecker
+    def fail(self, message: str) -> Response:
+        """
+        Raises a failure.
+        Pretends to the type checker that it returns a response, so we can use
+        ``return`` for code safety.
+        """
         self.request.session.flash(message, queue=FlashQueue.DANGER)
 
         raise HTTPFound(self.get_failure_url())
@@ -417,6 +418,9 @@ class SingleObjectMixin(ContextMixin):
         return super().get_context_data(**context)
 
     def get_object(self) -> Any:
+        """
+        Returns the ORM object being manipulated.
+        """
         pk_value = self.get_pk_value()
 
         if self.object_class is None:
@@ -444,17 +448,20 @@ class SingleObjectMixin(ContextMixin):
         return obj
 
     def get_pk_value(self) -> int:
+        """
+        Returns the integer primary key of the object.
+        """
         return self.request.get_int_param(self.pk_param)
 
 
 class ModelFormMixin(FormMixin, SingleObjectMixin):
     """
-    Represents an ORM object and an associated form.
+    Represents an ORM object (the model) and an associated form.
     """
     object_class: Optional[Type[Any]] = None
 
-    model_form_dict: Dict
-    object: Any
+    model_form_dict: Dict  # maps model attribute name to form param name
+    object: Any  # the object being manipulated
     request: "CamcopsRequest"
 
     def form_valid(self, form: "Form", appstruct: Dict[str, Any]) -> Response:
@@ -482,6 +489,10 @@ class ModelFormMixin(FormMixin, SingleObjectMixin):
         self.request.dbsession.add(self.object)
 
     def get_model_form_dict(self) -> Dict[str, str]:
+        """
+        Returns the dictionary mapping model attribute names to form parameter
+        names.
+        """
         return self.model_form_dict
 
     def set_object_properties(self, appstruct: Dict[str, Any]) -> None:
@@ -499,7 +510,7 @@ class ModelFormMixin(FormMixin, SingleObjectMixin):
     def get_form_values(self) -> Dict[str, Any]:
         """
         Reads form values from the object (or provides an empty dictionary if
-        there is no object yet).
+        there is no object yet). Returns a form dictionary.
         """
         form_values = {}
 
@@ -667,13 +678,12 @@ class BaseDeleteView(FormMixin, SingleObjectMixin, View):
         Called when the form is valid.
         Deletes the associated model.
         """
-
         self.delete()
-
         return super().form_valid(form, appstruct)
 
     # noinspection PyMethodMayBeStatic
     def get_form_values(self) -> Dict[str, Any]:
+        # Docstring in superclass
         return {}
 
 
@@ -703,8 +713,8 @@ class FormWizardMixin(_FormWizardMixinBase):
     by this mixin:
 
     - "step" stores the name of the current form entry step.
-    - "route"_stores the name of the current route so we can detect if the form
-      state is stale from a previous incomplete operation.
+    - "route_name" stores the name of the current route, so we can detect if
+      the form state is stale from a previous incomplete operation.
 
     Views using this Mixin should implement:
 
@@ -713,15 +723,19 @@ class FormWizardMixin(_FormWizardMixinBase):
     ``wizard_templates``: step name -> template filename dict
     ``wizard_extra_contexts``: step name -> context dict dict
 
-    alternatively subclasses can override ``get_first_step()`` etc.
+    Alternatively, subclasses can override ``get_first_step()`` etc.
 
     The logic of changing steps is left to the subclass.
     """
+    PARAM_STEP = "step"
+    PARAM_ROUTE_NAME = "route_name"
 
     wizard_first_step: Optional[str] = None
-    wizard_forms: Dict[str, "Form"] = {}
+    wizard_forms: Dict[str, Type["Form"]] = {}
     wizard_templates: Dict[str, str] = {}
     wizard_extra_contexts: Dict[str, Dict[str, Any]] = {}
+
+    # todo: *** RNC: data on the class, but not a dataclass -- ??
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -730,13 +744,18 @@ class FormWizardMixin(_FormWizardMixinBase):
         # self.request.matched_route.name so this test will be False
         if self.route_name != self.request.matched_route.name:
             # Form state is incomplete from previous occasion: discard
-            self.state = {"route_name": self.request.matched_route.name}
+            self.state = {
+                self.PARAM_ROUTE_NAME: self.request.matched_route.name
+            }  # sets via @state.setter
 
         # Make sure we save any changes to the form state
         self.request.dbsession.add(self.request.camcops_session)
 
     @property
     def state(self) -> Dict[str, Any]:
+        """
+        Returns the (arbitrary) state dictionary. See class help.
+        """
         if self.request.camcops_session.form_state is None:
             self.request.camcops_session.form_state = dict()
 
@@ -744,46 +763,86 @@ class FormWizardMixin(_FormWizardMixinBase):
 
     @state.setter
     def state(self, state: Optional[Dict[str, Any]]) -> None:
+        """
+        Sets the (arbitrary) state dictionary. See class help.
+        """
         self.request.camcops_session.form_state = state
 
     @property
     def step(self) -> str:
-        return self.state.setdefault("step", self.get_first_step())
+        """
+        Returns the current step.
+        """
+        return self.state.setdefault(self.PARAM_STEP, self.get_first_step())
 
     @step.setter
     def step(self, step: str) -> None:
-        self.state["step"] = step
+        """
+        Sets the current step.
+        """
+        self.state[self.PARAM_STEP] = step
 
     def get_first_step(self) -> str:
+        """
+        Returns the first step to be used when the form is first loaded.
+        """
         return self.wizard_first_step
 
     def _get_route_name(self) -> Optional[str]:
-        return self.state.setdefault("route_name",
+        """
+        Get the name of the current route. See class help.
+        """
+        return self.state.setdefault(self.PARAM_ROUTE_NAME,
                                      self.request.matched_route.name)
 
     def _set_route_name(self, route_name: str) -> None:
-        self.state["route_name"] = route_name
+        """
+        Set the name of the current route. See class help.
+        """
+        self.state[self.PARAM_ROUTE_NAME] = route_name
 
     route_name = property(_get_route_name, _set_route_name)
 
     def get_form_class(self) -> Optional[Type["Form"]]:
+        """
+        Returns the class of Form to be used for the current step (not a form
+        instance).
+        """
         return self.wizard_forms[self.step]
 
     def get_template_name(self) -> str:
+        """
+        Returns the Make template filename to be used for the current step.
+        """
         return self.wizard_templates[self.step]
 
     def get_extra_context(self) -> Dict[str, Any]:
+        """
+        Returns any extra context information (as a dictionary) for the current
+        step.
+        """
         return self.wizard_extra_contexts[self.step]
 
-    def fail(self, message: str) -> None:
+    def fail(self, message: str) -> Response:
+        """
+        Raises a failure.
+        Pretends to the type checker that it returns a response, so we can use
+        ``return`` for code safety.
+        """
         self.finish()
 
-        super().fail(message)
+        return super().fail(message)
 
     def finish(self) -> None:
+        """
+        Ends, by marking the state as ``None``.
+        """
         self.state = None
 
     def finished(self) -> bool:
+        """
+        Have we finished?
+        """
         # If we read self.state, we will initialise it to not
         # be None!
         return self.request.camcops_session.form_state is None

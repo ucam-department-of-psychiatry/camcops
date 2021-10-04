@@ -89,6 +89,9 @@ GITHUB_RELEASES_URL = "https://github.com/RudolfCardinal/camcops/releases/"
 
 MINIMUM_PASSWORD_LENGTH = 10
 
+OBSCURE_PHONE_ASTERISKS = "*" * 10
+OBSCURE_EMAIL_ASTERISKS = "*" * 5
+
 
 # =============================================================================
 # Date formats
@@ -378,6 +381,7 @@ QUESTION = "Question"
 CONFIG_FILE_SITE_SECTION = "site"
 CONFIG_FILE_SERVER_SECTION = "server"
 CONFIG_FILE_EXPORT_SECTION = "export"
+CONFIG_FILE_SMS_BACKEND_PREFIX = "sms_backend"
 
 
 class ConfigParamSite(object):
@@ -552,6 +556,15 @@ class StandardPorts(object):
     MYSQL = 3306
 
 
+class SmsBackendNames:
+    """
+    Names of allowed SMS backends.
+    """
+    CONSOLE = "console"
+    KAPOW = "kapow"
+    TWILIO = "twilio"
+
+
 class DockerConstants(object):
     """
     Constants for the Docker environment.
@@ -616,7 +629,7 @@ class ConfigDefaults(object):
     PERMIT_IMMEDIATE_DOWNLOADS = False
     REGION_CODE = "GB"
     SESSION_TIMEOUT_MINUTES = 30
-    SMS_BACKEND = "console"
+    SMS_BACKEND = SmsBackendNames.CONSOLE
     USER_DOWNLOAD_DIR = LINUX_DEFAULT_USER_DOWNLOAD_DIR  # for demo configs only  # noqa
     USER_DOWNLOAD_FILE_LIFETIME_MIN = 60
     USER_DOWNLOAD_MAX_SPACE_MB = 100

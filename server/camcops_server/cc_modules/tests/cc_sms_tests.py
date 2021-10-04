@@ -27,13 +27,16 @@ camcops_server/cc_modules/tests/cc_sms_tests.py
 """
 
 import logging
-from typing import cast, TYPE_CHECKING
+from typing import cast
 from unittest import mock, TestCase
 
-from camcops_server.cc_modules.cc_sms import get_sms_backend
-
-if TYPE_CHECKING:
-    from camcops_server.cc_modules.cc_sms import TwilioSmsBackend
+from camcops_server.cc_modules.cc_constants import SmsBackendNames
+from camcops_server.cc_modules.cc_sms import (
+    get_sms_backend,
+    ConsoleSmsBackend,
+    KapowSmsBackend,
+    TwilioSmsBackend,
+)
 
 
 TEST_MESSAGE = "Test Message"
@@ -47,9 +50,12 @@ class KapowSmsBackendTests(TestCase):
     @mock.patch("camcops_server.cc_modules.cc_sms.requests.post")
     def test_sends_sms(self, mock_post: mock.Mock) -> None:
 
-        config = {"username": "testuser", "password": "testpass"}
+        config = {
+            KapowSmsBackend.PARAM_USERNAME: "testuser",
+            KapowSmsBackend.PARAM_PASSWORD: "testpass"
+        }
 
-        backend = get_sms_backend("kapow", config)
+        backend = get_sms_backend(SmsBackendNames.KAPOW, config)
         backend.send_sms(TEST_RECIPIENT, TEST_MESSAGE)
 
         args, kwargs = mock_post.call_args
@@ -65,21 +71,27 @@ class KapowSmsBackendTests(TestCase):
 
 class TwilioSmsBackendTests(TestCase):
     def test_backend_creates_client(self) -> None:
-        config = {"sid": "testsid",
-                  "token": "testtoken",
-                  "phone_number": TEST_SENDER}
+        config = {
+            TwilioSmsBackend.PARAM_SID: "testsid",
+            TwilioSmsBackend.PARAM_TOKEN: "testtoken",
+            TwilioSmsBackend.PARAM_FROM_PHONE_NUMBER: TEST_SENDER
+        }
 
-        backend = cast("TwilioSmsBackend", get_sms_backend("twilio", config))
+        backend = cast("TwilioSmsBackend",
+                       get_sms_backend(SmsBackendNames.TWILIO, config))
 
         self.assertEqual(backend.client.username, "testsid")
         self.assertEqual(backend.client.password, "testtoken")
 
     def test_sends_sms(self) -> None:
-        config = {"sid": "testsid",
-                  "token": "testtoken",
-                  "phone_number": TEST_SENDER}
+        config = {
+            TwilioSmsBackend.PARAM_SID: "testsid",
+            TwilioSmsBackend.PARAM_TOKEN: "testtoken",
+            TwilioSmsBackend.PARAM_FROM_PHONE_NUMBER: TEST_SENDER
+        }
 
-        backend = cast("TwilioSmsBackend", get_sms_backend("twilio", config))
+        backend = cast("TwilioSmsBackend",
+                       get_sms_backend(SmsBackendNames.TWILIO, config))
 
         with mock.patch.object(backend.client.messages,
                                "create") as mock_create:
@@ -95,9 +107,9 @@ class TwilioSmsBackendTests(TestCase):
 class ConsoleSmsBackendTests(TestCase):
     def test_sends_sms(self) -> None:
 
-        config = {"username": "testuser", "password": "testpass"}
+        config = {}
 
-        backend = get_sms_backend("console", config)
+        backend = get_sms_backend(SmsBackendNames.CONSOLE, config)
 
         with self.assertLogs(level=logging.INFO) as logging_cm:
             backend.send_sms(TEST_RECIPIENT, TEST_MESSAGE)
@@ -107,6 +119,6 @@ class ConsoleSmsBackendTests(TestCase):
         self.assertIn(f"INFO:{logger_name}", logging_cm.output[0])
 
         self.assertIn(
-            f"Sent message '{TEST_MESSAGE}' to {TEST_RECIPIENT}",
+            ConsoleSmsBackend.make_msg(TEST_RECIPIENT, TEST_MESSAGE),
             logging_cm.output[0]
         )

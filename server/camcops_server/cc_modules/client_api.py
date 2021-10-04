@@ -3304,39 +3304,3 @@ def client_api(req: "CamcopsRequest") -> Response:
     log.debug("Time in script (s): {t}", t=t1 - t0)
 
     return TextResponse(txt, status=status)
-
-
-# =============================================================================
-# Unit tests
-# =============================================================================
-
-TEST_NHS_NUMBER = 4887211163  # generated at random
-
-
-def get_reply_dict_from_response(response: Response) -> Dict[str, str]:
-    """
-    For unit testing: convert the text in a :class:`Response` back to a
-    dictionary, so we can check it was correct.
-    """
-    txt = str(response)
-    d = {}  # type: Dict[str, str]
-    # Format is: "200 OK\r\n<other headers>\r\n\r\n<content>"
-    # There's a blank line between the heads and the body.
-    http_gap = "\r\n\r\n"
-    camcops_linesplit = "\n"
-    camcops_k_v_sep = ":"
-    try:
-        start_of_content = txt.index(http_gap) + len(http_gap)
-        txt = txt[start_of_content:]
-        for line in txt.split(camcops_linesplit):
-            if not line:
-                continue
-            colon_pos = line.index(camcops_k_v_sep)
-            key = line[:colon_pos]
-            value = line[colon_pos + len(camcops_k_v_sep):]
-            key = key.strip()
-            value = value.strip()
-            d[key] = value
-        return d
-    except ValueError:
-        return {}

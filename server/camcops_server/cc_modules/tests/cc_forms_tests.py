@@ -60,8 +60,11 @@ from camcops_server.cc_modules.cc_unittest import (
     DemoRequestTestCase,
 )
 
-# https://www.ofcom.org.uk/phones-telecoms-and-internet/information-for-industry/numbering/numbers-for-drama  # noqa: E501
-TEST_PHONE_NUMBER = "+441134960123"
+TEST_PHONE_NUMBER = "+{ctry}{tel}".format(
+    ctry=phonenumbers.PhoneMetadata.metadata_for_region("GB").country_code,
+    tel=phonenumbers.PhoneMetadata.metadata_for_region(
+        "GB").personal_number.example_number
+)  # see webview_tests.py
 
 
 # =============================================================================

@@ -34,13 +34,14 @@ from typing import cast
 import unittest
 from unittest import mock
 
+from cardinal_pythonlib.httpconst import MimeType
 from pendulum import local
 import phonenumbers
 import pyotp
 from pyramid.httpexceptions import HTTPBadRequest, HTTPFound
 from webob.multidict import MultiDict
 
-from camcops_server.cc_modules.cc_constants import ERA_NOW
+from camcops_server.cc_modules.cc_constants import ERA_NOW, SmsBackendNames
 from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_group import Group
 from camcops_server.cc_modules.cc_membership import UserGroupMembership
@@ -52,7 +53,10 @@ from camcops_server.cc_modules.cc_pyramid import (
     ViewArg,
     ViewParam,
 )
-from camcops_server.cc_modules.cc_sms import get_sms_backend
+from camcops_server.cc_modules.cc_sms import (
+    ConsoleSmsBackend,
+    get_sms_backend,
+)
 from camcops_server.cc_modules.cc_taskindex import PatientIdNumIndexEntry
 from camcops_server.cc_modules.cc_taskschedule import (
     PatientTaskSchedule,
@@ -73,35 +77,37 @@ from camcops_server.cc_modules.cc_user import (
 from camcops_server.cc_modules.cc_validators import (
     validate_alphanum_underscore,
 )
+from camcops_server.cc_modules.cc_view_classes import FormWizardMixin
 from camcops_server.cc_modules.webview import (
+    add_patient,
     AddPatientView,
     AddTaskScheduleItemView,
     AddTaskScheduleView,
+    any_records_use_group,
+    change_own_password,
     ChangeOtherPasswordView,
     ChangeOwnPasswordView,
     DeleteServerCreatedPatientView,
     DeleteTaskScheduleItemView,
     DeleteTaskScheduleView,
-    EditOtherUserMfaView,
-    EditOwnUserMfaView,
-    EditTaskScheduleItemView,
-    EditTaskScheduleView,
+    edit_finalized_patient,
+    edit_group,
+    edit_server_created_patient,
+    edit_user,
+    edit_user_group_membership,
     EditFinalizedPatientView,
     EditGroupView,
+    EditOtherUserMfaView,
+    EditOwnUserMfaView,
     EditServerCreatedPatientView,
+    EditTaskScheduleItemView,
+    EditTaskScheduleView,
     EditUserGroupAdminView,
     EraseTaskEntirelyView,
     EraseTaskLeavingPlaceholderView,
     LoginView,
+    MfaMixin,
     SendEmailFromPatientTaskScheduleView,
-    add_patient,
-    any_records_use_group,
-    change_own_password,
-    edit_group,
-    edit_finalized_patient,
-    edit_server_created_patient,
-    edit_user,
-    edit_user_group_membership,
 )
 
 
@@ -109,15 +115,18 @@ from camcops_server.cc_modules.webview import (
 # Unit testing
 # =============================================================================
 
-TEST_NHS_NUMBER_1 = 4887211163  # generated at random
-TEST_NHS_NUMBER_2 = 1381277373
+TEST_NHS_NUMBER_1 = 9997435117  # generated at random from national test range
+TEST_NHS_NUMBER_2 = 9996431622  # generated at random from national test range
 
 # https://www.ofcom.org.uk/phones-telecoms-and-internet/information-for-industry/numbering/numbers-for-drama  # noqa: E501
 # 07700 900000 to 900999 reserved for TV and Radio drama purposes
-# but unfortunately phonenumbers considers these invalid
-# Landlines seem OK
-# 0113 496 0000 to 496 0999 for Leeds
-TEST_PHONE_NUMBER = "+441134960123"
+# but unfortunately phonenumbers considers these invalid. However, it offers
+# some examples:
+TEST_PHONE_NUMBER = "+{ctry}{tel}".format(
+    ctry=phonenumbers.PhoneMetadata.metadata_for_region("GB").country_code,
+    tel=phonenumbers.PhoneMetadata.metadata_for_region(
+        "GB").personal_number.example_number
+)
 
 
 class WebviewTests(DemoDatabaseTestCase):
@@ -2310,7 +2319,7 @@ class SendEmailFromPatientTaskScheduleViewTests(BasicDatabaseTestCase):
         self.assertEqual(kwargs["to"], "patient@example.com")
         self.assertEqual(kwargs["subject"], "Subject")
         self.assertEqual(kwargs["body"], "Email body")
-        self.assertEqual(kwargs["content_type"], "text/html")
+        self.assertEqual(kwargs["content_type"], MimeType.HTML)
 
         args, kwargs = mock_send_msg.call_args
         self.assertEqual(kwargs["host"], "smtp.example.com")
@@ -2608,7 +2617,7 @@ class LoginViewTests(BasicDatabaseTestCase):
         view = LoginView(self.req)
         view.state.update(
             mfa_user_id=user.id,
-            step="mfa",
+            step=MfaMixin.STEP_MFA,
             mfa_time=int(time.time())
         )
 
@@ -2621,7 +2630,7 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.assertIn("form", context)
         self.assertIn("Enter the six-digit code", context["form"])
         self.assertIn("Enter the code for CamCOPS displayed",
-                      context["instructions"])
+                      context[MfaMixin.KEY_INSTRUCTIONS])
 
     @mock.patch("camcops_server.cc_modules.cc_email.send_msg")
     @mock.patch("camcops_server.cc_modules.cc_email.make_email")
@@ -2640,7 +2649,7 @@ class LoginViewTests(BasicDatabaseTestCase):
         view = LoginView(self.req)
         view.state.update(
             mfa_user_id=user.id,
-            step="mfa",
+            step=MfaMixin.STEP_MFA,
             mfa_time=int(time.time())
         )
 
@@ -2652,10 +2661,12 @@ class LoginViewTests(BasicDatabaseTestCase):
 
         self.assertIn("form", context)
         self.assertIn("Enter the six-digit code", context["form"])
-        self.assertIn("We've sent a code by email", context["instructions"])
+        self.assertIn("We've sent a code by email",
+                      context[MfaMixin.KEY_INSTRUCTIONS])
 
     def test_user_with_hotp_sms_sees_token_form(self) -> None:
-        self.req.config.sms_backend = get_sms_backend("console", {})
+        self.req.config.sms_backend = get_sms_backend(
+            SmsBackendNames.CONSOLE, {})
 
         phone_number = phonenumbers.parse(TEST_PHONE_NUMBER)
         user = self.create_user(username="test",
@@ -2670,7 +2681,7 @@ class LoginViewTests(BasicDatabaseTestCase):
         view = LoginView(self.req)
         view.state.update(
             mfa_user_id=user.id,
-            step="mfa",
+            step=MfaMixin.STEP_MFA,
             mfa_time=int(time.time())
         )
 
@@ -2683,7 +2694,7 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.assertIn("form", context)
         self.assertIn("Enter the six-digit code", context["form"])
         self.assertIn("We've sent a code by text message",
-                      context["instructions"])
+                      context[MfaMixin.KEY_INSTRUCTIONS])
 
     @mock.patch("camcops_server.cc_modules.cc_email.send_msg")
     @mock.patch("camcops_server.cc_modules.cc_email.make_email")
@@ -2716,11 +2727,14 @@ class LoginViewTests(BasicDatabaseTestCase):
             with self.assertRaises(HTTPFound):
                 view.dispatch()
 
-        self.assertEqual(self.req.camcops_session.form_state["mfa_user_id"],
-                         user.id)
-        self.assertEqual(self.req.camcops_session.form_state["mfa_time"],
-                         1234567890)
-        self.assertEqual(self.req.camcops_session.form_state["step"], "mfa")
+        self.assertEqual(self.req.camcops_session.form_state[
+                             LoginView.KEY_MFA_USER_ID], user.id)
+        self.assertEqual(self.req.camcops_session.form_state[
+                             MfaMixin.KEY_MFA_TIME], 1234567890)
+        self.assertEqual(
+            self.req.camcops_session.form_state[FormWizardMixin.PARAM_STEP],
+            MfaMixin.STEP_MFA
+        )
 
     @mock.patch("camcops_server.cc_modules.cc_email.send_msg")
     @mock.patch("camcops_server.cc_modules.cc_email.make_email")
@@ -2775,7 +2789,8 @@ class LoginViewTests(BasicDatabaseTestCase):
         test_config = {"username": "testuser",
                        "password": "testpass"}
 
-        self.req.config.sms_backend = get_sms_backend("console", {})
+        self.req.config.sms_backend = get_sms_backend(
+            SmsBackendNames.CONSOLE, {})
         self.req.config.sms_config = test_config
 
         phone_number = phonenumbers.parse(TEST_PHONE_NUMBER)
@@ -2807,7 +2822,7 @@ class LoginViewTests(BasicDatabaseTestCase):
         expected_message = f"Your CamCOPS verification code is {expected_code}"
 
         self.assertIn(
-            f"Sent message '{expected_message}' to {TEST_PHONE_NUMBER}",
+            ConsoleSmsBackend.make_msg(TEST_PHONE_NUMBER, expected_message),
             logging_cm.output[0]
         )
 
@@ -2861,7 +2876,7 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.req.fake_request_post_from_dict(multidict)
 
         view = LoginView(self.req)
-        view.state.update(mfa_user_id=user.id, step="mfa")
+        view.state.update(mfa_user_id=user.id, step=MfaMixin.STEP_MFA)
 
         with mock.patch.object(user, "login") as mock_user_login:
             with mock.patch.object(self.req.camcops_session,
@@ -2902,7 +2917,7 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.req.fake_request_post_from_dict(multidict)
 
         view = LoginView(self.req)
-        view.state.update(mfa_user_id=user.id, step="mfa")
+        view.state.update(mfa_user_id=user.id, step=MfaMixin.STEP_MFA)
 
         with mock.patch.object(user, "login") as mock_user_login:
             with mock.patch.object(self.req.camcops_session,
@@ -2942,7 +2957,7 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.req.fake_request_post_from_dict(multidict)
 
         view = LoginView(self.req)
-        view.state.update(step="mfa", mfa_user_id=user.id)
+        view.state.update(step=MfaMixin.STEP_MFA, mfa_user_id=user.id)
 
         with mock.patch.object(view, "timed_out", return_value=False):
             with self.assertRaises(HTTPFound):
@@ -2976,7 +2991,7 @@ class LoginViewTests(BasicDatabaseTestCase):
         view.state.update(
             mfa_user=user.id,
             mfa_time=int(time.time()-601),
-            step="mfa"
+            step=MfaMixin.STEP_MFA
         )
 
         with mock.patch.object(view, "fail_timed_out") as mock_fail_timed_out:
@@ -3703,7 +3718,8 @@ class ChangeOtherPasswordViewTests(BasicDatabaseTestCase):
         self.assertIn("Enter the six-digit code", context["form"])
 
     def test_code_sent_if_mfa_setup(self) -> None:
-        self.req.config.sms_backend = get_sms_backend("console", {})
+        self.req.config.sms_backend = get_sms_backend(
+            SmsBackendNames.CONSOLE, {})
 
         phone_number = phonenumbers.parse(TEST_PHONE_NUMBER)
         superuser = self.create_user(username="admin",
@@ -3730,7 +3746,7 @@ class ChangeOtherPasswordViewTests(BasicDatabaseTestCase):
         expected_message = f"Your CamCOPS verification code is {expected_code}"
 
         self.assertIn(
-            f"Sent message '{expected_message}' to {TEST_PHONE_NUMBER}",
+            ConsoleSmsBackend.make_msg(TEST_PHONE_NUMBER, expected_message),
             logging_cm.output[0]
         )
 
@@ -3762,8 +3778,10 @@ class ChangeOtherPasswordViewTests(BasicDatabaseTestCase):
         with self.assertRaises(HTTPFound) as e:
             view.dispatch()
 
-        self.assertEqual(self.req.camcops_session.form_state["step"],
-                         "password")
+        self.assertEqual(
+            self.req.camcops_session.form_state[FormWizardMixin.PARAM_STEP],
+            "password"
+        )
         self.assertIn(
             f"change_other_password?user_id={user.id}",
             e.exception.headers["Location"]
@@ -3828,7 +3846,7 @@ class ChangeOtherPasswordViewTests(BasicDatabaseTestCase):
         view.state.update(
             mfa_user=superuser.id,
             mfa_time=int(time.time()-601),
-            step="mfa"
+            step=MfaMixin.STEP_MFA
         )
 
         with mock.patch.object(view, "fail_timed_out") as mock_fail_timed_out:
@@ -3959,7 +3977,8 @@ class EditOtherUserMfaViewTests(BasicDatabaseTestCase):
         self.assertIn("Enter the six-digit code", context["form"])
 
     def test_code_sent_if_mfa_setup(self) -> None:
-        self.req.config.sms_backend = get_sms_backend("console", {})
+        self.req.config.sms_backend = get_sms_backend(
+            SmsBackendNames.CONSOLE, {})
 
         phone_number = phonenumbers.parse(TEST_PHONE_NUMBER)
         superuser = self.create_user(username="admin",
@@ -3986,7 +4005,7 @@ class EditOtherUserMfaViewTests(BasicDatabaseTestCase):
         expected_message = f"Your CamCOPS verification code is {expected_code}"
 
         self.assertIn(
-            f"Sent message '{expected_message}' to {TEST_PHONE_NUMBER}",
+            ConsoleSmsBackend.make_msg(TEST_PHONE_NUMBER, expected_message),
             logging_cm.output[0]
         )
 
@@ -4018,8 +4037,10 @@ class EditOtherUserMfaViewTests(BasicDatabaseTestCase):
         with self.assertRaises(HTTPFound) as e:
             view.dispatch()
 
-        self.assertEqual(self.req.camcops_session.form_state["step"],
-                         "other_user_mfa")
+        self.assertEqual(
+            self.req.camcops_session.form_state[FormWizardMixin.PARAM_STEP],
+            "other_user_mfa"
+        )
         self.assertIn(
             f"edit_other_user_mfa?user_id={user.id}",
             e.exception.headers["Location"]
@@ -4334,7 +4355,8 @@ class ChangeOwnPasswordViewTests(BasicDatabaseTestCase):
         self.assertIn("Enter the six-digit code", context["form"])
 
     def test_code_sent_if_mfa_setup(self) -> None:
-        self.req.config.sms_backend = get_sms_backend("console", {})
+        self.req.config.sms_backend = get_sms_backend(
+            SmsBackendNames.CONSOLE, {})
         phone_number = phonenumbers.parse(TEST_PHONE_NUMBER)
         user = self.create_user(username="user",
                                 email="user@example.com",
@@ -4352,7 +4374,7 @@ class ChangeOwnPasswordViewTests(BasicDatabaseTestCase):
         expected_message = f"Your CamCOPS verification code is {expected_code}"
 
         self.assertIn(
-            f"Sent message '{expected_message}' to {TEST_PHONE_NUMBER}",
+            ConsoleSmsBackend.make_msg(TEST_PHONE_NUMBER, expected_message),
             logging_cm.output[0]
         )
 
@@ -4379,8 +4401,10 @@ class ChangeOwnPasswordViewTests(BasicDatabaseTestCase):
         with self.assertRaises(HTTPFound) as e:
             view.dispatch()
 
-        self.assertEqual(self.req.camcops_session.form_state["step"],
-                         "password")
+        self.assertEqual(
+            self.req.camcops_session.form_state[FormWizardMixin.PARAM_STEP],
+            "password"
+        )
         self.assertIn(
             "change_own_password",
             e.exception.headers["Location"]
@@ -4436,7 +4460,7 @@ class ChangeOwnPasswordViewTests(BasicDatabaseTestCase):
         view.state.update(
             mfa_user=user.id,
             mfa_time=int(time.time()-601),
-            step="mfa"
+            step=MfaMixin.STEP_MFA
         )
 
         with mock.patch.object(view, "fail_timed_out") as mock_fail_timed_out:

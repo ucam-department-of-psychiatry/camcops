@@ -46,10 +46,13 @@ DESCRIPTION = f"""- You can run tests manually via one of these methods:
 - Pytest will find additional options in:
     {CAMCOPS_SERVER_DIRECTORY}/conftest.py
     {CAMCOPS_SERVER_DIRECTORY}/pytest.ini
+
 - Note that an SQLite database is saved in
     {TEST_DATABASE_FILENAME}
-  ... delete that and retry if the tests fail!
-- We'll launch pytest now for the full test suite."""
+  ... DELETE THAT AND RETRY IF THE TESTS FAIL!
+
+- We'll launch pytest now for the full test suite.
+"""
 # https://stackoverflow.com/questions/36456920
 # examples:
 # pytest client_api_tests.py::ClientApiTests::test_client_api_validators
@@ -59,6 +62,7 @@ DESCRIPTION = f"""- You can run tests manually via one of these methods:
 
 def main() -> None:
     print(DESCRIPTION)
+    input("Press a key when ready...")
     os.chdir(CAMCOPS_SERVER_DIRECTORY)
     subprocess.run("pytest", shell=True)
 

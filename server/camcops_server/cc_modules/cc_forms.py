@@ -2370,7 +2370,7 @@ class MfaHotpSmsSchema(CSRFSchema):
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         _ = self.gettext
-        phone_number = get_child_node(self, "phone_number")
+        phone_number = get_child_node(self, ViewParam.PHONE_NUMBER)
         phone_number.description = _(
             "Include the country code (eg +123) for numbers outside of the "
             "'{region_code}' region").format(

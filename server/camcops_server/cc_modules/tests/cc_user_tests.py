@@ -29,6 +29,10 @@ camcops_server/cc_modules/tests/cc_user_tests.py
 from pendulum import DateTime as Pendulum
 import phonenumbers
 
+from camcops_server.cc_modules.cc_constants import (
+    OBSCURE_EMAIL_ASTERISKS,
+    OBSCURE_PHONE_ASTERISKS,
+)
 from camcops_server.cc_modules.cc_group import Group
 from camcops_server.cc_modules.cc_unittest import (
     BasicDatabaseTestCase,
@@ -105,25 +109,26 @@ class UserTests(DemoDatabaseTestCase):
 
     def test_partial_email(self) -> None:
         # https://en.wikipedia.org/wiki/Email_address
+        a = OBSCURE_EMAIL_ASTERISKS
         tests = (
-            ("simple@example.com", "s*****e@example.com"),
-            ("very.common@example.com", "v*****n@example.com"),
+            ("simple@example.com", f"s{a}e@example.com"),
+            ("very.common@example.com", f"v{a}n@example.com"),
             ("disposable.style.email.with+symbol@example.com",
-             "d*****l@example.com"),
-            ("other.email-with-hyphen@example.com", "o*****n@example.com"),
-            ("x@example.com", "x*****x@example.com"),
+             f"d{a}l@example.com"),
+            ("other.email-with-hyphen@example.com", f"o{a}n@example.com"),
+            ("x@example.com", f"x{a}x@example.com"),
             ("example-indeed@strange-example.com",
-             "e*****d@strange-example.com"),
-            ("test/test@test.com", "t*****t@test.com"),
-            ("admin@mailserver1", "a*****n@mailserver1"),
-            ("example@s.example", "e*****e@s.example"),
-            ('" "@example.org', '"*****"@example.org'),
-            ('"john..doe"@example.org', '"*****"@example.org'),
-            ("mailhost!username@example.org", "m*****e@example.org"),
-            ("user%example.com@example.org", "u*****m@example.org"),
-            ("user-@example.org", "u*****-@example.org"),
+             f"e{a}d@strange-example.com"),
+            ("test/test@test.com", f"t{a}t@test.com"),
+            ("admin@mailserver1", f"a{a}n@mailserver1"),
+            ("example@s.example", f"e{a}e@s.example"),
+            ('" "@example.org', f'"{a}"@example.org'),
+            ('"john..doe"@example.org', f'"{a}"@example.org'),
+            ("mailhost!username@example.org", f"m{a}e@example.org"),
+            ("user%example.com@example.org", f"u{a}m@example.org"),
+            ("user-@example.org", f"u{a}-@example.org"),
             ('very.unusual.”@”.unusual.com@example.com',
-             "v*****m@example.com"),
+             f"v{a}m@example.com"),
         )
 
         user = self.create_user()
@@ -138,7 +143,8 @@ class UserTests(DemoDatabaseTestCase):
         # https://www.ofcom.org.uk/phones-telecoms-and-internet/information-for-industry/numbering/numbers-for-drama  # noqa: E501
         user.phone_number = phonenumbers.parse("+447700900123")
 
-        self.assertEqual(user.partial_phone_number, "**********23")
+        a = OBSCURE_PHONE_ASTERISKS
+        self.assertEqual(user.partial_phone_number, f"{a}23")
 
 
 class UserPermissionTests(BasicDatabaseTestCase):
