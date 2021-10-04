@@ -200,9 +200,8 @@ def get_pdf_print_size_inches(filename: str,
         log.critical("p1args: {!r}", p1args)
         log.critical("p2args: {!r}", p2args)
         log.critical("output: {!r}", output)
-        log.warning(
-            "If the error is 'not authorized' from ImageMagick's identify "
-            "tool, see source code")
+        log.warning("If the error is 'not authorized' from ImageMagick's "
+                    "identify tool, see source code")
         raise
     width, height = info.split('x')
     return float(width), float(height)

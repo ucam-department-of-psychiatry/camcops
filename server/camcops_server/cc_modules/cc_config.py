@@ -230,11 +230,9 @@ def warn_if_not_within_docker_dir(param_name: str,
         for d in permitted_dirs
     )
     if not ok:
-        log.warning(
-            f"Config parameter {param_name} {is_phrase} {filespec!r}, "
-            f"which is not within the permitted Docker directories "
-            f"{permitted_dirs!r}"
-        )
+        log.warning(f"Config parameter {param_name} {is_phrase} {filespec!r}, "
+                    f"which is not within the permitted Docker directories "
+                    f"{permitted_dirs!r}")
 
 
 def warn_if_not_docker_value(param_name: str,
@@ -253,10 +251,9 @@ def warn_if_not_docker_value(param_name: str,
             Value that should be used.
     """
     if actual_value != required_value:
-        log.warning(
-            f"Config parameter {param_name} is {actual_value!r}, "
-            f"but should be {required_value!r} when running inside Docker"
-        )
+        log.warning(f"Config parameter {param_name} is {actual_value!r}, "
+                    f"but should be {required_value!r} when running inside "
+                    f"Docker")
 
 
 def warn_if_not_present(param_name: str, value: Any) -> None:
@@ -271,10 +268,8 @@ def warn_if_not_present(param_name: str, value: Any) -> None:
             Value in the config file.
     """
     if value is None or value == "":
-        log.warning(
-            f"Config parameter {param_name} is not specified, "
-            f"but should be specified when running inside Docker"
-        )
+        log.warning(f"Config parameter {param_name} is not specified, "
+                    f"but should be specified when running inside Docker")
 
 
 # =============================================================================

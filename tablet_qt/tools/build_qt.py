@@ -2493,10 +2493,10 @@ def is_tclsh_windows_compatible(tclsh: str = TCLSH) -> bool:
     if result == correct:
         return True
     elif result == incorrect:
-        log.warning(
-            f"The TCL shell, {tclsh!r}, is a UNIX version (e.g. Cygwin) "
-            f"incompatible with Windows backslash-delimited filenames; switch "
-            f"to a Windows version (e.g. ActiveState ActiveTCL).")
+        log.warning(f"The TCL shell, {tclsh!r}, is a UNIX version (e.g. "
+                    f"Cygwin) incompatible with Windows backslash-delimited "
+                    f"filenames; switch to a Windows version (e.g. "
+                    f"ActiveState ActiveTCL).")
         return False
     else:
         raise RuntimeError(
@@ -2934,9 +2934,9 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
         if use_configure or not target_platform.android:
             # http://doc.qt.io/qt-5/opensslsupport.html
             if BUILD_PLATFORM.windows:
-                log.warning(
-                    "The OpenSSL Configure script may warn about nmake.exe "
-                    "being missing when it isn't. (Or when it is...)")
+                log.warning("The OpenSSL Configure script may warn about "
+                            "nmake.exe being missing when it isn't. "
+                            "(Or when it is...)")
             run([PERL, join(workdir, "Configure")] + configure_args, env)
         else:
             # The "config" script guesses the OS then runs "Configure".
@@ -3351,8 +3351,7 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         try:
             run(qt_config_args, env)  # The configure step takes a few seconds.
         except subprocess.CalledProcessError:
-            log.warning("""
-..
+            log.warning("""Qt 'configure' failure.
 
 ===============================================================================
 Troubleshooting Qt 'configure' failures
@@ -3394,8 +3393,7 @@ Troubleshooting Qt 'configure' failures
         try:
             run(cfg.make_args(env=env), env)
         except subprocess.CalledProcessError:
-            log.warning("""
-..
+            log.warning("""Qt 'make' failure.
 
 ===============================================================================
 Troubleshooting Qt 'make' failures

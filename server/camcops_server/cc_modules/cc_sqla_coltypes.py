@@ -164,6 +164,7 @@ if TYPE_CHECKING:
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
+
 # =============================================================================
 # Debugging options
 # =============================================================================
@@ -183,10 +184,10 @@ if any([DEBUG_DATETIME_AS_ISO_TEXT,
         DEBUG_STRING_LIST_COLTYPE]):
     log.warning("Debugging options enabled!")
 
+
 # =============================================================================
 # Constants
 # =============================================================================
-
 
 class RelationshipInfo(object):
     """
@@ -373,7 +374,7 @@ def isotzdatetime_to_utcdatetime_mysql(
         f"CONVERT_TZ({the_date_time}, {old_timezone}, {_UTC_TZ_LITERAL})"
     )
 
-    # log.warning(result_utc)
+    # log.debug(result_utc)
     return result_utc
 
 
@@ -427,7 +428,7 @@ def isotzdatetime_to_utcdatetime_sqlite(
     x = fetch_processed_single_clause(element, compiler)
     fmt = compiler.process(text(_SQLITE_DATETIME_FMT_FOR_PYTHON))
     result = f"(STRFTIME({fmt}, {x}) || '000')"
-    # log.warning(result)
+    # log.debug(result)
     return result
 
 
@@ -547,7 +548,7 @@ def isotzdatetime_to_utcdatetime_sqlserver(
     )
     result_utc = f"CAST({date_time_offset_with_utc_tz} AS DATETIME2)"
 
-    # log.warning(result_utc)
+    # log.debug(result_utc)
     return result_utc
 
 
@@ -595,7 +596,7 @@ def unknown_field_to_utcdatetime_mysql(
     x = fetch_processed_single_clause(element, compiler)
     converted = isotzdatetime_to_utcdatetime_mysql(element, compiler, **kw)
     result = f"IF(LENGTH({x}) = {_MYSQL_DATETIME_LEN}, {x}, {converted})"
-    # log.warning(result)
+    # log.debug(result)
     return result
 
 
@@ -610,7 +611,7 @@ def unknown_field_to_utcdatetime_sqlite(
     x = fetch_processed_single_clause(element, compiler)
     fmt = compiler.process(text(_SQLITE_DATETIME_FMT_FOR_PYTHON))
     result = f"STRFTIME({fmt}, {x})"
-    # log.warning(result)
+    # log.debug(result)
     return result
 
 
@@ -642,7 +643,7 @@ def unknown_field_to_utcdatetime_sqlserver(
         f"ELSE {converted} "
         f"END"
     )
-    # log.warning(result)
+    # log.debug(result)
     return result
 
 
@@ -702,7 +703,7 @@ class PendulumDateTimeAsIsoTextColType(TypeDecorator):
         """
         retval = self.pendulum_to_isostring(value)
         if DEBUG_DATETIME_AS_ISO_TEXT:
-            log.warning(
+            log.debug(
                 "{}.process_bind_param("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
                 self._coltype_name, self, value, dialect, retval)
@@ -715,7 +716,7 @@ class PendulumDateTimeAsIsoTextColType(TypeDecorator):
         """
         retval = self.pendulum_to_isostring(value)
         if DEBUG_DATETIME_AS_ISO_TEXT:
-            log.warning(
+            log.debug(
                 "{}.process_literal_param("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
                 self._coltype_name, self, value, dialect, retval)
@@ -728,7 +729,7 @@ class PendulumDateTimeAsIsoTextColType(TypeDecorator):
         """
         retval = self.isostring_to_pendulum(value)
         if DEBUG_DATETIME_AS_ISO_TEXT:
-            log.warning(
+            log.debug(
                 "{}.process_result_value("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
                 self._coltype_name, self, value, dialect, retval)
@@ -774,10 +775,10 @@ class PendulumDateTimeAsIsoTextColType(TypeDecorator):
                 # DATETIME, then we assume it is already in UTC.
                 processed_other = unknown_field_to_utcdatetime(other)
             if DEBUG_DATETIME_AS_ISO_TEXT:
-                log.warning("operate(self={!r}, op={!r}, other={!r})",
-                            self, op, other)
-                log.warning("self.expr = {!r}", self.expr)
-                log.warning("processed_other = {!r}", processed_other)
+                log.debug("operate(self={!r}, op={!r}, other={!r})",
+                          self, op, other)
+                log.debug("self.expr = {!r}", self.expr)
+                log.debug("processed_other = {!r}", processed_other)
                 # traceback.print_stack()
             return op(isotzdatetime_to_utcdatetime(self.expr),
                       processed_other)
@@ -840,7 +841,7 @@ class PendulumDurationAsIsoTextColType(TypeDecorator):
         """
         retval = self.pendulum_duration_to_isostring(value)
         if DEBUG_DURATION_AS_ISO_TEXT:
-            log.warning(
+            log.debug(
                 "{}.process_bind_param("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
                 self._coltype_name, self, value, dialect, retval)
@@ -853,7 +854,7 @@ class PendulumDurationAsIsoTextColType(TypeDecorator):
         """
         retval = self.pendulum_duration_to_isostring(value)
         if DEBUG_DURATION_AS_ISO_TEXT:
-            log.warning(
+            log.debug(
                 "{}.process_literal_param("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
                 self._coltype_name, self, value, dialect, retval)
@@ -866,7 +867,7 @@ class PendulumDurationAsIsoTextColType(TypeDecorator):
         """
         retval = self.isostring_to_pendulum_duration(value)
         if DEBUG_DURATION_AS_ISO_TEXT:
-            log.warning(
+            log.debug(
                 "{}.process_result_value("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
                 self._coltype_name, self, value, dialect, retval)
@@ -903,7 +904,7 @@ class SemanticVersionColType(TypeDecorator):
         """
         retval = str(value) if value is not None else None
         if DEBUG_SEMANTIC_VERSION:
-            log.warning(
+            log.debug(
                 "{}.process_bind_param("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
                 self._coltype_name, self, value, dialect, retval)
@@ -916,7 +917,7 @@ class SemanticVersionColType(TypeDecorator):
         """
         retval = str(value) if value is not None else None
         if DEBUG_SEMANTIC_VERSION:
-            log.warning(
+            log.debug(
                 "{}.process_literal_param("
                 "self={!r}, value={!r}, dialect={!r}) -> !r",
                 self._coltype_name, self, value, dialect, retval)
@@ -935,7 +936,7 @@ class SemanticVersionColType(TypeDecorator):
             # ordered Version out:
             retval = make_version(value)
         if DEBUG_SEMANTIC_VERSION:
-            log.warning(
+            log.debug(
                 "{}.process_result_value("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
                 self._coltype_name, self, value, dialect, retval)
@@ -1039,7 +1040,7 @@ class IdNumReferenceListColType(TypeDecorator):
         """
         retval = self._idnumdef_list_to_dbstr(value)
         if DEBUG_IDNUMDEF_LIST:
-            log.warning(
+            log.debug(
                 "{}.process_bind_param("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
                 self._coltype_name, self, value, dialect, retval)
@@ -1052,7 +1053,7 @@ class IdNumReferenceListColType(TypeDecorator):
         """
         retval = self._idnumdef_list_to_dbstr(value)
         if DEBUG_IDNUMDEF_LIST:
-            log.warning(
+            log.debug(
                 "{}.process_literal_param("
                 "self={!r}, value={!r}, dialect={!r}) -> !r",
                 self._coltype_name, self, value, dialect, retval)
@@ -1065,7 +1066,7 @@ class IdNumReferenceListColType(TypeDecorator):
         """
         retval = self._dbstr_to_idnumdef_list(value)
         if DEBUG_IDNUMDEF_LIST:
-            log.warning(
+            log.debug(
                 "{}.process_result_value("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
                 self._coltype_name, self, value, dialect, retval)
@@ -1597,10 +1598,8 @@ class BoolColumn(CamcopsColumn):
         super().__init__(*args, **kwargs)
         if (not self.constraint_name and
                 len(self.name) >= LONG_COLUMN_NAME_WARNING_LIMIT):
-            log.warning(
-                "BoolColumn with long column name and no constraint name: "
-                "{!r}", self.name
-            )
+            log.warning("BoolColumn with long column name and no constraint "
+                        "name: {!r}", self.name)
 
     def __repr__(self) -> str:
         def kvp(attrname: str) -> str:

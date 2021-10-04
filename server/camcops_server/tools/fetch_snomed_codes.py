@@ -669,29 +669,29 @@ def test_api(api: SnomedApiInfo,
     concept_ids = concept_ids or []  # type: List[int]
     terms = terms or []  # type: List[str]
 
-    log.warning("Running tests...")
+    log.info("Running tests...")
 
     if not concept_ids and not terms:
-        log.warning("Using default tests")
+        log.info("Using default tests")
 
-        log.warning("'Pneumonia (disorder)' by ID")
+        log.info("'Pneumonia (disorder)' by ID")
         api.get_concept_by_id("233604007")
 
-        log.warning("'Lupus pneumonia (disorder)' by name")
+        log.info("'Lupus pneumonia (disorder)' by name")
         api.get_concept_by_term("Lupus pneumonia", SemanticTypes.DIS)
 
-        log.warning("'Pneumonia (disorder)' by name")
+        log.info("'Pneumonia (disorder)' by name")
         api.get_concept_by_term("Pneumonia", SemanticTypes.DIS)
 
     for cid in concept_ids:
-        log.warning(str(cid))
+        log.info(str(cid))
         api.get_concept_by_id(cid)
 
     for term in terms:
         if semantic_area:
-            log.warning(f"{term} ({semantic_area})")
+            log.info(f"{term} ({semantic_area})")
         else:
-            log.warning(f"{term}")
+            log.info(f"{term}")
         api.get_concept_by_term(term, semantic_area)
 
 

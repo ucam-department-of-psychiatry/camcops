@@ -56,7 +56,7 @@ from pyramid.security import (
     Everyone,
     PermitsResult,
 )
-from pyramid.session import SignedCookieSessionFactory
+from pyramid.session import JSONSerializer, SignedCookieSessionFactory
 from pyramid_mako import (
     MakoLookupTemplateRenderer,
     MakoRendererFactory,
@@ -76,6 +76,7 @@ if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
+
 
 # =============================================================================
 # Debugging options
@@ -1025,7 +1026,11 @@ def get_session_factory() -> Callable[["CamcopsRequest"], ISession]:
             timeout=None,  # we handle timeouts at the database level instead
             reissue_time=0,  # default; reissue cookie at every request
             set_on_exception=True,  # (default) cookie even if exception raised
-            serializer=None,  # (default) use pyramid.session.PickleSerializer
+            serializer=JSONSerializer,
+            # ... pyramid.session.PickleSerializer was the default but is
+            # deprecated as of Pyramid 1.9; the default is
+            # pyramid.session.JSONSerializer as of Pyramid 2.0.
+
             # As max_age and expires are left at their default of None, these
             # are session cookies.
         )

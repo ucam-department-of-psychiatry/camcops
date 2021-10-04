@@ -41,8 +41,8 @@ DESCRIPTION = f"""- You can run tests manually via one of these methods:
     pytest FILE.py::some_function                       # one test function
     pytest FILE.py::SomeClass                           # one test class
     pytest FILE.py::SomeClass::some_member_function     # function within class
-    pytest -k search_term                               # all test functions,
-                                                        # classes etc matching
+    pytest -k search_term          # all matching test functions, classes, etc.
+
 - Pytest will find additional options in:
     {CAMCOPS_SERVER_DIRECTORY}/conftest.py
     {CAMCOPS_SERVER_DIRECTORY}/pytest.ini

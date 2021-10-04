@@ -226,11 +226,9 @@ class View(object):
         Raise a :exc:`pyramid.httpexceptions.HTTPMethodNotAllowed` indicating
         that the selected HTTP method is not allowed.
         """
-        log.warning(
-            "Method Not Allowed (%s): %s",
-            self.request.method, self.request.path,
-            extra={"status_code": 405, "request": self.request}
-        )
+        log.warning("Method Not Allowed (%s): %s",
+                    self.request.method, self.request.path,
+                    extra={"status_code": 405, "request": self.request})
         raise HTTPMethodNotAllowed(
             detail=f"Allowed methods: {self._allowed_methods}"
         )

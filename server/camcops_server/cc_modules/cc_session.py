@@ -72,7 +72,8 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 DEBUG_CAMCOPS_SESSION_CREATION = False
 
 if DEBUG_CAMCOPS_SESSION_CREATION:
-    log.warning("cc_session: Debugging options enabled!")
+    log.warning("Debugging options enabled!")
+
 
 # =============================================================================
 # Constants

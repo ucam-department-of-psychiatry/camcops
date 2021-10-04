@@ -2977,11 +2977,9 @@ def op_which_keys_to_send(req: "CamcopsRequest") -> str:
                 f"Bad move-off-tablet values: {move_off_tablet_values!r}")
     else:
         client_reports_move_off_tablet = False
-        log.warning(
-            "op_which_keys_to_send: old client not reporting "
-            "{}; requesting all records",
-            TabletParam.MOVE_OFF_TABLET_VALUES
-        )
+        log.warning("op_which_keys_to_send: old client not reporting "
+                    "{}; requesting all records",
+                    TabletParam.MOVE_OFF_TABLET_VALUES)
 
     clientinfo = []  # type: List[WhichKeyToSendInfo]
 

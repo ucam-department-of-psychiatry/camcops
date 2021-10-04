@@ -171,7 +171,7 @@ class DemoRequestTestCase(ExtendedTestCase):
         if not self.database_on_disk:
             log.warning("Cannot dump database (use database_on_disk for that)")
             return
-        log.warning("Dumping database; please wait...")
+        log.info("Dumping database; please wait...")
         connection = sqlite3.connect(self.db_filename)
         sql_text = sql_from_sqlite_database(connection)
         connection.close()

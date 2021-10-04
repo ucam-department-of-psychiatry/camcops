@@ -382,14 +382,15 @@ def check_prerequisites() -> None:
     """
     # https://stackoverflow.com/questions/2806897
     if os.geteuid() == 0:
-        log.critical(
-            "This script should not be run using sudo or as the root user")
+        log.critical("This script should not be run using sudo or as the "
+                     "root user")
         sys.exit(1)
 
     log.info("Checking prerequisites")
     for cmd in PREREQUISITES:
         if shutil.which(cmd) is None:
-            log.warning("""
+            log.warning(f"""The command {cmd!r} is missing.
+
     To install Alien:
         sudo apt-get install alien
     To install rpmrebuild:
@@ -401,7 +402,7 @@ def check_prerequisites() -> None:
         3. Install:
             sudo dpkg --install rpmrebuild_2.15-2_all.deb
             """)  # noqa
-            log.critical("{} command not found; stopping", cmd)
+            log.critical(f"{cmd} command not found; stopping")
             sys.exit(1)
 
     # RPM issues

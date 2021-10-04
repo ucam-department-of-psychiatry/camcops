@@ -3457,7 +3457,7 @@ class GroupIpUseWidget(Widget):
         return {k: k in pstruct for k in IpUse.CONTEXTS}
 
 
-class IpUseType(object):
+class IpUseType(SchemaType):
     # noinspection PyMethodMayBeStatic,PyUnusedLocal
     def deserialize(
             self,
@@ -4353,7 +4353,7 @@ class TaskScheduleSelector(SchemaNode, RequestAwareMixin):
         return Integer()
 
 
-class JsonType(object):
+class JsonType(SchemaType):
     """
     Schema type for JsonNode
     """
@@ -4803,7 +4803,7 @@ class DurationWidget(Widget):
         }
 
 
-class DurationType(object):
+class DurationType(SchemaType):
     """
     Custom colander schema type to convert between Pendulum Duration objects
     and months, weeks and days.
