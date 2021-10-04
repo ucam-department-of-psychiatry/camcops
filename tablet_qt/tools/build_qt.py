@@ -1394,7 +1394,8 @@ class Platform(object):
 
     def make_args(self, cfg: "Config", extra_args: List[str] = None,
                   command: str = "", makefile: str = "",
-                  env: Dict[str, str] = None) -> List[str]:
+                  env: Dict[str, str] = None,
+                  allow_parallel: bool = True) -> List[str]:
         """
         Generates command arguments for "make" or a platform equivalent.
         """
@@ -1417,7 +1418,7 @@ class Platform(object):
         # require(make)
         # ... not necessarily visible now; may be on a PATH yet to be set
         args = [make]
-        if supports_parallel:
+        if allow_parallel and supports_parallel:
             args += [parallel_switch, str(cfg.nparallel)]
         if extra_args:
             args += extra_args
@@ -1687,7 +1688,8 @@ class Config(object):
     # -------------------------------------------------------------------------
 
     def make_args(self, extra_args: List[str] = None, command: str = "",
-                  makefile: str = "", env: Dict[str, str] = None) -> List[str]:
+                  makefile: str = "", env: Dict[str, str] = None,
+                  allow_parallel: bool = True) -> List[str]:
         """
         Returns command arguments for "make" or a platform equivalent.
         """
@@ -1695,7 +1697,8 @@ class Config(object):
                                         extra_args=extra_args,
                                         command=command,
                                         makefile=makefile,
-                                        env=env)
+                                        env=env,
+                                        allow_parallel=allow_parallel)
 
     # -------------------------------------------------------------------------
     # Environment variables
@@ -3027,8 +3030,13 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
             ])
 
         def runmake(command: str = "") -> None:
+            # Windows seems to have a problem building OpenSSL with
+            # nparallel > 1
+            allow_parallel = not BUILD_PLATFORM.windows
+
             run(cfg.make_args(command=command, env=env,
-                              extra_args=extra_args), env)
+                              extra_args=extra_args,
+                              allow_parallel=allow_parallel), env)
 
         # See INSTALL, INSTALL.WIN, etc. from the OpenSSL distribution
         runmake()
