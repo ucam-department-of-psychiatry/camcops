@@ -604,11 +604,13 @@ class MfaMixin(FormWizardMixin, _MfaMixinExtraBase):
     This must be named "mfa" in the subclass, via the ``SELF_MFA`` variable.
 
     This handles:
+
     - Timing out
     - Generating, sending and checking the six-digit code used for
       authentication
 
     The subclass should:
+
     - Set ``mfa_user`` on the class to be an instance of the User to be
       authenticated.
     - Call ``handle_authentication_type()`` in the appropriate step.
@@ -620,15 +622,15 @@ class MfaMixin(FormWizardMixin, _MfaMixinExtraBase):
     See ``ChangeOwnPasswordView`` for an example with the logged in user.
     """
 
-    STEP_MFA = "mfa"
     STEP_PASSWORD = "password"
+    STEP_MFA = "mfa"
 
     KEY_INSTRUCTIONS = "instructions"
     KEY_MFA_TIME = "mfa_time"
 
     def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
         self._mfa_user: Optional[User] = None
+        super().__init__(*args, **kwargs)
 
     @property
     def mfa_user(self) -> Optional[User]:
@@ -680,19 +682,24 @@ class MfaMixin(FormWizardMixin, _MfaMixinExtraBase):
         Return user instructions for the relevant MFA method.
         """
         _ = self.request.gettext
+        method = self.mfa_user.mfa_method
 
-        if self.mfa_user.mfa_method == MfaMethod.TOTP:
+        if method == MfaMethod.TOTP:
             return _("Enter the code for CamCOPS displayed on your "
                      "authentication app.")
 
-        if self.mfa_user.mfa_method == MfaMethod.HOTP_EMAIL:
+        elif method == MfaMethod.HOTP_EMAIL:
             return _("We've sent a code by email to {}.").format(
                 self.mfa_user.partial_email
             )
 
-        return _("We've sent a code by text message to {}").format(
-            self.mfa_user.partial_phone_number
-        )
+        elif method == MfaMethod.HOTP_SMS:
+            return _("We've sent a code by text message to {}").format(
+                self.mfa_user.partial_phone_number
+            )
+
+        else:
+            return "Error: get_mfa_instruction() called for invalid MFA method"
 
     def handle_authentication_type(self) -> None:
         """
@@ -789,25 +796,52 @@ class LoggedInUserMfaMixin(MfaMixin):
 class LoginView(MfaMixin, FormView):
     """
     Multi-factor authentication for the login process.
+    Sequences is: (1) password; (2) MFA, if enabled.
     """
     KEY_MFA_USER_ID = "mfa_user_id"
 
     _mfa_user: Optional[User]
     wizard_first_step = MfaMixin.STEP_PASSWORD
-
     wizard_forms = {
         MfaMixin.STEP_PASSWORD: LoginForm,
         MfaMixin.STEP_MFA: OtpTokenForm,
     }
-
     wizard_templates = {
         MfaMixin.STEP_PASSWORD: "login.mako",
         MfaMixin.STEP_MFA: "login_token.mako",
     }
 
     def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
         self._mfa_user = None
+        super().__init__(*args, **kwargs)
+
+    def check_step_on_load(self) -> None:
+        """
+        Recheck that the user's MFA method is allowed, and check ``self.step``.
+        This code deals with the unusual situation -- unusual unless you're
+        testing -- of an MFA method being initiated, then disabled on the
+        server. That leaves users totally stuffed as they are not properly
+        "logged in" and therefore can't easily log out.
+        """
+        mfa_user = self.mfa_user
+        if not mfa_user:
+            return
+        _ = self.request.gettext
+        if mfa_user.mfa_method not in self.request.config.mfa_methods:
+            # Invalid method. Set to "no MFA".
+            self.request.session.flash(
+                _("Multi-factor authentication settings have changed."),
+                queue=FlashQueue.INFO
+            )
+            mfa_user.mfa_method = MfaMethod.NO_MFA
+        if (self.step == self.STEP_MFA and
+                mfa_user.mfa_method == MfaMethod.NO_MFA):
+            # User is stuck! Unstick them.
+            self.finish()  # resets login process
+            self.request.session.flash(
+                _("Please log in again."),
+                queue=FlashQueue.INFO
+            )
 
     @property
     def mfa_user(self) -> Optional[User]:
@@ -913,11 +947,13 @@ class LoginView(MfaMixin, FormView):
         """
         The user has entered a password correctly; what's the next step?
         """
-        if self.mfa_user.mfa_method == MfaMethod.NO_MFA:
-            return self.finish()
-
-        self.step = self.STEP_MFA
-        self.handle_authentication_type()
+        method = self.mfa_user.mfa_method
+        if method == MfaMethod.NO_MFA:
+            self.finish()
+        else:
+            # Guaranteed to be valid; see constructor.
+            self.step = self.STEP_MFA
+            self.handle_authentication_type()
 
     def form_valid_success(self, form: "Form",
                            appstruct: Dict[str, Any]) -> Response:
@@ -1107,30 +1143,34 @@ def forbidden(req: "CamcopsRequest") -> Response:
 class ChangeOwnPasswordView(LoggedInUserMfaMixin, UpdateView):
     """
     View to change one's own password.
-    You need to (re-)authenticate to do so.
+
+    If MFA is enabled, you need to (re-)authenticate via MFA to do so.
+    Then, you need to supply your own password to change it (regardless).
+    Sequence is therefore (1) MFA, optionally; (2) change password.
 
     Most documentation in superclass.
     """
     model_form_dict: Dict[str, "Form"] = {}
+    STEP_CHANGE_PASSWORD = "change_password"
 
     wizard_forms = {
         MfaMixin.STEP_MFA: OtpTokenForm,
-        MfaMixin.STEP_PASSWORD: ChangeOwnPasswordForm,
+        STEP_CHANGE_PASSWORD: ChangeOwnPasswordForm,
     }
 
     wizard_templates = {
         MfaMixin.STEP_MFA: "login_token.mako",
-        MfaMixin.STEP_PASSWORD: "change_own_password.mako",
+        STEP_CHANGE_PASSWORD: "change_own_password.mako",
     }
 
     wizard_extra_contexts: Dict[str, Dict[str, Any]] = {
         MfaMixin.STEP_MFA: {},
-        MfaMixin.STEP_PASSWORD: {},
+        STEP_CHANGE_PASSWORD: {},
     }
 
     def get_first_step(self) -> str:
         if self.request.user.mfa_method == MfaMethod.NO_MFA:
-            return self.STEP_PASSWORD
+            return self.STEP_CHANGE_PASSWORD
 
         return self.STEP_MFA
 
@@ -1173,12 +1213,12 @@ class ChangeOwnPasswordView(LoggedInUserMfaMixin, UpdateView):
         return super().form_valid(form, appstruct)
 
     def set_object_properties(self, appstruct: Dict[str, Any]) -> None:
-        if self.step == self.STEP_PASSWORD:
+        if self.step == self.STEP_CHANGE_PASSWORD:
             self.set_password(appstruct)
             return self.finish()
 
         if self.step == self.STEP_MFA:
-            self.step = self.STEP_PASSWORD
+            self.step = self.STEP_CHANGE_PASSWORD
 
     def set_password(self, appstruct: Dict[str, Any]) -> None:
         """
@@ -1260,14 +1300,16 @@ class ChangeOtherPasswordView(EditUserAuthenticationView):
     """
     View to change the password for another user.
     """
+    STEP_CHANGE_PASSWORD = "change_password"
+
     wizard_forms = {
         MfaMixin.STEP_MFA: OtpTokenForm,
-        MfaMixin.STEP_PASSWORD: ChangeOtherPasswordForm
+        STEP_CHANGE_PASSWORD: ChangeOtherPasswordForm
     }
 
     wizard_templates = {
         MfaMixin.STEP_MFA: "login_token.mako",
-        MfaMixin.STEP_PASSWORD: "change_other_password.mako"
+        STEP_CHANGE_PASSWORD: "change_other_password.mako"
     }
 
     def get(self) -> Response:
@@ -1280,15 +1322,15 @@ class ChangeOtherPasswordView(EditUserAuthenticationView):
         if self.request.user.mfa_method != MfaMethod.NO_MFA:
             return self.STEP_MFA
 
-        return self.STEP_PASSWORD
+        return self.STEP_CHANGE_PASSWORD
 
     def set_object_properties(self, appstruct: Dict[str, Any]) -> None:
-        if self.step == self.STEP_PASSWORD:
+        if self.step == self.STEP_CHANGE_PASSWORD:
             self.set_password(appstruct)
             return self.finish()
 
         if self.step == self.STEP_MFA:
-            self.step = self.STEP_PASSWORD
+            self.step = self.STEP_CHANGE_PASSWORD
 
     def set_password(self, appstruct: Dict[str, Any]) -> None:
         """

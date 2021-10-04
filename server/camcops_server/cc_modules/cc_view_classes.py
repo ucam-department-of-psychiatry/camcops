@@ -277,6 +277,7 @@ class FormMixin(ContextMixin):
     cancel_url = None
     form_class: Type["Form"] = None
     success_url = None
+    failure_url = None
     _form = None
     _error = None
 
@@ -339,14 +340,14 @@ class FormMixin(ContextMixin):
 
     def form_valid(self, form: "Form", appstruct: Dict[str, Any]) -> Response:
         """
-        Called when the form is valid.
+        Called when the form is submitted via POST and is valid.
         Redirects to the supplied "success" URL.
         """
         raise HTTPFound(self.get_success_url())
 
     def form_invalid(self, validation_error: ValidationFailure) -> Response:
         """
-        Called when the form is invalid.
+        Called when the form is submitted via POST and is invalid.
         Returns a response with a rendering of the invalid form.
         """
         self._error = validation_error
@@ -733,8 +734,6 @@ class FormWizardMixin(_FormWizardMixinBase):
     wizard_templates: Dict[str, str] = {}
     wizard_extra_contexts: Dict[str, Dict[str, Any]] = {}
 
-    # todo: *** RNC: data on the class, but not a dataclass -- ??
-
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
@@ -748,6 +747,15 @@ class FormWizardMixin(_FormWizardMixinBase):
 
         # Make sure we save any changes to the form state
         self.request.dbsession.add(self.request.camcops_session)
+
+        self.check_step_on_load()
+
+    def check_step_on_load(self) -> None:
+        """
+        Function that subclasses can hook into at load point to ensure that
+        the saved step is still valid.
+        """
+        pass
 
     @property
     def state(self) -> Dict[str, Any]:

@@ -564,6 +564,8 @@ class MfaMethod:
 
     HMAC:  Hash-based Message Authentication Code
     https://en.wikipedia.org/wiki/HMAC
+
+    Values must be in lower case.
     """
     HOTP_EMAIL = "hotp_email"  # Send a code by email
     HOTP_SMS = "hotp_sms"  # Send a code by SMS
