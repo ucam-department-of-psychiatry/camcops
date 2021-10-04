@@ -3612,6 +3612,7 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
             # Try this:
             ldflags.append(static_openssl_lib)
             # ... https://github.com/sqlcipher/sqlcipher
+            cflags.append("-DSQLCIPHER_CRYPTO_OPENSSL")
         else:
             log.info("Linking OpenSSL into SQLCipher DYNAMICALLY")
             # make the executable load OpenSSL dynamically
@@ -3638,6 +3639,11 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
             f'CFLAGS={" ".join(cflags + gccflags)}',
             f'LDFLAGS={" ".join(ldflags)}',
         ]
+        if link_openssl_statically:
+            config_args.append("--with-crypto-lib=none")
+            config_args.append("--disable-shared")
+            config_args.append("--enable-static=yes")
+
         # By default, SQLCipher compiles with "-O2" optimizations under gcc;
         # see its "configure" script.
 
