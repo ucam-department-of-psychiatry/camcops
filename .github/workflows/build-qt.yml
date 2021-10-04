@@ -18,6 +18,10 @@ jobs:
             - name: Qt prerequisites
               run: |
                   set -xe
+                  codename=`lsb_release -cs`
+                  echo "deb-src http://archive.ubuntu.com/ubuntu ${codename} universe" | sudo tee -a /etc/apt/sources.list
+                  echo "deb-src http://archive.ubuntu.com/ubuntu ${codename}-updates universe" | sudo tee -a /etc/apt/sources.list
+                  sudo apt-get update
                   sudo apt-get -y build-dep qt5-default
                   sudo apt-get -y install libxcb-xinerama0-dev
                   sudo apt-get -y install libdrm-dev libxcb-glx0-dev
