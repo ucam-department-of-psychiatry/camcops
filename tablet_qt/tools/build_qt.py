@@ -73,7 +73,8 @@ Status
 
 These OS combinations are reflected in the ``--build_all`` option.
 
-(*) May need ``--nparallel 1`` for the OpenSSL parts of the build.
+(*) Parallel compilation disabled by this script for the OpenSSL parts of the
+build.
 
 
 Why?
