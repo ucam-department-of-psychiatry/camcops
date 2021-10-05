@@ -17,6 +17,12 @@
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 */
 
+// #define HANDLE_ORIENTATION_EVENTS
+// The width reported in the QScreen orientationChanged event
+// seems incorrect on Android and iOS so don't try to redraw the
+// questionnaire on orientation change.
+// TODO: See if this is fixed when we move to Qt6.2
+
 #include "wsas.h"
 #include <QScreen>
 #include "common/appstrings.h"
@@ -147,16 +153,18 @@ OpenableWidget* Wsas::editor(const bool read_only)
 
     workChanged();
 
-    // QScreen *screen = uifunc::screen();
-    // screen->setOrientationUpdateMask(
-    //     Qt::LandscapeOrientation |
-    //     Qt::PortraitOrientation |
-    //     Qt::InvertedLandscapeOrientation |
-    //     Qt::InvertedPortraitOrientation
-    // );
+#ifdef HANDLE_ORIENTATION_EVENTS
+    QScreen *screen = uifunc::screen();
+    screen->setOrientationUpdateMask(
+         Qt::LandscapeOrientation |
+         Qt::PortraitOrientation |
+         Qt::InvertedLandscapeOrientation |
+         Qt::InvertedPortraitOrientation
+    );
 
-    // connect(screen, &QScreen::orientationChanged,
-    //         this, &Wsas::orientationChanged);
+    connect(screen, &QScreen::orientationChanged,
+            this, &Wsas::orientationChanged);
+#endif
 
     return m_questionnaire;
 }
