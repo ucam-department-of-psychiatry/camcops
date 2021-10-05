@@ -147,16 +147,16 @@ OpenableWidget* Wsas::editor(const bool read_only)
 
     workChanged();
 
-    QScreen *screen = uifunc::screen();
-    screen->setOrientationUpdateMask(
-        Qt::LandscapeOrientation |
-        Qt::PortraitOrientation |
-        Qt::InvertedLandscapeOrientation |
-        Qt::InvertedPortraitOrientation
-    );
+    // QScreen *screen = uifunc::screen();
+    // screen->setOrientationUpdateMask(
+    //     Qt::LandscapeOrientation |
+    //     Qt::PortraitOrientation |
+    //     Qt::InvertedLandscapeOrientation |
+    //     Qt::InvertedPortraitOrientation
+    // );
 
-    connect(screen, &QScreen::orientationChanged,
-            this, &Wsas::orientationChanged);
+    // connect(screen, &QScreen::orientationChanged,
+    //         this, &Wsas::orientationChanged);
 
     return m_questionnaire;
 }
