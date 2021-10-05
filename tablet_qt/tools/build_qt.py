@@ -73,7 +73,8 @@ Status
 
 These OS combinations are reflected in the ``--build_all`` option.
 
-(*) May need ``--nparallel 1`` for the OpenSSL parts of the build.
+(*) Parallel compilation disabled by this script for the OpenSSL parts of the
+build.
 
 
 Why?
@@ -1624,14 +1625,8 @@ class Config(object):
         # Changed location from bitbucket:
         # https://gitlab.com/libeigen/eigen/-/archive/3.3.8/eigen-3.3.8.tar.gz
         self.eigen_version = EIGEN_VERSION  # type: str
-        # self.eigen_src_url = (
-        #     f"https://gitlab.com/libeigen/eigen/-/archive/{self.eigen_version}/eigen-{self.eigen_version}.tar.gz"  # noqa
-        # )
-
-        # TEMPORARY while GitLab restores the official repository
-        # https://gitlab.com/libeigen/eigen/-/issues/2336
         self.eigen_src_url = (
-            f"https://gitlab.com/cantonios/eigen/-/archive/{self.eigen_version}/eigen-{self.eigen_version}.tar.gz"  # noqa
+            f"https://gitlab.com/libeigen/eigen/-/archive/{self.eigen_version}/eigen-{self.eigen_version}.tar.gz"  # noqa
         )
 
         self.eigen_src_dir = join(self.src_rootdir, "eigen")
