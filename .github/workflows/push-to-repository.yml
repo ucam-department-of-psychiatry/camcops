@@ -2,7 +2,10 @@
 # yamllint disable rule:line-length
 name: Build
 # yamllint disable-line rule:truthy
-on: [push]
+on:
+    push:
+        paths:
+            - 'server/*'
 jobs:
     pip-install-and-tests:
         runs-on: ubuntu-latest

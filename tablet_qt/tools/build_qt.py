@@ -524,7 +524,7 @@ DEFAULT_QT_USE_OPENSSL_STATICALLY = True
 QT_XCB_SUPPORT_OK = True  # see 2017-12-01 above, fixed 2017-12-08
 ADD_SO_VERSION_OF_LIBQTFORANDROID = False
 USE_CLANG_NOT_GCC_FOR_ANDROID_ARM = (
-    QT_VERSION >= Version("5.12", partial=True)  # new feature 2019-06-15
+    QT_VERSION >= Version("5.12.0")  # new feature 2019-06-15
 )
 
 # OpenSSL
@@ -1311,6 +1311,21 @@ class Platform(object):
         else:
             raise ValueError("Unknown combination for ios_platform_name")
 
+    @property
+    def macos_platform_name(self) -> str:
+        """
+        Needs to match MacOS SDK naming. Don't alter.
+        """
+        if not self.macos:
+            raise ValueError(
+                "macos_platform_name requested but not using MacOS"
+            )
+
+        if self.cpu_x86_family:
+            return "MacOSX"
+
+        raise ValueError("Unknown combination for macos_platform_name")
+
     # -------------------------------------------------------------------------
     # Other cross-compilation details
     # -------------------------------------------------------------------------
@@ -1388,7 +1403,8 @@ class Platform(object):
 
     def make_args(self, cfg: "Config", extra_args: List[str] = None,
                   command: str = "", makefile: str = "",
-                  env: Dict[str, str] = None) -> List[str]:
+                  env: Dict[str, str] = None,
+                  allow_parallel: bool = True) -> List[str]:
         """
         Generates command arguments for "make" or a platform equivalent.
         """
@@ -1401,7 +1417,7 @@ class Platform(object):
             else:
                 make = which_with_envpath(NMAKE, env)
                 supports_parallel = False
-            makefile_switch = "/F"
+            makefile_switch = "/FS"
             parallel_switch = "/J"
         else:
             make = MAKE
@@ -1411,7 +1427,7 @@ class Platform(object):
         # require(make)
         # ... not necessarily visible now; may be on a PATH yet to be set
         args = [make]
-        if supports_parallel:
+        if allow_parallel and supports_parallel:
             args += [parallel_switch, str(cfg.nparallel)]
         if extra_args:
             args += extra_args
@@ -1602,8 +1618,14 @@ class Config(object):
         # Changed location from bitbucket:
         # https://gitlab.com/libeigen/eigen/-/archive/3.3.8/eigen-3.3.8.tar.gz
         self.eigen_version = EIGEN_VERSION  # type: str
+        # self.eigen_src_url = (
+        #     f"https://gitlab.com/libeigen/eigen/-/archive/{self.eigen_version}/eigen-{self.eigen_version}.tar.gz"  # noqa
+        # )
+
+        # TEMPORARY while GitLab restores the official repository
+        # https://gitlab.com/libeigen/eigen/-/issues/2336
         self.eigen_src_url = (
-            f"https://gitlab.com/libeigen/eigen/-/archive/{self.eigen_version}/eigen-{self.eigen_version}.tar.gz"  # noqa
+            f"https://gitlab.com/cantonios/eigen/-/archive/{self.eigen_version}/eigen-{self.eigen_version}.tar.gz"  # noqa
         )
 
         self.eigen_src_dir = join(self.src_rootdir, "eigen")
@@ -1675,7 +1697,8 @@ class Config(object):
     # -------------------------------------------------------------------------
 
     def make_args(self, extra_args: List[str] = None, command: str = "",
-                  makefile: str = "", env: Dict[str, str] = None) -> List[str]:
+                  makefile: str = "", env: Dict[str, str] = None,
+                  allow_parallel: bool = True) -> List[str]:
         """
         Returns command arguments for "make" or a platform equivalent.
         """
@@ -1683,7 +1706,8 @@ class Config(object):
                                         extra_args=extra_args,
                                         command=command,
                                         makefile=makefile,
-                                        env=env)
+                                        env=env,
+                                        allow_parallel=allow_parallel)
 
     # -------------------------------------------------------------------------
     # Environment variables
@@ -1754,15 +1778,25 @@ class Config(object):
         """
         if target_platform.android:
             return self._android_sysroot(target_platform)
-        elif target_platform.ios:
+
+        if target_platform.ios:
             return self._xcode_sdk_path(
                 xcode_platform=target_platform.ios_platform_name,
                 sdk_version=self._get_ios_sdk_version(
                     target_platform=target_platform))
-        elif target_platform.linux or target_platform.macos:
+
+        if target_platform.macos:
+            return self._xcode_sdk_path(
+                xcode_platform=target_platform.macos_platform_name,
+                sdk_version=""
+            )
+
+        if target_platform.linux:
             return "/"  # default sysroot
-        elif target_platform.windows:
+
+        if target_platform.windows:
             return env["WindowsSdkDir"]
+
         raise NotImplementedError(
             f"Don't know sysroot for target: {target_platform}")
 
@@ -2735,7 +2769,7 @@ NOTE: If in doubt, on Unix-ish systems use './config'.
                 #     so we rely on the fact that cl.exe will interpret "-FS"
                 #     and "/FS" identically.
             elif target_platform.cpu_x86_32bit_family:
-                return ["VC-WIN32"]
+                return ["VC-WIN32", "-FS"]
 
     raise NotImplementedError(
         f"Don't known OpenSSL target name for {target_platform}")
@@ -3015,8 +3049,13 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
             ])
 
         def runmake(command: str = "") -> None:
+            # Windows seems to have a problem building OpenSSL with
+            # nparallel > 1
+            allow_parallel = not BUILD_PLATFORM.windows
+
             run(cfg.make_args(command=command, env=env,
-                              extra_args=extra_args), env)
+                              extra_args=extra_args,
+                              allow_parallel=allow_parallel), env)
 
         # See INSTALL, INSTALL.WIN, etc. from the OpenSSL distribution
         runmake()
@@ -3614,6 +3653,7 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
             # Try this:
             ldflags.append(static_openssl_lib)
             # ... https://github.com/sqlcipher/sqlcipher
+            cflags.append("-DSQLCIPHER_CRYPTO_OPENSSL")
         else:
             log.info("Linking OpenSSL into SQLCipher DYNAMICALLY")
             # make the executable load OpenSSL dynamically
@@ -3640,6 +3680,11 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
             f'CFLAGS={" ".join(cflags + gccflags)}',
             f'LDFLAGS={" ".join(ldflags)}',
         ]
+        if link_openssl_statically:
+            config_args.append("--with-crypto-lib=none")
+            config_args.append("--disable-shared")
+            config_args.append("--enable-static=yes")
+
         # By default, SQLCipher compiles with "-O2" optimizations under gcc;
         # see its "configure" script.
 
