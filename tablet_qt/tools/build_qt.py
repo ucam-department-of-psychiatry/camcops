@@ -1317,6 +1317,21 @@ class Platform(object):
         else:
             raise ValueError("Unknown combination for ios_platform_name")
 
+    @property
+    def macos_platform_name(self) -> str:
+        """
+        Needs to match MacOS SDK naming. Don't alter.
+        """
+        if not self.macos:
+            raise ValueError(
+                "macos_platform_name requested but not using MacOS"
+            )
+
+        if self.cpu_x86_family:
+            return "MacOSX"
+
+        raise ValueError("Unknown combination for macos_platform_name")
+
     # -------------------------------------------------------------------------
     # Other cross-compilation details
     # -------------------------------------------------------------------------
@@ -1769,15 +1784,25 @@ class Config(object):
         """
         if target_platform.android:
             return self._android_sysroot(target_platform)
-        elif target_platform.ios:
+
+        if target_platform.ios:
             return self._xcode_sdk_path(
                 xcode_platform=target_platform.ios_platform_name,
                 sdk_version=self._get_ios_sdk_version(
                     target_platform=target_platform))
-        elif target_platform.linux or target_platform.macos:
+
+        if target_platform.macos:
+            return self._xcode_sdk_path(
+                xcode_platform=target_platform.macos_platform_name,
+                sdk_version=""
+            )
+
+        if target_platform.linux:
             return "/"  # default sysroot
-        elif target_platform.windows:
+
+        if target_platform.windows:
             return env["WindowsSdkDir"]
+
         raise NotImplementedError(
             f"Don't know sysroot for target: {target_platform}")
 
