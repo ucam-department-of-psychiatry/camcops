@@ -3491,3 +3491,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Fix Qt build script on Linux, Windows and MacOS.
   https://github.com/RudolfCardinal/camcops/issues/209
+
+- WSAS: Display options vertically on smaller screen widths
+  https://github.com/RudolfCardinal/camcops/issues/205
