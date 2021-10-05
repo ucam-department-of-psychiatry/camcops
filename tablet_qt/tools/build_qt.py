@@ -521,7 +521,7 @@ else:
 
 DEFAULT_QT_USE_OPENSSL_STATICALLY = True
 
-QT_XCB_SUPPORT_OK = True  # see 2017-12-01 above, fixed 2017-12-08
+# https://forum.qt.io/topic/115827/build-on-linux-qt-xcb-option/
 ADD_SO_VERSION_OF_LIBQTFORANDROID = False
 USE_CLANG_NOT_GCC_FOR_ANDROID_ARM = (
     QT_VERSION >= Version("5.12.0")  # new feature 2019-06-15
@@ -3290,12 +3290,8 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
             qt_config_args += ["-xplatform", "android-g++"]
 
     elif target_platform.linux:
-        if QT_XCB_SUPPORT_OK:
-            qt_config_args.append("-qt-xcb")  # use XCB source bundled with Qt
-        else:
-            qt_config_args.append("-system-xcb")  # use system XCB libraries
-            # http://doc.qt.io/qt-5/linux-requirements.html
-        qt_config_args += ["-gstreamer", "1.0"]  # gstreamer version; see troubleshooting below  # noqa
+        # http://doc.qt.io/qt-5/linux-requirements.html
+        qt_config_args += ["-gstreamer"]  # gstreamer version; see troubleshooting below  # noqa
 
     elif target_platform.macos:
         if BUILD_PLATFORM.macos:
