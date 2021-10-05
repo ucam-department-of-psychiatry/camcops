@@ -47,6 +47,7 @@ using stringfunc::strseq;
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 5;
 const int MAX_PER_Q = 8;
+const qreal MIN_WIDTH_INCHES_FOR_GRID = 7.0;
 const QString QPREFIX("q");
 const QString Wsas::WSAS_TABLENAME("wsas");
 const QString RETIRED_ETC("retired_etc");
@@ -199,7 +200,7 @@ void Wsas::rebuildPage(QuPage* page)
                                   fieldRef(RETIRED_ETC, false)));
 
     qreal width_inches = uifunc::screenWidth() / uifunc::screenDpi();
-    const bool use_grid = width_inches > 7.0;
+    const bool use_grid = width_inches > MIN_WIDTH_INCHES_FOR_GRID;
 
     if (use_grid) {
         elements.append((new QuMcqGrid(m_q1_fields, m_options))->addTag(Q1_TAG));
