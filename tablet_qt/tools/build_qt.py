@@ -1408,7 +1408,7 @@ class Platform(object):
             else:
                 make = which_with_envpath(NMAKE, env)
                 supports_parallel = False
-            makefile_switch = "/F"
+            makefile_switch = "/FS"
             parallel_switch = "/J"
         else:
             make = MAKE
@@ -2750,7 +2750,7 @@ NOTE: If in doubt, on Unix-ish systems use './config'.
                 #     so we rely on the fact that cl.exe will interpret "-FS"
                 #     and "/FS" identically.
             elif target_platform.cpu_x86_32bit_family:
-                return ["VC-WIN32"]
+                return ["VC-WIN32", "-FS"]
 
     raise NotImplementedError(
         f"Don't known OpenSSL target name for {target_platform}")
