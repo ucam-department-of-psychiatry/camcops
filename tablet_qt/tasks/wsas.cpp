@@ -201,8 +201,6 @@ void Wsas::rebuildPage(QuPage* page)
     qreal width_inches = uifunc::screenWidth() / uifunc::screenDpi();
     const bool use_grid = width_inches > 7.0;
 
-    elements.append(new QuText(QString("width: %1").arg(width_inches)));
-
     if (use_grid) {
         elements.append((new QuMcqGrid(m_q1_fields, m_options))->addTag(Q1_TAG));
         elements.append(new QuMcqGrid(m_other_q_fields, m_options));
