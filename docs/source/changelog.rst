@@ -3472,7 +3472,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 .. _changelog_v2_4_10:
 
-**Client and server v2.4.10, IN PROGRESS**
+**Server v2.4.10, released 27 Sep 2021**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Any user with the right privilege (not just the group administrator) can
@@ -3488,6 +3488,19 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Fix database revision 0066, which failed if no patient records were missing
   UUIDs: https://github.com/RudolfCardinal/camcops/issues/192
+
+.. _changelog_v2_4_11:
+
+
+**Client and server v2.4.11, IN PROGRESS**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Fix Qt build script on Linux, Windows and MacOS.
+  https://github.com/RudolfCardinal/camcops/issues/209
+
+- Fix bug whereby non admin group members with the "manage patients" privilege
+  would see an empty group selector when adding/editing patients.
+  https://github.com/RudolfCardinal/camcops/issues/211
 
 - Support for :ref:`multi-factor authentication (MFA)
   <multi_factor_authentication>` on the server. (Database revision 0070.)

@@ -332,7 +332,7 @@ class VersionReleaser:
         self.errors.append(
             f"The current server version ({current_server_version}) "
             "does not match the desired server version "
-            "({self.new_server_version})"
+            f"({self.new_server_version})"
         )
 
     def check_server_date(self) -> None:

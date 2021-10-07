@@ -1580,6 +1580,36 @@ class MandatoryGroupIdSelectorAdministeredGroups(SchemaNode, RequestAwareMixin):
         return Integer()
 
 
+class MandatoryGroupIdSelectorPatientGroups(SchemaNode, RequestAwareMixin):
+    """
+    Offers a picklist of groups the user can manage patients in.
+    Used when managing patients: "add patient to one of my groups".
+    """
+    def __init__(self, *args, **kwargs) -> None:
+        self.title = ""  # for type checker
+        self.validator = None  # type: Optional[ValidatorType]
+        self.widget = None  # type: Optional[Widget]
+        super().__init__(*args, **kwargs)
+
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        _ = self.gettext
+        self.title = _("Group")
+        request = self.request
+        dbsession = request.dbsession
+        group_ids = request.user.ids_of_groups_user_may_manage_patients_in
+        groups = dbsession.query(Group).order_by(Group.name)
+        values = [(g.id, g.name) for g in groups
+                  if g.id in group_ids]
+        values, pv = get_values_and_permissible(values)
+        self.widget = SelectWidget(values=values)
+        self.validator = OneOf(pv)
+
+    @staticmethod
+    def schema_type() -> SchemaType:
+        return Integer()
+
+
 class MandatoryGroupIdSelectorOtherGroups(SchemaNode, RequestAwareMixin):
     """
     Offers a picklist of groups THAT ARE NOT THE SPECIFIED GROUP (as specified
@@ -4577,7 +4607,7 @@ class DangerousEditPatientSchema(EditPatientSchema):
 
 class EditServerCreatedPatientSchema(EditPatientSchema):
     # Must match ViewParam.GROUP_ID
-    group_id = MandatoryGroupIdSelectorAdministeredGroups(
+    group_id = MandatoryGroupIdSelectorPatientGroups(
         insert_before="forename"
     )
     task_schedules = TaskScheduleSequence()  # must match ViewParam.TASK_SCHEDULES  # noqa: E501

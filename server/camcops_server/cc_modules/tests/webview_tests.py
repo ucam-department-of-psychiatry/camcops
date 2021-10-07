@@ -1616,6 +1616,25 @@ class AddPatientViewTests(DemoDatabaseTestCase):
             "Not authorized to manage patients"
         )
 
+    def test_group_listed_for_privileged_group_member(self) -> None:
+        user = self.create_user(username="testuser")
+        self.dbsession.flush()
+        self.create_membership(user, self.group, may_manage_patients=True)
+        self.dbsession.commit()
+
+        self.req._debugging_user = user
+
+        view = AddPatientView(self.req)
+
+        with mock.patch.object(view, "render_to_response") as mock_render:
+            view.dispatch()
+
+        args, kwargs = mock_render.call_args
+
+        context = args[0]
+
+        self.assertIn("testgroup", context["form"])
+
 
 class DeleteServerCreatedPatientViewTests(BasicDatabaseTestCase):
     """
