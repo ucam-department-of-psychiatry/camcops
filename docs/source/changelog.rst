@@ -3447,6 +3447,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
   app from a URL sent to them by email.
   https://github.com/RudolfCardinal/camcops/issues/153
 
+
 .. _changelog_v2_4_9:
 
 **Client and server v2.4.9, released 6 Aug 2021**
@@ -3467,7 +3468,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 .. _changelog_v2_4_10:
 
-
 **Server v2.4.10, released 27 Sep 2021**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -3483,8 +3483,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Fix database revision 0066, which failed if no patient records were missing UUIDs
   https://github.com/RudolfCardinal/camcops/issues/192
 
-.. _changelog_v2_4_11:
 
+.. _changelog_v2_4_11:
 
 **Client and server v2.4.11, IN PROGRESS**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -3494,3 +3494,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - WSAS: Display options vertically on smaller screen widths
   https://github.com/RudolfCardinal/camcops/issues/205
+
+- Fix bug whereby non admin group members with the "manage patients" privilege
+  would see an empty group selector when adding/editing patients.
+  https://github.com/RudolfCardinal/camcops/issues/211
