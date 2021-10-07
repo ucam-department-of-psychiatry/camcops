@@ -54,9 +54,9 @@ const QStringList REVERSE_QUESTIONS = strnumlist(
 
 const QVector<int> GENERAL_FATIGUE_QUESTIONS{1, 5, 12, 16};
 const QVector<int> PHYSICAL_FATIGUE_QUESTIONS{2, 8, 14, 20};
-const QVector<int> REDUCED_ACTIVITY_QUESTIONS{7, 11, 13, 19};
-const QVector<int> REDUCED_MOTIVATION_QUESTIONS{3, 6, 10, 17};
-const QVector<int> MENTAL_FATIGUE_QUESTIONS{4, 9, 15, 18};
+const QVector<int> REDUCED_ACTIVITY_QUESTIONS{3, 6, 10, 17};
+const QVector<int> REDUCED_MOTIVATION_QUESTIONS{4, 9, 15, 18};
+const QVector<int> MENTAL_FATIGUE_QUESTIONS{7, 11, 13, 19};
 
 
 const QString Mfi20::MFI20_TABLENAME("mfi20");
