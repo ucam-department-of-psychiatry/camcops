@@ -3489,6 +3489,9 @@ Current C++/SQLite client, Python/SQLAlchemy server
 **Client and server v2.4.11, IN PROGRESS**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+- Fix Qt build script on Linux, Windows and MacOS.
+  https://github.com/RudolfCardinal/camcops/issues/209
+
 - Fix bug whereby non admin group members with the "manage patients" privilege
   would see an empty group selector when adding/editing patients.
   https://github.com/RudolfCardinal/camcops/issues/211
