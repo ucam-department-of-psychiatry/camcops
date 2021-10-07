@@ -117,7 +117,7 @@ INSTALL_REQUIRES = [
 
     "qrcode[pil]==7.2",  # for registering with Authenticators
 
-    "requests==2.19.1",  # in fetch_snomed_codes.py, but also required by something else?  # noqa
+    "requests==2.26",  # in fetch_snomed_codes.py and cc_sms.py, but also required by something else?  # noqa
 
     'sadisplay==0.4.9',  # SQL Alchemy schema display script
     'scipy==1.5.4',  # used by some tasks. slow installation.
