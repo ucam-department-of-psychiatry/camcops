@@ -753,7 +753,7 @@ class FormWizardMixin(with_typehints(FormMixin, ProcessFormView)):
 
     def get_template_name(self) -> str:
         """
-        Returns the Make template filename to be used for the current step.
+        Returns the Mako template filename to be used for the current step.
         """
         return self.wizard_templates[self.step]
 
