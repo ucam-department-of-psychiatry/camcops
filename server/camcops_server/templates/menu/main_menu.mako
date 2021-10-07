@@ -131,6 +131,8 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
     %else:
         <li class="warning">${ _("No username!") }</li>
     %endif
+    <li><a href="${ request.route_url(Routes.EDIT_OWN_USER_MFA) | n }">
+        ${ _("Multi-factor authentication settings") }</a></li>
 </ul>
 
 <h3>${ _("Help") }</h3>

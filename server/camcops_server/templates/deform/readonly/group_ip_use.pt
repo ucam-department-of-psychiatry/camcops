@@ -1,3 +1,4 @@
+<div tal:replace="nothing">
 <!--
 
 camcops_server/templates/deform/readonly/group_ip_use.pt
@@ -19,11 +20,12 @@ camcops_server/templates/deform/readonly/group_ip_use.pt
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 
 ===============================================================================
 
 -->
+</div>
 <div>
   <p class="form-control-static" id="${oid|field.oid}">${clinical_label}:${clinical}, ${commercial_label}:${commercial}, ${educational_label}:${educational} ${research_label}:${research}</p>
 </div>

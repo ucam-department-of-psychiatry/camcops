@@ -153,10 +153,10 @@ DETACH DATABASE encrypted;
     stderr_str = stderr_bytes.decode(progargs.encoding)
     retcode = p.returncode
     if retcode > 0:
-        log.critical(
-            "SQLCipher returned an error; its output is below. (Not a "
-            "plain-text database? Wrong passwords give the error 'file is "
-            "encrypted or is not a database', as do non-database files.)")
+        log.critical("SQLCipher returned an error; its output is below. (Not "
+                     "a plain-text database? Wrong passwords give the error "
+                     "'file is encrypted or is not a database', "
+                     "as do non-database files.)")
         log.critical(stderr_str)
     else:
         log.info("Success. (The database {!r} is now an SQLCipher "

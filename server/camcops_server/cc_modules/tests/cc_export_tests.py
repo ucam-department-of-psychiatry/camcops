@@ -68,7 +68,7 @@ class ExportTests(unittest.TestCase):
             danger_file = danger_dir / danger_filename
             danger_file.touch()
 
-            # log.critical(f"Top directory for test: {tmpdirname}")
+            # log.debug(f"Top directory for test: {tmpdirname}")
             # import pdb; pdb.set_trace()
 
             ok = UserDownloadFile(safe_filename, str(safe_dir))

@@ -269,12 +269,12 @@ class ExportRecipientInfo(object):
             if attrname not in self.IGNORE_FOR_EQ_ATTRNAMES:
                 selfattr = getattr(self, attrname)
                 otherattr = getattr(other, attrname)
-                # log.critical("{}.{}: {} {} {}",
-                #              self.__class__.__name__,
-                #              attrname,
-                #              selfattr,
-                #              "==" if selfattr == otherattr else "!=",
-                #              otherattr)
+                # log.debug("{}.{}: {} {} {}",
+                #           self.__class__.__name__,
+                #           attrname,
+                #           selfattr,
+                #           "==" if selfattr == otherattr else "!=",
+                #           otherattr)
                 if selfattr != otherattr:
                     log.debug(
                         "{}: For {!r}, new export recipient mismatches "

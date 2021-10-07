@@ -1,7 +1,7 @@
 ## -*- coding: utf-8 -*-
 <%doc>
 
-camcops_server/templates/menu/password_changed.mako
+camcops_server/templates/menu/form_with_title.mako
 
 ===============================================================================
 
@@ -26,15 +26,10 @@ camcops_server/templates/menu/password_changed.mako
 
 </%doc>
 
-<%inherit file="base_web.mako"/>
+<%inherit file="base_web_form.mako"/>
 
-<div>${ _("Password changed for user") } ${ username }.</div>
+<%include file="db_user_info.mako"/>
 
-%if own_password:
-    <div class="important">
-        ${ _("If you store your password in your CamCOPS tablet application, "
-             "remember to change it there as well.") }
-    </div>
-%endif
+<h1>${title}</h1>
 
-<%include file="to_main_menu.mako"/>
+${form | n}

@@ -66,4 +66,4 @@ http://www.24thdiscourt.org/MAST.htm, accessed 2012-09-06, 2018-06-04.)
 Short Michigan Alcohol Screening Test (SMAST)
 ---------------------------------------------
 
-See the `MAST <mast>`.
+See the :ref:`MAST <mast>`.

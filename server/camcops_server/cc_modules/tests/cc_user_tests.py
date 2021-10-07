@@ -27,7 +27,12 @@ camcops_server/cc_modules/tests/cc_user_tests.py
 """
 
 from pendulum import DateTime as Pendulum
+import phonenumbers
 
+from camcops_server.cc_modules.cc_constants import (
+    OBSCURE_EMAIL_ASTERISKS,
+    OBSCURE_PHONE_ASTERISKS,
+)
 from camcops_server.cc_modules.cc_group import Group
 from camcops_server.cc_modules.cc_unittest import (
     BasicDatabaseTestCase,
@@ -101,6 +106,45 @@ class UserTests(DemoDatabaseTestCase):
         self.assertIsInstance(u.may_upload_to_group(g.id), bool)
         self.assertIsInstance(u.may_upload, bool)
         self.assertIsInstance(u.may_register_devices, bool)
+
+    def test_partial_email(self) -> None:
+        # https://en.wikipedia.org/wiki/Email_address
+        a = OBSCURE_EMAIL_ASTERISKS
+        tests = (
+            ("simple@example.com", f"s{a}e@example.com"),
+            ("very.common@example.com", f"v{a}n@example.com"),
+            ("disposable.style.email.with+symbol@example.com",
+             f"d{a}l@example.com"),
+            ("other.email-with-hyphen@example.com", f"o{a}n@example.com"),
+            ("x@example.com", f"x{a}x@example.com"),
+            ("example-indeed@strange-example.com",
+             f"e{a}d@strange-example.com"),
+            ("test/test@test.com", f"t{a}t@test.com"),
+            ("admin@mailserver1", f"a{a}n@mailserver1"),
+            ("example@s.example", f"e{a}e@s.example"),
+            ('" "@example.org', f'"{a}"@example.org'),
+            ('"john..doe"@example.org', f'"{a}"@example.org'),
+            ("mailhost!username@example.org", f"m{a}e@example.org"),
+            ("user%example.com@example.org", f"u{a}m@example.org"),
+            ("user-@example.org", f"u{a}-@example.org"),
+            ('very.unusual.”@”.unusual.com@example.com',
+             f"v{a}m@example.com"),
+        )
+
+        user = self.create_user()
+
+        for email, expected_partial in tests:
+            user.email = email
+            self.assertEqual(user.partial_email, expected_partial,
+                             msg=f"Failed for {email}")
+
+    def test_partial_phone_number(self) -> None:
+        user = self.create_user()
+        # https://www.ofcom.org.uk/phones-telecoms-and-internet/information-for-industry/numbering/numbers-for-drama  # noqa: E501
+        user.phone_number = phonenumbers.parse("+447700900123")
+
+        a = OBSCURE_PHONE_ASTERISKS
+        self.assertEqual(user.partial_phone_number, f"{a}23")
 
 
 class UserPermissionTests(BasicDatabaseTestCase):
