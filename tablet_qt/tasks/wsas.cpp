@@ -47,7 +47,7 @@ using stringfunc::strseq;
 const int FIRST_Q = 1;
 const int N_QUESTIONS = 5;
 const int MAX_PER_Q = 8;
-const qreal MIN_WIDTH_INCHES_FOR_GRID = 7.0;
+// const qreal MIN_WIDTH_INCHES_FOR_GRID = 7.0;
 const QString QPREFIX("q");
 const QString Wsas::WSAS_TABLENAME("wsas");
 const QString RETIRED_ETC("retired_etc");
@@ -204,20 +204,24 @@ void Wsas::rebuildPage(QuPage* page)
     elements.append(new QuBoolean(xstring("q_retired_etc"),
                                   fieldRef(RETIRED_ETC, false)));
 
-    const qreal width_inches = uifunc::screenWidth() / uifunc::screenDpi();
-    const bool use_grid = width_inches > MIN_WIDTH_INCHES_FOR_GRID;
+    // const qreal width_inches = uifunc::screenWidth() / uifunc::screenDpi();
+    const bool use_grid = false; // width_inches > MIN_WIDTH_INCHES_FOR_GRID;
 
     if (use_grid) {
         elements.append((new QuMcqGrid(q1_fields, options))->addTag(Q1_TAG));
         elements.append(new QuMcqGrid(other_q_fields, options));
     } else {
         for (const auto& field : q1_fields) {
-            elements.append((new QuText(field.question()))->setBold()->addTag(Q1_TAG));
-            elements.append((new QuMcq(field.fieldref(), options))->addTag(Q1_TAG));
+            elements.append((new QuText(field.question()))
+                            ->setBold()->addTag(Q1_TAG));
+            elements.append((new QuMcq(field.fieldref(), options))
+                            ->setHorizontal()->addTag(Q1_TAG));
         }
         for (const auto& field : other_q_fields) {
-            elements.append((new QuText(field.question()))->setBold());
-            elements.append(new QuMcq(field.fieldref(), options));
+            elements.append((new QuText(field.question()))
+                            ->setBold());
+            elements.append((new QuMcq(field.fieldref(), options))
+                            ->setHorizontal());
         }
     }
 
