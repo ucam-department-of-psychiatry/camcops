@@ -34,6 +34,7 @@ import datetime
 import gettext
 import logging
 import os
+import re
 import secrets
 from typing import (Any, Dict, Generator, List, Optional, Set,
                     Tuple, TYPE_CHECKING, Union)
@@ -164,7 +165,7 @@ if any([DEBUG_ADD_ROUTES,
         DEBUG_GETTEXT,
         DEBUG_REQUEST_CREATION,
         DEBUG_TABLET_SESSION]):
-    log.warning("cc_request: Debugging options enabled!")
+    log.warning("Debugging options enabled!")
 
 
 # =============================================================================
@@ -378,8 +379,8 @@ class CamcopsRequest(Request):
         and if it requests that, the cleanup callbacks (COMMIT or ROLLBACK) get
         installed.
         """
-        # log.critical("CamcopsRequest.dbsession: caller stack:\n{}",
-        #              "\n".join(get_caller_stack_info()))
+        # log.debug("CamcopsRequest.dbsession: caller stack:\n{}",
+        #           "\n".join(get_caller_stack_info()))
         _dbsession = self.get_bare_dbsession()
 
         def end_sqlalchemy_session(req: Request) -> None:
@@ -397,8 +398,8 @@ class CamcopsRequest(Request):
         self.add_finished_callback(end_sqlalchemy_session)
 
         if DEBUG_DBSESSION_MANAGEMENT:
-            log.warning(
-                "Returning SQLAlchemy session as CamcopsRequest.dbsession")
+            log.debug("Returning SQLAlchemy session as "
+                      "CamcopsRequest.dbsession")
 
         return _dbsession
 
@@ -416,18 +417,18 @@ class CamcopsRequest(Request):
         session = self.dbsession
         if (self.exception is not None and
                 not isinstance(self.exception, HTTPException)):
-            log.critical(
-                "Request raised exception that wasn't an HTTPException; "
-                "rolling back; exception was: {!r}", self.exception)
+            log.critical("Request raised exception that wasn't an "
+                         "HTTPException; rolling back; exception was: {!r}",
+                         self.exception)
             session.rollback()
         else:
             if DEBUG_DBSESSION_MANAGEMENT:
-                log.warning("Committing to database")
+                log.debug("Committing to database")
             session.commit()
             if self._pending_export_push_requests:
                 self._process_pending_export_push_requests()
         if DEBUG_DBSESSION_MANAGEMENT:
-            log.warning("Closing SQLAlchemy session")
+            log.debug("Closing SQLAlchemy session")
         session.close()
 
     def get_bare_dbsession(self) -> SqlASession:
@@ -440,7 +441,7 @@ class CamcopsRequest(Request):
             log.debug("Request is using debugging SQLAlchemy session")
             return self._debugging_db_session
         if DEBUG_DBSESSION_MANAGEMENT:
-            log.warning("Making SQLAlchemy session")
+            log.debug("Making SQLAlchemy session")
         engine = self.engine
         maker = sessionmaker(bind=engine)
         session = maker()  # type: SqlASession
@@ -1913,7 +1914,8 @@ def camcops_pyramid_configurator_context(
         # Most views are using @view_config() which calls add_view().
         # Scan for @view_config decorators, to map views to routes:
         # https://docs.pylonsproject.org/projects/venusian/en/latest/api.html
-        config.scan("camcops_server.cc_modules")
+        config.scan("camcops_server.cc_modules",
+                    ignore=[re.compile("_tests$").search])
 
         # ---------------------------------------------------------------------
         # Add tweens (inner to outer)

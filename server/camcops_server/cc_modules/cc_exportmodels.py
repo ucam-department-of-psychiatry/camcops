@@ -151,9 +151,8 @@ def get_collection_for_export(req: "CamcopsRequest",
         export_recipient=recipient,
     )
     if debug:
-        log.critical(
-            "get_collection_for_export(): recipient={!r}, collection={!r}",
-            recipient, collection)
+        log.debug("get_collection_for_export(): recipient={!r}, "
+                  "collection={!r}", recipient, collection)
     return collection
 
 
@@ -311,11 +310,8 @@ class ExportedTask(Base):
                 self._task = task_factory_no_security_checks(
                     dbsession, self.basetable, self.task_server_pk)
             except KeyError:
-                log.warning(
-                    "Failed to retrieve task for basetable={!r}, PK={!r}",
-                    self.basetable,
-                    self.task_server_pk
-                )
+                log.warning("Failed to retrieve task for basetable={!r}, "
+                            "PK={!r}", self.basetable, self.task_server_pk)
                 self._task = None
         return self._task
 

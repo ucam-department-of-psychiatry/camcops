@@ -57,6 +57,7 @@ from abc import ABCMeta
 from io import StringIO
 import logging
 import sqlite3
+from typing import Any
 
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.sqlalchemy.dialect import SqlaDialectName
@@ -70,6 +71,7 @@ from pendulum import DateTime as Pendulum
 from sqlalchemy.engine import create_engine
 from sqlalchemy.engine.base import Engine
 from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
+from sqlalchemy.ext.mutable import Mutable
 from sqlalchemy.sql.schema import MetaData
 
 from camcops_server.cc_modules.cc_cache import cache_region_static, fkg
@@ -336,3 +338,41 @@ def hack_pendulum_into_pymysql() -> None:
 
 
 hack_pendulum_into_pymysql()
+
+
+class MutableDict(Mutable, dict):
+    """
+    Source:
+    https://docs.sqlalchemy.org/en/14/orm/extensions/mutable.html
+    """
+
+    @classmethod
+    def coerce(cls, key: str, value: Any) -> Any:
+        """
+        Convert plain dictionaries to MutableDict.
+        """
+
+        if not isinstance(value, MutableDict):
+            if isinstance(value, dict):
+                return MutableDict(value)
+
+            # this call will raise ValueError
+            return Mutable.coerce(key, value)
+        else:
+            return value
+
+    def __setitem__(self, key: str, value: Any) -> None:
+        """
+        Detect dictionary set events and emit change events.
+        """
+
+        dict.__setitem__(self, key, value)
+        self.changed()
+
+    def __delitem__(self, key: str) -> None:
+        """
+        Detect dictionary del events and emit change events.
+        """
+
+        dict.__delitem__(self, key)
+        self.changed()

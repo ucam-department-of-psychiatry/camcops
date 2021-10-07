@@ -44,6 +44,7 @@ from cardinal_pythonlib.email.sendmail import (
     STANDARD_SMTP_PORT,
     STANDARD_TLS_PORT,
 )
+from cardinal_pythonlib.httpconst import MimeType
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from sqlalchemy.orm import reconstructor
 from sqlalchemy.sql.schema import Column
@@ -195,7 +196,7 @@ class Email(Base):
                  bcc: str = "",
                  subject: str = "",
                  body: str = "",
-                 content_type: str = "text/plain",
+                 content_type: str = MimeType.TEXT,
                  charset: str = "utf8",
                  attachment_filenames: Sequence[str] = None,
                  attachments_binary: Sequence[Tuple[str, bytes]] = None,

@@ -3301,14 +3301,14 @@ Current C++/SQLite client, Python/SQLAlchemy server
     - Their reference:
       https://portswigger.net/kb/issues/00500800_password-field-with-autocomplete-enabled.
 
-    - However, there is disagrement, e.g. based on the following references.
+    - However, there is disagreement, e.g. based on the following references.
 
       - There is security debate on both sides of this argument (the dangers of
         local storage versus the dangers of what users do if their browser
         doesn't provide password management functions). That is, some people
         argue that this advice is wrong on security grounds. Even the security
         advisory they link to notes that browsers may, and generally do, ignore
-        the directive they suggest, ``autocomplete="off`` (for these reasons).
+        the directive they suggest, ``autocomplete="off"`` (for these reasons).
       - For example, see
         https://developer.mozilla.org/en-US/docs/Web/Security/Securing_your_site/Turning_off_form_autocompletion#the_autocomplete_attribute_and_login_fields.
       - Some casual discussion that summarises this is at
@@ -3443,8 +3443,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
   https://github.com/RudolfCardinal/camcops/issues/180
   (Database revisions 0064-0065)
 
-- Android and iOS users can now register themselves as patients by launching the
-  app from a URL sent to them by email.
+- Android and iOS users can now register themselves as patients by launching
+  the app from a URL sent to them by email.
   https://github.com/RudolfCardinal/camcops/issues/153
 
 
@@ -3455,15 +3455,19 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Ensure all patients records created before revision 0048 have a UUID. This
   is mainly for consistency as we only use UUIDs for server-created patients
-  and the ability to add patients on the server was implemented at the same time
-  as 0048.
+  and the ability to add patients on the server was implemented at the same
+  time as 0048.
   https://github.com/RudolfCardinal/camcops/issues/187
-  (Database revision 0066)
+  (Database revision 0066.)
 
-- Fix Debian package Python dependencies. Would fail if Python 3.6 was not installed.
+- Fix Debian package Python dependencies. Would fail if Python 3.6 was not
+  installed.
 
-- **New task:** :ref:`CPFT Research Preferences  <cpft_research_preferences>` (Database revision 0067).
-- **New task:** :ref:`CPFT Post-Covid Clinic Medical Questionnaire  <cpft_covid_medical>` (Database revision 0068).
+- **New task:** :ref:`CPFT Research Preferences <cpft_research_preferences>`
+  (database revision 0067).
+
+- **New task:** :ref:`CPFT Post-COVID Clinic Medical Questionnaire
+  <cpft_covid_medical>` (Database revision 0068).
 
 
 .. _changelog_v2_4_10:
@@ -3472,16 +3476,18 @@ Current C++/SQLite client, Python/SQLAlchemy server
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Any user with the right privilege (not just the group administrator) can
-  add/edit/delete and send emails to patients created on the server. The menu option **Manage scheduled tasks for patients** is now **Manage patients and their tasks**. (Database revision 0069)
+  add/edit/delete and send emails to patients created on the server. The menu
+  option **Manage scheduled tasks for patients** is now **Manage patients and
+  their tasks**. (Database revision 0069.)
 
-- Reinstate Danish, which disappeared from the server in v2.4.9.
+- Reinstate Danish, which disappeared from the server in v2.4.9:
   https://github.com/RudolfCardinal/camcops/issues/200
 
-- Fix internal server error when viewing HTML APEQ CPFT Perinatal Report.
+- Fix internal server error when viewing HTML APEQ CPFT Perinatal Report:
   https://github.com/RudolfCardinal/camcops/issues/203
 
-- Fix database revision 0066, which failed if no patient records were missing UUIDs
-  https://github.com/RudolfCardinal/camcops/issues/192
+- Fix database revision 0066, which failed if no patient records were missing
+  UUIDs: https://github.com/RudolfCardinal/camcops/issues/192
 
 
 .. _changelog_v2_4_11:
@@ -3498,3 +3504,12 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Fix bug whereby non admin group members with the "manage patients" privilege
   would see an empty group selector when adding/editing patients.
   https://github.com/RudolfCardinal/camcops/issues/211
+
+- Support for :ref:`multi-factor authentication (MFA)
+  <multi_factor_authentication>` on the server. (Database revision 0070.)
+
+- Bugfix to :ref:`MFI-20 <mfi20>` (q.v.).
+  https://github.com/RudolfCardinal/camcops/issues/199
+
+- Bugfix to app: was reporting "research" rather than "clinical" when
+  conditions relating to clinical use were not met.

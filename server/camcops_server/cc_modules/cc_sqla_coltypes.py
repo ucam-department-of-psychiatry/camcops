@@ -127,6 +127,7 @@ from cardinal_pythonlib.sqlalchemy.sqlfunc import (
 from isodate.isoerror import ISO8601Error
 from pendulum import DateTime as Pendulum, Duration
 from pendulum.parsing.exceptions import ParserError
+import phonenumbers
 from semantic_version import Version
 from sqlalchemy import util
 from sqlalchemy.dialects import mysql
@@ -163,6 +164,7 @@ if TYPE_CHECKING:
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
+
 # =============================================================================
 # Debugging options
 # =============================================================================
@@ -182,10 +184,10 @@ if any([DEBUG_DATETIME_AS_ISO_TEXT,
         DEBUG_STRING_LIST_COLTYPE]):
     log.warning("Debugging options enabled!")
 
+
 # =============================================================================
 # Constants
 # =============================================================================
-
 
 class RelationshipInfo(object):
     """
@@ -208,6 +210,8 @@ AuditSourceColType = String(length=StringLengths.AUDIT_SOURCE_MAX_LEN)
 # ... partly because Alembic breaks on variants (Aug 2017), and partly because
 #     it's nonstandard and unnecessary, changed all BigIntUnsigned to
 #     BigInteger (2017-08-25).
+
+Base32ColType = String(length=StringLengths.BASE32_MAX_LEN)
 
 CharColType = String(length=1)
 CharsetColType = String(length=StringLengths.CHARSET_MAX_LEN)
@@ -267,6 +271,7 @@ LongBlob = LargeBinary().with_variant(mysql.LONGBLOB, "mysql")
 LongText = UnicodeText().with_variant(mysql.LONGTEXT, "mysql")
 # LongText = UnicodeText(length=LONGBLOB_LONGTEXT_MAX_LEN)  # doesn't translate to SQL Server  # noqa
 
+MfaMethodColType = String(length=StringLengths.MFA_METHOD_MAX_LEN)
 MimeTypeColType = String(length=StringLengths.MIMETYPE_MAX_LEN)
 
 PatientNameColType = Unicode(length=StringLengths.PATIENT_NAME_MAX_LEN)
@@ -369,7 +374,7 @@ def isotzdatetime_to_utcdatetime_mysql(
         f"CONVERT_TZ({the_date_time}, {old_timezone}, {_UTC_TZ_LITERAL})"
     )
 
-    # log.warning(result_utc)
+    # log.debug(result_utc)
     return result_utc
 
 
@@ -423,7 +428,7 @@ def isotzdatetime_to_utcdatetime_sqlite(
     x = fetch_processed_single_clause(element, compiler)
     fmt = compiler.process(text(_SQLITE_DATETIME_FMT_FOR_PYTHON))
     result = f"(STRFTIME({fmt}, {x}) || '000')"
-    # log.warning(result)
+    # log.debug(result)
     return result
 
 
@@ -543,7 +548,7 @@ def isotzdatetime_to_utcdatetime_sqlserver(
     )
     result_utc = f"CAST({date_time_offset_with_utc_tz} AS DATETIME2)"
 
-    # log.warning(result_utc)
+    # log.debug(result_utc)
     return result_utc
 
 
@@ -591,7 +596,7 @@ def unknown_field_to_utcdatetime_mysql(
     x = fetch_processed_single_clause(element, compiler)
     converted = isotzdatetime_to_utcdatetime_mysql(element, compiler, **kw)
     result = f"IF(LENGTH({x}) = {_MYSQL_DATETIME_LEN}, {x}, {converted})"
-    # log.warning(result)
+    # log.debug(result)
     return result
 
 
@@ -606,7 +611,7 @@ def unknown_field_to_utcdatetime_sqlite(
     x = fetch_processed_single_clause(element, compiler)
     fmt = compiler.process(text(_SQLITE_DATETIME_FMT_FOR_PYTHON))
     result = f"STRFTIME({fmt}, {x})"
-    # log.warning(result)
+    # log.debug(result)
     return result
 
 
@@ -638,7 +643,7 @@ def unknown_field_to_utcdatetime_sqlserver(
         f"ELSE {converted} "
         f"END"
     )
-    # log.warning(result)
+    # log.debug(result)
     return result
 
 
@@ -698,7 +703,7 @@ class PendulumDateTimeAsIsoTextColType(TypeDecorator):
         """
         retval = self.pendulum_to_isostring(value)
         if DEBUG_DATETIME_AS_ISO_TEXT:
-            log.warning(
+            log.debug(
                 "{}.process_bind_param("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
                 self._coltype_name, self, value, dialect, retval)
@@ -711,7 +716,7 @@ class PendulumDateTimeAsIsoTextColType(TypeDecorator):
         """
         retval = self.pendulum_to_isostring(value)
         if DEBUG_DATETIME_AS_ISO_TEXT:
-            log.warning(
+            log.debug(
                 "{}.process_literal_param("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
                 self._coltype_name, self, value, dialect, retval)
@@ -724,7 +729,7 @@ class PendulumDateTimeAsIsoTextColType(TypeDecorator):
         """
         retval = self.isostring_to_pendulum(value)
         if DEBUG_DATETIME_AS_ISO_TEXT:
-            log.warning(
+            log.debug(
                 "{}.process_result_value("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
                 self._coltype_name, self, value, dialect, retval)
@@ -770,10 +775,10 @@ class PendulumDateTimeAsIsoTextColType(TypeDecorator):
                 # DATETIME, then we assume it is already in UTC.
                 processed_other = unknown_field_to_utcdatetime(other)
             if DEBUG_DATETIME_AS_ISO_TEXT:
-                log.warning("operate(self={!r}, op={!r}, other={!r})",
-                            self, op, other)
-                log.warning("self.expr = {!r}", self.expr)
-                log.warning("processed_other = {!r}", processed_other)
+                log.debug("operate(self={!r}, op={!r}, other={!r})",
+                          self, op, other)
+                log.debug("self.expr = {!r}", self.expr)
+                log.debug("processed_other = {!r}", processed_other)
                 # traceback.print_stack()
             return op(isotzdatetime_to_utcdatetime(self.expr),
                       processed_other)
@@ -836,7 +841,7 @@ class PendulumDurationAsIsoTextColType(TypeDecorator):
         """
         retval = self.pendulum_duration_to_isostring(value)
         if DEBUG_DURATION_AS_ISO_TEXT:
-            log.warning(
+            log.debug(
                 "{}.process_bind_param("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
                 self._coltype_name, self, value, dialect, retval)
@@ -849,7 +854,7 @@ class PendulumDurationAsIsoTextColType(TypeDecorator):
         """
         retval = self.pendulum_duration_to_isostring(value)
         if DEBUG_DURATION_AS_ISO_TEXT:
-            log.warning(
+            log.debug(
                 "{}.process_literal_param("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
                 self._coltype_name, self, value, dialect, retval)
@@ -862,7 +867,7 @@ class PendulumDurationAsIsoTextColType(TypeDecorator):
         """
         retval = self.isostring_to_pendulum_duration(value)
         if DEBUG_DURATION_AS_ISO_TEXT:
-            log.warning(
+            log.debug(
                 "{}.process_result_value("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
                 self._coltype_name, self, value, dialect, retval)
@@ -899,7 +904,7 @@ class SemanticVersionColType(TypeDecorator):
         """
         retval = str(value) if value is not None else None
         if DEBUG_SEMANTIC_VERSION:
-            log.warning(
+            log.debug(
                 "{}.process_bind_param("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
                 self._coltype_name, self, value, dialect, retval)
@@ -912,7 +917,7 @@ class SemanticVersionColType(TypeDecorator):
         """
         retval = str(value) if value is not None else None
         if DEBUG_SEMANTIC_VERSION:
-            log.warning(
+            log.debug(
                 "{}.process_literal_param("
                 "self={!r}, value={!r}, dialect={!r}) -> !r",
                 self._coltype_name, self, value, dialect, retval)
@@ -931,7 +936,7 @@ class SemanticVersionColType(TypeDecorator):
             # ordered Version out:
             retval = make_version(value)
         if DEBUG_SEMANTIC_VERSION:
-            log.warning(
+            log.debug(
                 "{}.process_result_value("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
                 self._coltype_name, self, value, dialect, retval)
@@ -1035,7 +1040,7 @@ class IdNumReferenceListColType(TypeDecorator):
         """
         retval = self._idnumdef_list_to_dbstr(value)
         if DEBUG_IDNUMDEF_LIST:
-            log.warning(
+            log.debug(
                 "{}.process_bind_param("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
                 self._coltype_name, self, value, dialect, retval)
@@ -1048,7 +1053,7 @@ class IdNumReferenceListColType(TypeDecorator):
         """
         retval = self._idnumdef_list_to_dbstr(value)
         if DEBUG_IDNUMDEF_LIST:
-            log.warning(
+            log.debug(
                 "{}.process_literal_param("
                 "self={!r}, value={!r}, dialect={!r}) -> !r",
                 self._coltype_name, self, value, dialect, retval)
@@ -1061,7 +1066,7 @@ class IdNumReferenceListColType(TypeDecorator):
         """
         retval = self._dbstr_to_idnumdef_list(value)
         if DEBUG_IDNUMDEF_LIST:
-            log.warning(
+            log.debug(
                 "{}.process_result_value("
                 "self={!r}, value={!r}, dialect={!r}) -> {!r}",
                 self._coltype_name, self, value, dialect, retval)
@@ -1124,6 +1129,33 @@ class JsonColType(TypeDecorator):
             return None
 
         return json.loads(value)
+
+
+# =============================================================================
+# Phone number column type
+# =============================================================================
+
+class PhoneNumberColType(TypeDecorator):
+    impl = Unicode(length=StringLengths.PHONE_NUMBER_MAX_LEN)
+
+    @property
+    def python_type(self) -> type:
+        return str
+
+    def process_bind_param(self, value: Any,
+                           dialect: Dialect) -> Optional[str]:
+        if value is None:
+            return None
+
+        return phonenumbers.format_number(value,
+                                          phonenumbers.PhoneNumberFormat.E164)
+
+    def process_result_value(self, value: str, dialect: Dialect) -> Any:
+        if not value:
+            return None
+
+        # Should be stored as E164 so no need to pass a region
+        return phonenumbers.parse(value, None)
 
 
 # =============================================================================
@@ -1566,10 +1598,8 @@ class BoolColumn(CamcopsColumn):
         super().__init__(*args, **kwargs)
         if (not self.constraint_name and
                 len(self.name) >= LONG_COLUMN_NAME_WARNING_LIMIT):
-            log.warning(
-                "BoolColumn with long column name and no constraint name: "
-                "{!r}", self.name
-            )
+            log.warning("BoolColumn with long column name and no constraint "
+                        "name: {!r}", self.name)
 
     def __repr__(self) -> str:
         def kvp(attrname: str) -> str:

@@ -534,9 +534,8 @@ def get_dest_groupnum(src_groupnum: int,
     groupnum_map = trcon.info["groupnum_map"]  # type: Dict[int, int]
     if src_groupnum not in groupnum_map:
         log_warning_srcobj(oldobj)
-        log.critical(
-            "Old database contains group number {} and equivalent "
-            "group in destination not known", src_groupnum)
+        log.critical("Old database contains group number {} and equivalent "
+                     "group in destination not known", src_groupnum)
         raise ValueError("Bad group mapping")
     return groupnum_map[src_groupnum]
 
@@ -563,10 +562,9 @@ def get_dest_which_idnum(src_which_idnum: int,
     whichidnum_map = trcon.info["whichidnum_map"]  # type: Dict[int, int]
     if src_which_idnum not in whichidnum_map:
         log_warning_srcobj(oldobj)
-        log.critical(
-            "Old database contains ID number definitions of type {} and "
-            "equivalent ID number type in destination not known",
-            src_which_idnum)
+        log.critical("Old database contains ID number definitions of type {} "
+                     "and equivalent ID number type in destination not known",
+                     src_which_idnum)
         raise ValueError("Bad ID number type mapping")
     return whichidnum_map[src_which_idnum]
 
@@ -964,9 +962,8 @@ def translate_fn(trcon: TranslationContext) -> None:
             trcon.src_session.expunge(oldobj)  # prevent implicit queries
             # Then all should work:
             log_warning_srcobj(oldobj)
-            log.critical(
-                "Existing record(s) in destination DB was/were:\n\n{}\n\n",
-                pformat(existing_rec))
+            log.critical("Existing record(s) in destination DB was/were:\n\n"
+                         "{}\n\n", pformat(existing_rec))
             raise ValueError("Attempt to insert duplicate record; see log "
                              "message above.")
 

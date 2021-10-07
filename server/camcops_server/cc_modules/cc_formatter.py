@@ -25,7 +25,7 @@ camcops_server/cc_modules/cc_formatter.py
 ===============================================================================
 
 **Safe alternative to str.format() that rejects anything not in the list of
-  allowed keys.**
+allowed keys.**
 
 """
 

@@ -34,23 +34,16 @@ from xml.dom.minidom import parseString
 import zipfile
 
 from camcops_server.cc_modules.cc_tsv import (
-    ODS_VIA_PYEXCEL,
     TsvCollection,
     TsvPage,
     XLSX_VIA_PYEXCEL,
 )
 
-if ODS_VIA_PYEXCEL:
-    import pyexcel_ods3  # e.g. pip install pyexcel-ods3==0.5.3
-    ODSWriter = ODSSheet = None
-else:
-    from odswriter import ODSWriter, Sheet as ODSSheet  # noqa
-    pyexcel_ods3 = None
-
 if XLSX_VIA_PYEXCEL:
     import pyexcel_xlsx  # e.g. pip install pyexcel-xlsx==0.5.7
     openpyxl = XLWorkbook = XLWorksheet = None
 else:
+    import openpyxl
     from openpyxl.workbook.workbook import Workbook as XLWorkbook
     pyexcel_xlsx = None
 
