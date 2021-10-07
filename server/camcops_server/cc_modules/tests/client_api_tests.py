@@ -36,6 +36,7 @@ from cardinal_pythonlib.convert import (
     base64_64format_encode,
     hex_xformat_encode,
 )
+from cardinal_pythonlib.nhs import generate_random_nhs_number
 from cardinal_pythonlib.sql.literals import sql_quote_string
 from cardinal_pythonlib.text import escape_newlines, unescape_newlines
 from pyramid.response import Response
@@ -77,7 +78,7 @@ from camcops_server.cc_modules.client_api import (
 )
 
 
-TEST_NHS_NUMBER = 9993664766  # generated at random from national test range
+TEST_NHS_NUMBER = generate_random_nhs_number()
 
 
 def get_reply_dict_from_response(response: Response) -> Dict[str, str]:

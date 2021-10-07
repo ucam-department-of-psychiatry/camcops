@@ -127,7 +127,7 @@ Regarding temporal coding:
       plan.
     - Codes or other representations that name or provide the semantic
       information container, link, or statement:
-      
+
       - SNOMED CT fulfills this role in a structured health record.
 
     - Additional data including text, numeric values, images and other

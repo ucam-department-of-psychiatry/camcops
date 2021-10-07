@@ -3461,7 +3461,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
   (Database revision 0066.)
 
 - Fix Debian package Python dependencies. Would fail if Python 3.6 was not
-installed.
+  installed.
 
 - **New task:** :ref:`CPFT Research Preferences <cpft_research_preferences>`
   (database revision 0067).

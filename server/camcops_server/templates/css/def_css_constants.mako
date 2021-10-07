@@ -71,7 +71,7 @@ class CssVarArgsBase(CssArgsBase):
     MAINMARGIN = '10px'
     BODYPADDING = '5px' 
     BANNER_PADDING = '25px' 
-    
+
     PDF_LOGO_HEIGHT = '20mm'  # irrelevant for HTML; PDF only
 
     paged_media = False  # irrelevant for HTML; PDF only

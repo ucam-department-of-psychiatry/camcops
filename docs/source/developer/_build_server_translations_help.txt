@@ -12,7 +12,7 @@ Operations:
             _("please translate me")
         in Python and Mako files. Write the strings to this .pot file:
             /path/to/camcops/server/translations/camcops_translations.pot
-        
+
     init_missing
         For any locales that do not have a .po file, create one.
 
@@ -20,10 +20,10 @@ Operations:
         Updates all .po files from the .pot file.
 
     [At this stage, edit the .po files with Poedit or similar.]
-        
+
     compile
         Converts each .po file to an equivalent .mo file.
-    
+
     all
         Executes all other operations in sequence.
 

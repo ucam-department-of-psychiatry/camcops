@@ -36,6 +36,7 @@ from unittest import mock
 
 from cardinal_pythonlib.classes import class_attribute_names
 from cardinal_pythonlib.httpconst import MimeType
+from cardinal_pythonlib.nhs import generate_random_nhs_number
 from pendulum import local
 import phonenumbers
 import pyotp
@@ -55,6 +56,7 @@ from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
 from camcops_server.cc_modules.cc_pyramid import (
     FlashQueue,
     FormAction,
+    Routes,
     ViewArg,
     ViewParam,
 )
@@ -81,6 +83,7 @@ from camcops_server.cc_modules.cc_validators import (
     validate_alphanum_underscore,
 )
 from camcops_server.cc_modules.cc_view_classes import FormWizardMixin
+from camcops_server.cc_modules.tests.cc_view_classes_tests import TestStateMixin  # noqa
 from camcops_server.cc_modules.webview import (
     add_patient,
     AddPatientView,
@@ -113,13 +116,17 @@ from camcops_server.cc_modules.webview import (
     SendEmailFromPatientTaskScheduleView,
 )
 
+log = logging.getLogger(__name__)
+
 
 # =============================================================================
 # Unit testing
 # =============================================================================
 
-TEST_NHS_NUMBER_1 = 9997435117  # generated at random from national test range
-TEST_NHS_NUMBER_2 = 9996431622  # generated at random from national test range
+UTF8 = "utf-8"
+
+TEST_NHS_NUMBER_1 = generate_random_nhs_number()
+TEST_NHS_NUMBER_2 = generate_random_nhs_number()
 
 # https://www.ofcom.org.uk/phones-telecoms-and-internet/information-for-industry/numbering/numbers-for-drama  # noqa: E501
 # 07700 900000 to 900999 reserved for TV and Radio drama purposes
@@ -174,11 +181,11 @@ class AddTaskScheduleViewTests(DemoDatabaseTestCase):
 
         response = view.dispatch()
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.body.decode("utf-8").count("<form"), 1)
+        self.assertEqual(response.body.decode(UTF8).count("<form"), 1)
 
     def test_schedule_is_created(self) -> None:
         multidict = MultiDict([
-            ("_charset_", "UTF-8"),
+            ("_charset_", UTF8),
             ("__formid__", "deform"),
             (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
             (ViewParam.NAME, "MOJO"),
@@ -208,7 +215,7 @@ class AddTaskScheduleViewTests(DemoDatabaseTestCase):
 
         self.assertEqual(e.exception.status_code, 302)
         self.assertIn(
-            "view_task_schedules",
+            Routes.VIEW_TASK_SCHEDULES,
             e.exception.headers["Location"]
         )
 
@@ -228,7 +235,7 @@ class EditTaskScheduleViewTests(DemoDatabaseTestCase):
 
     def test_schedule_name_can_be_updated(self) -> None:
         multidict = MultiDict([
-            ("_charset_", "UTF-8"),
+            ("_charset_", UTF8),
             ("__formid__", "deform"),
             (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
             (ViewParam.NAME, "MOJO"),
@@ -252,7 +259,7 @@ class EditTaskScheduleViewTests(DemoDatabaseTestCase):
 
         self.assertEqual(e.exception.status_code, 302)
         self.assertIn(
-            "view_task_schedules",
+            Routes.VIEW_TASK_SCHEDULES,
             e.exception.headers["Location"]
         )
 
@@ -281,7 +288,7 @@ class EditTaskScheduleViewTests(DemoDatabaseTestCase):
         self.req._debugging_user = self.user
 
         multidict = MultiDict([
-            ("_charset_", "UTF-8"),
+            ("_charset_", UTF8),
             ("__formid__", "deform"),
             (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
             (ViewParam.NAME, "Something else"),
@@ -320,7 +327,7 @@ class DeleteTaskScheduleViewTests(DemoDatabaseTestCase):
 
     def test_schedule_item_is_deleted(self) -> None:
         multidict = MultiDict([
-            ("_charset_", "UTF-8"),
+            ("_charset_", UTF8),
             ("__formid__", "deform"),
             (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
             ("confirm_1_t", "true"),
@@ -346,7 +353,7 @@ class DeleteTaskScheduleViewTests(DemoDatabaseTestCase):
 
         self.assertEqual(e.exception.status_code, 302)
         self.assertIn(
-            "view_task_schedules",
+            Routes.VIEW_TASK_SCHEDULES,
             e.exception.headers["Location"]
         )
 
@@ -376,11 +383,11 @@ class AddTaskScheduleItemViewTests(DemoDatabaseTestCase):
 
         response = view.dispatch()
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.body.decode("utf-8").count("<form"), 1)
+        self.assertEqual(response.body.decode(UTF8).count("<form"), 1)
 
     def test_schedule_item_is_created(self) -> None:
         multidict = MultiDict([
-            ("_charset_", "UTF-8"),
+            ("_charset_", UTF8),
             ("__formid__", "deform"),
             (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
             (ViewParam.SCHEDULE_ID, self.schedule.id),
@@ -415,13 +422,14 @@ class AddTaskScheduleItemViewTests(DemoDatabaseTestCase):
 
         self.assertEqual(e.exception.status_code, 302)
         self.assertIn(
-            f"view_task_schedule_items?schedule_id={self.schedule.id}",
+            f"{Routes.VIEW_TASK_SCHEDULE_ITEMS}"
+            f"?{ViewParam.SCHEDULE_ID}={self.schedule.id}",
             e.exception.headers["Location"]
         )
 
     def test_schedule_item_is_not_created_on_cancel(self) -> None:
         multidict = MultiDict([
-            ("_charset_", "UTF-8"),
+            ("_charset_", UTF8),
             ("__formid__", "deform"),
             (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
             (ViewParam.SCHEDULE_ID, self.schedule.id),
@@ -483,7 +491,7 @@ class EditTaskScheduleItemViewTests(DemoDatabaseTestCase):
 
     def test_schedule_item_is_updated(self) -> None:
         multidict = MultiDict([
-            ("_charset_", "UTF-8"),
+            ("_charset_", UTF8),
             ("__formid__", "deform"),
             (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
             (ViewParam.SCHEDULE_ID, self.schedule.id),
@@ -514,13 +522,14 @@ class EditTaskScheduleItemViewTests(DemoDatabaseTestCase):
         self.assertEqual(self.item.task_table_name, "bmi")
         self.assertEqual(cm.exception.status_code, 302)
         self.assertIn(
-            f"view_task_schedule_items?schedule_id={self.item.schedule_id}",
+            f"{Routes.VIEW_TASK_SCHEDULE_ITEMS}"
+            f"?{ViewParam.SCHEDULE_ID}={self.item.schedule_id}",
             cm.exception.headers["Location"]
         )
 
     def test_schedule_item_is_not_updated_on_cancel(self) -> None:
         multidict = MultiDict([
-            ("_charset_", "UTF-8"),
+            ("_charset_", UTF8),
             ("__formid__", "deform"),
             (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
             (ViewParam.SCHEDULE_ID, self.schedule.id),
@@ -650,7 +659,7 @@ class DeleteTaskScheduleItemViewTests(DemoDatabaseTestCase):
 
         response = view.dispatch()
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.body.decode("utf-8").count("<form"), 1)
+        self.assertEqual(response.body.decode(UTF8).count("<form"), 1)
 
     def test_errors_displayed_when_deletion_validation_fails(self) -> None:
         self.req.fake_request_post_from_dict({
@@ -664,11 +673,11 @@ class DeleteTaskScheduleItemViewTests(DemoDatabaseTestCase):
 
         response = view.dispatch()
         self.assertIn("Errors have been highlighted",
-                      response.body.decode("utf-8"))
+                      response.body.decode(UTF8))
 
     def test_schedule_item_is_deleted(self) -> None:
         multidict = MultiDict([
-            ("_charset_", "UTF-8"),
+            ("_charset_", UTF8),
             ("__formid__", "deform"),
             (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
             ("confirm_1_t", "true"),
@@ -694,7 +703,8 @@ class DeleteTaskScheduleItemViewTests(DemoDatabaseTestCase):
 
         self.assertEqual(e.exception.status_code, 302)
         self.assertIn(
-            f"view_task_schedule_items?schedule_id={self.item.schedule_id}",
+            f"{Routes.VIEW_TASK_SCHEDULE_ITEMS}"
+            f"?{ViewParam.SCHEDULE_ID}={self.item.schedule_id}",
             e.exception.headers["Location"]
         )
 
@@ -789,7 +799,7 @@ class EditFinalizedPatientViewTests(BasicDatabaseTestCase):
         }, set_method_get=False)
 
         multidict = MultiDict([
-            ("_charset_", "UTF-8"),
+            ("_charset_", UTF8),
             ("__formid__", "deform"),
             (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
             (ViewParam.SERVER_PK, str(patient.pk)),
@@ -898,7 +908,7 @@ class EditFinalizedPatientViewTests(BasicDatabaseTestCase):
         }, set_method_get=False)
 
         multidict = MultiDict([
-            ("_charset_", "UTF-8"),
+            ("_charset_", UTF8),
             ("__formid__", "deform"),
             (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
             (ViewParam.SERVER_PK, str(patient.pk)),
@@ -1244,7 +1254,7 @@ class EditServerCreatedPatientViewTests(BasicDatabaseTestCase):
             "name 6": "value 6",
         }
         multidict = MultiDict([
-            ("_charset_", "UTF-8"),
+            ("_charset_", UTF8),
             ("__formid__", "deform"),
             (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
             (ViewParam.SERVER_PK, patient.pk),
@@ -1645,7 +1655,7 @@ class DeleteServerCreatedPatientViewTests(BasicDatabaseTestCase):
         self.dbsession.commit()
 
         self.multidict = MultiDict([
-            ("_charset_", "UTF-8"),
+            ("_charset_", UTF8),
             ("__formid__", "deform"),
             (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
             ("confirm_1_t", "true"),
@@ -1673,7 +1683,7 @@ class DeleteServerCreatedPatientViewTests(BasicDatabaseTestCase):
 
         self.assertEqual(e.exception.status_code, 302)
         self.assertIn(
-            "view_patient_task_schedules",
+            Routes.VIEW_PATIENT_TASK_SCHEDULES,
             e.exception.headers["Location"]
         )
 
@@ -1884,7 +1894,7 @@ class EraseTaskLeavingPlaceholderViewTests(EraseTaskTestCase):
 
     def test_deletes_task_leaving_placeholder(self) -> None:
         multidict = MultiDict([
-            ("_charset_", "UTF-8"),
+            ("_charset_", UTF8),
             ("__formid__", "deform"),
             (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
             (ViewParam.SERVER_PK, self.task.pk),
@@ -1949,17 +1959,20 @@ class EraseTaskLeavingPlaceholderViewTests(EraseTaskTestCase):
 
         self.assertEqual(cm.exception.status_code, 302)
         self.assertIn(
-            "/task", cm.exception.headers["Location"]
+            f"/{Routes.TASK}", cm.exception.headers["Location"]
         )
         self.assertIn(
-            "table_name={}".format(self.task.tablename),
+            f"{ViewParam.TABLE_NAME}={self.task.tablename}",
             cm.exception.headers["Location"]
         )
         self.assertIn(
-            "server_pk={}".format(self.task.pk),
+            f"{ViewParam.SERVER_PK}={self.task.pk}",
             cm.exception.headers["Location"]
         )
-        self.assertIn("viewtype=html", cm.exception.headers["Location"])
+        self.assertIn(
+            f"{ViewParam.VIEWTYPE}={ViewArg.HTML}",
+            cm.exception.headers["Location"]
+        )
 
     def test_raises_when_task_does_not_exist(self) -> None:
         self.req.add_get_params({
@@ -2039,7 +2052,7 @@ class EraseTaskEntirelyViewTests(EraseTaskTestCase):
     """
     def test_deletes_task_entirely(self) -> None:
         multidict = MultiDict([
-            ("_charset_", "UTF-8"),
+            ("_charset_", UTF8),
             ("__formid__", "deform"),
             (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
             (ViewParam.SERVER_PK, self.task.pk),
@@ -2095,7 +2108,7 @@ class EditGroupViewTests(DemoDatabaseTestCase):
         self.dbsession.commit()
 
         multidict = MultiDict([
-            ("_charset_", "UTF-8"),
+            ("_charset_", UTF8),
             ("__formid__", "deform"),
             (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
             (ViewParam.GROUP_ID, self.group.id),
@@ -2124,7 +2137,7 @@ class EditGroupViewTests(DemoDatabaseTestCase):
     def test_ip_use_added(self) -> None:
         from camcops_server.cc_modules.cc_ipuse import IpContexts
         multidict = MultiDict([
-            ("_charset_", "UTF-8"),
+            ("_charset_", UTF8),
             ("__formid__", "deform"),
             (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
             (ViewParam.GROUP_ID, self.group.id),
@@ -2158,7 +2171,7 @@ class EditGroupViewTests(DemoDatabaseTestCase):
         old_id = self.group.ip_use.id
 
         multidict = MultiDict([
-            ("_charset_", "UTF-8"),
+            ("_charset_", UTF8),
             ("__formid__", "deform"),
             (ViewParam.CSRF_TOKEN, self.req.session.get_csrf_token()),
             (ViewParam.GROUP_ID, self.group.id),
@@ -2510,7 +2523,7 @@ class SendEmailFromPatientTaskScheduleViewTests(BasicDatabaseTestCase):
         )
 
 
-class LoginViewTests(BasicDatabaseTestCase):
+class LoginViewTests(TestStateMixin, BasicDatabaseTestCase):
     def setUp(self) -> None:
         super().setUp()
 
@@ -2535,7 +2548,7 @@ class LoginViewTests(BasicDatabaseTestCase):
         view = LoginView(self.req)
         response = view.dispatch()
 
-        self.assertIn("Log in", response.body.decode("utf-8"))
+        self.assertIn("Log in", response.body.decode(UTF8))
 
     def test_password_autocomplete_read_from_config(self) -> None:
         self.req.config.disable_password_autocomplete = False
@@ -2566,8 +2579,11 @@ class LoginViewTests(BasicDatabaseTestCase):
 
         view = LoginView(self.req)
 
-        with mock.patch.object(view, "fail_locked_out") as mock_fail_locked_out:
-            view.dispatch()
+        with mock.patch.object(view,
+                               "fail_locked_out",
+                               side_effect=HTTPFound) as mock_fail_locked_out:
+            with self.assertRaises(HTTPFound):
+                view.dispatch()
 
         args, kwargs = mock_fail_locked_out.call_args
         locked_out_until = SecurityAccountLockout.user_locked_out_until(
@@ -2727,8 +2743,7 @@ class LoginViewTests(BasicDatabaseTestCase):
 
         with mock.patch.object(mock_time, "time",
                                return_value=1234567890.1234567):
-            with self.assertRaises(HTTPFound):
-                view.dispatch()
+            view.dispatch()
 
         self.assertEqual(self.req.camcops_session.form_state[
                              LoginView.KEY_MFA_USER_ID], user.id)
@@ -2770,8 +2785,7 @@ class LoginViewTests(BasicDatabaseTestCase):
 
         view = LoginView(self.req)
         expected_code = pyotp.HOTP(user.mfa_secret_key).at(1)
-        with self.assertRaises(HTTPFound):
-            view.dispatch()
+        view.dispatch()
 
         args, kwargs = mock_make_email.call_args_list[0]
         self.assertEqual(kwargs["from_addr"], "server@example.com")
@@ -2819,8 +2833,7 @@ class LoginViewTests(BasicDatabaseTestCase):
         expected_code = pyotp.HOTP(user.mfa_secret_key).at(1)
 
         with self.assertLogs(level=logging.INFO) as logging_cm:
-            with self.assertRaises(HTTPFound):
-                view.dispatch()
+            view.dispatch()
 
         expected_message = f"Your CamCOPS verification code is {expected_code}"
 
@@ -2854,8 +2867,7 @@ class LoginViewTests(BasicDatabaseTestCase):
 
         view = LoginView(self.req)
 
-        with self.assertRaises(HTTPFound):
-            view.dispatch()
+        view.dispatch()
 
         self.assertEqual(user.hotp_counter, 1)
 
@@ -2898,7 +2910,7 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.assertEqual(args[0], self.req)
         self.assertEqual(args[1], "Login")
         self.assertEqual(kwargs["user_id"], user.id)
-        self.assertIsNone(self.req.camcops_session.form_state)
+        self.assert_state_is_finished()
 
     @mock.patch("camcops_server.cc_modules.webview.audit")
     def test_user_with_hotp_can_log_in(self, mock_audit: mock.Mock) -> None:
@@ -2939,7 +2951,7 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.assertEqual(args[0], self.req)
         self.assertEqual(args[1], "Login")
         self.assertEqual(kwargs["user_id"], user.id)
-        self.assertIsNone(self.req.camcops_session.form_state)
+        self.assert_state_is_finished()
 
     def test_form_state_cleared_on_failed_login(self) -> None:
         user = self.create_user(username="test",
@@ -2970,7 +2982,7 @@ class LoginViewTests(BasicDatabaseTestCase):
         self.assertTrue(len(messages) > 0)
         self.assertIn("You entered an invalid code", messages[0])
 
-        self.assertIsNone(self.req.camcops_session.form_state)
+        self.assert_state_is_clean()
 
     def test_user_cannot_log_in_if_timed_out(self) -> None:
         self.req.config.mfa_timeout_s = 600
@@ -2997,8 +3009,11 @@ class LoginViewTests(BasicDatabaseTestCase):
             step=MfaMixin.STEP_MFA
         )
 
-        with mock.patch.object(view, "fail_timed_out") as mock_fail_timed_out:
-            view.dispatch()
+        with mock.patch.object(view,
+                               "fail_timed_out",
+                               side_effect=HTTPFound) as mock_fail_timed_out:
+            with self.assertRaises(HTTPFound):
+                view.dispatch()
 
         mock_fail_timed_out.assert_called_once()
 
@@ -3021,10 +3036,15 @@ class LoginViewTests(BasicDatabaseTestCase):
 
         with mock.patch.object(
                 view,
-                "fail_not_authorized") as mock_fail_not_authorized:
-            view.dispatch()
+                "fail_not_authorized",
+                side_effect=HTTPFound) as mock_fail_not_authorized:
+            # The fail_not_authorized() function raises an exception
+            # (of type HTTPFound) so the mock must do too. Otherwise
+            # it will fall through inappropriately (and crash).
+            with self.assertRaises(HTTPFound):
+                view.dispatch()
 
-        mock_fail_not_authorized.assert_called_once
+        mock_fail_not_authorized.assert_called_once()
 
     def test_unknown_user_cannot_log_in(self) -> None:
         multidict = MultiDict([
@@ -3043,8 +3063,10 @@ class LoginViewTests(BasicDatabaseTestCase):
                                    "logout") as mock_logout:
                 with mock.patch.object(
                         view,
-                        "fail_not_authorized") as mock_fail_not_authorized:
-                    view.dispatch()
+                        "fail_not_authorized",
+                        side_effect=HTTPFound) as mock_fail_not_authorized:
+                    with self.assertRaises(HTTPFound):
+                        view.dispatch()
 
         args, kwargs = mock_act.call_args
         self.assertEqual(args[0], self.req)
@@ -3092,7 +3114,7 @@ class EditUserViewTests(BasicDatabaseTestCase):
 
         self.assertEqual(cm.exception.status_code, 302)
         self.assertIn(
-            "/view_all_users", cm.exception.headers["Location"]
+            f"/{Routes.VIEW_ALL_USERS}", cm.exception.headers["Location"]
         )
 
     def test_raises_if_user_may_not_edit_another(self) -> None:
@@ -3115,7 +3137,7 @@ class EditUserViewTests(BasicDatabaseTestCase):
 
         response = edit_user(self.req)
 
-        self.assertIn("Superuser (CAUTION!)", response.body.decode("UTF-8"))
+        self.assertIn("Superuser (CAUTION!)", response.body.decode(UTF8))
 
     def test_groupadmin_sees_groupadmin_form(self) -> None:
         groupadmin = self.create_user(username="groupadmin")
@@ -3129,7 +3151,7 @@ class EditUserViewTests(BasicDatabaseTestCase):
         self.req.add_get_params({ViewParam.USER_ID: str(regular_user.id)})
 
         response = edit_user(self.req)
-        content = response.body.decode("UTF-8")
+        content = response.body.decode(UTF8)
 
         self.assertIn("Full name", content)
         self.assertNotIn("Superuser (CAUTION!)", content)
@@ -3413,6 +3435,10 @@ class EditOwnUserMfaViewTests(BasicDatabaseTestCase):
 
     def test_user_can_set_secret_key(self) -> None:
         regular_user = self.create_user(username="regular_user")
+        regular_user.mfa_method = MfaMethod.TOTP
+        regular_user.ensure_mfa_info()
+        # ... otherwise, the absence of e.g. the HOTP counter will cause a
+        # secret key reset.
         self.dbsession.flush()
 
         mfa_secret_key = pyotp.random_base32()
@@ -3428,8 +3454,7 @@ class EditOwnUserMfaViewTests(BasicDatabaseTestCase):
         view = EditOwnUserMfaView(self.req)
         view.state.update(step=EditOwnUserMfaView.STEP_TOTP)
 
-        with self.assertRaises(HTTPFound):
-            view.dispatch()
+        view.dispatch()
 
         self.assertEqual(regular_user.mfa_secret_key, mfa_secret_key)
 
@@ -3447,8 +3472,7 @@ class EditOwnUserMfaViewTests(BasicDatabaseTestCase):
 
         view = EditOwnUserMfaView(self.req)
 
-        with self.assertRaises(HTTPFound):
-            view.dispatch()
+        view.dispatch()
 
         self.assertEqual(regular_user.mfa_method, MfaMethod.TOTP)
 
@@ -3466,8 +3490,7 @@ class EditOwnUserMfaViewTests(BasicDatabaseTestCase):
 
         view = EditOwnUserMfaView(self.req)
 
-        with self.assertRaises(HTTPFound):
-            view.dispatch()
+        view.dispatch()
 
         self.assertEqual(regular_user.mfa_method,
                          MfaMethod.HOTP_EMAIL)
@@ -3487,8 +3510,7 @@ class EditOwnUserMfaViewTests(BasicDatabaseTestCase):
 
         view = EditOwnUserMfaView(self.req)
 
-        with self.assertRaises(HTTPFound):
-            view.dispatch()
+        view.dispatch()
 
         self.assertEqual(regular_user.mfa_method,
                          MfaMethod.HOTP_SMS)
@@ -3517,6 +3539,7 @@ class EditOwnUserMfaViewTests(BasicDatabaseTestCase):
 
     def test_user_can_set_phone_number(self) -> None:
         regular_user = self.create_user(username="regular_user")
+        regular_user.mfa_method = MfaMethod.HOTP_SMS
         self.dbsession.flush()
 
         multidict = MultiDict([
@@ -3530,14 +3553,16 @@ class EditOwnUserMfaViewTests(BasicDatabaseTestCase):
         view = EditOwnUserMfaView(self.req)
         view.state.update(step=EditOwnUserMfaView.STEP_HOTP_SMS)
 
-        with self.assertRaises(HTTPFound):
-            view.dispatch()
+        view.dispatch()
 
-        self.assertEqual(regular_user.phone_number,
-                         phonenumbers.parse(TEST_PHONE_NUMBER))
+        test_number = phonenumbers.parse(TEST_PHONE_NUMBER)
+        self.assertEqual(regular_user.phone_number, test_number)
 
     def test_user_can_set_email_address(self) -> None:
         regular_user = self.create_user(username="regular_user")
+        # We're going to force this user to the e-mail verification step, so
+        # we need to ensure it's set to use e-mail MFA:
+        regular_user.mfa_method = MfaMethod.HOTP_EMAIL
         self.dbsession.flush()
 
         multidict = MultiDict([
@@ -3550,13 +3575,12 @@ class EditOwnUserMfaViewTests(BasicDatabaseTestCase):
         view = EditOwnUserMfaView(self.req)
         view.state.update(step=EditOwnUserMfaView.STEP_HOTP_EMAIL)
 
-        with self.assertRaises(HTTPFound):
-            view.dispatch()
+        view.dispatch()
 
         self.assertEqual(regular_user.email, "regular_user@example.com")
 
 
-class ChangeOtherPasswordViewTests(BasicDatabaseTestCase):
+class ChangeOtherPasswordViewTests(TestStateMixin, BasicDatabaseTestCase):
     def setUp(self) -> None:
         super().setUp()
 
@@ -3687,7 +3711,7 @@ class ChangeOtherPasswordViewTests(BasicDatabaseTestCase):
 
         self.assertEqual(cm.exception.status_code, 302)
         self.assertIn(
-            "/change_own_password", cm.exception.headers["Location"]
+            f"/{Routes.CHANGE_OWN_PASSWORD}", cm.exception.headers["Location"]
         )
 
     @mock.patch("camcops_server.cc_modules.cc_email.send_msg")
@@ -3778,16 +3802,19 @@ class ChangeOtherPasswordViewTests(BasicDatabaseTestCase):
 
         view = ChangeOtherPasswordView(self.req)
 
-        with self.assertRaises(HTTPFound) as e:
-            view.dispatch()
+        response = view.dispatch()
 
         self.assertEqual(
             self.req.camcops_session.form_state[FormWizardMixin.PARAM_STEP],
-            "password"
+            ChangeOtherPasswordView.STEP_CHANGE_PASSWORD
         )
         self.assertIn(
-            f"change_other_password?user_id={user.id}",
-            e.exception.headers["Location"]
+            "Change password for user:",
+            response.body.decode(UTF8)
+        )
+        self.assertIn(
+            "Type the new password and confirm it",
+            response.body.decode(UTF8)
         )
 
     def test_form_state_cleared_on_invalid_token(self) -> None:
@@ -3822,7 +3849,7 @@ class ChangeOtherPasswordViewTests(BasicDatabaseTestCase):
         self.assertTrue(len(messages) > 0)
         self.assertIn("You entered an invalid code", messages[0])
 
-        self.assertIsNone(self.req.camcops_session.form_state)
+        self.assert_state_is_clean()
 
     def test_cannot_change_password_if_timed_out(self) -> None:
         self.req.config.mfa_timeout_s = 600
@@ -3852,13 +3879,16 @@ class ChangeOtherPasswordViewTests(BasicDatabaseTestCase):
             step=MfaMixin.STEP_MFA
         )
 
-        with mock.patch.object(view, "fail_timed_out") as mock_fail_timed_out:
-            view.dispatch()
+        with mock.patch.object(view,
+                               "fail_timed_out",
+                               side_effect=HTTPFound) as mock_fail_timed_out:
+            with self.assertRaises(HTTPFound):
+                view.dispatch()
 
         mock_fail_timed_out.assert_called_once()
 
 
-class EditOtherUserMfaViewTests(BasicDatabaseTestCase):
+class EditOtherUserMfaViewTests(TestStateMixin, BasicDatabaseTestCase):
     def setUp(self) -> None:
         super().setUp()
 
@@ -3946,7 +3976,7 @@ class EditOtherUserMfaViewTests(BasicDatabaseTestCase):
 
         self.assertEqual(cm.exception.status_code, 302)
         self.assertIn(
-            "/edit_own_user_mfa", cm.exception.headers["Location"]
+            f"/{Routes.EDIT_OWN_USER_MFA}", cm.exception.headers["Location"]
         )
 
     @mock.patch("camcops_server.cc_modules.cc_email.send_msg")
@@ -4037,16 +4067,15 @@ class EditOtherUserMfaViewTests(BasicDatabaseTestCase):
 
         view = EditOtherUserMfaView(self.req)
 
-        with self.assertRaises(HTTPFound) as e:
-            view.dispatch()
+        response = view.dispatch()
 
         self.assertEqual(
             self.req.camcops_session.form_state[FormWizardMixin.PARAM_STEP],
             "other_user_mfa"
         )
         self.assertIn(
-            f"edit_other_user_mfa?user_id={user.id}",
-            e.exception.headers["Location"]
+            "Edit multi-factor authentication for user:",
+            response.body.decode(UTF8)
         )
 
     def test_form_state_cleared_on_invalid_token(self) -> None:
@@ -4081,7 +4110,7 @@ class EditOtherUserMfaViewTests(BasicDatabaseTestCase):
         self.assertTrue(len(messages) > 0)
         self.assertIn("You entered an invalid code", messages[0])
 
-        self.assertIsNone(self.req.camcops_session.form_state)
+        self.assert_state_is_clean()
 
 
 class EditUserGroupMembershipViewTests(BasicDatabaseTestCase):
@@ -4273,11 +4302,11 @@ class EditUserGroupMembershipViewTests(BasicDatabaseTestCase):
         self.assertEqual(cm.exception.status_code, 302)
 
         self.assertIn(
-            "view_all_users", cm.exception.headers["Location"]
+            Routes.VIEW_ALL_USERS, cm.exception.headers["Location"]
         )
 
 
-class ChangeOwnPasswordViewTests(BasicDatabaseTestCase):
+class ChangeOwnPasswordViewTests(TestStateMixin, BasicDatabaseTestCase):
     def setUp(self) -> None:
         super().setUp()
 
@@ -4312,7 +4341,7 @@ class ChangeOwnPasswordViewTests(BasicDatabaseTestCase):
             "You have changed your password",
             messages[0]
         )
-        self.assertIsNone(self.req.camcops_session.form_state)
+        self.assert_state_is_finished()
 
     def test_user_sees_expiry_message(self) -> None:
         user = self.create_user(username="user",
@@ -4394,23 +4423,26 @@ class ChangeOwnPasswordViewTests(BasicDatabaseTestCase):
 
         hotp = pyotp.HOTP(user.mfa_secret_key)
         multidict = MultiDict([
-            (ViewParam.ONE_TIME_PASSWORD, hotp.at(1)),
+            (ViewParam.ONE_TIME_PASSWORD, hotp.at(1)),  # the token
             (FormAction.SUBMIT, "submit"),
         ])
         self.req.fake_request_post_from_dict(multidict)
 
         view = ChangeOwnPasswordView(self.req)
 
-        with self.assertRaises(HTTPFound) as e:
-            view.dispatch()
+        response = view.dispatch()
 
         self.assertEqual(
             self.req.camcops_session.form_state[FormWizardMixin.PARAM_STEP],
-            "password"
+            ChangeOwnPasswordView.STEP_CHANGE_PASSWORD
         )
         self.assertIn(
-            "change_own_password",
-            e.exception.headers["Location"]
+            "Change your password",
+            response.body.decode(UTF8)
+        )
+        self.assertIn(
+            "Type the new password and confirm it",
+            response.body.decode(UTF8)
         )
 
     def test_form_state_cleared_on_invalid_token(self) -> None:
@@ -4440,7 +4472,7 @@ class ChangeOwnPasswordViewTests(BasicDatabaseTestCase):
         self.assertTrue(len(messages) > 0)
         self.assertIn("You entered an invalid code", messages[0])
 
-        self.assertIsNone(self.req.camcops_session.form_state)
+        self.assert_state_is_clean()
 
     def test_cannot_change_password_if_timed_out(self) -> None:
         self.req.config.mfa_timeout_s = 600
@@ -4466,7 +4498,10 @@ class ChangeOwnPasswordViewTests(BasicDatabaseTestCase):
             step=MfaMixin.STEP_MFA
         )
 
-        with mock.patch.object(view, "fail_timed_out") as mock_fail_timed_out:
-            view.dispatch()
+        with mock.patch.object(view,
+                               "fail_timed_out",
+                               side_effect=HTTPFound) as mock_fail_timed_out:
+            with self.assertRaises(HTTPFound):
+                view.dispatch()
 
         mock_fail_timed_out.assert_called_once()

@@ -26,6 +26,7 @@ camcops_server/cc_modules/tests/cc_view_classes_tests.py
 
 """
 
+from cardinal_pythonlib.typing_helpers import with_typehint
 from camcops_server.cc_modules.cc_session import CamcopsSession
 from camcops_server.cc_modules.cc_unittest import BasicDatabaseTestCase
 from camcops_server.cc_modules.cc_view_classes import FormWizardMixin, View
@@ -35,7 +36,57 @@ class TestView(FormWizardMixin, View):
     pass
 
 
-class FormWizardMixinTests(BasicDatabaseTestCase):
+class TestStateMixin(with_typehint(BasicDatabaseTestCase)):
+    """
+    For testing FormWizardMixin state.
+    """
+    def assert_state_is_finished(self) -> None:
+        """
+        Asserts that the state has been marked as "finished", i.e. with the
+        finish flag set to true and only selected other parameters present.
+        """
+        state = self.req.camcops_session.form_state
+        self.assertIsNotNone(state, msg="state is None (incorrect)")
+        self.assertTrue(
+            state[FormWizardMixin.PARAM_FINISHED],
+            msg=f"PARAM_FINISHED is "
+                f"{state[FormWizardMixin.PARAM_FINISHED]!r} (should be True)"
+        )
+        expected_finished_params = {
+            FormWizardMixin.PARAM_FINISHED,
+            FormWizardMixin.PARAM_ROUTE_NAME,
+            FormWizardMixin.PARAM_STEP
+        }
+        state_params = set(state.keys())
+        wrong_params = state_params - expected_finished_params
+        missing_params = expected_finished_params - state_params
+        self.assertFalse(bool(wrong_params),
+                         msg=f"Inappropriate parameters: {wrong_params!r}")
+        self.assertFalse(bool(missing_params),
+                         msg=f"Missing parameters: {missing_params!r}")
+
+    def assert_state_is_clean(self) -> None:
+        """
+        Asserts that the state is None or contains only certain permitted
+        parameters.
+        """
+        state = self.req.camcops_session.form_state
+        permissible_params = {
+            FormWizardMixin.PARAM_FINISHED,
+            FormWizardMixin.PARAM_ROUTE_NAME,
+            FormWizardMixin.PARAM_STEP
+        }
+        state_is_none = bool(state is None)
+        state_params = set(state.keys())
+        wrong_params = state_params - permissible_params
+        state_contains_only_permissible_params = not wrong_params
+        self.assertTrue(
+            state_is_none or state_contains_only_permissible_params,
+            msg=f"State contains inappropriate parameters {wrong_params!r}"
+        )
+
+
+class FormWizardMixinTests(TestStateMixin, BasicDatabaseTestCase):
     def setUp(self) -> None:
         super().setUp()
 
@@ -172,4 +223,4 @@ class FormWizardMixinTests(BasicDatabaseTestCase):
         view.finish()
 
         self.assertTrue(view.finished())
-        self.assertIsNone(self.req.camcops_session.form_state)
+        self.assert_state_is_finished()

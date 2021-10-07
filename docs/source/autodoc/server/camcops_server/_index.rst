@@ -174,7 +174,6 @@ server/camcops_server
     cc_modules/cc_taskindex.py.rst
     cc_modules/cc_taskreports.py.rst
     cc_modules/cc_taskschedule.py.rst
-    cc_modules/cc_testhelpers.py.rst
     cc_modules/cc_text.py.rst
     cc_modules/cc_tracker.py.rst
     cc_modules/cc_trackerhelpers.py.rst
@@ -326,7 +325,6 @@ server/camcops_server
     extra_strings/slums.xml.rst
     extra_strings/smast.xml.rst
     extra_strings/wemwbs.xml.rst
-    htmlcov/style.css.rst
     static/jsoneditor/jsoneditor.min.css.rst
     static/jsoneditor/jsonwidget.css.rst
     static/tinymce/custom_content.css.rst

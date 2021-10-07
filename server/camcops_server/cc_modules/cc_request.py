@@ -379,8 +379,8 @@ class CamcopsRequest(Request):
         and if it requests that, the cleanup callbacks (COMMIT or ROLLBACK) get
         installed.
         """
-        # log.critical("CamcopsRequest.dbsession: caller stack:\n{}",
-        #              "\n".join(get_caller_stack_info()))
+        # log.debug("CamcopsRequest.dbsession: caller stack:\n{}",
+        #           "\n".join(get_caller_stack_info()))
         _dbsession = self.get_bare_dbsession()
 
         def end_sqlalchemy_session(req: Request) -> None:

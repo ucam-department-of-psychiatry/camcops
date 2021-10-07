@@ -498,8 +498,8 @@ class TranslatableOptionalPendulumNode(OptionalPendulumNode,
             date_options=DEFAULT_WIDGET_DATE_OPTIONS_FOR_PENDULUM,
             time_options=DEFAULT_WIDGET_TIME_OPTIONS_FOR_PENDULUM
         )
-        # log.critical("TranslatableOptionalPendulumNode.widget: {!r}",
-        #              self.widget.__dict__)
+        # log.debug("TranslatableOptionalPendulumNode.widget: {!r}",
+        #           self.widget.__dict__)
 
 
 class TranslatableDateTimeSelectorNode(DateTimeSelectorNode,
@@ -517,8 +517,8 @@ class TranslatableDateTimeSelectorNode(DateTimeSelectorNode,
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         _ = self.gettext
         self.widget = DateTimeInputWidget()
-        # log.critical("TranslatableDateTimeSelectorNode.widget: {!r}",
-        #              self.widget.__dict__)
+        # log.debug("TranslatableDateTimeSelectorNode.widget: {!r}",
+        #           self.widget.__dict__)
 
 
 '''
@@ -537,8 +537,8 @@ class TranslatableDateSelectorNode(DateSelectorNode,
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
         _ = self.gettext
         self.widget = DateInputWidget()
-        # log.critical("TranslatableDateSelectorNode.widget: {!r}",
-        #              self.widget.__dict__)
+        # log.debug("TranslatableDateSelectorNode.widget: {!r}",
+        #           self.widget.__dict__)
 '''
 
 
@@ -764,6 +764,17 @@ class SimpleSubmitForm(InformativeNonceForm):
                             title=submit_title)],
             **kwargs
         )
+
+
+class OkForm(SimpleSubmitForm):
+    """
+    Form with a button that says "OK".
+    """
+    def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
+        _ = request.gettext
+        super().__init__(schema_class=CSRFSchema,
+                         submit_title=_("OK"),
+                         request=request, **kwargs)
 
 
 class ApplyCancelForm(InformativeNonceForm):
@@ -2231,7 +2242,8 @@ class EditOtherUserMfaForm(SimpleSubmitForm):
 
 class MfaSecretWidget(TextInputWidget):
     """
-    Display the TOTP secret as a QR code and alphanumeric string.
+    Display the TOTP (authorization app) secret as a QR code and alphanumeric
+    string.
     """
     basedir = os.path.join(TEMPLATE_DIR, "deform")
     readonlydir = os.path.join(basedir, "readonly")
@@ -2247,6 +2259,7 @@ class MfaSecretWidget(TextInputWidget):
                   field: "Field",
                   cstruct: str,
                   **kw: Any) -> Any:
+        # cstruct contains the MFA secret key
         readonly = kw.get("readonly", self.readonly)
         template = readonly and self.readonly_template or self.template
         values = self.get_template_values(field, cstruct, kw)
@@ -2278,6 +2291,10 @@ class MfaSecretWidget(TextInputWidget):
 
 
 class MfaSecretNode(OptionalStringNode, RequestAwareMixin):
+    """
+    Node to display the TOTP (authorization app) secret as a QR code and
+    alphanumeric string.
+    """
     schema_type = String
 
     # noinspection PyUnusedLocal,PyAttributeOutsideInit
@@ -2324,7 +2341,7 @@ class MfaMethodSelector(SchemaNode, RequestAwareMixin):
 
 class MfaMethodSchema(CSRFSchema):
     """
-    Schema to edit Multi-factor Authentication method
+    Schema to edit Multi-factor Authentication method.
     """
     mfa_method = MfaMethodSelector()  # must match ViewParam.MFA_METHOD
 
@@ -2337,9 +2354,9 @@ class MfaMethodSchema(CSRFSchema):
 
 class MfaTotpSchema(CSRFSchema):
     """
-    Schema to set up Multi-factor Authentication with authentication app
+    Schema to set up Multi-factor Authentication with authentication app.
     """
-    mfa_secret_key = MfaSecretNode()  # must match ViewParam.MFA_SECRET_KEY  # noqa: E501
+    mfa_secret_key = MfaSecretNode()  # must match ViewParam.MFA_SECRET_KEY
 
     # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
@@ -2350,9 +2367,9 @@ class MfaTotpSchema(CSRFSchema):
 
 class MfaHotpEmailSchema(CSRFSchema):
     """
-    Schema to change a user's email address for multi-factor authentication
+    Schema to change a user's email address for multi-factor authentication.
     """
-    mfa_secret_key = HiddenStringNode()  # must match ViewParam.MFA_SECRET_KEY  # noqa: E501
+    mfa_secret_key = HiddenStringNode()  # must match ViewParam.MFA_SECRET_KEY
     email = MandatoryEmailNode()  # must match ViewParam.EMAIL
 
     # noinspection PyUnusedLocal
@@ -2362,9 +2379,9 @@ class MfaHotpEmailSchema(CSRFSchema):
 
 class MfaHotpSmsSchema(CSRFSchema):
     """
-    Schema to change a user's phone number for multi-factor authentication
+    Schema to change a user's phone number for multi-factor authentication.
     """
-    mfa_secret_key = HiddenStringNode()  # must match ViewParam.MFA_SECRET_KEY  # noqa: E501
+    mfa_secret_key = HiddenStringNode()  # must match ViewParam.MFA_SECRET_KEY
     phone_number = MandatoryPhoneNumberNode()  # must match ViewParam.PHONE_NUMBER  # noqa: E501
 
     # noinspection PyUnusedLocal
@@ -2380,7 +2397,7 @@ class MfaHotpSmsSchema(CSRFSchema):
 
 class MfaMethodForm(InformativeNonceForm):
     """
-    Form to change one's own Multi-factor Authentication settings
+    Form to change one's own Multi-factor Authentication settings.
     """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         schema = MfaMethodSchema().bind(request=request)
@@ -2393,7 +2410,7 @@ class MfaMethodForm(InformativeNonceForm):
 
 class MfaTotpForm(InformativeNonceForm):
     """
-    Form to set up Multi-factor Authentication with authentication app
+    Form to set up Multi-factor Authentication with authentication app.
     """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         schema = MfaTotpSchema().bind(request=request)
@@ -2406,7 +2423,7 @@ class MfaTotpForm(InformativeNonceForm):
 
 class MfaHotpEmailForm(InformativeNonceForm):
     """
-    Form to change a user's email address for multi-factor authentication
+    Form to change a user's email address for multi-factor authentication.
     """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         schema = MfaHotpEmailSchema().bind(request=request)
@@ -2419,7 +2436,7 @@ class MfaHotpEmailForm(InformativeNonceForm):
 
 class MfaHotpSmsForm(InformativeNonceForm):
     """
-    Form to change a user's phone number for multi-factor authentication
+    Form to change a user's phone number for multi-factor authentication.
     """
     def __init__(self, request: "CamcopsRequest", **kwargs) -> None:
         schema = MfaHotpSmsSchema().bind(request=request)

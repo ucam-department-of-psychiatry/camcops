@@ -44,6 +44,7 @@ from typing import Dict, List, Optional, Set, Tuple, Union
 
 from cardinal_pythonlib.argparse_func import ShowAllSubparserHelpAction
 from cardinal_pythonlib.json.typing_helpers import JsonValueType
+from cardinal_pythonlib.httpconst import HttpStatus
 from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
 from cardinal_pythonlib.rate_limiting import rate_limited
 from cardinal_pythonlib.snomed import SnomedConcept
@@ -63,8 +64,6 @@ DEFAULT_RELEASE = "v20191001"
 DEFAULT_LANGUAGE = "english"
 DEFAULT_RATE_LIMIT_HZ = 1  # be nice
 DEFAULT_OUTPUT_XML_FILENAME = "camcops_tasks_snomed.xml"
-
-HTTP_200_OK = 200
 
 DISCLAIMER_1 = """
 SNOMED Clinical Terms® (SNOMED CT®) is owned by the International Health
@@ -546,7 +545,7 @@ class SnomedApiInfo(object):
         """
         log.debug(f"Fetching from {url}")
         response = requests.get(url, params)
-        if response.status_code != HTTP_200_OK:
+        if response.status_code != HttpStatus.OK:
             log.warning(f"Response was: {response}")
             return None
         json_object = response.json()

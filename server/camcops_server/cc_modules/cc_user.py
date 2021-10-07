@@ -489,12 +489,29 @@ class User(Base):
     single_patient = relationship(
         "Patient", foreign_keys=[single_patient_pk])  # type: Optional[Patient]
 
+    # -------------------------------------------------------------------------
+    # __init__
+    # -------------------------------------------------------------------------
+
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)
+        # Prevent Python None from being converted to database string 'none'.
+        self.mfa_method = kwargs.get("mfa_method", MfaMethod.NO_MFA)
+
+    # -------------------------------------------------------------------------
+    # String representations
+    # -------------------------------------------------------------------------
+
     def __repr__(self) -> str:
         return simple_repr(
             self,
             ["id", "username", "fullname"],
             with_addr=True
         )
+
+    # -------------------------------------------------------------------------
+    # Lookup methods
+    # -------------------------------------------------------------------------
 
     @classmethod
     def get_user_by_id(cls,
@@ -626,6 +643,10 @@ class User(Base):
         # that the system will not allow logon attempts for this user!
         return user
 
+    # -------------------------------------------------------------------------
+    # Static methods
+    # -------------------------------------------------------------------------
+
     @staticmethod
     def is_username_permissible(username: str) -> bool:
         """
@@ -641,6 +662,10 @@ class User(Base):
         but we mimic the time it takes to check a real user's password.
         """
         rnc_crypto.hash_password("dummy!", BCRYPT_DEFAULT_LOG_ROUNDS)
+
+    # -------------------------------------------------------------------------
+    # Authentication: passwords
+    # -------------------------------------------------------------------------
 
     def set_password(self, req: "CamcopsRequest", new_password: str) -> None:
         """
@@ -664,6 +689,88 @@ class User(Base):
         """
         self.must_change_password = True
 
+    def set_password_change_flag_if_necessary(self,
+                                              req: "CamcopsRequest") -> None:
+        """
+        If we're requiring users to change their passwords, then check to
+        see if they must do so now.
+        """
+        if self.must_change_password:
+            # already required, pointless to check again
+            return
+        cfg = req.config
+        if cfg.password_change_frequency_days <= 0:
+            # changes never required
+            return
+        if not self.last_password_change_utc:
+            # we don't know when the last change was, so it's overdue
+            self.force_password_change()
+            return
+        delta = req.now_utc_no_tzinfo - self.last_password_change_utc
+        # Must use a version of "now" with no timezone info, since
+        # self.last_password_change_utc is "offset-naive" (has no timezone
+        # info)
+        if delta.days >= cfg.password_change_frequency_days:
+            self.force_password_change()
+
+    # -------------------------------------------------------------------------
+    # Authentication: multi-factor authentication
+    # -------------------------------------------------------------------------
+
+    def set_mfa_method(self, mfa_method: str) -> None:
+        """
+        Resets the multi-factor authentication (MFA) method.
+        """
+        assert MfaMethod.valid(mfa_method), (
+            f"Invalid MFA method: {mfa_method!r}"
+        )
+
+        # Set the method
+        self.mfa_method = mfa_method
+
+        # A new secret key
+        self.mfa_secret_key = pyotp.random_base32()
+
+        # Reset the HOTP counter
+        self.hotp_counter = 0
+
+    def ensure_mfa_info(self) -> None:
+        """
+        If for some reason we have lost aspects of our MFA information,
+        reset it. This step also ensures that anything erroneous in the
+        database is cleaned to a valid value.
+        """
+        if not self.mfa_secret_key or self.hotp_counter is None:
+            self.set_mfa_method(MfaMethod.clean(self.mfa_method))
+
+    def verify_one_time_password(self, one_time_password: str) -> bool:
+        """
+        Determines whether the supplied one-time password is valid for the
+        multi-factor authentication (MFA) currently selected.
+
+        Returns ``False`` if no MFA method is selected.
+        """
+        mfa_method = self.mfa_method
+
+        if not MfaMethod.requires_second_step(mfa_method):
+            return False
+
+        if mfa_method == MfaMethod.TOTP:
+            totp = pyotp.TOTP(self.mfa_secret_key)
+            return totp.verify(one_time_password)
+
+        elif mfa_method in [MfaMethod.HOTP_EMAIL, MfaMethod.HOTP_SMS]:
+            hotp = pyotp.HOTP(self.mfa_secret_key)
+            return one_time_password == hotp.at(self.hotp_counter)
+
+        else:
+            raise ValueError(f"User.verify_one_time_password(): "
+                             f"Bad mfa_method = {mfa_method}")
+
+    # -------------------------------------------------------------------------
+    # Authentication: logging in
+    # -------------------------------------------------------------------------
+
     def login(self, req: "CamcopsRequest") -> None:
         """
         Called when the framework has determined a successful login.
@@ -675,22 +782,40 @@ class User(Base):
         self.set_password_change_flag_if_necessary(req)
         self.last_login_at_utc = req.now_utc_no_tzinfo
 
-    def verify_one_time_password(self, one_time_password: str) -> bool:
+    def clear_login_failures(self, req: "CamcopsRequest") -> None:
         """
-        Determines whether the supplied one-time password is valid for the
-        multi-factor authentication (MFA) currently selected.
-
-        Returns ``False`` if no MFA method is selected.
+        Clear login failures.
         """
-        if self.mfa_method is None or self.mfa_method == MfaMethod.NO_MFA:
-            return False
+        if not self.username:
+            return
+        SecurityLoginFailure.clear_login_failures(req, self.username)
 
-        if self.mfa_method == MfaMethod.TOTP:
-            totp = pyotp.TOTP(self.mfa_secret_key)
-            return totp.verify(one_time_password)
+    def is_locked_out(self, req: "CamcopsRequest") -> bool:
+        """
+        Is the user locked out because of multiple login failures?
+        """
+        return SecurityAccountLockout.is_user_locked_out(req, self.username)
 
-        hotp = pyotp.HOTP(self.mfa_secret_key)
-        return one_time_password == hotp.at(self.hotp_counter)
+    def locked_out_until(self,
+                         req: "CamcopsRequest") -> Optional[Pendulum]:
+        """
+        When is the user locked out until?
+
+        Returns a Pendulum datetime in local timezone (or ``None`` if the
+        user isn't locked out).
+        """
+        return SecurityAccountLockout.user_locked_out_until(req,
+                                                            self.username)
+
+    def enable(self, req: "CamcopsRequest") -> None:
+        """
+        Re-enables the user, unlocking them and clearing login failures.
+        """
+        SecurityLoginFailure.enable_user(req, self.username)
+
+    # -------------------------------------------------------------------------
+    # Details used for authentication
+    # -------------------------------------------------------------------------
 
     @property
     def partial_email(self) -> str:
@@ -732,29 +857,9 @@ class User(Base):
         """
         return f"{OBSCURE_PHONE_ASTERISKS}{self.raw_phone_number[-2:]}"
 
-    def set_password_change_flag_if_necessary(self,
-                                              req: "CamcopsRequest") -> None:
-        """
-        If we're requiring users to change their passwords, then check to
-        see if they must do so now.
-        """
-        if self.must_change_password:
-            # already required, pointless to check again
-            return
-        cfg = req.config
-        if cfg.password_change_frequency_days <= 0:
-            # changes never required
-            return
-        if not self.last_password_change_utc:
-            # we don't know when the last change was, so it's overdue
-            self.force_password_change()
-            return
-        delta = req.now_utc_no_tzinfo - self.last_password_change_utc
-        # Must use a version of "now" with no timezone info, since
-        # self.last_password_change_utc is "offset-naive" (has no timezone
-        # info)
-        if delta.days >= cfg.password_change_frequency_days:
-            self.force_password_change()
+    # -------------------------------------------------------------------------
+    # Requirements
+    # -------------------------------------------------------------------------
 
     @property
     def must_agree_terms(self) -> bool:
@@ -775,43 +880,17 @@ class User(Base):
         """
         self.when_agreed_terms_of_use = req.now
 
-    def clear_login_failures(self, req: "CamcopsRequest") -> None:
+    def must_set_mfa_method(self, req: "CamcopsRequest") -> bool:
         """
-        Clear login failures.
+        Does the user still need to select a (valid) multi-factor
+        authentication method? We are happy if the user has selected a method
+        that is approved in the current config.
         """
-        if not self.username:
-            return
-        SecurityLoginFailure.clear_login_failures(req, self.username)
+        return self.mfa_method not in req.config.mfa_methods
 
-    def is_locked_out(self, req: "CamcopsRequest") -> bool:
-        """
-        Is the user locked out because of multiple login failures?
-        """
-        return SecurityAccountLockout.is_user_locked_out(req, self.username)
-
-    def locked_out_until(self,
-                         req: "CamcopsRequest") -> Optional[Pendulum]:
-        """
-        When is the user locked out until?
-
-        Returns a Pendulum datetime in local timezone (or ``None`` if the
-        user isn't locked out).
-        """
-        return SecurityAccountLockout.user_locked_out_until(req,
-                                                            self.username)
-
-    def enable(self, req: "CamcopsRequest") -> None:
-        """
-        Re-enables the user, unlocking them and clearing login failures.
-        """
-        SecurityLoginFailure.enable_user(req, self.username)
-
-    @property
-    def may_login_as_tablet(self) -> bool:
-        """
-        May the user login via the client (tablet) API?
-        """
-        return self.may_upload or self.may_register_devices
+    # -------------------------------------------------------------------------
+    # Groups
+    # -------------------------------------------------------------------------
 
     @property
     def group_ids(self) -> List[int]:
@@ -1142,6 +1221,34 @@ class User(Base):
             None
         )
 
+    def group_ids_that_nonsuperuser_may_see_when_unfiltered(self) -> List[int]:
+        """
+        Which group IDs may this user see all patients for, when unfiltered?
+        """
+        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+        return [m.group_id for m in memberships
+                if m.view_all_patients_when_unfiltered]
+
+    def may_upload_to_group(self, group_id: int) -> bool:
+        """
+        May this user upload to the specified group?
+        """
+        if self.superuser:
+            return True
+        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+        return any(m.may_upload for m in memberships if m.group_id == group_id)
+
+    # -------------------------------------------------------------------------
+    # Other permissions
+    # -------------------------------------------------------------------------
+
+    @property
+    def may_login_as_tablet(self) -> bool:
+        """
+        May the user login via the client (tablet) API?
+        """
+        return self.may_upload or self.may_register_devices
+
     @property
     def may_use_webviewer(self) -> bool:
         """
@@ -1238,23 +1345,6 @@ class User(Base):
         return all(not m.view_all_patients_when_unfiltered
                    for m in memberships)
 
-    def group_ids_that_nonsuperuser_may_see_when_unfiltered(self) -> List[int]:
-        """
-        Which group IDs may this user see all patients for, when unfiltered?
-        """
-        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
-        return [m.group_id for m in memberships
-                if m.view_all_patients_when_unfiltered]
-
-    def may_upload_to_group(self, group_id: int) -> bool:
-        """
-        May this user upload to the specified group?
-        """
-        if self.superuser:
-            return True
-        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
-        return any(m.may_upload for m in memberships if m.group_id == group_id)
-
     @property
     def may_upload(self) -> bool:
         """
@@ -1281,6 +1371,10 @@ class User(Base):
         memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
         return any(m.may_register_devices for m in memberships
                    if m.group_id == self.upload_group_id)
+
+    # -------------------------------------------------------------------------
+    # Managing other users
+    # -------------------------------------------------------------------------
 
     def managed_users(self) -> Optional[Query]:
         """
@@ -1349,6 +1443,10 @@ class User(Base):
                                 "groups that this user is in")
         return True, ""
 
+
+# =============================================================================
+# Command-line password control
+# =============================================================================
 
 def set_password_directly(req: "CamcopsRequest",
                           username: str, password: str) -> bool:

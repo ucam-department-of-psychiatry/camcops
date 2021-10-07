@@ -423,7 +423,7 @@ def write_crate_data_dictionary(req: "CamcopsRequest",
                                 file: TextIO = sys.stdout) -> None:
     """
     Generates a draft CRATE data dictionary.
-    
+
     CRATE is an anonymisation tool. See:
 
     - Cardinal RN (2017).

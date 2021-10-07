@@ -299,10 +299,14 @@ class ViewArg(object):
 
 
 # =============================================================================
-# Flash message queues: https://getbootstrap.com/docs/3.3/components/#alerts
+# Flash message queues
 # =============================================================================
 
 class FlashQueue:
+    """
+    Predefined flash (alert) message queues for Bootstrap; see
+    https://getbootstrap.com/docs/3.3/components/#alerts.
+    """
     SUCCESS = "success"
     INFO = "info"
     WARNING = "warning"
@@ -514,7 +518,7 @@ class CamcopsMakoLookupTemplateRenderer(MakoLookupTemplateRenderer):
             log.debug("spec: {!r}", self.spec)
             log.debug("value: {}", pprint.pformat(value))
             log.debug("system: {}", pprint.pformat(system))
-        # log.critical("\n{}", "\n    ".join(get_caller_stack_info()))
+            # log.debug("\n{}", "\n    ".join(get_caller_stack_info()))
 
         # ---------------------------------------------------------------------
         # RNC extra values:
@@ -1051,7 +1055,9 @@ class Permission(object):
     - For "logged in", use ``pyramid.security.Authenticated``
     """
     GROUPADMIN = "groupadmin"
-    HAPPY = "happy"  # logged in, can use webview, no need to change p/w, agreed to terms  # noqa
+    HAPPY = "happy"
+    # ... logged in, can use webview, no need to change p/w, agreed to terms,
+    # a valid MFA method has been set.
     MUST_AGREE_TERMS = "must_agree_terms"
     MUST_CHANGE_PASSWORD = "must_change_password"
     MUST_SET_MFA = "must_set_mfa"
@@ -1107,7 +1113,7 @@ class CamcopsAuthenticationPolicy(object):
                     principals.append(Permission.MUST_CHANGE_PASSWORD)
                 elif user.must_agree_terms:
                     principals.append(Permission.MUST_AGREE_TERMS)
-                elif user.mfa_method not in request.config.mfa_methods:
+                elif user.must_set_mfa_method(request):
                     principals.append(Permission.MUST_SET_MFA)
                 else:
                     principals.append(Permission.HAPPY)

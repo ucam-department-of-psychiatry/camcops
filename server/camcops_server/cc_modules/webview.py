@@ -131,6 +131,7 @@ from typing import (
     cast,
     Dict,
     List,
+    NoReturn,
     Optional,
     Type,
     TYPE_CHECKING,
@@ -233,13 +234,14 @@ from camcops_server.cc_modules.cc_forms import (
     DeleteTaskScheduleForm,
     DeleteTaskScheduleItemForm,
     DeleteUserForm,
-    EditGroupForm,
     EDIT_PATIENT_SIMPLE_PARAMS,
     EditFinalizedPatientForm,
+    EditGroupForm,
     EditIdDefinitionForm,
     EditOtherUserMfaForm,
     EditServerCreatedPatientForm,
     EditServerSettingsForm,
+    EditTaskFilterForm,
     EditTaskScheduleForm,
     EditTaskScheduleItemForm,
     EditUserFullForm,
@@ -248,9 +250,9 @@ from camcops_server.cc_modules.cc_forms import (
     EditUserGroupPermissionsFullForm,
     EraseTaskForm,
     ExportedTaskListForm,
-    get_sql_dialect_choices,
     ForciblyFinalizeChooseDeviceForm,
     ForciblyFinalizeConfirmForm,
+    get_sql_dialect_choices,
     LoginForm,
     MfaHotpEmailForm,
     MfaHotpSmsForm,
@@ -263,7 +265,6 @@ from camcops_server.cc_modules.cc_forms import (
     RefreshTasksForm,
     SendEmailForm,
     SetUserUploadGroupForm,
-    EditTaskFilterForm,
     TasksPerPageForm,
     UserDownloadDeleteForm,
     UserFilterForm,
@@ -348,7 +349,6 @@ if TYPE_CHECKING:
     from deform.form import Form
     # noinspection PyUnresolvedReferences
     from camcops_server.cc_modules.cc_sqlalchemy import Base
-    from camcops_server.cc_modules.cc_view_classes import View
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -592,13 +592,7 @@ def audit_menu(req: "CamcopsRequest") -> Dict[str, Any]:
 # "def view(context, request)", so if you add additional parameters, it thinks
 # you're doing the latter and sends parameters accordingly.
 
-if TYPE_CHECKING:
-    _MfaMixinExtraBase = View
-else:
-    _MfaMixinExtraBase = object
-
-
-class MfaMixin(FormWizardMixin, _MfaMixinExtraBase):
+class MfaMixin(FormWizardMixin):
     """
     Enhances FormWizardMixin to include a multi-factor authentication step.
     This must be named "mfa" in the subclass, via the ``SELF_MFA`` variable.
@@ -619,7 +613,7 @@ class MfaMixin(FormWizardMixin, _MfaMixinExtraBase):
 
     See ``LoginView`` for an example that works with the yet-to-be-logged-in
     user.
-    See ``ChangeOwnPasswordView`` for an example with the logged in user.
+    See ``ChangeOwnPasswordView`` for an example with the logged-in user.
     """
 
     STEP_PASSWORD = "password"
@@ -631,6 +625,12 @@ class MfaMixin(FormWizardMixin, _MfaMixinExtraBase):
     def __init__(self, *args, **kwargs) -> None:
         self._mfa_user: Optional[User] = None
         super().__init__(*args, **kwargs)
+
+    # -------------------------------------------------------------------------
+    # mfa_user
+    # -------------------------------------------------------------------------
+    # Set during __init__ by LoggedInUserMfaMixin, or via a more complex
+    # process by LoginView.
 
     @property
     def mfa_user(self) -> Optional[User]:
@@ -646,10 +646,14 @@ class MfaMixin(FormWizardMixin, _MfaMixinExtraBase):
         """
         self._mfa_user = user
 
+    # -------------------------------------------------------------------------
+    # Dispatch and timeouts
+    # -------------------------------------------------------------------------
+
     def dispatch(self) -> Response:
         # Docstring in superclass.
         if self.timed_out():
-            return self.fail_timed_out()
+            self.fail_timed_out()  # will raise
 
         return super().dispatch()
 
@@ -670,12 +674,16 @@ class MfaMixin(FormWizardMixin, _MfaMixinExtraBase):
 
         return int(time.time()) > login_time + timeout
 
+    # -------------------------------------------------------------------------
+    # Extra context for templates
+    # -------------------------------------------------------------------------
+
     def get_extra_context(self) -> Dict[str, Any]:
         # Docstring in superclass.
         if self.step == self.STEP_MFA:
             return {self.KEY_INSTRUCTIONS: self.get_mfa_instructions()}
-
-        return {}
+        else:
+            return {}
 
     def get_mfa_instructions(self) -> str:
         """
@@ -701,21 +709,32 @@ class MfaMixin(FormWizardMixin, _MfaMixinExtraBase):
         else:
             return "Error: get_mfa_instruction() called for invalid MFA method"
 
+    # -------------------------------------------------------------------------
+    # MFA handling
+    # -------------------------------------------------------------------------
+
     def handle_authentication_type(self) -> None:
         """
         Function to be called when we want an MFA code to be created.
         """
-        if self.mfa_user.mfa_method == MfaMethod.TOTP:
+        mfa_user = self.mfa_user
+        mfa_user.ensure_mfa_info()
+        mfa_method = mfa_user.mfa_method
+
+        if mfa_method == MfaMethod.TOTP:
             # Nothing to do. The app generates the code.
             return
 
         # Record the time of code creation:
         self.state[self.KEY_MFA_TIME] = int(time.time())
 
-        if self.mfa_user.mfa_method == MfaMethod.HOTP_EMAIL:
-            return self.send_authentication_email()
-
-        self.send_authentication_sms()
+        if mfa_method == MfaMethod.HOTP_EMAIL:
+            self.send_authentication_email()
+        elif mfa_method == MfaMethod.HOTP_SMS:
+            self.send_authentication_sms()
+        else:
+            raise ValueError(f"MfaMixin.handle_authentication_type: "
+                             f"unexpected mfa_method {mfa_method!r}")
 
     def send_authentication_email(self) -> None:
         """
@@ -732,13 +751,19 @@ class MfaMixin(FormWizardMixin, _MfaMixinExtraBase):
         )
 
         email = Email(**kwargs)
-        email.send(host=config.email_host,
-                   username=config.email_host_username,
-                   password=config.email_host_password,
-                   port=config.email_port,
-                   use_tls=config.email_use_tls)
-
-        # TODO: should we handle failure or ignore silently?
+        success = email.send(host=config.email_host,
+                             username=config.email_host_username,
+                             password=config.email_host_password,
+                             port=config.email_port,
+                             use_tls=config.email_use_tls)
+        if success:
+            msg = _("E-mail sent")
+            queue = FlashQueue.SUCCESS
+        else:
+            msg = _("Failed to send e-mail! "
+                    "Please try again or contact your administrator.")
+            queue = FlashQueue.DANGER
+        self.request.session.flash(msg, queue=queue)
 
     def send_authentication_sms(self) -> None:
         """
@@ -756,9 +781,10 @@ class MfaMixin(FormWizardMixin, _MfaMixinExtraBase):
         self.mfa_user.hotp_counter += 1
         self.request.dbsession.add(self.mfa_user)
         _ = self.request.gettext
-        code = pyotp.HOTP(self.mfa_user.mfa_secret_key).at(
-            self.mfa_user.hotp_counter
-        )
+        key = self.mfa_user.mfa_secret_key
+        assert key, f"Bug: self.mfa_user.mfa_secret_key = {key!r}"
+        handler = pyotp.HOTP(key)
+        code = handler.at(self.mfa_user.hotp_counter)
         return _("Your CamCOPS verification code is {}").format(code)
 
     def otp_is_valid(self, appstruct: Dict[str, Any]) -> bool:
@@ -768,19 +794,23 @@ class MfaMixin(FormWizardMixin, _MfaMixinExtraBase):
         otp = appstruct.get(ViewParam.ONE_TIME_PASSWORD)
         return self.mfa_user.verify_one_time_password(otp)
 
-    def fail_bad_mfa_code(self) -> Response:
+    # -------------------------------------------------------------------------
+    # Ways to fail
+    # -------------------------------------------------------------------------
+
+    def fail_bad_mfa_code(self) -> NoReturn:
         """
         Fail because the code was wrong.
         """
         _ = self.request.gettext
-        return self.fail(_("You entered an invalid code. Please try again."))
+        self.fail(_("You entered an invalid code. Please try again."))
 
-    def fail_timed_out(self) -> Response:
+    def fail_timed_out(self) -> NoReturn:
         """
         Fail because the process timed out.
         """
         _ = self.request.gettext
-        return self.fail(_("Your code expired. Please try again."))
+        self.fail(_("Your code expired. Please try again."))
 
 
 class LoggedInUserMfaMixin(MfaMixin):
@@ -797,14 +827,36 @@ class LoginView(MfaMixin, FormView):
     """
     Multi-factor authentication for the login process.
     Sequences is: (1) password; (2) MFA, if enabled.
+
+    Inheritance (as of 2021-10-06):
+
+    - webview.LoginView
+
+      - webview.MfaMixin
+
+        - cc_view_classes.FormWizardMixin
+
+      - cc_view_classes.FormView
+
+        - cc_view_classes.TemplateResponseMixin
+
+        - cc_view_classes.BaseFormView
+
+          - cc_view_classes.FormMixin
+
+            - cc_view_classes.ContextMixin
+
+          - cc_view_classes.ProcessFormView -- provides ``get()``, ``post()``
+
+            - cc_view_classes.View -- owns ``request``, provides ``dispatch()``
     """
     KEY_MFA_USER_ID = "mfa_user_id"
 
     _mfa_user: Optional[User]
     wizard_first_step = MfaMixin.STEP_PASSWORD
     wizard_forms = {
-        MfaMixin.STEP_PASSWORD: LoginForm,
-        MfaMixin.STEP_MFA: OtpTokenForm,
+        MfaMixin.STEP_PASSWORD: LoginForm,  # 1. enter username/password
+        MfaMixin.STEP_MFA: OtpTokenForm,  # 2. enter one-time code
     }
     wizard_templates = {
         MfaMixin.STEP_PASSWORD: "login.mako",
@@ -812,36 +864,12 @@ class LoginView(MfaMixin, FormView):
     }
 
     def __init__(self, *args, **kwargs) -> None:
-        self._mfa_user = None
         super().__init__(*args, **kwargs)
 
-    def check_step_on_load(self) -> None:
-        """
-        Recheck that the user's MFA method is allowed, and check ``self.step``.
-        This code deals with the unusual situation -- unusual unless you're
-        testing -- of an MFA method being initiated, then disabled on the
-        server. That leaves users totally stuffed as they are not properly
-        "logged in" and therefore can't easily log out.
-        """
-        mfa_user = self.mfa_user
-        if not mfa_user:
-            return
-        _ = self.request.gettext
-        if mfa_user.mfa_method not in self.request.config.mfa_methods:
-            # Invalid method. Set to "no MFA".
-            self.request.session.flash(
-                _("Multi-factor authentication settings have changed."),
-                queue=FlashQueue.INFO
-            )
-            mfa_user.mfa_method = MfaMethod.NO_MFA
-        if (self.step == self.STEP_MFA and
-                mfa_user.mfa_method == MfaMethod.NO_MFA):
-            # User is stuck! Unstick them.
-            self.finish()  # resets login process
-            self.request.session.flash(
-                _("Please log in again."),
-                queue=FlashQueue.INFO
-            )
+    # -------------------------------------------------------------------------
+    # mfa_user
+    # -------------------------------------------------------------------------
+    # Slightly more complex here, since our user isn't logged in properly yet.
 
     @property
     def mfa_user(self) -> Optional[User]:
@@ -867,6 +895,10 @@ class LoginView(MfaMixin, FormView):
 
         self.state[self.KEY_MFA_USER_ID] = user.id
 
+    # -------------------------------------------------------------------------
+    # Content for forms
+    # -------------------------------------------------------------------------
+
     def get_form_values(self) -> Dict:
         # Docstring in superclass.
         return {
@@ -883,15 +915,21 @@ class LoginView(MfaMixin, FormView):
 
         return kwargs
 
-    def form_valid(self, form: "Form", appstruct: Dict[str, Any]) -> Response:
+    # -------------------------------------------------------------------------
+    # Form validation, and sequence handling
+    # -------------------------------------------------------------------------
+
+    def form_valid_process_data(self, form: "Form",
+                                appstruct: Dict[str, Any]) -> None:
         # Docstring in superclass.
         if self.step == self.STEP_PASSWORD:
-            return self.form_valid_password(form, appstruct)
+            self._form_valid_password(appstruct)
+        else:
+            self._form_valid_mfa(appstruct)
 
-        return self.form_valid_mfa(form, appstruct)
+        super().form_valid_process_data(form, appstruct)
 
-    def form_valid_password(self, form: "Form",
-                            appstruct: Dict[str, Any]) -> Response:
+    def _form_valid_password(self, appstruct: Dict[str, Any]) -> None:
         """
         Called when the user has entered a username/password (via a validated
         form).
@@ -902,7 +940,7 @@ class LoginView(MfaMixin, FormView):
         locked_out_until = SecurityAccountLockout.user_locked_out_until(
             self.request, username)
         if locked_out_until is not None:
-            return self.fail_locked_out(locked_out_until)
+            self.fail_locked_out(locked_out_until)  # will raise
 
         password = appstruct.get(ViewParam.PASSWORD)
 
@@ -919,44 +957,40 @@ class LoginView(MfaMixin, FormView):
             # Now, call audit() before session.logout(), as the latter
             # will wipe the session IP address:
             self.request.camcops_session.logout()
-            return self.fail_not_authorized()
+            self.fail_not_authorized()  # will raise
 
         if not user.may_use_webviewer:
             # This means a user who can upload from tablet but who cannot
             # log in via the web front end.
-            return self.fail_not_authorized()
+            self.fail_not_authorized()  # will raise
 
         self.mfa_user = user
-        self.password_next_step()
+        self._password_next_step()
+        self._form_valid_success()
 
-        return self.form_valid_success(form, appstruct)
-
-    def form_valid_mfa(self, form: "Form",
-                       appstruct: Dict[str, Any]) -> Response:
-        """
-        Called when the user has entered an MFA code (via a validated form).
-        """
-        if not self.otp_is_valid(appstruct):
-            return self.fail_bad_mfa_code()
-
-        self.finish()
-
-        return self.form_valid_success(form, appstruct)
-
-    def password_next_step(self) -> None:
+    def _password_next_step(self) -> None:
         """
         The user has entered a password correctly; what's the next step?
         """
         method = self.mfa_user.mfa_method
-        if method == MfaMethod.NO_MFA:
-            self.finish()
-        else:
-            # Guaranteed to be valid; see constructor.
+        if MfaMethod.requires_second_step(method):
             self.step = self.STEP_MFA
             self.handle_authentication_type()
+        else:
+            self.finish()
+            # Guaranteed to be valid; see constructor.
 
-    def form_valid_success(self, form: "Form",
-                           appstruct: Dict[str, Any]) -> Response:
+    def _form_valid_mfa(self, appstruct: Dict[str, Any]) -> None:
+        """
+        Called when the user has entered an MFA code (via a validated form).
+        """
+        if not self.otp_is_valid(appstruct):
+            self.fail_bad_mfa_code()  # will raise
+
+        self.finish()
+        self._form_valid_success()
+
+    def _form_valid_success(self) -> None:
         """
         Called when the next step has been determined. One possible outcome is
         a successful login.
@@ -972,7 +1006,9 @@ class LoginView(MfaMixin, FormView):
             # HOWEVER, that may lead us to a "change password" or "agree terms"
             # page, via the permissions system (Permission.HAPPY or not).
 
-        return super().form_valid(form, appstruct)
+    # -------------------------------------------------------------------------
+    # Next destinations
+    # -------------------------------------------------------------------------
 
     def get_success_url(self) -> str:
         # Docstring in superclass.
@@ -1006,7 +1042,11 @@ class LoginView(MfaMixin, FormView):
             default=self.request.route_url(Routes.HOME)
         )
 
-    def fail_not_authorized(self) -> Response:
+    # -------------------------------------------------------------------------
+    # Ways to fail
+    # -------------------------------------------------------------------------
+
+    def fail_not_authorized(self) -> NoReturn:
         """
         Fail because the user has not logged in correctly or is not authorized
         to log in.
@@ -1015,10 +1055,12 @@ class LoginView(MfaMixin, FormView):
         use ``return`` for code safety.
         """
         _ = self.request.gettext
-        return self.fail(
-            _("Invalid username/password (or user not authorized)."))
+        self.fail(
+            _("Invalid username/password (or user not authorized).")
+        )  # will raise
+        # assert False, "Bug: LoginView.fail_not_authorized() falling through"
 
-    def fail_locked_out(self, locked_until: Pendulum) -> Response:
+    def fail_locked_out(self, locked_until: Pendulum) -> NoReturn:
         """
         Raises a failure because the user is locked out.
 
@@ -1033,7 +1075,8 @@ class LoginView(MfaMixin, FormView):
             "Account locked until {} due to multiple login failures. "
             "Try again later or contact your administrator."
         ).format(locked_until)
-        return self.fail(message)
+        self.fail(message)  # will raise
+        # assert False, "Bug: LoginView.fail_locked_out() falling through"
 
 
 @view_config(route_name=Routes.LOGIN,
@@ -1119,7 +1162,7 @@ def forbidden(req: "CamcopsRequest") -> Response:
             return HTTPFound(req.route_url(Routes.CHANGE_OWN_PASSWORD))
         if user.must_agree_terms:
             return HTTPFound(req.route_url(Routes.OFFER_TERMS))
-        if user.mfa_method not in req.config.mfa_methods:
+        if user.must_set_mfa_method(req):
             return HTTPFound(req.route_url(Routes.EDIT_OWN_USER_MFA))
     # ... but with "raise HTTPFound" instead.
     # BUT there is only one level of exception handling in Pyramid, i.e. you
@@ -1204,21 +1247,23 @@ class ChangeOwnPasswordView(LoggedInUserMfaMixin, UpdateView):
     def get_failure_url(self) -> str:
         return self.request.route_url(Routes.HOME)
 
-    def form_valid(self, form: "Form",
-                   appstruct: Dict[str, Any]) -> Response:
+    def form_valid_process_data(self, form: "Form",
+                                appstruct: Dict[str, Any]) -> None:
         if self.step == self.STEP_MFA:
             if not self.otp_is_valid(appstruct):
-                return self.fail_bad_mfa_code()
+                self.fail_bad_mfa_code()  # will raise
 
-        return super().form_valid(form, appstruct)
+        super().form_valid_process_data(form, appstruct)
 
     def set_object_properties(self, appstruct: Dict[str, Any]) -> None:
-        if self.step == self.STEP_CHANGE_PASSWORD:
-            self.set_password(appstruct)
-            return self.finish()
-
+        # Superclass method overridden, not called.
         if self.step == self.STEP_MFA:
             self.step = self.STEP_CHANGE_PASSWORD
+        elif self.step == self.STEP_CHANGE_PASSWORD:
+            self.set_password(appstruct)
+            self.finish()
+        else:
+            assert f"ChangeOwnPasswordView: bad step {self.step!r}"
 
     def set_password(self, appstruct: Dict[str, Any]) -> None:
         """
@@ -1284,13 +1329,13 @@ class EditUserAuthenticationView(LoggedInUserMfaMixin, UpdateView):
             "username":  user.username,
         }
 
-    def form_valid(self, form: "Form",
-                   appstruct: Dict[str, Any]) -> Response:
+    def form_valid_process_data(self, form: "Form",
+                                appstruct: Dict[str, Any]) -> None:
         if self.step == self.STEP_MFA:
             if not self.otp_is_valid(appstruct):
-                return self.fail_bad_mfa_code()
+                self.fail_bad_mfa_code()  # will raise
 
-        return super().form_valid(form, appstruct)
+        super().form_valid_process_data(form, appstruct)
 
     def get_failure_url(self) -> str:
         return self.request.route_url(Routes.VIEW_ALL_USERS)
@@ -1325,9 +1370,11 @@ class ChangeOtherPasswordView(EditUserAuthenticationView):
         return self.STEP_CHANGE_PASSWORD
 
     def set_object_properties(self, appstruct: Dict[str, Any]) -> None:
+        # Superclass method overridden, not called.
         if self.step == self.STEP_CHANGE_PASSWORD:
             self.set_password(appstruct)
-            return self.finish()
+            self.finish()
+            return
 
         if self.step == self.STEP_MFA:
             self.step = self.STEP_CHANGE_PASSWORD
@@ -1410,9 +1457,11 @@ class EditOtherUserMfaView(EditUserAuthenticationView):
         return self.STEP_OTHER_USER_MFA
 
     def set_object_properties(self, appstruct: Dict[str, Any]) -> None:
+        # Superclass method overridden, not called.
         if self.step == self.STEP_OTHER_USER_MFA:
             self.maybe_disable_mfa(appstruct)
-            return self.finish()
+            self.finish()
+            return
 
         if self.step == self.STEP_MFA:
             self.step = self.STEP_OTHER_USER_MFA
@@ -1466,7 +1515,58 @@ def edit_other_user_mfa(req: "CamcopsRequest") -> Response:
 class EditOwnUserMfaView(LoggedInUserMfaMixin, UpdateView):
     """
     View to edit your own MFA method.
-    """
+
+    The inheritance (as of 2021-10-06) illustrates a typical situation:
+
+    SPECIMEN VIEW CLASS:
+
+    - webview.EditOwnUserMfaView
+
+      - webview.LoggedInUserMfaMixin
+
+        - webview.MfaMixin
+
+          - cc_view_classes.FormWizardMixin -- with typehint for FormMixin --
+            implements ``state``.
+
+      - cc_view_classes.UpdateView
+
+        - cc_view_classes.TemplateResponseMixin
+
+        - cc_view_classes.BaseUpdateView
+
+          - cc_view_classes.ModelFormMixin -- implements ``form_valid()`` -->
+            ``save_object()`` > ``set_object_properties()``
+
+            - cc_view_classes.FormMixin -- implements ``form_valid()``,
+              ``get_context_data()``, etc.
+
+              - cc_view_classes.ContextMixin
+
+            - cc_view_classes.SingleObjectMixin -- implements ``get_object()``
+              etc.
+
+              - cc_view_classes.ContextMixin
+
+          - cc_view_classes.ProcessFormView -- implements ``get()``, ``post()``
+
+            - cc_view_classes.View -- owns ``request``, implements
+              ``dispatch()`` (which calls ``get()``, ``post()``).
+
+    SPECIMEN FORM WITHIN THAT VIEW:
+
+    - cc_forms.MfaMethodForm
+
+      - cc_forms.InformativeNonceForm
+
+        - cc_forms.InformativeForm
+
+          - deform.Form
+
+    If you subclass A(B, C), then B's superclass methods are called before C's:
+    https://www.python.org/download/releases/2.3/mro/;
+    https://makina-corpus.com/blog/metier/2014/python-tutorial-understanding-python-mro-class-search-path;
+    """  # noqa
     STEP_MFA_METHOD = "mfa_method"
     STEP_TOTP = MfaMethod.TOTP
     STEP_HOTP_EMAIL = MfaMethod.HOTP_EMAIL
@@ -1474,18 +1574,20 @@ class EditOwnUserMfaView(LoggedInUserMfaMixin, UpdateView):
     wizard_first_step = STEP_MFA_METHOD
 
     wizard_forms = {
-        STEP_MFA_METHOD: MfaMethodForm,
-        STEP_TOTP: MfaTotpForm,
-        STEP_HOTP_EMAIL: MfaHotpEmailForm,
-        STEP_HOTP_SMS: MfaHotpSmsForm,
-        MfaMixin.STEP_MFA: OtpTokenForm,
+        STEP_MFA_METHOD: MfaMethodForm,  # 1. choose your MFA method
+        STEP_TOTP: MfaTotpForm,  # 2a. show TOTP (auth app) QR/alphanumeric code
+        STEP_HOTP_EMAIL: MfaHotpEmailForm,  # 2b. choose e-mail address
+        STEP_HOTP_SMS: MfaHotpSmsForm,  # 2c. choose phone number for SMS
+        MfaMixin.STEP_MFA: OtpTokenForm,  # 4. request code from user
     }
 
+    FORM_WITH_TITLE_TEMPLATE = "form_with_title.mako"
+
     wizard_templates = {
-        STEP_MFA_METHOD: "form_with_title.mako",
-        STEP_TOTP: "form_with_title.mako",
-        STEP_HOTP_EMAIL: "form_with_title.mako",
-        STEP_HOTP_SMS: "form_with_title.mako",
+        STEP_MFA_METHOD: FORM_WITH_TITLE_TEMPLATE,
+        STEP_TOTP: FORM_WITH_TITLE_TEMPLATE,
+        STEP_HOTP_EMAIL: FORM_WITH_TITLE_TEMPLATE,
+        STEP_HOTP_SMS: FORM_WITH_TITLE_TEMPLATE,
         MfaMixin.STEP_MFA: "login_token.mako",
     }
 
@@ -1507,11 +1609,14 @@ class EditOwnUserMfaView(LoggedInUserMfaMixin, UpdateView):
         if self.step == self.STEP_MFA_METHOD:
             model_form_dict["mfa_method"] = ViewParam.MFA_METHOD
 
-        if self.step == self.STEP_HOTP_EMAIL:
+        elif self.step == self.STEP_HOTP_EMAIL:
             model_form_dict["email"] = ViewParam.EMAIL
 
-        if self.step == self.STEP_HOTP_SMS:
+        elif self.step == self.STEP_HOTP_SMS:
             model_form_dict["phone_number"] = ViewParam.PHONE_NUMBER
+
+        if self.step in self.secret_key_steps:
+            model_form_dict["mfa_secret_key"] = ViewParam.MFA_SECRET_KEY
 
         return model_form_dict
 
@@ -1523,16 +1628,19 @@ class EditOwnUserMfaView(LoggedInUserMfaMixin, UpdateView):
         form_values = super().get_form_values()
 
         if self.step in self.secret_key_steps:
-            # Always create a new one, so don't include in get_model_form_dict()
+            # Always create a new secret key. This will be written to the
+            # user object at the next step, via set_object_properties.
             form_values[ViewParam.MFA_SECRET_KEY] = pyotp.random_base32()
 
         return form_values
 
     def get_extra_context(self) -> Dict[str, Any]:
-        if self.step == self.STEP_MFA:
-            return super().get_extra_context()
-
         _ = self.request.gettext
+        if self.step == self.STEP_MFA:
+            test_msg = _("Let's test it!") + " "
+            return {
+                self.KEY_INSTRUCTIONS: test_msg + self.get_mfa_instructions()
+            }
 
         titles = {
             self.STEP_MFA_METHOD: _("Multi-factor authentication settings"),
@@ -1540,7 +1648,6 @@ class EditOwnUserMfaView(LoggedInUserMfaMixin, UpdateView):
             self.STEP_HOTP_EMAIL: _("Authenticate by email"),
             self.STEP_HOTP_SMS: _("Authenticate by text message"),
         }
-
         return {MAKO_VAR_TITLE: titles[self.step]}
 
     def get_success_url(self) -> str:
@@ -1550,39 +1657,63 @@ class EditOwnUserMfaView(LoggedInUserMfaMixin, UpdateView):
         return self.request.route_url(Routes.EDIT_OWN_USER_MFA)
 
     def get_failure_url(self) -> str:
+        # We get here because the user, who has already logged in successfully,
+        # has changed their MFA method. Failure doesn't mean they should be
+        # logged out instantly -- they may have (for example) misconfigured
+        # their phone number, and if they are forcibly logged out now, they are
+        # stuffed and require administrator assistance. Instead, we return them
+        # to the home screen.
         return self.request.route_url(Routes.HOME)
 
     def set_object_properties(self, appstruct: Dict[str, Any]) -> None:
+        # Called by ModelFormMixin.form_valid_process_data() ->
+        # ModelFormMixin.save_object().
+
         super().set_object_properties(appstruct)
 
-        user = cast(User, self.object)
-
-        if self.step in self.secret_key_steps:
-            mfa_secret_key = appstruct.get(ViewParam.MFA_SECRET_KEY)
-            user.mfa_secret_key = mfa_secret_key
-
-        if self.step in self.hotp_steps:
-            user.hotp_counter = 0
-
-        if self.step == self.STEP_MFA:
-            if not self.otp_is_valid(appstruct):
-                self.fail_bad_mfa_code()
-
-        self.next_step(appstruct)
-
-    def next_step(self, appstruct: Dict[str, Any]) -> None:
         if self.step == self.STEP_MFA_METHOD:
+            # We are setting the MFA method, including secret key etc.
+            user = cast(User, self.object)
+            user.set_mfa_method(appstruct.get(ViewParam.MFA_METHOD))
+
+        elif self.step == self.STEP_MFA:
+            # Code entered.
+            if self.otp_is_valid(appstruct):
+                _ = self.request.gettext
+                self.request.session.flash(
+                    _("Multi-factor authentication: success!"),
+                    queue=FlashQueue.SUCCESS
+                )
+                # ... and continue as below
+            else:
+                return self.fail_bad_mfa_code()
+
+        self._next_step(appstruct)
+
+    def _next_step(self, appstruct: Dict[str, Any]) -> None:
+        if self.step == self.STEP_MFA_METHOD:
+            # The user has just chosen their method.
+            # 2. Offer them method-specific options
             mfa_method = appstruct.get(ViewParam.MFA_METHOD)
             if mfa_method == MfaMethod.NO_MFA:
-                return self.finish()
+                self.finish()
+            else:
+                self.step = mfa_method
 
-            self.step = mfa_method
-            return
+        elif self.step in [self.STEP_TOTP,
+                           self.STEP_HOTP_EMAIL,
+                           self.STEP_HOTP_SMS]:
+            # Coming from one of the method-specific steps.
+            # 3. Ask for the authentication code.
+            self.step = self.STEP_MFA
 
-        if self.step == self.STEP_MFA:
-            return self.finish()
+        elif self.step == self.STEP_MFA:
+            # Authentication code provided. End.
+            self.finish()
 
-        self.step = self.STEP_MFA
+        else:
+            raise AssertionError(f"EditOwnUserMfaView.next_step(): "
+                                 f"Bad step {self.step!r}")
 
 
 @view_config(route_name=Routes.EDIT_OWN_USER_MFA,
@@ -1607,9 +1738,7 @@ def main_menu(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     Main CamCOPS menu view.
     """
-    # log.debug("main_menu: start")
     user = req.user
-    # log.debug("main_menu: middle")
     result = dict(
         authorized_as_groupadmin=user.authorized_as_groupadmin,
         authorized_as_superuser=user.superuser,
@@ -1620,7 +1749,6 @@ def main_menu(req: "CamcopsRequest") -> Dict[str, Any]:
         now=format_datetime(req.now, DateFormat.SHORT_DATETIME_SECONDS),
         server_version=CAMCOPS_SERVER_VERSION,
     )
-    # log.debug("main_menu: returning")
     return result
 
 

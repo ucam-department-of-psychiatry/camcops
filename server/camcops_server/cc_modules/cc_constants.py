@@ -572,6 +572,32 @@ class MfaMethod:
     NO_MFA = "no_mfa"  # No multi-factor authentication; username/password only
     TOTP = "totp"  # Use an app such as Google Authenticator, Twilio Authy
 
+    @classmethod
+    def valid(cls, method: str) -> bool:
+        """
+        Is the method a known MFA method (including "no MFA")?
+        """
+        return method in [cls.HOTP_EMAIL, cls.HOTP_SMS, cls.NO_MFA, cls.TOTP]
+
+    @classmethod
+    def requires_second_step(cls, method: str) -> bool:
+        """
+        Does the method require a second authentication step?
+        """
+        return method in [cls.HOTP_EMAIL, cls.HOTP_SMS, cls.TOTP]
+
+    @classmethod
+    def clean(cls, method: str) -> str:
+        """
+        Returns a valid method, even if the input isn't.
+        Defaults to NO_MFA.
+        """
+        if cls.requires_second_step(method):
+            return method
+        else:
+            # e.g. NO_MFA, None, "none", other junk
+            return cls.NO_MFA
+
 
 class SmsBackendNames:
     """
