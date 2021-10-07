@@ -116,11 +116,11 @@ class Mfi20(TaskHasPatientMixin,
     PHYSICAL_FATIGUE_QUESTIONS = Task.fieldnames_from_list(
         "q", {2, 8, 14, 20})
     REDUCED_ACTIVITY_QUESTIONS = Task.fieldnames_from_list(
-        "q", {7, 11, 13, 19})
-    REDUCED_MOTIVATION_QUESTIONS = Task.fieldnames_from_list(
         "q", {3, 6, 10, 17})
-    MENTAL_FATIGUE_QUESTIONS = Task.fieldnames_from_list(
+    REDUCED_MOTIVATION_QUESTIONS = Task.fieldnames_from_list(
         "q", {4, 9, 15, 18})
+    MENTAL_FATIGUE_QUESTIONS = Task.fieldnames_from_list(
+        "q", {7, 11, 13, 19})
 
     @staticmethod
     def longname(req: "CamcopsRequest") -> str:
@@ -229,11 +229,11 @@ class Mfi20(TaskHasPatientMixin,
                 [1] Questions 2, 5, 9, 10, 13, 14, 16, 17, 18, 19
                     reverse-scored when summing.
                 [2] Sum for questions 1–20.
-                [3] Sum for questions 1, 5, 12, 16.
-                [4] Sum for questions 2, 8, 14, 20.
-                [5] Sum for questions 7, 11, 13, 19.
-                [6] Sum for questions 3, 6, 10, 17.
-                [7] Sum for questions 4, 9, 15, 18.
+                [3] General fatigue: Sum for questions 1, 5, 12, 16.
+                [4] Physical fatigue: Sum for questions 2, 8, 14, 20.
+                [5] Reduced activity: Sum for questions 3, 6, 10, 17.
+                [6] Reduced motivation: Sum for questions 4, 9, 15, 18.
+                [7] Mental fatigue: Sum for questions 7, 11, 13, 19.
                 [8] All questions are rated from “1 – yes, that is true” to
                     “5 – no, that is not true”.
             </div>

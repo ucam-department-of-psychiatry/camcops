@@ -3504,3 +3504,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Support for :ref:`multi-factor authentication (MFA)
   <multi_factor_authentication>` on the server. (Database revision 0070.)
+
+- Bugfix to :ref:`MFI-20 <mfi20>` (q.v.).
+
+- Bugfix to app: was reporting "research" rather than "clinical" when
+  conditions relating to clinical use were not met.
