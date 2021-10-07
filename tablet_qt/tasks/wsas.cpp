@@ -67,28 +67,6 @@ Wsas::Wsas(CamcopsApp& app, DatabaseManager& db, const int load_pk) :
     addFields(strseq(QPREFIX, FIRST_Q, N_QUESTIONS), QVariant::Int);
 
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
-
-    m_options = {
-        {appstring(appstrings::WSAS_A_PREFIX + "0"), 0},
-        {appstring(appstrings::WSAS_A_PREFIX + "1"), 1},
-        {appstring(appstrings::WSAS_A_PREFIX + "2"), 2},
-        {appstring(appstrings::WSAS_A_PREFIX + "3"), 3},
-        {appstring(appstrings::WSAS_A_PREFIX + "4"), 4},
-        {appstring(appstrings::WSAS_A_PREFIX + "5"), 5},
-        {appstring(appstrings::WSAS_A_PREFIX + "6"), 6},
-        {appstring(appstrings::WSAS_A_PREFIX + "7"), 7},
-        {appstring(appstrings::WSAS_A_PREFIX + "8"), 8},
-    };
-
-    m_q1_fields = {QuestionWithOneField(
-                   xstring(strnum("q", FIRST_Q), strnum("Q", FIRST_Q)),
-                   fieldRef(strnum(QPREFIX, FIRST_Q)))};
-
-    for (int i = FIRST_Q + 1; i <= N_QUESTIONS; ++i) {
-        m_other_q_fields.append(QuestionWithOneField(
-                                xstring(strnum("q", i), strnum("Q", i)),
-                                fieldRef(strnum(QPREFIX, i))));
-    }
 }
 
 
@@ -193,32 +171,60 @@ void Wsas::refreshQuestionnaire()
 
 void Wsas::rebuildPage(QuPage* page)
 {
-    QVector<QuElement*> elements;
+    const NameValueOptions options{
+        {appstring(appstrings::WSAS_A_PREFIX + "0"), 0},
+        {appstring(appstrings::WSAS_A_PREFIX + "1"), 1},
+        {appstring(appstrings::WSAS_A_PREFIX + "2"), 2},
+        {appstring(appstrings::WSAS_A_PREFIX + "3"), 3},
+        {appstring(appstrings::WSAS_A_PREFIX + "4"), 4},
+        {appstring(appstrings::WSAS_A_PREFIX + "5"), 5},
+        {appstring(appstrings::WSAS_A_PREFIX + "6"), 6},
+        {appstring(appstrings::WSAS_A_PREFIX + "7"), 7},
+        {appstring(appstrings::WSAS_A_PREFIX + "8"), 8},
+    };
+    QVector<QuestionWithOneField> q1_fields{
+        QuestionWithOneField(
+            xstring(strnum("q", FIRST_Q), strnum("Q", FIRST_Q)),
+            fieldRef(strnum(QPREFIX, FIRST_Q))
+        )
+    };
 
+    QVector<QuestionWithOneField> other_q_fields;
+    for (int i = FIRST_Q + 1; i <= N_QUESTIONS; ++i) {
+        other_q_fields.append(
+            QuestionWithOneField(
+                xstring(strnum("q", i), strnum("Q", i)),
+                fieldRef(strnum(QPREFIX, i))
+            )
+        );
+    }
+
+    QVector<QuElement*> elements;
     elements.append((new QuText(xstring("instruction")))->setBold());
     elements.append(new QuBoolean(xstring("q_retired_etc"),
                                   fieldRef(RETIRED_ETC, false)));
 
-    qreal width_inches = uifunc::screenWidth() / uifunc::screenDpi();
+    const qreal width_inches = uifunc::screenWidth() / uifunc::screenDpi();
     const bool use_grid = width_inches > MIN_WIDTH_INCHES_FOR_GRID;
 
     if (use_grid) {
-        elements.append((new QuMcqGrid(m_q1_fields, m_options))->addTag(Q1_TAG));
-        elements.append(new QuMcqGrid(m_other_q_fields, m_options));
+        elements.append((new QuMcqGrid(q1_fields, options))->addTag(Q1_TAG));
+        elements.append(new QuMcqGrid(other_q_fields, options));
     } else {
-        for (const auto& field : m_q1_fields) {
+        for (const auto& field : q1_fields) {
             elements.append((new QuText(field.question()))->setBold()->addTag(Q1_TAG));
-            elements.append((new QuMcq(field.fieldref(), m_options))->addTag(Q1_TAG));
+            elements.append((new QuMcq(field.fieldref(), options))->addTag(Q1_TAG));
         }
-        for (const auto& field : m_other_q_fields) {
+        for (const auto& field : other_q_fields) {
             elements.append((new QuText(field.question()))->setBold());
-            elements.append(new QuMcq(field.fieldref(), m_options));
+            elements.append(new QuMcq(field.fieldref(), options));
         }
     }
 
     page->clearElements();
     page->addElements(elements);
 }
+
 
 // ============================================================================
 // Task-specific calculations
@@ -236,6 +242,7 @@ int Wsas::maxScore() const
     return MAX_PER_Q * (valueBool(RETIRED_ETC) ? (N_QUESTIONS - 1)
                                                : N_QUESTIONS);
 }
+
 
 // ============================================================================
 // Task-specific calculations

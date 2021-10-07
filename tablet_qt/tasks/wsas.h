@@ -72,9 +72,6 @@ public:
     static const QString WSAS_TABLENAME;
 
 private:
-    NameValueOptions m_options;
-    QVector<QuestionWithOneField> m_q1_fields;
-    QVector<QuestionWithOneField> m_other_q_fields;
     void refreshQuestionnaire();
     void rebuildPage(QuPage* page);
 };
