@@ -127,6 +127,8 @@ INSTALL_REQUIRES = [
 
     'twilio==6.63.0',  # SMS backend for Multi-factor authentication
 
+    'urllib3==1.26.7',  # dependency, pinned to avoid vulnerabilities
+
     'Wand==0.6.1',  # ImageMagick binding
 
     # -------------------------------------------------------------------------
