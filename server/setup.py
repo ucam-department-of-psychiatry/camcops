@@ -117,7 +117,7 @@ INSTALL_REQUIRES = [
 
     "qrcode[pil]==7.2",  # for registering with Authenticators
 
-    "requests==2.19.1",  # in fetch_snomed_codes.py, but also required by something else?  # noqa
+    "requests==2.26",  # in fetch_snomed_codes.py and cc_sms.py, but also required by something else?  # noqa
 
     'sadisplay==0.4.9',  # SQL Alchemy schema display script
     'scipy==1.5.4',  # used by some tasks. slow installation.
@@ -126,6 +126,8 @@ INSTALL_REQUIRES = [
     'statsmodels==0.11.1',  # e.g. logistic regression
 
     'twilio==6.63.0',  # SMS backend for Multi-factor authentication
+
+    'urllib3==1.26.7',  # dependency, pinned to avoid vulnerabilities
 
     'Wand==0.6.1',  # ImageMagick binding
 
@@ -165,7 +167,7 @@ INSTALL_REQUIRES = [
     'pyparsing==2.4.7',
     'PyPDF2==1.26.0',  # Used by cardinal_pythonlib.pdf
     'python-dateutil==2.8.1',  # date/time extensions.
-    'sqlparse==0.3.1',
+    'sqlparse==0.4.2',
 
     # extra
     'py-bcrypt==0.4',  # used by cardinal_pythonlib.crypto
