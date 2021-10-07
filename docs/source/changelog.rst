@@ -3488,3 +3488,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 **Client and server v2.4.11, IN PROGRESS**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Fix bug whereby non admin group members with the "manage patients" privilege
+  would see an empty group selector when adding/editing patients.
+  https://github.com/RudolfCardinal/camcops/issues/211
