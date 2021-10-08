@@ -596,9 +596,15 @@ class VersionReleaser:
             os.chdir(SERVER_SOURCE_DIR)
             self.run_with_check(["python", "setup.py", "sdist", "bdist_wheel"])
             pypi_packages = [str(f) for f in self.get_pypi_builds()]
+            print("Uploading to PyPI...")
             self.run_with_check(["twine", "upload"] + pypi_packages)
 
+            # Next improvement. GitHub action on pushed "v" tag to create
+            # release and upload to PyPI.
             print("Now upload the .rpm and .deb files to GitHub")
+
+        if self.should_release_client:
+            print("Now build the various client apps and upload.")
 
     @property
     def should_release_client(self) -> bool:
@@ -661,7 +667,7 @@ def main() -> None:
     / Check the changelog
     / Check the Git repository
     / Build the Ubuntu server packages (deb/rpm)
-    / Build the pypi server package
+    / Build the PyPI server package
     / Distribute the server packages to PyPI
     - Distribute the server packages to GitHub (or use GitHub actions)
 
