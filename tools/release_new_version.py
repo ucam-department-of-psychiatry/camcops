@@ -711,6 +711,12 @@ def main() -> None:
         default=False,
         help="Update any incorrect version numbers",
     )
+    parser.add_argument(
+        "--release",
+        action="store_true",
+        default=False,
+        help="If all checks pass, build and release",
+    )
     args = parser.parse_args()
 
     releaser = VersionReleaser(
@@ -724,10 +730,17 @@ def main() -> None:
     if len(releaser.errors) > 0:
         for error in releaser.errors:
             print(error)
+        if not args.update_versions:
+            print("Run the script with --update-versions to automatically "
+                  "update version numbers")
         sys.exit(EXIT_FAILURE)
 
-    # OK to proceed to the next step
-    releaser.release()
+    if args.release:
+        # OK to proceed to the next step
+        releaser.release()
+        return
+
+    print("All checks passed. You can run the script again with --release")
 
 
 if __name__ == "__main__":
