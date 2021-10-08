@@ -360,9 +360,10 @@ class VersionReleaser:
     def check_client_version(self) -> None:
         if self.new_client_version == self.progress_version:
             self.errors.append(
-                f"The desired client version ({self.new_client_version}) matches "
-                "the current IN PROGRESS version in the changelog. You probably "
-                "want to mark the version in the changelog as released"
+                f"The desired client version ({self.new_client_version}) "
+                "matches the current IN PROGRESS version in the changelog. "
+                "You probably want to mark the version in the changelog as "
+                "released"
             )
 
         current_client_version = self.get_client_version()
