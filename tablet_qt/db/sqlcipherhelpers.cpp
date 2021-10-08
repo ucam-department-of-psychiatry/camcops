@@ -80,8 +80,9 @@ QString _q_escapeIdentifier(const QString& identifier)
 {
     QString res = identifier;
     if (!identifier.isEmpty() &&
-            identifier.left(1) != QString(QLatin1Char('"')) &&
+            identifier.at(0) != QString(QLatin1Char('"')) &&
             identifier.right(1) != QString(QLatin1Char('"')) ) {
+        // ... at(0) rather than left(1): clazy-qstring-left
         res.replace(QLatin1Char('"'), QLatin1String("\"\""));
         res.prepend(QLatin1Char('"')).append(QLatin1Char('"'));
         res.replace(QLatin1Char('.'), QLatin1String("\".\""));

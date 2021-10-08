@@ -77,6 +77,7 @@ CPFTResearchPreferences::CPFTResearchPreferences(
     load(load_pk);  // MUST ALWAYS CALL from derived Task constructor.
 }
 
+
 // ============================================================================
 // Class info
 // ============================================================================

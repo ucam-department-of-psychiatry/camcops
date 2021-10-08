@@ -211,17 +211,16 @@ void Wsas::rebuildPage(QuPage* page)
         elements.append((new QuMcqGrid(q1_fields, options))->addTag(Q1_TAG));
         elements.append(new QuMcqGrid(other_q_fields, options));
     } else {
-        for (const auto& field : q1_fields) {
-            elements.append((new QuText(field.question()))
-                            ->setBold()->addTag(Q1_TAG));
-            elements.append((new QuMcq(field.fieldref(), options))
-                            ->setHorizontal()->addTag(Q1_TAG));
+        for (const auto& field : qAsConst(q1_fields)) {
+            // re qAsConst():
+            // https://stackoverflow.com/questions/35811053/using-c11-range-based-for-loop-correctly-in-qt
+            // https://doc.qt.io/qt-5/qtglobal.html#qAsConst
+            elements.append((new QuText(field.question()))->setBold()->addTag(Q1_TAG));
+            elements.append((new QuMcq(field.fieldref(), options))->addTag(Q1_TAG));
         }
-        for (const auto& field : other_q_fields) {
-            elements.append((new QuText(field.question()))
-                            ->setBold());
-            elements.append((new QuMcq(field.fieldref(), options))
-                            ->setHorizontal());
+        for (const auto& field : qAsConst(other_q_fields)) {
+            elements.append((new QuText(field.question()))->setBold());
+            elements.append(new QuMcq(field.fieldref(), options));
         }
     }
 
