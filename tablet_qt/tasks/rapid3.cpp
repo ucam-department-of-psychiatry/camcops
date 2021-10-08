@@ -235,7 +235,8 @@ OpenableWidget* Rapid3::editor(const bool read_only)
 
     QVector<QuestionWithOneField> q_field_pairs;
 
-    for (const QString& fieldname : q1Fieldnames()) {
+    const auto q1fieldnames = q1Fieldnames();
+    for (const QString& fieldname : q1fieldnames) {
         const QString& description = xstring(fieldname);
         q_field_pairs.append(QuestionWithOneField(description,
                                                   fieldRef(fieldname)));

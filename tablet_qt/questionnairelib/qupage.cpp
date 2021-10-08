@@ -248,7 +248,8 @@ QVector<QuElement*> QuPage::allElements() const
 QVector<QuElement*> QuPage::elementsWithTag(const QString& tag)
 {
     QVector<QuElement*> matching_elements;
-    for (QuElement* e : allElements()) {
+    const auto all_elements = allElements();
+    for (QuElement* e : all_elements) {
         if (e->hasTag(tag)) {
             matching_elements.append(e);
         }
@@ -265,7 +266,7 @@ bool QuPage::mayProgressIgnoringValidators() const
 
 bool QuPage::missingInput() const
 {
-    const QVector<QuElement*> elements = allElements();
+    const auto elements = allElements();
     for (QuElement* e : elements) {
         // Not this:
         /*

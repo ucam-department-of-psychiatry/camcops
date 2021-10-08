@@ -41,7 +41,7 @@ public:
 protected:
     virtual void extraLineEditCreation(QLineEdit* editor) override;
 protected:
-    virtual void setDefaultHint();
+    void setDefaultHint();
 protected:
     int m_minimum;  // minimum; may be std::numeric_limits<int>::min()
     int m_maximum;  // maximum; may be std::numeric_limits<int>::max()
