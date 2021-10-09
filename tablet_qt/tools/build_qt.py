@@ -2,7 +2,7 @@
 
 # noinspection HttpUrlsUsage
 r"""
-tools/build_qt.py
+tablet_qt/tools/build_qt.py
 
 ===============================================================================
 
