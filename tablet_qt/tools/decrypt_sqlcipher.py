@@ -170,10 +170,10 @@ def main() -> NoReturn:
     stderr_str = stderr_bytes.decode(progargs.encoding)
     retcode = p.returncode
     if retcode > 0:
-        log.critical(
-            "SQLCipher returned an error; its output is below. (Wrong "
-            "password? Wrong passwords give the error 'file is encrypted or "
-            "is not a database', as do non-database files.)")
+        log.critical("SQLCipher returned an error; its output is below. "
+                     "(Wrong password? Wrong passwords give the error "
+                     "'file is encrypted or is not a database', "
+                     "as do non-database files.)")
         log.critical(stderr_str)
     else:
         log.info("Success. (The decrypted database {!r} is now a standard "

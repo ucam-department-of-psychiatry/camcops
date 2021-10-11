@@ -932,12 +932,17 @@ QSize minimumSizeForTitle(const QDialog* dialog,
     return size;
 }
 
+
+QScreen* screen()
+{
+    return QGuiApplication::primaryScreen();
+}
+
+
 QRect screenGeometry()
 {
     // https://stackoverflow.com/questions/18975734/how-can-i-find-the-screen-desktop-size-in-qt-so-i-can-display-a-desktop-notific
-    QScreen* screen = QGuiApplication::primaryScreen();
-
-    return screen->geometry();
+    return screen()->geometry();
 }
 
 int screenWidth()
@@ -948,6 +953,11 @@ int screenWidth()
 int screenHeight()
 {
     return screenGeometry().height();
+}
+
+qreal screenDpi()
+{
+    return screen()->logicalDotsPerInch();
 }
 
 

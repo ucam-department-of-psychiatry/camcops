@@ -32,6 +32,7 @@ That is, e.g. "command --help > somefile.txt".
 
 import datetime
 import logging
+import os
 from os import DirEntry, environ, scandir
 from os.path import abspath, dirname, exists, join, pardir, realpath
 import subprocess
@@ -81,6 +82,25 @@ if CAMCOPS_CLIENT_EXECUTABLE is None:
     sys.exit(EXIT_FAILURE)
 
 
+def prohibit_env_vars(envvars: List[str]) -> None:
+    """
+    Ensure none of the specified environment variables are present (usually
+    because they will mess up the default help!).
+    """
+    bad = []
+    for v in envvars:
+        if v in os.environ:
+            bad.append(v)
+    if bad:
+        bad.sort()
+        spacer = "\n    "
+        bad_as_string = spacer.join(bad)
+        raise ValueError(
+            f"Please re-run with the following environment variables UNSET:"
+            f"\n{spacer}{bad_as_string}"
+        )
+
+
 def run_cmd(cmdargs: List[str],
             output_filename: str,
             timestamp: bool = False,
@@ -122,6 +142,11 @@ def run_cmd(cmdargs: List[str],
 
 
 def main():
+    prohibit_env_vars([
+        "LCONVERT",  # for build_client_translations.py
+        "LRELEASE",  # for build_client_translations.py
+        "LUPDATE",  # for build_client_translations.py
+    ])
     # administrator
     run_cmd(["camcops_backup_mysql_database", "--help"],
             join(ADMIN_DIR, "_camcops_backup_mysql_database_help.txt"))

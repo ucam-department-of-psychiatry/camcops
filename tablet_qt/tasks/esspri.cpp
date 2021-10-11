@@ -91,10 +91,10 @@ QStringList Esspri::fieldNames() const
     return strseq(QPREFIX, FIRST_Q, N_QUESTIONS);
 }
 
+
 // ============================================================================
 // Instance info
 // ============================================================================
-
 
 bool Esspri::isComplete() const
 {

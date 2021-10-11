@@ -90,7 +90,12 @@ void OpenableWidget::setWidgetAsOnlyContents(QWidget* widget,
 
     // Full screen?
     setWantsFullscreen(fullscreen);  // in case we're not shown yet
-    emit (fullscreen ? enterFullscreen() : leaveFullscreen());  // in case we're already showing
+    // In case we're already showing:
+    if (fullscreen) {
+        emit enterFullscreen();
+    } else {
+        emit leaveFullscreen();
+    }
 
     // Escape key behaviour?
     // - Note that one reason not to have multiple widgets active but not

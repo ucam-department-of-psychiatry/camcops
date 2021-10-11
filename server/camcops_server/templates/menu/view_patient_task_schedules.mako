@@ -72,7 +72,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
         <td>
             ${ patient.uuid_as_proquint }
         </td>
-        <td class="pts_mini_table">
+        <td class="mini_table">
             <table>
             %for pts in patient.task_schedules:
             <%
@@ -91,7 +91,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
                                  }) | n }">${ pts.task_schedule.name }</a>
                     </td>
                     <td>
-                        %if patient.email and pts.task_schedule.email_from:
+                        %if req.user.authorized_to_email_patients and patient.email and pts.task_schedule.email_from:
                         <a class="${ button_class }" href="${ req.route_url(
                                  Routes.SEND_EMAIL_FROM_PATIENT_LIST,
                                  _query={
@@ -126,9 +126,11 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 <div>
     <a href="${ req.route_url(Routes.ADD_PATIENT) | n }">${ _("Add a patient") }</a>
 </div>
+%if request.user.authorized_as_groupadmin:
 <div>
     <a href="${ request.route_url(Routes.VIEW_TASK_SCHEDULES) | n }">
         ${ _("Manage task schedules") }</a>
 </div>
+%endif
 
 <%include file="to_main_menu.mako"/>

@@ -127,7 +127,7 @@ Regarding temporal coding:
       plan.
     - Codes or other representations that name or provide the semantic
       information container, link, or statement:
-      
+
       - SNOMED CT fulfills this role in a structured health record.
 
     - Additional data including text, numeric values, images and other
@@ -1263,9 +1263,8 @@ def get_all_icd9cm_snomed_concepts_from_umls(
             if not entry.is_one_to_one_map:
                 continue
             if entry.icd_code in concepts:
-                log.warning(
-                    "Duplicate ICD-9-CM code found in SNOMED file {!r}: {!r}",
-                    tsv_filename, entry.icd_code)
+                log.warning("Duplicate ICD-9-CM code found in SNOMED file "
+                            "{!r}: {!r}", tsv_filename, entry.icd_code)
                 continue
             concept = entry.snomed_concept()
             # log.debug("{}", entry)
@@ -1419,9 +1418,8 @@ def get_all_icd10_snomed_concepts_from_umls(
             if entry.icd_code not in CLIENT_ICD10_CODES:
                 continue
             if entry.icd_code in concepts:
-                log.warning(
-                    "Duplicate ICD-10-CM code found in SNOMED file {!r}: {!r}",
-                    tsv_filename, entry.icd_code)
+                log.warning("Duplicate ICD-10-CM code found in SNOMED file "
+                            "{!r}: {!r}", tsv_filename, entry.icd_code)
                 continue
             concept = entry.snomed_concept()
             # log.debug("{}", entry)

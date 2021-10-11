@@ -119,7 +119,7 @@ QVector<DatabaseObjectPtr> TaskSchedule::getAllAncillary() const
 
 TaskScheduleItemPtr TaskSchedule::findItem(const TaskScheduleItemPtr match)
 {
-    for (const TaskScheduleItemPtr& item : m_items) {
+    for (const TaskScheduleItemPtr& item : qAsConst(m_items)) {
         if (item->dueFromUtc() == match->dueFromUtc() &&
             item->dueByUtc() == match->dueByUtc() &&
             item->taskTableName() == match->taskTableName()) {
@@ -157,7 +157,7 @@ QString TaskSchedule::name() const
 
 bool TaskSchedule::hasIncompleteCurrentTasks() const
 {
-    for (const TaskScheduleItemPtr& schedule_item : items()) {
+    for (const TaskScheduleItemPtr& schedule_item : qAsConst(m_items)) {
         if (schedule_item->isIncompleteAndCurrent()) {
             return true;
         }

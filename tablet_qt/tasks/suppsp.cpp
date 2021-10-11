@@ -214,7 +214,8 @@ OpenableWidget* Suppsp::editor(const bool read_only)
 
     QVector<QuestionWithOneField> q_field_pairs;
 
-    for (const QString& fieldname : fieldNames()) {
+    const auto fieldnames = fieldNames();
+    for (const QString& fieldname : fieldnames) {
         const QString& description = xstring(fieldname);
         q_field_pairs.append(QuestionWithOneField(description,
                                                   fieldRef(fieldname)));

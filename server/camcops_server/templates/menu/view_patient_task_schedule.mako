@@ -121,6 +121,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 </table>
 </div>
 
+%if req.user.authorized_to_email_patients:
 <div>
 <h2>${ _("Emails") }</h2>
 
@@ -145,7 +146,15 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
         )
     %>
     <tr ${ tr_attributes | n }>
-        <td><a href="${ email_link | n }">${ pts_email.email.subject }</a></td>
+        <td>
+ %if req.user.superuser:
+       <a href="${ email_link | n }">
+ %endif
+       ${ pts_email.email.subject }
+       </a>
+ %if req.user.superuser:
+       </td>
+ %endif
         <td>${ pts_email.email.date }</td>
         <td>${ get_yes_no(req, pts_email.email.sent) }</td>
         <td>${ failure_reason }</td>
@@ -161,11 +170,12 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
                  }) | n }">${ _("Email this patient") }</a>
 </div>
 %endif
+%endif
 </div>
 
 <div>
     <a href="${ req.route_url(Routes.VIEW_PATIENT_TASK_SCHEDULES) | n }">
-        ${ _("Manage scheduled tasks for patients") }</a>
+        ${ _("Manage patients and their tasks") }</a>
 </div>
 
 <%include file="to_main_menu.mako"/>

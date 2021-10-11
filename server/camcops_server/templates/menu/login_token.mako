@@ -1,7 +1,7 @@
-#!/usr/bin/env python
+## -*- coding: utf-8 -*-
+<%doc>
 
-"""
-camcops_server/cc_modules/cc_testhelpers.py
+camcops_server/templates/menu/login_token.mako
 
 ===============================================================================
 
@@ -24,27 +24,21 @@ camcops_server/cc_modules/cc_testhelpers.py
 
 ===============================================================================
 
-**Helper functions used during testing.**
+</%doc>
 
-"""
+<%inherit file="base_web_form.mako"/>
 
-from typing import List, Type
+<%include file="db_user_info.mako"/>
 
+<div>
+    <b>${ _("Unauthorized access prohibited.") }</b>
+    ${ _("All use is recorded and monitored.") }
+</div>
 
-def class_attribute_names(cls: Type,
-                          exclude_underscore: bool = True,
-                          exclude_double_underscore: bool = True) -> List[str]:
-    """
-    When given a class, returns the names of all its attributes, by default
-    excluding those starting with single and double underscores.
+<h1>${ _("Multi-factor authentication") }</h1>
 
-    Used in particular to enumerate constants provided within a class.
-    """
-    attrs = []  # type: List[str]
-    for x in cls.__dict__.keys():
-        if exclude_underscore and x.startswith("_"):
-            continue
-        if exclude_double_underscore and x.startswith("__"):
-            continue
-        attrs.append(x)
-    return attrs
+<p>
+${instructions}
+</p>
+
+${form | n}

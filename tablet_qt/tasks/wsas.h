@@ -20,6 +20,8 @@
 #pragma once
 #include <QPointer>
 #include <QString>
+#include "questionnairelib/namevalueoptions.h"
+#include "questionnairelib/questionwithonefield.h"
 #include "tasklib/task.h"
 
 class CamcopsApp;
@@ -62,8 +64,14 @@ public:
     // ------------------------------------------------------------------------
 public slots:
     void workChanged();
+    void orientationChanged(Qt::ScreenOrientation orientation);
+
 protected:
     QPointer<Questionnaire> m_questionnaire;
 public:
     static const QString WSAS_TABLENAME;
+
+private:
+    void refreshQuestionnaire();
+    void rebuildPage(QuPage* page);
 };

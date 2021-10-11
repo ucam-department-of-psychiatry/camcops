@@ -1,10 +1,4 @@
-## -*- coding: utf-8 -*-
-<%doc>
-
-camcops_server/templates/menu/password_changed.mako
-
-===============================================================================
-
+/*
     Copyright (C) 2012-2020 Rudolf Cardinal (rudolf@pobox.com).
 
     This file is part of CamCOPS.
@@ -20,21 +14,20 @@ camcops_server/templates/menu/password_changed.mako
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
+    along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
+*/
 
-===============================================================================
+#pragma once
+#include "menulib/menuwindow.h"
 
-</%doc>
 
-<%inherit file="base_web.mako"/>
-
-<div>${ _("Password changed for user") } ${ username }.</div>
-
-%if own_password:
-    <div class="important">
-        ${ _("If you store your password in your CamCOPS tablet application, "
-             "remember to change it there as well.") }
-    </div>
-%endif
-
-<%include file="to_main_menu.mako"/>
+class SetMenuCpftCovid : public MenuWindow
+{
+    Q_OBJECT
+public:
+    SetMenuCpftCovid(CamcopsApp& app);
+    virtual QString title() const override;
+    virtual QString subtitle() const override;
+protected:
+    virtual void makeItems() override;
+};

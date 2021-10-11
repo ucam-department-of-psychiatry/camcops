@@ -267,6 +267,14 @@ def task_schedule_item_sort_order() -> Tuple["Cast", "Cast"]:
     to get them in the order we want.
 
     This will fail if durations ever get stored any other way.
+
+    Note that MySQL does not permit "CAST(... AS DOUBLE)" or "CAST(... AS
+    FLOAT)"; you need to use NUMERIC or DECIMAL. However, this raises a warning
+    when running self-tests under SQLite: "SAWarning: Dialect sqlite+pysqlite
+    does *not* support Decimal objects natively, and SQLAlchemy must convert
+    from floating point - rounding errors and other issues may occur. Please
+    consider storing Decimal numbers as strings or integers on this platform
+    for lossless storage."
     """
     due_from_order = cast(func.substr(TaskScheduleItem.due_from, 7),
                           Numeric())
@@ -279,6 +287,7 @@ def task_schedule_item_sort_order() -> Tuple["Cast", "Cast"]:
 # =============================================================================
 # Emails sent to patient
 # =============================================================================
+
 class PatientTaskScheduleEmail(Base):
     """
     Represents an email send to a patient for a particular task schedule.

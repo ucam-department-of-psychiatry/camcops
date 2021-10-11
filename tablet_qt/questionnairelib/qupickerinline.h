@@ -50,7 +50,7 @@ protected:
 protected slots:
 
     // "Chosen item in the QComboBox has changed."
-    void currentIndexChanged(int index);
+    void currentItemChanged(int position);
 
     // "Field's data has changed."
     void fieldValueChanged(const FieldRef* fieldref);

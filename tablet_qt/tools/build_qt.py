@@ -73,7 +73,8 @@ Status
 
 These OS combinations are reflected in the ``--build_all`` option.
 
-(*) May need ``--nparallel 1`` for the OpenSSL parts of the build.
+(*) Parallel compilation disabled by this script for the OpenSSL parts of the
+build.
 
 
 Why?
@@ -166,7 +167,7 @@ Use of Python/library versions
 ==============================
 
 We don't rely on a standard CamCOPS Python virtual environment -- this makes it
-a bit easier to set things up for C++ work on Windows, for example. 
+a bit easier to set things up for C++ work on Windows, for example.
 
 
 Standard environment variables
@@ -512,7 +513,7 @@ DEFAULT_ANDROID_TOOLCHAIN_VERSION = "4.9"
 QT_GIT_URL = "git://code.qt.io/qt/qt5.git"
 QT_GIT_BRANCH = "5.12"  # is 5.12.4 as of 2019-06-18 (released 2019-06-17)
 QT_GIT_COMMIT = HEAD
-QT_SPECIFIC_VERSION = ""
+QT_SPECIFIC_VERSION = "5.12.11"
 
 if QT_SPECIFIC_VERSION:
     QT_VERSION = Version(QT_SPECIFIC_VERSION)
@@ -524,7 +525,7 @@ DEFAULT_QT_USE_OPENSSL_STATICALLY = True
 QT_XCB_SUPPORT_OK = True  # see 2017-12-01 above, fixed 2017-12-08
 ADD_SO_VERSION_OF_LIBQTFORANDROID = False
 USE_CLANG_NOT_GCC_FOR_ANDROID_ARM = (
-    QT_VERSION >= Version("5.12", partial=True)  # new feature 2019-06-15
+    QT_VERSION >= Version("5.12.0")  # new feature 2019-06-15
 )
 
 # OpenSSL
@@ -1317,6 +1318,21 @@ class Platform(object):
         else:
             raise ValueError("Unknown combination for ios_platform_name")
 
+    @property
+    def macos_platform_name(self) -> str:
+        """
+        Needs to match MacOS SDK naming. Don't alter.
+        """
+        if not self.macos:
+            raise ValueError(
+                "macos_platform_name requested but not using MacOS"
+            )
+
+        if self.cpu_x86_family:
+            return "MacOSX"
+
+        raise ValueError("Unknown combination for macos_platform_name")
+
     # -------------------------------------------------------------------------
     # Other cross-compilation details
     # -------------------------------------------------------------------------
@@ -1394,7 +1410,8 @@ class Platform(object):
 
     def make_args(self, cfg: "Config", extra_args: List[str] = None,
                   command: str = "", makefile: str = "",
-                  env: Dict[str, str] = None) -> List[str]:
+                  env: Dict[str, str] = None,
+                  allow_parallel: bool = True) -> List[str]:
         """
         Generates command arguments for "make" or a platform equivalent.
         """
@@ -1407,7 +1424,7 @@ class Platform(object):
             else:
                 make = which_with_envpath(NMAKE, env)
                 supports_parallel = False
-            makefile_switch = "/F"
+            makefile_switch = "/FS"
             parallel_switch = "/J"
         else:
             make = MAKE
@@ -1417,7 +1434,7 @@ class Platform(object):
         # require(make)
         # ... not necessarily visible now; may be on a PATH yet to be set
         args = [make]
-        if supports_parallel:
+        if allow_parallel and supports_parallel:
             args += [parallel_switch, str(cfg.nparallel)]
         if extra_args:
             args += extra_args
@@ -1681,7 +1698,8 @@ class Config(object):
     # -------------------------------------------------------------------------
 
     def make_args(self, extra_args: List[str] = None, command: str = "",
-                  makefile: str = "", env: Dict[str, str] = None) -> List[str]:
+                  makefile: str = "", env: Dict[str, str] = None,
+                  allow_parallel: bool = True) -> List[str]:
         """
         Returns command arguments for "make" or a platform equivalent.
         """
@@ -1689,7 +1707,8 @@ class Config(object):
                                         extra_args=extra_args,
                                         command=command,
                                         makefile=makefile,
-                                        env=env)
+                                        env=env,
+                                        allow_parallel=allow_parallel)
 
     # -------------------------------------------------------------------------
     # Environment variables
@@ -1760,15 +1779,25 @@ class Config(object):
         """
         if target_platform.android:
             return self._android_sysroot(target_platform)
-        elif target_platform.ios:
+
+        if target_platform.ios:
             return self._xcode_sdk_path(
                 xcode_platform=target_platform.ios_platform_name,
                 sdk_version=self._get_ios_sdk_version(
                     target_platform=target_platform))
-        elif target_platform.linux or target_platform.macos:
+
+        if target_platform.macos:
+            return self._xcode_sdk_path(
+                xcode_platform=target_platform.macos_platform_name,
+                sdk_version=""
+            )
+
+        if target_platform.linux:
             return "/"  # default sysroot
-        elif target_platform.windows:
+
+        if target_platform.windows:
             return env["WindowsSdkDir"]
+
         raise NotImplementedError(
             f"Don't know sysroot for target: {target_platform}")
 
@@ -2493,10 +2522,10 @@ def is_tclsh_windows_compatible(tclsh: str = TCLSH) -> bool:
     if result == correct:
         return True
     elif result == incorrect:
-        log.warning(
-            f"The TCL shell, {tclsh!r}, is a UNIX version (e.g. Cygwin) "
-            f"incompatible with Windows backslash-delimited filenames; switch "
-            f"to a Windows version (e.g. ActiveState ActiveTCL).")
+        log.warning(f"The TCL shell, {tclsh!r}, is a UNIX version (e.g. "
+                    f"Cygwin) incompatible with Windows backslash-delimited "
+                    f"filenames; switch to a Windows version (e.g. "
+                    f"ActiveState ActiveTCL).")
         return False
     else:
         raise RuntimeError(
@@ -2741,7 +2770,7 @@ NOTE: If in doubt, on Unix-ish systems use './config'.
                 #     so we rely on the fact that cl.exe will interpret "-FS"
                 #     and "/FS" identically.
             elif target_platform.cpu_x86_32bit_family:
-                return ["VC-WIN32"]
+                return ["VC-WIN32", "-FS"]
 
     raise NotImplementedError(
         f"Don't known OpenSSL target name for {target_platform}")
@@ -2934,9 +2963,9 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
         if use_configure or not target_platform.android:
             # http://doc.qt.io/qt-5/opensslsupport.html
             if BUILD_PLATFORM.windows:
-                log.warning(
-                    "The OpenSSL Configure script may warn about nmake.exe "
-                    "being missing when it isn't. (Or when it is...)")
+                log.warning("The OpenSSL Configure script may warn about "
+                            "nmake.exe being missing when it isn't. "
+                            "(Or when it is...)")
             run([PERL, join(workdir, "Configure")] + configure_args, env)
         else:
             # The "config" script guesses the OS then runs "Configure".
@@ -3021,8 +3050,13 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
             ])
 
         def runmake(command: str = "") -> None:
+            # Windows seems to have a problem building OpenSSL with
+            # nparallel > 1
+            allow_parallel = not BUILD_PLATFORM.windows
+
             run(cfg.make_args(command=command, env=env,
-                              extra_args=extra_args), env)
+                              extra_args=extra_args,
+                              allow_parallel=allow_parallel), env)
 
         # See INSTALL, INSTALL.WIN, etc. from the OpenSSL distribution
         runmake()
@@ -3068,7 +3102,7 @@ def fetch_qt(cfg: Config) -> None:
     run([PERL, "init-repository"])
     # Now, as per https://wiki.qt.io/Android:
     if QT_SPECIFIC_VERSION:
-        run([GIT, "checkout", QT_SPECIFIC_VERSION])
+        run([GIT, "checkout", f"v{QT_SPECIFIC_VERSION}"])
         run([GIT, "submodule", "update", "--recursive"])
 
 
@@ -3351,8 +3385,7 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         try:
             run(qt_config_args, env)  # The configure step takes a few seconds.
         except subprocess.CalledProcessError:
-            log.warning("""
-..
+            log.warning("""Qt 'configure' failure.
 
 ===============================================================================
 Troubleshooting Qt 'configure' failures
@@ -3394,8 +3427,7 @@ Troubleshooting Qt 'configure' failures
         try:
             run(cfg.make_args(env=env), env)
         except subprocess.CalledProcessError:
-            log.warning("""
-..
+            log.warning("""Qt 'make' failure.
 
 ===============================================================================
 Troubleshooting Qt 'make' failures
@@ -3612,6 +3644,7 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
             # Try this:
             ldflags.append(static_openssl_lib)
             # ... https://github.com/sqlcipher/sqlcipher
+            cflags.append("-DSQLCIPHER_CRYPTO_OPENSSL")
         else:
             log.info("Linking OpenSSL into SQLCipher DYNAMICALLY")
             # make the executable load OpenSSL dynamically
@@ -3638,6 +3671,11 @@ def build_sqlcipher(cfg: Config, target_platform: Platform) -> None:
             f'CFLAGS={" ".join(cflags + gccflags)}',
             f'LDFLAGS={" ".join(ldflags)}',
         ]
+        if link_openssl_statically:
+            config_args.append("--with-crypto-lib=none")
+            config_args.append("--disable-shared")
+            config_args.append("--enable-static=yes")
+
         # By default, SQLCipher compiles with "-O2" optimizations under gcc;
         # see its "configure" script.
 
