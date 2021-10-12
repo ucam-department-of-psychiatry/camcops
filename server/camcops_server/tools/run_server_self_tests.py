@@ -30,37 +30,49 @@ camcops_server/tools/run_server_self_tests.py
 
 import os
 import subprocess
+import sys
+
+from cardinal_pythonlib.cmdline import cmdline_quote
 
 from camcops_server.cc_modules.cc_baseconstants import CAMCOPS_SERVER_DIRECTORY
 from camcops_server.conftest import TEST_DATABASE_FILENAME
 
 
-DESCRIPTION = f"""- You can run tests manually via one of these methods:
+def main() -> None:
+    cmdargs = ["pytest"] + sys.argv[1:]
+    formatted_args = cmdline_quote(cmdargs)
+    print(f"""
+- You can run tests manually via one of these methods:
     pytest                                              # all tests
     pytest FILE.py                                      # one test file
     pytest FILE.py::some_function                       # one test function
     pytest FILE.py::SomeClass                           # one test class
     pytest FILE.py::SomeClass::some_member_function     # function within class
-    pytest -k search_term                               # all test functions,
-                                                        # classes etc matching
+    pytest -k search_term   # all matching test files, functions, classes, etc.
+
 - Pytest will find additional options in:
     {CAMCOPS_SERVER_DIRECTORY}/conftest.py
     {CAMCOPS_SERVER_DIRECTORY}/pytest.ini
+  ... if you are running pytest manually, RUN FROM THAT DIRECTORY.
+
 - Note that an SQLite database is saved in
     {TEST_DATABASE_FILENAME}
-  ... delete that and retry if the tests fail!
-- We'll launch pytest now for the full test suite."""
-# https://stackoverflow.com/questions/36456920
-# examples:
-# pytest client_api_tests.py::ClientApiTests::test_client_api_validators
-# pytest webview_tests.py::WebviewTests::test_webview_constant_validators
-# pytest cc_validator_tests.py
+  ... DELETE THAT AND RETRY IF THE TESTS FAIL!
 
+- We'll do this now:
+    cd {CAMCOPS_SERVER_DIRECTORY}
+    {formatted_args}
+""")
+    # https://stackoverflow.com/questions/36456920
+    # examples:
+    # pytest client_api_tests.py::ClientApiTests::test_client_api_validators
+    # pytest webview_tests.py::WebviewTests::test_webview_constant_validators
+    # pytest cc_validator_tests.py
 
-def main() -> None:
-    print(DESCRIPTION)
+    # print(f"cmdargs: {cmdargs!r}")
+    input("Press Enter when ready...")
     os.chdir(CAMCOPS_SERVER_DIRECTORY)
-    subprocess.run("pytest", shell=True)
+    subprocess.run(cmdargs)
 
 
 if __name__ == "__main__":

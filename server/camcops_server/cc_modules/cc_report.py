@@ -716,8 +716,8 @@ class AverageScoreReport(DateTimeFilteredReportMixin, Report, ABC):
 
         # Get all distinct patients
         patients = set(t.patient for t in all_tasks)
-        # log.critical("all_tasks: {}", all_tasks)
-        # log.critical("patients: {}", [str(p) for p in patients])
+        # log.debug("all_tasks: {}", all_tasks)
+        # log.debug("patients: {}", [str(p) for p in patients])
 
         scoretypes = self.scoretypes(req)
         n_scoretypes = len(scoretypes)
@@ -732,7 +732,7 @@ class AverageScoreReport(DateTimeFilteredReportMixin, Report, ABC):
             # Find tasks for this patient
             patient_tasks = [t for t in all_tasks if t.patient == patient]
             assert patient_tasks, f"No tasks for patient {patient}"
-            # log.critical("For patient {}, tasks: {}", patient, patient_tasks)
+            # log.debug("For patient {}, tasks: {}", patient, patient_tasks)
             # Find first and last task (last may be absent)
             patient_tasks.sort(key=task_when_created_sorter)
             first = patient_tasks[0]

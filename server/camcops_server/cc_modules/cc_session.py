@@ -49,9 +49,10 @@ from camcops_server.cc_modules.cc_constants import DateFormat
 from camcops_server.cc_modules.cc_pyramid import CookieKey
 from camcops_server.cc_modules.cc_sqla_coltypes import (
     IPAddressColType,
+    JsonColType,
     SessionTokenColType,
 )
-from camcops_server.cc_modules.cc_sqlalchemy import Base
+from camcops_server.cc_modules.cc_sqlalchemy import Base, MutableDict
 from camcops_server.cc_modules.cc_taskfilter import TaskFilter
 from camcops_server.cc_modules.cc_user import (
     User,
@@ -71,7 +72,8 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 DEBUG_CAMCOPS_SESSION_CREATION = False
 
 if DEBUG_CAMCOPS_SESSION_CREATION:
-    log.warning("cc_session: Debugging options enabled!")
+    log.warning("Debugging options enabled!")
+
 
 # =============================================================================
 # Constants
@@ -144,7 +146,11 @@ class CamcopsSession(Base):
         default=False,
         comment="This session is using the client API (not a human browsing)."
     )
-
+    form_state = Column(
+        "form_state", MutableDict.as_mutable(JsonColType),
+        comment=("Any state that needs to be saved temporarily during "
+                 "wizard-style form submission")
+    )
     user = relationship("User", lazy="joined", foreign_keys=[user_id])
     task_filter = relationship(
         "TaskFilter", foreign_keys=[task_filter_id],

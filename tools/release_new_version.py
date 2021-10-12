@@ -360,9 +360,10 @@ class VersionReleaser:
     def check_client_version(self) -> None:
         if self.new_client_version == self.progress_version:
             self.errors.append(
-                f"The desired client version ({self.new_client_version}) matches "
-                "the current IN PROGRESS version in the changelog. You probably "
-                "want to mark the version in the changelog as released"
+                f"The desired client version ({self.new_client_version}) "
+                "matches the current IN PROGRESS version in the changelog. "
+                "You probably want to mark the version in the changelog as "
+                "released"
             )
 
         current_client_version = self.get_client_version()
@@ -595,9 +596,15 @@ class VersionReleaser:
             os.chdir(SERVER_SOURCE_DIR)
             self.run_with_check(["python", "setup.py", "sdist", "bdist_wheel"])
             pypi_packages = [str(f) for f in self.get_pypi_builds()]
+            print("Uploading to PyPI...")
             self.run_with_check(["twine", "upload"] + pypi_packages)
 
+            # Next improvement. GitHub action on pushed "v" tag to create
+            # release and upload to PyPI.
             print("Now upload the .rpm and .deb files to GitHub")
+
+        if self.should_release_client:
+            print("Now build the various client apps and upload.")
 
     @property
     def should_release_client(self) -> bool:
@@ -660,7 +667,7 @@ def main() -> None:
     / Check the changelog
     / Check the Git repository
     / Build the Ubuntu server packages (deb/rpm)
-    / Build the pypi server package
+    / Build the PyPI server package
     / Distribute the server packages to PyPI
     - Distribute the server packages to GitHub (or use GitHub actions)
 
@@ -704,6 +711,12 @@ def main() -> None:
         default=False,
         help="Update any incorrect version numbers",
     )
+    parser.add_argument(
+        "--release",
+        action="store_true",
+        default=False,
+        help="If all checks pass, build and release",
+    )
     args = parser.parse_args()
 
     releaser = VersionReleaser(
@@ -717,10 +730,17 @@ def main() -> None:
     if len(releaser.errors) > 0:
         for error in releaser.errors:
             print(error)
+        if not args.update_versions:
+            print("Run the script with --update-versions to automatically "
+                  "update version numbers")
         sys.exit(EXIT_FAILURE)
 
-    # OK to proceed to the next step
-    releaser.release()
+    if args.release:
+        # OK to proceed to the next step
+        releaser.release()
+        return
+
+    print("All checks passed. You can run the script again with --release")
 
 
 if __name__ == "__main__":

@@ -27,22 +27,11 @@ camcops_server/templates/menu/change_other_password.mako
 </%doc>
 
 <%inherit file="base_web_form.mako"/>
-
 <%include file="db_user_info.mako"/>
 
-<h1>${ _("Change password for user:") } ${ username }</h1>
+<h1>${ _("Change password for user: {username}").format(username=username) }</h1>
 
 ${form | n}
-
-<div>
-    ${ _("Choose strong passphrases.") }
-    ${ _("See") }
-    <a href="https://www.ncsc.gov.uk/blog-post/three-random-words-or-thinkrandom-0">
-        https://www.ncsc.gov.uk/blog-post/three-random-words-or-thinkrandom-0</a>.
-</div>
-<div>
-    ${ _("Minimum password length is {} characters.").format(min_pw_length) }
-</div>
 
 <%include file="to_view_all_users.mako"/>
 <%include file="to_main_menu.mako"/>

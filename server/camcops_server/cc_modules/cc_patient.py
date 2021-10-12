@@ -422,9 +422,9 @@ class Patient(GenericTabletRecordMixin, Base):
 
         """
         # Same object?
-        # log.warning("self={}, other={}", self, other)
+        # log.debug("self={}, other={}", self, other)
         if self is other:
-            # log.warning("... same object; equal")
+            # log.debug("... same object; equal")
             return True
         # Same device/era/patient ID (client PK)? Test int before str for speed
         if (self.id == other.id and
@@ -433,15 +433,15 @@ class Patient(GenericTabletRecordMixin, Base):
                 self.id is not None and
                 self._device_id is not None and
                 self._era is not None):
-            # log.warning("... same device/era/id; equal")
+            # log.debug("... same device/era/id; equal")
             return True
         # Shared ID number?
         for sid in self.idnums:
             if sid in other.idnums:
-                # log.warning("... share idnum {}; equal", sid)
+                # log.debug("... share idnum {}; equal", sid)
                 return True
         # Otherwise...
-        # log.warning("... unequal")
+        # log.debug("... unequal")
         return False
 
     def __hash__(self) -> int:

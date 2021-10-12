@@ -44,6 +44,7 @@ from typing import Dict, List, Optional, Set, Tuple, Union
 
 from cardinal_pythonlib.argparse_func import ShowAllSubparserHelpAction
 from cardinal_pythonlib.json.typing_helpers import JsonValueType
+from cardinal_pythonlib.httpconst import HttpStatus
 from cardinal_pythonlib.logs import main_only_quicksetup_rootlogger
 from cardinal_pythonlib.rate_limiting import rate_limited
 from cardinal_pythonlib.snomed import SnomedConcept
@@ -63,8 +64,6 @@ DEFAULT_RELEASE = "v20191001"
 DEFAULT_LANGUAGE = "english"
 DEFAULT_RATE_LIMIT_HZ = 1  # be nice
 DEFAULT_OUTPUT_XML_FILENAME = "camcops_tasks_snomed.xml"
-
-HTTP_200_OK = 200
 
 DISCLAIMER_1 = """
 SNOMED Clinical Terms® (SNOMED CT®) is owned by the International Health
@@ -546,7 +545,7 @@ class SnomedApiInfo(object):
         """
         log.debug(f"Fetching from {url}")
         response = requests.get(url, params)
-        if response.status_code != HTTP_200_OK:
+        if response.status_code != HttpStatus.OK:
             log.warning(f"Response was: {response}")
             return None
         json_object = response.json()
@@ -669,29 +668,29 @@ def test_api(api: SnomedApiInfo,
     concept_ids = concept_ids or []  # type: List[int]
     terms = terms or []  # type: List[str]
 
-    log.warning("Running tests...")
+    log.info("Running tests...")
 
     if not concept_ids and not terms:
-        log.warning("Using default tests")
+        log.info("Using default tests")
 
-        log.warning("'Pneumonia (disorder)' by ID")
+        log.info("'Pneumonia (disorder)' by ID")
         api.get_concept_by_id("233604007")
 
-        log.warning("'Lupus pneumonia (disorder)' by name")
+        log.info("'Lupus pneumonia (disorder)' by name")
         api.get_concept_by_term("Lupus pneumonia", SemanticTypes.DIS)
 
-        log.warning("'Pneumonia (disorder)' by name")
+        log.info("'Pneumonia (disorder)' by name")
         api.get_concept_by_term("Pneumonia", SemanticTypes.DIS)
 
     for cid in concept_ids:
-        log.warning(str(cid))
+        log.info(str(cid))
         api.get_concept_by_id(cid)
 
     for term in terms:
         if semantic_area:
-            log.warning(f"{term} ({semantic_area})")
+            log.info(f"{term} ({semantic_area})")
         else:
-            log.warning(f"{term}")
+            log.info(f"{term}")
         api.get_concept_by_term(term, semantic_area)
 
 

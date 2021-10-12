@@ -347,12 +347,12 @@
     <message>
         <location filename="../tasks/cpftcovidmedical.cpp" line="+82"/>
         <source>CPFT Post-COVID-19 Clinic Medical Questionnaire</source>
-        <translation type="unfinished"></translation>
+        <translation>CPFT Medicinsk Spørgeskema Efter COVID-19</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>CPFT post-COVID-19 clinic medical questionnaire</source>
-        <translation type="unfinished"></translation>
+        <translation>CPFT medicinsk spørgeskema efter COVID-19</translation>
     </message>
 </context>
 <context>
@@ -5278,7 +5278,7 @@ enig</translation>
 <context>
     <name>SetMenuCpftCovid</name>
     <message>
-        <location filename="../menu/setmenucpftcovid.cpp" line="+34"/>
+        <location filename="../menu/setmenucpftcovid.cpp" line="+36"/>
         <source>CPFT Post-COVID-19 Clinic</source>
         <translation>CPFT Post-COVID-19 Klinik</translation>
     </message>
@@ -6372,8 +6372,7 @@ enig</translation>
         <translation>Opgave ikke tilladt til kommerciel brug (se Opgaveoplysninger).</translation>
     </message>
     <message>
-        <location line="+7"/>
-        <location line="+14"/>
+        <location line="+21"/>
         <source>Task not allowed for research use (see Task Information).</source>
         <translation>Opgave ikke tilladt til forskningsbrug (se Opgaveoplysninger).</translation>
     </message>
@@ -6383,7 +6382,12 @@ enig</translation>
         <translation>Opgave ikke tilladt til uddannelsesmæssig brug (se Opgaveoplysninger).</translation>
     </message>
     <message>
-        <location line="+16"/>
+        <location line="-7"/>
+        <source>Task not allowed for clinical use (see Task Information).</source>
+        <translation>Opgave ikke tilladt til klinisk brug (se Opgaveoplysninger).</translation>
+    </message>
+    <message>
+        <location line="+23"/>
         <source>Task may not be created in &apos;skeleton&apos; form (strings not downloaded from server).</source>
         <translation>Opgaven må ikke oprettes i &apos;skelet&apos;-form (strenge, der ikke hentes fra serveren).</translation>
     </message>

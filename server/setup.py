@@ -69,7 +69,7 @@ INSTALL_REQUIRES = [
     'alembic==1.4.2',  # database migrations
     'asteval==0.9.18',  # safe-ish alternative to eval
 
-    'cardinal_pythonlib==1.1.6',  # RNC libraries
+    'cardinal_pythonlib==1.1.10',  # RNC libraries
     'celery==4.4.6',  # background tasks
     'colander==1.7.0',  # serialization/deserialization from web forms
     'CherryPy==18.6.0',  # web server
@@ -104,20 +104,30 @@ INSTALL_REQUIRES = [
     'pendulum==2.1.2',  # date/time classes
     'pexpect==4.8.0',  # for open_sqlcipher.py
     'pdfkit==0.6.1',  # wkhtmltopdf interface, for PDF generation from HTML
+    'phonenumbers==8.12.30',  # phone number parsing, storing and validating
     'py==1.10.0',  # dependency, pinned to avoid CVE-2020-29651
     'pycap==1.1.1',  # REDCap integration
     'Pygments==2.7.4',  # Syntax highlighting for introspection/DDL
     'pyexcel-ods3==0.5.3',  # ODS spreadsheet export
     'pyexcel-xlsx==0.5.8',  # XLSX spreadsheet export
+    'pyotp==2.6.0',  # Multi-factor authentication
     'pyramid==1.10.4',  # web framework
     'pyramid_debugtoolbar==4.6.1',  # debugging for Pyramid
     "pytest==6.0.2",  # automatic testing
+
+    "qrcode[pil]==7.2",  # for registering with Authenticators
+
+    "requests==2.26",  # in fetch_snomed_codes.py and cc_sms.py, but also required by something else?  # noqa
 
     'sadisplay==0.4.9',  # SQL Alchemy schema display script
     'scipy==1.5.4',  # used by some tasks. slow installation.
     'semantic_version==2.8.5',  # semantic versioning; better than semver
     'sqlalchemy==1.3.18',  # database access
     'statsmodels==0.11.1',  # e.g. logistic regression
+
+    'twilio==6.63.0',  # SMS backend for Multi-factor authentication
+
+    'urllib3==1.26.7',  # dependency, pinned to avoid vulnerabilities
 
     'Wand==0.6.1',  # ImageMagick binding
 
@@ -137,7 +147,7 @@ INSTALL_REQUIRES = [
 
     'Babel==2.8.0',  # reads code, generates gettext files; dev only but was already installed  # noqa
     'flake8==3.8.3',  # code checks
-    'scrapy==2.3.0',  # development only
+    'scrapy==2.5.1',  # development only
     'sphinx==3.1.1',  # development only
     'sphinx_rtd_theme==0.5.0',  # development only
 

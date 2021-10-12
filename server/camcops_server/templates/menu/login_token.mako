@@ -1,7 +1,7 @@
 ## -*- coding: utf-8 -*-
 <%doc>
 
-camcops_server/templates/menu/login_failed.mako
+camcops_server/templates/menu/login_token.mako
 
 ===============================================================================
 
@@ -26,19 +26,19 @@ camcops_server/templates/menu/login_failed.mako
 
 </%doc>
 
-<%inherit file="base_web.mako"/>
-
-<%!
-from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
-%>
+<%inherit file="base_web_form.mako"/>
 
 <%include file="db_user_info.mako"/>
 
-<div class="error">
-    ${ _("Invalid username/password (or user not authorized).") }
-</div>
 <div>
-    ${ _("Click") }
-    <a href="${ request.route_url(Routes.LOGIN)| n }">${ _("here") }</a>
-    ${ _("to try again.") }
+    <b>${ _("Unauthorized access prohibited.") }</b>
+    ${ _("All use is recorded and monitored.") }
 </div>
+
+<h1>${ _("Multi-factor authentication") }</h1>
+
+<p>
+${instructions}
+</p>
+
+${form | n}

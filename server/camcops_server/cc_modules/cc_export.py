@@ -728,9 +728,7 @@ class TaskCollectionExporter(object):
         if email.sent:
             log.info(f"Research dump emailed to {email_to}")
         else:
-            log.error(
-                f"Failed to email research dump to {email_to}"
-            )
+            log.error(f"Failed to email research dump to {email_to}")
 
     def schedule_download(self) -> None:
         """

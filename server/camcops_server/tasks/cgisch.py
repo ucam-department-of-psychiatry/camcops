@@ -215,7 +215,7 @@ class CgiSch(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                 {tr_severity("q3", self.severity3)}
                 {tr_severity("q4", self.severity4)}
                 {tr_severity("q5", self.severity5)}
-                
+
                 {subheading_spanning_two_columns(self.wxstring(req, "ii_title"))}
                 {tr_span_col(self.wxstring(req, "ii_question"), cols=2)}
                 {tr_change("q1", self.change1)}

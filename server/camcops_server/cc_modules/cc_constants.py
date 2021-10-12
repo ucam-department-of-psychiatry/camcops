@@ -89,6 +89,9 @@ GITHUB_RELEASES_URL = "https://github.com/RudolfCardinal/camcops/releases/"
 
 MINIMUM_PASSWORD_LENGTH = 10
 
+OBSCURE_PHONE_ASTERISKS = "*" * 10
+OBSCURE_EMAIL_ASTERISKS = "*" * 5
+
 
 # =============================================================================
 # Date formats
@@ -378,6 +381,7 @@ QUESTION = "Question"
 CONFIG_FILE_SITE_SECTION = "site"
 CONFIG_FILE_SERVER_SECTION = "server"
 CONFIG_FILE_EXPORT_SECTION = "export"
+CONFIG_FILE_SMS_BACKEND_PREFIX = "sms_backend"
 
 
 class ConfigParamSite(object):
@@ -407,13 +411,17 @@ class ConfigParamSite(object):
     LOCAL_LOGO_FILE_ABSOLUTE = "LOCAL_LOGO_FILE_ABSOLUTE"
     LOCKOUT_DURATION_INCREMENT_MINUTES = "LOCKOUT_DURATION_INCREMENT_MINUTES"
     LOCKOUT_THRESHOLD = "LOCKOUT_THRESHOLD"
+    MFA_METHODS = "MFA_METHODS"
+    MFA_TIMEOUT_S = "MFA_TIMEOUT_S"
     PASSWORD_CHANGE_FREQUENCY_DAYS = "PASSWORD_CHANGE_FREQUENCY_DAYS"
     PATIENT_SPEC = "PATIENT_SPEC"
     PATIENT_SPEC_IF_ANONYMOUS = "PATIENT_SPEC_IF_ANONYMOUS"
     PERMIT_IMMEDIATE_DOWNLOADS = "PERMIT_IMMEDIATE_DOWNLOADS"
+    REGION_CODE = "REGION_CODE"
     RESTRICTED_TASKS = "RESTRICTED_TASKS"
     SESSION_COOKIE_SECRET = "SESSION_COOKIE_SECRET"
     SESSION_TIMEOUT_MINUTES = "SESSION_TIMEOUT_MINUTES"
+    SMS_BACKEND = "SMS_BACKEND"
     SNOMED_TASK_XML_FILENAME = "SNOMED_TASK_XML_FILENAME"
     SNOMED_ICD9_XML_FILENAME = "SNOMED_ICD9_XML_FILENAME"
     SNOMED_ICD10_XML_FILENAME = "SNOMED_ICD10_XML_FILENAME"
@@ -548,6 +556,58 @@ class StandardPorts(object):
     MYSQL = 3306
 
 
+class MfaMethod:
+    """
+    Open multi-factor authentication (MFA) standards are defined in RFC 4226
+    (HOTP: An HMAC-Based One-Time Password Algorithm) and in RFC 6238 (TOTP:
+    Time-Based One-Time Password Algorithm).
+
+    HMAC:  Hash-based Message Authentication Code
+    https://en.wikipedia.org/wiki/HMAC
+
+    Values must be in lower case.
+    """
+    HOTP_EMAIL = "hotp_email"  # Send a code by email
+    HOTP_SMS = "hotp_sms"  # Send a code by SMS
+    NO_MFA = "no_mfa"  # No multi-factor authentication; username/password only
+    TOTP = "totp"  # Use an app such as Google Authenticator, Twilio Authy
+
+    @classmethod
+    def valid(cls, method: str) -> bool:
+        """
+        Is the method a known MFA method (including "no MFA")?
+        """
+        return method in [cls.HOTP_EMAIL, cls.HOTP_SMS, cls.NO_MFA, cls.TOTP]
+
+    @classmethod
+    def requires_second_step(cls, method: str) -> bool:
+        """
+        Does the method require a second authentication step?
+        """
+        return method in [cls.HOTP_EMAIL, cls.HOTP_SMS, cls.TOTP]
+
+    @classmethod
+    def clean(cls, method: str) -> str:
+        """
+        Returns a valid method, even if the input isn't.
+        Defaults to NO_MFA.
+        """
+        if cls.requires_second_step(method):
+            return method
+        else:
+            # e.g. NO_MFA, None, "none", other junk
+            return cls.NO_MFA
+
+
+class SmsBackendNames:
+    """
+    Names of allowed SMS backends.
+    """
+    CONSOLE = "console"
+    KAPOW = "kapow"
+    TWILIO = "twilio"
+
+
 class DockerConstants(object):
     """
     Constants for the Docker environment.
@@ -606,10 +666,14 @@ class ConfigDefaults(object):
     LOCAL_LOGO_FILE_ABSOLUTE = os.path.join(STATIC_ROOT_DIR, "logo_local.png")
     LOCKOUT_DURATION_INCREMENT_MINUTES = 10
     LOCKOUT_THRESHOLD = 10
+    MFA_METHODS = [MfaMethod.NO_MFA]
+    MFA_TIMEOUT_S = 600  # zero for never
     PASSWORD_CHANGE_FREQUENCY_DAYS = 0  # zero for never
     PATIENT_SPEC_IF_ANONYMOUS = "anonymous"
     PERMIT_IMMEDIATE_DOWNLOADS = False
+    REGION_CODE = "GB"
     SESSION_TIMEOUT_MINUTES = 30
+    SMS_BACKEND = SmsBackendNames.CONSOLE
     USER_DOWNLOAD_DIR = LINUX_DEFAULT_USER_DOWNLOAD_DIR  # for demo configs only  # noqa
     USER_DOWNLOAD_FILE_LIFETIME_MIN = 60
     USER_DOWNLOAD_MAX_SPACE_MB = 100
@@ -738,6 +802,8 @@ class StringLengths:
     # -------------------------------------------------------------------------
     AUDIT_SOURCE_MAX_LEN = 20  #: our choice based on use in CamCOPS code
 
+    BASE32_MAX_LEN = 32
+
     #: : See https://docs.python.org/3.7/library/codecs.html#standard-encodings.
     #: Probably ~18 so give it some headroom.
     CHARSET_MAX_LEN = 64
@@ -862,11 +928,16 @@ class StringLengths:
     # LONGBLOB_LONGTEXT_MAX_LEN = (2 ** 32) - 1
     # ... https://dev.mysql.com/doc/refman/8.0/en/storage-requirements.html
 
+    # The longest is currently "hotp_email" (ViewArg, cc_pyramid.py)
+    MFA_METHOD_MAX_LEN = 20
+
     #: See https://stackoverflow.com/questions/643690
     MIMETYPE_MAX_LEN = 255
 
     #: For forename and surname, each; our choice but must match tablet
     PATIENT_NAME_MAX_LEN = 255
+
+    PHONE_NUMBER_MAX_LEN = 128
 
     RFC_2822_DATE_MAX_LEN = 31
     """

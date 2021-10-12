@@ -31,6 +31,7 @@
 
 UrlHandler* UrlHandler::m_instance = NULL;
 
+
 UrlHandler::UrlHandler()
 {
     m_instance = this;
@@ -51,6 +52,7 @@ UrlHandler::UrlHandler()
     // See also CFBundleURLSchemes in tablet_qt/ios/Info.plist
     QDesktopServices::setUrlHandler("camcops", this, "handleUrl");
 }
+
 
 void UrlHandler::handleUrl(const QUrl& url)
 {

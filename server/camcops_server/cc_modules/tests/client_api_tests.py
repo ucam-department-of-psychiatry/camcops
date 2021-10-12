@@ -29,13 +29,17 @@ camcops_server/cc_modules/tests/client_api_tests.py
 import json
 # from pprint import pformat
 import string
+from typing import Dict
 
+from cardinal_pythonlib.classes import class_attribute_names
 from cardinal_pythonlib.convert import (
     base64_64format_encode,
     hex_xformat_encode,
 )
+from cardinal_pythonlib.nhs import generate_random_nhs_number
 from cardinal_pythonlib.sql.literals import sql_quote_string
 from cardinal_pythonlib.text import escape_newlines, unescape_newlines
+from pyramid.response import Response
 
 from camcops_server.cc_modules.cc_client_api_core import (
     fail_server_error,
@@ -53,7 +57,6 @@ from camcops_server.cc_modules.cc_proquint import (
     uuid_from_proquint,
 )
 from camcops_server.cc_modules.cc_taskindex import update_indexes_and_push_exports  # noqa
-from camcops_server.cc_modules.cc_testhelpers import class_attribute_names
 from camcops_server.cc_modules.cc_unittest import (
     BasicDatabaseTestCase,
     DemoDatabaseTestCase
@@ -69,12 +72,42 @@ from camcops_server.cc_modules.client_api import (
     client_api,
     DEVICE_STORED_VAR_TABLENAME_DEFUNCT,
     FAILURE_CODE,
-    get_reply_dict_from_response,
     make_single_user_mode_username,
     Operations,
     SUCCESS_CODE,
-    TEST_NHS_NUMBER,
 )
+
+
+TEST_NHS_NUMBER = generate_random_nhs_number()
+
+
+def get_reply_dict_from_response(response: Response) -> Dict[str, str]:
+    """
+    For unit testing: convert the text in a :class:`Response` back to a
+    dictionary, so we can check it was correct.
+    """
+    txt = str(response)
+    d = {}  # type: Dict[str, str]
+    # Format is: "200 OK\r\n<other headers>\r\n\r\n<content>"
+    # There's a blank line between the heads and the body.
+    http_gap = "\r\n\r\n"
+    camcops_linesplit = "\n"
+    camcops_k_v_sep = ":"
+    try:
+        start_of_content = txt.index(http_gap) + len(http_gap)
+        txt = txt[start_of_content:]
+        for line in txt.split(camcops_linesplit):
+            if not line:
+                continue
+            colon_pos = line.index(camcops_k_v_sep)
+            key = line[:colon_pos]
+            value = line[colon_pos + len(camcops_k_v_sep):]
+            key = key.strip()
+            value = value.strip()
+            d[key] = value
+        return d
+    except ValueError:
+        return {}
 
 
 class ClientApiTests(DemoDatabaseTestCase):

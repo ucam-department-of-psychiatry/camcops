@@ -73,7 +73,8 @@ Status
 
 These OS combinations are reflected in the ``--build_all`` option.
 
-(*) May need ``--nparallel 1`` for the OpenSSL parts of the build.
+(*) Parallel compilation disabled by this script for the OpenSSL parts of the
+build.
 
 
 Why?
@@ -1618,14 +1619,8 @@ class Config(object):
         # Changed location from bitbucket:
         # https://gitlab.com/libeigen/eigen/-/archive/3.3.8/eigen-3.3.8.tar.gz
         self.eigen_version = EIGEN_VERSION  # type: str
-        # self.eigen_src_url = (
-        #     f"https://gitlab.com/libeigen/eigen/-/archive/{self.eigen_version}/eigen-{self.eigen_version}.tar.gz"  # noqa
-        # )
-
-        # TEMPORARY while GitLab restores the official repository
-        # https://gitlab.com/libeigen/eigen/-/issues/2336
         self.eigen_src_url = (
-            f"https://gitlab.com/cantonios/eigen/-/archive/{self.eigen_version}/eigen-{self.eigen_version}.tar.gz"  # noqa
+            f"https://gitlab.com/libeigen/eigen/-/archive/{self.eigen_version}/eigen-{self.eigen_version}.tar.gz"  # noqa
         )
 
         self.eigen_src_dir = join(self.src_rootdir, "eigen")
@@ -2521,10 +2516,10 @@ def is_tclsh_windows_compatible(tclsh: str = TCLSH) -> bool:
     if result == correct:
         return True
     elif result == incorrect:
-        log.warning(
-            f"The TCL shell, {tclsh!r}, is a UNIX version (e.g. Cygwin) "
-            f"incompatible with Windows backslash-delimited filenames; switch "
-            f"to a Windows version (e.g. ActiveState ActiveTCL).")
+        log.warning(f"The TCL shell, {tclsh!r}, is a UNIX version (e.g. "
+                    f"Cygwin) incompatible with Windows backslash-delimited "
+                    f"filenames; switch to a Windows version (e.g. "
+                    f"ActiveState ActiveTCL).")
         return False
     else:
         raise RuntimeError(
@@ -2962,9 +2957,9 @@ def build_openssl(cfg: Config, target_platform: Platform) -> None:
         if use_configure or not target_platform.android:
             # http://doc.qt.io/qt-5/opensslsupport.html
             if BUILD_PLATFORM.windows:
-                log.warning(
-                    "The OpenSSL Configure script may warn about nmake.exe "
-                    "being missing when it isn't. (Or when it is...)")
+                log.warning("The OpenSSL Configure script may warn about "
+                            "nmake.exe being missing when it isn't. "
+                            "(Or when it is...)")
             run([PERL, join(workdir, "Configure")] + configure_args, env)
         else:
             # The "config" script guesses the OS then runs "Configure".
@@ -3388,8 +3383,7 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         try:
             run(qt_config_args, env)  # The configure step takes a few seconds.
         except subprocess.CalledProcessError:
-            log.warning("""
-..
+            log.warning("""Qt 'configure' failure.
 
 ===============================================================================
 Troubleshooting Qt 'configure' failures
@@ -3431,8 +3425,7 @@ Troubleshooting Qt 'configure' failures
         try:
             run(cfg.make_args(env=env), env)
         except subprocess.CalledProcessError:
-            log.warning("""
-..
+            log.warning("""Qt 'make' failure.
 
 ===============================================================================
 Troubleshooting Qt 'make' failures

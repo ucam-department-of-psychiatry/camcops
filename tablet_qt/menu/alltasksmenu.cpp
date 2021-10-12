@@ -45,7 +45,7 @@ void AllTasksMenu::makeItems()
     // Sort by what you see:
     QStringList tablenames = factory->tablenames(
                 TaskFactory::TaskClassSortMethod::Longname);
-    for (const QString& tablename : tablenames) {
+    for (const QString& tablename : qAsConst(tablenames)) {
         m_items.append(MAKE_TASK_MENU_ITEM(tablename, m_app));
     }
 }
