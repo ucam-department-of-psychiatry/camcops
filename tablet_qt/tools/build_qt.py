@@ -3219,6 +3219,7 @@ def build_qt(cfg: Config, target_platform: Platform) -> str:
         join(cfg.qt_src_gitdir, configure_prog_name),
         # General options:
         "-prefix", installdir,  # where to install Qt
+        "-qt-host-path", join(cfg.qt_src_gitdir, "qtbase"),
         # "OPENSSL_LIBS=" + openssl_libs,
         # "-sysroot": not required; Qt's configure should handle this
         # "-gcc-sysroot": not required
