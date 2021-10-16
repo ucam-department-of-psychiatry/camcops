@@ -3519,3 +3519,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 **Client and server v2.4.12, IN PROGRESS**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Add numbered and unnumbered lists to the visual editor when editing emails and their templates.
+  https://github.com/RudolfCardinal/camcops/issues/fillmein

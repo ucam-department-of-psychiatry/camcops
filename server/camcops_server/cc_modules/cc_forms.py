@@ -313,6 +313,7 @@ class WidgetDefaults(object):
         "menubar": "false",
         "plugins": "link",
         "toolbar": ("undo redo | bold italic underline | link | "
+                    "bullist numlist | "
                     "alignleft aligncenter alignright alignjustify | "
                     "outdent indent"),
     }
