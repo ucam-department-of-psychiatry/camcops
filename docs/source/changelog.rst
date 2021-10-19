@@ -3521,6 +3521,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Add numbered and unnumbered lists to the visual editor when editing emails and their templates.
-  https://github.com/RudolfCardinal/camcops/issues/fillmein
+  https://github.com/RudolfCardinal/camcops/issues/188
 
 - Display Danish or English on the visual editor according to the user's language.
