@@ -1004,6 +1004,21 @@ class CamcopsRequest(Request):
         # Fallback to default
         return self.config.language
 
+    @reify
+    def language_iso_639_1(self) -> str:
+        """
+        Returns the language code selected by the current user, or if none is
+        selected (or the user isn't logged in) the server's default language.
+
+        This assumes all the possible supported languages start with a
+        two-letter primary language tag, which currently they do.
+
+        Returns:
+            str: a two-letter language code of the form ``en``
+
+        """
+        return self.language[:2]
+
     def gettext(self, message: str) -> str:
         """
         Returns a version of ``msg`` translated into the current language.

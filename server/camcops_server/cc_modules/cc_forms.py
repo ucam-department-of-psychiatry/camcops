@@ -316,7 +316,7 @@ def get_tinymce_options(request: "CamcopsRequest") -> Dict[str, Any]:
                     "bullist numlist | "
                     "alignleft aligncenter alignright alignjustify | "
                     "outdent indent"),
-        "language": request.language[:2],
+        "language": request.language_iso_639_1,
     }
 
 
