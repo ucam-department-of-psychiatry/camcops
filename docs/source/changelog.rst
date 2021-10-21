@@ -3519,3 +3519,5 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 **Client and server v2.4.12, IN PROGRESS**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Bump ``babel`` from 2.8.0 to 2.9.1 for security advisory CVE-2021-42771.
