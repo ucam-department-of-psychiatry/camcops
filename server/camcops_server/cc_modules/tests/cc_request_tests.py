@@ -26,9 +26,8 @@ camcops_server/cc_modules/tests/cc_request_tests.py
 
 """
 
-from unittest import mock, TestCase
+from unittest import mock
 
-from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_unittest import DemoRequestTestCase
 
 
