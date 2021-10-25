@@ -307,14 +307,16 @@ class AutocompleteAttrValues(object):
     USERNAME = "username"
 
 
-class WidgetDefaults(object):
-    TINYMCE_OPTIONS = {
+def get_tinymce_options(request: "CamcopsRequest") -> Dict[str, Any]:
+    return {
         "content_css": "static/tinymce/custom_content.css",
         "menubar": "false",
         "plugins": "link",
         "toolbar": ("undo redo | bold italic underline | link | "
+                    "bullist numlist | "
                     "alignleft aligncenter alignright alignjustify | "
                     "outdent indent"),
+        "language": request.language_iso_639_1,
     }
 
 
@@ -4661,7 +4663,7 @@ class EmailTemplateNode(OptionalStringNode, RequestAwareMixin):
         ).format(self.formatter.get_valid_parameters_string())
 
         # noinspection PyAttributeOutsideInit
-        self.widget = RichTextWidget(options=WidgetDefaults.TINYMCE_OPTIONS)
+        self.widget = RichTextWidget(options=get_tinymce_options(self.request))
 
     def validator(self, node: SchemaNode, value: Any) -> None:
         _ = self.gettext
@@ -5204,7 +5206,7 @@ class EmailBodyNode(MandatoryStringNode, RequestAwareMixin):
         self.title = _("Message")
 
         # noinspection PyAttributeOutsideInit
-        self.widget = RichTextWidget(options=WidgetDefaults.TINYMCE_OPTIONS)
+        self.widget = RichTextWidget(options=get_tinymce_options(self.request))
 
 
 class SendEmailSchema(CSRFSchema):

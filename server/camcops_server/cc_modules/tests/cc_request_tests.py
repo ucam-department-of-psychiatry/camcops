@@ -32,10 +32,62 @@ from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 
 class RequestTests(TestCase):
-    def test_gettext_danish(self):
+    DEFAULT_LANGUAGE = "da_DK"
+    DEFAULT_LANGUAGE_ISO_639_1 = "da"
+
+    def setUp(self):
+        super().setUp()
+
         environ = dict()
-        request = CamcopsRequest(environ)
-        request._debugging_user = mock.Mock(language="da_DK")
+        self.request = CamcopsRequest(environ)
+        self.request.session = mock.Mock(user=None)
+        self.request.config.language = self.DEFAULT_LANGUAGE
+
+    def test_gettext_danish(self):
+        self.request._debugging_user = mock.Mock(language="da_DK")
 
         # Something unlikely to change
-        self.assertEqual(request.gettext("Cancel"), "Annuller")
+        self.assertEqual(self.request.gettext("Cancel"), "Annuller")
+
+    def test_language_returns_default_if_no_user(self):
+        self.request._debugging_user = None
+
+        self.assertEqual(self.request.language, self.DEFAULT_LANGUAGE)
+
+    def test_language_returns_users_if_set(self):
+        self.request._debugging_user = mock.Mock(language="en_GB")
+
+        self.assertEqual(self.request.language, "en_GB")
+
+    def test_language_returns_default_if_users_not_set(self):
+        self.request._debugging_user = mock.Mock(language=None)
+
+        self.assertEqual(self.request.language, self.DEFAULT_LANGUAGE)
+
+    def test_language_returns_default_if_users_not_valid(self):
+        self.request._debugging_user = mock.Mock(language="es_ES")
+
+        self.assertEqual(self.request.language, self.DEFAULT_LANGUAGE)
+
+    def test_language_iso_639_1_returns_default_if_no_user(self):
+        self.request._debugging_user = None
+
+        self.assertEqual(self.request.language_iso_639_1,
+                         self.DEFAULT_LANGUAGE_ISO_639_1)
+
+    def test_language_iso_639_1_returns_users_if_set(self):
+        self.request._debugging_user = mock.Mock(language="en_GB")
+
+        self.assertEqual(self.request.language_iso_639_1, "en")
+
+    def test_language_iso_639_1_returns_default_if_users_not_set(self):
+        self.request._debugging_user = mock.Mock(language=None)
+
+        self.assertEqual(self.request.language_iso_639_1,
+                         self.DEFAULT_LANGUAGE_ISO_639_1)
+
+    def test_language_iso_639_1_returns_default_if_users_not_valid(self):
+        self.request._debugging_user = mock.Mock(language="d")
+
+        self.assertEqual(self.request.language_iso_639_1,
+                         self.DEFAULT_LANGUAGE_ISO_639_1)

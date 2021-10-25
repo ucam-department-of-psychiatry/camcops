@@ -3520,4 +3520,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
 **Client and server v2.4.12, IN PROGRESS**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+- Add numbered and unnumbered lists to the visual editor when editing emails and their templates.
+  https://github.com/RudolfCardinal/camcops/issues/188
+
+- Display Danish or English on the visual editor according to the user's language.
 - Bump ``babel`` from 2.8.0 to 2.9.1 for security advisory CVE-2021-42771.
