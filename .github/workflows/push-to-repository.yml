@@ -5,7 +5,7 @@ name: Build
 on:
     push:
         paths:
-            - 'server/*'
+            - 'server/**'
             - .github/workflows/push-to-repository.yml
 jobs:
     pip-install-and-tests:
