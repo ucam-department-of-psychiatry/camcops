@@ -100,6 +100,7 @@ from camcops_server.cc_modules.cc_idnumdef import (
 from camcops_server.cc_modules.cc_language import (
     DEFAULT_LOCALE,
     GETTEXT_DOMAIN,
+    POSSIBLE_LOCALES,
 )
 # noinspection PyUnresolvedReferences
 import camcops_server.cc_modules.cc_plot  # import side effects (configure matplotlib)  # noqa
@@ -999,7 +1000,7 @@ class CamcopsRequest(Request):
         """
         if self.user is not None:
             language = self.user.language
-            if language:
+            if language in POSSIBLE_LOCALES:
                 return language
         # Fallback to default
         return self.config.language
