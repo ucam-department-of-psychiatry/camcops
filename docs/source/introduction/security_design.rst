@@ -193,7 +193,8 @@ Communication between user and server using the web front end
 
 - The web front end should be constrained to HTTPS to ensure link security.
 
-- Access is governed by username/password pairs.
+- Access is governed by username/password pairs. Additionally, multi-factor
+  authentication can be required by the system administrator.
 
 
 Internally in the server

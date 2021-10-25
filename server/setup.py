@@ -145,7 +145,7 @@ INSTALL_REQUIRES = [
     # Direct requirements of CamCOPS development tools
     # -------------------------------------------------------------------------
 
-    'Babel==2.8.0',  # reads code, generates gettext files; dev only but was already installed  # noqa
+    'Babel==2.9.1',  # reads code, generates gettext files; dev only but was already installed  # noqa
     'flake8==3.8.3',  # code checks
     'scrapy==2.5.1',  # development only
     'sphinx==3.1.1',  # development only

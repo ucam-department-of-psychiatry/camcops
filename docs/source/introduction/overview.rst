@@ -103,6 +103,8 @@ Internally,
 
 **Features for system administrators**
 
+- Multi-factor authentication.
+
 - Group security and group administrators.
 
   - Create groups.
@@ -111,7 +113,7 @@ Internally,
   - Allow users to see groups, or groups to see other groups.
   - Create group administrators to manage groups independently.
 
-- Export facilities
+- Export facilities.
 
   - Export via files, e-mails, HL7.
   - Export tasks as PDF, HTML, XML, or as a database.
