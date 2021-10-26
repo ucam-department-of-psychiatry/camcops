@@ -38,17 +38,7 @@ class RequestTests(DemoRequestTestCase):
     def setUp(self) -> None:
         super().setUp()
 
-        # TODO: For some reason when the tests are run on GitHub,
-        # this config change causes later tests that look for English
-        # strings to fail. So we save the old language...
-        self.old_language = self.req.config.language
         self.req.config.language = self.DEFAULT_LANGUAGE
-
-    def tearDown(self) -> None:
-        super().tearDown()
-
-        # ... and put it back here.
-        self.req.config.language = self.old_language
 
     def test_gettext_danish(self) -> None:
         self.req._debugging_user = mock.Mock(language="da_DK")

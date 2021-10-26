@@ -29,8 +29,7 @@ camcops_server/cc_modules/cc_unittest.py
 """
 
 import base64
-import configparser
-from io import StringIO
+import copy
 import logging
 import os
 import sqlite3
@@ -43,11 +42,17 @@ from cardinal_pythonlib.logs import BraceStyleAdapter
 import pendulum
 import pytest
 
+from camcops_server.cc_modules.cc_baseconstants import ENVVAR_CONFIG_FILE
 from camcops_server.cc_modules.cc_constants import ERA_NOW
 from camcops_server.cc_modules.cc_device import Device
+from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
 from camcops_server.cc_modules.cc_group import Group
 from camcops_server.cc_modules.cc_idnumdef import IdNumDefinition
 from camcops_server.cc_modules.cc_ipuse import IpUse
+from camcops_server.cc_modules.cc_request import (
+    CamcopsRequest,
+    get_unittest_request,
+)
 from camcops_server.cc_modules.cc_sqlalchemy import (
     sql_from_sqlite_database,
 )
@@ -117,43 +122,21 @@ class DemoRequestTestCase(ExtendedTestCase):
     dbsession: "Session"
 
     def setUp(self) -> None:
-        self.create_config_file()
-        from camcops_server.cc_modules.cc_request import get_unittest_request
-        from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient  # noqa
-
+        # config file has already been set up for the session in conftest.py
+        os.environ[ENVVAR_CONFIG_FILE] = self.config_file
         self.req = get_unittest_request(self.dbsession)
+
+        # request.config is a class property. We want to be able to override
+        # config settings in a test by setting them directly on the config
+        # object (e.g. self.req.config.foo = "bar"), then restore the defaults
+        # afterwards.
+        self.old_config = copy.copy(self.req.config)
+
         self.req.matched_route = unittest.mock.Mock()
         self.recipdef = ExportRecipient()
 
-    def create_config_file(self) -> None:
-        from camcops_server.cc_modules.cc_baseconstants import ENVVAR_CONFIG_FILE  # noqa: E402,E501
-
-        # We're going to be using a test (SQLite) database, but we want to
-        # be very sure that nothing writes to a real database! Also, we will
-        # want to read from this dummy config at some point.
-
-        tmpconfigfilename = os.path.join(self.tmpdir_obj.name,
-                                         "dummy_config.conf")
-        with open(tmpconfigfilename, "w") as file:
-            file.write(self.get_config_text())
-
-        os.environ[ENVVAR_CONFIG_FILE] = tmpconfigfilename
-
-    def get_config_text(self) -> str:
-        from camcops_server.cc_modules.cc_config import get_demo_config
-        config_text = get_demo_config()
-        parser = configparser.ConfigParser()
-        parser.read_string(config_text)
-
-        # To override config settings in a test just set them directly on the
-        # config object on the request:
-        # eg: self.req.config.foo = "bar"
-
-        with StringIO() as buffer:
-            parser.write(buffer)
-            config_text = buffer.getvalue()
-
-        return config_text
+    def tearDown(self) -> None:
+        CamcopsRequest.config = self.old_config
 
     def set_echo(self, echo: bool) -> None:
         """
