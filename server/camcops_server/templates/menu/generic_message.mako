@@ -1,7 +1,7 @@
 ## -*- coding: utf-8 -*-
 <%doc>
 
-camcops_server/templates/menu/generic_success.mako
+camcops_server/templates/menu/generic_message.mako
 
 ===============================================================================
 
@@ -30,8 +30,6 @@ camcops_server/templates/menu/generic_success.mako
 <%inherit file="base_web.mako"/>
 
 <%include file="db_user_info.mako"/>
-
-<h1>Success!</h1>
 
 %if msg:
     <div class="info">${ msg }</div>

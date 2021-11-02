@@ -5570,9 +5570,8 @@ def send_email_from_patient_list(req: "CamcopsRequest") -> Response:
 # =============================================================================
 
 @view_config(route_name=Routes.FHIR_PATIENT_ID_SYSTEM, request_method="GET",
-             http_cache=NEVER_CACHE,
-             renderer="generic_failure.mako")
-def view_fhir_patient_id(req: "CamcopsRequest") -> Dict[str, Any]:
+             http_cache=NEVER_CACHE)
+def view_fhir_patient_id(req: "CamcopsRequest") -> Response:
     """
     Placeholder view for FHIR patient requests (from the ID that we may have
     provided to a FHIR server).
@@ -5581,11 +5580,15 @@ def view_fhir_patient_id(req: "CamcopsRequest") -> Dict[str, Any]:
     components = [f"FHIR ID system {which_idnum}"]
     if which_idnum in req.valid_which_idnums:
         components.append(req.get_id_desc(which_idnum))
+        template = "generic_message.mako"
     else:
         components.append("UNKNOWN")
-    return {
-        "msg": ": ".join(components)
-    }
+        template = "generic_failure.mako"
+    return render_to_response(
+        template,
+        dict(msg=": ".join(components)),
+        request=req
+    )
 
 
 # =============================================================================

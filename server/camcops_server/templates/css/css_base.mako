@@ -253,6 +253,10 @@ table.clinician, table.clinician th, table.clinician td {
 .filters {
     font-style: italic;
 }
+.info {
+    color: rgb(0, 102, 0);
+    font-weight: bold;
+}
 input[type="date"].form-control,
 input[type="time"].form-control {
     line-height: normal; /* Bootstrap default looks wrong */
