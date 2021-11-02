@@ -125,6 +125,13 @@ class DateFormat(object):
 
 
 # =============================================================================
+# FHIR constants
+# =============================================================================
+
+CAMCOPS_DEFAULT_FHIR_APP_ID = "camcops"
+
+
+# =============================================================================
 # Permitted values in fields: some common settings
 # =============================================================================
 
@@ -497,6 +504,7 @@ class ConfigParamExportRecipient(object):
     EMAIL_TO = "EMAIL_TO"
     END_DATETIME_UTC = "END_DATETIME_UTC"
     FHIR_API_URL = "FHIR_API_URL"
+    FHIR_APP_ID = "FHIR_APP_ID"
     FHIR_APP_SECRET = "FHIR_APP_SECRET"
     FHIR_LAUNCH_TOKEN = "FHIR_LAUNCH_TOKEN"
     FILE_EXPORT_RIO_METADATA = "FILE_EXPORT_RIO_METADATA"
@@ -654,6 +662,7 @@ class ConfigDefaults(object):
     DB_PATIENT_ID_PER_ROW = False
     EMAIL_BODY_IS_HTML = False
     EMAIL_KEEP_MESSAGE = False
+    FHIR_APP_ID = CAMCOPS_DEFAULT_FHIR_APP_ID
     FILE_EXPORT_RIO_METADATA = False
     FILE_MAKE_DIRECTORY = False
     FILE_OVERWRITE_FILES = False

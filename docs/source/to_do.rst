@@ -237,12 +237,6 @@ Server
   - Best to implement by fixed column names for all ID numbers, e.g.
     ``_patient_idnum1``, ``_patient_idnum17``, etc.? NULL if absent.
 
-- FHIR support via ``fhirclient``.
-
-  - https://en.wikipedia.org/wiki/Fast_Healthcare_Interoperability_Resources
-  - https://www.hl7.org/fhir/overview.html
-  - CamCOPS will be a FHIR server, not a client.
-
 - More generic e-mails to administrators, via backend task. (E-mail framework
   now in place.)
 

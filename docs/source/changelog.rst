@@ -3420,3 +3420,19 @@ Current C++/SQLite client, Python/SQLAlchemy server
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Updates for Python 3.9 compatibility.
+
+- FHIR support.
+
+  - Initially FHIR export support to PHQ9 and APEQPT (anonymous).
+
+  - The current approach has the task classes create the items for the
+    Questionnaire and QuestionnaireResponse resources, with quite a bit of code
+    duplication. We could make a further optimisation by putting a FHIR-like
+    structure on each task and have some common task code read this to create
+    the FHIR resources. BMI may be better described as FHIR Observation
+    resource rather than QuestionnaireResponse.
+
+  - For testing details, see ``camcops_server/cc_modules/cc_fhir.py``.
+
+- Bump ``sphinx`` from 3.1.1 to 4.2.0 (which pins docutils properly and fixes
+  some bugs).

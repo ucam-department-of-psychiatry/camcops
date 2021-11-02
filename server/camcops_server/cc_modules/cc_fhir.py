@@ -63,6 +63,10 @@ There are also public sandboxes at:
 
 """
 
+# =============================================================================
+# Imports
+# =============================================================================
+
 from typing import Dict, TYPE_CHECKING
 
 from fhirclient import client
@@ -74,9 +78,17 @@ if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 
+# =============================================================================
+# Exceptions
+# =============================================================================
+
 class FhirExportException(Exception):
     pass
 
+
+# =============================================================================
+# Export tasks via FHIR
+# =============================================================================
 
 class FhirTaskExporter(object):
     """
@@ -96,8 +108,8 @@ class FhirTaskExporter(object):
         # for any server that is SMART-compliant but we've not tested this.
         # https://sep.com/blog/smart-on-fhir-what-is-smart-what-is-fhir/
         settings = {
-            "app_id": "camcops",
             "api_base": self.recipient.fhir_api_url,
+            "app_id": self.recipient.fhir_app_id,
             "app_secret": self.recipient.fhir_app_secret,
             "launch_token": self.recipient.fhir_launch_token,
         }
@@ -174,36 +186,36 @@ class FhirTaskExporter(object):
         .. code-block:: json
 
             {
-              'resourceType': 'Bundle',
-              'id': 'cae48957-e7e6-4649-97f8-0a882076ad0a',
-              'type': 'transaction-response',
-              'link': [
+              "resourceType": "Bundle",
+              "id": "cae48957-e7e6-4649-97f8-0a882076ad0a",
+              "type": "transaction-response",
+              "link": [
                 {
-                  'relation': 'self',
-                  'url': 'http://localhost:8080/fhir'
+                  "relation": "self",
+                  "url": "http://localhost:8080/fhir"
                 }
               ],
-              'entry': [
+              "entry": [
                 {
-                  'response': {
-                    'status': '200 OK',
-                    'location': 'Patient/1/_history/1',
-                    'etag': '1'
+                  "response": {
+                    "status": "200 OK",
+                    "location": "Patient/1/_history/1",
+                    "etag": "1"
                   }
                 },
                 {
-                  'response': {
-                    'status': '200 OK',
-                    'location': 'Questionnaire/26/_history/1',
-                    'etag': '1'
+                  "response": {
+                    "status": "200 OK",
+                    "location": "Questionnaire/26/_history/1",
+                    "etag": "1"
                   }
                 },
                 {
-                  'response': {
-                    'status': '201 Created',
-                    'location': 'QuestionnaireResponse/42/_history/1',
-                    'etag': '1',
-                    'lastModified': '2021-05-24T09:30:11.098+00:00'
+                  "response": {
+                    "status": "201 Created",
+                    "location": "QuestionnaireResponse/42/_history/1",
+                    "etag": "1",
+                    "lastModified": "2021-05-24T09:30:11.098+00:00"
                   }
                 }
               ]

@@ -51,6 +51,7 @@ from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.reprfunc import simple_repr
 
 from camcops_server.cc_modules.cc_constants import (
+    CAMCOPS_DEFAULT_FHIR_APP_ID,
     CONFIG_FILE_SITE_SECTION,
     ConfigDefaults,
     ConfigParamExportRecipient,
@@ -236,6 +237,7 @@ class ExportRecipientInfo(object):
 
         # FHIR
 
+        self.fhir_app_id = ""
         self.fhir_api_url = ""
         self.fhir_app_secret = ""
         self.fhir_launch_token = ""
@@ -537,6 +539,8 @@ class ExportRecipientInfo(object):
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if r.transmission_method == ExportTransmissionMethod.FHIR:
             r.fhir_api_url = _get_str(cpr.FHIR_API_URL)
+            r.fhir_app_id = _get_str(cpr.FHIR_APP_ID,
+                                     CAMCOPS_DEFAULT_FHIR_APP_ID)
             r.fhir_app_secret = _get_str(cpr.FHIR_APP_SECRET)
             r.fhir_launch_token = _get_str(cpr.FHIR_LAUNCH_TOKEN)
 

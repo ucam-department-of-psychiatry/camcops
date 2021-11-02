@@ -557,8 +557,9 @@ def get_demo_config(for_docker: bool = False) -> str:
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 {ConfigParamExportRecipient.FHIR_API_URL} = https://my.fhir.server/api
+{ConfigParamExportRecipient.FHIR_APP_ID} = {cd.FHIR_APP_ID}
 {ConfigParamExportRecipient.FHIR_APP_SECRET} = my_fhir_secret_abc
-{ConfigParamExportRecipient.FHIR_LAUNCH_TOKEN} = my_fhir_launch_token_xyz123
+{ConfigParamExportRecipient.FHIR_LAUNCH_TOKEN} =
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Options applicable to HL7 (v2) exports

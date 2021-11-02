@@ -19,11 +19,13 @@
 
 .. _Apache: https://httpd.apache.org/
 .. _CherryPy: https://cherrypy.org/
+.. _FHIR: https://en.wikipedia.org/wiki/Fast_Healthcare_Interoperability_Resources
 .. _Gunicorn: https://gunicorn.org/
 .. _HTTPS: https://en.wikipedia.org/wiki/HTTPS
 .. _ISO 8601: https://en.wikipedia.org/wiki/ISO_8601
 .. _Pyramid: https://trypyramid.com/
 .. _RFC 5322: https://tools.ietf.org/html/rfc5322#section-3.6.2
+.. _SMART: https://smarthealthit.org/
 .. _TCP: https://en.wikipedia.org/wiki/Transmission_Control_Protocol
 .. _WSGI: https://en.wikipedia.org/wiki/Web_Server_Gateway_Interface
 
@@ -1894,6 +1896,23 @@ will end up with a great many message attempts!
 Options applicable to HL7 FHIR ("FHIR") only
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+For an overview of FHIR, see `FHIR Overview
+<https://www.hl7.org/fhir/overview.html>`_ from the HL7 site. For an overview
+of SMART on FHIR, see the SMART_ site, or e.g. `J. Coy (2018)
+<https://web.archive.org/web/20210527164832/https://sep.com/blog/smart-on-fhir-what-is-smart-what-is-fhir/>`_.
+
+CamCOPS supports exporting to FHIR_ servers. Thus, CamCOPS operates as a FHIR
+client, or "SMART App" (the system is often called "SMART on FHIR"). The server
+might be an electronic health record (EHR) system.
+
+CamCOPS authenticates using the `SMART App Launch Framework
+<https://www.hl7.org/fhir/smart-app-launch/>`_ or "SMART on FHIR" system, as a
+"confidential app". Authentication is via:
+
+- a ``client_id``, configured via FHIR_APP_ID_;
+- a ``client_secret``, configured via FHIR_APP_SECRET_;
+
+
 FHIR_API_URL
 ############
 
@@ -1907,16 +1926,46 @@ SMART on FHIR. See:
 - http://www.hl7.org/fhir/smart-app-launch/, the specification
 
 
+.. _FHIR_APP_ID:
+
+FHIR_APP_ID
+###########
+
+*String.* Default: ``camcops``.
+
+A string identifying this "app" (meaning the CamCOPS server) to the FHIR
+server. (The FHIR server needs to recognize this and the corresponding secret,
+FHIR_APP_SECRET_.)
+
+This is passed as the SMART ``client_id`` parameter (via the Python
+``fhirclient`` parameter ``app_id``).
+
+
+.. _FHIR_APP_SECRET:
+
 FHIR_APP_SECRET
 ###############
 
-todo: ***
+*String.*
+
+A secret code that the FHIR server should recognize to identify CamCOPS as a
+valid client (along with the app identifier, FHIR_APP_ID_).
+
+This is passed as the SMART ``client_secret`` parameter (via the Python
+``fhirclient`` parameter ``app_secret``).
 
 
 FHIR_LAUNCH_TOKEN
 #################
 
-todo: ***
+*String.*
+
+This optional extra token can be passed to the FHIR server to set the context
+of the request. However, this may not be applicable (as such context-setting
+tokens may need to be very specific).
+
+This is passed as the SMART ``launch`` parameter (via the Python ``fhirclient``
+parameter ``launch_token``).
 
 
 Options applicable to file transfers and attachments
