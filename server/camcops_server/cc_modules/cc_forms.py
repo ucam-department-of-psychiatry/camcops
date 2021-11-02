@@ -24,6 +24,8 @@ camcops_server/cc_modules/cc_forms.py
 
 ===============================================================================
 
+.. _Deform: https://docs.pylonsproject.org/projects/deform/en/latest/
+
 **Forms for use by the web front end.**
 
 *COLANDER NODES, NULLS, AND VALIDATION*
@@ -92,7 +94,34 @@ request.gettext``.
 Form titles need to be dynamically written via
 :class:`cardinal_pythonlib.deform_utils.DynamicDescriptionsForm` or similar.
 
-"""
+.. glossary::
+
+  cstruct
+    See `cstruct
+    <https://docs.pylonsproject.org/projects/deform/en/latest/glossary.html#term-cstruct>`_
+    in the Deform_ docs.
+
+  Colander
+    See `Colander
+    <https://docs.pylonsproject.org/projects/deform/en/latest/glossary.html#term-colander>`_
+    in the Deform_ docs.
+
+  field
+    See `field
+    <https://docs.pylonsproject.org/projects/deform/en/latest/glossary.html#term-field>`_
+    in the Deform_ docs.
+
+  Peppercorn
+    See `Peppercorn
+    <https://docs.pylonsproject.org/projects/deform/en/latest/glossary.html#term-peppercorn>`_
+    in the Deform_ docs.
+
+  pstruct
+    See `pstruct
+    <https://docs.pylonsproject.org/projects/deform/en/latest/glossary.html#term-pstruct>`_
+    in the Deform_ docs.
+
+"""  # noqa
 
 from io import BytesIO
 import json

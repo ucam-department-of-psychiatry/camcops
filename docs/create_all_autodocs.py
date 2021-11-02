@@ -75,6 +75,8 @@ COPYRIGHT_COMMENT = r"""
 AUTODOC_TITLE = "Source code"
 INTRODUCTORY_RST = r"""
 
+.. _sourcecode:
+
 This section contains automatic documentation generated from the CamCOPS
 source code. For the source code itself, see
 https://github.com/RudolfCardinal/camcops.
