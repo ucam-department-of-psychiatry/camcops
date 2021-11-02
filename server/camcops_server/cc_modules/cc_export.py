@@ -728,9 +728,7 @@ class TaskCollectionExporter(object):
         if email.sent:
             log.info(f"Research dump emailed to {email_to}")
         else:
-            log.error(
-                f"Failed to email research dump to {email_to}"
-            )
+            log.error(f"Failed to email research dump to {email_to}")
 
     def schedule_download(self) -> None:
         """
@@ -1147,9 +1145,13 @@ class UserDownloadFile(object):
                  req: "CamcopsRequest" = None) -> None:
         """
         Args:
-            filename: filename relative to ``directory``
-            directory: directory
-            req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+            filename:
+                Filename, either absolute, or if ``directory`` is specified,
+                relative to ``directory``.
+            directory:
+                Directory. If specified, ``filename`` must be within it.
+            req:
+                a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
 
         Notes:
 
@@ -1161,16 +1163,29 @@ class UserDownloadFile(object):
           (https://en.wikipedia.org/wiki/Unix_time).
         """
         self.filename = filename
-        self.directory = directory
         self.permitted_lifespan_min = permitted_lifespan_min
         self.req = req
 
         self.basename = os.path.basename(filename)
         _, self.extension = os.path.splitext(filename)
         if directory:
-            self.fullpath = os.path.join(directory, filename)
+            # filename must be within the directory specified
+            self.directory = os.path.abspath(directory)
+            candidate_path = os.path.abspath(
+                os.path.join(self.directory, filename))
+            if os.path.commonpath([directory, candidate_path]) != directory:
+                # Filename is not within directory.
+                # This is dodgy -- someone may have passed a filename like
+                # "../../dangerous_dir/unsafe_content.txt"
+                self.fullpath = ""
+                # ... ensures that "exists" will be False.
+            else:
+                self.fullpath = candidate_path
         else:
+            # filename is treated as an absolute path
+            self.directory = ""
             self.fullpath = filename
+
         try:
             self.statinfo = os.stat(self.fullpath)
             self.exists = True

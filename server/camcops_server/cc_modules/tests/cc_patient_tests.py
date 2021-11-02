@@ -39,7 +39,10 @@ from camcops_server.cc_modules.cc_taskschedule import (
     TaskScheduleItem,
 )
 from camcops_server.cc_modules.cc_tsv import TsvPage
-from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
+from camcops_server.cc_modules.cc_unittest import (
+    BasicDatabaseTestCase,
+    DemoDatabaseTestCase,
+)
 from camcops_server.cc_modules.cc_xml import XmlElement
 
 
@@ -133,13 +136,13 @@ class LineageTests(DemoDatabaseTestCase):
 
         self.patient_1 = Patient()
         self.patient_1.id = 1
-        self._apply_standard_db_fields(self.patient_1)
+        self.apply_standard_db_fields(self.patient_1)
         self.dbsession.add(self.patient_1)
 
         # First ID number record for patient 1
         self.patient_idnum_1_1 = PatientIdNum()
         self.patient_idnum_1_1.id = 3
-        self._apply_standard_db_fields(self.patient_idnum_1_1)
+        self.apply_standard_db_fields(self.patient_idnum_1_1)
         self.patient_idnum_1_1.patient_id = 1
         self.patient_idnum_1_1.which_idnum = self.nhs_iddef.which_idnum
         self.patient_idnum_1_1.idnum_value = 555
@@ -148,7 +151,7 @@ class LineageTests(DemoDatabaseTestCase):
         # Second ID number record for patient 1
         self.patient_idnum_1_2 = PatientIdNum()
         self.patient_idnum_1_2.id = 3
-        self._apply_standard_db_fields(self.patient_idnum_1_2)
+        self.apply_standard_db_fields(self.patient_idnum_1_2)
         # This one is not current
         self.patient_idnum_1_2._current = False
         self.patient_idnum_1_2.patient_id = 1
@@ -204,3 +207,57 @@ class PatientDeleteTests(DemoDatabaseTestCase):
 
         self.assertIsNone(self.dbsession.query(PatientTaskSchedule).filter(
             PatientTaskSchedule.id == pts.id).one_or_none())
+
+
+class PatientPermissionTests(BasicDatabaseTestCase):
+    def test_group_administrator_may_edit_server_created(self) -> None:
+        user = self.create_user(username="testuser")
+        self.dbsession.flush()
+
+        patient = self.create_patient(_group=self.group,
+                                      as_server_patient=True)
+
+        self.create_membership(user, self.group, groupadmin=True)
+        self.dbsession.commit()
+
+        self.req._debugging_user = user
+        self.assertTrue(patient.user_may_edit(self.req))
+
+    def test_group_administrator_may_edit_finalized(self) -> None:
+        user = self.create_user(username="testuser")
+        self.dbsession.flush()
+
+        patient = self.create_patient(_group=self.group,
+                                      as_server_patient=False)
+
+        self.create_membership(user, self.group, groupadmin=True)
+        self.dbsession.commit()
+
+        self.req._debugging_user = user
+        self.assertTrue(patient.user_may_edit(self.req))
+
+    def test_group_member_with_permission_may_edit_server_created(self) -> None:
+        user = self.create_user(username="testuser")
+        self.dbsession.flush()
+
+        patient = self.create_patient(_group=self.group,
+                                      as_server_patient=True)
+
+        self.create_membership(user, self.group, may_manage_patients=True)
+        self.dbsession.commit()
+
+        self.req._debugging_user = user
+        self.assertTrue(patient.user_may_edit(self.req))
+
+    def test_group_member_with_permission_may_not_edit_finalized(self) -> None:
+        user = self.create_user(username="testuser")
+        self.dbsession.flush()
+
+        patient = self.create_patient(_group=self.group,
+                                      as_server_patient=False)
+
+        self.create_membership(user, self.group, may_manage_patients=True)
+        self.dbsession.commit()
+
+        self.req._debugging_user = user
+        self.assertFalse(patient.user_may_edit(self.req))

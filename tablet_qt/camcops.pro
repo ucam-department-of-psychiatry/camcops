@@ -124,6 +124,11 @@ MOBILITY =
 # Compiler and linker flags
 # =============================================================================
 
+gcc | clang {
+    COMPILER_VERSION = $$system($$QMAKE_CXX " -dumpversion")
+    COMPILER_MAJOR_VERSION = $$str_member($$COMPILER_VERSION)
+}
+
 # Warning become errors
 gcc {
     # GCC
@@ -150,7 +155,18 @@ clang {
 # (This problem arose on 2020-06-29 with Ubuntu 20.04 which brought gcc 9.3.0.)
 # 2021-02-05: also true of clang v10.0.0.
 if (gcc | clang):!ios:!android:!macx {
-    QMAKE_CXXFLAGS += -Wno-deprecated-copy
+    !lessThan(COMPILER_MAJOR_VERSION, 9) {
+        QMAKE_CXXFLAGS += -Wno-deprecated-copy
+    }
+}
+
+# Later versions of clang on iOS *do* support (no-)deprecated-copy but the order
+# of warning flags seems to be important and removing !ios above doesn't work
+# QMAKE_CXXFLAGS_WARN_ON defaults to -Wall -W and our overrides need to come
+# after that
+if (ios | macx) {
+    QMAKE_CFLAGS_WARN_ON += -Wno-deprecated-copy
+    QMAKE_CXXFLAGS_WARN_ON += -Wno-deprecated-copy
 }
 
 # In release mode, optimize heavily:
@@ -661,6 +677,7 @@ SOURCES += \
     menu/researchsetsmenu.cpp \
     menu/serviceevaluationmenu.cpp \
     menu/setmenucpftadrd.cpp \
+    menu/setmenucpftcovid.cpp \
     menu/setmenucpftperinatal.cpp \
     menu/setmenucpftpsychooncology.cpp \
     menu/setmenudeakin.cpp \
@@ -711,6 +728,7 @@ SOURCES += \
     qobjects/strictuint64validator.cpp \
     qobjects/stylenofocusrect.cpp \
     qobjects/threadworker.cpp \
+    qobjects/urlhandler.cpp \
     qobjects/urlvalidator.cpp \
     questionnairelib/commonoptions.cpp \
     questionnairelib/dynamicquestionnaire.cpp \
@@ -812,9 +830,11 @@ SOURCES += \
     tasks/contactlog.cpp \
     tasks/copebrief.cpp \
     tasks/core10.cpp \
+    tasks/cpftcovidmedical.cpp \
     tasks/cpftlpsdischarge.cpp \
     tasks/cpftlpsreferral.cpp \
     tasks/cpftlpsresetresponseclock.cpp \
+    tasks/cpftresearchpreferences.cpp \
     tasks/dad.cpp \
     tasks/das28.cpp \
     tasks/dast.cpp \
@@ -1132,6 +1152,7 @@ HEADERS += \
     menu/researchsetsmenu.h \
     menu/serviceevaluationmenu.h \
     menu/setmenucpftadrd.h \
+    menu/setmenucpftcovid.h \
     menu/setmenucpftperinatal.h \
     menu/setmenucpftpsychooncology.h \
     menu/setmenudeakin.h \
@@ -1181,6 +1202,7 @@ HEADERS += \
     qobjects/strictuint64validator.h \
     qobjects/stylenofocusrect.h \
     qobjects/threadworker.h \
+    qobjects/urlhandler.h \
     qobjects/urlvalidator.h \
     questionnairelib/commonoptions.h \
     questionnairelib/dynamicquestionnaire.h \
@@ -1282,9 +1304,11 @@ HEADERS += \
     tasks/contactlog.h \
     tasks/copebrief.h \
     tasks/core10.h \
+    tasks/cpftcovidmedical.h \
     tasks/cpftlpsdischarge.h \
     tasks/cpftlpsreferral.h \
     tasks/cpftlpsresetresponseclock.h \
+    tasks/cpftresearchpreferences.h \
     tasks/dad.h \
     tasks/das28.h \
     tasks/dast.h \
@@ -1462,6 +1486,7 @@ OTHER_FILES += \
     android/gradlew.bat \
     android/res/drawable-ldpi/icon.png \
     android/res/values/libs.xml \
+    android/src/org/camcops/camcops/CamcopsActivity.java \
     ios/camcops_icon_500.png \
     ios/Info.plist \
     ios/*.storyboard \

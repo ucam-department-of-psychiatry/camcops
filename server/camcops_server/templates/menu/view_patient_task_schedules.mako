@@ -72,17 +72,36 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
         <td>
             ${ patient.uuid_as_proquint }
         </td>
-        <td>
+        <td class="mini_table">
+            <table>
             %for pts in patient.task_schedules:
-                <a href="${ req.route_url(
+            <%
+                if patient.email:
+                    email_text = _("Send email...")
+                    button_class = "btn btn-success"
+                    if pts.email_sent:
+                        email_text = _("Resend email...")
+                        button_class = "btn btn-primary"
+            %>
+                <tr>
+                    <td><a href="${ req.route_url(
                                  Routes.VIEW_PATIENT_TASK_SCHEDULE,
                                  _query={
                                      ViewParam.PATIENT_TASK_SCHEDULE_ID: pts.id
                                  }) | n }">${ pts.task_schedule.name }</a>
-            %if patient.email:
-                [<a href="${ pts.mailto_url(req) | n }">${ _("Email") }</a>]<br>
-            %endif
+                    </td>
+                    <td>
+                        %if req.user.authorized_to_email_patients and patient.email and pts.task_schedule.email_from:
+                        <a class="${ button_class }" href="${ req.route_url(
+                                 Routes.SEND_EMAIL_FROM_PATIENT_LIST,
+                                 _query={
+                                     ViewParam.PATIENT_TASK_SCHEDULE_ID: pts.id
+                                 }) | n }">${ email_text }</a>
+                        %endif
+                    </td>
+                </tr>
             %endfor
+            </table>
         </td>
         <td>
             <a href="${ req.route_url(
@@ -107,9 +126,11 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 <div>
     <a href="${ req.route_url(Routes.ADD_PATIENT) | n }">${ _("Add a patient") }</a>
 </div>
+%if request.user.authorized_as_groupadmin:
 <div>
     <a href="${ request.route_url(Routes.VIEW_TASK_SCHEDULES) | n }">
         ${ _("Manage task schedules") }</a>
 </div>
+%endif
 
 <%include file="to_main_menu.mako"/>

@@ -438,7 +438,8 @@ OpenableWidget* KhandakerMojoMedical::editor(const bool read_only)
 
     textQuestion(FN_FAMILY_OTHER_MENTAL_ILLNESS_DETAILS);
 
-    for (auto fieldname : DETAILS_FIELDS.keys()) {
+    const auto fieldnames = DETAILS_FIELDS.keys();
+    for (const auto& fieldname : fieldnames) {
         FieldRefPtr fieldref = fieldRef(fieldname);
 
         connect(fieldref.data(), &FieldRef::valueChanged,
@@ -582,7 +583,8 @@ void KhandakerMojoMedical::updateMandatory()
 {
     // This could be more efficient with lots of signal handlers, but...
 
-    for (const auto& fieldname : DETAILS_FIELDS.keys()) {
+    const auto fieldnames = DETAILS_FIELDS.keys();
+    for (const auto& fieldname : fieldnames) {
         /*
         // Removed this, thus only showing details when "other Y" chosen
         if (valueIsNull(fieldname)) {

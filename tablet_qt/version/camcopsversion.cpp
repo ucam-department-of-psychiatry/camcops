@@ -26,8 +26,8 @@ namespace camcopsversion {  // http://semver.org/
 // ----------------------------------------------------------------------------
 // Increase this when the client is changed:
 
-const Version CAMCOPS_CLIENT_VERSION(2, 4, 6);
-const QDate CAMCOPS_CLIENT_CHANGEDATE(2021, 5, 7);
+const Version CAMCOPS_CLIENT_VERSION(2, 4, 11);
+const QDate CAMCOPS_CLIENT_CHANGEDATE(2021, 10, 8);
 
 // +++ NOW ALSO UPDATE: +++
 //

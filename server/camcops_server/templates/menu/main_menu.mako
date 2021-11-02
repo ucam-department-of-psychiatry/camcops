@@ -37,6 +37,14 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 ## TRANSLATOR: Mako comment
 <h1>${ _("CamCOPS web view: Main menu") }</h1>
 
+%if authorized_to_manage_patients:
+    <h3>${ _("Patients") }</h3>
+    <ul>
+        <li><a href="${ request.route_url(Routes.VIEW_PATIENT_TASK_SCHEDULES) | n }">
+            ${ _("Manage patients and their tasks") }</a></li>
+    </ul>
+%endif
+
 <h3>${ _("Tasks, trackers, and clinical text views") }</h3>
 <ul>
     <li><a href="${ request.route_url(
@@ -88,8 +96,6 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
             ${ _("Forcibly finalize records for a device") }</a></li>
         <li><a href="${ request.route_url(Routes.DELETE_PATIENT) | n }">
             ${ _("Delete patient entirely") }</a></li>
-        <li><a href="${ request.route_url(Routes.VIEW_PATIENT_TASK_SCHEDULES) | n }">
-            ${ _("Manage scheduled tasks for patients") }</a></li>
     </ul>
 %endif
 
@@ -125,6 +131,8 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
     %else:
         <li class="warning">${ _("No username!") }</li>
     %endif
+    <li><a href="${ request.route_url(Routes.EDIT_OWN_USER_MFA) | n }">
+        ${ _("Multi-factor authentication settings") }</a></li>
 </ul>
 
 <h3>${ _("Help") }</h3>

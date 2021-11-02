@@ -61,7 +61,6 @@ Note that you can get CentOS version/architecture with:
 # fails.
 
 import argparse
-import getpass
 import logging
 import os
 from os.path import join
@@ -243,11 +242,11 @@ system_python_executable()
     # Use as: $(system_python_executable) ...
 
     python_options=(
-        python3.9 python39 
-        python3.8 python38 
-        python3.7 python37 
-        python3.6 python36 
-        python3 
+        python3.9 python39
+        python3.8 python38
+        python3.7 python37
+        python3.6 python36
+        python3
         python
     )
     for option in ${python_options[@]}; do
@@ -383,14 +382,15 @@ def check_prerequisites() -> None:
     """
     # https://stackoverflow.com/questions/2806897
     if os.geteuid() == 0:
-        log.critical(
-            "This script should not be run using sudo or as the root user")
+        log.critical("This script should not be run using sudo or as the "
+                     "root user")
         sys.exit(1)
 
     log.info("Checking prerequisites")
     for cmd in PREREQUISITES:
         if shutil.which(cmd) is None:
-            log.warning("""
+            log.warning(f"""The command {cmd!r} is missing.
+
     To install Alien:
         sudo apt-get install alien
     To install rpmrebuild:
@@ -402,7 +402,7 @@ def check_prerequisites() -> None:
         3. Install:
             sudo dpkg --install rpmrebuild_2.15-2_all.deb
             """)  # noqa
-            log.critical("{} command not found; stopping", cmd)
+            log.critical(f"{cmd} command not found; stopping")
             sys.exit(1)
 
     # RPM issues
@@ -531,6 +531,7 @@ Priority: optional
 Architecture: all
 Maintainer: Rudolf Cardinal <rudolf@pobox.com>
 Depends: {DEPENDENCIES}
+X-Python3-Version: >= 3.6, <= 3.9
 Recommends: mysql-workbench
 Description: Cambridge Cognitive and Psychiatric Test Kit (CamCOPS), server
  packages.
@@ -983,7 +984,10 @@ def build_package() -> None:
     # ... "fakeroot" prefix makes all files installed as root:root
 
     log.info("Checking with Lintian")
-    call(['lintian', '--fail-on-warnings', PACKAGENAME])
+    # fail-in-warnings has gone in 2.62.0
+    # It isn't clear if lintian now exits with 0 on warnings (the previous
+    # default). Future versions seems to have a more flexible --fail-on option
+    call(['lintian', PACKAGENAME])
 
     log.info("Converting to RPM")
     call(['fakeroot', 'alien', '--to-rpm', '--scripts', PACKAGENAME],
@@ -995,8 +999,11 @@ def build_package() -> None:
         MAINVERSION=MAINVERSION,
     )
     full_rpm_path = join(PACKAGEDIR, expected_main_rpm_name)
-    myuser = getpass.getuser()
-    shutil.chown(full_rpm_path, myuser, myuser)
+    # This chown is causing problems with GitHub actions. The user is 'runner'
+    # and there is no group called 'runner'. Is it needed anyway? Seems to run
+    # OK locally without this line.
+    # myuser = getpass.getuser()
+    # shutil.chown(full_rpm_path, myuser, myuser)
 
     log.info("Changing dependencies within RPM")
     # Alien does not successfully translate the dependencies, and anyway the

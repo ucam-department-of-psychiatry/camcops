@@ -32,17 +32,21 @@ camcops_server/templates/menu/view_patient_task_schedule.mako
 from cardinal_pythonlib.datetimefunc import format_datetime
 
 from camcops_server.cc_modules.cc_constants import DateFormat
+from camcops_server.cc_modules.cc_html import get_yes_no
 from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 %>
 
 <%include file="db_user_info.mako"/>
 
 <h1>
-    ${ _("Scheduled tasks for {patient} on schedule: {schedule}").format(
-            patient=patient_descriptor, schedule=schedule_name) }
+    ${ _("{patient} on schedule: {schedule}").format(
+          patient=patient_descriptor, schedule=schedule_name) }
 </h1>
 
-<table>
+<div>
+<h2>${ _("Scheduled tasks") }</h2>
+
+<table class="scheduled_tasks_table">
     <tr>
         <th>${ _("Task") }</th>
         <th>${ _("Due from") }</th>
@@ -115,9 +119,63 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
     </tr>
 %endfor
 </table>
+</div>
+
+%if req.user.authorized_to_email_patients:
+<div>
+<h2>${ _("Emails") }</h2>
+
+<table>
+    <tr>
+        <th>${ _("Subject") }</th>
+        <th>${ _("Date") }</th>
+        <th>${ _("Sent") }</th>
+        <th>${ _("Sending failure reason") }</th>
+    </tr>
+%for pts_email in pts.emails:
+    <%
+        tr_attributes = ""
+        failure_reason = ""
+        if not pts_email.email.sent:
+            failure_reason = pts_email.email.sending_failure_reason
+            tr_attributes = "class='error'"
+
+        email_link = req.route_url(
+            Routes.VIEW_EMAIL,
+            _query={ViewParam.ID: pts_email.email_id}
+        )
+    %>
+    <tr ${ tr_attributes | n }>
+        <td>
+ %if req.user.superuser:
+       <a href="${ email_link | n }">
+ %endif
+       ${ pts_email.email.subject }
+       </a>
+ %if req.user.superuser:
+       </td>
+ %endif
+        <td>${ pts_email.email.date }</td>
+        <td>${ get_yes_no(req, pts_email.email.sent) }</td>
+        <td>${ failure_reason }</td>
+    <tr>
+%endfor
+</table>
+%if pts.patient.email and pts.task_schedule.email_from:
+<div>
+<a href="${ req.route_url(
+                 Routes.SEND_EMAIL_FROM_PATIENT_TASK_SCHEDULE,
+                 _query={
+                     ViewParam.PATIENT_TASK_SCHEDULE_ID: pts.id
+                 }) | n }">${ _("Email this patient") }</a>
+</div>
+%endif
+%endif
+</div>
 
 <div>
     <a href="${ req.route_url(Routes.VIEW_PATIENT_TASK_SCHEDULES) | n }">
-        ${ _("Manage scheduled tasks for patients") }</a>
-    <%include file="to_main_menu.mako"/>
+        ${ _("Manage patients and their tasks") }</a>
 </div>
+
+<%include file="to_main_menu.mako"/>

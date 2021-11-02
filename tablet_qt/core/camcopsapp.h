@@ -281,6 +281,16 @@ public slots:
     // "Leave fullscreen mode."
     void leaveFullscreen();
 
+    // Set parameters from values passed in by the OS (e.g. Android, iOS) app
+    // launcher, for when we launch our app via a URL.
+    // These are slots, but can safely take a reference (const QString&
+    // value), as per
+    // https://doc.qt.io/qt-5/qt.html#ConnectionType-enum
+    // https://stackoverflow.com/questions/8455887/
+    void setDefaultSingleUserMode(const QString& value);
+    void setDefaultServerLocation(const QString& value);
+    void setDefaultAccessKey(const QString& value);
+
     // ------------------------------------------------------------------------
     // Language
     // ------------------------------------------------------------------------
@@ -404,6 +414,12 @@ public:
     void deleteTaskSchedules();
 
 protected:
+    // Get mode from the user via the ModeDialog
+    int getModeFromUser();
+
+    // Set the mode from the previously saved state
+    void setModeFromSavedState();
+
     // Is the user allowed to change between clinician/single-user modes?
     bool modeChangeForbidden() const;
 
@@ -787,6 +803,12 @@ public:
     // Internal data
     // ------------------------------------------------------------------------
 protected:
+    // Default to single user mode if mode not already set
+    bool m_default_single_user_mode;
+
+    // Default patient registration settings, if not already registered
+    QUrl m_default_server_url;
+    QString m_default_patient_proquint;
 
     // Translators; see https://doc.qt.io/qt-5/internationalization.html
     QSharedPointer<QTranslator> m_qt_translator;  // translates Qt strings

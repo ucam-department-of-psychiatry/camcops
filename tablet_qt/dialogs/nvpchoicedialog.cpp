@@ -80,8 +80,8 @@ int NvpChoiceDialog::choose(QVariant* new_value)
     auto contentwidget = new QWidget();  // doesn't need to be BaseWidget; contains scroll area
     auto contentlayout = new VBoxLayout();
     contentwidget->setLayout(contentlayout);
-    for (int i = 0; i < m_options.size(); ++i) {
-        const NameValuePair& nvp = m_options.at(i);
+    for (int position = 0; position < m_options.size(); ++position) {
+        const NameValuePair& nvp = m_options.atPosition(position);
         auto label = new ClickableLabelWordWrapWide(nvp.name());
         label->setSizePolicy(sizehelpers::expandingFixedHFWPolicy());
         if (m_show_existing_choice) {
@@ -98,7 +98,7 @@ int NvpChoiceDialog::choose(QVariant* new_value)
         }
         // Safe object lifespan signal: can use std::bind
         connect(label, &ClickableLabelWordWrapWide::clicked,
-                std::bind(&NvpChoiceDialog::itemClicked, this, i));
+                std::bind(&NvpChoiceDialog::itemClicked, this, position));
     }
 
     auto scroll = new VerticalScrollArea();
@@ -139,12 +139,12 @@ int NvpChoiceDialog::choose(QVariant* new_value)
 }
 
 
-void NvpChoiceDialog::itemClicked(const int index)
+void NvpChoiceDialog::itemClicked(const int position)
 {
     if (!m_p_new_value) {
         return;
     }
-    *m_p_new_value = m_options.value(index);
+    *m_p_new_value = m_options.valueFromPosition(position);
     accept();
 }
 

@@ -257,6 +257,15 @@ input[type="date"].form-control,
 input[type="time"].form-control {
     line-height: normal; /* Bootstrap default looks wrong */
 }
+input[name="mfa_secret_key"].form-control {
+    background-color: inherit;
+    border: none;
+    font-size: medium;
+    font-weight: bold;
+    color: black;
+    padding: 0;
+    box-shadow: none;
+}
 table.extradetail {
     border: ${va.THINLINE} solid black;
     background-color: rgb(210, 210, 210);
@@ -402,6 +411,25 @@ div.indented {
 }
 .photo {
     padding: ${va.ZERO};
+}
+
+.mini_table {
+    padding: 0px;
+    border: none;
+}
+
+.mini_table > table {
+    border-collapse:collapse;
+    border-style:hidden;
+    margin: 0px;
+}
+
+.mini_table > table > tbody > tr > td {
+    border: none;
+}
+.qr_container {
+    margin: 0px;
+    padding: 0px;
 }
 .respondent {
     background-color: rgb(189, 183, 107);

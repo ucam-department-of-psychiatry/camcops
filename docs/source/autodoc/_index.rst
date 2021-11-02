@@ -21,14 +21,15 @@
     along with CamCOPS. If not, see <https://www.gnu.org/licenses/>.
 
 
-.. _sourcecode:
-
 Source code
 -----------
+
+
 
 This section contains automatic documentation generated from the CamCOPS
 source code. For the source code itself, see
 https://github.com/RudolfCardinal/camcops.
+
 
 
 ..  toctree::

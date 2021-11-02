@@ -91,6 +91,7 @@
 #include "menu/singleusermenu.h"
 #include "qobjects/debugeventwatcher.h"
 #include "qobjects/slownonguifunctioncaller.h"
+#include "qobjects/urlhandler.h"
 #include "questionnairelib/commonoptions.h"
 #include "questionnairelib/questionnaire.h"
 #include "tasklib/inittasks.h"
@@ -205,26 +206,19 @@ void CamcopsApp::setModeFromUser()
         return;
     }
 
-    const int old_mode = varInt(varconst::MODE);
-    ModeDialog dialog(old_mode);
-    const int reply = dialog.exec();
-    if (reply != QDialog::Accepted) {
-        // Dialog cancelled
-        if (old_mode == varconst::MODE_NOT_SET) {
-            // Exit the app if called on startup
-            uifunc::stopApp(
-                tr("You did not select how you would like to use CamCOPS")
-            );
+    const int old_mode = getMode();
+    int new_mode;
+
+    // Single user mode specified on the command line or if the app was
+    // launched via a deep link on Android (starting http://camcops/)
+    if (old_mode == varconst::MODE_NOT_SET && m_default_single_user_mode) {
+        new_mode = varconst::MODE_SINGLE_USER;
+    } else {
+        new_mode = getModeFromUser();
+        if (new_mode == old_mode) {
+            // No change, nothing to do
+            return;
         }
-
-        return;
-    }
-
-    const int new_mode = dialog.mode();
-
-    if (new_mode == getMode()) {
-        // No change, nothing to do
-        return;
     }
 
     if (!agreeTerms(new_mode)) {
@@ -245,6 +239,25 @@ void CamcopsApp::setModeFromUser()
     if (new_mode == varconst::MODE_SINGLE_USER) {
         registerPatientWithServer();
     }
+}
+
+
+int CamcopsApp::getModeFromUser()
+{
+    const int old_mode = getMode();
+    ModeDialog dialog(old_mode);
+    const int reply = dialog.exec();
+    if (reply != QDialog::Accepted) {
+        // Dialog cancelled
+        if (old_mode == varconst::MODE_NOT_SET) {
+            // Exit the app if called on startup
+            uifunc::stopApp(
+                tr("You did not select how you would like to use CamCOPS")
+            );
+        }
+    }
+
+    return dialog.mode();
 }
 
 
@@ -354,14 +367,24 @@ bool CamcopsApp::registerPatientWithServer()
         recreateMainMenu();
     }
 
-    PatientRegistrationDialog dialog(nullptr);
-    const int reply = dialog.exec();
-    if (reply != QDialog::Accepted) {
-        return false;
-    }
+    QUrl server_url;
+    QString patient_proquint;
 
-    const QUrl server_url = dialog.serverUrl();
-    const QString patient_proquint = dialog.patientProquint();
+    if (!m_default_server_url.isEmpty() &&
+        !m_default_patient_proquint.isEmpty()) {
+
+        server_url = m_default_server_url;
+        patient_proquint = m_default_patient_proquint;
+    } else {
+        PatientRegistrationDialog dialog(nullptr);
+        const int reply = dialog.exec();
+        if (reply != QDialog::Accepted) {
+            return false;
+        }
+
+        server_url = dialog.serverUrl();
+        patient_proquint = dialog.patientProquint();
+    }
 
     setVar(varconst::SERVER_ADDRESS, server_url.host());
 
@@ -493,6 +516,10 @@ void CamcopsApp::patientRegistrationFailed(
 
 void CamcopsApp::patientRegistrationFinished()
 {
+    // Clear these after initial registration
+    m_default_server_url = QString();
+    m_default_patient_proquint = QString();
+
     deleteNetworkGuiGuard();
 
     // Creating the single patient from the server details will trigger
@@ -720,6 +747,15 @@ int CamcopsApp::run()
     // everything that we can in a different thread through backgroundStartup.
     // This makes the GUI startup more responsive.
 
+    // Listen for application launch from URL
+    auto url_handler = UrlHandler::getInstance();
+    connect(url_handler, &UrlHandler::defaultSingleUserModeSet,
+            this, &CamcopsApp::setDefaultSingleUserMode);
+    connect(url_handler, &UrlHandler::defaultServerLocationSet,
+            this, &CamcopsApp::setDefaultServerLocation);
+    connect(url_handler, &UrlHandler::defaultAccessKeySet,
+            this, &CamcopsApp::setDefaultAccessKey);
+
     // Command-line arguments
     int retcode = 0;
     if (!processCommandLineArguments(retcode)) {
@@ -799,11 +835,36 @@ int CamcopsApp::run()
     } else {
         // We know our mode from last time.
         // Ensure all mode-specific things are set:
-        setMode(varInt(varconst::MODE));
-        maybeRegisterPatient();
+        setModeFromSavedState();
     }
 
     return exec();  // Main Qt event loop
+}
+
+
+void CamcopsApp::setDefaultSingleUserMode(const QString& value)
+{
+    // Set from URL or command line so string not boolean
+    m_default_single_user_mode = (value.toLower() == "true");
+}
+
+
+void CamcopsApp::setDefaultServerLocation(const QString& url)
+{
+    m_default_server_url = QUrl(url);
+}
+
+
+void CamcopsApp::setDefaultAccessKey(const QString& key)
+{
+    m_default_patient_proquint = key;
+}
+
+
+void CamcopsApp::setModeFromSavedState()
+{
+    setMode(varInt(varconst::MODE));
+    maybeRegisterPatient();
 }
 
 void CamcopsApp::maybeRegisterPatient()
@@ -905,6 +966,40 @@ bool CamcopsApp::processCommandLineArguments(int& retcode)
     dbDirOption.setValueName("DBDIR");  // makes it take a parameter
     parser.addOption(dbDirOption);
 
+    // --default_single_user_mode
+    QCommandLineOption defaultSingleUserModeOption(
+        "default_single_user_mode",
+        QString(
+            "If no mode has previously been selected, do not display the mode "
+            "selection dialog and default to single user mode."
+            ),
+        "DEFAULT_SINGLE_USER_MODE",
+        "false"
+    );
+    parser.addOption(defaultSingleUserModeOption);
+
+    // --default_server_location
+    QCommandLineOption defaultServerLocationOption(
+        "default_server_location",
+        QString(
+            "If no server has been registered, default to this URL "
+            "e.g. https://server.example.com/camcops/api"
+            ),
+        "DEFAULT_SERVER_LOCATION"
+    );
+    parser.addOption(defaultServerLocationOption);
+
+    // --default_access_key
+    QCommandLineOption defaultAccessKeyOption(
+        "default_access_key",
+        QString(
+            "If no patient has been registered, default to this access key "
+            "e.g. abcde-fghij-klmno-pqrst-uvwxy-zabcd-efghi-jklmn-o"
+            ),
+        "DEFAULT_ACCESS_KEY"
+    );
+    parser.addOption(defaultAccessKeyOption);
+
     // --print_icd9_codes
     QCommandLineOption printIcd9Option(
         "print_icd9_codes",
@@ -947,6 +1042,10 @@ bool CamcopsApp::processCommandLineArguments(int& retcode)
     if (!db_dir.isEmpty()) {
         m_database_path = db_dir;
     }
+
+    setDefaultSingleUserMode(parser.value(defaultSingleUserModeOption));
+    setDefaultServerLocation(parser.value(defaultServerLocationOption));
+    setDefaultAccessKey(parser.value(defaultAccessKeyOption));
 
     // ------------------------------------------------------------------------
     // Actions that make us do something and quit

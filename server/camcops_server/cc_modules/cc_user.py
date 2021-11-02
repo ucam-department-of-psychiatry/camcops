@@ -42,6 +42,9 @@ from cardinal_pythonlib.sqlalchemy.orm_query import (
     exists_orm,
 )
 from pendulum import DateTime as Pendulum
+import phonenumbers
+import pyotp
+from sqlalchemy import text
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import relationship, Session as SqlASession, Query
 from sqlalchemy.sql import false
@@ -51,15 +54,23 @@ from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer
 
 from camcops_server.cc_modules.cc_audit import audit
-from camcops_server.cc_modules.cc_constants import USER_NAME_FOR_SYSTEM
+from camcops_server.cc_modules.cc_constants import (
+    MfaMethod,
+    OBSCURE_EMAIL_ASTERISKS,
+    OBSCURE_PHONE_ASTERISKS,
+    USER_NAME_FOR_SYSTEM,
+)
 from camcops_server.cc_modules.cc_group import Group
 from camcops_server.cc_modules.cc_membership import UserGroupMembership
 from camcops_server.cc_modules.cc_sqla_coltypes import (
+    Base32ColType,
     EmailAddressColType,
     FullNameColType,
     HashedPasswordColType,
     LanguageCodeColType,
+    MfaMethodColType,
     PendulumDateTimeAsIsoTextColType,
+    PhoneNumberColType,
     UserNameCamcopsColType,
 )
 from camcops_server.cc_modules.cc_sqlalchemy import Base
@@ -388,10 +399,34 @@ class User(Base):
         "email", EmailAddressColType,
         comment="User's e-mail address"
     )
+    phone_number = Column(
+        "phone_number", PhoneNumberColType,
+        comment="User's phone number"
+    )
     hashedpw = Column(
         "hashedpw", HashedPasswordColType,
         nullable=False,
         comment="Password hash"
+    )
+    mfa_secret_key = Column(
+        "mfa_secret_key",
+        Base32ColType,
+        nullable=True,
+        comment="Secret key used for multi-factor authentication"
+    )
+    mfa_method = Column(
+        "mfa_method",
+        MfaMethodColType,
+        nullable=False,
+        server_default=MfaMethod.NO_MFA,
+        comment="Preferred method of multi-factor authentication"
+    )
+    hotp_counter = Column(
+        "hotp_counter",
+        Integer,
+        nullable=False,
+        server_default=text("0"),
+        comment="Counter used for HOTP authentication"
     )
     last_login_at_utc = Column(
         "last_login_at_utc", DateTime,
@@ -454,12 +489,29 @@ class User(Base):
     single_patient = relationship(
         "Patient", foreign_keys=[single_patient_pk])  # type: Optional[Patient]
 
+    # -------------------------------------------------------------------------
+    # __init__
+    # -------------------------------------------------------------------------
+
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)
+        # Prevent Python None from being converted to database string 'none'.
+        self.mfa_method = kwargs.get("mfa_method", MfaMethod.NO_MFA)
+
+    # -------------------------------------------------------------------------
+    # String representations
+    # -------------------------------------------------------------------------
+
     def __repr__(self) -> str:
         return simple_repr(
             self,
             ["id", "username", "fullname"],
             with_addr=True
         )
+
+    # -------------------------------------------------------------------------
+    # Lookup methods
+    # -------------------------------------------------------------------------
 
     @classmethod
     def get_user_by_id(cls,
@@ -591,6 +643,10 @@ class User(Base):
         # that the system will not allow logon attempts for this user!
         return user
 
+    # -------------------------------------------------------------------------
+    # Static methods
+    # -------------------------------------------------------------------------
+
     @staticmethod
     def is_username_permissible(username: str) -> bool:
         """
@@ -606,6 +662,10 @@ class User(Base):
         but we mimic the time it takes to check a real user's password.
         """
         rnc_crypto.hash_password("dummy!", BCRYPT_DEFAULT_LOG_ROUNDS)
+
+    # -------------------------------------------------------------------------
+    # Authentication: passwords
+    # -------------------------------------------------------------------------
 
     def set_password(self, req: "CamcopsRequest", new_password: str) -> None:
         """
@@ -628,17 +688,6 @@ class User(Base):
         Make the user change their password at next login.
         """
         self.must_change_password = True
-
-    def login(self, req: "CamcopsRequest") -> None:
-        """
-        Called when the framework has determined a successful login.
-
-        Clears any login failures.
-        Requires the user to change their password if policies say they should.
-        """
-        self.clear_login_failures(req)
-        self.set_password_change_flag_if_necessary(req)
-        self.last_login_at_utc = req.now_utc_no_tzinfo
 
     def set_password_change_flag_if_necessary(self,
                                               req: "CamcopsRequest") -> None:
@@ -664,24 +713,74 @@ class User(Base):
         if delta.days >= cfg.password_change_frequency_days:
             self.force_password_change()
 
-    @property
-    def must_agree_terms(self) -> bool:
-        """
-        Does the user still need to agree the terms/conditions of use?
-        """
-        if self.when_agreed_terms_of_use is None:
-            # User hasn't agreed yet.
-            return True
-        if self.when_agreed_terms_of_use.date() < TERMS_CONDITIONS_UPDATE_DATE:
-            # User hasn't agreed since the terms were updated.
-            return True
-        return False
+    # -------------------------------------------------------------------------
+    # Authentication: multi-factor authentication
+    # -------------------------------------------------------------------------
 
-    def agree_terms(self, req: "CamcopsRequest") -> None:
+    def set_mfa_method(self, mfa_method: str) -> None:
         """
-        Mark the user as having agreed to the terms/conditions of use now.
+        Resets the multi-factor authentication (MFA) method.
         """
-        self.when_agreed_terms_of_use = req.now
+        assert MfaMethod.valid(mfa_method), (
+            f"Invalid MFA method: {mfa_method!r}"
+        )
+
+        # Set the method
+        self.mfa_method = mfa_method
+
+        # A new secret key
+        self.mfa_secret_key = pyotp.random_base32()
+
+        # Reset the HOTP counter
+        self.hotp_counter = 0
+
+    def ensure_mfa_info(self) -> None:
+        """
+        If for some reason we have lost aspects of our MFA information,
+        reset it. This step also ensures that anything erroneous in the
+        database is cleaned to a valid value.
+        """
+        if not self.mfa_secret_key or self.hotp_counter is None:
+            self.set_mfa_method(MfaMethod.clean(self.mfa_method))
+
+    def verify_one_time_password(self, one_time_password: str) -> bool:
+        """
+        Determines whether the supplied one-time password is valid for the
+        multi-factor authentication (MFA) currently selected.
+
+        Returns ``False`` if no MFA method is selected.
+        """
+        mfa_method = self.mfa_method
+
+        if not MfaMethod.requires_second_step(mfa_method):
+            return False
+
+        if mfa_method == MfaMethod.TOTP:
+            totp = pyotp.TOTP(self.mfa_secret_key)
+            return totp.verify(one_time_password)
+
+        elif mfa_method in [MfaMethod.HOTP_EMAIL, MfaMethod.HOTP_SMS]:
+            hotp = pyotp.HOTP(self.mfa_secret_key)
+            return one_time_password == hotp.at(self.hotp_counter)
+
+        else:
+            raise ValueError(f"User.verify_one_time_password(): "
+                             f"Bad mfa_method = {mfa_method}")
+
+    # -------------------------------------------------------------------------
+    # Authentication: logging in
+    # -------------------------------------------------------------------------
+
+    def login(self, req: "CamcopsRequest") -> None:
+        """
+        Called when the framework has determined a successful login.
+
+        Clears any login failures.
+        Requires the user to change their password if policies say they should.
+        """
+        self.clear_login_failures(req)
+        self.set_password_change_flag_if_necessary(req)
+        self.last_login_at_utc = req.now_utc_no_tzinfo
 
     def clear_login_failures(self, req: "CamcopsRequest") -> None:
         """
@@ -714,12 +813,84 @@ class User(Base):
         """
         SecurityLoginFailure.enable_user(req, self.username)
 
+    # -------------------------------------------------------------------------
+    # Details used for authentication
+    # -------------------------------------------------------------------------
+
     @property
-    def may_login_as_tablet(self) -> bool:
+    def partial_email(self) -> str:
         """
-        May the user login via the client (tablet) API?
+        Returns a partially obscured version of the user's e-mail address.
+
+        There doesn't seem to be an agreed way of doing this. Here we show the
+        first and last letter of the "local-part" (see
+        https://en.wikipedia.org/wiki/Email_address), separated by asterisks.
+        If the local part is a single letter, it's shown twice.
         """
-        return self.may_upload or self.may_register_devices
+        regex = r"^(.+)@(.*)$"
+
+        m = re.search(regex, self.email)
+        first_letter = m.group(1)[0]
+        last_letter = m.group(1)[-1]
+        domain = m.group(2)
+
+        return f"{first_letter}{OBSCURE_EMAIL_ASTERISKS}{last_letter}@{domain}"
+
+    @property
+    def raw_phone_number(self) -> str:
+        """
+        Returns the user's phone number in E164 format:
+        https://en.wikipedia.org/wiki/E.164
+        """
+        return phonenumbers.format_number(
+            self.phone_number,
+            phonenumbers.PhoneNumberFormat.E164
+        )
+
+    @property
+    def partial_phone_number(self) -> str:
+        """
+        Returns a partially obscured version of the user's phone number.
+
+        There doesn't seem to be an agreed way of doing this either.
+        https://www.karansaini.com/fuzzing-obfuscated-phone-numbers/
+        """
+        return f"{OBSCURE_PHONE_ASTERISKS}{self.raw_phone_number[-2:]}"
+
+    # -------------------------------------------------------------------------
+    # Requirements
+    # -------------------------------------------------------------------------
+
+    @property
+    def must_agree_terms(self) -> bool:
+        """
+        Does the user still need to agree the terms/conditions of use?
+        """
+        if self.when_agreed_terms_of_use is None:
+            # User hasn't agreed yet.
+            return True
+        if self.when_agreed_terms_of_use.date() < TERMS_CONDITIONS_UPDATE_DATE:
+            # User hasn't agreed since the terms were updated.
+            return True
+        return False
+
+    def agree_terms(self, req: "CamcopsRequest") -> None:
+        """
+        Mark the user as having agreed to the terms/conditions of use now.
+        """
+        self.when_agreed_terms_of_use = req.now
+
+    def must_set_mfa_method(self, req: "CamcopsRequest") -> bool:
+        """
+        Does the user still need to select a (valid) multi-factor
+        authentication method? We are happy if the user has selected a method
+        that is approved in the current config.
+        """
+        return self.mfa_method not in req.config.mfa_methods
+
+    # -------------------------------------------------------------------------
+    # Groups
+    # -------------------------------------------------------------------------
 
     @property
     def group_ids(self) -> List[int]:
@@ -829,6 +1000,32 @@ class User(Base):
         return [m.group_id for m in memberships if m.groupadmin]
 
     @property
+    def ids_of_groups_user_may_manage_patients_in(self) -> List[int]:
+        """
+        Returns a list of group IDs for groups that the user may
+        add/edit/delete patients in
+        """
+        if self.superuser:
+            return Group.all_group_ids(
+                dbsession=SqlASession.object_session(self))
+        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+        return [m.group_id for m in memberships
+                if m.may_manage_patients or m.groupadmin]
+
+    @property
+    def ids_of_groups_user_may_email_patients_in(self) -> List[int]:
+        """
+        Returns a list of group IDs for groups that the user may send emails to
+        patients in
+        """
+        if self.superuser:
+            return Group.all_group_ids(
+                dbsession=SqlASession.object_session(self))
+        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+        return [m.group_id for m in memberships
+                if m.may_email_patients or m.groupadmin]
+
+    @property
     def names_of_groups_user_is_admin_for(self) -> List[str]:
         """
         Returns a list of group names for groups that the user is an
@@ -856,6 +1053,23 @@ class User(Base):
         if self.superuser:
             return True
         return group_id in self.ids_of_groups_user_is_admin_for
+
+    def may_manage_patients_in_group(self, group_id: int) -> bool:
+        """
+        May this user manage patients in the group identified by ``group_id``?
+        """
+        if self.superuser:
+            return True
+        return group_id in self.ids_of_groups_user_may_manage_patients_in
+
+    def may_email_patients_in_group(self, group_id: int) -> bool:
+        """
+        May this user send emails to patients in the group identified by
+        ``group_id``?
+        """
+        if self.superuser:
+            return True
+        return group_id in self.ids_of_groups_user_may_email_patients_in
 
     @property
     def groups_user_may_see(self) -> List[Group]:
@@ -961,6 +1175,26 @@ class User(Base):
                       key=lambda g: g.name)
 
     @property
+    def groups_user_may_manage_patients_in(self) -> List[Group]:
+        """
+        Returns a list of :class:`camcops_server.cc_modules.cc_group.Group`
+        objects for groups the user may manage patients in.
+        """
+        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+        return sorted([m.group for m in memberships if m.may_manage_patients],
+                      key=lambda g: g.name)
+
+    @property
+    def groups_user_may_email_patients_in(self) -> List[Group]:
+        """
+        Returns a list of :class:`camcops_server.cc_modules.cc_group.Group`
+        objects for groups the user may send emails to patients in.
+        """
+        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+        return sorted([m.group for m in memberships if m.may_email_patients],
+                      key=lambda g: g.name)
+
+    @property
     def is_a_groupadmin(self) -> bool:
         """
         Is the user a specifically defined group administrator (for any group)?
@@ -986,6 +1220,34 @@ class User(Base):
             (m for m in self.user_group_memberships if m.group_id == group_id),
             None
         )
+
+    def group_ids_that_nonsuperuser_may_see_when_unfiltered(self) -> List[int]:
+        """
+        Which group IDs may this user see all patients for, when unfiltered?
+        """
+        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+        return [m.group_id for m in memberships
+                if m.view_all_patients_when_unfiltered]
+
+    def may_upload_to_group(self, group_id: int) -> bool:
+        """
+        May this user upload to the specified group?
+        """
+        if self.superuser:
+            return True
+        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+        return any(m.may_upload for m in memberships if m.group_id == group_id)
+
+    # -------------------------------------------------------------------------
+    # Other permissions
+    # -------------------------------------------------------------------------
+
+    @property
+    def may_login_as_tablet(self) -> bool:
+        """
+        May the user login via the client (tablet) API?
+        """
+        return self.may_upload or self.may_register_devices
 
     @property
     def may_use_webviewer(self) -> bool:
@@ -1042,6 +1304,26 @@ class User(Base):
         return any(m.may_run_reports for m in memberships)
 
     @property
+    def authorized_to_manage_patients(self) -> bool:
+        """
+        Is the user authorized to manage patients (for some group)?
+        """
+        if self.authorized_as_groupadmin:
+            return True
+        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+        return any(m.may_manage_patients for m in memberships)
+
+    @property
+    def authorized_to_email_patients(self) -> bool:
+        """
+        Is the user authorized to send emails to patients (for some group)?
+        """
+        if self.authorized_as_groupadmin:
+            return True
+        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
+        return any(m.may_email_patients for m in memberships)
+
+    @property
     def may_view_all_patients_when_unfiltered(self) -> bool:
         """
         May the user view all patients when no filters are applied (for all
@@ -1062,23 +1344,6 @@ class User(Base):
         memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
         return all(not m.view_all_patients_when_unfiltered
                    for m in memberships)
-
-    def group_ids_that_nonsuperuser_may_see_when_unfiltered(self) -> List[int]:
-        """
-        Which group IDs may this user see all patients for, when unfiltered?
-        """
-        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
-        return [m.group_id for m in memberships
-                if m.view_all_patients_when_unfiltered]
-
-    def may_upload_to_group(self, group_id: int) -> bool:
-        """
-        May this user upload to the specified group?
-        """
-        if self.superuser:
-            return True
-        memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
-        return any(m.may_upload for m in memberships if m.group_id == group_id)
 
     @property
     def may_upload(self) -> bool:
@@ -1106,6 +1371,10 @@ class User(Base):
         memberships = self.user_group_memberships  # type: List[UserGroupMembership]  # noqa
         return any(m.may_register_devices for m in memberships
                    if m.group_id == self.upload_group_id)
+
+    # -------------------------------------------------------------------------
+    # Managing other users
+    # -------------------------------------------------------------------------
 
     def managed_users(self) -> Optional[Query]:
         """
@@ -1174,6 +1443,10 @@ class User(Base):
                                 "groups that this user is in")
         return True, ""
 
+
+# =============================================================================
+# Command-line password control
+# =============================================================================
 
 def set_password_directly(req: "CamcopsRequest",
                           username: str, password: str) -> bool:

@@ -48,6 +48,7 @@ from camcops_server.cc_modules.cc_report import (
     Report,
 )
 from camcops_server.cc_modules.cc_unittest import (
+    BasicDatabaseTestCase,
     DemoDatabaseTestCase,
     DemoRequestTestCase,
 )
@@ -129,7 +130,7 @@ class AllReportTests(DemoDatabaseTestCase):
                 pass
 
 
-class AverageScoreReportTestCase(DemoDatabaseTestCase):
+class AverageScoreReportTestCase(BasicDatabaseTestCase):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.patient_id_sequence = self.get_patient_id()
@@ -140,9 +141,6 @@ class AverageScoreReportTestCase(DemoDatabaseTestCase):
         super().setUp()
 
         self.report = self.create_report()
-
-    def create_tasks(self):
-        pass
 
     def create_report(self) -> AverageScoreReport:
         raise NotImplementedError(
@@ -177,7 +175,7 @@ class AverageScoreReportTestCase(DemoDatabaseTestCase):
         from camcops_server.cc_modules.cc_patient import Patient
         patient = Patient()
         patient.id = next(self.patient_id_sequence)
-        self._apply_standard_db_fields(patient)
+        self.apply_standard_db_fields(patient)
 
         patient.forename = f"Forename {patient.id}"
         patient.surname = f"Surname {patient.id}"
@@ -195,7 +193,7 @@ class AverageScoreReportTestCase(DemoDatabaseTestCase):
         from camcops_server.cc_modules.cc_patient import PatientIdNum
         patient_idnum = PatientIdNum()
         patient_idnum.id = next(self.patient_idnum_id_sequence)
-        self._apply_standard_db_fields(patient_idnum)
+        self.apply_standard_db_fields(patient_idnum)
         patient_idnum.patient_id = patient.id
         patient_idnum.which_idnum = self.nhs_iddef.which_idnum
         patient_idnum.idnum_value = idnum_value

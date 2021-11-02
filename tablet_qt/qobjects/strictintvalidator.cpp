@@ -33,7 +33,6 @@ StrictIntValidator::StrictIntValidator(const int bottom, const int top,
 }
 
 
-
 QValidator::State StrictIntValidator::validate(QString& s, int& pos) const
 {
     Q_UNUSED(pos)

@@ -740,6 +740,7 @@ def escape_hl7_text(s: str) -> str:
 
 
 def msg_is_successful_ack(msg: hl7.Message) -> Tuple[bool, Optional[str]]:
+    # noinspection HttpUrlsUsage
     """
     Checks whether msg represents a successful acknowledgement message.
 

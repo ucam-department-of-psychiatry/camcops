@@ -44,7 +44,14 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.session import sessionmaker
 from sqlalchemy.sql.expression import func
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Boolean, Date, Float, Integer, UnicodeText
+from sqlalchemy.sql.sqltypes import (
+    Boolean,
+    Date,
+    Float,
+    Integer,
+    String,
+    UnicodeText,
+)
 
 from camcops_server.cc_modules.cc_constants import DateFormat
 from camcops_server.cc_modules.cc_device import Device
@@ -246,6 +253,10 @@ class DummyDataFactory(object):
             if isinstance(column.type, UnicodeText):
                 self.set_unicode_text_field(task, column)
 
+            if isinstance(column.type, String):
+                # covers String, Text, UnicodeText
+                self.set_string_field(task, column)
+
     def set_integer_field(self, task: Task, column: Column) -> None:
         setattr(task, column.name, self.get_valid_integer_for_field(column))
 
@@ -263,6 +274,9 @@ class DummyDataFactory(object):
 
     def set_unicode_text_field(self, task: Task, column: Column) -> None:
         setattr(task, column.name, self.faker.text())
+
+    def set_string_field(self, task: Task, column: Column) -> None:
+        setattr(task, column.name, self.get_valid_string_for_field(column))
 
     def get_valid_integer_for_field(self, column: Column) -> int:
         min_value = self.DEFAULT_MIN_INTEGER
@@ -299,6 +313,19 @@ class DummyDataFactory(object):
                 max_value = value_checker.maximum
 
         return self.faker.random.uniform(min_value, max_value)
+
+    def get_valid_string_for_field(self, column: Column) -> str:
+        value_checker = getattr(column, "permitted_value_checker", None)
+
+        if value_checker is not None:
+            if value_checker.permitted_values is not None:
+                return self.faker.random.choice(value_checker.permitted_values)
+        text = self.faker.text()
+
+        if column.type.length is None:
+            return text
+
+        return text[:column.type.length]
 
     @staticmethod
     def column_is_q_field(column: Column) -> bool:

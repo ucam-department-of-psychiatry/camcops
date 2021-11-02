@@ -346,8 +346,8 @@ formatter [#sqlformat]_.
 
 .. _scheduling_tasks:
 
-Manage scheduled tasks for patients
------------------------------------
+Manage patients and their tasks
+-------------------------------
 
 You can schedule tasks for a patient to complete on their own tablet with the
 CamCOPS app running in :ref:`Single User Mode <single_user_mode>`.
@@ -368,9 +368,13 @@ describe the contexts in which your group operates (clinical, commercial etc.).
 Any tasks you schedule for a patient need to be permitted for these contexts.
 
 - First of all create a task schedule for your study (:menuselection:`Manage
-  task schedules --> Add a task schedule`). Here you can add an email template,
-  which can be customised to include the location of the server and the patient's
-  unique access key.
+  task schedules --> Add a task schedule`). Here you can specify the From, CC
+  and BCC fields for your emails, along with an email template, which can be
+  customised to include the location of the server, the patient's name, their
+  unique access key and a unique URL that patients can use the first time they
+  launch the app. This last option will register their patient automatically
+  with the server, without the need to enter the server and access key
+  (Android only).
 
 - Next add items to your schedule (:menuselection:`Edit items` from the table
   of schedules):
@@ -412,14 +416,15 @@ in this way.
 If the patient has been successfully created, they should now appear in the
 table along with the unique access key that they need for registration. The
 address of the server is also displayed on this page for convenience. If you
-have provided an email address for the patient, the email link in this
-table will launch a mail client with the body of the email populated from the
-template associated with the schedule.
+have provided an email address for the patient and a "from" address for the
+task schedule, :menuselection:`Send email...` will open a form with the email
+body populated from the template associated with the schedule.
 
 You can view a patient's progress through the schedule by following the link to
 the named schedule from the table. From this table you can view the uploaded
 task responses as HTML or PDF. Anonymous tasks will be listed in this table but
-you will not see the responses.
+you will not see the responses. Here you can also view a list of emails sent to
+the patient and view their details.
 
 .. note::
 

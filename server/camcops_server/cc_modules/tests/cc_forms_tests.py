@@ -34,6 +34,7 @@ from unittest import mock, TestCase
 # noinspection PyProtectedMember
 from colander import Invalid, null, Schema
 from pendulum import Duration
+import phonenumbers
 
 from camcops_server.cc_modules.cc_baseconstants import TEMPLATE_DIR
 from camcops_server.cc_modules.cc_forms import (
@@ -41,9 +42,11 @@ from camcops_server.cc_modules.cc_forms import (
     DurationWidget,
     GroupIpUseWidget,
     IpUseType,
+    MfaSecretWidget,
     JsonType,
     JsonWidget,
     LoginSchema,
+    PhoneNumberType,
     TaskScheduleItemSchema,
     TaskScheduleNode,
     TaskScheduleSchema,
@@ -52,9 +55,16 @@ from camcops_server.cc_modules.cc_ipuse import IpContexts
 from camcops_server.cc_modules.cc_pyramid import ViewParam
 from camcops_server.cc_modules.cc_taskschedule import TaskSchedule
 from camcops_server.cc_modules.cc_unittest import (
+    BasicDatabaseTestCase,
     DemoDatabaseTestCase,
     DemoRequestTestCase,
 )
+
+TEST_PHONE_NUMBER = "+{ctry}{tel}".format(
+    ctry=phonenumbers.PhoneMetadata.metadata_for_region("GB").country_code,
+    tel=phonenumbers.PhoneMetadata.metadata_for_region(
+        "GB").personal_number.example_number
+)  # see webview_tests.py
 
 
 # =============================================================================
@@ -97,14 +107,16 @@ class LoginSchemaTests(SchemaTestCase):
 class TaskScheduleSchemaTests(DemoDatabaseTestCase):
     def test_invalid_for_bad_template_placeholder(self) -> None:
         schema = TaskScheduleSchema().bind(request=self.req)
-        appstruct = {
+        cstruct = {
             ViewParam.NAME: "test",
             ViewParam.GROUP_ID: str(self.group.id),
+            ViewParam.EMAIL_FROM: null,
+            ViewParam.EMAIL_CC: null,
+            ViewParam.EMAIL_BCC: null,
             ViewParam.EMAIL_SUBJECT: "Subject",
             ViewParam.EMAIL_TEMPLATE: "{bad_key}",
         }
 
-        cstruct = schema.serialize(appstruct)
         with self.assertRaises(Invalid) as cm:
             schema.deserialize(cstruct)
 
@@ -113,14 +125,16 @@ class TaskScheduleSchemaTests(DemoDatabaseTestCase):
 
     def test_invalid_for_mismatched_braces(self) -> None:
         schema = TaskScheduleSchema().bind(request=self.req)
-        appstruct = {
+        cstruct = {
             ViewParam.NAME: "test",
             ViewParam.GROUP_ID: str(self.group.id),
+            ViewParam.EMAIL_FROM: null,
+            ViewParam.EMAIL_CC: null,
+            ViewParam.EMAIL_BCC: null,
             ViewParam.EMAIL_SUBJECT: "Subject",
-            ViewParam.EMAIL_TEMPLATE: "{server_url",
+            ViewParam.EMAIL_TEMPLATE: "{server_url",  # deliberately missing }
         }
 
-        cstruct = schema.serialize(appstruct)
         with self.assertRaises(Invalid) as cm:
             schema.deserialize(cstruct)
 
@@ -224,7 +238,7 @@ class TaskScheduleItemSchemaTests(SchemaTestCase):
                       cm.exception.messages()[0])
 
 
-class TaskScheduleItemSchemaIpTests(DemoDatabaseTestCase):
+class TaskScheduleItemSchemaIpTests(BasicDatabaseTestCase):
     def setUp(self) -> None:
         super().setUp()
 
@@ -232,10 +246,6 @@ class TaskScheduleItemSchemaIpTests(DemoDatabaseTestCase):
         self.schedule.group_id = self.group.id
         self.dbsession.add(self.schedule)
         self.dbsession.commit()
-
-    def create_tasks(self) -> None:
-        # Speed things up a bit
-        pass
 
     def test_invalid_for_commercial_mismatch(self) -> None:
         self.group.ip_use.commercial = True
@@ -870,3 +880,111 @@ class IpUseTypeTests(TestCase):
         self.assertTrue(ip_use.commercial)
         self.assertFalse(ip_use.educational)
         self.assertTrue(ip_use.research)
+
+
+class MfaSecretWidgetTests(TestCase):
+    def setUp(self) -> None:
+        super().setUp()
+        self.request = mock.Mock(gettext=lambda t: t,
+                                 user=mock.Mock(username="test"))
+        self.mfa_secret = "HVIHV7TUFQPV7KAIJE2GSJTLTEAQIQSJ"
+
+    def test_serialize_renders_template_with_values(self) -> None:
+        widget = MfaSecretWidget(self.request)
+
+        field = mock.Mock()
+        field.renderer = mock.Mock()
+
+        cstruct = self.mfa_secret
+        widget.serialize(field, cstruct, readonly=False)
+
+        args, kwargs = field.renderer.call_args
+
+        self.assertEqual(args[0], f"{TEMPLATE_DIR}/deform/mfa_secret.pt")
+        self.assertFalse(kwargs["readonly"])
+
+        self.assertIn("<svg", kwargs["qr_code"])
+
+    def test_serialize_renders_readonly_template(self) -> None:
+        widget = MfaSecretWidget(self.request)
+
+        field = mock.Mock()
+        field.renderer = mock.Mock()
+
+        cstruct = self.mfa_secret
+        widget.serialize(field, cstruct, readonly=True)
+
+        args, kwargs = field.renderer.call_args
+
+        self.assertEqual(args[0],
+                         f"{TEMPLATE_DIR}/deform/readonly/mfa_secret.pt")
+        self.assertTrue(kwargs["readonly"])
+
+    def test_serialize_readonly_widget_renders_readonly_template(self) -> None:
+        widget = MfaSecretWidget(self.request, readonly=True)
+
+        field = mock.Mock()
+        field.renderer = mock.Mock()
+
+        cstruct = self.mfa_secret
+        widget.serialize(field, cstruct)
+
+        args, kwargs = field.renderer.call_args
+
+        self.assertEqual(args[0],
+                         f"{TEMPLATE_DIR}/deform/readonly/mfa_secret.pt")
+
+
+class PhoneNumberTypeTestCase(TestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.request = mock.Mock()
+        self.phone_type = PhoneNumberType(self.request)
+        self.node = mock.Mock()
+
+
+class PhoneNumberTypeDeserializeTests(PhoneNumberTypeTestCase):
+    def test_returns_null_for_null_cstruct(self) -> None:
+        phone_number = self.phone_type.deserialize(self.node, null)
+        self.assertIs(phone_number, null)
+
+    def test_raises_for_unparsable_number(self) -> None:
+        with self.assertRaises(Invalid) as cm:
+            self.phone_type.deserialize(self.node, "abc")
+
+            self.assertIn(
+                "Invalid phone number",
+                cm.exception.messages()[0]
+            )
+
+    def test_raises_for_invalid_parsable_number(self) -> None:
+        with self.assertRaises(Invalid) as cm:
+            self.phone_type.deserialize(self.node, "+4411349600")
+
+            self.assertIn(
+                "Invalid phone number",
+                cm.exception.messages()[0]
+            )
+
+    def test_returns_valid_phone_number(self) -> None:
+        phone_number = self.phone_type.deserialize(
+            self.node, TEST_PHONE_NUMBER)
+
+        self.assertIsInstance(phone_number, phonenumbers.PhoneNumber)
+
+        self.assertEqual(phonenumbers.format_number(
+            phone_number,
+            phonenumbers.PhoneNumberFormat.E164
+        ), TEST_PHONE_NUMBER)
+
+
+class PhoneNumberTypeSerializeTests(PhoneNumberTypeTestCase):
+    def test_returns_null_for_appstruct_none(self) -> None:
+        self.assertIs(self.phone_type.serialize(self.node, None), null)
+
+    def test_returns_number_formatted_e164(self) -> None:
+        phone_number = phonenumbers.parse(TEST_PHONE_NUMBER)
+
+        self.assertEqual(self.phone_type.serialize(self.node, phone_number),
+                         TEST_PHONE_NUMBER)

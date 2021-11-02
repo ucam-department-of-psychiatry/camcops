@@ -33,8 +33,8 @@ camcops_server/templates/menu/user_edit_group_membership.mako
 <h1>${ _("Edit group permissions") }</h1>
 
 <div>
-    ${ _("User:") } <b>${ ugm.user.username }</b><br>
-    ${ _("Group:") } <b>${ ugm.group.name }</b>
+    ${ _("User:") } <b>${ object.user.username }</b><br>
+    ${ _("Group:") } <b>${ object.group.name }</b>
 </div>
 
 ${ form | n }

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <task name="cpft_research_preferences">
+    <!-- CPFT Research Preferences -->
+    <!--
+        NHS research ethics approvals: 12/EE/0407, 17/EE/0442.
+        Text here should follow those approvals.
+    -->
+
+
+    <string name="title">Would you like to be contacted about research?</string>
+    <string name="intro">Cambridgeshire &amp; Peterborough NHS Foundation Trust (CPFT) is involved in health research for the benefit of patients. We’d like to know your view on being contacted about research studies that may be relevant to you and being invited to take part.</string>
+        <!-- Note naked ampersand above = correct for Qt use. -->
+    <string name="decisions">Your decisions about research will never affect the standard of care you receive.</string>
+    <string name="research_info">For more information on CPFT research, please see <a href="https://www.cpft.nhs.uk/research">https://www.cpft.nhs.uk/research</a></string>
+    <string name="database_info">For in-depth information on the CPFT research database, please see <a href="https://www.cpft.nhs.uk/research-database">https://www.cpft.nhs.uk/research-database</a></string>
+    <string name="permission">We’ll never give researchers information that can identify you without your permission.</string>
+    <string name="q_contact_preference">If our researchers wish to write to you about relevant research projects, which of these three options would you prefer?</string>
+    <string name="q_contact_preference_short">Contact preference</string>
+    <string name="q_contact_preference_option_R"><b>RED. I am not interested in being contacted about research. Don’t pass my details on to any researchers outside my clinical team.</b></string>
+    <string name="q_contact_preference_option_Y"><b>YELLOW. I’m not sure yet. Please ask my CPFT clinicians to consider any requests from research teams and pass them on to me if appropriate.</b> I will choose each time whether researchers can have access to my CPFT records and write to me.</string>
+    <string name="q_contact_preference_option_G"><b>GREEN. I am happy to hear directly from approved CPFT researchers inside or outside my clinical team. Please allow these researchers access to my full CPFT records and allow them to write to me about projects that might be suited to me.</b> I understand that there’s no commitment to take part in any particular project.</string>
+    <string name="R">Red</string>
+    <string name="Y">Yellow</string>
+    <string name="G">Green</string>
+    <string name="q_contact_by_email">We will normally contact you by letter. Would you prefer us to e-mail you instead?</string>
+    <string name="q_contact_by_email_short">Prefer e-mail</string>
+    <string name="q_contact_by_email_option_Y">Please use e-mail where possible.</string>
+    <string name="q_contact_by_email_option_N">Please contact me by letter</string>
+
+    <string name="q_research_opt_out_intro">CPFT routinely anonymises information for use in improving health care and for research. You can opt out from the use of your information for research even after all details that could identify you have been removed. Indicate below if you want to opt out entirely. This is completely separate from being contacted about research.</string>
+    <string name="q_research_opt_out">Opt out: don’t use my information for medical research, even after all the information that could identify me has been removed.</string>
+    <string name="q_research_opt_out_short">Opt out</string>
+  </task>
+</resources>

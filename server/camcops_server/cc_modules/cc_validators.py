@@ -610,3 +610,29 @@ def validate_task_tablename(
             "contain alphanumeric characters (A-Z, a-z, 0-9) or "
             "underscores (_)."
         ))
+
+
+# -----------------------------------------------------------------------------
+# Filenames
+# -----------------------------------------------------------------------------
+
+DOWNLOAD_FILENAME_REGEX = re.compile(r"\w[\w-]*.[\w]+")
+# \w is equivalent to [A-Za-z0-9_]; see https://regexr.com/
+
+
+def validate_download_filename(
+        x: str, req: Optional["CamcopsRequest"] = None) -> None:
+    """
+    Validate a file for user download.
+
+    - Permit e.g. ``CamCOPS_dump_2021-06-04T100622.zip``.
+    - Prohibit silly things (like directory/drive delimiters).
+    """
+    if not DOWNLOAD_FILENAME_REGEX.match(x):
+        _ = req.gettext if req else dummy_gettext
+        raise ValueError(_(
+            "Download filenames must (1) begin with an "
+            "alphanumeric/underscore character; (2) contain only alphanumeric "
+            "characters, underscores, and hyphens; and (3) end with a full "
+            "stop followed by an alphanumeric/underscore extension."
+        ))

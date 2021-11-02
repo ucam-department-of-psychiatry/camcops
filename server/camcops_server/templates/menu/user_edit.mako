@@ -30,7 +30,7 @@ camcops_server/templates/menu/user_edit.mako
 
 <%include file="db_user_info.mako"/>
 
-<h1>${ _("Edit user") } ${ user.username }</h1>
+<h1>${ _("Edit user") } ${ object.username }</h1>
 
 ${ form | n }
 

@@ -56,7 +56,7 @@ from pyramid.security import (
     Everyone,
     PermitsResult,
 )
-from pyramid.session import SignedCookieSessionFactory
+from pyramid.session import JSONSerializer, SignedCookieSessionFactory
 from pyramid_mako import (
     MakoLookupTemplateRenderer,
     MakoRendererFactory,
@@ -76,6 +76,7 @@ if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
+
 
 # =============================================================================
 # Debugging options
@@ -168,11 +169,16 @@ class ViewParam(object):
     DIALECT = "dialect"
     DIAGNOSES_INCLUSION = "diagnoses_inclusion"
     DIAGNOSES_EXCLUSION = "diagnoses_exclusion"
+    DISABLE_MFA = "disable_mfa"
     DUMP_METHOD = "dump_method"
     DOB = "dob"
     DUE_FROM = "due_from"
     DUE_WITHIN = "due_within"
     EMAIL = "email"
+    EMAIL_BCC = "email_bcc"
+    EMAIL_BODY = "email_body"
+    EMAIL_CC = "email_cc"
+    EMAIL_FROM = "email_from"
     EMAIL_SUBJECT = "email_subject"
     EMAIL_TEMPLATE = "email_template"
     END_DATETIME = "end_datetime"
@@ -202,22 +208,28 @@ class ViewParam(object):
     MANUAL = "manual"
     MAY_ADD_NOTES = "may_add_notes"
     MAY_DUMP_DATA = "may_dump_data"
+    MAY_EMAIL_PATIENTS = "may_email_patients"
+    MAY_MANAGE_PATIENTS = "may_manage_patients"
     MAY_REGISTER_DEVICES = "may_register_devices"
     MAY_RUN_REPORTS = "may_run_reports"
     MAY_UPLOAD = "may_upload"
     MAY_USE_WEBVIEWER = "may_use_webviewer"
+    MFA_SECRET_KEY = "mfa_secret_key"
+    MFA_METHOD = "mfa_method"
     MUST_CHANGE_PASSWORD = "must_change_password"
     NAME = "name"
     NOTE = "note"
     NOTE_ID = "note_id"
     NEW_PASSWORD = "new_password"
     OLD_PASSWORD = "old_password"
+    ONE_TIME_PASSWORD = "one_time_password"
     OTHER = "other"
     COMPLETE_ONLY = "complete_only"
     PAGE = "page"
     PASSWORD = "password"
     PATIENT_ID_PER_ROW = "patient_id_per_row"
     PATIENT_TASK_SCHEDULE_ID = "patient_task_schedule_id"
+    PHONE_NUMBER = "phone_number"
     RECIPIENT_NAME = "recipient_name"
     REDIRECT_URL = "redirect_url"
     REPORT_ID = "report_id"
@@ -284,6 +296,21 @@ class ViewArg(object):
     EVERYTHING = "everything"
     SPECIFIC_TASKS_GROUPS = "specific_tasks_groups"
     USE_SESSION_FILTER = "use_session_filter"
+
+
+# =============================================================================
+# Flash message queues
+# =============================================================================
+
+class FlashQueue:
+    """
+    Predefined flash (alert) message queues for Bootstrap; see
+    https://getbootstrap.com/docs/3.3/components/#alerts.
+    """
+    SUCCESS = "success"
+    INFO = "info"
+    WARNING = "warning"
+    DANGER = "danger"
 
 
 # =============================================================================
@@ -491,7 +518,7 @@ class CamcopsMakoLookupTemplateRenderer(MakoLookupTemplateRenderer):
             log.debug("spec: {!r}", self.spec)
             log.debug("value: {}", pprint.pformat(value))
             log.debug("system: {}", pprint.pformat(system))
-        # log.critical("\n{}", "\n    ".join(get_caller_stack_info()))
+            # log.debug("\n{}", "\n    ".join(get_caller_stack_info()))
 
         # ---------------------------------------------------------------------
         # RNC extra values:
@@ -723,11 +750,14 @@ class Routes(object):
     EDIT_GROUP = "edit_group"
     EDIT_ID_DEFINITION = "edit_id_definition"
     EDIT_FINALIZED_PATIENT = "edit_finalized_patient"
+    EDIT_OTHER_USER_MFA = "edit_other_user_mfa"
+    EDIT_OWN_USER_MFA = "edit_own_user_mfa"
     EDIT_SERVER_CREATED_PATIENT = "edit_server_created_patient"
     EDIT_SERVER_SETTINGS = "edit_server_settings"
     EDIT_TASK_SCHEDULE = "edit_task_schedule"
     EDIT_TASK_SCHEDULE_ITEM = "edit_task_schedule_item"
     EDIT_USER = "edit_user"
+    EDIT_USER_AUTHENTICATION = "edit_user_authentication"
     EDIT_USER_GROUP_MEMBERSHIP = "edit_user_group_membership"
     ERASE_TASK_LEAVING_PLACEHOLDER = "erase_task_leaving_placeholder"
     ERASE_TASK_ENTIRELY = "erase_task_entirely"
@@ -747,6 +777,8 @@ class Routes(object):
     OFFER_BASIC_DUMP = "offer_basic_dump"
     REPORT = "report"
     REPORTS_MENU = "reports_menu"
+    SEND_EMAIL_FROM_PATIENT_LIST = "send_email_from_patient_list"
+    SEND_EMAIL_FROM_PATIENT_TASK_SCHEDULE = "send_email_from_patient_task_schedule"  # noqa: E501
     SET_FILTERS = "set_filters"
     SET_OTHER_USER_UPLOAD_GROUP = "set_other_user_upload_group"
     SET_OWN_USER_UPLOAD_GROUP = "set_user_upload_group"
@@ -863,11 +895,14 @@ class RouteCollection(object):
     EDIT_GROUP = RoutePath(Routes.EDIT_GROUP)
     EDIT_ID_DEFINITION = RoutePath(Routes.EDIT_ID_DEFINITION)
     EDIT_FINALIZED_PATIENT = RoutePath(Routes.EDIT_FINALIZED_PATIENT)
+    EDIT_OTHER_USER_MFA = RoutePath(Routes.EDIT_OTHER_USER_MFA)
+    EDIT_OWN_USER_MFA = RoutePath(Routes.EDIT_OWN_USER_MFA)
     EDIT_SERVER_CREATED_PATIENT = RoutePath(Routes.EDIT_SERVER_CREATED_PATIENT)
     EDIT_SERVER_SETTINGS = RoutePath(Routes.EDIT_SERVER_SETTINGS)
     EDIT_TASK_SCHEDULE = RoutePath(Routes.EDIT_TASK_SCHEDULE)
     EDIT_TASK_SCHEDULE_ITEM = RoutePath(Routes.EDIT_TASK_SCHEDULE_ITEM)
     EDIT_USER = RoutePath(Routes.EDIT_USER)
+    EDIT_USER_AUTHENTICATION = RoutePath(Routes.EDIT_USER_AUTHENTICATION)
     EDIT_USER_GROUP_MEMBERSHIP = RoutePath(Routes.EDIT_USER_GROUP_MEMBERSHIP)
     ERASE_TASK_LEAVING_PLACEHOLDER = RoutePath(Routes.ERASE_TASK_LEAVING_PLACEHOLDER)  # noqa
     ERASE_TASK_ENTIRELY = RoutePath(Routes.ERASE_TASK_ENTIRELY)
@@ -887,6 +922,8 @@ class RouteCollection(object):
     OFFER_BASIC_DUMP = RoutePath(Routes.OFFER_BASIC_DUMP)
     REPORT = RoutePath(Routes.REPORT)
     REPORTS_MENU = RoutePath(Routes.REPORTS_MENU)
+    SEND_EMAIL_FROM_PATIENT_LIST = RoutePath(Routes.SEND_EMAIL_FROM_PATIENT_LIST)  # noqa: E501
+    SEND_EMAIL_FROM_PATIENT_TASK_SCHEDULE = RoutePath(Routes.SEND_EMAIL_FROM_PATIENT_TASK_SCHEDULE)  # noqa: E501
     SET_FILTERS = RoutePath(Routes.SET_FILTERS)
     SET_OTHER_USER_UPLOAD_GROUP = RoutePath(Routes.SET_OTHER_USER_UPLOAD_GROUP)
     SET_OWN_USER_UPLOAD_GROUP = RoutePath(Routes.SET_OWN_USER_UPLOAD_GROUP)
@@ -1000,7 +1037,11 @@ def get_session_factory() -> Callable[["CamcopsRequest"], ISession]:
             timeout=None,  # we handle timeouts at the database level instead
             reissue_time=0,  # default; reissue cookie at every request
             set_on_exception=True,  # (default) cookie even if exception raised
-            serializer=None,  # (default) use pyramid.session.PickleSerializer
+            serializer=JSONSerializer(),
+            # ... pyramid.session.PickleSerializer was the default but is
+            # deprecated as of Pyramid 1.9; the default is
+            # pyramid.session.JSONSerializer as of Pyramid 2.0.
+
             # As max_age and expires are left at their default of None, these
             # are session cookies.
         )
@@ -1021,9 +1062,12 @@ class Permission(object):
     - For "logged in", use ``pyramid.security.Authenticated``
     """
     GROUPADMIN = "groupadmin"
-    HAPPY = "happy"  # logged in, can use webview, no need to change p/w, agreed to terms  # noqa
+    HAPPY = "happy"
+    # ... logged in, can use webview, no need to change p/w, agreed to terms,
+    # a valid MFA method has been set.
     MUST_AGREE_TERMS = "must_agree_terms"
     MUST_CHANGE_PASSWORD = "must_change_password"
+    MUST_SET_MFA = "must_set_mfa"
     SUPERUSER = "superuser"
 
 
@@ -1076,6 +1120,8 @@ class CamcopsAuthenticationPolicy(object):
                     principals.append(Permission.MUST_CHANGE_PASSWORD)
                 elif user.must_agree_terms:
                     principals.append(Permission.MUST_AGREE_TERMS)
+                elif user.must_set_mfa_method(request):
+                    principals.append(Permission.MUST_SET_MFA)
                 else:
                     principals.append(Permission.HAPPY)
             if user.superuser:

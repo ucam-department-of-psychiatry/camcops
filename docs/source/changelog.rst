@@ -2567,6 +2567,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
     it was certainly working after that, so perhaps ``matplotlib`` used to
     accept a dictionary or **kwargs and no longer does.
 
+
 .. _changelog_v2.3.6:
 
 **Client and server v2.3.6, released 31 Oct 2019**
@@ -2699,6 +2700,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 2020
 ~~~~
 
+
 .. _changelog_v2.3.7:
 
 **Client and server v2.3.7, released 3 Mar 2020**
@@ -2806,6 +2808,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
   Also removed ``QUTHERMOMETER_USE_THERMOMETER_WIDGET`` option (now always
   defined, effectively).
 
+
 .. _changelog_v2.3.8:
 
 **Client and server v2.3.8, released 15 Sep 2020**
@@ -2889,6 +2892,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
   2020-07-24: No, Deform has caught up. See https://pypi.org/project/deform/.
   Move to ``deform==2.0.10`` and ``Chameleon==3.8.1``.
+
 
 .. _changelog_v2.4.0:
 
@@ -3017,12 +3021,14 @@ Current C++/SQLite client, Python/SQLAlchemy server
 2021
 ~~~~
 
+
 .. _changelog_v2.4.1:
 
 **Client v2.4.1, released 9 Feb 2021**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - iOS client now available for development
+
 
 .. _changelog_v2.4.2:
 
@@ -3046,6 +3052,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Ability to customise the emails sent to patients assigned to a task schedule.
   (Database revision 0058)
 
+
 .. _changelog_v2.4.3:
 
 **Client v2.4.3, released 19 Mar 2021**
@@ -3053,6 +3060,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Identical to v2.4.2. Version number changes only to work around Apple Store
   constraints.
+
 
 .. _changelog_v2.4.4:
 
@@ -3075,12 +3083,14 @@ Current C++/SQLite client, Python/SQLAlchemy server
   list of patients and their task schedules.
   https://github.com/RudolfCardinal/camcops/issues/147
 
+
 .. _changelog_v2.4.5:
 
 **Client v2.4.5, released 30 Mar 2021**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Support for macOS client
+
 
 .. _changelog_v2.4.6:
 
@@ -3291,14 +3301,14 @@ Current C++/SQLite client, Python/SQLAlchemy server
     - Their reference:
       https://portswigger.net/kb/issues/00500800_password-field-with-autocomplete-enabled.
 
-    - However, there is disagrement, e.g. based on the following references.
+    - However, there is disagreement, e.g. based on the following references.
 
       - There is security debate on both sides of this argument (the dangers of
         local storage versus the dangers of what users do if their browser
         doesn't provide password management functions). That is, some people
         argue that this advice is wrong on security grounds. Even the security
         advisory they link to notes that browsers may, and generally do, ignore
-        the directive they suggest, ``autocomplete="off`` (for these reasons).
+        the directive they suggest, ``autocomplete="off"`` (for these reasons).
       - For example, see
         https://developer.mozilla.org/en-US/docs/Web/Security/Securing_your_site/Turning_off_form_autocompletion#the_autocomplete_attribute_and_login_fields.
       - Some casual discussion that summarises this is at
@@ -3393,6 +3403,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
   :class:`camcops_server.cc_modules.cc_forms.CSRFToken`. Generally that was
   hidden but it appeared in some circumstances.
 
+
 .. _changelog_v2.4.7:
 
 **Server v2.4.7, released 1 Jun 2021**
@@ -3414,16 +3425,111 @@ Current C++/SQLite client, Python/SQLAlchemy server
   URL intended to be entered into the app, are now signposted to sensible
   places.
 
+
 .. _changelog_v2_4_8:
 
-**Client and server v2.4.8, IN PROGRESS**
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+**Client and server v2.4.8, released 9 Jul 2021**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Updates for Python 3.9 compatibility.
 
-- FHIR support.
+- Bugfix in validation of download filenames (it was being overzealous and
+  preventing downloads), to fix
+  https://github.com/RudolfCardinal/camcops/issues/178, and add some additional
+  safety checks.
 
-  - Initially FHIR export support to PHQ9 and APEQPT (anonymous).
+- Replace the brittle ``mailto:`` links with the ability to email patient
+  invitations from the CamCOPS server itself.
+  https://github.com/RudolfCardinal/camcops/issues/180
+  (Database revisions 0064-0065)
+
+- Android and iOS users can now register themselves as patients by launching
+  the app from a URL sent to them by email.
+  https://github.com/RudolfCardinal/camcops/issues/153
+
+
+.. _changelog_v2_4_9:
+
+**Client and server v2.4.9, released 6 Aug 2021**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Ensure all patients records created before revision 0048 have a UUID. This
+  is mainly for consistency as we only use UUIDs for server-created patients
+  and the ability to add patients on the server was implemented at the same
+  time as 0048.
+  https://github.com/RudolfCardinal/camcops/issues/187
+  (Database revision 0066.)
+
+- Fix Debian package Python dependencies. Would fail if Python 3.6 was not
+  installed.
+
+- **New task:** :ref:`CPFT Research Preferences <cpft_research_preferences>`
+  (database revision 0067).
+
+- **New task:** :ref:`CPFT Post-COVID Clinic Medical Questionnaire
+  <cpft_covid_medical>` (Database revision 0068).
+
+
+.. _changelog_v2_4_10:
+
+**Server v2.4.10, released 27 Sep 2021**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Any user with the right privilege (not just the group administrator) can
+  add/edit/delete and send emails to patients created on the server. The menu
+  option **Manage scheduled tasks for patients** is now **Manage patients and
+  their tasks**. (Database revision 0069.)
+
+- Reinstate Danish, which disappeared from the server in v2.4.9:
+  https://github.com/RudolfCardinal/camcops/issues/200
+
+- Fix internal server error when viewing HTML APEQ CPFT Perinatal Report:
+  https://github.com/RudolfCardinal/camcops/issues/203
+
+- Fix database revision 0066, which failed if no patient records were missing
+  UUIDs: https://github.com/RudolfCardinal/camcops/issues/192
+
+
+.. _changelog_v2_4_11:
+
+**Client and server v2.4.11, released 8 Oct 2021**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Fix Qt build script on Linux, Windows and MacOS.
+  https://github.com/RudolfCardinal/camcops/issues/209
+
+- WSAS: Display options vertically on smaller screen widths
+  https://github.com/RudolfCardinal/camcops/issues/205
+
+- Fix bug whereby non admin group members with the "manage patients" privilege
+  would see an empty group selector when adding/editing patients.
+  https://github.com/RudolfCardinal/camcops/issues/211
+
+- Support for :ref:`multi-factor authentication (MFA)
+  <multi_factor_authentication>` on the server. (Database revision 0070.)
+
+- Bugfix to :ref:`MFI-20 <mfi20>` (q.v.).
+  https://github.com/RudolfCardinal/camcops/issues/199
+
+- Bugfix to app: was reporting "research" rather than "clinical" when
+  conditions relating to clinical use were not met.
+
+
+.. _changelog_v2_4_12:
+
+**Client and server v2.4.12, IN PROGRESS**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Add numbered and unnumbered lists to the visual editor when editing emails and their templates.
+  https://github.com/RudolfCardinal/camcops/issues/188
+
+- Display Danish or English on the visual editor according to the user's language.
+
+- Bump ``babel`` from 2.8.0 to 2.9.1 for security advisory CVE-2021-42771.
+
+- Initial FHIR support.
+
+  - Support FHIR export of PHQ9 and APEQPT (anonymous).
 
   - The current approach has the task classes create the items for the
     Questionnaire and QuestionnaireResponse resources, with quite a bit of code

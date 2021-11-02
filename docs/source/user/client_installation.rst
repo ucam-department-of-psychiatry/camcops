@@ -288,24 +288,35 @@ Configuring CamCOPS before using it
 
 - For each group, edit the user’s group permissions. Normal settings:
 
-  - *Permitted to upload from a tablet/device?* Almost certainly YES.
+  - *Permitted to upload from a tablet/device.* Almost certainly YES.
 
-  - *Permitted to register tablet/client devices?* May be NO in very high
+  - *Permitted to register tablet/client devices.* May be NO in very high
     security environments (in which case the administrator will have to use the
     tablet to register it on behalf of the final user); YES is more convenient.
 
-  - *May view (browse) records from all patients when no patient filter set?*
+  - *May log in to web front end* YES if the user needs access to any of the
+    below functions of the admin interface. Otherwise NO.
+
+  - *May add, edit or delete patients created on the server.* YES if the user
+    needs this function, otherwise NO. See :ref:`Manage patients and their tasks
+    <scheduling_tasks>`.
+
+  - *May send emails to patients created on the server.* YES if the user needs
+    this function, otherwise NO. See :ref:`Manage patients and their tasks
+    <scheduling_tasks>`.
+
+  - *May view (browse) records from all patients when no patient filter set.*
     Almost certainly NO, for confidentiality reasons.
 
-  - *May perform bulk data dumps?* YES for researchers needing this function;
+  - *May perform bulk data dumps.* YES for researchers needing this function;
     otherwise NO.
 
-  - *May run reports?* Reports cover a mixture of administrative and
+  - *May run reports.* Reports cover a mixture of administrative and
     patient-finding functions. If in doubt, choose NO.
 
-  - *May add special notes to tasks?* Likely to be YES for senior users.
+  - *May add special notes to tasks.* Likely to be YES for senior users.
 
-  - *User is a privileged group administrator for this group?* Usually NO.
+  - *User is a privileged group administrator for this group.* Usually NO.
     If you say yes, the user will be able to create new users and manage this
     group.
 
