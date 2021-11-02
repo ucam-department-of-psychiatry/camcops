@@ -197,6 +197,10 @@ if pymysql:
         pymysql.converters.encoders[Pendulum] = pymysql_crash_on_bad_conversion
     else:
         pymysql.converters.encoders[Pendulum] = pymysql.converters.escape_datetime  # noqa
+    # And also, as per the source code and
+    # https://stackoverflow.com/questions/59871904/convert-pymysql-query-result-with-mysql-decimal-type-to-python-float  # noqa
+    pymysql.converters.conversions = pymysql.converters.encoders.copy()
+    pymysql.converters.conversions.update(pymysql.converters.decoders)
 
 
 # =============================================================================

@@ -109,6 +109,8 @@ There are also public sandboxes at:
 
 """
 
+# *** todo: views for the other FHIR-to-CamCOPS URLs; also, add the task help URL to the outbound info (and view)  # noqa
+
 
 # =============================================================================
 # Imports

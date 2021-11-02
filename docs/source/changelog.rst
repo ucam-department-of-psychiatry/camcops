@@ -71,6 +71,7 @@ Contributors
   - Task scheduling.
   - Single-user mode.
   - Improvements to web site front end.
+  - FHIR framework.
   - ... and lots more.
 
 
@@ -1022,12 +1023,14 @@ Current C++/SQLite client, Python/SQLAlchemy server
 ~~~~
 
 **Client v2.0.0 beta**
+^^^^^^^^^^^^^^^^^^^^^^
 
 - Development of C++ version from scratch. Replaces Titanium version.
 - Released as beta to Google Play on 2017-07-17.
 
 
 **Client v2.0.1 beta**
+^^^^^^^^^^^^^^^^^^^^^^
 
 - More const checking.
 - Bugfix to stone/pound/ounce conversion.
@@ -1036,6 +1039,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 
 **Client v2.0.2 beta**
+^^^^^^^^^^^^^^^^^^^^^^
 
 - Cosmetic bug fixes, mainly for phones, including a re-layout of the ACE-III
   address learning for very small screens.
@@ -1047,12 +1051,14 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 
 **Client v2.0.3 beta, 2017-08-07**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Trivial type fix to patient_wanted_copy_of_letter (String → Bool) in the
   unused task CPFTLPSDischarge.
 
 
 **Server v2.1.0 beta, 2017-10-17**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Major changes, including...
 - SQLAlchemy for database work
@@ -1062,18 +1068,21 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 
 **Client v2.0.4 beta, 2017-10-22**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Bugfix: BLOB FKs weren’t being set properly from `BlobFieldRef` helper
   functions.
 
 
 **Client v2.0.5 beta, 2017-10-23**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Bugfix: if the server’s ID number definitions were consecutively numbered,
   the client got confused and renumbered them from 1.
 
 
 **Server v2.1.1 beta, 2017-10-23**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Bugfix: WSAS “is complete?” flag failed to recognize the “retired or work
   irrelevant for other reasons” flag.
@@ -1085,6 +1094,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 ~~~~
 
 **Client v2.2.0 beta, 2018-01-04 to 2018-02-03**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - *To solve the problem of clients and servers being upgraded independently:*
   Reads tables from server during registration (see server v2.2.0). Implemented
@@ -1141,6 +1151,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 
 **Server v2.2.1, 2018-04-24 to 2018-06-11**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Username added to login audit.
 
@@ -1180,6 +1191,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 
 **Server v2.2.2, 2018-06-19**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Fixed bug in Diagnosis report for non-superusers (see
   :meth:`camcops_server.tasks.diagnosis.get_diagnosis_inc_exc_report_query`);
@@ -1188,6 +1200,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 
 **Client v2.2.1 beta, 2018-08-06**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Background striping for the `QuMcqGrid*` classes.
 
@@ -1195,6 +1208,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 
 **Client v2.2.3, server v2.2.3, 2018-06-23**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - :ref:`Khandaker/Insight medical history <khandaker_insight_medical>` task.
 
@@ -1203,6 +1217,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 
 **Client v2.2.4, 2018-07-18**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Bugfix to Android client for older Android versions.
 
@@ -1407,6 +1422,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 
 **Server v2.2.4, 2018-06-29**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Update to libraries:
 
@@ -1437,11 +1453,13 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 
 **Server v2.2.5, 2018-07-23**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Python package: ``camcops-server``.
 
 
 **Server and client v2.2.6, 2018-07-26**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Logic bugfix and improved clarity in client ``Task::isTaskUploadable``.
 
@@ -1481,12 +1499,14 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 
 **Server v2.2.7, 2018-07-31**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Bugfix relating to offset-naive versus offset-aware datetimes in
   ``cc_user.SecurityLoginFailure.clear_dummy_login_failures_if_necessary``.
 
 
 **Client v2.2.7, 2018-08-17**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Bugfix to CISR: field ``sleep_gain3`` was missing from field list.
 
@@ -1496,6 +1516,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 
 **Client v2.2.8 to 2.3.0 (from 2018-09-10)**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Bugfix to CISR client: page colour was clinician, now patient.
 
@@ -1603,6 +1624,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 
 **Server v2.2.8 to 2.3.0 (2018-09-14 to 2018-11-26)**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - ``GROUP_NAME_MAX_LEN``, ``DEVICE_NAME_MAX_LEN`` and ``USER_NAME_MAX_LEN``
   changed from 255 to 191 because MySQL<=5.6 only supports indexing of 191
@@ -1711,6 +1733,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 ~~~~
 
 **Server v2.3.1 and client v2.3.1 (2018-11-27 to 2019-03-24)**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - ``cardinal_pythonlib`` to 1.0.49.
 
@@ -2090,6 +2113,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 
 **Client and server v2.3.2 (2018-03-25 to 2018-04-04)**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Session information in ORS and SRS summaries.
 
@@ -2131,7 +2155,10 @@ Current C++/SQLite client, Python/SQLAlchemy server
   which wasn't converting to UTC properly.
 
 
+.. _changelog_v2_3_3:
+
 **Client and server v2.3.3**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Windows service.
 
@@ -3542,3 +3569,7 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Bump ``sphinx`` from 3.1.1 to 4.2.0 (which pins docutils properly and fixes
   some bugs).
+
+- Bugfix for hacking the ``pymysql`` driver to support Pendulum date/time
+  objects properly. The bug manifested during reindexing, and was as documented
+  above in :ref:`v2.3.3 <changelog_v2_3_3>`.
