@@ -154,6 +154,9 @@ register("json", json_encode, json_decode,
 
 
 def get_celery_settings_dict() -> Dict[str, Any]:
+    """
+    Returns a dictionary of settings to configure Celery.
+    """
     log.debug("Configuring Celery")
     from camcops_server.cc_modules.cc_config import (
         CrontabEntry,
@@ -201,6 +204,7 @@ def get_celery_settings_dict() -> Dict[str, Any]:
                 "rate_limit": config.celery_export_task_rate_limit,
             }
         },
+        # "worker_log_color": True,  # true by default for consoles anyway
     }
 
 

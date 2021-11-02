@@ -31,11 +31,14 @@ Fast Healthcare Interoperability Resources
 
 https://www.hl7.org/fhir/
 
-Our implementation exports patients and tasks as FHIR Patient, Questionnaire
-and QuestionnaireResponse resources.
+Our implementation exports:
+
+- patients as FHIR Patient resources;
+- task concepts as FHIR Questionnaire resources;
+- task instances as FHIR QuestionnaireResponse resources.
 
 Currently PHQ9 and APEQPT (anonymous) are supported. Each task and patient (if
-appropriate is sent to the FHIR server in a single "transaction" Bundle)
+appropriate is sent to the FHIR server in a single "transaction" Bundle).
 The resources are given a unique identifier based on the URL of the CamCOPS
 server.
 
@@ -45,8 +48,9 @@ This only supports one version of the FHIR specification (currently 4.0.1).
 
 *Testing: HAPI FHIR server locally*
 
-Tested with HAPI FHIR server locally, which was installed from instructions at
-https://github.com/hapifhir/hapi-fhir-jpaserver-starter (Docker). Most simply:
+To test with a HAPI FHIR server locally, which was installed from instructions
+at https://github.com/hapifhir/hapi-fhir-jpaserver-starter (Docker). Most
+simply:
 
 .. code-block:: bash
 
@@ -64,13 +68,76 @@ To inspect it while it's running (apart from via its log):
 
   - then e.g. Patient --> Search, which is a pretty version of
     http://localhost:8080/fhir/Patient?_pretty=true;
-    
+
   - Questionnaire --> Search, which is a pretty version of
     http://localhost:8080/fhir/Questionnaire?_pretty=true.
 
-- Browse to (by default) http://localhost:8080/fhir/metadata
+- Can also browse to (by default) http://localhost:8080/fhir/metadata
 
-- Dive into its internals:
+
+*Testing: Other*
+
+There are also public sandboxes at:
+
+- http://hapi.fhir.org/baseR4
+- https://r4.smarthealthit.org (errors when exporting questionnaire responses)
+
+
+*Problems*
+
+- "Failed to CREATE resource with match URL ... because this search matched 2
+  resources" -- an OperationOutcome error.
+
+  At https://groups.google.com/g/hapi-fhir/c/8OolMOpf8SU, it says (for an error
+  with 40 resources) "You can only do a conditional create if there are 0..1
+  existing resources on the server that match the criteria, and in this case
+  there are 40."
+
+  Proper documentation for ``ifNoneExist`` (Python client) or ``If-None-Exist``
+  (FHIR itself) is at https://www.hl7.org/fhir/http.html#ccreate.
+
+  However, the problem seemed to go away.
+
+"""
+
+# =============================================================================
+# Imports
+# =============================================================================
+
+import json
+import logging
+from typing import Dict, TYPE_CHECKING
+
+from fhirclient import client
+from fhirclient.models.bundle import Bundle
+from requests.exceptions import HTTPError
+
+from camcops_server.cc_modules.cc_constants import FHIRConst as FC
+
+if TYPE_CHECKING:
+    from camcops_server.cc_modules.cc_exportmodels import ExportedTaskFhir
+    from camcops_server.cc_modules.cc_request import CamcopsRequest
+
+log = logging.getLogger(__name__)
+
+
+# =============================================================================
+# Debugging options
+# =============================================================================
+
+DEBUG_FHIR_PATIENT_ID = True
+
+if any([DEBUG_FHIR_PATIENT_ID]):
+    log.warning("Debugging options enabled!")
+
+
+# =============================================================================
+# Development thoughts
+# =============================================================================
+
+_ = """
+
+- Dive into the internals of the HAPI FHIR server:
 
 .. code-block:: bash
 
@@ -105,9 +172,10 @@ copy, e.g. with
     java -cp /usr/local/tomcat/webapps/ROOT/WEB-INF/lib/h2*.jar org.h2.tools.Shell
     # URL = jdbc:h2:/usr/local/tomcat/target/database/h2_copy
 
-... but then that needs a username/password. Better is to create ``application.yaml`` in a host machine directory, like this:
+but then that needs a username/password. Better is to create
+``application.yaml`` in a host machine directory, like this:
 
-.. code-block bash
+.. code-block:: bash
 
     # From MySQL:
     # CREATE DATABASE hapi_test_db;
@@ -119,31 +187,10 @@ copy, e.g. with
     git clone https://github.com/hapifhir/hapi-fhir-jpaserver-starter
     cd hapi-fhir-jpaserver-starter
     nano src/main/resources/application.yaml
-    
 
-*Testing: Other*
-
-There are also public sandboxes at:
-
-- http://hapi.fhir.org/baseR4
-- https://r4.smarthealthit.org (errors when exporting questionnaire responses)
+... no, better is to use the web interface!
 
 """  # noqa
-
-
-# =============================================================================
-# Imports
-# =============================================================================
-
-from typing import Dict, TYPE_CHECKING
-
-from fhirclient import client
-from fhirclient.models.bundle import Bundle
-from requests.exceptions import HTTPError
-
-if TYPE_CHECKING:
-    from camcops_server.cc_modules.cc_exportmodels import ExportedTaskFhir
-    from camcops_server.cc_modules.cc_request import CamcopsRequest
 
 
 # =============================================================================
@@ -176,10 +223,10 @@ class FhirTaskExporter(object):
         # for any server that is SMART-compliant but we've not tested this.
         # https://sep.com/blog/smart-on-fhir-what-is-smart-what-is-fhir/
         settings = {
-            "api_base": self.recipient.fhir_api_url,
-            "app_id": self.recipient.fhir_app_id,
-            "app_secret": self.recipient.fhir_app_secret,
-            "launch_token": self.recipient.fhir_launch_token,
+            FC.API_BASE: self.recipient.fhir_api_url,
+            FC.APP_ID: self.recipient.fhir_app_id,
+            FC.APP_SECRET: self.recipient.fhir_app_secret,
+            FC.LAUNCH_TOKEN: self.recipient.fhir_launch_token,
         }
 
         try:
@@ -221,12 +268,15 @@ class FhirTaskExporter(object):
             raise FhirExportException(str(e))
 
         bundle = Bundle(jsondict={
-            "type": "transaction",
-            "entry": bundle_entries,
+            FC.TYPE: FC.TRANSACTION,
+            FC.ENTRY: bundle_entries,
         })
 
         try:
             # Attempt to create the receiver on the server, via POST:
+            if DEBUG_FHIR_PATIENT_ID:
+                bundle_str = json.dumps(bundle.as_json(), indent=4)
+                log.debug(f"FHIR bundle outbound to server:\n{bundle_str}")
             response = bundle.create(self.client.server)
             if response is None:
                 # Not sure this will ever happen.

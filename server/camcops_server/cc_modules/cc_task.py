@@ -86,6 +86,7 @@ from camcops_server.cc_modules.cc_constants import (
     CssClass,
     CSS_PAGED_MEDIA,
     DateFormat,
+    FHIRConst as Fc,
     ERA_NOW,
     INVALID_VALUE,
 )
@@ -1258,11 +1259,17 @@ class Task(GenericTabletRecordMixin, Base):
         return []
 
     # -------------------------------------------------------------------------
-    # FHIR
+    # FHIR: framework
     # -------------------------------------------------------------------------
+
     def get_fhir_bundle_entries(self,
                                 req: "CamcopsRequest",
                                 recipient: "ExportRecipient") -> List[Dict]:
+        """
+        Get all FHIR bundle entries -- one for the questionnaire (task) itself
+        (Questionnaire), and lots for the specific answers from this task
+        instance (QuestionnaireResponse).
+        """
         return [
             self.get_fhir_questionnaire_bundle_entry(req, recipient),
             self.get_fhir_questionnaire_response_bundle_entry(req, recipient),
@@ -1272,6 +1279,10 @@ class Task(GenericTabletRecordMixin, Base):
             self,
             req: "CamcopsRequest",
             recipient: "ExportRecipient") -> Dict:
+        """
+        Get a FHIR bundle describing this task, as a FHIR Questionnaire.
+        Note: here we mean "abstract task", not "task instance".
+        """
         questionnaire_url = req.route_url(
             Routes.FHIR_QUESTIONNAIRE_ID,
         )
@@ -1281,35 +1292,37 @@ class Task(GenericTabletRecordMixin, Base):
         # field or include the version in the identifier below. Either way
         # we'd need the version in the 'ifNoneExist' part of the request
         identifier = Identifier(jsondict={
-            "system": questionnaire_url,
-            "value": self.tablename,
+            Fc.SYSTEM: questionnaire_url,
+            Fc.VALUE: self.tablename,
         })
 
         # TODO: Other things we could add:
         # https://www.hl7.org/fhir/questionnaire.html
-
-        # name: Computer friendly (from shortname?)
-        # title: Human name (from longname)
+        #
         # date: Date last changed
         # description: Natural language description of the questionnaire
         # copyright: Use and/or publishing restrictions
         # useContext: https://www.hl7.org/fhir/metadatatypes.html#UsageContext
         questionnaire = Questionnaire(jsondict={
-            "status": "active",  # Also draft / retired / unknown
-            "identifier": [identifier.as_json()],
-            "item": self.get_fhir_questionnaire_items(req, recipient)
+            Fc.NAME: self.shortname,  # computer-friendly
+            Fc.TITLE: self.longname(req),  # human name
+            Fc.STATUS: Fc.STATUS_ACTIVE,  # Also draft / retired / unknown
+            Fc.IDENTIFIER: [identifier.as_json()],
+            Fc.ITEM: self.get_fhir_questionnaire_items(req, recipient)
         })
 
         bundle_request = BundleEntryRequest(jsondict={
-            "method": "POST",
-            "url": "Questionnaire",
-            "ifNoneExist": f"identifier={identifier.system}|{identifier.value}",
+            Fc.METHOD: Fc.METHOD_POST,
+            Fc.URL: Fc.RESOURCE_QUESTIONNAIRE,
+            Fc.IF_NONE_EXIST: (
+                f"{Fc.IDENTIFIER}={identifier.system}|{identifier.value}"
+            ),
         })
 
         return BundleEntry(
             jsondict={
-                "resource": questionnaire.as_json(),
-                "request": bundle_request.as_json()
+                Fc.RESOURCE: questionnaire.as_json(),
+                Fc.REQUEST: bundle_request.as_json()
             }
         ).as_json()
 
@@ -1317,14 +1330,18 @@ class Task(GenericTabletRecordMixin, Base):
             self,
             req: "CamcopsRequest",
             recipient: "ExportRecipient") -> Dict:
+        """
+        Get a bundle of FHIR QuestionnaireResponse items (e.g. one for the
+        response to each question in a quesionnaire-style task).
+        """
         response_url = req.route_url(
             Routes.FHIR_QUESTIONNAIRE_RESPONSE_ID,
-            tablename=self.tablename
+            table_name=self.tablename  # keyword to match ViewParam.TABLE_NAME
         )
 
         identifier = Identifier(jsondict={
-            "system": response_url,
-            "value": str(self._pk),
+            Fc.SYSTEM: response_url,
+            Fc.VALUE: str(self._pk),
         })
 
         questionnaire_url = req.route_url(
@@ -1342,46 +1359,53 @@ class Task(GenericTabletRecordMixin, Base):
             # - http://127.0.0.1:8000/fhir_questionnaire_id|phq9
 
             # http://hapi.fhir.org/baseR4/ (4.0.1 (R4)) is OK
-            "questionnaire": f"{questionnaire_url}|{self.tablename}",
+            Fc.QUESTIONNAIRE: f"{questionnaire_url}|{self.tablename}",
 
-            "authored": self.when_created.isoformat(),
-            # TODO: Is it desirable to export when in progress?
-            "status": "completed" if self.is_complete() else "in-progress",
-            "identifier": identifier.as_json(),
+            Fc.AUTHORED: self.when_created.isoformat(),
+            Fc.STATUS: (
+                Fc.STATUS_COMPLETED if self.is_complete()
+                else Fc.STATUS_IN_PROGRESS
+                # TODO: Is it desirable to export when in progress?
+            ),
+            Fc.IDENTIFIER: identifier.as_json(),
 
             # TODO: Could also add:
             # https://www.hl7.org/fhir/questionnaireresponse.html
             # author: Person who received and recorded the answers
             # source: The person who answered the questions
-            "item": self.get_fhir_questionnaire_response_items(req, recipient)
+            Fc.ITEM: self.get_fhir_questionnaire_response_items(req, recipient)
         }
 
         if self.has_patient:
             subject_identifier = self.patient.get_fhir_identifier(
-                req, recipient
+                req, recipient.primary_idnum
             )
-
             subject = FHIRReference(jsondict={
-                "identifier": subject_identifier.as_json(),
-                "type": "Patient",
+                Fc.IDENTIFIER: subject_identifier.as_json(),
+                Fc.TYPE: Fc.RESOURCE_PATIENT,
             })
-
-            jsondict["subject"] = subject.as_json()
+            jsondict[Fc.SUBJECT] = subject.as_json()
 
         response = QuestionnaireResponse(jsondict)
 
         bundle_request = BundleEntryRequest(jsondict={
-            "method": "POST",
-            "url": "QuestionnaireResponse",
-            "ifNoneExist": f"identifier={identifier.system}|{identifier.value}",
+            Fc.METHOD: Fc.METHOD_POST,
+            Fc.URL: Fc.RESOURCE_QUESTIONNAIRE_RESPONSE,
+            Fc.IF_NONE_EXIST: (
+                f"{Fc.IDENTIFIER}={identifier.system}|{identifier.value}"
+            ),
         })
 
         return BundleEntry(
             jsondict={
-                "resource": response.as_json(),
-                "request": bundle_request.as_json()
+                Fc.RESOURCE: response.as_json(),
+                Fc.REQUEST: bundle_request.as_json()
             }
         ).as_json()
+
+    # -------------------------------------------------------------------------
+    # FHIR: functions to override
+    # -------------------------------------------------------------------------
 
     def get_fhir_questionnaire_items(
             self, req: "CamcopsRequest",
@@ -1406,6 +1430,10 @@ class Task(GenericTabletRecordMixin, Base):
         """
         raise NotImplementedError(
             "No get_fhir_questionnaire_response_items() for this task class!")
+
+    # -------------------------------------------------------------------------
+    # Export (generically)
+    # -------------------------------------------------------------------------
 
     def cancel_from_export_log(self, req: "CamcopsRequest",
                                from_console: bool = False) -> None:

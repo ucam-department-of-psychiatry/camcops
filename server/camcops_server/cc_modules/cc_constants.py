@@ -118,6 +118,9 @@ class DateFormat(object):
     ISO8601_HUMANIZED_TO_SECONDS = "%Y-%m-%d %H:%M:%S"  # e.g. 2013-07-24 20:04:23  # noqa
     ISO8601_HUMANIZED_TO_SECONDS_TZ = "%Y-%m-%d %H:%M:%S %z"  # e.g. 2013-07-24 20:04:23 +0100  # noqa
     ISO8601_DATE_ONLY = "%Y-%m-%d"  # e.g. 2013-07-24
+    FHIR_DATE = "%Y-%m-%d"  # e.g. 2013-07-24
+    FHIR_DATETIME = "%Y-%m-%dT%H:%M:%SZ"  # e.g. 2013-07-24T20:03:07Z
+    # ... or use x.isoformat()
     FILENAME = "%Y-%m-%dT%H%M%S"  # e.g. 2013-07-24T200459
     FILENAME_DATE_ONLY = "%Y-%m-%d"  # e.g. 20130724
     HL7_DATETIME = "%Y%m%d%H%M%S%z"  # e.g. 20130724200407+0100
@@ -1000,3 +1003,66 @@ class StringLengths:
 
     SESSION_TOKEN_MAX_LEN = len(
         create_base64encoded_randomness(SESSION_TOKEN_MAX_BYTES))
+
+
+# =============================================================================
+# FHIR string constants
+# =============================================================================
+
+class FHIRConst:
+    """
+    Constants used, mainly as dictionary keys, by the Python ``fhirclient``
+    package.
+
+    - Capitalized: usually FHIR object types
+    - lower_case or lowerCamelCase: usually dictionary keys
+    - plainlowercase: often string constants
+    """
+    # Authentication
+    API_BASE = "api_base"
+    APP_ID = "app_id"
+    APP_SECRET = "app_secret"
+    LAUNCH_TOKEN = "launch_token"
+
+    # Bundles and generic labels
+    ENTRY = "entry"
+    IDENTIFIER = "identifier"
+    IF_NONE_EXIST = "ifNoneExist"
+    ITEM = "item"
+    METHOD = "method"
+    METHOD_POST = "POST"  # as an HTTP method
+    REQUEST = "request"
+    RESOURCE = "resource"
+    STATUS = "status"
+    SYSTEM = "system"
+    TRANSACTION = "transaction"
+    TYPE = "type"
+    URL = "url"
+    VALUE = "value"
+
+    # Resource types
+    RESOURCE_PATIENT = "Patient"
+    RESOURCE_QUESTIONNAIRE = "Questionnaire"
+    RESOURCE_QUESTIONNAIRE_RESPONSE = "QuestionnaireResponse"
+
+    # Content
+    ADDRESS = "address"
+    ADDRESS_TEXT = "text"
+    AUTHORED = "authored"
+    BIRTHDATE = "birthDate"
+    GENDER = "gender"
+    GENDER_FEMALE = "female"
+    GENDER_MALE = "male"
+    GENDER_OTHER = "other"
+    GENDER_UNKNOWN = "unknown"
+    NAME = "name"
+    NAME_FAMILY = "family"
+    NAME_GIVEN = "given"
+    QUESTIONNAIRE = "questionnaire"
+    STATUS_ACTIVE = "active"
+    STATUS_COMPLETED = "completed"
+    STATUS_IN_PROGRESS = "in-progress"
+    SUBJECT = "subject"
+    TELECOM = "telecom"
+    TELECOM_SYSTEM_EMAIL = "email"
+    TITLE = "title"

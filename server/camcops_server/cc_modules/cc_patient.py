@@ -41,13 +41,15 @@ from cardinal_pythonlib.datetimefunc import (
     get_age,
     PotentialDatetimeType,
 )
+from cardinal_pythonlib.json.typing_helpers import JsonObjectType
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_web as ws
+from fhirclient.models.address import Address
 from fhirclient.models.bundle import BundleEntry, BundleEntryRequest
+from fhirclient.models.contactpoint import ContactPoint
 from fhirclient.models.humanname import HumanName
 from fhirclient.models.identifier import Identifier
 from fhirclient.models.patient import Patient as FhirPatient
-
 import hl7
 import pendulum
 from sqlalchemy.ext.declarative import declared_attr
@@ -64,11 +66,13 @@ from camcops_server.cc_modules.cc_audit import audit
 from camcops_server.cc_modules.cc_constants import (
     DateFormat,
     ERA_NOW,
+    FHIRConst as Fc,
     FP_ID_DESC,
     FP_ID_SHORT_DESC,
     FP_ID_NUM,
     SEX_FEMALE,
     SEX_MALE,
+    SEX_OTHER_UNSPECIFIED,
     TSV_PATIENT_FIELD_PREFIX,
 )
 from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
@@ -876,60 +880,94 @@ class Patient(GenericTabletRecordMixin, Base):
         """
         Returns a dictionary, suitable for serializing to JSON, that
         encapsulates patient identity information in a FHIR bundle.
+
+        See https://www.hl7.org/fhir/patient.html.
         """
-        identifier = self.get_fhir_identifier(req, recipient)
+        # The JSON objects we will build up:
+        patient_dict = {}  # type: JsonObjectType
+        bundle_dict = {
+            Fc.METHOD: Fc.METHOD_POST,
+            Fc.URL: Fc.RESOURCE_PATIENT,
+        }  # type: JsonObjectType
 
-        # TODO: Other fields we could add here
-        # https://www.hl7.org/fhir/patient.html
+        # Name
+        if self.surname or self.surname:
+            name_dict = {}  # type: JsonObjectType
+            if self.surname:
+                name_dict[Fc.NAME_FAMILY] = self.surname
+            if self.forename:
+                name_dict[Fc.NAME_GIVEN] = [self.forename]
+            patient_dict[Fc.NAME] = [HumanName(jsondict=name_dict).as_json()]
 
-        # dob -> birthDate
-        # address -> address (might be able to use text representation)
-        # See https://www.hl7.org/fhir/datatypes.html#Address
+        # DOB
+        if self.dob:
+            patient_dict[Fc.BIRTHDATE] = format_datetime(
+                self.dob, DateFormat.FILENAME_DATE_ONLY)
 
-        # email -> telecom (ContactPoint with email system)
-        # gp -> generalPractitioner (could try to fit into Practitioner)
-        # https://www.hl7.org/fhir/practitioner.html
-        # might be too structured for that
-        name = HumanName(jsondict={
-            "family": self.surname,
-            "given": [self.forename],
-        })
+        # Sex/gender (should always be present, per client minimum ID policy)
+        if self.sex:
+            gender_lookup = {
+                SEX_FEMALE: Fc.GENDER_FEMALE,
+                SEX_MALE: Fc.GENDER_MALE,
+                SEX_OTHER_UNSPECIFIED: Fc.GENDER_OTHER,
+            }
+            patient_dict[Fc.GENDER] = gender_lookup.get(self.sex,
+                                                        Fc.GENDER_UNKNOWN)
 
-        gender_lookup = {
-            "F": "female",
-            "M": "male",
-            "X": "other",
-        }
+        # Address
+        if self.address:
+            patient_dict[Fc.ADDRESS] = [
+                Address(jsondict={Fc.ADDRESS_TEXT: self.address})
+            ]
 
-        fhir_patient = FhirPatient(jsondict={
-            "identifier": [identifier.as_json()],
-            "name": [name.as_json()],
-            "gender": gender_lookup.get(self.sex, "unknown")
-        })
+        # Email
+        if self.email:
+            patient_dict[Fc.TELECOM] = [
+                ContactPoint(jsondict={
+                    Fc.SYSTEM: Fc.TELECOM_SYSTEM_EMAIL,
+                    Fc.VALUE: self.email
+                })
+            ]
 
-        bundle_request = BundleEntryRequest(jsondict={
-            "method": "POST",
-            "url": "Patient",
-            "ifNoneExist": f"identifier={identifier.system}|{identifier.value}",
-        })
+        # General practitioner (GP): via
+        # fhirclient.models.fhirreference.FHIRReference; too structured.
 
+        # ID numbers
+        which_idnum = recipient.primary_idnum
+        if self.has_idnum_type(which_idnum):
+            identifier = self.get_fhir_identifier(req, which_idnum)
+            patient_dict[Fc.IDENTIFIER] = [identifier.as_json()]
+            # "If this patient doesn't exist, as determined by this identifier,
+            # then create it:"
+            # https://www.hl7.org/fhir/http.html#ccreate
+            bundle_dict[Fc.IF_NONE_EXIST] = (
+                f"{Fc.IDENTIFIER}={identifier.system}|{identifier.value}"
+            )
+
+        # Build the bundle
+        fhir_patient = FhirPatient(jsondict=patient_dict)
+        bundle_request = BundleEntryRequest(jsondict=bundle_dict)
         return BundleEntry(jsondict={
-            "resource": fhir_patient.as_json(),
-            "request": bundle_request.as_json()
+            Fc.RESOURCE: fhir_patient.as_json(),
+            Fc.REQUEST: bundle_request.as_json()
         }).as_json()
 
     def get_fhir_identifier(self,
                             req: "CamcopsRequest",
-                            recipient: "ExportRecipient") -> Identifier:
+                            which_idnum: int) -> Identifier:
         """
         Returns a FHIR identifier for this patient, as a
         :class:`fhirclient.models.identifier.Identifier` object.
 
         This pairs a URL to our CamCOPS server indicating the ID number type
         (as the "system") with the actual ID number (as the "value").
-        """
-        which_idnum = recipient.primary_idnum
 
+        TODO: The ``req.route_url()`` call is made during the export process,
+        which tends to give http://127.0.0.1:8000/ even when that is not the
+        right URL. That's because it comes via
+        camcops_server.cc_modules.cc_request.command_line_request_context().
+        Fix?
+        """
         idnum_object = self.get_idnum_object(which_idnum)
         idnum_value = idnum_object.idnum_value
         idnum_url = req.route_url(
@@ -938,8 +976,8 @@ class Patient(GenericTabletRecordMixin, Base):
         )  # path will be e.g. /fhir_patient_id/3
 
         return Identifier(jsondict={
-            "system": idnum_url,
-            "value": str(idnum_value),
+            Fc.SYSTEM: idnum_url,
+            Fc.VALUE: str(idnum_value),
         })
 
     # -------------------------------------------------------------------------

@@ -804,7 +804,7 @@ Debugging options
 WEBVIEW_LOGLEVEL
 ################
 
-*Loglevel.*
+*Loglevel.* Default: info.
 
 Set the level of detail provided from the webview to ``stderr`` (e.g. to the
 Apache server log).
@@ -816,7 +816,7 @@ Note that for "debug"-level information to show up, you must also provide the
 CLIENT_API_LOGLEVEL
 ###################
 
-*Loglevel.*
+*Loglevel.* Default: info.
 
 Set the log level for the tablet client database access script.
 
