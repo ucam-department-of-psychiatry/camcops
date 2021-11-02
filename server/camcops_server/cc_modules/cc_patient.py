@@ -933,9 +933,9 @@ class Patient(GenericTabletRecordMixin, Base):
         idnum_object = self.get_idnum_object(which_idnum)
         idnum_value = idnum_object.idnum_value
         idnum_url = req.route_url(
-            Routes.FHIR_PATIENT_ID,
+            Routes.FHIR_PATIENT_ID_SYSTEM,
             which_idnum=which_idnum
-        )
+        )  # path will be e.g. /fhir_patient_id/3
 
         return Identifier(jsondict={
             "system": idnum_url,

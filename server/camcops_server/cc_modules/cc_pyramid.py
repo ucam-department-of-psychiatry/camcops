@@ -761,9 +761,9 @@ class Routes(object):
     EDIT_USER_GROUP_MEMBERSHIP = "edit_user_group_membership"
     ERASE_TASK_LEAVING_PLACEHOLDER = "erase_task_leaving_placeholder"
     ERASE_TASK_ENTIRELY = "erase_task_entirely"
-    FHIR_PATIENT_ID = "fhir_patient_id/{which_idnum:\\d+}"
+    FHIR_PATIENT_ID_SYSTEM = "fhir_patient_id_system"
     FHIR_QUESTIONNAIRE_ID = "fhir_questionnaire_id"
-    FHIR_QUESTIONNAIRE_RESPONSE_ID = "fhir_questionnaire_response_id/{tablename}"  # noqa: E501
+    FHIR_QUESTIONNAIRE_RESPONSE_ID = "fhir_questionnaire_response_id"
     FORCIBLY_FINALIZE = "forcibly_finalize"
     HOME = "home"
     LOGIN = "login"
@@ -820,13 +820,15 @@ class RoutePath(object):
     Class to hold a route/path pair.
 
     - Pyramid route names are just strings used internally for convenience.
+
     - Pyramid URL paths are URL fragments, like ``'/thing'``, and can contain
       placeholders, like ``'/thing/{bork_id}'``, which will result in the
       ``request.matchdict`` object containing a ``'bork_id'`` key. Those can be
       further constrained by regular expressions, like
-      ``'/thing/{bork_id:\d+}'`` to restrict to digits.
+      ``'/thing/{bork_id:\d+}'`` to restrict to digits. See
+      https://docs.pylonsproject.org/projects/pyramid/en/latest/narr/urldispatch.html
 
-    """
+    """  # noqa
     def __init__(self, route: str, path: str = "",
                  ignore_in_all_routes: bool = False) -> None:
         self.route = route
@@ -882,9 +884,7 @@ class RouteCollection(object):
     DELETE_GROUP = RoutePath(Routes.DELETE_GROUP)
     DELETE_ID_DEFINITION = RoutePath(Routes.DELETE_ID_DEFINITION)
     DELETE_PATIENT = RoutePath(Routes.DELETE_PATIENT)
-    DELETE_SERVER_CREATED_PATIENT = RoutePath(
-        Routes.DELETE_SERVER_CREATED_PATIENT
-    )
+    DELETE_SERVER_CREATED_PATIENT = RoutePath(Routes.DELETE_SERVER_CREATED_PATIENT)  # noqa: E501
     DELETE_SPECIAL_NOTE = RoutePath(Routes.DELETE_SPECIAL_NOTE)
     DELETE_TASK_SCHEDULE = RoutePath(Routes.DELETE_TASK_SCHEDULE)
     DELETE_TASK_SCHEDULE_ITEM = RoutePath(Routes.DELETE_TASK_SCHEDULE_ITEM)
@@ -904,12 +904,18 @@ class RouteCollection(object):
     EDIT_USER = RoutePath(Routes.EDIT_USER)
     EDIT_USER_AUTHENTICATION = RoutePath(Routes.EDIT_USER_AUTHENTICATION)
     EDIT_USER_GROUP_MEMBERSHIP = RoutePath(Routes.EDIT_USER_GROUP_MEMBERSHIP)
-    ERASE_TASK_LEAVING_PLACEHOLDER = RoutePath(Routes.ERASE_TASK_LEAVING_PLACEHOLDER)  # noqa
+    ERASE_TASK_LEAVING_PLACEHOLDER = RoutePath(Routes.ERASE_TASK_LEAVING_PLACEHOLDER)  # noqa: E501
     ERASE_TASK_ENTIRELY = RoutePath(Routes.ERASE_TASK_ENTIRELY)
-    # TODO: FHIR Routes don't currently go anywhere
-    FHIR_PATIENT_ID = RoutePath(Routes.FHIR_PATIENT_ID)
+    FHIR_PATIENT_ID_SYSTEM = RoutePath(
+        Routes.FHIR_PATIENT_ID_SYSTEM,
+        f"/{Routes.FHIR_PATIENT_ID_SYSTEM}"
+        rf"/{{{ViewParam.WHICH_IDNUM}:\d+}}"
+    )
     FHIR_QUESTIONNAIRE_ID = RoutePath(Routes.FHIR_QUESTIONNAIRE_ID)
-    FHIR_QUESTIONNAIRE_RESPONSE_ID = RoutePath(Routes.FHIR_QUESTIONNAIRE_RESPONSE_ID)  # noqa: E501
+    FHIR_QUESTIONNAIRE_RESPONSE_ID = RoutePath(
+        Routes.FHIR_QUESTIONNAIRE_RESPONSE_ID,
+        rf"/{Routes.FHIR_QUESTIONNAIRE_RESPONSE_ID}/{{{ViewParam.TABLE_NAME}}}"
+    )
     FORCIBLY_FINALIZE = RoutePath(Routes.FORCIBLY_FINALIZE)
     HOME = RoutePath(Routes.HOME, MASTER_ROUTE_WEBVIEW)  # mounted at "/"
     LOGIN = RoutePath(Routes.LOGIN)

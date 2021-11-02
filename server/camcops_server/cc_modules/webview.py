@@ -5566,6 +5566,29 @@ def send_email_from_patient_list(req: "CamcopsRequest") -> Response:
 
 
 # =============================================================================
+# FHIR placeholder
+# =============================================================================
+
+@view_config(route_name=Routes.FHIR_PATIENT_ID_SYSTEM, request_method="GET",
+             http_cache=NEVER_CACHE,
+             renderer="generic_failure.mako")
+def view_fhir_patient_id(req: "CamcopsRequest") -> Dict[str, Any]:
+    """
+    Placeholder view for FHIR patient requests (from the ID that we may have
+    provided to a FHIR server).
+    """
+    which_idnum = int(req.matchdict[ViewParam.WHICH_IDNUM])
+    components = [f"FHIR ID system {which_idnum}"]
+    if which_idnum in req.valid_which_idnums:
+        components.append(req.get_id_desc(which_idnum))
+    else:
+        components.append("UNKNOWN")
+    return {
+        "msg": ": ".join(components)
+    }
+
+
+# =============================================================================
 # Static assets
 # =============================================================================
 # https://docs.pylonsproject.org/projects/pyramid/en/latest/narr/assets.html#advanced-static  # noqa

@@ -298,7 +298,9 @@ def export(req: "CamcopsRequest",
         log.info("Exporting to recipient: {}", recipient)
         if recipient.using_db():
             if schedule_via_backend:
-                raise NotImplementedError()  # todo: implement whole-database export via Celery backend  # noqa
+                raise NotImplementedError(
+                    "Not yet implemented: whole-database export via Celery "
+                    "backend")  # todo: implement whole-database export via Celery backend  # noqa
             else:
                 export_whole_database(req, recipient, via_index=via_index)
         else:
@@ -306,6 +308,7 @@ def export(req: "CamcopsRequest",
             export_tasks_individually(
                 req, recipient,
                 via_index=via_index, schedule_via_backend=schedule_via_backend)
+        log.info("Finished exporting to recipient: {}", recipient)
 
 
 def export_whole_database(req: "CamcopsRequest",
@@ -367,6 +370,7 @@ def export_tasks_individually(req: "CamcopsRequest",
         schedule_via_backend: schedule jobs via the backend instead?
     """  # noqa
     collection = get_collection_for_export(req, recipient, via_index=via_index)
+    n_tasks = 0
     if schedule_via_backend:
         recipient_name = recipient.recipient_name
         for task_or_index in collection.gen_all_tasks_or_indexes():
@@ -383,6 +387,8 @@ def export_tasks_individually(req: "CamcopsRequest",
                 basetable=basetable,
                 task_pk=task_pk
             )
+            n_tasks += 1
+        log.info(f"Scheduled {n_tasks} background task exports")
     else:
         for task in collection.gen_tasks_by_class():
             # Do NOT use this to check the working of export_task_backend():
@@ -390,6 +396,8 @@ def export_tasks_individually(req: "CamcopsRequest",
             # ... it will deadlock at the database (because we're already
             # within a query of some sort, I presume)
             export_task(req, recipient, task)
+            n_tasks += 1
+        log.info(f"Exported {n_tasks} tasks")
 
 
 def export_task(req: "CamcopsRequest",

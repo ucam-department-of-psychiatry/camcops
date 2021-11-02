@@ -42,26 +42,94 @@ server.
 We use the Python client https://github.com/smart-on-fhir/client-py/.
 This only supports one version of the FHIR specification (currently 4.0.1).
 
+
+*Testing: HAPI FHIR server locally*
+
 Tested with HAPI FHIR server locally, which was installed from instructions at
-https://github.com/hapifhir/hapi-fhir-jpaserver-starter (Docker):
+https://github.com/hapifhir/hapi-fhir-jpaserver-starter (Docker). Most simply:
 
 .. code-block:: bash
 
-    cd hapi-fhir-jpaserver-starter
-    sudo docker run -p 8080:8080 hapiproject/hapi:latest
+    docker run -p 8080:8080 hapiproject/hapi:latest
 
 with the following entry in the CamCOPS export recipient configuration:
 
-.. code-block:: none
+.. code-block:: ini
 
     FHIR_API_URL = http://localhost:8080/fhir
+
+To inspect it while it's running (apart from via its log):
+
+- Browse to (by default) http://localhost:8080/
+
+  - then e.g. Patient --> Search, which is a pretty version of
+    http://localhost:8080/fhir/Patient?_pretty=true;
+    
+  - Questionnaire --> Search, which is a pretty version of
+    http://localhost:8080/fhir/Questionnaire?_pretty=true.
+
+- Browse to (by default) http://localhost:8080/fhir/metadata
+
+- Dive into its internals:
+
+.. code-block:: bash
+
+    docker container ls | grep hapi  # find its container ID
+    docker exec -it <CONTAINER_NAME_OR_ID> bash
+    
+    # Find files modified in the last 10 minutes:
+    find / -mmin -10 -type f -not -path "/proc/*" -not -path "/sys/*" -exec ls -l {} \;
+    # ... which reveals /usr/local/tomcat/target/database/h2.mv.db
+    #               and /usr/local/tomcat/logs/localhost_access_log*
+
+    # Now, from http://h2database.com/html/tutorial.html#command_line_tools,
+    find / -name "h2*.jar"
+    # ... /usr/local/tomcat/webapps/ROOT/WEB-INF/lib/h2-1.4.200.jar
+    
+    java -cp /usr/local/tomcat/webapps/ROOT/WEB-INF/lib/h2*.jar org.h2.tools.Shell
+    # - URL = jdbc:h2:/usr/local/tomcat/target/database/h2
+    #   ... it will append ".mv.db"
+    # - Accept other defaults.
+    # - Then from the "sql>" prompt, try e.g. SHOW TABLES;
+
+However, it won't connect with the server open. (And you can't stop the Docker
+FHIR server and repeat the connection using ``docker run -it <IMAGE_ID> bash``
+rather than ``docker exec``, because then the data will disappear as Docker
+returns to its starting image.) But you can copy the database and open the
+copy, e.g. with
+
+.. code-block:: bash
+
+    cd /usr/local/tomcat/target/database
+    cp h2.mv.db h2_copy.mv.db
+    java -cp /usr/local/tomcat/webapps/ROOT/WEB-INF/lib/h2*.jar org.h2.tools.Shell
+    # URL = jdbc:h2:/usr/local/tomcat/target/database/h2_copy
+
+... but then that needs a username/password. Better is to create ``application.yaml`` in a host machine directory, like this:
+
+.. code-block bash
+
+    # From MySQL:
+    # CREATE DATABASE hapi_test_db;
+    # CREATE USER 'hapi_test_user'@'localhost' IDENTIFIED BY 'hapi_test_password';
+    # GRANT ALL PRIVILEGES ON hapi_test_db.* TO 'hapi_test_user'@'localhost';
+
+    mkdir ~/hapi_test
+    cd ~/hapi_test
+    git clone https://github.com/hapifhir/hapi-fhir-jpaserver-starter
+    cd hapi-fhir-jpaserver-starter
+    nano src/main/resources/application.yaml
+    
+
+*Testing: Other*
 
 There are also public sandboxes at:
 
 - http://hapi.fhir.org/baseR4
 - https://r4.smarthealthit.org (errors when exporting questionnaire responses)
 
-"""
+"""  # noqa
+
 
 # =============================================================================
 # Imports
@@ -117,14 +185,14 @@ class FhirTaskExporter(object):
         try:
             self.client = client.FHIRClient(settings=settings)
         except Exception as e:
-            raise FhirExportException(str(e))
+            raise FhirExportException(f"Error creating FHIRClient: {e}")
 
     def export_task(self) -> None:
         """
         Export a single task to the server, with associated patient information
         if the task has an associated patient.
         """
-        # TODO: Server capability statement
+        # TODO: Check FHIR server's capability statement
         # https://www.hl7.org/fhir/capabilitystatement.html
 
         # statement = self.client.server.capabilityStatement
@@ -166,17 +234,19 @@ class FhirTaskExporter(object):
                 # "None or the response JSON on success" but an exception will
                 # already have been raised if there was a failure
                 raise FhirExportException(
-                    "The server unexpectedly returned an OK, empty response")
+                    "The FHIR server unexpectedly returned an OK, empty "
+                    "response")
 
             self.parse_response(response)
+
         except HTTPError as e:
             raise FhirExportException(
-                f"The server returned an error: {e.response.text}")
+                f"The FHIR server returned an error: {e.response.text}")
 
         except Exception as e:
             # Unfortunate that fhirclient doesn't give us anything more
             # specific
-            raise FhirExportException(e)
+            raise FhirExportException(f"Error from fhirclient: {e}")
 
     def parse_response(self, response: Dict) -> None:
         """
