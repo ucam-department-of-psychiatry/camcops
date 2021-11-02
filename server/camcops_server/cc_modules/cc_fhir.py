@@ -83,7 +83,7 @@ There are also public sandboxes at:
 - https://r4.smarthealthit.org (errors when exporting questionnaire responses)
 
 
-*Problems*
+*Problems that have gone*
 
 - "Failed to CREATE resource with match URL ... because this search matched 2
   resources" -- an OperationOutcome error.
@@ -91,14 +91,24 @@ There are also public sandboxes at:
   At https://groups.google.com/g/hapi-fhir/c/8OolMOpf8SU, it says (for an error
   with 40 resources) "You can only do a conditional create if there are 0..1
   existing resources on the server that match the criteria, and in this case
-  there are 40."
+  there are 40." But I think that is an error in the explanation.
 
   Proper documentation for ``ifNoneExist`` (Python client) or ``If-None-Exist``
   (FHIR itself) is at https://www.hl7.org/fhir/http.html#ccreate.
 
-  However, the problem seemed to go away.
+  I suspect that "0..1" comment relates to "cardinality", which is how many
+  times the attribute can appear in a resource type
+  (https://www.hl7.org/fhir/conformance-rules.html#cardinality); that is, this
+  statement is optional. It would clearly be silly if it meant "create if no
+  more than 1 exist"!
+
+  However, the "Failed to CREATE" problem seemed to go away. It does work fine,
+  and you get status messages of "200 OK" rather than "201 Created" if you try
+  to insert the same information again (``SELECT * FROM
+  _exported_task_fhir_entry;``).
 
 """
+
 
 # =============================================================================
 # Imports
@@ -125,7 +135,7 @@ log = logging.getLogger(__name__)
 # Debugging options
 # =============================================================================
 
-DEBUG_FHIR_PATIENT_ID = True
+DEBUG_FHIR_PATIENT_ID = False
 
 if any([DEBUG_FHIR_PATIENT_ID]):
     log.warning("Debugging options enabled!")
