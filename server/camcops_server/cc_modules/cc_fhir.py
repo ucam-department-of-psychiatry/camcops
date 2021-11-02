@@ -137,9 +137,9 @@ log = logging.getLogger(__name__)
 # Debugging options
 # =============================================================================
 
-DEBUG_FHIR_PATIENT_ID = False
+DEBUG_FHIR_TX = True
 
-if any([DEBUG_FHIR_PATIENT_ID]):
+if any([DEBUG_FHIR_TX]):
     log.warning("Debugging options enabled!")
 
 
@@ -286,7 +286,7 @@ class FhirTaskExporter(object):
 
         try:
             # Attempt to create the receiver on the server, via POST:
-            if DEBUG_FHIR_PATIENT_ID:
+            if DEBUG_FHIR_TX:
                 bundle_str = json.dumps(bundle.as_json(), indent=4)
                 log.debug(f"FHIR bundle outbound to server:\n{bundle_str}")
             response = bundle.create(self.client.server)
