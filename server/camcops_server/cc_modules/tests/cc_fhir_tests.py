@@ -44,6 +44,7 @@ from camcops_server.cc_modules.cc_fhir import (
     FhirExportException,
     FhirTaskExporter,
 )
+from camcops_server.cc_modules.cc_pyramid import Routes
 from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 from camcops_server.tasks.apeqpt import Apeqpt
 from camcops_server.tasks.phq9 import Phq9
@@ -72,11 +73,14 @@ class FhirExportTestCase(DemoDatabaseTestCase):
 
         self.recipient = ExportRecipient(recipientinfo)
         self.recipient.primary_idnum = self.rio_iddef.which_idnum
-        self.recipient.fhir_api_url = "http://www.example.com/fhir"
+        self.recipient.fhir_api_url = "https://www.example.com/fhir"
 
         # auto increment doesn't work for BigInteger with SQLite
         self.recipient.id = 1
         self.recipient.recipient_name = "test"
+
+        self.camcops_root_url = self.req.route_url(Routes.HOME).rstrip("/")
+        # ... no trailing slash
 
 
 class FhirTaskExporterPhq9Tests(FhirExportTestCase):
@@ -142,7 +146,10 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
         which_idnum = self.patient_rio.which_idnum
         idnum_value = self.patient_rio.idnum_value
 
-        iddef_url = f"http://127.0.0.1:8000/fhir_patient_id/{which_idnum}"
+        iddef_url = (
+            f"{self.camcops_root_url}/"
+            f"{Routes.FHIR_PATIENT_ID_SYSTEM}/{which_idnum}"
+        )
 
         self.assertEqual(identifier[0]["system"], iddef_url)
         self.assertEqual(identifier[0]["value"], str(idnum_value))
@@ -184,7 +191,9 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
 
         identifier = questionnaire["identifier"]
 
-        questionnaire_url = "http://127.0.0.1:8000/fhir_questionnaire_id"
+        questionnaire_url = (
+            f"{self.camcops_root_url}/{Routes.FHIR_QUESTIONNAIRE_ID}"
+        )
         self.assertEqual(identifier[0]["system"], questionnaire_url)
         self.assertEqual(identifier[0]["value"], "phq9")
 
@@ -268,7 +277,10 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
         self.assertEqual(response["resourceType"], "QuestionnaireResponse")
         self.assertEqual(
             response["questionnaire"],
-            "http://127.0.0.1:8000/fhir_questionnaire_id|phq9"
+            (
+                f"{self.camcops_root_url}/"
+                f"{Routes.FHIR_QUESTIONNAIRE_ID}|phq9"
+            )
         )
         self.assertEqual(response["authored"],
                          self.task.when_created.isoformat())
@@ -280,14 +292,20 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
         which_idnum = self.patient_rio.which_idnum
         idnum_value = self.patient_rio.idnum_value
 
-        iddef_url = f"http://127.0.0.1:8000/fhir_patient_id/{which_idnum}"
+        iddef_url = (
+            f"{self.camcops_root_url}/"
+            f"{Routes.FHIR_PATIENT_ID_SYSTEM}/{which_idnum}"
+        )
         self.assertEqual(identifier["system"], iddef_url)
         self.assertEqual(identifier["value"], str(idnum_value))
 
         request = sent_json["entry"][2]["request"]
         self.assertEqual(request["method"], HttpMethod.POST)
         self.assertEqual(request["url"], "QuestionnaireResponse")
-        response_url = "http://127.0.0.1:8000/fhir_questionnaire_response_id/phq9"  # noqa E501
+        response_url = (
+            f"{self.camcops_root_url}/"
+            f"{Routes.FHIR_QUESTIONNAIRE_RESPONSE_ID}/phq9"
+        )
         self.assertEqual(
             request["ifNoneExist"],
             (f"identifier={response_url}|{self.task._pk}")
@@ -486,7 +504,9 @@ class FhirTaskExporterAnonymousTests(FhirExportTestCase):
 
         identifier = questionnaire["identifier"]
 
-        questionnaire_url = "http://127.0.0.1:8000/fhir_questionnaire_id"
+        questionnaire_url = (
+            f"{self.camcops_root_url}/{Routes.FHIR_QUESTIONNAIRE_ID}"
+        )
         self.assertEqual(identifier[0]["system"], questionnaire_url)
         self.assertEqual(identifier[0]["value"], "apeqpt")
 
@@ -621,7 +641,10 @@ class FhirTaskExporterAnonymousTests(FhirExportTestCase):
         self.assertEqual(response["resourceType"], "QuestionnaireResponse")
         self.assertEqual(
             response["questionnaire"],
-            "http://127.0.0.1:8000/fhir_questionnaire_id|apeqpt"
+            (
+                f"{self.camcops_root_url}/"
+                f"{Routes.FHIR_QUESTIONNAIRE_ID}|apeqpt"
+            )
         )
         self.assertEqual(response["authored"],
                          self.task.when_created.isoformat())
@@ -630,7 +653,10 @@ class FhirTaskExporterAnonymousTests(FhirExportTestCase):
         request = sent_json["entry"][1]["request"]
         self.assertEqual(request["method"], HttpMethod.POST)
         self.assertEqual(request["url"], "QuestionnaireResponse")
-        response_url = "http://127.0.0.1:8000/fhir_questionnaire_response_id/apeqpt"  # noqa E501
+        response_url = (
+            f"{self.camcops_root_url}/"
+            f"{Routes.FHIR_QUESTIONNAIRE_RESPONSE_ID}/apeqpt"
+        )
         self.assertEqual(
             request["ifNoneExist"],
             (f"identifier={response_url}|{self.task._pk}")

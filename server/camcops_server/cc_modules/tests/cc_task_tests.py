@@ -27,7 +27,9 @@ camcops_server/cc_modules/tests/cc_task_tests.py
 """
 
 import logging
+import urllib.request
 
+from cardinal_pythonlib.httpconst import HttpStatus
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from pendulum import Date, DateTime as Pendulum
 
@@ -195,6 +197,14 @@ class TaskTests(DemoDatabaseTestCase):
                                    uploading_user_id=self.user.id,
                                    document_type="some_doc_type"),
                 str
+            )
+
+            # Help
+            help_url = t.help_url()
+            self.assertEqual(
+                urllib.request.urlopen(help_url).getcode(),
+                HttpStatus.OK,
+                msg=f"Task help not found at {help_url}"
             )
 
             # Special operations

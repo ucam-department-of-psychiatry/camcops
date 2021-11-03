@@ -141,6 +141,12 @@ QString KhandakerInsightMedical::description() const
 }
 
 
+QString KhandakerInsightMedical::infoFilenameStem() const
+{
+    return "khandaker_insight_medical";
+}
+
+
 Version KhandakerInsightMedical::minimumServerVersion() const
 {
     return KHANDAKER1MEDICALHISTORY_MIN_SERVER_VERSION;
