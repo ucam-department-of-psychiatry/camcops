@@ -334,6 +334,7 @@ class KhandakerMojoMedical(
     """
     __tablename__ = "khandaker_mojo_medical"
     shortname = "Khandaker_MOJO_Medical"
+    info_filename_stem = "khandaker_mojo"
     provides_trackers = False
 
     # Section 1: General Information

@@ -61,10 +61,11 @@ from camcops_server.cc_modules.cc_task import (
 class MdsUpdrs(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     """
     Server implementation of the MDS-UPDRS task.
+
+    Has clinician as of v2.0.0.
     """
     __tablename__ = "mds_updrs"
     shortname = "MDS-UPDRS"
-    # Has clinician as of v2.0.0
 
     main_cmt = " (0 normal, 1 slight, 2 mild, 3 moderate, 4 severe)"
     main_pv = ZERO_TO_FOUR_CHECKER

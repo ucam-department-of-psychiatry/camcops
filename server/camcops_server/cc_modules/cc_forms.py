@@ -153,9 +153,8 @@ from cardinal_pythonlib.deform_utils import (
     DynamicDescriptionsForm,
     InformativeForm,
 )
-from cardinal_pythonlib.logs import (
-    BraceStyleAdapter,
-)
+from cardinal_pythonlib.httpconst import HttpMethod
+from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.sqlalchemy.dialect import SqlaDialectName
 from cardinal_pythonlib.sqlalchemy.orm_query import CountStarSpecializedQuery
 # noinspection PyProtectedMember
@@ -240,7 +239,6 @@ from camcops_server.cc_modules.cc_policy import (
 )
 from camcops_server.cc_modules.cc_pyramid import (
     FormAction,
-    RequestMethod,
     ViewArg,
     ViewParam,
 )
@@ -1373,7 +1371,7 @@ class UserFilterForm(InformativeNonceForm):
             buttons=[Button(name=FormAction.SET_FILTERS,
                             title=_("Refresh"))],
             css_class=BootstrapCssClasses.FORM_INLINE,
-            method=RequestMethod.GET,
+            method=HttpMethod.GET,
             **kwargs
         )
 

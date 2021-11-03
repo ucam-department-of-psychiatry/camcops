@@ -1026,7 +1026,6 @@ class FHIRConst:
     IF_NONE_EXIST = "ifNoneExist"
     ITEM = "item"
     METHOD = "method"
-    METHOD_POST = "POST"  # as an HTTP method
     REQUEST = "request"
     RESOURCE = "resource"
     STATUS = "status"

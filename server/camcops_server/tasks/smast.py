@@ -95,6 +95,7 @@ class Smast(TaskHasPatientMixin, Task,
     """
     __tablename__ = "smast"
     shortname = "SMAST"
+    info_filename_stem = "mast"
     provides_trackers = True
 
     NQUESTIONS = 13

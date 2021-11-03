@@ -41,6 +41,7 @@ from cardinal_pythonlib.datetimefunc import (
     get_age,
     PotentialDatetimeType,
 )
+from cardinal_pythonlib.httpconst import HttpMethod
 from cardinal_pythonlib.json.typing_helpers import JsonObjectType
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_web as ws
@@ -886,7 +887,7 @@ class Patient(GenericTabletRecordMixin, Base):
         # The JSON objects we will build up:
         patient_dict = {}  # type: JsonObjectType
         bundle_dict = {
-            Fc.METHOD: Fc.METHOD_POST,
+            Fc.METHOD: HttpMethod.POST,
             Fc.URL: Fc.RESOURCE_PATIENT,
         }  # type: JsonObjectType
 

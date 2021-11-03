@@ -30,6 +30,7 @@ import json
 from typing import Dict
 from unittest import mock
 
+from cardinal_pythonlib.httpconst import HttpMethod
 import pendulum
 from requests.exceptions import HTTPError
 
@@ -151,7 +152,7 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
         self.assertEqual(patient["gender"], "female")
 
         request = sent_json["entry"][0]["request"]
-        self.assertEqual(request["method"], "POST")
+        self.assertEqual(request["method"], HttpMethod.POST)
         self.assertEqual(request["url"], "Patient")
         self.assertEqual(
             request["ifNoneExist"],
@@ -237,7 +238,7 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
         self.assertEqual(len(questionnaire["item"]), 10)
 
         request = sent_json["entry"][1]["request"]
-        self.assertEqual(request["method"], "POST")
+        self.assertEqual(request["method"], HttpMethod.POST)
         self.assertEqual(request["url"], "Questionnaire")
         self.assertEqual(
             request["ifNoneExist"],
@@ -284,7 +285,7 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
         self.assertEqual(identifier["value"], str(idnum_value))
 
         request = sent_json["entry"][2]["request"]
-        self.assertEqual(request["method"], "POST")
+        self.assertEqual(request["method"], HttpMethod.POST)
         self.assertEqual(request["url"], "QuestionnaireResponse")
         response_url = "http://127.0.0.1:8000/fhir_questionnaire_response_id/phq9"  # noqa E501
         self.assertEqual(
@@ -590,7 +591,7 @@ class FhirTaskExporterAnonymousTests(FhirExportTestCase):
         self.assertEqual(len(questionnaire["item"]), 6)
 
         request = sent_json["entry"][0]["request"]
-        self.assertEqual(request["method"], "POST")
+        self.assertEqual(request["method"], HttpMethod.POST)
         self.assertEqual(request["url"], "Questionnaire")
         self.assertEqual(
             request["ifNoneExist"],
@@ -627,7 +628,7 @@ class FhirTaskExporterAnonymousTests(FhirExportTestCase):
         self.assertEqual(response["status"], "completed")
 
         request = sent_json["entry"][1]["request"]
-        self.assertEqual(request["method"], "POST")
+        self.assertEqual(request["method"], HttpMethod.POST)
         self.assertEqual(request["url"], "QuestionnaireResponse")
         response_url = "http://127.0.0.1:8000/fhir_questionnaire_response_id/apeqpt"  # noqa E501
         self.assertEqual(

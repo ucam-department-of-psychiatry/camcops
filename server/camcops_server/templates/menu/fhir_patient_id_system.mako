@@ -1,7 +1,7 @@
 ## -*- coding: utf-8 -*-
 <%doc>
 
-camcops_server/templates/menu/generic_success.mako
+camcops_server/templates/menu/fhir_patient_id_system.mako
 
 ===============================================================================
 
@@ -26,19 +26,14 @@ camcops_server/templates/menu/generic_success.mako
 
 </%doc>
 
-## <%page args="msg"/>
 <%inherit file="base_web.mako"/>
 
 <%include file="db_user_info.mako"/>
 
-<h1>${ _("Success!") }</h1>
+<h1>${ _("FHIR Patient identifier system") }: ${ which_idnum }</h1>
 
-%if msg:
-    <div class="info">${ msg }</div>
-%endif
-
-%if extra_html:
-    ${ extra_html | n }
-%endif
+<div>
+    ${ req.get_id_desc(which_idnum) }
+</div>
 
 <%include file="to_main_menu.mako"/>

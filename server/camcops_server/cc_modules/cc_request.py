@@ -49,6 +49,7 @@ from cardinal_pythonlib.datetimefunc import (
 )
 # from cardinal_pythonlib.debugging import get_caller_stack_info
 from cardinal_pythonlib.fileops import get_directory_contents_size, mkdir_p
+from cardinal_pythonlib.httpconst import HttpMethod
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.plot import (
     png_img_html_from_pyplot_figure,
@@ -110,7 +111,6 @@ from camcops_server.cc_modules.cc_pyramid import (
     CookieKey,
     get_session_factory,
     Permission,
-    RequestMethod,
     RouteCollection,
     Routes,
     STATIC_CAMCOPS_PACKAGE_PATH,
@@ -2020,13 +2020,13 @@ class CamcopsDummyRequest(CamcopsRequest, DummyRequest):
         """
         Sets the fictional request method to GET.
         """
-        self.method = RequestMethod.GET
+        self.method = HttpMethod.GET
 
     def set_method_post(self) -> None:
         """
         Sets the fictional request method to POST.
         """
-        self.method = RequestMethod.POST
+        self.method = HttpMethod.POST
 
     def clear_get_params(self) -> None:
         """

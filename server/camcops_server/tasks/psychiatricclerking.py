@@ -59,6 +59,7 @@ class PsychiatricClerking(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
     """
     __tablename__ = "psychiatricclerking"
     shortname = "Clerking"
+    info_filename_stem = "clinical"
 
     # FIELDSPEC_A = CLINICIAN_FIELDSPECS  # replaced by has_clinician, then by TaskHasClinicianMixin  # noqa
 

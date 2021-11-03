@@ -55,6 +55,7 @@ from cardinal_pythonlib.datetimefunc import (
     format_datetime,
     pendulum_to_utc_datetime_without_tz,
 )
+from cardinal_pythonlib.httpconst import HttpMethod
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.sqlalchemy.orm_inspect import (
     gen_columns,
@@ -80,6 +81,7 @@ from sqlalchemy.sql.sqltypes import Boolean, DateTime, Float, Integer, Text
 
 # from camcops_server.cc_modules.cc_anon import get_cris_dd_rows_from_fieldspecs
 from camcops_server.cc_modules.cc_audit import audit
+from camcops_server.cc_modules.cc_baseconstants import DOCUMENTATION_URL
 from camcops_server.cc_modules.cc_blob import Blob, get_blob_img_html
 from camcops_server.cc_modules.cc_cache import cache_region_static, fkg
 from camcops_server.cc_modules.cc_constants import (
@@ -523,6 +525,7 @@ class Task(GenericTabletRecordMixin, Base):
     # Attributes that can be overridden
     # -------------------------------------------------------------------------
     extrastring_taskname = None  # type: str  # if None, tablename is used instead  # noqa
+    info_filename_stem = None  # type: str  # if None, tablename is used instead  # noqa
     provides_trackers = False
     use_landscape_for_pdf = False
     dependent_classes = []
@@ -819,6 +822,29 @@ class Task(GenericTabletRecordMixin, Base):
         for _, _, rel_cls in gen_ancillary_relationships(cls):
             d[rel_cls.__tablename__] = v
         return d
+
+    @classmethod
+    def help_url(cls) -> str:
+        """
+        Returns the URL for task-specific online help.
+
+        By default, this is based on the tablename -- e.g. ``phq9``, giving
+        ``phq9.html`` in the documentation (from ``phq9.rst`` in the source).
+        However, some tasks override this -- which they may do by writing
+
+        .. code-block:: python
+
+            info_filename_stem = "XXX"
+
+        In the C++ code, compare infoFilenameStem() for individual tasks and
+        urlconst::taskDocUrl() overall.
+
+        The online help is presently only in English.
+        """
+        basename = cls.info_filename_stem or cls.tablename
+        language = "en"
+        # DOCUMENTATION_URL has a trailing slash already
+        return f"{DOCUMENTATION_URL}{language}/latest/tasks/{basename}.html"
 
     # -------------------------------------------------------------------------
     # More on fields
@@ -1312,7 +1338,7 @@ class Task(GenericTabletRecordMixin, Base):
         })
 
         bundle_request = BundleEntryRequest(jsondict={
-            Fc.METHOD: Fc.METHOD_POST,
+            Fc.METHOD: HttpMethod.POST,
             Fc.URL: Fc.RESOURCE_QUESTIONNAIRE,
             Fc.IF_NONE_EXIST: (
                 f"{Fc.IDENTIFIER}={identifier.system}|{identifier.value}"
@@ -1389,7 +1415,7 @@ class Task(GenericTabletRecordMixin, Base):
         response = QuestionnaireResponse(jsondict)
 
         bundle_request = BundleEntryRequest(jsondict={
-            Fc.METHOD: Fc.METHOD_POST,
+            Fc.METHOD: HttpMethod.POST,
             Fc.URL: Fc.RESOURCE_QUESTIONNAIRE_RESPONSE,
             Fc.IF_NONE_EXIST: (
                 f"{Fc.IDENTIFIER}={identifier.system}|{identifier.value}"

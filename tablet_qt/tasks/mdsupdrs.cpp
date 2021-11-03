@@ -316,12 +316,6 @@ QString MdsUpdrs::description() const
 }
 
 
-QString MdsUpdrs::infoFilenameStem() const
-{
-    return "mds";
-}
-
-
 // ============================================================================
 // Instance info
 // ============================================================================

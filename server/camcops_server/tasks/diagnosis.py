@@ -282,6 +282,7 @@ class DiagnosisIcd10(DiagnosisBase):
     Server implementation of the Diagnosis/ICD-10 task.
     """
     __tablename__ = "diagnosis_icd10"
+    info_filename_stem = "icd"
 
     items = ancillary_relationship(
         parent_class_name="DiagnosisIcd10",
@@ -391,6 +392,7 @@ class DiagnosisIcd9CM(DiagnosisBase):
     Server implementation of the Diagnosis/ICD-9-CM task.
     """
     __tablename__ = "diagnosis_icd9cm"
+    info_filename_stem = "icd"
 
     items = ancillary_relationship(
         parent_class_name="DiagnosisIcd9CM",

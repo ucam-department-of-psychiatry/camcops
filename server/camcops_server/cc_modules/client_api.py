@@ -354,9 +354,8 @@ from cardinal_pythonlib.datetimefunc import (
     coerce_to_pendulum_date,
     format_datetime,
 )
-from cardinal_pythonlib.logs import (
-    BraceStyleAdapter,
-)
+from cardinal_pythonlib.httpconst import HttpMethod
+from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.pyramid.responses import TextResponse
 from cardinal_pythonlib.sqlalchemy.core_query import (
     exists_in_table,
@@ -3226,9 +3225,11 @@ def main_client_api(req: "CamcopsRequest") -> Dict[str, str]:
     return result
 
 
-@view_config(route_name=Routes.CLIENT_API, request_method="POST",
+@view_config(route_name=Routes.CLIENT_API,
+             request_method=HttpMethod.POST,
              permission=NO_PERMISSION_REQUIRED)
-@view_config(route_name=Routes.CLIENT_API_ALIAS, request_method="POST",
+@view_config(route_name=Routes.CLIENT_API_ALIAS,
+             request_method=HttpMethod.POST,
              permission=NO_PERMISSION_REQUIRED)
 def client_api(req: "CamcopsRequest") -> Response:
     """

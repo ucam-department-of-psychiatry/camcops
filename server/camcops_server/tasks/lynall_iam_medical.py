@@ -58,6 +58,7 @@ class LynallIamMedicalHistory(TaskHasPatientMixin, Task):
     __tablename__ = "lynall_1_iam_medical"  # historically fixed
     shortname = "Lynall_IAM_Medical"
     extrastring_taskname = "lynall_iam_medical"
+    info_filename_stem = extrastring_taskname
 
     Q2_N_OPTIONS = 6
     Q3_N_OPTIONS = 11

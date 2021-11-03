@@ -1,7 +1,7 @@
 ## -*- coding: utf-8 -*-
 <%doc>
 
-camcops_server/templates/menu/generic_success.mako
+camcops_server/templates/menu/fhir_questionnaire_response_id.mako
 
 ===============================================================================
 
@@ -26,19 +26,27 @@ camcops_server/templates/menu/generic_success.mako
 
 </%doc>
 
-## <%page args="msg"/>
 <%inherit file="base_web.mako"/>
 
 <%include file="db_user_info.mako"/>
 
-<h1>${ _("Success!") }</h1>
+<h1>${ _("FHIR QuestionnaireResponse system") }: ${ task_class.tablename }</h1>
 
-%if msg:
-    <div class="info">${ msg }</div>
-%endif
+<div>
+    <a href="${ task_class.help_url() }">
+        ${ task_class.longname(req) } (${ task_class.shortname })
+    </a>
+</div>
 
-%if extra_html:
-    ${ extra_html | n }
-%endif
+<table>
+    <tr>
+        <th>${ _("Value") }</th>
+        <th>TODO: INSERT MORE CONTENT HERE!</th>
+    </tr>
+    <tr>
+        <td>TODO: INSERT MORE CONTENT HERE!</td>
+        <td>TODO: INSERT MORE CONTENT HERE!</td>
+    </tr>
+</table>
 
 <%include file="to_main_menu.mako"/>

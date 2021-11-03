@@ -1,7 +1,7 @@
 ## -*- coding: utf-8 -*-
 <%doc>
 
-camcops_server/templates/menu/generic_success.mako
+camcops_server/templates/menu/fhir_questionnaire_id.mako
 
 ===============================================================================
 
@@ -26,19 +26,40 @@ camcops_server/templates/menu/generic_success.mako
 
 </%doc>
 
-## <%page args="msg"/>
 <%inherit file="base_web.mako"/>
+
+<%!
+from camcops_server.cc_modules.cc_pyramid import Routes
+%>
 
 <%include file="db_user_info.mako"/>
 
-<h1>${ _("Success!") }</h1>
+<h1>${ _("FHIR Questionnaire system") }</h1>
 
-%if msg:
-    <div class="info">${ msg }</div>
-%endif
-
-%if extra_html:
-    ${ extra_html | n }
-%endif
+<table>
+    <tr>
+        <th>${ _("Value") }</th>
+        <th>${ _("Short description") }</th>
+        <th>${ _("Description") }</th>
+        <th>${ _("FHIR QuestionnaireResponse system") }</th>
+    </tr>
+    %for tc in all_task_classes:
+        <tr>
+            <td>${ tc.tablename }</td>
+            <td>${ tc.shortname }</td>
+            <td>
+                <a href="${ tc.help_url() }">
+                    ${ tc.longname(req) }
+                </a>
+            </td>
+            <td>
+                <a href="${ req.route_url(Routes.FHIR_QUESTIONNAIRE_RESPONSE_ID,
+                                          table_name=tc.tablename) }">
+                    ${ _("FHIR") }
+                </a>
+            </td>
+        </tr>
+    %endfor
+</table>
 
 <%include file="to_main_menu.mako"/>

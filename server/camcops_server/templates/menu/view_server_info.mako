@@ -28,6 +28,10 @@ camcops_server/templates/menu/view_server_info.mako
 
 <%inherit file="base_web.mako"/>
 
+<%!
+from camcops_server.cc_modules.cc_pyramid import Routes
+%>
+
 <%include file="db_user_info.mako"/>
 
 <h1>${ _("CamCOPS: information about this database/server") }</h1>
@@ -38,12 +42,19 @@ camcops_server/templates/menu/view_server_info.mako
         <th>${ _("ID number") }</th>
         <th>${ _("Description") }</th>
         <th>${ _("Short description") }</th>
+        <th>${ _("FHIR patient ID system") }</th>
     </tr>
     %for iddef in idnum_definitions:
         <tr>
             <td>${ iddef.which_idnum }</td>
             <td>${ iddef.description }</td>
             <td>${ iddef.short_description }</td>
+            <td>
+                <a href="${ req.route_url(Routes.FHIR_PATIENT_ID_SYSTEM,
+                                          which_idnum=iddef.which_idnum) }">
+                    ${ _("FHIR") }
+                </a>
+            </td>
         </tr>
     %endfor
 </table>
@@ -77,11 +88,16 @@ camcops_server/templates/menu/view_server_info.mako
 %endfor
 
 <h2>${ _("All known tasks") }</h2>
-<p>${ _("Format is: long name (short name; base table name).") }</p>
+<p>${ _("Format is: long name (short name; base table name; FHIR QuestionnaireResponse system).") }</p>
 <pre>
     %for tc in all_task_classes:
-${ tc.longname(req) } (${ tc.shortname }; ${ tc.tablename })
+<a href="${ tc.help_url() }">${ tc.longname(req) } (${ tc.shortname }; ${ tc.tablename })</a> [<a href="${ req.route_url(Routes.FHIR_QUESTIONNAIRE_RESPONSE_ID, table_name=tc.tablename) }">${ _("FHIR") }]</a>
     %endfor
 </pre>
+<div>
+    <a href="${ req.route_url(Routes.FHIR_QUESTIONNAIRE_ID) }">
+        ${ _("FHIR Questionnaire system") }
+    </a>
+</div>
 
 <%include file="to_main_menu.mako"/>

@@ -96,6 +96,7 @@ class CPFTLPSReferral(TaskHasPatientMixin, Task):
     """
     __tablename__ = "cpft_lps_referral"
     shortname = "CPFT_LPS_Referral"
+    info_filename_stem = "clinical"
 
     referral_date_time = Column("referral_date_time",
                                 PendulumDateTimeAsIsoTextColType)
@@ -357,6 +358,7 @@ class CPFTLPSResetResponseClock(TaskHasPatientMixin, TaskHasClinicianMixin,
     """
     __tablename__ = "cpft_lps_resetresponseclock"
     shortname = "CPFT_LPS_ResetResponseClock"
+    info_filename_stem = "clinical"
 
     reset_start_time_to = Column(
         "reset_start_time_to", PendulumDateTimeAsIsoTextColType
@@ -411,6 +413,7 @@ class CPFTLPSDischarge(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     """
     __tablename__ = "cpft_lps_discharge"
     shortname = "CPFT_LPS_Discharge"
+    info_filename_stem = "clinical"
 
     discharge_date = Column("discharge_date", Date)
     discharge_reason_code = CamcopsColumn(

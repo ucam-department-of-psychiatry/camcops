@@ -130,14 +130,6 @@ class FormAction(object):
     REFRESH_TASKS = 'refresh_tasks'
 
 
-class RequestMethod(object):
-    """
-    Constants to distinguish HTTP GET from HTTP POST requests.
-    """
-    GET = "GET"
-    POST = "POST"
-
-
 class ViewParam(object):
     """
     View parameter constants.

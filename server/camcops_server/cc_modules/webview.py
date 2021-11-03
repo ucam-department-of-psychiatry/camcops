@@ -139,7 +139,7 @@ from typing import (
 
 from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.deform_utils import get_head_form_html
-from cardinal_pythonlib.httpconst import MimeType
+from cardinal_pythonlib.httpconst import HttpMethod, MimeType
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.pyramid.responses import (
     BinaryResponse,
@@ -298,7 +298,10 @@ from camcops_server.cc_modules.cc_simpleobjects import (
 from camcops_server.cc_modules.cc_specialnote import SpecialNote
 from camcops_server.cc_modules.cc_session import CamcopsSession
 from camcops_server.cc_modules.cc_sqlalchemy import get_all_ddl
-from camcops_server.cc_modules.cc_task import Task
+from camcops_server.cc_modules.cc_task import (
+    tablename_to_task_class_dict,
+    Task,
+)
 from camcops_server.cc_modules.cc_taskcollection import (
     TaskFilter,
     TaskCollection,
@@ -381,6 +384,7 @@ NEVER_CACHE = 0
 # as ${title}. Some are used frequently, so we have them here as constants.
 
 MAKO_VAR_TITLE = "title"
+TEMPLATE_GENERIC_FORM = "generic_form.mako"
 
 
 # =============================================================================
@@ -2508,7 +2512,7 @@ def download_file(req: "CamcopsRequest") -> Response:
 
 
 @view_config(route_name=Routes.DELETE_FILE,
-             request_method="POST",
+             request_method=HttpMethod.POST,
              http_cache=NEVER_CACHE)
 def delete_file(req: "CamcopsRequest") -> Response:
     """
@@ -4954,7 +4958,7 @@ class DeleteServerCreatedPatientView(DeleteView):
     object_class = Patient
     pk_param = ViewParam.SERVER_PK
     server_pk_name = "_pk"
-    template_name = "generic_form.mako"
+    template_name = TEMPLATE_GENERIC_FORM
 
     def get_object(self) -> Any:
         patient = cast(Patient, super().get_object())
@@ -5135,7 +5139,7 @@ class TaskScheduleMixin(object):
     object_class = TaskSchedule
     request: "CamcopsRequest"
     server_pk_name = "id"
-    template_name = "generic_form.mako"
+    template_name = TEMPLATE_GENERIC_FORM
 
     def get_success_url(self) -> str:
         return self.request.route_url(
@@ -5225,7 +5229,7 @@ class TaskScheduleItemMixin(object):
     Mixin for viewing/editing a task schedule items.
     """
     form_class = EditTaskScheduleItemForm
-    template_name = "generic_form.mako"
+    template_name = TEMPLATE_GENERIC_FORM
     model_form_dict = {
         "schedule_id": ViewParam.SCHEDULE_ID,
         "task_table_name": ViewParam.TABLE_NAME,
@@ -5384,10 +5388,10 @@ def delete_task_schedule_item(req: "CamcopsRequest") -> Response:
     return DeleteTaskScheduleItemView(req).dispatch()
 
 
-@view_config(route_name=Routes.CLIENT_API, request_method="GET",
+@view_config(route_name=Routes.CLIENT_API, request_method=HttpMethod.GET,
              permission=NO_PERMISSION_REQUIRED,
              renderer="client_api_signposting.mako")
-@view_config(route_name=Routes.CLIENT_API_ALIAS, request_method="GET",
+@view_config(route_name=Routes.CLIENT_API_ALIAS, request_method=HttpMethod.GET,
              permission=NO_PERMISSION_REQUIRED,
              renderer="client_api_signposting.mako")
 def client_api_signposting(req: "CamcopsRequest") -> Dict[str, Any]:
@@ -5566,28 +5570,65 @@ def send_email_from_patient_list(req: "CamcopsRequest") -> Response:
 
 
 # =============================================================================
-# FHIR placeholder
+# FHIR identifier "system" information
 # =============================================================================
 
-@view_config(route_name=Routes.FHIR_PATIENT_ID_SYSTEM, request_method="GET",
+@view_config(route_name=Routes.FHIR_PATIENT_ID_SYSTEM,
+             request_method=HttpMethod.GET,
+             renderer="fhir_patient_id_system.mako",
              http_cache=NEVER_CACHE)
-def view_fhir_patient_id(req: "CamcopsRequest") -> Response:
+def view_fhir_patient_id_system(req: "CamcopsRequest") -> Dict[str, Any]:
     """
-    Placeholder view for FHIR patient requests (from the ID that we may have
-    provided to a FHIR server).
+    Placeholder view for FHIR patient identifier "system" types (from the ID
+    that we may have provided to a FHIR server).
+
+    Within each system, the "value" is the actual patient's ID number (not
+    part of what we show here).
     """
     which_idnum = int(req.matchdict[ViewParam.WHICH_IDNUM])
-    components = [f"FHIR ID system {which_idnum}"]
-    if which_idnum in req.valid_which_idnums:
-        components.append(req.get_id_desc(which_idnum))
-        template = "generic_message.mako"
-    else:
-        components.append("UNKNOWN")
-        template = "generic_failure.mako"
-    return render_to_response(
-        template,
-        dict(msg=": ".join(components)),
-        request=req
+    if which_idnum not in req.valid_which_idnums:
+        _ = req.gettext
+        raise HTTPBadRequest(f"{_('Unknown patient ID type:')} "
+                             f"{which_idnum!r}")
+    return dict(
+        which_idnum=which_idnum,
+    )
+
+
+@view_config(route_name=Routes.FHIR_QUESTIONNAIRE_ID,
+             request_method=HttpMethod.GET,
+             renderer="fhir_questionnaire_id.mako",
+             http_cache=NEVER_CACHE)
+def view_fhir_questionnaire_id(req: "CamcopsRequest") -> Dict[str, Any]:
+    """
+    Placeholder view for FHIR Questionnaire "system".
+    There's only one system -- the "value" is the task type.
+    """
+    return dict(
+        all_task_classes=Task.all_subclasses_by_tablename(),
+    )
+
+
+@view_config(route_name=Routes.FHIR_QUESTIONNAIRE_RESPONSE_ID,
+             request_method=HttpMethod.GET,
+             renderer="fhir_questionnaire_response_id.mako",
+             http_cache=NEVER_CACHE)
+def view_fhir_questionnaire_response_id(req: "CamcopsRequest") \
+        -> Dict[str, Any]:
+    """
+    Placeholder view for FHIR QuestionnaireResponse "system" types.
+
+    There's one system per task. Within each task, the "value" relates to the
+    specific question/field.
+    """
+    table_name = req.matchdict[ViewParam.TABLE_NAME]
+    task_class_dict = tablename_to_task_class_dict()
+    if table_name not in task_class_dict:
+        _ = req.gettext
+        raise HTTPBadRequest(f"{_('Unknown task:')} {table_name!r}")
+    task_class = task_class_dict[table_name]
+    return dict(
+        task_class=task_class
     )
 
 

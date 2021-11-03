@@ -225,6 +225,10 @@ ${ task.get_task_html(req) | n }
 
     <div class="office">
 
+        ## Link to help
+
+        <a href="${ task.help_url() }">${ _("Task help") }</a>
+
         ## Link to XML version (which is always identifiable)
 
         %if not anonymise:
