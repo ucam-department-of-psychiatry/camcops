@@ -83,7 +83,9 @@ There are also public sandboxes at:
 - https://r4.smarthealthit.org (errors when exporting questionnaire responses)
 
 
-*Problems that have gone*
+*Intermittent problem with If-None-Exist*
+
+This problem occurs intermittently:
 
 - "Failed to CREATE resource with match URL ... because this search matched 2
   resources" -- an OperationOutcome error.
@@ -96,8 +98,9 @@ There are also public sandboxes at:
   Proper documentation for ``ifNoneExist`` (Python client) or ``If-None-Exist``
   (FHIR itself) is at https://www.hl7.org/fhir/http.html#ccreate.
 
-  I suspect that "0..1" comment relates to "cardinality", which is how many
-  times the attribute can appear in a resource type
+  I suspect that "0..1" comment relates to "cardinality"
+  (https://www.hl7.org/fhir/bundle.html#resource), which is how many times the
+  attribute can appear in a resource type
   (https://www.hl7.org/fhir/conformance-rules.html#cardinality); that is, this
   statement is optional. It would clearly be silly if it meant "create if no
   more than 1 exist"!
@@ -106,6 +109,8 @@ There are also public sandboxes at:
   and you get status messages of "200 OK" rather than "201 Created" if you try
   to insert the same information again (``SELECT * FROM
   _exported_task_fhir_entry;``).
+
+***
 
 """
 
@@ -149,7 +154,8 @@ if any([DEBUG_FHIR_TX]):
 
 _ = """
 
-- Dive into the internals of the HAPI FHIR server:
+Dive into the internals of the HAPI FHIR server
+===============================================
 
 .. code-block:: bash
 
@@ -201,6 +207,21 @@ but then that needs a username/password. Better is to create
     nano src/main/resources/application.yaml
 
 ... no, better is to use the web interface!
+
+
+Wipe FHIR exports
+=================
+
+.. code-block:: sql
+
+    -- Delete all records of tasks exported via FHIR:
+    DELETE FROM _exported_task_fhir_entry;
+    DELETE FROM _exported_task_fhir;
+    DELETE FROM _exported_tasks WHERE recipient_id IN (
+        SELECT id
+        FROM _export_recipients
+        WHERE transmission_method = 'fhir'
+    );
 
 """  # noqa
 
@@ -370,7 +391,7 @@ class FhirTaskExporter(object):
         """
         from camcops_server.cc_modules.cc_exportmodels import (
             ExportedTaskFhirEntry
-        )
+        )  # delayed import
         for entry in bundle.entry:
             saved_entry = ExportedTaskFhirEntry()
             saved_entry.exported_task_fhir_id = self.exported_task_fhir.id
@@ -378,7 +399,7 @@ class FhirTaskExporter(object):
             saved_entry.location = entry.response.location
             saved_entry.etag = entry.response.etag
             if entry.response.lastModified is not None:
-                # ... of type :class:`fhirclient.models.fhirdate.FHIRDate
+                # ... of type :class:`fhirclient.models.fhirdate.FHIRDate`
                 saved_entry.last_modified = entry.response.lastModified.date
 
             self.request.dbsession.add(saved_entry)

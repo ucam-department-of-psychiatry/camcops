@@ -78,7 +78,6 @@ from webob.multidict import MultiDict
 # imports as minimal as possible.
 from camcops_server.cc_modules.cc_baseconstants import (
     DOCUMENTATION_URL,
-    ENVVAR_CONFIG_FILE,
     TRANSLATIONS_DIR,
 )
 from camcops_server.cc_modules.cc_config import (
@@ -113,6 +112,7 @@ from camcops_server.cc_modules.cc_pyramid import (
     Permission,
     RequestMethod,
     RouteCollection,
+    Routes,
     STATIC_CAMCOPS_PACKAGE_PATH,
 )
 from camcops_server.cc_modules.cc_response import camcops_response_factory
@@ -2154,17 +2154,29 @@ def get_core_debugging_request() -> CamcopsDummyRequest:
     with camcops_pyramid_configurator_context(debug_toolbar=False) as pyr_cfg:
         req = CamcopsDummyRequest(
             environ={
-                ENVVAR_CONFIG_FILE: "nonexistent_camcops_config_file.nonexistent",  # noqa
-                WsgiEnvVar.PATH_INFO: '/',
-                WsgiEnvVar.SCRIPT_NAME: '',
+                # In URL sequence:
+                WsgiEnvVar.WSGI_URL_SCHEME: 'http',
                 WsgiEnvVar.SERVER_NAME: '127.0.0.1',
                 WsgiEnvVar.SERVER_PORT: '8000',
-                WsgiEnvVar.WSGI_URL_SCHEME: 'http',
-            }
+                WsgiEnvVar.SCRIPT_NAME: '',
+                WsgiEnvVar.PATH_INFO: '/',
+            }  # environ parameter: goes to pyramid.testing.DummyRequest.__init__  # noqa
         )
         # ... must pass an actual dict to the "environ" parameter; os.environ
         # itself isn't OK ("TypeError: WSGI environ must be a dict; you passed
         # environ({'key1': 'value1', ...})
+
+        # Being a CamcopsRequest, this object will read a config file from
+        # os.environ[ENVVAR_CONFIG_FILE] -- not the environ dictionary above --
+        # when needed. That means we can now rewrite some of these URL
+        # components to give a valid external URL, if the config has the right
+        # information.
+        cfg = req.config
+        req.environ[WsgiEnvVar.WSGI_URL_SCHEME] = cfg.external_url_scheme
+        req.environ[WsgiEnvVar.SERVER_NAME] = cfg.external_server_name
+        req.environ[WsgiEnvVar.SERVER_PORT] = cfg.external_server_port
+        req.environ[WsgiEnvVar.SCRIPT_NAME] = cfg.external_script_name
+        # PATH_INFO remains "/"
 
         req.registry = pyr_cfg.registry
         pyr_cfg.begin(request=req)
@@ -2198,6 +2210,8 @@ def get_command_line_request(user_id: int = None) -> CamcopsRequest:
         req._debugging_user = User.get_user_by_id(
             req.dbsession, user_id)
 
+    log.debug("Command-line request: external URL is {}",
+              req.route_url(Routes.HOME))
     return req
 
 

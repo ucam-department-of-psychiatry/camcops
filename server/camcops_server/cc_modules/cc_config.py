@@ -351,7 +351,7 @@ def get_demo_config(for_docker: bool = False) -> str:
 {ConfigParamSite.WKHTMLTOPDF_FILENAME} =
 
 # -----------------------------------------------------------------------------
-# Server location
+# Server geographical location
 # -----------------------------------------------------------------------------
 
 {ConfigParamSite.REGION_CODE} = {cd.REGION_CODE}
@@ -462,6 +462,15 @@ def get_demo_config(for_docker: bool = False) -> str:
     HTTP_X_FORWARDED_PROTO
     HTTP_X_FORWARDED_FOR
     HTTP_X_SCRIPT_NAME
+
+# -----------------------------------------------------------------------------
+# Determining the externally accessible CamCOPS URL for back-end work
+# -----------------------------------------------------------------------------
+
+{ConfigParamServer.EXTERNAL_URL_SCHEME} =
+{ConfigParamServer.EXTERNAL_SERVER_NAME} =
+{ConfigParamServer.EXTERNAL_SERVER_PORT} =
+{ConfigParamServer.EXTERNAL_SCRIPT_NAME} =
 
 # -----------------------------------------------------------------------------
 # CherryPy options
@@ -1136,9 +1145,14 @@ class CamcopsConfig(object):
                 special circumstances); overrides ``config_filename``
         """
         def _get_str(section: str, paramname: str,
-                     default: str = None) -> Optional[str]:
-            return get_config_parameter(
+                     default: str = None,
+                     replace_empty_strings_with_default: bool = True) \
+                -> Optional[str]:
+            p = get_config_parameter(
                 parser, section, paramname, str, default)
+            if p == "" and replace_empty_strings_with_default:
+                return default
+            return p
 
         def _get_bool(section: str, paramname: str, default: bool) -> bool:
             return get_config_parameter_boolean(
@@ -1396,6 +1410,16 @@ class CamcopsConfig(object):
         self.trusted_proxy_headers = _get_multiline(
             ws, cw.TRUSTED_PROXY_HEADERS)
         self.unix_domain_socket = _get_str(ws, cw.UNIX_DOMAIN_SOCKET)
+
+        # The defaults here depend on values above:
+        self.external_url_scheme = _get_str(
+            ws, cw.EXTERNAL_URL_SCHEME, cd.EXTERNAL_URL_SCHEME)
+        self.external_server_name = _get_str(
+            ws, cw.EXTERNAL_SERVER_NAME, self.host)
+        self.external_server_port = _get_int(
+            ws, cw.EXTERNAL_SERVER_PORT, self.port)
+        self.external_script_name = _get_str(
+            ws, cw.EXTERNAL_SCRIPT_NAME, "")
 
         for tph in self.trusted_proxy_headers:
             if tph not in ReverseProxiedMiddleware.ALL_CANDIDATES:

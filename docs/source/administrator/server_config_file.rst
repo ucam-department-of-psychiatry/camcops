@@ -381,8 +381,8 @@ CamCOPS, so you shouldn't have to alter this default. A blank parameter here
 usually ends up calling ``/usr/bin/wkhtmltopdf``
 
 
-Server location
-~~~~~~~~~~~~~~~
+Server geographical location
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 REGION_CODE
 ###########
@@ -769,7 +769,7 @@ performance implications for your web site).
 USER_DOWNLOAD_DIR
 #################
 
-*String.* Default: ``""``.
+*String.* Default: none.
 
 Root directory for storing temporary user downloads (when the user asks for
 files to be created for later download). Within this, a directory will be
@@ -804,7 +804,7 @@ Debugging options
 WEBVIEW_LOGLEVEL
 ################
 
-*Loglevel.* Default: info.
+*Loglevel.* Default: ``info``.
 
 Set the level of detail provided from the webview to ``stderr`` (e.g. to the
 Apache server log).
@@ -816,7 +816,7 @@ Note that for "debug"-level information to show up, you must also provide the
 CLIENT_API_LOGLEVEL
 ###################
 
-*Loglevel.* Default: info.
+*Loglevel.* Default: ``info``.
 
 Set the log level for the tablet client database access script.
 
@@ -1182,6 +1182,82 @@ Possible values:
 
 Variables that are not marked as trusted will not be used by the reverse-proxy
 middleware.
+
+
+.. _config_external_url:
+
+Determining the externally accessible CamCOPS URL for back-end work
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When you browse to the CamCOPS web interface, CamCOPS can work out its own URL
+address, even if you are hosting CamCOPS behind a proxy (see e.g.
+PROXY_SCRIPT_NAME_). However, CamCOPS also has a "back end", used for scheduled
+and/or slow jobs like exporting tasks. If this part of CamCOPS needs to know
+its own address, it can't work that out dynamically. You have to tell it.
+
+Currently, this is primarily applicable to :ref:`FHIR exports <config_fhir>`.
+
+The components of the URL are specified like this:
+
+For a CamCOPS server hosted at the root path (e.g. directly), leave
+EXTERNAL_SCRIPT_NAME_ blank:
+
+.. code-block:: none
+
+    https://camcops.mydomain:443/path_within_camcops_application
+    ^^^^^   ^^^^^^^^^^^^^^^^ ^^^
+    |       |                |
+    |       |                |
+    |       |                EXTERNAL_SERVER_PORT
+    |       EXTERNAL_SERVER_NAME
+    EXTERNAL_URL_SCHEME
+
+For a CamCOPS server hosted at a non-root path (e.g. via Apache as one of many
+pages/applications on a single web site), specify EXTERNAL_SCRIPT_NAME_:
+
+.. code-block:: none
+
+    https://camcops.mydomain:443/camcops/path_within_camcops_application
+    ^^^^^   ^^^^^^^^^^^^^^^^ ^^^ ^^^^^^^
+    |       |                |   |
+    |       |                |   EXTERNAL_SCRIPT_NAME
+    |       |                EXTERNAL_SERVER_PORT
+    |       EXTERNAL_SERVER_NAME
+    EXTERNAL_URL_SCHEME
+
+
+.. _EXTERNAL_URL_SCHEME:
+
+EXTERNAL_URL_SCHEME
+###################
+
+*String.* Default: ``https``.
+
+See :ref:`external URL configuration <config_external_url>`.
+
+
+EXTERNAL_SERVER_NAME
+####################
+
+*String.* Default: the value of HOST_.
+
+See :ref:`external URL configuration <config_external_url>`.
+
+
+EXTERNAL_SERVER_PORT
+####################
+
+*Integer.* Default: the value of PORT_.
+
+See :ref:`external URL configuration <config_external_url>`.
+
+
+EXTERNAL_SCRIPT_NAME
+####################
+
+*String.* Default: none.
+
+See :ref:`external URL configuration <config_external_url>`.
 
 
 CherryPy options
@@ -1991,6 +2067,8 @@ send messages every minute) and you divert with this flag set to false, you
 will end up with a great many message attempts!
 
 
+.. _config_fhir:
+
 Options applicable to HL7 FHIR ("FHIR") only
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -2009,6 +2087,9 @@ CamCOPS authenticates using the `SMART App Launch Framework
 
 - a ``client_id``, configured via FHIR_APP_ID_;
 - a ``client_secret``, configured via FHIR_APP_SECRET_;
+
+If you wish the exported "system" URLs to work, ensure the CamCOPS back-end is configured to know its own address: see :ref:`external URL
+configuration <config_external_url>`.
 
 
 FHIR_API_URL

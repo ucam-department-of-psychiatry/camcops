@@ -69,7 +69,7 @@ INSTALL_REQUIRES = [
     'alembic==1.4.2',  # database migrations
     'asteval==0.9.18',  # safe-ish alternative to eval
 
-    'cardinal_pythonlib==1.1.10',  # RNC libraries
+    'cardinal_pythonlib==1.1.12',  # RNC libraries
     'celery==4.4.6',  # background tasks
     'colander==1.7.0',  # serialization/deserialization from web forms
     'CherryPy==18.6.0',  # web server
@@ -99,7 +99,7 @@ INSTALL_REQUIRES = [
 
     'matplotlib==3.2.2',  # Used for trackers and some tasks. SLOW INSTALLATION.  # noqa
 
-    'numpy==1.19.0',  # Used by some tasks. SLOW INSTALLATION.
+    'numpy==1.20.0',  # Used by some tasks. SLOW INSTALLATION.
 
     'paginate==0.5.6',  # pagination for web server
     'pendulum==2.1.2',  # date/time classes

@@ -36,6 +36,8 @@ import os
 
 from cardinal_pythonlib.randomness import create_base64encoded_randomness
 from cardinal_pythonlib.sqlalchemy.session import make_mysql_url
+from cardinal_pythonlib.tcpipconst import Ports
+from cardinal_pythonlib.uriconst import UriSchemes
 
 from camcops_server.cc_modules.cc_baseconstants import (
     DEFAULT_EXTRA_STRINGS_DIR,
@@ -457,6 +459,10 @@ class ConfigParamServer(object):
     DEBUG_REVERSE_PROXY = "DEBUG_REVERSE_PROXY"
     DEBUG_SHOW_GUNICORN_OPTIONS = "DEBUG_SHOW_GUNICORN_OPTIONS"
     DEBUG_TOOLBAR = "DEBUG_TOOLBAR"
+    EXTERNAL_URL_SCHEME = "EXTERNAL_URL_SCHEME"
+    EXTERNAL_SERVER_NAME = "EXTERNAL_SERVER_NAME"
+    EXTERNAL_SERVER_PORT = "EXTERNAL_SERVER_PORT"
+    EXTERNAL_SCRIPT_NAME = "EXTERNAL_SCRIPT_NAME"
     GUNICORN_DEBUG_RELOAD = "GUNICORN_DEBUG_RELOAD"
     GUNICORN_NUM_WORKERS = "GUNICORN_NUM_WORKERS"
     GUNICORN_TIMEOUT_S = "GUNICORN_TIMEOUT_S"
@@ -558,18 +564,6 @@ class ConfigParamExportRecipient(object):
     XML_FIELD_COMMENTS = "XML_FIELD_COMMENTS"
 
 
-class StandardPorts(object):
-    """
-    Standard TCP port numbers.
-    """
-    ALTERNATIVE_HTTP = 8000
-    AMQP = 5672
-    SMTP = 25
-    SMTP_TLS = 587
-    HL7_MLLP = 2575
-    MYSQL = 3306
-
-
 class MfaMethod:
     """
     Open multi-factor authentication (MFA) standards are defined in RFC 4226
@@ -640,7 +634,7 @@ class DockerConstants(object):
     CONTAINER_MYSQL = "mysql"
 
     # Other
-    CELERY_BROKER_URL = f"amqp://{CONTAINER_RABBITMQ}:{StandardPorts.AMQP}/"
+    CELERY_BROKER_URL = f"amqp://{CONTAINER_RABBITMQ}:{Ports.AMQP}/"
     DEFAULT_MYSQL_CAMCOPS_USER = "camcops"
     HOST = "0.0.0.0"
     # ... not "localhost" or "127.0.0.1"; see
@@ -667,13 +661,15 @@ class ConfigDefaults(object):
     CLIENT_API_LOGLEVEL_TEXTFORMAT = "info"  # should match CLIENT_API_LOGLEVEL
     DB_DATABASE = "camcops"  # for demo configs only
     DB_ECHO = False
-    DB_PORT = StandardPorts.MYSQL  # for demo configs only
+    DB_PORT = Ports.MYSQL  # for demo configs only
     DB_SERVER = "localhost"  # for demo configs only
     DB_USER = "YYY_USERNAME_REPLACE_ME"  # cosmetic; for demo configs only
     DB_PASSWORD = "ZZZ_PASSWORD_REPLACE_ME"  # cosmetic; for demo configs only
     DISABLE_PASSWORD_AUTOCOMPLETE = True
-    EMAIL_PORT = StandardPorts.SMTP_TLS
+    EMAIL_PORT = Ports.SMTP_MSA
     EMAIL_USE_TLS = True
+    EXTERNAL_URL_SCHEME = UriSchemes.HTTPS
+    EXTERNAL_SERVER_NAME = "localhost"
     EXTRA_STRING_FILES = os.path.join(DEFAULT_EXTRA_STRINGS_DIR, "*.xml")  # cosmetic; for demo configs only  # noqa
     LANGUAGE = DEFAULT_LOCALE
     LOCAL_INSTITUTION_URL = "https://camcops.readthedocs.io/"
@@ -710,7 +706,7 @@ class ConfigDefaults(object):
     GUNICORN_NUM_WORKERS = 2 * multiprocessing.cpu_count()
     GUNICORN_TIMEOUT_S = 30
     HOST = "127.0.0.1"
-    PORT = StandardPorts.ALTERNATIVE_HTTP
+    PORT = Ports.ALTERNATIVE_HTTP_NONSTANDARD
     PROXY_REWRITE_PATH_INFO = False
     SHOW_REQUEST_IMMEDIATELY = False
     SHOW_REQUESTS = False
@@ -745,7 +741,7 @@ class ConfigDefaults(object):
     HL7_KEEP_REPLY = False
     HL7_NETWORK_TIMEOUT_MS = 10000
     HL7_PING_FIRST = True
-    HL7_PORT = StandardPorts.HL7_MLLP
+    HL7_PORT = Ports.HL7_MLLP
     INCLUDE_ANONYMOUS = False
     PUSH = False
     REQUIRE_PRIMARY_IDNUM_MANDATORY_IN_POLICY = True

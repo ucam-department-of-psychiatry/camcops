@@ -174,7 +174,9 @@ def join_url_fragments(*fragments: str) -> str:
 
 def precache() -> None:
     """
-    Populates the major caches.
+    Populates the major caches. (These are process-wide caches, e.g. using
+    dogpile's ``@cache_region_static.cache_on_arguments``, not config-specific
+    caches.)
     """
     log.info("Prepopulating caches")
     config_filename = get_config_filename_from_os_env()
