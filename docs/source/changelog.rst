@@ -3573,3 +3573,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Bugfix for hacking the ``pymysql`` driver to support Pendulum date/time
   objects properly. The bug manifested during reindexing, and was as documented
   above in :ref:`v2.3.3 <changelog_v2_3_3>`.
+
+- ``cardinal_pythonlib`` now uses numpy 1.20.0, which removes support for
+  Python 3.6, so we do too.
