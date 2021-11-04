@@ -34,14 +34,14 @@ from camcops_server.cc_modules.cc_pyramid import Routes
 
 <%include file="db_user_info.mako"/>
 
-<h1>${ _("FHIR Questionnaire system") }</h1>
+<h1>${ _("All tasks") }</h1>
 
 <table>
     <tr>
-        <th>${ _("Value") }</th>
-        <th>${ _("Short description") }</th>
-        <th>${ _("Description") }</th>
-        <th>${ _("FHIR QuestionnaireResponse system") }</th>
+        <th>${ _("Code") }</th>
+        <th>${ _("Short name") }</th>
+        <th>${ _("Full name, with link to help") }</th>
+        <th>${ _("Elements") }</th>
     </tr>
     %for tc in all_task_classes:
         <tr>
@@ -55,11 +55,16 @@ from camcops_server.cc_modules.cc_pyramid import Routes
             <td>
                 <a href="${ req.route_url(Routes.FHIR_QUESTIONNAIRE_RESPONSE_ID,
                                           table_name=tc.tablename) }">
-                    ${ _("FHIR") }
+                    ${ _("Elements") }
                 </a>
             </td>
         </tr>
     %endfor
 </table>
+
+<p>${ _(
+    "This is also the FHIR Questionnaire system. The code is the FHIR value. "
+    "The elements make up the FHIR QuestionnaireResponse system for each task."
+) }</p>
 
 <%include file="to_main_menu.mako"/>

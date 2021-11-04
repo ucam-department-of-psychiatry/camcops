@@ -77,27 +77,22 @@ from camcops_server.cc_modules.cc_pyramid import Routes
     ${ _("minutes; sessions older than this are periodically deleted.") }
 </p>
 
-<h2>${ _("Extra string families present") }</h2>
-%for sf in string_families:
-    ${ sf  }
-    %if sf in restricted_tasks:
-        <b>— restricted to groups: ${ ", ".join(restricted_tasks[sf]) }</b>
-    %endif
-    <br>
-
-%endfor
-
 <h2>${ _("All known tasks") }</h2>
-<p>${ _("Format is: long name (short name; base table name; FHIR QuestionnaireResponse system).") }</p>
-<pre>
-    %for tc in all_task_classes:
-<a href="${ tc.help_url() }">${ tc.longname(req) } (${ tc.shortname }; ${ tc.tablename })</a> [<a href="${ req.route_url(Routes.FHIR_QUESTIONNAIRE_RESPONSE_ID, table_name=tc.tablename) }">${ _("FHIR") }]</a>
-    %endfor
-</pre>
-<div>
-    <a href="${ req.route_url(Routes.FHIR_QUESTIONNAIRE_ID) }">
-        ${ _("FHIR Questionnaire system") }
-    </a>
-</div>
+<p>
+    See the <a href="${ req.route_url(Routes.FHIR_QUESTIONNAIRE_ID) }">task
+    list</a>, with links to task help.
+</p>
+
+<h2>${ _("Extra string families present") }</h2>
+<ul>
+%for sf in string_families:
+    <li>
+        ${ sf  }
+        %if sf in restricted_tasks:
+            <b>— restricted to groups: ${ ", ".join(restricted_tasks[sf]) }</b>
+        %endif
+    </li>
+%endfor
+</ul>
 
 <%include file="to_main_menu.mako"/>

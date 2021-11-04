@@ -30,7 +30,7 @@ camcops_server/templates/menu/fhir_questionnaire_response_id.mako
 
 <%include file="db_user_info.mako"/>
 
-<h1>${ _("FHIR QuestionnaireResponse system") }: ${ task_class.tablename }</h1>
+<h1>${ _("Task elements") }: ${ task_class.tablename }</h1>
 
 <div>
     <a href="${ task_class.help_url() }">
@@ -48,5 +48,9 @@ camcops_server/templates/menu/fhir_questionnaire_response_id.mako
         <td>TODO: INSERT MORE CONTENT HERE!</td>
     </tr>
 </table>
+
+<p>${ _(
+    "This is also the FHIR QuestionnaireResponse system for this task."
+) }</p>
 
 <%include file="to_main_menu.mako"/>
