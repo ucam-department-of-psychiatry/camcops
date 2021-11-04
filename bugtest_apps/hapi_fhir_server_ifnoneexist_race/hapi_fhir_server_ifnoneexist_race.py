@@ -57,6 +57,8 @@ from fhirclient.client import FHIRClient
 from fhirclient.models.bundle import Bundle, BundleEntry, BundleEntryRequest
 from fhirclient.models.identifier import Identifier
 from fhirclient.models.questionnaire import Questionnaire
+from fhirclient.models.searchparameter import SearchParameter
+from fhirclient.models.servicerequest_tests import *
 from fhirclient.server import FHIRNotFoundException
 from requests.exceptions import HTTPError
 
@@ -67,9 +69,9 @@ def print_json(prefix, x: Dict[str, Any], indent: int = None) -> None:
     log.info(f"{prefix}{json.dumps(x, indent=indent)}")
 
 
-def make_bundle(value: str) -> Bundle:
+def make_bundle(value: str, sp_unique: bool = False) -> Bundle:
     system = "https://some_system"
-    return Bundle(jsondict={
+    jd = {
         "type": "transaction",
         "entry": [
             BundleEntry(jsondict={
@@ -90,18 +92,23 @@ def make_bundle(value: str) -> Bundle:
                 }).as_json()
             }).as_json()
         ]
-    })
+    }
     # Note: the .as_json() conversions are necessary.
+    if sp_unique:
+        pass
+    return Bundle(jsondict=jd)
 
 
-def single_test_insert_if_none_exists(url: str, value: str,
-                                      proc_num: int = 1) -> None:
+def single_test_insert_if_none_exists(url: str,
+                                      value: str,
+                                      proc_num: int = 1,
+                                      sp_unique: bool = False) -> None:
     app_id = "hapi_fhir_server_ifnoneexist_race"
     client = FHIRClient(settings={
         "api_base": url,
         "app_id": app_id
     })
-    bundle = make_bundle(value)
+    bundle = make_bundle(value=value, sp_unique=sp_unique)
     print_json(f"[{proc_num}] Bundle: ", bundle.as_json())
     try:
         response = bundle.create(client.server)
@@ -139,6 +146,11 @@ def main() -> None:
         "--serial", action="store_true",
         help="Use serial mode, not parallel"
     )
+    parser.add_argument(
+        "--sp_unique", action="store_true",
+        help="Enforce uniqueness via a Combo Search Index Parameter; "
+             "https://smilecdr.com/docs/fhir_repository/custom_search_parameters.html#uniqueness"  # noqa
+    )
     args = parser.parse_args()
     logging.basicConfig(
         format="%(asctime)s.%(msecs)03d:%(levelname)s: %(message)s",
@@ -147,7 +159,12 @@ def main() -> None:
     )
 
     def thread_fn(i_: int) -> None:
-        single_test_insert_if_none_exists(args.url, args.value, i_)
+        single_test_insert_if_none_exists(
+            url=args.url,
+            value=args.value,
+            sp_unique=args.sp_unique,
+            proc_num=i_,
+        )
 
     gen_i = range(1, args.n + 1)
     if args.serial:

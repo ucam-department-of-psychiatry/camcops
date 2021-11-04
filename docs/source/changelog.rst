@@ -3547,10 +3547,11 @@ Current C++/SQLite client, Python/SQLAlchemy server
 **Client and server v2.4.12, IN PROGRESS**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-- Add numbered and unnumbered lists to the visual editor when editing emails and their templates.
-  https://github.com/RudolfCardinal/camcops/issues/188
+- Add numbered and unnumbered lists to the visual editor when editing emails
+  and their templates. https://github.com/RudolfCardinal/camcops/issues/188
 
-- Display Danish or English on the visual editor according to the user's language.
+- Display Danish or English on the visual editor according to the user's
+  language.
 
 - Bump ``babel`` from 2.8.0 to 2.9.1 for security advisory CVE-2021-42771.
 
@@ -3575,4 +3576,6 @@ Current C++/SQLite client, Python/SQLAlchemy server
   above in :ref:`v2.3.3 <changelog_v2_3_3>`.
 
 - ``cardinal_pythonlib`` now uses numpy 1.20.0, which removes support for
-  Python 3.6, so we do too.
+  Python 3.6, so we do too. Minimum Python version now 3.7.
+
+- Bump ``pandas`` from 1.0.5 to 1.3.4 (as 1.0.5 not supported by Python 3.9).

@@ -162,7 +162,7 @@ INSTALL_REQUIRES = [
     'colorlog==4.1.0',
     'isodate==0.6.0',
     'openpyxl==3.0.4',  # also for pyexcel-xlsx
-    'pandas==1.0.5',
+    'pandas==1.3.4',
     'prettytable==0.7.2',
     'psutil==5.7.0',
     'pyparsing==2.4.7',
