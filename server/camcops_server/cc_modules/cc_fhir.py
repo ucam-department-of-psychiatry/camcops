@@ -125,7 +125,7 @@ import json
 import logging
 from typing import Dict, TYPE_CHECKING
 
-from fhirclient import client
+from fhirclient.client import FHIRClient
 from fhirclient.models.bundle import Bundle
 from requests.exceptions import HTTPError
 
@@ -263,7 +263,7 @@ class FhirTaskExporter(object):
         }
 
         try:
-            self.client = client.FHIRClient(settings=settings)
+            self.client = FHIRClient(settings=settings)
         except Exception as e:
             raise FhirExportException(f"Error creating FHIRClient: {e}")
 
