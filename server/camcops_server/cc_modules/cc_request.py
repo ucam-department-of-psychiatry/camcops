@@ -1572,6 +1572,9 @@ class CamcopsRequest(Request):
           - If any are invalid, raise an error.
           - If any are duplicate, raise an error.
 
+        - Holds a global export file lock for some database access relating to
+          export recipient records.
+
         Args:
             all_recipients: use all recipients?
             all_push_recipients: use all "push" recipients?

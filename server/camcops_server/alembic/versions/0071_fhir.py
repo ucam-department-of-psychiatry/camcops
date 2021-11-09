@@ -107,11 +107,24 @@ def upgrade():
                 comment='(FHIR) FHIR API URL, pointing to the FHIR server'
             )
         )
-
+        batch_op.add_column(
+            sa.Column(
+                'fhir_app_id', sa.Text(), nullable=True,
+                comment='(FHIR) FHIR app ID, identifying CamCOPS as the data source'
+            )
+        )
+        batch_op.add_column(
+            sa.Column(
+                'fhir_concurrent', sa.Boolean(), nullable=True,
+                comment='(FHIR) Server supports concurrency (parallel processing)?'
+            )
+        )
 
 # noinspection PyPep8,PyTypeChecker
 def downgrade():
     with op.batch_alter_table('_export_recipients', schema=None) as batch_op:
+        batch_op.drop_column('fhir_concurrent')
+        batch_op.drop_column('fhir_app_id')
         batch_op.drop_column('fhir_api_url')
 
     op.drop_table('_exported_task_fhir_entry')

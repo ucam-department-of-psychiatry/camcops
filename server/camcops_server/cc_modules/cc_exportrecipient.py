@@ -91,13 +91,18 @@ class ExportRecipient(ExportRecipientInfo, Base):
     __tablename__ = "_export_recipients"
 
     IGNORE_FOR_EQ_ATTRNAMES = ExportRecipientInfo.IGNORE_FOR_EQ_ATTRNAMES + [
-        # Attribute names to ignore for equality comparison
+        # Attribute names to ignore for equality comparison (is one recipient
+        # record functionally equal to another?).
         "id",
         "current",
         "group_names",  # Python only
     ]
     NEEDS_RECOPYING_EACH_TIME_FROM_CONFIG_ATTRNAMES = [
+        # Fields representing sensitive information, not stored in the
+        # database. See also init_on_load() function.
         "email_host_password",
+        "fhir_app_secret",
+        "fhir_launch_token",
         "redcap_api_key",
     ]
 
@@ -380,6 +385,14 @@ class ExportRecipient(ExportRecipientInfo, Base):
         "fhir_api_url", Text,
         comment="(FHIR) FHIR API URL, pointing to the FHIR server"
     )
+    fhir_app_id = Column(
+        "fhir_app_id", Text,
+        comment="(FHIR) FHIR app ID, identifying CamCOPS as the data source"
+    )
+    fhir_concurrent = Column(
+        "fhir_concurrent", Boolean, default=False, nullable=True,
+        comment="(FHIR) Server supports concurrency (parallel processing)?"
+    )
 
     def __init__(self, *args, **kwargs) -> None:
         """
@@ -402,11 +415,16 @@ class ExportRecipient(ExportRecipientInfo, Base):
         """
         Called when SQLAlchemy recreates an object; see
         https://docs.sqlalchemy.org/en/latest/orm/constructors.html.
+
+        Sets Python-only attributes.
+
+        See also IGNORE_FOR_EQ_ATTRNAMES,
+        NEEDS_RECOPYING_EACH_TIME_FROM_CONFIG_ATTRNAMES.
         """
-        # Python only:
         self.group_names = []  # type: List[str]
+
+        # Within NEEDS_RECOPYING_EACH_TIME_FROM_CONFIG_ATTRNAMES:
         self.email_host_password = ""
-        self.fhir_app_id = ""
         self.fhir_app_secret = ""
         self.fhir_launch_token = None  # type: Optional[str]
         self.redcap_api_key = ""

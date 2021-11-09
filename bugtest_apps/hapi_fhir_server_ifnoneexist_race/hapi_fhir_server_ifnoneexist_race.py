@@ -57,8 +57,6 @@ from fhirclient.client import FHIRClient
 from fhirclient.models.bundle import Bundle, BundleEntry, BundleEntryRequest
 from fhirclient.models.identifier import Identifier
 from fhirclient.models.questionnaire import Questionnaire
-from fhirclient.models.searchparameter import SearchParameter
-from fhirclient.models.servicerequest_tests import *
 from fhirclient.server import FHIRNotFoundException
 from requests.exceptions import HTTPError
 
@@ -95,7 +93,9 @@ def make_bundle(value: str, sp_unique: bool = False) -> Bundle:
     }
     # Note: the .as_json() conversions are necessary.
     if sp_unique:
-        pass
+        raise NotImplementedError(
+            "sp_unique method not implemented; see "
+            "https://github.com/hapifhir/hapi-fhir/issues/3141")
     return Bundle(jsondict=jd)
 
 

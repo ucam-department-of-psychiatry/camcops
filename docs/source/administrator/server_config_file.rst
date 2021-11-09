@@ -2147,6 +2147,24 @@ This is passed as the SMART ``launch`` parameter (via the Python ``fhirclient``
 parameter ``launch_token``).
 
 
+FHIR_CONCURRENT
+###############
+
+*Boolean.* Default: false.
+
+Does the FHIR server handle fully concurrent (parallel) transactions? If so,
+you can set this to ``True``, and CamCOPS might send lots of tasks
+simultaneously.
+
+However, beware: some servers do not support full concurrency safely (see, for
+example, https://github.com/hapifhir/hapi-fhir/issues/3141). If you leave this
+setting at the default of ``False``, then CamCOPS will switch to serial,
+non-concurrent transmission (one task at a time).
+
+There is no penalty for leaving it at ``False`` except perhaps a slight
+reduction in speed.
+
+
 Options applicable to file transfers and attachments
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

@@ -110,9 +110,35 @@ This problem occurs intermittently:
   to insert the same information again (``SELECT * FROM
   _exported_task_fhir_entry;``).
 
-***
+- This is a concurrency problem (they dispute "bug") in the HAPI FHIR
+  implementation. See our bug report at
+  https://github.com/hapifhir/hapi-fhir/issues/3141.
 
-"""
+- The suggested fix is a "unique combo search index parameter", as per
+  https://smilecdr.com/docs/fhir_repository/custom_search_parameters.html#uniqueness.
+
+- However, that seems implementation-specific (e.g. HAPI FHIR, SmileCDR). A
+  specific value of ``http://hapifhir.io/fhir/StructureDefinition/sp-unique``
+  must be used. Specimen code is
+  https://hapifhir.io/hapi-fhir/apidocs/hapi-fhir-base/src-html/ca/uhn/fhir/util/HapiExtensions.html.
+
+- Instead, we could force a FHIR export for a given recipient to occur in
+  serial (particularly as other FHIR implementations may have this bug).
+
+  Celery doesn't allow you to send multiple jobs and enforce that they all
+  happen via the same worker
+  (https://docs.celeryproject.org/en/stable/userguide/calling.html). However,
+  our exports already start (mostly!) as "one recipient, one job", via 
+  :func:`camcops_server.cc_modules.celery.export_to_recipient_backend` (see
+  :func:`camcops_server.cc_modules.celery.get_celery_settings_dict`).
+
+  The tricky bit is that push exports require back-end single-task jobs, so
+  they are hard to de-parallelize.
+
+  So we use a carefully sequenced file lock; see
+  :func:`camcops_server.cc_modules.cc_export.export_task`.
+
+"""  # noqa
 
 # *** todo: views for the other FHIR-to-CamCOPS URLs; also, add the task help URL to the outbound info (and view)  # noqa
 
@@ -142,7 +168,7 @@ log = logging.getLogger(__name__)
 # Debugging options
 # =============================================================================
 
-DEBUG_FHIR_TX = True
+DEBUG_FHIR_TX = False
 
 if any([DEBUG_FHIR_TX]):
     log.warning("Debugging options enabled!")
@@ -218,9 +244,7 @@ Wipe FHIR exports
     DELETE FROM _exported_task_fhir_entry;
     DELETE FROM _exported_task_fhir;
     DELETE FROM _exported_tasks WHERE recipient_id IN (
-        SELECT id
-        FROM _export_recipients
-        WHERE transmission_method = 'fhir'
+        SELECT id FROM _export_recipients WHERE transmission_method = 'fhir'
     );
 
 """  # noqa

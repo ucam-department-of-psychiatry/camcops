@@ -150,6 +150,7 @@ Thoughts as of 2018-12-22.
 
 """  # noqa
 
+from contextlib import ExitStack
 import logging
 import os
 import sqlite3
@@ -209,6 +210,7 @@ from camcops_server.cc_modules.celery import (
     create_user_download,
     email_basic_dump,
     export_task_backend,
+    jittered_delay_s,
 )
 
 if TYPE_CHECKING:
@@ -235,17 +237,21 @@ def print_export_queue(req: "CamcopsRequest",
                        via_index: bool = True,
                        pretty: bool = False) -> None:
     """
-    Called from the command line.
-
     Shows tasks that would be exported.
 
+    - Called from the command line.
+
     Args:
-        req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-        recipient_names: list of export recipient names (as per the config
-            file)
-        all_recipients: use all recipients?
-        via_index: use the task index (faster)?
-        pretty: use ``str(task)`` not ``repr(task)`` (prettier, slower because
+        req:
+            a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        recipient_names:
+            list of export recipient names (as per the config file)
+        all_recipients:
+            use all recipients?
+        via_index:
+            use the task index (faster)?
+        pretty:
+            use ``str(task)`` not ``repr(task)`` (prettier, but slower because
             it has to query the patient)
     """
     recipients = req.get_export_recipients(
@@ -273,12 +279,12 @@ def export(req: "CamcopsRequest",
            via_index: bool = True,
            schedule_via_backend: bool = False) -> None:
     """
-    Called from the command line.
-
     Exports all relevant tasks (pending incremental exports, or everything if
     applicable) for specified export recipients.
 
-    Obtains a file lock, then iterates through all recipients.
+    - Called from the command line, or from
+      :func:`camcops_server.cc_modules.celery.export_to_recipient_backend`.
+    - Calls :func:`export_whole_database` or :func:`export_tasks_individually`.
 
     Args:
         req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
@@ -317,15 +323,20 @@ def export_whole_database(req: "CamcopsRequest",
     """
     Exports to a database.
 
-    Holds a recipient-specific file lock in the process.
+    - Called by :func:`export`.
+    - Holds a recipient-specific "database" file lock in the process.
 
     Args:
-        req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-        recipient: an :class:`camcops_server.cc_modules.cc_exportmodels.ExportRecipient`
-        via_index: use the task index (faster)?
-    """  # noqa
+        req:
+            a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        recipient:
+            an
+            :class:`camcops_server.cc_modules.cc_exportmodels.ExportRecipient`
+        via_index:
+            use the task index (faster)?
+    """
     cfg = req.config
-    lockfilename = cfg.get_export_lockfilename_db(
+    lockfilename = cfg.get_export_lockfilename_recipient_db(
         recipient_name=recipient.recipient_name)
     try:
         with lockfile.FileLock(lockfilename, timeout=0):  # doesn't wait
@@ -352,8 +363,11 @@ def export_whole_database(req: "CamcopsRequest",
             )
             dst_session.commit()
     except lockfile.AlreadyLocked:
-        log.warning("Export logfile {!r} already locked by another process; "
-                    "aborting", lockfilename)
+        log.warning(
+            "Export logfile {!r} already locked by another process; "
+            "aborting (another process is doing this work)", lockfilename)
+        # No need to retry by raising -- if someone else holds this lock, they
+        # are doing the work that we wanted to do.
 
 
 def export_tasks_individually(req: "CamcopsRequest",
@@ -363,12 +377,22 @@ def export_tasks_individually(req: "CamcopsRequest",
     """
     Exports all necessary tasks for a recipient.
 
+    - Called by :func:`export`.
+    - Calls :func:`export_task`, if ``schedule_via_backend`` is False.
+    - Schedules :func:``camcops_server.cc_modules.celery.export_task_backend``,
+      if ``schedule_via_backend`` is True, which calls :func:`export` in turn.
+
     Args:
-        req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-        recipient: an :class:`camcops_server.cc_modules.cc_exportmodels.ExportRecipient`
-        via_index: use the task index (faster)?
-        schedule_via_backend: schedule jobs via the backend instead?
-    """  # noqa
+        req:
+            a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        recipient:
+            an
+            :class:`camcops_server.cc_modules.cc_exportmodels.ExportRecipient`
+        via_index:
+            use the task index (faster)?
+        schedule_via_backend:
+            schedule jobs via the backend instead?
+    """
     collection = get_collection_for_export(req, recipient, via_index=via_index)
     n_tasks = 0
     if schedule_via_backend:
@@ -406,11 +430,23 @@ def export_task(req: "CamcopsRequest",
     """
     Exports a single task, checking that it remains valid to do so.
 
+    - Called by :func:`export_tasks_individually` directly, or called via
+      :func:``camcops_server.cc_modules.celery.export_task_backend`` if
+      :func:`export_tasks_individually` requested that.
+    - Calls
+      :meth:`camcops_server.cc_modules.cc_exportmodels.ExportedTask.export`.
+    - For FHIR, holds a recipient-specific "FHIR" file lock during export.
+    - Always holds a recipient-and-task-specific file lock during export.
+
     Args:
-        req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
-        recipient: an :class:`camcops_server.cc_modules.cc_exportmodels.ExportRecipient`
-        task: a :class:`camcops_server.cc_modules.cc_task.Task`
-    """  # noqa
+        req:
+            a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+        recipient:
+            an
+            :class:`camcops_server.cc_modules.cc_exportmodels.ExportRecipient`
+        task:
+            a :class:`camcops_server.cc_modules.cc_task.Task`
+    """
 
     # Double-check it's OK! Just in case, for example, an old backend task has
     # persisted, or someone's managed to get an iffy back-end request in some
@@ -420,14 +456,46 @@ def export_task(req: "CamcopsRequest",
         return
 
     cfg = req.config
-    lockfilename = cfg.get_export_lockfilename_task(
+    lockfilename = cfg.get_export_lockfilename_recipient_task(
         recipient_name=recipient.recipient_name,
         basetable=task.tablename,
         pk=task.pk,
     )
     dbsession = req.dbsession
-    try:
-        with lockfile.FileLock(lockfilename, timeout=0):  # doesn't wait
+    with ExitStack() as stack:
+
+        if recipient.using_fhir() and not recipient.fhir_concurrent:
+            # Some FHIR servers struggle with parallel processing, so we hold
+            # a lock to serialize them. See notes in cc_fhir.py.
+            #
+            # We always use the order (1) FHIR lockfile, (2) task lockfile, to
+            # avoid a deadlock.
+            #
+            # (Note that it is impossible that a non-FHIR task export grabs the
+            # second of these without the first, because the second lockfile is
+            # recipient-specific and the recipient details include the fact
+            # that it is a FHIR recipient.)
+            fhir_lockfilename = cfg.get_export_lockfilename_recipient_fhir(
+                recipient_name=recipient.recipient_name
+            )
+            try:
+                stack.enter_context(
+                    lockfile.FileLock(fhir_lockfilename,
+                                      timeout=jittered_delay_s())
+                    # waits for a while
+                )
+            except lockfile.AlreadyLocked:
+                log.warning(
+                    "Export logfile {!r} already locked by another process; "
+                    "will try again later", fhir_lockfilename)
+                raise
+                # We will reschedule via Celery; see "self.retry(...)" in
+                # celery.py
+
+        try:
+            stack.enter_context(
+                lockfile.FileLock(lockfilename, timeout=0)  # doesn't wait
+            )
             # We recheck the export status once we hold the lock, in case
             # multiple jobs are competing to export it.
             if ExportedTask.task_already_exported(
@@ -445,9 +513,10 @@ def export_task(req: "CamcopsRequest",
             dbsession.add(et)
             et.export(req)
             dbsession.commit()  # so the ExportedTask is visible to others ASAP
-    except lockfile.AlreadyLocked:
-        log.warning("Export logfile {!r} already locked by another process; "
-                    "aborting", lockfilename)
+        except lockfile.AlreadyLocked:
+            log.warning(
+                "Export logfile {!r} already locked by another process; "
+                "aborting (another process is doing this work)", lockfilename)
 
 
 # =============================================================================
@@ -463,13 +532,17 @@ def gen_audited_tasks_for_task_class(
     adding to an audit description. Used for user-triggered downloads.
 
     Args:
-        collection: a :class:`camcops_server.cc_modules.cc_taskcollection.TaskCollection`
-        cls: the task class to generate
-        audit_descriptions: list of strings to be modified
+        collection:
+            a
+            :class:`camcops_server.cc_modules.cc_taskcollection.TaskCollection`
+        cls:
+            the task class to generate
+        audit_descriptions:
+            list of strings to be modified
 
     Yields:
         :class:`camcops_server.cc_modules.cc_task.Task` objects
-    """  # noqa
+    """
     pklist = []  # type: List[int]
     for task in collection.tasks_for_task_class(cls):
         pklist.append(task.pk)

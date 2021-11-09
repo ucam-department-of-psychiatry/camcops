@@ -601,6 +601,7 @@ def get_demo_config(for_docker: bool = False) -> str:
 {ConfigParamExportRecipient.FHIR_APP_ID} = {cd.FHIR_APP_ID}
 {ConfigParamExportRecipient.FHIR_APP_SECRET} = my_fhir_secret_abc
 {ConfigParamExportRecipient.FHIR_LAUNCH_TOKEN} =
+{ConfigParamExportRecipient.FHIR_CONCURRENT} =
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Options applicable to HL7 (v2) exports
@@ -1802,7 +1803,7 @@ class CamcopsConfig(object):
     # File-based locks
     # -------------------------------------------------------------------------
 
-    def get_export_lockfilename_db(self, recipient_name: str) -> str:
+    def get_export_lockfilename_recipient_db(self, recipient_name: str) -> str:
         """
         Returns a full path to a lockfile suitable for locking for a
         whole-database export to a particular export recipient.
@@ -1817,8 +1818,28 @@ class CamcopsConfig(object):
         # ".lock" is appended automatically by the lockfile package
         return os.path.join(self.export_lockdir, filename)
 
-    def get_export_lockfilename_task(self, recipient_name: str,
-                                     basetable: str, pk: int) -> str:
+    def get_export_lockfilename_recipient_fhir(self,
+                                               recipient_name: str) -> str:
+        """
+        Returns a full path to a lockfile suitable for locking for a
+        FHIR export to a particular export recipient.
+
+        (This must be different from
+        :meth:`get_export_lockfilename_recipient_db`, because of what we assume
+        about someone else holding the same lock.)
+
+        Args:
+            recipient_name: name of the recipient
+
+        Returns:
+            a filename
+        """
+        filename = f"camcops_export_fhir_{recipient_name}"
+        # ".lock" is appended automatically by the lockfile package
+        return os.path.join(self.export_lockdir, filename)
+
+    def get_export_lockfilename_recipient_task(self, recipient_name: str,
+                                               basetable: str, pk: int) -> str:
         """
         Returns a full path to a lockfile suitable for locking for a
         single-task export to a particular export recipient.
@@ -1860,6 +1881,7 @@ class CamcopsConfig(object):
     # -------------------------------------------------------------------------
     # SMS backend
     # -------------------------------------------------------------------------
+
     @staticmethod
     def _read_sms_config(
             parser: configparser.ConfigParser,
