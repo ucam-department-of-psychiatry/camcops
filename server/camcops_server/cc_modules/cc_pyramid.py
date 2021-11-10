@@ -175,6 +175,7 @@ class ViewParam(object):
     EMAIL_TEMPLATE = "email_template"
     END_DATETIME = "end_datetime"
     INCLUDE_AUTO_GENERATED = "include_auto_generated"
+    FHIR_ID_SYSTEM = "fhir_id_system"
     FILENAME = "filename"
     FINALIZE_POLICY = "finalize_policy"
     FORENAME = "forename"

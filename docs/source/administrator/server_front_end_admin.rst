@@ -17,6 +17,7 @@
     You should have received a copy of the GNU General Public License
     along with CamCOPS. If not, see <http://www.gnu.org/licenses/>.
 
+.. _FHIR: https://en.wikipedia.org/wiki/Fast_Healthcare_Interoperability_Resources
 .. _Google Authenticator: https://en.wikipedia.org/wiki/Google_Authenticator
 .. _Kapow: https://www.kapow.co.uk/
 .. _SMS: https://en.wikipedia.org/wiki/SMS
@@ -260,7 +261,52 @@ ID type number  Description                 Short description
 =============== =========================== =================
 
 You can create and edit these definitions here. When you edit them, there are a
-few additional options for HL7 (v2) messaging.
+few additional options for HL7 (v2) and FHIR messaging.
+
+
+HL7 Identifier Type
+###################
+
+For HL7 v2 messages, you can specify the Identifier Type here. This is  ‘a code
+corresponding to the type of identifier. In some cases, this code may be used
+as a qualifier to the “Assigning Authority” component.’ See:
+
+- https://hl7-definition.caristix.com/v2/HL7v2.4/Segments/PID
+- https://hl7-definition.caristix.com/v2/HL7v2.4/DataTypes/CX
+- https://hl7-definition.caristix.com/v2/HL7v2.4/Fields/PID.3.4
+
+
+HL7 Assigning Authority
+#######################
+
+For HL7 v2 messages, you can specify the Assigning Authority here. This is
+unique name of the system/organization/agency/department that creates the data.
+See:
+
+- https://hl7-definition.caristix.com/v2/HL7v2.4/Segments/PID
+- https://hl7-definition.caristix.com/v2/HL7v2.4/DataTypes/CX
+- https://hl7-definition.caristix.com/v2/HL7v2.4/Fields/PID.3.5
+
+
+.. _fhir_id_system_url
+
+FHIR ID system URL
+##################
+
+In the FHIR_ standard, all ID numbers are accompanied by a URL that defines the
+identifier "system". You can set this for any ID number.
+
+You should specify this for any "standard" identifier. For example, in the UK,
+the standard URL for "NHS number" is ``https://fhir.nhs.uk/Id/nhs-number``.
+
+If you don't specify one, CamCOPS will use a default value (a URL pointing back
+to the CamCOPS server).
+
+See:
+
+- https://www.hl7.org/fhir/datatypes.html#Identifier
+- https://www.hl7.org/fhir/datatypes-definitions.html#Identifier.system
+- https://build.fhir.org/ig/INTEROPen/careconnect-base-stu3/NamingSystem-uk-nhs-number.html
 
 
 Edit server settings

@@ -80,7 +80,6 @@ from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
 from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_hl7 import make_pid_segment
 from camcops_server.cc_modules.cc_html import answer
-from camcops_server.cc_modules.cc_pyramid import Routes
 from camcops_server.cc_modules.cc_simpleobjects import (
     BarePatientInfo,
     HL7PatientIdentifier,
@@ -962,19 +961,12 @@ class Patient(GenericTabletRecordMixin, Base):
 
         This pairs a URL to our CamCOPS server indicating the ID number type
         (as the "system") with the actual ID number (as the "value").
-
-        TODO: The ``req.route_url()`` call is made during the export process,
-        which tends to give http://127.0.0.1:8000/ even when that is not the
-        right URL. That's because it comes via
-        camcops_server.cc_modules.cc_request.command_line_request_context().
-        Fix?
         """
         idnum_object = self.get_idnum_object(which_idnum)
         idnum_value = idnum_object.idnum_value
-        idnum_url = req.route_url(
-            Routes.FHIR_PATIENT_ID_SYSTEM,
-            which_idnum=which_idnum
-        )  # path will be e.g. /fhir_patient_id/3
+
+        iddef = req.get_idnum_definition(which_idnum)
+        idnum_url = iddef.effective_fhir_id_system(req)
 
         return Identifier(jsondict={
             Fc.SYSTEM: idnum_url,

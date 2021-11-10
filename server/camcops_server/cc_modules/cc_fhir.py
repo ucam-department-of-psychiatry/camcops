@@ -155,6 +155,7 @@ from fhirclient.client import FHIRClient
 from fhirclient.models.bundle import Bundle
 from requests.exceptions import HTTPError
 
+# noinspection PyPep8Naming
 from camcops_server.cc_modules.cc_constants import FHIRConst as FC
 
 if TYPE_CHECKING:
@@ -168,7 +169,7 @@ log = logging.getLogger(__name__)
 # Debugging options
 # =============================================================================
 
-DEBUG_FHIR_TX = False
+DEBUG_FHIR_TX = True  # needs workers to be launched with "--verbose" option
 
 if any([DEBUG_FHIR_TX]):
     log.warning("Debugging options enabled!")
@@ -187,16 +188,16 @@ Dive into the internals of the HAPI FHIR server
 
     docker container ls | grep hapi  # find its container ID
     docker exec -it <CONTAINER_NAME_OR_ID> bash
-    
+
     # Find files modified in the last 10 minutes:
     find / -mmin -10 -type f -not -path "/proc/*" -not -path "/sys/*" -exec ls -l {} \;
     # ... which reveals /usr/local/tomcat/target/database/h2.mv.db
     #               and /usr/local/tomcat/logs/localhost_access_log*
 
-    # Now, from http://h2database.com/html/tutorial.html#command_line_tools,
+    # Now, from https://h2database.com/html/tutorial.html#command_line_tools,
     find / -name "h2*.jar"
     # ... /usr/local/tomcat/webapps/ROOT/WEB-INF/lib/h2-1.4.200.jar
-    
+
     java -cp /usr/local/tomcat/webapps/ROOT/WEB-INF/lib/h2*.jar org.h2.tools.Shell
     # - URL = jdbc:h2:/usr/local/tomcat/target/database/h2
     #   ... it will append ".mv.db"
@@ -244,6 +245,15 @@ Wipe FHIR exports
     DELETE FROM _exported_task_fhir_entry;
     DELETE FROM _exported_task_fhir;
     DELETE FROM _exported_tasks WHERE recipient_id IN (
+        SELECT id FROM _export_recipients WHERE transmission_method = 'fhir'
+    );
+
+What's been sent?
+
+.. code-block:: sql
+
+    -- Tasks exported via FHIR:
+    SELECT * FROM _exported_tasks WHERE recipient_id IN (
         SELECT id FROM _export_recipients WHERE transmission_method = 'fhir'
     );
 

@@ -176,6 +176,7 @@ from colander import (
     Set,
     String,
     _null,
+    url,
 )
 from deform.form import Button
 from deform.widget import (
@@ -4123,6 +4124,29 @@ class Hl7IdTypeNode(OptionalStringNode, RequestAwareMixin):
             raise Invalid(node, str(e))
 
 
+class FHIRIdSystemUrlNode(OptionalStringNode, RequestAwareMixin):
+    """
+    Optional node to capture the URL for a FHIR ID system:
+
+    - https://www.hl7.org/fhir/datatypes.html#Identifier
+    - https://www.hl7.org/fhir/datatypes-definitions.html#Identifier.system
+    """
+    validator = url
+
+    def __init__(self, *args, **kwargs) -> None:
+        self.title = ""  # for type checker
+        self.description = ""  # for type checker
+        super().__init__(*args, **kwargs)
+
+    # noinspection PyUnusedLocal
+    def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        _ = self.gettext
+        self.title = _("FHIR ID system")
+        self.description = _(
+            "For FHIR exports: URL defining the ID system."
+        )
+
+
 class EditIdDefinitionSchema(CSRFSchema):
     """
     Schema to edit an ID number definition.
@@ -4133,6 +4157,7 @@ class EditIdDefinitionSchema(CSRFSchema):
     validation_method = IdValidationMethodNode()  # must match ViewParam.VALIDATION_METHOD  # noqa
     hl7_id_type = Hl7IdTypeNode()  # must match ViewParam.HL7_ID_TYPE
     hl7_assigning_authority = Hl7AssigningAuthorityNode()  # must match ViewParam.HL7_ASSIGNING_AUTHORITY  # noqa
+    fhir_id_system = FHIRIdSystemUrlNode()  # must match ViewParam.FHIR_ID_SYSTEM  # noqa
 
     def validator(self, node: SchemaNode, value: Any) -> None:
         request = self.bindings[Binding.REQUEST]  # type: CamcopsRequest

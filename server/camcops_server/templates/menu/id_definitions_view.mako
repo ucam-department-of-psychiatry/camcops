@@ -44,6 +44,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
         <th>${ _("Validation method") }</th>
         <th>${ _("HL7 ID Type") }</th>
         <th>${ _("HL7 Assigning Authority") }</th>
+        <th>${ _("FHIR ID system") }</th>
         <th>${ _("Edit") }</th>
         <th>${ _("Delete") }</th>
     </tr>
@@ -55,6 +56,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
             <td>${ iddef.validation_method or "" }</td>
             <td>${ iddef.hl7_id_type or "" }</td>
             <td>${ iddef.hl7_assigning_authority or "" }</td>
+            <td>${ iddef.verbose_fhir_id_system(req) }</td>
             <td><a href="${request.route_url(
                                 Routes.EDIT_ID_DEFINITION,
                                 _query={ViewParam.WHICH_IDNUM: iddef.which_idnum

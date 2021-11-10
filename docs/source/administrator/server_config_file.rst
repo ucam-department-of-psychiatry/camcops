@@ -2088,9 +2088,12 @@ CamCOPS authenticates using the `SMART App Launch Framework
 - a ``client_id``, configured via FHIR_APP_ID_;
 - a ``client_secret``, configured via FHIR_APP_SECRET_;
 
-If you wish the exported "system" URLs to work, ensure the CamCOPS back-end is configured to know its own address: see :ref:`external URL
-configuration <config_external_url>`.
+If you wish the exported "system" URLs to work, ensure the CamCOPS back-end is
+configured to know its own address: see :ref:`external URL configuration
+<config_external_url>`.
 
+For standard ID numbers, like UK NHS numbers, you should set the appropriate
+:ref:`FHIR ID system URL <fhir_id_system_url>`.
 
 FHIR_API_URL
 ############

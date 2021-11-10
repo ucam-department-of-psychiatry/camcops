@@ -3883,6 +3883,7 @@ def edit_id_definition(req: "CamcopsRequest") -> Dict[str, Any]:
             iddef.validation_method = appstruct.get(ViewParam.VALIDATION_METHOD)  # noqa
             iddef.hl7_id_type = appstruct.get(ViewParam.HL7_ID_TYPE)
             iddef.hl7_assigning_authority = appstruct.get(ViewParam.HL7_ASSIGNING_AUTHORITY)  # noqa
+            iddef.fhir_id_system = appstruct.get(ViewParam.FHIR_ID_SYSTEM)
             # REMOVED # clear_idnum_definition_cache()  # SPECIAL
             raise HTTPFound(req.route_url(route_back))
         except ValidationFailure as e:
@@ -3895,6 +3896,7 @@ def edit_id_definition(req: "CamcopsRequest") -> Dict[str, Any]:
             ViewParam.VALIDATION_METHOD: iddef.validation_method or "",
             ViewParam.HL7_ID_TYPE: iddef.hl7_id_type or "",
             ViewParam.HL7_ASSIGNING_AUTHORITY: iddef.hl7_assigning_authority or "",  # noqa
+            ViewParam.FHIR_ID_SYSTEM: iddef.fhir_id_system or "",
         }
         rendered_form = form.render(appstruct)
     return dict(iddef=iddef,

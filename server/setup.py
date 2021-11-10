@@ -48,6 +48,7 @@ from camcops_server.cc_modules.cc_version_string import (
     CAMCOPS_SERVER_VERSION_STRING,
 )
 
+
 # =============================================================================
 # Constants
 # =============================================================================

@@ -119,9 +119,20 @@ def upgrade():
                 comment='(FHIR) Server supports concurrency (parallel processing)?'
             )
         )
+    with op.batch_alter_table('_idnum_definitions', schema=None) as batch_op:
+        batch_op.add_column(
+            sa.Column(
+                'fhir_id_system', sa.String(length=255), nullable=True,
+                comment="FHIR external ID 'system' URL"
+            )
+        )
+
 
 # noinspection PyPep8,PyTypeChecker
 def downgrade():
+    with op.batch_alter_table('_idnum_definitions', schema=None) as batch_op:
+        batch_op.drop_column('fhir_id_system')
+
     with op.batch_alter_table('_export_recipients', schema=None) as batch_op:
         batch_op.drop_column('fhir_concurrent')
         batch_op.drop_column('fhir_app_id')
