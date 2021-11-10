@@ -51,7 +51,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes
             <td>${ iddef.short_description }</td>
             <td>
                 <a href="${ req.route_url(Routes.FHIR_PATIENT_ID_SYSTEM,
-                                          which_idnum=iddef.which_idnum) }">
+                                          which_idnum=iddef.which_idnum) | n }">
                     ${ _("FHIR") }
                 </a>
             </td>
@@ -79,8 +79,8 @@ from camcops_server.cc_modules.cc_pyramid import Routes
 
 <h2>${ _("All known tasks") }</h2>
 <p>
-    See the <a href="${ req.route_url(Routes.FHIR_QUESTIONNAIRE_ID) }">task
-    list</a>, with links to task help.
+    <a href="${ req.route_url(Routes.TASK_LIST) | n }">
+        ${ _("Task list") }</a>
 </p>
 
 <h2>${ _("Extra string families present") }</h2>

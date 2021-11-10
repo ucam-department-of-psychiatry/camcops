@@ -70,6 +70,8 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
             ${ _("Basic research dump (fields and summaries)") }</a></li>
         <li><a href="${ request.route_url(Routes.OFFER_SQL_DUMP) | n }">
             ${ _("Advanced research dump (SQL or database)") }</a></li>
+        <li><a href="${ req.route_url(Routes.TASK_LIST) | n }">
+            ${ _("Task list") }</a></li>
         <li><a href="${ request.route_url(Routes.VIEW_DDL) | n }">
             ${ _("Inspect table definitions") }</a>
         <li><a href="${ request.route_url(Routes.DOWNLOAD_AREA) | n }">

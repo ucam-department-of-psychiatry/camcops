@@ -777,6 +777,7 @@ class Routes(object):
     SET_OWN_USER_UPLOAD_GROUP = "set_user_upload_group"
     SQL_DUMP = "sql_dump"
     TASK = "task"
+    TASK_LIST = "task_list"
     TESTPAGE_PRIVATE_1 = "testpage_private_1"
     TESTPAGE_PRIVATE_2 = "testpage_private_2"
     TESTPAGE_PRIVATE_3 = "testpage_private_3"
@@ -928,6 +929,7 @@ class RouteCollection(object):
     SET_OWN_USER_UPLOAD_GROUP = RoutePath(Routes.SET_OWN_USER_UPLOAD_GROUP)
     SQL_DUMP = RoutePath(Routes.SQL_DUMP)
     TASK = RoutePath(Routes.TASK)
+    TASK_LIST = RoutePath(Routes.TASK_LIST)
     TESTPAGE_PRIVATE_1 = RoutePath(Routes.TESTPAGE_PRIVATE_1)
     TESTPAGE_PRIVATE_2 = RoutePath(Routes.TESTPAGE_PRIVATE_2)
     TESTPAGE_PRIVATE_3 = RoutePath(Routes.TESTPAGE_PRIVATE_3)

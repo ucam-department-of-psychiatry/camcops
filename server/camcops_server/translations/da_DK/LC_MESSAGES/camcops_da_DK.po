@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CamCOPS 2.3.3\n"
 "Report-Msgid-Bugs-To: rudolf@pobox.com\n"
-"POT-Creation-Date: 2021-11-10 13:02+0000\n"
-"PO-Revision-Date: 2021-11-10 13:02+0000\n"
+"POT-Creation-Date: 2021-11-10 15:05+0000\n"
+"PO-Revision-Date: 2021-11-10 15:05+0000\n"
 "Last-Translator: \n"
 "Language: da_DK\n"
 "Language-Team: da_DK <LL@li.org>\n"
@@ -49,7 +49,7 @@ msgid "If you specify more than one, they will be joined with OR."
 msgstr "Hvis du angiver mere end én, vil de blive forenet med ELLER."
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:362
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:130
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:132
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:119
 msgid "Change password"
 msgstr "Skift adgangskode"
@@ -1146,7 +1146,7 @@ msgstr "(Server) Patienter, særskilt efter navn, køn, DOB, alle ID-numre"
 msgid "ID number fails basic checks"
 msgstr "Id-nummer fejler grundlæggende kontroller"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_pyramid.py:1310
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_pyramid.py:1312
 msgid "Page $page of $page_count; total $item_count records"
 msgstr "Side $page af $page_count; samlede $item_count poster"
 
@@ -1600,7 +1600,7 @@ msgid "Let's test it!"
 msgstr "Lad os teste det!"
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1650
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:135
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:137
 msgid "Multi-factor authentication settings"
 msgstr "Indstillinger for godkendelse af flere faktorer"
 
@@ -2674,7 +2674,7 @@ msgstr "Trin 3 (AFSLUTTENDE TRIN): Fortsæt med at færdiggøre?"
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/download_area.mako:37
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/download_scheduled.mako:41
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:76
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:78
 msgid "Download area"
 msgstr "Download område"
 
@@ -3155,107 +3155,112 @@ msgid "Advanced research dump (SQL or database)"
 msgstr "Grundlæggende forskningsdata dump (SQL eller database)"
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:74
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_server_info.mako:83
+msgid "Task list"
+msgstr "Opgaveliste"
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:76
 msgid "Inspect table definitions"
 msgstr "Undersøg tabeldefinitioner"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:81
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:83
 msgid "Reports"
 msgstr "Rapporter"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:84
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:86
 msgid "Run reports"
 msgstr "Kør rapporter"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:89
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:91
 msgid "Group administrator options"
 msgstr "Indstillinger for gruppeadministrator"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:92
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:94
 msgid "User management"
 msgstr "Bruger administration"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:94
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:96
 msgid "E-mail addresses of your users"
 msgstr "E-mail-adresser på dine brugere"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:96
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:98
 msgid "Forcibly finalize records for a device"
 msgstr "Tvungen færdiggørelse af poster for en enhed"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:98
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:100
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/patient_delete_choose.mako:33
 msgid "Delete patient entirely"
 msgstr "Slet patienten helt"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:103
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:105
 msgid "Superuser options"
 msgstr "Superbruger indstillinger"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:106
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:108
 msgid "Group management"
 msgstr "Forvaltning af grupper"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:108
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:110
 msgid "Audit menu"
 msgstr "Revisionsspor menu"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:110
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:112
 msgid "ID number definition management"
 msgstr "Administration af ID-nummer definition"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:112
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:114
 msgid "Edit server settings"
 msgstr "Rediger serverindstillinger"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:114
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:116
 msgid "Developer test pages"
 msgstr "Testsider for udviklere"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:118
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:120
 msgid "Settings"
 msgstr "Indstillinger"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:121
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:123
 msgid "Choose group into which to upload data"
 msgstr "Vælg den gruppe, du vil overføre data til"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:123
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:125
 msgid "View your user settings"
 msgstr "Se dine brugerindstillinger"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:125
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:127
 msgid "View server information"
 msgstr "Få vist serveroplysninger"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:132
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:134
 msgid "No username!"
 msgstr "Ingen brugernavn!"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:138
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:140
 msgid "Help"
 msgstr "Hjælp"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:141
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:143
 msgid "CamCOPS documentation"
 msgstr "CamCOPS-dokumentation"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:145
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:147
 msgid "The time is"
 msgstr "Klokken er"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:146
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:148
 msgid "Server version:"
 msgstr "Server version:"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:147
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:149
 msgid "See"
 msgstr "Se"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:148
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:150
 msgid "for more information on CamCOPS."
 msgstr "for mere information om CamCOPS."
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:149
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:151
 msgid "Clicking on the CamCOPS logo will return you to the main menu."
 msgstr "Hvis du klikker på CamCOPS-logoet, vender du tilbage til hovedmenuen."
 

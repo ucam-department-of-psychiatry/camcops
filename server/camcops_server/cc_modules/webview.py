@@ -5600,6 +5600,10 @@ def view_fhir_patient_id_system(req: "CamcopsRequest") -> Dict[str, Any]:
              request_method=HttpMethod.GET,
              renderer="fhir_questionnaire_id.mako",
              http_cache=NEVER_CACHE)
+@view_config(route_name=Routes.TASK_LIST,
+             request_method=HttpMethod.GET,
+             renderer="fhir_questionnaire_id.mako",
+             http_cache=NEVER_CACHE)
 def view_fhir_questionnaire_id(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     Placeholder view for FHIR Questionnaire "system".
