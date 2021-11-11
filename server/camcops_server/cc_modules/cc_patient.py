@@ -49,6 +49,7 @@ from fhirclient.models.address import Address
 from fhirclient.models.bundle import BundleEntry, BundleEntryRequest
 from fhirclient.models.contactpoint import ContactPoint
 from fhirclient.models.humanname import HumanName
+from fhirclient.models.fhirreference import FHIRReference
 from fhirclient.models.identifier import Identifier
 from fhirclient.models.patient import Patient as FhirPatient
 import hl7
@@ -77,7 +78,6 @@ from camcops_server.cc_modules.cc_constants import (
     TSV_PATIENT_FIELD_PREFIX,
 )
 from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
-from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_hl7 import make_pid_segment
 from camcops_server.cc_modules.cc_html import answer
 from camcops_server.cc_modules.cc_simpleobjects import (
@@ -887,16 +887,16 @@ class Patient(GenericTabletRecordMixin, Base):
         patient_dict = {}  # type: JsonObjectType
         bundle_dict = {
             Fc.METHOD: HttpMethod.POST,
-            Fc.URL: Fc.RESOURCE_PATIENT,
+            Fc.URL: Fc.RESOURCE_TYPE_PATIENT,
         }  # type: JsonObjectType
 
         # Name
-        if self.surname or self.surname:
+        if self.forename or self.surname:
             name_dict = {}  # type: JsonObjectType
-            if self.surname:
-                name_dict[Fc.NAME_FAMILY] = self.surname
             if self.forename:
                 name_dict[Fc.NAME_GIVEN] = [self.forename]
+            if self.surname:
+                name_dict[Fc.NAME_FAMILY] = self.surname
             patient_dict[Fc.NAME] = [HumanName(jsondict=name_dict).as_json()]
 
         # DOB
@@ -971,6 +971,21 @@ class Patient(GenericTabletRecordMixin, Base):
         return Identifier(jsondict={
             Fc.SYSTEM: idnum_url,
             Fc.VALUE: str(idnum_value),
+        })
+
+    def get_fhir_subject_reference(
+            self,
+            req: "CamcopsRequest",
+            recipient: "ExportRecipient") -> FHIRReference:
+        """
+        Returns a FHIRReference used to refer to this patient as a "subject" of
+        some other entry (like a questionnaire).
+        """
+        return FHIRReference(jsondict={
+            Fc.TYPE: Fc.RESOURCE_TYPE_PATIENT,
+            Fc.IDENTIFIER: self.get_fhir_identifier(
+                req, recipient.primary_idnum
+            ).as_json(),
         })
 
     # -------------------------------------------------------------------------
@@ -1051,22 +1066,6 @@ class Patient(GenericTabletRecordMixin, Base):
     # -------------------------------------------------------------------------
     # Editing
     # -------------------------------------------------------------------------
-
-    def is_finalized(self) -> bool:
-        """
-        Is the patient finalized (no longer available to be edited on the
-        client device), and therefore editable on the server?
-        """
-        if self._era == ERA_NOW:
-            # Not finalized; no editing on server
-            return False
-        return True
-
-    def created_on_server(self, req: "CamcopsRequest") -> bool:
-        server_device = Device.get_server_device(req.dbsession)
-
-        return (self._era == ERA_NOW and
-                self._device_id == server_device.id)
 
     def user_may_edit(self, req: "CamcopsRequest") -> bool:
         """

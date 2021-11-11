@@ -42,6 +42,7 @@ SQL     As part of an SQL or SQLite download.
 
 """
 
+from base64 import b64encode
 from collections import OrderedDict
 import datetime
 import logging
@@ -55,7 +56,7 @@ from cardinal_pythonlib.datetimefunc import (
     format_datetime,
     pendulum_to_utc_datetime_without_tz,
 )
-from cardinal_pythonlib.httpconst import HttpMethod
+from cardinal_pythonlib.httpconst import HttpMethod, MimeType
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.sqlalchemy.orm_inspect import (
     gen_columns,
@@ -63,8 +64,12 @@ from cardinal_pythonlib.sqlalchemy.orm_inspect import (
 )
 from cardinal_pythonlib.sqlalchemy.schema import is_sqlatype_string
 from cardinal_pythonlib.stringfunc import mangle_unicode_to_ascii
+from fhirclient.models.attachment import Attachment
 from fhirclient.models.bundle import BundleEntry, BundleEntryRequest
-from fhirclient.models.fhirreference import FHIRReference
+from fhirclient.models.documentreference import (
+    DocumentReference,
+    DocumentReferenceContent,
+)
 from fhirclient.models.identifier import Identifier
 from fhirclient.models.questionnaire import Questionnaire
 from fhirclient.models.questionnaireresponse import QuestionnaireResponse
@@ -79,18 +84,20 @@ from sqlalchemy.sql.expression import not_, update
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Boolean, DateTime, Float, Integer, Text
 
-# from camcops_server.cc_modules.cc_anon import get_cris_dd_rows_from_fieldspecs
 from camcops_server.cc_modules.cc_audit import audit
 from camcops_server.cc_modules.cc_baseconstants import DOCUMENTATION_URL
 from camcops_server.cc_modules.cc_blob import Blob, get_blob_img_html
 from camcops_server.cc_modules.cc_cache import cache_region_static, fkg
 from camcops_server.cc_modules.cc_constants import (
+    ASCII,
     CssClass,
     CSS_PAGED_MEDIA,
     DateFormat,
     FHIRConst as Fc,
+    FileType,
     ERA_NOW,
     INVALID_VALUE,
+    UTF8,
 )
 from camcops_server.cc_modules.cc_db import (
     GenericTabletRecordMixin,
@@ -1242,7 +1249,7 @@ class Task(GenericTabletRecordMixin, Base):
                 if self.patient else "")
 
     # -------------------------------------------------------------------------
-    # HL7
+    # HL7 v2
     # -------------------------------------------------------------------------
 
     def get_hl7_data_segments(self, req: "CamcopsRequest",
@@ -1253,8 +1260,8 @@ class Task(GenericTabletRecordMixin, Base):
 
         These will be:
 
-        - OBR segment
-        - OBX segment
+        - observation request (OBR) segment
+        - observation result (OBX) segment
         - any extra ones offered by the task
         """
         obr_segment = make_obr_segment(self)
@@ -1278,7 +1285,7 @@ class Task(GenericTabletRecordMixin, Base):
             -> List[hl7.Segment]:
         """
         Return a list of any extra HL7 data segments. (See
-        :func:`get_hl7_data_segments`.)
+        :func:`get_hl7_data_segments`, which calls this function.)
 
         May be overridden.
         """
@@ -1292,16 +1299,182 @@ class Task(GenericTabletRecordMixin, Base):
                                 req: "CamcopsRequest",
                                 recipient: "ExportRecipient") -> List[Dict]:
         """
-        Get all FHIR bundle entries -- one for the questionnaire (task) itself
-        (Questionnaire), and lots for the specific answers from this task
-        instance (QuestionnaireResponse).
-        """
-        return [
-            self.get_fhir_questionnaire_bundle_entry(req, recipient),
-            self.get_fhir_questionnaire_response_bundle_entry(req, recipient),
-        ]
+        Get all FHIR bundle entries. This is the "top-level" function to
+        provide all FHIR information for the task. That information includes:
 
-    def get_fhir_questionnaire_bundle_entry(
+        - the Patient, if applicable;
+        - the Questionnaire (task) itself;
+        - multiple QuestionnaireResponse entries for the specific answers from
+          this task instance.
+
+        If the task refuses to support FHIR, raises :exc:`FhirExportException`.
+        """
+        bundle_entries = []  # type: List[Dict]
+
+        # Patient
+        if self.has_patient:
+            patient_entry = self.patient.get_fhir_bundle_entry(req, recipient)
+            bundle_entries.append(patient_entry)
+
+        try:
+            bundle_entries += [
+                # Questionnaire
+                self._get_fhir_questionnaire_bundle_entry(req, recipient),
+                # Collection of QuestionnaireResponse entries
+                self._get_fhir_questionnaire_response_bundle_entry(
+                    req, recipient),
+            ]
+        except NotImplementedError:
+            pass  # we'll supply a document anyway
+
+        # DocumentReference
+        bundle_entries.append(
+            self._get_fhir_docref_bundle_entry(req, recipient)
+        )
+
+        return bundle_entries
+
+    def _get_fhir_docref_identifier(
+            self, req: "CamcopsRequest", task_format: str) -> Identifier:
+        """
+        Returns a FHIR Identifier (e.g. for a QuestionnaireResponse collection)
+        representing this task instance.
+        """
+        return Identifier(jsondict={
+            Fc.SYSTEM: req.route_url(
+                Routes.FHIR_DOCUMENT_REFERENCE,
+                table_name=self.tablename  # to match ViewParam.TABLE_NAME
+            ),
+            Fc.VALUE: f"{self._pk}.{task_format}",
+        })
+
+    def _get_fhir_docref_bundle_entry(
+            self,
+            req: "CamcopsRequest",
+            recipient: "ExportRecipient",
+            text_encoding: str = UTF8) -> Dict:
+        """
+        Returns bundle entries for an attached document, which is a full
+        representation of the task according to the selected task format (e.g.
+        PDF).
+
+        This requires a DocumentReference, which can (in theory) either embed
+        the data, or refer via a URL to an associated Binary object. We do it
+        directly.
+
+        See:
+
+        - https://fhirblog.com/2013/11/06/fhir-and-xds-submitting-a-document-from-a-document-source/
+        - https://fhirblog.com/2013/11/12/the-fhir-documentreference-resource/
+        - https://build.fhir.org/ig/HL7/US-Core/StructureDefinition-us-core-documentreference.html
+        - https://build.fhir.org/ig/HL7/US-Core/clinical-notes-guidance.html
+        """  # noqa
+
+        # Establish content_type and binary_data
+        task_format = recipient.task_format
+        if task_format == FileType.PDF:
+            binary_data = self.get_pdf(req)
+            content_type = MimeType.PDF
+        else:
+            if task_format == FileType.XML:
+                txt = self.get_xml(req, options=TaskExportOptions(
+                    include_blobs=False,
+                    xml_include_ancillary=True,
+                    xml_include_calculated=True,
+                    xml_include_comments=True,
+                    xml_include_patient=True,
+                    xml_include_plain_columns=True,
+                    xml_include_snomed=True,
+                    xml_with_header_comments=True,
+                ))
+                log.critical("XML:\n{}", txt)
+                content_type = MimeType.XML
+            elif task_format == FileType.HTML:
+                txt = self.get_html(req)
+                content_type = MimeType.HTML
+            else:
+                raise ValueError(f"Unknown task format: {task_format!r}")
+            binary_data = txt.encode(text_encoding)
+        b64_encoded_bytes = b64encode(binary_data)  # type: bytes
+        b64_encoded_str = b64_encoded_bytes.decode(ASCII)
+
+        # Build the DocumentReference
+        dr_dict = {
+            # Metadata:
+            Fc.DATE: self.when_created.isoformat(),
+            Fc.DESCRIPTION: self.longname(req),
+            Fc.DOCSTATUS: (
+                Fc.DOCSTATUS_FINAL if self.is_finalized()
+                else Fc.DOCSTATUS_PRELIMINARY
+            ),
+            Fc.MASTER_IDENTIFIER: (
+                self._get_fhir_questionnaire_response_identifier(req)
+                    .as_json()
+            ),
+            Fc.STATUS: Fc.STATUS_CURRENT,
+            # And the content:
+            Fc.CONTENT: [
+                DocumentReferenceContent(jsondict={
+                    Fc.ATTACHMENT: Attachment(jsondict={
+                        Fc.CONTENT_TYPE: content_type,
+                        Fc.DATA: b64_encoded_str
+                    }).as_json(),
+                }).as_json()
+            ],
+        }
+        # Optional metadata:
+        if self.has_clinician:
+            dr_dict[Fc.AUTHOR] = self.get_clinician_name()
+        if self.has_patient:
+            dr_dict[Fc.SUBJECT] = self.patient.get_fhir_subject_reference(
+                req, recipient
+            ).as_json()
+        # DocumentReference
+        docref = DocumentReference(jsondict=dr_dict)
+
+        docref_id = self._get_fhir_docref_identifier(req, task_format)
+
+        bundle_request = BundleEntryRequest(jsondict={
+            Fc.METHOD: HttpMethod.POST,
+            Fc.URL: Fc.RESOURCE_TYPE_DOCUMENT_REFERENCE,
+            Fc.IF_NONE_EXIST: (
+                f"{Fc.IDENTIFIER}={docref_id.system}|{docref_id.value}"
+            ),
+        })
+
+        return BundleEntry(
+            jsondict={
+                Fc.REQUEST: bundle_request.as_json(),
+                Fc.RESOURCE: docref.as_json(),
+            }
+        ).as_json()
+
+    def _get_fhir_questionnaire_identifier(
+            self, req: "CamcopsRequest") -> Identifier:
+        """
+        Returns a FHIR Identifier (e.g. for a Questionnaire) representing this
+        task, in the abstract.
+        """
+        return Identifier(jsondict={
+            Fc.SYSTEM: req.route_url(Routes.FHIR_QUESTIONNAIRE),
+            Fc.VALUE: self.tablename,
+        })
+
+    def _get_fhir_questionnaire_response_identifier(
+            self, req: "CamcopsRequest") -> Identifier:
+        """
+        Returns a FHIR Identifier (e.g. for a QuestionnaireResponse collection)
+        representing this task instance.
+        """
+        return Identifier(jsondict={
+            Fc.SYSTEM: req.route_url(
+                Routes.FHIR_QUESTIONNAIRE_RESPONSE,
+                table_name=self.tablename  # to match ViewParam.TABLE_NAME
+            ),
+            Fc.VALUE: str(self._pk),
+        })
+
+    def _get_fhir_questionnaire_bundle_entry(
             self,
             req: "CamcopsRequest",
             recipient: "ExportRecipient") -> Dict:
@@ -1309,18 +1482,11 @@ class Task(GenericTabletRecordMixin, Base):
         Get a FHIR bundle describing this task, as a FHIR Questionnaire.
         Note: here we mean "abstract task", not "task instance".
         """
-        questionnaire_url = req.route_url(
-            Routes.FHIR_QUESTIONNAIRE_ID,
-        )
-
         # FHIR supports versioning of questionnaires. Might be useful if the
         # wording of questions change. Could either use FHIR's version
         # field or include the version in the identifier below. Either way
-        # we'd need the version in the 'ifNoneExist' part of the request
-        identifier = Identifier(jsondict={
-            Fc.SYSTEM: questionnaire_url,
-            Fc.VALUE: self.tablename,
-        })
+        # we'd need the version in the 'ifNoneExist' part of the request.
+        q_identifier = self._get_fhir_questionnaire_identifier(req)
 
         # Other things we could add:
         # https://www.hl7.org/fhir/questionnaire.html
@@ -1334,26 +1500,26 @@ class Task(GenericTabletRecordMixin, Base):
             Fc.DESCRIPTION: help_url,  # Natural language description of the questionnaire  # noqa
             Fc.COPYRIGHT: help_url,  # Use and/or publishing restrictions
             Fc.STATUS: Fc.STATUS_ACTIVE,  # Could also be: draft, retired, unknown  # noqa
-            Fc.IDENTIFIER: [identifier.as_json()],
+            Fc.IDENTIFIER: [q_identifier.as_json()],
             Fc.ITEM: self.get_fhir_questionnaire_items(req, recipient)
         })
 
         bundle_request = BundleEntryRequest(jsondict={
             Fc.METHOD: HttpMethod.POST,
-            Fc.URL: Fc.RESOURCE_QUESTIONNAIRE,
+            Fc.URL: Fc.RESOURCE_TYPE_QUESTIONNAIRE,
             Fc.IF_NONE_EXIST: (
-                f"{Fc.IDENTIFIER}={identifier.system}|{identifier.value}"
+                f"{Fc.IDENTIFIER}={q_identifier.system}|{q_identifier.value}"
             ),
         })
 
         return BundleEntry(
             jsondict={
+                Fc.REQUEST: bundle_request.as_json(),
                 Fc.RESOURCE: questionnaire.as_json(),
-                Fc.REQUEST: bundle_request.as_json()
             }
         ).as_json()
 
-    def get_fhir_questionnaire_response_bundle_entry(
+    def _get_fhir_questionnaire_response_bundle_entry(
             self,
             req: "CamcopsRequest",
             recipient: "ExportRecipient") -> Dict:
@@ -1361,40 +1527,39 @@ class Task(GenericTabletRecordMixin, Base):
         Get a bundle of FHIR QuestionnaireResponse items (e.g. one for the
         response to each question in a quesionnaire-style task).
         """
-        response_url = req.route_url(
-            Routes.FHIR_QUESTIONNAIRE_RESPONSE_ID,
-            table_name=self.tablename  # keyword to match ViewParam.TABLE_NAME
-        )
+        q_identifier = self._get_fhir_questionnaire_identifier(req)
+        qr_identifier = self._get_fhir_questionnaire_response_identifier(req)
 
-        identifier = Identifier(jsondict={
-            Fc.SYSTEM: response_url,
-            Fc.VALUE: str(self._pk),
-        })
+        # Status:
+        # https://www.hl7.org/fhir/valueset-questionnaire-answers-status.html
+        # It is probably undesirable to export tasks that are incomplete in the
+        # sense of "not finalized". The user can control this (via the
+        # FINALIZED_ONLY config option for exports). However, we also need to
+        # handle finalized but incomplete data.
+        if self.is_complete():
+            status = Fc.STATUS_COMPLETED
+        elif self.is_live_on_tablet():
+            status = Fc.STATUS_IN_PROGRESS
+        else:
+            # Incomplete, but finalized.
+            status = Fc.STATUS_STOPPED
 
-        questionnaire_url = req.route_url(
-            Routes.FHIR_QUESTIONNAIRE_ID,
-        )
-
-        jsondict = {
-            # https://r4.smarthealthit.org does not like "questionnaire" in this
-            # form
+        qr_jsondict = {
+            # https://r4.smarthealthit.org does not like "questionnaire" in
+            # this form:
             # FHIR Server; FHIR 4.0.0/R4; HAPI FHIR 4.0.0-SNAPSHOT)
             # error is:
             # Invalid resource reference found at
             # path[QuestionnaireResponse.questionnaire]- Resource type is
             # unknown or not supported on this server
-            # - http://127.0.0.1:8000/fhir_questionnaire_id|phq9
+            # - http://127.0.0.1:8000/fhir_questionnaire|phq9
 
             # http://hapi.fhir.org/baseR4/ (4.0.1 (R4)) is OK
-            Fc.QUESTIONNAIRE: f"{questionnaire_url}|{self.tablename}",
+            Fc.QUESTIONNAIRE: f"{q_identifier.system}|{q_identifier.value}",
 
             Fc.AUTHORED: self.when_created.isoformat(),
-            Fc.STATUS: (
-                Fc.STATUS_COMPLETED if self.is_complete()
-                else Fc.STATUS_IN_PROGRESS
-                # TODO: Is it desirable to export when in progress?
-            ),
-            Fc.IDENTIFIER: identifier.as_json(),
+            Fc.STATUS: status,
+            Fc.IDENTIFIER: qr_identifier.as_json(),
 
             # TODO: Could also add:
             # https://www.hl7.org/fhir/questionnaireresponse.html
@@ -1404,29 +1569,24 @@ class Task(GenericTabletRecordMixin, Base):
         }
 
         if self.has_patient:
-            subject_identifier = self.patient.get_fhir_identifier(
-                req, recipient.primary_idnum
-            )
-            subject = FHIRReference(jsondict={
-                Fc.IDENTIFIER: subject_identifier.as_json(),
-                Fc.TYPE: Fc.RESOURCE_PATIENT,
-            })
-            jsondict[Fc.SUBJECT] = subject.as_json()
+            qr_jsondict[Fc.SUBJECT] = self.patient.get_fhir_subject_reference(
+                req, recipient
+            ).as_json()
 
-        response = QuestionnaireResponse(jsondict)
+        qr = QuestionnaireResponse(qr_jsondict)
 
         bundle_request = BundleEntryRequest(jsondict={
             Fc.METHOD: HttpMethod.POST,
-            Fc.URL: Fc.RESOURCE_QUESTIONNAIRE_RESPONSE,
+            Fc.URL: Fc.RESOURCE_TYPE_QUESTIONNAIRE_RESPONSE,
             Fc.IF_NONE_EXIST: (
-                f"{Fc.IDENTIFIER}={identifier.system}|{identifier.value}"
+                f"{Fc.IDENTIFIER}={qr_identifier.system}|{qr_identifier.value}"
             ),
         })
 
         return BundleEntry(
             jsondict={
-                Fc.RESOURCE: response.as_json(),
-                Fc.REQUEST: bundle_request.as_json()
+                Fc.REQUEST: bundle_request.as_json(),
+                Fc.RESOURCE: qr.as_json(),
             }
         ).as_json()
 
@@ -1543,16 +1703,6 @@ class Task(GenericTabletRecordMixin, Base):
         for task in self.get_lineage():
             task.delete_with_dependants(req)
         self.audit(req, "Task deleted")
-
-    # -------------------------------------------------------------------------
-    # Viewing the task in the list of tasks
-    # -------------------------------------------------------------------------
-
-    def is_live_on_tablet(self) -> bool:
-        """
-        Is the task instance live on a tablet?
-        """
-        return self._era == ERA_NOW
 
     # -------------------------------------------------------------------------
     # Filtering tasks for the task list
@@ -1698,7 +1848,7 @@ class Task(GenericTabletRecordMixin, Base):
     def _get_xml_core_branches(
             self,
             req: "CamcopsRequest",
-            options: TaskExportOptions) -> List[XmlElement]:
+            options: TaskExportOptions = None) -> List[XmlElement]:
         """
         Returns a list of :class:`camcops_server.cc_modules.cc_xml.XmlElement`
         elements representing stored, calculated, patient, and/or BLOB fields,
@@ -1708,16 +1858,18 @@ class Task(GenericTabletRecordMixin, Base):
             req: a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
             options: a :class:`camcops_server.cc_modules.cc_simpleobjects.TaskExportOptions`
         """  # noqa
+        options = options or TaskExportOptions(
+            xml_include_plain_columns=True,
+            xml_include_ancillary=True,
+            include_blobs=False,
+            xml_include_calculated=True,
+            xml_include_patient=True,
+            xml_include_snomed=True
+        )
+
         def add_comment(comment: XmlLiteral) -> None:
             if options.xml_with_header_comments:
                 branches.append(comment)
-
-        options = options or TaskExportOptions(xml_include_plain_columns=True,
-                                               xml_include_ancillary=True,
-                                               include_blobs=False,
-                                               xml_include_calculated=True,
-                                               xml_include_patient=True,
-                                               xml_include_snomed=True)
 
         # Stored values +/- calculated values
         core_options = options.clone()

@@ -68,6 +68,7 @@ from sqlalchemy.sql.sqltypes import (
 from camcops_server.cc_modules.cc_constants import (
     ConfigParamExportRecipient,
     FileType,
+    UTF8,
 )
 from camcops_server.cc_modules.cc_email import Email
 from camcops_server.cc_modules.cc_exportrecipient import (
@@ -116,7 +117,6 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # =============================================================================
 
 DOS_NEWLINE = "\r\n"
-UTF8 = "utf8"
 
 
 # =============================================================================

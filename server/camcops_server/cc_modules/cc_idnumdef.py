@@ -180,7 +180,7 @@ class IdNumDefinition(Base):
         return req.route_url(
             Routes.FHIR_PATIENT_ID_SYSTEM,
             which_idnum=self.which_idnum
-        )  # path will be e.g. /fhir_patient_id/3
+        )  # path will be e.g. /fhir_patient_id_system/3
 
     def effective_fhir_id_system(self, req: "CamcopsRequest") -> str:
         """

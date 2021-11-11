@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CamCOPS 2.3.3\n"
 "Report-Msgid-Bugs-To: rudolf@pobox.com\n"
-"POT-Creation-Date: 2021-11-10 15:05+0000\n"
-"PO-Revision-Date: 2021-11-10 15:05+0000\n"
+"POT-Creation-Date: 2021-11-11 18:12+0000\n"
+"PO-Revision-Date: 2021-11-11 18:12+0000\n"
 "Last-Translator: \n"
 "Language: da_DK\n"
 "Language-Team: da_DK <LL@li.org>\n"
@@ -1138,7 +1138,7 @@ msgstr "Fødselsdato:"
 msgid "DOB:"
 msgstr "Født:"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:1197
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:1196
 msgid "(Server) Patients, distinct by name, sex, DOB, all ID numbers"
 msgstr "(Server) Patienter, særskilt efter navn, køn, DOB, alle ID-numre"
 
@@ -1146,7 +1146,7 @@ msgstr "(Server) Patienter, særskilt efter navn, køn, DOB, alle ID-numre"
 msgid "ID number fails basic checks"
 msgstr "Id-nummer fejler grundlæggende kontroller"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_pyramid.py:1312
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_pyramid.py:1322
 msgid "Page $page of $page_count; total $item_count records"
 msgstr "Side $page af $page_count; samlede $item_count poster"
 
@@ -1170,11 +1170,11 @@ msgstr "Startdato"
 msgid "End date"
 msgstr "Slutdato"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_request.py:1441
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_request.py:1446
 msgid "Can't fetch ID number definition"
 msgstr "Definitionen af id-nummer kan ikke hentes"
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_task.py:1853
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_task.py:2006
 msgid "Anonymous"
 msgstr "Anonym"
 
@@ -2516,6 +2516,27 @@ msgstr "af"
 msgid "Close"
 msgstr "Luk"
 
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/all_tasks.mako:37
+msgid "All tasks"
+msgstr "Alle opgaver"
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/all_tasks.mako:41
+msgid "Code, with link to details"
+msgstr "Kode, med link til detaljer"
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/all_tasks.mako:42
+msgid "Short name"
+msgstr "Kort navn"
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/all_tasks.mako:43
+msgid "Full name, with link to help"
+msgstr "Fuldt navn, med link til at hjælpe"
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/all_tasks.mako:44
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_trail_view.mako:83
+msgid "Details"
+msgstr "Detaljer"
+
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_menu.mako:35
 msgid "Audit options"
 msgstr "Indstillinger for overvågning"
@@ -2588,10 +2609,6 @@ msgstr "Patient server PK"
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_trail_view.mako:81
 msgid "Details (truncated)"
 msgstr "Detaljer (forkortet)"
-
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_trail_view.mako:83
-msgid "Details"
-msgstr "Detaljer"
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_trail_view.mako:105
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/exported_task.mako:78
@@ -2859,43 +2876,6 @@ msgstr "Individuel HL7-meddelelse"
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/fhir_patient_id_system.mako:33
 msgid "FHIR Patient identifier system"
 msgstr "FHIR Patientidentifikatorsystem"
-
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/fhir_questionnaire_id.mako:37
-msgid "All tasks"
-msgstr "Alle opgaver"
-
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/fhir_questionnaire_id.mako:41
-msgid "Code"
-msgstr "Kode"
-
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/fhir_questionnaire_id.mako:42
-msgid "Short name"
-msgstr "Kort navn"
-
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/fhir_questionnaire_id.mako:43
-msgid "Full name, with link to help"
-msgstr "Fuldt navn, med link til at hjælpe"
-
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/fhir_questionnaire_id.mako:44
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/fhir_questionnaire_id.mako:58
-msgid "Elements"
-msgstr "Elementer"
-
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/fhir_questionnaire_id.mako:65
-msgid "This is also the FHIR Questionnaire system. The code is the FHIR value. The elements make up the FHIR QuestionnaireResponse system for each task."
-msgstr "Dette er også FHIR-spørgeskemasystemet. Koden er FHIR-værdien. Elementerne udgør FHIR QuestionnaireResponse-systemet for hver opgave."
-
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/fhir_questionnaire_response_id.mako:33
-msgid "Task elements"
-msgstr "Opgaveelementer"
-
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/fhir_questionnaire_response_id.mako:43
-msgid "Value"
-msgstr "Værdi"
-
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/fhir_questionnaire_response_id.mako:52
-msgid "This is also the FHIR QuestionnaireResponse system for this task."
-msgstr "Dette er også FHIR QuestionnaireResponse-systemet til denne opgave."
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/filter_edit.mako:33
 msgid "Task filters (criteria)"
@@ -3367,6 +3347,14 @@ msgstr "Du er ved at slette denne note:"
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/special_note_delete.mako:50
 msgid "The special note will vanish (though preserved in the database for auditing)."
 msgstr "Den særlige note vil forsvinde (men bevaret i databasen for revision)."
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/task_details.mako:33
+msgid "Task details"
+msgstr "Oplysninger om opgave"
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/task_details.mako:43
+msgid "Value"
+msgstr "Værdi"
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/task_erase.mako:33
 msgid "Erase task irrevocably?"

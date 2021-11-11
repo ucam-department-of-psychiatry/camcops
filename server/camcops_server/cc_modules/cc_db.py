@@ -579,6 +579,32 @@ class GenericTabletRecordMixin(object):
         return self._group_id
 
     # -------------------------------------------------------------------------
+    # Other universal properties
+    # -------------------------------------------------------------------------
+
+    def is_live_on_tablet(self) -> bool:
+        """
+        Is the record live on a tablet (not finalized)?
+        """
+        return self._era == ERA_NOW
+
+    def is_finalized(self) -> bool:
+        """
+        Is the record finalized (no longer available to be edited on the
+        client device), and therefore (if required) editable on the server?
+        """
+        return not self.is_live_on_tablet()
+
+    def created_on_server(self, req: "CamcopsRequest") -> bool:
+        """
+        Was this record created on the server?
+        """
+        from camcops_server.cc_modules.cc_device import Device  # delayed import  # noqa
+        server_device = Device.get_server_device(req.dbsession)
+        return (self._era == ERA_NOW and
+                self._device_id == server_device.id)
+
+    # -------------------------------------------------------------------------
     # Autoscanning objects and their relationships
     # -------------------------------------------------------------------------
 

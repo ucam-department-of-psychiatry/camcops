@@ -71,6 +71,14 @@ class FileType(object):
 
 
 # =============================================================================
+# Encodings
+# =============================================================================
+
+ASCII = "ascii"
+UTF8 = "utf8"
+
+
+# =============================================================================
 # Launching
 # =============================================================================
 
@@ -1015,52 +1023,104 @@ class FHIRConst:
     - lower_case or lowerCamelCase: usually dictionary keys
     - plainlowercase: often string constants
     """
-    # Authentication
+    # -------------------------------------------------------------------------
+    # Authentication (FHIRClient settings)
+    # -------------------------------------------------------------------------
+
     API_BASE = "api_base"
     APP_ID = "app_id"
     APP_SECRET = "app_secret"
     LAUNCH_TOKEN = "launch_token"
 
-    # Bundles and generic labels
-    ENTRY = "entry"
+    # -------------------------------------------------------------------------
+    # Generic keys (used by lots)
+    # -------------------------------------------------------------------------
+
+    DATE = "date"
+    DESCRIPTION = "description"
     IDENTIFIER = "identifier"
-    IF_NONE_EXIST = "ifNoneExist"
     ITEM = "item"
-    METHOD = "method"
-    REQUEST = "request"
-    RESOURCE = "resource"
+    NAME = "name"
     STATUS = "status"
+    SUBJECT = "subject"
     SYSTEM = "system"
     TRANSACTION = "transaction"
-    TYPE = "type"
     URL = "url"
     VALUE = "value"
 
-    # Resource types
-    RESOURCE_PATIENT = "Patient"
-    RESOURCE_QUESTIONNAIRE = "Questionnaire"
-    RESOURCE_QUESTIONNAIRE_RESPONSE = "QuestionnaireResponse"
+    # -------------------------------------------------------------------------
+    # Resource types (usually: BundleEntryRequest keys)
+    # -------------------------------------------------------------------------
 
-    # Content
+    RESOURCE_TYPE_PATIENT = "Patient"
+    RESOURCE_TYPE_QUESTIONNAIRE = "Questionnaire"
+    RESOURCE_TYPE_QUESTIONNAIRE_RESPONSE = "QuestionnaireResponse"
+    RESOURCE_TYPE_DOCUMENT_REFERENCE = "DocumentReference"
+
+    # -------------------------------------------------------------------------
+    # Resource-specific keys
+    # -------------------------------------------------------------------------
+
+    # Attachment and Binary keys
+    CONTENT_TYPE = "contentType"
+    DATA = "data"
+
+    # Bundle keys
+    TYPE = "type"
+    ENTRY = "entry"
+
+    # BundleEntry keys
+    REQUEST = "request"
+    RESOURCE = "resource"
+
+    # BundleEntryRequest keys
+    IF_NONE_EXIST = "ifNoneExist"
+    METHOD = "method"
+
+    # ContactPoint values
+    TELECOM_SYSTEM_EMAIL = "email"
+
+    # DocumentReference keys
+    AUTHOR = "author"
+    CONTENT = "content"
+    DOCSTATUS = "docStatus"
+    MASTER_IDENTIFIER = "masterIdentifier"
+    # DocumentReference values
+    DOCSTATUS_PRELIMINARY = "preliminary"
+    DOCSTATUS_FINAL = "final"
+    STATUS_CURRENT = "current"
+
+    # DocumentReferenceContent keys:
+    ATTACHMENT = "attachment"
+    FORMAT = "format"
+
+    # HumanName keys
+    NAME_FAMILY = "family"
+    NAME_GIVEN = "given"
+
+    # Patient keys
     ADDRESS = "address"
-    ADDRESS_TEXT = "text"
-    AUTHORED = "authored"
     BIRTHDATE = "birthDate"
-    COPYRIGHT = "copyright"
-    DESCRIPTION = "description"
     GENDER = "gender"
+    TELECOM = "telecom"
+    # Patient values
     GENDER_FEMALE = "female"
     GENDER_MALE = "male"
     GENDER_OTHER = "other"
     GENDER_UNKNOWN = "unknown"
-    NAME = "name"
-    NAME_FAMILY = "family"
-    NAME_GIVEN = "given"
-    QUESTIONNAIRE = "questionnaire"
+
+    # Address keys
+    ADDRESS_TEXT = "text"
+
+    # Questionnaire keys
+    TITLE = "title"
+    COPYRIGHT = "copyright"
+    # Questionnaire values
     STATUS_ACTIVE = "active"
     STATUS_COMPLETED = "completed"
     STATUS_IN_PROGRESS = "in-progress"
-    SUBJECT = "subject"
-    TELECOM = "telecom"
-    TELECOM_SYSTEM_EMAIL = "email"
-    TITLE = "title"
+    STATUS_STOPPED = "stopped"
+
+    # QuestionnaireResponse keys
+    AUTHORED = "authored"
+    QUESTIONNAIRE = "questionnaire"

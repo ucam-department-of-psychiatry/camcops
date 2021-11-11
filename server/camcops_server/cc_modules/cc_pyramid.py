@@ -754,9 +754,10 @@ class Routes(object):
     EDIT_USER_GROUP_MEMBERSHIP = "edit_user_group_membership"
     ERASE_TASK_LEAVING_PLACEHOLDER = "erase_task_leaving_placeholder"
     ERASE_TASK_ENTIRELY = "erase_task_entirely"
+    FHIR_DOCUMENT_REFERENCE = "fhir_document_reference"
     FHIR_PATIENT_ID_SYSTEM = "fhir_patient_id_system"
-    FHIR_QUESTIONNAIRE_ID = "fhir_questionnaire_id"
-    FHIR_QUESTIONNAIRE_RESPONSE_ID = "fhir_questionnaire_response_id"
+    FHIR_QUESTIONNAIRE = "fhir_questionnaire"
+    FHIR_QUESTIONNAIRE_RESPONSE = "fhir_questionnaire_response"
     FORCIBLY_FINALIZE = "forcibly_finalize"
     HOME = "home"
     LOGIN = "login"
@@ -777,6 +778,7 @@ class Routes(object):
     SET_OWN_USER_UPLOAD_GROUP = "set_user_upload_group"
     SQL_DUMP = "sql_dump"
     TASK = "task"
+    TASK_DETAILS = "task_details"
     TASK_LIST = "task_list"
     TESTPAGE_PRIVATE_1 = "testpage_private_1"
     TESTPAGE_PRIVATE_2 = "testpage_private_2"
@@ -900,15 +902,19 @@ class RouteCollection(object):
     EDIT_USER_GROUP_MEMBERSHIP = RoutePath(Routes.EDIT_USER_GROUP_MEMBERSHIP)
     ERASE_TASK_LEAVING_PLACEHOLDER = RoutePath(Routes.ERASE_TASK_LEAVING_PLACEHOLDER)  # noqa: E501
     ERASE_TASK_ENTIRELY = RoutePath(Routes.ERASE_TASK_ENTIRELY)
+    FHIR_DOCUMENT_REFERENCE = RoutePath(
+        Routes.FHIR_DOCUMENT_REFERENCE,
+        rf"/{Routes.FHIR_DOCUMENT_REFERENCE}/{{{ViewParam.TABLE_NAME}}}"
+    )
     FHIR_PATIENT_ID_SYSTEM = RoutePath(
         Routes.FHIR_PATIENT_ID_SYSTEM,
         f"/{Routes.FHIR_PATIENT_ID_SYSTEM}"
         rf"/{{{ViewParam.WHICH_IDNUM}:\d+}}"
     )
-    FHIR_QUESTIONNAIRE_ID = RoutePath(Routes.FHIR_QUESTIONNAIRE_ID)
-    FHIR_QUESTIONNAIRE_RESPONSE_ID = RoutePath(
-        Routes.FHIR_QUESTIONNAIRE_RESPONSE_ID,
-        rf"/{Routes.FHIR_QUESTIONNAIRE_RESPONSE_ID}/{{{ViewParam.TABLE_NAME}}}"
+    FHIR_QUESTIONNAIRE = RoutePath(Routes.FHIR_QUESTIONNAIRE)
+    FHIR_QUESTIONNAIRE_RESPONSE = RoutePath(
+        Routes.FHIR_QUESTIONNAIRE_RESPONSE,
+        rf"/{Routes.FHIR_QUESTIONNAIRE_RESPONSE}/{{{ViewParam.TABLE_NAME}}}"
     )
     FORCIBLY_FINALIZE = RoutePath(Routes.FORCIBLY_FINALIZE)
     HOME = RoutePath(Routes.HOME, MASTER_ROUTE_WEBVIEW)  # mounted at "/"
@@ -929,6 +935,10 @@ class RouteCollection(object):
     SET_OWN_USER_UPLOAD_GROUP = RoutePath(Routes.SET_OWN_USER_UPLOAD_GROUP)
     SQL_DUMP = RoutePath(Routes.SQL_DUMP)
     TASK = RoutePath(Routes.TASK)
+    TASK_DETAILS = RoutePath(
+        Routes.TASK_DETAILS,
+        rf"/{Routes.TASK_DETAILS}/{{{ViewParam.TABLE_NAME}}}"
+    )
     TASK_LIST = RoutePath(Routes.TASK_LIST)
     TESTPAGE_PRIVATE_1 = RoutePath(Routes.TESTPAGE_PRIVATE_1)
     TESTPAGE_PRIVATE_2 = RoutePath(Routes.TESTPAGE_PRIVATE_2)

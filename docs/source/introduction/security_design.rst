@@ -283,7 +283,7 @@ What would it take to steal CamCOPS data?
 These methods of attack sound plausible but should not be possible:
 
 - Steal a tablet and the tablet’s password, root the device, and access the
-  database directly; then you only have to break AES-256 to decrypt the 
+  database directly; then you only have to break AES-256 to decrypt the
   database [#aes256]_. (Hint: that’s hard.)
 
 - Steal a tablet and the tablet’s password, download the open-source CamCOPS

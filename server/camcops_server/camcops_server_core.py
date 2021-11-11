@@ -120,11 +120,12 @@ from camcops_server.cc_modules.celery import (  # noqa: E402
     CELERY_SOFT_TIME_LIMIT_SEC,
 )
 log.info("Imports complete")
-log.info("Using {} tasks", len(Task.all_subclasses_by_tablename()))
+log.info("Using {} task types", len(Task.all_subclasses_by_tablename()))
 
 if TYPE_CHECKING:
     from pyramid.router import Router  # noqa: F401
     from camcops_server.cc_modules.cc_exportrecipientinfo import ExportRecipientInfo  # noqa: E501,F401
+
 
 # =============================================================================
 # Other constants

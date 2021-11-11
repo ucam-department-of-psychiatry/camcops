@@ -5596,17 +5596,19 @@ def view_fhir_patient_id_system(req: "CamcopsRequest") -> Dict[str, Any]:
     )
 
 
-@view_config(route_name=Routes.FHIR_QUESTIONNAIRE_ID,
+@view_config(route_name=Routes.FHIR_QUESTIONNAIRE,
              request_method=HttpMethod.GET,
-             renderer="fhir_questionnaire_id.mako",
+             renderer="all_tasks.mako",
              http_cache=NEVER_CACHE)
 @view_config(route_name=Routes.TASK_LIST,
              request_method=HttpMethod.GET,
-             renderer="fhir_questionnaire_id.mako",
+             renderer="all_tasks.mako",
              http_cache=NEVER_CACHE)
-def view_fhir_questionnaire_id(req: "CamcopsRequest") -> Dict[str, Any]:
+def view_task_list(req: "CamcopsRequest") -> Dict[str, Any]:
     """
-    Placeholder view for FHIR Questionnaire "system".
+    Lists all tasks.
+
+    Also the placeholder view for FHIR Questionnaire "system".
     There's only one system -- the "value" is the task type.
     """
     return dict(
@@ -5614,17 +5616,25 @@ def view_fhir_questionnaire_id(req: "CamcopsRequest") -> Dict[str, Any]:
     )
 
 
-@view_config(route_name=Routes.FHIR_QUESTIONNAIRE_RESPONSE_ID,
+@view_config(route_name=Routes.FHIR_DOCUMENT_REFERENCE,
              request_method=HttpMethod.GET,
-             renderer="fhir_questionnaire_response_id.mako",
+             renderer="task_details.mako",
              http_cache=NEVER_CACHE)
-def view_fhir_questionnaire_response_id(req: "CamcopsRequest") \
-        -> Dict[str, Any]:
+@view_config(route_name=Routes.FHIR_QUESTIONNAIRE_RESPONSE,
+             request_method=HttpMethod.GET,
+             renderer="task_details.mako",
+             http_cache=NEVER_CACHE)
+@view_config(route_name=Routes.TASK_DETAILS,
+             request_method=HttpMethod.GET,
+             renderer="task_details.mako",
+             http_cache=NEVER_CACHE)
+def view_task_details(req: "CamcopsRequest") -> Dict[str, Any]:
     """
-    Placeholder view for FHIR QuestionnaireResponse "system" types.
+    View details of a specific task type.
 
-    There's one system per task. Within each task, the "value" relates to the
-    specific question/field.
+    Used also for for FHIR QuestionnaireResponse and DocumentReference "system"
+    types. (There's one system per task. Within each task, the "value" relates
+    to the specific task PK.)
     """
     table_name = req.matchdict[ViewParam.TABLE_NAME]
     task_class_dict = tablename_to_task_class_dict()

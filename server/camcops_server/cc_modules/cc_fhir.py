@@ -128,7 +128,7 @@ This problem occurs intermittently:
   Celery doesn't allow you to send multiple jobs and enforce that they all
   happen via the same worker
   (https://docs.celeryproject.org/en/stable/userguide/calling.html). However,
-  our exports already start (mostly!) as "one recipient, one job", via 
+  our exports already start (mostly!) as "one recipient, one job", via
   :func:`camcops_server.cc_modules.celery.export_to_recipient_backend` (see
   :func:`camcops_server.cc_modules.celery.get_celery_settings_dict`).
 
@@ -156,6 +156,7 @@ from fhirclient.models.bundle import Bundle
 from requests.exceptions import HTTPError
 
 from camcops_server.cc_modules.cc_constants import FHIRConst as Fc
+from camcops_server.cc_modules.cc_exception import FhirExportException
 
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_exportmodels import ExportedTaskFhir
@@ -168,7 +169,7 @@ log = logging.getLogger(__name__)
 # Debugging options
 # =============================================================================
 
-DEBUG_FHIR_TX = True  # needs workers to be launched with "--verbose" option
+DEBUG_FHIR_TX = False  # needs workers to be launched with "--verbose" option
 
 if any([DEBUG_FHIR_TX]):
     log.warning("Debugging options enabled!")
@@ -256,15 +257,27 @@ What's been sent?
         SELECT id FROM _export_recipients WHERE transmission_method = 'fhir'
     );
 
+
+Inspecting fhirclient
+=====================
+
+Each class has entries like this:
+
+.. code-block:: python
+
+    def elementProperties(self):
+        js = super(DocumentReference, self).elementProperties()
+        js.extend([
+            ("authenticator", "authenticator", fhirreference.FHIRReference, False, None, False),
+            ("author", "author", fhirreference.FHIRReference, True, None, False),
+            # ...
+        ])
+        return js
+
+The fields are: ``name, jsname, typ, is_list, of_many, not_optional``.
+They are validated in FHIRAbstractBase.update_with_json().
+
 """  # noqa
-
-
-# =============================================================================
-# Exceptions
-# =============================================================================
-
-class FhirExportException(Exception):
-    pass
 
 
 # =============================================================================
@@ -305,34 +318,21 @@ class FhirTaskExporter(object):
         Export a single task to the server, with associated patient information
         if the task has an associated patient.
         """
+
         # TODO: Check FHIR server's capability statement
         # https://www.hl7.org/fhir/capabilitystatement.html
-
+        #
         # statement = self.client.server.capabilityStatement
         # The client doesn't support looking for a particular capability
         # We could check for:
         # fhirVersion (the client does not support multiple versions)
         # conditional create
         # supported resource types (statement.rest[0].resource[])
-        bundle_entries = []
 
-        if self.task.has_patient:
-            patient_entry = self.task.patient.get_fhir_bundle_entry(
-                self.request,
-                self.exported_task.recipient
-            )
-            bundle_entries.append(patient_entry)
-
-        try:
-            task_entries = self.task.get_fhir_bundle_entries(
-                self.request,
-                self.exported_task.recipient
-            )
-            bundle_entries += task_entries
-
-        except NotImplementedError as e:
-            raise FhirExportException(str(e))
-
+        bundle_entries = self.task.get_fhir_bundle_entries(
+            self.request,
+            self.exported_task.recipient
+        )  # may raise FhirExportException
         bundle = Bundle(jsondict={
             Fc.TYPE: Fc.TRANSACTION,
             Fc.ENTRY: bundle_entries,

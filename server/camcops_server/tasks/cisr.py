@@ -4519,13 +4519,13 @@ class Cisr(TaskHasPatientMixin, Task):
                 ▶ Lewis G, Pelosi AJ, Aray R, Dunn G (1992).
                 Measuring psychiatric disorder in the community: a standardized
                 assessment for use by lay interviewers.
-                Psychological Medicine 22: 465-486. PubMed ID 
+                Psychological Medicine 22: 465-486. PubMed ID
                 <a href="https://www.ncbi.nlm.nih.gov/pubmed/1615114">1615114</a>.
 
                 ▶ Lewis G (1994).
                 Assessing psychiatric disorder with a human interviewer or a
                 computer.
-                J Epidemiol Community Health 48: 207-210. PubMed ID 
+                J Epidemiol Community Health 48: 207-210. PubMed ID
                 <a href="https://www.ncbi.nlm.nih.gov/pubmed/8189180">8189180</a>.
 
                 • Source/copyright: Glyn Lewis.

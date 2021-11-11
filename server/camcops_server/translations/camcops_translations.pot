@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CamCOPS 2.4.11\n"
 "Report-Msgid-Bugs-To: rudolf@pobox.com\n"
-"POT-Creation-Date: 2021-11-10 15:05+0000\n"
+"POT-Creation-Date: 2021-11-11 18:12+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1137,7 +1137,7 @@ msgstr ""
 msgid "DOB:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:1197
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:1196
 msgid "(Server) Patients, distinct by name, sex, DOB, all ID numbers"
 msgstr ""
 
@@ -1145,7 +1145,7 @@ msgstr ""
 msgid "ID number fails basic checks"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_pyramid.py:1312
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_pyramid.py:1322
 msgid "Page $page of $page_count; total $item_count records"
 msgstr ""
 
@@ -1169,11 +1169,11 @@ msgstr ""
 msgid "End date"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_request.py:1441
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_request.py:1446
 msgid "Can't fetch ID number definition"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_task.py:1853
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_task.py:2006
 msgid "Anonymous"
 msgstr ""
 
@@ -2492,6 +2492,27 @@ msgstr ""
 msgid "Close"
 msgstr ""
 
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/all_tasks.mako:37
+msgid "All tasks"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/all_tasks.mako:41
+msgid "Code, with link to details"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/all_tasks.mako:42
+msgid "Short name"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/all_tasks.mako:43
+msgid "Full name, with link to help"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/all_tasks.mako:44
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_trail_view.mako:83
+msgid "Details"
+msgstr ""
+
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_menu.mako:35
 msgid "Audit options"
 msgstr ""
@@ -2563,10 +2584,6 @@ msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_trail_view.mako:81
 msgid "Details (truncated)"
-msgstr ""
-
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_trail_view.mako:83
-msgid "Details"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_trail_view.mako:105
@@ -2834,43 +2851,6 @@ msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/fhir_patient_id_system.mako:33
 msgid "FHIR Patient identifier system"
-msgstr ""
-
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/fhir_questionnaire_id.mako:37
-msgid "All tasks"
-msgstr ""
-
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/fhir_questionnaire_id.mako:41
-msgid "Code"
-msgstr ""
-
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/fhir_questionnaire_id.mako:42
-msgid "Short name"
-msgstr ""
-
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/fhir_questionnaire_id.mako:43
-msgid "Full name, with link to help"
-msgstr ""
-
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/fhir_questionnaire_id.mako:44
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/fhir_questionnaire_id.mako:58
-msgid "Elements"
-msgstr ""
-
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/fhir_questionnaire_id.mako:65
-msgid "This is also the FHIR Questionnaire system. The code is the FHIR value. The elements make up the FHIR QuestionnaireResponse system for each task."
-msgstr ""
-
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/fhir_questionnaire_response_id.mako:33
-msgid "Task elements"
-msgstr ""
-
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/fhir_questionnaire_response_id.mako:43
-msgid "Value"
-msgstr ""
-
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/fhir_questionnaire_response_id.mako:52
-msgid "This is also the FHIR QuestionnaireResponse system for this task."
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/filter_edit.mako:33
@@ -3342,6 +3322,14 @@ msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/special_note_delete.mako:50
 msgid "The special note will vanish (though preserved in the database for auditing)."
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/task_details.mako:33
+msgid "Task details"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/task_details.mako:43
+msgid "Value"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/task_erase.mako:33

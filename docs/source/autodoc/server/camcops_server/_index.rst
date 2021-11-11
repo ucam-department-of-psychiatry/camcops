@@ -477,6 +477,7 @@ server/camcops_server
     templates/css/css_wkhtmltopdf.mako.rst
     templates/css/def_css_constants.mako.rst
     templates/css/style_deform_inside_tables.css.rst
+    templates/menu/all_tasks.mako.rst
     templates/menu/audit_menu.mako.rst
     templates/menu/audit_trail_choices.mako.rst
     templates/menu/audit_trail_view.mako.rst
@@ -502,12 +503,14 @@ server/camcops_server
     templates/menu/exported_task_file_group.mako.rst
     templates/menu/exported_task_hl7_message.mako.rst
     templates/menu/exported_task_list.mako.rst
+    templates/menu/fhir_patient_id_system.mako.rst
     templates/menu/filter_edit.mako.rst
     templates/menu/finalized_patient_edit.mako.rst
     templates/menu/forbidden.mako.rst
     templates/menu/form_with_title.mako.rst
     templates/menu/generic_failure.mako.rst
     templates/menu/generic_form.mako.rst
+    templates/menu/generic_message.mako.rst
     templates/menu/generic_success.mako.rst
     templates/menu/group_add.mako.rst
     templates/menu/group_delete.mako.rst
@@ -536,6 +539,7 @@ server/camcops_server
     templates/menu/set_user_upload_group.mako.rst
     templates/menu/special_note_add.mako.rst
     templates/menu/special_note_delete.mako.rst
+    templates/menu/task_details.mako.rst
     templates/menu/task_erase.mako.rst
     templates/menu/task_erase_entirely.mako.rst
     templates/menu/user_add.mako.rst

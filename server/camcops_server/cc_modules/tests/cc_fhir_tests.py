@@ -192,7 +192,7 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
         identifier = questionnaire["identifier"]
 
         questionnaire_url = (
-            f"{self.camcops_root_url}/{Routes.FHIR_QUESTIONNAIRE_ID}"
+            f"{self.camcops_root_url}/{Routes.FHIR_QUESTIONNAIRE}"
         )
         self.assertEqual(identifier[0]["system"], questionnaire_url)
         self.assertEqual(identifier[0]["value"], "phq9")
@@ -279,7 +279,7 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
             response["questionnaire"],
             (
                 f"{self.camcops_root_url}/"
-                f"{Routes.FHIR_QUESTIONNAIRE_ID}|phq9"
+                f"{Routes.FHIR_QUESTIONNAIRE}|phq9"
             )
         )
         self.assertEqual(response["authored"],
@@ -304,7 +304,7 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
         self.assertEqual(request["url"], "QuestionnaireResponse")
         response_url = (
             f"{self.camcops_root_url}/"
-            f"{Routes.FHIR_QUESTIONNAIRE_RESPONSE_ID}/phq9"
+            f"{Routes.FHIR_QUESTIONNAIRE_RESPONSE}/phq9"
         )
         self.assertEqual(
             request["ifNoneExist"],
@@ -403,23 +403,22 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
         self.assertEqual(entries[2].last_modified,
                          datetime.datetime(2021, 5, 24, 9, 30, 11, 98000))
 
-    def test_raises_when_task_does_not_support(self) -> None:
-        exported_task = ExportedTask(task=self.task, recipient=self.recipient)
-        exported_task_fhir = ExportedTaskFhir(exported_task)
-
-        exporter = MockFhirTaskExporter(self.req, exported_task_fhir)
-
-        with mock.patch.object(self.task,
-                               "get_fhir_bundle_entries") as mock_task:
-            mock_task.side_effect = NotImplementedError(
-                "Something is not implemented"
-            )
-
-            with self.assertRaises(FhirExportException) as cm:
-                exporter.export_task()
-
-            message = str(cm.exception)
-            self.assertIn("Something is not implemented", message)
+    # def test_raises_when_task_does_not_support(self) -> None:
+    #     exported_task = ExportedTask(task=self.task, recipient=self.recipient)
+    #     exported_task_fhir = ExportedTaskFhir(exported_task)
+    #
+    #     exporter = MockFhirTaskExporter(self.req, exported_task_fhir)
+    #
+    #     errmsg = "Something is not implemented"
+    #     with mock.patch.object(self.task,
+    #                            "get_fhir_bundle_entries") as mock_task:
+    #         mock_task.side_effect = NotImplementedError(errmsg)
+    #
+    #         with self.assertRaises(FhirExportException) as cm:
+    #             exporter.export_task()
+    #
+    #         message = str(cm.exception)
+    #         self.assertIn(errmsg, message)
 
     def test_raises_when_http_error(self) -> None:
         exported_task = ExportedTask(task=self.task, recipient=self.recipient)
@@ -427,17 +426,15 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
 
         exporter = MockFhirTaskExporter(self.req, exported_task_fhir)
 
+        errmsg = "Something bad happened"
         with mock.patch.object(
                 exporter.client.server, "post_json",
-                side_effect=HTTPError(
-                    response=mock.Mock(text="Something bad happened")
-                )
-        ):
+                side_effect=HTTPError(response=mock.Mock(text=errmsg))):
             with self.assertRaises(FhirExportException) as cm:
                 exporter.export_task()
 
             message = str(cm.exception)
-            self.assertIn("Something bad happened", message)
+            self.assertIn(errmsg, message)
 
     def test_raises_when_fhirclient_raises(self) -> None:
         exported_task = ExportedTask(task=self.task, recipient=self.recipient)
@@ -505,7 +502,7 @@ class FhirTaskExporterAnonymousTests(FhirExportTestCase):
         identifier = questionnaire["identifier"]
 
         questionnaire_url = (
-            f"{self.camcops_root_url}/{Routes.FHIR_QUESTIONNAIRE_ID}"
+            f"{self.camcops_root_url}/{Routes.FHIR_QUESTIONNAIRE}"
         )
         self.assertEqual(identifier[0]["system"], questionnaire_url)
         self.assertEqual(identifier[0]["value"], "apeqpt")
@@ -643,7 +640,7 @@ class FhirTaskExporterAnonymousTests(FhirExportTestCase):
             response["questionnaire"],
             (
                 f"{self.camcops_root_url}/"
-                f"{Routes.FHIR_QUESTIONNAIRE_ID}|apeqpt"
+                f"{Routes.FHIR_QUESTIONNAIRE}|apeqpt"
             )
         )
         self.assertEqual(response["authored"],
@@ -655,7 +652,7 @@ class FhirTaskExporterAnonymousTests(FhirExportTestCase):
         self.assertEqual(request["url"], "QuestionnaireResponse")
         response_url = (
             f"{self.camcops_root_url}/"
-            f"{Routes.FHIR_QUESTIONNAIRE_RESPONSE_ID}/apeqpt"
+            f"{Routes.FHIR_QUESTIONNAIRE_RESPONSE}/apeqpt"
         )
         self.assertEqual(
             request["ifNoneExist"],
