@@ -1322,17 +1322,18 @@ class Task(GenericTabletRecordMixin, Base):
             Fc.VALUE: self.tablename,
         })
 
-        # TODO: Other things we could add:
+        # Other things we could add:
         # https://www.hl7.org/fhir/questionnaire.html
         #
         # date: Date last changed
-        # description: Natural language description of the questionnaire
-        # copyright: Use and/or publishing restrictions
         # useContext: https://www.hl7.org/fhir/metadatatypes.html#UsageContext
+        help_url = self.help_url()
         questionnaire = Questionnaire(jsondict={
-            Fc.NAME: self.shortname,  # computer-friendly
-            Fc.TITLE: self.longname(req),  # human name
-            Fc.STATUS: Fc.STATUS_ACTIVE,  # Also draft / retired / unknown
+            Fc.NAME: self.shortname,  # Computer-friendly name
+            Fc.TITLE: self.longname(req),  # Human name
+            Fc.DESCRIPTION: help_url,  # Natural language description of the questionnaire  # noqa
+            Fc.COPYRIGHT: help_url,  # Use and/or publishing restrictions
+            Fc.STATUS: Fc.STATUS_ACTIVE,  # Could also be: draft, retired, unknown  # noqa
             Fc.IDENTIFIER: [identifier.as_json()],
             Fc.ITEM: self.get_fhir_questionnaire_items(req, recipient)
         })

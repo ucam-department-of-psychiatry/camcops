@@ -321,7 +321,8 @@ LANGUAGE
 *String.* Default: ``en_GB``.
 
 This setting determines the language in which the server operates for users
-who have not set a language preference, or who are not logged in.
+who have not set a language preference, or who are not logged in. This language
+also applies to "back-end" work, like exporting tasks.
 
 The language code is in the format ``en_GB`` (two-letter language code,
 underscore, two- or three-letter country code).

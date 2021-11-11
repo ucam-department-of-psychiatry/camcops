@@ -1046,6 +1046,8 @@ class FHIRConst:
     ADDRESS_TEXT = "text"
     AUTHORED = "authored"
     BIRTHDATE = "birthDate"
+    COPYRIGHT = "copyright"
+    DESCRIPTION = "description"
     GENDER = "gender"
     GENDER_FEMALE = "female"
     GENDER_MALE = "male"

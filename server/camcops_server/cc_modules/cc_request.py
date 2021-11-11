@@ -193,6 +193,10 @@ class CamcopsRequest(Request):
     main thing passed all around the server, and embodies what we need to know
     about the client request -- including user information, ways of accessing
     the database, and so on.
+
+    It reads its config (on first demand) from the config file specified in
+    ``os.environ[ENVVAR_CONFIG_FILE]``.
+
     """
     def __init__(self, *args, **kwargs):
         """
@@ -337,7 +341,8 @@ class CamcopsRequest(Request):
     @reify
     def config_filename(self) -> str:
         """
-        Gets the CamCOPS config filename in use.
+        Gets the CamCOPS config filename in use, from the config file specified
+        in ``os.environ[ENVVAR_CONFIG_FILE]``.
         """
         return get_config_filename_from_os_env()
 
@@ -1985,6 +1990,9 @@ class CamcopsDummyRequest(CamcopsRequest, DummyRequest):
     Request class that allows manual manipulation of GET/POST parameters
     for debugging.
 
+    It reads its config (on first demand) from the config file specified in
+    ``os.environ[ENVVAR_CONFIG_FILE]``.
+
     Notes:
 
     - The important base class is :class:`webob.request.BaseRequest`.
@@ -2153,6 +2161,9 @@ y.b  # 6
 def get_core_debugging_request() -> CamcopsDummyRequest:
     """
     Returns a basic :class:`CamcopsDummyRequest`.
+
+    It reads its config (on first demand) from the config file specified in
+    ``os.environ[ENVVAR_CONFIG_FILE]``.
     """
     with camcops_pyramid_configurator_context(debug_toolbar=False) as pyr_cfg:
         req = CamcopsDummyRequest(

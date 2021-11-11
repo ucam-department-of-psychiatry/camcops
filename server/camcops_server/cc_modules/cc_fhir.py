@@ -155,8 +155,7 @@ from fhirclient.client import FHIRClient
 from fhirclient.models.bundle import Bundle
 from requests.exceptions import HTTPError
 
-# noinspection PyPep8Naming
-from camcops_server.cc_modules.cc_constants import FHIRConst as FC
+from camcops_server.cc_modules.cc_constants import FHIRConst as Fc
 
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_exportmodels import ExportedTaskFhir
@@ -290,10 +289,10 @@ class FhirTaskExporter(object):
         # for any server that is SMART-compliant but we've not tested this.
         # https://sep.com/blog/smart-on-fhir-what-is-smart-what-is-fhir/
         settings = {
-            FC.API_BASE: self.recipient.fhir_api_url,
-            FC.APP_ID: self.recipient.fhir_app_id,
-            FC.APP_SECRET: self.recipient.fhir_app_secret,
-            FC.LAUNCH_TOKEN: self.recipient.fhir_launch_token,
+            Fc.API_BASE: self.recipient.fhir_api_url,
+            Fc.APP_ID: self.recipient.fhir_app_id,
+            Fc.APP_SECRET: self.recipient.fhir_app_secret,
+            Fc.LAUNCH_TOKEN: self.recipient.fhir_launch_token,
         }
 
         try:
@@ -335,8 +334,8 @@ class FhirTaskExporter(object):
             raise FhirExportException(str(e))
 
         bundle = Bundle(jsondict={
-            FC.TYPE: FC.TRANSACTION,
-            FC.ENTRY: bundle_entries,
+            Fc.TYPE: Fc.TRANSACTION,
+            Fc.ENTRY: bundle_entries,
         })
 
         try:

@@ -408,6 +408,7 @@ class ExportedTask(Base):
             eredcap = ExportedTaskRedcap(self)
             dbsession.add(eredcap)
             eredcap.export_task(req)
+
         else:
             raise AssertionError("Bug: bad transmission_method")
 
