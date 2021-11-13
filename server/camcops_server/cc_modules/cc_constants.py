@@ -1036,6 +1036,7 @@ class FHIRConst:
     # Generic keys (used by lots)
     # -------------------------------------------------------------------------
 
+    CODE = "code"
     DATE = "date"
     DESCRIPTION = "description"
     IDENTIFIER = "identifier"
@@ -1052,10 +1053,13 @@ class FHIRConst:
     # Resource types (usually: BundleEntryRequest keys)
     # -------------------------------------------------------------------------
 
+    RESOURCE_TYPE_CONDITION = "Condition"
+    RESOURCE_TYPE_DOCUMENT_REFERENCE = "DocumentReference"
+    RESOURCE_TYPE_OBSERVATION = "Observation"
     RESOURCE_TYPE_PATIENT = "Patient"
+    RESOURCE_TYPE_PRACTITIONER = "Practitioner"
     RESOURCE_TYPE_QUESTIONNAIRE = "Questionnaire"
     RESOURCE_TYPE_QUESTIONNAIRE_RESPONSE = "QuestionnaireResponse"
-    RESOURCE_TYPE_DOCUMENT_REFERENCE = "DocumentReference"
 
     # -------------------------------------------------------------------------
     # Resource-specific keys
@@ -1077,8 +1081,37 @@ class FHIRConst:
     IF_NONE_EXIST = "ifNoneExist"
     METHOD = "method"
 
+    # CodeableConcept keys
+    CODING = "coding"
+    TEXT = "text"
+
+    # Coding keys
+    DISPLAY = "display"
+    USER_SELECTED = "userSelected"
+    VERSION = "version"
+    # Coding values
+    # https://www.hl7.org/fhir/terminologies-systems.html
+    # http://www.hl7.org/fhir/snomedct.html
+    # noinspection HttpUrlsUsage
+    CODE_SYSTEM_SNOMED_CT = "http://snomed.info/sct"
+    # http://www.hl7.org/fhir/icd.html
+    # noinspection HttpUrlsUsage
+    CODE_SYSTEM_ICD9_CM = "http://hl7.org/fhir/sid/icd-9-cm"
+    # http://www.hl7.org/fhir/icd.html
+    # noinspection HttpUrlsUsage
+    CODE_SYSTEM_ICD10 = "http://hl7.org/fhir/sid/icd-10"
+    # noinspection HttpUrlsUsage
+    CODE_SYSTEM_LOINC = "http://loinc.org"
+    # noinspection HttpUrlsUsage
+    CODE_SYSTEM_UCUM = "http://unitsofmeasure.org"
+
+    # Condition keys
+    NOTE = "note"
+    RECORDER = "recorder"  # = clinician
+
     # ContactPoint values
     TELECOM_SYSTEM_EMAIL = "email"
+    TELECOM_SYSTEM_OTHER = "other"
 
     # DocumentReference keys
     AUTHOR = "author"
@@ -1086,9 +1119,9 @@ class FHIRConst:
     DOCSTATUS = "docStatus"
     MASTER_IDENTIFIER = "masterIdentifier"
     # DocumentReference values
-    DOCSTATUS_PRELIMINARY = "preliminary"
+    DOCSTATUS_CURRENT = "current"
     DOCSTATUS_FINAL = "final"
-    STATUS_CURRENT = "current"
+    DOCSTATUS_PRELIMINARY = "preliminary"
 
     # DocumentReferenceContent keys:
     ATTACHMENT = "attachment"
@@ -1098,7 +1131,18 @@ class FHIRConst:
     NAME_FAMILY = "family"
     NAME_GIVEN = "given"
 
-    # Patient keys
+    # Observation keys
+    COMPONENT = "component"
+    EFFECTIVE_DATE_TIME = "effectiveDateTime"
+    # Observation values
+    OBSSTATUS_FINAL = "final"
+    OBSSTATUS_PRELIMINARY = "preliminary"
+
+    # Observation/ObservationComponent keys
+    VALUE_CODEABLE_CONCEPT = "valueCodeableConcept"
+    VALUE_QUANTITY = "valueQuantity"
+
+    # Patient/Practitioner keys
     ADDRESS = "address"
     BIRTHDATE = "birthDate"
     GENDER = "gender"
@@ -1112,15 +1156,50 @@ class FHIRConst:
     # Address keys
     ADDRESS_TEXT = "text"
 
+    # Quantity keys
+    # COMPARATOR = "comparator"
+    UNIT = "unit"
+
     # Questionnaire keys
     TITLE = "title"
     COPYRIGHT = "copyright"
     # Questionnaire values
-    STATUS_ACTIVE = "active"
-    STATUS_COMPLETED = "completed"
-    STATUS_IN_PROGRESS = "in-progress"
-    STATUS_STOPPED = "stopped"
+    QSTATUS_ACTIVE = "active"
+    QSTATUS_COMPLETED = "completed"
+    QSTATUS_IN_PROGRESS = "in-progress"
+    QSTATUS_STOPPED = "stopped"
 
     # QuestionnaireResponse keys
     AUTHORED = "authored"
     QUESTIONNAIRE = "questionnaire"
+
+    # -------------------------------------------------------------------------
+    # Very specific codes
+    # -------------------------------------------------------------------------
+
+    # For BMI and related:
+    # - https://www.hl7.org/fhir/observation-example-bmi-using-related.html
+    # - https://www.hl7.org/fhir/observation-example.html
+    # - https://hl7.org/fhir/us/core/2017Jan/ValueSet-us-core-ucum.html
+    # - Height: https://loinc.org/8302-2/
+    # - Waist circumference: https://loinc.org/8280-0/ -- but NB also several
+    #   others. https://loinc.org/56117-5/ is the "natural waist" which is most
+    #   likely in the absence of other detail.
+    LOINC_BMI_CODE = "39156-5"
+    LOINC_BMI_TEXT = "Body mass index (BMI) [Ratio]"
+    LOINC_BODY_WEIGHT_CODE = "29463-7"
+    LOINC_BODY_WEIGHT_TEXT = "Body weight"
+    LOINC_HEIGHT_CODE = "8302-2"
+    LOINC_HEIGHT_TEXT = "Body height"
+    LOINC_WAIST_CIRCUMFERENCE_CODE = "56117-5"
+    LOINC_WAIST_CIRCUMFERENCE_TEXT = "Waist Circumference by WHI"
+    UCUM_CODE_KG_PER_SQ_M = "kg/m2"
+    UCUM_CODE_KG = "kg"
+    UCUM_CODE_METRE = "m"
+    UCUM_CODE_CENTIMETRE = "cm"
+    # noinspection HttpUrlsUsage
+    VITAL_SIGNS_SYSTEM = "http://terminology.hl7.org/CodeSystem/observation-category"  # noqa
+    VITAL_SIGNS_CODE = "vital-signs"
+    VITAL_SIGNS_DISPLAY = "Vital Signs"
+
+    # ID_SYSTEM_NHS_NUMBER = "https://fhir.nhs.uk/Id/nhs-number"

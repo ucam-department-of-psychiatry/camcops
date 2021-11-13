@@ -28,7 +28,7 @@ camcops_server/tasks/apeqpt.py
 
 """
 
-from typing import List, TYPE_CHECKING
+from typing import Dict, List, TYPE_CHECKING
 
 from fhirclient.models.questionnaire import (
     QuestionnaireItem,
@@ -172,7 +172,7 @@ class Apeqpt(Task):
     def get_fhir_questionnaire_items(
             self,
             req: "CamcopsRequest",
-            recipient: "ExportRecipient") -> List[QuestionnaireItem]:
+            recipient: "ExportRecipient") -> List[Dict]:
         items = [
             QuestionnaireItem(jsondict={
                 "linkId": "q_datetime",
@@ -251,7 +251,7 @@ class Apeqpt(Task):
     def get_fhir_questionnaire_response_items(
             self,
             req: "CamcopsRequest",
-            recipient: "ExportRecipient") -> List[QuestionnaireResponseItem]:
+            recipient: "ExportRecipient") -> List[Dict]:
 
         items = []
 

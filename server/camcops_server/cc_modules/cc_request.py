@@ -1739,6 +1739,8 @@ class CamcopsRequest(Request):
         from camcops_server.cc_modules.celery import export_task_backend  # delayed import  # noqa
 
         for recipient_name, basetable, task_pk in self._pending_export_push_requests:  # noqa
+            log.info("Submitting background job to export task {}.{} to {}",
+                     basetable, task_pk, recipient_name)
             export_task_backend.delay(
                 recipient_name=recipient_name,
                 basetable=basetable,

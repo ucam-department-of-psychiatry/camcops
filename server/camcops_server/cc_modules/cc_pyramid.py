@@ -754,8 +754,11 @@ class Routes(object):
     EDIT_USER_GROUP_MEMBERSHIP = "edit_user_group_membership"
     ERASE_TASK_LEAVING_PLACEHOLDER = "erase_task_leaving_placeholder"
     ERASE_TASK_ENTIRELY = "erase_task_entirely"
+    FHIR_CONDITION = "fhir_condition"
     FHIR_DOCUMENT_REFERENCE = "fhir_document_reference"
+    FHIR_OBSERVATION = "fhir_observation"
     FHIR_PATIENT_ID_SYSTEM = "fhir_patient_id_system"
+    FHIR_PRACTITIONER = "fhir_practitioner"
     FHIR_QUESTIONNAIRE = "fhir_questionnaire"
     FHIR_QUESTIONNAIRE_RESPONSE = "fhir_questionnaire_response"
     FORCIBLY_FINALIZE = "forcibly_finalize"
@@ -902,14 +905,26 @@ class RouteCollection(object):
     EDIT_USER_GROUP_MEMBERSHIP = RoutePath(Routes.EDIT_USER_GROUP_MEMBERSHIP)
     ERASE_TASK_LEAVING_PLACEHOLDER = RoutePath(Routes.ERASE_TASK_LEAVING_PLACEHOLDER)  # noqa: E501
     ERASE_TASK_ENTIRELY = RoutePath(Routes.ERASE_TASK_ENTIRELY)
+    FHIR_CONDITION = RoutePath(
+        Routes.FHIR_CONDITION,
+        rf"/{Routes.FHIR_CONDITION}/{{{ViewParam.TABLE_NAME}}}"
+    )
     FHIR_DOCUMENT_REFERENCE = RoutePath(
         Routes.FHIR_DOCUMENT_REFERENCE,
         rf"/{Routes.FHIR_DOCUMENT_REFERENCE}/{{{ViewParam.TABLE_NAME}}}"
+    )
+    FHIR_OBSERVATION = RoutePath(
+        Routes.FHIR_OBSERVATION,
+        rf"/{Routes.FHIR_OBSERVATION}/{{{ViewParam.TABLE_NAME}}}"
     )
     FHIR_PATIENT_ID_SYSTEM = RoutePath(
         Routes.FHIR_PATIENT_ID_SYSTEM,
         f"/{Routes.FHIR_PATIENT_ID_SYSTEM}"
         rf"/{{{ViewParam.WHICH_IDNUM}:\d+}}"
+    )
+    FHIR_PRACTITIONER = RoutePath(
+        Routes.FHIR_PRACTITIONER,
+        rf"/{Routes.FHIR_PRACTITIONER}/{{{ViewParam.TABLE_NAME}}}"
     )
     FHIR_QUESTIONNAIRE = RoutePath(Routes.FHIR_QUESTIONNAIRE)
     FHIR_QUESTIONNAIRE_RESPONSE = RoutePath(

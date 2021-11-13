@@ -404,7 +404,7 @@ def export_tasks_individually(req: "CamcopsRequest",
             else:
                 basetable = task_or_index.task_table_name
                 task_pk = task_or_index.task_pk
-            log.info("Submitting background job to export task {}.{} to {}",
+            log.info("Scheduling job to export task {}.{} to {}",
                      basetable, task_pk, recipient_name)
             export_task_backend.delay(
                 recipient_name=recipient_name,
@@ -503,7 +503,7 @@ def export_task(req: "CamcopsRequest",
                     recipient_name=recipient.recipient_name,
                     basetable=task.tablename,
                     task_pk=task.pk):
-                log.info("Task {!r} already exported to recipient {!r}; "
+                log.info("Task {!r} already exported to recipient {}; "
                          "ignoring", task, recipient)
                 # Not a warning; it's normal to see these because it allows the
                 # client API to skip some checks for speed.

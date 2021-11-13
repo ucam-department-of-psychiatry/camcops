@@ -973,20 +973,20 @@ class Patient(GenericTabletRecordMixin, Base):
             Fc.VALUE: str(idnum_value),
         })
 
-    def get_fhir_subject_reference(
+    def get_fhir_subject_ref(
             self,
             req: "CamcopsRequest",
-            recipient: "ExportRecipient") -> FHIRReference:
+            recipient: "ExportRecipient") -> Dict:
         """
-        Returns a FHIRReference used to refer to this patient as a "subject" of
-        some other entry (like a questionnaire).
+        Returns a FHIRReference (in JSON dict format) used to refer to this
+        patient as a "subject" of some other entry (like a questionnaire).
         """
         return FHIRReference(jsondict={
             Fc.TYPE: Fc.RESOURCE_TYPE_PATIENT,
             Fc.IDENTIFIER: self.get_fhir_identifier(
                 req, recipient.primary_idnum
             ).as_json(),
-        })
+        }).as_json()
 
     # -------------------------------------------------------------------------
     # Database status

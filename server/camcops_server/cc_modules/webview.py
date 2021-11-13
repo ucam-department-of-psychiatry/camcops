@@ -5620,7 +5620,19 @@ def view_task_list(req: "CamcopsRequest") -> Dict[str, Any]:
              request_method=HttpMethod.GET,
              renderer="task_details.mako",
              http_cache=NEVER_CACHE)
+@view_config(route_name=Routes.FHIR_CONDITION,
+             request_method=HttpMethod.GET,
+             renderer="task_details.mako",
+             http_cache=NEVER_CACHE)
 @view_config(route_name=Routes.FHIR_QUESTIONNAIRE_RESPONSE,
+             request_method=HttpMethod.GET,
+             renderer="task_details.mako",
+             http_cache=NEVER_CACHE)
+@view_config(route_name=Routes.FHIR_OBSERVATION,
+             request_method=HttpMethod.GET,
+             renderer="task_details.mako",
+             http_cache=NEVER_CACHE)
+@view_config(route_name=Routes.FHIR_PRACTITIONER,
              request_method=HttpMethod.GET,
              renderer="task_details.mako",
              http_cache=NEVER_CACHE)
@@ -5632,9 +5644,9 @@ def view_task_details(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View details of a specific task type.
 
-    Used also for for FHIR QuestionnaireResponse and DocumentReference "system"
-    types. (There's one system per task. Within each task, the "value" relates
-    to the specific task PK.)
+    Used also for for FHIR DocumentReference, Observation,and
+    QuestionnaireResponse "system" types. (There's one system per task. Within
+    each task, the "value" relates to the specific task PK.)
     """
     table_name = req.matchdict[ViewParam.TABLE_NAME]
     task_class_dict = tablename_to_task_class_dict()

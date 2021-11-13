@@ -1201,7 +1201,7 @@ def camcops_main() -> int:
         # We want the the config filename in the environment from now on:
         os.environ[ENVVAR_CONFIG_FILE] = progargs.config
     cfg_name = os.environ.get(ENVVAR_CONFIG_FILE, None)
-    log.info("Using configuration file: {!r}", cfg_name)
+    log.debug("Using configuration file: {!r}", cfg_name)
 
     # Call the subparser function for the chosen command
     if progargs.func is None:

@@ -147,16 +147,23 @@ This problem occurs intermittently:
 # Imports
 # =============================================================================
 
+from dataclasses import dataclass
 import json
 import logging
 from typing import Dict, TYPE_CHECKING
 
+from cardinal_pythonlib.httpconst import HttpMethod
 from fhirclient.client import FHIRClient
-from fhirclient.models.bundle import Bundle
+from fhirclient.models.bundle import Bundle, BundleEntry, BundleEntryRequest
+from fhirclient.models.codeableconcept import CodeableConcept
+from fhirclient.models.coding import Coding
+from fhirclient.models.identifier import Identifier
+from fhirclient.models.observation import ObservationComponent
 from requests.exceptions import HTTPError
 
 from camcops_server.cc_modules.cc_constants import FHIRConst as Fc
 from camcops_server.cc_modules.cc_exception import FhirExportException
+from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_exportmodels import ExportedTaskFhir
@@ -436,3 +443,85 @@ class FhirTaskExporter(object):
                 saved_entry.last_modified = entry.response.lastModified.date
 
             self.request.dbsession.add(saved_entry)
+
+
+# =============================================================================
+# Helper functions for building FHIR component objects
+# =============================================================================
+
+@dataclass
+class NamedObservation:
+    name: str
+    observation: Dict  # FHIR Observation, in JSON dict format
+
+
+def fhir_reference_from_identifier(identifier: Identifier) -> str:
+    """
+    Returns a reference to a specific FHIR identifier.
+    """
+    return f"{Fc.IDENTIFIER}={identifier.system}|{identifier.value}"
+
+
+def fhir_observation_component_from_snomed(req: "CamcopsRequest",
+                                           expr: SnomedExpression) -> Dict:
+    """
+    Returns a FHIR ObservationComponent (as a dict in JSON format) for a SNOMED
+    CT expression.
+    """
+    observable_entity = req.snomed(SnomedLookup.OBSERVABLE_ENTITY)
+    expr_longform = expr.as_string(longform=True)
+    # For SNOMED, we are providing an observation where the "value" is a code
+    # -- thus, we use "valueCodeableConcept" as the specific value (the generic
+    # being "value<something>" or what FHIR calls "value[x]"). But there also
+    # needs to be a coding system, specified via "code".
+    return ObservationComponent(jsondict={
+        # code = "the type of thing reported here"
+        # Per https://www.hl7.org/fhir/observation.html#code-interop, we use
+        # SNOMED 363787002 = Observable entity.
+        Fc.CODE: CodeableConcept(jsondict={
+            Fc.CODING: [
+                Coding(jsondict={
+                    Fc.SYSTEM: Fc.CODE_SYSTEM_SNOMED_CT,
+                    Fc.CODE: str(observable_entity.identifier),
+                    Fc.DISPLAY: observable_entity.as_string(longform=True),
+                    Fc.USER_SELECTED: False,
+                }).as_json()
+            ],
+            Fc.TEXT: observable_entity.term,
+        }).as_json(),
+
+        # value = "the value of the thing"; the actual SNOMED code of
+        # interest:
+        Fc.VALUE_CODEABLE_CONCEPT: CodeableConcept(jsondict={
+            Fc.CODING: [
+                Coding(jsondict={
+                    # http://www.hl7.org/fhir/snomedct.html
+                    Fc.SYSTEM: Fc.CODE_SYSTEM_SNOMED_CT,
+                    Fc.CODE: expr.as_string(longform=False),
+                    Fc.DISPLAY: expr_longform,
+                    Fc.USER_SELECTED: False,
+                    # ... means "did the user choose it themselves?"
+                    # version: not used
+                }).as_json()
+            ],
+            Fc.TEXT: expr_longform,
+        }).as_json(),
+    }).as_json()
+
+
+def make_fhir_bundle_entry(resource_type_url: str,
+                           identifier: Identifier,
+                           resource: Dict) -> Dict:
+    """
+    Builds a FHIR BundleEntry, as a JSON dict.
+    """
+    bundle_request = BundleEntryRequest(jsondict={
+        Fc.METHOD: HttpMethod.POST,
+        Fc.URL: resource_type_url,
+        Fc.IF_NONE_EXIST: fhir_reference_from_identifier(identifier),
+    })
+    bundle_entry = BundleEntry(jsondict={
+        Fc.REQUEST: bundle_request.as_json(),
+        Fc.RESOURCE: resource,
+    }).as_json()
+    return bundle_entry

@@ -26,14 +26,18 @@ camcops_server/tasks/bmi.py
 
 """
 
-from typing import List, Optional
+from typing import Dict, List, Optional, TYPE_CHECKING
 
 import cardinal_pythonlib.rnc_web as ws
+from fhirclient.models.codeableconcept import CodeableConcept
+from fhirclient.models.coding import Coding
+from fhirclient.models.quantity import Quantity
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Float, UnicodeText
 
-from camcops_server.cc_modules.cc_constants import CssClass
+from camcops_server.cc_modules.cc_constants import CssClass, FHIRConst as Fc
 from camcops_server.cc_modules.cc_ctvinfo import CTV_INCOMPLETE, CtvInfo
+from camcops_server.cc_modules.cc_fhir import make_fhir_bundle_entry
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import (
@@ -52,6 +56,9 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
     TrackerInfo,
     TrackerLabel,
 )  # noqa
+
+if TYPE_CHECKING:
+    from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
 
 
 # =============================================================================
@@ -349,3 +356,126 @@ class Bmi(TaskHasPatientMixin, Task):
                 }),
             ]))
         return expressions
+
+    def get_fhir_extra_bundle_entries(
+            self,
+            req: CamcopsRequest,
+            recipient: "ExportRecipient") -> List[Dict]:
+        """
+        See https://www.hl7.org/fhir/bmi.html
+        """
+        bundle_entries = []  # type: List[Dict]
+
+        # Height
+        if self.height_m:
+            bundle_entries.append(make_fhir_bundle_entry(
+                resource_type_url=Fc.RESOURCE_TYPE_OBSERVATION,
+                identifier=self._get_fhir_observation_id(
+                    req, name="height_m"),
+                resource=self._get_fhir_observation(
+                    req,
+                    recipient,
+                    obs_dict={
+                        Fc.CODE: CodeableConcept(jsondict={
+                            Fc.CODING: [
+                                Coding(jsondict={
+                                    Fc.SYSTEM: Fc.CODE_SYSTEM_LOINC,
+                                    Fc.CODE: Fc.LOINC_HEIGHT_CODE,
+                                    Fc.DISPLAY: Fc.LOINC_HEIGHT_TEXT,
+                                }).as_json()
+                            ]
+                        }).as_json(),
+                        Fc.VALUE_QUANTITY: Quantity(jsondict={
+                            Fc.SYSTEM: Fc.CODE_SYSTEM_UCUM,
+                            Fc.CODE: Fc.UCUM_CODE_METRE,
+                            Fc.VALUE: self.height_m,
+                        }).as_json()
+                    }
+                )
+            ))
+
+        # Mass
+        if self.mass_kg:
+            bundle_entries.append(make_fhir_bundle_entry(
+                resource_type_url=Fc.RESOURCE_TYPE_OBSERVATION,
+                identifier=self._get_fhir_observation_id(
+                    req, name="height_m"),
+                resource=self._get_fhir_observation(
+                    req,
+                    recipient,
+                    obs_dict={
+                        Fc.CODE: CodeableConcept(jsondict={
+                            Fc.CODING: [
+                                Coding(jsondict={
+                                    Fc.SYSTEM: Fc.CODE_SYSTEM_LOINC,
+                                    Fc.CODE: Fc.LOINC_BODY_WEIGHT_CODE,
+                                    Fc.DISPLAY: Fc.LOINC_BODY_WEIGHT_TEXT,
+                                }).as_json()
+                            ]
+                        }).as_json(),
+                        Fc.VALUE_QUANTITY: Quantity(jsondict={
+                            Fc.SYSTEM: Fc.CODE_SYSTEM_UCUM,
+                            Fc.CODE: Fc.UCUM_CODE_KG,
+                            Fc.VALUE: self.mass_kg,
+                        }).as_json()
+                    }
+                )
+            ))
+
+        # BMI
+        if self.is_complete():
+            bundle_entries.append(make_fhir_bundle_entry(
+                resource_type_url=Fc.RESOURCE_TYPE_OBSERVATION,
+                identifier=self._get_fhir_observation_id(
+                    req, name="height_m"),
+                resource=self._get_fhir_observation(
+                    req,
+                    recipient,
+                    obs_dict={
+                        Fc.CODE: CodeableConcept(jsondict={
+                            Fc.CODING: [
+                                Coding(jsondict={
+                                    Fc.SYSTEM: Fc.CODE_SYSTEM_LOINC,
+                                    Fc.CODE: Fc.LOINC_BMI_CODE,
+                                    Fc.DISPLAY: Fc.LOINC_BMI_TEXT,
+                                }).as_json()
+                            ]
+                        }).as_json(),
+                        Fc.VALUE_QUANTITY: Quantity(jsondict={
+                            Fc.SYSTEM: Fc.CODE_SYSTEM_UCUM,
+                            Fc.CODE: Fc.UCUM_CODE_KG_PER_SQ_M,
+                            Fc.VALUE: self.bmi(),
+                        }).as_json()
+                    }
+                )
+            ))
+
+        # Waist circumference
+        if self.waist_cm:
+            bundle_entries.append(make_fhir_bundle_entry(
+                resource_type_url=Fc.RESOURCE_TYPE_OBSERVATION,
+                identifier=self._get_fhir_observation_id(
+                    req, name="height_m"),
+                resource=self._get_fhir_observation(
+                    req,
+                    recipient,
+                    obs_dict={
+                        Fc.CODE: CodeableConcept(jsondict={
+                            Fc.CODING: [
+                                Coding(jsondict={
+                                    Fc.SYSTEM: Fc.CODE_SYSTEM_LOINC,
+                                    Fc.CODE: Fc.LOINC_WAIST_CIRCUMFERENCE_CODE,
+                                    Fc.DISPLAY: Fc.LOINC_WAIST_CIRCUMFERENCE_TEXT,  # noqa
+                                }).as_json()
+                            ]
+                        }).as_json(),
+                        Fc.VALUE_QUANTITY: Quantity(jsondict={
+                            Fc.SYSTEM: Fc.CODE_SYSTEM_UCUM,
+                            Fc.CODE: Fc.UCUM_CODE_CENTIMETRE,
+                            Fc.VALUE: self.waist_cm,
+                        }).as_json()
+                    }
+                )
+            ))
+
+        return bundle_entries

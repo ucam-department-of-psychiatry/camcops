@@ -179,8 +179,8 @@ def get_celery_settings_dict() -> Dict[str, Any]:
     for crontab_entry in config.crontab_entries:
         recipient_name = crontab_entry.content
         schedule_name = f"export_to_{recipient_name}"
-        log.info("Adding regular export job {}: crontab: {}",
-                 schedule_name, crontab_entry)
+        log.debug("Adding regular export job {}: crontab: {}",
+                  schedule_name, crontab_entry)
         schedule[schedule_name] = {
             "task": CELERY_TASK_MODULE_NAME + ".export_to_recipient_backend",
             "schedule": crontab_entry.get_celery_schedule(),
@@ -307,7 +307,10 @@ def retry_backoff_if_raises(self: "CeleryTask") -> None:
     try:
         yield
     except Exception as exc:
-        self.retry(countdown=backoff_delay_s(self.request.retries), exc=exc)
+        delay_s = backoff_delay_s(self.request.retries)
+        log.error("Task failed. Backing off. Will retry after {} s. "
+                  "Error was:\n{}", delay_s, exc)
+        self.retry(countdown=delay_s, exc=exc)
 
 
 @contextmanager
@@ -319,7 +322,10 @@ def retry_jitter_if_raises(self: "CeleryTask") -> None:
     try:
         yield
     except Exception as exc:
-        self.retry(countdown=jittered_delay_s(), exc=exc)
+        delay_s = jittered_delay_s()
+        log.error("Task failed. Will retry after jittered delay: {} s. "
+                  "Error was:\n{}", delay_s, exc)
+        self.retry(countdown=delay_s, exc=exc)
 
 
 # =============================================================================
@@ -330,7 +336,9 @@ def purge_jobs() -> None:
     """
     Purge all jobs from the Celery queue.
     """
+    log.info("Purging back-end (Celery) jobs")
     celery_app.control.purge()
+    log.info("... purged.")
 
 
 # =============================================================================

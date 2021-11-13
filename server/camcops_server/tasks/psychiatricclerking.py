@@ -345,7 +345,7 @@ class PsychiatricClerking(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
         add(SnomedLookup.PSYCLERK_INFORMATION_GIVEN, self.information_given)
 
         codes = [SnomedExpression(
-            req.snomed(SnomedLookup.PSYCHIATRIC_ASSESSMENT_PROCEDURE),
+            req.snomed(SnomedLookup.DIAGNOSTIC_PSYCHIATRIC_INTERVIEW_PROCEDURE),
             refinement=refinement or None,
         )]
         return codes

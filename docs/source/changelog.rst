@@ -3579,3 +3579,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
   Python 3.6, so we do too. Minimum Python version now 3.7.
 
 - Bump ``pandas`` from 1.0.5 to 1.3.4 (as 1.0.5 not supported by Python 3.9).
+
+- Some ``pyexcel-*`` bumps to remove warnings.
+
+- Update SNOMED code fetcher. Replace 32537008 with 165172002 in
+  PsychiatricClerking. Other minor tweaks.
