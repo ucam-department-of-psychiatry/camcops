@@ -5600,6 +5600,10 @@ def view_fhir_patient_id_system(req: "CamcopsRequest") -> Dict[str, Any]:
              request_method=HttpMethod.GET,
              renderer="all_tasks.mako",
              http_cache=NEVER_CACHE)
+@view_config(route_name=Routes.FHIR_TABLENAME_PK_ID,  # somewhat arbitrarily
+             request_method=HttpMethod.GET,
+             renderer="all_tasks.mako",
+             http_cache=NEVER_CACHE)
 @view_config(route_name=Routes.TASK_LIST,
              request_method=HttpMethod.GET,
              renderer="all_tasks.mako",

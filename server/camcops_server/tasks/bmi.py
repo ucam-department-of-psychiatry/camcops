@@ -399,7 +399,7 @@ class Bmi(TaskHasPatientMixin, Task):
             bundle_entries.append(make_fhir_bundle_entry(
                 resource_type_url=Fc.RESOURCE_TYPE_OBSERVATION,
                 identifier=self._get_fhir_observation_id(
-                    req, name="height_m"),
+                    req, name="mass_kg"),
                 resource=self._get_fhir_observation(
                     req,
                     recipient,
@@ -427,7 +427,7 @@ class Bmi(TaskHasPatientMixin, Task):
             bundle_entries.append(make_fhir_bundle_entry(
                 resource_type_url=Fc.RESOURCE_TYPE_OBSERVATION,
                 identifier=self._get_fhir_observation_id(
-                    req, name="height_m"),
+                    req, name="bmi"),
                 resource=self._get_fhir_observation(
                     req,
                     recipient,
@@ -455,7 +455,7 @@ class Bmi(TaskHasPatientMixin, Task):
             bundle_entries.append(make_fhir_bundle_entry(
                 resource_type_url=Fc.RESOURCE_TYPE_OBSERVATION,
                 identifier=self._get_fhir_observation_id(
-                    req, name="height_m"),
+                    req, name="waist_cm"),
                 resource=self._get_fhir_observation(
                     req,
                     recipient,

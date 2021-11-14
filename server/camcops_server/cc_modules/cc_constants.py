@@ -1053,6 +1053,7 @@ class FHIRConst:
     # Resource types (usually: BundleEntryRequest keys)
     # -------------------------------------------------------------------------
 
+    RESOURCE_TYPE_BUNDLE = "Bundle"
     RESOURCE_TYPE_CONDITION = "Condition"
     RESOURCE_TYPE_DOCUMENT_REFERENCE = "DocumentReference"
     RESOURCE_TYPE_OBSERVATION = "Observation"
@@ -1064,6 +1065,11 @@ class FHIRConst:
     # -------------------------------------------------------------------------
     # Resource-specific keys
     # -------------------------------------------------------------------------
+
+    # Annotation keys
+    AUTHOR_REFERENCE = "authorReference"
+    AUTHOR_STRING = "authorString"
+    TIME = "time"
 
     # Attachment and Binary keys
     CONTENT_TYPE = "contentType"
@@ -1140,7 +1146,11 @@ class FHIRConst:
 
     # Observation/ObservationComponent keys
     VALUE_CODEABLE_CONCEPT = "valueCodeableConcept"
+    VALUE_CODING = "valueCoding"
+    VALUE_DATE_TIME = "valueDateTime"
+    VALUE_INTEGER = "valueInteger"
     VALUE_QUANTITY = "valueQuantity"
+    VALUE_STRING = "valueString"
 
     # Patient/Practitioner keys
     ADDRESS = "address"
@@ -1169,9 +1179,22 @@ class FHIRConst:
     QSTATUS_IN_PROGRESS = "in-progress"
     QSTATUS_STOPPED = "stopped"
 
+    # QuestionnaireItem keys
+    LINK_ID = "linkId"
+    ANSWER_OPTION = "answerOption"
+    # QuestionnaireItem values
+    QITEM_TYPE_CHOICE = "choice"
+    # ... I think this belongs here! See
+    # https://www.hl7.org/fhir/codesystem-item-type.html
+    QITEM_TYPE_DATETIME = "dateTime"
+    QITEM_TYPE_STRING = "string"
+
     # QuestionnaireResponse keys
     AUTHORED = "authored"
     QUESTIONNAIRE = "questionnaire"
+
+    # QuestionnaireResponseItem keys
+    ANSWER = "answer"
 
     # -------------------------------------------------------------------------
     # Very specific codes
@@ -1203,3 +1226,20 @@ class FHIRConst:
     VITAL_SIGNS_DISPLAY = "Vital Signs"
 
     # ID_SYSTEM_NHS_NUMBER = "https://fhir.nhs.uk/Id/nhs-number"
+
+    # -------------------------------------------------------------------------
+    # Response values
+    # -------------------------------------------------------------------------
+
+    ETAG = "etag"
+    ID = "id"
+    LAST_MODIFIED = "lastModified"
+    LINK = "link"
+    LOCATION = "location"
+    RELATION = "relation"
+    RESOURCE_TYPE = "resourceType"
+    RESPONSE = "response"
+    SELF = "self"
+    TRANSACTION_RESPONSE = "transaction-response"
+    RESPONSE_STATUS_200_OK = "200 OK"
+    RESPONSE_STATUS_201_CREATED = "201 Created"

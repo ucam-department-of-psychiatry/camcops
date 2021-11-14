@@ -43,7 +43,7 @@ SQL     As part of an SQL or SQLite download.
 """
 
 from base64 import b64encode
-from collections import OrderedDict
+from collections import Counter, OrderedDict
 import datetime
 import logging
 import statistics
@@ -56,7 +56,7 @@ from cardinal_pythonlib.datetimefunc import (
     format_datetime,
     pendulum_to_utc_datetime_without_tz,
 )
-from cardinal_pythonlib.httpconst import HttpMethod, MimeType
+from cardinal_pythonlib.httpconst import MimeType
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.sqlalchemy.orm_inspect import (
     gen_columns,
@@ -65,7 +65,7 @@ from cardinal_pythonlib.sqlalchemy.orm_inspect import (
 from cardinal_pythonlib.sqlalchemy.schema import is_sqlatype_string
 from cardinal_pythonlib.stringfunc import mangle_unicode_to_ascii
 from fhirclient.models.attachment import Attachment
-from fhirclient.models.bundle import BundleEntry, BundleEntryRequest
+from fhirclient.models.bundle import Bundle
 from fhirclient.models.codeableconcept import CodeableConcept
 from fhirclient.models.coding import Coding
 from fhirclient.models.contactpoint import ContactPoint
@@ -117,9 +117,7 @@ from camcops_server.cc_modules.cc_db import (
 from camcops_server.cc_modules.cc_exception import FhirExportException
 from camcops_server.cc_modules.cc_fhir import (
     fhir_observation_component_from_snomed,
-    fhir_reference_from_identifier,
     make_fhir_bundle_entry,
-    NamedObservation,
 )
 from camcops_server.cc_modules.cc_filename import get_export_filename
 from camcops_server.cc_modules.cc_hl7 import make_obr_segment, make_obx_segment
@@ -1350,9 +1348,57 @@ class Task(GenericTabletRecordMixin, Base):
     # FHIR: framework
     # -------------------------------------------------------------------------
 
-    def get_fhir_bundle_entries(self,
-                                req: "CamcopsRequest",
-                                recipient: "ExportRecipient") -> List[Dict]:
+    def get_fhir_bundle(
+            self,
+            req: "CamcopsRequest",
+            recipient: "ExportRecipient",
+            skip_docs_if_other_content: bool = DEBUG_SKIP_FHIR_DOCS) \
+            -> Bundle:
+        """
+        Get a single FHIR Bundle with all entries. See
+        :meth:`get_fhir_bundle_entries`.
+        """
+        bundle_entries = self.get_fhir_bundle_entries(
+            req,
+            recipient,
+            skip_docs_if_other_content=skip_docs_if_other_content
+        )
+        # ... may raise FhirExportException
+
+        # Sanity checks:
+        id_counter = Counter()
+        for entry in bundle_entries:
+            assert Fc.RESOURCE in entry, (
+                f"Bundle entry has no resource: {entry}"
+            )  # just wrong
+            resource = entry[Fc.RESOURCE]
+            assert Fc.IDENTIFIER in resource, (
+                f"Bundle entry has no identifier for its resource: "
+                f"{resource}"
+            )  # might succeed, but would insert an unidentified resource
+            identifier = resource[Fc.IDENTIFIER]
+            if not isinstance(identifier, list):
+                identifier = [identifier]
+            for id_ in identifier:
+                system = id_[Fc.SYSTEM]
+                value = id_[Fc.VALUE]
+                id_counter.update([f"{system}|{value}"])
+            most_common = id_counter.most_common(1)[0]
+            assert most_common[1] == 1, (
+                f"Resources have duplicate IDs: {most_common[0]}"
+            )
+
+        return Bundle(jsondict={
+            Fc.TYPE: Fc.TRANSACTION,
+            Fc.ENTRY: bundle_entries,
+        })
+
+    def get_fhir_bundle_entries(
+            self,
+            req: "CamcopsRequest",
+            recipient: "ExportRecipient",
+            skip_docs_if_other_content: bool = DEBUG_SKIP_FHIR_DOCS) \
+            -> List[Dict]:
         """
         Get all FHIR bundle entries. This is the "top-level" function to
         provide all FHIR information for the task. That information includes:
@@ -1363,7 +1409,19 @@ class Task(GenericTabletRecordMixin, Base):
           this task instance.
 
         If the task refuses to support FHIR, raises :exc:`FhirExportException`.
-        """
+
+        Args:
+            req:
+                a :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`
+            recipient:
+                an
+                :class:`camcops_server.cc_modules.cc_exportrecipient.ExportRecipient`
+            skip_docs_if_other_content:
+                A debugging option: skip the document (e.g. PDF, HTML, XML),
+                making the FHIR output smaller and more legible for debugging.
+                However, if the task offers no other content, this will raise
+                :exc:`FhirExportException`.
+        """  # noqa
         bundle_entries = []  # type: List[Dict]
 
         # Patient (0 or 1)
@@ -1394,7 +1452,7 @@ class Task(GenericTabletRecordMixin, Base):
         bundle_entries += self._get_fhir_detail_bundle_entries(req, recipient)
 
         # DocumentReference (always 1)
-        if DEBUG_SKIP_FHIR_DOCS:
+        if skip_docs_if_other_content:
             if not bundle_entries:
                 # We can't have nothing!
                 raise FhirExportException(
@@ -1410,6 +1468,13 @@ class Task(GenericTabletRecordMixin, Base):
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Generic
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    @property
+    def fhir_when_task_created(self) -> str:
+        """
+        Time of task creation, in a FHIR-compatible format.
+        """
+        return self.when_created.isoformat()
 
     def _get_fhir_detail_bundle_entries(
             self,
@@ -1654,7 +1719,7 @@ class Task(GenericTabletRecordMixin, Base):
         # Build the DocumentReference
         dr_dict = {
             # Metadata:
-            Fc.DATE: self.when_created.isoformat(),
+            Fc.DATE: self.fhir_when_task_created,
             Fc.DESCRIPTION: self.longname(req),
             Fc.DOCSTATUS: (
                 Fc.DOCSTATUS_FINAL if self.is_finalized()
@@ -1682,21 +1747,14 @@ class Task(GenericTabletRecordMixin, Base):
             ]
         if self.has_patient:
             dr_dict[Fc.SUBJECT] = self._get_fhir_subject_ref(req, recipient)
+
         # DocumentReference
-        docref = DocumentReference(jsondict=dr_dict)
-
         docref_id = self._get_fhir_docref_id(req, task_format)
-
-        bundle_request = BundleEntryRequest(jsondict={
-            Fc.METHOD: HttpMethod.POST,
-            Fc.URL: Fc.RESOURCE_TYPE_DOCUMENT_REFERENCE,
-            Fc.IF_NONE_EXIST: fhir_reference_from_identifier(docref_id),
-        })
-
-        return BundleEntry(jsondict={
-            Fc.REQUEST: bundle_request.as_json(),
-            Fc.RESOURCE: docref.as_json(),
-        }).as_json()
+        return make_fhir_bundle_entry(
+            resource_type_url=Fc.RESOURCE_TYPE_DOCUMENT_REFERENCE,
+            identifier=docref_id,
+            resource=DocumentReference(jsondict=dr_dict).as_json()
+        )
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Observation
@@ -1712,7 +1770,7 @@ class Task(GenericTabletRecordMixin, Base):
         Observation (as a dict in JSON format).
         """
         obs_dict.update({
-            Fc.EFFECTIVE_DATE_TIME: self.when_created.isoformat(),
+            Fc.EFFECTIVE_DATE_TIME: self.fhir_when_task_created,
             Fc.STATUS: (
                 Fc.OBSSTATUS_FINAL if self.is_finalized()
                 else Fc.OBSSTATUS_PRELIMINARY
@@ -1788,20 +1846,13 @@ class Task(GenericTabletRecordMixin, Base):
             Fc.DESCRIPTION: help_url,  # Natural language description of the questionnaire  # noqa
             Fc.COPYRIGHT: help_url,  # Use and/or publishing restrictions
             Fc.STATUS: Fc.QSTATUS_ACTIVE,  # Could also be: draft, retired, unknown  # noqa
-            Fc.IDENTIFIER: [q_identifier.as_json()],
             Fc.ITEM: self.get_fhir_questionnaire_items(req, recipient)
         })
-
-        bundle_request = BundleEntryRequest(jsondict={
-            Fc.METHOD: HttpMethod.POST,
-            Fc.URL: Fc.RESOURCE_TYPE_QUESTIONNAIRE,
-            Fc.IF_NONE_EXIST: fhir_reference_from_identifier(q_identifier),
-        })
-
-        return BundleEntry(jsondict={
-            Fc.REQUEST: bundle_request.as_json(),
-            Fc.RESOURCE: questionnaire.as_json(),
-        }).as_json()
+        return make_fhir_bundle_entry(
+            resource_type_url=Fc.RESOURCE_TYPE_QUESTIONNAIRE,
+            identifier=q_identifier,
+            resource=questionnaire.as_json()
+        )
 
     def _get_fhir_questionnaire_response_bundle_entry(
             self,
@@ -1841,9 +1892,8 @@ class Task(GenericTabletRecordMixin, Base):
             # http://hapi.fhir.org/baseR4/ (4.0.1 (R4)) is OK
             Fc.QUESTIONNAIRE: f"{q_identifier.system}|{q_identifier.value}",
 
-            Fc.AUTHORED: self.when_created.isoformat(),
+            Fc.AUTHORED: self.fhir_when_task_created,
             Fc.STATUS: status,
-            Fc.IDENTIFIER: qr_identifier.as_json(),
 
             # TODO: Could also add:
             # https://www.hl7.org/fhir/questionnaireresponse.html
@@ -1855,18 +1905,12 @@ class Task(GenericTabletRecordMixin, Base):
         if self.has_patient:
             qr_jsondict[Fc.SUBJECT] = self._get_fhir_subject_ref(req, recipient)
 
-        qr = QuestionnaireResponse(qr_jsondict)
-
-        bundle_request = BundleEntryRequest(jsondict={
-            Fc.METHOD: HttpMethod.POST,
-            Fc.URL: Fc.RESOURCE_TYPE_QUESTIONNAIRE_RESPONSE,
-            Fc.IF_NONE_EXIST: fhir_reference_from_identifier(qr_identifier),
-        })
-
-        return BundleEntry(jsondict={
-            Fc.REQUEST: bundle_request.as_json(),
-            Fc.RESOURCE: qr.as_json(),
-        }).as_json()
+        return make_fhir_bundle_entry(
+            resource_type_url=Fc.RESOURCE_TYPE_QUESTIONNAIRE_RESPONSE,
+            identifier=qr_identifier,
+            resource=QuestionnaireResponse(qr_jsondict).as_json(),
+            identifier_is_list=False
+        )
 
     # -------------------------------------------------------------------------
     # FHIR: functions to override
@@ -1898,9 +1942,9 @@ class Task(GenericTabletRecordMixin, Base):
 
     def get_fhir_extra_bundle_entries(
             self, req: "CamcopsRequest",
-            recipient: "ExportRecipient") -> List[NamedObservation]:
+            recipient: "ExportRecipient") -> List[Dict]:
         """
-        Return a list of extra NamedObservation items, if relevant. (SNOMED-CT
+        Return a list of extra FHIR bundle entries, if relevant. (SNOMED-CT
         codes are done automatically; don't repeat those.)
         """
         return []

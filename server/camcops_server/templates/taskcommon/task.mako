@@ -160,7 +160,7 @@ ${ task.get_task_html(req) | n }
         ${ format_datetime(task._when_added_exact, DateFormat.SHORT_DATETIME_SECONDS) }.
     ${ _("Group:") }
         ${ task._group.name } (${ task._group_id }).
-    ${ _("Adding user:") }
+    ${ _("Added by:") }
         ${ task.get_adding_user_username() }.
     ${ _("Server PK:") }
         ${ task.pk }

@@ -45,6 +45,7 @@ from colander import (
     SequenceSchema,
     String,
 )
+from fhirclient.models.annotation import Annotation
 from fhirclient.models.codeableconcept import CodeableConcept
 from fhirclient.models.coding import Coding
 from fhirclient.models.condition import Condition
@@ -267,7 +268,7 @@ class DiagnosisBase(TaskHasClinicianMixin, TaskHasPatientMixin, Task, ABC,
         bundle_entries = []  # type: List[Dict]
         for item in self.items:
             display = item.human()
-            condition = Condition(jsondict={
+            condition_dict = {
                 Fc.CODE: CodeableConcept(jsondict={
                     Fc.CODING: [
                         Coding(jsondict={
@@ -279,14 +280,23 @@ class DiagnosisBase(TaskHasClinicianMixin, TaskHasPatientMixin, Task, ABC,
                     ],
                     Fc.TEXT: display,
                 }).as_json(),
-                Fc.NOTE: item.comment,
                 Fc.SUBJECT: self._get_fhir_subject_ref(req, recipient),
                 Fc.RECORDER: self._get_fhir_practitioner_ref(req),
-            }).as_json()
+            }
+            if item.comment:
+                condition_dict[Fc.NOTE] = [
+                    Annotation(jsondict={
+                        Fc.AUTHOR_REFERENCE:
+                            self._get_fhir_practitioner_ref(req),
+                        Fc.AUTHOR_STRING: self.get_clinician_name(),
+                        Fc.TEXT: item.comment,
+                        Fc.TIME: self.fhir_when_task_created,
+                    }).as_json()
+                ]
             bundle_entry = make_fhir_bundle_entry(
                 resource_type_url=Fc.RESOURCE_TYPE_CONDITION,
                 identifier=self._get_fhir_condition_id(req, item.seqnum),
-                resource=condition
+                resource=Condition(jsondict=condition_dict).as_json()
             )
             bundle_entries.append(bundle_entry)
         return bundle_entries

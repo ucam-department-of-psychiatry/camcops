@@ -147,7 +147,6 @@ This problem occurs intermittently:
 # Imports
 # =============================================================================
 
-from dataclasses import dataclass
 import json
 import logging
 from typing import Dict, TYPE_CHECKING
@@ -163,6 +162,7 @@ from requests.exceptions import HTTPError
 
 from camcops_server.cc_modules.cc_constants import FHIRConst as Fc
 from camcops_server.cc_modules.cc_exception import FhirExportException
+from camcops_server.cc_modules.cc_pyramid import Routes
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
 
 if TYPE_CHECKING:
@@ -264,6 +264,17 @@ What's been sent?
         SELECT id FROM _export_recipients WHERE transmission_method = 'fhir'
     );
 
+    -- Entries for all BMI tasks:
+    SELECT * FROM _exported_task_fhir_entry WHERE exported_task_fhir_id IN (
+        SELECT _exported_task_fhir.id FROM _exported_task_fhir
+        INNER JOIN _exported_tasks
+            ON _exported_task_fhir.exported_task_id = _exported_tasks.id
+        INNER JOIN _export_recipients
+            ON _exported_tasks.recipient_id = _export_recipients.id
+        WHERE _export_recipients.transmission_method = 'fhir'
+        AND _exported_tasks.basetable = 'bmi'
+    );
+
 
 Inspecting fhirclient
 =====================
@@ -336,14 +347,10 @@ class FhirTaskExporter(object):
         # conditional create
         # supported resource types (statement.rest[0].resource[])
 
-        bundle_entries = self.task.get_fhir_bundle_entries(
+        bundle = self.task.get_fhir_bundle(
             self.request,
             self.exported_task.recipient
         )  # may raise FhirExportException
-        bundle = Bundle(jsondict={
-            Fc.TYPE: Fc.TRANSACTION,
-            Fc.ENTRY: bundle_entries,
-        })
 
         try:
             # Attempt to create the receiver on the server, via POST:
@@ -449,10 +456,18 @@ class FhirTaskExporter(object):
 # Helper functions for building FHIR component objects
 # =============================================================================
 
-@dataclass
-class NamedObservation:
-    name: str
-    observation: Dict  # FHIR Observation, in JSON dict format
+def fhir_pk_identifier(req: "CamcopsRequest",
+                       tablename: str,
+                       pk: int) -> Identifier:
+    """
+    Creates a "fallback" identifier -- this is poor, but allows unique
+    identification of anything (such as a patient with no proper ID numbers)
+    based on its CamCOPS table name and server PK.
+    """
+    return Identifier(jsondict={
+        Fc.SYSTEM: req.route_url(Routes.FHIR_TABLENAME_PK_ID),
+        Fc.VALUE: f"{tablename}.{pk}",
+    }).as_json()
 
 
 def fhir_reference_from_identifier(identifier: Identifier) -> str:
@@ -511,17 +526,32 @@ def fhir_observation_component_from_snomed(req: "CamcopsRequest",
 
 def make_fhir_bundle_entry(resource_type_url: str,
                            identifier: Identifier,
-                           resource: Dict) -> Dict:
+                           resource: Dict,
+                           identifier_is_list: bool = True) -> Dict:
     """
     Builds a FHIR BundleEntry, as a JSON dict.
+
+    This also takes care of the identifier, by ensuring (a) that the resource
+    is labelled with the identifier, and (b) that the BundleEntryRequest has
+    an ifNoneExist condition referring to that identifier.
     """
+    if Fc.IDENTIFIER in resource:
+        log.warning(f"Duplication: {Fc.IDENTIFIER!r} specified in resource "
+                    f"but would be auto-added by make_fhir_bundle_entry()")
+    if identifier_is_list:
+        # Some, like Observation, Patient, and Questionnaire, need lists here.
+        resource[Fc.IDENTIFIER] = [identifier.as_json()]
+    else:
+        # Others, like QuestionnaireResponse, don't.
+        resource[Fc.IDENTIFIER] = identifier.as_json()
     bundle_request = BundleEntryRequest(jsondict={
         Fc.METHOD: HttpMethod.POST,
         Fc.URL: resource_type_url,
         Fc.IF_NONE_EXIST: fhir_reference_from_identifier(identifier),
+        # "If this resource doesn't exist, as determined by this identifier,
+        # then create it:" https://www.hl7.org/fhir/http.html#ccreate
     })
-    bundle_entry = BundleEntry(jsondict={
+    return BundleEntry(jsondict={
         Fc.REQUEST: bundle_request.as_json(),
         Fc.RESOURCE: resource,
     }).as_json()
-    return bundle_entry

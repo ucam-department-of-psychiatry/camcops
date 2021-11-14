@@ -41,12 +41,10 @@ from cardinal_pythonlib.datetimefunc import (
     get_age,
     PotentialDatetimeType,
 )
-from cardinal_pythonlib.httpconst import HttpMethod
 from cardinal_pythonlib.json.typing_helpers import JsonObjectType
 from cardinal_pythonlib.logs import BraceStyleAdapter
 import cardinal_pythonlib.rnc_web as ws
 from fhirclient.models.address import Address
-from fhirclient.models.bundle import BundleEntry, BundleEntryRequest
 from fhirclient.models.contactpoint import ContactPoint
 from fhirclient.models.humanname import HumanName
 from fhirclient.models.fhirreference import FHIRReference
@@ -78,6 +76,10 @@ from camcops_server.cc_modules.cc_constants import (
     TSV_PATIENT_FIELD_PREFIX,
 )
 from camcops_server.cc_modules.cc_db import GenericTabletRecordMixin
+from camcops_server.cc_modules.cc_fhir import (
+    fhir_pk_identifier,
+    make_fhir_bundle_entry,
+)
 from camcops_server.cc_modules.cc_hl7 import make_pid_segment
 from camcops_server.cc_modules.cc_html import answer
 from camcops_server.cc_modules.cc_simpleobjects import (
@@ -885,10 +887,6 @@ class Patient(GenericTabletRecordMixin, Base):
         """
         # The JSON objects we will build up:
         patient_dict = {}  # type: JsonObjectType
-        bundle_dict = {
-            Fc.METHOD: HttpMethod.POST,
-            Fc.URL: Fc.RESOURCE_TYPE_PATIENT,
-        }  # type: JsonObjectType
 
         # Name
         if self.forename or self.surname:
@@ -934,23 +932,21 @@ class Patient(GenericTabletRecordMixin, Base):
 
         # ID numbers
         which_idnum = recipient.primary_idnum
+        assert self.has_idnum_type(which_idnum), (
+            f"Bug: Patient with server PK {self.pk} does not have an ID "
+            f"number of type {which_idnum}, but this is mandatory"
+        )
         if self.has_idnum_type(which_idnum):
             identifier = self.get_fhir_identifier(req, which_idnum)
-            patient_dict[Fc.IDENTIFIER] = [identifier.as_json()]
-            # "If this patient doesn't exist, as determined by this identifier,
-            # then create it:"
-            # https://www.hl7.org/fhir/http.html#ccreate
-            bundle_dict[Fc.IF_NONE_EXIST] = (
-                f"{Fc.IDENTIFIER}={identifier.system}|{identifier.value}"
-            )
+        else:
+            # This is pretty silly.
+            identifier = fhir_pk_identifier(req, self.__tablename__, self.pk)
 
-        # Build the bundle
-        fhir_patient = FhirPatient(jsondict=patient_dict)
-        bundle_request = BundleEntryRequest(jsondict=bundle_dict)
-        return BundleEntry(jsondict={
-            Fc.RESOURCE: fhir_patient.as_json(),
-            Fc.REQUEST: bundle_request.as_json()
-        }).as_json()
+        return make_fhir_bundle_entry(
+            resource_type_url=Fc.RESOURCE_TYPE_PATIENT,
+            identifier=identifier,
+            resource=FhirPatient(jsondict=patient_dict).as_json()
+        )
 
     def get_fhir_identifier(self,
                             req: "CamcopsRequest",

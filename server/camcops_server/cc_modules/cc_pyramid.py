@@ -761,6 +761,7 @@ class Routes(object):
     FHIR_PRACTITIONER = "fhir_practitioner"
     FHIR_QUESTIONNAIRE = "fhir_questionnaire"
     FHIR_QUESTIONNAIRE_RESPONSE = "fhir_questionnaire_response"
+    FHIR_TABLENAME_PK_ID = "fhir_tablename_pk_id"
     FORCIBLY_FINALIZE = "forcibly_finalize"
     HOME = "home"
     LOGIN = "login"
@@ -931,6 +932,7 @@ class RouteCollection(object):
         Routes.FHIR_QUESTIONNAIRE_RESPONSE,
         rf"/{Routes.FHIR_QUESTIONNAIRE_RESPONSE}/{{{ViewParam.TABLE_NAME}}}"
     )
+    FHIR_TABLENAME_PK_ID = RoutePath(Routes.FHIR_TABLENAME_PK_ID)
     FORCIBLY_FINALIZE = RoutePath(Routes.FORCIBLY_FINALIZE)
     HOME = RoutePath(Routes.HOME, MASTER_ROUTE_WEBVIEW)  # mounted at "/"
     LOGIN = RoutePath(Routes.LOGIN)
