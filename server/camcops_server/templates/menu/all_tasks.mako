@@ -41,12 +41,11 @@ from camcops_server.cc_modules.cc_pyramid import Routes
         <th>${ _("Code, with link to details") }</th>
         <th>${ _("Short name") }</th>
         <th>${ _("Full name, with link to help") }</th>
-        <th>${ _("Details") }</th>
     </tr>
     %for tc in all_task_classes:
         <tr>
             <td>
-                <a href="${ req.route_url(Routes.FHIR_QUESTIONNAIRE_RESPONSE,
+                <a href="${ req.route_url(Routes.TASK_DETAILS,
                                           table_name=tc.tablename) }">
                     ${ tc.tablename }
                 </a>

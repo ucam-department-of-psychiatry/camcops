@@ -759,7 +759,7 @@ class Routes(object):
     FHIR_OBSERVATION = "fhir_observation"
     FHIR_PATIENT_ID_SYSTEM = "fhir_patient_id_system"
     FHIR_PRACTITIONER = "fhir_practitioner"
-    FHIR_QUESTIONNAIRE = "fhir_questionnaire"
+    FHIR_QUESTIONNAIRE_SYSTEM = "fhir_questionnaire"
     FHIR_QUESTIONNAIRE_RESPONSE = "fhir_questionnaire_response"
     FHIR_TABLENAME_PK_ID = "fhir_tablename_pk_id"
     FORCIBLY_FINALIZE = "forcibly_finalize"
@@ -844,6 +844,23 @@ STATIC_CAMCOPS_PACKAGE_PATH = "camcops_server.static:"
 # "camcops_server" owning package
 
 
+def _mk_fhir_tablename_route(_route: str) -> RoutePath:
+    return RoutePath(
+        _route,
+        f"/{_route}"
+        rf"/{{{ViewParam.TABLE_NAME}:\w+}}"
+    )
+
+
+def _mk_fhir_tablename_pk_route(_route: str) -> RoutePath:
+    return RoutePath(
+        _route,
+        f"/{_route}"
+        rf"/{{{ViewParam.TABLE_NAME}:\w+}}"
+        rf"/{{{ViewParam.SERVER_PK}:\d+}}"
+    )
+
+
 class RouteCollection(object):
     """
     All routes, with their paths, for CamCOPS.
@@ -906,33 +923,30 @@ class RouteCollection(object):
     EDIT_USER_GROUP_MEMBERSHIP = RoutePath(Routes.EDIT_USER_GROUP_MEMBERSHIP)
     ERASE_TASK_LEAVING_PLACEHOLDER = RoutePath(Routes.ERASE_TASK_LEAVING_PLACEHOLDER)  # noqa: E501
     ERASE_TASK_ENTIRELY = RoutePath(Routes.ERASE_TASK_ENTIRELY)
-    FHIR_CONDITION = RoutePath(
+    FHIR_CONDITION = _mk_fhir_tablename_pk_route(
         Routes.FHIR_CONDITION,
-        rf"/{Routes.FHIR_CONDITION}/{{{ViewParam.TABLE_NAME}}}"
     )
-    FHIR_DOCUMENT_REFERENCE = RoutePath(
-        Routes.FHIR_DOCUMENT_REFERENCE,
-        rf"/{Routes.FHIR_DOCUMENT_REFERENCE}/{{{ViewParam.TABLE_NAME}}}"
+    FHIR_DOCUMENT_REFERENCE = _mk_fhir_tablename_pk_route(
+        Routes.FHIR_DOCUMENT_REFERENCE
     )
-    FHIR_OBSERVATION = RoutePath(
-        Routes.FHIR_OBSERVATION,
-        rf"/{Routes.FHIR_OBSERVATION}/{{{ViewParam.TABLE_NAME}}}"
+    FHIR_OBSERVATION = _mk_fhir_tablename_pk_route(
+        Routes.FHIR_OBSERVATION
     )
     FHIR_PATIENT_ID_SYSTEM = RoutePath(
         Routes.FHIR_PATIENT_ID_SYSTEM,
         f"/{Routes.FHIR_PATIENT_ID_SYSTEM}"
         rf"/{{{ViewParam.WHICH_IDNUM}:\d+}}"
     )
-    FHIR_PRACTITIONER = RoutePath(
-        Routes.FHIR_PRACTITIONER,
-        rf"/{Routes.FHIR_PRACTITIONER}/{{{ViewParam.TABLE_NAME}}}"
+    FHIR_PRACTITIONER = _mk_fhir_tablename_pk_route(
+        Routes.FHIR_PRACTITIONER
     )
-    FHIR_QUESTIONNAIRE = RoutePath(Routes.FHIR_QUESTIONNAIRE)
-    FHIR_QUESTIONNAIRE_RESPONSE = RoutePath(
-        Routes.FHIR_QUESTIONNAIRE_RESPONSE,
-        rf"/{Routes.FHIR_QUESTIONNAIRE_RESPONSE}/{{{ViewParam.TABLE_NAME}}}"
+    FHIR_QUESTIONNAIRE_SYSTEM = RoutePath(Routes.FHIR_QUESTIONNAIRE_SYSTEM)
+    FHIR_QUESTIONNAIRE_RESPONSE = _mk_fhir_tablename_pk_route(
+        Routes.FHIR_QUESTIONNAIRE_RESPONSE
     )
-    FHIR_TABLENAME_PK_ID = RoutePath(Routes.FHIR_TABLENAME_PK_ID)
+    FHIR_TABLENAME_PK_ID = _mk_fhir_tablename_pk_route(
+        Routes.FHIR_TABLENAME_PK_ID
+    )
     FORCIBLY_FINALIZE = RoutePath(Routes.FORCIBLY_FINALIZE)
     HOME = RoutePath(Routes.HOME, MASTER_ROUTE_WEBVIEW)  # mounted at "/"
     LOGIN = RoutePath(Routes.LOGIN)

@@ -140,8 +140,6 @@ This problem occurs intermittently:
 
 """  # noqa
 
-# *** todo: views for the other FHIR-to-CamCOPS URLs; also, add the task help URL to the outbound info (and view)  # noqa
-
 
 # =============================================================================
 # Imports
@@ -458,23 +456,42 @@ class FhirTaskExporter(object):
 
 def fhir_pk_identifier(req: "CamcopsRequest",
                        tablename: str,
-                       pk: int) -> Identifier:
+                       pk: int,
+                       value_within_task: str) -> Identifier:
     """
     Creates a "fallback" identifier -- this is poor, but allows unique
     identification of anything (such as a patient with no proper ID numbers)
     based on its CamCOPS table name and server PK.
     """
     return Identifier(jsondict={
-        Fc.SYSTEM: req.route_url(Routes.FHIR_TABLENAME_PK_ID),
-        Fc.VALUE: f"{tablename}.{pk}",
+        Fc.SYSTEM: req.route_url(
+            Routes.FHIR_TABLENAME_PK_ID,
+            table_name=tablename,
+            server_pk=pk
+        ),
+        Fc.VALUE: value_within_task,
     }).as_json()
+
+
+def fhir_system_value(system: str, value: str) -> str:
+    """
+    How FHIR expresses system/value pairs.
+    """
+    return f"{system}|{value}"
+
+
+def fhir_sysval_from_id(identifier: Identifier) -> str:
+    """
+    How FHIR expresses system/value pairs.
+    """
+    return f"{identifier.system}|{identifier.value}"
 
 
 def fhir_reference_from_identifier(identifier: Identifier) -> str:
     """
     Returns a reference to a specific FHIR identifier.
     """
-    return f"{Fc.IDENTIFIER}={identifier.system}|{identifier.value}"
+    return f"{Fc.IDENTIFIER}={fhir_sysval_from_id(identifier)}"
 
 
 def fhir_observation_component_from_snomed(req: "CamcopsRequest",

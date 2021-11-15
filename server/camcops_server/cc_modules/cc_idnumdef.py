@@ -175,7 +175,7 @@ class IdNumDefinition(Base):
     def _camcops_default_fhir_id_system(self, req: "CamcopsRequest") -> str:
         """
         The built-in FHIR ID system URL that we'll use if the user hasn't
-        specified one.
+        specified one for the selected ID number type.
         """
         return req.route_url(
             Routes.FHIR_PATIENT_ID_SYSTEM,

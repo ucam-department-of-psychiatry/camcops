@@ -939,8 +939,11 @@ class Patient(GenericTabletRecordMixin, Base):
         if self.has_idnum_type(which_idnum):
             identifier = self.get_fhir_identifier(req, which_idnum)
         else:
-            # This is pretty silly.
-            identifier = fhir_pk_identifier(req, self.__tablename__, self.pk)
+            # This is a bit silly.
+            identifier = fhir_pk_identifier(
+                req, self.__tablename__, self.pk,
+                Fc.CAMCOPS_VALUE_PATIENT_WITHIN_TASK
+            )
 
         return make_fhir_bundle_entry(
             resource_type_url=Fc.RESOURCE_TYPE_PATIENT,

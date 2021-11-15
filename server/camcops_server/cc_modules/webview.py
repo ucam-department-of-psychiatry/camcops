@@ -5596,11 +5596,7 @@ def view_fhir_patient_id_system(req: "CamcopsRequest") -> Dict[str, Any]:
     )
 
 
-@view_config(route_name=Routes.FHIR_QUESTIONNAIRE,
-             request_method=HttpMethod.GET,
-             renderer="all_tasks.mako",
-             http_cache=NEVER_CACHE)
-@view_config(route_name=Routes.FHIR_TABLENAME_PK_ID,  # somewhat arbitrarily
+@view_config(route_name=Routes.FHIR_QUESTIONNAIRE_SYSTEM,
              request_method=HttpMethod.GET,
              renderer="all_tasks.mako",
              http_cache=NEVER_CACHE)
@@ -5620,26 +5616,6 @@ def view_task_list(req: "CamcopsRequest") -> Dict[str, Any]:
     )
 
 
-@view_config(route_name=Routes.FHIR_DOCUMENT_REFERENCE,
-             request_method=HttpMethod.GET,
-             renderer="task_details.mako",
-             http_cache=NEVER_CACHE)
-@view_config(route_name=Routes.FHIR_CONDITION,
-             request_method=HttpMethod.GET,
-             renderer="task_details.mako",
-             http_cache=NEVER_CACHE)
-@view_config(route_name=Routes.FHIR_QUESTIONNAIRE_RESPONSE,
-             request_method=HttpMethod.GET,
-             renderer="task_details.mako",
-             http_cache=NEVER_CACHE)
-@view_config(route_name=Routes.FHIR_OBSERVATION,
-             request_method=HttpMethod.GET,
-             renderer="task_details.mako",
-             http_cache=NEVER_CACHE)
-@view_config(route_name=Routes.FHIR_PRACTITIONER,
-             request_method=HttpMethod.GET,
-             renderer="task_details.mako",
-             http_cache=NEVER_CACHE)
 @view_config(route_name=Routes.TASK_DETAILS,
              request_method=HttpMethod.GET,
              renderer="task_details.mako",
@@ -5660,6 +5636,55 @@ def view_task_details(req: "CamcopsRequest") -> Dict[str, Any]:
     task_class = task_class_dict[table_name]
     return dict(
         task_class=task_class
+    )
+
+
+@view_config(route_name=Routes.FHIR_CONDITION,
+             request_method=HttpMethod.GET,
+             http_cache=NEVER_CACHE)
+@view_config(route_name=Routes.FHIR_DOCUMENT_REFERENCE,
+             request_method=HttpMethod.GET,
+             http_cache=NEVER_CACHE)
+@view_config(route_name=Routes.FHIR_OBSERVATION,
+             request_method=HttpMethod.GET,
+             http_cache=NEVER_CACHE)
+@view_config(route_name=Routes.FHIR_PRACTITIONER,
+             request_method=HttpMethod.GET,
+             http_cache=NEVER_CACHE)
+@view_config(route_name=Routes.FHIR_QUESTIONNAIRE_RESPONSE,
+             request_method=HttpMethod.GET,
+             http_cache=NEVER_CACHE)
+@view_config(route_name=Routes.FHIR_TABLENAME_PK_ID,
+             request_method=HttpMethod.GET,
+             http_cache=NEVER_CACHE)
+def fhir_view_task(req: "CamcopsRequest") -> Response:
+    """
+    Retrieve parameters from a FHIR URL referring back to this server, and
+    serve the relevant task (as HTML).
+
+    The "canonical URL" or "business identifier" of a FHIR resource is the
+    reference to the master copy -- in this case, our copy. See
+    https://www.hl7.org/fhir/datatypes.html#Identifier;
+    https://www.hl7.org/fhir/resource.html#identifiers.
+
+    FHIR identifiers have a "system" (which is a URL) and a "value". I don't
+    think that FHIR has a rule for combining the system and value to create a
+    full URL. For some (but by no means all) identifiers that we provide to
+    FHIR servers, the "system" refers to a CamCOPS task (and the value to some
+    attribute of that task, like the answer to a question (value of a field),
+    or a fixed string like "patient", and so on.
+    """
+    table_name = req.matchdict[ViewParam.TABLE_NAME]
+    server_pk = req.matchdict[ViewParam.SERVER_PK]
+    return HTTPFound(
+        req.route_url(
+            Routes.TASK,
+            _query={
+                ViewParam.TABLE_NAME: table_name,
+                ViewParam.SERVER_PK: server_pk,
+                ViewParam.VIEWTYPE: ViewArg.HTML,
+            }
+        )
     )
 
 

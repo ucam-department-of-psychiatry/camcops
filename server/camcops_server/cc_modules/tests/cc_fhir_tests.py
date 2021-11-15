@@ -44,6 +44,8 @@ from camcops_server.cc_modules.cc_exportmodels import (
 from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
 from camcops_server.cc_modules.cc_exportrecipientinfo import ExportRecipientInfo
 from camcops_server.cc_modules.cc_fhir import (
+    fhir_reference_from_identifier,
+    fhir_sysval_from_id,
     FhirExportException,
     FhirTaskExporter,
 )
@@ -173,12 +175,9 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
         which_idnum = self.patient_rio.which_idnum
         idnum_value = self.patient_rio.idnum_value
 
-        iddef_url = (
-            f"{self.camcops_root_url}/"
-            f"{Routes.FHIR_PATIENT_ID_SYSTEM}/{which_idnum}"
-        )
+        patient_id = self.patient.get_fhir_identifier(self.req, which_idnum)
 
-        self.assertEqual(identifier[0][Fc.SYSTEM], iddef_url)
+        self.assertEqual(identifier[0][Fc.SYSTEM], patient_id.system)
         self.assertEqual(identifier[0][Fc.VALUE], str(idnum_value))
 
         self.assertEqual(patient[Fc.NAME][0][Fc.NAME_FAMILY],
@@ -192,7 +191,7 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
         self.assertEqual(request[Fc.URL], Fc.RESOURCE_TYPE_PATIENT)
         self.assertEqual(
             request[Fc.IF_NONE_EXIST],
-            f"{Fc.IDENTIFIER}={iddef_url}|{idnum_value}"
+            fhir_reference_from_identifier(patient_id)
         )
 
     def test_questionnaire_exported(self) -> None:
@@ -222,7 +221,7 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
         identifier = questionnaire[Fc.IDENTIFIER]
 
         questionnaire_url = (
-            f"{self.camcops_root_url}/{Routes.FHIR_QUESTIONNAIRE}"
+            f"{self.camcops_root_url}/{Routes.FHIR_QUESTIONNAIRE_SYSTEM}"
         )
         self.assertEqual(identifier[0][Fc.SYSTEM], questionnaire_url)
         self.assertEqual(identifier[0][Fc.VALUE], "phq9")
@@ -281,9 +280,10 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
         request = sent_json[Fc.ENTRY][1][Fc.REQUEST]
         self.assertEqual(request[Fc.METHOD], HttpMethod.POST)
         self.assertEqual(request[Fc.URL], Fc.RESOURCE_TYPE_QUESTIONNAIRE)
+        q_id = self.task._get_fhir_questionnaire_id(self.req)
         self.assertEqual(
             request[Fc.IF_NONE_EXIST],
-            f"{Fc.IDENTIFIER}={questionnaire_url}|phq9"
+            fhir_reference_from_identifier(q_id)
         )
 
     def test_questionnaire_response_exported(self) -> None:
@@ -308,12 +308,11 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
         response = sent_json[Fc.ENTRY][2][Fc.RESOURCE]
         self.assertEqual(response[Fc.RESOURCE_TYPE],
                          Fc.RESOURCE_TYPE_QUESTIONNAIRE_RESPONSE)
+
+        q_id = self.task._get_fhir_questionnaire_id(self.req)
         self.assertEqual(
             response[Fc.QUESTIONNAIRE],
-            (
-                f"{self.camcops_root_url}/"
-                f"{Routes.FHIR_QUESTIONNAIRE}|phq9"
-            )
+            fhir_sysval_from_id(q_id)
         )
         self.assertEqual(response[Fc.AUTHORED],
                          self.task.when_created.isoformat())
@@ -325,24 +324,22 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
         which_idnum = self.patient_rio.which_idnum
         idnum_value = self.patient_rio.idnum_value
 
-        iddef_url = (
-            f"{self.camcops_root_url}/"
-            f"{Routes.FHIR_PATIENT_ID_SYSTEM}/{which_idnum}"
-        )
-        self.assertEqual(identifier[Fc.SYSTEM], iddef_url)
-        self.assertEqual(identifier[Fc.VALUE], str(idnum_value))
+        patient_id = self.patient.get_fhir_identifier(self.req, which_idnum)
+        if isinstance(identifier, list):
+            test_identifier = identifier[0]
+        else:  # only one
+            test_identifier = identifier
+        self.assertEqual(test_identifier[Fc.SYSTEM], patient_id.system)
+        self.assertEqual(test_identifier[Fc.VALUE], str(idnum_value))
 
         request = sent_json[Fc.ENTRY][2][Fc.REQUEST]
         self.assertEqual(request[Fc.METHOD], HttpMethod.POST)
         self.assertEqual(request[Fc.URL],
                          Fc.RESOURCE_TYPE_QUESTIONNAIRE_RESPONSE)
-        response_url = (
-            f"{self.camcops_root_url}/"
-            f"{Routes.FHIR_QUESTIONNAIRE_RESPONSE}/phq9"
-        )
+        qr_id = self.task._get_fhir_questionnaire_response_id(self.req)
         self.assertEqual(
             request[Fc.IF_NONE_EXIST],
-            f"{Fc.IDENTIFIER}={response_url}|{self.task._pk}"
+            fhir_reference_from_identifier(qr_id)
         )
 
         item_1 = response[Fc.ITEM][0]
@@ -555,7 +552,7 @@ class FhirTaskExporterAnonymousTests(FhirExportTestCase):
         identifier = questionnaire[Fc.IDENTIFIER]
 
         questionnaire_url = (
-            f"{self.camcops_root_url}/{Routes.FHIR_QUESTIONNAIRE}"
+            f"{self.camcops_root_url}/{Routes.FHIR_QUESTIONNAIRE_SYSTEM}"
         )
         self.assertEqual(identifier[0][Fc.SYSTEM], questionnaire_url)
         self.assertEqual(identifier[0][Fc.VALUE], "apeqpt")
@@ -647,9 +644,10 @@ class FhirTaskExporterAnonymousTests(FhirExportTestCase):
         request = sent_json[Fc.ENTRY][0][Fc.REQUEST]
         self.assertEqual(request[Fc.METHOD], HttpMethod.POST)
         self.assertEqual(request[Fc.URL], Fc.RESOURCE_TYPE_QUESTIONNAIRE)
+        q_id = self.task._get_fhir_questionnaire_id(self.req)
         self.assertEqual(
             request[Fc.IF_NONE_EXIST],
-            f"{Fc.IDENTIFIER}={questionnaire_url}|apeqpt"
+            fhir_reference_from_identifier(q_id)
         )
 
     def test_questionnaire_response_exported(self) -> None:
@@ -674,13 +672,8 @@ class FhirTaskExporterAnonymousTests(FhirExportTestCase):
         response = sent_json[Fc.ENTRY][1][Fc.RESOURCE]
         self.assertEqual(response[Fc.RESOURCE_TYPE],
                          Fc.RESOURCE_TYPE_QUESTIONNAIRE_RESPONSE)
-        self.assertEqual(
-            response[Fc.QUESTIONNAIRE],
-            (
-                f"{self.camcops_root_url}/"
-                f"{Routes.FHIR_QUESTIONNAIRE}|apeqpt"
-            )
-        )
+        q_id = self.task._get_fhir_questionnaire_id(self.req)
+        self.assertEqual(response[Fc.QUESTIONNAIRE], fhir_sysval_from_id(q_id))
         self.assertEqual(response[Fc.AUTHORED],
                          self.task.when_created.isoformat())
         self.assertEqual(response[Fc.STATUS], Fc.QSTATUS_COMPLETED)
@@ -688,13 +681,10 @@ class FhirTaskExporterAnonymousTests(FhirExportTestCase):
         request = sent_json[Fc.ENTRY][1][Fc.REQUEST]
         self.assertEqual(request[Fc.METHOD], HttpMethod.POST)
         self.assertEqual(request[Fc.URL], "QuestionnaireResponse")
-        response_url = (
-            f"{self.camcops_root_url}/"
-            f"{Routes.FHIR_QUESTIONNAIRE_RESPONSE}/apeqpt"
-        )
+        qr_id = self.task._get_fhir_questionnaire_response_id(self.req)
         self.assertEqual(
             request[Fc.IF_NONE_EXIST],
-            f"{Fc.IDENTIFIER}={response_url}|{self.task._pk}"
+            fhir_reference_from_identifier(qr_id)
         )
 
         q_datetime = response[Fc.ITEM][0]
@@ -877,7 +867,7 @@ class FhirTaskExporterDiagnosisIcd9CMTests(FhirExportTestCase):
 
         # noinspection PyArgumentList
         item1 = DiagnosisIcd9CMItem(
-            diagnosis_icd10_id=self.task.id,
+            diagnosis_icd9cm_id=self.task.id,
             seqnum=1,
             code="290.4",
             description="Vascular dementia",
@@ -887,7 +877,7 @@ class FhirTaskExporterDiagnosisIcd9CMTests(FhirExportTestCase):
         item1.save_with_next_available_id(self.req, self.task._device_id)
         # noinspection PyArgumentList
         item2 = DiagnosisIcd9CMItem(
-            diagnosis_icd10_id=self.task.id,
+            diagnosis_icd9cm_id=self.task.id,
             seqnum=2,
             code="303.0",
             description="Acute alcoholic intoxication"

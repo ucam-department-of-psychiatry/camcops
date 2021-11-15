@@ -105,7 +105,7 @@ INSTALL_REQUIRES = [
     'paginate==0.5.6',  # pagination for web server
     'pendulum==2.1.2',  # date/time classes
     'pexpect==4.8.0',  # for open_sqlcipher.py
-    'pdfkit==0.6.1',  # wkhtmltopdf interface, for PDF generation from HTML
+    'pdfkit==1.0.0',  # wkhtmltopdf interface, for PDF generation from HTML
     'phonenumbers==8.12.30',  # phone number parsing, storing and validating
     'py==1.10.0',  # dependency, pinned to avoid CVE-2020-29651
     'pycap==1.1.1',  # REDCap integration

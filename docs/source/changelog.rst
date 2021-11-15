@@ -3582,5 +3582,9 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Some ``pyexcel-*`` bumps to remove warnings.
 
+- Bump ``pdfkit`` from 0.6.1 to 1.0.0 to remove a bug warning inside it
+  (``SyntaxWarning: "is" with a literal. Did you mean "=="?``, re ``if
+  self.type is 'file':``).
+
 - Update SNOMED code fetcher. Replace 32537008 with 165172002 in
   PsychiatricClerking. Other minor tweaks.

@@ -1243,3 +1243,11 @@ class FHIRConst:
     TRANSACTION_RESPONSE = "transaction-response"
     RESPONSE_STATUS_200_OK = "200 OK"
     RESPONSE_STATUS_201_CREATED = "201 Created"
+
+    # -------------------------------------------------------------------------
+    # CamCOPS tags
+    # -------------------------------------------------------------------------
+
+    CAMCOPS_VALUE_CLINICIAN_WITHIN_TASK = "clinician"
+    CAMCOPS_VALUE_PATIENT_WITHIN_TASK = "patient"
+    CAMCOPS_VALUE_QUESTIONNAIRE_RESPONSE_WITHIN_TASK = "qr"

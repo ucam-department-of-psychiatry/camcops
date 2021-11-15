@@ -117,6 +117,8 @@ from camcops_server.cc_modules.cc_db import (
 from camcops_server.cc_modules.cc_exception import FhirExportException
 from camcops_server.cc_modules.cc_fhir import (
     fhir_observation_component_from_snomed,
+    fhir_system_value,
+    fhir_sysval_from_id,
     make_fhir_bundle_entry,
 )
 from camcops_server.cc_modules.cc_filename import get_export_filename
@@ -1382,7 +1384,7 @@ class Task(GenericTabletRecordMixin, Base):
             for id_ in identifier:
                 system = id_[Fc.SYSTEM]
                 value = id_[Fc.VALUE]
-                id_counter.update([f"{system}|{value}"])
+                id_counter.update([fhir_system_value(system, value)])
             most_common = id_counter.most_common(1)[0]
             assert most_common[1] == 1, (
                 f"Resources have duplicate IDs: {most_common[0]}"
@@ -1546,23 +1548,48 @@ class Task(GenericTabletRecordMixin, Base):
     # Identifiers
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    def _get_fhir_id_this_task(self,
-                               req: "CamcopsRequest",
-                               route_name: str) -> Identifier:
+    # Generic:
+
+    def _get_fhir_id_this_task_class(
+            self,
+            req: "CamcopsRequest",
+            route_name: str,
+            value_within_task_class: Union[int, str]) -> Identifier:
         """
-        A number of FHIR identifiers refer to "this task" and nothing more
-        specific (because they represent a type of thing of which there can
-        only be one per task), but do so through a range of different route
-        names that make the FHIR URLs look sensible. This is a convenience
-        function for them.
+        For when we want to refer to something within a specific task class, in
+        the abstract. The URL refers to the task class, not the task instance.
         """
         return Identifier(jsondict={
             Fc.SYSTEM: req.route_url(
                 route_name,
                 table_name=self.tablename  # to match ViewParam.TABLE_NAME
             ),
-            Fc.VALUE: f"{self._pk}",
+            Fc.VALUE: str(value_within_task_class),
         })
+
+    def _get_fhir_id_this_task_instance(
+            self,
+            req: "CamcopsRequest",
+            route_name: str,
+            value_within_task_instance: Union[int, str]) -> Identifier:
+        """
+        A number of FHIR identifiers refer to "this task" and nothing very much
+        more specific (because they represent a type of thing of which there
+        can only be one per task), but do so through a range of different route
+        names that make the FHIR URLs look sensible. This is a convenience
+        function for them. The intention is to route to the specific task
+        instance concerned.
+        """
+        return Identifier(jsondict={
+            Fc.SYSTEM: req.route_url(
+                route_name,
+                table_name=self.tablename,  # to match ViewParam.TABLE_NAME
+                server_pk=str(self._pk),  # to match ViewParam.SERVER_PK
+            ),
+            Fc.VALUE: str(value_within_task_instance),
+        })
+
+    # Specific:
 
     def _get_fhir_condition_id(self,
                                req: "CamcopsRequest",
@@ -1571,28 +1598,18 @@ class Task(GenericTabletRecordMixin, Base):
         Returns a FHIR Identifier for an Observation, representing this task
         instance and a named observation within it.
         """
-        return Identifier(jsondict={
-            Fc.SYSTEM: req.route_url(
-                Routes.FHIR_CONDITION,
-                table_name=self.tablename  # to match ViewParam.TABLE_NAME
-            ),
-            Fc.VALUE: f"{self._pk}.{name}",
-        })
+        return self._get_fhir_id_this_task_instance(
+            req, Routes.FHIR_CONDITION, name)
 
     def _get_fhir_docref_id(self,
                             req: "CamcopsRequest",
                             task_format: str) -> Identifier:
         """
-        Returns a FHIR Identifier (e.g. for a QuestionnaireResponse collection)
-        representing this task instance.
+        Returns a FHIR Identifier (e.g. for a DocumentReference collection)
+        representing the view of this task.
         """
-        return Identifier(jsondict={
-            Fc.SYSTEM: req.route_url(
-                Routes.FHIR_DOCUMENT_REFERENCE,
-                table_name=self.tablename  # to match ViewParam.TABLE_NAME
-            ),
-            Fc.VALUE: f"{self._pk}.{task_format}",
-        })
+        return self._get_fhir_id_this_task_instance(
+            req, Routes.FHIR_DOCUMENT_REFERENCE, task_format)
 
     def _get_fhir_observation_id(self,
                                  req: "CamcopsRequest",
@@ -1601,13 +1618,8 @@ class Task(GenericTabletRecordMixin, Base):
         Returns a FHIR Identifier for an Observation, representing this task
         instance and a named observation within it.
         """
-        return Identifier(jsondict={
-            Fc.SYSTEM: req.route_url(
-                Routes.FHIR_OBSERVATION,
-                table_name=self.tablename  # to match ViewParam.TABLE_NAME
-            ),
-            Fc.VALUE: f"{self._pk}.{name}",
-        })
+        return self._get_fhir_id_this_task_instance(
+            req, Routes.FHIR_OBSERVATION, name)
 
     def _get_fhir_practitioner_id(self,
                                   req: "CamcopsRequest") -> Identifier:
@@ -1615,7 +1627,10 @@ class Task(GenericTabletRecordMixin, Base):
         Returns a FHIR Identifier for the clinician. (Clinicians are not
         sensibly made unique across tasks, but are task-specific.)
         """
-        return self._get_fhir_id_this_task(req, Routes.FHIR_PRACTITIONER)
+        return self._get_fhir_id_this_task_instance(
+            req, Routes.FHIR_PRACTITIONER,
+            Fc.CAMCOPS_VALUE_QUESTIONNAIRE_RESPONSE_WITHIN_TASK
+        )
 
     def _get_fhir_questionnaire_id(self, req: "CamcopsRequest") -> Identifier:
         """
@@ -1623,7 +1638,7 @@ class Task(GenericTabletRecordMixin, Base):
         task, in the abstract.
         """
         return Identifier(jsondict={
-            Fc.SYSTEM: req.route_url(Routes.FHIR_QUESTIONNAIRE),
+            Fc.SYSTEM: req.route_url(Routes.FHIR_QUESTIONNAIRE_SYSTEM),
             Fc.VALUE: self.tablename,
         })
 
@@ -1631,10 +1646,12 @@ class Task(GenericTabletRecordMixin, Base):
             self, req: "CamcopsRequest") -> Identifier:
         """
         Returns a FHIR Identifier (e.g. for a QuestionnaireResponse collection)
-        representing this task instance.
+        representing this task instance. QuestionnaireResponse items are
+        specific answers, not abstract descriptions.
         """
-        return self._get_fhir_id_this_task(req,
-                                           Routes.FHIR_QUESTIONNAIRE_RESPONSE)
+        return self._get_fhir_id_this_task_instance(
+            req, Routes.FHIR_QUESTIONNAIRE_RESPONSE,
+            Fc.CAMCOPS_VALUE_QUESTIONNAIRE_RESPONSE_WITHIN_TASK)
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # References to identifiers
@@ -1717,6 +1734,7 @@ class Task(GenericTabletRecordMixin, Base):
         b64_encoded_str = b64_encoded_bytes.decode(ASCII)
 
         # Build the DocumentReference
+        docref_id = self._get_fhir_docref_id(req, task_format)
         dr_dict = {
             # Metadata:
             Fc.DATE: self.fhir_when_task_created,
@@ -1725,10 +1743,7 @@ class Task(GenericTabletRecordMixin, Base):
                 Fc.DOCSTATUS_FINAL if self.is_finalized()
                 else Fc.DOCSTATUS_PRELIMINARY
             ),
-            Fc.MASTER_IDENTIFIER: (
-                self._get_fhir_questionnaire_response_id(req)
-                    .as_json()
-            ),
+            Fc.MASTER_IDENTIFIER: docref_id.as_json(),
             Fc.STATUS: Fc.DOCSTATUS_CURRENT,
             # And the content:
             Fc.CONTENT: [
@@ -1749,7 +1764,6 @@ class Task(GenericTabletRecordMixin, Base):
             dr_dict[Fc.SUBJECT] = self._get_fhir_subject_ref(req, recipient)
 
         # DocumentReference
-        docref_id = self._get_fhir_docref_id(req, task_format)
         return make_fhir_bundle_entry(
             resource_type_url=Fc.RESOURCE_TYPE_DOCUMENT_REFERENCE,
             identifier=docref_id,
@@ -1890,7 +1904,7 @@ class Task(GenericTabletRecordMixin, Base):
             # - http://127.0.0.1:8000/fhir_questionnaire|phq9
 
             # http://hapi.fhir.org/baseR4/ (4.0.1 (R4)) is OK
-            Fc.QUESTIONNAIRE: f"{q_identifier.system}|{q_identifier.value}",
+            Fc.QUESTIONNAIRE: fhir_sysval_from_id(q_identifier),
 
             Fc.AUTHORED: self.fhir_when_task_created,
             Fc.STATUS: status,
