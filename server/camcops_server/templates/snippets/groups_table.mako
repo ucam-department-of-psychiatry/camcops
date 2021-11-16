@@ -28,7 +28,7 @@ camcops_server/templates/snippets/groups_table.mako
 
 <%page args="groups_page, valid_which_idnums, with_edit: bool"/>
 <%!
-from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
+from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewParam
 from markupsafe import escape
 %>
 <%namespace file="displayfunc.mako" import="one_per_line"/>
@@ -95,14 +95,30 @@ from markupsafe import escape
             </td>
 
             %if with_edit:
-                <td><a href="${ req.route_url(
-                                    Routes.EDIT_GROUP,
-                                    _query={ViewParam.GROUP_ID: group.id}
-                                ) | n }">${ _("Edit") }</a></td>
-                <td><a href="${ req.route_url(
-                                    Routes.DELETE_GROUP,
-                                    _query={ViewParam.GROUP_ID: group.id}
-                                ) | n }">${ _("Delete") }</a></td>
+                <td>
+                    ${ req.icon_text(
+                            icon=Icons.GROUP_EDIT,
+                            url=request.route_url(
+                                Routes.EDIT_GROUP,
+                                _query={
+                                    ViewParam.GROUP_ID: group.id
+                                }
+                            ),
+                            text=_("Edit")
+                    ) | n }
+                </td>
+                <td>
+                    ${ req.icon_text(
+                            icon=Icons.DELETE,
+                            url=request.route_url(
+                                Routes.DELETE_GROUP,
+                                _query={
+                                    ViewParam.GROUP_ID: group.id
+                                }
+                            ),
+                            text=_("Delete")
+                    ) | n }
+                </td>
             %endif
         </tr>
     %endfor

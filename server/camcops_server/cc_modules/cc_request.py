@@ -58,6 +58,7 @@ from cardinal_pythonlib.plot import (
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.wsgi.constants import WsgiEnvVar
 import lockfile
+from mako.filters import html_escape
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib.font_manager import FontProperties
@@ -579,6 +580,129 @@ class CamcopsRequest(Request):
         Returns the URL to the CamCOPS documentation.
         """
         return DOCUMENTATION_URL
+
+    # -------------------------------------------------------------------------
+    # Icons
+    # -------------------------------------------------------------------------
+
+    @staticmethod
+    def icon(icon: str,
+             alt: str,
+             url: str = None,
+             extra_classes: List[str] = None,
+             extra_styles: List[str] = None,
+             escape_alt: bool = True) -> str:
+        """
+        Instantiates a Bootstrap icon, usually with a hyperlink. Returns
+        rendered HTML.
+
+        Args:
+            icon:
+                Icon name, without ".svg" extension (or "bi-" prefix!).
+            alt:
+                Alternative text for image.
+            url:
+                Optional URL of hyperlink.
+            extra_classes:
+                Optional extra CSS classes for the icon.
+            extra_styles:
+                Optional extra CSS styles for the icon (each looks like:
+                "color: blue").
+            escape_alt:
+                HTML-escape the alt text? Default is True.
+        """
+        # There are several ways to do this, such as via <img> tags, or via
+        # web fonts.
+        # We include bootstrap-icons.css (via base_web.mako), because that
+        # allows the best resizing (relative to font size) and styling.
+        # See:
+        # - https://icons.getbootstrap.com/#usage
+        # - http://johna.compoutpost.com/blog/1189/how-to-use-the-new-bootstrap-icons-v1-2-web-font/  # noqa
+        if escape_alt:
+            alt = html_escape(alt)
+        i_components = [
+            'role="img"',
+            f'aria-label="{alt}"'
+        ]
+        css_classes = [f"bi-{icon}"]  # bi = Bootstrap icon
+        if extra_classes:
+            css_classes += extra_classes
+        class_str = " ".join(css_classes)
+        i_components.append(f'class="{class_str}"')
+        if extra_styles:
+            style_str = "; ".join(extra_styles)
+            i_components.append(f'style="{style_str}"')
+        image = f'<i {" ".join(i_components)}></i>'
+        if url:
+            return f'<a href="{url}">{image}</a>'
+        else:
+            return image
+
+    def icon_text(self,
+                  icon: str,
+                  text: str,
+                  url: str = None,
+                  alt: str = None,
+                  extra_icon_classes: List[str] = None,
+                  extra_icon_styles: List[str] = None,
+                  extra_a_classes: List[str] = None,
+                  extra_a_styles: List[str] = None,
+                  escape_alt: bool = True,
+                  escape_text: bool = True,
+                  hyperlink_together: bool = False) -> str:
+        """
+        Provide an icon and accompanying text. Usually, both are hyperlinked
+        (to the same destination URL). Returns rendered HTML.
+
+        Args:
+            icon:
+                Icon name, without ".svg" extension.
+            url:
+                Optional URL of hyperlink.
+            alt:
+                Alternative text for image. Will default to the main text.
+            text:
+                Main text to display.
+            extra_icon_classes:
+                Optional extra CSS classes for the icon.
+            extra_icon_styles:
+                Optional extra CSS styles for the icon (each looks like:
+                "color: blue").
+            extra_a_classes:
+                Optional extra CSS classes for the <a> element.
+            extra_a_styles:
+                Optional extra CSS styles for the <a> element.
+            escape_alt:
+                HTML-escape the alt text?
+            escape_text:
+                HTML-escape the main text?
+            hyperlink_together:
+                Hyperlink the image and text as one (rather than separately and
+                adjacent to each other)?
+        """
+        icon_html = self.icon(icon=icon,
+                              url=None if hyperlink_together else url,
+                              alt=alt or text,
+                              extra_classes=extra_icon_classes,
+                              extra_styles=extra_icon_styles,
+                              escape_alt=escape_alt)
+        if escape_text:
+            text = html_escape(text)
+        if url:
+            a_components = [f'href="{url}"']
+            if extra_a_classes:
+                class_str = " ".join(extra_a_classes)
+                a_components.append(f'class="{class_str}"')
+            if extra_a_styles:
+                style_str = "; ".join(extra_a_styles)
+                a_components.append(f'style="{style_str}"')
+            a_options = " ".join(a_components)
+            if hyperlink_together:
+                return f'<a {a_options}>{icon_html} {text}</a>'
+            else:
+                return f'{icon_html} <a {a_options}>{text}</a>'
+        else:
+            return f'{icon_html} {text}'
 
     # -------------------------------------------------------------------------
     # Low-level HTTP information

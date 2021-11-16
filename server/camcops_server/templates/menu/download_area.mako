@@ -28,13 +28,22 @@ camcops_server/templates/menu/download_area.mako
 
 <%inherit file="base_web.mako"/>
 
+<%!
+from camcops_server.cc_modules.cc_pyramid import Icons
+%>
+
 <%include file="db_user_info.mako"/>
 
 <style nonce="${ request.nonce | n }">
     <%include file="style_deform_inside_tables.css"/>
 </style>
 
-<h2>${ _("Download area") }</h2>
+<h1>
+    ${ req.icon_text(
+        icon=Icons.DOWNLOAD,
+        text=_("Download area")
+    ) | n }
+</h1>
 
 <table>
     <tr>
@@ -46,7 +55,13 @@ camcops_server/templates/menu/download_area.mako
     </tr>
     %for f in files:
         <tr>
-            <td><a href="${ f.download_url | n }">${ f.filename }</a></td>
+            <td>
+                ${ req.icon_text(
+                        icon=Icons.DOWNLOAD,
+                        url=f.download_url,
+                        text=f.filename
+                ) | n }
+            </td>
             <td>${ f.size_str }</td>
             <td>${ f.when_last_modified_str }</td>
             <td>${ f.time_left_str }</td>

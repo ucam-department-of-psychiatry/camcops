@@ -29,32 +29,42 @@ camcops_server/templates/menu/all_tasks.mako
 <%inherit file="base_web.mako"/>
 
 <%!
-from camcops_server.cc_modules.cc_pyramid import Routes
+from camcops_server.cc_modules.cc_pyramid import Icons, Routes
 %>
 
 <%include file="db_user_info.mako"/>
 
-<h1>${ _("All tasks") }</h1>
+<h1>
+    ${ req.icon_text(
+        icon=Icons.INFO_INTERNAL,
+        text=_("All tasks")
+    ) | n }
+</h1>
 
 <table>
     <tr>
-        <th>${ _("Code, with link to details") }</th>
+        <th>${ _("Code") }</th>
         <th>${ _("Short name") }</th>
-        <th>${ _("Full name, with link to help") }</th>
+        <th>${ _("Full name") }</th>
     </tr>
     %for tc in all_task_classes:
         <tr>
             <td>
-                <a href="${ req.route_url(Routes.TASK_DETAILS,
-                                          table_name=tc.tablename) }">
-                    ${ tc.tablename }
-                </a>
+                ${ req.icon_text(
+                        icon=Icons.DETAIL,
+                        url=req.route_url(Routes.TASK_DETAILS, table_name=tc.tablename),
+                        alt=_("Details"),
+                        text=tc.tablename,
+                ) | n }
             </td>
             <td>${ tc.shortname }</td>
             <td>
-                <a href="${ tc.help_url() }">
-                    ${ tc.longname(req) }
-                </a>
+                ${ req.icon_text(
+                        icon=Icons.INFO_EXTERNAL,
+                        url=tc.help_url(),
+                        alt=_("Help"),
+                        text=tc.longname(req)
+                ) | n }
             </td>
         </tr>
     %endfor

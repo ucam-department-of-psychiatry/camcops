@@ -839,9 +839,13 @@ class RoutePath(object):
 MASTER_ROUTE_WEBVIEW = "/"
 MASTER_ROUTE_CLIENT_API = "/api"
 MASTER_ROUTE_CLIENT_API_ALIAS = "/database"
+
 STATIC_CAMCOPS_PACKAGE_PATH = "camcops_server.static:"
 # ... the "static" package (directory with __init__.py) within the
 # "camcops_server" owning package
+STATIC_BOOTSTRAP_ICONS_PATH = (
+        STATIC_CAMCOPS_PACKAGE_PATH + "bootstrap-icons-1.7.0"
+)
 
 
 def _mk_fhir_tablename_route(_route: str) -> RoutePath:
@@ -1620,3 +1624,80 @@ class HTTPFoundDebugVersion(HTTPFound):
     def __init__(self, location: str = '', **kwargs) -> None:
         log.debug("Redirecting to {!r}", location)
         super().__init__(location, **kwargs)
+
+
+# =============================================================================
+# Icons
+# =============================================================================
+
+class Icons:
+    """
+    Constants for Bootstrap icons. See https://icons.getbootstrap.com/.
+    """
+    ACTIVITY = "activity"
+    APP_AUTHENTICATOR = "shield-shaded"
+    AUDIT_DETAIL = "clipboard-data"
+    AUDIT_MENU = "clipboard"
+    AUDIT_OPTIONS = "clipboard-check"
+    BUSY = "hourglass-split"
+    CTV = "body-text"
+    DELETE = "trash"
+    DELETE_MAJOR = "trash-fill"
+    DETAIL = "zoom-in"
+    DEVELOPER = "braces"
+    DOWNLOAD = "download"
+    DUMP_BASIC = "file-spreadsheet"
+    DUMP_SQL = "server"
+    EDIT = "pencil"
+    EMAIL_CONFIGURE = "at"
+    EMAIL_SEND = "envelope"
+    EMAIL_VIEW = "envelope-open"
+    FILTER = "filter-circle"
+    FORCE_FINALIZE = "bricks"
+    GOTO_PREDECESSOR = "arrow-left-square"
+    GOTO_SUCCESSOR = "arrow-right-square-fill"
+    GROUP_ADD = "plus-circle"
+    GROUP_ADMIN = "suit-diamond"
+    GROUP_EDIT = "box"
+    GROUPS = "boxes"  # change?
+    HOME = "house-fill"
+    HTML_ANONYMOUS = "file-richtext"
+    HTML_IDENTIFIABLE = "file-richtext-fill"
+    ID_DEFINITION_ADD = "plus-circle"  # suboptimal
+    ID_DEFINITIONS = "123"
+    INFO_EXTERNAL = "info-circle-fill"
+    INFO_INTERNAL = "info-circle"
+    LOGIN = "box-arrow-in-right"
+    LOGOUT = "box-arrow-right"
+    MFA = "fingerprint"
+    PASSWORD_OTHER = "key"
+    PASSWORD_OWN = "key-fill"
+    PATIENT = "person"
+    PATIENT_ADD = "person-plus"
+    PATIENT_EDIT = "person-circle"
+    PATIENTS = "people"
+    PDF_ANONYMOUS = "file-pdf"
+    PDF_IDENTIFIABLE = "file-pdf-fill"
+    REPORT_CONFIG = "bar-chart-line"
+    REPORT_DETAIL = "file-bar-graph"
+    REPORTS = "bar-chart-line-fill"
+    SETTINGS = "gear"
+    SMS = "chat-left-dots"
+    SPECIAL_NOTE = "pencil-square"
+    SUCCESS = "check-circle"
+    SUPERUSER = "suit-spade-fill"
+    TASK_SCHEDULE = "journal"
+    TASK_SCHEDULE_ADD = "journal-plus"
+    TASK_SCHEDULE_ITEM_ADD = "journal-code"
+    TASK_SCHEDULE_ITEMS = "journal-text"
+    TASK_SCHEDULES = "journals"
+    TRACKERS = "graph-up"
+    UNLOCK = "unlock"
+    UPLOAD = "upload"
+    USER_ADD = "person-plus-fill"  # there isn't a person-badge-plus
+    USER_INFO = "person-badge"
+    USER_MANAGEMENT = "person-badge-fill"
+    USER_PERMISSIONS = "person-check"
+    VIEW_TASKS = "display"
+    XML = "diagram-3-fill"
+    YOU = "heart-fill"

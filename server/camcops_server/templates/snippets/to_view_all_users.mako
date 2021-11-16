@@ -27,9 +27,13 @@ camcops_server/templates/snippets/to_view_all_users.mako
 </%doc>
 
 <%!
-from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
+from camcops_server.cc_modules.cc_pyramid import Icons, Routes
 %>
 
 <div>
-    <a href="${ req.route_url(Routes.VIEW_ALL_USERS) | n }">${ _("View all users") }</a>
+    ${ req.icon_text(
+            icon=Icons.USER_MANAGEMENT,
+            url=request.route_url(Routes.VIEW_ALL_USERS),
+            text=_("View all users")
+    ) | n }
 </div>

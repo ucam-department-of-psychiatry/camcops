@@ -40,7 +40,7 @@ from camcops_server.cc_modules.cc_html import (
     answer,
     get_yes_no,
 )
-from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
+from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewParam
 from camcops_server.cc_modules.cc_version_string import CAMCOPS_SERVER_VERSION_STRING
 
 def inherit_file(context):
@@ -226,51 +226,74 @@ ${ task.get_task_html(req) | n }
     <div class="office">
 
         ## Link to help
-
-        <a href="${ task.help_url() }">${ _("Task help") }</a>
+        ${ req.icon_text(
+                icon=Icons.INFO_EXTERNAL,
+                url=task.help_url(),
+                text=_("Task help")
+        ) | n }
 
         ## Link to XML version (which is always identifiable)
-
         %if not anonymise:
-            <p><a href="${ req.route_url(
-                                Routes.TASK,
-                                _query={
-                                    ViewParam.TABLE_NAME: task.tablename,
-                                    ViewParam.SERVER_PK: task.pk,
-                                    ViewParam.VIEWTYPE: ViewArg.XML,
-                                }) | n }">${ _("View raw data as XML") }</a></p>
+            <p>
+                ${ req.icon_text(
+                        icon=Icons.XML,
+                        url=req.route_url(
+                            Routes.TASK,
+                            _query={
+                                ViewParam.TABLE_NAME: task.tablename,
+                                ViewParam.SERVER_PK: task.pk,
+                                ViewParam.VIEWTYPE: ViewArg.XML,
+                            }
+                        ),
+                        text=_("View raw data as XML")
+                ) | n }
+            </p>
         %endif
 
         ## Link to anonymous version (or back to identifiable):
-
         <p>
             %if anonymise:
-                <a href="${ req.route_url(
-                                Routes.TASK,
-                                _query={
-                                    ViewParam.TABLE_NAME: task.tablename,
-                                    ViewParam.SERVER_PK: task.pk,
-                                    ViewParam.VIEWTYPE: ViewArg.HTML,
-                                }) | n }">${ _("View identifiable version") }</a>
+                ${ req.icon_text(
+                    icon=Icons.HTML_IDENTIFIABLE,
+                    url=req.route_url(
+                        Routes.TASK,
+                        _query={
+                                ViewParam.TABLE_NAME: task.tablename,
+                                ViewParam.SERVER_PK: task.pk,
+                            ViewParam.VIEWTYPE: ViewArg.HTML,
+                        }
+                    ),
+                    text=_("View identifiable version")
+                ) | n }
             %else:
                 View anonymised version:
-                <a href="${ req.route_url(
-                                Routes.TASK,
-                                _query={
-                                    ViewParam.TABLE_NAME: task.tablename,
-                                    ViewParam.SERVER_PK: task.pk,
-                                    ViewParam.VIEWTYPE: ViewArg.HTML,
-                                    ViewParam.ANONYMISE: True,
-                                }) | n }">HTML</a>
+                ${ req.icon_text(
+                        icon=Icons.HTML_ANONYMOUS,
+                        url=req.route_url(
+                            Routes.TASK,
+                            _query={
+                                ViewParam.TABLE_NAME: task.tablename,
+                                ViewParam.SERVER_PK: task.pk,
+                                ViewParam.VIEWTYPE: ViewArg.HTML,
+                                ViewParam.ANONYMISE: True,
+                            }
+                        ),
+                        text="HTML"
+                ) | n }
                 |
-                <a href="${ req.route_url(
-                                Routes.TASK,
-                                _query={
-                                    ViewParam.TABLE_NAME: task.tablename,
-                                    ViewParam.SERVER_PK: task.pk,
-                                    ViewParam.VIEWTYPE: ViewArg.PDF,
-                                    ViewParam.ANONYMISE: True,
-                                }) | n }">PDF</a>
+                ${ req.icon_text(
+                    icon=Icons.PDF_ANONYMOUS,
+                    url=request.route_url(
+                        Routes.TASK,
+                        _query={
+                            ViewParam.TABLE_NAME: task.tablename,
+                            ViewParam.SERVER_PK: task.pk,
+                            ViewParam.VIEWTYPE: ViewArg.PDF,
+                            ViewParam.ANONYMISE: True,
+                        }
+                    ),
+                    text="PDF"
+                ) | n }
             %endif
         </p>
     </div>
@@ -280,40 +303,67 @@ ${ task.get_task_html(req) | n }
         <div class="superuser">
             ## check this collapses to zero height with no content!
             %if req.user.authorized_to_add_special_note(task._group_id):
-                <p><a href="${ req.route_url(
-                                    Routes.ADD_SPECIAL_NOTE,
-                                    _query={
-                                        ViewParam.TABLE_NAME: task.tablename,
-                                        ViewParam.SERVER_PK: task.pk,
-                                    }) | n }">${ _("Apply special note") }</a></p>
+                <p>
+                    ${ req.icon_text(
+                        icon=Icons.SPECIAL_NOTE,
+                        url=request.route_url(
+                            Routes.ADD_SPECIAL_NOTE,
+                            _query={
+                                ViewParam.TABLE_NAME: task.tablename,
+                                ViewParam.SERVER_PK: task.pk,
+                            }
+                        ),
+                        text=_("Apply special note")
+                    ) | n }
+                </p>
             %endif
             %if req.user.may_administer_group(task._group_id):
                 %if task.has_patient and task.patient and task.patient.is_finalized:
-                    <p><a href="${ req.route_url(
-                                        Routes.EDIT_FINALIZED_PATIENT,
-                                        _query={
-                                            ViewParam.SERVER_PK: task.patient.pk
-                                        }) | n }">${ _("Edit patient details") }</a></p>
+                    <p>
+                        ${ req.icon_text(
+                            icon=Icons.PATIENT_EDIT,
+                            url=request.route_url(
+                                Routes.EDIT_FINALIZED_PATIENT,
+                                _query={
+                                    ViewParam.SERVER_PK: task.patient.pk
+                                }
+                            ),
+                            text=_("Edit patient details")
+                        ) | n }
+                    </p>
                 %endif
             %endif
             %if req.user.authorized_to_erase_tasks(task._group_id):
                 ## Note: prohibit manual erasure for non-finalized tasks.
                 %if task.era != ERA_NOW:
                     %if not task.is_erased():
-                        <p><a href="${ req.route_url(
-                                            Routes.ERASE_TASK_LEAVING_PLACEHOLDER,
-                                            _query={
-                                                ViewParam.TABLE_NAME: task.tablename,
-                                                ViewParam.SERVER_PK: task.pk,
-                                            }) | n }">
-                            ${ _("Erase task instance, leaving placeholder") }</a></p>
+                        <p>
+                            ${ req.icon_text(
+                                icon=Icons.DELETE_MAJOR,
+                                url=request.route_url(
+                                    Routes.ERASE_TASK_LEAVING_PLACEHOLDER,
+                                    _query={
+                                        ViewParam.TABLE_NAME: task.tablename,
+                                        ViewParam.SERVER_PK: task.pk,
+                                    }
+                                ),
+                                text=_("Erase task instance, leaving placeholder")
+                            ) | n }
+                        </p>
                     %endif
-                    <p><a href="${ req.route_url(
-                                        Routes.ERASE_TASK_ENTIRELY,
-                                        _query={
-                                            ViewParam.TABLE_NAME: task.tablename,
-                                            ViewParam.SERVER_PK: task.pk,
-                                        }) | n }">${ _("Erase task entirely") }</a></p>
+                    <p>
+                        ${ req.icon_text(
+                            icon=Icons.DELETE_MAJOR,
+                            url=request.route_url(
+                                Routes.ERASE_TASK_ENTIRELY,
+                                _query={
+                                    ViewParam.TABLE_NAME: task.tablename,
+                                    ViewParam.SERVER_PK: task.pk,
+                                }
+                            ),
+                            text=_("Erase task entirely")
+                        ) | n }
+                    </p>
                 %endif
             %endif
         </div>
@@ -326,47 +376,67 @@ ${ task.get_task_html(req) | n }
         %if task._predecessor_pk is not None:
             <p><i>
                 An older version of this record exists:
-                <a href="${ req.route_url(
-                                Routes.TASK,
-                                _query={
-                                    ViewParam.TABLE_NAME: task.tablename,
-                                    ViewParam.SERVER_PK: task._predecessor_pk,
-                                    ViewParam.VIEWTYPE: ViewArg.HTML,
-                                }) | n }">${ _("view previous version") }</a>.
+                ${ req.icon_text(
+                    icon=Icons.GOTO_PREDECESSOR,
+                    url=request.route_url(
+                        Routes.TASK,
+                        _query={
+                            ViewParam.TABLE_NAME: task.tablename,
+                            ViewParam.SERVER_PK: task._predecessor_pk,
+                            ViewParam.VIEWTYPE: ViewArg.HTML,
+                        }
+                    ),
+                    text=_("view previous version")
+                ) | n }
             </i></p>
         %endif
         %if task._successor_pk is not None:
             <p><b>
                 An newer version of this record exists:
-                <a href="${ req.route_url(
-                                Routes.TASK,
-                                _query={
-                                    ViewParam.TABLE_NAME: task.tablename,
-                                    ViewParam.SERVER_PK: task._successor_pk,
-                                    ViewParam.VIEWTYPE: ViewArg.HTML,
-                                }) | n }">${ _("view next version") }</a>.
+                ${ req.icon_text(
+                    icon=Icons.GOTO_SUCCESSOR,
+                    url=request.route_url(
+                        Routes.TASK,
+                        _query={
+                            ViewParam.TABLE_NAME: task.tablename,
+                            ViewParam.SERVER_PK: task._successor_pk,
+                            ViewParam.VIEWTYPE: ViewArg.HTML,
+                        }
+                    ),
+                    text=_("view next version")
+                ) | n }
             </b></p>
         %endif
 
         ## Link to PDF version
         <p>
             %if anonymise:
-                <a href="${ req.route_url(
-                                Routes.TASK,
-                                _query={
-                                    ViewParam.TABLE_NAME: task.tablename,
-                                    ViewParam.SERVER_PK: task.pk,
-                                    ViewParam.VIEWTYPE: ViewArg.PDF,
-                                    ViewParam.ANONYMISE: True,
-                                }) | n }">${ _("View anonymised PDF") }</a>
+                ${ req.icon_text(
+                    icon=Icons.PDF_ANONYMOUS,
+                    url=request.route_url(
+                        Routes.TASK,
+                        _query={
+                            ViewParam.TABLE_NAME: task.tablename,
+                            ViewParam.SERVER_PK: task.pk,
+                            ViewParam.VIEWTYPE: ViewArg.PDF,
+                            ViewParam.ANONYMISE: True,
+                        }
+                    ),
+                    text=_("View anonymised PDF")
+                ) | n }
             %else:
-                <a href="${ req.route_url(
-                                Routes.TASK,
-                                _query={
-                                    ViewParam.TABLE_NAME: task.tablename,
-                                    ViewParam.SERVER_PK: task.pk,
-                                    ViewParam.VIEWTYPE: ViewArg.PDF,
-                                }) | n }">${ _("View PDF for printing/saving") }</a>
+                ${ req.icon_text(
+                    icon=Icons.PDF_IDENTIFIABLE,
+                    url=request.route_url(
+                        Routes.TASK,
+                        _query={
+                            ViewParam.TABLE_NAME: task.tablename,
+                            ViewParam.SERVER_PK: task.pk,
+                            ViewParam.VIEWTYPE: ViewArg.PDF,
+                        }
+                    ),
+                    text=_("View PDF for printing/saving")
+                ) | n }
             %endif
         </p>
     </div>

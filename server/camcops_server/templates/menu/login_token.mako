@@ -35,10 +35,15 @@ camcops_server/templates/menu/login_token.mako
     ${ _("All use is recorded and monitored.") }
 </div>
 
-<h1>${ _("Multi-factor authentication") }</h1>
+<h1>
+    ${ req.icon_text(
+        icon=context["icon"],
+        text=_("Multi-factor authentication")
+    ) | n }
+</h1>
 
 <p>
-${instructions}
+${ instructions }
 </p>
 
-${form | n}
+${ form | n }

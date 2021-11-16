@@ -328,9 +328,6 @@ server/camcops_server
     extra_strings/slums.xml.rst
     extra_strings/smast.xml.rst
     extra_strings/wemwbs.xml.rst
-    static/jsoneditor/jsoneditor.min.css.rst
-    static/jsoneditor/jsonwidget.css.rst
-    static/tinymce/custom_content.css.rst
     tasks/ace3.py.rst
     tasks/aims.py.rst
     tasks/apeq_cpft_perinatal.py.rst
@@ -566,9 +563,12 @@ server/camcops_server
     templates/snippets/query_result_core.mako.rst
     templates/snippets/query_result_orm.mako.rst
     templates/snippets/table.mako.rst
+    templates/snippets/to_audit_menu.mako.rst
     templates/snippets/to_main_menu.mako.rst
     templates/snippets/to_view_all_groups.mako.rst
     templates/snippets/to_view_all_users.mako.rst
+    templates/snippets/to_view_patient_task_schedules.mako.rst
+    templates/snippets/to_view_task_schedules.mako.rst
     templates/snippets/user_info_detail.mako.rst
     templates/taskcommon/clinician.mako.rst
     templates/taskcommon/clinician_comments.mako.rst

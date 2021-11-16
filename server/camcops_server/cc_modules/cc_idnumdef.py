@@ -191,7 +191,8 @@ class IdNumDefinition(Base):
 
     def verbose_fhir_id_system(self, req: "CamcopsRequest") -> str:
         """
-        Returns a human-readable description of the FHIR ID system in effect.
+        Returns a human-readable description of the FHIR ID system in effect,
+        in HTML form.
         """
         _ = req.gettext
         if self.fhir_id_system:
@@ -200,7 +201,7 @@ class IdNumDefinition(Base):
         else:
             prefix = _("Default:") + " "
             url = self._camcops_default_fhir_id_system(req)
-        return f"{prefix}{url}"
+        return f'{prefix} <a href="{url}">{url}</a>'
 
 
 # =============================================================================

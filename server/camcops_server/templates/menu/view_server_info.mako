@@ -29,14 +29,24 @@ camcops_server/templates/menu/view_server_info.mako
 <%inherit file="base_web.mako"/>
 
 <%!
-from camcops_server.cc_modules.cc_pyramid import Routes
+from camcops_server.cc_modules.cc_pyramid import Icons, Routes
 %>
 
 <%include file="db_user_info.mako"/>
 
-<h1>${ _("CamCOPS: information about this database/server") }</h1>
+<h1>
+    ${ req.icon_text(
+        icon=Icons.INFO_INTERNAL,
+        text=_("CamCOPS: information about this database/server")
+    ) | n }
+</h1>
 
-<h2>${ _("Identification (ID) numbers") }</h2>
+<h2>
+    ${ req.icon_text(
+        icon=Icons.ID_DEFINITIONS,
+        text=_("Identification (ID) numbers")
+    ) | n }
+</h2>
 <table>
     <tr>
         <th>${ _("ID number") }</th>
@@ -50,16 +60,23 @@ from camcops_server.cc_modules.cc_pyramid import Routes
             <td>${ iddef.description }</td>
             <td>${ iddef.short_description }</td>
             <td>
-                <a href="${ req.route_url(Routes.FHIR_PATIENT_ID_SYSTEM,
-                                          which_idnum=iddef.which_idnum) | n }">
-                    ${ _("FHIR") }
-                </a>
+                ${ req.icon_text(
+                        icon=Icons.INFO_INTERNAL,
+                        url=req.route_url(Routes.FHIR_PATIENT_ID_SYSTEM,
+                                          which_idnum=iddef.which_idnum),
+                        text=_("FHIR")
+                ) | n }
             </td>
         </tr>
     %endfor
 </table>
 
-<h2>${ _("Recent activity") }</h2>
+<h2>
+    ${ req.icon_text(
+        icon=Icons.ACTIVITY,
+        text=_("Recent activity")
+    ) | n }
+</h2>
 <table>
     <tr>
         <th>${ _("Time-scale") }</th>
@@ -77,13 +94,26 @@ from camcops_server.cc_modules.cc_pyramid import Routes
     ${ _("minutes; sessions older than this are periodically deleted.") }
 </p>
 
-<h2>${ _("All known tasks") }</h2>
+<h2>
+    ${ req.icon_text(
+        icon=Icons.INFO_INTERNAL,
+        text=_("All known tasks")
+    ) | n }
+</h2>
 <p>
-    <a href="${ req.route_url(Routes.TASK_LIST) | n }">
-        ${ _("Task list") }</a>
+    ${ req.icon_text(
+            icon=Icons.INFO_INTERNAL,
+            url=request.route_url(Routes.TASK_LIST),
+            text=_("Task list")
+    ) | n }
 </p>
 
-<h2>${ _("Extra string families present") }</h2>
+<h2>
+    ${ req.icon_text(
+        icon=Icons.INFO_INTERNAL,
+        text=_("Extra string families present")
+    ) | n }
+</h2>
 <ul>
 %for sf in string_families:
     <li>

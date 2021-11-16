@@ -1928,27 +1928,28 @@ class PhoneNumberType(String):
             node: SchemaNode,
             cstruct: Union[str, ColanderNullType, None]
     ) -> Optional[phonenumbers.PhoneNumber]:
+        request = self.request  # type: CamcopsRequest
+        _ = request.gettext
+        err_message = _("Invalid phone number")
+
         # is null when form is empty
         if not cstruct:
+            if not self.allow_empty:
+                raise Invalid(node, err_message)
             return null
 
         cstruct: str
-
-        request = self.request  # type: CamcopsRequest
-
-        _ = request.gettext
-        message = _("Invalid phone number")
 
         try:
             phone_number = phonenumbers.parse(cstruct,
                                               request.config.region_code)
         except phonenumbers.NumberParseException:
-            raise Invalid(node, message)
+            raise Invalid(node, err_message)
 
         if not phonenumbers.is_valid_number(phone_number):
             # the number may parse but could still be invalid
             # (e.g. too few digits)
-            raise Invalid(node, message)
+            raise Invalid(node, err_message)
 
         return phone_number
 
@@ -1973,8 +1974,11 @@ class MandatoryPhoneNumberNode(MandatoryStringNode, RequestAwareMixin):
     default = None
     missing = None
 
+    # noinspection PyUnusedLocal
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
-        self.typ = PhoneNumberType(self.request)
+        _ = self.gettext
+        self.title = _("Phone number")
+        self.typ = PhoneNumberType(self.request, allow_empty=False)
 
 
 # =============================================================================
@@ -2449,7 +2453,7 @@ class MfaHotpSmsSchema(CSRFSchema):
         _ = self.gettext
         phone_number = get_child_node(self, ViewParam.PHONE_NUMBER)
         phone_number.description = _(
-            "Include the country code (eg +123) for numbers outside of the "
+            "Include the country code (e.g. +123) for numbers outside of the "
             "'{region_code}' region").format(
                 region_code=self.request.config.region_code
             )

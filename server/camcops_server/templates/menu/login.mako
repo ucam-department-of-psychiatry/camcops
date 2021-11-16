@@ -28,6 +28,10 @@ camcops_server/templates/menu/login.mako
 
 <%inherit file="base_web_form.mako"/>
 
+<%!
+from camcops_server.cc_modules.cc_pyramid import Icons
+%>
+
 <%include file="db_user_info.mako"/>
 
 <div>
@@ -35,6 +39,11 @@ camcops_server/templates/menu/login.mako
     ${ _("All use is recorded and monitored.") }
 </div>
 
-<h1>${ _("Please log in to CamCOPS") }</h1>
+<h1>
+    ${ req.icon_text(
+        icon=Icons.LOGIN,
+        text=_("Please log in to CamCOPS")
+    ) | n }
+</h1>
 
 ${form | n}

@@ -28,9 +28,18 @@ camcops_server/templates/menu/filter_edit.mako
 
 <%inherit file="base_web_form.mako"/>
 
+<%!
+from camcops_server.cc_modules.cc_pyramid import Icons
+%>
+
 <%include file="db_user_info.mako"/>
 
-<h1>${ _("Task filters (criteria)") }</h1>
+<h1>
+    ${ req.icon_text(
+        icon=Icons.FILTER,
+        text=_("Task filters (criteria)")
+    ) | n }
+</h1>
 
 ${ form | n }
 

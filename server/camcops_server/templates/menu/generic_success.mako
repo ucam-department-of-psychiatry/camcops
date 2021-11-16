@@ -29,9 +29,18 @@ camcops_server/templates/menu/generic_success.mako
 ## <%page args="msg"/>
 <%inherit file="base_web.mako"/>
 
+<%!
+from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewParam
+%>
+
 <%include file="db_user_info.mako"/>
 
-<h1>${ _("Success!") }</h1>
+<h1>
+    ${ req.icon_text(
+        icon=Icons.SUCCESS,
+        text=_("Success!")
+    ) | n }
+</h1>
 
 %if msg:
     <div class="info">${ msg }</div>

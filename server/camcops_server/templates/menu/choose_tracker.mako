@@ -28,9 +28,18 @@ camcops_server/templates/menu/choose_tracker.mako
 
 <%inherit file="base_web_form.mako"/>
 
+<%!
+from camcops_server.cc_modules.cc_pyramid import Icons
+%>
+
 <%include file="db_user_info.mako"/>
 
-<h1>${ _("Trackers: numerical information across time") }</h1>
+<h1>
+    ${ req.icon_text(
+        icon=Icons.TRACKERS,
+        text=_("Trackers: numerical information across time")
+    ) | n }
+</h1>
 
 ${ form | n }
 

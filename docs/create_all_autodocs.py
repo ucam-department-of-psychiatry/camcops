@@ -82,6 +82,10 @@ source code. For the source code itself, see
 https://github.com/RudolfCardinal/camcops.
 
 """
+SKIP_GLOBS = [
+    "*/static/*",
+    "__init__.py",
+]
 
 PYGMENTS_OVERRIDE = {
     # map file extension to Pygments language name
@@ -142,13 +146,20 @@ def make_autodoc(make: bool, destroy_first: bool) -> None:
         index_heading_underline_char="-",
         source_rst_heading_underline_char="~",
         title=AUTODOC_TITLE,
+        skip_globs=SKIP_GLOBS,
         introductory_rst=INTRODUCTORY_RST,
         pygments_language_override=PYGMENTS_OVERRIDE,
     )
     top_idx.add_indexes([
-        make_subindex("tablet_qt",
-                      method=AutodocMethod.CONTENTS),
-        make_subindex(os.path.join("server", "camcops_server")),
+        make_subindex(
+            "tablet_qt",
+            method=AutodocMethod.CONTENTS,
+            skip_globs=SKIP_GLOBS,
+        ),
+        make_subindex(
+            os.path.join("server", "camcops_server"),
+            skip_globs=SKIP_GLOBS,
+        ),
     ])
     top_idx.write_index_and_rst_files(overwrite=True, mock=not make)
     # print(top_idx.index_content())

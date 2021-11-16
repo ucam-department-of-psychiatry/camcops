@@ -30,12 +30,17 @@ camcops_server/templates/menu/report.mako
 <%inherit file="base_web.mako"/>
 
 <%!
-from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
+from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewParam
 %>
 
 <%include file="db_user_info.mako"/>
 
-<h1>${ title }</h1>
+<h1>
+    ${ req.icon_text(
+        icon=Icons.REPORT_DETAIL,
+        text=context["title"]
+    ) | n }
+</h1>
 
 <%block name="results">
 
@@ -58,14 +63,23 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
 </%block>
 
 <div>
-    <a href="${ request.route_url(
-                    Routes.OFFER_REPORT,
-                    _query={ViewParam.REPORT_ID: report_id}
-                ) | n }">${ _("Re-configure report") }</a>
+    ${ req.icon_text(
+            icon=Icons.REPORT_CONFIG,
+            url=request.route_url(
+                Routes.OFFER_REPORT,
+                _query={
+                    ViewParam.REPORT_ID: report_id
+                }
+            ),
+            text=_("Re-configure report")
+    ) | n }
 </div>
 <div>
-    <a href="${ request.route_url(Routes.REPORTS_MENU) | n }">
-        ${ _("Return to reports menu") }</a>
+    ${ req.icon_text(
+            icon=Icons.REPORTS,
+            url=request.route_url(Routes.REPORTS_MENU),
+            text=_("Return to reports menu")
+    ) | n }
 </div>
 <%include file="to_main_menu.mako"/>
 

@@ -30,12 +30,17 @@ camcops_server/templates/menu/export_recipient.mako
 
 <%!
 from markupsafe import escape
-from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
+from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewParam
 %>
 
 <%include file="db_user_info.mako"/>
 
-<h1>${ _("Export recipient") }</h1>
+<h1>
+    ${ req.icon_text(
+        icon=Icons.AUDIT_DETAIL,
+        text=_("Export recipient")
+    ) | n }
+</h1>
 
 <table>
     <!-- Identification, current -->

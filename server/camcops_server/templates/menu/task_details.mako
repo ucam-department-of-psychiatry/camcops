@@ -28,14 +28,25 @@ camcops_server/templates/menu/task_details.mako
 
 <%inherit file="base_web.mako"/>
 
+<%!
+from camcops_server.cc_modules.cc_pyramid import Icons
+%>
+
 <%include file="db_user_info.mako"/>
 
-<h1>${ _("Task details") }: ${ task_class.tablename }</h1>
+<h1>
+    ${ req.icon_text(
+        icon=Icons.INFO_INTERNAL,
+        text=_("Task details") + ": " + task_class.tablename
+    ) | n }
+</h1>
 
 <div>
-    <a href="${ task_class.help_url() }">
-        ${ task_class.longname(req) } (${ task_class.shortname })
-    </a>
+    ${ req.icon_text(
+        icon=Icons.INFO_EXTERNAL,
+        url=task_class.help_url(),
+        text=task_class.longname(req) + " (" + task_class.shortname + ")"
+    ) | n }
 </div>
 
 <table>

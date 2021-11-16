@@ -28,7 +28,7 @@ camcops_server/templates/snippets/table.mako
 <%page args="column_headings, rows, table_class=None, escape_cells=True"/>
 <table
 %if table_class:
-class="${ table_class | n }"
+    class="${ table_class | n }"
 %endif
 >
     <tr>

@@ -31,7 +31,7 @@ camcops_server/templates/menu/audit_trail_view.mako
 <%!
 
 from mako.filters import html_escape
-from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
+from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewParam
 
 def trunc(value, truncate, truncate_at):
     if not value:
@@ -55,7 +55,12 @@ def get_username(audit_entry):
 
 <%include file="db_user_info.mako"/>
 
-<h1>${ _("Audit trail") }</h1>
+<h1>
+    ${ req.icon_text(
+        icon=Icons.AUDIT_DETAIL,
+        text=_("Audit trail")
+    ) | n }
+</h1>
 
 %if conditions:
     <h2>${ _("Conditions") }</h2>
@@ -95,14 +100,18 @@ def get_username(audit_entry):
             <td>
                 ${ filter_generic_value(audit.server_pk) | n }
                 %if audit.server_pk:
-                    (<a href="${ req.route_url(
-                        Routes.TASK,
-                        _query={
-                            ViewParam.TABLE_NAME: audit.table_name,
-                            ViewParam.SERVER_PK: audit.server_pk,
-                            ViewParam.VIEWTYPE: ViewArg.HTML
-                        }
-                    ) | n }">${ _("View task") }</a>)
+                    (${ req.icon_text(
+                            icon=Icons.HTML_IDENTIFIABLE,
+                            url=request.route_url(
+                                Routes.TASK,
+                                _query={
+                                    ViewParam.TABLE_NAME: audit.table_name,
+                                    ViewParam.SERVER_PK: audit.server_pk,
+                                    ViewParam.VIEWTYPE: ViewArg.HTML
+                                }
+                            ),
+                            text=_("View task")
+                    ) | n })
                 %endif
             </td>
             <td>${ filter_generic_value(audit.patient_server_pk) | n }</td>
@@ -114,9 +123,11 @@ def get_username(audit_entry):
 <div>${ page.pager() | n }</div>
 
 <div>
-    <a href="${ req.route_url(Routes.OFFER_AUDIT_TRAIL) | n }">
-        ${ _("Choose different options") }
-    </a>
+    ${ req.icon_text(
+            icon=Icons.AUDIT_OPTIONS,
+            url=request.route_url(Routes.OFFER_AUDIT_TRAIL),
+            text=_("Choose different options")
+    ) | n }
 </div>
-
+<%include file="to_audit_menu.mako"/>
 <%include file="to_main_menu.mako"/>

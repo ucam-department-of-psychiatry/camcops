@@ -30,21 +30,30 @@ camcops_server/templates/menu/exported_task.mako
 
 <%!
 from markupsafe import escape
-from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
+from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewParam
 
-def listview(req, objects, route_name, description):
+def listview(req, objects, route_name, description, icon):
     parts = []
     for obj in objects:
         url = req.route_url(route_name, _query={ViewParam.ID: obj.id})
-        parts.append('<a href="{url}">{description} {id}</a>'.format(
-            url=url, description=description, id=obj.id))
+        text = f"{description} {obj.id}"
+        parts.append(req.icon_text(
+            icon=icon,
+            url=url,
+            text=text,
+        ))
     return "<br>".join(parts)
 
 %>
 
 <%include file="db_user_info.mako"/>
 
-<h1>${ _("Individual task export attempt") }</h1>
+<h1>
+    ${ req.icon_text(
+        icon=Icons.AUDIT_DETAIL,
+        text=_("Individual task export attempt")
+    ) | n }
+</h1>
 
 <table>
     <tr>
@@ -54,10 +63,16 @@ def listview(req, objects, route_name, description):
     <tr>
         <th>Export recipient ID</th>
         <td>
-            <a href="${ req.route_url(
-                            Routes.VIEW_EXPORT_RECIPIENT,
-                            _query={ViewParam.ID: et.recipient_id}
-                        ) | n }">ExportRecipient ${ et.recipient_id }</a>
+            ${ req.icon_text(
+                    icon=Icons.AUDIT_DETAIL,
+                    url=request.route_url(
+                        Routes.VIEW_EXPORT_RECIPIENT,
+                        _query={
+                            ViewParam.ID: et.recipient_id
+                        }
+                    ),
+                    text="ExportRecipient " + str(et.recipient_id)
+            ) | n }
         </td>
     </tr>
     <tr>
@@ -68,14 +83,18 @@ def listview(req, objects, route_name, description):
         <th>Task server PK</th>
         <td>
             ${ et.task_server_pk }
-            (<a href="${ req.route_url(
-                            Routes.TASK,
-                            _query={
-                                ViewParam.TABLE_NAME: et.basetable,
-                                ViewParam.SERVER_PK: et.task_server_pk,
-                                ViewParam.VIEWTYPE: ViewArg.HTML
-                            }
-                        ) | n }">${ _("View task") }</a>)
+            ${ req.icon_text(
+                    icon=Icons.HTML_IDENTIFIABLE,
+                    url=request.route_url(
+                        Routes.TASK,
+                        _query={
+                            ViewParam.TABLE_NAME: et.basetable,
+                            ViewParam.SERVER_PK: et.task_server_pk,
+                            ViewParam.VIEWTYPE: ViewArg.HTML
+                        }
+                    ),
+                    text=_("View task")
+            ) | n }
         </td>
     </tr>
     <tr>
@@ -104,18 +123,28 @@ def listview(req, objects, route_name, description):
     </tr>
     <tr>
         <th>E-mails</th>
-        <td>${ listview(req, et.emails, Routes.VIEW_EXPORTED_TASK_EMAIL,
-                        "ExportedTaskEmail") | n }</td>
+        <td>
+            ${ listview(
+                    req, et.emails, Routes.VIEW_EXPORTED_TASK_EMAIL,
+                    "ExportedTaskEmail", Icons.AUDIT_DETAIL
+            ) | n }
+        </td>
     </tr>
     <tr>
         <th>Files</th>
-        <td>${ listview(req, et.filegroups, Routes.VIEW_EXPORTED_TASK_FILE_GROUP,
-                        "ExportedTaskFileGroup") | n }</td>
+        <td>
+            ${ listview(
+                    req, et.filegroups, Routes.VIEW_EXPORTED_TASK_FILE_GROUP,
+                    "ExportedTaskFileGroup", Icons.AUDIT_DETAIL
+            ) | n }</td>
     </tr>
     <tr>
         <th>HL7 messages</th>
-        <td>${ listview(req, et.hl7_messages, Routes.VIEW_EXPORTED_TASK_HL7_MESSAGE,
-                        "ExportedTaskHL7Message") | n }</td>
+        <td>
+            ${ listview(
+                    req, et.hl7_messages, Routes.VIEW_EXPORTED_TASK_HL7_MESSAGE,
+                    "ExportedTaskHL7Message", Icons.AUDIT_DETAIL
+            ) | n }</td>
     </tr>
 </table>
 

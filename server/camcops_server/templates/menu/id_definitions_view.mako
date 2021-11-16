@@ -29,12 +29,17 @@ camcops_server/templates/menu/id_definitions_view.mako
 <%inherit file="base_web.mako"/>
 
 <%!
-from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
+from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewParam
 %>
 
 <%include file="db_user_info.mako"/>
 
-<h1>${ _("Identification (ID) numbers") }</h1>
+<h1>
+    ${ req.icon_text(
+        icon=Icons.ID_DEFINITIONS,
+        text=_("Identification (ID) numbers")
+    ) | n }
+</h1>
 
 <table>
     <tr>
@@ -56,20 +61,50 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
             <td>${ iddef.validation_method or "" }</td>
             <td>${ iddef.hl7_id_type or "" }</td>
             <td>${ iddef.hl7_assigning_authority or "" }</td>
-            <td>${ iddef.verbose_fhir_id_system(req) }</td>
-            <td><a href="${request.route_url(
-                                Routes.EDIT_ID_DEFINITION,
-                                _query={ViewParam.WHICH_IDNUM: iddef.which_idnum
-                            }) | n }">${ _("Edit") }</a></td>
-            <td><a href="${request.route_url(
-                                Routes.DELETE_ID_DEFINITION,
-                                _query={ViewParam.WHICH_IDNUM: iddef.which_idnum
-                            }) | n }">${ _("Delete") }</a></td>
+            <td>
+                %if not iddef.fhir_id_system:
+                    ${ _("Default:") }
+                %endif
+                ${ req.icon_text(
+                        icon=Icons.INFO_INTERNAL,
+                        url=iddef.effective_fhir_id_system(req),
+                        text=iddef.effective_fhir_id_system(req)
+                ) | n }
+            </td>
+            <td>
+                ${ req.icon_text(
+                        icon=Icons.EDIT,
+                        url=request.route_url(
+                            Routes.EDIT_ID_DEFINITION,
+                            _query={
+                                ViewParam.WHICH_IDNUM: iddef.which_idnum
+                            }
+                        ),
+                        text=_("Edit")
+                ) | n }
+            </td>
+            <td>
+                ${ req.icon_text(
+                        icon=Icons.DELETE,
+                        url=request.route_url(
+                            Routes.DELETE_ID_DEFINITION,
+                            _query={
+                                ViewParam.WHICH_IDNUM: iddef.which_idnum
+                            }
+                        ),
+                        text=_("Delete")
+                ) | n }
+            </td>
         </tr>
     %endfor
 </table>
 
-<a href="${ request.route_url(Routes.ADD_ID_DEFINITION) | n }">
-    ${ _("Add new ID number definition") }</a>
+<div>
+    ${ req.icon_text(
+            icon=Icons.ID_DEFINITION_ADD,
+            url=request.route_url(Routes.ADD_ID_DEFINITION),
+            text=_("Add new ID number definition")
+    ) | n }
+</div>
 
 <%include file="to_main_menu.mako"/>

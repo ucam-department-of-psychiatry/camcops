@@ -2809,7 +2809,7 @@ class LoginViewTests(TestStateMixin, BasicDatabaseTestCase):
         args, kwargs = mock_make_email.call_args_list[0]
         self.assertEqual(kwargs["from_addr"], "server@example.com")
         self.assertEqual(kwargs["to"], "user@example.com")
-        self.assertEqual(kwargs["subject"], "CamCOPS two-step login")
+        self.assertEqual(kwargs["subject"], "CamCOPS authentication")
         self.assertIn(f"Your CamCOPS verification code is {expected_code}",
                       kwargs["body"])
         self.assertEqual(kwargs["content_type"], "text/plain")

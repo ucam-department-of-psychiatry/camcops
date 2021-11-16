@@ -28,9 +28,18 @@ camcops_server/templates/menu/fhir_patient_id_system.mako
 
 <%inherit file="base_web.mako"/>
 
+<%!
+from camcops_server.cc_modules.cc_pyramid import Icons
+%>
+
 <%include file="db_user_info.mako"/>
 
-<h1>${ _("FHIR Patient identifier system") }: ${ which_idnum }</h1>
+<h1>
+    ${ req.icon_text(
+        icon=Icons.INFO_INTERNAL,
+        text=_("FHIR Patient identifier system")
+    ) | n }: ${ which_idnum }
+</h1>
 
 <div>
     ${ req.get_id_desc(which_idnum) }

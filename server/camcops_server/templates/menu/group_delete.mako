@@ -28,9 +28,19 @@ camcops_server/templates/menu/group_delete.mako
 
 <%inherit file="base_web_form.mako"/>
 
+<%!
+from camcops_server.cc_modules.cc_pyramid import Icons
+%>
+
 <%include file="db_user_info.mako"/>
 
-<h1>${ _("Delete group") } ${ group.name }?</h1>
+<h1>
+    ${ req.icon_text(
+        icon=Icons.DELETE,
+        text=_("Delete group")
+    ) | n }
+    ${ group.name }?
+</h1>
 
 %if error:
     <div class="error">${ error }</div>

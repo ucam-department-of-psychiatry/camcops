@@ -282,6 +282,7 @@ from camcops_server.cc_modules.cc_pyramid import (
     FlashQueue,
     FormAction,
     HTTPFoundDebugVersion,
+    Icons,
     PageUrl,
     Permission,
     Routes,
@@ -623,6 +624,7 @@ class MfaMixin(FormWizardMixin):
     STEP_PASSWORD = "password"
     STEP_MFA = "mfa"
 
+    KEY_ICON = "icon"
     KEY_INSTRUCTIONS = "instructions"
     KEY_MFA_TIME = "mfa_time"
 
@@ -685,9 +687,30 @@ class MfaMixin(FormWizardMixin):
     def get_extra_context(self) -> Dict[str, Any]:
         # Docstring in superclass.
         if self.step == self.STEP_MFA:
-            return {self.KEY_INSTRUCTIONS: self.get_mfa_instructions()}
+            return {
+                self.KEY_ICON: self.get_mfa_icon(),
+                self.KEY_INSTRUCTIONS: self.get_mfa_instructions(),
+            }
         else:
             return {}
+
+    def get_mfa_icon(self) -> str:
+        """
+        Returns an icon to let the user know which MFA method is being used.
+        """
+        method = self.mfa_user.mfa_method
+
+        if method == MfaMethod.TOTP:
+            return "shield-shaded"
+
+        elif method == MfaMethod.HOTP_EMAIL:
+            return "envelope"
+
+        elif method == MfaMethod.HOTP_SMS:
+            return "chat-left-dots"
+
+        else:
+            return "Error: get_mfa_icon() called for invalid MFA method"
 
     def get_mfa_instructions(self) -> str:
         """
@@ -749,7 +772,7 @@ class MfaMixin(FormWizardMixin):
         kwargs = dict(
             from_addr=config.email_from,
             to=self.mfa_user.email,
-            subject=_("CamCOPS two-step login"),
+            subject=_("CamCOPS authentication"),
             body=self.get_hotp_message(),
             content_type=MimeType.TEXT
         )
@@ -1639,7 +1662,8 @@ class EditOwnUserMfaView(LoggedInUserMfaMixin, UpdateView):
         return form_values
 
     def get_extra_context(self) -> Dict[str, Any]:
-        _ = self.request.gettext
+        req = self.request
+        _ = req.gettext
         if self.step == self.STEP_MFA:
             test_msg = _("Let's test it!") + " "
             return {
@@ -1647,12 +1671,26 @@ class EditOwnUserMfaView(LoggedInUserMfaMixin, UpdateView):
             }
 
         titles = {
-            self.STEP_MFA_METHOD: _("Multi-factor authentication settings"),
-            self.STEP_TOTP: _("Authenticate with app"),
-            self.STEP_HOTP_EMAIL: _("Authenticate by email"),
-            self.STEP_HOTP_SMS: _("Authenticate by text message"),
+            self.STEP_MFA_METHOD: req.icon_text(
+                icon=Icons.MFA,
+                text=_("Multi-factor authentication settings"),
+            ),
+            self.STEP_TOTP: req.icon_text(
+                icon=Icons.APP_AUTHENTICATOR,
+                text=_("Authenticate with app"),
+            ),
+            self.STEP_HOTP_EMAIL: req.icon_text(
+                icon=Icons.EMAIL_SEND,
+                text=_("Authenticate by email"),
+            ),
+            self.STEP_HOTP_SMS: req.icon_text(
+                icon=Icons.SMS,
+                text=_("Authenticate by text message")
+            ),
         }
-        return {MAKO_VAR_TITLE: titles[self.step]}
+        return {
+            MAKO_VAR_TITLE: titles[self.step]
+        }
 
     def get_success_url(self) -> str:
         if self.finished():
@@ -4971,7 +5009,10 @@ class DeleteServerCreatedPatientView(DeleteView):
     def get_extra_context(self) -> Dict[str, Any]:
         _ = self.request.gettext
         return {
-            MAKO_VAR_TITLE: _("Delete patient"),
+            MAKO_VAR_TITLE: self.request.icon_text(
+                icon=Icons.DELETE,
+                text=_("Delete patient")
+            )
         }
 
     def get_success_url(self) -> str:
@@ -5166,7 +5207,10 @@ class AddTaskScheduleView(TaskScheduleMixin, CreateView):
     def get_extra_context(self) -> Dict[str, Any]:
         _ = self.request.gettext
         return {
-            MAKO_VAR_TITLE: _("Add a task schedule"),
+            MAKO_VAR_TITLE: self.request.icon_text(
+                icon=Icons.TASK_SCHEDULE_ADD,
+                text=_("Add a task schedule")
+            )
         }
 
 
@@ -5179,7 +5223,10 @@ class EditTaskScheduleView(TaskScheduleMixin, UpdateView):
     def get_extra_context(self) -> Dict[str, Any]:
         _ = self.request.gettext
         return {
-            MAKO_VAR_TITLE: _("Edit details for a task schedule"),
+            MAKO_VAR_TITLE: self.request.icon_text(
+                icon=Icons.EDIT,
+                text=_("Edit details for a task schedule")
+            )
         }
 
 
@@ -5193,7 +5240,10 @@ class DeleteTaskScheduleView(TaskScheduleMixin, DeleteView):
     def get_extra_context(self) -> Dict[str, Any]:
         _ = self.request.gettext
         return {
-            MAKO_VAR_TITLE: _("Delete a task schedule"),
+            MAKO_VAR_TITLE: self.request.icon_text(
+                icon=Icons.DELETE,
+                text=_("Delete a task schedule")
+            )
         }
 
 
@@ -5299,9 +5349,12 @@ class AddTaskScheduleItemView(EditTaskScheduleItemMixin, CreateView):
         schedule = self.get_schedule()
 
         return {
-            MAKO_VAR_TITLE: _(
-                "Add an item to the {schedule_name} schedule"
-            ).format(schedule_name=schedule.name),
+            MAKO_VAR_TITLE: self.request.icon_text(
+                icon=Icons.TASK_SCHEDULE_ITEM_ADD,
+                text=_(
+                    "Add an item to the {schedule_name} schedule"
+                ).format(schedule_name=schedule.name)
+            )
         }
 
     def get_schedule_id(self) -> int:
@@ -5323,7 +5376,10 @@ class EditTaskScheduleItemView(EditTaskScheduleItemMixin, UpdateView):
     def get_extra_context(self) -> Dict[str, Any]:
         _ = self.request.gettext
         return {
-            MAKO_VAR_TITLE: _("Edit details for a task schedule item"),
+            MAKO_VAR_TITLE: self.request.icon_text(
+                icon=Icons.EDIT,
+                text=_("Edit details for a task schedule item")
+            )
         }
 
     def get_schedule_id(self) -> int:
@@ -5353,7 +5409,10 @@ class DeleteTaskScheduleItemView(TaskScheduleItemMixin, DeleteView):
     def get_extra_context(self) -> Dict[str, Any]:
         _ = self.request.gettext
         return {
-            MAKO_VAR_TITLE: _("Delete a task schedule item"),
+            MAKO_VAR_TITLE: self.request.icon_text(
+                icon=Icons.DELETE,
+                text=_("Delete a task schedule item")
+            ),
         }
 
     def get_schedule_id(self) -> int:

@@ -28,9 +28,18 @@ camcops_server/templates/menu/special_note_add.mako
 
 <%inherit file="base_web_form.mako"/>
 
+<%!
+from camcops_server.cc_modules.cc_pyramid import Icons
+%>
+
 <%include file="db_user_info.mako"/>
 
-<h1>${ _("Add special note to task instance irrevocably?") }</h1>
+<h1>
+    ${ req.icon_text(
+        icon=Icons.SPECIAL_NOTE,
+        text=_("Add special note to task instance irrevocably?")
+    ) | n }
+</h1>
 
 <%include file="task_descriptive_header.mako" args="task=task, anonymise=False"/>
 
