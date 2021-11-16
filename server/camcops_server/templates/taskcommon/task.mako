@@ -325,7 +325,9 @@ ${ task.get_task_html(req) | n }
                             url=request.route_url(
                                 Routes.EDIT_FINALIZED_PATIENT,
                                 _query={
-                                    ViewParam.SERVER_PK: task.patient.pk
+                                    ViewParam.SERVER_PK: task.patient.pk,
+                                    ViewParam.BACK_TASK_TABLENAME: task.tablename,
+                                    ViewParam.BACK_TASK_SERVER_PK: task.pk,
                                 }
                             ),
                             text=_("Edit patient details")

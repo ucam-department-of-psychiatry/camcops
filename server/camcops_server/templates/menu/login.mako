@@ -42,7 +42,7 @@ from camcops_server.cc_modules.cc_pyramid import Icons
 <h1>
     ${ req.icon_text(
         icon=Icons.LOGIN,
-        text=_("Please log in to CamCOPS")
+        text=_("Log in to CamCOPS")
     ) | n }
 </h1>
 

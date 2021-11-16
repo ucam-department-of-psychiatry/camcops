@@ -28,6 +28,10 @@ camcops_server/templates/menu/login_token.mako
 
 <%inherit file="base_web_form.mako"/>
 
+<%!
+from camcops_server.cc_modules.cc_pyramid import Icons
+%>
+
 <%include file="db_user_info.mako"/>
 
 <div>
@@ -36,14 +40,11 @@ camcops_server/templates/menu/login_token.mako
 </div>
 
 <h1>
-    ${ req.icon_text(
-        icon=context["icon"],
-        text=_("Multi-factor authentication")
-    ) | n }
+    ${ title_html | n }
 </h1>
 
 <p>
-${ instructions }
+    ${ instructions }
 </p>
 
 ${ form | n }

@@ -627,7 +627,7 @@ class MfaMixin(FormWizardMixin):
     STEP_PASSWORD = "password"
     STEP_MFA = "mfa"
 
-    KEY_ICON = "icon"
+    KEY_TITLE_HTML = "title_html"
     KEY_INSTRUCTIONS = "instructions"
     KEY_MFA_TIME = "mfa_time"
 
@@ -690,10 +690,14 @@ class MfaMixin(FormWizardMixin):
     def get_extra_context(self) -> Dict[str, Any]:
         # Docstring in superclass.
         if self.step == self.STEP_MFA:
-            return {
-                self.KEY_ICON: self.get_mfa_icon(),
+            context = {
+                self.KEY_TITLE_HTML: self.request.icon_text(
+                    icon=self.get_mfa_icon(),
+                    text=self.get_mfa_title()
+                ),
                 self.KEY_INSTRUCTIONS: self.get_mfa_instructions(),
             }
+            return context
         else:
             return {}
 
@@ -714,6 +718,25 @@ class MfaMixin(FormWizardMixin):
 
         else:
             return "Error: get_mfa_icon() called for invalid MFA method"
+
+    def get_mfa_title(self) -> str:
+        """
+        Returns a title for the page that requests the code itself.
+        """
+        _ = self.request.gettext
+        method = self.mfa_user.mfa_method
+
+        if method == MfaMethod.TOTP:
+            return _("Authenticate via your authentication app")
+
+        elif method == MfaMethod.HOTP_EMAIL:
+            return _("Authenticate via e-mail")
+
+        elif method == MfaMethod.HOTP_SMS:
+            return _("Authenticate via SMS")
+
+        else:
+            return "Error: get_mfa_title() called for invalid MFA method"
 
     def get_mfa_instructions(self) -> str:
         """
@@ -1669,26 +1692,28 @@ class EditOwnUserMfaView(LoggedInUserMfaMixin, UpdateView):
         _ = req.gettext
         if self.step == self.STEP_MFA:
             test_msg = _("Let's test it!") + " "
-            return {
-                self.KEY_INSTRUCTIONS: test_msg + self.get_mfa_instructions()
-            }
+            context = super().get_extra_context()
+            context[self.KEY_INSTRUCTIONS] = (
+                test_msg + self.get_mfa_instructions()
+            )
+            return context
 
         titles = {
             self.STEP_MFA_METHOD: req.icon_text(
                 icon=Icons.MFA,
-                text=_("Multi-factor authentication settings"),
+                text=_("Configure multi-factor authentication settings"),
             ),
             self.STEP_TOTP: req.icon_text(
                 icon=Icons.APP_AUTHENTICATOR,
-                text=_("Authenticate with app"),
+                text=_("Configure authentication with app"),
             ),
             self.STEP_HOTP_EMAIL: req.icon_text(
                 icon=Icons.EMAIL_SEND,
-                text=_("Authenticate by email"),
+                text=_("Configure authentication by email"),
             ),
             self.STEP_HOTP_SMS: req.icon_text(
                 icon=Icons.SMS,
-                text=_("Authenticate by text message")
+                text=_("Configure authentication by text message")
             ),
         }
         return {
@@ -4101,6 +4126,10 @@ def delete_id_definition(req: "CamcopsRequest") -> Dict[str, Any]:
 def add_special_note(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to add a special note to a task (after confirmation).
+
+    (Note that users can't add special notes to patients -- those get added
+    automatically when a patient is edited. So the context here is always of a
+    task.)
     """
     table_name = req.get_str_param(ViewParam.TABLE_NAME,
                                    validator=validate_task_tablename)
@@ -4166,14 +4195,17 @@ def delete_special_note(req: "CamcopsRequest") -> Dict[str, Any]:
                              f"note_id={note_id}")
     if not sn.user_may_delete_specialnote(req.user):
         raise HTTPBadRequest(_("Not authorized to delete this special note"))
-    url_back = req.route_url(Routes.HOME)  # default
+    url_back = req.route_url(Routes.VIEW_TASKS)  # default
     if sn.refers_to_patient():
-        # Special note on a patient
-        patient = sn.target_patient()
-        if patient:
-            pass  # ***
+        # Special note on a patient.
+        # We might have come here from any number of tasks relating to this
+        # patient. In principle this information is retrievable; in practice it
+        # is a considerable faff for a rare operation, since special notes are
+        # displayed via special_notes.mako, which only looks at information
+        # stored with the note itself.
+        pass
     else:
-        # Special note on a task
+        # Special note on a task.
         task = sn.target_task()
         if task:
             url_back = req.route_url(
@@ -4931,8 +4963,27 @@ class EditFinalizedPatientView(EditPatientBaseView):
     template_name = "finalized_patient_edit.mako"
     form_class = EditFinalizedPatientForm
 
+    def __init__(self,
+                 req: CamcopsRequest,
+                 task_tablename: str,
+                 task_server_pk: int) -> None:
+        super().__init__(req)
+        self.task_tablename = task_tablename
+        self.task_server_pk = task_server_pk
+
     def get_success_url(self) -> str:
-        return self.request.route_url(Routes.HOME)
+        """
+        We got here by editing a patient from an uploaded task, so that's our
+        return point.
+        """
+        return self.request.route_url(
+            Routes.TASK,
+            _query={
+                ViewParam.TABLE_NAME: self.task_tablename,
+                ViewParam.SERVER_PK: self.task_server_pk,
+                ViewParam.VIEWTYPE: ViewArg.HTML,
+            }
+        )
 
     def get_object(self) -> Any:
         patient = cast(Patient, super().get_object())
@@ -4954,7 +5005,15 @@ def edit_finalized_patient(req: "CamcopsRequest") -> Response:
     """
     View to edit details for a patient.
     """
-    return EditFinalizedPatientView(req).dispatch()
+    task_table_name = req.get_str_param(ViewParam.BACK_TASK_TABLENAME,
+                                        validator=validate_task_tablename)
+    task_server_pk = req.get_int_param(ViewParam.BACK_TASK_SERVER_PK, None)
+
+    return EditFinalizedPatientView(
+        req,
+        task_tablename=task_table_name,
+        task_server_pk=task_server_pk
+    ).dispatch()
 
 
 @view_config(route_name=Routes.EDIT_SERVER_CREATED_PATIENT,

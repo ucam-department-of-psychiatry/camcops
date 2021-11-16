@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CamCOPS 2.4.11\n"
 "Report-Msgid-Bugs-To: rudolf@pobox.com\n"
-"POT-Creation-Date: 2021-11-11 18:12+0000\n"
+"POT-Creation-Date: 2021-11-16 14:55+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,25 +21,25 @@ msgstr ""
 msgid "(Server) Devices registered with the server"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:795
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:867
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:796
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:868
 msgid "CamCOPS research data dump"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:796
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:797
 msgid "The research data dump you requested is attached."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:836
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:837
 msgid "You do not have enough space to create this download. You are allowed {total_permitted} bytes and you are have {space} bytes free. This download would need {size} bytes."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:849
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:850
 #, python-format
 msgid "The research data dump you requested is ready to be downloaded. You will find it in your download area. It is called %s"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:856
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:857
 msgid "Failed to create file {filename}. Error was: {message}"
 msgstr ""
 
@@ -48,8 +48,9 @@ msgid "If you specify more than one, they will be joined with OR."
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:362
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:132
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:119
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:256
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:190
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:201
 msgid "Change password"
 msgstr ""
 
@@ -80,7 +81,7 @@ msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:506
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:843
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4298
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4302
 msgid "Add"
 msgstr ""
 
@@ -93,40 +94,40 @@ msgid "OK"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:823
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3632
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3636
 msgid "Apply"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:824
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:844
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:869
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3395
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3633
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4695
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4790
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5151
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5286
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3399
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3637
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4699
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4794
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5155
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5290
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/tests/cc_request_tests.py:47
 msgid "Cancel"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:888
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4270
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4318
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4387
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5245
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/download_area.mako:45
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:49
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:67
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:56
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:134
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:118
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedule_items.mako:50
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedule_items.mako:73
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:49
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:71
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4274
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4322
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4391
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5249
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/download_area.mako:54
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:54
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:95
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:61
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:231
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:150
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedule_items.mako:55
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedule_items.mako:89
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:54
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:87
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/groups_table.mako:51
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/groups_table.mako:105
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/groups_table.mako:119
 msgid "Delete"
 msgstr ""
 
@@ -137,7 +138,7 @@ msgid "Task type"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:926
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2639
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2643
 msgid "[Any]"
 msgstr ""
 
@@ -179,8 +180,8 @@ msgid "ID# value"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1118
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:41
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_server_info.mako:42
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:46
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_server_info.mako:52
 msgid "ID number"
 msgstr ""
 
@@ -190,7 +191,7 @@ msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1151
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1181
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/group_edit.mako:70
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/group_edit.mako:77
 msgid "ID numbers"
 msgstr ""
 
@@ -219,8 +220,8 @@ msgid "User"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1330
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_trail_view.mako:75
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:46
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_trail_view.mako:80
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:51
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:44
 msgid "Username"
 msgstr ""
@@ -234,7 +235,7 @@ msgid "Include auto-generated users"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1373
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2965
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2969
 msgid "Refresh"
 msgstr ""
 
@@ -243,7 +244,7 @@ msgid "Device"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1427
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_trail_view.mako:78
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_trail_view.mako:83
 msgid "Server PK"
 msgstr ""
 
@@ -273,7 +274,7 @@ msgstr ""
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1690
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1735
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1855
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:46
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:51
 msgid "Group"
 msgstr ""
 
@@ -286,8 +287,8 @@ msgid "[None]"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1766
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/groups_view.mako:37
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:53
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/groups_view.mako:40
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:58
 msgid "Groups"
 msgstr ""
 
@@ -330,786 +331,791 @@ msgstr ""
 msgid "Invalid redirection URL"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1940
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1933
 msgid "Invalid phone number"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2008
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:1980
+msgid "Phone number"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2012
 msgid "Password"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2035
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2039
 msgid "Log in"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2057
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2061
 msgid "Enter the six-digit code"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2071
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2256
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2295
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4678
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4693
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4788
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5149
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2075
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2260
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2299
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4682
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4697
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4792
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5153
 msgid "Submit"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2096
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2100
 msgid "User must change password at next login"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2097
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2101
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:72
 msgid "Must change password at next login?"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2116
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2120
 msgid "Old password"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2124
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2128
 msgid "Old password incorrect"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2151
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2155
 msgid "Choose strong passphrases. See {link}"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2154
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2158
 msgid "Minimum password length is {limit} characters."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2181
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2185
 msgid "New password"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2182
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2186
 msgid "Type the new password and confirm it"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2215
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2219
 msgid "New password must differ from old"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2276
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2389
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2280
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2393
 msgid "Disable multi-factor authentication"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2277
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2281
 msgid "Disable multi-factor authentication?"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2341
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2345
 msgid "Open your authentication app."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2342
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2346
 msgid "Add CamCOPS to the app by scanning this QR code:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2344
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2348
 msgid "If you can't scan the QR code, enter this key instead:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2346
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2350
 msgid "When prompted, enter the 6-digit code displayed on the app."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2382
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2386
 msgid "Authentication type"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2386
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2390
 msgid "Use an app such as Google Authenticator or Twilio Authy"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2387
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2391
 msgid "Send me a code by email"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2388
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2392
 msgid "Send me a code by text message"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2412
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2416
 msgid "How do you wish to authenticate?"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2425
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2429
 msgid "Follow these steps:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2451
-msgid "Include the country code (eg +123) for numbers outside of the '{region_code}' region"
-msgstr ""
-
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2589
-msgid "Source (e.g. webviewer, tablet, console)"
-msgstr ""
-
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2591
-msgid "Remote IP address"
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2455
+msgid "Include the country code (e.g. +123) for numbers outside of the '{region_code}' region"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2593
+msgid "Source (e.g. webviewer, tablet, console)"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2595
+msgid "Remote IP address"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2597
 msgid "Truncate details for easy viewing"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2603
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2607
 msgid "View audit trail"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2660
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2664
 msgid "ExportedTask ID"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2670
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2674
 msgid "View exported task log"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2697
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2701
 msgid "Text contents"
 msgstr ""
 
 #. TRANSLATOR: For the task filter form: the text in "Add text"
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2704
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2708
 msgid "text"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2711
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2715
 msgid "You have specified duplicate text filters"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2730
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2734
 msgid "Uploading users"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2739
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2743
 msgid "You have specified duplicate users"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2758
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2762
 msgid "Uploading devices"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2798
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2802
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/describe_task_filter.mako:51
 msgid "Surname"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2800
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2804
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/describe_task_filter.mako:55
 msgid "Forename"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2802
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4627
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2806
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4631
 msgid "Date of birth"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2827
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2831
 msgid "Only completed tasks?"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2886
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2890
 msgid "Who"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2887
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2891
 msgid "What"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2888
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2892
 msgid "When"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2889
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2893
 msgid "Administrative criteria"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2918
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2922
 msgid "Set filters"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2920
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2924
 msgid "Clear"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2942
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2946
 msgid "Set n/page"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:2996
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3068
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3000
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3072
 msgid "View as"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3017
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3021
 msgid "Use all eligible task types?"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3040
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3044
 msgid "View CTV"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3040
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3044
 msgid "View tracker"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3078
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3082
 msgid "HTML"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3079
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3739
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3083
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3743
 msgid "OpenOffice spreadsheet (ODS) file"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3080
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3084
 msgid "TSV (tab-separated values)"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3081
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3740
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3085
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3744
 msgid "XLSX (Microsoft Excel) file"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3108
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3112
 msgid "View report"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3123
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3127
 msgid "[WILL NOT WORK]"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3151
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3155
 msgid "SQL dialect to use (not all may be valid)"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3172
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3176
 msgid "View DDL"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3202
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3206
 msgid "Permitted to upload from a tablet/device"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3206
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3210
 msgid "Permitted to register tablet/client devices"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3210
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3214
 msgid "May log in to web front end"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3214
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3218
 msgid "May add, edit or delete patients created on the server"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3218
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3222
 msgid "May send emails to patients created on the server"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3222
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3226
 msgid "May view (browse) records from all patients when no patient filter set"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3229
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3233
 msgid "May perform bulk data dumps"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3233
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3237
 msgid "May run reports"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3237
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3241
 msgid "May add special notes to tasks"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3253
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3257
 msgid "User is a privileged group administrator for this group"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3274
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:49
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3278
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/all_tasks.mako:48
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:54
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:52
 msgid "Full name"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3276
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3280
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:56
 msgid "E-mail address"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3290
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3294
 msgid "Superuser (CAUTION!)"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3377
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3381
 msgid "Group into which to upload data"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3378
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3382
 msgid "Pick a group from those to which the user belongs"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3394
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3398
 msgid "Set"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3431
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3435
 msgid "Not a string"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3434
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3438
 msgid "Syntactically invalid policy"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3438
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3442
 msgid "Invalid policy. Have you referred to non-existent ID numbers? Is the policy less restrictive than the tablet’s minimum ID policy?"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3487
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3491
 msgid "These settings will be applied to the patient's device when operating in single user mode."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3491
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3495
 msgid "The settings here influence whether CamCOPS will consider some third-party tasks “permitted” on your behalf, according to their published use criteria. They do <b>not</b> remove your responsibility to ensure that you use them in accordance with their own requirements."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3498
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3502
 msgid "WARNING. Providing incorrect information here may lead to you VIOLATING copyright law, by using a task for a purpose that is not permitted, and being subject to damages and/or prosecution."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3504
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3508
 msgid "The authors of CamCOPS cannot be held responsible or liable for any consequences of you misusing materials subject to copyright."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3509
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3513
 msgid "In which contexts does this group operate?"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3510
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3514
 msgid "Clinical"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3511
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3515
 msgid "WARNING: NOT FOR GENERAL CLINICAL USE; not a Medical Device; see Terms and Conditions"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3515
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3519
 msgid "Commercial"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3516
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3520
 msgid "Educational"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3517
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3521
 msgid "Research"
 msgstr ""
 
 #. TRANSLATOR: keep short; table heading in user_info_detail.mako
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3593
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3649
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3597
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3653
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/groups_table.mako:40
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:183
 msgid "Group name"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3596
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3600
 msgid "Group intellectual property settings"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3599
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3603
 msgid "Other groups this group may see"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3601
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3605
 msgid "Upload policy"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3602
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3606
 msgid "Minimum required patient information to copy data to server"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3605
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3609
 msgid "Finalize policy"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3606
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3610
 msgid "Minimum required patient information to clear data off source device"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3617
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3657
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3621
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3661
 msgid "Name is used by another group!"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3707
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3711
 msgid "Dump method"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3709
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3713
 msgid "Everything"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3711
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3715
 msgid "Use the session filter settings"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3713
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3717
 msgid "Specify tasks/groups manually (see below)"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3736
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3740
 msgid "Spreadsheet format"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3738
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3742
 msgid "R script"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3741
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3745
 msgid "ZIP file of tab-separated value (TSV) files"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3764
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3768
 msgid "Delivery"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3766
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3770
 msgid "Serve immediately"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3767
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3771
 msgid "E-mail me"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3768
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3772
 msgid "Create a file for me to download"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3781
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3785
 msgid "Disabled by the system administrator"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3787
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3791
 msgid "Your user does not have an email address"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3792
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3796
 msgid "User downloads not configured by administrator"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3797
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3801
 msgid "Bad value"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3817
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3821
 msgid "Database download method"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3820
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3824
 msgid "Binary SQLite database"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3821
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3825
 msgid "SQL text to create SQLite database"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3844
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3848
 msgid "Sort columns?"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3845
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3849
 msgid "Sort by heading (column) names within spreadsheets?"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3867
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3871
 msgid "Include column information?"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3868
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3872
 msgid "Include details of all columns in the source database?"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3887
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3891
 msgid "Include BLOBs?"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3888
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3892
 msgid "Include binary large objects (BLOBs)? WARNING: may be large"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3911
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3915
 msgid "Patient ID per row?"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3912
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3916
 msgid "Include patient ID numbers and task cross-referencing (denormalized) information per row?"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3933
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3937
 msgid "Manual settings"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3955
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3979
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3959
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:3983
 msgid "Dump"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4001
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4005
 msgid "Database friendly title"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4031
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4035
 msgid "Full description (e.g. “NHS number”)"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4049
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4053
 msgid "Short description (e.g. “NHS#”)"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4050
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4054
 msgid "Try to keep it very short!"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4068
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:44
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4072
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:49
 msgid "Validation method"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4069
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4073
 msgid "Built-in CamCOPS ID number validation method"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4084
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:46
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4088
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:51
 msgid "HL7 Assigning Authority"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4085
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4089
 msgid "For HL7 messaging: HL7 Assigning Authority for ID number (unique name of the system/organization/agency/department that creates the data)."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4111
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4115
 msgid "HL7 Identifier Type"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4112
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4116
 msgid "For HL7 messaging: HL7 Identifier Type code: ‘a code corresponding to the type of identifier. In some cases, this code may be used as a qualifier to the “Assigning Authority” component.’"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4144
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:47
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4148
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:52
 msgid "FHIR ID system"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4145
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4149
 msgid "For FHIR exports: URL defining the ID system."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4172
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4233
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4176
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4237
 msgid "Description is used by another ID number!"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4181
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4242
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4185
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4246
 msgid "Short description is used by another ID number!"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4209
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4213
 msgid "Which ID number?"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4225
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4229
 msgid "ID# clashes with another ID number!"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4343
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4347
 msgid "Erase"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4365
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4369
 msgid "Show tasks that will be deleted"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4437
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4564
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4441
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4568
 msgid "Task schedule"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4530
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4534
 msgid "Please enter valid JSON or leave blank"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4566
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4570
 msgid "Leave blank for the date the patient first downloads the schedule"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4570
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4574
 msgid "Task-specific settings for this patient"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4571
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4575
 msgid "ADVANCED. Only applicable to tasks that are configurable on a per-patient basis. Format: JSON object, with settings keyed on task table name."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4584
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4588
 msgid "Please enter a valid JSON object (with settings keyed on task table name) or leave blank"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4604
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4608
 msgid "Task Schedules"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4629
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4633
 msgid "GP"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4650
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4654
 msgid "Patient would not meet 'finalize' ID policy for group:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4652
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4656
 msgid "That policy is:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4711
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4715
 msgid "Email template"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4712
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4716
 msgid "Template of email to be sent to patients when inviting them to complete the tasks in the schedule. Valid placeholders: {}"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4727
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4731
 msgid "{bad_key} is not a valid placeholder"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4731
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4735
 msgid "Invalid email template. Is there a missing '{' or '}' ?"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4742
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4746
 msgid "Email CC"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4743
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4747
 msgid "The patient will see these email addresses. Separate multiple addresses with commas."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4753
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4757
 msgid "Email BCC"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4754
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4758
 msgid "The patient will not see these email addresses. Separate multiple addresses with commas."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4764
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4768
 msgid "Email \"From\" address"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4765
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4769
 msgid "You must set this if you want to send emails to your patients"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4855
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4859
 msgid "1 week = 7 days"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4856
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4860
 msgid "1 month = 30 days"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4857
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4861
 msgid "Months"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4858
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4862
 msgid "Weeks"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4859
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4863
 msgid "Days"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4996
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:52
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5000
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:56
 msgid "Due from"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:4997
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5001
 msgid "Time from the start of schedule when the patient may begin this task"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5002
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5006
 msgid "Due within"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5003
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5007
 msgid "Time the patient has to complete this task"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5007
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5011
 msgid "Allow clinician tasks"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5009
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5013
 msgid "Tick this box to schedule a task that would normally be completed by (or with) a clinician"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5035
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5039
 msgid "You have selected the task '{task_name}', which a patient would not normally complete by themselves. If you are sure you want to do this, you must tick 'Allow clinician tasks'."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5051
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5055
 msgid "'Due from' must be zero or more days"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5058
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5062
 msgid "'Due within' must be more than zero days"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5083
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5087
 msgid "The task you have selected prohibits use in certain contexts. The group '{group_name}' has no intellectual property settings. You need to edit the group '{group_name}' to say which contexts it operates in."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5095
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5099
 msgid "The group '{group_name}' associated with schedule '{schedule_name}' operates in a commercial context but the task you have selected prohibits commercial use."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5107
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5111
 msgid "The group '{group_name}' associated with schedule '{schedule_name}' operates in a clinical context but the task you have selected prohibits clinical use."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5119
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5123
 msgid "The group '{group_name}' associated with schedule '{schedule_name}' operates in an educational context but the task you have selected prohibits educational use."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5131
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5135
 msgid "The group '{group_name}' associated with schedule '{schedule_name}' operates in a research context but the task you have selected prohibits research use."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5190
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5194
 msgid "View affected tasks"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5210
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5214
 msgid "Forcibly finalize"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5258
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5262
 msgid "Message"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5285
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_forms.py:5289
 msgid "Send"
 msgstr ""
 
@@ -1125,19 +1131,20 @@ msgstr ""
 msgid "Unknown validation method"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_idnumdef.py:201
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_idnumdef.py:202
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:66
 msgid "Default:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:658
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:660
 msgid "Date of birth:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:661
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:663
 msgid "DOB:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:1196
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:1195
 msgid "(Server) Patients, distinct by name, sex, DOB, all ID numbers"
 msgstr ""
 
@@ -1145,7 +1152,7 @@ msgstr ""
 msgid "ID number fails basic checks"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_pyramid.py:1322
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_pyramid.py:1365
 msgid "Page $page of $page_count; total $item_count records"
 msgstr ""
 
@@ -1169,11 +1176,11 @@ msgstr ""
 msgid "End date"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_request.py:1446
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_request.py:1570
 msgid "Can't fetch ID number definition"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_task.py:2006
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_task.py:2351
 msgid "Anonymous"
 msgstr ""
 
@@ -1483,312 +1490,323 @@ msgstr ""
 msgid "Patient has no ID numbers"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:396
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:400
 msgid "User not authorized to dump data (for any group)."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:401
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:405
 msgid "User not authorized to run reports (for any group)."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:406
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:410
 msgid "Task is live on tablet; finalize (or force-finalize) first."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:495
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:499
 msgid "Hello! This is a public CamCOPS test page."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:507
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:511
 msgid "Private test page."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:562
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:566
 msgid "Deliberately crashed. Should not affect other processes."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:700
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:730
+msgid "Authenticate via your authentication app"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:733
+msgid "Authenticate via e-mail"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:736
+msgid "Authenticate via SMS"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:749
 msgid "Enter the code for CamCOPS displayed on your authentication app."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:704
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:753
 msgid "We've sent a code by email to {}."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:709
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:758
 msgid "We've sent a code by text message to {}"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:752
-msgid "CamCOPS two-step login"
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:801
+msgid "CamCOPS authentication"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:764
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:813
 msgid "E-mail sent"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:767
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:816
 msgid "Failed to send e-mail! Please try again or contact your administrator."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:792
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:841
 msgid "Your CamCOPS verification code is {}"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:810
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:859
 msgid "You entered an invalid code. Please try again."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:817
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:866
 msgid "Your code expired. Please try again."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1063
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1112
 msgid "Invalid username/password (or user not authorized)."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1077
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1126
 msgid "(never)"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1078
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1127
 msgid "Account locked until {} due to multiple login failures. Try again later or contact your administrator."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1232
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1281
 msgid "Your password has expired and must be changed."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1283
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1332
 msgid "You have changed your password. If you store your password in your CamCOPS tablet application, remember to change it there as well."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1398
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1447
 msgid "Password changed for user '{username}'"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1483
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1532
 msgid "Multi-factor authentication disabled for user '{username}'"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1644
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1694
 msgid "Let's test it!"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1650
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:137
-msgid "Multi-factor authentication settings"
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1704
+msgid "Configure multi-factor authentication settings"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1651
-msgid "Authenticate with app"
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1708
+msgid "Configure authentication with app"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1652
-msgid "Authenticate by email"
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1712
+msgid "Configure authentication by email"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1653
-msgid "Authenticate by text message"
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1716
+msgid "Configure authentication by text message"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1688
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:1754
 msgid "Multi-factor authentication: success!"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2118
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2184
 msgid "Invalid tasks specified"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2120
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:2186
 msgid "Not all tasks specified provide trackers"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3001
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3115
 msgid "Last 1 minute"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3003
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3117
 msgid "Last 5 minutes"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3005
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3119
 msgid "Last 10 minutes"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3007
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3121
 msgid "Last 1 hour"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3112
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3226
 msgid "You may not administer this group"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3165
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3279
 msgid "Can't rename user"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3166
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3280
 msgid "that conflicts with an existing user with ID"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3173
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3287
 msgid "This user's email address is used for multi-factor authentication. If you want to remove their email address, you must first disable multi-factor authentication"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3413
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3527
 msgid "User {username} enabled"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3526
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3640
 msgid "Can't delete your own user!"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3528
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3642
 msgid "Unable to delete user: user still has webviewer login and/or tablet upload permission"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3531
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3645
 msgid "Unable to delete user: they are a superuser and you are not"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3536
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3650
 msgid "Unable to delete user: user belongs to groups that you do not administer"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3540
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3654
 msgid "Unable to delete user; records (or audit trails) refer to that user. Disable login and upload permissions instead."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3769
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3883
 msgid "Unable to delete group; there are users who are members!"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3772
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3886
 msgid "Unable to delete group; records refer to it."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:3981
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4095
 msgid "Unable to delete ID definition; records refer to it."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4037
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4155
 msgid "Not authorized to add special notes for this task's group"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4084
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4197
 msgid "Not authorized to delete this special note"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4135
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4271
 msgid "Not authorized to erase tasks for this task's group"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4159
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4295
 msgid "Task already erased"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4193
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4329
 msgid "Task erased:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4259
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4395
 msgid "You're not an admin for this group"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4421
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4557
 msgid "Some records for this device are in groups for which you are not an administrator"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4541
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4677
 msgid "Bad patient: not in a group"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4544
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4680
 msgid "Not authorized to edit this patient"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4571
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4707
 msgid "Patient details edited. Changes:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4723
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4859
 msgid "Patient is not editable - was not created on the server"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4840
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4995
 msgid "Patient is not editable (likely: not finalized, so a copy still on a client device)"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4876
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5039
 msgid "Not authorized to manage patients"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4968
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5131
 msgid "Not authorized to delete this patient"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4974
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:57
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5139
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:67
 msgid "Delete patient"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5048
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5214
 msgid "Schedule does not exist"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5111
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5277
 msgid "Patient's task schedule does not exist"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5114
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5280
 msgid "Not authorized to manage this patient"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5156
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5286
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5322
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5461
 msgid "You a not a group administrator for this task schedule's group"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5169
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:93
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5337
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:118
 msgid "Add a task schedule"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5182
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5353
 msgid "Edit details for a task schedule"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5196
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5370
 msgid "Delete a task schedule"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5302
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5479
 msgid "Add an item to the {schedule_name} schedule"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5326
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5506
 msgid "Edit details for a task schedule item"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5356
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5539
 msgid "Delete a task schedule item"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5427
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5611
 msgid "Not authorized to email patients"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5473
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5504
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5657
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5688
 msgid "Patient task schedule does not exist"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5485
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5669
 msgid "Email sent to {patient_email}"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5493
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5677
 msgid "Failed to send email to {patient_email}"
 msgstr ""
 
@@ -1877,7 +1895,7 @@ msgstr ""
 msgid "Beck Depression Inventory (data collection only)"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/bmi.py:98
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/bmi.py:105
 msgid "Body mass index"
 msgstr ""
 
@@ -2029,72 +2047,72 @@ msgstr ""
 msgid "Dementia Quality of Life measure, proxy version"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:302
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:352
 msgid "Diagnostic codes, ICD-10"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:412
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:469
 msgid "Diagnostic codes, ICD-9-CM (DSM-IV-TR)"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:537
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:602
 msgid "Diagnosis – ICD-9-CM (DSM-IV-TR) diagnoses for all patients"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:566
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:631
 msgid "Diagnosis – ICD-10 diagnoses for all patients"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:594
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:659
 msgid "Diagnosis – All diagnoses for all patients"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:636
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:701
 msgid "Diagnostic code"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:637
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:702
 #, python-format
 msgid "Type in a diagnostic code; you may use SQL 'LIKE' syntax for wildcards, i.e. _ for one character and % for zero/one/lots"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:662
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:727
 msgid "Diagnostic codes"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:664
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:729
 msgid "Use % as a wildcard (e.g. F32 matches only F32, but F32% matches F32, F32.1, F32.2...)."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:676
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:741
 msgid "You must specify at least"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:678
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:743
 msgid "You have specified duplicate diagnoses"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:692
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:757
 msgid "Inclusion diagnoses (lifetime)"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:694
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:759
 msgid "Exclusion diagnoses (lifetime)"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:696
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:761
 msgid "Minimum age (years) (optional)"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:698
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:763
 msgid "Maximum age (years) (optional)"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:928
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:993
 msgid "Diagnosis – Find patients by ICD-10 diagnosis ± age"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:977
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/tasks/diagnosis.py:1042
 msgid "Diagnosis – Find patients by ICD-9-CM (DSM-IV-TR) diagnosis ± age"
 msgstr ""
 
@@ -2479,120 +2497,120 @@ msgid "Zarit Burden Interview-12"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/base/base_pdf.mako:48
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/base/wkhtmltopdf_footer.mako:76
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/base/wkhtmltopdf_footer.mako:84
 msgid "Page"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/base/base_pdf.mako:48
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/base/wkhtmltopdf_footer.mako:76
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/base/wkhtmltopdf_footer.mako:84
 msgid "of"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/base/base_web.mako:66
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/base/base_web.mako:73
 msgid "Close"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/all_tasks.mako:37
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/all_tasks.mako:40
 msgid "All tasks"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/all_tasks.mako:41
-msgid "Code, with link to details"
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/all_tasks.mako:46
+msgid "Code"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/all_tasks.mako:42
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/all_tasks.mako:47
 msgid "Short name"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/all_tasks.mako:43
-msgid "Full name, with link to help"
-msgstr ""
-
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/all_tasks.mako:44
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_trail_view.mako:83
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/all_tasks.mako:56
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_trail_view.mako:88
 msgid "Details"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_menu.mako:35
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/all_tasks.mako:65
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:270
+msgid "Help"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_menu.mako:38
 msgid "Audit options"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_menu.mako:37
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_menu.mako:42
 msgid "Access logs"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_menu.mako:40
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_trail_view.mako:58
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_menu.mako:48
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_trail_view.mako:61
 msgid "Audit trail"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_menu.mako:43
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_menu.mako:53
 msgid "Export logs"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_menu.mako:46
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/exported_task_list.mako:38
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_menu.mako:59
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/exported_task_list.mako:41
 msgid "Exported task log"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_trail_choices.mako:33
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_trail_choices.mako:40
 msgid "View audit trail (starting with most recent)"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_trail_choices.mako:35
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_trail_choices.mako:44
 msgid "Values below are optional."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_trail_view.mako:61
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/exported_task_list.mako:41
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_trail_view.mako:66
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/exported_task_list.mako:46
 msgid "Conditions"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_trail_view.mako:65
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/exported_task_list.mako:45
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_trail_view.mako:70
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/exported_task_list.mako:50
 msgid "Results"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_trail_view.mako:71
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:47
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_trail_view.mako:76
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:52
 msgid "ID"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_trail_view.mako:72
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_trail_view.mako:77
 msgid "When (UTC)"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_trail_view.mako:73
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_trail_view.mako:78
 msgid "Source"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_trail_view.mako:74
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_trail_view.mako:79
 msgid "Remote IP"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_trail_view.mako:76
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_trail_view.mako:81
 msgid "Device ID"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_trail_view.mako:77
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_trail_view.mako:82
 msgid "Table name"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_trail_view.mako:79
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_trail_view.mako:84
 msgid "Patient server PK"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_trail_view.mako:81
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_trail_view.mako:86
 msgid "Details (truncated)"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_trail_view.mako:105
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/exported_task.mako:78
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_trail_view.mako:113
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/exported_task.mako:84
 msgid "View task"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_trail_view.mako:118
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/exported_task_list.mako:94
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/audit_trail_view.mako:129
 msgid "Choose different options"
 msgstr ""
 
@@ -2600,19 +2618,19 @@ msgstr ""
 msgid "Bad request!"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/change_other_password.mako:32
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/change_other_password.mako:40
 msgid "Change password for user: {username}"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/change_own_password.mako:33
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/change_own_password.mako:40
 msgid "Change your password"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/choose_ctv.mako:33
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/choose_ctv.mako:40
 msgid "Clinical text view (CTV): clinically relevant summaries"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/choose_tracker.mako:33
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/choose_tracker.mako:40
 msgid "Trackers: numerical information across time"
 msgstr ""
 
@@ -2640,48 +2658,48 @@ msgstr ""
 msgid "For Windows and Mac computers, laptops and tablets, download CamCOPS from {github_link}"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/device_forcibly_finalize_choose.mako:33
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/device_forcibly_finalize_confirm.mako:33
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/device_forcibly_finalize_choose.mako:40
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/device_forcibly_finalize_confirm.mako:40
 msgid "Forcibly finalize a device"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/device_forcibly_finalize_choose.mako:35
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/device_forcibly_finalize_choose.mako:44
 msgid "Step 1: choose a device"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/device_forcibly_finalize_choose.mako:38
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/device_forcibly_finalize_choose.mako:47
 msgid "This process marks all records from a particular device (e.g. tablet, or desktop client) as final, so the device can no longer alter them. If you do this and the client re-uploads records, they will be created as fresh tasks, so only force-finalize devices that are no longer in use and to which you no longer have access."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/device_forcibly_finalize_confirm.mako:35
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/device_forcibly_finalize_confirm.mako:44
 msgid "Step 2: view affected tasks"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/device_forcibly_finalize_confirm.mako:41
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/device_forcibly_finalize_confirm.mako:50
 msgid "tasks will be affected (plus any uploaded while you watch this message)."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/device_forcibly_finalize_confirm.mako:44
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/device_forcibly_finalize_confirm.mako:53
 msgid "Step 3 (FINAL STEP): proceed to finalize?"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/download_area.mako:37
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/download_scheduled.mako:41
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:78
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/download_area.mako:44
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/download_scheduled.mako:53
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:115
 msgid "Download area"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/download_area.mako:41
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:47
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/download_area.mako:50
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:52
 msgid "Name"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/download_area.mako:42
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/download_area.mako:51
 msgid "Size"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/download_area.mako:43
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:54
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/download_area.mako:52
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:58
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_tasks_table.mako:50
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/describe_task_filter.mako:91
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/describe_task_filter.mako:95
@@ -2692,186 +2710,299 @@ msgstr ""
 msgid "Created"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/download_area.mako:44
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/download_area.mako:53
 msgid "Time left"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/download_area.mako:59
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/download_area.mako:74
 msgid "Space permitted:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/download_area.mako:60
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/download_area.mako:75
 msgid "Space used:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/download_area.mako:61
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/download_area.mako:76
 msgid "Space available:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/download_area.mako:62
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/download_area.mako:77
 msgid "File lifetime (minutes):"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/download_scheduled.mako:35
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/download_scheduled.mako:38
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/email_scheduled.mako:38
+msgid "Processing..."
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/download_scheduled.mako:43
 msgid "A file containing your data will be built. If your e-mail address is configured, CamCOPS will e-mail you when it is ready."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:37
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:40
 msgid "Basic research data dump"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:39
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_sql_offer.mako:39
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:44
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_sql_offer.mako:44
 msgid "Explanation"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:43
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:48
 msgid "Provides a spreadsheet-style download (usually one sheet per task; for some tasks, more than one)."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:47
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:52
 msgid "Incorporates patient and summary information into each row. Doesn’t provide BLOBs (e.g. pictures)."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:51
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:56
 msgid "If there are no instances of a particular task, no sheet is returned."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:54
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:59
 msgid "Restricted to current records (i.e. ignores historical versions of tasks that have been edited)."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:58
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:63
 msgid "For TSV, NULL values are represented by blank fields and are therefore indistinguishable from blank strings, and the Excel dialect of TSV is used. If you want to read TSV files into R, try:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:63
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:68
 msgid "Note that R will prepend ‘X’ to variable names starting with an underscore; see"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:66
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:71
 msgid "Inspect the results with e.g."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:68
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:73
 msgid "or in RStudio,"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:72
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:77
 msgid "For more advanced features, use the"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:74
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:79
 msgid "SQL dump"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:74
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:79
 msgid "to get the raw data."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:77
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:82
 msgid "For explanations of each field (field comments), see each task’s XML view or"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:80
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:85
 msgid "inspect the table definitions"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:85
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_basic_offer.mako:90
 msgid "Choose basic dump settings"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_sql_offer.mako:37
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_sql_offer.mako:40
 msgid "Research data dump in SQL format"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_sql_offer.mako:43
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_sql_offer.mako:48
 msgid "This research dump takes some subset of data to which you have access, and builds a new database from it. That database is served to you in SQLite format; you can choose binary or SQL format."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_sql_offer.mako:49
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_sql_offer.mako:54
 msgid "The records are restricted to ‘current’ tasks, and some irrelevant, administrative, and security-related columns are removed."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_sql_offer.mako:54
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_sql_offer.mako:59
 msgid "Summary information (such as total scores) is automatically added, for convenience."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_sql_offer.mako:57
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_sql_offer.mako:62
 msgid "Foreign key constraints are removed."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_sql_offer.mako:58
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_sql_offer.mako:63
 msgid "You can load and explore the binary database like this:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_sql_offer.mako:64
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_sql_offer.mako:69
 msgid "The SQLite format is widely supported; see, for example, the"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_sql_offer.mako:66
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_sql_offer.mako:71
 msgid "package for"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_sql_offer.mako:72
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/dump_sql_offer.mako:77
 msgid "Choose SQL dump parameters"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/edit_other_user_mfa.mako:32
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/edit_other_user_mfa.mako:40
 msgid "Edit multi-factor authentication for user: {username}"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/email_scheduled.mako:31
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/email_scheduled.mako:42
 msgid "An e-mail with this data dump will be sent to you shortly. Please check your inbox in a few minutes."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/export_recipient.mako:38
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/export_recipient.mako:42
 msgid "Export recipient"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/exported_task.mako:47
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/export_recipient.mako:46
+msgid "About the recipient"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/export_recipient.mako:68
+msgid "How to export"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/export_recipient.mako:94
+msgid "What to export"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/export_recipient.mako:137
+msgid "Database export options"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/export_recipient.mako:169
+msgid "E-mail export options"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/export_recipient.mako:245
+msgid "FHIR export options"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/export_recipient.mako:277
+msgid "File export options"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/export_recipient.mako:329
+msgid "HL7 export options"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/export_recipient.mako:373
+msgid "REDCap export options"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/exported_task.mako:42
 msgid "Individual task export attempt"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/exported_task_choose.mako:33
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/exported_task.mako:48
+msgid "Export ID"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/exported_task.mako:52
+msgid "Export recipient ID"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/exported_task.mako:67
+msgid "Base table"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/exported_task.mako:71
+msgid "Task server PK"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/exported_task.mako:89
+msgid "Start at (UTC)"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/exported_task.mako:93
+msgid "Finish at (UTC)"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/exported_task.mako:97
+msgid "Success?"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/exported_task.mako:101
+msgid "Failure reasons"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/exported_task.mako:105
+msgid "Cancelled?"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/exported_task.mako:109
+msgid "Cancelled at (UTC)"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/exported_task.mako:113
+msgid "E-mails"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/exported_task.mako:122
+msgid "FHIR exports"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/exported_task.mako:131
+msgid "Files"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/exported_task.mako:140
+msgid "HL7 v2 messages"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/exported_task.mako:149
+msgid "REDCap exports"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/exported_task_choose.mako:40
 msgid "View export log (starting with most recent)"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/exported_task_email.mako:37
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/exported_task_email.mako:40
 msgid "Exported task e-mail"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/exported_task_file_group.mako:38
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/exported_task_fhir.mako:41
+msgid "FHIR export"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/exported_task_fhir_entry.mako:41
+msgid "Individual FHIR export entry"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/exported_task_file_group.mako:41
 msgid "Exported files"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/exported_task_hl7_message.mako:37
-msgid "Individual HL7 message"
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/exported_task_hl7_message.mako:40
+msgid "Individual HL7 v2 message"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/fhir_patient_id_system.mako:33
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/exported_task_redcap.mako:40
+msgid "Individual REDCap export"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/fhir_patient_id_system.mako:40
 msgid "FHIR Patient identifier system"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/filter_edit.mako:33
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/filter_edit.mako:40
 msgid "Task filters (criteria)"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/finalized_patient_edit.mako:33
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/finalized_patient_edit.mako:40
 msgid "Edit details for finalized patient"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/finalized_patient_edit.mako:35
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/server_created_patient_edit.mako:35
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/finalized_patient_edit.mako:44
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/server_created_patient_edit.mako:44
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:165
 msgid "Server PK:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/finalized_patient_edit.mako:39
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/finalized_patient_edit.mako:48
 msgid "The following tasks will be affected:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/finalized_patient_edit.mako:43
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/finalized_patient_edit.mako:52
 msgid "tasks will be affected."
 msgstr ""
 
@@ -2884,12 +3015,10 @@ msgid "You do not have permission to view this page. It may be restricted to adm
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/generic_failure.mako:68
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/logged_out.mako:39
 msgid "Click"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/generic_failure.mako:70
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/logged_out.mako:40
 msgid "here"
 msgstr ""
 
@@ -2897,143 +3026,143 @@ msgstr ""
 msgid "to log in"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/generic_success.mako:34
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/generic_success.mako:41
 msgid "Success!"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/group_add.mako:33
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/group_add.mako:40
 msgid "Add group"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/group_add.mako:36
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/group_add.mako:45
 msgid "Once created, you can set the group’s description/permissions."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/group_delete.mako:33
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/group_delete.mako:40
 msgid "Delete group"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/group_edit.mako:36
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/group_edit.mako:40
 msgid "Edit group"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/group_edit.mako:41
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/group_edit.mako:48
 msgid "Policies define the minimum amount of information about a patient that must be present before records can be <i>uploaded</i> to the server or <i>finalized</i> (uploaded but also cleared off the source device)."
 msgstr ""
 
 #. TRANSLATOR: group_edit.mako, advice to user about policies
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/group_edit.mako:47
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/group_edit.mako:54
 msgid "Policies are specified using"
 msgstr ""
 
 #. TRANSLATOR: group_edit.mako, advice to user about policies
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/group_edit.mako:50
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/group_edit.mako:57
 msgid "these logical operators:"
 msgstr ""
 
 #. TRANSLATOR: group_edit.mako, advice to user about policies
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/group_edit.mako:54
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/group_edit.mako:61
 msgid "these precedence operators:"
 msgstr ""
 
 #. TRANSLATOR: group_edit.mako, advice to user about policies
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/group_edit.mako:58
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/group_edit.mako:65
 msgid "these named fields:"
 msgstr ""
 
 #. TRANSLATOR: group_edit.mako, advice to user about policies
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/group_edit.mako:65
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/group_edit.mako:72
 msgid "a specific ID number using"
 msgstr ""
 
 #. TRANSLATOR: group_edit.mako, advice to user about policies
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/group_edit.mako:67
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/group_edit.mako:74
 msgid "for example, <code>idnum3</code> refers to ID number 3 as defined by the server’s"
 msgstr ""
 
 #. TRANSLATOR: group_edit.mako, advice to user about policies
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/group_edit.mako:73
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/group_edit.mako:80
 msgid "the token <code>anyidnum</code> as a shorthand to mean “at least one of the server’s ID numbers is present”;"
 msgstr ""
 
 #. TRANSLATOR: group_edit.mako, advice to user about policies
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/group_edit.mako:77
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/group_edit.mako:84
 msgid "the token <code>otheridnum</code> as a shorthand to mean “at least one of the server’s ID numbers that is not named in the policy”;"
 msgstr ""
 
 #. TRANSLATOR: group_edit.mako, advice to user about policies
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/group_edit.mako:83
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/group_edit.mako:90
 msgid "The policies are case-insensitive."
 msgstr ""
 
 #. TRANSLATOR: group_edit.mako, advice to user about policies
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/group_edit.mako:86
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/group_edit.mako:93
 msgid "Examples:"
 msgstr ""
 
 #. TRANSLATOR: group_edit.mako, advice to user about policies
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/group_edit.mako:90
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/group_edit.mako:97
 msgid "A liaison psychiatry department might operate in a mental health environment using idnum1, and an acute hospital environment using idnum2. It might want to allow uploads using either ID number, for quick access to the CamCOPS server version from the acute hospital environment, but require idnum1 to be present before the data can be finalized. It also wants full identification with forename, surname, DOB, and sex. It could use an upload policy of <code>forename AND surname AND dob AND sex AND (idnum1 OR idnum2)</code> and a finalize policy of <code>forename AND surname AND dob AND sex AND idnum1</code>."
 msgstr ""
 
 #. TRANSLATOR: group_edit.mako, advice to user about policies
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/group_edit.mako:104
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/group_edit.mako:111
 msgid "In contrast, a research environment might want no patient-identifying information, and a single research pseudonym for that study. It might use an upload and a finalize policy that are both <code>sex AND idnum1</code>."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/groups_view.mako:41
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/groups_view.mako:50
 msgid "Add a group"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definition_add.mako:33
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definition_add.mako:40
 msgid "Add master ID number definition"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definition_delete.mako:33
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definition_delete.mako:40
 msgid "Delete master ID definition number"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definition_edit.mako:33
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definition_edit.mako:40
 msgid "Edit master ID number definition for ID#"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:37
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_server_info.mako:39
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:40
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_server_info.mako:47
 msgid "Identification (ID) numbers"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:42
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_server_info.mako:43
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:47
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_server_info.mako:53
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/groups_table.mako:42
 msgid "Description"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:43
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_server_info.mako:44
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:48
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_server_info.mako:54
 msgid "Short description"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:45
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:50
 msgid "HL7 ID Type"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:48
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:63
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:52
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:90
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:111
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedule_items.mako:49
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedule_items.mako:67
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:48
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:65
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:53
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:83
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:57
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:140
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:138
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedule_items.mako:54
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedule_items.mako:77
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:53
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:75
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/groups_table.mako:50
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/groups_table.mako:101
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:205
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:228
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/groups_table.mako:107
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:207
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:236
 msgid "Edit"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:73
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:106
 msgid "Add new ID number definition"
 msgstr ""
 
@@ -3041,182 +3170,175 @@ msgstr ""
 msgid "You have logged out."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/logged_out.mako:41
-msgid "to log in again"
-msgstr ""
-
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/login.mako:34
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/login_token.mako:34
-msgid "Unauthorized access prohibited."
-msgstr ""
-
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/login.mako:35
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/login_token.mako:35
-msgid "All use is recorded and monitored."
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/logged_out.mako:42
+msgid "Log in again"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/login.mako:38
-msgid "Please log in to CamCOPS"
-msgstr ""
-
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/login_token.mako:38
-msgid "Multi-factor authentication"
+msgid "Unauthorized access prohibited."
 msgstr ""
 
-#. TRANSLATOR: Mako comment
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:38
-msgid "CamCOPS web view: Main menu"
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/login.mako:39
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/login_token.mako:39
+msgid "All use is recorded and monitored."
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/login.mako:45
+msgid "Log in to CamCOPS"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:41
+msgid "CamCOPS web view: Main menu"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:46
 msgid "Patients"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:44
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:178
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:98
-msgid "Manage patients and their tasks"
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:52
+msgid "Manage patients and their task schedules"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:48
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:58
 msgid "Tasks, trackers, and clinical text views"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:55
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:69
 msgid "Filter tasks"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:59
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:76
 msgid "View tasks"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:61
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:82
 msgid "Trackers for numerical information"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:63
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:89
 msgid "Clinical text views"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:67
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:95
 msgid "Research views"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:70
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:101
 msgid "Basic research dump (fields and summaries)"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:72
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:108
 msgid "Advanced research dump (SQL or database)"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:74
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_server_info.mako:83
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:122
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_server_info.mako:107
 msgid "Task list"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:76
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:129
 msgid "Inspect table definitions"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:83
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:136
 msgid "Reports"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:86
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:142
 msgid "Run reports"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:91
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:149
 msgid "Group administrator options"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:94
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:155
 msgid "User management"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:96
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:162
 msgid "E-mail addresses of your users"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:98
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:169
 msgid "Forcibly finalize records for a device"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:100
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/patient_delete_choose.mako:33
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:176
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/patient_delete_choose.mako:40
 msgid "Delete patient entirely"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:105
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:183
 msgid "Superuser options"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:108
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:189
 msgid "Group management"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:110
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:196
 msgid "Audit menu"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:112
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:203
 msgid "ID number definition management"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:114
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:210
 msgid "Edit server settings"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:116
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:217
 msgid "Developer test pages"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:120
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:223
 msgid "Settings"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:123
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:229
 msgid "Choose group into which to upload data"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:125
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:236
 msgid "View your user settings"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:127
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:243
 msgid "View server information"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:134
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:259
 msgid "No username!"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:140
-msgid "Help"
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:265
+msgid "Multi-factor authentication settings"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:143
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:276
 msgid "CamCOPS documentation"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:147
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:282
 msgid "The time is"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:148
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:283
 msgid "Server version:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:149
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:284
 msgid "See"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:150
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:285
 msgid "for more information on CamCOPS."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:151
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/main_menu.mako:286
 msgid "Clicking on the CamCOPS logo will return you to the main menu."
 msgstr ""
 
@@ -3224,445 +3346,445 @@ msgstr ""
 msgid "Page not found!"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/patient_add.mako:33
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:127
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/patient_add.mako:40
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:163
 msgid "Add a patient"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/patient_delete_choose.mako:36
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/patient_delete_confirm.mako:36
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/patient_delete_choose.mako:45
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/patient_delete_confirm.mako:45
 msgid "This operation is irrevocable!"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/patient_delete_choose.mako:39
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/patient_delete_confirm.mako:39
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/patient_delete_choose.mako:48
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/patient_delete_confirm.mako:48
 msgid "IT WILL PERMANENTLY DELETE THE PATIENT AND ALL ASSOCIATED TASKS from the group that you specify."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/patient_delete_choose.mako:43
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/patient_delete_choose.mako:52
 msgid "Choose a patient by ID number, and then you’ll be shown a list of tasks that will be deleted if you proceed, and asked to confirm."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/patient_delete_confirm.mako:33
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/patient_delete_confirm.mako:40
 msgid "Delete patient entirely: FINAL STEP"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/patient_delete_confirm.mako:45
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/patient_delete_confirm.mako:54
 msgid "patient records (current and/or old) will be deleted."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/patient_delete_confirm.mako:49
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/patient_delete_confirm.mako:58
 msgid "This is the final step. ARE YOU SURE YOU WANT TO DELETE THE PATIENT AND ALL THE FOLLOWING TASKS?"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/patient_delete_confirm.mako:56
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/patient_delete_confirm.mako:65
 msgid "tasks will be deleted."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/patient_delete_confirm.mako:59
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/patient_delete_confirm.mako:68
 msgid "Proceed to deletion?"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/report.mako:64
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/report.mako:74
 msgid "Re-configure report"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/report.mako:68
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/report_offer.mako:43
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/report.mako:81
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/report_offer.mako:50
 msgid "Return to reports menu"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/report_offer.mako:37
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/report_offer.mako:40
 msgid "Configure report:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/reports_menu.mako:40
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/reports_menu.mako:43
 msgid "Available reports"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/send_patient_email.mako:31
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/send_patient_email.mako:38
 msgid "Send email to {patient}"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/server_created_patient_edit.mako:33
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/server_created_patient_edit.mako:40
 msgid "Edit details for patient"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/server_settings_edit.mako:33
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/server_settings_edit.mako:40
 msgid "Edit master database title"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/set_user_upload_group.mako:36
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/set_user_upload_group.mako:40
+msgid "Set upload group for user"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/set_user_upload_group.mako:46
 msgid "A group must be selected for the server to permit uploads."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/set_user_upload_group.mako:40
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/set_user_upload_group.mako:50
 msgid "Don’t change groups if tasks have been uploaded by this user but not finalized; this may lead to incorrect group assignment. (Finalize first, then change groups.)"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/special_note_add.mako:33
-msgid "Add special note to task instance irrevocably?"
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/special_note_add.mako:40
+msgid "Add special note to task instance?"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/special_note_add.mako:38
-msgid "Be very sure you want to apply a note."
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/special_note_add.mako:47
+msgid "Be sure you want to add a note."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/special_note_add.mako:41
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/special_note_add.mako:50
 msgid "Your note will be appended to any existing note."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/special_note_delete.mako:33
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/special_note_delete.mako:40
 msgid "Delete special note?"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/special_note_delete.mako:36
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/special_note_delete.mako:45
 msgid "You are about to delete this note:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/special_note_delete.mako:50
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/special_note_delete.mako:59
 msgid "The special note will vanish (though preserved in the database for auditing)."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/task_details.mako:33
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/task_details.mako:40
 msgid "Task details"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/task_details.mako:43
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/task_details.mako:54
 msgid "Value"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/task_erase.mako:33
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/task_erase.mako:40
 msgid "Erase task irrevocably?"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/task_erase.mako:38
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/task_erase.mako:47
 msgid "ARE YOU REALLY SURE YOU WANT TO ERASE THIS TASK?"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/task_erase.mako:41
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/task_erase.mako:50
 msgid "Data will be erased; the task structure itself will remain as a placeholder."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/task_erase_entirely.mako:33
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/task_erase_entirely.mako:40
 msgid "Erase task entirely?"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/task_erase_entirely.mako:38
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/task_erase_entirely.mako:47
 msgid "ARE YOU REALLY SURE YOU WANT TO ERASE THIS TASK ENTIRELY?"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/task_erase_entirely.mako:41
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/task_erase_entirely.mako:50
 msgid "The task will be entirely erased."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/user_add.mako:33
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/user_add.mako:40
 msgid "Add user"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/user_add.mako:35
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/user_add.mako:44
 msgid "Once created, you can set permissions."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/user_delete.mako:33
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/user_delete.mako:40
 msgid "Delete user"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/user_edit.mako:33
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/user_edit.mako:40
 msgid "Edit user"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/user_edit_group_membership.mako:33
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/user_edit_group_membership.mako:40
 msgid "Edit group permissions"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/user_edit_group_membership.mako:36
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/user_edit_group_membership.mako:45
 msgid "User:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/user_edit_group_membership.mako:37
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/user_edit_group_membership.mako:46
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:161
 msgid "Group:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:38
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:41
 msgid "Users"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:48
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:53
 msgid "Flags"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:50
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:55
 msgid "Email"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:51
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:56
 msgid "View details"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:54
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:59
 msgid "Upload group"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:55
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:60
 msgid "Authentication"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:64
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:68
+msgid "You"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:77
 msgid "Superuser."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:67
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:85
 msgid "Group administrator"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:71
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:92
 msgid "Locked out;"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:75
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:101
 msgid "unlock"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:78
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:106
 msgid "Auto-generated"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:86
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:56
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:128
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:60
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_tasks_table.mako:51
 msgid "View"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:101
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:158
 msgid "Permissions"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:111
-msgid "change"
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:174
+msgid "Change"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:126
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:216
 msgid "Change multi-factor authentication"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:141
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:244
 msgid "Add a user"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_ddl_choose_dialect.mako:33
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_ddl_choose_dialect.mako:40
 msgid "View data definition language (DDL), in SQL"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_ddl_choose_dialect.mako:36
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_ddl_choose_dialect.mako:45
 msgid "The server’s database is using dialect"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_email.mako:38
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_email.mako:41
 msgid "View e-mail generated by CamCOPS"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_other_user_info.mako:34
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_own_user_info.mako:34
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_other_user_info.mako:41
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_own_user_info.mako:41
 msgid "Information about user"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_own_user_info.mako:38
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_own_user_info.mako:51
 msgid "Groups that user"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_own_user_info.mako:38
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_own_user_info.mako:51
 msgid "is a member of"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:42
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:44
 msgid "{patient} on schedule: {schedule}"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:47
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:51
 msgid "Scheduled tasks"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:51
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedule_items.mako:46
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:55
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedule_items.mako:51
 msgid "Task"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:53
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:57
 msgid "Due by"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:55
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:59
 msgid "Complete"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:57
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:61
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_tasks_table.mako:52
-msgid "Print/save"
+msgid "Print, save"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:126
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:138
 msgid "Emails"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:130
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:142
 msgid "Subject"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:131
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:143
 msgid "Date"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:132
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:144
 msgid "Sent"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:133
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:145
 msgid "Sending failure reason"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:170
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedule.mako:188
 msgid "Email this patient"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:42
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:44
 msgid "CamCOPS server location:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:46
-msgid "Patient Task Schedules"
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:54
+msgid "Patients and their task schedules"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:52
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:62
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_tasks_table.mako:46
 msgid "Patient"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:53
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:63
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_tasks_table.mako:47
 msgid "Identifiers"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:54
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:64
 msgid "Access key"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:55
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:40
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:65
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:43
 msgid "Task schedules"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:56
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:66
 msgid "Edit patient"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:80
-msgid "Send email..."
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:90
+msgid "Send email"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:83
-msgid "Resend email..."
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:93
+msgid "Resend email"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:132
-msgid "Manage task schedules"
-msgstr ""
-
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_server_info.mako:37
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_server_info.mako:40
 msgid "CamCOPS: information about this database/server"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_server_info.mako:45
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_server_info.mako:55
 msgid "FHIR patient ID system"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_server_info.mako:55
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_server_info.mako:67
 msgid "FHIR"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_server_info.mako:62
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_server_info.mako:77
 msgid "Recent activity"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_server_info.mako:65
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_server_info.mako:82
 msgid "Time-scale"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_server_info.mako:66
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_server_info.mako:83
 msgid "Number of active sessions"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_server_info.mako:76
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_server_info.mako:93
 msgid "Sessions time out after"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_server_info.mako:77
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_server_info.mako:94
 msgid "minutes; sessions older than this are periodically deleted."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_server_info.mako:80
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_server_info.mako:100
 msgid "All known tasks"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_server_info.mako:86
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_server_info.mako:114
 msgid "Extra string families present"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedule_items.mako:40
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedule_items.mako:43
 msgid "Task schedule items for {schedule_name}"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedule_items.mako:47
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedule_items.mako:52
 msgid "Due from (days)"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedule_items.mako:48
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedule_items.mako:53
 msgid "Due within (days)"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedule_items.mako:87
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedule_items.mako:107
 msgid "Add a task schedule item"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedule_items.mako:91
-msgid "Task schedule management"
-msgstr ""
-
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:50
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:55
 msgid "Items"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:51
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:82
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:56
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:104
 msgid "Edit items"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_tasks.mako:40
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_tasks.mako:41
 msgid "Currently applicable filters"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_tasks.mako:45
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_tasks.mako:48
 msgid "Set or clear filters"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_tasks.mako:47
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_tasks.mako:53
 msgid "Tasks"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_tasks.mako:56
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_tasks.mako:64
 msgid "Your user isn’t configured to view all patients’ records when no patient filters are applied, and none is. Records will only be shown if they are anonymous, or for groups that allow you to see all patients in these circumstances. Choose a specific patient to see their records."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_tasks.mako:65
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_tasks.mako:73
 msgid "Your administrator has not assigned you to any groups. You won’t be able to see any tasks."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_tasks.mako:73
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_tasks.mako:81
 msgid "No tasks found for your search criteria!"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_tasks.mako:85
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_tasks.mako:93
 msgid "Colour in the Patient column means that an ID policy is not yet satisfied. Colour in the Identifiers column means that an ID number is invalid. Colour in the Task Type column means the record is not current. Colour in the Created column means the task is ‘live’ on the tablet, not finalized (so patient and task details may change). Colour in the View/Print columns means the task is incomplete."
 msgstr ""
 
@@ -3670,23 +3792,23 @@ msgstr ""
 msgid "Added by"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_user_email_addresses.mako:38
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_user_email_addresses.mako:41
 msgid "Users’ e-mail addresses"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_user_email_addresses.mako:40
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_user_email_addresses.mako:45
 msgid "Users that you manage who have missing e-mail addresses"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_user_email_addresses.mako:49
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_user_email_addresses.mako:54
 msgid "E-mail addresses for users that you manage"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_user_email_addresses.mako:51
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_user_email_addresses.mako:56
 msgid "Click one to e-mail that user using your computer's e-mail client."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_user_email_addresses.mako:52
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_user_email_addresses.mako:57
 msgid "Copy/paste the whole list into your e-mail client for a bulk e-mail."
 msgstr ""
 
@@ -3698,11 +3820,11 @@ msgstr ""
 msgid "Logged in as"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/db_user_info.mako:42
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/db_user_info.mako:45
 msgid "Log out"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/db_user_info.mako:44
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/db_user_info.mako:52
 msgid "Main menu"
 msgstr ""
 
@@ -3719,11 +3841,11 @@ msgid "ID numbers match one of:"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/describe_task_filter.mako:76
-msgid "Uploading device is one of:"
+msgid "Device uploading task is one of:"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/describe_task_filter.mako:81
-msgid "Adding user is one of:"
+msgid "User uploading task is one of:"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/describe_task_filter.mako:86
@@ -3772,20 +3894,36 @@ msgstr ""
 msgid "Members"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/groups_table.mako:114
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/groups_table.mako:130
 msgid "Colour in a policy column means that an ID policy is not valid (syntactically, because it refers to ID numbers that do not exist, or because it's less restrictive than the tablet's minimum ID policy)."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/to_main_menu.mako:34
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/to_audit_menu.mako:37
+msgid "Return to audit menu"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/to_main_menu.mako:37
 msgid "Return to main menu"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/to_view_all_groups.mako:34
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/to_offer_exported_task_list.mako:37
+msgid "Choose options for export log"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/to_view_all_groups.mako:37
 msgid "View all groups"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/to_view_all_users.mako:34
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/to_view_all_users.mako:37
 msgid "View all users"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/to_view_patient_task_schedules.mako:37
+msgid "Manage patients and their tasks"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/to_view_task_schedules.mako:37
+msgid "Manage task schedules"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:40
@@ -3907,21 +4045,26 @@ msgstr ""
 
 #. TRANSLATOR: keep short; table heading in user_info_detail.mako
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:197
-msgid "View all pts when unfiltered?"
+msgid "May email patients?"
 msgstr ""
 
 #. TRANSLATOR: keep short; table heading in user_info_detail.mako
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:199
-msgid "May dump?"
+msgid "View all pts when unfiltered?"
 msgstr ""
 
 #. TRANSLATOR: keep short; table heading in user_info_detail.mako
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:201
-msgid "May run reports?"
+msgid "May dump?"
 msgstr ""
 
 #. TRANSLATOR: keep short; table heading in user_info_detail.mako
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:203
+msgid "May run reports?"
+msgstr ""
+
+#. TRANSLATOR: keep short; table heading in user_info_detail.mako
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:205
 msgid "May add notes?"
 msgstr ""
 
@@ -3982,11 +4125,11 @@ msgstr ""
 msgid "exists"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/ctv.mako:94
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/ctv.mako:104
 msgid "Clinician:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/ctv.mako:149
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/ctv.mako:159
 msgid "End date/time for search:"
 msgstr ""
 
@@ -4010,7 +4153,7 @@ msgstr ""
 msgid "Respondent’s relationship to patient:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/special_notes.mako:50
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/special_notes.mako:55
 msgid "Delete special note"
 msgstr ""
 
@@ -4043,7 +4186,7 @@ msgid "Uploaded at:"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:163
-msgid "Adding user:"
+msgid "Added by:"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:167
@@ -4119,48 +4262,48 @@ msgstr ""
 msgid "at:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:230
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:232
 msgid "Task help"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:241
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:248
 msgid "View raw data as XML"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:254
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:266
 msgid "View identifiable version"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:288
-msgid "Apply special note"
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:316
+msgid "Add special note"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:296
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:333
 msgid "Edit patient details"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:309
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:352
 msgid "Erase task instance, leaving placeholder"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:316
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:366
 msgid "Erase task entirely"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:335
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:391
 msgid "view previous version"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:347
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:408
 msgid "view next version"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:361
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:427
 msgid "View anonymised PDF"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:369
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/tracker_ctv.mako:161
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/task.mako:440
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/taskcommon/tracker_ctv.mako:165
 msgid "View PDF for printing/saving"
 msgstr ""
 

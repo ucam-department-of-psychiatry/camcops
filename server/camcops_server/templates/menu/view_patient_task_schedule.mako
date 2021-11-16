@@ -58,7 +58,7 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
         <th>${ _("Created") }</th>
         <th>${ _("Complete") }</th>
         <th>${ _("View") }</th>
-        <th>${ _("Print/save") }</th>
+        <th>${ _("Print, save") }</th>
     </tr>
     %for task_info in task_list:
         <%

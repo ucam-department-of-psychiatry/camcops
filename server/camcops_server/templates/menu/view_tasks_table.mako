@@ -49,7 +49,7 @@ OFFER_PDF_ANON_VERSION = False
         <th>${ _("Added by") }</th>
         <th>${ _("Created") }</th>
         <th>${ _("View") }</th>
-        <th>${ _("Print/save") }</th>
+        <th>${ _("Print, save") }</th>
     </tr>
 
     %for task in tasks:

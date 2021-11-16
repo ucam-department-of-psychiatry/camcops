@@ -151,6 +151,8 @@ class ViewParam(object):
     AGE_MAXIMUM = "age_maximum"
     ALL_TASKS = "all_tasks"
     ANONYMISE = "anonymise"
+    BACK_TASK_TABLENAME = "back_task_tablename"
+    BACK_TASK_SERVER_PK = "back_task_server_pk"
     CLINICIAN_CONFIRMATION = "clinician_confirmation"
     CSRF_TOKEN = "csrf_token"
     DATABASE_TITLE = "database_title"
@@ -1662,7 +1664,7 @@ class Icons:
     EXPORT_RECIPIENT = "share"
     EXPORTED_TASK = "tag-fill"
     EXPORTED_TASK_ENTRY_COLLECTION = "tags"
-    FILTER = "filter-circle"
+    FILTER = "funnel"  # better than filter-circle
     FORCE_FINALIZE = "bricks"
     GOTO_PREDECESSOR = "arrow-left-square"
     GOTO_SUCCESSOR = "arrow-right-square-fill"
@@ -1680,6 +1682,7 @@ class Icons:
     LOGIN = "box-arrow-in-right"
     LOGOUT = "box-arrow-right"
     MFA = "fingerprint"
+    MISSING = "x-octagon-fill"  # when an icon should have been supplied but wasn't!  # noqa
     PASSWORD_OTHER = "key"
     PASSWORD_OWN = "key-fill"
     PATIENT = "person"
