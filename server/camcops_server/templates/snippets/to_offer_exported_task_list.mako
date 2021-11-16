@@ -1,7 +1,7 @@
 ## -*- coding: utf-8 -*-
 <%doc>
 
-camcops_server/templates/menu/special_note_add.mako
+camcops_server/templates/snippets/to_offer_exported_task_list.mako
 
 ===============================================================================
 
@@ -26,29 +26,14 @@ camcops_server/templates/menu/special_note_add.mako
 
 </%doc>
 
-<%inherit file="base_web_form.mako"/>
-
 <%!
-from camcops_server.cc_modules.cc_pyramid import Icons
+from camcops_server.cc_modules.cc_pyramid import Icons, Routes
 %>
 
-<%include file="db_user_info.mako"/>
-
-<h1>
+<div>
     ${ req.icon_text(
-        icon=Icons.SPECIAL_NOTE,
-        text=_("Add special note to task instance?")
+            icon=Icons.AUDIT_OPTIONS,
+            url=request.route_url(Routes.OFFER_EXPORTED_TASK_LIST),
+            text=_("Choose options for export log")
     ) | n }
-</h1>
-
-<%include file="task_descriptive_header.mako" args="task=task, anonymise=False"/>
-
-<div class="warning">
-    <b>${ _("Be sure you want to add a note.") }</b>
 </div>
-
-<p><i>${ _("Your note will be appended to any existing note.") }</i></p>
-
-${ form | n }
-
-<%include file="to_main_menu.mako"/>

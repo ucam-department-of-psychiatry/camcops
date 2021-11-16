@@ -78,4 +78,5 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
     </tr>
 </table>
 
+<%include file="to_offer_exported_task_list.mako"/>
 <%include file="to_main_menu.mako"/>

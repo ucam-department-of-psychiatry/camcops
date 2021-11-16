@@ -253,6 +253,16 @@ Wipe FHIR exports
         SELECT id FROM _export_recipients WHERE transmission_method = 'fhir'
     );
 
+    -- Delete ALL export information
+    DELETE FROM _exported_task_fhir_entry;
+    DELETE FROM _exported_task_fhir;
+    DELETE FROM _exported_task_email;
+    DELETE FROM _exported_task_filegroup;
+    DELETE FROM _exported_task_hl7msg;
+    DELETE FROM _exported_task_redcap;
+    DELETE FROM _exported_tasks; 
+    DELETE FROM _export_recipients;
+
 What's been sent?
 
 .. code-block:: sql

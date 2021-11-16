@@ -30,6 +30,7 @@ camcops_server/cc_modules/cc_exportmodels.py
 
 import logging
 import os
+import posixpath
 import socket
 import subprocess
 import sys
@@ -258,9 +259,11 @@ class ExportedTask(Base):
 
     recipient = relationship(ExportRecipient)
 
-    hl7_messages = relationship("ExportedTaskHL7Message")
-    filegroups = relationship("ExportedTaskFileGroup")
     emails = relationship("ExportedTaskEmail")
+    fhir_exports = relationship("ExportedTaskFhir")
+    filegroups = relationship("ExportedTaskFileGroup")
+    hl7_messages = relationship("ExportedTaskHL7Message")
+    redcap_exports = relationship("ExportedTaskRedcap")
 
     def __init__(self,
                  recipient: ExportRecipient = None,
@@ -1243,12 +1246,12 @@ class ExportedTaskFhirEntry(Base):
     )
 
     etag = Column(
-        "etag", UnicodeText, comment="The Etag for the resource (if relevant)"
+        "etag", UnicodeText, comment="The ETag for the resource (if relevant)"
     )
 
     last_modified = Column(
         "last_modified", DateTime,
-        comment="Server's date time modified."
+        comment="Server's date/time modified."
     )
 
     location = Column(
@@ -1262,3 +1265,22 @@ class ExportedTaskFhirEntry(Base):
     )
 
     # TODO: outcome?
+
+    exported_task_fhir = relationship(ExportedTaskFhir)
+
+    @property
+    def location_url(self) -> str:
+        """
+        Puts the FHIR server API URL together with the returned location, so
+        we can hyperlink to the resource.
+        """
+        if not self.location:
+            return ""
+        try:
+            api_url = self.exported_task_fhir.exported_task.recipient.fhir_api_url  # noqa
+        except Exception:
+            return ""
+        # Avoid urllib.parse.urljoin; it does complex (and for our purposes
+        # wrong) things. See
+        # https://stackoverflow.com/questions/10893374/python-confusions-with-urljoin
+        return posixpath.join(api_url, self.location)

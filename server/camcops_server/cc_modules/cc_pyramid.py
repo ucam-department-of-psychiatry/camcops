@@ -799,8 +799,11 @@ class Routes(object):
     VIEW_EXPORTED_TASK = "view_exported_task"
     VIEW_EXPORTED_TASK_LIST = "view_exported_task_list"
     VIEW_EXPORTED_TASK_EMAIL = "view_exported_task_email"
+    VIEW_EXPORTED_TASK_FHIR = "view_exported_task_fhir"
+    VIEW_EXPORTED_TASK_FHIR_ENTRY = "view_exported_task_fhir_entry"
     VIEW_EXPORTED_TASK_FILE_GROUP = "view_exported_task_file_group"
     VIEW_EXPORTED_TASK_HL7_MESSAGE = "view_exported_task_hl7_message"
+    VIEW_EXPORTED_TASK_REDCAP = "view_exported_task_redcap"
     VIEW_GROUPS = "view_groups"
     VIEW_ID_DEFINITIONS = "view_id_definitions"
     VIEW_OWN_USER_INFO = "view_own_user_info"
@@ -990,8 +993,11 @@ class RouteCollection(object):
     VIEW_EXPORTED_TASK = RoutePath(Routes.VIEW_EXPORTED_TASK)
     VIEW_EXPORTED_TASK_LIST = RoutePath(Routes.VIEW_EXPORTED_TASK_LIST)
     VIEW_EXPORTED_TASK_EMAIL = RoutePath(Routes.VIEW_EXPORTED_TASK_EMAIL)
+    VIEW_EXPORTED_TASK_FHIR = RoutePath(Routes.VIEW_EXPORTED_TASK_FHIR)
+    VIEW_EXPORTED_TASK_FHIR_ENTRY = RoutePath(Routes.VIEW_EXPORTED_TASK_FHIR_ENTRY)  # noqa
     VIEW_EXPORTED_TASK_FILE_GROUP = RoutePath(Routes.VIEW_EXPORTED_TASK_FILE_GROUP)  # noqa
     VIEW_EXPORTED_TASK_HL7_MESSAGE = RoutePath(Routes.VIEW_EXPORTED_TASK_HL7_MESSAGE)  # noqa
+    VIEW_EXPORTED_TASK_REDCAP = RoutePath(Routes.VIEW_EXPORTED_TASK_REDCAP)
     VIEW_GROUPS = RoutePath(Routes.VIEW_GROUPS)
     VIEW_ID_DEFINITIONS = RoutePath(Routes.VIEW_ID_DEFINITIONS)
     VIEW_OWN_USER_INFO = RoutePath(Routes.VIEW_OWN_USER_INFO)

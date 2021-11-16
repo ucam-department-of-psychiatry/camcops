@@ -301,7 +301,7 @@ def export(req: "CamcopsRequest",
         return
 
     for recipient in recipients:
-        log.info("Exporting to recipient: {}", recipient)
+        log.info("Exporting to recipient: {}", recipient.recipient_name)
         if recipient.using_db():
             if schedule_via_backend:
                 raise NotImplementedError(
@@ -314,7 +314,7 @@ def export(req: "CamcopsRequest",
             export_tasks_individually(
                 req, recipient,
                 via_index=via_index, schedule_via_backend=schedule_via_backend)
-        log.info("Finished exporting to recipient: {}", recipient)
+        log.info("Finished exporting to {}", recipient.recipient_name)
 
 
 def export_whole_database(req: "CamcopsRequest",
@@ -395,8 +395,8 @@ def export_tasks_individually(req: "CamcopsRequest",
     """
     collection = get_collection_for_export(req, recipient, via_index=via_index)
     n_tasks = 0
+    recipient_name = recipient.recipient_name
     if schedule_via_backend:
-        recipient_name = recipient.recipient_name
         for task_or_index in collection.gen_all_tasks_or_indexes():
             if isinstance(task_or_index, Task):
                 basetable = task_or_index.tablename
@@ -412,7 +412,8 @@ def export_tasks_individually(req: "CamcopsRequest",
                 task_pk=task_pk
             )
             n_tasks += 1
-        log.info(f"Scheduled {n_tasks} background task exports")
+        log.info(f"Scheduled {n_tasks} background task exports to "
+                 f"{recipient_name}")
     else:
         for task in collection.gen_tasks_by_class():
             # Do NOT use this to check the working of export_task_backend():
@@ -421,7 +422,7 @@ def export_tasks_individually(req: "CamcopsRequest",
             # within a query of some sort, I presume)
             export_task(req, recipient, task)
             n_tasks += 1
-        log.info(f"Exported {n_tasks} tasks")
+        log.info(f"Exported {n_tasks} tasks to {recipient_name}")
 
 
 def export_task(req: "CamcopsRequest",

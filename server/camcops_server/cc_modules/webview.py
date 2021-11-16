@@ -210,8 +210,11 @@ from camcops_server.cc_modules.cc_export import (
 from camcops_server.cc_modules.cc_exportmodels import (
     ExportedTask,
     ExportedTaskEmail,
+    ExportedTaskFhir,
+    ExportedTaskFhirEntry,
     ExportedTaskFileGroup,
     ExportedTaskHL7Message,
+    ExportedTaskRedcap,
 )
 from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
 from camcops_server.cc_modules.cc_forms import (
@@ -3007,6 +3010,54 @@ def view_exported_task_hl7_message(req: "CamcopsRequest") -> Response:
     )
 
 
+@view_config(route_name=Routes.VIEW_EXPORTED_TASK_REDCAP,
+             permission=Permission.SUPERUSER,
+             http_cache=NEVER_CACHE)
+def view_exported_task_redcap(req: "CamcopsRequest") -> Response:
+    """
+    View on an individual
+    :class:`camcops_server.cc_modules.cc_exportmodels.ExportedTaskRedcap`.
+    """
+    return _view_generic_object_by_id(
+        req=req,
+        cls=ExportedTaskRedcap,
+        instance_name_for_mako="etr",
+        mako_template="exported_task_redcap.mako",
+    )
+
+
+@view_config(route_name=Routes.VIEW_EXPORTED_TASK_FHIR,
+             permission=Permission.SUPERUSER,
+             http_cache=NEVER_CACHE)
+def view_exported_task_fhir(req: "CamcopsRequest") -> Response:
+    """
+    View on an individual
+    :class:`camcops_server.cc_modules.cc_exportmodels.ExportedTaskRedcap`.
+    """
+    return _view_generic_object_by_id(
+        req=req,
+        cls=ExportedTaskFhir,
+        instance_name_for_mako="etf",
+        mako_template="exported_task_fhir.mako",
+    )
+
+
+@view_config(route_name=Routes.VIEW_EXPORTED_TASK_FHIR_ENTRY,
+             permission=Permission.SUPERUSER,
+             http_cache=NEVER_CACHE)
+def view_exported_task_fhir_entry(req: "CamcopsRequest") -> Response:
+    """
+    View on an individual
+    :class:`camcops_server.cc_modules.cc_exportmodels.ExportedTaskRedcap`.
+    """
+    return _view_generic_object_by_id(
+        req=req,
+        cls=ExportedTaskFhirEntry,
+        instance_name_for_mako="etfe",
+        mako_template="exported_task_fhir_entry.mako",
+    )
+
+
 # =============================================================================
 # User/server info views
 # =============================================================================
@@ -4106,11 +4157,6 @@ def delete_special_note(req: "CamcopsRequest") -> Dict[str, Any]:
     View to delete a special note (after confirmation).
     """
     note_id = req.get_int_param(ViewParam.NOTE_ID, None)
-    url_back = req.route_url(Routes.HOME)
-    # ... too fiddly to be more precise as we could be routing back to the task
-    # relating to a patient relating to this special note
-    if FormAction.CANCEL in req.POST:
-        raise HTTPFound(url_back)
     sn = SpecialNote.get_specialnote_by_id(req.dbsession, note_id)
     _ = req.gettext
     if sn is None:
@@ -4120,6 +4166,26 @@ def delete_special_note(req: "CamcopsRequest") -> Dict[str, Any]:
                              f"note_id={note_id}")
     if not sn.user_may_delete_specialnote(req.user):
         raise HTTPBadRequest(_("Not authorized to delete this special note"))
+    url_back = req.route_url(Routes.HOME)  # default
+    if sn.refers_to_patient():
+        # Special note on a patient
+        patient = sn.target_patient()
+        if patient:
+            pass  # ***
+    else:
+        # Special note on a task
+        task = sn.target_task()
+        if task:
+            url_back = req.route_url(
+                Routes.TASK,
+                _query={
+                    ViewParam.TABLE_NAME: task.tablename,
+                    ViewParam.SERVER_PK: task.pk,
+                    ViewParam.VIEWTYPE: ViewArg.HTML,
+                }
+            )
+    if FormAction.CANCEL in req.POST:
+        raise HTTPFound(url_back)
     form = DeleteSpecialNoteForm(request=req)
     if FormAction.SUBMIT in req.POST:
         try:

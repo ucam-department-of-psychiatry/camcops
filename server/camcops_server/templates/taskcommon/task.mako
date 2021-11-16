@@ -313,7 +313,7 @@ ${ task.get_task_html(req) | n }
                                 ViewParam.SERVER_PK: task.pk,
                             }
                         ),
-                        text=_("Apply special note")
+                        text=_("Add special note")
                     ) | n }
                 </p>
             %endif

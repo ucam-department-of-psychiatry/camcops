@@ -1,7 +1,7 @@
 ## -*- coding: utf-8 -*-
 <%doc>
 
-camcops_server/templates/menu/exported_task_file_group.mako
+camcops_server/templates/menu/exported_task_fhir.mako
 
 ===============================================================================
 
@@ -29,8 +29,8 @@ camcops_server/templates/menu/exported_task_file_group.mako
 <%inherit file="base_web.mako"/>
 
 <%!
-from markupsafe import escape
-from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewParam
+from camcops_server.cc_modules.cc_mako_helperfunc import listview
+from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewParam
 %>
 
 <%include file="db_user_info.mako"/>
@@ -38,14 +38,14 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
 <h1>
     ${ req.icon_text(
         icon=Icons.AUDIT_DETAIL,
-        text=_("Exported files")
+        text=_("Individual FHIR export")
     ) | n }
 </h1>
 
 <table>
     <tr>
-        <th>File group ID</th>
-        <td>${ fg.id }</td>
+        <th>HL7 message ID</th>
+        <td>${ etf.id }</td>
     </tr>
     <tr>
         <th>Exported task ID</th>
@@ -55,32 +55,21 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
                     url=request.route_url(
                         Routes.VIEW_EXPORTED_TASK,
                         _query={
-                            ViewParam.ID: fg.exported_task_id
+                            ViewParam.ID: etf.exported_task_id
                         }
                     ),
-                    text="ExportedTask " + str(fg.exported_task_id)
+                    text="ExportedTask " + str(etf.exported_task_id)
             ) | n }
         </td>
     </tr>
     <tr>
-        <th>Filenames</th>
-        <td>${ "<br>".join(escape(filename) for filename in fg.filenames) | n }</td>
-    </tr>
-    <tr>
-        <th>Script called?</th>
-        <td>${ fg.script_called }</td>
-    </tr>
-    <tr>
-        <th>Script exit code</th>
-        <td>${ fg.script_retcode }</td>
-    </tr>
-    <tr>
-        <th>Script stdout</th>
-        <td>${ fg.script_stdout }</td>
-    </tr>
-    <tr>
-        <th>Script stderr</th>
-        <td>${ fg.script_stderr }</td>
+        <th>Entries</th>
+        <td>
+            ${ listview(
+                    req, etf.entries, Routes.VIEW_EXPORTED_TASK_FHIR_ENTRY,
+                    "ExportedTaskFhirEntry", Icons.AUDIT_DETAIL
+            ) | n }
+        </td>
     </tr>
 </table>
 

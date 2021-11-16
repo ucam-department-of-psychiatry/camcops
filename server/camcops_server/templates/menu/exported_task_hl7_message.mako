@@ -37,7 +37,7 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
 <h1>
     ${ req.icon_text(
         icon=Icons.AUDIT_DETAIL,
-        text=_("Individual HL7 message")
+        text=_("Individual HL7 v2 message")
     ) | n }
 </h1>
 
@@ -87,4 +87,5 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
     </tr>
 </table>
 
+<%include file="to_offer_exported_task_list.mako"/>
 <%include file="to_main_menu.mako"/>

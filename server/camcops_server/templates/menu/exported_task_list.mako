@@ -87,7 +87,7 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
                                 ViewParam.ID: et.recipient_id
                             }
                         ),
-                        text="ExportRecipient " + str(et.recipient_id)
+                        text=et.recipient.recipient_name
                 ) | n }
             </td>
             <td>
@@ -101,7 +101,7 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
                                 ViewParam.VIEWTYPE: ViewArg.HTML
                             }
                         ),
-                        text=et.basetable + " " + str(et.task_server_pk)
+                        text=et.basetable + " #" + str(et.task_server_pk)
                 ) | n }
             </td>
             <td>${ et.start_at_utc }</td>
@@ -116,12 +116,5 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
 
 <div>${ page.pager() | n }</div>
 
-<div>
-    ${ req.icon_text(
-            icon=Icons.AUDIT_OPTIONS,
-            url=request.route_url(Routes.OFFER_AUDIT_TRAIL),
-            text=_("Choose different options")
-    ) | n }
-</div>
-
+<%include file="to_offer_exported_task_list.mako"/>
 <%include file="to_main_menu.mako"/>

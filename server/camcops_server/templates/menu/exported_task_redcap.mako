@@ -1,7 +1,7 @@
 ## -*- coding: utf-8 -*-
 <%doc>
 
-camcops_server/templates/menu/exported_task_file_group.mako
+camcops_server/templates/menu/exported_task_redcap.mako
 
 ===============================================================================
 
@@ -29,7 +29,6 @@ camcops_server/templates/menu/exported_task_file_group.mako
 <%inherit file="base_web.mako"/>
 
 <%!
-from markupsafe import escape
 from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewParam
 %>
 
@@ -38,14 +37,14 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
 <h1>
     ${ req.icon_text(
         icon=Icons.AUDIT_DETAIL,
-        text=_("Exported files")
+        text=_("Individual REDCap export")
     ) | n }
 </h1>
 
 <table>
     <tr>
-        <th>File group ID</th>
-        <td>${ fg.id }</td>
+        <th>ExportedTaskRedcap ID</th>
+        <td>${ etr.id }</td>
     </tr>
     <tr>
         <th>Exported task ID</th>
@@ -55,32 +54,24 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
                     url=request.route_url(
                         Routes.VIEW_EXPORTED_TASK,
                         _query={
-                            ViewParam.ID: fg.exported_task_id
+                            ViewParam.ID: etr.exported_task_id
                         }
                     ),
-                    text="ExportedTask " + str(fg.exported_task_id)
+                    text="ExportedTask " + str(etr.exported_task_id)
             ) | n }
         </td>
     </tr>
     <tr>
-        <th>Filenames</th>
-        <td>${ "<br>".join(escape(filename) for filename in fg.filenames) | n }</td>
+        <th>REDCap record ID</th>
+        <td>${ etr.redcap_record_id }</td>
     </tr>
     <tr>
-        <th>Script called?</th>
-        <td>${ fg.script_called }</td>
+        <th>REDCap instrument name</th>
+        <td>${ etr.redcap_instrument_name }</td>
     </tr>
     <tr>
-        <th>Script exit code</th>
-        <td>${ fg.script_retcode }</td>
-    </tr>
-    <tr>
-        <th>Script stdout</th>
-        <td>${ fg.script_stdout }</td>
-    </tr>
-    <tr>
-        <th>Script stderr</th>
-        <td>${ fg.script_stderr }</td>
+        <th>REDCap instance ID</th>
+        <td>${ etr.redcap_instance_id }</td>
     </tr>
 </table>
 

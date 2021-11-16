@@ -141,6 +141,7 @@ server/camcops_server
     cc_modules/cc_idnumdef.py.rst
     cc_modules/cc_ipuse.py.rst
     cc_modules/cc_language.py.rst
+    cc_modules/cc_mako_helperfunc.py.rst
     cc_modules/cc_membership.py.rst
     cc_modules/cc_nhs.py.rst
     cc_modules/cc_nlp.py.rst
@@ -497,9 +498,12 @@ server/camcops_server
     templates/menu/exported_task.mako.rst
     templates/menu/exported_task_choose.mako.rst
     templates/menu/exported_task_email.mako.rst
+    templates/menu/exported_task_fhir.mako.rst
+    templates/menu/exported_task_fhir_entry.mako.rst
     templates/menu/exported_task_file_group.mako.rst
     templates/menu/exported_task_hl7_message.mako.rst
     templates/menu/exported_task_list.mako.rst
+    templates/menu/exported_task_redcap.mako.rst
     templates/menu/fhir_patient_id_system.mako.rst
     templates/menu/filter_edit.mako.rst
     templates/menu/finalized_patient_edit.mako.rst
@@ -565,6 +569,7 @@ server/camcops_server
     templates/snippets/table.mako.rst
     templates/snippets/to_audit_menu.mako.rst
     templates/snippets/to_main_menu.mako.rst
+    templates/snippets/to_offer_exported_task_list.mako.rst
     templates/snippets/to_view_all_groups.mako.rst
     templates/snippets/to_view_all_users.mako.rst
     templates/snippets/to_view_patient_task_schedules.mako.rst
