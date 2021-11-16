@@ -37,8 +37,8 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewParam
 
 <h1>
     ${ req.icon_text(
-        icon=Icons.AUDIT_DETAIL,
-        text=_("Individual FHIR export")
+        icon=Icons.EXPORTED_TASK_ENTRY_COLLECTION,
+        text=_("FHIR export")
     ) | n }
 </h1>
 
@@ -51,7 +51,7 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewParam
         <th>Exported task ID</th>
         <td>
             ${ req.icon_text(
-                    icon=Icons.AUDIT_DETAIL,
+                    icon=Icons.EXPORTED_TASK,
                     url=request.route_url(
                         Routes.VIEW_EXPORTED_TASK,
                         _query={
@@ -67,7 +67,7 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewParam
         <td>
             ${ listview(
                     req, etf.entries, Routes.VIEW_EXPORTED_TASK_FHIR_ENTRY,
-                    "ExportedTaskFhirEntry", Icons.AUDIT_DETAIL
+                    "ExportedTaskFhirEntry", Icons.AUDIT_ITEM
             ) | n }
         </td>
     </tr>

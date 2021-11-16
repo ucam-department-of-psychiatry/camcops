@@ -38,7 +38,7 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
 
 <h1>
     ${ req.icon_text(
-        icon=Icons.AUDIT_DETAIL,
+        icon=Icons.EXPORTED_TASK,
         text=_("Individual task export attempt")
     ) | n }
 </h1>
@@ -52,7 +52,7 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
         <th>${ _("Export recipient ID") }</th>
         <td>
             ${ req.icon_text(
-                    icon=Icons.AUDIT_DETAIL,
+                    icon=Icons.EXPORT_RECIPIENT,
                     url=request.route_url(
                         Routes.VIEW_EXPORT_RECIPIENT,
                         _query={
@@ -114,7 +114,7 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
         <td>
             ${ listview(
                     req, et.emails, Routes.VIEW_EXPORTED_TASK_EMAIL,
-                    "ExportedTaskEmail", Icons.AUDIT_DETAIL
+                    "ExportedTaskEmail", Icons.AUDIT_ITEM
             ) | n }
         </td>
     </tr>
@@ -123,7 +123,7 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
         <td>
             ${ listview(
                     req, et.fhir_exports, Routes.VIEW_EXPORTED_TASK_FHIR,
-                    "ExportedTaskFhir", Icons.AUDIT_DETAIL
+                    "ExportedTaskFhir", Icons.EXPORTED_TASK_ENTRY_COLLECTION
             ) | n }
         </td>
     </tr>
@@ -132,7 +132,7 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
         <td>
             ${ listview(
                     req, et.filegroups, Routes.VIEW_EXPORTED_TASK_FILE_GROUP,
-                    "ExportedTaskFileGroup", Icons.AUDIT_DETAIL
+                    "ExportedTaskFileGroup", Icons.AUDIT_ITEM
             ) | n }
         </td>
     </tr>
@@ -141,7 +141,7 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
         <td>
             ${ listview(
                     req, et.hl7_messages, Routes.VIEW_EXPORTED_TASK_HL7_MESSAGE,
-                    "ExportedTaskHL7Message", Icons.AUDIT_DETAIL
+                    "ExportedTaskHL7Message", Icons.AUDIT_ITEM
             ) | n }
         </td>
     </tr>
@@ -150,7 +150,7 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
         <td>
             ${ listview(
                     req, et.redcap_exports, Routes.VIEW_EXPORTED_TASK_REDCAP,
-                    "ExportedTaskRedcap", Icons.AUDIT_DETAIL
+                    "ExportedTaskRedcap", Icons.AUDIT_ITEM
             ) | n }
         </td>
     </tr>

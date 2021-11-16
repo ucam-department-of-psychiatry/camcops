@@ -37,7 +37,7 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewParam
 
 <h1>
     ${ req.icon_text(
-        icon=Icons.AUDIT_DETAIL,
+        icon=Icons.AUDIT_ITEM,
         text=_("Individual FHIR export entry")
     ) | n }
 </h1>
@@ -51,7 +51,7 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewParam
         <th>ExportedTaskFhir</th>
         <td>
             ${ req.icon_text(
-                    icon=Icons.AUDIT_DETAIL,
+                    icon=Icons.EXPORTED_TASK_ENTRY_COLLECTION,
                     url=request.route_url(
                         Routes.VIEW_EXPORTED_TASK_FHIR,
                         _query={

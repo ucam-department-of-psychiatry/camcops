@@ -36,7 +36,7 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
 
 <h1>
     ${ req.icon_text(
-        icon=Icons.AUDIT_DETAIL,
+        icon=Icons.AUDIT_ITEM,
         text=_("Exported task e-mail")
     ) | n }
 </h1>
@@ -50,7 +50,7 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
         <th>Exported task ID</th>
         <td>
             ${ req.icon_text(
-                    icon=Icons.AUDIT_DETAIL,
+                    icon=Icons.EXPORTED_TASK,
                     url=request.route_url(
                         Routes.VIEW_EXPORTED_TASK,
                         _query={

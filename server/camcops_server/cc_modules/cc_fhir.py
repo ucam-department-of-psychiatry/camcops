@@ -260,7 +260,7 @@ Wipe FHIR exports
     DELETE FROM _exported_task_filegroup;
     DELETE FROM _exported_task_hl7msg;
     DELETE FROM _exported_task_redcap;
-    DELETE FROM _exported_tasks; 
+    DELETE FROM _exported_tasks;
     DELETE FROM _export_recipients;
 
 What's been sent?

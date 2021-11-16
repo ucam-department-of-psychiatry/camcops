@@ -57,7 +57,7 @@ def get_username(audit_entry):
 
 <h1>
     ${ req.icon_text(
-        icon=Icons.AUDIT_DETAIL,
+        icon=Icons.AUDIT_REPORT,
         text=_("Audit trail")
     ) | n }
 </h1>

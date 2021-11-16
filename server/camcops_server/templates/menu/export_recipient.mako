@@ -38,7 +38,7 @@ from camcops_server.cc_modules.cc_exportrecipientinfo import ExportTransmissionM
 
 <h1>
     ${ req.icon_text(
-        icon=Icons.AUDIT_DETAIL,
+        icon=Icons.EXPORT_RECIPIENT,
         text=_("Export recipient")
     ) | n }
 </h1>
@@ -251,7 +251,15 @@ from camcops_server.cc_modules.cc_exportrecipientinfo import ExportTransmissionM
         <tbody>
             <tr>
                 <th>FHIR API URL</th>
-                <td>${ recipient.fhir_api_url or "" }</td>
+                <td>
+                    %if recipient.fhir_api_url:
+                        ${ req.icon_text(
+                                icon=Icons.INFO_EXTERNAL,
+                                url=recipient.fhir_api_url,
+                                text=recipient.fhir_api_url
+                        ) | n }
+                    %endif
+                </td>
             </tr>
             <tr>
                 <th>FHIR app ID (of CamCOPS)</th>
@@ -371,7 +379,15 @@ from camcops_server.cc_modules.cc_exportrecipientinfo import ExportTransmissionM
         <tbody>
             <tr>
                 <th>REDCap API URL</th>
-                <td>${ recipient.redcap_api_url or "" }</td>
+                <td>
+                    %if recipient.redcap_api_url:
+                        ${ req.icon_text(
+                                icon=Icons.INFO_EXTERNAL,
+                                url=recipient.redcap_api_url,
+                                text=recipient.redcap_api_url
+                        ) | n }
+                    %endif
+                </td>
             </tr>
             <tr>
                 <th>REDCap field map filename</th>
