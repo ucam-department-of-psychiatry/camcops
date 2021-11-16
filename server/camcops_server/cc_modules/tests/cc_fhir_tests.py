@@ -36,7 +36,7 @@ from cardinal_pythonlib.nhs import generate_random_nhs_number
 import pendulum
 from requests.exceptions import HTTPError
 
-from camcops_server.cc_modules.cc_constants import FHIRConst as Fc
+from camcops_server.cc_modules.cc_constants import FHIRConst as Fc, JSON_INDENT
 from camcops_server.cc_modules.cc_exportmodels import (
     ExportedTask,
     ExportedTaskFhir,
@@ -779,7 +779,7 @@ class FhirTaskExporterBMITests(FhirExportTestCase):
             self.recipient,
             skip_docs_if_other_content=True
         )
-        bundle_str = json.dumps(bundle.as_json(), indent=4)
+        bundle_str = json.dumps(bundle.as_json(), indent=JSON_INDENT)
         log.debug(f"Bundle:\n{bundle_str}")
         # The test is that it doesn't crash.
 
@@ -836,7 +836,7 @@ class FhirTaskExporterDiagnosisIcd10Tests(FhirExportTestCase):
             self.recipient,
             skip_docs_if_other_content=True
         )
-        bundle_str = json.dumps(bundle.as_json(), indent=4)
+        bundle_str = json.dumps(bundle.as_json(), indent=JSON_INDENT)
         log.debug(f"Bundle:\n{bundle_str}")
         # The test is that it doesn't crash.
 
@@ -891,6 +891,6 @@ class FhirTaskExporterDiagnosisIcd9CMTests(FhirExportTestCase):
             self.recipient,
             skip_docs_if_other_content=True
         )
-        bundle_str = json.dumps(bundle.as_json(), indent=4)
+        bundle_str = json.dumps(bundle.as_json(), indent=JSON_INDENT)
         log.debug(f"Bundle:\n{bundle_str}")
         # The test is that it doesn't crash.

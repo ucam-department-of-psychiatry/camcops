@@ -158,7 +158,7 @@ from fhirclient.models.identifier import Identifier
 from fhirclient.models.observation import ObservationComponent
 from requests.exceptions import HTTPError
 
-from camcops_server.cc_modules.cc_constants import FHIRConst as Fc
+from camcops_server.cc_modules.cc_constants import FHIRConst as Fc, JSON_INDENT
 from camcops_server.cc_modules.cc_exception import FhirExportException
 from camcops_server.cc_modules.cc_pyramid import Routes
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
@@ -363,7 +363,7 @@ class FhirTaskExporter(object):
         try:
             # Attempt to create the receiver on the server, via POST:
             if DEBUG_FHIR_TX:
-                bundle_str = json.dumps(bundle.as_json(), indent=4)
+                bundle_str = json.dumps(bundle.as_json(), indent=JSON_INDENT)
                 log.debug(f"FHIR bundle outbound to server:\n{bundle_str}")
             response = bundle.create(self.client.server)
             if response is None:

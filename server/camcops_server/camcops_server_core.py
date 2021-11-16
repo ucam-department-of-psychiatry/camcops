@@ -558,24 +558,35 @@ def get_new_password_from_cli(username: str) -> str:
 def cmd_show_export_queue(recipient_names: List[str] = None,
                           all_recipients: bool = False,
                           via_index: bool = True,
-                          pretty: bool = False) -> None:
+                          pretty: bool = False,
+                          debug_show_fhir: bool = False,
+                          debug_fhir_include_docs: bool = False) -> None:
     """
     Shows tasks that would be exported.
 
     Args:
-        recipient_names: list of export recipient names (as per the config
-            file)
-        all_recipients: use all recipients?
-        via_index: use the task index (faster)?
-        pretty: use ``str(task)`` not ``repr(task)`` (prettier, slower because
-            it has to query the patient)
+        recipient_names:
+            List of export recipient names (as per the config file).
+        all_recipients:
+            Use all recipients?
+        via_index:
+            Use the task index (faster)?
+        pretty:
+            Use ``str(task)`` not ``repr(task)``? (Prettier, but slower because
+            it has to query the patient.)
+        debug_show_fhir:
+            Show FHIR output for each task, as JSON?
+        debug_fhir_include_docs:
+            (If debug_show_fhir.) Include document content? Large!
     """
     with command_line_request_context() as req:
         print_export_queue(req,
                            recipient_names=recipient_names,
                            all_recipients=all_recipients,
                            via_index=via_index,
-                           pretty=pretty)
+                           pretty=pretty,
+                           debug_show_fhir=debug_show_fhir,
+                           debug_fhir_include_docs=debug_fhir_include_docs)
 
 
 def cmd_export(recipient_names: List[str] = None,

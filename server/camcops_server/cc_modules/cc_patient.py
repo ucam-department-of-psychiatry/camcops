@@ -915,7 +915,9 @@ class Patient(GenericTabletRecordMixin, Base):
         # Address
         if self.address:
             patient_dict[Fc.ADDRESS] = [
-                Address(jsondict={Fc.ADDRESS_TEXT: self.address})
+                Address(jsondict={
+                    Fc.ADDRESS_TEXT: self.address
+                }).as_json()
             ]
 
         # Email
@@ -924,7 +926,7 @@ class Patient(GenericTabletRecordMixin, Base):
                 ContactPoint(jsondict={
                     Fc.SYSTEM: Fc.TELECOM_SYSTEM_EMAIL,
                     Fc.VALUE: self.email
-                })
+                }).as_json()
             ]
 
         # General practitioner (GP): via

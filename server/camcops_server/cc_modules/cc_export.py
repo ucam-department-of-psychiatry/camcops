@@ -151,6 +151,7 @@ Thoughts as of 2018-12-22.
 """  # noqa
 
 from contextlib import ExitStack
+import json
 import logging
 import os
 import sqlite3
@@ -191,9 +192,10 @@ from sqlalchemy.sql.schema import Column, MetaData, Table
 from sqlalchemy.sql.sqltypes import Text
 
 from camcops_server.cc_modules.cc_audit import audit
-from camcops_server.cc_modules.cc_constants import DateFormat
+from camcops_server.cc_modules.cc_constants import DateFormat, JSON_INDENT
 from camcops_server.cc_modules.cc_dump import copy_tasks_and_summaries
 from camcops_server.cc_modules.cc_email import Email
+from camcops_server.cc_modules.cc_exception import FhirExportException
 from camcops_server.cc_modules.cc_exportmodels import (
     ExportedTask,
     ExportRecipient,
@@ -231,11 +233,14 @@ INFOSCHEMA_PAGENAME = "_camcops_information_schema_columns"
 # Export tasks from the back end
 # =============================================================================
 
-def print_export_queue(req: "CamcopsRequest",
-                       recipient_names: List[str] = None,
-                       all_recipients: bool = False,
-                       via_index: bool = True,
-                       pretty: bool = False) -> None:
+def print_export_queue(
+        req: "CamcopsRequest",
+        recipient_names: List[str] = None,
+        all_recipients: bool = False,
+        via_index: bool = True,
+        pretty: bool = False,
+        debug_show_fhir: bool = False,
+        debug_fhir_include_docs: bool = False) -> None:
     """
     Shows tasks that would be exported.
 
@@ -253,6 +258,10 @@ def print_export_queue(req: "CamcopsRequest",
         pretty:
             use ``str(task)`` not ``repr(task)`` (prettier, but slower because
             it has to query the patient)
+        debug_show_fhir:
+            Show FHIR output for each task, as JSON?
+        debug_fhir_include_docs:
+            (If debug_show_fhir.) Include document content? Large!
     """
     recipients = req.get_export_recipients(
         recipient_names=recipient_names,
@@ -271,6 +280,17 @@ def print_export_queue(req: "CamcopsRequest",
                 f"{recipient.recipient_name}: "
                 f"{str(task) if pretty else repr(task)}"
             )
+            if debug_show_fhir:
+                try:
+                    bundle = task.get_fhir_bundle(
+                        req, recipient,
+                        skip_docs_if_other_content=not debug_fhir_include_docs
+                    )
+                    bundle_str = json.dumps(bundle.as_json(),
+                                            indent=JSON_INDENT)
+                    log.info("FHIR output as JSON:\n{}", bundle_str)
+                except FhirExportException as e:
+                    log.info("Task has no non-document content:\n{}", e)
 
 
 def export(req: "CamcopsRequest",

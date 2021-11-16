@@ -1161,9 +1161,14 @@ class Task(GenericTabletRecordMixin, Base):
     # noinspection PyMethodMayBeStatic
     def get_clinician_name(self) -> str:
         """
-        Get the clinician's name.
+        May be overridden by :class:`TaskHasClinicianMixin`; q.v.
+        """
+        return ""
 
-        May be overridden by :class:`TaskHasClinicianMixin`.
+    # noinspection PyMethodMayBeStatic,PyUnusedLocal
+    def get_clinician_fhir_telecom_other(self, req: "CamcopsRequest") -> str:
+        """
+        May be overridden by :class:`TaskHasClinicianMixin`; q.v.
         """
         return ""
 
