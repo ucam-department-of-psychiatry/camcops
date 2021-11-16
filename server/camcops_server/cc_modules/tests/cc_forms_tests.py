@@ -27,6 +27,7 @@ camcops_server/cc_modules/tests/cc_forms_tests.py
 """
 
 import json
+import logging
 from pprint import pformat
 from typing import Any, Dict
 from unittest import mock, TestCase
@@ -65,6 +66,8 @@ TEST_PHONE_NUMBER = "+{ctry}{tel}".format(
     tel=phonenumbers.PhoneMetadata.metadata_for_region(
         "GB").personal_number.example_number
 )  # see webview_tests.py
+
+log = logging.getLogger(__name__)
 
 
 # =============================================================================
@@ -940,12 +943,13 @@ class PhoneNumberTypeTestCase(TestCase):
         super().setUp()
 
         self.request = mock.Mock()
-        self.phone_type = PhoneNumberType(self.request)
+        self.phone_type = PhoneNumberType(self.request, allow_empty=True)
         self.node = mock.Mock()
 
 
 class PhoneNumberTypeDeserializeTests(PhoneNumberTypeTestCase):
     def test_returns_null_for_null_cstruct(self) -> None:
+        # For allow_empty=True:
         phone_number = self.phone_type.deserialize(self.node, null)
         self.assertIs(phone_number, null)
 
@@ -988,3 +992,20 @@ class PhoneNumberTypeSerializeTests(PhoneNumberTypeTestCase):
 
         self.assertEqual(self.phone_type.serialize(self.node, phone_number),
                          TEST_PHONE_NUMBER)
+
+
+class PhoneNumberTypeMandatoryTestCase(TestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.request = mock.Mock()
+        self.phone_type = PhoneNumberType(self.request, allow_empty=False)
+        self.node = mock.Mock()
+
+
+class PhoneNumberTypeMandatoryDeserializeTests(
+        PhoneNumberTypeMandatoryTestCase):
+    def test_raises_for_appstruct_none(self) -> None:
+        # For allow_empty=False:
+        with self.assertRaises(Invalid):
+            self.phone_type.deserialize(self.node, null)

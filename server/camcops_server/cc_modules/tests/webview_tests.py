@@ -1007,7 +1007,11 @@ class EditFinalizedPatientViewTests(BasicDatabaseTestCase):
             ViewParam.SERVER_PK: str(patient.pk)
         })
 
-        view = EditFinalizedPatientView(self.req)
+        view = EditFinalizedPatientView(
+            self.req,
+            task_tablename=task1.tablename,
+            task_server_pk=task1.pk
+        )
         with mock.patch.object(view, "render_to_response") as mock_render:
             view.dispatch()
 

@@ -4965,8 +4965,12 @@ class EditFinalizedPatientView(EditPatientBaseView):
 
     def __init__(self,
                  req: CamcopsRequest,
-                 task_tablename: str,
-                 task_server_pk: int) -> None:
+                 task_tablename: str = None,
+                 task_server_pk: int = None) -> None:
+        """
+        The two additional parameters are for returning the user to the task
+        from which editing was initiated.
+        """
         super().__init__(req)
         self.task_tablename = task_tablename
         self.task_server_pk = task_server_pk
@@ -4976,14 +4980,18 @@ class EditFinalizedPatientView(EditPatientBaseView):
         We got here by editing a patient from an uploaded task, so that's our
         return point.
         """
-        return self.request.route_url(
-            Routes.TASK,
-            _query={
-                ViewParam.TABLE_NAME: self.task_tablename,
-                ViewParam.SERVER_PK: self.task_server_pk,
-                ViewParam.VIEWTYPE: ViewArg.HTML,
-            }
-        )
+        if self.task_tablename and self.task_server_pk:
+            return self.request.route_url(
+                Routes.TASK,
+                _query={
+                    ViewParam.TABLE_NAME: self.task_tablename,
+                    ViewParam.SERVER_PK: self.task_server_pk,
+                    ViewParam.VIEWTYPE: ViewArg.HTML,
+                }
+            )
+        else:
+            # Likely in a testing environment!
+            return self.request.route_url(Routes.HOME)
 
     def get_object(self) -> Any:
         patient = cast(Patient, super().get_object())

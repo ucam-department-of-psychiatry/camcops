@@ -58,7 +58,6 @@ from cardinal_pythonlib.plot import (
 import cardinal_pythonlib.rnc_web as ws
 from cardinal_pythonlib.wsgi.constants import WsgiEnvVar
 import lockfile
-from mako.filters import html_escape
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib.font_manager import FontProperties
@@ -111,6 +110,8 @@ from camcops_server.cc_modules.cc_pyramid import (
     CamcopsAuthorizationPolicy,
     CookieKey,
     get_session_factory,
+    icon_html,
+    icon_text,
     Permission,
     RouteCollection,
     Routes,
@@ -611,35 +612,17 @@ class CamcopsRequest(Request):
             escape_alt:
                 HTML-escape the alt text? Default is True.
         """
-        # There are several ways to do this, such as via <img> tags, or via
-        # web fonts.
-        # We include bootstrap-icons.css (via base_web.mako), because that
-        # allows the best resizing (relative to font size) and styling.
-        # See:
-        # - https://icons.getbootstrap.com/#usage
-        # - http://johna.compoutpost.com/blog/1189/how-to-use-the-new-bootstrap-icons-v1-2-web-font/  # noqa
-        if escape_alt:
-            alt = html_escape(alt)
-        i_components = [
-            'role="img"',
-            f'aria-label="{alt}"'
-        ]
-        css_classes = [f"bi-{icon}"]  # bi = Bootstrap icon
-        if extra_classes:
-            css_classes += extra_classes
-        class_str = " ".join(css_classes)
-        i_components.append(f'class="{class_str}"')
-        if extra_styles:
-            style_str = "; ".join(extra_styles)
-            i_components.append(f'style="{style_str}"')
-        image = f'<i {" ".join(i_components)}></i>'
-        if url:
-            return f'<a href="{url}">{image}</a>'
-        else:
-            return image
+        return icon_html(
+            icon=icon,
+            alt=alt,
+            url=url,
+            extra_classes=extra_classes,
+            extra_styles=extra_styles,
+            escape_alt=escape_alt
+        )
 
-    def icon_text(self,
-                  icon: str,
+    @staticmethod
+    def icon_text(icon: str,
                   text: str,
                   url: str = None,
                   alt: str = None,
@@ -680,29 +663,19 @@ class CamcopsRequest(Request):
                 Hyperlink the image and text as one (rather than separately and
                 adjacent to each other)?
         """
-        icon_html = self.icon(icon=icon,
-                              url=None if hyperlink_together else url,
-                              alt=alt or text,
-                              extra_classes=extra_icon_classes,
-                              extra_styles=extra_icon_styles,
-                              escape_alt=escape_alt)
-        if escape_text:
-            text = html_escape(text)
-        if url:
-            a_components = [f'href="{url}"']
-            if extra_a_classes:
-                class_str = " ".join(extra_a_classes)
-                a_components.append(f'class="{class_str}"')
-            if extra_a_styles:
-                style_str = "; ".join(extra_a_styles)
-                a_components.append(f'style="{style_str}"')
-            a_options = " ".join(a_components)
-            if hyperlink_together:
-                return f'<a {a_options}>{icon_html} {text}</a>'
-            else:
-                return f'{icon_html} <a {a_options}>{text}</a>'
-        else:
-            return f'{icon_html} {text}'
+        return icon_text(
+            icon=icon,
+            text=text,
+            url=url,
+            alt=alt,
+            extra_icon_classes=extra_icon_classes,
+            extra_icon_styles=extra_icon_styles,
+            extra_a_classes=extra_a_classes,
+            extra_a_styles=extra_a_styles,
+            escape_alt=escape_alt,
+            escape_text=escape_text,
+            hyperlink_together=hyperlink_together
+        )
 
     # -------------------------------------------------------------------------
     # Low-level HTTP information
