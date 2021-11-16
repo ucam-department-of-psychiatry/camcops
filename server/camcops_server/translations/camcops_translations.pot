@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CamCOPS 2.4.11\n"
 "Report-Msgid-Bugs-To: rudolf@pobox.com\n"
-"POT-Creation-Date: 2021-11-16 14:55+0000\n"
+"POT-Creation-Date: 2021-11-16 16:07+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,25 +21,25 @@ msgstr ""
 msgid "(Server) Devices registered with the server"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:796
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:868
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:816
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:888
 msgid "CamCOPS research data dump"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:797
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:817
 msgid "The research data dump you requested is attached."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:837
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:857
 msgid "You do not have enough space to create this download. You are allowed {total_permitted} bytes and you are have {space} bytes free. This download would need {size} bytes."
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:850
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:870
 #, python-format
 msgid "The research data dump you requested is ready to be downloaded. You will find it in your download area. It is called %s"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:857
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_export.py:877
 msgid "Failed to create file {filename}. Error was: {message}"
 msgstr ""
 
@@ -121,7 +121,7 @@ msgstr ""
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:95
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:61
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:231
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:150
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:154
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedule_items.mako:55
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedule_items.mako:89
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:54
@@ -1144,7 +1144,7 @@ msgstr ""
 msgid "DOB:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:1195
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_patient.py:1197
 msgid "(Server) Patients, distinct by name, sex, DOB, all ID numbers"
 msgstr ""
 
@@ -1180,7 +1180,7 @@ msgstr ""
 msgid "Can't fetch ID number definition"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_task.py:2351
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_task.py:2356
 msgid "Anonymous"
 msgstr ""
 
@@ -1747,7 +1747,7 @@ msgid "Not authorized to delete this patient"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5139
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:67
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:71
 msgid "Delete patient"
 msgstr ""
 
@@ -3150,11 +3150,10 @@ msgstr ""
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:83
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:57
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:140
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:138
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:142
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedule_items.mako:54
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedule_items.mako:77
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:53
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:75
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/groups_table.mako:50
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/groups_table.mako:107
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/snippets/user_info_detail.mako:207
@@ -3347,7 +3346,7 @@ msgid "Page not found!"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/patient_add.mako:40
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:163
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:167
 msgid "Add a patient"
 msgstr ""
 
@@ -3589,7 +3588,7 @@ msgstr ""
 msgid "The server’s database is using dialect"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_email.mako:41
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_email.mako:42
 msgid "View e-mail generated by CamCOPS"
 msgstr ""
 
@@ -3660,38 +3659,38 @@ msgstr ""
 msgid "CamCOPS server location:"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:54
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:58
 msgid "Patients and their task schedules"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:62
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:66
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_tasks_table.mako:46
 msgid "Patient"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:63
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:67
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_tasks_table.mako:47
 msgid "Identifiers"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:64
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:68
 msgid "Access key"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:65
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:69
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:43
 msgid "Task schedules"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:66
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:70
 msgid "Edit patient"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:90
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:94
 msgid "Send email"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:93
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:97
 msgid "Resend email"
 msgstr ""
 
@@ -3758,6 +3757,10 @@ msgstr ""
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:56
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:104
 msgid "Edit items"
+msgstr ""
+
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:75
+msgid "Edit schedule"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_tasks.mako:41

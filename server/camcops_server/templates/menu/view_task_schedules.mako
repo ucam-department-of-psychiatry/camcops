@@ -72,7 +72,7 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
                             ViewParam.SCHEDULE_ID: schedule.id
                         }
                     ),
-                    text=_("Edit")
+                    text=_("Edit schedule")
             ) | n }
         </td>
         <td>

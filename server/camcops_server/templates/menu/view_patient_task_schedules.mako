@@ -45,7 +45,11 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
     ) | n }
 </h2>
 <div>
-    ${ req.route_url( Routes.CLIENT_API ) | n }
+    ${ req.icon_text(
+        icon=Icons.INFO_EXTERNAL,
+        url=req.route_url(Routes.CLIENT_API),
+        text=req.route_url(Routes.CLIENT_API),
+    ) | n }
 </div>
 
 <h1>

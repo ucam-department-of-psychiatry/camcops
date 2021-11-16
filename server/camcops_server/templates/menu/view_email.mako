@@ -29,6 +29,7 @@ camcops_server/templates/menu/view_email.mako
 <%inherit file="base_web.mako"/>
 
 <%!
+from cardinal_pythonlib.httpconst import MimeType
 from markupsafe import escape
 from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewParam
 %>
@@ -42,7 +43,14 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
     ) | n }
 </h1>
 
+<h2>Message</h2>
+
+<h3>Properties</h3>
 <table>
+    <colgroup>
+        <col style="width:30%">
+        <col style="width:70%">
+    </colgroup>
     <tr>
         <th>Email ID</th>
         <td>${ email.id }</td>
@@ -81,12 +89,6 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
         <th>Subject</th>
         <td>${ email.subject or "" }</td>
     </tr>
-
-    <!-- Body, message -->
-    <tr>
-        <th>Body</th>
-        <td><pre>${ email.body or "" }</pre></td>
-    </tr>
     <tr>
         <th>Content type</th>
         <td>${ email.content_type or "" }</td>
@@ -95,43 +97,67 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
         <th>Character set</th>
         <td>${ email.charset or "" }</td>
     </tr>
-    <tr>
-        <th>Message as a string (if saved)</th>
-        <td><pre>${ email.msg_string or "" }</pre></td>
-    </tr>
+</table>
 
-    <!-- Server -->
-    <tr>
-        <th>Host</th>
-        <td>${ email.host or "" }</td>
-    </tr>
-    <tr>
-        <th>Port</th>
-        <td>${ email.port or "" }</td>
-    </tr>
-    <tr>
-        <th>Username</th>
-        <td>${ email.username or "" }</td>
-    </tr>
-    <tr>
-        <th>Use TLS?</th>
-        <td>${ email.use_tls }</td>
-    </tr>
+<h3>Body</h3>
+%if email.content_type == MimeType.HTML:
+    ## The HTML here comes from a rich text editor; it is not user-editable HTML.
+    <div>${ email.body | n }</div>
+%else:
+    <pre>${ email.body or "" }</pre>
+%endif
 
-    <!-- Status -->
-    <tr>
-        <th>Sent?</th>
-        <td>${ email.sent }</td>
-    </tr>
-    <tr>
-        <th>Sent at (UTC)</th>
-        <td>${ email.sent_at_utc }</td>
-    </tr>
-    <tr>
-        <th>Reasons sending failed</th>
-        <td>${ email.sending_failure_reason or "" }</td>
-    </tr>
+%if email.msg_string:
+    <h3>Message as a string</h3>
+    <pre>${ email.msg_string }</pre>
+%endif
 
+<h2>Server</h2>
+<table>
+    <colgroup>
+        <col style="width:30%">
+        <col style="width:70%">
+    </colgroup>
+    <tbody>
+        <tr>
+            <th>Host</th>
+            <td>${ email.host or "" }</td>
+        </tr>
+        <tr>
+            <th>Port</th>
+            <td>${ email.port or "" }</td>
+        </tr>
+        <tr>
+            <th>Username</th>
+            <td>${ email.username or "" }</td>
+        </tr>
+        <tr>
+            <th>Use TLS?</th>
+            <td>${ email.use_tls }</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Status</h2>
+<table>
+    <colgroup>
+        <col style="width:30%">
+        <col style="width:70%">
+    </colgroup>
+    <tbody>
+        <tr>
+            <th>Sent?</th>
+            <td>${ email.sent }</td>
+        </tr>
+        <tr>
+            <th>Sent at (UTC)</th>
+            <td>${ email.sent_at_utc }</td>
+        </tr>
+        <tr>
+            <th>Reasons sending failed</th>
+            <td>${ email.sending_failure_reason or "" }</td>
+        </tr>
+    </tbody>
 </table>
 
 <%include file="to_main_menu.mako"/>
