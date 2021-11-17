@@ -5357,7 +5357,7 @@ class EditTaskScheduleView(TaskScheduleMixin, UpdateView):
         _ = self.request.gettext
         return {
             MAKO_VAR_TITLE: self.request.icon_text(
-                icon=Icons.EDIT,
+                icon=Icons.TASK_SCHEDULE,
                 text=_("Edit details for a task schedule")
             )
         }
@@ -5595,8 +5595,12 @@ def client_api_signposting(req: "CamcopsRequest") -> Dict[str, Any]:
     app.
     """
     return {
-        "github_link": f"<a href='{GITHUB_RELEASES_URL}'>GitHub</a>",
-        "server_url": req.route_url(Routes.CLIENT_API)
+        "github_link": req.icon_text(
+            icon=Icons.GITHUB,
+            url=GITHUB_RELEASES_URL,
+            text="GitHub",
+        ),
+        "server_url": req.route_url(Routes.CLIENT_API),
     }
 
 

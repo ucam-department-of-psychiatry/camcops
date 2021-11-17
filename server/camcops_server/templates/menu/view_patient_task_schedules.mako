@@ -67,12 +67,16 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
         <th>${ _("Identifiers") }</th>
         <th>${ _("Access key") }</th>
         <th>${ _("Task schedules") }</th>
-        <th>${ _("Edit patient") }</th>
+        <th>${ _("Edit patient, assign schedules") }</th>
         <th>${ _("Delete patient") }</th>
     </tr>
 %for patient in page:
     <tr>
         <td>
+            ${ req.icon(
+                icon=Icons.PATIENT,
+                alt=_("Patient")
+            ) | n }
             <b>${ patient.get_surname_forename_upper() }</b>
             (${ patient.get_sex_verbose() },
             ${ format_datetime(patient.dob, DateFormat.SHORT_DATE, default="?") })
@@ -99,8 +103,8 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
             %>
                 <tr>
                     <td>
-                        ${ req.icon_text(
-                            icon=Icons.TASK_SCHEDULE,
+                        ${ req.icons_text(
+                            icons=[Icons.PATIENT, Icons.TASK_SCHEDULE],
                             url=request.route_url(
                                 Routes.VIEW_PATIENT_TASK_SCHEDULE,
                                 _query={

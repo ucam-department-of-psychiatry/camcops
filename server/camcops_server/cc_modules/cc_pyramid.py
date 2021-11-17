@@ -1346,6 +1346,48 @@ def icon_text(icon: str,
         return f'{i_html} {text}'
 
 
+def icons_text(icons: List[str],
+               text: str,
+               url: str = None,
+               alt: str = None,
+               extra_icon_classes: List[str] = None,
+               extra_icon_styles: List[str] = None,
+               extra_a_classes: List[str] = None,
+               extra_a_styles: List[str] = None,
+               escape_alt: bool = True,
+               escape_text: bool = True,
+               hyperlink_together: bool = False) -> str:
+    """
+    Multiple-icon version of :func:``icon_text``.
+    """
+    i_html = " ".join(
+        icon_html(icon=icon,
+                  url=None if hyperlink_together else url,
+                  alt=alt or text,
+                  extra_classes=extra_icon_classes,
+                  extra_styles=extra_icon_styles,
+                  escape_alt=escape_alt)
+        for icon in icons
+    )
+    if escape_text:
+        text = html_escape(text)
+    if url:
+        a_components = [f'href="{url}"']
+        if extra_a_classes:
+            class_str = " ".join(extra_a_classes)
+            a_components.append(f'class="{class_str}"')
+        if extra_a_styles:
+            style_str = "; ".join(extra_a_styles)
+            a_components.append(f'style="{style_str}"')
+        a_options = " ".join(a_components)
+        if hyperlink_together:
+            return f'<a {a_options}>{i_html} {text}</a>'
+        else:
+            return f'{i_html} <a {a_options}>{text}</a>'
+    else:
+        return f'{i_html} {text}'
+
+
 class Icons:
     """
     Constants for Bootstrap icons. See https://icons.getbootstrap.com/.
@@ -1374,6 +1416,7 @@ class Icons:
     EXPORTED_TASK_ENTRY_COLLECTION = "tags"
     FILTER = "funnel"  # better than filter-circle
     FORCE_FINALIZE = "bricks"
+    GITHUB = "github"
     GOTO_PREDECESSOR = "arrow-left-square"
     GOTO_SUCCESSOR = "arrow-right-square-fill"
     GROUP_ADD = "plus-circle"
@@ -1409,7 +1452,7 @@ class Icons:
     SUPERUSER = "suit-spade-fill"
     TASK_SCHEDULE = "journal"
     TASK_SCHEDULE_ADD = "journal-plus"
-    TASK_SCHEDULE_ITEM_ADD = "journal-code"
+    TASK_SCHEDULE_ITEM_ADD = "journal-code"  # imperfect, but we use journal-plus for "add schedule"  # noqa
     TASK_SCHEDULE_ITEMS = "journal-text"
     TASK_SCHEDULES = "journals"
     TRACKERS = "graph-up"
@@ -1424,7 +1467,8 @@ class Icons:
     YOU = "heart-fill"
     NAVIGATE_START = "skip-backward"  # better than skip-start
     NAVIGATE_END = "skip-forward"  # better than skip-end
-    NAVIGATE_FORWARD = "skip-end"  # better than skip-forward; play is also good but no mirror version  # noqa
+    NAVIGATE_FORWARD = "skip-end"  # better than skip-forward, caret-right
+    # ... "play" is also good but no mirror-image version.
     NAVIGATE_BACKWARD = "skip-start"
 
 

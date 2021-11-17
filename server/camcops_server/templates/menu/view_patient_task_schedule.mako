@@ -39,8 +39,8 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
 <%include file="db_user_info.mako"/>
 
 <h1>
-    ${ req.icon_text(
-        icon=Icons.PATIENT,
+    ${ req.icons_text(
+        icons=[Icons.PATIENT, Icons.TASK_SCHEDULE],
         text=_("{patient} on schedule: {schedule}").format(
             patient=patient_descriptor,
             schedule=schedule_name

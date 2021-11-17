@@ -65,7 +65,7 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
         </td>
         <td>
             ${ req.icon_text(
-                    icon=Icons.EDIT,
+                    icon=Icons.TASK_SCHEDULE,
                     url=request.route_url(
                         Routes.EDIT_TASK_SCHEDULE,
                         _query={

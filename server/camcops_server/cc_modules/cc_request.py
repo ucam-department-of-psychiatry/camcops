@@ -112,6 +112,7 @@ from camcops_server.cc_modules.cc_pyramid import (
     get_session_factory,
     icon_html,
     icon_text,
+    icons_text,
     Permission,
     RouteCollection,
     Routes,
@@ -665,6 +666,35 @@ class CamcopsRequest(Request):
         """
         return icon_text(
             icon=icon,
+            text=text,
+            url=url,
+            alt=alt,
+            extra_icon_classes=extra_icon_classes,
+            extra_icon_styles=extra_icon_styles,
+            extra_a_classes=extra_a_classes,
+            extra_a_styles=extra_a_styles,
+            escape_alt=escape_alt,
+            escape_text=escape_text,
+            hyperlink_together=hyperlink_together
+        )
+
+    @staticmethod
+    def icons_text(icons: List[str],
+                   text: str,
+                   url: str = None,
+                   alt: str = None,
+                   extra_icon_classes: List[str] = None,
+                   extra_icon_styles: List[str] = None,
+                   extra_a_classes: List[str] = None,
+                   extra_a_styles: List[str] = None,
+                   escape_alt: bool = True,
+                   escape_text: bool = True,
+                   hyperlink_together: bool = False) -> str:
+        """
+        Multiple-icon version of :meth:``icon_text``.
+        """
+        return icons_text(
+            icons=icons,
             text=text,
             url=url,
             alt=alt,

@@ -68,7 +68,7 @@ INSTALL_REQUIRES = [
     # Direct dependencies of CamCOPS
     # -------------------------------------------------------------------------
     'alembic==1.4.2',  # database migrations
-    'asteval==0.9.18',  # safe-ish alternative to eval
+    'asteval==0.9.25',  # safe-ish alternative to eval
 
     'cardinal_pythonlib==1.1.13',  # RNC libraries
     'celery==4.4.6',  # background tasks

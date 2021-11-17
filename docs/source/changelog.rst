@@ -3586,5 +3586,11 @@ Current C++/SQLite client, Python/SQLAlchemy server
   (``SyntaxWarning: "is" with a literal. Did you mean "=="?``, re ``if
   self.type is 'file':``).
 
+- Bump ``asteval`` from 0.9.18 to 0.9.25 as it was generating testing warnings.
+
 - Update SNOMED code fetcher. Replace 32537008 with 165172002 in
   PsychiatricClerking. Other minor tweaks.
+
+- Icons for web site.
+
+- Web site views for FHIR exports.
