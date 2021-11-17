@@ -26,23 +26,21 @@ camcops_server/tasks/phq9.py
 
 """
 
+import logging
 from typing import Any, Dict, List, Tuple, Type, TYPE_CHECKING
 
 from cardinal_pythonlib.stringfunc import strseq
-from fhirclient.models.questionnaire import (
-    QuestionnaireItem,
-    QuestionnaireItemAnswerOption,
-)
-from fhirclient.models.questionnaireresponse import (
-    QuestionnaireResponseItem,
-    QuestionnaireResponseItemAnswer,
-)
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql.sqltypes import Boolean, Integer
 
 from camcops_server.cc_modules.cc_constants import CssClass
 from camcops_server.cc_modules.cc_ctvinfo import CtvInfo, CTV_INCOMPLETE
 from camcops_server.cc_modules.cc_db import add_multiple_columns
+from camcops_server.cc_modules.cc_fhir import (
+    FHIRAnsweredQuestion,
+    FHIRAnswerType,
+    FHIRQuestionType,
+)
 from camcops_server.cc_modules.cc_html import answer, get_yes_no, tr, tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
@@ -66,6 +64,8 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
 
 if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
+
+log = logging.getLogger(__name__)
 
 
 # =============================================================================
@@ -350,75 +350,35 @@ class Phq9(TaskHasPatientMixin, Task,
             codes.append(SnomedExpression(procedure_result))
         return codes
 
-    def get_fhir_questionnaire_items(
+    def get_fhir_questionnaire(
             self,
             req: "CamcopsRequest",
-            recipient: "ExportRecipient") -> List[QuestionnaireItem]:
-        items = []
+            recipient: "ExportRecipient") -> List[FHIRAnsweredQuestion]:
+        items = []  # type: List[FHIRAnsweredQuestion]
 
-        main_options = []
-
+        main_options = {}  # type: Dict[int, str]
         for index in range(4):
-            main_options.append(QuestionnaireItemAnswerOption(jsondict={
-                "valueCoding": {
-                    "code": str(index),
-                    "display": self.wxstring(req, f"a{index}"),
-                }
-            }).as_json())
-
+            main_options[index] = self.wxstring(req, f"a{index}")
         for q_field in self.MAIN_QUESTIONS:
-            items.append(QuestionnaireItem(jsondict={
-                "linkId": q_field,
-                "text": self.wxstring(req, q_field),
-                "type": "choice",
-                "answerOption": main_options,
-            }).as_json())
+            items.append(FHIRAnsweredQuestion(
+                qname=q_field,
+                qtext=self.wxstring(req, q_field),
+                qtype=FHIRQuestionType.CHOICE,
+                answer_type=FHIRAnswerType.INTEGER,
+                answer=getattr(self, q_field),
+                mcq_qa=main_options
+            ))
 
-        q10_options = []
-
+        q10_options = {}
         for index in range(4):
-            q10_options.append(QuestionnaireItemAnswerOption(jsondict={
-                "valueCoding": {
-                    "code": str(index),
-                    "display": self.wxstring(req, f"fa{index}"),
-                }
-            }).as_json())
-
-        items.append(QuestionnaireItem(jsondict={
-            "linkId": "q10",
-            "text": "10. " + self.wxstring(req, "finalq"),
-            "type": "choice",
-            "answerOption": q10_options,
-        }).as_json())
-
-        return items
-
-    # noinspection PyShadowingNames
-    def get_fhir_questionnaire_response_items(
-            self,
-            req: "CamcopsRequest",
-            recipient: "ExportRecipient") -> List[QuestionnaireResponseItem]:
-
-        items = []
-
-        for q_field in self.MAIN_QUESTIONS:
-            answer = QuestionnaireResponseItemAnswer(jsondict={
-                "valueInteger": getattr(self, q_field)
-            })
-
-            items.append(QuestionnaireResponseItem(jsondict={
-                "linkId": q_field,
-                "text": self.wxstring(req, q_field),
-                "answer": [answer.as_json()],
-            }).as_json())
-
-        answer = QuestionnaireResponseItemAnswer(jsondict={
-            "valueInteger": self.q10
-        })
-        items.append(QuestionnaireResponseItem(jsondict={
-            "linkId": "q10",
-            "text": "10. " + self.wxstring(req, "finalq"),
-            "answer": [answer.as_json()],
-        }).as_json())
+            q10_options[index] = self.wxstring(req, f"fa{index}")
+        items.append(FHIRAnsweredQuestion(
+            qname="q10",
+            qtext="10. " + self.wxstring(req, "finalq"),
+            qtype=FHIRQuestionType.CHOICE,
+            answer_type=FHIRAnswerType.INTEGER,
+            answer=self.q10,
+            mcq_qa=q10_options
+        ))
 
         return items

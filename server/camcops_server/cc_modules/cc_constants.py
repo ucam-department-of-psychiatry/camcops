@@ -136,8 +136,8 @@ class DateFormat(object):
     ISO8601_HUMANIZED_TO_SECONDS_TZ = "%Y-%m-%d %H:%M:%S %z"  # e.g. 2013-07-24 20:04:23 +0100  # noqa
     ISO8601_DATE_ONLY = "%Y-%m-%d"  # e.g. 2013-07-24
     FHIR_DATE = "%Y-%m-%d"  # e.g. 2013-07-24
-    FHIR_DATETIME = "%Y-%m-%dT%H:%M:%SZ"  # e.g. 2013-07-24T20:03:07Z
-    # ... or use x.isoformat()
+    # FHIR_DATETIME -- use x.isoformat()
+    FHIR_TIME = "%H:%M:%S"  # https://www.hl7.org/fhir/codesystem-item-type.html#item-type-time  # noqa
     FILENAME = "%Y-%m-%dT%H%M%S"  # e.g. 2013-07-24T200459
     FILENAME_DATE_ONLY = "%Y-%m-%d"  # e.g. 20130724
     HL7_DATETIME = "%Y%m%d%H%M%S%z"  # e.g. 20130724200407+0100
@@ -1151,13 +1151,21 @@ class FHIRConst:
     OBSSTATUS_FINAL = "final"
     OBSSTATUS_PRELIMINARY = "preliminary"
 
-    # Observation/ObservationComponent keys
+    # Observation/ObservationComponent/QuestionnaireResponseItemAnswer keys
+    # (not all are possible for all of those!).
+    VALUE_ATTACHMENT = "valueAttachment"
+    VALUE_BOOLEAN = "valueBoolean"
     VALUE_CODEABLE_CONCEPT = "valueCodeableConcept"
     VALUE_CODING = "valueCoding"
-    VALUE_DATE_TIME = "valueDateTime"
+    VALUE_DATE = "valueDate"
+    VALUE_DATETIME = "valueDateTime"
+    VALUE_DECIMAL = "valueDecimal"
     VALUE_INTEGER = "valueInteger"
     VALUE_QUANTITY = "valueQuantity"
+    VALUE_REFERENCE = "valueReference"
     VALUE_STRING = "valueString"
+    VALUE_TIME = "valueTime"
+    VALUE_URI = "valueUri"
 
     # Patient/Practitioner keys
     ADDRESS = "address"
@@ -1190,11 +1198,25 @@ class FHIRConst:
     LINK_ID = "linkId"
     ANSWER_OPTION = "answerOption"
     # QuestionnaireItem values
-    QITEM_TYPE_CHOICE = "choice"
-    # ... I think this belongs here! See
-    # https://www.hl7.org/fhir/codesystem-item-type.html
+    QITEM_TYPE_ATTACHMENT = "attachment"
+    QITEM_TYPE_BOOLEAN = "boolean"
+    QITEM_TYPE_CHOICE = "choice"  # (*)
+    QITEM_TYPE_DATE = "date"
     QITEM_TYPE_DATETIME = "dateTime"
+    QITEM_TYPE_DECIMAL = "decimal"
+    QITEM_TYPE_DISPLAY = "display"
+    QITEM_TYPE_GROUP = "group"
+    QITEM_TYPE_INTEGER = "integer"
+    QITEM_TYPE_OPEN_CHOICE = "open-choice"
+    QITEM_TYPE_QUANTITY = "quantity"
+    QITEM_TYPE_QUESTION = "question"
+    QITEM_TYPE_REFERENCE = "reference"
     QITEM_TYPE_STRING = "string"
+    QITEM_TYPE_TIME = "time"
+    QITEM_TYPE_URL = "url"
+    # Some belong here but are not in the fhirclient docs. See:
+    # https://www.hl7.org/fhir/codesystem-item-type.html
+    # https://www.hl7.org/fhir/valueset-item-type.html
 
     # QuestionnaireResponse keys
     AUTHORED = "authored"

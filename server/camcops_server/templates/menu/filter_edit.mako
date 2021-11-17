@@ -29,7 +29,7 @@ camcops_server/templates/menu/filter_edit.mako
 <%inherit file="base_web_form.mako"/>
 
 <%!
-from camcops_server.cc_modules.cc_pyramid import Icons
+from camcops_server.cc_modules.cc_pyramid import Icons, Routes
 %>
 
 <%include file="db_user_info.mako"/>
@@ -42,5 +42,13 @@ from camcops_server.cc_modules.cc_pyramid import Icons
 </h1>
 
 ${ form | n }
+
+<div>
+    ${ req.icon_text(
+            icon=Icons.VIEW_TASKS,
+            url=request.route_url(Routes.VIEW_TASKS),
+            text=_("View tasks")
+    ) | n }
+</div>
 
 <%include file="to_main_menu.mako"/>

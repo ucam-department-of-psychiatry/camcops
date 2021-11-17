@@ -30,7 +30,7 @@ Python v3.6 was required as of CamCOPS v2.3.1, 2019. That enables:
 
 - f-strings (v3.6)
 
-Python v3.6 was required as of CamCOPS v2.4.12, 2021. That enables:
+Python v3.7 was required as of CamCOPS v2.4.12, 2021. That enables:
 
 - dataclasses (v3.7)
 

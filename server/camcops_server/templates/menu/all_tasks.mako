@@ -51,7 +51,7 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes
         <tr>
             <td>
                 ${ req.icon_text(
-                        icon=Icons.DETAIL,
+                        icon=Icons.ZOOM_IN,
                         url=req.route_url(Routes.TASK_DETAILS, table_name=tc.tablename),
                         alt=_("Details"),
                         text=tc.tablename,

@@ -5830,8 +5830,15 @@ def view_task_details(req: "CamcopsRequest") -> Dict[str, Any]:
         _ = req.gettext
         raise HTTPBadRequest(f"{_('Unknown task:')} {table_name!r}")
     task_class = task_class_dict[table_name]
+    task_instance = task_class()
+    dummy_recipient = ExportRecipient()
+    fhir_aq_items = task_instance.get_fhir_questionnaire(
+        req, dummy_recipient
+    )
     return dict(
-        task_class=task_class
+        task_class=task_class,
+        # task_instance=task_instance,
+        fhir_aq_items=fhir_aq_items,
     )
 
 

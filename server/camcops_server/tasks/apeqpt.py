@@ -30,17 +30,14 @@ camcops_server/tasks/apeqpt.py
 
 from typing import Dict, List, TYPE_CHECKING
 
-from fhirclient.models.questionnaire import (
-    QuestionnaireItem,
-    QuestionnaireItemAnswerOption,
-)
-from fhirclient.models.questionnaireresponse import (
-    QuestionnaireResponseItem,
-    QuestionnaireResponseItemAnswer,
-)
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
 from camcops_server.cc_modules.cc_constants import CssClass
+from camcops_server.cc_modules.cc_fhir import (
+    FHIRAnsweredQuestion,
+    FHIRAnswerType,
+    FHIRQuestionType,
+)
 from camcops_server.cc_modules.cc_html import tr_qa
 from camcops_server.cc_modules.cc_request import CamcopsRequest
 from camcops_server.cc_modules.cc_sqla_coltypes import (
@@ -169,144 +166,70 @@ class Apeqpt(Task):
             </table>
         """
 
-    def get_fhir_questionnaire_items(
+    def get_fhir_questionnaire(
             self,
             req: "CamcopsRequest",
-            recipient: "ExportRecipient") -> List[Dict]:
-        items = [
-            QuestionnaireItem(jsondict={
-                "linkId": "q_datetime",
-                "text": self.wxstring(req, "q_date"),
-                "type": "dateTime",
-            }).as_json()
-        ]
+            recipient: "ExportRecipient") -> List[FHIRAnsweredQuestion]:
+        items = []  # type: List[FHIRAnsweredQuestion]
 
-        yes_no_options = []
+        items.append(FHIRAnsweredQuestion(
+            qname="q_datetime",
+            qtext=self.wxstring(req, "q_date"),
+            qtype=FHIRQuestionType.DATETIME,
+            answer_type=FHIRAnswerType.DATETIME,
+            answer=self.q_datetime
+        ))
 
+        yes_no_options = {}  # type: Dict[int, str]
         for index in range(2):
-            yes_no_options.append(QuestionnaireItemAnswerOption(jsondict={
-                "valueCoding": {
-                    "code": str(index),
-                    "display": self.wxstring(req, f"a{index}_choice"),
-                }
-            }).as_json())
+            yes_no_options[index] = self.wxstring(req, f"a{index}_choice")
+        items.append(FHIRAnsweredQuestion(
+            qname="q1_choice",
+            qtext=self.wxstring(req, "q1_choice"),
+            qtype=FHIRQuestionType.CHOICE,
+            answer_type=FHIRAnswerType.INTEGER,
+            answer=self.q1_choice,
+            mcq_qa=yes_no_options
+        ))
+        items.append(FHIRAnsweredQuestion(
+            qname="q2_choice",
+            qtext=self.wxstring(req, "q2_choice"),
+            qtype=FHIRQuestionType.CHOICE,
+            answer_type=FHIRAnswerType.INTEGER,
+            answer=self.q2_choice,
+            mcq_qa=yes_no_options
+        ))
 
-        items.append(QuestionnaireItem(jsondict={
-            "linkId": "q1_choice",
-            "text": self.wxstring(req, "q1_choice"),
-            "type": "choice",
-            "answerOption": yes_no_options,
-        }).as_json())
+        yes_no_na_options = yes_no_options.copy()
+        yes_no_na_options[2] = self.wxstring(req, "a2_choice")
+        items.append(FHIRAnsweredQuestion(
+            qname="q3_choice",
+            qtext=self.wxstring(req, "q3_choice"),
+            qtype=FHIRQuestionType.CHOICE,
+            answer_type=FHIRAnswerType.INTEGER,
+            answer=self.q3_choice,
+            mcq_qa=yes_no_na_options
+        ))
 
-        items.append(QuestionnaireItem(jsondict={
-            "linkId": "q2_choice",
-            "text": self.wxstring(req, "q2_choice"),
-            "type": "choice",
-            "answerOption": yes_no_options,
-        }).as_json())
-
-        yes_no_na_options = yes_no_options + [
-            QuestionnaireItemAnswerOption(
-                jsondict={
-                    "valueCoding": {
-                        "code": "2",
-                        "display": self.wxstring(req, "a2_choice"),
-                    }
-                }
-            ).as_json()
-        ]
-
-        items.append(QuestionnaireItem(jsondict={
-            "linkId": "q3_choice",
-            "text": self.wxstring(req, "q3_choice"),
-            "type": "choice",
-            "answerOption": yes_no_na_options,
-        }).as_json())
-
-        satisfaction_options = []
-
+        satisfaction_options = {}  # type: Dict[int, str]
         for index in range(5):
-            satisfaction_options.append(QuestionnaireItemAnswerOption(jsondict={
-                "valueCoding": {
-                    "code": str(index),
-                    "display": self.wxstring(req, f"a{index}_satisfaction"),
-                }
-            }).as_json())
+            satisfaction_options[index] = self.wxstring(
+                req, f"a{index}_satisfaction")
+        items.append(FHIRAnsweredQuestion(
+            qname="q1_satisfaction",
+            qtext=self.wxstring(req, "q1_satisfaction"),
+            qtype=FHIRQuestionType.CHOICE,
+            answer_type=FHIRAnswerType.INTEGER,
+            answer=self.q1_satisfaction,
+            mcq_qa=satisfaction_options
+        ))
 
-        items.append(QuestionnaireItem(jsondict={
-            "linkId": "q1_satisfaction",
-            "text": self.wxstring(req, "q1_satisfaction"),
-            "type": "choice",
-            "answerOption": satisfaction_options,
-        }).as_json())
-
-        items.append(QuestionnaireItem(jsondict={
-            "linkId": "q2_satisfaction",
-            "text": self.wxstring(req, "q2_satisfaction"),
-            "type": "string",
-        }).as_json())
-
-        return items
-
-    def get_fhir_questionnaire_response_items(
-            self,
-            req: "CamcopsRequest",
-            recipient: "ExportRecipient") -> List[Dict]:
-
-        items = []
-
-        answer = QuestionnaireResponseItemAnswer(jsondict={
-            "valueDateTime": self.q_datetime.isoformat()
-        })
-        items.append(QuestionnaireResponseItem(jsondict={
-            "linkId": "q_datetime",
-            "text": self.wxstring(req, "q_date"),
-            "answer": [answer.as_json()],
-        }).as_json())
-
-        answer = QuestionnaireResponseItemAnswer(jsondict={
-            "valueInteger": self.q1_choice
-        })
-        items.append(QuestionnaireResponseItem(jsondict={
-            "linkId": "q1_choice",
-            "text": self.wxstring(req, "q1_choice"),
-            "answer": [answer.as_json()],
-        }).as_json())
-
-        answer = QuestionnaireResponseItemAnswer(jsondict={
-            "valueInteger": self.q2_choice
-        })
-        items.append(QuestionnaireResponseItem(jsondict={
-            "linkId": "q2_choice",
-            "text": self.wxstring(req, "q2_choice"),
-            "answer": [answer.as_json()],
-        }).as_json())
-
-        answer = QuestionnaireResponseItemAnswer(jsondict={
-            "valueInteger": self.q3_choice
-        })
-        items.append(QuestionnaireResponseItem(jsondict={
-            "linkId": "q3_choice",
-            "text": self.wxstring(req, "q3_choice"),
-            "answer": [answer.as_json()],
-        }).as_json())
-
-        answer = QuestionnaireResponseItemAnswer(jsondict={
-            "valueInteger": self.q1_satisfaction
-        })
-        items.append(QuestionnaireResponseItem(jsondict={
-            "linkId": "q1_satisfaction",
-            "text": self.wxstring(req, "q1_satisfaction"),
-            "answer": [answer.as_json()],
-        }).as_json())
-
-        answer = QuestionnaireResponseItemAnswer(jsondict={
-            "valueString": self.q2_satisfaction
-        })
-        items.append(QuestionnaireResponseItem(jsondict={
-            "linkId": "q2_satisfaction",
-            "text": self.wxstring(req, "q2_satisfaction"),
-            "answer": [answer.as_json()],
-        }).as_json())
+        items.append(FHIRAnsweredQuestion(
+            qname="q2_satisfaction",
+            qtext=self.wxstring(req, "q2_satisfaction"),
+            qtype=FHIRQuestionType.STRING,
+            answer_type=FHIRAnswerType.STRING,
+            answer=self.q2_satisfaction
+        ))
 
         return items

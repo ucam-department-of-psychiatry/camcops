@@ -119,6 +119,7 @@ from camcops_server.cc_modules.cc_fhir import (
     fhir_observation_component_from_snomed,
     fhir_system_value,
     fhir_sysval_from_id,
+    FHIRAnsweredQuestion,
     make_fhir_bundle_entry,
 )
 from camcops_server.cc_modules.cc_filename import get_export_filename
@@ -188,8 +189,10 @@ log = BraceStyleAdapter(logging.getLogger(__name__))
 # =============================================================================
 
 DEBUG_SKIP_FHIR_DOCS = False
+DEBUG_SHOW_FHIR_QUESTIONNAIRE = False
 
-if any([DEBUG_SKIP_FHIR_DOCS]):
+if any([DEBUG_SKIP_FHIR_DOCS,
+        DEBUG_SHOW_FHIR_QUESTIONNAIRE]):
     log.warning("Debugging options enabled!")
 
 
@@ -1365,6 +1368,7 @@ class Task(GenericTabletRecordMixin, Base):
         Get a single FHIR Bundle with all entries. See
         :meth:`get_fhir_bundle_entries`.
         """
+        # Get the content:
         bundle_entries = self.get_fhir_bundle_entries(
             req,
             recipient,
@@ -1395,10 +1399,14 @@ class Task(GenericTabletRecordMixin, Base):
                 f"Resources have duplicate IDs: {most_common[0]}"
             )
 
+        # Bundle up the content into a transaction bundle:
         return Bundle(jsondict={
             Fc.TYPE: Fc.TRANSACTION,
             Fc.ENTRY: bundle_entries,
         })
+        # This is one of the few FHIR objects that we don't return with
+        # ".as_json()", because Bundle objects have useful methods for talking
+        # to the FHIR server.
 
     def get_fhir_bundle_entries(
             self,
@@ -1444,21 +1452,23 @@ class Task(GenericTabletRecordMixin, Base):
             )
 
         # Questionnaire, QuestionnaireResponse
-        q_bundle = self._get_fhir_questionnaire_bundle_entry(req, recipient)
-        qr_bundle = self._get_fhir_questionnaire_response_bundle_entry(
-            req, recipient)
-        if q_bundle and qr_bundle:
+        q_bundle_entry, qr_bundle_entry = (
+            self._get_fhir_questionnaire_questionnaireresponse_bundle_entries(
+                req, recipient
+            )
+        )
+        if q_bundle_entry and qr_bundle_entry:
             bundle_entries += [
                 # Questionnaire
-                q_bundle,
+                q_bundle_entry,
                 # Collection of QuestionnaireResponse entries
-                qr_bundle,
+                qr_bundle_entry,
             ]
 
         # Observation (0 or more) -- includes Coding
         bundle_entries += self._get_fhir_detail_bundle_entries(req, recipient)
 
-        # DocumentReference (always 1)
+        # DocumentReference (0-1; always 1 in normal use )
         if skip_docs_if_other_content:
             if not bundle_entries:
                 # We can't have nothing!
@@ -1839,13 +1849,50 @@ class Task(GenericTabletRecordMixin, Base):
     # Questionnaire, QuestionnaireResponse
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    def _get_fhir_questionnaire_bundle_entry(
+    def _get_fhir_questionnaire_questionnaireresponse_bundle_entries(
             self,
             req: "CamcopsRequest",
-            recipient: "ExportRecipient") -> Optional[Dict]:
+            recipient: "ExportRecipient") -> Tuple[Optional[Dict],
+                                                   Optional[Dict]]:
         """
-        Get a FHIR bundle describing this task, as a FHIR Questionnaire.
-        Note: here we mean "abstract task", not "task instance".
+        Get a tuple of FHIR bundles: ``questionnaire_bundle_entry,
+        questionnaire_response_bundle_entry``.
+
+        A Questionnaire object represents the task in the abstract;
+        QuestionnaireReponse items represent each answered question for a
+        specific task instance.
+        """
+        # Ask the task for its details (which it may provide directly, by
+        # overriding, or rely on autodiscovery for the default).
+        aq_items = self.get_fhir_questionnaire(req, recipient)
+        if DEBUG_SHOW_FHIR_QUESTIONNAIRE:
+            if aq_items:
+                qa_str = "\n".join(f"- {str(x)}" for x in aq_items)
+                log.debug(f"FHIR questions/answers:\n{qa_str}")
+            else:
+                log.debug("No FHIR questionnaire data")
+
+        # Do we have data?
+        if not aq_items:
+            return None, None
+
+        # Now finish off:
+        q_items = [aq.questionnaire_item() for aq in aq_items]
+        qr_items = [aq.questionnaire_response_item() for aq in aq_items]
+        q_bundle_entry = self._make_fhir_questionnaire_bundle_entry(
+            req, q_items)
+        qr_bundle_entry = self._make_fhir_questionnaire_response_bundle_entry(
+            req, recipient, qr_items)
+        return q_bundle_entry, qr_bundle_entry
+
+    def _make_fhir_questionnaire_bundle_entry(
+            self,
+            req: "CamcopsRequest",
+            q_items: List[Dict]) -> Optional[Dict]:
+        """
+        Make a FHIR bundle entry describing this task, as a FHIR Questionnaire,
+        from supplied Questionnaire items. Note: here we mean "abstract task",
+        not "task instance".
         """
         # FHIR supports versioning of questionnaires. Might be useful if the
         # wording of questions change. Could either use FHIR's version
@@ -1865,7 +1912,7 @@ class Task(GenericTabletRecordMixin, Base):
             Fc.DESCRIPTION: help_url,  # Natural language description of the questionnaire  # noqa
             Fc.COPYRIGHT: help_url,  # Use and/or publishing restrictions
             Fc.STATUS: Fc.QSTATUS_ACTIVE,  # Could also be: draft, retired, unknown  # noqa
-            Fc.ITEM: self.get_fhir_questionnaire_items(req, recipient)
+            Fc.ITEM: q_items
         })
         return make_fhir_bundle_entry(
             resource_type_url=Fc.RESOURCE_TYPE_QUESTIONNAIRE,
@@ -1873,13 +1920,14 @@ class Task(GenericTabletRecordMixin, Base):
             resource=questionnaire.as_json()
         )
 
-    def _get_fhir_questionnaire_response_bundle_entry(
+    def _make_fhir_questionnaire_response_bundle_entry(
             self,
             req: "CamcopsRequest",
-            recipient: "ExportRecipient") -> Dict:
+            recipient: "ExportRecipient",
+            qr_items: List[Dict]) -> Dict:
         """
-        Get a bundle of FHIR QuestionnaireResponse items (e.g. one for the
-        response to each question in a quesionnaire-style task).
+        Make a bundle entry from FHIR QuestionnaireResponse items (e.g. one for
+        the response to each question in a quesionnaire-style task).
         """
         q_identifier = self._get_fhir_questionnaire_id(req)
         qr_identifier = self._get_fhir_questionnaire_response_id(req)
@@ -1918,11 +1966,12 @@ class Task(GenericTabletRecordMixin, Base):
             # https://www.hl7.org/fhir/questionnaireresponse.html
             # author: Person who received and recorded the answers
             # source: The person who answered the questions
-            Fc.ITEM: self.get_fhir_questionnaire_response_items(req, recipient)
+            Fc.ITEM: qr_items
         }
 
         if self.has_patient:
-            qr_jsondict[Fc.SUBJECT] = self._get_fhir_subject_ref(req, recipient)
+            qr_jsondict[Fc.SUBJECT] = self._get_fhir_subject_ref(req,
+                                                                 recipient)
 
         return make_fhir_bundle_entry(
             resource_type_url=Fc.RESOURCE_TYPE_QUESTIONNAIRE_RESPONSE,
@@ -1932,32 +1981,20 @@ class Task(GenericTabletRecordMixin, Base):
         )
 
     # -------------------------------------------------------------------------
-    # FHIR: functions to override
+    # FHIR: functions to override if desired
     # -------------------------------------------------------------------------
 
-    def get_fhir_questionnaire_items(
+    def get_fhir_questionnaire(
             self, req: "CamcopsRequest",
-            recipient: "ExportRecipient") -> List[Dict]:
+            recipient: "ExportRecipient") -> List[FHIRAnsweredQuestion]:
         """
-        Return a list of FHIR QuestionnaireItem objects for this task, in JSON
-        dict format.
-        https://www.hl7.org/fhir/questionnaire.html#resource
+        Return FHIR information about a questionnaire: both about the task in
+        the abstract (the questions) and the answers for this specific
+        instance.
 
-        Can be overridden by derived classes.
+        May be overridden.
         """
-        return []
-
-    def get_fhir_questionnaire_response_items(
-            self, req: "CamcopsRequest",
-            recipient: "ExportRecipient") -> List[Dict]:
-        """
-        Return a list of FHIR QuestionnaireResponseItem objects for this task,
-        in JSON dict format.
-        https://www.hl7.org/fhir/questionnaireresponse.html#resource
-
-        Can be overridden by derived classes.
-        """
-        return []
+        return self._fhir_autodiscover(req, recipient)
 
     def get_fhir_extra_bundle_entries(
             self, req: "CamcopsRequest",
@@ -1965,6 +2002,19 @@ class Task(GenericTabletRecordMixin, Base):
         """
         Return a list of extra FHIR bundle entries, if relevant. (SNOMED-CT
         codes are done automatically; don't repeat those.)
+        """
+        return []
+
+    # -------------------------------------------------------------------------
+    # FHIR automatic interrogation
+    # -------------------------------------------------------------------------
+
+    def _fhir_autodiscover(
+            self, req: "CamcopsRequest",
+            recipient: "ExportRecipient") -> List[FHIRAnsweredQuestion]:
+        """
+        Inspect this task instance and create information about both the task
+        in the abstract and the answers for this specific instance.
         """
         return []
 

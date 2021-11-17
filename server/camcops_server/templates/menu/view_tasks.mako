@@ -35,6 +35,10 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
 
 <%include file="db_user_info.mako"/>
 
+## ============================================================================
+## Filters
+## ============================================================================
+
 <h1>
     ${ req.icon_text(
         icon=Icons.FILTER,
@@ -44,8 +48,17 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
 
 <%include file="describe_task_filter.mako" args="task_filter=request.camcops_session.get_task_filter()"/>
 
-<div><a href="${ request.route_url(Routes.SET_FILTERS) | n }">
-    ${ _("Set or clear filters") }</a></div>
+<div>
+    ${ req.icon_text(
+            icon=Icons.FILTER,
+            url=request.route_url(Routes.SET_FILTERS),
+            text=_("Set or clear filters")
+    ) | n }
+</div>
+
+## ============================================================================
+## Tasks
+## ============================================================================
 
 <h1>
     ${ req.icon_text(
@@ -102,5 +115,9 @@ ${ refresh_form | n }
     </div>
 
 %endif
+
+## ============================================================================
+## Navigation
+## ============================================================================
 
 <%include file="to_main_menu.mako"/>

@@ -1402,7 +1402,6 @@ class Icons:
     CTV = "body-text"
     DELETE = "trash"
     DELETE_MAJOR = "trash-fill"
-    DETAIL = "zoom-in"
     DEVELOPER = "braces"
     DOWNLOAD = "download"
     DUMP_BASIC = "file-spreadsheet"
@@ -1428,12 +1427,16 @@ class Icons:
     HTML_IDENTIFIABLE = "file-richtext-fill"
     ID_DEFINITION_ADD = "plus-circle"  # suboptimal
     ID_DEFINITIONS = "123"
-    INFO_EXTERNAL = "info-circle-fill"
+    INFO_EXTERNAL = "info-circle-fill"  # info-circle-fill? link? box-arrow-up-right?  # noqa
     INFO_INTERNAL = "info-circle"
     LOGIN = "box-arrow-in-right"
     LOGOUT = "box-arrow-right"
     MFA = "fingerprint"
     MISSING = "x-octagon-fill"  # when an icon should have been supplied but wasn't!  # noqa
+    NAVIGATE_BACKWARD = "skip-start"
+    NAVIGATE_END = "skip-forward"  # better than skip-end
+    NAVIGATE_FORWARD = "skip-end"  # better than skip-forward, caret-right; "play" is also good but no mirror-image version.  # noqa
+    NAVIGATE_START = "skip-backward"  # better than skip-start
     PASSWORD_OTHER = "key"
     PASSWORD_OWN = "key-fill"
     PATIENT = "person"
@@ -1465,11 +1468,8 @@ class Icons:
     VIEW_TASKS = "display"
     XML = "diagram-3-fill"
     YOU = "heart-fill"
-    NAVIGATE_START = "skip-backward"  # better than skip-start
-    NAVIGATE_END = "skip-forward"  # better than skip-end
-    NAVIGATE_FORWARD = "skip-end"  # better than skip-forward, caret-right
-    # ... "play" is also good but no mirror-image version.
-    NAVIGATE_BACKWARD = "skip-start"
+    ZOOM_IN = "zoom-in"
+    ZOOM_OUT = "zoom-out"
 
 
 # =============================================================================

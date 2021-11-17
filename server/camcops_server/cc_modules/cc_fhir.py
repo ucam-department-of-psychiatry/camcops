@@ -145,20 +145,36 @@ This problem occurs intermittently:
 # Imports
 # =============================================================================
 
+from enum import Enum
 import json
 import logging
-from typing import Dict, TYPE_CHECKING
+from typing import Any, Dict, List, TYPE_CHECKING
 
+from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.httpconst import HttpMethod
 from fhirclient.client import FHIRClient
 from fhirclient.models.bundle import Bundle, BundleEntry, BundleEntryRequest
 from fhirclient.models.codeableconcept import CodeableConcept
 from fhirclient.models.coding import Coding
+from fhirclient.models.fhirdate import FHIRDate
 from fhirclient.models.identifier import Identifier
 from fhirclient.models.observation import ObservationComponent
+from fhirclient.models.questionnaire import (
+    QuestionnaireItem,
+    QuestionnaireItemAnswerOption,
+)
+from fhirclient.models.quantity import Quantity
+from fhirclient.models.questionnaireresponse import (
+    QuestionnaireResponseItem,
+    QuestionnaireResponseItemAnswer,
+)
 from requests.exceptions import HTTPError
 
-from camcops_server.cc_modules.cc_constants import FHIRConst as Fc, JSON_INDENT
+from camcops_server.cc_modules.cc_constants import (
+    DateFormat,
+    FHIRConst as Fc,
+    JSON_INDENT,
+)
 from camcops_server.cc_modules.cc_exception import FhirExportException
 from camcops_server.cc_modules.cc_pyramid import Routes
 from camcops_server.cc_modules.cc_snomed import SnomedExpression, SnomedLookup
@@ -582,3 +598,202 @@ def make_fhir_bundle_entry(resource_type_url: str,
         Fc.REQUEST: bundle_request.as_json(),
         Fc.RESOURCE: resource,
     }).as_json()
+
+
+# =============================================================================
+# Helper classes for building FHIR component objects
+# =============================================================================
+
+class FHIRQuestionType(Enum):
+    """
+    An enum for value type keys of QuestionnaireResponseItemAnswer.
+    """
+    ATTACHMENT = Fc.QITEM_TYPE_ATTACHMENT
+    BOOLEAN = Fc.QITEM_TYPE_BOOLEAN
+    CHOICE = Fc.QITEM_TYPE_CHOICE
+    DATE = Fc.QITEM_TYPE_DATE
+    DATETIME = Fc.QITEM_TYPE_DATETIME
+    DECIMAL = Fc.QITEM_TYPE_DECIMAL
+    DISPLAY = Fc.QITEM_TYPE_DISPLAY
+    GROUP = Fc.QITEM_TYPE_GROUP
+    INTEGER = Fc.QITEM_TYPE_INTEGER
+    OPEN_CHOICE = Fc.QITEM_TYPE_OPEN_CHOICE
+    QUANTITY = Fc.QITEM_TYPE_QUANTITY
+    QUESTION = Fc.QITEM_TYPE_QUESTION
+    REFERENCE = Fc.QITEM_TYPE_REFERENCE
+    STRING = Fc.QITEM_TYPE_STRING
+    TIME = Fc.QITEM_TYPE_TIME
+    URL = Fc.QITEM_TYPE_URL
+
+
+class FHIRAnswerType(Enum):
+    """
+    An enum for value type keys of QuestionnaireResponseItemAnswer.
+    """
+    ATTACHMENT = Fc.VALUE_ATTACHMENT
+    BOOLEAN = Fc.VALUE_BOOLEAN
+    CODING = Fc.VALUE_CODING
+    DATE = Fc.VALUE_DATE
+    DATETIME = Fc.VALUE_DATETIME
+    DECIMAL = Fc.VALUE_DECIMAL
+    INTEGER = Fc.VALUE_INTEGER
+    QUANTITY = Fc.VALUE_QUANTITY  # e.g. real number
+    REFERENCE = Fc.VALUE_REFERENCE
+    STRING = Fc.VALUE_STRING
+    TIME = Fc.VALUE_TIME
+    URI = Fc.VALUE_URI
+
+
+class FHIRAnsweredQuestion:
+    """
+    Represents a question in a questionnaire-based task. That includes both the
+    abstract aspects:
+
+    - What kind of question is it (e.g. multiple-choice, real-value answer,
+      text)? That can go into some detail, e.g. possible responses for a
+      multiple-choice question. (Thus, the FHIR Questionnaire.)
+
+    and the concrete aspects:
+
+    - what is the response/answer for a specific task instance?
+      (Thus, the FHIR QuestionnaireResponse.)
+
+    Used for autodiscovery.
+    """
+    def __init__(self,
+                 qname: str,
+                 qtext: str,
+                 qtype: FHIRQuestionType,
+                 answer_type: FHIRAnswerType,
+                 answer: Any,
+                 mcq_qa: Dict[Any, str] = None) -> None:
+        self.qname = qname
+        self.qtext = qtext
+        self.qtype = qtype
+        self.answer = answer
+        self.answer_type = answer_type
+        self.mcq_qa = mcq_qa or {}  # type: Dict[Any, str]
+
+        # Checks
+        if self.is_mcq:
+            assert self.mcq_qa, (
+                f"Multiple choice item {self.qname!r} needs mcq_qa parameter, "
+                f"currently {mcq_qa!r}"
+            )
+
+    def __str__(self) -> str:
+        if self.is_mcq:
+            options = " / ".join(
+                f"{code} = {display}"
+                for code, display in self.mcq_qa.items()
+            )
+        else:
+            options = "N/A"
+        return (
+            f"{self.qname} "
+            f"// QUESTION: {self.qtext} "
+            f"// OPTIONS: {options} "
+            f"// ANSWER: {self.answer!r}, of type {self.answer_type.value}"
+        )
+
+    @property
+    def is_mcq(self) -> bool:
+        return self.qtype in [FHIRQuestionType.CHOICE,
+                              FHIRQuestionType.OPEN_CHOICE]
+
+    # -------------------------------------------------------------------------
+    # Abstract (class)
+    # -------------------------------------------------------------------------
+
+    def questionnaire_item(self) -> Dict:
+        """
+        Returns a JSON/dict representation of a FHIR QuestionnaireItem.
+        """
+        qtype = self.qtype
+        # Basics
+        qitem_dict = {
+            Fc.LINK_ID: self.qname,
+            Fc.TEXT: self.qtext,
+            Fc.TYPE: qtype.value,
+        }
+
+        # Extras for multiple-choice questions: what are the possible answers?
+        if self.is_mcq:
+            # Add permitted answers.
+            options = []  # type: List[Dict]
+            # We asserted mcq_qa earlier.
+            for code, display in self.mcq_qa.items():
+                options.append(QuestionnaireItemAnswerOption(jsondict={
+                    Fc.VALUE_CODING: {
+                        Fc.CODE: str(code),
+                        Fc.DISPLAY: display
+                    }
+                }).as_json())
+            qitem_dict[Fc.ANSWER_OPTION] = options
+
+        return QuestionnaireItem(jsondict=qitem_dict).as_json()
+
+    # -------------------------------------------------------------------------
+    # Concrete (instance)
+    # -------------------------------------------------------------------------
+
+    def _qr_item_answer(self) -> QuestionnaireResponseItemAnswer:
+        """
+        Returns a QuestionnaireResponseItemAnswer.
+        """
+        # Look things up
+        raw_answer = self.answer
+        answer_type = self.answer_type
+
+        # Convert the value
+        if raw_answer is None:
+            # Deal with null values first, otherwise we will get
+            # mis-conversion, e.g. str(None) == "None", bool(None) == False.
+            fhir_answer = None
+        elif answer_type == FHIRAnswerType.BOOLEAN:
+            fhir_answer = bool(raw_answer)
+        elif answer_type == FHIRAnswerType.DATE:
+            fhir_answer = FHIRDate(
+                format_datetime(raw_answer, DateFormat.FHIR_DATE)
+            ).as_json()
+        elif answer_type == FHIRAnswerType.DATETIME:
+            fhir_answer = FHIRDate(
+                raw_answer.isoformat()
+            ).as_json()
+        elif answer_type == FHIRAnswerType.DECIMAL:
+            fhir_answer = float(raw_answer)
+        elif answer_type == FHIRAnswerType.INTEGER:
+            fhir_answer = int(raw_answer)
+        elif answer_type == FHIRAnswerType.QUANTITY:
+            fhir_answer = Quantity(jsondict={
+                Fc.VALUE: float(raw_answer)
+                # More sophistication is possible -- units, for example.
+            }).as_json()
+        elif answer_type == FHIRAnswerType.STRING:
+            fhir_answer = str(raw_answer)
+        elif answer_type == FHIRAnswerType.TIME:
+            fhir_answer = FHIRDate(
+                format_datetime(raw_answer, DateFormat.FHIR_TIME)
+            ).as_json()
+        elif answer_type == FHIRAnswerType.URI:
+            fhir_answer = str(raw_answer)
+        else:
+            raise NotImplementedError(
+                f"Don't know how to handle FHIR answer type {answer_type}")
+
+        # Build the FHIR object
+        return QuestionnaireResponseItemAnswer(jsondict={
+            answer_type.value: fhir_answer
+        })
+
+    def questionnaire_response_item(self) -> Dict:
+        """
+        Returns a JSON/dict representation of a FHIR QuestionnaireResponseItem.
+        """
+        answer = self._qr_item_answer()
+        return QuestionnaireResponseItem(jsondict={
+            Fc.LINK_ID: self.qname,
+            Fc.TEXT: self.qtext,  # question text
+            Fc.ANSWER: [answer.as_json()],
+            # Not supported yet: nesting, via "item".
+        }).as_json()

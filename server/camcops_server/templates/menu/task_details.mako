@@ -29,7 +29,7 @@ camcops_server/templates/menu/task_details.mako
 <%inherit file="base_web.mako"/>
 
 <%!
-from camcops_server.cc_modules.cc_pyramid import Icons
+from camcops_server.cc_modules.cc_pyramid import Icons, Routes
 %>
 
 <%include file="db_user_info.mako"/>
@@ -41,6 +41,7 @@ from camcops_server.cc_modules.cc_pyramid import Icons
     ) | n }
 </h1>
 
+<h2>${ _("Help") }</h2>
 <div>
     ${ req.icon_text(
         icon=Icons.INFO_EXTERNAL,
@@ -49,15 +50,44 @@ from camcops_server.cc_modules.cc_pyramid import Icons
     ) | n }
 </div>
 
+<h2>${ _("FHIR Questionnaire structure, if applicable") }</h2>
 <table>
-    <tr>
-        <th>${ _("Value") }</th>
-        <th>TODO: INSERT MORE CONTENT HERE!</th>
-    </tr>
-    <tr>
-        <td>TODO: INSERT MORE CONTENT HERE!</td>
-        <td>TODO: INSERT MORE CONTENT HERE!</td>
-    </tr>
+    <colgroup>
+        <col style="width:10%">
+        <col style="width:30%">
+        <col style="width:10%">
+        <col style="width:10%">
+        <col style="width:40%">
+    </colgroup>
+    <tbody>
+        <tr>
+            <th>${ _("Item") }</th>
+            <th>${ _("Question") }</th>
+            <th>${ _("Question type") }</th>
+            <th>${ _("Answer type") }</th>
+            <th>${ _("Answer options, if applicable") }</th>
+        </tr>
+        %for aq in fhir_aq_items:
+            <tr>
+                <td>${ aq.qname }</td>
+                <td>${ aq.qtext }</td>
+                <td>${ aq.qtype.value }</td>
+                <td>${ aq.answer_type.value }</td>
+                <td>
+                    %for code, display in aq.mcq_qa.items():
+                    ${ code }: ${ display }<br>
+                    %endfor
+                </td>
+            </tr>
+        %endfor
+    </tbody>
 </table>
 
+<div>
+    ${ req.icon_text(
+            icon=Icons.ZOOM_OUT,
+            url=request.route_url(Routes.TASK_LIST),
+            text=_("Task list")
+    ) | n }
+</div>
 <%include file="to_main_menu.mako"/>

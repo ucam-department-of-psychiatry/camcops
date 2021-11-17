@@ -53,6 +53,7 @@ from camcops_server.cc_modules.cc_pyramid import Routes
 from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 from camcops_server.tasks.apeqpt import Apeqpt
 from camcops_server.tasks.bmi import Bmi
+from camcops_server.tasks.gad7 import Gad7
 from camcops_server.tasks.diagnosis import (
     DiagnosisIcd10,
     DiagnosisIcd10Item,
@@ -107,13 +108,7 @@ class FhirExportTestCase(DemoDatabaseTestCase):
         self.camcops_root_url = self.req.route_url(Routes.HOME).rstrip("/")
         # ... no trailing slash
 
-
-# =============================================================================
-# A generic patient-based task: PHQ9
-# =============================================================================
-
-class FhirTaskExporterPhq9Tests(FhirExportTestCase):
-    def create_tasks(self) -> None:
+    def create_fhir_patient(self) -> None:
         self.patient = self.create_patient(
             forename=TEST_FORENAME,
             surname=TEST_SURNAME,
@@ -129,6 +124,15 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
             which_idnum=self.rio_iddef.which_idnum,
             idnum_value=TEST_RIO_NUMBER
         )
+
+
+# =============================================================================
+# A generic patient-based task: PHQ9
+# =============================================================================
+
+class FhirTaskExporterPhq9Tests(FhirExportTestCase):
+    def create_tasks(self) -> None:
+        self.create_fhir_patient()
 
         self.task = Phq9()
         self.apply_standard_task_fields(self.task)
@@ -495,19 +499,25 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
 
 
 # =============================================================================
-# A generic patient-based task: APEQPT
+# A generic anonymous task: APEQPT
 # =============================================================================
 
+APEQPT_Q_WHEN = "Date and time the assessment tool was completed"
 OFFERED_PREFERENCE = "Have you been offered your preference?"
-SATISFIED_ASSESSMENT = "How satisfied were you with your assessment"
+SATISFIED_ASSESSMENT = "How satisfied were you with your assessment?"
 TELL_US = (
-    "Please use this space to tell us about your experience of our service"
+    "Please use this space to tell us about your experience of our service."
 )
 PREFER_ANY = "Do you prefer any of the treatments among the options available?"
 GIVEN_INFO = (
     "Were you given information about options for choosing a "
     "treatment that is appropriate for your problems?"
 )
+APEQ_SATIS_A4 = "Completely satisfied"
+APEQ_SATIS_A3 = "Mostly satisfied"
+APEQ_SATIS_A2 = "Neither satisfied nor dissatisfied"
+APEQ_SATIS_A1 = "Not satisfied"
+APEQ_SATIS_A0 = "Not at all satisfied"
 
 
 class FhirTaskExporterAnonymousTests(FhirExportTestCase):
@@ -568,8 +578,7 @@ class FhirTaskExporterAnonymousTests(FhirExportTestCase):
 
         # q_datetime
         self.assertEqual(q_datetime[Fc.LINK_ID], "q_datetime")
-        self.assertEqual(q_datetime[Fc.TEXT],
-                         "Date &amp; Time the Assessment Tool was Completed")
+        self.assertEqual(q_datetime[Fc.TEXT], APEQPT_Q_WHEN)
         self.assertEqual(q_datetime[Fc.TYPE], Fc.QITEM_TYPE_DATETIME)
 
         # q1_choice
@@ -616,23 +625,23 @@ class FhirTaskExporterAnonymousTests(FhirExportTestCase):
         options = q1_satisfaction[Fc.ANSWER_OPTION]
         self.assertEqual(options[0][Fc.VALUE_CODING][Fc.CODE], "0")
         self.assertEqual(options[0][Fc.VALUE_CODING][Fc.DISPLAY],
-                         "Not at all Satisfied")
+                         APEQ_SATIS_A0)
 
         self.assertEqual(options[1][Fc.VALUE_CODING][Fc.CODE], "1")
         self.assertEqual(options[1][Fc.VALUE_CODING][Fc.DISPLAY],
-                         "Not Satisfied")
+                         APEQ_SATIS_A1)
 
         self.assertEqual(options[2][Fc.VALUE_CODING][Fc.CODE], "2")
         self.assertEqual(options[2][Fc.VALUE_CODING][Fc.DISPLAY],
-                         "Neither Satisfied nor Dissatisfied")
+                         APEQ_SATIS_A2)
 
         self.assertEqual(options[3][Fc.VALUE_CODING][Fc.CODE], "3")
         self.assertEqual(options[3][Fc.VALUE_CODING][Fc.DISPLAY],
-                         "Mostly Satisfied")
+                         APEQ_SATIS_A3)
 
         self.assertEqual(options[4][Fc.VALUE_CODING][Fc.CODE], "4")
         self.assertEqual(options[4][Fc.VALUE_CODING][Fc.DISPLAY],
-                         "Completely Satisfied")
+                         APEQ_SATIS_A4)
 
         # q2 satisfaction
         self.assertEqual(q2_satisfaction[Fc.LINK_ID], "q2_satisfaction")
@@ -698,10 +707,9 @@ class FhirTaskExporterAnonymousTests(FhirExportTestCase):
 
         # q_datetime
         self.assertEqual(q_datetime[Fc.LINK_ID], "q_datetime")
-        self.assertEqual(q_datetime[Fc.TEXT],
-                         "Date &amp; Time the Assessment Tool was Completed")
+        self.assertEqual(q_datetime[Fc.TEXT], APEQPT_Q_WHEN)
         q_datetime_answer = q_datetime[Fc.ANSWER][0]
-        self.assertEqual(q_datetime_answer[Fc.VALUE_DATE_TIME],
+        self.assertEqual(q_datetime_answer[Fc.VALUE_DATETIME],
                          self.task.q_datetime.isoformat())
 
         # q1_choice
@@ -748,21 +756,7 @@ class FhirTaskExporterAnonymousTests(FhirExportTestCase):
 
 class FhirTaskExporterBMITests(FhirExportTestCase):
     def create_tasks(self) -> None:
-        self.patient = self.create_patient(
-            forename=TEST_FORENAME,
-            surname=TEST_SURNAME,
-            sex=TEST_SEX
-        )
-        self.patient_nhs = self.create_patient_idnum(
-            patient_id=self.patient.id,
-            which_idnum=self.nhs_iddef.which_idnum,
-            idnum_value=TEST_NHS_NUMBER
-        )
-        self.patient_rio = self.create_patient_idnum(
-            patient_id=self.patient.id,
-            which_idnum=self.rio_iddef.which_idnum,
-            idnum_value=TEST_RIO_NUMBER
-        )
+        self.create_fhir_patient()
 
         self.task = Bmi()
         self.apply_standard_task_fields(self.task)
@@ -786,21 +780,7 @@ class FhirTaskExporterBMITests(FhirExportTestCase):
 
 class FhirTaskExporterDiagnosisIcd10Tests(FhirExportTestCase):
     def create_tasks(self) -> None:
-        self.patient = self.create_patient(
-            forename=TEST_FORENAME,
-            surname=TEST_SURNAME,
-            sex=TEST_SEX
-        )
-        self.patient_nhs = self.create_patient_idnum(
-            patient_id=self.patient.id,
-            which_idnum=self.nhs_iddef.which_idnum,
-            idnum_value=TEST_NHS_NUMBER
-        )
-        self.patient_rio = self.create_patient_idnum(
-            patient_id=self.patient.id,
-            which_idnum=self.rio_iddef.which_idnum,
-            idnum_value=TEST_RIO_NUMBER
-        )
+        self.create_fhir_patient()
 
         self.task = DiagnosisIcd10()
         self.apply_standard_task_fields(self.task)
@@ -843,21 +823,7 @@ class FhirTaskExporterDiagnosisIcd10Tests(FhirExportTestCase):
 
 class FhirTaskExporterDiagnosisIcd9CMTests(FhirExportTestCase):
     def create_tasks(self) -> None:
-        self.patient = self.create_patient(
-            forename=TEST_FORENAME,
-            surname=TEST_SURNAME,
-            sex=TEST_SEX
-        )
-        self.patient_nhs = self.create_patient_idnum(
-            patient_id=self.patient.id,
-            which_idnum=self.nhs_iddef.which_idnum,
-            idnum_value=TEST_NHS_NUMBER
-        )
-        self.patient_rio = self.create_patient_idnum(
-            patient_id=self.patient.id,
-            which_idnum=self.rio_iddef.which_idnum,
-            idnum_value=TEST_RIO_NUMBER
-        )
+        self.create_fhir_patient()
 
         self.task = DiagnosisIcd9CM()
         self.apply_standard_task_fields(self.task)
@@ -893,4 +859,29 @@ class FhirTaskExporterDiagnosisIcd9CMTests(FhirExportTestCase):
         )
         bundle_str = json.dumps(bundle.as_json(), indent=JSON_INDENT)
         log.debug(f"Bundle:\n{bundle_str}")
+        # The test is that it doesn't crash.
+
+
+class FhirTaskExporterGad7Tests(FhirExportTestCase):
+    """
+    The GAD7 is a standard questionnaire that we don't provide any special
+    FHIR support for; we rely on autodiscovery.
+    """
+    def create_tasks(self) -> None:
+        self.create_fhir_patient()
+
+        self.task = Gad7()
+        self.apply_standard_task_fields(self.task)
+        self.task.patient_id = self.patient.id
+        self.task.save_with_next_available_id(self.req, self.patient._device_id)
+        self.dbsession.commit()
+
+    def test_observations(self) -> None:
+        bundle = self.task.get_fhir_bundle(
+            self.req,
+            self.recipient,
+            skip_docs_if_other_content=True
+        )
+        bundle_str = json.dumps(bundle.as_json(), indent=JSON_INDENT)
+        log.critical(f"Bundle:\n{bundle_str}")
         # The test is that it doesn't crash.

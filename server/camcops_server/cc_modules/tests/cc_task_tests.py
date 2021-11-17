@@ -168,13 +168,19 @@ class TaskTests(DemoDatabaseTestCase):
                 self.assertIsInstance(idnum.short_description(req), str)
                 self.assertIsInstance(idnum.get_filename_component(req), str)
 
-            # HL7
+            # HL7 v2
             pidseg = t.get_patient_hl7_pid_segment(req, recipdef)
             assert isinstance(pidseg, str) or isinstance(pidseg, hl7.Segment)
             for dataseg in t.get_hl7_data_segments(req, recipdef):
                 self.assertIsInstance(dataseg, hl7.Segment)
             for dataseg in t.get_hl7_extra_data_segments(recipdef):
                 self.assertIsInstance(dataseg, hl7.Segment)
+
+            # FHIR
+            self.assertIsInstance(
+                t.get_fhir_bundle(req, recipdef).as_json(),
+                dict
+            )  # the main test is not crashing!
 
             # Other properties
             self.assertIsInstance(t.is_erased(), bool)
