@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CamCOPS 2.4.11\n"
 "Report-Msgid-Bugs-To: rudolf@pobox.com\n"
-"POT-Creation-Date: 2021-11-16 16:07+0000\n"
+"POT-Creation-Date: 2021-11-17 11:25+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -121,7 +121,7 @@ msgstr ""
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:95
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:61
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:231
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:154
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:158
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedule_items.mako:55
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedule_items.mako:89
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:54
@@ -1152,7 +1152,7 @@ msgstr ""
 msgid "ID number fails basic checks"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_pyramid.py:1365
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_pyramid.py:1625
 msgid "Page $page of $page_count; total $item_count records"
 msgstr ""
 
@@ -1176,7 +1176,7 @@ msgstr ""
 msgid "End date"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_request.py:1570
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/cc_request.py:1573
 msgid "Can't fetch ID number definition"
 msgstr ""
 
@@ -1734,79 +1734,79 @@ msgstr ""
 msgid "Patient is not editable - was not created on the server"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:4995
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5003
 msgid "Patient is not editable (likely: not finalized, so a copy still on a client device)"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5039
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5047
 msgid "Not authorized to manage patients"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5131
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5139
 msgid "Not authorized to delete this patient"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5139
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5147
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:71
 msgid "Delete patient"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5214
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5222
 msgid "Schedule does not exist"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5277
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5285
 msgid "Patient's task schedule does not exist"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5280
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5288
 msgid "Not authorized to manage this patient"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5322
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5461
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5330
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5469
 msgid "You a not a group administrator for this task schedule's group"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5337
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5345
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:118
 msgid "Add a task schedule"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5353
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5361
 msgid "Edit details for a task schedule"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5370
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5378
 msgid "Delete a task schedule"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5479
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5487
 msgid "Add an item to the {schedule_name} schedule"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5506
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5514
 msgid "Edit details for a task schedule item"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5539
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5547
 msgid "Delete a task schedule item"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5611
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5623
 msgid "Not authorized to email patients"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5657
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5688
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5669
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5700
 msgid "Patient task schedule does not exist"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5669
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5681
 msgid "Email sent to {patient_email}"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5677
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/cc_modules/webview.py:5689
 msgid "Failed to send email to {patient_email}"
 msgstr ""
 
@@ -3150,7 +3150,7 @@ msgstr ""
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/id_definitions_view.mako:83
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:57
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/users_view.mako:140
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:142
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:146
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedule_items.mako:54
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedule_items.mako:77
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_task_schedules.mako:53
@@ -3346,7 +3346,7 @@ msgid "Page not found!"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/patient_add.mako:40
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:167
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:171
 msgid "Add a patient"
 msgstr ""
 
@@ -3664,6 +3664,7 @@ msgid "Patients and their task schedules"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:66
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:78
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_tasks_table.mako:46
 msgid "Patient"
 msgstr ""
@@ -3683,14 +3684,14 @@ msgid "Task schedules"
 msgstr ""
 
 #: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:70
-msgid "Edit patient"
+msgid "Edit patient, assign schedules"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:94
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:98
 msgid "Send email"
 msgstr ""
 
-#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:97
+#: /home/rudolf/Documents/code/camcops/server/camcops_server/templates/menu/view_patient_task_schedules.mako:101
 msgid "Resend email"
 msgstr ""
 

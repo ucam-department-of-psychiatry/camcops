@@ -32,7 +32,10 @@ For developer use only.
 
 import argparse
 import logging
+import os
 from os.path import abspath, dirname, isfile, join
+import shutil
+import subprocess
 from typing import List
 
 from cardinal_pythonlib.argparse_func import (
@@ -69,12 +72,16 @@ COPYRIGHT_HOLDER = "Rudolf Cardinal"
 MSGID_BUGS_ADDR = "rudolf@pobox.com"
 CHARSET = "utf-8"
 
+ENVVAR_POEDIT = "POEDIT"
+
 OP_EXTRACT = "extract"
 OP_INIT_MISSING = "init_missing"
 OP_UPDATE = "update"
+OP_POEDIT = "poedit"
 OP_COMPILE = "compile"
 OP_ALL = "all"
-ALL_OPERATIONS = [OP_EXTRACT, OP_INIT_MISSING, OP_UPDATE, OP_COMPILE, OP_ALL]
+ALL_OPERATIONS = [OP_EXTRACT, OP_INIT_MISSING, OP_UPDATE,
+                  OP_POEDIT, OP_COMPILE, OP_ALL]
 
 LOCALES = [_ for _ in POSSIBLE_LOCALES if _ != DEFAULT_LOCALE]
 LC_MESSAGES = "LC_MESSAGES"
@@ -93,6 +100,16 @@ def run(cmdargs: List[str]) -> None:
     broken .po file to break (for example) your Danish .po file.
     """
     check_call_verbose(cmdargs)
+
+
+def spawn(cmdargs: List[str]) -> None:
+    """
+    Runs a sub-command, detaching it so it runs separately.
+
+    See
+    https://stackoverflow.com/questions/1196074/how-to-start-a-background-process-in-python
+    """  # noqa
+    subprocess.Popen(cmdargs, close_fds=True)
 
 
 def get_po_basefilename(locale: str) -> str:
@@ -158,11 +175,14 @@ Operations:
 
     [At this stage, edit the .po files with Poedit or similar.]
 
+    {OP_POEDIT}
+        Launch (spawn) Poedit to edit the .po files.
+
     {OP_COMPILE}
         Converts each .po file to an equivalent .mo file.
 
     {OP_ALL}
-        Executes all other operations in sequence.""",
+        Executes all other operations, except {OP_POEDIT}, in sequence.""",
         formatter_class=RawDescriptionArgumentDefaultsHelpFormatter
     )
     parser.add_argument(
@@ -174,12 +194,20 @@ Operations:
         "--verbose", action="store_true",
         help="Be verbose"
     )
+    parser.add_argument(
+        "--poedit",
+        help=f"Path to 'poedit' tool. "
+             f"Default is taken from {ENVVAR_POEDIT} environment variable "
+             f"or 'which poedit'.",
+        default=os.environ.get(ENVVAR_POEDIT) or shutil.which("poedit")
+    )
     args = parser.parse_args()
     main_only_quicksetup_rootlogger(
         level=logging.DEBUG if args.verbose else logging.INFO)
     op = args.operation  # type: str
 
     pybabel = "pybabel"
+    poedit = "poedit"
 
     if op in [OP_EXTRACT, OP_ALL]:
         log.info(f"EXTRACT: from code to a .pot file: {POT_FILE}")
@@ -236,6 +264,18 @@ Operations:
                 "--previous",
             ]
             run(cmdargs)
+
+    if op in [OP_POEDIT]:  # but not OP_ALL
+        for locale in LOCALES:
+            po_filename = get_po_filename(locale)
+            if not isfile(po_filename):
+                log.warning(f"Missing .po file: {po_filename}")
+                continue
+            log.info(f"Launching Poedit to edit .po file: {po_filename}")
+            cmdargs = [
+                poedit, po_filename,
+            ]
+            spawn(cmdargs)
 
     if op in [OP_COMPILE, OP_ALL]:
         for locale in LOCALES:
