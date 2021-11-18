@@ -232,9 +232,10 @@ ${ task.get_task_html(req) | n }
                 text=_("Task help")
         ) | n }
 
-        ## Link to XML version (which is always identifiable)
+        ## Link to XML and FHIR versions (always identifiable)
         %if not anonymise:
             <p>
+                View raw data:
                 ${ req.icon_text(
                         icon=Icons.XML,
                         url=req.route_url(
@@ -245,7 +246,20 @@ ${ task.get_task_html(req) | n }
                                 ViewParam.VIEWTYPE: ViewArg.XML,
                             }
                         ),
-                        text=_("View raw data as XML")
+                        text="XML"
+                ) | n }
+                |
+                ${ req.icon_text(
+                        icon=Icons.JSON,
+                        url=req.route_url(
+                            Routes.TASK,
+                            _query={
+                                ViewParam.TABLE_NAME: task.tablename,
+                                ViewParam.SERVER_PK: task.pk,
+                                ViewParam.VIEWTYPE: ViewArg.FHIRJSON,
+                            }
+                        ),
+                        text="FHIR"
                 ) | n }
             </p>
         %endif
@@ -338,22 +352,21 @@ ${ task.get_task_html(req) | n }
             %if req.user.authorized_to_erase_tasks(task._group_id):
                 ## Note: prohibit manual erasure for non-finalized tasks.
                 %if task.era != ERA_NOW:
-                    %if not task.is_erased():
-                        <p>
-                            ${ req.icon_text(
-                                icon=Icons.DELETE_MAJOR,
-                                url=request.route_url(
-                                    Routes.ERASE_TASK_LEAVING_PLACEHOLDER,
-                                    _query={
-                                        ViewParam.TABLE_NAME: task.tablename,
-                                        ViewParam.SERVER_PK: task.pk,
-                                    }
-                                ),
-                                text=_("Erase task instance, leaving placeholder")
-                            ) | n }
-                        </p>
-                    %endif
                     <p>
+                    %if not task.is_erased():
+                        ${ req.icon_text(
+                            icon=Icons.DELETE_MAJOR,
+                            url=request.route_url(
+                                Routes.ERASE_TASK_LEAVING_PLACEHOLDER,
+                                _query={
+                                    ViewParam.TABLE_NAME: task.tablename,
+                                    ViewParam.SERVER_PK: task.pk,
+                                }
+                            ),
+                            text=_("Erase task instance, leaving placeholder")
+                        ) | n }
+                        |
+                    %endif
                         ${ req.icon_text(
                             icon=Icons.DELETE_MAJOR,
                             url=request.route_url(

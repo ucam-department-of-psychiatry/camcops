@@ -276,6 +276,7 @@ class ViewArg(object):
     IMMEDIATELY = "immediately"
 
     # Output types
+    FHIRJSON = "fhirjson"
     HTML = "html"
     ODS = "ods"
     PDF = "pdf"
@@ -1402,7 +1403,7 @@ class Icons:
     CTV = "body-text"
     DELETE = "trash"
     DELETE_MAJOR = "trash-fill"
-    DEVELOPER = "braces"
+    DEVELOPER = "braces"  # braces, bug
     DOWNLOAD = "download"
     DUMP_BASIC = "file-spreadsheet"
     DUMP_SQL = "server"
@@ -1429,6 +1430,7 @@ class Icons:
     ID_DEFINITIONS = "123"
     INFO_EXTERNAL = "info-circle-fill"  # info-circle-fill? link? box-arrow-up-right?  # noqa
     INFO_INTERNAL = "info-circle"
+    JSON = "file-text-fill"  # braces, file-text-fill
     LOGIN = "box-arrow-in-right"
     LOGOUT = "box-arrow-right"
     MFA = "fingerprint"
@@ -1466,7 +1468,7 @@ class Icons:
     USER_MANAGEMENT = "person-badge-fill"
     USER_PERMISSIONS = "person-check"
     VIEW_TASKS = "display"
-    XML = "diagram-3-fill"
+    XML = "file-code-fill"  # diagram-3-fill
     YOU = "heart-fill"
     ZOOM_IN = "zoom-in"
     ZOOM_OUT = "zoom-out"

@@ -362,11 +362,11 @@ class Phq9(TaskHasPatientMixin, Task,
         for q_field in self.MAIN_QUESTIONS:
             items.append(FHIRAnsweredQuestion(
                 qname=q_field,
-                qtext=self.wxstring(req, q_field),
+                qtext=self.xstring(req, q_field),
                 qtype=FHIRQuestionType.CHOICE,
                 answer_type=FHIRAnswerType.INTEGER,
                 answer=getattr(self, q_field),
-                mcq_qa=main_options
+                answer_options=main_options
             ))
 
         q10_options = {}
@@ -374,11 +374,11 @@ class Phq9(TaskHasPatientMixin, Task,
             q10_options[index] = self.wxstring(req, f"fa{index}")
         items.append(FHIRAnsweredQuestion(
             qname="q10",
-            qtext="10. " + self.wxstring(req, "finalq"),
+            qtext="10. " + self.xstring(req, "finalq"),
             qtype=FHIRQuestionType.CHOICE,
             answer_type=FHIRAnswerType.INTEGER,
             answer=self.q10,
-            mcq_qa=q10_options
+            answer_options=q10_options
         ))
 
         return items

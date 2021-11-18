@@ -3575,8 +3575,8 @@ Current C++/SQLite client, Python/SQLAlchemy server
   objects properly. The bug manifested during reindexing, and was as documented
   above in :ref:`v2.3.3 <changelog_v2_3_3>`.
 
-- ``cardinal_pythonlib`` now uses numpy 1.20.0, which removes support for
-  Python 3.6, so we do too. Minimum Python version now 3.7.
+- Bump ``cardinal_pythonlib``, which now uses numpy 1.20.0, which removes
+  support for Python 3.6, so we do too. Minimum Python version now Python 3.7.
 
 - Bump ``pandas`` from 1.0.5 to 1.3.4 (as 1.0.5 not supported by Python 3.9).
 

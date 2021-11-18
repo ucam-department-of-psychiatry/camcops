@@ -176,10 +176,9 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
         self.assertEqual(patient[Fc.RESOURCE_TYPE], Fc.RESOURCE_TYPE_PATIENT)
 
         identifier = patient[Fc.IDENTIFIER]
-        which_idnum = self.patient_rio.which_idnum
         idnum_value = self.patient_rio.idnum_value
 
-        patient_id = self.patient.get_fhir_identifier(self.req, which_idnum)
+        patient_id = self.patient.get_fhir_identifier(self.req, self.recipient)
 
         self.assertEqual(identifier[0][Fc.SYSTEM], patient_id.system)
         self.assertEqual(identifier[0][Fc.VALUE], str(idnum_value))
@@ -325,10 +324,9 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
         subject = response[Fc.SUBJECT]
         identifier = subject[Fc.IDENTIFIER]
         self.assertEqual(subject[Fc.TYPE], Fc.RESOURCE_TYPE_PATIENT)
-        which_idnum = self.patient_rio.which_idnum
         idnum_value = self.patient_rio.idnum_value
 
-        patient_id = self.patient.get_fhir_identifier(self.req, which_idnum)
+        patient_id = self.patient.get_fhir_identifier(self.req, self.recipient)
         if isinstance(identifier, list):
             test_identifier = identifier[0]
         else:  # only one

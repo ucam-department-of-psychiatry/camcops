@@ -122,6 +122,7 @@ Quick tutorial on Pyramid views:
 """
 
 from collections import OrderedDict
+import json
 import logging
 import os
 # from pprint import pformat
@@ -143,6 +144,7 @@ from cardinal_pythonlib.httpconst import HttpMethod, MimeType
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.pyramid.responses import (
     BinaryResponse,
+    JsonResponse,
     PdfResponse,
     XmlResponse,
 )
@@ -191,6 +193,7 @@ from camcops_server.cc_modules.cc_constants import (
     DateFormat,
     ERA_NOW,
     GITHUB_RELEASES_URL,
+    JSON_INDENT,
     MfaMethod,
 )
 from camcops_server.cc_modules.cc_db import (
@@ -2048,7 +2051,7 @@ def serve_task(req: "CamcopsRequest") -> Response:
             body=task.get_pdf(req, anonymise=anonymise),
             filename=task.suggested_pdf_filename(req, anonymise=anonymise)
         )
-    elif viewtype == ViewArg.PDFHTML:  # debugging option
+    elif viewtype == ViewArg.PDFHTML:  # debugging option; no direct hyperlink
         return Response(
             task.get_pdf_html(req, anonymise=anonymise)
         )
@@ -2068,8 +2071,14 @@ def serve_task(req: "CamcopsRequest") -> Response:
             xml_with_header_comments=True,
         )
         return XmlResponse(task.get_xml(req=req, options=options))
+    elif viewtype == ViewArg.FHIRJSON:  # debugging option
+        dummy_recipient = ExportRecipient()
+        bundle = task.get_fhir_bundle(req, dummy_recipient,
+                                      skip_docs_if_other_content=True)
+        return JsonResponse(json.dumps(bundle.as_json(), indent=JSON_INDENT))
     else:
-        permissible = [ViewArg.HTML, ViewArg.PDF, ViewArg.PDFHTML, ViewArg.XML]
+        permissible = (ViewArg.FHIRJSON, ViewArg.HTML, ViewArg.PDF,
+                       ViewArg.PDFHTML, ViewArg.XML)
         raise HTTPBadRequest(
             f"{_('Bad output type:')} {viewtype!r} "
             f"({_('permissible:')} {permissible!r})")

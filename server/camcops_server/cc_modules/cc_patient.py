@@ -932,47 +932,47 @@ class Patient(GenericTabletRecordMixin, Base):
         # General practitioner (GP): via
         # fhirclient.models.fhirreference.FHIRReference; too structured.
 
-        # ID numbers
-        which_idnum = recipient.primary_idnum
-        assert self.has_idnum_type(which_idnum), (
-            f"Bug: Patient with server PK {self.pk} does not have an ID "
-            f"number of type {which_idnum}, but this is mandatory"
-        )
-        if self.has_idnum_type(which_idnum):
-            identifier = self.get_fhir_identifier(req, which_idnum)
-        else:
-            # This is a bit silly.
-            identifier = fhir_pk_identifier(
-                req, self.__tablename__, self.pk,
-                Fc.CAMCOPS_VALUE_PATIENT_WITHIN_TASK
-            )
-
+        # ID numbers go here:
         return make_fhir_bundle_entry(
             resource_type_url=Fc.RESOURCE_TYPE_PATIENT,
-            identifier=identifier,
+            identifier=self.get_fhir_identifier(req, recipient),
             resource=FhirPatient(jsondict=patient_dict).as_json()
         )
 
     def get_fhir_identifier(self,
                             req: "CamcopsRequest",
-                            which_idnum: int) -> Identifier:
+                            recipient: "ExportRecipient") -> Identifier:
         """
         Returns a FHIR identifier for this patient, as a
         :class:`fhirclient.models.identifier.Identifier` object.
 
         This pairs a URL to our CamCOPS server indicating the ID number type
         (as the "system") with the actual ID number (as the "value").
+
+        For debugging situations, it falls back to a default identifier (using
+        the PK on our CamCOPS server).
         """
-        idnum_object = self.get_idnum_object(which_idnum)
-        idnum_value = idnum_object.idnum_value
-
-        iddef = req.get_idnum_definition(which_idnum)
-        idnum_url = iddef.effective_fhir_id_system(req)
-
-        return Identifier(jsondict={
-            Fc.SYSTEM: idnum_url,
-            Fc.VALUE: str(idnum_value),
-        })
+        which_idnum = recipient.primary_idnum
+        try:
+            # For real exports, the fact that the patient does have an ID
+            # number of the right type will have been pre-verified.
+            if which_idnum is None:
+                raise AttributeError
+            idnum_object = self.get_idnum_object(which_idnum)
+            idnum_value = idnum_object.idnum_value  # may raise AttributeError
+            iddef = req.get_idnum_definition(which_idnum)
+            idnum_url = iddef.effective_fhir_id_system(req)
+            return Identifier(jsondict={
+                Fc.SYSTEM: idnum_url,
+                Fc.VALUE: str(idnum_value),
+            })
+        except AttributeError:
+            # We are probably in a debugging/drafting situation. Fall back to
+            # a default identifier.
+            return fhir_pk_identifier(
+                req, self.__tablename__, self.pk,
+                Fc.CAMCOPS_VALUE_PATIENT_WITHIN_TASK
+            )
 
     def get_fhir_subject_ref(
             self,
@@ -984,9 +984,7 @@ class Patient(GenericTabletRecordMixin, Base):
         """
         return FHIRReference(jsondict={
             Fc.TYPE: Fc.RESOURCE_TYPE_PATIENT,
-            Fc.IDENTIFIER: self.get_fhir_identifier(
-                req, recipient.primary_idnum
-            ).as_json(),
+            Fc.IDENTIFIER: self.get_fhir_identifier(req, recipient).as_json(),
         }).as_json()
 
     # -------------------------------------------------------------------------

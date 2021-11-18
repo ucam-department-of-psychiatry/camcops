@@ -60,6 +60,7 @@ from camcops_server.cc_modules.cc_idnumdef import IdNumDefinition
 from camcops_server.cc_modules.cc_patient import Patient
 from camcops_server.cc_modules.cc_patientidnum import PatientIdNum
 from camcops_server.cc_modules.cc_sqla_coltypes import (
+    COLATTR_PERMITTED_VALUE_CHECKER,
     PendulumDateTimeAsIsoTextColType,
 )
 
@@ -282,7 +283,7 @@ class DummyDataFactory(object):
         min_value = self.DEFAULT_MIN_INTEGER
         max_value = self.DEFAULT_MAX_INTEGER
 
-        value_checker = getattr(column, "permitted_value_checker", None)
+        value_checker = getattr(column, COLATTR_PERMITTED_VALUE_CHECKER, None)
 
         if value_checker is not None:
             if value_checker.permitted_values is not None:
@@ -300,7 +301,7 @@ class DummyDataFactory(object):
         min_value = self.DEFAULT_MIN_FLOAT
         max_value = self.DEFAULT_MAX_FLOAT
 
-        value_checker = getattr(column, "permitted_value_checker", None)
+        value_checker = getattr(column, COLATTR_PERMITTED_VALUE_CHECKER, None)
 
         if value_checker is not None:
             if value_checker.permitted_values is not None:
@@ -315,7 +316,7 @@ class DummyDataFactory(object):
         return self.faker.random.uniform(min_value, max_value)
 
     def get_valid_string_for_field(self, column: Column) -> str:
-        value_checker = getattr(column, "permitted_value_checker", None)
+        value_checker = getattr(column, COLATTR_PERMITTED_VALUE_CHECKER, None)
 
         if value_checker is not None:
             if value_checker.permitted_values is not None:

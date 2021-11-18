@@ -74,9 +74,15 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes
                 <td>${ aq.qtype.value }</td>
                 <td>${ aq.answer_type.value }</td>
                 <td>
-                    %for code, display in aq.mcq_qa.items():
-                    ${ code }: ${ display }<br>
-                    %endfor
+                    %if aq.is_mcq:
+                        %if aq.answer_options:
+                            %for code, display in aq.answer_options.items():
+                                ${ code }: ${ display }<br>
+                            %endfor
+                        %else:
+                            ${ ", ".join(str(x) for x in aq.answer_valueset) }
+                        %endif
+                    %endif
                 </td>
             </tr>
         %endfor

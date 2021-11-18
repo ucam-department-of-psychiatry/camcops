@@ -62,7 +62,10 @@ from cardinal_pythonlib.sqlalchemy.orm_inspect import (
     gen_columns,
     gen_orm_classes_from_base,
 )
-from cardinal_pythonlib.sqlalchemy.schema import is_sqlatype_string
+from cardinal_pythonlib.sqlalchemy.schema import (
+    is_sqlatype_binary,
+    is_sqlatype_string,
+)
 from cardinal_pythonlib.stringfunc import mangle_unicode_to_ascii
 from fhirclient.models.attachment import Attachment
 from fhirclient.models.bundle import Bundle
@@ -81,7 +84,7 @@ from fhirclient.models.practitioner import Practitioner
 from fhirclient.models.questionnaire import Questionnaire
 from fhirclient.models.questionnaireresponse import QuestionnaireResponse
 import hl7
-from pendulum import Date, DateTime as Pendulum
+from pendulum import Date as PendulumDate, DateTime as Pendulum
 from pyramid.renderers import render
 from semantic_version import Version
 from sqlalchemy.ext.declarative import declared_attr
@@ -89,7 +92,17 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.orm.relationships import RelationshipProperty
 from sqlalchemy.sql.expression import not_, update
 from sqlalchemy.sql.schema import Column
-from sqlalchemy.sql.sqltypes import Boolean, DateTime, Float, Integer, Text
+from sqlalchemy.sql.sqltypes import (
+    Boolean,
+    Date as DateColType,
+    DateTime,
+    Float,
+    Integer,
+    Numeric,
+    String,
+    Text,
+    Time,
+)
 
 from camcops_server.cc_modules.cc_audit import audit
 from camcops_server.cc_modules.cc_baseconstants import DOCUMENTATION_URL
@@ -108,9 +121,19 @@ from camcops_server.cc_modules.cc_constants import (
 )
 from camcops_server.cc_modules.cc_db import (
     GenericTabletRecordMixin,
+    TASK_FREQUENT_FIELDS,
+    TFN_CLINICIAN_CONTACT_DETAILS,
+    TFN_CLINICIAN_NAME,
+    TFN_CLINICIAN_POST,
+    TFN_CLINICIAN_PROFESSIONAL_REGISTRATION,
+    TFN_CLINICIAN_SERVICE,
+    TFN_CLINICIAN_SPECIALTY,
     TFN_EDITING_TIME_S,
     TFN_FIRSTEXIT_IS_ABORT,
     TFN_FIRSTEXIT_IS_FINISH,
+    TFN_PATIENT_ID,
+    TFN_RESPONDENT_NAME,
+    TFN_RESPONDENT_RELATIONSHIP,
     TFN_WHEN_CREATED,
     TFN_WHEN_FIRSTEXIT,
 )
@@ -120,6 +143,8 @@ from camcops_server.cc_modules.cc_fhir import (
     fhir_system_value,
     fhir_sysval_from_id,
     FHIRAnsweredQuestion,
+    FHIRAnswerType,
+    FHIRQuestionType,
     make_fhir_bundle_entry,
 )
 from camcops_server.cc_modules.cc_filename import get_export_filename
@@ -138,13 +163,16 @@ from camcops_server.cc_modules.cc_simpleobjects import TaskExportOptions
 from camcops_server.cc_modules.cc_snomed import SnomedLookup
 from camcops_server.cc_modules.cc_specialnote import SpecialNote
 from camcops_server.cc_modules.cc_sqla_coltypes import (
+    BoolColumn,
     CamcopsColumn,
+    COLATTR_PERMITTED_VALUE_CHECKER,
     gen_ancillary_relationships,
     get_camcops_blob_column_attr_names,
     get_column_attr_names,
     PendulumDateTimeAsIsoTextColType,
     permitted_value_failure_msgs,
     permitted_values_ok,
+    PermittedValueChecker,
     SemanticVersionColType,
     TableNameColType,
 )
@@ -203,6 +231,8 @@ if any([DEBUG_SKIP_FHIR_DOCS,
 ANCILLARY_FWD_REF = "Ancillary"
 TASK_FWD_REF = "Task"
 
+FHIR_UNKNOWN_TEXT = "[?]"
+
 SNOMED_TABLENAME = "_snomed_ct"
 SNOMED_COLNAME_TASKTABLE = "task_tablename"
 SNOMED_COLNAME_TASKPK = "task_pk"
@@ -228,7 +258,7 @@ class TaskHasPatientMixin(object):
         SQLAlchemy :class:`Column` that is a foreign key to the patient table.
         """
         return Column(
-            "patient_id", Integer,
+            TFN_PATIENT_ID, Integer,
             nullable=False, index=True,
             comment="(TASK) Foreign key to patient.id (for this device/era)"
         )
@@ -298,7 +328,7 @@ class TaskHasClinicianMixin(object):
     @declared_attr
     def clinician_specialty(cls) -> Column:
         return CamcopsColumn(
-            "clinician_specialty", Text,
+            TFN_CLINICIAN_SPECIALTY, Text,
             exempt_from_anonymisation=True,
             comment="(CLINICIAN) Clinician's specialty "
                     "(e.g. Liaison Psychiatry)"
@@ -308,7 +338,7 @@ class TaskHasClinicianMixin(object):
     @declared_attr
     def clinician_name(cls) -> Column:
         return CamcopsColumn(
-            "clinician_name", Text,
+            TFN_CLINICIAN_NAME, Text,
             exempt_from_anonymisation=True,
             comment="(CLINICIAN) Clinician's name (e.g. Dr X)"
         )
@@ -317,7 +347,7 @@ class TaskHasClinicianMixin(object):
     @declared_attr
     def clinician_professional_registration(cls) -> Column:
         return CamcopsColumn(
-            "clinician_professional_registration", Text,
+            TFN_CLINICIAN_PROFESSIONAL_REGISTRATION, Text,
             exempt_from_anonymisation=True,
             comment="(CLINICIAN) Clinician's professional registration (e.g. "
                     "GMC# 12345)"
@@ -327,7 +357,7 @@ class TaskHasClinicianMixin(object):
     @declared_attr
     def clinician_post(cls) -> Column:
         return CamcopsColumn(
-            "clinician_post", Text,
+            TFN_CLINICIAN_POST, Text,
             exempt_from_anonymisation=True,
             comment="(CLINICIAN) Clinician's post (e.g. Consultant)"
         )
@@ -336,7 +366,7 @@ class TaskHasClinicianMixin(object):
     @declared_attr
     def clinician_service(cls) -> Column:
         return CamcopsColumn(
-            "clinician_service", Text,
+            TFN_CLINICIAN_SERVICE, Text,
             exempt_from_anonymisation=True,
             comment="(CLINICIAN) Clinician's service (e.g. Liaison Psychiatry "
                     "Service)"
@@ -346,7 +376,7 @@ class TaskHasClinicianMixin(object):
     @declared_attr
     def clinician_contact_details(cls) -> Column:
         return CamcopsColumn(
-            "clinician_contact_details", Text,
+            TFN_CLINICIAN_CONTACT_DETAILS, Text,
             exempt_from_anonymisation=True,
             comment="(CLINICIAN) Clinician's contact details (e.g. bleep, "
                     "extension)"
@@ -421,7 +451,7 @@ class TaskHasRespondentMixin(object):
     @declared_attr
     def respondent_name(cls) -> Column:
         return CamcopsColumn(
-            "respondent_name", Text,
+            TFN_RESPONDENT_NAME, Text,
             identifies_patient=True,
             comment="(RESPONDENT) Respondent's name"
         )
@@ -430,7 +460,7 @@ class TaskHasRespondentMixin(object):
     @declared_attr
     def respondent_relationship(cls) -> Column:
         return Column(
-            "respondent_relationship", Text,
+            TFN_RESPONDENT_RELATIONSHIP, Text,
             comment="(RESPONDENT) Respondent's relationship to patient"
         )
 
@@ -1232,7 +1262,7 @@ class Task(GenericTabletRecordMixin, Base):
         """
         return self.patient.get_surname() if self.patient else ""
 
-    def get_patient_dob(self) -> Optional[Date]:
+    def get_patient_dob(self) -> Optional[PendulumDate]:
         """
         Get the patient's DOB, or None.
         """
@@ -2005,6 +2035,38 @@ class Task(GenericTabletRecordMixin, Base):
         """
         return []
 
+    def get_qtext(self, req: "CamcopsRequest", attrname: str) -> Optional[str]:
+        """
+        Returns the text associated with a particular question.
+        The default implementation is a guess.
+
+        Args:
+            req:
+                A :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`.
+            attrname:
+                Name of the attribute (field) on this task that represents the
+                question.
+        """
+        return self.xstring(req, attrname, provide_default_if_none=False)
+
+    def get_atext(self, req: "CamcopsRequest", attrname: str,
+                  answer_value: int) -> Optional[str]:
+        """
+        Returns the text associated with a particular answer to a question.
+        The default implementation is a guess.
+
+        Args:
+            req:
+                A :class:`camcops_server.cc_modules.cc_request.CamcopsRequest`.
+            attrname:
+                Name of the attribute (field) on this task that represents the
+                question.
+            answer_value:
+                Answer value.
+        """
+        stringname = f"{attrname}_a{answer_value}"
+        return self.xstring(req, stringname, provide_default_if_none=False)
+
     # -------------------------------------------------------------------------
     # FHIR automatic interrogation
     # -------------------------------------------------------------------------
@@ -2016,7 +2078,76 @@ class Task(GenericTabletRecordMixin, Base):
         Inspect this task instance and create information about both the task
         in the abstract and the answers for this specific instance.
         """
-        return []
+        qa_items = []  # type: List[FHIRAnsweredQuestion]
+
+        skip_fields = TASK_FREQUENT_FIELDS
+        for attrname, column in gen_columns(self):
+            if attrname in skip_fields:
+                continue
+            log.critical("column: {!r}", column)
+            comment = column.comment or FHIR_UNKNOWN_TEXT
+            coltype = column.type
+
+            # Question text
+            retrieved_qtext = self.get_qtext(req, attrname) or FHIR_UNKNOWN_TEXT  # noqa
+            qtext = f"{retrieved_qtext} [{comment}]"
+
+            # Thinking about types.
+            if isinstance(coltype, Integer):
+                qtype = FHIRQuestionType.INTEGER
+                atype = FHIRAnswerType.INTEGER
+            elif isinstance(coltype, String):  # includes its subclass, Text
+                qtype = FHIRQuestionType.STRING
+                atype = FHIRAnswerType.STRING
+            elif isinstance(coltype, Numeric):  # includes Float, Decimal
+                qtype = FHIRQuestionType.QUANTITY
+                atype = FHIRAnswerType.QUANTITY
+            elif isinstance(coltype, DateTime):
+                qtype = FHIRQuestionType.DATETIME
+                atype = FHIRAnswerType.DATETIME
+            elif isinstance(coltype, DateColType):
+                qtype = FHIRQuestionType.DATE
+                atype = FHIRAnswerType.DATE
+            elif isinstance(coltype, Time):
+                qtype = FHIRQuestionType.TIME
+                atype = FHIRAnswerType.TIME
+            elif is_sqlatype_binary(coltype) or isinstance(column, BoolColumn):
+                # For BoolColumn: it is better to be as constraining as
+                # possible and say that only 0/1 options are present by marking
+                # these as Boolean, which is less complicated for the recipient
+                # than "integer but with possible options 0 or 1". We will
+                # *also* show the possible options, just to be clear.
+                qtype = FHIRQuestionType.BOOLEAN
+                atype = FHIRAnswerType.BOOLEAN
+            else:
+                raise NotImplementedError(f"Unknown column type: {coltype!r}")
+
+            # Thinking about MCQ options.
+            answer_options = None  # type: Optional[Dict[Any, str]]
+            if hasattr(column, COLATTR_PERMITTED_VALUE_CHECKER):
+                qtype = FHIRQuestionType.CHOICE
+                # ... required to transmit the possible values.
+                pvc = getattr(column, COLATTR_PERMITTED_VALUE_CHECKER)  # type: PermittedValueChecker  # noqa
+                pv = pvc.permitted_values_inc_minmax()
+                answer_options = {}
+                for v in pv:
+                    answer_options[v] = (
+                        self.get_atext(req, attrname, v) or
+                        comment or
+                        FHIR_UNKNOWN_TEXT
+                    )
+
+            # Assemble:
+            qa_items.append(FHIRAnsweredQuestion(
+                qname=attrname,
+                qtext=qtext,
+                qtype=qtype,
+                answer_type=atype,
+                answer=getattr(self, attrname),
+                answer_options=answer_options
+            ))
+
+        return qa_items
 
     # -------------------------------------------------------------------------
     # Export (generically)

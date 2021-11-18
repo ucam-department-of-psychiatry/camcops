@@ -168,7 +168,6 @@ RESERVED_TABLE_NAMES = [
     User.__tablename__,
     UserGroupMembership.__tablename__,
 ]
-RESERVED_FIELDS = GenericTabletRecordMixin.RESERVED_FIELDS
 
 
 # =============================================================================

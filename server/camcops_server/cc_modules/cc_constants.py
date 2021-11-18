@@ -162,10 +162,10 @@ class PV(object):
     """
     Collections of permitted values.
     """
-    BIT = [0, 1]
+    BIT = (0, 1)
 
     # Red/Yellow/Green
-    RYG = ["R", "Y", "G"]
+    RYG = ("R", "Y", "G")
 
 
 NO_CHAR = 'N'
@@ -175,13 +175,14 @@ YES_CHAR = 'Y'
 SEX_FEMALE = "F"
 SEX_MALE = "M"
 SEX_OTHER_UNSPECIFIED = "X"
-POSSIBLE_SEX_VALUES = [SEX_FEMALE, SEX_MALE, SEX_OTHER_UNSPECIFIED]
+POSSIBLE_SEX_VALUES = (SEX_FEMALE, SEX_MALE, SEX_OTHER_UNSPECIFIED)
 
 
 # =============================================================================
 # Field names/specifications
 # =============================================================================
 
+# Do not alter these!
 TABLET_ID_FIELD = "id"
 MOVE_OFF_TABLET_FIELD = "_move_off_tablet"
 CLIENT_DATE_FIELD = "when_last_modified"
@@ -1197,10 +1198,11 @@ class FHIRConst:
     # QuestionnaireItem keys
     LINK_ID = "linkId"
     ANSWER_OPTION = "answerOption"
+    # NB: answerValueSet isn't just a list; it's a fiddly thing.
     # QuestionnaireItem values
     QITEM_TYPE_ATTACHMENT = "attachment"
     QITEM_TYPE_BOOLEAN = "boolean"
-    QITEM_TYPE_CHOICE = "choice"  # (*)
+    QITEM_TYPE_CHOICE = "choice"
     QITEM_TYPE_DATE = "date"
     QITEM_TYPE_DATETIME = "dateTime"
     QITEM_TYPE_DECIMAL = "decimal"

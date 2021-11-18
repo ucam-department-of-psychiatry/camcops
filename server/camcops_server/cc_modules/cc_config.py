@@ -1196,7 +1196,7 @@ class CamcopsConfig(object):
                 raise AssertionError(
                     f"Environment variable {ENVVAR_CONFIG_FILE} not specified "
                     f"(and no command-line alternative given)")
-            log.info("Reading from config file: {!r}", config_filename)
+            log.info("Reading from config file: {}", config_filename)
             with codecs.open(config_filename, "r", "utf8") as file:
                 parser.read_file(file)
 

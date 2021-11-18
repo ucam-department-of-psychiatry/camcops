@@ -69,6 +69,7 @@ class Apeqpt(Task):
     shortname = "APEQPT"
     provides_trackers = True
 
+    # todo: remove q_datetime (here and in the C++) -- it duplicates when_created  # noqa
     q_datetime = CamcopsColumn(
         "q_datetime", PendulumDateTimeAsIsoTextColType,
         comment="Date/time the assessment tool was completed")
@@ -172,14 +173,6 @@ class Apeqpt(Task):
             recipient: "ExportRecipient") -> List[FHIRAnsweredQuestion]:
         items = []  # type: List[FHIRAnsweredQuestion]
 
-        items.append(FHIRAnsweredQuestion(
-            qname="q_datetime",
-            qtext=self.wxstring(req, "q_date"),
-            qtype=FHIRQuestionType.DATETIME,
-            answer_type=FHIRAnswerType.DATETIME,
-            answer=self.q_datetime
-        ))
-
         yes_no_options = {}  # type: Dict[int, str]
         for index in range(2):
             yes_no_options[index] = self.wxstring(req, f"a{index}_choice")
@@ -189,7 +182,7 @@ class Apeqpt(Task):
             qtype=FHIRQuestionType.CHOICE,
             answer_type=FHIRAnswerType.INTEGER,
             answer=self.q1_choice,
-            mcq_qa=yes_no_options
+            answer_options=yes_no_options
         ))
         items.append(FHIRAnsweredQuestion(
             qname="q2_choice",
@@ -197,7 +190,7 @@ class Apeqpt(Task):
             qtype=FHIRQuestionType.CHOICE,
             answer_type=FHIRAnswerType.INTEGER,
             answer=self.q2_choice,
-            mcq_qa=yes_no_options
+            answer_options=yes_no_options
         ))
 
         yes_no_na_options = yes_no_options.copy()
@@ -208,7 +201,7 @@ class Apeqpt(Task):
             qtype=FHIRQuestionType.CHOICE,
             answer_type=FHIRAnswerType.INTEGER,
             answer=self.q3_choice,
-            mcq_qa=yes_no_na_options
+            answer_options=yes_no_na_options
         ))
 
         satisfaction_options = {}  # type: Dict[int, str]
@@ -217,16 +210,16 @@ class Apeqpt(Task):
                 req, f"a{index}_satisfaction")
         items.append(FHIRAnsweredQuestion(
             qname="q1_satisfaction",
-            qtext=self.wxstring(req, "q1_satisfaction"),
+            qtext=self.xstring(req, "q1_satisfaction"),
             qtype=FHIRQuestionType.CHOICE,
             answer_type=FHIRAnswerType.INTEGER,
             answer=self.q1_satisfaction,
-            mcq_qa=satisfaction_options
+            answer_options=satisfaction_options
         ))
 
         items.append(FHIRAnsweredQuestion(
             qname="q2_satisfaction",
-            qtext=self.wxstring(req, "q2_satisfaction"),
+            qtext=self.xstring(req, "q2_satisfaction"),
             qtype=FHIRQuestionType.STRING,
             answer_type=FHIRAnswerType.STRING,
             answer=self.q2_satisfaction

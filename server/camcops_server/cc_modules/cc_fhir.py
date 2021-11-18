@@ -496,7 +496,7 @@ def fhir_pk_identifier(req: "CamcopsRequest",
             server_pk=pk
         ),
         Fc.VALUE: value_within_task,
-    }).as_json()
+    })
 
 
 def fhir_system_value(system: str, value: str) -> str:
@@ -666,26 +666,42 @@ class FHIRAnsweredQuestion:
                  qtype: FHIRQuestionType,
                  answer_type: FHIRAnswerType,
                  answer: Any,
-                 mcq_qa: Dict[Any, str] = None) -> None:
+                 answer_options: Dict[Any, str] = None) -> None:
+        """
+        Args:
+            qname:
+                Name (task attribute name) of the question, e.g. "q1".
+            qtext:
+                Question text (e.g. "How was your day?").
+            qtype:
+                Question type, e.g. multiple-choice.
+            answer_type:
+                Answer type, e.g. integer.
+            answer:
+                Actual answer.
+            answer_options:
+                For multiple-choice questions (MCQs), a dictionary mapping
+                answer codes to human-legible display text.
+        """
         self.qname = qname
         self.qtext = qtext
         self.qtype = qtype
         self.answer = answer
         self.answer_type = answer_type
-        self.mcq_qa = mcq_qa or {}  # type: Dict[Any, str]
+        self.answer_options = answer_options or {}  # type: Dict[Any, str]
 
         # Checks
         if self.is_mcq:
-            assert self.mcq_qa, (
+            assert self.answer_options, (
                 f"Multiple choice item {self.qname!r} needs mcq_qa parameter, "
-                f"currently {mcq_qa!r}"
+                f"currently {answer_options!r}"
             )
 
     def __str__(self) -> str:
         if self.is_mcq:
             options = " / ".join(
                 f"{code} = {display}"
-                for code, display in self.mcq_qa.items()
+                for code, display in self.answer_options.items()
             )
         else:
             options = "N/A"
@@ -698,6 +714,9 @@ class FHIRAnsweredQuestion:
 
     @property
     def is_mcq(self) -> bool:
+        """
+        Is this a multiple-choice question?
+        """
         return self.qtype in [FHIRQuestionType.CHOICE,
                               FHIRQuestionType.OPEN_CHOICE]
 
@@ -722,7 +741,7 @@ class FHIRAnsweredQuestion:
             # Add permitted answers.
             options = []  # type: List[Dict]
             # We asserted mcq_qa earlier.
-            for code, display in self.mcq_qa.items():
+            for code, display in self.answer_options.items():
                 options.append(QuestionnaireItemAnswerOption(jsondict={
                     Fc.VALUE_CODING: {
                         Fc.CODE: str(code),

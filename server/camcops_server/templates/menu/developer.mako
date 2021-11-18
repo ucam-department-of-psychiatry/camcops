@@ -63,3 +63,13 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
                     ) | n }">View tasks without using index</a></li>
     <li>Trackers and CTVs have a no-index option available to users directly.</li>
 </ul>
+
+<h2>Less accessible options</h2>
+<ul>
+    <li>
+        Tasks can be viewed with
+        <code>${ ViewParam.VIEWTYPE}=${ ViewArg.PDFHTML}</code>
+        to show the HTML that goes into PDF generation (without page headers or
+        footers).
+    </li>
+</ul>
