@@ -4497,6 +4497,8 @@ class JsonNode(SchemaNode, RequestAwareMixin):
 
 
 class TaskScheduleNode(MappingSchema, RequestAwareMixin):
+    # name must match ViewParam.PATIENT_TASK_SCHEDULE_ID
+    patient_task_schedule_id = HiddenIntegerNode()
     schedule_id = TaskScheduleSelector()  # must match ViewParam.SCHEDULE_ID  # noqa: E501
     # must match ViewParam.START_DATETIME
     start_datetime = StartPendulumSelector()

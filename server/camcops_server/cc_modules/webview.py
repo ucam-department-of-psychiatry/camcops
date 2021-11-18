@@ -4745,74 +4745,39 @@ class EditServerCreatedPatientView(EditPatientBaseView):
                              changes: OrderedDict) -> None:
 
         patient = cast(Patient, self.object)
-        new_schedules = {
-            schedule_dict[ViewParam.SCHEDULE_ID]: schedule_dict
-            for schedule_dict in appstruct.get(ViewParam.TASK_SCHEDULES, {})
-        }
 
-        schedule_query = self.request.dbsession.query(TaskSchedule)
-        schedule_name_dict = {schedule.id: schedule.name
-                              for schedule in schedule_query}
+        ids_to_delete = [pts.id for pts in patient.task_schedules]
 
-        old_schedules = {}
-        for pts in patient.task_schedules:
-            old_schedules[pts.task_schedule.id] = {
-                "start_datetime": pts.start_datetime,
-                "settings": pts.settings
-            }
+        for schedule_dict in appstruct.get(ViewParam.TASK_SCHEDULES, {}):
+            pts_id = schedule_dict[ViewParam.PATIENT_TASK_SCHEDULE_ID]
+            schedule_id = schedule_dict[ViewParam.SCHEDULE_ID]
+            start_datetime = schedule_dict[ViewParam.START_DATETIME]
+            settings = schedule_dict[ViewParam.SETTINGS]
 
-        ids_to_add = new_schedules.keys() - old_schedules.keys()
-        ids_to_update = old_schedules.keys() & new_schedules.keys()
-        ids_to_delete = old_schedules.keys() - new_schedules.keys()
+            if pts_id is None:
+                pts = PatientTaskSchedule()
+                pts.patient_pk = patient.pk
+                pts.schedule_id = schedule_id
+                pts.start_datetime = start_datetime
+                pts.settings = settings
 
-        for schedule_id in ids_to_add:
-            pts = PatientTaskSchedule()
-            pts.patient_pk = patient.pk
-            pts.schedule_id = schedule_id
-            pts.start_datetime = new_schedules[schedule_id]["start_datetime"]
-            pts.settings = new_schedules[schedule_id]["settings"]
+                self.request.dbsession.add(pts)
+            else:
+                updates = {
+                    PatientTaskSchedule.start_datetime: start_datetime,
+                    PatientTaskSchedule.schedule_id: schedule_id,
+                    PatientTaskSchedule.settings: settings,
+                }
 
-            self.request.dbsession.add(pts)
-            changes["schedule{} ({})".format(
-                schedule_id, schedule_name_dict[schedule_id]
-            )] = ((None, None), (pts.start_datetime, pts.settings))
-
-        for schedule_id in ids_to_update:
-            updates = {}
-
-            new_start_datetime = new_schedules[schedule_id]["start_datetime"]
-            old_start_datetime = old_schedules[schedule_id]["start_datetime"]
-            if new_start_datetime != old_start_datetime:
-                updates[PatientTaskSchedule.start_datetime] = new_start_datetime
-
-            new_settings = new_schedules[schedule_id]["settings"]
-            old_settings = old_schedules[schedule_id]["settings"]
-            if new_settings != old_settings:
-                updates[PatientTaskSchedule.settings] = new_settings
-
-            if len(updates) > 0:
                 self.request.dbsession.query(PatientTaskSchedule).filter(
-                    PatientTaskSchedule.patient_pk == patient.pk,
-                    PatientTaskSchedule.schedule_id == schedule_id
+                    PatientTaskSchedule.id == pts_id,
                 ).update(updates, synchronize_session="fetch")
 
-                changes["schedule{} ({})".format(
-                    schedule_id, schedule_name_dict[schedule_id]
-                )] = ((old_start_datetime, old_settings),
-                      (new_start_datetime, new_settings))
+                ids_to_delete.remove(pts_id)
 
         self.request.dbsession.query(PatientTaskSchedule).filter(
-            PatientTaskSchedule.patient_pk == patient.pk,
-            PatientTaskSchedule.schedule_id.in_(ids_to_delete)
+            PatientTaskSchedule.id.in_(ids_to_delete)
         ).delete(synchronize_session="fetch")
-
-        for schedule_id in ids_to_delete:
-            old_start_datetime = old_schedules[schedule_id]["start_datetime"]
-            old_settings = old_schedules[schedule_id]["settings"]
-
-            changes["schedule{} ({})".format(
-                schedule_id, schedule_name_dict[schedule_id]
-            )] = ((old_start_datetime, old_settings), (None, None))
 
 
 class EditFinalizedPatientView(EditPatientBaseView):
