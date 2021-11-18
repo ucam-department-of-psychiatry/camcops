@@ -51,6 +51,9 @@ from camcops_server.cc_modules.cc_fhir import (
 )
 from camcops_server.cc_modules.cc_pyramid import Routes
 from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
+from camcops_server.cc_modules.cc_version_string import (
+    CAMCOPS_SERVER_VERSION_STRING,
+)
 from camcops_server.tasks.apeqpt import Apeqpt
 from camcops_server.tasks.bmi import Bmi
 from camcops_server.tasks.gad7 import Gad7
@@ -227,7 +230,8 @@ class FhirTaskExporterPhq9Tests(FhirExportTestCase):
             f"{self.camcops_root_url}/{Routes.FHIR_QUESTIONNAIRE_SYSTEM}"
         )
         self.assertEqual(identifier[0][Fc.SYSTEM], questionnaire_url)
-        self.assertEqual(identifier[0][Fc.VALUE], "phq9")
+        self.assertEqual(identifier[0][Fc.VALUE],
+                         f"phq9/{CAMCOPS_SERVER_VERSION_STRING}")
 
         question_1 = questionnaire[Fc.ITEM][0]
         question_10 = questionnaire[Fc.ITEM][9]
@@ -563,21 +567,12 @@ class FhirTaskExporterAnonymousTests(FhirExportTestCase):
             f"{self.camcops_root_url}/{Routes.FHIR_QUESTIONNAIRE_SYSTEM}"
         )
         self.assertEqual(identifier[0][Fc.SYSTEM], questionnaire_url)
-        self.assertEqual(identifier[0][Fc.VALUE], "apeqpt")
+        self.assertEqual(identifier[0][Fc.VALUE],
+                         f"apeqpt/{CAMCOPS_SERVER_VERSION_STRING}")
 
-        q_datetime = questionnaire[Fc.ITEM][0]
-
-        q1_choice = questionnaire[Fc.ITEM][1]
-        q2_choice = questionnaire[Fc.ITEM][2]
-        q3_choice = questionnaire[Fc.ITEM][3]
-
-        q1_satisfaction = questionnaire[Fc.ITEM][4]
-        q2_satisfaction = questionnaire[Fc.ITEM][5]
-
-        # q_datetime
-        self.assertEqual(q_datetime[Fc.LINK_ID], "q_datetime")
-        self.assertEqual(q_datetime[Fc.TEXT], APEQPT_Q_WHEN)
-        self.assertEqual(q_datetime[Fc.TYPE], Fc.QITEM_TYPE_DATETIME)
+        self.assertEqual(len(questionnaire[Fc.ITEM]), 5)
+        (q1_choice, q2_choice, q3_choice,
+         q1_satisfaction, q2_satisfaction) = questionnaire[Fc.ITEM]
 
         # q1_choice
         self.assertEqual(q1_choice[Fc.LINK_ID], "q1_choice")
@@ -646,8 +641,6 @@ class FhirTaskExporterAnonymousTests(FhirExportTestCase):
         self.assertEqual(q2_satisfaction[Fc.TEXT], TELL_US)
         self.assertEqual(q2_satisfaction[Fc.TYPE], Fc.QITEM_TYPE_STRING)
 
-        self.assertEqual(len(questionnaire[Fc.ITEM]), 6)
-
         request = sent_json[Fc.ENTRY][0][Fc.REQUEST]
         self.assertEqual(request[Fc.METHOD], HttpMethod.POST)
         self.assertEqual(request[Fc.URL], Fc.RESOURCE_TYPE_QUESTIONNAIRE)
@@ -694,21 +687,9 @@ class FhirTaskExporterAnonymousTests(FhirExportTestCase):
             fhir_reference_from_identifier(qr_id)
         )
 
-        q_datetime = response[Fc.ITEM][0]
-
-        q1_choice = response[Fc.ITEM][1]
-        q2_choice = response[Fc.ITEM][2]
-        q3_choice = response[Fc.ITEM][3]
-
-        q1_satisfaction = response[Fc.ITEM][4]
-        q2_satisfaction = response[Fc.ITEM][5]
-
-        # q_datetime
-        self.assertEqual(q_datetime[Fc.LINK_ID], "q_datetime")
-        self.assertEqual(q_datetime[Fc.TEXT], APEQPT_Q_WHEN)
-        q_datetime_answer = q_datetime[Fc.ANSWER][0]
-        self.assertEqual(q_datetime_answer[Fc.VALUE_DATETIME],
-                         self.task.q_datetime.isoformat())
+        self.assertEqual(len(response[Fc.ITEM]), 5)
+        (q1_choice, q2_choice, q3_choice,
+         q1_satisfaction, q2_satisfaction) = response[Fc.ITEM]
 
         # q1_choice
         self.assertEqual(q1_choice[Fc.LINK_ID], "q1_choice")
@@ -744,8 +725,6 @@ class FhirTaskExporterAnonymousTests(FhirExportTestCase):
         q2_satisfaction_answer = q2_satisfaction[Fc.ANSWER][0]
         self.assertEqual(q2_satisfaction_answer[Fc.VALUE_STRING],
                          self.task.q2_satisfaction)
-
-        self.assertEqual(len(response[Fc.ITEM]), 6)
 
 
 # =============================================================================

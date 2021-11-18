@@ -183,6 +183,7 @@ from camcops_server.cc_modules.cc_summaryelement import (
 )
 from camcops_server.cc_modules.cc_version import (
     CAMCOPS_SERVER_VERSION,
+    CAMCOPS_SERVER_VERSION_STRING,
     MINIMUM_TABLET_VERSION,
 )
 from camcops_server.cc_modules.cc_xml import (
@@ -1681,10 +1682,14 @@ class Task(GenericTabletRecordMixin, Base):
         """
         Returns a FHIR Identifier (e.g. for a Questionnaire) representing this
         task, in the abstract.
+
+        Incorporates the CamCOPS version, so that if aspects (even the
+        formatting of question text) changes, a new version will be stored
+        despite the "ifNoneExist" clause.
         """
         return Identifier(jsondict={
             Fc.SYSTEM: req.route_url(Routes.FHIR_QUESTIONNAIRE_SYSTEM),
-            Fc.VALUE: self.tablename,
+            Fc.VALUE: f"{self.tablename}/{CAMCOPS_SERVER_VERSION_STRING}",
         })
 
     def _get_fhir_questionnaire_response_id(
@@ -1941,6 +1946,7 @@ class Task(GenericTabletRecordMixin, Base):
             Fc.TITLE: self.longname(req),  # Human name
             Fc.DESCRIPTION: help_url,  # Natural language description of the questionnaire  # noqa
             Fc.COPYRIGHT: help_url,  # Use and/or publishing restrictions
+            Fc.VERSION: CAMCOPS_SERVER_VERSION_STRING,
             Fc.STATUS: Fc.QSTATUS_ACTIVE,  # Could also be: draft, retired, unknown  # noqa
             Fc.ITEM: q_items
         })
@@ -2084,16 +2090,35 @@ class Task(GenericTabletRecordMixin, Base):
         for attrname, column in gen_columns(self):
             if attrname in skip_fields:
                 continue
-            log.critical("column: {!r}", column)
             comment = column.comment or FHIR_UNKNOWN_TEXT
             coltype = column.type
 
-            # Question text
+            # Question text:
             retrieved_qtext = self.get_qtext(req, attrname) or FHIR_UNKNOWN_TEXT  # noqa
             qtext = f"{retrieved_qtext} [{comment}]"
+            # Note that it's good to get the column comment in somewhere; these
+            # often explain the meaning of the field quite well. It may or may
+            # not be possible to get it into the option values -- many answer
+            # types don't permit those. QuestionnaireItem records don't have a
+            # comment field (see
+            # https://www.hl7.org/fhir/questionnaire-definitions.html#Questionnaire.item),  # noqa
+            # so the best we can do is probably to stuff it into the question
+            # text, even if that causes some visual duplication.
 
-            # Thinking about types.
-            if isinstance(coltype, Integer):
+            # Thinking about types:
+            int_type = isinstance(coltype, Integer)
+            bool_type = (
+                is_sqlatype_binary(coltype) or
+                isinstance(coltype, BoolColumn) or
+                isinstance(coltype, Boolean)
+                # For booleans represented as integers: it is better to be as
+                # constraining as possible and say that only 0/1 options are
+                # present by marking these as Boolean, which is less
+                # complicated for the recipient than "integer but with possible
+                # options 0 or 1". We will *also* show the possible options,
+                # just to be clear.
+            )
+            if int_type:
                 qtype = FHIRQuestionType.INTEGER
                 atype = FHIRAnswerType.INTEGER
             elif isinstance(coltype, String):  # includes its subclass, Text
@@ -2102,7 +2127,8 @@ class Task(GenericTabletRecordMixin, Base):
             elif isinstance(coltype, Numeric):  # includes Float, Decimal
                 qtype = FHIRQuestionType.QUANTITY
                 atype = FHIRAnswerType.QUANTITY
-            elif isinstance(coltype, DateTime):
+            elif isinstance(coltype, (DateTime,
+                                      PendulumDateTimeAsIsoTextColType)):
                 qtype = FHIRQuestionType.DATETIME
                 atype = FHIRAnswerType.DATETIME
             elif isinstance(coltype, DateColType):
@@ -2111,31 +2137,30 @@ class Task(GenericTabletRecordMixin, Base):
             elif isinstance(coltype, Time):
                 qtype = FHIRQuestionType.TIME
                 atype = FHIRAnswerType.TIME
-            elif is_sqlatype_binary(coltype) or isinstance(column, BoolColumn):
-                # For BoolColumn: it is better to be as constraining as
-                # possible and say that only 0/1 options are present by marking
-                # these as Boolean, which is less complicated for the recipient
-                # than "integer but with possible options 0 or 1". We will
-                # *also* show the possible options, just to be clear.
+            elif bool_type:
                 qtype = FHIRQuestionType.BOOLEAN
                 atype = FHIRAnswerType.BOOLEAN
             else:
                 raise NotImplementedError(f"Unknown column type: {coltype!r}")
 
-            # Thinking about MCQ options.
+            # Thinking about MCQ options:
             answer_options = None  # type: Optional[Dict[Any, str]]
-            if hasattr(column, COLATTR_PERMITTED_VALUE_CHECKER):
-                qtype = FHIRQuestionType.CHOICE
-                # ... required to transmit the possible values.
+            if ((int_type or bool_type) and
+                    hasattr(column, COLATTR_PERMITTED_VALUE_CHECKER)):
                 pvc = getattr(column, COLATTR_PERMITTED_VALUE_CHECKER)  # type: PermittedValueChecker  # noqa
-                pv = pvc.permitted_values_inc_minmax()
-                answer_options = {}
-                for v in pv:
-                    answer_options[v] = (
-                        self.get_atext(req, attrname, v) or
-                        comment or
-                        FHIR_UNKNOWN_TEXT
-                    )
+                if pvc is not None:
+                    pv = pvc.permitted_values_inc_minmax()
+                    if pv:
+                        qtype = FHIRQuestionType.CHOICE
+                        # ... has to be of type "choice" to transmit the
+                        # possible values.
+                        answer_options = {}
+                        for v in pv:
+                            answer_options[v] = (
+                                self.get_atext(req, attrname, v) or
+                                comment or
+                                FHIR_UNKNOWN_TEXT
+                            )
 
             # Assemble:
             qa_items.append(FHIRAnsweredQuestion(
@@ -2146,6 +2171,10 @@ class Task(GenericTabletRecordMixin, Base):
                 answer=getattr(self, attrname),
                 answer_options=answer_options
             ))
+
+        # We don't currently put any summary information into FHIR exports. I
+        # think that isn't within the spirit of the system, but am not sure.
+        # todo: Check if summary information should go into FHIR exports.
 
         return qa_items
 
