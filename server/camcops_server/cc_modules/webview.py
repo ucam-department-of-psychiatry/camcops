@@ -1993,7 +1993,7 @@ def view_tasks(req: "CamcopsRequest") -> Dict[str, Any]:
     if errors:
         collection = []
     else:
-        collection = TaskCollection(
+        collection = TaskCollection(  # SECURITY APPLIED HERE
             req=req,
             taskfilter=taskfilter,
             sort_method_global=TaskSortMethod.CREATION_DATE_DESC,
@@ -2033,10 +2033,10 @@ def serve_task(req: "CamcopsRequest") -> Response:
     server_pk = req.get_int_param(ViewParam.SERVER_PK)
     anonymise = req.get_bool_param(ViewParam.ANONYMISE, False)
 
-    task = task_factory(req, tablename, server_pk)
+    task = task_factory(req, tablename, server_pk)  # SECURITY APPLIED HERE
 
     if task is None:
-        return HTTPNotFound(
+        raise HTTPNotFound(  # raise, don't return
             f"{_('Task not found or not permitted:')} "
             f"tablename={tablename!r}, server_pk={server_pk!r}")
 
@@ -2082,6 +2082,27 @@ def serve_task(req: "CamcopsRequest") -> Response:
         raise HTTPBadRequest(
             f"{_('Bad output type:')} {viewtype!r} "
             f"({_('permissible:')} {permissible!r})")
+
+
+def view_patient(req: "CamcopsRequest",
+                 patient_server_pk: int) -> Response:
+    """
+    Primarily for FHIR views: show just a patient's details.
+    Must check security carefully for this one.
+    """
+    user = req.user
+    patient = Patient.get_patient_by_pk(req.dbsession, patient_server_pk)
+    if not patient or not patient.user_may_view(user):
+        _ = req.gettext
+        raise HTTPBadRequest(_("No such patient or not authorized"))
+    return render_to_response(
+        "patient.mako",
+        dict(
+            patient=patient,
+            viewtype=ViewArg.HTML,
+        ),
+        request=req
+    )
 
 
 # =============================================================================
@@ -5866,9 +5887,6 @@ def view_task_details(req: "CamcopsRequest") -> Dict[str, Any]:
 @view_config(route_name=Routes.FHIR_QUESTIONNAIRE_RESPONSE,
              request_method=HttpMethod.GET,
              http_cache=NEVER_CACHE)
-@view_config(route_name=Routes.FHIR_TABLENAME_PK_ID,
-             request_method=HttpMethod.GET,
-             http_cache=NEVER_CACHE)
 def fhir_view_task(req: "CamcopsRequest") -> Response:
     """
     Retrieve parameters from a FHIR URL referring back to this server, and
@@ -5888,6 +5906,30 @@ def fhir_view_task(req: "CamcopsRequest") -> Response:
     """
     table_name = req.matchdict[ViewParam.TABLE_NAME]
     server_pk = req.matchdict[ViewParam.SERVER_PK]
+    return HTTPFound(
+        req.route_url(
+            Routes.TASK,
+            _query={
+                ViewParam.TABLE_NAME: table_name,
+                ViewParam.SERVER_PK: server_pk,
+                ViewParam.VIEWTYPE: ViewArg.HTML,
+            }
+        )
+    )
+
+
+@view_config(route_name=Routes.FHIR_TABLENAME_PK_ID,
+             request_method=HttpMethod.GET,
+             http_cache=NEVER_CACHE)
+def fhir_view_tablename_pk(req: "CamcopsRequest") -> Response:
+    """
+    Deal with the slightly silly system that just takes a tablename and PK
+    directly. Security is key here!
+    """
+    table_name = req.matchdict[ViewParam.TABLE_NAME]
+    server_pk = req.matchdict[ViewParam.SERVER_PK]
+    if table_name == Patient.__tablename__:
+        return view_patient(req, server_pk)
     return HTTPFound(
         req.route_url(
             Routes.TASK,

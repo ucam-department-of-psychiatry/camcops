@@ -454,7 +454,8 @@ class Moca(TaskHasPatientMixin, TaskHasClinicianMixin, Task,
                 without permission for CLINICAL and EDUCATIONAL use (with
                 permission from the copyright holder required for any other
                 use), with no special restrictions on electronic versions.
-                However, as of 2021, electronic versions are prohibited; see <a
+                However, as of 2021, electronic versions are prohibited without
+                specific authorization from the copyright holder; see <a
                 href="https://camcops.readthedocs.io/en/latest/tasks/moca.html">
                 https://camcops.readthedocs.io/en/latest/tasks/moca.html</a>.
             </div>

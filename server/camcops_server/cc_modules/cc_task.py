@@ -1675,7 +1675,7 @@ class Task(GenericTabletRecordMixin, Base):
         """
         return self._get_fhir_id_this_task_instance(
             req, Routes.FHIR_PRACTITIONER,
-            Fc.CAMCOPS_VALUE_QUESTIONNAIRE_RESPONSE_WITHIN_TASK
+            Fc.CAMCOPS_VALUE_CLINICIAN_WITHIN_TASK
         )
 
     def _get_fhir_questionnaire_id(self, req: "CamcopsRequest") -> Identifier:
@@ -1701,7 +1701,8 @@ class Task(GenericTabletRecordMixin, Base):
         """
         return self._get_fhir_id_this_task_instance(
             req, Routes.FHIR_QUESTIONNAIRE_RESPONSE,
-            Fc.CAMCOPS_VALUE_QUESTIONNAIRE_RESPONSE_WITHIN_TASK)
+            Fc.CAMCOPS_VALUE_QUESTIONNAIRE_RESPONSE_WITHIN_TASK
+        )
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # References to identifiers
@@ -2090,12 +2091,21 @@ class Task(GenericTabletRecordMixin, Base):
         for attrname, column in gen_columns(self):
             if attrname in skip_fields:
                 continue
-            comment = column.comment or FHIR_UNKNOWN_TEXT
+            comment = column.comment
             coltype = column.type
 
             # Question text:
-            retrieved_qtext = self.get_qtext(req, attrname) or FHIR_UNKNOWN_TEXT  # noqa
-            qtext = f"{retrieved_qtext} [{comment}]"
+            retrieved_qtext = self.get_qtext(req, attrname)
+            qtext_components = []
+            if retrieved_qtext:
+                qtext_components.append(retrieved_qtext)
+            if comment:
+                qtext_components.append(f"[{comment}]")
+            if not qtext_components:
+                qtext_components = (attrname, )
+            if not qtext_components:
+                qtext_components = (FHIR_UNKNOWN_TEXT, )
+            qtext = " ".join(qtext_components)
             # Note that it's good to get the column comment in somewhere; these
             # often explain the meaning of the field quite well. It may or may
             # not be possible to get it into the option values -- many answer

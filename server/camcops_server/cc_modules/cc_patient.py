@@ -118,6 +118,7 @@ if TYPE_CHECKING:
     from camcops_server.cc_modules.cc_policy import TokenizedPolicy
     from camcops_server.cc_modules.cc_request import CamcopsRequest
     from camcops_server.cc_modules.cc_taskschedule import PatientTaskSchedule
+    from camcops_server.cc_modules.cc_user import User
 
 log = BraceStyleAdapter(logging.getLogger(__name__))
 
@@ -1063,8 +1064,14 @@ class Patient(GenericTabletRecordMixin, Base):
         super().delete_with_dependants(req)
 
     # -------------------------------------------------------------------------
-    # Editing
+    # Permissions
     # -------------------------------------------------------------------------
+
+    def user_may_view(self, user: "User") -> bool:
+        """
+        May this user inspect patient details directly?
+        """
+        return self._group_id in user.ids_of_groups_user_may_see
 
     def user_may_edit(self, req: "CamcopsRequest") -> bool:
         """

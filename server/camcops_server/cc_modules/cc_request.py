@@ -2054,8 +2054,10 @@ def camcops_pyramid_configurator_context(
         # Add all the routes:
         for pr in RouteCollection.all_routes():
             if DEBUG_ADD_ROUTES:
-                log.info("{} -> {}", pr.route, pr.path)
-            config.add_route(pr.route, pr.path)
+                suffix = (f", pregenerator={pr.pregenerator}"
+                          if pr.pregenerator else "")
+                log.info("Adding route: {} -> {}{}", pr.route, pr.path, suffix)
+            config.add_route(pr.route, pr.path, pregenerator=pr.pregenerator)
         # See also:
         # https://stackoverflow.com/questions/19184612/how-to-ensure-urls-generated-by-pyramids-route-url-and-route-path-are-valid  # noqa
 

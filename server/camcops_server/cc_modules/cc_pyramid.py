@@ -837,10 +837,12 @@ class RoutePath(object):
 
     """  # noqa
     def __init__(self, route: str, path: str = "",
-                 ignore_in_all_routes: bool = False) -> None:
+                 ignore_in_all_routes: bool = False,
+                 pregenerator: Callable = None) -> None:
         self.route = route
         self.path = path or "/" + route
         self.ignore_in_all_routes = ignore_in_all_routes
+        self.pregenerator = pregenerator
 
 
 MASTER_ROUTE_WEBVIEW = "/"
@@ -850,23 +852,52 @@ MASTER_ROUTE_CLIENT_API_ALIAS = "/database"
 STATIC_CAMCOPS_PACKAGE_PATH = "camcops_server.static:"
 # ... the "static" package (directory with __init__.py) within the
 # "camcops_server" owning package
-STATIC_BOOTSTRAP_ICONS_PATH = (
-        STATIC_CAMCOPS_PACKAGE_PATH + "bootstrap-icons-1.7.0"
-)
+STATIC_BOOTSTRAP_ICONS_PATH = (STATIC_CAMCOPS_PACKAGE_PATH +
+                               "bootstrap-icons-1.7.0")
 
 
-def _mk_fhir_tablename_route(_route: str) -> RoutePath:
+# noinspection PyUnusedLocal
+def pregen_for_fhir(request: Request,
+                    elements: Tuple,
+                    kw: Dict) -> Tuple:
+    """
+    Pyramid pregenerator, to pre-populate an optional URL keyword (with an
+    empty string, as it happens). See
+
+    - https://stackoverflow.com/questions/42193305/optional-url-parameter-on-pyramid-route
+    - https://docs.pylonsproject.org/projects/pyramid/en/latest/api/config.html
+    - https://docs.pylonsproject.org/projects/pyramid/en/latest/api/interfaces.html#pyramid.interfaces.IRoutePregenerator
+    """  # noqa
+    kw.setdefault("fhirvalue_with_bar", "")
+    return elements, kw
+
+
+def _mk_fhir_optional_value_suffix_route(route: str,
+                                         path: str = "") -> RoutePath:
+    path = path or "/" + route
+    path_with_optional_value = path + r"{fhirvalue_with_bar:(\|[\w\d/\.]+)?}"
+    # ... allow, optionally, a bar followed by one or more word, digit,
+    # forward slash, or period characters.
+    # This allows FHIR identifier suffixes like path|table/2.4.11
     return RoutePath(
-        _route,
-        f"/{_route}"
+        route,
+        path_with_optional_value,
+        pregenerator=pregen_for_fhir
+    )
+
+
+def _mk_fhir_tablename_route(route: str) -> RoutePath:
+    return _mk_fhir_optional_value_suffix_route(
+        route,
+        f"/{route}"
         rf"/{{{ViewParam.TABLE_NAME}:\w+}}"
     )
 
 
-def _mk_fhir_tablename_pk_route(_route: str) -> RoutePath:
-    return RoutePath(
-        _route,
-        f"/{_route}"
+def _mk_fhir_tablename_pk_route(route: str) -> RoutePath:
+    return _mk_fhir_optional_value_suffix_route(
+        route,
+        f"/{route}"
         rf"/{{{ViewParam.TABLE_NAME}:\w+}}"
         rf"/{{{ViewParam.SERVER_PK}:\d+}}"
     )
@@ -934,6 +965,7 @@ class RouteCollection(object):
     EDIT_USER_GROUP_MEMBERSHIP = RoutePath(Routes.EDIT_USER_GROUP_MEMBERSHIP)
     ERASE_TASK_LEAVING_PLACEHOLDER = RoutePath(Routes.ERASE_TASK_LEAVING_PLACEHOLDER)  # noqa: E501
     ERASE_TASK_ENTIRELY = RoutePath(Routes.ERASE_TASK_ENTIRELY)
+
     FHIR_CONDITION = _mk_fhir_tablename_pk_route(
         Routes.FHIR_CONDITION,
     )
@@ -943,7 +975,7 @@ class RouteCollection(object):
     FHIR_OBSERVATION = _mk_fhir_tablename_pk_route(
         Routes.FHIR_OBSERVATION
     )
-    FHIR_PATIENT_ID_SYSTEM = RoutePath(
+    FHIR_PATIENT_ID_SYSTEM = _mk_fhir_optional_value_suffix_route(
         Routes.FHIR_PATIENT_ID_SYSTEM,
         f"/{Routes.FHIR_PATIENT_ID_SYSTEM}"
         rf"/{{{ViewParam.WHICH_IDNUM}:\d+}}"
@@ -951,13 +983,16 @@ class RouteCollection(object):
     FHIR_PRACTITIONER = _mk_fhir_tablename_pk_route(
         Routes.FHIR_PRACTITIONER
     )
-    FHIR_QUESTIONNAIRE_SYSTEM = RoutePath(Routes.FHIR_QUESTIONNAIRE_SYSTEM)
+    FHIR_QUESTIONNAIRE_SYSTEM = _mk_fhir_optional_value_suffix_route(
+        Routes.FHIR_QUESTIONNAIRE_SYSTEM
+    )
     FHIR_QUESTIONNAIRE_RESPONSE = _mk_fhir_tablename_pk_route(
         Routes.FHIR_QUESTIONNAIRE_RESPONSE
     )
     FHIR_TABLENAME_PK_ID = _mk_fhir_tablename_pk_route(
         Routes.FHIR_TABLENAME_PK_ID
     )
+
     FORCIBLY_FINALIZE = RoutePath(Routes.FORCIBLY_FINALIZE)
     HOME = RoutePath(Routes.HOME, MASTER_ROUTE_WEBVIEW)  # mounted at "/"
     LOGIN = RoutePath(Routes.LOGIN)
