@@ -3553,44 +3553,52 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Display Danish or English on the visual editor according to the user's
   language.
 
-- Bump ``babel`` from 2.8.0 to 2.9.1 for security advisory CVE-2021-42771.
-
 - Initial FHIR support.
 
-  - Support FHIR export of PHQ9 and APEQPT (anonymous).
+  - Explicit FHIR export support for (search for ``def get_fhir``):
 
-  - The current approach has the task classes create the items for the
-    Questionnaire and QuestionnaireResponse resources, with quite a bit of code
-    duplication. We could make a further optimisation by putting a FHIR-like
-    structure on each task and have some common task code read this to create
-    the FHIR resources. BMI may be better described as FHIR Observation
-    resource rather than QuestionnaireResponse.
+    - PHQ9 (a prototype patient-based task);
+    - APEQPT (an anonymous task);
+    - BMI (provides Observation objects too);
+    - the Diagnosis* tasks (provide observations).
+
+  - Autodiscovery support for all others. This is imperfect in terms of
+    question/answer text, and the guesswork could probably be improved, but it
+    gets the job done (using field comments as a fallback).
 
   - For testing details, see ``camcops_server/cc_modules/cc_fhir.py``.
 
-- Bump ``sphinx`` from 3.1.1 to 4.2.0 (which pins docutils properly and fixes
-  some bugs).
+  - Links through to FHIR server and back-links back to CamCOPS.
 
-- Bugfix for hacking the ``pymysql`` driver to support Pendulum date/time
-  objects properly. The bug manifested during reindexing, and was as documented
-  above in :ref:`v2.3.3 <changelog_v2_3_3>`.
+  - FHIR views from tasks.
 
-- Bump ``cardinal_pythonlib``, which now uses numpy 1.20.0, which removes
-  support for Python 3.6, so we do too. Minimum Python version now Python 3.7.
+- Packages:
 
-- Bump ``pandas`` from 1.0.5 to 1.3.4 (as 1.0.5 not supported by Python 3.9).
+  - Bump ``babel`` from 2.8.0 to 2.9.1 for security advisory CVE-2021-42771.
 
-- Some ``pyexcel-*`` bumps to remove warnings.
+  - Bump ``sphinx`` from 3.1.1 to 4.2.0 (which pins docutils properly and fixes
+    some bugs).
 
-- Bump ``pdfkit`` from 0.6.1 to 1.0.0 to remove a bug warning inside it
-  (``SyntaxWarning: "is" with a literal. Did you mean "=="?``, re ``if
-  self.type is 'file':``).
+  - Bugfix for hacking the ``pymysql`` driver to support Pendulum date/time
+    objects properly. The bug manifested during reindexing, and was as
+    documented above in :ref:`v2.3.3 <changelog_v2_3_3>`.
 
-- Bump ``asteval`` from 0.9.18 to 0.9.25 as it was generating testing warnings.
+  - Bump ``cardinal_pythonlib``, which now uses numpy 1.20.0, which removes
+    support for Python 3.6, so we do too.
+    **Minimum Python version now Python 3.7.**
+
+  - Bump ``pandas`` from 1.0.5 to 1.3.4 (as 1.0.5 not supported by Python 3.9).
+
+  - Some ``pyexcel-*`` bumps to remove warnings.
+
+  - Bump ``pdfkit`` from 0.6.1 to 1.0.0 to remove a bug warning inside it
+    (``SyntaxWarning: "is" with a literal. Did you mean "=="?``, re ``if
+    self.type is 'file':``).
+
+  - Bump ``asteval`` from 0.9.18 to 0.9.25 as it was generating testing
+    warnings.
 
 - Update SNOMED code fetcher. Replace 32537008 with 165172002 in
   PsychiatricClerking. Other minor tweaks.
 
-- Icons for web site.
-
-- Web site views for FHIR exports.
+- Icons for web site (using Bootstrap open-source icons).
