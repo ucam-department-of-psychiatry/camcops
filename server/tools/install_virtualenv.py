@@ -54,8 +54,8 @@ if distro:
     LINUX_DIST = distro.linux_distribution()[0].lower()
 else:
     LINUX_DIST = ''
-DEB = LINUX_DIST in ['ubuntu', 'debian']
-RPM = LINUX_DIST in ['fedora', 'rhel', 'centos']
+DEB = LINUX_DIST in ('ubuntu', 'debian')
+RPM = LINUX_DIST in ('fedora', 'rhel', 'centos')
 
 DESCRIPTION = """
 Make a new virtual environment.

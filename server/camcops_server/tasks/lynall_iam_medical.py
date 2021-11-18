@@ -348,7 +348,7 @@ class LynallIamMedicalHistory(TaskHasPatientMixin, Task):
         q7a_options = self.make_options_from_xstrings(
             req, "q7a_option", 0, 1)
         _q7b_anchors = []  # type: List[str]
-        for _o in [1, 10]:
+        for _o in (1, 10):
             _wxstring = self.wxstring(req, f"q7b_anchor_{_o}")
             _q7b_anchors.append(f'{_o}: {_wxstring}')
         q7b_explanation = f" <i>(Anchors: {' // '.join(_q7b_anchors)})</i>"

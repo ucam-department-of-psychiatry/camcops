@@ -3558,7 +3558,7 @@ class IpUseType(SchemaType):
             node: SchemaNode,
             ip_use: Union[IpUse, None, ColanderNullType]) \
             -> Union[Dict, ColanderNullType]:
-        if ip_use in [null, None]:
+        if ip_use in (null, None):
             return null
 
         return {

@@ -1773,9 +1773,9 @@ class EditOwnUserMfaView(LoggedInUserMfaMixin, UpdateView):
             else:
                 self.step = mfa_method
 
-        elif self.step in [self.STEP_TOTP,
+        elif self.step in (self.STEP_TOTP,
                            self.STEP_HOTP_EMAIL,
-                           self.STEP_HOTP_SMS]:
+                           self.STEP_HOTP_SMS):
             # Coming from one of the method-specific steps.
             # 3. Ask for the authentication code.
             self.step = self.STEP_MFA
@@ -4749,7 +4749,7 @@ class EditPatientBaseView(PatientMixin, UpdateView):
             old_value = getattr(patient, k)
             if new_value == old_value:
                 continue
-            if new_value in [None, ""] and old_value in [None, ""]:
+            if new_value in (None, "") and old_value in (None, ""):
                 # Nothing really changing!
                 continue
             changes[k] = (old_value, new_value)

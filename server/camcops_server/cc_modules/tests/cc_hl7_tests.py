@@ -80,8 +80,8 @@ class HL7CoreTests(DemoDatabaseTestCase):
             patient_id_list=pitlist
         ), hl7.Segment)
         self.assertIsInstance(make_obr_segment(task), hl7.Segment)
-        for task_format in [FileType.PDF, FileType.HTML, FileType.XML]:
-            for comments in [True, False]:
+        for task_format in (FileType.PDF, FileType.HTML, FileType.XML):
+            for comments in (True, False):
                 export_options = TaskExportOptions(
                     xml_include_comments=comments,
                     xml_with_header_comments=comments,

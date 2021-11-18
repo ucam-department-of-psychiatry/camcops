@@ -259,7 +259,7 @@ Operations:
         level=logging.DEBUG if args.verbose else logging.INFO)
     op = args.operation  # type: str
 
-    if op in [OP_PO_TO_TS, OP_ALL]:
+    if op in (OP_PO_TO_TS, OP_ALL):
         log.debug(
             f"Copying all {EXT_PO} files to corresponding {EXT_TS} files if "
             f"the {EXT_PO} file is newer (or the {EXT_TS} file doesn't "
@@ -272,7 +272,7 @@ Operations:
                 lconvert=args.lconvert
             )
 
-    if op in [OP_SRC_TO_TS, OP_ALL]:
+    if op in (OP_SRC_TO_TS, OP_ALL):
         assert args.lupdate, "Missing lupdate"
         log.info(f"Using Qt Linguist 'lupdate' to update .ts files "
                  f"from {CAMCOPS_PRO_FILE}")
@@ -280,7 +280,7 @@ Operations:
         cmdargs = [args.lupdate] + options + [CAMCOPS_PRO_FILE]
         run(cmdargs)
 
-    if op in [OP_TS_TO_PO, OP_ALL]:
+    if op in (OP_TS_TO_PO, OP_ALL):
         log.debug(
             f"Copying all {EXT_TS} files to corresponding {EXT_PO} files if "
             f"the {EXT_PO} file is newer (or the {EXT_PO} file doesn't "
@@ -293,14 +293,14 @@ Operations:
                 lconvert=args.lconvert
             )
 
-    if op in [OP_TS_TO_QM, OP_ALL]:
+    if op in (OP_TS_TO_QM, OP_ALL):
         assert args.lrelease, "Missing lrelease"
         log.info(f"Using Qt Linguist 'lrelease' to update .qm files "
                  f"from .ts files")
         cmdargs = [args.lrelease, CAMCOPS_PRO_FILE]
         run(cmdargs)
 
-    if op in [OP_POEDIT]:  # but not OP_ALL
+    if op in (OP_POEDIT, ):  # but not OP_ALL
         for po_filename in gen_files_with_ext(TRANSLATIONS_DIR, EXT_PO):
             cmdargs = [args.poedit, po_filename]
             spawn(cmdargs)

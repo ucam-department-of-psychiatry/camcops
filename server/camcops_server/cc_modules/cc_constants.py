@@ -602,14 +602,14 @@ class MfaMethod:
         """
         Is the method a known MFA method (including "no MFA")?
         """
-        return method in [cls.HOTP_EMAIL, cls.HOTP_SMS, cls.NO_MFA, cls.TOTP]
+        return method in (cls.HOTP_EMAIL, cls.HOTP_SMS, cls.NO_MFA, cls.TOTP)
 
     @classmethod
     def requires_second_step(cls, method: str) -> bool:
         """
         Does the method require a second authentication step?
         """
-        return method in [cls.HOTP_EMAIL, cls.HOTP_SMS, cls.TOTP]
+        return method in (cls.HOTP_EMAIL, cls.HOTP_SMS, cls.TOTP)
 
     @classmethod
     def clean(cls, method: str) -> str:

@@ -717,8 +717,8 @@ class FHIRAnsweredQuestion:
         """
         Is this a multiple-choice question?
         """
-        return self.qtype in [FHIRQuestionType.CHOICE,
-                              FHIRQuestionType.OPEN_CHOICE]
+        return self.qtype in (FHIRQuestionType.CHOICE,
+                              FHIRQuestionType.OPEN_CHOICE)
 
     # -------------------------------------------------------------------------
     # Abstract (class)

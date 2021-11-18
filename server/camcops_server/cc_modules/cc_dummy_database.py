@@ -333,7 +333,7 @@ class DummyDataFactory(object):
         if column.name.startswith("_"):
             return False
 
-        if column.name in [
+        if column.name in (
             'editing_time_s',
             'firstexit_is_abort',
             'firstexit_is_finish',
@@ -342,7 +342,7 @@ class DummyDataFactory(object):
             'when_created',
             'when_firstexit',
             'when_last_modified',
-        ]:
+        ):
             return False
 
         return True

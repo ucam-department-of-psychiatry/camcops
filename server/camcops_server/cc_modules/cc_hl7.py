@@ -629,7 +629,7 @@ def make_dg1_segment(set_id: int,
     diagnosis_description = ""
     diagnosis_datetime = format_datetime(diagnosis_datetime,
                                          DateFormat.HL7_DATETIME)
-    if diagnosis_type not in ["A", "W", "F"]:
+    if diagnosis_type not in ("A", "W", "F"):
         raise AssertionError("make_dg1_segment: diagnosis_type invalid")
     major_diagnostic_category = ""
     diagnostic_related_group = ""
@@ -672,11 +672,11 @@ def make_dg1_segment(set_id: int,
         clinician_assigning_facility or "",
     ])
 
-    if diagnosis_classification not in ["C", "D", "M", "O", "R", "S", "T",
-                                        "I"]:
+    if diagnosis_classification not in ("C", "D", "M", "O", "R", "S", "T",
+                                        "I"):
         raise AssertionError(
             "make_dg1_segment: diagnosis_classification invalid")
-    if confidential_indicator not in ["Y", "N"]:
+    if confidential_indicator not in ("Y", "N"):
         raise AssertionError(
             "make_dg1_segment: confidential_indicator invalid")
     attestation_datetime = (

@@ -422,7 +422,7 @@ try:
     import distro  # http://distro.readthedocs.io/en/latest/
 except ImportError:
     distro = None
-    if platform.system() in ["Linux"]:
+    if platform.system() in ("Linux", ):
         print("Please install 'distro' first, using:\n\n"
               "pip install distro")
         raise
@@ -829,7 +829,7 @@ class Platform(object):
             raise NotImplementedError(f"Unknown target CPU: {cpu!r}")
 
         # 64-bit support only (thus far)?
-        if os in [Os.LINUX, Os.MACOS] and not self.cpu_x86_64bit_family:
+        if os in (Os.LINUX, Os.MACOS) and not self.cpu_x86_64bit_family:
             raise NotImplementedError(
                 f"Don't know how to build for CPU {cpu} on system {os}")
 
@@ -908,7 +908,7 @@ class Platform(object):
     @property
     def debian(self) -> bool:
         # http://distro.readthedocs.io/en/latest/#distro.id
-        return self.distro_id in ["ubuntu", "debian"]
+        return self.distro_id in ("ubuntu", "debian")
 
     @property
     def macos(self) -> bool:
@@ -932,7 +932,7 @@ class Platform(object):
 
     @property
     def mobile(self) -> bool:
-        return self.os in [Os.ANDROID, Os.IOS]
+        return self.os in (Os.ANDROID, Os.IOS)
 
     @property
     def desktop(self) -> bool:
@@ -940,11 +940,11 @@ class Platform(object):
 
     @property
     def cpu_x86_family(self) -> bool:
-        return self.cpu in [Cpu.X86_32, Cpu.X86_64, Cpu.AMD_64]
+        return self.cpu in (Cpu.X86_32, Cpu.X86_64, Cpu.AMD_64)
 
     @property
     def cpu_64bit(self) -> bool:
-        return self.cpu in [Cpu.X86_64, Cpu.AMD_64, Cpu.ARM_V8_64]
+        return self.cpu in (Cpu.X86_64, Cpu.AMD_64, Cpu.ARM_V8_64)
 
     @property
     def cpu_x86_64bit_family(self) -> bool:
@@ -956,15 +956,15 @@ class Platform(object):
 
     @property
     def cpu_arm_family(self) -> bool:
-        return self.cpu in [Cpu.ARM_V5_32, Cpu.ARM_V7_32, Cpu.ARM_V8_64]
+        return self.cpu in (Cpu.ARM_V5_32, Cpu.ARM_V7_32, Cpu.ARM_V8_64)
 
     @property
     def cpu_arm_32bit(self) -> bool:
-        return self.cpu in [Cpu.ARM_V5_32, Cpu.ARM_V7_32]
+        return self.cpu in (Cpu.ARM_V5_32, Cpu.ARM_V7_32)
 
     @property
     def cpu_arm_64bit(self) -> bool:
-        return self.cpu in [Cpu.ARM_V8_64]
+        return self.cpu in (Cpu.ARM_V8_64, )
 
     # -------------------------------------------------------------------------
     # Linkage method of Qt
@@ -1093,7 +1093,7 @@ class Platform(object):
                 arm64tag_present = False
                 for line in lines:
                     words = line.split()
-                    if (words[0] in ["Archive", "Mach", "magic"] or
+                    if (words[0] in ("Archive", "Mach", "magic") or
                             words[0].startswith(filename)):
                         continue
                     assert len(words) > 1, "Unknown format of otool output"
@@ -1202,20 +1202,20 @@ class Platform(object):
         - https://www.gnu.org/software/autoconf/manual/autoconf-2.65/html_node/Specifying-Target-Triplets.html
         - https://superuser.com/questions/238112/what-is-the-difference-between-i686-and-x86-64
         """  # noqa
-        if self.os in [Os.LINUX, Os.ANDROID, Os.WINDOWS]:
+        if self.os in (Os.LINUX, Os.ANDROID, Os.WINDOWS):
             return self.linux_windows_cpu_name
-        elif self.os in [Os.MACOS, Os.IOS]:
+        elif self.os in (Os.MACOS, Os.IOS):
             return self.apple_cpu_name_for_triplet
         else:
             raise NotImplementedError(f"triplet_cpu() doesn't know {self.cpu}")
 
     @property
     def triplet_vendor(self) -> str:
-        if self.os in [Os.ANDROID]:
+        if self.os in (Os.ANDROID, ):
             return "linux"
-        elif self.os in [Os.LINUX, Os.WINDOWS]:
+        elif self.os in (Os.LINUX, Os.WINDOWS):
             return "unknown"
-        elif self.os in [Os.MACOS, Os.IOS]:
+        elif self.os in (Os.MACOS, Os.IOS):
             return "apple"
         else:
             raise NotImplementedError(

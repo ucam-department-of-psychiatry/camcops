@@ -209,7 +209,7 @@ Operations:
     pybabel = "pybabel"
     poedit = "poedit"
 
-    if op in [OP_EXTRACT, OP_ALL]:
+    if op in (OP_EXTRACT, OP_ALL):
         log.info(f"EXTRACT: from code to a .pot file: {POT_FILE}")
         comment_tags_csv = ",".join(COMMENT_TAGS)
         cmdargs = [
@@ -227,7 +227,7 @@ Operations:
         ] + SOURCE_DIRS
         run(cmdargs)
 
-    if op in [OP_INIT_MISSING, OP_ALL]:
+    if op in (OP_INIT_MISSING, OP_ALL):
         # Note that "pybabel init" will overwrite existing files, so don't
         # initialize if the .po file already exists.
         for locale in LOCALES:
@@ -246,7 +246,7 @@ Operations:
             ]
             run(cmdargs)
 
-    if op in [OP_UPDATE, OP_ALL]:
+    if op in (OP_UPDATE, OP_ALL):
         for locale in LOCALES:
             po_filename = get_po_filename(locale)
             if not isfile(po_filename):
@@ -265,7 +265,7 @@ Operations:
             ]
             run(cmdargs)
 
-    if op in [OP_POEDIT]:  # but not OP_ALL
+    if op in (OP_POEDIT, ):  # but not OP_ALL
         for locale in LOCALES:
             po_filename = get_po_filename(locale)
             if not isfile(po_filename):
@@ -277,7 +277,7 @@ Operations:
             ]
             spawn(cmdargs)
 
-    if op in [OP_COMPILE, OP_ALL]:
+    if op in (OP_COMPILE, OP_ALL):
         for locale in LOCALES:
             po_filename = get_po_filename(locale)
             mo_filename = get_mo_filename(locale)
