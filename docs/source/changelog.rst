@@ -3525,3 +3525,11 @@ Current C++/SQLite client, Python/SQLAlchemy server
 
 - Display Danish or English on the visual editor according to the user's language.
 - Bump ``babel`` from 2.8.0 to 2.9.1 for security advisory CVE-2021-42771.
+
+- Fix a bug where assigning the same schedule twice to a patient would not be possible.
+  https://github.com/RudolfCardinal/camcops/issues/218
+
+- Fix internal server error when removing a schedule from a patient, where
+  emails had been sent relating to the schedule.
+
+- Add page of random test NHS numbers for testing.

@@ -385,13 +385,15 @@ Any tasks you schedule for a patient need to be permitted for these contexts.
       can be expressed as a combination of months, weeks and days (1 month = 30
       days, 1 week = 7 days).
 
-From the Patient Task Schedules page you can add a new patient. The patient
-must have enough identifiable information to match the :ref:`uploading and
-finalizing ID policies <uploading_and_finalizing_policies>` of the group. Here
-you can also assign one or more task schedules to the patient. You can specify
-the start date of the schedule or leave it blank. If you leave it blank, the
-start date will be the date the patient first downloads the schedule from the
-server.
+From the Patient Task Schedules page you can add a new patient. The patient must
+have enough identifiable information to match the :ref:`uploading and finalizing
+ID policies <uploading_and_finalizing_policies>` of the group. Here you can also
+assign one or more task schedules to the patient. You can specify the start date
+of the schedule or leave it blank. If you leave it blank, the start date will be
+the date the patient first downloads the schedule from the server. You can
+assign the same schedule multiple times to a patient, though you should only do
+this once the patient has completed the tasks for all previous instances of the
+same schedule.
 
 Advanced use: There is an optional form field to specify any patient-specific
 settings for the tasks. This is a JSON object keyed on the task table name
