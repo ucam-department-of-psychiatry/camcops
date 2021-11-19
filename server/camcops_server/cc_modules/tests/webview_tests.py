@@ -1266,6 +1266,7 @@ class EditServerCreatedPatientViewTests(BasicDatabaseTestCase):
 
         self.assertIn(f"Amended patient record with server PK {patient.pk}",
                       messages[0])
+        self.assertIn("Task schedules", messages[0])
 
     def test_unprivileged_user_cannot_edit_patient(self) -> None:
         patient = self.create_patient(sex="F", as_server_patient=True)

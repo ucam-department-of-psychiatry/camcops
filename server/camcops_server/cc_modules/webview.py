@@ -4578,11 +4578,20 @@ class EditPatientBaseView(PatientMixin, UpdateView):
             )
             return
 
+        formatted_changes = []
+
+        for k, details in changes.items():
+            if len(details) == 1:
+                change = f"{k}: {details[0]!r}"
+            else:
+                change = f"{k}: {details[0]!r} → {details[1]!r}"
+
+            formatted_changes.append(change)
+
         # Below here, changes have definitely been made.
         change_msg = (
             _("Patient details edited. Changes:") + " " + "; ".join(
-                f"{k}: {old!r} → {new!r}"
-                for k, (old, new) in changes.items()
+                formatted_changes
             )
         )
 
@@ -4761,9 +4770,11 @@ class EditServerCreatedPatientView(EditPatientBaseView):
                              appstruct: Dict[str, Any],
                              changes: OrderedDict) -> None:
 
+        _ = self.request.gettext
         patient = cast(Patient, self.object)
-
         ids_to_delete = [pts.id for pts in patient.task_schedules]
+
+        anything_changed = False
 
         for schedule_dict in appstruct.get(ViewParam.TASK_SCHEDULES, {}):
             pts_id = schedule_dict[ViewParam.PATIENT_TASK_SCHEDULE_ID]
@@ -4779,16 +4790,27 @@ class EditServerCreatedPatientView(EditPatientBaseView):
                 pts.settings = settings
 
                 self.request.dbsession.add(pts)
+                anything_changed = True
             else:
-                updates = {
-                    PatientTaskSchedule.start_datetime: start_datetime,
-                    PatientTaskSchedule.schedule_id: schedule_id,
-                    PatientTaskSchedule.settings: settings,
-                }
+                old_pts = self.request.dbsession.query(
+                    PatientTaskSchedule
+                ).filter(PatientTaskSchedule.id == pts_id).first()
 
-                self.request.dbsession.query(PatientTaskSchedule).filter(
-                    PatientTaskSchedule.id == pts_id,
-                ).update(updates, synchronize_session="fetch")
+                updates = {}
+                if old_pts.start_datetime != start_datetime:
+                    updates[PatientTaskSchedule.start_datetime] = start_datetime
+
+                if old_pts.schedule_id != schedule_id:
+                    updates[PatientTaskSchedule.schedule_id] = schedule_id
+
+                if old_pts.settings != settings:
+                    updates[PatientTaskSchedule.settings] = settings
+
+                if updates:
+                    anything_changed = True
+                    self.request.dbsession.query(PatientTaskSchedule).filter(
+                        PatientTaskSchedule.id == pts_id,
+                    ).update(updates, synchronize_session="fetch")
 
                 ids_to_delete.remove(pts_id)
 
@@ -4806,6 +4828,10 @@ class EditServerCreatedPatientView(EditPatientBaseView):
 
         for pts in pts_to_delete:
             self.request.dbsession.delete(pts)
+            anything_changed = True
+
+        if anything_changed:
+            changes[_("Task schedules")] = (_("Updated"),)
 
 
 class EditFinalizedPatientView(EditPatientBaseView):
