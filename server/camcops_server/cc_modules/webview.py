@@ -4511,6 +4511,7 @@ class PatientMixin(object):
             ]
             form_values[ViewParam.TASK_SCHEDULES] = [
                 {
+                    ViewParam.PATIENT_TASK_SCHEDULE_ID: pts.id,
                     ViewParam.SCHEDULE_ID: pts.schedule_id,
                     ViewParam.START_DATETIME: pts.start_datetime,
                     ViewParam.SETTINGS: pts.settings,
