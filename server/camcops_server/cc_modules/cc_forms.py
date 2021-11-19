@@ -4385,8 +4385,10 @@ class TaskScheduleSelector(SchemaNode, RequestAwareMixin):
         self.title = _("Task schedule")
         values = []  # type: List[Tuple[Optional[int], str]]
 
+        valid_group_ids = request.user.ids_of_groups_user_may_manage_patients_in
         task_schedules = (
             request.dbsession.query(TaskSchedule)
+            .filter(TaskSchedule.group_id.in_(valid_group_ids))
             .order_by(TaskSchedule.name)
         )
 

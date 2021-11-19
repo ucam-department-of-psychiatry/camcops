@@ -50,6 +50,7 @@ from camcops_server.cc_modules.cc_forms import (
     TaskScheduleItemSchema,
     TaskScheduleNode,
     TaskScheduleSchema,
+    TaskScheduleSelector,
 )
 from camcops_server.cc_modules.cc_ipuse import IpContexts
 from camcops_server.cc_modules.cc_pyramid import ViewParam
@@ -713,6 +714,35 @@ class TaskScheduleNodeTests(TestCase):
             )
 
             self.assertEqual(cm.exception.value, "[{}]")
+
+
+class TaskScheduleSelectorTests(BasicDatabaseTestCase):
+    def test_displays_only_users_schedules(self) -> None:
+        user = self.create_user(username="regular_user")
+        my_group = self.create_group("mygroup")
+        not_my_group = self.create_group("notmygroup")
+        self.dbsession.flush()
+
+        self.create_membership(user, my_group, may_manage_patients=True)
+
+        my_schedule = TaskSchedule()
+        my_schedule.group_id = my_group.id
+        my_schedule.name = "My group's schedule"
+        self.dbsession.add(my_schedule)
+
+        not_my_schedule = TaskSchedule()
+        not_my_schedule.group_id = not_my_group.id
+        not_my_schedule.name = "Not my group's schedule"
+        self.dbsession.add(not_my_schedule)
+        self.dbsession.commit()
+
+        self.req._debugging_user = user
+
+        selector = TaskScheduleSelector().bind(request=self.req)
+        self.assertIn((my_schedule.id, my_schedule.name),
+                      selector.widget.values)
+        self.assertNotIn((not_my_schedule.id, not_my_schedule.name),
+                         selector.widget.values)
 
 
 class GroupIpUseWidgetTests(TestCase):
