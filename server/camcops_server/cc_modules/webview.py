@@ -4792,9 +4792,20 @@ class EditServerCreatedPatientView(EditPatientBaseView):
 
                 ids_to_delete.remove(pts_id)
 
-        self.request.dbsession.query(PatientTaskSchedule).filter(
-            PatientTaskSchedule.id.in_(ids_to_delete)
-        ).delete(synchronize_session="fetch")
+        pts_to_delete = self.request.dbsession.query(
+            PatientTaskSchedule
+        ).filter(PatientTaskSchedule.id.in_(ids_to_delete))
+
+        # Previously we had:
+        # pts_to_delete.delete(synchronize_session="fetch")
+        #
+        # This won't cascade the deletion because we are calling delete() on
+        # the query object. We could set up cascade at the database level
+        # instead but there is little performance gain here.
+        # https://stackoverflow.com/questions/19243964/sqlalchemy-delete-doesnt-cascade
+
+        for pts in pts_to_delete:
+            self.request.dbsession.delete(pts)
 
 
 class EditFinalizedPatientView(EditPatientBaseView):
