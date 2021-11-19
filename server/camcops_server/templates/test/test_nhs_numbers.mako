@@ -1,7 +1,7 @@
 ## -*- coding: utf-8 -*-
 <%doc>
 
-camcops_server/templates/test/testpage.mako
+camcops_server/templates/test/test_nhs_numbers.mako
 
 ===============================================================================
 
