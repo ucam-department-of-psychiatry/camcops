@@ -58,3 +58,9 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
                     ) | n }">View tasks without using index</a></li>
     <li>Trackers and CTVs have a no-index option available to users directly.</li>
 </ul>
+
+<h3>Test data</h3>
+<ul>
+    <li><a href=" ${request.route_url(Routes.TEST_NHS_NUMBERS) | n }">
+        NHS numbers for testing</a></li>
+</ul>

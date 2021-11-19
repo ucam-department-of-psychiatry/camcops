@@ -491,6 +491,22 @@ def test_page_1(req: "CamcopsRequest") -> Response:
     return Response(_("Hello! This is a public CamCOPS test page."))
 
 
+@view_config(route_name=Routes.TEST_NHS_NUMBERS,
+             permission=NO_PERMISSION_REQUIRED,
+             renderer="test_nhs_numbers.mako",
+             http_cache=NEVER_CACHE)
+def test_nhs_numbers(req: "CamcopsRequest") -> Response:
+    """
+    Random Test NHS numbers for testing
+    """
+    from cardinal_pythonlib.nhs import generate_random_nhs_number
+
+    test_nhs_numbers = [generate_random_nhs_number()
+                        for i in range(1, 10)]
+
+    return dict(test_nhs_numbers=test_nhs_numbers)
+
+
 # noinspection PyUnusedLocal
 @view_config(route_name=Routes.TESTPAGE_PRIVATE_1,
              http_cache=NEVER_CACHE)
