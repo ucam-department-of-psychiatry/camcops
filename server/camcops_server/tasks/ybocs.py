@@ -70,7 +70,7 @@ class YbocsMetaclass(DeclarativeMeta):
                  bases: Tuple[Type, ...],
                  classdict: Dict[str, Any]) -> None:
         cls.TARGET_COLUMNS = []  # type: List[Column]
-        for target in ["obsession", "compulsion", "avoidance"]:
+        for target in ("obsession", "compulsion", "avoidance"):
             for n in range(1, cls.NTARGETS + 1):
                 fname = f"target_{target}_{n}"
                 col = Column(
@@ -328,6 +328,7 @@ class YbocsSc(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
     __tablename__ = "ybocssc"
     shortname = "Y-BOCS-SC"
     extrastring_taskname = "ybocs"  # shares with Y-BOCS
+    info_filename_stem = extrastring_taskname
 
     SC_PREFIX = "sc_"
     SUFFIX_CURRENT = "_current"

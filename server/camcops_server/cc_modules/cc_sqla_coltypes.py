@@ -99,8 +99,8 @@ Also notes:
 
 import json
 import logging
-from typing import (Any, Generator, List, Optional, Tuple, Type, TYPE_CHECKING,
-                    Union)
+from typing import (Any, Generator, List, Optional, Sequence,
+                    Tuple, Type, TYPE_CHECKING, Union)
 import uuid
 
 from cardinal_pythonlib.datetimefunc import (
@@ -1171,7 +1171,7 @@ class PermittedValueChecker(object):
                  not_null: bool = False,
                  minimum: Union[int, float] = None,
                  maximum: Union[int, float] = None,
-                 permitted_values: List[Any] = None) -> None:
+                 permitted_values: Sequence[Any] = None) -> None:
         """
         Args:
             not_null: must the value not be NULL?
@@ -1223,20 +1223,26 @@ class PermittedValueChecker(object):
     def __repr__(self):
         return auto_repr(self)
 
+    def permitted_values_inc_minmax(self) -> Tuple:
+        """
+        Returns permitted values, either specified directly or via a
+        minimum/maximum.
+        """
+        if self.permitted_values:
+            return tuple(self.permitted_values)
+        # Take a punt that integer minima/maxima mean that only integers are
+        # permitted...
+        if isinstance(self.minimum, int) and isinstance(self.maximum, int):
+            return tuple(range(self.minimum, self.maximum + 1))
+        return ()
+
     def permitted_values_csv(self) -> str:
         """
         Returns a CSV representation of the permitted values.
 
         Primarily used for CRIS data dictionaries.
         """
-        if self.permitted_values:
-            return ",".join(str(x) for x in self.permitted_values)
-        # Take a punt that integer minima/maxima mean that only integers are
-        # permitted...
-        if isinstance(self.minimum, int) and isinstance(self.maximum, int):
-            return ",".join(
-                str(x) for x in range(self.minimum, self.maximum + 1))
-        return ""
+        return ",".join(str(x) for x in self.permitted_values_inc_minmax())
 
 
 # Specific instances, to reduce object duplication and magic numbers:
@@ -1269,6 +1275,10 @@ ONE_TO_NINE_CHECKER = PermittedValueChecker(minimum=1, maximum=9)
 # =============================================================================
 # CamcopsColumn: provides extra functions over Column.
 # =============================================================================
+
+# Column attributes:
+COLATTR_PERMITTED_VALUE_CHECKER = "permitted_value_checker"
+
 
 # noinspection PyAbstractClass
 class CamcopsColumn(Column):
@@ -1345,7 +1355,7 @@ class CamcopsColumn(Column):
         kwargs['identifies_patient'] = self.identifies_patient
         kwargs['is_blob_id_field'] = self.is_blob_id_field
         kwargs['blob_relationship_attr_name'] = self.blob_relationship_attr_name  # noqa
-        kwargs['permitted_value_checker'] = self.permitted_value_checker
+        kwargs[COLATTR_PERMITTED_VALUE_CHECKER] = self.permitted_value_checker
         # noinspection PyTypeChecker
         return self.__class__(*args, **kwargs)
 
@@ -1358,7 +1368,7 @@ class CamcopsColumn(Column):
             kvp("identifies_patient"),
             kvp("is_blob_id_field"),
             kvp("blob_relationship_attr_name"),
-            kvp("permitted_value_checker"),
+            kvp(COLATTR_PERMITTED_VALUE_CHECKER),
             f"super()={super().__repr__()}",
         ]
         return f"CamcopsColumn({', '.join(elements)})"
@@ -1594,7 +1604,7 @@ class BoolColumn(CamcopsColumn):
             kwargs['type_'] = Boolean(name=constraint_name_conv)
             # The "name" parameter to Boolean() specifies the  name of the
             # (0, 1) constraint.
-        kwargs['permitted_value_checker'] = BIT_CHECKER
+        kwargs[COLATTR_PERMITTED_VALUE_CHECKER] = BIT_CHECKER
         super().__init__(*args, **kwargs)
         if (not self.constraint_name and
                 len(self.name) >= LONG_COLUMN_NAME_WARNING_LIMIT):

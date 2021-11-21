@@ -204,19 +204,22 @@ class BasicDatabaseTestCase(DemoRequestTestCase):
 
         # Set up groups, users, etc.
         # ... ID number definitions
-        self.nhs_iddef = IdNumDefinition(which_idnum=1,
+        idnum_type_nhs = 1
+        idnum_type_rio = 2
+        idnum_type_study = 3
+        self.nhs_iddef = IdNumDefinition(which_idnum=idnum_type_nhs,
                                          description="NHS number",
                                          short_description="NHS#",
                                          hl7_assigning_authority="NHS",
                                          hl7_id_type="NHSN")
         self.dbsession.add(self.nhs_iddef)
-        self.rio_iddef = IdNumDefinition(which_idnum=2,
+        self.rio_iddef = IdNumDefinition(which_idnum=idnum_type_rio,
                                          description="RiO number",
                                          short_description="RiO",
                                          hl7_assigning_authority="CPFT",
                                          hl7_id_type="CPRiO")
         self.dbsession.add(self.rio_iddef)
-        self.study_iddef = IdNumDefinition(which_idnum=3,
+        self.study_iddef = IdNumDefinition(which_idnum=idnum_type_study,
                                            description="Study number",
                                            short_description="Study")
         self.dbsession.add(self.study_iddef)
@@ -245,6 +248,9 @@ class BasicDatabaseTestCase(DemoRequestTestCase):
         self.other_device.when_registered_utc = self.era_time_utc
         self.other_device.camcops_version = CAMCOPS_SERVER_VERSION
         self.dbsession.add(self.other_device)
+
+        # ... export recipient definition (the minimum)
+        self.recipdef.primary_idnum = idnum_type_nhs
 
         self.dbsession.flush()  # sets PK fields
 
@@ -343,7 +349,6 @@ class BasicDatabaseTestCase(DemoRequestTestCase):
         else:
             self.dbsession.add(patient)
 
-        self.dbsession.add(patient)
         self.dbsession.commit()
 
         return patient

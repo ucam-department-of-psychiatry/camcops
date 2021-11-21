@@ -354,9 +354,8 @@ from cardinal_pythonlib.datetimefunc import (
     coerce_to_pendulum_date,
     format_datetime,
 )
-from cardinal_pythonlib.logs import (
-    BraceStyleAdapter,
-)
+from cardinal_pythonlib.httpconst import HttpMethod
+from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.pyramid.responses import TextResponse
 from cardinal_pythonlib.sqlalchemy.core_query import (
     exists_in_table,
@@ -375,10 +374,7 @@ from sqlalchemy.sql.expression import exists, select, update
 from sqlalchemy.sql.schema import Table
 
 from camcops_server.cc_modules import cc_audit  # avoids "audit" name clash
-from camcops_server.cc_modules.cc_all_models import (
-    CLIENT_TABLE_MAP,
-    RESERVED_FIELDS,
-)
+from camcops_server.cc_modules.cc_all_models import CLIENT_TABLE_MAP
 from camcops_server.cc_modules.cc_blob import Blob
 from camcops_server.cc_modules.cc_cache import cache_region_static, fkg
 from camcops_server.cc_modules.cc_client_api_core import (
@@ -440,6 +436,7 @@ from camcops_server.cc_modules.cc_db import (
     FN_WHEN_ADDED_EXACT,
     FN_WHEN_REMOVED_BATCH_UTC,
     FN_WHEN_REMOVED_EXACT,
+    RESERVED_FIELDS,
 )
 from camcops_server.cc_modules.cc_device import Device
 from camcops_server.cc_modules.cc_dirtytables import DirtyTable
@@ -589,7 +586,6 @@ def ensure_valid_field_name(table: Table, fieldname: str) -> None:
     - 2017-10-08: shortcut: it's OK if it's a column name for a particular
       table.
     """
-    # if fieldname in RESERVED_FIELDS:
     if fieldname.startswith("_"):  # all reserved fields start with _
         # ... but not all fields starting with "_" are reserved; e.g.
         # "_move_off_tablet" is allowed.
@@ -3226,9 +3222,11 @@ def main_client_api(req: "CamcopsRequest") -> Dict[str, str]:
     return result
 
 
-@view_config(route_name=Routes.CLIENT_API, request_method="POST",
+@view_config(route_name=Routes.CLIENT_API,
+             request_method=HttpMethod.POST,
              permission=NO_PERMISSION_REQUIRED)
-@view_config(route_name=Routes.CLIENT_API_ALIAS, request_method="POST",
+@view_config(route_name=Routes.CLIENT_API_ALIAS,
+             request_method=HttpMethod.POST,
              permission=NO_PERMISSION_REQUIRED)
 def client_api(req: "CamcopsRequest") -> Response:
     """

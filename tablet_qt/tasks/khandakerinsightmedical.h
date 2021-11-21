@@ -40,6 +40,7 @@ public:
     virtual QString shortname() const override;
     virtual QString longname() const override;
     virtual QString description() const override;
+    virtual QString infoFilenameStem() const override;
     virtual bool isCrippled() const override { return false; }
     virtual Version minimumServerVersion() const override;
     // ------------------------------------------------------------------------

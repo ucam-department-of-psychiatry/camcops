@@ -45,6 +45,10 @@ from colander import (
     SequenceSchema,
     String,
 )
+from fhirclient.models.annotation import Annotation
+from fhirclient.models.codeableconcept import CodeableConcept
+from fhirclient.models.coding import Coding
+from fhirclient.models.condition import Condition
 import hl7
 from pyramid.renderers import render_to_response
 from pyramid.response import Response
@@ -56,13 +60,14 @@ from sqlalchemy.sql.selectable import SelectBase
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Date, Integer, UnicodeText
 
-from camcops_server.cc_modules.cc_constants import CssClass
+from camcops_server.cc_modules.cc_constants import CssClass, FHIRConst as Fc
 from camcops_server.cc_modules.cc_ctvinfo import CtvInfo
 from camcops_server.cc_modules.cc_db import (
     ancillary_relationship,
     GenericTabletRecordMixin,
     TaskDescendant,
 )
+from camcops_server.cc_modules.cc_fhir import make_fhir_bundle_entry
 from camcops_server.cc_modules.cc_forms import (
     LinkingIdNumSelector,
     or_join_description,
@@ -170,6 +175,10 @@ class DiagnosisItemBase(GenericTabletRecordMixin, Base):
     def is_empty(self) -> bool:
         return not bool(self.code)
 
+    def human(self) -> str:
+        suffix = f" [{self.comment}]" if self.comment else ""
+        return f"{self.code}: {self.description}{suffix}"
+
 
 class DiagnosisBase(TaskHasClinicianMixin, TaskHasPatientMixin, Task, ABC,
                     metaclass=DeclarativeAndABCMeta):
@@ -251,6 +260,47 @@ class DiagnosisBase(TaskHasClinicianMixin, TaskHasPatientMixin, Task, ABC,
             ))
         return segments
 
+    def _get_fhir_extra_bundle_entries_for_system(
+            self,
+            req: CamcopsRequest,
+            recipient: ExportRecipient,
+            system: str) -> List[Dict]:
+        bundle_entries = []  # type: List[Dict]
+        for item in self.items:
+            display = item.human()
+            condition_dict = {
+                Fc.CODE: CodeableConcept(jsondict={
+                    Fc.CODING: [
+                        Coding(jsondict={
+                            Fc.SYSTEM: system,
+                            Fc.CODE: item.code,
+                            Fc.DISPLAY: display,
+                            Fc.USER_SELECTED: True,
+                        }).as_json()
+                    ],
+                    Fc.TEXT: display,
+                }).as_json(),
+                Fc.SUBJECT: self._get_fhir_subject_ref(req, recipient),
+                Fc.RECORDER: self._get_fhir_practitioner_ref(req),
+            }
+            if item.comment:
+                condition_dict[Fc.NOTE] = [
+                    Annotation(jsondict={
+                        Fc.AUTHOR_REFERENCE:
+                            self._get_fhir_practitioner_ref(req),
+                        Fc.AUTHOR_STRING: self.get_clinician_name(),
+                        Fc.TEXT: item.comment,
+                        Fc.TIME: self.fhir_when_task_created,
+                    }).as_json()
+                ]
+            bundle_entry = make_fhir_bundle_entry(
+                resource_type_url=Fc.RESOURCE_TYPE_CONDITION,
+                identifier=self._get_fhir_condition_id(req, item.seqnum),
+                resource=Condition(jsondict=condition_dict).as_json()
+            )
+            bundle_entries.append(bundle_entry)
+        return bundle_entries
+
 
 # =============================================================================
 # DiagnosisIcd10
@@ -282,13 +332,14 @@ class DiagnosisIcd10(DiagnosisBase):
     Server implementation of the Diagnosis/ICD-10 task.
     """
     __tablename__ = "diagnosis_icd10"
+    info_filename_stem = "icd"
 
     items = ancillary_relationship(
         parent_class_name="DiagnosisIcd10",
         ancillary_class_name="DiagnosisIcd10Item",
         ancillary_fk_to_parent_attr_name="diagnosis_icd10_id",
         ancillary_order_by_attr_name="seqnum"
-    )
+    )  # type: List[DiagnosisIcd10Item]
 
     shortname = "Diagnosis_ICD10"
     dependent_classes = [DiagnosisIcd10Item]
@@ -319,7 +370,6 @@ class DiagnosisIcd10(DiagnosisBase):
         if not req.icd10_snomed_supported:
             return []
         snomed_codes = []  # type: List[SnomedExpression]
-        # noinspection PyTypeChecker
         for item in self.items:
             concepts = self._get_snomed_concepts(item.code, req, fallback)
             if not concepts:
@@ -360,6 +410,14 @@ class DiagnosisIcd10(DiagnosisBase):
         # Run out of code
         return concepts
 
+    def get_fhir_extra_bundle_entries(
+            self,
+            req: CamcopsRequest,
+            recipient: ExportRecipient) -> List[Dict]:
+        return self._get_fhir_extra_bundle_entries_for_system(
+            req, recipient, Fc.CODE_SYSTEM_ICD10
+        )
+
 
 # =============================================================================
 # DiagnosisIcd9CM
@@ -391,13 +449,14 @@ class DiagnosisIcd9CM(DiagnosisBase):
     Server implementation of the Diagnosis/ICD-9-CM task.
     """
     __tablename__ = "diagnosis_icd9cm"
+    info_filename_stem = "icd"
 
     items = ancillary_relationship(
         parent_class_name="DiagnosisIcd9CM",
         ancillary_class_name="DiagnosisIcd9CMItem",
         ancillary_fk_to_parent_attr_name="diagnosis_icd9cm_id",
         ancillary_order_by_attr_name="seqnum"
-    )
+    )  # type: List[DiagnosisIcd9CMItem]
 
     shortname = "Diagnosis_ICD9CM"
     dependent_classes = [DiagnosisIcd9CMItem]
@@ -424,6 +483,14 @@ class DiagnosisIcd9CM(DiagnosisBase):
             focusconcept = SnomedFocusConcept(concepts)
             snomed_codes.append(SnomedExpression(focusconcept))
         return snomed_codes
+
+    def get_fhir_extra_bundle_entries(
+            self,
+            req: CamcopsRequest,
+            recipient: ExportRecipient) -> List[Dict]:
+        return self._get_fhir_extra_bundle_entries_for_system(
+            req, recipient, Fc.CODE_SYSTEM_ICD9_CM
+        )
 
 
 # =============================================================================
@@ -716,6 +783,7 @@ def get_diagnosis_inc_exc_report_query(req: CamcopsRequest,
     """
     # The basics:
     desc = req.get_id_desc(which_idnum) or "BAD_IDNUM"
+    # noinspection PyUnresolvedReferences
     select_fields = [
         Patient.surname.label("surname"),
         Patient.forename.label("forename"),

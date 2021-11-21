@@ -125,6 +125,10 @@ QString KhandakerMojoSociodemographics::description() const
 }
 
 
+QString KhandakerMojoSociodemographics::infoFilenameStem() const
+{
+    return "khandaker_mojo";
+}
 
 
 // ============================================================================

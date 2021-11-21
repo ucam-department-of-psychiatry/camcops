@@ -107,6 +107,12 @@ QString GboGPC::description() const
 }
 
 
+QString GboGPC::infoFilenameStem() const
+{
+    return xstringTaskname();
+}
+
+
 QString GboGPC::xstringTaskname() const
 {
     return "gbo";

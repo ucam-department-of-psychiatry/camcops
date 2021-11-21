@@ -450,7 +450,7 @@ class UploadRecordResult(object):
         """
         Returns all PKs (old, new, or both).
         """
-        return list(x for x in [self.oldserverpk, self.newserverpk]
+        return list(x for x in (self.oldserverpk, self.newserverpk)
                     if x is not None)
 
     @property

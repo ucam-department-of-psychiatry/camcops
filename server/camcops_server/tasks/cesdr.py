@@ -108,8 +108,8 @@ class Cesdr(TaskHasPatientMixin, Task,
     """
     __tablename__ = 'cesdr'
     shortname = 'CESD-R'
+    info_filename_stem = "cesd"
     provides_trackers = True
-    extrastring_taskname = "cesdr"
 
     CAT_NONCLINICAL = 0
     CAT_SUB = 1

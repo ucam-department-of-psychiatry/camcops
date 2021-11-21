@@ -29,12 +29,17 @@ camcops_server/templates/menu/dump_sql_offer.mako
 <%inherit file="base_web_form.mako"/>
 
 <%!
-from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
+from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewParam
 %>
 
 <%include file="db_user_info.mako"/>
 
-<h1>${ _("Research data dump in SQL format") }</h1>
+<h1>
+    ${ req.icon_text(
+        icon=Icons.DUMP_SQL,
+        text=_("Research data dump in SQL format")
+    ) | n }
+</h1>
 
 <h2>${ _("Explanation") }</h2>
 <div>

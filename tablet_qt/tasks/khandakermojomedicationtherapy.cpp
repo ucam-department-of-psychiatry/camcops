@@ -87,6 +87,12 @@ QString KhandakerMojoMedicationTherapy::description() const
 }
 
 
+QString KhandakerMojoMedicationTherapy::infoFilenameStem() const
+{
+    return "khandaker_mojo";
+}
+
+
 // ============================================================================
 // Ancillary management
 // ============================================================================

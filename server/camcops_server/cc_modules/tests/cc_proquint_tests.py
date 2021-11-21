@@ -65,7 +65,7 @@ class ProquintTest(TestCase):
         )
 
     def test_ints_converted_to_proquints_and_back(self) -> None:
-        for bits in [16, 32, 48, 64, 80, 96, 128, 256]:
+        for bits in (16, 32, 48, 64, 80, 96, 128, 256):
             for i in range(1000):
                 random_int = random.getrandbits(bits)
 

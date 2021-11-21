@@ -30,12 +30,17 @@ camcops_server/templates/menu/exported_task_file_group.mako
 
 <%!
 from markupsafe import escape
-from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
+from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewParam
 %>
 
 <%include file="db_user_info.mako"/>
 
-<h1>${ _("Exported files") }</h1>
+<h1>
+    ${ req.icon_text(
+        icon=Icons.AUDIT_ITEM,
+        text=_("Exported files")
+    ) | n }
+</h1>
 
 <table>
     <tr>
@@ -44,10 +49,18 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
     </tr>
     <tr>
         <th>Exported task ID</th>
-        <td><a href="${ req.route_url(
-                            Routes.VIEW_EXPORTED_TASK,
-                            _query={ViewParam.ID: fg.exported_task_id}
-                        ) | n }">ExportedTask ${ fg.exported_task_id }</a></td>
+        <td>
+            ${ req.icon_text(
+                    icon=Icons.EXPORTED_TASK,
+                    url=request.route_url(
+                        Routes.VIEW_EXPORTED_TASK,
+                        _query={
+                            ViewParam.ID: fg.exported_task_id
+                        }
+                    ),
+                    text="ExportedTask " + str(fg.exported_task_id)
+            ) | n }
+        </td>
     </tr>
     <tr>
         <th>Filenames</th>
@@ -71,4 +84,5 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
     </tr>
 </table>
 
+<%include file="to_offer_exported_task_list.mako"/>
 <%include file="to_main_menu.mako"/>

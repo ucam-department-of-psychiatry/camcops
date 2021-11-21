@@ -128,6 +128,12 @@ QString GboGRaS::description() const
 }
 
 
+QString GboGRaS::infoFilenameStem() const
+{
+    return xstringTaskname();
+}
+
+
 QString GboGRaS::xstringTaskname() const
 {
     return "gbo";

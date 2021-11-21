@@ -171,6 +171,12 @@ Linux-under-Docker-under-Windows).
 - You need Docker Compose installed. See
   https://docs.docker.com/compose/install/.
 
+You can check that Docker is operational with:
+
+.. code-block:: bash
+
+    docker run -it ubuntu bash
+
 
 .. _docker_environment_variables:
 

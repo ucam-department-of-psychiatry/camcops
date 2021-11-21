@@ -197,6 +197,7 @@ class Icd10SpecPD(TaskHasClinicianMixin, TaskHasPatientMixin, Task,
     """
     __tablename__ = "icd10specpd"
     shortname = "ICD10-PD"
+    info_filename_stem = "icd"
 
     date_pertains_to = Column(
         "date_pertains_to", Date,

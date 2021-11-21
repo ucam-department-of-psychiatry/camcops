@@ -29,9 +29,19 @@ camcops_server/templates/menu/view_other_user_info.mako
 ## <%page args="user: User"/>
 <%inherit file="base_web.mako"/>
 
+<%!
+from camcops_server.cc_modules.cc_pyramid import Icons
+%>
+
 <%include file="db_user_info.mako"/>
 
-<h1>${ _("Information about user") } ${ user.username }</h1>
+<h1>
+    ${ req.icon_text(
+        icon=Icons.USER_INFO,
+        text=_("Information about user")
+    ) | n }
+    ${ user.username }
+</h1>
 
 <%include file="user_info_detail.mako" args="user=user"/>
 

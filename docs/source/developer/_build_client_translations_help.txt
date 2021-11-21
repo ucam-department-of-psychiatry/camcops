@@ -42,13 +42,13 @@ optional arguments:
   -h, --help  show this help message and exit
   --lconvert  Path to 'lconvert' tool (part of Qt Linguist). Default is taken
               from LCONVERT environment variable or 'which lconvert'.
-              (default: /usr/bin/lconvert)
+              (default: None)
   --lrelease  Path to 'lrelease' tool (part of Qt Linguist). Default is taken
               from LRELEASE environment variable or 'which lrelease'.
-              (default: /usr/bin/lrelease)
+              (default: None)
   --lupdate   Path to 'lupdate' tool (part of Qt Linguist). Default is taken
               from LUPDATE environment variable or 'which lupdate'. (default:
-              /usr/bin/lupdate)
+              None)
   --trim      Remove redundant strings. (default: True)
   --no_trim   Do not remove redundant strings. (default: False)
   --verbose   Be verbose (default: False)

@@ -30,7 +30,7 @@ General:
                         from environment variable CAMCOPS_QT_BASE_DIR if
                         present) (default: /path/to/user/dev/qt_local_build)
   --nparallel NPARALLEL
-                        Number of parallel processes to run (default: 8)
+                        Number of parallel processes to run (default: 16)
   --force               Force build (default: False)
   --tee TEE             Copy stdout/stderr to this named file (default: None)
   --verbose {0,1,2}, -v {0,1,2}

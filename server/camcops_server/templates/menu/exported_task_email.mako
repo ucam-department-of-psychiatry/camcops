@@ -29,12 +29,17 @@ camcops_server/templates/menu/exported_task_email.mako
 <%inherit file="base_web.mako"/>
 
 <%!
-from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
+from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewParam
 %>
 
 <%include file="db_user_info.mako"/>
 
-<h1>${ _("Exported task e-mail") }</h1>
+<h1>
+    ${ req.icon_text(
+        icon=Icons.AUDIT_ITEM,
+        text=_("Exported task e-mail")
+    ) | n }
+</h1>
 
 <table>
     <tr>
@@ -43,18 +48,35 @@ from camcops_server.cc_modules.cc_pyramid import Routes, ViewArg, ViewParam
     </tr>
     <tr>
         <th>Exported task ID</th>
-        <td><a href="${ req.route_url(
-                            Routes.VIEW_EXPORTED_TASK,
-                            _query={ViewParam.ID: ete.exported_task_id
-                        }) | n }">ExportedTask ${ ete.exported_task_id }</a></td>
+        <td>
+            ${ req.icon_text(
+                    icon=Icons.EXPORTED_TASK,
+                    url=request.route_url(
+                        Routes.VIEW_EXPORTED_TASK,
+                        _query={
+                            ViewParam.ID: ete.exported_task_id
+                        }
+                    ),
+                    text="ExportedTask " + str(ete.exported_task_id)
+            ) | n }
+        </td>
     </tr>
     <tr>
         <th>E-mail ID</th>
-        <td><a href="${ req.route_url(
-                            Routes.VIEW_EMAIL,
-                            _query={ViewParam.ID: ete.email_id}
-                        ) | n }">Email ${ ete.email_id } </a></td>
+        <td>
+            ${ req.icon_text(
+                    icon=Icons.EMAIL_VIEW,
+                    url=request.route_url(
+                        Routes.VIEW_EMAIL,
+                        _query={
+                            ViewParam.ID: ete.email_id
+                        }
+                    ),
+                    text="Email " + str(ete.email_id)
+            ) | n }
+        </td>
     </tr>
 </table>
 
+<%include file="to_offer_exported_task_list.mako"/>
 <%include file="to_main_menu.mako"/>

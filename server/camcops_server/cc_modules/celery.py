@@ -109,6 +109,7 @@ Task decorator options:
 
 """  # noqa
 
+from contextlib import contextmanager
 import logging
 import os
 from typing import Any, Dict, TYPE_CHECKING
@@ -117,6 +118,7 @@ from cardinal_pythonlib.json.serialize import json_encode, json_decode
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from celery import Celery, current_task
 from kombu.serialization import register
+from numpy.random import uniform
 
 # noinspection PyUnresolvedReferences
 import camcops_server.cc_modules.cc_all_models  # import side effects (ensure all models registered)  # noqa
@@ -140,8 +142,10 @@ CELERY_APP_NAME = "camcops_server.cc_modules"
 
 CELERY_TASK_MODULE_NAME = CELERY_APP_NAME + ".celery"
 
+CELERY_SOFT_TIME_LIMIT_SEC = 300.0
 MAX_RETRIES = 10
-CELERY_SOFT_TIME_LIMIT_SEC = 300
+RETRY_MIN_DELAY_S = 5.0
+RETRY_MAX_DELAY_S = 60.0
 
 
 # =============================================================================
@@ -154,6 +158,9 @@ register("json", json_encode, json_decode,
 
 
 def get_celery_settings_dict() -> Dict[str, Any]:
+    """
+    Returns a dictionary of settings to configure Celery.
+    """
     log.debug("Configuring Celery")
     from camcops_server.cc_modules.cc_config import (
         CrontabEntry,
@@ -172,8 +179,8 @@ def get_celery_settings_dict() -> Dict[str, Any]:
     for crontab_entry in config.crontab_entries:
         recipient_name = crontab_entry.content
         schedule_name = f"export_to_{recipient_name}"
-        log.info("Adding regular export job {}: crontab: {}",
-                 schedule_name, crontab_entry)
+        log.debug("Adding regular export job {}: crontab: {}",
+                  schedule_name, crontab_entry)
         schedule[schedule_name] = {
             "task": CELERY_TASK_MODULE_NAME + ".export_to_recipient_backend",
             "schedule": crontab_entry.get_celery_schedule(),
@@ -201,6 +208,7 @@ def get_celery_settings_dict() -> Dict[str, Any]:
                 "rate_limit": config.celery_export_task_rate_limit,
             }
         },
+        # "worker_log_color": True,  # true by default for consoles anyway
     }
 
 
@@ -270,7 +278,7 @@ def debug_task_add(a: float, b: float) -> float:
 # Exponential backoff
 # =============================================================================
 
-def backoff(attempts: int) -> int:
+def backoff_delay_s(attempts: int) -> float:
     """
     Return a backoff delay, in seconds, given a number of attempts.
 
@@ -280,7 +288,44 @@ def backoff(attempts: int) -> int:
     As per https://blog.balthazar-rouberol.com/celery-best-practices.
 
     """
-    return 2 ** attempts
+    return 2.0 ** attempts
+
+
+def jittered_delay_s() -> float:
+    """
+    Returns a retry delay, in seconds, that is jittered.
+    """
+    return uniform(RETRY_MIN_DELAY_S, RETRY_MAX_DELAY_S)
+
+
+@contextmanager
+def retry_backoff_if_raises(self: "CeleryTask") -> None:
+    """
+    Context manager to retry a Celery task if an exception is raised, using a
+    "backoff" method.
+    """
+    try:
+        yield
+    except Exception as exc:
+        delay_s = backoff_delay_s(self.request.retries)
+        log.error("Task failed. Backing off. Will retry after {} s. "
+                  "Error was:\n{}", delay_s, exc)
+        self.retry(countdown=delay_s, exc=exc)
+
+
+@contextmanager
+def retry_jitter_if_raises(self: "CeleryTask") -> None:
+    """
+    Context manager to retry a Celery task if an exception is raised, using a
+    "jittered delay" method.
+    """
+    try:
+        yield
+    except Exception as exc:
+        delay_s = jittered_delay_s()
+        log.error("Task failed. Will retry after jittered delay: {} s. "
+                  "Error was:\n{}", delay_s, exc)
+        self.retry(countdown=delay_s, exc=exc)
 
 
 # =============================================================================
@@ -291,7 +336,9 @@ def purge_jobs() -> None:
     """
     Purge all jobs from the Celery queue.
     """
+    log.info("Purging back-end (Celery) jobs")
     celery_app.control.purge()
+    log.info("... purged.")
 
 
 # =============================================================================
@@ -321,6 +368,8 @@ def export_task_backend(self: "CeleryTask",
     This function exports a single task but does so with only simple (string,
     integer) information, so it can be called via the Celery task queue.
 
+    - Calls :func:`camcops_server.cc_modules.cc_export.export_task`.
+
     Args:
         self: the Celery task, :class:`celery.app.task.Task`
         recipient_name: export recipient name (as per the config file)
@@ -333,7 +382,7 @@ def export_task_backend(self: "CeleryTask",
         task_factory_no_security_checks,
     )  # delayed import
 
-    try:
+    with retry_backoff_if_raises(self):
         with command_line_request_context() as req:
             recipient = req.get_export_recipient(recipient_name)
             task = task_factory_no_security_checks(req.dbsession,
@@ -344,8 +393,6 @@ def export_task_backend(self: "CeleryTask",
                           recipient_name, basetable, task_pk)
                 return
             export_task(req, recipient, task)
-    except Exception as exc:
-        self.retry(countdown=backoff(self.request.retries), exc=exc)
 
 
 @celery_app.task(bind=True,
@@ -356,6 +403,8 @@ def export_to_recipient_backend(self: "CeleryTask",
                                 recipient_name: str) -> None:
     """
     From the backend, exports all pending tasks for a given recipient.
+
+    - Calls :func:`camcops_server.cc_modules.cc_export.export`.
 
     There are two ways of doing this, when we call
     :func:`camcops_server.cc_modules.cc_export.export`. If we set
@@ -383,12 +432,10 @@ def export_to_recipient_backend(self: "CeleryTask",
     from camcops_server.cc_modules.cc_export import export  # delayed import  # noqa
     from camcops_server.cc_modules.cc_request import command_line_request_context  # delayed import  # noqa
 
-    try:
+    with retry_backoff_if_raises(self):
         with command_line_request_context() as req:
             export(req, recipient_names=[recipient_name],
                    schedule_via_backend=True)
-    except Exception as exc:
-        self.retry(countdown=backoff(self.request.retries), exc=exc)
 
 
 @celery_app.task(bind=True,
@@ -414,7 +461,7 @@ def email_basic_dump(self: "CeleryTask",
     from camcops_server.cc_modules.cc_export import make_exporter  # delayed import  # noqa
     from camcops_server.cc_modules.cc_request import command_line_request_context  # delayed import  # noqa
 
-    try:
+    with retry_backoff_if_raises(self):
         # Create request for a specific user, so the auditing is correct.
         with command_line_request_context(user_id=options.user_id) as req:
             collection.set_request(req)
@@ -424,9 +471,6 @@ def email_basic_dump(self: "CeleryTask",
                 options=options
             )
             exporter.send_by_email()
-
-    except Exception as exc:
-        self.retry(countdown=backoff(self.request.retries), exc=exc)
 
 
 @celery_app.task(bind=True,
@@ -453,7 +497,7 @@ def create_user_download(self: "CeleryTask",
     from camcops_server.cc_modules.cc_export import make_exporter  # delayed import  # noqa
     from camcops_server.cc_modules.cc_request import command_line_request_context  # delayed import  # noqa
 
-    try:
+    with retry_backoff_if_raises(self):
         # Create request for a specific user, so the auditing is correct.
         with command_line_request_context(user_id=options.user_id) as req:
             collection.set_request(req)
@@ -463,9 +507,6 @@ def create_user_download(self: "CeleryTask",
                 options=options
             )
             exporter.create_user_download_and_email()
-
-    except Exception as exc:
-        self.retry(countdown=backoff(self.request.retries), exc=exc)
 
 
 # =============================================================================

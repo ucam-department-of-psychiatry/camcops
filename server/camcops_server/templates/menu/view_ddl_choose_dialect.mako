@@ -28,9 +28,18 @@ camcops_server/templates/menu/view_ddl_choose_dialect.mako
 
 <%inherit file="base_web_form.mako"/>
 
+<%!
+from camcops_server.cc_modules.cc_pyramid import Icons
+%>
+
 <%include file="db_user_info.mako"/>
 
-<h1>${ _("View data definition language (DDL), in SQL") }</h1>
+<h1>
+    ${ req.icon_text(
+        icon=Icons.INFO_INTERNAL,
+        text=_("View data definition language (DDL), in SQL")
+    ) | n }
+</h1>
 
 <div>
     ${ _("The server’s database is using dialect") }

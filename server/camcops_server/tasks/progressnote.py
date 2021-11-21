@@ -59,6 +59,7 @@ class ProgressNote(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     """
     __tablename__ = "progressnote"
     shortname = "ProgressNote"
+    info_filename_stem = "clinical"
 
     location = Column("location", UnicodeText, comment="Location")
     note = Column("note", UnicodeText, comment="Clinical note")

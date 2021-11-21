@@ -122,6 +122,7 @@ Quick tutorial on Pyramid views:
 """
 
 from collections import OrderedDict
+import json
 import logging
 import os
 # from pprint import pformat
@@ -139,10 +140,11 @@ from typing import (
 
 from cardinal_pythonlib.datetimefunc import format_datetime
 from cardinal_pythonlib.deform_utils import get_head_form_html
-from cardinal_pythonlib.httpconst import MimeType
+from cardinal_pythonlib.httpconst import HttpMethod, MimeType
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.pyramid.responses import (
     BinaryResponse,
+    JsonResponse,
     PdfResponse,
     XmlResponse,
 )
@@ -191,6 +193,7 @@ from camcops_server.cc_modules.cc_constants import (
     DateFormat,
     ERA_NOW,
     GITHUB_RELEASES_URL,
+    JSON_INDENT,
     MfaMethod,
 )
 from camcops_server.cc_modules.cc_db import (
@@ -210,8 +213,11 @@ from camcops_server.cc_modules.cc_export import (
 from camcops_server.cc_modules.cc_exportmodels import (
     ExportedTask,
     ExportedTaskEmail,
+    ExportedTaskFhir,
+    ExportedTaskFhirEntry,
     ExportedTaskFileGroup,
     ExportedTaskHL7Message,
+    ExportedTaskRedcap,
 )
 from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
 from camcops_server.cc_modules.cc_forms import (
@@ -282,6 +288,7 @@ from camcops_server.cc_modules.cc_pyramid import (
     FlashQueue,
     FormAction,
     HTTPFoundDebugVersion,
+    Icons,
     PageUrl,
     Permission,
     Routes,
@@ -298,7 +305,10 @@ from camcops_server.cc_modules.cc_simpleobjects import (
 from camcops_server.cc_modules.cc_specialnote import SpecialNote
 from camcops_server.cc_modules.cc_session import CamcopsSession
 from camcops_server.cc_modules.cc_sqlalchemy import get_all_ddl
-from camcops_server.cc_modules.cc_task import Task
+from camcops_server.cc_modules.cc_task import (
+    tablename_to_task_class_dict,
+    Task,
+)
 from camcops_server.cc_modules.cc_taskcollection import (
     TaskFilter,
     TaskCollection,
@@ -381,6 +391,7 @@ NEVER_CACHE = 0
 # as ${title}. Some are used frequently, so we have them here as constants.
 
 MAKO_VAR_TITLE = "title"
+TEMPLATE_GENERIC_FORM = "generic_form.mako"
 
 
 # =============================================================================
@@ -500,11 +511,8 @@ def test_nhs_numbers(req: "CamcopsRequest") -> Response:
     Random Test NHS numbers for testing
     """
     from cardinal_pythonlib.nhs import generate_random_nhs_number
-
-    test_nhs_numbers = [generate_random_nhs_number()
-                        for i in range(1, 10)]
-
-    return dict(test_nhs_numbers=test_nhs_numbers)
+    nhs_numbers = [generate_random_nhs_number() for _ in range(10)]
+    return dict(test_nhs_numbers=nhs_numbers)
 
 
 # noinspection PyUnusedLocal
@@ -635,6 +643,7 @@ class MfaMixin(FormWizardMixin):
     STEP_PASSWORD = "password"
     STEP_MFA = "mfa"
 
+    KEY_TITLE_HTML = "title_html"
     KEY_INSTRUCTIONS = "instructions"
     KEY_MFA_TIME = "mfa_time"
 
@@ -697,9 +706,53 @@ class MfaMixin(FormWizardMixin):
     def get_extra_context(self) -> Dict[str, Any]:
         # Docstring in superclass.
         if self.step == self.STEP_MFA:
-            return {self.KEY_INSTRUCTIONS: self.get_mfa_instructions()}
+            context = {
+                self.KEY_TITLE_HTML: self.request.icon_text(
+                    icon=self.get_mfa_icon(),
+                    text=self.get_mfa_title()
+                ),
+                self.KEY_INSTRUCTIONS: self.get_mfa_instructions(),
+            }
+            return context
         else:
             return {}
+
+    def get_mfa_icon(self) -> str:
+        """
+        Returns an icon to let the user know which MFA method is being used.
+        """
+        method = self.mfa_user.mfa_method
+
+        if method == MfaMethod.TOTP:
+            return "shield-shaded"
+
+        elif method == MfaMethod.HOTP_EMAIL:
+            return "envelope"
+
+        elif method == MfaMethod.HOTP_SMS:
+            return "chat-left-dots"
+
+        else:
+            return "Error: get_mfa_icon() called for invalid MFA method"
+
+    def get_mfa_title(self) -> str:
+        """
+        Returns a title for the page that requests the code itself.
+        """
+        _ = self.request.gettext
+        method = self.mfa_user.mfa_method
+
+        if method == MfaMethod.TOTP:
+            return _("Authenticate via your authentication app")
+
+        elif method == MfaMethod.HOTP_EMAIL:
+            return _("Authenticate via e-mail")
+
+        elif method == MfaMethod.HOTP_SMS:
+            return _("Authenticate via SMS")
+
+        else:
+            return "Error: get_mfa_title() called for invalid MFA method"
 
     def get_mfa_instructions(self) -> str:
         """
@@ -761,7 +814,7 @@ class MfaMixin(FormWizardMixin):
         kwargs = dict(
             from_addr=config.email_from,
             to=self.mfa_user.email,
-            subject=_("CamCOPS two-step login"),
+            subject=_("CamCOPS authentication"),
             body=self.get_hotp_message(),
             content_type=MimeType.TEXT
         )
@@ -1651,20 +1704,37 @@ class EditOwnUserMfaView(LoggedInUserMfaMixin, UpdateView):
         return form_values
 
     def get_extra_context(self) -> Dict[str, Any]:
-        _ = self.request.gettext
+        req = self.request
+        _ = req.gettext
         if self.step == self.STEP_MFA:
             test_msg = _("Let's test it!") + " "
-            return {
-                self.KEY_INSTRUCTIONS: test_msg + self.get_mfa_instructions()
-            }
+            context = super().get_extra_context()
+            context[self.KEY_INSTRUCTIONS] = (
+                test_msg + self.get_mfa_instructions()
+            )
+            return context
 
         titles = {
-            self.STEP_MFA_METHOD: _("Multi-factor authentication settings"),
-            self.STEP_TOTP: _("Authenticate with app"),
-            self.STEP_HOTP_EMAIL: _("Authenticate by email"),
-            self.STEP_HOTP_SMS: _("Authenticate by text message"),
+            self.STEP_MFA_METHOD: req.icon_text(
+                icon=Icons.MFA,
+                text=_("Configure multi-factor authentication settings"),
+            ),
+            self.STEP_TOTP: req.icon_text(
+                icon=Icons.APP_AUTHENTICATOR,
+                text=_("Configure authentication with app"),
+            ),
+            self.STEP_HOTP_EMAIL: req.icon_text(
+                icon=Icons.EMAIL_SEND,
+                text=_("Configure authentication by email"),
+            ),
+            self.STEP_HOTP_SMS: req.icon_text(
+                icon=Icons.SMS,
+                text=_("Configure authentication by text message")
+            ),
         }
-        return {MAKO_VAR_TITLE: titles[self.step]}
+        return {
+            MAKO_VAR_TITLE: titles[self.step]
+        }
 
     def get_success_url(self) -> str:
         if self.finished():
@@ -1716,9 +1786,9 @@ class EditOwnUserMfaView(LoggedInUserMfaMixin, UpdateView):
             else:
                 self.step = mfa_method
 
-        elif self.step in [self.STEP_TOTP,
+        elif self.step in (self.STEP_TOTP,
                            self.STEP_HOTP_EMAIL,
-                           self.STEP_HOTP_SMS]:
+                           self.STEP_HOTP_SMS):
             # Coming from one of the method-specific steps.
             # 3. Ask for the authentication code.
             self.step = self.STEP_MFA
@@ -1936,7 +2006,7 @@ def view_tasks(req: "CamcopsRequest") -> Dict[str, Any]:
     if errors:
         collection = []
     else:
-        collection = TaskCollection(
+        collection = TaskCollection(  # SECURITY APPLIED HERE
             req=req,
             taskfilter=taskfilter,
             sort_method_global=TaskSortMethod.CREATION_DATE_DESC,
@@ -1976,10 +2046,10 @@ def serve_task(req: "CamcopsRequest") -> Response:
     server_pk = req.get_int_param(ViewParam.SERVER_PK)
     anonymise = req.get_bool_param(ViewParam.ANONYMISE, False)
 
-    task = task_factory(req, tablename, server_pk)
+    task = task_factory(req, tablename, server_pk)  # SECURITY APPLIED HERE
 
     if task is None:
-        return HTTPNotFound(
+        raise HTTPNotFound(  # raise, don't return
             f"{_('Task not found or not permitted:')} "
             f"tablename={tablename!r}, server_pk={server_pk!r}")
 
@@ -1994,7 +2064,7 @@ def serve_task(req: "CamcopsRequest") -> Response:
             body=task.get_pdf(req, anonymise=anonymise),
             filename=task.suggested_pdf_filename(req, anonymise=anonymise)
         )
-    elif viewtype == ViewArg.PDFHTML:  # debugging option
+    elif viewtype == ViewArg.PDFHTML:  # debugging option; no direct hyperlink
         return Response(
             task.get_pdf_html(req, anonymise=anonymise)
         )
@@ -2014,11 +2084,38 @@ def serve_task(req: "CamcopsRequest") -> Response:
             xml_with_header_comments=True,
         )
         return XmlResponse(task.get_xml(req=req, options=options))
+    elif viewtype == ViewArg.FHIRJSON:  # debugging option
+        dummy_recipient = ExportRecipient()
+        bundle = task.get_fhir_bundle(req, dummy_recipient,
+                                      skip_docs_if_other_content=True)
+        return JsonResponse(json.dumps(bundle.as_json(), indent=JSON_INDENT))
     else:
-        permissible = [ViewArg.HTML, ViewArg.PDF, ViewArg.PDFHTML, ViewArg.XML]
+        permissible = (ViewArg.FHIRJSON, ViewArg.HTML, ViewArg.PDF,
+                       ViewArg.PDFHTML, ViewArg.XML)
         raise HTTPBadRequest(
             f"{_('Bad output type:')} {viewtype!r} "
             f"({_('permissible:')} {permissible!r})")
+
+
+def view_patient(req: "CamcopsRequest",
+                 patient_server_pk: int) -> Response:
+    """
+    Primarily for FHIR views: show just a patient's details.
+    Must check security carefully for this one.
+    """
+    user = req.user
+    patient = Patient.get_patient_by_pk(req.dbsession, patient_server_pk)
+    if not patient or not patient.user_may_view(user):
+        _ = req.gettext
+        raise HTTPBadRequest(_("No such patient or not authorized"))
+    return render_to_response(
+        "patient.mako",
+        dict(
+            patient=patient,
+            viewtype=ViewArg.HTML,
+        ),
+        request=req
+    )
 
 
 # =============================================================================
@@ -2524,7 +2621,7 @@ def download_file(req: "CamcopsRequest") -> Response:
 
 
 @view_config(route_name=Routes.DELETE_FILE,
-             request_method="POST",
+             request_method=HttpMethod.POST,
              http_cache=NEVER_CACHE)
 def delete_file(req: "CamcopsRequest") -> Response:
     """
@@ -2981,6 +3078,54 @@ def view_exported_task_hl7_message(req: "CamcopsRequest") -> Response:
     )
 
 
+@view_config(route_name=Routes.VIEW_EXPORTED_TASK_REDCAP,
+             permission=Permission.SUPERUSER,
+             http_cache=NEVER_CACHE)
+def view_exported_task_redcap(req: "CamcopsRequest") -> Response:
+    """
+    View on an individual
+    :class:`camcops_server.cc_modules.cc_exportmodels.ExportedTaskRedcap`.
+    """
+    return _view_generic_object_by_id(
+        req=req,
+        cls=ExportedTaskRedcap,
+        instance_name_for_mako="etr",
+        mako_template="exported_task_redcap.mako",
+    )
+
+
+@view_config(route_name=Routes.VIEW_EXPORTED_TASK_FHIR,
+             permission=Permission.SUPERUSER,
+             http_cache=NEVER_CACHE)
+def view_exported_task_fhir(req: "CamcopsRequest") -> Response:
+    """
+    View on an individual
+    :class:`camcops_server.cc_modules.cc_exportmodels.ExportedTaskRedcap`.
+    """
+    return _view_generic_object_by_id(
+        req=req,
+        cls=ExportedTaskFhir,
+        instance_name_for_mako="etf",
+        mako_template="exported_task_fhir.mako",
+    )
+
+
+@view_config(route_name=Routes.VIEW_EXPORTED_TASK_FHIR_ENTRY,
+             permission=Permission.SUPERUSER,
+             http_cache=NEVER_CACHE)
+def view_exported_task_fhir_entry(req: "CamcopsRequest") -> Response:
+    """
+    View on an individual
+    :class:`camcops_server.cc_modules.cc_exportmodels.ExportedTaskRedcap`.
+    """
+    return _view_generic_object_by_id(
+        req=req,
+        cls=ExportedTaskFhirEntry,
+        instance_name_for_mako="etfe",
+        mako_template="exported_task_fhir_entry.mako",
+    )
+
+
 # =============================================================================
 # User/server info views
 # =============================================================================
@@ -3022,7 +3167,6 @@ def view_server_info(req: "CamcopsRequest") -> Dict[str, Any]:
     return dict(
         idnum_definitions=req.idnum_definitions,
         string_families=req.extrastring_families(),
-        all_task_classes=Task.all_subclasses_by_longname(req),
         recent_activity=recent_activity,
         session_timeout_minutes=req.config.session_timeout_minutes,
         restricted_tasks=req.config.restricted_tasks,
@@ -3896,6 +4040,7 @@ def edit_id_definition(req: "CamcopsRequest") -> Dict[str, Any]:
             iddef.validation_method = appstruct.get(ViewParam.VALIDATION_METHOD)  # noqa
             iddef.hl7_id_type = appstruct.get(ViewParam.HL7_ID_TYPE)
             iddef.hl7_assigning_authority = appstruct.get(ViewParam.HL7_ASSIGNING_AUTHORITY)  # noqa
+            iddef.fhir_id_system = appstruct.get(ViewParam.FHIR_ID_SYSTEM)
             # REMOVED # clear_idnum_definition_cache()  # SPECIAL
             raise HTTPFound(req.route_url(route_back))
         except ValidationFailure as e:
@@ -3908,6 +4053,7 @@ def edit_id_definition(req: "CamcopsRequest") -> Dict[str, Any]:
             ViewParam.VALIDATION_METHOD: iddef.validation_method or "",
             ViewParam.HL7_ID_TYPE: iddef.hl7_id_type or "",
             ViewParam.HL7_ASSIGNING_AUTHORITY: iddef.hl7_assigning_authority or "",  # noqa
+            ViewParam.FHIR_ID_SYSTEM: iddef.fhir_id_system or "",
         }
         rendered_form = form.render(appstruct)
     return dict(iddef=iddef,
@@ -4023,6 +4169,10 @@ def delete_id_definition(req: "CamcopsRequest") -> Dict[str, Any]:
 def add_special_note(req: "CamcopsRequest") -> Dict[str, Any]:
     """
     View to add a special note to a task (after confirmation).
+
+    (Note that users can't add special notes to patients -- those get added
+    automatically when a patient is edited. So the context here is always of a
+    task.)
     """
     table_name = req.get_str_param(ViewParam.TABLE_NAME,
                                    validator=validate_task_tablename)
@@ -4079,11 +4229,6 @@ def delete_special_note(req: "CamcopsRequest") -> Dict[str, Any]:
     View to delete a special note (after confirmation).
     """
     note_id = req.get_int_param(ViewParam.NOTE_ID, None)
-    url_back = req.route_url(Routes.HOME)
-    # ... too fiddly to be more precise as we could be routing back to the task
-    # relating to a patient relating to this special note
-    if FormAction.CANCEL in req.POST:
-        raise HTTPFound(url_back)
     sn = SpecialNote.get_specialnote_by_id(req.dbsession, note_id)
     _ = req.gettext
     if sn is None:
@@ -4093,6 +4238,29 @@ def delete_special_note(req: "CamcopsRequest") -> Dict[str, Any]:
                              f"note_id={note_id}")
     if not sn.user_may_delete_specialnote(req.user):
         raise HTTPBadRequest(_("Not authorized to delete this special note"))
+    url_back = req.route_url(Routes.VIEW_TASKS)  # default
+    if sn.refers_to_patient():
+        # Special note on a patient.
+        # We might have come here from any number of tasks relating to this
+        # patient. In principle this information is retrievable; in practice it
+        # is a considerable faff for a rare operation, since special notes are
+        # displayed via special_notes.mako, which only looks at information
+        # stored with the note itself.
+        pass
+    else:
+        # Special note on a task.
+        task = sn.target_task()
+        if task:
+            url_back = req.route_url(
+                Routes.TASK,
+                _query={
+                    ViewParam.TABLE_NAME: task.tablename,
+                    ViewParam.SERVER_PK: task.pk,
+                    ViewParam.VIEWTYPE: ViewArg.HTML,
+                }
+            )
+    if FormAction.CANCEL in req.POST:
+        raise HTTPFound(url_back)
     form = DeleteSpecialNoteForm(request=req)
     if FormAction.SUBMIT in req.POST:
         try:
@@ -4625,7 +4793,7 @@ class EditPatientBaseView(PatientMixin, UpdateView):
             old_value = getattr(patient, k)
             if new_value == old_value:
                 continue
-            if new_value in [None, ""] and old_value in [None, ""]:
+            if new_value in (None, "") and old_value in (None, ""):
                 # Nothing really changing!
                 continue
             changes[k] = (old_value, new_value)
@@ -4841,8 +5009,35 @@ class EditFinalizedPatientView(EditPatientBaseView):
     template_name = "finalized_patient_edit.mako"
     form_class = EditFinalizedPatientForm
 
+    def __init__(self,
+                 req: CamcopsRequest,
+                 task_tablename: str = None,
+                 task_server_pk: int = None) -> None:
+        """
+        The two additional parameters are for returning the user to the task
+        from which editing was initiated.
+        """
+        super().__init__(req)
+        self.task_tablename = task_tablename
+        self.task_server_pk = task_server_pk
+
     def get_success_url(self) -> str:
-        return self.request.route_url(Routes.HOME)
+        """
+        We got here by editing a patient from an uploaded task, so that's our
+        return point.
+        """
+        if self.task_tablename and self.task_server_pk:
+            return self.request.route_url(
+                Routes.TASK,
+                _query={
+                    ViewParam.TABLE_NAME: self.task_tablename,
+                    ViewParam.SERVER_PK: self.task_server_pk,
+                    ViewParam.VIEWTYPE: ViewArg.HTML,
+                }
+            )
+        else:
+            # Likely in a testing environment!
+            return self.request.route_url(Routes.HOME)
 
     def get_object(self) -> Any:
         patient = cast(Patient, super().get_object())
@@ -4864,7 +5059,15 @@ def edit_finalized_patient(req: "CamcopsRequest") -> Response:
     """
     View to edit details for a patient.
     """
-    return EditFinalizedPatientView(req).dispatch()
+    task_table_name = req.get_str_param(ViewParam.BACK_TASK_TABLENAME,
+                                        validator=validate_task_tablename)
+    task_server_pk = req.get_int_param(ViewParam.BACK_TASK_SERVER_PK, None)
+
+    return EditFinalizedPatientView(
+        req,
+        task_tablename=task_table_name,
+        task_server_pk=task_server_pk
+    ).dispatch()
 
 
 @view_config(route_name=Routes.EDIT_SERVER_CREATED_PATIENT,
@@ -4973,7 +5176,7 @@ class DeleteServerCreatedPatientView(DeleteView):
     object_class = Patient
     pk_param = ViewParam.SERVER_PK
     server_pk_name = "_pk"
-    template_name = "generic_form.mako"
+    template_name = TEMPLATE_GENERIC_FORM
 
     def get_object(self) -> Any:
         patient = cast(Patient, super().get_object())
@@ -4985,7 +5188,10 @@ class DeleteServerCreatedPatientView(DeleteView):
     def get_extra_context(self) -> Dict[str, Any]:
         _ = self.request.gettext
         return {
-            MAKO_VAR_TITLE: _("Delete patient"),
+            MAKO_VAR_TITLE: self.request.icon_text(
+                icon=Icons.DELETE,
+                text=_("Delete patient")
+            )
         }
 
     def get_success_url(self) -> str:
@@ -5154,7 +5360,7 @@ class TaskScheduleMixin(object):
     object_class = TaskSchedule
     request: "CamcopsRequest"
     server_pk_name = "id"
-    template_name = "generic_form.mako"
+    template_name = TEMPLATE_GENERIC_FORM
 
     def get_success_url(self) -> str:
         return self.request.route_url(
@@ -5180,7 +5386,10 @@ class AddTaskScheduleView(TaskScheduleMixin, CreateView):
     def get_extra_context(self) -> Dict[str, Any]:
         _ = self.request.gettext
         return {
-            MAKO_VAR_TITLE: _("Add a task schedule"),
+            MAKO_VAR_TITLE: self.request.icon_text(
+                icon=Icons.TASK_SCHEDULE_ADD,
+                text=_("Add a task schedule")
+            )
         }
 
 
@@ -5193,7 +5402,10 @@ class EditTaskScheduleView(TaskScheduleMixin, UpdateView):
     def get_extra_context(self) -> Dict[str, Any]:
         _ = self.request.gettext
         return {
-            MAKO_VAR_TITLE: _("Edit details for a task schedule"),
+            MAKO_VAR_TITLE: self.request.icon_text(
+                icon=Icons.TASK_SCHEDULE,
+                text=_("Edit details for a task schedule")
+            )
         }
 
 
@@ -5207,7 +5419,10 @@ class DeleteTaskScheduleView(TaskScheduleMixin, DeleteView):
     def get_extra_context(self) -> Dict[str, Any]:
         _ = self.request.gettext
         return {
-            MAKO_VAR_TITLE: _("Delete a task schedule"),
+            MAKO_VAR_TITLE: self.request.icon_text(
+                icon=Icons.DELETE,
+                text=_("Delete a task schedule")
+            )
         }
 
 
@@ -5244,7 +5459,7 @@ class TaskScheduleItemMixin(object):
     Mixin for viewing/editing a task schedule items.
     """
     form_class = EditTaskScheduleItemForm
-    template_name = "generic_form.mako"
+    template_name = TEMPLATE_GENERIC_FORM
     model_form_dict = {
         "schedule_id": ViewParam.SCHEDULE_ID,
         "task_table_name": ViewParam.TABLE_NAME,
@@ -5313,9 +5528,12 @@ class AddTaskScheduleItemView(EditTaskScheduleItemMixin, CreateView):
         schedule = self.get_schedule()
 
         return {
-            MAKO_VAR_TITLE: _(
-                "Add an item to the {schedule_name} schedule"
-            ).format(schedule_name=schedule.name),
+            MAKO_VAR_TITLE: self.request.icon_text(
+                icon=Icons.TASK_SCHEDULE_ITEM_ADD,
+                text=_(
+                    "Add an item to the {schedule_name} schedule"
+                ).format(schedule_name=schedule.name)
+            )
         }
 
     def get_schedule_id(self) -> int:
@@ -5337,7 +5555,10 @@ class EditTaskScheduleItemView(EditTaskScheduleItemMixin, UpdateView):
     def get_extra_context(self) -> Dict[str, Any]:
         _ = self.request.gettext
         return {
-            MAKO_VAR_TITLE: _("Edit details for a task schedule item"),
+            MAKO_VAR_TITLE: self.request.icon_text(
+                icon=Icons.EDIT,
+                text=_("Edit details for a task schedule item")
+            )
         }
 
     def get_schedule_id(self) -> int:
@@ -5367,7 +5588,10 @@ class DeleteTaskScheduleItemView(TaskScheduleItemMixin, DeleteView):
     def get_extra_context(self) -> Dict[str, Any]:
         _ = self.request.gettext
         return {
-            MAKO_VAR_TITLE: _("Delete a task schedule item"),
+            MAKO_VAR_TITLE: self.request.icon_text(
+                icon=Icons.DELETE,
+                text=_("Delete a task schedule item")
+            ),
         }
 
     def get_schedule_id(self) -> int:
@@ -5403,10 +5627,10 @@ def delete_task_schedule_item(req: "CamcopsRequest") -> Response:
     return DeleteTaskScheduleItemView(req).dispatch()
 
 
-@view_config(route_name=Routes.CLIENT_API, request_method="GET",
+@view_config(route_name=Routes.CLIENT_API, request_method=HttpMethod.GET,
              permission=NO_PERMISSION_REQUIRED,
              renderer="client_api_signposting.mako")
-@view_config(route_name=Routes.CLIENT_API_ALIAS, request_method="GET",
+@view_config(route_name=Routes.CLIENT_API_ALIAS, request_method=HttpMethod.GET,
              permission=NO_PERMISSION_REQUIRED,
              renderer="client_api_signposting.mako")
 def client_api_signposting(req: "CamcopsRequest") -> Dict[str, Any]:
@@ -5417,8 +5641,12 @@ def client_api_signposting(req: "CamcopsRequest") -> Dict[str, Any]:
     app.
     """
     return {
-        "github_link": f"<a href='{GITHUB_RELEASES_URL}'>GitHub</a>",
-        "server_url": req.route_url(Routes.CLIENT_API)
+        "github_link": req.icon_text(
+            icon=Icons.GITHUB,
+            url=GITHUB_RELEASES_URL,
+            text="GitHub",
+        ),
+        "server_url": req.route_url(Routes.CLIENT_API),
     }
 
 
@@ -5582,6 +5810,152 @@ def send_email_from_patient_list(req: "CamcopsRequest") -> Response:
     View to send an email to a patient from the list of patients.
     """
     return SendEmailFromPatientListView(req).dispatch()
+
+
+# =============================================================================
+# FHIR identifier "system" information
+# =============================================================================
+
+@view_config(route_name=Routes.FHIR_PATIENT_ID_SYSTEM,
+             request_method=HttpMethod.GET,
+             renderer="fhir_patient_id_system.mako",
+             http_cache=NEVER_CACHE)
+def view_fhir_patient_id_system(req: "CamcopsRequest") -> Dict[str, Any]:
+    """
+    Placeholder view for FHIR patient identifier "system" types (from the ID
+    that we may have provided to a FHIR server).
+
+    Within each system, the "value" is the actual patient's ID number (not
+    part of what we show here).
+    """
+    which_idnum = int(req.matchdict[ViewParam.WHICH_IDNUM])
+    if which_idnum not in req.valid_which_idnums:
+        _ = req.gettext
+        raise HTTPBadRequest(f"{_('Unknown patient ID type:')} "
+                             f"{which_idnum!r}")
+    return dict(
+        which_idnum=which_idnum,
+    )
+
+
+@view_config(route_name=Routes.FHIR_QUESTIONNAIRE_SYSTEM,
+             request_method=HttpMethod.GET,
+             renderer="all_tasks.mako",
+             http_cache=NEVER_CACHE)
+@view_config(route_name=Routes.TASK_LIST,
+             request_method=HttpMethod.GET,
+             renderer="all_tasks.mako",
+             http_cache=NEVER_CACHE)
+def view_task_list(req: "CamcopsRequest") -> Dict[str, Any]:
+    """
+    Lists all tasks.
+
+    Also the placeholder view for FHIR Questionnaire "system".
+    There's only one system -- the "value" is the task type.
+    """
+    return dict(
+        all_task_classes=Task.all_subclasses_by_tablename(),
+    )
+
+
+@view_config(route_name=Routes.TASK_DETAILS,
+             request_method=HttpMethod.GET,
+             renderer="task_details.mako",
+             http_cache=NEVER_CACHE)
+def view_task_details(req: "CamcopsRequest") -> Dict[str, Any]:
+    """
+    View details of a specific task type.
+
+    Used also for for FHIR DocumentReference, Observation,and
+    QuestionnaireResponse "system" types. (There's one system per task. Within
+    each task, the "value" relates to the specific task PK.)
+    """
+    table_name = req.matchdict[ViewParam.TABLE_NAME]
+    task_class_dict = tablename_to_task_class_dict()
+    if table_name not in task_class_dict:
+        _ = req.gettext
+        raise HTTPBadRequest(f"{_('Unknown task:')} {table_name!r}")
+    task_class = task_class_dict[table_name]
+    task_instance = task_class()
+    dummy_recipient = ExportRecipient()
+    fhir_aq_items = task_instance.get_fhir_questionnaire(
+        req, dummy_recipient
+    )
+    return dict(
+        task_class=task_class,
+        # task_instance=task_instance,
+        fhir_aq_items=fhir_aq_items,
+    )
+
+
+@view_config(route_name=Routes.FHIR_CONDITION,
+             request_method=HttpMethod.GET,
+             http_cache=NEVER_CACHE)
+@view_config(route_name=Routes.FHIR_DOCUMENT_REFERENCE,
+             request_method=HttpMethod.GET,
+             http_cache=NEVER_CACHE)
+@view_config(route_name=Routes.FHIR_OBSERVATION,
+             request_method=HttpMethod.GET,
+             http_cache=NEVER_CACHE)
+@view_config(route_name=Routes.FHIR_PRACTITIONER,
+             request_method=HttpMethod.GET,
+             http_cache=NEVER_CACHE)
+@view_config(route_name=Routes.FHIR_QUESTIONNAIRE_RESPONSE,
+             request_method=HttpMethod.GET,
+             http_cache=NEVER_CACHE)
+def fhir_view_task(req: "CamcopsRequest") -> Response:
+    """
+    Retrieve parameters from a FHIR URL referring back to this server, and
+    serve the relevant task (as HTML).
+
+    The "canonical URL" or "business identifier" of a FHIR resource is the
+    reference to the master copy -- in this case, our copy. See
+    https://www.hl7.org/fhir/datatypes.html#Identifier;
+    https://www.hl7.org/fhir/resource.html#identifiers.
+
+    FHIR identifiers have a "system" (which is a URL) and a "value". I don't
+    think that FHIR has a rule for combining the system and value to create a
+    full URL. For some (but by no means all) identifiers that we provide to
+    FHIR servers, the "system" refers to a CamCOPS task (and the value to some
+    attribute of that task, like the answer to a question (value of a field),
+    or a fixed string like "patient", and so on.
+    """
+    table_name = req.matchdict[ViewParam.TABLE_NAME]
+    server_pk = req.matchdict[ViewParam.SERVER_PK]
+    return HTTPFound(
+        req.route_url(
+            Routes.TASK,
+            _query={
+                ViewParam.TABLE_NAME: table_name,
+                ViewParam.SERVER_PK: server_pk,
+                ViewParam.VIEWTYPE: ViewArg.HTML,
+            }
+        )
+    )
+
+
+@view_config(route_name=Routes.FHIR_TABLENAME_PK_ID,
+             request_method=HttpMethod.GET,
+             http_cache=NEVER_CACHE)
+def fhir_view_tablename_pk(req: "CamcopsRequest") -> Response:
+    """
+    Deal with the slightly silly system that just takes a tablename and PK
+    directly. Security is key here!
+    """
+    table_name = req.matchdict[ViewParam.TABLE_NAME]
+    server_pk = req.matchdict[ViewParam.SERVER_PK]
+    if table_name == Patient.__tablename__:
+        return view_patient(req, server_pk)
+    return HTTPFound(
+        req.route_url(
+            Routes.TASK,
+            _query={
+                ViewParam.TABLE_NAME: table_name,
+                ViewParam.SERVER_PK: server_pk,
+                ViewParam.VIEWTYPE: ViewArg.HTML,
+            }
+        )
+    )
 
 
 # =============================================================================

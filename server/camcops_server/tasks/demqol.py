@@ -302,6 +302,7 @@ class DemqolProxy(TaskHasPatientMixin, TaskHasRespondentMixin,
     __tablename__ = "demqolproxy"
     shortname = "DEMQOL-Proxy"
     extrastring_taskname = "demqol"
+    info_filename_stem = "demqol"
 
     q32 = CamcopsColumn(
         "q32", Integer,

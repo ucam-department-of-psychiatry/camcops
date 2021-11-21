@@ -238,6 +238,7 @@ class CgiI(TaskHasPatientMixin, TaskHasClinicianMixin, Task):
     __tablename__ = "cgi_i"
     shortname = "CGI-I"
     extrastring_taskname = "cgi"  # shares with CGI
+    info_filename_stem = "cgi"
 
     q = CamcopsColumn(
         "q", Integer,

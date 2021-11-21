@@ -100,6 +100,7 @@ class PclCommon(TaskHasPatientMixin, Task, ABC,
     __abstract__ = True
     provides_trackers = True
     extrastring_taskname = "pcl"
+    info_filename_stem = extrastring_taskname
 
     NQUESTIONS = 17
     SCORED_FIELDS = strseq("q", 1, NQUESTIONS)

@@ -73,12 +73,12 @@ from camcops_server.cc_modules.cc_constants import DateFormat
     %endif
     ## Other
     %if task_filter.device_ids:
-        ${ _("Uploading device is one of:") }
+        ${ _("Device uploading task is one of:") }
         <b>${ ", ".join(task_filter.get_device_names(request)) }</b>.
         <% some_filter = True %>
     %endif
     %if task_filter.adding_user_ids:
-        ${ _("Adding user is one of:") }
+        ${ _("User uploading task is one of:") }
         <b>${ ", ".join(task_filter.get_user_names(request)) }</b>.
         <% some_filter = True %>
     %endif

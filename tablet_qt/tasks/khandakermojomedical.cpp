@@ -215,6 +215,12 @@ QString KhandakerMojoMedical::description() const
 }
 
 
+QString KhandakerMojoMedical::infoFilenameStem() const
+{
+    return "khandaker_mojo";
+}
+
+
 // ============================================================================
 // Instance info
 // ============================================================================

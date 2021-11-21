@@ -64,6 +64,7 @@ class ContactLog(TaskHasClinicianMixin, TaskHasPatientMixin, Task):
     """
     __tablename__ = "contactlog"
     shortname = "ContactLog"
+    info_filename_stem = "clinical"
 
     location = Column(
         "location", UnicodeText,

@@ -41,6 +41,7 @@ from urllib.parse import urlencode
 # from cardinal_pythonlib.debugging import get_caller_stack_info
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from cardinal_pythonlib.wsgi.constants import WsgiEnvVar
+from mako.filters import html_escape
 from mako.lookup import TemplateLookup
 from paginate import Page
 from pyramid.authentication import IAuthenticationPolicy
@@ -130,14 +131,6 @@ class FormAction(object):
     REFRESH_TASKS = 'refresh_tasks'
 
 
-class RequestMethod(object):
-    """
-    Constants to distinguish HTTP GET from HTTP POST requests.
-    """
-    GET = "GET"
-    POST = "POST"
-
-
 class ViewParam(object):
     """
     View parameter constants.
@@ -159,6 +152,8 @@ class ViewParam(object):
     AGE_MAXIMUM = "age_maximum"
     ALL_TASKS = "all_tasks"
     ANONYMISE = "anonymise"
+    BACK_TASK_TABLENAME = "back_task_tablename"
+    BACK_TASK_SERVER_PK = "back_task_server_pk"
     CLINICIAN_CONFIRMATION = "clinician_confirmation"
     CSRF_TOKEN = "csrf_token"
     DATABASE_TITLE = "database_title"
@@ -183,6 +178,7 @@ class ViewParam(object):
     EMAIL_TEMPLATE = "email_template"
     END_DATETIME = "end_datetime"
     INCLUDE_AUTO_GENERATED = "include_auto_generated"
+    FHIR_ID_SYSTEM = "fhir_id_system"
     FILENAME = "filename"
     FINALIZE_POLICY = "finalize_policy"
     FORENAME = "forename"
@@ -280,6 +276,7 @@ class ViewArg(object):
     IMMEDIATELY = "immediately"
 
     # Output types
+    FHIRJSON = "fhirjson"
     HTML = "html"
     ODS = "ods"
     PDF = "pdf"
@@ -761,6 +758,14 @@ class Routes(object):
     EDIT_USER_GROUP_MEMBERSHIP = "edit_user_group_membership"
     ERASE_TASK_LEAVING_PLACEHOLDER = "erase_task_leaving_placeholder"
     ERASE_TASK_ENTIRELY = "erase_task_entirely"
+    FHIR_CONDITION = "fhir_condition"
+    FHIR_DOCUMENT_REFERENCE = "fhir_document_reference"
+    FHIR_OBSERVATION = "fhir_observation"
+    FHIR_PATIENT_ID_SYSTEM = "fhir_patient_id_system"
+    FHIR_PRACTITIONER = "fhir_practitioner"
+    FHIR_QUESTIONNAIRE_SYSTEM = "fhir_questionnaire"
+    FHIR_QUESTIONNAIRE_RESPONSE = "fhir_questionnaire_response"
+    FHIR_TABLENAME_PK_ID = "fhir_tablename_pk_id"
     FORCIBLY_FINALIZE = "forcibly_finalize"
     HOME = "home"
     LOGIN = "login"
@@ -781,6 +786,8 @@ class Routes(object):
     SET_OWN_USER_UPLOAD_GROUP = "set_user_upload_group"
     SQL_DUMP = "sql_dump"
     TASK = "task"
+    TASK_DETAILS = "task_details"
+    TASK_LIST = "task_list"
     TEST_NHS_NUMBERS = "test_nhs_numbers"
     TESTPAGE_PRIVATE_1 = "testpage_private_1"
     TESTPAGE_PRIVATE_2 = "testpage_private_2"
@@ -797,8 +804,11 @@ class Routes(object):
     VIEW_EXPORTED_TASK = "view_exported_task"
     VIEW_EXPORTED_TASK_LIST = "view_exported_task_list"
     VIEW_EXPORTED_TASK_EMAIL = "view_exported_task_email"
+    VIEW_EXPORTED_TASK_FHIR = "view_exported_task_fhir"
+    VIEW_EXPORTED_TASK_FHIR_ENTRY = "view_exported_task_fhir_entry"
     VIEW_EXPORTED_TASK_FILE_GROUP = "view_exported_task_file_group"
     VIEW_EXPORTED_TASK_HL7_MESSAGE = "view_exported_task_hl7_message"
+    VIEW_EXPORTED_TASK_REDCAP = "view_exported_task_redcap"
     VIEW_GROUPS = "view_groups"
     VIEW_ID_DEFINITIONS = "view_id_definitions"
     VIEW_OWN_USER_INFO = "view_own_user_info"
@@ -818,26 +828,80 @@ class RoutePath(object):
     Class to hold a route/path pair.
 
     - Pyramid route names are just strings used internally for convenience.
+
     - Pyramid URL paths are URL fragments, like ``'/thing'``, and can contain
       placeholders, like ``'/thing/{bork_id}'``, which will result in the
       ``request.matchdict`` object containing a ``'bork_id'`` key. Those can be
       further constrained by regular expressions, like
-      ``'/thing/{bork_id:\d+}'`` to restrict to digits.
+      ``'/thing/{bork_id:\d+}'`` to restrict to digits. See
+      https://docs.pylonsproject.org/projects/pyramid/en/latest/narr/urldispatch.html
 
-    """
+    """  # noqa
     def __init__(self, route: str, path: str = "",
-                 ignore_in_all_routes: bool = False) -> None:
+                 ignore_in_all_routes: bool = False,
+                 pregenerator: Callable = None) -> None:
         self.route = route
         self.path = path or "/" + route
         self.ignore_in_all_routes = ignore_in_all_routes
+        self.pregenerator = pregenerator
 
 
 MASTER_ROUTE_WEBVIEW = "/"
 MASTER_ROUTE_CLIENT_API = "/api"
 MASTER_ROUTE_CLIENT_API_ALIAS = "/database"
+
 STATIC_CAMCOPS_PACKAGE_PATH = "camcops_server.static:"
 # ... the "static" package (directory with __init__.py) within the
 # "camcops_server" owning package
+STATIC_BOOTSTRAP_ICONS_PATH = (STATIC_CAMCOPS_PACKAGE_PATH +
+                               "bootstrap-icons-1.7.0")
+
+
+# noinspection PyUnusedLocal
+def pregen_for_fhir(request: Request,
+                    elements: Tuple,
+                    kw: Dict) -> Tuple:
+    """
+    Pyramid pregenerator, to pre-populate an optional URL keyword (with an
+    empty string, as it happens). See
+
+    - https://stackoverflow.com/questions/42193305/optional-url-parameter-on-pyramid-route
+    - https://docs.pylonsproject.org/projects/pyramid/en/latest/api/config.html
+    - https://docs.pylonsproject.org/projects/pyramid/en/latest/api/interfaces.html#pyramid.interfaces.IRoutePregenerator
+    """  # noqa
+    kw.setdefault("fhirvalue_with_bar", "")
+    return elements, kw
+
+
+def _mk_fhir_optional_value_suffix_route(route: str,
+                                         path: str = "") -> RoutePath:
+    path = path or "/" + route
+    path_with_optional_value = path + r"{fhirvalue_with_bar:(\|[\w\d/\.]+)?}"
+    # ... allow, optionally, a bar followed by one or more word, digit,
+    # forward slash, or period characters.
+    # This allows FHIR identifier suffixes like path|table/2.4.11
+    return RoutePath(
+        route,
+        path_with_optional_value,
+        pregenerator=pregen_for_fhir
+    )
+
+
+def _mk_fhir_tablename_route(route: str) -> RoutePath:
+    return _mk_fhir_optional_value_suffix_route(
+        route,
+        f"/{route}"
+        rf"/{{{ViewParam.TABLE_NAME}:\w+}}"
+    )
+
+
+def _mk_fhir_tablename_pk_route(route: str) -> RoutePath:
+    return _mk_fhir_optional_value_suffix_route(
+        route,
+        f"/{route}"
+        rf"/{{{ViewParam.TABLE_NAME}:\w+}}"
+        rf"/{{{ViewParam.SERVER_PK}:\d+}}"
+    )
 
 
 class RouteCollection(object):
@@ -880,9 +944,7 @@ class RouteCollection(object):
     DELETE_GROUP = RoutePath(Routes.DELETE_GROUP)
     DELETE_ID_DEFINITION = RoutePath(Routes.DELETE_ID_DEFINITION)
     DELETE_PATIENT = RoutePath(Routes.DELETE_PATIENT)
-    DELETE_SERVER_CREATED_PATIENT = RoutePath(
-        Routes.DELETE_SERVER_CREATED_PATIENT
-    )
+    DELETE_SERVER_CREATED_PATIENT = RoutePath(Routes.DELETE_SERVER_CREATED_PATIENT)  # noqa: E501
     DELETE_SPECIAL_NOTE = RoutePath(Routes.DELETE_SPECIAL_NOTE)
     DELETE_TASK_SCHEDULE = RoutePath(Routes.DELETE_TASK_SCHEDULE)
     DELETE_TASK_SCHEDULE_ITEM = RoutePath(Routes.DELETE_TASK_SCHEDULE_ITEM)
@@ -902,8 +964,36 @@ class RouteCollection(object):
     EDIT_USER = RoutePath(Routes.EDIT_USER)
     EDIT_USER_AUTHENTICATION = RoutePath(Routes.EDIT_USER_AUTHENTICATION)
     EDIT_USER_GROUP_MEMBERSHIP = RoutePath(Routes.EDIT_USER_GROUP_MEMBERSHIP)
-    ERASE_TASK_LEAVING_PLACEHOLDER = RoutePath(Routes.ERASE_TASK_LEAVING_PLACEHOLDER)  # noqa
+    ERASE_TASK_LEAVING_PLACEHOLDER = RoutePath(Routes.ERASE_TASK_LEAVING_PLACEHOLDER)  # noqa: E501
     ERASE_TASK_ENTIRELY = RoutePath(Routes.ERASE_TASK_ENTIRELY)
+
+    FHIR_CONDITION = _mk_fhir_tablename_pk_route(
+        Routes.FHIR_CONDITION,
+    )
+    FHIR_DOCUMENT_REFERENCE = _mk_fhir_tablename_pk_route(
+        Routes.FHIR_DOCUMENT_REFERENCE
+    )
+    FHIR_OBSERVATION = _mk_fhir_tablename_pk_route(
+        Routes.FHIR_OBSERVATION
+    )
+    FHIR_PATIENT_ID_SYSTEM = _mk_fhir_optional_value_suffix_route(
+        Routes.FHIR_PATIENT_ID_SYSTEM,
+        f"/{Routes.FHIR_PATIENT_ID_SYSTEM}"
+        rf"/{{{ViewParam.WHICH_IDNUM}:\d+}}"
+    )
+    FHIR_PRACTITIONER = _mk_fhir_tablename_pk_route(
+        Routes.FHIR_PRACTITIONER
+    )
+    FHIR_QUESTIONNAIRE_SYSTEM = _mk_fhir_optional_value_suffix_route(
+        Routes.FHIR_QUESTIONNAIRE_SYSTEM
+    )
+    FHIR_QUESTIONNAIRE_RESPONSE = _mk_fhir_tablename_pk_route(
+        Routes.FHIR_QUESTIONNAIRE_RESPONSE
+    )
+    FHIR_TABLENAME_PK_ID = _mk_fhir_tablename_pk_route(
+        Routes.FHIR_TABLENAME_PK_ID
+    )
+
     FORCIBLY_FINALIZE = RoutePath(Routes.FORCIBLY_FINALIZE)
     HOME = RoutePath(Routes.HOME, MASTER_ROUTE_WEBVIEW)  # mounted at "/"
     LOGIN = RoutePath(Routes.LOGIN)
@@ -923,6 +1013,11 @@ class RouteCollection(object):
     SET_OWN_USER_UPLOAD_GROUP = RoutePath(Routes.SET_OWN_USER_UPLOAD_GROUP)
     SQL_DUMP = RoutePath(Routes.SQL_DUMP)
     TASK = RoutePath(Routes.TASK)
+    TASK_DETAILS = RoutePath(
+        Routes.TASK_DETAILS,
+        rf"/{Routes.TASK_DETAILS}/{{{ViewParam.TABLE_NAME}}}"
+    )
+    TASK_LIST = RoutePath(Routes.TASK_LIST)
     TEST_NHS_NUMBERS = RoutePath(Routes.TEST_NHS_NUMBERS)
     TESTPAGE_PRIVATE_1 = RoutePath(Routes.TESTPAGE_PRIVATE_1)
     TESTPAGE_PRIVATE_2 = RoutePath(Routes.TESTPAGE_PRIVATE_2)
@@ -939,8 +1034,11 @@ class RouteCollection(object):
     VIEW_EXPORTED_TASK = RoutePath(Routes.VIEW_EXPORTED_TASK)
     VIEW_EXPORTED_TASK_LIST = RoutePath(Routes.VIEW_EXPORTED_TASK_LIST)
     VIEW_EXPORTED_TASK_EMAIL = RoutePath(Routes.VIEW_EXPORTED_TASK_EMAIL)
+    VIEW_EXPORTED_TASK_FHIR = RoutePath(Routes.VIEW_EXPORTED_TASK_FHIR)
+    VIEW_EXPORTED_TASK_FHIR_ENTRY = RoutePath(Routes.VIEW_EXPORTED_TASK_FHIR_ENTRY)  # noqa
     VIEW_EXPORTED_TASK_FILE_GROUP = RoutePath(Routes.VIEW_EXPORTED_TASK_FILE_GROUP)  # noqa
     VIEW_EXPORTED_TASK_HL7_MESSAGE = RoutePath(Routes.VIEW_EXPORTED_TASK_HL7_MESSAGE)  # noqa
+    VIEW_EXPORTED_TASK_REDCAP = RoutePath(Routes.VIEW_EXPORTED_TASK_REDCAP)
     VIEW_GROUPS = RoutePath(Routes.VIEW_GROUPS)
     VIEW_ID_DEFINITIONS = RoutePath(Routes.VIEW_ID_DEFINITIONS)
     VIEW_OWN_USER_INFO = RoutePath(Routes.VIEW_OWN_USER_INFO)
@@ -1164,6 +1262,256 @@ class CamcopsAuthorizationPolicy(object):
 
 
 # =============================================================================
+# Icons
+# =============================================================================
+
+def icon_html(icon: str,
+              alt: str,
+              url: str = None,
+              extra_classes: List[str] = None,
+              extra_styles: List[str] = None,
+              escape_alt: bool = True) -> str:
+    """
+    Instantiates a Bootstrap icon, usually with a hyperlink. Returns
+    rendered HTML.
+
+    Args:
+        icon:
+            Icon name, without ".svg" extension (or "bi-" prefix!).
+        alt:
+            Alternative text for image.
+        url:
+            Optional URL of hyperlink.
+        extra_classes:
+            Optional extra CSS classes for the icon.
+        extra_styles:
+            Optional extra CSS styles for the icon (each looks like:
+            "color: blue").
+        escape_alt:
+            HTML-escape the alt text? Default is True.
+    """
+    # There are several ways to do this, such as via <img> tags, or via
+    # web fonts.
+    # We include bootstrap-icons.css (via base_web.mako), because that
+    # allows the best resizing (relative to font size) and styling.
+    # See:
+    # - https://icons.getbootstrap.com/#usage
+    # - http://johna.compoutpost.com/blog/1189/how-to-use-the-new-bootstrap-icons-v1-2-web-font/  # noqa
+    if escape_alt:
+        alt = html_escape(alt)
+    i_components = [
+        'role="img"',
+        f'aria-label="{alt}"'
+    ]
+    css_classes = [f"bi-{icon}"]  # bi = Bootstrap icon
+    if extra_classes:
+        css_classes += extra_classes
+    class_str = " ".join(css_classes)
+    i_components.append(f'class="{class_str}"')
+    if extra_styles:
+        style_str = "; ".join(extra_styles)
+        i_components.append(f'style="{style_str}"')
+    image = f'<i {" ".join(i_components)}></i>'
+    if url:
+        return f'<a href="{url}">{image}</a>'
+    else:
+        return image
+
+
+def icon_text(icon: str,
+              text: str,
+              url: str = None,
+              alt: str = None,
+              extra_icon_classes: List[str] = None,
+              extra_icon_styles: List[str] = None,
+              extra_a_classes: List[str] = None,
+              extra_a_styles: List[str] = None,
+              escape_alt: bool = True,
+              escape_text: bool = True,
+              hyperlink_together: bool = False) -> str:
+    """
+    Provide an icon and accompanying text. Usually, both are hyperlinked
+    (to the same destination URL). Returns rendered HTML.
+
+    Args:
+        icon:
+            Icon name, without ".svg" extension.
+        url:
+            Optional URL of hyperlink.
+        alt:
+            Alternative text for image. Will default to the main text.
+        text:
+            Main text to display.
+        extra_icon_classes:
+            Optional extra CSS classes for the icon.
+        extra_icon_styles:
+            Optional extra CSS styles for the icon (each looks like:
+            "color: blue").
+        extra_a_classes:
+            Optional extra CSS classes for the <a> element.
+        extra_a_styles:
+            Optional extra CSS styles for the <a> element.
+        escape_alt:
+            HTML-escape the alt text?
+        escape_text:
+            HTML-escape the main text?
+        hyperlink_together:
+            Hyperlink the image and text as one (rather than separately and
+            adjacent to each other)?
+    """
+    i_html = icon_html(icon=icon,
+                       url=None if hyperlink_together else url,
+                       alt=alt or text,
+                       extra_classes=extra_icon_classes,
+                       extra_styles=extra_icon_styles,
+                       escape_alt=escape_alt)
+    if escape_text:
+        text = html_escape(text)
+    if url:
+        a_components = [f'href="{url}"']
+        if extra_a_classes:
+            class_str = " ".join(extra_a_classes)
+            a_components.append(f'class="{class_str}"')
+        if extra_a_styles:
+            style_str = "; ".join(extra_a_styles)
+            a_components.append(f'style="{style_str}"')
+        a_options = " ".join(a_components)
+        if hyperlink_together:
+            return f'<a {a_options}>{i_html} {text}</a>'
+        else:
+            return f'{i_html} <a {a_options}>{text}</a>'
+    else:
+        return f'{i_html} {text}'
+
+
+def icons_text(icons: List[str],
+               text: str,
+               url: str = None,
+               alt: str = None,
+               extra_icon_classes: List[str] = None,
+               extra_icon_styles: List[str] = None,
+               extra_a_classes: List[str] = None,
+               extra_a_styles: List[str] = None,
+               escape_alt: bool = True,
+               escape_text: bool = True,
+               hyperlink_together: bool = False) -> str:
+    """
+    Multiple-icon version of :func:``icon_text``.
+    """
+    i_html = " ".join(
+        icon_html(icon=icon,
+                  url=None if hyperlink_together else url,
+                  alt=alt or text,
+                  extra_classes=extra_icon_classes,
+                  extra_styles=extra_icon_styles,
+                  escape_alt=escape_alt)
+        for icon in icons
+    )
+    if escape_text:
+        text = html_escape(text)
+    if url:
+        a_components = [f'href="{url}"']
+        if extra_a_classes:
+            class_str = " ".join(extra_a_classes)
+            a_components.append(f'class="{class_str}"')
+        if extra_a_styles:
+            style_str = "; ".join(extra_a_styles)
+            a_components.append(f'style="{style_str}"')
+        a_options = " ".join(a_components)
+        if hyperlink_together:
+            return f'<a {a_options}>{i_html} {text}</a>'
+        else:
+            return f'{i_html} <a {a_options}>{text}</a>'
+    else:
+        return f'{i_html} {text}'
+
+
+class Icons:
+    """
+    Constants for Bootstrap icons. See https://icons.getbootstrap.com/.
+    """
+    ACTIVITY = "activity"
+    APP_AUTHENTICATOR = "shield-shaded"
+    AUDIT_ITEM = "tag"
+    AUDIT_MENU = "clipboard"
+    AUDIT_OPTIONS = "clipboard-check"
+    AUDIT_REPORT = "clipboard-data"
+    BUSY = "hourglass-split"
+    CTV = "body-text"
+    DELETE = "trash"
+    DELETE_MAJOR = "trash-fill"
+    DEVELOPER = "braces"  # braces, bug
+    DOWNLOAD = "download"
+    DUMP_BASIC = "file-spreadsheet"
+    DUMP_SQL = "server"
+    EDIT = "pencil"
+    EMAIL_CONFIGURE = "at"
+    EMAIL_SEND = "envelope"
+    EMAIL_VIEW = "envelope-open"
+    EXPORT_RECIPIENT = "share"
+    EXPORTED_TASK = "tag-fill"
+    EXPORTED_TASK_ENTRY_COLLECTION = "tags"
+    FILTER = "funnel"  # better than filter-circle
+    FORCE_FINALIZE = "bricks"
+    GITHUB = "github"
+    GOTO_PREDECESSOR = "arrow-left-square"
+    GOTO_SUCCESSOR = "arrow-right-square-fill"
+    GROUP_ADD = "plus-circle"
+    GROUP_ADMIN = "suit-diamond"
+    GROUP_EDIT = "box"
+    GROUPS = "boxes"  # change?
+    HOME = "house-fill"
+    HTML_ANONYMOUS = "file-richtext"
+    HTML_IDENTIFIABLE = "file-richtext-fill"
+    ID_DEFINITION_ADD = "plus-circle"  # suboptimal
+    ID_DEFINITIONS = "123"
+    INFO_EXTERNAL = "info-circle-fill"  # info-circle-fill? link? box-arrow-up-right?  # noqa
+    INFO_INTERNAL = "info-circle"
+    JSON = "file-text-fill"  # braces, file-text-fill
+    LOGIN = "box-arrow-in-right"
+    LOGOUT = "box-arrow-right"
+    MFA = "fingerprint"
+    MISSING = "x-octagon-fill"  # when an icon should have been supplied but wasn't!  # noqa
+    NAVIGATE_BACKWARD = "skip-start"
+    NAVIGATE_END = "skip-forward"  # better than skip-end
+    NAVIGATE_FORWARD = "skip-end"  # better than skip-forward, caret-right; "play" is also good but no mirror-image version.  # noqa
+    NAVIGATE_START = "skip-backward"  # better than skip-start
+    PASSWORD_OTHER = "key"
+    PASSWORD_OWN = "key-fill"
+    PATIENT = "person"
+    PATIENT_ADD = "person-plus"
+    PATIENT_EDIT = "person-circle"
+    PATIENTS = "people"
+    PDF_ANONYMOUS = "file-pdf"
+    PDF_IDENTIFIABLE = "file-pdf-fill"
+    REPORT_CONFIG = "bar-chart-line"
+    REPORT_DETAIL = "file-bar-graph"
+    REPORTS = "bar-chart-line-fill"
+    SETTINGS = "gear"
+    SMS = "chat-left-dots"
+    SPECIAL_NOTE = "pencil-square"
+    SUCCESS = "check-circle"
+    SUPERUSER = "suit-spade-fill"
+    TASK_SCHEDULE = "journal"
+    TASK_SCHEDULE_ADD = "journal-plus"
+    TASK_SCHEDULE_ITEM_ADD = "journal-code"  # imperfect, but we use journal-plus for "add schedule"  # noqa
+    TASK_SCHEDULE_ITEMS = "journal-text"
+    TASK_SCHEDULES = "journals"
+    TRACKERS = "graph-up"
+    UNLOCK = "unlock"
+    UPLOAD = "upload"
+    USER_ADD = "person-plus-fill"  # there isn't a person-badge-plus
+    USER_INFO = "person-badge"
+    USER_MANAGEMENT = "person-badge-fill"
+    USER_PERMISSIONS = "person-check"
+    VIEW_TASKS = "display"
+    XML = "file-code-fill"  # diagram-3-fill
+    YOU = "heart-fill"
+    ZOOM_IN = "zoom-in"
+    ZOOM_OUT = "zoom-out"
+
+
+# =============================================================================
 # Pagination
 # =============================================================================
 # WebHelpers 1.3 doesn't support Python 3.5.
@@ -1201,6 +1549,16 @@ class SqlalchemyOrmQueryWrapper(object):
         object.
         """
         return self.query.count()
+
+
+# DEFAULT_NAV_START = "&lt;&lt;"
+DEFAULT_NAV_START = icon_html(Icons.NAVIGATE_START, alt="Start")
+# DEFAULT_NAV_END = "&gt;&gt;"
+DEFAULT_NAV_END = icon_html(Icons.NAVIGATE_END, alt="End")
+# DEFAULT_NAV_BACKWARD = "&lt;"
+DEFAULT_NAV_BACKWARD = icon_html(Icons.NAVIGATE_BACKWARD, alt="Backward")
+# DEFAULT_NAV_FORWARD = '&gt;'
+DEFAULT_NAV_FORWARD = icon_html(Icons.NAVIGATE_FORWARD, alt="Forward")
 
 
 class CamcopsPage(Page):
@@ -1262,10 +1620,10 @@ class CamcopsPage(Page):
               url: str = None,
               show_if_single_page: bool = True,  # see below!
               separator: str = ' ',
-              symbol_first: str = '&lt;&lt;',
-              symbol_last: str = '&gt;&gt;',
-              symbol_previous: str = '&lt;',
-              symbol_next: str = '&gt;',
+              symbol_first: str = DEFAULT_NAV_START,
+              symbol_last: str = DEFAULT_NAV_END,
+              symbol_previous: str = DEFAULT_NAV_BACKWARD,
+              symbol_next: str = DEFAULT_NAV_FORWARD,
               link_attr: Dict[str, str] = None,
               curpage_attr: Dict[str, str] = None,
               dotdot_attr: Dict[str, str] = None,
