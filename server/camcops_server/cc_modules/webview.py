@@ -134,6 +134,7 @@ from typing import (
     List,
     NoReturn,
     Optional,
+    Tuple,
     Type,
     TYPE_CHECKING,
 )
@@ -2659,6 +2660,20 @@ LEXERMAP = {
 }
 
 
+def format_sql_as_html(
+        sql: str,
+        dialect: str = SqlaDialectName.MYSQL) -> Tuple[str, str]:
+    """
+    Formats SQL as HTML with CSS.
+    """
+    lexer = LEXERMAP[dialect]()
+    # noinspection PyUnresolvedReferences
+    formatter = pygments.formatters.HtmlFormatter()
+    html = pygments.highlight(sql, lexer, formatter)
+    css = formatter.get_style_defs('.highlight')
+    return html, css
+
+
 @view_config(route_name=Routes.VIEW_DDL,
              http_cache=NEVER_CACHE)
 def view_ddl(req: "CamcopsRequest") -> Response:
@@ -2679,11 +2694,7 @@ def view_ddl(req: "CamcopsRequest") -> Response:
             appstruct = form.validate(controls)
             dialect = appstruct.get(ViewParam.DIALECT)
             ddl = get_all_ddl(dialect_name=dialect)
-            lexer = LEXERMAP[dialect]()
-            # noinspection PyUnresolvedReferences
-            formatter = pygments.formatters.HtmlFormatter()
-            html = pygments.highlight(ddl, lexer, formatter)
-            css = formatter.get_style_defs('.highlight')
+            html, css = format_sql_as_html(ddl, dialect)
             return render_to_response("introspect_file.mako",
                                       dict(css=css,
                                            code_html=html),
@@ -5877,14 +5888,17 @@ def view_task_details(req: "CamcopsRequest") -> Dict[str, Any]:
         raise HTTPBadRequest(f"{_('Unknown task:')} {table_name!r}")
     task_class = task_class_dict[table_name]
     task_instance = task_class()
-    dummy_recipient = ExportRecipient()
-    fhir_aq_items = task_instance.get_fhir_questionnaire(
-        req, dummy_recipient
-    )
+
+    fhir_aq_items = task_instance.get_fhir_questionnaire(req)
+    # ddl = task_instance.get_ddl()
+    # ddl_html, ddl_css = format_sql_as_html(ddl)
+
     return dict(
         task_class=task_class,
-        # task_instance=task_instance,
+        task_instance=task_instance,
         fhir_aq_items=fhir_aq_items,
+        # ddl_html=ddl_html,
+        # css=ddl_css,
     )
 
 

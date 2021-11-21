@@ -58,6 +58,7 @@ from cardinal_pythonlib.datetimefunc import (
 )
 from cardinal_pythonlib.httpconst import MimeType
 from cardinal_pythonlib.logs import BraceStyleAdapter
+from cardinal_pythonlib.sqlalchemy.dialect import SqlaDialectName
 from cardinal_pythonlib.sqlalchemy.orm_inspect import (
     gen_columns,
     gen_orm_classes_from_base,
@@ -91,7 +92,7 @@ from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.relationships import RelationshipProperty
 from sqlalchemy.sql.expression import not_, update
-from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.schema import Column, Table
 from sqlalchemy.sql.sqltypes import (
     Boolean,
     Date as DateColType,
@@ -176,7 +177,7 @@ from camcops_server.cc_modules.cc_sqla_coltypes import (
     SemanticVersionColType,
     TableNameColType,
 )
-from camcops_server.cc_modules.cc_sqlalchemy import Base
+from camcops_server.cc_modules.cc_sqlalchemy import Base, get_table_ddl
 from camcops_server.cc_modules.cc_summaryelement import (
     ExtraSummaryTable,
     SummaryElement,
@@ -910,7 +911,7 @@ class Task(GenericTabletRecordMixin, Base):
     @classmethod
     def all_tables_with_min_client_version(cls) -> Dict[str, Version]:
         """
-        Returns a dictionary mapping all this task's tables (primary and
+        Returns a dictionary mapping all this task's table names (primary and
         ancillary) to the corresponding minimum client version.
         """
         v = cls.minimum_client_version
@@ -918,6 +919,26 @@ class Task(GenericTabletRecordMixin, Base):
         for _, _, rel_cls in gen_ancillary_relationships(cls):
             d[rel_cls.__tablename__] = v
         return d
+
+    @classmethod
+    def all_tables(cls) -> List[Table]:
+        """
+        Returns all table classes (primary table plus any ancillary tables).
+        """
+        # noinspection PyUnresolvedReferences
+        return [cls.__table__] + [
+            rel_cls.__table__
+            for _, _, rel_cls in gen_ancillary_relationships(cls)
+        ]
+
+    @classmethod
+    def get_ddl(cls, dialect_name: str = SqlaDialectName.MYSQL) -> str:
+        """
+        Returns DDL for the primary and any ancillary tables.
+        """
+        return "\n\n".join(
+            get_table_ddl(t, dialect_name).strip() for t in cls.all_tables()
+        )
 
     @classmethod
     def help_url(cls) -> str:
@@ -1900,7 +1921,7 @@ class Task(GenericTabletRecordMixin, Base):
         """
         # Ask the task for its details (which it may provide directly, by
         # overriding, or rely on autodiscovery for the default).
-        aq_items = self.get_fhir_questionnaire(req, recipient)
+        aq_items = self.get_fhir_questionnaire(req)
         if DEBUG_SHOW_FHIR_QUESTIONNAIRE:
             if aq_items:
                 qa_str = "\n".join(f"- {str(x)}" for x in aq_items)
@@ -2022,8 +2043,7 @@ class Task(GenericTabletRecordMixin, Base):
     # -------------------------------------------------------------------------
 
     def get_fhir_questionnaire(
-            self, req: "CamcopsRequest",
-            recipient: "ExportRecipient") -> List[FHIRAnsweredQuestion]:
+            self, req: "CamcopsRequest") -> List[FHIRAnsweredQuestion]:
         """
         Return FHIR information about a questionnaire: both about the task in
         the abstract (the questions) and the answers for this specific
@@ -2031,7 +2051,7 @@ class Task(GenericTabletRecordMixin, Base):
 
         May be overridden.
         """
-        return self._fhir_autodiscover(req, recipient)
+        return self._fhir_autodiscover(req)
 
     def get_fhir_extra_bundle_entries(
             self, req: "CamcopsRequest",
@@ -2079,8 +2099,7 @@ class Task(GenericTabletRecordMixin, Base):
     # -------------------------------------------------------------------------
 
     def _fhir_autodiscover(
-            self, req: "CamcopsRequest",
-            recipient: "ExportRecipient") -> List[FHIRAnsweredQuestion]:
+            self, req: "CamcopsRequest") -> List[FHIRAnsweredQuestion]:
         """
         Inspect this task instance and create information about both the task
         in the abstract and the answers for this specific instance.

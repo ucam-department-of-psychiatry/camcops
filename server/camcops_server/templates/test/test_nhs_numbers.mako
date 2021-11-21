@@ -28,7 +28,12 @@ camcops_server/templates/test/test_nhs_numbers.mako
 
 <%inherit file="base_web.mako"/>
 
-<h1>Random NHS Numbers for testing</h1>
+<h1>Random NHS numbers for testing</h1>
+
+<p>
+    Those starting 999 are in the official NHS test range and will never be
+    used for a real person.
+</p>
 
 <ul>
 %for nhs_number in test_nhs_numbers:

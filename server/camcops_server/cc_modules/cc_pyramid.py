@@ -1437,11 +1437,13 @@ class Icons:
     AUDIT_OPTIONS = "clipboard-check"
     AUDIT_REPORT = "clipboard-data"
     BUSY = "hourglass-split"
+    COMPLETE = "check"
     CTV = "body-text"
     DELETE = "trash"
     DELETE_MAJOR = "trash-fill"
     DEVELOPER = "braces"  # braces, bug
     DOWNLOAD = "download"
+    DUE = "alarm"
     DUMP_BASIC = "file-spreadsheet"
     DUMP_SQL = "server"
     EDIT = "pencil"
@@ -1465,6 +1467,7 @@ class Icons:
     HTML_IDENTIFIABLE = "file-richtext-fill"
     ID_DEFINITION_ADD = "plus-circle"  # suboptimal
     ID_DEFINITIONS = "123"
+    INCOMPLETE = "x-circle"
     INFO_EXTERNAL = "info-circle-fill"  # info-circle-fill? link? box-arrow-up-right?  # noqa
     INFO_INTERNAL = "info-circle"
     JSON = "file-text-fill"  # braces, file-text-fill

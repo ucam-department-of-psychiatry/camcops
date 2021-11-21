@@ -27,7 +27,7 @@ camcops_server/tasks/phq9.py
 """
 
 import logging
-from typing import Any, Dict, List, Tuple, Type, TYPE_CHECKING
+from typing import Any, Dict, List, Tuple, Type
 
 from cardinal_pythonlib.stringfunc import strseq
 from sqlalchemy.ext.declarative import DeclarativeMeta
@@ -61,9 +61,6 @@ from camcops_server.cc_modules.cc_trackerhelpers import (
     TrackerInfo,
     TrackerLabel,
 )
-
-if TYPE_CHECKING:
-    from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
 
 log = logging.getLogger(__name__)
 
@@ -352,8 +349,7 @@ class Phq9(TaskHasPatientMixin, Task,
 
     def get_fhir_questionnaire(
             self,
-            req: "CamcopsRequest",
-            recipient: "ExportRecipient") -> List[FHIRAnsweredQuestion]:
+            req: "CamcopsRequest") -> List[FHIRAnsweredQuestion]:
         items = []  # type: List[FHIRAnsweredQuestion]
 
         main_options = {}  # type: Dict[int, str]

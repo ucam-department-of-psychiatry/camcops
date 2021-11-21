@@ -28,7 +28,7 @@ camcops_server/tasks/apeqpt.py
 
 """
 
-from typing import Dict, List, TYPE_CHECKING
+from typing import Dict, List
 
 from sqlalchemy.sql.sqltypes import Integer, UnicodeText
 
@@ -52,9 +52,6 @@ from camcops_server.cc_modules.cc_task import (
     get_from_dict,
     Task,
 )
-
-if TYPE_CHECKING:
-    from camcops_server.cc_modules.cc_exportrecipient import ExportRecipient
 
 
 # =============================================================================
@@ -169,8 +166,7 @@ class Apeqpt(Task):
 
     def get_fhir_questionnaire(
             self,
-            req: "CamcopsRequest",
-            recipient: "ExportRecipient") -> List[FHIRAnsweredQuestion]:
+            req: "CamcopsRequest") -> List[FHIRAnsweredQuestion]:
         items = []  # type: List[FHIRAnsweredQuestion]
 
         yes_no_options = {}  # type: Dict[int, str]
