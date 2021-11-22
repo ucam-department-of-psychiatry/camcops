@@ -1501,6 +1501,7 @@ class Icons:
     TASK_SCHEDULE_ITEMS = "journal-text"
     TASK_SCHEDULES = "journals"
     TRACKERS = "graph-up"
+    UNKNOWN = "question-circle"
     UNLOCK = "unlock"
     UPLOAD = "upload"
     USER_ADD = "person-plus-fill"  # there isn't a person-badge-plus

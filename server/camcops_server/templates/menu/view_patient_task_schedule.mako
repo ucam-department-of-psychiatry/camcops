@@ -91,30 +91,26 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
                     %endif
                 </td>
                 <td>
-                    %if task_info.due_now_identifiable_and_incomplete:
+                    %if task_info.is_anonymous:
+                       ${ req.icon(Icons.UNKNOWN, alt="?") | n }
+                    %elif task_info.due_now_identifiable_and_incomplete:
                         ${ req.icon(Icons.DUE, alt="Due") | n }
                     %endif
                 </td>
                 <td>
                     %if task_info.is_anonymous:
-                       —
+                       ${ req.icon(Icons.UNKNOWN, alt="?") | n }
                     %elif task_info.task:
                        ${ format_datetime(task_info.task.when_created, DateFormat.SHORT_DATETIME_NO_TZ) }
                     %endif
                 </td>
                 <td ${ td_attributes | n }>
                     %if task_info.is_anonymous:
-                       —
+                       ${ req.icon(Icons.UNKNOWN, alt="?") | n }
                     %elif task_info.is_complete:
-                        ${ req.icon(
-                            Icons.COMPLETE,
-                            alt="Complete"
-                        ) | n }
+                        ${ req.icon(Icons.COMPLETE, alt="Complete") | n }
                     %else:
-                        ${ req.icon(
-                            Icons.INCOMPLETE,
-                            alt="Incomplete"
-                        ) | n }
+                        ${ req.icon(Icons.INCOMPLETE, alt="Incomplete") | n }
                     %endif
                 </td>
                 <td ${ td_attributes | n }>
