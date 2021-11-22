@@ -31,6 +31,8 @@ Run clazy over all our C++ code.
 # Imports
 # =============================================================================
 
+import argparse
+import glob
 import logging
 import os
 import shutil
@@ -42,56 +44,144 @@ log = logging.getLogger(__name__)
 
 
 # =============================================================================
+# Environment variables
+# =============================================================================
+
+ENVVAR_CLAZY = "CLAZY"
+ENVVAR_QT_INSTALLATION_ROOT = "QT_INSTALLATION_ROOT"
+
+
+# =============================================================================
 # Directories
 # =============================================================================
 
 THIS_DIR = os.path.dirname(os.path.realpath(__file__))
 CAMCOPS_CPP_DIR = os.path.abspath(os.path.join(THIS_DIR, os.pardir))
 
-HOME = os.environ.get("HOME")
-QT_INCLUDE_ROOT = f"{HOME}/dev/qt_local_build/qt_linux_x86_64_install/include"
+DEFAULT_QT_INSTALLATION_ROOT = "~/dev/qt_local_build/qt_linux_x86_64_install"
 
-# noinspection PyUnresolvedReferences
-CPP_INCLUDE_DIRS = [
+CAMCOPS_CPP_INCLUDE_DIRS = [
     CAMCOPS_CPP_DIR,
-    QT_INCLUDE_ROOT
-] + [
-    # All immediate subdirectories of QT_INCLUDE_ROOT
-    x.path
-    for x in os.scandir(QT_INCLUDE_ROOT)
 ]
-CPP_INCLUDE_DIRS.sort()
-
-TEST_FILE = os.path.join(CAMCOPS_CPP_DIR, "main.cpp")
+CAMCOPS_CPP_INCLUDE_DIRS.sort()
 
 
 # =============================================================================
-# clazy executable: the value of the CLAZY environment variable, or in its
-# absence, whatever we find on the path.
-# =============================================================================
-
-CLAZY = os.environ.get("CLAZY", shutil.which("clazy"))
-
-
-# =============================================================================
-# clazy options -- many are passed to clang
+# Apply clazy to our source code
 # =============================================================================
 
 def clazy_camcops_source() -> None:
-    log.warning("Code in development! Not yet working.")
-    include_dir_args = [
-        f"-I{x}"
-        for x in CPP_INCLUDE_DIRS
+    """
+    Apply clazy to CamCOPS C++ source code, to detect errors.
+    """
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--verbose", action="store_true",
+        help="Be verbose"
+    )
+    parser.add_argument(
+        "--assemble", action="store_true",
+        help="Assemble (produce .s file) rather than compile (produce .o file)"
+    )
+    parser.add_argument(
+        "--clazy", type=str,
+        default=os.environ.get(ENVVAR_CLAZY, shutil.which("clazy")),
+        help=f"Path to clazy. Priority: (1) this argument, (2) the "
+             f"{ENVVAR_CLAZY} environment variable, (3) the results of "
+             f"'which clazy'."
+    )
+    parser.add_argument(
+        "--qt_installation_root", type=str,
+        default=os.environ.get(
+            ENVVAR_QT_INSTALLATION_ROOT,
+            os.path.expanduser(DEFAULT_QT_INSTALLATION_ROOT)
+        ),
+        help=f"Path to your installed copy of Qt. Priority: (1) this argument, "
+             f"(2) the {ENVVAR_QT_INSTALLATION_ROOT} environment variable, "
+             f"(3) {DEFAULT_QT_INSTALLATION_ROOT}."
+    )
+    parser.add_argument(
+        "files", type=str, nargs="*",
+        help="Files to scan (leave blank for all)."
+    )
+    args = parser.parse_args()
+
+    main_only_quicksetup_rootlogger(level=logging.DEBUG if args.verbose
+                                    else logging.INFO)
+    log.warning("todo: clean up .s/.o files produced")
+
+    # -------------------------------------------------------------------------
+    # Environment variables and files
+    # -------------------------------------------------------------------------
+
+    # Directories:
+    qt_include_root = f"{args.qt_installation_root}/include"
+    # qt_library_root = f"{args.qt_installation_root}/lib"
+    # noinspection PyUnresolvedReferences
+    system_cpp_include_dirs = [qt_include_root] + [
+        # All immediate subdirectories of qt_include_root
+        x.path for x in os.scandir(qt_include_root)
     ]
-    log.warning("TODO: make QT_INCLUDE_ROOT system-independent, e.g. envvar")
-    log.warning("TODO: fix initial errors/warnings")
-    log.warning("TODO: expand to all .h/.cpp files")
-    file_args = [TEST_FILE]
-    cmdargs = [CLAZY] + include_dir_args + file_args
-    # print(cmdargs)
+    system_cpp_include_dirs.sort()
+
+    # Files to process:
+    if args.files:
+        cpp_files = args.files
+    else:
+        cpp_files = list(glob.glob(f"{CAMCOPS_CPP_DIR}/**/*.cpp"))
+
+    # -------------------------------------------------------------------------
+    # Build clazy command
+    # -------------------------------------------------------------------------
+    # Basic arguments
+    cmdargs = [
+        args.clazy,
+
+        "-fPIC",  # https://gcc.gnu.org/onlinedocs/gcc-4.0.4/gccint/PIC.html
+
+        "--assemble" if args.assemble else "--compile",
+        # --assemble produces ".s" files  (preprocess/assemble);
+        # --compile produces ".o" files (preprocess/assemble/compile);
+        # either way, we don't want to link.
+    ]
+    if args.verbose:
+        cmdargs.append("-v")  # be verbose
+
+    # C++ include paths
+    # (a) #include "blah"
+    for d in CAMCOPS_CPP_INCLUDE_DIRS:
+        cmdargs += ["-I", d]
+    # (b) #include <blah>
+    for d in system_cpp_include_dirs:
+        # https://github.com/KDE/clazy/blob/master/README.md#selecting-which-checks-to-enable  # noqa
+        # "If you want to suppress warnings from headers of Qt or 3rd party
+        # code, include them with -isystem instead of -I (gcc/clang only)."
+        #
+        # https://gitlab.kitware.com/cmake/cmake/-/issues/16915
+        # ... suggests in fact "-isystem=..."
+        # ... but actually, separate arguments is what works:
+        cmdargs += ["-isystem", d]
+
+    # Linker paths
+    # cmdargs += ["--library-directory", QT_LIBRARY_ROOT]
+    # ... or "-Lblah"
+    # https://clang.llvm.org/docs/ClangCommandLineReference.html#linker-flags
+    # ... actually, better to disable the linker! See "--compile" above, and
+    # https://clang.llvm.org/docs/ClangCommandLineReference.html#actions
+
+    # Files to process:
+    cmdargs += cpp_files
+
+    # -------------------------------------------------------------------------
+    # Run it
+    # -------------------------------------------------------------------------
+    log.debug(cmdargs)
     subprocess.run(cmdargs)
 
 
+# =============================================================================
+# Command-line entry point
+# =============================================================================
+
 if __name__ == "__main__":
-    main_only_quicksetup_rootlogger()
     clazy_camcops_source()
