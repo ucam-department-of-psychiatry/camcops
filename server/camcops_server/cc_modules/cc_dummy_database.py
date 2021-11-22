@@ -226,6 +226,9 @@ class DummyDataFactory(object):
             self.dbsession.commit()
 
     def fill_in_task_fields(self, task: Task) -> None:
+        """
+        Inserts random data into a task (within any known constraints).
+        """
         # noinspection PyUnresolvedReferences
         for column in task.__table__.columns:
             if not self.column_is_q_field(column):

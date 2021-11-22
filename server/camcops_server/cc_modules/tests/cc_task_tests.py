@@ -33,6 +33,7 @@ from cardinal_pythonlib.httpconst import HttpStatus
 from cardinal_pythonlib.logs import BraceStyleAdapter
 from pendulum import Date, DateTime as Pendulum
 
+from camcops_server.cc_modules.cc_dummy_database import DummyDataFactory
 from camcops_server.cc_modules.cc_task import Task
 from camcops_server.cc_modules.cc_unittest import DemoDatabaseTestCase
 from camcops_server.cc_modules.cc_validators import (
@@ -77,6 +78,7 @@ class TaskTests(DemoDatabaseTestCase):
         log.info("Actual task table names: {!r} (n={})", tables, len(tables))
         req = self.req
         recipdef = self.recipdef
+        dummy_data_factory = DummyDataFactory(self.req.config)
         for cls in subclasses:
             log.info("Testing {}", cls)
             assert cls.extrastring_taskname != APPSTRING_TASKNAME
@@ -221,6 +223,10 @@ class TaskTests(DemoDatabaseTestCase):
             self.assertIsInstance(t.special_notes, list)
             t.cancel_from_export_log(req, from_console=True)
             t.cancel_from_export_log(req, from_console=False)
+
+            # Insert random data and check it doesn't crash.
+            dummy_data_factory.fill_in_task_fields(t)
+            self.assertIsInstance(t.get_html(req), str)
 
             # Destructive special operations
             self.assertFalse(t.is_erased())
