@@ -363,6 +363,10 @@ p.indent {
 div.indented {
     margin-left: ${va.INDENT_LARGE};
 }
+.menu {
+    list-style: none;
+    padding-left: ${va.INDENT_NORMAL};
+}
 .navigation {
     background-color: rgb(200, 255, 200);
 }

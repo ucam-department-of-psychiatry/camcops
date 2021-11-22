@@ -40,7 +40,7 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes
 </h1>
 
 <h2>${ _("Access logs") }</h2>
-<ul>
+<ul class="menu">
     <li>
         ${ req.icon_text(
                 icon=Icons.AUDIT_OPTIONS,
@@ -51,7 +51,7 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes
 </ul>
 
 <h2>${ _("Export logs") }</h2>
-<ul>
+<ul class="menu">
     <li>
         ${ req.icon_text(
                 icon=Icons.AUDIT_OPTIONS,
