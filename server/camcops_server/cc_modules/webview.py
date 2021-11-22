@@ -231,6 +231,7 @@ from camcops_server.cc_modules.cc_forms import (
     ChangeOtherPasswordForm,
     ChangeOwnPasswordForm,
     ChooseTrackerForm,
+    DEFORM_ACCORDION_BUG,
     DEFAULT_ROWS_PER_PAGE,
     DeleteGroupForm,
     DeleteIdDefinitionForm,
@@ -503,6 +504,7 @@ def test_page_1(req: "CamcopsRequest") -> Response:
     return Response(_("Hello! This is a public CamCOPS test page."))
 
 
+# noinspection PyUnusedLocal
 @view_config(route_name=Routes.TEST_NHS_NUMBERS,
              permission=NO_PERMISSION_REQUIRED,
              renderer="test_nhs_numbers.mako",
@@ -4700,19 +4702,27 @@ class PatientMixin(object):
             form_values[ViewParam.SERVER_PK] = patient.pk
             form_values[ViewParam.GROUP_ID] = patient.group.id
             form_values[ViewParam.ID_REFERENCES] = [
-                {ViewParam.WHICH_IDNUM: pidnum.which_idnum,
-                 ViewParam.IDNUM_VALUE: pidnum.idnum_value}
+                {
+                    ViewParam.WHICH_IDNUM: pidnum.which_idnum,
+                    ViewParam.IDNUM_VALUE: pidnum.idnum_value
+                }
                 for pidnum in patient.idnums
             ]
-            form_values[ViewParam.TASK_SCHEDULES] = [
-                {
+            ts_list = []  # type: List[Dict]
+            for pts in patient.task_schedules:
+                ts_dict = {
                     ViewParam.PATIENT_TASK_SCHEDULE_ID: pts.id,
                     ViewParam.SCHEDULE_ID: pts.schedule_id,
                     ViewParam.START_DATETIME: pts.start_datetime,
-                    ViewParam.SETTINGS: pts.settings,
                 }
-                for pts in patient.task_schedules
-            ]
+                if DEFORM_ACCORDION_BUG:
+                    ts_dict[ViewParam.SETTINGS] = pts.settings
+                else:
+                    ts_dict[ViewParam.ADVANCED] = {
+                        ViewParam.SETTINGS: pts.settings,
+                    }
+                ts_list.append(ts_dict)
+            form_values[ViewParam.TASK_SCHEDULES] = ts_list
 
         return form_values
 
@@ -4761,7 +4771,7 @@ class EditPatientBaseView(PatientMixin, UpdateView):
 
         for k, details in changes.items():
             if len(details) == 1:
-                change = f"{k}: {details[0]!r}"
+                change = f"{k}: {details[0]}"  # usually a plain message
             else:
                 change = f"{k}: {details[0]!r} → {details[1]!r}"
 
@@ -4959,7 +4969,10 @@ class EditServerCreatedPatientView(EditPatientBaseView):
             pts_id = schedule_dict[ViewParam.PATIENT_TASK_SCHEDULE_ID]
             schedule_id = schedule_dict[ViewParam.SCHEDULE_ID]
             start_datetime = schedule_dict[ViewParam.START_DATETIME]
-            settings = schedule_dict[ViewParam.SETTINGS]
+            if DEFORM_ACCORDION_BUG:
+                settings = schedule_dict[ViewParam.SETTINGS]
+            else:
+                settings = schedule_dict[ViewParam.ADVANCED][ViewParam.SETTINGS]  # noqa
 
             if pts_id is None:
                 pts = PatientTaskSchedule()
@@ -5158,7 +5171,10 @@ class AddPatientView(PatientMixin, CreateView):
         for task_schedule in task_schedules:
             schedule_id = task_schedule[ViewParam.SCHEDULE_ID]
             start_datetime = task_schedule[ViewParam.START_DATETIME]
-            settings = task_schedule[ViewParam.SETTINGS]
+            if DEFORM_ACCORDION_BUG:
+                settings = task_schedule[ViewParam.SETTINGS]
+            else:
+                settings = task_schedule[ViewParam.ADVANCED][ViewParam.SETTINGS]  # noqa
             patient_task_schedule = PatientTaskSchedule()
             patient_task_schedule.patient_pk = patient.pk
             patient_task_schedule.schedule_id = schedule_id
@@ -5849,6 +5865,7 @@ def view_fhir_patient_id_system(req: "CamcopsRequest") -> Dict[str, Any]:
     )
 
 
+# noinspection PyUnusedLocal
 @view_config(route_name=Routes.FHIR_QUESTIONNAIRE_SYSTEM,
              request_method=HttpMethod.GET,
              renderer="all_tasks.mako",

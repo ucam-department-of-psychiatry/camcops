@@ -148,6 +148,7 @@ class ViewParam(object):
     ADDRESS = "address"
     ADD_SPECIAL_NOTE = "add_special_note"
     ADMIN = "admin"
+    ADVANCED = "advanced"
     AGE_MINIMUM = "age_minimum"
     AGE_MAXIMUM = "age_maximum"
     ALL_TASKS = "all_tasks"

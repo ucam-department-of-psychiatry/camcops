@@ -288,6 +288,13 @@ if DEBUG_CSRF_CHECK:
 # Constants
 # =============================================================================
 
+DEFORM_ACCORDION_BUG = True
+# If you have a sequence containing an accordion (e.g. advanced JSON settings),
+# then when you add a new node (e.g. "Add Task schedule") then the newly
+# created node's accordion won't open out.
+# https://github.com/Pylons/deform/issues/347
+
+
 class Binding(object):
     """
     Keys used for binding dictionaries with Colander schemas (schemata).
@@ -4545,22 +4552,56 @@ class JsonWidget(Widget):
         return pstruct
 
 
-class JsonNode(SchemaNode, RequestAwareMixin):
+class JsonSettingsNode(SchemaNode, RequestAwareMixin):
+    """
+    Note to edit raw JSON.
+    """
     schema_type = JsonType
     missing = null
 
     # noinspection PyUnusedLocal,PyAttributeOutsideInit
     def after_bind(self, node: SchemaNode, kw: Dict[str, Any]) -> None:
+        _ = self.gettext
         self.widget = JsonWidget(self.request)
+        self.title = _("Task-specific settings for this patient")
+        self.description = _(
+            "ADVANCED. Only applicable to tasks that are configurable on a "
+            "per-patient basis. Format: JSON object, with settings keyed on "
+            "task table name."
+        )
+
+    def validator(self, node: SchemaNode, value: Any) -> None:
+        if value is not None:
+            # will be None if JSON failed to validate
+            if not isinstance(value, dict):
+                _ = self.request.gettext
+                error_message = _(
+                    "Please enter a valid JSON object (with settings keyed on "
+                    "task table name) or leave blank"
+                )
+                raise Invalid(node, error_message)
+
+
+class TaskScheduleJsonSchema(Schema):
+    """
+    Schema for the advanced JSON parts of a patient-to-task-schedule mapping.
+    """
+    settings = JsonSettingsNode()  # must match ViewParam.SETTINGS
 
 
 class TaskScheduleNode(MappingSchema, RequestAwareMixin):
-    # name must match ViewParam.PATIENT_TASK_SCHEDULE_ID
-    patient_task_schedule_id = HiddenIntegerNode()
+    """
+    Node to edit settings for a patient-to-task-schedule mapping.
+    """
+    patient_task_schedule_id = HiddenIntegerNode()  # name must match ViewParam.PATIENT_TASK_SCHEDULE_ID  # noqa
     schedule_id = TaskScheduleSelector()  # must match ViewParam.SCHEDULE_ID  # noqa: E501
-    # must match ViewParam.START_DATETIME
-    start_datetime = StartPendulumSelector()
-    settings = JsonNode()  # must match ViewParam.SETTINGS
+    start_datetime = StartPendulumSelector()  # must match ViewParam.START_DATETIME  # noqa
+    if DEFORM_ACCORDION_BUG:
+        settings = JsonSettingsNode()  # must match ViewParam.SETTINGS
+    else:
+        advanced = TaskScheduleJsonSchema(  # must match ViewParam.ADVANCED
+            widget=MappingWidget(template="mapping_accordion", open=False)
+        )
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.title = ""  # for type checker
@@ -4574,30 +4615,15 @@ class TaskScheduleNode(MappingSchema, RequestAwareMixin):
         start_datetime.description = _(
             "Leave blank for the date the patient first downloads the schedule"
         )
-        settings = get_child_node(self, "settings")
-        settings.title = _("Task-specific settings for this patient")
-        settings.description = _(
-            "ADVANCED. Only applicable to tasks that are configurable on a "
-            "per-patient basis. Format: JSON object, with settings keyed on "
-            "task table name."
-        )
-
-    def validator(self, node: SchemaNode, value: Any) -> None:
-        settings_value = value["settings"]
-
-        if settings_value is not None:
-            # will be None if JSON failed to validate
-            if not isinstance(settings_value, dict):
-                _ = self.request.gettext
-                error_message = _(
-                    "Please enter a valid JSON object (with settings keyed on "
-                    "task table name) or leave blank"
-                )
-
-                raise Invalid(node, error_message)
+        if not DEFORM_ACCORDION_BUG:
+            advanced = get_child_node(self, "advanced")
+            advanced.title = _("Advanced")
 
 
 class TaskScheduleSequence(SequenceSchema, RequestAwareMixin):
+    """
+    Sequence for multiple patient-to-task-schedule mappings.
+    """
     task_schedule_sequence = TaskScheduleNode()
     missing = drop
 

@@ -224,6 +224,10 @@ Server
   - TranslatableDateTimeSelectorNode
   - CheckedPasswordWidget
 
+- When Deform bug https://github.com/Pylons/deform/issues/347 is fixed, turn
+  off ``DEFORM_ACCORDION_BUG`` (in ``cc_forms.py``) to auto-hide advanced
+  JSON task schedule settings by default.
+
 
 Documentation
 -------------
