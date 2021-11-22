@@ -1145,7 +1145,7 @@ def get_all_task_snomed_concepts(xml_filename: str) \
     if missing:
         raise ValueError(
             f"The following SNOMED-CT concepts required by CamCOPS are "
-            f"missing from the XML ({xml_filename!r}): {missing!r}")
+            f"missing from the XML ({xml_filename}): {missing!r}")
     # Done
     return camcops_concepts
 

@@ -44,7 +44,7 @@ from camcops_server.cc_modules.cc_report import get_all_report_classes
     ) | n }
 </h1>
 
-<ul>
+<ul class="menu">
     %for cls in get_all_report_classes(request):
         %if request.user.superuser or not cls.superuser_only:
             <li>

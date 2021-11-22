@@ -3603,4 +3603,16 @@ Current C++/SQLite client, Python/SQLAlchemy server
 - Update SNOMED code fetcher. Replace 32537008 with 165172002 in
   PsychiatricClerking. Other minor tweaks.
 
+  - **Requires :ref:`SNOMED_TASK_XML_FILENAME
+    <SNOMED_TASK_XML_FILENAME>` file upgrade for those using SNOMED.** See
+    :ref:`camcops_fetch_snomed_codes <camcops_fetch_snomed_codes>`
+
+- Fix a bug where assigning the same schedule twice to a patient would not be
+  possible: https://github.com/RudolfCardinal/camcops/issues/218
+
+- Fix internal server error when removing a schedule from a patient, where
+  emails had been sent relating to the schedule.
+
+- Add page of random test NHS numbers for testing.
+
 - Icons for web site (using Bootstrap open-source icons).

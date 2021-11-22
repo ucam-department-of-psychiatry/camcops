@@ -73,3 +73,9 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
         footers).
     </li>
 </ul>
+
+<h2>Test data</h2>
+<ul>
+    <li><a href=" ${request.route_url(Routes.TEST_NHS_NUMBERS) | n }">
+        NHS numbers for testing</a></li>
+</ul>

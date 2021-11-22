@@ -62,104 +62,114 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
 <div>${ page.pager() | n }</div>
 
 <table>
-    <tr>
-        <th>${ _("Patient") }</th>
-        <th>${ _("Identifiers") }</th>
-        <th>${ _("Access key") }</th>
-        <th>${ _("Task schedules") }</th>
-        <th>${ _("Edit patient, assign schedules") }</th>
-        <th>${ _("Delete patient") }</th>
-    </tr>
-%for patient in page:
-    <tr>
-        <td>
-            ${ req.icon(
-                icon=Icons.PATIENT,
-                alt=_("Patient")
-            ) | n }
-            <b>${ patient.get_surname_forename_upper() }</b>
-            (${ patient.get_sex_verbose() },
-            ${ format_datetime(patient.dob, DateFormat.SHORT_DATE, default="?") })
-        </td>
-        <td>
-            %for idobj in patient.idnums:
-                ${ idobj.short_description(request) }:&nbsp;${ idobj.idnum_value }.
-                <br>
-            %endfor
-        </td>
-        <td>
-            ${ patient.uuid_as_proquint }
-        </td>
-        <td class="mini_table">
-            <table>
-            %for pts in patient.task_schedules:
-            <%
-                if patient.email:
-                    email_text = _("Send email")
-                    button_class = "btn btn-success"
-                    if pts.email_sent:
-                        email_text = _("Resend email")
-                        button_class = "btn btn-primary"
-            %>
-                <tr>
-                    <td>
-                        ${ req.icons_text(
-                            icons=[Icons.PATIENT, Icons.TASK_SCHEDULE],
-                            url=request.route_url(
-                                Routes.VIEW_PATIENT_TASK_SCHEDULE,
-                                _query={
-                                    ViewParam.PATIENT_TASK_SCHEDULE_ID: pts.id
-                                }
-                            ),
-                            text=pts.task_schedule.name
-                        ) | n }
-                    </td>
-                    <td>
-                        %if req.user.authorized_to_email_patients and patient.email and pts.task_schedule.email_from:
-                            ${ req.icon_text(
-                                icon=Icons.EMAIL_SEND,
-                                url=request.route_url(
-                                    Routes.SEND_EMAIL_FROM_PATIENT_LIST,
-                                    _query={
-                                        ViewParam.PATIENT_TASK_SCHEDULE_ID: pts.id
-                                    }
-                                ),
-                                extra_a_classes=[button_class],
-                                text=email_text,
-                                hyperlink_together=True,
-                            ) | n }
-                        %endif
-                    </td>
-                </tr>
-            %endfor
-            </table>
-        </td>
-        <td>
-            ${ req.icon_text(
-                icon=Icons.PATIENT_EDIT,
-                url=request.route_url(
-                    Routes.EDIT_SERVER_CREATED_PATIENT,
-                    _query={
-                        ViewParam.SERVER_PK: patient.pk
-                    }
-                ),
-                text=_("Edit")
-            ) | n }
-        </td>
-        <td>
-            ${ req.icon_text(
-                icon=Icons.DELETE,
-                url=request.route_url(
-                    Routes.DELETE_SERVER_CREATED_PATIENT,
-                    _query={
-                        ViewParam.SERVER_PK: patient.pk
-                    }
-                ),
-                text=_("Delete")
-            ) | n }
-        </td>
-    </tr>
-%endfor
+    <colgroup>
+        <col style="width:20%">
+        <col style="width:15%">
+        <col style="width:20%">
+        <col style="width:25%">
+        <col style="width:10%">
+        <col style="width:10%">
+    </colgroup>
+    <tbody>
+        <tr>
+            <th>${ _("Patient") }</th>
+            <th>${ _("Identifiers") }</th>
+            <th>${ _("Access key") }</th>
+            <th>${ _("Task schedules") }</th>
+            <th>${ _("Edit patient, assign schedules") }</th>
+            <th>${ _("Delete patient") }</th>
+        </tr>
+        %for patient in page:
+            <tr>
+                <td>
+                    ${ req.icon(
+                        icon=Icons.PATIENT,
+                        alt=_("Patient")
+                    ) | n }
+                    <b>${ patient.get_surname_forename_upper() }</b>
+                    (${ patient.get_sex_verbose() },
+                    ${ format_datetime(patient.dob, DateFormat.SHORT_DATE, default="?") })
+                </td>
+                <td>
+                    %for idobj in patient.idnums:
+                        ${ idobj.short_description(request) }:&nbsp;${ idobj.idnum_value }.
+                        <br>
+                    %endfor
+                </td>
+                <td>
+                    ${ patient.uuid_as_proquint }
+                </td>
+                <td class="mini_table">
+                    <table>
+                    %for pts in patient.task_schedules:
+                    <%
+                        if patient.email:
+                            email_text = _("Send email")
+                            button_class = "btn btn-success"
+                            if pts.email_sent:
+                                email_text = _("Resend email")
+                                button_class = "btn btn-primary"
+                    %>
+                        <tr>
+                            <td>
+                                ${ req.icons_text(
+                                    icons=[Icons.PATIENT, Icons.TASK_SCHEDULE],
+                                    url=request.route_url(
+                                        Routes.VIEW_PATIENT_TASK_SCHEDULE,
+                                        _query={
+                                            ViewParam.PATIENT_TASK_SCHEDULE_ID: pts.id
+                                        }
+                                    ),
+                                    text=pts.task_schedule.name
+                                ) | n }
+                            </td>
+                            <td>
+                                %if req.user.authorized_to_email_patients and patient.email and pts.task_schedule.email_from:
+                                    ${ req.icon_text(
+                                        icon=Icons.EMAIL_SEND,
+                                        url=request.route_url(
+                                            Routes.SEND_EMAIL_FROM_PATIENT_LIST,
+                                            _query={
+                                                ViewParam.PATIENT_TASK_SCHEDULE_ID: pts.id
+                                            }
+                                        ),
+                                        extra_a_classes=[button_class],
+                                        text=email_text,
+                                        hyperlink_together=True,
+                                    ) | n }
+                                %endif
+                            </td>
+                        </tr>
+                    %endfor
+                    </table>
+                </td>
+                <td>
+                    ${ req.icon_text(
+                        icon=Icons.PATIENT_EDIT,
+                        url=request.route_url(
+                            Routes.EDIT_SERVER_CREATED_PATIENT,
+                            _query={
+                                ViewParam.SERVER_PK: patient.pk
+                            }
+                        ),
+                        text=_("Edit")
+                    ) | n }
+                </td>
+                <td>
+                    ${ req.icon_text(
+                        icon=Icons.DELETE,
+                        url=request.route_url(
+                            Routes.DELETE_SERVER_CREATED_PATIENT,
+                            _query={
+                                ViewParam.SERVER_PK: patient.pk
+                            }
+                        ),
+                        text=_("Delete")
+                    ) | n }
+                </td>
+            </tr>
+        %endfor
+    </tbody>
 </table>
 
 <div>${ page.pager() | n }</div>

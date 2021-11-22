@@ -331,6 +331,8 @@ If the language is not recognized, a warning is given and the server switches
 to its default.
 
 
+.. _SNOMED_TASK_XML_FILENAME:
+
 SNOMED_TASK_XML_FILENAME
 ########################
 

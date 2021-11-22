@@ -1,7 +1,7 @@
 ## -*- coding: utf-8 -*-
 <%doc>
 
-camcops_server/templates/menu/audit_menu.mako
+camcops_server/templates/test/test_nhs_numbers.mako
 
 ===============================================================================
 
@@ -28,37 +28,15 @@ camcops_server/templates/menu/audit_menu.mako
 
 <%inherit file="base_web.mako"/>
 
-<%!
-from camcops_server.cc_modules.cc_pyramid import Icons, Routes
-%>
+<h1>Random NHS numbers for testing</h1>
 
-<h1>
-    ${ req.icon_text(
-        icon=Icons.AUDIT_MENU,
-        text=_("Audit options")
-    ) | n }
-</h1>
+<p>
+    Those starting 999 are in the official NHS test range and will never be
+    used for a real person.
+</p>
 
-<h2>${ _("Access logs") }</h2>
-<ul class="menu">
-    <li>
-        ${ req.icon_text(
-                icon=Icons.AUDIT_OPTIONS,
-                url=request.route_url(Routes.OFFER_AUDIT_TRAIL),
-                text=_("Audit trail")
-        ) | n }
-    </li>
+<ul>
+%for nhs_number in test_nhs_numbers:
+    <li>${ nhs_number }</li>
+%endfor
 </ul>
-
-<h2>${ _("Export logs") }</h2>
-<ul class="menu">
-    <li>
-        ${ req.icon_text(
-                icon=Icons.AUDIT_OPTIONS,
-                url=request.route_url(Routes.OFFER_EXPORTED_TASK_LIST),
-                text=_("Exported task log")
-        ) | n }
-    </li>
-</ul>
-
-<%include file="to_main_menu.mako"/>

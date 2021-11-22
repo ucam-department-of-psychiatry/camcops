@@ -90,6 +90,41 @@ class ScheduledTaskInfo(object):
         self.start_datetime = start_datetime
         self.end_datetime = end_datetime
 
+    @property
+    def due_now(self) -> bool:
+        """
+        Are we in the range [start_datetime, end_datetime)?
+        """
+        if not self.start_datetime or not self.end_datetime:
+            return False
+        return self.start_datetime <= Pendulum.now() < self.end_datetime
+
+    @property
+    def is_complete(self) -> bool:
+        """
+        Returns whether its associated task is complete..
+        """
+        if not self.task:
+            return False
+        return self.task.is_complete()
+
+    @property
+    def is_identifiable_and_incomplete(self) -> bool:
+        """
+        If this is an anonymous task, returns ``False``.
+        If this is an identifiable task, returns ``not is_complete``.
+        """
+        if self.is_anonymous:
+            return False
+        return not self.is_complete
+
+    @property
+    def due_now_identifiable_and_incomplete(self) -> bool:
+        """
+        Is this task currently due, identifiable, and incomplete?
+        """
+        return self.due_now and self.is_identifiable_and_incomplete
+
 
 # =============================================================================
 # PatientTaskSchedule

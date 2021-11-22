@@ -148,6 +148,7 @@ class ViewParam(object):
     ADDRESS = "address"
     ADD_SPECIAL_NOTE = "add_special_note"
     ADMIN = "admin"
+    ADVANCED = "advanced"
     AGE_MINIMUM = "age_minimum"
     AGE_MAXIMUM = "age_maximum"
     ALL_TASKS = "all_tasks"
@@ -788,6 +789,7 @@ class Routes(object):
     TASK = "task"
     TASK_DETAILS = "task_details"
     TASK_LIST = "task_list"
+    TEST_NHS_NUMBERS = "test_nhs_numbers"
     TESTPAGE_PRIVATE_1 = "testpage_private_1"
     TESTPAGE_PRIVATE_2 = "testpage_private_2"
     TESTPAGE_PRIVATE_3 = "testpage_private_3"
@@ -1017,6 +1019,7 @@ class RouteCollection(object):
         rf"/{Routes.TASK_DETAILS}/{{{ViewParam.TABLE_NAME}}}"
     )
     TASK_LIST = RoutePath(Routes.TASK_LIST)
+    TEST_NHS_NUMBERS = RoutePath(Routes.TEST_NHS_NUMBERS)
     TESTPAGE_PRIVATE_1 = RoutePath(Routes.TESTPAGE_PRIVATE_1)
     TESTPAGE_PRIVATE_2 = RoutePath(Routes.TESTPAGE_PRIVATE_2)
     TESTPAGE_PRIVATE_3 = RoutePath(Routes.TESTPAGE_PRIVATE_3)
@@ -1435,11 +1438,13 @@ class Icons:
     AUDIT_OPTIONS = "clipboard-check"
     AUDIT_REPORT = "clipboard-data"
     BUSY = "hourglass-split"
+    COMPLETE = "check"
     CTV = "body-text"
     DELETE = "trash"
     DELETE_MAJOR = "trash-fill"
     DEVELOPER = "braces"  # braces, bug
     DOWNLOAD = "download"
+    DUE = "alarm"
     DUMP_BASIC = "file-spreadsheet"
     DUMP_SQL = "server"
     EDIT = "pencil"
@@ -1463,6 +1468,7 @@ class Icons:
     HTML_IDENTIFIABLE = "file-richtext-fill"
     ID_DEFINITION_ADD = "plus-circle"  # suboptimal
     ID_DEFINITIONS = "123"
+    INCOMPLETE = "x-circle"
     INFO_EXTERNAL = "info-circle-fill"  # info-circle-fill? link? box-arrow-up-right?  # noqa
     INFO_INTERNAL = "info-circle"
     JSON = "file-text-fill"  # braces, file-text-fill
@@ -1496,6 +1502,7 @@ class Icons:
     TASK_SCHEDULE_ITEMS = "journal-text"
     TASK_SCHEDULES = "journals"
     TRACKERS = "graph-up"
+    UNKNOWN = "question-circle"
     UNLOCK = "unlock"
     UPLOAD = "upload"
     USER_ADD = "person-plus-fill"  # there isn't a person-badge-plus

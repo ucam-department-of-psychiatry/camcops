@@ -44,7 +44,7 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
 
 %if authorized_to_manage_patients:
     <h3>${ _("Patients") }</h3>
-    <ul>
+    <ul class="menu">
         <li>
             ${ req.icon_text(
                 icon=Icons.PATIENTS,
@@ -56,7 +56,7 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
 %endif
 
 <h3>${ _("Tasks, trackers, and clinical text views") }</h3>
-<ul>
+<ul class="menu">
     <li>
         ${ req.icon_text(
             icon=Icons.FILTER,
@@ -93,7 +93,7 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
 
 %if authorized_to_dump:
     <h3>${ _("Research views") }</h3>
-    <ul>
+    <ul class="menu">
         <li>
             ${ req.icon_text(
                     icon=Icons.DUMP_BASIC,
@@ -134,7 +134,7 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
 
 %if authorized_for_reports:
     <h3>${ _("Reports") }</h3>
-    <ul>
+    <ul class="menu">
         <li>
             ${ req.icon_text(
                     icon=Icons.REPORTS,
@@ -147,7 +147,7 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
 
 %if authorized_as_groupadmin:
     <h3>${ _("Group administrator options") }</h3>
-    <ul>
+    <ul class="menu">
         <li>
             ${ req.icon_text(
                     icon=Icons.USER_MANAGEMENT,
@@ -181,7 +181,7 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
 
 %if authorized_as_superuser:
     <h3>${ _("Superuser options") }</h3>
-    <ul>
+    <ul class="menu">
         <li>
             ${ req.icon_text(
                     icon=Icons.GROUPS,
@@ -221,7 +221,7 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
 %endif
 
 <h3>${ _("Settings") }</h3>
-<ul>
+<ul class="menu">
     <li>
         ${ req.icon_text(
                 icon=Icons.UPLOAD,
@@ -268,7 +268,7 @@ from camcops_server.cc_modules.cc_pyramid import Icons, Routes, ViewArg, ViewPar
 </ul>
 
 <h3>${ _("Help") }</h3>
-<ul>
+<ul class="menu">
     <li>
         ${ req.icon_text(
                 icon=Icons.INFO_EXTERNAL,

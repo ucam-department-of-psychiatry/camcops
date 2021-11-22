@@ -134,6 +134,7 @@ from typing import (
     List,
     NoReturn,
     Optional,
+    Tuple,
     Type,
     TYPE_CHECKING,
 )
@@ -230,6 +231,7 @@ from camcops_server.cc_modules.cc_forms import (
     ChangeOtherPasswordForm,
     ChangeOwnPasswordForm,
     ChooseTrackerForm,
+    DEFORM_ACCORDION_BUG,
     DEFAULT_ROWS_PER_PAGE,
     DeleteGroupForm,
     DeleteIdDefinitionForm,
@@ -500,6 +502,20 @@ def test_page_1(req: "CamcopsRequest") -> Response:
     """
     _ = req.gettext
     return Response(_("Hello! This is a public CamCOPS test page."))
+
+
+# noinspection PyUnusedLocal
+@view_config(route_name=Routes.TEST_NHS_NUMBERS,
+             permission=NO_PERMISSION_REQUIRED,
+             renderer="test_nhs_numbers.mako",
+             http_cache=NEVER_CACHE)
+def test_nhs_numbers(req: "CamcopsRequest") -> Response:
+    """
+    Random Test NHS numbers for testing
+    """
+    from cardinal_pythonlib.nhs import generate_random_nhs_number
+    nhs_numbers = [generate_random_nhs_number() for _ in range(10)]
+    return dict(test_nhs_numbers=nhs_numbers)
 
 
 # noinspection PyUnusedLocal
@@ -2646,6 +2662,20 @@ LEXERMAP = {
 }
 
 
+def format_sql_as_html(
+        sql: str,
+        dialect: str = SqlaDialectName.MYSQL) -> Tuple[str, str]:
+    """
+    Formats SQL as HTML with CSS.
+    """
+    lexer = LEXERMAP[dialect]()
+    # noinspection PyUnresolvedReferences
+    formatter = pygments.formatters.HtmlFormatter()
+    html = pygments.highlight(sql, lexer, formatter)
+    css = formatter.get_style_defs('.highlight')
+    return html, css
+
+
 @view_config(route_name=Routes.VIEW_DDL,
              http_cache=NEVER_CACHE)
 def view_ddl(req: "CamcopsRequest") -> Response:
@@ -2666,11 +2696,7 @@ def view_ddl(req: "CamcopsRequest") -> Response:
             appstruct = form.validate(controls)
             dialect = appstruct.get(ViewParam.DIALECT)
             ddl = get_all_ddl(dialect_name=dialect)
-            lexer = LEXERMAP[dialect]()
-            # noinspection PyUnresolvedReferences
-            formatter = pygments.formatters.HtmlFormatter()
-            html = pygments.highlight(ddl, lexer, formatter)
-            css = formatter.get_style_defs('.highlight')
+            html, css = format_sql_as_html(ddl, dialect)
             return render_to_response("introspect_file.mako",
                                       dict(css=css,
                                            code_html=html),
@@ -4676,18 +4702,27 @@ class PatientMixin(object):
             form_values[ViewParam.SERVER_PK] = patient.pk
             form_values[ViewParam.GROUP_ID] = patient.group.id
             form_values[ViewParam.ID_REFERENCES] = [
-                {ViewParam.WHICH_IDNUM: pidnum.which_idnum,
-                 ViewParam.IDNUM_VALUE: pidnum.idnum_value}
+                {
+                    ViewParam.WHICH_IDNUM: pidnum.which_idnum,
+                    ViewParam.IDNUM_VALUE: pidnum.idnum_value
+                }
                 for pidnum in patient.idnums
             ]
-            form_values[ViewParam.TASK_SCHEDULES] = [
-                {
+            ts_list = []  # type: List[Dict]
+            for pts in patient.task_schedules:
+                ts_dict = {
+                    ViewParam.PATIENT_TASK_SCHEDULE_ID: pts.id,
                     ViewParam.SCHEDULE_ID: pts.schedule_id,
                     ViewParam.START_DATETIME: pts.start_datetime,
-                    ViewParam.SETTINGS: pts.settings,
                 }
-                for pts in patient.task_schedules
-            ]
+                if DEFORM_ACCORDION_BUG:
+                    ts_dict[ViewParam.SETTINGS] = pts.settings
+                else:
+                    ts_dict[ViewParam.ADVANCED] = {
+                        ViewParam.SETTINGS: pts.settings,
+                    }
+                ts_list.append(ts_dict)
+            form_values[ViewParam.TASK_SCHEDULES] = ts_list
 
         return form_values
 
@@ -4732,11 +4767,20 @@ class EditPatientBaseView(PatientMixin, UpdateView):
             )
             return
 
+        formatted_changes = []
+
+        for k, details in changes.items():
+            if len(details) == 1:
+                change = f"{k}: {details[0]}"  # usually a plain message
+            else:
+                change = f"{k}: {details[0]!r} → {details[1]!r}"
+
+            formatted_changes.append(change)
+
         # Below here, changes have definitely been made.
         change_msg = (
             _("Patient details edited. Changes:") + " " + "; ".join(
-                f"{k}: {old!r} → {new!r}"
-                for k, (old, new) in changes.items()
+                formatted_changes
             )
         )
 
@@ -4915,75 +4959,71 @@ class EditServerCreatedPatientView(EditPatientBaseView):
                              appstruct: Dict[str, Any],
                              changes: OrderedDict) -> None:
 
+        _ = self.request.gettext
         patient = cast(Patient, self.object)
-        new_schedules = {
-            schedule_dict[ViewParam.SCHEDULE_ID]: schedule_dict
-            for schedule_dict in appstruct.get(ViewParam.TASK_SCHEDULES, {})
-        }
+        ids_to_delete = [pts.id for pts in patient.task_schedules]
 
-        schedule_query = self.request.dbsession.query(TaskSchedule)
-        schedule_name_dict = {schedule.id: schedule.name
-                              for schedule in schedule_query}
+        anything_changed = False
 
-        old_schedules = {}
-        for pts in patient.task_schedules:
-            old_schedules[pts.task_schedule.id] = {
-                "start_datetime": pts.start_datetime,
-                "settings": pts.settings
-            }
+        for schedule_dict in appstruct.get(ViewParam.TASK_SCHEDULES, {}):
+            pts_id = schedule_dict[ViewParam.PATIENT_TASK_SCHEDULE_ID]
+            schedule_id = schedule_dict[ViewParam.SCHEDULE_ID]
+            start_datetime = schedule_dict[ViewParam.START_DATETIME]
+            if DEFORM_ACCORDION_BUG:
+                settings = schedule_dict[ViewParam.SETTINGS]
+            else:
+                settings = schedule_dict[ViewParam.ADVANCED][ViewParam.SETTINGS]  # noqa
 
-        ids_to_add = new_schedules.keys() - old_schedules.keys()
-        ids_to_update = old_schedules.keys() & new_schedules.keys()
-        ids_to_delete = old_schedules.keys() - new_schedules.keys()
+            if pts_id is None:
+                pts = PatientTaskSchedule()
+                pts.patient_pk = patient.pk
+                pts.schedule_id = schedule_id
+                pts.start_datetime = start_datetime
+                pts.settings = settings
 
-        for schedule_id in ids_to_add:
-            pts = PatientTaskSchedule()
-            pts.patient_pk = patient.pk
-            pts.schedule_id = schedule_id
-            pts.start_datetime = new_schedules[schedule_id]["start_datetime"]
-            pts.settings = new_schedules[schedule_id]["settings"]
+                self.request.dbsession.add(pts)
+                anything_changed = True
+            else:
+                old_pts = self.request.dbsession.query(
+                    PatientTaskSchedule
+                ).filter(PatientTaskSchedule.id == pts_id).first()
 
-            self.request.dbsession.add(pts)
-            changes["schedule{} ({})".format(
-                schedule_id, schedule_name_dict[schedule_id]
-            )] = ((None, None), (pts.start_datetime, pts.settings))
+                updates = {}
+                if old_pts.start_datetime != start_datetime:
+                    updates[PatientTaskSchedule.start_datetime] = start_datetime
 
-        for schedule_id in ids_to_update:
-            updates = {}
+                if old_pts.schedule_id != schedule_id:
+                    updates[PatientTaskSchedule.schedule_id] = schedule_id
 
-            new_start_datetime = new_schedules[schedule_id]["start_datetime"]
-            old_start_datetime = old_schedules[schedule_id]["start_datetime"]
-            if new_start_datetime != old_start_datetime:
-                updates[PatientTaskSchedule.start_datetime] = new_start_datetime
+                if old_pts.settings != settings:
+                    updates[PatientTaskSchedule.settings] = settings
 
-            new_settings = new_schedules[schedule_id]["settings"]
-            old_settings = old_schedules[schedule_id]["settings"]
-            if new_settings != old_settings:
-                updates[PatientTaskSchedule.settings] = new_settings
+                if updates:
+                    anything_changed = True
+                    self.request.dbsession.query(PatientTaskSchedule).filter(
+                        PatientTaskSchedule.id == pts_id,
+                    ).update(updates, synchronize_session="fetch")
 
-            if len(updates) > 0:
-                self.request.dbsession.query(PatientTaskSchedule).filter(
-                    PatientTaskSchedule.patient_pk == patient.pk,
-                    PatientTaskSchedule.schedule_id == schedule_id
-                ).update(updates, synchronize_session="fetch")
+                ids_to_delete.remove(pts_id)
 
-                changes["schedule{} ({})".format(
-                    schedule_id, schedule_name_dict[schedule_id]
-                )] = ((old_start_datetime, old_settings),
-                      (new_start_datetime, new_settings))
+        pts_to_delete = self.request.dbsession.query(
+            PatientTaskSchedule
+        ).filter(PatientTaskSchedule.id.in_(ids_to_delete))
 
-        self.request.dbsession.query(PatientTaskSchedule).filter(
-            PatientTaskSchedule.patient_pk == patient.pk,
-            PatientTaskSchedule.schedule_id.in_(ids_to_delete)
-        ).delete(synchronize_session="fetch")
+        # Previously we had:
+        # pts_to_delete.delete(synchronize_session="fetch")
+        #
+        # This won't cascade the deletion because we are calling delete() on
+        # the query object. We could set up cascade at the database level
+        # instead but there is little performance gain here.
+        # https://stackoverflow.com/questions/19243964/sqlalchemy-delete-doesnt-cascade
 
-        for schedule_id in ids_to_delete:
-            old_start_datetime = old_schedules[schedule_id]["start_datetime"]
-            old_settings = old_schedules[schedule_id]["settings"]
+        for pts in pts_to_delete:
+            self.request.dbsession.delete(pts)
+            anything_changed = True
 
-            changes["schedule{} ({})".format(
-                schedule_id, schedule_name_dict[schedule_id]
-            )] = ((old_start_datetime, old_settings), (None, None))
+        if anything_changed:
+            changes[_("Task schedules")] = (_("Updated"),)
 
 
 class EditFinalizedPatientView(EditPatientBaseView):
@@ -5131,7 +5171,10 @@ class AddPatientView(PatientMixin, CreateView):
         for task_schedule in task_schedules:
             schedule_id = task_schedule[ViewParam.SCHEDULE_ID]
             start_datetime = task_schedule[ViewParam.START_DATETIME]
-            settings = task_schedule[ViewParam.SETTINGS]
+            if DEFORM_ACCORDION_BUG:
+                settings = task_schedule[ViewParam.SETTINGS]
+            else:
+                settings = task_schedule[ViewParam.ADVANCED][ViewParam.SETTINGS]  # noqa
             patient_task_schedule = PatientTaskSchedule()
             patient_task_schedule.patient_pk = patient.pk
             patient_task_schedule.schedule_id = schedule_id
@@ -5822,6 +5865,7 @@ def view_fhir_patient_id_system(req: "CamcopsRequest") -> Dict[str, Any]:
     )
 
 
+# noinspection PyUnusedLocal
 @view_config(route_name=Routes.FHIR_QUESTIONNAIRE_SYSTEM,
              request_method=HttpMethod.GET,
              renderer="all_tasks.mako",
@@ -5861,14 +5905,17 @@ def view_task_details(req: "CamcopsRequest") -> Dict[str, Any]:
         raise HTTPBadRequest(f"{_('Unknown task:')} {table_name!r}")
     task_class = task_class_dict[table_name]
     task_instance = task_class()
-    dummy_recipient = ExportRecipient()
-    fhir_aq_items = task_instance.get_fhir_questionnaire(
-        req, dummy_recipient
-    )
+
+    fhir_aq_items = task_instance.get_fhir_questionnaire(req)
+    # ddl = task_instance.get_ddl()
+    # ddl_html, ddl_css = format_sql_as_html(ddl)
+
     return dict(
         task_class=task_class,
-        # task_instance=task_instance,
+        task_instance=task_instance,
         fhir_aq_items=fhir_aq_items,
+        # ddl_html=ddl_html,
+        # css=ddl_css,
     )
 
 
