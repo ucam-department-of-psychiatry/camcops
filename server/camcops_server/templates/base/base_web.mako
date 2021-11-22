@@ -37,6 +37,10 @@ from camcops_server.cc_modules.cc_pyramid import (
 )
 %>
 
+<%block name="body_tags">
+class="route_${ request.matched_route.name }"
+</%block>
+
 <%block name="logo">
     <div class="web_logo_header">
         <a href="${ request.route_url(Routes.HOME) | n }">
