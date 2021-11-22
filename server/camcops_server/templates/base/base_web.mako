@@ -38,9 +38,7 @@ from camcops_server.cc_modules.cc_pyramid import (
 %>
 
 <%block name="body_tags">
-    %if getattr(request, "matched_route"):  ## may be e.g. None in PDF rendering
-        class="route_${ request.matched_route.name }"
-    %endif
+class="route_${ request.matched_route.name }"
 </%block>
 
 <%block name="logo">
